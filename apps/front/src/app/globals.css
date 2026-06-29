@@ -1,0 +1,686 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+@import "leaflet/dist/leaflet.css";
+
+:root {
+  --background: oklch(0.985 0.012 230);
+  --foreground: oklch(0.19 0.035 255);
+
+  --card: oklch(1 0 0 / 0.86);
+  --card-foreground: oklch(0.19 0.035 255);
+
+  --popover: oklch(1 0 0 / 0.96);
+  --popover-foreground: oklch(0.19 0.035 255);
+
+  --primary: oklch(0.55 0.19 255);
+  --primary-foreground: oklch(0.99 0 0);
+
+  --secondary: oklch(0.93 0.035 235);
+  --secondary-foreground: oklch(0.25 0.06 255);
+
+  --muted: oklch(0.94 0.018 240);
+  --muted-foreground: oklch(0.48 0.035 250);
+
+  --accent: oklch(0.88 0.075 190);
+  --accent-foreground: oklch(0.2 0.05 230);
+
+  --success: oklch(0.62 0.16 155);
+  --success-foreground: oklch(0.99 0 0);
+
+  --warning: oklch(0.78 0.15 75);
+  --warning-foreground: oklch(0.22 0.035 65);
+
+  --destructive: oklch(0.62 0.22 25);
+  --destructive-foreground: oklch(0.99 0 0);
+
+  --premium: oklch(0.72 0.14 85);
+  --premium-foreground: oklch(0.22 0.035 65);
+
+  --border: oklch(0.88 0.025 240);
+  --input: oklch(0.91 0.022 240);
+  --ring: oklch(0.58 0.18 255);
+
+  --glass: oklch(1 0 0 / 0.58);
+  --glass-border: oklch(1 0 0 / 0.65);
+
+  --radius: 0.875rem;
+}
+
+.dark {
+  --background: oklch(0.145 0.04 255);
+  --foreground: oklch(0.965 0.012 230);
+
+  --card: oklch(0.21 0.045 255 / 0.78);
+  --card-foreground: oklch(0.965 0.012 230);
+
+  --popover: oklch(0.19 0.045 255 / 0.96);
+  --popover-foreground: oklch(0.965 0.012 230);
+
+  --primary: oklch(0.68 0.18 250);
+  --primary-foreground: oklch(0.13 0.035 255);
+
+  --secondary: oklch(0.27 0.045 255);
+  --secondary-foreground: oklch(0.94 0.012 230);
+
+  --muted: oklch(0.25 0.035 255);
+  --muted-foreground: oklch(0.72 0.035 245);
+
+  --accent: oklch(0.62 0.12 190);
+  --accent-foreground: oklch(0.08 0.02 230);
+
+  --success: oklch(0.68 0.15 155);
+  --success-foreground: oklch(0.09 0.02 155);
+
+  --warning: oklch(0.78 0.16 80);
+  --warning-foreground: oklch(0.12 0.035 65);
+
+  --destructive: oklch(0.68 0.21 25);
+  --destructive-foreground: oklch(0.99 0 0);
+
+  --premium: oklch(0.82 0.14 85);
+  --premium-foreground: oklch(0.13 0.035 65);
+
+  --border: oklch(1 0 0 / 0.1);
+  --input: oklch(1 0 0 / 0.12);
+  --ring: oklch(0.72 0.16 250);
+
+  --glass: oklch(0.21 0.045 255 / 0.58);
+  --glass-border: oklch(1 0 0 / 0.12);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-premium: var(--premium);
+  --color-premium-foreground: var(--premium-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-glass: var(--glass);
+  --color-glass-border: var(--glass-border);
+
+  --radius-sm: calc(var(--radius) - 6px);
+  --radius-md: calc(var(--radius) - 4px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 6px);
+  --radius-2xl: calc(var(--radius) + 12px);
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+/* =============== 3D Particle Background =============== */
+
+.learning-bg {
+  background:
+    radial-gradient(
+      circle at 15% 15%,
+      oklch(0.72 0.16 250 / 0.35),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 85% 12%,
+      oklch(0.78 0.12 190 / 0.28),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 50% 90%,
+      oklch(0.82 0.14 85 / 0.22),
+      transparent 34%
+    ),
+    linear-gradient(135deg, oklch(0.985 0.012 230), oklch(0.945 0.03 245));
+}
+
+.dark .learning-bg {
+  background:
+    radial-gradient(
+      circle at 18% 18%,
+      oklch(0.56 0.19 255 / 0.32),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 84% 16%,
+      oklch(0.56 0.13 190 / 0.22),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 50% 92%,
+      oklch(0.72 0.13 85 / 0.12),
+      transparent 38%
+    ),
+    linear-gradient(135deg, oklch(0.105 0.04 255), oklch(0.17 0.05 265));
+}
+
+.particle-3d {
+  transform: translate3d(var(--x), var(--y), var(--z)) scale(var(--s));
+  animation:
+    particle-float var(--d) ease-in-out infinite alternate,
+    particle-pulse calc(var(--d) * 1.35) ease-in-out infinite;
+  animation-delay: var(--delay);
+}
+
+@keyframes particle-float {
+  0% {
+    transform: translate3d(var(--x), var(--y), var(--z)) scale(var(--s));
+  }
+
+  100% {
+    transform: translate3d(
+        calc(var(--x) + var(--mx)),
+        calc(var(--y) + var(--my)),
+        calc(var(--z) + 40px)
+      )
+      scale(calc(var(--s) + 0.12));
+  }
+}
+
+@keyframes particle-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+    filter: blur(0px);
+  }
+
+  50% {
+    opacity: 0.9;
+    filter: blur(0.5px);
+  }
+}
+
+.glass-panel {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    0 24px 80px oklch(0.18 0.08 255 / 0.12),
+    inset 0 1px 0 oklch(1 0 0 / 0.32);
+  backdrop-filter: blur(20px);
+}
+
+/* ================ Animated Gradient Buttons ================== */
+.btn-gradient-motion {
+  background-size: 220% 220%;
+  background-position: 0% 50%;
+  transition:
+    background-position 650ms ease,
+    transform 220ms ease,
+    box-shadow 220ms ease,
+    border-color 220ms ease,
+    color 220ms ease;
+}
+
+.btn-gradient-motion:hover {
+  background-position: 100% 50%;
+}
+
+.btn-gradient-motion:active {
+  transform: scale(0.985);
+}
+/* ==================== Animated Button Gradient ==================== */
+
+.btn-gradient {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.btn-gradient::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-size: 260% 260%;
+  background-position: 0% 50%;
+  transition:
+    background-position 700ms ease,
+    transform 300ms ease,
+    opacity 300ms ease;
+}
+
+.btn-gradient:hover::before {
+  background-position: 100% 50%;
+  transform: scale(1.04);
+}
+
+.btn-gradient:active::before {
+  transform: scale(1.01);
+}
+
+.btn-gradient-brand::before {
+  background-image:
+    radial-gradient(
+      circle at 12% 18%,
+      rgba(125, 211, 252, 0.95),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 85% 15%,
+      rgba(196, 181, 253, 0.82),
+      transparent 32%
+    ),
+    linear-gradient(
+      135deg,
+      rgb(37, 99, 235),
+      rgb(79, 70, 229),
+      rgb(14, 165, 233)
+    );
+}
+
+.dark .btn-gradient-brand::before {
+  background-image:
+    radial-gradient(
+      circle at 12% 18%,
+      rgba(165, 180, 252, 0.48),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 85% 15%,
+      rgba(45, 212, 191, 0.36),
+      transparent 34%
+    ),
+    linear-gradient(
+      135deg,
+      rgb(67, 56, 202),
+      rgb(14, 116, 144),
+      rgb(30, 64, 175)
+    );
+}
+
+.btn-gradient-warning::before {
+  background-image:
+    radial-gradient(
+      circle at 12% 18%,
+      rgba(254, 240, 138, 0.95),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 85% 15%,
+      rgba(251, 146, 60, 0.55),
+      transparent 34%
+    ),
+    linear-gradient(
+      135deg,
+      rgb(250, 204, 21),
+      rgb(245, 158, 11),
+      rgb(251, 191, 36)
+    );
+}
+
+.btn-gradient-premium::before {
+  background-image:
+    radial-gradient(
+      circle at 12% 18%,
+      rgba(254, 240, 138, 0.95),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 85% 15%,
+      rgba(251, 191, 36, 0.72),
+      transparent 32%
+    ),
+    linear-gradient(
+      135deg,
+      rgb(245, 158, 11),
+      rgb(217, 119, 6),
+      rgb(251, 191, 36)
+    );
+}
+
+.btn-gradient-success::before {
+  background-image:
+    radial-gradient(
+      circle at 12% 18%,
+      rgba(134, 239, 172, 0.82),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 85% 15%,
+      rgba(45, 212, 191, 0.55),
+      transparent 34%
+    ),
+    linear-gradient(
+      135deg,
+      rgb(22, 163, 74),
+      rgb(13, 148, 136),
+      rgb(16, 185, 129)
+    );
+}
+
+.btn-gradient-danger::before {
+  background-image:
+    radial-gradient(
+      circle at 12% 18%,
+      rgba(252, 165, 165, 0.85),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 85% 15%,
+      rgba(251, 113, 133, 0.62),
+      transparent 34%
+    ),
+    linear-gradient(
+      135deg,
+      rgb(220, 38, 38),
+      rgb(190, 18, 60),
+      rgb(239, 68, 68)
+    );
+}
+
+/* ==================== Premium Glass Card ==================== */
+.glass-panel {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, oklch(1 0 0 / 0.68), oklch(1 0 0 / 0.32));
+  border: 1px solid oklch(1 0 0 / 0.68);
+  box-shadow:
+    0 34px 100px oklch(0.25 0.08 255 / 0.2),
+    0 12px 34px oklch(0.25 0.08 255 / 0.1),
+    inset 0 1px 0 oklch(1 0 0 / 0.82),
+    inset 0 -1px 0 oklch(1 0 0 / 0.22);
+  backdrop-filter: blur(30px) saturate(165%);
+  -webkit-backdrop-filter: blur(30px) saturate(165%);
+}
+
+.dark .glass-panel {
+  background: linear-gradient(
+    135deg,
+    oklch(0.28 0.055 255 / 0.66),
+    oklch(0.16 0.045 255 / 0.42)
+  );
+  border: 1px solid oklch(1 0 0 / 0.14);
+  box-shadow:
+    0 38px 110px oklch(0.02 0.03 255 / 0.62),
+    0 14px 42px oklch(0.02 0.03 255 / 0.42),
+    inset 0 1px 0 oklch(1 0 0 / 0.16),
+    inset 0 -1px 0 oklch(1 0 0 / 0.07);
+}
+
+.glass-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      circle at 12% 10%,
+      oklch(0.82 0.14 235 / 0.22),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 90% 15%,
+      oklch(0.8 0.12 190 / 0.16),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 50% 105%,
+      oklch(0.82 0.14 85 / 0.12),
+      transparent 38%
+    );
+}
+
+.dark .glass-panel::after {
+  background:
+    radial-gradient(
+      circle at 12% 10%,
+      oklch(0.68 0.17 250 / 0.2),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 90% 15%,
+      oklch(0.62 0.13 190 / 0.15),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 50% 105%,
+      oklch(0.72 0.14 85 / 0.1),
+      transparent 38%
+    );
+}
+
+.glass-card-enter {
+  animation: glass-card-enter 2500ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  transform-origin: center center;
+  will-change: opacity, transform, filter;
+}
+
+@keyframes glass-card-enter {
+  0% {
+    opacity: 0;
+    transform: scale(0.72);
+    filter: blur(14px);
+  }
+
+  55% {
+    opacity: 1;
+    transform: scale(1.035);
+    filter: blur(0);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+}
+
+/* ================= Landing Embla Carousel ================= */
+.landing-carousel-fade-left,
+.landing-carousel-fade-right {
+  top: 0;
+  bottom: 0;
+  width: 5rem;
+  z-index: 10;
+  position: absolute;
+  pointer-events: none;
+}
+
+.landing-carousel-fade-left {
+  left: 0;
+  background: linear-gradient(to right, hsl(var(--background)), transparent);
+}
+
+.landing-carousel-fade-right {
+  right: 0;
+  background: linear-gradient(to left, hsl(var(--background)), transparent);
+}
+
+@media (max-width: 767px) {
+  .landing-carousel-fade-left,
+  .landing-carousel-fade-right {
+    display: none;
+  }
+}
+
+@keyframes hero-float {
+  0%,
+  100% {
+    transform: translateY(0) rotateY(-8deg);
+  }
+
+  50% {
+    transform: translateY(-18px) rotateY(-4deg);
+  }
+}
+
+/* ============== Calendar CSS ================= */
+.calendar-shell .fc {
+  --fc-border-color: hsl(var(--border));
+  --fc-page-bg-color: transparent;
+  --fc-neutral-bg-color: hsl(var(--muted) / 0.35);
+  --fc-list-event-hover-bg-color: hsl(var(--muted) / 0.45);
+
+  --fc-today-bg-color: hsl(var(--primary) / 0.08);
+
+  --fc-event-bg-color: hsl(var(--primary));
+  --fc-event-border-color: hsl(var(--primary));
+  --fc-event-text-color: hsl(var(--primary-foreground));
+
+  --fc-button-bg-color: hsl(var(--primary));
+  --fc-button-border-color: hsl(var(--primary));
+  --fc-button-text-color: hsl(var(--primary-foreground));
+  --fc-button-hover-bg-color: hsl(var(--primary) / 0.9);
+  --fc-button-hover-border-color: hsl(var(--primary) / 0.9);
+  --fc-button-active-bg-color: hsl(var(--primary) / 0.85);
+  --fc-button-active-border-color: hsl(var(--primary) / 0.85);
+
+  color: hsl(var(--foreground));
+}
+
+.calendar-shell .fc .fc-toolbar-title {
+  color: hsl(var(--foreground));
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.calendar-shell .fc .fc-button {
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  box-shadow: none;
+}
+
+.calendar-shell .fc .fc-col-header-cell-cushion,
+.calendar-shell .fc .fc-daygrid-day-number,
+.calendar-shell .fc .fc-timegrid-slot-label,
+.calendar-shell .fc .fc-list-day-text,
+.calendar-shell .fc .fc-list-day-side-text {
+  color: hsl(var(--foreground));
+}
+
+.calendar-shell .fc .fc-day-other .fc-daygrid-day-number {
+  color: hsl(var(--muted-foreground));
+}
+
+.calendar-shell .fc .fc-day-today .fc-daygrid-day-number {
+  color: hsl(var(--primary));
+  font-weight: 800;
+}
+
+.calendar-shell .fc .fc-daygrid-day,
+.calendar-shell .fc .fc-timegrid-slot,
+.calendar-shell .fc .fc-list {
+  background: transparent;
+}
+
+.calendar-shell .fc .fc-scrollgrid,
+.calendar-shell .fc .fc-theme-standard td,
+.calendar-shell .fc .fc-theme-standard th {
+  border-color: hsl(var(--border));
+}
+
+.calendar-shell .fc .fc-event {
+  border-radius: 0.75rem;
+  padding: 0.1rem 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.calendar-shell .fc .fc-list-event-title,
+.calendar-shell .fc .fc-list-event-time {
+  color: hsl(var(--foreground));
+}
+
+.calendar-shell .fc .fc-list-event:hover td {
+  background: hsl(var(--muted) / 0.45);
+}
+
+.calendar-shell .fc .fc-button,
+.calendar-shell .fc .fc-button-primary {
+  background-color: hsl(var(--background) / 0.75) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  color: hsl(var(--foreground)) !important;
+  box-shadow: none !important;
+}
+
+.calendar-shell .fc .fc-button:hover,
+.calendar-shell .fc .fc-button-primary:hover {
+  background-color: hsl(var(--primary) / 0.1) !important;
+  border-color: hsl(var(--primary) / 0.35) !important;
+  color: hsl(var(--primary)) !important;
+}
+
+.calendar-shell .fc .fc-button-active,
+.calendar-shell .fc .fc-button-primary:not(:disabled).fc-button-active,
+.calendar-shell .fc .fc-button-primary:not(:disabled):active {
+  background-color: hsl(var(--primary)) !important;
+  border-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+}
+
+.calendar-shell .fc .fc-button:focus,
+.calendar-shell .fc .fc-button-primary:focus {
+  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.2) !important;
+}
+
+.calendar-shell .fc .fc-button:disabled,
+.calendar-shell .fc .fc-button-primary:disabled {
+  background-color: hsl(var(--muted)) !important;
+  border-color: hsl(var(--border)) !important;
+  color: hsl(var(--muted-foreground)) !important;
+  opacity: 0.65 !important;
+}
+
+/* =============== Dialog Panel ================= */
+.glass-dialog {
+  background: linear-gradient(135deg, oklch(1 0 0 / 0.92), oklch(1 0 0 / 0.76));
+  border: 1px solid oklch(1 0 0 / 0.68);
+  box-shadow:
+    0 34px 100px oklch(0.25 0.08 255 / 0.2),
+    0 12px 34px oklch(0.25 0.08 255 / 0.1),
+    inset 0 1px 0 oklch(1 0 0 / 0.82);
+  backdrop-filter: blur(30px) saturate(165%);
+  -webkit-backdrop-filter: blur(30px) saturate(165%);
+}
+
+.dark .glass-dialog {
+  background: linear-gradient(
+    135deg,
+    oklch(0.28 0.055 255 / 0.92),
+    oklch(0.16 0.045 255 / 0.82)
+  );
+  border: 1px solid oklch(1 0 0 / 0.14);
+}

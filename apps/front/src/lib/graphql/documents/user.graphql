@@ -1,0 +1,87 @@
+query Me {
+  me {
+    id
+    bio
+    role
+    email
+    phone
+    status
+    lastName
+    fullName
+    firstName
+    avatarUrl
+    updatedAt
+    createdAt
+    deletedAt
+    lastLoginAt
+    emailVerifiedAt
+    phoneVerifiedAt
+    professionalProfile {
+      id
+      userId
+      skills
+      jobTitle
+      industry
+      location
+      interests
+      createdAt
+      updatedAt
+      experience
+    }
+    providerProfile {
+      id
+      userId
+      website
+      logoUrl
+      isPremium
+      createdAt
+      updatedAt
+      contactEmail
+      contactPhone
+      organizationName
+    }
+    organizationProfile {
+      id
+      userId
+      website
+      logoUrl
+      country
+      industry
+      timezone
+      createdAt
+      updatedAt
+      memberLimit
+      contactEmail
+      contactPhone
+      organizationName
+    }
+  }
+}
+
+mutation UpdateMe($input: UpdateMeInput!) {
+  updateMe(input: $input) {
+    id
+    bio
+    role
+    email
+    phone
+    status
+    lastName
+    fullName
+    avatarUrl
+    firstName
+    updatedAt
+  }
+}
+
+mutation CreateUser($input: CreateUserInput!) {
+  createUser(input: $input) {
+    id
+    role
+    email
+    phone
+    status
+    fullName
+    createdAt
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "types": ["node"],
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+
+    "target": "ES2021",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+
+    "incremental": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+
+    "paths": {
+      "@common/*": ["src/common/*"],
+      "@modules/*": ["src/modules/*"],
+
+      "@app/*": ["src/modules/app/*"],
+      "@auth/*": ["src/modules/auth/*"],
+      "@user/*": ["src/modules/user/*"],
+      "@admin/*": ["src/modules/admin/*"],
+      "@events/*": ["src/modules/events/*"],
+      "@course/*": ["src/modules/course/*"],
+      "@podcast/*": ["src/modules/podcast/*"],
+      "@youtube/*": ["src/modules/youtube/*"],
+      "@landing/*": ["src/modules/landing/*"],
+      "@org/*": ["src/modules/organization/*"],
+      "@provider/*": ["src/modules/provider/*"],
+      "@ext/*": ["src/modules/external-learning/*"],
+      "@professional/*": ["src/modules/professional/*"],
+      "@contentAction/*": ["src/modules/content-interaction/*"],
+
+      "@config/*": ["src/config/*"],
+      "@dto/*": ["src/common/dto/*"],
+      "@types/*": ["src/common/types/*"],
+      "@utils/*": ["src/common/utils/*"],
+      "@enums/*": ["src/common/enums/*"],
+      "@guards/*": ["src/common/guards/*"],
+      "@prisma/*": ["src/modules/prisma/*"],
+      "@entities/*": ["src/common/entities/*"],
+      "@decorators/*": ["src/common/decorators/*"]
+    }
+  },
+  "include": ["src/**/*", "prisma/**/*"],
+  "exclude": ["node_modules", "dist", "test", "**/*.spec.ts"]
+}

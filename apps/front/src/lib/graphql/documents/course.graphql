@@ -1,0 +1,149 @@
+# ================ Fragments ==============
+fragment CourseFields on Course {
+  id
+  slug
+  title
+  instructor
+  imageUrl
+  description
+  category
+  level
+  status
+  price
+  currency
+  isFree
+  durationMinutes
+  lastUpdatedAt
+  requirements
+  learnings
+  rating
+  ratingCount
+  professionals
+  isFeatured
+  providerId
+  createdAt
+  updatedAt
+  deletedAt
+}
+
+fragment CoursePageInfoFields on CoursePageInfo {
+  nextCursor
+  hasNextPage
+}
+
+fragment CurriculumLessonFields on CurriculumLesson {
+  id
+  type
+  title
+  order
+  isPreview
+  createdAt
+  updatedAt
+  sectionId
+  description
+  durationMinutes
+}
+
+fragment CurriculumSectionFields on CurriculumSection {
+  id
+  title
+  order
+  courseId
+  description
+  lessons {
+    ...CurriculumLessonFields
+  }
+  createdAt
+  updatedAt
+}
+
+# ============= Queries ================
+query Courses(
+  $filter: CourseFilterInput
+  $pagination: CoursePaginationInput
+  $sort: CourseSortInput
+) {
+  courses(filter: $filter, pagination: $pagination, sort: $sort) {
+    items {
+      ...CourseFields
+    }
+    totalCount
+    pageInfo {
+      ...CoursePageInfoFields
+    }
+  }
+}
+
+query CourseById($courseId: String!) {
+  courseById(courseId: $courseId) {
+    ...CourseFields
+  }
+}
+
+query CourseBySlug($slug: String!) {
+  courseBySlug(slug: $slug) {
+    ...CourseFields
+    curriculumSections {
+      ...CurriculumSectionFields
+    }
+  }
+}
+
+query FeaturedCourses($take: Int) {
+  featuredCourses(take: $take) {
+    ...CourseFields
+  }
+}
+
+query MyProviderCourses(
+  $filter: CourseFilterInput
+  $pagination: CoursePaginationInput
+  $sort: CourseSortInput
+) {
+  myProviderCourses(filter: $filter, pagination: $pagination, sort: $sort) {
+    items {
+      ...CourseFields
+    }
+    totalCount
+    pageInfo {
+      ...CoursePageInfoFields
+    }
+  }
+}
+
+# ================ Mutations ================
+mutation CreateCourse($input: CreateCourseInput!) {
+  createCourse(input: $input) {
+    ...CourseFields
+  }
+}
+
+mutation UpdateCourse($input: UpdateCourseInput!) {
+  updateCourse(input: $input) {
+    ...CourseFields
+  }
+}
+
+mutation PublishCourse($courseId: String!) {
+  publishCourse(courseId: $courseId) {
+    ...CourseFields
+  }
+}
+
+mutation ArchiveCourse($courseId: String!) {
+  archiveCourse(courseId: $courseId) {
+    ...CourseFields
+  }
+}
+
+mutation DeleteCourse($courseId: String!) {
+  deleteCourse(courseId: $courseId) {
+    ...CourseFields
+  }
+}
+
+mutation RestoreCourse($courseId: String!) {
+  restoreCourse(courseId: $courseId) {
+    ...CourseFields
+  }
+}

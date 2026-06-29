@@ -1,0 +1,1594 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  PROVIDER
+  PROFESSIONAL
+  ORGANIZATION
+}
+
+enum UserStatus {
+  ACTIVE
+  PENDING
+  DELETED
+  DISABLED
+}
+
+enum OtpPurpose {
+  SIGNUP
+  CHANGE_EMAIL
+  RESET_PASSWORD
+  EMAIL_VERIFICATION
+}
+
+enum AuthProvider {
+  EMAIL
+  GOOGLE
+  LINKEDIN
+  FACEBOOK
+}
+
+enum SessionStatus {
+  ACTIVE
+  REVOKED
+  EXPIRED
+}
+
+// =============== User ================
+model User {
+  id String @id @default(cuid())
+
+  email String? @unique
+  phone String? @unique
+
+  passwordHash String?
+
+  firstName String?
+  lastName  String?
+  fullName  String?
+
+  avatarUrl String?
+  bio       String?
+
+  role   Role       @default(PROFESSIONAL)
+  status UserStatus @default(PENDING)
+
+  forcePasswordChange Boolean @default(false)
+
+  emailVerifiedAt DateTime?
+  phoneVerifiedAt DateTime?
+
+  lastLoginAt DateTime?
+
+  authAccounts AuthAccount[]
+  sessions     AuthSession[]
+  otpCodes     OtpCode[]
+
+  professionalProfile ProfessionalProfile?
+  providerProfile     ProviderProfile?
+  organizationProfile OrganizationProfile?
+
+  createdAt                  DateTime                    @default(now())
+  updatedAt                  DateTime                    @updatedAt
+  deletedAt                  DateTime?
+  organizationAccessRequests OrganizationAccessRequest[]
+  courses                    Course[]
+  createdCourses             Course[]                    @relation("ProviderCourses")
+  events                     Event[]
+  createdEvents              Event[]                     @relation("ProviderEvents")
+  eventRegistrations         EventRegistration[]         @relation("UserEventRegistrations")
+  createdPodcasts            Podcast[]                   @relation("ProviderPodcasts")
+  createdYouTubeChannels     YouTubeChannel[]            @relation("ProviderYouTubeChannels")
+  youTubeChannels            YouTubeChannel[]
+  wishlistItems              WishlistItem[]
+  contentEnrollments         ContentEnrollment[]
+  contentReviews             ContentReview[]
+  carts                      Cart[]
+  providerSettings           ProviderSettings?
+
+  professionalSettings ProfessionalSettings?
+  pduActivities        PDUActivity[]
+  pduTargets           PDUTarget[]
+  certificates         Certificate[]
+  payments             Payment[]
+  roadmapEnrollments   RoadmapEnrollment[]
+
+  ownedOrganization       Organization?            @relation("OrganizationOwner")
+  organizationMemberships OrganizationMember[]
+  createdOrgAssignments   OrganizationAssignment[] @relation("CreatedOrgAssignments")
+
+  promotionRequests          EventPromotionRequest[]
+  reviewedPromotionRequests  EventPromotionRequest[]    @relation("ReviewedPromotionRequests")
+  auditLogs                  AuditLog[]                 @relation("AuditActor")
+  externalLearningActivities ExternalLearningActivity[]
+
+  @@index([role])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// ================= Auth =================
+model AuthAccount {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  provider AuthProvider @default(EMAIL)
+
+  providerUserId String?
+  providerEmail  String?
+
+  accessToken  String?
+  refreshToken String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([provider, providerUserId])
+  @@index([userId])
+}
+
+model AuthSession {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  refreshTokenHash String
+
+  status SessionStatus @default(ACTIVE)
+
+  ipAddress String?
+  userAgent String?
+
+  expiresAt DateTime
+  revokedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([expiresAt])
+}
+
+model OtpCode {
+  id String @id @default(cuid())
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  destination String
+  codeHash    String
+
+  purpose OtpPurpose
+
+  expiresAt  DateTime
+  consumedAt DateTime?
+
+  attempts    Int @default(0)
+  maxAttempts Int @default(5)
+
+  resendAfter DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([destination])
+  @@index([purpose])
+  @@index([expiresAt])
+}
+
+model PendingRegistration {
+  id String @id @default(cuid())
+
+  email        String @unique
+  fullName     String
+  passwordHash String
+  role         Role
+
+  otpCodeHash  String
+  otpExpiresAt DateTime
+
+  attempts    Int @default(0)
+  maxAttempts Int @default(5)
+
+  resendAfter DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@index([role])
+  @@index([otpExpiresAt])
+}
+
+// ================= Profile =================
+model ProfessionalProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  jobTitle   String?
+  industry   String?
+  experience Int?
+  location   String?
+  interests  String[]
+  skills     String[]
+
+  website    String?
+  education  String?
+  occupation String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ProviderProfile {
+  id String @id @default(cuid())
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  organizationName String?
+  website          String?
+  logoUrl          String?
+  contactEmail     String?
+  contactPhone     String?
+
+  isPremium Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OrganizationProfile {
+  id String @id @default(cuid())
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  organizationName String
+  website          String?
+  logoUrl          String?
+  contactEmail     String?
+  contactPhone     String?
+
+  industry    String?
+  memberLimit Int?
+  timezone    String?
+  country     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ============== Org Access Request =============
+enum OrganizationAccessRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum OrganizationType {
+  OTHER
+  COMPANY
+  UNIVERSITY
+  GOVERNMENT
+  NON_PROFIT
+  ASSOCIATION
+  TRAINING_PROVIDER
+}
+
+model OrganizationAccessRequest {
+  id String @id @default(cuid())
+
+  representativeFullName        String
+  organizationName              String
+  workEmail                     String
+  organizationType              OrganizationType
+  representativeJobRole         String
+  expectedLicensedProfessionals Int
+  country                       String
+  goals                         String
+
+  status OrganizationAccessRequestStatus @default(PENDING)
+
+  reviewedById String?
+  reviewedBy   User?   @relation(fields: [reviewedById], references: [id], onDelete: SetNull)
+
+  reviewedAt   DateTime?
+  rejectReason String?
+
+  approvedUserId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([workEmail])
+  @@index([status])
+  @@index([organizationType])
+  @@index([createdAt])
+}
+
+// ============== Course ===============
+enum CourseCategory {
+  CPD
+  OTHER
+  DESIGN
+  FINANCE
+  BUSINESS
+  EDUCATION
+  MARKETING
+  TECHNOLOGY
+  LEADERSHIP
+  COMPLIANCE
+  HEALTHCARE
+  ENGINEERING
+}
+
+enum CourseLevel {
+  BEGINNER
+  ADVANCED
+  ALL_LEVELS
+  INTERMEDIATE
+}
+
+enum CourseStatus {
+  DRAFT
+  ARCHIVED
+  PUBLISHED
+}
+
+enum CurriculumLessonType {
+  QUIZ
+  VIDEO
+  ARTICLE
+  DOWNLOAD
+  ASSIGNMENT
+  LIVE_SESSION
+}
+
+model Course {
+  id   String @id @default(cuid())
+  slug String @unique
+
+  title       String
+  instructor  String
+  imageUrl    String?
+  description String
+
+  category CourseCategory
+  level    CourseLevel    @default(ALL_LEVELS)
+  status   CourseStatus   @default(DRAFT)
+
+  price    Decimal? @db.Decimal(10, 2)
+  currency String   @default("USD")
+  isFree   Boolean  @default(true)
+
+  durationMinutes Int?
+  lastUpdatedAt   DateTime @default(now())
+
+  requirements String[] @default([])
+  learnings    String[] @default([])
+
+  rating        Float @default(0)
+  ratingCount   Int   @default(0)
+  professionals Int   @default(0)
+
+  isFeatured Boolean @default(false)
+
+  providerId String?
+  provider   User?   @relation("ProviderCourses", fields: [providerId], references: [id], onDelete: SetNull)
+
+  curriculumSections      CurriculumSection[]
+  organizationAssignments OrganizationAssignment[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  user                       User?                      @relation(fields: [userId], references: [id])
+  userId                     String?
+  externalLearningActivities ExternalLearningActivity[]
+
+  @@index([status, category])
+  @@index([status, level])
+  @@index([providerId])
+  @@index([createdAt])
+  @@index([title])
+}
+
+model CurriculumSection {
+  id String @id @default(cuid())
+
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String?
+  order       Int     @default(0)
+
+  lessons CurriculumLesson[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([courseId, order])
+  @@index([courseId])
+  @@index([order])
+}
+
+model CurriculumLesson {
+  id String @id @default(cuid())
+
+  sectionId String
+  section   CurriculumSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  title           String
+  description     String?
+  type            CurriculumLessonType @default(VIDEO)
+  durationMinutes Int?
+  isPreview       Boolean              @default(false)
+  order           Int                  @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([sectionId, order])
+  @@index([sectionId])
+  @@index([type])
+  @@index([order])
+}
+
+// =============== Events =================
+enum EventType {
+  OTHER
+  COURSE
+  WEBINAR
+  SEMINAR
+  WORKSHOP
+  TRAINING
+  CONFERENCE
+  NETWORKING
+}
+
+enum EventDeliveryMode {
+  HYBRID
+  RECORDED
+  IN_PERSON
+  LIVE_ONLINE
+}
+
+enum EventStatus {
+  DRAFT
+  ARCHIVED
+  PUBLISHED
+  CANCELLED
+}
+
+enum EventCategory {
+  CPD
+  OTHER
+  DESIGN
+  FINANCE
+  BUSINESS
+  EDUCATION
+  MARKETING
+  TECHNOLOGY
+  HEALTHCARE
+  LEADERSHIP
+  COMPLIANCE
+  ENGINEERING
+}
+
+enum EventRegistrationStatus {
+  ATTENDED
+  CANCELED
+  COMPLETED
+  CANCELLED
+  REGISTERED
+  NOT_ATTENDED
+}
+
+model Event {
+  id   String @id @default(cuid())
+  slug String @unique
+
+  title        String
+  type         EventType
+  deliveryMode EventDeliveryMode
+  category     EventCategory
+  status       EventStatus       @default(DRAFT)
+
+  imageUrl    String?
+  speaker     String?
+  organizer   String?
+  description String
+
+  startDate DateTime
+  endDate   DateTime?
+  timezone  String    @default("UTC")
+
+  location  String?
+  onlineUrl String?
+
+  price    Decimal? @db.Decimal(10, 2)
+  currency String   @default("USD")
+  isFree   Boolean  @default(true)
+
+  pdu       Float @default(0)
+  capacity  Int?
+  attendees Int   @default(0)
+  views     Int   @default(0)
+
+  rating        Float @default(0)
+  averageRating Float @default(0)
+  ratingCount   Int   @default(0)
+
+  registrationEnabled Boolean @default(true)
+
+  providerId String?
+  provider   User?   @relation("ProviderEvents", fields: [providerId], references: [id], onDelete: SetNull)
+
+  registrations EventRegistration[]
+
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  deletedAt     DateTime?
+  user          User?               @relation(fields: [userId], references: [id])
+  userId        String?
+  scheduleItems EventScheduleItem[]
+
+  specificTopic     String?
+  pduCategory       PDUCategory?
+  earlyBirdDiscount Float?
+  promotionVideoUrl String?
+
+  language AppLanguage @default(EN)
+  topic    String?
+
+  thumbnailUrl        String?
+  promotionalVideoUrl String?
+
+  earlyBirdDiscountPercent Float?
+  earlyBirdEndsAt          DateTime?
+
+  promotionRequests          EventPromotionRequest[]
+  organizationAssignments    OrganizationAssignment[]
+  externalLearningActivities ExternalLearningActivity[]
+
+  @@index([status, category])
+  @@index([status, deliveryMode])
+  @@index([providerId])
+  @@index([startDate])
+  @@index([createdAt])
+  @@index([title])
+  @@index([slug])
+}
+
+model EventRegistration {
+  id String @id @default(cuid())
+
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation("UserEventRegistrations", fields: [userId], references: [id], onDelete: Cascade)
+
+  status      EventRegistrationStatus @default(REGISTERED)
+  attendedAt  DateTime?
+  completedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([eventId, userId])
+  @@index([userId])
+  @@index([eventId])
+  @@index([status])
+}
+
+model EventScheduleItem {
+  id String @id @default(cuid())
+
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  dayNumber   Int
+  startTime   DateTime
+  endTime     DateTime
+  title       String
+  description String?
+  speaker     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([eventId])
+  @@index([dayNumber])
+  @@index([startTime])
+}
+
+// ============== Podcast ================
+enum PodcastCategory {
+  AI
+  CPD
+  DATA
+  OTHER
+  CAREER
+  DESIGN
+  FINANCE
+  BUSINESS
+  EDUCATION
+  MARKETING
+  TECHNOLOGY
+  HEALTHCARE
+  LEADERSHIP
+  COMPLIANCE
+  ENGINEERING
+}
+
+enum PodcastStatus {
+  DRAFT
+  ARCHIVED
+  PUBLISHED
+}
+
+model Podcast {
+  id   String @id @default(cuid())
+  slug String @unique
+
+  title       String
+  host        String
+  imageUrl    String?
+  description String
+
+  category PodcastCategory
+  status   PodcastStatus   @default(DRAFT)
+
+  rating      Float @default(0)
+  ratingCount Int   @default(0)
+  listeners   Int   @default(0)
+
+  durationMinutes Int?
+  episodeCount    Int  @default(0)
+
+  isFeatured Boolean @default(false)
+
+  providerId String?
+  provider   User?   @relation("ProviderPodcasts", fields: [providerId], references: [id], onDelete: SetNull)
+
+  episodes PodcastEpisode[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([status, category])
+  @@index([providerId])
+  @@index([createdAt])
+  @@index([title])
+  @@index([slug])
+}
+
+model PodcastEpisode {
+  id String @id @default(cuid())
+
+  podcastId String
+  podcast   Podcast @relation(fields: [podcastId], references: [id], onDelete: Cascade)
+
+  title           String
+  description     String?
+  audioUrl        String?
+  durationMinutes Int?
+  episodeNumber   Int
+
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([podcastId, episodeNumber])
+  @@index([podcastId])
+  @@index([title])
+}
+
+// =============== YouTube ==================
+enum YouTubeCategory {
+  AI
+  CPD
+  DATA
+  OTHER
+  DESIGN
+  CAREER
+  FINANCE
+  BUSINESS
+  EDUCATION
+  MARKETING
+  TECHNOLOGY
+  HEALTHCARE
+  LEADERSHIP
+  COMPLIANCE
+  ENGINEERING
+}
+
+enum YouTubeChannelStatus {
+  DRAFT
+  ARCHIVED
+  PUBLISHED
+}
+
+enum YouTubeVideoStatus {
+  DRAFT
+  ARCHIVED
+  PUBLISHED
+}
+
+model YouTubeChannel {
+  id   String @id @default(cuid())
+  slug String @unique
+
+  title       String
+  description String?
+  provider    String?
+  imageUrl    String?
+  channelUrl  String?
+
+  subscribers Int @default(0)
+  views       Int @default(0)
+  videoCount  Int @default(0)
+
+  category YouTubeCategory
+  status   YouTubeChannelStatus @default(DRAFT)
+
+  isFeatured Boolean @default(false)
+
+  providerId   String?
+  providerUser User?   @relation("ProviderYouTubeChannels", fields: [providerId], references: [id], onDelete: SetNull)
+
+  videos YouTubeVideo[]
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  user        User?     @relation(fields: [userId], references: [id])
+  userId      String?
+  rating      Float     @default(0)
+  ratingCount Int       @default(0)
+
+  @@index([status, category])
+  @@index([providerId])
+  @@index([createdAt])
+  @@index([title])
+  @@index([slug])
+}
+
+model YouTubeVideo {
+  id String @id @default(cuid())
+
+  channelId String
+  channel   YouTubeChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  title        String
+  description  String?
+  thumbnailUrl String?
+  videoUrl     String?
+
+  durationMinutes Int?
+  views           Int  @default(0)
+  likes           Int  @default(0)
+
+  status      YouTubeVideoStatus @default(PUBLISHED)
+  publishedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([channelId])
+  @@index([status])
+  @@index([title])
+}
+
+// ================= Content =================
+enum ContentType {
+  EVENT
+  COURSE
+  PODCAST
+  YOUTUBE
+}
+
+enum ContentEnrollmentStatus {
+  ACTIVE
+  CANCELED
+  COMPLETED
+}
+
+enum CartStatus {
+  ACTIVE
+  ABANDONED
+  CHECKED_OUT
+}
+
+enum CartItemStatus {
+  ACTIVE
+  REMOVED
+}
+
+model WishlistItem {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  contentType ContentType
+  contentId   String
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, contentType, contentId])
+  @@index([userId])
+  @@index([contentType, contentId])
+}
+
+model ContentEnrollment {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  contentType ContentType
+  contentId   String
+
+  status   ContentEnrollmentStatus @default(ACTIVE)
+  progress Int                     @default(0)
+
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+  canceledAt  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, contentType, contentId])
+  @@index([userId])
+  @@index([contentType, contentId])
+  @@index([status])
+}
+
+model ContentReview {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  contentType ContentType
+  contentId   String
+
+  rating  Int
+  comment String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, contentType, contentId])
+  @@index([contentType, contentId])
+  @@index([userId])
+}
+
+model Cart {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  status CartStatus @default(ACTIVE)
+
+  items CartItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+model CartItem {
+  id String @id @default(cuid())
+
+  cartId String
+  cart   Cart   @relation(fields: [cartId], references: [id], onDelete: Cascade)
+
+  contentType ContentType
+  contentId   String
+
+  titleSnapshot String
+  priceSnapshot Decimal @db.Decimal(10, 2)
+  currency      String  @default("USD")
+
+  status CartItemStatus @default(ACTIVE)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([cartId, contentType, contentId])
+  @@index([cartId])
+  @@index([contentType, contentId])
+}
+
+// =============== Provider =================
+enum AppLanguage {
+  EN
+  FR
+}
+
+enum PDUCategory {
+  OTHER
+  ETHICS
+  BUSINESS
+  TECHNICAL
+  STRATEGIC
+  LEADERSHIP
+  COMPLIANCE
+}
+
+enum PromotionType {
+  COMBO_PACKAGE
+  EMAIL_CAMPAIGN
+  FEATURED_LISTING
+  SOCIAL_MEDIA_BOOST
+}
+
+enum PromotionRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+model ProviderSettings {
+  id String @id @default(cuid())
+
+  providerId String @unique
+  provider   User   @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  organizationName    String?
+  organizationProfile String?
+  aboutOrganization   String?
+  contactEmail        String?
+
+  newRegistrationAlertEnabled Boolean @default(true)
+  eventReminderEnabled        Boolean @default(true)
+  reminderHoursBeforeEvent    Int     @default(24)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([providerId])
+}
+
+model EventPromotionRequest {
+  id String @id @default(cuid())
+
+  providerId String
+  provider   User   @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  promotionType PromotionType
+  budget        Decimal?      @db.Decimal(10, 2)
+  note          String?
+
+  status PromotionRequestStatus @default(PENDING)
+
+  reviewedById String?
+  reviewedBy   User?   @relation("ReviewedPromotionRequests", fields: [reviewedById], references: [id], onDelete: SetNull)
+
+  reviewedAt   DateTime?
+  rejectReason String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([providerId])
+  @@index([eventId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// ================== Professional Setting ==================
+enum AppTheme {
+  DARK
+  LIGHT
+  SYSTEM
+}
+
+enum ProfileVisibility {
+  PUBLIC
+  PRIVATE
+  FOLLOWERS_ONLY
+}
+
+model ProfessionalSettings {
+  id String @id @default(cuid())
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  interfaceLanguage AppLanguage @default(EN)
+  theme             AppTheme    @default(SYSTEM)
+
+  emailNotifications Boolean @default(true)
+  pushNotifications  Boolean @default(true)
+  courseUpdates      Boolean @default(true)
+  messages           Boolean @default(true)
+  eventReminders     Boolean @default(true)
+  loginAlerts        Boolean @default(true)
+
+  profileVisibility    ProfileVisibility @default(PUBLIC)
+  showEmail            Boolean           @default(false)
+  showLearningProgress Boolean           @default(true)
+  showCertificates     Boolean           @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+// ================ PDU ==================
+enum PDUStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum PDUSource {
+  EVENT
+  OTHER
+  COURSE
+  WEBINAR
+  PODCAST
+  YOUTUBE
+  WORKSHOP
+}
+
+model PDUTarget {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  year     Int
+  category PDUCategory
+  target   Float
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, year, category])
+  @@index([userId])
+  @@index([year])
+  @@index([category])
+}
+
+model PDUActivity {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String?
+  source      PDUSource   @default(OTHER)
+  category    PDUCategory
+  status      PDUStatus   @default(PENDING)
+
+  pdus Float
+  date DateTime
+
+  evidenceUrl String?
+  contentType ContentType?
+  contentId   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([category])
+  @@index([status])
+  @@index([date])
+  @@index([contentType, contentId])
+}
+
+// ================= Certificates ====================
+enum CertificateStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+}
+
+model Certificate {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title            String
+  issuer           String?
+  certificateUrl   String?
+  verificationCode String  @unique
+
+  contentType ContentType?
+  contentId   String?
+
+  pduEarned Float @default(0)
+
+  issuedAt   DateTime
+  validUntil DateTime?
+  status     CertificateStatus @default(ACTIVE)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([issuedAt])
+  @@index([contentType, contentId])
+}
+
+// =================== Payments =================
+enum PaymentStatus {
+  PAID
+  PENDING
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+model Payment {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  contentType ContentType?
+  contentId   String?
+
+  title    String
+  amount   Decimal       @db.Decimal(10, 2)
+  currency String        @default("USD")
+  status   PaymentStatus @default(PENDING)
+
+  providerPaymentId String?
+  receiptUrl        String?
+
+  paidAt    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([paidAt])
+  @@index([contentType, contentId])
+}
+
+// ================== Roadmap ====================
+enum RoadmapStatus {
+  DRAFT
+  ARCHIVED
+  PUBLISHED
+}
+
+enum RoadmapEnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  UNENROLLED
+}
+
+model Roadmap {
+  id   String @id @default(cuid())
+  slug String @unique
+
+  title       String
+  description String
+  imageUrl    String?
+
+  category CourseCategory?
+  level    CourseLevel     @default(ALL_LEVELS)
+  status   RoadmapStatus   @default(PUBLISHED)
+
+  phases      RoadmapPhase[]
+  enrollments RoadmapEnrollment[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([status])
+  @@index([category])
+  @@index([title])
+}
+
+model RoadmapPhase {
+  id String @id @default(cuid())
+
+  roadmapId String
+  roadmap   Roadmap @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String?
+  order       Int
+
+  steps RoadmapStep[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([roadmapId, order])
+  @@index([roadmapId])
+}
+
+model RoadmapStep {
+  id String @id @default(cuid())
+
+  phaseId String
+  phase   RoadmapPhase @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String?
+  order       Int
+
+  contentType ContentType?
+  contentId   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([phaseId, order])
+  @@index([phaseId])
+  @@index([contentType, contentId])
+}
+
+model RoadmapEnrollment {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  roadmapId String
+  roadmap   Roadmap @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
+
+  progress Int                     @default(0)
+  status   RoadmapEnrollmentStatus @default(ACTIVE)
+
+  enrolledAt  DateTime  @default(now())
+  completedAt DateTime?
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([userId, roadmapId])
+  @@index([userId])
+  @@index([roadmapId])
+  @@index([status])
+}
+
+// ================ Organization ==================
+enum OrganizationMemberStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum ComplianceCycle {
+  ANNUAL
+  BIANNUAL
+  QUARTERLY
+}
+
+enum AssignmentType {
+  HARD
+  SOFT
+}
+
+enum AssignmentStatus {
+  ACTIVE
+  ARCHIVED
+  COMPLETED
+}
+
+enum AssignmentTargetKind {
+  ALL
+  ROLE
+  MEMBER
+  DEPARTMENT
+}
+
+model Organization {
+  id String @id @default(cuid())
+
+  ownerId String @unique
+  owner   User   @relation("OrganizationOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  name          String
+  logoUrl       String?
+  description   String?
+  country       String?
+  industry      String?
+  website       String?
+  settings      OrganizationSettings?
+  departments   OrganizationDepartment[]
+  members       OrganizationMember[]
+  cpdCategories OrganizationCPDCategory[]
+  assignments   OrganizationAssignment[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([ownerId])
+  @@index([name])
+}
+
+model OrganizationSettings {
+  id String @id @default(cuid())
+
+  organizationId String       @unique
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  complianceCycle  ComplianceCycle @default(ANNUAL)
+  minimumPdu       Float           @default(60)
+  strictCompliance Boolean         @default(false)
+
+  complianceAlerts        Boolean @default(true)
+  assignmentNotifications Boolean @default(true)
+  weeklySummaryReport     Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OrganizationDepartment {
+  id String @id @default(cuid())
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String?
+  isActive    Boolean @default(true)
+
+  members OrganizationMember[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([organizationId, title])
+  @@index([organizationId])
+}
+
+model OrganizationMember {
+  id String @id @default(cuid())
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  departmentId String?
+  department   OrganizationDepartment? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+
+  jobRole String?
+  status  OrganizationMemberStatus @default(ACTIVE)
+
+  completedLearning Int   @default(0)
+  pdus              Float @default(0)
+  compliance        Float @default(0)
+
+  joinedAt      DateTime  @default(now())
+  deactivatedAt DateTime?
+  notes         String?
+
+  assignments OrganizationAssignmentRecipient[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([organizationId, userId])
+  @@index([organizationId])
+  @@index([userId])
+  @@index([departmentId])
+  @@index([status])
+  @@index([compliance])
+}
+
+model OrganizationCPDCategory {
+  id String @id @default(cuid())
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  category      PDUCategory
+  title         String
+  description   String?
+  requiredHours Float
+  isActive      Boolean     @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([organizationId, category])
+  @@index([organizationId])
+  @@index([category])
+  @@index([isActive])
+}
+
+model OrganizationAssignment {
+  id String @id @default(cuid())
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  createdById String
+  createdBy   User   @relation("CreatedOrgAssignments", fields: [createdById], references: [id], onDelete: Cascade)
+
+  courseId String?
+  course   Course? @relation(fields: [courseId], references: [id], onDelete: SetNull)
+
+  eventId String?
+  event   Event?  @relation(fields: [eventId], references: [id], onDelete: SetNull)
+
+  title       String
+  description String?
+
+  type   AssignmentType   @default(SOFT)
+  status AssignmentStatus @default(ACTIVE)
+
+  targetKind     AssignmentTargetKind @default(ALL)
+  departmentId   String?
+  targetRole     String?
+  targetMemberId String?
+
+  dueDate DateTime?
+
+  recipients OrganizationAssignmentRecipient[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([organizationId])
+  @@index([courseId])
+  @@index([eventId])
+  @@index([status])
+  @@index([type])
+  @@index([dueDate])
+  @@index([createdAt])
+}
+
+model OrganizationAssignmentRecipient {
+  id String @id @default(cuid())
+
+  assignmentId String
+  assignment   OrganizationAssignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+
+  memberId String
+  member   OrganizationMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  completedAt DateTime?
+  progress    Int       @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([assignmentId, memberId])
+  @@index([assignmentId])
+  @@index([memberId])
+  @@index([completedAt])
+}
+
+// ============== Admin =================
+enum AuditAction {
+  USER_EXPORTED
+  USER_STATUS_UPDATED
+  ORGANIZATION_VIEWED
+  ADMIN_PROFILE_UPDATED
+  ORGANIZATION_MEMBER_REMOVED
+  ORG_ACCESS_REQUEST_APPROVED
+  ORG_ACCESS_REQUEST_REJECTED
+  ORGANIZATION_MEMBER_UPDATED
+  ORGANIZATION_SETTINGS_UPDATED
+}
+
+model AuditLog {
+  id String @id @default(cuid())
+
+  actorId String?
+  actor   User?   @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  action AuditAction
+
+  entityType String?
+  entityId   String?
+
+  metadata Json?
+
+  ipAddress String?
+  userAgent String?
+
+  createdAt DateTime @default(now())
+
+  @@index([actorId])
+  @@index([action])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
+
+// =============== External Learning ================
+enum ExternalLearningProvider {
+  EDX
+  UDEMY
+  OTHER
+  COURSERA
+  LINKEDIN_LEARNING
+}
+
+enum ExternalLearningStatus {
+  CLICKED
+  STARTED
+  IGNORED
+  REJECTED
+  VERIFIED
+  COMPLETED
+  EVIDENCE_UPLOADED
+  ENROLLED_CONFIRMED
+  ASKED_CONFIRMATION
+}
+
+model ExternalLearningActivity {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  courseId String?
+  course   Course? @relation(fields: [courseId], references: [id], onDelete: SetNull)
+
+  eventId String?
+  event   Event?  @relation(fields: [eventId], references: [id], onDelete: SetNull)
+
+  provider    ExternalLearningProvider @default(OTHER)
+  title       String
+  externalUrl String
+
+  status ExternalLearningStatus @default(CLICKED)
+
+  clickedAt   DateTime  @default(now())
+  remindedAt  DateTime?
+  confirmedAt DateTime?
+  startedAt   DateTime?
+  completedAt DateTime?
+  verifiedAt  DateTime?
+  rejectedAt  DateTime?
+
+  pduHours       Float?
+  certificateUrl String?
+  licenseNumber  String?
+  evidenceNote   String?
+  rejectReason   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([courseId])
+  @@index([eventId])
+  @@index([status])
+  @@index([provider])
+  @@index([clickedAt])
+}

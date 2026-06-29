@@ -1,0 +1,16 @@
+fragment PopularCategoryFields on PopularCategory {
+  category
+  totalItems
+  courseCount
+  eventCount
+  podcastCount
+  youtubeCount
+  averageRating
+  popularityScore
+}
+
+query PopularCategories($input: PopularCategoriesInput) {
+  popularCategories(input: $input) {
+    ...PopularCategoryFields
+  }
+}

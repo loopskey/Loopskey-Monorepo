@@ -1,0 +1,11 @@
+{
+  "cSpell.customDictionaries": {
+    "custom-dictionary-workspace": {
+      "name": "custom-dictionary-workspace",
+      "path": "${workspaceFolder:Monorepo}/.cspell/custom-dictionary-workspace.txt",
+      "addWords": true,
+      "scope": "workspace"
+    }
+  },
+  "cSpell.words": ["COURSEREVIEW", "COUSREREVIEW", "pocdast", "Podcastdetail"]
+}

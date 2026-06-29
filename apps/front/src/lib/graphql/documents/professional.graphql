@@ -1,0 +1,460 @@
+fragment ProfessionalPageInfoFields on ProfessionalPageInfo {
+  nextCursor
+  hasNextPage
+}
+
+fragment ProfessionalSettingsFields on ProfessionalSettings {
+  id
+  theme
+  userId
+  messages
+  updatedAt
+  createdAt
+  showEmail
+  loginAlerts
+  courseUpdates
+  eventReminders
+  showCertificates
+  profileVisibility
+  interfaceLanguage
+  pushNotifications
+  emailNotifications
+  showLearningProgress
+}
+
+fragment ProfessionalOverviewFields on ProfessionalOverview {
+  totalPdus
+  activeCourses
+  upcomingEvents
+  professionalName
+  completedCourses
+  certificatesEarned
+  yearlyPduGoalProgress
+}
+
+fragment ProfessionalDashboardProfileFields on ProfessionalDashboardProfile {
+  id
+  bio
+  role
+  email
+  phone
+  status
+  website
+  location
+  fullName
+  avatarUrl
+  education
+  occupation
+  learningHours
+  coursesEnrolled
+  certificatesEarned
+}
+
+fragment ProfessionalSessionFields on ProfessionalSession {
+  id
+  userId
+  status
+  ipAddress
+  userAgent
+  expiresAt
+  revokedAt
+  createdAt
+  updatedAt
+}
+
+fragment ProfessionalCourseFields on ProfessionalCourse {
+  id
+  userId
+  status
+  progress
+  contentId
+  startedAt
+  createdAt
+  updatedAt
+  canceledAt
+  courseSlug
+  contentType
+  completedAt
+  courseTitle
+  courseLevel
+  coursePrice
+  courseRating
+  courseIsFree
+  providerName
+  courseCurrency
+  courseImageUrl
+  courseCategory
+  courseDescription
+  courseRatingCount
+  courseDurationMinutes
+}
+
+fragment PaginatedProfessionalCoursesFields on PaginatedProfessionalCourses {
+  totalCount
+  pageInfo {
+    ...ProfessionalPageInfoFields
+  }
+  items {
+    ...ProfessionalCourseFields
+  }
+}
+
+fragment ProfessionalPduTargetFields on ProfessionalPduTarget {
+  id
+  year
+  target
+  category
+}
+
+fragment ProfessionalPduCategorySummaryFields on ProfessionalPduCategorySummary {
+  pdus
+  category
+}
+
+fragment ProfessionalPduActivityFields on ProfessionalPduActivity {
+  id
+  pdus
+  date
+  title
+  status
+  source
+  category
+  updatedAt
+  contentId
+  createdAt
+  description
+  evidenceUrl
+  contentType
+}
+
+fragment ProfessionalPduReportFields on ProfessionalPduReport {
+  year
+  totalPdus
+  activities
+  progressToGoal
+  averagePerMonth
+  targets {
+    ...ProfessionalPduTargetFields
+  }
+  byCategory {
+    ...ProfessionalPduCategorySummaryFields
+  }
+}
+
+fragment PaginatedProfessionalPduActivitiesFields on PaginatedProfessionalPduActivities {
+  totalCount
+  pageInfo {
+    ...ProfessionalPageInfoFields
+  }
+  items {
+    ...ProfessionalPduActivityFields
+  }
+}
+
+fragment ProfessionalPaymentFields on ProfessionalPayment {
+  id
+  title
+  amount
+  userId
+  status
+  paidAt
+  currency
+  contentId
+  createdAt
+  updatedAt
+  receiptUrl
+  contentType
+  providerPaymentId
+}
+
+fragment PaginatedProfessionalPaymentsFields on PaginatedProfessionalPayments {
+  totalCount
+  totalSpent
+  totalTransactions
+  pageInfo {
+    ...ProfessionalPageInfoFields
+  }
+  items {
+    ...ProfessionalPaymentFields
+  }
+}
+
+fragment ProfessionalCertificateFields on ProfessionalCertificate {
+  id
+  title
+  issuer
+  userId
+  status
+  issuedAt
+  contentId
+  pduEarned
+  createdAt
+  updatedAt
+  validUntil
+  contentType
+  certificateUrl
+  verificationCode
+}
+
+fragment PaginatedProfessionalCertificatesFields on PaginatedProfessionalCertificates {
+  totalCount
+  totalPdusEarned
+  totalCertificates
+  activeCertificates
+  pageInfo {
+    ...ProfessionalPageInfoFields
+  }
+  items {
+    ...ProfessionalCertificateFields
+  }
+}
+
+query ProfessionalSettings {
+  professionalSettings {
+    ...ProfessionalSettingsFields
+  }
+}
+
+query ProfessionalOverview {
+  professionalOverview {
+    ...ProfessionalOverviewFields
+  }
+}
+
+query ProfessionalDashboardProfile {
+  professionalDashboardProfile {
+    ...ProfessionalDashboardProfileFields
+  }
+}
+
+query ProfessionalActiveSessions {
+  professionalActiveSessions {
+    ...ProfessionalSessionFields
+  }
+}
+
+query ProfessionalMyCourses(
+  $filter: ProfessionalSearchInput
+  $pagination: ProfessionalPaginationInput
+) {
+  professionalMyCourses(filter: $filter, pagination: $pagination) {
+    ...PaginatedProfessionalCoursesFields
+  }
+}
+
+query ProfessionalPduReport($year: Int) {
+  professionalPduReport(year: $year) {
+    ...ProfessionalPduReportFields
+  }
+}
+
+query ProfessionalPduActivities(
+  $filter: ProfessionalSearchInput
+  $pagination: ProfessionalPaginationInput
+) {
+  professionalPduActivities(filter: $filter, pagination: $pagination) {
+    ...PaginatedProfessionalPduActivitiesFields
+  }
+}
+
+query ProfessionalPayments(
+  $filter: ProfessionalSearchInput
+  $pagination: ProfessionalPaginationInput
+) {
+  professionalPayments(filter: $filter, pagination: $pagination) {
+    ...PaginatedProfessionalPaymentsFields
+  }
+}
+
+query ProfessionalCertificates(
+  $filter: ProfessionalSearchInput
+  $pagination: ProfessionalPaginationInput
+) {
+  professionalCertificates(filter: $filter, pagination: $pagination) {
+    ...PaginatedProfessionalCertificatesFields
+  }
+}
+
+mutation UpdateProfessionalSettings($input: UpdateProfessionalSettingsInput!) {
+  updateProfessionalSettings(input: $input) {
+    ...ProfessionalSettingsFields
+  }
+}
+
+mutation ResetProfessionalSettings {
+  resetProfessionalSettings {
+    ...ProfessionalSettingsFields
+  }
+}
+
+mutation UpdateProfessionalDashboardProfile(
+  $input: UpdateProfessionalProfileInput!
+) {
+  updateProfessionalDashboardProfile(input: $input) {
+    ...ProfessionalDashboardProfileFields
+  }
+}
+
+mutation CreateProfessionalPduActivity($input: CreatePduActivityInput!) {
+  createProfessionalPduActivity(input: $input) {
+    ...ProfessionalPduActivityFields
+  }
+}
+
+mutation UpsertProfessionalPduTarget($input: UpsertPduTargetInput!) {
+  upsertProfessionalPduTarget(input: $input) {
+    ...ProfessionalPduTargetFields
+  }
+}
+
+# ============== Roadmap ================
+fragment ProfessionalRoadmapStepFields on ProfessionalRoadmapStep {
+  id
+  order
+  title
+  contentId
+  description
+  contentType
+}
+
+fragment ProfessionalRoadmapPhaseFields on ProfessionalRoadmapPhase {
+  id
+  order
+  title
+  progress
+  completed
+  stepsCount
+  description
+  steps {
+    ...ProfessionalRoadmapStepFields
+  }
+}
+
+fragment ProfessionalRoadmapFields on ProfessionalRoadmap {
+  id
+  slug
+  level
+  title
+  userId
+  status
+  imageUrl
+  progress
+  category
+  updatedAt
+  roadmapId
+  enrolledAt
+  totalSteps
+  completedAt
+  description
+  phasesCount
+  roadmapStatus
+  completedSteps
+  nextPhaseTitle
+  completedPhases
+  nextMilestoneProgress
+  phases {
+    ...ProfessionalRoadmapPhaseFields
+  }
+}
+
+fragment ProfessionalExploreRoadmapFields on ProfessionalExploreRoadmap {
+  id
+  slug
+  title
+  level
+  status
+  imageUrl
+  category
+  totalSteps
+  isEnrolled
+  description
+  phasesCount
+  estimatedWeeks
+}
+
+fragment PaginatedProfessionalRoadmapsFields on PaginatedProfessionalRoadmaps {
+  totalCount
+  pageInfo {
+    ...ProfessionalPageInfoFields
+  }
+  items {
+    ...ProfessionalRoadmapFields
+  }
+}
+
+fragment PaginatedProfessionalExploreRoadmapsFields on PaginatedProfessionalExploreRoadmaps {
+  totalCount
+  pageInfo {
+    ...ProfessionalPageInfoFields
+  }
+  items {
+    ...ProfessionalExploreRoadmapFields
+  }
+}
+
+query ProfessionalMyRoadmaps(
+  $filter: ProfessionalSearchInput
+  $pagination: ProfessionalPaginationInput
+) {
+  professionalMyRoadmaps(filter: $filter, pagination: $pagination) {
+    ...PaginatedProfessionalRoadmapsFields
+  }
+}
+
+query ProfessionalExploreRoadmaps(
+  $filter: ProfessionalSearchInput
+  $pagination: ProfessionalPaginationInput
+) {
+  professionalExploreRoadmaps(filter: $filter, pagination: $pagination) {
+    ...PaginatedProfessionalExploreRoadmapsFields
+  }
+}
+
+# ============== Calendar ===============
+fragment ProfessionalCalendarEventFields on ProfessionalCalendarEvent {
+  id
+  status
+  isLive
+  isPast
+  userId
+  eventId
+  createdAt
+  updatedAt
+  attendedAt
+  isUpcoming
+  completedAt
+  durationMinutes
+  startsInMinutes
+  event {
+    id
+    pdu
+    slug
+    type
+    title
+    endDate
+    timezone
+    location
+    onlineUrl
+    startDate
+    deliveryMode
+  }
+}
+
+fragment PaginatedProfessionalCalendarEventsFields on PaginatedProfessionalCalendarEvents {
+  totalCount
+  pageInfo {
+    ...ProfessionalPageInfoFields
+  }
+  items {
+    ...ProfessionalCalendarEventFields
+  }
+}
+
+query ProfessionalCalendarEvents(
+  $filter: ProfessionalCalendarEventsFilterInput
+  $pagination: ProfessionalPaginationInput
+) {
+  professionalCalendarEvents(filter: $filter, pagination: $pagination) {
+    ...PaginatedProfessionalCalendarEventsFields
+  }
+}

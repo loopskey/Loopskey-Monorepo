@@ -1,0 +1,173 @@
+fragment ContentActionPayloadFields on ContentActionPayload {
+  success
+  code
+  message
+  active
+}
+
+fragment WishlistContentFields on WishlistContent {
+  url
+  slug
+  title
+  price
+  isFree
+  rating
+  imageUrl
+  category
+  currency
+  description
+  providerName
+}
+
+fragment WishlistItemFields on WishlistItem {
+  id
+  userId
+  contentId
+  createdAt
+  contentType
+  content {
+    ...WishlistContentFields
+  }
+}
+
+query MyWishlist($input: MyWishlistInput) {
+  myWishlist(input: $input) {
+    items {
+      ...WishlistItemFields
+    }
+    page
+    limit
+    totalCount
+    categories
+    totalPages
+    hasNextPage
+    hasPreviousPage
+  }
+}
+
+mutation ToggleWishlist($input: ContentActionInput!) {
+  toggleWishlist(input: $input) {
+    ...ContentActionPayloadFields
+  }
+}
+
+fragment ContentEnrollmentFields on ContentEnrollment {
+  id
+  userId
+  status
+  progress
+  contentId
+  createdAt
+  startedAt
+  updatedAt
+  canceledAt
+  contentType
+  completedAt
+}
+
+fragment ContentReviewFields on ContentReview {
+  id
+  userId
+  rating
+  comment
+  createdAt
+  updatedAt
+  contentId
+  contentType
+}
+
+fragment CartItemFields on CartItem {
+  id
+  cartId
+  status
+  currency
+  createdAt
+  updatedAt
+  contentId
+  contentType
+  titleSnapshot
+  priceSnapshot
+}
+
+fragment CartFields on Cart {
+  id
+  userId
+  status
+  items {
+    ...CartItemFields
+  }
+  createdAt
+  updatedAt
+}
+
+query MyEnrollments {
+  myEnrollments {
+    ...ContentEnrollmentFields
+  }
+}
+
+query MyCart {
+  myCart {
+    ...CartFields
+  }
+}
+
+query ContentReviews($contentType: ContentType!, $contentId: String!) {
+  contentReviews(contentType: $contentType, contentId: $contentId) {
+    ...ContentReviewFields
+  }
+}
+
+query MyReviewForContent($contentType: ContentType!, $contentId: String!) {
+  myReviewForContent(contentType: $contentType, contentId: $contentId) {
+    ...ContentReviewFields
+  }
+}
+
+mutation EnrollContent($input: ContentActionInput!) {
+  enrollContent(input: $input) {
+    ...ContentActionPayloadFields
+  }
+}
+
+mutation CancelContentEnrollment($input: ContentActionInput!) {
+  cancelContentEnrollment(input: $input) {
+    ...ContentActionPayloadFields
+  }
+}
+
+mutation UpdateEnrollmentProgress($input: UpdateEnrollmentProgressInput!) {
+  updateEnrollmentProgress(input: $input) {
+    ...ContentActionPayloadFields
+  }
+}
+
+mutation SubmitContentReview($input: SubmitContentReviewInput!) {
+  submitContentReview(input: $input) {
+    ...ContentReviewFields
+  }
+}
+
+mutation DeleteContentReview($input: ContentActionInput!) {
+  deleteContentReview(input: $input) {
+    ...ContentActionPayloadFields
+  }
+}
+
+mutation AddToCart($input: ContentActionInput!) {
+  addToCart(input: $input) {
+    ...ContentActionPayloadFields
+  }
+}
+
+mutation RemoveFromCart($input: ContentActionInput!) {
+  removeFromCart(input: $input) {
+    ...ContentActionPayloadFields
+  }
+}
+
+mutation ClearCart {
+  clearCart {
+    ...ContentActionPayloadFields
+  }
+}

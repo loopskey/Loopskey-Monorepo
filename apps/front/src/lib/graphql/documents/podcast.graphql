@@ -1,0 +1,151 @@
+# ================== Fragments ================
+fragment PodcastFields on Podcast {
+  id
+  host
+  slug
+  title
+  status
+  rating
+  category
+  imageUrl
+  listeners
+  createdAt
+  updatedAt
+  deletedAt
+  isFeatured
+  providerId
+  description
+  ratingCount
+  episodeCount
+  durationMinutes
+}
+
+fragment PodcastEpisodeFields on PodcastEpisode {
+  id
+  title
+  audioUrl
+  podcastId
+  updatedAt
+  createdAt
+  publishedAt
+  description
+  episodeNumber
+  durationMinutes
+}
+
+fragment PodcastPageInfoFields on PodcastPageInfo {
+  nextCursor
+  hasNextPage
+}
+
+# ============== Queries ================
+query Podcasts(
+  $filter: PodcastFilterInput
+  $pagination: PodcastPaginationInput
+  $sort: PodcastSortInput
+) {
+  podcasts(filter: $filter, pagination: $pagination, sort: $sort) {
+    items {
+      ...PodcastFields
+    }
+    totalCount
+    pageInfo {
+      ...PodcastPageInfoFields
+    }
+  }
+}
+
+query PodcastById($podcastId: String!) {
+  podcastById(podcastId: $podcastId) {
+    ...PodcastFields
+  }
+}
+
+query PodcastBySlug($slug: String!) {
+  podcastBySlug(slug: $slug) {
+    ...PodcastFields
+  }
+}
+
+query FeaturedPodcasts($take: Int) {
+  featuredPodcasts(take: $take) {
+    ...PodcastFields
+  }
+}
+
+query PodcastEpisodes($podcastId: String!) {
+  podcastEpisodes(podcastId: $podcastId) {
+    ...PodcastEpisodeFields
+  }
+}
+
+query MyProviderPodcasts(
+  $filter: PodcastFilterInput
+  $pagination: PodcastPaginationInput
+  $sort: PodcastSortInput
+) {
+  myProviderPodcasts(filter: $filter, pagination: $pagination, sort: $sort) {
+    items {
+      ...PodcastFields
+    }
+    totalCount
+    pageInfo {
+      ...PodcastPageInfoFields
+    }
+  }
+}
+
+# ================ Mutations ================
+mutation CreatePodcast($input: CreatePodcastInput!) {
+  createPodcast(input: $input) {
+    ...PodcastFields
+  }
+}
+
+mutation UpdatePodcast($input: UpdatePodcastInput!) {
+  updatePodcast(input: $input) {
+    ...PodcastFields
+  }
+}
+
+mutation PublishPodcast($podcastId: String!) {
+  publishPodcast(podcastId: $podcastId) {
+    ...PodcastFields
+  }
+}
+
+mutation ArchivePodcast($podcastId: String!) {
+  archivePodcast(podcastId: $podcastId) {
+    ...PodcastFields
+  }
+}
+
+mutation DeletePodcast($podcastId: String!) {
+  deletePodcast(podcastId: $podcastId) {
+    ...PodcastFields
+  }
+}
+
+mutation RestorePodcast($podcastId: String!) {
+  restorePodcast(podcastId: $podcastId) {
+    ...PodcastFields
+  }
+}
+
+mutation CreatePodcastEpisode($input: CreatePodcastEpisodeInput!) {
+  createPodcastEpisode(input: $input) {
+    ...PodcastEpisodeFields
+  }
+}
+
+mutation UpdatePodcastEpisode($input: UpdatePodcastEpisodeInput!) {
+  updatePodcastEpisode(input: $input) {
+    ...PodcastEpisodeFields
+  }
+}
+
+mutation DeletePodcastEpisode($episodeId: String!) {
+  deletePodcastEpisode(episodeId: $episodeId) {
+    ...PodcastEpisodeFields
+  }
+}

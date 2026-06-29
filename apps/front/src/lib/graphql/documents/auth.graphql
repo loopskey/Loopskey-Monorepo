@@ -1,0 +1,178 @@
+mutation Register($input: RegisterInput!) {
+  register(input: $input) {
+    success
+    code
+    message
+    user {
+      id
+      role
+      email
+      status
+      fullName
+      emailVerifiedAt
+      forcePasswordChange
+    }
+  }
+}
+
+mutation VerifyEmailOtp($input: VerifyEmailOtpInput!) {
+  verifyEmailOtp(input: $input) {
+    code
+    success
+    message
+    user {
+      id
+      role
+      email
+      status
+      fullName
+      emailVerifiedAt
+      forcePasswordChange
+    }
+  }
+}
+
+mutation ResendEmailOtp($input: ResendEmailOtpInput!) {
+  resendEmailOtp(input: $input) {
+    code
+    success
+    message
+    user {
+      id
+      role
+      email
+      status
+      fullName
+      emailVerifiedAt
+      forcePasswordChange
+    }
+  }
+}
+
+mutation Login($input: LoginInput!) {
+  login(input: $input) {
+    code
+    success
+    message
+    user {
+      id
+      role
+      email
+      status
+      fullName
+      emailVerifiedAt
+      forcePasswordChange
+    }
+  }
+}
+
+mutation RefreshToken {
+  refreshToken {
+    code
+    success
+    message
+    user {
+      id
+      role
+      email
+      status
+      fullName
+      avatarUrl
+      emailVerifiedAt
+      forcePasswordChange
+    }
+  }
+}
+
+mutation Logout {
+  logout {
+    code
+    success
+    message
+  }
+}
+
+mutation ForgotPassword($input: ForgotPasswordInput!) {
+  forgotPassword(input: $input) {
+    code
+    success
+    message
+  }
+}
+
+mutation ResetPassword($input: ResetPasswordInput!) {
+  resetPassword(input: $input) {
+    code
+    success
+    message
+  }
+}
+
+mutation ChangePassword($input: ChangePasswordInput!) {
+  changePassword(input: $input) {
+    code
+    success
+    message
+    user {
+      id
+      role
+      email
+      status
+      fullName
+      emailVerifiedAt
+      forcePasswordChange
+    }
+  }
+}
+
+query CurrentUser {
+  currentUser {
+    code
+    success
+    message
+    user {
+      id
+      bio
+      role
+      email
+      status
+      fullName
+      avatarUrl
+      emailVerifiedAt
+      forcePasswordChange
+    }
+  }
+}
+
+mutation RequestEmailChange($input: RequestEmailChangeInput!) {
+  requestEmailChange(input: $input) {
+    code
+    success
+    message
+  }
+}
+
+mutation VerifyEmailChange($input: VerifyEmailChangeInput!) {
+  verifyEmailChange(input: $input) {
+    code
+    success
+    message
+    user {
+      id
+      role
+      email
+      status
+      fullName
+      avatarUrl
+      emailVerifiedAt
+      forcePasswordChange
+    }
+  }
+}
+
+# ============= Google Auth ===============
+query GoogleOAuthUrl($role: Role!) {
+  googleOAuthUrl(role: $role) {
+    url
+  }
+}

@@ -1,0 +1,48 @@
+import { AuthRegisterRole } from "@auth/enums/register-role.enum";
+import { registerEnumType } from "@nestjs/graphql";
+import { Role } from "@prisma/client";
+
+export enum AuthGqlObjectNames {
+  AUTH_URL = "AuthUrl",
+  AUTH_USER = "AuthUser",
+  AUTH_PAYLOAD = "AuthPayload",
+}
+
+export enum AuthGqlInputNames {
+  LOGIN = "LoginInput",
+  REGISTER = "RegisterInput",
+  RESET_PASSWORD = "ResetPasswordInput",
+  FORGOT_PASSWORD = "ForgotPasswordInput",
+  CHANGE_PASSWORD = "ChangePasswordInput",
+  VERIFY_EMAIL_OTP = "VerifyEmailOtpInput",
+  RESEND_EMAIL_OTP = "ResendEmailOtpInput",
+  VERIFY_EMAIL_CHANGE_INPUT = "VerifyEmailChangeInput",
+  REQUEST_EMAIL_CHANGE_INPUT = "RequestEmailChangeInput",
+}
+
+export enum AuthGqlMutationNames {
+  LOGIN = "login",
+  LOGOUT = "logout",
+  REGISTER = "register",
+  REFRESH_TOKEN = "refreshToken",
+  RESET_PASSWORD = "resetPassword",
+  CHANGE_PASSWORD = "changePassword",
+  FORGOT_PASSWORD = "forgotPassword",
+  VERIFY_EMAIL_OTP = "verifyEmailOtp",
+  RESEND_EMAIL_OTP = "resendEmailOtp",
+  VERIFY_EMAIL_CHANGE = "verifyEmailChange",
+  REQUEST_EMAIL_CHANGE = "requestEmailChange",
+}
+
+export enum AuthGqlQueryNames {
+  CURRENT_USER = "currentUser",
+  GOOGLE_AUTH_URL = "googleOAuthUrl",
+}
+
+registerEnumType(Role, {
+  name: "Role",
+});
+
+registerEnumType(AuthRegisterRole, {
+  name: "AuthRegisterRole",
+});

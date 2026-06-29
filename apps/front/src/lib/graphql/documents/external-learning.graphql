@@ -1,0 +1,64 @@
+fragment ExternalLearningActivityFields on ExternalLearningActivity {
+  id
+  title
+  status
+  userId
+  eventId
+  courseId
+  provider
+  pduHours
+  clickedAt
+  createdAt
+  startedAt
+  updatedAt
+  remindedAt
+  rejectedAt
+  verifiedAt
+  externalUrl
+  confirmedAt
+  completedAt
+  rejectReason
+  evidenceNote
+  licenseNumber
+  certificateUrl
+}
+
+fragment PaginatedExternalLearningFields on PaginatedExternalLearning {
+  totalCount
+  pageInfo {
+    nextCursor
+    hasNextPage
+  }
+  items {
+    ...ExternalLearningActivityFields
+  }
+}
+
+mutation TrackExternalLearningClick($input: CreateExternalLearningClickInput!) {
+  trackExternalLearningClick(input: $input) {
+    ...ExternalLearningActivityFields
+  }
+}
+
+query MyExternalLearningActivities(
+  $filter: ExternalLearningFilterInput
+  $pagination: OrganizationPaginationInput
+) {
+  myExternalLearningActivities(filter: $filter, pagination: $pagination) {
+    ...PaginatedExternalLearningFields
+  }
+}
+
+mutation ConfirmExternalLearning($input: ConfirmExternalLearningInput!) {
+  confirmExternalLearning(input: $input) {
+    ...ExternalLearningActivityFields
+  }
+}
+
+mutation IgnoreExternalLearning($activityId: String!) {
+  ignoreExternalLearning(activityId: $activityId) {
+    code
+    success
+    message
+  }
+}

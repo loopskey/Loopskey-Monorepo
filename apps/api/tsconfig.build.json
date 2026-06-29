@@ -1,0 +1,36 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "@common/*": ["src/common/*"],
+      "@modules/*": ["src/modules/*"],
+
+      "@app/*": ["src/modules/app/*"],
+      "@auth/*": ["src/modules/auth/*"],
+      "@user/*": ["src/modules/user/*"],
+      "@admin/*": ["src/modules/admin/*"],
+      "@events/*": ["src/modules/events/*"],
+      "@course/*": ["src/modules/course/*"],
+      "@podcast/*": ["src/modules/podcast/*"],
+      "@youtube/*": ["src/modules/youtube/*"],
+      "@landing/*": ["src/modules/landing/*"],
+      "@org/*": ["src/modules/organization/*"],
+      "@provider/*": ["src/modules/provider/*"],
+      "@ext/*": ["src/modules/external-learning/*"],
+      "@professional/*": ["src/modules/professional/*"],
+      "@contentAction/*": ["src/modules/content-interaction/*"],
+
+      "@config/*": ["src/config/*"],
+      "@dto/*": ["src/common/dto/*"],
+      "@types/*": ["src/common/types/*"],
+      "@utils/*": ["src/common/utils/*"],
+      "@enums/*": ["src/common/enums/*"],
+      "@guards/*": ["src/common/guards/*"],
+      "@prisma/*": ["src/modules/prisma/*"],
+      "@entities/*": ["src/common/entities/*"],
+      "@decorators/*": ["src/common/decorators/*"]
+    }
+  },
+  "exclude": ["node_modules", "test", "dist", "**/*spec.ts"]
+}

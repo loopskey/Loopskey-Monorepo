@@ -1,0 +1,677 @@
+# ================= Admin Dashboard: Shared =================
+fragment AdminDashboardPageInfoFields on AdminPageInfo {
+  nextCursor
+  hasNextPage
+}
+
+# ================= Admin Profile / Settings =================
+fragment AdminDashboardProfileFields on AdminProfile {
+  id
+  bio
+  role
+  email
+  status
+  fullName
+  avatarUrl
+  createdAt
+  updatedAt
+}
+
+query AdminProfile {
+  adminProfile {
+    ...AdminDashboardProfileFields
+  }
+}
+
+mutation UpdateAdminProfile($input: UpdateAdminProfile!) {
+  updateAdminProfile(input: $input) {
+    ...AdminDashboardProfileFields
+  }
+}
+
+# ================= Admin Overview =================
+fragment AdminDashboardRequestTrendPointFields on AdminRequestTrendPoint {
+  date
+  count
+}
+
+fragment AdminDashboardOverviewFields on AdminDashboardOverview {
+  totalRequests
+  pendingRequests
+  approvedRequests
+  rejectedRequests
+  requestTrend {
+    ...AdminDashboardRequestTrendPointFields
+  }
+}
+
+query AdminDashboardOverview {
+  adminDashboardOverview {
+    ...AdminDashboardOverviewFields
+  }
+}
+
+# ================= Organizations =================
+fragment AdminDashboardOrgFields on AdminOrg {
+  id
+  name
+  logoUrl
+  ownerName
+  totalPdus
+  updatedAt
+  createdAt
+  ownerEmail
+  totalMembers
+  activeMembers
+  averageCompliance
+}
+
+fragment AdminDashboardPaginatedOrganizationsFields on PaginatedAdminOrg {
+  totalCount
+  pageInfo {
+    ...AdminDashboardPageInfoFields
+  }
+  items {
+    ...AdminDashboardOrgFields
+  }
+}
+
+fragment AdminDashboardOrgMemberFields on AdminOrgMember {
+  id
+  pdus
+  email
+  status
+  userId
+  jobRole
+  joinedAt
+  fullName
+  avatarUrl
+  createdAt
+  updatedAt
+  compliance
+  departmentId
+  organizationId
+  departmentTitle
+  completedLearning
+}
+
+fragment AdminDashboardOrgDepartmentFields on OrganizationDepartment {
+  id
+  title
+  isActive
+  createdAt
+  updatedAt
+  description
+  organizationId
+}
+
+fragment AdminDashboardOrgDetailFields on AdminOrgDetail {
+  id
+  name
+  ownerId
+  logoUrl
+  country
+  website
+  industry
+  totalPdus
+  ownerName
+  updatedAt
+  createdAt
+  ownerEmail
+  description
+  totalMembers
+  activeMembers
+  inactiveMembers
+  averageCompliance
+  settings {
+    ...AdminDashboardOrganizationSettingsFields
+  }
+  departments {
+    ...AdminDashboardOrgDepartmentFields
+  }
+}
+
+fragment AdminDashboardOrganizationSettingsFields on OrganizationSettings {
+  id
+  createdAt
+  updatedAt
+  minimumPdu
+  organizationId
+  complianceCycle
+  strictCompliance
+  complianceAlerts
+  weeklySummaryReport
+  assignmentNotifications
+}
+
+query AdminOrganizations(
+  $filter: AdminOrgFilter
+  $pagination: AdminPagination
+) {
+  adminOrganizations(filter: $filter, pagination: $pagination) {
+    ...AdminDashboardPaginatedOrganizationsFields
+  }
+}
+
+query AdminOrganizationMembers(
+  $filter: AdminOrgMemberFilter!
+  $pagination: AdminPagination
+) {
+  adminOrganizationMembers(filter: $filter, pagination: $pagination) {
+    totalCount
+    pageInfo {
+      ...AdminDashboardPageInfoFields
+    }
+    items {
+      ...AdminDashboardOrgMemberFields
+    }
+  }
+}
+
+query AdminOrganizationDetail($organizationId: String!) {
+  adminOrganizationDetail(organizationId: $organizationId) {
+    ...AdminDashboardOrgDetailFields
+  }
+}
+
+mutation UpdateAdminOrganizationSettings($input: UpdateAdminOrgSettings!) {
+  updateAdminOrganizationSettings(input: $input) {
+    ...AdminDashboardOrganizationSettingsFields
+  }
+}
+
+# ================= Organization Access Requests =================
+fragment AdminDashboardOrgAccessRequestFields on AdminOrgAccessRequest {
+  id
+  goals
+  status
+  country
+  workEmail
+  createdAt
+  updatedAt
+  reviewedAt
+  rejectReason
+  reviewedById
+  approvedUserId
+  organizationName
+  organizationType
+  representativeJobRole
+  representativeFullName
+  expectedLicensedProfessionals
+}
+
+fragment AdminDashboardPaginatedOrgAccessRequestsFields on PaginatedAdminOrgAccessRequests {
+  totalCount
+  pageInfo {
+    ...AdminDashboardPageInfoFields
+  }
+  items {
+    ...AdminDashboardOrgAccessRequestFields
+  }
+}
+
+query AdminOrgAccessRequests(
+  $filter: AdminOrgAccessRequestFilter
+  $pagination: AdminPagination
+) {
+  adminOrgAccessRequests(filter: $filter, pagination: $pagination) {
+    ...AdminDashboardPaginatedOrgAccessRequestsFields
+  }
+}
+
+mutation ApproveAdminOrgAccessRequest($requestId: String!) {
+  approveAdminOrgAccessRequest(requestId: $requestId) {
+    ...AdminDashboardOrgAccessRequestFields
+  }
+}
+
+mutation RejectAdminOrgAccessRequest($requestId: String!, $reason: String) {
+  rejectAdminOrgAccessRequest(requestId: $requestId, reason: $reason) {
+    ...AdminDashboardOrgAccessRequestFields
+  }
+}
+
+# ================= Admin Users: Providers & Professionals =================
+fragment AdminDashboardUserFields on AdminUser {
+  id
+  role
+  email
+  status
+  fullName
+  location
+  avatarUrl
+  isPremium
+  createdAt
+  updatedAt
+  lastLoginAt
+}
+
+fragment AdminDashboardPaginatedUsersFields on PaginatedAdminUser {
+  totalCount
+  pageInfo {
+    ...AdminDashboardPageInfoFields
+  }
+  items {
+    ...AdminDashboardUserFields
+  }
+}
+
+fragment AdminDashboardUserGrowthPointFields on AdminChartPoint {
+  date
+  label
+  total
+  providers
+  professionals
+}
+
+query AdminUsers($filter: AdminUserFilter, $pagination: AdminPagination) {
+  adminUsers(filter: $filter, pagination: $pagination) {
+    ...AdminDashboardPaginatedUsersFields
+  }
+}
+
+query AdminUserGrowth($mode: String) {
+  adminUserGrowth(mode: $mode) {
+    ...AdminDashboardUserGrowthPointFields
+  }
+}
+
+mutation UpdateAdminUserStatus($input: UpdateAdminUserStatus!) {
+  updateAdminUserStatus(input: $input) {
+    ...AdminDashboardUserFields
+  }
+}
+
+# ================= Audit Logs =================
+fragment AdminDashboardAuditLogFields on AdminAuditLog {
+  id
+  action
+  actorId
+  entityId
+  metadata
+  createdAt
+  actorEmail
+  entityType
+}
+
+fragment AdminDashboardPaginatedAuditLogsFields on PaginatedAdminAuditLogs {
+  totalCount
+  pageInfo {
+    ...AdminDashboardPageInfoFields
+  }
+  items {
+    ...AdminDashboardAuditLogFields
+  }
+}
+
+query AdminAuditLogs(
+  $filter: AdminAuditLogFilter
+  $pagination: AdminPagination
+) {
+  adminAuditLogs(filter: $filter, pagination: $pagination) {
+    ...AdminDashboardPaginatedAuditLogsFields
+  }
+}
+
+# =============== Org Users Details ===============
+fragment AdminOrgUsersPageInfoFields on AdminPageInfo {
+  nextCursor
+  hasNextPage
+}
+
+fragment AdminOrgUsersOrgFields on AdminOrg {
+  id
+  name
+  logoUrl
+  ownerName
+  totalPdus
+  createdAt
+  updatedAt
+  ownerEmail
+  totalMembers
+  activeMembers
+  averageCompliance
+}
+
+fragment AdminOrgUsersPaginatedOrgsFields on PaginatedAdminOrg {
+  totalCount
+  pageInfo {
+    ...AdminOrgUsersPageInfoFields
+  }
+  items {
+    ...AdminOrgUsersOrgFields
+  }
+}
+
+fragment AdminOrgUsersMemberFields on AdminOrgMember {
+  id
+  pdus
+  email
+  userId
+  status
+  jobRole
+  joinedAt
+  fullName
+  avatarUrl
+  createdAt
+  updatedAt
+  compliance
+  departmentId
+  organizationId
+  departmentTitle
+  completedLearning
+}
+
+fragment AdminOrgUsersPaginatedMembersFields on PaginatedAdminOrgMembers {
+  totalCount
+  pageInfo {
+    ...AdminOrgUsersPageInfoFields
+  }
+  items {
+    ...AdminOrgUsersMemberFields
+  }
+}
+
+fragment AdminOrgUsersSettingsFields on OrganizationSettings {
+  id
+  createdAt
+  updatedAt
+  minimumPdu
+  organizationId
+  complianceCycle
+  strictCompliance
+  complianceAlerts
+  weeklySummaryReport
+  assignmentNotifications
+}
+
+fragment AdminOrgUsersDepartmentFields on OrganizationDepartment {
+  id
+  title
+  organizationId
+}
+
+fragment AdminOrgUsersDetailFields on AdminOrgDetail {
+  id
+  name
+  ownerId
+  logoUrl
+  country
+  website
+  industry
+  ownerName
+  totalPdus
+  createdAt
+  updatedAt
+  ownerEmail
+  description
+  totalMembers
+  activeMembers
+  inactiveMembers
+  averageCompliance
+  settings {
+    ...AdminOrgUsersSettingsFields
+  }
+  departments {
+    ...AdminOrgUsersDepartmentFields
+  }
+  members {
+    ...AdminOrgUsersMemberFields
+  }
+}
+
+query AdminOrganizationUsers(
+  $filter: AdminOrgFilter
+  $pagination: AdminPagination
+) {
+  adminOrganizations(filter: $filter, pagination: $pagination) {
+    ...AdminOrgUsersPaginatedOrgsFields
+  }
+}
+
+query AdminOrganizationUserDetail($organizationId: String!) {
+  adminOrganizationDetail(organizationId: $organizationId) {
+    ...AdminOrgUsersDetailFields
+  }
+}
+
+mutation UpdateAdminOrganizationMember($input: UpdateAdminOrgMember!) {
+  updateAdminOrganizationMember(input: $input) {
+    ...AdminOrgUsersMemberFields
+  }
+}
+
+mutation RemoveAdminOrganizationMember($memberId: String!) {
+  removeAdminOrganizationMember(memberId: $memberId) {
+    ...AdminOrgUsersMemberFields
+  }
+}
+
+mutation UpdateAdminOrganizationSettingsForUsers(
+  $input: UpdateAdminOrgSettings!
+) {
+  updateAdminOrganizationSettings(input: $input) {
+    ...AdminOrgUsersSettingsFields
+  }
+}
+
+# ================= Organization Access Requests =================
+query OrganizationAccessRequests(
+  $filter: OrganizationAccessRequestFilterInput
+  $pagination: OrganizationAccessRequestPaginationInput
+) {
+  organizationAccessRequests(filter: $filter, pagination: $pagination) {
+    items {
+      id
+      goals
+      status
+      country
+      createdAt
+      updatedAt
+      workEmail
+      reviewedAt
+      reviewedById
+      rejectReason
+      approvedUserId
+      organizationType
+      organizationName
+      representativeJobRole
+      representativeFullName
+      expectedLicensedProfessionals
+    }
+    pageInfo {
+      page
+      limit
+      totalPages
+      totalItems
+      hasNextPage
+      hasPreviousPage
+    }
+  }
+}
+
+query OrganizationAccessRequestById($requestId: String!) {
+  organizationAccessRequestById(requestId: $requestId) {
+    id
+    goals
+    status
+    country
+    workEmail
+    createdAt
+    updatedAt
+    reviewedAt
+    reviewedById
+    rejectReason
+    approvedUserId
+    organizationName
+    organizationType
+    representativeJobRole
+    representativeFullName
+    expectedLicensedProfessionals
+  }
+}
+
+mutation ReviewOrganizationAccessRequest(
+  $input: ReviewOrganizationAccessRequestInput!
+) {
+  reviewOrganizationAccessRequest(input: $input) {
+    id
+    goals
+    status
+    country
+    workEmail
+    createdAt
+    updatedAt
+    reviewedAt
+    reviewedById
+    rejectReason
+    approvedUserId
+    organizationName
+    organizationType
+    representativeJobRole
+    representativeFullName
+    expectedLicensedProfessionals
+  }
+}
+
+# ================== Users ==================
+# ========== Admin User Management ==============
+query Users($filter: UserFilterInput, $pagination: UserPaginationInput) {
+  users(filter: $filter, pagination: $pagination) {
+    items {
+      id
+      bio
+      role
+      email
+      phone
+      status
+      lastName
+      fullName
+      firstName
+      avatarUrl
+      createdAt
+      updatedAt
+      deletedAt
+      lastLoginAt
+      emailVerifiedAt
+      phoneVerifiedAt
+    }
+    pageInfo {
+      page
+      limit
+      totalItems
+      totalPages
+      hasNextPage
+      hasPreviousPage
+    }
+  }
+}
+
+query UserById($userId: String!) {
+  userById(userId: $userId) {
+    id
+    bio
+    role
+    email
+    phone
+    status
+    lastName
+    fullName
+    firstName
+    avatarUrl
+    createdAt
+    updatedAt
+    deletedAt
+    lastLoginAt
+    emailVerifiedAt
+    phoneVerifiedAt
+    professionalProfile {
+      id
+      skills
+      userId
+      jobTitle
+      industry
+      location
+      interests
+      createdAt
+      updatedAt
+      experience
+    }
+    providerProfile {
+      id
+      userId
+      website
+      logoUrl
+      updatedAt
+      createdAt
+      isPremium
+      contactEmail
+      contactPhone
+      organizationName
+    }
+    organizationProfile {
+      id
+      userId
+      website
+      logoUrl
+      country
+      industry
+      timezone
+      createdAt
+      updatedAt
+      memberLimit
+      contactEmail
+      contactPhone
+      organizationName
+    }
+  }
+}
+
+mutation UpdateUser($input: UpdateUserInput!) {
+  updateUser(input: $input) {
+    id
+    bio
+    role
+    email
+    phone
+    status
+    fullName
+    lastName
+    avatarUrl
+    firstName
+    updatedAt
+  }
+}
+
+mutation UpdateUserStatus($input: UpdateUserStatusInput!) {
+  updateUserStatus(input: $input) {
+    id
+    role
+    email
+    status
+    fullName
+    updatedAt
+  }
+}
+
+mutation DeleteUser($userId: String!) {
+  deleteUser(userId: $userId) {
+    id
+    role
+    email
+    status
+    fullName
+    deletedAt
+  }
+}
+
+mutation RestoreUser($userId: String!) {
+  restoreUser(userId: $userId) {
+    id
+    role
+    email
+    status
+    fullName
+    deletedAt
+  }
+}

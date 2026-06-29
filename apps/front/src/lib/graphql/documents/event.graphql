@@ -1,0 +1,195 @@
+# =================== Fragments ================
+fragment EventCardFields on Event {
+  id
+  pdu
+  slug
+  type
+  title
+  views
+  price
+  status
+  isFree
+  rating
+  speaker
+  endDate
+  timezone
+  imageUrl
+  category
+  location
+  currency
+  capacity
+  language
+  startDate
+  onlineUrl
+  attendees
+  organizer
+  updatedAt
+  deletedAt
+  createdAt
+  providerId
+  description
+  ratingCount
+  pduCategory
+  deliveryMode
+  averageRating
+  specificTopic
+  earlyBirdDiscount
+  promotionVideoUrl
+  registrationEnabled
+}
+
+fragment EventScheduleItemFields on EventScheduleItem {
+  id
+  title
+  speaker
+  eventId
+  endTime
+  updatedAt
+  createdAt
+  dayNumber
+  startTime
+  description
+}
+
+fragment EventDetailFields on Event {
+  ...EventCardFields
+  scheduleItems {
+    ...EventScheduleItemFields
+  }
+}
+
+fragment EventRegistrationFields on EventRegistration {
+  id
+  userId
+  status
+  eventId
+  createdAt
+  updatedAt
+  attendedAt
+  completedAt
+}
+
+fragment EventPageInfoFields on EventPageInfo {
+  nextCursor
+  hasNextPage
+}
+
+# ================== Queries ================
+
+query Events(
+  $filter: EventFilterInput
+  $pagination: EventPaginationInput
+  $sort: EventSortInput
+) {
+  events(filter: $filter, pagination: $pagination, sort: $sort) {
+    items {
+      ...EventCardFields
+    }
+    totalCount
+    pageInfo {
+      ...EventPageInfoFields
+    }
+  }
+}
+
+query EventById($eventId: String!) {
+  eventById(eventId: $eventId) {
+    ...EventDetailFields
+  }
+}
+
+query EventBySlug($slug: String!) {
+  eventBySlug(slug: $slug) {
+    ...EventDetailFields
+  }
+}
+
+query UpcomingEvents($take: Int) {
+  upcomingEvents(take: $take) {
+    ...EventCardFields
+  }
+}
+
+query FeaturedEvents($take: Int) {
+  featuredEvents(take: $take) {
+    ...EventCardFields
+  }
+}
+
+query MyProviderEvents(
+  $filter: EventFilterInput
+  $pagination: EventPaginationInput
+  $sort: EventSortInput
+) {
+  myProviderEvents(filter: $filter, pagination: $pagination, sort: $sort) {
+    items {
+      ...EventCardFields
+    }
+    totalCount
+    pageInfo {
+      ...EventPageInfoFields
+    }
+  }
+}
+
+query MyRegisteredEvents {
+  myRegisteredEvents {
+    ...EventRegistrationFields
+  }
+}
+
+# =================== Mutations ===============
+
+mutation CreateEvent($input: CreateEventInput!) {
+  createEvent(input: $input) {
+    ...EventDetailFields
+  }
+}
+
+mutation UpdateEvent($input: UpdateEventInput!) {
+  updateEvent(input: $input) {
+    ...EventDetailFields
+  }
+}
+
+mutation RegisterEvent($eventId: String!) {
+  registerEvent(eventId: $eventId) {
+    ...EventRegistrationFields
+  }
+}
+
+mutation CancelEventRegistration($eventId: String!) {
+  cancelEventRegistration(eventId: $eventId) {
+    ...EventRegistrationFields
+  }
+}
+
+mutation PublishEvent($eventId: String!) {
+  publishEvent(eventId: $eventId) {
+    ...EventCardFields
+  }
+}
+
+mutation ArchiveEvent($eventId: String!) {
+  archiveEvent(eventId: $eventId) {
+    ...EventCardFields
+  }
+}
+
+mutation CancelEvent($eventId: String!) {
+  cancelEvent(eventId: $eventId) {
+    ...EventCardFields
+  }
+}
+
+mutation DeleteEvent($eventId: String!) {
+  deleteEvent(eventId: $eventId) {
+    ...EventCardFields
+  }
+}
+
+mutation RestoreEvent($eventId: String!) {
+  restoreEvent(eventId: $eventId) {
+    ...EventCardFields
+  }
+}

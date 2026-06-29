@@ -1,0 +1,227 @@
+# ================= Fragments =================
+fragment ProviderSettingsFields on ProviderSettings {
+  id
+  updatedAt
+  createdAt
+  providerId
+  contactEmail
+  organizationName
+  aboutOrganization
+  organizationProfile
+  eventReminderEnabled
+  reminderHoursBeforeEvent
+  newRegistrationAlertEnabled
+}
+
+fragment ProviderStatusBreakdownFields on ProviderStatusBreakdown {
+  draft
+  archived
+  published
+  cancelled
+}
+
+fragment ProviderOverviewFields on ProviderOverview {
+  totalViews
+  totalEvents
+  providerName
+  conversionRate
+  upcomingSessions
+  totalRegistrations
+  statusBreakdown {
+    ...ProviderStatusBreakdownFields
+  }
+}
+
+fragment ProviderTimeSeriesPointFields on ProviderTimeSeriesPoint {
+  date
+  revenue
+  registrations
+}
+
+fragment ProviderBreakdownPointFields on ProviderBreakdownPoint {
+  label
+  count
+  value
+}
+
+fragment ProviderTopEventFields on ProviderTopEvent {
+  title
+  views
+  revenue
+  eventId
+  registrations
+  conversionRate
+}
+
+fragment ProviderAnalyticsFields on ProviderAnalytics {
+  avgRating
+  totalRevenue
+  conversionRate
+  avgFeePerAttendee
+  registrationsOverTime {
+    ...ProviderTimeSeriesPointFields
+  }
+  pdusByCategory {
+    ...ProviderBreakdownPointFields
+  }
+  eventTypeBreakdown {
+    ...ProviderBreakdownPointFields
+  }
+  topPerformingEvents {
+    ...ProviderTopEventFields
+  }
+}
+
+fragment CsvExportFields on CsvExport {
+  filename
+  mimeType
+  content
+}
+
+fragment ProviderPageInfoFields on ProviderPageInfo {
+  hasNextPage
+  nextCursor
+}
+
+fragment ProviderEventTableRowFields on ProviderEventTableRow {
+  id
+  pdu
+  title
+  views
+  status
+  startDate
+  registrants
+}
+
+fragment PaginatedProviderEventsFields on PaginatedProviderEvents {
+  totalCount
+  pageInfo {
+    ...ProviderPageInfoFields
+  }
+  items {
+    ...ProviderEventTableRowFields
+  }
+}
+
+fragment PromotionRequestFields on PromotionRequest {
+  id
+  note
+  status
+  budget
+  eventId
+  updatedAt
+  createdAt
+  eventTitle
+  providerId
+  rejectReason
+  promotionType
+}
+
+fragment PaginatedPromotionRequestsFields on PaginatedPromotionRequests {
+  totalCount
+  pageInfo {
+    ...ProviderPageInfoFields
+  }
+  items {
+    ...PromotionRequestFields
+  }
+}
+
+# ================= Queries =================
+query ProviderSettings {
+  providerSettings {
+    ...ProviderSettingsFields
+  }
+}
+
+query ProviderOverview($input: ProviderDashboardRangeInput) {
+  providerOverview(input: $input) {
+    ...ProviderOverviewFields
+  }
+}
+
+query ProviderAnalytics($input: ProviderDashboardRangeInput) {
+  providerAnalytics(input: $input) {
+    ...ProviderAnalyticsFields
+  }
+}
+
+query ProviderAnalyticsCsv($input: ProviderDashboardRangeInput) {
+  providerAnalyticsCsv(input: $input) {
+    ...CsvExportFields
+  }
+}
+
+query ProviderEventsTable(
+  $filter: ProviderEventsFilterInput
+  $pagination: ProviderDashboardPaginationInput
+) {
+  providerEventsTable(filter: $filter, pagination: $pagination) {
+    ...PaginatedProviderEventsFields
+  }
+}
+
+query ProviderPromotionRequests(
+  $filter: ProviderPromotionFilterInput
+  $pagination: ProviderDashboardPaginationInput
+) {
+  providerPromotionRequests(filter: $filter, pagination: $pagination) {
+    ...PaginatedPromotionRequestsFields
+  }
+}
+
+# ================= Mutations =================
+mutation UpdateProviderSettings($input: UpdateProviderSettingsInput!) {
+  updateProviderSettings(input: $input) {
+    ...ProviderSettingsFields
+  }
+}
+
+mutation SubmitPromotionRequest($input: SubmitPromotionRequestInput!) {
+  submitPromotionRequest(input: $input) {
+    ...PromotionRequestFields
+  }
+}
+
+# ============== Attendees ==================
+fragment ProviderAttendeesStatsFields on ProviderAttendeesStats {
+  totalRegistered
+  confirmed
+  attended
+  attendanceRate
+}
+
+fragment PaginatedProviderAttendeesFields on PaginatedProviderAttendees {
+  totalCount
+  stats {
+    ...ProviderAttendeesStatsFields
+  }
+  pageInfo {
+    ...ProviderPageInfoFields
+  }
+  items {
+    ...ProviderAttendeeFields
+  }
+}
+
+fragment ProviderAttendeeFields on ProviderAttendee {
+  name
+  email
+  status
+  userId
+  eventId
+  attendedAt
+  eventTitle
+  completedAt
+  registrationId
+  registrationDate
+}
+
+query ProviderAttendees(
+  $filter: ProviderAttendeesFilterInput
+  $pagination: ProviderDashboardPaginationInput
+) {
+  providerAttendees(filter: $filter, pagination: $pagination) {
+    ...PaginatedProviderAttendeesFields
+  }
+}

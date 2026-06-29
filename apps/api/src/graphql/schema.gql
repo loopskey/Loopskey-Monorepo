@@ -1,0 +1,2800 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input AddOrganizationMemberInput {
+  departmentId: String
+  email: String!
+  fullName: String!
+  jobRole: String
+}
+
+type AdminAuditLog {
+  action: AuditAction!
+  actorEmail: String
+  actorId: ID
+  actorName: String
+  createdAt: DateTime!
+  entityId: String
+  entityType: String
+  id: ID!
+  ipAddress: String
+  metadata: JSONObject
+  userAgent: String
+}
+
+input AdminAuditLogFilter {
+  action: AuditAction
+  entityId: String
+  from: String
+  search: String
+  to: String
+}
+
+type AdminChartPoint {
+  date: String
+  label: String!
+  professionals: Int!
+  providers: Int!
+  total: Int!
+}
+
+type AdminDashboardOverview {
+  approvedRequests: Int!
+  pendingRequests: Int!
+  rejectedRequests: Int!
+  requestTrend: [AdminRequestTrendPoint!]!
+  totalRequests: Int!
+}
+
+type AdminOrg {
+  activeMembers: Int!
+  averageCompliance: Float!
+  createdAt: DateTime!
+  id: ID!
+  logoUrl: String
+  name: String!
+  ownerEmail: String
+  ownerName: String
+  totalMembers: Int!
+  totalPdus: Float!
+  updatedAt: DateTime!
+}
+
+type AdminOrgAccessRequest {
+  approvedUserId: String
+  country: String!
+  createdAt: DateTime!
+  expectedLicensedProfessionals: Int!
+  goals: String!
+  id: ID!
+  organizationName: String!
+  organizationType: OrganizationType!
+  rejectReason: String
+  representativeFullName: String!
+  representativeJobRole: String!
+  reviewedAt: DateTime
+  reviewedById: ID
+  status: OrganizationAccessRequestStatus!
+  updatedAt: DateTime!
+  workEmail: String!
+}
+
+input AdminOrgAccessRequestFilter {
+  search: String
+  status: OrganizationAccessRequestStatus
+}
+
+type AdminOrgDetail {
+  activeMembers: Int!
+  averageCompliance: Float!
+  country: String
+  createdAt: DateTime!
+  departments: [OrganizationDepartment!]!
+  description: String
+  id: ID!
+  inactiveMembers: Int!
+  industry: String
+  logoUrl: String
+  members: [AdminOrgMember!]!
+  name: String!
+  ownerEmail: String
+  ownerId: ID!
+  ownerName: String
+  settings: OrganizationSettings
+  totalMembers: Int!
+  totalPdus: Float!
+  updatedAt: DateTime!
+  website: String
+}
+
+input AdminOrgFilter {
+  country: String
+  industry: String
+  search: String
+}
+
+type AdminOrgMember {
+  avatarUrl: String
+  completedLearning: Int!
+  compliance: Float!
+  createdAt: DateTime!
+  departmentId: ID
+  departmentTitle: String
+  email: String
+  fullName: String
+  id: ID!
+  jobRole: String
+  joinedAt: DateTime!
+  organizationId: ID!
+  pdus: Float!
+  status: OrganizationMemberStatus!
+  updatedAt: DateTime!
+  userId: ID!
+}
+
+input AdminOrgMemberFilter {
+  departmentId: String
+  organizationId: String!
+  search: String
+  status: OrganizationMemberStatus
+}
+
+type AdminPageInfo {
+  hasNextPage: Boolean!
+  nextCursor: String
+}
+
+input AdminPagination {
+  cursor: String
+  take: Int = 20
+}
+
+type AdminProfile {
+  avatarUrl: String
+  bio: String
+  createdAt: DateTime!
+  email: String
+  fullName: String
+  id: ID!
+  role: Role!
+  status: UserStatus!
+  updatedAt: DateTime!
+}
+
+type AdminRequestTrendPoint {
+  count: Int!
+  date: String!
+}
+
+type AdminUser {
+  avatarUrl: String
+  createdAt: DateTime!
+  email: String
+  fullName: String
+  id: ID!
+  isPremium: Boolean!
+  lastLoginAt: DateTime
+  location: String
+  role: Role!
+  status: UserStatus!
+  updatedAt: DateTime!
+}
+
+input AdminUserFilter {
+  premiumOnly: Boolean
+  role: Role
+  search: String
+  status: UserStatus
+}
+
+enum AppLanguage {
+  EN
+  FR
+}
+
+"""Assignment status"""
+enum AssignmentStatus {
+  ACTIVE
+  ARCHIVED
+  COMPLETED
+}
+
+"""Target type of assignment"""
+enum AssignmentTargetKind {
+  ALL
+  DEPARTMENT
+  MEMBER
+  ROLE
+}
+
+"""Assignment type (HARD / SOFT)"""
+enum AssignmentType {
+  HARD
+  SOFT
+}
+
+enum AuditAction {
+  ADMIN_PROFILE_UPDATED
+  ORGANIZATION_MEMBER_REMOVED
+  ORGANIZATION_MEMBER_UPDATED
+  ORGANIZATION_SETTINGS_UPDATED
+  ORGANIZATION_VIEWED
+  ORG_ACCESS_REQUEST_APPROVED
+  ORG_ACCESS_REQUEST_REJECTED
+  USER_EXPORTED
+  USER_STATUS_UPDATED
+}
+
+type AuthPayload {
+  code: String!
+  message: String!
+  success: Boolean!
+  user: AuthUser
+}
+
+enum AuthRegisterRole {
+  PROFESSIONAL
+  PROVIDER
+}
+
+type AuthUrl {
+  url: String!
+}
+
+type AuthUser {
+  avatarUrl: String
+  bio: String
+  email: String
+  emailVerifiedAt: DateTime
+  forcePasswordChange: Boolean!
+  fullName: String
+  id: ID!
+  role: Role!
+  status: UserStatus!
+}
+
+input BulkAddOrganizationMembersInput {
+  rows: [BulkOrganizationMemberRowInput!]!
+}
+
+type BulkAddOrganizationMembersResult {
+  created: Int!
+  errors: [String!]!
+  failed: Int!
+  totalRows: Int!
+  updated: Int!
+}
+
+input BulkOrganizationMemberRowInput {
+  departmentId: String
+  departmentTitle: String
+  email: String!
+  fullName: String!
+  jobRole: String
+}
+
+type Cart {
+  createdAt: DateTime!
+  id: ID!
+  items: [CartItem!]!
+  status: CartStatus!
+  updatedAt: DateTime!
+  userId: String!
+}
+
+type CartItem {
+  cartId: String!
+  contentId: String!
+  contentType: ContentType!
+  createdAt: DateTime!
+  currency: String!
+  id: ID!
+  priceSnapshot: Float!
+  status: CartItemStatus!
+  titleSnapshot: String!
+  updatedAt: DateTime!
+}
+
+enum CartItemStatus {
+  ACTIVE
+  REMOVED
+}
+
+enum CartStatus {
+  ABANDONED
+  ACTIVE
+  CHECKED_OUT
+}
+
+enum CertificateStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+}
+
+input ChangePasswordInput {
+  confirmPassword: String!
+  currentPassword: String!
+  newPassword: String!
+}
+
+"""Organization compliance cycle"""
+enum ComplianceCycle {
+  ANNUAL
+  BIANNUAL
+  QUARTERLY
+}
+
+input ConfirmExternalLearningInput {
+  activityId: String!
+  certificateUrl: String
+  evidenceNote: String
+  licenseNumber: String
+  pduHours: Float
+  status: ExternalLearningStatus!
+}
+
+input ContentActionInput {
+  contentId: String!
+  contentType: ContentType!
+}
+
+type ContentActionPayload {
+  active: Boolean
+  code: String!
+  message: String!
+  success: Boolean!
+}
+
+type ContentEnrollment {
+  canceledAt: DateTime
+  completedAt: DateTime
+  contentId: String!
+  contentType: ContentType!
+  createdAt: DateTime!
+  id: ID!
+  progress: Int!
+  startedAt: DateTime!
+  status: ContentEnrollmentStatus!
+  updatedAt: DateTime!
+  userId: String!
+}
+
+enum ContentEnrollmentStatus {
+  ACTIVE
+  CANCELED
+  COMPLETED
+}
+
+type ContentReview {
+  comment: String
+  contentId: String!
+  contentType: ContentType!
+  createdAt: DateTime!
+  id: ID!
+  rating: Int!
+  updatedAt: DateTime!
+  userId: String!
+}
+
+enum ContentType {
+  COURSE
+  EVENT
+  PODCAST
+  YOUTUBE
+}
+
+type Course {
+  category: CourseCategory!
+  createdAt: DateTime!
+  currency: String!
+  curriculumSections: [CurriculumSection!]
+  deletedAt: DateTime
+  description: String!
+  durationMinutes: Int
+  id: ID!
+  imageUrl: String
+  instructor: String!
+  isFeatured: Boolean!
+  isFree: Boolean!
+  lastUpdatedAt: DateTime!
+  learnings: [String!]!
+  level: CourseLevel!
+  price: Float
+  professionals: Int!
+  providerId: String
+  rating: Float!
+  ratingCount: Int!
+  requirements: [String!]!
+  slug: String!
+  status: CourseStatus!
+  title: String!
+  updatedAt: DateTime!
+}
+
+enum CourseCategory {
+  BUSINESS
+  COMPLIANCE
+  CPD
+  DESIGN
+  EDUCATION
+  ENGINEERING
+  FINANCE
+  HEALTHCARE
+  LEADERSHIP
+  MARKETING
+  OTHER
+  TECHNOLOGY
+}
+
+input CourseFilterInput {
+  category: CourseCategory
+  isFeatured: Boolean
+  isFree: Boolean
+  level: CourseLevel
+  minRating: Float
+  providerId: String
+  search: String
+  status: CourseStatus
+}
+
+enum CourseLevel {
+  ADVANCED
+  ALL_LEVELS
+  BEGINNER
+  INTERMEDIATE
+}
+
+type CoursePageInfo {
+  hasNextPage: Boolean!
+  nextCursor: String
+}
+
+input CoursePaginationInput {
+  cursor: String
+  take: Int = 20
+}
+
+enum CourseSortField {
+  CREATED_AT
+  PRICE
+  PROFESSIONALS
+  RATING
+  TITLE
+  UPDATED_AT
+}
+
+input CourseSortInput {
+  direction: SortDirection = DESC
+  field: CourseSortField = CREATED_AT
+}
+
+enum CourseStatus {
+  ARCHIVED
+  DRAFT
+  PUBLISHED
+}
+
+input CreateCourseInput {
+  category: CourseCategory!
+  currency: String = "USD"
+  description: String!
+  durationMinutes: Int
+  imageUrl: String
+  instructor: String!
+  isFeatured: Boolean
+  isFree: Boolean
+  learnings: [String!]
+  level: CourseLevel = ALL_LEVELS
+  price: Float
+  requirements: [String!]
+  status: CourseStatus = DRAFT
+  title: String!
+}
+
+input CreateEventInput {
+  capacity: Int
+  category: EventCategory!
+  currency: String = "USD"
+  deliveryMode: EventDeliveryMode!
+  description: String!
+  earlyBirdDiscount: Float
+  endDate: DateTime
+  imageUrl: String
+  isFree: Boolean
+  language: AppLanguage
+  location: String
+  onlineUrl: String
+  organizer: String
+  pdu: Float = 0
+  pduCategory: PDUCategory
+  price: Float
+  promotionVideoUrl: String
+  registrationEnabled: Boolean = true
+  speaker: String
+  specificTopic: String
+  startDate: DateTime!
+  status: EventStatus = DRAFT
+  timezone: String = "UTC"
+  title: String!
+  type: EventType!
+}
+
+input CreateExternalLearningClickInput {
+  courseId: String
+  eventId: String
+  externalUrl: String!
+  provider: ExternalLearningProvider
+  title: String!
+}
+
+input CreateOrganizationAssignmentInput {
+  courseId: String
+  departmentId: String
+  description: String
+  dueDate: String
+  eventId: String
+  targetKind: AssignmentTargetKind!
+  targetMemberId: String
+  targetRole: Role
+  title: String!
+  type: AssignmentType!
+}
+
+input CreateOrganizationCpdCategoryInput {
+  category: PDUCategory!
+  description: String
+  isActive: Boolean
+  requiredHours: Float!
+  title: String!
+}
+
+input CreateOrganizationDepartmentInput {
+  description: String
+  title: String!
+}
+
+input CreatePduActivityInput {
+  category: PDUCategory!
+  contentId: String
+  contentType: ContentType
+  date: String!
+  description: String
+  evidenceUrl: String
+  pdus: Float!
+  source: PDUSource!
+  title: String!
+}
+
+input CreatePodcastEpisodeInput {
+  audioUrl: String
+  description: String
+  durationMinutes: Int
+  episodeNumber: Int!
+  podcastId: ID!
+  publishedAt: DateTime
+  title: String!
+}
+
+input CreatePodcastInput {
+  category: PodcastCategory!
+  description: String!
+  durationMinutes: Int
+  host: String!
+  imageUrl: String
+  isFeatured: Boolean = false
+  rating: Float
+  status: PodcastStatus = DRAFT
+  title: String!
+}
+
+input CreateUserInput {
+  avatarUrl: String
+  email: String
+  firstName: String
+  fullName: String
+  lastName: String
+  password: String!
+  phone: String
+  role: Role = PROFESSIONAL
+  status: UserStatus = PENDING
+}
+
+input CreateYouTubeChannelInput {
+  category: YouTubeCategory!
+  channelUrl: String
+  description: String
+  imageUrl: String
+  isFeatured: Boolean = false
+  provider: String
+  status: YouTubeChannelStatus = DRAFT
+  subscribers: Int = 0
+  title: String!
+}
+
+input CreateYouTubeVideoInput {
+  channelId: ID!
+  description: String
+  durationMinutes: Int
+  likes: Int = 0
+  publishedAt: DateTime
+  status: YouTubeVideoStatus = PUBLISHED
+  thumbnailUrl: String
+  title: String!
+  videoUrl: String
+  views: Int = 0
+}
+
+type CsvExport {
+  content: String!
+  filename: String!
+  mimeType: String!
+}
+
+type CurriculumLesson {
+  createdAt: DateTime!
+  description: String
+  durationMinutes: Int
+  id: ID!
+  isPreview: Boolean!
+  order: Int!
+  sectionId: String!
+  title: String!
+  type: CurriculumLessonType!
+  updatedAt: DateTime!
+}
+
+enum CurriculumLessonType {
+  ARTICLE
+  ASSIGNMENT
+  DOWNLOAD
+  LIVE_SESSION
+  QUIZ
+  VIDEO
+}
+
+type CurriculumSection {
+  courseId: String!
+  createdAt: DateTime!
+  description: String
+  id: ID!
+  lessons: [CurriculumLesson!]!
+  order: Int!
+  title: String!
+  updatedAt: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Event {
+  attendees: Int!
+  averageRating: Float!
+  capacity: Int
+  category: EventCategory!
+  createdAt: DateTime!
+  currency: String!
+  deletedAt: DateTime
+  deliveryMode: EventDeliveryMode!
+  description: String!
+  earlyBirdDiscount: Float
+  endDate: DateTime
+  id: ID!
+  imageUrl: String
+  isFree: Boolean!
+  language: AppLanguage
+  location: String
+  onlineUrl: String
+  organizer: String
+  pdu: Float!
+  pduCategory: PDUCategory
+  price: Float
+  promotionVideoUrl: String
+  providerId: String
+  rating: Float!
+  ratingCount: Int!
+  registrationEnabled: Boolean!
+  scheduleItems: [EventScheduleItem!]
+  slug: String!
+  speaker: String
+  specificTopic: String
+  startDate: DateTime!
+  status: EventStatus!
+  timezone: String!
+  title: String!
+  type: EventType!
+  updatedAt: DateTime!
+  views: Int!
+}
+
+input EventCatalogFilterInput {
+  category: EventCategory
+  deliveryMode: EventDeliveryMode
+  search: String
+  type: EventType
+}
+
+enum EventCategory {
+  BUSINESS
+  COMPLIANCE
+  CPD
+  DESIGN
+  EDUCATION
+  ENGINEERING
+  FINANCE
+  HEALTHCARE
+  LEADERSHIP
+  MARKETING
+  OTHER
+  TECHNOLOGY
+}
+
+enum EventDeliveryMode {
+  HYBRID
+  IN_PERSON
+  LIVE_ONLINE
+  RECORDED
+}
+
+input EventFilterInput {
+  category: EventCategory
+  deliveryMode: EventDeliveryMode
+  fromDate: DateTime
+  isFree: Boolean
+  providerId: String
+  search: String
+  status: EventStatus
+  toDate: DateTime
+  type: EventType
+}
+
+type EventPageInfo {
+  hasNextPage: Boolean!
+  nextCursor: String
+}
+
+input EventPaginationInput {
+  cursor: String
+  take: Int = 20
+}
+
+type EventRegistration {
+  attendedAt: DateTime
+  completedAt: DateTime
+  createdAt: DateTime!
+  eventId: String!
+  id: ID!
+  status: EventRegistrationStatus!
+  updatedAt: DateTime!
+  userId: String!
+}
+
+enum EventRegistrationStatus {
+  ATTENDED
+  CANCELED
+  CANCELLED
+  COMPLETED
+  NOT_ATTENDED
+  REGISTERED
+}
+
+type EventScheduleItem {
+  createdAt: DateTime!
+  dayNumber: Int!
+  description: String
+  endTime: DateTime!
+  eventId: String!
+  id: ID!
+  speaker: String
+  startTime: DateTime!
+  title: String!
+  updatedAt: DateTime!
+}
+
+enum EventSortDirection {
+  ASC
+  DESC
+}
+
+enum EventSortField {
+  ATTENDEES
+  AVERAGE_RATING
+  CREATED_AT
+  PRICE
+  START_DATE
+  TITLE
+  UPDATED_AT
+  VIEWS
+}
+
+input EventSortInput {
+  direction: EventSortDirection = ASC
+  field: EventSortField = START_DATE
+}
+
+enum EventStatus {
+  ARCHIVED
+  CANCELLED
+  DRAFT
+  PUBLISHED
+}
+
+enum EventType {
+  CONFERENCE
+  COURSE
+  NETWORKING
+  OTHER
+  SEMINAR
+  TRAINING
+  WEBINAR
+  WORKSHOP
+}
+
+type ExternalLearningActionResponse {
+  code: String!
+  message: String!
+  success: Boolean!
+}
+
+type ExternalLearningActivity {
+  certificateUrl: String
+  clickedAt: DateTime!
+  completedAt: DateTime
+  confirmedAt: DateTime
+  courseId: ID
+  createdAt: DateTime!
+  eventId: ID
+  evidenceNote: String
+  externalUrl: String!
+  id: ID!
+  licenseNumber: String
+  pduHours: Float
+  provider: ExternalLearningProvider!
+  rejectReason: String
+  rejectedAt: DateTime
+  remindedAt: DateTime
+  startedAt: DateTime
+  status: ExternalLearningStatus!
+  title: String!
+  updatedAt: DateTime!
+  userId: ID!
+  verifiedAt: DateTime
+}
+
+input ExternalLearningFilterInput {
+  provider: ExternalLearningProvider
+  search: String
+  status: ExternalLearningStatus
+}
+
+enum ExternalLearningProvider {
+  COURSERA
+  EDX
+  LINKEDIN_LEARNING
+  OTHER
+  UDEMY
+}
+
+enum ExternalLearningStatus {
+  ASKED_CONFIRMATION
+  CLICKED
+  COMPLETED
+  ENROLLED_CONFIRMED
+  EVIDENCE_UPLOADED
+  IGNORED
+  REJECTED
+  STARTED
+  VERIFIED
+}
+
+input ForgotPasswordInput {
+  email: String!
+}
+
+"""
+The `JSONObject` scalar type represents JSON objects as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSONObject
+
+input LoginInput {
+  email: String!
+  password: String!
+  role: Role
+}
+
+type Mutation {
+  addOrganizationMember(input: AddOrganizationMemberInput!): OrganizationMember!
+  addToCart(input: ContentActionInput!): ContentActionPayload!
+  approveAdminOrgAccessRequest(requestId: String!): AdminOrgAccessRequest!
+  archiveCourse(courseId: String!): Course!
+  archiveEvent(eventId: String!): Event!
+  archivePodcast(podcastId: String!): Podcast!
+  archiveYouTubeChannel(channelId: String!): YouTubeChannel!
+  bulkAddOrganizationMembers(input: BulkAddOrganizationMembersInput!): BulkAddOrganizationMembersResult!
+  cancelContentEnrollment(input: ContentActionInput!): ContentActionPayload!
+  cancelEvent(eventId: String!): Event!
+  cancelEventRegistration(eventId: String!): EventRegistration!
+  changePassword(input: ChangePasswordInput!): AuthPayload!
+  clearCart: ContentActionPayload!
+  confirmExternalLearning(input: ConfirmExternalLearningInput!): ExternalLearningActivity!
+  createCourse(input: CreateCourseInput!): Course!
+  createEvent(input: CreateEventInput!): Event!
+  createOrganizationAssignment(input: CreateOrganizationAssignmentInput!): OrganizationAssignment!
+  createOrganizationCpdCategory(input: CreateOrganizationCpdCategoryInput!): OrganizationCpdCategory!
+  createOrganizationDepartment(input: CreateOrganizationDepartmentInput!): OrganizationDepartment!
+  createPodcast(input: CreatePodcastInput!): Podcast!
+  createPodcastEpisode(input: CreatePodcastEpisodeInput!): PodcastEpisode!
+  createProfessionalPduActivity(input: CreatePduActivityInput!): ProfessionalPduActivity!
+  createUser(input: CreateUserInput!): User!
+  createYouTubeChannel(input: CreateYouTubeChannelInput!): YouTubeChannel!
+  createYouTubeVideo(input: CreateYouTubeVideoInput!): YouTubeVideo!
+  deleteContentReview(input: ContentActionInput!): ContentActionPayload!
+  deleteCourse(courseId: String!): Course!
+  deleteEvent(eventId: String!): Event!
+  deleteOrganizationAssignment(assignmentId: String!): OrganizationAssignment!
+  deleteOrganizationCpdCategory(categoryId: String!): OrganizationActionResponse!
+  deleteOrganizationDepartment(departmentId: String!): OrganizationDepartment!
+  deletePodcast(podcastId: String!): Podcast!
+  deletePodcastEpisode(episodeId: String!): PodcastEpisode!
+  deleteUser(userId: String!): User!
+  deleteYouTubeChannel(channelId: String!): YouTubeChannel!
+  deleteYouTubeVideo(videoId: String!): YouTubeVideo!
+  enrollContent(input: ContentActionInput!): ContentActionPayload!
+  forgotPassword(input: ForgotPasswordInput!): AuthPayload!
+  ignoreExternalLearning(activityId: String!): ExternalLearningActionResponse!
+  login(input: LoginInput!): AuthPayload!
+  logout: AuthPayload!
+  publishCourse(courseId: String!): Course!
+  publishEvent(eventId: String!): Event!
+  publishPodcast(podcastId: String!): Podcast!
+  publishYouTubeChannel(channelId: String!): YouTubeChannel!
+  refreshToken: AuthPayload!
+  register(input: RegisterInput!): AuthPayload!
+  registerEvent(eventId: String!): EventRegistration!
+  rejectAdminOrgAccessRequest(reason: String, requestId: String!): AdminOrgAccessRequest!
+  removeAdminOrganizationMember(memberId: String!): AdminOrgMember!
+  removeFromCart(input: ContentActionInput!): ContentActionPayload!
+  requestEmailChange(input: RequestEmailChangeInput!): AuthPayload!
+  resendEmailOtp(input: ResendEmailOtpInput!): AuthPayload!
+  resetPassword(input: ResetPasswordInput!): AuthPayload!
+  resetProfessionalSettings: ProfessionalSettings!
+  restoreCourse(courseId: String!): Course!
+  restoreEvent(eventId: String!): Event!
+  restorePodcast(podcastId: String!): Podcast!
+  restoreUser(userId: String!): User!
+  restoreYouTubeChannel(channelId: String!): YouTubeChannel!
+  reviewOrganizationAccessRequest(input: ReviewOrganizationAccessRequestInput!): OrganizationAccessRequest!
+  submitContentReview(input: SubmitContentReviewInput!): ContentReview!
+  submitOrganizationAccessRequest(input: SubmitOrganizationAccessRequestInput!): OrganizationAccessRequest!
+  submitPromotionRequest(input: SubmitPromotionRequestInput!): PromotionRequest!
+  toggleWishlist(input: ContentActionInput!): ContentActionPayload!
+  trackExternalLearningClick(input: CreateExternalLearningClickInput!): ExternalLearningActivity!
+  updateAdminOrganizationMember(input: UpdateAdminOrgMember!): AdminOrgMember!
+  updateAdminOrganizationSettings(input: UpdateAdminOrgSettings!): OrganizationSettings!
+  updateAdminProfile(input: UpdateAdminProfile!): AdminProfile!
+  updateAdminUserStatus(input: UpdateAdminUserStatus!): AdminUser!
+  updateCourse(input: UpdateCourseInput!): Course!
+  updateEnrollmentProgress(input: UpdateEnrollmentProgressInput!): ContentActionPayload!
+  updateEvent(input: UpdateEventInput!): Event!
+  updateMe(input: UpdateMeInput!): User!
+  updateOrganizationAssignment(input: UpdateOrganizationAssignmentInput!): OrganizationAssignment!
+  updateOrganizationCpdCategory(input: UpdateOrganizationCpdCategoryInput!): OrganizationCpdCategory!
+  updateOrganizationDepartment(input: UpdateOrganizationDepartmentInput!): OrganizationDepartment!
+  updateOrganizationMember(input: UpdateOrganizationMemberInput!): OrganizationMember!
+  updateOrganizationMemberNotes(input: UpdateOrganizationMemberNotesInput!): OrganizationMember!
+  updateOrganizationSettings(input: UpdateOrganizationSettingsInput!): OrganizationSettings!
+  updatePodcast(input: UpdatePodcastInput!): Podcast!
+  updatePodcastEpisode(input: UpdatePodcastEpisodeInput!): PodcastEpisode!
+  updateProfessionalDashboardProfile(input: UpdateProfessionalProfileInput!): ProfessionalDashboardProfile!
+  updateProfessionalSettings(input: UpdateProfessionalSettingsInput!): ProfessionalSettings!
+  updateProviderSettings(input: UpdateProviderSettingsInput!): ProviderSettings!
+  updateUser(input: UpdateUserInput!): User!
+  updateUserStatus(input: UpdateUserStatusInput!): User!
+  updateYouTubeChannel(input: UpdateYouTubeChannelInput!): YouTubeChannel!
+  updateYouTubeVideo(input: UpdateYouTubeVideoInput!): YouTubeVideo!
+  upsertProfessionalPduTarget(input: UpsertPduTargetInput!): ProfessionalPduTarget!
+  verifyEmailChange(input: VerifyEmailChangeInput!): AuthPayload!
+  verifyEmailOtp(input: VerifyEmailOtpInput!): AuthPayload!
+}
+
+input MyWishlistInput {
+  category: String
+  contentType: ContentType
+  limit: Int = 9
+  onlyWithRating: Boolean = false
+  onlyWithUrl: Boolean = false
+  page: Int = 1
+  price: WishlistPriceFilter
+  search: String
+  sortBy: WishlistSortBy = NEWEST
+}
+
+type OrganizationAccessRequest {
+  approvedUserId: String
+  country: String!
+  createdAt: DateTime!
+  expectedLicensedProfessionals: Int!
+  goals: String!
+  id: ID!
+  organizationName: String!
+  organizationType: OrganizationType!
+  rejectReason: String
+  representativeFullName: String!
+  representativeJobRole: String!
+  reviewedAt: DateTime
+  reviewedById: String
+  status: OrganizationAccessRequestStatus!
+  updatedAt: DateTime!
+  workEmail: String!
+}
+
+input OrganizationAccessRequestFilterInput {
+  organizationType: OrganizationType
+  search: String
+  status: OrganizationAccessRequestStatus
+}
+
+type OrganizationAccessRequestPageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  limit: Int!
+  page: Int!
+  totalItems: Int!
+  totalPages: Int!
+}
+
+input OrganizationAccessRequestPaginationInput {
+  limit: Int = 10
+  page: Int = 1
+}
+
+enum OrganizationAccessRequestStatus {
+  APPROVED
+  PENDING
+  REJECTED
+}
+
+type OrganizationActionResponse {
+  code: String!
+  message: String!
+  success: Boolean!
+}
+
+type OrganizationAssignment {
+  courseId: String
+  courseTitle: String
+  createdAt: DateTime!
+  createdById: ID!
+  departmentId: String
+  description: String
+  dueDate: DateTime
+  eventId: String
+  eventTitle: String
+  id: ID!
+  members: Int!
+  organizationId: ID!
+  progress: Float!
+  status: AssignmentStatus!
+  targetKind: AssignmentTargetKind!
+  targetMemberId: String
+  targetRole: Role
+  title: String!
+  type: AssignmentType!
+  updatedAt: DateTime!
+}
+
+input OrganizationAssignmentFilterInput {
+  search: String
+  status: AssignmentStatus
+  type: AssignmentType
+}
+
+type OrganizationAssignmentStats {
+  activeAssignments: Int!
+  averageCompletionRate: Float!
+  totalAssignments: Int!
+  totalParticipants: Int!
+}
+
+type OrganizationAttentionMember {
+  avatarUrl: String
+  compliance: Float!
+  departmentTitle: String
+  email: String
+  fullName: String
+  id: ID!
+  pduGoal: Float!
+  pdus: Float!
+  remainingPdus: Float!
+  userId: ID!
+}
+
+type OrganizationComplianceDistribution {
+  atRisk: Int!
+  compliant: Int!
+  nonCompliant: Int!
+}
+
+type OrganizationCpdCategory {
+  activeMembers: Int
+  category: PDUCategory!
+  createdAt: DateTime!
+  description: String
+  id: ID!
+  isActive: Boolean!
+  organizationId: ID!
+  requiredHours: Float!
+  title: String!
+  totalMembers: Int
+  updatedAt: DateTime!
+}
+
+input OrganizationCpdCategoryFilterInput {
+  isActive: Boolean
+  search: String
+  year: String
+}
+
+type OrganizationCpdCategoryStats {
+  activeCategories: Int!
+  mostPopularActiveMembers: Int!
+  mostPopularCategory: String
+  totalCategories: Int!
+  totalRequiredHours: Float!
+}
+
+type OrganizationDepartment {
+  createdAt: DateTime!
+  description: String
+  id: ID!
+  isActive: Boolean!
+  organizationId: ID!
+  title: String!
+  updatedAt: DateTime!
+}
+
+type OrganizationEventCatalogItem {
+  averageRating: Float!
+  capacity: Int
+  category: EventCategory!
+  currency: String!
+  deliveryMode: EventDeliveryMode!
+  description: String!
+  id: ID!
+  imageUrl: String
+  isFree: Boolean!
+  location: String
+  onlineUrl: String
+  pdu: Float!
+  price: Float
+  rating: Float!
+  slug: String!
+  speaker: String
+  startDate: DateTime!
+  title: String!
+  type: EventType!
+}
+
+type OrganizationMember {
+  avatarUrl: String
+  completedLearning: Int!
+  compliance: Float!
+  createdAt: DateTime!
+  departmentId: ID
+  departmentTitle: String
+  email: String
+  fullName: String
+  id: ID!
+  jobRole: String
+  joinedAt: DateTime!
+  notes: String
+  organizationId: ID!
+  pdus: Float!
+  role: Role!
+  status: OrganizationMemberStatus!
+  updatedAt: DateTime!
+  userId: ID!
+}
+
+type OrganizationMemberDetail {
+  avatarUrl: String
+  completedLearning: Int!
+  compliance: Float!
+  createdAt: DateTime!
+  departmentId: String
+  departmentTitle: String
+  email: String
+  fullName: String
+  id: ID!
+  jobRole: String
+  joinedAt: DateTime!
+  lastActivityAt: DateTime
+  lastCourseTitle: String
+  notes: String
+  organizationId: ID!
+  pduGoal: Float!
+  pduProgress: Float!
+  pdus: Float!
+  status: OrganizationMemberStatus!
+  updatedAt: DateTime!
+  userId: ID!
+}
+
+input OrganizationMemberFilterInput {
+  departmentId: String
+  search: String
+  status: OrganizationMemberStatus
+}
+
+"""Status of organization member"""
+enum OrganizationMemberStatus {
+  ACTIVE
+  INACTIVE
+}
+
+type OrganizationMembersStats {
+  activeMembers: Int!
+  averageCompliance: Float!
+  inactiveMembers: Int!
+  totalMembers: Int!
+  totalPdus: Float!
+}
+
+type OrganizationOverview {
+  attentionMembers: [OrganizationAttentionMember!]!
+  complianceDistribution: OrganizationComplianceDistribution!
+  summary: OrganizationOverviewSummary!
+  trendingTopics: [OrganizationTrendingTopic!]!
+}
+
+type OrganizationOverviewSummary {
+  activeAssignments: Int!
+  activeMembers: Int!
+  averageCompliance: Float!
+  engagementRate: Float!
+  nonCompliantMembers: Int!
+  totalMembers: Int!
+  totalPdus: Float!
+}
+
+type OrganizationPageInfo {
+  hasNextPage: Boolean!
+  nextCursor: String
+}
+
+input OrganizationPaginationInput {
+  cursor: String
+  take: Int = 12
+}
+
+type OrganizationProfile {
+  contactEmail: String
+  contactPhone: String
+  country: String
+  createdAt: DateTime!
+  id: ID!
+  industry: String
+  logoUrl: String
+  memberLimit: Int
+  organizationName: String!
+  timezone: String
+  updatedAt: DateTime!
+  userId: String!
+  website: String
+}
+
+type OrganizationReport {
+  complianceTrend: [OrganizationReportTrendPoint!]!
+  departmentCompliance: [OrganizationReportDepartment!]!
+  summary: OrganizationReportSummary!
+}
+
+type OrganizationReportDepartment {
+  averagePdus: Float!
+  compliance: Float!
+  departmentId: ID
+  departmentTitle: String!
+  teamSize: Int!
+  totalPdus: Float!
+}
+
+input OrganizationReportFilterInput {
+  departmentId: String
+  endDate: String
+  range: OrganizationReportRangeEnum
+  startDate: String
+}
+
+enum OrganizationReportRangeEnum {
+  CURRENT_YEAR
+  CUSTOM
+  LAST_QUARTER
+}
+
+type OrganizationReportSummary {
+  averageCompliance: Float!
+  averagePdus: Float!
+  requiredHours: Float!
+  totalMembers: Int!
+  totalPdus: Float!
+}
+
+type OrganizationReportTopMember {
+  completedLearning: Int!
+  compliance: Float!
+  departmentTitle: String
+  email: String
+  fullName: String
+  id: ID!
+  pdus: Float!
+  userId: ID!
+}
+
+input OrganizationReportTopMembersFilterInput {
+  departmentId: String
+  endDate: String
+  search: String
+  startDate: String
+}
+
+type OrganizationReportTrendPoint {
+  compliance: Float!
+  date: String!
+  label: String!
+  pdus: Float!
+}
+
+type OrganizationSettings {
+  assignmentNotifications: Boolean!
+  complianceAlerts: Boolean!
+  complianceCycle: ComplianceCycle!
+  createdAt: DateTime!
+  id: ID!
+  minimumPdu: Float!
+  organizationId: ID!
+  strictCompliance: Boolean!
+  updatedAt: DateTime!
+  weeklySummaryReport: Boolean!
+}
+
+type OrganizationTrendingTopic {
+  count: Int!
+  percentage: Float!
+  title: String!
+}
+
+enum OrganizationType {
+  ASSOCIATION
+  COMPANY
+  GOVERNMENT
+  NON_PROFIT
+  OTHER
+  TRAINING_PROVIDER
+  UNIVERSITY
+}
+
+enum PDUCategory {
+  BUSINESS
+  COMPLIANCE
+  ETHICS
+  LEADERSHIP
+  OTHER
+  STRATEGIC
+  TECHNICAL
+}
+
+enum PDUSource {
+  COURSE
+  EVENT
+  OTHER
+  PODCAST
+  WEBINAR
+  WORKSHOP
+  YOUTUBE
+}
+
+enum PDUStatus {
+  APPROVED
+  PENDING
+  REJECTED
+}
+
+type PaginatedAdminAuditLogs {
+  items: [AdminAuditLog!]!
+  pageInfo: AdminPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedAdminOrg {
+  items: [AdminOrg!]!
+  pageInfo: AdminPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedAdminOrgAccessRequests {
+  items: [AdminOrgAccessRequest!]!
+  pageInfo: AdminPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedAdminOrgMembers {
+  items: [AdminOrgMember!]!
+  pageInfo: AdminPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedAdminUser {
+  items: [AdminUser!]!
+  pageInfo: AdminPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedCourses {
+  items: [Course!]!
+  pageInfo: CoursePageInfo!
+  totalCount: Int!
+}
+
+type PaginatedEvents {
+  items: [Event!]!
+  pageInfo: EventPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedExternalLearning {
+  items: [ExternalLearningActivity!]!
+  pageInfo: OrganizationPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedOrganizationAccessRequests {
+  items: [OrganizationAccessRequest!]!
+  pageInfo: OrganizationAccessRequestPageInfo!
+}
+
+type PaginatedOrganizationAssignments {
+  items: [OrganizationAssignment!]!
+  pageInfo: OrganizationPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedOrganizationCpdCategories {
+  items: [OrganizationCpdCategory!]!
+  pageInfo: OrganizationPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedOrganizationEventCatalog {
+  items: [OrganizationEventCatalogItem!]!
+  pageInfo: OrganizationPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedOrganizationMembers {
+  items: [OrganizationMember!]!
+  pageInfo: OrganizationPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedOrganizationReportTopMembers {
+  items: [OrganizationReportTopMember!]!
+  pageInfo: OrganizationPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedPodcasts {
+  items: [Podcast!]!
+  pageInfo: PodcastPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedProfessionalCalendarEvents {
+  items: [ProfessionalCalendarEvent!]!
+  pageInfo: ProfessionalPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedProfessionalCertificates {
+  activeCertificates: Int!
+  items: [ProfessionalCertificate!]!
+  pageInfo: ProfessionalPageInfo!
+  totalCertificates: Int!
+  totalCount: Int!
+  totalPdusEarned: Float!
+}
+
+type PaginatedProfessionalCourses {
+  items: [ProfessionalCourse!]!
+  pageInfo: ProfessionalPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedProfessionalExploreRoadmaps {
+  items: [ProfessionalExploreRoadmap!]!
+  pageInfo: ProfessionalPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedProfessionalPayments {
+  items: [ProfessionalPayment!]!
+  pageInfo: ProfessionalPageInfo!
+  totalCount: Int!
+  totalSpent: Float!
+  totalTransactions: Int!
+}
+
+type PaginatedProfessionalPduActivities {
+  items: [ProfessionalPduActivity!]!
+  pageInfo: ProfessionalPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedProfessionalRoadmaps {
+  items: [ProfessionalRoadmap!]!
+  pageInfo: ProfessionalPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedPromotionRequests {
+  items: [PromotionRequest!]!
+  pageInfo: ProviderPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedProviderAttendees {
+  items: [ProviderAttendee!]!
+  pageInfo: ProviderPageInfo!
+  stats: ProviderAttendeesStats!
+  totalCount: Int!
+}
+
+type PaginatedProviderEvents {
+  items: [ProviderEventTableRow!]!
+  pageInfo: ProviderPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedUsers {
+  items: [User!]!
+  pageInfo: UserPageInfo!
+}
+
+type PaginatedWishlist {
+  categories: [String!]!
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  items: [WishlistItem!]!
+  limit: Int!
+  page: Int!
+  totalCount: Int!
+  totalPages: Int!
+}
+
+type PaginatedYouTubeChannels {
+  items: [YouTubeChannel!]!
+  pageInfo: YouTubeChannelPageInfo!
+  totalCount: Int!
+}
+
+enum PaymentStatus {
+  CANCELLED
+  FAILED
+  PAID
+  PENDING
+  REFUNDED
+}
+
+type Podcast {
+  category: PodcastCategory!
+  createdAt: DateTime!
+  deletedAt: DateTime
+  description: String!
+  durationMinutes: Int
+  episodeCount: Int!
+  host: String!
+  id: ID!
+  imageUrl: String
+  isFeatured: Boolean!
+  listeners: Int!
+  providerId: String
+  rating: Float!
+  ratingCount: Int!
+  slug: String!
+  status: PodcastStatus!
+  title: String!
+  updatedAt: DateTime!
+}
+
+enum PodcastCategory {
+  AI
+  BUSINESS
+  CAREER
+  COMPLIANCE
+  CPD
+  DATA
+  DESIGN
+  EDUCATION
+  ENGINEERING
+  FINANCE
+  HEALTHCARE
+  LEADERSHIP
+  MARKETING
+  OTHER
+  TECHNOLOGY
+}
+
+type PodcastEpisode {
+  audioUrl: String
+  createdAt: DateTime!
+  description: String
+  durationMinutes: Int
+  episodeNumber: Int!
+  id: ID!
+  podcastId: String!
+  publishedAt: DateTime
+  title: String!
+  updatedAt: DateTime!
+}
+
+input PodcastFilterInput {
+  category: PodcastCategory
+  isFeatured: Boolean
+  providerId: String
+  search: String
+  status: PodcastStatus
+}
+
+type PodcastPageInfo {
+  hasNextPage: Boolean!
+  nextCursor: String
+}
+
+input PodcastPaginationInput {
+  cursor: String
+  take: Int = 20
+}
+
+enum PodcastSortDirection {
+  ASC
+  DESC
+}
+
+enum PodcastSortField {
+  CREATED_AT
+  EPISODE_COUNT
+  LISTENERS
+  RATING
+  TITLE
+  UPDATED_AT
+}
+
+input PodcastSortInput {
+  direction: PodcastSortDirection = DESC
+  field: PodcastSortField = CREATED_AT
+}
+
+enum PodcastStatus {
+  ARCHIVED
+  DRAFT
+  PUBLISHED
+}
+
+input PopularCategoriesInput {
+  take: Int = 8
+}
+
+type PopularCategory {
+  averageRating: Float!
+  category: String!
+  courseCount: Int!
+  eventCount: Int!
+  podcastCount: Int!
+  popularityScore: Float!
+  totalItems: Int!
+  youtubeCount: Int!
+}
+
+type ProfessionalCalendarEvent {
+  attendedAt: DateTime
+  completedAt: DateTime
+  createdAt: DateTime!
+  durationMinutes: Int!
+  event: ProfessionalCalendarEventInfo
+  eventId: String!
+  id: ID!
+  isLive: Boolean!
+  isPast: Boolean!
+  isUpcoming: Boolean!
+  startsInMinutes: Int
+  status: EventRegistrationStatus!
+  updatedAt: DateTime!
+  userId: String!
+}
+
+type ProfessionalCalendarEventInfo {
+  deliveryMode: EventDeliveryMode!
+  endDate: DateTime
+  id: ID!
+  location: String
+  onlineUrl: String
+  pdu: Float!
+  slug: String!
+  startDate: DateTime!
+  timezone: String!
+  title: String!
+  type: EventType!
+}
+
+input ProfessionalCalendarEventsFilterInput {
+  deliveryMode: EventDeliveryMode
+  from: DateTime
+  search: String
+  status: EventRegistrationStatus
+  to: DateTime
+}
+
+type ProfessionalCertificate {
+  certificateUrl: String
+  contentId: String
+  contentType: ContentType
+  createdAt: DateTime!
+  id: ID!
+  issuedAt: DateTime!
+  issuer: String
+  pduEarned: Float!
+  status: CertificateStatus!
+  title: String!
+  updatedAt: DateTime!
+  userId: ID!
+  validUntil: DateTime
+  verificationCode: String!
+}
+
+type ProfessionalCourse {
+  canceledAt: DateTime
+  completedAt: DateTime
+  contentId: String!
+  contentType: ContentType!
+  courseCategory: CourseCategory
+  courseCurrency: String
+  courseDescription: String
+  courseDurationMinutes: Int
+  courseImageUrl: String
+  courseIsFree: Boolean
+  courseLevel: CourseLevel
+  coursePrice: Float
+  courseRating: Float
+  courseRatingCount: Int
+  courseSlug: String
+  courseTitle: String
+  createdAt: DateTime!
+  id: ID!
+  progress: Int!
+  providerName: String
+  startedAt: DateTime!
+  status: ContentEnrollmentStatus!
+  updatedAt: DateTime!
+  userId: ID!
+}
+
+type ProfessionalDashboardProfile {
+  avatarUrl: String
+  bio: String
+  certificatesEarned: Int!
+  coursesEnrolled: Int!
+  education: String
+  email: String
+  fullName: String
+  id: ID!
+  learningHours: Float!
+  location: String
+  occupation: String
+  phone: String
+  role: Role!
+  status: UserStatus!
+  website: String
+}
+
+type ProfessionalExploreRoadmap {
+  category: CourseCategory
+  description: String!
+  estimatedWeeks: Int!
+  id: ID!
+  imageUrl: String
+  isEnrolled: Boolean!
+  level: CourseLevel!
+  phasesCount: Int!
+  slug: String!
+  status: RoadmapStatus!
+  title: String!
+  totalSteps: Int!
+}
+
+type ProfessionalOverview {
+  activeCourses: Int!
+  certificatesEarned: Int!
+  completedCourses: Int!
+  professionalName: String
+  totalPdus: Float!
+  upcomingEvents: Int!
+  yearlyPduGoalProgress: Float!
+}
+
+type ProfessionalPageInfo {
+  hasNextPage: Boolean!
+  nextCursor: String
+}
+
+input ProfessionalPaginationInput {
+  cursor: String
+  take: Int = 12
+}
+
+type ProfessionalPayment {
+  amount: Float!
+  contentId: String
+  contentType: ContentType
+  createdAt: DateTime!
+  currency: String!
+  id: ID!
+  paidAt: DateTime
+  providerPaymentId: String
+  receiptUrl: String
+  status: PaymentStatus!
+  title: String!
+  updatedAt: DateTime!
+  userId: ID!
+}
+
+type ProfessionalPduActivity {
+  category: PDUCategory!
+  contentId: String
+  contentType: ContentType
+  createdAt: DateTime!
+  date: DateTime!
+  description: String
+  evidenceUrl: String
+  id: String!
+  pdus: Float!
+  source: PDUSource!
+  status: PDUStatus!
+  title: String!
+  updatedAt: DateTime!
+}
+
+type ProfessionalPduCategorySummary {
+  category: PDUCategory!
+  pdus: Float!
+}
+
+type ProfessionalPduReport {
+  activities: Int!
+  averagePerMonth: Float!
+  byCategory: [ProfessionalPduCategorySummary!]!
+  progressToGoal: Float!
+  targets: [ProfessionalPduTarget!]!
+  totalPdus: Float!
+  year: Int!
+}
+
+type ProfessionalPduTarget {
+  category: PDUCategory!
+  id: String!
+  target: Float!
+  year: Int!
+}
+
+type ProfessionalProfile {
+  createdAt: DateTime!
+  experience: Int
+  id: ID!
+  industry: String
+  interests: [String!]!
+  jobTitle: String
+  location: String
+  skills: [String!]!
+  updatedAt: DateTime!
+  userId: String!
+}
+
+type ProfessionalRoadmap {
+  category: CourseCategory
+  completedAt: DateTime
+  completedPhases: Int!
+  completedSteps: Int!
+  description: String!
+  enrolledAt: DateTime!
+  id: ID!
+  imageUrl: String
+  level: CourseLevel!
+  nextMilestoneProgress: Int!
+  nextPhaseTitle: String
+  phases: [ProfessionalRoadmapPhase!]!
+  phasesCount: Int!
+  progress: Int!
+  roadmapId: ID!
+  roadmapStatus: RoadmapStatus!
+  slug: String!
+  status: RoadmapEnrollmentStatus!
+  title: String!
+  totalSteps: Int!
+  updatedAt: DateTime!
+  userId: ID!
+}
+
+type ProfessionalRoadmapPhase {
+  completed: Boolean!
+  description: String
+  id: ID!
+  order: Int!
+  progress: Int!
+  steps: [ProfessionalRoadmapStep!]!
+  stepsCount: Int!
+  title: String!
+}
+
+type ProfessionalRoadmapStep {
+  contentId: String
+  contentType: ContentType
+  description: String
+  id: ID!
+  order: Int!
+  title: String!
+}
+
+input ProfessionalSearchInput {
+  search: String
+}
+
+type ProfessionalSession {
+  createdAt: DateTime!
+  expiresAt: DateTime!
+  id: ID!
+  ipAddress: String
+  revokedAt: DateTime
+  status: SessionStatus!
+  updatedAt: DateTime!
+  userAgent: String
+  userId: ID!
+}
+
+type ProfessionalSettings {
+  courseUpdates: Boolean!
+  createdAt: DateTime!
+  emailNotifications: Boolean!
+  eventReminders: Boolean!
+  id: ID!
+  interfaceLanguage: AppLanguage!
+  loginAlerts: Boolean!
+  messages: Boolean!
+  profileVisibility: ProfileVisibility!
+  pushNotifications: Boolean!
+  showCertificates: Boolean!
+  showEmail: Boolean!
+  showLearningProgress: Boolean!
+  theme: Theme!
+  updatedAt: DateTime!
+  userId: ID!
+}
+
+enum ProfileVisibility {
+  FOLLOWERS_ONLY
+  PRIVATE
+  PUBLIC
+}
+
+type PromotionRequest {
+  budget: Float
+  createdAt: DateTime!
+  eventId: ID!
+  eventTitle: String!
+  id: ID!
+  note: String
+  promotionType: PromotionType!
+  providerId: ID!
+  rejectReason: String
+  status: PromotionRequestStatus!
+  updatedAt: DateTime!
+}
+
+enum PromotionRequestStatus {
+  APPROVED
+  CANCELLED
+  PENDING
+  REJECTED
+}
+
+enum PromotionType {
+  COMBO_PACKAGE
+  EMAIL_CAMPAIGN
+  FEATURED_LISTING
+  SOCIAL_MEDIA_BOOST
+}
+
+type ProviderAnalytics {
+  avgFeePerAttendee: Float!
+  avgRating: Float!
+  conversionRate: Float!
+  eventTypeBreakdown: [ProviderBreakdownPoint!]!
+  pdusByCategory: [ProviderBreakdownPoint!]!
+  registrationsOverTime: [ProviderTimeSeriesPoint!]!
+  topPerformingEvents: [ProviderTopEvent!]!
+  totalRevenue: Float!
+}
+
+type ProviderAttendee {
+  attendedAt: DateTime
+  completedAt: DateTime
+  email: String
+  eventId: ID!
+  eventTitle: String!
+  name: String
+  registrationDate: DateTime!
+  registrationId: ID!
+  status: EventRegistrationStatus!
+  userId: ID!
+}
+
+type ProviderAttendeeStats {
+  attendanceRate: Float!
+  attended: Int!
+  confirmed: Int!
+  totalRegistered: Int!
+}
+
+input ProviderAttendeesFilterInput {
+  eventId: String
+  search: String
+  status: EventRegistrationStatus
+}
+
+type ProviderAttendeesStats {
+  attendanceRate: Float!
+  attended: Int!
+  confirmed: Int!
+  totalRegistered: Int!
+}
+
+type ProviderBreakdownPoint {
+  count: Int!
+  label: String!
+  value: Float
+}
+
+input ProviderDashboardPaginationInput {
+  cursor: String
+  take: Int = 20
+}
+
+enum ProviderDashboardRange {
+  LAST_7_DAYS
+  LAST_30_DAYS
+  LAST_90_DAYS
+  THIS_YEAR
+}
+
+input ProviderDashboardRangeInput {
+  range: ProviderDashboardRange = LAST_30_DAYS
+}
+
+type ProviderEventTableRow {
+  id: ID!
+  pdu: Float!
+  registrants: Int!
+  startDate: DateTime!
+  status: EventStatus!
+  title: String!
+  views: Int!
+}
+
+input ProviderEventsFilterInput {
+  search: String
+  status: EventStatus
+}
+
+type ProviderOverview {
+  conversionRate: Float!
+  providerName: String
+  statusBreakdown: ProviderStatusBreakdown!
+  totalEvents: Int!
+  totalRegistrations: Int!
+  totalViews: Int!
+  upcomingSessions: Int!
+}
+
+type ProviderPageInfo {
+  hasNextPage: Boolean!
+  nextCursor: String
+}
+
+type ProviderProfile {
+  contactEmail: String
+  contactPhone: String
+  createdAt: DateTime!
+  id: ID!
+  isPremium: Boolean!
+  logoUrl: String
+  organizationName: String
+  updatedAt: DateTime!
+  userId: String!
+  website: String
+}
+
+input ProviderPromotionFilterInput {
+  eventId: String
+  promotionType: PromotionType
+  search: String
+  status: PromotionRequestStatus
+}
+
+type ProviderSettings {
+  aboutOrganization: String
+  contactEmail: String
+  createdAt: DateTime!
+  eventReminderEnabled: Boolean!
+  id: ID!
+  newRegistrationAlertEnabled: Boolean!
+  organizationName: String
+  organizationProfile: String
+  providerId: ID!
+  reminderHoursBeforeEvent: Int!
+  updatedAt: DateTime!
+}
+
+type ProviderStatusBreakdown {
+  archived: Int!
+  cancelled: Int!
+  draft: Int!
+  published: Int!
+}
+
+type ProviderTimeSeriesPoint {
+  date: String!
+  registrations: Int!
+  revenue: Float!
+}
+
+type ProviderTopEvent {
+  conversionRate: Float!
+  eventId: String!
+  registrations: Int!
+  revenue: Float!
+  title: String!
+  views: Int!
+}
+
+type Query {
+  adminAuditLogs(filter: AdminAuditLogFilter, pagination: AdminPagination): PaginatedAdminAuditLogs!
+  adminDashboardOverview: AdminDashboardOverview!
+  adminOrgAccessRequests(filter: AdminOrgAccessRequestFilter, pagination: AdminPagination): PaginatedAdminOrgAccessRequests!
+  adminOrganizationDetail(organizationId: String!): AdminOrgDetail!
+  adminOrganizationMembers(filter: AdminOrgMemberFilter!, pagination: AdminPagination): PaginatedAdminOrgMembers!
+  adminOrganizations(filter: AdminOrgFilter, pagination: AdminPagination): PaginatedAdminOrg!
+  adminProfile: AdminProfile!
+  adminUserGrowth(mode: String = "DAILY"): [AdminChartPoint!]!
+  adminUsers(filter: AdminUserFilter, pagination: AdminPagination): PaginatedAdminUser!
+  contentReviews(contentId: String!, contentType: ContentType!): [ContentReview!]!
+  courseById(courseId: String!): Course!
+  courseBySlug(slug: String!): Course!
+  courses(filter: CourseFilterInput, pagination: CoursePaginationInput, sort: CourseSortInput): PaginatedCourses!
+  currentUser: AuthPayload!
+  eventById(eventId: String!): Event!
+  eventBySlug(slug: String!): Event!
+  events(filter: EventFilterInput, pagination: EventPaginationInput, sort: EventSortInput): PaginatedEvents!
+  featuredCourses(take: Int = 12): [Course!]!
+  featuredEvents(take: Int = 12): [Event!]!
+  featuredPodcasts(take: Int = 12): [Podcast!]!
+  featuredYouTubeChannels(take: Int = 12): [YouTubeChannel!]!
+  googleOAuthUrl(role: Role!): AuthUrl!
+  me: User!
+  myCart: Cart
+  myEnrollments: [ContentEnrollment!]!
+  myExternalLearningActivities(filter: ExternalLearningFilterInput, pagination: OrganizationPaginationInput): PaginatedExternalLearning!
+  myProviderCourses(filter: CourseFilterInput, pagination: CoursePaginationInput, sort: CourseSortInput): PaginatedCourses!
+  myProviderEvents(filter: EventFilterInput, pagination: EventPaginationInput, sort: EventSortInput): PaginatedEvents!
+  myProviderPodcasts(filter: PodcastFilterInput, pagination: PodcastPaginationInput, sort: PodcastSortInput): PaginatedPodcasts!
+  myProviderYouTubeChannels(filter: YouTubeChannelFilterInput, pagination: YouTubeChannelPaginationInput, sort: YouTubeChannelSortInput): PaginatedYouTubeChannels!
+  myRegisteredEvents: [EventRegistration!]!
+  myReviewForContent(contentId: String!, contentType: ContentType!): ContentReview
+  myWishlist(input: MyWishlistInput): PaginatedWishlist!
+  organizationAccessRequestById(requestId: String!): OrganizationAccessRequest!
+  organizationAccessRequests(filter: OrganizationAccessRequestFilterInput, pagination: OrganizationAccessRequestPaginationInput): PaginatedOrganizationAccessRequests!
+  organizationAssignmentStats: OrganizationAssignmentStats!
+  organizationAssignments(filter: OrganizationAssignmentFilterInput, pagination: OrganizationPaginationInput): PaginatedOrganizationAssignments!
+  organizationCpdCategories(filter: OrganizationCpdCategoryFilterInput, pagination: OrganizationPaginationInput): PaginatedOrganizationCpdCategories!
+  organizationCpdCategoryStats(year: String): OrganizationCpdCategoryStats!
+  organizationDepartments: [OrganizationDepartment!]!
+  organizationEventCatalog(filter: EventCatalogFilterInput, pagination: OrganizationPaginationInput): PaginatedOrganizationEventCatalog!
+  organizationMemberDetail(memberId: String!): OrganizationMemberDetail!
+  organizationMembers(filter: OrganizationMemberFilterInput, pagination: OrganizationPaginationInput): PaginatedOrganizationMembers!
+  organizationMembersStats: OrganizationMembersStats!
+  organizationOverview: OrganizationOverview!
+  organizationReportTopMembers(filter: OrganizationReportTopMembersFilterInput, pagination: OrganizationPaginationInput): PaginatedOrganizationReportTopMembers!
+  organizationReports(filter: OrganizationReportFilterInput): OrganizationReport!
+  organizationSettings: OrganizationSettings!
+  podcastById(podcastId: String!): Podcast!
+  podcastBySlug(slug: String!): Podcast!
+  podcastEpisodes(podcastId: String!): [PodcastEpisode!]!
+  podcasts(filter: PodcastFilterInput, pagination: PodcastPaginationInput, sort: PodcastSortInput): PaginatedPodcasts!
+  popularCategories(input: PopularCategoriesInput): [PopularCategory!]!
+  professionalActiveSessions: [ProfessionalSession!]!
+  professionalCalendarEvents(filter: ProfessionalCalendarEventsFilterInput, pagination: ProfessionalPaginationInput): PaginatedProfessionalCalendarEvents!
+  professionalCertificates(filter: ProfessionalSearchInput, pagination: ProfessionalPaginationInput): PaginatedProfessionalCertificates!
+  professionalDashboardProfile: ProfessionalDashboardProfile!
+  professionalExploreRoadmaps(filter: ProfessionalSearchInput, pagination: ProfessionalPaginationInput): PaginatedProfessionalExploreRoadmaps!
+  professionalMyCourses(filter: ProfessionalSearchInput, pagination: ProfessionalPaginationInput): PaginatedProfessionalCourses!
+  professionalMyRoadmaps(filter: ProfessionalSearchInput, pagination: ProfessionalPaginationInput): PaginatedProfessionalRoadmaps!
+  professionalOverview: ProfessionalOverview!
+  professionalPayments(filter: ProfessionalSearchInput, pagination: ProfessionalPaginationInput): PaginatedProfessionalPayments!
+  professionalPduActivities(filter: ProfessionalSearchInput, pagination: ProfessionalPaginationInput): PaginatedProfessionalPduActivities!
+  professionalPduReport(year: Int): ProfessionalPduReport!
+  professionalSettings: ProfessionalSettings!
+  providerAnalytics(input: ProviderDashboardRangeInput): ProviderAnalytics!
+  providerAnalyticsCsv(input: ProviderDashboardRangeInput): CsvExport!
+  providerAttendees(filter: ProviderAttendeesFilterInput, pagination: ProviderDashboardPaginationInput): PaginatedProviderAttendees!
+  providerEventsTable(filter: ProviderEventsFilterInput, pagination: ProviderDashboardPaginationInput): PaginatedProviderEvents!
+  providerOverview(input: ProviderDashboardRangeInput): ProviderOverview!
+  providerPromotionRequests(filter: ProviderPromotionFilterInput, pagination: ProviderDashboardPaginationInput): PaginatedPromotionRequests!
+  providerSettings: ProviderSettings!
+  upcomingEvents(take: Int = 12): [Event!]!
+  userById(userId: String!): User!
+  users(filter: UserFilterInput, pagination: UserPaginationInput): PaginatedUsers!
+  youtubeChannelById(channelId: String!): YouTubeChannel!
+  youtubeChannelBySlug(slug: String!): YouTubeChannel!
+  youtubeChannels(filter: YouTubeChannelFilterInput, pagination: YouTubeChannelPaginationInput, sort: YouTubeChannelSortInput): PaginatedYouTubeChannels!
+  youtubeVideos(channelId: String!): [YouTubeVideo!]!
+}
+
+input RegisterInput {
+  confirmPassword: String!
+  email: String!
+  fullName: String!
+  password: String!
+  role: AuthRegisterRole!
+}
+
+input RequestEmailChangeInput {
+  newEmail: String!
+}
+
+input ResendEmailOtpInput {
+  email: String!
+}
+
+input ResetPasswordInput {
+  code: String!
+  confirmPassword: String!
+  email: String!
+  newPassword: String!
+}
+
+input ReviewOrganizationAccessRequestInput {
+  rejectReason: String
+  requestId: String!
+  status: OrganizationAccessRequestStatus!
+}
+
+enum RoadmapEnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  UNENROLLED
+}
+
+enum RoadmapStatus {
+  ARCHIVED
+  DRAFT
+  PUBLISHED
+}
+
+enum Role {
+  ADMIN
+  ORGANIZATION
+  PROFESSIONAL
+  PROVIDER
+}
+
+enum SessionStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+}
+
+enum SortDirection {
+  ASC
+  DESC
+}
+
+input SubmitContentReviewInput {
+  comment: String
+  contentId: String!
+  contentType: ContentType!
+  rating: Int!
+}
+
+input SubmitOrganizationAccessRequestInput {
+  country: String!
+  expectedLicensedProfessionals: Int!
+  goals: String!
+  organizationName: String!
+  organizationType: OrganizationType!
+  representativeFullName: String!
+  representativeJobRole: String!
+  workEmail: String!
+}
+
+input SubmitPromotionRequestInput {
+  budget: Float
+  eventId: String!
+  note: String
+  promotionType: PromotionType!
+}
+
+enum Theme {
+  DARK
+  LIGHT
+  SYSTEM
+}
+
+input UpdateAdminOrgMember {
+  completedLearning: Int
+  compliance: Float
+  departmentId: ID
+  jobRole: String
+  memberId: ID!
+  pdus: Float
+  status: OrganizationMemberStatus
+}
+
+input UpdateAdminOrgSettings {
+  assignmentNotifications: Boolean
+  complianceAlerts: Boolean
+  complianceCycle: ComplianceCycle
+  minimumPdu: Float
+  organizationId: String!
+  strictCompliance: Boolean
+  weeklySummaryReport: Boolean
+}
+
+input UpdateAdminProfile {
+  avatarUrl: String
+  bio: String
+  email: String
+  fullName: String
+}
+
+input UpdateAdminUserStatus {
+  status: UserStatus!
+  userId: String!
+}
+
+input UpdateCourseInput {
+  category: CourseCategory
+  courseId: ID!
+  currency: String = "USD"
+  description: String
+  durationMinutes: Int
+  imageUrl: String
+  instructor: String
+  isFeatured: Boolean
+  isFree: Boolean
+  learnings: [String!]
+  level: CourseLevel = ALL_LEVELS
+  price: Float
+  requirements: [String!]
+  status: CourseStatus = DRAFT
+  title: String
+}
+
+input UpdateEnrollmentProgressInput {
+  contentId: String!
+  contentType: ContentType!
+  progress: Int!
+}
+
+input UpdateEventInput {
+  capacity: Int
+  category: EventCategory
+  currency: String = "USD"
+  deliveryMode: EventDeliveryMode
+  description: String
+  earlyBirdDiscount: Float
+  endDate: DateTime
+  eventId: ID!
+  imageUrl: String
+  isFree: Boolean
+  language: AppLanguage
+  location: String
+  onlineUrl: String
+  organizer: String
+  pdu: Float = 0
+  pduCategory: PDUCategory
+  price: Float
+  promotionVideoUrl: String
+  registrationEnabled: Boolean = true
+  speaker: String
+  specificTopic: String
+  startDate: DateTime
+  status: EventStatus = DRAFT
+  timezone: String = "UTC"
+  title: String
+  type: EventType
+}
+
+input UpdateMeInput {
+  avatarUrl: String
+  bio: String
+  firstName: String
+  fullName: String
+  lastName: String
+  phone: String
+}
+
+input UpdateOrganizationAssignmentInput {
+  assignmentId: String!
+  courseId: String
+  departmentId: String
+  description: String
+  dueDate: String
+  eventId: String
+  status: AssignmentStatus
+  targetKind: AssignmentTargetKind
+  targetMemberId: String
+  targetRole: Role
+  title: String
+  type: AssignmentType
+}
+
+input UpdateOrganizationCpdCategoryInput {
+  category: PDUCategory
+  categoryId: String!
+  description: String
+  isActive: Boolean
+  requiredHours: Float
+  title: String
+}
+
+input UpdateOrganizationDepartmentInput {
+  departmentId: String!
+  description: String
+  isActive: Boolean
+  title: String
+}
+
+input UpdateOrganizationMemberInput {
+  departmentId: String
+  jobRole: String
+  memberId: String!
+  role: Role
+  status: OrganizationMemberStatus
+}
+
+input UpdateOrganizationMemberNotesInput {
+  memberId: String!
+  notes: String!
+}
+
+input UpdateOrganizationSettingsInput {
+  assignmentNotifications: Boolean
+  complianceAlerts: Boolean
+  complianceCycle: ComplianceCycle
+  minimumPdu: Float
+  strictCompliance: Boolean
+  weeklySummaryReport: Boolean
+}
+
+input UpdatePodcastEpisodeInput {
+  audioUrl: String
+  description: String
+  durationMinutes: Int
+  episodeId: ID!
+  episodeNumber: Int
+  podcastId: ID
+  publishedAt: DateTime
+  title: String
+}
+
+input UpdatePodcastInput {
+  category: PodcastCategory
+  description: String
+  durationMinutes: Int
+  host: String
+  imageUrl: String
+  isFeatured: Boolean = false
+  podcastId: ID!
+  rating: Float
+  status: PodcastStatus = DRAFT
+  title: String
+}
+
+input UpdateProfessionalProfileInput {
+  avatarUrl: String
+  bio: String
+  education: String
+  fullName: String
+  location: String
+  occupation: String
+  phone: String
+  website: String
+}
+
+input UpdateProfessionalSettingsInput {
+  courseUpdates: Boolean
+  emailNotifications: Boolean
+  eventReminders: Boolean
+  interfaceLanguage: AppLanguage
+  loginAlerts: Boolean
+  messages: Boolean
+  profileVisibility: ProfileVisibility
+  pushNotifications: Boolean
+  showCertificates: Boolean
+  showEmail: Boolean
+  showLearningProgress: Boolean
+  theme: Theme
+}
+
+input UpdateProviderSettingsInput {
+  aboutOrganization: String
+  contactEmail: String
+  eventReminderEnabled: Boolean
+  newRegistrationAlertEnabled: Boolean
+  organizationName: String
+  organizationProfile: String
+  reminderHoursBeforeEvent: Int
+}
+
+input UpdateUserInput {
+  avatarUrl: String
+  bio: String
+  email: String
+  firstName: String
+  fullName: String
+  lastName: String
+  phone: String
+  role: Role
+  status: UserStatus
+  userId: String!
+}
+
+input UpdateUserStatusInput {
+  status: UserStatus!
+  userId: String!
+}
+
+input UpdateYouTubeChannelInput {
+  category: YouTubeCategory
+  channelId: ID!
+  channelUrl: String
+  description: String
+  imageUrl: String
+  isFeatured: Boolean = false
+  provider: String
+  status: YouTubeChannelStatus = DRAFT
+  subscribers: Int = 0
+  title: String
+}
+
+input UpdateYouTubeVideoInput {
+  channelId: ID
+  description: String
+  durationMinutes: Int
+  likes: Int = 0
+  publishedAt: DateTime
+  status: YouTubeVideoStatus = PUBLISHED
+  thumbnailUrl: String
+  title: String
+  videoId: ID!
+  videoUrl: String
+  views: Int = 0
+}
+
+input UpsertPduTargetInput {
+  category: PDUCategory!
+  target: Float!
+  year: Int!
+}
+
+type User {
+  avatarUrl: String
+  bio: String
+  createdAt: DateTime!
+  deletedAt: DateTime
+  email: String
+  emailVerifiedAt: DateTime
+  firstName: String
+  fullName: String
+  id: ID!
+  lastLoginAt: DateTime
+  lastName: String
+  organizationProfile: OrganizationProfile
+  phone: String
+  phoneVerifiedAt: DateTime
+  professionalProfile: ProfessionalProfile
+  providerProfile: ProviderProfile
+  role: Role!
+  status: UserStatus!
+  updatedAt: DateTime!
+}
+
+input UserFilterInput {
+  includeDeleted: Boolean = false
+  role: Role
+  search: String
+  status: UserStatus
+}
+
+type UserPageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  limit: Int!
+  page: Int!
+  totalItems: Int!
+  totalPages: Int!
+}
+
+input UserPaginationInput {
+  limit: Int = 10
+  page: Int = 1
+}
+
+enum UserStatus {
+  ACTIVE
+  DELETED
+  DISABLED
+  PENDING
+}
+
+input VerifyEmailChangeInput {
+  code: String!
+  newEmail: String!
+}
+
+input VerifyEmailOtpInput {
+  code: String!
+  email: String!
+}
+
+type WishlistContent {
+  category: String
+  currency: String
+  description: String
+  imageUrl: String
+  isFree: Boolean!
+  price: Float
+  providerName: String
+  rating: Float
+  slug: String
+  title: String
+  url: String
+}
+
+type WishlistItem {
+  content: WishlistContent
+  contentId: String!
+  contentType: ContentType!
+  createdAt: DateTime!
+  id: String!
+  userId: String!
+}
+
+enum WishlistPriceFilter {
+  FREE
+  PAID
+}
+
+enum WishlistSortBy {
+  NEWEST
+  OLDEST
+  PRICE_ASC
+  PRICE_DESC
+  RATING_DESC
+  TITLE_ASC
+  TITLE_DESC
+}
+
+enum YouTubeCategory {
+  AI
+  BUSINESS
+  CAREER
+  COMPLIANCE
+  CPD
+  DATA
+  DESIGN
+  EDUCATION
+  ENGINEERING
+  FINANCE
+  HEALTHCARE
+  LEADERSHIP
+  MARKETING
+  OTHER
+  TECHNOLOGY
+}
+
+type YouTubeChannel {
+  category: YouTubeCategory!
+  channelUrl: String
+  createdAt: DateTime!
+  deletedAt: DateTime
+  description: String
+  id: ID!
+  imageUrl: String
+  isFeatured: Boolean!
+  provider: String
+  providerId: String
+  rating: Float!
+  ratingCount: Int!
+  slug: String!
+  status: YouTubeChannelStatus!
+  subscribers: Int!
+  title: String!
+  updatedAt: DateTime!
+  videoCount: Int!
+  views: Int!
+}
+
+input YouTubeChannelFilterInput {
+  category: YouTubeCategory
+  isFeatured: Boolean
+  providerId: String
+  search: String
+  status: YouTubeChannelStatus
+}
+
+type YouTubeChannelPageInfo {
+  hasNextPage: Boolean!
+  nextCursor: String
+}
+
+input YouTubeChannelPaginationInput {
+  cursor: String
+  take: Int = 20
+}
+
+enum YouTubeChannelSortDirection {
+  ASC
+  DESC
+}
+
+enum YouTubeChannelSortField {
+  CREATED_AT
+  SUBSCRIBERS
+  TITLE
+  UPDATED_AT
+  VIDEO_COUNT
+  VIEWS
+}
+
+input YouTubeChannelSortInput {
+  direction: YouTubeChannelSortDirection = DESC
+  field: YouTubeChannelSortField = CREATED_AT
+}
+
+enum YouTubeChannelStatus {
+  ARCHIVED
+  DRAFT
+  PUBLISHED
+}
+
+type YouTubeVideo {
+  channelId: String!
+  createdAt: DateTime!
+  description: String
+  durationMinutes: Int
+  id: ID!
+  likes: Int!
+  publishedAt: DateTime
+  status: YouTubeVideoStatus!
+  thumbnailUrl: String
+  title: String!
+  updatedAt: DateTime!
+  videoUrl: String
+  views: Int!
+}
+
+enum YouTubeVideoStatus {
+  ARCHIVED
+  DRAFT
+  PUBLISHED
+}

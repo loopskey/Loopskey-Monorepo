@@ -1,0 +1,159 @@
+# ================= Fragments ===============
+fragment YouTubeChannelFields on YouTubeChannel {
+  id
+  slug
+  views
+  title
+  status
+  rating
+  provider
+  category
+  imageUrl
+  updatedAt
+  createdAt
+  deletedAt
+  channelUrl
+  isFeatured
+  providerId
+  videoCount
+  ratingCount
+  subscribers
+  description
+}
+
+fragment YouTubeVideoFields on YouTubeVideo {
+  id
+  title
+  views
+  likes
+  status
+  videoUrl
+  channelId
+  createdAt
+  updatedAt
+  description
+  publishedAt
+  thumbnailUrl
+  durationMinutes
+}
+
+fragment YouTubeChannelPageInfoFields on YouTubeChannelPageInfo {
+  nextCursor
+  hasNextPage
+}
+
+# ================ Queries ================
+query YouTubeChannels(
+  $filter: YouTubeChannelFilterInput
+  $pagination: YouTubeChannelPaginationInput
+  $sort: YouTubeChannelSortInput
+) {
+  youtubeChannels(filter: $filter, pagination: $pagination, sort: $sort) {
+    items {
+      ...YouTubeChannelFields
+    }
+    totalCount
+    pageInfo {
+      ...YouTubeChannelPageInfoFields
+    }
+  }
+}
+
+query YouTubeChannelById($channelId: String!) {
+  youtubeChannelById(channelId: $channelId) {
+    ...YouTubeChannelFields
+  }
+}
+
+query YouTubeChannelBySlug($slug: String!) {
+  youtubeChannelBySlug(slug: $slug) {
+    ...YouTubeChannelFields
+  }
+}
+
+query FeaturedYouTubeChannels($take: Int) {
+  featuredYouTubeChannels(take: $take) {
+    ...YouTubeChannelFields
+  }
+}
+
+query YouTubeVideos($channelId: String!) {
+  youtubeVideos(channelId: $channelId) {
+    ...YouTubeVideoFields
+  }
+}
+
+query MyProviderYouTubeChannels(
+  $filter: YouTubeChannelFilterInput
+  $pagination: YouTubeChannelPaginationInput
+  $sort: YouTubeChannelSortInput
+) {
+  myProviderYouTubeChannels(
+    filter: $filter
+    pagination: $pagination
+    sort: $sort
+  ) {
+    items {
+      ...YouTubeChannelFields
+    }
+    totalCount
+    pageInfo {
+      ...YouTubeChannelPageInfoFields
+    }
+  }
+}
+
+# ================== Mutations ================
+mutation CreateYouTubeChannel($input: CreateYouTubeChannelInput!) {
+  createYouTubeChannel(input: $input) {
+    ...YouTubeChannelFields
+  }
+}
+
+mutation UpdateYouTubeChannel($input: UpdateYouTubeChannelInput!) {
+  updateYouTubeChannel(input: $input) {
+    ...YouTubeChannelFields
+  }
+}
+
+mutation PublishYouTubeChannel($channelId: String!) {
+  publishYouTubeChannel(channelId: $channelId) {
+    ...YouTubeChannelFields
+  }
+}
+
+mutation ArchiveYouTubeChannel($channelId: String!) {
+  archiveYouTubeChannel(channelId: $channelId) {
+    ...YouTubeChannelFields
+  }
+}
+
+mutation DeleteYouTubeChannel($channelId: String!) {
+  deleteYouTubeChannel(channelId: $channelId) {
+    ...YouTubeChannelFields
+  }
+}
+
+mutation RestoreYouTubeChannel($channelId: String!) {
+  restoreYouTubeChannel(channelId: $channelId) {
+    ...YouTubeChannelFields
+  }
+}
+
+mutation CreateYouTubeVideo($input: CreateYouTubeVideoInput!) {
+  createYouTubeVideo(input: $input) {
+    ...YouTubeVideoFields
+  }
+}
+
+mutation UpdateYouTubeVideo($input: UpdateYouTubeVideoInput!) {
+  updateYouTubeVideo(input: $input) {
+    ...YouTubeVideoFields
+  }
+}
+
+mutation DeleteYouTubeVideo($videoId: String!) {
+  deleteYouTubeVideo(videoId: $videoId) {
+    ...YouTubeVideoFields
+  }
+}

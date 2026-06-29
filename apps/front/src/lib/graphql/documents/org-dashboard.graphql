@@ -1,0 +1,558 @@
+# ================= Fragments =================
+fragment OrganizationPageInfoFields on OrganizationPageInfo {
+  nextCursor
+  hasNextPage
+}
+
+# ================= Overview =================
+fragment OrganizationOverviewSummaryFields on OrganizationOverviewSummary {
+  totalPdus
+  totalMembers
+  activeMembers
+  engagementRate
+  averageCompliance
+  activeAssignments
+  nonCompliantMembers
+}
+
+fragment OrganizationComplianceDistributionFields on OrganizationComplianceDistribution {
+  atRisk
+  compliant
+  nonCompliant
+}
+
+fragment OrganizationAttentionMemberFields on OrganizationAttentionMember {
+  id
+  pdus
+  email
+  userId
+  pduGoal
+  fullName
+  avatarUrl
+  compliance
+  remainingPdus
+  departmentTitle
+}
+
+fragment OrganizationTrendingTopicFields on OrganizationTrendingTopic {
+  title
+  count
+  percentage
+}
+
+fragment OrganizationOverviewFields on OrganizationOverview {
+  summary {
+    ...OrganizationOverviewSummaryFields
+  }
+  complianceDistribution {
+    ...OrganizationComplianceDistributionFields
+  }
+  attentionMembers {
+    ...OrganizationAttentionMemberFields
+  }
+  trendingTopics {
+    ...OrganizationTrendingTopicFields
+  }
+}
+
+query OrganizationOverview {
+  organizationOverview {
+    ...OrganizationOverviewFields
+  }
+}
+
+# ================= Settings ==================
+fragment OrganizationSettingsFields on OrganizationSettings {
+  id
+  createdAt
+  updatedAt
+  minimumPdu
+  organizationId
+  complianceCycle
+  strictCompliance
+  complianceAlerts
+  weeklySummaryReport
+  assignmentNotifications
+}
+
+fragment OrganizationDepartmentFields on OrganizationDepartment {
+  id
+  title
+  isActive
+  createdAt
+  updatedAt
+  description
+  organizationId
+}
+
+# ================== CPD ===================
+fragment OrganizationCpdCategoryStatsFields on OrganizationCpdCategoryStats {
+  totalCategories
+  activeCategories
+  totalRequiredHours
+  mostPopularCategory
+  mostPopularActiveMembers
+}
+
+fragment OrganizationCpdCategoryFields on OrganizationCpdCategory {
+  id
+  title
+  category
+  isActive
+  updatedAt
+  createdAt
+  description
+  totalMembers
+  requiredHours
+  activeMembers
+  organizationId
+}
+
+fragment PaginatedOrganizationCpdCategoriesFields on PaginatedOrganizationCpdCategories {
+  totalCount
+  pageInfo {
+    ...OrganizationPageInfoFields
+  }
+  items {
+    ...OrganizationCpdCategoryFields
+  }
+}
+
+query OrganizationCpdCategoryStats($year: String) {
+  organizationCpdCategoryStats(year: $year) {
+    ...OrganizationCpdCategoryStatsFields
+  }
+}
+
+query OrganizationCpdCategories(
+  $filter: OrganizationCpdCategoryFilterInput
+  $pagination: OrganizationPaginationInput
+) {
+  organizationCpdCategories(filter: $filter, pagination: $pagination) {
+    ...PaginatedOrganizationCpdCategoriesFields
+  }
+}
+
+mutation CreateOrganizationCpdCategory(
+  $input: CreateOrganizationCpdCategoryInput!
+) {
+  createOrganizationCpdCategory(input: $input) {
+    ...OrganizationCpdCategoryFields
+  }
+}
+
+mutation UpdateOrganizationCpdCategory(
+  $input: UpdateOrganizationCpdCategoryInput!
+) {
+  updateOrganizationCpdCategory(input: $input) {
+    ...OrganizationCpdCategoryFields
+  }
+}
+
+mutation DeleteOrganizationCpdCategory($categoryId: String!) {
+  deleteOrganizationCpdCategory(categoryId: $categoryId) {
+    code
+    message
+    success
+  }
+}
+
+# =================== Event Catalog ==================
+fragment OrganizationEventCatalogFields on OrganizationEventCatalogItem {
+  id
+  pdu
+  slug
+  type
+  title
+  price
+  isFree
+  rating
+  speaker
+  category
+  capacity
+  location
+  currency
+  imageUrl
+  startDate
+  onlineUrl
+  description
+  deliveryMode
+  averageRating
+}
+
+fragment PaginatedOrganizationEventCatalogFields on PaginatedOrganizationEventCatalog {
+  totalCount
+  pageInfo {
+    ...OrganizationPageInfoFields
+  }
+  items {
+    ...OrganizationEventCatalogFields
+  }
+}
+
+# ================= Queries =================
+query OrganizationOverview {
+  organizationOverview {
+    ...OrganizationOverviewFields
+  }
+}
+
+query OrganizationSettings {
+  organizationSettings {
+    ...OrganizationSettingsFields
+  }
+}
+
+query OrganizationDepartments {
+  organizationDepartments {
+    ...OrganizationDepartmentFields
+  }
+}
+
+query OrganizationEventCatalog(
+  $filter: EventCatalogFilterInput
+  $pagination: OrganizationPaginationInput
+) {
+  organizationEventCatalog(filter: $filter, pagination: $pagination) {
+    ...PaginatedOrganizationEventCatalogFields
+  }
+}
+
+# ================= Mutations =================
+mutation UpdateOrganizationSettings($input: UpdateOrganizationSettingsInput!) {
+  updateOrganizationSettings(input: $input) {
+    ...OrganizationSettingsFields
+  }
+}
+
+mutation CreateOrganizationDepartment(
+  $input: CreateOrganizationDepartmentInput!
+) {
+  createOrganizationDepartment(input: $input) {
+    ...OrganizationDepartmentFields
+  }
+}
+
+mutation UpdateOrganizationDepartment(
+  $input: UpdateOrganizationDepartmentInput!
+) {
+  updateOrganizationDepartment(input: $input) {
+    ...OrganizationDepartmentFields
+  }
+}
+
+mutation DeleteOrganizationDepartment($departmentId: String!) {
+  deleteOrganizationDepartment(departmentId: $departmentId) {
+    ...OrganizationDepartmentFields
+  }
+}
+
+mutation AddOrganizationMember($input: AddOrganizationMemberInput!) {
+  addOrganizationMember(input: $input) {
+    ...OrganizationMemberFields
+  }
+}
+
+mutation UpdateOrganizationMember($input: UpdateOrganizationMemberInput!) {
+  updateOrganizationMember(input: $input) {
+    ...OrganizationMemberFields
+  }
+}
+
+# =============== Submit Access Request =============
+mutation SubmitOrganizationAccessRequest(
+  $input: SubmitOrganizationAccessRequestInput!
+) {
+  submitOrganizationAccessRequest(input: $input) {
+    id
+    goals
+    status
+    country
+    createdAt
+    workEmail
+    updatedAt
+    reviewedAt
+    reviewedById
+    rejectReason
+    approvedUserId
+    organizationName
+    organizationType
+    representativeJobRole
+    representativeFullName
+    expectedLicensedProfessionals
+  }
+}
+
+# ================= Organization Members =================
+fragment OrganizationMembersStatsFields on OrganizationMembersStats {
+  totalPdus
+  totalMembers
+  activeMembers
+  inactiveMembers
+  averageCompliance
+}
+
+fragment OrganizationMemberDetailFields on OrganizationMemberDetail {
+  id
+  pdus
+  notes
+  email
+  userId
+  status
+  jobRole
+  pduGoal
+  joinedAt
+  fullName
+  avatarUrl
+  createdAt
+  updatedAt
+  compliance
+  pduProgress
+  departmentId
+  lastActivityAt
+  organizationId
+  lastCourseTitle
+  departmentTitle
+  completedLearning
+}
+
+fragment BulkAddOrganizationMembersResultFields on BulkAddOrganizationMembersResult {
+  errors
+  failed
+  created
+  updated
+  totalRows
+}
+
+fragment OrganizationMemberFields on OrganizationMember {
+  id
+  pdus
+  role
+  email
+  userId
+  status
+  jobRole
+  fullName
+  joinedAt
+  createdAt
+  avatarUrl
+  updatedAt
+  compliance
+  departmentId
+  organizationId
+  departmentTitle
+  completedLearning
+}
+
+fragment PaginatedOrganizationMembersFields on PaginatedOrganizationMembers {
+  totalCount
+  pageInfo {
+    ...OrganizationPageInfoFields
+  }
+  items {
+    ...OrganizationMemberFields
+  }
+}
+
+query OrganizationMembers(
+  $filter: OrganizationMemberFilterInput
+  $pagination: OrganizationPaginationInput
+) {
+  organizationMembers(filter: $filter, pagination: $pagination) {
+    ...PaginatedOrganizationMembersFields
+  }
+}
+
+query OrganizationMembersStats {
+  organizationMembersStats {
+    ...OrganizationMembersStatsFields
+  }
+}
+
+query OrganizationMemberDetail($memberId: String!) {
+  organizationMemberDetail(memberId: $memberId) {
+    ...OrganizationMemberDetailFields
+  }
+}
+
+mutation BulkAddOrganizationMembers($input: BulkAddOrganizationMembersInput!) {
+  bulkAddOrganizationMembers(input: $input) {
+    ...BulkAddOrganizationMembersResultFields
+  }
+}
+
+mutation UpdateOrganizationMemberNotes(
+  $input: UpdateOrganizationMemberNotesInput!
+) {
+  updateOrganizationMemberNotes(input: $input) {
+    ...OrganizationMemberFields
+  }
+}
+
+# ================= Organization Assignments =================
+fragment OrganizationAssignmentStatsFields on OrganizationAssignmentStats {
+  totalAssignments
+  activeAssignments
+  totalParticipants
+  averageCompletionRate
+}
+
+fragment OrganizationAssignmentFields on OrganizationAssignment {
+  id
+  type
+  title
+  status
+  dueDate
+  members
+  eventId
+  courseId
+  progress
+  createdAt
+  updatedAt
+  eventTitle
+  targetRole
+  targetKind
+  createdById
+  description
+  courseTitle
+  departmentId
+  organizationId
+  targetMemberId
+}
+
+fragment PaginatedOrganizationAssignmentsFields on PaginatedOrganizationAssignments {
+  totalCount
+  pageInfo {
+    ...OrganizationPageInfoFields
+  }
+  items {
+    ...OrganizationAssignmentFields
+  }
+}
+
+query OrganizationAssignments(
+  $filter: OrganizationAssignmentFilterInput
+  $pagination: OrganizationPaginationInput
+) {
+  organizationAssignments(filter: $filter, pagination: $pagination) {
+    ...PaginatedOrganizationAssignmentsFields
+  }
+}
+
+mutation CreateOrganizationAssignment(
+  $input: CreateOrganizationAssignmentInput!
+) {
+  createOrganizationAssignment(input: $input) {
+    ...OrganizationAssignmentFields
+  }
+}
+
+query OrganizationAssignmentStats {
+  organizationAssignmentStats {
+    ...OrganizationAssignmentStatsFields
+  }
+}
+
+query OrganizationAssignments(
+  $filter: OrganizationAssignmentFilterInput
+  $pagination: OrganizationPaginationInput
+) {
+  organizationAssignments(filter: $filter, pagination: $pagination) {
+    ...PaginatedOrganizationAssignmentsFields
+  }
+}
+
+mutation CreateOrganizationAssignment(
+  $input: CreateOrganizationAssignmentInput!
+) {
+  createOrganizationAssignment(input: $input) {
+    ...OrganizationAssignmentFields
+  }
+}
+
+mutation UpdateOrganizationAssignment(
+  $input: UpdateOrganizationAssignmentInput!
+) {
+  updateOrganizationAssignment(input: $input) {
+    ...OrganizationAssignmentFields
+  }
+}
+
+mutation DeleteOrganizationAssignment($assignmentId: String!) {
+  deleteOrganizationAssignment(assignmentId: $assignmentId) {
+    ...OrganizationAssignmentFields
+  }
+}
+
+# ================= Organization Reports =================
+fragment OrganizationReportSummaryFields on OrganizationReportSummary {
+  totalPdus
+  averagePdus
+  totalMembers
+  requiredHours
+  averageCompliance
+}
+
+fragment OrganizationReportTrendPointFields on OrganizationReportTrendPoint {
+  date
+  pdus
+  label
+  compliance
+}
+
+fragment OrganizationReportDepartmentFields on OrganizationReportDepartment {
+  teamSize
+  totalPdus
+  compliance
+  averagePdus
+  departmentId
+  departmentTitle
+}
+
+fragment OrganizationReportFields on OrganizationReport {
+  summary {
+    ...OrganizationReportSummaryFields
+  }
+  complianceTrend {
+    ...OrganizationReportTrendPointFields
+  }
+  departmentCompliance {
+    ...OrganizationReportDepartmentFields
+  }
+}
+
+fragment OrganizationReportTopMemberFields on OrganizationReportTopMember {
+  id
+  pdus
+  email
+  userId
+  fullName
+  compliance
+  departmentTitle
+  completedLearning
+}
+
+fragment PaginatedOrganizationReportTopMembersFields on PaginatedOrganizationReportTopMembers {
+  totalCount
+  pageInfo {
+    ...OrganizationPageInfoFields
+  }
+  items {
+    ...OrganizationReportTopMemberFields
+  }
+}
+
+query OrganizationReports($filter: OrganizationReportFilterInput) {
+  organizationReports(filter: $filter) {
+    ...OrganizationReportFields
+  }
+}
+
+query OrganizationReportTopMembers(
+  $filter: OrganizationReportTopMembersFilterInput
+  $pagination: OrganizationPaginationInput
+) {
+  organizationReportTopMembers(filter: $filter, pagination: $pagination) {
+    ...PaginatedOrganizationReportTopMembersFields
+  }
+}

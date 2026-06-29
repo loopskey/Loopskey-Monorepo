@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Elements -->
+  <path d="M0 0h800v600H0z" fill="#F8F9FF"/>
+  
+  <!-- Decorative Circles -->
+  <circle cx="100" cy="100" r="50" fill="#DBEAFE" opacity="0.5"/>
+  <circle cx="150" cy="150" r="30" fill="#93C5FD" opacity="0.3"/>
+  <circle cx="700" cy="500" r="40" fill="#DBEAFE" opacity="0.4"/>
+  
+  <!-- Main Elements -->
+  <!-- Book/Screen -->
+  <rect x="250" y="150" width="300" height="200" rx="10" fill="#3B82F6" opacity="0.1"/>
+  <path d="M270 170c0-5.5 4.5-10 10-10h240c5.5 0 10 4.5 10 10v160c0 5.5-4.5 10-10 10H280c-5.5 0-10-4.5-10-10V170z" fill="white" stroke="#3B82F6" stroke-width="2"/>
+  
+  <!-- Learning Elements -->
+  <path d="M300 200l20 20-20 20M350 240h120M300 240h30" stroke="#3B82F6" stroke-width="2"/>
+  
+  <!-- Student Silhouette -->
+  <path d="M380 400c30 0 54.3-24.3 54.3-54.3 0-30-24.3-54.3-54.3-54.3-30 0-54.3 24.3-54.3 54.3 0 30 24.3 54.3 54.3 54.3z" fill="#3B82F6" opacity="0.2"/>
+  <path d="M380 380c19 0 34.3-15.3 34.3-34.3 0-19-15.3-34.3-34.3-34.3-19 0-34.3 15.3-34.3 34.3 0 19 15.3 34.3 34.3 34.3z" fill="#3B82F6" opacity="0.3"/>
+  
+  <!-- Graduation Cap -->
+  <path d="M350 150l30-20 30 20-30 20z" fill="#3B82F6" opacity="0.2"/>
+  <path d="M380 170v30" stroke="#3B82F6" stroke-width="2"/>
+  
+  <!-- Floating Elements -->
+  <circle cx="500" cy="250" r="15" fill="#3B82F6" opacity="0.1"/>
+  <circle cx="520" cy="270" r="15" fill="#3B82F6" opacity="0.15"/>
+  <circle cx="540" cy="290" r="15" fill="#3B82F6" opacity="0.2"/>
+  
+  <!-- Abstract Learning Symbols -->
+  <path d="M200 300l20-20 20 20M180 340l20-20 20 20M220 340l20-20 20 20" stroke="#3B82F6" stroke-width="2" opacity="0.5"/>
+</svg> 

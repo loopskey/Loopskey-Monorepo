@@ -1,0 +1,3115 @@
+{
+  "common": {
+    "no": "Non",
+    "yes": "Oui",
+    "all": "Tous",
+    "view": "Voir",
+    "free": "Gratuit",
+    "edit": "Modifier",
+    "cancel": "Annuler",
+    "language": "Langue",
+    "login": "Connexion",
+    "english": "Anglais",
+    "french": "Français",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "appName": "LoopsKey",
+    "confirm": "Confirmer",
+    "refresh": "Actualiser",
+    "reset": "Réinitialiser",
+    "loading": "Chargement...",
+    "continueToProvider": "Suivre et continuer"
+  },
+  "servicesPage": {
+    "common": {
+      "bookConsultation": "Réserver une consultation"
+    },
+    "hero": {
+      "badge": "Services LoopsKey",
+      "titleStart": "Des solutions pour chaque étape de la",
+      "titleHighlight": "croissance professionnelle",
+      "description": "LoopsKey aide les professionnels, les organisations et les fournisseurs de contenu à découvrir les bonnes opportunités de formation, créer des parcours de développement personnalisés par IA, gérer la conformité CPD et transformer la progression professionnelle en un système mesurable.",
+      "exploreServices": "Explorer les services",
+      "visualLabel": "Système de développement alimenté par l’IA",
+      "visualAlt": "Parcours d’apprentissage professionnel et aperçu des services",
+      "visualPoints": {
+        "0": "Découvrir des opportunités d’apprentissage pertinentes",
+        "1": "Créer des parcours professionnels personnalisés",
+        "2": "Suivre le CPD, les certificats et la conformité"
+      },
+      "stats": {
+        "0": {
+          "value": "IA",
+          "label": "Recommandations personnalisées"
+        },
+        "1": {
+          "value": "CPD",
+          "label": "Suivi prêt pour la conformité"
+        },
+        "2": {
+          "value": "360°",
+          "label": "Écosystème de développement professionnel"
+        }
+      }
+    },
+    "value": {
+      "badge": "Pourquoi LoopsKey",
+      "title": "Une manière plus intelligente de relier apprentissage, conformité et progression de carrière",
+      "description": "Au lieu de traiter les événements, les cours, les certificats et la formation organisationnelle comme des outils séparés, LoopsKey les connecte dans une seule expérience intelligente de développement professionnel.",
+      "cards": {
+        "personalized": {
+          "title": "Personnalisé selon les objectifs",
+          "description": "Les recommandations sont adaptées au rôle, aux intérêts, aux objectifs, aux besoins CPD et au format d’apprentissage préféré de chaque professionnel."
+        },
+        "compliance": {
+          "title": "Conçu pour la conformité CPD",
+          "description": "Les professionnels et les organisations peuvent suivre les heures requises, les certificats, les preuves, les rapports et la progression vers les objectifs de conformité."
+        },
+        "automation": {
+          "title": "Moins de travail manuel",
+          "description": "La découverte assistée par IA, les rappels, les parcours et les rapports réduisent les recherches répétitives et les tâches administratives."
+        },
+        "ecosystem": {
+          "title": "Pour tout l’écosystème",
+          "description": "LoopsKey soutient les professionnels, les fournisseurs, les entreprises, les associations et les organisations dans une seule plateforme connectée."
+        }
+      }
+    },
+    "services": {
+      "badge": "Nos services",
+      "title": "Des services adaptés aux professionnels, organisations et fournisseurs",
+      "description": "Chaque service répond à une partie spécifique du parcours de développement professionnel tout en restant connecté à l’ensemble de la plateforme LoopsKey.",
+      "items": {
+        "discovery": {
+          "badge": "Pour les professionnels",
+          "title": "Découverte d’événements alimentée par l’IA",
+          "description": "Arrêtez de parcourir des listes d’événements fragmentées. LoopsKey met en avant les conférences, webinaires, ateliers et opportunités d’apprentissage les plus pertinents dès leur apparition.",
+          "benefits": {
+            "0": "Flux d’événements personnalisé provenant de plusieurs fournisseurs",
+            "1": "Filtres intelligents pour points CPD, format, budget et lieu",
+            "2": "Synchronisation du calendrier, événements sauvegardés et rappels automatiques",
+            "3": "Découverte d’événements professionnels de niche",
+            "4": "Explication par IA de la pertinence de chaque recommandation"
+          }
+        },
+        "roadmaps": {
+          "badge": "Pour la progression de carrière",
+          "title": "Parcours d’apprentissage personnalisés",
+          "description": "Transformez des objectifs de carrière flous en étapes d’apprentissage structurées. LoopsKey aide les professionnels à progresser vers les compétences, rôles et certifications souhaités.",
+          "benefits": {
+            "0": "Organisation des cours, événements et étapes selon les objectifs",
+            "1": "Replanification dynamique lorsque les intérêts, rôles ou objectifs changent",
+            "2": "Recommandations tenant compte du temps, du budget et du CPD",
+            "3": "Jalons, échéances et suivi de progression intégrés",
+            "4": "Prochaines étapes suggérées selon l’orientation de carrière et les écarts de compétences"
+          }
+        },
+        "cpd": {
+          "badge": "Pour la conformité",
+          "title": "Gestion du CPD et des certifications",
+          "description": "LoopsKey simplifie le suivi CPD en centralisant les dossiers d’apprentissage, certificats, heures de développement professionnel et preuves dans un espace prêt pour l’audit.",
+          "benefits": {
+            "0": "Suivi automatique des heures CPD, points et progression",
+            "1": "Espace centralisé pour les certificats et les preuves",
+            "2": "Support flexible des cadres professionnels et catégories",
+            "3": "Rapports de conformité en un clic pour professionnels et organisations",
+            "4": "Historique d’apprentissage et preuves prêts pour l’audit"
+          }
+        },
+        "workforce": {
+          "badge": "Pour les organisations",
+          "title": "Solutions pour le développement des équipes",
+          "description": "Offrez aux équipes RH, L&D, conformité et direction une vision claire de l’apprentissage, de la progression CPD, de la performance des départements et de l’avancement des assignations.",
+          "benefits": {
+            "0": "Tableaux de bord en temps réel pour membres, départements, CPD et conformité",
+            "1": "Assignation de parcours, cours et événements à grande échelle",
+            "2": "Analyse des écarts de compétences, risques de conformité et reporting",
+            "3": "Gestion des membres par département et suivi des assignations",
+            "4": "Paramètres personnalisés pour cycles de conformité, alertes et heures PDU requises"
+          }
+        },
+        "providers": {
+          "badge": "Pour les fournisseurs",
+          "title": "Promotion de contenu et analytics pour fournisseurs",
+          "description": "Aidez les organismes de formation, organisateurs d’événements et entreprises d’éducation professionnelle à atteindre la bonne audience et comprendre ce qui génère les inscriptions.",
+          "benefits": {
+            "0": "Promotion d’événements et de cours auprès d’audiences professionnelles ciblées",
+            "1": "Suivi des inscriptions, vues, conversions et performances",
+            "2": "Demandes de mise en avant, campagnes e-mail et boosts sociaux",
+            "3": "Compréhension de la demande par rôle, catégorie, format et intérêt",
+            "4": "Visibilité récurrente grâce aux recommandations IA et parcours sauvegardés"
+          }
+        }
+      }
+    },
+    "cta": {
+      "badge": "Prêt à découvrir LoopsKey ?",
+      "title": "Concevons la bonne solution de développement professionnel pour vos besoins",
+      "description": "Que vous développiez votre carrière, gériez une équipe ou promouviez du contenu de formation, nous pouvons vous aider à définir la bonne solution LoopsKey.",
+      "exploreContent": "Explorer le contenu"
+    }
+  },
+  "aboutPage": {
+    "hero": {
+      "badge": "À propos de LoopsKey",
+      "titleStart": "Nous construisons le système d’exploitation de",
+      "titleHighlight": "la croissance professionnelle continue",
+      "description": "LoopsKey aide les professionnels, les organisations et les fournisseurs de contenu à transformer le développement continu en un parcours plus intelligent, plus simple et mesurable.",
+      "primaryCta": "Réserver une consultation",
+      "secondaryCta": "Découvrir les services",
+      "stats": {
+        "professionals": {
+          "value": "40 000+",
+          "label": "Professionnels accompagnés"
+        },
+        "countries": {
+          "value": "60+",
+          "label": "Pays couverts"
+        },
+        "ai": {
+          "value": "IA-first",
+          "label": "Feuilles de route et recommandations"
+        }
+      }
+    },
+    "story": {
+      "eyebrow": "Notre histoire",
+      "title": "Créé par des personnes qui ont vécu le problème",
+      "paragraphOne": "Après 15 ans comme ingénieur agréé, notre fondateur a vu ses collègues se noyer dans la paperasse CPD tout en ayant du mal à trouver des formations qui faisaient réellement progresser leur carrière. Les outils existaient — ils ne communiquaient simplement pas entre eux.",
+      "paragraphTwo": "LoopsKey a commencé comme un projet de week-end pour organiser le parcours d’apprentissage d’un ingénieur. Aujourd’hui, c’est une plateforme d’IA utilisée par des dizaines de milliers de professionnels et par les organisations qui investissent en eux."
+    },
+    "missionVision": {
+      "mission": {
+        "title": "Notre mission",
+        "description": "Rendre le développement professionnel continu simple, intelligent et accessible à chaque professionnel dans le monde."
+      },
+      "vision": {
+        "title": "Notre vision",
+        "description": "Un monde où les carrières se construisent dans la durée — où chaque heure d’apprentissage a un objectif et chaque compétence est reconnue."
+      }
+    },
+    "values": {
+      "eyebrow": "Nos valeurs",
+      "title": "Ce que nous défendons",
+      "items": {
+        "intelligence": {
+          "title": "L’intelligence d’abord",
+          "description": "Nous utilisons l’IA pour supprimer les tâches répétitives, pas pour remplacer le jugement humain."
+        },
+        "learner": {
+          "title": "Centré sur l’apprenant",
+          "description": "Chaque décision commence par le professionnel dont nous servons la carrière."
+        },
+        "trust": {
+          "title": "La confiance par défaut",
+          "description": "La confidentialité, la sécurité et la transparence des données ne sont pas négociables."
+        },
+        "growth": {
+          "title": "Croissance tout au long de la vie",
+          "description": "Les carrières ne s’arrêtent pas à l’obtention d’un diplôme — nous construisons pour des décennies d’apprentissage."
+        }
+      }
+    },
+    "team": {
+      "eyebrow": "L’équipe",
+      "title": "Des opérateurs qui ont vécu le problème",
+      "members": {
+        "olu": {
+          "name": "Dr. Olu Adebayo",
+          "role": "Fondateur et CEO"
+        },
+        "sara": {
+          "name": "Sara Lindqvist",
+          "role": "Chief Product Officer"
+        },
+        "marcus": {
+          "name": "Marcus Reed",
+          "role": "Responsable IA"
+        },
+        "priya": {
+          "name": "Priya Sharma",
+          "role": "VP Partenariats"
+        }
+      }
+    },
+    "timeline": {
+      "eyebrow": "Notre parcours",
+      "title": "De l’idée à une plateforme mondiale",
+      "items": {
+        "idea": {
+          "title": "L’idée",
+          "description": "Fondée après avoir constaté que les ingénieurs avaient du mal à gérer leur CPD à travers des dizaines de fournisseurs."
+        },
+        "roadmap": {
+          "title": "Première feuille de route IA",
+          "description": "Lancement de parcours d’apprentissage personnalisés auprès d’une bêta de 500 professionnels."
+        },
+        "enterprise": {
+          "title": "Lancement entreprise",
+          "description": "Intégration de nos premières organisations mondiales et de nos premiers partenaires de contenu."
+        },
+        "global": {
+          "title": "Expansion mondiale",
+          "description": "Aujourd’hui, nous accompagnons plus de 40 000 professionnels dans plus de 60 pays."
+        }
+      }
+    },
+    "trust": {
+      "eyebrow": "Pourquoi les professionnels font confiance à LoopsKey",
+      "title": "Construit sur les fondamentaux qui comptent",
+      "items": {
+        "security": {
+          "title": "SOC 2 & RGPD",
+          "description": "Sécurité et confidentialité de niveau entreprise par défaut."
+        },
+        "community": {
+          "title": "40 000+ professionnels",
+          "description": "Une communauté active dans plus de 60 pays."
+        },
+        "ai": {
+          "title": "IA transparente",
+          "description": "Chaque recommandation est accompagnée de son raisonnement."
+        }
+      }
+    },
+    "cta": {
+      "badge": "Prêt à progresser plus intelligemment ?",
+      "title": "Rendons le développement professionnel plus simple à gérer.",
+      "description": "Que vous soyez professionnel, fournisseur ou organisation, LoopsKey vous offre une manière plus intelligente de planifier, suivre et prouver l’impact de l’apprentissage.",
+      "button": "Réserver une consultation",
+      "points": {
+        "professionals": "Feuilles de route personnalisées, suivi CPD et gestion des certificats.",
+        "organizations": "Visibilité conformité, affectations, analyses et rapports pour les équipes."
+      }
+    }
+  },
+  "contactPage": {
+    "hero": {
+      "eyebrow": "Contact",
+      "title": "Construisons ensemble",
+      "highlight": "Parler",
+      "description": "Que vous soyez un professionnel, une organisation ou un partenaire de contenu, nous serions ravis d’échanger avec vous."
+    },
+    "form": {
+      "eyebrow": "Envoyez-nous un message",
+      "title": "Envoyez-nous un message",
+      "description": "Expliquez-nous votre besoin et notre équipe vous recontactera avec la meilleure prochaine étape.",
+      "fullName": "Nom complet",
+      "workEmail": "Email professionnel",
+      "company": "Entreprise",
+      "message": "Comment pouvons-nous vous aider ?",
+      "submit": "Envoyer le message",
+      "successTitle": "Votre message a été envoyé avec succès."
+    },
+    "validation": {
+      "fullNameRequired": "Veuillez saisir votre nom complet.",
+      "emailInvalid": "Veuillez saisir une adresse email professionnelle valide.",
+      "companyRequired": "Veuillez saisir le nom de votre entreprise.",
+      "messageRequired": "Veuillez écrire au moins 10 caractères."
+    },
+    "info": {
+      "eyebrow": "Coordonnées",
+      "title": "Contactez LoopsKey",
+      "email": {
+        "title": "Email",
+        "value": "loopskey.dev.gmail.com"
+      },
+      "phone": {
+        "title": "Téléphone",
+        "value": "+1 (555) 010-2025"
+      },
+      "office": {
+        "title": "Bureau",
+        "value": "Canada"
+      }
+    },
+    "map": {
+      "title": "Retrouvez-nous sur la carte",
+      "description": "Notre équipe accompagne les professionnels, les organisations et les partenaires partout dans le monde."
+    },
+    "cta": {
+      "eyebrow": "Consultation gratuite",
+      "title": "Obtenez une consultation gratuite",
+      "description": "Discutez avec un expert LoopsKey des objectifs d’apprentissage de votre équipe — sans engagement.",
+      "button": "Planifier mon appel"
+    }
+  },
+  "faqPage": {
+    "hero": {
+      "eyebrow": "FAQ",
+      "title": "Vos questions,",
+      "highlight": "nos réponses",
+      "description": "Tout ce que vous devez savoir sur LoopsKey — pour les professionnels, les organisations et les fournisseurs de contenu."
+    },
+    "filters": {
+      "title": "Parcourir par catégorie",
+      "description": "Filtrez les questions par sujet ou recherchez dans toutes les réponses."
+    },
+    "search": {
+      "placeholder": "Rechercher une question, une réponse ou un sujet"
+    },
+    "categories": {
+      "ALL": "Tout",
+      "CPD": "CPD",
+      "AI": "IA",
+      "ORGANIZATIONS": "Organisations",
+      "PROVIDERS": "Fournisseurs",
+      "CERTIFICATIONS": "Certifications",
+      "SECURITY": "Sécurité",
+      "PLATFORM": "Plateforme"
+    },
+    "helpCard": {
+      "title": "Besoin d’aide ?",
+      "description": "Dites-nous ce que vous souhaitez accomplir et notre équipe vous orientera vers la bonne solution.",
+      "button": "Contacter le support"
+    },
+    "empty": {
+      "title": "Aucune question trouvée",
+      "description": "Essayez un autre mot-clé ou réinitialisez les filtres pour afficher toutes les questions."
+    },
+    "cta": {
+      "eyebrow": "Besoin d’une réponse personnalisée ?",
+      "title": "Parlez à un expert LoopsKey",
+      "description": "Que vous évaluiez LoopsKey pour vous-même, votre organisation ou votre activité de contenu, nous pouvons vous aider à choisir la bonne configuration.",
+      "button": "Réserver une consultation"
+    },
+    "items": [
+      {
+        "id": "cpd-tracking",
+        "category": "CPD",
+        "question": "Comment LoopsKey suit-il mes heures de CPD ?",
+        "answer": "LoopsKey enregistre automatiquement le temps passé sur les cours, événements, webinaires et activités de lecture réalisés via la plateforme. Vous pouvez aussi ajouter des entrées manuelles, téléverser des preuves et générer des rapports adaptés à votre référentiel professionnel."
+      },
+      {
+        "id": "cpd-frameworks",
+        "category": "CPD",
+        "question": "Quels référentiels CPD sont pris en charge ?",
+        "answer": "LoopsKey prend en charge des référentiels tels que IEEE, PMI, RICS, Engineering Council, CIPD et bien d’autres. Les organisations peuvent également configurer leurs propres règles CPD, catégories, heures minimales et cycles de reporting."
+      },
+      {
+        "id": "cpd-manual-entry",
+        "category": "CPD",
+        "question": "Puis-je ajouter des activités CPD manuellement ?",
+        "answer": "Oui. Vous pouvez ajouter manuellement des formations externes, conférences, activités de mentorat, lectures, bénévolat ou autres activités professionnelles. Chaque entrée peut inclure des heures, notes, catégorie, preuves et dates de réalisation."
+      },
+      {
+        "id": "cpd-reports",
+        "category": "CPD",
+        "question": "Puis-je exporter des rapports CPD ?",
+        "answer": "Oui. Vous pouvez exporter des rapports CPD pour vos archives, les revues employeur, les audits ou les associations professionnelles. Les rapports incluent les heures réalisées, les preuves, les certificats, les catégories et l’avancement de conformité."
+      },
+      {
+        "id": "ai-accuracy",
+        "category": "AI",
+        "question": "Quelle est la précision des recommandations IA ?",
+        "answer": "LoopsKey combine vos objectifs, votre rôle, vos intérêts, votre historique d’apprentissage, vos exigences CPD et les signaux du secteur. Chaque recommandation inclut une explication transparente pour comprendre pourquoi un cours, un événement ou une étape de parcours est proposé."
+      },
+      {
+        "id": "ai-override",
+        "category": "AI",
+        "question": "Puis-je modifier les suggestions de l’IA ?",
+        "answer": "Toujours. LoopsKey est conçu comme un copilote, pas comme un pilote automatique. Vous pouvez modifier votre parcours, supprimer des recommandations, ajouter vos propres objectifs et indiquer au système vos priorités."
+      },
+      {
+        "id": "ai-data",
+        "category": "AI",
+        "question": "LoopsKey utilise-t-il mes données privées pour entraîner des modèles publics ?",
+        "answer": "Non. Vos données d’apprentissage, certificats, informations d’organisation et historique professionnel privés ne sont pas utilisés pour entraîner des modèles IA publics. Les fonctionnalités IA respectent la confidentialité et les limites de données d’entreprise."
+      },
+      {
+        "id": "ai-explainability",
+        "category": "AI",
+        "question": "Puis-je voir pourquoi une recommandation m’est proposée ?",
+        "answer": "Oui. Les recommandations incluent des signaux explicatifs comme la pertinence des compétences, la valeur CPD, l’alignement avec vos objectifs, le format préféré, le budget et le calendrier."
+      },
+      {
+        "id": "org-sso-scim",
+        "category": "ORGANIZATIONS",
+        "question": "Proposez-vous le SSO et le SCIM ?",
+        "answer": "Oui. Le SSO SAML, le provisionnement SCIM et les intégrations HRIS sont disponibles pour les offres Business et Enterprise. Ces options aident les organisations à gérer les utilisateurs, les rôles et les accès à grande échelle."
+      },
+      {
+        "id": "org-rollout",
+        "category": "ORGANIZATIONS",
+        "question": "Combien de temps prend un déploiement entreprise ?",
+        "answer": "La plupart des organisations peuvent être opérationnelles en deux semaines, selon les besoins en SSO, import de données, branding et reporting. Les grands déploiements peuvent suivre un plan d’intégration progressif."
+      },
+      {
+        "id": "org-dashboard",
+        "category": "ORGANIZATIONS",
+        "question": "Que peuvent suivre les organisations ?",
+        "answer": "Les organisations peuvent suivre les membres, départements, missions, progrès CPD, conformité, totaux PDU, professionnels à risque, taux de complétion et tendances d’apprentissage."
+      },
+      {
+        "id": "org-assignments",
+        "category": "ORGANIZATIONS",
+        "question": "Les managers peuvent-ils assigner des cours ou événements ?",
+        "answer": "Oui. Les administrateurs d’organisation peuvent assigner des cours ou événements à tous les membres, à certains départements, à des rôles spécifiques ou à des professionnels individuels. Le progrès et la complétion sont suivis depuis le tableau de bord."
+      },
+      {
+        "id": "providers-listing",
+        "category": "PROVIDERS",
+        "question": "Comment référencer mes cours sur LoopsKey ?",
+        "answer": "Les fournisseurs peuvent postuler via le programme partenaire. Les fournisseurs approuvés accèdent à un tableau de bord pour publier, mettre à jour, promouvoir et analyser leurs cours et événements."
+      },
+      {
+        "id": "providers-analytics",
+        "category": "PROVIDERS",
+        "question": "Quelles analyses les fournisseurs obtiennent-ils ?",
+        "answer": "Les fournisseurs peuvent suivre les impressions, inscriptions, signaux de complétion, intérêts des apprenants, taux de conversion, performance des événements, demandes de promotion et exposition récurrente via les recommandations IA."
+      },
+      {
+        "id": "providers-promotion",
+        "category": "PROVIDERS",
+        "question": "Les fournisseurs peuvent-ils promouvoir des événements ou des cours ?",
+        "answer": "Oui. Les fournisseurs peuvent demander des mises en avant, campagnes email, boosts sociaux ou packages combinés selon la disponibilité et le plan."
+      },
+      {
+        "id": "providers-approval",
+        "category": "PROVIDERS",
+        "question": "Les fournisseurs sont-ils vérifiés avant publication ?",
+        "answer": "Oui. LoopsKey vérifie les fournisseurs afin de maintenir la qualité, la pertinence et la confiance pour les professionnels et organisations utilisant la plateforme."
+      },
+      {
+        "id": "cert-storage",
+        "category": "CERTIFICATIONS",
+        "question": "Puis-je stocker mes certificats dans LoopsKey ?",
+        "answer": "Oui. Vous pouvez téléverser vos certificats, stocker des preuves, les relier à des activités CPD et les partager de manière sécurisée si nécessaire."
+      },
+      {
+        "id": "cert-verification",
+        "category": "CERTIFICATIONS",
+        "question": "Les certificats sont-ils partageables ou vérifiables ?",
+        "answer": "Les certificats peuvent être partagés via des liens sécurisés lorsque cette option est activée. Les organisations peuvent également examiner les preuves dans le cadre des processus de conformité et d’audit."
+      },
+      {
+        "id": "cert-expiry",
+        "category": "CERTIFICATIONS",
+        "question": "LoopsKey peut-il suivre les dates d’expiration des certificats ?",
+        "answer": "Oui. Les dates d’expiration, rappels de renouvellement, exigences de preuve et suggestions d’apprentissage associées peuvent être suivis pour vous aider à rester conforme."
+      },
+      {
+        "id": "security-data-protection",
+        "category": "SECURITY",
+        "question": "Comment mes données sont-elles protégées ?",
+        "answer": "Les données sont protégées par une authentification sécurisée, une transmission chiffrée, un accès basé sur les rôles et des contrôles axés sur la confidentialité. Les clients entreprise peuvent demander des options de sécurité et d’hébergement supplémentaires."
+      },
+      {
+        "id": "security-gdpr",
+        "category": "SECURITY",
+        "question": "LoopsKey est-il conforme au RGPD ?",
+        "answer": "LoopsKey est conçu selon les principes du RGPD, notamment la minimisation des données, le contrôle d’accès, les workflows sensibles au consentement et la prise en charge des demandes d’accès ou de suppression."
+      },
+      {
+        "id": "security-roles",
+        "category": "SECURITY",
+        "question": "Comment fonctionne l’accès basé sur les rôles ?",
+        "answer": "L’accès est séparé par rôle. Les professionnels, fournisseurs, organisations et administrateurs disposent chacun de tableaux de bord et permissions adaptés à leurs responsabilités."
+      },
+      {
+        "id": "platform-free-plan",
+        "category": "PLATFORM",
+        "question": "Existe-t-il une offre gratuite ?",
+        "answer": "Oui. Les particuliers peuvent utiliser gratuitement les fonctionnalités principales de parcours et de CPD. L’IA premium, les rapports avancés, les intégrations et les fonctionnalités organisationnelles sont disponibles dans les offres payantes."
+      },
+      {
+        "id": "platform-mobile",
+        "category": "PLATFORM",
+        "question": "Existe-t-il une application mobile ?",
+        "answer": "L’accès mobile fait partie de la feuille de route produit. La plateforme web est responsive et conçue pour fonctionner correctement sur ordinateur, tablette et mobile."
+      },
+      {
+        "id": "platform-calendar",
+        "category": "PLATFORM",
+        "question": "Puis-je synchroniser les événements avec mon calendrier ?",
+        "answer": "Oui. L’intégration calendrier vous aide à suivre les événements d’apprentissage à venir, les échéances, les rappels et les jalons de parcours."
+      },
+      {
+        "id": "platform-support",
+        "category": "PLATFORM",
+        "question": "Comment obtenir de l’aide ?",
+        "answer": "Vous pouvez contacter l’équipe LoopsKey via la page de contact. Les clients organisation et fournisseur peuvent également bénéficier d’un accompagnement d’intégration et de support selon leur plan."
+      }
+    ]
+  },
+  "privacyPage": {
+    "hero": {
+      "eyebrow": "Politique de confidentialité",
+      "title": "Vos données,",
+      "highlight": "protégées",
+      "description": "Découvrez comment LoopsKey collecte, utilise, partage et protège les informations liées aux parcours d'apprentissage, au suivi CPD, à la découverte d'événements et aux outils de développement des équipes.",
+      "lastUpdated": "Dernière mise à jour : mai 2026",
+      "appliesTo": "S'applique aux utilisateurs de la plateforme LoopsKey"
+    },
+    "nav": {
+      "title": "Sections de la politique",
+      "description": "Accédez rapidement à chaque partie de la politique de confidentialité."
+    },
+    "sectionLabel": "Section {{number}}",
+    "contactCard": {
+      "title": "Questions sur la confidentialité ?",
+      "description": "Notre équipe confidentialité peut vous aider concernant l'accès aux données, la suppression, l'export ou toute question liée à cette politique.",
+      "button": "Contacter l'équipe confidentialité"
+    },
+    "cta": {
+      "eyebrow": "Besoin d'aide sur la confidentialité ?",
+      "title": "Contactez notre responsable de la protection des données",
+      "description": "Pour toute question concernant cette Politique de confidentialité ou pour exercer vos droits relatifs aux données, contactez l'équipe confidentialité de LoopsKey.",
+      "button": "Contacter l'équipe confidentialité"
+    },
+    "sections": [
+      {
+        "id": "introduction",
+        "title": "Introduction",
+        "paragraphs": [
+          "Chez LoopsKey, nous pensons que la confiance se mérite. Cette Politique de confidentialité explique comment nous collectons, utilisons, partageons et protégeons les informations lorsque vous utilisez notre plateforme de développement professionnel alimentée par l'IA — notamment les parcours d'apprentissage, le suivi CPD, la découverte d'événements et les outils de développement des équipes.",
+          "En utilisant LoopsKey, vous acceptez les pratiques décrites ici. Si vous n'êtes pas d'accord, veuillez ne pas utiliser la plateforme."
+        ]
+      },
+      {
+        "id": "information-we-collect",
+        "title": "Informations que nous collectons",
+        "paragraphs": ["Nous collectons des informations de trois manières :"],
+        "bullets": [
+          "Informations que vous fournissez — nom, e-mail, profil professionnel, dossiers CPD, objectifs d'apprentissage et contenus que vous téléversez.",
+          "Informations collectées automatiquement — appareil, navigateur, adresse IP, événements d'utilisation et interactions avec les recommandations.",
+          "Informations provenant de partenaires — fournisseurs de cours, employeurs et fournisseurs d'identité comme Google ou LinkedIn lorsque vous les connectez."
+        ],
+        "infoCard": {
+          "icon": "database",
+          "title": "Principe de nécessité minimale",
+          "text": "Nous collectons uniquement ce qui est nécessaire pour fournir et améliorer votre expérience. Vous pouvez consulter et exporter vos données à tout moment."
+        }
+      },
+      {
+        "id": "how-we-use-information",
+        "title": "Comment nous utilisons les informations",
+        "paragraphs": ["Nous utilisons vos informations pour :"],
+        "bullets": [
+          "Exploiter, maintenir et personnaliser la plateforme LoopsKey.",
+          "Générer des parcours d'apprentissage et recommandations alimentés par l'IA.",
+          "Suivre la progression CPD et produire des rapports pour vous ou votre organisation.",
+          "Communiquer des mises à jour, alertes de sécurité et actualités produit. Vous pouvez vous désinscrire des messages marketing.",
+          "Détecter, prévenir et traiter la fraude, les abus ou les incidents de sécurité."
+        ]
+      },
+      {
+        "id": "ai-and-recommendations",
+        "title": "IA et services de recommandation",
+        "paragraphs": [
+          "LoopsKey utilise l'apprentissage automatique pour recommander des cours, événements et parcours d'apprentissage. Ces systèmes analysent vos objectifs déclarés, votre rôle, vos compétences et vos signaux d'engagement afin de proposer les contenus les plus pertinents.",
+          "Vous pouvez ajuster vos préférences de recommandation ou désactiver les suggestions personnalisées à tout moment dans les paramètres de votre compte."
+        ],
+        "infoCard": {
+          "icon": "sparkles",
+          "title": "Aucun entraînement sur les contenus privés",
+          "text": "Vos dossiers CPD privés, notes personnelles et fichiers téléversés ne sont jamais utilisés pour entraîner des modèles de fondation tiers."
+        }
+      },
+      {
+        "id": "data-sharing",
+        "title": "Partage des données",
+        "paragraphs": [
+          "Nous partageons les informations uniquement dans des circonstances limitées :",
+          "Nous ne vendons jamais vos informations personnelles à des annonceurs ou courtiers en données."
+        ],
+        "bullets": [
+          "Avec votre employeur ou association lorsque vous rejoignez leur espace de travail — limité à la progression CPD et aux champs approuvés.",
+          "Avec des prestataires de services de confiance comme l'hébergement, l'analytics et l'e-mail, dans le cadre d'accords stricts de traitement des données.",
+          "Pour des raisons légales lorsque la loi, une assignation ou la protection des droits et de la sécurité des utilisateurs l'exige."
+        ]
+      },
+      {
+        "id": "security",
+        "title": "Sécurité",
+        "paragraphs": [
+          "Nous utilisons des mesures de protection conformes aux standards du secteur, notamment le chiffrement en transit, le chiffrement au repos, les contrôles d'accès selon le principe du moindre privilège, la surveillance continue et des tests de sécurité réguliers."
+        ],
+        "infoCard": {
+          "icon": "lock",
+          "title": "Conformité et certifications",
+          "text": "LoopsKey s'aligne sur les exigences SOC 2, RGPD et UK Data Protection. Nos partenaires d'infrastructure sont certifiés ISO 27001."
+        }
+      },
+      {
+        "id": "cookies-analytics",
+        "title": "Cookies et analytics",
+        "paragraphs": [
+          "Nous utilisons des cookies et technologies similaires pour vous garder connecté, mémoriser vos préférences et comprendre l'utilisation de la plateforme. Vous pouvez contrôler les cookies via votre navigateur ou notre bannière de cookies. Les données d'analyse sont agrégées et dépersonnalisées."
+        ]
+      },
+      {
+        "id": "user-rights",
+        "title": "Droits des utilisateurs",
+        "paragraphs": [
+          "Selon votre juridiction, vous pouvez disposer du droit de :"
+        ],
+        "bullets": [
+          "Accéder à vos informations personnelles, les corriger ou les supprimer.",
+          "Exporter une copie de vos données dans un format portable.",
+          "Vous opposer à certaines activités de traitement ou en demander la limitation.",
+          "Retirer votre consentement et fermer votre compte à tout moment."
+        ],
+        "contactItems": [
+          {
+            "label": "E-mail confidentialité",
+            "value": "privacy@loopskey.com",
+            "href": "mailto:privacy@loopskey.com"
+          }
+        ]
+      },
+      {
+        "id": "third-party-links",
+        "title": "Liens tiers",
+        "paragraphs": [
+          "LoopsKey contient des liens vers des cours, événements et fournisseurs tiers. Nous ne contrôlons pas ces sites et ne sommes pas responsables de leurs pratiques de confidentialité. Veuillez consulter leurs politiques avant de partager des informations."
+        ]
+      },
+      {
+        "id": "data-retention",
+        "title": "Conservation des données",
+        "paragraphs": [
+          "Nous conservons les données personnelles uniquement aussi longtemps que nécessaire pour les finalités décrites ici, pour respecter nos obligations légales, résoudre des litiges et faire appliquer nos accords. Lorsque les données ne sont plus nécessaires, elles sont supprimées de manière sécurisée ou anonymisées."
+        ]
+      },
+      {
+        "id": "contact",
+        "title": "Coordonnées",
+        "paragraphs": [
+          "Pour toute question concernant cette Politique de confidentialité, contactez notre responsable de la protection des données :"
+        ],
+        "contactItems": [
+          {
+            "label": "E-mail",
+            "value": "loopskey.dev@gmail.com",
+            "href": "mailto:loopskey.dev@gmail.com"
+          },
+          {
+            "label": "Adresse postale",
+            "value": "LoopsKey Privacy Team, 1 Innovation Way, London, UK"
+          }
+        ]
+      }
+    ]
+  },
+  "termsPage": {
+    "hero": {
+      "eyebrow": "Conditions d'utilisation",
+      "title": "Règles d'utilisation de",
+      "highlight": "LoopsKey",
+      "description": "Ces Conditions expliquent comment vous pouvez accéder à LoopsKey et l'utiliser, y compris les parcours d'apprentissage alimentés par l'IA, le suivi CPD, la découverte d'événements et les outils de développement des équipes.",
+      "lastUpdated": "Dernière mise à jour : janvier 2026",
+      "appliesTo": "S'applique à tous les utilisateurs de LoopsKey"
+    },
+    "nav": {
+      "title": "Sections des conditions",
+      "description": "Accédez rapidement à chaque section des Conditions d'utilisation."
+    },
+    "sectionLabel": "Section {{number}}",
+    "contactCard": {
+      "title": "Questions juridiques ?",
+      "description": "Pour toute question concernant ces Conditions, contactez l'équipe juridique de LoopsKey.",
+      "button": "Contacter l'équipe juridique"
+    },
+    "cta": {
+      "eyebrow": "Besoin d'une clarification ?",
+      "title": "Parlez-nous avant de continuer",
+      "description": "Si vous évaluez LoopsKey pour votre équipe, votre organisation ou votre activité de fournisseur de contenu, nous pouvons vous aider à comprendre les conditions applicables à votre cas d'utilisation.",
+      "button": "Nous contacter"
+    },
+    "sections": [
+      {
+        "id": "overview",
+        "title": "Présentation des services",
+        "paragraphs": [
+          "Ces Conditions d'utilisation régissent votre accès à LoopsKey et votre utilisation de la plateforme, une solution de développement professionnel alimentée par l'IA proposant des parcours d'apprentissage, le suivi CPD, la découverte d'événements et des outils de développement des équipes.",
+          "En créant un compte ou en utilisant LoopsKey, vous acceptez ces Conditions."
+        ]
+      },
+      {
+        "id": "user-accounts",
+        "title": "Comptes utilisateurs",
+        "paragraphs": [
+          "Vous devez fournir des informations exactes lors de la création de votre compte, garder vos identifiants confidentiels et nous informer immédiatement de toute utilisation non autorisée. Vous êtes responsable de toute activité effectuée depuis votre compte.",
+          "Vous devez avoir au moins 16 ans, ou l'âge du consentement numérique dans votre pays, pour utiliser LoopsKey."
+        ]
+      },
+      {
+        "id": "third-party-content",
+        "title": "Événements et contenus tiers",
+        "paragraphs": [
+          "LoopsKey agrège des cours, événements et ressources provenant de fournisseurs tiers. Nous ne créons pas ces contenus et ne garantissons pas leur exactitude, leur qualité ou leur disponibilité."
+        ],
+        "notice": {
+          "icon": "file",
+          "tone": "info",
+          "title": "Fournisseurs indépendants",
+          "text": "Les achats, inscriptions et certificats sont régis par les propres conditions du fournisseur tiers. LoopsKey n'est pas partie à ces transactions."
+        }
+      },
+      {
+        "id": "ai-recommendations",
+        "title": "Recommandations générées par l'IA",
+        "paragraphs": [
+          "Nos fonctionnalités d'IA génèrent des parcours personnalisés, des suggestions de cours et des informations à partir de votre profil et de vos objectifs. Ces recommandations sont fournies à titre informatif et ne doivent pas être considérées comme des conseils professionnels, juridiques, médicaux ou financiers."
+        ],
+        "notice": {
+          "icon": "alert",
+          "tone": "warn",
+          "title": "Utilisez votre jugement",
+          "text": "Les résultats générés par l'IA peuvent parfois être incomplets ou inexacts. Vérifiez toujours les informations importantes avant d'agir."
+        }
+      },
+      {
+        "id": "intellectual-property",
+        "title": "Propriété intellectuelle",
+        "paragraphs": [
+          "LoopsKey, son logo, son logiciel et le contenu de sa plateforme appartiennent à LoopsKey Ltd. et sont protégés par les lois relatives à la propriété intellectuelle. Nous vous accordons une licence limitée, non exclusive et non transférable pour utiliser la plateforme conformément à son objectif prévu. Vous ne pouvez pas copier, désosser ou redistribuer notre logiciel."
+        ]
+      },
+      {
+        "id": "user-content",
+        "title": "Contenu utilisateur",
+        "paragraphs": [
+          "Vous conservez la propriété de tout contenu que vous téléversez, y compris vos notes, dossiers CPD et certificats. En téléversant du contenu, vous accordez à LoopsKey une licence limitée pour héberger, afficher et traiter ce contenu uniquement afin de fournir le service.",
+          "Vous êtes responsable de vous assurer que vous disposez des droits nécessaires pour partager tout contenu que vous téléversez."
+        ]
+      },
+      {
+        "id": "acceptable-use",
+        "title": "Utilisation acceptable",
+        "paragraphs": ["Vous acceptez de ne pas :"],
+        "bullets": [
+          "Utiliser la plateforme à des fins illégales, nuisibles ou frauduleuses.",
+          "Téléverser des logiciels malveillants, extraire des données ou tenter de contourner les mesures de sécurité.",
+          "Usurper l'identité d'autrui ou présenter de fausses qualifications professionnelles.",
+          "Revendre, sous-licencier ou utiliser la plateforme pour créer un produit concurrent."
+        ]
+      },
+      {
+        "id": "subscription-payments",
+        "title": "Abonnements et paiements",
+        "paragraphs": [
+          "Les offres payantes sont facturées à l'avance de manière récurrente. Vous pouvez annuler à tout moment ; l'annulation prend effet à la fin du cycle de facturation en cours. Les frais ne sont pas remboursables, sauf si la loi l'exige.",
+          "Nous pouvons modifier nos tarifs avec un préavis d'au moins 30 jours."
+        ]
+      },
+      {
+        "id": "limitation-liability",
+        "title": "Limitation de responsabilité",
+        "paragraphs": [
+          "Dans toute la mesure permise par la loi, LoopsKey et ses sociétés affiliées ne seront pas responsables des dommages indirects, accessoires, spéciaux, consécutifs ou punitifs, ni de toute perte de bénéfices, revenus, données ou réputation découlant de votre utilisation de la plateforme.",
+          "Notre responsabilité totale pour toute réclamation est limitée au montant que vous avez payé à LoopsKey au cours des douze mois précédant l'événement à l'origine de la réclamation."
+        ]
+      },
+      {
+        "id": "platform-availability",
+        "title": "Disponibilité de la plateforme",
+        "paragraphs": [
+          "Nous nous efforçons d'assurer une haute disponibilité, mais nous ne garantissons pas que la plateforme sera ininterrompue ou exempte d'erreurs. Nous pouvons suspendre le service pour maintenance planifiée, incidents de sécurité ou circonstances indépendantes de notre volonté."
+        ]
+      },
+      {
+        "id": "termination",
+        "title": "Résiliation du compte",
+        "paragraphs": [
+          "Vous pouvez fermer votre compte à tout moment depuis vos paramètres. Nous pouvons suspendre ou résilier votre compte si vous enfreignez ces Conditions, utilisez la plateforme de manière abusive ou ne payez pas les frais applicables.",
+          "En cas de résiliation, votre droit d'utiliser la plateforme prend fin immédiatement, mais l'exportation des données reste disponible pendant 30 jours."
+        ]
+      },
+      {
+        "id": "governing-law",
+        "title": "Droit applicable",
+        "paragraphs": [
+          "Ces Conditions sont régies par les lois de l'Angleterre et du Pays de Galles. Tout litige sera résolu devant les tribunaux de Londres, au Royaume-Uni, sauf si les lois locales de protection des consommateurs exigent autrement."
+        ]
+      },
+      {
+        "id": "contact",
+        "title": "Coordonnées",
+        "paragraphs": [
+          "Pour toute question concernant ces Conditions, contactez-nous :"
+        ],
+        "contactItems": [
+          {
+            "label": "E-mail",
+            "value": "legal@loopskey.com",
+            "href": "mailto:legal@loopskey.com"
+          },
+          {
+            "label": "Adresse postale",
+            "value": "LoopsKey Legal Team, 1 Innovation Way, London, UK"
+          }
+        ]
+      }
+    ]
+  },
+  "navigation": {
+    "home": "Accueil",
+    "content": "Contenu",
+    "services": "Services",
+    "about": "À propos",
+    "contact": "Contact",
+    "faq": "FAQ",
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu"
+  },
+  "footer": {
+    "brandDescription": "Votre plateforme tout-en-un pour tous vos besoins éducatifs. Découvrez, apprenez et progressez avec nous.",
+    "explore": "Explorer",
+    "resources": "Ressources",
+    "contact": "Contact",
+    "beProvider": "Être Fournisseur",
+    "beProfessional": "Être Professionnel",
+    "beOrganization": "Être Organisation",
+    "careers": "Carrières",
+    "emailLabel": "E-mail",
+    "privacyPolicy": "Politique de confidentialité",
+    "termsOfService": "Conditions d'utilisation",
+    "cookiePolicy": "Politique relative aux cookies",
+    "allRightsReserved": "Tous droits réservés.",
+    "builtFor": "Conçu pour les professionnels, les fournisseurs et les organisations."
+  },
+  "social": {
+    "linkedin": "LinkedIn",
+    "x": "X",
+    "facebook": "Facebook",
+    "youtube": "YouTube"
+  },
+  "authPages": {
+    "common": {
+      "register": "Inscription",
+      "login": "Connexion",
+      "fullName": "Nom complet",
+      "email": "E-mail",
+      "oauthFailed": "La connexion avec Google a échoué. Veuillez réessayer.",
+      "oauthRedirecting": "Connexion sécurisée en cours...",
+      "password": "Mot de passe",
+      "confirmPassword": "Confirmer le mot de passe",
+      "forgotPassword": "Mot de passe oublié ?",
+      "registerButton": "Créer un compte",
+      "loginButton": "Se connecter",
+      "registering": "Création du compte...",
+      "loggingIn": "Connexion...",
+      "orContinueWith": "Ou continuer avec",
+      "google": "Google",
+      "linkedin": "LinkedIn",
+      "facebook": "Facebook",
+      "back": "Retour",
+      "backToHome": "Retour à l'accueil",
+      "loginSuccess": "Connexion réussie.",
+      "registerSuccess": "Inscription démarrée.",
+      "genericError": "Une erreur est survenue. Veuillez réessayer.",
+      "sendVerificationCode": "Envoyer le code de vérification",
+      "sendingVerificationCode": "Envoi du code...",
+      "createAccount": "Créer le compte",
+      "creatingAccount": "Création du compte...",
+      "verificationCode": "Code de vérification",
+      "verifyEmailTitle": "Vérifiez votre e-mail",
+      "verifyEmailDescription": "Nous avons envoyé un code de vérification de 6 caractères à {{email}}.",
+      "wrongEmail": "Mauvais e-mail ?",
+      "editRegistration": "Modifier les informations d'inscription",
+      "resendCode": "Renvoyer le code",
+      "resendingCode": "Renvoi du code...",
+      "accountCreated": "Compte créé avec succès. Vous pouvez maintenant vous connecter.",
+      "otpSent": "Le code de vérification a été envoyé à votre e-mail.",
+      "otpResent": "Un nouveau code de vérification a été envoyé.",
+      "forgotPasswordTitle": "Mot de passe oublié ?",
+      "forgotPasswordDescription": "Entrez votre e-mail et nous vous enverrons un code de réinitialisation.",
+      "sendResetCode": "Envoyer le code",
+      "sendingResetCode": "Envoi du code...",
+      "resetCodeSent": "Le code de réinitialisation a été envoyé à votre e-mail.",
+      "resetPasswordTitle": "Réinitialiser votre mot de passe",
+      "resetPasswordDescription": "Entrez le code envoyé à {{email}} et choisissez un nouveau mot de passe.",
+      "resetCode": "Code de réinitialisation",
+      "newPassword": "Nouveau mot de passe",
+      "confirmNewPassword": "Confirmer le nouveau mot de passe",
+      "saveNewPassword": "Enregistrer le nouveau mot de passe",
+      "savingNewPassword": "Enregistrement du nouveau mot de passe...",
+      "passwordResetSuccess": "Mot de passe réinitialisé avec succès. Vous pouvez maintenant vous connecter.",
+      "backToLogin": "Retour à la connexion",
+      "backToLoginAvailableIn": "Retour à la connexion disponible dans {{seconds}}s"
+    },
+    "professional": {
+      "titlePrefix": "Bienvenue sur",
+      "titleBrand": "LoopsKey",
+      "subtitle": "Découvrez des opportunités d’apprentissage, suivez vos progrès et organisez vos CPD/PDU facilement.",
+      "secureTitle": "Sécurisé par conception",
+      "secureText": "Authentification moderne, données protégées et confidentialité par défaut.",
+      "onboardingTitle": "Intégration rapide",
+      "onboardingText": "Inscrivez-vous en quelques secondes avec e-mail ou Google.",
+      "cpdTitle": "CPD simplifié",
+      "cpdText": "Planifiez, suivez et justifiez vos progrès facilement.",
+      "teamsTitle": "Conçu aussi pour les équipes",
+      "teamsText": "Les fournisseurs et organisations peuvent gérer l’apprentissage à grande échelle.",
+      "joined": "Rejoignez plus de 10 000 professionnels qui progressent avec LoopsKey",
+      "providerLink": "Vous voulez enseigner ? Devenez fournisseur",
+      "organizationPrompt": "Vous cherchez un accès organisation ?",
+      "organizationText": "Si vous administrez une association ou une entreprise, utilisez le flux d’accès organisation.",
+      "organizationAccess": "Accès organisation"
+    },
+    "provider": {
+      "backToHome": "Retour à l'accueil",
+      "professionalLink": "Vous voulez apprendre ? Connectez-vous comme professionnel",
+      "eyebrow": "Partagez votre expertise avec le monde",
+      "titlePrefix": "Devenez",
+      "titleBrand": "fournisseur LoopsKey",
+      "createTitle": "Créez facilement",
+      "createText": "Téléversez des vidéos, créez des programmes et publiez des événements facilement.",
+      "liveTitle": "En direct et à la demande",
+      "liveText": "Animez des webinaires ou proposez des cours structurés — à vous de choisir.",
+      "monetizeTitle": "Monétisez intelligemment",
+      "monetizeText": "Tarifs flexibles, coupons et programmes groupés.",
+      "analyticsTitle": "Des analyses utiles",
+      "analyticsText": "Suivez les inscriptions, les revenus et l’engagement en un coup d’œil.",
+      "accreditationTitle": "Prêt pour l’accréditation",
+      "accreditationText": "Prise en charge des certificats et de la conformité CPD si nécessaire.",
+      "joined": "Rejoignez plus de 2 000 fournisseurs qui enseignent déjà sur LoopsKey"
+    },
+    "organization": {
+      "backToHome": "Retour à l'accueil",
+      "professionalLink": "Vous voulez apprendre ? Connectez-vous comme professionnel",
+      "title": "Accès organisation",
+      "subtitle": "Demandez un accès pour votre association, entreprise ou équipe et gérez le développement professionnel à grande échelle.",
+      "requestTab": "Demande d’accès",
+      "loginTab": "Connexion",
+      "representativeFullName": "Nom complet du représentant",
+      "organizationName": "Nom de l'organisation",
+      "workEmail": "E-mail professionnel",
+      "organizationType": "Type d'organisation",
+      "representativeJobRole": "Fonction du représentant",
+      "expectedLicensedProfessionals": "Professionnels agréés prévus",
+      "country": "Pays",
+      "goals": "Objectifs",
+      "submitRequest": "Soumettre la demande",
+      "submitting": "Soumission...",
+      "requestSubmitted": "Demande d’accès organisation envoyée.",
+      "loginTitle": "Connexion organisation",
+      "requestTitle": "Demander un accès organisation",
+      "requestDescription": "L’administrateur examinera votre demande. Si elle est approuvée, des identifiants temporaires seront générés."
+    },
+    "admin": {
+      "eyebrow": "Portail administrateur",
+      "titlePrefix": "Bienvenue sur",
+      "titleBrand": "LoopsKey",
+      "subtitle": "Accédez à l’espace administrateur pour gérer les utilisateurs, les organisations, les demandes et les paramètres de la plateforme.",
+      "loginTitle": "Connexion administrateur",
+      "loginDescription": "Connectez-vous avec vos identifiants administrateur pour continuer.",
+      "professionalLink": "Aller à la connexion professionnelle",
+      "joined": "Accès sécurisé pour les administrateurs et les équipes opérationnelles.",
+      "secureTitle": "Accès administrateur sécurisé",
+      "secureText": "L’authentification basée sur les rôles protège les outils d’administration.",
+      "usersTitle": "Gestion des utilisateurs",
+      "usersText": "Gérez les fournisseurs, les professionnels et les utilisateurs d’organisation.",
+      "requestsTitle": "Demandes d’organisation",
+      "requestsText": "Examinez et approuvez les demandes d’accès des organisations.",
+      "settingsTitle": "Paramètres de la plateforme",
+      "settingsText": "Contrôlez les principaux paramètres administratifs depuis un seul endroit."
+    }
+  },
+  "userMenu": {
+    "dashboard": "Tableau de bord",
+    "profile": "Profil",
+    "logout": "Déconnexion",
+    "loggingOut": "Déconnexion..."
+  },
+  "content": {
+    "hero": {
+      "badge": "Explorer le contenu d’apprentissage",
+      "title": "Découvrez des cours, événements, podcasts et chaînes YouTube",
+      "description": "Recherchez des ressources de développement professionnel, filtrez par catégorie et trouvez le contenu adapté à vos objectifs de CPD et de carrière.",
+      "searchPlaceholder": "Rechercher des cours, événements, podcasts et YouTube..."
+    },
+    "tabs": {
+      "course": "Cours",
+      "courses": "Cours",
+      "event": "Événements",
+      "events": "Événements",
+      "podcast": "Podcasts",
+      "podcasts": "Podcasts",
+      "youtube": "YouTube"
+    },
+    "filters": {
+      "courseTitle": "Filtres des cours",
+      "eventTitle": "Filtres des événements",
+      "podcastTitle": "Filtres des podcasts",
+      "youtubeTitle": "Filtres YouTube",
+      "category": "Catégorie",
+      "level": "Niveau",
+      "rating": "Note",
+      "eventType": "Type d’événement",
+      "reset": "Réinitialiser",
+      "all": "Tous",
+      "totalResults": "{{total}} résultats trouvés"
+    },
+    "pagination": {
+      "page": "Page {{page}}",
+      "total": "{{total}} au total",
+      "previous": "Précédent",
+      "next": "Suivant"
+    },
+    "card": {
+      "free": "Gratuit",
+      "viewDetails": "Voir les détails",
+      "professionals": "{{count}} professionnels",
+      "attendees": "{{count}} participants",
+      "listeners": "{{count}} auditeurs",
+      "subscribers": "{{count}} abonnés",
+      "minutes": "{{count}} min",
+      "episodes": "{{count}} épisodes",
+      "videos": "{{count}} vidéos"
+    },
+    "empty": {
+      "title": "Aucun contenu trouvé",
+      "description": "Essayez de modifier votre recherche ou de réinitialiser les filtres."
+    },
+    "enums": {
+      "courseCategory": {
+        "TECHNOLOGY": "Technologie",
+        "BUSINESS": "Affaires",
+        "ENGINEERING": "Ingénierie",
+        "HEALTHCARE": "Santé",
+        "FINANCE": "Finance",
+        "EDUCATION": "Éducation",
+        "DESIGN": "Design",
+        "MARKETING": "Marketing",
+        "LEADERSHIP": "Leadership",
+        "COMPLIANCE": "Conformité",
+        "CPD": "CPD",
+        "AI": "IA",
+        "DATA": "Données",
+        "CAREER": "Carrière",
+        "OTHER": "Autre"
+      },
+      "courseLevel": {
+        "BEGINNER": "Débutant",
+        "INTERMEDIATE": "Intermédiaire",
+        "ADVANCED": "Avancé",
+        "ALL_LEVELS": "Tous les niveaux"
+      },
+      "eventCategory": {
+        "TECHNOLOGY": "Technologie",
+        "BUSINESS": "Affaires",
+        "ENGINEERING": "Ingénierie",
+        "HEALTHCARE": "Santé",
+        "FINANCE": "Finance",
+        "EDUCATION": "Éducation",
+        "DESIGN": "Design",
+        "MARKETING": "Marketing",
+        "LEADERSHIP": "Leadership",
+        "COMPLIANCE": "Conformité",
+        "CPD": "CPD",
+        "OTHER": "Autre"
+      },
+      "eventType": {
+        "WEBINAR": "Webinaire",
+        "SEMINAR": "Séminaire",
+        "WORKSHOP": "Atelier",
+        "CONFERENCE": "Conférence",
+        "COURSE": "Cours",
+        "TRAINING": "Formation",
+        "NETWORKING": "Réseautage",
+        "OTHER": "Autre"
+      },
+      "podcastCategory": {
+        "TECHNOLOGY": "Technologie",
+        "BUSINESS": "Affaires",
+        "ENGINEERING": "Ingénierie",
+        "HEALTHCARE": "Santé",
+        "FINANCE": "Finance",
+        "EDUCATION": "Éducation",
+        "DESIGN": "Design",
+        "MARKETING": "Marketing",
+        "LEADERSHIP": "Leadership",
+        "COMPLIANCE": "Conformité",
+        "CPD": "CPD",
+        "AI": "IA",
+        "DATA": "Données",
+        "CAREER": "Carrière",
+        "OTHER": "Autre"
+      },
+      "youtubeCategory": {
+        "TECHNOLOGY": "Technologie",
+        "BUSINESS": "Affaires",
+        "ENGINEERING": "Ingénierie",
+        "HEALTHCARE": "Santé",
+        "FINANCE": "Finance",
+        "EDUCATION": "Éducation",
+        "DESIGN": "Design",
+        "MARKETING": "Marketing",
+        "LEADERSHIP": "Leadership",
+        "COMPLIANCE": "Conformité",
+        "CPD": "CPD",
+        "AI": "IA",
+        "DATA": "Données",
+        "CAREER": "Carrière",
+        "OTHER": "Autre"
+      }
+    }
+  },
+  "contentDetails": {
+    "common": {
+      "backToContent": "Retour au contenu",
+      "notFound": "Contenu introuvable",
+      "free": "Gratuit",
+      "price": "Prix",
+      "minutes": "{{count}} min",
+      "authHint": "La liste de souhaits, l’inscription, le panier et les avis nécessitent une connexion."
+    },
+    "actions": {
+      "addWishlist": "Ajouter aux favoris",
+      "saved": "Enregistré",
+      "enrolled": "Inscrit",
+      "addCart": "Ajouter au panier",
+      "inCart": "Dans le panier"
+    },
+    "tabs": {
+      "overview": "Aperçu",
+      "curriculum": "Programme",
+      "reviews": "Avis",
+      "schedule": "Agenda",
+      "episodes": "Épisodes",
+      "videos": "Vidéos"
+    },
+    "messages": {
+      "reviewSubmitted": "Votre avis a été envoyé.",
+      "reviewFailed": "Impossible d’envoyer votre avis.",
+      "actionFailed": "L’action a échoué. Veuillez réessayer.",
+      "loginRequired": "Veuillez vous connecter pour continuer",
+      "cartFailed": "Impossible d’ajouter cet élément au panier.",
+      "loginRequiredDescription": "Vous devez vous connecter avant d’utiliser les favoris, l’inscription, le panier ou les avis."
+    },
+    "course": {
+      "badge": "Cours",
+      "professionals": "Professionnels",
+      "duration": "Durée",
+      "level": "Niveau",
+      "instructor": "Formateur",
+      "whatYouWillLearn": "Ce que vous apprendrez",
+      "requirements": "Prérequis",
+      "enrollNow": "S’inscrire"
+    },
+    "event": {
+      "badge": "Événement",
+      "date": "Date",
+      "delivery": "Format",
+      "location": "Lieu",
+      "attendees": "Participants",
+      "registerNow": "S’inscrire maintenant"
+    },
+    "podcast": {
+      "badge": "Podcast",
+      "host": "Animateur",
+      "listeners": "Auditeurs",
+      "episodes": "Épisodes",
+      "duration": "Durée",
+      "followPodcast": "Suivre le podcast",
+      "playLatest": "Lire le dernier épisode"
+    },
+    "youtube": {
+      "badge": "Chaîne YouTube",
+      "provider": "Fournisseur",
+      "subscribers": "Abonnés",
+      "videos": "Vidéos",
+      "views": "Vues",
+      "followChannel": "Suivre la chaîne"
+    },
+    "curriculum": {
+      "section": "Section",
+      "empty": "Aucun programme n’a encore été ajouté."
+    },
+    "schedule": {
+      "day": "Jour",
+      "empty": "Aucun agenda n’a encore été ajouté."
+    },
+    "episodes": {
+      "episode": "Épisode",
+      "play": "Lire",
+      "unavailable": "Indisponible",
+      "empty": "Aucun épisode n’a encore été ajouté."
+    },
+    "videos": {
+      "watch": "Regarder",
+      "unavailable": "Indisponible",
+      "empty": "Aucune vidéo n’a encore été ajoutée."
+    },
+    "reviews": {
+      "writeReview": "Écrire un avis",
+      "writeReviewDescription": "Notez ce contenu et partagez votre expérience.",
+      "commentPlaceholder": "Écrivez votre commentaire...",
+      "submitReview": "Envoyer l’avis",
+      "noReviews": "Aucun avis pour le moment",
+      "noReviewsDescription": "Soyez la première personne à donner un avis.",
+      "noComment": "Aucun commentaire fourni."
+    }
+  },
+  "landing": {
+    "learningHub": {
+      "badge": "Espace d’apprentissage sélectionné",
+      "title": "Découvrez des contenus qui font avancer votre carrière",
+      "subtitle": "Explorez des cours, événements en direct, podcasts et chaînes d’experts conçus pour le CPD, la croissance professionnelle et l’apprentissage continu.",
+      "viewAll": "Voir tout le contenu",
+      "viewDetails": "Voir les détails",
+      "spotlight": "À la une",
+      "free": "Gratuit",
+      "info": "Info",
+      "price": "Prix",
+      "emptyTitle": "Aucun contenu mis en avant pour le moment",
+      "emptyText": "Les contenus d’apprentissage mis en avant apparaîtront ici lorsque les fournisseurs publieront de nouveaux éléments.",
+      "tabs": {
+        "courses": "Cours",
+        "coursesDescription": "Apprentissage structuré",
+        "events": "Événements",
+        "eventsDescription": "En direct et à venir",
+        "podcasts": "Podcasts",
+        "podcastsDescription": "Écouter et progresser",
+        "youtube": "YouTube",
+        "youtubeDescription": "Chaînes d’experts"
+      },
+      "meta": {
+        "professionals": "{{count}} professionnels",
+        "minutes": "{{count}} min",
+        "attendees": "{{count}} participants",
+        "listeners": "{{count}} auditeurs",
+        "episodes": "{{count}} épisodes",
+        "subscribers": "{{count}} abonnés",
+        "videos": "{{count}} vidéos",
+        "upcoming": "À venir"
+      }
+    },
+    "hero": {
+      "badge": "Apprentissage professionnel propulsé par l’IA",
+      "titleLine1": "Votre parcours de",
+      "titleLine2": "développement professionnel",
+      "titleLine3": "au même endroit",
+      "subtitleLine1": "Votre parcours, votre choix — l’IA de LoopsKey,",
+      "subtitleLine2": "adaptée à vos objectifs.",
+      "primaryCta": "Explorer les contenus",
+      "secondaryCta": "Créer un compte",
+      "searchPlaceholder": "Rechercher des cours, événements, podcasts et chaînes YouTube...",
+      "exploreButton": "Explorer",
+      "exploreTitle": "Explorer par catégorie",
+      "selectedCategory": "Catégorie sélectionnée",
+      "clear": "Effacer",
+      "searchResults": "Résultats de recherche",
+      "categoryResults": "Résultats par catégorie",
+      "viewAll": "Tout voir",
+      "viewItem": "Voir",
+      "noResults": "Aucun contenu correspondant trouvé. Essayez un autre mot-clé ou une autre catégorie.",
+      "aiCardTitle": "Apprentissage guidé par l’IA",
+      "aiCardText": "Des parcours personnalisés pour chaque objectif",
+      "progressCardTitle": "Suivez votre progression",
+      "progressCardText": "CPD, compétences, certificats et preuves d’apprentissage",
+      "skills": "Compétences",
+      "professionals": "professionnels",
+      "categories": {
+        "technologyCourses": "Cours de technologie",
+        "businessCourses": "Cours de business",
+        "leadershipCourses": "Cours de leadership",
+        "cpdEvents": "Événements CPD",
+        "complianceEvents": "Événements conformité",
+        "aiPodcasts": "Podcasts IA",
+        "careerPodcasts": "Podcasts carrière",
+        "dataYouTube": "YouTube data",
+        "engineeringYouTube": "YouTube ingénierie"
+      },
+      "resultMeta": {
+        "course": "Cours",
+        "event": "Événement",
+        "minutes": "{{count}} min",
+        "episodes": "{{count}} épisodes",
+        "videos": "{{count}} vidéos"
+      }
+    },
+    "popularCategories": {
+      "badge": "Catégories populaires",
+      "title": "Découvrez ce que les professionnels apprennent",
+      "subtitle": "Explorez les catégories les plus performantes selon les notes, les avis et l’activité d’apprentissage sur LoopsKey.",
+      "itemsCount": "{{count}} éléments",
+      "courses": "Cours",
+      "events": "Événements",
+      "podcasts": "Podcasts",
+      "youtube": "YouTube"
+    },
+    "newFeature": {
+      "badge": "Nouvelle fonctionnalité",
+      "title": "Parcours d’apprentissage",
+      "description": "Naviguez dans votre parcours d’apprentissage grâce à des roadmaps conçues par des experts. Suivez des chemins structurés du niveau débutant au niveau avancé.",
+      "ctaTitle": "Commencez votre parcours dès aujourd’hui",
+      "ctaText": "Choisissez parmi différents parcours créés par des experts du secteur. Que vous commenciez de zéro ou que vous souhaitiez renforcer vos compétences, nos roadmaps vous guident à chaque étape.",
+      "ctaButton": "Explorer les roadmaps",
+      "cards": {
+        "structured": {
+          "title": "Progression structurée",
+          "text": "Des parcours clairs, étape par étape, conçus par des experts du secteur."
+        },
+        "community": {
+          "title": "Approche communautaire",
+          "text": "Apprenez avec d’autres professionnels suivant le même parcours et partagez vos expériences."
+        },
+        "progress": {
+          "title": "Suivi de progression",
+          "text": "Suivez votre avancement et célébrez vos étapes importantes."
+        }
+      }
+    },
+    "services": {
+      "badge": "Services LoopsKey",
+      "title": "Tout pour votre développement professionnel",
+      "subtitle": "LoopsKey réunit la découverte de contenus, le suivi CPD, les outils fournisseurs, les recommandations et l’analytique dans une plateforme intelligente.",
+      "items": {
+        "cpdManagement": {
+          "title": "Gestion CPD",
+          "text": "Restez aligné avec votre profession grâce à une gestion simple de votre développement professionnel continu. Suivez vos progrès, planifiez vos apprentissages et gardez une longueur d’avance."
+        },
+        "contentAggregation": {
+          "title": "Agrégation de contenus d’apprentissage",
+          "text": "Découvrez facilement des opportunités d’apprentissage mondiales. Notre IA agrège webinaires, séminaires et sessions d’experts en un seul endroit."
+        },
+        "personalizedDashboard": {
+          "title": "Tableau de bord personnalisé",
+          "text": "Accédez à un tableau de bord adapté à vos objectifs, avec événements à venir, cours enregistrés et recommandations personnalisées."
+        },
+        "professionalsConnection": {
+          "title": "Connexion des professionnels",
+          "text": "Élargissez vos possibilités en accédant à des opportunités de formation de qualité partout dans le monde."
+        },
+        "recommendations": {
+          "title": "Recommandations intelligentes",
+          "text": "Profitez du tagging par IA et de la recherche avancée pour recevoir des recommandations adaptées à votre expertise et à vos intérêts."
+        },
+        "providerSolutions": {
+          "title": "Solutions pour fournisseurs de contenu",
+          "text": "Partagez vos webinaires, cours et événements avec un réseau mondial de professionnels en quête de formation continue."
+        },
+        "hrAssociations": {
+          "title": "RH et associations professionnelles",
+          "text": "Aidez vos équipes à accéder à des formations pertinentes et accréditées tout en maintenant leurs compétences à jour."
+        },
+        "dataAnalytics": {
+          "title": "Analyse de données",
+          "text": "Obtenez des insights exploitables avec LoopsKey Analytics. Suivez les tendances d’apprentissage et prenez des décisions basées sur les données."
+        }
+      }
+    },
+    "roadmapShowcase": {
+      "badge": "Feuille de route d’apprentissage IA",
+      "title": "Transformez vos objectifs de carrière en",
+      "highlight": "feuille de route",
+      "description": "LoopsKey transforme vos objectifs en une feuille de route vivante — en organisant les cours, événements et certifications dans le bon ordre avec des étapes réellement atteignables.",
+      "primaryAction": "Réserver une consultation",
+      "secondaryAction": "Explorer les services",
+      "benefits": {
+        "aiSequencing": "Séquençage guidé par les objectifs et construit par l’IA",
+        "eventSlotting": "Événements recommandés automatiquement intégrés",
+        "progressTracking": "Suivi en direct des progrès et du CPD",
+        "adaptiveRoadmap": "S’adapte à l’évolution de votre rôle et de vos compétences"
+      },
+      "preview": {
+        "eyebrow": "Feuille de route",
+        "title": "Parcours vers Chartered Engineer",
+        "status": "En cours"
+      },
+      "status": {
+        "done": "Terminé",
+        "active": "En cours",
+        "upcoming": "À venir"
+      },
+      "milestones": {
+        "systemsEngineering": {
+          "title": "Fondamentaux de l’ingénierie des systèmes",
+          "meta": "8 modules · 24 points CPD"
+        },
+        "incoseSymposium": {
+          "title": "Symposium international INCOSE",
+          "meta": "Événement en direct · 12 juillet"
+        },
+        "riskReliability": {
+          "title": "Risque et fiabilité avancés",
+          "meta": "Recommandé par l’IA · 16 h"
+        },
+        "charteredEngineer": {
+          "title": "Candidature Chartered Engineer",
+          "meta": "Étape d’objectif · T4"
+        }
+      },
+      "metrics": {
+        "cpd": "Points CPD",
+        "progress": "Progression",
+        "next": "Prochaine étape"
+      }
+    },
+    "organization": {
+      "eyebrow": "Pour les organisations",
+      "title": "Construisez une main-d'œuvre qui progresse durablement",
+      "description": "Offrez à chaque membre de l'équipe une feuille de route personnalisée, prouvez la conformité CPD en un clic et transformez l'apprentissage en résultats mesurables.",
+      "primaryAction": "Réserver une consultation",
+      "secondaryAction": "Explorer les services",
+      "stats": {
+        "teamMembers": "Membres de l'équipe",
+        "cpdCompliant": "Conformes CPD",
+        "avgGrowth": "Croissance moyenne"
+      },
+      "features": {
+        "teamProgress": "Progression d'équipe en un coup d'œil",
+        "cpdCompliance": "Conformité CPD automatisée",
+        "skillAnalytics": "Analyse des compétences",
+        "learningAssignments": "Affectations intelligentes"
+      },
+      "dashboard": {
+        "eyebrow": "Vue d'ensemble de l'équipe",
+        "title": "Équipe ingénierie · T3",
+        "status": "En direct",
+        "complianceTitle": "Conformité CPD par équipe"
+      },
+      "compliance": {
+        "compliant": "Conformes",
+        "atRisk": "À risque",
+        "nonCompliant": "Non conformes"
+      },
+      "topics": {
+        "aiRoadmaps": "Feuilles de route IA",
+        "compliance": "Formation conformité",
+        "leadership": "Compétences leadership"
+      }
+    },
+    "provider": {
+      "eyebrow": "Pour les fournisseurs de contenu",
+      "title": "Touchez des professionnels déjà en apprentissage",
+      "description": "Les organismes de formation, associations et éducateurs font confiance à LoopsKey pour présenter leurs meilleurs contenus à des apprenants motivés.",
+      "primaryAction": "Devenir fournisseur",
+      "secondaryAction": "Voir les services",
+      "benefits": {
+        "promoteEvents": {
+          "title": "Promouvoir vos événements",
+          "description": "Publiez des cours, conférences et webinaires auprès d'une audience mondiale de professionnels qualifiés."
+        },
+        "reachPeople": {
+          "title": "Atteindre les bonnes personnes",
+          "description": "L'IA associe vos offres aux apprenants qui construisent activement des feuilles de route dans votre domaine."
+        },
+        "analytics": {
+          "title": "Analyses en temps réel",
+          "description": "Suivez les impressions, inscriptions et l'engagement des apprenants grâce à un tableau de bord clair."
+        },
+        "growAudience": {
+          "title": "Développer votre audience",
+          "description": "Fidélisez des apprenants réguliers et transformez des participants ponctuels en communauté."
+        }
+      },
+      "stats": {
+        "monthlyLearners": "Apprenants actifs",
+        "providerReach": "Pays couverts",
+        "conversionLift": "Hausse moyenne"
+      },
+      "funnel": {
+        "publish": "Visibilité du contenu publié",
+        "match": "Correspondance IA avec les apprenants",
+        "convert": "Conversion en inscriptions"
+      },
+      "dashboard": {
+        "eyebrow": "Console de croissance fournisseur",
+        "title": "Marketplace d'apprentissage professionnel",
+        "status": "En direct",
+        "funnelTitle": "Performance des campagnes",
+        "funnelDescription": "Suivez comment votre contenu passe de la découverte à l'inscription.",
+        "matchingTitle": "Correspondance basée sur l'IA",
+        "matchingDescription": "Vos événements apparaissent là où les professionnels planifient déjà leur prochaine étape.",
+        "analyticsTitle": "Données de performance claires",
+        "analyticsDescription": "Comprenez les vues, l'intérêt, les inscriptions et la dynamique de vos contenus au même endroit.",
+        "demoData": "Données démo",
+        "noTopEvent": "Aucun événement principal pour le moment",
+        "topEventTitle": "Événement le plus performant",
+        "revenue": "Revenus",
+        "rating": "Note",
+        "registrations": "Inscriptions"
+      }
+    },
+    "testimonials": {
+      "eyebrow": "Témoignages",
+      "title": "Une plateforme adoptée dans tout le secteur",
+      "description": "Des ingénieurs indépendants aux grandes organisations internationales et aux fournisseurs de formation.",
+      "items": {
+        "engineer": {
+          "quote": "LoopsKey a remplacé quatre tableurs et une douzaine d'onglets de navigateur. Mon CPD est enfin automatisé — et j'apprends les bonnes choses.",
+          "name": "Daniel Park",
+          "role": "Ingénieur systèmes senior · Siemens",
+          "tag": "Ingénieur"
+        },
+        "organization": {
+          "quote": "Nous l'avons déployé auprès de 1 800 ingénieurs. La conformité CPD est passée de 61 % à 94 % en un trimestre, et l'équipe L&D dispose enfin des analyses dont elle avait besoin.",
+          "name": "Maria Gonzalez",
+          "role": "Directrice des ressources humaines · TechCorp",
+          "tag": "Organisation"
+        },
+        "provider": {
+          "quote": "Publier nos programmes de certification sur LoopsKey a multiplié par quatre les inscriptions qualifiées. L'audience correspond exactement à notre cible.",
+          "name": "Aisha Nour",
+          "role": "Directrice des programmes · Global PM Institute",
+          "tag": "Fournisseur"
+        }
+      }
+    }
+  },
+  "notFound": {
+    "badge": "Page introuvable",
+    "title": "Cette page semble être hors du parcours",
+    "description": "La page que vous recherchez a peut-être été déplacée, renommée ou n’est plus disponible.",
+    "backHome": "Retour à l’accueil",
+    "goBack": "Retour",
+    "emailTitle": "Besoin d’aide ?",
+    "supportTitle": "Contacter le support",
+    "supportText": "Dites-nous ce que vous cherchiez."
+  },
+  "dashboard": {
+    "sidebar": {
+      "common": {
+        "settings": "Paramètres"
+      },
+      "provider": {
+        "overview": "Vue d’ensemble",
+        "myEvents": "Mes événements",
+        "createEvent": "Créer un événement",
+        "attendees": "Participants",
+        "myGoals": "Mes objectifs",
+        "promotionRequests": "Demandes de promotion",
+        "analytics": "Analytique"
+      },
+      "professional": {
+        "overview": "Vue d’ensemble",
+        "myCalendar": "Mon calendrier",
+        "myCourses": "Mes cours",
+        "roadmap": "Parcours",
+        "certificates": "Certificats",
+        "payments": "Paiements",
+        "pduReport": "Rapport PDU"
+      },
+      "organization": {
+        "overview": "Vue d’ensemble",
+        "members": "Membres",
+        "assignments": "Affectations",
+        "eventCatalog": "Catalogue d’événements",
+        "cpdCategories": "Catégories CPD",
+        "reports": "Rapports"
+      }
+    }
+  },
+  "professionalDashboard": {
+    "sidebar": {
+      "roadmap": "Parcours",
+      "courses": "Mes cours",
+      "payments": "Paiements",
+      "settings": "Paramètres",
+      "pduReport": "Rapport PDU",
+      "overview": "Vue d’ensemble",
+      "calendar": "Mon calendrier",
+      "certificates": "Certificats",
+      "externalLearning": "Apprentissage externe"
+    },
+    "common": {
+      "refresh": "Actualiser",
+      "completed": "Terminé",
+      "inProgress": "En cours",
+      "progress": "Progression",
+      "details": "Détails",
+      "chartPlaceholder": "Le graphique sera affiché ici",
+      "comingSoon": "Cette section est prête pour l’intégration API et la finalisation UI."
+    },
+    "overview": {
+      "eyebrow": "Tableau de bord professionnel",
+      "title": "Bon retour, {name} ! 👋",
+      "description": "Voici ce qui se passe aujourd’hui dans votre parcours d’apprentissage.",
+      "viewCalendar": "Voir le calendrier",
+      "browseCourses": "Explorer les cours",
+      "browseAll": "Tout explorer",
+      "viewAll": "Tout voir",
+      "continue": "Continuer",
+      "enrollNow": "S’inscrire maintenant",
+      "enrolled": "Votre inscription a été effectuée avec succès.",
+      "pduOverTime": "PDU au fil du temps",
+      "pduOverTimeDescription": "Accumulation mensuelle de vos unités de développement professionnel approuvées.",
+      "pdusByCategory": "PDU par catégorie",
+      "goalProgress": "Progression de l’objectif PDU",
+      "goalProgressLabel": "de votre objectif annuel",
+      "upcomingEvents": "Événements à venir",
+      "upcomingEventsCount": "activités à venir inscrites",
+      "emptyUpcomingEvents": "Aucun événement à venir pour le moment.",
+      "learningSnapshot": "Aperçu d’apprentissage",
+      "learningSnapshotText": "Votre plateforme unique pour apprendre, découvrir et progresser avec LoopsKey.",
+      "myActiveCourses": "Mes cours actifs",
+      "emptyActiveCourses": "Vous n’avez pas encore de cours actif.",
+      "recommendedCourses": "Cours recommandés",
+      "recommendedCoursesDescription": "Sélectionnés selon votre comportement d’apprentissage et votre parcours professionnel.",
+      "cards": {
+        "activeCourses": "Cours actifs",
+        "completedCourses": "Cours terminés",
+        "totalPdus": "PDU totaux",
+        "certificates": "Certificats obtenus"
+      }
+    },
+    "settings": {
+      "eyebrow": "Paramètres professionnels",
+      "title": "Paramètres",
+      "description": "Personnalisez votre expérience LoopsKey : langue, thème, notifications et visibilité du profil.",
+      "saved": "Paramètres enregistrés avec succès.",
+      "profileSaved": "Profil mis à jour avec succès.",
+      "resetDone": "Paramètres réinitialisés par défaut.",
+      "saveChanges": "Enregistrer les modifications",
+      "saveNotifications": "Enregistrer les notifications",
+      "savePrivacy": "Enregistrer la confidentialité",
+      "resetDefault": "Réinitialiser par défaut",
+      "tabs": {
+        "general": "Général",
+        "notifications": "Notifications",
+        "privacy": "Confidentialité",
+        "profile": "Profil",
+        "security": "Sécurité"
+      },
+      "general": {
+        "title": "Préférences générales",
+        "description": "Personnalisez la langue et l’apparence de votre tableau de bord.",
+        "language": "Langue de l’interface",
+        "languageHint": "Choisissez la langue utilisée dans votre tableau de bord.",
+        "theme": "Thème",
+        "themeHint": "Le mode système suit l’apparence de votre système d’exploitation.",
+        "light": "Clair",
+        "dark": "Sombre",
+        "system": "Système",
+        "note": "Ces paramètres affectent uniquement votre tableau de bord personnel.",
+        "save": "Enregistrer les modifications"
+      },
+      "notifications": {
+        "title": "Notifications",
+        "description": "Choisissez comment LoopsKey vous informe des mises à jour importantes.",
+        "emailNotifications": "Notifications par e-mail",
+        "emailNotificationsDescription": "Recevez les mises à jour et alertes importantes par e-mail.",
+        "pushNotifications": "Notifications push",
+        "pushNotificationsDescription": "Autorisez les notifications dans le navigateur ou l’application.",
+        "courseUpdates": "Mises à jour des cours",
+        "courseUpdatesDescription": "Soyez informé lorsque vos cours inscrits sont mis à jour.",
+        "messages": "Messages",
+        "messagesDescription": "Alertes pour les nouveaux messages des fournisseurs ou administrateurs.",
+        "eventReminders": "Rappels d’événements",
+        "eventRemindersDescription": "Rappels pour les sessions, échéances et événements à venir.",
+        "loginAlerts": "Alertes de connexion",
+        "loginAlertsDescription": "Soyez informé lorsqu’une nouvelle connexion est détectée sur votre compte.",
+        "save": "Enregistrer les notifications"
+      },
+      "privacy": {
+        "title": "Profil et confidentialité",
+        "description": "Contrôlez ce que les autres peuvent voir sur votre profil public LoopsKey.",
+        "public": "Public",
+        "publicDescription": "Visible par tous sur LoopsKey.",
+        "followersOnly": "Abonnés uniquement",
+        "followersOnlyDescription": "Visible uniquement par vos abonnés acceptés.",
+        "private": "Privé",
+        "privateDescription": "Vous seul pouvez voir votre profil complet.",
+        "showEmail": "Afficher l’e-mail",
+        "showEmailDescription": "Autoriser les collaborateurs à vous contacter directement.",
+        "showLearningProgress": "Afficher la progression d’apprentissage",
+        "showLearningProgressDescription": "Afficher publiquement votre parcours d’apprentissage.",
+        "showCertificates": "Afficher les certificats",
+        "showCertificatesDescription": "Autoriser les autres à voir vos certificats vérifiés.",
+        "save": "Enregistrer la confidentialité",
+        "reset": "Réinitialiser par défaut"
+      },
+      "profile": {
+        "bio": "Bio",
+        "title": "Profil",
+        "phone": "Téléphone",
+        "website": "Site web",
+        "education": "Formation",
+        "fullName": "Nom complet",
+        "location": "Localisation",
+        "occupation": "Profession",
+        "avatarUrl": "URL de l’avatar",
+        "removePhoto": "Supprimer la photo",
+        "locationPlaceholder": "Ville, pays",
+        "save": "Enregistrer les modifications",
+        "websitePlaceholder": "https://votresite.com",
+        "occupationPlaceholder": "Votre poste actuel",
+        "fullNamePlaceholder": "Entrez votre nom complet",
+        "phonePlaceholder": "Ajoutez votre numéro de téléphone",
+        "bioPlaceholder": "Rédigez une courte biographie professionnelle",
+        "description": "Gérez les informations de votre profil professionnel.",
+        "educationPlaceholder": "Votre diplôme, école ou parcours de formation",
+        "avatarUrlPlaceholder": "Collez l’URL d’une image pour votre photo de profil",
+        "fullNameHint": "Ce nom apparaîtra sur vos certificats et votre profil professionnel.",
+        "nameHint": "Ce nom apparaît sur vos certificats et votre profil public professionnel.",
+        "note": "Les données du profil aident à personnaliser les recommandations de cours et les certificats."
+      },
+      "security": {
+        "title": "Sécurité",
+        "description": "Gérez votre mot de passe, votre e-mail et la protection de votre compte.",
+        "passwordTitle": "Mettre à jour le mot de passe",
+        "passwordDescription": "Modifiez le mot de passe de votre compte en toute sécurité.",
+        "currentPassword": "Mot de passe actuel",
+        "newPassword": "Nouveau mot de passe",
+        "confirmPassword": "Confirmer le mot de passe",
+        "updatePassword": "Changer le mot de passe",
+        "passwordChanged": "Mot de passe modifié avec succès.",
+        "emailTitle": "Changer l’e-mail",
+        "currentEmail": "E-mail actuel",
+        "newEmail": "Nouvel e-mail",
+        "sendOtp": "Envoyer le code OTP",
+        "otpCode": "Code OTP",
+        "verifyEmail": "Vérifier et changer l’e-mail",
+        "otpSent": "Le code de vérification a été envoyé.",
+        "emailChanged": "E-mail modifié avec succès.",
+        "sessionsTitle": "Sessions actives",
+        "thisBrowser": "Ce navigateur",
+        "lastActive": "Dernière activité",
+        "current": "Actuel"
+      }
+    },
+    "wishlist": {
+      "eyebrow": "Contenu enregistré",
+      "title": "Ma liste de souhaits",
+      "description": "Consultez vos cours, événements, podcasts et vidéos enregistrés.",
+      "search": "Rechercher par titre, fournisseur, catégorie ou identifiant de contenu...",
+      "searchLabel": "Recherche",
+      "filtersTitle": "Filtres avancés",
+      "filtersDescription": "Affinez votre liste de souhaits par type, catégorie, prix et critères de qualité.",
+      "category": "Catégorie",
+      "allCategories": "Toutes les catégories",
+      "sortBy": "Trier par",
+      "price": "Prix",
+      "onlyWithRating": "Uniquement les éléments notés",
+      "onlyWithRatingHint": "Afficher uniquement les éléments qui incluent une note.",
+      "onlyWithUrl": "Uniquement les liens disponibles",
+      "onlyWithUrlHint": "Afficher uniquement les éléments avec une page de détails valide.",
+      "items": "éléments",
+      "emptyTitle": "Votre liste de souhaits est vide",
+      "emptyDescription": "Enregistrez des cours, événements, podcasts ou vidéos pour les retrouver ici plus tard.",
+      "noResultsTitle": "Aucun élément de la liste de souhaits ne correspond à vos filtres",
+      "noResultsDescription": "Essayez de modifier le terme de recherche ou de supprimer l’un des filtres actifs.",
+      "unknownProvider": "Fournisseur inconnu",
+      "pageSummary": "Page {{page}} sur {{totalPages}}",
+      "removed": "Supprimé de la liste.",
+      "untitled": "Contenu sans titre",
+      "savedAt": "Enregistré le",
+      "viewDetails": "Voir les détails",
+      "contentTitle": "Élément {{type}} #{{id}}"
+    },
+    "pduReport": {
+      "eyebrow": "Rapport PDU",
+      "title": "Rapport PDU",
+      "subtitle": "Suivez et gérez vos unités de développement professionnel.",
+      "exportCsv": "Exporter CSV",
+      "cards": {
+        "totalPdus": "Total des PDU obtenus",
+        "target": "Objectif",
+        "progressToGoal": "Progression vers l’objectif",
+        "averagePerMonth": "Moyenne / mois",
+        "thisYear": "Cette année",
+        "goalProgress": "Progression de l’objectif",
+        "activities": "activités"
+      },
+      "quickActions": {
+        "title": "Actions rapides",
+        "subtitle": "Ajustez les objectifs annuels et ajoutez de nouvelles activités PDU.",
+        "adjustTargets": "Ajuster les objectifs annuels",
+        "logActivity": "Ajouter un PDU"
+      },
+      "byCategory": {
+        "title": "PDU par catégorie",
+        "subtitle": "Progression par rapport aux objectifs de chaque catégorie."
+      },
+      "overTime": {
+        "title": "PDU dans le temps",
+        "subtitle": "Accumulation mensuelle basée sur les activités visibles dans ce tableau."
+      },
+      "activities": {
+        "title": "Activités",
+        "subtitle": "Gérez vos activités PDU et leur statut d’approbation.",
+        "search": "Rechercher des activités...",
+        "emptyTitle": "Aucune activité PDU trouvée",
+        "emptyDescription": "Ajoutez votre première activité pour commencer le suivi de vos PDU.",
+        "table": {
+          "activity": "Activité",
+          "date": "Date",
+          "category": "Catégorie",
+          "status": "Statut",
+          "pdus": "PDU"
+        }
+      },
+      "targetsDialog": {
+        "title": "Ajuster l’objectif annuel",
+        "description": "Définissez un objectif pour une catégorie PDU et une année.",
+        "category": "Catégorie",
+        "target": "Objectif PDU",
+        "save": "Enregistrer l’objectif",
+        "success": "Objectif PDU enregistré avec succès."
+      },
+      "activityDialog": {
+        "title": "Ajouter une activité PDU",
+        "description": "Ajoutez une activité de développement professionnel à votre rapport.",
+        "activityTitle": "Titre de l’activité",
+        "date": "Date",
+        "pdus": "PDU",
+        "source": "Source",
+        "category": "Catégorie",
+        "save": "Enregistrer l’activité",
+        "success": "Activité PDU créée avec succès.",
+        "titleRequired": "Le titre de l’activité est obligatoire."
+      }
+    },
+    "payments": {
+      "eyebrow": "Paiements",
+      "title": "Facturation et paiements",
+      "subtitle": "Consultez votre historique de paiement, vos activités de facturation et vos achats de formation.",
+      "overviewTitle": "Aperçu des paiements",
+      "overviewDescription": "Consultez votre historique, vos moyens de paiement et gérez vos expériences premium.",
+      "manageBilling": "Mettre à niveau / gérer la facturation",
+      "totalSpent": "Total dépensé",
+      "spentThisYear": "Dépensé cette année",
+      "totalTransactions": "Transactions totales",
+      "allTime": "Depuis le début",
+      "successfulPayments": "Paiements réussis",
+      "savedMethods": "Moyens de paiement enregistrés",
+      "savedMethodsDesc": "Déduits automatiquement de vos paiements réussis.",
+      "noMethods": "Aucun moyen de paiement détecté",
+      "noMethodsDesc": "Après un paiement, les moyens enregistrés et les détails de facturation apparaîtront ici.",
+      "historyTitle": "Historique des transactions",
+      "historyDescription": "Tous vos paiements réussis et enregistrements de facturation.",
+      "search": "Rechercher des paiements...",
+      "emptyTitle": "Aucun paiement pour le moment",
+      "emptyDescription": "Vos transactions apparaîtront ici après votre inscription à des formations payantes.",
+      "browseCourses": "Parcourir les cours",
+      "receipt": "Reçu",
+      "generalPayment": "Paiement général",
+      "table": {
+        "item": "Élément",
+        "date": "Date",
+        "status": "Statut",
+        "amount": "Montant",
+        "receipt": "Reçu"
+      }
+    },
+    "certificates": {
+      "eyebrow": "Certificats",
+      "title": "Mes certificats",
+      "subtitle": "Consultez, téléchargez, vérifiez et partagez vos certificats professionnels.",
+      "sharePortfolio": "Partager le portfolio",
+      "earnMore": "Obtenir plus de certificats",
+      "totalCertificates": "Total des certificats",
+      "acrossCourses": "Sur vos activités d’apprentissage terminées",
+      "totalPdusEarned": "Total des PDU obtenus",
+      "activeCertifications": "Certifications actives",
+      "lastIssued": "Dernier émis",
+      "certificatesList": "Certificats",
+      "certificatesListDesc": "Prévisualisez, téléchargez et vérifiez vos certificats.",
+      "search": "Rechercher des certificats...",
+      "certificate": "Certificat",
+      "unknownIssuer": "Émetteur inconnu",
+      "issueDate": "Date d’émission",
+      "validUntil": "Valable jusqu’au",
+      "lifetime": "À vie",
+      "verificationCode": "Code de vérification",
+      "preview": "Aperçu",
+      "download": "Télécharger",
+      "verify": "Vérifier ce certificat",
+      "emptyTitle": "Aucun certificat pour le moment",
+      "emptyDescription": "Terminez des cours, événements ou activités professionnelles pour obtenir des certificats."
+    },
+    "courses": {
+      "Free": "Gratuit",
+      "Price": "Prix",
+      "Started": "Commencé",
+      "Completed": "Terminé",
+      "Unknown provider": "Fournisseur inconnu",
+      "No course description is available.": "La description du cours n'est pas disponible.",
+      "eyebrow": "Mon apprentissage",
+      "title": "Mes cours",
+      "description": "Suivez votre progression, continuez vos cours actifs et consultez vos formations terminées.",
+      "search": "Rechercher dans vos cours...",
+      "cards": {
+        "total": "Total des cours",
+        "active": "Cours actifs",
+        "completed": "Cours terminés",
+        "averageProgress": "Progression moyenne"
+      },
+      "progressTitle": "Progression des cours",
+      "progressDescription": "Reprenez là où vous vous êtes arrêté et suivez votre parcours.",
+      "courseFallback": "Cours #{id}",
+      "progress": "Progression",
+      "continue": "Continuer",
+      "review": "Revoir",
+      "emptyTitle": "Aucun cours trouvé",
+      "emptyDescription": "Explorez les cours et inscrivez-vous pour commencer votre parcours."
+    },
+    "roadmap": {
+      "eyebrow": "Feuille de route professionnelle",
+      "title": "Vos parcours d’apprentissage",
+      "subtitle": "Suivez vos parcours structurés, mesurez la progression par phase et explorez de nouveaux axes de développement professionnel.",
+      "createCustomPath": "Créer un parcours personnalisé",
+      "enrolled": "Parcours suivis",
+      "averageCompletion": "Progression moyenne",
+      "completedPhases": "Phases terminées",
+      "nextMilestone": "Prochain jalon",
+      "yourLearningPath": "Votre parcours actuel",
+      "learningPathDescription": "Les phases de votre parcours apparaîtront ici dès que vous serez inscrit à une feuille de route.",
+      "noLearningPath": "Aucun parcours actif",
+      "noLearningPathDescription": "Inscrivez-vous à une feuille de route pour voir vos phases structurées et votre progression.",
+      "phaseDescriptionFallback": "Continuez cette phase pour avancer dans votre parcours de développement professionnel.",
+      "overallProgress": "Progression globale",
+      "overallProgressDescription": "Basée sur {count} feuille(s) de route suivie(s).",
+      "averageProgressText": "Cette valeur représente votre progression moyenne sur l’ensemble de vos feuilles de route professionnelles actives et terminées.",
+      "myRoadmaps": "Mes feuilles de route",
+      "myRoadmapsDescription": "Continuez, consultez et suivez les feuilles de route auxquelles vous êtes inscrit.",
+      "searchMyRoadmaps": "Rechercher dans vos feuilles de route...",
+      "emptyMyRoadmapsTitle": "Aucune feuille de route trouvée",
+      "emptyMyRoadmapsDescription": "Vous n’êtes inscrit à aucune feuille de route, ou aucune feuille de route ne correspond à votre recherche.",
+      "exploreRoadmaps": "Explorer les feuilles de route",
+      "exploreRoadmapsDescription": "Découvrez de nouveaux parcours professionnels adaptés à vos objectifs de progression.",
+      "searchExploreRoadmaps": "Rechercher des feuilles de route disponibles...",
+      "emptyExploreTitle": "Aucune feuille de route disponible",
+      "emptyExploreDescription": "Aucune feuille de route publiée n’est disponible pour le moment, ou aucune ne correspond à votre recherche.",
+      "phases": "phases",
+      "steps": "étapes",
+      "next": "Suivant",
+      "duration": "Durée",
+      "weeks": "semaines",
+      "enroll": "S’inscrire",
+      "unenroll": "Se désinscrire"
+    },
+    "calendar": {
+      "eyebrow": "Calendrier professionnel",
+      "title": "Calendrier et événements inscrits",
+      "description": "Suivez vos événements, sessions, webinaires et activités PDU dans une vue calendrier professionnelle.",
+      "googleConnected": "Google connecté",
+      "eventFallback": "Événement professionnel",
+      "empty": "Aucun événement trouvé pour les filtres sélectionnés.",
+      "search": "Rechercher des événements...",
+      "join": "Rejoindre",
+      "joinOnline": "Rejoindre en ligne",
+      "close": "Fermer",
+      "liveNow": "En direct",
+      "minutes": "min",
+      "hours": "h",
+      "cards": {
+        "totalEvents": "Total des événements",
+        "upcoming": "À venir",
+        "live": "En direct",
+        "completed": "Terminés",
+        "totalPdus": "Total PDU"
+      },
+      "filters": {
+        "searchLabel": "Recherche",
+        "title": "Filtres du calendrier",
+        "description": "Recherchez des événements et sélectionnez une date de début et de fin pour affiner la vue du calendrier.",
+        "from": "Du",
+        "to": "Au",
+        "reset": "Réinitialiser"
+      },
+      "calendarChart": {
+        "title": "Calendrier interactif",
+        "description": "Sélectionnez une plage de dates directement dans le calendrier ou cliquez sur un événement pour voir les détails."
+      },
+      "allEvents": {
+        "title": "Tous les événements inscrits",
+        "description": "Consultez vos inscriptions, votre statut de présence, le mode de diffusion et les liens d’accès."
+      },
+      "table": {
+        "event": "Événement",
+        "date": "Date",
+        "mode": "Mode",
+        "status": "Statut",
+        "action": "Action",
+        "registered": "Inscrit",
+        "attendance": "Présence",
+        "attended": "Présent",
+        "notMarked": "Non indiqué"
+      }
+    },
+    "externalLearning": {
+      "eyebrow": "Apprentissage externe",
+      "title": "Apprentissage externe suivi",
+      "description": "Consultez les contenus ouverts depuis LoopsKey et confirmez l’inscription, la progression, les heures PDU et les preuves.",
+      "search": "Rechercher un apprentissage externe...",
+      "empty": "Aucun apprentissage externe suivi pour le moment.",
+      "fields": {
+        "status": "Statut d’apprentissage",
+        "pduHours": "Heures PDU",
+        "certificateUrl": "URL du certificat",
+        "licenseNumber": "Numéro de licence",
+        "evidenceNote": "Note de preuve"
+      },
+      "status": {
+        "enrolled": "Je me suis inscrit",
+        "started": "J’ai commencé",
+        "completed": "J’ai terminé",
+        "evidence": "Je veux soumettre une preuve"
+      },
+      "confirm": {
+        "title": "Confirmer votre activité d’apprentissage",
+        "description": "Indiquez ce qui s’est passé après avoir ouvert ce contenu. Cela aide LoopsKey à garder votre dossier PDU et CPD à jour."
+      },
+      "actions": {
+        "confirm": "Confirmer",
+        "open": "Ouvrir à nouveau",
+        "ignore": "Ignorer"
+      },
+      "ignore": {
+        "title": "Ignorer cet élément d’apprentissage ?",
+        "description": "Cette activité sera marquée comme ignorée. Vous pourrez toujours rouvrir le lien original si nécessaire.",
+        "confirm": "Ignorer"
+      },
+      "messages": {
+        "confirmed": "Activité d’apprentissage mise à jour avec succès.",
+        "ignored": "Activité d’apprentissage ignorée."
+      }
+    }
+  },
+  "providerDashboard": {
+    "sidebar": {
+      "overview": "Vue d’ensemble",
+      "analytics": "Analytique",
+      "attendees": "Participants",
+      "myEvents": "Mes événements",
+      "createEvent": "Créer un événement",
+      "promotionRequests": "Demandes de promotion",
+      "myGoals": "Mes objectifs",
+      "settings": "Paramètres"
+    },
+    "settings": {
+      "eyebrow": "Paramètres du fournisseur",
+      "title": "Paramètres du fournisseur",
+      "description": "Gérez le profil de votre organisation, vos préférences de notification et la sécurité de votre compte.",
+      "stepLabel": "Étape {step}",
+      "steps": {
+        "profile": {
+          "title": "Profil de l’organisation",
+          "description": "Complétez votre profil public de fournisseur."
+        },
+        "notifications": {
+          "title": "Notifications",
+          "description": "Contrôlez les alertes d’événements et d’inscriptions."
+        },
+        "security": {
+          "title": "Sécurité",
+          "description": "Gérez le mot de passe et la vérification de l’e-mail."
+        }
+      },
+      "messages": {
+        "profileSaved": "Le profil de l’organisation a été enregistré avec succès.",
+        "notificationsSaved": "Les paramètres de notification ont été enregistrés avec succès.",
+        "passwordChanged": "Le mot de passe a été modifié avec succès.",
+        "otpSent": "Le code de vérification a été envoyé.",
+        "emailChanged": "L’e-mail a été modifié avec succès."
+      },
+      "profile": {
+        "title": "Résumé du profil de l’organisation",
+        "description": "Affichez et mettez à jour les informations de l’organisation visibles sur votre profil fournisseur.",
+        "providerName": "Nom du fournisseur",
+        "accountEmail": "E-mail du compte",
+        "organization": "Organisation",
+        "organizationName": "Nom de l’organisation",
+        "organizationProfile": "Titre du profil de l’organisation",
+        "aboutOrganization": "À propos de l’organisation",
+        "contactEmail": "E-mail de contact de l’organisation",
+        "save": "Enregistrer et continuer"
+      },
+      "notifications": {
+        "title": "Préférences de notification",
+        "description": "Choisissez comment LoopsKey doit vous notifier concernant les activités fournisseur.",
+        "registrationTitle": "Alertes de nouvelle inscription",
+        "registrationDescription": "Recevez une alerte lorsqu’une personne s’inscrit à l’un de vos événements.",
+        "reminderTitle": "Rappels d’événements",
+        "reminderDescription": "Recevez des rappels avant vos prochains événements fournisseur.",
+        "reminderHours": "Heures de rappel avant l’événement",
+        "save": "Enregistrer et continuer"
+      },
+      "security": {
+        "title": "Sécurité du compte",
+        "description": "Mettez à jour votre mot de passe et vérifiez une nouvelle adresse e-mail avec OTP.",
+        "passwordTitle": "Changer le mot de passe",
+        "currentPassword": "Mot de passe actuel",
+        "newPassword": "Nouveau mot de passe",
+        "confirmPassword": "Confirmer le nouveau mot de passe",
+        "updatePassword": "Mettre à jour le mot de passe",
+        "emailTitle": "Changer l’e-mail",
+        "currentEmail": "E-mail actuel",
+        "newEmail": "Nouvel e-mail",
+        "otpCode": "Code OTP",
+        "sendOtp": "Envoyer OTP",
+        "verifyEmail": "Vérifier l’e-mail"
+      }
+    },
+    "analytics": {
+      "eyebrow": "Analyse fournisseur",
+      "title": "Analyse et performance",
+      "description": "Suivez les revenus, les inscriptions, la conversion et la performance de vos événements.",
+      "exportCsv": "Exporter CSV",
+      "csvDownloaded": "Le fichier CSV d’analyse a été téléchargé avec succès.",
+      "empty": "Aucune donnée d’analyse trouvée pour cette période.",
+      "ranges": {
+        "LAST_7_DAYS": "7 derniers jours",
+        "LAST_30_DAYS": "30 derniers jours",
+        "LAST_90_DAYS": "90 derniers jours",
+        "THIS_YEAR": "Cette année"
+      },
+      "cards": {
+        "totalRevenue": "Revenu total",
+        "totalRevenueDescription": "Basé sur les inscriptions confirmées",
+        "avgFee": "Frais moyen / participant",
+        "avgFeeDescription": "Revenu divisé par les participants confirmés",
+        "conversionRate": "Taux de conversion",
+        "conversionRateDescription": "Vues vers inscriptions",
+        "avgRating": "Note moyenne",
+        "avgRatingDescription": "Note moyenne des événements fournisseur"
+      },
+      "charts": {
+        "registrationsOverTime": "Inscriptions au fil du temps",
+        "registrationsOverTimeDescription": "Volume quotidien des inscriptions avec tendance des revenus.",
+        "pdusByCategory": "PDU par catégorie",
+        "eventTypeBreakdown": "Répartition par type d’événement",
+        "topPerforming": "Événements les plus performants"
+      },
+      "topEventsTable": {
+        "title": "Événements les plus performants",
+        "event": "Événement",
+        "registrations": "Inscriptions",
+        "views": "Vues",
+        "revenue": "Revenu",
+        "conversion": "Conversion"
+      }
+    },
+    "myEvents": {
+      "eyebrow": "Événements fournisseur",
+      "title": "Mes événements",
+      "description": "Gérez vos événements publiés, brouillons et archivés.",
+      "createEvent": "Créer un événement",
+      "search": "Rechercher des événements...",
+      "empty": "Aucun événement trouvé.",
+      "cards": {
+        "totalEvents": "Événements totaux",
+        "published": "Publiés",
+        "draft": "Brouillons",
+        "totalRegistrations": "Inscriptions totales"
+      },
+      "status": {
+        "all": "Tous les statuts",
+        "published": "Publié",
+        "draft": "Brouillon",
+        "archived": "Archivé",
+        "cancelled": "Annulé"
+      },
+      "table": {
+        "event": "Événement",
+        "date": "Date",
+        "status": "Statut",
+        "views": "Vues",
+        "registrants": "Inscrits",
+        "pdu": "PDU"
+      }
+    },
+    "createEvent": {
+      "previous": "Précédent",
+      "next": "Suivant",
+      "eyebrow": "Créateur d’événement",
+      "title": "Créer un événement",
+      "description": "Créez un événement professionnel avec détails, prix, PDU et médias.",
+      "saveDraft": "Enregistrer comme brouillon",
+      "publish": "Publier l’événement",
+      "savedDraft": "Événement enregistré comme brouillon.",
+      "published": "Événement publié avec succès.",
+      "media": {
+        "invalidImageUrl": "Saisissez une URL d’image valide commençant par http://, https:// ou /.",
+        "thumbnailPlaceholder": "L’aperçu de l’image de l’événement apparaîtra ici."
+      },
+      "steps": {
+        "basic": {
+          "title": "Informations de base",
+          "description": "Titre, catégorie et description"
+        },
+        "details": {
+          "title": "Détails de l’événement",
+          "description": "Dates, horaires et mode"
+        },
+        "pricing": {
+          "title": "Prix & PDU",
+          "description": "Tarifs, capacité et score PDU"
+        },
+        "media": {
+          "title": "Média",
+          "description": "Miniature et vidéo promotionnelle"
+        }
+      },
+      "fields": {
+        "title": "Titre de l’événement",
+        "description": "Description",
+        "category": "Catégorie",
+        "type": "Type d’événement",
+        "language": "Langue",
+        "specificTopic": "Sujet spécifique",
+        "startDate": "Date de début",
+        "endDate": "Date de fin",
+        "startTime": "Heure de début",
+        "endTime": "Heure de fin",
+        "deliveryMode": "Mode de diffusion",
+        "location": "Lieu",
+        "onlineUrl": "URL en ligne",
+        "capacity": "Capacité maximale",
+        "freeEvent": "Événement gratuit",
+        "freeEventHint": "Désactivez cette option si les participants doivent payer.",
+        "price": "Prix",
+        "pdu": "Score PDU",
+        "pduCategory": "Catégorie PDU",
+        "earlyBirdDiscount": "Réduction early bird",
+        "imageUrl": "URL de la miniature",
+        "promotionVideoUrl": "URL de la vidéo promotionnelle",
+        "speaker": "Intervenant",
+        "organizer": "Organisateur"
+      },
+      "preview": {
+        "title": "Aperçu en direct",
+        "untitled": "Événement sans titre",
+        "emptyDescription": "La description de votre événement apparaîtra ici."
+      },
+      "errors": {
+        "titleRequired": "Le titre de l’événement est obligatoire.",
+        "descriptionRequired": "La description de l’événement est obligatoire.",
+        "startDateRequired": "La date et l’heure de début sont obligatoires.",
+        "priceRequired": "Le prix doit être supérieur à zéro pour un événement payant."
+      },
+      "enums": {
+        "deliveryMode": {
+          "LIVE_ONLINE": "En ligne en direct",
+          "IN_PERSON": "En présentiel",
+          "HYBRID": "Hybride",
+          "RECORDED": "Enregistré"
+        }
+      }
+    },
+    "attendees": {
+      "eyebrow": "Tableau de bord fournisseur",
+      "title": "Participants",
+      "description": "Suivez les utilisateurs inscrits, confirmés et présents à vos événements.",
+      "search": "Rechercher par participant, e-mail ou événement...",
+      "empty": "Aucun participant trouvé.",
+      "view": "Voir",
+      "attended": "Présent",
+      "notAttended": "Absent",
+      "cards": {
+        "totalRegistered": "Total inscrits",
+        "confirmed": "Confirmés",
+        "attended": "Présents",
+        "attendanceRate": "Taux de présence"
+      },
+      "status": {
+        "all": "Tous les statuts"
+      },
+      "table": {
+        "name": "Nom",
+        "email": "E-mail",
+        "event": "Événement",
+        "registrationDate": "Date d’inscription",
+        "status": "Statut",
+        "attendance": "Présence",
+        "action": "Action"
+      }
+    },
+    "ranges": {
+      "LAST_7_DAYS": "7 derniers jours",
+      "LAST_30_DAYS": "30 derniers jours",
+      "LAST_90_DAYS": "90 derniers jours",
+      "THIS_YEAR": "Cette année"
+    },
+    "overview": {
+      "eyebrow": "Tableau de bord fournisseur",
+      "title": "Bon retour, {{name}} ! 👋",
+      "description": "Suivez vos événements, inscriptions, vues et performances fournisseur en un seul endroit.",
+      "createEvent": "Créer un événement",
+      "viewAllEvents": "Voir tous les événements",
+      "range": {
+        "title": "Période d’analyse",
+        "description": "Consultez la performance des événements selon la période sélectionnée."
+      },
+      "cards": {
+        "totalEvents": "Événements totaux",
+        "totalRegistrations": "Inscriptions totales",
+        "totalViews": "Vues totales",
+        "conversionRate": "Taux de conversion"
+      },
+      "performance": {
+        "title": "Aperçu des performances",
+        "description": "Tendance des inscriptions pour la période sélectionnée."
+      },
+      "summary": {
+        "title": "Résumé des événements",
+        "published": "Publié",
+        "draft": "Brouillon",
+        "archived": "Archivé",
+        "cancelled": "Annulé"
+      },
+      "upcoming": {
+        "title": "Sessions à venir",
+        "description": "Vos prochains événements planifiés pouvant nécessiter votre attention.",
+        "empty": "Aucune session à venir trouvée."
+      },
+      "quickActions": {
+        "title": "Actions rapides",
+        "createEvent": "Créer un nouvel événement",
+        "viewAttendees": "Voir tous les participants",
+        "analytics": "Voir les analyses"
+      },
+      "topEvents": {
+        "title": "Événements les plus performants"
+      },
+      "tips": {
+        "title": "Conseils et ressources",
+        "boostTitle": "Améliorer le taux d’inscription",
+        "boostDescription": "Utilisez des titres clairs, des résultats concrets et des offres anticipées pour augmenter les inscriptions.",
+        "promoteTitle": "Promouvoir votre événement",
+        "promoteDescription": "Soumettez une demande de promotion pour améliorer la visibilité dans les recommandations LoopsKey."
+      },
+      "table": {
+        "views": "Vues",
+        "registrants": "Inscrits"
+      }
+    },
+    "promotions": {
+      "eyebrow": "Demandes de promotion",
+      "title": "Promouvoir vos événements",
+      "description": "Soumettez des demandes de promotion pour vos événements et suivez les validations précédentes.",
+      "submitted": "Demande de promotion envoyée avec succès.",
+      "cards": {
+        "total": "Demandes totales",
+        "pending": "En attente",
+        "approved": "Approuvées",
+        "rejected": "Rejetées"
+      },
+      "form": {
+        "title": "Soumettre une demande de promotion",
+        "description": "Choisissez un événement, sélectionnez le type de promotion et ajoutez votre budget ou une note.",
+        "event": "Événement",
+        "selectEvent": "Sélectionner un événement",
+        "promotionType": "Type de promotion",
+        "budget": "Budget",
+        "note": "Note",
+        "submit": "Envoyer la demande"
+      },
+      "filters": {
+        "search": "Rechercher par événement ou note...",
+        "allStatuses": "Tous les statuts",
+        "allTypes": "Tous les types"
+      },
+      "list": {
+        "title": "Demandes de promotion précédentes",
+        "description": "Consultez vos demandes de promotion soumises et leur statut d’approbation.",
+        "empty": "Aucune demande de promotion trouvée."
+      },
+      "table": {
+        "event": "Événement",
+        "type": "Type",
+        "budget": "Budget",
+        "status": "Statut",
+        "date": "Date"
+      },
+      "types": {
+        "FEATURED": "Mise en avant",
+        "BANNER": "Promotion bannière",
+        "EMAIL_CAMPAIGN": "Campagne email",
+        "SOCIAL_BOOST": "Boost social",
+        "FEATURED_LISTING": "Mise en avant",
+        "COMBO_PACKAGE": "Pack combiné",
+        "SOCIAL_MEDIA_BOOST": "Boost sur les réseaux sociaux"
+      },
+      "statuses": {
+        "PENDING": "En attente",
+        "APPROVED": "Approuvée",
+        "REJECTED": "Rejetée"
+      },
+      "errors": {
+        "eventRequired": "Veuillez d’abord sélectionner un événement."
+      }
+    }
+  },
+  "organizationDashboard": {
+    "sidebar": {
+      "overview": "Aperçu",
+      "settings": "Paramètres",
+      "members": "Membres",
+      "assignments": "Affectations",
+      "eventCatalog": "Catalogue d’événements",
+      "cdpCategories": "Catégories CDP",
+      "reports": "Rapports"
+    },
+    "settings": {
+      "eyebrow": "Paramètres de l’organisation",
+      "title": "Paramètres",
+      "description": "Configurez les règles de conformité CPD, la structure et les préférences de notification de votre organisation.",
+      "forcePassword": {
+        "title": "Modifiez votre mot de passe temporaire",
+        "description": "Pour des raisons de sécurité, vous devez modifier le mot de passe temporaire généré pour le compte de votre organisation.",
+        "hint": "Utilisez la section mot de passe de cette page pour définir un nouveau mot de passe sécurisé. Après la modification, cet avertissement ne s’affichera plus.",
+        "goToPassword": "Aller au mot de passe"
+      },
+      "profile": {
+        "role": "Rôle du compte"
+      },
+      "compliance": {
+        "title": "Règles de conformité",
+        "description": "Définissez le cycle CPD et le seuil minimum de PDU.",
+        "minimumPdu": "Seuil minimum de PDU",
+        "cycle": "Cycle de conformité",
+        "cycleHint": "Exemples : annuel, trimestriel, 12 mois glissants.",
+        "strict": "Mode de conformité stricte",
+        "strictHint": "Exiger que les membres terminent tous les apprentissages assignés avant la fin du cycle.",
+        "save": "Enregistrer les règles"
+      },
+      "notifications": {
+        "title": "Préférences de notification",
+        "description": "Contrôlez les événements système qui doivent déclencher des alertes.",
+        "complianceAlerts": "Alertes de conformité",
+        "complianceAlertsHint": "Notifier les administrateurs lorsque des membres risquent de ne pas être conformes.",
+        "assignmentNotifications": "Notifications d’assignation",
+        "assignmentNotificationsHint": "Envoyer des alertes lorsque de nouveaux contenus sont assignés.",
+        "weeklySummaryReport": "Rapport hebdomadaire",
+        "weeklySummaryReportHint": "Recevoir un résumé hebdomadaire des métriques de conformité et d’activité.",
+        "save": "Enregistrer les notifications"
+      },
+      "departments": {
+        "title": "Départements et rôles",
+        "description": "Organisez les membres par département pour les rapports et les assignations.",
+        "placeholder": "ex. Ingénierie, PMO, RH",
+        "add": "Ajouter",
+        "empty": "Aucun département défini. Ajoutez-en quelques-uns pour regrouper vos membres."
+      },
+      "password": {
+        "title": "Changer le mot de passe",
+        "description": "Mettez à jour votre mot de passe pour sécuriser l’accès à l’organisation.",
+        "current": "Mot de passe actuel",
+        "new": "Nouveau mot de passe",
+        "confirm": "Confirmer le nouveau mot de passe",
+        "update": "Mettre à jour le mot de passe"
+      },
+      "messages": {
+        "complianceSaved": "Règles de conformité enregistrées avec succès.",
+        "notificationsSaved": "Préférences de notification enregistrées avec succès.",
+        "departmentAdded": "Département ajouté avec succès.",
+        "departmentRequired": "Le nom du département est requis.",
+        "passwordMismatch": "Le nouveau mot de passe et la confirmation ne correspondent pas.",
+        "passwordChanged": "Mot de passe modifié avec succès."
+      }
+    },
+    "members": {
+      "eyebrow": "Membres de l’organisation",
+      "title": "Membres",
+      "description": "Gérez les membres, les départements, la conformité, les affectations et les notes de votre organisation.",
+      "empty": "Aucun membre trouvé.",
+      "stats": {
+        "total": "Total des membres",
+        "active": "Actifs",
+        "inactive": "Inactifs",
+        "avgCompliance": "Conformité moyenne",
+        "totalPdus": "Total des PDU",
+        "totalPdusHint": "Total des PDU obtenus par les membres actifs."
+      },
+      "addSingle": {
+        "title": "Ajouter un membre",
+        "description": "Invitez ou ajoutez un membre à cette organisation.",
+        "submit": "Ajouter le membre"
+      },
+      "bulk": {
+        "title": "Import groupé",
+        "description": "Téléversez un fichier Excel pour ajouter ou mettre à jour plusieurs membres.",
+        "templateTitle": "Colonnes requises"
+      },
+      "fields": {
+        "fullName": "Nom complet",
+        "email": "E-mail",
+        "department": "Département",
+        "noDepartment": "Aucun département",
+        "role": "Rôle"
+      },
+      "filters": {
+        "search": "Rechercher par nom, e-mail ou rôle",
+        "allStatuses": "Tous les statuts",
+        "allDepartments": "Tous les départements"
+      },
+      "table": {
+        "name": "Nom",
+        "department": "Département",
+        "role": "Rôle",
+        "status": "Statut",
+        "completed": "Terminé",
+        "pdus": "PDU",
+        "compliance": "Conformité",
+        "actions": "Actions",
+        "view": "Voir"
+      },
+      "detail": {
+        "title": "Détail du membre",
+        "status": "Statut",
+        "role": "Rôle du compte",
+        "department": "Département",
+        "jobRole": "Fonction",
+        "completed": "Terminé",
+        "pdus": "PDU",
+        "pduGoal": "Objectif PDU",
+        "compliance": "Conformité",
+        "goalRemaining": "Objectif : {{goal}} · Restant : {{remaining}}",
+        "complianceProgress": "Progression de conformité",
+        "complianceProgressHint": "Conformité CPD globale de ce membre.",
+        "pduProgress": "Progression PDU",
+        "pduProgressHint": "Progression vers l’objectif annuel de PDU.",
+        "history": "Historique",
+        "historyHint": "Données en direct depuis le détail backend du membre.",
+        "lastActivity": "Dernière activité",
+        "lastCourse": "Dernier cours",
+        "notesHint": "Ces notes sont enregistrées dans le backend et peuvent être affichées dans le tableau de bord du membre.",
+        "saveNotes": "Enregistrer les notes",
+        "tabs": {
+          "settings": "Paramètres",
+          "activity": "Activité",
+          "assignment": "Affectation",
+          "notes": "Notes"
+        },
+        "assignment": {
+          "event": "Événement",
+          "dueDate": "Date limite",
+          "description": "Note d’affectation",
+          "submit": "Affecter l’apprentissage"
+        }
+      },
+      "messages": {
+        "memberAdded": "Membre ajouté avec succès.",
+        "memberUpdated": "Membre mis à jour avec succès.",
+        "notesSaved": "Notes enregistrées avec succès.",
+        "assignmentSent": "Apprentissage affecté avec succès.",
+        "invalidExcel": "Le fichier téléversé ne contient pas de lignes de membres valides.",
+        "bulkImported": "Import terminé. Créés : {{created}}, Mis à jour : {{updated}}, Échecs : {{failed}}."
+      }
+    },
+    "assignments": {
+      "eyebrow": "Tableau de bord de l’organisation",
+      "title": "Affectations",
+      "description": "Créez, gérez et suivez les affectations d’apprentissage pour les membres de votre organisation.",
+      "tabs": {
+        "active": "Affectations actives",
+        "create": "Créer"
+      },
+      "stats": {
+        "total": "Total des affectations",
+        "participants": "Total des participants",
+        "completion": "Taux moyen d’achèvement"
+      },
+      "filters": {
+        "search": "Rechercher des affectations..."
+      },
+      "card": {
+        "members": "Membres",
+        "target": "Cible",
+        "progress": "Progression",
+        "noContent": "Aucun contenu lié"
+      },
+      "form": {
+        "title": "Créer une nouvelle affectation",
+        "editTitle": "Modifier l’affectation",
+        "submit": "Créer l’affectation",
+        "fields": {
+          "title": "Titre de l’affectation",
+          "type": "Type d’affectation",
+          "event": "Événement",
+          "targetKind": "Public cible",
+          "targetRole": "Rôle cible",
+          "department": "Département",
+          "member": "Membre spécifique",
+          "dueDate": "Date limite",
+          "description": "Description"
+        }
+      },
+      "detail": {
+        "status": "Statut",
+        "type": "Type",
+        "target": "Cible",
+        "members": "Membres",
+        "content": "Contenu",
+        "dueDate": "Date limite",
+        "progress": "Progression"
+      },
+      "delete": {
+        "title": "Supprimer l’affectation",
+        "description": "Voulez-vous vraiment supprimer cette affectation ? Cette action est irréversible."
+      },
+      "messages": {
+        "created": "Affectation créée avec succès.",
+        "updated": "Affectation mise à jour avec succès.",
+        "deleted": "Affectation supprimée avec succès."
+      },
+      "empty": "Aucune affectation trouvée."
+    },
+    "eventCatalog": {
+      "empty": "Aucun événement trouvé.",
+      "eyebrow": "Catalogue d'événements",
+      "title": "Découvrir et attribuer des événements CPD",
+      "description": "Parcourez les événements publiés et attribuez-les à tous les membres, départements, rôles ou membres spécifiques.",
+      "filters": {
+        "search": "Rechercher par titre, intervenant ou description",
+        "allCategories": "Toutes les catégories",
+        "allTypes": "Tous les types",
+        "allDeliveryModes": "Tous les modes de diffusion",
+        "reset": "Réinitialiser"
+      },
+      "card": {
+        "pdus": "PDU",
+        "rating": "Note",
+        "price": "Prix",
+        "location": "Lieu",
+        "free": "Gratuit",
+        "capacity": "Capacité",
+        "assign": "Attribuer aux membres"
+      },
+      "assign": {
+        "title": "Attribuer l'événement",
+        "submit": "Attribuer l'événement",
+        "eventSummary": "Résumé de l’événement",
+        "fields": {
+          "title": "Titre de l'attribution",
+          "dueDate": "Date limite",
+          "targetKind": "Attribuer à",
+          "targetRole": "Rôle cible",
+          "department": "Département",
+          "member": "Membre",
+          "description": "Instructions"
+        }
+      },
+      "messages": {
+        "assigned": "Événement attribué avec succès."
+      }
+    },
+    "reports": {
+      "eyebrow": "Rapports de l’organisation",
+      "title": "Rapports",
+      "description": "Analyses de conformité et de performance pour votre organisation.",
+      "actions": {
+        "exportExcel": "Exporter Excel",
+        "exportPdf": "Exporter PDF"
+      },
+      "filters": {
+        "range": "Période du rapport",
+        "department": "Département",
+        "allDepartments": "Tous les départements",
+        "startDate": "Date de début",
+        "endDate": "Date de fin"
+      },
+      "ranges": {
+        "CURRENT_YEAR": "Année en cours",
+        "LAST_QUARTER": "Dernier trimestre",
+        "CUSTOM": "Période personnalisée"
+      },
+      "summary": {
+        "members": "Membres",
+        "requiredHours": "Heures requises",
+        "avgCompliance": "Conformité moyenne",
+        "avgPdus": "PDU moyens"
+      },
+      "charts": {
+        "trend": {
+          "title": "Tendance de conformité",
+          "description": "Progression globale de la conformité au fil du temps."
+        },
+        "department": {
+          "title": "Conformité par département",
+          "empty": "Aucune donnée de conformité du département n’est disponible.",
+          "description": "Répartition détaillée de la conformité par département."
+        },
+        "breakdown": {
+          "title": "Analyse de conformité par département",
+          "description": "Pourcentage de conformité et taille des équipes par département."
+        }
+      },
+      "topMembers": {
+        "title": "Meilleurs membres",
+        "description": "Membres ayant la meilleure conformité selon la période sélectionnée.",
+        "search": "Rechercher des membres...",
+        "empty": "Aucun membre trouvé.",
+        "columns": {
+          "name": "Nom",
+          "department": "Département",
+          "completed": "Terminés",
+          "pdus": "PDU",
+          "compliance": "Conformité"
+        }
+      },
+      "messages": {
+        "exported": "Rapport exporté avec succès."
+      }
+    },
+    "cpd": {
+      "eyebrow": "Catégories CPD",
+      "title": "Catégories CPD",
+      "description": "Gérez les catégories CPD de votre organisation et les heures de développement professionnel requises.",
+      "empty": "Aucune catégorie CPD trouvée.",
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "actions": {
+        "addCategory": "Ajouter une catégorie",
+        "activate": "Activer",
+        "deactivate": "Désactiver"
+      },
+      "summary": {
+        "totalCategories": "Total des catégories",
+        "totalRequiredHours": "Heures requises totales",
+        "mostPopularCategory": "Catégorie la plus populaire",
+        "activeMembers": "Membres actifs (catégorie principale)"
+      },
+      "filters": {
+        "search": "Rechercher des catégories...",
+        "allStatuses": "Tous les statuts"
+      },
+      "card": {
+        "requiredHours": "Heures requises",
+        "activeMembers": "Membres actifs",
+        "updated": "Mis à jour",
+        "created": "Créé",
+        "noDescription": "Aucune description fournie."
+      },
+      "form": {
+        "createTitle": "Ajouter une catégorie CPD",
+        "editTitle": "Modifier la catégorie CPD",
+        "description": "Définissez les heures requises, le type de catégorie, le statut et la description.",
+        "create": "Créer la catégorie",
+        "saveChanges": "Enregistrer les modifications",
+        "fields": {
+          "title": "Titre de la catégorie",
+          "category": "Catégorie",
+          "requiredHours": "Heures requises",
+          "description": "Description",
+          "active": "Catégorie active",
+          "activeHint": "Les catégories inactives sont exclues des calculs de conformité actifs."
+        }
+      },
+      "delete": {
+        "title": "Supprimer cette catégorie CPD ?",
+        "description": "Cette action désactivera la catégorie et la retirera de la planification CPD active."
+      },
+      "messages": {
+        "created": "Catégorie CPD créée avec succès.",
+        "updated": "Catégorie CPD mise à jour avec succès.",
+        "deleted": "Catégorie CPD désactivée avec succès.",
+        "statusChanged": "Statut de la catégorie mis à jour avec succès."
+      }
+    },
+    "overview": {
+      "eyebrow": "Vue d’ensemble de l’organisation",
+      "title": "Aperçu du tableau de bord",
+      "description": "Suivez l’activité des membres, la conformité CPD, les affectations et les tendances d’apprentissage de votre organisation.",
+      "stats": {
+        "totalMembers": "Membres au total",
+        "activeMembers": "Membres actifs",
+        "cpdCompliance": "Conformité CPD",
+        "nonCompliant": "Non conformes",
+        "live": "Nombre actuel de l’organisation",
+        "average": "Taux moyen de conformité",
+        "needAttention": "Membres nécessitant une attention",
+        "engagement": "{value}% d’engagement"
+      },
+      "compliance": {
+        "title": "Aperçu de la conformité",
+        "description": "Répartition dans l’organisation",
+        "compliant": "Conforme",
+        "atRisk": "À risque",
+        "nonCompliant": "Non conforme"
+      },
+      "attention": {
+        "title": "Membres nécessitant une attention",
+        "description": "Priorité : conformité la plus faible d’abord",
+        "remaining": "{{value}} PDU restants",
+        "empty": "Aucun membre ne nécessite actuellement une attention."
+      },
+      "topics": {
+        "title": "Sujets d’apprentissage tendance",
+        "description": "Domaines d’apprentissage les plus populaires au cours des 90 derniers jours.",
+        "count": "{{value}} participants",
+        "empty": "Aucun sujet tendance pour le moment."
+      }
+    }
+  },
+  "adminDashboard": {
+    "sidebar": {
+      "overview": "Aperçu",
+      "settings": "Paramètres",
+      "orgAccessRequests": "Demandes d’accès organisation",
+      "users": "Utilisateurs",
+      "organizationUsers": "Utilisateurs d’organisation"
+    },
+    "overview": {
+      "eyebrow": "Vue administrateur",
+      "title": "Vue d’ensemble du tableau de bord",
+      "description": "Surveillez les demandes d’accès des organisations, les utilisateurs récents, les tendances et l’activité système.",
+      "cards": {
+        "totalRequests": "Demandes totales",
+        "totalRequestsHint": "Toutes les demandes d’accès organisation",
+        "pendingRequests": "En attente",
+        "pendingRequestsHint": "Demandes en attente de validation",
+        "approvedRequests": "Approuvées",
+        "approvedRequestsHint": "Demandes approuvées par les administrateurs",
+        "rejectedRequests": "Rejetées",
+        "rejectedRequestsHint": "Demandes rejetées après examen"
+      },
+      "charts": {
+        "requestTrend": "Tendance des demandes",
+        "requestTrendHint": "Activité des demandes d’accès organisation dans le temps.",
+        "statusDistribution": "Répartition des statuts",
+        "statusDistributionHint": "Répartition entre demandes en attente, approuvées et rejetées."
+      },
+      "recentUsers": {
+        "title": "Utilisateurs récents",
+        "description": "Derniers prestataires, professionnels et utilisateurs d’organisation."
+      },
+      "audit": {
+        "title": "Activité d’audit récente",
+        "description": "Dernières modifications administratives et système.",
+        "system": "Système"
+      }
+    },
+    "settings": {
+      "eyebrow": "Paramètres administrateur",
+      "title": "Paramètres du compte et de sécurité",
+      "description": "Gérez votre profil administrateur, votre email, votre mot de passe et votre identité de compte.",
+      "messages": {
+        "profileSaved": "Profil administrateur mis à jour avec succès.",
+        "passwordChanged": "Mot de passe modifié avec succès.",
+        "passwordMismatch": "Le nouveau mot de passe et la confirmation ne correspondent pas.",
+        "otpSent": "Le code de vérification a été envoyé à votre nouvel email.",
+        "emailChanged": "Email modifié avec succès."
+      },
+      "profile": {
+        "title": "Profil administrateur",
+        "description": "Mettez à jour votre nom affiché, votre avatar et votre bio.",
+        "fullName": "Nom complet",
+        "avatarUrl": "URL de l’avatar",
+        "avatarDescription": "Utilisez une URL d’image valide commençant par http:// ou https://.",
+        "bio": "Bio",
+        "removeAvatar": "Supprimer l’avatar",
+        "save": "Enregistrer le profil"
+      },
+      "email": {
+        "title": "Adresse email",
+        "description": "Modifiez votre email administrateur avec une vérification OTP.",
+        "currentEmail": "Email actuel",
+        "newEmail": "Nouvel email",
+        "otpCode": "Code OTP",
+        "sendOtp": "Envoyer OTP",
+        "verify": "Vérifier et modifier l’email"
+      },
+      "password": {
+        "title": "Mot de passe",
+        "description": "Mettez à jour votre mot de passe pour sécuriser votre compte administrateur.",
+        "currentPassword": "Mot de passe actuel",
+        "newPassword": "Nouveau mot de passe",
+        "confirmPassword": "Confirmer le mot de passe",
+        "update": "Mettre à jour le mot de passe"
+      }
+    },
+    "users": {
+      "eyebrow": "Utilisateurs admin",
+      "title": "Fournisseurs et professionnels",
+      "description": "Gérez les comptes fournisseurs et professionnels, suivez la croissance des utilisateurs et consultez les journaux d’audit.",
+      "messages": {
+        "statusUpdated": "Statut utilisateur mis à jour avec succès."
+      },
+      "cards": {
+        "total": "Utilisateurs totaux",
+        "providers": "Fournisseurs",
+        "professionals": "Professionnels",
+        "premiumProviders": "Fournisseurs premium"
+      },
+      "growth": {
+        "title": "Croissance des utilisateurs",
+        "description": "Suivez les inscriptions des fournisseurs et professionnels par jour ou par mois.",
+        "daily": "Quotidien",
+        "monthly": "Mensuel",
+        "providers": "Fournisseurs",
+        "professionals": "Professionnels",
+        "exportPng": "Exporter PNG"
+      },
+      "filters": {
+        "search": "Rechercher des utilisateurs...",
+        "allRoles": "Tous les rôles",
+        "allStatuses": "Tous les statuts",
+        "premiumOnly": "Premium uniquement"
+      },
+      "table": {
+        "title": "Table des utilisateurs",
+        "description": "Recherchez, filtrez et gérez le statut des comptes utilisateurs.",
+        "user": "Utilisateur",
+        "role": "Rôle",
+        "status": "Statut",
+        "premium": "Premium",
+        "joined": "Inscrit le",
+        "location": "Localisation",
+        "actions": "Actions",
+        "empty": "Aucun utilisateur trouvé."
+      },
+      "roles": {
+        "PROVIDER": "Fournisseur",
+        "PROFESSIONAL": "Professionnel"
+      },
+      "statuses": {
+        "ACTIVE": "Actif",
+        "PENDING": "En attente",
+        "DISABLED": "Désactivé",
+        "DELETED": "Supprimé"
+      },
+      "actions": {
+        "activate": "Activer",
+        "disable": "Désactiver"
+      },
+      "audit": {
+        "title": "Journaux d’audit",
+        "description": "Consultez les actions administrateur et l’historique d’activité de la plateforme.",
+        "search": "Rechercher dans les audits...",
+        "action": "Action",
+        "actor": "Acteur",
+        "entity": "Entité",
+        "date": "Date",
+        "empty": "Aucun journal d’audit trouvé."
+      }
+    },
+    "accessRequests": {
+      "eyebrow": "Accès organisation",
+      "title": "Demandes d’accès des organisations",
+      "description": "Examinez, approuvez ou rejetez les demandes d’intégration envoyées par les représentants d’organisations.",
+      "empty": "Aucune demande d’accès organisation trouvée.",
+      "stats": {
+        "total": "Total des demandes",
+        "pending": "En attente",
+        "approved": "Approuvées",
+        "rejected": "Rejetées"
+      },
+      "filters": {
+        "search": "Rechercher par organisation, e-mail, représentant ou pays"
+      },
+      "status": {
+        "ALL": "Tous les statuts",
+        "PENDING": "En attente",
+        "APPROVED": "Approuvée",
+        "REJECTED": "Rejetée",
+        "CANCELED": "Annulée"
+      },
+      "table": {
+        "status": "Statut",
+        "organization": "Organisation",
+        "workEmail": "E-mail professionnel",
+        "type": "Type",
+        "createdAt": "Créée le",
+        "actions": "Actions"
+      },
+      "actions": {
+        "review": "Examiner",
+        "approve": "Approuver",
+        "reject": "Rejeter"
+      },
+      "review": {
+        "reviewedAt": "Examiné le",
+        "rejectHint": "Veuillez écrire une raison claire avant de rejeter cette demande."
+      },
+      "dialog": {
+        "title": "Examiner la demande d’accès",
+        "description": "Vérifiez les détails de l’organisation avant d’approuver ou de rejeter cette demande.",
+        "organization": "Organisation",
+        "email": "E-mail professionnel",
+        "representative": "Représentant",
+        "role": "Poste",
+        "country": "Pays",
+        "expectedUsers": "Professionnels licenciés prévus",
+        "goals": "Objectifs",
+        "rejectReason": "Rédigez la raison du rejet. Elle pourra être envoyée par e-mail plus tard.",
+        "rejectReasonRequired": "Veuillez saisir une raison de rejet."
+      },
+      "messages": {
+        "approved": "Demande d’accès organisation approuvée avec succès.",
+        "rejected": "Demande d’accès organisation rejetée avec succès."
+      }
+    },
+    "organizationUsers": {
+      "eyebrow": "Contrôle administrateur",
+      "empty": "Aucune organisation trouvée.",
+      "title": "Utilisateurs des organisations",
+      "description": "Gérez les organisations, les membres, les règles de conformité et les journaux d’audit.",
+      "search": "Rechercher par nom d’organisation, ou e-mail",
+      "table": {
+        "organization": "Organisation",
+        "email": "E-mail du propriétaire",
+        "members": "Membres",
+        "compliance": "Conformité moyenne",
+        "pdus": "PDUs totaux",
+        "actions": "Actions"
+      },
+      "actions": {
+        "details": "Détails"
+      },
+      "dialog": {
+        "description": "Consultez les KPIs, les membres, les paramètres et les journaux d’audit."
+      },
+      "kpi": {
+        "totalMembers": "Membres totaux",
+        "avgCompliance": "Conformité moyenne",
+        "totalPdus": "PDUs totaux",
+        "activeRate": "Taux actif"
+      },
+      "charts": {
+        "memberStatus": "Répartition du statut des membres",
+        "memberStatusDescription": "Répartition des membres actifs et inactifs de cette organisation."
+      },
+      "status": {
+        "active": "Actif",
+        "inactive": "Inactif"
+      },
+      "tabs": {
+        "members": "Membres",
+        "settings": "Paramètres",
+        "audit": "Journaux d’audit"
+      },
+      "members": {
+        "search": "Rechercher par nom, e-mail, rôle ou département",
+        "name": "Nom",
+        "email": "E-mail",
+        "status": "Statut",
+        "role": "Rôle",
+        "title": "Membres de l’organisation",
+        "description": "Recherchez et gérez les membres de l’organisation sélectionnée.",
+        "empty": "Aucun membre trouvé.",
+        "department": "Département"
+      },
+
+      "audit": {
+        "empty": "Aucun journal d’audit trouvé."
+      },
+      "filters": {
+        "title": "Filtres des organisations",
+        "description": "Recherchez et filtrez les organisations par nom, propriétaire, pays ou secteur.",
+        "country": "Pays",
+        "industry": "Secteur"
+      },
+      "settings": {
+        "complianceRules": "Règles de conformité",
+        "complianceDescription": "Configurez le cycle de conformité et les exigences minimales de PDU.",
+        "strictCompliance": "Conformité stricte",
+        "strictComplianceHint": "Si activé, les membres sont signalés lorsque la conformité est sous le seuil.",
+        "notifications": "Notifications",
+        "weeklySummary": "Résumé hebdomadaire",
+        "complianceAlerts": "Alertes de conformité",
+        "assignmentAlerts": "Alertes d’assignation"
+      },
+      "confirmRemove": {
+        "title": "Supprimer le membre ?",
+        "description": "Cette action désactivera le membre sélectionné."
+      },
+      "messages": {
+        "memberUpdated": "Membre mis à jour avec succès.",
+        "memberRemoved": "Membre supprimé avec succès.",
+        "settingsUpdated": "Paramètres de l’organisation mis à jour avec succès."
+      }
+    }
+  },
+  "totalAvailable": "{{count}} éléments disponibles dans cette catégorie",
+  "carouselCount": "{{count}} sélections mises en avant",
+  "carouselHint": "Survolez une carte pour l’afficher dans la zone principale."
+}

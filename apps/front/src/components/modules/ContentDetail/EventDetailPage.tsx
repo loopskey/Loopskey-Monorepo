@@ -1,0 +1,143 @@
+"use client";
+
+import { CalendarDays, MapPin, MonitorPlay, Users } from "lucide-react";
+import { useContentActions } from "@/hooks/useContentActions";
+import { formatDate } from "@/utils/function-helper";
+import { GlassCard } from "@elements/glass-card";
+import { useI18n } from "@/hooks/useI18n";
+
+import DetailActionPanel from "@modules/ContentDetail/parts/DetailActionPanel";
+import DetailSkeleton from "@modules/ContentDetail/parts/DetailSkeleton";
+import DetailMetaPill from "@modules/ContentDetail/parts/DetailMetaPill";
+import EventSchedule from "@modules/ContentDetail/parts/EventSchedule";
+import ReviewForm from "@modules/ContentDetail/parts/ReviewForm";
+import ReviewsList from "@modules/ContentDetail/parts/ReviewList";
+import DetailHero from "@modules/ContentDetail/parts/DetailHero";
+
+import * as EventApi from "@/lib/rtk/endpoints/event.api";
+import * as Tabs from "@ui/tabs";
+import * as API from "@/lib/graphql/generated";
+
+const EventDetailPage = ({ slug }: { slug: string }) => {
+  const { t } = useI18n();
+
+  const { data: event, isLoading } = EventApi.useEventBySlugQuery({ slug });
+
+  const actions = useContentActions({
+    contentType: API.ContentType.Event,
+    contentId: event?.id,
+  });
+
+  if (isLoading) return <DetailSkeleton />;
+
+  if (!event) {
+    return (
+      <main className="px-4 py-10 sm:px-6 lg:px-8">
+        <GlassCard className="mx-auto max-w-3xl p-10 text-center" glow={false}>
+          <div className="relative z-10">
+            <h1 className="text-2xl font-medium">
+              {t("contentDetails.common.notFound")}
+            </h1>
+          </div>
+        </GlassCard>
+      </main>
+    );
+  }
+
+  return (
+    <main className="px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl space-y-8">
+        <DetailHero
+          title={event.title}
+          imageUrl={event.imageUrl}
+          category={event.category}
+          ratingCount={event.ratingCount}
+          description={event.description}
+          badge={t("contentDetails.event.badge")}
+          rating={event.averageRating ?? event.rating}
+        >
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <DetailMetaPill
+              value={formatDate(event.startDate)}
+              label={t("contentDetails.event.date")}
+              icon={<CalendarDays className="h-4 w-4" />}
+            />
+            <DetailMetaPill
+              value={event.deliveryMode}
+              icon={<MonitorPlay className="h-4 w-4" />}
+              label={t("contentDetails.event.delivery")}
+            />
+            <DetailMetaPill
+              icon={<MapPin className="h-4 w-4" />}
+              label={t("contentDetails.event.location")}
+              value={event.location ?? event.onlineUrl}
+            />
+            <DetailMetaPill
+              value={event.attendees}
+              icon={<Users className="h-4 w-4" />}
+              label={t("contentDetails.event.attendees")}
+            />
+          </div>
+        </DetailHero>
+
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+          <section className="min-w-0">
+            <Tabs.Tabs defaultValue="schedule" className="space-y-6">
+              <Tabs.TabsList className="grid h-auto grid-cols-2 rounded-3xl border border-glass-border bg-background/60 p-2 backdrop-blur-xl">
+                <Tabs.TabsTrigger
+                  value="schedule"
+                  className="rounded-2xl py-3 font-bold"
+                >
+                  {t("contentDetails.tabs.schedule")}
+                </Tabs.TabsTrigger>
+                <Tabs.TabsTrigger
+                  value="reviews"
+                  className="rounded-2xl py-3 font-bold"
+                >
+                  {t("contentDetails.tabs.reviews")}
+                </Tabs.TabsTrigger>
+              </Tabs.TabsList>
+
+              <Tabs.TabsContent value="schedule">
+                <EventSchedule items={event.scheduleItems} />
+              </Tabs.TabsContent>
+
+              <Tabs.TabsContent value="reviews" className="space-y-6">
+                <ReviewForm
+                  onSubmit={actions.onSubmitReview}
+                  isLoading={actions.isReviewLoading}
+                  defaultRating={actions.myReview?.rating}
+                  defaultComment={actions.myReview?.comment}
+                />
+                <ReviewsList
+                  reviews={actions.reviews}
+                  isLoading={actions.isReviewsLoading}
+                />
+              </Tabs.TabsContent>
+            </Tabs.Tabs>
+          </section>
+
+          <aside>
+            <DetailActionPanel
+              price={event.price}
+              isFree={event.isFree}
+              currency={event.currency}
+              isInCart={actions.isInCart}
+              onEnroll={actions.onEnroll}
+              isEnrolled={actions.isEnrolled}
+              onAddToCart={actions.onAddToCart}
+              isWishlisted={actions.isWishlisted}
+              cartLoading={actions.isCartLoading}
+              onWishlist={actions.onToggleWishlist}
+              enrollLoading={actions.isEnrollLoading}
+              wishlistLoading={actions.isWishlistLoading}
+              enrollLabel={t("contentDetails.event.registerNow")}
+            />
+          </aside>
+        </div>
+      </div>
+    </main>
+  );
+};
+
+export default EventDetailPage;
