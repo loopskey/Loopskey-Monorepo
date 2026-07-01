@@ -29,6 +29,7 @@
 
       "@app/*": ["src/modules/app/*"],
       "@auth/*": ["src/modules/auth/*"],
+      "@mail/*": ["src/modules/mail/*"],
       "@user/*": ["src/modules/user/*"],
       "@admin/*": ["src/modules/admin/*"],
       "@events/*": ["src/modules/events/*"],

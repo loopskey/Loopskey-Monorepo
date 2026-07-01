@@ -12,6 +12,7 @@ import { PrismaModule } from "@prisma/prisma.module";
 import { AuthResolver } from "@auth/resolvers/auth.resolver";
 import { AuthService } from "@auth/services/auth.service";
 import { JwtStrategy } from "@auth/strategies/jwt.strategy";
+import { MailModule } from "@mail/mail.module";
 import { JwtModule } from "@nestjs/jwt";
 import { Module } from "@nestjs/common";
 
@@ -30,6 +31,7 @@ export const AUTH_SERVICE_PROVIDERS = [
 
 @Module({
   imports: [
+    MailModule,
     PrismaModule,
     ConfigModule,
     PassportModule.register({
