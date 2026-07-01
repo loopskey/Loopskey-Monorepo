@@ -1,4 +1,10 @@
 import { ConfigModule, ConfigService } from "@nestjs/config";
+import { AuthRegistrationService } from "@auth/services/auth-registration.service";
+import { AuthEmailChangeService } from "@auth/services/auth-email-change.service";
+import { AuthGoogleOAuthService } from "@auth/services/auth-google-oauth.service";
+import { AuthPasswordService } from "@auth/services/auth-password.service";
+import { AuthSessionService } from "@auth/services/auth-session.service";
+import { AuthCommonService } from "@auth/services/auth-common.service";
 import { PassportModule } from "@nestjs/passport";
 import { GoogleStrategy } from "@auth/strategies/google.strategy";
 import { AuthController } from "@auth/controller/auth.controller";
@@ -8,6 +14,19 @@ import { AuthService } from "@auth/services/auth.service";
 import { JwtStrategy } from "@auth/strategies/jwt.strategy";
 import { JwtModule } from "@nestjs/jwt";
 import { Module } from "@nestjs/common";
+
+export const AUTH_SERVICE_PROVIDERS = [
+  AuthService,
+  JwtStrategy,
+  AuthResolver,
+  GoogleStrategy,
+  AuthCommonService,
+  AuthSessionService,
+  AuthPasswordService,
+  AuthEmailChangeService,
+  AuthGoogleOAuthService,
+  AuthRegistrationService,
+];
 
 @Module({
   imports: [
@@ -25,7 +44,7 @@ import { Module } from "@nestjs/common";
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthResolver, AuthService, JwtStrategy, GoogleStrategy],
+  providers: [...AUTH_SERVICE_PROVIDERS],
   exports: [AuthService],
 })
 export class AuthModule {}
