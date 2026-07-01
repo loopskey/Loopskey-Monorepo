@@ -1,31 +1,34 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@ui/avatar";
-import { useProfessionalProfileSettingsPanel } from "@/hooks/useProfessionalProfileSettingPanel";
-import { TProfessionalSettingProfile } from "@/types/professional-dashboard.types";
-import { FloatingInputField } from "@elements/floating-input";
+import { UseProfessionalProfileTabReturn } from "@/hooks/useProfessionalProfileTab";
 import { FloatingTextareaField } from "@elements/floating-textarea";
+import { FloatingInputField } from "@elements/floating-input";
 import { getInitials } from "@/utils/function-helper";
+import { LucideIcon } from "lucide-react";
 import { Button } from "@ui/button";
 
 import * as R from "lucide-react";
 import * as F from "@ui/form";
 
+type TProfessionalProfileSettingsPanelProps = {
+  icon: LucideIcon;
+  hook: UseProfessionalProfileTabReturn;
+};
+
 export const ProfessionalProfileSettingsPanel = ({
   icon: Icon,
   hook,
-}: TProfessionalSettingProfile) => {
-  const { t, profile } = hook;
-
+}: TProfessionalProfileSettingsPanelProps) => {
   const {
+    t,
+    profile,
     profileRhf,
     profileValues,
     isSaveDisabled,
     handleSaveProfile,
     handleRemoveAvatar,
-  } = useProfessionalProfileSettingsPanel({
-    settingsHook: hook,
-  });
+  } = hook;
 
   return (
     <div className="space-y-6">
@@ -33,24 +36,20 @@ export const ProfessionalProfileSettingsPanel = ({
         <div className="rounded-2xl bg-primary/10 p-3 text-primary">
           <Icon className="h-5 w-5" />
         </div>
-
         <div>
           <h2 className="text-xl font-medium">
             {t("professionalDashboard.settings.profile.title")}
           </h2>
-
           <p className="mt-1 text-sm text-muted-foreground">
             {t("professionalDashboard.settings.profile.description")}
           </p>
         </div>
       </div>
-
       <div className="flex flex-col gap-4 rounded-3xl border border-glass-border bg-background/45 p-5 sm:flex-row sm:items-center">
         <Avatar className="h-20 w-20 border border-primary/20">
           {profileValues.avatarUrl ? (
             <AvatarImage src={profileValues.avatarUrl} />
           ) : null}
-
           <AvatarFallback className="bg-primary/10 text-lg font-medium text-primary">
             {getInitials(profileValues.fullName, profile?.email)}
           </AvatarFallback>
@@ -60,12 +59,10 @@ export const ProfessionalProfileSettingsPanel = ({
           <p className="font-medium">
             {profileValues.fullName || profile?.email || "-"}
           </p>
-
           <p className="mt-1 text-sm text-muted-foreground">
             {t("professionalDashboard.settings.profile.nameHint")}
           </p>
         </div>
-
         <Button
           radius="xl"
           type="button"
@@ -81,8 +78,8 @@ export const ProfessionalProfileSettingsPanel = ({
         <form onSubmit={handleSaveProfile} className="space-y-6">
           <div className="grid gap-5 md:grid-cols-2">
             <FloatingInputField
-              control={profileRhf.control}
               name="fullName"
+              control={profileRhf.control}
               label={t("professionalDashboard.settings.profile.fullName")}
               description={t(
                 "professionalDashboard.settings.profile.fullNameHint",
@@ -90,7 +87,6 @@ export const ProfessionalProfileSettingsPanel = ({
               autoComplete="name"
               leftIcon={<R.UserRound className="h-4 w-4" />}
             />
-
             <FloatingInputField
               name="phone"
               inputMode="tel"

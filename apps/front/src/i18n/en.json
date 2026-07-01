@@ -1607,6 +1607,7 @@
     "sidebar": {
       "refresh": "Refresh",
       "roadmap": "Roadmap",
+      "profile": "Profile",
       "overview": "Overview",
       "payments": "Payments",
       "wishlist": "Wishlist",
@@ -1625,6 +1626,11 @@
       "details": "Details",
       "chartPlaceholder": "Chart will be rendered here",
       "comingSoon": "This section is ready for API integration and UI completion."
+    },
+    "profile": {
+      "eyebrow": "Professional profile",
+      "title": "Your profile",
+      "description": "Manage your public professional information, contact details, avatar, occupation, education, website, and bio."
     },
     "overview": {
       "eyebrow": "Professional Dashboard",
@@ -1673,7 +1679,6 @@
         "general": "General",
         "notifications": "Notifications",
         "privacy": "Privacy",
-        "profile": "Profile",
         "security": "Security"
       },
       "general": {

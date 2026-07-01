@@ -13,15 +13,17 @@ import ProfessionalSettingsTab from "@modules/ProfessionalDashboard/Professional
 import ProfessionalPaymentsTab from "@modules/ProfessionalDashboard/ProfessionalPaymentsTab";
 import ProfessionalCoursesTab from "@modules/ProfessionalDashboard/ProfessionalCoursesTab";
 import ProfessionalRoadmapTab from "@modules/ProfessionalDashboard/ProfessionalRoadmapTab";
+import ProfessionalProfileTab from "@modules/ProfessionalDashboard/ProfessionalProfileTab";
 
 const validTabs: TProfessionalDashboardTab[] = [
+  "profile",
   "courses",
   "roadmap",
-  "payments",
   "overview",
   "calendar",
-  "settings",
   "wishlist",
+  "settings",
+  "payments",
   "pdu-report",
   "certificates",
   "external-learning",
@@ -31,9 +33,11 @@ export const ProfessionalDashboardShell = () => {
   const searchParams = useSearchParams();
 
   const tabParam = searchParams?.get("tab") as TProfessionalDashboardTab | null;
+
   const activeTab =
     tabParam && validTabs.includes(tabParam) ? tabParam : "overview";
 
+  if (activeTab === "profile") return <ProfessionalProfileTab />;
   if (activeTab === "calendar") return <ProfessionalCalendarTab />;
   if (activeTab === "courses") return <ProfessionalCoursesTab />;
   if (activeTab === "roadmap") return <ProfessionalRoadmapTab />;

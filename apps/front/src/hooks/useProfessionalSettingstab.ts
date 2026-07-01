@@ -28,12 +28,6 @@ export const useProfessionalSettingsTab = () => {
     refetch: refetchSettings,
   } = PAPI.useProfessionalSettingsQuery();
 
-  const {
-    data: profile,
-    isFetching: isProfileFetching,
-    refetch: refetchProfile,
-  } = PAPI.useProfessionalDashboardProfileQuery();
-
   const { refetch: refetchCurrentUser } = AAPI.useCurrentUserQuery();
 
   const [updateSettings, updateSettingsState] =
@@ -41,9 +35,6 @@ export const useProfessionalSettingsTab = () => {
 
   const [resetSettings, resetSettingsState] =
     PAPI.useResetProfessionalSettingsMutation();
-
-  const [updateProfile, updateProfileState] =
-    PAPI.useUpdateProfessionalDashboardProfileMutation();
 
   const [settingsForm, setSettingsForm] = useState({
     messages: true,
@@ -58,17 +49,6 @@ export const useProfessionalSettingsTab = () => {
     showLearningProgress: true,
     interfaceLanguage: AppLanguage.En,
     profileVisibility: ProfileVisibility.Public,
-  });
-
-  const [profileForm, setProfileForm] = useState({
-    fullName: "",
-    phone: "",
-    location: "",
-    website: "",
-    education: "",
-    occupation: "",
-    avatarUrl: "",
-    bio: "",
   });
 
   const [passwordForm, setPasswordForm] = useState({
@@ -101,20 +81,6 @@ export const useProfessionalSettingsTab = () => {
     });
   }, [settings]);
 
-  useEffect(() => {
-    if (!profile) return;
-    setProfileForm({
-      bio: profile.bio ?? "",
-      phone: profile.phone ?? "",
-      website: profile.website ?? "",
-      fullName: profile.fullName ?? "",
-      location: profile.location ?? "",
-      education: profile.education ?? "",
-      avatarUrl: profile.avatarUrl ?? "",
-      occupation: profile.occupation ?? "",
-    });
-  }, [profile]);
-
   const applyAppPreferences = (input: {
     interfaceLanguage?: AppLanguage | null;
     theme?: Theme | null;
@@ -127,6 +93,7 @@ export const useProfessionalSettingsTab = () => {
       };
       setTheme(themeMap[input.theme]);
     }
+
     if (input.interfaceLanguage) {
       const localeMap: Record<AppLanguage, "en" | "fr"> = {
         [AppLanguage.En]: "en",
@@ -195,25 +162,6 @@ export const useProfessionalSettingsTab = () => {
     }
   };
 
-  const saveProfile = async () => {
-    try {
-      await updateProfile({
-        bio: profileForm.bio || undefined,
-        phone: profileForm.phone || undefined,
-        website: profileForm.website || undefined,
-        fullName: profileForm.fullName || undefined,
-        location: profileForm.location || undefined,
-        avatarUrl: profileForm.avatarUrl || undefined,
-        education: profileForm.education || undefined,
-        occupation: profileForm.occupation || undefined,
-      }).unwrap();
-      await Promise.all([refetchProfile(), refetchCurrentUser()]);
-      notify.success(t("professionalDashboard.settings.profileSaved"));
-    } catch {
-      notify.error(t("authPages.common.genericError"));
-    }
-  };
-
   const savePassword = async () => {
     try {
       await changePassword({
@@ -260,7 +208,7 @@ export const useProfessionalSettingsTab = () => {
         code: "",
         otpSent: false,
       });
-      await Promise.all([refetchProfile(), refetchCurrentUser()]);
+      await refetchCurrentUser();
       notify.success(t("professionalDashboard.settings.security.emailChanged"));
     } catch {
       notify.error(t("authPages.common.genericError"));
@@ -269,26 +217,21 @@ export const useProfessionalSettingsTab = () => {
 
   const refreshAll = () => {
     void refetchSettings();
-    void refetchProfile();
     void refetchCurrentUser();
   };
 
   const isLoading = useMemo(
     () =>
       isSettingsFetching ||
-      isProfileFetching ||
       updateSettingsState.isLoading ||
       resetSettingsState.isLoading ||
-      updateProfileState.isLoading ||
       changePasswordState.isLoading ||
       requestEmailChangeState.isLoading ||
       verifyEmailChangeState.isLoading,
     [
       isSettingsFetching,
-      isProfileFetching,
       updateSettingsState.isLoading,
       resetSettingsState.isLoading,
-      updateProfileState.isLoading,
       changePasswordState.isLoading,
       requestEmailChangeState.isLoading,
       verifyEmailChangeState.isLoading,
@@ -297,18 +240,14 @@ export const useProfessionalSettingsTab = () => {
 
   return {
     t,
-    profile,
     settings,
     isLoading,
     emailForm,
     refreshAll,
-    profileForm,
-    saveProfile,
     settingsForm,
     passwordForm,
     setEmailForm,
     savePassword,
-    setProfileForm,
     setSettingsForm,
     setPasswordForm,
     sendEmailChangeOtp,

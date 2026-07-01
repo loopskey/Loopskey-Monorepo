@@ -52,6 +52,12 @@ export const professionalDashboardTabs: TDashboardTab<TProfessionalDashboardTab>
       icon: L.ExternalLink,
     },
     {
+      value: "profile",
+      labelKey: "professionalDashboard.sidebar.profile",
+      href: "/dashboard/professional?tab=profile",
+      icon: L.UserRound,
+    },
+    {
       value: "payments",
       labelKey: "professionalDashboard.sidebar.payments",
       href: "/dashboard/professional?tab=payments",

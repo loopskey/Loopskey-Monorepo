@@ -1609,6 +1609,7 @@
   },
   "professionalDashboard": {
     "sidebar": {
+      "profile": "Profil",
       "roadmap": "Parcours",
       "courses": "Mes cours",
       "payments": "Paiements",
@@ -1618,6 +1619,11 @@
       "calendar": "Mon calendrier",
       "certificates": "Certificats",
       "externalLearning": "Apprentissage externe"
+    },
+    "profile": {
+      "eyebrow": "Profil professionnel",
+      "title": "Votre profil",
+      "description": "Gérez vos informations professionnelles publiques, vos coordonnées, votre avatar, votre profession, votre formation, votre site web et votre biographie."
     },
     "common": {
       "refresh": "Actualiser",
@@ -1675,7 +1681,6 @@
         "general": "Général",
         "notifications": "Notifications",
         "privacy": "Confidentialité",
-        "profile": "Profil",
         "security": "Sécurité"
       },
       "general": {

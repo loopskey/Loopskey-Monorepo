@@ -11,6 +11,7 @@ export type TProfessionalDashboardTab =
   | "courses"
   | "roadmap"
   | "overview"
+  | "profile"
   | "settings"
   | "calendar"
   | "payments"
@@ -31,12 +32,7 @@ export type TSnapShotProps = {
   value: string | number;
 };
 
-export type TSettingsTab =
-  | "general"
-  | "privacy"
-  | "profile"
-  | "security"
-  | "notifications";
+export type TSettingsTab = "general" | "privacy" | "security" | "notifications";
 
 export type TFieldProps = {
   label: string;
