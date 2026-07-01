@@ -34,7 +34,7 @@ export const siteLinks = {
   professionalDashboard: "/dashboard/professional",
   organizationDashboard: "/dashboard/organization",
 
-  profile: "/dashboard/profile",
+  profile: "/dashboard/professional?tab=profile",
 };
 
 export const companyEmail = "Loopskey.dev@gmail.com";
@@ -56,8 +56,24 @@ export const getDashboardPath = (role?: Role | null) => {
     case Role.Organization:
       return siteLinks.organizationDashboard;
     case Role.Professional:
-    default:
       return siteLinks.professionalDashboard;
+    default:
+      return siteLinks.home;
+  }
+};
+
+export const getDashboardProfilePath = (role?: Role | null) => {
+  switch (role) {
+    case Role.Professional:
+      return `${siteLinks.professionalDashboard}?tab=profile`;
+    case Role.Provider:
+      return `${siteLinks.providerDashboard}?tab=profile`;
+    case Role.Organization:
+      return `${siteLinks.organizationDashboard}?tab=profile`;
+    case Role.Admin:
+      return siteLinks.adminDashboard;
+    default:
+      return siteLinks.login;
   }
 };
 

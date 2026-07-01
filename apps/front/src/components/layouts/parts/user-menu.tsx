@@ -2,6 +2,7 @@
 
 import { LayoutDashboard, LogOut, UserRound } from "lucide-react";
 import { getDashboardPath, siteLinks } from "@/utils/constant";
+import { getDashboardProfilePath } from "@/utils/constant";
 import { useCurrentUserQuery } from "@/lib/rtk/endpoints/auth.api";
 import { useLogoutMutation } from "@/lib/rtk/endpoints/auth.api";
 import { getInitials } from "@/utils/function-helper";
@@ -23,10 +24,16 @@ export const UserMenu = () => {
   const { data, isLoading } = useCurrentUserQuery(undefined, {
     refetchOnMountOrArgChange: true,
   });
+
   const [logout, { isLoading: isLoggingOut }] = useLogoutMutation();
+
   const user = data?.user;
+
   if (isLoading || !user) return null;
+
   const dashboardPath = getDashboardPath(user.role);
+  const profilePath = getDashboardProfilePath(user.role);
+
   const handleLogout = async () => {
     try {
       await logout().unwrap();
@@ -53,7 +60,6 @@ export const UserMenu = () => {
               {getInitials(user.fullName, user.email)}
             </A.AvatarFallback>
           </A.Avatar>
-
           <span className="hidden min-w-0 text-left md:block">
             <span className="block max-w-32 truncate text-sm font-bold">
               {user.fullName ?? user.email}
@@ -98,7 +104,7 @@ export const UserMenu = () => {
           </Link>
         </D.DropdownMenuItem>
         <D.DropdownMenuItem asChild className="rounded-2xl p-3">
-          <Link href={siteLinks.profile}>
+          <Link href={profilePath}>
             <UserRound className="mr-2 h-4 w-4" />
             {t("userMenu.profile")}
           </Link>

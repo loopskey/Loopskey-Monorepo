@@ -15,7 +15,7 @@ export const ProfessionalSecuritySettingsPanel = ({
   hook,
   icon: Icon,
 }: TProfessionaSettingSecurity) => {
-  const { t, profile, emailForm } = hook;
+  const { t, emailForm } = hook;
 
   const {
     emailRhf,
@@ -106,12 +106,6 @@ export const ProfessionalSecuritySettingsPanel = ({
               {t("professionalDashboard.settings.security.emailTitle")}
             </h3>
           </div>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {t("professionalDashboard.settings.security.currentEmail")}:{" "}
-            <span className="font-medium text-foreground">
-              {profile?.email ?? "-"}
-            </span>
-          </p>
           <F.Form {...emailRhf}>
             <form className="mt-5 space-y-5">
               <div className="grid gap-4">
