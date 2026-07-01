@@ -8,7 +8,7 @@ import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
 import { Form } from "@ui/form";
 
-import SocialAuthButtons from "@modules/Auth/parts/SocialAithBtns";
+import SocialAuthButtons from "@modules/Auth/parts/SocialAuthBtns";
 
 const LoginCredentialsForm = ({
   role,

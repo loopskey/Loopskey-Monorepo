@@ -2,6 +2,7 @@
 
 import { ArrowRight, Sparkles } from "lucide-react";
 import { useLandingHeroSearch } from "@/hooks/useLandingHero";
+import { useAuthSession } from "@/hooks/useAuthSession";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
 
@@ -30,6 +31,8 @@ const LandingHero = () => {
     hasSelectedCategory,
   } = useLandingHeroSearch();
 
+  const { isAuthenticated, dashboardHref } = useAuthSession();
+
   const shouldShowResults = hasSearch || hasSelectedCategory;
 
   return (
@@ -40,7 +43,7 @@ const LandingHero = () => {
         <div className="absolute bottom-0 left-0 h-80 w-80 rounded-full bg-violet-500/10 blur-3xl" />
       </div>
 
-      <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] px-4 sm:px-6 lg:px-8 ">
+      <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] px-4 sm:px-6 lg:px-8">
         <div className="animate-in fade-in-0 slide-in-from-bottom-5 duration-700">
           <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-glass-border bg-background/60 px-4 py-2 text-sm font-bold text-primary shadow-sm backdrop-blur-xl">
             <Sparkles className="h-4 w-4" />
@@ -70,11 +73,21 @@ const LandingHero = () => {
               </Link>
             </Button>
 
-            <Button asChild size="xl" radius="xl" variant="glass">
-              <Link href="/auth/professional">
-                {t("landing.hero.secondaryCta")}
-              </Link>
-            </Button>
+            {isAuthenticated ? (
+              dashboardHref ? (
+                <Button asChild size="xl" radius="xl" variant="glass">
+                  <Link href={dashboardHref}>
+                    {t("landing.hero.dashboardCta")}
+                  </Link>
+                </Button>
+              ) : null
+            ) : (
+              <Button asChild size="xl" radius="xl" variant="glass">
+                <Link href="/auth/professional">
+                  {t("landing.hero.secondaryCta")}
+                </Link>
+              </Button>
+            )}
           </div>
 
           <div className="mt-8 max-w-3xl space-y-4">
@@ -83,9 +96,9 @@ const LandingHero = () => {
               onChange={setSearch}
               onClear={clearSearch}
               isExplorerOpen={isExplorerOpen}
-              onToggleExplorer={() => setIsExplorerOpen(!isExplorerOpen)}
-              placeholder={t("landing.hero.searchPlaceholder")}
               exploreLabel={t("landing.hero.exploreButton")}
+              placeholder={t("landing.hero.searchPlaceholder")}
+              onToggleExplorer={() => setIsExplorerOpen(!isExplorerOpen)}
             />
 
             {isExplorerOpen ? (
@@ -180,4 +193,5 @@ const LandingHero = () => {
     </section>
   );
 };
+
 export default LandingHero;

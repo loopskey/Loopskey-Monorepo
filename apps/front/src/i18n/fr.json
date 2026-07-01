@@ -877,6 +877,18 @@
     "youtube": "YouTube"
   },
   "authPages": {
+    "oauth": {
+      "completingLogin": "Finalisation de votre connexion",
+      "pleaseWait": "Veuillez patienter pendant que nous vérifions votre session.",
+      "loginFailed": "La connexion OAuth a échoué. Veuillez réessayer.",
+      "invalidRole": "Ce compte est enregistré avec un rôle différent.",
+      "userDisabled": "Ce compte utilisateur n’est pas actif.",
+      "googleEmailNotFound": "L’adresse e-mail du compte Google est introuvable.",
+      "googleEmailNotVerified": "L’adresse e-mail du compte Google n’est pas vérifiée.",
+      "roleNotAllowed": "La connexion avec Google n’est pas autorisée pour ce rôle.",
+      "signupNotAllowedForRole": "L’inscription avec Google n’est pas autorisée pour ce rôle.",
+      "sessionNotFound": "Nous n’avons pas pu vérifier votre session de connexion. Veuillez réessayer."
+    },
     "common": {
       "register": "Inscription",
       "login": "Connexion",
@@ -1281,6 +1293,7 @@
       "badge": "Apprentissage professionnel propulsé par l’IA",
       "titleLine1": "Votre parcours de",
       "titleLine2": "développement professionnel",
+      "dashboardCta": "Accéder au tableau de bord",
       "titleLine3": "au même endroit",
       "subtitleLine1": "Votre parcours, votre choix — l’IA de LoopsKey,",
       "subtitleLine2": "adaptée à vos objectifs.",

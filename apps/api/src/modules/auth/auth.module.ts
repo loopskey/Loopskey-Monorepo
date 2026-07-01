@@ -1,6 +1,7 @@
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { PassportModule } from "@nestjs/passport";
 import { GoogleStrategy } from "@auth/strategies/google.strategy";
+import { AuthController } from "@auth/controller/auth.controller";
 import { PrismaModule } from "@prisma/prisma.module";
 import { AuthResolver } from "@auth/resolvers/auth.resolver";
 import { AuthService } from "@auth/services/auth.service";
@@ -23,6 +24,7 @@ import { Module } from "@nestjs/common";
       }),
     }),
   ],
+  controllers: [AuthController],
   providers: [AuthResolver, AuthService, JwtStrategy, GoogleStrategy],
   exports: [AuthService],
 })

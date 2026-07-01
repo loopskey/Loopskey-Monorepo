@@ -4,6 +4,7 @@ import { TRoleAuthCardProps } from "@/types/auth-module.types";
 import { GlassCard } from "@elements/glass-card";
 import { useState } from "react";
 
+import SocialAuthButtons from "@modules/Auth/parts/SocialAuthBtns";
 import RoleRegisterForm from "@modules/Auth/RoleRegisterForm";
 import RoleLoginForm from "@modules/Auth/RoleLoginForm";
 import AuthFlipCard from "@modules/Auth/parts/AuthFlipCard";
@@ -20,10 +21,14 @@ const RoleAuthCard = ({ loginRole, registerRole }: TRoleAuthCardProps) => {
         <AuthFlipCard
           flipped={active === "login"}
           front={
-            <RoleRegisterForm
-              role={registerRole}
-              onVerified={() => setActive("login")}
-            />
+            <div className="space-y-5">
+              <RoleRegisterForm
+                role={registerRole}
+                onVerified={() => setActive("login")}
+              />
+
+              <SocialAuthButtons role={loginRole} />
+            </div>
           }
           back={<RoleLoginForm role={loginRole} />}
         />

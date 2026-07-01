@@ -1,5 +1,7 @@
+import { isGoogleOAuthAllowedRole } from "@utils/oauth-roles.constant";
 import { Profile, Strategy } from "passport-google-oauth20";
 import { PassportStrategy } from "@nestjs/passport";
+import { AuthMessageCode } from "@auth/enums/message-code.enum";
 import { TOAuthProfile } from "@auth/types/oauth-service.types";
 import { ConfigService } from "@nestjs/config";
 import { Injectable } from "@nestjs/common";
@@ -26,13 +28,15 @@ export class GoogleStrategy extends PassportStrategy(Strategy, "google") {
     done: (error: Error | null, user?: TOAuthProfile) => void,
   ) {
     const email = profile.emails?.[0]?.value?.trim().toLowerCase();
-    if (!email) return done(new Error("GOOGLE_EMAIL_NOT_FOUND"));
+    if (!email) return done(new Error(AuthMessageCode.GOOGLE_EMAIL_NOT_FOUND));
+    const emailVerified = profile.emails?.[0]?.verified;
+    if (emailVerified === false)
+      return done(new Error(AuthMessageCode.GOOGLE_EMAIL_NOT_VERIFIED));
     const stateRole = request.query.state as Role | undefined;
-    const role = Object.values(Role).includes(stateRole as Role)
-      ? (stateRole as Role)
-      : Role.PROFESSIONAL;
+    if (!isGoogleOAuthAllowedRole(stateRole))
+      return done(new Error(AuthMessageCode.GOOGLE_OAUTH_ROLE_NOT_ALLOWED));
     const user: TOAuthProfile = {
-      role,
+      role: stateRole,
       email,
       provider: "GOOGLE",
       providerId: profile.id,

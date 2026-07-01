@@ -875,6 +875,18 @@
     "youtube": "YouTube"
   },
   "authPages": {
+    "oauth": {
+      "completingLogin": "Completing your login",
+      "pleaseWait": "Please wait while we verify your session.",
+      "loginFailed": "OAuth login failed. Please try again.",
+      "invalidRole": "This account is registered with a different role.",
+      "userDisabled": "This user account is not active.",
+      "googleEmailNotFound": "Google account email was not found.",
+      "googleEmailNotVerified": "Google account email is not verified.",
+      "roleNotAllowed": "Google login is not allowed for this role.",
+      "signupNotAllowedForRole": "Google signup is not allowed for this role.",
+      "sessionNotFound": "We could not verify your login session. Please try again."
+    },
     "common": {
       "register": "Register",
       "login": "Login",
@@ -1284,6 +1296,7 @@
       "secondaryCta": "Create account",
       "searchPlaceholder": "Search courses, events, podcasts, and YouTube channels...",
       "exploreButton": "Explore",
+      "dashboardCta": "Go to dashboard",
       "exploreTitle": "Explore by category",
       "selectedCategory": "Selected category",
       "clear": "Clear",

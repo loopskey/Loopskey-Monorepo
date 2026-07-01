@@ -1,6 +1,8 @@
 import { OtpPurpose, Role, SessionStatus, UserStatus } from "@prisma/client";
 import { ConflictException, UnauthorizedException } from "@nestjs/common";
 import { BadRequestException, Injectable } from "@nestjs/common";
+import { isGoogleOAuthAutoCreatableRole } from "@utils/oauth-roles.constant";
+import { isGoogleOAuthAllowedRole } from "@utils/oauth-roles.constant";
 import { RequestEmailChangeInput } from "@auth/dtos/request-email-change.input";
 import { VerifyEmailChangeInput } from "@auth/dtos/verify-email-change.input";
 import { VerifyEmailOtpInput } from "@auth/dtos/verify-email-otp.input";
@@ -749,13 +751,25 @@ export class AuthService {
   }
 
   googleOAuthUrl(role: Role) {
-    const apiUrl =
-      this.configService.get<string>("HOST_URL") ?? "http://localhost:5700";
+    if (!isGoogleOAuthAllowedRole(role))
+      throw new BadRequestException({
+        code: AuthMessageCode.GOOGLE_OAUTH_ROLE_NOT_ALLOWED,
+        message: AuthMessageCode.GOOGLE_OAUTH_ROLE_NOT_ALLOWED,
+      });
+    const clientId = this.configService.getOrThrow<string>("GOOGLE_CLIENT_ID");
+    const callbackUrl = this.configService.getOrThrow<string>(
+      "GOOGLE_CALLBACK_URL",
+    );
     const params = new URLSearchParams({
-      role,
+      client_id: clientId,
+      redirect_uri: callbackUrl,
+      response_type: "code",
+      scope: "email profile",
+      state: role,
+      prompt: "select_account",
     });
     return {
-      url: `${apiUrl}/auth/google?${params.toString()}`,
+      url: `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`,
     };
   }
 
@@ -764,6 +778,13 @@ export class AuthService {
       this.configService.get<string>("OAUTH_REDIRECT_URL") ??
       "http://localhost:3000/auth/oauth/bridge";
     try {
+      if (!isGoogleOAuthAllowedRole(profile.role)) {
+        const params = new URLSearchParams({
+          status: "error",
+          code: AuthMessageCode.GOOGLE_OAUTH_ROLE_NOT_ALLOWED,
+        });
+        return response.redirect(`${redirectUrl}?${params.toString()}`);
+      }
       const email = this.normalizeEmail(profile.email);
       let user = await this.prisma.user.findUnique({
         where: { email },
@@ -781,10 +802,10 @@ export class AuthService {
         return response.redirect(`${redirectUrl}?${params.toString()}`);
       }
       if (!user) {
-        if (profile.role === Role.ORGANIZATION) {
+        if (!isGoogleOAuthAutoCreatableRole(profile.role)) {
           const params = new URLSearchParams({
             status: "error",
-            code: "ORGANIZATION_REQUIRES_ADMIN_APPROVAL",
+            code: AuthMessageCode.GOOGLE_OAUTH_SIGNUP_NOT_ALLOWED_FOR_ROLE,
           });
           return response.redirect(`${redirectUrl}?${params.toString()}`);
         }
@@ -828,7 +849,11 @@ export class AuthService {
       this.setAuthCookies(response, tokens.accessToken, tokens.refreshToken);
       await this.prisma.user.update({
         where: { id: user.id },
-        data: { lastLoginAt: new Date() },
+        data: {
+          lastLoginAt: new Date(),
+          avatarUrl: user.avatarUrl ?? profile.avatarUrl,
+          emailVerifiedAt: user.emailVerifiedAt ?? new Date(),
+        },
       });
       const params = new URLSearchParams({
         status: "success",
@@ -836,10 +861,11 @@ export class AuthService {
         forcePasswordChange: String(user.forcePasswordChange),
       });
       return response.redirect(`${redirectUrl}?${params.toString()}`);
-    } catch {
+    } catch (error) {
+      console.error("Google OAuth login failed:", error);
       const params = new URLSearchParams({
         status: "error",
-        code: "OAUTH_LOGIN_FAILED",
+        code: AuthMessageCode.OAUTH_LOGIN_FAILED,
       });
       return response.redirect(`${redirectUrl}?${params.toString()}`);
     }
