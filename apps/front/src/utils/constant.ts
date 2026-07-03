@@ -342,28 +342,6 @@ export const sortOptions = [
   },
 ] as const;
 
-// ============== Guards ===============
-export const SESSION_COOKIE_NAME = "session";
-
-export const ROLE_ROUTES = [
-  {
-    prefix: "/dashboard/professional",
-    roles: ["PROFESSIONAL"],
-  },
-  {
-    prefix: "/dashboard/provider",
-    roles: ["PROVIDER"],
-  },
-  {
-    prefix: "/dashboard/organization",
-    roles: ["ORGANIZATION"],
-  },
-  {
-    prefix: "/dashboard/admin",
-    roles: ["ADMIN"],
-  },
-] as const;
-
 // ================ Org Dashboard ===============
 export const normalizeText = (value: unknown) => String(value ?? "").trim();
 
