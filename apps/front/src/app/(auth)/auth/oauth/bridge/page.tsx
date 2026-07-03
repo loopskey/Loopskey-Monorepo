@@ -1,12 +1,13 @@
 "use client";
 
 import { useOAuthBridge } from "@/hooks/useOAuthBridge";
+import { Suspense } from "react";
 import { Loader2 } from "lucide-react";
 import { useI18n } from "@/hooks/useI18n";
 
 import AuthPageShell from "@modules/Auth/parts/AuthPageSell";
 
-const OAuthBridgePage = () => {
+const OAuthBridgeContent = () => {
   useOAuthBridge();
 
   const { t } = useI18n();
@@ -29,6 +30,24 @@ const OAuthBridgePage = () => {
         </div>
       </section>
     </AuthPageShell>
+  );
+};
+
+const OAuthBridgePage = () => {
+  return (
+    <Suspense
+      fallback={
+        <AuthPageShell>
+          <section className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center px-4 text-center">
+            <div className="rounded-3xl border border-border/60 bg-background/70 p-8 shadow-xl backdrop-blur">
+              <Loader2 className="mx-auto h-7 w-7 animate-spin text-primary" />
+            </div>
+          </section>
+        </AuthPageShell>
+      }
+    >
+      <OAuthBridgeContent />
+    </Suspense>
   );
 };
 
