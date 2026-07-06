@@ -38,7 +38,6 @@ export const useAdminAccessRequestsTab = () => {
       search: search.trim() || undefined,
       status: status === "ALL" ? undefined : status,
     };
-
     return {
       filter,
       pagination: {

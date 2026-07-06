@@ -1,0 +1,4 @@
+interface:
+  display_name: "Prisma Change"
+  short_description: "Change Prisma models and migrations safely"
+  default_prompt: "Use $prisma-change to make a database-backed change in Loopskey."

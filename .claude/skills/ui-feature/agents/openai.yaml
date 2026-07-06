@@ -1,0 +1,4 @@
+interface:
+  display_name: "UI Feature"
+  short_description: "Build Loopskey Next.js UI features"
+  default_prompt: "Use $ui-feature to implement a frontend UI feature in Loopskey."

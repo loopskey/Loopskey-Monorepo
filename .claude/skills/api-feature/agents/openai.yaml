@@ -1,0 +1,4 @@
+interface:
+  display_name: "API Feature"
+  short_description: "Build NestJS GraphQL API features"
+  default_prompt: "Use $api-feature to implement a backend GraphQL feature in Loopskey."

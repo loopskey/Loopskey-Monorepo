@@ -1,170 +1,237 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guidance for Claude Code and other AI coding assistants working in this repository.
 
 ## Project Overview
 
-This is a full-stack **monorepo** for a course/learning platform built with:
-- **Backend**: NestJS + GraphQL (code-first) + Prisma ORM + PostgreSQL
-- **Frontend**: Next.js 16+ with React 19, TypeScript, Tailwind CSS, Radix UI
-- **Build tool**: Turbo for monorepo orchestration
-- **Package manager**: npm workspaces
+Loopskey is a full-stack learning and CPD platform organized as an npm workspace monorepo.
 
-The platform supports multiple user roles (`ADMIN`, `PROFESSIONAL`, `PROVIDER`) with role-based access control (RBAC), authentication (email/password and Google OAuth), and learning features (courses, videos, podcasts, roadmaps, external content).
+- Backend: NestJS 11, GraphQL code-first, Prisma, PostgreSQL, JWT cookies, OAuth, RBAC.
+- Frontend: Next.js App Router, React 19, TypeScript, Tailwind CSS, Radix UI/shadcn-style components, RTK Query over GraphQL.
+- Workspace tooling: npm workspaces with Turbo for root-level orchestration.
 
-## Monorepo Structure
+The product supports role-specific experiences for `ADMIN`, `PROFESSIONAL`, `PROVIDER`, and `ORGANIZATION` users. Core domains include authentication, courses, events, podcasts, YouTube content, content interactions, CPD/PDU tracking, roadmaps, provider dashboards, organization dashboards, and admin management.
 
+## Repository Layout
+
+```text
+.
+|-- apps/
+|   |-- api/                  # NestJS GraphQL API
+|   |   |-- prisma/           # Prisma schema, migrations, seed entrypoint
+|   |   `-- src/
+|   |       |-- common/       # Shared API types and utilities
+|   |       |-- graphql/      # Generated GraphQL schema output
+|   |       |-- main.ts       # API bootstrap
+|   |       `-- modules/      # Feature modules
+|   `-- front/                # Next.js frontend
+|       `-- src/
+|           |-- app/          # App Router route groups and pages
+|           |-- components/   # UI, layout, guard, and feature components
+|           |-- hooks/        # Feature and form hooks
+|           |-- i18n/         # en/fr translation JSON
+|           |-- lib/          # GraphQL docs/generated types, RTK, validations
+|           |-- providers/    # Redux, theme, language providers
+|           |-- types/        # Frontend TypeScript types
+|           `-- utils/        # Constants and helpers
+|-- package.json              # Root Turbo scripts and workspaces
+|-- package-lock.json
+`-- turbo.json
 ```
-apps/
-  api/              # NestJS backend with GraphQL
-    src/
-      modules/      # Feature modules (auth, user, course, podcast, provider, etc.)
-      common/       # Shared utilities and types
-      graphql/      # Generated GraphQL schema
-      main.ts       # NestJS bootstrap
-  front/            # Next.js frontend
-    src/
-      app/          # Next.js app router (auth, dashboards, pages groups)
-      components/   # Reusable React components
-      hooks/        # Custom React hooks
-      lib/          # Utilities and helpers
-      providers/    # Context providers
-      types/        # TypeScript type definitions
-      utils/        # Helper functions
-```
 
-## Common Commands
+There is no active `packages/` directory in this repo. Do not assume shared package paths exist unless you create them intentionally.
 
-### Root level (Turbo)
+## Commands
+
+Run commands from the repository root unless a command explicitly says otherwise.
+
 ```bash
-npm run dev      # Start dev servers for all apps (watch mode)
-npm run build    # Build all apps
-npm run lint     # Lint all apps
+npm install
+npm run dev
+npm run build
+npm run lint
 ```
 
-### Backend only (apps/api)
+Workspace-specific commands:
+
 ```bash
-npm run dev           # Start NestJS dev server with watch (port 5700)
-npm run build         # Compile TypeScript to dist/
-npm run start:prod    # Run compiled production build
-npm run lint          # Fix linting issues with ESLint
-npm test              # Run unit tests (*.spec.ts files)
-npm run test:watch    # Run tests in watch mode
-npm run test:cov      # Generate coverage reports
-npm run test:e2e      # Run e2e tests
-npm run db:seed       # Seed database with sample data
+# API
+npm run dev --workspace api
+npm run build --workspace api
+npm run lint --workspace api
+npm test --workspace api
+npm run test:e2e --workspace api
+npm run db:seed --workspace api
+
+# Frontend
+npm run dev --workspace front
+npm run build --workspace front
+npm run lint --workspace front
+npm run codegen --workspace front
+npm run svg-spritor --workspace front
 ```
 
-### Frontend only (apps/front)
-```bash
-npm run dev       # Start Next.js dev server with Turbopack (port 3000)
-npm run build     # Build production bundle
-npm run start     # Serve production build
-npm run lint      # Check code quality with ESLint
-npm run codegen   # Generate TypeScript types from GraphQL schema
-```
+The API defaults to `APP_PORT=5700`. The frontend defaults to Next's `3000` unless the port is occupied.
 
-## Architecture Patterns
+## Backend Architecture
 
-### Backend (NestJS + GraphQL)
+The API lives in `apps/api` and uses NestJS modules grouped by domain:
 
-**Module-based organization**: Each feature lives in its own module (e.g., `modules/auth`, `modules/user`, `modules/course`). Modules export services that are consumed by GraphQL resolvers.
+- `auth`: registration, login, JWT cookies, refresh tokens, OAuth, guards, decorators.
+- `user`: user profile and account operations.
+- `course`, `events`, `podcast`, `youtube`: learning content domains.
+- `content-interaction`: wishlist, cart, enrollment, reviews, and related user/content actions.
+- `professional`: professional dashboard, CPD/PDU, certificates, roadmap, payments.
+- `provider`: provider profile, events, analytics, promotion requests.
+- `organization`: organization users, departments, assignments, compliance/reporting.
+- `admin`: admin dashboard, user/org management, access requests.
+- `landing`, `external-learning`, `mail`, `prisma`: support and integration modules.
 
-**Authentication & Authorization**:
-- JWT-based auth with HTTP-only cookies
-- Global `JwtAuthGuard` applied to all routes (except public endpoints decorated with `@Public()`)
-- `RolesGuard` enforces role-based access control via `@Roles()` decorator
-- Google OAuth integration with Passport strategies
-- Session verification and token refresh logic
+Important backend conventions:
 
-**GraphQL**:
-- Code-first approach using decorators (`@ObjectType`, `@Query`, `@Mutation`)
-- Schema auto-generated to `src/graphql/schema.gql`
-- Resolvers in dedicated `*.resolver.ts` files
-- Type definitions use class-based GraphQL objects
+- `AppModule` registers global `JwtAuthGuard` and `RolesGuard`. Public endpoints must use the local `@Public()` decorator.
+- Role-restricted resolvers should use the existing `@Roles(...)` decorator and enum types already present in the auth module.
+- GraphQL is code-first with schema output controlled by `GRAPHQL_SCHEMA_PATH`, defaulting to `src/graphql/schema.gql`.
+- Resolvers should stay thin: validate/authorize via decorators and delegate business logic to services.
+- Prisma access should go through `PrismaService` from `@prisma/prisma.service`.
+- `ValidationPipe` is global with `whitelist`, `forbidNonWhitelisted`, and `transform` enabled. DTOs should use `class-validator` decorators.
+- API path aliases are defined in `apps/api/tsconfig.json`; prefer existing aliases such as `@auth/*`, `@course/*`, `@provider/*`, `@org/*`, and `@professional/*`.
 
-**Database**: Prisma ORM with PostgreSQL. Schema migrations live in `prisma/migrations/`. Always run `prisma migrate` after schema changes.
+When changing the database:
 
-**Key modules**:
-- `auth`: Authentication, JWT tokens, OAuth strategies
-- `user`: User management, profile, roles
-- `course`: Course content and curriculum
-- `podcast`: Podcast content
-- `youtube`: External YouTube content integration
-- `professional`: Professional user features
-- `provider`: Provider user features
-- `admin`: Admin dashboard and management tools
-- `external-learning`: Integration with external learning resources
+1. Update `apps/api/prisma/schema.prisma`.
+2. Create a migration with Prisma from `apps/api` or by passing the schema path.
+3. Update seed data in `apps/api/prisma/seed.ts` or `apps/api/prisma/seeds/` when needed.
+4. Regenerate Prisma Client if the workflow did not do it automatically.
 
-### Frontend (Next.js 16)
+## Frontend Architecture
 
-**App Router**: Uses Next.js app directory with route groups for organizing layouts.
-- `(auth)` — Authentication pages
-- `(dashboards)` — Role-based dashboards
-- `(pages)` — General pages
+The frontend lives in `apps/front` and uses Next.js App Router.
 
-**GraphQL Client**: Uses TanStack Query (React Query) with Apollo Client for data fetching.
+Route groups:
 
-**Component library**: Radix UI primitives + custom Tailwind CSS styling.
+- `src/app/(auth)`: authentication screens.
+- `src/app/(dashboards)`: role-specific dashboards under `/dashboard/...`.
+- `src/app/(pages)`: public informational/content pages.
 
-**State management**: Redux Toolkit (via Redux store in providers).
+Key frontend conventions:
 
-**Internationalization**: i18next for multi-language support.
+- Use existing path aliases from `apps/front/tsconfig.json`, especially `@/*`, `@components/*`, `@modules/*`, `@ui/*`, `@hooks/*`, `@lib/*`, and `@utils/*`.
+- Prefer existing shadcn/Radix-style components in `src/components/ui` before introducing new primitives.
+- Feature UI belongs under `src/components/modules/<Feature>`.
+- Data and behavior for larger components usually belongs in `src/hooks/use<Feature>.ts`.
+- Global providers are wired in `src/app/layout.tsx`, `src/providers/app-provider.tsx`, and `src/providers/rtk-provider.tsx`.
+- Translation keys live in `src/i18n/en.json` and `src/i18n/fr.json`; keep both files in sync when adding user-facing text.
+- Constants, route helpers, options, and icon maps belong in `src/utils/constant.ts` or a nearby existing util file.
 
-## Development Workflow
+GraphQL frontend flow:
 
-### When working on a feature:
-1. **Backend first**: Add GraphQL types and resolvers in the relevant module
-2. **Run codegen** (`npm run codegen` in front/) to generate TypeScript types
-3. **Frontend**: Build components and hooks using the generated types
-4. **Test locally**: Start both servers (`npm run dev` from root)
-
-### When modifying the database:
-1. Update Prisma schema in `apps/api/prisma/schema.prisma`
-2. Create migration: `npx prisma migrate dev --name <name>`
-3. If needed, update seed file in `prisma/seed.ts`
-
-### When adding a new API endpoint:
-1. Create resolver method in the appropriate module's `.resolver.ts`
-2. Decorate with `@Query`, `@Mutation`, and `@Roles` if needed
-3. Use `@Public()` for unauthenticated endpoints
-4. Run `npm run codegen` in frontend to regenerate types
+- GraphQL documents live in `src/lib/graphql/documents/*.graphql`.
+- Generated types/documents are written to `src/lib/graphql/generated.ts`.
+- RTK Query endpoints live in `src/lib/rtk/endpoints/*.api.ts`.
+- The shared `graphqlBaseQuery` posts to `NEXT_PUBLIC_GRAPHQL_URL` with `credentials: "include"` and retries once through `RefreshTokenDocument` on 401.
+- After API schema or GraphQL document changes, run `npm run codegen --workspace front`.
 
 ## Environment Variables
 
-Backend (`.env` in `apps/api/`):
-- `DATABASE_URL` — PostgreSQL connection string
-- `JWT_SECRET`, `JWT_EXPIRES_IN` — JWT configuration
-- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_CALLBACK_URL` — OAuth
-- `APP_PORT`, `APP_HOST` — Server configuration
-- `FRONTEND_URL` — CORS and redirect target
-- `SENDGRID_API_KEY` or `RESEND_API_KEY` — Email service (for OTP, password reset)
+Do not commit secrets. The repo currently uses app-local `.env` files.
 
-Frontend (`.env` in `apps/front/`):
-- `BACKEND_URL` — GraphQL endpoint (passed via proxy.ts)
+API variables seen in this project include:
 
-## Testing
+```text
+DATABASE_URL
+APP_NAME
+APP_HOST
+APP_PORT
+FRONTEND_URL
+GRAPHQL_PLAYGROUND
+GRAPHQL_SCHEMA_PATH
+JWT_ACCESS_SECRET
+JWT_REFRESH_SECRET
+JWT_ACCESS_EXPIRES_IN
+JWT_REFRESH_EXPIRES_IN_DAYS
+ACCESS_TOKEN_COOKIE_NAME
+REFRESH_TOKEN_COOKIE_NAME
+ACCESS_TOKEN_COOKIE_MAX_AGE_MS
+COOKIE_SECURE
+COOKIE_DOMAIN
+COOKIE_SAME_SITE
+GOOGLE_CLIENT_ID
+GOOGLE_CLIENT_SECRET
+GOOGLE_CALLBACK_URL
+OAUTH_REDIRECT_URL
+GOOGLE_CALENDAR_REDIRECT
+RESEND_API_KEY
+EMAIL_FROM
+ADMIN_EMAIL
+ADMIN_PASSWORD
+SEED_TEST_PASSWORD
+```
 
-- **Unit tests**: Use Jest with ts-jest. Place test files next to source as `*.spec.ts`
-- **E2E tests**: Configure in `test/jest-e2e.json`
-- **Test data**: Use `@faker-js/faker` for generating realistic test data
-- Coverage reports go to `coverage/` at root level
+Frontend variables seen in this project:
 
-## Key Technologies & Versions
+```text
+NEXT_PUBLIC_GRAPHQL_URL
+JWT_ACCESS_SECRET
+```
 
-- Node.js ≥ 18
-- NestJS 11, GraphQL 16, Apollo Server 4
-- Next.js 16 with React 19
-- Prisma 6 with PostgreSQL adapter
-- TypeScript 5.7
-- ESLint 9, Prettier 3
-- Jest 29 for testing
+`NEXT_PUBLIC_GRAPHQL_URL` should point at the API GraphQL endpoint, commonly `http://localhost:5700/graphql` in local development.
 
-## Common Gotchas & Tips
+## Implementation Workflow
 
-1. **GraphQL schema generation**: Always run `npm run codegen` in frontend after modifying resolvers
-2. **Database migrations**: Never manually edit `prisma/migrations/` — use `prisma migrate`
-3. **CORS**: Ensure `FRONTEND_URL` env var matches your frontend origin in backend
-4. **Authentication**: Public routes must be decorated with `@Public()` to bypass JWT guard
-5. **Role-based routes**: Use `@Roles(UserRole.ADMIN)` to restrict resolvers; frontend routing also checks user role in auth middleware
-6. **Module path aliases**: Backend uses `@<alias>` for imports (configured in `tsconfig.json` and `nest-cli.json`). Frontend uses standard `@` alias.
+For backend-to-frontend GraphQL work:
+
+1. Add or update Prisma models/enums if persistence changes are needed.
+2. Add API DTOs/entities/resolver/service methods inside the relevant Nest module.
+3. Run the API build/tests for the touched area.
+4. Update frontend `.graphql` documents.
+5. Run `npm run codegen --workspace front`.
+6. Use generated types and documents from `@/lib/graphql/generated`.
+7. Add or update RTK endpoints and hooks/components.
+8. Build or type-check the touched workspace before finishing.
+
+For frontend-only work:
+
+1. Reuse existing components from `src/components/ui`, `elements`, and `layouts`.
+2. Keep module-specific UI in `src/components/modules`.
+3. Keep page components light; move stateful logic into hooks when it grows.
+4. Update both translation files for visible strings.
+5. Verify responsive layouts and role-based navigation paths.
+
+## Quality Checks
+
+Prefer the narrowest meaningful verification:
+
+```bash
+npm run build --workspace api
+npm test --workspace api
+npm run build --workspace front
+npm run codegen --workspace front
+npm run lint --workspace front
+```
+
+Notes:
+
+- API lint runs ESLint with `--fix`, so it can modify files.
+- Frontend `generated.ts`, `.next/`, `dist/`, `node_modules/`, and `tsconfig.tsbuildinfo` are generated artifacts; avoid manual edits unless the task specifically requires them.
+- Root `npm run build` invokes Turbo and may build both apps.
+
+## Common Pitfalls
+
+- The root README and app READMEs may be stale or boilerplate; trust source code and package scripts first.
+- Because auth guards are global, missing `@Public()` is a common cause of unexpected authentication failures.
+- Cookie auth requires API CORS `origin` and frontend URL/env values to match.
+- When changing GraphQL names or enums, update API entities, schema generation, frontend documents, generated types, RTK endpoints, and i18n labels together.
+- Prisma enum values are used across API, generated GraphQL types, frontend route helpers, filters, and dashboards. Treat enum changes as cross-app changes.
+- Do not hand-edit generated GraphQL output or Prisma migrations to "quick fix" type issues.
+- Keep organization/provider/professional/admin dashboard behavior role-scoped; avoid sharing mutations or cache tags casually across roles.
+
+## Coding Style
+
+- TypeScript strictness is enabled in both apps. Avoid `any` unless there is a local precedent and a clear boundary.
+- Use existing aliases and naming patterns instead of deep relative imports.
+- Keep services responsible for business logic, resolvers/controllers for transport, and frontend hooks for orchestration.
+- Prefer arrow functions over regular function declarations, unless the existing code pattern or a specific technical reason requires otherwise.
+- When an `if` condition has a single-line statement, omit curly braces.
+- Prefer small, focused changes over broad refactors.
+- Add tests or targeted verification when touching auth, payments, role access, Prisma schema, token refresh, or shared RTK behavior.

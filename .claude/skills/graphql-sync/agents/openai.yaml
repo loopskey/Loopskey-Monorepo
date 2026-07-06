@@ -1,0 +1,4 @@
+interface:
+  display_name: "GraphQL Sync"
+  short_description: "Keep API schema and frontend types aligned"
+  default_prompt: "Use $graphql-sync to update GraphQL schema, documents, RTK endpoints, and generated types."
