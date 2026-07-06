@@ -26,6 +26,7 @@ export const authApi = baseApi.injectEndpoints({
       }),
       transformResponse: (response: TAPI.VerifyEmailOtpMutation) =>
         response.verifyEmailOtp,
+      invalidatesTags: (result) => (result?.success ? ["CurrentUser"] : []),
     }),
 
     resendEmailOtp: builder.mutation<

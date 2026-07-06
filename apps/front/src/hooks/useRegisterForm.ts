@@ -3,7 +3,9 @@
 import { TRoleRegisterFormProps } from "@/types/auth-module.types";
 import { useMemo, useState } from "react";
 import { getAuthErrorCode } from "@/utils/auth-error";
+import { getDashboardPath } from "@/utils/constant";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
@@ -18,6 +20,7 @@ export const useRoleRegisterForm = ({
   onVerified,
 }: TRoleRegisterFormProps) => {
   const { t } = useI18n();
+  const router = useRouter();
 
   const [step, setStep] = useState<TRegisterStep>("details");
   const [pendingEmail, setPendingEmail] = useState("");
@@ -71,7 +74,7 @@ export const useRoleRegisterForm = ({
   const verifyOtp = async (values: S.TOtpVerificationValues) => {
     if (!normalizedEmail) return;
     try {
-      await verifyEmailOtp({
+      const res = await verifyEmailOtp({
         email: normalizedEmail,
         code: values.code.trim().toUpperCase(),
       }).unwrap();
@@ -81,6 +84,7 @@ export const useRoleRegisterForm = ({
       setPendingEmail("");
       setStep("details");
       onVerified?.();
+      router.replace(getDashboardPath(res.user?.role));
     } catch (error) {
       console.log("VERIFY OTP ERROR:", error);
       setStep("otp");

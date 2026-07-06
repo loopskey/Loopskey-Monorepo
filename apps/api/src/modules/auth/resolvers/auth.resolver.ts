@@ -35,8 +35,15 @@ export class AuthResolver {
   @Mutation(() => AuthPayloadEntity, {
     name: AuthGqlMutationNames.VERIFY_EMAIL_OTP,
   })
-  verifyEmailOtp(@Args("input") input: VerifyEmailOtpInput) {
-    return this.authService.verifyEmailOtp(input);
+  verifyEmailOtp(
+    @Args("input") input: VerifyEmailOtpInput,
+    @Context("res") response: Response,
+    @Context("req") request: Request,
+  ) {
+    return this.authService.verifyEmailOtp(input, response, {
+      ipAddress: request.ip,
+      userAgent: request.headers["user-agent"] ?? null,
+    });
   }
 
   @Public()

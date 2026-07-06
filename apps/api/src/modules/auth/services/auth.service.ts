@@ -33,8 +33,12 @@ export class AuthService {
     return this.registrationService.register(input);
   }
 
-  verifyEmailOtp(input: VerifyEmailOtpInput) {
-    return this.registrationService.verifyEmailOtp(input);
+  verifyEmailOtp(
+    input: VerifyEmailOtpInput,
+    response: Response,
+    contextInfo?: RequestContextInfo,
+  ) {
+    return this.registrationService.verifyEmailOtp(input, response, contextInfo);
   }
 
   resendEmailOtp(input: ResendEmailOtpInput) {

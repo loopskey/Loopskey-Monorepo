@@ -4,11 +4,14 @@ import { VerifyEmailOtpInput } from "@auth/dtos/verify-email-otp.input";
 import { BadRequestException } from "@nestjs/common";
 import { ResendEmailOtpInput } from "@auth/dtos/resend-email-otp.input";
 import { AuthCommonService } from "@auth/services/auth-common.service";
+import { AuthSessionService } from "@auth/services/auth-session.service";
+import { RequestContextInfo } from "@auth/types/auth-service.types";
 import { AuthRegisterRole } from "@auth/enums/register-role.enum";
 import { AUTH_USER_SELECT } from "@auth/types/auth-user-select.constant";
 import { AuthMessageCode } from "@auth/enums/message-code.enum";
 import { PrismaService } from "@prisma/prisma.service";
 import { RegisterInput } from "@auth/dtos/register.input";
+import { Response } from "express";
 
 import * as argon2 from "argon2";
 
@@ -17,6 +20,7 @@ export class AuthRegistrationService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly authCommon: AuthCommonService,
+    private readonly authSession: AuthSessionService,
   ) {}
 
   async register(input: RegisterInput) {
@@ -66,7 +70,11 @@ export class AuthRegistrationService {
     };
   }
 
-  async verifyEmailOtp(input: VerifyEmailOtpInput) {
+  async verifyEmailOtp(
+    input: VerifyEmailOtpInput,
+    response: Response,
+    contextInfo?: RequestContextInfo,
+  ) {
     const email = this.authCommon.normalizeEmail(input.email);
     const code = input.code.trim();
     const pending = await this.prisma.pendingRegistration.findUnique({
@@ -133,6 +141,24 @@ export class AuthRegistrationService {
         where: { email },
       });
       return createdUser;
+    });
+    const session = await this.authSession.createSession(user.id, contextInfo);
+    const tokens = await this.authSession.generateTokens({
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+      status: user.status,
+      sessionId: session.id,
+    });
+    await this.authSession.storeRefreshToken(session.id, tokens.refreshToken);
+    this.authSession.setAuthCookies(
+      response,
+      tokens.accessToken,
+      tokens.refreshToken,
+    );
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { lastLoginAt: new Date() },
     });
     return {
       success: true,
