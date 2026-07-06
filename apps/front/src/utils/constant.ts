@@ -77,6 +77,9 @@ export const getDashboardProfilePath = (role?: Role | null) => {
   }
 };
 
+export const PASSWORD_STRENGTH_MESSAGE =
+  "Password must be at least 8 characters and include both letters and numbers.";
+
 // ============= Content ===============
 export const TAKE = 12;
 

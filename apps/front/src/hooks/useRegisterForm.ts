@@ -2,6 +2,7 @@
 
 import { TRoleRegisterFormProps } from "@/types/auth-module.types";
 import { useMemo, useState } from "react";
+import { getAuthErrorCode } from "@/utils/auth-error";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useI18n } from "@/hooks/useI18n";
@@ -82,7 +83,19 @@ export const useRoleRegisterForm = ({
       onVerified?.();
     } catch (error) {
       console.log("VERIFY OTP ERROR:", error);
-      notify.error(t("authPages.common.genericError"));
+      setStep("otp");
+      const errorCode = getAuthErrorCode(error);
+      const errorMessage =
+        errorCode === "OTP_EXPIRED"
+          ? t("authPages.common.otpExpired")
+          : errorCode === "OTP_ATTEMPTS_EXCEEDED"
+            ? t("authPages.common.otpAttemptsExceeded")
+            : t("authPages.common.invalidOtp");
+      otpForm.setError("code", {
+        type: "server",
+        message: errorMessage,
+      });
+      notify.error(errorMessage);
     }
   };
 

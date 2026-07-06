@@ -26,7 +26,6 @@ export const authApi = baseApi.injectEndpoints({
       }),
       transformResponse: (response: TAPI.VerifyEmailOtpMutation) =>
         response.verifyEmailOtp,
-      invalidatesTags: ["CurrentUser"],
     }),
 
     resendEmailOtp: builder.mutation<
@@ -50,7 +49,7 @@ export const authApi = baseApi.injectEndpoints({
         variables: { input },
       }),
       transformResponse: (response: TAPI.LoginMutation) => response.login,
-      invalidatesTags: ["CurrentUser"],
+      invalidatesTags: (result) => (result?.success ? ["CurrentUser"] : []),
     }),
 
     refreshToken: builder.mutation<
@@ -102,7 +101,7 @@ export const authApi = baseApi.injectEndpoints({
       }),
       transformResponse: (response: TAPI.ResetPasswordMutation) =>
         response.resetPassword,
-      invalidatesTags: ["CurrentUser"],
+      invalidatesTags: (result) => (result?.success ? ["CurrentUser"] : []),
     }),
 
     changePassword: builder.mutation<

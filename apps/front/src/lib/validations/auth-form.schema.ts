@@ -1,5 +1,11 @@
+import { PASSWORD_STRENGTH_MESSAGE } from "@/utils/constant";
 import { OrganizationType } from "@lib/graphql/generated";
 import { z } from "zod";
+
+export const strongPasswordSchema = z
+  .string()
+  .min(8, PASSWORD_STRENGTH_MESSAGE)
+  .regex(/^(?=.*[A-Za-z])(?=.*\d).+$/, PASSWORD_STRENGTH_MESSAGE);
 
 export const loginSchema = z.object({
   email: z.string().email(),
@@ -12,8 +18,8 @@ export const registerSchema = z
   .object({
     fullName: z.string().min(2),
     email: z.string().email(),
-    password: z.string().min(8),
-    confirmPassword: z.string().min(8),
+    password: strongPasswordSchema,
+    confirmPassword: z.string().min(1, "Please confirm your password."),
   })
   .refine((value) => value.password === value.confirmPassword, {
     path: ["confirmPassword"],
@@ -55,8 +61,8 @@ export type TForgotPasswordValues = z.infer<typeof forgotPasswordSchema>;
 export const resetPasswordSchema = z
   .object({
     code: z.string().trim().min(6).max(6),
-    newPassword: z.string().min(8),
-    confirmPassword: z.string().min(8),
+    newPassword: strongPasswordSchema,
+    confirmPassword: z.string().min(1, "Please confirm your password."),
   })
   .refine((value) => value.newPassword === value.confirmPassword, {
     path: ["confirmPassword"],
