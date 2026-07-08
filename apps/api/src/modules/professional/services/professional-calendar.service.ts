@@ -1,9 +1,11 @@
+import { ForbiddenException, NotFoundException } from "@nestjs/common";
 import { ProfessionalCalendarEventsFilterInput } from "@professional/dtos/professional-calendar-filter.input";
-import { Injectable, ForbiddenException } from "@nestjs/common";
 import { ProfessionalPaginationInput } from "@professional/dtos/professional-pagination.input";
+import { CreateCalendarEventInput } from "@professional/dtos/create-calendar-event.input";
 import { TCalculateCalendar } from "@professional/types/professional-service.types";
 import { PrismaService } from "@prisma/prisma.service";
 import { Prisma, Role } from "@prisma/client";
+import { Injectable } from "@nestjs/common";
 import { TUser } from "@common/types/user.types";
 
 @Injectable()
@@ -139,5 +141,60 @@ export class ProfessionalCalendarService {
         nextCursor: rows.length > take ? items.at(-1)?.id : null,
       },
     };
+  }
+
+  async myCalendarEntries(user: TUser) {
+    this.assertProfessional(user);
+    const rows = await this.prismaService.calendarEvent.findMany({
+      where: { userId: user.id },
+      orderBy: { startDate: "asc" },
+    });
+    return rows.map((row) => {
+      const meta = this.calculateCalendarMeta(row);
+      return {
+        ...row,
+        isPast: meta.isPast,
+        isLive: meta.isLive,
+        isUpcoming: meta.isUpcoming,
+        startsInMinutes: meta.startsInMinutes,
+        durationMinutes: row.durationMinutes ?? meta.durationMinutes,
+      };
+    });
+  }
+
+  async createCalendarEvent(user: TUser, input: CreateCalendarEventInput) {
+    this.assertProfessional(user);
+    const row = await this.prismaService.calendarEvent.create({
+      data: {
+        userId: user.id,
+        title: input.title,
+        type: input.type,
+        startDate: new Date(input.startDate),
+        endDate: input.endDate ? new Date(input.endDate) : null,
+        durationMinutes: input.durationMinutes ?? null,
+        notes: input.notes ?? null,
+        contentId: input.contentId ?? null,
+        contentType: input.contentType ?? null,
+      },
+    });
+    const meta = this.calculateCalendarMeta(row);
+    return {
+      ...row,
+      isPast: meta.isPast,
+      isLive: meta.isLive,
+      isUpcoming: meta.isUpcoming,
+      startsInMinutes: meta.startsInMinutes,
+      durationMinutes: row.durationMinutes ?? meta.durationMinutes,
+    };
+  }
+
+  async deleteCalendarEvent(user: TUser, id: string) {
+    this.assertProfessional(user);
+    const existing = await this.prismaService.calendarEvent.findFirst({
+      where: { id, userId: user.id },
+    });
+    if (!existing) throw new NotFoundException("Calendar event not found.");
+    await this.prismaService.calendarEvent.delete({ where: { id } });
+    return { id };
   }
 }

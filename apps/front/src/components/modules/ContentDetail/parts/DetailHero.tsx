@@ -2,7 +2,7 @@
 
 import { TDetailHeroProps } from "@/types/content-module.types";
 import { isValidImageSrc } from "@/utils/function-helper";
-import { ArrowLeft, Star } from "lucide-react";
+import { ArrowLeft, Heart, Loader2, Star } from "lucide-react";
 import { GlassCard } from "@elements/glass-card";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/hooks/useI18n";
@@ -18,8 +18,10 @@ const DetailHero = ({
   category,
   imageUrl,
   children,
+  wishlist,
   ratingCount,
   description,
+  calendarSlot,
 }: TDetailHeroProps) => {
   const { t } = useI18n();
   const router = useRouter();
@@ -96,6 +98,43 @@ const DetailHero = ({
               "bg-gradient-to-t from-background/85 via-background/10 to-transparent lg:bg-gradient-to-r lg:from-background/20 lg:to-transparent",
             )}
           />
+
+          {(calendarSlot || wishlist) && (
+            <div className="absolute right-4 top-4 z-20 flex items-center gap-2">
+              {calendarSlot}
+              {wishlist && (
+                <Button
+                  size="icon"
+                  radius="full"
+                  type="button"
+                  variant="glass"
+                  onClick={wishlist.onToggle}
+                  disabled={wishlist.loading}
+                  aria-label={
+                    wishlist.isWishlisted
+                      ? t("contentDetails.actions.saved")
+                      : t("contentDetails.actions.addWishlist")
+                  }
+                  title={
+                    wishlist.isWishlisted
+                      ? t("contentDetails.actions.saved")
+                      : t("contentDetails.actions.addWishlist")
+                  }
+                >
+                  {wishlist.loading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Heart
+                      className={cn(
+                        "h-4 w-4",
+                        wishlist.isWishlisted && "fill-current text-primary",
+                      )}
+                    />
+                  )}
+                </Button>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </GlassCard>

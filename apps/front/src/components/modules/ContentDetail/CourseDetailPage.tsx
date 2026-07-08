@@ -6,6 +6,7 @@ import { useContentActions } from "@/hooks/useContentActions";
 import { GlassCard } from "@elements/glass-card";
 import { useI18n } from "@/hooks/useI18n";
 
+import AddToCalendarButton from "@modules/ContentDetail/parts/AddToCalendarButton";
 import DetailActionPanel from "@modules/ContentDetail/parts/DetailActionPanel";
 import CourseCurriculum from "@modules/ContentDetail/parts/CourseCurriculum";
 import DetailSkeleton from "@modules/ContentDetail/parts/DetailSkeleton";
@@ -46,6 +47,13 @@ const CourseDetailPage = ({ slug }: TCourseDetailPageProps) => {
     );
   }
 
+  const calendarPrefill = {
+    title: course.title,
+    type: API.CalendarEventType.Course,
+    contentId: course.id,
+    contentType: API.ContentType.Course,
+  };
+
   return (
     <main className="px-4 py-10 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-8">
@@ -57,6 +65,12 @@ const CourseDetailPage = ({ slug }: TCourseDetailPageProps) => {
           ratingCount={course.ratingCount}
           description={course.description}
           badge={t("contentDetails.course.badge")}
+          wishlist={{
+            isWishlisted: actions.isWishlisted,
+            loading: actions.isWishlistLoading,
+            onToggle: actions.onToggleWishlist,
+          }}
+          calendarSlot={<AddToCalendarButton iconOnly prefill={calendarPrefill} />}
         >
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <DetailMetaPill
@@ -184,6 +198,7 @@ const CourseDetailPage = ({ slug }: TCourseDetailPageProps) => {
               enrollLoading={actions.isEnrollLoading}
               wishlistLoading={actions.isWishlistLoading}
               enrollLabel={t("contentDetails.course.enrollNow")}
+              calendarSlot={<AddToCalendarButton prefill={calendarPrefill} />}
             />
           </aside>
         </div>

@@ -21,6 +21,8 @@ const DetailActionPanel = ({
   isWishlisted,
   enrollLoading,
   wishlistLoading,
+  calendarSlot,
+  primaryActionSlot,
   currency = "USD",
 }: TDetailActionPanelProps) => {
   const { t } = useI18n();
@@ -43,6 +45,8 @@ const DetailActionPanel = ({
         </div>
 
         <div className="grid gap-3">
+          {primaryActionSlot}
+
           <Button
             size="lg"
             radius="xl"
@@ -101,6 +105,8 @@ const DetailActionPanel = ({
                 : t("contentDetails.actions.addCart")}
             </Button>
           )}
+
+          {calendarSlot}
         </div>
 
         <p className="text-xs leading-5 text-muted-foreground">

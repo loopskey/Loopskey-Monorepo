@@ -1,6 +1,12 @@
 "use client";
 
-import { Clock3, Headphones, ListMusic, UserRound } from "lucide-react";
+import {
+  Clock3,
+  Headphones,
+  ListMusic,
+  PlayCircle,
+  UserRound,
+} from "lucide-react";
 import { useContentActions } from "@/hooks/useContentActions";
 import { GlassCard } from "@elements/glass-card";
 import { useI18n } from "@/hooks/useI18n";
@@ -10,6 +16,7 @@ import * as PodcastApi from "@/lib/rtk/endpoints/podcast.api";
 import * as Tabs from "@ui/tabs";
 import * as API from "@/lib/graphql/generated";
 
+import AddToCalendarButton from "@modules/ContentDetail/parts/AddToCalendarButton";
 import DetailActionPanel from "@modules/ContentDetail/parts/DetailActionPanel";
 import PodcastEpisodes from "@modules/ContentDetail/parts/PodcastEpisodes";
 import DetailSkeleton from "@modules/ContentDetail/parts/DetailSkeleton";
@@ -57,6 +64,13 @@ const PodcastDetailPage = ({ slug }: { slug: string }) => {
     );
   }
 
+  const calendarPrefill = {
+    title: podcast.title,
+    type: API.CalendarEventType.Other,
+    contentId: podcast.id,
+    contentType: API.ContentType.Podcast,
+  };
+
   return (
     <main className="px-4 py-10 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-8">
@@ -68,6 +82,12 @@ const PodcastDetailPage = ({ slug }: { slug: string }) => {
           description={podcast.description}
           ratingCount={podcast.ratingCount}
           badge={t("contentDetails.podcast.badge")}
+          wishlist={{
+            isWishlisted: actions.isWishlisted,
+            loading: actions.isWishlistLoading,
+            onToggle: actions.onToggleWishlist,
+          }}
+          calendarSlot={<AddToCalendarButton iconOnly prefill={calendarPrefill} />}
         >
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <DetailMetaPill
@@ -150,21 +170,28 @@ const PodcastDetailPage = ({ slug }: { slug: string }) => {
               enrollLoading={actions.isEnrollLoading}
               wishlistLoading={actions.isWishlistLoading}
               enrollLabel={t("contentDetails.podcast.followPodcast")}
+              calendarSlot={<AddToCalendarButton prefill={calendarPrefill} />}
+              primaryActionSlot={
+                latestEpisode?.audioUrl ? (
+                  <Button
+                    asChild
+                    size="lg"
+                    radius="xl"
+                    variant="brand"
+                    className="w-full justify-center"
+                  >
+                    <a
+                      href={latestEpisode.audioUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <PlayCircle className="h-4 w-4" />
+                      {t("contentDetails.podcast.playLatest")}
+                    </a>
+                  </Button>
+                ) : null
+              }
             />
-
-            {latestEpisode?.audioUrl && (
-              <Button
-                asChild
-                size="lg"
-                radius="xl"
-                variant="premium"
-                className="mt-4 w-full"
-              >
-                <a href={latestEpisode.audioUrl} target="_blank">
-                  {t("contentDetails.podcast.playLatest")}
-                </a>
-              </Button>
-            )}
           </aside>
         </div>
       </div>

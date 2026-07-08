@@ -458,3 +458,40 @@ query ProfessionalCalendarEvents(
     ...PaginatedProfessionalCalendarEventsFields
   }
 }
+
+fragment ManualCalendarEventFields on ProfessionalManualCalendarEvent {
+  id
+  userId
+  title
+  type
+  startDate
+  endDate
+  durationMinutes
+  notes
+  contentType
+  contentId
+  createdAt
+  updatedAt
+  isPast
+  isLive
+  isUpcoming
+  startsInMinutes
+}
+
+query MyCalendarEntries {
+  myCalendarEntries {
+    ...ManualCalendarEventFields
+  }
+}
+
+mutation CreateCalendarEvent($input: CreateCalendarEventInput!) {
+  createCalendarEvent(input: $input) {
+    ...ManualCalendarEventFields
+  }
+}
+
+mutation DeleteCalendarEvent($id: ID!) {
+  deleteCalendarEvent(id: $id) {
+    id
+  }
+}

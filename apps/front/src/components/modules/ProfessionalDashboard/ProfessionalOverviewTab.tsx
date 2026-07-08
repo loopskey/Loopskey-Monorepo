@@ -29,12 +29,11 @@ const ProfessionalOverviewTab = () => {
     activeCourses,
     pduByCategory,
     goalChartData,
-    calendarEvents,
+    upcomingEvents,
     recommendedCourses,
   } = useProfessionalOverviewTab();
 
   const professionalName = overview?.professionalName ?? "Professional";
-  console.log(pduOverTime);
 
   return (
     <div className="space-y-6">
@@ -160,8 +159,8 @@ const ProfessionalOverviewTab = () => {
           </div>
 
           <div className="mt-5 grid gap-3 md:grid-cols-2">
-            {calendarEvents?.items?.length ? (
-              calendarEvents.items.slice(0, 4).map((item) => (
+            {upcomingEvents.length ? (
+              upcomingEvents.slice(0, 4).map((item) => (
                 <div
                   key={item.id}
                   className="rounded-3xl border border-glass-border bg-background/45 p-4"
@@ -171,15 +170,22 @@ const ProfessionalOverviewTab = () => {
                       <L.CalendarDays className="h-5 w-5" />
                     </div>
                     <div className="min-w-0">
-                      <p className="truncate font-bold">
-                        {item.event?.title ?? item.eventId}
-                      </p>
+                      <p className="truncate font-bold">{item.title}</p>
                       <p className="mt-1 text-sm text-muted-foreground">
-                        {formatDate(item.event?.startDate ?? item.createdAt)}
+                        {formatDate(item.date)}
                       </p>
 
-                      <Badge variant="secondary" className="mt-3 rounded-full">
-                        {item.status}
+                      <Badge
+                        variant={
+                          item.source === "manual" ? "default" : "secondary"
+                        }
+                        className="mt-3 rounded-full"
+                      >
+                        {item.source === "manual"
+                          ? t("professionalDashboard.calendar.upcoming.manual")
+                          : t(
+                              "professionalDashboard.calendar.upcoming.registered",
+                            )}
                       </Badge>
                     </div>
                   </div>

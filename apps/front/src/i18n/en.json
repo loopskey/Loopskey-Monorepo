@@ -1172,7 +1172,8 @@
       "saved": "Saved",
       "enrolled": "Enrolled",
       "addCart": "Add to cart",
-      "inCart": "In cart"
+      "inCart": "In cart",
+      "addToCalendar": "Add to calendar"
     },
     "tabs": {
       "overview": "Overview",
@@ -1996,6 +1997,9 @@
       "title": "Calendar & registered events",
       "description": "Track your registered events, sessions, webinars, and PDU activities in one professional calendar view.",
       "googleConnected": "Google connected",
+      "addEvent": "Add event",
+      "delete": "Delete",
+      "deleteSuccess": "Event removed from your calendar.",
       "eventFallback": "Professional event",
       "empty": "No calendar events found for the selected filters.",
       "search": "Search events...",
@@ -2005,6 +2009,35 @@
       "liveNow": "Live now",
       "minutes": "min",
       "hours": "h",
+      "upcoming": {
+        "title": "Upcoming events",
+        "description": "Your next scheduled events and added items.",
+        "empty": "No upcoming events yet.",
+        "manual": "Added",
+        "registered": "Registered"
+      },
+      "types": {
+        "COURSE": "Course",
+        "WEBINAR": "Webinar",
+        "MEETING": "Meeting",
+        "EVENT": "Event",
+        "TRAINING": "Training",
+        "OTHER": "Other"
+      },
+      "addDialog": {
+        "title": "Add to calendar",
+        "description": "Create a personal event on your calendar.",
+        "submit": "Add event",
+        "success": "Event added to your calendar.",
+        "fields": {
+          "title": "Title",
+          "type": "Type",
+          "startDate": "Start date & time",
+          "endDate": "End date & time (optional)",
+          "duration": "Duration in minutes (optional)",
+          "notes": "Notes (optional)"
+        }
+      },
       "cards": {
         "totalEvents": "Total events",
         "upcoming": "Upcoming",

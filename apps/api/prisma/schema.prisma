@@ -108,6 +108,7 @@ model User {
   reviewedPromotionRequests  EventPromotionRequest[]    @relation("ReviewedPromotionRequests")
   auditLogs                  AuditLog[]                 @relation("AuditActor")
   externalLearningActivities ExternalLearningActivity[]
+  calendarEvents             CalendarEvent[]
 
   @@index([role])
   @@index([status])
@@ -616,6 +617,40 @@ model EventScheduleItem {
   @@index([eventId])
   @@index([dayNumber])
   @@index([startTime])
+}
+
+// ============== Calendar ================
+enum CalendarEventType {
+  COURSE
+  WEBINAR
+  MEETING
+  EVENT
+  TRAINING
+  OTHER
+}
+
+model CalendarEvent {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title           String
+  type            CalendarEventType @default(OTHER)
+  startDate       DateTime
+  endDate         DateTime?
+  durationMinutes Int?
+  notes           String?
+
+  contentType ContentType?
+  contentId   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([startDate])
+  @@index([contentType, contentId])
 }
 
 // ============== Podcast ================

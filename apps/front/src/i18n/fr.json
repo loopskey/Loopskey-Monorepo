@@ -1176,7 +1176,8 @@
       "saved": "Enregistré",
       "enrolled": "Inscrit",
       "addCart": "Ajouter au panier",
-      "inCart": "Dans le panier"
+      "inCart": "Dans le panier",
+      "addToCalendar": "Ajouter au calendrier"
     },
     "tabs": {
       "overview": "Aperçu",
@@ -1999,6 +2000,9 @@
       "title": "Calendrier et événements inscrits",
       "description": "Suivez vos événements, sessions, webinaires et activités PDU dans une vue calendrier professionnelle.",
       "googleConnected": "Google connecté",
+      "addEvent": "Ajouter un événement",
+      "delete": "Supprimer",
+      "deleteSuccess": "Événement retiré de votre calendrier.",
       "eventFallback": "Événement professionnel",
       "empty": "Aucun événement trouvé pour les filtres sélectionnés.",
       "search": "Rechercher des événements...",
@@ -2008,6 +2012,35 @@
       "liveNow": "En direct",
       "minutes": "min",
       "hours": "h",
+      "upcoming": {
+        "title": "Événements à venir",
+        "description": "Vos prochains événements planifiés et éléments ajoutés.",
+        "empty": "Aucun événement à venir pour le moment.",
+        "manual": "Ajouté",
+        "registered": "Inscrit"
+      },
+      "types": {
+        "COURSE": "Cours",
+        "WEBINAR": "Webinaire",
+        "MEETING": "Réunion",
+        "EVENT": "Événement",
+        "TRAINING": "Formation",
+        "OTHER": "Autre"
+      },
+      "addDialog": {
+        "title": "Ajouter au calendrier",
+        "description": "Créez un événement personnel sur votre calendrier.",
+        "submit": "Ajouter l'événement",
+        "success": "Événement ajouté à votre calendrier.",
+        "fields": {
+          "title": "Titre",
+          "type": "Type",
+          "startDate": "Date et heure de début",
+          "endDate": "Date et heure de fin (facultatif)",
+          "duration": "Durée en minutes (facultatif)",
+          "notes": "Notes (facultatif)"
+        }
+      },
       "cards": {
         "totalEvents": "Total des événements",
         "upcoming": "À venir",

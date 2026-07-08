@@ -1,28 +1,34 @@
 "use client";
 
-import { getDefaultRange, PAGE_SIZE, toDateInputValue } from "@/utils/constant";
 import { DateSelectArg, EventClickArg, EventInput } from "@fullcalendar/core";
 import { ChangeEvent, useMemo, useState } from "react";
+import { PAGE_SIZE, toDateInputValue } from "@/utils/constant";
 import { TProfessionalCalendarEvent } from "@/types/professional-dashboard.types";
+import { TUpcomingCalendarItem } from "@/types/professional-dashboard.types";
+import { TManualCalendarEvent } from "@/types/professional-dashboard.types";
 import { TCalendarStats } from "@/types/professional-dashboard.types";
 import { TSelectedRange } from "@/types/professional-dashboard.types";
 import { useI18n } from "@/hooks/useI18n";
+import { notify } from "@/hooks/notify";
 
 import * as API from "@/lib/rtk/endpoints/professional.api";
 import * as GQL from "@/lib/graphql/generated";
 
+const EMPTY_RANGE: TSelectedRange = { start: "", end: "" };
+
 export const useProfessionalCalendar = () => {
   const { t } = useI18n();
-
-  const defaultRange = useMemo(() => getDefaultRange(), []);
 
   const [search, setSearch] = useState<string>("");
   const [page, setPage] = useState<number>(1);
   const [cursorStack, setCursorStack] = useState<string[]>([]);
   const [selectedRange, setSelectedRange] =
-    useState<TSelectedRange>(defaultRange);
+    useState<TSelectedRange>(EMPTY_RANGE);
   const [selectedEvent, setSelectedEvent] =
     useState<TProfessionalCalendarEvent | null>(null);
+  const [selectedManualEvent, setSelectedManualEvent] =
+    useState<TManualCalendarEvent | null>(null);
+  const [isAddOpen, setIsAddOpen] = useState<boolean>(false);
 
   const currentCursor = cursorStack.at(-1);
 
@@ -34,7 +40,11 @@ export const useProfessionalCalendar = () => {
           ? new Date(selectedRange.start).toISOString()
           : undefined,
         to: selectedRange.end
-          ? new Date(selectedRange.end).toISOString()
+          ? (() => {
+              const end = new Date(selectedRange.end);
+              end.setHours(23, 59, 59, 999);
+              return end.toISOString();
+            })()
           : undefined,
       },
       pagination: {
@@ -48,16 +58,57 @@ export const useProfessionalCalendar = () => {
   const { data, isLoading, isFetching, refetch } =
     API.useProfessionalCalendarEventsQuery(variables);
 
+  const { data: manualData, isFetching: isManualFetching } =
+    API.useMyCalendarEntriesQuery();
+
+  const [deleteCalendarEvent, deleteState] =
+    API.useDeleteCalendarEventMutation();
+
   const events = useMemo<TProfessionalCalendarEvent[]>(() => {
     return data?.items ?? [];
   }, [data?.items]);
 
+  const manualEvents = useMemo<TManualCalendarEvent[]>(() => {
+    return manualData ?? [];
+  }, [manualData]);
+
+  const filteredManualEvents = useMemo<TManualCalendarEvent[]>(() => {
+    const query = search.trim().toLowerCase();
+    const fromTime = selectedRange.start
+      ? new Date(selectedRange.start).setHours(0, 0, 0, 0)
+      : null;
+    const toTime = selectedRange.end
+      ? new Date(selectedRange.end).setHours(23, 59, 59, 999)
+      : null;
+
+    return manualEvents.filter((item) => {
+      if (query) {
+        const typeLabel = t(
+          `professionalDashboard.calendar.types.${item.type}`,
+        ).toLowerCase();
+        const haystack = [item.title, item.type, typeLabel, item.notes ?? ""]
+          .join(" ")
+          .toLowerCase();
+        if (!haystack.includes(query)) return false;
+      }
+
+      const start = new Date(item.startDate).getTime();
+      if (fromTime !== null && start < fromTime) return false;
+      if (toTime !== null && start > toTime) return false;
+      return true;
+    });
+  }, [manualEvents, search, selectedRange.start, selectedRange.end, t]);
+
   const pageInfo = data?.pageInfo;
 
   const stats = useMemo<TCalendarStats>(() => {
-    const total = data?.totalCount ?? 0;
-    const upcoming = events.filter((item) => item.isUpcoming).length;
-    const live = events.filter((item) => item.isLive).length;
+    const total = (data?.totalCount ?? 0) + manualEvents.length;
+    const upcoming =
+      events.filter((item) => item.isUpcoming).length +
+      manualEvents.filter((item) => item.isUpcoming).length;
+    const live =
+      events.filter((item) => item.isLive).length +
+      manualEvents.filter((item) => item.isLive).length;
     const completed = events.filter((item) => {
       return item.status === GQL.EventRegistrationStatus.Completed;
     }).length;
@@ -71,19 +122,20 @@ export const useProfessionalCalendar = () => {
       completed,
       totalPdus,
     };
-  }, [data?.totalCount, events]);
+  }, [data?.totalCount, events, manualEvents]);
 
   const calendarEvents = useMemo<EventInput[]>(() => {
-    return events
+    const registrationEvents = events
       .filter((item) => item.event)
       .map((item) => {
         const event = item.event!;
         return {
-          id: item.id,
+          id: `registration:${item.id}`,
           title: event.title,
           start: event.startDate,
           end: event.endDate ?? event.startDate,
           extendedProps: {
+            source: "registration" as const,
             pdu: event.pdu,
             slug: event.slug,
             status: item.status,
@@ -95,7 +147,48 @@ export const useProfessionalCalendar = () => {
           },
         };
       });
-  }, [events]);
+
+    const manualCalendarEvents = manualEvents.map((item) => ({
+      id: `manual:${item.id}`,
+      title: item.title,
+      start: item.startDate,
+      end: item.endDate ?? item.startDate,
+      extendedProps: {
+        source: "manual" as const,
+        manualId: item.id,
+        type: item.type,
+        notes: item.notes,
+      },
+    }));
+
+    return [...registrationEvents, ...manualCalendarEvents];
+  }, [events, manualEvents]);
+
+  const upcomingEvents = useMemo<TUpcomingCalendarItem[]>(() => {
+    const fromRegistrations = events
+      .filter((item) => item.isUpcoming && item.event)
+      .map<TUpcomingCalendarItem>((item) => ({
+        id: `registration:${item.id}`,
+        title: item.event!.title,
+        startDate: item.event!.startDate,
+        source: "registration",
+      }));
+
+    const fromManual = manualEvents
+      .filter((item) => item.isUpcoming)
+      .map<TUpcomingCalendarItem>((item) => ({
+        id: `manual:${item.id}`,
+        title: item.title,
+        startDate: item.startDate,
+        source: "manual",
+      }));
+
+    return [...fromRegistrations, ...fromManual].sort(
+      (a, b) =>
+        new Date(a.startDate ?? 0).getTime() -
+        new Date(b.startDate ?? 0).getTime(),
+    );
+  }, [events, manualEvents]);
 
   const handleSearchChange = (value: string) => {
     setSearch(value);
@@ -135,15 +228,51 @@ export const useProfessionalCalendar = () => {
   };
 
   const handleCalendarEventClick = (clickInfo: EventClickArg) => {
-    const foundEvent = events.find((item) => item.id === clickInfo.event.id);
+    const source = clickInfo.event.extendedProps.source as
+      | "registration"
+      | "manual"
+      | undefined;
+    if (source === "manual") {
+      const manualId = clickInfo.event.id.replace(/^manual:/, "");
+      const foundManual = manualEvents.find((item) => item.id === manualId);
+      setSelectedEvent(null);
+      setSelectedManualEvent(foundManual ?? null);
+      return;
+    }
+    const registrationId = clickInfo.event.id.replace(/^registration:/, "");
+    const foundEvent = events.find((item) => item.id === registrationId);
+    setSelectedManualEvent(null);
     setSelectedEvent(foundEvent ?? null);
   };
 
   const closeSelectedEvent = () => setSelectedEvent(null);
 
+  const closeSelectedManualEvent = () => setSelectedManualEvent(null);
+
+  const closeEventDetails = () => {
+    setSelectedEvent(null);
+    setSelectedManualEvent(null);
+  };
+
+  const openAddDialog = () => setIsAddOpen(true);
+
+  const handleAddOpenChange = (open: boolean) => setIsAddOpen(open);
+
+  const handleDeleteManualEvent = async (id: string) => {
+    try {
+      await deleteCalendarEvent(id).unwrap();
+      setSelectedManualEvent((current) =>
+        current?.id === id ? null : current,
+      );
+      notify.success(t("professionalDashboard.calendar.deleteSuccess"));
+    } catch {
+      notify.error(t("authPages.common.genericError"));
+    }
+  };
+
   const resetFilters = () => {
     setSearch("");
-    setSelectedRange(defaultRange);
+    setSelectedRange(EMPTY_RANGE);
     setPage(1);
     setCursorStack([]);
   };
@@ -196,24 +325,36 @@ export const useProfessionalCalendar = () => {
     events,
     refetch,
     pageInfo,
+    isAddOpen,
     isLoading,
     formatDate,
     isFetching,
     handleNext,
+    manualEvents,
+    openAddDialog,
     getEventHref,
+    closeEventDetails,
+    filteredManualEvents,
     resetFilters,
     selectedEvent,
     selectedRange,
     calendarEvents,
+    upcomingEvents,
     formatDuration,
     formatDateTime,
     handlePrevious,
+    isManualFetching,
+    selectedManualEvent,
+    handleAddOpenChange,
     closeSelectedEvent,
     handleSearchChange,
     handleEndDateChange,
     handleStartDateChange,
     handleSearchInputChange,
+    handleDeleteManualEvent,
+    closeSelectedManualEvent,
     handleCalendarEventClick,
     handleCalendarRangeSelect,
+    isDeletingManual: deleteState.isLoading,
   };
 };

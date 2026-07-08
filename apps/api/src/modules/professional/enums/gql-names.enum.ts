@@ -24,6 +24,7 @@ export enum ProfessionalGqlObjectNames {
   PROFESSIONAL_CALENDAR_Event_INFO = "ProfessionalCalendarEventInfo",
   PROFESSIONAL_PDU_CATEGORY_SUMMARY = "ProfessionalPduCategorySummary",
   PROFESSIONAL_CERTIFICATE_OVERVIEW = "ProfessionalCertificateOverview",
+  PROFESSIONAL_MANUAL_CALENDAR_EVENT = "ProfessionalManualCalendarEvent",
   PAGINATED_PROFESSIONAL_CERTIFICATES = "PaginatedProfessionalCertificates",
   PAGINATED_PROFESSIONAL_PDU_ACTIVITIES = "PaginatedProfessionalPduActivities",
   PAGINATED_PROFESSIONAL_CALENDAR_EVENTS = "PaginatedProfessionalCalendarEvents",
@@ -35,6 +36,7 @@ export enum ProfessionalGqlInputNames {
   CREATE_PDU_ACTIVITY_INPUT = "CreatePduActivityInput",
   UPDATE_PDU_ACTIVITY_INPUT = "UpdatePduActivityInput",
   PROFESSIONAL_SEARCH_INPUT = "ProfessionalSearchInput",
+  CREATE_CALENDAR_EVENT_INPUT = "CreateCalendarEventInput",
   PROFESSIONAL_PAGINATION_INPUT = "ProfessionalPaginationInput",
   UPDATE_PROFESSIONAL_PROFILE_INPUT = "UpdateProfessionalProfileInput",
   CHANGE_PROFESSIONAL_PASSWORD_INPUT = "ChangeProfessionalPasswordInput",
@@ -43,6 +45,7 @@ export enum ProfessionalGqlInputNames {
 }
 
 export enum ProfessionalGqlQueryNames {
+  MY_CALENDAR_ENTRIES = "myCalendarEntries",
   PROFESSIONAL_OVERVIEW = "professionalOverview",
   PROFESSIONAL_SETTINGS = "professionalSettings",
   PROFESSIONAL_PAYMENTS = "professionalPayments",
@@ -59,6 +62,8 @@ export enum ProfessionalGqlQueryNames {
 }
 
 export enum ProfessionalGqlMutationNames {
+  CREATE_CALENDAR_EVENT = "createCalendarEvent",
+  DELETE_CALENDAR_EVENT = "deleteCalendarEvent",
   RESET_PROFESSIONAL_SETTINGS = "resetProfessionalSettings",
   UPDATE_PROFESSIONAL_SETTINGS = "updateProfessionalSettings",
   UPSERT_PROFESSIONAL_PDU_TARGET = "upsertProfessionalPduTarget",

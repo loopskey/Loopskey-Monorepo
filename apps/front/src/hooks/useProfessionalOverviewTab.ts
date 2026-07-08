@@ -30,6 +30,8 @@ export const useProfessionalOverviewTab = () => {
     pagination: { take: 6 },
   });
 
+  const myCalendarQuery = API.useMyCalendarEntriesQuery();
+
   const myCoursesQuery = API.useProfessionalMyCoursesQuery({
     pagination: { take: 8 },
   });
@@ -44,8 +46,33 @@ export const useProfessionalOverviewTab = () => {
   const pduReport = pduReportQuery.data;
   const pduActivities = pduActivitiesQuery.data;
   const calendarEvents = calendarEventsQuery.data;
+  const manualCalendarEvents = myCalendarQuery.data;
   const myCourses = myCoursesQuery.data;
   const recommendedCourses = recommendedCoursesQuery.data;
+
+  const upcomingEvents = useMemo(() => {
+    const fromRegistrations = (calendarEvents?.items ?? [])
+      .filter((item) => item.isUpcoming && item.event)
+      .map((item) => ({
+        id: `registration:${item.id}`,
+        title: item.event?.title ?? item.eventId,
+        date: item.event?.startDate ?? item.createdAt,
+        source: "registration" as const,
+      }));
+
+    const fromManual = (manualCalendarEvents ?? [])
+      .filter((item) => item.isUpcoming)
+      .map((item) => ({
+        id: `manual:${item.id}`,
+        title: item.title,
+        date: item.startDate,
+        source: "manual" as const,
+      }));
+
+    return [...fromRegistrations, ...fromManual].sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+    );
+  }, [calendarEvents?.items, manualCalendarEvents]);
 
   // ================= Use Memo =================
   const pduOverTime = useMemo(() => {
@@ -104,6 +131,7 @@ export const useProfessionalOverviewTab = () => {
     myCoursesQuery.isFetching ||
     pduActivitiesQuery.isFetching ||
     calendarEventsQuery.isFetching ||
+    myCalendarQuery.isFetching ||
     recommendedCoursesQuery.isFetching;
 
   const refreshAll = () => {
@@ -111,6 +139,7 @@ export const useProfessionalOverviewTab = () => {
     void pduReportQuery.refetch();
     void pduActivitiesQuery.refetch();
     void calendarEventsQuery.refetch();
+    void myCalendarQuery.refetch();
     void myCoursesQuery.refetch();
     void recommendedCoursesQuery.refetch();
   };
@@ -142,6 +171,7 @@ export const useProfessionalOverviewTab = () => {
     pduByCategory,
     activeCourses,
     calendarEvents,
+    upcomingEvents,
     recommendedCourses,
     isEnrolling: enrollState.isLoading,
   };

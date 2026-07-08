@@ -6,6 +6,7 @@ import { formatDate } from "@/utils/function-helper";
 import { GlassCard } from "@elements/glass-card";
 import { useI18n } from "@/hooks/useI18n";
 
+import AddToCalendarButton from "@modules/ContentDetail/parts/AddToCalendarButton";
 import DetailActionPanel from "@modules/ContentDetail/parts/DetailActionPanel";
 import DetailSkeleton from "@modules/ContentDetail/parts/DetailSkeleton";
 import DetailMetaPill from "@modules/ContentDetail/parts/DetailMetaPill";
@@ -44,6 +45,20 @@ const EventDetailPage = ({ slug }: { slug: string }) => {
     );
   }
 
+  const calendarPrefill = {
+    title: event.title,
+    type:
+      event.type === API.EventType.Webinar
+        ? API.CalendarEventType.Webinar
+        : event.type === API.EventType.Training
+          ? API.CalendarEventType.Training
+          : API.CalendarEventType.Event,
+    startDate: event.startDate,
+    endDate: event.endDate,
+    contentId: event.id,
+    contentType: API.ContentType.Event,
+  };
+
   return (
     <main className="px-4 py-10 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-8">
@@ -55,6 +70,12 @@ const EventDetailPage = ({ slug }: { slug: string }) => {
           description={event.description}
           badge={t("contentDetails.event.badge")}
           rating={event.averageRating ?? event.rating}
+          wishlist={{
+            isWishlisted: actions.isWishlisted,
+            loading: actions.isWishlistLoading,
+            onToggle: actions.onToggleWishlist,
+          }}
+          calendarSlot={<AddToCalendarButton iconOnly prefill={calendarPrefill} />}
         >
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <DetailMetaPill
@@ -132,6 +153,7 @@ const EventDetailPage = ({ slug }: { slug: string }) => {
               enrollLoading={actions.isEnrollLoading}
               wishlistLoading={actions.isWishlistLoading}
               enrollLabel={t("contentDetails.event.registerNow")}
+              calendarSlot={<AddToCalendarButton prefill={calendarPrefill} />}
             />
           </aside>
         </div>

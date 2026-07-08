@@ -28,10 +28,14 @@ export const FloatingInputField = <T extends FieldValues>({
   const isNativePicker = nativePickerTypes.includes(String(type));
 
   const openNativePicker = () => {
-    if (!isNativePicker) return;
-    inputRef.current?.focus();
-    if (typeof inputRef.current?.showPicker === "function")
-      inputRef.current.showPicker();
+    const element = inputRef.current;
+    if (!isNativePicker || !element || element.disabled) return;
+    try {
+      element.focus();
+      if (typeof element.showPicker === "function") element.showPicker();
+    } catch {
+      element.focus();
+    }
   };
 
   return (

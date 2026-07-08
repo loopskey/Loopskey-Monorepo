@@ -35,6 +35,10 @@ registerEnumType(Prisma.PDUCategory, {
   name: "PDUCategory",
 });
 
+registerEnumType(Prisma.CalendarEventType, {
+  name: "CalendarEventType",
+});
+
 registerEnumType(Prisma.RoadmapStatus, {
   name: "RoadmapStatus",
 });

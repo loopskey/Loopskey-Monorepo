@@ -9,6 +9,7 @@ import * as YouTubeApi from "@/lib/rtk/endpoints/youtube.api";
 import * as Tabs from "@ui/tabs";
 import * as API from "@/lib/graphql/generated";
 
+import AddToCalendarButton from "@modules/ContentDetail/parts/AddToCalendarButton";
 import DetailActionPanel from "@modules/ContentDetail/parts/DetailActionPanel";
 import DetailSkeleton from "@modules/ContentDetail/parts/DetailSkeleton";
 import DetailMetaPill from "@modules/ContentDetail/parts/DetailMetaPill";
@@ -54,6 +55,13 @@ const YouTubeDetailPage = ({ slug }: { slug: string }) => {
     );
   }
 
+  const calendarPrefill = {
+    title: channel.title,
+    type: API.CalendarEventType.Other,
+    contentId: channel.id,
+    contentType: API.ContentType.Youtube,
+  };
+
   return (
     <main className="px-4 py-10 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-8">
@@ -65,6 +73,12 @@ const YouTubeDetailPage = ({ slug }: { slug: string }) => {
           description={channel.description}
           ratingCount={channel.ratingCount}
           badge={t("contentDetails.youtube.badge")}
+          wishlist={{
+            isWishlisted: actions.isWishlisted,
+            loading: actions.isWishlistLoading,
+            onToggle: actions.onToggleWishlist,
+          }}
+          calendarSlot={<AddToCalendarButton iconOnly prefill={calendarPrefill} />}
         >
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <DetailMetaPill
@@ -141,6 +155,7 @@ const YouTubeDetailPage = ({ slug }: { slug: string }) => {
               enrollLoading={actions.isEnrollLoading}
               wishlistLoading={actions.isWishlistLoading}
               enrollLabel={t("contentDetails.youtube.followChannel")}
+              calendarSlot={<AddToCalendarButton prefill={calendarPrefill} />}
             />
           </aside>
         </div>

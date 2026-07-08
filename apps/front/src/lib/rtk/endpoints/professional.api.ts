@@ -79,6 +79,44 @@ export const professionalApi = baseApi.injectEndpoints({
       providesTags: ["ProfessionalCalendar", "Professional"],
     }),
 
+    myCalendarEntries: builder.query<
+      TAPI.MyCalendarEntriesQuery["myCalendarEntries"],
+      void
+    >({
+      query: () => ({
+        document: API.MyCalendarEntriesDocument,
+      }),
+      transformResponse: (response: TAPI.MyCalendarEntriesQuery) =>
+        response.myCalendarEntries,
+      providesTags: ["ProfessionalCalendar", "Professional"],
+    }),
+
+    createCalendarEvent: builder.mutation<
+      TAPI.CreateCalendarEventMutation["createCalendarEvent"],
+      TAPI.CreateCalendarEventMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.CreateCalendarEventDocument,
+        variables: { input },
+      }),
+      transformResponse: (response: TAPI.CreateCalendarEventMutation) =>
+        response.createCalendarEvent,
+      invalidatesTags: ["ProfessionalCalendar", "Professional"],
+    }),
+
+    deleteCalendarEvent: builder.mutation<
+      TAPI.DeleteCalendarEventMutation["deleteCalendarEvent"],
+      TAPI.DeleteCalendarEventMutationVariables["id"]
+    >({
+      query: (id) => ({
+        document: API.DeleteCalendarEventDocument,
+        variables: { id },
+      }),
+      transformResponse: (response: TAPI.DeleteCalendarEventMutation) =>
+        response.deleteCalendarEvent,
+      invalidatesTags: ["ProfessionalCalendar", "Professional"],
+    }),
+
     professionalPduReport: builder.query<
       TAPI.ProfessionalPduReportQuery["professionalPduReport"],
       TAPI.ProfessionalPduReportQueryVariables | void
@@ -246,6 +284,9 @@ export const {
   useLazyProfessionalPduReportQuery,
   useProfessionalPduActivitiesQuery,
   useProfessionalCalendarEventsQuery,
+  useMyCalendarEntriesQuery,
+  useCreateCalendarEventMutation,
+  useDeleteCalendarEventMutation,
   useProfessionalActiveSessionsQuery,
   useProfessionalExploreRoadmapsQuery,
   useLazyProfessionalCertificatesQuery,

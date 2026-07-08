@@ -110,6 +110,12 @@ export type TDetailMetaPillProps = {
   value?: string | number | null;
 };
 
+export type TDetailHeroWishlist = {
+  isWishlisted?: boolean;
+  loading?: boolean;
+  onToggle: () => void;
+};
+
 export type TDetailHeroProps = {
   title: string;
   badge: string;
@@ -119,6 +125,8 @@ export type TDetailHeroProps = {
   children?: React.ReactNode;
   description?: string | null;
   ratingCount?: number | null;
+  calendarSlot?: ReactNode;
+  wishlist?: TDetailHeroWishlist;
 };
 
 export type TDetailActionPanelProps = {
@@ -136,6 +144,8 @@ export type TDetailActionPanelProps = {
   currency?: string | null;
   wishlistLoading?: boolean;
   price?: number | string | null;
+  calendarSlot?: ReactNode;
+  primaryActionSlot?: ReactNode;
 };
 
 export type TReviewFormProps = {

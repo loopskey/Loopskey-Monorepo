@@ -141,6 +141,17 @@ export type TCalendarEventsData = NonNullable<
 
 export type TProfessionalCalendarEvent = TCalendarEventsData["items"][number];
 
+export type TManualCalendarEvent = NonNullable<
+  API.MyCalendarEntriesQuery["myCalendarEntries"]
+>[number];
+
+export type TUpcomingCalendarItem = {
+  id: string;
+  title: string;
+  startDate?: string | null;
+  source: "registration" | "manual";
+};
+
 export type TCalendarStats = {
   live: number;
   total: number;
