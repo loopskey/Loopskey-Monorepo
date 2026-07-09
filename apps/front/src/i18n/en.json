@@ -18,7 +18,14 @@
     "appName": "LoopsKey",
     "language": "Language",
     "loading": "Loading...",
-    "continueToProvider": "Track & continue"
+    "continueToProvider": "Track & continue",
+    "contentTypes": {
+      "COURSE": "Course",
+      "EVENT": "Event",
+      "PODCAST": "Podcast",
+      "YOUTUBE": "YouTube",
+      "GENERAL": "General"
+    }
   },
   "servicesPage": {
     "common": {
@@ -1224,7 +1231,8 @@
       "subscribers": "Subscribers",
       "videos": "Videos",
       "views": "Views",
-      "followChannel": "Follow channel"
+      "followChannel": "Follow channel",
+      "watchLatest": "Watch latest"
     },
     "curriculum": {
       "section": "Section",

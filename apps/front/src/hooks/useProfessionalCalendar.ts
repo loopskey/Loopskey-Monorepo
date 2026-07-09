@@ -3,6 +3,7 @@
 import { DateSelectArg, EventClickArg, EventInput } from "@fullcalendar/core";
 import { ChangeEvent, useMemo, useState } from "react";
 import { PAGE_SIZE, toDateInputValue } from "@/utils/constant";
+import { getContentTypeStyle } from "@/utils/content-type-style";
 import { TProfessionalCalendarEvent } from "@/types/professional-dashboard.types";
 import { TUpcomingCalendarItem } from "@/types/professional-dashboard.types";
 import { TManualCalendarEvent } from "@/types/professional-dashboard.types";
@@ -129,17 +130,22 @@ export const useProfessionalCalendar = () => {
       .filter((item) => item.event)
       .map((item) => {
         const event = item.event!;
+        const style = getContentTypeStyle("EVENT");
         return {
           id: `registration:${item.id}`,
           title: event.title,
           start: event.startDate,
           end: event.endDate ?? event.startDate,
+          backgroundColor: style.cssVar,
+          borderColor: style.cssVar,
+          textColor: style.cssVarForeground,
           extendedProps: {
             source: "registration" as const,
             pdu: event.pdu,
             slug: event.slug,
             status: item.status,
             eventId: item.eventId,
+            contentType: "EVENT",
             registrationId: item.id,
             location: event.location,
             onlineUrl: event.onlineUrl,
@@ -148,18 +154,25 @@ export const useProfessionalCalendar = () => {
         };
       });
 
-    const manualCalendarEvents = manualEvents.map((item) => ({
-      id: `manual:${item.id}`,
-      title: item.title,
-      start: item.startDate,
-      end: item.endDate ?? item.startDate,
-      extendedProps: {
-        source: "manual" as const,
-        manualId: item.id,
-        type: item.type,
-        notes: item.notes,
-      },
-    }));
+    const manualCalendarEvents = manualEvents.map((item) => {
+      const style = getContentTypeStyle(item.contentType);
+      return {
+        id: `manual:${item.id}`,
+        title: item.title,
+        start: item.startDate,
+        end: item.endDate ?? item.startDate,
+        backgroundColor: style.cssVar,
+        borderColor: style.cssVar,
+        textColor: style.cssVarForeground,
+        extendedProps: {
+          source: "manual" as const,
+          manualId: item.id,
+          type: item.type,
+          notes: item.notes,
+          contentType: item.contentType,
+        },
+      };
+    });
 
     return [...registrationEvents, ...manualCalendarEvents];
   }, [events, manualEvents]);

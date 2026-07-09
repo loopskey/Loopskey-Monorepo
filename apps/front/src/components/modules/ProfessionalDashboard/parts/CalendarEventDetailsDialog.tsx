@@ -1,46 +1,27 @@
 "use client";
 
-import {
-  TManualCalendarEvent,
-  TProfessionalCalendarEvent,
-} from "@/types/professional-dashboard.types";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@ui/dialog";
+import { TCalendarEventDetailsDialogProps } from "@/types/professional-dashboard.types";
 import { ExternalLink, Trash2, Video } from "lucide-react";
-import { I18nContextValue } from "@/types/providers.types";
+import { getContentTypeStyle } from "@/utils/content-type-style";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
+import { cn } from "@/lib/utils";
+
 import Link from "next/link";
 
-type TCalendarEventDetailsDialogProps = {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  registration: TProfessionalCalendarEvent | null;
-  manual: TManualCalendarEvent | null;
-  isDeletingManual: boolean;
-  t: I18nContextValue["t"];
-  formatDateTime: (date?: string | null) => string;
-  formatDuration: (minutes?: number | null) => string;
-  getEventHref: (event: TProfessionalCalendarEvent) => string;
-  onDeleteManual: (id: string) => void;
-};
+import * as D from "@ui/dialog";
 
 export const CalendarEventDetailsDialog = ({
+  t,
   open,
   manual,
   onOpenChange,
+  getEventHref,
   registration,
-  isDeletingManual,
-  t,
   formatDateTime,
   formatDuration,
-  getEventHref,
   onDeleteManual,
+  isDeletingManual,
 }: TCalendarEventDetailsDialogProps) => {
   const title = registration
     ? (registration.event?.title ??
@@ -57,17 +38,29 @@ export const CalendarEventDetailsDialog = ({
         : formatDateTime(manual.startDate)
       : "";
 
+  const registrationStyle = getContentTypeStyle("EVENT");
+  const manualStyle = getContentTypeStyle(manual?.contentType);
+  const RegIcon = registrationStyle.icon;
+  const ManualIcon = manualStyle.icon;
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[85vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{range}</DialogDescription>
-        </DialogHeader>
+    <D.Dialog open={open} onOpenChange={onOpenChange}>
+      <D.DialogContent className="max-h-[85vh] overflow-y-auto">
+        <D.DialogHeader>
+          <D.DialogTitle>{title}</D.DialogTitle>
+          <D.DialogDescription>{range}</D.DialogDescription>
+        </D.DialogHeader>
 
         {registration ? (
           <div className="space-y-4">
             <div className="flex flex-wrap gap-2">
+              <Badge
+                variant="outline"
+                className={cn(registrationStyle.badgeClass, "gap-1")}
+              >
+                <RegIcon className="h-3.5 w-3.5" />
+                {t(registrationStyle.labelKey)}
+              </Badge>
               <Badge variant="secondary">{registration.status}</Badge>
               {registration.event?.deliveryMode ? (
                 <Badge variant="outline">
@@ -95,9 +88,9 @@ export const CalendarEventDetailsDialog = ({
               {registration.event?.onlineUrl ? (
                 <Button radius="xl" variant="brand" asChild>
                   <Link
-                    href={registration.event.onlineUrl}
                     target="_blank"
                     rel="noreferrer"
+                    href={registration.event.onlineUrl}
                   >
                     <Video className="h-4 w-4" />
                     {t("professionalDashboard.calendar.joinOnline")}
@@ -124,6 +117,13 @@ export const CalendarEventDetailsDialog = ({
         ) : manual ? (
           <div className="space-y-4">
             <div className="flex flex-wrap gap-2">
+              <Badge
+                variant="outline"
+                className={cn(manualStyle.badgeClass, "gap-1")}
+              >
+                <ManualIcon className="h-3.5 w-3.5" />
+                {t(manualStyle.labelKey)}
+              </Badge>
               <Badge variant="default">
                 {t("professionalDashboard.calendar.upcoming.manual")}
               </Badge>
@@ -164,8 +164,8 @@ export const CalendarEventDetailsDialog = ({
             </div>
           </div>
         ) : null}
-      </DialogContent>
-    </Dialog>
+      </D.DialogContent>
+    </D.Dialog>
   );
 };
 

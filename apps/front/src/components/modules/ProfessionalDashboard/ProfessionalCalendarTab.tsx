@@ -3,11 +3,13 @@
 import { useProfessionalCalendar } from "@/hooks/useProfessionalCalendar";
 import { AddCalendarEventDialog } from "@modules/ProfessionalDashboard/parts/AddCalendarEventDialog";
 import { CalendarEventDetailsDialog } from "@modules/ProfessionalDashboard/parts/CalendarEventDetailsDialog";
+import { getContentTypeStyle } from "@/utils/content-type-style";
 import { ContentPagination } from "@/components/elements/pagination";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
 import { Input } from "@ui/input";
+import { cn } from "@/lib/utils";
 
 import interactionPlugin from "@fullcalendar/interaction";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -53,6 +55,9 @@ const ProfessionalCalendarTab = () => {
     handleCalendarEventClick,
     handleCalendarRangeSelect,
   } = useProfessionalCalendar();
+
+  const eventStyle = getContentTypeStyle("EVENT");
+  const EventCategoryIcon = eventStyle.icon;
 
   return (
     <section className="space-y-6">
@@ -190,6 +195,7 @@ const ProfessionalCalendarTab = () => {
                 }}
                 selectable
                 selectMirror
+                eventDisplay="block"
                 events={calendarEvents}
                 select={handleCalendarRangeSelect}
                 eventClick={handleCalendarEventClick}
@@ -378,12 +384,22 @@ const ProfessionalCalendarTab = () => {
               </div>
             ) : events.length || filteredManualEvents.length ? (
               <>
-                {filteredManualEvents.map((manual) => (
+                {filteredManualEvents.map((manual) => {
+                  const style = getContentTypeStyle(manual.contentType);
+                  const CategoryIcon = style.icon;
+                  return (
                   <div
                     key={`manual-row:${manual.id}`}
                     className="grid gap-4 px-5 py-5 text-sm transition-colors hover:bg-primary/5 lg:grid-cols-[1.4fr_0.8fr_0.8fr_0.8fr_0.7fr] lg:items-center"
                   >
                     <div>
+                      <Badge
+                        variant="outline"
+                        className={cn(style.badgeClass, "mb-2 gap-1")}
+                      >
+                        <CategoryIcon className="h-3.5 w-3.5" />
+                        {t(style.labelKey)}
+                      </Badge>
                       <p className="font-medium">{manual.title}</p>
                       {manual.notes ? (
                         <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">
@@ -434,7 +450,8 @@ const ProfessionalCalendarTab = () => {
                       </Button>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
 
                 {events.map((registration) => (
                   <div
@@ -442,6 +459,13 @@ const ProfessionalCalendarTab = () => {
                     className="grid gap-4 px-5 py-5 text-sm transition-colors hover:bg-primary/5 lg:grid-cols-[1.4fr_0.8fr_0.8fr_0.8fr_0.7fr] lg:items-center"
                   >
                     <div>
+                      <Badge
+                        variant="outline"
+                        className={cn(eventStyle.badgeClass, "mb-2 gap-1")}
+                      >
+                        <EventCategoryIcon className="h-3.5 w-3.5" />
+                        {t(eventStyle.labelKey)}
+                      </Badge>
                       <p className="font-medium">
                         {registration.event?.title ??
                           t("professionalDashboard.calendar.eventFallback")}

@@ -9,8 +9,7 @@ import * as YouTubeApi from "@/lib/rtk/endpoints/youtube.api";
 import * as Tabs from "@ui/tabs";
 import * as API from "@/lib/graphql/generated";
 
-import AddToCalendarButton from "@modules/ContentDetail/parts/AddToCalendarButton";
-import DetailActionPanel from "@modules/ContentDetail/parts/DetailActionPanel";
+import DetailHeroActions from "@modules/ContentDetail/parts/DetailHeroActions";
 import DetailSkeleton from "@modules/ContentDetail/parts/DetailSkeleton";
 import DetailMetaPill from "@modules/ContentDetail/parts/DetailMetaPill";
 import YouTubeVideos from "@modules/ContentDetail/parts/YoutubeVideos";
@@ -62,6 +61,23 @@ const YouTubeDetailPage = ({ slug }: { slug: string }) => {
     contentType: API.ContentType.Youtube,
   };
 
+  const watchHref = videos[0]?.videoUrl ?? channel.channelUrl ?? undefined;
+
+  const primary = watchHref
+    ? {
+        label: t("contentDetails.youtube.watchLatest"),
+        href: watchHref,
+        icon: <PlayCircle className="h-4 w-4" />,
+      }
+    : {
+        label: t("contentDetails.youtube.followChannel"),
+        doneLabel: t("contentDetails.actions.enrolled"),
+        done: actions.isEnrolled,
+        loading: actions.isEnrollLoading,
+        onClick: actions.onEnroll,
+        icon: <PlayCircle className="h-4 w-4" />,
+      };
+
   return (
     <main className="px-4 py-10 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-8">
@@ -73,12 +89,18 @@ const YouTubeDetailPage = ({ slug }: { slug: string }) => {
           description={channel.description}
           ratingCount={channel.ratingCount}
           badge={t("contentDetails.youtube.badge")}
-          wishlist={{
-            isWishlisted: actions.isWishlisted,
-            loading: actions.isWishlistLoading,
-            onToggle: actions.onToggleWishlist,
-          }}
-          calendarSlot={<AddToCalendarButton iconOnly prefill={calendarPrefill} />}
+          actions={
+            <DetailHeroActions
+              contentType={API.ContentType.Youtube}
+              prefill={calendarPrefill}
+              wishlist={{
+                isWishlisted: actions.isWishlisted,
+                loading: actions.isWishlistLoading,
+                onToggle: actions.onToggleWishlist,
+              }}
+              primary={primary}
+            />
+          }
         >
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <DetailMetaPill
@@ -104,9 +126,8 @@ const YouTubeDetailPage = ({ slug }: { slug: string }) => {
           </div>
         </DetailHero>
 
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-          <section className="min-w-0">
-            <Tabs.Tabs defaultValue="videos" className="space-y-6">
+        <section className="min-w-0">
+          <Tabs.Tabs defaultValue="videos" className="space-y-6">
               <Tabs.TabsList className="grid h-auto grid-cols-2 rounded-3xl border border-glass-border bg-background/60 p-2 backdrop-blur-xl">
                 <Tabs.TabsTrigger
                   value="videos"
@@ -138,27 +159,8 @@ const YouTubeDetailPage = ({ slug }: { slug: string }) => {
                   isLoading={actions.isReviewsLoading}
                 />
               </Tabs.TabsContent>
-            </Tabs.Tabs>
-          </section>
-
-          <aside>
-            <DetailActionPanel
-              isFree
-              hideCart
-              price={0}
-              currency="USD"
-              isInCart={actions.isInCart}
-              onEnroll={actions.onEnroll}
-              isEnrolled={actions.isEnrolled}
-              isWishlisted={actions.isWishlisted}
-              onWishlist={actions.onToggleWishlist}
-              enrollLoading={actions.isEnrollLoading}
-              wishlistLoading={actions.isWishlistLoading}
-              enrollLabel={t("contentDetails.youtube.followChannel")}
-              calendarSlot={<AddToCalendarButton prefill={calendarPrefill} />}
-            />
-          </aside>
-        </div>
+          </Tabs.Tabs>
+        </section>
       </div>
     </main>
   );

@@ -1,7 +1,8 @@
 import { useCreateProfessionalPduActivityMutation } from "@/lib/rtk/endpoints/professional.api";
 import { useUpsertProfessionalPduTargetMutation } from "@/lib/rtk/endpoints/professional.api";
+import { ContentType, UpsertPduTargetInput } from "@/lib/graphql/generated";
 import { BarChart3, LucideIcon } from "lucide-react";
-import { UpsertPduTargetInput } from "@/lib/graphql/generated";
+import { I18nContextValue } from "@/types/providers.types";
 import { PDU_CATEGORIES } from "@modules/ProfessionalDashboard/parts/target-form";
 import { ElementType } from "react";
 
@@ -226,4 +227,32 @@ export type TProfessionalGeneralSetting = {
   hook: ReturnType<
     typeof import("@/hooks/useProfessionalSettingstab").useProfessionalSettingsTab
   >;
+};
+
+export type TAddCalendarEventPrefill = {
+  title?: string;
+  endDate?: string | null;
+  startDate?: string | null;
+  contentId?: string | null;
+  type?: API.CalendarEventType;
+  contentType?: ContentType | null;
+};
+
+export type TAddCalendarEventDialogProps = {
+  open: boolean;
+  prefill?: TAddCalendarEventPrefill;
+  onOpenChange: (open: boolean) => void;
+};
+
+export type TCalendarEventDetailsDialogProps = {
+  open: boolean;
+  t: I18nContextValue["t"];
+  isDeletingManual: boolean;
+  manual: TManualCalendarEvent | null;
+  onDeleteManual: (id: string) => void;
+  onOpenChange: (open: boolean) => void;
+  registration: TProfessionalCalendarEvent | null;
+  formatDateTime: (date?: string | null) => string;
+  formatDuration: (minutes?: number | null) => string;
+  getEventHref: (event: TProfessionalCalendarEvent) => string;
 };

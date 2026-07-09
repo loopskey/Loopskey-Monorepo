@@ -58,6 +58,7 @@ export const useProfessionalOverviewTab = () => {
         title: item.event?.title ?? item.eventId,
         date: item.event?.startDate ?? item.createdAt,
         source: "registration" as const,
+        contentType: "EVENT" as const,
       }));
 
     const fromManual = (manualCalendarEvents ?? [])
@@ -67,6 +68,7 @@ export const useProfessionalOverviewTab = () => {
         title: item.title,
         date: item.startDate,
         source: "manual" as const,
+        contentType: (item.contentType ?? null) as ContentType | null,
       }));
 
     return [...fromRegistrations, ...fromManual].sort(

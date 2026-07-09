@@ -285,3 +285,12 @@ export const formatNumber = (value?: number | null) =>
 
 export const formatPercent = (value?: number | null) =>
   `${Math.round(Number(value ?? 0))}%`;
+
+// ================ Calendar Dialog ================
+export const toDateTimeLocal = (value?: string | null) => {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const offsetMs = date.getTimezoneOffset() * 60000;
+  return new Date(date.getTime() - offsetMs).toISOString().slice(0, 16);
+};

@@ -1,5 +1,8 @@
-import type * as API from "@/lib/graphql/generated";
+import { TAddCalendarEventPrefill } from "@/types/professional-dashboard.types";
+import { ContentType } from "@/lib/graphql/generated";
 import { ReactNode } from "react";
+
+import type * as API from "@/lib/graphql/generated";
 
 export type TContentTab = "courses" | "events" | "podcasts" | "youtube";
 
@@ -111,41 +114,40 @@ export type TDetailMetaPillProps = {
 };
 
 export type TDetailHeroWishlist = {
-  isWishlisted?: boolean;
   loading?: boolean;
   onToggle: () => void;
+  isWishlisted?: boolean;
+};
+
+export type TDetailHeroPrimary = {
+  label: string;
+  href?: string;
+  done?: boolean;
+  icon?: ReactNode;
+  loading?: boolean;
+  doneLabel?: string;
+  onClick?: () => void;
 };
 
 export type TDetailHeroProps = {
   title: string;
   badge: string;
+  actions?: ReactNode;
   rating?: number | null;
   category?: string | null;
   imageUrl?: string | null;
   children?: React.ReactNode;
   description?: string | null;
   ratingCount?: number | null;
-  calendarSlot?: ReactNode;
-  wishlist?: TDetailHeroWishlist;
 };
 
 export type TDetailActionPanelProps = {
   isInCart?: boolean;
-  hideCart?: boolean;
-  enrollLabel: string;
-  isEnrolled?: boolean;
-  onEnroll: () => void;
   cartLoading?: boolean;
-  isWishlisted?: boolean;
-  onWishlist: () => void;
   isFree?: boolean | null;
-  enrollLoading?: boolean;
   onAddToCart?: () => void;
   currency?: string | null;
-  wishlistLoading?: boolean;
   price?: number | string | null;
-  calendarSlot?: ReactNode;
-  primaryActionSlot?: ReactNode;
 };
 
 export type TReviewFormProps = {
@@ -231,4 +233,17 @@ export type TYouTubeVideosProps = {
 
 export type TCourseDetailPageProps = {
   slug: string;
+};
+
+export type TAddToCalendarButtonProps = {
+  className?: string;
+  prefill: TAddCalendarEventPrefill;
+  contentType?: API.ContentType | null;
+};
+
+export type TDetailHeroActionsProps = {
+  contentType: ContentType;
+  primary: TDetailHeroPrimary;
+  wishlist: TDetailHeroWishlist;
+  prefill: TAddCalendarEventPrefill;
 };

@@ -3,12 +3,14 @@
 import { useProfessionalOverviewTab } from "@/hooks/useProfessionalOverviewTab";
 import { DashboardStatCard } from "@modules/ProfessionalDashboard/parts/dashboard-stat-card";
 import { SnapshotRow } from "@modules/ProfessionalDashboard/parts/snapshot-learning";
+import { getContentTypeStyle } from "@/utils/content-type-style";
 import { formatDate } from "@/utils/function-helper";
 import { GlassCard } from "@elements/glass-card";
 import { Progress } from "@ui/progress";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
+import { cn } from "@/lib/utils";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -160,14 +162,17 @@ const ProfessionalOverviewTab = () => {
 
           <div className="mt-5 grid gap-3 md:grid-cols-2">
             {upcomingEvents.length ? (
-              upcomingEvents.slice(0, 4).map((item) => (
+              upcomingEvents.slice(0, 4).map((item) => {
+                const style = getContentTypeStyle(item.contentType);
+                const CategoryIcon = style.icon;
+                return (
                 <div
                   key={item.id}
                   className="rounded-3xl border border-glass-border bg-background/45 p-4"
                 >
                   <div className="flex items-start gap-3">
-                    <div className="rounded-2xl bg-primary/10 p-3 text-primary">
-                      <L.CalendarDays className="h-5 w-5" />
+                    <div className={cn("rounded-2xl p-3", style.softClass)}>
+                      <CategoryIcon className="h-5 w-5" />
                     </div>
                     <div className="min-w-0">
                       <p className="truncate font-bold">{item.title}</p>
@@ -175,22 +180,32 @@ const ProfessionalOverviewTab = () => {
                         {formatDate(item.date)}
                       </p>
 
-                      <Badge
-                        variant={
-                          item.source === "manual" ? "default" : "secondary"
-                        }
-                        className="mt-3 rounded-full"
-                      >
-                        {item.source === "manual"
-                          ? t("professionalDashboard.calendar.upcoming.manual")
-                          : t(
-                              "professionalDashboard.calendar.upcoming.registered",
-                            )}
-                      </Badge>
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
+                        <Badge
+                          variant="outline"
+                          className={cn(style.badgeClass, "rounded-full gap-1")}
+                        >
+                          <CategoryIcon className="h-3 w-3" />
+                          {t(style.labelKey)}
+                        </Badge>
+                        <Badge
+                          variant={
+                            item.source === "manual" ? "default" : "secondary"
+                          }
+                          className="rounded-full"
+                        >
+                          {item.source === "manual"
+                            ? t("professionalDashboard.calendar.upcoming.manual")
+                            : t(
+                                "professionalDashboard.calendar.upcoming.registered",
+                              )}
+                        </Badge>
+                      </div>
                     </div>
                   </div>
                 </div>
-              ))
+                );
+              })
             ) : (
               <p className="rounded-3xl border border-dashed border-glass-border p-6 text-sm text-muted-foreground">
                 {t("professionalDashboard.overview.emptyUpcomingEvents")}

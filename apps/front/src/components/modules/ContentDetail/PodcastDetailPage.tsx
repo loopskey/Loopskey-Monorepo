@@ -1,23 +1,16 @@
 "use client";
 
-import {
-  Clock3,
-  Headphones,
-  ListMusic,
-  PlayCircle,
-  UserRound,
-} from "lucide-react";
+import { Clock3, PlayCircle, UserRound } from "lucide-react";
+import { Headphones, ListMusic } from "lucide-react";
 import { useContentActions } from "@/hooks/useContentActions";
 import { GlassCard } from "@elements/glass-card";
 import { useI18n } from "@/hooks/useI18n";
-import { Button } from "@ui/button";
 
 import * as PodcastApi from "@/lib/rtk/endpoints/podcast.api";
 import * as Tabs from "@ui/tabs";
 import * as API from "@/lib/graphql/generated";
 
-import AddToCalendarButton from "@modules/ContentDetail/parts/AddToCalendarButton";
-import DetailActionPanel from "@modules/ContentDetail/parts/DetailActionPanel";
+import DetailHeroActions from "@modules/ContentDetail/parts/DetailHeroActions";
 import PodcastEpisodes from "@modules/ContentDetail/parts/PodcastEpisodes";
 import DetailSkeleton from "@modules/ContentDetail/parts/DetailSkeleton";
 import DetailMetaPill from "@modules/ContentDetail/parts/DetailMetaPill";
@@ -71,6 +64,21 @@ const PodcastDetailPage = ({ slug }: { slug: string }) => {
     contentType: API.ContentType.Podcast,
   };
 
+  const primary = latestEpisode?.audioUrl
+    ? {
+        label: t("contentDetails.podcast.playLatest"),
+        href: latestEpisode.audioUrl,
+        icon: <PlayCircle className="h-4 w-4" />,
+      }
+    : {
+        label: t("contentDetails.podcast.followPodcast"),
+        doneLabel: t("contentDetails.actions.enrolled"),
+        done: actions.isEnrolled,
+        loading: actions.isEnrollLoading,
+        onClick: actions.onEnroll,
+        icon: <PlayCircle className="h-4 w-4" />,
+      };
+
   return (
     <main className="px-4 py-10 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-8">
@@ -82,12 +90,18 @@ const PodcastDetailPage = ({ slug }: { slug: string }) => {
           description={podcast.description}
           ratingCount={podcast.ratingCount}
           badge={t("contentDetails.podcast.badge")}
-          wishlist={{
-            isWishlisted: actions.isWishlisted,
-            loading: actions.isWishlistLoading,
-            onToggle: actions.onToggleWishlist,
-          }}
-          calendarSlot={<AddToCalendarButton iconOnly prefill={calendarPrefill} />}
+          actions={
+            <DetailHeroActions
+              contentType={API.ContentType.Podcast}
+              prefill={calendarPrefill}
+              wishlist={{
+                isWishlisted: actions.isWishlisted,
+                loading: actions.isWishlistLoading,
+                onToggle: actions.onToggleWishlist,
+              }}
+              primary={primary}
+            />
+          }
         >
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <DetailMetaPill
@@ -119,81 +133,41 @@ const PodcastDetailPage = ({ slug }: { slug: string }) => {
           </div>
         </DetailHero>
 
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-          <section className="min-w-0">
-            <Tabs.Tabs defaultValue="episodes" className="space-y-6">
-              <Tabs.TabsList className="grid h-auto grid-cols-2 rounded-3xl border border-glass-border bg-background/60 p-2 backdrop-blur-xl">
-                <Tabs.TabsTrigger
-                  value="episodes"
-                  className="rounded-2xl py-3 font-bold"
-                >
-                  {t("contentDetails.tabs.episodes")}
-                </Tabs.TabsTrigger>
-                <Tabs.TabsTrigger
-                  value="reviews"
-                  className="rounded-2xl py-3 font-bold"
-                >
-                  {t("contentDetails.tabs.reviews")}
-                </Tabs.TabsTrigger>
-              </Tabs.TabsList>
+        <section className="min-w-0">
+          <Tabs.Tabs defaultValue="episodes" className="space-y-6">
+            <Tabs.TabsList className="grid h-auto grid-cols-2 rounded-3xl border border-glass-border bg-background/60 p-2 backdrop-blur-xl">
+              <Tabs.TabsTrigger
+                value="episodes"
+                className="rounded-2xl py-3 font-bold"
+              >
+                {t("contentDetails.tabs.episodes")}
+              </Tabs.TabsTrigger>
+              <Tabs.TabsTrigger
+                value="reviews"
+                className="rounded-2xl py-3 font-bold"
+              >
+                {t("contentDetails.tabs.reviews")}
+              </Tabs.TabsTrigger>
+            </Tabs.TabsList>
 
-              <Tabs.TabsContent value="episodes">
-                <PodcastEpisodes episodes={episodes} />
-              </Tabs.TabsContent>
+            <Tabs.TabsContent value="episodes">
+              <PodcastEpisodes episodes={episodes} />
+            </Tabs.TabsContent>
 
-              <Tabs.TabsContent value="reviews" className="space-y-6">
-                <ReviewForm
-                  onSubmit={actions.onSubmitReview}
-                  isLoading={actions.isReviewLoading}
-                  defaultRating={actions.myReview?.rating}
-                  defaultComment={actions.myReview?.comment}
-                />
-                <ReviewsList
-                  reviews={actions.reviews}
-                  isLoading={actions.isReviewsLoading}
-                />
-              </Tabs.TabsContent>
-            </Tabs.Tabs>
-          </section>
-
-          <aside>
-            <DetailActionPanel
-              isFree
-              hideCart
-              price={0}
-              currency="USD"
-              isInCart={actions.isInCart}
-              onEnroll={actions.onEnroll}
-              isEnrolled={actions.isEnrolled}
-              isWishlisted={actions.isWishlisted}
-              onWishlist={actions.onToggleWishlist}
-              enrollLoading={actions.isEnrollLoading}
-              wishlistLoading={actions.isWishlistLoading}
-              enrollLabel={t("contentDetails.podcast.followPodcast")}
-              calendarSlot={<AddToCalendarButton prefill={calendarPrefill} />}
-              primaryActionSlot={
-                latestEpisode?.audioUrl ? (
-                  <Button
-                    asChild
-                    size="lg"
-                    radius="xl"
-                    variant="brand"
-                    className="w-full justify-center"
-                  >
-                    <a
-                      href={latestEpisode.audioUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <PlayCircle className="h-4 w-4" />
-                      {t("contentDetails.podcast.playLatest")}
-                    </a>
-                  </Button>
-                ) : null
-              }
-            />
-          </aside>
-        </div>
+            <Tabs.TabsContent value="reviews" className="space-y-6">
+              <ReviewForm
+                onSubmit={actions.onSubmitReview}
+                isLoading={actions.isReviewLoading}
+                defaultRating={actions.myReview?.rating}
+                defaultComment={actions.myReview?.comment}
+              />
+              <ReviewsList
+                reviews={actions.reviews}
+                isLoading={actions.isReviewsLoading}
+              />
+            </Tabs.TabsContent>
+          </Tabs.Tabs>
+        </section>
       </div>
     </main>
   );

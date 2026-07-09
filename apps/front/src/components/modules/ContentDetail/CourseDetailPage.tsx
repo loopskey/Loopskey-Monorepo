@@ -1,12 +1,12 @@
 "use client";
 
-import { BookOpen, Clock3, GraduationCap, Users } from "lucide-react";
+import { BookOpen, Clock3, GraduationCap, UserPlus, Users } from "lucide-react";
 import { TCourseDetailPageProps } from "@/types/content-module.types";
 import { useContentActions } from "@/hooks/useContentActions";
 import { GlassCard } from "@elements/glass-card";
 import { useI18n } from "@/hooks/useI18n";
 
-import AddToCalendarButton from "@modules/ContentDetail/parts/AddToCalendarButton";
+import DetailHeroActions from "@modules/ContentDetail/parts/DetailHeroActions";
 import DetailActionPanel from "@modules/ContentDetail/parts/DetailActionPanel";
 import CourseCurriculum from "@modules/ContentDetail/parts/CourseCurriculum";
 import DetailSkeleton from "@modules/ContentDetail/parts/DetailSkeleton";
@@ -54,6 +54,8 @@ const CourseDetailPage = ({ slug }: TCourseDetailPageProps) => {
     contentType: API.ContentType.Course,
   };
 
+  const isPaid = !course.isFree && Number(course.price ?? 0) > 0;
+
   return (
     <main className="px-4 py-10 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-8">
@@ -65,12 +67,25 @@ const CourseDetailPage = ({ slug }: TCourseDetailPageProps) => {
           ratingCount={course.ratingCount}
           description={course.description}
           badge={t("contentDetails.course.badge")}
-          wishlist={{
-            isWishlisted: actions.isWishlisted,
-            loading: actions.isWishlistLoading,
-            onToggle: actions.onToggleWishlist,
-          }}
-          calendarSlot={<AddToCalendarButton iconOnly prefill={calendarPrefill} />}
+          actions={
+            <DetailHeroActions
+              contentType={API.ContentType.Course}
+              prefill={calendarPrefill}
+              wishlist={{
+                isWishlisted: actions.isWishlisted,
+                loading: actions.isWishlistLoading,
+                onToggle: actions.onToggleWishlist,
+              }}
+              primary={{
+                label: t("contentDetails.course.enrollNow"),
+                doneLabel: t("contentDetails.actions.enrolled"),
+                done: actions.isEnrolled,
+                loading: actions.isEnrollLoading,
+                onClick: actions.onEnroll,
+                icon: <UserPlus className="h-4 w-4" />,
+              }}
+            />
+          }
         >
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <DetailMetaPill
@@ -102,7 +117,11 @@ const CourseDetailPage = ({ slug }: TCourseDetailPageProps) => {
           </div>
         </DetailHero>
 
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+        <div
+          className={`grid gap-6 ${
+            isPaid ? "lg:grid-cols-[minmax(0,1fr)_360px]" : ""
+          }`}
+        >
           <section className="min-w-0">
             <Tabs.Tabs defaultValue="overview" className="space-y-6">
               <Tabs.TabsList className="grid h-auto grid-cols-3 rounded-3xl border border-glass-border bg-background/60 p-2 backdrop-blur-xl">
@@ -183,24 +202,18 @@ const CourseDetailPage = ({ slug }: TCourseDetailPageProps) => {
             </Tabs.Tabs>
           </section>
 
-          <aside>
-            <DetailActionPanel
-              price={course.price}
-              isFree={course.isFree}
-              currency={course.currency}
-              onEnroll={actions.onEnroll}
-              isInCart={actions.isInCart}
-              isEnrolled={actions.isEnrolled}
-              onAddToCart={actions.onAddToCart}
-              cartLoading={actions.isCartLoading}
-              isWishlisted={actions.isWishlisted}
-              onWishlist={actions.onToggleWishlist}
-              enrollLoading={actions.isEnrollLoading}
-              wishlistLoading={actions.isWishlistLoading}
-              enrollLabel={t("contentDetails.course.enrollNow")}
-              calendarSlot={<AddToCalendarButton prefill={calendarPrefill} />}
-            />
-          </aside>
+          {isPaid && (
+            <aside>
+              <DetailActionPanel
+                price={course.price}
+                isFree={course.isFree}
+                currency={course.currency}
+                isInCart={actions.isInCart}
+                onAddToCart={actions.onAddToCart}
+                cartLoading={actions.isCartLoading}
+              />
+            </aside>
+          )}
         </div>
       </div>
     </main>

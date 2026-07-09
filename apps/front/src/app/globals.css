@@ -38,6 +38,15 @@
   --premium: oklch(0.72 0.14 85);
   --premium-foreground: oklch(0.22 0.035 65);
 
+  --ct-course: oklch(0.55 0.19 255);
+  --ct-course-foreground: oklch(0.99 0 0);
+  --ct-event: oklch(0.6 0.16 155);
+  --ct-event-foreground: oklch(0.99 0 0);
+  --ct-podcast: oklch(0.55 0.22 300);
+  --ct-podcast-foreground: oklch(0.99 0 0);
+  --ct-youtube: oklch(0.58 0.22 25);
+  --ct-youtube-foreground: oklch(0.99 0 0);
+
   --border: oklch(0.88 0.025 240);
   --input: oklch(0.91 0.022 240);
   --ring: oklch(0.58 0.18 255);
@@ -82,6 +91,15 @@
   --premium: oklch(0.82 0.14 85);
   --premium-foreground: oklch(0.13 0.035 65);
 
+  --ct-course: oklch(0.7 0.17 255);
+  --ct-course-foreground: oklch(0.13 0.035 255);
+  --ct-event: oklch(0.72 0.15 155);
+  --ct-event-foreground: oklch(0.1 0.02 155);
+  --ct-podcast: oklch(0.7 0.19 300);
+  --ct-podcast-foreground: oklch(0.12 0.03 300);
+  --ct-youtube: oklch(0.7 0.2 25);
+  --ct-youtube-foreground: oklch(0.12 0.03 25);
+
   --border: oklch(1 0 0 / 0.1);
   --input: oklch(1 0 0 / 0.12);
   --ring: oklch(0.72 0.16 250);
@@ -123,6 +141,15 @@
 
   --color-premium: var(--premium);
   --color-premium-foreground: var(--premium-foreground);
+
+  --color-ct-course: var(--ct-course);
+  --color-ct-course-foreground: var(--ct-course-foreground);
+  --color-ct-event: var(--ct-event);
+  --color-ct-event-foreground: var(--ct-event-foreground);
+  --color-ct-podcast: var(--ct-podcast);
+  --color-ct-podcast-foreground: var(--ct-podcast-foreground);
+  --color-ct-youtube: var(--ct-youtube);
+  --color-ct-youtube-foreground: var(--ct-youtube-foreground);
 
   --color-border: var(--border);
   --color-input: var(--input);
@@ -617,6 +644,23 @@ body {
   font-size: 0.78rem;
   font-weight: 700;
   cursor: pointer;
+}
+
+/* filled daygrid block events inherit the inline textColor (var(--ct-*-foreground)) */
+.calendar-shell .fc .fc-daygrid-block-event,
+.calendar-shell .fc .fc-daygrid-block-event .fc-event-main {
+  color: inherit;
+}
+
+/* subtle, hue-agnostic hover to replace the gray dot-hover */
+.calendar-shell .fc .fc-daygrid-event:hover,
+.calendar-shell .fc .fc-event:hover {
+  filter: brightness(0.95);
+}
+
+.dark .calendar-shell .fc .fc-daygrid-event:hover,
+.dark .calendar-shell .fc .fc-event:hover {
+  filter: brightness(1.1);
 }
 
 .calendar-shell .fc .fc-list-event-title,

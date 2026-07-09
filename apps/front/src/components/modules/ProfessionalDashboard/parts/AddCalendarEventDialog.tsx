@@ -1,11 +1,13 @@
 "use client";
 
-import { CalendarEventType, ContentType } from "@/lib/graphql/generated";
 import { useCreateCalendarEventMutation } from "@/lib/rtk/endpoints/professional.api";
+import { TAddCalendarEventDialogProps } from "@/types/professional-dashboard.types";
 import { FloatingTextareaField } from "@elements/floating-textarea";
 import { FloatingSelectField } from "@elements/floating-select";
 import { FloatingInputField } from "@elements/floating-input";
 import { useEffect, useMemo } from "react";
+import { CalendarEventType } from "@/lib/graphql/generated";
+import { toDateTimeLocal } from "@/utils/function-helper";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useI18n } from "@/hooks/useI18n";
@@ -15,29 +17,6 @@ import { Form } from "@ui/form";
 
 import * as SC from "@/lib/validations/professional-dashboard";
 import * as D from "@ui/dialog";
-
-export type TAddCalendarEventPrefill = {
-  title?: string;
-  type?: CalendarEventType;
-  startDate?: string | null;
-  endDate?: string | null;
-  contentId?: string | null;
-  contentType?: ContentType | null;
-};
-
-type TAddCalendarEventDialogProps = {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  prefill?: TAddCalendarEventPrefill;
-};
-
-const toDateTimeLocal = (value?: string | null) => {
-  if (!value) return "";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
-  const offsetMs = date.getTimezoneOffset() * 60000;
-  return new Date(date.getTime() - offsetMs).toISOString().slice(0, 16);
-};
 
 const CALENDAR_EVENT_TYPES: CalendarEventType[] = [
   CalendarEventType.Course,
@@ -136,14 +115,14 @@ export const AddCalendarEventDialog = ({
 
             <FloatingSelectField
               name="type"
-              control={form.control}
               options={typeOptions}
+              control={form.control}
               label={t("professionalDashboard.calendar.addDialog.fields.type")}
             />
 
             <FloatingInputField
-              type="datetime-local"
               name="startDate"
+              type="datetime-local"
               control={form.control}
               label={t(
                 "professionalDashboard.calendar.addDialog.fields.startDate",
@@ -151,8 +130,8 @@ export const AddCalendarEventDialog = ({
             />
 
             <FloatingInputField
-              type="datetime-local"
               name="endDate"
+              type="datetime-local"
               control={form.control}
               label={t(
                 "professionalDashboard.calendar.addDialog.fields.endDate",

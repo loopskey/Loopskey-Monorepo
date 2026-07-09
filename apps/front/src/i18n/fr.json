@@ -18,7 +18,14 @@
     "refresh": "Actualiser",
     "reset": "Réinitialiser",
     "loading": "Chargement...",
-    "continueToProvider": "Suivre et continuer"
+    "continueToProvider": "Suivre et continuer",
+    "contentTypes": {
+      "COURSE": "Cours",
+      "EVENT": "Événement",
+      "PODCAST": "Podcast",
+      "YOUTUBE": "YouTube",
+      "GENERAL": "Général"
+    }
   },
   "servicesPage": {
     "common": {
@@ -1228,7 +1235,8 @@
       "subscribers": "Abonnés",
       "videos": "Vidéos",
       "views": "Vues",
-      "followChannel": "Suivre la chaîne"
+      "followChannel": "Suivre la chaîne",
+      "watchLatest": "Regarder la dernière"
     },
     "curriculum": {
       "section": "Section",

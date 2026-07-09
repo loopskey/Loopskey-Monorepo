@@ -7,7 +7,6 @@ const DetailSkeleton = () => {
         <GlassCard className="h-[420px] animate-pulse" glow={false} />
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
           <GlassCard className="h-[520px] animate-pulse" glow={false} />
-          <GlassCard className="h-[320px] animate-pulse" glow={false} />
         </div>
       </div>
     </main>

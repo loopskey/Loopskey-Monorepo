@@ -1,12 +1,12 @@
 "use client";
 
-import { CalendarDays, MapPin, MonitorPlay, Users } from "lucide-react";
+import { CalendarDays, MapPin, MonitorPlay, UserPlus, Users } from "lucide-react";
 import { useContentActions } from "@/hooks/useContentActions";
 import { formatDate } from "@/utils/function-helper";
 import { GlassCard } from "@elements/glass-card";
 import { useI18n } from "@/hooks/useI18n";
 
-import AddToCalendarButton from "@modules/ContentDetail/parts/AddToCalendarButton";
+import DetailHeroActions from "@modules/ContentDetail/parts/DetailHeroActions";
 import DetailActionPanel from "@modules/ContentDetail/parts/DetailActionPanel";
 import DetailSkeleton from "@modules/ContentDetail/parts/DetailSkeleton";
 import DetailMetaPill from "@modules/ContentDetail/parts/DetailMetaPill";
@@ -59,6 +59,8 @@ const EventDetailPage = ({ slug }: { slug: string }) => {
     contentType: API.ContentType.Event,
   };
 
+  const isPaid = !event.isFree && Number(event.price ?? 0) > 0;
+
   return (
     <main className="px-4 py-10 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-8">
@@ -70,12 +72,25 @@ const EventDetailPage = ({ slug }: { slug: string }) => {
           description={event.description}
           badge={t("contentDetails.event.badge")}
           rating={event.averageRating ?? event.rating}
-          wishlist={{
-            isWishlisted: actions.isWishlisted,
-            loading: actions.isWishlistLoading,
-            onToggle: actions.onToggleWishlist,
-          }}
-          calendarSlot={<AddToCalendarButton iconOnly prefill={calendarPrefill} />}
+          actions={
+            <DetailHeroActions
+              contentType={API.ContentType.Event}
+              prefill={calendarPrefill}
+              wishlist={{
+                isWishlisted: actions.isWishlisted,
+                loading: actions.isWishlistLoading,
+                onToggle: actions.onToggleWishlist,
+              }}
+              primary={{
+                label: t("contentDetails.event.registerNow"),
+                doneLabel: t("contentDetails.actions.enrolled"),
+                done: actions.isEnrolled,
+                loading: actions.isEnrollLoading,
+                onClick: actions.onEnroll,
+                icon: <UserPlus className="h-4 w-4" />,
+              }}
+            />
+          }
         >
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <DetailMetaPill
@@ -101,7 +116,11 @@ const EventDetailPage = ({ slug }: { slug: string }) => {
           </div>
         </DetailHero>
 
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+        <div
+          className={`grid gap-6 ${
+            isPaid ? "lg:grid-cols-[minmax(0,1fr)_360px]" : ""
+          }`}
+        >
           <section className="min-w-0">
             <Tabs.Tabs defaultValue="schedule" className="space-y-6">
               <Tabs.TabsList className="grid h-auto grid-cols-2 rounded-3xl border border-glass-border bg-background/60 p-2 backdrop-blur-xl">
@@ -138,24 +157,18 @@ const EventDetailPage = ({ slug }: { slug: string }) => {
             </Tabs.Tabs>
           </section>
 
-          <aside>
-            <DetailActionPanel
-              price={event.price}
-              isFree={event.isFree}
-              currency={event.currency}
-              isInCart={actions.isInCart}
-              onEnroll={actions.onEnroll}
-              isEnrolled={actions.isEnrolled}
-              onAddToCart={actions.onAddToCart}
-              isWishlisted={actions.isWishlisted}
-              cartLoading={actions.isCartLoading}
-              onWishlist={actions.onToggleWishlist}
-              enrollLoading={actions.isEnrollLoading}
-              wishlistLoading={actions.isWishlistLoading}
-              enrollLabel={t("contentDetails.event.registerNow")}
-              calendarSlot={<AddToCalendarButton prefill={calendarPrefill} />}
-            />
-          </aside>
+          {isPaid && (
+            <aside>
+              <DetailActionPanel
+                price={event.price}
+                isFree={event.isFree}
+                currency={event.currency}
+                isInCart={actions.isInCart}
+                onAddToCart={actions.onAddToCart}
+                cartLoading={actions.isCartLoading}
+              />
+            </aside>
+          )}
         </div>
       </div>
     </main>
