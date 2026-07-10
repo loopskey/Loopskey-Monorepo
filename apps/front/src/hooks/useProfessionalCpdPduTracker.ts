@@ -1,7 +1,10 @@
 "use client";
 
+import { PDU_CATEGORIES, getPduMonthLabel } from "@/utils/pdu.constant";
 import { ChangeEvent, useMemo, useState } from "react";
-import { PDU_CATEGORIES } from "@modules/ProfessionalDashboard/parts/target-form";
+import { usePduEvidenceUpload } from "@/hooks/usePduEvidenceUpload";
+import { useDebouncedValue } from "@/hooks/useDebounced";
+import { useRouter } from "next/navigation";
 import { PAGE_SIZE } from "@/utils/constant";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
@@ -9,19 +12,27 @@ import { notify } from "@/hooks/notify";
 import * as API from "@/lib/rtk/endpoints/professional.api";
 import * as T from "@/types/professional-dashboard.types";
 
-export const useProfessionalPduReport = () => {
+const EMPTY_FILTERS: T.TPduActivityFilters = {
+  search: "",
+};
+
+export const useProfessionalCpdPduTracker = () => {
   const { t } = useI18n();
-
+  const router = useRouter();
   const currentYear = new Date().getFullYear();
-
   const [year, setYear] = useState<number>(currentYear);
-  const [search, setSearch] = useState<string>("");
   const [page, setPage] = useState<number>(1);
   const [cursorStack, setCursorStack] = useState<string[]>([]);
-  const [isLogDialogOpen, setIsLogDialogOpen] = useState<boolean>(false);
+  const [filters, setFilters] = useState<T.TPduActivityFilters>(EMPTY_FILTERS);
   const [isTargetDialogOpen, setIsTargetDialogOpen] = useState<boolean>(false);
 
   const currentCursor = cursorStack.at(-1);
+  const debouncedSearch = useDebouncedValue(filters.search, 350);
+
+  const isFiltered = useMemo(
+    () => debouncedSearch.trim().length > 0,
+    [debouncedSearch],
+  );
 
   const {
     data: report,
@@ -30,25 +41,32 @@ export const useProfessionalPduReport = () => {
     refetch,
   } = API.useProfessionalPduReportQuery({ year });
 
+  const activityFilter = useMemo(
+    () => ({
+      search: debouncedSearch.trim() || undefined,
+    }),
+    [debouncedSearch],
+  );
+
   const {
     data: activitiesData,
     isLoading: isActivitiesLoading,
     isFetching: isActivitiesFetching,
   } = API.useProfessionalPduActivitiesQuery({
-    filter: {
-      search: search.trim() || undefined,
-    },
+    filter: activityFilter,
     pagination: {
       take: PAGE_SIZE,
       cursor: currentCursor,
     },
   });
 
-  const [createActivity, { isLoading: isCreatingActivity }] =
-    API.useCreateProfessionalPduActivityMutation();
-
   const [upsertTarget, { isLoading: isSavingTarget }] =
     API.useUpsertProfessionalPduTargetMutation();
+
+  const [deleteActivity, { isLoading: isDeletingActivity }] =
+    API.useDeleteProfessionalPduActivityMutation();
+
+  const { downloadEvidence } = usePduEvidenceUpload();
 
   const activities = activitiesData?.items ?? [];
   const pageInfo = activitiesData?.pageInfo;
@@ -79,8 +97,25 @@ export const useProfessionalPduReport = () => {
         earned: numericEarned,
         target: numericTarget,
       };
-    });
+    }).filter((row) => row.earned > 0 || row.target > 0);
   }, [report?.byCategory, report?.targets]);
+
+  const pduOverTime = useMemo(() => {
+    return (report?.byMonth ?? []).map((point) => ({
+      month: getPduMonthLabel(point.month),
+      pdus: Number(point.pdus ?? 0),
+    }));
+  }, [report?.byMonth]);
+
+  const hasChartData = useMemo(
+    () => pduOverTime.some((point) => point.pdus > 0),
+    [pduOverTime],
+  );
+
+  const resetPagination = () => {
+    setPage(1);
+    setCursorStack([]);
+  };
 
   const handleYearChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
@@ -92,10 +127,17 @@ export const useProfessionalPduReport = () => {
     if (Number.isFinite(nextYear)) setYear(nextYear);
   };
 
-  const handleSearchChange = (value: string) => {
-    setSearch(value);
-    setPage(1);
-    setCursorStack([]);
+  const handleFilterChange = <K extends keyof T.TPduActivityFilters>(
+    key: K,
+    value: T.TPduActivityFilters[K],
+  ) => {
+    setFilters((previous) => ({ ...previous, [key]: value }));
+    resetPagination();
+  };
+
+  const handleResetFilters = () => {
+    setFilters(EMPTY_FILTERS);
+    resetPagination();
   };
 
   const handleNext = () => {
@@ -109,15 +151,40 @@ export const useProfessionalPduReport = () => {
     setPage((previousPage) => Math.max(1, previousPage - 1));
   };
 
-  const handleActivitySubmit = async (input: T.CreateActivityInput) => {
-    await createActivity(input).unwrap();
-    notify.success(t("professionalDashboard.pduReport.activityDialog.success"));
-    setIsLogDialogOpen(false);
+  const handleAddActivity = () => {
+    router.push("/dashboard/professional?tab=add-activity");
+  };
+
+  const handleEditActivity = (activityId: string) => {
+    router.push(`/dashboard/professional?tab=add-activity&id=${activityId}`);
+  };
+
+  const handleDeleteActivity = async (activityId: string) => {
+    try {
+      await deleteActivity({ activityId }).unwrap();
+      notify.success(
+        t("professionalDashboard.cpdPduTracker.activities.deleteSuccess"),
+      );
+    } catch {
+      notify.error(t("authPages.common.genericError"));
+    }
+  };
+
+  const handleDownloadEvidence = async (file: T.TPduEvidenceFile) => {
+    try {
+      await downloadEvidence(file);
+    } catch {
+      notify.error(
+        t("professionalDashboard.cpdPduTracker.activities.downloadError"),
+      );
+    }
   };
 
   const handleTargetSubmit = async (input: T.UpsertTargetInput) => {
     await upsertTarget(input).unwrap();
-    notify.success(t("professionalDashboard.pduReport.targetsDialog.success"));
+    notify.success(
+      t("professionalDashboard.cpdPduTracker.targetsDialog.success"),
+    );
     setIsTargetDialogOpen(false);
   };
 
@@ -141,14 +208,29 @@ export const useProfessionalPduReport = () => {
         `${item.progress.toFixed(2)}%`,
       ]),
       [],
-      ["Activity", "Date", "Category", "Source", "Status", "PDUs"],
+      [
+        "Activity",
+        "Type",
+        "Date Completed",
+        "Credit Type",
+        "Credit Value",
+        "Category",
+        "Reporting Year",
+        "Provider",
+        "Status",
+        "Certificate",
+      ],
       ...activities.map((item) => [
         item.title,
-        new Date(item.date).toLocaleDateString(),
-        item.category,
         item.source,
-        item.status,
+        new Date(item.date).toLocaleDateString(),
+        item.creditType,
         item.pdus,
+        item.category,
+        item.reportingYear ?? "",
+        item.providerOrganizer ?? "",
+        item.completionStatus,
+        item.evidenceFiles.length ? "Attached" : "No file",
       ]),
     ];
     const csv = rows
@@ -164,7 +246,7 @@ export const useProfessionalPduReport = () => {
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = `professional-pdu-report-${year}.csv`;
+    anchor.download = `cpd-pdu-tracker-${year}.csv`;
     anchor.click();
     URL.revokeObjectURL(url);
   };
@@ -173,30 +255,35 @@ export const useProfessionalPduReport = () => {
     t,
     year,
     page,
-    search,
     report,
+    filters,
     refetch,
     pageInfo,
     isLoading,
     exportCsv,
+    isFiltered,
     activities,
     isFetching,
     handleNext,
     totalTarget,
+    pduOverTime,
+    hasChartData,
     categoryRows,
+    activitiesData,
     handlePrevious,
     isSavingTarget,
-    activitiesData,
-    isLogDialogOpen,
     handleYearChange,
-    isCreatingActivity,
+    handleAddActivity,
     handleTargetSubmit,
+    handleResetFilters,
+    handleFilterChange,
     isTargetDialogOpen,
-    handleSearchChange,
+    handleEditActivity,
+    isDeletingActivity,
     isActivitiesLoading,
-    setIsLogDialogOpen,
-    handleActivitySubmit,
+    handleDeleteActivity,
     isActivitiesFetching,
     setIsTargetDialogOpen,
+    handleDownloadEvidence,
   };
 };

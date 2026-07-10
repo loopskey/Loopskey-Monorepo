@@ -1,15 +1,17 @@
-import { Args, Int, Mutation, Query, Resolver } from "@nestjs/graphql";
+import { Args, ID, Int, Mutation, Query, Resolver } from "@nestjs/graphql";
+import { ProfessionalPduActivityFilterInput } from "@professional/dtos/professional-pdu-activity-filter.input";
+import { ProfessionalActionResponseEntity } from "@professional/entities/professional-calendar-event.entity";
 import { ProfessionalGqlMutationNames } from "@professional/enums/gql-names.enum";
 import { ProfessionalPaginationInput } from "@professional/dtos/professional-pagination.input";
 import { ProfessionalGqlQueryNames } from "@professional/enums/gql-names.enum";
-import { ProfessionalSearchInput } from "@professional/dtos/professional-search.input";
 import { CreatePduActivityInput } from "@professional/dtos/create-pdu-activity.input";
+import { UpdatePduActivityInput } from "@professional/dtos/update-pdu-activity.input";
 import { ProfessionalPduService } from "@professional/services/professional-pdu.service";
 import { UpsertPduTargetInput } from "@professional/dtos/upsert-pdu-target.input";
+import { ContentType, Role } from "@prisma/client";
 import { TResolverUser } from "@professional/types/professional-service.types";
 import { CurrentUser } from "@auth/decorators/current-user.decorator";
 import { Roles } from "@auth/decorators/roles.decorator";
-import { Role } from "@prisma/client";
 
 import * as EN from "@professional/entities/professinal-pdu-report.entity";
 
@@ -42,7 +44,8 @@ export class ProfessionalPduResolver {
   })
   professionalPduActivities(
     @CurrentUser() user: TResolverUser,
-    @Args("filter", { nullable: true }) filter?: ProfessionalSearchInput,
+    @Args("filter", { nullable: true })
+    filter?: ProfessionalPduActivityFilterInput,
     @Args("pagination", { nullable: true })
     pagination?: ProfessionalPaginationInput,
   ) {
@@ -50,6 +53,35 @@ export class ProfessionalPduResolver {
       this.getUser(user),
       filter,
       pagination,
+    );
+  }
+
+  @Query(() => EN.ProfessionalPduActivityEntity, {
+    name: ProfessionalGqlQueryNames.PROFESSIONAL_PDU_ACTIVITY,
+  })
+  professionalPduActivity(
+    @CurrentUser() user: TResolverUser,
+    @Args("activityId", { type: () => ID }) activityId: string,
+  ) {
+    return this.professionalPduService.pduActivity(
+      this.getUser(user),
+      activityId,
+    );
+  }
+
+  @Query(() => EN.ProfessionalPduActivityEntity, {
+    nullable: true,
+    name: ProfessionalGqlQueryNames.PROFESSIONAL_CONTENT_COMPLETION,
+  })
+  professionalContentCompletion(
+    @CurrentUser() user: TResolverUser,
+    @Args("contentType", { type: () => ContentType }) contentType: ContentType,
+    @Args("contentId", { type: () => ID }) contentId: string,
+  ) {
+    return this.professionalPduService.contentCompletion(
+      this.getUser(user),
+      contentType,
+      contentId,
     );
   }
 
@@ -63,6 +95,32 @@ export class ProfessionalPduResolver {
     return this.professionalPduService.createPduActivity(
       this.getUser(user),
       input,
+    );
+  }
+
+  @Mutation(() => EN.ProfessionalPduActivityEntity, {
+    name: ProfessionalGqlMutationNames.UPDATE_PROFESSIONAL_PDU_ACTIVITY,
+  })
+  updateProfessionalPduActivity(
+    @CurrentUser() user: TResolverUser,
+    @Args("input") input: UpdatePduActivityInput,
+  ) {
+    return this.professionalPduService.updatePduActivity(
+      this.getUser(user),
+      input,
+    );
+  }
+
+  @Mutation(() => ProfessionalActionResponseEntity, {
+    name: ProfessionalGqlMutationNames.DELETE_PROFESSIONAL_PDU_ACTIVITY,
+  })
+  deleteProfessionalPduActivity(
+    @CurrentUser() user: TResolverUser,
+    @Args("activityId", { type: () => ID }) activityId: string,
+  ) {
+    return this.professionalPduService.deletePduActivity(
+      this.getUser(user),
+      activityId,
     );
   }
 

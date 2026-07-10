@@ -2,9 +2,11 @@ import { useCreateProfessionalPduActivityMutation } from "@/lib/rtk/endpoints/pr
 import { useUpsertProfessionalPduTargetMutation } from "@/lib/rtk/endpoints/professional.api";
 import { ContentType, UpsertPduTargetInput } from "@/lib/graphql/generated";
 import { BarChart3, LucideIcon } from "lucide-react";
+import { TPduActivityFormInput } from "@/lib/validations/pdu-activity.schema";
 import { I18nContextValue } from "@/types/providers.types";
-import { PDU_CATEGORIES } from "@modules/ProfessionalDashboard/parts/target-form";
+import { PDU_CATEGORIES } from "@/utils/pdu.constant";
 import { ElementType } from "react";
+import { Control } from "react-hook-form";
 
 import * as API from "@/lib/graphql/generated";
 
@@ -18,7 +20,9 @@ export type TProfessionalDashboardTab =
   | "payments"
   | "wishlist"
   | "pdu-report"
+  | "add-activity"
   | "certificates"
+  | "cpd-pdu-tracker"
   | "external-learning";
 
 export type TStatsCard = {
@@ -79,6 +83,50 @@ export type PduCategoryRow = {
   progress: number;
   earned: number;
   target: number;
+};
+
+export type TPduActivitiesData = NonNullable<
+  API.ProfessionalPduActivitiesQuery["professionalPduActivities"]
+>;
+
+export type TPduActivity = TPduActivitiesData["items"][number];
+
+export type TPduEvidenceFile = TPduActivity["evidenceFiles"][number];
+
+export type TPduActivityFilters = {
+  search: string;
+};
+
+export type TPduActivitiesTableProps = {
+  t: I18nContextValue["t"];
+  isDeleting: boolean;
+  activities: TPduActivity[];
+  onEdit: (activityId: string) => void;
+  onDelete: (activityId: string) => void;
+  onDownload: (file: TPduEvidenceFile) => void;
+};
+
+export type TPduActivityFiltersProps = {
+  t: I18nContextValue["t"];
+  filters: TPduActivityFilters;
+  isFiltered: boolean;
+  onReset: () => void;
+  onChange: <K extends keyof TPduActivityFilters>(
+    key: K,
+    value: TPduActivityFilters[K],
+  ) => void;
+};
+
+export type TPduWizardStep = {
+  value: number;
+  title: string;
+  description: string;
+};
+
+export type TPduActivityStepperProps = {
+  activeStep: number;
+  steps: TPduWizardStep[];
+  onChange: (step: number) => void;
 };
 
 export type ProfessionalPaymentsData = NonNullable<
@@ -255,4 +303,62 @@ export type TCalendarEventDetailsDialogProps = {
   formatDateTime: (date?: string | null) => string;
   formatDuration: (minutes?: number | null) => string;
   getEventHref: (event: TProfessionalCalendarEvent) => string;
+};
+
+export type TActivityEvidenceUploadProps = {
+  files: File[];
+  isRemoving?: boolean;
+  t: I18nContextValue["t"];
+  existingFiles: TPduEvidenceFile[];
+  onChange: (files: File[]) => void;
+  onRemoveExisting?: (fileId: string) => void;
+  onDownloadExisting?: (file: TPduEvidenceFile) => void;
+};
+
+export type TActivityReviewSummaryProps = {
+  files: File[];
+  t: I18nContextValue["t"];
+  values: TPduActivityFormInput;
+  existingFiles: TPduEvidenceFile[];
+  onEditStep: (step: number) => void;
+};
+
+export type TActivityStepBasicProps = {
+  t: I18nContextValue["t"];
+  control: Control<TPduActivityFormInput>;
+  activityTypeOptions: { value: string; label: string }[];
+};
+
+export type TActivityStepCreditsProps = {
+  t: I18nContextValue["t"];
+  subCategoryOptions: string[];
+  onReportingYearTouched: () => void;
+  control: Control<TPduActivityFormInput>;
+};
+
+export type TActivityStepEvidenceProps = {
+  files: File[];
+  isRemoving: boolean;
+  t: I18nContextValue["t"];
+  existingFiles: TPduEvidenceFile[];
+  onFilesChange: (files: File[]) => void;
+  control: Control<TPduActivityFormInput>;
+  onRemoveExisting?: (fileId: string) => void;
+  onDownloadExisting?: (file: TPduEvidenceFile) => void;
+};
+
+export type TActivityStepOutcomeProps = {
+  files: File[];
+  t: I18nContextValue["t"];
+  values: TPduActivityFormInput;
+  existingFiles: TPduEvidenceFile[];
+  onEditStep: (step: number) => void;
+  control: Control<TPduActivityFormInput>;
+};
+
+export type TActivitySuccessPanelProps = {
+  isEditing: boolean;
+  t: I18nContextValue["t"];
+  onAddAnother: () => void;
+  onViewActivities: () => void;
 };

@@ -1,4 +1,5 @@
 import { TAddCalendarEventPrefill } from "@/types/professional-dashboard.types";
+import { TPduActivity } from "@/types/professional-dashboard.types";
 import { ContentType } from "@/lib/graphql/generated";
 import { ReactNode } from "react";
 
@@ -241,9 +242,34 @@ export type TAddToCalendarButtonProps = {
   contentType?: API.ContentType | null;
 };
 
+export type TMarkCompletedPrefill = {
+  title: string;
+  contentId: string;
+  contentType: API.ContentType;
+  activityType: API.PduSource;
+  level?: string | null;
+  roadmapArea?: string | null;
+  durationMinutes?: number | null;
+  providerOrganizer?: string | null;
+  category?: API.PduCategory | null;
+};
+
 export type TDetailHeroActionsProps = {
   contentType: ContentType;
   primary: TDetailHeroPrimary;
   wishlist: TDetailHeroWishlist;
   prefill: TAddCalendarEventPrefill;
+  completed: TMarkCompletedPrefill;
+};
+
+export type TMarkAsCompletedButtonProps = {
+  className?: string;
+  prefill: TMarkCompletedPrefill;
+};
+
+export type TMarkAsCompletedDialogProps = {
+  open: boolean;
+  prefill: TMarkCompletedPrefill;
+  existing?: TPduActivity | null;
+  onOpenChange: (open: boolean) => void;
 };

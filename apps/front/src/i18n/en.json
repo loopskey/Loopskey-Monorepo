@@ -1182,6 +1182,33 @@
       "inCart": "In cart",
       "addToCalendar": "Add to calendar"
     },
+    "markCompleted": {
+      "button": "Mark as Completed",
+      "completedButton": "Completed",
+      "title": "Mark as completed",
+      "description": "Review the details and save this as a completed learning activity.",
+      "alreadyCompleted": "You have already marked this content as completed. Saving will update the existing activity.",
+      "success": "Activity marked as completed successfully.",
+      "save": "Save as Completed",
+      "fields": {
+        "title": "Activity title",
+        "activityType": "Activity type",
+        "providerOrganizer": "Provider / organizer",
+        "dateCompleted": "Completion date",
+        "creditType": "Credit type",
+        "creditValue": "Credit value / PDU hours",
+        "category": "CPD/PDU category",
+        "subCategory": "Sub-category",
+        "issuingOrganization": "Issuing organization",
+        "duration": "Duration",
+        "level": "Level",
+        "roadmapArea": "Roadmap area",
+        "certificate": "Certificate / Proof",
+        "certificateHelp": "Upload certificate file up to 20 MB (PDF, JPG, PNG, DOC, DOCX).",
+        "certificateLink": "Certificate link",
+        "certificateLinkPlaceholder": "https://..."
+      }
+    },
     "tabs": {
       "overview": "Overview",
       "curriculum": "Curriculum",
@@ -1603,7 +1630,7 @@
         "roadmap": "Roadmap",
         "certificates": "Certificates",
         "payments": "Payments",
-        "pduReport": "PDU Report"
+        "cpdPduTracker": "CPD/PDU Tracker"
       },
       "organization": {
         "overview": "Overview",
@@ -1625,7 +1652,7 @@
       "wishlist": "Wishlist",
       "settings": "Settings",
       "courses": "My Courses",
-      "pduReport": "PDU Report",
+      "cpdPduTracker": "CPD/PDU Tracker",
       "calendar": "My Calendar",
       "certificates": "Certificates",
       "externalLearning": "External Learning"
@@ -1818,11 +1845,12 @@
       "viewDetails": "View details",
       "contentTitle": "{{type}} item #{{id}}"
     },
-    "pduReport": {
-      "eyebrow": "PDU Report",
-      "title": "PDU Report",
-      "subtitle": "Track and manage your Professional Development Units.",
+    "cpdPduTracker": {
+      "eyebrow": "CPD/PDU Tracker",
+      "title": "CPD/PDU Tracker",
+      "subtitle": "Track and manage your continuing professional development.",
       "exportCsv": "Export CSV",
+      "reportYear": "Report year",
       "cards": {
         "totalPdus": "Total PDUs Earned",
         "target": "Target",
@@ -1834,51 +1862,197 @@
       },
       "quickActions": {
         "title": "Quick Actions",
-        "subtitle": "Adjust yearly targets and log new PDU activities.",
+        "subtitle": "Adjust yearly targets and record new learning activities.",
         "adjustTargets": "Adjust yearly targets",
-        "logActivity": "Log new PDU"
+        "addActivity": "Add Learning Activity"
       },
       "byCategory": {
         "title": "PDUs by Category",
-        "subtitle": "Progress vs target by professional development category."
+        "subtitle": "Progress vs target by professional development category.",
+        "empty": "Add a learning activity or set a yearly target to see your category breakdown."
       },
       "overTime": {
         "title": "PDUs Over Time",
-        "subtitle": "Monthly accumulation based on the activities visible in this table."
+        "subtitle": "Monthly credits earned across the selected report year.",
+        "empty": "No credits recorded for this year yet."
       },
       "activities": {
         "title": "Activities",
-        "subtitle": "Manage your PDU activities and approval status.",
-        "search": "Search activities...",
-        "emptyTitle": "No PDU activities found",
-        "emptyDescription": "Log your first activity to start tracking your professional development units.",
-        "table": {
-          "activity": "Activity",
-          "date": "Date",
-          "category": "Category",
-          "status": "Status",
-          "pdus": "PDUs"
+        "subtitle": "Manage every learning activity you have recorded.",
+        "emptyTitle": "No learning activities yet",
+        "emptyDescription": "Add your first activity to start tracking your continuing professional development.",
+        "noMatchTitle": "No activities match your filters",
+        "noMatchDescription": "Try widening your search, or clear the filters to see every activity.",
+        "deleteTitle": "Delete this activity?",
+        "deleteDescription": "This permanently removes the activity and any evidence files attached to it.",
+        "deleteSuccess": "Activity deleted successfully.",
+        "downloadError": "Could not download that file."
+      },
+      "filters": {
+        "any": "Any",
+        "search": "Search",
+        "searchPlaceholder": "Search title, provider, organization or notes...",
+        "activityType": "Activity type",
+        "creditType": "Credit type",
+        "category": "Category",
+        "status": "Status",
+        "reportingYear": "Reporting year",
+        "certificate": "Certificate",
+        "hasCertificate": "Has certificate",
+        "noCertificate": "No certificate",
+        "dateFrom": "Completed from",
+        "dateTo": "Completed to",
+        "clear": "Clear filters"
+      },
+      "table": {
+        "title": "Activity Title",
+        "type": "Activity Type",
+        "dateCompleted": "Date Completed",
+        "creditType": "Credit Type",
+        "creditValue": "Credit Value",
+        "category": "Category",
+        "reportingYear": "Reporting Year",
+        "provider": "Provider / Organizer",
+        "status": "Status",
+        "certificate": "Certificate",
+        "actions": "Actions",
+        "attached": "View",
+        "noFile": "No file"
+      },
+      "activityTypes": {
+        "COURSE": "Course",
+        "WEBINAR": "Webinar",
+        "WORKSHOP": "Workshop",
+        "SEMINAR": "Seminar",
+        "CONFERENCE": "Conference",
+        "MEETING": "Meeting",
+        "TRAINING_SESSION": "Training Session",
+        "CERTIFICATION_PROGRAM": "Certification Program",
+        "SELF_STUDY": "Self-Study",
+        "READING_ARTICLE": "Reading / Article",
+        "PODCAST": "Podcast",
+        "VIDEO_LECTURE": "Video / Recorded Lecture",
+        "MENTORSHIP": "Mentorship Session",
+        "VOLUNTEERING": "Volunteering / Professional Service",
+        "TEACHING": "Teaching / Presentation",
+        "EXAM_ASSESSMENT": "Exam / Assessment",
+        "OTHER": "Other",
+        "EVENT": "Event",
+        "YOUTUBE": "YouTube"
+      },
+      "creditTypes": {
+        "CPD": "CPD",
+        "PDU": "PDU",
+        "CEU": "CEU",
+        "TRAINING_HOUR": "Training Hour"
+      },
+      "categories": {
+        "TECHNICAL": "Technical Skills",
+        "PROFESSIONAL_PRACTICE": "Professional Practice",
+        "LEADERSHIP": "Leadership",
+        "ETHICS": "Ethics",
+        "COMMUNICATION": "Communication",
+        "BUSINESS": "Business / Strategy",
+        "STRATEGIC": "Strategic",
+        "COMPLIANCE": "Safety / Compliance",
+        "DIGITAL_AI": "Digital / AI Skills",
+        "RESEARCH_INNOVATION": "Research / Innovation",
+        "INDUSTRY_KNOWLEDGE": "Industry Knowledge",
+        "OTHER": "Other"
+      },
+      "completionStatuses": {
+        "COMPLETED": "Completed",
+        "INCOMPLETE": "Incomplete"
+      },
+      "fields": {
+        "title": "Activity title",
+        "titlePlaceholder": "e.g. Advanced Risk Management Workshop",
+        "activityType": "Activity type",
+        "dateCompleted": "Date completed",
+        "providerOrganizer": "Provider / organizer",
+        "providerOrganizerPlaceholder": "Who delivered this activity?",
+        "creditType": "Credit type",
+        "creditValue": "Credit value / hours",
+        "creditValueHint": "Must be greater than 0. Decimals such as 1.5 are allowed.",
+        "category": "CPD / PDU category",
+        "subCategory": "Sub-category",
+        "subCategoryPlaceholder": "Select a category first",
+        "reportingYear": "Reporting year",
+        "reportingYearHint": "Defaults to the year of the completion date.",
+        "issuingOrganization": "Issuing organization",
+        "relatedCertification": "Related certification / licence",
+        "description": "Activity description / notes",
+        "descriptionPlaceholder": "Briefly describe the activity.",
+        "evidenceNote": "File notes",
+        "evidenceNotePlaceholder": "Notes about the certificate of completion, attendance proof or related evidence.",
+        "learningOutcome": "Learning outcome",
+        "learningOutcomeHint": "What did you learn, and how will you apply it in your work?",
+        "learningOutcomePlaceholder": "Describe what you learned and how you will apply it."
+      },
+      "evidence": {
+        "dropTitle": "Upload certificate or proof",
+        "dropHint": "PDF, JPG, PNG, DOC or DOCX. Up to 20 MB per file.",
+        "chooseFiles": "Choose files",
+        "remaining": "You can add {{count}} more file(s).",
+        "limitReached": "You have reached the maximum of {{max}} files.",
+        "existingTitle": "Attached files",
+        "pendingTitle": "Files to upload",
+        "download": "Download",
+        "remove": "Remove",
+        "removed": "File removed.",
+        "uploadFailed": "The activity was saved, but the files could not be uploaded. Please try attaching them again.",
+        "fileTooLarge": "\"{{name}}\" is larger than 20 MB.",
+        "fileTypeInvalid": "\"{{name}}\" is not an accepted file type.",
+        "tooManyFiles": "You can attach at most {{max}} files."
+      },
+      "review": {
+        "title": "Ready to submit",
+        "subtitle": "Check everything below, then add your activity.",
+        "files": "Evidence files"
+      },
+      "addActivity": {
+        "title": "Add Learning Activity",
+        "editTitle": "Edit Learning Activity",
+        "subtitle": "Record a learning activity and the credits it earned.",
+        "back": "Back",
+        "next": "Next",
+        "addActivity": "Add Activity",
+        "updateActivity": "Update Activity",
+        "createSuccess": "Activity added successfully.",
+        "updateSuccess": "Activity updated successfully.",
+        "successDescription": "Your CPD/PDU totals and charts have been updated.",
+        "viewActivities": "View My Activities",
+        "addAnother": "Add Another Activity",
+        "cancelTitle": "Discard this activity?",
+        "cancelDescription": "You have unsaved changes. Leaving now will discard everything you entered.",
+        "keepEditing": "Keep editing",
+        "discardChanges": "Discard changes",
+        "steps": {
+          "1": {
+            "title": "Basic Information",
+            "description": "Title, type, date and provider"
+          },
+          "2": {
+            "title": "CPD/PDU Details",
+            "description": "Credits, category and reporting year"
+          },
+          "3": {
+            "title": "Evidence & Files",
+            "description": "Certificates and supporting notes"
+          },
+          "4": {
+            "title": "Learning Outcome",
+            "description": "What you learned, then review"
+          }
         }
       },
       "targetsDialog": {
         "title": "Adjust yearly target",
-        "description": "Set a target for a specific PDU category and year.",
+        "description": "Set a target for a specific CPD/PDU category and year.",
         "category": "Category",
         "target": "Target PDUs",
         "save": "Save target",
         "success": "PDU target saved successfully."
-      },
-      "activityDialog": {
-        "title": "Log new PDU activity",
-        "description": "Add a professional development activity to your report.",
-        "activityTitle": "Activity title",
-        "date": "Date",
-        "pdus": "PDUs",
-        "source": "Source",
-        "category": "Category",
-        "save": "Save activity",
-        "success": "PDU activity created successfully.",
-        "titleRequired": "Activity title is required."
       }
     },
     "payments": {

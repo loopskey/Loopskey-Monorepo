@@ -1,5 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
-import { GqlExecutionContext } from "@nestjs/graphql";
+import { getRequestFromContext } from "@auth/utils/execution-context.util";
 import { ForbiddenException } from "@nestjs/common";
 import { AuthMessageCode } from "@auth/enums/message-code.enum";
 import { IS_PUBLIC_KEY } from "@auth/decorators/public.decorator";
@@ -21,9 +21,8 @@ export class RolesGuard implements CanActivate {
       context.getClass(),
     ]);
     if (!requiredRoles || requiredRoles.length === 0) return true;
-    const gqlContext = GqlExecutionContext.create(context);
-    const request = gqlContext.getContext().req;
-    const user = request.user;
+    const request = getRequestFromContext(context);
+    const user = request?.user;
     if (!user || !requiredRoles.includes(user.role))
       throw new ForbiddenException({
         code: AuthMessageCode.FORBIDDEN,

@@ -1,8 +1,8 @@
 "use client";
 
 import { useEnrollContentMutation } from "@/lib/rtk/endpoints/content-interaction.api";
+import { getPduMonthLabel } from "@/utils/pdu.constant";
 import { useCoursesQuery } from "@/lib/rtk/endpoints/course.api";
-import { getMonthLabel } from "@/utils/function-helper";
 import { CHART_COLORS } from "@/utils/constant";
 import { ContentType } from "@/lib/graphql/generated";
 import { useMemo } from "react";
@@ -20,10 +20,6 @@ export const useProfessionalOverviewTab = () => {
 
   const pduReportQuery = API.useProfessionalPduReportQuery({
     year: currentYear,
-  });
-
-  const pduActivitiesQuery = API.useProfessionalPduActivitiesQuery({
-    pagination: { take: 100 },
   });
 
   const calendarEventsQuery = API.useProfessionalCalendarEventsQuery({
@@ -44,7 +40,6 @@ export const useProfessionalOverviewTab = () => {
 
   const overview = overviewQuery.data;
   const pduReport = pduReportQuery.data;
-  const pduActivities = pduActivitiesQuery.data;
   const calendarEvents = calendarEventsQuery.data;
   const manualCalendarEvents = myCalendarQuery.data;
   const myCourses = myCoursesQuery.data;
@@ -78,22 +73,16 @@ export const useProfessionalOverviewTab = () => {
 
   // ================= Use Memo =================
   const pduOverTime = useMemo(() => {
-    const activities = pduActivities?.items ?? [];
-    return Array.from({ length: 12 }, (_, monthIndex) => {
-      const monthTotal = activities
-        .filter((activity) => {
-          const date = new Date(activity.date);
-          return (
-            date.getFullYear() === currentYear && date.getMonth() === monthIndex
-          );
-        })
-        .reduce((sum, activity) => sum + Number(activity.pdus ?? 0), 0);
-      return {
-        month: getMonthLabel(new Date(currentYear, monthIndex, 1)),
-        pdus: Number(monthTotal.toFixed(1)),
-      };
-    });
-  }, [currentYear, pduActivities?.items]);
+    return (pduReport?.byMonth ?? []).map((point) => ({
+      month: getPduMonthLabel(point.month),
+      pdus: Number(point.pdus ?? 0),
+    }));
+  }, [pduReport?.byMonth]);
+
+  const hasPduOverTimeData = useMemo(
+    () => pduOverTime.some((point) => point.pdus > 0),
+    [pduOverTime],
+  );
 
   const pduByCategory = useMemo(() => {
     return (pduReport?.byCategory ?? []).map((item, index) => ({
@@ -131,7 +120,6 @@ export const useProfessionalOverviewTab = () => {
     overviewQuery.isFetching ||
     pduReportQuery.isFetching ||
     myCoursesQuery.isFetching ||
-    pduActivitiesQuery.isFetching ||
     calendarEventsQuery.isFetching ||
     myCalendarQuery.isFetching ||
     recommendedCoursesQuery.isFetching;
@@ -139,7 +127,6 @@ export const useProfessionalOverviewTab = () => {
   const refreshAll = () => {
     void overviewQuery.refetch();
     void pduReportQuery.refetch();
-    void pduActivitiesQuery.refetch();
     void calendarEventsQuery.refetch();
     void myCalendarQuery.refetch();
     void myCoursesQuery.refetch();
@@ -158,7 +145,6 @@ export const useProfessionalOverviewTab = () => {
       notify.error(t("authPages.common.genericError"));
     }
   };
-
   return {
     overview,
     pduReport,
@@ -168,13 +154,13 @@ export const useProfessionalOverviewTab = () => {
     pduOverTime,
     goalProgress,
     enrollCourse,
-    pduActivities,
     goalChartData,
     pduByCategory,
     activeCourses,
     calendarEvents,
     upcomingEvents,
     recommendedCourses,
+    hasPduOverTimeData,
     isEnrolling: enrollState.isLoading,
   };
 };

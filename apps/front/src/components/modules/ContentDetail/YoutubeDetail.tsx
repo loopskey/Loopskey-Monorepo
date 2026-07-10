@@ -93,6 +93,13 @@ const YouTubeDetailPage = ({ slug }: { slug: string }) => {
             <DetailHeroActions
               contentType={API.ContentType.Youtube}
               prefill={calendarPrefill}
+              completed={{
+                title: channel.title,
+                contentId: channel.id,
+                contentType: API.ContentType.Youtube,
+                activityType: API.PduSource.VideoLecture,
+                providerOrganizer: channel.provider,
+              }}
               wishlist={{
                 isWishlisted: actions.isWishlisted,
                 loading: actions.isWishlistLoading,

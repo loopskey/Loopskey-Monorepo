@@ -71,6 +71,15 @@ const CourseDetailPage = ({ slug }: TCourseDetailPageProps) => {
             <DetailHeroActions
               contentType={API.ContentType.Course}
               prefill={calendarPrefill}
+              completed={{
+                title: course.title,
+                contentId: course.id,
+                contentType: API.ContentType.Course,
+                activityType: API.PduSource.Course,
+                providerOrganizer: course.instructor,
+                durationMinutes: course.durationMinutes,
+                level: course.level,
+              }}
               wishlist={{
                 isWishlisted: actions.isWishlisted,
                 loading: actions.isWishlistLoading,

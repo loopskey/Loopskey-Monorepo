@@ -143,6 +143,32 @@ export const professionalApi = baseApi.injectEndpoints({
       providesTags: ["ProfessionalPdu", "Professional"],
     }),
 
+    professionalPduActivity: builder.query<
+      TAPI.ProfessionalPduActivityQuery["professionalPduActivity"],
+      TAPI.ProfessionalPduActivityQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.ProfessionalPduActivityDocument,
+        variables,
+      }),
+      transformResponse: (response: TAPI.ProfessionalPduActivityQuery) =>
+        response.professionalPduActivity,
+      providesTags: ["ProfessionalPdu", "Professional"],
+    }),
+
+    professionalContentCompletion: builder.query<
+      TAPI.ProfessionalContentCompletionQuery["professionalContentCompletion"],
+      TAPI.ProfessionalContentCompletionQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.ProfessionalContentCompletionDocument,
+        variables,
+      }),
+      transformResponse: (response: TAPI.ProfessionalContentCompletionQuery) =>
+        response.professionalContentCompletion,
+      providesTags: ["ProfessionalPdu", "Professional"],
+    }),
+
     professionalPayments: builder.query<
       TAPI.ProfessionalPaymentsQuery["professionalPayments"],
       TAPI.ProfessionalPaymentsQueryVariables | void
@@ -228,6 +254,34 @@ export const professionalApi = baseApi.injectEndpoints({
       invalidatesTags: ["ProfessionalPdu", "ProfessionalOverview"],
     }),
 
+    updateProfessionalPduActivity: builder.mutation<
+      TAPI.UpdateProfessionalPduActivityMutation["updateProfessionalPduActivity"],
+      TAPI.UpdateProfessionalPduActivityMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.UpdateProfessionalPduActivityDocument,
+        variables: { input },
+      }),
+      transformResponse: (
+        response: TAPI.UpdateProfessionalPduActivityMutation,
+      ) => response.updateProfessionalPduActivity,
+      invalidatesTags: ["ProfessionalPdu", "ProfessionalOverview"],
+    }),
+
+    deleteProfessionalPduActivity: builder.mutation<
+      TAPI.DeleteProfessionalPduActivityMutation["deleteProfessionalPduActivity"],
+      TAPI.DeleteProfessionalPduActivityMutationVariables
+    >({
+      query: (variables) => ({
+        document: API.DeleteProfessionalPduActivityDocument,
+        variables,
+      }),
+      transformResponse: (
+        response: TAPI.DeleteProfessionalPduActivityMutation,
+      ) => response.deleteProfessionalPduActivity,
+      invalidatesTags: ["ProfessionalPdu", "ProfessionalOverview"],
+    }),
+
     upsertProfessionalPduTarget: builder.mutation<
       TAPI.UpsertProfessionalPduTargetMutation["upsertProfessionalPduTarget"],
       TAPI.UpsertProfessionalPduTargetMutationVariables["input"]
@@ -283,6 +337,11 @@ export const {
   useLazyProfessionalMyCoursesQuery,
   useLazyProfessionalPduReportQuery,
   useProfessionalPduActivitiesQuery,
+  useProfessionalPduActivityQuery,
+  useLazyProfessionalPduActivityQuery,
+  useProfessionalContentCompletionQuery,
+  useUpdateProfessionalPduActivityMutation,
+  useDeleteProfessionalPduActivityMutation,
   useProfessionalCalendarEventsQuery,
   useMyCalendarEntriesQuery,
   useCreateCalendarEventMutation,

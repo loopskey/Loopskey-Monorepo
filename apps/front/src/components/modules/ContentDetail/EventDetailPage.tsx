@@ -76,6 +76,12 @@ const EventDetailPage = ({ slug }: { slug: string }) => {
             <DetailHeroActions
               contentType={API.ContentType.Event}
               prefill={calendarPrefill}
+              completed={{
+                title: event.title,
+                contentId: event.id,
+                contentType: API.ContentType.Event,
+                activityType: API.PduSource.Event,
+              }}
               wishlist={{
                 isWishlisted: actions.isWishlisted,
                 loading: actions.isWishlistLoading,

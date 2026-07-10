@@ -1,4 +1,5 @@
-import { PDUCategory, PDUStatus, PDUSource, ContentType } from "@prisma/client";
+import { PDUCategory, PDUCompletionStatus, PDUSource } from "@prisma/client";
+import { ContentType, CreditType, PDUStatus } from "@prisma/client";
 import { Field, Float, Int, ObjectType } from "@nestjs/graphql";
 import { ProfessionalGqlObjectNames } from "@professional/enums/gql-names.enum";
 import { PageInfoEntity } from "@professional/entities/page-info.entity";
@@ -17,6 +18,21 @@ export class ProfessionalPduCategorySummaryEntity {
   @Field(() => PDUCategory) category: PDUCategory;
 }
 
+@ObjectType(ProfessionalGqlObjectNames.PROFESSIONAL_PDU_MONTHLY_POINT)
+export class ProfessionalPduMonthlyPointEntity {
+  @Field(() => Int) month: number;
+  @Field(() => Float) pdus: number;
+}
+
+@ObjectType(ProfessionalGqlObjectNames.PROFESSIONAL_PDU_ACTIVITY_FILE)
+export class ProfessionalPduActivityFileEntity {
+  @Field() id: string;
+  @Field() fileName: string;
+  @Field() mimeType: string;
+  @Field(() => Int) sizeBytes: number;
+  @Field() createdAt: Date;
+}
+
 @ObjectType(ProfessionalGqlObjectNames.PROFESSIONAL_PDU_ACTIVITY)
 export class ProfessionalPduActivityEntity {
   @Field() id: string;
@@ -28,11 +44,22 @@ export class ProfessionalPduActivityEntity {
   @Field(() => PDUSource) source: PDUSource;
   @Field(() => PDUStatus) status: PDUStatus;
   @Field(() => PDUCategory) category: PDUCategory;
+  @Field(() => CreditType) creditType: CreditType;
+  @Field(() => PDUCompletionStatus) completionStatus: PDUCompletionStatus;
+  @Field(() => Int, { nullable: true }) reportingYear?: number | null;
+  @Field(() => String, { nullable: true }) providerOrganizer?: string | null;
+  @Field(() => String, { nullable: true }) subCategory?: string | null;
+  @Field(() => String, { nullable: true }) issuingOrganization?: string | null;
+  @Field(() => String, { nullable: true }) relatedCertification?: string | null;
+  @Field(() => String, { nullable: true }) learningOutcome?: string | null;
+  @Field(() => String, { nullable: true }) evidenceNote?: string | null;
   @Field(() => String, { nullable: true }) contentId?: string | null;
   @Field(() => String, { nullable: true }) description?: string | null;
   @Field(() => String, { nullable: true }) evidenceUrl?: string | null;
   @Field(() => ContentType, { nullable: true })
   contentType?: ContentType | null;
+  @Field(() => [ProfessionalPduActivityFileEntity])
+  evidenceFiles: ProfessionalPduActivityFileEntity[];
 }
 
 @ObjectType(ProfessionalGqlObjectNames.PROFESSIONAL_PDU_REPORT)
@@ -46,6 +73,8 @@ export class ProfessionalPduReportEntity {
   targets: ProfessionalPduTargetEntity[];
   @Field(() => [ProfessionalPduCategorySummaryEntity])
   byCategory: ProfessionalPduCategorySummaryEntity[];
+  @Field(() => [ProfessionalPduMonthlyPointEntity])
+  byMonth: ProfessionalPduMonthlyPointEntity[];
 }
 
 @ObjectType(ProfessionalGqlObjectNames.PAGINATED_PROFESSIONAL_PDU_ACTIVITIES)

@@ -147,6 +147,11 @@ export const formatDateTime = (value?: string | Date | null) => {
   }).format(new Date(value));
 };
 
+export const currentYear = new Date().getFullYear();
+
+export const orUndefined = (value?: string | null) =>
+  value?.trim() || undefined;
+
 export const toTimestamp = (value?: string | Date | null): number => {
   if (!value) return 0;
   const timestamp = new Date(value).getTime();

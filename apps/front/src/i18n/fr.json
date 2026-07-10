@@ -1186,6 +1186,33 @@
       "inCart": "Dans le panier",
       "addToCalendar": "Ajouter au calendrier"
     },
+    "markCompleted": {
+      "button": "Marquer comme terminé",
+      "completedButton": "Terminé",
+      "title": "Marquer comme terminé",
+      "description": "Vérifiez les détails et enregistrez cette activité d'apprentissage comme terminée.",
+      "alreadyCompleted": "Vous avez déjà marqué ce contenu comme terminé. L'enregistrement mettra à jour l'activité existante.",
+      "success": "Activité marquée comme terminée avec succès.",
+      "save": "Enregistrer comme terminé",
+      "fields": {
+        "title": "Titre de l'activité",
+        "activityType": "Type d'activité",
+        "providerOrganizer": "Fournisseur / organisateur",
+        "dateCompleted": "Date d'achèvement",
+        "creditType": "Type de crédit",
+        "creditValue": "Valeur du crédit / heures PDU",
+        "category": "Catégorie CPD/PDU",
+        "subCategory": "Sous-catégorie",
+        "issuingOrganization": "Organisme émetteur",
+        "duration": "Durée",
+        "level": "Niveau",
+        "roadmapArea": "Domaine de la feuille de route",
+        "certificate": "Certificat / Preuve",
+        "certificateHelp": "Téléversez un fichier de certificat jusqu'à 20 Mo (PDF, JPG, PNG, DOC, DOCX).",
+        "certificateLink": "Lien du certificat",
+        "certificateLinkPlaceholder": "https://..."
+      }
+    },
     "tabs": {
       "overview": "Aperçu",
       "curriculum": "Programme",
@@ -1607,7 +1634,7 @@
         "roadmap": "Parcours",
         "certificates": "Certificats",
         "payments": "Paiements",
-        "pduReport": "Rapport PDU"
+        "cpdPduTracker": "Suivi CPD/PDU"
       },
       "organization": {
         "overview": "Vue d’ensemble",
@@ -1626,7 +1653,7 @@
       "courses": "Mes cours",
       "payments": "Paiements",
       "settings": "Paramètres",
-      "pduReport": "Rapport PDU",
+      "cpdPduTracker": "Suivi CPD/PDU",
       "overview": "Vue d’ensemble",
       "calendar": "Mon calendrier",
       "certificates": "Certificats",
@@ -1821,11 +1848,12 @@
       "viewDetails": "Voir les détails",
       "contentTitle": "Élément {{type}} #{{id}}"
     },
-    "pduReport": {
-      "eyebrow": "Rapport PDU",
-      "title": "Rapport PDU",
-      "subtitle": "Suivez et gérez vos unités de développement professionnel.",
+    "cpdPduTracker": {
+      "eyebrow": "Suivi CPD/PDU",
+      "title": "Suivi CPD/PDU",
+      "subtitle": "Suivez et gérez votre développement professionnel continu.",
       "exportCsv": "Exporter CSV",
+      "reportYear": "Année du rapport",
       "cards": {
         "totalPdus": "Total des PDU obtenus",
         "target": "Objectif",
@@ -1837,51 +1865,197 @@
       },
       "quickActions": {
         "title": "Actions rapides",
-        "subtitle": "Ajustez les objectifs annuels et ajoutez de nouvelles activités PDU.",
+        "subtitle": "Ajustez les objectifs annuels et enregistrez de nouvelles activités d’apprentissage.",
         "adjustTargets": "Ajuster les objectifs annuels",
-        "logActivity": "Ajouter un PDU"
+        "addActivity": "Ajouter une activité d’apprentissage"
       },
       "byCategory": {
         "title": "PDU par catégorie",
-        "subtitle": "Progression par rapport aux objectifs de chaque catégorie."
+        "subtitle": "Progression par rapport aux objectifs de chaque catégorie.",
+        "empty": "Ajoutez une activité ou définissez un objectif annuel pour voir la répartition par catégorie."
       },
       "overTime": {
         "title": "PDU dans le temps",
-        "subtitle": "Accumulation mensuelle basée sur les activités visibles dans ce tableau."
+        "subtitle": "Crédits mensuels obtenus sur l’année sélectionnée.",
+        "empty": "Aucun crédit enregistré pour cette année."
       },
       "activities": {
         "title": "Activités",
-        "subtitle": "Gérez vos activités PDU et leur statut d’approbation.",
-        "search": "Rechercher des activités...",
-        "emptyTitle": "Aucune activité PDU trouvée",
-        "emptyDescription": "Ajoutez votre première activité pour commencer le suivi de vos PDU.",
-        "table": {
-          "activity": "Activité",
-          "date": "Date",
-          "category": "Catégorie",
-          "status": "Statut",
-          "pdus": "PDU"
+        "subtitle": "Gérez toutes les activités d’apprentissage que vous avez enregistrées.",
+        "emptyTitle": "Aucune activité d’apprentissage",
+        "emptyDescription": "Ajoutez votre première activité pour commencer le suivi de votre développement professionnel continu.",
+        "noMatchTitle": "Aucune activité ne correspond à vos filtres",
+        "noMatchDescription": "Élargissez votre recherche ou effacez les filtres pour voir toutes les activités.",
+        "deleteTitle": "Supprimer cette activité ?",
+        "deleteDescription": "Cette action supprime définitivement l’activité et tous les fichiers de preuve associés.",
+        "deleteSuccess": "Activité supprimée avec succès.",
+        "downloadError": "Impossible de télécharger ce fichier."
+      },
+      "filters": {
+        "any": "Tous",
+        "search": "Rechercher",
+        "searchPlaceholder": "Rechercher un titre, un organisme ou des notes...",
+        "activityType": "Type d’activité",
+        "creditType": "Type de crédit",
+        "category": "Catégorie",
+        "status": "Statut",
+        "reportingYear": "Année de déclaration",
+        "certificate": "Certificat",
+        "hasCertificate": "Avec certificat",
+        "noCertificate": "Sans certificat",
+        "dateFrom": "Terminée à partir du",
+        "dateTo": "Terminée jusqu’au",
+        "clear": "Effacer les filtres"
+      },
+      "table": {
+        "title": "Titre de l’activité",
+        "type": "Type d’activité",
+        "dateCompleted": "Date de fin",
+        "creditType": "Type de crédit",
+        "creditValue": "Valeur du crédit",
+        "category": "Catégorie",
+        "reportingYear": "Année de déclaration",
+        "provider": "Fournisseur / organisateur",
+        "status": "Statut",
+        "certificate": "Certificat",
+        "actions": "Actions",
+        "attached": "Voir",
+        "noFile": "Aucun fichier"
+      },
+      "activityTypes": {
+        "COURSE": "Cours",
+        "WEBINAR": "Webinaire",
+        "WORKSHOP": "Atelier",
+        "SEMINAR": "Séminaire",
+        "CONFERENCE": "Conférence",
+        "MEETING": "Réunion",
+        "TRAINING_SESSION": "Session de formation",
+        "CERTIFICATION_PROGRAM": "Programme de certification",
+        "SELF_STUDY": "Étude autonome",
+        "READING_ARTICLE": "Lecture / article",
+        "PODCAST": "Podcast",
+        "VIDEO_LECTURE": "Vidéo / cours enregistré",
+        "MENTORSHIP": "Séance de mentorat",
+        "VOLUNTEERING": "Bénévolat / service professionnel",
+        "TEACHING": "Enseignement / présentation",
+        "EXAM_ASSESSMENT": "Examen / évaluation",
+        "OTHER": "Autre",
+        "EVENT": "Événement",
+        "YOUTUBE": "YouTube"
+      },
+      "creditTypes": {
+        "CPD": "CPD",
+        "PDU": "PDU",
+        "CEU": "CEU",
+        "TRAINING_HOUR": "Heure de formation"
+      },
+      "categories": {
+        "TECHNICAL": "Compétences techniques",
+        "PROFESSIONAL_PRACTICE": "Pratique professionnelle",
+        "LEADERSHIP": "Leadership",
+        "ETHICS": "Éthique",
+        "COMMUNICATION": "Communication",
+        "BUSINESS": "Affaires / stratégie",
+        "STRATEGIC": "Stratégique",
+        "COMPLIANCE": "Sécurité / conformité",
+        "DIGITAL_AI": "Compétences numériques / IA",
+        "RESEARCH_INNOVATION": "Recherche / innovation",
+        "INDUSTRY_KNOWLEDGE": "Connaissance du secteur",
+        "OTHER": "Autre"
+      },
+      "completionStatuses": {
+        "COMPLETED": "Terminée",
+        "INCOMPLETE": "Incomplète"
+      },
+      "fields": {
+        "title": "Titre de l’activité",
+        "titlePlaceholder": "ex. Atelier avancé de gestion des risques",
+        "activityType": "Type d’activité",
+        "dateCompleted": "Date de fin",
+        "providerOrganizer": "Fournisseur / organisateur",
+        "providerOrganizerPlaceholder": "Qui a dispensé cette activité ?",
+        "creditType": "Type de crédit",
+        "creditValue": "Valeur du crédit / heures",
+        "creditValueHint": "Doit être supérieure à 0. Les décimales comme 1,5 sont acceptées.",
+        "category": "Catégorie CPD / PDU",
+        "subCategory": "Sous-catégorie",
+        "subCategoryPlaceholder": "Choisissez d’abord une catégorie",
+        "reportingYear": "Année de déclaration",
+        "reportingYearHint": "Par défaut, l’année de la date de fin.",
+        "issuingOrganization": "Organisme émetteur",
+        "relatedCertification": "Certification / licence associée",
+        "description": "Description / notes de l’activité",
+        "descriptionPlaceholder": "Décrivez brièvement l’activité.",
+        "evidenceNote": "Notes sur les fichiers",
+        "evidenceNotePlaceholder": "Notes sur le certificat, la preuve de présence ou les pièces justificatives.",
+        "learningOutcome": "Acquis d’apprentissage",
+        "learningOutcomeHint": "Qu’avez-vous appris et comment l’appliquerez-vous dans votre travail ?",
+        "learningOutcomePlaceholder": "Décrivez ce que vous avez appris et comment vous l’appliquerez."
+      },
+      "evidence": {
+        "dropTitle": "Téléverser un certificat ou une preuve",
+        "dropHint": "PDF, JPG, PNG, DOC ou DOCX. Jusqu’à 20 Mo par fichier.",
+        "chooseFiles": "Choisir des fichiers",
+        "remaining": "Vous pouvez ajouter encore {{count}} fichier(s).",
+        "limitReached": "Vous avez atteint la limite de {{max}} fichiers.",
+        "existingTitle": "Fichiers joints",
+        "pendingTitle": "Fichiers à téléverser",
+        "download": "Télécharger",
+        "remove": "Supprimer",
+        "removed": "Fichier supprimé.",
+        "uploadFailed": "L’activité a été enregistrée, mais les fichiers n’ont pas pu être téléversés. Veuillez réessayer de les joindre.",
+        "fileTooLarge": "« {{name}} » dépasse 20 Mo.",
+        "fileTypeInvalid": "« {{name}} » n’est pas un type de fichier accepté.",
+        "tooManyFiles": "Vous pouvez joindre au maximum {{max}} fichiers."
+      },
+      "review": {
+        "title": "Prêt à envoyer",
+        "subtitle": "Vérifiez les informations ci-dessous, puis ajoutez votre activité.",
+        "files": "Fichiers de preuve"
+      },
+      "addActivity": {
+        "title": "Ajouter une activité d’apprentissage",
+        "editTitle": "Modifier l’activité d’apprentissage",
+        "subtitle": "Enregistrez une activité d’apprentissage et les crédits obtenus.",
+        "back": "Retour",
+        "next": "Suivant",
+        "addActivity": "Ajouter l’activité",
+        "updateActivity": "Mettre à jour l’activité",
+        "createSuccess": "Activité ajoutée avec succès.",
+        "updateSuccess": "Activité mise à jour avec succès.",
+        "successDescription": "Vos totaux et graphiques CPD/PDU ont été mis à jour.",
+        "viewActivities": "Voir mes activités",
+        "addAnother": "Ajouter une autre activité",
+        "cancelTitle": "Abandonner cette activité ?",
+        "cancelDescription": "Vous avez des modifications non enregistrées. Quitter maintenant les supprimera.",
+        "keepEditing": "Continuer l’édition",
+        "discardChanges": "Abandonner les modifications",
+        "steps": {
+          "1": {
+            "title": "Informations de base",
+            "description": "Titre, type, date et fournisseur"
+          },
+          "2": {
+            "title": "Détails CPD/PDU",
+            "description": "Crédits, catégorie et année"
+          },
+          "3": {
+            "title": "Preuves et fichiers",
+            "description": "Certificats et notes justificatives"
+          },
+          "4": {
+            "title": "Acquis d’apprentissage",
+            "description": "Ce que vous avez appris, puis révision"
+          }
         }
       },
       "targetsDialog": {
         "title": "Ajuster l’objectif annuel",
-        "description": "Définissez un objectif pour une catégorie PDU et une année.",
+        "description": "Définissez un objectif pour une catégorie CPD/PDU et une année.",
         "category": "Catégorie",
         "target": "Objectif PDU",
         "save": "Enregistrer l’objectif",
         "success": "Objectif PDU enregistré avec succès."
-      },
-      "activityDialog": {
-        "title": "Ajouter une activité PDU",
-        "description": "Ajoutez une activité de développement professionnel à votre rapport.",
-        "activityTitle": "Titre de l’activité",
-        "date": "Date",
-        "pdus": "PDU",
-        "source": "Source",
-        "category": "Catégorie",
-        "save": "Enregistrer l’activité",
-        "success": "Activité PDU créée avec succès.",
-        "titleRequired": "Le titre de l’activité est obligatoire."
       }
     },
     "payments": {

@@ -1,9 +1,9 @@
 "use client";
 
 import { useProfessionalOverviewTab } from "@/hooks/useProfessionalOverviewTab";
+import { getContentTypeStyle } from "@/utils/content-type-style";
 import { DashboardStatCard } from "@modules/ProfessionalDashboard/parts/dashboard-stat-card";
 import { SnapshotRow } from "@modules/ProfessionalDashboard/parts/snapshot-learning";
-import { getContentTypeStyle } from "@/utils/content-type-style";
 import { formatDate } from "@/utils/function-helper";
 import { GlassCard } from "@elements/glass-card";
 import { Progress } from "@ui/progress";
@@ -25,6 +25,7 @@ const ProfessionalOverviewTab = () => {
     isLoading,
     refreshAll,
     pduOverTime,
+    hasPduOverTimeData,
     isEnrolling,
     goalProgress,
     enrollCourse,
@@ -122,7 +123,13 @@ const ProfessionalOverviewTab = () => {
           </div>
 
           <div className="mt-6 h-72">
-            <C.PduOverTimeChart data={pduOverTime} />
+            {hasPduOverTimeData ? (
+              <C.PduOverTimeChart data={pduOverTime} />
+            ) : (
+              <div className="flex h-full items-center justify-center rounded-[1.5rem] border border-dashed border-glass-border bg-background/40 p-8 text-center text-sm text-muted-foreground">
+                {t("professionalDashboard.cpdPduTracker.overTime.empty")}
+              </div>
+            )}
           </div>
         </GlassCard>
 
@@ -143,7 +150,13 @@ const ProfessionalOverviewTab = () => {
             {t("professionalDashboard.overview.pdusByCategory")}
           </h2>
           <div className="mt-6 h-72">
-            <C.PduByCategoryChart data={pduByCategory} />
+            {pduByCategory.length ? (
+              <C.PduByCategoryChart data={pduByCategory} />
+            ) : (
+              <div className="flex h-full items-center justify-center rounded-[1.5rem] border border-dashed border-glass-border bg-background/40 p-8 text-center text-sm text-muted-foreground">
+                {t("professionalDashboard.cpdPduTracker.byCategory.empty")}
+              </div>
+            )}
           </div>
         </GlassCard>
 
@@ -166,44 +179,49 @@ const ProfessionalOverviewTab = () => {
                 const style = getContentTypeStyle(item.contentType);
                 const CategoryIcon = style.icon;
                 return (
-                <div
-                  key={item.id}
-                  className="rounded-3xl border border-glass-border bg-background/45 p-4"
-                >
-                  <div className="flex items-start gap-3">
-                    <div className={cn("rounded-2xl p-3", style.softClass)}>
-                      <CategoryIcon className="h-5 w-5" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="truncate font-bold">{item.title}</p>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        {formatDate(item.date)}
-                      </p>
+                  <div
+                    key={item.id}
+                    className="rounded-3xl border border-glass-border bg-background/45 p-4"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className={cn("rounded-2xl p-3", style.softClass)}>
+                        <CategoryIcon className="h-5 w-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate font-bold">{item.title}</p>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          {formatDate(item.date)}
+                        </p>
 
-                      <div className="mt-3 flex flex-wrap items-center gap-2">
-                        <Badge
-                          variant="outline"
-                          className={cn(style.badgeClass, "rounded-full gap-1")}
-                        >
-                          <CategoryIcon className="h-3 w-3" />
-                          {t(style.labelKey)}
-                        </Badge>
-                        <Badge
-                          variant={
-                            item.source === "manual" ? "default" : "secondary"
-                          }
-                          className="rounded-full"
-                        >
-                          {item.source === "manual"
-                            ? t("professionalDashboard.calendar.upcoming.manual")
-                            : t(
-                                "professionalDashboard.calendar.upcoming.registered",
-                              )}
-                        </Badge>
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                          <Badge
+                            variant="outline"
+                            className={cn(
+                              style.badgeClass,
+                              "rounded-full gap-1",
+                            )}
+                          >
+                            <CategoryIcon className="h-3 w-3" />
+                            {t(style.labelKey)}
+                          </Badge>
+                          <Badge
+                            variant={
+                              item.source === "manual" ? "default" : "secondary"
+                            }
+                            className="rounded-full"
+                          >
+                            {item.source === "manual"
+                              ? t(
+                                  "professionalDashboard.calendar.upcoming.manual",
+                                )
+                              : t(
+                                  "professionalDashboard.calendar.upcoming.registered",
+                                )}
+                          </Badge>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
                 );
               })
             ) : (

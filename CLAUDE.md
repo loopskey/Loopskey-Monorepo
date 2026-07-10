@@ -6,35 +6,62 @@ Guidance for Claude Code and other AI coding assistants working in this reposito
 
 Loopskey is a full-stack learning and CPD platform organized as an npm workspace monorepo.
 
-- Backend: NestJS 11, GraphQL code-first, Prisma, PostgreSQL, JWT cookies, OAuth, RBAC.
+- Backend: NestJS 11, GraphQL code-first, Prisma, PostgreSQL, JWT auth, OAuth, RBAC, httpOnly cookie sessions.
 - Frontend: Next.js App Router, React 19, TypeScript, Tailwind CSS, Radix UI/shadcn-style components, RTK Query over GraphQL.
 - Workspace tooling: npm workspaces with Turbo for root-level orchestration.
 
 The product supports role-specific experiences for `ADMIN`, `PROFESSIONAL`, `PROVIDER`, and `ORGANIZATION` users. Core domains include authentication, courses, events, podcasts, YouTube content, content interactions, CPD/PDU tracking, roadmaps, provider dashboards, organization dashboards, and admin management.
+
+Always inspect the existing implementation before changing architecture. Prefer the patterns already used in the touched module over introducing a new style.
 
 ## Repository Layout
 
 ```text
 .
 |-- apps/
-|   |-- api/                  # NestJS GraphQL API
-|   |   |-- prisma/           # Prisma schema, migrations, seed entrypoint
+|   |-- api/                              # NestJS GraphQL API
+|   |   |-- prisma/
+|   |   |   |-- schema.prisma             # Prisma data model
+|   |   |   |-- migrations/               # Database migrations
+|   |   |   `-- seeds/                    # Domain seed data
 |   |   `-- src/
-|   |       |-- common/       # Shared API types and utilities
-|   |       |-- graphql/      # Generated GraphQL schema output
-|   |       |-- main.ts       # API bootstrap
-|   |       `-- modules/      # Feature modules
-|   `-- front/                # Next.js frontend
+|   |       |-- common/
+|   |       |   |-- types/                # Shared backend TypeScript types
+|   |       |   `-- utils/                # Shared backend utilities/constants
+|   |       |-- graphql/                  # Generated GraphQL schema output
+|   |       |-- main.ts                   # API bootstrap
+|   |       `-- modules/                  # Domain modules
+|   |           `-- <domain>/
+|   |               |-- controllers/       # REST/OAuth callbacks only when needed
+|   |               |-- decorators/        # Domain decorators
+|   |               |-- dtos/              # GraphQL inputs and validated DTOs
+|   |               |-- entities/          # GraphQL object types
+|   |               |-- enums/             # Domain enum and GraphQL name constants
+|   |               |-- guards/            # Domain guards
+|   |               |-- resolvers/         # GraphQL transport layer
+|   |               |-- services/          # Business logic
+|   |               `-- types/             # Domain TypeScript-only types/interfaces
+|   `-- front/                            # Next.js frontend
 |       `-- src/
-|           |-- app/          # App Router route groups and pages
-|           |-- components/   # UI, layout, guard, and feature components
-|           |-- hooks/        # Feature and form hooks
-|           |-- i18n/         # en/fr translation JSON
-|           |-- lib/          # GraphQL docs/generated types, RTK, validations
-|           |-- providers/    # Redux, theme, language providers
-|           |-- types/        # Frontend TypeScript types
-|           `-- utils/        # Constants and helpers
-|-- package.json              # Root Turbo scripts and workspaces
+|           |-- app/                      # App Router route groups and pages
+|           |-- components/
+|           |   |-- ui/                   # shadcn/Radix primitives
+|           |   |-- elements/             # Reusable app UI elements
+|           |   |-- layouts/              # Shells, headers, dashboard layouts
+|           |   |-- guards/               # Route/access guards
+|           |   `-- modules/              # Feature-specific UI modules
+|           |-- hooks/                    # Component/page logic and data orchestration
+|           |-- i18n/                     # en/fr translation JSON
+|           |-- lib/
+|           |   |-- graphql/
+|           |   |   |-- documents/        # Source GraphQL operations
+|           |   |   `-- generated.ts      # Generated GraphQL types/documents
+|           |   |-- rtk/                  # RTK Query base API and endpoints
+|           |   `-- validations/          # Zod schemas and inferred form types
+|           |-- providers/                # Redux, theme, language providers
+|           |-- types/                    # Frontend TypeScript-only types/interfaces
+|           `-- utils/                    # Constants, config maps, helpers
+|-- package.json                          # Root Turbo scripts and workspaces
 |-- package-lock.json
 `-- turbo.json
 ```
@@ -73,6 +100,92 @@ npm run svg-spritor --workspace front
 
 The API defaults to `APP_PORT=5700`. The frontend defaults to Next's `3000` unless the port is occupied.
 
+## Frontend Architecture
+
+The frontend lives in `apps/front` and uses Next.js App Router.
+
+Route groups:
+
+- `src/app/(auth)`: authentication screens.
+- `src/app/(dashboards)`: role-specific dashboards under `/dashboard/...`.
+- `src/app/(pages)`: public informational/content pages.
+
+Path aliases are defined in `apps/front/tsconfig.json`. Prefer aliases such as `@/*`, `@components/*`, `@modules/*`, `@ui/*`, `@elements/*`, `@hooks/*`, `@lib/*`, `@types/*`, and `@utils/*` instead of deep relative imports.
+
+### Frontend Folder Rules
+
+- `src/components/ui`: shadcn/Radix primitive components. Reuse these before adding new primitives.
+- `src/components/elements`: reusable Loopskey UI elements that can appear in multiple modules or pages. If a component is generic, reusable, or not tied to one feature, place it here.
+- `src/components/modules/<Feature>`: feature-specific UI. Keep module components focused on rendering and composition.
+- `src/components/modules/<Feature>/parts`: smaller pieces used only by that feature module.
+- `src/components/layouts`: app shells, headers, footers, dashboard layout, sidebar, and navigation layout pieces.
+- `src/components/guards`: route and role guards.
+- `src/hooks`: all non-trivial frontend behavior, form orchestration, data fetching orchestration, UI state machines, and API mutation/query handling.
+- `src/types`: dedicated frontend TypeScript types and interfaces. Do not define reusable app/domain types inside components or hooks.
+- `src/lib/validations`: Zod schemas and inferred form/validation types.
+- `src/lib/graphql/documents`: `.graphql` operation documents.
+- `src/lib/graphql/generated.ts`: generated GraphQL types and typed documents. Do not hand-edit this file.
+- `src/lib/rtk/endpoints`: RTK Query endpoint files grouped by domain.
+- `src/utils`: constants, route helpers, option maps, icon maps, and small pure helpers.
+
+TypeScript types must stay separated into dedicated type files/folders:
+
+- Frontend shared/domain types belong in `apps/front/src/types/*.types.ts`.
+- Backend shared types belong in `apps/api/src/common/types/*.types.ts`.
+- Backend domain-only types belong in `apps/api/src/modules/<domain>/types/*.types.ts`.
+- Generated GraphQL operation/result types must come from `@/lib/graphql/generated`.
+- Zod form value types should be inferred beside the schema in `src/lib/validations/*.schema.ts`.
+- Avoid exporting reusable interfaces from `.tsx` component files. Move them to a nearby `types` file or the global `src/types` folder.
+
+Constants must stay in dedicated constant/config locations:
+
+- Frontend constants should live in `src/utils/constant.ts`, `src/utils/*.constant.ts`, or another existing dedicated util/config file such as `dashboard-nav.config.ts`.
+- Backend constants should live in `common/utils`, `common/types` only when type-only, or in module-local `enums`, `types`, or dedicated `*.constant.ts` files.
+- Do not inline repeated routes, labels, enum maps, option arrays, GraphQL names, cookie names, role maps, or magic numbers inside components/services.
+
+### Component Rules
+
+- Before creating a component, decide whether it is feature-specific or reusable.
+- Reusable UI belongs in `src/components/elements`.
+- Feature-only UI belongs in `src/components/modules/<Feature>` or its `parts` folder.
+- Page files in `src/app` should stay light and mostly compose modules/layouts.
+- Do not put data fetching, mutations, form submit handlers, or complex state transitions directly inside components.
+- If a component needs API data, mutations, derived state, validation state, filtering, pagination, tabs, or side effects, create or reuse a custom hook in `src/hooks/use<Feature>.ts`.
+- Keep components presentational where possible: receive values, callbacks, loading/error states, and render UI.
+- Use `lucide-react` icons when a matching icon exists, consistent with `components.json`.
+- Keep visible text in i18n files when the surrounding feature uses translations. Update both `src/i18n/en.json` and `src/i18n/fr.json`.
+
+### Forms and Validation
+
+- Use `react-hook-form` for forms.
+- Use Zod for every form, every validated field group, and any user input that needs validation.
+- Put schemas in `src/lib/validations/*.schema.ts`.
+- Use `zodResolver` from `@hookform/resolvers/zod`.
+- Infer form types from schemas with `z.infer`, `z.input`, or `z.output`; do not duplicate schema types manually.
+- Keep submit orchestration inside hooks, not in the JSX component.
+
+### GraphQL and RTK Query
+
+The frontend data layer uses RTK Query over generated GraphQL documents. Follow the existing code generation workflow.
+
+- GraphQL documents live in `src/lib/graphql/documents/*.graphql`.
+- Generated types and typed documents are written to `src/lib/graphql/generated.ts`.
+- RTK Query base API lives in `src/lib/rtk/baseApi.ts`.
+- GraphQL transport lives in `src/lib/rtk/graphqlBaseQuery.ts`.
+- Domain endpoints live in `src/lib/rtk/endpoints/*.api.ts`.
+- Endpoint files should use generated operation types from `@/lib/graphql/generated`.
+- Endpoint files should inject into `baseApi` with `baseApi.injectEndpoints`.
+- Hooks/components should call generated RTK hooks exported by endpoint files.
+- Do not call `fetch` directly in components for application API data.
+- Do not hand-write GraphQL response types when codegen can generate them.
+- After API schema or frontend GraphQL document changes, run `npm run codegen --workspace front`.
+
+Important existing behavior:
+
+- `graphqlBaseQuery` sends `credentials: "include"` so browser requests include the auth cookies.
+- On 401 responses, it retries once through the generated `RefreshTokenDocument`.
+- Cache tags are centralized in `baseApi`; add domain tags there before using them in endpoint files.
+
 ## Backend Architecture
 
 The API lives in `apps/api` and uses NestJS modules grouped by domain:
@@ -87,15 +200,36 @@ The API lives in `apps/api` and uses NestJS modules grouped by domain:
 - `admin`: admin dashboard, user/org management, access requests.
 - `landing`, `external-learning`, `mail`, `prisma`: support and integration modules.
 
-Important backend conventions:
+Path aliases are defined in `apps/api/tsconfig.json`. Prefer aliases such as `@auth/*`, `@course/*`, `@events/*`, `@provider/*`, `@org/*`, `@professional/*`, `@admin/*`, `@prisma/*`, `@utils/*`, and `@types/*`.
+
+### Backend Folder Rules
+
+Each domain module should follow the existing Nest folder structure:
+
+- `*.module.ts`: declare module imports, providers, controllers, and exports.
+- `resolvers/`: GraphQL resolvers. Keep them thin.
+- `controllers/`: REST or OAuth callback controllers only when GraphQL is not the right transport.
+- `services/`: business logic, Prisma access, orchestration, and external integrations.
+- `dtos/`: GraphQL input classes and validated DTOs.
+- `entities/`: GraphQL object types returned by resolvers.
+- `enums/`: GraphQL names, message codes, registration helpers, and domain enums.
+- `guards/`: domain guards when needed.
+- `decorators/`: domain decorators when needed.
+- `types/`: TypeScript-only types/interfaces for service boundaries.
+
+Backend conventions:
 
 - `AppModule` registers global `JwtAuthGuard` and `RolesGuard`. Public endpoints must use the local `@Public()` decorator.
-- Role-restricted resolvers should use the existing `@Roles(...)` decorator and enum types already present in the auth module.
+- Role-restricted resolvers should use the existing `@Roles(...)` decorator and Prisma/Nest enum types already present in the auth module.
 - GraphQL is code-first with schema output controlled by `GRAPHQL_SCHEMA_PATH`, defaulting to `src/graphql/schema.gql`.
-- Resolvers should stay thin: validate/authorize via decorators and delegate business logic to services.
+- Resolvers should validate/authorize via decorators and delegate business logic to services.
+- Services should own Prisma queries and business rules.
 - Prisma access should go through `PrismaService` from `@prisma/prisma.service`.
-- `ValidationPipe` is global with `whitelist`, `forbidNonWhitelisted`, and `transform` enabled. DTOs should use `class-validator` decorators.
-- API path aliases are defined in `apps/api/tsconfig.json`; prefer existing aliases such as `@auth/*`, `@course/*`, `@provider/*`, `@org/*`, and `@professional/*`.
+- `ValidationPipe` is global with `whitelist`, `forbidNonWhitelisted`, and `transform` enabled.
+- API DTOs should use `class-validator` and `class-transformer` decorators where validation/coercion is needed.
+- Use GraphQL `@InputType`, `@ObjectType`, `@Field`, and related decorators consistently with existing modules.
+- Return structured success/code/message payloads where the module already uses that pattern.
+- Keep message codes and GraphQL names in dedicated enum/constant files instead of string literals.
 
 When changing the database:
 
@@ -103,34 +237,22 @@ When changing the database:
 2. Create a migration with Prisma from `apps/api` or by passing the schema path.
 3. Update seed data in `apps/api/prisma/seed.ts` or `apps/api/prisma/seeds/` when needed.
 4. Regenerate Prisma Client if the workflow did not do it automatically.
+5. Update API entities/DTOs/resolvers/services.
+6. Regenerate the GraphQL schema and frontend codegen if the API contract changed.
 
-## Frontend Architecture
+## Authentication and Security
 
-The frontend lives in `apps/front` and uses Next.js App Router.
+Authentication uses secure httpOnly cookies.
 
-Route groups:
-
-- `src/app/(auth)`: authentication screens.
-- `src/app/(dashboards)`: role-specific dashboards under `/dashboard/...`.
-- `src/app/(pages)`: public informational/content pages.
-
-Key frontend conventions:
-
-- Use existing path aliases from `apps/front/tsconfig.json`, especially `@/*`, `@components/*`, `@modules/*`, `@ui/*`, `@hooks/*`, `@lib/*`, and `@utils/*`.
-- Prefer existing shadcn/Radix-style components in `src/components/ui` before introducing new primitives.
-- Feature UI belongs under `src/components/modules/<Feature>`.
-- Data and behavior for larger components usually belongs in `src/hooks/use<Feature>.ts`.
-- Global providers are wired in `src/app/layout.tsx`, `src/providers/app-provider.tsx`, and `src/providers/rtk-provider.tsx`.
-- Translation keys live in `src/i18n/en.json` and `src/i18n/fr.json`; keep both files in sync when adding user-facing text.
-- Constants, route helpers, options, and icon maps belong in `src/utils/constant.ts` or a nearby existing util file.
-
-GraphQL frontend flow:
-
-- GraphQL documents live in `src/lib/graphql/documents/*.graphql`.
-- Generated types/documents are written to `src/lib/graphql/generated.ts`.
-- RTK Query endpoints live in `src/lib/rtk/endpoints/*.api.ts`.
-- The shared `graphqlBaseQuery` posts to `NEXT_PUBLIC_GRAPHQL_URL` with `credentials: "include"` and retries once through `RefreshTokenDocument` on 401.
-- After API schema or GraphQL document changes, run `npm run codegen --workspace front`.
+- Login and refresh write access and refresh tokens to cookies in `AuthSessionService`.
+- Cookies are set with `httpOnly: true`, configurable `secure`, `sameSite`, `domain`, `path`, and max-age options.
+- The frontend should not read JWTs from JavaScript. Do not move tokens into localStorage, sessionStorage, Redux, or client-readable cookies.
+- The JWT strategy extracts the access token from cookies through `cookieExtractor` and also supports bearer tokens as a fallback.
+- Refresh tokens are hashed before being stored on auth sessions.
+- Logout revokes the active session and clears auth cookies.
+- Frontend GraphQL requests must keep `credentials: "include"`.
+- API CORS must allow the configured `FRONTEND_URL` and `credentials: true`.
+- Treat auth, roles, sessions, refresh, and cookie config as high-risk areas. Add targeted tests or manual verification when touching them.
 
 ## Environment Variables
 
@@ -183,20 +305,27 @@ For backend-to-frontend GraphQL work:
 
 1. Add or update Prisma models/enums if persistence changes are needed.
 2. Add API DTOs/entities/resolver/service methods inside the relevant Nest module.
-3. Run the API build/tests for the touched area.
-4. Update frontend `.graphql` documents.
-5. Run `npm run codegen --workspace front`.
-6. Use generated types and documents from `@/lib/graphql/generated`.
-7. Add or update RTK endpoints and hooks/components.
-8. Build or type-check the touched workspace before finishing.
+3. Keep backend TypeScript types in `common/types` or module-local `types`.
+4. Run the API build/tests for the touched area.
+5. Update frontend `.graphql` documents.
+6. Run `npm run codegen --workspace front`.
+7. Use generated types and documents from `@/lib/graphql/generated`.
+8. Add or update RTK endpoint files in `src/lib/rtk/endpoints`.
+9. Move frontend orchestration into a custom hook in `src/hooks`.
+10. Keep reusable UI in `src/components/elements` and feature UI in `src/components/modules`.
+11. Build or type-check the touched workspace before finishing.
 
 For frontend-only work:
 
 1. Reuse existing components from `src/components/ui`, `elements`, and `layouts`.
-2. Keep module-specific UI in `src/components/modules`.
-3. Keep page components light; move stateful logic into hooks when it grows.
-4. Update both translation files for visible strings.
-5. Verify responsive layouts and role-based navigation paths.
+2. Decide whether each new component is reusable or module-specific before placing it.
+3. Keep module-specific UI in `src/components/modules`.
+4. Move data fetching, mutations, form handling, and stateful behavior into custom hooks.
+5. Keep TypeScript types in `src/types` or inferred from Zod schemas in `src/lib/validations`.
+6. Keep constants in dedicated util/constant/config files.
+7. Use Zod validation for forms and validated fields.
+8. Update both translation files for visible strings when the feature is localized.
+9. Verify responsive layouts and role-based navigation paths.
 
 ## Quality Checks
 
@@ -220,18 +349,22 @@ Notes:
 
 - The root README and app READMEs may be stale or boilerplate; trust source code and package scripts first.
 - Because auth guards are global, missing `@Public()` is a common cause of unexpected authentication failures.
-- Cookie auth requires API CORS `origin` and frontend URL/env values to match.
-- When changing GraphQL names or enums, update API entities, schema generation, frontend documents, generated types, RTK endpoints, and i18n labels together.
+- Cookie auth requires API CORS `origin`, cookie same-site/secure/domain settings, and frontend URL/env values to match.
+- The frontend depends on httpOnly cookies and `credentials: "include"`; token handling changes can break auth silently.
+- When changing GraphQL names or enums, update API entities, schema generation, frontend documents, generated types, RTK endpoints, cache tags, and i18n labels together.
 - Prisma enum values are used across API, generated GraphQL types, frontend route helpers, filters, and dashboards. Treat enum changes as cross-app changes.
-- Do not hand-edit generated GraphQL output or Prisma migrations to "quick fix" type issues.
+- Do not hand-edit generated GraphQL output or Prisma migrations to quick-fix type issues.
 - Keep organization/provider/professional/admin dashboard behavior role-scoped; avoid sharing mutations or cache tags casually across roles.
+- Do not hide reusable types, constants, or validation schemas inside components.
+- Do not put API calls directly in components when an RTK endpoint and custom hook should own that logic.
 
 ## Coding Style
 
 - TypeScript strictness is enabled in both apps. Avoid `any` unless there is a local precedent and a clear boundary.
 - Use existing aliases and naming patterns instead of deep relative imports.
-- Keep services responsible for business logic, resolvers/controllers for transport, and frontend hooks for orchestration.
+- Keep services responsible for business logic, resolvers/controllers for transport, frontend hooks for orchestration, and components for rendering.
+- Prefer generated GraphQL types, Zod-inferred types, and dedicated `types` folders over duplicated manual interfaces.
 - Prefer arrow functions over regular function declarations, unless the existing code pattern or a specific technical reason requires otherwise.
-- When an `if` condition has a single-line statement, omit curly braces.
+- When an `if` condition has a single-line statement, omit curly braces to match the current style.
 - Prefer small, focused changes over broad refactors.
-- Add tests or targeted verification when touching auth, payments, role access, Prisma schema, token refresh, or shared RTK behavior.
+- Add tests or targeted verification when touching auth, payments, role access, Prisma schema, token refresh, cookie behavior, or shared RTK behavior.

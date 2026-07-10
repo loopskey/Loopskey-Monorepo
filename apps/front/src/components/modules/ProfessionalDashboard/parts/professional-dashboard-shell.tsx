@@ -4,8 +4,9 @@ import { TProfessionalDashboardTab } from "@/types/professional-dashboard.types"
 import { useSearchParams } from "next/navigation";
 
 import ProfessionalExternalLearningTab from "@modules/ProfessionalDashboard/ProfessionalExternalLearningTab";
+import ProfessionalCpdPduTrackerTab from "@modules/ProfessionalDashboard/ProfessionalCpdPduTrackerTab";
 import ProfessionalCertificatesTab from "@modules/ProfessionalDashboard/ProfessionalCertificatesTab";
-import ProfessionalPduReportTab from "@modules/ProfessionalDashboard/ProfessionalPduTab";
+import ProfessionalAddActivityTab from "@modules/ProfessionalDashboard/ProfessionalAddActivityTab";
 import ProfessionalOverviewTab from "@modules/ProfessionalDashboard/ProfessionalOverviewTab";
 import ProfessionalCalendarTab from "@modules/ProfessionalDashboard/ProfessionalCalendarTab";
 import ProfessionalWishlistTab from "@modules/ProfessionalDashboard/ProfessionalWishlistTab";
@@ -25,6 +26,8 @@ const validTabs: TProfessionalDashboardTab[] = [
   "settings",
   "payments",
   "pdu-report",
+  "cpd-pdu-tracker",
+  "add-activity",
   "certificates",
   "external-learning",
 ];
@@ -45,7 +48,10 @@ export const ProfessionalDashboardShell = () => {
     return <ProfessionalExternalLearningTab />;
   if (activeTab === "certificates") return <ProfessionalCertificatesTab />;
   if (activeTab === "payments") return <ProfessionalPaymentsTab />;
-  if (activeTab === "pdu-report") return <ProfessionalPduReportTab />;
+  // "pdu-report" is the legacy slug kept so existing bookmarks keep working.
+  if (activeTab === "cpd-pdu-tracker" || activeTab === "pdu-report")
+    return <ProfessionalCpdPduTrackerTab />;
+  if (activeTab === "add-activity") return <ProfessionalAddActivityTab />;
   if (activeTab === "wishlist") return <ProfessionalWishlistTab />;
   if (activeTab === "settings") return <ProfessionalSettingsTab />;
 

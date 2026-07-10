@@ -111,6 +111,19 @@ fragment ProfessionalPduCategorySummaryFields on ProfessionalPduCategorySummary 
   category
 }
 
+fragment ProfessionalPduMonthlyPointFields on ProfessionalPduMonthlyPoint {
+  month
+  pdus
+}
+
+fragment ProfessionalPduActivityFileFields on ProfessionalPduActivityFile {
+  id
+  fileName
+  mimeType
+  sizeBytes
+  createdAt
+}
+
 fragment ProfessionalPduActivityFields on ProfessionalPduActivity {
   id
   pdus
@@ -119,12 +132,24 @@ fragment ProfessionalPduActivityFields on ProfessionalPduActivity {
   status
   source
   category
+  creditType
+  completionStatus
+  reportingYear
+  providerOrganizer
+  subCategory
+  issuingOrganization
+  relatedCertification
+  learningOutcome
+  evidenceNote
   updatedAt
   contentId
   createdAt
   description
   evidenceUrl
   contentType
+  evidenceFiles {
+    ...ProfessionalPduActivityFileFields
+  }
 }
 
 fragment ProfessionalPduReportFields on ProfessionalPduReport {
@@ -138,6 +163,9 @@ fragment ProfessionalPduReportFields on ProfessionalPduReport {
   }
   byCategory {
     ...ProfessionalPduCategorySummaryFields
+  }
+  byMonth {
+    ...ProfessionalPduMonthlyPointFields
   }
 }
 
@@ -249,11 +277,23 @@ query ProfessionalPduReport($year: Int) {
 }
 
 query ProfessionalPduActivities(
-  $filter: ProfessionalSearchInput
+  $filter: ProfessionalPduActivityFilterInput
   $pagination: ProfessionalPaginationInput
 ) {
   professionalPduActivities(filter: $filter, pagination: $pagination) {
     ...PaginatedProfessionalPduActivitiesFields
+  }
+}
+
+query ProfessionalPduActivity($activityId: ID!) {
+  professionalPduActivity(activityId: $activityId) {
+    ...ProfessionalPduActivityFields
+  }
+}
+
+query ProfessionalContentCompletion($contentType: ContentType!, $contentId: ID!) {
+  professionalContentCompletion(contentType: $contentType, contentId: $contentId) {
+    ...ProfessionalPduActivityFields
   }
 }
 
@@ -298,6 +338,18 @@ mutation UpdateProfessionalDashboardProfile(
 mutation CreateProfessionalPduActivity($input: CreatePduActivityInput!) {
   createProfessionalPduActivity(input: $input) {
     ...ProfessionalPduActivityFields
+  }
+}
+
+mutation UpdateProfessionalPduActivity($input: UpdatePduActivityInput!) {
+  updateProfessionalPduActivity(input: $input) {
+    ...ProfessionalPduActivityFields
+  }
+}
+
+mutation DeleteProfessionalPduActivity($activityId: ID!) {
+  deleteProfessionalPduActivity(activityId: $activityId) {
+    id
   }
 }
 

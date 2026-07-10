@@ -14,6 +14,8 @@ import { ProfessionalRoadmapResolver } from "@professional/resolvers/professiona
 import { ProfessionalRoadmapService } from "@professional/services/professional-roadmap.service";
 import { ProfessionalCoursesService } from "@professional/services/professional-courses.service";
 import { ProfessionalProfileService } from "@professional/services/professional-profile.service";
+import { ProfessionalPduFileController } from "@professional/controllers/professional-pdu-file.controller";
+import { ProfessionalPduFileService } from "@professional/services/professional-pdu-file.service";
 import { ProfessionalPduResolver } from "@professional/resolvers/professional-pdu.resolver";
 import { ProfessionalPduService } from "@professional/services/professional-pdu.service";
 import { PrismaModule } from "@prisma/prisma.module";
@@ -22,8 +24,10 @@ import { Module } from "@nestjs/common";
 import "@professional/enums/professional-register.enum";
 @Module({
   imports: [PrismaModule],
+  controllers: [ProfessionalPduFileController],
   providers: [
     ProfessionalPduService,
+    ProfessionalPduFileService,
     ProfessionalPduResolver,
     ProfessionalRoadmapService,
     ProfessionalCoursesService,
@@ -44,6 +48,7 @@ import "@professional/enums/professional-register.enum";
   ],
   exports: [
     ProfessionalPduService,
+    ProfessionalPduFileService,
     ProfessionalProfileService,
     ProfessionalCoursesService,
     ProfessionalRoadmapService,

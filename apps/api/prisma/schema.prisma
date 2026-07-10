@@ -95,6 +95,7 @@ model User {
 
   professionalSettings ProfessionalSettings?
   pduActivities        PDUActivity[]
+  pduActivityFiles     PDUActivityFile[]
   pduTargets           PDUTarget[]
   certificates         Certificate[]
   payments             Payment[]
@@ -971,6 +972,11 @@ enum PDUCategory {
   STRATEGIC
   LEADERSHIP
   COMPLIANCE
+  COMMUNICATION
+  DIGITAL_AI
+  RESEARCH_INNOVATION
+  INDUSTRY_KNOWLEDGE
+  PROFESSIONAL_PRACTICE
 }
 
 enum PromotionType {
@@ -1093,6 +1099,30 @@ enum PDUSource {
   PODCAST
   YOUTUBE
   WORKSHOP
+  SEMINAR
+  CONFERENCE
+  MEETING
+  TRAINING_SESSION
+  CERTIFICATION_PROGRAM
+  SELF_STUDY
+  READING_ARTICLE
+  VIDEO_LECTURE
+  MENTORSHIP
+  VOLUNTEERING
+  TEACHING
+  EXAM_ASSESSMENT
+}
+
+enum CreditType {
+  CPD
+  PDU
+  CEU
+  TRAINING_HOUR
+}
+
+enum PDUCompletionStatus {
+  COMPLETED
+  INCOMPLETE
 }
 
 model PDUTarget {
@@ -1129,9 +1159,22 @@ model PDUActivity {
   pdus Float
   date DateTime
 
+  creditType       CreditType          @default(PDU)
+  completionStatus PDUCompletionStatus @default(COMPLETED)
+
+  reportingYear        Int?
+  providerOrganizer    String?
+  subCategory          String?
+  issuingOrganization  String?
+  relatedCertification String?
+  learningOutcome      String?
+  evidenceNote         String?
+
   evidenceUrl String?
   contentType ContentType?
   contentId   String?
+
+  evidenceFiles PDUActivityFile[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1140,7 +1183,29 @@ model PDUActivity {
   @@index([category])
   @@index([status])
   @@index([date])
+  @@index([reportingYear])
+  @@index([completionStatus])
   @@index([contentType, contentId])
+}
+
+model PDUActivityFile {
+  id String @id @default(cuid())
+
+  activityId String
+  activity   PDUActivity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  fileName   String
+  storageKey String
+  mimeType   String
+  sizeBytes  Int
+
+  createdAt DateTime @default(now())
+
+  @@index([activityId])
+  @@index([userId])
 }
 
 // ================= Certificates ====================

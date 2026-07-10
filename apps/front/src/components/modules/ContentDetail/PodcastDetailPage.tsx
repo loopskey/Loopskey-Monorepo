@@ -94,6 +94,14 @@ const PodcastDetailPage = ({ slug }: { slug: string }) => {
             <DetailHeroActions
               contentType={API.ContentType.Podcast}
               prefill={calendarPrefill}
+              completed={{
+                title: podcast.title,
+                contentId: podcast.id,
+                contentType: API.ContentType.Podcast,
+                activityType: API.PduSource.Podcast,
+                providerOrganizer: podcast.host,
+                durationMinutes: podcast.durationMinutes,
+              }}
               wishlist={{
                 isWishlisted: actions.isWishlisted,
                 loading: actions.isWishlistLoading,

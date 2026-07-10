@@ -8,11 +8,13 @@ import { Button } from "@ui/button";
 import { cn } from "@/lib/utils";
 
 import AddToCalendarButton from "@modules/ContentDetail/parts/AddToCalendarButton";
+import MarkAsCompletedButton from "@modules/ContentDetail/parts/MarkAsCompletedButton";
 
 const DetailHeroActions = ({
   primary,
   wishlist,
   prefill,
+  completed,
   contentType,
 }: TDetailHeroActionsProps) => {
   const { t } = useI18n();
@@ -63,6 +65,8 @@ const DetailHeroActions = ({
       )}
 
       <AddToCalendarButton contentType={contentType} prefill={prefill} />
+
+      <MarkAsCompletedButton prefill={completed} />
 
       <Button
         size="lg"

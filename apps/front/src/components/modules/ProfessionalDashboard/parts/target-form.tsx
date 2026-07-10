@@ -1,4 +1,5 @@
 import { FormEvent, useState } from "react";
+import { PDU_CATEGORIES } from "@/utils/pdu.constant";
 import { TTargetForm } from "@/types/professional-dashboard.types";
 import { Loader2 } from "lucide-react";
 import { useI18n } from "@/hooks/useI18n";
@@ -8,16 +9,6 @@ import { Label } from "@ui/label";
 
 import * as GQL from "@/lib/graphql/generated";
 import * as S from "@ui/select";
-
-export const PDU_CATEGORIES = [
-  GQL.PduCategory.Other,
-  GQL.PduCategory.Ethics,
-  GQL.PduCategory.Business,
-  GQL.PduCategory.Strategic,
-  GQL.PduCategory.Technical,
-  GQL.PduCategory.Leadership,
-  GQL.PduCategory.Compliance,
-];
 
 export const TargetForm = ({ year, isLoading, onSubmit }: TTargetForm) => {
   const { t } = useI18n();
@@ -40,7 +31,7 @@ export const TargetForm = ({ year, isLoading, onSubmit }: TTargetForm) => {
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
           <Label>
-            {t("professionalDashboard.pduReport.targetsDialog.category")}
+            {t("professionalDashboard.cpdPduTracker.targetsDialog.category")}
           </Label>
           <S.Select
             value={category}
@@ -61,7 +52,7 @@ export const TargetForm = ({ year, isLoading, onSubmit }: TTargetForm) => {
 
         <div className="space-y-2">
           <Label>
-            {t("professionalDashboard.pduReport.targetsDialog.target")}
+            {t("professionalDashboard.cpdPduTracker.targetsDialog.target")}
           </Label>
           <Input
             min={0}
@@ -81,7 +72,7 @@ export const TargetForm = ({ year, isLoading, onSubmit }: TTargetForm) => {
         disabled={isLoading}
       >
         {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-        {t("professionalDashboard.pduReport.targetsDialog.save")}
+        {t("professionalDashboard.cpdPduTracker.targetsDialog.save")}
       </Button>
     </form>
   );

@@ -32,6 +32,11 @@ const pduCategories: P.PDUCategory[] = [
   P.PDUCategory.STRATEGIC,
   P.PDUCategory.LEADERSHIP,
   P.PDUCategory.COMPLIANCE,
+  P.PDUCategory.COMMUNICATION,
+  P.PDUCategory.DIGITAL_AI,
+  P.PDUCategory.RESEARCH_INNOVATION,
+  P.PDUCategory.INDUSTRY_KNOWLEDGE,
+  P.PDUCategory.PROFESSIONAL_PRACTICE,
 ];
 
 const pduSources: P.PDUSource[] = [
@@ -41,6 +46,26 @@ const pduSources: P.PDUSource[] = [
   P.PDUSource.PODCAST,
   P.PDUSource.YOUTUBE,
   P.PDUSource.WORKSHOP,
+  P.PDUSource.SEMINAR,
+  P.PDUSource.CONFERENCE,
+  P.PDUSource.SELF_STUDY,
+  P.PDUSource.MENTORSHIP,
+  P.PDUSource.TRAINING_SESSION,
+];
+
+const creditTypes: P.CreditType[] = [
+  P.CreditType.PDU,
+  P.CreditType.CPD,
+  P.CreditType.CEU,
+  P.CreditType.TRAINING_HOUR,
+];
+
+const pduProviders = [
+  "Loopskey Academy",
+  "Global CPD Institute",
+  "Project Management Institute",
+  "IEEE Learning Network",
+  "Coursera for Business",
 ];
 
 const jobProfiles = [
@@ -357,6 +382,7 @@ const seedProfessionalPduActivities = async (
     const category = randomItem(pduCategories);
     const fallbackContentType = mapSourceToContentType(source);
     const linkedContent = pickContentBySource(source, courses, events);
+    const date = randomDateInYear(currentYear);
     await prisma.pDUActivity.create({
       data: {
         userId,
@@ -366,7 +392,13 @@ const seedProfessionalPduActivities = async (
         category,
         status,
         pdus: randomFloat(0.5, 8),
-        date: randomDateInYear(currentYear),
+        date,
+        creditType: randomItem(creditTypes),
+        completionStatus: P.PDUCompletionStatus.COMPLETED,
+        reportingYear: date.getUTCFullYear(),
+        providerOrganizer: randomItem(pduProviders),
+        issuingOrganization: randomItem(pduProviders),
+        learningOutcome: `${PROFESSIONAL_FAKE_PREFIX}: Applied the ${category.toLowerCase()} concepts from this activity to day-to-day project work.`,
         evidenceUrl:
           status === P.PDUStatus.APPROVED
             ? `https://loopskey.local/evidence/${userId}-${i + 1}.pdf`

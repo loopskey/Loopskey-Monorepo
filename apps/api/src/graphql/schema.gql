@@ -579,11 +579,19 @@ input CreatePduActivityInput {
   category: PDUCategory!
   contentId: String
   contentType: ContentType
+  creditType: CreditType!
   date: String!
   description: String
+  evidenceNote: String
   evidenceUrl: String
+  issuingOrganization: String
+  learningOutcome: String
   pdus: Float!
+  providerOrganizer: String!
+  relatedCertification: String
+  reportingYear: Int!
   source: PDUSource!
+  subCategory: String
   title: String!
 }
 
@@ -644,6 +652,13 @@ input CreateYouTubeVideoInput {
   title: String!
   videoUrl: String
   views: Int = 0
+}
+
+enum CreditType {
+  CEU
+  CPD
+  PDU
+  TRAINING_HOUR
 }
 
 type CsvExport {
@@ -961,6 +976,7 @@ type Mutation {
   deleteOrganizationDepartment(departmentId: String!): OrganizationDepartment!
   deletePodcast(podcastId: String!): Podcast!
   deletePodcastEpisode(episodeId: String!): PodcastEpisode!
+  deleteProfessionalPduActivity(activityId: ID!): ProfessionalActionResponse!
   deleteUser(userId: String!): User!
   deleteYouTubeChannel(channelId: String!): YouTubeChannel!
   deleteYouTubeVideo(videoId: String!): YouTubeVideo!
@@ -1011,6 +1027,7 @@ type Mutation {
   updatePodcast(input: UpdatePodcastInput!): Podcast!
   updatePodcastEpisode(input: UpdatePodcastEpisodeInput!): PodcastEpisode!
   updateProfessionalDashboardProfile(input: UpdateProfessionalProfileInput!): ProfessionalDashboardProfile!
+  updateProfessionalPduActivity(input: UpdatePduActivityInput!): ProfessionalPduActivity!
   updateProfessionalSettings(input: UpdateProfessionalSettingsInput!): ProfessionalSettings!
   updateProviderSettings(input: UpdateProviderSettingsInput!): ProviderSettings!
   updateUser(input: UpdateUserInput!): User!
@@ -1400,19 +1417,41 @@ enum OrganizationType {
 
 enum PDUCategory {
   BUSINESS
+  COMMUNICATION
   COMPLIANCE
+  DIGITAL_AI
   ETHICS
+  INDUSTRY_KNOWLEDGE
   LEADERSHIP
   OTHER
+  PROFESSIONAL_PRACTICE
+  RESEARCH_INNOVATION
   STRATEGIC
   TECHNICAL
 }
 
+enum PDUCompletionStatus {
+  COMPLETED
+  INCOMPLETE
+}
+
 enum PDUSource {
+  CERTIFICATION_PROGRAM
+  CONFERENCE
   COURSE
   EVENT
+  EXAM_ASSESSMENT
+  MEETING
+  MENTORSHIP
   OTHER
   PODCAST
+  READING_ARTICLE
+  SELF_STUDY
+  SEMINAR
+  TEACHING
+  TRAINING_SESSION
+  VIDEO_LECTURE
+  VOLUNTEERING
   WEBINAR
   WORKSHOP
   YOUTUBE
@@ -1896,18 +1935,48 @@ type ProfessionalPayment {
 
 type ProfessionalPduActivity {
   category: PDUCategory!
+  completionStatus: PDUCompletionStatus!
   contentId: String
   contentType: ContentType
   createdAt: DateTime!
+  creditType: CreditType!
   date: DateTime!
   description: String
+  evidenceFiles: [ProfessionalPduActivityFile!]!
+  evidenceNote: String
   evidenceUrl: String
   id: String!
+  issuingOrganization: String
+  learningOutcome: String
   pdus: Float!
+  providerOrganizer: String
+  relatedCertification: String
+  reportingYear: Int
   source: PDUSource!
   status: PDUStatus!
+  subCategory: String
   title: String!
   updatedAt: DateTime!
+}
+
+type ProfessionalPduActivityFile {
+  createdAt: DateTime!
+  fileName: String!
+  id: String!
+  mimeType: String!
+  sizeBytes: Int!
+}
+
+input ProfessionalPduActivityFilterInput {
+  activityType: PDUSource
+  category: PDUCategory
+  completionStatus: PDUCompletionStatus
+  creditType: CreditType
+  dateFrom: String
+  dateTo: String
+  hasCertificate: Boolean
+  reportingYear: Int
+  search: String
 }
 
 type ProfessionalPduCategorySummary {
@@ -1915,10 +1984,16 @@ type ProfessionalPduCategorySummary {
   pdus: Float!
 }
 
+type ProfessionalPduMonthlyPoint {
+  month: Int!
+  pdus: Float!
+}
+
 type ProfessionalPduReport {
   activities: Int!
   averagePerMonth: Float!
   byCategory: [ProfessionalPduCategorySummary!]!
+  byMonth: [ProfessionalPduMonthlyPoint!]!
   progressToGoal: Float!
   targets: [ProfessionalPduTarget!]!
   totalPdus: Float!
@@ -2269,13 +2344,15 @@ type Query {
   professionalActiveSessions: [ProfessionalSession!]!
   professionalCalendarEvents(filter: ProfessionalCalendarEventsFilterInput, pagination: ProfessionalPaginationInput): PaginatedProfessionalCalendarEvents!
   professionalCertificates(filter: ProfessionalSearchInput, pagination: ProfessionalPaginationInput): PaginatedProfessionalCertificates!
+  professionalContentCompletion(contentId: ID!, contentType: ContentType!): ProfessionalPduActivity
   professionalDashboardProfile: ProfessionalDashboardProfile!
   professionalExploreRoadmaps(filter: ProfessionalSearchInput, pagination: ProfessionalPaginationInput): PaginatedProfessionalExploreRoadmaps!
   professionalMyCourses(filter: ProfessionalSearchInput, pagination: ProfessionalPaginationInput): PaginatedProfessionalCourses!
   professionalMyRoadmaps(filter: ProfessionalSearchInput, pagination: ProfessionalPaginationInput): PaginatedProfessionalRoadmaps!
   professionalOverview: ProfessionalOverview!
   professionalPayments(filter: ProfessionalSearchInput, pagination: ProfessionalPaginationInput): PaginatedProfessionalPayments!
-  professionalPduActivities(filter: ProfessionalSearchInput, pagination: ProfessionalPaginationInput): PaginatedProfessionalPduActivities!
+  professionalPduActivities(filter: ProfessionalPduActivityFilterInput, pagination: ProfessionalPaginationInput): PaginatedProfessionalPduActivities!
+  professionalPduActivity(activityId: ID!): ProfessionalPduActivity!
   professionalPduReport(year: Int): ProfessionalPduReport!
   professionalSettings: ProfessionalSettings!
   providerAnalytics(input: ProviderDashboardRangeInput): ProviderAnalytics!
@@ -2529,6 +2606,29 @@ input UpdateOrganizationSettingsInput {
   minimumPdu: Float
   strictCompliance: Boolean
   weeklySummaryReport: Boolean
+}
+
+input UpdatePduActivityInput {
+  activityId: ID!
+  category: PDUCategory
+  completionStatus: PDUCompletionStatus
+  contentId: String
+  contentType: ContentType
+  creditType: CreditType
+  date: String
+  description: String
+  evidenceNote: String
+  evidenceUrl: String
+  issuingOrganization: String
+  learningOutcome: String
+  pdus: Float
+  providerOrganizer: String
+  relatedCertification: String
+  reportingYear: Int
+  source: PDUSource
+  status: PDUStatus
+  subCategory: String
+  title: String
 }
 
 input UpdatePodcastEpisodeInput {

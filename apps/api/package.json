@@ -106,7 +106,21 @@
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
+      "^.+\\.(t|j)s$": [
+        "ts-jest",
+        {
+          "tsconfig": "<rootDir>/../tsconfig.spec.json"
+        }
+      ]
+    },
+    "moduleNameMapper": {
+      "^@prisma/(prisma\\.service|prisma\\.module)$": "<rootDir>/modules/prisma/$1",
+      "^@professional/(.*)$": "<rootDir>/modules/professional/$1",
+      "^@auth/(.*)$": "<rootDir>/modules/auth/$1",
+      "^@modules/(.*)$": "<rootDir>/modules/$1",
+      "^@common/(.*)$": "<rootDir>/common/$1",
+      "^@utils/(.*)$": "<rootDir>/common/utils/$1",
+      "^@types/(.*)$": "<rootDir>/common/types/$1"
     },
     "collectCoverageFrom": [
       "**/*.(t|j)s"

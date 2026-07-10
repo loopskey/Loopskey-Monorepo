@@ -18,6 +18,8 @@ async function bootstrap() {
     "http://localhost:3000",
   );
 
+  app.enableShutdownHooks();
+
   app.use(cookieParser());
 
   app.enableCors({

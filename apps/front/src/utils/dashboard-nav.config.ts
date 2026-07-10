@@ -64,9 +64,9 @@ export const professionalDashboardTabs: TDashboardTab<TProfessionalDashboardTab>
       icon: L.CreditCard,
     },
     {
-      value: "pdu-report",
-      labelKey: "professionalDashboard.sidebar.pduReport",
-      href: "/dashboard/professional?tab=pdu-report",
+      value: "cpd-pdu-tracker",
+      labelKey: "professionalDashboard.sidebar.cpdPduTracker",
+      href: "/dashboard/professional?tab=cpd-pdu-tracker",
       icon: L.Target,
     },
     {

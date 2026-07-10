@@ -35,6 +35,14 @@ registerEnumType(Prisma.PDUCategory, {
   name: "PDUCategory",
 });
 
+registerEnumType(Prisma.CreditType, {
+  name: "CreditType",
+});
+
+registerEnumType(Prisma.PDUCompletionStatus, {
+  name: "PDUCompletionStatus",
+});
+
 registerEnumType(Prisma.CalendarEventType, {
   name: "CalendarEventType",
 });
