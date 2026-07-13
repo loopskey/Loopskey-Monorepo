@@ -3,6 +3,24 @@ import { baseApi } from "@/lib/rtk/baseApi";
 import type * as TAPI from "@/lib/graphql/generated";
 import * as API from "@/lib/graphql/generated";
 
+// Every section mutation returns the whole profile (including the recalculated
+// completion), and the header avatar/name come from the current user.
+export const PROFILE_SECTION_TAGS = [
+  "ProfessionalProfile",
+  "ProfessionalOverview",
+  "Professional",
+  "CurrentUser",
+  "User",
+] as const;
+
+// Credentials feed the Certifications completion section, so the profile query
+// has to be refreshed alongside them.
+export const CREDENTIAL_TAGS = [
+  "ProfessionalCredentials",
+  "ProfessionalProfile",
+  "Professional",
+] as const;
+
 export const professionalApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     professionalSettings: builder.query<
@@ -39,6 +57,31 @@ export const professionalApi = baseApi.injectEndpoints({
       transformResponse: (response: TAPI.ProfessionalDashboardProfileQuery) =>
         response.professionalDashboardProfile,
       providesTags: ["ProfessionalProfile", "Professional"],
+    }),
+
+    professionalProfileTaxonomy: builder.query<
+      TAPI.ProfessionalProfileTaxonomyQuery["professionalProfileTaxonomy"],
+      TAPI.ProfessionalProfileTaxonomyQueryVariables | void
+    >({
+      query: (variables) => ({
+        document: API.ProfessionalProfileTaxonomyDocument,
+        variables: variables ?? {},
+      }),
+      transformResponse: (response: TAPI.ProfessionalProfileTaxonomyQuery) =>
+        response.professionalProfileTaxonomy,
+      providesTags: ["ProfessionalProfileTaxonomy", "Professional"],
+    }),
+
+    professionalCpdPlans: builder.query<
+      TAPI.ProfessionalCpdPlansQuery["professionalCpdPlans"],
+      void
+    >({
+      query: () => ({
+        document: API.ProfessionalCpdPlansDocument,
+      }),
+      transformResponse: (response: TAPI.ProfessionalCpdPlansQuery) =>
+        response.professionalCpdPlans,
+      providesTags: ["ProfessionalPdu", "Professional"],
     }),
 
     professionalActiveSessions: builder.query<
@@ -220,24 +263,100 @@ export const professionalApi = baseApi.injectEndpoints({
       invalidatesTags: ["ProfessionalSettings", "Professional"],
     }),
 
-    updateProfessionalDashboardProfile: builder.mutation<
-      TAPI.UpdateProfessionalDashboardProfileMutation["updateProfessionalDashboardProfile"],
-      TAPI.UpdateProfessionalDashboardProfileMutationVariables["input"]
+    updateProfessionalBasicProfile: builder.mutation<
+      TAPI.UpdateProfessionalBasicProfileMutation["updateProfessionalBasicProfile"],
+      TAPI.UpdateProfessionalBasicProfileMutationVariables["input"]
     >({
       query: (input) => ({
-        document: API.UpdateProfessionalDashboardProfileDocument,
+        document: API.UpdateProfessionalBasicProfileDocument,
         variables: { input },
       }),
       transformResponse: (
-        response: TAPI.UpdateProfessionalDashboardProfileMutation,
-      ) => response.updateProfessionalDashboardProfile,
-      invalidatesTags: [
-        "ProfessionalProfile",
-        "ProfessionalOverview",
-        "Professional",
-        "CurrentUser",
-        "User",
-      ],
+        response: TAPI.UpdateProfessionalBasicProfileMutation,
+      ) => response.updateProfessionalBasicProfile,
+      invalidatesTags: PROFILE_SECTION_TAGS,
+    }),
+
+    updateProfessionalDetails: builder.mutation<
+      TAPI.UpdateProfessionalDetailsMutation["updateProfessionalDetails"],
+      TAPI.UpdateProfessionalDetailsMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.UpdateProfessionalDetailsDocument,
+        variables: { input },
+      }),
+      transformResponse: (response: TAPI.UpdateProfessionalDetailsMutation) =>
+        response.updateProfessionalDetails,
+      invalidatesTags: PROFILE_SECTION_TAGS,
+    }),
+
+    updateProfessionalSkills: builder.mutation<
+      TAPI.UpdateProfessionalSkillsMutation["updateProfessionalSkills"],
+      TAPI.UpdateProfessionalSkillsMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.UpdateProfessionalSkillsDocument,
+        variables: { input },
+      }),
+      transformResponse: (response: TAPI.UpdateProfessionalSkillsMutation) =>
+        response.updateProfessionalSkills,
+      invalidatesTags: PROFILE_SECTION_TAGS,
+    }),
+
+    updateProfessionalPreferences: builder.mutation<
+      TAPI.UpdateProfessionalPreferencesMutation["updateProfessionalPreferences"],
+      TAPI.UpdateProfessionalPreferencesMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.UpdateProfessionalPreferencesDocument,
+        variables: { input },
+      }),
+      transformResponse: (
+        response: TAPI.UpdateProfessionalPreferencesMutation,
+      ) => response.updateProfessionalPreferences,
+      invalidatesTags: PROFILE_SECTION_TAGS,
+    }),
+
+    createProfessionalCredential: builder.mutation<
+      TAPI.CreateProfessionalCredentialMutation["createProfessionalCredential"],
+      TAPI.CreateProfessionalCredentialMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.CreateProfessionalCredentialDocument,
+        variables: { input },
+      }),
+      transformResponse: (
+        response: TAPI.CreateProfessionalCredentialMutation,
+      ) => response.createProfessionalCredential,
+      invalidatesTags: CREDENTIAL_TAGS,
+    }),
+
+    updateProfessionalCredential: builder.mutation<
+      TAPI.UpdateProfessionalCredentialMutation["updateProfessionalCredential"],
+      TAPI.UpdateProfessionalCredentialMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.UpdateProfessionalCredentialDocument,
+        variables: { input },
+      }),
+      transformResponse: (
+        response: TAPI.UpdateProfessionalCredentialMutation,
+      ) => response.updateProfessionalCredential,
+      invalidatesTags: CREDENTIAL_TAGS,
+    }),
+
+    deleteProfessionalCredential: builder.mutation<
+      TAPI.DeleteProfessionalCredentialMutation["deleteProfessionalCredential"],
+      TAPI.DeleteProfessionalCredentialMutationVariables["credentialId"]
+    >({
+      query: (credentialId) => ({
+        document: API.DeleteProfessionalCredentialDocument,
+        variables: { credentialId },
+      }),
+      transformResponse: (
+        response: TAPI.DeleteProfessionalCredentialMutation,
+      ) => response.deleteProfessionalCredential,
+      invalidatesTags: CREDENTIAL_TAGS,
     }),
 
     createProfessionalPduActivity: builder.mutation<
@@ -358,5 +477,14 @@ export const {
   useLazyProfessionalActiveSessionsQuery,
   useCreateProfessionalPduActivityMutation,
   useLazyProfessionalDashboardProfileQuery,
-  useUpdateProfessionalDashboardProfileMutation,
+
+  useProfessionalCpdPlansQuery,
+  useProfessionalProfileTaxonomyQuery,
+  useUpdateProfessionalSkillsMutation,
+  useUpdateProfessionalDetailsMutation,
+  useUpdateProfessionalBasicProfileMutation,
+  useUpdateProfessionalPreferencesMutation,
+  useCreateProfessionalCredentialMutation,
+  useUpdateProfessionalCredentialMutation,
+  useDeleteProfessionalCredentialMutation,
 } = professionalApi;

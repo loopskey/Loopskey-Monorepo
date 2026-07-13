@@ -32,6 +32,54 @@ fragment ProfessionalOverviewFields on ProfessionalOverview {
   yearlyPduGoalProgress
 }
 
+fragment ProfessionalTaxonomyTermFields on ProfessionalTaxonomyTerm {
+  id
+  key
+  kind
+  label
+  groupKey
+  groupLabel
+  sortOrder
+}
+
+fragment ProfessionalTaxonomyGroupFields on ProfessionalTaxonomyGroup {
+  kind
+  groupKey
+  groupLabel
+  terms {
+    ...ProfessionalTaxonomyTermFields
+  }
+}
+
+fragment ProfessionalCredentialFields on ProfessionalCredential {
+  id
+  name
+  issueDate
+  expiryDate
+  pduTargetId
+  licenceNumber
+  annualCpdHours
+  issuingOrganization
+}
+
+fragment ProfessionalCpdPlanFields on ProfessionalCpdPlan {
+  id
+  year
+  target
+  category
+}
+
+fragment ProfessionalProfileCompletionFields on ProfessionalProfileCompletion {
+  percentage
+  completedCount
+  totalSections
+  sections {
+    key
+    isComplete
+    missingFields
+  }
+}
+
 fragment ProfessionalDashboardProfileFields on ProfessionalDashboardProfile {
   id
   bio
@@ -39,12 +87,46 @@ fragment ProfessionalDashboardProfileFields on ProfessionalDashboardProfile {
   email
   phone
   status
-  website
-  location
   fullName
   avatarUrl
-  education
-  occupation
+  isEmailVerified
+
+  timeZone
+  language
+  countryCode
+  linkedInUrl
+
+  industry
+  profession
+  currentRole
+  workLocation
+  experienceRange
+  professionalSummary
+
+  targetSkillLevel
+  currentSkillLevel
+  mainSkillAreas {
+    ...ProfessionalTaxonomyTermFields
+  }
+  favoriteSubjects {
+    ...ProfessionalTaxonomyTermFields
+  }
+  skillsToImprove {
+    ...ProfessionalTaxonomyTermFields
+  }
+
+  preferredLearningFormats
+  learningTimeCommitment
+  learningBudgetPreference
+
+  credentials {
+    ...ProfessionalCredentialFields
+  }
+
+  completion {
+    ...ProfessionalProfileCompletionFields
+  }
+
   learningHours
   coursesEnrolled
   certificatesEarned
@@ -255,6 +337,18 @@ query ProfessionalDashboardProfile {
   }
 }
 
+query ProfessionalProfileTaxonomy($kind: ProfileTaxonomyKind) {
+  professionalProfileTaxonomy(kind: $kind) {
+    ...ProfessionalTaxonomyGroupFields
+  }
+}
+
+query ProfessionalCpdPlans {
+  professionalCpdPlans {
+    ...ProfessionalCpdPlanFields
+  }
+}
+
 query ProfessionalActiveSessions {
   professionalActiveSessions {
     ...ProfessionalSessionFields
@@ -327,11 +421,53 @@ mutation ResetProfessionalSettings {
   }
 }
 
-mutation UpdateProfessionalDashboardProfile(
-  $input: UpdateProfessionalProfileInput!
+mutation UpdateProfessionalBasicProfile(
+  $input: UpdateProfessionalBasicProfileInput!
 ) {
-  updateProfessionalDashboardProfile(input: $input) {
+  updateProfessionalBasicProfile(input: $input) {
     ...ProfessionalDashboardProfileFields
+  }
+}
+
+mutation UpdateProfessionalDetails($input: UpdateProfessionalDetailsInput!) {
+  updateProfessionalDetails(input: $input) {
+    ...ProfessionalDashboardProfileFields
+  }
+}
+
+mutation UpdateProfessionalSkills($input: UpdateProfessionalSkillsInput!) {
+  updateProfessionalSkills(input: $input) {
+    ...ProfessionalDashboardProfileFields
+  }
+}
+
+mutation UpdateProfessionalPreferences(
+  $input: UpdateProfessionalPreferencesInput!
+) {
+  updateProfessionalPreferences(input: $input) {
+    ...ProfessionalDashboardProfileFields
+  }
+}
+
+mutation CreateProfessionalCredential(
+  $input: CreateProfessionalCredentialInput!
+) {
+  createProfessionalCredential(input: $input) {
+    ...ProfessionalCredentialFields
+  }
+}
+
+mutation UpdateProfessionalCredential(
+  $input: UpdateProfessionalCredentialInput!
+) {
+  updateProfessionalCredential(input: $input) {
+    ...ProfessionalCredentialFields
+  }
+}
+
+mutation DeleteProfessionalCredential($credentialId: ID!) {
+  deleteProfessionalCredential(credentialId: $credentialId) {
+    id
   }
 }
 

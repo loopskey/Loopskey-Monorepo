@@ -143,9 +143,23 @@ export class AuthResolver {
     return this.authService.verifyEmailChange(user.sub, input);
   }
 
+  // The response is needed so the OAuth state service can set its httpOnly nonce
+  // cookie alongside the authorization URL it hands back.
   @Public()
   @Query(() => OAuthUrlEntity, { name: AuthGqlQueryNames.GOOGLE_AUTH_URL })
-  googleOAuthUrl(@Args("role", { type: () => Role }) role: Role) {
-    return this.authService.googleOAuthUrl(role);
+  googleOAuthUrl(
+    @Args("role", { type: () => Role }) role: Role,
+    @Context("res") response: Response,
+  ) {
+    return this.authService.googleOAuthUrl(role, response);
+  }
+
+  @Public()
+  @Query(() => OAuthUrlEntity, { name: AuthGqlQueryNames.LINKEDIN_AUTH_URL })
+  linkedinOAuthUrl(
+    @Args("role", { type: () => Role }) role: Role,
+    @Context("res") response: Response,
+  ) {
+    return this.authService.linkedinOAuthUrl(role, response);
   }
 }

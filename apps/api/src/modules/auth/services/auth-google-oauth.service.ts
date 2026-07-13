@@ -1,4 +1,5 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, Logger } from "@nestjs/common";
+import { AuthOAuthStateService } from "@auth/services/auth-oauth-state.service";
 import { AuthSessionService } from "@auth/services/auth-session.service";
 import { AuthCommonService } from "@auth/services/auth-common.service";
 import { Role, UserStatus } from "@prisma/client";
@@ -11,35 +12,39 @@ import { Response } from "express";
 
 import * as C from "@utils/oauth-roles.constant";
 
+const GOOGLE_AUTHORIZATION_URL = "https://accounts.google.com/o/oauth2/v2/auth";
+
 @Injectable()
 export class AuthGoogleOAuthService {
+  private readonly logger = new Logger(AuthGoogleOAuthService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
     private readonly authCommon: AuthCommonService,
     private readonly authSession: AuthSessionService,
+    private readonly oauthState: AuthOAuthStateService,
   ) {}
 
-  googleOAuthUrl(role: Role) {
+  async googleOAuthUrl(role: Role, response: Response) {
     if (!C.isGoogleOAuthAllowedRole(role))
       throw new BadRequestException({
         code: AuthMessageCode.GOOGLE_OAUTH_ROLE_NOT_ALLOWED,
         message: AuthMessageCode.GOOGLE_OAUTH_ROLE_NOT_ALLOWED,
       });
-    const clientId = this.configService.getOrThrow<string>("GOOGLE_CLIENT_ID");
-    const callbackUrl = this.configService.getOrThrow<string>(
-      "GOOGLE_CALLBACK_URL",
-    );
+    const state = await this.oauthState.createState(role, "GOOGLE", response);
     const params = new URLSearchParams({
-      client_id: clientId,
-      redirect_uri: callbackUrl,
+      client_id: this.configService.getOrThrow<string>("GOOGLE_CLIENT_ID"),
+      redirect_uri: this.configService.getOrThrow<string>(
+        "GOOGLE_CALLBACK_URL",
+      ),
       response_type: "code",
       scope: "email profile",
-      state: role,
+      state,
       prompt: "select_account",
     });
     return {
-      url: `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`,
+      url: `${GOOGLE_AUTHORIZATION_URL}?${params.toString()}`,
     };
   }
 
@@ -130,7 +135,10 @@ export class AuthGoogleOAuthService {
       });
       return response.redirect(`${redirectUrl}?${params.toString()}`);
     } catch (error) {
-      console.error("Google OAuth login failed:", error);
+      // Never log the profile, tokens or the authorization code.
+      this.logger.error(
+        `Google OAuth login failed: ${error instanceof Error ? error.message : "unknown error"}`,
+      );
       return this.redirectOAuthError(
         response,
         redirectUrl,

@@ -2,6 +2,7 @@
 
 import { seedProfessionalDashboard } from "./seeds/professional-dashboard.seed";
 import { seedOrganizationDashboard } from "./seeds/organization-dashboard.seed";
+import { seedProfileTaxonomy } from "./seeds/profile-taxonomy.seed";
 import { seedProviderDashboard } from "./seeds/provider-dashboard.seed";
 import { PrismaClient } from "@prisma/client";
 import { seedPodcasts } from "./seeds/podcast-seed";
@@ -21,6 +22,9 @@ const main = async () => {
   console.log("🌱 Starting LoopsKey seed...");
 
   const users = await seedUsers(prisma);
+
+  const taxonomyCount = await seedProfileTaxonomy(prisma);
+  console.log(`🏷️  Profile taxonomy: ${taxonomyCount} terms`);
 
   await seedCourses(prisma, users);
   await seedEvents(prisma, users);

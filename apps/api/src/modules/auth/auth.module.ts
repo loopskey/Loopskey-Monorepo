@@ -1,10 +1,14 @@
 import { ConfigModule, ConfigService } from "@nestjs/config";
+import { OAuthCallbackExceptionFilter } from "@auth/filters/oauth-callback.filter";
+import { AuthLinkedInOAuthService } from "@auth/services/auth-linkedin-oauth.service";
 import { AuthRegistrationService } from "@auth/services/auth-registration.service";
 import { AuthEmailChangeService } from "@auth/services/auth-email-change.service";
 import { AuthGoogleOAuthService } from "@auth/services/auth-google-oauth.service";
+import { AuthOAuthStateService } from "@auth/services/auth-oauth-state.service";
 import { AuthPasswordService } from "@auth/services/auth-password.service";
 import { AuthSessionService } from "@auth/services/auth-session.service";
 import { AuthCommonService } from "@auth/services/auth-common.service";
+import { LinkedInStrategy } from "@auth/strategies/linkedin.strategy";
 import { PassportModule } from "@nestjs/passport";
 import { GoogleStrategy } from "@auth/strategies/google.strategy";
 import { AuthController } from "@auth/controller/auth.controller";
@@ -21,12 +25,16 @@ export const AUTH_SERVICE_PROVIDERS = [
   JwtStrategy,
   AuthResolver,
   GoogleStrategy,
+  LinkedInStrategy,
   AuthCommonService,
   AuthSessionService,
   AuthPasswordService,
+  AuthOAuthStateService,
   AuthEmailChangeService,
   AuthGoogleOAuthService,
   AuthRegistrationService,
+  AuthLinkedInOAuthService,
+  OAuthCallbackExceptionFilter,
 ];
 
 @Module({

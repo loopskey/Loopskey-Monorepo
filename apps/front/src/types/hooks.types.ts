@@ -56,28 +56,6 @@ export type TProfessionalWishlistItem = {
   content?: TProfessionalWishlistContent | null;
 };
 
-export type TProfessionalProfileFormValues = {
-  bio: string;
-  phone: string;
-  website: string;
-  fullName: string;
-  location: string;
-  avatarUrl: string;
-  education: string;
-  occupation: string;
-};
-
-export type TProfessionalProfileSource = {
-  bio?: string | null;
-  phone?: string | null;
-  website?: string | null;
-  fullName?: string | null;
-  location?: string | null;
-  avatarUrl?: string | null;
-  education?: string | null;
-  occupation?: string | null;
-};
-
 // =============== Provider ================
 export type ProviderSettingsHook = ReturnType<
   typeof import("@/hooks/useProviderSettingsTab").useProviderSettingsTab

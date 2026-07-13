@@ -70,6 +70,8 @@ export const baseApi = createApi({
     "OrganizationEventCatalog",
     "AdminOrganizationMembers",
     "ProfessionalCertificates",
+    "ProfessionalCredentials",
+    "ProfessionalProfileTaxonomy",
     "OrganizationCpdCategories",
     "OrganizationCpdCategories",
     "OrganizationAccessRequest",

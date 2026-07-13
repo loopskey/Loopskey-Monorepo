@@ -23,7 +23,7 @@ export const useOAuthBridge = () => {
     if (hasHandled.current) return;
     hasHandled.current = true;
     const redirectToAuthPage = (role?: Role | null) => {
-      if (C.isGoogleOAuthAllowedRole(role)) {
+      if (C.isOAuthAllowedRole(role)) {
         router.replace(C.OAUTH_AUTH_PAGE_BY_ROLE[role]);
         return;
       }
@@ -47,7 +47,7 @@ export const useOAuthBridge = () => {
         handleOAuthError(code, actualRole ?? role);
         return;
       }
-      if (!C.isGoogleOAuthAllowedRole(role)) {
+      if (!C.isOAuthAllowedRole(role)) {
         notify.error(t("authPages.oauth.roleNotAllowed"));
         router.replace(DEFAULT_AUTH_REDIRECT);
         return;

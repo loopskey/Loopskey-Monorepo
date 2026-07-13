@@ -76,6 +76,33 @@ export type TGlassCardProps = HTMLAttributes<HTMLDivElement> & {
   glow?: boolean;
 };
 
+// ============ Multi Select ==============
+export type TMultiSelectItem = {
+  value: string;
+  label: string;
+  groupLabel?: string;
+};
+
+export type TMultiSelectFieldProps<T extends FieldValues> = {
+  label: string;
+  name: Path<T>;
+  control: Control<T>;
+  items: TMultiSelectItem[];
+  disabled?: boolean;
+  isLoading?: boolean;
+  hasError?: boolean;
+  className?: string;
+  emptyText: string;
+  errorText?: string;
+  description?: string;
+  loadingText: string;
+  placeholder: string;
+  removeLabel: string;
+  searchPlaceholder: string;
+  onRetry?: () => void;
+  retryText?: string;
+};
+
 // ============ Confirm Dialog =============
 export type TConfirmDialogProps = {
   title: string;

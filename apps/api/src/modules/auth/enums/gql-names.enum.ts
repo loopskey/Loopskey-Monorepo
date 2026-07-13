@@ -37,6 +37,7 @@ export enum AuthGqlMutationNames {
 export enum AuthGqlQueryNames {
   CURRENT_USER = "currentUser",
   GOOGLE_AUTH_URL = "googleOAuthUrl",
+  LINKEDIN_AUTH_URL = "linkedinOAuthUrl",
 }
 
 registerEnumType(Role, {

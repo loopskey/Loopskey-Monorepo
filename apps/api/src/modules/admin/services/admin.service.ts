@@ -162,7 +162,7 @@ export class AdminDashboardService {
       lastLoginAt: item.lastLoginAt,
       isPremium: Boolean(item.providerProfile?.isPremium),
       location:
-        item.professionalProfile?.location ??
+        item.professionalProfile?.workLocation ??
         item.providerProfile?.organizationName ??
         null,
     }));

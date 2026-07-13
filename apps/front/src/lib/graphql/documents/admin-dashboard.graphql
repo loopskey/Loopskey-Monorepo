@@ -589,13 +589,14 @@ query UserById($userId: String!) {
       id
       skills
       userId
-      jobTitle
       industry
-      location
       interests
       createdAt
       updatedAt
-      experience
+      profession
+      currentRole
+      workLocation
+      experienceRange
     }
     providerProfile {
       id

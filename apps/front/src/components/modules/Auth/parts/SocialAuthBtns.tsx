@@ -1,17 +1,24 @@
 "use client";
 
 import { Facebook, Linkedin, Loader2 } from "lucide-react";
-import { isGoogleOAuthAllowedRole } from "@/utils/oauth.constant";
+import { useLinkedInSocialOAuth } from "@/hooks/useLinkedInSocialAuth";
 import { useGoogleSocialOAuth } from "@/hooks/useGoogleSocialAuth";
 import { TSocialAuthBtns } from "@/types/auth-module.types";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
 
+import * as C from "@/utils/oauth.constant";
+
 const SocialAuthButtons = ({ role, disabled }: TSocialAuthBtns) => {
   const { t } = useI18n();
   const { continueWithGoogle, isGoogleLoading } = useGoogleSocialOAuth(role);
-  const isGoogleAllowed = isGoogleOAuthAllowedRole(role);
-  if (!isGoogleAllowed) return null;
+  const { continueWithLinkedIn, isLinkedInLoading } =
+    useLinkedInSocialOAuth(role);
+  const isGoogleAllowed = C.isGoogleOAuthAllowedRole(role);
+  const isLinkedInAllowed = C.isLinkedInOAuthAllowedRole(role);
+  if (!isGoogleAllowed && !isLinkedInAllowed) return null;
+
+  const isRedirecting = isGoogleLoading || isLinkedInLoading;
 
   return (
     <div className="space-y-3">
@@ -23,25 +30,39 @@ const SocialAuthButtons = ({ role, disabled }: TSocialAuthBtns) => {
       </div>
 
       <div className="grid grid-cols-3 gap-2">
-        <Button
-          radius="xl"
-          type="button"
-          variant="glass"
-          onClick={continueWithGoogle}
-          disabled={disabled || isGoogleLoading}
-        >
-          {isGoogleLoading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <span className="text-sm font-bold">G</span>
-          )}
-          <span className="sr-only">{t("authPages.common.google")}</span>
-        </Button>
+        {isGoogleAllowed && (
+          <Button
+            radius="xl"
+            type="button"
+            variant="glass"
+            onClick={continueWithGoogle}
+            disabled={disabled || isRedirecting}
+          >
+            {isGoogleLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <span className="text-sm font-bold">G</span>
+            )}
+            <span className="sr-only">{t("authPages.common.google")}</span>
+          </Button>
+        )}
 
-        <Button type="button" variant="glass" radius="xl" disabled>
-          <Linkedin className="h-4 w-4" />
-          <span className="sr-only">{t("authPages.common.linkedin")}</span>
-        </Button>
+        {isLinkedInAllowed && (
+          <Button
+            radius="xl"
+            type="button"
+            variant="glass"
+            onClick={continueWithLinkedIn}
+            disabled={disabled || isRedirecting}
+          >
+            {isLinkedInLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Linkedin className="h-4 w-4" />
+            )}
+            <span className="sr-only">{t("authPages.common.linkedin")}</span>
+          </Button>
+        )}
 
         <Button type="button" variant="glass" radius="xl" disabled>
           <Facebook className="h-4 w-4" />

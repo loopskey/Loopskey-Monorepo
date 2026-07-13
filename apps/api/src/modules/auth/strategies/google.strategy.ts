@@ -1,12 +1,10 @@
+import { TOAuthProfile, TOAuthRequest } from "@auth/types/oauth-service.types";
 import { isGoogleOAuthAllowedRole } from "@utils/oauth-roles.constant";
 import { Profile, Strategy } from "passport-google-oauth20";
 import { PassportStrategy } from "@nestjs/passport";
 import { AuthMessageCode } from "@auth/enums/message-code.enum";
-import { TOAuthProfile } from "@auth/types/oauth-service.types";
 import { ConfigService } from "@nestjs/config";
 import { Injectable } from "@nestjs/common";
-import { Request } from "express";
-import { Role } from "@prisma/client";
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, "google") {
@@ -21,7 +19,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, "google") {
   }
 
   validate(
-    request: Request,
+    request: TOAuthRequest,
     _accessToken: string,
     _refreshToken: string,
     profile: Profile,
@@ -32,16 +30,17 @@ export class GoogleStrategy extends PassportStrategy(Strategy, "google") {
     const emailVerified = profile.emails?.[0]?.verified;
     if (emailVerified === false)
       return done(new Error(AuthMessageCode.GOOGLE_EMAIL_NOT_VERIFIED));
-    const stateRole = request.query.state as Role | undefined;
-    if (!isGoogleOAuthAllowedRole(stateRole))
+    const role = request.oauthRole;
+    if (!isGoogleOAuthAllowedRole(role))
       return done(new Error(AuthMessageCode.GOOGLE_OAUTH_ROLE_NOT_ALLOWED));
     const user: TOAuthProfile = {
-      role: stateRole,
+      role,
       email,
       provider: "GOOGLE",
       providerId: profile.id,
       fullName: profile.displayName || email,
       avatarUrl: profile.photos?.[0]?.value ?? null,
+      emailVerified: emailVerified ?? null,
     };
     return done(null, user);
   }

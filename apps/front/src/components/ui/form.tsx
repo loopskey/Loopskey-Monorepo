@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import * as LabelPrimitive from "@radix-ui/react-label";
+import { useI18n } from "@/hooks/useI18n";
 import { Slot } from "@radix-ui/react-slot";
 import {
   Controller,
@@ -148,7 +149,11 @@ const FormMessage = React.forwardRef<
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, children, ...props }, ref) => {
   const { error, formMessageId } = useFormField();
-  const body = error ? String(error?.message) : children;
+  const { t } = useI18n();
+  const raw = error ? String(error?.message) : children;
+  // Schemas may raise an i18n key as the message; plain strings fall through
+  // unchanged because t() returns the fallback for unknown keys.
+  const body = typeof raw === "string" ? t(raw, {}, raw) : raw;
 
   if (!body) return null;
 

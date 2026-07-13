@@ -617,6 +617,16 @@ input CreatePodcastInput {
   title: String!
 }
 
+input CreateProfessionalCredentialInput {
+  annualCpdHours: Float
+  expiryDate: String
+  issueDate: String!
+  issuingOrganization: String!
+  licenceNumber: String
+  name: String!
+  pduTargetId: String
+}
+
 input CreateUserInput {
   avatarUrl: String
   email: String
@@ -868,6 +878,15 @@ enum EventType {
   WORKSHOP
 }
 
+enum ExperienceRange {
+  ELEVEN_TO_FIFTEEN_YEARS
+  LESS_THAN_ONE_YEAR
+  ONE_TO_TWO_YEARS
+  SIXTEEN_PLUS_YEARS
+  SIX_TO_TEN_YEARS
+  THREE_TO_FIVE_YEARS
+}
+
 type ExternalLearningActionResponse {
   code: String!
   message: String!
@@ -934,6 +953,30 @@ The `JSONObject` scalar type represents JSON objects as specified by [ECMA-404](
 """
 scalar JSONObject
 
+enum LearningBudgetPreference {
+  EMPLOYER_SPONSORED
+  FREE_ONLY
+  MIXED_FREE_AND_PAID
+  PREMIUM
+}
+
+enum LearningFormat {
+  ARTICLE
+  COURSE
+  PODCAST
+  VIDEO
+  WEBINAR
+  WORKSHOP
+}
+
+enum LearningTimeCommitment {
+  FOUR_TO_SIX_HOURS
+  LESS_THAN_ONE_HOUR
+  MORE_THAN_TEN_HOURS
+  ONE_TO_THREE_HOURS
+  SEVEN_TO_TEN_HOURS
+}
+
 input LoginInput {
   email: String!
   password: String!
@@ -963,6 +1006,7 @@ type Mutation {
   createOrganizationDepartment(input: CreateOrganizationDepartmentInput!): OrganizationDepartment!
   createPodcast(input: CreatePodcastInput!): Podcast!
   createPodcastEpisode(input: CreatePodcastEpisodeInput!): PodcastEpisode!
+  createProfessionalCredential(input: CreateProfessionalCredentialInput!): ProfessionalCredential!
   createProfessionalPduActivity(input: CreatePduActivityInput!): ProfessionalPduActivity!
   createUser(input: CreateUserInput!): User!
   createYouTubeChannel(input: CreateYouTubeChannelInput!): YouTubeChannel!
@@ -976,6 +1020,7 @@ type Mutation {
   deleteOrganizationDepartment(departmentId: String!): OrganizationDepartment!
   deletePodcast(podcastId: String!): Podcast!
   deletePodcastEpisode(episodeId: String!): PodcastEpisode!
+  deleteProfessionalCredential(credentialId: ID!): ProfessionalActionResponse!
   deleteProfessionalPduActivity(activityId: ID!): ProfessionalActionResponse!
   deleteUser(userId: String!): User!
   deleteYouTubeChannel(channelId: String!): YouTubeChannel!
@@ -1026,9 +1071,13 @@ type Mutation {
   updateOrganizationSettings(input: UpdateOrganizationSettingsInput!): OrganizationSettings!
   updatePodcast(input: UpdatePodcastInput!): Podcast!
   updatePodcastEpisode(input: UpdatePodcastEpisodeInput!): PodcastEpisode!
-  updateProfessionalDashboardProfile(input: UpdateProfessionalProfileInput!): ProfessionalDashboardProfile!
+  updateProfessionalBasicProfile(input: UpdateProfessionalBasicProfileInput!): ProfessionalDashboardProfile!
+  updateProfessionalCredential(input: UpdateProfessionalCredentialInput!): ProfessionalCredential!
+  updateProfessionalDetails(input: UpdateProfessionalDetailsInput!): ProfessionalDashboardProfile!
   updateProfessionalPduActivity(input: UpdatePduActivityInput!): ProfessionalPduActivity!
+  updateProfessionalPreferences(input: UpdateProfessionalPreferencesInput!): ProfessionalDashboardProfile!
   updateProfessionalSettings(input: UpdateProfessionalSettingsInput!): ProfessionalSettings!
+  updateProfessionalSkills(input: UpdateProfessionalSkillsInput!): ProfessionalDashboardProfile!
   updateProviderSettings(input: UpdateProviderSettingsInput!): ProviderSettings!
   updateUser(input: UpdateUserInput!): User!
   updateUserStatus(input: UpdateUserStatusInput!): User!
@@ -1845,22 +1894,59 @@ type ProfessionalCourse {
   userId: ID!
 }
 
+type ProfessionalCpdPlan {
+  category: PDUCategory!
+  id: ID!
+  target: Float!
+  year: Int!
+}
+
+type ProfessionalCredential {
+  annualCpdHours: Float
+  createdAt: DateTime!
+  expiryDate: DateTime
+  id: ID!
+  issueDate: DateTime!
+  issuingOrganization: String!
+  licenceNumber: String
+  name: String!
+  pduTargetId: ID
+  updatedAt: DateTime!
+}
+
 type ProfessionalDashboardProfile {
   avatarUrl: String
   bio: String
   certificatesEarned: Int!
+  completion: ProfessionalProfileCompletion!
+  countryCode: String
   coursesEnrolled: Int!
-  education: String
+  credentials: [ProfessionalCredential!]!
+  currentRole: String
+  currentSkillLevel: SkillLevel
   email: String
+  experienceRange: ExperienceRange
+  favoriteSubjects: [ProfessionalTaxonomyTerm!]!
   fullName: String
   id: ID!
+  industry: ProfessionalIndustry
+  isEmailVerified: Boolean!
+  language: AppLanguage
+  learningBudgetPreference: LearningBudgetPreference
   learningHours: Float!
-  location: String
-  occupation: String
+  learningTimeCommitment: LearningTimeCommitment
+  linkedInUrl: String
+  mainSkillAreas: [ProfessionalTaxonomyTerm!]!
   phone: String
+  preferredLearningFormats: [LearningFormat!]!
+  profession: String
+  professionalSummary: String
   role: Role!
+  skillsToImprove: [ProfessionalTaxonomyTerm!]!
   status: UserStatus!
-  website: String
+  targetSkillLevel: SkillLevel
+  timeZone: String
+  workLocation: String
 }
 
 type ProfessionalExploreRoadmap {
@@ -1876,6 +1962,21 @@ type ProfessionalExploreRoadmap {
   status: RoadmapStatus!
   title: String!
   totalSteps: Int!
+}
+
+enum ProfessionalIndustry {
+  CONSTRUCTION
+  EDUCATION
+  ENGINEERING
+  FINANCE
+  HEALTHCARE
+  LEGAL
+  MANUFACTURING
+  MARKETING
+  NON_PROFIT
+  OTHER
+  PUBLIC_SECTOR
+  TECHNOLOGY
 }
 
 type ProfessionalManualCalendarEvent {
@@ -2009,15 +2110,29 @@ type ProfessionalPduTarget {
 
 type ProfessionalProfile {
   createdAt: DateTime!
-  experience: Int
+  currentRole: String
+  experienceRange: ExperienceRange
   id: ID!
-  industry: String
+  industry: ProfessionalIndustry
   interests: [String!]!
-  jobTitle: String
-  location: String
+  profession: String
   skills: [String!]!
   updatedAt: DateTime!
   userId: String!
+  workLocation: String
+}
+
+type ProfessionalProfileCompletion {
+  completedCount: Int!
+  percentage: Int!
+  sections: [ProfessionalProfileSection!]!
+  totalSections: Int!
+}
+
+type ProfessionalProfileSection {
+  isComplete: Boolean!
+  key: ProfileSectionKey!
+  missingFields: [String!]!
 }
 
 type ProfessionalRoadmap {
@@ -2098,6 +2213,36 @@ type ProfessionalSettings {
   theme: Theme!
   updatedAt: DateTime!
   userId: ID!
+}
+
+type ProfessionalTaxonomyGroup {
+  groupKey: String!
+  groupLabel: String!
+  kind: ProfileTaxonomyKind!
+  terms: [ProfessionalTaxonomyTerm!]!
+}
+
+type ProfessionalTaxonomyTerm {
+  groupKey: String!
+  groupLabel: String!
+  id: ID!
+  key: String!
+  kind: ProfileTaxonomyKind!
+  label: String!
+  sortOrder: Int!
+}
+
+enum ProfileSectionKey {
+  BASIC_PROFILE
+  CERTIFICATIONS
+  PREFERENCES
+  PROFESSIONAL_DETAILS
+  SKILLS_INTERESTS
+}
+
+enum ProfileTaxonomyKind {
+  SKILL_AREA
+  SUBJECT
 }
 
 enum ProfileVisibility {
@@ -2309,6 +2454,7 @@ type Query {
   featuredPodcasts(take: Int = 12): [Podcast!]!
   featuredYouTubeChannels(take: Int = 12): [YouTubeChannel!]!
   googleOAuthUrl(role: Role!): AuthUrl!
+  linkedinOAuthUrl(role: Role!): AuthUrl!
   me: User!
   myCalendarEntries: [ProfessionalManualCalendarEvent!]!
   myCart: Cart
@@ -2345,6 +2491,7 @@ type Query {
   professionalCalendarEvents(filter: ProfessionalCalendarEventsFilterInput, pagination: ProfessionalPaginationInput): PaginatedProfessionalCalendarEvents!
   professionalCertificates(filter: ProfessionalSearchInput, pagination: ProfessionalPaginationInput): PaginatedProfessionalCertificates!
   professionalContentCompletion(contentId: ID!, contentType: ContentType!): ProfessionalPduActivity
+  professionalCpdPlans: [ProfessionalCpdPlan!]!
   professionalDashboardProfile: ProfessionalDashboardProfile!
   professionalExploreRoadmaps(filter: ProfessionalSearchInput, pagination: ProfessionalPaginationInput): PaginatedProfessionalExploreRoadmaps!
   professionalMyCourses(filter: ProfessionalSearchInput, pagination: ProfessionalPaginationInput): PaginatedProfessionalCourses!
@@ -2354,6 +2501,7 @@ type Query {
   professionalPduActivities(filter: ProfessionalPduActivityFilterInput, pagination: ProfessionalPaginationInput): PaginatedProfessionalPduActivities!
   professionalPduActivity(activityId: ID!): ProfessionalPduActivity!
   professionalPduReport(year: Int): ProfessionalPduReport!
+  professionalProfileTaxonomy(kind: ProfileTaxonomyKind): [ProfessionalTaxonomyGroup!]!
   professionalSettings: ProfessionalSettings!
   providerAnalytics(input: ProviderDashboardRangeInput): ProviderAnalytics!
   providerAnalyticsCsv(input: ProviderDashboardRangeInput): CsvExport!
@@ -2423,6 +2571,13 @@ enum SessionStatus {
   ACTIVE
   EXPIRED
   REVOKED
+}
+
+enum SkillLevel {
+  ADVANCED
+  BEGINNER
+  EXPERT
+  INTERMEDIATE
 }
 
 enum SortDirection {
@@ -2655,15 +2810,38 @@ input UpdatePodcastInput {
   title: String
 }
 
-input UpdateProfessionalProfileInput {
-  avatarUrl: String
-  bio: String
-  education: String
-  fullName: String
-  location: String
-  occupation: String
-  phone: String
-  website: String
+input UpdateProfessionalBasicProfileInput {
+  countryCode: String
+  fullName: String!
+  language: AppLanguage
+  linkedInUrl: String
+  timeZone: String
+}
+
+input UpdateProfessionalCredentialInput {
+  annualCpdHours: Float
+  expiryDate: String
+  id: ID!
+  issueDate: String!
+  issuingOrganization: String!
+  licenceNumber: String
+  name: String!
+  pduTargetId: String
+}
+
+input UpdateProfessionalDetailsInput {
+  currentRole: String
+  experienceRange: ExperienceRange
+  industry: ProfessionalIndustry
+  profession: String
+  professionalSummary: String
+  workLocation: String
+}
+
+input UpdateProfessionalPreferencesInput {
+  learningBudgetPreference: LearningBudgetPreference
+  learningTimeCommitment: LearningTimeCommitment
+  preferredLearningFormats: [LearningFormat!]!
 }
 
 input UpdateProfessionalSettingsInput {
@@ -2679,6 +2857,14 @@ input UpdateProfessionalSettingsInput {
   showEmail: Boolean
   showLearningProgress: Boolean
   theme: Theme
+}
+
+input UpdateProfessionalSkillsInput {
+  currentSkillLevel: SkillLevel
+  favoriteSubjectIds: [ID!]!
+  mainSkillAreaIds: [ID!]!
+  skillsToImproveIds: [ID!]!
+  targetSkillLevel: SkillLevel
 }
 
 input UpdateProviderSettingsInput {

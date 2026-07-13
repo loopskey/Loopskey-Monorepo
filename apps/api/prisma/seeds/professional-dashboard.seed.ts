@@ -70,16 +70,22 @@ const pduProviders = [
 
 const jobProfiles = [
   {
-    industry: "Technology",
-    jobTitle: "Project Manager",
-    occupation: "Digital Project Manager",
+    industry: P.ProfessionalIndustry.TECHNOLOGY,
+    currentRole: "Project Manager",
+    profession: "Digital Project Manager",
+    skillKeys: ["PROJECT_MANAGEMENT", "TEAM_LEADERSHIP", "RISK_MANAGEMENT"],
+    subjectKeys: ["PROJECT_MANAGEMENT", "PEOPLE_MANAGEMENT"],
+    improveKeys: ["NEGOTIATION", "CHANGE_MANAGEMENT"],
     skills: ["Agile", "Scrum", "Leadership", "Risk Management"],
     interests: ["PDU", "Leadership", "Project Delivery", "Career Growth"],
   },
   {
-    industry: "Finance",
-    jobTitle: "Business Analyst",
-    occupation: "Senior Business Analyst",
+    industry: P.ProfessionalIndustry.FINANCE,
+    currentRole: "Business Analyst",
+    profession: "Senior Business Analyst",
+    skillKeys: ["DATA_ANALYTICS", "BUSINESS_STRATEGY", "FINANCE_ACCOUNTING"],
+    subjectKeys: ["CORPORATE_FINANCE", "STRATEGY"],
+    improveKeys: ["PRESENTATION_SKILLS"],
     skills: [
       "Data Analysis",
       "Requirements Analysis",
@@ -88,23 +94,40 @@ const jobProfiles = [
     interests: ["Business Strategy", "Analytics", "Process Improvement"],
   },
   {
-    industry: "Technology",
-    jobTitle: "Software Engineer",
-    occupation: "Full Stack Developer",
+    industry: P.ProfessionalIndustry.TECHNOLOGY,
+    currentRole: "Software Engineer",
+    profession: "Full Stack Developer",
+    skillKeys: [
+      "SOFTWARE_ENGINEERING",
+      "CLOUD_INFRASTRUCTURE",
+      "QUALITY_TESTING",
+    ],
+    subjectKeys: ["SOFTWARE_DEVELOPMENT", "CLOUD_COMPUTING"],
+    improveKeys: ["ARTIFICIAL_INTELLIGENCE"],
     skills: ["TypeScript", "NestJS", "React", "System Design"],
     interests: ["Software Architecture", "Cloud", "AI", "Professional Growth"],
   },
   {
-    industry: "Healthcare",
-    jobTitle: "Compliance Officer",
-    occupation: "Compliance Specialist",
-    interests: ["Ethics", "Compliance", "Healthcare Standards"],
+    industry: P.ProfessionalIndustry.HEALTHCARE,
+    currentRole: "Compliance Officer",
+    profession: "Compliance Specialist",
+    skillKeys: [
+      "REGULATORY_COMPLIANCE",
+      "PROFESSIONAL_ETHICS",
+      "RISK_MANAGEMENT",
+    ],
+    subjectKeys: ["PATIENT_SAFETY", "REGULATORY_AFFAIRS"],
+    improveKeys: ["PRIVACY_DATA_PROTECTION"],
     skills: ["Compliance", "Audit", "Policy Review", "Risk Assessment"],
+    interests: ["Ethics", "Compliance", "Healthcare Standards"],
   },
   {
-    industry: "Education",
-    jobTitle: "Learning Specialist",
-    occupation: "Learning & Development Consultant",
+    industry: P.ProfessionalIndustry.EDUCATION,
+    currentRole: "Learning Specialist",
+    profession: "Learning & Development Consultant",
+    skillKeys: ["COACHING_MENTORING", "FACILITATION", "TECHNICAL_WRITING"],
+    subjectKeys: ["INSTRUCTIONAL_DESIGN", "ADULT_LEARNING"],
+    improveKeys: ["UX_RESEARCH"],
     skills: [
       "Training",
       "Coaching",
@@ -113,6 +136,23 @@ const jobProfiles = [
     ],
     interests: ["CPD", "Adult Learning", "Workshops", "Certifications"],
   },
+];
+
+const experienceRanges = [
+  P.ExperienceRange.ONE_TO_TWO_YEARS,
+  P.ExperienceRange.THREE_TO_FIVE_YEARS,
+  P.ExperienceRange.SIX_TO_TEN_YEARS,
+  P.ExperienceRange.ELEVEN_TO_FIFTEEN_YEARS,
+];
+
+const countryCodes = ["AE", "FR", "DE", "CA", "NL", "GB"];
+const timeZones = [
+  "Asia/Dubai",
+  "Europe/Paris",
+  "Europe/Berlin",
+  "America/Toronto",
+  "Europe/Amsterdam",
+  "Europe/London",
 ];
 
 const locations = [
@@ -248,44 +288,82 @@ const seedProfessionalProfile = async (
   index: number,
 ) => {
   const profile = jobProfiles[index % jobProfiles.length];
-  await prisma.professionalProfile.upsert({
-    where: {
-      userId: professional.id,
-    },
-    create: {
-      userId: professional.id,
-      jobTitle: profile.jobTitle,
-      industry: profile.industry,
-      experience: randomInt(1, 15),
-      location: randomItem(locations),
-      interests: profile.interests,
-      skills: profile.skills,
-      website: `https://portfolio-${professional.id.slice(-8)}.loopskey.dev`,
-      education: randomItem([
-        "Bachelor's Degree",
-        "Master's Degree",
-        "Professional Diploma",
-        "Certified Professional Program",
-      ]),
-      occupation: profile.occupation,
-    },
-    update: {
-      skills: profile.skills,
-      jobTitle: profile.jobTitle,
-      industry: profile.industry,
-      interests: profile.interests,
-      experience: randomInt(1, 15),
-      location: randomItem(locations),
-      website: `https://portfolio-${professional.id.slice(-8)}.loopskey.dev`,
-      education: randomItem([
-        "Bachelor's Degree",
-        "Master's Degree",
-        "Professional Diploma",
-        "Certified Professional Program",
-      ]),
-      occupation: profile.occupation,
-    },
+  const locationIndex = index % countryCodes.length;
+
+  const data = {
+    profession: profile.profession,
+    industry: profile.industry,
+    currentRole: profile.currentRole,
+    experienceRange: randomItem(experienceRanges),
+    workLocation: randomItem(locations),
+    professionalSummary: `${profile.profession} focused on continuous professional development and measurable learning outcomes.`,
+    countryCode: countryCodes[locationIndex],
+    timeZone: timeZones[locationIndex],
+    language: P.AppLanguage.EN,
+    linkedInUrl: `https://www.linkedin.com/in/loopskey-${professional.id.slice(-8)}`,
+    currentSkillLevel: P.SkillLevel.INTERMEDIATE,
+    targetSkillLevel: P.SkillLevel.ADVANCED,
+    preferredLearningFormats: [
+      P.LearningFormat.COURSE,
+      P.LearningFormat.WEBINAR,
+    ],
+    learningTimeCommitment: P.LearningTimeCommitment.FOUR_TO_SIX_HOURS,
+    learningBudgetPreference: P.LearningBudgetPreference.MIXED_FREE_AND_PAID,
+    // Legacy columns are still populated so compatibility consumers keep working.
+    skills: profile.skills,
+    interests: profile.interests,
+    website: `https://portfolio-${professional.id.slice(-8)}.loopskey.dev`,
+    education: randomItem([
+      "Bachelor's Degree",
+      "Master's Degree",
+      "Professional Diploma",
+      "Certified Professional Program",
+    ]),
+  };
+
+  const saved = await prisma.professionalProfile.upsert({
+    where: { userId: professional.id },
+    create: { userId: professional.id, ...data },
+    update: data,
+    select: { id: true },
   });
+
+  await seedProfileTerms(prisma, saved.id, profile);
+};
+
+const seedProfileTerms = async (
+  prisma: P.PrismaClient,
+  profileId: string,
+  profile: (typeof jobProfiles)[number],
+) => {
+  const selections: [P.ProfileTaxonomyKind, P.ProfileTermUsage, string[]][] = [
+    [
+      P.ProfileTaxonomyKind.SKILL_AREA,
+      P.ProfileTermUsage.MAIN_SKILL,
+      profile.skillKeys,
+    ],
+    [
+      P.ProfileTaxonomyKind.SUBJECT,
+      P.ProfileTermUsage.FAVORITE_SUBJECT,
+      profile.subjectKeys,
+    ],
+    [
+      P.ProfileTaxonomyKind.SKILL_AREA,
+      P.ProfileTermUsage.SKILL_TO_IMPROVE,
+      profile.improveKeys,
+    ],
+  ];
+
+  for (const [kind, usage, keys] of selections) {
+    const terms = await prisma.profileTaxonomyTerm.findMany({
+      where: { kind, key: { in: keys } },
+      select: { id: true },
+    });
+    await prisma.professionalProfileTerm.createMany({
+      data: terms.map((term) => ({ profileId, termId: term.id, usage })),
+      skipDuplicates: true,
+    });
+  }
 };
 
 const seedProfessionalSettings = async (

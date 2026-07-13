@@ -163,6 +163,18 @@ export const authApi = baseApi.injectEndpoints({
       transformResponse: (response: TAPI.GoogleOAuthUrlQuery) =>
         response.googleOAuthUrl,
     }),
+
+    linkedinOAuthUrl: builder.query<
+      TAPI.LinkedInOAuthUrlQuery["linkedinOAuthUrl"],
+      TAPI.LinkedInOAuthUrlQueryVariables["role"]
+    >({
+      query: (role) => ({
+        document: API.LinkedInOAuthUrlDocument,
+        variables: { role },
+      }),
+      transformResponse: (response: TAPI.LinkedInOAuthUrlQuery) =>
+        response.linkedinOAuthUrl,
+    }),
   }),
 });
 
@@ -180,5 +192,6 @@ export const {
   useForgotPasswordMutation,
   useLazyGoogleOAuthUrlQuery,
   useVerifyEmailChangeMutation,
+  useLazyLinkedinOAuthUrlQuery,
   useRequestEmailChangeMutation,
 } = authApi;

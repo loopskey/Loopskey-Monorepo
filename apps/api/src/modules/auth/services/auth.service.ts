@@ -1,3 +1,4 @@
+import { AuthLinkedInOAuthService } from "@auth/services/auth-linkedin-oauth.service";
 import { RequestEmailChangeInput } from "@auth/dtos/request-email-change.input";
 import { AuthRegistrationService } from "@auth/services/auth-registration.service";
 import { VerifyEmailChangeInput } from "@auth/dtos/verify-email-change.input";
@@ -27,6 +28,7 @@ export class AuthService {
     private readonly passwordService: AuthPasswordService,
     private readonly emailChangeService: AuthEmailChangeService,
     private readonly googleOAuthService: AuthGoogleOAuthService,
+    private readonly linkedinOAuthService: AuthLinkedInOAuthService,
   ) {}
 
   register(input: RegisterInput) {
@@ -38,14 +40,22 @@ export class AuthService {
     response: Response,
     contextInfo?: RequestContextInfo,
   ) {
-    return this.registrationService.verifyEmailOtp(input, response, contextInfo);
+    return this.registrationService.verifyEmailOtp(
+      input,
+      response,
+      contextInfo,
+    );
   }
 
   resendEmailOtp(input: ResendEmailOtpInput) {
     return this.registrationService.resendEmailOtp(input);
   }
 
-  login(input: LoginInput, response: Response, contextInfo?: RequestContextInfo) {
+  login(
+    input: LoginInput,
+    response: Response,
+    contextInfo?: RequestContextInfo,
+  ) {
     return this.sessionService.login(input, response, contextInfo);
   }
 
@@ -81,11 +91,19 @@ export class AuthService {
     return this.emailChangeService.verifyEmailChange(userId, input);
   }
 
-  googleOAuthUrl(role: Role) {
-    return this.googleOAuthService.googleOAuthUrl(role);
+  googleOAuthUrl(role: Role, response: Response) {
+    return this.googleOAuthService.googleOAuthUrl(role, response);
   }
 
   handleGoogleOAuth(profile: TOAuthProfile, response: Response) {
     return this.googleOAuthService.handleGoogleOAuth(profile, response);
+  }
+
+  linkedinOAuthUrl(role: Role, response: Response) {
+    return this.linkedinOAuthService.linkedinOAuthUrl(role, response);
+  }
+
+  handleLinkedInOAuth(profile: TOAuthProfile, response: Response) {
+    return this.linkedinOAuthService.handleLinkedInOAuth(profile, response);
   }
 }

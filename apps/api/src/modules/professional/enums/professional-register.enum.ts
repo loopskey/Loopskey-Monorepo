@@ -1,6 +1,23 @@
+import { ProfileSectionKey } from "@professional/enums/profile-section.enum";
 import { registerEnumType } from "@nestjs/graphql";
 
 import * as Prisma from "@prisma/client";
+
+registerEnumType(ProfileSectionKey, { name: "ProfileSectionKey" });
+registerEnumType(Prisma.SkillLevel, { name: "SkillLevel" });
+registerEnumType(Prisma.LearningFormat, { name: "LearningFormat" });
+registerEnumType(Prisma.ExperienceRange, { name: "ExperienceRange" });
+registerEnumType(Prisma.ProfileTermUsage, { name: "ProfileTermUsage" });
+registerEnumType(Prisma.ProfileTaxonomyKind, { name: "ProfileTaxonomyKind" });
+registerEnumType(Prisma.ProfessionalIndustry, {
+  name: "ProfessionalIndustry",
+});
+registerEnumType(Prisma.LearningTimeCommitment, {
+  name: "LearningTimeCommitment",
+});
+registerEnumType(Prisma.LearningBudgetPreference, {
+  name: "LearningBudgetPreference",
+});
 
 registerEnumType(Prisma.AppTheme, { name: "Theme" });
 registerEnumType(Prisma.PDUSource, { name: "PDUSource" });

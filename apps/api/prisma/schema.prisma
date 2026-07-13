@@ -54,8 +54,9 @@ model User {
   lastName  String?
   fullName  String?
 
-  avatarUrl String?
-  bio       String?
+  avatarUrl        String?
+  avatarStorageKey String?
+  bio              String?
 
   role   Role       @default(PROFESSIONAL)
   status UserStatus @default(PENDING)
@@ -93,13 +94,14 @@ model User {
   carts                      Cart[]
   providerSettings           ProviderSettings?
 
-  professionalSettings ProfessionalSettings?
-  pduActivities        PDUActivity[]
-  pduActivityFiles     PDUActivityFile[]
-  pduTargets           PDUTarget[]
-  certificates         Certificate[]
-  payments             Payment[]
-  roadmapEnrollments   RoadmapEnrollment[]
+  professionalSettings   ProfessionalSettings?
+  pduActivities          PDUActivity[]
+  pduActivityFiles       PDUActivityFile[]
+  pduTargets             PDUTarget[]
+  certificates           Certificate[]
+  professionalCredential ProfessionalCredential[]
+  payments               Payment[]
+  roadmapEnrollments     RoadmapEnrollment[]
 
   ownedOrganization       Organization?            @relation("OrganizationOwner")
   organizationMemberships OrganizationMember[]
@@ -214,24 +216,183 @@ model PendingRegistration {
 }
 
 // ================= Profile =================
+enum ProfessionalIndustry {
+  TECHNOLOGY
+  HEALTHCARE
+  FINANCE
+  EDUCATION
+  ENGINEERING
+  CONSTRUCTION
+  LEGAL
+  MARKETING
+  MANUFACTURING
+  PUBLIC_SECTOR
+  NON_PROFIT
+  OTHER
+}
+
+enum ExperienceRange {
+  LESS_THAN_ONE_YEAR
+  ONE_TO_TWO_YEARS
+  THREE_TO_FIVE_YEARS
+  SIX_TO_TEN_YEARS
+  ELEVEN_TO_FIFTEEN_YEARS
+  SIXTEEN_PLUS_YEARS
+}
+
+enum SkillLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+enum LearningFormat {
+  COURSE
+  WEBINAR
+  WORKSHOP
+  VIDEO
+  PODCAST
+  ARTICLE
+}
+
+enum LearningTimeCommitment {
+  LESS_THAN_ONE_HOUR
+  ONE_TO_THREE_HOURS
+  FOUR_TO_SIX_HOURS
+  SEVEN_TO_TEN_HOURS
+  MORE_THAN_TEN_HOURS
+}
+
+enum LearningBudgetPreference {
+  FREE_ONLY
+  MIXED_FREE_AND_PAID
+  PREMIUM
+  EMPLOYER_SPONSORED
+}
+
 model ProfessionalProfile {
   id     String @id @default(cuid())
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  jobTitle   String?
-  industry   String?
-  experience Int?
-  location   String?
-  interests  String[]
-  skills     String[]
+  // Basic profile
+  linkedInUrl String?
+  countryCode String?
+  language    AppLanguage?
+  timeZone    String?
 
-  website    String?
-  education  String?
-  occupation String?
+  // Professional details
+  profession          String?
+  industry            ProfessionalIndustry?
+  currentRole         String?
+  experienceRange     ExperienceRange?
+  workLocation        String?
+  professionalSummary String?
+
+  // Skills and interests
+  currentSkillLevel SkillLevel?
+  targetSkillLevel  SkillLevel?
+
+  terms ProfessionalProfileTerm[]
+
+  // Learning preferences
+  preferredLearningFormats LearningFormat[]          @default([])
+  learningTimeCommitment   LearningTimeCommitment?
+  learningBudgetPreference LearningBudgetPreference?
+
+  // Legacy columns preserved for compatibility. They are backfilled into the
+  // fields above and are no longer written by the professional profile module.
+  interests String[]
+  skills    String[]
+  website   String?
+  education String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([industry])
+  @@index([countryCode])
+}
+
+// ========== Professional profile taxonomy ==========
+enum ProfileTaxonomyKind {
+  SKILL_AREA
+  SUBJECT
+}
+
+enum ProfileTermUsage {
+  MAIN_SKILL
+  FAVORITE_SUBJECT
+  SKILL_TO_IMPROVE
+}
+
+model ProfileTaxonomyTerm {
+  id String @id @default(cuid())
+
+  kind ProfileTaxonomyKind
+  key  String
+
+  label      String
+  groupKey   String
+  groupLabel String
+
+  sortOrder Int     @default(0)
+  isActive  Boolean @default(true)
+
+  profileTerms ProfessionalProfileTerm[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([kind, key])
+  @@index([kind, isActive])
+  @@index([groupKey])
+}
+
+model ProfessionalProfileTerm {
+  id String @id @default(cuid())
+
+  profileId String
+  profile   ProfessionalProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  termId String
+  term   ProfileTaxonomyTerm @relation(fields: [termId], references: [id], onDelete: Cascade)
+
+  usage ProfileTermUsage
+
+  createdAt DateTime @default(now())
+
+  @@unique([profileId, termId, usage])
+  @@index([profileId, usage])
+  @@index([termId])
+}
+
+// ========== Professional credentials (general licences) ==========
+model ProfessionalCredential {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name                String
+  issuingOrganization String
+  licenceNumber       String?
+
+  issueDate  DateTime
+  expiryDate DateTime?
+
+  annualCpdHours Float?
+
+  pduTargetId String?
+  pduTarget   PDUTarget? @relation(fields: [pduTargetId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([pduTargetId])
+  @@index([expiryDate])
 }
 
 model ProviderProfile {
@@ -1134,6 +1295,8 @@ model PDUTarget {
   year     Int
   category PDUCategory
   target   Float
+
+  credentials ProfessionalCredential[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

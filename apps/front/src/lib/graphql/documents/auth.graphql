@@ -176,3 +176,10 @@ query GoogleOAuthUrl($role: Role!) {
     url
   }
 }
+
+# ============= LinkedIn Auth ===============
+query LinkedInOAuthUrl($role: Role!) {
+  linkedinOAuthUrl(role: $role) {
+    url
+  }
+}

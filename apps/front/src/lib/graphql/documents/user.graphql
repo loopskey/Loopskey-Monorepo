@@ -20,13 +20,14 @@ query Me {
       id
       userId
       skills
-      jobTitle
       industry
-      location
       interests
       createdAt
       updatedAt
-      experience
+      profession
+      currentRole
+      workLocation
+      experienceRange
     }
     providerProfile {
       id

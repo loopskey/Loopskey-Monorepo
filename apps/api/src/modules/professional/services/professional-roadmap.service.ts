@@ -4,9 +4,9 @@ import { Prisma, RoadmapStatus, Role } from "@prisma/client";
 import { RoadmapEnrollmentStatus } from "@prisma/client";
 import { ProfessionalSearchInput } from "@professional/dtos/professional-search.input";
 import { PrismaService } from "@prisma/prisma.service";
+import { TUser } from "@common/types/user.types";
 
 import * as T from "@professional/types/professional-service.types";
-import { TUser } from "@common/types/user.types";
 
 @Injectable()
 export class ProfessionalRoadmapService {

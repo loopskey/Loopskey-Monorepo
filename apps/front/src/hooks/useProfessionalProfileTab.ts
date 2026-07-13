@@ -1,123 +1,91 @@
 "use client";
 
-import { useEffect } from "react";
+import { useProfessionalBasicProfileForm } from "@/hooks/useProfessionalBasicProfileForm";
+import { useProfessionalPreferencesForm } from "@/hooks/useProfessionalPreferencesForm";
+import { useCallback, useMemo, useState } from "react";
+import { useProfessionalCredentials } from "@/hooks/useProfessionalCredentials";
+import { useProfessionalDetailsForm } from "@/hooks/useProfessionalDetailsForm";
+import { useProfessionalSkillsForm } from "@/hooks/useProfessionalSkillsForm";
+import { TProfessionalProfileTab } from "@/types/professional-profile.types";
+import { useProfessionalAvatar } from "@/hooks/useProfessionalAvatar";
+import { ProfileSectionKey } from "@/lib/graphql/generated";
 import { useI18n } from "@/hooks/useI18n";
-import { useForm } from "react-hook-form";
-import { notify } from "@/hooks/notify";
 
 import * as PAPI from "@/lib/rtk/endpoints/professional.api";
 import * as AAPI from "@/lib/rtk/endpoints/auth.api";
-import * as T from "@/types/hooks.types";
-
-const EMPTY_PROFILE_FORM_VALUES: T.TProfessionalProfileFormValues = {
-  fullName: "",
-  phone: "",
-  location: "",
-  website: "",
-  education: "",
-  occupation: "",
-  avatarUrl: "",
-  bio: "",
-};
-
-const toFormString = (value?: string | null) => value ?? "";
-
-const toNullableString = (value: string) => {
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : null;
-};
-
-const toOptionalString = (value: string) => {
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : undefined;
-};
-
-const mapProfileToFormValues = (
-  profile?: T.TProfessionalProfileSource | null,
-): T.TProfessionalProfileFormValues => {
-  if (!profile) return EMPTY_PROFILE_FORM_VALUES;
-  return {
-    fullName: toFormString(profile.fullName),
-    phone: toFormString(profile.phone),
-    location: toFormString(profile.location),
-    website: toFormString(profile.website),
-    education: toFormString(profile.education),
-    occupation: toFormString(profile.occupation),
-    avatarUrl: toFormString(profile.avatarUrl),
-    bio: toFormString(profile.bio),
-  };
-};
+import * as C from "@/utils/professional-profile.constant";
 
 export const useProfessionalProfileTab = () => {
   const { t } = useI18n();
-  const {
-    data: profile,
-    isFetching: isProfileFetching,
-    refetch: refetchProfile,
-  } = PAPI.useProfessionalDashboardProfileQuery();
+  const [activeTab, setActiveTab] = useState<TProfessionalProfileTab>("basic");
+
+  const profileQuery = PAPI.useProfessionalDashboardProfileQuery();
   const { refetch: refetchCurrentUser } = AAPI.useCurrentUserQuery();
-  const [updateProfile, updateProfileState] =
-    PAPI.useUpdateProfessionalDashboardProfileMutation();
-  const profileRhf = useForm<T.TProfessionalProfileFormValues>({
-    mode: "onChange",
-    defaultValues: EMPTY_PROFILE_FORM_VALUES,
-  });
-  useEffect(() => {
-    if (!profile) return;
-    profileRhf.reset(mapProfileToFormValues(profile), {
-      keepDirty: false,
-      keepTouched: false,
-    });
-  }, [profile, profileRhf]);
-  const profileValues = profileRhf.watch();
-  const refreshProfile = async () => {
-    await Promise.all([refetchProfile(), refetchCurrentUser()]);
-  };
-  const handleRemoveAvatar = () => {
-    profileRhf.setValue("avatarUrl", "", {
-      shouldDirty: true,
-      shouldTouch: true,
-      shouldValidate: true,
-    });
-  };
 
-  const handleSaveProfile = profileRhf.handleSubmit(async (values) => {
-    try {
-      const input = {
-        fullName: toOptionalString(values.fullName),
-        phone: toNullableString(values.phone),
-        location: toNullableString(values.location),
-        website: toNullableString(values.website),
-        education: toNullableString(values.education),
-        occupation: toNullableString(values.occupation),
-        avatarUrl: toNullableString(values.avatarUrl),
-        bio: toNullableString(values.bio),
-      };
-      const savedProfile = await updateProfile(input).unwrap();
-      profileRhf.reset(mapProfileToFormValues(savedProfile), {
-        keepDirty: false,
-        keepTouched: false,
-      });
-      await refreshProfile();
-      notify.success(t("professionalDashboard.settings.profileSaved"));
-    } catch {
-      notify.error(t("authPages.common.genericError"));
-    }
-  });
+  const profile = profileQuery.data;
 
-  const isLoading = isProfileFetching || updateProfileState.isLoading;
-  const isSaveDisabled = isLoading || !profileRhf.formState.isDirty;
+  const avatar = useProfessionalAvatar();
+  const basicForm = useProfessionalBasicProfileForm(profile);
+  const detailsForm = useProfessionalDetailsForm(profile);
+  const skillsForm = useProfessionalSkillsForm(profile);
+  const credentials = useProfessionalCredentials(profile);
+  const preferencesForm = useProfessionalPreferencesForm(profile);
+
+  const refreshProfile = useCallback(async () => {
+    await Promise.all([profileQuery.refetch(), refetchCurrentUser()]);
+  }, [profileQuery, refetchCurrentUser]);
+
+  const completion = profile?.completion;
+
+  /**
+   * Completion always comes from persisted backend data, so the "Complete /
+   * Incomplete" state never reacts to unsaved form values.
+   */
+  const sections = useMemo(
+    () =>
+      (completion?.sections ?? []).map((section) => {
+        const tab = C.SECTION_TAB_MAP[section.key as ProfileSectionKey];
+        return {
+          tab,
+          key: section.key,
+          isComplete: section.isComplete,
+          missingFields: section.missingFields,
+          label: t(C.PROFILE_TAB_I18N_KEY[tab]),
+        };
+      }),
+    [completion, t],
+  );
+
+  const tabs = useMemo(
+    () =>
+      C.PROFILE_TABS.map((value) => ({
+        value,
+        label: t(C.PROFILE_TAB_I18N_KEY[value]),
+      })),
+    [t],
+  );
+
+  const interestTags = profile?.favoriteSubjects ?? [];
 
   return {
     t,
+    tabs,
+    avatar,
     profile,
-    isLoading,
-    profileRhf,
-    profileValues,
+    sections,
+    activeTab,
+    completion,
+    basicForm,
+    skillsForm,
+    credentials,
+    detailsForm,
+    setActiveTab,
+    interestTags,
     refreshProfile,
-    isSaveDisabled,
-    handleSaveProfile,
-    handleRemoveAvatar,
+    preferencesForm,
+    isLoading: profileQuery.isLoading,
+    isFetching: profileQuery.isFetching,
+    hasError: Boolean(profileQuery.error),
   };
 };
 
