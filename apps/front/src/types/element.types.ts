@@ -1,26 +1,46 @@
 import { TextareaHTMLAttributes, InputHTMLAttributes } from "react";
-import { CSSProperties, HTMLAttributes, ReactNode } from "react";
 import { Control, FieldPath, FieldValues, Path } from "react-hook-form";
+import { HTMLAttributes, ReactNode } from "react";
 import { ExternalLearningProvider } from "@lib/graphql/generated";
 import { buttonVariants } from "@ui/button";
 import { VariantProps } from "class-variance-authority";
 
-export type TParticleStyle = CSSProperties & {
-  "--x": string;
-  "--y": string;
-  "--z": string;
-  "--s": string;
-  "--d": string;
-  "--mx": string;
-  "--my": string;
-  "--delay": string;
-};
+export type TNeatGradientMode = "light" | "dark";
 
 export type TLearningParticlesBackgroundProps = {
   className?: string;
-  withGrid?: boolean;
-  withNoise?: boolean;
-  particleCount?: number;
+  withBottomFade?: boolean;
+};
+
+// ================ Galaxy Background ==============
+export type TThemeMode = "light" | "dark";
+
+export type TGalaxyProps = HTMLAttributes<HTMLDivElement> & {
+  focal?: [number, number];
+  rotation?: [number, number];
+  starSpeed?: number;
+  density?: number;
+  hueShift?: number;
+  disableAnimation?: boolean;
+  speed?: number;
+  mouseInteraction?: boolean;
+  glowIntensity?: number;
+  saturation?: number;
+  mouseRepulsion?: boolean;
+  twinkleIntensity?: number;
+  rotationSpeed?: number;
+  repulsionStrength?: number;
+  autoCenterRepulsion?: number;
+  transparent?: boolean;
+  /** `window` lets the galaxy track the cursor from behind a pointer-events-none layer. */
+  mouseTarget?: "element" | "window";
+};
+
+export type TGalaxyConfig = Omit<TGalaxyProps, "className" | "mouseTarget">;
+
+export type TGalaxyBackgroundProps = {
+  className?: string;
+  withBottomFade?: boolean;
 };
 
 // ================ Floating Input ==============
