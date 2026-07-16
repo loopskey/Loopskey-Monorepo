@@ -2,23 +2,23 @@ import { TNeatGradientMode } from "@/types/element.types";
 import { NeatConfig } from "@firecms/neat";
 
 const NEAT_LIGHT_COLORS = {
-  primaryTint: "#B0D4FF", // oklch(0.86 0.075 255)
-  secondary: "#D2ECFC", // --secondary
-  accent: "#9CE8E2", // --accent
-  podcastTint: "#D8C7F9", // oklch(0.86 0.07 300)
+  primaryTint: "#C8DDF2",
+  secondary: "#DDECF3",
+  accent: "#C5E4E1",
+  podcastTint: "#DDD8EA",
   premium: "#CD9C1F", // --premium
   primary: "#006EDC", // --primary
-  background: "#F2FCFF", // --background
+  background: "#F5FAFC",
 } as const;
 
 const NEAT_DARK_COLORS = {
-  primary: "#239CFF", // --primary
-  primaryDeep: "#0049A1", // oklch(0.42 0.16 255)
-  accent: "#009C96", // --accent
-  podcastDeep: "#5B3291", // oklch(0.42 0.15 300)
+  primary: "#24517A",
+  primaryDeep: "#172F4D",
+  accent: "#1D5555",
+  podcastDeep: "#3B3153",
   premium: "#EEBC4A", // --premium
-  ring: "#49A9FF", // --ring
-  background: "#010A1A", // --background
+  ring: "#426B91",
+  background: "#071322",
 } as const;
 
 type TNeatThemeConfig = Pick<
@@ -65,13 +65,13 @@ export const NEAT_GRADIENT_BASE_CONFIG: Omit<NeatConfig, "colors"> = {
   vignetteRadius: 0.6,
   fresnelEnabled: true,
   fresnelPower: 2,
-  fresnelIntensity: 0.2,
+  fresnelIntensity: 0.1,
   iridescenceEnabled: false,
   iridescenceIntensity: 0.8,
   iridescenceSpeed: 1,
-  bloomIntensity: 0.4,
-  bloomThreshold: 0.7,
-  chromaticAberration: 9,
+  bloomIntensity: 0.16,
+  bloomThreshold: 0.82,
+  chromaticAberration: 2,
   shapeType: "plane",
   shapeRotationX: 0,
   shapeRotationY: 0,
@@ -106,8 +106,8 @@ export const NEAT_GRADIENT_THEME_CONFIG: Record<
     ],
     backgroundColor: NEAT_LIGHT_COLORS.background,
     fresnelColor: NEAT_LIGHT_COLORS.primary,
-    colorBrightness: 1,
-    colorSaturation: -4,
+    colorBrightness: 0.9,
+    colorSaturation: -6,
   },
   dark: {
     colors: [
@@ -119,7 +119,7 @@ export const NEAT_GRADIENT_THEME_CONFIG: Record<
     ],
     backgroundColor: NEAT_DARK_COLORS.background,
     fresnelColor: NEAT_DARK_COLORS.ring,
-    colorBrightness: 0.82,
-    colorSaturation: -2,
+    colorBrightness: 0.56,
+    colorSaturation: -6,
   },
 };
