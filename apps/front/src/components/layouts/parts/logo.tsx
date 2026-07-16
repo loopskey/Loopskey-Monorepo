@@ -6,10 +6,10 @@ export const Logo = () => {
     <Link href="/" className="flex-shrink-0 flex items-center">
       <Image
         priority
-        width={100}
-        height={200}
+        width={205}
+        height={54}
         alt="Loopskey-logo"
-        src={"/Loopskey.png"}
+        src={"/Loopskey.svg"}
         className="h-8 w-auto"
       />
     </Link>
