@@ -1,6 +1,6 @@
 import { TextareaHTMLAttributes, InputHTMLAttributes } from "react";
 import { Control, FieldPath, FieldValues, Path } from "react-hook-form";
-import { HTMLAttributes, ReactNode } from "react";
+import { HTMLAttributes, ReactNode, CSSProperties } from "react";
 import { ExternalLearningProvider } from "@lib/graphql/generated";
 import { buttonVariants } from "@ui/button";
 import { VariantProps } from "class-variance-authority";
@@ -39,6 +39,31 @@ export type TGalaxyConfig = Omit<TGalaxyProps, "className" | "mouseTarget">;
 export type TGalaxyBackgroundProps = {
   className?: string;
   withBottomFade?: boolean;
+};
+
+// ================ Split Text ==================
+export type TSplitTextProps = {
+  text: string;
+  className?: string;
+  /** Stagger between each split target, in ms. */
+  delay?: number;
+  /** Offset before this block starts, in ms. Lets a multi-line heading run one
+   *  continuous reveal instead of every line animating at once. */
+  startDelay?: number;
+  duration?: number;
+  ease?: string | ((t: number) => number);
+  splitType?: "chars" | "words" | "lines" | "words, chars";
+  from?: gsap.TweenVars;
+  to?: gsap.TweenVars;
+  threshold?: number;
+  rootMargin?: string;
+  tag?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "p" | "span";
+  textAlign?: CSSProperties["textAlign"];
+  /** Re-paints a `bg-clip-text` gradient onto each split character. Without it
+   *  the tween's transform/opacity drops the characters out of the parent's
+   *  text clip and the line renders invisible. */
+  inheritGradient?: boolean;
+  onLetterAnimationComplete?: () => void;
 };
 
 // ================ Floating Input ==============

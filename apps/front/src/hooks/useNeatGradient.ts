@@ -1,7 +1,7 @@
 "use client";
 
 import { NEAT_GRADIENT_CONFIG } from "@utils/neat-gradient.constant";
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { NeatGradient } from "@firecms/neat";
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
@@ -9,7 +9,7 @@ const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 export const useNeatGradient = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const prefersReducedMotion =

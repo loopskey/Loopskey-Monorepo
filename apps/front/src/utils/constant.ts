@@ -501,3 +501,20 @@ export const missionVision = [
 
 // ================ FAQ Page =================
 export const defaultOpenItemId = "cpd-tracking";
+
+// ============ Native Picker Inputs ============
+// Input types that render a browser-native picker (and its own indicator icon).
+export const NATIVE_PICKER_TYPES = [
+  "date",
+  "time",
+  "datetime-local",
+  "month",
+  "week",
+] as const;
+
+// ============== Hero Split Text Animation ==============
+// Per-character stagger and tween length for the landing hero heading.
+// The heading is ~52 chars (EN) / ~59 (FR), so the react-bits demo defaults
+// (50ms / 1.25s) would stretch the reveal past 3.8s. These land it near 2.2s.
+export const HERO_SPLIT_STAGGER_MS = 25;
+export const HERO_SPLIT_DURATION_S = 0.9;

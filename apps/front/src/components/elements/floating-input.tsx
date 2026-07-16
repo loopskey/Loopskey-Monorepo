@@ -1,14 +1,13 @@
 "use client";
 
 import { TFloatingInputFieldProps } from "@/types/element.types";
-import { useId, useRef } from "react";
+import { NATIVE_PICKER_TYPES } from "@utils/constant";
 import { FieldValues } from "react-hook-form";
+import { useId } from "react";
 import { Input } from "@ui/input";
 import { cn } from "@/lib/utils";
 
 import * as F from "@ui/form";
-
-const nativePickerTypes = ["date", "time", "datetime-local", "month", "week"];
 
 export const FloatingInputField = <T extends FieldValues>({
   name,
@@ -23,20 +22,10 @@ export const FloatingInputField = <T extends FieldValues>({
   ...props
 }: TFloatingInputFieldProps<T>) => {
   const generatedId = useId();
-  const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const isNativePicker = nativePickerTypes.includes(String(type));
-
-  const openNativePicker = () => {
-    const element = inputRef.current;
-    if (!isNativePicker || !element || element.disabled) return;
-    try {
-      element.focus();
-      if (typeof element.showPicker === "function") element.showPicker();
-    } catch {
-      element.focus();
-    }
-  };
+  const isNativePicker = (NATIVE_PICKER_TYPES as readonly string[]).includes(
+    String(type),
+  );
 
   return (
     <F.FormField
@@ -53,12 +42,7 @@ export const FloatingInputField = <T extends FieldValues>({
         return (
           <F.FormItem className={cn("space-y-2", className)}>
             <F.FormControl>
-              <div
-                onClick={openNativePicker}
-                tabIndex={isNativePicker ? -1 : undefined}
-                role={isNativePicker ? "button" : undefined}
-                className={cn("group relative", isFilled && "is-filled")}
-              >
+              <div className={cn("group relative", isFilled && "is-filled")}>
                 {leftIcon && (
                   <div
                     className={cn(
@@ -76,10 +60,7 @@ export const FloatingInputField = <T extends FieldValues>({
                   id={generatedId}
                   type={type}
                   name={field.name}
-                  ref={(element) => {
-                    field.ref(element);
-                    inputRef.current = element;
-                  }}
+                  ref={field.ref}
                   onBlur={field.onBlur}
                   onChange={field.onChange}
                   value={value ?? ""}
@@ -114,9 +95,9 @@ export const FloatingInputField = <T extends FieldValues>({
 
                 <F.FormLabel
                   htmlFor={generatedId}
-                  onClick={openNativePicker}
                   className={cn(
-                    "absolute z-20 origin-left cursor-text rounded-full px-1 text-sm text-muted-foreground transition-all duration-200 ease-out",
+                    "absolute z-20 origin-left rounded-full px-1 text-sm text-muted-foreground transition-all duration-200 ease-out",
+                    isNativePicker ? "cursor-pointer" : "cursor-text",
                     "top-1/2 -translate-y-1/2",
                     shouldFloatOnFocus &&
                       "group-focus-within:top-0 group-focus-within:translate-y-[-50%] group-focus-within:scale-[0.88] group-focus-within:text-primary",

@@ -1,5 +1,7 @@
 "use client";
 
+import { HERO_SPLIT_DURATION_S, HERO_SPLIT_STAGGER_MS } from "@utils/constant";
+import { SplitText, countChars } from "@elements/split-text";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { useLandingHeroSearch } from "@/hooks/useLandingHero";
 import { useAuthSession } from "@/hooks/useAuthSession";
@@ -35,6 +37,16 @@ const LandingHero = () => {
 
   const shouldShowResults = hasSearch || hasSelectedCategory;
 
+  // Each line is its own SplitText, so the following lines are offset by the
+  // characters ahead of them to keep one continuous reveal in every locale.
+  const titleLine1 = t("landing.hero.titleLine1");
+  const titleLine2 = t("landing.hero.titleLine2");
+  const titleLine3 = t("landing.hero.titleLine3");
+
+  const line2StartDelay = countChars(titleLine1) * HERO_SPLIT_STAGGER_MS;
+  const line3StartDelay =
+    line2StartDelay + countChars(titleLine2) * HERO_SPLIT_STAGGER_MS;
+
   return (
     <section className="relative overflow-x-clip px-4 py-10 sm:px-6 lg:px-8">
       <div className="pointer-events-none absolute inset-0 -z-10">
@@ -51,11 +63,33 @@ const LandingHero = () => {
           </div>
 
           <h1 className="max-w-4xl text-3xl font-bold leading-[1.5] tracking-tight sm:text-3xl lg:text-4xl xl:text-4xl">
-            {t("landing.hero.titleLine1")}
-            <span className="block bg-gradient-to-r from-primary to-teal-400 bg-clip-text text-transparent">
-              {t("landing.hero.titleLine2")}
-            </span>
-            <span className="block">{t("landing.hero.titleLine3")}</span>
+            <SplitText
+              tag="span"
+              text={titleLine1}
+              textAlign="left"
+              className="block"
+              delay={HERO_SPLIT_STAGGER_MS}
+              duration={HERO_SPLIT_DURATION_S}
+            />
+            <SplitText
+              inheritGradient
+              tag="span"
+              text={titleLine2}
+              textAlign="left"
+              startDelay={line2StartDelay}
+              delay={HERO_SPLIT_STAGGER_MS}
+              duration={HERO_SPLIT_DURATION_S}
+              className="block bg-gradient-to-r from-primary to-teal-400 bg-clip-text text-transparent"
+            />
+            <SplitText
+              tag="span"
+              text={titleLine3}
+              textAlign="left"
+              className="block"
+              startDelay={line3StartDelay}
+              delay={HERO_SPLIT_STAGGER_MS}
+              duration={HERO_SPLIT_DURATION_S}
+            />
           </h1>
 
           <p className="mt-6 max-w-2xl text-base font-medium leading-8 text-muted-foreground sm:text-lg">

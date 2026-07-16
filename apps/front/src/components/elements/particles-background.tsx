@@ -14,7 +14,7 @@ export const LearningParticlesBackground = ({
     <div
       aria-hidden="true"
       className={cn(
-        "pointer-events-none fixed inset-0 -z-50 overflow-hidden bg-background",
+        "pointer-events-none fixed inset-0 -z-50 overflow-hidden bg-[#210751]",
         className,
       )}
     >
