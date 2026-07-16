@@ -1,8 +1,7 @@
 "use client";
 
-import { AppLanguage, ProfileVisibility, Theme } from "@/lib/graphql/generated";
+import { AppLanguage, ProfileVisibility } from "@/lib/graphql/generated";
 import { useEffect, useMemo, useState } from "react";
-import { useTheme } from "next-themes";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
 
@@ -11,7 +10,6 @@ import * as AAPI from "@/lib/rtk/endpoints/auth.api";
 
 export const useProfessionalSettingsTab = () => {
   const { t, setLanguage } = useI18n();
-  const { setTheme } = useTheme();
 
   const [changePassword, changePasswordState] =
     AAPI.useChangePasswordMutation();
@@ -40,7 +38,6 @@ export const useProfessionalSettingsTab = () => {
     messages: true,
     showEmail: false,
     loginAlerts: true,
-    theme: Theme.System,
     courseUpdates: true,
     eventReminders: true,
     showCertificates: true,
@@ -66,7 +63,6 @@ export const useProfessionalSettingsTab = () => {
   useEffect(() => {
     if (!settings) return;
     setSettingsForm({
-      theme: settings.theme,
       messages: settings.messages,
       showEmail: settings.showEmail,
       loginAlerts: settings.loginAlerts,
@@ -83,17 +79,7 @@ export const useProfessionalSettingsTab = () => {
 
   const applyAppPreferences = (input: {
     interfaceLanguage?: AppLanguage | null;
-    theme?: Theme | null;
   }) => {
-    if (input.theme) {
-      const themeMap: Record<Theme, "light" | "dark" | "system"> = {
-        [Theme.Light]: "light",
-        [Theme.Dark]: "dark",
-        [Theme.System]: "system",
-      };
-      setTheme(themeMap[input.theme]);
-    }
-
     if (input.interfaceLanguage) {
       const localeMap: Record<AppLanguage, "en" | "fr"> = {
         [AppLanguage.En]: "en",
@@ -107,7 +93,6 @@ export const useProfessionalSettingsTab = () => {
     try {
       const saved = await updateSettings({
         interfaceLanguage: settingsForm.interfaceLanguage,
-        theme: settingsForm.theme,
       }).unwrap();
       applyAppPreferences(saved);
       notify.success(t("professionalDashboard.settings.saved"));

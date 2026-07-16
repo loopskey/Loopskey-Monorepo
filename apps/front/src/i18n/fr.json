@@ -1922,14 +1922,9 @@
       },
       "general": {
         "title": "Préférences générales",
-        "description": "Personnalisez la langue et l’apparence de votre tableau de bord.",
+        "description": "Personnalisez la langue de votre tableau de bord.",
         "language": "Langue de l’interface",
         "languageHint": "Choisissez la langue utilisée dans votre tableau de bord.",
-        "theme": "Thème",
-        "themeHint": "Le mode système suit l’apparence de votre système d’exploitation.",
-        "light": "Clair",
-        "dark": "Sombre",
-        "system": "Système",
         "note": "Ces paramètres affectent uniquement votre tableau de bord personnel.",
         "save": "Enregistrer les modifications"
       },

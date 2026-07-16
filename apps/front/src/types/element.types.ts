@@ -5,8 +5,6 @@ import { ExternalLearningProvider } from "@lib/graphql/generated";
 import { buttonVariants } from "@ui/button";
 import { VariantProps } from "class-variance-authority";
 
-export type TNeatGradientMode = "light" | "dark";
-
 export type TLearningParticlesBackgroundProps = {
   className?: string;
   withBottomFade?: boolean;

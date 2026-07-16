@@ -1922,14 +1922,9 @@
       },
       "general": {
         "title": "General Preferences",
-        "description": "Customize language and appearance for your dashboard.",
+        "description": "Customize the language for your dashboard.",
         "language": "Interface language",
         "languageHint": "Choose the language used across your dashboard.",
-        "theme": "Theme",
-        "themeHint": "System follows your operating system appearance.",
-        "light": "Light",
-        "dark": "Dark",
-        "system": "System",
         "note": "These settings affect only your personal dashboard experience.",
         "save": "Save changes"
       },

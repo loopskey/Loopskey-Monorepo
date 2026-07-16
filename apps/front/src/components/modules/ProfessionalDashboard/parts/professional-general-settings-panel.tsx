@@ -1,7 +1,7 @@
 "use client";
 
 import { TProfessionalGeneralSetting } from "@/types/professional-dashboard.types";
-import { AppLanguage, Theme } from "@/lib/graphql/generated";
+import { AppLanguage } from "@/lib/graphql/generated";
 import { Button } from "@ui/button";
 import { Label } from "@ui/label";
 
@@ -31,7 +31,7 @@ export const ProfessionalGeneralSettingsPanel = ({
         </div>
       </div>
 
-      <div className="grid gap-5 md:grid-cols-2">
+      <div className="grid gap-5">
         <div className="space-y-2">
           <Label>{t("professionalDashboard.settings.general.language")}</Label>
 
@@ -55,39 +55,6 @@ export const ProfessionalGeneralSettingsPanel = ({
 
           <p className="text-xs text-muted-foreground">
             {t("professionalDashboard.settings.general.languageHint")}
-          </p>
-        </div>
-
-        <div className="space-y-2">
-          <Label>{t("professionalDashboard.settings.general.theme")}</Label>
-          <S.Select
-            value={settingsForm.theme}
-            onValueChange={(value) =>
-              setSettingsForm((prev) => ({
-                ...prev,
-                theme: value as Theme,
-              }))
-            }
-          >
-            <S.SelectTrigger className="rounded-2xl">
-              <S.SelectValue />
-            </S.SelectTrigger>
-
-            <S.SelectContent>
-              <S.SelectItem value={Theme.Light}>
-                {t("professionalDashboard.settings.general.light")}
-              </S.SelectItem>
-              <S.SelectItem value={Theme.Dark}>
-                {t("professionalDashboard.settings.general.dark")}
-              </S.SelectItem>
-              <S.SelectItem value={Theme.System}>
-                {t("professionalDashboard.settings.general.system")}
-              </S.SelectItem>
-            </S.SelectContent>
-          </S.Select>
-
-          <p className="text-xs text-muted-foreground">
-            {t("professionalDashboard.settings.general.themeHint")}
           </p>
         </div>
       </div>
