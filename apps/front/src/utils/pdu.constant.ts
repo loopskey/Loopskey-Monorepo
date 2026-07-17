@@ -132,6 +132,9 @@ export const ACCEPTED_EVIDENCE_ACCEPT_ATTRIBUTE =
 export const PDU_REPORTING_YEAR_MIN = 1900;
 export const PDU_REPORTING_YEAR_MAX = new Date().getFullYear() + 1;
 
+/** Upper bound for a single category's yearly target. */
+export const PDU_TARGET_MAX = 999;
+
 export const PDU_REPORTING_YEAR_OPTIONS = Array.from(
   { length: 11 },
   (_, index) => PDU_REPORTING_YEAR_MAX - index,

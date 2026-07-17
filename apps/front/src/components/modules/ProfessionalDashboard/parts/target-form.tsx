@@ -1,79 +1,99 @@
-import { FormEvent, useState } from "react";
-import { PDU_CATEGORIES } from "@/utils/pdu.constant";
+"use client";
+
+import { useProfessionalTargetForm } from "@/hooks/useProfessionalTargetForm";
+import { FloatingSelectField } from "@elements/floating-select";
+import { FloatingInputField } from "@elements/floating-input";
 import { TTargetForm } from "@/types/professional-dashboard.types";
-import { Loader2 } from "lucide-react";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
-import { Input } from "@ui/input";
-import { Label } from "@ui/label";
+import { Form } from "@ui/form";
 
-import * as GQL from "@/lib/graphql/generated";
-import * as S from "@ui/select";
+import * as C from "@/utils/pdu.constant";
+import * as L from "lucide-react";
 
-export const TargetForm = ({ year, isLoading, onSubmit }: TTargetForm) => {
+const TRACKER = "professionalDashboard.cpdPduTracker";
+
+export const TargetForm = ({
+  year,
+  isOpen,
+  isLoading,
+  onCancel,
+  onSubmit,
+}: TTargetForm) => {
   const { t } = useI18n();
-  const [category, setCategory] = useState<GQL.PduCategory>(
-    GQL.PduCategory.Technical,
-  );
-  const [target, setTarget] = useState("10");
 
-  const submitHandler = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    await onSubmit({
-      year,
-      category,
-      target: Number(target),
-    });
-  };
+  const { form, submitHandler, existingTarget, isLoadingTargets } =
+    useProfessionalTargetForm({ year, isOpen, onSubmit });
 
   return (
-    <form className="space-y-5" onSubmit={submitHandler}>
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="space-y-2">
-          <Label>
-            {t("professionalDashboard.cpdPduTracker.targetsDialog.category")}
-          </Label>
-          <S.Select
-            value={category}
-            onValueChange={(value) => setCategory(value as GQL.PduCategory)}
-          >
-            <S.SelectTrigger className="h-12 rounded-2xl bg-background/60">
-              <S.SelectValue />
-            </S.SelectTrigger>
-            <S.SelectContent>
-              {PDU_CATEGORIES.map((item) => (
-                <S.SelectItem key={item} value={item}>
-                  {item}
-                </S.SelectItem>
-              ))}
-            </S.SelectContent>
-          </S.Select>
-        </div>
+    <Form {...form}>
+      <form className="space-y-5" onSubmit={submitHandler} noValidate>
+        <div className="grid gap-4 md:grid-cols-2">
+          <FloatingInputField
+            type="number"
+            name="year"
+            control={form.control}
+            min={C.PDU_REPORTING_YEAR_MIN}
+            max={C.PDU_REPORTING_YEAR_MAX}
+            label={t(`${TRACKER}.targetsDialog.year`)}
+            leftIcon={<L.CalendarRange className="h-4 w-4" />}
+          />
 
-        <div className="space-y-2">
-          <Label>
-            {t("professionalDashboard.cpdPduTracker.targetsDialog.target")}
-          </Label>
-          <Input
+          <FloatingSelectField
+            name="category"
+            control={form.control}
+            label={t(`${TRACKER}.targetsDialog.category`)}
+            options={C.PDU_CATEGORIES.map((category) => ({
+              value: category,
+              label: t(`${TRACKER}.categories.${category}`),
+            }))}
+          />
+
+          <FloatingInputField
             min={0}
             step="0.5"
             type="number"
-            value={target}
-            className="h-12 rounded-2xl bg-background/60"
-            onChange={(event) => setTarget(event.target.value)}
+            name="target"
+            control={form.control}
+            className="md:col-span-2"
+            leftIcon={<L.Target className="h-4 w-4" />}
+            label={t(`${TRACKER}.targetsDialog.target`)}
+            description={
+              isLoadingTargets
+                ? t(`${TRACKER}.targetsDialog.loadingExisting`)
+                : existingTarget
+                  ? t(`${TRACKER}.targetsDialog.existingHint`, {
+                      target: Number(existingTarget.target).toFixed(1),
+                    })
+                  : t(`${TRACKER}.targetsDialog.newHint`)
+            }
           />
         </div>
-      </div>
 
-      <Button
-        radius="xl"
-        variant="brand"
-        className="w-full"
-        disabled={isLoading}
-      >
-        {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-        {t("professionalDashboard.cpdPduTracker.targetsDialog.save")}
-      </Button>
-    </form>
+        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+          <Button
+            radius="xl"
+            type="button"
+            variant="cancel"
+            onClick={onCancel}
+            disabled={isLoading}
+            className="w-full sm:w-auto"
+          >
+            {t(`${TRACKER}.targetsDialog.cancel`)}
+          </Button>
+
+          <Button
+            radius="xl"
+            type="submit"
+            variant="brand"
+            className="w-full sm:w-auto"
+            disabled={isLoading || isLoadingTargets}
+          >
+            {isLoading && <L.Loader2 className="h-4 w-4 animate-spin" />}
+            {t(`${TRACKER}.targetsDialog.save`)}
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 };

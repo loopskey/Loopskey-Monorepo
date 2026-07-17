@@ -54,10 +54,17 @@ export type TMetricCard = {
   icon: typeof BarChart3;
 };
 
-export type TTargetForm = {
+export type TUseProfessionalTargetForm = {
+  /** Report year the tracker is currently showing; seeds the form's year field. */
   year: number;
-  isLoading: boolean;
+  /** Prefill only runs while the dialog is open, and re-runs on each reopen. */
+  isOpen: boolean;
   onSubmit: (input: UpsertPduTargetInput) => Promise<void>;
+};
+
+export type TTargetForm = TUseProfessionalTargetForm & {
+  isLoading: boolean;
+  onCancel: () => void;
 };
 
 export type TActiveForm = {
@@ -78,11 +85,22 @@ export type UpsertTargetInput = Parameters<UpsertTargetTrigger>[0];
 
 export type CsvCell = string | number | null | undefined;
 
+export type TPduReport = NonNullable<
+  API.ProfessionalPduReportQuery["professionalPduReport"]
+>;
+
+export type TPduReportTarget = TPduReport["targets"][number];
+
 export type PduCategoryRow = {
   category: (typeof PDU_CATEGORIES)[number];
-  progress: number;
   earned: number;
   target: number;
+  /** True percentage. Uncapped, so an overshoot stays visible. */
+  progress: number;
+  /** `progress` clamped to 0-100 for the progress bar only. */
+  barValue: number;
+  /** Credits earned beyond `target`, or 0 when the target is not yet met. */
+  exceededBy: number;
 };
 
 export type TPduActivitiesData = NonNullable<

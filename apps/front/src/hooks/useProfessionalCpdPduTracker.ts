@@ -77,25 +77,36 @@ export const useProfessionalCpdPduTracker = () => {
     }, 0);
   }, [report?.targets]);
 
+  const totalPdus = Number(report?.totalPdus ?? 0);
+
+  // The API reports true, uncapped progress so an overshoot stays visible.
+  const progressToGoal = Number(report?.progressToGoal ?? 0);
+  const hasTarget = totalTarget > 0;
+
+  const exceededBy =
+    hasTarget && totalPdus > totalTarget ? totalPdus - totalTarget : 0;
+
   const categoryRows = useMemo<T.PduCategoryRow[]>(() => {
     return PDU_CATEGORIES.map((category) => {
-      const earned =
+      const earned = Number(
         report?.byCategory?.find((item) => item.category === category)?.pdus ??
-        0;
-      const target =
+          0,
+      );
+      const target = Number(
         report?.targets?.find((item) => item.category === category)?.target ??
-        0;
-      const numericEarned = Number(earned);
-      const numericTarget = Number(target);
-      const progress =
-        numericTarget > 0
-          ? Math.min((numericEarned / numericTarget) * 100, 100)
-          : 0;
+          0,
+      );
+      // A zero or unset target has no meaningful percentage, so report 0 rather
+      // than dividing by zero.
+      const progress = target > 0 ? (earned / target) * 100 : 0;
+
       return {
         category,
+        earned,
+        target,
         progress,
-        earned: numericEarned,
-        target: numericTarget,
+        barValue: Math.min(progress, 100),
+        exceededBy: target > 0 && earned > target ? earned - target : 0,
       };
     }).filter((row) => row.earned > 0 || row.target > 0);
   }, [report?.byCategory, report?.targets]);
@@ -180,23 +191,26 @@ export const useProfessionalCpdPduTracker = () => {
     }
   };
 
+  // Keeps the dialog open on failure so the entered values are not lost.
   const handleTargetSubmit = async (input: T.UpsertTargetInput) => {
-    await upsertTarget(input).unwrap();
-    notify.success(
-      t("professionalDashboard.cpdPduTracker.targetsDialog.success"),
-    );
-    setIsTargetDialogOpen(false);
+    try {
+      await upsertTarget(input).unwrap();
+      notify.success(
+        t("professionalDashboard.cpdPduTracker.targetsDialog.success"),
+      );
+      setIsTargetDialogOpen(false);
+    } catch {
+      notify.error(t("authPages.common.genericError"));
+    }
   };
 
   const exportCsv = () => {
     const rows: T.CsvCell[][] = [
       ["Year", year],
-      ["Total PDUs", report?.totalPdus ?? 0],
+      ["Total PDUs", totalPdus],
       ["Total Target", totalTarget],
-      [
-        "Progress To Goal",
-        `${Number(report?.progressToGoal ?? 0).toFixed(2)}%`,
-      ],
+      ["Progress To Goal", `${progressToGoal.toFixed(2)}%`],
+      ["Exceeded By", exceededBy > 0 ? exceededBy.toFixed(2) : ""],
       ["Activities", report?.activities ?? 0],
       ["Average / Month", Number(report?.averagePerMonth ?? 0).toFixed(2)],
       [],
@@ -265,10 +279,14 @@ export const useProfessionalCpdPduTracker = () => {
     activities,
     isFetching,
     handleNext,
+    hasTarget,
+    totalPdus,
+    exceededBy,
     totalTarget,
     pduOverTime,
     hasChartData,
     categoryRows,
+    progressToGoal,
     activitiesData,
     handlePrevious,
     isSavingTarget,

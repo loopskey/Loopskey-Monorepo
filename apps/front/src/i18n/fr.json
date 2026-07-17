@@ -1647,7 +1647,7 @@
         "roadmap": "Parcours",
         "certificates": "Certificats",
         "payments": "Paiements",
-        "cpdPduTracker": "Suivi CPD/PDU"
+        "cpdPduTracker": "Mes activités d’apprentissage"
       },
       "organization": {
         "overview": "Vue d’ensemble",
@@ -1666,7 +1666,7 @@
       "courses": "Mes cours",
       "payments": "Paiements",
       "settings": "Paramètres",
-      "cpdPduTracker": "Suivi CPD/PDU",
+      "cpdPduTracker": "Mes activités d’apprentissage",
       "overview": "Vue d’ensemble",
       "calendar": "Mon calendrier",
       "certificates": "Certificats",
@@ -1754,7 +1754,7 @@
       "certifications": {
         "title": "Certifications et licences",
         "description": "Enregistrez les certifications et licences que vous détenez en dehors de la plateforme.",
-        "alert": "Cet onglet conserve votre dossier général de certification. Le suivi détaillé du CPD se fait dans Progression CPD/PDU.",
+        "alert": "Cet onglet conserve votre dossier général de certification. Le suivi détaillé du CPD se fait dans Mes activités d’apprentissage.",
         "name": "Nom de la certification / licence",
         "issuer": "Organisme émetteur",
         "licenceNumber": "Numéro de licence",
@@ -1763,7 +1763,7 @@
         "annualCpdHours": "Exigence CPD annuelle (heures)",
         "cpdPlan": "Plan CPD associé",
         "planOption": "{{year}} · {{category}} · {{target}} PDU",
-        "planEmpty": "Vous n'avez encore aucun plan CPD. Créez-en un dans Progression CPD/PDU.",
+        "planEmpty": "Vous n'avez encore aucun plan CPD. Créez-en un dans Mes activités d’apprentissage.",
         "planError": "Impossible de charger vos plans CPD.",
         "manageFiles": "Gérer les fichiers de certificat dans Certificats",
         "addTitle": "Ajouter une certification",
@@ -2042,8 +2042,8 @@
       "contentTitle": "Élément {{type}} #{{id}}"
     },
     "cpdPduTracker": {
-      "eyebrow": "Suivi CPD/PDU",
-      "title": "Suivi CPD/PDU",
+      "eyebrow": "Mes activités d’apprentissage",
+      "title": "Mes activités d’apprentissage",
       "subtitle": "Suivez et gérez votre développement professionnel continu.",
       "exportCsv": "Exporter CSV",
       "reportYear": "Année du rapport",
@@ -2054,7 +2054,9 @@
         "averagePerMonth": "Moyenne / mois",
         "thisYear": "Cette année",
         "goalProgress": "Progression de l’objectif",
-        "activities": "activités"
+        "activities": "activités",
+        "noTarget": "Aucun objectif défini pour cette année",
+        "exceededBy": "Objectif dépassé de {{amount}} PDU"
       },
       "quickActions": {
         "title": "Actions rapides",
@@ -2065,7 +2067,9 @@
       "byCategory": {
         "title": "PDU par catégorie",
         "subtitle": "Progression par rapport aux objectifs de chaque catégorie.",
-        "empty": "Ajoutez une activité ou définissez un objectif annuel pour voir la répartition par catégorie."
+        "empty": "Ajoutez une activité ou définissez un objectif annuel pour voir la répartition par catégorie.",
+        "noTarget": "Aucun objectif",
+        "exceededBy": "Dépassé de {{amount}} PDU"
       },
       "overTime": {
         "title": "PDU dans le temps",
@@ -2243,11 +2247,16 @@
         }
       },
       "targetsDialog": {
-        "title": "Ajuster l’objectif annuel",
-        "description": "Définissez un objectif pour une catégorie CPD/PDU et une année.",
+        "title": "Ajuster les objectifs annuels",
+        "description": "Définissez un objectif pour une catégorie CPD/PDU et une année. L’enregistrement met à jour l’objectif existant de cette catégorie au lieu d’en créer un doublon.",
+        "year": "Année applicable",
         "category": "Catégorie",
         "target": "Objectif PDU",
         "save": "Enregistrer l’objectif",
+        "cancel": "Annuler",
+        "newHint": "Aucun objectif défini pour cette catégorie.",
+        "loadingExisting": "Chargement de votre objectif actuel...",
+        "existingHint": "Objectif actuel : {{target}} PDU. L’enregistrement le remplacera.",
         "success": "Objectif PDU enregistré avec succès."
       }
     },

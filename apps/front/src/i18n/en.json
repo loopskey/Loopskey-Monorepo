@@ -1645,7 +1645,7 @@
         "roadmap": "Roadmap",
         "certificates": "Certificates",
         "payments": "Payments",
-        "cpdPduTracker": "CPD/PDU Tracker"
+        "cpdPduTracker": "My Learning Activities"
       },
       "organization": {
         "overview": "Overview",
@@ -1667,7 +1667,7 @@
       "wishlist": "Wishlist",
       "settings": "Settings",
       "courses": "My Courses",
-      "cpdPduTracker": "CPD/PDU Tracker",
+      "cpdPduTracker": "My Learning Activities",
       "calendar": "My Calendar",
       "certificates": "Certificates",
       "externalLearning": "External Learning"
@@ -1763,7 +1763,7 @@
       "certifications": {
         "title": "Certifications & licences",
         "description": "Record the certifications and licences you hold outside the platform.",
-        "alert": "This tab stores your general certification record. Detailed CPD tracking happens in CPD/PDU Progress.",
+        "alert": "This tab stores your general certification record. Detailed CPD tracking happens in My Learning Activities.",
         "name": "Certification / licence name",
         "issuer": "Issuing organisation",
         "licenceNumber": "Licence number",
@@ -1772,7 +1772,7 @@
         "annualCpdHours": "Annual CPD requirement (hours)",
         "cpdPlan": "Connected CPD plan",
         "planOption": "{{year}} · {{category}} · {{target}} PDUs",
-        "planEmpty": "You have no CPD plans yet. Create one in CPD/PDU Progress.",
+        "planEmpty": "You have no CPD plans yet. Create one in My Learning Activities.",
         "planError": "We could not load your CPD plans.",
         "manageFiles": "Manage certificate files in Certificates",
         "addTitle": "Add a credential",
@@ -2041,8 +2041,8 @@
       "contentTitle": "{{type}} item #{{id}}"
     },
     "cpdPduTracker": {
-      "eyebrow": "CPD/PDU Tracker",
-      "title": "CPD/PDU Tracker",
+      "eyebrow": "My Learning Activities",
+      "title": "My Learning Activities",
       "subtitle": "Track and manage your continuing professional development.",
       "exportCsv": "Export CSV",
       "reportYear": "Report year",
@@ -2053,7 +2053,9 @@
         "averagePerMonth": "Average / Month",
         "thisYear": "This year",
         "goalProgress": "Goal progress",
-        "activities": "activities"
+        "activities": "activities",
+        "noTarget": "No target set for this year",
+        "exceededBy": "Target exceeded by {{amount}} PDUs"
       },
       "quickActions": {
         "title": "Quick Actions",
@@ -2064,7 +2066,9 @@
       "byCategory": {
         "title": "PDUs by Category",
         "subtitle": "Progress vs target by professional development category.",
-        "empty": "Add a learning activity or set a yearly target to see your category breakdown."
+        "empty": "Add a learning activity or set a yearly target to see your category breakdown.",
+        "noTarget": "No target",
+        "exceededBy": "Exceeded by {{amount}} PDUs"
       },
       "overTime": {
         "title": "PDUs Over Time",
@@ -2242,11 +2246,16 @@
         }
       },
       "targetsDialog": {
-        "title": "Adjust yearly target",
-        "description": "Set a target for a specific CPD/PDU category and year.",
+        "title": "Adjust yearly targets",
+        "description": "Set a target for a specific CPD/PDU category and year. Saving updates the existing target for that category rather than adding a duplicate.",
+        "year": "Applicable year",
         "category": "Category",
         "target": "Target PDUs",
         "save": "Save target",
+        "cancel": "Cancel",
+        "newHint": "No target set for this category yet.",
+        "loadingExisting": "Loading your current target...",
+        "existingHint": "Current target: {{target}} PDUs. Saving will replace it.",
         "success": "PDU target saved successfully."
       }
     },

@@ -1,14 +1,14 @@
-import { ProfessionalPduActivityFilterInput } from "@professional/dtos/professional-pdu-activity-filter.input";
 import { ForbiddenException, NotFoundException } from "@nestjs/common";
+import { ProfessionalPduActivityFilterInput } from "@professional/dtos/professional-pdu-activity-filter.input";
 import { ProfessionalPaginationInput } from "@professional/dtos/professional-pagination.input";
 import { ContentType, Prisma, Role } from "@prisma/client";
 import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
 import { CreatePduActivityInput } from "@professional/dtos/create-pdu-activity.input";
 import { UpdatePduActivityInput } from "@professional/dtos/update-pdu-activity.input";
 import { UpsertPduTargetInput } from "@professional/dtos/upsert-pdu-target.input";
+import { Injectable, Logger } from "@nestjs/common";
 import { getPduUploadDir } from "@professional/enums/pdu-file.constant";
 import { PrismaService } from "@prisma/prisma.service";
-import { Injectable, Logger } from "@nestjs/common";
 import { PDUStatus } from "@prisma/client";
 import { unlink } from "fs/promises";
 import { TUser } from "@common/types/user.types";
@@ -38,7 +38,6 @@ export class ProfessionalPduService {
     };
   }
 
-  /** Resolves an activity the caller owns, or throws. Never leaks other users' rows. */
   private async findOwnedActivity(user: TUser, activityId: string) {
     const activity = await this.prismaService.pDUActivity.findFirst({
       where: { id: activityId, userId: user.id },
@@ -109,7 +108,7 @@ export class ProfessionalPduService {
       averagePerMonth: Number((totalPdus / MONTHS_PER_YEAR).toFixed(2)),
       progressToGoal:
         totalTarget > 0
-          ? Number(Math.min((totalPdus / totalTarget) * 100, 100).toFixed(2))
+          ? Number(((totalPdus / totalTarget) * 100).toFixed(2))
           : 0,
       targets: targets.map((item) => ({
         id: item.id,

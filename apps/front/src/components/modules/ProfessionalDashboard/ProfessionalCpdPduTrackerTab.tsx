@@ -33,10 +33,14 @@ const ProfessionalCpdPduTrackerTab = () => {
     activities,
     isFetching,
     handleNext,
+    hasTarget,
+    totalPdus,
+    exceededBy,
     totalTarget,
     pduOverTime,
     hasChartData,
     categoryRows,
+    progressToGoal,
     activitiesData,
     handlePrevious,
     isSavingTarget,
@@ -113,7 +117,7 @@ const ProfessionalCpdPduTrackerTab = () => {
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             <MetricCard
               icon={L.BarChart3}
-              value={Number(report?.totalPdus ?? 0).toFixed(1)}
+              value={totalPdus.toFixed(1)}
               label={t(`${TRACKER}.cards.totalPdus`)}
               helper={t(`${TRACKER}.cards.thisYear`)}
             />
@@ -127,9 +131,17 @@ const ProfessionalCpdPduTrackerTab = () => {
 
             <MetricCard
               icon={L.TrendingUp}
-              value={`${Number(report?.progressToGoal ?? 0).toFixed(0)}%`}
-              helper={t(`${TRACKER}.cards.goalProgress`)}
               label={t(`${TRACKER}.cards.progressToGoal`)}
+              value={hasTarget ? `${progressToGoal.toFixed(0)}%` : "—"}
+              helper={
+                !hasTarget
+                  ? t(`${TRACKER}.cards.noTarget`)
+                  : exceededBy > 0
+                    ? t(`${TRACKER}.cards.exceededBy`, {
+                        amount: exceededBy.toFixed(1),
+                      })
+                    : t(`${TRACKER}.cards.goalProgress`)
+              }
             />
 
             <MetricCard
@@ -166,7 +178,13 @@ const ProfessionalCpdPduTrackerTab = () => {
                     </Button>
                   </D.DialogTrigger>
 
-                  <D.DialogContent className="glass-panel max-w-2xl rounded-3xl border-glass-border">
+                  {/*
+                    Use `glass-dialog`, not `glass-panel`: `.glass-panel` is
+                    unlayered CSS that sets `position: relative`, which beats
+                    Tailwind's layered `fixed` utility and drops the dialog into
+                    normal flow at the end of <body> (i.e. invisible).
+                  */}
+                  <D.DialogContent className="glass-dialog max-w-2xl rounded-3xl border-glass-border">
                     <D.DialogHeader>
                       <D.DialogTitle>
                         {t(`${TRACKER}.targetsDialog.title`)}
@@ -179,8 +197,10 @@ const ProfessionalCpdPduTrackerTab = () => {
 
                     <TargetForm
                       year={year}
+                      isOpen={isTargetDialogOpen}
                       isLoading={isSavingTarget}
                       onSubmit={handleTargetSubmit}
+                      onCancel={() => setIsTargetDialogOpen(false)}
                     />
                   </D.DialogContent>
                 </D.Dialog>
@@ -230,13 +250,26 @@ const ProfessionalCpdPduTrackerTab = () => {
                             {item.earned.toFixed(1)} / {item.target.toFixed(1)}{" "}
                             PDUs
                           </p>
+
+                          {item.exceededBy > 0 && (
+                            <p className="mt-1 text-xs font-medium text-primary">
+                              {t(`${TRACKER}.byCategory.exceededBy`, {
+                                amount: item.exceededBy.toFixed(1),
+                              })}
+                            </p>
+                          )}
                         </div>
-                        <Badge variant="secondary">
-                          {item.progress.toFixed(0)}%
+
+                        <Badge
+                          variant={item.exceededBy > 0 ? "default" : "secondary"}
+                        >
+                          {item.target > 0
+                            ? `${item.progress.toFixed(0)}%`
+                            : t(`${TRACKER}.byCategory.noTarget`)}
                         </Badge>
                       </div>
 
-                      <Progress value={item.progress} className="h-2.5" />
+                      <Progress value={item.barValue} className="h-2.5" />
                     </div>
                   ))}
                 </div>
