@@ -1,4 +1,5 @@
 import { TProfessionalProfileTab } from "@/types/professional-profile.types";
+import { API_ORIGIN } from "@/utils/avatar.util";
 import { TSelectOption } from "@/types/element.types";
 
 import * as GQL from "@/lib/graphql/generated";
@@ -127,12 +128,7 @@ export const ACCEPTED_AVATAR_MIME_TYPES = [
 
 export const ACCEPTED_AVATAR_ACCEPT_ATTRIBUTE = ".jpg,.jpeg,.png,.webp";
 
-const graphqlUrl =
-  process.env.NEXT_PUBLIC_GRAPHQL_URL ?? "http://localhost:5700/graphql";
-
-export const PROFILE_API_ORIGIN = graphqlUrl.replace(/\/graphql\/?$/, "");
-
-export const AVATAR_ENDPOINT = `${PROFILE_API_ORIGIN}/professional/profile/avatar`;
+export const AVATAR_ENDPOINT = `${API_ORIGIN}/professional/profile/avatar`;
 
 // ================= Countries =================
 countries.registerLocale(enCountries);

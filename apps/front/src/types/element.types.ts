@@ -2,12 +2,27 @@ import { TextareaHTMLAttributes, InputHTMLAttributes } from "react";
 import { Control, FieldPath, FieldValues, Path } from "react-hook-form";
 import { HTMLAttributes, ReactNode, CSSProperties } from "react";
 import { ExternalLearningProvider } from "@lib/graphql/generated";
+import { AvatarImage } from "@ui/avatar";
+import { ComponentProps } from "react";
 import { buttonVariants } from "@ui/button";
 import { VariantProps } from "class-variance-authority";
 
 export type TLearningParticlesBackgroundProps = {
   className?: string;
   withBottomFade?: boolean;
+};
+
+// ================ User Avatar ==============
+export type TUserAvatarProps = {
+  alt?: string;
+  email?: string | null;
+  fullName?: string | null;
+  avatarUrl?: string | null;
+  className?: string;
+  fallbackClassName?: string;
+  onLoadingStatusChange?: ComponentProps<
+    typeof AvatarImage
+  >["onLoadingStatusChange"];
 };
 
 // ================ Galaxy Background ==============

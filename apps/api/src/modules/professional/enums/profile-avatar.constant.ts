@@ -22,16 +22,15 @@ export const AVATAR_STORAGE_KEY_PATTERN =
 export const getAvatarUploadDir = () =>
   process.env.AVATAR_UPLOAD_DIR ?? join(process.cwd(), "uploads", "avatars");
 
-export const getAvatarPublicBaseUrl = () => {
-  const configured = process.env.PUBLIC_API_URL;
-  if (configured) return configured.replace(/\/+$/, "");
-  const host = process.env.APP_HOST ?? "localhost";
-  const port = process.env.APP_PORT ?? "5700";
-  return `http://${host}:${port}`;
-};
-
+/**
+ * Root-relative on purpose. An absolute URL would bake the API origin of
+ * whichever process happened to serve the upload into the row forever, so any
+ * later change of host/port/deploy silently breaks every avatar stored before
+ * it. Callers resolve this against the API origin they are already configured
+ * with; external avatars (OAuth, seeds) stay absolute and are passed through.
+ */
 export const buildAvatarUrl = (storageKey: string) =>
-  `${getAvatarPublicBaseUrl()}/${AVATAR_ROUTE_PREFIX}/${storageKey}`;
+  `/${AVATAR_ROUTE_PREFIX}/${storageKey}`;
 
 export const isAcceptedAvatarFile = (mimeType: string, extension: string) => {
   const allowed = ACCEPTED_AVATAR_MIME_TYPES[mimeType];

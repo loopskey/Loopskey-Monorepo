@@ -1,6 +1,7 @@
 "use client";
 
 import { professionalApi } from "@/lib/rtk/endpoints/professional.api";
+import { refreshAccessToken } from "@/lib/rtk/graphqlBaseQuery";
 import { useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useI18n } from "@/hooks/useI18n";
@@ -18,6 +19,30 @@ const AVATAR_TAGS: TAvatarTagList = [
   "CurrentUser",
   "User",
 ];
+
+const UNAUTHORIZED_STATUS = 401;
+
+/**
+ * XHR (not fetch) so the upload can report real progress. Resolves with the
+ * HTTP status rather than throwing, so the caller can decide what to retry.
+ */
+const sendAvatarUpload = (file: File, onProgress: (value: number) => void) =>
+  new Promise<number>((resolve, reject) => {
+    const body = new FormData();
+    body.append("file", file);
+
+    const request = new XMLHttpRequest();
+    request.open("POST", C.AVATAR_ENDPOINT);
+    request.withCredentials = true;
+
+    request.upload.onprogress = (event) => {
+      if (!event.lengthComputable) return;
+      onProgress(Math.round((event.loaded / event.total) * 100));
+    };
+    request.onload = () => resolve(request.status);
+    request.onerror = () => reject(new Error("network"));
+    request.send(body);
+  });
 
 export const useProfessionalAvatar = () => {
   const { t } = useI18n();
@@ -63,26 +88,13 @@ export const useProfessionalAvatar = () => {
       setIsUploading(true);
 
       try {
-        // XHR (not fetch) so the upload can report real progress.
-        await new Promise<void>((resolve, reject) => {
-          const body = new FormData();
-          body.append("file", file);
-
-          const request = new XMLHttpRequest();
-          request.open("POST", C.AVATAR_ENDPOINT);
-          request.withCredentials = true;
-
-          request.upload.onprogress = (event) => {
-            if (!event.lengthComputable) return;
-            setProgress(Math.round((event.loaded / event.total) * 100));
-          };
-          request.onload = () => {
-            if (request.status >= 200 && request.status < 300) return resolve();
-            reject(new Error(String(request.status)));
-          };
-          request.onerror = () => reject(new Error("network"));
-          request.send(body);
-        });
+        let status = await sendAvatarUpload(file, setProgress);
+        // This transport does not go through graphqlBaseQuery, so it has to
+        // recover from an expired access token itself or the upload would fail
+        // at a moment when every GraphQL call still succeeds.
+        if (status === UNAUTHORIZED_STATUS && (await refreshAccessToken()))
+          status = await sendAvatarUpload(file, setProgress);
+        if (status < 200 || status >= 300) throw new Error(String(status));
 
         refreshAvatarCaches();
         notify.success(t("professionalDashboard.profile.avatar.uploaded"));
@@ -90,6 +102,9 @@ export const useProfessionalAvatar = () => {
         const message = t("professionalDashboard.profile.errors.avatarUpload");
         setError(message);
         notify.error(message);
+        // The upload may have been persisted before whatever failed, so refresh
+        // rather than leave the UI asserting an avatar that is already stale.
+        refreshAvatarCaches();
       } finally {
         setIsUploading(false);
         setProgress(0);

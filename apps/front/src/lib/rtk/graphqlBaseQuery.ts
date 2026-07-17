@@ -80,7 +80,12 @@ const executeGraphqlRequest = async (
   }
 };
 
-const refreshAccessToken = async () => {
+/**
+ * Exported so non-GraphQL transports (the avatar upload posts multipart over
+ * XHR) can reuse the same single-flight refresh instead of failing on an
+ * expired access token that every GraphQL call would have recovered from.
+ */
+export const refreshAccessToken = async () => {
   if (!refreshPromise) {
     refreshPromise = executeGraphqlRequest({
       document: API.RefreshTokenDocument,

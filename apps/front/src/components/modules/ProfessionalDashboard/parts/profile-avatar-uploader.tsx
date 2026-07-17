@@ -1,13 +1,12 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@ui/avatar";
 import { TProfileAvatarUploaderProps } from "@/types/professional-profile.types";
 import { ImageUp, Loader2, Trash2 } from "lucide-react";
 import { ConfirmDialog } from "@elements/confirm-dialog";
-import { getInitials } from "@/utils/function-helper";
+import { UserAvatar } from "@elements/user-avatar";
 import { Progress } from "@ui/progress";
 import { useI18n } from "@/hooks/useI18n";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@ui/button";
 
 import * as C from "@/utils/professional-profile.constant";
@@ -19,6 +18,7 @@ export const ProfileAvatarUploader = ({
 }: TProfileAvatarUploaderProps) => {
   const { t } = useI18n();
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const [hasImageError, setHasImageError] = useState(false);
 
   const {
     error,
@@ -34,25 +34,25 @@ export const ProfileAvatarUploader = ({
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
-    const file = event.target.files?.[0];
-    // Reset first so re-picking the same file still fires a change event.
-    event.target.value = "";
+    const input = event.target;
+    const file = input.files?.[0];
     if (file) await uploadAvatar(file);
+    // Reset once the file has been read, so re-picking the same file still
+    // fires a change event without clearing the FileList mid-upload.
+    input.value = "";
   };
 
   return (
     <div className="flex flex-col gap-4 rounded-3xl border border-glass-border bg-background/45 p-5 sm:flex-row sm:items-center">
-      <Avatar className="h-20 w-20 border border-primary/20">
-        {profile?.avatarUrl ? (
-          <AvatarImage
-            src={profile.avatarUrl}
-            alt={t("professionalDashboard.profile.avatar.alt")}
-          />
-        ) : null}
-        <AvatarFallback className="bg-primary/10 text-lg font-medium text-primary">
-          {getInitials(profile?.fullName, profile?.email)}
-        </AvatarFallback>
-      </Avatar>
+      <UserAvatar
+        email={profile?.email}
+        fullName={profile?.fullName}
+        avatarUrl={profile?.avatarUrl}
+        className="h-20 w-20 border border-primary/20"
+        alt={t("professionalDashboard.profile.avatar.alt")}
+        fallbackClassName="bg-primary/10 text-lg font-medium text-primary"
+        onLoadingStatusChange={(status) => setHasImageError(status === "error")}
+      />
 
       <div className="min-w-0 flex-1">
         <p className="truncate font-medium">
@@ -79,6 +79,16 @@ export const ProfileAvatarUploader = ({
         {error ? (
           <p role="alert" className="mt-2 text-sm text-destructive">
             {error}
+          </p>
+        ) : null}
+
+        {/* Without this a stored avatar that fails to load is indistinguishable
+            from having none, because the fallback initials quietly take over.
+            Having no photo at all also reports "error", so this stays keyed to
+            a photo actually being set. */}
+        {!error && !isUploading && profile?.avatarUrl && hasImageError ? (
+          <p role="alert" className="mt-2 text-sm text-destructive">
+            {t("professionalDashboard.profile.errors.avatarUnavailable")}
           </p>
         ) : null}
       </div>

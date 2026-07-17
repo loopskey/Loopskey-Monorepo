@@ -4,13 +4,12 @@ import { FloatingTextareaField } from "@elements/floating-textarea";
 import { useAdminSettingsTab } from "@/hooks/useAdminSettingsTab";
 import { FloatingInputField } from "@elements/floating-input";
 import { PasswordField } from "@elements/password-field";
-import { getInitials } from "@/utils/function-helper";
+import { UserAvatar } from "@elements/user-avatar";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
 import { Form } from "@ui/form";
 
 import * as L from "lucide-react";
-import * as A from "@ui/avatar";
 
 const AdminSettingsTab = () => {
   const {
@@ -79,12 +78,13 @@ const AdminSettingsTab = () => {
           </div>
 
           <div className="mt-6 flex flex-col gap-4 rounded-3xl border border-glass-border bg-background/45 p-5 sm:flex-row sm:items-center">
-            <A.Avatar className="h-20 w-20 border border-primary/20">
-              {avatarUrl ? <A.AvatarImage src={avatarUrl} /> : null}
-              <A.AvatarFallback className="bg-primary/10 text-lg font-medium text-primary">
-                {getInitials(fullName, user?.email)}
-              </A.AvatarFallback>
-            </A.Avatar>
+            <UserAvatar
+              fullName={fullName}
+              avatarUrl={avatarUrl}
+              email={user?.email}
+              className="h-20 w-20 border border-primary/20"
+              fallbackClassName="bg-primary/10 text-lg font-medium text-primary"
+            />
             <div className="flex-1">
               <p className="font-medium">{fullName || user?.email}</p>
               <p className="mt-1 text-sm text-muted-foreground">

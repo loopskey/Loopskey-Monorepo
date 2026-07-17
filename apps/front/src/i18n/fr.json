@@ -1856,6 +1856,7 @@
         "avatarSize": "Cette image est trop volumineuse.",
         "avatarUpload": "Impossible de téléverser votre photo. Veuillez réessayer.",
         "avatarDelete": "Impossible de supprimer votre photo. Veuillez réessayer.",
+        "avatarUnavailable": "Impossible de charger votre photo. Veuillez la téléverser à nouveau.",
         "saveFailed": "Impossible d'enregistrer vos modifications. Veuillez réessayer.",
         "deleteFailed": "Impossible de supprimer cet élément. Veuillez réessayer.",
         "loadFailed": "Impossible de charger votre profil."

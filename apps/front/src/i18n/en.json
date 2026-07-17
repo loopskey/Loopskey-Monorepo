@@ -1865,6 +1865,7 @@
         "avatarSize": "That image is too large.",
         "avatarUpload": "We could not upload your photo. Please try again.",
         "avatarDelete": "We could not remove your photo. Please try again.",
+        "avatarUnavailable": "Your photo could not be loaded. Please upload it again.",
         "saveFailed": "We could not save your changes. Please try again.",
         "deleteFailed": "We could not delete that item. Please try again.",
         "loadFailed": "We could not load your profile."

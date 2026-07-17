@@ -5,7 +5,7 @@ import { getDashboardPath, siteLinks } from "@/utils/constant";
 import { getDashboardProfilePath } from "@/utils/constant";
 import { useCurrentUserQuery } from "@/lib/rtk/endpoints/auth.api";
 import { useLogoutMutation } from "@/lib/rtk/endpoints/auth.api";
-import { getInitials } from "@/utils/function-helper";
+import { UserAvatar } from "@elements/user-avatar";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
@@ -15,7 +15,6 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import * as D from "@ui/dropdown-menu";
-import * as A from "@ui/avatar";
 
 export const UserMenu = () => {
   const { t } = useI18n();
@@ -54,12 +53,13 @@ export const UserMenu = () => {
           variant="glass"
           className="h-12 gap-3 px-2 pr-4"
         >
-          <A.Avatar className="h-9 w-9 border border-primary/20">
-            {user.avatarUrl ? <A.AvatarImage src={user.avatarUrl} /> : null}
-            <A.AvatarFallback className="bg-primary/10 text-sm font-bold text-primary">
-              {getInitials(user.fullName, user.email)}
-            </A.AvatarFallback>
-          </A.Avatar>
+          <UserAvatar
+            email={user.email}
+            fullName={user.fullName}
+            avatarUrl={user.avatarUrl}
+            className="h-9 w-9 border border-primary/20"
+            fallbackClassName="bg-primary/10 text-sm font-bold text-primary"
+          />
           <span className="hidden min-w-0 text-left md:block">
             <span className="block max-w-32 truncate text-sm font-bold">
               {user.fullName ?? user.email}
@@ -77,12 +77,13 @@ export const UserMenu = () => {
         )}
       >
         <div className="flex items-center gap-3 rounded-2xl bg-primary/5 p-3">
-          <A.Avatar className="h-11 w-11 border border-primary/20">
-            {user.avatarUrl ? <A.AvatarImage src={user.avatarUrl} /> : null}
-            <A.AvatarFallback className="bg-primary/10 font-bold text-primary">
-              {getInitials(user.fullName, user.email)}
-            </A.AvatarFallback>
-          </A.Avatar>
+          <UserAvatar
+            email={user.email}
+            fullName={user.fullName}
+            avatarUrl={user.avatarUrl}
+            className="h-11 w-11 border border-primary/20"
+            fallbackClassName="bg-primary/10 font-bold text-primary"
+          />
 
           <div className="min-w-0">
             <p className="truncate text-sm font-bold">

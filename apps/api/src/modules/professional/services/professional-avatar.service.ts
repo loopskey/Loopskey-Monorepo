@@ -1,9 +1,9 @@
 import { BadRequestException, ForbiddenException } from "@nestjs/common";
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { extname, join, resolve, sep } from "path";
 import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
 import { PrismaService } from "@prisma/prisma.service";
-import { rm, writeFile } from "fs/promises";
+import { access, rm, writeFile } from "fs/promises";
 import { randomUUID } from "crypto";
 import { mkdirSync } from "fs";
 import { TUser } from "@common/types/user.types";
@@ -13,6 +13,8 @@ import * as C from "@professional/enums/profile-avatar.constant";
 
 @Injectable()
 export class ProfessionalAvatarService {
+  private readonly logger = new Logger(ProfessionalAvatarService.name);
+
   constructor(private readonly prismaService: PrismaService) {}
 
   private assertProfessional(user: TUser) {
@@ -36,10 +38,24 @@ export class ProfessionalAvatarService {
     return filePath;
   }
 
+  /**
+   * Best effort by design: this only ever runs once the new avatar is already
+   * committed, so a cleanup failure (a Windows EBUSY/EPERM from a concurrent
+   * read of the old file, a permission change) must not fail an upload the user
+   * has effectively completed. Worst case we leak one orphaned file.
+   */
   private async removeStoredFile(storageKey: string | null) {
     if (!storageKey) return;
     if (!C.AVATAR_STORAGE_KEY_PATTERN.test(storageKey)) return;
-    await rm(this.resolveStoragePath(storageKey), { force: true });
+    try {
+      await rm(this.resolveStoragePath(storageKey), { force: true });
+    } catch (error) {
+      this.logger.warn(
+        `Failed to remove previous avatar "${storageKey}": ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
+    }
   }
 
   async uploadAvatar(user: TUser, file?: Express.Multer.File) {
@@ -105,6 +121,17 @@ export class ProfessionalAvatarService {
       throw new NotFoundException(
         ProfessionalMessageCode.AVATAR_FILE_NOT_FOUND,
       );
+    // The row is not proof the file survived: storage can drift from the
+    // database. Without this the response streams a file that is not there and
+    // fails after the headers are sent, which reaches the browser as a broken
+    // image rather than a 404.
+    try {
+      await access(filePath);
+    } catch {
+      throw new NotFoundException(
+        ProfessionalMessageCode.AVATAR_FILE_NOT_FOUND,
+      );
+    }
     return filePath;
   }
 }
