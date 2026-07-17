@@ -31,6 +31,7 @@ export const baseApi = createApi({
     "AdminUserGrowth",
     "PodcastEpisodes",
     "ProfessionalPdu",
+    "ProfessionalCpdPlan",
     "ExternalLearning",
     "ProviderSettings",
     "ProviderOverview",

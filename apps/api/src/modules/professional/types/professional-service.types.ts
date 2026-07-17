@@ -42,3 +42,5 @@ export type TCalculateCalendar = {
   startDate: Date;
   endDate?: Date | null;
 } | null;
+
+export type CertificationScore = { id: string; score: number };

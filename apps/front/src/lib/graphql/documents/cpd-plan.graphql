@@ -1,0 +1,156 @@
+fragment CertificationCategoryFields on CertificationCategory {
+  id
+  name
+  requiredCredits
+  order
+}
+
+fragment CertificationFields on Certification {
+  id
+  name
+  abbreviation
+  organization
+  organizationAbbr
+  association
+  creditType
+  renewalCycleLabel
+  renewalCycleMonths
+  totalRequiredCredits
+  suggestedDeadline
+  categories {
+    ...CertificationCategoryFields
+  }
+}
+
+fragment CpdPlanCategoryFields on CpdPlanCategory {
+  id
+  name
+  targetCredits
+  completedCredits
+  order
+}
+
+fragment CpdPlanFields on CpdPlan {
+  id
+  certificationId
+  certificationName
+  organization
+  reportingStart
+  reportingEnd
+  creditType
+  totalRequiredCredits
+  initialCompletedCredits
+  timeAvailable
+  preferredFormats
+  evidenceTypes
+  evidenceOtherNote
+  reportRecipientType
+  reportRecipientLabel
+  remindersEnabled
+  reminderTiming
+  status
+  categories {
+    ...CpdPlanCategoryFields
+  }
+  createdAt
+  updatedAt
+}
+
+fragment CpdCategoryProgressFields on CpdCategoryProgress {
+  id
+  name
+  target
+  completed
+  remaining
+  progress
+  isComplete
+}
+
+fragment CpdMissingRequirementFields on CpdMissingRequirement {
+  code
+  detail
+}
+
+fragment CpdPlanProgressFields on CpdPlanProgress {
+  planId
+  earnedCredits
+  initialCompletedCredits
+  activityCredits
+  totalRequiredCredits
+  remainingCredits
+  progressPercent
+  categoriesMissing
+  evidenceMissing
+  activitiesCounted
+  complianceStatus
+  reportingExpired
+  reportingNotStarted
+  categories {
+    ...CpdCategoryProgressFields
+  }
+  missingRequirements {
+    ...CpdMissingRequirementFields
+  }
+}
+
+fragment CpdReportRecipientOptionFields on CpdReportRecipientOption {
+  type
+  label
+  description
+}
+
+query CertificationSearch($input: CertificationSearchInput!) {
+  certificationSearch(input: $input) {
+    ...CertificationFields
+  }
+}
+
+query MyCpdPlans {
+  myCpdPlans {
+    ...CpdPlanFields
+  }
+}
+
+query CpdPlan($planId: ID!) {
+  cpdPlan(planId: $planId) {
+    ...CpdPlanFields
+  }
+}
+
+query CpdPlanProgress($planId: ID!) {
+  cpdPlanProgress(planId: $planId) {
+    ...CpdPlanProgressFields
+  }
+}
+
+query CpdReportRecipients {
+  cpdReportRecipients {
+    ...CpdReportRecipientOptionFields
+  }
+}
+
+mutation CreateCpdPlan($input: CreateCpdPlanInput!) {
+  createCpdPlan(input: $input) {
+    ...CpdPlanFields
+  }
+}
+
+mutation CreateCpdPlanFromSuggestion(
+  $input: CreateCpdPlanFromSuggestionInput!
+) {
+  createCpdPlanFromSuggestion(input: $input) {
+    ...CpdPlanFields
+  }
+}
+
+mutation UpdateCpdPlan($input: UpdateCpdPlanInput!) {
+  updateCpdPlan(input: $input) {
+    ...CpdPlanFields
+  }
+}
+
+mutation DeleteCpdPlan($planId: ID!) {
+  deleteCpdPlan(planId: $planId) {
+    id
+  }
+}

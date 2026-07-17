@@ -1,6 +1,7 @@
 /// <reference types="node" />
 
 import { seedProfessionalDashboard } from "./seeds/professional-dashboard.seed";
+import { seedCertificationCatalogue } from "./seeds/certification-catalogue.seed";
 import { seedOrganizationDashboard } from "./seeds/organization-dashboard.seed";
 import { seedProfileTaxonomy } from "./seeds/profile-taxonomy.seed";
 import { seedProviderDashboard } from "./seeds/provider-dashboard.seed";
@@ -34,6 +35,7 @@ const main = async () => {
   await seedProfessionalDashboard(prisma);
   await seedProviderDashboard(prisma);
   await seedOrganizationDashboard(prisma);
+  await seedCertificationCatalogue(prisma);
 
   console.log("✅ LoopsKey seed completed successfully.");
 };

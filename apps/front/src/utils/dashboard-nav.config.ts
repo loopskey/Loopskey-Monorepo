@@ -70,6 +70,12 @@ export const professionalDashboardTabs: TDashboardTab<TProfessionalDashboardTab>
       icon: L.Target,
     },
     {
+      value: "cpd-pdu-progress",
+      labelKey: "professionalDashboard.sidebar.cpdPduProgress",
+      href: "/dashboard/professional?tab=cpd-pdu-progress",
+      icon: L.GaugeCircle,
+    },
+    {
       value: "wishlist",
       labelKey: "professionalDashboard.sidebar.wishlist",
       href: "/dashboard/professional?tab=wishlist",

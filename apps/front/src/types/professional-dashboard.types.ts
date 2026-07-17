@@ -23,6 +23,7 @@ export type TProfessionalDashboardTab =
   | "add-activity"
   | "certificates"
   | "cpd-pdu-tracker"
+  | "cpd-pdu-progress"
   | "external-learning";
 
 export type TStatsCard = {
@@ -55,9 +56,7 @@ export type TMetricCard = {
 };
 
 export type TUseProfessionalTargetForm = {
-  /** Report year the tracker is currently showing; seeds the form's year field. */
   year: number;
-  /** Prefill only runs while the dialog is open, and re-runs on each reopen. */
   isOpen: boolean;
   onSubmit: (input: UpsertPduTargetInput) => Promise<void>;
 };
@@ -92,15 +91,12 @@ export type TPduReport = NonNullable<
 export type TPduReportTarget = TPduReport["targets"][number];
 
 export type PduCategoryRow = {
-  category: (typeof PDU_CATEGORIES)[number];
   earned: number;
   target: number;
-  /** True percentage. Uncapped, so an overshoot stays visible. */
   progress: number;
-  /** `progress` clamped to 0-100 for the progress bar only. */
   barValue: number;
-  /** Credits earned beyond `target`, or 0 when the target is not yet met. */
   exceededBy: number;
+  category: (typeof PDU_CATEGORIES)[number];
 };
 
 export type TPduActivitiesData = NonNullable<
@@ -116,8 +112,8 @@ export type TPduActivityFilters = {
 };
 
 export type TPduActivitiesTableProps = {
-  t: I18nContextValue["t"];
   isDeleting: boolean;
+  t: I18nContextValue["t"];
   activities: TPduActivity[];
   onEdit: (activityId: string) => void;
   onDelete: (activityId: string) => void;
@@ -125,10 +121,10 @@ export type TPduActivitiesTableProps = {
 };
 
 export type TPduActivityFiltersProps = {
-  t: I18nContextValue["t"];
-  filters: TPduActivityFilters;
   isFiltered: boolean;
   onReset: () => void;
+  t: I18nContextValue["t"];
+  filters: TPduActivityFilters;
   onChange: <K extends keyof TPduActivityFilters>(
     key: K,
     value: TPduActivityFilters[K],

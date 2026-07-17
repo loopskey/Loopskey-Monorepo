@@ -1,4 +1,242 @@
 {
+  "cpdProgress": {
+    "eyebrow": "CPD / PDU",
+    "title": "Progression CPD/PDU",
+    "subtitle": "Suivez votre progression, gérez vos exigences et restez conforme.",
+    "actions": {
+      "generateSummary": "Générer le résumé CPD",
+      "createNew": "Créer un nouveau CPD/PDU"
+    },
+    "common": {
+      "cancel": "Annuler",
+      "back": "Retour",
+      "next": "Suivant",
+      "loading": "Chargement...",
+      "remove": "Retirer"
+    },
+    "empty": {
+      "title": "Aucun plan CPD/PDU pour l’instant",
+      "description": "Créez un plan CPD/PDU pour commencer à suivre vos crédits, catégories, preuves et conformité. La progression ne peut être suivie qu’une fois un plan créé.",
+      "cta": "Créer un nouveau CPD/PDU"
+    },
+    "search": {
+      "title": "Configurer le suivi CPD / PDU",
+      "description": "Recherchez votre certification pour que LoopsKey suggère vos exigences.",
+      "sectionTitle": "Trouvez votre certification",
+      "sectionDescription": "Recherchez par certification, licence ou association.",
+      "placeholder": "ex. PMP, CFA, PMI, ISC2...",
+      "minChars": "Saisissez au moins 2 caractères pour rechercher.",
+      "loading": "Recherche...",
+      "empty": "Aucune certification ne correspond à votre recherche.",
+      "error": "Une erreur est survenue lors de la recherche.",
+      "retry": "Réessayer",
+      "cantFind": "Vous ne trouvez pas votre certification ?",
+      "addManually": "Ajoutez-la manuellement"
+    },
+    "suggested": {
+      "badge": "Exigence suggérée trouvée",
+      "reviewNote": "Veuillez vérifier et confirmer avant d’utiliser ces exigences.",
+      "renewal": "Cycle de renouvellement",
+      "totalRequired": "Total des crédits requis",
+      "creditType": "Type de crédit",
+      "deadline": "Échéance de déclaration",
+      "categories": "Catégories",
+      "back": "Retour",
+      "editManually": "Modifier manuellement",
+      "useSuggested": "Utiliser l’exigence suggérée"
+    },
+    "setup": {
+      "titleManual": "Ajouter un CPD/PDU manuellement",
+      "titleSuggestion": "Vérifiez votre configuration CPD/PDU",
+      "subtitle": "Complétez les quatre étapes pour créer votre plan.",
+      "step1": {
+        "title": "Détails de la certification",
+        "description": "Quelle certification ou licence suivez-vous ?"
+      },
+      "step2": {
+        "title": "Déclaration et crédits",
+        "description": "Votre période de déclaration et vos totaux de crédits"
+      },
+      "step3": {
+        "title": "Répartition par catégorie",
+        "description": "Répartissez les crédits par catégorie, le cas échéant."
+      },
+      "step4": {
+        "title": "Preuves et déclaration",
+        "description": "Preuves, destinataire et rappels"
+      },
+      "fields": {
+        "certificationName": "Certification / Licence",
+        "certificationNamePlaceholder": "ex. PMP (Project Management Professional)",
+        "organization": "Association / Organisation",
+        "organizationPlaceholder": "ex. Project Management Institute (PMI)",
+        "reportingStart": "Période de déclaration — Début",
+        "reportingEnd": "Période de déclaration — Fin",
+        "creditType": "Type de crédit",
+        "totalRequired": "Total des crédits requis",
+        "initialCompleted": "Crédits déjà obtenus",
+        "initialCompletedHint": "Base avant le suivi LoopsKey. Les activités enregistrées s’y ajoutent.",
+        "timeAvailable": "Temps disponible pour apprendre",
+        "timeAvailablePlaceholder": "Sélectionnez la disponibilité",
+        "preferredFormats": "Formats d’apprentissage préférés",
+        "preferredFormatsPlaceholder": "Sélectionnez des formats",
+        "searchFormats": "Rechercher des formats",
+        "noFormats": "Aucun format trouvé",
+        "evidenceRequired": "Preuves requises (sélectionnez tout ce qui s’applique)",
+        "evidenceOtherNote": "Décrivez l’autre preuve",
+        "reportRecipient": "Destinataire du rapport final",
+        "reportRecipientPlaceholder": "Sélectionnez un destinataire",
+        "reportRecipientLabel": "Nom du destinataire",
+        "deadlineReminders": "Rappels d’échéance",
+        "deadlineRemindersHint": "Facultatif — anticipez votre échéance.",
+        "reminderTiming": "Délai du rappel",
+        "reminderTimingPlaceholder": "Sélectionnez le délai"
+      },
+      "categories": {
+        "category": "Catégorie",
+        "target": "Objectif",
+        "completed": "Complété",
+        "delete": "Supprimer",
+        "add": "Ajouter une catégorie",
+        "targetTotal": "Total des objectifs",
+        "empty": "Aucune catégorie. Ajoutez-en une si votre certification répartit les crédits par catégorie.",
+        "thisCategory": "cette catégorie",
+        "deleteConfirmTitle": "Retirer la catégorie ?",
+        "deleteConfirmDescription": "Ceci retirera"
+      },
+      "actions": {
+        "create": "Créer le plan CPD"
+      },
+      "unsaved": {
+        "title": "Abandonner les modifications ?",
+        "description": "Vous avez des modifications non enregistrées. Quitter maintenant abandonnera cette configuration.",
+        "keep": "Continuer l’édition",
+        "discard": "Abandonner"
+      }
+    },
+    "creditTypes": {
+      "PDU": "PDU",
+      "CPD": "CPD",
+      "CPE": "CPE",
+      "CEU": "CEU",
+      "TRAINING_HOUR": "Heure de formation"
+    },
+    "time": {
+      "LESS_THAN_ONE_HOUR": "Moins d’1 h/semaine",
+      "ONE_TO_THREE_HOURS": "1 à 3 h/semaine",
+      "FOUR_TO_SIX_HOURS": "4 à 6 h/semaine",
+      "SEVEN_TO_TEN_HOURS": "7 à 10 h/semaine",
+      "MORE_THAN_TEN_HOURS": "Plus de 10 h/semaine"
+    },
+    "formats": {
+      "COURSE": "Cours",
+      "WEBINAR": "Webinaire",
+      "WORKSHOP": "Atelier",
+      "VIDEO": "Vidéo",
+      "PODCAST": "Podcast",
+      "ARTICLE": "Lecture"
+    },
+    "evidence": {
+      "CERTIFICATE": "Certificat",
+      "ATTENDANCE_PROOF": "Preuve de présence",
+      "SELF_DECLARATION": "Auto-déclaration",
+      "OTHER": "Autre"
+    },
+    "reminder": {
+      "DAYS_7": "7 jours avant l’échéance",
+      "DAYS_14": "14 jours avant l’échéance",
+      "DAYS_30": "30 jours avant l’échéance",
+      "DAYS_60": "60 jours avant l’échéance"
+    },
+    "compliance": {
+      "NOT_STARTED": "Non commencé",
+      "IN_PROGRESS": "En cours",
+      "ON_TRACK": "Sur la bonne voie",
+      "AT_RISK": "À risque",
+      "REQUIREMENTS_COMPLETED": "Exigences complétées",
+      "EVIDENCE_INCOMPLETE": "Preuves incomplètes",
+      "REPORTING_PERIOD_EXPIRED": "Période de déclaration expirée"
+    },
+    "complianceHint": {
+      "NOT_STARTED": "Aucun crédit éligible enregistré pour l’instant.",
+      "IN_PROGRESS": "Vous progressez vers votre objectif.",
+      "ON_TRACK": "Vous êtes en bonne voie d’atteindre votre exigence.",
+      "AT_RISK": "Vous êtes en retard sur le rythme attendu.",
+      "REQUIREMENTS_COMPLETED": "Tous les crédits et catégories sont atteints.",
+      "EVIDENCE_INCOMPLETE": "Exigences atteintes, mais certaines preuves manquent.",
+      "REPORTING_PERIOD_EXPIRED": "La période de déclaration est terminée."
+    },
+    "missing": {
+      "REMAINING_CREDITS": "Il vous manque encore {{detail}} crédits.",
+      "CATEGORY_BELOW_TARGET": "Catégorie sous l’objectif — {{detail}}.",
+      "MISSING_EVIDENCE": "{{detail}} activités complétées n’ont pas les preuves requises.",
+      "MISSING_REPORT_RECIPIENT": "Ajoutez un destinataire pour compléter votre plan.",
+      "DEADLINE_APPROACHING": "Votre échéance de déclaration est dans {{detail}} jours.",
+      "REPORTING_PERIOD_EXPIRED": "La période de déclaration a expiré.",
+      "REPORTING_NOT_STARTED": "La période de déclaration n’a pas encore commencé."
+    },
+    "progress": {
+      "planLabel": "Plan",
+      "deletePlan": "Supprimer le plan",
+      "cards": {
+        "earned": "Obtenus",
+        "earnedHelper": "{{count}} activités comptées",
+        "remaining": "Restants",
+        "remainingHelper": "sur {{total}} requis",
+        "categoriesMissing": "Catégories manquantes",
+        "categoriesMissingHelper": "Sous l’objectif",
+        "evidenceMissing": "Preuves manquantes",
+        "evidenceMissingHelper": "Activités sans preuve"
+      },
+      "overallTitle": "Progression globale",
+      "overallSubtitle": "Crédits obtenus par rapport aux crédits requis",
+      "accessibleSummary": "Obtenu {{earned}} sur {{total}} {{credit}} ({{percent}} %).",
+      "exceeded": "Exigence dépassée de {{amount}} {{credit}}.",
+      "complianceTitle": "Statut de conformité",
+      "categoryTitle": "Complétion par catégorie",
+      "categorySubtitle": "Progression par catégorie du plan",
+      "noCategories": "Ce plan n’a pas de catégories.",
+      "categoryRemaining": "restants",
+      "categoryComplete": "Complété",
+      "missingTitle": "Exigences manquantes",
+      "missingSubtitle": "Ce qu’il faut faire pour rester conforme",
+      "missingNone": "Vous avez satisfait à toutes les exigences. Bravo !",
+      "addActivity": "Ajouter une activité",
+      "uploadEvidence": "Téléverser une preuve"
+    },
+    "validation": {
+      "required": "Ce champ est requis.",
+      "categoryName": "Le nom de la catégorie est requis.",
+      "number": "Saisissez un nombre valide.",
+      "nonNegative": "La valeur ne peut pas être négative.",
+      "positive": "La valeur doit être supérieure à zéro.",
+      "endBeforeStart": "La date de fin ne doit pas précéder la date de début.",
+      "completedOverTotal": "Les crédits complétés ne peuvent pas dépasser le total requis.",
+      "duplicateCategory": "Les noms de catégorie doivent être uniques.",
+      "categoryTotalOverTotal": "Les objectifs des catégories dépassent le total des crédits requis.",
+      "reminderTimingRequired": "Choisissez quand être rappelé.",
+      "recipientLabelRequired": "Saisissez le nom du destinataire.",
+      "evidenceRequired": "Sélectionnez au moins un type de preuve."
+    },
+    "toast": {
+      "planCreated": "Plan CPD/PDU créé.",
+      "createError": "Impossible de créer le plan. Veuillez réessayer.",
+      "planDeleted": "Plan supprimé.",
+      "deleteError": "Impossible de supprimer le plan.",
+      "summaryReady": "Résumé CPD téléchargé.",
+      "summaryError": "Impossible de générer le résumé."
+    },
+    "duplicate": {
+      "title": "Plan potentiellement en double",
+      "description": "Vous avez déjà un plan pour cette certification et cette période. Le créer quand même ?",
+      "confirm": "Créer quand même"
+    },
+    "delete": {
+      "title": "Supprimer ce plan ?",
+      "description": "Ceci supprime définitivement le plan et ses catégories. Vos activités d’apprentissage ne sont pas affectées.",
+      "confirm": "Supprimer le plan"
+    }
+  },
   "common": {
     "no": "Non",
     "yes": "Oui",
@@ -1667,6 +1905,7 @@
       "payments": "Paiements",
       "settings": "Paramètres",
       "cpdPduTracker": "Mes activités d’apprentissage",
+      "cpdPduProgress": "Progression CPD/PDU",
       "overview": "Vue d’ensemble",
       "calendar": "Mon calendrier",
       "certificates": "Certificats",

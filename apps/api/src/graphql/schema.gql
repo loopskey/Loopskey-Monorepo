@@ -274,6 +274,35 @@ input BulkOrganizationMemberRowInput {
   jobRole: String
 }
 
+enum CPDEvidenceType {
+  ATTENDANCE_PROOF
+  CERTIFICATE
+  OTHER
+  SELF_DECLARATION
+}
+
+enum CPDPlanStatus {
+  ACTIVE
+  ARCHIVED
+  COMPLETED
+  DRAFT
+}
+
+enum CPDReminderTiming {
+  DAYS_7
+  DAYS_14
+  DAYS_30
+  DAYS_60
+}
+
+enum CPDReportRecipientType {
+  ASSOCIATION
+  MANAGER
+  ORGANIZATION
+  OTHER
+  SELF
+}
+
 enum CalendarEventType {
   COURSE
   EVENT
@@ -320,6 +349,33 @@ enum CertificateStatus {
   ACTIVE
   EXPIRED
   REVOKED
+}
+
+type Certification {
+  abbreviation: String!
+  association: String
+  categories: [CertificationCategory!]!
+  creditType: CreditType!
+  id: ID!
+  name: String!
+  organization: String!
+  organizationAbbr: String
+  renewalCycleLabel: String!
+  renewalCycleMonths: Int
+  suggestedDeadline: DateTime
+  totalRequiredCredits: Float!
+}
+
+type CertificationCategory {
+  id: ID!
+  name: String!
+  order: Int!
+  requiredCredits: Float!
+}
+
+input CertificationSearchInput {
+  limit: Int = 8
+  query: String!
 }
 
 input ChangePasswordInput {
@@ -485,6 +541,83 @@ enum CourseStatus {
   PUBLISHED
 }
 
+type CpdCategoryProgress {
+  completed: Float!
+  id: ID!
+  isComplete: Boolean!
+  name: String!
+  progress: Float!
+  remaining: Float!
+  target: Float!
+}
+
+type CpdMissingRequirement {
+  code: String!
+  detail: String
+}
+
+type CpdPlan {
+  categories: [CpdPlanCategory!]!
+  certificationId: ID
+  certificationName: String!
+  createdAt: DateTime!
+  creditType: CreditType!
+  evidenceOtherNote: String
+  evidenceTypes: [CPDEvidenceType!]!
+  id: ID!
+  initialCompletedCredits: Float!
+  organization: String!
+  preferredFormats: [LearningFormat!]!
+  reminderTiming: CPDReminderTiming
+  remindersEnabled: Boolean!
+  reportRecipientLabel: String
+  reportRecipientType: CPDReportRecipientType!
+  reportingEnd: DateTime!
+  reportingStart: DateTime!
+  status: CPDPlanStatus!
+  timeAvailable: LearningTimeCommitment
+  totalRequiredCredits: Float!
+  updatedAt: DateTime!
+}
+
+type CpdPlanCategory {
+  completedCredits: Float!
+  id: ID!
+  name: String!
+  order: Int!
+  targetCredits: Float!
+}
+
+input CpdPlanCategoryInput {
+  completed: Float = 0
+  name: String!
+  target: Float!
+}
+
+type CpdPlanProgress {
+  activitiesCounted: Int!
+  activityCredits: Float!
+  categories: [CpdCategoryProgress!]!
+  categoriesMissing: Int!
+  complianceStatus: String!
+  earnedCredits: Float!
+  evidenceMissing: Int!
+  initialCompletedCredits: Float!
+  missingRequirements: [CpdMissingRequirement!]!
+  planId: ID!
+  progressPercent: Float!
+  remainingCredits: Float!
+  reportingExpired: Boolean!
+  reportingNotStarted: Boolean!
+  totalRequiredCredits: Float!
+}
+
+type CpdReportRecipientOption {
+  description: String
+  label: String!
+  type: CPDReportRecipientType!
+}
+
 input CreateCalendarEventInput {
   contentId: String
   contentType: ContentType
@@ -511,6 +644,33 @@ input CreateCourseInput {
   requirements: [String!]
   status: CourseStatus = DRAFT
   title: String!
+}
+
+input CreateCpdPlanFromSuggestionInput {
+  certificationId: ID!
+  reportingEnd: String
+  reportingStart: String
+}
+
+input CreateCpdPlanInput {
+  allowDuplicate: Boolean = false
+  categories: [CpdPlanCategoryInput!] = []
+  certificationId: ID
+  certificationName: String!
+  creditType: CreditType!
+  evidenceOtherNote: String
+  evidenceTypes: [CPDEvidenceType!]!
+  initialCompletedCredits: Float = 0
+  organization: String!
+  preferredFormats: [LearningFormat!] = []
+  reminderTiming: CPDReminderTiming
+  remindersEnabled: Boolean = false
+  reportRecipientLabel: String
+  reportRecipientType: CPDReportRecipientType!
+  reportingEnd: String!
+  reportingStart: String!
+  timeAvailable: LearningTimeCommitment
+  totalRequiredCredits: Float!
 }
 
 input CreateEventInput {
@@ -667,6 +827,7 @@ input CreateYouTubeVideoInput {
 enum CreditType {
   CEU
   CPD
+  CPE
   PDU
   TRAINING_HOUR
 }
@@ -1000,6 +1161,8 @@ type Mutation {
   confirmExternalLearning(input: ConfirmExternalLearningInput!): ExternalLearningActivity!
   createCalendarEvent(input: CreateCalendarEventInput!): ProfessionalManualCalendarEvent!
   createCourse(input: CreateCourseInput!): Course!
+  createCpdPlan(input: CreateCpdPlanInput!): CpdPlan!
+  createCpdPlanFromSuggestion(input: CreateCpdPlanFromSuggestionInput!): CpdPlan!
   createEvent(input: CreateEventInput!): Event!
   createOrganizationAssignment(input: CreateOrganizationAssignmentInput!): OrganizationAssignment!
   createOrganizationCpdCategory(input: CreateOrganizationCpdCategoryInput!): OrganizationCpdCategory!
@@ -1014,6 +1177,7 @@ type Mutation {
   deleteCalendarEvent(id: ID!): ProfessionalActionResponse!
   deleteContentReview(input: ContentActionInput!): ContentActionPayload!
   deleteCourse(courseId: String!): Course!
+  deleteCpdPlan(planId: ID!): ProfessionalActionResponse!
   deleteEvent(eventId: String!): Event!
   deleteOrganizationAssignment(assignmentId: String!): OrganizationAssignment!
   deleteOrganizationCpdCategory(categoryId: String!): OrganizationActionResponse!
@@ -1060,6 +1224,7 @@ type Mutation {
   updateAdminProfile(input: UpdateAdminProfile!): AdminProfile!
   updateAdminUserStatus(input: UpdateAdminUserStatus!): AdminUser!
   updateCourse(input: UpdateCourseInput!): Course!
+  updateCpdPlan(input: UpdateCpdPlanInput!): CpdPlan!
   updateEnrollmentProgress(input: UpdateEnrollmentProgressInput!): ContentActionPayload!
   updateEvent(input: UpdateEventInput!): Event!
   updateMe(input: UpdateMeInput!): User!
@@ -2441,10 +2606,14 @@ type Query {
   adminProfile: AdminProfile!
   adminUserGrowth(mode: String = "DAILY"): [AdminChartPoint!]!
   adminUsers(filter: AdminUserFilter, pagination: AdminPagination): PaginatedAdminUser!
+  certificationSearch(input: CertificationSearchInput!): [Certification!]!
   contentReviews(contentId: String!, contentType: ContentType!): [ContentReview!]!
   courseById(courseId: String!): Course!
   courseBySlug(slug: String!): Course!
   courses(filter: CourseFilterInput, pagination: CoursePaginationInput, sort: CourseSortInput): PaginatedCourses!
+  cpdPlan(planId: ID!): CpdPlan!
+  cpdPlanProgress(planId: ID!): CpdPlanProgress!
+  cpdReportRecipients: [CpdReportRecipientOption!]!
   currentUser: AuthPayload!
   eventById(eventId: String!): Event!
   eventBySlug(slug: String!): Event!
@@ -2458,6 +2627,7 @@ type Query {
   me: User!
   myCalendarEntries: [ProfessionalManualCalendarEvent!]!
   myCart: Cart
+  myCpdPlans: [CpdPlan!]!
   myEnrollments: [ContentEnrollment!]!
   myExternalLearningActivities(filter: ExternalLearningFilterInput, pagination: OrganizationPaginationInput): PaginatedExternalLearning!
   myProviderCourses(filter: CourseFilterInput, pagination: CoursePaginationInput, sort: CourseSortInput): PaginatedCourses!
@@ -2664,6 +2834,28 @@ input UpdateCourseInput {
   requirements: [String!]
   status: CourseStatus = DRAFT
   title: String
+}
+
+input UpdateCpdPlanInput {
+  allowDuplicate: Boolean = false
+  categories: [CpdPlanCategoryInput!] = []
+  certificationId: ID
+  certificationName: String!
+  creditType: CreditType!
+  evidenceOtherNote: String
+  evidenceTypes: [CPDEvidenceType!]!
+  id: ID!
+  initialCompletedCredits: Float = 0
+  organization: String!
+  preferredFormats: [LearningFormat!] = []
+  reminderTiming: CPDReminderTiming
+  remindersEnabled: Boolean = false
+  reportRecipientLabel: String
+  reportRecipientType: CPDReportRecipientType!
+  reportingEnd: String!
+  reportingStart: String!
+  timeAvailable: LearningTimeCommitment
+  totalRequiredCredits: Float!
 }
 
 input UpdateEnrollmentProgressInput {

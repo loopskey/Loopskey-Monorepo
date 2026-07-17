@@ -304,6 +304,35 @@ export type BulkOrganizationMemberRowInput = {
   jobRole?: InputMaybe<Scalars['String']['input']>;
 };
 
+export enum CpdEvidenceType {
+  AttendanceProof = 'ATTENDANCE_PROOF',
+  Certificate = 'CERTIFICATE',
+  Other = 'OTHER',
+  SelfDeclaration = 'SELF_DECLARATION'
+}
+
+export enum CpdPlanStatus {
+  Active = 'ACTIVE',
+  Archived = 'ARCHIVED',
+  Completed = 'COMPLETED',
+  Draft = 'DRAFT'
+}
+
+export enum CpdReminderTiming {
+  Days_7 = 'DAYS_7',
+  Days_14 = 'DAYS_14',
+  Days_30 = 'DAYS_30',
+  Days_60 = 'DAYS_60'
+}
+
+export enum CpdReportRecipientType {
+  Association = 'ASSOCIATION',
+  Manager = 'MANAGER',
+  Organization = 'ORGANIZATION',
+  Other = 'OTHER',
+  Self = 'SELF'
+}
+
 export enum CalendarEventType {
   Course = 'COURSE',
   Event = 'EVENT',
@@ -353,6 +382,35 @@ export enum CertificateStatus {
   Expired = 'EXPIRED',
   Revoked = 'REVOKED'
 }
+
+export type Certification = {
+  __typename?: 'Certification';
+  abbreviation: Scalars['String']['output'];
+  association?: Maybe<Scalars['String']['output']>;
+  categories: Array<CertificationCategory>;
+  creditType: CreditType;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  organization: Scalars['String']['output'];
+  organizationAbbr?: Maybe<Scalars['String']['output']>;
+  renewalCycleLabel: Scalars['String']['output'];
+  renewalCycleMonths?: Maybe<Scalars['Int']['output']>;
+  suggestedDeadline?: Maybe<Scalars['DateTime']['output']>;
+  totalRequiredCredits: Scalars['Float']['output'];
+};
+
+export type CertificationCategory = {
+  __typename?: 'CertificationCategory';
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  order: Scalars['Int']['output'];
+  requiredCredits: Scalars['Float']['output'];
+};
+
+export type CertificationSearchInput = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  query: Scalars['String']['input'];
+};
 
 export type ChangePasswordInput = {
   confirmPassword: Scalars['String']['input'];
@@ -522,6 +580,89 @@ export enum CourseStatus {
   Published = 'PUBLISHED'
 }
 
+export type CpdCategoryProgress = {
+  __typename?: 'CpdCategoryProgress';
+  completed: Scalars['Float']['output'];
+  id: Scalars['ID']['output'];
+  isComplete: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  progress: Scalars['Float']['output'];
+  remaining: Scalars['Float']['output'];
+  target: Scalars['Float']['output'];
+};
+
+export type CpdMissingRequirement = {
+  __typename?: 'CpdMissingRequirement';
+  code: Scalars['String']['output'];
+  detail?: Maybe<Scalars['String']['output']>;
+};
+
+export type CpdPlan = {
+  __typename?: 'CpdPlan';
+  categories: Array<CpdPlanCategory>;
+  certificationId?: Maybe<Scalars['ID']['output']>;
+  certificationName: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  creditType: CreditType;
+  evidenceOtherNote?: Maybe<Scalars['String']['output']>;
+  evidenceTypes: Array<CpdEvidenceType>;
+  id: Scalars['ID']['output'];
+  initialCompletedCredits: Scalars['Float']['output'];
+  organization: Scalars['String']['output'];
+  preferredFormats: Array<LearningFormat>;
+  reminderTiming?: Maybe<CpdReminderTiming>;
+  remindersEnabled: Scalars['Boolean']['output'];
+  reportRecipientLabel?: Maybe<Scalars['String']['output']>;
+  reportRecipientType: CpdReportRecipientType;
+  reportingEnd: Scalars['DateTime']['output'];
+  reportingStart: Scalars['DateTime']['output'];
+  status: CpdPlanStatus;
+  timeAvailable?: Maybe<LearningTimeCommitment>;
+  totalRequiredCredits: Scalars['Float']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type CpdPlanCategory = {
+  __typename?: 'CpdPlanCategory';
+  completedCredits: Scalars['Float']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  order: Scalars['Int']['output'];
+  targetCredits: Scalars['Float']['output'];
+};
+
+export type CpdPlanCategoryInput = {
+  completed?: InputMaybe<Scalars['Float']['input']>;
+  name: Scalars['String']['input'];
+  target: Scalars['Float']['input'];
+};
+
+export type CpdPlanProgress = {
+  __typename?: 'CpdPlanProgress';
+  activitiesCounted: Scalars['Int']['output'];
+  activityCredits: Scalars['Float']['output'];
+  categories: Array<CpdCategoryProgress>;
+  categoriesMissing: Scalars['Int']['output'];
+  complianceStatus: Scalars['String']['output'];
+  earnedCredits: Scalars['Float']['output'];
+  evidenceMissing: Scalars['Int']['output'];
+  initialCompletedCredits: Scalars['Float']['output'];
+  missingRequirements: Array<CpdMissingRequirement>;
+  planId: Scalars['ID']['output'];
+  progressPercent: Scalars['Float']['output'];
+  remainingCredits: Scalars['Float']['output'];
+  reportingExpired: Scalars['Boolean']['output'];
+  reportingNotStarted: Scalars['Boolean']['output'];
+  totalRequiredCredits: Scalars['Float']['output'];
+};
+
+export type CpdReportRecipientOption = {
+  __typename?: 'CpdReportRecipientOption';
+  description?: Maybe<Scalars['String']['output']>;
+  label: Scalars['String']['output'];
+  type: CpdReportRecipientType;
+};
+
 export type CreateCalendarEventInput = {
   contentId?: InputMaybe<Scalars['String']['input']>;
   contentType?: InputMaybe<ContentType>;
@@ -548,6 +689,33 @@ export type CreateCourseInput = {
   requirements?: InputMaybe<Array<Scalars['String']['input']>>;
   status?: InputMaybe<CourseStatus>;
   title: Scalars['String']['input'];
+};
+
+export type CreateCpdPlanFromSuggestionInput = {
+  certificationId: Scalars['ID']['input'];
+  reportingEnd?: InputMaybe<Scalars['String']['input']>;
+  reportingStart?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CreateCpdPlanInput = {
+  allowDuplicate?: InputMaybe<Scalars['Boolean']['input']>;
+  categories?: InputMaybe<Array<CpdPlanCategoryInput>>;
+  certificationId?: InputMaybe<Scalars['ID']['input']>;
+  certificationName: Scalars['String']['input'];
+  creditType: CreditType;
+  evidenceOtherNote?: InputMaybe<Scalars['String']['input']>;
+  evidenceTypes: Array<CpdEvidenceType>;
+  initialCompletedCredits?: InputMaybe<Scalars['Float']['input']>;
+  organization: Scalars['String']['input'];
+  preferredFormats?: InputMaybe<Array<LearningFormat>>;
+  reminderTiming?: InputMaybe<CpdReminderTiming>;
+  remindersEnabled?: InputMaybe<Scalars['Boolean']['input']>;
+  reportRecipientLabel?: InputMaybe<Scalars['String']['input']>;
+  reportRecipientType: CpdReportRecipientType;
+  reportingEnd: Scalars['String']['input'];
+  reportingStart: Scalars['String']['input'];
+  timeAvailable?: InputMaybe<LearningTimeCommitment>;
+  totalRequiredCredits: Scalars['Float']['input'];
 };
 
 export type CreateEventInput = {
@@ -704,6 +872,7 @@ export type CreateYouTubeVideoInput = {
 export enum CreditType {
   Ceu = 'CEU',
   Cpd = 'CPD',
+  Cpe = 'CPE',
   Pdu = 'PDU',
   TrainingHour = 'TRAINING_HOUR'
 }
@@ -1037,6 +1206,8 @@ export type Mutation = {
   confirmExternalLearning: ExternalLearningActivity;
   createCalendarEvent: ProfessionalManualCalendarEvent;
   createCourse: Course;
+  createCpdPlan: CpdPlan;
+  createCpdPlanFromSuggestion: CpdPlan;
   createEvent: Event;
   createOrganizationAssignment: OrganizationAssignment;
   createOrganizationCpdCategory: OrganizationCpdCategory;
@@ -1051,6 +1222,7 @@ export type Mutation = {
   deleteCalendarEvent: ProfessionalActionResponse;
   deleteContentReview: ContentActionPayload;
   deleteCourse: Course;
+  deleteCpdPlan: ProfessionalActionResponse;
   deleteEvent: Event;
   deleteOrganizationAssignment: OrganizationAssignment;
   deleteOrganizationCpdCategory: OrganizationActionResponse;
@@ -1097,6 +1269,7 @@ export type Mutation = {
   updateAdminProfile: AdminProfile;
   updateAdminUserStatus: AdminUser;
   updateCourse: Course;
+  updateCpdPlan: CpdPlan;
   updateEnrollmentProgress: ContentActionPayload;
   updateEvent: Event;
   updateMe: User;
@@ -1201,6 +1374,16 @@ export type MutationCreateCourseArgs = {
 };
 
 
+export type MutationCreateCpdPlanArgs = {
+  input: CreateCpdPlanInput;
+};
+
+
+export type MutationCreateCpdPlanFromSuggestionArgs = {
+  input: CreateCpdPlanFromSuggestionInput;
+};
+
+
 export type MutationCreateEventArgs = {
   input: CreateEventInput;
 };
@@ -1268,6 +1451,11 @@ export type MutationDeleteContentReviewArgs = {
 
 export type MutationDeleteCourseArgs = {
   courseId: Scalars['String']['input'];
+};
+
+
+export type MutationDeleteCpdPlanArgs = {
+  planId: Scalars['ID']['input'];
 };
 
 
@@ -1484,6 +1672,11 @@ export type MutationUpdateAdminUserStatusArgs = {
 
 export type MutationUpdateCourseArgs = {
   input: UpdateCourseInput;
+};
+
+
+export type MutationUpdateCpdPlanArgs = {
+  input: UpdateCpdPlanInput;
 };
 
 
@@ -3070,10 +3263,14 @@ export type Query = {
   adminProfile: AdminProfile;
   adminUserGrowth: Array<AdminChartPoint>;
   adminUsers: PaginatedAdminUser;
+  certificationSearch: Array<Certification>;
   contentReviews: Array<ContentReview>;
   courseById: Course;
   courseBySlug: Course;
   courses: PaginatedCourses;
+  cpdPlan: CpdPlan;
+  cpdPlanProgress: CpdPlanProgress;
+  cpdReportRecipients: Array<CpdReportRecipientOption>;
   currentUser: AuthPayload;
   eventById: Event;
   eventBySlug: Event;
@@ -3087,6 +3284,7 @@ export type Query = {
   me: User;
   myCalendarEntries: Array<ProfessionalManualCalendarEvent>;
   myCart?: Maybe<Cart>;
+  myCpdPlans: Array<CpdPlan>;
   myEnrollments: Array<ContentEnrollment>;
   myExternalLearningActivities: PaginatedExternalLearning;
   myProviderCourses: PaginatedCourses;
@@ -3189,6 +3387,11 @@ export type QueryAdminUsersArgs = {
 };
 
 
+export type QueryCertificationSearchArgs = {
+  input: CertificationSearchInput;
+};
+
+
 export type QueryContentReviewsArgs = {
   contentId: Scalars['String']['input'];
   contentType: ContentType;
@@ -3209,6 +3412,16 @@ export type QueryCoursesArgs = {
   filter?: InputMaybe<CourseFilterInput>;
   pagination?: InputMaybe<CoursePaginationInput>;
   sort?: InputMaybe<CourseSortInput>;
+};
+
+
+export type QueryCpdPlanArgs = {
+  planId: Scalars['ID']['input'];
+};
+
+
+export type QueryCpdPlanProgressArgs = {
+  planId: Scalars['ID']['input'];
 };
 
 
@@ -3665,6 +3878,28 @@ export type UpdateCourseInput = {
   requirements?: InputMaybe<Array<Scalars['String']['input']>>;
   status?: InputMaybe<CourseStatus>;
   title?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdateCpdPlanInput = {
+  allowDuplicate?: InputMaybe<Scalars['Boolean']['input']>;
+  categories?: InputMaybe<Array<CpdPlanCategoryInput>>;
+  certificationId?: InputMaybe<Scalars['ID']['input']>;
+  certificationName: Scalars['String']['input'];
+  creditType: CreditType;
+  evidenceOtherNote?: InputMaybe<Scalars['String']['input']>;
+  evidenceTypes: Array<CpdEvidenceType>;
+  id: Scalars['ID']['input'];
+  initialCompletedCredits?: InputMaybe<Scalars['Float']['input']>;
+  organization: Scalars['String']['input'];
+  preferredFormats?: InputMaybe<Array<LearningFormat>>;
+  reminderTiming?: InputMaybe<CpdReminderTiming>;
+  remindersEnabled?: InputMaybe<Scalars['Boolean']['input']>;
+  reportRecipientLabel?: InputMaybe<Scalars['String']['input']>;
+  reportRecipientType: CpdReportRecipientType;
+  reportingEnd: Scalars['String']['input'];
+  reportingStart: Scalars['String']['input'];
+  timeAvailable?: InputMaybe<LearningTimeCommitment>;
+  totalRequiredCredits: Scalars['Float']['input'];
 };
 
 export type UpdateEnrollmentProgressInput = {
@@ -4678,6 +4913,81 @@ export type RestoreCourseMutationVariables = Exact<{
 
 
 export type RestoreCourseMutation = { __typename?: 'Mutation', restoreCourse: { __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, description: string, category: CourseCategory, level: CourseLevel, status: CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null } };
+
+export type CertificationCategoryFieldsFragment = { __typename?: 'CertificationCategory', id: string, name: string, requiredCredits: number, order: number };
+
+export type CertificationFieldsFragment = { __typename?: 'Certification', id: string, name: string, abbreviation: string, organization: string, organizationAbbr?: string | null, association?: string | null, creditType: CreditType, renewalCycleLabel: string, renewalCycleMonths?: number | null, totalRequiredCredits: number, suggestedDeadline?: string | null, categories: Array<{ __typename?: 'CertificationCategory', id: string, name: string, requiredCredits: number, order: number }> };
+
+export type CpdPlanCategoryFieldsFragment = { __typename?: 'CpdPlanCategory', id: string, name: string, targetCredits: number, completedCredits: number, order: number };
+
+export type CpdPlanFieldsFragment = { __typename?: 'CpdPlan', id: string, certificationId?: string | null, certificationName: string, organization: string, reportingStart: string, reportingEnd: string, creditType: CreditType, totalRequiredCredits: number, initialCompletedCredits: number, timeAvailable?: LearningTimeCommitment | null, preferredFormats: Array<LearningFormat>, evidenceTypes: Array<CpdEvidenceType>, evidenceOtherNote?: string | null, reportRecipientType: CpdReportRecipientType, reportRecipientLabel?: string | null, remindersEnabled: boolean, reminderTiming?: CpdReminderTiming | null, status: CpdPlanStatus, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'CpdPlanCategory', id: string, name: string, targetCredits: number, completedCredits: number, order: number }> };
+
+export type CpdCategoryProgressFieldsFragment = { __typename?: 'CpdCategoryProgress', id: string, name: string, target: number, completed: number, remaining: number, progress: number, isComplete: boolean };
+
+export type CpdMissingRequirementFieldsFragment = { __typename?: 'CpdMissingRequirement', code: string, detail?: string | null };
+
+export type CpdPlanProgressFieldsFragment = { __typename?: 'CpdPlanProgress', planId: string, earnedCredits: number, initialCompletedCredits: number, activityCredits: number, totalRequiredCredits: number, remainingCredits: number, progressPercent: number, categoriesMissing: number, evidenceMissing: number, activitiesCounted: number, complianceStatus: string, reportingExpired: boolean, reportingNotStarted: boolean, categories: Array<{ __typename?: 'CpdCategoryProgress', id: string, name: string, target: number, completed: number, remaining: number, progress: number, isComplete: boolean }>, missingRequirements: Array<{ __typename?: 'CpdMissingRequirement', code: string, detail?: string | null }> };
+
+export type CpdReportRecipientOptionFieldsFragment = { __typename?: 'CpdReportRecipientOption', type: CpdReportRecipientType, label: string, description?: string | null };
+
+export type CertificationSearchQueryVariables = Exact<{
+  input: CertificationSearchInput;
+}>;
+
+
+export type CertificationSearchQuery = { __typename?: 'Query', certificationSearch: Array<{ __typename?: 'Certification', id: string, name: string, abbreviation: string, organization: string, organizationAbbr?: string | null, association?: string | null, creditType: CreditType, renewalCycleLabel: string, renewalCycleMonths?: number | null, totalRequiredCredits: number, suggestedDeadline?: string | null, categories: Array<{ __typename?: 'CertificationCategory', id: string, name: string, requiredCredits: number, order: number }> }> };
+
+export type MyCpdPlansQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MyCpdPlansQuery = { __typename?: 'Query', myCpdPlans: Array<{ __typename?: 'CpdPlan', id: string, certificationId?: string | null, certificationName: string, organization: string, reportingStart: string, reportingEnd: string, creditType: CreditType, totalRequiredCredits: number, initialCompletedCredits: number, timeAvailable?: LearningTimeCommitment | null, preferredFormats: Array<LearningFormat>, evidenceTypes: Array<CpdEvidenceType>, evidenceOtherNote?: string | null, reportRecipientType: CpdReportRecipientType, reportRecipientLabel?: string | null, remindersEnabled: boolean, reminderTiming?: CpdReminderTiming | null, status: CpdPlanStatus, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'CpdPlanCategory', id: string, name: string, targetCredits: number, completedCredits: number, order: number }> }> };
+
+export type CpdPlanQueryVariables = Exact<{
+  planId: Scalars['ID']['input'];
+}>;
+
+
+export type CpdPlanQuery = { __typename?: 'Query', cpdPlan: { __typename?: 'CpdPlan', id: string, certificationId?: string | null, certificationName: string, organization: string, reportingStart: string, reportingEnd: string, creditType: CreditType, totalRequiredCredits: number, initialCompletedCredits: number, timeAvailable?: LearningTimeCommitment | null, preferredFormats: Array<LearningFormat>, evidenceTypes: Array<CpdEvidenceType>, evidenceOtherNote?: string | null, reportRecipientType: CpdReportRecipientType, reportRecipientLabel?: string | null, remindersEnabled: boolean, reminderTiming?: CpdReminderTiming | null, status: CpdPlanStatus, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'CpdPlanCategory', id: string, name: string, targetCredits: number, completedCredits: number, order: number }> } };
+
+export type CpdPlanProgressQueryVariables = Exact<{
+  planId: Scalars['ID']['input'];
+}>;
+
+
+export type CpdPlanProgressQuery = { __typename?: 'Query', cpdPlanProgress: { __typename?: 'CpdPlanProgress', planId: string, earnedCredits: number, initialCompletedCredits: number, activityCredits: number, totalRequiredCredits: number, remainingCredits: number, progressPercent: number, categoriesMissing: number, evidenceMissing: number, activitiesCounted: number, complianceStatus: string, reportingExpired: boolean, reportingNotStarted: boolean, categories: Array<{ __typename?: 'CpdCategoryProgress', id: string, name: string, target: number, completed: number, remaining: number, progress: number, isComplete: boolean }>, missingRequirements: Array<{ __typename?: 'CpdMissingRequirement', code: string, detail?: string | null }> } };
+
+export type CpdReportRecipientsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CpdReportRecipientsQuery = { __typename?: 'Query', cpdReportRecipients: Array<{ __typename?: 'CpdReportRecipientOption', type: CpdReportRecipientType, label: string, description?: string | null }> };
+
+export type CreateCpdPlanMutationVariables = Exact<{
+  input: CreateCpdPlanInput;
+}>;
+
+
+export type CreateCpdPlanMutation = { __typename?: 'Mutation', createCpdPlan: { __typename?: 'CpdPlan', id: string, certificationId?: string | null, certificationName: string, organization: string, reportingStart: string, reportingEnd: string, creditType: CreditType, totalRequiredCredits: number, initialCompletedCredits: number, timeAvailable?: LearningTimeCommitment | null, preferredFormats: Array<LearningFormat>, evidenceTypes: Array<CpdEvidenceType>, evidenceOtherNote?: string | null, reportRecipientType: CpdReportRecipientType, reportRecipientLabel?: string | null, remindersEnabled: boolean, reminderTiming?: CpdReminderTiming | null, status: CpdPlanStatus, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'CpdPlanCategory', id: string, name: string, targetCredits: number, completedCredits: number, order: number }> } };
+
+export type CreateCpdPlanFromSuggestionMutationVariables = Exact<{
+  input: CreateCpdPlanFromSuggestionInput;
+}>;
+
+
+export type CreateCpdPlanFromSuggestionMutation = { __typename?: 'Mutation', createCpdPlanFromSuggestion: { __typename?: 'CpdPlan', id: string, certificationId?: string | null, certificationName: string, organization: string, reportingStart: string, reportingEnd: string, creditType: CreditType, totalRequiredCredits: number, initialCompletedCredits: number, timeAvailable?: LearningTimeCommitment | null, preferredFormats: Array<LearningFormat>, evidenceTypes: Array<CpdEvidenceType>, evidenceOtherNote?: string | null, reportRecipientType: CpdReportRecipientType, reportRecipientLabel?: string | null, remindersEnabled: boolean, reminderTiming?: CpdReminderTiming | null, status: CpdPlanStatus, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'CpdPlanCategory', id: string, name: string, targetCredits: number, completedCredits: number, order: number }> } };
+
+export type UpdateCpdPlanMutationVariables = Exact<{
+  input: UpdateCpdPlanInput;
+}>;
+
+
+export type UpdateCpdPlanMutation = { __typename?: 'Mutation', updateCpdPlan: { __typename?: 'CpdPlan', id: string, certificationId?: string | null, certificationName: string, organization: string, reportingStart: string, reportingEnd: string, creditType: CreditType, totalRequiredCredits: number, initialCompletedCredits: number, timeAvailable?: LearningTimeCommitment | null, preferredFormats: Array<LearningFormat>, evidenceTypes: Array<CpdEvidenceType>, evidenceOtherNote?: string | null, reportRecipientType: CpdReportRecipientType, reportRecipientLabel?: string | null, remindersEnabled: boolean, reminderTiming?: CpdReminderTiming | null, status: CpdPlanStatus, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'CpdPlanCategory', id: string, name: string, targetCredits: number, completedCredits: number, order: number }> } };
+
+export type DeleteCpdPlanMutationVariables = Exact<{
+  planId: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteCpdPlanMutation = { __typename?: 'Mutation', deleteCpdPlan: { __typename?: 'ProfessionalActionResponse', id: string } };
 
 export type EventCardFieldsFragment = { __typename?: 'Event', id: string, pdu: number, slug: string, type: EventType, title: string, views: number, price?: number | null, status: EventStatus, isFree: boolean, rating: number, speaker?: string | null, endDate?: string | null, timezone: string, imageUrl?: string | null, category: EventCategory, location?: string | null, currency: string, capacity?: number | null, language?: AppLanguage | null, startDate: string, onlineUrl?: string | null, attendees: number, organizer?: string | null, updatedAt: string, deletedAt?: string | null, createdAt: string, providerId?: string | null, description: string, ratingCount: number, pduCategory?: PduCategory | null, deliveryMode: EventDeliveryMode, averageRating: number, specificTopic?: string | null, earlyBirdDiscount?: number | null, promotionVideoUrl?: string | null, registrationEnabled: boolean };
 
@@ -5753,6 +6063,14 @@ export const CourseFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind"
 export const CoursePageInfoFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CoursePageInfoFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CoursePageInfo"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nextCursor"}},{"kind":"Field","name":{"kind":"Name","value":"hasNextPage"}}]}}]} as unknown as DocumentNode<CoursePageInfoFieldsFragment, unknown>;
 export const CurriculumLessonFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CurriculumLessonFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CurriculumLesson"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"order"}},{"kind":"Field","name":{"kind":"Name","value":"isPreview"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"sectionId"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"durationMinutes"}}]}}]} as unknown as DocumentNode<CurriculumLessonFieldsFragment, unknown>;
 export const CurriculumSectionFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CurriculumSectionFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CurriculumSection"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"order"}},{"kind":"Field","name":{"kind":"Name","value":"courseId"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"lessons"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CurriculumLessonFields"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CurriculumLessonFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CurriculumLesson"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"order"}},{"kind":"Field","name":{"kind":"Name","value":"isPreview"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"sectionId"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"durationMinutes"}}]}}]} as unknown as DocumentNode<CurriculumSectionFieldsFragment, unknown>;
+export const CertificationCategoryFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CertificationCategoryFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CertificationCategory"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"requiredCredits"}},{"kind":"Field","name":{"kind":"Name","value":"order"}}]}}]} as unknown as DocumentNode<CertificationCategoryFieldsFragment, unknown>;
+export const CertificationFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CertificationFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Certification"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"abbreviation"}},{"kind":"Field","name":{"kind":"Name","value":"organization"}},{"kind":"Field","name":{"kind":"Name","value":"organizationAbbr"}},{"kind":"Field","name":{"kind":"Name","value":"association"}},{"kind":"Field","name":{"kind":"Name","value":"creditType"}},{"kind":"Field","name":{"kind":"Name","value":"renewalCycleLabel"}},{"kind":"Field","name":{"kind":"Name","value":"renewalCycleMonths"}},{"kind":"Field","name":{"kind":"Name","value":"totalRequiredCredits"}},{"kind":"Field","name":{"kind":"Name","value":"suggestedDeadline"}},{"kind":"Field","name":{"kind":"Name","value":"categories"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CertificationCategoryFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CertificationCategoryFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CertificationCategory"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"requiredCredits"}},{"kind":"Field","name":{"kind":"Name","value":"order"}}]}}]} as unknown as DocumentNode<CertificationFieldsFragment, unknown>;
+export const CpdPlanCategoryFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CpdPlanCategoryFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CpdPlanCategory"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"targetCredits"}},{"kind":"Field","name":{"kind":"Name","value":"completedCredits"}},{"kind":"Field","name":{"kind":"Name","value":"order"}}]}}]} as unknown as DocumentNode<CpdPlanCategoryFieldsFragment, unknown>;
+export const CpdPlanFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CpdPlanFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CpdPlan"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"certificationId"}},{"kind":"Field","name":{"kind":"Name","value":"certificationName"}},{"kind":"Field","name":{"kind":"Name","value":"organization"}},{"kind":"Field","name":{"kind":"Name","value":"reportingStart"}},{"kind":"Field","name":{"kind":"Name","value":"reportingEnd"}},{"kind":"Field","name":{"kind":"Name","value":"creditType"}},{"kind":"Field","name":{"kind":"Name","value":"totalRequiredCredits"}},{"kind":"Field","name":{"kind":"Name","value":"initialCompletedCredits"}},{"kind":"Field","name":{"kind":"Name","value":"timeAvailable"}},{"kind":"Field","name":{"kind":"Name","value":"preferredFormats"}},{"kind":"Field","name":{"kind":"Name","value":"evidenceTypes"}},{"kind":"Field","name":{"kind":"Name","value":"evidenceOtherNote"}},{"kind":"Field","name":{"kind":"Name","value":"reportRecipientType"}},{"kind":"Field","name":{"kind":"Name","value":"reportRecipientLabel"}},{"kind":"Field","name":{"kind":"Name","value":"remindersEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"reminderTiming"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"categories"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CpdPlanCategoryFields"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CpdPlanCategoryFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CpdPlanCategory"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"targetCredits"}},{"kind":"Field","name":{"kind":"Name","value":"completedCredits"}},{"kind":"Field","name":{"kind":"Name","value":"order"}}]}}]} as unknown as DocumentNode<CpdPlanFieldsFragment, unknown>;
+export const CpdCategoryProgressFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CpdCategoryProgressFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CpdCategoryProgress"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"target"}},{"kind":"Field","name":{"kind":"Name","value":"completed"}},{"kind":"Field","name":{"kind":"Name","value":"remaining"}},{"kind":"Field","name":{"kind":"Name","value":"progress"}},{"kind":"Field","name":{"kind":"Name","value":"isComplete"}}]}}]} as unknown as DocumentNode<CpdCategoryProgressFieldsFragment, unknown>;
+export const CpdMissingRequirementFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CpdMissingRequirementFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CpdMissingRequirement"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"detail"}}]}}]} as unknown as DocumentNode<CpdMissingRequirementFieldsFragment, unknown>;
+export const CpdPlanProgressFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CpdPlanProgressFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CpdPlanProgress"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"planId"}},{"kind":"Field","name":{"kind":"Name","value":"earnedCredits"}},{"kind":"Field","name":{"kind":"Name","value":"initialCompletedCredits"}},{"kind":"Field","name":{"kind":"Name","value":"activityCredits"}},{"kind":"Field","name":{"kind":"Name","value":"totalRequiredCredits"}},{"kind":"Field","name":{"kind":"Name","value":"remainingCredits"}},{"kind":"Field","name":{"kind":"Name","value":"progressPercent"}},{"kind":"Field","name":{"kind":"Name","value":"categoriesMissing"}},{"kind":"Field","name":{"kind":"Name","value":"evidenceMissing"}},{"kind":"Field","name":{"kind":"Name","value":"activitiesCounted"}},{"kind":"Field","name":{"kind":"Name","value":"complianceStatus"}},{"kind":"Field","name":{"kind":"Name","value":"reportingExpired"}},{"kind":"Field","name":{"kind":"Name","value":"reportingNotStarted"}},{"kind":"Field","name":{"kind":"Name","value":"categories"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CpdCategoryProgressFields"}}]}},{"kind":"Field","name":{"kind":"Name","value":"missingRequirements"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CpdMissingRequirementFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CpdCategoryProgressFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CpdCategoryProgress"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"target"}},{"kind":"Field","name":{"kind":"Name","value":"completed"}},{"kind":"Field","name":{"kind":"Name","value":"remaining"}},{"kind":"Field","name":{"kind":"Name","value":"progress"}},{"kind":"Field","name":{"kind":"Name","value":"isComplete"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CpdMissingRequirementFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CpdMissingRequirement"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"detail"}}]}}]} as unknown as DocumentNode<CpdPlanProgressFieldsFragment, unknown>;
+export const CpdReportRecipientOptionFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CpdReportRecipientOptionFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CpdReportRecipientOption"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}}]} as unknown as DocumentNode<CpdReportRecipientOptionFieldsFragment, unknown>;
 export const EventCardFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"EventCardFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Event"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"pdu"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"views"}},{"kind":"Field","name":{"kind":"Name","value":"price"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"isFree"}},{"kind":"Field","name":{"kind":"Name","value":"rating"}},{"kind":"Field","name":{"kind":"Name","value":"speaker"}},{"kind":"Field","name":{"kind":"Name","value":"endDate"}},{"kind":"Field","name":{"kind":"Name","value":"timezone"}},{"kind":"Field","name":{"kind":"Name","value":"imageUrl"}},{"kind":"Field","name":{"kind":"Name","value":"category"}},{"kind":"Field","name":{"kind":"Name","value":"location"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}},{"kind":"Field","name":{"kind":"Name","value":"capacity"}},{"kind":"Field","name":{"kind":"Name","value":"language"}},{"kind":"Field","name":{"kind":"Name","value":"startDate"}},{"kind":"Field","name":{"kind":"Name","value":"onlineUrl"}},{"kind":"Field","name":{"kind":"Name","value":"attendees"}},{"kind":"Field","name":{"kind":"Name","value":"organizer"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"deletedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"providerId"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"ratingCount"}},{"kind":"Field","name":{"kind":"Name","value":"pduCategory"}},{"kind":"Field","name":{"kind":"Name","value":"deliveryMode"}},{"kind":"Field","name":{"kind":"Name","value":"averageRating"}},{"kind":"Field","name":{"kind":"Name","value":"specificTopic"}},{"kind":"Field","name":{"kind":"Name","value":"earlyBirdDiscount"}},{"kind":"Field","name":{"kind":"Name","value":"promotionVideoUrl"}},{"kind":"Field","name":{"kind":"Name","value":"registrationEnabled"}}]}}]} as unknown as DocumentNode<EventCardFieldsFragment, unknown>;
 export const EventScheduleItemFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"EventScheduleItemFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"EventScheduleItem"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"speaker"}},{"kind":"Field","name":{"kind":"Name","value":"eventId"}},{"kind":"Field","name":{"kind":"Name","value":"endTime"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"dayNumber"}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}}]} as unknown as DocumentNode<EventScheduleItemFieldsFragment, unknown>;
 export const EventDetailFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"EventDetailFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Event"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"EventCardFields"}},{"kind":"Field","name":{"kind":"Name","value":"scheduleItems"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"EventScheduleItemFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"EventCardFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Event"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"pdu"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"views"}},{"kind":"Field","name":{"kind":"Name","value":"price"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"isFree"}},{"kind":"Field","name":{"kind":"Name","value":"rating"}},{"kind":"Field","name":{"kind":"Name","value":"speaker"}},{"kind":"Field","name":{"kind":"Name","value":"endDate"}},{"kind":"Field","name":{"kind":"Name","value":"timezone"}},{"kind":"Field","name":{"kind":"Name","value":"imageUrl"}},{"kind":"Field","name":{"kind":"Name","value":"category"}},{"kind":"Field","name":{"kind":"Name","value":"location"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}},{"kind":"Field","name":{"kind":"Name","value":"capacity"}},{"kind":"Field","name":{"kind":"Name","value":"language"}},{"kind":"Field","name":{"kind":"Name","value":"startDate"}},{"kind":"Field","name":{"kind":"Name","value":"onlineUrl"}},{"kind":"Field","name":{"kind":"Name","value":"attendees"}},{"kind":"Field","name":{"kind":"Name","value":"organizer"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"deletedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"providerId"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"ratingCount"}},{"kind":"Field","name":{"kind":"Name","value":"pduCategory"}},{"kind":"Field","name":{"kind":"Name","value":"deliveryMode"}},{"kind":"Field","name":{"kind":"Name","value":"averageRating"}},{"kind":"Field","name":{"kind":"Name","value":"specificTopic"}},{"kind":"Field","name":{"kind":"Name","value":"earlyBirdDiscount"}},{"kind":"Field","name":{"kind":"Name","value":"promotionVideoUrl"}},{"kind":"Field","name":{"kind":"Name","value":"registrationEnabled"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"EventScheduleItemFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"EventScheduleItem"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"speaker"}},{"kind":"Field","name":{"kind":"Name","value":"eventId"}},{"kind":"Field","name":{"kind":"Name","value":"endTime"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"dayNumber"}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}}]} as unknown as DocumentNode<EventDetailFieldsFragment, unknown>;
@@ -5909,6 +6227,15 @@ export const PublishCourseDocument = {"kind":"Document","definitions":[{"kind":"
 export const ArchiveCourseDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"ArchiveCourse"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"courseId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"archiveCourse"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"courseId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"courseId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CourseFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CourseFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Course"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"instructor"}},{"kind":"Field","name":{"kind":"Name","value":"imageUrl"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"category"}},{"kind":"Field","name":{"kind":"Name","value":"level"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"price"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}},{"kind":"Field","name":{"kind":"Name","value":"isFree"}},{"kind":"Field","name":{"kind":"Name","value":"durationMinutes"}},{"kind":"Field","name":{"kind":"Name","value":"lastUpdatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"requirements"}},{"kind":"Field","name":{"kind":"Name","value":"learnings"}},{"kind":"Field","name":{"kind":"Name","value":"rating"}},{"kind":"Field","name":{"kind":"Name","value":"ratingCount"}},{"kind":"Field","name":{"kind":"Name","value":"professionals"}},{"kind":"Field","name":{"kind":"Name","value":"isFeatured"}},{"kind":"Field","name":{"kind":"Name","value":"providerId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"deletedAt"}}]}}]} as unknown as DocumentNode<ArchiveCourseMutation, ArchiveCourseMutationVariables>;
 export const DeleteCourseDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"DeleteCourse"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"courseId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteCourse"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"courseId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"courseId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CourseFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CourseFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Course"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"instructor"}},{"kind":"Field","name":{"kind":"Name","value":"imageUrl"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"category"}},{"kind":"Field","name":{"kind":"Name","value":"level"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"price"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}},{"kind":"Field","name":{"kind":"Name","value":"isFree"}},{"kind":"Field","name":{"kind":"Name","value":"durationMinutes"}},{"kind":"Field","name":{"kind":"Name","value":"lastUpdatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"requirements"}},{"kind":"Field","name":{"kind":"Name","value":"learnings"}},{"kind":"Field","name":{"kind":"Name","value":"rating"}},{"kind":"Field","name":{"kind":"Name","value":"ratingCount"}},{"kind":"Field","name":{"kind":"Name","value":"professionals"}},{"kind":"Field","name":{"kind":"Name","value":"isFeatured"}},{"kind":"Field","name":{"kind":"Name","value":"providerId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"deletedAt"}}]}}]} as unknown as DocumentNode<DeleteCourseMutation, DeleteCourseMutationVariables>;
 export const RestoreCourseDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RestoreCourse"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"courseId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"restoreCourse"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"courseId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"courseId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CourseFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CourseFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Course"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"instructor"}},{"kind":"Field","name":{"kind":"Name","value":"imageUrl"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"category"}},{"kind":"Field","name":{"kind":"Name","value":"level"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"price"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}},{"kind":"Field","name":{"kind":"Name","value":"isFree"}},{"kind":"Field","name":{"kind":"Name","value":"durationMinutes"}},{"kind":"Field","name":{"kind":"Name","value":"lastUpdatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"requirements"}},{"kind":"Field","name":{"kind":"Name","value":"learnings"}},{"kind":"Field","name":{"kind":"Name","value":"rating"}},{"kind":"Field","name":{"kind":"Name","value":"ratingCount"}},{"kind":"Field","name":{"kind":"Name","value":"professionals"}},{"kind":"Field","name":{"kind":"Name","value":"isFeatured"}},{"kind":"Field","name":{"kind":"Name","value":"providerId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"deletedAt"}}]}}]} as unknown as DocumentNode<RestoreCourseMutation, RestoreCourseMutationVariables>;
+export const CertificationSearchDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"CertificationSearch"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CertificationSearchInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"certificationSearch"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CertificationFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CertificationCategoryFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CertificationCategory"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"requiredCredits"}},{"kind":"Field","name":{"kind":"Name","value":"order"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CertificationFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Certification"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"abbreviation"}},{"kind":"Field","name":{"kind":"Name","value":"organization"}},{"kind":"Field","name":{"kind":"Name","value":"organizationAbbr"}},{"kind":"Field","name":{"kind":"Name","value":"association"}},{"kind":"Field","name":{"kind":"Name","value":"creditType"}},{"kind":"Field","name":{"kind":"Name","value":"renewalCycleLabel"}},{"kind":"Field","name":{"kind":"Name","value":"renewalCycleMonths"}},{"kind":"Field","name":{"kind":"Name","value":"totalRequiredCredits"}},{"kind":"Field","name":{"kind":"Name","value":"suggestedDeadline"}},{"kind":"Field","name":{"kind":"Name","value":"categories"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CertificationCategoryFields"}}]}}]}}]} as unknown as DocumentNode<CertificationSearchQuery, CertificationSearchQueryVariables>;
+export const MyCpdPlansDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"MyCpdPlans"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"myCpdPlans"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CpdPlanFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CpdPlanCategoryFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CpdPlanCategory"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"targetCredits"}},{"kind":"Field","name":{"kind":"Name","value":"completedCredits"}},{"kind":"Field","name":{"kind":"Name","value":"order"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CpdPlanFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CpdPlan"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"certificationId"}},{"kind":"Field","name":{"kind":"Name","value":"certificationName"}},{"kind":"Field","name":{"kind":"Name","value":"organization"}},{"kind":"Field","name":{"kind":"Name","value":"reportingStart"}},{"kind":"Field","name":{"kind":"Name","value":"reportingEnd"}},{"kind":"Field","name":{"kind":"Name","value":"creditType"}},{"kind":"Field","name":{"kind":"Name","value":"totalRequiredCredits"}},{"kind":"Field","name":{"kind":"Name","value":"initialCompletedCredits"}},{"kind":"Field","name":{"kind":"Name","value":"timeAvailable"}},{"kind":"Field","name":{"kind":"Name","value":"preferredFormats"}},{"kind":"Field","name":{"kind":"Name","value":"evidenceTypes"}},{"kind":"Field","name":{"kind":"Name","value":"evidenceOtherNote"}},{"kind":"Field","name":{"kind":"Name","value":"reportRecipientType"}},{"kind":"Field","name":{"kind":"Name","value":"reportRecipientLabel"}},{"kind":"Field","name":{"kind":"Name","value":"remindersEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"reminderTiming"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"categories"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CpdPlanCategoryFields"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]} as unknown as DocumentNode<MyCpdPlansQuery, MyCpdPlansQueryVariables>;
+export const CpdPlanDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"CpdPlan"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"planId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"cpdPlan"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"planId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"planId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CpdPlanFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CpdPlanCategoryFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CpdPlanCategory"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"targetCredits"}},{"kind":"Field","name":{"kind":"Name","value":"completedCredits"}},{"kind":"Field","name":{"kind":"Name","value":"order"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CpdPlanFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CpdPlan"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"certificationId"}},{"kind":"Field","name":{"kind":"Name","value":"certificationName"}},{"kind":"Field","name":{"kind":"Name","value":"organization"}},{"kind":"Field","name":{"kind":"Name","value":"reportingStart"}},{"kind":"Field","name":{"kind":"Name","value":"reportingEnd"}},{"kind":"Field","name":{"kind":"Name","value":"creditType"}},{"kind":"Field","name":{"kind":"Name","value":"totalRequiredCredits"}},{"kind":"Field","name":{"kind":"Name","value":"initialCompletedCredits"}},{"kind":"Field","name":{"kind":"Name","value":"timeAvailable"}},{"kind":"Field","name":{"kind":"Name","value":"preferredFormats"}},{"kind":"Field","name":{"kind":"Name","value":"evidenceTypes"}},{"kind":"Field","name":{"kind":"Name","value":"evidenceOtherNote"}},{"kind":"Field","name":{"kind":"Name","value":"reportRecipientType"}},{"kind":"Field","name":{"kind":"Name","value":"reportRecipientLabel"}},{"kind":"Field","name":{"kind":"Name","value":"remindersEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"reminderTiming"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"categories"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CpdPlanCategoryFields"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]} as unknown as DocumentNode<CpdPlanQuery, CpdPlanQueryVariables>;
+export const CpdPlanProgressDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"CpdPlanProgress"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"planId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"cpdPlanProgress"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"planId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"planId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CpdPlanProgressFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CpdCategoryProgressFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CpdCategoryProgress"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"target"}},{"kind":"Field","name":{"kind":"Name","value":"completed"}},{"kind":"Field","name":{"kind":"Name","value":"remaining"}},{"kind":"Field","name":{"kind":"Name","value":"progress"}},{"kind":"Field","name":{"kind":"Name","value":"isComplete"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CpdMissingRequirementFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CpdMissingRequirement"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"detail"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CpdPlanProgressFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CpdPlanProgress"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"planId"}},{"kind":"Field","name":{"kind":"Name","value":"earnedCredits"}},{"kind":"Field","name":{"kind":"Name","value":"initialCompletedCredits"}},{"kind":"Field","name":{"kind":"Name","value":"activityCredits"}},{"kind":"Field","name":{"kind":"Name","value":"totalRequiredCredits"}},{"kind":"Field","name":{"kind":"Name","value":"remainingCredits"}},{"kind":"Field","name":{"kind":"Name","value":"progressPercent"}},{"kind":"Field","name":{"kind":"Name","value":"categoriesMissing"}},{"kind":"Field","name":{"kind":"Name","value":"evidenceMissing"}},{"kind":"Field","name":{"kind":"Name","value":"activitiesCounted"}},{"kind":"Field","name":{"kind":"Name","value":"complianceStatus"}},{"kind":"Field","name":{"kind":"Name","value":"reportingExpired"}},{"kind":"Field","name":{"kind":"Name","value":"reportingNotStarted"}},{"kind":"Field","name":{"kind":"Name","value":"categories"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CpdCategoryProgressFields"}}]}},{"kind":"Field","name":{"kind":"Name","value":"missingRequirements"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CpdMissingRequirementFields"}}]}}]}}]} as unknown as DocumentNode<CpdPlanProgressQuery, CpdPlanProgressQueryVariables>;
+export const CpdReportRecipientsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"CpdReportRecipients"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"cpdReportRecipients"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CpdReportRecipientOptionFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CpdReportRecipientOptionFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CpdReportRecipientOption"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}}]} as unknown as DocumentNode<CpdReportRecipientsQuery, CpdReportRecipientsQueryVariables>;
+export const CreateCpdPlanDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateCpdPlan"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateCpdPlanInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createCpdPlan"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CpdPlanFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CpdPlanCategoryFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CpdPlanCategory"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"targetCredits"}},{"kind":"Field","name":{"kind":"Name","value":"completedCredits"}},{"kind":"Field","name":{"kind":"Name","value":"order"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CpdPlanFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CpdPlan"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"certificationId"}},{"kind":"Field","name":{"kind":"Name","value":"certificationName"}},{"kind":"Field","name":{"kind":"Name","value":"organization"}},{"kind":"Field","name":{"kind":"Name","value":"reportingStart"}},{"kind":"Field","name":{"kind":"Name","value":"reportingEnd"}},{"kind":"Field","name":{"kind":"Name","value":"creditType"}},{"kind":"Field","name":{"kind":"Name","value":"totalRequiredCredits"}},{"kind":"Field","name":{"kind":"Name","value":"initialCompletedCredits"}},{"kind":"Field","name":{"kind":"Name","value":"timeAvailable"}},{"kind":"Field","name":{"kind":"Name","value":"preferredFormats"}},{"kind":"Field","name":{"kind":"Name","value":"evidenceTypes"}},{"kind":"Field","name":{"kind":"Name","value":"evidenceOtherNote"}},{"kind":"Field","name":{"kind":"Name","value":"reportRecipientType"}},{"kind":"Field","name":{"kind":"Name","value":"reportRecipientLabel"}},{"kind":"Field","name":{"kind":"Name","value":"remindersEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"reminderTiming"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"categories"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CpdPlanCategoryFields"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]} as unknown as DocumentNode<CreateCpdPlanMutation, CreateCpdPlanMutationVariables>;
+export const CreateCpdPlanFromSuggestionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateCpdPlanFromSuggestion"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateCpdPlanFromSuggestionInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createCpdPlanFromSuggestion"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CpdPlanFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CpdPlanCategoryFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CpdPlanCategory"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"targetCredits"}},{"kind":"Field","name":{"kind":"Name","value":"completedCredits"}},{"kind":"Field","name":{"kind":"Name","value":"order"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CpdPlanFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CpdPlan"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"certificationId"}},{"kind":"Field","name":{"kind":"Name","value":"certificationName"}},{"kind":"Field","name":{"kind":"Name","value":"organization"}},{"kind":"Field","name":{"kind":"Name","value":"reportingStart"}},{"kind":"Field","name":{"kind":"Name","value":"reportingEnd"}},{"kind":"Field","name":{"kind":"Name","value":"creditType"}},{"kind":"Field","name":{"kind":"Name","value":"totalRequiredCredits"}},{"kind":"Field","name":{"kind":"Name","value":"initialCompletedCredits"}},{"kind":"Field","name":{"kind":"Name","value":"timeAvailable"}},{"kind":"Field","name":{"kind":"Name","value":"preferredFormats"}},{"kind":"Field","name":{"kind":"Name","value":"evidenceTypes"}},{"kind":"Field","name":{"kind":"Name","value":"evidenceOtherNote"}},{"kind":"Field","name":{"kind":"Name","value":"reportRecipientType"}},{"kind":"Field","name":{"kind":"Name","value":"reportRecipientLabel"}},{"kind":"Field","name":{"kind":"Name","value":"remindersEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"reminderTiming"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"categories"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CpdPlanCategoryFields"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]} as unknown as DocumentNode<CreateCpdPlanFromSuggestionMutation, CreateCpdPlanFromSuggestionMutationVariables>;
+export const UpdateCpdPlanDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateCpdPlan"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateCpdPlanInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateCpdPlan"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CpdPlanFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CpdPlanCategoryFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CpdPlanCategory"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"targetCredits"}},{"kind":"Field","name":{"kind":"Name","value":"completedCredits"}},{"kind":"Field","name":{"kind":"Name","value":"order"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CpdPlanFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CpdPlan"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"certificationId"}},{"kind":"Field","name":{"kind":"Name","value":"certificationName"}},{"kind":"Field","name":{"kind":"Name","value":"organization"}},{"kind":"Field","name":{"kind":"Name","value":"reportingStart"}},{"kind":"Field","name":{"kind":"Name","value":"reportingEnd"}},{"kind":"Field","name":{"kind":"Name","value":"creditType"}},{"kind":"Field","name":{"kind":"Name","value":"totalRequiredCredits"}},{"kind":"Field","name":{"kind":"Name","value":"initialCompletedCredits"}},{"kind":"Field","name":{"kind":"Name","value":"timeAvailable"}},{"kind":"Field","name":{"kind":"Name","value":"preferredFormats"}},{"kind":"Field","name":{"kind":"Name","value":"evidenceTypes"}},{"kind":"Field","name":{"kind":"Name","value":"evidenceOtherNote"}},{"kind":"Field","name":{"kind":"Name","value":"reportRecipientType"}},{"kind":"Field","name":{"kind":"Name","value":"reportRecipientLabel"}},{"kind":"Field","name":{"kind":"Name","value":"remindersEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"reminderTiming"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"categories"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CpdPlanCategoryFields"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]} as unknown as DocumentNode<UpdateCpdPlanMutation, UpdateCpdPlanMutationVariables>;
+export const DeleteCpdPlanDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"DeleteCpdPlan"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"planId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteCpdPlan"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"planId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"planId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<DeleteCpdPlanMutation, DeleteCpdPlanMutationVariables>;
 export const EventsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Events"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filter"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"EventFilterInput"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"EventPaginationInput"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"sort"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"EventSortInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"events"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filter"}}},{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}},{"kind":"Argument","name":{"kind":"Name","value":"sort"},"value":{"kind":"Variable","name":{"kind":"Name","value":"sort"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"EventCardFields"}}]}},{"kind":"Field","name":{"kind":"Name","value":"totalCount"}},{"kind":"Field","name":{"kind":"Name","value":"pageInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"EventPageInfoFields"}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"EventCardFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Event"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"pdu"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"views"}},{"kind":"Field","name":{"kind":"Name","value":"price"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"isFree"}},{"kind":"Field","name":{"kind":"Name","value":"rating"}},{"kind":"Field","name":{"kind":"Name","value":"speaker"}},{"kind":"Field","name":{"kind":"Name","value":"endDate"}},{"kind":"Field","name":{"kind":"Name","value":"timezone"}},{"kind":"Field","name":{"kind":"Name","value":"imageUrl"}},{"kind":"Field","name":{"kind":"Name","value":"category"}},{"kind":"Field","name":{"kind":"Name","value":"location"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}},{"kind":"Field","name":{"kind":"Name","value":"capacity"}},{"kind":"Field","name":{"kind":"Name","value":"language"}},{"kind":"Field","name":{"kind":"Name","value":"startDate"}},{"kind":"Field","name":{"kind":"Name","value":"onlineUrl"}},{"kind":"Field","name":{"kind":"Name","value":"attendees"}},{"kind":"Field","name":{"kind":"Name","value":"organizer"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"deletedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"providerId"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"ratingCount"}},{"kind":"Field","name":{"kind":"Name","value":"pduCategory"}},{"kind":"Field","name":{"kind":"Name","value":"deliveryMode"}},{"kind":"Field","name":{"kind":"Name","value":"averageRating"}},{"kind":"Field","name":{"kind":"Name","value":"specificTopic"}},{"kind":"Field","name":{"kind":"Name","value":"earlyBirdDiscount"}},{"kind":"Field","name":{"kind":"Name","value":"promotionVideoUrl"}},{"kind":"Field","name":{"kind":"Name","value":"registrationEnabled"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"EventPageInfoFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"EventPageInfo"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nextCursor"}},{"kind":"Field","name":{"kind":"Name","value":"hasNextPage"}}]}}]} as unknown as DocumentNode<EventsQuery, EventsQueryVariables>;
 export const EventByIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"EventById"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"eventId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"eventById"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"eventId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"eventId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"EventDetailFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"EventCardFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Event"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"pdu"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"views"}},{"kind":"Field","name":{"kind":"Name","value":"price"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"isFree"}},{"kind":"Field","name":{"kind":"Name","value":"rating"}},{"kind":"Field","name":{"kind":"Name","value":"speaker"}},{"kind":"Field","name":{"kind":"Name","value":"endDate"}},{"kind":"Field","name":{"kind":"Name","value":"timezone"}},{"kind":"Field","name":{"kind":"Name","value":"imageUrl"}},{"kind":"Field","name":{"kind":"Name","value":"category"}},{"kind":"Field","name":{"kind":"Name","value":"location"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}},{"kind":"Field","name":{"kind":"Name","value":"capacity"}},{"kind":"Field","name":{"kind":"Name","value":"language"}},{"kind":"Field","name":{"kind":"Name","value":"startDate"}},{"kind":"Field","name":{"kind":"Name","value":"onlineUrl"}},{"kind":"Field","name":{"kind":"Name","value":"attendees"}},{"kind":"Field","name":{"kind":"Name","value":"organizer"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"deletedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"providerId"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"ratingCount"}},{"kind":"Field","name":{"kind":"Name","value":"pduCategory"}},{"kind":"Field","name":{"kind":"Name","value":"deliveryMode"}},{"kind":"Field","name":{"kind":"Name","value":"averageRating"}},{"kind":"Field","name":{"kind":"Name","value":"specificTopic"}},{"kind":"Field","name":{"kind":"Name","value":"earlyBirdDiscount"}},{"kind":"Field","name":{"kind":"Name","value":"promotionVideoUrl"}},{"kind":"Field","name":{"kind":"Name","value":"registrationEnabled"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"EventScheduleItemFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"EventScheduleItem"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"speaker"}},{"kind":"Field","name":{"kind":"Name","value":"eventId"}},{"kind":"Field","name":{"kind":"Name","value":"endTime"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"dayNumber"}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"EventDetailFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Event"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"EventCardFields"}},{"kind":"Field","name":{"kind":"Name","value":"scheduleItems"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"EventScheduleItemFields"}}]}}]}}]} as unknown as DocumentNode<EventByIdQuery, EventByIdQueryVariables>;
 export const EventBySlugDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"EventBySlug"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"slug"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"eventBySlug"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"slug"},"value":{"kind":"Variable","name":{"kind":"Name","value":"slug"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"EventDetailFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"EventCardFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Event"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"pdu"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"views"}},{"kind":"Field","name":{"kind":"Name","value":"price"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"isFree"}},{"kind":"Field","name":{"kind":"Name","value":"rating"}},{"kind":"Field","name":{"kind":"Name","value":"speaker"}},{"kind":"Field","name":{"kind":"Name","value":"endDate"}},{"kind":"Field","name":{"kind":"Name","value":"timezone"}},{"kind":"Field","name":{"kind":"Name","value":"imageUrl"}},{"kind":"Field","name":{"kind":"Name","value":"category"}},{"kind":"Field","name":{"kind":"Name","value":"location"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}},{"kind":"Field","name":{"kind":"Name","value":"capacity"}},{"kind":"Field","name":{"kind":"Name","value":"language"}},{"kind":"Field","name":{"kind":"Name","value":"startDate"}},{"kind":"Field","name":{"kind":"Name","value":"onlineUrl"}},{"kind":"Field","name":{"kind":"Name","value":"attendees"}},{"kind":"Field","name":{"kind":"Name","value":"organizer"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"deletedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"providerId"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"ratingCount"}},{"kind":"Field","name":{"kind":"Name","value":"pduCategory"}},{"kind":"Field","name":{"kind":"Name","value":"deliveryMode"}},{"kind":"Field","name":{"kind":"Name","value":"averageRating"}},{"kind":"Field","name":{"kind":"Name","value":"specificTopic"}},{"kind":"Field","name":{"kind":"Name","value":"earlyBirdDiscount"}},{"kind":"Field","name":{"kind":"Name","value":"promotionVideoUrl"}},{"kind":"Field","name":{"kind":"Name","value":"registrationEnabled"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"EventScheduleItemFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"EventScheduleItem"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"speaker"}},{"kind":"Field","name":{"kind":"Name","value":"eventId"}},{"kind":"Field","name":{"kind":"Name","value":"endTime"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"dayNumber"}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"EventDetailFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Event"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"EventCardFields"}},{"kind":"Field","name":{"kind":"Name","value":"scheduleItems"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"EventScheduleItemFields"}}]}}]}}]} as unknown as DocumentNode<EventBySlugQuery, EventBySlugQueryVariables>;

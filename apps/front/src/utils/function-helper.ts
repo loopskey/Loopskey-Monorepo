@@ -299,3 +299,7 @@ export const toDateTimeLocal = (value?: string | null) => {
   const offsetMs = date.getTimezoneOffset() * 60000;
   return new Date(date.getTime() - offsetMs).toISOString().slice(0, 16);
 };
+
+// =========== CPD ===============
+export const formatDeadline = (iso?: string | null) =>
+  iso ? new Date(iso).toLocaleDateString() : "—";

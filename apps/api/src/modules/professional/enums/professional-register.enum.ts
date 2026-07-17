@@ -60,6 +60,13 @@ registerEnumType(Prisma.PDUCompletionStatus, {
   name: "PDUCompletionStatus",
 });
 
+registerEnumType(Prisma.CPDPlanStatus, { name: "CPDPlanStatus" });
+registerEnumType(Prisma.CPDEvidenceType, { name: "CPDEvidenceType" });
+registerEnumType(Prisma.CPDReminderTiming, { name: "CPDReminderTiming" });
+registerEnumType(Prisma.CPDReportRecipientType, {
+  name: "CPDReportRecipientType",
+});
+
 registerEnumType(Prisma.CalendarEventType, {
   name: "CalendarEventType",
 });

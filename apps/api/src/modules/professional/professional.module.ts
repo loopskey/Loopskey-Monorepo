@@ -12,6 +12,7 @@ import { ProfessionalCalendarService } from "@professional/services/professional
 import { ProfessionalCoursesResolver } from "@professional/resolvers/professional-courses.resolver";
 import { ProfessionalPaymentsService } from "@professional/services/professional-payments.service";
 import { ProfessionalOverviewService } from "@professional/services/professional-overview.service";
+import { ProfessionalCpdPlanResolver } from "@professional/resolvers/professional-cpd-plan.resolver";
 import { ProfessionalProfileResolver } from "@professional/resolvers/professional-profile.resolver";
 import { ProfessionalSettingsService } from "@professional/services/professional-settings.service";
 import { ProfessionalRoadmapResolver } from "@professional/resolvers/professional-roadmap.resolver";
@@ -19,6 +20,8 @@ import { ProfessionalRoadmapService } from "@professional/services/professional-
 import { ProfessionalCoursesService } from "@professional/services/professional-courses.service";
 import { ProfessionalProfileService } from "@professional/services/professional-profile.service";
 import { ProfessionalPduFileService } from "@professional/services/professional-pdu-file.service";
+import { ProfessionalCpdPlanService } from "@professional/services/professional-cpd-plan.service";
+import { CertificationSearchService } from "@professional/services/certification-search.service";
 import { ProfessionalAvatarService } from "@professional/services/professional-avatar.service";
 import { ProfessionalPduResolver } from "@professional/resolvers/professional-pdu.resolver";
 import { ProfessionalPduService } from "@professional/services/professional-pdu.service";
@@ -52,9 +55,14 @@ import "@professional/enums/professional-register.enum";
     ProfessionalPaymentsResolver,
     ProfessionalCertificatesService,
     ProfessionalCertificatesResolver,
+    CertificationSearchService,
+    ProfessionalCpdPlanService,
+    ProfessionalCpdPlanResolver,
   ],
   exports: [
     ProfessionalPduService,
+    CertificationSearchService,
+    ProfessionalCpdPlanService,
     ProfessionalPduFileService,
     ProfessionalAvatarService,
     ProfessionalCredentialService,

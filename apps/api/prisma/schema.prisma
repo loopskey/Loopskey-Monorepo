@@ -112,6 +112,7 @@ model User {
   auditLogs                  AuditLog[]                 @relation("AuditActor")
   externalLearningActivities ExternalLearningActivity[]
   calendarEvents             CalendarEvent[]
+  cpdPlans                   CPDPlan[]
 
   @@index([role])
   @@index([status])
@@ -1278,6 +1279,7 @@ enum CreditType {
   CPD
   PDU
   CEU
+  CPE
   TRAINING_HOUR
 }
 
@@ -1369,6 +1371,139 @@ model PDUActivityFile {
 
   @@index([activityId])
   @@index([userId])
+}
+
+// ================ CPD / PDU Plans ==================
+enum CPDPlanStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+}
+
+enum CPDEvidenceType {
+  CERTIFICATE
+  ATTENDANCE_PROOF
+  SELF_DECLARATION
+  OTHER
+}
+
+enum CPDReminderTiming {
+  DAYS_7
+  DAYS_14
+  DAYS_30
+  DAYS_60
+}
+
+enum CPDReportRecipientType {
+  SELF
+  MANAGER
+  ORGANIZATION
+  ASSOCIATION
+  OTHER
+}
+
+// Replaceable certification catalogue. Seeded from a repository/fixture today,
+// searched with PostgreSQL pg_trgm fuzzy matching (trigram GIN indexes added in
+// the migration on name / abbreviation / organization / organizationAbbr /
+// association). Can later be populated from a real provider feed.
+model Certification {
+  id String @id @default(cuid())
+
+  name             String
+  abbreviation     String
+  organization     String
+  organizationAbbr String?
+  association      String?
+
+  creditType           CreditType @default(CPD)
+  renewalCycleLabel    String
+  renewalCycleMonths   Int?
+  totalRequiredCredits Float
+  suggestedDeadline    DateTime?
+
+  categories CertificationCategory[]
+  plans      CPDPlan[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([abbreviation])
+  @@index([organization])
+}
+
+model CertificationCategory {
+  id String @id @default(cuid())
+
+  certificationId String
+  certification   Certification @relation(fields: [certificationId], references: [id], onDelete: Cascade)
+
+  name            String
+  requiredCredits Float
+  order           Int    @default(0)
+
+  @@index([certificationId])
+}
+
+model CPDPlan {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Optional link to the catalogue record the plan was suggested from.
+  certificationId String?
+  certification   Certification? @relation(fields: [certificationId], references: [id], onDelete: SetNull)
+
+  certificationName String
+  organization      String
+
+  reportingStart DateTime
+  reportingEnd   DateTime
+
+  creditType              CreditType @default(CPD)
+  totalRequiredCredits    Float
+  // Baseline of credits completed before LoopsKey tracking began. Kept separate
+  // from recorded PDUActivity credits to avoid double counting.
+  initialCompletedCredits Float      @default(0)
+
+  timeAvailable    LearningTimeCommitment?
+  preferredFormats LearningFormat[]
+
+  evidenceTypes     CPDEvidenceType[]
+  evidenceOtherNote String?
+
+  reportRecipientType  CPDReportRecipientType @default(SELF)
+  reportRecipientLabel String?
+
+  remindersEnabled Boolean            @default(false)
+  reminderTiming   CPDReminderTiming?
+
+  status CPDPlanStatus @default(ACTIVE)
+
+  categories CPDPlanCategory[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([certificationId])
+  @@index([status])
+  @@index([userId, reportingStart, reportingEnd])
+}
+
+model CPDPlanCategory {
+  id String @id @default(cuid())
+
+  planId String
+  plan   CPDPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  name             String
+  targetCredits    Float  @default(0)
+  completedCredits Float  @default(0)
+  order            Int    @default(0)
+
+  @@index([planId])
 }
 
 // ================= Certificates ====================

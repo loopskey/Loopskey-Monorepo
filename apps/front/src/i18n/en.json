@@ -1,4 +1,242 @@
 {
+  "cpdProgress": {
+    "eyebrow": "CPD / PDU",
+    "title": "CPD/PDU Progress",
+    "subtitle": "Track your progress, manage requirements, and stay compliant.",
+    "actions": {
+      "generateSummary": "Generate CPD Summary",
+      "createNew": "Create New CPD/PDU"
+    },
+    "common": {
+      "cancel": "Cancel",
+      "back": "Back",
+      "next": "Next",
+      "loading": "Loading...",
+      "remove": "Remove"
+    },
+    "empty": {
+      "title": "No CPD/PDU plan yet",
+      "description": "Create a CPD/PDU plan to start tracking your credits, categories, evidence and compliance. Progress can only be tracked once a plan exists.",
+      "cta": "Create New CPD/PDU"
+    },
+    "search": {
+      "title": "Set Up CPD / PDU Tracking",
+      "description": "Search for your certification so LoopsKey can suggest your requirements.",
+      "sectionTitle": "Find your certification",
+      "sectionDescription": "Search by certification, licence, or association.",
+      "placeholder": "e.g. PMP, CFA, PMI, ISC2...",
+      "minChars": "Type at least 2 characters to search.",
+      "loading": "Searching...",
+      "empty": "No certifications matched your search.",
+      "error": "Something went wrong while searching.",
+      "retry": "Try again",
+      "cantFind": "Can't find your certification?",
+      "addManually": "Add it manually"
+    },
+    "suggested": {
+      "badge": "Suggested Requirement Found",
+      "reviewNote": "Please review and confirm before using these requirements.",
+      "renewal": "Renewal cycle",
+      "totalRequired": "Total required credits",
+      "creditType": "Credit type",
+      "deadline": "Reporting deadline",
+      "categories": "Categories",
+      "back": "Back",
+      "editManually": "Edit Manually",
+      "useSuggested": "Use Suggested Requirement"
+    },
+    "setup": {
+      "titleManual": "Add CPD/PDU manually",
+      "titleSuggestion": "Review your CPD/PDU setup",
+      "subtitle": "Complete the four steps to create your plan.",
+      "step1": {
+        "title": "Certification Details",
+        "description": "Which certification or licence are you tracking?"
+      },
+      "step2": {
+        "title": "Reporting & Credit Setup",
+        "description": "Your reporting period and credit totals"
+      },
+      "step3": {
+        "title": "Category Breakdown",
+        "description": "Split credits across categories, if any."
+      },
+      "step4": {
+        "title": "Evidence & Reporting",
+        "description": "Evidence, recipient, and reminders"
+      },
+      "fields": {
+        "certificationName": "Certification / Licence",
+        "certificationNamePlaceholder": "e.g. PMP (Project Management Professional)",
+        "organization": "Association / Organization",
+        "organizationPlaceholder": "e.g. Project Management Institute (PMI)",
+        "reportingStart": "Reporting Period — Start",
+        "reportingEnd": "Reporting Period — End",
+        "creditType": "Credit Type",
+        "totalRequired": "Total Required Credits",
+        "initialCompleted": "Credits Completed So Far",
+        "initialCompletedHint": "Baseline before LoopsKey tracking. Recorded activities are added on top.",
+        "timeAvailable": "Time Available for Learning",
+        "timeAvailablePlaceholder": "Select availability",
+        "preferredFormats": "Preferred Learning Formats",
+        "preferredFormatsPlaceholder": "Select formats",
+        "searchFormats": "Search formats",
+        "noFormats": "No formats found",
+        "evidenceRequired": "Evidence Required (select all that apply)",
+        "evidenceOtherNote": "Describe the other evidence",
+        "reportRecipient": "Final Report Recipient",
+        "reportRecipientPlaceholder": "Select a recipient",
+        "reportRecipientLabel": "Recipient name",
+        "deadlineReminders": "Deadline Reminders",
+        "deadlineRemindersHint": "Optional — stay ahead of your deadline.",
+        "reminderTiming": "Reminder Timing",
+        "reminderTimingPlaceholder": "Select timing"
+      },
+      "categories": {
+        "category": "Category",
+        "target": "Target",
+        "completed": "Completed",
+        "delete": "Delete",
+        "add": "Add Category",
+        "targetTotal": "Target total",
+        "empty": "No categories yet. Add one if your certification splits credits across categories.",
+        "thisCategory": "this category",
+        "deleteConfirmTitle": "Remove category?",
+        "deleteConfirmDescription": "This will remove"
+      },
+      "actions": {
+        "create": "Create CPD Plan"
+      },
+      "unsaved": {
+        "title": "Discard changes?",
+        "description": "You have unsaved changes. Leaving now will discard this plan setup.",
+        "keep": "Keep editing",
+        "discard": "Discard"
+      }
+    },
+    "creditTypes": {
+      "PDU": "PDU",
+      "CPD": "CPD",
+      "CPE": "CPE",
+      "CEU": "CEU",
+      "TRAINING_HOUR": "Training Hour"
+    },
+    "time": {
+      "LESS_THAN_ONE_HOUR": "Less than 1 hour/week",
+      "ONE_TO_THREE_HOURS": "1–3 hours/week",
+      "FOUR_TO_SIX_HOURS": "4–6 hours/week",
+      "SEVEN_TO_TEN_HOURS": "7–10 hours/week",
+      "MORE_THAN_TEN_HOURS": "More than 10 hours/week"
+    },
+    "formats": {
+      "COURSE": "Course",
+      "WEBINAR": "Webinar",
+      "WORKSHOP": "Workshop",
+      "VIDEO": "Video",
+      "PODCAST": "Podcast",
+      "ARTICLE": "Reading"
+    },
+    "evidence": {
+      "CERTIFICATE": "Certificate",
+      "ATTENDANCE_PROOF": "Attendance proof",
+      "SELF_DECLARATION": "Self-declaration",
+      "OTHER": "Other"
+    },
+    "reminder": {
+      "DAYS_7": "7 days before deadline",
+      "DAYS_14": "14 days before deadline",
+      "DAYS_30": "30 days before deadline",
+      "DAYS_60": "60 days before deadline"
+    },
+    "compliance": {
+      "NOT_STARTED": "Not Started",
+      "IN_PROGRESS": "In Progress",
+      "ON_TRACK": "On Track",
+      "AT_RISK": "At Risk",
+      "REQUIREMENTS_COMPLETED": "Requirements Completed",
+      "EVIDENCE_INCOMPLETE": "Evidence Incomplete",
+      "REPORTING_PERIOD_EXPIRED": "Reporting Period Expired"
+    },
+    "complianceHint": {
+      "NOT_STARTED": "No eligible credits recorded yet.",
+      "IN_PROGRESS": "You are making progress toward your goal.",
+      "ON_TRACK": "You are on pace to meet your requirement.",
+      "AT_RISK": "You are behind the expected pace.",
+      "REQUIREMENTS_COMPLETED": "All credits and categories are met.",
+      "EVIDENCE_INCOMPLETE": "Requirements met, but some evidence is missing.",
+      "REPORTING_PERIOD_EXPIRED": "The reporting period has ended."
+    },
+    "missing": {
+      "REMAINING_CREDITS": "You still need {{detail}} more credits.",
+      "CATEGORY_BELOW_TARGET": "Category below target — {{detail}}.",
+      "MISSING_EVIDENCE": "{{detail}} completed activities are missing required evidence.",
+      "MISSING_REPORT_RECIPIENT": "Add a report recipient to complete your plan.",
+      "DEADLINE_APPROACHING": "Your reporting deadline is in {{detail}} days.",
+      "REPORTING_PERIOD_EXPIRED": "The reporting period has expired.",
+      "REPORTING_NOT_STARTED": "The reporting period has not started yet."
+    },
+    "progress": {
+      "planLabel": "Plan",
+      "deletePlan": "Delete plan",
+      "cards": {
+        "earned": "Earned",
+        "earnedHelper": "{{count}} activities counted",
+        "remaining": "Remaining",
+        "remainingHelper": "of {{total}} required",
+        "categoriesMissing": "Categories Missing",
+        "categoriesMissingHelper": "Below target",
+        "evidenceMissing": "Evidence Missing",
+        "evidenceMissingHelper": "Activities without evidence"
+      },
+      "overallTitle": "Overall Progress",
+      "overallSubtitle": "Earned versus required credits",
+      "accessibleSummary": "Earned {{earned}} of {{total}} {{credit}} ({{percent}}%).",
+      "exceeded": "Exceeded requirement by {{amount}} {{credit}}.",
+      "complianceTitle": "Compliance Status",
+      "categoryTitle": "Category Completion",
+      "categorySubtitle": "Progress per plan category",
+      "noCategories": "This plan has no categories.",
+      "categoryRemaining": "remaining",
+      "categoryComplete": "Complete",
+      "missingTitle": "Missing Requirements",
+      "missingSubtitle": "What to do to stay compliant",
+      "missingNone": "You have met all requirements. Great work!",
+      "addActivity": "Add activity",
+      "uploadEvidence": "Upload evidence"
+    },
+    "validation": {
+      "required": "This field is required.",
+      "categoryName": "Category name is required.",
+      "number": "Enter a valid number.",
+      "nonNegative": "Value cannot be negative.",
+      "positive": "Value must be greater than zero.",
+      "endBeforeStart": "End date must not be before the start date.",
+      "completedOverTotal": "Completed credits cannot exceed the total required.",
+      "duplicateCategory": "Category names must be unique.",
+      "categoryTotalOverTotal": "Category targets exceed the total required credits.",
+      "reminderTimingRequired": "Choose when to be reminded.",
+      "recipientLabelRequired": "Enter the recipient name.",
+      "evidenceRequired": "Select at least one evidence type."
+    },
+    "toast": {
+      "planCreated": "CPD/PDU plan created.",
+      "createError": "Could not create the plan. Please try again.",
+      "planDeleted": "Plan deleted.",
+      "deleteError": "Could not delete the plan.",
+      "summaryReady": "CPD summary downloaded.",
+      "summaryError": "Could not generate the summary."
+    },
+    "duplicate": {
+      "title": "Possible duplicate plan",
+      "description": "You already have a plan for this certification and reporting period. Create it anyway?",
+      "confirm": "Create anyway"
+    },
+    "delete": {
+      "title": "Delete this plan?",
+      "description": "This permanently removes the plan and its categories. Your learning activities are not affected.",
+      "confirm": "Delete plan"
+    }
+  },
   "common": {
     "no": "No",
     "all": "All",
@@ -1668,6 +1906,7 @@
       "settings": "Settings",
       "courses": "My Courses",
       "cpdPduTracker": "My Learning Activities",
+      "cpdPduProgress": "CPD/PDU Progress",
       "calendar": "My Calendar",
       "certificates": "Certificates",
       "externalLearning": "External Learning"
