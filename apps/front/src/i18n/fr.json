@@ -1689,8 +1689,7 @@
         "title": "Complétion du profil",
         "summary": "{{completed}} sur {{total}} sections complétées",
         "complete": "Complet",
-        "incomplete": "Incomplet",
-        "finish": "Compléter"
+        "incomplete": "Incomplet"
       },
       "interests": {
         "title": "Vos centres d'intérêt",

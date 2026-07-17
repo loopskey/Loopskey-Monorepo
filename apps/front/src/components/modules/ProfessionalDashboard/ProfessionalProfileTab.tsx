@@ -82,76 +82,84 @@ const ProfessionalProfileTab = () => {
           </Button>
         </GlassCard>
       ) : (
-        <>
-          <div className="grid gap-6 lg:grid-cols-2">
-            <ProfileCompletionCard hook={hook} />
-            <ProfileInterestTagsCard hook={hook} />
+        // The tabs lead, with the summary cards in a side rail, so the editing
+        // panels are reachable without scrolling past them. Below xl the rail
+        // drops underneath and the tabs still come first.
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_24rem] xl:items-start">
+          <div className="min-w-0 space-y-6">
+            <AnimatedTabs
+              tabs={tabs}
+              activeTab={activeTab}
+              onChange={setActiveTab}
+            />
+
+            <GlassCard>
+              {isLoading ? (
+                <div className="space-y-4">
+                  <Skeleton className="h-8 w-56" />
+                  <Skeleton className="h-28 w-full rounded-3xl" />
+                  <div className="grid gap-5 md:grid-cols-2">
+                    {Array.from({ length: 6 }).map((_, index) => (
+                      <Skeleton
+                        key={index}
+                        className="h-14 w-full rounded-2xl"
+                      />
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {activeTab === "basic" && (
+                    <ProfileBasicPanel
+                      avatar={avatar}
+                      hook={basicForm}
+                      profile={profile}
+                      icon={L.UserRound}
+                      isDisabled={isDisabled}
+                    />
+                  )}
+
+                  {activeTab === "details" && (
+                    <ProfileDetailsPanel
+                      hook={detailsForm}
+                      isDisabled={isDisabled}
+                      icon={L.BriefcaseBusiness}
+                    />
+                  )}
+
+                  {activeTab === "skills" && (
+                    <ProfileSkillsPanel
+                      icon={L.Lightbulb}
+                      hook={skillsForm}
+                      isDisabled={isDisabled}
+                    />
+                  )}
+
+                  {activeTab === "certifications" && (
+                    <ProfileCredentialsPanel
+                      icon={L.Award}
+                      hook={credentials}
+                      isDisabled={isDisabled}
+                    />
+                  )}
+
+                  {activeTab === "preferences" && (
+                    <ProfilePreferencesPanel
+                      icon={L.SlidersHorizontal}
+                      hook={preferencesForm}
+                      isDisabled={isDisabled}
+                    />
+                  )}
+                </>
+              )}
+            </GlassCard>
           </div>
 
-          <AnimatedTabs
-            tabs={tabs}
-            activeTab={activeTab}
-            onChange={setActiveTab}
-          />
-
-          <GlassCard>
-            {isLoading ? (
-              <div className="space-y-4">
-                <Skeleton className="h-8 w-56" />
-                <Skeleton className="h-28 w-full rounded-3xl" />
-                <div className="grid gap-5 md:grid-cols-2">
-                  {Array.from({ length: 6 }).map((_, index) => (
-                    <Skeleton key={index} className="h-14 w-full rounded-2xl" />
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <>
-                {activeTab === "basic" && (
-                  <ProfileBasicPanel
-                    avatar={avatar}
-                    hook={basicForm}
-                    profile={profile}
-                    icon={L.UserRound}
-                    isDisabled={isDisabled}
-                  />
-                )}
-
-                {activeTab === "details" && (
-                  <ProfileDetailsPanel
-                    hook={detailsForm}
-                    isDisabled={isDisabled}
-                    icon={L.BriefcaseBusiness}
-                  />
-                )}
-
-                {activeTab === "skills" && (
-                  <ProfileSkillsPanel
-                    icon={L.Lightbulb}
-                    hook={skillsForm}
-                    isDisabled={isDisabled}
-                  />
-                )}
-
-                {activeTab === "certifications" && (
-                  <ProfileCredentialsPanel
-                    icon={L.Award}
-                    hook={credentials}
-                    isDisabled={isDisabled}
-                  />
-                )}
-
-                {activeTab === "preferences" && (
-                  <ProfilePreferencesPanel
-                    icon={L.SlidersHorizontal}
-                    hook={preferencesForm}
-                    isDisabled={isDisabled}
-                  />
-                )}
-              </>
-            )}
-          </GlassCard>
-        </>
+          <aside className="space-y-6 xl:sticky xl:top-6">
+            <ProfileCompletionCard hook={hook} />
+            <ProfileInterestTagsCard hook={hook} />
+          </aside>
+        </div>
       )}
     </div>
   );

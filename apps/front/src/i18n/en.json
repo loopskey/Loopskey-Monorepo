@@ -1698,8 +1698,7 @@
         "title": "Profile completion",
         "summary": "{{completed}} of {{total}} sections completed",
         "complete": "Complete",
-        "incomplete": "Incomplete",
-        "finish": "Complete"
+        "incomplete": "Incomplete"
       },
       "interests": {
         "title": "Your interest tags",
