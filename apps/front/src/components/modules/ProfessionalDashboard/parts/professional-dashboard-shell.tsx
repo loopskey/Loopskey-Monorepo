@@ -27,10 +27,10 @@ const validTabs: TProfessionalDashboardTab[] = [
   "settings",
   "payments",
   "pdu-report",
-  "cpd-pdu-tracker",
-  "cpd-pdu-progress",
   "add-activity",
   "certificates",
+  "cpd-pdu-tracker",
+  "cpd-pdu-progress",
   "external-learning",
 ];
 
@@ -50,10 +50,10 @@ export const ProfessionalDashboardShell = () => {
     return <ProfessionalExternalLearningTab />;
   if (activeTab === "certificates") return <ProfessionalCertificatesTab />;
   if (activeTab === "payments") return <ProfessionalPaymentsTab />;
-  // "pdu-report" is the legacy slug kept so existing bookmarks keep working.
   if (activeTab === "cpd-pdu-tracker" || activeTab === "pdu-report")
     return <ProfessionalCpdPduTrackerTab />;
-  if (activeTab === "cpd-pdu-progress") return <ProfessionalCpdPduProgressTab />;
+  if (activeTab === "cpd-pdu-progress")
+    return <ProfessionalCpdPduProgressTab />;
   if (activeTab === "add-activity") return <ProfessionalAddActivityTab />;
   if (activeTab === "wishlist") return <ProfessionalWishlistTab />;
   if (activeTab === "settings") return <ProfessionalSettingsTab />;
