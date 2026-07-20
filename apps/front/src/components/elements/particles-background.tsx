@@ -18,7 +18,11 @@ export const LearningParticlesBackground = ({
         className,
       )}
     >
-      <canvas ref={canvasRef} className="h-full w-full" />
+      <canvas
+        ref={canvasRef}
+        className="h-full w-full"
+        style={{ transform: "scaleX(-1)" }}
+      />
 
       {withBottomFade && (
         <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-background to-transparent" />
