@@ -1,54 +1,88 @@
-# Current Feature: Organization Approval Workflow — Phase 1 (Audit)
+# Current Feature: Organization Approval Workflow — Phase 2 (Application Submission)
 
-Read-only audit of the existing Organization registration, Admin approval,
-authentication, password, and email workflows. No code changes in this phase.
+Complete the Organization application submission workflow only. Admin
+approval/rejection, account activation, email delivery, and the mandatory
+password-change flow are explicitly out of scope for this phase.
 
 ## Status
 
-Complete — committed on `feature/org-approval-audit`, not yet merged.
+In Progress — `feature/org-application-submission`, branched from `main`.
+Scope decisions: backend (Jest) tests only, frontend Vitest harness deferred.
 
 ## Goals
 
-- Trace the expected business flow end to end against the current codebase:
-  applicant registers → application lands in Admin dashboard → Admin approves or
-  rejects (rejection requires a saved reason + email) → approval creates or
-  activates the Organization account and emails activation instructions → first
-  login forces a password change → dashboard access only after that.
-- Inspect the relevant frontend, backend, database, auth, authorization, and
-  email files, including: Organization registration form, Organization/Admin
-  roles, Admin dashboard, Organization and User models, registration/approval
-  request models, status fields and enums, login implementation, password
-  reset/change flows, invitation or activation flows, role-based authorization,
-  email service, email templates, email provider config, environment variables,
-  React Hook Form usage, Zod schemas, API request/mutation hooks, backend
-  validation, migrations, audit logging, and existing tests.
-- Answer the 13 audit questions in the spec — notably: whether the Organization
-  account is created before or after approval, whether application and user
-  account are separate entities, whether the password-reset or invitation flow
-  can be reused, whether the email service exists but is unconfigured, which
-  email provider is intended, whether first-login password change is supported,
-  whether backend authorization blocks access before the password change,
-  whether approval/rejection APIs already exist, and whether duplicate approval
-  or duplicate account creation is possible.
-- Produce the audit report with exactly these sections: Existing
-  Implementation, Missing or Incomplete Parts, Recommended Architecture,
-  Proposed Status Workflow, Proposed Secure Account Activation Method, Proposed
-  Implementation Phases, Relevant Files, Risks and Questions.
-- Stop after the report. No implementation until the next phase is explicitly
-  requested.
+- Deliver the submission flow end to end: applicant opens the existing form →
+  completes required fields → clicks Submit Request → frontend validates →
+  backend validates and stores → the record gets its backend-assigned submitted
+  status → the applicant sees clear confirmation that the request is awaiting
+  Admin review. No active Organization account is created.
+- Harden the form against the specific failure modes the spec names: required
+  fields marked, field-level validation messages, organizational email
+  validated, submit disabled while in flight, double-click cannot submit twice,
+  form values preserved on recoverable errors, backend errors surfaced clearly,
+  responsive and accessible.
+- Confirm or complete the backend record: organization name, organizational
+  email, contact person and contact details, organization details, status, and
+  the created/updated timestamps. Add no field that an existing field already
+  covers.
+- Keep workflow status server-controlled. The frontend must not be able to set
+  or influence the stored status; the backend assigns the initial value.
+- Strengthen duplicate-application prevention beyond a bare email match where
+  the existing identifiers allow it, and return a clear business error rather
+  than writing a second pending record.
+- Enforce the security rules: all validation server-side; never trust
+  client-supplied role, status, user ID, or organization ID; no active
+  Organization user before approval; no cross-applicant data exposure; no
+  Admin-only fields leaked; no password stored on the application record.
+- Add tests for required-field validation, invalid email, successful
+  submission, initial status, duplicate prevention, double-click protection,
+  backend validation, and unauthorized access to protected application data.
+- Run frontend tests, backend tests, TypeScript checks, lint, migration
+  validation, and a production build. Fix only errors this phase introduces.
+- Produce the 9-part completion report: implementation reused, files modified,
+  files created, database changes, API changes, validation added, duplicate
+  prevention behavior, tests and results, remaining work for phase 3.
 
 ## Notes
 
-- Source spec: `context/features/email-org-submit1-spec.md`. This is phase 1 of
-  7 (`email-org-submit1-spec.md` … `email-org-submit7-spec.md`); the later specs
-  have not been read yet.
-- Explicitly read-only: create no files, migrations, endpoints, components, or
-  services. The only file this phase writes is the audit report itself.
-- Activation preference from the spec: a secure single-use "Set Your Password"
-  link, not an emailed permanent password. If the architecture forces temporary
-  credentials, explain how to do a one-time temporary password securely.
-- Because nothing ships in this phase, the normal build/lint/type gate in
-  `context/ai-interaction.md` does not apply; the deliverable is the report.
+- Source spec: `context/features/email-org-submit2-spec.md` (phase 2 of 7).
+  Phase 1 audit findings are in `context/features/email-org-submit1-audit.md`
+  and should be treated as the starting map.
+- **Much of this already works.** Per the phase 1 audit, `submitRequest`
+  ([org-access-request.service.ts:37](apps/api/src/modules/organization/services/org-access-request.service.ts#L37))
+  already normalizes the email, rejects an existing user, rejects a second
+  PENDING request, and creates the record with a server-assigned status. The
+  public mutation, DTO, entity, form, and Zod schema all exist. Expect this
+  phase to be verification plus gap-closing, not new construction.
+- **Status enum tension.** The spec proposes `DRAFT`/`SUBMITTED`, but the spec
+  also says to reuse the existing enum when one is available.
+  `OrganizationAccessRequestStatus` is `PENDING | APPROVED | REJECTED` and
+  `PENDING` already is the submitted state. Reusing it avoids a migration and a
+  frontend enum change; introducing `DRAFT`/`SUBMITTED` would require renaming
+  a value every later phase depends on. Default to reuse unless the user wants
+  otherwise.
+- **`submittedAt` is likely a duplicate field.** `createdAt` already records
+  submission time, and the spec forbids adding equivalent fields. Do not add it
+  without a reason it must differ from `createdAt`.
+- **Document upload is conditional** — the spec says "when supported". The
+  request model has no document relation today, and the upload pattern in this
+  repo is REST multipart, not GraphQL. Treat as out of scope unless asked.
+- **Stronger duplicate identifiers may not exist.** The spec suggests
+  registration number or organization identifier; `OrganizationAccessRequest`
+  has neither. The realistic strengthening is normalized organization name plus
+  email, or a database-level partial unique index on pending records. Flag
+  rather than invent a new identifier field.
+- **There is no test infrastructure.** The phase 1 audit found zero test files
+  outside `node_modules`. The spec's testing section therefore implies standing
+  up the harness (Jest for the API, Vitest for the frontend) before any test
+  can be written. This is the largest unscoped item in the phase — confirm
+  before building it out.
+- **`npm run check-types` does not exist** as a workspace script; the
+  equivalent is `npx tsc --noEmit -p apps/{api,front}/tsconfig.json`. The gate
+  in `ai-interaction.md` names a script the repo does not expose.
+- Phase 1 is committed on `feature/org-approval-audit` and still unmerged, and
+  the `develop`-vs-`main` merge target remains unresolved. Decide where phase 2
+  branches from before starting implementation.
 
 ## History
 
