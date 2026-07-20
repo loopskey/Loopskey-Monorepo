@@ -1,4 +1,0 @@
-interface:
-  display_name: "Project Quality"
-  short_description: "Run focused checks before finishing work"
-  default_prompt: "Use $project-quality to verify my Loopskey changes before finalizing."

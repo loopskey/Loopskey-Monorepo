@@ -1,4 +1,0 @@
-interface:
-  display_name: "PR Description"
-  short_description: "Draft professional pull request text"
-  default_prompt: "Use $pr-description to write a clear pull request description for my changes."

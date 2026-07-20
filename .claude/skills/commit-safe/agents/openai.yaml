@@ -1,4 +1,0 @@
-interface:
-  display_name: "Commit Safe"
-  short_description: "Review changes and commit safely"
-  default_prompt: "Use $commit-safe to inspect staged changes and create a safe conventional commit."

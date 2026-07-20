@@ -1,4 +1,0 @@
-interface:
-  display_name: "Auth RBAC"
-  short_description: "Work safely with auth, guards, and roles"
-  default_prompt: "Use $auth-rbac to change authentication or role-based access in Loopskey."
