@@ -116,6 +116,7 @@
     "moduleNameMapper": {
       "^@prisma/(prisma\\.service|prisma\\.module)$": "<rootDir>/modules/prisma/$1",
       "^@professional/(.*)$": "<rootDir>/modules/professional/$1",
+      "^@admin/(.*)$": "<rootDir>/modules/admin/$1",
       "^@org/(.*)$": "<rootDir>/modules/organization/$1",
       "^@auth/(.*)$": "<rootDir>/modules/auth/$1",
       "^@mail/(.*)$": "<rootDir>/modules/mail/$1",

@@ -3652,8 +3652,12 @@
     "accessRequests": {
       "eyebrow": "Accès organisation",
       "title": "Demandes d’accès des organisations",
-      "description": "Examinez, approuvez ou rejetez les demandes d’intégration envoyées par les représentants d’organisations.",
+      "description": "Consultez et examinez les demandes d’intégration envoyées par les représentants d’organisations.",
       "empty": "Aucune demande d’accès organisation trouvée.",
+      "noResults": "Aucune demande ne correspond à la recherche ou aux filtres.",
+      "error": "Impossible de charger les demandes d’organisation. Veuillez réessayer.",
+      "detailError": "Impossible de charger cette demande d’organisation.",
+      "unauthorized": "Vous n’êtes pas autorisé à consulter les demandes d’organisation.",
       "stats": {
         "total": "Total des demandes",
         "pending": "En attente",
@@ -3661,7 +3665,11 @@
         "rejected": "Rejetées"
       },
       "filters": {
-        "search": "Rechercher par organisation, e-mail, représentant ou pays"
+        "search": "Rechercher par organisation, e-mail, représentant ou pays",
+        "status": "Filtrer par statut",
+        "sort": "Trier par date de soumission",
+        "newest": "Soumissions les plus récentes",
+        "oldest": "Soumissions les plus anciennes"
       },
       "status": {
         "ALL": "Tous les statuts",
@@ -3676,6 +3684,8 @@
         "workEmail": "E-mail professionnel",
         "type": "Type",
         "createdAt": "Créée le",
+        "reviewedAt": "Examinée le",
+        "reviewer": "Administrateur chargé de l’examen",
         "actions": "Actions"
       },
       "actions": {
@@ -3685,7 +3695,9 @@
       },
       "review": {
         "reviewedAt": "Examiné le",
-        "rejectHint": "Veuillez écrire une raison claire avant de rejeter cette demande."
+        "rejectHint": "Veuillez écrire une raison claire avant de rejeter cette demande.",
+        "actionsTitle": "Actions d’approbation",
+        "actionsDeferred": "L’approbation et le rejet seront disponibles à la phase 4."
       },
       "dialog": {
         "title": "Examiner la demande d’accès",

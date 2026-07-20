@@ -3,12 +3,13 @@
 import { OrganizationAccessRequestStatus } from "@/lib/graphql/generated";
 import { AdminOrgAccessRequestFilter } from "@/lib/graphql/generated";
 import { useMemo, useState } from "react";
+import { useDebouncedValue } from "@/hooks/useDebounced";
 import { useI18n } from "@/hooks/useI18n";
-import { notify } from "@/hooks/notify";
 
 import * as API from "@/lib/rtk/endpoints/admin-dashboard.api";
 
 type TStatusFilter = "ALL" | OrganizationAccessRequestStatus;
+type TSortDirection = "asc" | "desc";
 
 type TAccessRequestItem = NonNullable<
   ReturnType<typeof API.useAdminOrgAccessRequestsQuery>["data"]
@@ -26,17 +27,21 @@ export const useAdminAccessRequestsTab = () => {
 
   const [search, setSearchState] = useState("");
   const [status, setStatusState] = useState<TStatusFilter>("ALL");
-  const [rejectReason, setRejectReason] = useState("");
+  const [sortDirection, setSortDirectionState] =
+    useState<TSortDirection>("desc");
   const [cursorStack, setCursorStack] = useState<string[]>([]);
-  const [selectedRequest, setSelectedRequest] =
-    useState<TAccessRequestItem | null>(null);
+  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(
+    null,
+  );
+  const debouncedSearch = useDebouncedValue(search.trim(), 350);
 
   const cursor = cursorStack.at(-1);
 
   const variables = useMemo(() => {
     const filter: AdminOrgAccessRequestFilter = {
-      search: search.trim() || undefined,
+      search: debouncedSearch || undefined,
       status: status === "ALL" ? undefined : status,
+      sortDirection,
     };
     return {
       filter,
@@ -45,32 +50,18 @@ export const useAdminAccessRequestsTab = () => {
         cursor,
       },
     };
-  }, [search, status, cursor]);
+  }, [debouncedSearch, status, sortDirection, cursor]);
 
   const query = API.useAdminOrgAccessRequestsQuery(variables);
-
-  const [approveRequest, approveState] =
-    API.useApproveAdminOrgAccessRequestMutation();
-
-  const [rejectRequest, rejectState] =
-    API.useRejectAdminOrgAccessRequestMutation();
+  const detailQuery = API.useAdminOrgAccessRequestDetailQuery(
+    selectedRequestId ?? "",
+    {
+      skip: !selectedRequestId,
+      refetchOnMountOrArgChange: true,
+    },
+  );
 
   const items = useMemo(() => query.data?.items ?? [], [query.data?.items]);
-
-  const stats = useMemo(() => {
-    return {
-      total: query.data?.totalCount ?? 0,
-      pending: items.filter(
-        (item) => item.status === OrganizationAccessRequestStatus.Pending,
-      ).length,
-      approved: items.filter(
-        (item) => item.status === OrganizationAccessRequestStatus.Approved,
-      ).length,
-      rejected: items.filter(
-        (item) => item.status === OrganizationAccessRequestStatus.Rejected,
-      ).length,
-    };
-  }, [items, query.data?.totalCount]);
 
   const resetPagination = () => {
     setCursorStack([]);
@@ -86,53 +77,21 @@ export const useAdminAccessRequestsTab = () => {
     resetPagination();
   };
 
+  const setSortDirection = (value: TSortDirection) => {
+    setSortDirectionState(value);
+    resetPagination();
+  };
+
   const openRequestReview = (item: TAccessRequestItem) => {
-    setRejectReason("");
-    setSelectedRequest(item);
+    setSelectedRequestId(item.id);
   };
 
   const closeRequestReview = () => {
-    setRejectReason("");
-    setSelectedRequest(null);
+    setSelectedRequestId(null);
   };
 
   const refresh = async () => {
     await query.refetch();
-  };
-
-  const approve = async (requestId?: string) => {
-    const targetId = requestId ?? selectedRequest?.id;
-    if (!targetId) return;
-    try {
-      await approveRequest(targetId).unwrap();
-      notify.success(t("adminDashboard.accessRequests.messages.approved"));
-      closeRequestReview();
-      await query.refetch();
-    } catch {
-      notify.error(t("authPages.common.genericError"));
-    }
-  };
-
-  const reject = async (requestId?: string) => {
-    const targetId = requestId ?? selectedRequest?.id;
-    if (!targetId) return;
-    if (!rejectReason.trim()) {
-      notify.error(
-        t("adminDashboard.accessRequests.dialog.rejectReasonRequired"),
-      );
-      return;
-    }
-    try {
-      await rejectRequest({
-        requestId: targetId,
-        reason: rejectReason.trim(),
-      }).unwrap();
-      notify.success(t("adminDashboard.accessRequests.messages.rejected"));
-      closeRequestReview();
-      await query.refetch();
-    } catch {
-      notify.error(t("authPages.common.genericError"));
-    }
   };
 
   const nextPage = () => {
@@ -149,34 +108,32 @@ export const useAdminAccessRequestsTab = () => {
   const resetFilters = () => {
     setSearchState("");
     setStatusState("ALL");
+    setSortDirectionState("desc");
     resetPagination();
   };
 
-  const hasActiveFilters = search.trim().length > 0 || status !== "ALL";
-
-  const isLoading =
-    query.isFetching || approveState.isLoading || rejectState.isLoading;
+  const hasActiveFilters =
+    search.trim().length > 0 || status !== "ALL" || sortDirection !== "desc";
 
   return {
     t,
     items,
-    stats,
     query,
     search,
     status,
-    reject,
     refresh,
-    approve,
     nextPage,
     setSearch,
     setStatus,
-    isLoading,
+    detailQuery,
+    sortDirection,
+    selectedRequestId,
+    setSortDirection,
+    isLoading: query.isFetching,
     previousPage,
-    rejectReason,
     resetFilters,
     statusOptions,
-    selectedRequest,
-    setRejectReason,
+    selectedRequest: detailQuery.data ?? null,
     hasActiveFilters,
     openRequestReview,
     closeRequestReview,

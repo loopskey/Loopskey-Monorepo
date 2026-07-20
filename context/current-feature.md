@@ -1,17 +1,33 @@
-# Current Feature: Organization Approval Workflow — Phase 2 (Application Submission Planning)
+# Current Feature: Organization Approval Workflow — Phase 3 (Admin Requests Dashboard)
 
-Plan the Organization application submission workflow only. Admin
-approval/rejection, account activation, email delivery, and the mandatory
-password-change flow are explicitly out of scope for this phase.
+Implement the Admin Organization Requests list and detail workflow only.
+Approval/rejection business actions, account creation, email delivery, and
+password activation are explicitly out of scope for this phase.
 
 ## Status
 
-Implementation complete on `feature/org-application-submission-phase2`;
-reviewed and verified, but not committed or merged. The phase 1 audit and
-phase 2–7 specification commit are merged into `main`.
-Scope decisions: backend (Jest) tests only, frontend Vitest harness deferred.
+Implementation complete on `feature/org-requests-dashboard`; reviewed and
+verified, but not committed or merged. Phase 2 is complete and merged into
+`main`. Source spec: `context/features/email-org-submit3-spec.md`.
 
 ## Goals
+
+- Reuse and complete the existing Admin dashboard navigation, requests list,
+  detail pattern, hooks, GraphQL operations, and responsive design.
+- Support loading, empty, error, unauthorized, and no-results states.
+- Use backend filtering, debounced search, sorting, and bounded pagination.
+- Show submitted applicant fields, status, submission/review information, and
+  rejection reason without exposing unnecessary system fields.
+- Enforce Admin-only list and detail access on the backend and frontend.
+- Keep approval and rejection controls disabled or absent in this phase; do not
+  create accounts, send email, or activate passwords.
+- Add focused tests for list/detail behavior, filtering, search, pagination,
+  debounce, UI states, and non-Admin rejection where the existing harnesses
+  support them.
+- Run tests, TypeScript checks, lint, and production builds, then produce the
+  required nine-part completion report.
+
+## Phase 2 Completion Reference
 
 - Deliver the submission flow end to end: applicant opens the existing form →
   completes required fields → clicks Submit Request → frontend validates →
@@ -161,3 +177,25 @@ Scope decisions: backend (Jest) tests only, frontend Vitest harness deferred.
   debt. Frontend interaction tests remain deferred per the phase scope decision.
 - No active organization account, Admin review action, email delivery, or
   password-change behavior was added. Phase 3 remains the next workflow phase.
+
+### 2026-07-20 — Admin Organization Requests dashboard completed
+
+- Reused the Admin navigation, table/detail design, cursor pagination, RTK
+  Query, GraphQL documents, `useDebouncedValue`, status badges, role route
+  guard, and backend `@Roles(ADMIN)` boundary.
+- Completed bounded server-side search, status filtering, ascending/descending
+  submission-date sorting, cursor pagination, a dedicated Admin-only detail
+  query, and reviewer display without exposing internal approval-user fields.
+- Added distinct loading, empty, no-results, error, unauthorized, and detail
+  error states. Removed functional approval/rejection wiring from the Phase 3
+  UI and replaced it with disabled controls that identify Phase 4.
+- Added five backend Jest tests for list pagination, filtering/search/sorting,
+  detail lookup, missing detail, and non-Admin rejection. Added seven frontend
+  Vitest assertions for debounce timing and all list-state classifications.
+- Verification passed: API tests (14/14), frontend tests (7/7), API/frontend
+  TypeScript checks, frontend changed-file lint, GraphQL regeneration, and both
+  production builds. API lint remains unavailable because the API workspace has
+  no ESLint 9 flat configuration.
+- No `UNDER_REVIEW` transition was added because the existing status enum does
+  not support it. Approval, rejection, account creation, email delivery, and
+  password activation remain Phase 4+ work.

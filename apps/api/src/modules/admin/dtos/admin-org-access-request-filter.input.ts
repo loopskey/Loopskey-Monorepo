@@ -1,5 +1,5 @@
 import { OrganizationAccessRequestStatus } from "@prisma/client";
-import { IsEnum, IsOptional, IsString } from "class-validator";
+import { IsEnum, IsIn, IsOptional, IsString, MaxLength } from "class-validator";
 import { AdminDashboardGqlInputNames } from "@admin/enums/gql-names.enum";
 import { Field, InputType } from "@nestjs/graphql";
 
@@ -8,10 +8,16 @@ export class AdminOrgAccessRequestFilterInput {
   @Field({ nullable: true })
   @IsOptional()
   @IsString()
+  @MaxLength(200)
   search?: string;
 
   @Field(() => OrganizationAccessRequestStatus, { nullable: true })
   @IsOptional()
   @IsEnum(OrganizationAccessRequestStatus)
   status?: OrganizationAccessRequestStatus;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsIn(["asc", "desc"])
+  sortDirection?: "asc" | "desc";
 }

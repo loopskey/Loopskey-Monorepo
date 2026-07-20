@@ -39,6 +39,7 @@ export enum AdminDashboardGqlQueryNames {
   ADMIN_OVERVIEW = "adminDashboardOverview",
   ADMIN_ORGANIZATIONS = "adminOrganizations",
   ADMIN_ORG_ACCESS_REQUESTS = "adminOrgAccessRequests",
+  ADMIN_ORG_ACCESS_REQUEST_DETAIL = "adminOrgAccessRequestDetail",
   ADMIN_ORGANIZATION_DETAIL = "adminOrganizationDetail",
 }
 

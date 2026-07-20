@@ -3652,8 +3652,12 @@
     "accessRequests": {
       "eyebrow": "Organization Access",
       "title": "Organization access requests",
-      "description": "Review, approve, or reject organization onboarding requests submitted by representatives.",
+      "description": "View and review organization onboarding requests submitted by representatives.",
       "empty": "No organization access requests found.",
+      "noResults": "No requests match the current search or filters.",
+      "error": "Organization requests could not be loaded. Please try again.",
+      "detailError": "This organization request could not be loaded.",
+      "unauthorized": "You are not authorized to view organization requests.",
       "stats": {
         "total": "Total requests",
         "pending": "Pending",
@@ -3661,7 +3665,11 @@
         "rejected": "Rejected"
       },
       "filters": {
-        "search": "Search by organization, email, representative, or country"
+        "search": "Search by organization, email, representative, or country",
+        "status": "Filter by status",
+        "sort": "Sort by submission date",
+        "newest": "Newest submissions first",
+        "oldest": "Oldest submissions first"
       },
       "status": {
         "ALL": "All statuses",
@@ -3676,6 +3684,8 @@
         "workEmail": "Work email",
         "type": "Type",
         "createdAt": "Created",
+        "reviewedAt": "Reviewed",
+        "reviewer": "Reviewing Admin",
         "actions": "Actions"
       },
       "actions": {
@@ -3685,7 +3695,9 @@
       },
       "review": {
         "reviewedAt": "Reviewed at",
-        "rejectHint": "Write a clear reason before rejecting this request."
+        "rejectHint": "Write a clear reason before rejecting this request.",
+        "actionsTitle": "Approval actions",
+        "actionsDeferred": "Approval and rejection become available in Phase 4."
       },
       "dialog": {
         "title": "Review access request",

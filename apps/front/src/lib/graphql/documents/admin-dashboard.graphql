@@ -191,8 +191,7 @@ fragment AdminDashboardOrgAccessRequestFields on AdminOrgAccessRequest {
   updatedAt
   reviewedAt
   rejectReason
-  reviewedById
-  approvedUserId
+  reviewedByName
   organizationName
   organizationType
   representativeJobRole
@@ -216,6 +215,12 @@ query AdminOrgAccessRequests(
 ) {
   adminOrgAccessRequests(filter: $filter, pagination: $pagination) {
     ...AdminDashboardPaginatedOrgAccessRequestsFields
+  }
+}
+
+query AdminOrgAccessRequestDetail($requestId: String!) {
+  adminOrgAccessRequestDetail(requestId: $requestId) {
+    ...AdminDashboardOrgAccessRequestFields
   }
 }
 

@@ -75,6 +75,7 @@ type AdminOrgAccessRequest {
   representativeJobRole: String!
   reviewedAt: DateTime
   reviewedById: ID
+  reviewedByName: String
   status: OrganizationAccessRequestStatus!
   updatedAt: DateTime!
   workEmail: String!
@@ -82,6 +83,7 @@ type AdminOrgAccessRequest {
 
 input AdminOrgAccessRequestFilter {
   search: String
+  sortDirection: String
   status: OrganizationAccessRequestStatus
 }
 
@@ -2599,6 +2601,7 @@ type ProviderTopEvent {
 type Query {
   adminAuditLogs(filter: AdminAuditLogFilter, pagination: AdminPagination): PaginatedAdminAuditLogs!
   adminDashboardOverview: AdminDashboardOverview!
+  adminOrgAccessRequestDetail(requestId: String!): AdminOrgAccessRequest!
   adminOrgAccessRequests(filter: AdminOrgAccessRequestFilter, pagination: AdminPagination): PaginatedAdminOrgAccessRequests!
   adminOrganizationDetail(organizationId: String!): AdminOrgDetail!
   adminOrganizationMembers(filter: AdminOrgMemberFilter!, pagination: AdminPagination): PaginatedAdminOrgMembers!

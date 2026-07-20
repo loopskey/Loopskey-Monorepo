@@ -4,9 +4,9 @@ import { AdminAccessRequestReviewView } from "@modules/AdminDashboard/parts/admi
 import { useAdminAccessRequestsTab } from "@/hooks/useAdminAccessRequestsTab";
 import { ContentPagination } from "@elements/pagination";
 import { StatusBadge } from "@modules/AdminDashboard/parts/admin-status-badge";
+import { getAdminAccessRequestListState } from "@/utils/admin-access-request-state";
 import { formatDate } from "@/utils/function-helper";
 import { GlassCard } from "@elements/glass-card";
-import { StatCard } from "@modules/AdminDashboard/parts/admin-stat-card";
 import { Button } from "@ui/button";
 import { Td, Th } from "@modules/AdminDashboard/parts/td-and-th-table";
 import { Input } from "@ui/input";
@@ -20,26 +20,47 @@ const AdminAccessRequestsTab = () => {
     t,
     page,
     items,
-    stats,
     search,
     status,
+    query,
     refresh,
     nextPage,
     setSearch,
     isLoading,
     setStatus,
+    detailQuery,
+    sortDirection,
     totalCount,
     canPrevious,
     hasNextPage,
     previousPage,
     resetFilters,
     statusOptions,
-    selectedRequest,
+    selectedRequestId,
+    setSortDirection,
     hasActiveFilters,
     openRequestReview,
   } = hook;
 
-  if (selectedRequest) return <AdminAccessRequestReviewView hook={hook} />;
+  if (selectedRequestId) return <AdminAccessRequestReviewView hook={hook} />;
+
+  const errorStatus =
+    query.error &&
+    typeof query.error === "object" &&
+    "status" in query.error &&
+    typeof query.error.status === "number"
+      ? query.error.status
+      : null;
+  const listState = getAdminAccessRequestListState({
+    errorStatus,
+    hasActiveFilters,
+    isError: query.isError,
+    isLoading: query.isLoading,
+    itemCount: items.length,
+  });
+  const emptyMessage = hasActiveFilters
+    ? t("adminDashboard.accessRequests.noResults")
+    : t("adminDashboard.accessRequests.empty");
 
   return (
     <div className="space-y-6">
@@ -83,34 +104,8 @@ const AdminAccessRequestsTab = () => {
         </div>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          icon={L.Building2}
-          value={stats.total}
-          label={t("adminDashboard.accessRequests.stats.total")}
-        />
-
-        <StatCard
-          icon={L.Eye}
-          value={stats.pending}
-          label={t("adminDashboard.accessRequests.stats.pending")}
-        />
-
-        <StatCard
-          icon={L.CheckCircle2}
-          value={stats.approved}
-          label={t("adminDashboard.accessRequests.stats.approved")}
-        />
-
-        <StatCard
-          icon={L.XCircle}
-          value={stats.rejected}
-          label={t("adminDashboard.accessRequests.stats.rejected")}
-        />
-      </section>
-
       <GlassCard>
-        <div className="grid gap-4 lg:grid-cols-[1fr_260px]">
+        <div className="grid gap-4 lg:grid-cols-[1fr_240px_240px]">
           <div className="relative">
             <L.Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 
@@ -123,6 +118,7 @@ const AdminAccessRequestsTab = () => {
           </div>
 
           <select
+            aria-label={t("adminDashboard.accessRequests.filters.status")}
             value={status}
             onChange={(event) => setStatus(event.target.value as typeof status)}
             className="h-12 rounded-2xl border border-border bg-background px-4 text-sm"
@@ -132,6 +128,22 @@ const AdminAccessRequestsTab = () => {
                 {t(`adminDashboard.accessRequests.status.${item}`)}
               </option>
             ))}
+          </select>
+
+          <select
+            value={sortDirection}
+            aria-label={t("adminDashboard.accessRequests.filters.sort")}
+            onChange={(event) =>
+              setSortDirection(event.target.value as typeof sortDirection)
+            }
+            className="h-12 rounded-2xl border border-border bg-background px-4 text-sm"
+          >
+            <option value="desc">
+              {t("adminDashboard.accessRequests.filters.newest")}
+            </option>
+            <option value="asc">
+              {t("adminDashboard.accessRequests.filters.oldest")}
+            </option>
           </select>
         </div>
       </GlassCard>
@@ -146,12 +158,32 @@ const AdminAccessRequestsTab = () => {
                 <Th>{t("adminDashboard.accessRequests.table.workEmail")}</Th>
                 <Th>{t("adminDashboard.accessRequests.table.type")}</Th>
                 <Th>{t("adminDashboard.accessRequests.table.createdAt")}</Th>
+                <Th>{t("adminDashboard.accessRequests.table.reviewedAt")}</Th>
+                <Th>{t("adminDashboard.accessRequests.table.reviewer")}</Th>
                 <Th>{t("adminDashboard.accessRequests.table.actions")}</Th>
               </tr>
             </thead>
 
             <tbody>
-              {items.length ? (
+              {listState === "loading" ? (
+                <tr>
+                  <td
+                    colSpan={8}
+                    className="p-10 text-center text-muted-foreground"
+                  >
+                    <L.Loader2 className="mx-auto mb-3 h-5 w-5 animate-spin" />
+                    {t("common.loading")}
+                  </td>
+                </tr>
+              ) : listState === "error" || listState === "unauthorized" ? (
+                <tr>
+                  <td colSpan={8} className="p-10 text-center text-destructive">
+                    {listState === "unauthorized"
+                      ? t("adminDashboard.accessRequests.unauthorized")
+                      : t("adminDashboard.accessRequests.error")}
+                  </td>
+                </tr>
+              ) : items.length ? (
                 items.map((item) => (
                   <tr
                     key={item.id}
@@ -180,6 +212,12 @@ const AdminAccessRequestsTab = () => {
                     <Td>{formatDate(item.createdAt)}</Td>
 
                     <Td>
+                      {item.reviewedAt ? formatDate(item.reviewedAt) : "—"}
+                    </Td>
+
+                    <Td>{item.reviewedByName ?? "—"}</Td>
+
+                    <Td>
                       <Button
                         radius="xl"
                         type="button"
@@ -196,10 +234,10 @@ const AdminAccessRequestsTab = () => {
               ) : (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={8}
                     className="p-10 text-center text-muted-foreground"
                   >
-                    {t("adminDashboard.accessRequests.empty")}
+                    {emptyMessage}
                   </td>
                 </tr>
               )}
@@ -208,15 +246,17 @@ const AdminAccessRequestsTab = () => {
         </div>
       </GlassCard>
 
-      <ContentPagination
-        page={page}
-        onNext={nextPage}
-        isLoading={isLoading}
-        totalCount={totalCount}
-        onPrevious={previousPage}
-        canPrevious={canPrevious}
-        hasNextPage={hasNextPage}
-      />
+      {!query.isError && !query.isLoading && (
+        <ContentPagination
+          page={page}
+          onNext={nextPage}
+          isLoading={isLoading || detailQuery.isFetching}
+          totalCount={totalCount}
+          onPrevious={previousPage}
+          canPrevious={canPrevious}
+          hasNextPage={hasNextPage}
+        />
+      )}
     </div>
   );
 };

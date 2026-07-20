@@ -16,6 +16,7 @@ export class AdminOrgAccessRequestEntity {
   @Field() representativeJobRole: string;
   @Field(() => Int) expectedLicensedProfessionals: number;
   @Field(() => Date, { nullable: true }) reviewedAt?: Date | null;
+  @Field(() => String, { nullable: true }) reviewedByName?: string | null;
   @Field(() => OrganizationType) organizationType: OrganizationType;
   @Field(() => ID, { nullable: true }) reviewedById?: string | null;
   @Field(() => String, { nullable: true }) rejectReason?: string | null;

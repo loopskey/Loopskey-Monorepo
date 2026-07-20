@@ -6,7 +6,6 @@ import { StatusBadge } from "@modules/AdminDashboard/parts/admin-status-badge";
 import { InfoRow } from "@modules/AdminDashboard/parts/admin-request-info-row";
 import { formatDate } from "@/utils/function-helper";
 import { GlassCard } from "@elements/glass-card";
-import { Textarea } from "@ui/textarea";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
 
@@ -17,16 +16,7 @@ type Props = {
 };
 
 export const AdminAccessRequestReviewView = ({ hook }: Props) => {
-  const {
-    t,
-    reject,
-    approve,
-    isLoading,
-    rejectReason,
-    selectedRequest,
-    setRejectReason,
-    closeRequestReview,
-  } = hook;
+  const { t, detailQuery, selectedRequest, closeRequestReview } = hook;
 
   if (!selectedRequest) {
     return (
@@ -42,8 +32,14 @@ export const AdminAccessRequestReviewView = ({ hook }: Props) => {
         </Button>
 
         <GlassCard>
-          <div className="flex min-h-72 items-center justify-center text-sm text-muted-foreground">
-            {t("common.loading")}
+          <div
+            className={`flex min-h-72 items-center justify-center text-sm ${
+              detailQuery.isError ? "text-destructive" : "text-muted-foreground"
+            }`}
+          >
+            {detailQuery.isError
+              ? t("adminDashboard.accessRequests.detailError")
+              : t("common.loading")}
           </div>
         </GlassCard>
       </div>
@@ -89,32 +85,6 @@ export const AdminAccessRequestReviewView = ({ hook }: Props) => {
             </div>
           </div>
         </div>
-
-        {isPending && (
-          <div className="flex flex-wrap gap-2">
-            <Button
-              radius="xl"
-              type="button"
-              variant="cancel"
-              disabled={isLoading}
-              onClick={() => reject(selectedRequest.id)}
-            >
-              <L.XCircle className="h-4 w-4" />
-              {t("adminDashboard.accessRequests.actions.reject")}
-            </Button>
-
-            <Button
-              radius="xl"
-              type="button"
-              variant="brand"
-              disabled={isLoading}
-              onClick={() => approve(selectedRequest.id)}
-            >
-              <L.CheckCircle2 className="h-4 w-4" />
-              {t("adminDashboard.accessRequests.actions.approve")}
-            </Button>
-          </div>
-        )}
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1fr_380px]">
@@ -241,6 +211,13 @@ export const AdminAccessRequestReviewView = ({ hook }: Props) => {
                 />
               )}
 
+              {selectedRequest.reviewedByName && (
+                <InfoRow
+                  value={selectedRequest.reviewedByName}
+                  label={t("adminDashboard.accessRequests.table.reviewer")}
+                />
+              )}
+
               {selectedRequest.rejectReason && (
                 <InfoRow
                   value={selectedRequest.rejectReason}
@@ -253,41 +230,20 @@ export const AdminAccessRequestReviewView = ({ hook }: Props) => {
           {isPending && (
             <GlassCard className="h-fit">
               <h2 className="text-lg font-medium">
-                {t("adminDashboard.accessRequests.dialog.rejectReason")}
+                {t("adminDashboard.accessRequests.review.actionsTitle")}
               </h2>
 
               <p className="mt-1 text-sm text-muted-foreground">
-                {t("adminDashboard.accessRequests.review.rejectHint")}
+                {t("adminDashboard.accessRequests.review.actionsDeferred")}
               </p>
 
-              <Textarea
-                value={rejectReason}
-                className="mt-5 min-h-32 rounded-2xl"
-                onChange={(event) => setRejectReason(event.target.value)}
-                placeholder={t(
-                  "adminDashboard.accessRequests.dialog.rejectReason",
-                )}
-              />
-
               <div className="mt-5 grid gap-2">
-                <Button
-                  radius="xl"
-                  type="button"
-                  variant="brand"
-                  disabled={isLoading}
-                  onClick={() => approve(selectedRequest.id)}
-                >
+                <Button radius="xl" type="button" variant="brand" disabled>
                   <L.CheckCircle2 className="h-4 w-4" />
                   {t("adminDashboard.accessRequests.actions.approve")}
                 </Button>
 
-                <Button
-                  radius="xl"
-                  type="button"
-                  variant="cancel"
-                  disabled={isLoading}
-                  onClick={() => reject(selectedRequest.id)}
-                >
+                <Button radius="xl" type="button" variant="cancel" disabled>
                   <L.XCircle className="h-4 w-4" />
                   {t("adminDashboard.accessRequests.actions.reject")}
                 </Button>

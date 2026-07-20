@@ -112,6 +112,19 @@ export class AdminDashboardResolver {
     );
   }
 
+  @Query(() => AdminOrgAccessRequestEntity, {
+    name: AdminDashboardGqlQueryNames.ADMIN_ORG_ACCESS_REQUEST_DETAIL,
+  })
+  adminOrgAccessRequestDetail(
+    @CurrentUser() user: TResolverUser,
+    @Args("requestId") requestId: string,
+  ) {
+    return this.adminDashboardService.orgAccessRequestDetail(
+      this.getUser(user),
+      requestId,
+    );
+  }
+
   @Mutation(() => AdminOrgAccessRequestEntity, {
     name: AdminDashboardGqlMutationNames.APPROVE_ADMIN_ORG_ACCESS_REQUEST,
   })

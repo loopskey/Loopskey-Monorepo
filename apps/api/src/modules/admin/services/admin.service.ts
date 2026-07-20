@@ -283,13 +283,27 @@ export class AdminDashboardService {
     };
     const rows = await this.prismaService.organizationAccessRequest.findMany({
       where,
+      include: {
+        reviewedBy: {
+          select: {
+            email: true,
+            fullName: true,
+          },
+        },
+      },
       take: take + 1,
       ...(pagination?.cursor
         ? { cursor: { id: pagination.cursor }, skip: 1 }
         : {}),
-      orderBy: { createdAt: "desc" },
+      orderBy: [
+        { createdAt: filter?.sortDirection ?? "desc" },
+        { id: filter?.sortDirection ?? "desc" },
+      ],
     });
-    const items = rows.slice(0, take);
+    const items = rows.slice(0, take).map(({ reviewedBy, ...request }) => ({
+      ...request,
+      reviewedByName: reviewedBy?.fullName ?? reviewedBy?.email ?? null,
+    }));
     return {
       items,
       totalCount: await this.prismaService.organizationAccessRequest.count({
@@ -299,6 +313,31 @@ export class AdminDashboardService {
         hasNextPage: rows.length > take,
         nextCursor: rows.length > take ? items.at(-1)?.id : null,
       },
+    };
+  }
+
+  async orgAccessRequestDetail(user: TAdminDashboardUser, requestId: string) {
+    this.assertAdmin(user);
+    const request =
+      await this.prismaService.organizationAccessRequest.findUnique({
+        where: { id: requestId },
+        include: {
+          reviewedBy: {
+            select: {
+              email: true,
+              fullName: true,
+            },
+          },
+        },
+      });
+    if (!request)
+      throw new NotFoundException(
+        AdminDashboardMessageCode.ORG_ACCESS_REQUEST_NOT_FOUND,
+      );
+    const { reviewedBy, ...detail } = request;
+    return {
+      ...detail,
+      reviewedByName: reviewedBy?.fullName ?? reviewedBy?.email ?? null,
     };
   }
 
@@ -546,5 +585,4 @@ export class AdminDashboardService {
   private generateTemporaryPassword() {
     return `Org-${randomBytes(6).toString("base64url")}#1`;
   }
-
 }

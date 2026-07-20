@@ -171,6 +171,22 @@ export const adminApi = baseApi.injectEndpoints({
       providesTags: ["OrganizationAccessRequests"],
     }),
 
+    adminOrgAccessRequestDetail: builder.query<
+      TAPI.AdminOrgAccessRequestDetailQuery["adminOrgAccessRequestDetail"],
+      TAPI.AdminOrgAccessRequestDetailQueryVariables["requestId"]
+    >({
+      query: (requestId) => ({
+        document: API.AdminOrgAccessRequestDetailDocument,
+        variables: { requestId },
+      }),
+      transformResponse: (
+        response: TAPI.AdminOrgAccessRequestDetailQuery,
+      ) => response.adminOrgAccessRequestDetail,
+      providesTags: (_result, _error, requestId) => [
+        { type: "OrganizationAccessRequest", id: requestId },
+      ],
+    }),
+
     approveAdminOrgAccessRequest: builder.mutation<
       TAPI.ApproveAdminOrgAccessRequestMutation["approveAdminOrgAccessRequest"],
       TAPI.ApproveAdminOrgAccessRequestMutationVariables["requestId"]
@@ -295,6 +311,7 @@ export const {
   useUpdateAdminProfileMutation,
   useAdminDashboardOverviewQuery,
   useAdminOrgAccessRequestsQuery,
+  useAdminOrgAccessRequestDetailQuery,
   useLazyAdminOrganizationsQuery,
   useAdminOrganizationDetailQuery,
   useUpdateAdminUserStatusMutation,
