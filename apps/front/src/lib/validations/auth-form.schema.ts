@@ -29,14 +29,14 @@ export const registerSchema = z
 export type TRegisterValues = z.infer<typeof registerSchema>;
 
 export const orgAccessRequestSchema = z.object({
-  goals: z.string().min(5),
-  country: z.string().min(2),
-  workEmail: z.string().email(),
-  organizationName: z.string().min(2),
-  representativeJobRole: z.string().min(2),
-  representativeFullName: z.string().min(2),
+  goals: z.string().trim().min(5).max(2000),
+  country: z.string().trim().min(2).max(120),
+  workEmail: z.string().trim().toLowerCase().email().max(255),
+  organizationName: z.string().trim().min(2).max(200),
+  representativeJobRole: z.string().trim().min(2).max(160),
+  representativeFullName: z.string().trim().min(2).max(160),
   organizationType: z.nativeEnum(OrganizationType),
-  expectedLicensedProfessionals: z.coerce.number().min(1),
+  expectedLicensedProfessionals: z.coerce.number().int().min(1),
 });
 
 export type TOrgAccessInput = z.input<typeof orgAccessRequestSchema>;

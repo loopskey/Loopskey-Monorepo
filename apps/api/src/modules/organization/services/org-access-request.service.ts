@@ -62,21 +62,34 @@ export class OrgAccessRequestService {
       });
     }
 
-    const request = await this.prismaService.organizationAccessRequest.create({
-      data: {
-        representativeFullName: input.representativeFullName.trim(),
-        organizationName: input.organizationName.trim(),
-        workEmail,
-        organizationType: input.organizationType,
-        representativeJobRole: input.representativeJobRole.trim(),
-        expectedLicensedProfessionals: input.expectedLicensedProfessionals,
-        country: input.country.trim(),
-        goals: input.goals.trim(),
-        status: OrganizationAccessRequestStatus.PENDING,
-      },
-      select: this.requestSelect,
-    });
-    return request;
+    try {
+      return await this.prismaService.organizationAccessRequest.create({
+        data: {
+          representativeFullName: input.representativeFullName.trim(),
+          organizationName: input.organizationName.trim(),
+          workEmail,
+          organizationType: input.organizationType,
+          representativeJobRole: input.representativeJobRole.trim(),
+          expectedLicensedProfessionals: input.expectedLicensedProfessionals,
+          country: input.country.trim(),
+          goals: input.goals.trim(),
+          status: OrganizationAccessRequestStatus.PENDING,
+        },
+        select: this.requestSelect,
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2002"
+      ) {
+        throw new ConflictException({
+          code: OrganizationAccessRequestMessageCode.REQUEST_ALREADY_EXISTS,
+          message:
+            "A pending organization request already exists for this email.",
+        });
+      }
+      throw error;
+    }
   }
 
   async findRequests(

@@ -1254,7 +1254,7 @@
       "goals": "Goals",
       "submitRequest": "Submit request",
       "submitting": "Submitting...",
-      "requestSubmitted": "Organization access request submitted.",
+      "requestSubmitted": "Request submitted successfully. It is now awaiting Admin review.",
       "loginTitle": "Organization login",
       "requestTitle": "Request organization access",
       "requestDescription": "Admin will review your request. If approved, temporary credentials will be generated."

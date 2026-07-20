@@ -9,6 +9,7 @@ import { TOrgAccessValues } from "@/lib/validations/auth-form.schema";
 import { TOrgAccessInput } from "@/lib/validations/auth-form.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useRef } from "react";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
 import { Button } from "@ui/button";
@@ -19,6 +20,7 @@ import * as L from "lucide-react";
 
 const OrgAccessRequestForm = () => {
   const { t } = useI18n();
+  const isSubmittingRef = useRef(false);
   const [submitRequest, { isLoading }] =
     useSubmitOrganizationAccessRequestMutation();
 
@@ -46,30 +48,47 @@ const OrgAccessRequestForm = () => {
   );
 
   const onSubmit = async (values: TOrgAccessValues) => {
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
     try {
       await submitRequest(values).unwrap();
       notify.success(t("authPages.organization.requestSubmitted"));
       form.reset();
-    } catch {
-      notify.error(t("authPages.common.genericError"));
+    } catch (error) {
+      const message =
+        error &&
+        typeof error === "object" &&
+        "message" in error &&
+        typeof error.message === "string"
+          ? error.message
+          : t("authPages.common.genericError");
+      notify.error(message);
+    } finally {
+      isSubmittingRef.current = false;
     }
   };
 
   return (
     <Form {...form}>
-      <form className="space-y-5" onSubmit={form.handleSubmit(onSubmit)}>
+      <form
+        noValidate
+        className="space-y-5"
+        onSubmit={form.handleSubmit(onSubmit)}
+      >
         <FloatingInputField
           control={form.control}
           name="representativeFullName"
-          label={t("authPages.organization.representativeFullName")}
+          label={`${t("authPages.organization.representativeFullName")} *`}
           leftIcon={<L.UserRound className="h-4 w-4" />}
+          required
         />
 
         <FloatingInputField
           control={form.control}
           name="organizationName"
-          label={t("authPages.organization.organizationName")}
+          label={`${t("authPages.organization.organizationName")} *`}
           leftIcon={<L.Building2 className="h-4 w-4" />}
+          required
         />
 
         <FloatingInputField
@@ -77,21 +96,23 @@ const OrgAccessRequestForm = () => {
           name="workEmail"
           control={form.control}
           leftIcon={<L.Mail className="h-4 w-4" />}
-          label={t("authPages.organization.workEmail")}
+          label={`${t("authPages.organization.workEmail")} *`}
+          required
         />
 
         <FloatingSelectField
           control={form.control}
           name="organizationType"
           options={organizationTypeOptions}
-          label={t("authPages.organization.organizationType")}
+          label={`${t("authPages.organization.organizationType")} *`}
         />
 
         <FloatingInputField
           control={form.control}
           name="representativeJobRole"
           leftIcon={<L.Briefcase className="h-4 w-4" />}
-          label={t("authPages.organization.representativeJobRole")}
+          label={`${t("authPages.organization.representativeJobRole")} *`}
+          required
         />
 
         <FloatingInputField
@@ -100,21 +121,24 @@ const OrgAccessRequestForm = () => {
           control={form.control}
           name="expectedLicensedProfessionals"
           leftIcon={<L.UsersRound className="h-4 w-4" />}
-          label={t("authPages.organization.expectedLicensedProfessionals")}
+          label={`${t("authPages.organization.expectedLicensedProfessionals")} *`}
+          required
         />
 
         <FloatingInputField
           name="country"
           control={form.control}
-          label={t("authPages.organization.country")}
+          label={`${t("authPages.organization.country")} *`}
           leftIcon={<L.Globe2 className="h-4 w-4" />}
+          required
         />
 
         <FloatingTextareaField
           name="goals"
           control={form.control}
-          label={t("authPages.organization.goals")}
+          label={`${t("authPages.organization.goals")} *`}
           leftIcon={<L.Target className="h-4 w-4" />}
+          required
         />
 
         <Button

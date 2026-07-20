@@ -1256,7 +1256,7 @@
       "goals": "Objectifs",
       "submitRequest": "Soumettre la demande",
       "submitting": "Soumission...",
-      "requestSubmitted": "Demande d’accès organisation envoyée.",
+      "requestSubmitted": "Demande envoyée. Elle est maintenant en attente de l’examen d’un administrateur.",
       "loginTitle": "Connexion organisation",
       "requestTitle": "Demander un accès organisation",
       "requestDescription": "L’administrateur examinera votre demande. Si elle est approuvée, des identifiants temporaires seront générés."

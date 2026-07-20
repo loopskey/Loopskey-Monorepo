@@ -6,7 +6,8 @@ password-change flow are explicitly out of scope for this phase.
 
 ## Status
 
-Specification prepared; implementation has not started. The phase 1 audit and
+Implementation complete on `feature/org-application-submission-phase2`;
+reviewed and verified, but not committed or merged. The phase 1 audit and
 phase 2–7 specification commit are merged into `main`.
 Scope decisions: backend (Jest) tests only, frontend Vitest harness deferred.
 
@@ -137,3 +138,26 @@ Scope decisions: backend (Jest) tests only, frontend Vitest harness deferred.
 - Merged `feature/org-approval-audit` and
   `feature/org-application-submission` into `main` at `50d301e`, resolving
   `context/current-feature.md` in favor of the newer phase 2 planning document.
+
+### 2026-07-20 — Organization application submission completed
+
+- Reused the public GraphQL submission mutation, React Hook Form, Zod schema,
+  RTK Query endpoint, notification system, Prisma request model, and existing
+  `PENDING` workflow status.
+- Added frontend and backend whitespace normalization, lowercase organizational
+  email normalization, explicit required-field indicators, clear backend error
+  messages, Admin-review success copy, disabled in-flight submission, and a
+  synchronous re-entry guard for double-click protection.
+- Added a PostgreSQL partial unique index for one `PENDING` request per
+  normalized work email and mapped uniqueness races to the existing
+  `REQUEST_ALREADY_EXISTS` business conflict.
+- Added nine backend Jest assertions covering required/invalid input,
+  normalization, successful submission, server-assigned status, duplicate and
+  existing-user prevention, public submission, and Admin-only request reads.
+- Verification passed: API tests (8/8), API/frontend TypeScript checks,
+  frontend changed-file lint, Prisma schema validation, migration status, and
+  API/frontend production builds. API lint remains unavailable because the API
+  workspace has no ESLint 9 flat configuration; this is pre-existing tooling
+  debt. Frontend interaction tests remain deferred per the phase scope decision.
+- No active organization account, Admin review action, email delivery, or
+  password-change behavior was added. Phase 3 remains the next workflow phase.

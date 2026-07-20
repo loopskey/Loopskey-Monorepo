@@ -452,6 +452,13 @@ enum OrganizationType {
   TRAINING_PROVIDER
 }
 
+/// Carries an unmanaged partial unique index that Prisma cannot express:
+/// "OrganizationAccessRequest_workEmail_pending_key" on (workEmail)
+/// WHERE status = 'PENDING', added in migration
+/// 20260720120000_org_access_request_pending_unique. It enforces one pending
+/// request per work email while still allowing resubmission after a rejection.
+/// `prisma migrate dev` will report it as drift and offer to drop it — do not
+/// accept that; re-apply the index if it is ever lost.
 model OrganizationAccessRequest {
   id String @id @default(cuid())
 
