@@ -356,7 +356,7 @@ export class EventService {
   private async findEventsWithTrgmSearch(
     filter?: EventFilterInput,
     pagination?: EventPaginationInput,
-    sort?: EventSortInput,
+    _sort?: EventSortInput,
   ) {
     const take = Math.min(pagination?.take ?? 20, 100);
     const search = filter?.search?.trim() ?? "";

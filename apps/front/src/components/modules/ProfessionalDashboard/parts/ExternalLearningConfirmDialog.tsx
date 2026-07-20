@@ -49,8 +49,7 @@ export const ExternalLearningConfirmDialog = ({
         t("professionalDashboard.externalLearning.messages.confirmed"),
       );
       onOpenChange(false);
-    } catch (error) {
-      console.log("CONFIRM EXTERNAL LEARNING ERROR:", error);
+    } catch {
       notify.error(t("authPages.common.genericError"));
     }
   });

@@ -60,8 +60,6 @@ const AdminUsersTab = () => {
     auditTotalCount,
   } = useAdminUsersTab();
 
-  console.log(users);
-
   return (
     <div className="space-y-6">
       <section className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">

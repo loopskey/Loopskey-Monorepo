@@ -65,8 +65,7 @@ export const useRoleRegisterForm = ({
       otpForm.reset({ code: "" });
       setStep("otp");
       notify.success(t("authPages.common.otpSent"));
-    } catch (error) {
-      console.log("REGISTER ERROR:", error);
+    } catch {
       notify.error(t("authPages.common.genericError"));
     }
   };
@@ -86,7 +85,6 @@ export const useRoleRegisterForm = ({
       onVerified?.();
       router.replace(getDashboardPath(res.user?.role));
     } catch (error) {
-      console.log("VERIFY OTP ERROR:", error);
       setStep("otp");
       const errorCode = getAuthErrorCode(error);
       const errorMessage =
@@ -109,7 +107,6 @@ export const useRoleRegisterForm = ({
       await resendEmailOtp({ email: normalizedEmail }).unwrap();
       notify.success(t("authPages.common.otpResent"));
     } catch (error) {
-      console.log("RESEND OTP ERROR:", error);
       notify.error(t("authPages.common.genericError"));
       throw error;
     }

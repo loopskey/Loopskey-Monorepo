@@ -138,7 +138,7 @@ const OrgOverviewTab = () => {
 
                         <R.Tooltip
                           cursor={{ opacity: 0.12 }}
-                          formatter={(value, name, props) => {
+                          formatter={(value, _name, props) => {
                             const payload = props.payload as {
                               percent?: number;
                             };

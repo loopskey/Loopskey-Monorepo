@@ -49,7 +49,3 @@ export type TAdminOrgMemberSearchRow = {
   departmentTitle: string | null;
   status: OrganizationMemberStatus;
 };
-
-type TAdminOrgMemberCountRow = {
-  totalCount: bigint | number;
-};

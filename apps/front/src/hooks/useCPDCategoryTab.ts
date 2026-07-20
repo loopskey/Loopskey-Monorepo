@@ -138,8 +138,7 @@ export const useOrgCpdCategoriesTab = () => {
       }).unwrap();
       notify.success(t("organizationDashboard.cpd.messages.created"));
       closeCreateView();
-    } catch (error) {
-      console.log("CPD CATEGORY SAVE ERROR:", error);
+    } catch {
       notify.error(t("authPages.common.genericError"));
     }
   });
@@ -151,8 +150,7 @@ export const useOrgCpdCategoriesTab = () => {
         isActive: !item.isActive,
       }).unwrap();
       notify.success(t("organizationDashboard.cpd.messages.statusChanged"));
-    } catch (error) {
-      console.log("CPD CATEGORY TOGGLE ERROR:", error);
+    } catch {
       notify.error(t("authPages.common.genericError"));
     }
   };
@@ -162,8 +160,7 @@ export const useOrgCpdCategoriesTab = () => {
       await deleteCategory(categoryId).unwrap();
       if (editingItem?.id === categoryId) closeEditView();
       notify.success(t("organizationDashboard.cpd.messages.deleted"));
-    } catch (error) {
-      console.log("CPD CATEGORY DELETE ERROR:", error);
+    } catch {
       notify.error(t("authPages.common.genericError"));
     }
   };

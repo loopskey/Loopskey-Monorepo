@@ -76,13 +76,6 @@ export class OrgAccessRequestService {
       },
       select: this.requestSelect,
     });
-    console.log("=================================");
-    console.log("New Organization Access Request");
-    console.log(`Organization: ${request.organizationName}`);
-    console.log(`Representative: ${request.representativeFullName}`);
-    console.log(`Work Email: ${request.workEmail}`);
-    console.log("Status: PENDING");
-    console.log("=================================");
     return request;
   }
 
@@ -262,13 +255,6 @@ export class OrgAccessRequestService {
         select: this.requestSelect,
       });
     });
-    console.log("=================================");
-    console.log("Organization Request APPROVED");
-    console.log(`Organization: ${request.organizationName}`);
-    console.log(`Work Email: ${request.workEmail}`);
-    console.log(`Temporary Password: ${temporaryPassword}`);
-    console.log("Important: Organization must change password on first login.");
-    console.log("=================================");
     return updatedRequest;
   }
 
@@ -287,14 +273,6 @@ export class OrgAccessRequestService {
         },
         select: this.requestSelect,
       });
-    console.log("=================================");
-    console.log("Organization Request REJECTED");
-    console.log(`Organization: ${updatedRequest.organizationName}`);
-    console.log(`Work Email: ${updatedRequest.workEmail}`);
-    console.log(
-      `Reason: ${updatedRequest.rejectReason ?? "No reason provided"}`,
-    );
-    console.log("=================================");
     return updatedRequest;
   }
 

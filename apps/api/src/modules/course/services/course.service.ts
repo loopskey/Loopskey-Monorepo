@@ -256,7 +256,7 @@ export class CourseService {
   private async findCoursesWithTrgmSearch(
     filter?: CourseFilterInput,
     pagination?: CoursePaginationInput,
-    sort?: CourseSortInput,
+    _sort?: CourseSortInput,
   ) {
     const take = Math.min(pagination?.take ?? 20, 100);
     const search = filter?.search?.trim() ?? "";

@@ -428,13 +428,6 @@ export class AdminDashboardService {
       });
       return approvedRequest;
     });
-    if (temporaryPassword) {
-      this.logOrganizationTemporaryPassword({
-        email,
-        password: temporaryPassword,
-        organizationName: request.organizationName,
-      });
-    }
     return updated;
   }
 
@@ -554,18 +547,4 @@ export class AdminDashboardService {
     return `Org-${randomBytes(6).toString("base64url")}#1`;
   }
 
-  private logOrganizationTemporaryPassword(payload: {
-    email: string;
-    password: string;
-    organizationName: string;
-  }) {
-    if (process.env.NODE_ENV === "production") return;
-    console.log("=================================");
-    console.log("Organization account approved");
-    console.log(`Organization: ${payload.organizationName}`);
-    console.log(`Login Email: ${payload.email}`);
-    console.log(`Temporary Password: ${payload.password}`);
-    console.log("Force password change: true");
-    console.log("=================================");
-  }
 }

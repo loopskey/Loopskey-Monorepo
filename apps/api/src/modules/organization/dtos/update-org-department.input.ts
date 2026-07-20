@@ -1,4 +1,4 @@
-import { IsBoolean, IsOptional, IsString, MinLength } from "class-validator";
+import { IsBoolean, IsOptional, IsString } from "class-validator";
 import { OrganizationDashboardGqlInputNames } from "@org/enums/org-dashboard-gql-names.enum";
 import { Field, InputType } from "@nestjs/graphql";
 

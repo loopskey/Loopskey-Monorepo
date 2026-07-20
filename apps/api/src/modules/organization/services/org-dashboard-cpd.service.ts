@@ -35,7 +35,7 @@ export class OrgDashboardCPDService {
     return organization;
   }
 
-  async cpdCategoryStats(user: TOrganizationDashboardUser, year?: string) {
+  async cpdCategoryStats(user: TOrganizationDashboardUser, _year?: string) {
     const org = await this.getOrganization(user);
     const [categories, activeMembers] = await Promise.all([
       this.prismaService.organizationCPDCategory.findMany({

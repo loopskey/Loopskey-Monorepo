@@ -1,7 +1,7 @@
 import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { CreateExternalLearningClickInput } from "@ext/dtos/create-external-learning-click.input";
 import { ForbiddenException, Injectable } from "@nestjs/common";
-import { ExternalLearningProvider, Role } from "@prisma/client";
+import { ExternalLearningProvider } from "@prisma/client";
 import { ExternalLearningStatus, Prisma } from "@prisma/client";
 import { ConfirmExternalLearningInput } from "@ext/dtos/confirm-external-learning.input";
 import { ExternalLearningFilterInput } from "@ext/dtos/external-learning-filter.input";

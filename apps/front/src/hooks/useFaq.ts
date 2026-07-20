@@ -22,8 +22,6 @@ export const useFaqPage = () => {
     return isFaqItemArray(items) ? items : [];
   }, [traw]);
 
-  console.log("faq", faqs);
-
   const filteredFaqs = useMemo(() => {
     const query = normalizeText(search);
     return faqs.filter((item) => {

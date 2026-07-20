@@ -20,8 +20,7 @@ export const useExternalLearningRedirect = () => {
         eventId: input.eventId ?? undefined,
       }).unwrap();
       window.open(activity.externalUrl, "_blank", "noopener,noreferrer");
-    } catch (error) {
-      console.log("TRACK EXTERNAL LEARNING ERROR:", error);
+    } catch {
       notify.error(t("authPages.common.genericError"));
     }
   };

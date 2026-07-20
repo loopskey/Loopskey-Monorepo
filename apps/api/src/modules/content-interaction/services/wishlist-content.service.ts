@@ -1,4 +1,4 @@
-import { ContentType, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { WishlistPriceFilter } from "@contentAction/enums/wishlist-register.enum";
 import { MyWishlistInput } from "@contentAction/dtos/my-wishlist.input";
 import { WishlistSortBy } from "@contentAction/enums/wishlist-register.enum";

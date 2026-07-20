@@ -88,13 +88,6 @@ const getCurrentYearStart = (): Date => {
   return date;
 };
 
-const getCurrentYearEnd = (): Date => {
-  const date = new Date();
-  date.setMonth(11, 31);
-  date.setHours(23, 59, 59, 999);
-  return date;
-};
-
 const buildPromotionRejectReason = (status: P.PromotionRequestStatus) => {
   if (status !== P.PromotionRequestStatus.REJECTED) return null;
   return randomItem([
@@ -364,7 +357,7 @@ const validateProviderDashboardSeed = async (
     fullName: string | null;
   },
 ) => {
-  const eventCount = await prisma.event.count({
+  await prisma.event.count({
     where: {
       providerId: provider.id,
       deletedAt: null,

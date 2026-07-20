@@ -72,8 +72,7 @@ export const useRoleLoginForm = ({ role }: { role: Role }) => {
         return;
       }
       router.replace(getDashboardPath(res.user?.role));
-    } catch (error) {
-      console.log("LOGIN ERROR:", error);
+    } catch {
       notify.error(t("authPages.common.genericError"));
     }
   };
@@ -90,8 +89,7 @@ export const useRoleLoginForm = ({ role }: { role: Role }) => {
       });
       setStep("reset");
       notify.success(t("authPages.common.resetCodeSent"));
-    } catch (error) {
-      console.log("FORGOT PASSWORD ERROR:", error);
+    } catch {
       notify.error(t("authPages.common.genericError"));
     }
   };
@@ -109,8 +107,7 @@ export const useRoleLoginForm = ({ role }: { role: Role }) => {
       resetForm.reset();
       setResetEmail("");
       setStep("login");
-    } catch (error) {
-      console.log("RESET PASSWORD ERROR:", error);
+    } catch {
       notify.error(t("authPages.common.genericError"));
     }
   };

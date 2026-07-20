@@ -11,7 +11,7 @@ import * as C from "@auth/types/linkedin-oauth.constant";
 
 @Injectable()
 export class LinkedInStrategy extends PassportStrategy(Strategy, "linkedin") {
-  constructor(private readonly configService: ConfigService) {
+  constructor(configService: ConfigService) {
     super({
       authorizationURL: C.LINKEDIN_AUTHORIZATION_URL,
       tokenURL: C.LINKEDIN_TOKEN_URL,

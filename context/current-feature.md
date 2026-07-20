@@ -1,12 +1,13 @@
-# Current Feature: Organization Approval Workflow — Phase 2 (Application Submission)
+# Current Feature: Organization Approval Workflow — Phase 2 (Application Submission Planning)
 
-Complete the Organization application submission workflow only. Admin
+Plan the Organization application submission workflow only. Admin
 approval/rejection, account activation, email delivery, and the mandatory
 password-change flow are explicitly out of scope for this phase.
 
 ## Status
 
-In Progress — `feature/org-application-submission`, branched from `main`.
+Specification prepared; implementation has not started. The phase 1 audit and
+phase 2–7 specification commit are merged into `main`.
 Scope decisions: backend (Jest) tests only, frontend Vitest harness deferred.
 
 ## Goals
@@ -80,9 +81,8 @@ Scope decisions: backend (Jest) tests only, frontend Vitest harness deferred.
 - **`npm run check-types` does not exist** as a workspace script; the
   equivalent is `npx tsc --noEmit -p apps/{api,front}/tsconfig.json`. The gate
   in `ai-interaction.md` names a script the repo does not expose.
-- Phase 1 is committed on `feature/org-approval-audit` and still unmerged, and
-  the `develop`-vs-`main` merge target remains unresolved. Decide where phase 2
-  branches from before starting implementation.
+- Phase 1 and the phase 2–7 specifications are merged into `main`. New
+  implementation work should branch from `main`.
 
 ## History
 
@@ -128,3 +128,12 @@ Scope decisions: backend (Jest) tests only, frontend Vitest harness deferred.
   `/feature complete` action merges to `main`, which `ai-interaction.md`
   forbids, and the `develop` branch it names does not exist. Merge target
   unresolved — see Risks item 7 in the report.
+
+### 2026-07-20 — Workflow specifications merged
+
+- Added the phase 2–7 workflow specification files. Despite the original commit
+  message saying the phases were implemented, that commit contains planning
+  documents only; application implementation remains outstanding.
+- Merged `feature/org-approval-audit` and
+  `feature/org-application-submission` into `main` at `50d301e`, resolving
+  `context/current-feature.md` in favor of the newer phase 2 planning document.
