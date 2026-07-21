@@ -74,6 +74,8 @@ model User {
   emailVerifiedAt DateTime?
   phoneVerifiedAt DateTime?
 
+  passwordChangedAt DateTime?
+
   lastLoginAt DateTime?
 
   authAccounts AuthAccount[]
@@ -1928,6 +1930,8 @@ enum AuditAction {
   ORG_ACCESS_REQUEST_REJECTED
   ORGANIZATION_MEMBER_UPDATED
   ORGANIZATION_SETTINGS_UPDATED
+  ORGANIZATION_ACCOUNT_ACTIVATED
+  ORGANIZATION_ACTIVATION_RESENT
 }
 
 model AuditLog {

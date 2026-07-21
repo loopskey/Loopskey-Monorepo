@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
 import { useChangePasswordMutation } from "@/lib/rtk/endpoints/auth.api";
 import { useCurrentUserQuery } from "@/lib/rtk/endpoints/auth.api";
+import { useEffect, useMemo } from "react";
 import { ComplianceCycle } from "@/lib/graphql/generated";
 import { useForm } from "react-hook-form";
 import { useI18n } from "@/hooks/useI18n";
@@ -12,19 +12,19 @@ import * as API from "@/lib/rtk/endpoints/org-dashboard.api";
 
 type TComplianceForm = {
   minimumPdu: string;
-  complianceCycle: ComplianceCycle;
   strictCompliance: boolean;
+  complianceCycle: ComplianceCycle;
 };
 
 type TNotificationForm = {
   complianceAlerts: boolean;
-  assignmentNotifications: boolean;
   weeklySummaryReport: boolean;
+  assignmentNotifications: boolean;
 };
 
 type TPasswordForm = {
-  currentPassword: string;
   newPassword: string;
+  currentPassword: string;
   confirmPassword: string;
 };
 
@@ -34,8 +34,6 @@ type TDepartmentForm = {
 
 export const useOrganizationSettingsTab = () => {
   const { t } = useI18n();
-
-  const [forceDialogDismissed, setForceDialogDismissed] = useState(false);
 
   const { data: currentUserData, refetch: refetchCurrentUser } =
     useCurrentUserQuery();
@@ -166,7 +164,6 @@ export const useOrganizationSettingsTab = () => {
         newPassword: "",
         confirmPassword: "",
       });
-      setForceDialogDismissed(true);
       await refetchCurrentUser();
       notify.success(
         t("organizationDashboard.settings.messages.passwordChanged"),
@@ -205,8 +202,5 @@ export const useOrganizationSettingsTab = () => {
     saveComplianceRules,
     submitPasswordChange,
     saveNotificationPrefs,
-    forceDialogDismissed,
-    setForceDialogDismissed,
-    shouldShowForcePasswordDialog: Boolean(user?.forcePasswordChange),
   };
 };

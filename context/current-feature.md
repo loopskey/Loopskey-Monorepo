@@ -178,3 +178,50 @@ Not Started
 - The migration remains unapplied because the configured database reports two
   pre-existing remote migrations missing locally. Real Resend delivery requires
   deployment credentials; the mandatory first-login UI remains Phase 6 scope.
+
+### 2026-07-21 — Organization account activation and mandatory password setup completed
+
+- Consolidated activation-token issue/validate/consume and the public resend
+  into `AuthOrganizationActivationService`. The Admin approval email now mints
+  its link through the same service, so one invitation always supersedes the
+  last and tokens are created in exactly one place.
+- Added the public `organizationActivationStatus` query and
+  `resendOrganizationActivation` mutation, and moved
+  `activateOrganizationAccount` out of `AuthPasswordService`. Activation
+  distinguishes used, expired, superseded, and unknown tokens, rejects a
+  password equal to the email or organization name, and commits the password,
+  status change, token consumption, sibling-token invalidation, session
+  revocation, and audit row in one transaction.
+- Closed the Phase 1 finding that `forcePasswordChange` was enforced only in the
+  browser. `PasswordChangeGuard` is registered globally after `RolesGuard` and
+  covers GraphQL and the REST controllers; only `currentUser`, `changePassword`,
+  and `logout` carry `@AllowPasswordChangeRequired()`.
+- Added `/auth/organization/activate` with checking, form, expired, used, and
+  invalid states plus a resend form. `RoleRouteGuard` renders a blocking
+  `PasswordChangeRequired` screen in place instead of redirecting, so no loop is
+  possible, refresh is safe, and logout stays reachable. The dismissible
+  force-password dialog in Organization settings was removed as unreachable.
+- Resend is rate limited by a 120s `resendAfter` cooldown and a five-per-day cap
+  built on the existing `OtpCode` fields; no throttling infrastructure was
+  added. It answers identically for unknown, throttled, and eligible addresses.
+- Prisma gained `User.passwordChangedAt` and two `AuditAction` values in
+  migration `20260721180000_organization_account_activation`.
+- Two review passes produced ten confirmed findings, all fixed. The two that
+  mattered most: a superseded token told users their account was already active
+  and offered no recovery, and `resetPassword` never cleared
+  `forcePasswordChange`, which would have locked legacy accounts out
+  permanently once the new guard landed.
+- Verification passed: API tests (67/67), frontend tests (13/13), TypeScript
+  checks and production builds for both apps, Prettier, and ESLint on changed
+  frontend files. Vitest gained the tsconfig path aliases so tests can import
+  the way application code does.
+- Not verified end to end. The configured database still reports drift, so a
+  live `organizationActivationStatus` call fails with
+  `invalid input value for enum "OtpPurpose": "ORGANIZATION_ACTIVATION"`.
+  Resolvers were confirmed reachable against a local `/graphql` and the resend
+  returned its generic payload for an unknown address, but no activation has
+  been exercised against real data. Reconciling the migration history is the
+  first task of any follow-up work, and it blocks Phase 7.
+- `apps/front/src/components/modules/Auth/OAuthBridgeClient.tsx` was found to be
+  dead code; nothing imports it and the live path is `useOAuthBridge`. Left in
+  place rather than deleted without asking.

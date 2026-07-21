@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { ContentInteractionModule } from "@contentAction/content-interaction.module";
 import { ExternalLearningModule } from "@ext/external-learning.module";
 import { AdminDashboardModule } from "@admin/admin.module";
+import { PasswordChangeGuard } from "@auth/guards/password-change.guard";
 import { OrganizationModule } from "@org/org.module";
 import { ProfessionalModule } from "@professional/professional.module";
 import { ProviderModule } from "@provider/provider.module";
@@ -68,6 +69,7 @@ import { join } from "path";
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
+    { provide: APP_GUARD, useClass: PasswordChangeGuard },
   ],
 })
 export class AppModule {}

@@ -70,3 +70,42 @@ export const resetPasswordSchema = z
   });
 
 export type TResetPasswordValues = z.infer<typeof resetPasswordSchema>;
+
+export const setOrganizationPasswordSchema = z
+  .object({
+    password: strongPasswordSchema,
+    confirmPassword: z.string().min(1, "Please confirm your password."),
+  })
+  .refine((value) => value.password === value.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "Passwords do not match",
+  });
+
+export type TSetOrganizationPasswordValues = z.infer<
+  typeof setOrganizationPasswordSchema
+>;
+
+export const mandatoryPasswordChangeSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Enter your current password."),
+    newPassword: strongPasswordSchema,
+    confirmPassword: z.string().min(1, "Please confirm your password."),
+  })
+  .refine((value) => value.newPassword === value.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "Passwords do not match",
+  })
+  .refine((value) => value.newPassword !== value.currentPassword, {
+    path: ["newPassword"],
+    message: "Choose a password you have not used for this account.",
+  });
+
+export type TMandatoryPasswordChangeValues = z.infer<
+  typeof mandatoryPasswordChangeSchema
+>;
+
+export const resendActivationSchema = z.object({
+  email: z.string().trim().toLowerCase().email().max(255),
+});
+
+export type TResendActivationValues = z.infer<typeof resendActivationSchema>;

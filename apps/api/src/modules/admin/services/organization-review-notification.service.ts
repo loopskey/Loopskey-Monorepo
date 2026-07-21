@@ -1,18 +1,12 @@
-import {
-  NotificationDeliveryStatus,
-  OrganizationAccessRequestStatus,
-  OtpPurpose,
-} from "@prisma/client";
 import { ConflictException, Injectable, Logger } from "@nestjs/common";
+import { AuthOrganizationActivationService } from "@auth/services/auth-organization-activation.service";
+import { OrganizationAccessRequestStatus } from "@prisma/client";
+import { buildOrganizationRejectionEmail } from "@mail/organization-email.template";
+import { buildOrganizationApprovalEmail } from "@mail/organization-email.template";
+import { NotificationDeliveryStatus } from "@prisma/client";
 import { ConfigService } from "@nestjs/config";
-import { createHash, randomBytes } from "crypto";
-
-import { MailService } from "@mail/mail.service";
-import {
-  buildOrganizationApprovalEmail,
-  buildOrganizationRejectionEmail,
-} from "@mail/organization-email.template";
 import { PrismaService } from "@prisma/prisma.service";
+import { MailService } from "@mail/mail.service";
 
 @Injectable()
 export class OrganizationReviewNotificationService {
@@ -24,6 +18,7 @@ export class OrganizationReviewNotificationService {
     private readonly prisma: PrismaService,
     private readonly mail: MailService,
     private readonly config: ConfigService,
+    private readonly organizationActivation: AuthOrganizationActivationService,
   ) {}
 
   async deliver(requestId: string, force = false) {
@@ -100,31 +95,11 @@ export class OrganizationReviewNotificationService {
   }) {
     if (!request.approvedUserId)
       throw new ConflictException("Approved request has no Organization user.");
-    const rawToken = randomBytes(32).toString("base64url");
-    const codeHash = createHash("sha256").update(rawToken).digest("hex");
-    const expiresInMinutes = this.activationExpiryMinutes();
-    const expiresAt = new Date(Date.now() + expiresInMinutes * 60_000);
-    await this.prisma.$transaction([
-      this.prisma.otpCode.updateMany({
-        where: {
-          userId: request.approvedUserId,
-          purpose: OtpPurpose.ORGANIZATION_ACTIVATION,
-          consumedAt: null,
-        },
-        data: { consumedAt: new Date() },
-      }),
-      this.prisma.otpCode.create({
-        data: {
-          userId: request.approvedUserId,
-          destination: request.workEmail,
-          codeHash,
-          purpose: OtpPurpose.ORGANIZATION_ACTIVATION,
-          expiresAt,
-          maxAttempts: 1,
-        },
-      }),
-    ]);
-    const activationUrl = this.activationUrl(rawToken);
+    const { activationUrl, expiresInMinutes } =
+      await this.organizationActivation.issueActivationLink({
+        userId: request.approvedUserId,
+        destination: request.workEmail,
+      });
     return buildOrganizationApprovalEmail({
       appName: this.config.get<string>("APP_NAME", "LoopsKey"),
       organizationName: request.organizationName,
@@ -154,23 +129,5 @@ export class OrganizationReviewNotificationService {
     const value = this.config.get<string>(name);
     if (!value) throw new Error(`${name} is not configured.`);
     return value;
-  }
-
-  private activationExpiryMinutes() {
-    const minutes = Number(
-      this.config.get<string>("ACTIVATION_TOKEN_EXPIRY_MINUTES", "60"),
-    );
-    if (!Number.isFinite(minutes) || minutes <= 0)
-      throw new Error("ACTIVATION_TOKEN_EXPIRY_MINUTES is not configured.");
-    return minutes;
-  }
-
-  private activationUrl(rawToken: string) {
-    const configured = this.config.get<string>("ORGANIZATION_ACTIVATION_URL");
-    const base = configured
-      ? configured
-      : `${this.requiredConfig("APPLICATION_BASE_URL").replace(/\/$/, "")}/auth/organization/activate`;
-    const separator = base.includes("?") ? "&" : "?";
-    return `${base}${separator}token=${encodeURIComponent(rawToken)}`;
   }
 }

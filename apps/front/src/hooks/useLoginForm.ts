@@ -62,15 +62,6 @@ export const useRoleLoginForm = ({ role }: { role: Role }) => {
         password: values.password,
       }).unwrap();
       notify.success(t("authPages.common.loginSuccess"));
-      if (
-        res.user?.role === Role.Organization &&
-        res.user.forcePasswordChange
-      ) {
-        router.replace(
-          "/dashboard/organization?tab=settings&forcePassword=true",
-        );
-        return;
-      }
       router.replace(getDashboardPath(res.user?.role));
     } catch {
       notify.error(t("authPages.common.genericError"));

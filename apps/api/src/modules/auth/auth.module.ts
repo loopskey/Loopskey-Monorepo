@@ -1,5 +1,6 @@
-import { ConfigModule, ConfigService } from "@nestjs/config";
+import { AuthOrganizationActivationService } from "@auth/services/auth-organization-activation.service";
 import { OAuthCallbackExceptionFilter } from "@auth/filters/oauth-callback.filter";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 import { AuthLinkedInOAuthService } from "@auth/services/auth-linkedin-oauth.service";
 import { AuthRegistrationService } from "@auth/services/auth-registration.service";
 import { AuthEmailChangeService } from "@auth/services/auth-email-change.service";
@@ -35,6 +36,7 @@ export const AUTH_SERVICE_PROVIDERS = [
   AuthRegistrationService,
   AuthLinkedInOAuthService,
   OAuthCallbackExceptionFilter,
+  AuthOrganizationActivationService,
 ];
 
 @Module({
@@ -55,6 +57,6 @@ export const AUTH_SERVICE_PROVIDERS = [
   ],
   controllers: [AuthController],
   providers: [...AUTH_SERVICE_PROVIDERS],
-  exports: [AuthService],
+  exports: [AuthService, AuthOrganizationActivationService],
 })
 export class AuthModule {}

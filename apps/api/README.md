@@ -58,6 +58,11 @@ account activation link; when omitted it is derived from `APPLICATION_BASE_URL`.
 Approval/rejection changes remain valid if delivery fails; the Admin dashboard
 can retry a failed delivery.
 
+`ACTIVATION_RESEND_COOLDOWN_SECONDS` and `ACTIVATION_MAX_RESENDS_PER_DAY` limit
+the public `resendOrganizationActivation` mutation. That mutation always answers
+the same way, so a throttled, unknown, or already-activated address cannot be
+told apart from one that received a new link.
+
 ## Run tests
 
 ```bash

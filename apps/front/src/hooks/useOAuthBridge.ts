@@ -10,7 +10,6 @@ import { Role } from "@/lib/graphql/generated";
 import * as C from "@/utils/oauth.constant";
 
 const DEFAULT_AUTH_REDIRECT = "/auth/professional";
-const CHANGE_PASSWORD_REDIRECT = "/auth/change-password";
 
 export const useOAuthBridge = () => {
   const router = useRouter();
@@ -41,8 +40,6 @@ export const useOAuthBridge = () => {
       const code = searchParams.get("code");
       const role = searchParams.get("role") as Role | null;
       const actualRole = searchParams.get("actualRole") as Role | null;
-      const forcePasswordChangeFromUrl =
-        searchParams.get("forcePasswordChange") === "true";
       if (status !== "success") {
         handleOAuthError(code, actualRole ?? role);
         return;
@@ -66,10 +63,6 @@ export const useOAuthBridge = () => {
         if (currentUser.role !== role) {
           notify.error(t("authPages.oauth.invalidRole"));
           redirectToAuthPage(role);
-          return;
-        }
-        if (forcePasswordChangeFromUrl || currentUser.forcePasswordChange) {
-          router.replace(CHANGE_PASSWORD_REDIRECT);
           return;
         }
         router.replace(C.OAUTH_SUCCESS_REDIRECT_BY_ROLE[role]);

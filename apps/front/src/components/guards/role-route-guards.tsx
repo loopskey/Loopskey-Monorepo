@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import { siteLinks } from "@/utils/constant";
 import { Loader2 } from "lucide-react";
 
+import PasswordChangeRequired from "@modules/Auth/PasswordChangeRequired";
+
 export const RoleRouteGuard = ({
   children,
   allowedRoles,
@@ -45,6 +47,6 @@ export const RoleRouteGuard = ({
         <Loader2 className="h-7 w-7 animate-spin text-primary" />
       </div>
     );
-
+  if (user.forcePasswordChange) return <PasswordChangeRequired />;
   return <>{children}</>;
 };

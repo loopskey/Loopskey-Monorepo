@@ -6,7 +6,10 @@ import { useCurrentUserQuery } from "@/lib/rtk/endpoints/auth.api";
 import { getDashboardPath } from "@/utils/constant";
 import { Loader2 } from "lucide-react";
 
-const AUTH_GUARD_EXCLUDED_PATHS = ["/auth/oauth"] as const;
+const AUTH_GUARD_EXCLUDED_PATHS = [
+  "/auth/oauth",
+  "/auth/organization/activate",
+] as const;
 
 export const AuthRouteGuard = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
