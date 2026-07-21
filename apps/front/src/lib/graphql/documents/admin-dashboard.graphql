@@ -230,8 +230,8 @@ mutation ApproveAdminOrgAccessRequest($requestId: String!) {
   }
 }
 
-mutation RejectAdminOrgAccessRequest($requestId: String!, $reason: String) {
-  rejectAdminOrgAccessRequest(requestId: $requestId, reason: $reason) {
+mutation RejectAdminOrgAccessRequest($input: RejectAdminOrgAccessRequestInput!) {
+  rejectAdminOrgAccessRequest(input: $input) {
     ...AdminDashboardOrgAccessRequestFields
   }
 }
@@ -497,29 +497,6 @@ query OrganizationAccessRequests(
 
 query OrganizationAccessRequestById($requestId: String!) {
   organizationAccessRequestById(requestId: $requestId) {
-    id
-    goals
-    status
-    country
-    workEmail
-    createdAt
-    updatedAt
-    reviewedAt
-    reviewedById
-    rejectReason
-    approvedUserId
-    organizationName
-    organizationType
-    representativeJobRole
-    representativeFullName
-    expectedLicensedProfessionals
-  }
-}
-
-mutation ReviewOrganizationAccessRequest(
-  $input: ReviewOrganizationAccessRequestInput!
-) {
-  reviewOrganizationAccessRequest(input: $input) {
     id
     goals
     status

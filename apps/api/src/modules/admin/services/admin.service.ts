@@ -1,4 +1,5 @@
 import { AuditAction, Prisma, Role, UserStatus } from "@prisma/client";
+import { OrganizationReviewNotificationService } from "@admin/services/organization-review-notification.service";
 import { AdminOrgAccessRequestFilterInput } from "@admin/dtos/admin-org-access-request-filter.input";
 import { OrganizationAccessRequestStatus } from "@prisma/client";
 import { Injectable, NotFoundException } from "@nestjs/common";
@@ -12,13 +13,15 @@ import { AdminPaginationInput } from "@admin/dtos/admin-pagination.input";
 import { BadRequestException } from "@nestjs/common";
 import { TAdminDashboardUser } from "@admin/types/admin-service.types";
 import { ForbiddenException } from "@nestjs/common";
+import { ConflictException } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
-import { randomBytes } from "crypto";
-import { hash } from "argon2";
 
 @Injectable()
 export class AdminDashboardService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly reviewNotification: OrganizationReviewNotificationService,
+  ) {}
 
   private assertAdmin(user: TAdminDashboardUser) {
     if (user.role !== Role.ADMIN)
@@ -343,113 +346,116 @@ export class AdminDashboardService {
 
   async approveOrgAccessRequest(user: TAdminDashboardUser, requestId: string) {
     this.assertAdmin(user);
-    const request =
-      await this.prismaService.organizationAccessRequest.findFirst({
+    return this.prismaService.$transaction(async (tx) => {
+      const request = await tx.organizationAccessRequest.findUnique({
         where: { id: requestId },
       });
-    if (!request)
-      throw new NotFoundException(
-        AdminDashboardMessageCode.ORG_ACCESS_REQUEST_NOT_FOUND,
-      );
-    const email = request.workEmail.trim().toLowerCase();
-    let temporaryPassword: string | null = null;
-    const updated = await this.prismaService.$transaction(async (tx) => {
-      let orgUser = await tx.user.findUnique({
+      if (!request)
+        throw new NotFoundException(
+          AdminDashboardMessageCode.ORG_ACCESS_REQUEST_NOT_FOUND,
+        );
+      if (request.status !== OrganizationAccessRequestStatus.PENDING)
+        throw new ConflictException({
+          code: AdminDashboardMessageCode.ORG_ACCESS_REQUEST_ALREADY_REVIEWED,
+          message:
+            "This organization access request has already been reviewed.",
+        });
+      this.assertValidOrganizationRequest(request);
+
+      const reviewClaim = await tx.organizationAccessRequest.updateMany({
+        where: {
+          id: requestId,
+          status: OrganizationAccessRequestStatus.PENDING,
+        },
+        data: {
+          status: OrganizationAccessRequestStatus.APPROVED,
+          reviewedById: user.id,
+          reviewedAt: new Date(),
+          rejectReason: null,
+        },
+      });
+      if (reviewClaim.count !== 1)
+        throw new ConflictException({
+          code: AdminDashboardMessageCode.ORG_ACCESS_REQUEST_ALREADY_REVIEWED,
+          message:
+            "This organization access request was reviewed by another admin.",
+        });
+
+      const email = request.workEmail.trim().toLowerCase();
+      const existingUser = await tx.user.findUnique({
         where: { email },
         select: {
           id: true,
           role: true,
-          email: true,
         },
       });
-      if (orgUser && orgUser.role !== Role.ORGANIZATION)
-        throw new BadRequestException(
-          AdminDashboardMessageCode.USER_ALREADY_EXISTS,
-        );
-      if (!orgUser) {
-        temporaryPassword = this.generateTemporaryPassword();
-        const passwordHash = await hash(temporaryPassword);
-        orgUser = await tx.user.create({
-          data: {
-            email,
-            passwordHash,
-            role: Role.ORGANIZATION,
-            status: UserStatus.ACTIVE,
-            forcePasswordChange: true,
-            emailVerifiedAt: new Date(),
-            fullName: request.representativeFullName,
-          },
-          select: {
-            id: true,
-            role: true,
-            email: true,
-          },
+      if (existingUser)
+        throw new ConflictException({
+          code: AdminDashboardMessageCode.USER_ALREADY_EXISTS,
+          message: "A user with this work email already exists.",
         });
-      }
-      const existingOrganization = await tx.organization.findFirst({
-        where: {
+
+      const orgUser = await tx.user.create({
+        data: {
+          email,
+          passwordHash: null,
+          role: Role.ORGANIZATION,
+          status: UserStatus.PENDING,
+          forcePasswordChange: false,
+          emailVerifiedAt: null,
+          fullName: request.representativeFullName.trim(),
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      const organization = await tx.organization.create({
+        data: {
           ownerId: orgUser.id,
-          deletedAt: null,
+          country: request.country.trim(),
+          name: request.organizationName.trim(),
         },
         select: { id: true },
       });
-      const organization =
-        existingOrganization ??
-        (await tx.organization.create({
-          data: {
-            ownerId: orgUser.id,
-            country: request.country,
-            name: request.organizationName,
-          },
-          select: { id: true },
-        }));
-      await tx.organizationProfile.upsert({
-        where: { userId: orgUser.id },
-        create: {
+      await tx.organizationProfile.create({
+        data: {
           userId: orgUser.id,
-          country: request.country,
+          country: request.country.trim(),
           contactEmail: email,
-          organizationName: request.organizationName,
-          memberLimit: request.expectedLicensedProfessionals,
-        },
-        update: {
-          country: request.country,
-          contactEmail: email,
-          organizationName: request.organizationName,
+          organizationName: request.organizationName.trim(),
           memberLimit: request.expectedLicensedProfessionals,
         },
       });
-      await tx.organizationSettings.upsert({
-        where: { organizationId: organization.id },
-        create: { organizationId: organization.id },
-        update: {},
+      await tx.organizationSettings.create({
+        data: { organizationId: organization.id },
       });
-      await tx.organizationMember.upsert({
-        where: {
-          organizationId_userId: {
-            organizationId: organization.id,
-            userId: orgUser.id,
-          },
-        },
-        create: {
+      await tx.organizationMember.create({
+        data: {
           organizationId: organization.id,
           userId: orgUser.id,
-          jobRole: request.representativeJobRole,
-          status: OrganizationMemberStatus.ACTIVE,
-        },
-        update: {
-          jobRole: request.representativeJobRole,
+          jobRole: request.representativeJobRole.trim(),
           status: OrganizationMemberStatus.ACTIVE,
         },
       });
       const approvedRequest = await tx.organizationAccessRequest.update({
         where: { id: requestId },
         data: {
-          status: OrganizationAccessRequestStatus.APPROVED,
-          reviewedById: user.id,
-          reviewedAt: new Date(),
           approvedUserId: orgUser.id,
         },
+        include: {
+          reviewedBy: {
+            select: {
+              email: true,
+              fullName: true,
+            },
+          },
+        },
+      });
+      const notificationIntent = this.reviewNotification.prepareIntent({
+        type: "ORGANIZATION_REQUEST_APPROVED",
+        recipient: email,
+        requestId,
       });
       await tx.auditLog.create({
         data: {
@@ -461,46 +467,101 @@ export class AdminDashboardService {
             workEmail: email,
             organizationId: organization.id,
             approvedUserId: orgUser.id,
-            temporaryPasswordGenerated: Boolean(temporaryPassword),
+            notificationIntent,
           },
         },
       });
-      return approvedRequest;
+      const { reviewedBy, ...result } = approvedRequest;
+      return {
+        ...result,
+        reviewedByName: reviewedBy?.fullName ?? reviewedBy?.email ?? null,
+      };
     });
-    return updated;
   }
 
   async rejectOrgAccessRequest(
     user: TAdminDashboardUser,
     requestId: string,
-    reason?: string,
+    reason: string,
   ) {
     this.assertAdmin(user);
-    const request =
-      await this.prismaService.organizationAccessRequest.findFirst({
+    const rejectReason = reason.trim();
+    if (rejectReason.length < 3 || rejectReason.length > 1000)
+      throw new BadRequestException({
+        code: AdminDashboardMessageCode.ORG_ACCESS_REQUEST_INVALID,
+        message:
+          "A rejection reason between 3 and 1000 characters is required.",
+      });
+
+    return this.prismaService.$transaction(async (tx) => {
+      const request = await tx.organizationAccessRequest.findUnique({
         where: { id: requestId },
       });
-    if (!request)
-      throw new NotFoundException(
-        AdminDashboardMessageCode.ORG_ACCESS_REQUEST_NOT_FOUND,
-      );
-    const updated = await this.prismaService.organizationAccessRequest.update({
-      where: { id: requestId },
-      data: {
-        status: OrganizationAccessRequestStatus.REJECTED,
-        reviewedById: user.id,
-        reviewedAt: new Date(),
-        rejectReason: reason,
-      },
+      if (!request)
+        throw new NotFoundException(
+          AdminDashboardMessageCode.ORG_ACCESS_REQUEST_NOT_FOUND,
+        );
+      if (request.status !== OrganizationAccessRequestStatus.PENDING)
+        throw new ConflictException({
+          code: AdminDashboardMessageCode.ORG_ACCESS_REQUEST_ALREADY_REVIEWED,
+          message:
+            "This organization access request has already been reviewed.",
+        });
+
+      const reviewClaim = await tx.organizationAccessRequest.updateMany({
+        where: {
+          id: requestId,
+          status: OrganizationAccessRequestStatus.PENDING,
+        },
+        data: {
+          status: OrganizationAccessRequestStatus.REJECTED,
+          reviewedById: user.id,
+          reviewedAt: new Date(),
+          rejectReason,
+        },
+      });
+      if (reviewClaim.count !== 1)
+        throw new ConflictException({
+          code: AdminDashboardMessageCode.ORG_ACCESS_REQUEST_ALREADY_REVIEWED,
+          message:
+            "This organization access request was reviewed by another admin.",
+        });
+
+      const notificationIntent = this.reviewNotification.prepareIntent({
+        type: "ORGANIZATION_REQUEST_REJECTED",
+        recipient: request.workEmail.trim().toLowerCase(),
+        requestId,
+      });
+      await tx.auditLog.create({
+        data: {
+          actorId: user.id,
+          action: AuditAction.ORG_ACCESS_REQUEST_REJECTED,
+          entityType: "OrganizationAccessRequest",
+          entityId: requestId,
+          metadata: {
+            reason: rejectReason,
+            notificationIntent,
+          },
+        },
+      });
+      const rejectedRequest =
+        await tx.organizationAccessRequest.findUniqueOrThrow({
+          where: { id: requestId },
+          include: {
+            reviewedBy: {
+              select: {
+                email: true,
+                fullName: true,
+              },
+            },
+          },
+        });
+      const { reviewedBy, ...result } = rejectedRequest;
+      return {
+        ...result,
+        reviewedByName: reviewedBy?.fullName ?? reviewedBy?.email ?? null,
+      };
     });
-    await this.createAudit(
-      user.id,
-      AuditAction.ORG_ACCESS_REQUEST_REJECTED,
-      "OrganizationAccessRequest",
-      requestId,
-      { reason },
-    );
-    return updated;
   }
 
   async auditLogs(
@@ -582,7 +643,31 @@ export class AdminDashboardService {
     });
   }
 
-  private generateTemporaryPassword() {
-    return `Org-${randomBytes(6).toString("base64url")}#1`;
+  private assertValidOrganizationRequest(request: {
+    country: string;
+    goals: string;
+    organizationName: string;
+    representativeFullName: string;
+    representativeJobRole: string;
+    workEmail: string;
+    expectedLicensedProfessionals: number;
+  }) {
+    const requiredValues = [
+      request.country,
+      request.goals,
+      request.organizationName,
+      request.representativeFullName,
+      request.representativeJobRole,
+      request.workEmail,
+    ];
+    if (
+      requiredValues.some((value) => value.trim().length === 0) ||
+      !request.workEmail.includes("@") ||
+      request.expectedLicensedProfessionals < 1
+    )
+      throw new BadRequestException({
+        code: AdminDashboardMessageCode.ORG_ACCESS_REQUEST_INVALID,
+        message: "The organization access request contains invalid data.",
+      });
   }
 }

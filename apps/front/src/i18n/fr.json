@@ -3697,7 +3697,13 @@
         "reviewedAt": "Examiné le",
         "rejectHint": "Veuillez écrire une raison claire avant de rejeter cette demande.",
         "actionsTitle": "Actions d’approbation",
-        "actionsDeferred": "L’approbation et le rejet seront disponibles à la phase 4."
+        "actionsDeferred": "L’approbation et le rejet seront disponibles à la phase 4.",
+        "actionsAvailable": "Choisissez une décision pour cette demande en attente."
+      },
+      "confirm": {
+        "approveTitle": "Approuver la demande de l’organisation ?",
+        "rejectTitle": "Rejeter la demande de l’organisation ?",
+        "description": "Cette action enregistrera une décision finale pour {organization}. Elle ne pourra pas être répétée."
       },
       "dialog": {
         "title": "Examiner la demande d’accès",

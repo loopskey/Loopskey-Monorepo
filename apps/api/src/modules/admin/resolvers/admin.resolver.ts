@@ -1,4 +1,5 @@
 import { PaginatedAdminOrgAccessRequestsEntity } from "@admin/entities/paginated-admin-org-access-request.entity";
+import { RejectAdminOrgAccessRequestInput } from "@admin/dtos/reject-admin-org-access-request.input";
 import { AdminOrgAccessRequestFilterInput } from "@admin/dtos/admin-org-access-request-filter.input";
 import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { AdminDashboardGqlMutationNames } from "@admin/enums/gql-names.enum";
@@ -143,13 +144,12 @@ export class AdminDashboardResolver {
   })
   rejectAdminOrgAccessRequest(
     @CurrentUser() user: TResolverUser,
-    @Args("requestId") requestId: string,
-    @Args("reason", { nullable: true }) reason?: string,
+    @Args("input") input: RejectAdminOrgAccessRequestInput,
   ) {
     return this.adminDashboardService.rejectOrgAccessRequest(
       this.getUser(user),
-      requestId,
-      reason,
+      input.requestId,
+      input.reason,
     );
   }
 

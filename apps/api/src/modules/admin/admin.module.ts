@@ -1,3 +1,4 @@
+import { OrganizationReviewNotificationService } from "@admin/services/organization-review-notification.service";
 import { AdminDashboardResolver } from "@admin/resolvers/admin.resolver";
 import { AdminDashboardService } from "@admin/services/admin.service";
 import { AdminOrgResolver } from "@admin/resolvers/admin-org.resolver";
@@ -14,6 +15,7 @@ import "@admin/enums/admin-register.enum";
     AdminOrgResolver,
     AdminDashboardService,
     AdminDashboardResolver,
+    OrganizationReviewNotificationService,
   ],
   exports: [AdminDashboardService, AdminOrgService],
 })

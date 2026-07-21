@@ -179,9 +179,8 @@ export const adminApi = baseApi.injectEndpoints({
         document: API.AdminOrgAccessRequestDetailDocument,
         variables: { requestId },
       }),
-      transformResponse: (
-        response: TAPI.AdminOrgAccessRequestDetailQuery,
-      ) => response.adminOrgAccessRequestDetail,
+      transformResponse: (response: TAPI.AdminOrgAccessRequestDetailQuery) =>
+        response.adminOrgAccessRequestDetail,
       providesTags: (_result, _error, requestId) => [
         { type: "OrganizationAccessRequest", id: requestId },
       ],
@@ -198,20 +197,27 @@ export const adminApi = baseApi.injectEndpoints({
       transformResponse: (
         response: TAPI.ApproveAdminOrgAccessRequestMutation,
       ) => response.approveAdminOrgAccessRequest,
-      invalidatesTags: ["OrganizationAccessRequests", "Users"],
+      invalidatesTags: (_result, _error, requestId) => [
+        "OrganizationAccessRequests",
+        "Users",
+        { type: "OrganizationAccessRequest", id: requestId },
+      ],
     }),
 
     rejectAdminOrgAccessRequest: builder.mutation<
       TAPI.RejectAdminOrgAccessRequestMutation["rejectAdminOrgAccessRequest"],
-      TAPI.RejectAdminOrgAccessRequestMutationVariables
+      TAPI.RejectAdminOrgAccessRequestMutationVariables["input"]
     >({
-      query: (variables) => ({
+      query: (input) => ({
         document: API.RejectAdminOrgAccessRequestDocument,
-        variables,
+        variables: { input },
       }),
       transformResponse: (response: TAPI.RejectAdminOrgAccessRequestMutation) =>
         response.rejectAdminOrgAccessRequest,
-      invalidatesTags: ["OrganizationAccessRequests"],
+      invalidatesTags: (_result, _error, input) => [
+        "OrganizationAccessRequests",
+        { type: "OrganizationAccessRequest", id: input.requestId },
+      ],
     }),
 
     adminOrganizationUsers: builder.query<

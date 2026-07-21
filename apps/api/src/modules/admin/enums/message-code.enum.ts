@@ -9,6 +9,8 @@ export enum AdminDashboardMessageCode {
   ORG_ACCESS_REQUEST_REJECTED = "OrgAccessRequestRejected",
   ORGANIZATION_MEMBER_REMOVED = "OrganizationMemberRemoved",
   ORG_ACCESS_REQUEST_NOT_FOUND = "OrgAccessRequestNotFound",
+  ORG_ACCESS_REQUEST_INVALID = "OrgAccessRequestInvalid",
+  ORG_ACCESS_REQUEST_ALREADY_REVIEWED = "OrgAccessRequestAlreadyReviewed",
   ORGANIZATION_MEMBER_NOT_FOUND = "OrganizationMemberNotFound",
   ORGANIZATION_SETTINGS_UPDATED = "OrganizationSettingsUpdated",
 }

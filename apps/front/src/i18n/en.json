@@ -3697,7 +3697,13 @@
         "reviewedAt": "Reviewed at",
         "rejectHint": "Write a clear reason before rejecting this request.",
         "actionsTitle": "Approval actions",
-        "actionsDeferred": "Approval and rejection become available in Phase 4."
+        "actionsDeferred": "Approval and rejection become available in Phase 4.",
+        "actionsAvailable": "Choose an outcome for this pending request."
+      },
+      "confirm": {
+        "approveTitle": "Approve organization request?",
+        "rejectTitle": "Reject organization request?",
+        "description": "This will record a final decision for {organization}. This action cannot be repeated."
       },
       "dialog": {
         "title": "Review access request",

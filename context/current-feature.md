@@ -1,16 +1,37 @@
-# Current Feature: Organization Approval Workflow — Phase 3 (Admin Requests Dashboard)
+# Current Feature: Organization Approval Workflow — Phase 4 (Approval and Rejection)
 
-Implement the Admin Organization Requests list and detail workflow only.
-Approval/rejection business actions, account creation, email delivery, and
-password activation are explicitly out of scope for this phase.
+Implement secure Admin approval and rejection business logic and its frontend
+confirmation workflow. Real email delivery and mandatory password-change UI
+are explicitly out of scope for this phase.
 
 ## Status
 
-Implementation complete on `feature/org-requests-dashboard`; reviewed and
-verified, but not committed or merged. Phase 2 is complete and merged into
-`main`. Source spec: `context/features/email-org-submit3-spec.md`.
+Implementation and verification completed on `feature/org-request-review`;
+the branch remains uncommitted pending feature review/completion. Phases 2 and
+3 are complete and merged into `main`. Source spec:
+`context/features/email-org-submit4-spec.md`.
 
 ## Goals
+
+- Enforce terminal `PENDING -> APPROVED | REJECTED` transitions in the backend
+  and reject conflicting or repeated reviews clearly.
+- Make approval transactional: validate the request, create the Organization
+  account and relationships once, retain pending activation/password setup,
+  stamp the reviewer and timestamp, and roll back on any failure.
+- Reject safely with a required bounded reason, reviewer identity from the
+  authenticated session, timestamp, and no cross-transition from approval.
+- Handle concurrent Admin actions and existing-user role conflicts without
+  overwriting identity or creating duplicate organizations or memberships.
+- Prepare a notification abstraction/event for Phase 5 without marking email
+  delivered or configuring a provider.
+- Restore Approve/Reject UI through explicit confirmation dialogs, clear
+  validation/errors, cache refresh, and success notifications.
+- Add focused backend and frontend tests for transitions, concurrency,
+  idempotency, rollback, authorization, relationships, and confirmation UI.
+- Run database, tests, TypeScript, lint, and production-build gates and produce
+  the required twelve-part completion report.
+
+## Phase 3 Completion Reference
 
 - Reuse and complete the existing Admin dashboard navigation, requests list,
   detail pattern, hooks, GraphQL operations, and responsive design.

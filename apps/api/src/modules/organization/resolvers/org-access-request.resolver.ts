@@ -4,12 +4,9 @@ import { OrganizationAccessRequestPaginationInput } from "@org/dtos/org-access-r
 import { OrganizationAccessRequestGqlQueryNames } from "@org/enums/org-access-request-gql-names.enum";
 import { OrganizationAccessRequestFilterInput } from "@org/dtos/org-access-request-filter";
 import { SubmitOrganizationAccessRequestInput } from "@org/dtos/submit-org-access-request.input";
-import { ReviewOrganizationAccessRequestInput } from "@org/dtos/review-org-access-request.input";
 import { OrganizationAccessRequestEntity } from "@org/entities/org-access-request.entity";
 import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { OrgAccessRequestService } from "@org/services/org-access-request.service";
-import { CurrentUser } from "@auth/decorators/current-user.decorator";
-import { JwtPayload } from "@auth/types/jwt-payload.type";
 import { Public } from "@auth/decorators/public.decorator";
 import { Roles } from "@auth/decorators/roles.decorator";
 import { Role } from "@prisma/client";
@@ -51,16 +48,5 @@ export class OrgAccessRequestResolver {
     @Args("requestId", { type: () => String }) requestId: string,
   ) {
     return this.orgAccessRequestService.findRequestById(requestId);
-  }
-
-  @Roles(Role.ADMIN)
-  @Mutation(() => OrganizationAccessRequestEntity, {
-    name: OrganizationAccessRequestGqlMutationNames.REVIEW_ORGANIZATION_ACCESS_REQUEST,
-  })
-  reviewOrganizationAccessRequest(
-    @Args("input") input: ReviewOrganizationAccessRequestInput,
-    @CurrentUser() admin: JwtPayload,
-  ) {
-    return this.orgAccessRequestService.reviewRequest(input, admin.sub);
   }
 }

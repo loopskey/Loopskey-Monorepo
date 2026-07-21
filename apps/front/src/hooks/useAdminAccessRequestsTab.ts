@@ -5,11 +5,13 @@ import { AdminOrgAccessRequestFilter } from "@/lib/graphql/generated";
 import { useMemo, useState } from "react";
 import { useDebouncedValue } from "@/hooks/useDebounced";
 import { useI18n } from "@/hooks/useI18n";
+import { notify } from "@/hooks/notify";
 
 import * as API from "@/lib/rtk/endpoints/admin-dashboard.api";
 
 type TStatusFilter = "ALL" | OrganizationAccessRequestStatus;
 type TSortDirection = "asc" | "desc";
+type TReviewAction = "approve" | "reject";
 
 type TAccessRequestItem = NonNullable<
   ReturnType<typeof API.useAdminOrgAccessRequestsQuery>["data"]
@@ -33,6 +35,8 @@ export const useAdminAccessRequestsTab = () => {
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(
     null,
   );
+  const [reviewAction, setReviewAction] = useState<TReviewAction | null>(null);
+  const [rejectReason, setRejectReason] = useState("");
   const debouncedSearch = useDebouncedValue(search.trim(), 350);
 
   const cursor = cursorStack.at(-1);
@@ -60,6 +64,10 @@ export const useAdminAccessRequestsTab = () => {
       refetchOnMountOrArgChange: true,
     },
   );
+  const [approveRequest, approveState] =
+    API.useApproveAdminOrgAccessRequestMutation();
+  const [rejectRequest, rejectState] =
+    API.useRejectAdminOrgAccessRequestMutation();
 
   const items = useMemo(() => query.data?.items ?? [], [query.data?.items]);
 
@@ -87,7 +95,52 @@ export const useAdminAccessRequestsTab = () => {
   };
 
   const closeRequestReview = () => {
+    setReviewAction(null);
+    setRejectReason("");
     setSelectedRequestId(null);
+  };
+
+  const openReviewAction = (action: TReviewAction) => {
+    setRejectReason("");
+    setReviewAction(action);
+  };
+
+  const closeReviewAction = () => {
+    if (approveState.isLoading || rejectState.isLoading) return;
+    setReviewAction(null);
+    setRejectReason("");
+  };
+
+  const confirmReviewAction = async () => {
+    if (!selectedRequestId || !reviewAction) return;
+    const reason = rejectReason.trim();
+    if (reviewAction === "reject" && reason.length < 3) {
+      notify.error(
+        t("adminDashboard.accessRequests.dialog.rejectReasonRequired"),
+      );
+      return;
+    }
+    try {
+      if (reviewAction === "approve") {
+        await approveRequest(selectedRequestId).unwrap();
+        notify.success(t("adminDashboard.accessRequests.messages.approved"));
+      } else {
+        await rejectRequest({ requestId: selectedRequestId, reason }).unwrap();
+        notify.success(t("adminDashboard.accessRequests.messages.rejected"));
+      }
+      setReviewAction(null);
+      setRejectReason("");
+      await Promise.all([query.refetch(), detailQuery.refetch()]);
+    } catch (error) {
+      const message =
+        error &&
+        typeof error === "object" &&
+        "message" in error &&
+        typeof error.message === "string"
+          ? error.message
+          : t("authPages.common.genericError");
+      notify.error(message);
+    }
   };
 
   const refresh = async () => {
@@ -126,6 +179,13 @@ export const useAdminAccessRequestsTab = () => {
     setSearch,
     setStatus,
     detailQuery,
+    reviewAction,
+    rejectReason,
+    openReviewAction,
+    closeReviewAction,
+    setRejectReason,
+    confirmReviewAction,
+    isReviewing: approveState.isLoading || rejectState.isLoading,
     sortDirection,
     selectedRequestId,
     setSortDirection,

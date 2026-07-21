@@ -3,13 +3,10 @@ import { ConflictException, NotFoundException } from "@nestjs/common";
 import { SubmitOrganizationAccessRequestInput } from "@org/dtos/submit-org-access-request.input";
 import { OrganizationAccessRequestMessageCode } from "@org/enums/org-access-request-message-code.enum";
 import { OrganizationAccessRequestFilterInput } from "@org/dtos/org-access-request-filter";
-import { ReviewOrganizationAccessRequestInput } from "@org/dtos/review-org-access-request.input";
-import { BadRequestException, Injectable } from "@nestjs/common";
 import { OrganizationAccessRequestStatus } from "@prisma/client";
-import { Prisma, Role, UserStatus } from "@prisma/client";
+import { Injectable } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 import { PrismaService } from "@prisma/prisma.service";
-
-import * as argon2 from "argon2";
 
 @Injectable()
 export class OrgAccessRequestService {
@@ -182,134 +179,7 @@ export class OrgAccessRequestService {
     return request;
   }
 
-  async reviewRequest(
-    input: ReviewOrganizationAccessRequestInput,
-    adminId: string,
-  ) {
-    if (input.status === OrganizationAccessRequestStatus.PENDING) {
-      throw new BadRequestException({
-        code: OrganizationAccessRequestMessageCode.INVALID_REVIEW_STATUS,
-        message: "Admin can only approve or reject a request.",
-      });
-    }
-    const request =
-      await this.prismaService.organizationAccessRequest.findUnique({
-        where: { id: input.requestId },
-      });
-    if (!request) {
-      throw new NotFoundException({
-        code: OrganizationAccessRequestMessageCode.REQUEST_NOT_FOUND,
-        message: "Organization access request not found.",
-      });
-    }
-    if (request.status !== OrganizationAccessRequestStatus.PENDING) {
-      throw new BadRequestException({
-        code: OrganizationAccessRequestMessageCode.REQUEST_ALREADY_REVIEWED,
-        message: "This request has already been reviewed.",
-      });
-    }
-    if (input.status === OrganizationAccessRequestStatus.REJECTED)
-      return this.rejectRequest(input, adminId);
-    return this.approveRequest(input, adminId);
-  }
-
-  private async approveRequest(
-    input: ReviewOrganizationAccessRequestInput,
-    adminId: string,
-  ) {
-    const request =
-      await this.prismaService.organizationAccessRequest.findUniqueOrThrow({
-        where: { id: input.requestId },
-      });
-    const existingUser = await this.prismaService.user.findUnique({
-      where: { email: request.workEmail },
-      select: { id: true },
-    });
-    if (existingUser) {
-      throw new ConflictException({
-        code: OrganizationAccessRequestMessageCode.USER_ALREADY_EXISTS,
-        message: "A user with this email already exists.",
-      });
-    }
-    const temporaryPassword = this.generateTemporaryPassword();
-    const passwordHash = await argon2.hash(temporaryPassword);
-    const updatedRequest = await this.prismaService.$transaction(async (tx) => {
-      const user = await tx.user.create({
-        data: {
-          email: request.workEmail,
-          fullName: request.representativeFullName,
-          passwordHash,
-          role: Role.ORGANIZATION,
-          status: UserStatus.ACTIVE,
-          emailVerifiedAt: new Date(),
-          forcePasswordChange: true,
-          organizationProfile: {
-            create: {
-              organizationName: request.organizationName,
-              contactEmail: request.workEmail,
-              country: request.country,
-              memberLimit: request.expectedLicensedProfessionals,
-            },
-          },
-        },
-        select: {
-          id: true,
-          email: true,
-        },
-      });
-      return tx.organizationAccessRequest.update({
-        where: { id: request.id },
-        data: {
-          status: OrganizationAccessRequestStatus.APPROVED,
-          reviewedById: adminId,
-          reviewedAt: new Date(),
-          approvedUserId: user.id,
-        },
-        select: this.requestSelect,
-      });
-    });
-    return updatedRequest;
-  }
-
-  private async rejectRequest(
-    input: ReviewOrganizationAccessRequestInput,
-    adminId: string,
-  ) {
-    const updatedRequest =
-      await this.prismaService.organizationAccessRequest.update({
-        where: { id: input.requestId },
-        data: {
-          status: OrganizationAccessRequestStatus.REJECTED,
-          reviewedById: adminId,
-          reviewedAt: new Date(),
-          rejectReason: input.rejectReason ?? null,
-        },
-        select: this.requestSelect,
-      });
-    return updatedRequest;
-  }
-
   private normalizeEmail(email: string) {
     return email.trim().toLowerCase();
-  }
-
-  private generateTemporaryPassword(length = 14) {
-    const upper = "ABCDEFGHJKLMNPQRSTUVWXYZ";
-    const lower = "abcdefghijkmnopqrstuvwxyz";
-    const numbers = "23456789";
-    const symbols = "!@#$%";
-    const all = upper + lower + numbers + symbols;
-    let password = "";
-    password += upper[Math.floor(Math.random() * upper.length)];
-    password += lower[Math.floor(Math.random() * lower.length)];
-    password += numbers[Math.floor(Math.random() * numbers.length)];
-    password += symbols[Math.floor(Math.random() * symbols.length)];
-    for (let i = password.length; i < length; i += 1) {
-      password += all[Math.floor(Math.random() * all.length)];
-    }
-    return password
-      .split("")
-      .sort(() => Math.random() - 0.5)
-      .join("");
   }
 }

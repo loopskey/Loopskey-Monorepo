@@ -1203,7 +1203,7 @@ type Mutation {
   refreshToken: AuthPayload!
   register(input: RegisterInput!): AuthPayload!
   registerEvent(eventId: String!): EventRegistration!
-  rejectAdminOrgAccessRequest(reason: String, requestId: String!): AdminOrgAccessRequest!
+  rejectAdminOrgAccessRequest(input: RejectAdminOrgAccessRequestInput!): AdminOrgAccessRequest!
   removeAdminOrganizationMember(memberId: String!): AdminOrgMember!
   removeFromCart(input: ContentActionInput!): ContentActionPayload!
   requestEmailChange(input: RequestEmailChangeInput!): AuthPayload!
@@ -1215,7 +1215,6 @@ type Mutation {
   restorePodcast(podcastId: String!): Podcast!
   restoreUser(userId: String!): User!
   restoreYouTubeChannel(channelId: String!): YouTubeChannel!
-  reviewOrganizationAccessRequest(input: ReviewOrganizationAccessRequestInput!): OrganizationAccessRequest!
   submitContentReview(input: SubmitContentReviewInput!): ContentReview!
   submitOrganizationAccessRequest(input: SubmitOrganizationAccessRequestInput!): OrganizationAccessRequest!
   submitPromotionRequest(input: SubmitPromotionRequestInput!): PromotionRequest!
@@ -2700,6 +2699,11 @@ input RegisterInput {
   role: AuthRegisterRole!
 }
 
+input RejectAdminOrgAccessRequestInput {
+  reason: String!
+  requestId: String!
+}
+
 input RequestEmailChangeInput {
   newEmail: String!
 }
@@ -2713,12 +2717,6 @@ input ResetPasswordInput {
   confirmPassword: String!
   email: String!
   newPassword: String!
-}
-
-input ReviewOrganizationAccessRequestInput {
-  rejectReason: String
-  requestId: String!
-  status: OrganizationAccessRequestStatus!
 }
 
 enum RoadmapEnrollmentStatus {

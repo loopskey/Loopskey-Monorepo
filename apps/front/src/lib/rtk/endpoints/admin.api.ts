@@ -106,21 +106,6 @@ export const adminApi = baseApi.injectEndpoints({
         { type: "OrganizationAccessRequest", id: requestId },
       ],
     }),
-
-    reviewOrganizationAccessRequest: builder.mutation<
-      TAPI.ReviewOrganizationAccessRequestMutation["reviewOrganizationAccessRequest"],
-      TAPI.ReviewOrganizationAccessRequestMutationVariables["input"]
-    >({
-      query: (input) => ({
-        document: API.ReviewOrganizationAccessRequestDocument,
-        variables: { input },
-      }),
-      invalidatesTags: (_result, _error, input) => [
-        "OrganizationAccessRequests",
-        { type: "OrganizationAccessRequest", id: input.requestId },
-        "Users",
-      ],
-    }),
   }),
 });
 
@@ -137,5 +122,4 @@ export const {
   useOrganizationAccessRequestByIdQuery,
   useLazyOrganizationAccessRequestsQuery,
   useLazyOrganizationAccessRequestByIdQuery,
-  useReviewOrganizationAccessRequestMutation,
 } = adminApi;
