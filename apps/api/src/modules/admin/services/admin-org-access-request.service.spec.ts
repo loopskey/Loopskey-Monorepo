@@ -44,6 +44,32 @@ const createPrismaMock = () => ({
   },
 });
 
+type TExistingUser = {
+  id: string;
+  role: Role;
+  deletedAt: Date | null;
+  ownedOrganization: { id: string } | null;
+};
+
+const createApprovalTx = ({
+  existingUser = null,
+}: { existingUser?: TExistingUser | null } = {}) => ({
+  organizationAccessRequest: {
+    findUnique: jest.fn().mockResolvedValue(request),
+    updateMany: jest.fn().mockResolvedValue({ count: 1 }),
+    update: jest.fn().mockResolvedValue({ ...request, reviewedBy: null }),
+  },
+  user: {
+    findUnique: jest.fn().mockResolvedValue(existingUser),
+    create: jest.fn().mockResolvedValue({ id: "user-1" }),
+  },
+  organization: { create: jest.fn().mockResolvedValue({ id: "org-1" }) },
+  organizationProfile: { upsert: jest.fn() },
+  organizationSettings: { create: jest.fn() },
+  organizationMember: { create: jest.fn() },
+  auditLog: { create: jest.fn() },
+});
+
 const createService = (prisma: unknown) =>
   new AdminDashboardService(
     prisma as PrismaService,
@@ -144,22 +170,7 @@ describe("AdminDashboardService organization requests", () => {
   });
 
   it("provisions a pending Organization account on approval", async () => {
-    const tx = {
-      organizationAccessRequest: {
-        findUnique: jest.fn().mockResolvedValue(request),
-        updateMany: jest.fn().mockResolvedValue({ count: 1 }),
-        update: jest.fn().mockResolvedValue({ ...request, reviewedBy: null }),
-      },
-      user: {
-        findUnique: jest.fn().mockResolvedValue(null),
-        create: jest.fn().mockResolvedValue({ id: "user-1" }),
-      },
-      organization: { create: jest.fn().mockResolvedValue({ id: "org-1" }) },
-      organizationProfile: { create: jest.fn() },
-      organizationSettings: { create: jest.fn() },
-      organizationMember: { create: jest.fn() },
-      auditLog: { create: jest.fn() },
-    };
+    const tx = createApprovalTx();
     const service = createService({
       $transaction: (callback: Function) => callback(tx),
     });
@@ -177,6 +188,108 @@ describe("AdminDashboardService organization requests", () => {
     );
     expect(tx.organizationMember.create).toHaveBeenCalled();
     expect(tx.auditLog.create).toHaveBeenCalled();
+  });
+
+  it("links an existing pending Organization account instead of creating one", async () => {
+    const tx = createApprovalTx({
+      existingUser: {
+        id: "org-user-9",
+        role: Role.ORGANIZATION,
+        deletedAt: null,
+        ownedOrganization: null,
+      },
+    });
+    const service = createService({
+      $transaction: (callback: Function) => callback(tx),
+    });
+
+    await service.approveOrgAccessRequest(admin, request.id);
+
+    expect(tx.user.create).not.toHaveBeenCalled();
+    expect(tx.organization.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ ownerId: "org-user-9" }),
+      }),
+    );
+    expect(tx.organizationProfile.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { userId: "org-user-9" }, update: {} }),
+    );
+    expect(tx.auditLog.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          metadata: expect.objectContaining({ linkedExistingUser: true }),
+        }),
+      }),
+    );
+  });
+
+  it.each([
+    [
+      "belongs to another role",
+      {
+        id: "pro-1",
+        role: Role.PROFESSIONAL,
+        deletedAt: null,
+        ownedOrganization: null,
+      },
+    ],
+    [
+      "already owns an organization",
+      {
+        id: "org-user-2",
+        role: Role.ORGANIZATION,
+        deletedAt: null,
+        ownedOrganization: { id: "org-existing" },
+      },
+    ],
+    [
+      "was deleted",
+      {
+        id: "org-user-3",
+        role: Role.ORGANIZATION,
+        deletedAt: new Date("2026-07-01T00:00:00.000Z"),
+        ownedOrganization: null,
+      },
+    ],
+  ])("refuses approval when the work email %s", async (_case, existingUser) => {
+    const tx = createApprovalTx({ existingUser });
+    const service = createService({
+      $transaction: (callback: Function) => callback(tx),
+    });
+
+    await expect(
+      service.approveOrgAccessRequest(admin, request.id),
+    ).rejects.toBeInstanceOf(ConflictException);
+
+    expect(tx.user.create).not.toHaveBeenCalled();
+    expect(tx.organization.create).not.toHaveBeenCalled();
+    expect(tx.auditLog.create).not.toHaveBeenCalled();
+  });
+
+  it("rolls back the approval when account creation fails", async () => {
+    const tx = createApprovalTx();
+    tx.user.create.mockRejectedValue(new Error("account creation failed"));
+    const rollback = jest.fn();
+    const service = createService({
+      $transaction: async (callback: Function) => {
+        try {
+          return await callback(tx);
+        } catch (error) {
+          rollback();
+          throw error;
+        }
+      },
+    });
+
+    await expect(
+      service.approveOrgAccessRequest(admin, request.id),
+    ).rejects.toThrow("account creation failed");
+
+    expect(rollback).toHaveBeenCalledTimes(1);
+    expect(tx.organization.create).not.toHaveBeenCalled();
+    expect(tx.organizationMember.create).not.toHaveBeenCalled();
+    expect(tx.organizationAccessRequest.update).not.toHaveBeenCalled();
+    expect(tx.auditLog.create).not.toHaveBeenCalled();
   });
 
   it("requires a rejection reason before starting a transaction", async () => {

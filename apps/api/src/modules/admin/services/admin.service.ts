@@ -382,50 +382,44 @@ export class AdminDashboardService {
         });
 
       const email = request.workEmail.trim().toLowerCase();
-      const existingUser = await tx.user.findUnique({
-        where: { email },
-        select: {
-          id: true,
-          role: true,
-        },
-      });
-      if (existingUser)
-        throw new ConflictException({
-          code: AdminDashboardMessageCode.USER_ALREADY_EXISTS,
-          message: "A user with this work email already exists.",
-        });
-
-      const orgUser = await tx.user.create({
-        data: {
-          email,
-          passwordHash: null,
-          role: Role.ORGANIZATION,
-          status: UserStatus.PENDING,
-          forcePasswordChange: false,
-          emailVerifiedAt: null,
-          fullName: request.representativeFullName.trim(),
-        },
-        select: {
-          id: true,
-        },
-      });
+      const linkedUser = await this.resolveApprovalOwner(tx, email);
+      const ownerId =
+        linkedUser?.id ??
+        (
+          await tx.user.create({
+            data: {
+              email,
+              passwordHash: null,
+              role: Role.ORGANIZATION,
+              status: UserStatus.PENDING,
+              forcePasswordChange: false,
+              emailVerifiedAt: null,
+              fullName: request.representativeFullName.trim(),
+            },
+            select: {
+              id: true,
+            },
+          })
+        ).id;
 
       const organization = await tx.organization.create({
         data: {
-          ownerId: orgUser.id,
+          ownerId,
           country: request.country.trim(),
           name: request.organizationName.trim(),
         },
         select: { id: true },
       });
-      await tx.organizationProfile.create({
-        data: {
-          userId: orgUser.id,
+      await tx.organizationProfile.upsert({
+        where: { userId: ownerId },
+        create: {
+          userId: ownerId,
           country: request.country.trim(),
           contactEmail: email,
           organizationName: request.organizationName.trim(),
           memberLimit: request.expectedLicensedProfessionals,
         },
+        update: {},
       });
       await tx.organizationSettings.create({
         data: { organizationId: organization.id },
@@ -433,7 +427,7 @@ export class AdminDashboardService {
       await tx.organizationMember.create({
         data: {
           organizationId: organization.id,
-          userId: orgUser.id,
+          userId: ownerId,
           jobRole: request.representativeJobRole.trim(),
           status: OrganizationMemberStatus.ACTIVE,
         },
@@ -441,7 +435,7 @@ export class AdminDashboardService {
       const approvedRequest = await tx.organizationAccessRequest.update({
         where: { id: requestId },
         data: {
-          approvedUserId: orgUser.id,
+          approvedUserId: ownerId,
         },
         include: {
           reviewedBy: {
@@ -466,7 +460,8 @@ export class AdminDashboardService {
           metadata: {
             workEmail: email,
             organizationId: organization.id,
-            approvedUserId: orgUser.id,
+            approvedUserId: ownerId,
+            linkedExistingUser: Boolean(linkedUser),
             notificationIntent,
           },
         },
@@ -641,6 +636,45 @@ export class AdminDashboardService {
         metadata,
       },
     });
+  }
+
+  /**
+   * Decides whether an existing account for the work email can own the new
+   * organization. Returns null when no account exists and one must be created.
+   * An existing account is never overwritten or promoted into ORGANIZATION.
+   */
+  private async resolveApprovalOwner(
+    tx: Prisma.TransactionClient,
+    email: string,
+  ) {
+    const existingUser = await tx.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        role: true,
+        deletedAt: true,
+        ownedOrganization: { select: { id: true } },
+      },
+    });
+    if (!existingUser) return null;
+    if (existingUser.deletedAt)
+      throw new ConflictException({
+        code: AdminDashboardMessageCode.USER_ALREADY_EXISTS,
+        message:
+          "A deleted account already uses this work email. Restore or replace it before approving.",
+      });
+    if (existingUser.role !== Role.ORGANIZATION)
+      throw new ConflictException({
+        code: AdminDashboardMessageCode.USER_ROLE_CONFLICT,
+        message:
+          "An account with this work email already exists under a different role. Resolve the account before approving.",
+      });
+    if (existingUser.ownedOrganization)
+      throw new ConflictException({
+        code: AdminDashboardMessageCode.ORGANIZATION_ALREADY_EXISTS,
+        message: "This work email already owns an organization.",
+      });
+    return existingUser;
   }
 
   private assertValidOrganizationRequest(request: {

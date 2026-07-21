@@ -1,16 +1,38 @@
-# Current Feature
+# Current Feature: Organization Approval Workflow — Phase 4
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
-<!-- Load a feature to populate goals. -->
+- Implement authorized Admin approval and rejection confirmation flows across
+  the backend and frontend.
+- Require, validate, store, and display rejection reasons together with the
+  reviewing Admin and review timestamp.
+- Validate applications before approval and provision the Organization, pending
+  Organization user, role, and relationships transactionally.
+- Enforce terminal status transitions, concurrency protection, and idempotency
+  so conflicting or repeated reviews cannot create duplicate records.
+- Preserve existing user identities and return a clear conflict when an email
+  cannot be safely linked to an Organization account.
+- Prepare approval and rejection notification intents without configuring or
+  claiming real email delivery.
+- Verify authorization, rollback, status transitions, provisioning, conflicts,
+  frontend behavior, TypeScript, linting, migrations, tests, and builds.
 
 ## Notes
 
-<!-- Additional feature context and constraints. -->
+- Source specification: `context/features/email-org-submit4-spec.md`.
+- Reuse the existing application status enum and project architecture where
+  possible.
+- The authenticated backend session is the only trusted source of reviewer
+  identity; clients must not provide a reviewer ID.
+- Organization accounts must remain pending activation or password setup and
+  must not receive normal dashboard access during this phase.
+- Real email-provider configuration, activation-token delivery, and mandatory
+  first-login password-change UI are explicitly out of scope.
+- Completion requires the specification's twelve-part implementation report.
 
 ## History
 
