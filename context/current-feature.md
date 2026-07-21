@@ -1,56 +1,16 @@
-# Current Feature: Organization Notifications and Secure Activation — Phase 5
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Reuse and complete the project’s intended email provider and notification
-  architecture without coupling Organization workflow logic to a provider SDK.
-- Send branded application-submitted, rejection, approval/activation, and
-  password-changed emails with the correct recipient and safe public content.
-- Implement secure, hashed, expiring, single-use Organization activation tokens
-  that invalidate prior active invitations and never log or persist raw tokens.
-- Generate approval emails containing a secure set-password URL, expiry,
-  Organization login URL, support information, and no permanent password.
-- Persist delivery success or failure independently from valid application
-  status changes and log failures without sensitive values.
-- Add authorized, state-aware resend actions with duplicate-delivery protection
-  for approval, rejection, and activation notifications.
-- Update environment examples, validation, and setup documentation using the
-  project’s existing configuration conventions and no real credentials.
-- Test templates, recipients, token security and lifecycle, provider outcomes,
-  delivery persistence, resend behavior, configuration errors, and logging.
+<!-- Load a feature to populate goals. -->
 
 ## Notes
 
-- Source specification: `context/features/email-org-submit5-spec.md`.
-- Inspect the existing mail provider, templates, notification abstraction,
-  queues, and outbox patterns before adding new infrastructure.
-- Use an existing queue/outbox if present; otherwise keep delivery replaceable
-  and future-queue-compatible without introducing large infrastructure.
-- A successful approval or rejection must not normally be rolled back solely
-  because email delivery fails; persist the failure and warn the Admin instead.
-- Rejection emails may include the applicant-facing rejection reason but must
-  never include internal Admin notes.
-- Real provider credentials remain manual environment setup and must not be
-  committed.
-- The complete first-login password-change UI is explicitly out of scope until
-  Phase 6.
-- Completion requires the specification’s ten-part report.
-- Implementation selected the existing Resend `MailService`, the existing
-  `OtpCode` table with a new `ORGANIZATION_ACTIVATION` purpose, SHA-256 token
-  hashes, and durable notification delivery fields on the application record.
-- The migration is intentionally not applied to the configured shared database:
-  migration status reports two pre-existing remote migrations that are missing
-  locally and must be reconciled before deployment.
-- A second completeness audit added Admin failure warnings, explicit resend
-  confirmation for every reviewed state, activation-link configuration,
-  Organization ownership checks, and coverage for duplicate/in-flight sends,
-  missing configuration, and sensitive logging.
-- Review identified and corrected a delivery-state collision by separating
-  application-submission notification state from approval/rejection state.
+<!-- Additional feature context and constraints. -->
 
 ## History
 
@@ -200,3 +160,21 @@ In Progress
 - Merged to `main`, matching every prior phase and the repository's actual
   integration branch. `ai-interaction.md` was corrected in the same commit: it
   had named a `develop` branch that has never existed.
+
+### 2026-07-21 — Organization notifications and secure activation completed
+
+- Reused the existing Resend mail service and added branded application
+  submitted, rejection, approval/activation, and password-changed templates.
+- Added SHA-256-hashed, expiring, single-use activation tokens that invalidate
+  prior active invitations; raw tokens are neither persisted nor logged.
+- Persisted independent submission and review delivery states so one successful
+  notification cannot suppress another, including retry and failure metadata.
+- Added Admin-authorized, terminal-state resend actions with explicit UI
+  confirmation, failure warnings, and duplicate/in-flight delivery guards.
+- Added public account activation with Organization ownership and pending-account
+  checks, Argon2 password setup, activation, and email verification.
+- Verification passed: API tests (37/37), frontend tests (7/7), API and frontend
+  production builds, Prisma generation/validation, and whitespace checks.
+- The migration remains unapplied because the configured database reports two
+  pre-existing remote migrations missing locally. Real Resend delivery requires
+  deployment credentials; the mandatory first-login UI remains Phase 6 scope.
