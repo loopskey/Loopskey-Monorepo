@@ -1,126 +1,16 @@
-# Current Feature: Organization Approval Workflow — Phase 4 (Approval and Rejection)
-
-Implement secure Admin approval and rejection business logic and its frontend
-confirmation workflow. Real email delivery and mandatory password-change UI
-are explicitly out of scope for this phase.
+# Current Feature
 
 ## Status
 
-Implementation and verification completed on `feature/org-request-review`;
-the branch remains uncommitted pending feature review/completion. Phases 2 and
-3 are complete and merged into `main`. Source spec:
-`context/features/email-org-submit4-spec.md`.
+Not Started
 
 ## Goals
 
-- Enforce terminal `PENDING -> APPROVED | REJECTED` transitions in the backend
-  and reject conflicting or repeated reviews clearly.
-- Make approval transactional: validate the request, create the Organization
-  account and relationships once, retain pending activation/password setup,
-  stamp the reviewer and timestamp, and roll back on any failure.
-- Reject safely with a required bounded reason, reviewer identity from the
-  authenticated session, timestamp, and no cross-transition from approval.
-- Handle concurrent Admin actions and existing-user role conflicts without
-  overwriting identity or creating duplicate organizations or memberships.
-- Prepare a notification abstraction/event for Phase 5 without marking email
-  delivered or configuring a provider.
-- Restore Approve/Reject UI through explicit confirmation dialogs, clear
-  validation/errors, cache refresh, and success notifications.
-- Add focused backend and frontend tests for transitions, concurrency,
-  idempotency, rollback, authorization, relationships, and confirmation UI.
-- Run database, tests, TypeScript, lint, and production-build gates and produce
-  the required twelve-part completion report.
-
-## Phase 3 Completion Reference
-
-- Reuse and complete the existing Admin dashboard navigation, requests list,
-  detail pattern, hooks, GraphQL operations, and responsive design.
-- Support loading, empty, error, unauthorized, and no-results states.
-- Use backend filtering, debounced search, sorting, and bounded pagination.
-- Show submitted applicant fields, status, submission/review information, and
-  rejection reason without exposing unnecessary system fields.
-- Enforce Admin-only list and detail access on the backend and frontend.
-- Keep approval and rejection controls disabled or absent in this phase; do not
-  create accounts, send email, or activate passwords.
-- Add focused tests for list/detail behavior, filtering, search, pagination,
-  debounce, UI states, and non-Admin rejection where the existing harnesses
-  support them.
-- Run tests, TypeScript checks, lint, and production builds, then produce the
-  required nine-part completion report.
-
-## Phase 2 Completion Reference
-
-- Deliver the submission flow end to end: applicant opens the existing form →
-  completes required fields → clicks Submit Request → frontend validates →
-  backend validates and stores → the record gets its backend-assigned submitted
-  status → the applicant sees clear confirmation that the request is awaiting
-  Admin review. No active Organization account is created.
-- Harden the form against the specific failure modes the spec names: required
-  fields marked, field-level validation messages, organizational email
-  validated, submit disabled while in flight, double-click cannot submit twice,
-  form values preserved on recoverable errors, backend errors surfaced clearly,
-  responsive and accessible.
-- Confirm or complete the backend record: organization name, organizational
-  email, contact person and contact details, organization details, status, and
-  the created/updated timestamps. Add no field that an existing field already
-  covers.
-- Keep workflow status server-controlled. The frontend must not be able to set
-  or influence the stored status; the backend assigns the initial value.
-- Strengthen duplicate-application prevention beyond a bare email match where
-  the existing identifiers allow it, and return a clear business error rather
-  than writing a second pending record.
-- Enforce the security rules: all validation server-side; never trust
-  client-supplied role, status, user ID, or organization ID; no active
-  Organization user before approval; no cross-applicant data exposure; no
-  Admin-only fields leaked; no password stored on the application record.
-- Add tests for required-field validation, invalid email, successful
-  submission, initial status, duplicate prevention, double-click protection,
-  backend validation, and unauthorized access to protected application data.
-- Run frontend tests, backend tests, TypeScript checks, lint, migration
-  validation, and a production build. Fix only errors this phase introduces.
-- Produce the 9-part completion report: implementation reused, files modified,
-  files created, database changes, API changes, validation added, duplicate
-  prevention behavior, tests and results, remaining work for phase 3.
+<!-- Load a feature to populate goals. -->
 
 ## Notes
 
-- Source spec: `context/features/email-org-submit2-spec.md` (phase 2 of 7).
-  Phase 1 audit findings are in `context/features/email-org-submit1-audit.md`
-  and should be treated as the starting map.
-- **Much of this already works.** Per the phase 1 audit, `submitRequest`
-  ([org-access-request.service.ts:37](apps/api/src/modules/organization/services/org-access-request.service.ts#L37))
-  already normalizes the email, rejects an existing user, rejects a second
-  PENDING request, and creates the record with a server-assigned status. The
-  public mutation, DTO, entity, form, and Zod schema all exist. Expect this
-  phase to be verification plus gap-closing, not new construction.
-- **Status enum tension.** The spec proposes `DRAFT`/`SUBMITTED`, but the spec
-  also says to reuse the existing enum when one is available.
-  `OrganizationAccessRequestStatus` is `PENDING | APPROVED | REJECTED` and
-  `PENDING` already is the submitted state. Reusing it avoids a migration and a
-  frontend enum change; introducing `DRAFT`/`SUBMITTED` would require renaming
-  a value every later phase depends on. Default to reuse unless the user wants
-  otherwise.
-- **`submittedAt` is likely a duplicate field.** `createdAt` already records
-  submission time, and the spec forbids adding equivalent fields. Do not add it
-  without a reason it must differ from `createdAt`.
-- **Document upload is conditional** — the spec says "when supported". The
-  request model has no document relation today, and the upload pattern in this
-  repo is REST multipart, not GraphQL. Treat as out of scope unless asked.
-- **Stronger duplicate identifiers may not exist.** The spec suggests
-  registration number or organization identifier; `OrganizationAccessRequest`
-  has neither. The realistic strengthening is normalized organization name plus
-  email, or a database-level partial unique index on pending records. Flag
-  rather than invent a new identifier field.
-- **There is no test infrastructure.** The phase 1 audit found zero test files
-  outside `node_modules`. The spec's testing section therefore implies standing
-  up the harness (Jest for the API, Vitest for the frontend) before any test
-  can be written. This is the largest unscoped item in the phase — confirm
-  before building it out.
-- **`npm run check-types` does not exist** as a workspace script; the
-  equivalent is `npx tsc --noEmit -p apps/{api,front}/tsconfig.json`. The gate
-  in `ai-interaction.md` names a script the repo does not expose.
-- Phase 1 and the phase 2–7 specifications are merged into `main`. New
-  implementation work should branch from `main`.
+<!-- Additional feature context and constraints. -->
 
 ## History
 
@@ -220,3 +110,24 @@ the branch remains uncommitted pending feature review/completion. Phases 2 and
 - No `UNDER_REVIEW` transition was added because the existing status enum does
   not support it. Approval, rejection, account creation, email delivery, and
   password activation remain Phase 4+ work.
+
+### 2026-07-21 — Organization approval and rejection completed
+
+- Added transactional Admin-only `PENDING -> APPROVED | REJECTED` transitions
+  with conditional claims that reject repeated or concurrent reviews.
+- Approval validates the application, creates a pending Organization user
+  without a password, provisions the Organization, profile, settings, and
+  owner membership, and records the reviewer and audit data atomically.
+- Rejection requires a bounded reason, records reviewer and timestamp
+  atomically, and preserves the reason for later email delivery.
+- Existing users are never overwritten or silently promoted; conflicts require
+  manual intervention. The legacy divergent review mutation was removed.
+- Added pending approval/rejection notification intents without claiming
+  delivery, plus confirmation dialogs, localized copy, cache refresh, and
+  success/error notifications.
+- Verification passed: backend review tests (10/10), frontend tests (7/7), API
+  build, frontend TypeScript and production build, GraphQL regeneration, and
+  whitespace checks. The repository's pre-existing `next lint` command is
+  incompatible with Next 16.
+- Real email delivery, activation tokens, account activation, and mandatory
+  first-login password-change UI remain for later phases.
