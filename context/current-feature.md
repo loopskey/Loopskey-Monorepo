@@ -1,38 +1,16 @@
-# Current Feature: Organization Approval Workflow — Phase 4
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Implement authorized Admin approval and rejection confirmation flows across
-  the backend and frontend.
-- Require, validate, store, and display rejection reasons together with the
-  reviewing Admin and review timestamp.
-- Validate applications before approval and provision the Organization, pending
-  Organization user, role, and relationships transactionally.
-- Enforce terminal status transitions, concurrency protection, and idempotency
-  so conflicting or repeated reviews cannot create duplicate records.
-- Preserve existing user identities and return a clear conflict when an email
-  cannot be safely linked to an Organization account.
-- Prepare approval and rejection notification intents without configuring or
-  claiming real email delivery.
-- Verify authorization, rollback, status transitions, provisioning, conflicts,
-  frontend behavior, TypeScript, linting, migrations, tests, and builds.
+<!-- Load a feature to populate goals. -->
 
 ## Notes
 
-- Source specification: `context/features/email-org-submit4-spec.md`.
-- Reuse the existing application status enum and project architecture where
-  possible.
-- The authenticated backend session is the only trusted source of reviewer
-  identity; clients must not provide a reviewer ID.
-- Organization accounts must remain pending activation or password setup and
-  must not receive normal dashboard access during this phase.
-- Real email-provider configuration, activation-token delivery, and mandatory
-  first-login password-change UI are explicitly out of scope.
-- Completion requires the specification's twelve-part implementation report.
+<!-- Additional feature context and constraints. -->
 
 ## History
 
@@ -153,3 +131,32 @@ In Progress
   incompatible with Next 16.
 - Real email delivery, activation tokens, account activation, and mandatory
   first-login password-change UI remain for later phases.
+
+### 2026-07-21 — Organization approval workflow, Phase 4 closed
+
+- Audited both `email-org-submit3-spec.md` and `email-org-submit4-spec.md`
+  against the code. Phase 3 was already complete; Phase 4 was complete except
+  for two gaps, both now closed.
+- Approval no longer rejects every existing account for the work email. It
+  inspects the account and links an `ORGANIZATION` user that owns no
+  organization as the owner. A different role returns `UserRoleConflict`, an
+  account that already owns an organization returns
+  `OrganizationAlreadyExists`, and a soft-deleted account returns
+  `UserAlreadyExists`. Existing accounts are never overwritten or promoted.
+- `organizationProfile.create` became an `upsert` with a no-op `update` because
+  `OrganizationProfile.userId` is unique and a linked account may already hold a
+  profile. Audit metadata now records `linkedExistingUser`. All conflicts throw
+  after the status claim inside the transaction, so a refused approval rolls
+  back to `PENDING` and stays reviewable.
+- Added the two tests the specification required and the phase had missing:
+  existing-user conflict (three branches) and rollback on account-creation
+  failure. The existing approval test now shares a `createApprovalTx` factory.
+- Verification: API tests 24/24, `tsc --noEmit` clean, `nest build` clean,
+  Prettier applied. Not verified against a live `/graphql` session; the database
+  still holds two `PENDING` requests if an end-to-end check is wanted.
+- `UNDER_REVIEW` remains unsupported by the status enum, so the Phase 3
+  under-review transition stays out of scope. Real email delivery, activation
+  tokens, and the mandatory first-login password-change UI remain Phase 5+ work.
+- Merged to `main`, matching every prior phase and the repository's actual
+  integration branch. `ai-interaction.md` was corrected in the same commit: it
+  had named a `develop` branch that has never existed.

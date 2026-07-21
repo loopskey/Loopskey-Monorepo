@@ -31,7 +31,7 @@ branch already deleted, is too late to act on anything it finds.
 
 ## Branching
 
-Create a new branch for every feature/fix, branched from `develop`.
+Create a new branch for every feature/fix, branched from `main`.
 
 Name branches by type: **feature/[feature]**, **fix/[fix]**, **chore/[chore]**.
 
@@ -44,11 +44,14 @@ Note: existing branches use an older person-prefixed convention (`neda-auth`,
 
 ## Merge Target
 
-`develop` is the integration branch and the default branch on the remote.
+`main` is the integration branch and the default branch on the remote
+(`origin/HEAD -> origin/main`). Merge completed feature branches into `main`.
 
-**Never merge to `main`.** It is a vestigial 3-commit stub that `develop` has long
-since diverged from. If `main` is ever promoted to a real release branch, update
-this section first.
+This section previously named `develop` as the target and forbade merging to
+`main`. That was never true of this repository: no `develop` branch has ever
+existed locally or on the remote, and every phase of the organization approval
+workflow merged into `main`. Corrected on 2026-07-21. If a real `develop`
+integration branch is ever created, update this section before using it.
 
 ## Verification
 
