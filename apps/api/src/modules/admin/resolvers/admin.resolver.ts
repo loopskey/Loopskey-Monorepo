@@ -153,6 +153,19 @@ export class AdminDashboardResolver {
     );
   }
 
+  @Mutation(() => AdminOrgAccessRequestEntity, {
+    name: AdminDashboardGqlMutationNames.RESEND_ADMIN_ORG_ACCESS_REQUEST_NOTIFICATION,
+  })
+  resendAdminOrgAccessRequestNotification(
+    @CurrentUser() user: TResolverUser,
+    @Args("requestId") requestId: string,
+  ) {
+    return this.adminDashboardService.resendOrgAccessRequestNotification(
+      this.getUser(user),
+      requestId,
+    );
+  }
+
   @Query(() => PaginatedAdminAuditLogsEntity, {
     name: AdminDashboardGqlQueryNames.ADMIN_AUDIT_LOGS,
   })

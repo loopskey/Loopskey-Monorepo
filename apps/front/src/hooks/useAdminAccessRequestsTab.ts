@@ -37,6 +37,7 @@ export const useAdminAccessRequestsTab = () => {
   );
   const [reviewAction, setReviewAction] = useState<TReviewAction | null>(null);
   const [rejectReason, setRejectReason] = useState("");
+  const [isResendConfirmOpen, setIsResendConfirmOpen] = useState(false);
   const debouncedSearch = useDebouncedValue(search.trim(), 350);
 
   const cursor = cursorStack.at(-1);
@@ -68,6 +69,8 @@ export const useAdminAccessRequestsTab = () => {
     API.useApproveAdminOrgAccessRequestMutation();
   const [rejectRequest, rejectState] =
     API.useRejectAdminOrgAccessRequestMutation();
+  const [resendNotification, resendState] =
+    API.useResendAdminOrgAccessRequestNotificationMutation();
 
   const items = useMemo(() => query.data?.items ?? [], [query.data?.items]);
 
@@ -96,6 +99,7 @@ export const useAdminAccessRequestsTab = () => {
 
   const closeRequestReview = () => {
     setReviewAction(null);
+    setIsResendConfirmOpen(false);
     setRejectReason("");
     setSelectedRequestId(null);
   };
@@ -122,11 +126,20 @@ export const useAdminAccessRequestsTab = () => {
     }
     try {
       if (reviewAction === "approve") {
-        await approveRequest(selectedRequestId).unwrap();
+        const result = await approveRequest(selectedRequestId).unwrap();
         notify.success(t("adminDashboard.accessRequests.messages.approved"));
+        if (result.notificationStatus === "FAILED") {
+          notify.error(t("adminDashboard.accessRequests.messages.emailFailed"));
+        }
       } else {
-        await rejectRequest({ requestId: selectedRequestId, reason }).unwrap();
+        const result = await rejectRequest({
+          requestId: selectedRequestId,
+          reason,
+        }).unwrap();
         notify.success(t("adminDashboard.accessRequests.messages.rejected"));
+        if (result.notificationStatus === "FAILED") {
+          notify.error(t("adminDashboard.accessRequests.messages.emailFailed"));
+        }
       }
       setReviewAction(null);
       setRejectReason("");
@@ -145,6 +158,26 @@ export const useAdminAccessRequestsTab = () => {
 
   const refresh = async () => {
     await query.refetch();
+  };
+
+  const resendReviewNotification = async () => {
+    if (!selectedRequestId) return;
+    try {
+      const result = await resendNotification(selectedRequestId).unwrap();
+      if (result.notificationStatus === "FAILED") {
+        notify.error(t("adminDashboard.accessRequests.messages.emailFailed"));
+      } else {
+        notify.success(t("adminDashboard.accessRequests.messages.emailResent"));
+      }
+      await Promise.all([query.refetch(), detailQuery.refetch()]);
+      setIsResendConfirmOpen(false);
+    } catch (error) {
+      const message =
+        error && typeof error === "object" && "message" in error
+          ? String(error.message)
+          : t("authPages.common.genericError");
+      notify.error(message);
+    }
   };
 
   const nextPage = () => {
@@ -186,6 +219,13 @@ export const useAdminAccessRequestsTab = () => {
     setRejectReason,
     confirmReviewAction,
     isReviewing: approveState.isLoading || rejectState.isLoading,
+    isResendingNotification: resendState.isLoading,
+    resendReviewNotification,
+    isResendConfirmOpen,
+    openResendConfirmation: () => setIsResendConfirmOpen(true),
+    closeResendConfirmation: () => {
+      if (!resendState.isLoading) setIsResendConfirmOpen(false);
+    },
     sortDirection,
     selectedRequestId,
     setSortDirection,

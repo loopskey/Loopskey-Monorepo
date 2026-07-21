@@ -19,6 +19,7 @@ import { JwtPayload } from "@auth/types/jwt-payload.type";
 import { LoginInput } from "@auth/dtos/login.input";
 import { Response } from "express";
 import { Role } from "@prisma/client";
+import { ActivateOrganizationAccountInput } from "@auth/dtos/activate-organization-account.input";
 
 @Injectable()
 export class AuthService {
@@ -81,6 +82,10 @@ export class AuthService {
 
   changePassword(userId: string, input: ChangePasswordInput) {
     return this.passwordService.changePassword(userId, input);
+  }
+
+  activateOrganizationAccount(input: ActivateOrganizationAccountInput) {
+    return this.passwordService.activateOrganizationAccount(input);
   }
 
   requestEmailChange(userId: string, input: RequestEmailChangeInput) {

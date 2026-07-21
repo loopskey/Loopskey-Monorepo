@@ -3691,19 +3691,27 @@
       "actions": {
         "review": "Review",
         "approve": "Approve",
-        "reject": "Reject"
+        "reject": "Reject",
+        "resendEmail": "Resend email"
       },
       "review": {
         "reviewedAt": "Reviewed at",
         "rejectHint": "Write a clear reason before rejecting this request.",
         "actionsTitle": "Approval actions",
         "actionsDeferred": "Approval and rejection become available in Phase 4.",
-        "actionsAvailable": "Choose an outcome for this pending request."
+        "actionsAvailable": "Choose an outcome for this pending request.",
+        "emailStatus": "Email status",
+        "emailSentAt": "Email sent at",
+        "emailDelivery": "Email delivery",
+        "emailFailed": "The decision was saved, but email delivery failed. You can retry safely.",
+        "emailResendHint": "Resending is intentional and may replace an older activation link."
       },
       "confirm": {
         "approveTitle": "Approve organization request?",
         "rejectTitle": "Reject organization request?",
-        "description": "This will record a final decision for {organization}. This action cannot be repeated."
+        "description": "This will record a final decision for {organization}. This action cannot be repeated.",
+        "resendTitle": "Resend organization notification?",
+        "resendDescription": "Send the current decision email to {organization} again? For approvals, any previous unused activation link will become invalid."
       },
       "dialog": {
         "title": "Review access request",
@@ -3720,7 +3728,9 @@
       },
       "messages": {
         "approved": "Organization access request approved successfully.",
-        "rejected": "Organization access request rejected successfully."
+        "rejected": "Organization access request rejected successfully.",
+        "emailResent": "Organization notification sent successfully.",
+        "emailFailed": "Email delivery failed. The application decision remains saved."
       }
     },
     "organizationUsers": {

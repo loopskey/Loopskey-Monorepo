@@ -4,13 +4,23 @@ import { SubmitOrganizationAccessRequestInput } from "@org/dtos/submit-org-acces
 import { OrganizationAccessRequestMessageCode } from "@org/enums/org-access-request-message-code.enum";
 import { OrganizationAccessRequestFilterInput } from "@org/dtos/org-access-request-filter";
 import { OrganizationAccessRequestStatus } from "@prisma/client";
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "@prisma/prisma.service";
+import { ConfigService } from "@nestjs/config";
+import { MailService } from "@mail/mail.service";
+import { buildOrganizationSubmittedEmail } from "@mail/organization-email.template";
+import { NotificationDeliveryStatus } from "@prisma/client";
 
 @Injectable()
 export class OrgAccessRequestService {
-  constructor(private readonly prismaService: PrismaService) {}
+  private readonly logger = new Logger(OrgAccessRequestService.name);
+
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly mailService: MailService,
+    private readonly configService: ConfigService,
+  ) {}
 
   private readonly requestSelect = {
     id: true,
@@ -24,6 +34,14 @@ export class OrgAccessRequestService {
     reviewedById: true,
     rejectReason: true,
     approvedUserId: true,
+    notificationStatus: true,
+    notificationSentAt: true,
+    notificationLastAttemptAt: true,
+    notificationFailureCode: true,
+    submissionNotificationStatus: true,
+    submissionNotificationSentAt: true,
+    submissionNotificationLastAttemptAt: true,
+    submissionNotificationFailureCode: true,
     organizationName: true,
     organizationType: true,
     representativeJobRole: true,
@@ -60,20 +78,56 @@ export class OrgAccessRequestService {
     }
 
     try {
-      return await this.prismaService.organizationAccessRequest.create({
-        data: {
-          representativeFullName: input.representativeFullName.trim(),
-          organizationName: input.organizationName.trim(),
-          workEmail,
-          organizationType: input.organizationType,
-          representativeJobRole: input.representativeJobRole.trim(),
-          expectedLicensedProfessionals: input.expectedLicensedProfessionals,
-          country: input.country.trim(),
-          goals: input.goals.trim(),
-          status: OrganizationAccessRequestStatus.PENDING,
+      const request = await this.prismaService.organizationAccessRequest.create(
+        {
+          data: {
+            representativeFullName: input.representativeFullName.trim(),
+            organizationName: input.organizationName.trim(),
+            workEmail,
+            organizationType: input.organizationType,
+            representativeJobRole: input.representativeJobRole.trim(),
+            expectedLicensedProfessionals: input.expectedLicensedProfessionals,
+            country: input.country.trim(),
+            goals: input.goals.trim(),
+            status: OrganizationAccessRequestStatus.PENDING,
+          submissionNotificationStatus: NotificationDeliveryStatus.PENDING,
+          submissionNotificationLastAttemptAt: new Date(),
+          },
+          select: this.requestSelect,
         },
-        select: this.requestSelect,
-      });
+      );
+      try {
+        const template = buildOrganizationSubmittedEmail({
+          appName: this.configService.get<string>("APP_NAME", "LoopsKey"),
+          organizationName: request.organizationName,
+          supportEmail: this.configService.get<string>(
+            "SUPPORT_EMAIL",
+            "support@loopskey.com",
+          ),
+        });
+        await this.mailService.sendEmail({ to: workEmail, ...template });
+        return await this.prismaService.organizationAccessRequest.update({
+          where: { id: request.id },
+          data: {
+            submissionNotificationStatus: NotificationDeliveryStatus.SENT,
+            submissionNotificationSentAt: new Date(),
+          },
+          select: this.requestSelect,
+        });
+      } catch (error) {
+        this.logger.error("Application confirmation email failed", {
+          requestId: request.id,
+          errorName: error instanceof Error ? error.name : "UnknownError",
+        });
+        return this.prismaService.organizationAccessRequest.update({
+          where: { id: request.id },
+          data: {
+            submissionNotificationStatus: NotificationDeliveryStatus.FAILED,
+            submissionNotificationFailureCode: "PROVIDER_DELIVERY_FAILED",
+          },
+          select: this.requestSelect,
+        });
+      }
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&

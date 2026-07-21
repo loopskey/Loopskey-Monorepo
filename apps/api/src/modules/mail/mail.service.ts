@@ -1,4 +1,8 @@
-import { InternalServerErrorException, Injectable } from "@nestjs/common";
+import {
+  InternalServerErrorException,
+  Injectable,
+  Logger,
+} from "@nestjs/common";
 import { AuthMessageCode } from "@auth/enums/message-code.enum";
 import { TSendEmailInput } from "@mail/mail-service.type";
 import { ConfigService } from "@nestjs/config";
@@ -6,6 +10,7 @@ import { Resend } from "resend";
 
 @Injectable()
 export class MailService {
+  private readonly logger = new Logger(MailService.name);
   private readonly resend: Resend;
   private readonly from: string;
 
@@ -27,7 +32,10 @@ export class MailService {
       text: input.text,
     });
     if (error) {
-      console.error("Resend email failed:", error);
+      this.logger.error("Email provider delivery failed", {
+        provider: "resend",
+        errorName: error.name ?? "ProviderError",
+      });
       throw new InternalServerErrorException({
         code: AuthMessageCode.EMAIL_SEND_FAILED,
         message: "Unable to send email. Please try again later.",

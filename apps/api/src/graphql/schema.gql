@@ -2,6 +2,12 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+input ActivateOrganizationAccountInput {
+  confirmPassword: String!
+  password: String!
+  token: String!
+}
+
 input AddOrganizationMemberInput {
   departmentId: String
   email: String!
@@ -68,6 +74,10 @@ type AdminOrgAccessRequest {
   expectedLicensedProfessionals: Int!
   goals: String!
   id: ID!
+  notificationFailureCode: String
+  notificationLastAttemptAt: DateTime
+  notificationSentAt: DateTime
+  notificationStatus: NotificationDeliveryStatus!
   organizationName: String!
   organizationType: OrganizationType!
   rejectReason: String
@@ -1147,6 +1157,7 @@ input LoginInput {
 }
 
 type Mutation {
+  activateOrganizationAccount(input: ActivateOrganizationAccountInput!): AuthPayload!
   addOrganizationMember(input: AddOrganizationMemberInput!): OrganizationMember!
   addToCart(input: ContentActionInput!): ContentActionPayload!
   approveAdminOrgAccessRequest(requestId: String!): AdminOrgAccessRequest!
@@ -1207,6 +1218,7 @@ type Mutation {
   removeAdminOrganizationMember(memberId: String!): AdminOrgMember!
   removeFromCart(input: ContentActionInput!): ContentActionPayload!
   requestEmailChange(input: RequestEmailChangeInput!): AuthPayload!
+  resendAdminOrgAccessRequestNotification(requestId: String!): AdminOrgAccessRequest!
   resendEmailOtp(input: ResendEmailOtpInput!): AuthPayload!
   resetPassword(input: ResetPasswordInput!): AuthPayload!
   resetProfessionalSettings: ProfessionalSettings!
@@ -1264,6 +1276,13 @@ input MyWishlistInput {
   price: WishlistPriceFilter
   search: String
   sortBy: WishlistSortBy = NEWEST
+}
+
+enum NotificationDeliveryStatus {
+  FAILED
+  NOT_REQUESTED
+  PENDING
+  SENT
 }
 
 type OrganizationAccessRequest {

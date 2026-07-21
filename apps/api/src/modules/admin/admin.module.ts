@@ -5,11 +5,12 @@ import { AdminOrgResolver } from "@admin/resolvers/admin-org.resolver";
 import { AdminOrgService } from "@admin/services/admin-org.service";
 import { PrismaModule } from "@prisma/prisma.module";
 import { Module } from "@nestjs/common";
+import { MailModule } from "@mail/mail.module";
 
 import "@admin/enums/admin-register.enum";
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, MailModule],
   providers: [
     AdminOrgService,
     AdminOrgResolver,

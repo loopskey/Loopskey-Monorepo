@@ -44,6 +44,20 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
+## Organization email configuration
+
+Copy `.env.example` values into the environment used by the API. Organization
+workflow messages use the existing Resend provider through `MailService`.
+`RESEND_API_KEY` and `EMAIL_FROM` must be configured by the deployer; never
+commit real credentials.
+
+`ORGANIZATION_ACTIVATION_URL` is the public route used for the single-use
+account activation link; when omitted it is derived from `APPLICATION_BASE_URL`.
+`ORGANIZATION_LOGIN_URL`, `SUPPORT_EMAIL`, and
+`ACTIVATION_TOKEN_EXPIRY_MINUTES` control the email copy and token expiry.
+Approval/rejection changes remain valid if delivery fails; the Admin dashboard
+can retry a failed delivery.
+
 ## Run tests
 
 ```bash

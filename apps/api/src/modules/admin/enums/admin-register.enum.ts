@@ -1,4 +1,8 @@
-import { AuditAction, OrganizationAccessRequestStatus } from "@prisma/client";
+import {
+  AuditAction,
+  NotificationDeliveryStatus,
+  OrganizationAccessRequestStatus,
+} from "@prisma/client";
 import { OrganizationMemberStatus, Role, UserStatus } from "@prisma/client";
 import { registerEnumType } from "@nestjs/graphql";
 
@@ -20,4 +24,8 @@ registerEnumType(OrganizationAccessRequestStatus, {
 
 registerEnumType(OrganizationMemberStatus, {
   name: "OrganizationMemberStatus",
+});
+
+registerEnumType(NotificationDeliveryStatus, {
+  name: "NotificationDeliveryStatus",
 });

@@ -26,6 +26,14 @@ enum OtpPurpose {
   CHANGE_EMAIL
   RESET_PASSWORD
   EMAIL_VERIFICATION
+  ORGANIZATION_ACTIVATION
+}
+
+enum NotificationDeliveryStatus {
+  NOT_REQUESTED
+  PENDING
+  SENT
+  FAILED
 }
 
 enum AuthProvider {
@@ -481,6 +489,16 @@ model OrganizationAccessRequest {
 
   approvedUserId String?
 
+  notificationStatus       NotificationDeliveryStatus @default(NOT_REQUESTED)
+  notificationSentAt       DateTime?
+  notificationLastAttemptAt DateTime?
+  notificationFailureCode  String?
+
+  submissionNotificationStatus        NotificationDeliveryStatus @default(NOT_REQUESTED)
+  submissionNotificationSentAt        DateTime?
+  submissionNotificationLastAttemptAt DateTime?
+  submissionNotificationFailureCode   String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -488,6 +506,8 @@ model OrganizationAccessRequest {
   @@index([status])
   @@index([organizationType])
   @@index([createdAt])
+  @@index([notificationStatus])
+  @@index([submissionNotificationStatus])
 }
 
 // ============== Course ===============

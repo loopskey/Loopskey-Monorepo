@@ -7,6 +7,8 @@ import {
 import type { PrismaService } from "@prisma/prisma.service";
 
 import { OrgAccessRequestService } from "./org-access-request.service";
+import type { MailService } from "@mail/mail.service";
+import type { ConfigService } from "@nestjs/config";
 
 const input = {
   representativeFullName: " Alex Morgan ",
@@ -45,8 +47,18 @@ const createPrismaMock = () => ({
   organizationAccessRequest: {
     findFirst: jest.fn(),
     create: jest.fn(),
+    update: jest.fn(),
   },
 });
+
+const createService = (prisma: ReturnType<typeof createPrismaMock>) =>
+  new OrgAccessRequestService(
+    prisma as unknown as PrismaService,
+    { sendEmail: jest.fn().mockResolvedValue({ id: "email-1" }) } as unknown as MailService,
+    {
+      get: jest.fn((_name: string, fallback?: string) => fallback),
+    } as unknown as ConfigService,
+  );
 
 describe("OrgAccessRequestService.submitRequest", () => {
   it("stores a normalized request with a server-assigned pending status", async () => {
@@ -54,9 +66,8 @@ describe("OrgAccessRequestService.submitRequest", () => {
     prisma.user.findUnique.mockResolvedValue(null);
     prisma.organizationAccessRequest.findFirst.mockResolvedValue(null);
     prisma.organizationAccessRequest.create.mockResolvedValue(submittedRequest);
-    const service = new OrgAccessRequestService(
-      prisma as unknown as PrismaService,
-    );
+    prisma.organizationAccessRequest.update.mockResolvedValue(submittedRequest);
+    const service = createService(prisma);
 
     await expect(service.submitRequest(input)).resolves.toEqual(
       submittedRequest,
@@ -67,9 +78,13 @@ describe("OrgAccessRequestService.submitRequest", () => {
           workEmail: "alex@example.org",
           organizationName: "Example Association",
           status: OrganizationAccessRequestStatus.PENDING,
+          submissionNotificationStatus: "PENDING",
         }),
       }),
     );
+    expect(
+      prisma.organizationAccessRequest.create.mock.calls[0][0].data,
+    ).not.toHaveProperty("notificationStatus");
   });
 
   it("rejects a duplicate pending application before writing", async () => {
@@ -78,9 +93,7 @@ describe("OrgAccessRequestService.submitRequest", () => {
     prisma.organizationAccessRequest.findFirst.mockResolvedValue({
       id: "existing-request",
     });
-    const service = new OrgAccessRequestService(
-      prisma as unknown as PrismaService,
-    );
+    const service = createService(prisma);
 
     await expect(service.submitRequest(input)).rejects.toBeInstanceOf(
       ConflictException,
@@ -91,9 +104,7 @@ describe("OrgAccessRequestService.submitRequest", () => {
   it("does not create an application for an existing user", async () => {
     const prisma = createPrismaMock();
     prisma.user.findUnique.mockResolvedValue({ id: "existing-user" });
-    const service = new OrgAccessRequestService(
-      prisma as unknown as PrismaService,
-    );
+    const service = createService(prisma);
 
     await expect(service.submitRequest(input)).rejects.toBeInstanceOf(
       ConflictException,

@@ -13,3 +13,20 @@ export type TBuildOtpEmailTemplateInput = {
   purpose: OtpPurpose;
   expiresInMinutes: number;
 };
+
+export type TOrganizationEmailBase = {
+  appName: string;
+  organizationName: string;
+  supportEmail: string;
+};
+
+export type TOrganizationApprovalEmail = TOrganizationEmailBase & {
+  activationUrl: string;
+  expiresInMinutes: number;
+  loginUrl: string;
+  username: string;
+};
+
+export type TOrganizationRejectionEmail = TOrganizationEmailBase & {
+  reason: string;
+};

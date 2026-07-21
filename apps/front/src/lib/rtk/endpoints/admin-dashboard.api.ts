@@ -220,6 +220,23 @@ export const adminApi = baseApi.injectEndpoints({
       ],
     }),
 
+    resendAdminOrgAccessRequestNotification: builder.mutation<
+      TAPI.ResendAdminOrgAccessRequestNotificationMutation["resendAdminOrgAccessRequestNotification"],
+      TAPI.ResendAdminOrgAccessRequestNotificationMutationVariables["requestId"]
+    >({
+      query: (requestId) => ({
+        document: API.ResendAdminOrgAccessRequestNotificationDocument,
+        variables: { requestId },
+      }),
+      transformResponse: (
+        response: TAPI.ResendAdminOrgAccessRequestNotificationMutation,
+      ) => response.resendAdminOrgAccessRequestNotification,
+      invalidatesTags: (_result, _error, requestId) => [
+        "OrganizationAccessRequests",
+        { type: "OrganizationAccessRequest", id: requestId },
+      ],
+    }),
+
     adminOrganizationUsers: builder.query<
       TAPI.AdminOrganizationUsersQuery["adminOrganizations"],
       TAPI.AdminOrganizationUsersQueryVariables | void
@@ -327,6 +344,7 @@ export const {
   useLazyAdminOrganizationDetailQuery,
   useRejectAdminOrgAccessRequestMutation,
   useApproveAdminOrgAccessRequestMutation,
+  useResendAdminOrgAccessRequestNotificationMutation,
   useUpdateAdminOrganizationMemberMutation,
   useRemoveAdminOrganizationMemberMutation,
   useUpdateAdminOrganizationSettingsMutation,

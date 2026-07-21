@@ -30,6 +30,11 @@ export const AdminAccessRequestReviewView = ({ hook }: Props) => {
     closeReviewAction,
     closeRequestReview,
     confirmReviewAction,
+    isResendingNotification,
+    resendReviewNotification,
+    isResendConfirmOpen,
+    openResendConfirmation,
+    closeResendConfirmation,
   } = hook;
 
   if (!selectedRequest) {
@@ -238,8 +243,54 @@ export const AdminAccessRequestReviewView = ({ hook }: Props) => {
                   label={t("adminDashboard.accessRequests.dialog.rejectReason")}
                 />
               )}
+
+              <InfoRow
+                value={selectedRequest.notificationStatus}
+                label={t("adminDashboard.accessRequests.review.emailStatus")}
+              />
+
+              {selectedRequest.notificationSentAt && (
+                <InfoRow
+                  value={formatDate(selectedRequest.notificationSentAt)}
+                  label={t("adminDashboard.accessRequests.review.emailSentAt")}
+                />
+              )}
             </div>
           </GlassCard>
+
+          {!isPending && (
+            <GlassCard className="h-fit">
+              <h2 className="text-lg font-medium">
+                {t("adminDashboard.accessRequests.review.emailDelivery")}
+              </h2>
+              <p
+                className={`mt-1 text-sm ${
+                  selectedRequest.notificationStatus === "FAILED"
+                    ? "text-destructive"
+                    : "text-muted-foreground"
+                }`}
+              >
+                {selectedRequest.notificationStatus === "FAILED"
+                  ? t("adminDashboard.accessRequests.review.emailFailed")
+                  : t("adminDashboard.accessRequests.review.emailResendHint")}
+              </p>
+              <Button
+                radius="xl"
+                type="button"
+                variant="brand"
+                className="mt-5 w-full"
+                disabled={isResendingNotification}
+                onClick={openResendConfirmation}
+              >
+                {isResendingNotification ? (
+                  <L.Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <L.Send className="h-4 w-4" />
+                )}
+                {t("adminDashboard.accessRequests.actions.resendEmail")}
+              </Button>
+            </GlassCard>
+          )}
 
           {isPending && (
             <GlassCard className="h-fit">
@@ -349,6 +400,54 @@ export const AdminAccessRequestReviewView = ({ hook }: Props) => {
                 {reviewAction === "reject"
                   ? t("adminDashboard.accessRequests.actions.reject")
                   : t("adminDashboard.accessRequests.actions.approve")}
+              </Button>
+            </A.AlertDialogAction>
+          </A.AlertDialogFooter>
+        </A.AlertDialogContent>
+      </A.AlertDialog>
+
+      <A.AlertDialog
+        open={isResendConfirmOpen}
+        onOpenChange={(open) => {
+          if (!open) closeResendConfirmation();
+        }}
+      >
+        <A.AlertDialogContent className="glass-dialog rounded-3xl border-glass-border">
+          <A.AlertDialogHeader>
+            <A.AlertDialogTitle>
+              {t("adminDashboard.accessRequests.confirm.resendTitle")}
+            </A.AlertDialogTitle>
+            <A.AlertDialogDescription>
+              {t("adminDashboard.accessRequests.confirm.resendDescription", {
+                organization: selectedRequest.organizationName,
+              })}
+            </A.AlertDialogDescription>
+          </A.AlertDialogHeader>
+          <A.AlertDialogFooter>
+            <A.AlertDialogCancel asChild>
+              <Button
+                radius="xl"
+                variant="glass"
+                disabled={isResendingNotification}
+                onClick={closeResendConfirmation}
+              >
+                {t("common.cancel")}
+              </Button>
+            </A.AlertDialogCancel>
+            <A.AlertDialogAction asChild>
+              <Button
+                radius="xl"
+                variant="brand"
+                disabled={isResendingNotification}
+                onClick={(event) => {
+                  event.preventDefault();
+                  void resendReviewNotification();
+                }}
+              >
+                {isResendingNotification && (
+                  <L.Loader2 className="h-4 w-4 animate-spin" />
+                )}
+                {t("adminDashboard.accessRequests.actions.resendEmail")}
               </Button>
             </A.AlertDialogAction>
           </A.AlertDialogFooter>

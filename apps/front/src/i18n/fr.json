@@ -3691,19 +3691,27 @@
       "actions": {
         "review": "Examiner",
         "approve": "Approuver",
-        "reject": "Rejeter"
+        "reject": "Rejeter",
+        "resendEmail": "Renvoyer l’e-mail"
       },
       "review": {
         "reviewedAt": "Examiné le",
         "rejectHint": "Veuillez écrire une raison claire avant de rejeter cette demande.",
         "actionsTitle": "Actions d’approbation",
         "actionsDeferred": "L’approbation et le rejet seront disponibles à la phase 4.",
-        "actionsAvailable": "Choisissez une décision pour cette demande en attente."
+        "actionsAvailable": "Choisissez une décision pour cette demande en attente.",
+        "emailStatus": "Statut de l’e-mail",
+        "emailSentAt": "E-mail envoyé le",
+        "emailDelivery": "Livraison de l’e-mail",
+        "emailFailed": "La décision a été enregistrée, mais l’envoi a échoué. Vous pouvez réessayer en toute sécurité.",
+        "emailResendHint": "Le renvoi est intentionnel et peut remplacer un ancien lien d’activation."
       },
       "confirm": {
         "approveTitle": "Approuver la demande de l’organisation ?",
         "rejectTitle": "Rejeter la demande de l’organisation ?",
-        "description": "Cette action enregistrera une décision finale pour {organization}. Elle ne pourra pas être répétée."
+        "description": "Cette action enregistrera une décision finale pour {organization}. Elle ne pourra pas être répétée.",
+        "resendTitle": "Renvoyer la notification de l’organisation ?",
+        "resendDescription": "Renvoyer l’e-mail de décision actuel à {organization} ? Pour une approbation, tout ancien lien d’activation inutilisé sera invalidé."
       },
       "dialog": {
         "title": "Examiner la demande d’accès",
@@ -3720,7 +3728,9 @@
       },
       "messages": {
         "approved": "Demande d’accès organisation approuvée avec succès.",
-        "rejected": "Demande d’accès organisation rejetée avec succès."
+        "rejected": "Demande d’accès organisation rejetée avec succès.",
+        "emailResent": "Notification de l’organisation envoyée avec succès.",
+        "emailFailed": "L’envoi de l’e-mail a échoué. La décision reste enregistrée."
       }
     },
     "organizationUsers": {

@@ -346,7 +346,7 @@ export class AdminDashboardService {
 
   async approveOrgAccessRequest(user: TAdminDashboardUser, requestId: string) {
     this.assertAdmin(user);
-    return this.prismaService.$transaction(async (tx) => {
+    const result = await this.prismaService.$transaction(async (tx) => {
       const request = await tx.organizationAccessRequest.findUnique({
         where: { id: requestId },
       });
@@ -446,11 +446,6 @@ export class AdminDashboardService {
           },
         },
       });
-      const notificationIntent = this.reviewNotification.prepareIntent({
-        type: "ORGANIZATION_REQUEST_APPROVED",
-        recipient: email,
-        requestId,
-      });
       await tx.auditLog.create({
         data: {
           actorId: user.id,
@@ -462,7 +457,10 @@ export class AdminDashboardService {
             organizationId: organization.id,
             approvedUserId: ownerId,
             linkedExistingUser: Boolean(linkedUser),
-            notificationIntent,
+            notificationIntent: {
+              type: "ORGANIZATION_REQUEST_APPROVED",
+              deliveryStatus: "PENDING",
+            },
           },
         },
       });
@@ -472,6 +470,8 @@ export class AdminDashboardService {
         reviewedByName: reviewedBy?.fullName ?? reviewedBy?.email ?? null,
       };
     });
+    const notificationStatus = await this.reviewNotification.deliver(requestId);
+    return { ...result, notificationStatus };
   }
 
   async rejectOrgAccessRequest(
@@ -488,7 +488,7 @@ export class AdminDashboardService {
           "A rejection reason between 3 and 1000 characters is required.",
       });
 
-    return this.prismaService.$transaction(async (tx) => {
+    const result = await this.prismaService.$transaction(async (tx) => {
       const request = await tx.organizationAccessRequest.findUnique({
         where: { id: requestId },
       });
@@ -522,11 +522,6 @@ export class AdminDashboardService {
             "This organization access request was reviewed by another admin.",
         });
 
-      const notificationIntent = this.reviewNotification.prepareIntent({
-        type: "ORGANIZATION_REQUEST_REJECTED",
-        recipient: request.workEmail.trim().toLowerCase(),
-        requestId,
-      });
       await tx.auditLog.create({
         data: {
           actorId: user.id,
@@ -535,7 +530,10 @@ export class AdminDashboardService {
           entityId: requestId,
           metadata: {
             reason: rejectReason,
-            notificationIntent,
+            notificationIntent: {
+              type: "ORGANIZATION_REQUEST_REJECTED",
+              deliveryStatus: "PENDING",
+            },
           },
         },
       });
@@ -557,6 +555,21 @@ export class AdminDashboardService {
         reviewedByName: reviewedBy?.fullName ?? reviewedBy?.email ?? null,
       };
     });
+    const notificationStatus = await this.reviewNotification.deliver(requestId);
+    return { ...result, notificationStatus };
+  }
+
+  async resendOrgAccessRequestNotification(
+    user: TAdminDashboardUser,
+    requestId: string,
+  ) {
+    this.assertAdmin(user);
+    const notificationStatus = await this.reviewNotification.deliver(
+      requestId,
+      true,
+    );
+    const request = await this.orgAccessRequestDetail(user, requestId);
+    return { ...request, notificationStatus };
   }
 
   async auditLogs(

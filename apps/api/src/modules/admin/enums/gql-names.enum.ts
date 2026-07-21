@@ -48,5 +48,6 @@ export enum AdminDashboardGqlMutationNames {
   UPDATE_ADMIN_USER_STATUS = "updateAdminUserStatus",
   REJECT_ADMIN_ORG_ACCESS_REQUEST = "rejectAdminOrgAccessRequest",
   APPROVE_ADMIN_ORG_ACCESS_REQUEST = "approveAdminOrgAccessRequest",
+  RESEND_ADMIN_ORG_ACCESS_REQUEST_NOTIFICATION = "resendAdminOrgAccessRequestNotification",
   UPDATE_ADMIN_ORGANIZATION_SETTINGS = "updateAdminOrganizationSettings",
 }

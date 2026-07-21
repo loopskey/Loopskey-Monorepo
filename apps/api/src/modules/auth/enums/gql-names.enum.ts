@@ -18,6 +18,7 @@ export enum AuthGqlInputNames {
   RESEND_EMAIL_OTP = "ResendEmailOtpInput",
   VERIFY_EMAIL_CHANGE_INPUT = "VerifyEmailChangeInput",
   REQUEST_EMAIL_CHANGE_INPUT = "RequestEmailChangeInput",
+  ACTIVATE_ORGANIZATION_ACCOUNT = "ActivateOrganizationAccountInput",
 }
 
 export enum AuthGqlMutationNames {
@@ -32,6 +33,7 @@ export enum AuthGqlMutationNames {
   RESEND_EMAIL_OTP = "resendEmailOtp",
   VERIFY_EMAIL_CHANGE = "verifyEmailChange",
   REQUEST_EMAIL_CHANGE = "requestEmailChange",
+  ACTIVATE_ORGANIZATION_ACCOUNT = "activateOrganizationAccount",
 }
 
 export enum AuthGqlQueryNames {

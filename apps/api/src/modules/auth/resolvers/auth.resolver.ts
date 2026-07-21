@@ -18,6 +18,7 @@ import { LoginInput } from "@auth/dtos/login.input";
 import { JwtPayload } from "@auth/types/jwt-payload.type";
 import { Public } from "@auth/decorators/public.decorator";
 import { Role } from "@prisma/client";
+import { ActivateOrganizationAccountInput } from "@auth/dtos/activate-organization-account.input";
 
 @Resolver(() => AuthPayloadEntity)
 export class AuthResolver {
@@ -29,6 +30,16 @@ export class AuthResolver {
   })
   register(@Args("input") input: RegisterInput) {
     return this.authService.register(input);
+  }
+
+  @Public()
+  @Mutation(() => AuthPayloadEntity, {
+    name: AuthGqlMutationNames.ACTIVATE_ORGANIZATION_ACCOUNT,
+  })
+  activateOrganizationAccount(
+    @Args("input") input: ActivateOrganizationAccountInput,
+  ) {
+    return this.authService.activateOrganizationAccount(input);
   }
 
   @Public()

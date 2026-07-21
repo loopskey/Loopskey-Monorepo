@@ -197,6 +197,10 @@ fragment AdminDashboardOrgAccessRequestFields on AdminOrgAccessRequest {
   representativeJobRole
   representativeFullName
   expectedLicensedProfessionals
+  notificationStatus
+  notificationSentAt
+  notificationLastAttemptAt
+  notificationFailureCode
 }
 
 fragment AdminDashboardPaginatedOrgAccessRequestsFields on PaginatedAdminOrgAccessRequests {
@@ -232,6 +236,12 @@ mutation ApproveAdminOrgAccessRequest($requestId: String!) {
 
 mutation RejectAdminOrgAccessRequest($input: RejectAdminOrgAccessRequestInput!) {
   rejectAdminOrgAccessRequest(input: $input) {
+    ...AdminDashboardOrgAccessRequestFields
+  }
+}
+
+mutation ResendAdminOrgAccessRequestNotification($requestId: String!) {
+  resendAdminOrgAccessRequestNotification(requestId: $requestId) {
     ...AdminDashboardOrgAccessRequestFields
   }
 }

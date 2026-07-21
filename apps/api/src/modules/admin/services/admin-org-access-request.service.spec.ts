@@ -73,7 +73,9 @@ const createApprovalTx = ({
 const createService = (prisma: unknown) =>
   new AdminDashboardService(
     prisma as PrismaService,
-    new OrganizationReviewNotificationService(),
+    {
+      deliver: jest.fn().mockResolvedValue("SENT"),
+    } as unknown as OrganizationReviewNotificationService,
   );
 
 describe("AdminDashboardService organization requests", () => {
