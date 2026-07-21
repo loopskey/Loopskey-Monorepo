@@ -1201,6 +1201,28 @@
       "backToLogin": "Back to login",
       "backToLoginAvailableIn": "Back to login available in {{seconds}}s"
     },
+    "activation": {
+      "title": "Set your password",
+      "description": "Your organization account has been approved. Create a secure password to activate your account.",
+      "descriptionNamed": "The account for {{organizationName}} has been approved. Create a secure password to activate it.",
+      "checking": "Checking your activation link...",
+      "submit": "Activate account",
+      "activating": "Activating account...",
+      "successTitle": "Your account is active. Sign in with your new password.",
+      "activationFailed": "This activation link could not be used. Request a new one below.",
+      "passwordTooObvious": "Choose a password that is not your email address or organization name.",
+      "usedTitle": "This link has already been used",
+      "usedDescription": "Your account may already be active. Sign in with the password you created.",
+      "expiredTitle": "This activation link has expired",
+      "expiredDescription": "Activation links are valid for a limited time. Enter your work email to receive a new one.",
+      "invalidTitle": "This activation link is not valid",
+      "invalidDescription": "The link may be incomplete or replaced by a newer one. Enter your work email to receive a new link.",
+      "workEmail": "Work email",
+      "resend": "Send a new activation link",
+      "resending": "Sending...",
+      "resendSent": "If this account is awaiting activation, a new activation email has been sent.",
+      "currentPassword": "Current password"
+    },
     "professional": {
       "titlePrefix": "Welcome to",
       "titleBrand": "LoopsKey",
@@ -3117,10 +3139,8 @@
       "title": "Settings",
       "description": "Configure CPD compliance, structure, and notification policies for your organization.",
       "forcePassword": {
-        "title": "Change your temporary password",
-        "description": "For security, you must change the temporary password that was generated for your organization account.",
-        "hint": "Use the password section on this page to set a new secure password. After changing it, this warning will no longer appear.",
-        "goToPassword": "Go to password"
+        "title": "Set a new password",
+        "description": "For security, you must set a new password before you can use this organization account."
       },
       "profile": {
         "role": "Account role"

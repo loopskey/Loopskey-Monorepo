@@ -228,6 +228,8 @@ enum AssignmentType {
 
 enum AuditAction {
   ADMIN_PROFILE_UPDATED
+  ORGANIZATION_ACCOUNT_ACTIVATED
+  ORGANIZATION_ACTIVATION_RESENT
   ORGANIZATION_MEMBER_REMOVED
   ORGANIZATION_MEMBER_UPDATED
   ORGANIZATION_SETTINGS_UPDATED
@@ -1220,6 +1222,7 @@ type Mutation {
   requestEmailChange(input: RequestEmailChangeInput!): AuthPayload!
   resendAdminOrgAccessRequestNotification(requestId: String!): AdminOrgAccessRequest!
   resendEmailOtp(input: ResendEmailOtpInput!): AuthPayload!
+  resendOrganizationActivation(input: ResendOrganizationActivationInput!): AuthPayload!
   resetPassword(input: ResetPasswordInput!): AuthPayload!
   resetProfessionalSettings: ProfessionalSettings!
   restoreCourse(courseId: String!): Course!
@@ -1334,6 +1337,18 @@ type OrganizationActionResponse {
   code: String!
   message: String!
   success: Boolean!
+}
+
+type OrganizationActivationStatus {
+  organizationName: String
+  status: OrganizationActivationTokenStatus!
+}
+
+enum OrganizationActivationTokenStatus {
+  EXPIRED
+  INVALID
+  USED
+  VALID
 }
 
 type OrganizationAssignment {
@@ -2660,6 +2675,7 @@ type Query {
   myWishlist(input: MyWishlistInput): PaginatedWishlist!
   organizationAccessRequestById(requestId: String!): OrganizationAccessRequest!
   organizationAccessRequests(filter: OrganizationAccessRequestFilterInput, pagination: OrganizationAccessRequestPaginationInput): PaginatedOrganizationAccessRequests!
+  organizationActivationStatus(token: String!): OrganizationActivationStatus!
   organizationAssignmentStats: OrganizationAssignmentStats!
   organizationAssignments(filter: OrganizationAssignmentFilterInput, pagination: OrganizationPaginationInput): PaginatedOrganizationAssignments!
   organizationCpdCategories(filter: OrganizationCpdCategoryFilterInput, pagination: OrganizationPaginationInput): PaginatedOrganizationCpdCategories!
@@ -2728,6 +2744,10 @@ input RequestEmailChangeInput {
 }
 
 input ResendEmailOtpInput {
+  email: String!
+}
+
+input ResendOrganizationActivationInput {
   email: String!
 }
 

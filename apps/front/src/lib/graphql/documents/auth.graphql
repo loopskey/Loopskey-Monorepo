@@ -108,6 +108,31 @@ mutation ResetPassword($input: ResetPasswordInput!) {
   }
 }
 
+query OrganizationActivationStatus($token: String!) {
+  organizationActivationStatus(token: $token) {
+    status
+    organizationName
+  }
+}
+
+mutation ActivateOrganizationAccount($input: ActivateOrganizationAccountInput!) {
+  activateOrganizationAccount(input: $input) {
+    code
+    success
+    message
+  }
+}
+
+mutation ResendOrganizationActivation(
+  $input: ResendOrganizationActivationInput!
+) {
+  resendOrganizationActivation(input: $input) {
+    code
+    success
+    message
+  }
+}
+
 mutation ChangePassword($input: ChangePasswordInput!) {
   changePassword(input: $input) {
     code

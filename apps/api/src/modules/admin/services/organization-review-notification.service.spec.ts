@@ -8,6 +8,9 @@ import type { MailService } from "@mail/mail.service";
 import type { PrismaService } from "@prisma/prisma.service";
 import { ConflictException, Logger } from "@nestjs/common";
 
+import type { AuthCommonService } from "@auth/services/auth-common.service";
+import { AuthOrganizationActivationService } from "@auth/services/auth-organization-activation.service";
+
 import { OrganizationReviewNotificationService } from "./organization-review-notification.service";
 
 const request = {
@@ -44,6 +47,14 @@ const setup = (sendEmail = jest.fn().mockResolvedValue({ id: "email-1" })) => {
         })[name] ?? fallback,
     ),
   };
+  // The real activation service is used so the approval email keeps proving
+  // that a hashed, single-use token reaches the message as a raw link.
+  const organizationActivation = new AuthOrganizationActivationService(
+    prisma as unknown as PrismaService,
+    config as unknown as ConfigService,
+    { sendEmail } as unknown as MailService,
+    {} as unknown as AuthCommonService,
+  );
   return {
     prisma,
     config,
@@ -52,6 +63,7 @@ const setup = (sendEmail = jest.fn().mockResolvedValue({ id: "email-1" })) => {
       prisma as unknown as PrismaService,
       { sendEmail } as unknown as MailService,
       config as unknown as ConfigService,
+      organizationActivation,
     ),
   };
 };

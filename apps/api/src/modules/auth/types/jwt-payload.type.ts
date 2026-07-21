@@ -6,4 +6,5 @@ export type JwtPayload = {
   status: UserStatus;
   sessionId?: string;
   email: string | null;
+  forcePasswordChange?: boolean;
 };

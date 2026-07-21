@@ -1203,6 +1203,28 @@
       "backToLogin": "Retour à la connexion",
       "backToLoginAvailableIn": "Retour à la connexion disponible dans {{seconds}}s"
     },
+    "activation": {
+      "title": "Définissez votre mot de passe",
+      "description": "Le compte de votre organisation a été approuvé. Créez un mot de passe sécurisé pour l'activer.",
+      "descriptionNamed": "Le compte de {{organizationName}} a été approuvé. Créez un mot de passe sécurisé pour l'activer.",
+      "checking": "Vérification de votre lien d'activation...",
+      "submit": "Activer le compte",
+      "activating": "Activation du compte...",
+      "successTitle": "Votre compte est actif. Connectez-vous avec votre nouveau mot de passe.",
+      "activationFailed": "Ce lien d'activation n'a pas pu être utilisé. Demandez-en un nouveau ci-dessous.",
+      "passwordTooObvious": "Choisissez un mot de passe qui n'est ni votre adresse e-mail ni le nom de votre organisation.",
+      "usedTitle": "Ce lien a déjà été utilisé",
+      "usedDescription": "Votre compte est peut-être déjà actif. Connectez-vous avec le mot de passe que vous avez créé.",
+      "expiredTitle": "Ce lien d'activation a expiré",
+      "expiredDescription": "Les liens d'activation sont valables pour une durée limitée. Saisissez votre e-mail professionnel pour en recevoir un nouveau.",
+      "invalidTitle": "Ce lien d'activation n'est pas valide",
+      "invalidDescription": "Le lien est peut-être incomplet ou remplacé par un plus récent. Saisissez votre e-mail professionnel pour recevoir un nouveau lien.",
+      "workEmail": "E-mail professionnel",
+      "resend": "Envoyer un nouveau lien d'activation",
+      "resending": "Envoi en cours...",
+      "resendSent": "Si ce compte est en attente d'activation, un nouvel e-mail d'activation a été envoyé.",
+      "currentPassword": "Mot de passe actuel"
+    },
     "professional": {
       "titlePrefix": "Bienvenue sur",
       "titleBrand": "LoopsKey",
@@ -3118,10 +3140,8 @@
       "title": "Paramètres",
       "description": "Configurez les règles de conformité CPD, la structure et les préférences de notification de votre organisation.",
       "forcePassword": {
-        "title": "Modifiez votre mot de passe temporaire",
-        "description": "Pour des raisons de sécurité, vous devez modifier le mot de passe temporaire généré pour le compte de votre organisation.",
-        "hint": "Utilisez la section mot de passe de cette page pour définir un nouveau mot de passe sécurisé. Après la modification, cet avertissement ne s’affichera plus.",
-        "goToPassword": "Aller au mot de passe"
+        "title": "Définissez un nouveau mot de passe",
+        "description": "Pour des raisons de sécurité, vous devez définir un nouveau mot de passe avant d'utiliser ce compte d'organisation."
       },
       "profile": {
         "role": "Rôle du compte"

@@ -1,4 +1,8 @@
 import { Args, Context, Mutation, Query, Resolver } from "@nestjs/graphql";
+import { OrganizationActivationStatusEntity } from "@auth/entities/organization-activation-status.entity";
+import { ResendOrganizationActivationInput } from "@auth/dtos/resend-organization-activation.input";
+import { ActivateOrganizationAccountInput } from "@auth/dtos/activate-organization-account.input";
+import { AllowPasswordChangeRequired } from "@auth/decorators/allow-password-change-required.decorator";
 import { RequestEmailChangeInput } from "@auth/dtos/request-email-change.input";
 import { VerifyEmailChangeInput } from "@auth/dtos/verify-email-change.input";
 import { AuthGqlMutationNames } from "@auth/enums/gql-names.enum";
@@ -18,7 +22,6 @@ import { LoginInput } from "@auth/dtos/login.input";
 import { JwtPayload } from "@auth/types/jwt-payload.type";
 import { Public } from "@auth/decorators/public.decorator";
 import { Role } from "@prisma/client";
-import { ActivateOrganizationAccountInput } from "@auth/dtos/activate-organization-account.input";
 
 @Resolver(() => AuthPayloadEntity)
 export class AuthResolver {
@@ -40,6 +43,24 @@ export class AuthResolver {
     @Args("input") input: ActivateOrganizationAccountInput,
   ) {
     return this.authService.activateOrganizationAccount(input);
+  }
+
+  @Public()
+  @Query(() => OrganizationActivationStatusEntity, {
+    name: AuthGqlQueryNames.ORGANIZATION_ACTIVATION_STATUS,
+  })
+  organizationActivationStatus(@Args("token") token: string) {
+    return this.authService.organizationActivationStatus(token);
+  }
+
+  @Public()
+  @Mutation(() => AuthPayloadEntity, {
+    name: AuthGqlMutationNames.RESEND_ORGANIZATION_ACTIVATION,
+  })
+  resendOrganizationActivation(
+    @Args("input") input: ResendOrganizationActivationInput,
+  ) {
+    return this.authService.resendOrganizationActivation(input);
   }
 
   @Public()
@@ -94,6 +115,7 @@ export class AuthResolver {
     return this.authService.refreshToken(refreshToken, response);
   }
 
+  @AllowPasswordChangeRequired()
   @Mutation(() => AuthPayloadEntity, {
     name: AuthGqlMutationNames.LOGOUT,
   })
@@ -117,6 +139,7 @@ export class AuthResolver {
     return this.authService.resetPassword(input);
   }
 
+  @AllowPasswordChangeRequired()
   @Query(() => AuthPayloadEntity, {
     name: AuthGqlQueryNames.CURRENT_USER,
   })
@@ -124,6 +147,7 @@ export class AuthResolver {
     return this.authService.currentUser(user.sub);
   }
 
+  @AllowPasswordChangeRequired()
   @Mutation(() => AuthPayloadEntity, {
     name: AuthGqlMutationNames.CHANGE_PASSWORD,
   })

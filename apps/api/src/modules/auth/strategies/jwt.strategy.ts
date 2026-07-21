@@ -34,6 +34,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
         email: true,
         role: true,
         status: true,
+        forcePasswordChange: true,
       },
     });
 
@@ -55,6 +56,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
       role: user.role,
       status: user.status,
       sessionId: payload.sessionId,
+      forcePasswordChange: user.forcePasswordChange,
     };
   }
 }

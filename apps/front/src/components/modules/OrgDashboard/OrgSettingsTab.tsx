@@ -11,7 +11,6 @@ import { Switch } from "@ui/switch";
 import { Badge } from "@ui/badge";
 import { Form } from "@ui/form";
 
-import * as D from "@ui/dialog";
 import * as L from "lucide-react";
 
 const OrganizationSettingsTab = () => {
@@ -28,13 +27,7 @@ const OrganizationSettingsTab = () => {
     saveComplianceRules,
     submitPasswordChange,
     saveNotificationPrefs,
-    shouldShowForcePasswordDialog,
-    forceDialogDismissed,
-    setForceDialogDismissed,
   } = useOrganizationSettingsTab();
-
-  const openForcePasswordDialog =
-    shouldShowForcePasswordDialog && !forceDialogDismissed;
 
   const complianceCycleOptions = Object.values(ComplianceCycle).map(
     (value) => ({
@@ -73,36 +66,6 @@ const OrganizationSettingsTab = () => {
 
   return (
     <div className="space-y-6">
-      <D.Dialog
-        open={openForcePasswordDialog}
-        onOpenChange={(open) => {
-          if (!open) setForceDialogDismissed(true);
-        }}
-      >
-        <D.DialogContent className="glass-dialog max-w-lg rounded-3xl border-glass-border">
-          <D.DialogHeader>
-            <D.DialogTitle>
-              {t("organizationDashboard.settings.forcePassword.title")}
-            </D.DialogTitle>
-            <D.DialogDescription className="leading-7">
-              {t("organizationDashboard.settings.forcePassword.description")}
-            </D.DialogDescription>
-          </D.DialogHeader>
-
-          <div className="rounded-2xl bg-amber-500/10 p-4 text-sm leading-6 text-amber-700 dark:text-amber-300">
-            {t("organizationDashboard.settings.forcePassword.hint")}
-          </div>
-
-          <D.DialogFooter>
-            <D.DialogClose asChild>
-              <Button radius="xl" variant="brand">
-                {t("organizationDashboard.settings.forcePassword.goToPassword")}
-              </Button>
-            </D.DialogClose>
-          </D.DialogFooter>
-        </D.DialogContent>
-      </D.Dialog>
-
       <section>
         <p className="text-sm font-medium text-primary">
           {t("organizationDashboard.settings.eyebrow")}
@@ -284,8 +247,8 @@ const OrganizationSettingsTab = () => {
                   radius="xl"
                   type="submit"
                   variant="brand"
-                  disabled={isLoading}
                   className="h-14"
+                  disabled={isLoading}
                 >
                   <L.Plus className="h-4 w-4" />
                   {t("organizationDashboard.settings.departments.add")}

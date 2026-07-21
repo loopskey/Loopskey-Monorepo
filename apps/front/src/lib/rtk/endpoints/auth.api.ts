@@ -118,6 +118,44 @@ export const authApi = baseApi.injectEndpoints({
       invalidatesTags: ["CurrentUser"],
     }),
 
+    organizationActivationStatus: builder.query<
+      TAPI.OrganizationActivationStatusQuery["organizationActivationStatus"],
+      TAPI.OrganizationActivationStatusQueryVariables["token"]
+    >({
+      query: (token) => ({
+        document: API.OrganizationActivationStatusDocument,
+        variables: { token },
+      }),
+      transformResponse: (response: TAPI.OrganizationActivationStatusQuery) =>
+        response.organizationActivationStatus,
+    }),
+
+    activateOrganizationAccount: builder.mutation<
+      TAPI.ActivateOrganizationAccountMutation["activateOrganizationAccount"],
+      TAPI.ActivateOrganizationAccountMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.ActivateOrganizationAccountDocument,
+        variables: { input },
+      }),
+      transformResponse: (response: TAPI.ActivateOrganizationAccountMutation) =>
+        response.activateOrganizationAccount,
+      invalidatesTags: (result) => (result?.success ? ["CurrentUser"] : []),
+    }),
+
+    resendOrganizationActivation: builder.mutation<
+      TAPI.ResendOrganizationActivationMutation["resendOrganizationActivation"],
+      TAPI.ResendOrganizationActivationMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.ResendOrganizationActivationDocument,
+        variables: { input },
+      }),
+      transformResponse: (
+        response: TAPI.ResendOrganizationActivationMutation,
+      ) => response.resendOrganizationActivation,
+    }),
+
     currentUser: builder.query<TAPI.CurrentUserQuery["currentUser"], void>({
       query: () => ({
         document: API.CurrentUserDocument,
@@ -194,4 +232,7 @@ export const {
   useVerifyEmailChangeMutation,
   useLazyLinkedinOAuthUrlQuery,
   useRequestEmailChangeMutation,
+  useOrganizationActivationStatusQuery,
+  useActivateOrganizationAccountMutation,
+  useResendOrganizationActivationMutation,
 } = authApi;

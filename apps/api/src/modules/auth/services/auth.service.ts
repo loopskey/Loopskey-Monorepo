@@ -1,3 +1,6 @@
+import { ResendOrganizationActivationInput } from "@auth/dtos/resend-organization-activation.input";
+import { AuthOrganizationActivationService } from "@auth/services/auth-organization-activation.service";
+import { ActivateOrganizationAccountInput } from "@auth/dtos/activate-organization-account.input";
 import { AuthLinkedInOAuthService } from "@auth/services/auth-linkedin-oauth.service";
 import { RequestEmailChangeInput } from "@auth/dtos/request-email-change.input";
 import { AuthRegistrationService } from "@auth/services/auth-registration.service";
@@ -19,7 +22,6 @@ import { JwtPayload } from "@auth/types/jwt-payload.type";
 import { LoginInput } from "@auth/dtos/login.input";
 import { Response } from "express";
 import { Role } from "@prisma/client";
-import { ActivateOrganizationAccountInput } from "@auth/dtos/activate-organization-account.input";
 
 @Injectable()
 export class AuthService {
@@ -30,6 +32,7 @@ export class AuthService {
     private readonly emailChangeService: AuthEmailChangeService,
     private readonly googleOAuthService: AuthGoogleOAuthService,
     private readonly linkedinOAuthService: AuthLinkedInOAuthService,
+    private readonly organizationActivationService: AuthOrganizationActivationService,
   ) {}
 
   register(input: RegisterInput) {
@@ -85,7 +88,17 @@ export class AuthService {
   }
 
   activateOrganizationAccount(input: ActivateOrganizationAccountInput) {
-    return this.passwordService.activateOrganizationAccount(input);
+    return this.organizationActivationService.activateOrganizationAccount(
+      input,
+    );
+  }
+
+  organizationActivationStatus(token: string) {
+    return this.organizationActivationService.describeActivationToken(token);
+  }
+
+  resendOrganizationActivation(input: ResendOrganizationActivationInput) {
+    return this.organizationActivationService.resendActivation(input);
   }
 
   requestEmailChange(userId: string, input: RequestEmailChangeInput) {
