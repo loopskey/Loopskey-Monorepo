@@ -199,6 +199,11 @@ export class AuthPasswordService {
         code: AuthMessageCode.INVALID_CREDENTIALS,
         message: "Current password is incorrect.",
       });
+    if (input.newPassword === input.currentPassword)
+      throw new BadRequestException({
+        code: AuthMessageCode.INVALID_CREDENTIALS,
+        message: "New password must be different from the current password.",
+      });
     const updatedUser = await this.prisma.user.update({
       where: { id: user.id },
       data: {

@@ -4,6 +4,7 @@ import { OrganizationActivationTokenStatus } from "@auth/enums/organization-acti
 import { ActivateOrganizationAccountInput } from "@auth/dtos/activate-organization-account.input";
 import { buildOrganizationApprovalEmail } from "@mail/organization-email.template";
 import { AuditAction, OtpPurpose, Role } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import { SessionStatus, UserStatus } from "@prisma/client";
 import { ACTIVATION_RECORD_SELECT } from "@auth/types/auth-service.types";
 import { createHash, randomBytes } from "crypto";
@@ -36,32 +37,37 @@ export class AuthOrganizationActivationService {
     userId,
     destination,
   }: T.IssueActivationLinkArgs) {
+    return this.prisma.$transaction((tx) =>
+      this.createActivationLink(tx, { userId, destination }),
+    );
+  }
+
+  private async createActivationLink(
+    tx: Prisma.TransactionClient,
+    { userId, destination }: T.IssueActivationLinkArgs,
+  ) {
     const rawToken = randomBytes(ACTIVATION_TOKEN_BYTES).toString("base64url");
     const expiresInMinutes = this.activationExpiryMinutes();
     const expiresAt = new Date(Date.now() + expiresInMinutes * 60_000);
-    await this.prisma.$transaction([
-      this.prisma.otpCode.updateMany({
-        where: {
-          userId,
-          purpose: OtpPurpose.ORGANIZATION_ACTIVATION,
-          consumedAt: null,
-        },
-        data: { consumedAt: new Date() },
-      }),
-      this.prisma.otpCode.create({
-        data: {
-          userId,
-          destination,
-          codeHash: this.hashToken(rawToken),
-          purpose: OtpPurpose.ORGANIZATION_ACTIVATION,
-          expiresAt,
-          maxAttempts: 1,
-          resendAfter: new Date(
-            Date.now() + this.resendCooldownSeconds() * 1000,
-          ),
-        },
-      }),
-    ]);
+    await tx.otpCode.updateMany({
+      where: {
+        userId,
+        purpose: OtpPurpose.ORGANIZATION_ACTIVATION,
+        consumedAt: null,
+      },
+      data: { consumedAt: new Date() },
+    });
+    await tx.otpCode.create({
+      data: {
+        userId,
+        destination,
+        codeHash: this.hashToken(rawToken),
+        purpose: OtpPurpose.ORGANIZATION_ACTIVATION,
+        expiresAt,
+        maxAttempts: 1,
+        resendAfter: new Date(Date.now() + this.resendCooldownSeconds() * 1000),
+      },
+    });
     return {
       activationUrl: this.buildActivationUrl(rawToken),
       expiresInMinutes,
@@ -190,16 +196,29 @@ export class AuthOrganizationActivationService {
       },
     });
     if (!user?.email || !user.organizationProfile) return genericResult;
-    if (!(await this.canResend(user.id))) return genericResult;
     const destination = user.email;
     try {
       const supportEmail = this.requiredConfig("SUPPORT_EMAIL");
       const loginUrl = this.requiredConfig("ORGANIZATION_LOGIN_URL");
-      const { activationUrl, expiresInMinutes } =
-        await this.issueActivationLink({
+      const invitation = await this.prisma.$transaction(async (tx) => {
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`organization-activation:${user.id}`}))`;
+        if (!(await this.canResend(user.id, tx))) return null;
+        const activationLink = await this.createActivationLink(tx, {
           userId: user.id,
           destination,
         });
+        await tx.auditLog.create({
+          data: {
+            actorId: user.id,
+            action: AuditAction.ORGANIZATION_ACTIVATION_RESENT,
+            entityType: "User",
+            entityId: user.id,
+          },
+        });
+        return activationLink;
+      });
+      if (!invitation) return genericResult;
+      const { activationUrl, expiresInMinutes } = invitation;
       const template = buildOrganizationApprovalEmail({
         appName: this.config.get<string>("APP_NAME", "LoopsKey"),
         organizationName: user.organizationProfile.organizationName,
@@ -208,14 +227,6 @@ export class AuthOrganizationActivationService {
         activationUrl,
         loginUrl,
         expiresInMinutes,
-      });
-      await this.prisma.auditLog.create({
-        data: {
-          actorId: user.id,
-          action: AuditAction.ORGANIZATION_ACTIVATION_RESENT,
-          entityType: "User",
-          entityId: user.id,
-        },
       });
       void this.mail
         .sendEmail({ to: destination, ...template })
@@ -322,14 +333,14 @@ export class AuthOrganizationActivationService {
     });
   }
 
-  private async canResend(userId: string) {
-    const [latest, issuedToday] = await this.prisma.$transaction([
-      this.prisma.otpCode.findFirst({
+  private async canResend(userId: string, tx: Prisma.TransactionClient) {
+    const [latest, issuedToday] = await Promise.all([
+      tx.otpCode.findFirst({
         where: { userId, purpose: OtpPurpose.ORGANIZATION_ACTIVATION },
         orderBy: { createdAt: "desc" },
         select: { resendAfter: true },
       }),
-      this.prisma.otpCode.count({
+      tx.otpCode.count({
         where: {
           userId,
           purpose: OtpPurpose.ORGANIZATION_ACTIVATION,

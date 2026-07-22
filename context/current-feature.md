@@ -1,20 +1,112 @@
-# Current Feature
+# Current Feature: Organization Account Activation and Mandatory Password Setup (Phase 6)
 
 ## Status
 
-Not Started
+Completed
 
 ## Goals
 
-<!-- Load a feature to populate goals. -->
+- Deliver the activation-link flow end to end: Admin approval sends an activation
+  link, the user opens it, the token is validated, a new password is set, the
+  token is invalidated, and the account becomes active with dashboard access.
+- Provide a responsive "Set Your Password" page using React Hook Form, Zod, the
+  existing password inputs, password policy, toasts, and auth hooks.
+- Validate required password, confirmation match, minimum length, project
+  complexity rules, password not equal to obvious user/organization values, and
+  the expired, invalid, and already-used token cases with secure messaging that
+  never reveals whether unrelated accounts exist.
+- Back the activation with a transactional backend operation: hash-compare the
+  token, confirm it belongs to the correct pending Organization user, confirm it
+  is unexpired and unused, hash and store the new password, consume the token,
+  activate the account, clear the force-password-change flag, record
+  `passwordChangedAt`/`activatedAt`, optionally revoke sessions, write an audit
+  event, and send the confirmation email.
+- Enforce the restriction on the backend, not only in the browser: before
+  activation the user reaches only activation, initial password setup, current
+  auth status, logout, and resend — never the Organization dashboard, member,
+  management, or report APIs.
+- Protect frontend routes for a password-change-required session without
+  redirect loops, keeping logout reachable and refresh safe, then refresh auth
+  state and show success after setup.
+- Handle expired and used links distinctly, with a resend path where permitted
+  and a login link for already-activated accounts.
+- Support resend for an eligible Organization user or authorized Admin:
+  invalidate prior unused tokens, rate limit, avoid revealing account existence,
+  and record the event.
+- Cover the specification's test matrix (valid/invalid/expired/used token,
+  mismatch, weak password, successful setup, token invalidation, activation,
+  access blocked before and allowed after, logout, resend, prior-token
+  invalidation, rate limiting, hash storage, no sensitive logging, confirmation
+  email) and run frontend tests, backend auth tests, TypeScript checks, lint,
+  and the production build.
 
 ## Notes
 
-<!-- Additional feature context and constraints. -->
+- Source specification: `context/features/email-org-submit6-spec.md`.
+- Spec instruction: prefer the activation-link flow over temporary passwords
+  unless the existing auth system makes it impractical, and never email or
+  expose permanent plain-text passwords. The repository already chose the
+  activation-link path.
+- This phase already has a completion entry in History dated 2026-07-21. Treat
+  this load as a re-audit: verify each requirement against the code before
+  implementing anything, and close only real gaps.
+- The phase was re-verified end to end on 2026-07-22. The former
+  `OtpPurpose.ORGANIZATION_ACTIVATION` live-database error no longer occurs and
+  the live schema matches `schema.prisma`. Prisma migration status remains
+  noisy because two completed legacy CPD migration directories are absent
+  locally; this provenance debt is unrelated to the applied Phase 6 migration.
+- Relevant existing code: `AuthOrganizationActivationService`,
+  `PasswordChangeGuard` (global, after `RolesGuard`),
+  `@AllowPasswordChangeRequired()` on `currentUser`/`changePassword`/`logout`,
+  the `/auth/organization/activate` page, `RoleRouteGuard`'s in-place
+  `PasswordChangeRequired` screen, and migration
+  `20260721180000_organization_account_activation`.
+- Spec ends with STOP after the activation and mandatory password setup
+  workflow; Phase 7 is out of scope.
 
 ## History
 
 <!-- Keep this updated. Earliest to latest -->
+
+### 2026-07-22 — Phase 6 re-audit and live verification completed
+
+- Re-audited the loaded Phase 6 implementation without finding a code or schema
+  gap. The live database schema matches `schema.prisma`, every local migration
+  has a completed database row with the same SHA-256 checksum, and the
+  `ORGANIZATION_ACTIVATION` enum value and account-activation columns are
+  present.
+- Exercised `organizationActivationStatus` against the running GraphQL API and
+  live configured database. An unknown token returned the intended secure
+  `INVALID` result; the previously recorded PostgreSQL enum error no longer
+  occurs.
+- Prisma migration status remains misleading because the database contains two
+  completed legacy CPD migrations (`20260717120000_add_cpe_credit_type` and
+  `20260717120100_cpd_plans`) whose source directories are absent locally. This
+  is migration-history provenance debt, not Phase 6 drift: a live-schema diff
+  is empty and Phase 6's applied checksum exactly matches the repository file.
+  No migration rows were rewritten and no database DDL was applied.
+- Verification passed: API Jest 67/67, frontend Vitest 13/13, focused activation
+  and password-guard Jest 28/28, API/frontend TypeScript checks, API production
+  build, frontend production build, and `git diff --check`.
+- The root lint gate still cannot run because the frontend script invokes the
+  removed Next 16 `next lint` command. This is existing tooling debt documented
+  by the project and was not changed in this re-audit.
+
+### 2026-07-22 — Completion review findings resolved
+
+- Enforced the mandatory-password rule on the backend: `changePassword` now
+  rejects a new password equal to the current temporary password and cannot
+  clear `forcePasswordChange` in that case. Added a focused regression test.
+- Made public activation resend throttling concurrency-safe. Resend now obtains
+  a transaction-scoped PostgreSQL advisory lock per Organization user, then
+  rechecks the cooldown and daily cap before atomically invalidating the prior
+  invitation, issuing the replacement, and recording its audit event.
+- Updated the stale Phase 6 notes to reflect successful live verification while
+  retaining the separate legacy CPD migration-history caveat.
+- Completion verification passed: API Jest 68/68, focused regression Jest
+  24/24, API TypeScript check, API production build, and whitespace validation.
+  The frontend tests and production build remained green from the immediately
+  preceding re-audit; no frontend application code changed during review fixes.
 
 ### 2026-07-17 — Initial setup
 

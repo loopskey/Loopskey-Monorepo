@@ -26,16 +26,23 @@ const request = {
 };
 
 const setup = (sendEmail = jest.fn().mockResolvedValue({ id: "email-1" })) => {
+  const otpCode = {
+    updateMany: jest.fn(),
+    create: jest.fn(),
+  };
   const prisma = {
     organizationAccessRequest: {
       findUnique: jest.fn().mockResolvedValue(request),
       update: jest.fn().mockResolvedValue(request),
     },
-    otpCode: {
-      updateMany: jest.fn(),
-      create: jest.fn(),
-    },
-    $transaction: jest.fn((operations) => Promise.all(operations)),
+    otpCode,
+    $transaction: jest.fn((operation: unknown) => {
+      if (typeof operation === "function")
+        return (operation as (tx: { otpCode: typeof otpCode }) => unknown)({
+          otpCode,
+        });
+      return Promise.all(operation as Promise<unknown>[]);
+    }),
   };
   const config = {
     get: jest.fn(

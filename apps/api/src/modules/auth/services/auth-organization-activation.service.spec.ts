@@ -36,10 +36,16 @@ const activeToken = {
 
 const setup = (activation: unknown = activeToken) => {
   const tx = {
-    otpCode: { updateMany: jest.fn().mockResolvedValue({ count: 1 }) },
+    otpCode: {
+      findFirst: jest.fn().mockResolvedValue(null),
+      updateMany: jest.fn().mockResolvedValue({ count: 1 }),
+      create: jest.fn(),
+      count: jest.fn().mockResolvedValue(0),
+    },
     authSession: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
     auditLog: { create: jest.fn().mockResolvedValue({ id: "audit-1" }) },
     user: { update: jest.fn().mockResolvedValue(pendingUser) },
+    $executeRaw: jest.fn().mockResolvedValue(1),
   };
   const prisma = {
     otpCode: {
@@ -88,17 +94,17 @@ const setup = (activation: unknown = activeToken) => {
 
 describe("AuthOrganizationActivationService token issuing", () => {
   it("stores only a hash and invalidates any previous invitation", async () => {
-    const { service, prisma } = setup();
+    const { service, tx } = setup();
     const { activationUrl } = await service.issueActivationLink({
       userId: pendingUser.id,
       destination: pendingUser.email,
     });
-    const stored = prisma.otpCode.create.mock.calls[0][0].data;
+    const stored = tx.otpCode.create.mock.calls[0][0].data;
     expect(stored.codeHash).toMatch(/^[a-f0-9]{64}$/);
     expect(activationUrl).toContain("activate?token=");
     expect(activationUrl).not.toContain(stored.codeHash);
     expect(stored.resendAfter.getTime()).toBeGreaterThan(Date.now());
-    expect(prisma.otpCode.updateMany).toHaveBeenCalledWith(
+    expect(tx.otpCode.updateMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({
           userId: pendingUser.id,
@@ -308,16 +314,16 @@ describe("AuthOrganizationActivationService activation", () => {
 
 describe("AuthOrganizationActivationService resend", () => {
   it("issues a fresh invitation and records the resend", async () => {
-    const { service, prisma, sendEmail } = setup();
-    prisma.otpCode.findFirst.mockResolvedValue(null);
+    const { service, tx, sendEmail } = setup();
     await expect(
       service.resendActivation({ email: "Admin@Example.com " }),
     ).resolves.toEqual(
       expect.objectContaining({ code: AuthMessageCode.ACTIVATION_EMAIL_SENT }),
     );
-    expect(prisma.otpCode.updateMany).toHaveBeenCalled();
+    expect(tx.$executeRaw).toHaveBeenCalledTimes(1);
+    expect(tx.otpCode.updateMany).toHaveBeenCalled();
     expect(sendEmail.mock.calls[0][0].text).toContain("activate?token=");
-    expect(prisma.auditLog.create).toHaveBeenCalledWith(
+    expect(tx.auditLog.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           action: AuditAction.ORGANIZATION_ACTIVATION_RESENT,
@@ -332,25 +338,23 @@ describe("AuthOrganizationActivationService resend", () => {
   // holds on its way to failing.
   it("does not invalidate the existing invitation when config is missing", async () => {
     const log = jest.spyOn(Logger.prototype, "error").mockImplementation();
-    const { service, prisma, config, sendEmail } = setup();
-    prisma.otpCode.findFirst.mockResolvedValue(null);
+    const { service, tx, config, sendEmail } = setup();
     config.get.mockImplementation((name: string, fallback?: string) =>
       name === "SUPPORT_EMAIL" ? undefined : fallback,
     );
     await service.resendActivation({ email: pendingUser.email });
-    expect(prisma.otpCode.updateMany).not.toHaveBeenCalled();
-    expect(prisma.otpCode.create).not.toHaveBeenCalled();
+    expect(tx.otpCode.updateMany).not.toHaveBeenCalled();
+    expect(tx.otpCode.create).not.toHaveBeenCalled();
     expect(sendEmail).not.toHaveBeenCalled();
     log.mockRestore();
   });
 
   it("records the resend even when delivery later fails", async () => {
     const log = jest.spyOn(Logger.prototype, "error").mockImplementation();
-    const { service, prisma, sendEmail } = setup();
-    prisma.otpCode.findFirst.mockResolvedValue(null);
+    const { service, tx, sendEmail } = setup();
     sendEmail.mockRejectedValue(new Error("provider unavailable"));
     await service.resendActivation({ email: pendingUser.email });
-    expect(prisma.auditLog.create).toHaveBeenCalledWith(
+    expect(tx.auditLog.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           action: AuditAction.ORGANIZATION_ACTIVATION_RESENT,
@@ -372,8 +376,8 @@ describe("AuthOrganizationActivationService resend", () => {
   });
 
   it("silently throttles a resend inside the cooldown window", async () => {
-    const { service, prisma, sendEmail } = setup();
-    prisma.otpCode.findFirst.mockResolvedValue({
+    const { service, tx, sendEmail } = setup();
+    tx.otpCode.findFirst.mockResolvedValue({
       resendAfter: new Date(Date.now() + 60_000),
     });
     await expect(
@@ -385,17 +389,15 @@ describe("AuthOrganizationActivationService resend", () => {
   });
 
   it("stops once the daily invitation cap is reached", async () => {
-    const { service, prisma, sendEmail } = setup();
-    prisma.otpCode.findFirst.mockResolvedValue(null);
-    prisma.otpCode.count.mockResolvedValue(5);
+    const { service, tx, sendEmail } = setup();
+    tx.otpCode.count.mockResolvedValue(5);
     await service.resendActivation({ email: pendingUser.email });
     expect(sendEmail).not.toHaveBeenCalled();
   });
 
   it("keeps delivery failures out of the response and the log", async () => {
     const log = jest.spyOn(Logger.prototype, "error").mockImplementation();
-    const { service, prisma, sendEmail } = setup();
-    prisma.otpCode.findFirst.mockResolvedValue(null);
+    const { service, sendEmail } = setup();
     sendEmail.mockRejectedValue(new Error("provider rejected secret-token"));
     await expect(
       service.resendActivation({ email: pendingUser.email }),
