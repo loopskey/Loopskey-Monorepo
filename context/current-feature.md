@@ -1,16 +1,64 @@
-# Current Feature
+# Current Feature: Professional Dashboard Modifications — Phase 1 (Audit)
 
 ## Status
 
-<!-- Not Started | In Progress | Completed -->
+In Progress
 
 ## Goals
 
-<!-- Bullet points of what success looks like -->
+- Audit the Professional dashboard and produce a detailed implementation plan
+  for the requested changes. **Audit only — do not modify, create, delete, or
+  format any files in this phase.**
+- **Professional sidebar** — locate where "My Courses" and "External Learning"
+  are defined; confirm whether nav is role-specific, whether the routes are used
+  elsewhere, whether removing sidebar entries is sufficient, and whether any
+  Overview cards/links still point to them. Requested change: remove these two
+  items from the Professional sidebar (leave underlying pages/routes/backend/DB
+  intact unless provably unused).
+- **Professional Overview** — inventory existing summary cards, API calls, chart
+  library, tooltip components, recommendation section, recent-activity and
+  certificate components, calendar API/event hooks, and CPD/PDU + Learning
+  Roadmap progress data sources. Overview cards will be replaced by: CPD/PDU
+  Progress, Learning Roadmap Progress, Upcoming Calendar Items, Recommendations
+  for You, Recent Learning Activities, Certificates. Determine which data exists
+  and which APIs/calculations are missing.
+- **Wishlist** — locate the Price, Only Rated Items, Only Available Links, and
+  Select by Category filters; determine where filter state lives (local, query
+  params, global, backend), whether removing UI also requires removing query
+  params, whether stale filters can persist in URL/API, and whether mobile and
+  desktop filter panels are separate implementations.
+- **My Learning Activities** — locate Export CSV, year selector, the four stat
+  cards (Total PDU Earned, Target, Progress to Goal, Average per Month), Quick
+  Actions, Add Learning Activity, Refresh, search toolbar, activities table,
+  PDUs-by-Category and PDUs-Over-Time charts, table filters, edit/delete
+  actions, and any existing activity edit/detail page/API. Determine how totals,
+  certificates attached, evidence uploaded, activity type/year, and associated
+  certificate are calculated.
+- **Certificates** — determine whether a Certificates tab, entity/table,
+  frontend types, API endpoints, upload, secure storage, evidence metadata, CPD
+  plan linking, status calculation, expiry reminders, edit, download, filtering,
+  and components already exist. Inspect the file-upload architecture (supported
+  types, max size, storage provider, private-file access rules, signed URL /
+  authenticated download, cleanup behavior).
+- **Architecture and reuse** — identify reusable dashboard cards, charts,
+  tooltips, tables, filters, search/debounce hooks, RHF setup, Zod schemas, date
+  pickers, file-upload components, confirmation dialogs, empty states, loading
+  skeletons, pagination, route guards, query/mutation hooks, toasts, and secure
+  download utilities.
 
 ## Notes
 
-<!-- Additional context, constraints, or details from spec -->
+- Spec: `context/features/modify-ui-ph1-spec.md`. This is Phase 1 of a
+  multi-phase effort; it is an **audit and planning phase only**. STOP after the
+  audit report — implement nothing.
+- Required audit report sections: Existing Functionality; Missing Functionality;
+  Relevant Files (frontend, backend, database, storage, test); Data Sources (per
+  new Overview card); Certificate Architecture (exists or must be added);
+  Proposed Routes (Learning Activity details, Certificate upload/edit/details);
+  Proposed API Changes (reuse vs add); Proposed Database Changes (entities,
+  fields, relations, indexes, migrations); Risks and Ambiguities.
+- Must explicitly call out the ambiguous "Link All Active" certificate action in
+  Risks and Ambiguities.
 
 ## History
 
