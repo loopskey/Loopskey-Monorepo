@@ -1,4 +1,4 @@
-import { WishlistPriceFilter, WishlistSortBy } from "@/lib/graphql/generated";
+import { WishlistSortBy } from "@/lib/graphql/generated";
 
 import * as API from "@/lib/graphql/generated";
 
@@ -19,17 +19,11 @@ export type TTrackRedirectInput = {
 // ============= Professional Dashboard ==============
 export type TWishlistContentTypeFilter = "ALL" | API.ContentType;
 
-export type TProfessionalWishlistPriceFilter = "ALL" | WishlistPriceFilter;
-
 export type TProfessionalWishlistSortBy = WishlistSortBy;
 
 export type TProfessionalWishlistFilters = {
   search: string;
-  category: string;
-  onlyWithUrl: boolean;
-  onlyWithRating: boolean;
   sortBy: TProfessionalWishlistSortBy;
-  price: TProfessionalWishlistPriceFilter;
   contentType: TWishlistContentTypeFilter;
 };
 
