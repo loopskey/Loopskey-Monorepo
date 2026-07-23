@@ -1,54 +1,16 @@
-# Current Feature: Simplify Professional Wishlist Filters (Modify UI Phase 3)
+# Current Feature
 
 ## Status
 
-In Progress
+<!-- Not Started | In Progress | Completed -->
 
 ## Goals
 
 <!-- Bullet points of what success looks like -->
 
-- **Remove these Wishlist filters entirely:** all price-related filters, "Only
-  Rated Items", "Only Available Links", and "Select by Category".
-- **Remove them from every surface:** desktop filter panel, mobile filter
-  drawer, active filter chips, filter-count indicators, saved filter state, URL
-  query params, API request construction, and reset-filter behavior.
-- **Do not remove unrelated supported filters** (search, sorting, pagination,
-  and any remaining valid filters stay).
-- **Cleanup:** obsolete frontend state, unused form fields, obsolete Zod fields,
-  unused types/constants, unused API query params, stale defaults, unused
-  imports, empty filter sections/separators.
-- **Robustness:** "Clear Filters" still works; old bookmarked URLs containing the
-  removed query params must not break the page (ignore/safely clean unsupported
-  legacy params).
-- **Backend caution:** do NOT change the backend for params still used by other
-  pages. Only remove a backend param if it is exclusive to Wishlist and
-  confirmed unused elsewhere.
-- **Preserve:** search, sorting, pagination, remaining valid filters, loading/
-  empty/error states, wishlist item actions, responsive behavior.
-- **Verify:** TypeScript checks, frontend tests, lint, production build. Fix only
-  errors this phase introduces.
-
 ## Notes
 
 <!-- Additional context, constraints, or details from spec -->
-
-- Spec: `context/features/modify-ui-ph3-spec.md` (Phase 3 of the multi-phase
-  "modify UI" effort).
-- **Do NOT modify** Overview, My Learning Activities, or Certificates this phase.
-- Phase-1 audit finding that shapes this work: Wishlist filter state is **pure
-  local component state → GraphQL variables** — there are **no URL params and no
-  Redux** for these filters, and it is **one responsive panel, not separate
-  mobile/desktop implementations**. So the "URL query params" and
-  "mobile drawer vs desktop panel" removal targets may be no-ops here; verify
-  against the actual code first. The removal of Price / Only Rated / Only
-  Available Links / Category was assessed as a clean frontend-only edit.
-- The spec still asks to guarantee old bookmarked URLs with removed params don't
-  break — confirm whether Wishlist ever read from the URL; if it never did,
-  that guarantee already holds (document it).
-- Completion report must cover: filters removed, state/query params removed,
-  files modified, remaining Wishlist filters, tests + results. STOP after this
-  phase.
 
 ## History
 
@@ -547,3 +509,57 @@ In Progress
 - Left in place rather than deleted without asking (now orphaned by the rebuild):
   `hooks/useProfessionalOverviewTab.ts`, and possibly the `DashboardStatCard` /
   `SnapshotRow` parts.
+
+### 2026-07-23 — Simplify Professional Wishlist filters (Modify UI Phase 3) completed
+
+- Implemented `context/features/modify-ui-ph3-spec.md` on
+  `chore/wishlist-filter-simplify`, merged to `main`. Scope held to the Wishlist
+  tab; Overview, My Learning Activities, and Certificates untouched.
+- Removed four filters — price, "Only Rated Items", "Only Available Links", and
+  "Select by Category" — from the filter panel, the saved local filter state
+  (`TProfessionalWishlistFilters`), the initial defaults, the active-filter
+  derivation (`hasActiveFilters`), the reset behavior, and the GraphQL request
+  input. Confirmed no app-code references remain (only the new test's negative
+  assertions and the generated schema type).
+- The spec's mobile-drawer / active-chips / URL-query-param targets were genuine
+  no-ops here, as the Phase-1 audit predicted: Wishlist filters are pure
+  `useState` mapped to GraphQL variables in one responsive panel, and the tab
+  never reads the URL — so old bookmarked `?price=…`/`?category=…` links cannot
+  break the page (guarantee already held; documented, no code needed). The
+  `{count} items` badge is an item count, not a filter-count indicator, so it
+  was correctly left alone.
+- Preserved: search, content-type, and sort filters (including the price/rating
+  *sorts*, which are sorting not filtering), pagination, loading/empty/
+  no-results/error states, the remove-item action, refresh, and the responsive
+  layout. "Clear Filters" still resets to the trimmed initial state and only
+  appears when a remaining filter is active.
+- Extracted the filter logic into a pure, unit-tested
+  `utils/wishlist-filters.helper.ts` (`WISHLIST_INITIAL_FILTERS`,
+  `buildWishlistQueryInput`, `hasActiveWishlistFilters`) so the removed
+  parameters can never leak back into an API request. A formatter/dedup pass
+  also replaced the hook's inlined debounce with the shared
+  `@/hooks/useDebounced` `useDebouncedValue` (behaviorally identical, already
+  unit-tested) — a net removal of duplication.
+- Cleanup: deleted the now-unused `TProfessionalWishlistPriceFilter` type, the
+  `priceOptions` constant, the `Switch` / `WishlistPriceFilter` / `priceOptions`
+  imports, the `categories` value from the hook, the empty price/switch grid
+  section, and the orphaned wishlist i18n keys in `en.json`/`fr.json`
+  (`category`, `allCategories`, `price`, `onlyWithRating(+Hint)`,
+  `onlyWithUrl(+Hint)`), with `filtersDescription` reworded.
+- Backend intentionally untouched: the four params are Wishlist-exclusive but
+  remain optional on `MyWishlistInput` server-side, so omitting them from the
+  frontend request is safe and needs no schema/codegen churn — the conservative
+  reading of the spec's backend-caution rule.
+- Verification: frontend Vitest 56/56 (9 new in
+  `wishlist-filters.helper.test.ts` — initial-filter shape, built input excludes
+  every removed key, remaining filters pass through, empty search / "ALL" content
+  type omitted, and `hasActiveWishlistFilters` for search/content-type/sort incl.
+  whitespace-only search), frontend `tsc --noEmit` clean, ESLint clean on all
+  changed files, and the production build passed. Re-verified green after an
+  external formatter reformat touched the hook's imports.
+- Item cards still display price/rating badges (that is content display, not a
+  filter, and out of scope). `filtersTitle` still reads "Advanced filters" — left
+  as-is (cosmetic only). Pre-existing dead wishlist helpers in
+  `function-helper.ts` (`getContentPrice` etc.) were already unused before this
+  phase and were left untouched as out-of-scope. Root `npm run lint` still fails
+  on the removed Next 16 `next lint`, so lint was per-file.
