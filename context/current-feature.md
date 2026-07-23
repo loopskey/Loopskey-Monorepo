@@ -1,90 +1,82 @@
-# Current Feature: Light/Dark Theme with Theme-Aware Background
+# Current Feature
 
 ## Status
 
-In Progress
+<!-- Not Started | In Progress | Completed -->
 
 ## Goals
 
-- Deliver a production-ready global Light/Dark theme system that applies
-  everywhere, persists across refresh and route changes, updates instantly
-  without reload, works on desktop and mobile, avoids hydration mismatch and
-  wrong-theme flashing, and follows the priority: saved preference → existing
-  authenticated user preference (only if already supported) → OS preference →
-  Light fallback. Reuse the existing theme provider rather than adding a
-  competing one.
-- Complete or create semantic theme tokens (`--background`, `--foreground`,
-  `--card`, `--primary`, `--border`, `--input`, `--ring`, etc.) with consistent
-  Light and Dark values, replacing theme-sensitive hardcoded colors on shared
-  surfaces without redesigning unrelated screens or disturbing brand colors.
-- Add one reusable `ThemeToggle` (Sun/Moon) beside the existing language
-  switcher in every relevant header (desktop and mobile): instant, persisted,
-  keyboard-accessible, visible focus, tooltip, `aria-label`, no layout shift,
-  hydration-safe via a mounted-state strategy, without turning whole headers
-  into client components.
-- Make `ParticlesBackground` theme-aware: Light mode renders a static,
-  low-noise white background with a subtle electric-blue tint and no WebGL;
-  Dark mode renders the React Bits `FloatingLines` animated WebGL background.
-  Never run both at once and never render `FloatingLines` in Light mode.
-- Install/inspect the React Bits `FloatingLines` component, use its *actual*
-  generated prop API (`linesGradient` vs `gradientStart/Mid/End` — no
-  unsupported props, no `any`), reuse `three` if already present, and keep
-  static config arrays out of render or memoized.
-- Layer the background decoratively behind all content (`aria-hidden`,
-  `pointer-events-none`, negative z-index, `isolate`) so header controls,
-  language switcher, theme toggle, forms, dropdowns, dialogs, drawers,
-  tooltips and mobile nav all stay interactive and above it, with no horizontal
-  overflow and interactivity driven from a parent/window pointer listener.
-- Guarantee SSR/hydration safety (`"use client"` only where needed, no `window`
-  during server render), full WebGL lifecycle cleanup (RAF, ResizeObserver,
-  listeners, geometry/material/renderer dispose, no duplicate canvases or loops
-  under Strict Mode or repeated theme switches), and performance guards (DPR
-  cap ≤2, stable props, no WebGL in Light mode, pause on hidden tab / reduced
-  motion).
-- Respect `prefers-reduced-motion` (static Dark gradient, no parallax/pointer
-  interaction) and provide a static Dark fallback when WebGL is unavailable or
-  the context is lost, without surfacing raw WebGL errors.
-- Review shared surfaces in both themes for readability (no white-on-white or
-  dark-on-dark, correct input/dropdown/dialog/tooltip/chart theming) and fix
-  only issues this feature introduces.
-- Add/adjust tests for provider init, default resolution, saved restoration,
-  Light↔Dark switching, toggle placement/label/tooltip, both headers,
-  persistence across refresh and navigation, Light background, Dark
-  FloatingLines, no-WebGL-in-Light, no duplicate canvases, cleanup, reduced
-  motion, WebGL fallback, foreground clickability, and hydration; then run
-  TypeScript checks, ESLint, frontend unit/integration tests, and the
-  production build — reporting pre-existing failures separately.
-- Produce the specification's 23-point completion report.
+<!-- Bullet points of what success looks like -->
 
 ## Notes
 
-- Source specification: `context/features/dark-light-theme-floating-spec.md`.
-  Frontend-only feature (`apps/front`); no backend or Prisma work expected.
-- No target argument was supplied, so Phase 1 must auto-inspect: root layout,
-  root providers, main + mobile headers, language switcher, `ParticlesBackground`
-  and all its usages, existing theme provider / `next-themes` usage, Tailwind
-  dark-mode strategy, shadcn config, `globals.css` tokens, reduced-motion and
-  storage utilities, and whether `three`/`FloatingLines`/React Bits already
-  exist — before writing any code.
-- Reuse-first, no duplication: exactly one theme provider, one `ThemeToggle`,
-  one `FloatingLines`, one `three`. Do not modify unrelated business logic or
-  redesign unrelated screens. Frontend path aliases (`@/*`, `@ui`, `@elements`,
-  `@components`, etc.) and the existing `cn` helper are the conventions to
-  follow.
-- Known project tooling debt that affects this feature's gate: the frontend
-  `lint` script calls the removed Next 16 `next lint`, so lint must be run per
-  file with `npx eslint <paths>` rather than `npm run lint`. `check-types` is
-  `npx tsc --noEmit -p apps/front/tsconfig.json`. Frontend tests are Vitest
-  (`npm run test --workspace front`).
-- The spec's `FloatingLines` example lists props (`gradientStart/Mid/End`) that
-  may not match the generated type; the installed component's real API governs.
-  Dark fallback color family: `#09090b`, `#e945f5`, `#6f6f6f`, `#6a6a6a`.
-- Spec ends with "Implement the feature completely, then stop." after the
-  23-point report.
+<!-- Additional context, constraints, or details from spec -->
 
 ## History
 
 <!-- Keep this updated. Earliest to latest -->
+
+### 2026-07-23 — Light/dark theme with theme-aware background completed
+
+- Auto-audit (no target argument): `next-themes` v0.4.6 was present but locked
+  with `forcedTheme="dark"` and a hardcoded `<html className="dark">`; the full
+  light and dark semantic tokens already existed in `globals.css`; Tailwind 4
+  class-based dark mode (`@custom-variant dark`) was already configured; the one
+  `Header.tsx` renders the language switcher in both its desktop and mobile
+  sections; the live background was a forced-dark NEAT gradient
+  (`LearningParticlesBackground`). A complete but unused theme-aware OGL
+  `GalaxyBackground` was found — abandoned scaffolding, left untouched by choice.
+- Unforced the provider: `attribute="class"`, `defaultTheme="system"`,
+  `enableSystem`, `disableTransitionOnChange`, and removed the hardcoded `dark`
+  class so next-themes sets it before paint. Priority resolves saved → system →
+  light.
+- Added one reusable `ThemeToggle` (Sun/Moon) beside the language switcher in
+  both header sections: keyboard-operable with a visible focus ring, tooltip,
+  `aria-label`, and a mounted-state placeholder that avoids hydration mismatch
+  and layout shift. New `theme` i18n keys in `en.json` and `fr.json`.
+- Made the background theme-aware in `particles-background.tsx` (preserving the
+  `LearningParticlesBackground` public export the layout already imports): light
+  mode renders a static electric-white gradient with no WebGL; dark mode renders
+  FloatingLines over a near-black base. Only one is ever active; WebGL never
+  initializes in light mode.
+- Followed the spec's explicit choice to install React Bits FloatingLines. The
+  `shadcn add` CLI hung on a prompt, so the registry item was fetched directly
+  and vendored into `components/ui/floating-lines.tsx` using its real
+  `linesGradient: string[]` API (the spec's `gradientStart/Mid/End` do not
+  exist). Local edits, all marked `Loopskey:`: a `"use client"` directive, a
+  windowed pointer option so interactivity survives behind pointer-events-none
+  content, a hidden-tab render pause, and a WebGL-failure callback. Static
+  config arrays are hoisted to module scope and the error callback is memoized
+  so the WebGL effect is not recreated on parent renders.
+- The background is decorative (`aria-hidden`, `pointer-events-none`, `-z-50`),
+  behind all content with no horizontal overflow. Reduced motion and
+  unavailable/lost WebGL both fall back to a static dark gradient in the
+  `#09090b`/`#e945f5`/`#6f6f6f` family; no raw WebGL error is surfaced. The
+  vendored component's existing cleanup (RAF cancel, ResizeObserver disconnect,
+  listener removal, geometry/material/renderer dispose, `forceContextLoss`,
+  canvas removal, DPR cap ≤2) was kept intact.
+- No token changes were needed — both themes were already fully defined. Added
+  `three@^0.180.0` and `@types/three`.
+- Verification: frontend Vitest 21/21 (8 new — toggle label/switch/keyboard and
+  background light/dark/reduced-motion/no-WebGL/decorative), frontend TypeScript
+  check, ESLint on every changed/new file, and the production build. Live
+  browser (Playwright): toggle sits beside the language switcher in the header,
+  theme switches with no reload, light mode shows 0 canvases and dark shows
+  exactly 1, the theme persists across navigation and refresh, the canvas count
+  tracked the theme across five toggles without leaking, the background is
+  `pointer-events:none` at `z-index:-50` with foreground controls clickable
+  above it, and there is no horizontal overflow.
+- Pre-existing tooling debt, unchanged: the root `npm run lint` fails because
+  the frontend script calls the removed Next 16 `next lint`, so linting was run
+  per file with `npx eslint`. The only browser console errors were
+  `ERR_CONNECTION_REFUSED` to the API (intentionally stopped) — no theme or
+  hydration errors.
+- Deliberately not done, pending approval: the NEAT hook/constant
+  (`useNeatGradient.ts`, `neat-gradient.constant.ts`) and the `@firecms/neat`
+  dependency are now unused by the background, and the unused `GalaxyBackground`
+  remains — all left in place rather than deleted without asking. Authenticated
+  dashboard surfaces were not visually QA'd in light mode because the API was
+  down; they use the same semantic tokens.
 
 ### 2026-07-22 — Phase 7 end-to-end onboarding review completed
 
