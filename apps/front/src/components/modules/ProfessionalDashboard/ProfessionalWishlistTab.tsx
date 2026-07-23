@@ -3,12 +3,10 @@
 import { contentTypeIcon, contentTypeOptions } from "@/utils/constant";
 import { ContentType, WishlistSortBy } from "@/lib/graphql/generated";
 import { useProfessionalWishlistTab } from "@/hooks/useProfessionalWishlistTab";
-import { priceOptions, sortOptions } from "@/utils/constant";
-import { WishlistPriceFilter } from "@/lib/graphql/generated";
 import { ContentPagination } from "@elements/pagination";
+import { sortOptions } from "@/utils/constant";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
-import { Switch } from "@ui/switch";
 import { Badge } from "@ui/badge";
 import { Input } from "@ui/input";
 import { Label } from "@ui/label";
@@ -30,7 +28,6 @@ const ProfessionalWishlistTab = () => {
     totalCount,
     isFetching,
     goPrevious,
-    categories,
     isRemoving,
     hasNextPage,
     canPrevious,
@@ -106,7 +103,7 @@ const ProfessionalWishlistTab = () => {
           </Badge>
         </div>
 
-        <div className="grid gap-4 xl:grid-cols-[1.4fr_1fr_1fr]">
+        <div className="grid gap-4 lg:grid-cols-[1.6fr_1fr]">
           <div className="space-y-2">
             <Label>{t("professionalDashboard.wishlist.searchLabel")}</Label>
 
@@ -120,26 +117,6 @@ const ProfessionalWishlistTab = () => {
                 placeholder={t("professionalDashboard.wishlist.search")}
               />
             </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label>{t("professionalDashboard.wishlist.category")}</Label>
-
-            <select
-              value={filters.category}
-              onChange={(event) => updateFilter("category", event.target.value)}
-              className="h-12 w-full rounded-2xl border border-input bg-background px-4 text-sm outline-none transition-colors focus:border-primary/55 focus:ring-2 focus:ring-primary/20"
-            >
-              <option value="ALL">
-                {t("professionalDashboard.wishlist.allCategories")}
-              </option>
-
-              {categories.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
           </div>
 
           <div className="space-y-2">
@@ -184,64 +161,6 @@ const ProfessionalWishlistTab = () => {
               </Button>
             );
           })}
-        </div>
-
-        <div className="grid gap-4 lg:grid-cols-3">
-          <div className="space-y-2">
-            <Label>{t("professionalDashboard.wishlist.price")}</Label>
-            <div className="flex flex-wrap gap-2">
-              {priceOptions.map((option) => (
-                <Button
-                  radius="xl"
-                  type="button"
-                  key={option.value}
-                  onClick={() =>
-                    updateFilter(
-                      "price",
-                      option.value as "ALL" | WishlistPriceFilter,
-                    )
-                  }
-                  variant={filters.price === option.value ? "brand" : "glass"}
-                >
-                  {option.label}
-                </Button>
-              ))}
-            </div>
-          </div>
-          <div className="flex items-center justify-between gap-4 rounded-2xl border border-glass-border bg-background/45 p-4">
-            <div>
-              <p className="text-sm font-medium">
-                {t("professionalDashboard.wishlist.onlyWithRating")}
-              </p>
-
-              <p className="mt-1 text-xs text-muted-foreground">
-                {t("professionalDashboard.wishlist.onlyWithRatingHint")}
-              </p>
-            </div>
-            <Switch
-              checked={filters.onlyWithRating}
-              onCheckedChange={(checked) =>
-                updateFilter("onlyWithRating", checked)
-              }
-            />
-          </div>
-
-          <div className="flex items-center justify-between gap-4 rounded-2xl border border-glass-border bg-background/45 p-4">
-            <div>
-              <p className="text-sm font-medium">
-                {t("professionalDashboard.wishlist.onlyWithUrl")}
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {t("professionalDashboard.wishlist.onlyWithUrlHint")}
-              </p>
-            </div>
-            <Switch
-              checked={filters.onlyWithUrl}
-              onCheckedChange={(checked) =>
-                updateFilter("onlyWithUrl", checked)
-              }
-            />
-          </div>
         </div>
       </GlassCard>
 

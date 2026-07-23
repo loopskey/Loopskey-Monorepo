@@ -299,21 +299,6 @@ export const contentTypeOptions = [
   },
 ] as const;
 
-export const priceOptions = [
-  {
-    label: "All",
-    value: "ALL",
-  },
-  {
-    label: "Free",
-    value: "FREE",
-  },
-  {
-    label: "Paid",
-    value: "PAID",
-  },
-] as const;
-
 export const sortOptions = [
   {
     label: "Newest",

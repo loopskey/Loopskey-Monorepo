@@ -1,16 +1,54 @@
-# Current Feature
+# Current Feature: Simplify Professional Wishlist Filters (Modify UI Phase 3)
 
 ## Status
 
-<!-- Not Started | In Progress | Completed -->
+In Progress
 
 ## Goals
 
 <!-- Bullet points of what success looks like -->
 
+- **Remove these Wishlist filters entirely:** all price-related filters, "Only
+  Rated Items", "Only Available Links", and "Select by Category".
+- **Remove them from every surface:** desktop filter panel, mobile filter
+  drawer, active filter chips, filter-count indicators, saved filter state, URL
+  query params, API request construction, and reset-filter behavior.
+- **Do not remove unrelated supported filters** (search, sorting, pagination,
+  and any remaining valid filters stay).
+- **Cleanup:** obsolete frontend state, unused form fields, obsolete Zod fields,
+  unused types/constants, unused API query params, stale defaults, unused
+  imports, empty filter sections/separators.
+- **Robustness:** "Clear Filters" still works; old bookmarked URLs containing the
+  removed query params must not break the page (ignore/safely clean unsupported
+  legacy params).
+- **Backend caution:** do NOT change the backend for params still used by other
+  pages. Only remove a backend param if it is exclusive to Wishlist and
+  confirmed unused elsewhere.
+- **Preserve:** search, sorting, pagination, remaining valid filters, loading/
+  empty/error states, wishlist item actions, responsive behavior.
+- **Verify:** TypeScript checks, frontend tests, lint, production build. Fix only
+  errors this phase introduces.
+
 ## Notes
 
 <!-- Additional context, constraints, or details from spec -->
+
+- Spec: `context/features/modify-ui-ph3-spec.md` (Phase 3 of the multi-phase
+  "modify UI" effort).
+- **Do NOT modify** Overview, My Learning Activities, or Certificates this phase.
+- Phase-1 audit finding that shapes this work: Wishlist filter state is **pure
+  local component state → GraphQL variables** — there are **no URL params and no
+  Redux** for these filters, and it is **one responsive panel, not separate
+  mobile/desktop implementations**. So the "URL query params" and
+  "mobile drawer vs desktop panel" removal targets may be no-ops here; verify
+  against the actual code first. The removal of Price / Only Rated / Only
+  Available Links / Category was assessed as a clean frontend-only edit.
+- The spec still asks to guarantee old bookmarked URLs with removed params don't
+  break — confirm whether Wishlist ever read from the URL; if it never did,
+  that guarantee already holds (document it).
+- Completion report must cover: filters removed, state/query params removed,
+  files modified, remaining Wishlist filters, tests + results. STOP after this
+  phase.
 
 ## History
 
