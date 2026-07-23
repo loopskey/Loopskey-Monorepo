@@ -2,6 +2,7 @@
 
 import { ArrowRight, Menu, X } from "lucide-react";
 import { LanguageToggleBtn } from "@elements/language-switcher";
+import { ThemeToggle } from "@elements/theme-toggle";
 import { useHeader } from "@hooks/useHeader";
 import { UserMenu } from "@layouts/parts/user-menu";
 import { Button } from "@ui/button";
@@ -57,6 +58,7 @@ const Header = () => {
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex">
+          <ThemeToggle />
           <LanguageToggleBtn />
           {isAuthenticated ? (
             <UserMenu />
@@ -71,6 +73,7 @@ const Header = () => {
         </div>
 
         <div className="flex items-center gap-2 lg:hidden">
+          <ThemeToggle />
           <LanguageToggleBtn />
           <Button
             size="icon"
