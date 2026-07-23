@@ -1,73 +1,16 @@
-# Current Feature: End-to-End Organization Onboarding Review (Phase 7)
+# Current Feature
 
 ## Status
 
-Completed
+<!-- Not Started | In Progress | Completed -->
 
 ## Goals
 
-- Review the whole Organization onboarding workflow end to end — submission,
-  Admin review, rejection, approval, email, activation, password setup,
-  dashboard access — without redesigning working functionality or adding
-  unrelated features.
-- Exercise the workflow against realistic test data across all five stages:
-  submission (required fields, invalid values, success, duplicate pending,
-  double submit, initial status), Admin review (list, search, filter,
-  pagination, detail, authorization, under-review state, concurrent Admins),
-  rejection (required reason, status, reviewer, timestamp, email content,
-  internal notes excluded, email failure, resend), approval (status,
-  organization and user creation, role, relationship, existing-user conflict,
-  duplicate approval, transaction failure, approval email, activation link),
-  and activation (valid/expired/used/invalid token, password validation and
-  hashing, activation, token invalidation, dashboard access).
-- Verify the authorization matrix: applicants and Organization users cannot
-  reach Admin APIs, an Organization user cannot reach another Organization,
-  a non-activated user cannot reach protected Organization APIs, an active
-  user reaches only authorized resources, Admin identity always comes from the
-  authenticated session, and frontend-supplied user IDs are never trusted.
-- Confirm logs and database records hold no plain-text passwords, raw
-  activation tokens, SMTP credentials, or authentication secrets.
-- Verify concurrency and idempotency: conflicting Admin reviews are impossible,
-  repeated approval creates no duplicate users or organizations, repeated email
-  requests create no unintended duplicates, resending invalidates older tokens,
-  and retrying a failed network request is safe.
-- Verify audit events exist for submission, review start (if supported),
-  approval, rejection, account creation, approval/rejection email requested,
-  email failure, invitation resent, account activated, and initial password set
-  — with no secrets in the audit payloads.
-- Review code quality across the workflow (duplicate components/services,
-  business logic in large UI components, missing types, weak backend
-  validation, frontend-only authorization, hardcoded IDs/credentials/production
-  URLs, unhandled errors, missing loading states, missing indexes, unsafe
-  status transitions, missing transactions, accessibility, mobile
-  responsiveness) and fix only issues belonging to this workflow.
-- Run every relevant command — frontend unit/integration tests, backend
-  unit/integration tests, auth and authorization tests, email service tests,
-  migration validation, TypeScript checks, lint, and both production builds —
-  reporting pre-existing failures separately from newly introduced ones.
-- Deliver the specification's 20-point final report, claiming a test passed
-  only when it actually executed successfully.
+<!-- Bullet points of what success looks like -->
 
 ## Notes
 
-- Source specification: `context/features/email-org-submit7-spec.md`.
-- This is the final phase (7 of 7) of the Organization onboarding workflow. It
-  is a review phase: fix defects found in this workflow, do not refactor
-  unrelated project areas.
-- Phases 1–6 are recorded as completed in History below. Their known caveats
-  carry into this review: `UNDER_REVIEW` is unsupported by the request status
-  enum (so the spec's "under-review state" check must be reported, not built);
-  real Resend delivery needs deployment credentials; two legacy CPD migrations
-  exist in the database without local directories, which makes
-  `prisma migrate status` noisy without indicating drift.
-- The root `lint` gate cannot currently run because the frontend script calls
-  the removed Next 16 `next lint` command, and the API workspace has no ESLint
-  9 flat config. Both are pre-existing tooling debt to report, not to fix
-  silently as part of this phase.
-- `apps/front/src/components/modules/Auth/OAuthBridgeClient.tsx` was flagged as
-  dead code in Phase 6 and deliberately left in place; deletion still needs
-  explicit approval.
-- Spec ends with STOP after the end-to-end review and final report.
+<!-- Additional context, constraints, or details from spec -->
 
 ## History
 
