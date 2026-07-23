@@ -52,6 +52,44 @@ export const PduByCategoryChart = ({
   );
 };
 
+export const ProgressDonutChart = ({
+  data,
+  ariaLabel,
+  centerLabel,
+  valueSuffix,
+}: T.TProgressDonutChart) => {
+  const suffix = valueSuffix ? ` ${valueSuffix}` : "";
+  return (
+    <div role="img" aria-label={ariaLabel} className="relative h-52">
+      <R.ResponsiveContainer width="100%" height="100%">
+        <R.PieChart>
+          <R.Pie
+            cx="50%"
+            cy="50%"
+            data={data}
+            dataKey="value"
+            nameKey="label"
+            stroke="none"
+            innerRadius={62}
+            outerRadius={90}
+            paddingAngle={3}
+          >
+            {data.map((entry) => (
+              <R.Cell key={entry.name} fill={entry.fill} />
+            ))}
+          </R.Pie>
+          <R.Tooltip
+            formatter={(value, name) => [`${value ?? 0}${suffix}`, name]}
+          />
+        </R.PieChart>
+      </R.ResponsiveContainer>
+      <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+        {centerLabel}
+      </div>
+    </div>
+  );
+};
+
 export const GoalHalfPieChart = ({ data, progress }: T.TGoalHaphPie) => {
   return (
     <div className="relative h-56">

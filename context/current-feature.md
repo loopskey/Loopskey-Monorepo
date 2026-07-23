@@ -1,16 +1,84 @@
-# Current Feature
+# Current Feature: Professional Sidebar & Overview (Modify UI Phase 2)
 
 ## Status
 
-<!-- Not Started | In Progress | Completed -->
+In Progress
 
 ## Goals
 
 <!-- Bullet points of what success looks like -->
 
+- **Sidebar:** Remove "My Courses" and "External Learning" from the Professional
+  dashboard sidebar (desktop + mobile), Professional role only, without deleting
+  underlying routes/logic. Clean up orphaned separators/groups; keep keyboard
+  nav and active-route highlighting correct; leave other roles untouched. Search
+  for any duplicate Professional nav configs and update all of them.
+- **Overview cards:** Replace the existing top summary cards with three primary
+  cards — (1) CPD/PDU Progress, (2) Learning Roadmap Progress, (3) Upcoming
+  Calendar Items — then below them (4) Recommendations for You, then (5) Recent
+  Learning Activities and (6) Certificates.
+- **CPD/PDU Progress card:** Donut/pie (existing chart lib) of earned vs
+  remaining; plan name, earned/remaining/total credits, completion %, compliance
+  status, reporting deadline. Accessible tooltips with exact values, text
+  equivalent, handles zero/missing targets, >100%, no misleading negatives,
+  responsive. "View CPD/PDU Progress" link to the existing tab; preserve
+  selected plan.
+- **Learning Roadmap Progress card:** Donut/pie of completed vs remaining
+  roadmap steps; total items, %, current/next phase, status. Accessible
+  tooltips + text equivalent. "View Learning Roadmap" link. No invented data;
+  empty state + action when no roadmap.
+- **Upcoming Calendar Items card:** Nearest upcoming items (title, date, time,
+  type, location/online, days remaining) using existing calendar data + date
+  utils. Limited count, sorted nearest-first, excludes past/cancelled, locale/tz
+  aware, no mobile horizontal overflow. "View Calendar" link.
+- **Recommendations for You:** Reuse existing recommendation API + card
+  components; preserve loading/empty/error/actions; no mock data.
+- **Recent Learning Activities card:** Limited recent activities (title, type,
+  completion date, credits/hours, status, evidence indicator). "View All
+  Learning Activities" → My Learning Activities.
+- **Certificates card:** Active count, expiring-soon count, nearest expiry,
+  recently uploaded. "View Certificates" link. Certificate API is not yet
+  implemented (Phase 3+) — build the UI so it can consume that API later; no
+  permanently hardcoded fake counts.
+- **Per-section states:** Each section independently handles loading/empty/
+  error/success/partial failure; one card failing must not break the page. Reuse
+  existing skeleton/error components.
+- **Responsive:** Verified on desktop/tablet/mobile — charts resize, no
+  overflow, accessible links/buttons, pointer+keyboard tooltips, not
+  color-only progress.
+- **Verify:** TypeScript checks, frontend tests, lint, production build. Fix
+  only errors this phase introduces.
+
 ## Notes
 
 <!-- Additional context, constraints, or details from spec -->
+
+- Spec: `context/features/modify-ui-ph2-spec.md` (Phase 2 of the multi-phase
+  "modify UI" effort). Phase 1 was a read-only audit —
+  `context/features/modify-ui-ph1-audit.md`.
+- **Do NOT modify** Wishlist, My Learning Activities, Learning Activity details,
+  or Certificates internals this phase. Only the sidebar and Overview page.
+- Reuse the existing design system, chart library, API hooks, routing, and
+  responsive layout throughout.
+- Key Phase-1 audit findings that carry into this work:
+  - Whole Professional dashboard is one route (`dashboard/professional`)
+    switching on `?tab=`; sidebar is data-driven from
+    `professionalDashboardTabs` in `utils/dashboard-nav.config.ts`. "My Courses"
+    (`?tab=courses`) and "External Learning" (`?tab=external-learning`) are
+    referenced nowhere but the nav config — removing the two array entries is
+    sufficient; keep the underlying tabs/queries/backend.
+  - Overview charts are Recharts via `@elements/dashboard-charts`; Recharts
+    ships an accessible `<Tooltip />`. shadcn `@ui/tooltip` also available.
+  - Five of the six new cards already have data sources (CPD/PDU, roadmap
+    progress via `professionalMyRoadmaps`, upcoming calendar, recent activities,
+    certificates). "Recommendations for You" is the real gap today (generic
+    course list, not personalized).
+  - `Certificate` model is seed-only/read-only — no create path; treat the
+    Certificates card as read integration only, with a graceful not-yet-
+    implemented state.
+- Completion report must cover: sidebar files changed, Overview components
+  reused, new components created, data sources used, nav routes used, tests +
+  results, remaining work. STOP after this phase.
 
 ## History
 

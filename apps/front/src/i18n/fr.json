@@ -2163,11 +2163,75 @@
       "emptyActiveCourses": "Vous n’avez pas encore de cours actif.",
       "recommendedCourses": "Cours recommandés",
       "recommendedCoursesDescription": "Sélectionnés selon votre comportement d’apprentissage et votre parcours professionnel.",
+      "recommendationsEmptyTitle": "Aucune recommandation pour le moment",
+      "recommendationsEmptyDescription": "Explorez le catalogue pour découvrir des cours adaptés à votre progression.",
       "cards": {
         "activeCourses": "Cours actifs",
         "completedCourses": "Cours terminés",
         "totalPdus": "PDU totaux",
         "certificates": "Certificats obtenus"
+      },
+      "states": {
+        "errorTitle": "Une erreur est survenue",
+        "errorDescription": "Impossible de charger cette section. Veuillez réessayer sous peu."
+      },
+      "cpdCard": {
+        "title": "Progression CPD/PDU",
+        "link": "Voir la progression CPD/PDU",
+        "emptyTitle": "Aucun plan CPD/PDU",
+        "emptyDescription": "Créez un plan pour commencer à suivre vos crédits et votre conformité.",
+        "emptyAction": "Créer un plan",
+        "earned": "Obtenus",
+        "remaining": "Restants",
+        "complete": "atteint",
+        "chartAria": "Vous avez obtenu {{earned}} sur {{total}} crédits {{credit}}, soit {{percent}} pour cent.",
+        "summary": "{{earned}} sur {{total}} {{credit}} obtenus",
+        "exceeded": "Exigence dépassée de {{amount}} {{credit}}.",
+        "deadline": "Échéance de déclaration : {{date}}"
+      },
+      "roadmapCard": {
+        "title": "Progression du parcours",
+        "link": "Voir le parcours d’apprentissage",
+        "emptyTitle": "Aucun parcours actif",
+        "emptyDescription": "Inscrivez-vous à un parcours pour suivre votre progression ici.",
+        "emptyAction": "Explorer les parcours",
+        "completed": "Terminées",
+        "remaining": "Restantes",
+        "complete": "atteint",
+        "chartAria": "Vous avez terminé {{completed}} sur {{total}} étapes du parcours, soit {{percent}} pour cent.",
+        "summary": "{{completed}} sur {{total}} étapes terminées",
+        "phases": "Phases",
+        "remainingSteps": "Étapes restantes",
+        "nextPhase": "Suivant : {{phase}}",
+        "stepsSuffix": "étapes"
+      },
+      "calendarCard": {
+        "title": "Éléments d’agenda à venir",
+        "link": "Voir l’agenda",
+        "emptyTitle": "Aucun élément à venir",
+        "emptyDescription": "Inscrivez-vous à des événements ou ajoutez des éléments à votre agenda pour les voir ici.",
+        "today": "Aujourd’hui",
+        "tomorrow": "Demain",
+        "inDays": "Dans {{days}} jours",
+        "online": "En ligne",
+        "inPerson": "En présentiel"
+      },
+      "activitiesCard": {
+        "title": "Activités d’apprentissage récentes",
+        "link": "Voir toutes les activités",
+        "emptyTitle": "Aucune activité d’apprentissage",
+        "emptyDescription": "Enregistrez une activité pour voir votre progression récente ici.",
+        "evidence": "Preuve"
+      },
+      "certificatesCard": {
+        "title": "Certificats",
+        "link": "Voir les certificats",
+        "emptyTitle": "Aucun certificat",
+        "emptyDescription": "Terminez des cours et des activités pour obtenir des certificats.",
+        "active": "Actifs",
+        "expiringSoon": "Bientôt expirés",
+        "nearestExpiry": "Prochaine expiration : {{date}}",
+        "recent": "Ajouté récemment"
       }
     },
     "settings": {

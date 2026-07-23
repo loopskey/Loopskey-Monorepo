@@ -28,12 +28,6 @@ export const professionalDashboardTabs: TDashboardTab<TProfessionalDashboardTab>
       icon: L.CalendarDays,
     },
     {
-      value: "courses",
-      labelKey: "professionalDashboard.sidebar.courses",
-      href: "/dashboard/professional?tab=courses",
-      icon: L.BookOpen,
-    },
-    {
       value: "roadmap",
       labelKey: "professionalDashboard.sidebar.roadmap",
       href: "/dashboard/professional?tab=roadmap",
@@ -44,12 +38,6 @@ export const professionalDashboardTabs: TDashboardTab<TProfessionalDashboardTab>
       labelKey: "professionalDashboard.sidebar.certificates",
       href: "/dashboard/professional?tab=certificates",
       icon: L.Award,
-    },
-    {
-      value: "external-learning",
-      labelKey: "professionalDashboard.sidebar.externalLearning",
-      href: "/dashboard/professional?tab=external-learning",
-      icon: L.ExternalLink,
     },
     {
       value: "profile",
