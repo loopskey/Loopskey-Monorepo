@@ -1,6 +1,6 @@
+import { AuditAction, OrganizationAccessRequestStatus } from "@prisma/client";
 import { ConflictException, Injectable, Logger } from "@nestjs/common";
 import { AuthOrganizationActivationService } from "@auth/services/auth-organization-activation.service";
-import { OrganizationAccessRequestStatus } from "@prisma/client";
 import { buildOrganizationRejectionEmail } from "@mail/organization-email.template";
 import { buildOrganizationApprovalEmail } from "@mail/organization-email.template";
 import { NotificationDeliveryStatus } from "@prisma/client";
@@ -77,6 +77,16 @@ export class OrganizationReviewNotificationService {
         data: {
           notificationStatus: NotificationDeliveryStatus.FAILED,
           notificationFailureCode: failureCode,
+        },
+      });
+      // Recorded as an audit event as well as a request column: a failure that
+      // is later retried successfully leaves no trace in the column alone.
+      await this.prisma.auditLog.create({
+        data: {
+          action: AuditAction.ORGANIZATION_NOTIFICATION_FAILED,
+          entityType: "OrganizationAccessRequest",
+          entityId: requestId,
+          metadata: { reviewStatus: request.status, failureCode },
         },
       });
       this.logger.error("Organization notification delivery failed", {

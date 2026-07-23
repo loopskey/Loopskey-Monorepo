@@ -189,7 +189,21 @@ describe("AdminDashboardService organization requests", () => {
       }),
     );
     expect(tx.organizationMember.create).toHaveBeenCalled();
-    expect(tx.auditLog.create).toHaveBeenCalled();
+    expect(tx.auditLog.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          action: "ORGANIZATION_ACCOUNT_CREATED",
+          entityType: "User",
+        }),
+      }),
+    );
+    expect(tx.auditLog.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          action: "ORG_ACCESS_REQUEST_APPROVED",
+        }),
+      }),
+    );
   });
 
   it("links an existing pending Organization account instead of creating one", async () => {
@@ -215,6 +229,13 @@ describe("AdminDashboardService organization requests", () => {
     );
     expect(tx.organizationProfile.upsert).toHaveBeenCalledWith(
       expect.objectContaining({ where: { userId: "org-user-9" }, update: {} }),
+    );
+    expect(tx.auditLog.create).not.toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          action: "ORGANIZATION_ACCOUNT_CREATED",
+        }),
+      }),
     );
     expect(tx.auditLog.create).toHaveBeenCalledWith(
       expect.objectContaining({

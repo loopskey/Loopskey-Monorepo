@@ -1,4 +1,4 @@
-# Current Feature: Organization Account Activation and Mandatory Password Setup (Phase 6)
+# Current Feature: End-to-End Organization Onboarding Review (Phase 7)
 
 ## Status
 
@@ -6,67 +6,142 @@ Completed
 
 ## Goals
 
-- Deliver the activation-link flow end to end: Admin approval sends an activation
-  link, the user opens it, the token is validated, a new password is set, the
-  token is invalidated, and the account becomes active with dashboard access.
-- Provide a responsive "Set Your Password" page using React Hook Form, Zod, the
-  existing password inputs, password policy, toasts, and auth hooks.
-- Validate required password, confirmation match, minimum length, project
-  complexity rules, password not equal to obvious user/organization values, and
-  the expired, invalid, and already-used token cases with secure messaging that
-  never reveals whether unrelated accounts exist.
-- Back the activation with a transactional backend operation: hash-compare the
-  token, confirm it belongs to the correct pending Organization user, confirm it
-  is unexpired and unused, hash and store the new password, consume the token,
-  activate the account, clear the force-password-change flag, record
-  `passwordChangedAt`/`activatedAt`, optionally revoke sessions, write an audit
-  event, and send the confirmation email.
-- Enforce the restriction on the backend, not only in the browser: before
-  activation the user reaches only activation, initial password setup, current
-  auth status, logout, and resend — never the Organization dashboard, member,
-  management, or report APIs.
-- Protect frontend routes for a password-change-required session without
-  redirect loops, keeping logout reachable and refresh safe, then refresh auth
-  state and show success after setup.
-- Handle expired and used links distinctly, with a resend path where permitted
-  and a login link for already-activated accounts.
-- Support resend for an eligible Organization user or authorized Admin:
-  invalidate prior unused tokens, rate limit, avoid revealing account existence,
-  and record the event.
-- Cover the specification's test matrix (valid/invalid/expired/used token,
-  mismatch, weak password, successful setup, token invalidation, activation,
-  access blocked before and allowed after, logout, resend, prior-token
-  invalidation, rate limiting, hash storage, no sensitive logging, confirmation
-  email) and run frontend tests, backend auth tests, TypeScript checks, lint,
-  and the production build.
+- Review the whole Organization onboarding workflow end to end — submission,
+  Admin review, rejection, approval, email, activation, password setup,
+  dashboard access — without redesigning working functionality or adding
+  unrelated features.
+- Exercise the workflow against realistic test data across all five stages:
+  submission (required fields, invalid values, success, duplicate pending,
+  double submit, initial status), Admin review (list, search, filter,
+  pagination, detail, authorization, under-review state, concurrent Admins),
+  rejection (required reason, status, reviewer, timestamp, email content,
+  internal notes excluded, email failure, resend), approval (status,
+  organization and user creation, role, relationship, existing-user conflict,
+  duplicate approval, transaction failure, approval email, activation link),
+  and activation (valid/expired/used/invalid token, password validation and
+  hashing, activation, token invalidation, dashboard access).
+- Verify the authorization matrix: applicants and Organization users cannot
+  reach Admin APIs, an Organization user cannot reach another Organization,
+  a non-activated user cannot reach protected Organization APIs, an active
+  user reaches only authorized resources, Admin identity always comes from the
+  authenticated session, and frontend-supplied user IDs are never trusted.
+- Confirm logs and database records hold no plain-text passwords, raw
+  activation tokens, SMTP credentials, or authentication secrets.
+- Verify concurrency and idempotency: conflicting Admin reviews are impossible,
+  repeated approval creates no duplicate users or organizations, repeated email
+  requests create no unintended duplicates, resending invalidates older tokens,
+  and retrying a failed network request is safe.
+- Verify audit events exist for submission, review start (if supported),
+  approval, rejection, account creation, approval/rejection email requested,
+  email failure, invitation resent, account activated, and initial password set
+  — with no secrets in the audit payloads.
+- Review code quality across the workflow (duplicate components/services,
+  business logic in large UI components, missing types, weak backend
+  validation, frontend-only authorization, hardcoded IDs/credentials/production
+  URLs, unhandled errors, missing loading states, missing indexes, unsafe
+  status transitions, missing transactions, accessibility, mobile
+  responsiveness) and fix only issues belonging to this workflow.
+- Run every relevant command — frontend unit/integration tests, backend
+  unit/integration tests, auth and authorization tests, email service tests,
+  migration validation, TypeScript checks, lint, and both production builds —
+  reporting pre-existing failures separately from newly introduced ones.
+- Deliver the specification's 20-point final report, claiming a test passed
+  only when it actually executed successfully.
 
 ## Notes
 
-- Source specification: `context/features/email-org-submit6-spec.md`.
-- Spec instruction: prefer the activation-link flow over temporary passwords
-  unless the existing auth system makes it impractical, and never email or
-  expose permanent plain-text passwords. The repository already chose the
-  activation-link path.
-- This phase already has a completion entry in History dated 2026-07-21. Treat
-  this load as a re-audit: verify each requirement against the code before
-  implementing anything, and close only real gaps.
-- The phase was re-verified end to end on 2026-07-22. The former
-  `OtpPurpose.ORGANIZATION_ACTIVATION` live-database error no longer occurs and
-  the live schema matches `schema.prisma`. Prisma migration status remains
-  noisy because two completed legacy CPD migration directories are absent
-  locally; this provenance debt is unrelated to the applied Phase 6 migration.
-- Relevant existing code: `AuthOrganizationActivationService`,
-  `PasswordChangeGuard` (global, after `RolesGuard`),
-  `@AllowPasswordChangeRequired()` on `currentUser`/`changePassword`/`logout`,
-  the `/auth/organization/activate` page, `RoleRouteGuard`'s in-place
-  `PasswordChangeRequired` screen, and migration
-  `20260721180000_organization_account_activation`.
-- Spec ends with STOP after the activation and mandatory password setup
-  workflow; Phase 7 is out of scope.
+- Source specification: `context/features/email-org-submit7-spec.md`.
+- This is the final phase (7 of 7) of the Organization onboarding workflow. It
+  is a review phase: fix defects found in this workflow, do not refactor
+  unrelated project areas.
+- Phases 1–6 are recorded as completed in History below. Their known caveats
+  carry into this review: `UNDER_REVIEW` is unsupported by the request status
+  enum (so the spec's "under-review state" check must be reported, not built);
+  real Resend delivery needs deployment credentials; two legacy CPD migrations
+  exist in the database without local directories, which makes
+  `prisma migrate status` noisy without indicating drift.
+- The root `lint` gate cannot currently run because the frontend script calls
+  the removed Next 16 `next lint` command, and the API workspace has no ESLint
+  9 flat config. Both are pre-existing tooling debt to report, not to fix
+  silently as part of this phase.
+- `apps/front/src/components/modules/Auth/OAuthBridgeClient.tsx` was flagged as
+  dead code in Phase 6 and deliberately left in place; deletion still needs
+  explicit approval.
+- Spec ends with STOP after the end-to-end review and final report.
 
 ## History
 
 <!-- Keep this updated. Earliest to latest -->
+
+### 2026-07-22 — Phase 7 end-to-end onboarding review completed
+
+- Exercised the whole workflow against the live API and configured Neon
+  database with realistic data: 5 applications submitted, 1 rejected, 3
+  approved (2 concurrently), 1 account activated, then signed in and opened the
+  Organization dashboard. 179 live assertions ran across submission, Admin
+  review, rejection, approval, activation, authorization, resend, concurrency
+  and audit. Every test record was deleted afterwards (6 requests, 3 users,
+  3 organizations, 8 OTP rows, 10 audit rows; verified zero remaining).
+- Found and fixed the review's headline defect: a Nest `HttpException` built
+  with an object payload — the `{ code, message }` shape every service in this
+  workflow throws — reached the browser as a bare `INTERNAL_SERVER_ERROR` with
+  the domain code dropped. `REQUEST_ALREADY_EXISTS`, `ACTIVATION_TOKEN_EXPIRED`,
+  `ACTIVATION_TOKEN_USED`, `CHANGE_PASSWORD_REQUIRED` and every review conflict
+  were indistinguishable from a server crash. Unmapped failures were worse:
+  a Prisma error returned its raw text, naming the database host and the
+  server's absolute source paths, to anonymous callers.
+- Added `formatGraphQLError` (`@utils/graphql-error-formatter`) to the GraphQL
+  module. It publishes the domain code and HTTP status for handled exceptions,
+  drops stack traces, and replaces anything unrecognised with a generic
+  message. Guard and ValidationPipe error shapes are unchanged, so the existing
+  single-flight token refresh keeps working. Covered by 8 unit tests.
+- Closed the audit gaps the specification lists. Added
+  `ORG_ACCESS_REQUEST_SUBMITTED` (written in the same transaction as the
+  application), `ORGANIZATION_ACCOUNT_CREATED` (only when approval really
+  creates an account, not when it links an existing one), and
+  `ORGANIZATION_NOTIFICATION_FAILED` (a retried failure leaves no trace in the
+  request column alone).
+- Added the missing `OtpCode(codeHash, purpose)` index: activation resolves a
+  link from its hashed token with no user or destination to narrow the search.
+- Bounded `ActivateOrganizationAccountInput` token and password length so an
+  anonymous caller cannot hand argon2 an arbitrarily large string.
+- Frontend activation now reads the newly-exposed error code: a link that
+  lapses between opening the page and submitting it moves the user to the
+  matching expired/used/invalid screen, which is where the resend form lives.
+  Previously it showed a generic toast with no way forward.
+- Everything else the specification asks for was already correct and is now
+  proven live rather than by inspection: single-winner concurrent reviews,
+  `Organization.ownerId @unique` making duplicate organizations impossible,
+  argon2 password storage, SHA-256 token hashing with sibling invalidation,
+  resend cooldown and identical answers for unknown addresses, cross-role and
+  cross-organization refusal, session-derived identity, and no secret in any
+  log, audit row or email.
+- Review pass produced three further changes: collapsed a duplicated error
+  toast in the activation hook, made `TOKEN_ERROR_CODES` `as const`, and pinned
+  the one app-wide consumer that matches on an error message
+  (`useCpdPduProgress` looks for `CPD_PLAN_DUPLICATE`, thrown as a bare string
+  payload) with a formatter regression test.
+- The formatter is registered on `GraphQLModule`, so it changes the
+  client-visible error shape for every operation, not only this workflow. That
+  breadth was raised explicitly at review and approved: it is the only place
+  the fix can live, and guard, ValidationPipe and token-refresh shapes are
+  unchanged and covered by tests.
+- Verification: API Jest 79/79 (12 suites, up from 68), frontend Vitest 13/13,
+  API and frontend TypeScript checks, both production builds, Prisma validate,
+  `migrate status` up to date, GraphQL codegen re-run, Prettier, ESLint on
+  changed frontend files, and `git diff --check`.
+- Known follow-up, pre-existing and not introduced here: the delivery-failure
+  catch block in `OrganizationReviewNotificationService` performs database
+  writes that are themselves unguarded, so a database fault while handling a
+  failed send would surface as an error on an approval that already committed.
+- Pre-existing tooling debt, unchanged and not caused by this work: the root
+  `lint` gate fails because the frontend script calls the removed Next 16
+  `next lint` and the API workspace has no ESLint 9 flat config, and
+  `test:e2e` points at an `apps/api/test` directory that has never existed.
+- `UNDER_REVIEW` remains unsupported by `OrganizationAccessRequestStatus`, so
+  the specification's "under-review state" check is reported rather than built.
+- The legacy CPD migration-history caveat has resolved on its own: Prisma now
+  reports "Database schema is up to date!" with all 10 migrations applied.
 
 ### 2026-07-22 — Phase 6 re-audit and live verification completed
 

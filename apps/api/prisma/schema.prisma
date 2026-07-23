@@ -200,6 +200,9 @@ model OtpCode {
   @@index([destination])
   @@index([purpose])
   @@index([expiresAt])
+  // Organization activation resolves a link straight from its hashed token, so
+  // this is the only OTP lookup that has no user or destination to narrow it.
+  @@index([codeHash, purpose])
 }
 
 model PendingRegistration {
@@ -1928,10 +1931,13 @@ enum AuditAction {
   ORGANIZATION_MEMBER_REMOVED
   ORG_ACCESS_REQUEST_APPROVED
   ORG_ACCESS_REQUEST_REJECTED
+  ORG_ACCESS_REQUEST_SUBMITTED
   ORGANIZATION_MEMBER_UPDATED
   ORGANIZATION_SETTINGS_UPDATED
   ORGANIZATION_ACCOUNT_ACTIVATED
+  ORGANIZATION_ACCOUNT_CREATED
   ORGANIZATION_ACTIVATION_RESENT
+  ORGANIZATION_NOTIFICATION_FAILED
 }
 
 model AuditLog {

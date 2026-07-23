@@ -5,6 +5,7 @@ import { ExternalLearningModule } from "@ext/external-learning.module";
 import { AdminDashboardModule } from "@admin/admin.module";
 import { PasswordChangeGuard } from "@auth/guards/password-change.guard";
 import { OrganizationModule } from "@org/org.module";
+import { formatGraphQLError } from "@utils/graphql-error-formatter";
 import { ProfessionalModule } from "@professional/professional.module";
 import { ProviderModule } from "@provider/provider.module";
 import { GraphQLModule } from "@nestjs/graphql";
@@ -40,6 +41,7 @@ import { join } from "path";
         return {
           autoSchemaFile: join(process.cwd(), schemaPath),
           sortSchema: true,
+          formatError: formatGraphQLError,
           playground:
             configService.get<string>("GRAPHQL_PLAYGROUND", "true") === "true",
           introspection: true,

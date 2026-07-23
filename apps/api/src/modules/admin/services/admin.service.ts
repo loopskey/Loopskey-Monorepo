@@ -401,6 +401,16 @@ export class AdminDashboardService {
             },
           })
         ).id;
+      if (!linkedUser)
+        await tx.auditLog.create({
+          data: {
+            actorId: user.id,
+            action: AuditAction.ORGANIZATION_ACCOUNT_CREATED,
+            entityType: "User",
+            entityId: ownerId,
+            metadata: { email, requestId },
+          },
+        });
 
       const organization = await tx.organization.create({
         data: {

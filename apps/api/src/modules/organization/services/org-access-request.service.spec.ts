@@ -40,21 +40,33 @@ const submittedRequest = {
   updatedAt: new Date("2026-07-20T12:00:00.000Z"),
 };
 
-const createPrismaMock = () => ({
-  user: {
-    findUnique: jest.fn(),
-  },
-  organizationAccessRequest: {
-    findFirst: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-  },
-});
+const createPrismaMock = () => {
+  const prisma = {
+    user: {
+      findUnique: jest.fn(),
+    },
+    organizationAccessRequest: {
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+    },
+    auditLog: {
+      create: jest.fn().mockResolvedValue({ id: "audit-1" }),
+    },
+    $transaction: jest.fn(),
+  };
+  prisma.$transaction.mockImplementation(
+    (run: (tx: typeof prisma) => unknown) => run(prisma),
+  );
+  return prisma;
+};
 
 const createService = (prisma: ReturnType<typeof createPrismaMock>) =>
   new OrgAccessRequestService(
     prisma as unknown as PrismaService,
-    { sendEmail: jest.fn().mockResolvedValue({ id: "email-1" }) } as unknown as MailService,
+    {
+      sendEmail: jest.fn().mockResolvedValue({ id: "email-1" }),
+    } as unknown as MailService,
     {
       get: jest.fn((_name: string, fallback?: string) => fallback),
     } as unknown as ConfigService,
@@ -85,6 +97,45 @@ describe("OrgAccessRequestService.submitRequest", () => {
     expect(
       prisma.organizationAccessRequest.create.mock.calls[0][0].data,
     ).not.toHaveProperty("notificationStatus");
+  });
+
+  it("records a submission audit event in the same transaction as the request", async () => {
+    const prisma = createPrismaMock();
+    prisma.user.findUnique.mockResolvedValue(null);
+    prisma.organizationAccessRequest.findFirst.mockResolvedValue(null);
+    prisma.organizationAccessRequest.create.mockResolvedValue(submittedRequest);
+    prisma.organizationAccessRequest.update.mockResolvedValue(submittedRequest);
+    const service = createService(prisma);
+
+    await service.submitRequest(input);
+
+    expect(prisma.$transaction).toHaveBeenCalledTimes(1);
+    expect(prisma.auditLog.create).toHaveBeenCalledWith({
+      data: {
+        action: "ORG_ACCESS_REQUEST_SUBMITTED",
+        entityType: "OrganizationAccessRequest",
+        entityId: submittedRequest.id,
+        metadata: {
+          workEmail: "alex@example.org",
+          organizationName: "Example Association",
+          organizationType: OrganizationType.ASSOCIATION,
+        },
+      },
+    });
+  });
+
+  it("writes no audit row when the application is refused", async () => {
+    const prisma = createPrismaMock();
+    prisma.user.findUnique.mockResolvedValue(null);
+    prisma.organizationAccessRequest.findFirst.mockResolvedValue({
+      id: "existing-request",
+    });
+    const service = createService(prisma);
+
+    await expect(service.submitRequest(input)).rejects.toBeInstanceOf(
+      ConflictException,
+    );
+    expect(prisma.auditLog.create).not.toHaveBeenCalled();
   });
 
   it("rejects a duplicate pending application before writing", async () => {
