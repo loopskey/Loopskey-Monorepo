@@ -2163,11 +2163,75 @@
       "emptyActiveCourses": "You do not have any active courses yet.",
       "recommendedCourses": "Recommended Courses",
       "recommendedCoursesDescription": "Curated based on your learning behavior and professional growth path.",
+      "recommendationsEmptyTitle": "No recommendations yet",
+      "recommendationsEmptyDescription": "Explore the catalog to discover courses tailored to your growth.",
       "cards": {
         "activeCourses": "Active Courses",
         "completedCourses": "Completed Courses",
         "totalPdus": "Total PDUs",
         "certificates": "Certificates Earned"
+      },
+      "states": {
+        "errorTitle": "Something went wrong",
+        "errorDescription": "We couldn’t load this section. Please try again shortly."
+      },
+      "cpdCard": {
+        "title": "CPD/PDU Progress",
+        "link": "View CPD/PDU Progress",
+        "emptyTitle": "No CPD/PDU plan yet",
+        "emptyDescription": "Create a plan to start tracking your credits and compliance.",
+        "emptyAction": "Create a plan",
+        "earned": "Earned",
+        "remaining": "Remaining",
+        "complete": "complete",
+        "chartAria": "You have earned {{earned}} of {{total}} {{credit}} credits, which is {{percent}} percent complete.",
+        "summary": "{{earned}} of {{total}} {{credit}} earned",
+        "exceeded": "Exceeded requirement by {{amount}} {{credit}}.",
+        "deadline": "Reporting deadline: {{date}}"
+      },
+      "roadmapCard": {
+        "title": "Learning Roadmap Progress",
+        "link": "View Learning Roadmap",
+        "emptyTitle": "No active roadmap yet",
+        "emptyDescription": "Enroll in a roadmap to track your structured learning path here.",
+        "emptyAction": "Explore roadmaps",
+        "completed": "Completed",
+        "remaining": "Remaining",
+        "complete": "complete",
+        "chartAria": "You have completed {{completed}} of {{total}} roadmap steps, which is {{percent}} percent complete.",
+        "summary": "{{completed}} of {{total}} steps completed",
+        "phases": "Phases",
+        "remainingSteps": "Steps left",
+        "nextPhase": "Next: {{phase}}",
+        "stepsSuffix": "steps"
+      },
+      "calendarCard": {
+        "title": "Upcoming Calendar Items",
+        "link": "View Calendar",
+        "emptyTitle": "No upcoming items",
+        "emptyDescription": "Register for events or add items to your calendar to see them here.",
+        "today": "Today",
+        "tomorrow": "Tomorrow",
+        "inDays": "In {{days}} days",
+        "online": "Online",
+        "inPerson": "In person"
+      },
+      "activitiesCard": {
+        "title": "Recent Learning Activities",
+        "link": "View All Learning Activities",
+        "emptyTitle": "No learning activities yet",
+        "emptyDescription": "Record a learning activity to see your recent progress here.",
+        "evidence": "Evidence"
+      },
+      "certificatesCard": {
+        "title": "Certificates",
+        "link": "View Certificates",
+        "emptyTitle": "No certificates yet",
+        "emptyDescription": "Complete courses and activities to earn certificates.",
+        "active": "Active",
+        "expiringSoon": "Expiring soon",
+        "nearestExpiry": "Nearest expiry: {{date}}",
+        "recent": "Recently added"
       }
     },
     "settings": {

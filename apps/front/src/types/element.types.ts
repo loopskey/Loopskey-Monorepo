@@ -254,6 +254,20 @@ export type TGoalHaphPie = {
   data: TGoalPoint[];
 };
 
+export type TDonutSlice = {
+  name: string;
+  label: string;
+  value: number;
+  fill: string;
+};
+
+export type TProgressDonutChart = {
+  data: TDonutSlice[];
+  ariaLabel: string;
+  centerLabel: ReactNode;
+  valueSuffix?: string;
+};
+
 // ================ External Btn =================
 export type TExternalLearningBtn = {
   title: string;

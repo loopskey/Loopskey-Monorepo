@@ -1,11 +1,11 @@
 import { useCreateProfessionalPduActivityMutation } from "@/lib/rtk/endpoints/professional.api";
 import { useUpsertProfessionalPduTargetMutation } from "@/lib/rtk/endpoints/professional.api";
 import { ContentType, UpsertPduTargetInput } from "@/lib/graphql/generated";
+import { ElementType, ReactNode } from "react";
 import { BarChart3, LucideIcon } from "lucide-react";
 import { TPduActivityFormInput } from "@/lib/validations/pdu-activity.schema";
 import { I18nContextValue } from "@/types/providers.types";
 import { PDU_CATEGORIES } from "@/utils/pdu.constant";
-import { ElementType } from "react";
 import { Control } from "react-hook-form";
 
 import * as API from "@/lib/graphql/generated";
@@ -375,4 +375,12 @@ export type TActivitySuccessPanelProps = {
   t: I18nContextValue["t"];
   onAddAnother: () => void;
   onViewActivities: () => void;
+};
+
+export type TOverviewCardProps = {
+  title: string;
+  icon: ElementType;
+  className?: string;
+  footer?: ReactNode;
+  children: ReactNode;
 };
