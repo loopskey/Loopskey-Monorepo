@@ -255,13 +255,16 @@ export enum AssignmentType {
 export enum AuditAction {
   AdminProfileUpdated = 'ADMIN_PROFILE_UPDATED',
   OrganizationAccountActivated = 'ORGANIZATION_ACCOUNT_ACTIVATED',
+  OrganizationAccountCreated = 'ORGANIZATION_ACCOUNT_CREATED',
   OrganizationActivationResent = 'ORGANIZATION_ACTIVATION_RESENT',
   OrganizationMemberRemoved = 'ORGANIZATION_MEMBER_REMOVED',
   OrganizationMemberUpdated = 'ORGANIZATION_MEMBER_UPDATED',
+  OrganizationNotificationFailed = 'ORGANIZATION_NOTIFICATION_FAILED',
   OrganizationSettingsUpdated = 'ORGANIZATION_SETTINGS_UPDATED',
   OrganizationViewed = 'ORGANIZATION_VIEWED',
   OrgAccessRequestApproved = 'ORG_ACCESS_REQUEST_APPROVED',
   OrgAccessRequestRejected = 'ORG_ACCESS_REQUEST_REJECTED',
+  OrgAccessRequestSubmitted = 'ORG_ACCESS_REQUEST_SUBMITTED',
   UserExported = 'USER_EXPORTED',
   UserStatusUpdated = 'USER_STATUS_UPDATED'
 }

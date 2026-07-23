@@ -35,6 +35,9 @@ const setup = (sendEmail = jest.fn().mockResolvedValue({ id: "email-1" })) => {
       findUnique: jest.fn().mockResolvedValue(request),
       update: jest.fn().mockResolvedValue(request),
     },
+    auditLog: {
+      create: jest.fn().mockResolvedValue({ id: "audit-1" }),
+    },
     otpCode,
     $transaction: jest.fn((operation: unknown) => {
       if (typeof operation === "function")
@@ -93,6 +96,7 @@ describe("OrganizationReviewNotificationService", () => {
     expect(stored).toMatch(/^[a-f0-9]{64}$/);
     expect(email.text).not.toContain(stored);
     expect(email.text).toContain("activate?token=");
+    expect(prisma.auditLog.create).not.toHaveBeenCalled();
   });
 
   it("persists provider failure without throwing or exposing sensitive data", async () => {
@@ -110,6 +114,20 @@ describe("OrganizationReviewNotificationService", () => {
           notificationStatus: NotificationDeliveryStatus.FAILED,
         }),
       }),
+    );
+    expect(prisma.auditLog.create).toHaveBeenCalledWith({
+      data: {
+        action: "ORGANIZATION_NOTIFICATION_FAILED",
+        entityType: "OrganizationAccessRequest",
+        entityId: request.id,
+        metadata: {
+          reviewStatus: request.status,
+          failureCode: "PROVIDER_DELIVERY_FAILED",
+        },
+      },
+    });
+    expect(JSON.stringify(prisma.auditLog.create.mock.calls)).not.toContain(
+      "secret-token",
     );
     expect(JSON.stringify(log.mock.calls)).not.toContain("secret-token");
     log.mockRestore();

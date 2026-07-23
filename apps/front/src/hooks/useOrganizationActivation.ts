@@ -2,6 +2,7 @@
 
 import { getOrganizationActivationScreen } from "@utils/organization-activation-state";
 import { useSearchParams, useRouter } from "next/navigation";
+import { getAuthErrorCode } from "@utils/auth-error";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { siteLinks } from "@utils/constant";
 import { useForm } from "react-hook-form";
@@ -11,13 +12,19 @@ import { notify } from "@hooks/notify";
 import * as API from "@lib/rtk/endpoints/auth.api";
 import * as S from "@lib/validations/auth-form.schema";
 
+const TOKEN_ERROR_CODES = [
+  "ACTIVATION_TOKEN_USED",
+  "ACTIVATION_TOKEN_INVALID",
+  "ACTIVATION_TOKEN_EXPIRED",
+] as const;
+
 export const useOrganizationActivation = () => {
   const { t } = useI18n();
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token")?.trim() ?? "";
 
-  const { data, isLoading, isFetching, isError } =
+  const { data, isLoading, isFetching, isError, refetch } =
     API.useOrganizationActivationStatusQuery(token, { skip: !token });
   const [activate, activateState] =
     API.useActivateOrganizationAccountMutation();
@@ -61,8 +68,17 @@ export const useOrganizationActivation = () => {
       passwordForm.reset();
       notify.success(t("authPages.activation.successTitle"));
       router.replace(siteLinks.organizationAuth);
-    } catch {
+    } catch (error) {
+      const code = getAuthErrorCode(error);
+      if (code === "PASSWORD_TOO_OBVIOUS") {
+        passwordForm.setError("password", {
+          message: t("authPages.activation.passwordTooObvious"),
+        });
+        return;
+      }
       notify.error(t("authPages.activation.activationFailed"));
+      if (TOKEN_ERROR_CODES.some((tokenCode) => tokenCode === code))
+        void refetch();
     }
   };
 

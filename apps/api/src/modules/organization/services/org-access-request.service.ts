@@ -1,16 +1,16 @@
+import { AuditAction, OrganizationAccessRequestStatus } from "@prisma/client";
 import { OrganizationAccessRequestPaginationInput } from "@org/dtos/org-access-request-pagination.input";
 import { ConflictException, NotFoundException } from "@nestjs/common";
 import { SubmitOrganizationAccessRequestInput } from "@org/dtos/submit-org-access-request.input";
 import { OrganizationAccessRequestMessageCode } from "@org/enums/org-access-request-message-code.enum";
 import { OrganizationAccessRequestFilterInput } from "@org/dtos/org-access-request-filter";
-import { OrganizationAccessRequestStatus } from "@prisma/client";
+import { buildOrganizationSubmittedEmail } from "@mail/organization-email.template";
+import { NotificationDeliveryStatus } from "@prisma/client";
 import { Injectable, Logger } from "@nestjs/common";
-import { Prisma } from "@prisma/client";
 import { PrismaService } from "@prisma/prisma.service";
 import { ConfigService } from "@nestjs/config";
 import { MailService } from "@mail/mail.service";
-import { buildOrganizationSubmittedEmail } from "@mail/organization-email.template";
-import { NotificationDeliveryStatus } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
 @Injectable()
 export class OrgAccessRequestService {
@@ -78,8 +78,8 @@ export class OrgAccessRequestService {
     }
 
     try {
-      const request = await this.prismaService.organizationAccessRequest.create(
-        {
+      const request = await this.prismaService.$transaction(async (tx) => {
+        const created = await tx.organizationAccessRequest.create({
           data: {
             representativeFullName: input.representativeFullName.trim(),
             organizationName: input.organizationName.trim(),
@@ -90,12 +90,25 @@ export class OrgAccessRequestService {
             country: input.country.trim(),
             goals: input.goals.trim(),
             status: OrganizationAccessRequestStatus.PENDING,
-          submissionNotificationStatus: NotificationDeliveryStatus.PENDING,
-          submissionNotificationLastAttemptAt: new Date(),
+            submissionNotificationStatus: NotificationDeliveryStatus.PENDING,
+            submissionNotificationLastAttemptAt: new Date(),
           },
           select: this.requestSelect,
-        },
-      );
+        });
+        await tx.auditLog.create({
+          data: {
+            action: AuditAction.ORG_ACCESS_REQUEST_SUBMITTED,
+            entityType: "OrganizationAccessRequest",
+            entityId: created.id,
+            metadata: {
+              workEmail,
+              organizationName: created.organizationName,
+              organizationType: created.organizationType,
+            },
+          },
+        });
+        return created;
+      });
       try {
         const template = buildOrganizationSubmittedEmail({
           appName: this.configService.get<string>("APP_NAME", "LoopsKey"),
