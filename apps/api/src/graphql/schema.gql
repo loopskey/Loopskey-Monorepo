@@ -2121,6 +2121,7 @@ type ProfessionalCertificateSummary {
   active: Int!
   expired: Int!
   expiringSoon: Int!
+  nearestExpiry: DateTime
   total: Int!
 }
 
@@ -2760,9 +2761,10 @@ type Query {
   professionalActiveSessions: [ProfessionalSession!]!
   professionalCalendarEvents(filter: ProfessionalCalendarEventsFilterInput, pagination: ProfessionalPaginationInput): PaginatedProfessionalCalendarEvents!
   professionalCertificate(id: ID!): ProfessionalCertificate!
+  professionalCertificateIssuers: [String!]!
   professionalCertificateOptions: [ProfessionalCertificateOption!]!
   professionalCertificateSummary: ProfessionalCertificateSummary!
-  professionalCertificates(filter: ProfessionalSearchInput, pagination: ProfessionalPaginationInput, sort: CertificateSort, status: CertificateStatusFilter): PaginatedProfessionalCertificates!
+  professionalCertificates(cpdPlanId: ID, filter: ProfessionalSearchInput, issuer: String, pagination: ProfessionalPaginationInput, sort: CertificateSort, status: CertificateStatusFilter, unlinkedOnly: Boolean): PaginatedProfessionalCertificates!
   professionalContentCompletion(contentId: ID!, contentType: ContentType!): ProfessionalPduActivity
   professionalCpdPlans: [ProfessionalCpdPlan!]!
   professionalDashboardProfile: ProfessionalDashboardProfile!

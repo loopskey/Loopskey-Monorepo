@@ -206,6 +206,13 @@ export const adminDashboardTabs: TDashboardTab<TAdminDashboardTab>[] = [
   },
 ];
 
+export const DASHBOARD_TAB_PARENTS: Record<string, string> = {
+  "certificate-form": "certificates",
+};
+
+export const isDashboardTabActive = (tabValue: string, activeTab: string) =>
+  activeTab === tabValue || DASHBOARD_TAB_PARENTS[activeTab] === tabValue;
+
 export const getDashboardTabsByRole = (role?: string | null) => {
   if (role === "PROFESSIONAL") return professionalDashboardTabs;
   if (role === "PROVIDER") return providerDashboardTabs;

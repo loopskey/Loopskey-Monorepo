@@ -42,6 +42,7 @@ export class ProfessionalCertificateSummaryEntity {
   @Field(() => Int) active: number;
   @Field(() => Int) expired: number;
   @Field(() => Int) expiringSoon: number;
+  @Field(() => Date, { nullable: true }) nearestExpiry?: Date | null;
 }
 
 @ObjectType(ProfessionalGqlObjectNames.PROFESSIONAL_CERTIFICATE_OPTION)

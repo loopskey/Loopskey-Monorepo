@@ -3,6 +3,7 @@ import { useUpsertProfessionalPduTargetMutation } from "@/lib/rtk/endpoints/prof
 import { ContentType, UpsertPduTargetInput } from "@/lib/graphql/generated";
 import { ElementType, ReactNode } from "react";
 import { BarChart3, LucideIcon } from "lucide-react";
+import { TCertificateFormInput } from "@/lib/validations/certificate.schema";
 import { TPduActivityFormInput } from "@/lib/validations/pdu-activity.schema";
 import { I18nContextValue } from "@/types/providers.types";
 import { PDU_CATEGORIES } from "@/utils/pdu.constant";
@@ -22,6 +23,7 @@ export type TProfessionalDashboardTab =
   | "pdu-report"
   | "add-activity"
   | "certificates"
+  | "certificate-form"
   | "cpd-pdu-tracker"
   | "cpd-pdu-progress"
   | "activity-detail"
@@ -125,11 +127,6 @@ export type TActivityDetailViewProps = {
 
 export type TPduActivityType = "ALL" | API.PduSource;
 
-/**
- * Activities have no relation to the `Certificate` model yet, so the certificate
- * filter is expressed as evidence presence and kept as a small union that a real
- * certificate association can replace without touching the toolbar.
- */
 export type TPduActivityCertificateFilter = "ALL" | "WITH" | "WITHOUT";
 
 export type TPduActivityFilters = {
@@ -199,6 +196,73 @@ export type ProfessionalCertificatesData = NonNullable<
 
 export type ProfessionalCertificate =
   ProfessionalCertificatesData["items"][number];
+
+export type TCertificateEvidenceFile =
+  ProfessionalCertificate["evidenceFiles"][number];
+
+export type TCertificateSummary = NonNullable<
+  API.ProfessionalCertificateSummaryQuery["professionalCertificateSummary"]
+>;
+
+export type TCertificateStatusFilter = "ALL" | API.CertificateStatusFilter;
+
+export type TCertificateFilters = {
+  search: string;
+  issuer: string;
+  cpdPlan: string;
+  sort: API.CertificateSort;
+  status: TCertificateStatusFilter;
+};
+
+export type TCertificatePlanOption = {
+  id: string;
+  name: string;
+};
+
+export type TCertificatesFiltersProps = {
+  isFiltered: boolean;
+  onReset: () => void;
+  issuerOptions: string[];
+  isIssuersLoading: boolean;
+  t: I18nContextValue["t"];
+  isPlansLoading: boolean;
+  filters: TCertificateFilters;
+  planOptions: TCertificatePlanOption[];
+  onChange: <K extends keyof TCertificateFilters>(
+    key: K,
+    value: TCertificateFilters[K],
+  ) => void;
+};
+
+export type TCertificatesTableProps = {
+  isDeleting: boolean;
+  selectedId: string | null;
+  t: I18nContextValue["t"];
+  deletingCertificateId: string | null;
+  certificates: ProfessionalCertificate[];
+  onSelect: (certificateId: string) => void;
+  onEdit: (certificateId: string) => void;
+  onDelete: (certificateId: string) => void;
+};
+
+export type TCertificateDetailCardProps = {
+  t: I18nContextValue["t"];
+  downloadingFileId: string | null;
+  certificate: ProfessionalCertificate;
+  onEdit: (certificateId: string) => void;
+  onDownload: (file: TCertificateEvidenceFile) => void;
+};
+
+export type TCertificateSummaryCardsProps = {
+  isError: boolean;
+  isLoading: boolean;
+  onViewAll: () => void;
+  t: I18nContextValue["t"];
+  onViewActive: () => void;
+  onViewExpiring: () => void;
+  nearestExpiry: string | null;
+  summary: TCertificateSummary | undefined;
+};
 
 export type ProfessionalCoursesData = NonNullable<
   API.ProfessionalMyCoursesQuery["professionalMyCourses"]
@@ -352,14 +416,22 @@ export type TCalendarEventDetailsDialogProps = {
   getEventHref: (event: TProfessionalCalendarEvent) => string;
 };
 
+export type TEvidenceFileLike = {
+  id: string;
+  fileName: string;
+  mimeType: string;
+  sizeBytes: number;
+  createdAt: string;
+};
+
 export type TActivityEvidenceUploadProps = {
   files: File[];
   isRemoving?: boolean;
   t: I18nContextValue["t"];
-  existingFiles: TPduEvidenceFile[];
+  existingFiles: TEvidenceFileLike[];
   onChange: (files: File[]) => void;
   onRemoveExisting?: (fileId: string) => void;
-  onDownloadExisting?: (file: TPduEvidenceFile) => void;
+  onDownloadExisting?: (file: TEvidenceFileLike) => void;
 };
 
 export type TActivityReviewSummaryProps = {
@@ -416,4 +488,17 @@ export type TOverviewCardProps = {
   className?: string;
   footer?: ReactNode;
   children: ReactNode;
+};
+
+export type TCertificateFormFieldsProps = {
+  files: File[];
+  isRemoving: boolean;
+  isPlansLoading: boolean;
+  t: I18nContextValue["t"];
+  planOptions: TCertificatePlanOption[];
+  onFilesChange: (files: File[]) => void;
+  control: Control<TCertificateFormInput>;
+  existingFiles: TCertificateEvidenceFile[];
+  onRemoveExisting: (fileId: string) => void;
+  onDownloadExisting: (file: TEvidenceFileLike) => void;
 };

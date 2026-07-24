@@ -5,10 +5,6 @@ import { SetCertificateCpdPlanInput } from "@professional/dtos/set-certificate-c
 import { resolveCertificateStatus } from "@professional/utils/certificate-status.util";
 import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
 import { CertificateStatusFilter } from "@professional/enums/certificate.enum";
-import {
-  getCertificateUploadDir,
-  MAX_CERTIFICATE_OPTIONS,
-} from "@professional/enums/certificate-file.constant";
 import { CreateCertificateInput } from "@professional/dtos/create-certificate.input";
 import { UpdateCertificateInput } from "@professional/dtos/update-certificate.input";
 import { certificateStatusWhere } from "@professional/utils/certificate-status.util";
@@ -19,6 +15,7 @@ import { unlink } from "fs/promises";
 import { TUser } from "@common/types/user.types";
 import { join } from "path";
 
+import * as C from "@professional/enums/certificate-file.constant";
 import * as T from "@professional/types/professional-certificate.types";
 
 @Injectable()
@@ -111,6 +108,14 @@ export class ProfessionalCertificatesService {
       });
     if (params.status) and.push(certificateStatusWhere(params.status, now));
 
+    const issuer = params.issuer?.trim();
+    if (issuer) and.push({ issuer });
+
+    // "Not linked to any plan" and "linked to this plan" are mutually
+    // exclusive, so an explicit unlinked request always wins.
+    if (params.unlinkedOnly) and.push({ cpdPlanId: null });
+    else if (params.cpdPlanId) and.push({ cpdPlanId: params.cpdPlanId });
+
     const where: Prisma.CertificateWhereInput = {
       userId: user.id,
       ...(and.length ? { AND: and } : {}),
@@ -182,28 +187,43 @@ export class ProfessionalCertificatesService {
     this.assertProfessional(user);
     const now = new Date();
     const base = { userId: user.id };
-    const [total, active, expiringSoon, expired] = await Promise.all([
-      this.prismaService.certificate.count({ where: base }),
-      this.prismaService.certificate.count({
-        where: {
-          ...base,
-          ...certificateStatusWhere(CertificateStatusFilter.ACTIVE, now),
-        },
-      }),
-      this.prismaService.certificate.count({
-        where: {
-          ...base,
-          ...certificateStatusWhere(CertificateStatusFilter.EXPIRING_SOON, now),
-        },
-      }),
-      this.prismaService.certificate.count({
-        where: {
-          ...base,
-          ...certificateStatusWhere(CertificateStatusFilter.EXPIRED, now),
-        },
-      }),
-    ]);
-    return { total, active, expiringSoon, expired };
+    const expiringSoonWhere = {
+      ...base,
+      ...certificateStatusWhere(CertificateStatusFilter.EXPIRING_SOON, now),
+    };
+
+    const [total, active, expiringSoon, expired, nextExpiring] =
+      await Promise.all([
+        this.prismaService.certificate.count({ where: base }),
+        this.prismaService.certificate.count({
+          where: {
+            ...base,
+            ...certificateStatusWhere(CertificateStatusFilter.ACTIVE, now),
+          },
+        }),
+        this.prismaService.certificate.count({ where: expiringSoonWhere }),
+        this.prismaService.certificate.count({
+          where: {
+            ...base,
+            ...certificateStatusWhere(CertificateStatusFilter.EXPIRED, now),
+          },
+        }),
+        // Owner-wide, so the card's date always belongs to the same set as its
+        // count instead of whichever page the table happens to be showing.
+        this.prismaService.certificate.findFirst({
+          where: expiringSoonWhere,
+          orderBy: { validUntil: "asc" },
+          select: { validUntil: true },
+        }),
+      ]);
+
+    return {
+      total,
+      active,
+      expiringSoon,
+      expired,
+      nearestExpiry: nextExpiring?.validUntil ?? null,
+    };
   }
 
   async options(user: TUser) {
@@ -212,7 +232,7 @@ export class ProfessionalCertificatesService {
     const rows = await this.prismaService.certificate.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: "desc" },
-      take: MAX_CERTIFICATE_OPTIONS,
+      take: C.MAX_CERTIFICATE_OPTIONS,
       select: {
         id: true,
         title: true,
@@ -228,6 +248,24 @@ export class ProfessionalCertificatesService {
       validUntil: row.validUntil,
       status: resolveCertificateStatus(row.status, row.validUntil, now),
     }));
+  }
+
+  /**
+   * Distinct issuers owned by the caller, so the certificates toolbar can offer
+   * a real issuer filter instead of guessing from the current page.
+   */
+  async issuers(user: TUser) {
+    this.assertProfessional(user);
+    const rows = await this.prismaService.certificate.findMany({
+      where: { userId: user.id, issuer: { not: null } },
+      distinct: ["issuer"],
+      orderBy: { issuer: "asc" },
+      take: C.MAX_CERTIFICATE_ISSUERS,
+      select: { issuer: true },
+    });
+    return rows
+      .map((row) => row.issuer?.trim())
+      .filter((issuer): issuer is string => Boolean(issuer));
   }
 
   async create(user: TUser, input: CreateCertificateInput) {
@@ -293,7 +331,7 @@ export class ProfessionalCertificatesService {
   }
 
   async removeCertificateBlobs(storageKeys: string[]) {
-    const uploadDir = getCertificateUploadDir();
+    const uploadDir = C.getCertificateUploadDir();
     await Promise.all(
       storageKeys.map(async (storageKey) => {
         try {

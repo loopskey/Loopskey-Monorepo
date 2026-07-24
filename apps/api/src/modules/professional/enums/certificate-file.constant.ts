@@ -3,9 +3,9 @@ import { join } from "path";
 export const MAX_CERTIFICATE_FILES = 5;
 export const MAX_CERTIFICATE_FILE_SIZE_BYTES = 20 * 1024 * 1024;
 
-// Upper bound for the certificate selector list, so the query stays bounded
-// regardless of how many certificates an owner accumulates.
 export const MAX_CERTIFICATE_OPTIONS = 200;
+
+export const MAX_CERTIFICATE_ISSUERS = 200;
 
 export const CERTIFICATE_UPLOAD_FIELD = "files";
 
