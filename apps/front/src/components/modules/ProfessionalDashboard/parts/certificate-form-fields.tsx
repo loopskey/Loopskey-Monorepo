@@ -1,7 +1,7 @@
 "use client";
 
-import { ActivityEvidenceUpload } from "@modules/ProfessionalDashboard/parts/activity-evidence-upload";
 import { TCertificateFormFieldsProps } from "@/types/professional-dashboard.types";
+import { ActivityEvidenceUpload } from "@modules/ProfessionalDashboard/parts/activity-evidence-upload";
 import { FloatingSelectField } from "@elements/floating-select";
 import { FloatingInputField } from "@elements/floating-input";
 
@@ -10,6 +10,8 @@ import * as F from "@ui/form";
 import * as L from "lucide-react";
 
 const CERTIFICATES = "professionalDashboard.certificates";
+
+const EVIDENCE_LABEL_ID = "certificate-evidence-label";
 
 export const CertificateFormFields = ({
   t,
@@ -23,8 +25,6 @@ export const CertificateFormFields = ({
   onRemoveExisting,
   onDownloadExisting,
 }: TCertificateFormFieldsProps) => {
-  // `FloatingSelectField` drops options with an empty value, so "no plan" needs
-  // a real sentinel or unlinking would be impossible.
   const planSelectOptions = [
     {
       value: H.CERTIFICATE_PLAN_NONE,
@@ -48,8 +48,8 @@ export const CertificateFormFields = ({
         <FloatingInputField
           name="issuer"
           control={control}
-          leftIcon={<L.Building2 className="h-4 w-4" />}
           label={t(`${CERTIFICATES}.fields.issuer`)}
+          leftIcon={<L.Building2 className="h-4 w-4" />}
           placeholder={t(`${CERTIFICATES}.fields.issuerPlaceholder`)}
         />
 
@@ -94,26 +94,33 @@ export const CertificateFormFields = ({
         />
       </div>
 
-      {/* The uploader keeps its own state, so the field only renders the label
-          and the schema's required/limit message. */}
       <F.FormField
         name="files"
         control={control}
         render={() => (
           <F.FormItem className="space-y-3">
-            <F.FormLabel className="text-sm font-medium text-foreground/90">
-              {t(`${CERTIFICATES}.fields.evidence`)}
-            </F.FormLabel>
+            <div
+              role="group"
+              aria-labelledby={EVIDENCE_LABEL_ID}
+              className="space-y-3"
+            >
+              <p
+                id={EVIDENCE_LABEL_ID}
+                className="text-sm font-medium text-foreground/90"
+              >
+                {t(`${CERTIFICATES}.fields.evidence`)}
+              </p>
 
-            <ActivityEvidenceUpload
-              t={t}
-              files={files}
-              isRemoving={isRemoving}
-              onChange={onFilesChange}
-              existingFiles={existingFiles}
-              onRemoveExisting={onRemoveExisting}
-              onDownloadExisting={onDownloadExisting}
-            />
+              <ActivityEvidenceUpload
+                t={t}
+                files={files}
+                isRemoving={isRemoving}
+                onChange={onFilesChange}
+                existingFiles={existingFiles}
+                onRemoveExisting={onRemoveExisting}
+                onDownloadExisting={onDownloadExisting}
+              />
+            </div>
 
             <F.FormMessage />
           </F.FormItem>

@@ -55,6 +55,70 @@ describe("computeCertificateStatus", () => {
       CertificateStatus.EXPIRING_SOON,
     );
   });
+
+  // The exact boundary, stated in UTC: EXPIRED below today, EXPIRING_SOON for
+  // today through today+90 inclusive, ACTIVE from today+91 onwards.
+  it.each([
+    [-1, CertificateStatus.EXPIRED],
+    [0, CertificateStatus.EXPIRING_SOON],
+    [1, CertificateStatus.EXPIRING_SOON],
+    [7, CertificateStatus.EXPIRING_SOON],
+    [89, CertificateStatus.EXPIRING_SOON],
+    [90, CertificateStatus.EXPIRING_SOON],
+    [91, CertificateStatus.ACTIVE],
+  ])("resolves an expiry %i day(s) from today as %s", (days, expected) => {
+    expect(computeCertificateStatus(daysFromNow(days), NOW)).toBe(expected);
+  });
+});
+
+/**
+ * The displayed status is derived from a UTC-day-normalised expiry while the
+ * database filter compares the raw `validUntil` timestamp against day-aligned
+ * bounds. The two must agree for every offset and every time of day, or a
+ * certificate could be listed under a status its own badge contradicts.
+ */
+describe("status filter and derived status agree", () => {
+  const matchesWhere = (
+    where: ReturnType<typeof certificateStatusWhere>,
+    validUntil: Date,
+  ): boolean => {
+    if (where.OR) {
+      const [, beyond] = where.OR as [unknown, { validUntil: { gte: Date } }];
+      return validUntil.getTime() >= beyond.validUntil.gte.getTime();
+    }
+    const range = where.validUntil as { lt?: Date; gte?: Date };
+    if (range.gte && validUntil.getTime() < range.gte.getTime()) return false;
+    if (range.lt && validUntil.getTime() >= range.lt.getTime()) return false;
+    return true;
+  };
+
+  const OFFSETS = [-1, 0, 1, 7, 89, 90, 91];
+  const TIMES_OF_DAY_MS = [
+    0,
+    1 * 60 * 1000,
+    12 * 60 * 60 * 1000,
+    24 * 60 * 60 * 1000 - 1,
+  ];
+
+  it.each(OFFSETS)(
+    "puts an expiry %i day(s) out in exactly one status bucket, at any time of day",
+    (days) => {
+      for (const timeOfDay of TIMES_OF_DAY_MS) {
+        const validUntil = new Date(daysFromNow(days).getTime() + timeOfDay);
+        const derived = computeCertificateStatus(validUntil, NOW);
+
+        const buckets = [
+          CertificateStatus.EXPIRED,
+          CertificateStatus.EXPIRING_SOON,
+          CertificateStatus.ACTIVE,
+        ].filter((status) =>
+          matchesWhere(certificateStatusWhere(status, NOW), validUntil),
+        );
+
+        expect(buckets).toEqual([derived]);
+      }
+    },
+  );
 });
 
 describe("resolveCertificateStatus", () => {
