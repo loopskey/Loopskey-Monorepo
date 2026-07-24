@@ -631,3 +631,73 @@
 - Not done: live authenticated browser QA (needs API up + a seeded Professional
   account). Root `npm run lint` still fails on the removed Next 16 `next lint`, so
   lint was per-file. The full Activity Details page is Phase 5.
+
+### 2026-07-24 — Learning Activity Details page (Modify UI Phase 5) completed
+
+- Implemented `context/features/modify-ui-ph5-spec.md` on
+  `feature/learning-activity-details`, merged to `main`. Built the read-only
+  Activity Details view that fills the `?tab=activity-detail&id=<id>` tab Phase 4
+  reserved (the placeholder is gone). Scope held to the detail page; the CPD/PDU
+  tracker was touched only to wire Cancel-filter preservation.
+- Route: used the established `?tab=` convention on the single
+  `dashboard/professional` route, not the spec's example
+  `/professional/learning-activities/:activityId` (the spec explicitly allows the
+  project's pattern). No new route file; the shell already dispatches
+  `activity-detail` to `ProfessionalActivityDetailTab`.
+- Data + authorization: reuses the existing `professionalPduActivity` query and
+  `useProfessionalPduActivityQuery` (already exported). **No backend logic change
+  was needed** — the service already asserts `PROFESSIONAL`/`ADMIN` then scopes
+  `findFirst({ id, userId })` via `findOwnedActivity`, so a foreign or deleted
+  activity returns 404 and only the id crosses the wire. Added backend tests only
+  (owned lookup scoped by userId + includes evidence files; 404 on
+  missing/deleted/foreign; forbidden before any lookup for non-professionals).
+- New `useProfessionalActivityDetail` hook classifies states from the RTK error
+  `status`: loading, not-found (404 — covers deleted/foreign), unauthorized
+  (401/403, defensive — foreign activities are 404 by design so it's effectively
+  unreachable), and generic (with a retry). A missing/blank `id` short-circuits
+  to not-found and skips the query.
+- Fields: `activity-detail-view.tsx` renders only real model fields grouped into
+  Overview / CPD-PDU details / Description & notes / Evidence & attachments /
+  Record — type, provider, completion date, reporting year, approval status
+  (`PDUStatus`) + completion status, credit value/type, category, sub-category,
+  issuing org, related certification, description, learning outcome, file notes,
+  external evidence link, linked platform content (`contentType` badge, shown
+  only when a `contentId` exists), created/updated timestamps. Deliberately
+  omitted the spec's start/end dates, learning-format, and CPD-plan/certificate
+  *relations* — none exist on the model (the "certificate" the UI has is evidence
+  files + the `relatedCertification` text field). No invented/persisted fields.
+- Evidence: rendered via the existing ownership-scoped credentialed download
+  (`usePduEvidenceUpload.downloadEvidence`) — filename, MIME type, size
+  (`formatFileSize`), upload date; per-file download button with spinner/disable
+  during an active download; no storage keys/URLs exposed; preview intentionally
+  not offered (not securely supported).
+- Actions: **Cancel** returns to My Learning Activities preserving
+  search/type/year/certificate filters **and** the cursor page. Implemented via a
+  URL round-trip — the eye icon now encodes the live list state (incl. the cursor
+  stack) into the detail URL, and the tracker hook seeds its filters/cursors/page
+  from the URL once on mount (Phase 4's deliberate no-continuous-URL-sync choice
+  preserved). **Edit** opens the existing add/edit form by id
+  (`?tab=add-activity&id=`) — no second form. There is no sort control on the
+  tracker, so "sort preservation" is N/A.
+- Extracted list-state URL logic into pure, tested helpers in
+  `utils/learning-activities.helper.ts` (`TActivityListState`,
+  `readActivityListState`, `activityListStateToSearchParams`,
+  `buildActivityDetailHref`, `buildTrackerReturnHref`, `buildActivityEditHref`),
+  with enum/int validation so a hand-edited URL can't inject bad filter values.
+- Accessibility/responsive: `dl`/`dt`/`dd` description lists, `sm:grid-cols-2`,
+  `break-words`/`whitespace-pre-wrap`, evidence rows stack on mobile (no
+  fixed-width table), aria-labels on downloads, visible focus rings,
+  `rel="noopener noreferrer"` on the external link. i18n added under
+  `cpdPduTracker.detail.*` (replacing the coming-soon placeholder keys) plus
+  `cpdPduTracker.statuses.*` (APPROVED/PENDING/REJECTED) in en.json and fr.json.
+- Verification: API `tsc` clean, `nest build` clean, Jest **86/86** (+3 —
+  pduActivity owned/not-found/forbidden). Frontend `tsc` clean, `next build`
+  clean, Vitest **77/77** (+9 — list-state decode/encode/round-trip + edit href),
+  ESLint clean on all changed files, both i18n JSON validated. Re-verified green
+  after an external formatter reformat touched the new files (stripped inline
+  comments, switched the helper to `import * as T`).
+- Not done: live authenticated browser QA (needs API up + a seeded Professional
+  account) — structure verified, not exercised against real data. Root
+  `npm run lint` still fails on the removed Next 16 `next lint`, so lint was
+  per-file. STOP point reached: nothing beyond the Activity Details page was
+  built.
