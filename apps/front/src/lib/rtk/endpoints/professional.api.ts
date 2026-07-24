@@ -23,11 +23,13 @@ export const CREDENTIAL_TAGS = [
 
 // A certificate write changes the list, the summary counts, the issuer options
 // and the Overview certificates card, and it can attach or release a CPD plan.
+// Deliberately excludes the catch-all "Professional" tag: 21 queries provide it,
+// so including it would refetch settings, profile, payments and more on every
+// certificate save. These three cover every query that reads certificate data.
 export const CERTIFICATE_TAGS = [
   "ProfessionalCertificates",
   "ProfessionalOverview",
   "ProfessionalCpdPlan",
-  "Professional",
 ] as const;
 
 export const professionalApi = baseApi.injectEndpoints({

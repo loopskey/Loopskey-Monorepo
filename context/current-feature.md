@@ -1,6 +1,8 @@
-# Current Feature
+# Current Feature: Professional Dashboard End-to-End Review (Modify UI Phase 8)
 
 ## Status
+
+In Progress
 
 <!-- Not Started | In Progress | Completed -->
 
@@ -8,9 +10,88 @@
 
 <!-- Bullet points of what success looks like -->
 
+- **Review, not rebuild.** Verify every Professional dashboard change from
+  Phases 2–7 end to end. No new features, no redesign of working pages. Fix only
+  defects that trace directly to those phases.
+- **§1 Sidebar** — My Courses and External Learning gone, desktop and mobile
+  match, other roles unaffected, no broken links or empty sections.
+- **§2 Overview** — old cards gone; CPD/PDU progress, roadmap progress, sorted
+  upcoming calendar, recommendations, recent activities and certificates all
+  correct; chart tooltips work; every link lands on the right tab; each card's
+  loading/error state is independent.
+- **§3 Wishlist** — price / only-rated / only-available-links / category filters
+  gone; legacy URL params can't break the page; remaining search, filters,
+  sorting and pagination work.
+- **§4 My Learning Activities** — Export CSV, top Year selector, old summary
+  cards and Quick Actions gone; Refresh and Add work; the two new summary cards
+  are correct; search + Year/Type/Certificate filters work; action icons are
+  accessible; View/Edit/Delete work; charts sit below the table; detail
+  Cancel/Edit work and **filters survive the return trip**.
+- **§5 Certificates** — create, edit, secure upload, secure download, status
+  calculation, all three summary figures, table filtering, search, pagination,
+  row selection, detail card, CPD-plan linking, Overview integration, and the
+  Learning Activity certificate-filter integration.
+- **§6 Date boundaries** — exercise expiry at −1, 0, +1, +7, +89, +90 and +91
+  days in **one stated timezone**, and document the exact boundary.
+- **§7 Security** — no cross-user access to activities, certificates or evidence
+  downloads; no linking another user's CPD plan; client-supplied user IDs never
+  trusted; no private storage URL exposed; backend file validation enforced;
+  deleted/replaced files handled per project policy.
+- **§8 Accessibility** — icon-only buttons labelled, tooltips keyboard-reachable,
+  charts have text equivalents, status never colour-only, forms have labels and
+  errors, logical focus order, detail cards usable on mobile, dialogs manage
+  focus.
+- **§9 Performance** — no duplicate requests, Overview cards don't refetch the
+  same data, searches debounced, pagination server-side, invalidation targeted,
+  evidence streamed rather than buffered, table rendering responsive.
+- **§10 Commands** — run the full gate and report results in four explicit
+  buckets: passed, failed **because of this work**, pre-existing failures, and
+  could not be executed. Never claim a test passed unless it actually ran.
+- **§11 Final report** — all sixteen numbered sections.
+
 ## Notes
 
 <!-- Additional context, constraints, or details from spec -->
+
+- Spec: `context/features/modify-ui-ph8-spec.md`. This is the closing review of
+  the seven-phase Professional dashboard effort; History below is the record of
+  what each phase claimed, and this phase's job is to check those claims against
+  the code and a live system.
+- **Verification bias: exercise, don't infer.** Prior phases repeatedly closed
+  with "not done: live authenticated browser QA". Phase 7 broke that pattern at
+  the API layer. This phase should verify against the running API, the Neon
+  database and the browser, and say plainly which checks were inspection-only.
+- **Known open item inherited from Phase 7**: the certificate create flow was
+  never submitted end to end *through the browser form*. That is squarely §5
+  scope here and should be closed.
+- **Boundary rule to confirm** (Phase 6): status is derived on read, never
+  persisted — `EXPIRED` before today, `EXPIRING_SOON` today..today+90 inclusive,
+  `ACTIVE` beyond that or no expiry; a stored `REVOKED` wins. Computed on **UTC**
+  day boundaries, so §6 should state UTC and prove the 90/91 edge.
+- Claims worth re-testing rather than trusting, each flagged by its own phase:
+  - Phase 4's year mismatch — the table filters on `reportingYear` while the
+    charts use the report's date window.
+  - Phase 7's decision not to invalidate the Learning Activities certificate
+    filter (it reads PDU evidence presence, not `Certificate` rows). §5 asks for
+    "Learning Activity Certificate filter integration" — confirm the reasoning
+    still holds rather than re-deriving it.
+  - Phase 7's two-transport create: a failed evidence upload leaves a saved
+    certificate, reported honestly rather than as success.
+- Orphaned code earlier phases left in place rather than deleting without
+  approval — worth listing, not necessarily removing:
+  `hooks/useProfessionalOverviewTab.ts`, possibly `DashboardStatCard` /
+  `SnapshotRow`, `useNeatGradient.ts` + `neat-gradient.constant.ts` +
+  `@firecms/neat`, `GalaxyBackground`, `Auth/OAuthBridgeClient.tsx`, and the dead
+  wishlist helpers in `function-helper.ts`.
+- Pre-existing tooling debt to report, not fix: root `npm run lint` fails on the
+  removed Next 16 `next lint` (lint per file with `npx eslint`); the API
+  workspace has no ESLint 9 flat config; `test:e2e` points at an `apps/api/test`
+  directory that has never existed. §10 explicitly wants these in the
+  "pre-existing" and "could not execute" buckets.
+- Baseline to measure against: API Jest 143/143 (17 suites), frontend Vitest
+  112/112, both typechecks and production builds green, Prisma 12 migrations
+  applied with no drift.
+- **STOP after the review and report** — no unrelated features, no redesigns.
 
 ## History
 
