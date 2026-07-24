@@ -2384,11 +2384,41 @@
         "delete": "Supprimer l’activité"
       },
       "detail": {
+        "eyebrow": "Détails de l’activité",
         "title": "Détails de l’activité",
-        "comingSoonTitle": "Les détails de l’activité arrivent bientôt",
-        "comingSoonDescription": "Cette page affichera l’enregistrement complet de l’activité d’apprentissage sélectionnée.",
-        "reference": "Référence de l’activité : {{id}}",
-        "back": "Retour à Mes activités d’apprentissage"
+        "back": "Retour à Mes activités d’apprentissage",
+        "cancel": "Annuler",
+        "edit": "Modifier l’activité",
+        "retry": "Réessayer",
+        "approvalStatus": "Statut d’approbation",
+        "linkedContent": "Contenu associé",
+        "createdAt": "Créée le",
+        "updatedAt": "Dernière mise à jour",
+        "evidenceLink": "Ouvrir le lien de preuve externe",
+        "fileUploaded": "Téléversé le {{date}}",
+        "downloadFile": "Télécharger {{name}}",
+        "sections": {
+          "overview": "Aperçu",
+          "credits": "Détails CPD / PDU",
+          "notes": "Description et notes",
+          "evidence": "Preuves et pièces jointes",
+          "record": "Détails de l’enregistrement",
+          "noEvidence": "Aucun fichier de preuve n’a été joint à cette activité."
+        },
+        "errors": {
+          "not-found": {
+            "title": "Activité introuvable",
+            "description": "Cette activité d’apprentissage n’existe plus ou n’est pas disponible sur votre compte."
+          },
+          "unauthorized": {
+            "title": "Vous ne pouvez pas voir cette activité",
+            "description": "Cette activité d’apprentissage appartient à un autre compte."
+          },
+          "generic": {
+            "title": "Une erreur s’est produite",
+            "description": "Impossible de charger cette activité. Vérifiez votre connexion et réessayez."
+          }
+        }
       },
       "byCategory": {
         "title": "PDU par catégorie",
@@ -2489,6 +2519,11 @@
       "completionStatuses": {
         "COMPLETED": "Terminée",
         "INCOMPLETE": "Incomplète"
+      },
+      "statuses": {
+        "APPROVED": "Approuvée",
+        "PENDING": "En attente de revue",
+        "REJECTED": "Rejetée"
       },
       "fields": {
         "title": "Titre de l’activité",

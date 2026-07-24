@@ -4,7 +4,7 @@ import {
   PDUStatus,
   Role,
 } from "@prisma/client";
-import { ForbiddenException } from "@nestjs/common";
+import { ForbiddenException, NotFoundException } from "@nestjs/common";
 
 import type { PrismaService } from "@prisma/prisma.service";
 
@@ -16,6 +16,7 @@ const createPrismaMock = () => ({
   pDUActivity: {
     count: jest.fn(),
     findMany: jest.fn().mockResolvedValue([]),
+    findFirst: jest.fn(),
   },
   pDUActivityFile: {
     count: jest.fn(),
@@ -65,6 +66,40 @@ describe("ProfessionalPduService.pduActivitySummary", () => {
     await expect(
       service.pduActivitySummary({ id: "x", role: Role.PROVIDER }),
     ).rejects.toBeInstanceOf(ForbiddenException);
+  });
+});
+
+describe("ProfessionalPduService.pduActivity", () => {
+  it("returns the activity scoped to the authenticated user and its evidence files", async () => {
+    const { service, prisma } = createService();
+    const activity = { id: "activity-1", userId: "user-1", evidenceFiles: [] };
+    prisma.pDUActivity.findFirst.mockResolvedValue(activity);
+
+    const result = await service.pduActivity(professional, "activity-1");
+
+    expect(result).toBe(activity);
+    const args = prisma.pDUActivity.findFirst.mock.calls[0][0];
+    expect(args.where).toEqual({ id: "activity-1", userId: "user-1" });
+    // The owner's evidence files come back with the record for the detail view.
+    expect(args.include.evidenceFiles).toBeDefined();
+  });
+
+  it("throws NotFound when the activity is missing, deleted, or owned by someone else", async () => {
+    const { service, prisma } = createService();
+    prisma.pDUActivity.findFirst.mockResolvedValue(null);
+
+    await expect(
+      service.pduActivity(professional, "foreign-activity"),
+    ).rejects.toBeInstanceOf(NotFoundException);
+  });
+
+  it("rejects non-professional callers before any lookup", async () => {
+    const { service, prisma } = createService();
+
+    await expect(
+      service.pduActivity({ id: "x", role: Role.PROVIDER }, "activity-1"),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+    expect(prisma.pDUActivity.findFirst).not.toHaveBeenCalled();
   });
 });
 
