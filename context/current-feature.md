@@ -1,71 +1,16 @@
-# Current Feature: Certificate Backend Foundation (Modify UI Phase 6)
+# Current Feature
 
 ## Status
 
-In Progress
+<!-- Not Started | In Progress | Completed -->
 
 ## Goals
 
-- Implement/complete the backend foundation for the Professional Certificates
-  feature. Do NOT build the full Certificates dashboard UI this phase.
-- Reuse the existing `Certificate` model (currently seed-only/read-only) and the
-  PDU-evidence upload stack rather than inventing new equivalents.
-- Certificate data model supporting: owner (authenticated Professional), name,
-  issuer, optional certification ID, issue date, expiry/renewal date, optional
-  linked CPD/PDU plan, evidence-file metadata, status, created/updated dates.
-- Backend-validated fields. Required: name, issuer, issue date, expiry/renewal
-  date, evidence file. Optional: certification ID, linked CPD plan.
-- Reusable backend status calculation (ACTIVE / EXPIRING_SOON / EXPIRED) with a
-  90-day "expiring soon" window, consistent timezone/date boundary, computed
-  outside UI. Prefer a deterministic approach that can't become stale.
-- CPD/PDU plan linking: verify plan ownership, reject other users' plans, allow
-  unlink on edit, don't delete the plan when a certificate is deleted, define
-  correct FK behavior.
-- Evidence upload via the existing secure upload service: validate type/size/
-  empty/metadata/ownership; store storage key, original filename, MIME type,
-  size, uploaded timestamp; never store binaries in the DB or expose storage URLs.
-- Secure, authenticated evidence download (streaming / short-lived signed URL /
-  existing pattern) verifying auth + certificate ownership + file belongs to the
-  certificate + availability. No permanent public URLs.
-- APIs (existing naming conventions): create, list (own), get details, update,
-  delete (only if product rules require), download evidence, summary counts,
-  filter, list certificates eligible for activity filtering, link/unlink CPD plan.
-  Support pagination, sorting, search, status filtering.
-- Search over name / issuer / certification ID reusing the current search pattern.
-- Ownership/authorization from the authenticated session only; never trust
-  frontend-provided user IDs. No cross-user view/edit/download/link/delete.
-- Safe migration(s) + indexes (user ID, expiry date, status if persisted, linked
-  CPD plan, name, issuer) following project conventions.
-- Tests: create, validation, optional fields, date validation, expiry-before-
-  issue rejection, all three statuses + 90-day boundary, CPD plan ownership, file
-  validation, secure download, unauthorized access, list filters, search, update,
-  evidence replacement, file cleanup, migration validation. Plus backend/
-  integration/authorization tests, migration validation, tsc/build, lint.
+<!-- Bullet points of what success looks like -->
 
 ## Notes
 
-- Source spec: `context/features/modify-ui-ph6-spec.md`. This is Phase 6 of the
-  multi-phase Professional Dashboard "Modify UI" effort (Phases 1–5 completed;
-  see History). Phase 1 audit is the key input.
-- Phase 1 audit findings on Certificates (the headline gap): the `Certificate`
-  model exists but is **seed-only and read-only** — no create/edit/delete
-  anywhere (`certificate.create` returns nothing repo-wide); the resolver exposes
-  only a query. Upload, edit, detail, filtering, real status calculation, expiry
-  reminders, and CPD-plan linking are all net-new.
-- Reuse precedent: the PDU-evidence upload stack — REST controller + multer +
-  local-disk `storageKey` + ownership-scoped streaming download + blob cleanup;
-  pdf/jpg/png/doc/docx, 20 MB, max 5 files. Mirror this for certificate evidence.
-- Risks flagged in Phase 1: certificate↔plan/activity relation does not exist
-  today (the spec §4 CPD-plan link and the future "Link All Active" action need
-  it); status is currently stored, not derived — spec §3 prefers a
-  non-stale/deterministic approach; no expiry scheduler exists; local-disk
-  (non-signed-URL) storage is the established pattern.
-- Backend-only phase. STOP after the Certificate backend foundation; the full
-  Certificates dashboard UI is a later phase. The completion report must cover
-  the 10 items in the spec, ending with "Work remaining for the frontend".
-- Merge target is `main` (per corrected `ai-interaction.md`); use a `feature/`
-  branch. Known tooling debt unchanged: root `npm run lint` fails on the removed
-  Next 16 `next lint` (lint per-file); API workspace has no ESLint 9 flat config.
+<!-- Additional context, constraints, or details from spec -->
 
 ## History
 
@@ -756,3 +701,139 @@ In Progress
   `npm run lint` still fails on the removed Next 16 `next lint`, so lint was
   per-file. STOP point reached: nothing beyond the Activity Details page was
   built.
+
+### 2026-07-24 — Certificate backend foundation (Modify UI Phase 6) completed
+
+- Implemented `context/features/modify-ui-ph6-spec.md` on
+  `feature/certificate-backend-foundation`, merged to `main`. Backend-only:
+  the Certificates dashboard UI was deliberately not built.
+
+**1. Existing certificate functionality reused.** The spec asks to inspect
+whether a `Certificate` *or* `ProfessionalCredential` entity already exists.
+Both do, and they are different things. `ProfessionalCredential` is a
+profile-section entity that links to `PDUTarget`, has no status and no evidence
+files. `Certificate` is what the Certificates tab and the `professionalCertificates`
+query actually read — seed-only and read-only per the Phase 1 audit. `Certificate`
+was therefore extended rather than duplicated. The PDU-evidence stack (multer +
+local-disk `storageKey` + ownership-scoped streaming + blob cleanup) was mirrored
+for certificate evidence, and the existing `ProfessionalActionResponseEntity`,
+`ProfessionalPaginationInput`, `ProfessionalSearchInput`, cursor pagination and
+`@Roles` boundary were all reused.
+
+**2. Data model.** Purely additive — no column dropped, renamed or made nullable.
+`Certificate` gained `certificateNumber` (the optional free-text "Certification
+ID", named to avoid collision with the `Certification` catalogue relation) and
+`cpdPlanId` → `CPDPlan`. New `CertificateFile` model mirrors `PDUActivityFile`
+(`fileName`, `storageKey`, `mimeType`, `sizeBytes`, `createdAt`, cascade on
+certificate and user). `CertificateStatus` gained `EXPIRING_SOON`. Existing
+`title`/`issuer`/`issuedAt`/`validUntil`/`status`/timestamps were reused as
+name/issuer/issue date/expiry — no duplicate fields. `verificationCode` was
+deliberately left required and is generated server-side (`USR-<uuid>`) for
+user-created rows: making it nullable would have changed a non-null field the
+frontend already selects.
+
+**3. Database migration.** Two migrations, both applied to the live Neon database
+and recorded; `migrate status` reports 12 applied and `migrate diff` reports an
+empty migration (zero drift). `20260724120000_certificate_domain` adds the enum
+value, the two columns, the `CertificateFile` table and the FKs.
+`20260724130000_certificate_index_tuning` corrects the index set (see below).
+`prisma migrate dev` could not be used: its shadow-database replay fails on the
+pre-existing `20260713101500_professional_profile_redesign` migration
+("column occupation does not exist"), unrelated to this work — so the SQL was
+generated with `migrate diff`, applied with `db execute`, and recorded with
+`migrate resolve`.
+
+**4. Status rules.** Derived on read, never persisted, so it cannot go stale.
+`utils/certificate-status.util.ts` computes `EXPIRED` (expiry before today),
+`EXPIRING_SOON` (today through today+90 inclusive) and `ACTIVE` (beyond 90 days,
+or no expiry) on UTC day boundaries, so time-of-day and caller timezone cannot
+shift a result. A stored `REVOKED` still wins. `certificateStatusWhere` returns
+the equivalent `validUntil` range so database filtering and displayed status can
+never disagree; both sides share one `now` per request.
+
+**5. APIs.** Queries `professionalCertificate`, `professionalCertificateSummary`
+(total/active/expiringSoon/expired) and `professionalCertificateOptions`
+(certificates eligible for activity filtering, capped at 200); mutations
+`createProfessionalCertificate`, `updateProfessionalCertificate`,
+`deleteProfessionalCertificate` and `setProfessionalCertificateCpdPlan` (a null
+plan id unlinks). The existing `professionalCertificates` query kept its exact
+signature and gained optional `status` and `sort` arguments, so the frontend's
+query and fragment stayed valid — verified in the regenerated `schema.gql`.
+Pagination, sorting (recent/oldest/expiry-soonest/name), status filtering and
+search over title, issuer and certificate number are all supported.
+
+**6. File storage and download.** Evidence upload/download/delete live on
+`professional/certificates` REST routes, matching the PDU controller. Uploads
+validate MIME+extension pairing, per-file size (20 MB), empty files, the
+per-certificate count, and certificate ownership; storage names are generated
+server-side as `<uuid><ext>` and every path is re-resolved and checked to stay
+inside the upload directory. Only metadata is stored in the database; storage
+keys are never exposed through GraphQL. Download streams the file after
+verifying the file row belongs to the authenticated user. Deleting a certificate
+cascades the file rows and best-effort removes the blobs.
+
+**7. CPD plan linking.** Optional, verified against `CPDPlan` scoped to the
+authenticated user before any link, and rejected as
+`CERTIFICATE_CPD_PLAN_NOT_FOUND` otherwise. `onDelete: SetNull` means deleting
+the plan only clears the link, and deleting a certificate never touches the plan.
+Unlink is supported by passing a null plan id. Plan linking is intentionally
+absent from the update input (and proven so by test), so the ambiguity between
+"field omitted" and "explicitly cleared" cannot arise.
+
+**8. Authorization protections.** Identity always comes from the authenticated
+session; no client-supplied user id is trusted anywhere. Every read and write
+resolves through `findFirst({ id, userId })` or a `userId`-scoped count, so a
+foreign certificate is a 404 rather than a leak. `@Roles(PROFESSIONAL, ADMIN)`
+guards the resolver and controller, and each service method re-asserts the role
+before touching the database. Cross-user view, edit, download, link and delete
+are each covered by a test.
+
+**9. Tests executed and results.** API Jest **132/132, 17 suites** (up from
+86/13 — 46 new across three new suites plus a DTO suite). Covers create with and
+without optional fields, required-field and date validation, expiry-before-issue,
+all three statuses and the exact 90-day boundary, the UTC day-boundary rule,
+REVOKED override, CPD plan ownership on both create and link, unlink without an
+ownership check, file type/empty/limit validation, secure download, path
+traversal, evidence replacement, blob cleanup, list filters, search, sort,
+update field scoping and unauthorized access. Also run: `prisma validate`,
+`migrate status`, zero-drift `migrate diff`, API `tsc --noEmit`, `nest build`,
+frontend `tsc --noEmit` and `next build`.
+
+**10. Work remaining for the frontend.** Nothing in `apps/front` was built. The
+Certificates tab is still the Phase 2 read-only card. A later phase needs: the
+certificates list with search/status/sort/pagination wired to the new arguments;
+create and edit forms; a detail view; the evidence uploader and download button
+against the REST routes (mirroring `usePduEvidenceUpload`); the summary counts;
+the CPD-plan selector using `professionalCertificateOptions` and
+`setProfessionalCertificateCpdPlan`; delete confirmation; status badges for
+`EXPIRING_SOON`; new `.graphql` documents and RTK endpoints; and en/fr i18n keys.
+The generated frontend types were refreshed so the new schema is already
+available to that work.
+
+- Known limitation, flagged at review and unresolved by design: certificate
+  creation is GraphQL while evidence upload is multipart REST — the two-transport
+  pattern this phase was told to reuse — so the spec's "Evidence File required"
+  cannot be enforced atomically at create. The backend validates every uploaded
+  file strictly; requiring one belongs to the frontend create flow.
+- Review corrected one of its own findings: trigram GIN indexes were first
+  recommended for the name/issuer search, then rejected on closer analysis
+  because certificate reads are always narrowed by owner first, making per-user
+  cardinality tiny and three GIN indexes pure write overhead. The second
+  migration instead drops the standalone `title`/`issuer`/`validUntil` btree
+  indexes — which could never serve an `ILIKE` `contains` search — and adds the
+  composite `(userId, validUntil)` that status filtering and the summary counts
+  actually use.
+- Two other review findings fixed: `professionalCertificateOptions` was unbounded
+  and is now capped, and the missing DTO-validation and evidence-replacement
+  tests were added.
+- Tooling notes: `prisma generate` was blocked for much of the phase by a running
+  API server (`apps/api/dist/src/main`) holding the Windows query-engine DLL.
+  It was generated with `--no-engine` to unblock type-checking, then fully
+  regenerated with the engine once the process was stopped, and the API was
+  booted to confirm the engine works and to regenerate `schema.gql`.
+- Not done: live authenticated QA of the new endpoints against seeded data — the
+  API was booted only to regenerate the schema, and no certificate was created,
+  uploaded or downloaded end to end. Root `npm run lint` still fails on the
+  removed Next 16 `next lint`, and the API workspace still has no ESLint 9 flat
+  config, so no lint gate was run for this phase. `context/features/auth-flow-chart.svg`
+  was left untracked and uncommitted — it is unrelated to this work.
