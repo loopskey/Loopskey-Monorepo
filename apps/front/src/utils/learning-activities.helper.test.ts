@@ -3,10 +3,15 @@ import { describe, expect, it } from "vitest";
 import { PduSource } from "@/lib/graphql/generated";
 import {
   ACTIVITY_TYPE_OPTIONS,
+  activityListStateToSearchParams,
+  buildActivityDetailHref,
+  buildActivityEditHref,
   buildActivityFilterInput,
   buildActivityYearOptions,
+  buildTrackerReturnHref,
   createActivityFilters,
   hasActiveActivityFilters,
+  readActivityListState,
 } from "./learning-activities.helper";
 
 const CURRENT_YEAR = 2026;
@@ -93,5 +98,126 @@ describe("hasActiveActivityFilters", () => {
     expect(
       hasActiveActivityFilters({ ...base, ...overrides }, CURRENT_YEAR),
     ).toBe(expected);
+  });
+});
+
+describe("readActivityListState", () => {
+  it("returns defaults for null params", () => {
+    expect(readActivityListState(null, CURRENT_YEAR)).toEqual({
+      filters: base,
+      cursorStack: [],
+      page: 1,
+    });
+  });
+
+  it("decodes filters, cursors and derives the page from the cursor depth", () => {
+    const params = new URLSearchParams({
+      search: "risk",
+      year: "2024",
+      type: PduSource.Webinar,
+      cert: "WITHOUT",
+      cursors: "c1,c2",
+    });
+
+    expect(readActivityListState(params, CURRENT_YEAR)).toEqual({
+      filters: {
+        search: "risk",
+        year: 2024,
+        activityType: PduSource.Webinar,
+        certificate: "WITHOUT",
+      },
+      cursorStack: ["c1", "c2"],
+      page: 3,
+    });
+  });
+
+  it("ignores unknown type/certificate values and non-integer years", () => {
+    const params = new URLSearchParams({
+      year: "not-a-year",
+      type: "HACK",
+      cert: "MAYBE",
+    });
+
+    expect(readActivityListState(params, CURRENT_YEAR).filters).toEqual(base);
+  });
+
+  it("drops empty cursor segments", () => {
+    const params = new URLSearchParams({ cursors: "c1,,c2," });
+    const state = readActivityListState(params, CURRENT_YEAR);
+    expect(state.cursorStack).toEqual(["c1", "c2"]);
+    expect(state.page).toBe(3);
+  });
+});
+
+describe("activityListStateToSearchParams", () => {
+  it("emits only non-default parts", () => {
+    const params = activityListStateToSearchParams(
+      {
+        filters: {
+          search: "  risk ",
+          year: 2024,
+          activityType: PduSource.Webinar,
+          certificate: "WITH",
+        },
+        cursorStack: ["c1"],
+        page: 2,
+      },
+      CURRENT_YEAR,
+    );
+
+    expect(params.get("search")).toBe("risk");
+    expect(params.get("year")).toBe("2024");
+    expect(params.get("type")).toBe(PduSource.Webinar);
+    expect(params.get("cert")).toBe("WITH");
+    expect(params.get("cursors")).toBe("c1");
+  });
+
+  it("stays empty for the default list state", () => {
+    const params = activityListStateToSearchParams(
+      { filters: base, cursorStack: [], page: 1 },
+      CURRENT_YEAR,
+    );
+    expect(params.toString()).toBe("");
+  });
+});
+
+describe("detail and return hrefs", () => {
+  it("round-trips list state: detail link -> return href restores the same params", () => {
+    const state = readActivityListState(
+      new URLSearchParams({
+        search: "risk",
+        year: "2024",
+        type: PduSource.Course,
+        cert: "WITH",
+        cursors: "c1,c2",
+      }),
+      CURRENT_YEAR,
+    );
+
+    const detailHref = buildActivityDetailHref("activity-9", state, CURRENT_YEAR);
+    expect(detailHref).toContain("tab=activity-detail");
+    expect(detailHref).toContain("id=activity-9");
+
+    const detailParams = new URLSearchParams(detailHref.split("?")[1]);
+    const returnHref = buildTrackerReturnHref(detailParams, CURRENT_YEAR);
+    const returnParams = new URLSearchParams(returnHref.split("?")[1]);
+
+    expect(returnParams.get("tab")).toBe("cpd-pdu-tracker");
+    expect(returnParams.get("id")).toBeNull();
+    expect(readActivityListState(returnParams, CURRENT_YEAR)).toEqual(state);
+  });
+
+  it("returns a clean tracker href for a bare detail link", () => {
+    const href = buildTrackerReturnHref(
+      new URLSearchParams({ tab: "activity-detail", id: "x" }),
+      CURRENT_YEAR,
+    );
+    expect(href).toBe("/dashboard/professional?tab=cpd-pdu-tracker");
+  });
+
+  it("addresses the edit form by activity id", () => {
+    expect(buildActivityEditHref("activity-9")).toBe(
+      "/dashboard/professional?tab=add-activity&id=activity-9",
+    );
   });
 });

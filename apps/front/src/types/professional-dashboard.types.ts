@@ -108,6 +108,21 @@ export type TPduActivity = TPduActivitiesData["items"][number];
 
 export type TPduEvidenceFile = TPduActivity["evidenceFiles"][number];
 
+export type TPduActivityDetail = NonNullable<
+  API.ProfessionalPduActivityQuery["professionalPduActivity"]
+>;
+
+export type TActivityDetailErrorKind = "not-found" | "unauthorized" | "generic";
+
+export type TActivityDetailViewProps = {
+  t: I18nContextValue["t"];
+  activity: TPduActivityDetail;
+  onCancel: () => void;
+  onEdit: () => void;
+  onDownload: (file: TPduEvidenceFile) => void;
+  downloadingFileId: string | null;
+};
+
 export type TPduActivityType = "ALL" | API.PduSource;
 
 /**

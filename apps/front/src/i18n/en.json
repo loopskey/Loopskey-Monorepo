@@ -2383,11 +2383,41 @@
         "delete": "Delete activity"
       },
       "detail": {
+        "eyebrow": "Activity Details",
         "title": "Activity Details",
-        "comingSoonTitle": "Activity details are coming soon",
-        "comingSoonDescription": "This page will show the full record for the selected learning activity.",
-        "reference": "Activity reference: {{id}}",
-        "back": "Back to My Learning Activities"
+        "back": "Back to My Learning Activities",
+        "cancel": "Cancel",
+        "edit": "Edit activity",
+        "retry": "Try again",
+        "approvalStatus": "Approval status",
+        "linkedContent": "Linked content",
+        "createdAt": "Created",
+        "updatedAt": "Last updated",
+        "evidenceLink": "Open external evidence link",
+        "fileUploaded": "Uploaded {{date}}",
+        "downloadFile": "Download {{name}}",
+        "sections": {
+          "overview": "Overview",
+          "credits": "CPD / PDU details",
+          "notes": "Description & notes",
+          "evidence": "Evidence & attachments",
+          "record": "Record details",
+          "noEvidence": "No evidence files were attached to this activity."
+        },
+        "errors": {
+          "not-found": {
+            "title": "Activity not found",
+            "description": "This learning activity no longer exists, or it isn't available on your account."
+          },
+          "unauthorized": {
+            "title": "You can't view this activity",
+            "description": "This learning activity belongs to another account."
+          },
+          "generic": {
+            "title": "Something went wrong",
+            "description": "We couldn't load this activity. Please check your connection and try again."
+          }
+        }
       },
       "byCategory": {
         "title": "PDUs by Category",
@@ -2488,6 +2518,11 @@
       "completionStatuses": {
         "COMPLETED": "Completed",
         "INCOMPLETE": "Incomplete"
+      },
+      "statuses": {
+        "APPROVED": "Approved",
+        "PENDING": "Pending review",
+        "REJECTED": "Rejected"
       },
       "fields": {
         "title": "Activity title",

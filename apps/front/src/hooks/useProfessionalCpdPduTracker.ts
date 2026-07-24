@@ -1,10 +1,10 @@
 "use client";
 
 import { PDU_CATEGORIES, getPduMonthLabel } from "@/utils/pdu.constant";
+import { useRouter, useSearchParams } from "next/navigation";
 import { usePduEvidenceUpload } from "@/hooks/usePduEvidenceUpload";
 import { useDebouncedValue } from "@/hooks/useDebounced";
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { PAGE_SIZE } from "@/utils/constant";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
@@ -18,12 +18,19 @@ const SEARCH_DEBOUNCE_MS = 350;
 export const useProfessionalCpdPduTracker = () => {
   const { t } = useI18n();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const currentYear = new Date().getFullYear();
 
-  const [page, setPage] = useState<number>(1);
-  const [cursorStack, setCursorStack] = useState<string[]>([]);
-  const [filters, setFilters] = useState<T.TPduActivityFilters>(() =>
-    H.createActivityFilters(currentYear),
+  const [initialState] = useState<H.TActivityListState>(() =>
+    H.readActivityListState(searchParams, currentYear),
+  );
+
+  const [page, setPage] = useState<number>(initialState.page);
+  const [cursorStack, setCursorStack] = useState<string[]>(
+    initialState.cursorStack,
+  );
+  const [filters, setFilters] = useState<T.TPduActivityFilters>(
+    initialState.filters,
   );
   const [deletingActivityId, setDeletingActivityId] = useState<string | null>(
     null,
@@ -159,9 +166,14 @@ export const useProfessionalCpdPduTracker = () => {
     router.push(`/dashboard/professional?tab=add-activity&id=${activityId}`);
   };
 
-  // Only the activity id travels in the URL; the backend re-checks ownership.
   const handleViewActivity = (activityId: string) => {
-    router.push(`/dashboard/professional?tab=activity-detail&id=${activityId}`);
+    router.push(
+      H.buildActivityDetailHref(
+        activityId,
+        { filters, cursorStack, page },
+        currentYear,
+      ),
+    );
   };
 
   const handleDeleteActivity = async (activityId: string) => {
