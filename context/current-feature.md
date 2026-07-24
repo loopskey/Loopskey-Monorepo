@@ -1,97 +1,16 @@
-# Current Feature: My Learning Activities Page Restructure (Modify UI Phase 4)
+# Current Feature
 
 ## Status
 
-In Progress
+<!-- Not Started | In Progress | Completed -->
 
 ## Goals
 
 <!-- Bullet points of what success looks like -->
 
-- **Remove from the page:** Export CSV button, top-level Year selector, and the
-  four summary cards (Total PDU Earned, Target, Progress to Goal, Average per
-  Month), plus the Quick Actions card. Remove the state/calcs/props/imports/API
-  requests they leave behind **only** when no longer used elsewhere on this page.
-  Do NOT remove CSV functionality elsewhere in the app.
-- **Page actions:** keep **Refresh** and **Add Learning Activity**, with Add
-  Learning Activity beside Refresh in the primary action area. Refresh refreshes
-  page data; Add opens/navigates to the existing creation flow; preserve
-  permissions; use loading/disabled states; keep the layout responsive. If a
-  table-specific button currently sits beside Refresh, move it into the
-  search/filter toolbar rather than deleting it. Don't move Add out of primary
-  actions.
-- **Two new summary cards above the table:**
-  1. **Total Activities Completed & Logged** — count of the authenticated
-     Professional's activities that are completed, currently logged, and not
-     deleted. Document whether pending/rejected/draft are included; default to
-     counting only completed eligible activities.
-  2. **Certificates Attached / Evidence Uploaded** — prefer showing both (a)
-     number of activities with ≥1 certificate/evidence file and (b) total
-     evidence files uploaded. Clear labels; no double-counting; use the real
-     activity/evidence data model.
-- **Search & filter toolbar:** Search input, Year select, Type select,
-  Certificate select, any relevant table-specific control moved from beside
-  Refresh, and a Clear Filters action when filters are active. Reuse the existing
-  debounce hook (inspect `hooks/` first — `useDebounced`); preserve filters in
-  URL query params **only if that is already the page pattern**; reset pagination
-  on filter change; no request per keystroke; support loading/empty option
-  states.
-  - **Year:** filter by completion/activity date using the project's existing
-    year behavior.
-  - **Type:** filter by the existing activity-type enum (don't hardcode values
-    that conflict with backend enums).
-  - **Certificate:** filter by the user's linked certificate / CPD-PDU plan
-    association; until the Certificate API exists, keep it typed and replaceable
-    rather than hardcoding permanent options.
-- **Activities table:** preserve relevant columns/data. Replace the Actions
-  text buttons with icon-only actions — View (eye), Edit (edit), Delete (trash) —
-  each a real `<button>` with `aria-label`, tooltip, visible focus, disabled
-  during active requests, delete confirmation kept, double-deletion prevented,
-  permissions respected. Suggested labels: "View activity details", "Edit
-  activity", "Delete activity".
-- **View Details:** eye icon navigates to a dedicated activity-detail route
-  (Phase-1 recommended route / existing convention), passing only the activity
-  id — no sensitive data in query params. Backend must verify the activity
-  belongs to the authenticated Professional. The detail page itself is Phase 5.
-- **Charts moved below the table:** PDUs by Category, then PDUs Over Time. Reuse
-  the existing chart implementation; keep filters/date range consistent with the
-  table where appropriate; don't duplicate data fetching; responsive; handle
-  no-data; use the selected credit type dynamically where CPD/PDU is supported.
-- **Final layout order:** (1) title + primary actions, (2) new summary cards,
-  (3) search/filter toolbar, (4) activities table, (5) PDUs by Category, (6)
-  PDUs Over Time.
-- **Verify:** TypeScript, frontend tests, backend tests affected by filters,
-  lint, production build. Fix only errors this phase introduces.
-
 ## Notes
 
 <!-- Additional context, constraints, or details from spec -->
-
-- Spec: `context/features/modify-ui-ph4-spec.md` (Phase 4 of the multi-phase
-  "modify UI" effort).
-- **Do NOT** build the full Activity Details page here (Phase 5). The eye icon
-  may link to the route that Phase 5 will complete.
-- Reuse existing table, chart, form, filter, modal, button, tooltip, and query
-  components throughout.
-- Phase-1 audit context: "My Learning Activities" **is the CPD/PDU Tracker tab**
-  (`?tab=cpd-pdu-tracker`, `ProfessionalCpdPduTrackerTab`). A per-activity detail
-  query already exists (`professionalPduActivity`) but there is no detail page
-  yet (view currently == the edit form). The table's "Certificate" column
-  actually shows **PDU evidence files**; activities have no relation to the
-  `Certificate` model — so the Certificate filter must stay typed/replaceable,
-  not wired to `Certificate` data. `@ui/tooltip` (shadcn) exists for the icon
-  tooltips.
-- Must confirm against real code before editing: whether this page uses URL
-  query params for filters (Phase-2/3 Professional surfaces used local state, no
-  URL) — preserve URL params **only if already the pattern here**. Reuse
-  `useDebouncedValue` from `hooks/useDebounced`.
-- Backend: filters (Year/Type) map to the existing `professionalPduActivities`
-  query filter input; only touch the backend if a needed filter isn't already
-  supported, and keep it scoped to the authenticated Professional. Run backend
-  tests if the filter resolver/service changes.
-- Completion report must cover: elements removed, summary calculations, filter
-  behavior, table action changes, detail route selected, chart layout changes,
-  files modified, tests + results. STOP after this phase.
 
 ## History
 
@@ -644,3 +563,71 @@ In Progress
   `function-helper.ts` (`getContentPrice` etc.) were already unused before this
   phase and were left untouched as out-of-scope. Root `npm run lint` still fails
   on the removed Next 16 `next lint`, so lint was per-file.
+
+### 2026-07-24 — My Learning Activities page restructure (Modify UI Phase 4) completed
+
+- Implemented `context/features/modify-ui-ph4-spec.md` on
+  `feature/learning-activities-restructure`, merged to `main`. Scope held to the
+  CPD/PDU Tracker tab (= "My Learning Activities"); Overview, Wishlist, and
+  Certificates untouched. First full-stack modify-ui phase.
+- Removed from the page: Export CSV button, the top Year `<Input>`, the four PDU
+  MetricCards (Total PDU Earned / Target / Progress to Goal / Average per Month),
+  and the Quick Actions card — plus the now-dead hook state/calcs (`exportCsv`,
+  `year`/`handleYearChange`, target dialog + `handleTargetSubmit`, the metric
+  math). CSV elsewhere preserved: `CsvCell` stays because `utils/cpd-summary.ts`
+  (CPD Progress tab's "Generate CPD Summary") still uses it; Provider CSV
+  separate.
+- Primary actions kept: Refresh (refetches report + activities + summary, spinner
+  + disabled while fetching) and Add Learning Activity, side-by-side, responsive.
+  The Year control effectively moved from beside Refresh into the toolbar.
+- Two new summary cards backed by a **new user-scoped backend query**
+  `professionalPduActivitySummary` (no existing aggregate covered evidence-file
+  counts): `completedActivities` (completed + not-rejected), `activitiesWithEvidence`,
+  and `evidenceFilesCount` (from `PDUActivityFile`, no double-count). All counts
+  scoped to `userId`; documented that rejected are excluded and completed requires
+  `completionStatus = COMPLETED`. Skeleton + `isSummaryError` "—" fallback that
+  never breaks the page.
+- Toolbar (`activities-filters.tsx`): debounced search (existing
+  `useDebouncedValue`), Year select (drives both table `reportingYear` and the
+  report/charts `year`), Type select (options from the `PduSource` backend enum),
+  Certificate select (Any/Has/No → `hasCertificate` evidence presence, kept as a
+  typed `TPduActivityCertificateFilter` union since activities have no
+  `Certificate` relation), and Clear Filters when active. Pagination resets on
+  every filter change. No URL params (consistent with Phases 2–3; verified). All
+  three filters were **already supported by the backend where-clause, scoped to
+  the user** — no backend filter change needed.
+- Table row actions replaced with icon-only View (eye) / Edit (pencil) / Delete
+  (trash): real `<button>`s (shadcn `@ui/tooltip` + `aria-label` + visible
+  `focus-visible` ring + `aria-hidden` icons), disabled during any active delete,
+  `ConfirmDialog` kept, double-delete prevented by a per-row `deletingActivityId`
+  guard in the hook.
+- View route: `/dashboard/professional?tab=activity-detail&id=<id>` (existing
+  `?tab=` convention; id only, no sensitive data). Backend ownership already
+  enforced by `findOwnedActivity` (`professionalPduActivity`). Added
+  `activity-detail` to the tab type + shell `validTabs` + a minimal
+  `ProfessionalActivityDetailTab` placeholder so the eye icon resolves instead of
+  falling back to Overview — the **full detail page is Phase 5**.
+- Charts (PDUs by Category, then PDUs Over Time) moved below the table; same
+  implementations, single year-scoped report query (no duplicate fetching),
+  skeleton + no-data states preserved. Final order: title/actions → 2 summary
+  cards → toolbar + table → by-category → over-time.
+- Filter/summary logic extracted to pure, tested
+  `utils/learning-activities.helper.ts` (`createActivityFilters`,
+  `buildActivityYearOptions`, `ACTIVITY_TYPE_OPTIONS`, `buildActivityFilterInput`,
+  `hasActiveActivityFilters`). Added `professionalPduActivitySummary` fragment +
+  query to `professional.graphql`, RTK endpoint, and re-ran codegen against the
+  live API (schema.gql regenerated).
+- Known choice flagged at review: the table filters on the activity's
+  `reportingYear` field while the charts use the report's date-window `year`, so
+  an activity whose completion date and reporting year differ could sit in
+  different years across the two views. Spec allows "consistent … where
+  appropriate"; both are legitimate year reads. Summary cards are overall totals
+  (not year-scoped), matching "Total Activities Completed & Logged".
+- Verification: API Jest 83/83 (4 new — summary counts/scoping/forbidden + filter
+  where-clause for year/type/certificate), frontend Vitest 68/68 (12 new in
+  `learning-activities.helper.test.ts`), `tsc --noEmit` clean (both apps), ESLint
+  clean on changed files, API + frontend production builds, codegen re-run.
+  Re-verified green after an external formatter reformat.
+- Not done: live authenticated browser QA (needs API up + a seeded Professional
+  account). Root `npm run lint` still fails on the removed Next 16 `next lint`, so
+  lint was per-file. The full Activity Details page is Phase 5.
