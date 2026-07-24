@@ -160,7 +160,9 @@ describe("certificateStatusWhere", () => {
     const where = certificateStatusWhere(CertificateStatus.ACTIVE, NOW);
     expect(where.OR).toEqual([
       { validUntil: null },
-      { validUntil: { gte: new Date(Date.UTC(2026, 6, 24) + 91 * MS_PER_DAY) } },
+      {
+        validUntil: { gte: new Date(Date.UTC(2026, 6, 24) + 91 * MS_PER_DAY) },
+      },
     ]);
   });
 });

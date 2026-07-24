@@ -70,6 +70,12 @@ const createApprovalTx = ({
   auditLog: { create: jest.fn() },
 });
 
+/**
+ * The interactive-transaction callback these mocks stand in for. Each test
+ * supplies its own mock transaction shape, so the parameter stays open.
+ */
+type TransactionCallback = (tx: unknown) => unknown;
+
 const createService = (prisma: unknown) =>
   new AdminDashboardService(
     prisma as PrismaService,
@@ -174,7 +180,7 @@ describe("AdminDashboardService organization requests", () => {
   it("provisions a pending Organization account on approval", async () => {
     const tx = createApprovalTx();
     const service = createService({
-      $transaction: (callback: Function) => callback(tx),
+      $transaction: (callback: TransactionCallback) => callback(tx),
     });
 
     await service.approveOrgAccessRequest(admin, request.id);
@@ -216,7 +222,7 @@ describe("AdminDashboardService organization requests", () => {
       },
     });
     const service = createService({
-      $transaction: (callback: Function) => callback(tx),
+      $transaction: (callback: TransactionCallback) => callback(tx),
     });
 
     await service.approveOrgAccessRequest(admin, request.id);
@@ -277,7 +283,7 @@ describe("AdminDashboardService organization requests", () => {
   ])("refuses approval when the work email %s", async (_case, existingUser) => {
     const tx = createApprovalTx({ existingUser });
     const service = createService({
-      $transaction: (callback: Function) => callback(tx),
+      $transaction: (callback: TransactionCallback) => callback(tx),
     });
 
     await expect(
@@ -294,7 +300,7 @@ describe("AdminDashboardService organization requests", () => {
     tx.user.create.mockRejectedValue(new Error("account creation failed"));
     const rollback = jest.fn();
     const service = createService({
-      $transaction: async (callback: Function) => {
+      $transaction: async (callback: TransactionCallback) => {
         try {
           return await callback(tx);
         } catch (error) {
@@ -335,7 +341,7 @@ describe("AdminDashboardService organization requests", () => {
       auditLog: { create: jest.fn() },
     };
     await createService({
-      $transaction: (callback: Function) => callback(tx),
+      $transaction: (callback: TransactionCallback) => callback(tx),
     }).rejectOrgAccessRequest(admin, request.id, "Not eligible");
 
     expect(tx.organizationAccessRequest.updateMany).toHaveBeenCalledWith(
@@ -374,12 +380,12 @@ describe("AdminDashboardService organization requests", () => {
 
     await expect(
       createService({
-        $transaction: (callback: Function) => callback(terminalTx),
+        $transaction: (callback: TransactionCallback) => callback(terminalTx),
       }).approveOrgAccessRequest(admin, request.id),
     ).rejects.toBeInstanceOf(ConflictException);
     await expect(
       createService({
-        $transaction: (callback: Function) => callback(racedTx),
+        $transaction: (callback: TransactionCallback) => callback(racedTx),
       }).rejectOrgAccessRequest(admin, request.id, "Not eligible"),
     ).rejects.toBeInstanceOf(ConflictException);
   });

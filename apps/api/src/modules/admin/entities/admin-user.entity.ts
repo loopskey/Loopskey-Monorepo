@@ -12,7 +12,7 @@ export class AdminUserEntity {
   @Field(() => UserStatus) status: UserStatus;
   @Field(() => String, { nullable: true }) email?: string | null;
   @Field(() => Date, { nullable: true }) lastLoginAt?: Date | null;
-  @Field(() => String, { nullable: true }) location?: String | null;
+  @Field(() => String, { nullable: true }) location?: string | null;
   @Field(() => String, { nullable: true }) fullName?: string | null;
   @Field(() => String, { nullable: true }) avatarUrl?: string | null;
 }

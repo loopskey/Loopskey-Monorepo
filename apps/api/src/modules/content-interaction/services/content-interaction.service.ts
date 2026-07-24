@@ -595,5 +595,4 @@ export class ContentInteractionService {
       });
     }
   }
-
 }

@@ -13,11 +13,21 @@ import { UserStatus } from "@prisma/client";
 import { Injectable } from "@nestjs/common";
 import { Role } from "@prisma/client";
 
+/** Every query feeding `mapMember` selects the member with these relations. */
+const memberInclude = {
+  user: true,
+  department: true,
+} satisfies Prisma.OrganizationMemberInclude;
+
+type MemberWithRelations = Prisma.OrganizationMemberGetPayload<{
+  include: typeof memberInclude;
+}>;
+
 @Injectable()
 export class OrgDashboardMemberService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  private mapMember(item: any) {
+  private mapMember(item: MemberWithRelations) {
     return {
       id: item.id,
       pdus: item.pdus,
@@ -94,10 +104,7 @@ export class OrgDashboardMemberService {
     };
     const rows = await this.prismaService.organizationMember.findMany({
       where,
-      include: {
-        user: true,
-        department: true,
-      },
+      include: memberInclude,
       take: take + 1,
       ...(pagination?.cursor
         ? { cursor: { id: pagination.cursor }, skip: 1 }
@@ -153,10 +160,7 @@ export class OrgDashboardMemberService {
         id: memberId,
         organizationId: org.id,
       },
-      include: {
-        user: true,
-        department: true,
-      },
+      include: memberInclude,
     });
     if (!member)
       throw new NotFoundException(
@@ -236,10 +240,7 @@ export class OrgDashboardMemberService {
         status: OrganizationMemberStatus.ACTIVE,
         deactivatedAt: null,
       },
-      include: {
-        user: true,
-        department: true,
-      },
+      include: memberInclude,
     });
     return this.mapMember(member);
   }
@@ -346,10 +347,7 @@ export class OrgDashboardMemberService {
                 ? null
                 : undefined,
         },
-        include: {
-          user: true,
-          department: true,
-        },
+        include: memberInclude,
       });
     });
     return {
@@ -393,10 +391,7 @@ export class OrgDashboardMemberService {
       data: {
         notes: input.notes.trim(),
       },
-      include: {
-        user: true,
-        department: true,
-      },
+      include: memberInclude,
     });
     return this.mapMember(updated);
   }

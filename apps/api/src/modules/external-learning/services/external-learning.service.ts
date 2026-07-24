@@ -1,11 +1,11 @@
 import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { CreateExternalLearningClickInput } from "@ext/dtos/create-external-learning-click.input";
 import { ForbiddenException, Injectable } from "@nestjs/common";
-import { ExternalLearningProvider } from "@prisma/client";
 import { ExternalLearningStatus, Prisma } from "@prisma/client";
 import { ConfirmExternalLearningInput } from "@ext/dtos/confirm-external-learning.input";
 import { ExternalLearningFilterInput } from "@ext/dtos/external-learning-filter.input";
 import { OrganizationPaginationInput } from "@org/dtos/org-pagination.input";
+import { ExternalLearningProvider } from "@prisma/client";
 import { TExternalLearningUser } from "@ext/types/external-learning.types";
 import { ExtMessageCodeError } from "@ext/enums/message-code.enum";
 import { PrismaService } from "@prisma/prisma.service";

@@ -10,6 +10,9 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
+  // GraphQL Code Generator output is never hand-edited, so linting it only
+  // produces unfixable errors.
+  { ignores: ["src/lib/graphql/generated.ts", ".next/**"] },
   ...compat.extends("next/core-web-vitals", "next/typescript"),
 ];
 

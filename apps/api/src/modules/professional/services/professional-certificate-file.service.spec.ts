@@ -54,7 +54,9 @@ const createService = (prisma = createPrismaMock()) => {
 describe("ProfessionalCertificateFileService.uploadEvidence", () => {
   it("stores an accepted file and records its metadata", async () => {
     const { service, prisma } = createService();
-    const result = await service.uploadEvidence(professional, "cert-1", [pdf()]);
+    const result = await service.uploadEvidence(professional, "cert-1", [
+      pdf(),
+    ]);
     expect(result).toEqual({ certificateId: "cert-1", uploaded: 1 });
     const data = prisma.certificateFile.create.mock.calls[0][0].data;
     expect(data).toMatchObject({

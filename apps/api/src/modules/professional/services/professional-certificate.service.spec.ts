@@ -121,7 +121,10 @@ describe("ProfessionalCertificatesService.create", () => {
     const { service, prisma } = createService();
     prisma.cPDPlan.findFirst.mockResolvedValue({ id: "plan-1" });
     prisma.certificate.create.mockResolvedValue(
-      buildRow({ cpdPlanId: "plan-1", cpdPlan: { id: "plan-1", certificationName: "PMP" } }),
+      buildRow({
+        cpdPlanId: "plan-1",
+        cpdPlan: { id: "plan-1", certificationName: "PMP" },
+      }),
     );
 
     const result = await service.create(professional, {
@@ -363,7 +366,9 @@ describe("ProfessionalCertificatesService.certificates", () => {
 
     await service.certificates(professional, { issuer: "   " });
 
-    expect(prisma.certificate.findMany.mock.calls[0][0].where.AND).toBeUndefined();
+    expect(
+      prisma.certificate.findMany.mock.calls[0][0].where.AND,
+    ).toBeUndefined();
   });
 
   it("filters by a linked CPD plan", async () => {

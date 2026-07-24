@@ -1,9 +1,9 @@
-import { Prisma } from "@prisma/client";
 import { WishlistPriceFilter } from "@contentAction/enums/wishlist-register.enum";
 import { MyWishlistInput } from "@contentAction/dtos/my-wishlist.input";
 import { WishlistSortBy } from "@contentAction/enums/wishlist-register.enum";
 import { PrismaService } from "@prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 
 import * as T from "@contentAction/types/content-interaction.types";
 
