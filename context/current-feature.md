@@ -1,6 +1,8 @@
-# Current Feature
+# Current Feature: Professional Certificates Tab (Modify UI Phase 7)
 
 ## Status
+
+In Progress
 
 <!-- Not Started | In Progress | Completed -->
 
@@ -8,9 +10,90 @@
 
 <!-- Bullet points of what success looks like -->
 
+- **Navigation** — Professional sidebar "Certificates" item is correct and single:
+  role visibility, active state, desktop + mobile, keyboard accessible, no
+  duplicate entry.
+- **Page header** — title "Certificates" plus a primary "Upload Certificate"
+  action that opens the project's full-screen/dedicated form pattern.
+- **Summary cards** (real `professionalCertificateSummary` counts, no fake data):
+  - Active Certificates — with the "Link All Active" action resolved (see Notes).
+  - Expiring Soon — count within 90 days + nearest expiry date, "View Expiring"
+    filters the table to `EXPIRING_SOON`.
+  - Certificate Status — Active / Expiring Soon / Expired breakdown, "View All
+    Certificates" clears status filters.
+- **Upload form** — Certificate/Licence (required), Issuer (required),
+  Certification ID (optional), Issue Date (required), Expiry Date (required, not
+  before issue date), Linked CPD Plan (optional, own plans only, empty state),
+  Evidence File (required, filename shown, validation errors, removable/
+  replaceable). Save persists + uploads + returns + refreshes + notifies;
+  duplicate submission prevented. Cancel uses the unsaved-changes pattern.
+- **Edit** — same form component reused (no duplicate form): loads existing data,
+  shows current evidence filename, keep-or-replace evidence, ownership validated,
+  link/unlink CPD plan, status recalculated after expiry change.
+- **Filter toolbar** — search (title / issuer / certificate number) via the
+  existing debounce hook, status, issuer, linked CPD plan, expiry period where
+  useful, Clear Filters; pagination resets on filter change; mobile layout; async
+  option loading states.
+- **Table** — Certificate/Licence, Issuer, Issue Date, Expiry Date, Status,
+  Linked To, Actions; existing table primitives, pagination, sorting, consistent
+  dates, status conveyed by text as well as color; icon-only edit (tooltip +
+  aria-label + focus state) and delete only with confirmation.
+- **Row selection + detail card** — desktop side card / responsive fallback
+  below-table or drawer, selected row clearly highlighted, all detail fields
+  (incl. evidence filename, upload/created/updated dates), refreshes when the
+  selected certificate is edited.
+- **Download Certificate** — authenticated backend download endpoint, original
+  filename preserved, loading state, handles missing/deleted/unauthorized, never
+  exposes a private-storage URL, never fabricates a certificate.
+- **States** — no certificates, no filtered results, loading, backend error,
+  missing evidence, expired download, no CPD plans, certificate deleted while
+  selected.
+- **Cross-feature refresh** via query invalidation (no page reload): summary
+  cards, certificates table, Overview Certificates card, My Learning Activities
+  certificate filter, CPD/PDU plan-linked data.
+- **Verification** — frontend tests, backend integration tests, TypeScript
+  checks, lint, and both production builds; fix only errors this phase
+  introduces.
+
 ## Notes
 
 <!-- Additional context, constraints, or details from spec -->
+
+- Spec: `context/features/modify-ui-ph7-spec.md`. Frontend-only phase — the
+  backend landed in Phase 6 (`modify-ui-ph6-spec.md`) and its completion report
+  in History §10 lists exactly what this phase must consume.
+- **Available backend surface** (already shipped, no schema work expected):
+  queries `professionalCertificates` (now takes optional `status` + `sort`),
+  `professionalCertificate`, `professionalCertificateSummary`,
+  `professionalCertificateOptions`; mutations `createProfessionalCertificate`,
+  `updateProfessionalCertificate`, `deleteProfessionalCertificate`,
+  `setProfessionalCertificateCpdPlan` (null plan id unlinks). Evidence
+  upload/download/delete are multipart REST on `professional/certificates`.
+  Generated frontend types were already refreshed in Phase 6.
+- **Status is derived on read**, never persisted: `EXPIRED` before today,
+  `EXPIRING_SOON` today..today+90 inclusive, otherwise `ACTIVE`; stored `REVOKED`
+  wins. UI must not recompute its own rule — use the backend value.
+- **"Link All Active" must be decided by inspection, not invented.** The Phase 1
+  audit flagged it as having no target semantics; Phase 6 added a single-
+  certificate `cpdPlanId` link but no bulk mutation. If bulk linking is not
+  genuinely supported, fall back to **"View All Active"** and document the
+  decision in the completion report.
+- **Two-transport limitation carried over from Phase 6**: creation is GraphQL and
+  evidence upload is multipart REST, so "Evidence File required" cannot be
+  atomic. Enforcing it belongs to this phase's create flow.
+- Routing: this dashboard is a single `dashboard/professional` route switching on
+  `?tab=`; Phases 4–5 established `?tab=<name>&id=<id>` for detail/edit views and
+  URL round-tripping for list state. Follow that, not a new route segment.
+- Reuse precedents: `usePduEvidenceUpload` (upload/download), the Phase 4
+  filter toolbar + icon action pattern, `useDebouncedValue`, `ConfirmDialog`,
+  shadcn `@ui/tooltip`, `formatFileSize`, and the pure-helper + Vitest pattern in
+  `utils/learning-activities.helper.ts`.
+- Per-phase i18n rule: every new user-facing string needs matching `en.json` and
+  `fr.json` keys.
+- Known tooling debt (pre-existing, do not attempt to fix here): root
+  `npm run lint` fails on the removed Next 16 `next lint`, so lint per file with
+  `npx eslint`; the API workspace has no ESLint 9 flat config.
+- **STOP after the Certificates frontend** — nothing beyond it.
 
 ## History
 

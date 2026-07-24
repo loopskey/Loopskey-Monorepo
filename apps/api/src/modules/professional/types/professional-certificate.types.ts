@@ -5,7 +5,10 @@ import { Prisma } from "@prisma/client";
 
 export type CertificateListParams = {
   search?: string;
+  issuer?: string;
   sort?: CertificateSort;
+  cpdPlanId?: string;
+  unlinkedOnly?: boolean;
   status?: CertificateStatusFilter;
   pagination?: ProfessionalPaginationInput;
 };

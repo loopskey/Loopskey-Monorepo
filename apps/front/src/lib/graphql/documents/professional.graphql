@@ -289,6 +289,14 @@ fragment PaginatedProfessionalPaymentsFields on PaginatedProfessionalPayments {
   }
 }
 
+fragment ProfessionalCertificateFileFields on ProfessionalCertificateFile {
+  id
+  fileName
+  mimeType
+  sizeBytes
+  createdAt
+}
+
 fragment ProfessionalCertificateFields on ProfessionalCertificate {
   id
   title
@@ -302,8 +310,22 @@ fragment ProfessionalCertificateFields on ProfessionalCertificate {
   updatedAt
   validUntil
   contentType
+  cpdPlanId
+  cpdPlanName
   certificateUrl
+  certificateNumber
   verificationCode
+  evidenceFiles {
+    ...ProfessionalCertificateFileFields
+  }
+}
+
+fragment ProfessionalCertificateSummaryFields on ProfessionalCertificateSummary {
+  total
+  active
+  expiringSoon
+  expired
+  nearestExpiry
 }
 
 fragment PaginatedProfessionalCertificatesFields on PaginatedProfessionalCertificates {
@@ -414,10 +436,65 @@ query ProfessionalPayments(
 
 query ProfessionalCertificates(
   $filter: ProfessionalSearchInput
+  $status: CertificateStatusFilter
+  $sort: CertificateSort
+  $issuer: String
+  $cpdPlanId: ID
+  $unlinkedOnly: Boolean
   $pagination: ProfessionalPaginationInput
 ) {
-  professionalCertificates(filter: $filter, pagination: $pagination) {
+  professionalCertificates(
+    filter: $filter
+    status: $status
+    sort: $sort
+    issuer: $issuer
+    cpdPlanId: $cpdPlanId
+    unlinkedOnly: $unlinkedOnly
+    pagination: $pagination
+  ) {
     ...PaginatedProfessionalCertificatesFields
+  }
+}
+
+query ProfessionalCertificate($id: ID!) {
+  professionalCertificate(id: $id) {
+    ...ProfessionalCertificateFields
+  }
+}
+
+query ProfessionalCertificateSummary {
+  professionalCertificateSummary {
+    ...ProfessionalCertificateSummaryFields
+  }
+}
+
+query ProfessionalCertificateIssuers {
+  professionalCertificateIssuers
+}
+
+mutation CreateProfessionalCertificate($input: CreateCertificateInput!) {
+  createProfessionalCertificate(input: $input) {
+    ...ProfessionalCertificateFields
+  }
+}
+
+mutation UpdateProfessionalCertificate($input: UpdateCertificateInput!) {
+  updateProfessionalCertificate(input: $input) {
+    ...ProfessionalCertificateFields
+  }
+}
+
+mutation SetProfessionalCertificateCpdPlan(
+  $input: SetCertificateCpdPlanInput!
+) {
+  setProfessionalCertificateCpdPlan(input: $input) {
+    ...ProfessionalCertificateFields
+  }
+}
+
+mutation DeleteProfessionalCertificate($id: ID!) {
+  deleteProfessionalCertificate(id: $id) {
+    id
   }
 }
 

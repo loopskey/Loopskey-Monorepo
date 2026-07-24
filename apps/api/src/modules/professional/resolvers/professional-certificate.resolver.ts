@@ -43,12 +43,24 @@ export class ProfessionalCertificatesResolver {
     status?: CertificateStatusFilter,
     @Args("sort", { type: () => CertificateSort, nullable: true })
     sort?: CertificateSort,
+    @Args("issuer", { type: () => String, nullable: true }) issuer?: string,
+    @Args("cpdPlanId", { type: () => ID, nullable: true }) cpdPlanId?: string,
+    @Args("unlinkedOnly", { type: () => Boolean, nullable: true })
+    unlinkedOnly?: boolean,
     @Args("pagination", { nullable: true })
     pagination?: ProfessionalPaginationInput,
   ) {
     return this.professionalCertificateService.certificates(
       this.getUser(user),
-      { search: filter?.search, status, sort, pagination },
+      {
+        search: filter?.search,
+        status,
+        sort,
+        issuer,
+        cpdPlanId,
+        unlinkedOnly,
+        pagination,
+      },
     );
   }
 
@@ -77,6 +89,13 @@ export class ProfessionalCertificatesResolver {
   })
   professionalCertificateOptions(@CurrentUser() user: TResolverUser) {
     return this.professionalCertificateService.options(this.getUser(user));
+  }
+
+  @Query(() => [String], {
+    name: ProfessionalGqlQueryNames.PROFESSIONAL_CERTIFICATE_ISSUERS,
+  })
+  professionalCertificateIssuers(@CurrentUser() user: TResolverUser) {
+    return this.professionalCertificateService.issuers(this.getUser(user));
   }
 
   @Mutation(() => ProfessionalCertificateEntity, {

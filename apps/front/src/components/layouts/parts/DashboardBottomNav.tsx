@@ -1,7 +1,10 @@
 "use client";
 
+import {
+  getDashboardTabsByRole,
+  isDashboardTabActive,
+} from "@/utils/dashboard-nav.config";
 import { DashboardBottomNavSkeleton } from "@layouts/parts/DashboardSkeleton";
-import { getDashboardTabsByRole } from "@/utils/dashboard-nav.config";
 import { useCurrentUserQuery } from "@/lib/rtk/endpoints/auth.api";
 import { useSearchParams } from "next/navigation";
 import { useI18n } from "@/hooks/useI18n";
@@ -23,7 +26,7 @@ export const DashboardBottomNav = () => {
       <div className="grid grid-cols-4 gap-1">
         {tabs.map((item) => {
           const Icon = item.icon;
-          const isActive = activeTab === item.value;
+          const isActive = isDashboardTabActive(item.value, activeTab);
           return (
             <Link
               key={item.value}

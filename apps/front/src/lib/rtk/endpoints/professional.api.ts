@@ -21,6 +21,15 @@ export const CREDENTIAL_TAGS = [
   "Professional",
 ] as const;
 
+// A certificate write changes the list, the summary counts, the issuer options
+// and the Overview certificates card, and it can attach or release a CPD plan.
+export const CERTIFICATE_TAGS = [
+  "ProfessionalCertificates",
+  "ProfessionalOverview",
+  "ProfessionalCpdPlan",
+  "Professional",
+] as const;
+
 export const professionalApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     professionalSettings: builder.query<
@@ -248,6 +257,99 @@ export const professionalApi = baseApi.injectEndpoints({
       providesTags: ["ProfessionalCertificates", "Professional"],
     }),
 
+    professionalCertificate: builder.query<
+      TAPI.ProfessionalCertificateQuery["professionalCertificate"],
+      TAPI.ProfessionalCertificateQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.ProfessionalCertificateDocument,
+        variables,
+      }),
+      transformResponse: (response: TAPI.ProfessionalCertificateQuery) =>
+        response.professionalCertificate,
+      providesTags: ["ProfessionalCertificates", "Professional"],
+    }),
+
+    professionalCertificateSummary: builder.query<
+      TAPI.ProfessionalCertificateSummaryQuery["professionalCertificateSummary"],
+      void
+    >({
+      query: () => ({
+        document: API.ProfessionalCertificateSummaryDocument,
+      }),
+      transformResponse: (response: TAPI.ProfessionalCertificateSummaryQuery) =>
+        response.professionalCertificateSummary,
+      providesTags: ["ProfessionalCertificates", "Professional"],
+    }),
+
+    professionalCertificateIssuers: builder.query<
+      TAPI.ProfessionalCertificateIssuersQuery["professionalCertificateIssuers"],
+      void
+    >({
+      query: () => ({
+        document: API.ProfessionalCertificateIssuersDocument,
+      }),
+      transformResponse: (response: TAPI.ProfessionalCertificateIssuersQuery) =>
+        response.professionalCertificateIssuers,
+      providesTags: ["ProfessionalCertificates", "Professional"],
+    }),
+
+    createProfessionalCertificate: builder.mutation<
+      TAPI.CreateProfessionalCertificateMutation["createProfessionalCertificate"],
+      TAPI.CreateProfessionalCertificateMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.CreateProfessionalCertificateDocument,
+        variables: { input },
+      }),
+      transformResponse: (
+        response: TAPI.CreateProfessionalCertificateMutation,
+      ) => response.createProfessionalCertificate,
+      invalidatesTags: CERTIFICATE_TAGS,
+    }),
+
+    updateProfessionalCertificate: builder.mutation<
+      TAPI.UpdateProfessionalCertificateMutation["updateProfessionalCertificate"],
+      TAPI.UpdateProfessionalCertificateMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.UpdateProfessionalCertificateDocument,
+        variables: { input },
+      }),
+      transformResponse: (
+        response: TAPI.UpdateProfessionalCertificateMutation,
+      ) => response.updateProfessionalCertificate,
+      invalidatesTags: CERTIFICATE_TAGS,
+    }),
+
+    setProfessionalCertificateCpdPlan: builder.mutation<
+      TAPI.SetProfessionalCertificateCpdPlanMutation["setProfessionalCertificateCpdPlan"],
+      TAPI.SetProfessionalCertificateCpdPlanMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.SetProfessionalCertificateCpdPlanDocument,
+        variables: { input },
+      }),
+      transformResponse: (
+        response: TAPI.SetProfessionalCertificateCpdPlanMutation,
+      ) => response.setProfessionalCertificateCpdPlan,
+      invalidatesTags: CERTIFICATE_TAGS,
+    }),
+
+    deleteProfessionalCertificate: builder.mutation<
+      TAPI.DeleteProfessionalCertificateMutation["deleteProfessionalCertificate"],
+      TAPI.DeleteProfessionalCertificateMutationVariables
+    >({
+      query: (variables) => ({
+        document: API.DeleteProfessionalCertificateDocument,
+        variables,
+      }),
+      transformResponse: (
+        response: TAPI.DeleteProfessionalCertificateMutation,
+      ) => response.deleteProfessionalCertificate,
+      invalidatesTags: CERTIFICATE_TAGS,
+    }),
+
     updateProfessionalSettings: builder.mutation<
       TAPI.UpdateProfessionalSettingsMutation["updateProfessionalSettings"],
       TAPI.UpdateProfessionalSettingsMutationVariables["input"]
@@ -461,6 +563,13 @@ export const {
   useProfessionalMyRoadmapsQuery,
   useLazyProfessionalPaymentsQuery,
   useProfessionalCertificatesQuery,
+  useProfessionalCertificateQuery,
+  useProfessionalCertificateSummaryQuery,
+  useProfessionalCertificateIssuersQuery,
+  useCreateProfessionalCertificateMutation,
+  useUpdateProfessionalCertificateMutation,
+  useDeleteProfessionalCertificateMutation,
+  useSetProfessionalCertificateCpdPlanMutation,
   useLazyProfessionalSettingsQuery,
   useLazyProfessionalOverviewQuery,
   useLazyProfessionalMyCoursesQuery,

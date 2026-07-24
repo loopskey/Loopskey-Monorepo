@@ -1,328 +1,271 @@
 "use client";
 
 import { useProfessionalCertificates } from "@/hooks/useProfessionalCertificate";
+import { CertificateSummaryCards } from "@modules/ProfessionalDashboard/parts/certificate-summary-cards";
+import { CertificateDetailCard } from "@modules/ProfessionalDashboard/parts/certificate-detail-card";
+import { CertificatesFilters } from "@modules/ProfessionalDashboard/parts/certificates-filters";
+import { CertificatesTable } from "@modules/ProfessionalDashboard/parts/certificates-table";
 import { ContentPagination } from "@elements/pagination";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
-import { Badge } from "@ui/badge";
-import { Input } from "@ui/input";
-
-import Link from "next/link";
 
 import * as L from "lucide-react";
+
+const CERTIFICATES = "professionalDashboard.certificates";
 
 const ProfessionalCertificatesTab = () => {
   const {
     t,
     data,
     page,
-    search,
+    filters,
+    summary,
+    isError,
     pageInfo,
     isLoading,
     isFetching,
+    isFiltered,
     handleNext,
-    formatDate,
+    handleEdit,
+    selectedId,
+    planOptions,
+    handleSelect,
+    handleDelete,
+    handleUpload,
     certificates,
+    handleViewAll,
+    issuerOptions,
+    handleRefresh,
+    handleDownload,
+    isPlansLoading,
     handlePrevious,
-    getValidUntilLabel,
-    lastIssuedCertificate,
-    handleSearchInputChange,
+    isSummaryError,
+    isIssuersLoading,
+    handleViewActive,
+    isSummaryLoading,
+    downloadingFileId,
+    handleViewExpiring,
+    handleFilterChange,
+    handleResetFilters,
+    wasSelectionDeleted,
+    selectedCertificate,
+    deletingCertificateId,
+    isDeleting,
   } = useProfessionalCertificates();
 
   return (
     <div className="space-y-6">
+      {/* 1. Page title and primary action */}
       <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
         <div>
           <p className="text-sm font-medium text-primary">
-            {t("professionalDashboard.certificates.eyebrow")}
+            {t(`${CERTIFICATES}.eyebrow`)}
           </p>
 
           <h1 className="mt-2 text-3xl font-medium tracking-tight md:text-4xl">
-            {t("professionalDashboard.certificates.title")}
+            {t(`${CERTIFICATES}.title`)}
           </h1>
 
           <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-            {t("professionalDashboard.certificates.subtitle")}
+            {t(`${CERTIFICATES}.subtitle`)}
           </p>
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <Button radius="xl" variant="glass">
-            <L.Share2 className="h-4 w-4" />
-            {t("professionalDashboard.certificates.sharePortfolio")}
+          <Button
+            radius="xl"
+            type="button"
+            variant="glass"
+            disabled={isFetching}
+            onClick={handleRefresh}
+          >
+            {isFetching ? (
+              <L.Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+            ) : (
+              <L.RefreshCw className="h-4 w-4" aria-hidden />
+            )}
+            {t("professionalDashboard.common.refresh")}
           </Button>
 
-          <Button radius="xl" variant="brand" asChild>
-            <Link href="/courses">
-              <L.GraduationCap className="h-4 w-4" />
-              {t("professionalDashboard.certificates.earnMore")}
-            </Link>
+          <Button
+            radius="xl"
+            type="button"
+            variant="brand"
+            onClick={handleUpload}
+          >
+            <L.UploadCloud className="h-4 w-4" aria-hidden />
+            {t(`${CERTIFICATES}.uploadCertificate`)}
           </Button>
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <GlassCard className="p-5">
-          <div className="flex items-center justify-between">
+      {/* 2. Summary cards */}
+      <CertificateSummaryCards
+        t={t}
+        summary={summary}
+        isError={isSummaryError}
+        isLoading={isSummaryLoading}
+        onViewAll={handleViewAll}
+        nearestExpiry={summary?.nearestExpiry ?? null}
+        onViewActive={handleViewActive}
+        onViewExpiring={handleViewExpiring}
+      />
+
+      {/* 3. Filters, table and the selected-certificate detail card */}
+      <div className="grid gap-6 xl:grid-cols-3">
+        <GlassCard className="xl:col-span-2">
+          <div className="mb-6 space-y-5">
             <div>
-              <p className="text-sm text-muted-foreground">
-                {t("professionalDashboard.certificates.totalCertificates")}
-              </p>
-
-              <p className="mt-2 text-3xl font-medium">
-                {data?.totalCertificates ?? 0}
-              </p>
-            </div>
-
-            <div className="rounded-2xl bg-primary/10 p-3 text-primary">
-              <L.Award className="h-5 w-5" />
-            </div>
-          </div>
-
-          <p className="mt-3 text-xs text-muted-foreground">
-            {t("professionalDashboard.certificates.acrossCourses")}
-          </p>
-        </GlassCard>
-
-        <GlassCard className="p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">
-                {t("professionalDashboard.certificates.totalPdusEarned")}
-              </p>
-
-              <p className="mt-2 text-3xl font-medium">
-                {data?.totalPdusEarned ?? 0}
+              <h2 className="text-xl font-medium">
+                {t(`${CERTIFICATES}.certificatesList`)}
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {t(`${CERTIFICATES}.certificatesListDesc`)}
               </p>
             </div>
 
-            <div className="rounded-2xl bg-primary/10 p-3 text-primary">
-              <L.Medal className="h-5 w-5" />
-            </div>
-          </div>
-        </GlassCard>
-
-        <GlassCard className="p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">
-                {t("professionalDashboard.certificates.activeCertifications")}
-              </p>
-
-              <p className="mt-2 text-3xl font-medium">
-                {data?.activeCertificates ?? 0}
-              </p>
-            </div>
-
-            <div className="rounded-2xl bg-primary/10 p-3 text-primary">
-              <L.BadgeCheck className="h-5 w-5" />
-            </div>
-          </div>
-        </GlassCard>
-
-        <GlassCard className="p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">
-                {t("professionalDashboard.certificates.lastIssued")}
-              </p>
-
-              <p className="mt-2 line-clamp-1 text-lg font-medium">
-                {formatDate(lastIssuedCertificate?.issuedAt)}
-              </p>
-            </div>
-
-            <div className="rounded-2xl bg-primary/10 p-3 text-primary">
-              <L.FileCheck2 className="h-5 w-5" />
-            </div>
-          </div>
-        </GlassCard>
-      </div>
-
-      <GlassCard>
-        <div className="mb-6 flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
-          <div>
-            <h2 className="text-xl font-medium">
-              {t("professionalDashboard.certificates.certificatesList")}
-            </h2>
-
-            <p className="mt-1 text-sm text-muted-foreground">
-              {t("professionalDashboard.certificates.certificatesListDesc")}
-            </p>
-          </div>
-
-          <div className="w-full lg:max-w-sm">
-            <Input
-              value={search}
-              className="h-12 rounded-2xl bg-background/60"
-              onChange={handleSearchInputChange}
-              placeholder={t("professionalDashboard.certificates.search")}
+            <CertificatesFilters
+              t={t}
+              filters={filters}
+              isFiltered={isFiltered}
+              planOptions={planOptions}
+              onReset={handleResetFilters}
+              issuerOptions={issuerOptions}
+              onChange={handleFilterChange}
+              isPlansLoading={isPlansLoading}
+              isIssuersLoading={isIssuersLoading}
             />
           </div>
-        </div>
 
-        {isLoading ? (
-          <div className="flex min-h-72 items-center justify-center">
-            <L.Loader2 className="h-7 w-7 animate-spin text-primary" />
-          </div>
-        ) : certificates.length === 0 ? (
-          <div className="flex min-h-72 flex-col items-center justify-center rounded-[2rem] border border-dashed border-glass-border bg-background/40 p-8 text-center">
-            <L.Award className="h-12 w-12 text-muted-foreground" />
-
-            <h3 className="mt-4 text-xl font-medium">
-              {t("professionalDashboard.certificates.emptyTitle")}
-            </h3>
-
-            <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
-              {t("professionalDashboard.certificates.emptyDescription")}
-            </p>
-
-            <Button className="mt-5" radius="xl" variant="brand" asChild>
-              <Link href="/courses">
-                {t("professionalDashboard.certificates.earnMore")}
-              </Link>
-            </Button>
-          </div>
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {certificates.map((certificate) => (
-              <div
-                key={certificate.id}
-                className="group rounded-[2rem] border border-glass-border bg-background/45 p-5 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-primary/30"
+          {isLoading ? (
+            <div className="flex min-h-72 items-center justify-center">
+              <L.Loader2
+                aria-hidden
+                className="h-7 w-7 animate-spin text-primary"
+              />
+              <span className="sr-only">{t("common.loading")}</span>
+            </div>
+          ) : isError ? (
+            <div
+              role="alert"
+              className="rounded-[2rem] border border-dashed border-destructive/40 bg-destructive/5 p-10 text-center"
+            >
+              <L.CircleAlert
+                aria-hidden
+                className="mx-auto h-10 w-10 text-destructive"
+              />
+              <h3 className="mt-4 text-xl font-medium">
+                {t(`${CERTIFICATES}.errorTitle`)}
+              </h3>
+              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
+                {t(`${CERTIFICATES}.errorDescription`)}
+              </p>
+              <Button
+                radius="xl"
+                type="button"
+                variant="glass"
+                className="mt-5"
+                onClick={handleRefresh}
               >
-                <div className="mb-5 flex items-start justify-between gap-4">
-                  <div className="rounded-2xl bg-primary/10 p-3 text-primary">
-                    <L.Award className="h-5 w-5" />
-                  </div>
+                <L.RefreshCw className="h-4 w-4" aria-hidden />
+                {t("professionalDashboard.common.refresh")}
+              </Button>
+            </div>
+          ) : certificates.length === 0 ? (
+            <div className="rounded-[2rem] border border-dashed border-glass-border bg-background/40 p-10 text-center">
+              <L.Award
+                aria-hidden
+                className="mx-auto h-10 w-10 text-muted-foreground"
+              />
+              <h3 className="mt-4 text-xl font-medium">
+                {isFiltered
+                  ? t(`${CERTIFICATES}.noMatchTitle`)
+                  : t(`${CERTIFICATES}.emptyTitle`)}
+              </h3>
+              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
+                {isFiltered
+                  ? t(`${CERTIFICATES}.noMatchDescription`)
+                  : t(`${CERTIFICATES}.emptyDescription`)}
+              </p>
 
-                  <Badge variant="secondary">{certificate.status}</Badge>
-                </div>
-
-                <p className="text-xs font-medium uppercase tracking-wider text-primary">
-                  {t("professionalDashboard.certificates.certificate")}
-                </p>
-
-                <h3 className="mt-2 line-clamp-2 min-h-14 text-lg font-medium">
-                  {certificate.title}
-                </h3>
-
-                <p className="mt-2 line-clamp-1 text-sm text-muted-foreground">
-                  {certificate.issuer ??
-                    t("professionalDashboard.certificates.unknownIssuer")}
-                </p>
-
-                <div className="mt-5 grid grid-cols-2 gap-3 text-sm">
-                  <div className="rounded-2xl bg-primary/5 p-3">
-                    <p className="text-xs text-muted-foreground">
-                      {t("professionalDashboard.certificates.issueDate")}
-                    </p>
-
-                    <p className="mt-1 font-medium">
-                      {formatDate(certificate.issuedAt)}
-                    </p>
-                  </div>
-
-                  <div className="rounded-2xl bg-primary/5 p-3">
-                    <p className="text-xs text-muted-foreground">
-                      {t("professionalDashboard.certificates.validUntil")}
-                    </p>
-
-                    <p className="mt-1 font-medium">
-                      {getValidUntilLabel(certificate.validUntil)}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-4 rounded-2xl bg-primary/5 p-3">
-                  <p className="text-xs text-muted-foreground">
-                    {t("professionalDashboard.certificates.verificationCode")}
-                  </p>
-
-                  <p className="mt-1 truncate font-mono text-sm font-medium">
-                    {certificate.verificationCode}
-                  </p>
-                </div>
-
-                <div className="mt-5 grid grid-cols-2 gap-2">
-                  <Button
-                    size="sm"
-                    radius="xl"
-                    variant="glass"
-                    disabled={!certificate.certificateUrl}
-                    asChild={Boolean(certificate.certificateUrl)}
-                  >
-                    {certificate.certificateUrl ? (
-                      <Link
-                        target="_blank"
-                        rel="noreferrer"
-                        href={certificate.certificateUrl}
-                      >
-                        <L.ExternalLink className="h-4 w-4" />
-                        {t("professionalDashboard.certificates.preview")}
-                      </Link>
-                    ) : (
-                      <>
-                        <L.ExternalLink className="h-4 w-4" />
-                        {t("professionalDashboard.certificates.preview")}
-                      </>
-                    )}
-                  </Button>
-
-                  <Button
-                    size="sm"
-                    radius="xl"
-                    variant="brand"
-                    disabled={!certificate.certificateUrl}
-                    asChild={Boolean(certificate.certificateUrl)}
-                  >
-                    {certificate.certificateUrl ? (
-                      <Link
-                        href={certificate.certificateUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        <L.Download className="h-4 w-4" />
-                        {t("professionalDashboard.certificates.download")}
-                      </Link>
-                    ) : (
-                      <>
-                        <L.Download className="h-4 w-4" />
-                        {t("professionalDashboard.certificates.download")}
-                      </>
-                    )}
-                  </Button>
-                </div>
-
+              {isFiltered ? (
                 <Button
-                  asChild
-                  size="sm"
                   radius="xl"
-                  variant="ghost"
-                  className="mt-3 w-full"
+                  type="button"
+                  variant="glass"
+                  className="mt-5"
+                  onClick={handleResetFilters}
                 >
-                  <Link
-                    href={`/certificates/verify/${certificate.verificationCode}`}
-                  >
-                    <L.BadgeCheck className="h-4 w-4" />
-                    {t("professionalDashboard.certificates.verify")}
-                  </Link>
+                  <L.FilterX className="h-4 w-4" aria-hidden />
+                  {t(`${CERTIFICATES}.filters.clear`)}
                 </Button>
-              </div>
-            ))}
-          </div>
-        )}
+              ) : (
+                <Button
+                  radius="xl"
+                  type="button"
+                  variant="brand"
+                  className="mt-5"
+                  onClick={handleUpload}
+                >
+                  <L.UploadCloud className="h-4 w-4" aria-hidden />
+                  {t(`${CERTIFICATES}.uploadCertificate`)}
+                </Button>
+              )}
+            </div>
+          ) : (
+            <CertificatesTable
+              t={t}
+              onEdit={handleEdit}
+              onSelect={handleSelect}
+              onDelete={handleDelete}
+              selectedId={selectedId}
+              isDeleting={isDeleting}
+              certificates={certificates}
+              deletingCertificateId={deletingCertificateId}
+            />
+          )}
 
-        <ContentPagination
-          page={page}
-          className="mt-6"
-          onNext={handleNext}
-          isLoading={isFetching}
-          canPrevious={page > 1}
-          onPrevious={handlePrevious}
-          totalCount={data?.totalCount}
-          hasNextPage={Boolean(pageInfo?.hasNextPage)}
-        />
-      </GlassCard>
+          <ContentPagination
+            page={page}
+            className="mt-6"
+            onNext={handleNext}
+            canPrevious={page > 1}
+            isLoading={isFetching}
+            onPrevious={handlePrevious}
+            totalCount={data?.totalCount}
+            hasNextPage={Boolean(pageInfo?.hasNextPage)}
+          />
+        </GlassCard>
+
+        <div className="xl:col-span-1">
+          {selectedCertificate ? (
+            <CertificateDetailCard
+              t={t}
+              onEdit={handleEdit}
+              onDownload={handleDownload}
+              certificate={selectedCertificate}
+              downloadingFileId={downloadingFileId}
+            />
+          ) : (
+            <GlassCard className="flex min-h-56 flex-col items-center justify-center text-center lg:sticky lg:top-6">
+              <L.MousePointerClick
+                aria-hidden
+                className="h-9 w-9 text-muted-foreground"
+              />
+              <h3 className="mt-4 font-medium">
+                {wasSelectionDeleted
+                  ? t(`${CERTIFICATES}.detail.deletedTitle`)
+                  : t(`${CERTIFICATES}.detail.emptyTitle`)}
+              </h3>
+              <p className="mt-2 max-w-xs text-sm leading-6 text-muted-foreground">
+                {wasSelectionDeleted
+                  ? t(`${CERTIFICATES}.detail.deletedDescription`)
+                  : t(`${CERTIFICATES}.detail.emptyDescription`)}
+              </p>
+            </GlassCard>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

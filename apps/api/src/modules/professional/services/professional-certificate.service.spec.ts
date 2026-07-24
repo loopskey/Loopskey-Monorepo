@@ -6,6 +6,7 @@ import {
   CertificateSort,
   CertificateStatusFilter,
 } from "../enums/certificate.enum";
+import { MAX_CERTIFICATE_ISSUERS } from "../enums/certificate-file.constant";
 
 import type { PrismaService } from "@prisma/prisma.service";
 
@@ -283,15 +284,42 @@ describe("ProfessionalCertificatesService.summary", () => {
       .mockResolvedValueOnce(3) // expiringSoon
       .mockResolvedValueOnce(1); // expired
 
+    const expiry = new Date("2026-10-01T00:00:00.000Z");
+    prisma.certificate.findFirst.mockResolvedValue({ validUntil: expiry });
+
     const summary = await service.summary(professional);
     expect(summary).toEqual({
       total: 10,
       active: 6,
       expiringSoon: 3,
       expired: 1,
+      nearestExpiry: expiry,
     });
     for (const call of prisma.certificate.count.mock.calls)
       expect(call[0].where.userId).toBe("user-1");
+  });
+
+  it("reads the nearest expiry from the caller's expiring-soon set, not a page", async () => {
+    const { service, prisma } = createService();
+    prisma.certificate.count.mockResolvedValue(0);
+    prisma.certificate.findFirst.mockResolvedValue(null);
+
+    const summary = await service.summary(professional);
+
+    const args = prisma.certificate.findFirst.mock.calls[0][0];
+    expect(args.where.userId).toBe("user-1");
+    expect(args.where.validUntil).toBeDefined();
+    expect(args.orderBy).toEqual({ validUntil: "asc" });
+    expect(summary.nearestExpiry).toBeNull();
+  });
+
+  it("refuses a caller that is not a professional or an admin", async () => {
+    const { service, prisma } = createService();
+
+    await expect(
+      service.summary({ id: "user-1", role: Role.PROVIDER }),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+    expect(prisma.certificate.count).not.toHaveBeenCalled();
   });
 });
 
@@ -316,5 +344,114 @@ describe("ProfessionalCertificatesService.certificates", () => {
     ]);
     expect(args.where.AND[1].validUntil).toMatchObject({ not: null });
     expect(args.orderBy).toEqual({ title: "asc" });
+  });
+
+  it("filters by an exact issuer, ignoring surrounding whitespace", async () => {
+    const { service, prisma } = createService();
+    prisma.certificate.findMany.mockResolvedValue([buildRow()]);
+
+    await service.certificates(professional, { issuer: "  Amazon  " });
+
+    const args = prisma.certificate.findMany.mock.calls[0][0];
+    expect(args.where.userId).toBe("user-1");
+    expect(args.where.AND).toEqual([{ issuer: "Amazon" }]);
+  });
+
+  it("ignores a blank issuer filter", async () => {
+    const { service, prisma } = createService();
+    prisma.certificate.findMany.mockResolvedValue([buildRow()]);
+
+    await service.certificates(professional, { issuer: "   " });
+
+    expect(prisma.certificate.findMany.mock.calls[0][0].where.AND).toBeUndefined();
+  });
+
+  it("filters by a linked CPD plan", async () => {
+    const { service, prisma } = createService();
+    prisma.certificate.findMany.mockResolvedValue([buildRow()]);
+
+    await service.certificates(professional, { cpdPlanId: "plan-1" });
+
+    expect(prisma.certificate.findMany.mock.calls[0][0].where.AND).toEqual([
+      { cpdPlanId: "plan-1" },
+    ]);
+  });
+
+  it("filters unlinked certificates and ignores a plan id alongside it", async () => {
+    const { service, prisma } = createService();
+    prisma.certificate.findMany.mockResolvedValue([buildRow()]);
+
+    await service.certificates(professional, {
+      unlinkedOnly: true,
+      cpdPlanId: "plan-1",
+    });
+
+    expect(prisma.certificate.findMany.mock.calls[0][0].where.AND).toEqual([
+      { cpdPlanId: null },
+    ]);
+  });
+
+  it("keeps every list read scoped to the authenticated user", async () => {
+    const { service, prisma } = createService();
+    prisma.certificate.findMany.mockResolvedValue([buildRow()]);
+
+    await service.certificates(professional, {
+      search: "aws",
+      issuer: "Amazon",
+      cpdPlanId: "plan-1",
+    });
+
+    expect(prisma.certificate.findMany.mock.calls[0][0].where.userId).toBe(
+      "user-1",
+    );
+    for (const call of prisma.certificate.count.mock.calls)
+      expect(call[0].where.userId).toBe("user-1");
+  });
+
+  it("refuses a caller that is not a professional or an admin", async () => {
+    const { service, prisma } = createService();
+
+    await expect(
+      service.certificates({ id: "user-1", role: Role.PROVIDER }, {}),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+    expect(prisma.certificate.findMany).not.toHaveBeenCalled();
+  });
+});
+
+describe("ProfessionalCertificatesService.issuers", () => {
+  it("returns the caller's distinct, trimmed issuers within the cap", async () => {
+    const { service, prisma } = createService();
+    prisma.certificate.findMany.mockResolvedValue([
+      { issuer: "Amazon" },
+      { issuer: "  Axelos  " },
+    ]);
+
+    const result = await service.issuers(professional);
+
+    const args = prisma.certificate.findMany.mock.calls[0][0];
+    expect(args.where).toEqual({ userId: "user-1", issuer: { not: null } });
+    expect(args.distinct).toEqual(["issuer"]);
+    expect(args.take).toBe(MAX_CERTIFICATE_ISSUERS);
+    expect(result).toEqual(["Amazon", "Axelos"]);
+  });
+
+  it("drops null and blank issuers", async () => {
+    const { service, prisma } = createService();
+    prisma.certificate.findMany.mockResolvedValue([
+      { issuer: "Amazon" },
+      { issuer: "   " },
+      { issuer: null },
+    ]);
+
+    expect(await service.issuers(professional)).toEqual(["Amazon"]);
+  });
+
+  it("refuses a caller that is not a professional or an admin", async () => {
+    const { service, prisma } = createService();
+
+    await expect(
+      service.issuers({ id: "user-1", role: Role.ORGANIZATION }),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+    expect(prisma.certificate.findMany).not.toHaveBeenCalled();
   });
 });

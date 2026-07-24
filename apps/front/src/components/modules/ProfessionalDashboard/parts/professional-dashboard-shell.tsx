@@ -7,6 +7,7 @@ import ProfessionalActivityDetailTab from "@modules/ProfessionalDashboard/Profes
 import ProfessionalExternalLearningTab from "@modules/ProfessionalDashboard/ProfessionalExternalLearningTab";
 import ProfessionalCpdPduProgressTab from "@modules/ProfessionalDashboard/ProfessionalCpdPduProgressTab";
 import ProfessionalCpdPduTrackerTab from "@modules/ProfessionalDashboard/ProfessionalCpdPduTrackerTab";
+import ProfessionalCertificateFormTab from "@modules/ProfessionalDashboard/ProfessionalCertificateFormTab";
 import ProfessionalCertificatesTab from "@modules/ProfessionalDashboard/ProfessionalCertificatesTab";
 import ProfessionalAddActivityTab from "@modules/ProfessionalDashboard/ProfessionalAddActivityTab";
 import ProfessionalOverviewTab from "@modules/ProfessionalDashboard/ProfessionalOverviewTab";
@@ -30,6 +31,7 @@ const validTabs: TProfessionalDashboardTab[] = [
   "pdu-report",
   "add-activity",
   "certificates",
+  "certificate-form",
   "cpd-pdu-tracker",
   "cpd-pdu-progress",
   "activity-detail",
@@ -51,6 +53,8 @@ export const ProfessionalDashboardShell = () => {
   if (activeTab === "external-learning")
     return <ProfessionalExternalLearningTab />;
   if (activeTab === "certificates") return <ProfessionalCertificatesTab />;
+  if (activeTab === "certificate-form")
+    return <ProfessionalCertificateFormTab />;
   if (activeTab === "payments") return <ProfessionalPaymentsTab />;
   if (activeTab === "cpd-pdu-tracker" || activeTab === "pdu-report")
     return <ProfessionalCpdPduTrackerTab />;

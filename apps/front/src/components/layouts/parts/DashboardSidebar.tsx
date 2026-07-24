@@ -1,7 +1,10 @@
 "use client";
 
+import {
+  getDashboardTabsByRole,
+  isDashboardTabActive,
+} from "@/utils/dashboard-nav.config";
 import { DashboardSidebarSkeleton } from "@layouts/parts/DashboardSkeleton";
-import { getDashboardTabsByRole } from "@/utils/dashboard-nav.config";
 import { useCurrentUserQuery } from "@/lib/rtk/endpoints/auth.api";
 import { getDashboardPath } from "@/utils/constant";
 import { useSearchParams } from "next/navigation";
@@ -29,7 +32,7 @@ export const DashboardSidebar = () => {
         <nav className="mt-4 flex-1 space-y-2 overflow-y-auto px-3 pb-4">
           {tabs.map((item) => {
             const Icon = item.icon;
-            const isActive = activeTab === item.value;
+            const isActive = isDashboardTabActive(item.value, activeTab);
             return (
               <Link
                 key={item.value}
