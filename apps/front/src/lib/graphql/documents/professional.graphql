@@ -385,6 +385,18 @@ query ProfessionalPduActivity($activityId: ID!) {
   }
 }
 
+fragment ProfessionalPduActivitySummaryFields on ProfessionalPduActivitySummary {
+  completedActivities
+  activitiesWithEvidence
+  evidenceFilesCount
+}
+
+query ProfessionalPduActivitySummary {
+  professionalPduActivitySummary {
+    ...ProfessionalPduActivitySummaryFields
+  }
+}
+
 query ProfessionalContentCompletion($contentType: ContentType!, $contentId: ID!) {
   professionalContentCompletion(contentType: $contentType, contentId: $contentId) {
     ...ProfessionalPduActivityFields

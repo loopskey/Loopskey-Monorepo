@@ -62,6 +62,16 @@ export class ProfessionalPduActivityEntity {
   evidenceFiles: ProfessionalPduActivityFileEntity[];
 }
 
+@ObjectType(ProfessionalGqlObjectNames.PROFESSIONAL_PDU_ACTIVITY_SUMMARY)
+export class ProfessionalPduActivitySummaryEntity {
+  // Completed and logged (not rejected, not deleted) activities for the user.
+  @Field(() => Int) completedActivities: number;
+  // Activities that have at least one uploaded evidence file.
+  @Field(() => Int) activitiesWithEvidence: number;
+  // Total number of evidence files uploaded across the user's activities.
+  @Field(() => Int) evidenceFilesCount: number;
+}
+
 @ObjectType(ProfessionalGqlObjectNames.PROFESSIONAL_PDU_REPORT)
 export class ProfessionalPduReportEntity {
   @Field(() => Int) year: number;

@@ -3,6 +3,7 @@
 import { TProfessionalDashboardTab } from "@/types/professional-dashboard.types";
 import { useSearchParams } from "next/navigation";
 
+import ProfessionalActivityDetailTab from "@modules/ProfessionalDashboard/ProfessionalActivityDetailTab";
 import ProfessionalExternalLearningTab from "@modules/ProfessionalDashboard/ProfessionalExternalLearningTab";
 import ProfessionalCpdPduProgressTab from "@modules/ProfessionalDashboard/ProfessionalCpdPduProgressTab";
 import ProfessionalCpdPduTrackerTab from "@modules/ProfessionalDashboard/ProfessionalCpdPduTrackerTab";
@@ -31,6 +32,7 @@ const validTabs: TProfessionalDashboardTab[] = [
   "certificates",
   "cpd-pdu-tracker",
   "cpd-pdu-progress",
+  "activity-detail",
   "external-learning",
 ];
 
@@ -54,6 +56,7 @@ export const ProfessionalDashboardShell = () => {
     return <ProfessionalCpdPduTrackerTab />;
   if (activeTab === "cpd-pdu-progress")
     return <ProfessionalCpdPduProgressTab />;
+  if (activeTab === "activity-detail") return <ProfessionalActivityDetailTab />;
   if (activeTab === "add-activity") return <ProfessionalAddActivityTab />;
   if (activeTab === "wishlist") return <ProfessionalWishlistTab />;
   if (activeTab === "settings") return <ProfessionalSettingsTab />;

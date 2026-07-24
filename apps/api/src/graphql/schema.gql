@@ -2283,6 +2283,12 @@ input ProfessionalPduActivityFilterInput {
   search: String
 }
 
+type ProfessionalPduActivitySummary {
+  activitiesWithEvidence: Int!
+  completedActivities: Int!
+  evidenceFilesCount: Int!
+}
+
 type ProfessionalPduCategorySummary {
   category: PDUCategory!
   pdus: Float!
@@ -2710,6 +2716,7 @@ type Query {
   professionalPayments(filter: ProfessionalSearchInput, pagination: ProfessionalPaginationInput): PaginatedProfessionalPayments!
   professionalPduActivities(filter: ProfessionalPduActivityFilterInput, pagination: ProfessionalPaginationInput): PaginatedProfessionalPduActivities!
   professionalPduActivity(activityId: ID!): ProfessionalPduActivity!
+  professionalPduActivitySummary: ProfessionalPduActivitySummary!
   professionalPduReport(year: Int): ProfessionalPduReport!
   professionalProfileTaxonomy(kind: ProfileTaxonomyKind): [ProfessionalTaxonomyGroup!]!
   professionalSettings: ProfessionalSettings!

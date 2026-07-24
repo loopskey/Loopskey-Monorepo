@@ -56,6 +56,13 @@ export class ProfessionalPduResolver {
     );
   }
 
+  @Query(() => EN.ProfessionalPduActivitySummaryEntity, {
+    name: ProfessionalGqlQueryNames.PROFESSIONAL_PDU_ACTIVITY_SUMMARY,
+  })
+  professionalPduActivitySummary(@CurrentUser() user: TResolverUser) {
+    return this.professionalPduService.pduActivitySummary(this.getUser(user));
+  }
+
   @Query(() => EN.ProfessionalPduActivityEntity, {
     name: ProfessionalGqlQueryNames.PROFESSIONAL_PDU_ACTIVITY,
   })

@@ -186,6 +186,16 @@ export const professionalApi = baseApi.injectEndpoints({
       providesTags: ["ProfessionalPdu", "Professional"],
     }),
 
+    professionalPduActivitySummary: builder.query<
+      TAPI.ProfessionalPduActivitySummaryQuery["professionalPduActivitySummary"],
+      void
+    >({
+      query: () => ({ document: API.ProfessionalPduActivitySummaryDocument }),
+      transformResponse: (response: TAPI.ProfessionalPduActivitySummaryQuery) =>
+        response.professionalPduActivitySummary,
+      providesTags: ["ProfessionalPdu", "Professional"],
+    }),
+
     professionalPduActivity: builder.query<
       TAPI.ProfessionalPduActivityQuery["professionalPduActivity"],
       TAPI.ProfessionalPduActivityQueryVariables
@@ -457,6 +467,7 @@ export const {
   useLazyProfessionalPduReportQuery,
   useProfessionalPduActivitiesQuery,
   useProfessionalPduActivityQuery,
+  useProfessionalPduActivitySummaryQuery,
   useLazyProfessionalPduActivityQuery,
   useProfessionalContentCompletionQuery,
   useUpdateProfessionalPduActivityMutation,

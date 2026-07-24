@@ -24,6 +24,7 @@ export type TProfessionalDashboardTab =
   | "certificates"
   | "cpd-pdu-tracker"
   | "cpd-pdu-progress"
+  | "activity-detail"
   | "external-learning";
 
 export type TStatsCard = {
@@ -107,14 +108,28 @@ export type TPduActivity = TPduActivitiesData["items"][number];
 
 export type TPduEvidenceFile = TPduActivity["evidenceFiles"][number];
 
+export type TPduActivityType = "ALL" | API.PduSource;
+
+/**
+ * Activities have no relation to the `Certificate` model yet, so the certificate
+ * filter is expressed as evidence presence and kept as a small union that a real
+ * certificate association can replace without touching the toolbar.
+ */
+export type TPduActivityCertificateFilter = "ALL" | "WITH" | "WITHOUT";
+
 export type TPduActivityFilters = {
   search: string;
+  year: number;
+  activityType: TPduActivityType;
+  certificate: TPduActivityCertificateFilter;
 };
 
 export type TPduActivitiesTableProps = {
   isDeleting: boolean;
   t: I18nContextValue["t"];
   activities: TPduActivity[];
+  deletingActivityId: string | null;
+  onView: (activityId: string) => void;
   onEdit: (activityId: string) => void;
   onDelete: (activityId: string) => void;
   onDownload: (file: TPduEvidenceFile) => void;
@@ -122,9 +137,12 @@ export type TPduActivitiesTableProps = {
 
 export type TPduActivityFiltersProps = {
   isFiltered: boolean;
+  isLoading: boolean;
   onReset: () => void;
+  yearOptions: number[];
   t: I18nContextValue["t"];
   filters: TPduActivityFilters;
+  activityTypeOptions: API.PduSource[];
   onChange: <K extends keyof TPduActivityFilters>(
     key: K,
     value: TPduActivityFilters[K],

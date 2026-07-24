@@ -1,5 +1,6 @@
 "use client";
 
+import { Tooltip, TooltipContent, TooltipTrigger } from "@ui/tooltip";
 import { TPduActivitiesTableProps } from "@/types/professional-dashboard.types";
 import { PduCompletionStatus } from "@/lib/graphql/generated";
 import { I18nContextValue } from "@/types/providers.types";
@@ -62,63 +63,105 @@ const CertificateCell = ({
   );
 };
 
+const IconAction = ({
+  icon: Icon,
+  label,
+  onClick,
+  disabled,
+  variant = "glass",
+}: {
+  icon: typeof L.Eye;
+  label: string;
+  disabled?: boolean;
+  onClick?: () => void;
+  variant?: "glass" | "cancel";
+}) => (
+  <Tooltip>
+    <TooltipTrigger asChild>
+      <Button
+        radius="full"
+        size="iconSm"
+        type="button"
+        variant={variant}
+        onClick={onClick}
+        aria-label={label}
+        disabled={disabled}
+        className="focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2"
+      >
+        <Icon className="h-4 w-4" aria-hidden />
+      </Button>
+    </TooltipTrigger>
+    <TooltipContent>{label}</TooltipContent>
+  </Tooltip>
+);
+
 const RowActions = ({
   activity,
+  onView,
   onEdit,
   onDelete,
   isDeleting,
+  deletingActivityId,
   t,
 }: {
   activity: TPduActivity;
   isDeleting: boolean;
+  deletingActivityId: string | null;
   t: I18nContextValue["t"];
+  onView: TPduActivitiesTableProps["onView"];
   onEdit: TPduActivitiesTableProps["onEdit"];
   onDelete: TPduActivitiesTableProps["onDelete"];
-}) => (
-  <div className="flex items-center gap-2">
-    <Button
-      size="sm"
-      radius="xl"
-      type="button"
-      variant="glass"
-      onClick={() => onEdit(activity.id)}
-      aria-label={t("common.edit")}
-    >
-      <L.Pencil className="h-3.5 w-3.5" />
-      {t("common.edit")}
-    </Button>
+}) => {
+  const isDeletingRow = deletingActivityId === activity.id;
 
-    <ConfirmDialog
-      isLoading={isDeleting}
-      confirmVariant="destructive"
-      cancelText={t("common.cancel")}
-      confirmText={t("common.delete")}
-      onConfirm={() => onDelete(activity.id)}
-      title={t(`${TRACKER}.activities.deleteTitle`)}
-      description={t(`${TRACKER}.activities.deleteDescription`)}
-      trigger={
-        <Button
-          size="sm"
-          radius="xl"
-          type="button"
-          variant="cancel"
-          aria-label={t("common.delete")}
-        >
-          <L.Trash2 className="h-3.5 w-3.5" />
-          {t("common.delete")}
-        </Button>
-      }
-    />
-  </div>
-);
+  return (
+    <div className="flex items-center gap-2">
+      <IconAction
+        icon={L.Eye}
+        disabled={isDeleting}
+        onClick={() => onView(activity.id)}
+        label={t(`${TRACKER}.actions.view`)}
+      />
+
+      <IconAction
+        icon={L.Pencil}
+        disabled={isDeleting}
+        onClick={() => onEdit(activity.id)}
+        label={t(`${TRACKER}.actions.edit`)}
+      />
+
+      <ConfirmDialog
+        isLoading={isDeletingRow}
+        confirmVariant="destructive"
+        cancelText={t("common.cancel")}
+        confirmText={t("common.delete")}
+        onConfirm={() => onDelete(activity.id)}
+        title={t(`${TRACKER}.activities.deleteTitle`)}
+        description={t(`${TRACKER}.activities.deleteDescription`)}
+        trigger={
+          <span>
+            <IconAction
+              variant="cancel"
+              icon={L.Trash2}
+              disabled={isDeleting}
+              label={t(`${TRACKER}.actions.delete`)}
+            />
+          </span>
+        }
+      />
+    </div>
+  );
+};
 
 export const ActivitiesTable = ({
   t,
+  onView,
   onEdit,
   onDelete,
   isDeleting,
   activities,
   onDownload,
+  deletingActivityId,
 }: TPduActivitiesTableProps) => {
   const columns = [
     "title",
@@ -203,10 +246,12 @@ export const ActivitiesTable = ({
                 <td className="whitespace-nowrap px-4 py-4">
                   <RowActions
                     t={t}
+                    onView={onView}
                     onEdit={onEdit}
                     onDelete={onDelete}
                     activity={activity}
                     isDeleting={isDeleting}
+                    deletingActivityId={deletingActivityId}
                   />
                 </td>
               </tr>
@@ -270,10 +315,12 @@ export const ActivitiesTable = ({
               />
               <RowActions
                 t={t}
+                onView={onView}
                 onEdit={onEdit}
                 onDelete={onDelete}
                 activity={activity}
                 isDeleting={isDeleting}
+                deletingActivityId={deletingActivityId}
               />
             </div>
           </div>
