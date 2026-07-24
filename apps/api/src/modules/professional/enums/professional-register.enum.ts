@@ -3,6 +3,8 @@ import { registerEnumType } from "@nestjs/graphql";
 
 import * as Prisma from "@prisma/client";
 
+import "@professional/enums/certificate.enum";
+
 registerEnumType(ProfileSectionKey, { name: "ProfileSectionKey" });
 registerEnumType(Prisma.SkillLevel, { name: "SkillLevel" });
 registerEnumType(Prisma.LearningFormat, { name: "LearningFormat" });

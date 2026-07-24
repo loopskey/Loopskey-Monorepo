@@ -1,4 +1,6 @@
+import { ProfessionalCertificateFileController } from "@professional/controllers/professional-certificate-file.controller";
 import { ProfessionalProfileCompletionService } from "@professional/services/professional-profile-completion.service";
+import { ProfessionalCertificateFileService } from "@professional/services/professional-certificate-file.service";
 import { ProfessionalCertificatesResolver } from "@professional/resolvers/professional-certificate.resolver";
 import { ProfessionalCertificatesService } from "@professional/services/professional-certificate.service";
 import { ProfessionalCredentialService } from "@professional/services/professional-credential.service";
@@ -31,17 +33,21 @@ import { Module } from "@nestjs/common";
 import "@professional/enums/professional-register.enum";
 @Module({
   imports: [PrismaModule],
-  controllers: [ProfessionalPduFileController, ProfessionalAvatarController],
+  controllers: [
+    ProfessionalPduFileController,
+    ProfessionalAvatarController,
+    ProfessionalCertificateFileController,
+  ],
   providers: [
     ProfessionalPduService,
-    ProfessionalAvatarService,
-    ProfessionalCredentialService,
-    ProfessionalProfileCompletionService,
-    ProfessionalPduFileService,
     ProfessionalPduResolver,
+    ProfessionalAvatarService,
+    ProfessionalPduFileService,
     ProfessionalRoadmapService,
     ProfessionalCoursesService,
     ProfessionalProfileService,
+    CertificationSearchService,
+    ProfessionalCpdPlanService,
     ProfessionalCoursesResolver,
     ProfessionalCalendarService,
     ProfessionalOverviewService,
@@ -49,15 +55,16 @@ import "@professional/enums/professional-register.enum";
     ProfessionalProfileResolver,
     ProfessionalRoadmapResolver,
     ProfessionalSettingsService,
+    ProfessionalCpdPlanResolver,
     ProfessionalOverviewResolver,
     ProfessionalCalendarResolver,
     ProfessionalSettingsResolver,
     ProfessionalPaymentsResolver,
+    ProfessionalCredentialService,
     ProfessionalCertificatesService,
     ProfessionalCertificatesResolver,
-    CertificationSearchService,
-    ProfessionalCpdPlanService,
-    ProfessionalCpdPlanResolver,
+    ProfessionalCertificateFileService,
+    ProfessionalProfileCompletionService,
   ],
   exports: [
     ProfessionalPduService,
@@ -65,8 +72,6 @@ import "@professional/enums/professional-register.enum";
     ProfessionalCpdPlanService,
     ProfessionalPduFileService,
     ProfessionalAvatarService,
-    ProfessionalCredentialService,
-    ProfessionalProfileCompletionService,
     ProfessionalProfileService,
     ProfessionalCoursesService,
     ProfessionalRoadmapService,
@@ -74,7 +79,9 @@ import "@professional/enums/professional-register.enum";
     ProfessionalCalendarService,
     ProfessionalOverviewService,
     ProfessionalPaymentsService,
+    ProfessionalCredentialService,
     ProfessionalCertificatesService,
+    ProfessionalProfileCompletionService,
   ],
 })
 export class ProfessionalModule {}

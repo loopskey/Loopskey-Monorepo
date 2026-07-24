@@ -394,10 +394,24 @@ export enum CartStatus {
   CheckedOut = 'CHECKED_OUT'
 }
 
+export enum CertificateSort {
+  ExpirySoonest = 'EXPIRY_SOONEST',
+  Name = 'NAME',
+  Oldest = 'OLDEST',
+  Recent = 'RECENT'
+}
+
 export enum CertificateStatus {
   Active = 'ACTIVE',
   Expired = 'EXPIRED',
+  ExpiringSoon = 'EXPIRING_SOON',
   Revoked = 'REVOKED'
+}
+
+export enum CertificateStatusFilter {
+  Active = 'ACTIVE',
+  Expired = 'EXPIRED',
+  ExpiringSoon = 'EXPIRING_SOON'
 }
 
 export type Certification = {
@@ -689,6 +703,15 @@ export type CreateCalendarEventInput = {
   startDate: Scalars['String']['input'];
   title: Scalars['String']['input'];
   type: CalendarEventType;
+};
+
+export type CreateCertificateInput = {
+  certificateNumber?: InputMaybe<Scalars['String']['input']>;
+  cpdPlanId?: InputMaybe<Scalars['String']['input']>;
+  issueDate: Scalars['String']['input'];
+  issuer: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+  validUntil: Scalars['String']['input'];
 };
 
 export type CreateCourseInput = {
@@ -1232,6 +1255,7 @@ export type Mutation = {
   createOrganizationDepartment: OrganizationDepartment;
   createPodcast: Podcast;
   createPodcastEpisode: PodcastEpisode;
+  createProfessionalCertificate: ProfessionalCertificate;
   createProfessionalCredential: ProfessionalCredential;
   createProfessionalPduActivity: ProfessionalPduActivity;
   createUser: User;
@@ -1247,6 +1271,7 @@ export type Mutation = {
   deleteOrganizationDepartment: OrganizationDepartment;
   deletePodcast: Podcast;
   deletePodcastEpisode: PodcastEpisode;
+  deleteProfessionalCertificate: ProfessionalActionResponse;
   deleteProfessionalCredential: ProfessionalActionResponse;
   deleteProfessionalPduActivity: ProfessionalActionResponse;
   deleteUser: User;
@@ -1278,6 +1303,7 @@ export type Mutation = {
   restorePodcast: Podcast;
   restoreUser: User;
   restoreYouTubeChannel: YouTubeChannel;
+  setProfessionalCertificateCpdPlan: ProfessionalCertificate;
   submitContentReview: ContentReview;
   submitOrganizationAccessRequest: OrganizationAccessRequest;
   submitPromotionRequest: PromotionRequest;
@@ -1301,6 +1327,7 @@ export type Mutation = {
   updatePodcast: Podcast;
   updatePodcastEpisode: PodcastEpisode;
   updateProfessionalBasicProfile: ProfessionalDashboardProfile;
+  updateProfessionalCertificate: ProfessionalCertificate;
   updateProfessionalCredential: ProfessionalCredential;
   updateProfessionalDetails: ProfessionalDashboardProfile;
   updateProfessionalPduActivity: ProfessionalPduActivity;
@@ -1438,6 +1465,11 @@ export type MutationCreatePodcastEpisodeArgs = {
 };
 
 
+export type MutationCreateProfessionalCertificateArgs = {
+  input: CreateCertificateInput;
+};
+
+
 export type MutationCreateProfessionalCredentialArgs = {
   input: CreateProfessionalCredentialInput;
 };
@@ -1510,6 +1542,11 @@ export type MutationDeletePodcastArgs = {
 
 export type MutationDeletePodcastEpisodeArgs = {
   episodeId: Scalars['String']['input'];
+};
+
+
+export type MutationDeleteProfessionalCertificateArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -1653,6 +1690,11 @@ export type MutationRestoreYouTubeChannelArgs = {
 };
 
 
+export type MutationSetProfessionalCertificateCpdPlanArgs = {
+  input: SetCertificateCpdPlanInput;
+};
+
+
 export type MutationSubmitContentReviewArgs = {
   input: SubmitContentReviewInput;
 };
@@ -1765,6 +1807,11 @@ export type MutationUpdatePodcastEpisodeArgs = {
 
 export type MutationUpdateProfessionalBasicProfileArgs = {
   input: UpdateProfessionalBasicProfileInput;
+};
+
+
+export type MutationUpdateProfessionalCertificateArgs = {
+  input: UpdateCertificateInput;
 };
 
 
@@ -2681,10 +2728,14 @@ export type ProfessionalCalendarEventsFilterInput = {
 
 export type ProfessionalCertificate = {
   __typename?: 'ProfessionalCertificate';
+  certificateNumber?: Maybe<Scalars['String']['output']>;
   certificateUrl?: Maybe<Scalars['String']['output']>;
   contentId?: Maybe<Scalars['String']['output']>;
   contentType?: Maybe<ContentType>;
+  cpdPlanId?: Maybe<Scalars['ID']['output']>;
+  cpdPlanName?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
+  evidenceFiles: Array<ProfessionalCertificateFile>;
   id: Scalars['ID']['output'];
   issuedAt: Scalars['DateTime']['output'];
   issuer?: Maybe<Scalars['String']['output']>;
@@ -2695,6 +2746,32 @@ export type ProfessionalCertificate = {
   userId: Scalars['ID']['output'];
   validUntil?: Maybe<Scalars['DateTime']['output']>;
   verificationCode: Scalars['String']['output'];
+};
+
+export type ProfessionalCertificateFile = {
+  __typename?: 'ProfessionalCertificateFile';
+  createdAt: Scalars['DateTime']['output'];
+  fileName: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  mimeType: Scalars['String']['output'];
+  sizeBytes: Scalars['Int']['output'];
+};
+
+export type ProfessionalCertificateOption = {
+  __typename?: 'ProfessionalCertificateOption';
+  id: Scalars['ID']['output'];
+  issuer?: Maybe<Scalars['String']['output']>;
+  status: CertificateStatus;
+  title: Scalars['String']['output'];
+  validUntil?: Maybe<Scalars['DateTime']['output']>;
+};
+
+export type ProfessionalCertificateSummary = {
+  __typename?: 'ProfessionalCertificateSummary';
+  active: Scalars['Int']['output'];
+  expired: Scalars['Int']['output'];
+  expiringSoon: Scalars['Int']['output'];
+  total: Scalars['Int']['output'];
 };
 
 export type ProfessionalCourse = {
@@ -3373,6 +3450,9 @@ export type Query = {
   popularCategories: Array<PopularCategory>;
   professionalActiveSessions: Array<ProfessionalSession>;
   professionalCalendarEvents: PaginatedProfessionalCalendarEvents;
+  professionalCertificate: ProfessionalCertificate;
+  professionalCertificateOptions: Array<ProfessionalCertificateOption>;
+  professionalCertificateSummary: ProfessionalCertificateSummary;
   professionalCertificates: PaginatedProfessionalCertificates;
   professionalContentCompletion?: Maybe<ProfessionalPduActivity>;
   professionalCpdPlans: Array<ProfessionalCpdPlan>;
@@ -3674,9 +3754,16 @@ export type QueryProfessionalCalendarEventsArgs = {
 };
 
 
+export type QueryProfessionalCertificateArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryProfessionalCertificatesArgs = {
   filter?: InputMaybe<ProfessionalSearchInput>;
   pagination?: InputMaybe<ProfessionalPaginationInput>;
+  sort?: InputMaybe<CertificateSort>;
+  status?: InputMaybe<CertificateStatusFilter>;
 };
 
 
@@ -3858,6 +3945,11 @@ export enum SessionStatus {
   Revoked = 'REVOKED'
 }
 
+export type SetCertificateCpdPlanInput = {
+  certificateId: Scalars['ID']['input'];
+  cpdPlanId?: InputMaybe<Scalars['ID']['input']>;
+};
+
 export enum SkillLevel {
   Advanced = 'ADVANCED',
   Beginner = 'BEGINNER',
@@ -3931,6 +4023,15 @@ export type UpdateAdminProfile = {
 export type UpdateAdminUserStatus = {
   status: UserStatus;
   userId: Scalars['String']['input'];
+};
+
+export type UpdateCertificateInput = {
+  certificateNumber?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+  issueDate: Scalars['String']['input'];
+  issuer: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+  validUntil: Scalars['String']['input'];
 };
 
 export type UpdateCourseInput = {

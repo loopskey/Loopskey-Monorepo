@@ -1,16 +1,71 @@
-# Current Feature
+# Current Feature: Certificate Backend Foundation (Modify UI Phase 6)
 
 ## Status
 
-<!-- Not Started | In Progress | Completed -->
+In Progress
 
 ## Goals
 
-<!-- Bullet points of what success looks like -->
+- Implement/complete the backend foundation for the Professional Certificates
+  feature. Do NOT build the full Certificates dashboard UI this phase.
+- Reuse the existing `Certificate` model (currently seed-only/read-only) and the
+  PDU-evidence upload stack rather than inventing new equivalents.
+- Certificate data model supporting: owner (authenticated Professional), name,
+  issuer, optional certification ID, issue date, expiry/renewal date, optional
+  linked CPD/PDU plan, evidence-file metadata, status, created/updated dates.
+- Backend-validated fields. Required: name, issuer, issue date, expiry/renewal
+  date, evidence file. Optional: certification ID, linked CPD plan.
+- Reusable backend status calculation (ACTIVE / EXPIRING_SOON / EXPIRED) with a
+  90-day "expiring soon" window, consistent timezone/date boundary, computed
+  outside UI. Prefer a deterministic approach that can't become stale.
+- CPD/PDU plan linking: verify plan ownership, reject other users' plans, allow
+  unlink on edit, don't delete the plan when a certificate is deleted, define
+  correct FK behavior.
+- Evidence upload via the existing secure upload service: validate type/size/
+  empty/metadata/ownership; store storage key, original filename, MIME type,
+  size, uploaded timestamp; never store binaries in the DB or expose storage URLs.
+- Secure, authenticated evidence download (streaming / short-lived signed URL /
+  existing pattern) verifying auth + certificate ownership + file belongs to the
+  certificate + availability. No permanent public URLs.
+- APIs (existing naming conventions): create, list (own), get details, update,
+  delete (only if product rules require), download evidence, summary counts,
+  filter, list certificates eligible for activity filtering, link/unlink CPD plan.
+  Support pagination, sorting, search, status filtering.
+- Search over name / issuer / certification ID reusing the current search pattern.
+- Ownership/authorization from the authenticated session only; never trust
+  frontend-provided user IDs. No cross-user view/edit/download/link/delete.
+- Safe migration(s) + indexes (user ID, expiry date, status if persisted, linked
+  CPD plan, name, issuer) following project conventions.
+- Tests: create, validation, optional fields, date validation, expiry-before-
+  issue rejection, all three statuses + 90-day boundary, CPD plan ownership, file
+  validation, secure download, unauthorized access, list filters, search, update,
+  evidence replacement, file cleanup, migration validation. Plus backend/
+  integration/authorization tests, migration validation, tsc/build, lint.
 
 ## Notes
 
-<!-- Additional context, constraints, or details from spec -->
+- Source spec: `context/features/modify-ui-ph6-spec.md`. This is Phase 6 of the
+  multi-phase Professional Dashboard "Modify UI" effort (Phases 1–5 completed;
+  see History). Phase 1 audit is the key input.
+- Phase 1 audit findings on Certificates (the headline gap): the `Certificate`
+  model exists but is **seed-only and read-only** — no create/edit/delete
+  anywhere (`certificate.create` returns nothing repo-wide); the resolver exposes
+  only a query. Upload, edit, detail, filtering, real status calculation, expiry
+  reminders, and CPD-plan linking are all net-new.
+- Reuse precedent: the PDU-evidence upload stack — REST controller + multer +
+  local-disk `storageKey` + ownership-scoped streaming download + blob cleanup;
+  pdf/jpg/png/doc/docx, 20 MB, max 5 files. Mirror this for certificate evidence.
+- Risks flagged in Phase 1: certificate↔plan/activity relation does not exist
+  today (the spec §4 CPD-plan link and the future "Link All Active" action need
+  it); status is currently stored, not derived — spec §3 prefers a
+  non-stale/deterministic approach; no expiry scheduler exists; local-disk
+  (non-signed-URL) storage is the established pattern.
+- Backend-only phase. STOP after the Certificate backend foundation; the full
+  Certificates dashboard UI is a later phase. The completion report must cover
+  the 10 items in the spec, ending with "Work remaining for the frontend".
+- Merge target is `main` (per corrected `ai-interaction.md`); use a `feature/`
+  branch. Known tooling debt unchanged: root `npm run lint` fails on the removed
+  Next 16 `next lint` (lint per-file); API workspace has no ESLint 9 flat config.
 
 ## History
 
