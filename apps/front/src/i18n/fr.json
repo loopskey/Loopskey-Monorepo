@@ -2369,24 +2369,26 @@
       "eyebrow": "Mes activités d’apprentissage",
       "title": "Mes activités d’apprentissage",
       "subtitle": "Suivez et gérez votre développement professionnel continu.",
-      "exportCsv": "Exporter CSV",
-      "reportYear": "Année du rapport",
-      "cards": {
-        "totalPdus": "Total des PDU obtenus",
-        "target": "Objectif",
-        "progressToGoal": "Progression vers l’objectif",
-        "averagePerMonth": "Moyenne / mois",
-        "thisYear": "Cette année",
-        "goalProgress": "Progression de l’objectif",
-        "activities": "activités",
-        "noTarget": "Aucun objectif défini pour cette année",
-        "exceededBy": "Objectif dépassé de {{amount}} PDU"
-      },
       "quickActions": {
-        "title": "Actions rapides",
-        "subtitle": "Ajustez les objectifs annuels et enregistrez de nouvelles activités d’apprentissage.",
-        "adjustTargets": "Ajuster les objectifs annuels",
         "addActivity": "Ajouter une activité d’apprentissage"
+      },
+      "summary": {
+        "completedTitle": "Activités terminées et enregistrées",
+        "completedHelper": "Activités terminées enregistrées dans LoopsKey (activités rejetées exclues).",
+        "evidenceTitle": "Activités avec preuve",
+        "evidenceHelper": "{{files}} fichier(s) de preuve téléversé(s) au total."
+      },
+      "actions": {
+        "view": "Voir les détails de l’activité",
+        "edit": "Modifier l’activité",
+        "delete": "Supprimer l’activité"
+      },
+      "detail": {
+        "title": "Détails de l’activité",
+        "comingSoonTitle": "Les détails de l’activité arrivent bientôt",
+        "comingSoonDescription": "Cette page affichera l’enregistrement complet de l’activité d’apprentissage sélectionnée.",
+        "reference": "Référence de l’activité : {{id}}",
+        "back": "Retour à Mes activités d’apprentissage"
       },
       "byCategory": {
         "title": "PDU par catégorie",

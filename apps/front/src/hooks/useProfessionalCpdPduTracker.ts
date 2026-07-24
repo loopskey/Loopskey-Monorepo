@@ -1,90 +1,80 @@
 "use client";
 
 import { PDU_CATEGORIES, getPduMonthLabel } from "@/utils/pdu.constant";
-import { ChangeEvent, useMemo, useState } from "react";
 import { usePduEvidenceUpload } from "@/hooks/usePduEvidenceUpload";
 import { useDebouncedValue } from "@/hooks/useDebounced";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PAGE_SIZE } from "@/utils/constant";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
 
 import * as API from "@/lib/rtk/endpoints/professional.api";
+import * as H from "@/utils/learning-activities.helper";
 import * as T from "@/types/professional-dashboard.types";
 
-const EMPTY_FILTERS: T.TPduActivityFilters = {
-  search: "",
-};
+const SEARCH_DEBOUNCE_MS = 350;
 
 export const useProfessionalCpdPduTracker = () => {
   const { t } = useI18n();
   const router = useRouter();
   const currentYear = new Date().getFullYear();
-  const [year, setYear] = useState<number>(currentYear);
+
   const [page, setPage] = useState<number>(1);
   const [cursorStack, setCursorStack] = useState<string[]>([]);
-  const [filters, setFilters] = useState<T.TPduActivityFilters>(EMPTY_FILTERS);
-  const [isTargetDialogOpen, setIsTargetDialogOpen] = useState<boolean>(false);
+  const [filters, setFilters] = useState<T.TPduActivityFilters>(() =>
+    H.createActivityFilters(currentYear),
+  );
+  const [deletingActivityId, setDeletingActivityId] = useState<string | null>(
+    null,
+  );
 
   const currentCursor = cursorStack.at(-1);
-  const debouncedSearch = useDebouncedValue(filters.search, 350);
+  const debouncedSearch = useDebouncedValue(filters.search, SEARCH_DEBOUNCE_MS);
 
   const isFiltered = useMemo(
-    () => debouncedSearch.trim().length > 0,
-    [debouncedSearch],
+    () =>
+      H.hasActiveActivityFilters(
+        { ...filters, search: debouncedSearch },
+        currentYear,
+      ),
+    [filters, debouncedSearch, currentYear],
   );
 
   const {
     data: report,
-    isLoading,
-    isFetching,
-    refetch,
-  } = API.useProfessionalPduReportQuery({ year });
+    isLoading: isReportLoading,
+    isFetching: isReportFetching,
+    refetch: refetchReport,
+  } = API.useProfessionalPduReportQuery({ year: filters.year });
 
   const activityFilter = useMemo(
-    () => ({
-      search: debouncedSearch.trim() || undefined,
-    }),
-    [debouncedSearch],
+    () => H.buildActivityFilterInput({ filters, search: debouncedSearch }),
+    [filters, debouncedSearch],
   );
 
   const {
     data: activitiesData,
     isLoading: isActivitiesLoading,
     isFetching: isActivitiesFetching,
+    refetch: refetchActivities,
   } = API.useProfessionalPduActivitiesQuery({
     filter: activityFilter,
-    pagination: {
-      take: PAGE_SIZE,
-      cursor: currentCursor,
-    },
+    pagination: { take: PAGE_SIZE, cursor: currentCursor },
   });
 
-  const [upsertTarget, { isLoading: isSavingTarget }] =
-    API.useUpsertProfessionalPduTargetMutation();
+  const {
+    data: summary,
+    isLoading: isSummaryLoading,
+    isError: isSummaryError,
+    refetch: refetchSummary,
+  } = API.useProfessionalPduActivitySummaryQuery();
 
-  const [deleteActivity, { isLoading: isDeletingActivity }] =
-    API.useDeleteProfessionalPduActivityMutation();
-
+  const [deleteActivity] = API.useDeleteProfessionalPduActivityMutation();
   const { downloadEvidence } = usePduEvidenceUpload();
 
   const activities = activitiesData?.items ?? [];
   const pageInfo = activitiesData?.pageInfo;
-
-  const totalTarget = useMemo<number>(() => {
-    return (report?.targets ?? []).reduce((sum, target) => {
-      return sum + Number(target.target ?? 0);
-    }, 0);
-  }, [report?.targets]);
-
-  const totalPdus = Number(report?.totalPdus ?? 0);
-
-  // The API reports true, uncapped progress so an overshoot stays visible.
-  const progressToGoal = Number(report?.progressToGoal ?? 0);
-  const hasTarget = totalTarget > 0;
-
-  const exceededBy =
-    hasTarget && totalPdus > totalTarget ? totalPdus - totalTarget : 0;
 
   const categoryRows = useMemo<T.PduCategoryRow[]>(() => {
     return PDU_CATEGORIES.map((category) => {
@@ -96,8 +86,6 @@ export const useProfessionalCpdPduTracker = () => {
         report?.targets?.find((item) => item.category === category)?.target ??
           0,
       );
-      // A zero or unset target has no meaningful percentage, so report 0 rather
-      // than dividing by zero.
       const progress = target > 0 ? (earned / target) * 100 : 0;
 
       return {
@@ -123,19 +111,14 @@ export const useProfessionalCpdPduTracker = () => {
     [pduOverTime],
   );
 
+  const yearOptions = useMemo(
+    () => H.buildActivityYearOptions(currentYear),
+    [currentYear],
+  );
+
   const resetPagination = () => {
     setPage(1);
     setCursorStack([]);
-  };
-
-  const handleYearChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    if (!value) {
-      setYear(currentYear);
-      return;
-    }
-    const nextYear = Number(value);
-    if (Number.isFinite(nextYear)) setYear(nextYear);
   };
 
   const handleFilterChange = <K extends keyof T.TPduActivityFilters>(
@@ -147,7 +130,7 @@ export const useProfessionalCpdPduTracker = () => {
   };
 
   const handleResetFilters = () => {
-    setFilters(EMPTY_FILTERS);
+    setFilters(H.createActivityFilters(currentYear));
     resetPagination();
   };
 
@@ -162,6 +145,12 @@ export const useProfessionalCpdPduTracker = () => {
     setPage((previousPage) => Math.max(1, previousPage - 1));
   };
 
+  const handleRefresh = () => {
+    void refetchReport();
+    void refetchActivities();
+    void refetchSummary();
+  };
+
   const handleAddActivity = () => {
     router.push("/dashboard/professional?tab=add-activity");
   };
@@ -170,7 +159,14 @@ export const useProfessionalCpdPduTracker = () => {
     router.push(`/dashboard/professional?tab=add-activity&id=${activityId}`);
   };
 
+  // Only the activity id travels in the URL; the backend re-checks ownership.
+  const handleViewActivity = (activityId: string) => {
+    router.push(`/dashboard/professional?tab=activity-detail&id=${activityId}`);
+  };
+
   const handleDeleteActivity = async (activityId: string) => {
+    if (deletingActivityId) return;
+    setDeletingActivityId(activityId);
     try {
       await deleteActivity({ activityId }).unwrap();
       notify.success(
@@ -178,6 +174,8 @@ export const useProfessionalCpdPduTracker = () => {
       );
     } catch {
       notify.error(t("authPages.common.genericError"));
+    } finally {
+      setDeletingActivityId(null);
     }
   };
 
@@ -191,117 +189,38 @@ export const useProfessionalCpdPduTracker = () => {
     }
   };
 
-  // Keeps the dialog open on failure so the entered values are not lost.
-  const handleTargetSubmit = async (input: T.UpsertTargetInput) => {
-    try {
-      await upsertTarget(input).unwrap();
-      notify.success(
-        t("professionalDashboard.cpdPduTracker.targetsDialog.success"),
-      );
-      setIsTargetDialogOpen(false);
-    } catch {
-      notify.error(t("authPages.common.genericError"));
-    }
-  };
-
-  const exportCsv = () => {
-    const rows: T.CsvCell[][] = [
-      ["Year", year],
-      ["Total PDUs", totalPdus],
-      ["Total Target", totalTarget],
-      ["Progress To Goal", `${progressToGoal.toFixed(2)}%`],
-      ["Exceeded By", exceededBy > 0 ? exceededBy.toFixed(2) : ""],
-      ["Activities", report?.activities ?? 0],
-      ["Average / Month", Number(report?.averagePerMonth ?? 0).toFixed(2)],
-      [],
-      ["Category", "Earned", "Target", "Progress"],
-      ...categoryRows.map((item) => [
-        item.category,
-        item.earned,
-        item.target,
-        `${item.progress.toFixed(2)}%`,
-      ]),
-      [],
-      [
-        "Activity",
-        "Type",
-        "Date Completed",
-        "Credit Type",
-        "Credit Value",
-        "Category",
-        "Reporting Year",
-        "Provider",
-        "Status",
-        "Certificate",
-      ],
-      ...activities.map((item) => [
-        item.title,
-        item.source,
-        new Date(item.date).toLocaleDateString(),
-        item.creditType,
-        item.pdus,
-        item.category,
-        item.reportingYear ?? "",
-        item.providerOrganizer ?? "",
-        item.completionStatus,
-        item.evidenceFiles.length ? "Attached" : "No file",
-      ]),
-    ];
-    const csv = rows
-      .map((row) =>
-        row
-          .map((cell) => `"${String(cell ?? "").replaceAll('"', '""')}"`)
-          .join(","),
-      )
-      .join("\n");
-    const blob = new Blob([csv], {
-      type: "text/csv;charset=utf-8;",
-    });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = `cpd-pdu-tracker-${year}.csv`;
-    anchor.click();
-    URL.revokeObjectURL(url);
-  };
-
   return {
     t,
-    year,
     page,
     report,
     filters,
-    refetch,
+    summary,
     pageInfo,
-    isLoading,
-    exportCsv,
     isFiltered,
     activities,
-    isFetching,
     handleNext,
-    hasTarget,
-    totalPdus,
-    exceededBy,
-    totalTarget,
+    yearOptions,
     pduOverTime,
     hasChartData,
     categoryRows,
-    progressToGoal,
+    handleRefresh,
     activitiesData,
     handlePrevious,
-    isSavingTarget,
-    handleYearChange,
+    isSummaryError,
+    isReportLoading,
+    isSummaryLoading,
     handleAddActivity,
-    handleTargetSubmit,
-    handleResetFilters,
+    handleViewActivity,
     handleFilterChange,
-    isTargetDialogOpen,
+    handleResetFilters,
     handleEditActivity,
-    isDeletingActivity,
+    deletingActivityId,
     isActivitiesLoading,
     handleDeleteActivity,
     isActivitiesFetching,
-    setIsTargetDialogOpen,
     handleDownloadEvidence,
+    activityTypeOptions: H.ACTIVITY_TYPE_OPTIONS,
+    isRefreshing: isReportFetching || isActivitiesFetching,
+    isDeletingActivity: Boolean(deletingActivityId),
   };
 };

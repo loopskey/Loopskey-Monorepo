@@ -2368,24 +2368,26 @@
       "eyebrow": "My Learning Activities",
       "title": "My Learning Activities",
       "subtitle": "Track and manage your continuing professional development.",
-      "exportCsv": "Export CSV",
-      "reportYear": "Report year",
-      "cards": {
-        "totalPdus": "Total PDUs Earned",
-        "target": "Target",
-        "progressToGoal": "Progress to Goal",
-        "averagePerMonth": "Average / Month",
-        "thisYear": "This year",
-        "goalProgress": "Goal progress",
-        "activities": "activities",
-        "noTarget": "No target set for this year",
-        "exceededBy": "Target exceeded by {{amount}} PDUs"
-      },
       "quickActions": {
-        "title": "Quick Actions",
-        "subtitle": "Adjust yearly targets and record new learning activities.",
-        "adjustTargets": "Adjust yearly targets",
         "addActivity": "Add Learning Activity"
+      },
+      "summary": {
+        "completedTitle": "Activities Completed & Logged",
+        "completedHelper": "Completed activities recorded in LoopsKey (rejected activities excluded).",
+        "evidenceTitle": "Activities With Evidence",
+        "evidenceHelper": "{{files}} evidence file(s) uploaded in total."
+      },
+      "actions": {
+        "view": "View activity details",
+        "edit": "Edit activity",
+        "delete": "Delete activity"
+      },
+      "detail": {
+        "title": "Activity Details",
+        "comingSoonTitle": "Activity details are coming soon",
+        "comingSoonDescription": "This page will show the full record for the selected learning activity.",
+        "reference": "Activity reference: {{id}}",
+        "back": "Back to My Learning Activities"
       },
       "byCategory": {
         "title": "PDUs by Category",

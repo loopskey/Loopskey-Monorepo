@@ -9,7 +9,7 @@ import { UpsertPduTargetInput } from "@professional/dtos/upsert-pdu-target.input
 import { Injectable, Logger } from "@nestjs/common";
 import { getPduUploadDir } from "@professional/enums/pdu-file.constant";
 import { PrismaService } from "@prisma/prisma.service";
-import { PDUStatus } from "@prisma/client";
+import { PDUCompletionStatus, PDUStatus } from "@prisma/client";
 import { unlink } from "fs/promises";
 import { TUser } from "@common/types/user.types";
 import { join } from "path";
@@ -237,6 +237,34 @@ export class ProfessionalPduService {
   async pduActivity(user: TUser, activityId: string) {
     this.assertProfessional(user);
     return this.findOwnedActivity(user, activityId);
+  }
+
+  // Summary counts for the "My Learning Activities" header cards. All counts are
+  // scoped to the authenticated user and exclude rejected activities. A completed
+  // activity requires completionStatus COMPLETED; evidence counts are over the
+  // same eligible activities and never double-count a file.
+  async pduActivitySummary(user: TUser) {
+    this.assertProfessional(user);
+    const eligible: Prisma.PDUActivityWhereInput = {
+      userId: user.id,
+      status: COUNTED_STATUS,
+    };
+    const [completedActivities, activitiesWithEvidence, evidenceFilesCount] =
+      await Promise.all([
+        this.prismaService.pDUActivity.count({
+          where: {
+            ...eligible,
+            completionStatus: PDUCompletionStatus.COMPLETED,
+          },
+        }),
+        this.prismaService.pDUActivity.count({
+          where: { ...eligible, evidenceFiles: { some: {} } },
+        }),
+        this.prismaService.pDUActivityFile.count({
+          where: { activity: { userId: user.id, status: COUNTED_STATUS } },
+        }),
+      ]);
+    return { completedActivities, activitiesWithEvidence, evidenceFilesCount };
   }
 
   async contentCompletion(
