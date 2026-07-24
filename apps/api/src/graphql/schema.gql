@@ -362,10 +362,24 @@ enum CartStatus {
   CHECKED_OUT
 }
 
+enum CertificateSort {
+  EXPIRY_SOONEST
+  NAME
+  OLDEST
+  RECENT
+}
+
 enum CertificateStatus {
   ACTIVE
   EXPIRED
+  EXPIRING_SOON
   REVOKED
+}
+
+enum CertificateStatusFilter {
+  ACTIVE
+  EXPIRED
+  EXPIRING_SOON
 }
 
 type Certification {
@@ -644,6 +658,15 @@ input CreateCalendarEventInput {
   startDate: String!
   title: String!
   type: CalendarEventType!
+}
+
+input CreateCertificateInput {
+  certificateNumber: String
+  cpdPlanId: String
+  issueDate: String!
+  issuer: String!
+  title: String!
+  validUntil: String!
 }
 
 input CreateCourseInput {
@@ -1187,6 +1210,7 @@ type Mutation {
   createOrganizationDepartment(input: CreateOrganizationDepartmentInput!): OrganizationDepartment!
   createPodcast(input: CreatePodcastInput!): Podcast!
   createPodcastEpisode(input: CreatePodcastEpisodeInput!): PodcastEpisode!
+  createProfessionalCertificate(input: CreateCertificateInput!): ProfessionalCertificate!
   createProfessionalCredential(input: CreateProfessionalCredentialInput!): ProfessionalCredential!
   createProfessionalPduActivity(input: CreatePduActivityInput!): ProfessionalPduActivity!
   createUser(input: CreateUserInput!): User!
@@ -1202,6 +1226,7 @@ type Mutation {
   deleteOrganizationDepartment(departmentId: String!): OrganizationDepartment!
   deletePodcast(podcastId: String!): Podcast!
   deletePodcastEpisode(episodeId: String!): PodcastEpisode!
+  deleteProfessionalCertificate(id: ID!): ProfessionalActionResponse!
   deleteProfessionalCredential(credentialId: ID!): ProfessionalActionResponse!
   deleteProfessionalPduActivity(activityId: ID!): ProfessionalActionResponse!
   deleteUser(userId: String!): User!
@@ -1233,6 +1258,7 @@ type Mutation {
   restorePodcast(podcastId: String!): Podcast!
   restoreUser(userId: String!): User!
   restoreYouTubeChannel(channelId: String!): YouTubeChannel!
+  setProfessionalCertificateCpdPlan(input: SetCertificateCpdPlanInput!): ProfessionalCertificate!
   submitContentReview(input: SubmitContentReviewInput!): ContentReview!
   submitOrganizationAccessRequest(input: SubmitOrganizationAccessRequestInput!): OrganizationAccessRequest!
   submitPromotionRequest(input: SubmitPromotionRequestInput!): PromotionRequest!
@@ -1256,6 +1282,7 @@ type Mutation {
   updatePodcast(input: UpdatePodcastInput!): Podcast!
   updatePodcastEpisode(input: UpdatePodcastEpisodeInput!): PodcastEpisode!
   updateProfessionalBasicProfile(input: UpdateProfessionalBasicProfileInput!): ProfessionalDashboardProfile!
+  updateProfessionalCertificate(input: UpdateCertificateInput!): ProfessionalCertificate!
   updateProfessionalCredential(input: UpdateProfessionalCredentialInput!): ProfessionalCredential!
   updateProfessionalDetails(input: UpdateProfessionalDetailsInput!): ProfessionalDashboardProfile!
   updateProfessionalPduActivity(input: UpdatePduActivityInput!): ProfessionalPduActivity!
@@ -2054,10 +2081,14 @@ input ProfessionalCalendarEventsFilterInput {
 }
 
 type ProfessionalCertificate {
+  certificateNumber: String
   certificateUrl: String
   contentId: String
   contentType: ContentType
+  cpdPlanId: ID
+  cpdPlanName: String
   createdAt: DateTime!
+  evidenceFiles: [ProfessionalCertificateFile!]!
   id: ID!
   issuedAt: DateTime!
   issuer: String
@@ -2068,6 +2099,29 @@ type ProfessionalCertificate {
   userId: ID!
   validUntil: DateTime
   verificationCode: String!
+}
+
+type ProfessionalCertificateFile {
+  createdAt: DateTime!
+  fileName: String!
+  id: ID!
+  mimeType: String!
+  sizeBytes: Int!
+}
+
+type ProfessionalCertificateOption {
+  id: ID!
+  issuer: String
+  status: CertificateStatus!
+  title: String!
+  validUntil: DateTime
+}
+
+type ProfessionalCertificateSummary {
+  active: Int!
+  expired: Int!
+  expiringSoon: Int!
+  total: Int!
 }
 
 type ProfessionalCourse {
@@ -2705,7 +2759,10 @@ type Query {
   popularCategories(input: PopularCategoriesInput): [PopularCategory!]!
   professionalActiveSessions: [ProfessionalSession!]!
   professionalCalendarEvents(filter: ProfessionalCalendarEventsFilterInput, pagination: ProfessionalPaginationInput): PaginatedProfessionalCalendarEvents!
-  professionalCertificates(filter: ProfessionalSearchInput, pagination: ProfessionalPaginationInput): PaginatedProfessionalCertificates!
+  professionalCertificate(id: ID!): ProfessionalCertificate!
+  professionalCertificateOptions: [ProfessionalCertificateOption!]!
+  professionalCertificateSummary: ProfessionalCertificateSummary!
+  professionalCertificates(filter: ProfessionalSearchInput, pagination: ProfessionalPaginationInput, sort: CertificateSort, status: CertificateStatusFilter): PaginatedProfessionalCertificates!
   professionalContentCompletion(contentId: ID!, contentType: ContentType!): ProfessionalPduActivity
   professionalCpdPlans: [ProfessionalCpdPlan!]!
   professionalDashboardProfile: ProfessionalDashboardProfile!
@@ -2793,6 +2850,11 @@ enum SessionStatus {
   REVOKED
 }
 
+input SetCertificateCpdPlanInput {
+  certificateId: ID!
+  cpdPlanId: ID
+}
+
 enum SkillLevel {
   ADVANCED
   BEGINNER
@@ -2866,6 +2928,15 @@ input UpdateAdminProfile {
 input UpdateAdminUserStatus {
   status: UserStatus!
   userId: String!
+}
+
+input UpdateCertificateInput {
+  certificateNumber: String
+  id: ID!
+  issueDate: String!
+  issuer: String!
+  title: String!
+  validUntil: String!
 }
 
 input UpdateCourseInput {

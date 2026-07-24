@@ -109,6 +109,7 @@ model User {
   pduActivityFiles       PDUActivityFile[]
   pduTargets             PDUTarget[]
   certificates           Certificate[]
+  certificateFiles       CertificateFile[]
   professionalCredential ProfessionalCredential[]
   payments               Payment[]
   roadmapEnrollments     RoadmapEnrollment[]
@@ -1513,7 +1514,8 @@ model CPDPlan {
 
   status CPDPlanStatus @default(ACTIVE)
 
-  categories CPDPlanCategory[]
+  categories   CPDPlanCategory[]
+  certificates Certificate[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1541,6 +1543,7 @@ model CPDPlanCategory {
 // ================= Certificates ====================
 enum CertificateStatus {
   ACTIVE
+  EXPIRING_SOON
   EXPIRED
   REVOKED
 }
@@ -1553,11 +1556,19 @@ model Certificate {
 
   title            String
   issuer           String?
+  // Optional free-text identifier printed on the certificate (licence / registration
+  // number). Distinct from the platform-generated `verificationCode`.
+  certificateNumber String?
   certificateUrl   String?
   verificationCode String  @unique
 
   contentType ContentType?
   contentId   String?
+
+  // Optional link to one of the owner's CPD/PDU plans. SetNull so deleting the
+  // plan only clears the link; deleting the certificate never touches the plan.
+  cpdPlanId String?
+  cpdPlan   CPDPlan? @relation(fields: [cpdPlanId], references: [id], onDelete: SetNull)
 
   pduEarned Float @default(0)
 
@@ -1565,13 +1576,39 @@ model Certificate {
   validUntil DateTime?
   status     CertificateStatus @default(ACTIVE)
 
+  evidenceFiles CertificateFile[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([status])
   @@index([issuedAt])
+  // Status filtering and the summary counts always narrow by owner first and
+  // then range over the expiry date, so the composite serves them directly.
+  @@index([userId, validUntil])
+  @@index([cpdPlanId])
   @@index([contentType, contentId])
+}
+
+model CertificateFile {
+  id String @id @default(cuid())
+
+  certificateId String
+  certificate   Certificate @relation(fields: [certificateId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  fileName   String
+  storageKey String
+  mimeType   String
+  sizeBytes  Int
+
+  createdAt DateTime @default(now())
+
+  @@index([certificateId])
+  @@index([userId])
 }
 
 // =================== Payments =================
