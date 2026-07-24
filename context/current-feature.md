@@ -1,8 +1,6 @@
-# Current Feature: Professional Dashboard End-to-End Review (Modify UI Phase 8)
+# Current Feature
 
 ## Status
-
-In Progress
 
 <!-- Not Started | In Progress | Completed -->
 
@@ -10,88 +8,9 @@ In Progress
 
 <!-- Bullet points of what success looks like -->
 
-- **Review, not rebuild.** Verify every Professional dashboard change from
-  Phases 2–7 end to end. No new features, no redesign of working pages. Fix only
-  defects that trace directly to those phases.
-- **§1 Sidebar** — My Courses and External Learning gone, desktop and mobile
-  match, other roles unaffected, no broken links or empty sections.
-- **§2 Overview** — old cards gone; CPD/PDU progress, roadmap progress, sorted
-  upcoming calendar, recommendations, recent activities and certificates all
-  correct; chart tooltips work; every link lands on the right tab; each card's
-  loading/error state is independent.
-- **§3 Wishlist** — price / only-rated / only-available-links / category filters
-  gone; legacy URL params can't break the page; remaining search, filters,
-  sorting and pagination work.
-- **§4 My Learning Activities** — Export CSV, top Year selector, old summary
-  cards and Quick Actions gone; Refresh and Add work; the two new summary cards
-  are correct; search + Year/Type/Certificate filters work; action icons are
-  accessible; View/Edit/Delete work; charts sit below the table; detail
-  Cancel/Edit work and **filters survive the return trip**.
-- **§5 Certificates** — create, edit, secure upload, secure download, status
-  calculation, all three summary figures, table filtering, search, pagination,
-  row selection, detail card, CPD-plan linking, Overview integration, and the
-  Learning Activity certificate-filter integration.
-- **§6 Date boundaries** — exercise expiry at −1, 0, +1, +7, +89, +90 and +91
-  days in **one stated timezone**, and document the exact boundary.
-- **§7 Security** — no cross-user access to activities, certificates or evidence
-  downloads; no linking another user's CPD plan; client-supplied user IDs never
-  trusted; no private storage URL exposed; backend file validation enforced;
-  deleted/replaced files handled per project policy.
-- **§8 Accessibility** — icon-only buttons labelled, tooltips keyboard-reachable,
-  charts have text equivalents, status never colour-only, forms have labels and
-  errors, logical focus order, detail cards usable on mobile, dialogs manage
-  focus.
-- **§9 Performance** — no duplicate requests, Overview cards don't refetch the
-  same data, searches debounced, pagination server-side, invalidation targeted,
-  evidence streamed rather than buffered, table rendering responsive.
-- **§10 Commands** — run the full gate and report results in four explicit
-  buckets: passed, failed **because of this work**, pre-existing failures, and
-  could not be executed. Never claim a test passed unless it actually ran.
-- **§11 Final report** — all sixteen numbered sections.
-
 ## Notes
 
 <!-- Additional context, constraints, or details from spec -->
-
-- Spec: `context/features/modify-ui-ph8-spec.md`. This is the closing review of
-  the seven-phase Professional dashboard effort; History below is the record of
-  what each phase claimed, and this phase's job is to check those claims against
-  the code and a live system.
-- **Verification bias: exercise, don't infer.** Prior phases repeatedly closed
-  with "not done: live authenticated browser QA". Phase 7 broke that pattern at
-  the API layer. This phase should verify against the running API, the Neon
-  database and the browser, and say plainly which checks were inspection-only.
-- **Known open item inherited from Phase 7**: the certificate create flow was
-  never submitted end to end *through the browser form*. That is squarely §5
-  scope here and should be closed.
-- **Boundary rule to confirm** (Phase 6): status is derived on read, never
-  persisted — `EXPIRED` before today, `EXPIRING_SOON` today..today+90 inclusive,
-  `ACTIVE` beyond that or no expiry; a stored `REVOKED` wins. Computed on **UTC**
-  day boundaries, so §6 should state UTC and prove the 90/91 edge.
-- Claims worth re-testing rather than trusting, each flagged by its own phase:
-  - Phase 4's year mismatch — the table filters on `reportingYear` while the
-    charts use the report's date window.
-  - Phase 7's decision not to invalidate the Learning Activities certificate
-    filter (it reads PDU evidence presence, not `Certificate` rows). §5 asks for
-    "Learning Activity Certificate filter integration" — confirm the reasoning
-    still holds rather than re-deriving it.
-  - Phase 7's two-transport create: a failed evidence upload leaves a saved
-    certificate, reported honestly rather than as success.
-- Orphaned code earlier phases left in place rather than deleting without
-  approval — worth listing, not necessarily removing:
-  `hooks/useProfessionalOverviewTab.ts`, possibly `DashboardStatCard` /
-  `SnapshotRow`, `useNeatGradient.ts` + `neat-gradient.constant.ts` +
-  `@firecms/neat`, `GalaxyBackground`, `Auth/OAuthBridgeClient.tsx`, and the dead
-  wishlist helpers in `function-helper.ts`.
-- Pre-existing tooling debt to report, not fix: root `npm run lint` fails on the
-  removed Next 16 `next lint` (lint per file with `npx eslint`); the API
-  workspace has no ESLint 9 flat config; `test:e2e` points at an `apps/api/test`
-  directory that has never existed. §10 explicitly wants these in the
-  "pre-existing" and "could not execute" buckets.
-- Baseline to measure against: API Jest 143/143 (17 suites), frontend Vitest
-  112/112, both typechecks and production builds green, Prisma 12 migrations
-  applied with no drift.
-- **STOP after the review and report** — no unrelated features, no redesigns.
 
 ## History
 
@@ -1069,3 +988,181 @@ shows all five required-field errors plus both cross-field rules.
   performed. Worth exercising once by hand. Root `npm run lint` still fails on
   the removed Next 16 `next lint`, so lint was per-file, and the API workspace
   still has no ESLint 9 flat config.
+
+### 2026-07-24 — Professional Dashboard end-to-end review (Modify UI Phase 8) completed
+
+- Implemented `context/features/modify-ui-ph8-spec.md` on
+  `chore/professional-dashboard-e2e-review`, merged to `main`. Closing review of
+  the seven-phase effort. Two defects found and fixed, both introduced by
+  Phase 7; everything else verified and left alone.
+
+**1. Sidebar changes.** Verified, no change needed. `courses` and
+`external-learning` are absent from `professionalDashboardTabs`, which leaves ten
+entries. Desktop `DashboardSidebar` and mobile `DashboardBottomNav` both render
+from the single `getDashboardTabsByRole` source and now share one
+`isDashboardTabActive` helper, so they cannot drift. Provider, Organization and
+Admin lists are untouched (8/7/5 entries). Both removed tabs remain in the shell's
+`validTabs` and still resolve by URL, so no link anywhere is broken and no empty
+section is left behind. `dashboard-nav.config.test.ts` already pins the removal
+and the other-roles guarantee.
+
+**2. Overview changes.** Verified, no change needed. Seven card components under
+`parts/overview-*`, each owning a distinct RTK query — certificates, CPD plans +
+plan progress, roadmaps, calendar events + entries, courses, PDU activities — so
+no card refetches another's data. Charts carry `role="img"` with a translated
+`aria-label`, a Recharts `<Tooltip>`, a visible `centerLabel`, and a text summary
+line plus a `dl`/`dd` breakdown beneath, so nothing is conveyed by the graphic
+alone. Each card classifies its own loading/empty/error state, so one failing
+query cannot blank the page.
+
+**3. Wishlist changes.** Verified, no change needed. The filter state is exactly
+`{ search, contentType, sortBy }` — price, only-rated, only-available-links and
+category are gone from the state, the helper and the request. The tab never reads
+`useSearchParams`, so legacy `?price=` / `?category=` links are inert rather than
+broken. The remaining `price` and `category` references in the tab are item-card
+*display* (a category badge and a price label), which is content, not filtering.
+
+**4. My Learning Activities changes.** Verified, no change needed. Export CSV,
+`exportCsv`, the top-level Year control, `handleYearChange`, the old PDU metric
+cards and the Quick Actions card are all absent. Exactly two `MetricCard` usages
+remain, and they are the new completed-activities and evidence summary cards.
+Page order is title/actions → summary cards → toolbar + table → PDUs by Category
+→ PDUs Over Time. Row actions are real buttons with `aria-label`, tooltip,
+`focus-visible` ring and `aria-hidden` icons. Filter preservation on the return
+trip from details is covered by the Phase 5 helper tests.
+
+**5. Activity Details implementation.** Verified, no change needed. Reached at
+`?tab=activity-detail&id=`, backed by the existing ownership-scoped
+`professionalPduActivity` query, with Cancel restoring filters and the cursor page
+through the URL round trip and Edit reusing the add/edit form.
+
+**6. Certificate data model.** Unchanged this phase and confirmed sound:
+`Certificate` extended additively with `certificateNumber` and `cpdPlanId`, plus a
+`CertificateFile` model mirroring `PDUActivityFile`. `prisma validate` passes,
+`migrate status` reports 12 applied and up to date, and `migrate diff` reports no
+difference — zero drift.
+
+**7. Certificate status rules — the exact boundary, in UTC.** Status is derived on
+read and never persisted. Proven twice, by unit test and live against the
+configured Neon database, at all seven offsets the specification lists:
+
+| Offset from today (UTC) | Status |
+| --- | --- |
+| −1 day | `EXPIRED` |
+| 0 (today) | `EXPIRING_SOON` |
+| +1 day | `EXPIRING_SOON` |
+| +7 days | `EXPIRING_SOON` |
+| +89 days | `EXPIRING_SOON` |
+| **+90 days** | **`EXPIRING_SOON`** (last day in the window) |
+| **+91 days** | **`ACTIVE`** (first day outside it) |
+
+So: `EXPIRED` below today, `EXPIRING_SOON` from today through today+90
+**inclusive**, `ACTIVE` from today+91 or when there is no expiry; a stored
+`REVOKED` still wins. Live, the status filter partitioned all twelve certificates
+into exactly one bucket each (1 expired + 5 expiring + 6 active = 12), and
+`nearestExpiry` returned the day-0 certificate.
+Added the missing +1/+7/+89 cases and, more importantly, a property test that was
+absent: the displayed status normalises `validUntil` to a UTC day while
+`certificateStatusWhere` compares the raw timestamp against day-aligned bounds.
+That equivalence is the whole "badge and database can never disagree" guarantee
+and nothing asserted it. It now holds for every offset at midnight, 00:01, midday
+and 23:59:59.999.
+
+**8. Certificate upload and storage.** Verified live. Uploads go to the
+`professional/certificates` REST routes; storage names are server-generated
+`<uuid><ext>` under the configurable upload directory, and only metadata reaches
+the database. Rejected as expected: a `.txt`/`text/plain` file and an `.exe`
+payload claiming `application/pdf` (both `CERTIFICATE_FILE_INVALID_TYPE`), an
+empty file (`CERTIFICATE_FILE_EMPTY`), and a 21 MB file (413). A filename of
+`../../../../evil.pdf` was stored as the basename `evil.pdf` in metadata only;
+the on-disk name was a UUID and a filesystem search confirmed nothing was written
+outside the upload directory.
+
+**9. Secure download behavior.** Verified live: owner 200 with
+`application/pdf`, a different Professional 404, anonymous 401, cross-user delete
+404 and cross-user upload into someone else's certificate 404. The file streams
+through `StreamableFile(createReadStream(...))` rather than being read into
+memory. `storageKey` is absent from the `ProfessionalCertificateFile` GraphQL
+type, so no private storage location is exposed.
+
+**10. CPD plan linking.** Verified live with a plan created for a second
+professional: linking it to the first user's certificate was refused with
+`CERTIFICATE_CPD_PLAN_NOT_FOUND`, and so was creating a certificate that named it
+— ownership is checked on both paths, not just one.
+
+**11. Authorization protections.** Cross-user access refused on every surface
+tested: certificate read, delete, upload, download, and activity read. No
+Professional GraphQL input accepts a `userId` — the only three inputs that do are
+Admin-only, which is correct. Every professional resolver and controller takes
+identity from `@CurrentUser()`.
+
+**12. Accessibility improvements.** One real defect found and fixed: the
+certificate form's "Evidence file" `<label for>` pointed at
+`_r_v_-form-item`, an id no element carried. shadcn's `FormLabel` emits
+`htmlFor={formItemId}` and relies on a `FormControl` to place that id on a
+control, but the uploader is a composite (a button plus a file list) with no
+single control, so the association dangled. Replaced with
+`role="group"` + `aria-labelledby` pointing at a heading, which is the correct
+pattern for a composite. Verified in the browser: zero dangling labels remain and
+the group name resolves. Everything else held — icon-only buttons in both tables
+carry `aria-label`, a keyboard-reachable shadcn tooltip, a visible focus ring and
+`aria-hidden` icons; `ConfirmDialog` is a Radix `AlertDialog`, which manages
+focus; charts have text equivalents; certificate status is icon + text, never
+colour alone.
+
+**13. Tests executed and results.** API Jest **157/157, 17 suites** (up from 143;
+14 new boundary and equivalence cases). Frontend Vitest **112/112, 11 files**.
+Also executed successfully: `tsc --noEmit` for both apps, `nest build`,
+`next build`, ESLint on the changed frontend files, `prisma validate`,
+`prisma migrate status`, a zero-drift `prisma migrate diff`, and
+`git diff --check`. Live exercises against the running API and Neon database are
+listed in sections 7–11; every probe record (7 boundary certificates, a CPD plan,
+and the uploaded evidence) was deleted afterwards and the summary, issuer list and
+upload directory were confirmed back to their starting state.
+
+**14. Pre-existing failures.** All three were run and confirmed, none caused by
+this work and none fixed here:
+- `npm run lint` at the root fails because the frontend script calls `next lint`,
+  removed in Next 16. Linting was done per file with `npx eslint`.
+- `npx eslint src` in `apps/api` exits 2 — the workspace still has no ESLint 9
+  flat config.
+- `npm run test:e2e --workspace api` fails because it points at
+  `./test/jest-e2e.json` and `apps/api/test` has never existed.
+Could not be executed: `check-types` — Turbo declares the task but no workspace
+defines the script.
+
+**15. Required environment or storage configuration.** `DATABASE_URL` must be
+present for any Prisma command (they fail with P1012 without it; the repository's
+`apps/api/.env` supplies it). Certificate evidence is stored on local disk at
+`CERTIFICATE_UPLOAD_DIR`, defaulting to `<cwd>/uploads/certificate`, with PDU
+evidence in its own directory — both need to be writable and, in any real
+deployment, persistent and backed up, since the database stores only metadata.
+`NEXT_PUBLIC_GRAPHQL_URL` drives both the frontend GraphQL client and the derived
+REST origin used for evidence upload and download, so the two must stay on the
+same host.
+
+**16. Remaining assumptions and limitations.**
+- **Not done: the certificate create flow was never submitted end to end through
+  the browser form.** The run was stopped twice and the browser session expired
+  partway through. The same path is proven at the API layer (create → upload →
+  download → delete) and the form's validation was verified live, but the final
+  submit click through the UI remains unexercised. This is the one item carried
+  over from Phase 7 and it is still open.
+- Evidence is served from local disk rather than signed object-storage URLs. That
+  is the established project pattern, but it ties the API to a stateful volume.
+- Certificate creation is GraphQL while evidence upload is multipart REST, so a
+  failed upload leaves a saved certificate. The UI reports that honestly instead
+  of showing a false success, but the two cannot be made atomic without changing
+  the transport.
+- Phase 4's known year mismatch stands by design: the activities table filters on
+  the activity's `reportingYear` while the charts use the report's date window.
+- Cosmetic, left alone as out of scope: the "Add Learning Activity" button still
+  reads from the `quickActions.*` i18n namespace after that card was removed, and
+  Recharts logs `width(-1) height(-1)` warnings for charts rendered into
+  zero-size containers on Overview.
+- Orphaned code earlier phases deliberately left rather than deleting without
+  approval, still present and still unused: `hooks/useProfessionalOverviewTab.ts`,
+  the `DashboardStatCard` / `SnapshotRow` parts, `useNeatGradient.ts` +
+  `neat-gradient.constant.ts` + the `@firecms/neat` dependency,
+  `GalaxyBackground`, `Auth/OAuthBridgeClient.tsx`, and the dead wishlist helpers
+  in `function-helper.ts`. Worth a dedicated cleanup pass.
