@@ -1,16 +1,138 @@
-# Current Feature
+# Current Feature: Monorepo Capability Audit
+
+Spec: `context/features/monorepo-capability-spec.md`
 
 ## Status
 
-<!-- Not Started | In Progress | Completed -->
+In Progress — branch `chore/monorepo-shared-packages-audit`.
+Audit complete **and all 16 roadmap features implemented**; awaiting permission
+to commit. Nothing has been committed.
+
+**Implementation summary (2026-07-27).** 15 of 16 features built; MONO-15 closed
+without code by its own defined criteria. Gates: lint, check-types, tests and
+builds all green across 4 workspaces. Tests **157 → 188** (20 suites), frontend
+112 unchanged.
+
+Three audit claims were proved wrong by implementing them, and are corrected in
+the audit's header rather than quietly patched:
+
+1. **MONO-01's "no build step" was wrong.** NestJS resolves modules with
+   `node10`, which ignores `exports`, and `nest build` emits `require()` calls
+   that would point at `.ts` files. The package compiles to `dist/`.
+2. **D-9's "backend validation gap" does not exist.** The expiry-before-issue
+   rule is enforced in `professional-certificate.service.ts:53`. The audit
+   inspected only the DTO.
+3. **`packages/utils` was not justified.** No candidate utility (`slugify`,
+   `trimToNull`, `humanizeEnumValue`, `formatFileSize`) has a consumer in both
+   apps — the duplication is intra-`apps/api`. Fixed app-locally instead.
+
+A self-review pass then found **6 further defects in my own work**, all fixed:
+`trimToNull` still duplicated; 9 speculative unused package exports; three
+`"refresh_token"`/`"access_token"` literals left unwired; redundant `.gitignore`
+lines; `PLATFORM_ROLES` duplicating the Prisma enum with nothing asserting they
+match; and `boundaries.mjs` exporting rules **nothing consumed** — the package
+boundary was never actually enforced until `packages/api-contracts` got its own
+lint config. Both boundary invariants are now proven by negative test.
+
+Deliverables:
+
+- `context/monorepo-audit.md` — the report (17 findings D-1…D-17, 16 scored
+  opportunities MONO-01…MONO-16, 20-category coverage table, 3-phase roadmap).
+- 16 follow-up specs in `context/features/`, one per opportunity.
+
+Headline results, all verified rather than inferred:
+
+- The workspace glob is `apps/*`; **no `packages/` can exist**, which blocks
+  every code-sharing item. This is MONO-01, the recommended first feature.
+- GraphQL codegen already shares 1,011 types and 75 enums, so the expected
+  type duplication mostly **does not exist**. Zero cross-app imports, no Prisma
+  in the frontend, no React in the backend.
+- Real duplication sits where the schema does not reach: 169 backend error codes
+  with 25 re-typed as frontend literals; upload rules written 4×; `slugify` 6×.
+- **Two live defects found.** `ACTIVATION_TOKEN`-style cookie config
+  (`ACCESS_TOKEN_COOKIE_NAME` honoured on write, ignored on read — setting it
+  breaks all auth), and Jest resolving only 10 of 26 API path aliases, leaving
+  130 files across 10 of 17 modules untestable. The second was **proven** with a
+  throwaway spec that was deleted immediately after.
+- **Two long-standing "known failures" are stale and now pass**: root
+  `npm run lint` and `npm run check-types` were both fixed in `8f66b6e`, and
+  `apps/api` does have an ESLint 9 flat config.
+- Baseline: lint, check-types, both builds green; 269 tests pass (API 157/17
+  suites, front 112/11 files). Cold build 3m42s, warm 37s. Still broken:
+  root `npm test` (no script) and `test:e2e` (points at a directory that has
+  never existed).
+
+Audit-only constraint held: exactly one non-destructive change was made and
+reverted (the alias probe). `apps/front/.turbo/turbo-lint.log` was dirtied by the
+baseline lint run and restored — which itself surfaced finding D-17.
 
 ## Goals
 
-<!-- Bullet points of what success looks like -->
+- Identify the current monorepo tool, workspace configuration, and task pipeline.
+- Map every application, service, internal package, and shared library, and state
+  each area's responsibility.
+- Review dependencies between `apps/front`, `apps/api`, and any internal packages.
+- Find duplicated types, interfaces, validation schemas, constants, enums,
+  utilities, UI components, configuration, and test setup — each with exact file
+  paths and concrete evidence, never vague claims.
+- Evaluate type sharing between frontend and backend, restricted to stable API
+  contracts rather than Prisma entities or private backend models.
+- Review the current API contract structure and recommend one approach (shared
+  contracts package, Zod contracts, OpenAPI SDK, tRPC, ts-rest, manual DTO
+  sharing) with reasoning specific to this repository.
+- Review shared validation-schema opportunities while keeping backend validation
+  authoritative.
+- Review shared TypeScript, ESLint, Prettier, Tailwind, and testing configuration.
+- Review build caching, task pipelines, parallelism, and affected-only task
+  execution.
+- Identify dependency-boundary problems, circular dependencies, and cross-app
+  imports; propose a target dependency direction.
+- Score every opportunity for impact, effort, risk (1–5) and assign a priority.
+- Produce `context/monorepo-audit.md` in the exact structure the spec defines,
+  including a three-phase roadmap, a recommended first feature, and a selectable
+  list of follow-up features.
+- Convert each recommendation into an independent follow-up feature with a
+  `context/features/<name>.md` file path, a `/feature load <name>` command, and a
+  decision question.
 
 ## Notes
 
-<!-- Additional context, constraints, or details from spec -->
+**Audit only — no large refactor.** Only a very small, non-destructive change is
+permitted, and only when strictly necessary to validate or demonstrate a finding.
+Only the audit report (and any generated follow-up feature specs) should be
+committed. Do not implement the proposed follow-up features during this audit.
+
+Explicitly out of scope (spec "Scope Control"): moving types into shared
+packages, restructuring folders, changing framework/package manager, migrating
+between Turborepo and Nx, building a design system, generating an API SDK,
+refactoring the backend, changing the database schema, changing auth behavior or
+business logic, deleting packages, installing tools without justification.
+
+Opportunity IDs use the `MONO-01`, `MONO-02`, … format. Every opportunity needs:
+title, current state, evidence with file paths, problem, recommendation, proposed
+package/structure, affected applications, benefits, risks, prerequisites,
+complexity, priority, and a suggested independent feature.
+
+Twenty categories must each be evaluated, and any category judged not applicable
+must say why. Categories: shared types, API contracts, validation schemas,
+constants/enums, authorization definitions, shared utilities, UI component
+library, shared configuration, environment validation, API client, testing
+utilities, domain packages, database packages, build cache, task pipelines,
+affected commands, dependency boundaries, CI/CD optimization, code generation,
+documentation/DX.
+
+Validation baseline: run the existing project commands (`npm run lint`,
+`npm run build`, type checks, tests) and record each result. Known pre-existing
+failures to expect and report rather than fix — root `npm run lint` calls the
+removed Next 16 `next lint`; `apps/api` has no ESLint 9 flat config;
+`npm run test:e2e --workspace api` points at a directory that has never existed;
+Turbo declares `check-types` but no workspace defines the script. Do not add
+commands unless genuinely required.
+
+Guardrails to honor throughout: the backend stays authoritative for validation
+and authorization; database entities must not be exposed to the frontend; no
+oversized generic `shared`/`common` package; every proposed package needs a clear
+responsibility and dependency boundary.
 
 ## History
 
