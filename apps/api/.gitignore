@@ -35,12 +35,13 @@ lerna-debug.log*
 !.vscode/launch.json
 !.vscode/extensions.json
 
-# dotenv environment variable files
-.env
-.env.development.local
-.env.test.local
-.env.production.local
-.env.local
+# dotenv environment variable files.
+#
+# `.env*` covers every variant, including `.env.production` — which was tracked
+# before this rule existed. git ignores .gitignore for already-tracked files, so
+# that one also had to be removed from the index with `git rm --cached`.
+.env*
+!.env.example
 
 # temp directory
 .temp
