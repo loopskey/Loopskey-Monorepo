@@ -7,15 +7,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { siteLinks } from "@utils/constant";
 import { useForm } from "react-hook-form";
 import { useI18n } from "@hooks/useI18n";
+import { AuthMessageCode } from "@loopskey/api-contracts/error-codes";
 import { notify } from "@hooks/notify";
 
 import * as API from "@lib/rtk/endpoints/auth.api";
 import * as S from "@lib/validations/auth-form.schema";
 
 const TOKEN_ERROR_CODES = [
-  "ACTIVATION_TOKEN_USED",
-  "ACTIVATION_TOKEN_INVALID",
-  "ACTIVATION_TOKEN_EXPIRED",
+  AuthMessageCode.ACTIVATION_TOKEN_USED,
+  AuthMessageCode.ACTIVATION_TOKEN_INVALID,
+  AuthMessageCode.ACTIVATION_TOKEN_EXPIRED,
 ] as const;
 
 export const useOrganizationActivation = () => {

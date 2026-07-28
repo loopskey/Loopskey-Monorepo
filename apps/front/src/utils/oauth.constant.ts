@@ -1,3 +1,5 @@
+import { AuthMessageCode } from "@loopskey/api-contracts/error-codes";
+
 import { Role } from "@/lib/graphql/generated";
 
 export const GOOGLE_OAUTH_ALLOWED_ROLES = [
@@ -30,7 +32,9 @@ export const isLinkedInOAuthAllowedRole = (
   );
 };
 
-export type OAuthAllowedRole = GoogleOAuthAllowedRole | LinkedInOAuthAllowedRole;
+export type OAuthAllowedRole =
+  | GoogleOAuthAllowedRole
+  | LinkedInOAuthAllowedRole;
 
 /**
  * The OAuth bridge is provider-agnostic — it only sees the role the API sends
@@ -40,32 +44,42 @@ export const isOAuthAllowedRole = (role: unknown): role is OAuthAllowedRole => {
   return isGoogleOAuthAllowedRole(role) || isLinkedInOAuthAllowedRole(role);
 };
 
+/**
+ * The OAuth subset of the auth vocabulary the API throws.
+ *
+ * Values come from the shared contract rather than being retyped, so a rename
+ * on the backend is a compile error here instead of a silently unhandled
+ * redirect. The keys are kept so existing `OAUTH_ERROR_CODE.X` call sites and
+ * the translation-key map are untouched.
+ */
 export const OAUTH_ERROR_CODE = {
-  INVALID_ROLE: "INVALID_ROLE",
-  USER_DISABLED: "USER_DISABLED",
-  OAUTH_LOGIN_FAILED: "OAUTH_LOGIN_FAILED",
-  OAUTH_INVALID_STATE: "OAUTH_INVALID_STATE",
-  OAUTH_ACCESS_DENIED: "OAUTH_ACCESS_DENIED",
-  GOOGLE_EMAIL_NOT_FOUND: "GOOGLE_EMAIL_NOT_FOUND",
-  GOOGLE_EMAIL_NOT_VERIFIED: "GOOGLE_EMAIL_NOT_VERIFIED",
-  GOOGLE_OAUTH_ROLE_NOT_ALLOWED: "GOOGLE_OAUTH_ROLE_NOT_ALLOWED",
+  INVALID_ROLE: AuthMessageCode.INVALID_ROLE,
+  USER_DISABLED: AuthMessageCode.USER_DISABLED,
+  OAUTH_LOGIN_FAILED: AuthMessageCode.OAUTH_LOGIN_FAILED,
+  OAUTH_INVALID_STATE: AuthMessageCode.OAUTH_INVALID_STATE,
+  OAUTH_ACCESS_DENIED: AuthMessageCode.OAUTH_ACCESS_DENIED,
+  GOOGLE_EMAIL_NOT_FOUND: AuthMessageCode.GOOGLE_EMAIL_NOT_FOUND,
+  GOOGLE_EMAIL_NOT_VERIFIED: AuthMessageCode.GOOGLE_EMAIL_NOT_VERIFIED,
+  GOOGLE_OAUTH_ROLE_NOT_ALLOWED: AuthMessageCode.GOOGLE_OAUTH_ROLE_NOT_ALLOWED,
   GOOGLE_OAUTH_SIGNUP_NOT_ALLOWED_FOR_ROLE:
-    "GOOGLE_OAUTH_SIGNUP_NOT_ALLOWED_FOR_ROLE",
-  LINKEDIN_ACCOUNT_CONFLICT: "LINKEDIN_ACCOUNT_CONFLICT",
-  LINKEDIN_EMAIL_NOT_FOUND: "LINKEDIN_EMAIL_NOT_FOUND",
-  LINKEDIN_EMAIL_NOT_VERIFIED: "LINKEDIN_EMAIL_NOT_VERIFIED",
-  LINKEDIN_OAUTH_ROLE_NOT_ALLOWED: "LINKEDIN_OAUTH_ROLE_NOT_ALLOWED",
+    AuthMessageCode.GOOGLE_OAUTH_SIGNUP_NOT_ALLOWED_FOR_ROLE,
+  LINKEDIN_ACCOUNT_CONFLICT: AuthMessageCode.LINKEDIN_ACCOUNT_CONFLICT,
+  LINKEDIN_EMAIL_NOT_FOUND: AuthMessageCode.LINKEDIN_EMAIL_NOT_FOUND,
+  LINKEDIN_EMAIL_NOT_VERIFIED: AuthMessageCode.LINKEDIN_EMAIL_NOT_VERIFIED,
+  LINKEDIN_OAUTH_ROLE_NOT_ALLOWED:
+    AuthMessageCode.LINKEDIN_OAUTH_ROLE_NOT_ALLOWED,
   LINKEDIN_OAUTH_SIGNUP_NOT_ALLOWED_FOR_ROLE:
-    "LINKEDIN_OAUTH_SIGNUP_NOT_ALLOWED_FOR_ROLE",
+    AuthMessageCode.LINKEDIN_OAUTH_SIGNUP_NOT_ALLOWED_FOR_ROLE,
 } as const;
 
 export type OAuthErrorCode =
   (typeof OAUTH_ERROR_CODE)[keyof typeof OAUTH_ERROR_CODE];
 
-export const OAUTH_SUCCESS_REDIRECT_BY_ROLE: Record<OAuthAllowedRole, string> = {
-  [Role.Professional]: "/dashboard/professional",
-  [Role.Provider]: "/dashboard/provider",
-};
+export const OAUTH_SUCCESS_REDIRECT_BY_ROLE: Record<OAuthAllowedRole, string> =
+  {
+    [Role.Professional]: "/dashboard/professional",
+    [Role.Provider]: "/dashboard/provider",
+  };
 
 export const OAUTH_AUTH_PAGE_BY_ROLE: Record<OAuthAllowedRole, string> = {
   [Role.Professional]: "/auth/professional",

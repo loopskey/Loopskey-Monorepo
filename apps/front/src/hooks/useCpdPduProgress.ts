@@ -5,6 +5,7 @@ import { buildCpdSummaryCsv, downloadCsv } from "@/utils/cpd-summary";
 import { CpdSetupState, TCertification } from "@/types/cpd-plan.types";
 import { useEffect, useMemo, useState } from "react";
 import { CpdPlanFormValues } from "@/lib/validations/cpd-plan.schema";
+import { ProfessionalMessageCode } from "@loopskey/api-contracts/error-codes";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
@@ -14,7 +15,7 @@ import * as H from "@/utils/cpd-plan.helper";
 
 const isDuplicateError = (error: unknown) => {
   const message = (error as { message?: string })?.message ?? "";
-  return message.includes("CPD_PLAN_DUPLICATE");
+  return message.includes(ProfessionalMessageCode.CPD_PLAN_DUPLICATE);
 };
 
 const SUMMARY_ACTIVITY_LIMIT = 50;
