@@ -1,3 +1,11 @@
+import {
+  DOCUMENT_ACCEPT_ATTRIBUTE,
+  DOCUMENT_MIME_TYPES,
+  PDU_EVIDENCE_LIMITS,
+  pduEvidenceFileUrl,
+  pduEvidenceUploadUrl,
+} from "@loopskey/api-contracts/upload";
+
 import * as GQL from "@/lib/graphql/generated";
 
 export const PDU_ACTIVITY_TYPES = [
@@ -115,19 +123,16 @@ export const PDU_SUB_CATEGORIES: Record<GQL.PduCategory, readonly string[]> = {
   [GQL.PduCategory.Other]: ["General"],
 };
 
-export const MAX_EVIDENCE_FILES = 5;
-export const MAX_EVIDENCE_SIZE_BYTES = 20 * 1024 * 1024;
+/**
+ * Upload rules come from the shared contract, so the form cannot accept a file
+ * the API will reject — or reject one it would have taken.
+ */
+export const MAX_EVIDENCE_FILES = PDU_EVIDENCE_LIMITS.maxFiles;
+export const MAX_EVIDENCE_SIZE_BYTES = PDU_EVIDENCE_LIMITS.maxFileSizeBytes;
 
-export const ACCEPTED_EVIDENCE_MIME_TYPES = [
-  "application/pdf",
-  "image/jpeg",
-  "image/png",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-] as const;
+export const ACCEPTED_EVIDENCE_MIME_TYPES = DOCUMENT_MIME_TYPES;
 
-export const ACCEPTED_EVIDENCE_ACCEPT_ATTRIBUTE =
-  ".pdf,.jpg,.jpeg,.png,.doc,.docx";
+export const ACCEPTED_EVIDENCE_ACCEPT_ATTRIBUTE = DOCUMENT_ACCEPT_ATTRIBUTE;
 
 export const PDU_REPORTING_YEAR_MIN = 1900;
 export const PDU_REPORTING_YEAR_MAX = new Date().getFullYear() + 1;
@@ -170,10 +175,15 @@ export const formatFileSize = (bytes: number) => {
 const graphqlUrl =
   process.env.NEXT_PUBLIC_GRAPHQL_URL ?? "http://localhost:5700/graphql";
 
+/**
+ * REST and GraphQL are assumed co-hosted. Deriving the origin this way is the
+ * pre-existing behaviour, kept deliberately: making the REST origin its own
+ * variable is a deployment-configuration change, not a refactor.
+ */
 export const PDU_API_ORIGIN = graphqlUrl.replace(/\/graphql\/?$/, "");
 
 export const getEvidenceUploadUrl = (activityId: string) =>
-  `${PDU_API_ORIGIN}/professional/pdu-activities/${activityId}/files`;
+  pduEvidenceUploadUrl(PDU_API_ORIGIN, activityId);
 
 export const getEvidenceFileUrl = (fileId: string) =>
-  `${PDU_API_ORIGIN}/professional/pdu-activities/files/${fileId}`;
+  pduEvidenceFileUrl(PDU_API_ORIGIN, fileId);

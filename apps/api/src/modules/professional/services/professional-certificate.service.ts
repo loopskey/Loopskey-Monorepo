@@ -8,6 +8,7 @@ import { CertificateStatusFilter } from "@professional/enums/certificate.enum";
 import { CreateCertificateInput } from "@professional/dtos/create-certificate.input";
 import { UpdateCertificateInput } from "@professional/dtos/update-certificate.input";
 import { certificateStatusWhere } from "@professional/utils/certificate-status.util";
+import { isExpiryOnOrAfterIssue } from "@loopskey/api-contracts/validation";
 import { CertificateSort } from "@professional/enums/certificate.enum";
 import { PrismaService } from "@prisma/prisma.service";
 import { randomUUID } from "crypto";
@@ -50,7 +51,8 @@ export class ProfessionalCertificatesService {
     const issuedAt = new Date(input.issueDate);
     const validUntil = new Date(input.validUntil);
 
-    if (validUntil.getTime() < issuedAt.getTime())
+    // Same predicate the browser form uses, so the two cannot drift apart.
+    if (!isExpiryOnOrAfterIssue(input.issueDate, input.validUntil))
       throw new BadRequestException(
         ProfessionalMessageCode.CERTIFICATE_EXPIRY_BEFORE_ISSUE,
       );
