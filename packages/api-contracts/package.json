@@ -1,0 +1,63 @@
+{
+  "name": "@loopskey/api-contracts",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Contract values shared by apps/api and apps/front that the GraphQL schema does not cover: message codes, upload rules, auth constants, validation limits.",
+  "license": "UNLICENSED",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./error-codes": {
+      "types": "./dist/error-codes/index.d.ts",
+      "default": "./dist/error-codes/index.js"
+    },
+    "./upload": {
+      "types": "./dist/upload/index.d.ts",
+      "default": "./dist/upload/index.js"
+    },
+    "./auth": {
+      "types": "./dist/auth/index.d.ts",
+      "default": "./dist/auth/index.js"
+    },
+    "./validation": {
+      "types": "./dist/validation/index.d.ts",
+      "default": "./dist/validation/index.js"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "error-codes": [
+        "./dist/error-codes/index.d.ts"
+      ],
+      "upload": [
+        "./dist/upload/index.d.ts"
+      ],
+      "auth": [
+        "./dist/auth/index.d.ts"
+      ],
+      "validation": [
+        "./dist/validation/index.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "check-types": "tsc --noEmit",
+    "test": "echo \"no tests in @loopskey/api-contracts\" && exit 0",
+    "lint": "eslint src"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "@loopskey/eslint-config": "*",
+    "eslint": "^9.18.0",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.20.0"
+  }
+}

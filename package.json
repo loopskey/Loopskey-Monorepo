@@ -7,11 +7,14 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
-    "check-types": "turbo run check-types"
+    "test": "turbo run test",
+    "check-types": "turbo run check-types",
+    "codegen": "turbo run codegen"
   },
   "packageManager": "npm@10.8.1",
   "workspaces": [
-    "apps/*"
+    "apps/*",
+    "packages/*"
   ],
   "keywords": [],
   "author": "",

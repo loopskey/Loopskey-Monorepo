@@ -24,7 +24,7 @@
   "dependencies": {
     "@apollo/server": "^4.12.2",
     "@faker-js/faker": "^9.9.0",
-    "@heroicons/react": "^2.2.0",
+    "@loopskey/api-contracts": "*",
     "@nestjs/apollo": "^13.1.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
@@ -33,18 +33,13 @@
     "@nestjs/jwt": "^11.0.1",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.1",
-    "@nestjs/swagger": "^11.2.0",
-    "@prisma/adapter-pg": "^7.0.1",
     "@prisma/client": "^6.11.1",
-    "@sendgrid/mail": "^8.1.6",
-    "@tanstack/react-query": "^5.82.0",
     "argon2": "^0.43.1",
     "body-parser": "^2.2.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
     "cookie-parser": "^1.4.7",
     "exceljs": "^4.4.0",
-    "googleapis": "^155.0.0",
     "graphql": "^16.11.0",
     "graphql-type-json": "^0.3.2",
     "jose": "^6.0.11",
@@ -55,16 +50,16 @@
     "passport-jwt": "^4.0.1",
     "passport-oauth2": "^1.8.0",
     "pg": "^8.16.3",
-    "puppeteer": "^24.32.1",
     "reflect-metadata": "^0.2.2",
     "resend": "^6.16.0",
     "rxjs": "^7.8.1",
-    "sanitize-html": "^2.17.0",
-    "stripe": "^20.0.0"
+    "sanitize-html": "^2.17.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",
+    "@loopskey/eslint-config": "*",
+    "@loopskey/typescript-config": "*",
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.1",
@@ -97,39 +92,5 @@
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.20.0"
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": "src",
-    "testRegex": ".*\\.spec\\.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": [
-        "ts-jest",
-        {
-          "tsconfig": "<rootDir>/../tsconfig.spec.json"
-        }
-      ]
-    },
-    "moduleNameMapper": {
-      "^@prisma/(prisma\\.service|prisma\\.module)$": "<rootDir>/modules/prisma/$1",
-      "^@professional/(.*)$": "<rootDir>/modules/professional/$1",
-      "^@admin/(.*)$": "<rootDir>/modules/admin/$1",
-      "^@org/(.*)$": "<rootDir>/modules/organization/$1",
-      "^@auth/(.*)$": "<rootDir>/modules/auth/$1",
-      "^@mail/(.*)$": "<rootDir>/modules/mail/$1",
-      "^@modules/(.*)$": "<rootDir>/modules/$1",
-      "^@common/(.*)$": "<rootDir>/common/$1",
-      "^@utils/(.*)$": "<rootDir>/common/utils/$1",
-      "^@types/(.*)$": "<rootDir>/common/types/$1"
-    },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
   }
 }
