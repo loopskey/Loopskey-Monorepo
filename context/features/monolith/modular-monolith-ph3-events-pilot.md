@@ -23,6 +23,25 @@ architecture before applying it to larger domains.
 
 Do not redesign event product behavior or split the module into a service.
 
+## Goals
+
+- [ ] Prove the target transport/application/domain/infrastructure separation.
+- [ ] Restrict Event writes to Event-owned persistence code.
+- [ ] Introduce a minimal public API for confirmed consumers.
+- [ ] Publish and handle one versioned same-process domain event.
+- [ ] Cover the pilot with unit, integration, architecture, contract, and E2E
+      tests.
+- [ ] Remove Event-related temporary boundary exceptions.
+- [ ] Document lessons before expanding the pattern.
+
+## Non-goals
+
+- Extracting Events into a separately deployed service.
+- Redesigning Event GraphQL operations or UI behavior.
+- Applying the new folder structure mechanically to every module.
+- Adding a broker or transactional outbox.
+- Generalizing all catalog content behind one abstraction.
+
 ## Target Structure
 
 ```text
@@ -101,4 +120,3 @@ this phase.
 Document pilot lessons in `context/architecture/events-pilot-review.md`,
 including abstractions to retain, simplify or reject. Phase 4 must use the
 reviewed pattern rather than copying the pilot mechanically.
-

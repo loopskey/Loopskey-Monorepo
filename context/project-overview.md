@@ -13,12 +13,12 @@ single application.
 
 The platform serves four roles:
 
-| Role | Primary responsibility |
-| --- | --- |
+| Role           | Primary responsibility                                                                                                                                    |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `PROFESSIONAL` | Discover learning content, maintain a professional profile, track PDU/CPD progress, credentials, certificates, payments, roadmaps, and external learning. |
-| `PROVIDER` | Publish and manage courses, events, podcasts, YouTube channels, provider settings, attendees, analytics, and promotion requests. |
-| `ORGANIZATION` | Manage members, departments, organization CPD categories, assignments, compliance reporting, events, and organization settings. |
-| `ADMIN` | Manage users, organizations and access requests, platform content, promotion requests, taxonomy, analytics, and platform settings. |
+| `PROVIDER`     | Publish and manage courses, events, podcasts, YouTube channels, provider settings, attendees, analytics, and promotion requests.                          |
+| `ORGANIZATION` | Manage members, departments, organization CPD categories, assignments, compliance reporting, events, and organization settings.                           |
+| `ADMIN`        | Manage users, organizations and access requests, platform content, promotion requests, taxonomy, analytics, and platform settings.                        |
 
 Public visitors can browse the landing pages and published content. Authenticated
 users are routed to a role-specific dashboard.
@@ -70,7 +70,7 @@ audit and should be read before proposing a fourth.
 ### `@loopskey/api-contracts`
 
 Carries the values both applications must agree on that **the GraphQL schema
-cannot express**. Everything the schema *can* express is already shared through
+cannot express**. Everything the schema _can_ express is already shared through
 code generation and must not be duplicated here.
 
 It compiles to `dist/` (CommonJS + declarations). A build step is required, not
@@ -80,12 +80,12 @@ files.
 
 Four subpath entry points, plus the package root:
 
-| Entry point | Contents | Why it cannot live in the schema |
-| --- | --- | --- |
-| `/error-codes` | 174 keys across 9 domain enums | Codes are an error vocabulary, not a data type |
-| `/upload` | MIME allowlist, extension map, file/byte caps, REST path builders | Upload is multipart REST, not GraphQL |
-| `/auth` | Access/refresh cookie name defaults, `PLATFORM_ROLES` | Cookie names are transport config; the proxy reads them before any query |
-| `/validation` | Certificate field bounds, `isExpiryOnOrAfterIssue` | Bounds live in decorators and Zod, neither of which the schema carries |
+| Entry point    | Contents                                                          | Why it cannot live in the schema                                         |
+| -------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `/error-codes` | 174 keys across 9 domain enums                                    | Codes are an error vocabulary, not a data type                           |
+| `/upload`      | MIME allowlist, extension map, file/byte caps, REST path builders | Upload is multipart REST, not GraphQL                                    |
+| `/auth`        | Access/refresh cookie name defaults, `PLATFORM_ROLES`             | Cookie names are transport config; the proxy reads them before any query |
+| `/validation`  | Certificate field bounds, `isExpiryOnOrAfterIssue`                | Bounds live in decorators and Zod, neither of which the schema carries   |
 
 **Where each is consumed.** 25 files import the package directly, and every one
 of them is a boundary file — an enum shim, a constant file, a validation schema,
@@ -94,7 +94,7 @@ service, resolver or React component imports the package itself, which is what
 keeps the blast radius of a contract change small; preserve that when adding a
 consumer.
 
-*Message codes* (174 keys, 172 distinct values — a few names recur across
+_Message codes_ (174 keys, 172 distinct values — a few names recur across
 domains). Each backend module's `enums/message-code.enum.ts` is now a
 one-line re-export, so existing `@auth/enums/message-code.enum` imports are
 unchanged:
@@ -110,18 +110,18 @@ Those shims are consumed by 46 backend files, concentrated in `auth` (25) and
 `hooks/useOrganizationActivation.ts` and `hooks/useCpdPduProgress.ts`, which in
 turn serve the OAuth buttons, the registration form and the activation screens.
 
-*Upload rules.* `apps/api/src/modules/professional/enums/pdu-file.constant.ts`
+_Upload rules._ `apps/api/src/modules/professional/enums/pdu-file.constant.ts`
 and `certificate-file.constant.ts` (7 backend files: both upload controllers and
 their services); `apps/front/src/utils/pdu.constant.ts` (18 files — the whole
 evidence-upload UI) and `utils/certificate.constant.ts`.
 
-*Auth constants.* `auth/strategies/jwt.strategy.ts`,
+_Auth constants._ `auth/strategies/jwt.strategy.ts`,
 `auth/services/auth-session.service.ts`, `auth/resolvers/auth.resolver.ts`, and
 `apps/front/proxy.ts`. The cookie name must match on both sides — reading it
 from a literal on one side is what previously broke authentication whenever
 `ACCESS_TOKEN_COOKIE_NAME` was set.
 
-*Validation.* `professional/dtos/create-certificate.input.ts` and
+_Validation._ `professional/dtos/create-certificate.input.ts` and
 `professional/services/professional-certificate.service.ts`;
 `apps/front/src/lib/validations/certificate.schema.ts`.
 
@@ -414,6 +414,25 @@ npx prisma migrate dev --schema apps/api/prisma/schema.prisma --name <name>
 npx prisma migrate status --schema apps/api/prisma/schema.prisma
 ```
 
+## Collaborative Feature Workflow
+
+Normal feature, fix, and maintenance branches start from `origin/develop` and
+merge back through a reviewed pull request to `develop`. `main` is the
+production/release branch; hotfixes are the only normal work based on `main`,
+and they must be reconciled back to `develop`.
+
+Each active feature has an independent execution record:
+
+```text
+context/feature-runs/active/<slug>.md
+```
+
+Completed records move to `context/feature-runs/completed/`. The legacy
+`context/current-feature.md` file is only a compatibility pointer, preventing
+parallel developers from overwriting a single shared feature state. The
+canonical lifecycle and approval rules are in `context/ai-interaction.md` and
+the `.claude/skills/feature` workflow.
+
 ## Environment Configuration
 
 Environment files are local and sensitive. Never copy their values into source,
@@ -476,7 +495,7 @@ ignore real `.env` files before secrets are committed.
 - Put a value in `@loopskey/api-contracts` only when both applications genuinely
   consume it and the GraphQL schema cannot carry it. Single-app duplication gets
   an app-local fix.
-- Never change an existing message-code *value*. The value is the wire contract;
+- Never change an existing message-code _value_. The value is the wire contract;
   add a new key instead.
 - Keep shared packages framework-free. No Prisma, Nest, React or Next — lint
   enforces it, and breaking it makes the package unshareable.

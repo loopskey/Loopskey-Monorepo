@@ -13,6 +13,37 @@ Phase 5 completed and security review accepted.
 Decompose the large `professional` module into coherent internal capabilities
 while retaining one Professional Development bounded context and one deployment.
 
+## Scope
+
+- Separate the existing Professional module into coherent internal
+  capabilities.
+- Establish explicit ownership and workflows between those capabilities.
+- Remove direct writes to Catalog, Engagement, Identity, and Organization data.
+- Preserve professional GraphQL and REST contracts.
+- Prepare evidence operations to depend on a storage port.
+- Add focused tests for ownership, calculations, transactions, and failures.
+
+## Goals
+
+- [ ] Document and enforce ownership for every Professional capability.
+- [ ] Remove undocumented internal cycles and cross-capability writes.
+- [ ] Route foreign-domain operations through approved contracts.
+- [ ] Keep overview and calendar services read-only.
+- [ ] Preserve authenticated-owner derivation on every operation.
+- [ ] Place file operations behind a storage port.
+- [ ] Remove all Professional-related temporary boundary exceptions.
+- [ ] Cover critical Professional workflows with unit, integration, and E2E
+      tests.
+
+## Non-goals
+
+- Extracting Professional capabilities as independently deployed services.
+- Redesigning professional dashboards or user-facing workflows.
+- Replacing current CPD/PDU calculation rules without a separate specification.
+- Migrating files to S3-compatible storage; Phase 7 provides the final adapter
+  boundary and migration readiness.
+- Introducing event sourcing or database-per-capability.
+
 ## Internal Capabilities
 
 Harden in this order:
@@ -95,4 +126,3 @@ ceremonial directories with no behavior.
 
 The Professional Development module must have no undocumented internal cycles or
 foreign writes. Record the completed dependency map before Phase 7.
-

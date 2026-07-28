@@ -28,6 +28,25 @@ exceptions.
 Creating and deploying `apps/worker` is a separate follow-up feature. Phase 7
 must make that extraction straightforward without requiring it.
 
+## Goals
+
+- [ ] Persist reliable domain events atomically with business changes.
+- [ ] Make event delivery retryable, observable, and idempotent.
+- [ ] Prevent mail-provider failure from corrupting committed business state.
+- [ ] Remove direct filesystem dependencies from business services.
+- [ ] Add structured logs, correlation IDs, health, and readiness checks.
+- [ ] Remove all temporary architecture exceptions.
+- [ ] Publish the final architecture review and before/after metrics.
+
+## Non-goals
+
+- Creating or independently deploying `apps/worker`.
+- Introducing Kafka, RabbitMQ, or another external broker.
+- Migrating production files to a specific cloud provider.
+- Splitting modules into microservices.
+- Replacing the existing email provider.
+- Building a complete external observability platform or dashboard.
+
 ## Outbox Model
 
 Add `OutboxEvent` through a reviewed Prisma migration with:
@@ -112,4 +131,3 @@ operational behavior are explicit and automatically verifiable.
 
 Any future microservice proposal must use the decision gate in
 `modular-monolith-hardening.md` and provide measured operational evidence.
-

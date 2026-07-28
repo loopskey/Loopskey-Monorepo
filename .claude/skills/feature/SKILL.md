@@ -1,39 +1,45 @@
 ---
 name: feature
-description: Manage current feature workflow - start, review, explain or complete
-argument-hint: load|start|review|explain|complete
+description: Manage the complete Loopskey feature lifecycle consistently across multiple developers. Use for loading a feature specification, creating its branch and run state, implementing it, checking status, verifying gates, reviewing changes, explaining the diff, completing through commit/PR/merge, or safely aborting work.
+argument-hint: load|start|status|verify|review|explain|complete|abort
 ---
 
 # Feature Workflow
 
-Manages the full lifecycle of a feature from spec to merge.
+Execute the requested action from `$ARGUMENTS`.
 
-## Working File
+| Action        | Purpose                                                            |
+| ------------- | ------------------------------------------------------------------ |
+| `load <spec>` | Validate a spec, create its run state, and create its branch       |
+| `start`       | Implement the loaded feature on its registered branch              |
+| `status`      | Report current state, progress, verification, review, and blockers |
+| `verify`      | Exercise the change and run the proportional and final gates       |
+| `review`      | Review goals, code, security, scope, and verification evidence     |
+| `explain`     | Explain branch changes relative to the registered base             |
+| `complete`    | Revalidate, obtain approval, commit, push, merge, and archive      |
+| `abort`       | Record cancellation/blocking without destructive Git operations    |
 
-@context/current-feature.md
+Read the matching file under `actions/` completely before acting.
 
-### File Structure
+Before every mutating action, read:
 
-current-feature.md has these sections:
+- `context/project-overview.md`
+- `context/coding-standards.md`
+- `context/ai-interaction.md`
+- The selected feature specification
+- The selected file under `context/feature-runs/active/`
 
-- `# Current Feature` - H1 heading with feature name when active
-- `## Status` - Not Started | In Progress | Complete
-- `## Goals` - Bullet points of what success looks like
-- `## Notes` - Additional context, constraints, or details from spec
-- `## History` - Completed features (append only)
+Read these references when the action names them:
 
-## Task
+- `references/state-machine.md`
+- `references/git-policy.md`
+- `references/verification-matrix.md`
+- `references/run-record-schema.md`
 
-Execute the requested action: $ARGUMENTS
+Use one run record per feature. Do not use `context/current-feature.md` as
+shared mutable state; it is a compatibility pointer only.
 
-| Action | Description |
-|--------|-------------|
-| `load` | Load a feature spec or inline description |
-| `start` | Begin implementation, create branch |
-| `review` | Check goals met, code quality |
-| `explain` | Document what changed and why |
-| `complete` | Commit, push, merge, reset |
+Never commit, push, merge, create a PR, or delete a branch without the explicit
+approval required by the matching action. Never stage unrelated files.
 
-See [actions/](actions/) for detailed instructions.
-
-If no action provided, explain the available options.
+If no action is provided, show the available actions and current active runs.

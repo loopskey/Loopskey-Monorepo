@@ -24,6 +24,23 @@ safe E2E foundation before module refactoring begins.
 
 Do not migrate business modules or change GraphQL behavior in this phase.
 
+## Goals
+
+- [ ] Convert Phase 1 ownership decisions into automated checks.
+- [ ] Block every new undocumented cross-domain dependency.
+- [ ] Detect missing, duplicate, or stale Prisma ownership declarations.
+- [ ] Prove the bounded-context dependency graph is acyclic.
+- [ ] Establish safe API E2E infrastructure using an isolated database.
+- [ ] Make all enforcement repeatable locally and in CI.
+
+## Non-goals
+
+- Refactoring feature-module internals.
+- Removing all legacy boundary exceptions.
+- Changing product behavior or GraphQL operations.
+- Introducing a message broker, outbox, or background worker.
+- Replacing the existing ESLint, Jest, Prisma, or CI toolchain.
+
 ## Deliverables
 
 Create:
@@ -91,4 +108,3 @@ Legacy exceptions may remain, but CI must fail if:
 Phase 3 may start only when CI reliably detects a deliberately introduced
 boundary violation and when the E2E suite runs repeatedly against an isolated
 database.
-

@@ -36,6 +36,40 @@ later if operational evidence justifies it.
 
 ---
 
+## Scope
+
+- Define and enforce bounded-context and Prisma-model ownership.
+- Introduce explicit public application contracts for proven cross-domain use.
+- Standardize synchronous workflows, domain events, and reliable side effects.
+- Add architecture and E2E tests for critical boundaries.
+- Abstract upload storage and establish an observability baseline.
+- Migrate incrementally while preserving one API and one PostgreSQL database.
+
+---
+
+## Goals
+
+- [ ] Assign every active backend module to one bounded context.
+- [ ] Assign every Prisma model to exactly one write owner.
+- [ ] Prevent undocumented cross-domain imports and writes automatically.
+- [ ] Make cross-domain workflows explicit, typed, and testable.
+- [ ] Establish reliable, idempotent handling for non-critical side effects.
+- [ ] Add functional, architectural, and operational verification.
+- [ ] Preserve existing public behavior throughout the migration.
+
+---
+
+## Non-goals
+
+- Splitting the API into independently deployed microservices.
+- Introducing multiple databases or database-per-service.
+- Replacing NestJS, GraphQL, Prisma, PostgreSQL, Next.js, or Turborepo.
+- Rewriting all backend modules in one change.
+- Introducing internal HTTP, gRPC, GraphQL, or broker calls between modules.
+- Performing unrelated product or UI redesign.
+
+---
+
 ## Executive Decision
 
 Loopskey should remain a modular monolith at its current scale.
@@ -802,7 +836,7 @@ context unless evidence shows a stable internal boundary.
 - Documentation
 - Refactors required to enforce the agreed boundaries
 
-### Out of scope
+### Non-goals
 
 - Splitting the API into independently deployed microservices
 - Multiple databases or schemas per service
@@ -1092,4 +1126,3 @@ Loopskey is a professionally governed modular monolith when module folders are
 not merely organizational conventions: domain ownership, allowed dependencies,
 cross-domain communication, persistence access, events, tests, and operational
 behavior are all explicit and automatically verifiable.
-

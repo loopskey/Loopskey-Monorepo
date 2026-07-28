@@ -1,5 +1,10 @@
 # Current Feature: Monorepo Capability Audit
 
+> Legacy compatibility record. New work must use one independent file per
+> feature under `context/feature-runs/active/`. The next successful
+> `/feature load` may replace this file with a pointer to that run only. The
+> historical content below is intentionally preserved during migration.
+
 Spec: `context/features/monorepo-capability-spec.md`
 
 ## Status
@@ -651,7 +656,7 @@ responsibility and dependency boundary.
   `{count} items` badge is an item count, not a filter-count indicator, so it
   was correctly left alone.
 - Preserved: search, content-type, and sort filters (including the price/rating
-  *sorts*, which are sorting not filtering), pagination, loading/empty/
+  _sorts_, which are sorting not filtering), pagination, loading/empty/
   no-results/error states, the remove-item action, refresh, and the responsive
   layout. "Clear Filters" still resets to the trimmed initial state and only
   appears when a remaining filter is active.
@@ -700,8 +705,8 @@ responsibility and dependency boundary.
   (CPD Progress tab's "Generate CPD Summary") still uses it; Provider CSV
   separate.
 - Primary actions kept: Refresh (refetches report + activities + summary, spinner
-  + disabled while fetching) and Add Learning Activity, side-by-side, responsive.
-  The Year control effectively moved from beside Refresh into the toolbar.
+  - disabled while fetching) and Add Learning Activity, side-by-side, responsive.
+    The Year control effectively moved from beside Refresh into the toolbar.
 - Two new summary cards backed by a **new user-scoped backend query**
   `professionalPduActivitySummary` (no existing aggregate covered evidence-file
   counts): `completedActivities` (completed + not-rejected), `activitiesWithEvidence`,
@@ -786,7 +791,7 @@ responsibility and dependency boundary.
   external evidence link, linked platform content (`contentType` badge, shown
   only when a `contentId` exists), created/updated timestamps. Deliberately
   omitted the spec's start/end dates, learning-format, and CPD-plan/certificate
-  *relations* — none exist on the model (the "certificate" the UI has is evidence
+  _relations_ — none exist on the model (the "certificate" the UI has is evidence
   files + the `relatedCertification` text field). No invented/persisted fields.
 - Evidence: rendered via the existing ownership-scoped credentialed download
   (`usePduEvidenceUpload.downloadEvidence`) — filename, MIME type, size
@@ -831,7 +836,7 @@ responsibility and dependency boundary.
   the Certificates dashboard UI was deliberately not built.
 
 **1. Existing certificate functionality reused.** The spec asks to inspect
-whether a `Certificate` *or* `ProfessionalCredential` entity already exists.
+whether a `Certificate` _or_ `ProfessionalCredential` entity already exists.
 Both do, and they are different things. `ProfessionalCredential` is a
 profile-section entity that links to `PDUTarget`, has no status and no evidence
 files. `Certificate` is what the Certificates tab and the `professionalCertificates`
@@ -1097,15 +1102,15 @@ shows all five required-field errors plus both cross-field rules.
   real `<button aria-pressed>` on the certificate name in both layouts.
 - Deliberate omissions, both allowed by the spec's own wording: no separate
   expiry-period filter (Status already offers Expiring soon and Expired — "where
-  useful"), and no Issuer *text* filter beyond the select, because §6's search
+  useful"), and no Issuer _text_ filter beyond the select, because §6's search
   requirement already covers issuer.
 - Known limitation carried from Phase 6 and still unresolved by design: creation
   is GraphQL while evidence upload is multipart REST, so "Evidence file required"
   is enforced by the form's Zod schema, not atomically at the API. If the upload
   fails after the certificate is created, the user is told the certificate saved
   but the file did not, instead of being shown a false success.
-- **Not done:** the create flow was never submitted end to end *through the
-  browser form* — live QA reached validation and file selection, and the same
+- **Not done:** the create flow was never submitted end to end _through the
+  browser form_ — live QA reached validation and file selection, and the same
   path is fully proven at the API layer, but the final submit click was not
   performed. Worth exercising once by hand. Root `npm run lint` still fails on
   the removed Next 16 `next lint`, so lint was per-file, and the API workspace
@@ -1142,7 +1147,7 @@ query cannot blank the page.
 category are gone from the state, the helper and the request. The tab never reads
 `useSearchParams`, so legacy `?price=` / `?category=` links are inert rather than
 broken. The remaining `price` and `category` references in the tab are item-card
-*display* (a category badge and a price label), which is content, not filtering.
+_display_ (a category badge and a price label), which is content, not filtering.
 
 **4. My Learning Activities changes.** Verified, no change needed. Export CSV,
 `exportCsv`, the top-level Year control, `handleYearChange`, the old PDU metric
@@ -1168,15 +1173,15 @@ difference — zero drift.
 read and never persisted. Proven twice, by unit test and live against the
 configured Neon database, at all seven offsets the specification lists:
 
-| Offset from today (UTC) | Status |
-| --- | --- |
-| −1 day | `EXPIRED` |
-| 0 (today) | `EXPIRING_SOON` |
-| +1 day | `EXPIRING_SOON` |
-| +7 days | `EXPIRING_SOON` |
-| +89 days | `EXPIRING_SOON` |
-| **+90 days** | **`EXPIRING_SOON`** (last day in the window) |
-| **+91 days** | **`ACTIVE`** (first day outside it) |
+| Offset from today (UTC) | Status                                       |
+| ----------------------- | -------------------------------------------- |
+| −1 day                  | `EXPIRED`                                    |
+| 0 (today)               | `EXPIRING_SOON`                              |
+| +1 day                  | `EXPIRING_SOON`                              |
+| +7 days                 | `EXPIRING_SOON`                              |
+| +89 days                | `EXPIRING_SOON`                              |
+| **+90 days**            | **`EXPIRING_SOON`** (last day in the window) |
+| **+91 days**            | **`ACTIVE`** (first day outside it)          |
 
 So: `EXPIRED` below today, `EXPIRING_SOON` from today through today+90
 **inclusive**, `ACTIVE` from today+91 or when there is no expiry; a stored
@@ -1244,14 +1249,15 @@ upload directory were confirmed back to their starting state.
 
 **14. Pre-existing failures.** All three were run and confirmed, none caused by
 this work and none fixed here:
+
 - `npm run lint` at the root fails because the frontend script calls `next lint`,
   removed in Next 16. Linting was done per file with `npx eslint`.
 - `npx eslint src` in `apps/api` exits 2 — the workspace still has no ESLint 9
   flat config.
 - `npm run test:e2e --workspace api` fails because it points at
   `./test/jest-e2e.json` and `apps/api/test` has never existed.
-Could not be executed: `check-types` — Turbo declares the task but no workspace
-defines the script.
+  Could not be executed: `check-types` — Turbo declares the task but no workspace
+  defines the script.
 
 **15. Required environment or storage configuration.** `DATABASE_URL` must be
 present for any Prisma command (they fail with P1012 without it; the repository's
@@ -1264,6 +1270,7 @@ REST origin used for evidence upload and download, so the two must stay on the
 same host.
 
 **16. Remaining assumptions and limitations.**
+
 - **Not done: the certificate create flow was never submitted end to end through
   the browser form.** The run was stopped twice and the browser session expired
   partway through. The same path is proven at the API layer (create → upload →

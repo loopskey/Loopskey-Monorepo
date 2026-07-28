@@ -18,10 +18,12 @@ Read these before reviewing. They are the rubric; do not review from memory:
 
 ## Then, scope the diff
 
-Review only what changed. Use `git diff`, `git diff --staged`, and
-`git diff main...HEAD` as appropriate to the situation. Read the full
-surrounding file for anything you flag — a diff hunk alone is not enough
-context to call something a bug.
+Resolve the active run under `context/feature-runs/active/` and use its recorded
+base commit. Review `base-commit...HEAD`, staged and unstaged changes, and
+feature-owned untracked files. Use `develop...HEAD` only when no run record
+exists and state that fallback explicitly. Read the full surrounding file for
+anything you flag — a diff hunk alone is not enough context to call something a
+bug.
 
 Do not report pre-existing issues in untouched code. The standards say so
 explicitly, and unrelated findings bury the ones that matter.
@@ -33,7 +35,7 @@ Ordered by how much damage the class of bug does in this codebase.
 **Authorization and ownership.** `JwtAuthGuard` then `RolesGuard` are global, so
 every operation is protected unless marked `@Public()`. For each new or changed
 operation, confirm the public/role decision was deliberate rather than
-inherited. Then confirm the *service* verifies ownership — the guard proves who
+inherited. Then confirm the _service_ verifies ownership — the guard proves who
 the caller is, never what they own. Identity must come from the authenticated
 request; a client-supplied user ID, organization ID, role, or status is never
 proof of anything. An `ADMIN` allowance must be intentional.
@@ -83,3 +85,7 @@ describe how it fails, it is a preference, not a finding; leave it out.
 Say plainly when you did not verify something (no test infrastructure for that
 path, could not run the operation, unclear intent) rather than implying
 coverage you did not have. An empty findings list is a valid and useful result.
+
+Record the reviewed revision. Any code change after review invalidates the
+verdict and requires verification and review again. Never edit, commit, push,
+merge, or delete branches during review.

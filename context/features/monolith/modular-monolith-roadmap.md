@@ -13,6 +13,45 @@ monolith. The architectural source specification remains
 Implement the following features in order. A phase may start only after the
 previous phase meets its exit gate and is merged.
 
+## Objective
+
+Provide the authoritative execution order and shared quality gates for the
+seven modular-monolith implementation features.
+
+## Scope
+
+- Define phase order and dependencies.
+- Link every implementation specification.
+- Establish program-wide Git, compatibility, validation, and documentation
+  rules.
+- Define when the overall modular-monolith program is complete.
+
+## Goals
+
+- [ ] Ensure every phase can be loaded and implemented independently.
+- [ ] Prevent phases from starting before their prerequisites pass.
+- [ ] Apply one consistent validation gate across the program.
+- [ ] Preserve deployability and compatibility after every merged phase.
+- [ ] Finish with zero temporary boundary exceptions and an acyclic domain
+      graph.
+
+## Non-goals
+
+- Implementing application code directly from this roadmap.
+- Replacing the detailed phase specifications.
+- Combining all phases into one branch or pull request.
+- Authorizing microservice extraction.
+- Changing product requirements or frontend design.
+
+## Acceptance Criteria
+
+- [ ] All seven phase specifications exist and are linked in execution order.
+- [ ] Every phase defines its own objective, scope, goals, non-goals, acceptance
+      criteria, dependencies, and exit gate.
+- [ ] Common validation commands are defined.
+- [ ] Program rules preserve one API and one PostgreSQL database.
+- [ ] Completion requires all phases to be marked Complete.
+
 ## Ordered Features
 
 | Order | Feature | Outcome |
@@ -72,4 +111,3 @@ The program is complete only when all seven feature files are marked Completed,
 all architecture exceptions are resolved or explicitly accepted as permanent
 read projections, and the final architecture review confirms that the
 bounded-context dependency graph is acyclic.
-

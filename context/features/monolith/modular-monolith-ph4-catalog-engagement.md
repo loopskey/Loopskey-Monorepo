@@ -26,6 +26,25 @@ Harden in this order:
 
 `events` is already completed by Phase 3.
 
+## Goals
+
+- [ ] Establish a single write owner for every catalog and engagement model.
+- [ ] Prevent Provider Management from bypassing catalog lifecycle rules.
+- [ ] Prevent Landing from writing foreign aggregates.
+- [ ] Implement explicit provider-publishing and professional-engagement
+      workflows.
+- [ ] Replace temporary catalog/engagement exceptions with public APIs or
+      approved read projections.
+- [ ] Preserve existing frontend GraphQL behavior and test critical journeys.
+
+## Non-goals
+
+- Combining Course, Event, Podcast, and YouTube into one generic aggregate.
+- Redesigning catalogue discovery or provider dashboards.
+- Extracting Catalog, Engagement, or Landing as services.
+- Changing Identity, Organization, or Professional internals.
+- Adding search infrastructure or recommendation engines.
+
 ## Ownership Requirements
 
 - Catalog domains own their content lifecycle and publication rules.
@@ -81,4 +100,3 @@ handle non-critical reactions after successful publication or enrollment.
 
 The catalog/engagement dependency graph must be acyclic and all writes must have
 one enforceable owner before security-sensitive Identity work begins.
-

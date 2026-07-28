@@ -27,6 +27,23 @@ application behavior.
 No service, resolver, Prisma model, GraphQL operation or runtime behavior should
 be refactored in this phase.
 
+## Goals
+
+- [ ] Produce a complete module dependency and Prisma-usage baseline.
+- [ ] Assign every active module to one bounded context.
+- [ ] Assign every Prisma model to exactly one proposed write owner.
+- [ ] Identify every existing cross-domain read, write, transaction, and import.
+- [ ] Record approved decisions as ADRs and typed manifests.
+- [ ] Give every temporary violation an owner and removal phase.
+
+## Non-goals
+
+- Refactoring business services or moving application files.
+- Changing the GraphQL schema or frontend contract.
+- Adding database models or migrations.
+- Enforcing boundaries in CI; that belongs to Phase 2.
+- Creating events, an outbox, workers, or microservices.
+
 ## Target Bounded Contexts
 
 1. Identity and Access — `auth`, `user`
@@ -108,4 +125,3 @@ write owner.
 The bounded-context map, ownership manifest and violation list must receive
 human review before Phase 2. Phase 2 treats these decisions as enforceable
 architecture, so unresolved ownership questions block progression.
-

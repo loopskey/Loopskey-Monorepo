@@ -17,6 +17,21 @@ conflict, prefer the rule below unless compatibility requires the old pattern.
   consumer is unused code that is harder to delete later, because removing it
   looks like a breaking change.
 
+## Multi-Developer Feature Workflow
+
+- Treat the feature specification as scope and the matching
+  `context/feature-runs/active/<slug>.md` file as execution state.
+- Never use `context/current-feature.md` as shared mutable state.
+- Branch from the verified `origin/develop`; merge normal work through a reviewed
+  PR to `develop`.
+- Record the base commit so review and explanation use a stable diff.
+- A code change after verification invalidates that verification. A code change
+  after review invalidates both review and verification.
+- Do not commit unrelated working-tree files with a feature.
+- Do not commit, push, merge, or delete a branch before the required approval.
+- Preserve an immutable completed run record under
+  `context/feature-runs/completed/`.
+
 ## Shared Packages
 
 Three private workspace packages exist under `packages/`. Their contents,

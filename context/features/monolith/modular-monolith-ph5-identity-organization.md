@@ -24,6 +24,24 @@ Harden in this order:
 4. Organization-related `admin` workflows
 5. Communications invoked by these workflows
 
+## Goals
+
+- [ ] Make Identity and Organization persistence ownership enforceable.
+- [ ] Preserve all authentication, session, OAuth, and cookie behavior.
+- [ ] Move administrative coordination behind explicit APIs and workflows.
+- [ ] Keep security-critical multi-record changes atomic.
+- [ ] Decouple committed business state from email-provider availability.
+- [ ] Remove all Phase 5 boundary exceptions.
+- [ ] Prove role, ownership, tenant, and secret protections with E2E tests.
+
+## Non-goals
+
+- Replacing the authentication protocol, guards, JWTs, cookies, or OAuth.
+- Redesigning registration or organization user interfaces.
+- Splitting Identity, Organization, Admin, or Mail into microservices.
+- Introducing a new permission model beyond approved feature requirements.
+- Refactoring Professional Development internals.
+
 ## Security Rules
 
 - Authentication and authorization remain backend-authoritative.
@@ -85,4 +103,3 @@ Add E2E coverage for:
 Complete a focused security review and record it in
 `context/architecture/identity-organization-review.md`. Any unresolved
 authorization or transaction regression blocks Phase 6.
-

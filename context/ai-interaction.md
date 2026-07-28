@@ -10,53 +10,63 @@
 
 ## Workflow
 
-This is the common workflow that we will use for every single feature/fix:
+Use the project `feature` skill for every feature and fix:
 
-1. **Document** - Document the feature in @context/current-feature.md.
-2. **Branch** - Create a new branch off `develop` for the feature, fix, etc.
-3. **Implement** - Implement the feature/fix that I create in @context/current-feature.md
-4. **Verify** - Confirm it actually works (see Verification below)
-5. **Gate** - Run `npm run build`, `npm run lint`, and `npm run check-types`. Fix any errors.
-6. **Iterate** - Iterate and change things if needed
-7. **Review** - Review the code before it lands, not after (see Code Review below)
-8. **Commit** - Only after the gate passes, review is done, and everything works
-9. **Merge** - Merge to `develop`
-10. **Delete Branch** - Ask before deleting the branch after merge
-11. Mark as completed in @context/current-feature.md and add to history
+1. **Load** — validate the specification, create an independent run record, and
+   create a branch from `origin/develop`.
+2. **Start** — implement the approved scope and tests.
+3. **Verify** — exercise the real behavior and run lint, types, tests, build, and
+   applicable drift checks.
+4. **Review** — review the verified revision before any commit or merge.
+5. **Iterate** — findings return through Start, Verify, and Review.
+6. **Complete** — after explicit approval, commit only feature files, push the
+   branch, open a PR to `develop`, wait for required checks/review, merge, archive
+   the run record, and delete the branch only after verified integration.
 
-Do NOT commit without permission and until the build passes. If the build fails, fix the issues first.
+Feature state is stored per feature:
 
-Review comes before commit and merge on purpose. Reviewing after a merge, with the
-branch already deleted, is too late to act on anything it finds.
+```text
+context/feature-runs/active/<slug>.md
+context/feature-runs/completed/<slug>.md
+```
+
+`context/current-feature.md` is a compatibility pointer, not shared workflow
+state. This prevents multiple developers from overwriting one another.
+
+Do not commit, push, create/merge a PR, or delete a branch without the explicit
+approval required by the Complete action. Reviewing after merge is too late.
 
 ## Branching
 
-Create a new branch for every feature/fix, branched from `main`.
+Create a new branch for every feature/fix, branched from the verified
+`origin/develop`.
 
-Name branches by type: **feature/[feature]**, **fix/[fix]**, **chore/[chore]**.
+Name branches by type: **feature/[feature]**, **fix/[fix]**,
+**chore/[chore]**, and **hotfix/[hotfix]**.
 
 Example: `feature/contract-upload`, `fix/session-rotation`, `chore/env-example`.
 
-Ask to delete the branch once merged.
+Hotfixes branch from `origin/main` and require an explicit back-merge to
+`develop`. Ask before deleting any branch after merge.
 
 Note: existing branches use an older person-prefixed convention (`neda-auth`,
 `mohammad-names`). Leave those as they are; use the `type/name` form for new work.
 
-## Merge Target
+## Merge Targets
 
-`main` is the integration branch and the default branch on the remote
-(`origin/HEAD -> origin/main`). Merge completed feature branches into `main`.
+- `main` is the protected production/release branch.
+- `develop` is the protected integration branch and normal PR target.
+- Feature, fix, and chore branches merge into `develop`.
+- Release promotion from `develop` to `main` is a separate reviewed workflow.
+- Hotfixes target `main` and must be reconciled back into `develop`.
 
-This section previously named `develop` as the target and forbade merging to
-`main`. That was never true of this repository: no `develop` branch has ever
-existed locally or on the remote, and every phase of the organization approval
-workflow merged into `main`. Corrected on 2026-07-21. If a real `develop`
-integration branch is ever created, update this section before using it.
+Never commit directly to `main` or `develop`. Prefer a pull request with required
+CI and human review over a local merge.
 
 ## Verification
 
-There are no test files in the repo yet, so "it builds" is not evidence that it
-works. Verify by exercising the actual change, then implement unit tests later.
+A successful build is not evidence that behavior works. Exercise the actual
+change and add proportional automated tests.
 
 - **Frontend** (`apps/front`) - verify in the browser at `http://localhost:3000`.
 - **API** (`apps/api`) - there is no browser surface. Verify by running the
@@ -64,11 +74,13 @@ works. Verify by exercising the actual change, then implement unit tests later.
 - **Schema changes** - regenerate the Prisma client and create a migration;
   confirm the generated GraphQL schema reflects the change.
 
-## Commits
+## Commits and Shared Git Actions
 
-- Ask before committing (don't auto-commit)
+- Ask before committing, pushing, creating or merging a PR, or deleting a branch.
 - Use conventional commit messages (feat:, fix:, chore:, etc.)
 - Keep commits focused (one feature/fix per commit)
+- Stage only the reviewed feature manifest; do not use an unexamined `git add .`.
+- Do not force-push shared branches.
 - No Claude attribution in commit messages. No "Generated With Claude" banner and
   no `Co-Authored-By: Claude` trailer. Commits are authored by the human.
 
