@@ -11,6 +11,7 @@ import { PodcastMessageCode } from "@podcast/enums/message-code.enum";
 import { PodcastSortInput } from "@podcast/dtos/podcast-sort.input";
 import { PodcastRequester } from "@podcast/types/podcast-service.types";
 import { PrismaService } from "@prisma/prisma.service";
+import { slugify } from "@utils/slug.util";
 import {
   PodcastSortDirection,
   PodcastSortField,
@@ -414,7 +415,7 @@ export class PodcastService {
   }
 
   private async generateUniqueSlug(title: string) {
-    const baseSlug = this.slugify(title);
+    const baseSlug = slugify(title);
     let slug = baseSlug;
     let counter = 1;
     while (await this.prismaService.podcast.findUnique({ where: { slug } })) {
@@ -422,14 +423,5 @@ export class PodcastService {
       counter++;
     }
     return slug;
-  }
-
-  private slugify(value: string) {
-    return value
-      .toLowerCase()
-      .trim()
-      .replace(/['"]/g, "")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "");
   }
 }

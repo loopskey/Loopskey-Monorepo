@@ -13,6 +13,7 @@ import { ForbiddenException } from "@nestjs/common";
 import { YouTubeMessageCode } from "@youtube/enums/message-code.enum";
 import { YouTubeRequester } from "@youtube/enums/youtube.enum";
 import { PrismaService } from "@prisma/prisma.service";
+import { slugify } from "@utils/slug.util";
 
 @Injectable()
 export class YouTubeService {
@@ -428,7 +429,7 @@ export class YouTubeService {
   }
 
   private async generateUniqueSlug(title: string) {
-    const baseSlug = this.slugify(title);
+    const baseSlug = slugify(title);
     let slug = baseSlug;
     let counter = 1;
     while (
@@ -438,14 +439,5 @@ export class YouTubeService {
       counter++;
     }
     return slug;
-  }
-
-  private slugify(value: string) {
-    return value
-      .toLowerCase()
-      .trim()
-      .replace(/['"]/g, "")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "");
   }
 }

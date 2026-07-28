@@ -13,6 +13,7 @@ import sanitizeHtml from "sanitize-html";
 
 import * as ExcelJS from "exceljs";
 import "multer";
+import { slugify as toSlug } from "@utils/slug.util";
 
 @Injectable()
 export class CourseImportService {
@@ -420,13 +421,12 @@ export class CourseImportService {
     return createHash("sha1").update(value).digest("hex").slice(0, 10);
   }
 
+  /**
+   * Import requires a slug to exist, so this wraps the shared implementation
+   * with the domain error rather than reimplementing the transformation.
+   */
   private slugify(value: string) {
-    const slug = value
-      .toLowerCase()
-      .trim()
-      .replace(/['"]/g, "")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "");
+    const slug = toSlug(value);
     if (!slug)
       throw new InternalServerErrorException("Could not generate course slug.");
     return slug;

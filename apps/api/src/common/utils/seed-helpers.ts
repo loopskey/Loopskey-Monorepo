@@ -1,13 +1,8 @@
 import { faker } from "@faker-js/faker";
 
-export const slugify = (value: string) => {
-  return value
-    .toLowerCase()
-    .trim()
-    .replace(/['"]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-};
+// Re-exported so seeds produce slugs identical to the ones the services
+// generate at runtime. The implementation lives in `slug.util`.
+export { slugify } from "@utils/slug.util";
 
 export const safeUnique = <T>(arr: T[]): T[] => Array.from(new Set(arr));
 

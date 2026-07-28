@@ -3,7 +3,7 @@ import { ProfessionalGqlInputNames } from "@professional/enums/gql-names.enum";
 import { Field, InputType } from "@nestjs/graphql";
 import { AppLanguage } from "@prisma/client";
 import { IsTimeZone } from "@professional/enums/profile-timezone.constant";
-import { trimToNull } from "@utils/functions-helper";
+import { trimToNull } from "@utils/transform.util";
 import { Transform } from "class-transformer";
 
 @InputType(ProfessionalGqlInputNames.UPDATE_PROFESSIONAL_BASIC_PROFILE_INPUT)

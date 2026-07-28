@@ -10,6 +10,7 @@ import { CourseMessageCode } from "@course/enums/message-code.enum";
 import { TCourseRequester } from "@course/types/course-service.type";
 import { CourseSortInput } from "@course/dtos/course-sort.input";
 import { PrismaService } from "@prisma/prisma.service";
+import { slugify } from "@utils/slug.util";
 
 @Injectable()
 export class CourseService {
@@ -419,7 +420,7 @@ export class CourseService {
   }
 
   private async generateUniqueSlug(title: string) {
-    const baseSlug = this.slugify(title);
+    const baseSlug = slugify(title);
     let slug = baseSlug;
     let counter = 1;
     while (await this.prismaService.course.findUnique({ where: { slug } })) {
@@ -427,14 +428,5 @@ export class CourseService {
       counter++;
     }
     return slug;
-  }
-
-  private slugify(value: string) {
-    return value
-      .toLowerCase()
-      .trim()
-      .replace(/['"]/g, "")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "");
   }
 }
