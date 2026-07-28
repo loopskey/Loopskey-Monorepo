@@ -1,3 +1,4 @@
+import { isExpiryOnOrAfterIssue } from "@loopskey/api-contracts/validation";
 import { z } from "zod";
 
 import * as C from "@/utils/certificate.constant";
@@ -50,9 +51,7 @@ export const certificateSchema = z
     existingFileCount: z.number().int().min(0),
   })
   .refine(
-    (values) =>
-      new Date(values.validUntil).getTime() >=
-      new Date(values.issueDate).getTime(),
+    (values) => isExpiryOnOrAfterIssue(values.issueDate, values.validUntil),
     {
       path: ["validUntil"],
       message: "Expiry date cannot be before the issue date",
@@ -63,7 +62,8 @@ export const certificateSchema = z
     message: "An evidence file is required",
   })
   .refine(
-    (values) => values.files.length + values.existingFileCount <= C.MAX_CERTIFICATE_FILES,
+    (values) =>
+      values.files.length + values.existingFileCount <= C.MAX_CERTIFICATE_FILES,
     {
       path: ["files"],
       message: `You can attach at most ${C.MAX_CERTIFICATE_FILES} files`,

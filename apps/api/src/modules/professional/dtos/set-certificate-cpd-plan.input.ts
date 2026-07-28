@@ -1,7 +1,7 @@
 import { ProfessionalGqlInputNames } from "@professional/enums/gql-names.enum";
 import { IsOptional, IsString } from "class-validator";
 import { Field, ID, InputType } from "@nestjs/graphql";
-import { trimToNull } from "@professional/utils/function-helper";
+import { trimToNull } from "@utils/transform.util";
 import { Transform } from "class-transformer";
 
 @InputType(ProfessionalGqlInputNames.SET_CERTIFICATE_CPD_PLAN_INPUT)

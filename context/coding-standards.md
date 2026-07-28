@@ -13,6 +13,64 @@ conflict, prefer the rule below unless compatibility requires the old pattern.
 - Validate at every trust boundary; frontend validation is never authorization.
 - Do not leave unused imports, commented-out code, placeholders, debug logs, or
   unexplained magic values in completed work.
+- Do not add a speculative export to a shared package. An export with no
+  consumer is unused code that is harder to delete later, because removing it
+  looks like a breaking change.
+
+## Shared Packages
+
+Three private workspace packages exist under `packages/`. Their contents,
+consumers and rationale are documented in `context/project-overview.md`; this
+section is the rule set for changing them.
+
+### When a value belongs in `@loopskey/api-contracts`
+
+**All** of these must hold. If any fails, fix it inside the application instead:
+
+1. **Both applications genuinely consume it.** Not "might later" — today. Every
+   candidate for a `packages/utils` was rejected on this test alone: `slugify`,
+   `trimToNull`, `humanizeEnumValue` and `formatFileSize` each had consumers in
+   exactly one app, so the duplication was intra-app and was fixed there.
+2. **The GraphQL schema cannot carry it.** Types, enums, inputs and payloads are
+   already shared through code generation — 1,011 types and 75 enums. Restating
+   any of them in the package creates a second source of truth for something
+   that already has one.
+3. **It is framework-free.** No `@prisma/client`, `@nestjs/*`, `next`, `react`
+   or `react-dom`. Lint enforces this and a negative test proves the rule fires.
+
+What qualifies today: message codes, multipart upload rules, cookie-name
+defaults, and field bounds — precisely the surfaces the schema does not reach.
+
+### Rules for the contract package
+
+- **Never change an existing message-code value.** The value is the wire
+  contract: the API publishes it as `extensions.code` and the frontend routes
+  users on it. Add a new key instead. Two known-awkward values
+  (`AdminDashboardMessageCode.ADMIN_ONLY = "AminOnly"`, and
+  `PASSWORD_STRENGTH_MESSAGE`, whose value is an English sentence) are preserved
+  for exactly this reason.
+- **Consume it at a boundary, not everywhere.** Services and components import
+  the app's own constant or enum file; only that file imports the package. This
+  is why a contract change touches ~15 files rather than the ~80 they serve.
+- **Share the value, never the enforcement.** The package supplies the MIME
+  allowlist; the API still validates every upload independently. Frontend
+  validation remains a UX affordance.
+- **Share limits and predicates, not messages.** Error and validation messages
+  are user-facing and translated on the frontend, and are not on the backend —
+  they stay in their own application.
+- **Anything the package restates needs a drift test.** `PLATFORM_ROLES` mirrors
+  the Prisma `Role` enum because the package may not import Prisma;
+  `apps/api/src/common/contract-drift.spec.ts` fails if they diverge.
+- Adding an entry point means adding it to `exports` **and** `typesVersions`, so
+  both `bundler` and `node10` resolution find it.
+
+### Proposing a fourth package
+
+The audit evaluated and rejected `packages/ui`, `packages/api-client`,
+`packages/domain`, `packages/database`, `packages/env`, `packages/test-utils`
+and `packages/utils`. Read those sections in `context/monorepo-audit.md` before
+proposing one — most were rejected for having a single consumer, which is still
+true.
 
 ## Formatting and Imports
 
@@ -21,13 +79,19 @@ conflict, prefer the rule below unless compatibility requires the old pattern.
 - Let Prettier control whitespace and wrapping.
 - Prefer guard clauses over deep nesting.
 - Use the configured path aliases instead of long relative imports.
-- Order imports as: framework/external packages, blank line, aliased/internal
-  modules, blank line, relative files.
+- Order imports as: framework/external packages and `@loopskey/*` workspace
+  packages, blank line, aliased/internal modules, blank line, relative files.
+- Import the narrowest entry point a workspace package offers
+  (`@loopskey/api-contracts/upload`, not the root) so the dependency reads
+  clearly at the call site.
 - Use `import type` when an import is only a type.
-- Do not reformat or reorder unrelated code in a focused change.
+- Do not reformat or reorder unrelated code in a focused change. Scope a
+  Prettier run to the files you touched — a broad `--write` glob reflows
+  unrelated files and buries the real diff.
 
 ```ts
 import { Injectable } from "@nestjs/common";
+import { CERTIFICATE_LIMITS } from "@loopskey/api-contracts/validation";
 import type { User } from "@prisma/client";
 
 import { PrismaService } from "@prisma/prisma.service";
@@ -228,6 +292,14 @@ modules/<feature>/
 - Avoid cross-feature deep imports. Export an intentional service/module
   contract if another module needs it.
 - Keep Prisma access in backend services, not resolvers or entities.
+- `enums/message-code.enum.ts` is a re-export shim over
+  `@loopskey/api-contracts/error-codes`. Keep it a shim: add codes to the
+  package. Services keep importing the module path as before.
+- The upload constant files (`enums/pdu-file.constant.ts`,
+  `enums/certificate-file.constant.ts`) name their domain's limits from the
+  shared defaults. Keep the domain-specific names — PDU and certificate limits
+  are equal today but are separate policies, and raising one must not move the
+  other.
 
 ## GraphQL
 
@@ -323,18 +395,22 @@ The API is guarded by default with `JwtAuthGuard` and `RolesGuard`.
 Run the smallest relevant check first, then broaden:
 
 ```bash
-npm run build --workspace api
-npm run build --workspace front
 npm run test --workspace api
-npm run test:e2e --workspace api
-npm run lint
-npx tsc --noEmit -p apps/front/tsconfig.json
-npx tsc --noEmit -p apps/api/tsconfig.json
+npm run test --workspace front
+npm run lint            # every workspace, including packages/api-contracts
+npm run check-types     # every workspace
+npm run test            # 188 API + 112 frontend
+npm run build
 ```
 
-Some repository scripts are currently stale or missing. If a documented
-command fails because the script itself is obsolete, report that separately;
-do not claim the underlying code passed.
+The root commands are Turborepo tasks and are dependency-ordered, so
+`packages/api-contracts` compiles before either app type-checks against it. A
+stale `dist/` is the usual cause of a confusing "module has no exported member"
+after editing the package.
+
+`npm run test:e2e --workspace api` remains broken: it points at
+`apps/api/test/`, a directory that has never existed. Report a stale script
+separately; do not claim the underlying code passed.
 
 Tests should cover:
 
@@ -345,6 +421,20 @@ Tests should cover:
 - frontend loading, empty, error, and success states;
 - forms and keyboard-accessible interactions;
 - payment/upload/external-service failure and retry/idempotency behavior.
+
+Shared-package changes need two extra kinds of test, because their failure modes
+are silent:
+
+- **Drift tests** for anything the package restates from another source of
+  truth (`contract-drift.spec.ts`).
+- **Negative tests** for anything the package is supposed to prevent. A boundary
+  rule that is never seen to fail is not known to work — the package-boundary
+  rules sat unenforced for a whole feature because nothing consumed them and no
+  test noticed.
+
+A behaviour-preserving move must prove it preserved behaviour. `slug.util.spec.ts`
+asserts the consolidated `slugify` matches a verbatim copy of the original across
+twenty inputs, because slugs are already in the database and in indexed URLs.
 
 Do not claim completion while relevant checks fail without clearly documenting
 the failure and its impact.
@@ -362,6 +452,9 @@ A change is ready when:
 - loading/error/empty/success and accessibility states are handled;
 - relevant tests, type checks, lint, and builds have been run;
 - migrations and generated artifacts are included when required;
+- every new shared-package export has a consumer, and anything the package
+  restates has a drift test;
+- the diff contains no unrelated reformatting;
 - project/context documentation is updated for architectural or setup changes;
 - no commit, push, merge, or destructive cleanup is performed without the
   workflow authorization defined in `context/ai-interaction.md`.

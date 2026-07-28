@@ -1,26 +1,38 @@
+import {
+  ACCESS_TOKEN_COOKIE_DEFAULT,
+  PLATFORM_ROLES,
+} from "@loopskey/api-contracts/auth";
 import { NextRequest, NextResponse } from "next/server";
 import { TSessionPayload } from "@/types/guards.types";
 import { jwtVerify } from "jose";
 
+/**
+ * Must match the name the API writes the cookie under, which is why the default
+ * comes from the shared contract rather than a literal on each side.
+ */
 const ACCESS_TOKEN_COOKIE_NAME =
-  process.env.ACCESS_TOKEN_COOKIE_NAME ?? "access_token";
+  process.env.ACCESS_TOKEN_COOKIE_NAME ?? ACCESS_TOKEN_COOKIE_DEFAULT;
 
+/**
+ * Routing only. The API re-checks the role on every operation; a user who
+ * tampers past this gate still gets refused server-side.
+ */
 const ROLE_ROUTES = [
   {
     prefix: "/dashboard/professional",
-    roles: ["PROFESSIONAL"],
+    roles: [PLATFORM_ROLES.PROFESSIONAL],
   },
   {
     prefix: "/dashboard/provider",
-    roles: ["PROVIDER"],
+    roles: [PLATFORM_ROLES.PROVIDER],
   },
   {
     prefix: "/dashboard/organization",
-    roles: ["ORGANIZATION"],
+    roles: [PLATFORM_ROLES.ORGANIZATION],
   },
   {
     prefix: "/dashboard/admin",
-    roles: ["ADMIN"],
+    roles: [PLATFORM_ROLES.ADMIN],
   },
 ] as const;
 
@@ -32,10 +44,10 @@ const AUTH_ROUTES = [
 ] as const;
 
 const AUTH_REDIRECT_BY_ROLE = {
-  PROFESSIONAL: "/dashboard/professional",
-  PROVIDER: "/dashboard/provider",
-  ORGANIZATION: "/dashboard/organization",
-  ADMIN: "/dashboard/admin",
+  [PLATFORM_ROLES.PROFESSIONAL]: "/dashboard/professional",
+  [PLATFORM_ROLES.PROVIDER]: "/dashboard/provider",
+  [PLATFORM_ROLES.ORGANIZATION]: "/dashboard/organization",
+  [PLATFORM_ROLES.ADMIN]: "/dashboard/admin",
 } as const;
 
 const getJwtAccessSecret = () => {

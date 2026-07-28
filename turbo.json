@@ -6,13 +6,30 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "dist/**", "!.next/cache/**"]
+      "outputs": ["dist/**"]
+    },
+    "front#build": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": [".next/**", "!.next/cache/**"]
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "outputs": []
     },
     "lint": {
       "dependsOn": ["^lint"]
     },
     "check-types": {
-      "dependsOn": ["^check-types"]
+      "dependsOn": ["^build"]
+    },
+    "front#codegen": {
+      "inputs": [
+        "src/lib/graphql/documents/**/*.graphql",
+        "codegen.ts",
+        "../api/src/graphql/schema.gql"
+      ],
+      "outputs": ["src/lib/graphql/generated.ts"]
     },
     "dev": {
       "cache": false,

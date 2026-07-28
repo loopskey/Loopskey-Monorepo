@@ -3,7 +3,7 @@ import { ExperienceRange, ProfessionalIndustry } from "@prisma/client";
 import { PROFESSIONAL_SUMMARY_MAX_LENGTH } from "@professional/enums/profile-section.enum";
 import { ProfessionalGqlInputNames } from "@professional/enums/gql-names.enum";
 import { Field, InputType } from "@nestjs/graphql";
-import { trimToNull } from "@utils/functions-helper";
+import { trimToNull } from "@utils/transform.util";
 import { Transform } from "class-transformer";
 
 @InputType(ProfessionalGqlInputNames.UPDATE_PROFESSIONAL_DETAILS_INPUT)

@@ -12,6 +12,7 @@ import { EventRequester } from "@events/enums/event-register.enum";
 import { EventSortField } from "@events/enums/event-register.enum";
 import { EventSortInput } from "@events/dtos/event-sort.input";
 import { PrismaService } from "@prisma/prisma.service";
+import { slugify } from "@utils/slug.util";
 
 @Injectable()
 export class EventService {
@@ -520,7 +521,7 @@ export class EventService {
   }
 
   private async generateUniqueSlug(title: string) {
-    const baseSlug = this.slugify(title);
+    const baseSlug = slugify(title);
     let slug = baseSlug;
     let counter = 1;
     while (await this.prismaService.event.findUnique({ where: { slug } })) {
@@ -528,14 +529,5 @@ export class EventService {
       counter++;
     }
     return slug;
-  }
-
-  private slugify(value: string) {
-    return value
-      .toLowerCase()
-      .trim()
-      .replace(/['"]/g, "")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "");
   }
 }

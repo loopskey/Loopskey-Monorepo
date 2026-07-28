@@ -13,6 +13,10 @@ import { LoginInput } from "@auth/dtos/login.input";
 import { Response } from "express";
 
 import * as argon2 from "argon2";
+import {
+  ACCESS_TOKEN_COOKIE_DEFAULT,
+  REFRESH_TOKEN_COOKIE_DEFAULT,
+} from "@loopskey/api-contracts/auth";
 
 @Injectable()
 export class AuthSessionService {
@@ -250,11 +254,11 @@ export class AuthSessionService {
   ) {
     const accessCookieName = this.configService.get<string>(
       "ACCESS_TOKEN_COOKIE_NAME",
-      "access_token",
+      ACCESS_TOKEN_COOKIE_DEFAULT,
     );
     const refreshCookieName = this.configService.get<string>(
       "REFRESH_TOKEN_COOKIE_NAME",
-      "refresh_token",
+      REFRESH_TOKEN_COOKIE_DEFAULT,
     );
     const isSecure =
       this.configService.get<string>("COOKIE_SECURE", "false") === "true";
@@ -294,11 +298,11 @@ export class AuthSessionService {
   clearAuthCookies(response: Response) {
     const accessCookieName = this.configService.get<string>(
       "ACCESS_TOKEN_COOKIE_NAME",
-      "access_token",
+      ACCESS_TOKEN_COOKIE_DEFAULT,
     );
     const refreshCookieName = this.configService.get<string>(
       "REFRESH_TOKEN_COOKIE_NAME",
-      "refresh_token",
+      REFRESH_TOKEN_COOKIE_DEFAULT,
     );
     const isSecure =
       this.configService.get<string>("COOKIE_SECURE", "false") === "true";

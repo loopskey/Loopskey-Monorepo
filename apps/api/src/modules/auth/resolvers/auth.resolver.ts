@@ -22,6 +22,7 @@ import { LoginInput } from "@auth/dtos/login.input";
 import { JwtPayload } from "@auth/types/jwt-payload.type";
 import { Public } from "@auth/decorators/public.decorator";
 import { Role } from "@prisma/client";
+import { REFRESH_TOKEN_COOKIE_DEFAULT } from "@loopskey/api-contracts/auth";
 
 @Resolver(() => AuthPayloadEntity)
 export class AuthResolver {
@@ -110,7 +111,7 @@ export class AuthResolver {
     @Context("res") response: Response,
   ) {
     const refreshCookieName =
-      process.env.REFRESH_TOKEN_COOKIE_NAME ?? "refresh_token";
+      process.env.REFRESH_TOKEN_COOKIE_NAME ?? REFRESH_TOKEN_COOKIE_DEFAULT;
     const refreshToken = request.cookies?.[refreshCookieName];
     return this.authService.refreshToken(refreshToken, response);
   }
