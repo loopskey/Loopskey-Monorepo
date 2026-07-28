@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Lint, types, tests, build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Turborepo needs real history to compute the merge base for
+          # --affected. With a shallow clone it cannot, and the failure mode is
+          # silent: nothing is treated as affected and the run reports green.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      # Restored across runs so unchanged packages replay instead of rebuilding.
+      # Keyed on the lockfile so a dependency change invalidates it.
+      - name: Restore Turborepo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+            turbo-${{ runner.os }}-
+
+      # `--affected` compares against the merge base, so a frontend-only change
+      # does not rebuild the API. On push to main there is no base, and Turbo
+      # falls back to running everything.
+      - name: Lint
+        run: npx turbo run lint --affected
+
+      - name: Type check
+        run: npx turbo run check-types --affected
+
+      - name: Test
+        run: npx turbo run test --affected
+
+      - name: Build
+        run: npx turbo run build --affected
+
+      # Codegen reads the committed schema file, so it needs no server and no
+      # database. A diff here means a resolver changed without the schema being
+      # regenerated, which would leave the frontend typed against a stale API.
+      - name: Check generated GraphQL types are current
+        run: |
+          npm run codegen --workspace front
+          if ! git diff --quiet -- apps/front/src/lib/graphql/generated.ts; then
+            echo "::error::generated.ts is out of date. Run 'npm run codegen --workspace front' and commit the result."
+            git diff -- apps/front/src/lib/graphql/generated.ts
+            exit 1
+          fi

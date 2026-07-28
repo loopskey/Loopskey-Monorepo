@@ -1,6 +1,7 @@
 // @ts-check
-import eslint from "@eslint/js";
+import { baseRules } from "@loopskey/eslint-config/base";
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
+import eslint from "@eslint/js";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
@@ -22,15 +23,20 @@ export default tseslint.config(
   },
   {
     rules: {
-      // The codebase already marks deliberate discards with a leading
-      // underscore (`_sort`, `_passwordHash`); honour that convention.
-      "@typescript-eslint/no-unused-vars": [
+      ...baseRules,
+      // apps/api must never reach into apps/front. Nothing does today; this
+      // keeps it that way now that shared packages exist as an alternative.
+      "no-restricted-imports": [
         "error",
         {
-          argsIgnorePattern: "^_",
-          varsIgnorePattern: "^_",
-          caughtErrorsIgnorePattern: "^_",
-          ignoreRestSiblings: true,
+          patterns: [
+            {
+              group: ["**/apps/front/**", "**/front/src/**"],
+              message:
+                "apps/api must not import from apps/front. Share the value " +
+                "through @loopskey/api-contracts instead.",
+            },
+          ],
         },
       ],
     },

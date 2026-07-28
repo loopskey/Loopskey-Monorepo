@@ -1,3 +1,4 @@
+import { baseRules } from "@loopskey/eslint-config/base";
 import { fileURLToPath } from "url";
 import { FlatCompat } from "@eslint/eslintrc";
 import { dirname } from "path";
@@ -14,6 +15,26 @@ const eslintConfig = [
   // produces unfixable errors.
   { ignores: ["src/lib/graphql/generated.ts", ".next/**"] },
   ...compat.extends("next/core-web-vitals", "next/typescript"),
+  {
+    rules: {
+      ...baseRules,
+      // apps/front must never reach into apps/api. The schema file codegen
+      // reads is a build input declared in turbo.json, not a module import.
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["**/apps/api/**", "**/api/src/**"],
+              message:
+                "apps/front must not import from apps/api. Share the value " +
+                "through @loopskey/api-contracts instead.",
+            },
+          ],
+        },
+      ],
+    },
+  },
 ];
 
 export default eslintConfig;
