@@ -2,7 +2,8 @@ import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { ExtractJwt, Strategy } from "passport-jwt";
 import { PassportStrategy } from "@nestjs/passport";
 import { AuthMessageCode } from "@auth/enums/message-code.enum";
-import { cookieExtractor } from "@utils/cookie-extractor";
+import { cookieExtractorFor } from "@utils/cookie-extractor";
+import { ACCESS_TOKEN_COOKIE_DEFAULT } from "@loopskey/api-contracts/auth";
 import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "@prisma/prisma.service";
 import { JwtPayload } from "@auth/types/jwt-payload.type";
@@ -16,7 +17,10 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        cookieExtractor,
+        cookieExtractorFor(
+          configService.get<string>("ACCESS_TOKEN_COOKIE_NAME") ??
+            ACCESS_TOKEN_COOKIE_DEFAULT,
+        ),
         ExtractJwt.fromAuthHeaderAsBearerToken(),
       ]),
       secretOrKey: configService.getOrThrow<string>("JWT_ACCESS_SECRET"),
