@@ -130,4 +130,4 @@ ownership, dependency rules, public contracts, critical workflows and
 operational behavior are explicit and automatically verifiable.
 
 Any future microservice proposal must use the decision gate in
-`modular-monolith-hardening.md` and provide measured operational evidence.
+`monolith-hardening.md` and provide measured operational evidence.

@@ -8,7 +8,7 @@ Not Started
 
 This file is the execution index for converting Loopskey into a governed modular
 monolith. The architectural source specification remains
-`context/features/modular-monolith-hardening.md`.
+`context/features/monolith/monolith-hardening.md`.
 
 Implement the following features in order. A phase may start only after the
 previous phase meets its exit gate and is merged.
@@ -56,13 +56,13 @@ seven modular-monolith implementation features.
 
 | Order | Feature | Outcome |
 | --- | --- | --- |
-| 1 | [Phase 1 — Architecture Baseline and Domain Ownership](modular-monolith-ph1-baseline-ownership.md) | Approved bounded contexts, ADRs, model ownership and violation baseline |
-| 2 | [Phase 2 — Automated Boundary Enforcement](modular-monolith-ph2-boundary-enforcement.md) | Architecture tests and lint rules prevent new coupling |
-| 3 | [Phase 3 — Events Vertical-Slice Pilot](modular-monolith-ph3-events-pilot.md) | One complete module proves the target internal architecture |
-| 4 | [Phase 4 — Catalog and Engagement Boundaries](modular-monolith-ph4-catalog-engagement.md) | Catalog, interaction and public-read responsibilities are separated |
-| 5 | [Phase 5 — Identity, Organization and Administration](modular-monolith-ph5-identity-organization.md) | Security-sensitive domains communicate through explicit contracts |
-| 6 | [Phase 6 — Professional Development Decomposition](modular-monolith-ph6-professional-development.md) | The largest module is separated into coherent internal capabilities |
-| 7 | [Phase 7 — Reliability, Storage and Operations](modular-monolith-ph7-reliability-operations.md) | Outbox, storage abstraction, observability and final exception removal |
+| 1 | [Phase 1 — Architecture Baseline and Domain Ownership](monolith-ph1-baseline-ownership.md) | Approved bounded contexts, ADRs, model ownership and violation baseline |
+| 2 | [Phase 2 — Automated Boundary Enforcement](monolith-ph2-boundary-enforcement.md) | Architecture tests and lint rules prevent new coupling |
+| 3 | [Phase 3 — Events Vertical-Slice Pilot](monolith-ph3-events-pilot.md) | One complete module proves the target internal architecture |
+| 4 | [Phase 4 — Catalog and Engagement Boundaries](monolith-ph4-catalog-engagement.md) | Catalog, interaction and public-read responsibilities are separated |
+| 5 | [Phase 5 — Identity, Organization and Administration](monolith-ph5-identity-organization.md) | Security-sensitive domains communicate through explicit contracts |
+| 6 | [Phase 6 — Professional Development Decomposition](monolith-ph6-professional-development.md) | The largest module is separated into coherent internal capabilities |
+| 7 | [Phase 7 — Reliability, Storage and Operations](monolith-ph7-reliability-operations.md) | Outbox, storage abstraction, observability and final exception removal |
 
 ## Program Rules
 
