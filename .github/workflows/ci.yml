@@ -41,6 +41,12 @@ jobs:
       - name: Install
         run: npm ci
 
+      # `npm ci` installs the package but does not generate this repository's
+      # schema-specific Prisma Client. TypeScript imports its models and enums,
+      # so every clean runner must generate it before validation begins.
+      - name: Generate Prisma Client
+        run: npx prisma generate --schema apps/api/prisma/schema.prisma
+
       # Restored across runs so unchanged packages replay instead of rebuilding.
       # Keyed on the lockfile so a dependency change invalidates it.
       - name: Restore Turborepo cache
