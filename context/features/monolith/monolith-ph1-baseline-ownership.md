@@ -88,14 +88,32 @@ The baseline report must contain:
 Each exception must include:
 
 - Unique ID
-- Source domain
+- Source domain — the domain that commits the violation, which must match the
+  domain owning every file listed. Where one violation has several sources,
+  record one exception per source: the source field is what Phase 2 enforcement
+  matches on, so a single entry naming one source fails to permit the others.
 - Target domain
-- Exact files
+- Exact files — individual file paths. A directory standing in for the files
+  beneath it is not acceptable: it makes the entry impossible to retire
+  incrementally and hides how much of the violation is left.
 - Reason
-- Read or write classification
+- Classification, one of:
+  - `read` — the source queries tables the target owns
+  - `write` — the source changes rows the target owns
+  - `import` — a compile-time dependency on the target's code, with no database
+    access
+  - `transaction` — one `$transaction` commits writes owned by two domains. This
+    is recorded separately from the underlying `write` entries because the
+    atomicity guarantee, not the row write, is what blocks the split.
 - Removal phase
 
-The ownership manifest must remain framework-free and typed with `as const`.
+`import` and `transaction` were added during Phase 1 after the audit found
+violations that are genuinely neither a read nor a write. ADR-003 defines how
+each classification maps to a replacement mechanism.
+
+The ownership manifest must remain framework-free and typed with `as const`. It
+must classify every source directory, not only those under `src/modules`, so a
+path-to-context lookup can never return nothing for a real source file.
 
 ## Decisions Required
 
