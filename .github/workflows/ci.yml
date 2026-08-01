@@ -87,6 +87,13 @@ jobs:
       - name: Test
         run: npx turbo run test --affected
 
+      # E2E runs unconditionally, including on documentation-only PRs where
+      # `--affected` correctly schedules no package build. Compile the shared
+      # contracts explicitly so ts-jest can resolve its subpath exports on a
+      # clean runner.
+      - name: Build API contracts for E2E
+        run: npm run build --workspace @loopskey/api-contracts
+
       - name: API end-to-end tests
         run: npm run test:e2e --workspace api
 
