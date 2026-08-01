@@ -7,10 +7,11 @@ another.
 
 ## Active runs
 
-| Run record                                                       | Branch                                  | Status     |
-| ---------------------------------------------------------------- | --------------------------------------- | ---------- |
-| `context/feature-runs/active/ci-develop-pr-gate.md`              | `fix/ci-develop-pr-gate`                | Completing |
-| `context/feature-runs/active/monolith-ph1-baseline-ownership.md` | `chore/monolith-ph1-baseline-ownership` | Completing |
+| Run record                                                         | Branch                                    | Status            |
+| ------------------------------------------------------------------ | ----------------------------------------- | ----------------- |
+| `context/feature-runs/active/ci-develop-pr-gate.md`                | `fix/ci-develop-pr-gate`                  | Completing        |
+| `context/feature-runs/active/monolith-ph1-baseline-ownership.md`   | `chore/monolith-ph1-baseline-ownership`   | Completing        |
+| `context/feature-runs/active/monolith-ph2-boundary-enforcement.md` | `chore/monolith-ph2-boundary-enforcement` | Completing |
 
 Completed records move to `context/feature-runs/completed/` and are indexed in
 `context/feature-history.md`.

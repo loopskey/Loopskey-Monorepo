@@ -470,7 +470,7 @@ whether the overview is composed in the resolver or materialized.
 
 ## Exception baseline
 
-**43 exceptions.** The authoritative, typed list is
+**45 exceptions.** The authoritative, typed list is
 `apps/api/src/architecture/boundary-exceptions.ts`; it is validated by
 `domain-ownership.spec.ts`, which fails if an entry names a missing file, a
 directory instead of a file, a source context that does not match its own files,
@@ -659,7 +659,7 @@ Phase 2 starts:
    `RoadmapEnrollment`) that rest on structure rather than usage.
 3. The allowed dependency direction, including "nothing depends on
    `platform-administration`".
-4. The 43 exceptions and their removal phases, and whether Phase 5 should be
+4. The 45 exceptions and their removal phases, and whether Phase 5 should be
    split now that it carries 19 of them.
 5. Whether the missing write paths for curriculum, schedule and roadmap content
    are intentional (R-8), since an owner for data nobody writes is a guess.

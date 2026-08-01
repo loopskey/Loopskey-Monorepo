@@ -1,0 +1,12 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": "..",
+  "preset": "./test/jest-e2e.preset.js",
+  "testRegex": "test/.*\\.e2e-spec\\.ts$",
+  "transform": {
+    "^.+\\.ts$": ["ts-jest", { "tsconfig": "<rootDir>/test/tsconfig.json" }]
+  },
+  "globalSetup": "<rootDir>/test/setup/global-setup.ts",
+  "setupFiles": ["<rootDir>/test/setup/environment.ts"],
+  "testEnvironment": "node"
+}

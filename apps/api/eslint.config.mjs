@@ -4,6 +4,7 @@ import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended"
 import eslint from "@eslint/js";
 import globals from "globals";
 import tseslint from "typescript-eslint";
+import { moduleBoundariesPlugin } from "./eslint-module-boundaries.mjs";
 
 export default tseslint.config(
   {
@@ -22,8 +23,12 @@ export default tseslint.config(
     },
   },
   {
+    plugins: {
+      "module-boundaries": moduleBoundariesPlugin,
+    },
     rules: {
       ...baseRules,
+      "module-boundaries/internal-imports": "error",
       // apps/api must never reach into apps/front. Nothing does today; this
       // keeps it that way now that shared packages exist as an alternative.
       "no-restricted-imports": [

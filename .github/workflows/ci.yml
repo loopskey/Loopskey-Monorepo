@@ -17,7 +17,25 @@ jobs:
   verify:
     name: Lint, types, tests, build
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: loopskey_test_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d loopskey_test_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/loopskey_test_ci
+      JWT_ACCESS_SECRET: ci-test-access-secret-at-least-32-characters
+      JWT_REFRESH_SECRET: ci-test-refresh-secret-at-least-32-characters
       # Pull requests compare their real head to the target revision. Pushes
       # compare the new revision to the revision immediately before the push.
       # This avoids `--affected` falling back to `main`, which is ambiguous for
@@ -68,6 +86,9 @@ jobs:
 
       - name: Test
         run: npx turbo run test --affected
+
+      - name: API end-to-end tests
+        run: npm run test:e2e --workspace api
 
       - name: Build
         run: npx turbo run build --affected
