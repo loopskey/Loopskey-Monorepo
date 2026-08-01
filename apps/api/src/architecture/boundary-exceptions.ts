@@ -116,6 +116,7 @@ export const BOUNDARY_EXCEPTIONS = [
     files: [
       "apps/api/src/modules/admin/services/admin.service.ts",
       "apps/api/src/modules/admin/services/admin-org.service.ts",
+      "apps/api/src/modules/admin/services/organization-review-notification.service.ts",
     ],
     models: [
       "Organization",
@@ -125,7 +126,7 @@ export const BOUNDARY_EXCEPTIONS = [
       "OrganizationAccessRequest",
     ],
     reason:
-      "The whole organization provisioning workflow runs inside Platform Administration: it creates the Organization, profile, settings and owner membership, and claims the access-request status transition.",
+      "Platform Administration provisions organizations and its notification service also updates delivery state on OrganizationAccessRequest directly, so both workflows bypass the Organization owner.",
     removalPhase: 5,
   },
   {
@@ -329,6 +330,7 @@ export const BOUNDARY_EXCEPTIONS = [
     files: [
       "apps/api/src/modules/admin/services/admin.service.ts",
       "apps/api/src/modules/admin/services/admin-org.service.ts",
+      "apps/api/src/modules/admin/services/organization-review-notification.service.ts",
     ],
     models: [
       "Organization",
@@ -338,7 +340,7 @@ export const BOUNDARY_EXCEPTIONS = [
       "OrganizationDepartment",
     ],
     reason:
-      "Admin organization list, detail and member screens read Organization tables directly, including departments and settings pulled in through a nested include.",
+      "Admin organization screens read Organization tables directly, and notification delivery reads OrganizationAccessRequest state before sending or retrying mail.",
     removalPhase: 5,
   },
   {
@@ -634,6 +636,30 @@ export const BOUNDARY_EXCEPTIONS = [
       "The provider resolver imports @auth/decorators/* for the current-user and role decorators.",
     removalPhase: 2,
   },
+  {
+    id: "EXC-044",
+    source: "platform-administration",
+    target: "organization-management",
+    kind: "import",
+    files: ["apps/api/src/modules/admin/resolvers/admin-org.resolver.ts"],
+    models: [],
+    reason:
+      "The admin organization resolver imports the Organization-owned settings GraphQL entity directly, making an internal transport type a cross-domain contract.",
+    removalPhase: 2,
+  },
+  {
+    id: "EXC-045",
+    source: "engagement",
+    target: "provider-management",
+    kind: "import",
+    files: [
+      "apps/api/src/modules/content-interaction/resolvers/wishlist-content.resolver.ts",
+    ],
+    models: [],
+    reason:
+      "The wishlist resolver imports Provider service result types through the generic modules alias instead of an explicit public application contract.",
+    removalPhase: 2,
+  },
 
   // ---------------------------------------------------------------------
   // Cross-context transactions. One `$transaction` commits writes owned by two
@@ -718,3 +744,91 @@ export const BOUNDARY_EXCEPTIONS = [
  * a build, not pass unnoticed.
  */
 export const BOUNDARY_EXCEPTION_COUNT = BOUNDARY_EXCEPTIONS.length;
+
+/**
+ * SHA-256 of the sorted import specifiers reaching each import exception's
+ * target. This makes an exception approve an exact edge set, not an entire
+ * source file in which arbitrary new dependencies could otherwise hide.
+ */
+export const IMPORT_EXCEPTION_FINGERPRINTS: Readonly<Record<string, string>> = {
+  "EXC-021:apps/api/src/modules/external-learning/entities/paginated-external-learning.entity.ts":
+    "d18a25ed11c64c7a6fffa609fa19c3016c9b56205c3af360e64f52bfc0e154d5",
+  "EXC-021:apps/api/src/modules/external-learning/resolvers/external-learning.resolver.ts":
+    "291351890e9dffad4c84e3a6a6b0cac89de08006ddd74509d2401832811f0cdd",
+  "EXC-021:apps/api/src/modules/external-learning/services/external-learning.service.ts":
+    "291351890e9dffad4c84e3a6a6b0cac89de08006ddd74509d2401832811f0cdd",
+  "EXC-022:apps/api/src/modules/admin/entities/admin-org-detail.entity.ts":
+    "a23b729335982b2bf3fd2f64fa5e746769c4f1dbe71bfea3aff9790f7056d7e5",
+  "EXC-023:apps/api/src/modules/mail/mail.service.ts":
+    "f9f0496ac9745c6c6fe982e94f83adaef77e79c9417f62a366183552029d26e2",
+  "EXC-025:apps/api/src/modules/admin/services/organization-review-notification.service.ts":
+    "9b399cad1b2ca2bfe7a8aafb97c97a98579e3ef1bb47db4e959b2c631897fca8",
+  "EXC-024:apps/api/src/modules/app/app.module.ts":
+    "8a662e6232e8d5ab409497ee32c3be7f27ab0c1a675626f0d58819327bda61be",
+  "EXC-033:apps/api/src/modules/course/controllers/course-import.controller.ts":
+    "6710421fcb0917e757c5a1d7af793564f3cb2b618246015a06e247aff90fb750",
+  "EXC-033:apps/api/src/modules/course/resolvers/course.resolver.ts":
+    "b468d6e3ced9e4183e8d29d88cb24768abe006a8afb30fecc669e778dd28dbbe",
+  "EXC-033:apps/api/src/modules/events/resolvers/event.resolver.ts":
+    "b468d6e3ced9e4183e8d29d88cb24768abe006a8afb30fecc669e778dd28dbbe",
+  "EXC-033:apps/api/src/modules/landing/resolvers/landing.resolver.ts":
+    "9a9c6fd1636266769b98a077784176e3f16e3c69d83ce9da0cd0f40a439e209a",
+  "EXC-033:apps/api/src/modules/podcast/resolvers/podcast.resolver.ts":
+    "b468d6e3ced9e4183e8d29d88cb24768abe006a8afb30fecc669e778dd28dbbe",
+  "EXC-033:apps/api/src/modules/youtube/resolvers/youtube.resolver.ts":
+    "b468d6e3ced9e4183e8d29d88cb24768abe006a8afb30fecc669e778dd28dbbe",
+  "EXC-034:apps/api/src/modules/external-learning/resolvers/external-learning.resolver.ts":
+    "0a581135b0ab11ef660e956ef9d2f667970f7ed9cb9919e2d13c938824913d80",
+  "EXC-034:apps/api/src/modules/professional/controllers/professional-avatar.controller.ts":
+    "b468d6e3ced9e4183e8d29d88cb24768abe006a8afb30fecc669e778dd28dbbe",
+  "EXC-034:apps/api/src/modules/professional/controllers/professional-certificate-file.controller.ts":
+    "6710421fcb0917e757c5a1d7af793564f3cb2b618246015a06e247aff90fb750",
+  "EXC-034:apps/api/src/modules/professional/controllers/professional-pdu-file.controller.ts":
+    "6710421fcb0917e757c5a1d7af793564f3cb2b618246015a06e247aff90fb750",
+  "EXC-034:apps/api/src/modules/professional/resolvers/professional-calendar.resolver.ts":
+    "6710421fcb0917e757c5a1d7af793564f3cb2b618246015a06e247aff90fb750",
+  "EXC-034:apps/api/src/modules/professional/resolvers/professional-certificate.resolver.ts":
+    "6710421fcb0917e757c5a1d7af793564f3cb2b618246015a06e247aff90fb750",
+  "EXC-034:apps/api/src/modules/professional/resolvers/professional-courses.resolver.ts":
+    "6710421fcb0917e757c5a1d7af793564f3cb2b618246015a06e247aff90fb750",
+  "EXC-034:apps/api/src/modules/professional/resolvers/professional-cpd-plan.resolver.ts":
+    "6710421fcb0917e757c5a1d7af793564f3cb2b618246015a06e247aff90fb750",
+  "EXC-034:apps/api/src/modules/professional/resolvers/professional-overview.resolver.ts":
+    "6710421fcb0917e757c5a1d7af793564f3cb2b618246015a06e247aff90fb750",
+  "EXC-034:apps/api/src/modules/professional/resolvers/professional-payments.resolver.ts":
+    "6710421fcb0917e757c5a1d7af793564f3cb2b618246015a06e247aff90fb750",
+  "EXC-034:apps/api/src/modules/professional/resolvers/professional-pdu.resolver.ts":
+    "6710421fcb0917e757c5a1d7af793564f3cb2b618246015a06e247aff90fb750",
+  "EXC-034:apps/api/src/modules/professional/resolvers/professional-profile.resolver.ts":
+    "6710421fcb0917e757c5a1d7af793564f3cb2b618246015a06e247aff90fb750",
+  "EXC-034:apps/api/src/modules/professional/resolvers/professional-roadmap.resolver.ts":
+    "6710421fcb0917e757c5a1d7af793564f3cb2b618246015a06e247aff90fb750",
+  "EXC-034:apps/api/src/modules/professional/resolvers/professional-settings.resolver.ts":
+    "6710421fcb0917e757c5a1d7af793564f3cb2b618246015a06e247aff90fb750",
+  "EXC-035:apps/api/src/modules/organization/resolvers/org-access-request.resolver.ts":
+    "29f4349d36728255e936fad50da2e3f2b626e8c7bd03085c6adddcd3ee9c3f30",
+  "EXC-035:apps/api/src/modules/organization/resolvers/org-dashboard-assignment.resolver.ts":
+    "6710421fcb0917e757c5a1d7af793564f3cb2b618246015a06e247aff90fb750",
+  "EXC-035:apps/api/src/modules/organization/resolvers/org-dashboard-cpd.resolver.ts":
+    "6710421fcb0917e757c5a1d7af793564f3cb2b618246015a06e247aff90fb750",
+  "EXC-035:apps/api/src/modules/organization/resolvers/org-dashboard-department.resolver.ts":
+    "6710421fcb0917e757c5a1d7af793564f3cb2b618246015a06e247aff90fb750",
+  "EXC-035:apps/api/src/modules/organization/resolvers/org-dashboard-member.resolver.ts":
+    "6710421fcb0917e757c5a1d7af793564f3cb2b618246015a06e247aff90fb750",
+  "EXC-035:apps/api/src/modules/organization/resolvers/org-dashboard.resolver.ts":
+    "6710421fcb0917e757c5a1d7af793564f3cb2b618246015a06e247aff90fb750",
+  "EXC-036:apps/api/src/modules/admin/resolvers/admin-org.resolver.ts":
+    "6710421fcb0917e757c5a1d7af793564f3cb2b618246015a06e247aff90fb750",
+  "EXC-036:apps/api/src/modules/admin/resolvers/admin.resolver.ts":
+    "6710421fcb0917e757c5a1d7af793564f3cb2b618246015a06e247aff90fb750",
+  "EXC-037:apps/api/src/modules/content-interaction/resolvers/content-interaction.resolver.ts":
+    "510bf5b95d431ceffcaadc1f47386fe4c741c05ff3d7bf912413810fb1794119",
+  "EXC-037:apps/api/src/modules/content-interaction/resolvers/wishlist-content.resolver.ts":
+    "6710421fcb0917e757c5a1d7af793564f3cb2b618246015a06e247aff90fb750",
+  "EXC-038:apps/api/src/modules/provider/resolvers/provider.resolver.ts":
+    "6710421fcb0917e757c5a1d7af793564f3cb2b618246015a06e247aff90fb750",
+  "EXC-044:apps/api/src/modules/admin/resolvers/admin-org.resolver.ts":
+    "41017e6c0e05c5f7e232b87f143569c53367addc53acbb0fbc24abb7f65ed5ac",
+  "EXC-045:apps/api/src/modules/content-interaction/resolvers/wishlist-content.resolver.ts":
+    "8e35393a2f04901503fb23559b679e960ff93d83c24e08b3e8c088986a0a87e3",
+};
