@@ -13,7 +13,8 @@
 | `Changes Requested`   | Review found actionable issues                              |
 | `Ready to Complete`   | Verified revision has a clean review                        |
 | `Completing`          | Approved submission is in progress                          |
-| `Complete`            | Merge and completion record are verified                    |
+| `Submitted`           | PR is open and all CI checks passed; awaiting manual review |
+| `Complete`            | A later manual merge was independently recorded             |
 | `Blocked`             | Progress requires a decision, authority, or external change |
 | `Cancelled`           | Work intentionally ended without completion                 |
 
@@ -28,7 +29,8 @@ Verification Passed -> In Review
 In Review -> Changes Requested | Ready to Complete | Blocked
 Changes Requested -> In Progress
 Ready to Complete -> Completing
-Completing -> Complete | Verification Failed | Blocked
+Completing -> Submitted | Verification Failed | Blocked
+Submitted -> Complete | Changes Requested | Blocked
 Blocked -> prior actionable state | Cancelled
 any non-complete state -> Cancelled
 ```

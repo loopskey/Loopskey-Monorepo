@@ -5,7 +5,12 @@ Read `../references/state-machine.md`, `../references/git-policy.md`,
 `../references/run-record-schema.md`.
 
 This action has an approval boundary. Prepare everything first, show the exact
-operations, and obtain explicit user approval before commit/push/PR/merge.
+operations, and obtain explicit user approval before commit/push/PR creation.
+
+This action ends after CI completes. Never merge the PR, enable auto-merge, or
+delete the local or remote feature branch, even if the user previously approved
+those operations. The repository owner performs final review, merge, and branch
+cleanup manually.
 
 ## Preflight
 
@@ -34,8 +39,7 @@ Ask one explicit question covering:
 - Commit the listed files
 - Push the feature branch
 - Open a PR targeting `develop`
-- Merge only after required CI/review passes
-- Delete the remote/local branch after merge
+- Wait for all PR CI checks and report their results
 
 No approval means no external or destructive action.
 
@@ -47,22 +51,19 @@ After approval:
 2. Commit with the approved conventional message and no AI attribution.
 3. Push the feature branch.
 4. Create a PR targeting `develop`.
-5. Wait for required CI and human review. Do not bypass protection.
-6. If checks fail, set `Verification Failed`, fix through the normal loop, and
-   stop completion.
-7. Merge using the repository's configured merge policy.
-8. Verify `origin/develop` contains the merged commit.
-9. Run or confirm the post-merge CI/build gate.
-10. Move the run record to
-    `context/feature-runs/completed/<slug>.md`, set status `Complete`, and record
-    commit, PR, merge commit, checks, timestamps, and branch deletion.
-11. Update the generated/history index without rewriting previous records.
-12. Commit/push completion metadata through the same reviewed mechanism if it
-    was not included in the PR.
-13. Delete local and remote feature branches only after merge verification and
-    approved deletion.
-14. Reset the compatibility pointer to no active feature.
+5. Wait until every CI check reaches a terminal state. Do not treat a queued or
+   running check as success, and do not bypass protection.
+6. Verify every required check passed. Record each check name, conclusion, and
+   URL when available.
+7. If any check fails or is cancelled, set `Verification Failed`, report the
+   failing checks, and return fixes through the normal implementation loop.
+8. If all checks pass, set status `Submitted` and keep the run record under
+   `context/feature-runs/active/`. Record the commit, PR URL, CI results, and
+   submission timestamp.
+9. Report the branch, commit, PR URL, target branch, and CI status. State that
+   manual review, merge, and branch cleanup remain for the repository owner.
 
-If the Git provider cannot create or merge a PR, stop after pushing and provide
-the exact manual next step. Do not silently replace the PR workflow with a local
-merge.
+Never call a merge command or API, enable auto-merge, update the base branch to
+simulate integration, close the PR, or delete either branch. If the Git provider
+cannot create the PR or expose CI status, stop after the last successful step
+and provide the exact manual next step.

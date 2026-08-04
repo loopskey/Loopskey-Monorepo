@@ -70,10 +70,16 @@ None.
 
 - Commit:
 - Pull request:
+- CI status:
+- Submitted at:
 - Merge commit:
 - Completed at:
 - Branch deleted:
 ```
+
+The workflow fills submission fields and leaves merge/completion/branch-deletion
+fields blank. Those fields may be recorded later only after the repository owner
+manually merges and cleans up the branch.
 
 Do not rewrite state history. Do not store secrets, environment values, or
 private user data.

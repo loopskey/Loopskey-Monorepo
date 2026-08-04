@@ -22,17 +22,19 @@ back-merge to `develop`.
 - Never force-push shared branches.
 - Never commit directly to `main` or `develop`.
 - Never stage an unreviewed wildcard set.
-- Never delete a branch before its merge is verified remotely.
+- Never merge a PR or enable auto-merge from this workflow.
+- Never delete local or remote feature branches from this workflow.
 - Fetch before integration decisions.
 - Record base branch and base commit in the run record.
 
 ## Integration
 
-Default to a PR targeting `develop`. Require CI and human review. Use the merge
-method configured by repository policy; do not invent a different history
-strategy in the skill.
+Default to a PR targeting `develop`. Wait for all CI checks to finish and
+require successful conclusions before reporting submission success. Leave the
+PR open for human review and manual merge.
 
 Commit messages use Conventional Commits and contain no AI attribution.
 
-Commit, push, PR creation, merge, PR close, and branch deletion require explicit
-approval because they change shared or recoverability-sensitive state.
+Commit, push, and PR creation require explicit approval because they change
+shared state. PR merge, auto-merge, PR close, and branch deletion are outside
+this workflow and remain manual owner actions.

@@ -1,6 +1,6 @@
 ---
 name: feature
-description: Manage the complete Loopskey feature lifecycle consistently across multiple developers. Use for loading a feature specification, creating its branch and run state, implementing it, checking status, verifying gates, reviewing changes, explaining the diff, completing through commit/PR/merge, or safely aborting work.
+description: Manage the Loopskey feature lifecycle consistently across multiple developers. Use for loading a feature specification, creating its branch and run state, implementing it, checking status, verifying gates, reviewing changes, explaining the diff, submitting through commit/push/PR/CI, or safely aborting work. Submission never merges the PR or deletes its branch.
 argument-hint: load|start|status|verify|review|explain|complete|abort
 ---
 
@@ -16,7 +16,7 @@ Execute the requested action from `$ARGUMENTS`.
 | `verify`      | Exercise the change and run the proportional and final gates       |
 | `review`      | Review goals, code, security, scope, and verification evidence     |
 | `explain`     | Explain branch changes relative to the registered base             |
-| `complete`    | Revalidate, obtain approval, commit, push, merge, and archive      |
+| `complete`    | Revalidate, commit, push, open a PR, and report completed CI       |
 | `abort`       | Record cancellation/blocking without destructive Git operations    |
 
 Read the matching file under `actions/` completely before acting.
@@ -39,7 +39,8 @@ Read these references when the action names them:
 Use one run record per feature. Do not use `context/current-feature.md` as
 shared mutable state; it is a compatibility pointer only.
 
-Never commit, push, merge, create a PR, or delete a branch without the explicit
-approval required by the matching action. Never stage unrelated files.
+Never commit, push, or create a PR without the explicit approval required by
+the matching action. This skill never merges a PR or deletes its branch; those
+are manual owner actions after review. Never stage unrelated files.
 
 If no action is provided, show the available actions and current active runs.

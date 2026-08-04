@@ -37,6 +37,7 @@ $allowedStates = @(
   "Changes Requested",
   "Ready to Complete",
   "Completing",
+  "Submitted",
   "Complete",
   "Blocked",
   "Cancelled"
