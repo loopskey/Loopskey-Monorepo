@@ -24,6 +24,7 @@ registerEnumType(OrganizationAccessRequestStatus, {
 
 registerEnumType(OrganizationMemberStatus, {
   name: "OrganizationMemberStatus",
+  description: "Status of organization member",
 });
 
 registerEnumType(NotificationDeliveryStatus, {
