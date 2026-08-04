@@ -1,7 +1,13 @@
 import { INestApplication, ValidationPipe } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { Test } from "@nestjs/testing";
-import { PrismaClient, Role, UserStatus } from "@prisma/client";
+import {
+  PDUCategory,
+  PDUStatus,
+  PrismaClient,
+  Role,
+  UserStatus,
+} from "@prisma/client";
 import { AppModule } from "@app/app.module";
 import { PrismaService } from "@prisma/prisma.service";
 
@@ -12,6 +18,7 @@ describe("GraphQL API (e2e)", () => {
   let app: INestApplication;
   let prisma: PrismaClient;
   let professionalId: string;
+  let secondProfessionalId: string;
   let providerId: string;
 
   beforeAll(async () => {
@@ -44,6 +51,14 @@ describe("GraphQL API (e2e)", () => {
       },
     });
     professionalId = professional.id;
+    const secondProfessional = await prisma.user.create({
+      data: {
+        email: "professional-two@e2e.example.test",
+        role: Role.PROFESSIONAL,
+        status: UserStatus.ACTIVE,
+      },
+    });
+    secondProfessionalId = secondProfessional.id;
     const provider = await prisma.user.create({
       data: {
         email: "provider@e2e.example.test",
@@ -95,6 +110,45 @@ describe("GraphQL API (e2e)", () => {
       .send({ query: `query { userById(userId: "${professionalId}") { id } }` })
       .expect(200);
     expect(response.body.errors[0].extensions.code).toBe("FORBIDDEN");
+  });
+
+  it("scopes professional projections to the authenticated owner", async () => {
+    await prisma.pDUActivity.createMany({
+      data: [professionalId, secondProfessionalId].map((userId, index) => ({
+        userId,
+        title: `Phase 6 E2E Activity ${index}`,
+        category: PDUCategory.TECHNICAL,
+        status: PDUStatus.APPROVED,
+        pdus: 1,
+        date: new Date("2030-01-01T10:00:00.000Z"),
+      })),
+    });
+    const token = signAccessToken(
+      professionalId,
+      "professional@e2e.example.test",
+      Role.PROFESSIONAL,
+    );
+
+    const response = await request(app.getHttpServer())
+      .post("/graphql")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        query: `query {
+          professionalPduActivitySummary {
+            completedActivities
+            activitiesWithEvidence
+            evidenceFilesCount
+          }
+        }`,
+      })
+      .expect(200);
+
+    expect(response.body.errors).toBeUndefined();
+    expect(response.body.data.professionalPduActivitySummary).toEqual({
+      completedActivities: 1,
+      activitiesWithEvidence: 0,
+      evidenceFilesCount: 0,
+    });
   });
 
   it("allows a provider to create, update, and publish an owned event", async () => {

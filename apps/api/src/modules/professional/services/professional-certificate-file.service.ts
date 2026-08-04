@@ -1,12 +1,13 @@
 import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { ProfessionalCertificatesService } from "@professional/services/professional-certificate.service";
 import { ForbiddenException, Injectable } from "@nestjs/common";
-import { extname, join, resolve, sep } from "path";
+import { type EvidenceStoragePort } from "@professional/storage/evidence-storage.port";
 import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
+import { EVIDENCE_STORAGE } from "@professional/storage/evidence-storage.port";
 import { PrismaService } from "@prisma/prisma.service";
 import { randomUUID } from "crypto";
-import { mkdirSync } from "fs";
-import { writeFile } from "fs/promises";
+import { extname } from "path";
+import { Inject } from "@nestjs/common";
 import { TUser } from "@common/types/user.types";
 import { Role } from "@prisma/client";
 
@@ -17,6 +18,8 @@ export class ProfessionalCertificateFileService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly certificatesService: ProfessionalCertificatesService,
+    @Inject(EVIDENCE_STORAGE)
+    private readonly storage: EvidenceStoragePort,
   ) {}
 
   private assertProfessional(user: TUser) {
@@ -24,16 +27,6 @@ export class ProfessionalCertificateFileService {
       throw new ForbiddenException(
         ProfessionalMessageCode.PROFESSIONAL_ACCESS_REQUIRED,
       );
-  }
-
-  private resolveStoragePath(storageKey: string) {
-    const uploadDir = resolve(C.getCertificateUploadDir());
-    const filePath = resolve(join(uploadDir, storageKey));
-    if (filePath !== uploadDir && !filePath.startsWith(uploadDir + sep))
-      throw new NotFoundException(
-        ProfessionalMessageCode.CERTIFICATE_FILE_NOT_FOUND,
-      );
-    return filePath;
   }
 
   private async assertCertificateOwned(user: TUser, certificateId: string) {
@@ -67,8 +60,6 @@ export class ProfessionalCertificateFileService {
         ProfessionalMessageCode.CERTIFICATE_FILE_LIMIT_EXCEEDED,
       );
 
-    const uploadDir = C.getCertificateUploadDir();
-    mkdirSync(uploadDir, { recursive: true });
     const created: { id: string }[] = [];
     for (const file of files) {
       if (!file.size || !file.buffer?.length)
@@ -81,18 +72,24 @@ export class ProfessionalCertificateFileService {
           ProfessionalMessageCode.CERTIFICATE_FILE_INVALID_TYPE,
         );
       const storageKey = `${randomUUID()}${extension}`;
-      await writeFile(this.resolveStoragePath(storageKey), file.buffer);
-      const row = await this.prismaService.certificateFile.create({
-        data: {
-          certificateId,
-          userId: user.id,
-          fileName: file.originalname,
-          storageKey,
-          mimeType: file.mimetype,
-          sizeBytes: file.size,
-        },
-        select: { id: true },
-      });
+      await this.storage.store("certificate", storageKey, file.buffer);
+      let row: { id: string };
+      try {
+        row = await this.prismaService.certificateFile.create({
+          data: {
+            certificateId,
+            userId: user.id,
+            fileName: file.originalname,
+            storageKey,
+            mimeType: file.mimetype,
+            sizeBytes: file.size,
+          },
+          select: { id: true },
+        });
+      } catch (error) {
+        await this.storage.remove("certificate", storageKey);
+        throw error;
+      }
       created.push(row);
     }
     return { certificateId, uploaded: created.length };
@@ -109,10 +106,20 @@ export class ProfessionalCertificateFileService {
     return file;
   }
 
+  private resolveStoredFile(storageKey: string) {
+    try {
+      return this.storage.resolve("certificate", storageKey);
+    } catch {
+      throw new NotFoundException(
+        ProfessionalMessageCode.CERTIFICATE_FILE_NOT_FOUND,
+      );
+    }
+  }
+
   async getEvidenceForDownload(user: TUser, fileId: string) {
     this.assertProfessional(user);
     const file = await this.findOwnedFile(user, fileId);
-    return { file, filePath: this.resolveStoragePath(file.storageKey) };
+    return { file, filePath: this.resolveStoredFile(file.storageKey) };
   }
 
   async deleteEvidence(user: TUser, fileId: string) {

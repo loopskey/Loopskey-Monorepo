@@ -1,14 +1,17 @@
-import { PaymentStatus, Prisma, Role } from "@prisma/client";
+import { ForbiddenException, Inject, Injectable } from "@nestjs/common";
+import { type ProfessionalEngagementApi } from "@contentAction/public/professional-engagement-api";
+import { PROFESSIONAL_ENGAGEMENT_API } from "@contentAction/public/professional-engagement-api";
 import { ProfessionalPaginationInput } from "@professional/dtos/professional-pagination.input";
 import { ProfessionalSearchInput } from "@professional/dtos/professional-search.input";
-import { ForbiddenException } from "@nestjs/common";
-import { PrismaService } from "@prisma/prisma.service";
-import { Injectable } from "@nestjs/common";
 import { TUser } from "@common/types/user.types";
+import { Role } from "@prisma/client";
 
 @Injectable()
 export class ProfessionalPaymentsService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    @Inject(PROFESSIONAL_ENGAGEMENT_API)
+    private readonly engagement: ProfessionalEngagementApi,
+  ) {}
 
   private assertProfessional(user: TUser) {
     if (user.role !== Role.PROFESSIONAL && user.role !== Role.ADMIN)
@@ -23,43 +26,11 @@ export class ProfessionalPaymentsService {
     this.assertProfessional(user);
     const take = pagination?.take ?? 12;
     const search = filter?.search?.trim();
-    const where: Prisma.PaymentWhereInput = {
+    return this.engagement.payments({
       userId: user.id,
-      ...(search
-        ? {
-            title: {
-              contains: search,
-              mode: "insensitive",
-            },
-          }
-        : {}),
-    };
-    const rows = await this.prismaService.payment.findMany({
-      where,
-      take: take + 1,
-      ...(pagination?.cursor
-        ? { cursor: { id: pagination.cursor }, skip: 1 }
-        : {}),
-      orderBy: { createdAt: "desc" },
+      search,
+      cursor: pagination?.cursor,
+      take,
     });
-    const items = rows.slice(0, take);
-    const overview = await this.prismaService.payment.aggregate({
-      where: {
-        userId: user.id,
-        status: PaymentStatus.PAID,
-      },
-      _sum: { amount: true },
-      _count: { id: true },
-    });
-    return {
-      items,
-      totalCount: await this.prismaService.payment.count({ where }),
-      totalSpent: Number(overview._sum.amount ?? 0),
-      totalTransactions: overview._count.id,
-      pageInfo: {
-        hasNextPage: rows.length > take,
-        nextCursor: rows.length > take ? items.at(-1)?.id : null,
-      },
-    };
   }
 }

@@ -26,6 +26,12 @@ const createPrismaMock = () => ({
 const createService = (prisma = createPrismaMock()) => {
   const service = new ProfessionalPduService(
     prisma as unknown as PrismaService,
+    {
+      store: jest.fn(),
+      remove: jest.fn().mockResolvedValue(undefined),
+      resolve: jest.fn(),
+      exists: jest.fn(),
+    },
   );
   return { service, prisma };
 };

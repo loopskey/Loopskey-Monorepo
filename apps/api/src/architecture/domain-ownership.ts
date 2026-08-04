@@ -118,7 +118,13 @@ export const MODEL_OWNERSHIP = {
 export const DOMAIN_DEPENDENCIES = {
   "identity-access": ["communications", "platform-shared"],
   "learning-catalog": ["platform-shared"],
-  "professional-development": ["platform-shared"],
+  "professional-development": [
+    "engagement",
+    "identity-access",
+    "learning-catalog",
+    "platform-shared",
+    "provider-management",
+  ],
   "organization-management": [
     "communications",
     "identity-access",

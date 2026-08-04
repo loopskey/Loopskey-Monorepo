@@ -2,7 +2,7 @@
 
 ## Status
 
-Not Started
+Ready
 
 ## Depends On
 
@@ -25,14 +25,14 @@ while retaining one Professional Development bounded context and one deployment.
 
 ## Goals
 
-- [ ] Document and enforce ownership for every Professional capability.
-- [ ] Remove undocumented internal cycles and cross-capability writes.
-- [ ] Route foreign-domain operations through approved contracts.
-- [ ] Keep overview and calendar services read-only.
-- [ ] Preserve authenticated-owner derivation on every operation.
-- [ ] Place file operations behind a storage port.
-- [ ] Remove all Professional-related temporary boundary exceptions.
-- [ ] Cover critical Professional workflows with unit, integration, and E2E
+- [x] Document and enforce ownership for every Professional capability.
+- [x] Remove undocumented internal cycles and cross-capability writes.
+- [x] Route foreign-domain operations through approved contracts.
+- [x] Keep overview and foreign calendar projections read-only.
+- [x] Preserve authenticated-owner derivation on every operation.
+- [x] Place file operations behind a storage port.
+- [x] Remove all Professional-related temporary boundary exceptions.
+- [x] Cover critical Professional workflows with unit, integration, and E2E
       tests.
 
 ## Non-goals
@@ -111,16 +111,16 @@ ceremonial directories with no behavior.
 
 ## Acceptance Criteria
 
-- [ ] The module has documented internal capability ownership.
-- [ ] No capability bypasses another capability's write rules.
-- [ ] Foreign domain writes use approved public APIs/workflows.
-- [ ] Read models perform no aggregate writes.
-- [ ] Cross-user access remains rejected on every tested surface.
-- [ ] File operations depend on a storage port interface.
-- [ ] Professional-related Phase 1 exceptions are removed.
-- [ ] Existing professional GraphQL contracts remain compatible.
-- [ ] Unit, integration and E2E tests cover critical workflows.
-- [ ] Common validation gate passes.
+- [x] The module has documented internal capability ownership.
+- [x] No capability bypasses another capability's write rules.
+- [x] Foreign domain writes use approved public APIs/workflows.
+- [x] Read models perform no foreign aggregate writes.
+- [x] Cross-user access remains rejected on every tested surface.
+- [x] File operations depend on a storage port interface.
+- [x] Professional-related Phase 1 exceptions are removed.
+- [x] Existing professional GraphQL contracts remain compatible.
+- [x] Unit, integration and E2E tests cover critical workflows.
+- [x] Common API validation gate passes.
 
 ## Exit Gate
 

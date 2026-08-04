@@ -17,20 +17,6 @@ export type BoundaryException = {
 
 export const BOUNDARY_EXCEPTIONS = [
   {
-    id: "EXC-006",
-    source: "professional-development",
-    target: "identity-access",
-    kind: "write",
-    files: [
-      "apps/api/src/modules/professional/services/professional-avatar.service.ts",
-      "apps/api/src/modules/professional/services/professional-profile.service.ts",
-    ],
-    models: ["User"],
-    reason:
-      "Avatar upload and basic-profile edit write User.avatarUrl and User.fullName, because those two display fields live on User rather than on ProfessionalProfile.",
-    removalPhase: 6,
-  },
-  {
     id: "EXC-007",
     source: "identity-access",
     target: "platform-administration",
@@ -60,74 +46,6 @@ export const BOUNDARY_EXCEPTIONS = [
   // ---------------------------------------------------------------------
   // Cross-domain reads. The source is coupled to the target's schema.
   // ---------------------------------------------------------------------
-  {
-    id: "EXC-010",
-    source: "professional-development",
-    target: "learning-catalog",
-    kind: "read",
-    files: [
-      "apps/api/src/modules/professional/services/professional-courses.service.ts",
-      "apps/api/src/modules/professional/services/professional-roadmap.service.ts",
-      "apps/api/src/modules/professional/services/professional-calendar.service.ts",
-      "apps/api/src/modules/professional/services/professional-overview.service.ts",
-    ],
-    models: [
-      "Course",
-      "Roadmap",
-      "RoadmapPhase",
-      "RoadmapStep",
-      "EventRegistration",
-    ],
-    reason:
-      "The professional dashboard reads catalog content and event registrations to build My Courses, roadmap progress, the calendar and the overview cards.",
-    removalPhase: 6,
-  },
-  {
-    id: "EXC-011",
-    source: "professional-development",
-    target: "engagement",
-    kind: "read",
-    files: [
-      "apps/api/src/modules/professional/services/professional-courses.service.ts",
-      "apps/api/src/modules/professional/services/professional-overview.service.ts",
-      "apps/api/src/modules/professional/services/professional-roadmap.service.ts",
-      "apps/api/src/modules/professional/services/professional-payments.service.ts",
-    ],
-    models: ["ContentEnrollment", "RoadmapEnrollment", "Payment"],
-    reason:
-      "Enrollment and payment history are Engagement records read directly to build professional progress and the payments overview.",
-    removalPhase: 6,
-  },
-  {
-    id: "EXC-012",
-    source: "professional-development",
-    target: "identity-access",
-    kind: "read",
-    files: [
-      "apps/api/src/modules/professional/services/professional-avatar.service.ts",
-      "apps/api/src/modules/professional/services/professional-cpd-plan.service.ts",
-      "apps/api/src/modules/professional/services/professional-overview.service.ts",
-      "apps/api/src/modules/professional/services/professional-profile.service.ts",
-      "apps/api/src/modules/professional/services/professional-settings.service.ts",
-    ],
-    models: ["User", "AuthSession"],
-    reason:
-      "Profile and settings screens read User identity fields and list active AuthSession rows for the security panel.",
-    removalPhase: 6,
-  },
-  {
-    id: "EXC-020",
-    source: "professional-development",
-    target: "provider-management",
-    kind: "read",
-    files: [
-      "apps/api/src/modules/professional/services/professional-courses.service.ts",
-    ],
-    models: ["ProviderProfile"],
-    reason:
-      "My Courses shows the publishing provider's organization name via a nested ProviderProfile include.",
-    removalPhase: 6,
-  },
 
   // ---------------------------------------------------------------------
   // Role-profile provisioning. These are nested relation writes
@@ -319,19 +237,6 @@ export const BOUNDARY_EXCEPTIONS = [
   // contexts, so the atomicity itself is the violation. Removing these means
   // deciding what replaces the guarantee, not merely moving a call.
   // ---------------------------------------------------------------------
-  {
-    id: "EXC-042",
-    source: "professional-development",
-    target: "identity-access",
-    kind: "transaction",
-    files: [
-      "apps/api/src/modules/professional/services/professional-profile.service.ts",
-    ],
-    models: ["User"],
-    reason:
-      "Updating the basic profile writes User.fullName and ProfessionalProfile in one transaction, because the display name lives on the identity aggregate.",
-    removalPhase: 6,
-  },
   {
     id: "EXC-043",
     source: "organization-management",

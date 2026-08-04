@@ -21,6 +21,7 @@ import { ProfessionalCpdPlanResolver } from "@professional/resolvers/professiona
 import { ProfessionalProfileResolver } from "@professional/resolvers/professional-profile.resolver";
 import { ProfessionalSettingsService } from "@professional/services/professional-settings.service";
 import { ProfessionalRoadmapResolver } from "@professional/resolvers/professional-roadmap.resolver";
+import { LocalEvidenceStorageAdapter } from "@professional/storage/local-evidence-storage.adapter";
 import { ProfessionalRoadmapService } from "@professional/services/professional-roadmap.service";
 import { ProfessionalCoursesService } from "@professional/services/professional-courses.service";
 import { ProfessionalProfileService } from "@professional/services/professional-profile.service";
@@ -28,14 +29,25 @@ import { ProfessionalPduFileService } from "@professional/services/professional-
 import { ProfessionalCpdPlanService } from "@professional/services/professional-cpd-plan.service";
 import { CertificationSearchService } from "@professional/services/certification-search.service";
 import { ProfessionalAvatarService } from "@professional/services/professional-avatar.service";
+import { ContentInteractionModule } from "@contentAction/content-interaction.module";
 import { ProfessionalPduResolver } from "@professional/resolvers/professional-pdu.resolver";
 import { ProfessionalPduService } from "@professional/services/professional-pdu.service";
+import { EVIDENCE_STORAGE } from "@professional/storage/evidence-storage.port";
+import { ProviderModule } from "@provider/provider.module";
 import { PrismaModule } from "@prisma/prisma.module";
+import { CourseModule } from "@course/course.module";
+import { UserModule } from "@user/user.module";
 import { Module } from "@nestjs/common";
 
 import "@professional/enums/professional-register.enum";
 @Module({
-  imports: [PrismaModule],
+  imports: [
+    PrismaModule,
+    UserModule,
+    CourseModule,
+    ContentInteractionModule,
+    ProviderModule,
+  ],
   controllers: [
     ProfessionalPduFileController,
     ProfessionalAvatarController,
@@ -70,6 +82,8 @@ import "@professional/enums/professional-register.enum";
     ProfessionalCertificateFileService,
     ProfessionalProvisioningApiService,
     ProfessionalProfileCompletionService,
+    LocalEvidenceStorageAdapter,
+    { provide: EVIDENCE_STORAGE, useExisting: LocalEvidenceStorageAdapter },
     {
       provide: PROFESSIONAL_PROVISIONING_API,
       useExisting: ProfessionalProvisioningApiService,

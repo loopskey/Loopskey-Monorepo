@@ -1,16 +1,22 @@
-import { ForbiddenException, NotFoundException } from "@nestjs/common";
+import { ForbiddenException, Inject, NotFoundException } from "@nestjs/common";
 import { ProfessionalCalendarEventsFilterInput } from "@professional/dtos/professional-calendar-filter.input";
 import { ProfessionalPaginationInput } from "@professional/dtos/professional-pagination.input";
+import { type ProfessionalCatalogApi } from "@course/public/professional-catalog-api";
 import { CreateCalendarEventInput } from "@professional/dtos/create-calendar-event.input";
+import { PROFESSIONAL_CATALOG_API } from "@course/public/professional-catalog-api";
 import { TCalculateCalendar } from "@professional/types/professional-service.types";
 import { PrismaService } from "@prisma/prisma.service";
-import { Prisma, Role } from "@prisma/client";
 import { Injectable } from "@nestjs/common";
 import { TUser } from "@common/types/user.types";
+import { Role } from "@prisma/client";
 
 @Injectable()
 export class ProfessionalCalendarService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    @Inject(PROFESSIONAL_CATALOG_API)
+    private readonly catalog: ProfessionalCatalogApi,
+  ) {}
 
   private assertProfessional(user: TUser) {
     if (user.role !== Role.PROFESSIONAL) {
@@ -62,75 +68,25 @@ export class ProfessionalCalendarService {
     this.assertProfessional(user);
     const take = pagination?.take ?? 12;
     const search = filter?.search?.trim();
-    const eventWhere: Prisma.EventWhereInput = {
-      deletedAt: null,
-      ...(search
-        ? {
-            OR: [
-              { title: { contains: search, mode: "insensitive" } },
-              { location: { contains: search, mode: "insensitive" } },
-            ],
-          }
-        : {}),
-      ...(filter?.deliveryMode
-        ? {
-            deliveryMode: filter.deliveryMode,
-          }
-        : {}),
-      ...(filter?.from || filter?.to
-        ? {
-            startDate: {
-              ...(filter.from ? { gte: filter.from } : {}),
-              ...(filter.to ? { lte: filter.to } : {}),
-            },
-          }
-        : {}),
-    };
-    const where: Prisma.EventRegistrationWhereInput = {
+    const result = await this.catalog.calendarRegistrations({
       userId: user.id,
-      ...(filter?.status ? { status: filter.status } : {}),
-      event: eventWhere,
-    };
-    const rows = await this.prismaService.eventRegistration.findMany({
-      where,
-      include: {
-        event: {
-          select: {
-            id: true,
-            pdu: true,
-            slug: true,
-            type: true,
-            title: true,
-            endDate: true,
-            location: true,
-            timezone: true,
-            startDate: true,
-            onlineUrl: true,
-            deliveryMode: true,
-          },
-        },
-      },
-      take: take + 1,
-      ...(pagination?.cursor
-        ? {
-            cursor: { id: pagination.cursor },
-            skip: 1,
-          }
-        : {}),
-      orderBy: {
-        event: {
-          startDate: "asc",
-        },
-      },
+      search,
+      deliveryMode: filter?.deliveryMode,
+      status: filter?.status,
+      from: filter?.from,
+      to: filter?.to,
+      cursor: pagination?.cursor,
+      take,
     });
+    const rows = result.rows;
     const items = rows.slice(0, take);
-    const totalCount = await this.prismaService.eventRegistration.count({
-      where,
-    });
+    const totalCount = result.totalCount;
     return {
       totalCount,
       items: items.map((item) => {
-        const meta = this.calculateCalendarMeta(item.event);
+        const meta = this.calculateCalendarMeta(
+          item.event as TCalculateCalendar,
+        );
         return {
           ...item,
           ...meta,
