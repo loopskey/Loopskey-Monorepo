@@ -1,11 +1,12 @@
 import { BadRequestException, ForbiddenException } from "@nestjs/common";
-import { Injectable, Logger, NotFoundException } from "@nestjs/common";
-import { extname, join, resolve, sep } from "path";
+import { Inject, Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { type ProfessionalIdentityApi } from "@user/public/professional-identity-api";
+import { PROFESSIONAL_IDENTITY_API } from "@user/public/professional-identity-api";
+import { type EvidenceStoragePort } from "@professional/storage/evidence-storage.port";
 import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
-import { PrismaService } from "@prisma/prisma.service";
-import { access, rm, writeFile } from "fs/promises";
+import { EVIDENCE_STORAGE } from "@professional/storage/evidence-storage.port";
 import { randomUUID } from "crypto";
-import { mkdirSync } from "fs";
+import { extname } from "path";
 import { TUser } from "@common/types/user.types";
 import { Role } from "@prisma/client";
 
@@ -15,7 +16,12 @@ import * as C from "@professional/enums/profile-avatar.constant";
 export class ProfessionalAvatarService {
   private readonly logger = new Logger(ProfessionalAvatarService.name);
 
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    @Inject(PROFESSIONAL_IDENTITY_API)
+    private readonly identity: ProfessionalIdentityApi,
+    @Inject(EVIDENCE_STORAGE)
+    private readonly storage: EvidenceStoragePort,
+  ) {}
 
   private assertProfessional(user: TUser) {
     if (user.role !== Role.PROFESSIONAL && user.role !== Role.ADMIN)
@@ -29,26 +35,14 @@ export class ProfessionalAvatarService {
       throw new NotFoundException(
         ProfessionalMessageCode.AVATAR_FILE_NOT_FOUND,
       );
-    const uploadDir = resolve(C.getAvatarUploadDir());
-    const filePath = resolve(join(uploadDir, storageKey));
-    if (!filePath.startsWith(uploadDir + sep))
-      throw new NotFoundException(
-        ProfessionalMessageCode.AVATAR_FILE_NOT_FOUND,
-      );
-    return filePath;
+    return this.storage.resolve("avatar", storageKey);
   }
 
-  /**
-   * Best effort by design: this only ever runs once the new avatar is already
-   * committed, so a cleanup failure (a Windows EBUSY/EPERM from a concurrent
-   * read of the old file, a permission change) must not fail an upload the user
-   * has effectively completed. Worst case we leak one orphaned file.
-   */
   private async removeStoredFile(storageKey: string | null) {
     if (!storageKey) return;
     if (!C.AVATAR_STORAGE_KEY_PATTERN.test(storageKey)) return;
     try {
-      await rm(this.resolveStoragePath(storageKey), { force: true });
+      await this.storage.remove("avatar", storageKey);
     } catch (error) {
       this.logger.warn(
         `Failed to remove previous avatar "${storageKey}": ${
@@ -73,39 +67,33 @@ export class ProfessionalAvatarService {
       throw new BadRequestException(
         ProfessionalMessageCode.AVATAR_FILE_TOO_LARGE,
       );
-    const current = await this.prismaService.user.findUnique({
-      where: { id: user.id },
-      select: { avatarStorageKey: true },
-    });
+    const current = await this.identity.avatar(user.id);
     if (!current)
       throw new NotFoundException(ProfessionalMessageCode.USER_NOT_FOUND);
     const storageKey = `${randomUUID()}${extension}`;
-    mkdirSync(C.getAvatarUploadDir(), { recursive: true });
-    await writeFile(this.resolveStoragePath(storageKey), file.buffer);
-    const updated = await this.prismaService.user.update({
-      where: { id: user.id },
-      data: {
+    await this.storage.store("avatar", storageKey, file.buffer);
+    let updated: { id: string; avatarUrl: string | null };
+    try {
+      updated = await this.identity.setAvatar(user.id, {
         avatarStorageKey: storageKey,
         avatarUrl: C.buildAvatarUrl(storageKey),
-      },
-      select: { id: true, avatarUrl: true },
-    });
+      });
+    } catch (error) {
+      await this.storage.remove("avatar", storageKey);
+      throw error;
+    }
     await this.removeStoredFile(current.avatarStorageKey);
     return updated;
   }
 
   async deleteAvatar(user: TUser) {
     this.assertProfessional(user);
-    const current = await this.prismaService.user.findUnique({
-      where: { id: user.id },
-      select: { avatarStorageKey: true },
-    });
+    const current = await this.identity.avatar(user.id);
     if (!current)
       throw new NotFoundException(ProfessionalMessageCode.USER_NOT_FOUND);
-    const updated = await this.prismaService.user.update({
-      where: { id: user.id },
-      data: { avatarStorageKey: null, avatarUrl: null },
-      select: { id: true, avatarUrl: true },
+    const updated = await this.identity.setAvatar(user.id, {
+      avatarStorageKey: null,
+      avatarUrl: null,
     });
     await this.removeStoredFile(current.avatarStorageKey);
     return updated;
@@ -113,21 +101,12 @@ export class ProfessionalAvatarService {
 
   async getAvatarPath(storageKey: string) {
     const filePath = this.resolveStoragePath(storageKey);
-    const owner = await this.prismaService.user.findFirst({
-      where: { avatarStorageKey: storageKey },
-      select: { id: true },
-    });
+    const owner = await this.identity.avatarOwner(storageKey);
     if (!owner)
       throw new NotFoundException(
         ProfessionalMessageCode.AVATAR_FILE_NOT_FOUND,
       );
-    // The row is not proof the file survived: storage can drift from the
-    // database. Without this the response streams a file that is not there and
-    // fails after the headers are sent, which reaches the browser as a broken
-    // image rather than a 404.
-    try {
-      await access(filePath);
-    } catch {
+    if (!(await this.storage.exists("avatar", storageKey))) {
       throw new NotFoundException(
         ProfessionalMessageCode.AVATAR_FILE_NOT_FOUND,
       );

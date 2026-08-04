@@ -11,3 +11,4 @@ into this index and do not rewrite previous records.
 
 - [`monolith-ph2-boundary-enforcement`](feature-runs/completed/monolith-ph2-boundary-enforcement.md)
 - [`monolith-ph5-identity-organization`](feature-runs/completed/monolith-ph5-identity-organization.md)
+- [`monolith-ph6-professional-development`](feature-runs/completed/monolith-ph6-professional-development.md)

@@ -1,18 +1,17 @@
 import { ForbiddenException, NotFoundException } from "@nestjs/common";
 import { ProfessionalPduActivityFilterInput } from "@professional/dtos/professional-pdu-activity-filter.input";
+import { PDUCompletionStatus, PDUStatus } from "@prisma/client";
 import { ProfessionalPaginationInput } from "@professional/dtos/professional-pagination.input";
+import { Inject, Injectable, Logger } from "@nestjs/common";
 import { ContentType, Prisma, Role } from "@prisma/client";
+import { type EvidenceStoragePort } from "@professional/storage/evidence-storage.port";
 import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
 import { CreatePduActivityInput } from "@professional/dtos/create-pdu-activity.input";
 import { UpdatePduActivityInput } from "@professional/dtos/update-pdu-activity.input";
 import { UpsertPduTargetInput } from "@professional/dtos/upsert-pdu-target.input";
-import { Injectable, Logger } from "@nestjs/common";
-import { getPduUploadDir } from "@professional/enums/pdu-file.constant";
+import { EVIDENCE_STORAGE } from "@professional/storage/evidence-storage.port";
 import { PrismaService } from "@prisma/prisma.service";
-import { PDUCompletionStatus, PDUStatus } from "@prisma/client";
-import { unlink } from "fs/promises";
 import { TUser } from "@common/types/user.types";
-import { join } from "path";
 
 const MONTHS_PER_YEAR = 12;
 
@@ -22,7 +21,10 @@ const COUNTED_STATUS: Prisma.EnumPDUStatusFilter = { not: PDUStatus.REJECTED };
 export class ProfessionalPduService {
   private readonly logger = new Logger(ProfessionalPduService.name);
 
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    @Inject(EVIDENCE_STORAGE) private readonly storage: EvidenceStoragePort,
+  ) {}
 
   private assertProfessional(user: TUser) {
     if (user.role !== Role.PROFESSIONAL && user.role !== Role.ADMIN)
@@ -334,11 +336,10 @@ export class ProfessionalPduService {
   }
 
   async removeEvidenceBlobs(storageKeys: string[]) {
-    const uploadDir = getPduUploadDir();
     await Promise.all(
       storageKeys.map(async (storageKey) => {
         try {
-          await unlink(join(uploadDir, storageKey));
+          await this.storage.remove("pdu", storageKey);
         } catch (error) {
           this.logger.warn(
             `Failed to remove evidence blob ${storageKey}: ${String(error)}`,

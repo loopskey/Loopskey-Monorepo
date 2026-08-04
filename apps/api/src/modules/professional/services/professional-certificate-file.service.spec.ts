@@ -44,11 +44,21 @@ const createService = (prisma = createPrismaMock()) => {
   const certificatesService = {
     removeCertificateBlobs: jest.fn().mockResolvedValue(undefined),
   } as unknown as ProfessionalCertificatesService;
+  const storage = {
+    store: jest.fn().mockResolvedValue(undefined),
+    remove: jest.fn().mockResolvedValue(undefined),
+    resolve: jest.fn((_namespace: string, storageKey: string) => {
+      if (storageKey.includes("..")) throw new Error("invalid key");
+      return `certificate/${storageKey}`;
+    }),
+    exists: jest.fn().mockResolvedValue(true),
+  };
   const service = new ProfessionalCertificateFileService(
     prisma as unknown as PrismaService,
     certificatesService,
+    storage,
   );
-  return { service, prisma, certificatesService };
+  return { service, prisma, certificatesService, storage };
 };
 
 describe("ProfessionalCertificateFileService.uploadEvidence", () => {
@@ -67,6 +77,21 @@ describe("ProfessionalCertificateFileService.uploadEvidence", () => {
       sizeBytes: 1024,
     });
     expect(data.storageKey).toMatch(/\.pdf$/);
+  });
+
+  it("removes the stored blob when metadata persistence fails", async () => {
+    const { service, prisma, storage } = createService();
+    prisma.certificateFile.create.mockRejectedValue(new Error("database"));
+
+    await expect(
+      service.uploadEvidence(professional, "cert-1", [pdf()]),
+    ).rejects.toThrow("database");
+
+    expect(storage.store).toHaveBeenCalledTimes(1);
+    expect(storage.remove).toHaveBeenCalledWith(
+      "certificate",
+      expect.any(String),
+    );
   });
 
   it("rejects an empty upload", async () => {

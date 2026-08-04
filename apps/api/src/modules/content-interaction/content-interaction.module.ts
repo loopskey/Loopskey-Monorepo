@@ -8,6 +8,8 @@ import { PrismaModule } from "@prisma/prisma.module";
 import { CourseModule } from "@course/course.module";
 import { EventModule } from "@events/events.module";
 import { Module } from "@nestjs/common";
+import { ProfessionalEngagementApiService } from "@contentAction/application/professional-engagement-api.service";
+import { PROFESSIONAL_ENGAGEMENT_API } from "@contentAction/public/professional-engagement-api";
 
 import "@contentAction/enums/content-interaction.enum";
 import "@contentAction/enums/wishlist-register.enum";
@@ -25,7 +27,16 @@ import "@contentAction/enums/wishlist-register.enum";
     WishlistContentResolver,
     ContentInteractionService,
     ContentInteractionResolver,
+    ProfessionalEngagementApiService,
+    {
+      provide: PROFESSIONAL_ENGAGEMENT_API,
+      useExisting: ProfessionalEngagementApiService,
+    },
   ],
-  exports: [ContentInteractionService, WishlistContentService],
+  exports: [
+    ContentInteractionService,
+    WishlistContentService,
+    PROFESSIONAL_ENGAGEMENT_API,
+  ],
 })
 export class ContentInteractionModule {}

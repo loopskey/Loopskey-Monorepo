@@ -10,7 +10,12 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  Inject,
 } from "@nestjs/common";
+import {
+  PROFESSIONAL_IDENTITY_API,
+  type ProfessionalIdentityApi,
+} from "@user/public/professional-identity-api";
 import {
   CPDEvidenceType,
   CPDPlanStatus,
@@ -42,6 +47,8 @@ export class ProfessionalCpdPlanService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly certificationSearchService: CertificationSearchService,
+    @Inject(PROFESSIONAL_IDENTITY_API)
+    private readonly identity: ProfessionalIdentityApi,
   ) {}
 
   private assertProfessional(user: TUser) {
@@ -365,10 +372,7 @@ export class ProfessionalCpdPlanService {
 
   async reportRecipients(user: TUser) {
     this.assertProfessional(user);
-    const self = await this.prismaService.user.findUnique({
-      where: { id: user.id },
-      select: { fullName: true, firstName: true, lastName: true, email: true },
-    });
+    const self = await this.identity.profile(user.id);
     const selfLabel =
       self?.fullName?.trim() ||
       [self?.firstName, self?.lastName].filter(Boolean).join(" ").trim() ||

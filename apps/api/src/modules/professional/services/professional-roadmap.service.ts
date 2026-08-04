@@ -1,16 +1,23 @@
-import { ForbiddenException, Injectable } from "@nestjs/common";
+import { ForbiddenException, Inject, Injectable } from "@nestjs/common";
+import { type ProfessionalEngagementApi } from "@contentAction/public/professional-engagement-api";
 import { ProfessionalPaginationInput } from "@professional/dtos/professional-pagination.input";
-import { Prisma, RoadmapStatus, Role } from "@prisma/client";
-import { RoadmapEnrollmentStatus } from "@prisma/client";
+import { type ProfessionalCatalogApi } from "@course/public/professional-catalog-api";
+import { PROFESSIONAL_ENGAGEMENT_API } from "@contentAction/public/professional-engagement-api";
+import { PROFESSIONAL_CATALOG_API } from "@course/public/professional-catalog-api";
 import { ProfessionalSearchInput } from "@professional/dtos/professional-search.input";
-import { PrismaService } from "@prisma/prisma.service";
 import { TUser } from "@common/types/user.types";
+import { Role } from "@prisma/client";
 
 import * as T from "@professional/types/professional-service.types";
 
 @Injectable()
 export class ProfessionalRoadmapService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    @Inject(PROFESSIONAL_ENGAGEMENT_API)
+    private readonly engagement: ProfessionalEngagementApi,
+    @Inject(PROFESSIONAL_CATALOG_API)
+    private readonly catalog: ProfessionalCatalogApi,
+  ) {}
 
   private assertProfessional(user: TUser) {
     if (user.role !== Role.PROFESSIONAL)
@@ -113,45 +120,30 @@ export class ProfessionalRoadmapService {
     this.assertProfessional(user);
     const take = pagination?.take ?? 12;
     const search = filter?.search?.trim();
-    const where: Prisma.RoadmapEnrollmentWhereInput = {
+    const roadmapIds = search
+      ? await this.catalog.searchRoadmapIds(search)
+      : undefined;
+    const result = await this.engagement.roadmapEnrollments({
       userId: user.id,
-      status: {
-        not: RoadmapEnrollmentStatus.UNENROLLED,
-      },
-      roadmap: {
-        deletedAt: null,
-      },
-    };
-    if (search) {
-      where.roadmap = {
-        deletedAt: null,
-        OR: [
-          { title: { contains: search, mode: "insensitive" } },
-          { description: { contains: search, mode: "insensitive" } },
-        ],
-      };
-    }
-    const rows = await this.prismaService.roadmapEnrollment.findMany({
-      where,
-      take: take + 1,
-      ...(pagination?.cursor
-        ? {
-            cursor: { id: pagination.cursor },
-            skip: 1,
-          }
-        : {}),
-      orderBy: {
-        enrolledAt: "desc",
-      },
-      include: T.roadmapEnrollmentWithRoadmapArgs.include,
+      roadmapIds,
+      cursor: pagination?.cursor,
+      take,
     });
+    const rows = result.rows;
     const items = rows.slice(0, take);
-    const totalCount = await this.prismaService.roadmapEnrollment.count({
-      where,
-    });
+    const roadmaps = await this.catalog.roadmaps(
+      items.map((item) => item.roadmapId as string),
+    );
+    const roadmapMap = new Map(
+      roadmaps.map((roadmap) => [roadmap.id, roadmap]),
+    );
+    const merged = items.map((item) => ({
+      ...item,
+      roadmap: roadmapMap.get(item.roadmapId),
+    })) as unknown as T.RoadmapEnrollmentWithRoadmap[];
     return {
-      totalCount,
-      items: items.map((item) => this.mapRoadmapEnrollment(item)),
+      totalCount: result.totalCount,
+      items: merged.map((item) => this.mapRoadmapEnrollment(item)),
       pageInfo: {
         hasNextPage: rows.length > take,
         nextCursor: rows.length > take ? items.at(-1)?.id : null,
@@ -167,57 +159,19 @@ export class ProfessionalRoadmapService {
     this.assertProfessional(user);
     const take = pagination?.take ?? 12;
     const search = filter?.search?.trim();
-    const enrolledRoadmaps =
-      await this.prismaService.roadmapEnrollment.findMany({
-        where: {
-          userId: user.id,
-          status: {
-            not: RoadmapEnrollmentStatus.UNENROLLED,
-          },
-        },
-        select: {
-          roadmapId: true,
-        },
-      });
-    const enrolledRoadmapIds = enrolledRoadmaps.map((item) => item.roadmapId);
-    const where: Prisma.RoadmapWhereInput = {
-      deletedAt: null,
-      status: RoadmapStatus.PUBLISHED,
-      id: {
-        notIn: enrolledRoadmapIds,
-      },
-    };
-    if (search) {
-      where.OR = [
-        { title: { contains: search, mode: "insensitive" } },
-        { description: { contains: search, mode: "insensitive" } },
-      ];
-    }
-    const rows = await this.prismaService.roadmap.findMany({
-      where,
-      take: take + 1,
-      ...(pagination?.cursor
-        ? {
-            cursor: { id: pagination.cursor },
-            skip: 1,
-          }
-        : {}),
-      orderBy: {
-        createdAt: "desc",
-      },
-      include: {
-        phases: {
-          orderBy: { order: "asc" },
-          include: {
-            steps: true,
-          },
-        },
-      },
+    const enrolledRoadmapIds = await this.engagement.enrolledRoadmapIds(
+      user.id,
+    );
+    const result = await this.catalog.exploreRoadmaps({
+      excludedIds: enrolledRoadmapIds,
+      search,
+      cursor: pagination?.cursor,
+      take,
     });
+    const rows =
+      result.rows as unknown as T.RoadmapEnrollmentWithRoadmap["roadmap"][];
     const items = rows.slice(0, take);
-    const totalCount = await this.prismaService.roadmap.count({
-      where,
-    });
+    const totalCount = result.totalCount;
     return {
       totalCount,
       items: items.map((roadmap) => {

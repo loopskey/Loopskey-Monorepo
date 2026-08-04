@@ -1,15 +1,27 @@
-import { EventRegistrationStatus } from "@prisma/client";
-import { ContentEnrollmentStatus } from "@prisma/client";
-import { ContentType, PDUStatus } from "@prisma/client";
+import { type ProfessionalEngagementApi } from "@contentAction/public/professional-engagement-api";
+import { type ProfessionalIdentityApi } from "@user/public/professional-identity-api";
+import { PROFESSIONAL_ENGAGEMENT_API } from "@contentAction/public/professional-engagement-api";
+import { type ProfessionalCatalogApi } from "@course/public/professional-catalog-api";
+import { PROFESSIONAL_IDENTITY_API } from "@user/public/professional-identity-api";
+import { PROFESSIONAL_CATALOG_API } from "@course/public/professional-catalog-api";
+import { Inject, Injectable } from "@nestjs/common";
 import { ForbiddenException } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
-import { Injectable } from "@nestjs/common";
+import { PDUStatus } from "@prisma/client";
 import { TUser } from "@common/types/user.types";
 import { Role } from "@prisma/client";
 
 @Injectable()
 export class ProfessionalOverviewService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    @Inject(PROFESSIONAL_IDENTITY_API)
+    private readonly identity: ProfessionalIdentityApi,
+    @Inject(PROFESSIONAL_ENGAGEMENT_API)
+    private readonly engagement: ProfessionalEngagementApi,
+    @Inject(PROFESSIONAL_CATALOG_API)
+    private readonly catalog: ProfessionalCatalogApi,
+  ) {}
 
   private assertProfessional(user: TUser) {
     if (user.role !== Role.PROFESSIONAL && user.role !== Role.ADMIN)
@@ -30,24 +42,9 @@ export class ProfessionalOverviewService {
       upcomingEvents,
       yearlyTargets,
     ] = await Promise.all([
-      this.prismaService.user.findUnique({
-        where: { id: user.id },
-        select: { fullName: true },
-      }),
-      this.prismaService.contentEnrollment.count({
-        where: {
-          userId: user.id,
-          contentType: ContentType.COURSE,
-          status: ContentEnrollmentStatus.ACTIVE,
-        },
-      }),
-      this.prismaService.contentEnrollment.count({
-        where: {
-          userId: user.id,
-          contentType: ContentType.COURSE,
-          status: ContentEnrollmentStatus.COMPLETED,
-        },
-      }),
+      this.identity.profile(user.id),
+      this.engagement.courseCounts(user.id).then((counts) => counts.active),
+      this.engagement.courseCounts(user.id).then((counts) => counts.completed),
       this.prismaService.pDUActivity.aggregate({
         where: {
           userId: user.id,
@@ -59,16 +56,7 @@ export class ProfessionalOverviewService {
       this.prismaService.certificate.count({
         where: { userId: user.id },
       }),
-      this.prismaService.eventRegistration.count({
-        where: {
-          userId: user.id,
-          status: EventRegistrationStatus.REGISTERED,
-          event: {
-            startDate: { gte: new Date() },
-            deletedAt: null,
-          },
-        },
-      }),
+      this.catalog.upcomingRegistrationCount(user.id),
       this.prismaService.pDUTarget.aggregate({
         where: {
           userId: user.id,
