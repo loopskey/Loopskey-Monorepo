@@ -3,7 +3,7 @@
 - Scope: `full`
 - Branch: `feature/monolith-ph7-reliability-operations`
 - Base: `8af7d0a5eb2ce4a61ec547134a46009f8290ea7f`
-- Status: `Ready`
+- Status: `Submitted`
 
 ## Acceptance
 
@@ -30,6 +30,6 @@
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: `e7012ab`
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/9
+- CI: Pending
