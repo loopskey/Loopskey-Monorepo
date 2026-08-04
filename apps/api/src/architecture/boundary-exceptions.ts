@@ -16,33 +16,6 @@ export type BoundaryException = {
 };
 
 export const BOUNDARY_EXCEPTIONS = [
-  {
-    id: "EXC-007",
-    source: "identity-access",
-    target: "platform-administration",
-    kind: "write",
-    files: [
-      "apps/api/src/modules/auth/services/auth-organization-activation.service.ts",
-    ],
-    models: ["AuditLog"],
-    reason:
-      "Activation writes AuditLog rows directly. Auditing is a platform capability and should be reached through a port rather than by writing another context's table.",
-    removalPhase: 7,
-  },
-  {
-    id: "EXC-008",
-    source: "organization-management",
-    target: "platform-administration",
-    kind: "write",
-    files: [
-      "apps/api/src/modules/organization/services/org-access-request.service.ts",
-    ],
-    models: ["AuditLog"],
-    reason:
-      "Access-request submission writes an AuditLog row inside its own transaction. Same reasoning as EXC-007; the transactional coupling is what makes it worth an outbox in Phase 7.",
-    removalPhase: 7,
-  },
-
   // ---------------------------------------------------------------------
   // Cross-domain reads. The source is coupled to the target's schema.
   // ---------------------------------------------------------------------
@@ -82,17 +55,6 @@ export const BOUNDARY_EXCEPTIONS = [
     models: [],
     reason:
       "The admin organization detail entity embeds @org/entities/org-settings.entity and org-department.entity, so a change to an Organization GraphQL entity silently reshapes the admin contract.",
-    removalPhase: 2,
-  },
-  {
-    id: "EXC-023",
-    source: "communications",
-    target: "identity-access",
-    kind: "import",
-    files: ["apps/api/src/modules/mail/mail.service.ts"],
-    models: [],
-    reason:
-      "MailService imports AuthMessageCode from @auth/enums/message-code.enum while AuthModule imports MailModule. That is a file-level cycle between the two contexts and the only edge that makes the current graph cyclic.",
     removalPhase: 2,
   },
   {
@@ -231,25 +193,6 @@ export const BOUNDARY_EXCEPTIONS = [
       "The wishlist resolver imports Provider service result types through the generic modules alias instead of an explicit public application contract.",
     removalPhase: 2,
   },
-
-  // ---------------------------------------------------------------------
-  // Cross-context transactions. One `$transaction` commits writes owned by two
-  // contexts, so the atomicity itself is the violation. Removing these means
-  // deciding what replaces the guarantee, not merely moving a call.
-  // ---------------------------------------------------------------------
-  {
-    id: "EXC-043",
-    source: "organization-management",
-    target: "platform-administration",
-    kind: "transaction",
-    files: [
-      "apps/api/src/modules/organization/services/org-access-request.service.ts",
-    ],
-    models: ["AuditLog"],
-    reason:
-      "Access-request submission writes the request and its audit row in one transaction. This is the case the Phase 7 outbox exists for: the audit row must not be lost, so it cannot become a fire-and-forget event earlier.",
-    removalPhase: 7,
-  },
 ] as const satisfies readonly BoundaryException[];
 
 export const BOUNDARY_EXCEPTION_COUNT = BOUNDARY_EXCEPTIONS.length;
@@ -263,8 +206,6 @@ export const IMPORT_EXCEPTION_FINGERPRINTS: Readonly<Record<string, string>> = {
     "291351890e9dffad4c84e3a6a6b0cac89de08006ddd74509d2401832811f0cdd",
   "EXC-022:apps/api/src/modules/admin/entities/admin-org-detail.entity.ts":
     "a23b729335982b2bf3fd2f64fa5e746769c4f1dbe71bfea3aff9790f7056d7e5",
-  "EXC-023:apps/api/src/modules/mail/mail.service.ts":
-    "f9f0496ac9745c6c6fe982e94f83adaef77e79c9417f62a366183552029d26e2",
   "EXC-024:apps/api/src/modules/app/app.module.ts":
     "8a662e6232e8d5ab409497ee32c3be7f27ab0c1a675626f0d58819327bda61be",
   "EXC-033:apps/api/src/modules/course/controllers/course-import.controller.ts":

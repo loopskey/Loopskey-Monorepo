@@ -1,5 +1,15 @@
 # Loopskey Course Platform — Project Overview
 
+## Reliability and operations
+
+Business reactions use the versioned transactional outbox in
+`apps/api/src/infrastructure/outbox`. Mail delivery is asynchronous, bounded to
+ten attempts, and idempotency is recorded per event and handler. Evidence files
+use the shared `ObjectStoragePort`, with local disk as the initial adapter.
+Production logs are JSON; requests carry `x-correlation-id`; `/health` reports
+liveness and `/ready` verifies required database connectivity. Operational
+procedures live in `context/architecture/outbox-operations.md`.
+
 > This document describes the repository as it exists today. Treat the Prisma
 > schema, generated GraphQL schema, and application code as the final source of
 > truth when this document and the implementation disagree.

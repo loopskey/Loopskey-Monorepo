@@ -1,5 +1,7 @@
 import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
 import { ConfigModule, ConfigService } from "@nestjs/config";
+import { APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
+import { OperationTimingInterceptor } from "../../infrastructure/observability/operation-timing.interceptor";
 import { ContentInteractionModule } from "@contentAction/content-interaction.module";
 import { ExternalLearningModule } from "@ext/external-learning.module";
 import { AdminDashboardModule } from "@admin/admin.module";
@@ -7,6 +9,7 @@ import { PasswordChangeGuard } from "@auth/guards/password-change.guard";
 import { OrganizationModule } from "@org/org.module";
 import { formatGraphQLError } from "@utils/graphql-error-formatter";
 import { ProfessionalModule } from "@professional/professional.module";
+import { OperationsModule } from "../../infrastructure/operations/operations.module";
 import { ProviderModule } from "@provider/provider.module";
 import { GraphQLModule } from "@nestjs/graphql";
 import { PodcastModule } from "@podcast/podcast.module";
@@ -19,7 +22,6 @@ import { EventModule } from "@events/events.module";
 import { AuthModule } from "@auth/auth.module";
 import { UserModule } from "@user/user.module";
 import { RolesGuard } from "@auth/guards/roles.guard";
-import { APP_GUARD } from "@nestjs/core";
 import { Module } from "@nestjs/common";
 import { join } from "path";
 
@@ -29,6 +31,7 @@ import { join } from "path";
       isGlobal: true,
       envFilePath: ".env",
     }),
+    OperationsModule,
 
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
@@ -72,6 +75,7 @@ import { join } from "path";
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
     { provide: APP_GUARD, useClass: PasswordChangeGuard },
+    { provide: APP_INTERCEPTOR, useClass: OperationTimingInterceptor },
   ],
 })
 export class AppModule {}

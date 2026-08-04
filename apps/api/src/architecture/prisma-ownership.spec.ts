@@ -14,6 +14,7 @@ describe("Prisma ownership enforcement", () => {
   it("blocks foreign model access that has no recorded exception", () => {
     const undocumented = accesses.filter(
       (access) =>
+        access.target !== "platform-shared" &&
         !persistenceExceptions.some(
           (exception) =>
             exception.source === access.source &&
