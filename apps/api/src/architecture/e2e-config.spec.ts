@@ -24,7 +24,9 @@ describe("E2E Jest configuration", () => {
     }
     expect(preset.moduleNameMapper["^@prisma/(.*)$"]).toBeUndefined();
     expect(
-      preset.moduleNameMapper["^@prisma/(prisma\\.service|prisma\\.module)$"],
+      preset.moduleNameMapper[
+        "^@prisma/(prisma\\.service|prisma\\.module|role-profile-registry\\.service)$"
+      ],
     ).toBeDefined();
   });
 });

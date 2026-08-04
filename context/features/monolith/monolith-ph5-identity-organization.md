@@ -2,7 +2,7 @@
 
 ## Status
 
-Not Started
+Ready
 
 ## Depends On
 
@@ -26,13 +26,13 @@ Harden in this order:
 
 ## Goals
 
-- [ ] Make Identity and Organization persistence ownership enforceable.
-- [ ] Preserve all authentication, session, OAuth, and cookie behavior.
-- [ ] Move administrative coordination behind explicit APIs and workflows.
-- [ ] Keep security-critical multi-record changes atomic.
-- [ ] Decouple committed business state from email-provider availability.
-- [ ] Remove all Phase 5 boundary exceptions.
-- [ ] Prove role, ownership, tenant, and secret protections with E2E tests.
+- [x] Make Identity and Organization persistence ownership enforceable.
+- [x] Preserve all authentication, session, OAuth, and cookie behavior.
+- [x] Move administrative coordination behind explicit APIs and workflows.
+- [x] Keep security-critical multi-record changes atomic.
+- [x] Decouple committed business state from email-provider availability.
+- [x] Remove all Phase 5 boundary exceptions.
+- [x] Prove role, ownership, tenant, and secret protections with E2E tests.
 
 ## Non-goals
 
@@ -87,16 +87,16 @@ Add E2E coverage for:
 
 ## Acceptance Criteria
 
-- [ ] Identity-owned records are written only by Identity and Access.
-- [ ] Organization-owned records are written only by Organization Management.
-- [ ] Admin workflows use public APIs or approved read projections.
-- [ ] Global guards have no foreign-domain persistence shortcuts.
-- [ ] Secrets are absent from public contracts, events and logs.
-- [ ] Email failure cannot corrupt committed identity/organization state.
-- [ ] All Phase 5 boundary exceptions are removed.
-- [ ] Authentication cookies and GraphQL behavior remain compatible.
-- [ ] Security-critical E2E tests pass.
-- [ ] Common validation gate passes.
+- [x] Identity-owned records are written only by Identity and Access.
+- [x] Organization-owned records are written only by Organization Management.
+- [x] Admin workflows use public APIs or approved read projections.
+- [x] Global guards have no foreign-domain persistence shortcuts.
+- [x] Secrets are absent from public contracts, events and logs.
+- [x] Email failure cannot corrupt committed identity/organization state.
+- [x] All Phase 5 boundary exceptions are removed.
+- [x] Authentication cookies and GraphQL behavior remain compatible.
+- [x] Security-critical E2E tests pass.
+- [x] Common validation gate passes.
 
 ## Exit Gate
 

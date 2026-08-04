@@ -1,10 +1,13 @@
 import { ProfessionalCertificateFileController } from "@professional/controllers/professional-certificate-file.controller";
 import { ProfessionalProfileCompletionService } from "@professional/services/professional-profile-completion.service";
 import { ProfessionalCertificateFileService } from "@professional/services/professional-certificate-file.service";
+import { ProfessionalProvisioningApiService } from "@professional/application/professional-provisioning-api.service";
 import { ProfessionalCertificatesResolver } from "@professional/resolvers/professional-certificate.resolver";
 import { ProfessionalCertificatesService } from "@professional/services/professional-certificate.service";
+import { ProfessionalRoleProfileHandler } from "@professional/application/professional-role-profile.handler";
 import { ProfessionalCredentialService } from "@professional/services/professional-credential.service";
 import { ProfessionalPduFileController } from "@professional/controllers/professional-pdu-file.controller";
+import { PROFESSIONAL_PROVISIONING_API } from "@professional/public/professional-provisioning-api";
 import { ProfessionalCalendarResolver } from "@professional/resolvers/professional-calendar.resolver";
 import { ProfessionalOverviewResolver } from "@professional/resolvers/professional-overview.resolver";
 import { ProfessionalPaymentsResolver } from "@professional/resolvers/professional-payments.resolver";
@@ -61,10 +64,16 @@ import "@professional/enums/professional-register.enum";
     ProfessionalSettingsResolver,
     ProfessionalPaymentsResolver,
     ProfessionalCredentialService,
+    ProfessionalRoleProfileHandler,
     ProfessionalCertificatesService,
     ProfessionalCertificatesResolver,
     ProfessionalCertificateFileService,
+    ProfessionalProvisioningApiService,
     ProfessionalProfileCompletionService,
+    {
+      provide: PROFESSIONAL_PROVISIONING_API,
+      useExisting: ProfessionalProvisioningApiService,
+    },
   ],
   exports: [
     ProfessionalPduService,
@@ -80,6 +89,7 @@ import "@professional/enums/professional-register.enum";
     ProfessionalOverviewService,
     ProfessionalPaymentsService,
     ProfessionalCredentialService,
+    PROFESSIONAL_PROVISIONING_API,
     ProfessionalCertificatesService,
     ProfessionalProfileCompletionService,
   ],

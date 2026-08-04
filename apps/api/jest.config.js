@@ -37,7 +37,7 @@ module.exports = {
     "^.+\\.ts$": ["ts-jest", { tsconfig: "<rootDir>/../tsconfig.spec.json" }],
   },
   moduleNameMapper: {
-    "^@prisma/(prisma\\.service|prisma\\.module)$":
+    "^@prisma/(prisma\\.service|prisma\\.module|role-profile-registry\\.service)$":
       "<rootDir>/modules/prisma/$1",
     ...derived,
   },

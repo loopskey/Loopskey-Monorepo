@@ -10,6 +10,7 @@ import { ConflictException, Logger } from "@nestjs/common";
 
 import type { AuthCommonService } from "@auth/services/auth-common.service";
 import { AuthOrganizationActivationService } from "@auth/services/auth-organization-activation.service";
+import { OrganizationReviewApiService } from "@org/application/organization-review-api.service";
 
 import { OrganizationReviewNotificationService } from "./organization-review-notification.service";
 
@@ -64,6 +65,11 @@ const setup = (sendEmail = jest.fn().mockResolvedValue({ id: "email-1" })) => {
     config as unknown as ConfigService,
     { sendEmail } as unknown as MailService,
     {} as unknown as AuthCommonService,
+    {
+      project: jest
+        .fn()
+        .mockResolvedValue({ organizationName: "Example Association" }),
+    } as never,
   );
   return {
     prisma,
@@ -74,6 +80,10 @@ const setup = (sendEmail = jest.fn().mockResolvedValue({ id: "email-1" })) => {
       { sendEmail } as unknown as MailService,
       config as unknown as ConfigService,
       organizationActivation,
+      new OrganizationReviewApiService(
+        prisma as unknown as PrismaService,
+        {} as never,
+      ),
     ),
   };
 };

@@ -4,16 +4,17 @@ import { OrganizationActivationTokenStatus } from "@auth/enums/organization-acti
 import { ActivateOrganizationAccountInput } from "@auth/dtos/activate-organization-account.input";
 import { buildOrganizationApprovalEmail } from "@mail/organization-email.template";
 import { AuditAction, OtpPurpose, Role } from "@prisma/client";
-import type { Prisma } from "@prisma/client";
 import { SessionStatus, UserStatus } from "@prisma/client";
 import { ACTIVATION_RECORD_SELECT } from "@auth/types/auth-service.types";
 import { createHash, randomBytes } from "crypto";
+import { RoleProfileRegistry } from "@prisma/role-profile-registry.service";
 import { AuthCommonService } from "@auth/services/auth-common.service";
 import { AUTH_USER_SELECT } from "@auth/types/auth-user-select.constant";
 import { AuthMessageCode } from "@auth/enums/message-code.enum";
 import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "@prisma/prisma.service";
 import { MailService } from "@mail/mail.service";
+import { Prisma } from "@prisma/client";
 
 import * as T from "@auth/types/auth-service.types";
 import * as argon2 from "argon2";
@@ -31,6 +32,7 @@ export class AuthOrganizationActivationService {
     private readonly config: ConfigService,
     private readonly mail: MailService,
     private readonly authCommon: AuthCommonService,
+    private readonly roleProfiles: RoleProfileRegistry,
   ) {}
 
   async issueActivationLink({
@@ -78,8 +80,9 @@ export class AuthOrganizationActivationService {
     const check = this.classifyActivation(await this.findActivation(token));
     return {
       status: check.status,
-      organizationName:
-        check.subject?.organizationProfile?.organizationName ?? null,
+      organizationName: check.subject
+        ? await this.organizationName(check.subject.id)
+        : null,
     };
   }
 
@@ -98,7 +101,7 @@ export class AuthOrganizationActivationService {
 
     const pendingUser = check.subject;
     const organizationName =
-      pendingUser.organizationProfile?.organizationName ?? "your Organization";
+      (await this.organizationName(pendingUser.id)) ?? "your Organization";
     this.assertPasswordIsNotObvious({
       password: input.password,
       email: pendingUser.email,
@@ -192,10 +195,11 @@ export class AuthOrganizationActivationService {
       select: {
         id: true,
         email: true,
-        organizationProfile: { select: { organizationName: true } },
       },
     });
-    if (!user?.email || !user.organizationProfile) return genericResult;
+    if (!user?.email) return genericResult;
+    const organizationName = await this.organizationName(user.id);
+    if (!organizationName) return genericResult;
     const destination = user.email;
     try {
       const supportEmail = this.requiredConfig("SUPPORT_EMAIL");
@@ -221,7 +225,7 @@ export class AuthOrganizationActivationService {
       const { activationUrl, expiresInMinutes } = invitation;
       const template = buildOrganizationApprovalEmail({
         appName: this.config.get<string>("APP_NAME", "LoopsKey"),
-        organizationName: user.organizationProfile.organizationName,
+        organizationName,
         supportEmail,
         username: destination,
         activationUrl,
@@ -270,11 +274,7 @@ export class AuthOrganizationActivationService {
     const subject = activation?.user;
     if (!activation || !subject)
       return rejected(OrganizationActivationTokenStatus.INVALID);
-    if (
-      subject.role !== Role.ORGANIZATION ||
-      !subject.organizationProfile ||
-      subject.deletedAt
-    )
+    if (subject.role !== Role.ORGANIZATION || subject.deletedAt)
       return rejected(OrganizationActivationTokenStatus.INVALID);
     if (subject.status === UserStatus.ACTIVE)
       return rejected(OrganizationActivationTokenStatus.USED);
@@ -306,6 +306,12 @@ export class AuthOrganizationActivationService {
       code: AuthMessageCode.ACTIVATION_TOKEN_INVALID,
       message: "This activation link is invalid.",
     });
+  }
+
+  private async organizationName(userId: string) {
+    const profile = await this.roleProfiles.project(Role.ORGANIZATION, userId);
+    const value = profile?.organizationName;
+    return typeof value === "string" && value.trim() ? value : null;
   }
 
   private assertPasswordIsNotObvious({

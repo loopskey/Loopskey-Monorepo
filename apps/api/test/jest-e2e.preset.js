@@ -12,7 +12,7 @@ delete derived["^@prisma/(.*)$"];
 
 module.exports = {
   moduleNameMapper: {
-    "^@prisma/(prisma\\.service|prisma\\.module)$":
+    "^@prisma/(prisma\\.service|prisma\\.module|role-profile-registry\\.service)$":
       "<rootDir>/src/modules/prisma/$1",
     ...derived,
   },

@@ -18,7 +18,6 @@ export const ACTIVATION_RECORD_SELECT = {
       status: true,
       deletedAt: true,
       emailVerifiedAt: true,
-      organizationProfile: { select: { organizationName: true } },
     },
   },
 } satisfies Prisma.OtpCodeSelect;

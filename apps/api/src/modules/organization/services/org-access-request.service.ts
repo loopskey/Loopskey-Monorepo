@@ -6,7 +6,9 @@ import { OrganizationAccessRequestMessageCode } from "@org/enums/org-access-requ
 import { OrganizationAccessRequestFilterInput } from "@org/dtos/org-access-request-filter";
 import { buildOrganizationSubmittedEmail } from "@mail/organization-email.template";
 import { NotificationDeliveryStatus } from "@prisma/client";
-import { Injectable, Logger } from "@nestjs/common";
+import { Inject, Injectable, Logger } from "@nestjs/common";
+import { type IdentityProfileApi } from "@user/public/identity-profile-api";
+import { IDENTITY_PROFILE_API } from "@user/public/identity-profile-api";
 import { PrismaService } from "@prisma/prisma.service";
 import { ConfigService } from "@nestjs/config";
 import { MailService } from "@mail/mail.service";
@@ -20,6 +22,8 @@ export class OrgAccessRequestService {
     private readonly prismaService: PrismaService,
     private readonly mailService: MailService,
     private readonly configService: ConfigService,
+    @Inject(IDENTITY_PROFILE_API)
+    private readonly identityApi: IdentityProfileApi,
   ) {}
 
   private readonly requestSelect = {
@@ -51,10 +55,7 @@ export class OrgAccessRequestService {
 
   async submitRequest(input: SubmitOrganizationAccessRequestInput) {
     const workEmail = this.normalizeEmail(input.workEmail);
-    const existingUser = await this.prismaService.user.findUnique({
-      where: { email: workEmail },
-      select: { id: true },
-    });
+    const existingUser = await this.identityApi.existsByEmail(workEmail);
     if (existingUser) {
       throw new ConflictException({
         code: OrganizationAccessRequestMessageCode.USER_ALREADY_EXISTS,
