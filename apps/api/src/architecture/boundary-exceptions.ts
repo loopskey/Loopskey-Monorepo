@@ -72,19 +72,6 @@ export const BOUNDARY_EXCEPTIONS = [
   // Cross-domain writes. Two contexts can change the same rows today.
   // ---------------------------------------------------------------------
   {
-    id: "EXC-001",
-    source: "engagement",
-    target: "learning-catalog",
-    kind: "write",
-    files: [
-      "apps/api/src/modules/content-interaction/services/content-interaction.service.ts",
-    ],
-    models: ["EventRegistration", "Event"],
-    reason:
-      "registerForEvent upserts an EventRegistration and increments Event.attendees. Capacity and the attendee counter are Event aggregate invariants, so two contexts can currently drive them apart.",
-    removalPhase: 3,
-  },
-  {
     id: "EXC-002",
     source: "engagement",
     target: "learning-catalog",

@@ -8,10 +8,16 @@ import { ContentEnrollmentStatus } from "@prisma/client";
 import { BadRequestException } from "@nestjs/common";
 import { ContentActionInput } from "@contentAction/dtos/content-action.input";
 import { PrismaService } from "@prisma/prisma.service";
+import { EVENTS_API } from "@events/public/events-api.token";
+import { EventsApi } from "@events/public/events-api";
+import { Inject } from "@nestjs/common";
 
 @Injectable()
 export class ContentInteractionService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    @Inject(EVENTS_API) private readonly eventsApi: EventsApi,
+  ) {}
 
   async toggleWishlist(userId: string, input: ContentActionInput) {
     await this.resolveContent(input.contentType, input.contentId);
@@ -83,21 +89,9 @@ export class ContentInteractionService {
 
   async cancelContentEnrollment(userId: string, input: ContentActionInput) {
     if (input.contentType === ContentType.EVENT) {
-      const registration = await this.prismaService.eventRegistration.findFirst(
-        {
-          where: {
-            userId,
-            eventId: input.contentId,
-          },
-        },
-      );
-      if (!registration)
-        throw new NotFoundException("Event registration not found.");
-      await this.prismaService.eventRegistration.update({
-        where: { id: registration.id },
-        data: {
-          status: "CANCELED",
-        },
+      await this.eventsApi.cancelEventRegistration({
+        userId,
+        eventId: input.contentId,
       });
       return {
         success: true,
@@ -430,35 +424,7 @@ export class ContentInteractionService {
   }
 
   private async registerEvent(userId: string, eventId: string) {
-    const event = await this.prismaService.event.findFirst({
-      where: { id: eventId, deletedAt: null },
-    });
-    if (!event) {
-      throw new NotFoundException(
-        ContentInteractionMessageCode.CONTENT_NOT_FOUND,
-      );
-    }
-    await this.prismaService.eventRegistration.upsert({
-      where: {
-        eventId_userId: { eventId, userId },
-      },
-      create: {
-        userId,
-        eventId,
-        status: "REGISTERED",
-      },
-      update: {
-        status: "REGISTERED",
-      },
-    });
-    await this.prismaService.event.update({
-      where: { id: eventId },
-      data: {
-        attendees: {
-          increment: 1,
-        },
-      },
-    });
+    await this.eventsApi.enrollInEvent({ eventId, userId });
     return {
       success: true,
       code: ContentInteractionMessageCode.EVENT_REGISTERED,

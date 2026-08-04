@@ -354,7 +354,7 @@ describe("boundary exception register", () => {
     // context/modular-monolith-baseline.md and both ADR-001 and ADR-002, and
     // the roadmap requires it to fall monotonically from Phase 3. Changing it
     // should be an explicit edit here, not a silent drift.
-    expect(BOUNDARY_EXCEPTION_COUNT).toBe(45);
+    expect(BOUNDARY_EXCEPTION_COUNT).toBe(44);
   });
 
   it("explains itself in more than a few words", () => {
