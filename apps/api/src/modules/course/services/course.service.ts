@@ -183,6 +183,37 @@ export class CourseService {
     return course;
   }
 
+  async resolveForEngagement(courseId: string) {
+    const course = await this.prismaService.course.findFirst({
+      where: { id: courseId, deletedAt: null },
+      select: {
+        id: true,
+        title: true,
+        price: true,
+        currency: true,
+        isFree: true,
+      },
+    });
+    if (!course)
+      throw new NotFoundException(CourseMessageCode.COURSE_NOT_FOUND);
+    return {
+      ...course,
+      price: Number(course.price ?? 0),
+      currency: course.currency ?? "USD",
+    };
+  }
+
+  async updateEngagementRating(
+    courseId: string,
+    average: number,
+    count: number,
+  ) {
+    await this.prismaService.course.update({
+      where: { id: courseId },
+      data: { rating: average, ratingCount: count },
+    });
+  }
+
   async findCourses(
     filter?: CourseFilterInput,
     pagination?: CoursePaginationInput,

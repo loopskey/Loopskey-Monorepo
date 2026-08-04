@@ -72,19 +72,6 @@ export const BOUNDARY_EXCEPTIONS = [
   // Cross-domain writes. Two contexts can change the same rows today.
   // ---------------------------------------------------------------------
   {
-    id: "EXC-002",
-    source: "engagement",
-    target: "learning-catalog",
-    kind: "write",
-    files: [
-      "apps/api/src/modules/content-interaction/services/content-interaction.service.ts",
-    ],
-    models: ["Course", "Event", "Podcast", "YouTubeChannel"],
-    reason:
-      "Submitting a ContentReview recomputes the average and writes rating/ratingCount back onto all four catalog models. The derived value belongs to the catalog and should be published to it, not written by Engagement.",
-    removalPhase: 4,
-  },
-  {
     id: "EXC-003",
     source: "platform-administration",
     target: "identity-access",
@@ -174,26 +161,6 @@ export const BOUNDARY_EXCEPTIONS = [
   // Cross-domain reads. The source is coupled to the target's schema.
   // ---------------------------------------------------------------------
   {
-    id: "EXC-009",
-    source: "engagement",
-    target: "learning-catalog",
-    kind: "read",
-    files: [
-      "apps/api/src/modules/content-interaction/services/content-interaction.service.ts",
-      "apps/api/src/modules/content-interaction/services/wishlist-content.service.ts",
-    ],
-    models: [
-      "Course",
-      "Event",
-      "Podcast",
-      "YouTubeChannel",
-      "EventRegistration",
-    ],
-    reason:
-      "Wishlist and interaction resolve a polymorphic contentId against all four catalog tables and project their display fields, and read the caller's existing EventRegistration before toggling it.",
-    removalPhase: 4,
-  },
-  {
     id: "EXC-010",
     source: "professional-development",
     target: "learning-catalog",
@@ -249,17 +216,6 @@ export const BOUNDARY_EXCEPTIONS = [
     removalPhase: 6,
   },
   {
-    id: "EXC-013",
-    source: "provider-management",
-    target: "learning-catalog",
-    kind: "read",
-    files: ["apps/api/src/modules/provider/services/provider.service.ts"],
-    models: ["Event", "EventRegistration"],
-    reason:
-      "Provider analytics, the events list and the attendees export are read models over catalog data. Provider writes no catalog row, so this is the cheapest exception class to convert to a published read model.",
-    removalPhase: 4,
-  },
-  {
     id: "EXC-014",
     source: "provider-management",
     target: "identity-access",
@@ -269,20 +225,6 @@ export const BOUNDARY_EXCEPTIONS = [
     reason:
       "The attendee list projects the registered user's name and email from User.",
     removalPhase: 5,
-  },
-  {
-    id: "EXC-015",
-    source: "organization-management",
-    target: "learning-catalog",
-    kind: "read",
-    files: [
-      "apps/api/src/modules/organization/services/org-dashboard.service.ts",
-      "apps/api/src/modules/organization/services/org-dashboard-assignment.service.ts",
-    ],
-    models: ["Course", "Event"],
-    reason:
-      "The organization event catalog and assignment targets read catalog rows to let an administrator assign platform content to members.",
-    removalPhase: 4,
   },
   {
     id: "EXC-016",

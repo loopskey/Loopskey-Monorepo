@@ -5,9 +5,8 @@ import { ProviderPromotionFilterInput } from "@provider/dtos/provider-promotion-
 import { SubmitPromotionRequestInput } from "@provider/dtos/submit-promotion-request.input";
 import { UpdateProviderSettingsInput } from "@provider/dtos/update-provider-setting.input";
 import { ProviderDashboardRangeInput } from "@provider/dtos/provider-range.input";
-import { EventStatus, Prisma, Role } from "@prisma/client";
+import { Prisma, Role } from "@prisma/client";
 import { ProviderEventsFilterInput } from "@provider/dtos/provider-events-filter.input";
-import { EventRegistrationStatus } from "@prisma/client";
 import { PromotionRequestStatus } from "@prisma/client";
 import { ProviderDashboardRange } from "@provider/enums/provider-register.enum";
 import { BadRequestException } from "@nestjs/common";
@@ -15,10 +14,16 @@ import { ProviderMessageCode } from "@provider/enums/message-code.enum";
 import { ForbiddenException } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { TUser } from "@common/types/user.types";
+import { Inject } from "@nestjs/common";
+import { EVENTS_API } from "@events/public/events-api.token";
+import type { EventsApi } from "@events/public/events-api";
 
 @Injectable()
 export class ProviderService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    @Inject(EVENTS_API) private readonly eventsApi: EventsApi,
+  ) {}
 
   private assertProvider(user: TUser) {
     const allowedRoles: Role[] = [Role.PROVIDER, Role.ADMIN];
@@ -76,67 +81,9 @@ export class ProviderService {
       where: { id: user.id },
       select: { fullName: true, email: true },
     });
-    const [
-      totalEvents,
-      published,
-      draft,
-      archived,
-      cancelled,
-      totalRegistrations,
-      totalViewsAgg,
-      upcomingSessions,
-    ] = await Promise.all([
-      this.prismaService.event.count({
-        where: { providerId: user.id, deletedAt: null },
-      }),
-      this.prismaService.event.count({
-        where: {
-          providerId: user.id,
-          status: EventStatus.PUBLISHED,
-          deletedAt: null,
-        },
-      }),
-      this.prismaService.event.count({
-        where: {
-          providerId: user.id,
-          status: EventStatus.DRAFT,
-          deletedAt: null,
-        },
-      }),
-      this.prismaService.event.count({
-        where: {
-          providerId: user.id,
-          status: EventStatus.ARCHIVED,
-          deletedAt: null,
-        },
-      }),
-      this.prismaService.event.count({
-        where: {
-          providerId: user.id,
-          status: EventStatus.CANCELLED,
-          deletedAt: null,
-        },
-      }),
-      this.prismaService.eventRegistration.count({
-        where: {
-          event: { providerId: user.id },
-          createdAt: { gte: start, lte: end },
-        },
-      }),
-      this.prismaService.event.aggregate({
-        where: { providerId: user.id, deletedAt: null },
-        _sum: { views: true },
-      }),
-      this.prismaService.event.count({
-        where: {
-          providerId: user.id,
-          deletedAt: null,
-          startDate: { gte: new Date() },
-          status: EventStatus.PUBLISHED,
-        },
-      }),
-    ]);
-    const totalViews = totalViewsAgg._sum.views ?? 0;
+    const metrics = await this.eventsApi.providerOverview(user.id, start, end);
+    const { totalEvents, totalRegistrations, totalViews, upcomingSessions } =
+      metrics;
     return {
       providerName: provider?.fullName ?? provider?.email ?? null,
       totalEvents,
@@ -147,10 +94,10 @@ export class ProviderService {
           ? Number(((totalRegistrations / totalViews) * 100).toFixed(2))
           : 0,
       statusBreakdown: {
-        published,
-        draft,
-        archived,
-        cancelled,
+        published: metrics.published,
+        draft: metrics.draft,
+        archived: metrics.archived,
+        cancelled: metrics.cancelled,
       },
       upcomingSessions,
     };
@@ -159,39 +106,11 @@ export class ProviderService {
   async analytics(user: TUser, input?: ProviderDashboardRangeInput) {
     this.assertProvider(user);
     const { start, end } = this.getRangeDates(input?.range);
-    const events = await this.prismaService.event.findMany({
-      where: {
-        providerId: user.id,
-        deletedAt: null,
-      },
-      select: {
-        id: true,
-        title: true,
-        price: true,
-        isFree: true,
-        views: true,
-        type: true,
-        pduCategory: true,
-        averageRating: true,
-        registrations: {
-          where: {
-            createdAt: { gte: start, lte: end },
-            status: {
-              in: [
-                EventRegistrationStatus.REGISTERED,
-                EventRegistrationStatus.ATTENDED,
-                EventRegistrationStatus.COMPLETED,
-              ],
-            },
-          },
-          select: {
-            id: true,
-            createdAt: true,
-            status: true,
-          },
-        },
-      },
-    });
+    const events = await this.eventsApi.providerAnalyticsEvents(
+      user.id,
+      start,
+      end,
+    );
     let totalRevenue = 0;
     let totalRegistrations = 0;
     let totalViews = 0;
@@ -283,130 +202,14 @@ export class ProviderService {
     pagination?: ProviderDashboardPaginationInput,
   ) {
     this.assertProvider(user);
-    const take = pagination?.take ?? 20;
-    const where: Prisma.EventRegistrationWhereInput = {
-      event: {
-        providerId: user.id,
-      },
-      ...(filter?.eventId ? { eventId: filter.eventId } : {}),
-      ...(filter?.status ? { status: filter.status } : {}),
-      ...(filter?.search
-        ? {
-            OR: [
-              {
-                user: {
-                  fullName: {
-                    contains: filter.search,
-                    mode: "insensitive",
-                  },
-                },
-              },
-              {
-                user: {
-                  email: {
-                    contains: filter.search,
-                    mode: "insensitive",
-                  },
-                },
-              },
-              {
-                event: {
-                  title: {
-                    contains: filter.search,
-                    mode: "insensitive",
-                  },
-                },
-              },
-            ],
-          }
-        : {}),
-    };
-    const baseWhere: Prisma.EventRegistrationWhereInput = {
-      event: {
-        providerId: user.id,
-      },
-    };
-    const [rows, totalCount, totalRegistered, confirmed, attended] =
-      await Promise.all([
-        this.prismaService.eventRegistration.findMany({
-          where,
-          take: take + 1,
-          ...(pagination?.cursor
-            ? { cursor: { id: pagination.cursor }, skip: 1 }
-            : {}),
-          orderBy: { createdAt: "desc" },
-          include: {
-            user: {
-              select: {
-                id: true,
-                fullName: true,
-                email: true,
-              },
-            },
-            event: {
-              select: {
-                id: true,
-                title: true,
-              },
-            },
-          },
-        }),
-        this.prismaService.eventRegistration.count({ where }),
-        this.prismaService.eventRegistration.count({
-          where: baseWhere,
-        }),
-        this.prismaService.eventRegistration.count({
-          where: {
-            ...baseWhere,
-            status: {
-              in: [
-                EventRegistrationStatus.REGISTERED,
-                EventRegistrationStatus.ATTENDED,
-                EventRegistrationStatus.COMPLETED,
-              ],
-            },
-          },
-        }),
-        this.prismaService.eventRegistration.count({
-          where: {
-            ...baseWhere,
-            status: {
-              in: [
-                EventRegistrationStatus.ATTENDED,
-                EventRegistrationStatus.COMPLETED,
-              ],
-            },
-          },
-        }),
-      ]);
-    const hasNextPage = rows.length > take;
-    const items = rows.slice(0, take);
-    return {
-      totalCount,
-      stats: {
-        totalRegistered,
-        confirmed,
-        attended,
-        attendanceRate:
-          confirmed > 0 ? Number(((attended / confirmed) * 100).toFixed(2)) : 0,
-      },
-      pageInfo: {
-        hasNextPage,
-        nextCursor: hasNextPage ? items.at(-1)?.id : null,
-      },
-      items: items.map((item) => ({
-        userId: item.userId,
-        status: item.status,
-        eventId: item.eventId,
-        registrationId: item.id,
-        attendedAt: item.attendedAt,
-        completedAt: item.completedAt,
-        email: item.user?.email ?? null,
-        registrationDate: item.createdAt,
-        name: item.user?.fullName ?? null,
-        eventTitle: item.event?.title ?? "",
-      })),
-    };
+    return this.eventsApi.providerAttendees({
+      providerId: user.id,
+      eventId: filter?.eventId,
+      status: filter?.status,
+      search: filter?.search,
+      cursor: pagination?.cursor,
+      take: pagination?.take ?? 20,
+    });
   }
 
   async eventsTable(
@@ -415,49 +218,13 @@ export class ProviderService {
     pagination?: ProviderDashboardPaginationInput,
   ) {
     this.assertProvider(user);
-    const take = pagination?.take ?? 20;
-    const where: Prisma.EventWhereInput = {
+    return this.eventsApi.providerEvents({
       providerId: user.id,
-      deletedAt: null,
-      ...(filter?.status ? { status: filter.status } : {}),
-      ...(filter?.search
-        ? { title: { contains: filter.search, mode: "insensitive" } }
-        : {}),
-    };
-    const [items, totalCount] = await Promise.all([
-      this.prismaService.event.findMany({
-        where,
-        take: take + 1,
-        ...(pagination?.cursor
-          ? { cursor: { id: pagination.cursor }, skip: 1 }
-          : {}),
-        orderBy: { createdAt: "desc" },
-        include: {
-          _count: {
-            select: { registrations: true },
-          },
-        },
-      }),
-      this.prismaService.event.count({ where }),
-    ]);
-    const hasNextPage = items.length > take;
-    const sliced = items.slice(0, take);
-    return {
-      totalCount,
-      pageInfo: {
-        hasNextPage,
-        nextCursor: hasNextPage ? sliced[sliced.length - 1]?.id : null,
-      },
-      items: sliced.map((event) => ({
-        id: event.id,
-        title: event.title,
-        startDate: event.startDate,
-        status: event.status,
-        registrants: event._count.registrations,
-        views: event.views,
-        pdu: event.pdu,
-      })),
-    };
+      status: filter?.status,
+      search: filter?.search,
+      cursor: pagination?.cursor,
+      take: pagination?.take ?? 20,
+    });
   }
 
   async submitPromotionRequest(
@@ -465,15 +232,13 @@ export class ProviderService {
     input: SubmitPromotionRequestInput,
   ) {
     this.assertProvider(user);
-    const event = await this.prismaService.event.findFirst({
-      where: {
-        id: input.eventId,
-        providerId: user.id,
-        deletedAt: null,
-      },
-    });
-    if (!event)
-      throw new NotFoundException(ProviderMessageCode.EVENT_NOT_FOUND);
+    try {
+      await this.eventsApi.assertProviderOwnsEvent(user.id, input.eventId);
+    } catch (error) {
+      if (error instanceof NotFoundException)
+        throw new NotFoundException(ProviderMessageCode.EVENT_NOT_FOUND);
+      throw error;
+    }
     const existing = await this.prismaService.eventPromotionRequest.findFirst({
       where: {
         providerId: user.id,

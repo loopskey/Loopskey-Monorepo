@@ -118,6 +118,32 @@ export class YouTubeService {
     return channel;
   }
 
+  async resolveForEngagement(channelId: string) {
+    const channel = await this.prismaService.youTubeChannel.findFirst({
+      where: { id: channelId, deletedAt: null },
+      select: { id: true, title: true },
+    });
+    if (!channel)
+      throw new NotFoundException(YouTubeMessageCode.YOUTUBE_CHANNEL_NOT_FOUND);
+    return {
+      ...channel,
+      price: 0 as const,
+      currency: "USD" as const,
+      isFree: true as const,
+    };
+  }
+
+  async updateEngagementRating(
+    channelId: string,
+    average: number,
+    count: number,
+  ) {
+    await this.prismaService.youTubeChannel.update({
+      where: { id: channelId },
+      data: { rating: average, ratingCount: count },
+    });
+  }
+
   async findChannelBySlug(slug: string) {
     const channel = await this.prismaService.youTubeChannel.findFirst({
       where: {

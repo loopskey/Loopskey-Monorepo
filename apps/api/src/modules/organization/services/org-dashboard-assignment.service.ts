@@ -10,10 +10,19 @@ import { OrganizationPaginationInput } from "@org/dtos/org-pagination.input";
 import { TOrganizationDashboardUser } from "@org/types/org-dashboard-service.types";
 import { AssignmentTargetKind } from "@prisma/client";
 import { PrismaService } from "@prisma/prisma.service";
+import { Inject } from "@nestjs/common";
+import {
+  CATALOG_ORGANIZATION_API,
+  type CatalogOrganizationApi,
+} from "@landing/public/catalog-organization-api";
 
 @Injectable()
 export class OrgDashboardAssignmentService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    @Inject(CATALOG_ORGANIZATION_API)
+    private readonly catalogApi: CatalogOrganizationApi,
+  ) {}
 
   private assertOrganization(user: TOrganizationDashboardUser) {
     if (user.role !== Role.ORGANIZATION && user.role !== Role.ADMIN)
@@ -99,24 +108,10 @@ export class OrgDashboardAssignmentService {
     ) {
       throw new BadRequestException("DEPARTMENT_REQUIRED");
     }
-    if (input.eventId) {
-      const event = await this.prismaService.event.findFirst({
-        where: {
-          id: input.eventId,
-        },
-        select: { id: true },
-      });
-      if (!event) throw new NotFoundException("EVENT_NOT_FOUND");
-    }
-    if (input.courseId) {
-      const course = await this.prismaService.course.findFirst({
-        where: {
-          id: input.courseId,
-        },
-        select: { id: true },
-      });
-      if (!course) throw new NotFoundException("COURSE_NOT_FOUND");
-    }
+    await this.catalogApi.assertAssignmentTarget({
+      courseId: input.courseId,
+      eventId: input.eventId,
+    });
     const recipients = await this.resolveAssignmentRecipients(org.id, input);
     if (!recipients.length)
       throw new BadRequestException("NO_ELIGIBLE_MEMBERS_FOUND");

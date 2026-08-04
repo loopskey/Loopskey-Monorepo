@@ -12,6 +12,8 @@ evidence and the trade-off accepted at the time.
 | [002](adr-002-domain-boundaries.md)             | Bounded contexts and single write ownership | Proposed |
 | [003](adr-003-cross-domain-communication.md)    | How contexts talk to each other             | Proposed |
 | [004](adr-004-engagement-events-public-port.md) | Engagement calls the Events public port     | Accepted |
+| [005](adr-005-organization-catalog-projections.md) | Organization consumes Catalog projections | Accepted |
+| [006](adr-006-provider-events-projections.md) | Provider Management consumes Events projections | Accepted |
 
 All three are **Proposed** until the Phase 1 exit-gate review accepts them.
 Phase 2 treats them as enforceable architecture, so they must be accepted or

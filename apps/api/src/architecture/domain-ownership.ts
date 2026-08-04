@@ -177,8 +177,12 @@ export const DOMAIN_DEPENDENCIES = {
   "identity-access": ["communications", "platform-shared"],
   "learning-catalog": ["platform-shared"],
   "professional-development": ["platform-shared"],
-  "organization-management": ["communications", "platform-shared"],
-  "provider-management": ["platform-shared"],
+  "organization-management": [
+    "communications",
+    "learning-catalog",
+    "platform-shared",
+  ],
+  "provider-management": ["learning-catalog", "platform-shared"],
   engagement: ["learning-catalog", "platform-shared"],
   "platform-administration": [
     "identity-access",

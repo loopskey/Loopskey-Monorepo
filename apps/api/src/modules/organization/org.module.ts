@@ -13,11 +13,12 @@ import { OrgDashboardService } from "@org/services/org-dashboard.service";
 import { PrismaModule } from "@prisma/prisma.module";
 import { Module } from "@nestjs/common";
 import { MailModule } from "@mail/mail.module";
+import { LandingModule } from "@landing/landing.module";
 
 import "@org/enums/org-dashboard-register.enum";
 
 @Module({
-  imports: [PrismaModule, MailModule],
+  imports: [PrismaModule, MailModule, LandingModule],
   providers: [
     OrgDashboardService,
     OrgDashboardResolver,

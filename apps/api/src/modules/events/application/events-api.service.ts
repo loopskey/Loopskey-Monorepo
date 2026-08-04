@@ -1,10 +1,12 @@
-import type {
-  EventRegistrationProjection,
-  EventsApi,
-  RegisterForEventCommand,
-} from "@events/public/events-api";
+import { EventRegistrationProjection } from "@events/public/events-api";
+import { RegisterForEventCommand } from "@events/public/events-api";
 import { EventService } from "@events/services/event.service";
 import { Injectable } from "@nestjs/common";
+import type {
+  ProviderAttendeesQuery,
+  ProviderEventsQuery,
+} from "@events/public/events-api";
+import { EventsApi } from "@events/public/events-api";
 
 @Injectable()
 export class EventsApiService implements EventsApi {
@@ -24,5 +26,40 @@ export class EventsApiService implements EventsApi {
     return this.eventService.cancelEventRegistration(command.eventId, {
       id: command.userId,
     });
+  }
+
+  resolveEvent(eventId: string) {
+    return this.eventService.resolveForEngagement(eventId);
+  }
+
+  async updateEventRating(
+    eventId: string,
+    average: number,
+    count: number,
+  ): Promise<void> {
+    await this.eventService.updateEngagementRating(eventId, average, count);
+  }
+
+  providerOverview(providerId: string, start: Date, end: Date) {
+    return this.eventService.providerOverview(providerId, start, end);
+  }
+
+  providerAnalyticsEvents(providerId: string, start: Date, end: Date) {
+    return this.eventService.providerAnalyticsEvents(providerId, start, end);
+  }
+
+  providerAttendees(query: ProviderAttendeesQuery) {
+    return this.eventService.providerAttendees(query);
+  }
+
+  providerEvents(query: ProviderEventsQuery) {
+    return this.eventService.providerEvents(query);
+  }
+
+  async assertProviderOwnsEvent(
+    providerId: string,
+    eventId: string,
+  ): Promise<void> {
+    await this.eventService.assertProviderOwnsEvent(providerId, eventId);
   }
 }
