@@ -1,5 +1,5 @@
 import { OrganizationReportTopMembersFilterInput } from "@org/dtos/org-report-top-members-filter.input";
-import { AssignmentStatus, EventStatus, Role } from "@prisma/client";
+import { AssignmentStatus, Role } from "@prisma/client";
 import { OrganizationMemberStatus, Prisma } from "@prisma/client";
 import { OrganizationDashboardMessageCode } from "@org/enums/org-dashboard-message-code.enum";
 import { UpdateOrganizationSettingsInput } from "@org/dtos/update-org-settings.input";
@@ -10,10 +10,19 @@ import { TOrganizationDashboardUser } from "@org/types/org-dashboard-service.typ
 import { EventCatalogFilterInput } from "@org/dtos/event-catalog-filter.input";
 import { NotFoundException } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
+import { Inject } from "@nestjs/common";
+import {
+  CATALOG_ORGANIZATION_API,
+  type CatalogOrganizationApi,
+} from "@landing/public/catalog-organization-api";
 
 @Injectable()
 export class OrgDashboardService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    @Inject(CATALOG_ORGANIZATION_API)
+    private readonly catalogApi: CatalogOrganizationApi,
+  ) {}
 
   private assertOrganization(user: TOrganizationDashboardUser) {
     if (user.role !== Role.ORGANIZATION && user.role !== Role.ADMIN)
@@ -251,42 +260,14 @@ export class OrgDashboardService {
     pagination?: OrganizationPaginationInput,
   ) {
     await this.getOrganization(user);
-    const take = pagination?.take ?? 12;
-    const search = filter?.search?.trim();
-    const where: Prisma.EventWhereInput = {
-      deletedAt: null,
-      status: EventStatus.PUBLISHED,
-      registrationEnabled: true,
-      ...(filter?.category ? { category: filter.category } : {}),
-      ...(filter?.type ? { type: filter.type } : {}),
-      ...(filter?.deliveryMode ? { deliveryMode: filter.deliveryMode } : {}),
-      ...(search
-        ? {
-            OR: [
-              { title: { contains: search, mode: "insensitive" } },
-              { description: { contains: search, mode: "insensitive" } },
-              { speaker: { contains: search, mode: "insensitive" } },
-            ],
-          }
-        : {}),
-    };
-    const rows = await this.prismaService.event.findMany({
-      where,
-      take: take + 1,
-      ...(pagination?.cursor
-        ? { cursor: { id: pagination.cursor }, skip: 1 }
-        : {}),
-      orderBy: [{ startDate: "asc" }],
+    return this.catalogApi.eventCatalog({
+      take: pagination?.take ?? 12,
+      cursor: pagination?.cursor,
+      search: filter?.search?.trim(),
+      category: filter?.category,
+      type: filter?.type,
+      deliveryMode: filter?.deliveryMode,
     });
-    const items = rows.slice(0, take);
-    return {
-      items,
-      totalCount: await this.prismaService.event.count({ where }),
-      pageInfo: {
-        hasNextPage: rows.length > take,
-        nextCursor: rows.length > take ? items.at(-1)?.id : null,
-      },
-    };
   }
 
   private getReportDateRange(filter?: OrganizationReportFilterInput) {

@@ -126,6 +126,32 @@ export class PodcastService {
     return podcast;
   }
 
+  async resolveForEngagement(podcastId: string) {
+    const podcast = await this.prismaService.podcast.findFirst({
+      where: { id: podcastId, deletedAt: null },
+      select: { id: true, title: true },
+    });
+    if (!podcast)
+      throw new NotFoundException(PodcastMessageCode.PODCAST_NOT_FOUND);
+    return {
+      ...podcast,
+      price: 0 as const,
+      currency: "USD" as const,
+      isFree: true as const,
+    };
+  }
+
+  async updateEngagementRating(
+    podcastId: string,
+    average: number,
+    count: number,
+  ) {
+    await this.prismaService.podcast.update({
+      where: { id: podcastId },
+      data: { rating: average, ratingCount: count },
+    });
+  }
+
   async findPodcasts(
     filter?: PodcastFilterInput,
     pagination?: PodcastPaginationInput,

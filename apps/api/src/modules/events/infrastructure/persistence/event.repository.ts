@@ -6,6 +6,10 @@ import { EventSortInput } from "@events/dtos/event-sort.input";
 import { EventSortField } from "@events/enums/event-register.enum";
 import { PrismaService } from "@prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
+import type {
+  ProviderAttendeesQuery,
+  ProviderEventsQuery,
+} from "@events/public/events-api";
 
 @Injectable()
 export class EventRepository {
@@ -230,6 +234,240 @@ export class EventRepository {
       where: { userId },
       orderBy: { createdAt: "desc" },
     });
+  }
+
+  findActiveOwnedByProvider(eventId: string, providerId: string) {
+    return this.prisma.event.findFirst({
+      where: { id: eventId, providerId, deletedAt: null },
+      select: { id: true },
+    });
+  }
+
+  async providerOverview(providerId: string, start: Date, end: Date) {
+    const [
+      totalEvents,
+      published,
+      draft,
+      archived,
+      cancelled,
+      totalRegistrations,
+      views,
+      upcomingSessions,
+    ] = await Promise.all([
+      this.prisma.event.count({ where: { providerId, deletedAt: null } }),
+      this.prisma.event.count({
+        where: { providerId, status: EventStatus.PUBLISHED, deletedAt: null },
+      }),
+      this.prisma.event.count({
+        where: { providerId, status: EventStatus.DRAFT, deletedAt: null },
+      }),
+      this.prisma.event.count({
+        where: { providerId, status: EventStatus.ARCHIVED, deletedAt: null },
+      }),
+      this.prisma.event.count({
+        where: { providerId, status: EventStatus.CANCELLED, deletedAt: null },
+      }),
+      this.prisma.eventRegistration.count({
+        where: { event: { providerId }, createdAt: { gte: start, lte: end } },
+      }),
+      this.prisma.event.aggregate({
+        where: { providerId, deletedAt: null },
+        _sum: { views: true },
+      }),
+      this.prisma.event.count({
+        where: {
+          providerId,
+          deletedAt: null,
+          startDate: { gte: new Date() },
+          status: EventStatus.PUBLISHED,
+        },
+      }),
+    ]);
+    return {
+      totalEvents,
+      totalRegistrations,
+      totalViews: views._sum.views ?? 0,
+      published,
+      draft,
+      archived,
+      cancelled,
+      upcomingSessions,
+    };
+  }
+
+  async providerAnalyticsEvents(providerId: string, start: Date, end: Date) {
+    const events = await this.prisma.event.findMany({
+      where: { providerId, deletedAt: null },
+      select: {
+        id: true,
+        title: true,
+        price: true,
+        isFree: true,
+        views: true,
+        type: true,
+        pduCategory: true,
+        averageRating: true,
+        registrations: {
+          where: {
+            createdAt: { gte: start, lte: end },
+            status: {
+              in: [
+                EventRegistrationStatus.REGISTERED,
+                EventRegistrationStatus.ATTENDED,
+                EventRegistrationStatus.COMPLETED,
+              ],
+            },
+          },
+          select: { id: true, createdAt: true, status: true },
+        },
+      },
+    });
+    return events.map((event) => ({
+      ...event,
+      type: String(event.type),
+      pduCategory: event.pduCategory ? String(event.pduCategory) : null,
+      price: Number(event.price ?? 0),
+      registrations: event.registrations.map((registration) => ({
+        ...registration,
+        status: String(registration.status),
+      })),
+    }));
+  }
+
+  async providerAttendees(query: ProviderAttendeesQuery) {
+    const take = Math.min(Math.max(query.take, 1), 100);
+    const status = query.status as EventRegistrationStatus | undefined;
+    const baseWhere: Prisma.EventRegistrationWhereInput = {
+      event: { providerId: query.providerId },
+    };
+    const where: Prisma.EventRegistrationWhereInput = {
+      ...baseWhere,
+      eventId: query.eventId,
+      status,
+      OR: query.search
+        ? [
+            {
+              user: {
+                fullName: { contains: query.search, mode: "insensitive" },
+              },
+            },
+            {
+              user: { email: { contains: query.search, mode: "insensitive" } },
+            },
+            {
+              event: { title: { contains: query.search, mode: "insensitive" } },
+            },
+          ]
+        : undefined,
+    };
+    const [rows, totalCount, totalRegistered, confirmed, attended] =
+      await Promise.all([
+        this.prisma.eventRegistration.findMany({
+          where,
+          take: take + 1,
+          cursor: query.cursor ? { id: query.cursor } : undefined,
+          skip: query.cursor ? 1 : 0,
+          orderBy: { createdAt: "desc" },
+          include: {
+            user: { select: { id: true, fullName: true, email: true } },
+            event: { select: { id: true, title: true } },
+          },
+        }),
+        this.prisma.eventRegistration.count({ where }),
+        this.prisma.eventRegistration.count({ where: baseWhere }),
+        this.prisma.eventRegistration.count({
+          where: {
+            ...baseWhere,
+            status: {
+              in: [
+                EventRegistrationStatus.REGISTERED,
+                EventRegistrationStatus.ATTENDED,
+                EventRegistrationStatus.COMPLETED,
+              ],
+            },
+          },
+        }),
+        this.prisma.eventRegistration.count({
+          where: {
+            ...baseWhere,
+            status: {
+              in: [
+                EventRegistrationStatus.ATTENDED,
+                EventRegistrationStatus.COMPLETED,
+              ],
+            },
+          },
+        }),
+      ]);
+    const hasNextPage = rows.length > take;
+    const items = rows.slice(0, take);
+    return {
+      totalCount,
+      stats: {
+        totalRegistered,
+        confirmed,
+        attended,
+        attendanceRate:
+          confirmed > 0 ? Number(((attended / confirmed) * 100).toFixed(2)) : 0,
+      },
+      pageInfo: {
+        hasNextPage,
+        nextCursor: hasNextPage ? (items.at(-1)?.id ?? null) : null,
+      },
+      items: items.map((item) => ({
+        userId: item.userId,
+        status: item.status,
+        eventId: item.eventId,
+        registrationId: item.id,
+        attendedAt: item.attendedAt,
+        completedAt: item.completedAt,
+        email: item.user?.email ?? null,
+        registrationDate: item.createdAt,
+        name: item.user?.fullName ?? null,
+        eventTitle: item.event?.title ?? "",
+      })),
+    };
+  }
+
+  async providerEvents(query: ProviderEventsQuery) {
+    const take = Math.min(Math.max(query.take, 1), 100);
+    const where: Prisma.EventWhereInput = {
+      providerId: query.providerId,
+      deletedAt: null,
+      status: query.status as EventStatus | undefined,
+      title: query.search
+        ? { contains: query.search, mode: "insensitive" }
+        : undefined,
+    };
+    const [rows, totalCount] = await Promise.all([
+      this.prisma.event.findMany({
+        where,
+        take: take + 1,
+        cursor: query.cursor ? { id: query.cursor } : undefined,
+        skip: query.cursor ? 1 : 0,
+        orderBy: { createdAt: "desc" },
+        include: { _count: { select: { registrations: true } } },
+      }),
+      this.prisma.event.count({ where }),
+    ]);
+    const hasNextPage = rows.length > take;
+    const items = rows.slice(0, take);
+    return {
+      totalCount,
+      pageInfo: {
+        hasNextPage,
+        nextCursor: hasNextPage ? (items.at(-1)?.id ?? null) : null,
+      },
+      items: items.map((event) => ({
+        id: event.id,
+        title: event.title,
+        startDate: event.startDate,
+        status: event.status,
+        registrants: event._count.registrations,
+        views: event.views,
+        pdu: event.pdu,
+      })),
+    };
   }
 
   async slugExists(slug: string): Promise<boolean> {

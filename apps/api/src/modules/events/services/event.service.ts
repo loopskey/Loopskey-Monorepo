@@ -16,6 +16,10 @@ import { EventSortInput } from "@events/dtos/event-sort.input";
 import { EventRequester } from "@events/enums/event-register.enum";
 import { randomUUID } from "node:crypto";
 import { slugify } from "@utils/slug.util";
+import type {
+  ProviderAttendeesQuery,
+  ProviderEventsQuery,
+} from "@events/public/events-api";
 
 @Injectable()
 export class EventService {
@@ -126,6 +130,53 @@ export class EventService {
     if (!event) throw new NotFoundException(EventMessageCode.EVENT_NOT_FOUND);
     await this.eventRepository.incrementViews(event.id);
     return event;
+  }
+
+  async resolveForEngagement(eventId: string) {
+    const event = await this.findExistingEvent(eventId);
+    return {
+      id: event.id,
+      title: event.title,
+      price: Number(event.price ?? 0),
+      currency: event.currency ?? "USD",
+      isFree: event.isFree,
+    };
+  }
+
+  async updateEngagementRating(
+    eventId: string,
+    average: number,
+    count: number,
+  ) {
+    await this.eventRepository.update(eventId, {
+      averageRating: average,
+      rating: average,
+      ratingCount: count,
+    });
+  }
+
+  providerOverview(providerId: string, start: Date, end: Date) {
+    return this.eventRepository.providerOverview(providerId, start, end);
+  }
+
+  providerAnalyticsEvents(providerId: string, start: Date, end: Date) {
+    return this.eventRepository.providerAnalyticsEvents(providerId, start, end);
+  }
+
+  providerAttendees(query: ProviderAttendeesQuery) {
+    return this.eventRepository.providerAttendees(query);
+  }
+
+  providerEvents(query: ProviderEventsQuery) {
+    return this.eventRepository.providerEvents(query);
+  }
+
+  async assertProviderOwnsEvent(providerId: string, eventId: string) {
+    const event = await this.eventRepository.findActiveOwnedByProvider(
+      eventId,
+      providerId,
+    );
+    if (!event) throw new NotFoundException(EventMessageCode.EVENT_NOT_FOUND);
   }
 
   findUpcomingEvents(take = 12) {

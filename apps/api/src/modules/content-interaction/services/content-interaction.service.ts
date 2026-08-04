@@ -2,9 +2,15 @@ import { CartItemStatus, CartStatus, ContentType } from "@prisma/client";
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { UpdateEnrollmentProgressInput } from "@contentAction/dtos/update-enrollment-progress.input";
 import { ContentInteractionMessageCode } from "@contentAction/enums/message-code";
+import { type PodcastEngagementApi } from "@podcast/public/podcast-engagement-api";
 import { TResolvedContentForAction } from "@contentAction/types/content-interaction.types";
+import { type YouTubeEngagementApi } from "@youtube/public/youtube-engagement-api";
 import { SubmitContentReviewInput } from "@contentAction/dtos/submit-content-review.input";
+import { type CourseEngagementApi } from "@course/public/course-engagement-api";
 import { ContentEnrollmentStatus } from "@prisma/client";
+import { YOUTUBE_ENGAGEMENT_API } from "@youtube/public/youtube-engagement-api";
+import { PODCAST_ENGAGEMENT_API } from "@podcast/public/podcast-engagement-api";
+import { COURSE_ENGAGEMENT_API } from "@course/public/course-engagement-api";
 import { BadRequestException } from "@nestjs/common";
 import { ContentActionInput } from "@contentAction/dtos/content-action.input";
 import { PrismaService } from "@prisma/prisma.service";
@@ -16,7 +22,13 @@ import { Inject } from "@nestjs/common";
 export class ContentInteractionService {
   constructor(
     private readonly prismaService: PrismaService,
+    @Inject(COURSE_ENGAGEMENT_API)
+    private readonly courseApi: CourseEngagementApi,
     @Inject(EVENTS_API) private readonly eventsApi: EventsApi,
+    @Inject(PODCAST_ENGAGEMENT_API)
+    private readonly podcastApi: PodcastEngagementApi,
+    @Inject(YOUTUBE_ENGAGEMENT_API)
+    private readonly youtubeApi: YouTubeEngagementApi,
   ) {}
 
   async toggleWishlist(userId: string, input: ContentActionInput) {
@@ -437,75 +449,23 @@ export class ContentInteractionService {
     contentType: ContentType,
     contentId: string,
   ): Promise<TResolvedContentForAction> {
-    if (contentType === ContentType.COURSE) {
-      const course = await this.prismaService.course.findFirst({
-        where: { id: contentId, deletedAt: null },
-      });
-      if (!course)
+    try {
+      const content =
+        contentType === ContentType.COURSE
+          ? await this.courseApi.resolveCourse(contentId)
+          : contentType === ContentType.EVENT
+            ? await this.eventsApi.resolveEvent(contentId)
+            : contentType === ContentType.PODCAST
+              ? await this.podcastApi.resolvePodcast(contentId)
+              : await this.youtubeApi.resolveChannel(contentId);
+      return { ...content, contentType };
+    } catch (error) {
+      if (error instanceof NotFoundException)
         throw new NotFoundException(
           ContentInteractionMessageCode.CONTENT_NOT_FOUND,
         );
-      return {
-        id: course.id,
-        title: course.title,
-        price: Number(course.price ?? 0),
-        currency: course.currency ?? "USD",
-        isFree: course.isFree,
-        contentType,
-      };
+      throw error;
     }
-    if (contentType === ContentType.EVENT) {
-      const event = await this.prismaService.event.findFirst({
-        where: { id: contentId, deletedAt: null },
-      });
-      if (!event) {
-        throw new NotFoundException(
-          ContentInteractionMessageCode.CONTENT_NOT_FOUND,
-        );
-      }
-      return {
-        id: event.id,
-        title: event.title,
-        price: Number(event.price ?? 0),
-        currency: event.currency ?? "USD",
-        isFree: event.isFree,
-        contentType,
-      };
-    }
-    if (contentType === ContentType.PODCAST) {
-      const podcast = await this.prismaService.podcast.findFirst({
-        where: { id: contentId, deletedAt: null },
-      });
-      if (!podcast) {
-        throw new NotFoundException(
-          ContentInteractionMessageCode.CONTENT_NOT_FOUND,
-        );
-      }
-      return {
-        id: podcast.id,
-        title: podcast.title,
-        price: 0,
-        currency: "USD",
-        isFree: true,
-        contentType,
-      };
-    }
-    const youtube = await this.prismaService.youTubeChannel.findFirst({
-      where: { id: contentId, deletedAt: null },
-    });
-    if (!youtube) {
-      throw new NotFoundException(
-        ContentInteractionMessageCode.CONTENT_NOT_FOUND,
-      );
-    }
-    return {
-      id: youtube.id,
-      title: youtube.title,
-      price: 0,
-      currency: "USD",
-      isFree: true,
-      contentType,
-    };
   }
 
   private async recalculateRating(contentType: ContentType, contentId: string) {
@@ -523,42 +483,12 @@ export class ContentInteractionService {
     });
     const average = aggregate._avg.rating ?? 0;
     const count = aggregate._count.rating ?? 0;
-    if (contentType === ContentType.COURSE) {
-      await this.prismaService.course.update({
-        where: { id: contentId },
-        data: {
-          rating: average,
-          ratingCount: count,
-        },
-      });
-    }
-    if (contentType === ContentType.EVENT) {
-      await this.prismaService.event.update({
-        where: { id: contentId },
-        data: {
-          averageRating: average,
-          rating: average,
-          ratingCount: count,
-        },
-      });
-    }
-    if (contentType === ContentType.PODCAST) {
-      await this.prismaService.podcast.update({
-        where: { id: contentId },
-        data: {
-          rating: average,
-          ratingCount: count,
-        },
-      });
-    }
-    if (contentType === ContentType.YOUTUBE) {
-      await this.prismaService.youTubeChannel.update({
-        where: { id: contentId },
-        data: {
-          rating: average,
-          ratingCount: count,
-        },
-      });
-    }
+    if (contentType === ContentType.COURSE)
+      return this.courseApi.updateCourseRating(contentId, average, count);
+    if (contentType === ContentType.EVENT)
+      return this.eventsApi.updateEventRating(contentId, average, count);
+    if (contentType === ContentType.PODCAST)
+      return this.podcastApi.updatePodcastRating(contentId, average, count);
+    return this.youtubeApi.updateChannelRating(contentId, average, count);
   }
 }
