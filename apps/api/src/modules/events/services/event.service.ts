@@ -1,57 +1,61 @@
 import { BadRequestException, ForbiddenException } from "@nestjs/common";
 import { Injectable, NotFoundException } from "@nestjs/common";
+import { EventDomainEventDispatcher } from "@events/application/events/event-domain-event.dispatcher";
 import { EventStatus, Prisma, Role } from "@prisma/client";
+import { shouldEmitEventPublished } from "@events/domain/policies/event-publication.policy";
 import { EventRegistrationStatus } from "@prisma/client";
+import { type EventPublishedV1 } from "@events/domain/events/event-published-v1";
 import { EventPaginationInput } from "@events/dtos/event-pagination.input";
-import { EventSortDirection } from "@events/enums/event-register.enum";
+import { EVENT_PUBLISHED_V1 } from "@events/domain/events/event-published-v1";
 import { CreateEventInput } from "@events/dtos/create-event.input";
-import { UpdateEventInput } from "@events/dtos/update-event.input";
 import { EventFilterInput } from "@events/dtos/event-filter.input";
+import { UpdateEventInput } from "@events/dtos/update-event.input";
 import { EventMessageCode } from "@events/enums/message-code.enum";
-import { EventRequester } from "@events/enums/event-register.enum";
-import { EventSortField } from "@events/enums/event-register.enum";
+import { EventRepository } from "@events/infrastructure/persistence/event.repository";
 import { EventSortInput } from "@events/dtos/event-sort.input";
-import { PrismaService } from "@prisma/prisma.service";
+import { EventRequester } from "@events/enums/event-register.enum";
+import { randomUUID } from "node:crypto";
 import { slugify } from "@utils/slug.util";
 
 @Injectable()
 export class EventService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly eventRepository: EventRepository,
+    private readonly eventDispatcher: EventDomainEventDispatcher,
+  ) {}
 
   async createEvent(input: CreateEventInput, requester: EventRequester) {
     this.ensureProviderOrAdmin(requester);
     const slug = await this.generateUniqueSlug(input.title);
     const isFree = input.isFree ?? (!input.price || input.price <= 0);
-    return this.prismaService.event.create({
-      data: {
-        slug,
-        isFree,
-        type: input.type,
-        pdu: input.pdu ?? 0,
-        imageUrl: input.imageUrl,
-        language: input.language,
-        category: input.category,
-        capacity: input.capacity,
-        title: input.title.trim(),
-        onlineUrl: input.onlineUrl,
-        pduCategory: input.pduCategory,
-        speaker: input.speaker?.trim(),
-        location: input.location?.trim(),
-        deliveryMode: input.deliveryMode,
-        currency: input.currency ?? "USD",
-        timezone: input.timezone ?? "UTC",
-        specificTopic: input.specificTopic,
-        organizer: input.organizer?.trim(),
-        startDate: new Date(input.startDate),
-        description: input.description.trim(),
-        status: input.status ?? EventStatus.DRAFT,
-        earlyBirdDiscount: input.earlyBirdDiscount,
-        promotionVideoUrl: input.promotionVideoUrl,
-        registrationEnabled: input.registrationEnabled ?? true,
-        endDate: input.endDate ? new Date(input.endDate) : null,
-        price: isFree ? null : new Prisma.Decimal(input.price ?? 0),
-        providerId: requester.role === Role.PROVIDER ? requester.id : null,
-      },
+    return this.eventRepository.create({
+      slug,
+      isFree,
+      type: input.type,
+      pdu: input.pdu ?? 0,
+      imageUrl: input.imageUrl,
+      language: input.language,
+      category: input.category,
+      capacity: input.capacity,
+      title: input.title.trim(),
+      onlineUrl: input.onlineUrl,
+      pduCategory: input.pduCategory,
+      speaker: input.speaker?.trim(),
+      location: input.location?.trim(),
+      deliveryMode: input.deliveryMode,
+      currency: input.currency ?? "USD",
+      timezone: input.timezone ?? "UTC",
+      specificTopic: input.specificTopic,
+      organizer: input.organizer?.trim(),
+      startDate: new Date(input.startDate),
+      description: input.description.trim(),
+      status: input.status ?? EventStatus.DRAFT,
+      earlyBirdDiscount: input.earlyBirdDiscount,
+      promotionVideoUrl: input.promotionVideoUrl,
+      registrationEnabled: input.registrationEnabled ?? true,
+      endDate: input.endDate ? new Date(input.endDate) : null,
+      price: isFree ? null : new Prisma.Decimal(input.price ?? 0),
+      providerId: requester.role === Role.PROVIDER ? requester.id : null,
     });
   }
 
@@ -64,158 +68,81 @@ export class EventService {
         : input.price !== undefined
           ? input.price <= 0
           : undefined;
-    return this.prismaService.event.update({
-      where: { id: input.eventId },
-      data: {
-        isFree,
-        pdu: input.pdu,
-        type: input.type,
-        status: input.status,
-        category: input.category,
-        capacity: input.capacity,
-        imageUrl: input.imageUrl,
-        language: input.language,
-        timezone: input.timezone,
-        currency: input.currency,
-        title: input.title?.trim(),
-        onlineUrl: input.onlineUrl,
-        pduCategory: input.pduCategory,
-        speaker: input.speaker?.trim(),
-        location: input.location?.trim(),
-        deliveryMode: input.deliveryMode,
-        organizer: input.organizer?.trim(),
-        specificTopic: input.specificTopic,
-        description: input.description?.trim(),
-        promotionVideoUrl: input.promotionVideoUrl,
-        earlyBirdDiscount: input.earlyBirdDiscount,
-        registrationEnabled: input.registrationEnabled,
-        endDate: input.endDate ? new Date(input.endDate) : undefined,
-        startDate: input.startDate ? new Date(input.startDate) : undefined,
-        price:
-          isFree === true
-            ? null
-            : input.price !== undefined
-              ? new Prisma.Decimal(input.price)
-              : undefined,
-      },
+    return this.eventRepository.update(input.eventId, {
+      isFree,
+      pdu: input.pdu,
+      type: input.type,
+      status: input.status,
+      category: input.category,
+      capacity: input.capacity,
+      imageUrl: input.imageUrl,
+      language: input.language,
+      timezone: input.timezone,
+      currency: input.currency,
+      title: input.title?.trim(),
+      onlineUrl: input.onlineUrl,
+      pduCategory: input.pduCategory,
+      speaker: input.speaker?.trim(),
+      location: input.location?.trim(),
+      deliveryMode: input.deliveryMode,
+      organizer: input.organizer?.trim(),
+      specificTopic: input.specificTopic,
+      description: input.description?.trim(),
+      promotionVideoUrl: input.promotionVideoUrl,
+      earlyBirdDiscount: input.earlyBirdDiscount,
+      registrationEnabled: input.registrationEnabled,
+      endDate: input.endDate ? new Date(input.endDate) : undefined,
+      startDate: input.startDate ? new Date(input.startDate) : undefined,
+      price:
+        isFree === true
+          ? null
+          : input.price !== undefined
+            ? new Prisma.Decimal(input.price)
+            : undefined,
     });
   }
 
-  async findEvents(
+  findEvents(
     filter?: EventFilterInput,
     pagination?: EventPaginationInput,
     sort?: EventSortInput,
   ) {
     const search = filter?.search?.trim();
-    if (search && search.length >= 2)
-      return this.findEventsWithTrgmSearch(filter, pagination, sort);
-    const take = Math.min(pagination?.take ?? 20, 100);
-    const where = this.buildEventWhere(filter);
-    const orderBy = this.buildOrderBy(sort);
-    const [items, totalCount] = await this.prismaService.$transaction([
-      this.prismaService.event.findMany({
-        where,
-        take: take + 1,
-        cursor: pagination?.cursor ? { id: pagination.cursor } : undefined,
-        skip: pagination?.cursor ? 1 : 0,
-        orderBy,
-      }),
-      this.prismaService.event.count({ where }),
-    ]);
-    const hasNextPage = items.length > take;
-    const slicedItems = hasNextPage ? items.slice(0, take) : items;
-    const nextCursor = hasNextPage
-      ? slicedItems[slicedItems.length - 1]?.id
-      : null;
-    return {
-      items: slicedItems,
-      totalCount,
-      pageInfo: {
-        hasNextPage,
-        nextCursor,
-      },
-    };
+    return search && search.length >= 2
+      ? this.eventRepository.search(filter, pagination)
+      : this.eventRepository.findPage(filter, pagination, sort);
   }
 
   async findEventById(eventId: string) {
-    const event = await this.prismaService.event.findFirst({
-      where: {
-        id: eventId,
-        deletedAt: null,
-      },
-      include: {
-        scheduleItems: {
-          orderBy: [{ dayNumber: "asc" }, { startTime: "asc" }],
-        },
-      },
-    });
+    const event =
+      await this.eventRepository.findActiveByIdWithSchedule(eventId);
     if (!event) throw new NotFoundException(EventMessageCode.EVENT_NOT_FOUND);
-    await this.prismaService.event.update({
-      where: { id: event.id },
-      data: { views: { increment: 1 } },
-    });
+    await this.eventRepository.incrementViews(event.id);
     return event;
   }
 
   async findEventBySlug(slug: string) {
-    const event = await this.prismaService.event.findFirst({
-      where: {
-        slug,
-        deletedAt: null,
-      },
-      include: {
-        scheduleItems: {
-          orderBy: [{ dayNumber: "asc" }, { startTime: "asc" }],
-        },
-      },
-    });
+    const event = await this.eventRepository.findActiveBySlugWithSchedule(slug);
     if (!event) throw new NotFoundException(EventMessageCode.EVENT_NOT_FOUND);
-    await this.prismaService.event.update({
-      where: { id: event.id },
-      data: { views: { increment: 1 } },
-    });
+    await this.eventRepository.incrementViews(event.id);
     return event;
   }
 
-  async findUpcomingEvents(take = 12) {
-    return this.prismaService.event.findMany({
-      where: {
-        status: EventStatus.PUBLISHED,
-        deletedAt: null,
-        startDate: {
-          gte: new Date(),
-        },
-      },
-      take: Math.min(take, 50),
-      orderBy: {
-        startDate: "asc",
-      },
-    });
+  findUpcomingEvents(take = 12) {
+    return this.eventRepository.findUpcoming(take);
   }
 
-  async findFeaturedEvents(take = 12) {
-    return this.prismaService.event.findMany({
-      where: {
-        status: EventStatus.PUBLISHED,
-        deletedAt: null,
-      },
-      take: Math.min(take, 50),
-      orderBy: [
-        { averageRating: "desc" },
-        { attendees: "desc" },
-        { views: "desc" },
-      ],
-    });
+  findFeaturedEvents(take = 12) {
+    return this.eventRepository.findFeatured(take);
   }
 
-  async findMyProviderEvents(
+  findMyProviderEvents(
     requester: EventRequester,
     filter?: EventFilterInput,
     pagination?: EventPaginationInput,
     sort?: EventSortInput,
   ) {
-    if (requester.role !== Role.PROVIDER && requester.role !== Role.ADMIN)
-      throw new ForbiddenException(EventMessageCode.EVENT_ACCESS_DENIED);
+    this.ensureProviderOrAdmin(requester);
     return this.findEvents(
       {
         ...filter,
@@ -237,271 +164,105 @@ export class EventService {
       );
     if (event.capacity && event.attendees >= event.capacity)
       throw new BadRequestException(EventMessageCode.EVENT_CAPACITY_REACHED);
-    const existing = await this.prismaService.eventRegistration.findUnique({
-      where: {
-        eventId_userId: {
-          eventId,
-          userId: requester.id,
-        },
-      },
-    });
-    if (existing)
+    if (await this.eventRepository.findRegistration(eventId, requester.id))
       throw new BadRequestException(EventMessageCode.EVENT_ALREADY_REGISTERED);
-    return this.prismaService.$transaction(async (tx) => {
-      const registration = await tx.eventRegistration.create({
-        data: {
-          eventId,
-          userId: requester.id,
-          status: EventRegistrationStatus.REGISTERED,
-        },
-      });
-      await tx.event.update({
-        where: { id: eventId },
-        data: {
-          attendees: { increment: 1 },
-        },
-      });
-      return registration;
-    });
+    return this.eventRepository.register(eventId, requester.id);
   }
 
-  async cancelEventRegistration(eventId: string, requester: EventRequester) {
-    const registration = await this.prismaService.eventRegistration.findUnique({
-      where: {
-        eventId_userId: {
-          eventId,
-          userId: requester.id,
-        },
-      },
-    });
+  async enrollInEvent(eventId: string, participant: EventParticipant) {
+    const event = await this.findExistingEvent(eventId);
+    if (event.status !== EventStatus.PUBLISHED)
+      throw new BadRequestException(EventMessageCode.EVENT_NOT_FOUND);
+    if (!event.registrationEnabled)
+      throw new BadRequestException(
+        EventMessageCode.EVENT_REGISTRATION_DISABLED,
+      );
+    const existing = await this.eventRepository.findRegistration(
+      eventId,
+      participant.id,
+    );
+    if (existing?.status === EventRegistrationStatus.CANCELLED) {
+      if (event.capacity && event.attendees >= event.capacity)
+        throw new BadRequestException(EventMessageCode.EVENT_CAPACITY_REACHED);
+      return this.eventRepository.reactivateRegistration(existing.id, eventId);
+    }
+    if (existing) return existing;
+    if (event.capacity && event.attendees >= event.capacity)
+      throw new BadRequestException(EventMessageCode.EVENT_CAPACITY_REACHED);
+    return this.eventRepository.register(eventId, participant.id);
+  }
+
+  async cancelEventRegistration(eventId: string, requester: EventParticipant) {
+    const registration = await this.eventRepository.findRegistration(
+      eventId,
+      requester.id,
+    );
     if (!registration)
       throw new NotFoundException(
         EventMessageCode.EVENT_REGISTRATION_NOT_FOUND,
       );
-    return this.prismaService.$transaction(async (tx) => {
-      const updated = await tx.eventRegistration.update({
-        where: { id: registration.id },
-        data: {
-          status: EventRegistrationStatus.CANCELLED,
-        },
-      });
-      await tx.event.update({
-        where: { id: eventId },
-        data: {
-          attendees: { decrement: 1 },
-        },
-      });
-      return updated;
-    });
+    if (registration.status === EventRegistrationStatus.CANCELLED)
+      return registration;
+    return this.eventRepository.cancelRegistration(registration.id, eventId);
   }
 
-  async myRegisteredEvents(requester: EventRequester) {
-    return this.prismaService.eventRegistration.findMany({
-      where: {
-        userId: requester.id,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+  myRegisteredEvents(requester: EventRequester) {
+    return this.eventRepository.registrationsForUser(requester.id);
   }
 
   async publishEvent(eventId: string, requester: EventRequester) {
     const event = await this.findExistingEvent(eventId);
     this.ensureEventOwnerOrAdmin(event.providerId, requester);
-    return this.prismaService.event.update({
-      where: { id: eventId },
-      data: { status: EventStatus.PUBLISHED },
+    const published = await this.eventRepository.update(eventId, {
+      status: EventStatus.PUBLISHED,
     });
+    if (shouldEmitEventPublished(event.status)) {
+      const domainEvent: EventPublishedV1 = {
+        eventName: EVENT_PUBLISHED_V1,
+        schemaVersion: 1,
+        eventId: published.id,
+        providerId: published.providerId,
+        occurredAt: new Date().toISOString(),
+        correlationId: randomUUID(),
+      };
+      await this.eventDispatcher.publish(domainEvent);
+    }
+    return published;
   }
 
   async archiveEvent(eventId: string, requester: EventRequester) {
-    const event = await this.findExistingEvent(eventId);
-    this.ensureEventOwnerOrAdmin(event.providerId, requester);
-    return this.prismaService.event.update({
-      where: { id: eventId },
-      data: { status: EventStatus.ARCHIVED },
+    await this.assertOwner(eventId, requester);
+    return this.eventRepository.update(eventId, {
+      status: EventStatus.ARCHIVED,
     });
   }
 
   async cancelEvent(eventId: string, requester: EventRequester) {
-    const event = await this.findExistingEvent(eventId);
-    this.ensureEventOwnerOrAdmin(event.providerId, requester);
-    return this.prismaService.event.update({
-      where: { id: eventId },
-      data: { status: EventStatus.CANCELLED },
+    await this.assertOwner(eventId, requester);
+    return this.eventRepository.update(eventId, {
+      status: EventStatus.CANCELLED,
     });
   }
 
   async softDeleteEvent(eventId: string, requester: EventRequester) {
-    const event = await this.findExistingEvent(eventId);
-    this.ensureEventOwnerOrAdmin(event.providerId, requester);
-    return this.prismaService.event.update({
-      where: { id: eventId },
-      data: { deletedAt: new Date() },
-    });
+    await this.assertOwner(eventId, requester);
+    return this.eventRepository.update(eventId, { deletedAt: new Date() });
   }
 
   async restoreEvent(eventId: string, requester: EventRequester) {
-    const event = await this.prismaService.event.findUnique({
-      where: { id: eventId },
-    });
+    const event = await this.eventRepository.findById(eventId);
     if (!event) throw new NotFoundException(EventMessageCode.EVENT_NOT_FOUND);
     this.ensureEventOwnerOrAdmin(event.providerId, requester);
-    return this.prismaService.event.update({
-      where: { id: eventId },
-      data: { deletedAt: null },
-    });
+    return this.eventRepository.update(eventId, { deletedAt: null });
   }
 
-  private async findEventsWithTrgmSearch(
-    filter?: EventFilterInput,
-    pagination?: EventPaginationInput,
-    _sort?: EventSortInput,
-  ) {
-    const take = Math.min(pagination?.take ?? 20, 100);
-    const search = filter?.search?.trim() ?? "";
-    const cursor = pagination?.cursor ?? null;
-    const status = filter?.status ?? EventStatus.PUBLISHED;
-    const fromDate = filter?.fromDate ? new Date(filter.fromDate) : null;
-    const toDate = filter?.toDate ? new Date(filter.toDate) : null;
-    const rows = await this.prismaService.$queryRaw<
-      Array<{
-        id: string;
-        slug: string;
-        title: string;
-        type: string;
-        deliveryMode: string;
-        category: string;
-        status: string;
-        imageUrl: string | null;
-        speaker: string | null;
-        organizer: string | null;
-        description: string;
-        startDate: Date;
-        endDate: Date | null;
-        timezone: string;
-        location: string | null;
-        onlineUrl: string | null;
-        price: Prisma.Decimal | null;
-        currency: string;
-        isFree: boolean;
-        pdu: number;
-        capacity: number | null;
-        attendees: number;
-        views: number;
-        rating: number;
-        averageRating: number;
-        ratingCount: number;
-        registrationEnabled: boolean;
-        providerId: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-        deletedAt: Date | null;
-        searchRank: number;
-        totalCount: bigint;
-      }>
-    >`
-    WITH ranked_events AS (
-      SELECT
-        e.*,
-        GREATEST(
-          similarity(e."title", ${search}),
-          similarity(COALESCE(e."speaker", ''), ${search}),
-          similarity(COALESCE(e."organizer", ''), ${search}),
-          similarity(e."description", ${search}),
-          similarity(COALESCE(e."location", ''), ${search})
-        ) AS "searchRank"
-      FROM "Event" e
-      WHERE e."deletedAt" IS NULL
-        AND e."status" = ${status}::"EventStatus"
-        AND (${filter?.type ?? null}::"EventType" IS NULL OR e."type" = ${filter?.type ?? null}::"EventType")
-        AND (${filter?.deliveryMode ?? null}::"EventDeliveryMode" IS NULL OR e."deliveryMode" = ${filter?.deliveryMode ?? null}::"EventDeliveryMode")
-        AND (${filter?.category ?? null}::"EventCategory" IS NULL OR e."category" = ${filter?.category ?? null}::"EventCategory")
-        AND (${filter?.isFree ?? null}::boolean IS NULL OR e."isFree" = ${filter?.isFree ?? null}::boolean)
-        AND (${filter?.providerId ?? null}::text IS NULL OR e."providerId" = ${filter?.providerId ?? null}::text)
-        AND (${fromDate}::timestamp IS NULL OR e."startDate" >= ${fromDate}::timestamp)
-        AND (${toDate}::timestamp IS NULL OR e."startDate" <= ${toDate}::timestamp)
-        AND (
-          e."title" ILIKE '%' || ${search} || '%'
-          OR COALESCE(e."speaker", '') ILIKE '%' || ${search} || '%'
-          OR COALESCE(e."organizer", '') ILIKE '%' || ${search} || '%'
-          OR e."description" ILIKE '%' || ${search} || '%'
-          OR COALESCE(e."location", '') ILIKE '%' || ${search} || '%'
-          OR e."title" % ${search}
-          OR COALESCE(e."speaker", '') % ${search}
-          OR COALESCE(e."organizer", '') % ${search}
-          OR e."description" % ${search}
-          OR COALESCE(e."location", '') % ${search}
-        )
-        AND (${cursor}::text IS NULL OR e."id" > ${cursor}::text)
-    )
-    SELECT
-      ranked_events.*,
-      COUNT(*) OVER() AS "totalCount"
-    FROM ranked_events
-    ORDER BY "searchRank" DESC, "startDate" ASC, "id" DESC
-    LIMIT ${take + 1};
-  `;
-    const hasNextPage = rows.length > take;
-    const slicedRows = hasNextPage ? rows.slice(0, take) : rows;
-    return {
-      items: slicedRows.map(({ searchRank, totalCount, ...event }) => ({
-        ...event,
-        price: event.price ? Number(event.price) : null,
-      })),
-      totalCount: rows[0]?.totalCount ? Number(rows[0].totalCount) : 0,
-      pageInfo: {
-        hasNextPage,
-        nextCursor: hasNextPage ? slicedRows[slicedRows.length - 1]?.id : null,
-      },
-    };
-  }
-
-  private buildEventWhere(filter?: EventFilterInput): Prisma.EventWhereInput {
-    const search = filter?.search?.trim();
-    return {
-      deletedAt: null,
-      status: filter?.status ?? EventStatus.PUBLISHED,
-      type: filter?.type,
-      deliveryMode: filter?.deliveryMode,
-      category: filter?.category,
-      isFree: filter?.isFree,
-      providerId: filter?.providerId,
-      startDate: {
-        gte: filter?.fromDate ? new Date(filter.fromDate) : undefined,
-        lte: filter?.toDate ? new Date(filter.toDate) : undefined,
-      },
-      OR: search
-        ? [
-            { title: { contains: search, mode: "insensitive" } },
-            { speaker: { contains: search, mode: "insensitive" } },
-            { organizer: { contains: search, mode: "insensitive" } },
-            { description: { contains: search, mode: "insensitive" } },
-            { location: { contains: search, mode: "insensitive" } },
-          ]
-        : undefined,
-    };
-  }
-
-  private buildOrderBy(
-    sort?: EventSortInput,
-  ): Prisma.EventOrderByWithRelationInput[] {
-    const field = sort?.field ?? EventSortField.START_DATE;
-    const direction = sort?.direction ?? EventSortDirection.ASC;
-    return [
-      { [field]: direction },
-      { id: "desc" },
-    ] as Prisma.EventOrderByWithRelationInput[];
+  private async assertOwner(eventId: string, requester: EventRequester) {
+    const event = await this.findExistingEvent(eventId);
+    this.ensureEventOwnerOrAdmin(event.providerId, requester);
   }
 
   private async findExistingEvent(eventId: string) {
-    const event = await this.prismaService.event.findFirst({
-      where: {
-        id: eventId,
-        deletedAt: null,
-      },
-    });
+    const event = await this.eventRepository.findActiveById(eventId);
     if (!event) throw new NotFoundException(EventMessageCode.EVENT_NOT_FOUND);
     return event;
   }
@@ -524,10 +285,12 @@ export class EventService {
     const baseSlug = slugify(title);
     let slug = baseSlug;
     let counter = 1;
-    while (await this.prismaService.event.findUnique({ where: { slug } })) {
+    while (await this.eventRepository.slugExists(slug)) {
       slug = `${baseSlug}-${counter}`;
       counter++;
     }
     return slug;
   }
 }
+
+type EventParticipant = { readonly id: string; readonly role?: Role };

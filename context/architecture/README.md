@@ -6,11 +6,12 @@ evidence and the trade-off accepted at the time.
 
 ## Index
 
-| ADR                                          | Title                                       | Status   |
-| -------------------------------------------- | ------------------------------------------- | -------- |
-| [001](adr-001-modular-monolith.md)           | Keep one deployable modular monolith        | Proposed |
-| [002](adr-002-domain-boundaries.md)          | Bounded contexts and single write ownership | Proposed |
-| [003](adr-003-cross-domain-communication.md) | How contexts talk to each other             | Proposed |
+| ADR                                             | Title                                       | Status   |
+| ----------------------------------------------- | ------------------------------------------- | -------- |
+| [001](adr-001-modular-monolith.md)              | Keep one deployable modular monolith        | Proposed |
+| [002](adr-002-domain-boundaries.md)             | Bounded contexts and single write ownership | Proposed |
+| [003](adr-003-cross-domain-communication.md)    | How contexts talk to each other             | Proposed |
+| [004](adr-004-engagement-events-public-port.md) | Engagement calls the Events public port     | Accepted |
 
 All three are **Proposed** until the Phase 1 exit-gate review accepts them.
 Phase 2 treats them as enforceable architecture, so they must be accepted or
@@ -52,3 +53,5 @@ that supersedes it, so the reasoning trail survives.
 - A new boundary violation is a build failure from Phase 2 onward. Adding an
   entry to the exception register to silence it is not permitted; the register
   only shrinks.
+- Engagement may depend on Learning Catalog only through an enforced `public/`
+  contract (ADR-004); the reverse dependency remains forbidden.
