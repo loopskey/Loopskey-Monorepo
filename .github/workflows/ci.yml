@@ -24,8 +24,7 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: loopskey_test_ci
-        ports:
-          - 5432:5432
+        ports: ["5432:5432"]
         options: >-
           --health-cmd "pg_isready -U postgres -d loopskey_test_ci"
           --health-interval 5s
@@ -36,19 +35,12 @@ jobs:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/loopskey_test_ci
       JWT_ACCESS_SECRET: ci-test-access-secret-at-least-32-characters
       JWT_REFRESH_SECRET: ci-test-refresh-secret-at-least-32-characters
-      # Pull requests compare their real head to the target revision. Pushes
-      # compare the new revision to the revision immediately before the push.
-      # This avoids `--affected` falling back to `main`, which is ambiguous for
-      # pushes to a protected branch and can silently select no work.
       TURBO_SCM_BASE: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
       TURBO_SCM_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
 
     steps:
       - uses: actions/checkout@v4
         with:
-          # Turborepo needs real history to compute the merge base for
-          # --affected. With a shallow clone it cannot, and the failure mode is
-          # silent: nothing is treated as affected and the run reports green.
           fetch-depth: 0
 
       - uses: actions/setup-node@v4
@@ -59,14 +51,9 @@ jobs:
       - name: Install
         run: npm ci
 
-      # `npm ci` installs the package but does not generate this repository's
-      # schema-specific Prisma Client. TypeScript imports its models and enums,
-      # so every clean runner must generate it before validation begins.
       - name: Generate Prisma Client
         run: npx prisma generate --schema apps/api/prisma/schema.prisma
 
-      # Restored across runs so unchanged packages replay instead of rebuilding.
-      # Keyed on the lockfile so a dependency change invalidates it.
       - name: Restore Turborepo cache
         uses: actions/cache@v4
         with:
@@ -76,8 +63,6 @@ jobs:
             turbo-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
             turbo-${{ runner.os }}-
 
-      # `--affected` uses the explicit event revisions above, so a
-      # frontend-only change does not rebuild the API.
       - name: Lint
         run: npx turbo run lint --affected
 
@@ -87,10 +72,6 @@ jobs:
       - name: Test
         run: npx turbo run test --affected
 
-      # E2E runs unconditionally, including on documentation-only PRs where
-      # `--affected` correctly schedules no package build. Compile the shared
-      # contracts explicitly so ts-jest can resolve its subpath exports on a
-      # clean runner.
       - name: Build API contracts for E2E
         run: npm run build --workspace @loopskey/api-contracts
 
@@ -100,14 +81,8 @@ jobs:
       - name: Build
         run: npx turbo run build --affected
 
-      # Codegen reads the committed schema file, so it needs no server and no
-      # database. A diff here means a resolver changed without the schema being
-      # regenerated, which would leave the frontend typed against a stale API.
-      - name: Check generated GraphQL types are current
+      - name: Check generated GraphQL types
+        shell: bash
         run: |
           npm run codegen --workspace front
-          if ! git diff --quiet -- apps/front/src/lib/graphql/generated.ts; then
-            echo "::error::generated.ts is out of date. Run 'npm run codegen --workspace front' and commit the result."
-            git diff -- apps/front/src/lib/graphql/generated.ts
-            exit 1
-          fi
+          git diff --exit-code -- apps/front/src/lib/graphql/generated.ts

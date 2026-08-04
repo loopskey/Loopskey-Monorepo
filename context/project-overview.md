@@ -165,7 +165,7 @@ matching no-cross-app rule. Both invariants are covered by negative tests.
 - JWT, Passport, Argon2, cookie-based access/refresh sessions
 - Resend for email; Google and LinkedIn OAuth
 - ExcelJS for spreadsheet import; multer and local disk for uploads
-- Jest (188 tests across 20 suites)
+- Jest unit and architecture suites plus PostgreSQL-backed GraphQL E2E tests
 
 Payment, SendGrid, Puppeteer, Swagger and `googleapis` dependencies were
 declared but never imported, and were removed on 2026-07-27. Reintroduce one

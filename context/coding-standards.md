@@ -414,7 +414,7 @@ npm run test --workspace api
 npm run test --workspace front
 npm run lint            # every workspace, including packages/api-contracts
 npm run check-types     # every workspace
-npm run test            # 188 API + 112 frontend
+npm run test            # all API and frontend unit tests
 npm run build
 ```
 
@@ -423,9 +423,9 @@ The root commands are Turborepo tasks and are dependency-ordered, so
 stale `dist/` is the usual cause of a confusing "module has no exported member"
 after editing the package.
 
-`npm run test:e2e --workspace api` remains broken: it points at
-`apps/api/test/`, a directory that has never existed. Report a stale script
-separately; do not claim the underlying code passed.
+`npm run test:e2e --workspace api` runs the PostgreSQL-backed GraphQL suite.
+Use only an isolated database whose name contains a standalone `test` marker;
+the safety guard rejects development and production database names.
 
 Tests should cover:
 

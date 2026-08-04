@@ -2840,7 +2840,8 @@ configurations across the project"). The API workspace **does** now have an
 ESLint 9 flat config at `apps/api/eslint.config.mjs`, contradicting the
 long-standing note that it has none.
 
-Only `test:e2e` remains genuinely broken, as previously recorded.
+Resolved after this audit: `test:e2e` now uses `apps/api/test/`, an isolated
+PostgreSQL database safety guard, and migration setup in CI.
 
 ### Commands that do not exist
 

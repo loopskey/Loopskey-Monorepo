@@ -6,12 +6,12 @@ PDU/CPD tracking in one application.
 
 Four roles, each with its own dashboard:
 
-| Role | Does what |
-| --- | --- |
+| Role           | Does what                                                                                 |
+| -------------- | ----------------------------------------------------------------------------------------- |
 | `PROFESSIONAL` | Discovers learning content, tracks PDU/CPD progress, manages credentials and certificates |
-| `PROVIDER` | Publishes and manages courses, events, podcasts and channels |
-| `ORGANIZATION` | Manages members, departments, assignments and compliance reporting |
-| `ADMIN` | Manages users, organizations, platform content and taxonomy |
+| `PROVIDER`     | Publishes and manages courses, events, podcasts and channels                              |
+| `ORGANIZATION` | Manages members, departments, assignments and compliance reporting                        |
+| `ADMIN`        | Manages users, organizations, platform content and taxonomy                               |
 
 ## Prerequisites
 
@@ -65,6 +65,30 @@ npx prisma migrate dev    --schema apps/api/prisma/schema.prisma --name <name>
 npx prisma migrate status --schema apps/api/prisma/schema.prisma
 ```
 
+## Feature workflow
+
+The repository uses one scope-aware feature skill:
+
+```text
+/feature start <spec-or-request>  # branch, implement, test, fix
+/feature review                   # optional four-bullet summary
+/feature complete                 # commit, push, PR, wait for CI
+```
+
+`complete` opens a PR to `develop` and stops after CI passes. It never merges
+the PR or deletes a branch; the Team Lead performs those actions manually.
+
+Frontend work loads `apps/front/CLAUDE.md`, backend work loads
+`apps/api/CLAUDE.md`, and repository-wide work loads only the scopes it affects.
+
+## Continuous integration
+
+GitHub Actions validates pull requests and pushes to `develop` and `main`.
+Turborepo runs affected lint, type, test, and build tasks; PostgreSQL-backed API
+E2E tests and GraphQL generated-type drift checks run in the same required job.
+Deployment is intentionally not automated because this repository does not
+define a deployment target or environment credentials.
+
 ## Layout
 
 ```text
@@ -105,5 +129,5 @@ reference one value.
 
 - [`project-overview.md`](context/project-overview.md) — architecture, domains, data model
 - [`coding-standards.md`](context/coding-standards.md) — conventions for both applications
-- [`ai-interaction.md`](context/ai-interaction.md) — branching, review and merge workflow
+- [`ai-interaction.md`](context/ai-interaction.md) — concise AI workflow policy
 - [`monorepo-audit.md`](context/monorepo-audit.md) — monorepo audit and improvement roadmap
