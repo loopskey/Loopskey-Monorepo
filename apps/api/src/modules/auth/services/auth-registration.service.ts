@@ -2,10 +2,11 @@ import { ConflictException, Injectable } from "@nestjs/common";
 import { OtpPurpose, Role, UserStatus } from "@prisma/client";
 import { VerifyEmailOtpInput } from "@auth/dtos/verify-email-otp.input";
 import { BadRequestException } from "@nestjs/common";
+import { RoleProfileRegistry } from "@prisma/role-profile-registry.service";
 import { ResendEmailOtpInput } from "@auth/dtos/resend-email-otp.input";
-import { AuthCommonService } from "@auth/services/auth-common.service";
 import { AuthSessionService } from "@auth/services/auth-session.service";
 import { RequestContextInfo } from "@auth/types/auth-service.types";
+import { AuthCommonService } from "@auth/services/auth-common.service";
 import { AuthRegisterRole } from "@auth/enums/register-role.enum";
 import { AUTH_USER_SELECT } from "@auth/types/auth-user-select.constant";
 import { AuthMessageCode } from "@auth/enums/message-code.enum";
@@ -21,6 +22,7 @@ export class AuthRegistrationService {
     private readonly prisma: PrismaService,
     private readonly authCommon: AuthCommonService,
     private readonly authSession: AuthSessionService,
+    private readonly roleProfiles: RoleProfileRegistry,
   ) {}
 
   async register(input: RegisterInput) {
@@ -119,24 +121,10 @@ export class AuthRegistrationService {
           role: pending.role,
           status: UserStatus.ACTIVE,
           emailVerifiedAt: new Date(),
-          professionalProfile:
-            pending.role === Role.PROFESSIONAL
-              ? {
-                  create: {
-                    interests: [],
-                    skills: [],
-                  },
-                }
-              : undefined,
-          providerProfile:
-            pending.role === Role.PROVIDER
-              ? {
-                  create: {},
-                }
-              : undefined,
         },
         select: AUTH_USER_SELECT,
       });
+      await this.roleProfiles.provision(pending.role, createdUser.id, tx);
       await tx.pendingRegistration.delete({
         where: { email },
       });

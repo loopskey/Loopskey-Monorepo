@@ -8,7 +8,12 @@ describe("ProviderService Events boundary", () => {
     providerAttendees: jest.fn(),
     assertProviderOwnsEvent: jest.fn(),
   };
-  const service = new ProviderService(prisma as never, eventsApi as never);
+  const identityApi = { display: jest.fn() };
+  const service = new ProviderService(
+    prisma as never,
+    eventsApi as never,
+    identityApi as never,
+  );
   const provider = { id: "provider-1", role: Role.PROVIDER };
 
   beforeEach(() => jest.clearAllMocks());

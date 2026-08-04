@@ -10,12 +10,16 @@ import { UserFilterInput } from "@user/dtos/user-filter.input";
 import { UpdateUserInput } from "@user/dtos/update-user.input";
 import { UpdateMeInput } from "@user/dtos/update-me.input";
 import { PrismaService } from "@prisma/prisma.service";
+import { RoleProfileRegistry } from "@prisma/role-profile-registry.service";
 
 import * as argon2 from "argon2";
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly roleProfiles: RoleProfileRegistry,
+  ) {}
 
   private readonly userSelect = {
     id: true,
@@ -34,9 +38,6 @@ export class UserService {
     createdAt: true,
     updatedAt: true,
     deletedAt: true,
-    professionalProfile: true,
-    providerProfile: true,
-    organizationProfile: true,
   } satisfies Prisma.UserSelect;
 
   async createUser(input: CreateUserInput) {
@@ -72,43 +73,26 @@ export class UserService {
       input.fullName ??
       [input.firstName, input.lastName].filter(Boolean).join(" ") ??
       null;
-    return this.prismaService.user.create({
-      data: {
-        email: input.email?.toLowerCase(),
-        phone: input.phone,
-        passwordHash,
-        firstName: input.firstName,
-        lastName: input.lastName,
-        avatarUrl: input.avatarUrl,
-        fullName,
-        role: input.role ?? Role.PROFESSIONAL,
-        status: input.status ?? UserStatus.PENDING,
-        professionalProfile:
-          input.role === Role.PROFESSIONAL || !input.role
-            ? {
-                create: {
-                  interests: [],
-                  skills: [],
-                },
-              }
-            : undefined,
-        providerProfile:
-          input.role === Role.PROVIDER
-            ? {
-                create: {},
-              }
-            : undefined,
-        organizationProfile:
-          input.role === Role.ORGANIZATION
-            ? {
-                create: {
-                  organizationName: fullName || "Organization",
-                },
-              }
-            : undefined,
-      },
-      select: this.userSelect,
+    const role = input.role ?? Role.PROFESSIONAL;
+    const user = await this.prismaService.$transaction(async (tx) => {
+      const created = await tx.user.create({
+        data: {
+          email: input.email?.toLowerCase(),
+          phone: input.phone,
+          passwordHash,
+          firstName: input.firstName,
+          lastName: input.lastName,
+          avatarUrl: input.avatarUrl,
+          fullName,
+          role,
+          status: input.status ?? UserStatus.PENDING,
+        },
+        select: this.userSelect,
+      });
+      await this.roleProfiles.provision(role, created.id, tx);
+      return created;
     });
+    return this.withRoleProfile(user);
   }
 
   async me(userId: string) {
@@ -124,7 +108,7 @@ export class UserService {
         code: UserMessageCode.USER_NOT_FOUND,
         message: "User not found.",
       });
-    return user;
+    return this.withRoleProfile(user);
   }
 
   async findById(userId: string, includeDeleted = false) {
@@ -140,7 +124,7 @@ export class UserService {
         code: UserMessageCode.USER_NOT_FOUND,
         message: "User not found.",
       });
-    return user;
+    return this.withRoleProfile(user);
   }
 
   async findByEmail(email: string) {
@@ -210,7 +194,7 @@ export class UserService {
     ]);
     const totalPages = Math.ceil(totalItems / limit);
     return {
-      items,
+      items: await Promise.all(items.map((item) => this.withRoleProfile(item))),
       pageInfo: {
         totalItems,
         page,
@@ -229,7 +213,7 @@ export class UserService {
       input.fullName ??
       [input.firstName, input.lastName].filter(Boolean).join(" ") ??
       undefined;
-    return this.prismaService.user.update({
+    const updated = await this.prismaService.user.update({
       where: { id: userId },
       data: {
         firstName: input.firstName,
@@ -241,6 +225,7 @@ export class UserService {
       },
       select: this.userSelect,
     });
+    return this.withRoleProfile(updated);
   }
 
   async updateUser(input: UpdateUserInput) {
@@ -256,7 +241,7 @@ export class UserService {
       input.fullName ??
       [input.firstName, input.lastName].filter(Boolean).join(" ") ??
       undefined;
-    return this.prismaService.user.update({
+    const updated = await this.prismaService.user.update({
       where: { id: input.userId },
       data: {
         fullName,
@@ -271,6 +256,7 @@ export class UserService {
       },
       select: this.userSelect,
     });
+    return this.withRoleProfile(updated);
   }
 
   async updateUserStatus(input: UpdateUserStatusInput) {
@@ -281,13 +267,14 @@ export class UserService {
         message:
           "Admin user cannot be disabled or deleted from this operation.",
       });
-    return this.prismaService.user.update({
+    const updated = await this.prismaService.user.update({
       where: { id: input.userId },
       data: {
         status: input.status,
       },
       select: this.userSelect,
     });
+    return this.withRoleProfile(updated);
   }
 
   async softDeleteUser(userId: string) {
@@ -297,7 +284,7 @@ export class UserService {
         code: UserMessageCode.CANNOT_DELETE_ADMIN_USER,
         message: "Admin user cannot be deleted.",
       });
-    return this.prismaService.user.update({
+    const updated = await this.prismaService.user.update({
       where: { id: userId },
       data: {
         status: UserStatus.DELETED,
@@ -305,11 +292,12 @@ export class UserService {
       },
       select: this.userSelect,
     });
+    return this.withRoleProfile(updated);
   }
 
   async restoreUser(userId: string) {
     await this.ensureUserExists(userId, true);
-    return this.prismaService.user.update({
+    const updated = await this.prismaService.user.update({
       where: { id: userId },
       data: {
         status: UserStatus.ACTIVE,
@@ -317,6 +305,17 @@ export class UserService {
       },
       select: this.userSelect,
     });
+    return this.withRoleProfile(updated);
+  }
+
+  private async withRoleProfile<T extends { id: string; role: Role }>(user: T) {
+    const profile = await this.roleProfiles.project(user.role, user.id);
+    return {
+      ...user,
+      professionalProfile: user.role === Role.PROFESSIONAL ? profile : null,
+      providerProfile: user.role === Role.PROVIDER ? profile : null,
+      organizationProfile: user.role === Role.ORGANIZATION ? profile : null,
+    };
   }
 
   private async ensureUserExists(userId: string, includeDeleted = false) {

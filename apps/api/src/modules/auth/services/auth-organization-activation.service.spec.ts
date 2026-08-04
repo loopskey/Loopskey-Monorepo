@@ -88,6 +88,11 @@ const setup = (activation: unknown = activeToken) => {
       config as unknown as ConfigService,
       { sendEmail } as unknown as MailService,
       authCommon as unknown as AuthCommonService,
+      {
+        project: jest
+          .fn()
+          .mockResolvedValue({ organizationName: "Example Association" }),
+      } as never,
     ),
   };
 };

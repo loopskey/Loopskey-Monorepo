@@ -1,19 +1,20 @@
-import { AuditAction, Prisma, Role, UserStatus } from "@prisma/client";
 import { OrganizationReviewNotificationService } from "@admin/services/organization-review-notification.service";
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { AdminOrgAccessRequestFilterInput } from "@admin/dtos/admin-org-access-request-filter.input";
-import { OrganizationAccessRequestStatus } from "@prisma/client";
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { type IdentityAdministrationApi } from "@user/public/identity-administration-api";
+import { IDENTITY_ADMINISTRATION_API } from "@user/public/identity-administration-api";
 import { UpdateAdminUserStatusInput } from "@admin/dtos/update-admin-user-status.input";
+import { type OrganizationReviewApi } from "@org/public/organization-review-api";
+import { AuditAction, Prisma, Role } from "@prisma/client";
 import { AdminDashboardMessageCode } from "@admin/enums/message-code.enum";
-import { OrganizationMemberStatus } from "@prisma/client";
 import { AdminAuditLogFilterInput } from "@admin/dtos/admin-audit-log-filter.input";
 import { UpdateAdminProfileInput } from "@admin/dtos/update-admin-profile.input";
+import { ORGANIZATION_REVIEW_API } from "@org/public/organization-review-api";
 import { AdminUserFilterInput } from "@admin/dtos/admin-user-filter.input";
 import { AdminPaginationInput } from "@admin/dtos/admin-pagination.input";
 import { BadRequestException } from "@nestjs/common";
 import { TAdminDashboardUser } from "@admin/types/admin-service.types";
 import { ForbiddenException } from "@nestjs/common";
-import { ConflictException } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 
 @Injectable()
@@ -21,6 +22,10 @@ export class AdminDashboardService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly reviewNotification: OrganizationReviewNotificationService,
+    @Inject(IDENTITY_ADMINISTRATION_API)
+    private readonly identityAdmin: IdentityAdministrationApi,
+    @Inject(ORGANIZATION_REVIEW_API)
+    private readonly organizationReview: OrganizationReviewApi,
   ) {}
 
   private assertAdmin(user: TAdminDashboardUser) {
@@ -30,9 +35,7 @@ export class AdminDashboardService {
 
   async profile(user: TAdminDashboardUser) {
     this.assertAdmin(user);
-    const admin = await this.prismaService.user.findFirst({
-      where: { id: user.id, role: Role.ADMIN, deletedAt: null },
-    });
+    const admin = await this.identityAdmin.profile(user.id);
     if (!admin)
       throw new NotFoundException(AdminDashboardMessageCode.USER_NOT_FOUND);
     return admin;
@@ -43,15 +46,7 @@ export class AdminDashboardService {
     input: UpdateAdminProfileInput,
   ) {
     this.assertAdmin(user);
-    const updated = await this.prismaService.user.update({
-      where: { id: user.id },
-      data: {
-        fullName: input.fullName,
-        email: input.email?.trim().toLowerCase(),
-        avatarUrl: input.avatarUrl,
-        bio: input.bio,
-      },
-    });
+    const updated = await this.identityAdmin.updateProfile(user.id, input);
     await this.createAudit(
       user.id,
       AuditAction.ADMIN_PROFILE_UPDATED,
@@ -63,47 +58,7 @@ export class AdminDashboardService {
 
   async overview(user: TAdminDashboardUser) {
     this.assertAdmin(user);
-    const [totalRequests, pendingRequests, approvedRequests, rejectedRequests] =
-      await Promise.all([
-        this.prismaService.organizationAccessRequest.count(),
-        this.prismaService.organizationAccessRequest.count({
-          where: { status: OrganizationAccessRequestStatus.PENDING },
-        }),
-        this.prismaService.organizationAccessRequest.count({
-          where: { status: OrganizationAccessRequestStatus.APPROVED },
-        }),
-        this.prismaService.organizationAccessRequest.count({
-          where: { status: OrganizationAccessRequestStatus.REJECTED },
-        }),
-      ]);
-    const from = new Date();
-    from.setDate(from.getDate() - 13);
-    from.setHours(0, 0, 0, 0);
-    const requests =
-      await this.prismaService.organizationAccessRequest.findMany({
-        where: { createdAt: { gte: from } },
-        select: { createdAt: true },
-      });
-    const trendMap = new Map<string, number>();
-    for (let i = 0; i < 14; i++) {
-      const date = new Date(from);
-      date.setDate(from.getDate() + i);
-      trendMap.set(date.toISOString().slice(0, 10), 0);
-    }
-    for (const request of requests) {
-      const key = request.createdAt.toISOString().slice(0, 10);
-      trendMap.set(key, (trendMap.get(key) ?? 0) + 1);
-    }
-    return {
-      totalRequests,
-      pendingRequests,
-      approvedRequests,
-      rejectedRequests,
-      requestTrend: Array.from(trendMap.entries()).map(([date, count]) => ({
-        date,
-        count,
-      })),
-    };
+    return this.organizationReview.overview();
   }
 
   async users(
@@ -112,71 +67,14 @@ export class AdminDashboardService {
     pagination?: AdminPaginationInput,
   ) {
     this.assertAdmin(user);
-    const take = pagination?.take ?? 20;
-    const search = filter?.search?.trim();
-    const where: Prisma.UserWhereInput = {
-      deletedAt: null,
-      role: filter?.role
-        ? filter.role
-        : { in: [Role.PROVIDER, Role.PROFESSIONAL, Role.ORGANIZATION] },
-      ...(filter?.status ? { status: filter.status } : {}),
-      ...(search
-        ? {
-            OR: [
-              { fullName: { contains: search, mode: "insensitive" } },
-              { email: { contains: search, mode: "insensitive" } },
-              {
-                providerProfile: {
-                  organizationName: { contains: search, mode: "insensitive" },
-                },
-              },
-              {
-                organizationProfile: {
-                  organizationName: { contains: search, mode: "insensitive" },
-                },
-              },
-            ],
-          }
-        : {}),
-      ...(filter?.premiumOnly ? { providerProfile: { isPremium: true } } : {}),
-    };
-    const rows = await this.prismaService.user.findMany({
-      where,
-      include: {
-        providerProfile: true,
-        professionalProfile: true,
-      },
-      take: take + 1,
-      ...(pagination?.cursor
-        ? { cursor: { id: pagination.cursor }, skip: 1 }
-        : {}),
-      orderBy: { createdAt: "desc" },
+    return this.identityAdmin.directory({
+      role: filter?.role,
+      status: filter?.status,
+      search: filter?.search,
+      premiumOnly: filter?.premiumOnly,
+      cursor: pagination?.cursor,
+      take: pagination?.take ?? 20,
     });
-
-    const items = rows.slice(0, take).map((item) => ({
-      id: item.id,
-      role: item.role,
-      email: item.email,
-      status: item.status,
-      fullName: item.fullName,
-      createdAt: item.createdAt,
-      avatarUrl: item.avatarUrl,
-      updatedAt: item.updatedAt,
-      lastLoginAt: item.lastLoginAt,
-      isPremium: Boolean(item.providerProfile?.isPremium),
-      location:
-        item.professionalProfile?.workLocation ??
-        item.providerProfile?.organizationName ??
-        null,
-    }));
-    return {
-      items,
-      totalCount: await this.prismaService.user.count({ where }),
-      pageInfo: {
-        hasNextPage: rows.length > take,
-        nextCursor: rows.length > take ? items.at(-1)?.id : null,
-      },
-    };
   }
 
   async updateUserStatus(
@@ -184,18 +82,12 @@ export class AdminDashboardService {
     input: UpdateAdminUserStatusInput,
   ) {
     this.assertAdmin(user);
-    const target = await this.prismaService.user.findFirst({
-      where: { id: input.userId, deletedAt: null },
-    });
-    if (!target)
+    const updated = await this.identityAdmin.updateStatus(
+      input.userId,
+      input.status,
+    );
+    if (!updated)
       throw new NotFoundException(AdminDashboardMessageCode.USER_NOT_FOUND);
-    const updated = await this.prismaService.user.update({
-      where: { id: input.userId },
-      data: {
-        status: input.status,
-        deletedAt: input.status === UserStatus.DELETED ? new Date() : null,
-      },
-    });
     await this.createAudit(
       user.id,
       AuditAction.USER_STATUS_UPDATED,
@@ -213,50 +105,7 @@ export class AdminDashboardService {
     mode: "DAILY" | "MONTHLY" = "DAILY",
   ) {
     this.assertAdmin(user);
-    const from = new Date();
-    if (mode === "MONTHLY") from.setMonth(from.getMonth() - 11);
-    else from.setDate(from.getDate() - 29);
-    from.setHours(0, 0, 0, 0);
-    const users = await this.prismaService.user.findMany({
-      where: {
-        deletedAt: null,
-        createdAt: { gte: from },
-        role: { in: [Role.PROVIDER, Role.PROFESSIONAL] },
-      },
-      select: {
-        role: true,
-        createdAt: true,
-      },
-    });
-    const map = new Map<
-      string,
-      {
-        providers: number;
-        professionals: number;
-      }
-    >();
-    for (const item of users) {
-      const key =
-        mode === "MONTHLY"
-          ? item.createdAt.toISOString().slice(0, 7)
-          : item.createdAt.toISOString().slice(0, 10);
-      const current = map.get(key) ?? {
-        providers: 0,
-        professionals: 0,
-      };
-      if (item.role === Role.PROVIDER) current.providers += 1;
-      if (item.role === Role.PROFESSIONAL) current.professionals += 1;
-      map.set(key, current);
-    }
-    return Array.from(map.entries())
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([date, value]) => ({
-        date,
-        label: date,
-        providers: value.providers,
-        professionals: value.professionals,
-        total: value.providers + value.professionals,
-      }));
+    return this.identityAdmin.growth(mode);
   }
 
   async orgAccessRequests(
@@ -265,197 +114,32 @@ export class AdminDashboardService {
     pagination?: AdminPaginationInput,
   ) {
     this.assertAdmin(user);
-    const take = pagination?.take ?? 20;
-    const search = filter?.search?.trim();
-    const where: Prisma.OrganizationAccessRequestWhereInput = {
-      ...(filter?.status ? { status: filter.status } : {}),
-      ...(search
-        ? {
-            OR: [
-              { organizationName: { contains: search, mode: "insensitive" } },
-              { workEmail: { contains: search, mode: "insensitive" } },
-              {
-                representativeFullName: {
-                  contains: search,
-                  mode: "insensitive",
-                },
-              },
-            ],
-          }
-        : {}),
-    };
-    const rows = await this.prismaService.organizationAccessRequest.findMany({
-      where,
-      include: {
-        reviewedBy: {
-          select: {
-            email: true,
-            fullName: true,
-          },
-        },
-      },
-      take: take + 1,
-      ...(pagination?.cursor
-        ? { cursor: { id: pagination.cursor }, skip: 1 }
-        : {}),
-      orderBy: [
-        { createdAt: filter?.sortDirection ?? "desc" },
-        { id: filter?.sortDirection ?? "desc" },
-      ],
-    });
-    const items = rows.slice(0, take).map(({ reviewedBy, ...request }) => ({
-      ...request,
-      reviewedByName: reviewedBy?.fullName ?? reviewedBy?.email ?? null,
-    }));
-    return {
-      items,
-      totalCount: await this.prismaService.organizationAccessRequest.count({
-        where,
-      }),
-      pageInfo: {
-        hasNextPage: rows.length > take,
-        nextCursor: rows.length > take ? items.at(-1)?.id : null,
-      },
-    };
+    return this.organizationReview.list({ ...filter, ...pagination });
   }
 
   async orgAccessRequestDetail(user: TAdminDashboardUser, requestId: string) {
     this.assertAdmin(user);
-    const request =
-      await this.prismaService.organizationAccessRequest.findUnique({
-        where: { id: requestId },
-        include: {
-          reviewedBy: {
-            select: {
-              email: true,
-              fullName: true,
-            },
-          },
-        },
-      });
-    if (!request)
-      throw new NotFoundException(
-        AdminDashboardMessageCode.ORG_ACCESS_REQUEST_NOT_FOUND,
-      );
-    const { reviewedBy, ...detail } = request;
-    return {
-      ...detail,
-      reviewedByName: reviewedBy?.fullName ?? reviewedBy?.email ?? null,
-    };
+    return this.organizationReview.detail(requestId);
   }
 
   async approveOrgAccessRequest(user: TAdminDashboardUser, requestId: string) {
     this.assertAdmin(user);
     const result = await this.prismaService.$transaction(async (tx) => {
-      const request = await tx.organizationAccessRequest.findUnique({
-        where: { id: requestId },
-      });
-      if (!request)
-        throw new NotFoundException(
-          AdminDashboardMessageCode.ORG_ACCESS_REQUEST_NOT_FOUND,
-        );
-      if (request.status !== OrganizationAccessRequestStatus.PENDING)
-        throw new ConflictException({
-          code: AdminDashboardMessageCode.ORG_ACCESS_REQUEST_ALREADY_REVIEWED,
-          message:
-            "This organization access request has already been reviewed.",
-        });
-      this.assertValidOrganizationRequest(request);
-
-      const reviewClaim = await tx.organizationAccessRequest.updateMany({
-        where: {
-          id: requestId,
-          status: OrganizationAccessRequestStatus.PENDING,
-        },
-        data: {
-          status: OrganizationAccessRequestStatus.APPROVED,
-          reviewedById: user.id,
-          reviewedAt: new Date(),
-          rejectReason: null,
-        },
-      });
-      if (reviewClaim.count !== 1)
-        throw new ConflictException({
-          code: AdminDashboardMessageCode.ORG_ACCESS_REQUEST_ALREADY_REVIEWED,
-          message:
-            "This organization access request was reviewed by another admin.",
-        });
-
-      const email = request.workEmail.trim().toLowerCase();
-      const linkedUser = await this.resolveApprovalOwner(tx, email);
-      const ownerId =
-        linkedUser?.id ??
-        (
-          await tx.user.create({
-            data: {
-              email,
-              passwordHash: null,
-              role: Role.ORGANIZATION,
-              status: UserStatus.PENDING,
-              forcePasswordChange: false,
-              emailVerifiedAt: null,
-              fullName: request.representativeFullName.trim(),
-            },
-            select: {
-              id: true,
-            },
-          })
-        ).id;
-      if (!linkedUser)
+      const approval = await this.organizationReview.approve(
+        requestId,
+        user.id,
+        tx,
+      );
+      if (!approval.linkedExistingUser)
         await tx.auditLog.create({
           data: {
             actorId: user.id,
             action: AuditAction.ORGANIZATION_ACCOUNT_CREATED,
             entityType: "User",
-            entityId: ownerId,
-            metadata: { email, requestId },
+            entityId: approval.approvedUserId,
+            metadata: { email: approval.workEmail, requestId },
           },
         });
-
-      const organization = await tx.organization.create({
-        data: {
-          ownerId,
-          country: request.country.trim(),
-          name: request.organizationName.trim(),
-        },
-        select: { id: true },
-      });
-      await tx.organizationProfile.upsert({
-        where: { userId: ownerId },
-        create: {
-          userId: ownerId,
-          country: request.country.trim(),
-          contactEmail: email,
-          organizationName: request.organizationName.trim(),
-          memberLimit: request.expectedLicensedProfessionals,
-        },
-        update: {},
-      });
-      await tx.organizationSettings.create({
-        data: { organizationId: organization.id },
-      });
-      await tx.organizationMember.create({
-        data: {
-          organizationId: organization.id,
-          userId: ownerId,
-          jobRole: request.representativeJobRole.trim(),
-          status: OrganizationMemberStatus.ACTIVE,
-        },
-      });
-      const approvedRequest = await tx.organizationAccessRequest.update({
-        where: { id: requestId },
-        data: {
-          approvedUserId: ownerId,
-        },
-        include: {
-          reviewedBy: {
-            select: {
-              email: true,
-              fullName: true,
-            },
-          },
-        },
-      });
       await tx.auditLog.create({
         data: {
           actorId: user.id,
@@ -463,10 +147,10 @@ export class AdminDashboardService {
           entityType: "OrganizationAccessRequest",
           entityId: requestId,
           metadata: {
-            workEmail: email,
-            organizationId: organization.id,
-            approvedUserId: ownerId,
-            linkedExistingUser: Boolean(linkedUser),
+            workEmail: approval.workEmail,
+            organizationId: approval.organizationId,
+            approvedUserId: approval.approvedUserId,
+            linkedExistingUser: approval.linkedExistingUser,
             notificationIntent: {
               type: "ORGANIZATION_REQUEST_APPROVED",
               deliveryStatus: "PENDING",
@@ -474,11 +158,7 @@ export class AdminDashboardService {
           },
         },
       });
-      const { reviewedBy, ...result } = approvedRequest;
-      return {
-        ...result,
-        reviewedByName: reviewedBy?.fullName ?? reviewedBy?.email ?? null,
-      };
+      return approval.result;
     });
     const notificationStatus = await this.reviewNotification.deliver(requestId);
     return { ...result, notificationStatus };
@@ -499,38 +179,12 @@ export class AdminDashboardService {
       });
 
     const result = await this.prismaService.$transaction(async (tx) => {
-      const request = await tx.organizationAccessRequest.findUnique({
-        where: { id: requestId },
-      });
-      if (!request)
-        throw new NotFoundException(
-          AdminDashboardMessageCode.ORG_ACCESS_REQUEST_NOT_FOUND,
-        );
-      if (request.status !== OrganizationAccessRequestStatus.PENDING)
-        throw new ConflictException({
-          code: AdminDashboardMessageCode.ORG_ACCESS_REQUEST_ALREADY_REVIEWED,
-          message:
-            "This organization access request has already been reviewed.",
-        });
-
-      const reviewClaim = await tx.organizationAccessRequest.updateMany({
-        where: {
-          id: requestId,
-          status: OrganizationAccessRequestStatus.PENDING,
-        },
-        data: {
-          status: OrganizationAccessRequestStatus.REJECTED,
-          reviewedById: user.id,
-          reviewedAt: new Date(),
-          rejectReason,
-        },
-      });
-      if (reviewClaim.count !== 1)
-        throw new ConflictException({
-          code: AdminDashboardMessageCode.ORG_ACCESS_REQUEST_ALREADY_REVIEWED,
-          message:
-            "This organization access request was reviewed by another admin.",
-        });
+      const rejection = await this.organizationReview.reject(
+        requestId,
+        user.id,
+        rejectReason,
+        tx,
+      );
 
       await tx.auditLog.create({
         data: {
@@ -547,23 +201,7 @@ export class AdminDashboardService {
           },
         },
       });
-      const rejectedRequest =
-        await tx.organizationAccessRequest.findUniqueOrThrow({
-          where: { id: requestId },
-          include: {
-            reviewedBy: {
-              select: {
-                email: true,
-                fullName: true,
-              },
-            },
-          },
-        });
-      const { reviewedBy, ...result } = rejectedRequest;
-      return {
-        ...result,
-        reviewedByName: reviewedBy?.fullName ?? reviewedBy?.email ?? null,
-      };
+      return rejection.result;
     });
     const notificationStatus = await this.reviewNotification.deliver(requestId);
     return { ...result, notificationStatus };
@@ -659,72 +297,5 @@ export class AdminDashboardService {
         metadata,
       },
     });
-  }
-
-  /**
-   * Decides whether an existing account for the work email can own the new
-   * organization. Returns null when no account exists and one must be created.
-   * An existing account is never overwritten or promoted into ORGANIZATION.
-   */
-  private async resolveApprovalOwner(
-    tx: Prisma.TransactionClient,
-    email: string,
-  ) {
-    const existingUser = await tx.user.findUnique({
-      where: { email },
-      select: {
-        id: true,
-        role: true,
-        deletedAt: true,
-        ownedOrganization: { select: { id: true } },
-      },
-    });
-    if (!existingUser) return null;
-    if (existingUser.deletedAt)
-      throw new ConflictException({
-        code: AdminDashboardMessageCode.USER_ALREADY_EXISTS,
-        message:
-          "A deleted account already uses this work email. Restore or replace it before approving.",
-      });
-    if (existingUser.role !== Role.ORGANIZATION)
-      throw new ConflictException({
-        code: AdminDashboardMessageCode.USER_ROLE_CONFLICT,
-        message:
-          "An account with this work email already exists under a different role. Resolve the account before approving.",
-      });
-    if (existingUser.ownedOrganization)
-      throw new ConflictException({
-        code: AdminDashboardMessageCode.ORGANIZATION_ALREADY_EXISTS,
-        message: "This work email already owns an organization.",
-      });
-    return existingUser;
-  }
-
-  private assertValidOrganizationRequest(request: {
-    country: string;
-    goals: string;
-    organizationName: string;
-    representativeFullName: string;
-    representativeJobRole: string;
-    workEmail: string;
-    expectedLicensedProfessionals: number;
-  }) {
-    const requiredValues = [
-      request.country,
-      request.goals,
-      request.organizationName,
-      request.representativeFullName,
-      request.representativeJobRole,
-      request.workEmail,
-    ];
-    if (
-      requiredValues.some((value) => value.trim().length === 0) ||
-      !request.workEmail.includes("@") ||
-      request.expectedLicensedProfessionals < 1
-    )
-      throw new BadRequestException({
-        code: AdminDashboardMessageCode.ORG_ACCESS_REQUEST_INVALID,
-        message: "The organization access request contains invalid data.",
-      });
   }
 }

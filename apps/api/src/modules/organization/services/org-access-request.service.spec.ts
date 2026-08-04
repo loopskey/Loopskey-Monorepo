@@ -70,6 +70,11 @@ const createService = (prisma: ReturnType<typeof createPrismaMock>) =>
     {
       get: jest.fn((_name: string, fallback?: string) => fallback),
     } as unknown as ConfigService,
+    {
+      existsByEmail: jest.fn(async (email: string) =>
+        Boolean(await prisma.user.findUnique({ where: { email } })),
+      ),
+    } as never,
   );
 
 describe("OrgAccessRequestService.submitRequest", () => {

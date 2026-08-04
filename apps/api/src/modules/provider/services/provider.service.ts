@@ -5,24 +5,28 @@ import { ProviderPromotionFilterInput } from "@provider/dtos/provider-promotion-
 import { SubmitPromotionRequestInput } from "@provider/dtos/submit-promotion-request.input";
 import { UpdateProviderSettingsInput } from "@provider/dtos/update-provider-setting.input";
 import { ProviderDashboardRangeInput } from "@provider/dtos/provider-range.input";
-import { Prisma, Role } from "@prisma/client";
 import { ProviderEventsFilterInput } from "@provider/dtos/provider-events-filter.input";
+import { type IdentityProfileApi } from "@user/public/identity-profile-api";
 import { PromotionRequestStatus } from "@prisma/client";
 import { ProviderDashboardRange } from "@provider/enums/provider-register.enum";
+import { IDENTITY_PROFILE_API } from "@user/public/identity-profile-api";
 import { BadRequestException } from "@nestjs/common";
 import { ProviderMessageCode } from "@provider/enums/message-code.enum";
 import { ForbiddenException } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
-import { TUser } from "@common/types/user.types";
-import { Inject } from "@nestjs/common";
+import { Prisma, Role } from "@prisma/client";
 import { EVENTS_API } from "@events/public/events-api.token";
-import type { EventsApi } from "@events/public/events-api";
+import { EventsApi } from "@events/public/events-api";
+import { Inject } from "@nestjs/common";
+import { TUser } from "@common/types/user.types";
 
 @Injectable()
 export class ProviderService {
   constructor(
     private readonly prismaService: PrismaService,
     @Inject(EVENTS_API) private readonly eventsApi: EventsApi,
+    @Inject(IDENTITY_PROFILE_API)
+    private readonly identityApi: IdentityProfileApi,
   ) {}
 
   private assertProvider(user: TUser) {
@@ -77,10 +81,7 @@ export class ProviderService {
   async overview(user: TUser, input?: ProviderDashboardRangeInput) {
     this.assertProvider(user);
     const { start, end } = this.getRangeDates(input?.range);
-    const provider = await this.prismaService.user.findUnique({
-      where: { id: user.id },
-      select: { fullName: true, email: true },
-    });
+    const provider = await this.identityApi.display(user.id);
     const metrics = await this.eventsApi.providerOverview(user.id, start, end);
     const { totalEvents, totalRegistrations, totalViews, upcomingSessions } =
       metrics;

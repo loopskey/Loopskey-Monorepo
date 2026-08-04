@@ -1,37 +1,13 @@
-/**
- * Typed ownership manifest for the modular monolith.
- *
- * This file is the machine-readable half of the Phase 1 baseline; the reasoning
- * lives in `context/modular-monolith-baseline.md` and the ADRs under
- * `context/architecture/`.
- *
- * It is deliberately framework-free — no `@nestjs/*`, no `@prisma/client`, no
- * imports at all — for two reasons. It must be readable by an ESLint rule and a
- * plain Node script in Phase 2, and importing Prisma here would make the
- * manifest depend on the very generated client whose models it is supposed to
- * describe.
- *
- * Model names are therefore string literals rather than `Prisma.ModelName`
- * members. That makes them a second source of truth, so
- * `domain-ownership.spec.ts` fails if this manifest and the Prisma schema ever
- * disagree. Prisma wins.
- *
- * Nothing in the application imports this file yet. Phase 2 turns it into the
- * input for automated boundary enforcement; until then its only consumer is its
- * own drift test.
- */
-
-/** The bounded contexts approved by ADR-002. */
 export const BOUNDED_CONTEXTS = {
-  IDENTITY_ACCESS: "identity-access",
-  LEARNING_CATALOG: "learning-catalog",
-  PROFESSIONAL_DEVELOPMENT: "professional-development",
-  ORGANIZATION_MANAGEMENT: "organization-management",
-  PROVIDER_MANAGEMENT: "provider-management",
   ENGAGEMENT: "engagement",
-  PLATFORM_ADMINISTRATION: "platform-administration",
   COMMUNICATIONS: "communications",
   PLATFORM_SHARED: "platform-shared",
+  IDENTITY_ACCESS: "identity-access",
+  LEARNING_CATALOG: "learning-catalog",
+  PROVIDER_MANAGEMENT: "provider-management",
+  ORGANIZATION_MANAGEMENT: "organization-management",
+  PLATFORM_ADMINISTRATION: "platform-administration",
+  PROFESSIONAL_DEVELOPMENT: "professional-development",
 } as const;
 
 export type BoundedContext =
@@ -39,11 +15,6 @@ export type BoundedContext =
 
 export const BOUNDED_CONTEXT_VALUES = Object.values(BOUNDED_CONTEXTS);
 
-/**
- * Every directory under `apps/api/src/modules` mapped to exactly one context.
- * Keys are directory names, not NestJS class names, because the enforcement
- * rule in Phase 2 resolves a file path to a context.
- */
 export const MODULE_OWNERSHIP = {
   auth: BOUNDED_CONTEXTS.IDENTITY_ACCESS,
   user: BOUNDED_CONTEXTS.IDENTITY_ACCESS,
@@ -68,33 +39,12 @@ export const MODULE_OWNERSHIP = {
   graphql: BOUNDED_CONTEXTS.PLATFORM_SHARED,
 } as const;
 
-/**
- * Source directories that are not NestJS modules.
- *
- * `MODULE_OWNERSHIP` is keyed on directories under `src/modules`, so on its own
- * it cannot classify anything else — and `src/common` holds real code that a
- * boundary rule has to reason about (`graphql-error-formatter.ts`,
- * `slug.util.ts`, `oauth-roles.constant.ts`). A Phase 2 path-to-context resolver
- * that consulted only `MODULE_OWNERSHIP` would return `undefined` for those
- * files and either exempt them from every rule or crash.
- *
- * Paths are relative to `apps/api`, and are checked longest-prefix-first
- * because `src/modules` is itself a prefix of every module path.
- */
 export const SOURCE_PATH_OWNERSHIP = {
   "src/common": BOUNDED_CONTEXTS.PLATFORM_SHARED,
   "src/graphql": BOUNDED_CONTEXTS.PLATFORM_SHARED,
   "src/architecture": BOUNDED_CONTEXTS.PLATFORM_SHARED,
 } as const;
 
-/**
- * Every Prisma model mapped to its single write owner.
- *
- * "Owner" means the one context allowed to write the model once the migration
- * completes. It is not a statement about who writes it today — several models
- * currently have writers outside their owner, and each of those is recorded in
- * `boundary-exceptions.ts` with a removal phase.
- */
 export const MODEL_OWNERSHIP = {
   // Identity and Access
   User: BOUNDED_CONTEXTS.IDENTITY_ACCESS,
@@ -165,24 +115,22 @@ export const MODEL_OWNERSHIP = {
   AuditLog: BOUNDED_CONTEXTS.PLATFORM_ADMINISTRATION,
 } as const;
 
-/**
- * Allowed dependency direction between contexts, per ADR-002.
- *
- * A context may depend on itself implicitly and on every context listed here.
- * Anything else is a violation. The graph must stay acyclic: `communications`
- * and `platform-shared` are sinks, and no context may depend on
- * `platform-administration`.
- */
 export const DOMAIN_DEPENDENCIES = {
   "identity-access": ["communications", "platform-shared"],
   "learning-catalog": ["platform-shared"],
   "professional-development": ["platform-shared"],
   "organization-management": [
     "communications",
+    "identity-access",
+    "learning-catalog",
+    "platform-shared",
+    "professional-development",
+  ],
+  "provider-management": [
+    "identity-access",
     "learning-catalog",
     "platform-shared",
   ],
-  "provider-management": ["learning-catalog", "platform-shared"],
   engagement: ["learning-catalog", "platform-shared"],
   "platform-administration": [
     "identity-access",
@@ -194,12 +142,6 @@ export const DOMAIN_DEPENDENCIES = {
   "platform-shared": [],
 } as const satisfies Record<BoundedContext, readonly BoundedContext[]>;
 
-/**
- * Contexts that own no Prisma model.
- *
- * Recorded explicitly so the drift test can tell "owns nothing by design" apart
- * from "someone forgot to assign a model".
- */
 export const MODEL_FREE_CONTEXTS = [
   BOUNDED_CONTEXTS.COMMUNICATIONS,
   BOUNDED_CONTEXTS.PLATFORM_SHARED,

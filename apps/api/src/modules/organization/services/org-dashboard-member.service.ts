@@ -2,18 +2,20 @@ import { ForbiddenException, NotFoundException } from "@nestjs/common";
 import { UpdateOrganizationMemberNotesInput } from "@org/dtos/update-org-member-notes.input";
 import { OrganizationMemberStatus, Prisma } from "@prisma/client";
 import { OrganizationDashboardMessageCode } from "@org/enums/org-dashboard-message-code.enum";
+import { type ProfessionalProvisioningApi } from "@professional/public/professional-provisioning-api";
 import { BulkAddOrganizationMembersInput } from "@org/dtos/bulk-add-org-members.input";
 import { OrganizationMemberFilterInput } from "@org/dtos/org-member-filter";
 import { UpdateOrganizationMemberInput } from "@org/dtos/upadte-org-member.input";
+import { PROFESSIONAL_PROVISIONING_API } from "@professional/public/professional-provisioning-api";
 import { OrganizationPaginationInput } from "@org/dtos/org-pagination.input";
 import { TOrganizationDashboardUser } from "@org/types/org-dashboard-service.types";
 import { AddOrganizationMemberInput } from "@org/dtos/add-org-member.input";
+import { type IdentityProfileApi } from "@user/public/identity-profile-api";
+import { IDENTITY_PROFILE_API } from "@user/public/identity-profile-api";
+import { Inject, Injectable } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
-import { UserStatus } from "@prisma/client";
-import { Injectable } from "@nestjs/common";
 import { Role } from "@prisma/client";
 
-/** Every query feeding `mapMember` selects the member with these relations. */
 const memberInclude = {
   user: true,
   department: true,
@@ -25,7 +27,13 @@ type MemberWithRelations = Prisma.OrganizationMemberGetPayload<{
 
 @Injectable()
 export class OrgDashboardMemberService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    @Inject(IDENTITY_PROFILE_API)
+    private readonly identityApi: IdentityProfileApi,
+    @Inject(PROFESSIONAL_PROVISIONING_API)
+    private readonly professionalApi: ProfessionalProvisioningApi,
+  ) {}
 
   private mapMember(item: MemberWithRelations) {
     return {
@@ -201,46 +209,35 @@ export class OrgDashboardMemberService {
           OrganizationDashboardMessageCode.DEPARTMENT_NOT_FOUND,
         );
     }
-    const memberUser = await this.prismaService.user.upsert({
-      where: { email },
-      create: {
+    const member = await this.prismaService.$transaction(async (tx) => {
+      const memberUser = await this.identityApi.upsertProfessionalMember({
         email,
-        fullName: input.fullName.trim(),
-        role: Role.PROFESSIONAL,
-        status: UserStatus.ACTIVE,
-        emailVerifiedAt: new Date(),
-        professionalProfile: {
-          create: {
-            interests: [],
-            skills: [],
+        fullName: input.fullName,
+        atomicContext: tx,
+      });
+      await this.professionalApi.ensureProfile(memberUser.id, tx);
+      return tx.organizationMember.upsert({
+        where: {
+          organizationId_userId: {
+            organizationId: org.id,
+            userId: memberUser.id,
           },
         },
-      },
-      update: {
-        fullName: input.fullName.trim(),
-      },
-    });
-    const member = await this.prismaService.organizationMember.upsert({
-      where: {
-        organizationId_userId: {
+        create: {
           organizationId: org.id,
           userId: memberUser.id,
+          departmentId: input.departmentId || null,
+          jobRole: input.jobRole?.trim() || null,
+          status: OrganizationMemberStatus.ACTIVE,
         },
-      },
-      create: {
-        organizationId: org.id,
-        userId: memberUser.id,
-        departmentId: input.departmentId || null,
-        jobRole: input.jobRole?.trim() || null,
-        status: OrganizationMemberStatus.ACTIVE,
-      },
-      update: {
-        departmentId: input.departmentId || null,
-        jobRole: input.jobRole?.trim() || null,
-        status: OrganizationMemberStatus.ACTIVE,
-        deactivatedAt: null,
-      },
-      include: memberInclude,
+        update: {
+          departmentId: input.departmentId || null,
+          jobRole: input.jobRole?.trim() || null,
+          status: OrganizationMemberStatus.ACTIVE,
+          deactivatedAt: null,
+        },
+        include: memberInclude,
+      });
     });
     return this.mapMember(member);
   }
@@ -276,10 +273,7 @@ export class OrgDashboardMemberService {
             });
           departmentId = department.id;
         }
-        const existingUser = await this.prismaService.user.findUnique({
-          where: { email },
-          select: { id: true },
-        });
+        const existingUser = await this.identityApi.existsByEmail(email);
         await this.addMember(user, {
           email,
           fullName: row.fullName,
@@ -328,12 +322,8 @@ export class OrgDashboardMemberService {
           }
         : undefined;
     const updated = await this.prismaService.$transaction(async (tx) => {
-      if (roleUpdate) {
-        await tx.user.update({
-          where: { id: member.userId },
-          data: roleUpdate,
-        });
-      }
+      if (roleUpdate)
+        await this.identityApi.updateRole(member.userId, roleUpdate.role, tx);
       return tx.organizationMember.update({
         where: { id: input.memberId },
         data: {

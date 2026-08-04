@@ -1,4 +1,5 @@
 import { AuthOrganizationActivationService } from "@auth/services/auth-organization-activation.service";
+import { ORGANIZATION_ACTIVATION_API } from "@auth/public/organization-activation-api";
 import { OAuthCallbackExceptionFilter } from "@auth/filters/oauth-callback.filter";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { AuthLinkedInOAuthService } from "@auth/services/auth-linkedin-oauth.service";
@@ -56,7 +57,13 @@ export const AUTH_SERVICE_PROVIDERS = [
     }),
   ],
   controllers: [AuthController],
-  providers: [...AUTH_SERVICE_PROVIDERS],
-  exports: [AuthService, AuthOrganizationActivationService],
+  providers: [
+    ...AUTH_SERVICE_PROVIDERS,
+    {
+      provide: ORGANIZATION_ACTIVATION_API,
+      useExisting: AuthOrganizationActivationService,
+    },
+  ],
+  exports: [AuthService, ORGANIZATION_ACTIVATION_API],
 })
 export class AuthModule {}

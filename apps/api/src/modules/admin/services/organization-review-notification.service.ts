@@ -1,9 +1,12 @@
+import { ConflictException, Inject, Injectable, Logger } from "@nestjs/common";
 import { AuditAction, OrganizationAccessRequestStatus } from "@prisma/client";
-import { ConflictException, Injectable, Logger } from "@nestjs/common";
-import { AuthOrganizationActivationService } from "@auth/services/auth-organization-activation.service";
 import { buildOrganizationRejectionEmail } from "@mail/organization-email.template";
+import { type OrganizationActivationApi } from "@auth/public/organization-activation-api";
 import { buildOrganizationApprovalEmail } from "@mail/organization-email.template";
+import { ORGANIZATION_ACTIVATION_API } from "@auth/public/organization-activation-api";
 import { NotificationDeliveryStatus } from "@prisma/client";
+import { type OrganizationReviewApi } from "@org/public/organization-review-api";
+import { ORGANIZATION_REVIEW_API } from "@org/public/organization-review-api";
 import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "@prisma/prisma.service";
 import { MailService } from "@mail/mail.service";
@@ -18,39 +21,22 @@ export class OrganizationReviewNotificationService {
     private readonly prisma: PrismaService,
     private readonly mail: MailService,
     private readonly config: ConfigService,
-    private readonly organizationActivation: AuthOrganizationActivationService,
+    @Inject(ORGANIZATION_ACTIVATION_API)
+    private readonly organizationActivation: OrganizationActivationApi,
+    @Inject(ORGANIZATION_REVIEW_API)
+    private readonly organizationReview: OrganizationReviewApi,
   ) {}
 
   async deliver(requestId: string, force = false) {
-    const request = await this.prisma.organizationAccessRequest.findUnique({
-      where: { id: requestId },
-    });
-    if (!request)
-      throw new ConflictException("Organization request not found.");
-    if (request.status === OrganizationAccessRequestStatus.PENDING)
-      throw new ConflictException("A pending request has no review email.");
+    const request = await this.organizationReview.beginNotification(
+      requestId,
+      force,
+    );
     if (
       request.notificationStatus === NotificationDeliveryStatus.SENT &&
       !force
     )
-      return request.notificationStatus;
-    if (
-      request.notificationStatus === NotificationDeliveryStatus.PENDING &&
-      request.notificationLastAttemptAt &&
-      Date.now() - request.notificationLastAttemptAt.getTime() < 60_000
-    )
-      throw new ConflictException(
-        "Notification delivery is already in progress.",
-      );
-
-    await this.prisma.organizationAccessRequest.update({
-      where: { id: requestId },
-      data: {
-        notificationStatus: NotificationDeliveryStatus.PENDING,
-        notificationLastAttemptAt: new Date(),
-        notificationFailureCode: null,
-      },
-    });
+      return NotificationDeliveryStatus.SENT;
 
     try {
       const template =
@@ -58,27 +44,17 @@ export class OrganizationReviewNotificationService {
           ? await this.buildApproval(request)
           : this.buildRejection(request);
       await this.mail.sendEmail({ to: request.workEmail, ...template });
-      await this.prisma.organizationAccessRequest.update({
-        where: { id: requestId },
-        data: {
-          notificationStatus: NotificationDeliveryStatus.SENT,
-          notificationSentAt: new Date(),
-          notificationFailureCode: null,
-        },
-      });
+      await this.organizationReview.markNotificationSent(requestId);
       return NotificationDeliveryStatus.SENT;
     } catch (error) {
       const failureCode =
         error instanceof Error && error.message.endsWith("is not configured.")
           ? "CONFIGURATION_MISSING"
           : "PROVIDER_DELIVERY_FAILED";
-      await this.prisma.organizationAccessRequest.update({
-        where: { id: requestId },
-        data: {
-          notificationStatus: NotificationDeliveryStatus.FAILED,
-          notificationFailureCode: failureCode,
-        },
-      });
+      await this.organizationReview.markNotificationFailed(
+        requestId,
+        failureCode,
+      );
       // Recorded as an audit event as well as a request column: a failure that
       // is later retried successfully leaves no trace in the column alone.
       await this.prisma.auditLog.create({
