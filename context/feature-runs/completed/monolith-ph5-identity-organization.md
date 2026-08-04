@@ -3,7 +3,7 @@
 - Scope: `api`
 - Branch: `feature/monolith-ph5-identity-organization`
 - Base: `77c0ecbab3f89ebdd2b89d108bff3b880b4f48e1`
-- Status: `Ready`
+- Status: `Submitted`
 
 ## Acceptance
 
@@ -25,6 +25,6 @@
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: `8469ef3`
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/7
+- CI: Pending
