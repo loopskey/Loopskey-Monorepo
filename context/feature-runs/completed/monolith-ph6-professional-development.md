@@ -3,7 +3,7 @@
 - Scope: `api`
 - Branch: `feature/monolith-ph6-professional-development`
 - Base: `0801ec5b9757e486188b9cc45f23b288cfc0c16a`
-- Status: `Ready`
+- Status: `Submitted`
 
 ## Acceptance
 
@@ -28,6 +28,6 @@
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: `76570ac`
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/8
+- CI: Pending
