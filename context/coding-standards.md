@@ -1,5 +1,16 @@
 # Loopskey Coding Standards
 
+## Reliable side effects
+
+- Append versioned outbox events in the same Prisma transaction as the
+  originating aggregate write. Keep payloads small and secret-free.
+- Make every handler idempotent, bound retries, and retain terminal failures for
+  inspection. Do not call external providers inside business transactions.
+- Access binary objects through `ObjectStoragePort`; business services must not
+  import Node filesystem APIs.
+- Include correlation IDs in structured operational logs and redact keys that
+  contain passwords, secrets, tokens, authorization, cookies, or API keys.
+
 These rules apply to new code and files being actively changed. Do not perform
 unrelated refactors just to make old code conform. When existing patterns
 conflict, prefer the rule below unless compatibility requires the old pattern.

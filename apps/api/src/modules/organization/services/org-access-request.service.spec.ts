@@ -50,7 +50,7 @@ const createPrismaMock = () => {
       create: jest.fn(),
       update: jest.fn(),
     },
-    auditLog: {
+    outboxEvent: {
       create: jest.fn().mockResolvedValue({ id: "audit-1" }),
     },
     $transaction: jest.fn(),
@@ -115,17 +115,22 @@ describe("OrgAccessRequestService.submitRequest", () => {
     await service.submitRequest(input);
 
     expect(prisma.$transaction).toHaveBeenCalledTimes(1);
-    expect(prisma.auditLog.create).toHaveBeenCalledWith({
-      data: {
-        action: "ORG_ACCESS_REQUEST_SUBMITTED",
-        entityType: "OrganizationAccessRequest",
-        entityId: submittedRequest.id,
-        metadata: {
-          workEmail: "alex@example.org",
-          organizationName: "Example Association",
-          organizationType: OrganizationType.ASSOCIATION,
+    expect(prisma.outboxEvent.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        eventName: "audit.record.requested",
+        eventVersion: 1,
+        aggregateType: "OrganizationAccessRequest",
+        aggregateId: submittedRequest.id,
+        payload: {
+          action: "ORG_ACCESS_REQUEST_SUBMITTED",
+          entityType: "OrganizationAccessRequest",
+          entityId: submittedRequest.id,
+          metadata: {
+            organizationName: "Example Association",
+            organizationType: OrganizationType.ASSOCIATION,
+          },
         },
-      },
+      }),
     });
   });
 
@@ -140,7 +145,7 @@ describe("OrgAccessRequestService.submitRequest", () => {
     await expect(service.submitRequest(input)).rejects.toBeInstanceOf(
       ConflictException,
     );
-    expect(prisma.auditLog.create).not.toHaveBeenCalled();
+    expect(prisma.outboxEvent.create).not.toHaveBeenCalled();
   });
 
   it("rejects a duplicate pending application before writing", async () => {

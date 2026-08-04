@@ -2064,3 +2064,38 @@ model ExternalLearningActivity {
   @@index([provider])
   @@index([clickedAt])
 }
+
+// Durable, versioned integration events. Producers insert these rows in the
+// same transaction as their aggregate changes; delivery happens after commit.
+model OutboxEvent {
+  id            String   @id @default(cuid())
+  eventName     String
+  eventVersion  Int      @default(1)
+  aggregateType String
+  aggregateId   String
+  payload       Json
+  occurredAt    DateTime @default(now())
+  availableAt   DateTime @default(now())
+  processedAt   DateTime?
+  attemptCount  Int      @default(0)
+  lastError     String?
+  correlationId String?
+
+  deliveries OutboxDelivery[]
+
+  @@index([processedAt, availableAt])
+  @@index([aggregateType, aggregateId])
+  @@index([eventName, occurredAt])
+}
+
+// The unique key makes each handler idempotent even when a claimed row is
+// retried after a process crash.
+model OutboxDelivery {
+  eventId     String
+  handlerName String
+  processedAt DateTime @default(now())
+  event       OutboxEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@id([eventId, handlerName])
+  @@index([processedAt])
+}

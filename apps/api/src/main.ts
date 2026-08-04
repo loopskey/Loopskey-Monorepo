@@ -1,4 +1,4 @@
-import { Logger, ValidationPipe } from "@nestjs/common";
+import { ConsoleLogger, Logger, ValidationPipe } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "@app/app.module";
@@ -7,7 +7,12 @@ import cookieParser from "cookie-parser";
 
 async function bootstrap() {
   const logger = new Logger("Bootstrap");
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger:
+      process.env.NODE_ENV === "production"
+        ? new ConsoleLogger({ json: true })
+        : undefined,
+  });
   const configService = app.get(ConfigService);
   const nodeEnv = configService.get<string>("NODE_ENV", "development");
   const appName = configService.get<string>("APP_NAME", "NestJS API");
