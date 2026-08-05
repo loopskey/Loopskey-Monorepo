@@ -1,10 +1,10 @@
 "use client";
 
-import { companyEmail, siteLinks, socialLinks } from "@/utils/constant";
+import { siteLinks, socialLinks } from "@/utils/constant";
 import { TFooterLink, TSocialLink } from "@/types/element.types";
-import { Mail, MapPin, Youtube } from "lucide-react";
 import { Facebook, Linkedin } from "lucide-react";
 import { FooterColumn } from "@layouts/parts/footer-column";
+import { Youtube } from "lucide-react";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
 import { Logo } from "@layouts/parts/logo";
@@ -14,45 +14,60 @@ import Link from "next/link";
 const Footer = () => {
   const { t } = useI18n();
 
-  const exploreLinks: TFooterLink[] = [
+  const solutionLinks: TFooterLink[] = [
     {
-      href: siteLinks.content,
-      label: t("navigation.courses"),
+      href: siteLinks.professionals,
+      label: "For Professionals",
     },
     {
-      href: siteLinks.services,
-      label: t("navigation.services"),
+      href: siteLinks.associations,
+      label: "For Associations",
     },
     {
-      href: siteLinks.contact,
-      label: t("navigation.contact"),
+      href: siteLinks.organizations,
+      label: "For Organizations",
     },
     {
-      href: siteLinks.about,
-      label: t("navigation.about"),
+      href: siteLinks.solutionContentProviders,
+      label: "For Content Providers",
     },
   ];
 
-  const resourceLinks: TFooterLink[] = [
+  const supportLinks: TFooterLink[] = [
     {
       href: siteLinks.faq,
-      label: t("footer."),
+      label: "Help Center",
     },
     {
-      href: siteLinks.beProvider,
-      label: t("footer.beProvider"),
+      href: siteLinks.contact,
+      label: "Contact Us",
     },
     {
-      href: siteLinks.beProfessional,
-      label: t("footer.beProfessional"),
+      href: siteLinks.accessibility,
+      label: "Accessibility",
     },
     {
-      href: siteLinks.beOrganization,
-      label: t("footer.beOrganization"),
+      href: siteLinks.securityDataProtection,
+      label: "Security & Data Protection",
     },
   ];
 
   const legalLinks: TFooterLink[] = [
+    {
+      href: siteLinks.termsOfService,
+      label: "Terms of Use",
+    },
+    {
+      href: siteLinks.privacyPolicy,
+      label: "Privacy Policy",
+    },
+    {
+      href: siteLinks.cookiePolicy,
+      label: "Cookie Statement",
+    },
+  ];
+
+  const bottomBarLegalLinks: TFooterLink[] = [
     {
       href: siteLinks.privacyPolicy,
       label: t("footer.privacyPolicy"),
@@ -61,6 +76,12 @@ const Footer = () => {
       href: siteLinks.termsOfService,
       label: t("footer.termsOfService"),
     },
+  ];
+
+  const companyLinks: TFooterLink[] = [
+    { href: siteLinks.about, label: "About LoopsKey" },
+    { href: siteLinks.associationPartners, label: "Association Partners" },
+    { href: siteLinks.companyContentProviders, label: "Content Providers" },
   ];
 
   const socials: TSocialLink[] = [
@@ -91,8 +112,8 @@ const Footer = () => {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_15%,rgba(59,130,246,0.12),transparent_30%),radial-gradient(circle_at_85%_10%,rgba(20,184,166,0.1),transparent_28%),radial-gradient(circle_at_50%_105%,rgba(245,158,11,0.08),transparent_34%)]" />
 
       <div className="relative mx-auto max-w-7xl py-14 lg:py-18 px-4 sm:px-6 lg:px-8">
-        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-12">
-          <div className="lg:col-span-4">
+        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-5">
+          <div>
             <Logo />
             <p className="mt-5 max-w-sm text-sm leading-7 text-muted-foreground">
               {t("footer.brandDescription")}
@@ -121,53 +142,20 @@ const Footer = () => {
             </div>
           </div>
 
-          <div className="lg:col-span-2">
-            <FooterColumn title={t("footer.explore")} links={exploreLinks} />
+          <div>
+            <FooterColumn title="Solutions" links={solutionLinks} />
           </div>
 
-          <div className="lg:col-span-3">
-            <FooterColumn title={t("footer.resources")} links={resourceLinks} />
+          <div>
+            <FooterColumn title="Support" links={supportLinks} />
           </div>
 
-          <div className="lg:col-span-3">
-            <h3 className="text-sm font-bold uppercase tracking-[0.18em] text-foreground">
-              {t("footer.contactUs")}
-            </h3>
+          <div>
+            <FooterColumn title="Legal" links={legalLinks} />
+          </div>
 
-            <div className="mt-5 space-y-4">
-              <Link
-                href={`mailto:${companyEmail}`}
-                className="group flex items-start gap-3 rounded-2xl border border-border/70 bg-background/50 p-4 text-sm transition-all hover:border-primary/30 hover:bg-primary/5"
-              >
-                <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <Mail className="h-4 w-4" />
-                </span>
-
-                <span className="min-w-0">
-                  <span className="block font-semibold text-foreground">
-                    {t("footer.emailLabel")}
-                  </span>
-                  <span className="mt-1 block break-all text-muted-foreground group-hover:text-primary">
-                    {companyEmail}
-                  </span>
-                </span>
-              </Link>
-
-              <div className="flex items-start gap-3 rounded-2xl border border-border/70 bg-background/50 p-4 text-sm">
-                <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent/20 text-primary">
-                  <MapPin className="h-4 w-4" />
-                </span>
-
-                <span>
-                  <span className="block font-semibold text-foreground">
-                    LoopsKey
-                  </span>
-                  <span className="mt-1 block text-muted-foreground">
-                    {t("footer.builtFor")}
-                  </span>
-                </span>
-              </div>
-            </div>
+          <div>
+            <FooterColumn title="Company" links={companyLinks} />
           </div>
         </div>
 
@@ -179,7 +167,7 @@ const Footer = () => {
             </p>
 
             <div className="flex flex-wrap gap-x-5 gap-y-2">
-              {legalLinks.map((link) => (
+              {bottomBarLegalLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
