@@ -13,3 +13,4 @@ into this index and do not rewrite previous records.
 - [`monolith-ph5-identity-organization`](feature-runs/completed/monolith-ph5-identity-organization.md)
 - [`monolith-ph6-professional-development`](feature-runs/completed/monolith-ph6-professional-development.md)
 - [`monolith-ph7-reliability-operations`](feature-runs/completed/monolith-ph7-reliability-operations.md)
+- [`footer-contact-audit`](feature-runs/completed/footer-contact-audit.md)
