@@ -3,7 +3,7 @@
 - Scope: `full`
 - Branch: `feature/footer-contact-audit`
 - Base: `fe06e53f88cdb6a9c19b124bf5fc30300bba8085`
-- Status: `Ready`
+- Status: `Submitted`
 
 ## Acceptance
 
@@ -26,6 +26,6 @@
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: `2623074ecc43c0e0edea6c193053d0e990869389`
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/10
+- CI: pending
