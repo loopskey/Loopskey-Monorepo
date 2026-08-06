@@ -18,6 +18,14 @@ export const siteLinks = {
   contact: "/contact",
   faq: "/faq",
   services: "/services",
+  professionals: "/solutions/professionals",
+  associations: "/solutions/associations",
+  organizations: "/solutions/organizations",
+  solutionContentProviders: "/solutions/content-providers",
+  accessibility: "/support/accessibility",
+  securityDataProtection: "/support/security-data-protection",
+  associationPartners: "/company/association-partners",
+  companyContentProviders: "/company/content-providers",
 
   blog: "/blog",
   careers: "/careers",
@@ -37,7 +45,7 @@ export const siteLinks = {
   profile: "/dashboard/professional?tab=profile",
 };
 
-export const companyEmail = "Loopskey.dev@gmail.com";
+export const companyEmail = "loopskey.dev@gmail.com";
 
 export const socialLinks = {
   linkedin: "https://www.linkedin.com",

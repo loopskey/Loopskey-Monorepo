@@ -1,0 +1,1976 @@
+{
+    "professionals":  {
+                          "title":  "For Professionals",
+                          "blocks":  [
+                                         {
+                                             "type":  "paragraph",
+                                             "text":  "LoopsKey helps professionals plan, complete, track, and report their learning in one place."
+                                         },
+                                         {
+                                             "type":  "paragraph",
+                                             "text":  "Many professionals need to maintain certifications, complete CPD/PDU requirements, attend training, collect certificates, and prepare annual progress summaries. LoopsKey brings these activities together in a simple AI-powered platform."
+                                         },
+                                         {
+                                             "type":  "heading",
+                                             "text":  "What Professionals Can Do with LoopsKey"
+                                         },
+                                         {
+                                             "type":  "paragraph",
+                                             "text":  "With LoopsKey, professionals can:"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Create a personalized learning roadmap"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Search and save relevant learning opportunities"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Track CPD, PDU, CEU, or training hours"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Add completed learning activities"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Upload certificates and proof files"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Manage certification and licence records"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "View upcoming deadlines in the calendar"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Generate CPD/PDU summaries for reporting"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Receive learning recommendations based on goals and profile"
+                                         },
+                                         {
+                                             "type":  "heading",
+                                             "text":  "Personalized Learning Roadmaps"
+                                         },
+                                         {
+                                             "type":  "paragraph",
+                                             "text":  "LoopsKey helps users define a professional learning goal and generate a structured roadmap. The roadmap may include courses, webinars, events, articles, podcasts, workshops, and milestones."
+                                         },
+                                         {
+                                             "type":  "paragraph",
+                                             "text":  "Users can update their roadmap based on skill level, preferred topics, available time, and certification needs."
+                                         },
+                                         {
+                                             "type":  "heading",
+                                             "text":  "CPD/PDU Progress Tracking"
+                                         },
+                                         {
+                                             "type":  "paragraph",
+                                             "text":  "LoopsKey helps professionals track annual development requirements by recording completed learning activities and credit values."
+                                         },
+                                         {
+                                             "type":  "paragraph",
+                                             "text":  "Users can track:"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Total required credits"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Completed credits"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Remaining credits"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Category progress"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Submission deadlines"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Evidence and certificate status"
+                                         },
+                                         {
+                                             "type":  "heading",
+                                             "text":  "Learning Activity Records"
+                                         },
+                                         {
+                                             "type":  "paragraph",
+                                             "text":  "After attending a course, event, webinar, meeting, or other learning activity, users can add the activity to their LoopsKey dashboard. They can include title, type, date, duration, credit value, CPD/PDU category, notes, and proof files."
+                                         },
+                                         {
+                                             "type":  "heading",
+                                             "text":  "Who This Is For"
+                                         },
+                                         {
+                                             "type":  "paragraph",
+                                             "text":  "LoopsKey is useful for:"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Engineers"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Project managers"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Accountants"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "HR professionals"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Technology professionals"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Consultants"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Business professionals"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Regulated professionals"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Lifelong learners"
+                                         },
+                                         {
+                                             "type":  "heading",
+                                             "text":  "Start Your Professional Learning Plan"
+                                         },
+                                         {
+                                             "type":  "paragraph",
+                                             "text":  "Use LoopsKey to organize your learning, track your progress, and stay prepared for your next certification or licence renewal."
+                                         },
+                                         {
+                                             "type":  "paragraph",
+                                             "text":  "Suggested CTA:"
+                                         },
+                                         {
+                                             "type":  "paragraph",
+                                             "text":  "Create My Learning Roadmap"
+                                         }
+                                     ]
+                      },
+    "associations":  {
+                         "title":  "For Associations",
+                         "blocks":  [
+                                        {
+                                            "type":  "paragraph",
+                                            "text":  "LoopsKey helps professional associations, certification bodies, and licensing organizations support member learning, CPD/PDU progress, and professional development reporting."
+                                        },
+                                        {
+                                            "type":  "paragraph",
+                                            "text":  "Associations often need to help members understand requirements, complete training, track progress, and submit evidence. LoopsKey provides a digital platform that supports both members and administrators."
+                                        },
+                                        {
+                                            "type":  "heading",
+                                            "text":  "How LoopsKey Helps Associations"
+                                        },
+                                        {
+                                            "type":  "paragraph",
+                                            "text":  "Associations can use LoopsKey to:"
+                                        },
+                                        {
+                                            "type":  "listItem",
+                                            "text":  "Upload and manage member lists"
+                                        },
+                                        {
+                                            "type":  "listItem",
+                                            "text":  "Configure CPD/PDU requirements"
+                                        },
+                                        {
+                                            "type":  "listItem",
+                                            "text":  "Assign required or recommended learning content"
+                                        },
+                                        {
+                                            "type":  "listItem",
+                                            "text":  "Monitor member progress"
+                                        },
+                                        {
+                                            "type":  "listItem",
+                                            "text":  "Track category completion"
+                                        },
+                                        {
+                                            "type":  "listItem",
+                                            "text":  "View members who are on track or behind"
+                                        },
+                                        {
+                                            "type":  "listItem",
+                                            "text":  "Support certificate and proof collection"
+                                        },
+                                        {
+                                            "type":  "listItem",
+                                            "text":  "Generate CPD and compliance summaries"
+                                        },
+                                        {
+                                            "type":  "listItem",
+                                            "text":  "Improve member engagement with personalized recommendations"
+                                        },
+                                        {
+                                            "type":  "heading",
+                                            "text":  "Member Dashboard"
+                                        },
+                                        {
+                                            "type":  "paragraph",
+                                            "text":  "Each professional member can receive a personalized dashboard to track learning activities, CPD/PDU progress, certificates, deadlines, and recommended content."
+                                        },
+                                        {
+                                            "type":  "heading",
+                                            "text":  "Association Dashboard"
+                                        },
+                                        {
+                                            "type":  "paragraph",
+                                            "text":  "Association administrators can view member progress, assign content, manage learning requirements, and access summary reports."
+                                        },
+                                        {
+                                            "type":  "heading",
+                                            "text":  "Requirement Management"
+                                        },
+                                        {
+                                            "type":  "paragraph",
+                                            "text":  "LoopsKey can support different requirement models, including:"
+                                        },
+                                        {
+                                            "type":  "listItem",
+                                            "text":  "Annual CPD requirements"
+                                        },
+                                        {
+                                            "type":  "listItem",
+                                            "text":  "Multi-year PDU cycles"
+                                        },
+                                        {
+                                            "type":  "listItem",
+                                            "text":  "Category-based requirements"
+                                        },
+                                        {
+                                            "type":  "listItem",
+                                            "text":  "Ethics or professional responsibility requirements"
+                                        },
+                                        {
+                                            "type":  "listItem",
+                                            "text":  "Evidence-based reporting"
+                                        },
+                                        {
+                                            "type":  "listItem",
+                                            "text":  "User-declared or association-provided rules"
+                                        },
+                                        {
+                                            "type":  "heading",
+                                            "text":  "Benefits for Associations"
+                                        },
+                                        {
+                                            "type":  "paragraph",
+                                            "text":  "LoopsKey helps associations:"
+                                        },
+                                        {
+                                            "type":  "listItem",
+                                            "text":  "Reduce manual tracking"
+                                        },
+                                        {
+                                            "type":  "listItem",
+                                            "text":  "Improve member support"
+                                        },
+                                        {
+                                            "type":  "listItem",
+                                            "text":  "Increase training participation"
+                                        },
+                                        {
+                                            "type":  "listItem",
+                                            "text":  "Improve compliance visibility"
+                                        },
+                                        {
+                                            "type":  "listItem",
+                                            "text":  "Provide modern digital member value"
+                                        },
+                                        {
+                                            "type":  "listItem",
+                                            "text":  "Understand common skill gaps"
+                                        },
+                                        {
+                                            "type":  "listItem",
+                                            "text":  "Promote trusted learning resources"
+                                        },
+                                        {
+                                            "type":  "heading",
+                                            "text":  "Partner with LoopsKey"
+                                        },
+                                        {
+                                            "type":  "paragraph",
+                                            "text":  "LoopsKey works with associations that want to modernize professional development, CPD tracking, and member learning engagement."
+                                        },
+                                        {
+                                            "type":  "paragraph",
+                                            "text":  "Suggested CTA:"
+                                        },
+                                        {
+                                            "type":  "paragraph",
+                                            "text":  "Book an Association Demo"
+                                        }
+                                    ]
+                     },
+    "organizations":  {
+                          "title":  "For Organizations",
+                          "blocks":  [
+                                         {
+                                             "type":  "paragraph",
+                                             "text":  "LoopsKey helps organizations support employee learning, professional development, certification tracking, and workforce skill growth."
+                                         },
+                                         {
+                                             "type":  "paragraph",
+                                             "text":  "Companies and HR teams often need visibility into employee learning activities, training progress, certificates, and development goals. LoopsKey provides a centralized platform to help organizations guide and monitor professional learning."
+                                         },
+                                         {
+                                             "type":  "heading",
+                                             "text":  "How Organizations Can Use LoopsKey"
+                                         },
+                                         {
+                                             "type":  "paragraph",
+                                             "text":  "Organizations can use LoopsKey to:"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Support employee learning goals"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Recommend training content"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Track completed learning activities"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Monitor certification and licence status"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Manage certificate records"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Review CPD/PDU progress where applicable"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Identify skill gaps across teams"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Support employee development plans"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Prepare internal learning summaries"
+                                         },
+                                         {
+                                             "type":  "heading",
+                                             "text":  "Employee Learning Roadmaps"
+                                         },
+                                         {
+                                             "type":  "paragraph",
+                                             "text":  "LoopsKey can help employees build learning roadmaps based on their roles, goals, skill level, and available time. These roadmaps can support onboarding, upskilling, leadership development, compliance training, or career growth."
+                                         },
+                                         {
+                                             "type":  "heading",
+                                             "text":  "Training and Certification Visibility"
+                                         },
+                                         {
+                                             "type":  "paragraph",
+                                             "text":  "Organizations can gain better visibility into professional development activity, including:"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Completed learning"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Upcoming training"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Expiring certificates"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Required development hours"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Learning gaps"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Progress by employee or team"
+                                         },
+                                         {
+                                             "type":  "heading",
+                                             "text":  "Benefits for Organizations"
+                                         },
+                                         {
+                                             "type":  "paragraph",
+                                             "text":  "LoopsKey helps organizations:"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Improve workforce development"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Reduce fragmented learning records"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Support certification readiness"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Strengthen employee engagement"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Make training investment more visible"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Encourage continuous learning"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Support professional growth plans"
+                                         },
+                                         {
+                                             "type":  "heading",
+                                             "text":  "Suitable For"
+                                         },
+                                         {
+                                             "type":  "paragraph",
+                                             "text":  "LoopsKey can support:"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "HR departments"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Learning and development teams"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Professional services firms"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Engineering companies"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Technology companies"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Consulting firms"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Regulated industries"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Growing organizations with training needs"
+                                         },
+                                         {
+                                             "type":  "paragraph",
+                                             "text":  "Suggested CTA:"
+                                         },
+                                         {
+                                             "type":  "paragraph",
+                                             "text":  "Explore Organization Solutions"
+                                         }
+                                     ]
+                      },
+    "solutionContentProviders":  {
+                                     "title":  "For Content Providers",
+                                     "blocks":  [
+                                                    {
+                                                        "type":  "paragraph",
+                                                        "text":  "LoopsKey helps content providers reach professionals who are actively looking for courses, events, webinars, workshops, and other learning opportunities."
+                                                    },
+                                                    {
+                                                        "type":  "paragraph",
+                                                        "text":  "Training providers often struggle to connect with the right professional audience. LoopsKey improves content visibility by matching learning content with user goals, professional profiles, certifications, and CPD/PDU needs."
+                                                    },
+                                                    {
+                                                        "type":  "heading",
+                                                        "text":  "Who Can Become a Content Provider"
+                                                    },
+                                                    {
+                                                        "type":  "paragraph",
+                                                        "text":  "LoopsKey can support providers offering:"
+                                                    },
+                                                    {
+                                                        "type":  "listItem",
+                                                        "text":  "Courses"
+                                                    },
+                                                    {
+                                                        "type":  "listItem",
+                                                        "text":  "Webinars"
+                                                    },
+                                                    {
+                                                        "type":  "listItem",
+                                                        "text":  "Workshops"
+                                                    },
+                                                    {
+                                                        "type":  "listItem",
+                                                        "text":  "Conferences"
+                                                    },
+                                                    {
+                                                        "type":  "listItem",
+                                                        "text":  "Events"
+                                                    },
+                                                    {
+                                                        "type":  "listItem",
+                                                        "text":  "Podcasts"
+                                                    },
+                                                    {
+                                                        "type":  "listItem",
+                                                        "text":  "Articles"
+                                                    },
+                                                    {
+                                                        "type":  "listItem",
+                                                        "text":  "Videos"
+                                                    },
+                                                    {
+                                                        "type":  "listItem",
+                                                        "text":  "Certification preparation programs"
+                                                    },
+                                                    {
+                                                        "type":  "listItem",
+                                                        "text":  "Professional training resources"
+                                                    },
+                                                    {
+                                                        "type":  "heading",
+                                                        "text":  "How LoopsKey Helps Content Providers"
+                                                    },
+                                                    {
+                                                        "type":  "paragraph",
+                                                        "text":  "Content providers can use LoopsKey to:"
+                                                    },
+                                                    {
+                                                        "type":  "listItem",
+                                                        "text":  "List learning content"
+                                                    },
+                                                    {
+                                                        "type":  "listItem",
+                                                        "text":  "Reach targeted professional users"
+                                                    },
+                                                    {
+                                                        "type":  "listItem",
+                                                        "text":  "Improve visibility through AI-powered recommendations"
+                                                    },
+                                                    {
+                                                        "type":  "listItem",
+                                                        "text":  "Connect content to CPD/PDU categories"
+                                                    },
+                                                    {
+                                                        "type":  "listItem",
+                                                        "text":  "Promote certificate-based learning activities"
+                                                    },
+                                                    {
+                                                        "type":  "listItem",
+                                                        "text":  "Highlight provider credibility"
+                                                    },
+                                                    {
+                                                        "type":  "listItem",
+                                                        "text":  "Reach associations and organizations"
+                                                    },
+                                                    {
+                                                        "type":  "listItem",
+                                                        "text":  "Increase qualified registration interest"
+                                                    },
+                                                    {
+                                                        "type":  "heading",
+                                                        "text":  "Content Information Needed"
+                                                    },
+                                                    {
+                                                        "type":  "paragraph",
+                                                        "text":  "To improve search and recommendations, providers should include:"
+                                                    },
+                                                    {
+                                                        "type":  "listItem",
+                                                        "text":  "Title"
+                                                    },
+                                                    {
+                                                        "type":  "listItem",
+                                                        "text":  "Description"
+                                                    },
+                                                    {
+                                                        "type":  "listItem",
+                                                        "text":  "Learning outcomes"
+                                                    },
+                                                    {
+                                                        "type":  "listItem",
+                                                        "text":  "Content type"
+                                                    },
+                                                    {
+                                                        "type":  "listItem",
+                                                        "text":  "Date and time"
+                                                    },
+                                                    {
+                                                        "type":  "listItem",
+                                                        "text":  "Duration"
+                                                    },
+                                                    {
+                                                        "type":  "listItem",
+                                                        "text":  "Cost"
+                                                    },
+                                                    {
+                                                        "type":  "listItem",
+                                                        "text":  "Format"
+                                                    },
+                                                    {
+                                                        "type":  "listItem",
+                                                        "text":  "Location or online link"
+                                                    },
+                                                    {
+                                                        "type":  "listItem",
+                                                        "text":  "Provider information"
+                                                    },
+                                                    {
+                                                        "type":  "listItem",
+                                                        "text":  "CPD/PDU or certificate details, if applicable"
+                                                    },
+                                                    {
+                                                        "type":  "listItem",
+                                                        "text":  "Target audience"
+                                                    },
+                                                    {
+                                                        "type":  "listItem",
+                                                        "text":  "Skill level"
+                                                    },
+                                                    {
+                                                        "type":  "listItem",
+                                                        "text":  "Related topics and keywords"
+                                                    },
+                                                    {
+                                                        "type":  "heading",
+                                                        "text":  "Provider Responsibilities"
+                                                    },
+                                                    {
+                                                        "type":  "paragraph",
+                                                        "text":  "Content providers are responsible for keeping their listings accurate, current, and clear. If content includes CPD/PDU credits or certificates, the provider should clearly state the credit value, eligibility, and evidence provided."
+                                                    },
+                                                    {
+                                                        "type":  "heading",
+                                                        "text":  "Become a LoopsKey Content Provider"
+                                                    },
+                                                    {
+                                                        "type":  "paragraph",
+                                                        "text":  "Join LoopsKey to reach professionals who are planning their learning journey and tracking professional development progress."
+                                                    },
+                                                    {
+                                                        "type":  "paragraph",
+                                                        "text":  "Suggested CTA:"
+                                                    },
+                                                    {
+                                                        "type":  "paragraph",
+                                                        "text":  "Become a Content Provider"
+                                                    }
+                                                ]
+                                 },
+    "helpCenter":  {
+                       "title":  "Help Center",
+                       "blocks":  [
+                                      {
+                                          "type":  "paragraph",
+                                          "text":  "Welcome to the LoopsKey Help Center. This page provides guidance for using LoopsKey’s main features, including professional profiles, learning roadmaps, CPD/PDU tracking, learning activities, certificates, and calendar planning."
+                                      },
+                                      {
+                                          "type":  "heading",
+                                          "text":  "Account and Login"
+                                      },
+                                      {
+                                          "type":  "paragraph",
+                                          "text":  "Users can create a LoopsKey account using supported login methods such as email or LinkedIn. After login, users can complete their Professional Profile and start building a learning plan."
+                                      },
+                                      {
+                                          "type":  "paragraph",
+                                          "text":  "Common account topics:"
+                                      },
+                                      {
+                                          "type":  "listItem",
+                                          "text":  "Create an account"
+                                      },
+                                      {
+                                          "type":  "listItem",
+                                          "text":  "Sign in with LinkedIn"
+                                      },
+                                      {
+                                          "type":  "listItem",
+                                          "text":  "Update account information"
+                                      },
+                                      {
+                                          "type":  "listItem",
+                                          "text":  "Reset password"
+                                      },
+                                      {
+                                          "type":  "listItem",
+                                          "text":  "Manage connected accounts"
+                                      },
+                                      {
+                                          "type":  "listItem",
+                                          "text":  "Change notification settings"
+                                      },
+                                      {
+                                          "type":  "heading",
+                                          "text":  "Professional Profile"
+                                      },
+                                      {
+                                          "type":  "paragraph",
+                                          "text":  "The Professional Profile section stores basic and professional information used to personalize the platform."
+                                      },
+                                      {
+                                          "type":  "paragraph",
+                                          "text":  "Users can manage:"
+                                      },
+                                      {
+                                          "type":  "listItem",
+                                          "text":  "Basic profile information"
+                                      },
+                                      {
+                                          "type":  "listItem",
+                                          "text":  "Profession and industry"
+                                      },
+                                      {
+                                          "type":  "listItem",
+                                          "text":  "Skills and interests"
+                                      },
+                                      {
+                                          "type":  "listItem",
+                                          "text":  "Certifications and licences"
+                                      },
+                                      {
+                                          "type":  "listItem",
+                                          "text":  "Learning preferences"
+                                      },
+                                      {
+                                          "type":  "listItem",
+                                          "text":  "Language and location settings"
+                                      },
+                                      {
+                                          "type":  "heading",
+                                          "text":  "My Roadmap"
+                                      },
+                                      {
+                                          "type":  "paragraph",
+                                          "text":  "The My Roadmap section helps users create a personalized learning path based on goals, skill level, interests, preferred format, and available time."
+                                      },
+                                      {
+                                          "type":  "paragraph",
+                                          "text":  "Users can:"
+                                      },
+                                      {
+                                          "type":  "listItem",
+                                          "text":  "Create a learning goal"
+                                      },
+                                      {
+                                          "type":  "listItem",
+                                          "text":  "Update roadmap preferences"
+                                      },
+                                      {
+                                          "type":  "listItem",
+                                          "text":  "View recommended learning steps"
+                                      },
+                                      {
+                                          "type":  "listItem",
+                                          "text":  "Save learning items"
+                                      },
+                                      {
+                                          "type":  "listItem",
+                                          "text":  "Log completed roadmap activities"
+                                      },
+                                      {
+                                          "type":  "heading",
+                                          "text":  "CPD/PDU Progress"
+                                      },
+                                      {
+                                          "type":  "paragraph",
+                                          "text":  "The CPD/PDU Progress section helps users track professional development requirements for certification or licence renewal."
+                                      },
+                                      {
+                                          "type":  "paragraph",
+                                          "text":  "Users can:"
+                                      },
+                                      {
+                                          "type":  "listItem",
+                                          "text":  "Add certification or association information"
+                                      },
+                                      {
+                                          "type":  "listItem",
+                                          "text":  "Use suggested requirements"
+                                      },
+                                      {
+                                          "type":  "listItem",
+                                          "text":  "Enter requirements manually"
+                                      },
+                                      {
+                                          "type":  "listItem",
+                                          "text":  "Track completed credits"
+                                      },
+                                      {
+                                          "type":  "listItem",
+                                          "text":  "View category progress"
+                                      },
+                                      {
+                                          "type":  "listItem",
+                                          "text":  "Prepare CPD/PDU summaries"
+                                      },
+                                      {
+                                          "type":  "heading",
+                                          "text":  "My Learning Activities"
+                                      },
+                                      {
+                                          "type":  "paragraph",
+                                          "text":  "The My Learning Activities section stores completed learning records."
+                                      },
+                                      {
+                                          "type":  "paragraph",
+                                          "text":  "Users can add:"
+                                      },
+                                      {
+                                          "type":  "listItem",
+                                          "text":  "Courses"
+                                      },
+                                      {
+                                          "type":  "listItem",
+                                          "text":  "Events"
+                                      },
+                                      {
+                                          "type":  "listItem",
+                                          "text":  "Webinars"
+                                      },
+                                      {
+                                          "type":  "listItem",
+                                          "text":  "Meetings"
+                                      },
+                                      {
+                                          "type":  "listItem",
+                                          "text":  "Workshops"
+                                      },
+                                      {
+                                          "type":  "listItem",
+                                          "text":  "Self-study activities"
+                                      },
+                                      {
+                                          "type":  "listItem",
+                                          "text":  "Professional service or mentoring"
+                                      },
+                                      {
+                                          "type":  "listItem",
+                                          "text":  "Other learning activities"
+                                      },
+                                      {
+                                          "type":  "heading",
+                                          "text":  "Certificates"
+                                      },
+                                      {
+                                          "type":  "paragraph",
+                                          "text":  "The Certificates section stores certificate and proof documents. Users can upload, view, and manage files related to learning activities, certifications, and licence renewals."
+                                      },
+                                      {
+                                          "type":  "heading",
+                                          "text":  "Calendar"
+                                      },
+                                      {
+                                          "type":  "paragraph",
+                                          "text":  "The Calendar section helps users organize upcoming learning events, roadmap milestones, deadlines, reminders, and certificate expiry dates."
+                                      },
+                                      {
+                                          "type":  "heading",
+                                          "text":  "Contact Support"
+                                      },
+                                      {
+                                          "type":  "paragraph",
+                                          "text":  "For help, contact:"
+                                      },
+                                      {
+                                          "type":  "paragraph",
+                                          "text":  "loopskey.dev@gmail.com"
+                                      }
+                                  ]
+                   },
+    "contact":  {
+                    "title":  "Contact Us",
+                    "blocks":  [
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "We would be happy to hear from you."
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "Use this page to contact LoopsKey for product questions, technical support, partnerships, content provider inquiries, association opportunities, privacy questions, accessibility feedback, or security concerns."
+                                   },
+                                   {
+                                       "type":  "heading",
+                                       "text":  "General Contact"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "Email: loopskey.dev@gmail.com"
+                                   },
+                                   {
+                                       "type":  "heading",
+                                       "text":  "Inquiry Types"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "Please select the topic that best matches your inquiry:"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "General question"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Technical support"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Account support"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "CPD/PDU tracking question"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Association partnership"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Organization solution"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Content provider inquiry"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Privacy request"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Accessibility feedback"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Security concern"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Other"
+                                   },
+                                   {
+                                       "type":  "heading",
+                                       "text":  "Contact Form Fields"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "Recommended contact form fields:"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Full name"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Email address"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Organization, optional"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Inquiry type"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Message"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Attachment, optional"
+                                   },
+                                   {
+                                       "type":  "heading",
+                                       "text":  "Response Note"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "LoopsKey will review your inquiry and respond as soon as reasonably possible."
+                                   }
+                               ]
+                },
+    "accessibility":  {
+                          "title":  "Accessibility",
+                          "blocks":  [
+                                         {
+                                             "type":  "paragraph",
+                                             "text":  "LoopsKey is committed to making professional learning tools accessible and usable for all users."
+                                         },
+                                         {
+                                             "type":  "paragraph",
+                                             "text":  "We aim to provide a platform that supports professionals with different abilities, devices, learning needs, and assistive technologies."
+                                         },
+                                         {
+                                             "type":  "heading",
+                                             "text":  "Our Accessibility Goals"
+                                         },
+                                         {
+                                             "type":  "paragraph",
+                                             "text":  "LoopsKey aims to support:"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Clear page structure"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Readable typography"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Sufficient color contrast"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Keyboard-friendly navigation"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Visible focus states"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Clear form labels"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Helpful error messages"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Responsive design for mobile and desktop"
+                                         },
+                                         {
+                                             "type":  "listItem",
+                                             "text":  "Meaningful text alternatives where applicable"
+                                         },
+                                         {
+                                             "type":  "heading",
+                                             "text":  "Continuous Improvement"
+                                         },
+                                         {
+                                             "type":  "paragraph",
+                                             "text":  "Accessibility is an ongoing process. As LoopsKey grows, we will continue improving usability, interface clarity, and compatibility with assistive technologies."
+                                         },
+                                         {
+                                             "type":  "heading",
+                                             "text":  "Accessibility Feedback"
+                                         },
+                                         {
+                                             "type":  "paragraph",
+                                             "text":  "If you experience an accessibility barrier while using LoopsKey, please contact:"
+                                         },
+                                         {
+                                             "type":  "paragraph",
+                                             "text":  "loopskey.dev@gmail.com"
+                                         },
+                                         {
+                                             "type":  "paragraph",
+                                             "text":  "Please include the page or feature, your device and browser, and a short description of the issue."
+                                         }
+                                     ]
+                      },
+    "security":  {
+                     "title":  "Security \u0026 Data Protection",
+                     "blocks":  [
+                                    {
+                                        "type":  "paragraph",
+                                        "text":  "LoopsKey is designed to support professional learning records, certificates, CPD/PDU progress, and user profile information. We understand the importance of protecting this information."
+                                    },
+                                    {
+                                        "type":  "heading",
+                                        "text":  "Our Security Approach"
+                                    },
+                                    {
+                                        "type":  "paragraph",
+                                        "text":  "LoopsKey aims to protect user information through reasonable technical and organizational safeguards, including:"
+                                    },
+                                    {
+                                        "type":  "listItem",
+                                        "text":  "Secure account access"
+                                    },
+                                    {
+                                        "type":  "listItem",
+                                        "text":  "Role-based permissions"
+                                    },
+                                    {
+                                        "type":  "listItem",
+                                        "text":  "Secure data storage"
+                                    },
+                                    {
+                                        "type":  "listItem",
+                                        "text":  "Limited access to uploaded files"
+                                    },
+                                    {
+                                        "type":  "listItem",
+                                        "text":  "Responsible third-party service use"
+                                    },
+                                    {
+                                        "type":  "listItem",
+                                        "text":  "Monitoring and operational controls"
+                                    },
+                                    {
+                                        "type":  "listItem",
+                                        "text":  "Data minimization where possible"
+                                    },
+                                    {
+                                        "type":  "heading",
+                                        "text":  "Uploaded Certificates and Proof Files"
+                                    },
+                                    {
+                                        "type":  "paragraph",
+                                        "text":  "Users may upload certificates, proof of attendance, or other learning evidence. These files are used to support learning activity records, CPD/PDU tracking, and reporting features."
+                                    },
+                                    {
+                                        "type":  "paragraph",
+                                        "text":  "LoopsKey does not sell uploaded certificate or proof documents."
+                                    },
+                                    {
+                                        "type":  "heading",
+                                        "text":  "AI and Data Protection"
+                                    },
+                                    {
+                                        "type":  "paragraph",
+                                        "text":  "LoopsKey may use AI services to support features such as keyword extraction, content classification, learning roadmap generation, and recommendations."
+                                    },
+                                    {
+                                        "type":  "paragraph",
+                                        "text":  "Where possible, LoopsKey aims to send only the minimum information needed to perform the requested AI function."
+                                    },
+                                    {
+                                        "type":  "heading",
+                                        "text":  "Organization and Association Visibility"
+                                    },
+                                    {
+                                        "type":  "paragraph",
+                                        "text":  "If a user is connected to an association, employer, or organization account, certain learning progress or CPD/PDU information may be visible to that organization depending on the program setup, user permission, or applicable agreement."
+                                    },
+                                    {
+                                        "type":  "heading",
+                                        "text":  "Report a Security Concern"
+                                    },
+                                    {
+                                        "type":  "paragraph",
+                                        "text":  "If you believe you have found a security issue, contact:"
+                                    },
+                                    {
+                                        "type":  "paragraph",
+                                        "text":  "loopskey.dev@gmail.com"
+                                    }
+                                ]
+                 },
+    "terms":  {
+                  "title":  "Terms of Use",
+                  "blocks":  [
+                                 {
+                                     "type":  "paragraph",
+                                     "text":  "Last updated: August 5, 2026"
+                                 },
+                                 {
+                                     "type":  "paragraph",
+                                     "text":  "Welcome to LoopsKey. These Terms of Use govern access to and use of the LoopsKey website, platform, applications, and related services. LoopsKey is owned and operated by Nexel Chain Inc., a Canadian company. By using LoopsKey, users agree to these Terms. If users do not agree, they should not use the platform."
+                                 },
+                                 {
+                                     "type":  "heading",
+                                     "text":  "1. About LoopsKey"
+                                 },
+                                 {
+                                     "type":  "paragraph",
+                                     "text":  "LoopsKey is an AI-powered professional learning and development platform that helps users discover learning opportunities, create learning roadmaps, track CPD/PDU progress, manage certificates, organize calendar items, and maintain professional development records."
+                                 },
+                                 {
+                                     "type":  "heading",
+                                     "text":  "2. User Accounts"
+                                 },
+                                 {
+                                     "type":  "paragraph",
+                                     "text":  "Some features require an account. Users are responsible for keeping login credentials secure and for ensuring that profile, certification, CPD/PDU, and learning activity information is accurate and current."
+                                 },
+                                 {
+                                     "type":  "heading",
+                                     "text":  "3. Professional Development and CPD/PDU Information"
+                                 },
+                                 {
+                                     "type":  "paragraph",
+                                     "text":  "LoopsKey may suggest CPD, PDU, CEU, or other professional development requirements based on publicly available information, association-provided information, or user-declared information. LoopsKey is a tracking and support tool and does not replace official association, licensing body, employer, or certification provider requirements. Users are responsible for confirming final requirements with the relevant organization."
+                                 },
+                                 {
+                                     "type":  "heading",
+                                     "text":  "4. AI-Generated Outputs"
+                                 },
+                                 {
+                                     "type":  "paragraph",
+                                     "text":  "LoopsKey may use AI to support keyword extraction, content classification, learning recommendations, roadmap creation, CPD/PDU suggestions, and summaries. AI-generated outputs are provided for guidance only and should be reviewed by users before relying on them."
+                                 },
+                                 {
+                                     "type":  "heading",
+                                     "text":  "5. User Content and Uploaded Files"
+                                 },
+                                 {
+                                     "type":  "paragraph",
+                                     "text":  "Users may upload certificates, attendance proof, learning records, or other documents. Users are responsible for ensuring they have the right to upload and store these materials. LoopsKey may process uploaded files to provide certificate management, learning activity tracking, and related services."
+                                 },
+                                 {
+                                     "type":  "heading",
+                                     "text":  "6. Third-Party Content"
+                                 },
+                                 {
+                                     "type":  "paragraph",
+                                     "text":  "LoopsKey may display learning content from third-party providers, including courses, events, webinars, workshops, articles, and other resources. LoopsKey is not responsible for third-party availability, pricing, quality, accreditation, or outcomes unless expressly stated."
+                                 },
+                                 {
+                                     "type":  "heading",
+                                     "text":  "7. Acceptable Use"
+                                 },
+                                 {
+                                     "type":  "paragraph",
+                                     "text":  "Users agree not to misuse the platform, attempt unauthorized access, upload harmful content, interfere with platform security, or use LoopsKey for unlawful purposes."
+                                 },
+                                 {
+                                     "type":  "heading",
+                                     "text":  "8. Payments and Subscriptions"
+                                 },
+                                 {
+                                     "type":  "paragraph",
+                                     "text":  "Some LoopsKey features may require payment or subscription. Pricing, billing terms, cancellation rules, and refund policies will be provided at the time of purchase where applicable."
+                                 },
+                                 {
+                                     "type":  "heading",
+                                     "text":  "9. Changes to Terms"
+                                 },
+                                 {
+                                     "type":  "paragraph",
+                                     "text":  "LoopsKey may update these Terms from time to time. Updated Terms will be posted on this page with a revised date."
+                                 },
+                                 {
+                                     "type":  "heading",
+                                     "text":  "10. Contact"
+                                 },
+                                 {
+                                     "type":  "paragraph",
+                                     "text":  "For questions about these Terms, contact LoopsKey at loopskey.dev@gmail.com."
+                                 }
+                             ]
+              },
+    "privacy":  {
+                    "title":  "Privacy Policy",
+                    "blocks":  [
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "Last updated: August 5, 2026"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "LoopsKey respects user privacy. This Privacy Policy explains how LoopsKey collects, uses, stores, and protects information when users access the website and platform. LoopsKey is owned by Nexel Chain Inc., a Canadian company, and is designed as a worldwide product for professional learners, associations, organizations, and content providers."
+                                   },
+                                   {
+                                       "type":  "heading",
+                                       "text":  "1. Information We Collect"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "Information Type"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "Examples"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "Account information"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "Name, email, login method, profile photo, language, country"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "Professional profile"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "Profession, industry, role, skills, interests, experience, preferences"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "Certification information"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "Certification name, licence type, association, reporting year, renewal date"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "Learning data"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "Learning goals, saved content, completed activities, roadmap progress"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "CPD/PDU records"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "Credit type, credit value, categories, deadlines, progress, evidence status"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "Uploaded files"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "Certificates, attendance proof, learning evidence, related documents"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "Technical data"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "IP address, browser type, device information, usage logs"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "Communication data"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "Support requests, partnership inquiries, feedback, messages"
+                                   },
+                                   {
+                                       "type":  "heading",
+                                       "text":  "2. How We Use Information"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Create and manage user accounts"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Personalize learning recommendations and AI roadmaps"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Track CPD/PDU progress and certification-related requirements"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Manage certificates, proof files, and learning activities"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Provide calendar reminders and deadline notifications"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Prepare CPD/PDU summaries and learning history exports"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Improve platform functionality, security, and user experience"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Respond to support, privacy, security, accessibility, and partnership inquiries"
+                                   },
+                                   {
+                                       "type":  "heading",
+                                       "text":  "3. AI Processing"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "LoopsKey may use AI services to support content classification, keyword extraction, roadmap generation, recommendations, CPD/PDU suggestions, and learning summaries. Where possible, LoopsKey limits the information sent to AI services to the minimum information needed for the requested function."
+                                   },
+                                   {
+                                       "type":  "heading",
+                                       "text":  "4. Sharing Information"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "LoopsKey does not sell personal information. Limited information may be shared with service providers who help operate the platform, payment processors where applicable, authentication providers if a user chooses third-party login, organizations or associations when authorized or connected by the user, and legal authorities if required by law."
+                                   },
+                                   {
+                                       "type":  "heading",
+                                       "text":  "5. Association and Organization Accounts"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "If a user connects their account to an association, employer, licensing body, or organization account, certain progress, CPD/PDU, certificate, or learning activity information may become visible to that organization according to the applicable settings, agreement, or program rules."
+                                   },
+                                   {
+                                       "type":  "heading",
+                                       "text":  "6. International Users"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "LoopsKey is a worldwide product. Users may access the platform from different countries, and privacy rights may vary by location. LoopsKey aims to handle personal information responsibly and provide appropriate user choices where required by applicable law."
+                                   },
+                                   {
+                                       "type":  "heading",
+                                       "text":  "7. Data Security and Retention"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "LoopsKey uses reasonable technical and organizational safeguards to protect user information, including access controls, secure storage, and operational monitoring. Information is retained as long as needed to provide services, meet legal obligations, resolve disputes, and maintain business records."
+                                   },
+                                   {
+                                       "type":  "heading",
+                                       "text":  "8. User Choices"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Update profile and professional information"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Edit or delete learning activities where available"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Upload, manage, or remove certificates and proof files"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Change notification preferences"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Disconnect supported third-party login providers"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Request account deletion, subject to legal and operational requirements"
+                                   },
+                                   {
+                                       "type":  "heading",
+                                       "text":  "9. Contact"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "For privacy questions or requests, contact LoopsKey at loopskey.dev@gmail.com."
+                                   }
+                               ]
+                },
+    "cookies":  {
+                    "title":  "Cookie Statement",
+                    "blocks":  [
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "Last updated: August 5, 2026"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "LoopsKey uses cookies and similar technologies to support website functionality, improve user experience, analyze usage, and maintain platform security."
+                                   },
+                                   {
+                                       "type":  "heading",
+                                       "text":  "1. What Cookies Are"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "Cookies are small files placed on a user’s device when visiting a website. They help websites remember information and improve functionality."
+                                   },
+                                   {
+                                       "type":  "heading",
+                                       "text":  "2. Types of Cookies We May Use"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "LoopsKey may use:"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Essential cookies"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Preference cookies"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Analytics cookies"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Security cookies"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Marketing or campaign cookies, where applicable"
+                                   },
+                                   {
+                                       "type":  "heading",
+                                       "text":  "3. Why We Use Cookies"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "Cookies may help LoopsKey:"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Keep users signed in"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Remember preferences"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Improve platform performance"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Understand website usage"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Measure campaign effectiveness"
+                                   },
+                                   {
+                                       "type":  "listItem",
+                                       "text":  "Protect accounts and sessions"
+                                   },
+                                   {
+                                       "type":  "heading",
+                                       "text":  "4. Third-Party Cookies"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "Some service providers may use cookies or similar tools when supporting analytics, authentication, payments, or customer support."
+                                   },
+                                   {
+                                       "type":  "heading",
+                                       "text":  "5. Managing Cookies"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "Users can manage cookies through browser settings. Some features may not work properly if essential cookies are disabled."
+                                   },
+                                   {
+                                       "type":  "heading",
+                                       "text":  "6. Contact"
+                                   },
+                                   {
+                                       "type":  "paragraph",
+                                       "text":  "For cookie-related questions, contact LoopsKey at loopskey.dev@gmail.com."
+                                   }
+                               ]
+                },
+    "about":  {
+                  "title":  "About LoopsKey",
+                  "blocks":  [
+                                 {
+                                     "type":  "paragraph",
+                                     "text":  "LoopsKey is an AI-powered professional learning and CPD/PDU tracking platform owned by Nexel Chain Inc."
+                                 },
+                                 {
+                                     "type":  "paragraph",
+                                     "text":  "LoopsKey helps professionals plan, complete, track, and report their learning in one place. The platform supports personalized learning roadmaps, training recommendations, certificate management, calendar planning, and CPD/PDU progress tracking."
+                                 },
+                                 {
+                                     "type":  "heading",
+                                     "text":  "Our Mission"
+                                 },
+                                 {
+                                     "type":  "paragraph",
+                                     "text":  "Our mission is to make professional development more organized, personalized, and accessible for learners around the world."
+                                 },
+                                 {
+                                     "type":  "heading",
+                                     "text":  "What We Do"
+                                 },
+                                 {
+                                     "type":  "paragraph",
+                                     "text":  "LoopsKey helps users:"
+                                 },
+                                 {
+                                     "type":  "listItem",
+                                     "text":  "Build AI-powered learning roadmaps"
+                                 },
+                                 {
+                                     "type":  "listItem",
+                                     "text":  "Discover relevant learning opportunities"
+                                 },
+                                 {
+                                     "type":  "listItem",
+                                     "text":  "Track CPD/PDU progress"
+                                 },
+                                 {
+                                     "type":  "listItem",
+                                     "text":  "Manage certificates and proof files"
+                                 },
+                                 {
+                                     "type":  "listItem",
+                                     "text":  "Log completed learning activities"
+                                 },
+                                 {
+                                     "type":  "listItem",
+                                     "text":  "Organize deadlines and reminders"
+                                 },
+                                 {
+                                     "type":  "listItem",
+                                     "text":  "Prepare professional development summaries"
+                                 },
+                                 {
+                                     "type":  "heading",
+                                     "text":  "Who We Serve"
+                                 },
+                                 {
+                                     "type":  "paragraph",
+                                     "text":  "LoopsKey is designed for:"
+                                 },
+                                 {
+                                     "type":  "listItem",
+                                     "text":  "Individual professionals"
+                                 },
+                                 {
+                                     "type":  "listItem",
+                                     "text":  "Associations"
+                                 },
+                                 {
+                                     "type":  "listItem",
+                                     "text":  "Licensing bodies"
+                                 },
+                                 {
+                                     "type":  "listItem",
+                                     "text":  "Certification organizations"
+                                 },
+                                 {
+                                     "type":  "listItem",
+                                     "text":  "Employers and HR teams"
+                                 },
+                                 {
+                                     "type":  "listItem",
+                                     "text":  "Training and content providers"
+                                 },
+                                 {
+                                     "type":  "listItem",
+                                     "text":  "Lifelong learners"
+                                 },
+                                 {
+                                     "type":  "heading",
+                                     "text":  "Our Vision"
+                                 },
+                                 {
+                                     "type":  "paragraph",
+                                     "text":  "Our vision is to become a trusted global platform for professional learning intelligence, connecting learners, associations, organizations, and content providers through AI-powered planning and tracking tools."
+                                 },
+                                 {
+                                     "type":  "heading",
+                                     "text":  "Contact"
+                                 },
+                                 {
+                                     "type":  "paragraph",
+                                     "text":  "loopskey.dev@gmail.com"
+                                 }
+                             ]
+              },
+    "associationPartners":  {
+                                "title":  "Association Partners",
+                                "blocks":  [
+                                               {
+                                                   "type":  "heading",
+                                                   "text":  "Association Partners"
+                                               },
+                                               {
+                                                   "type":  "paragraph",
+                                                   "text":  "LoopsKey works with professional associations, licensing bodies, and certification organizations that want to improve member learning, CPD/PDU tracking, and professional development engagement."
+                                               },
+                                               {
+                                                   "type":  "heading",
+                                                   "text":  "Partnership Value"
+                                               },
+                                               {
+                                                   "type":  "paragraph",
+                                                   "text":  "Associations can use LoopsKey to help members stay informed, organized, and on track with development requirements."
+                                               },
+                                               {
+                                                   "type":  "paragraph",
+                                                   "text":  "LoopsKey can support:"
+                                               },
+                                               {
+                                                   "type":  "listItem",
+                                                   "text":  "Member learning dashboards"
+                                               },
+                                               {
+                                                   "type":  "listItem",
+                                                   "text":  "CPD/PDU requirement setup"
+                                               },
+                                               {
+                                                   "type":  "listItem",
+                                                   "text":  "Member progress tracking"
+                                               },
+                                               {
+                                                   "type":  "listItem",
+                                                   "text":  "Assigned or recommended learning content"
+                                               },
+                                               {
+                                                   "type":  "listItem",
+                                                   "text":  "Certificate and evidence management"
+                                               },
+                                               {
+                                                   "type":  "listItem",
+                                                   "text":  "Summary reports and compliance visibility"
+                                               },
+                                               {
+                                                   "type":  "listItem",
+                                                   "text":  "Learning gap insights"
+                                               },
+                                               {
+                                                   "type":  "heading",
+                                                   "text":  "Why Partner with LoopsKey"
+                                               },
+                                               {
+                                                   "type":  "paragraph",
+                                                   "text":  "LoopsKey gives associations a modern way to support members beyond traditional communication and manual reporting."
+                                               },
+                                               {
+                                                   "type":  "paragraph",
+                                                   "text":  "Benefits include:"
+                                               },
+                                               {
+                                                   "type":  "listItem",
+                                                   "text":  "Improved member experience"
+                                               },
+                                               {
+                                                   "type":  "listItem",
+                                                   "text":  "Better visibility into development progress"
+                                               },
+                                               {
+                                                   "type":  "listItem",
+                                                   "text":  "Reduced administrative workload"
+                                               },
+                                               {
+                                                   "type":  "listItem",
+                                                   "text":  "Stronger learning engagement"
+                                               },
+                                               {
+                                                   "type":  "listItem",
+                                                   "text":  "More structured CPD/PDU support"
+                                               },
+                                               {
+                                                   "type":  "listItem",
+                                                   "text":  "AI-powered recommendations for members"
+                                               },
+                                               {
+                                                   "type":  "heading",
+                                                   "text":  "Suitable Partners"
+                                               },
+                                               {
+                                                   "type":  "paragraph",
+                                                   "text":  "LoopsKey is suitable for:"
+                                               },
+                                               {
+                                                   "type":  "listItem",
+                                                   "text":  "Professional associations"
+                                               },
+                                               {
+                                                   "type":  "listItem",
+                                                   "text":  "Licensing bodies"
+                                               },
+                                               {
+                                                   "type":  "listItem",
+                                                   "text":  "Certification organizations"
+                                               },
+                                               {
+                                                   "type":  "listItem",
+                                                   "text":  "Industry groups"
+                                               },
+                                               {
+                                                   "type":  "listItem",
+                                                   "text":  "Continuing education programs"
+                                               },
+                                               {
+                                                   "type":  "listItem",
+                                                   "text":  "Workforce development organizations"
+                                               },
+                                               {
+                                                   "type":  "heading",
+                                                   "text":  "Contact"
+                                               },
+                                               {
+                                                   "type":  "paragraph",
+                                                   "text":  "To discuss association partnership opportunities, contact:"
+                                               },
+                                               {
+                                                   "type":  "paragraph",
+                                                   "text":  "loopskey.dev@gmail.com"
+                                               },
+                                               {
+                                                   "type":  "paragraph",
+                                                   "text":  "Suggested CTA:"
+                                               },
+                                               {
+                                                   "type":  "paragraph",
+                                                   "text":  "Book an Association Demo"
+                                               }
+                                           ]
+                            },
+    "companyContentProviders":  {
+                                    "title":  "Content Providers",
+                                    "blocks":  [
+                                                   {
+                                                       "type":  "heading",
+                                                       "text":  "Content Providers"
+                                                   },
+                                                   {
+                                                       "type":  "paragraph",
+                                                       "text":  "LoopsKey helps course providers, event organizers, webinar hosts, training companies, and educational organizations reach professionals who are actively planning their learning."
+                                                   },
+                                                   {
+                                                       "type":  "heading",
+                                                       "text":  "Provider Opportunities"
+                                                   },
+                                                   {
+                                                       "type":  "paragraph",
+                                                       "text":  "Content providers can list or promote:"
+                                                   },
+                                                   {
+                                                       "type":  "listItem",
+                                                       "text":  "Courses"
+                                                   },
+                                                   {
+                                                       "type":  "listItem",
+                                                       "text":  "Webinars"
+                                                   },
+                                                   {
+                                                       "type":  "listItem",
+                                                       "text":  "Workshops"
+                                                   },
+                                                   {
+                                                       "type":  "listItem",
+                                                       "text":  "Conferences"
+                                                   },
+                                                   {
+                                                       "type":  "listItem",
+                                                       "text":  "Events"
+                                                   },
+                                                   {
+                                                       "type":  "listItem",
+                                                       "text":  "Articles"
+                                                   },
+                                                   {
+                                                       "type":  "listItem",
+                                                       "text":  "Podcasts"
+                                                   },
+                                                   {
+                                                       "type":  "listItem",
+                                                       "text":  "Videos"
+                                                   },
+                                                   {
+                                                       "type":  "listItem",
+                                                       "text":  "Certification preparation content"
+                                                   },
+                                                   {
+                                                       "type":  "listItem",
+                                                       "text":  "Professional development programs"
+                                                   },
+                                                   {
+                                                       "type":  "heading",
+                                                       "text":  "Benefits for Providers"
+                                                   },
+                                                   {
+                                                       "type":  "paragraph",
+                                                       "text":  "LoopsKey helps providers:"
+                                                   },
+                                                   {
+                                                       "type":  "listItem",
+                                                       "text":  "Reach relevant professional audiences"
+                                                   },
+                                                   {
+                                                       "type":  "listItem",
+                                                       "text":  "Improve visibility through AI-powered recommendations"
+                                                   },
+                                                   {
+                                                       "type":  "listItem",
+                                                       "text":  "Connect content to user goals and certification needs"
+                                                   },
+                                                   {
+                                                       "type":  "listItem",
+                                                       "text":  "Highlight CPD/PDU value where applicable"
+                                                   },
+                                                   {
+                                                       "type":  "listItem",
+                                                       "text":  "Increase qualified interest in learning programs"
+                                                   },
+                                                   {
+                                                       "type":  "listItem",
+                                                       "text":  "Build credibility with professional users"
+                                                   },
+                                                   {
+                                                       "type":  "heading",
+                                                       "text":  "Content Quality"
+                                                   },
+                                                   {
+                                                       "type":  "paragraph",
+                                                       "text":  "Providers should keep content information accurate and current. Listings should include title, description, date, duration, format, cost, learning outcomes, provider details, certificate availability, and CPD/PDU information where applicable."
+                                                   },
+                                                   {
+                                                       "type":  "heading",
+                                                       "text":  "Contact"
+                                                   },
+                                                   {
+                                                       "type":  "paragraph",
+                                                       "text":  "To become a content provider, contact:"
+                                                   },
+                                                   {
+                                                       "type":  "paragraph",
+                                                       "text":  "loopskey.dev@gmail.com"
+                                                   },
+                                                   {
+                                                       "type":  "paragraph",
+                                                       "text":  "Suggested CTA:"
+                                                   },
+                                                   {
+                                                       "type":  "paragraph",
+                                                       "text":  "Become a Content Provider"
+                                                   }
+                                               ]
+                                }
+}
