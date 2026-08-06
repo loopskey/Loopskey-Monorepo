@@ -30,4 +30,4 @@
 
 - Commit: `8a3164b`
 - PR: https://github.com/loopskey/Loopskey-Monorepo/pull/12 (base `develop`)
-- CI: pending
+- CI: no checks reported on the branch; gates verified locally (see Verification)
