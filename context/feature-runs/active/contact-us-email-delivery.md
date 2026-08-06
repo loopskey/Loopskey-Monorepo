@@ -112,4 +112,7 @@ Outbox defects found and fixed, each with a regression test:
 
 - Commit: `fed1b85`
 - PR: https://github.com/loopskey/Loopskey-Monorepo/pull/14 (base `develop`)
-- CI: pending
+- CI: blocked on runner availability, not on this change. Run 31122131539
+  recorded `conclusion=failure` after 15m with `steps=0`, meaning no step ever
+  executed; a re-run stayed queued. Every gate passes locally, including the
+  full e2e suite.
