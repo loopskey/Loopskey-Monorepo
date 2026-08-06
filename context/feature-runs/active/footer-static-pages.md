@@ -28,6 +28,6 @@
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: `8a3164b`
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/12 (base `develop`)
+- CI: pending
