@@ -431,6 +431,20 @@ input ConfirmExternalLearningInput {
   status: ExternalLearningStatus!
 }
 
+enum ContactInquiryType {
+  ACCESSIBILITY_FEEDBACK
+  ACCOUNT_SUPPORT
+  ASSOCIATION_PARTNERSHIP
+  CONTENT_PROVIDER_INQUIRY
+  CPD_PDU_TRACKING
+  GENERAL_QUESTION
+  ORGANIZATION_SOLUTION
+  OTHER
+  PRIVACY_REQUEST
+  SECURITY_CONCERN
+  TECHNICAL_SUPPORT
+}
+
 input ContentActionInput {
   contentId: String!
   contentType: ContentType!
@@ -1259,6 +1273,7 @@ type Mutation {
   restoreUser(userId: String!): User!
   restoreYouTubeChannel(channelId: String!): YouTubeChannel!
   setProfessionalCertificateCpdPlan(input: SetCertificateCpdPlanInput!): ProfessionalCertificate!
+  submitContactInquiry(input: SubmitContactInquiryInput!): SubmitContactInquiryPayload!
   submitContentReview(input: SubmitContentReviewInput!): ContentReview!
   submitOrganizationAccessRequest(input: SubmitOrganizationAccessRequestInput!): OrganizationAccessRequest!
   submitPromotionRequest(input: SubmitPromotionRequestInput!): PromotionRequest!
@@ -2867,6 +2882,21 @@ enum SkillLevel {
 enum SortDirection {
   ASC
   DESC
+}
+
+input SubmitContactInquiryInput {
+  email: String!
+  fullName: String!
+  idempotencyKey: String
+  inquiryType: ContactInquiryType!
+  message: String!
+  organization: String
+}
+
+type SubmitContactInquiryPayload {
+  code: String!
+  referenceId: String
+  success: Boolean!
 }
 
 input SubmitContentReviewInput {

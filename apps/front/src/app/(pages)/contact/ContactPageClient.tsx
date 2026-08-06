@@ -1,6 +1,7 @@
 "use client";
 
 import { FloatingTextareaField } from "@elements/floating-textarea";
+import { FloatingSelectField } from "@elements/floating-select";
 import { FloatingInputField } from "@elements/floating-input";
 import { RevealOnScroll } from "@elements/reveal-scroll";
 import { StaticInfoPage } from "@templates/StaticInfoPage";
@@ -38,6 +39,9 @@ const ContactPage = () => {
     contactItems,
     scrollToForm,
     isSubmitting,
+    submitError,
+    fallbackEmail,
+    inquiryTypeOptions,
     submitContactForm,
   } = useContactPage();
 
@@ -97,7 +101,7 @@ const ContactPage = () => {
 
                     <FloatingInputField
                       type="email"
-                      name="workEmail"
+                      name="email"
                       autoComplete="email"
                       control={form.control}
                       label={t("contactPage.form.workEmail")}
@@ -106,11 +110,22 @@ const ContactPage = () => {
                   </div>
 
                   <FloatingInputField
-                    name="company"
+                    name="organization"
                     control={form.control}
                     autoComplete="organization"
-                    label={t("contactPage.form.company")}
+                    label={t(
+                      "contactPage.form.organizationOptional",
+                      {},
+                      "Organization (optional)",
+                    )}
                     leftIcon={<L.Building2 className="h-4 w-4" />}
+                  />
+
+                  <FloatingSelectField
+                    name="inquiryType"
+                    control={form.control}
+                    options={inquiryTypeOptions}
+                    label={t("contactPage.form.inquiryType", {}, "Inquiry type")}
                   />
 
                   <FloatingTextareaField
@@ -121,6 +136,30 @@ const ContactPage = () => {
                     leftIcon={<L.MessageSquare className="h-4 w-4" />}
                   />
 
+                  {submitError ? (
+                    <div
+                      role="alert"
+                      aria-live="assertive"
+                      className="rounded-2xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive"
+                    >
+                      <p>{submitError}</p>
+                      <p className="mt-2 text-muted-foreground">
+                        {t(
+                          "contactPage.form.failureFallback",
+                          {},
+                          "You can try again, or email us directly at",
+                        )}{" "}
+                        <a
+                          href={`mailto:${fallbackEmail}`}
+                          className="font-medium text-primary hover:underline"
+                        >
+                          {fallbackEmail}
+                        </a>
+                        .
+                      </p>
+                    </div>
+                  ) : null}
+
                   <Button
                     size="lg"
                     radius="xl"
@@ -130,7 +169,9 @@ const ContactPage = () => {
                     className="w-full md:w-auto"
                   >
                     <L.Send className="h-4 w-4" />
-                    {t("contactPage.form.submit")}
+                    {isSubmitting
+                      ? t("contactPage.form.submitting", {}, "Sending...")
+                      : t("contactPage.form.submit")}
                   </Button>
                 </form>
               </F.Form>

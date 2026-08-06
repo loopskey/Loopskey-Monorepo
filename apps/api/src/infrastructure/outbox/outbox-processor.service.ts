@@ -6,6 +6,10 @@ import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "@prisma/prisma.service";
 import { MailService } from "@mail/mail.service";
 
+const isUniqueViolation = (error: unknown) =>
+  error instanceof Prisma.PrismaClientKnownRequestError &&
+  error.code === "P2002";
+
 type AuditPayload = {
   actorId?: string;
   entityId?: string;
@@ -14,10 +18,14 @@ type AuditPayload = {
   metadata?: Prisma.InputJsonValue;
 };
 
+const MAX_ATTEMPTS = 10;
+const LEASE_MS = 60_000;
+
 @Injectable()
 export class OutboxProcessor implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(OutboxProcessor.name);
   private timer?: NodeJS.Timeout;
+  private running = false;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -27,12 +35,27 @@ export class OutboxProcessor implements OnModuleInit, OnModuleDestroy {
 
   onModuleInit() {
     const interval = Number(this.config.get("OUTBOX_POLL_INTERVAL_MS", "1000"));
-    this.timer = setInterval(() => void this.processNext(), interval);
+    this.timer = setInterval(() => this.tick(), interval);
     this.timer.unref();
   }
 
   onModuleDestroy() {
     if (this.timer) clearInterval(this.timer);
+  }
+
+  private tick() {
+    if (this.running) return;
+    this.running = true;
+    void this.processNext()
+      .catch((error: unknown) => {
+        this.logger.error("Outbox poll failed", {
+          errorName: error instanceof Error ? error.name : "UnknownError",
+          message: error instanceof Error ? error.message : "Unknown error",
+        });
+      })
+      .finally(() => {
+        this.running = false;
+      });
   }
 
   async processNext() {
@@ -41,7 +64,7 @@ export class OutboxProcessor implements OnModuleInit, OnModuleDestroy {
       const rows = await tx.$queryRaw<Array<{ id: string }>>`
         SELECT "id" FROM "OutboxEvent"
         WHERE "processedAt" IS NULL AND "availableAt" <= ${now}
-          AND "attemptCount" < 10
+          AND "attemptCount" < ${MAX_ATTEMPTS}
         ORDER BY "occurredAt" ASC
         FOR UPDATE SKIP LOCKED LIMIT 1`;
       if (!rows[0]) return null;
@@ -49,7 +72,7 @@ export class OutboxProcessor implements OnModuleInit, OnModuleDestroy {
         where: { id: rows[0].id },
         data: {
           attemptCount: { increment: 1 },
-          availableAt: new Date(now.getTime() + 60_000),
+          availableAt: new Date(now.getTime() + LEASE_MS),
         },
       });
     });
@@ -84,9 +107,16 @@ export class OutboxProcessor implements OnModuleInit, OnModuleDestroy {
             },
           });
         }
-        await this.prisma.outboxDelivery.create({
-          data: { eventId: event.id, handlerName },
-        });
+        await this.prisma.outboxDelivery
+          .create({ data: { eventId: event.id, handlerName } })
+          .catch((error: unknown) => {
+            if (!isUniqueViolation(error)) throw error;
+            this.logger.warn("Outbox delivery already recorded", {
+              eventId: event.id,
+              handlerName,
+              correlationId: event.correlationId,
+            });
+          });
       }
       await this.prisma.outboxEvent.update({
         where: { id: event.id },
@@ -114,6 +144,14 @@ export class OutboxProcessor implements OnModuleInit, OnModuleDestroy {
         attempt: event.attemptCount,
         correlationId: event.correlationId,
       });
+      if (event.attemptCount >= MAX_ATTEMPTS) {
+        this.logger.error("Outbox event abandoned after final attempt", {
+          eventId: event.id,
+          eventName: event.eventName,
+          attempts: event.attemptCount,
+          correlationId: event.correlationId,
+        });
+      }
     }
     return true;
   }

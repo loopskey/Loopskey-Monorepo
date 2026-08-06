@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_DATABASE_URL")
 }
 
 enum Role {
@@ -495,10 +496,10 @@ model OrganizationAccessRequest {
 
   approvedUserId String?
 
-  notificationStatus       NotificationDeliveryStatus @default(NOT_REQUESTED)
-  notificationSentAt       DateTime?
+  notificationStatus        NotificationDeliveryStatus @default(NOT_REQUESTED)
+  notificationSentAt        DateTime?
   notificationLastAttemptAt DateTime?
-  notificationFailureCode  String?
+  notificationFailureCode   String?
 
   submissionNotificationStatus        NotificationDeliveryStatus @default(NOT_REQUESTED)
   submissionNotificationSentAt        DateTime?
@@ -1554,13 +1555,13 @@ model Certificate {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  title            String
-  issuer           String?
+  title             String
+  issuer            String?
   // Optional free-text identifier printed on the certificate (licence / registration
   // number). Distinct from the platform-generated `verificationCode`.
   certificateNumber String?
-  certificateUrl   String?
-  verificationCode String  @unique
+  certificateUrl    String?
+  verificationCode  String  @unique
 
   contentType ContentType?
   contentId   String?
@@ -2068,16 +2069,16 @@ model ExternalLearningActivity {
 // Durable, versioned integration events. Producers insert these rows in the
 // same transaction as their aggregate changes; delivery happens after commit.
 model OutboxEvent {
-  id            String   @id @default(cuid())
+  id            String    @id @default(cuid())
   eventName     String
-  eventVersion  Int      @default(1)
+  eventVersion  Int       @default(1)
   aggregateType String
   aggregateId   String
   payload       Json
-  occurredAt    DateTime @default(now())
-  availableAt   DateTime @default(now())
+  occurredAt    DateTime  @default(now())
+  availableAt   DateTime  @default(now())
   processedAt   DateTime?
-  attemptCount  Int      @default(0)
+  attemptCount  Int       @default(0)
   lastError     String?
   correlationId String?
 
@@ -2093,7 +2094,7 @@ model OutboxEvent {
 model OutboxDelivery {
   eventId     String
   handlerName String
-  processedAt DateTime @default(now())
+  processedAt DateTime    @default(now())
   event       OutboxEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   @@id([eventId, handlerName])

@@ -17,8 +17,11 @@ const defaults: Record<string, string> = {
   OAUTH_STATE_SECRET: "e2e-oauth-state-secret-at-least-32-characters",
   FRONTEND_URL: "http://localhost:3000",
   GRAPHQL_SCHEMA_PATH: "src/graphql/schema.gql",
+  CONTACT_RECIPIENT_EMAIL: "loopskey.dev@gmail.com",
 };
 
 for (const [key, value] of Object.entries(defaults)) {
   process.env[key] ??= value;
 }
+
+process.env.DIRECT_DATABASE_URL ??= process.env.DATABASE_URL;

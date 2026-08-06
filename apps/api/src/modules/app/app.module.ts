@@ -1,7 +1,7 @@
 import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
-import { OperationTimingInterceptor } from "../../infrastructure/observability/operation-timing.interceptor";
+import { OperationTimingInterceptor } from "@infrastructure/observability/operation-timing.interceptor";
 import { ContentInteractionModule } from "@contentAction/content-interaction.module";
 import { ExternalLearningModule } from "@ext/external-learning.module";
 import { AdminDashboardModule } from "@admin/admin.module";
@@ -11,6 +11,7 @@ import { formatGraphQLError } from "@utils/graphql-error-formatter";
 import { ProfessionalModule } from "@professional/professional.module";
 import { OperationsModule } from "../../infrastructure/operations/operations.module";
 import { ProviderModule } from "@provider/provider.module";
+import { SupportModule } from "@support/support.module";
 import { GraphQLModule } from "@nestjs/graphql";
 import { PodcastModule } from "@podcast/podcast.module";
 import { YouTubeModule } from "@youtube/youtube.module";
@@ -65,6 +66,7 @@ import { join } from "path";
     YouTubeModule,
     LandingModule,
     ProviderModule,
+    SupportModule,
     OrganizationModule,
     ProfessionalModule,
     AdminDashboardModule,

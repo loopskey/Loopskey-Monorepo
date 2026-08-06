@@ -6,6 +6,8 @@ import { CourseMessageCode } from "@course/enums/message-code.enum";
 import { EventMessageCode } from "@events/enums/message-code.enum";
 import { CourseService } from "@course/services/course.service";
 import { PrismaClient } from "@prisma/client";
+import { readFileSync } from "fs";
+import { resolve } from "path";
 
 /**
  * Regression guard for the Jest/tsconfig alias split.
@@ -34,5 +36,29 @@ describe("path alias resolution", () => {
   it("still resolves @prisma/client to the real package, not the alias", () => {
     expect(PrismaClient).toBeDefined();
     expect(typeof PrismaClient).toBe("function");
+  });
+
+  /**
+   * `tsconfig.build.json` restates the whole alias map instead of inheriting
+   * it, so an alias added to `tsconfig.json` type-checks and tests cleanly
+   * while `nest build` fails with "Cannot find module". Comparing the two maps
+   * turns that into a failing test next to the mapping it protects.
+   */
+  it("mirrors every tsconfig alias in the build config", () => {
+    const read = (file: string) =>
+      JSON.parse(readFileSync(resolve(__dirname, "../..", file), "utf8")) as {
+        compilerOptions: { paths: Record<string, string[]> };
+      };
+
+    const base = read("tsconfig.json").compilerOptions.paths;
+    const build = read("tsconfig.build.json").compilerOptions.paths;
+
+    const missing = Object.keys(base).filter((alias) => !(alias in build));
+    expect(missing).toEqual([]);
+
+    const mismatched = Object.keys(base).filter(
+      (alias) => build[alias].join("|") !== base[alias].join("|"),
+    );
+    expect(mismatched).toEqual([]);
   });
 });

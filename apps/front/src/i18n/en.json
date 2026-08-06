@@ -544,13 +544,21 @@
       "company": "Company",
       "message": "How can we help?",
       "submit": "Send message",
-      "successTitle": "Your message has been sent successfully."
+      "successTitle": "Your message has been sent successfully.",
+      "inquiryType": "Inquiry type",
+      "organizationOptional": "Organization (optional)",
+      "submitting": "Sending...",
+      "rateLimited": "Too many messages were sent from here recently. Please try again later.",
+      "invalid": "Please check the form and try again.",
+      "deliveryFailed": "We could not send your message. Please try again.",
+      "failureFallback": "You can try again, or email us directly at"
     },
     "validation": {
       "fullNameRequired": "Please enter your full name.",
       "emailInvalid": "Please enter a valid work email.",
       "companyRequired": "Please enter your company name.",
-      "messageRequired": "Please write at least 10 characters."
+      "messageRequired": "Please write at least 10 characters.",
+      "inquiryTypeRequired": "Please choose an inquiry type."
     },
     "info": {
       "eyebrow": "Contact details",
@@ -577,6 +585,19 @@
       "title": "Get a Free Consultation",
       "description": "Talk to a LoopsKey expert about your team's learning goals — no commitment.",
       "button": "Schedule my call"
+    },
+    "inquiryTypes": {
+      "GENERAL_QUESTION": "General question",
+      "TECHNICAL_SUPPORT": "Technical support",
+      "ACCOUNT_SUPPORT": "Account support",
+      "CPD_PDU_TRACKING": "CPD/PDU tracking question",
+      "ASSOCIATION_PARTNERSHIP": "Association partnership",
+      "ORGANIZATION_SOLUTION": "Organization solution",
+      "CONTENT_PROVIDER_INQUIRY": "Content provider inquiry",
+      "PRIVACY_REQUEST": "Privacy request",
+      "ACCESSIBILITY_FEEDBACK": "Accessibility feedback",
+      "SECURITY_CONCERN": "Security concern",
+      "OTHER": "Other"
     }
   },
   "faqPage": {

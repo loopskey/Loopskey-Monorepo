@@ -1,8 +1,8 @@
 import { TCursorState, TSelectOption } from "@/types/content-module.types";
+import { ContactInquiryType, Role } from "@lib/graphql/generated";
 import { TLandingHeroContentKind } from "@/types/landing-module.types";
 import { TSelectedRange } from "@/types/professional-dashboard.types";
 import { TServiceItem } from "@/types/pages.types";
-import { Role } from "@lib/graphql/generated";
 
 import * as L from "lucide-react";
 
@@ -46,6 +46,36 @@ export const siteLinks = {
 };
 
 export const companyEmail = "loopskey.dev@gmail.com";
+
+// ============== Contact Us ==============
+export const contactInquiryTypes = [
+  { value: ContactInquiryType.GeneralQuestion, fallback: "General question" },
+  { value: ContactInquiryType.TechnicalSupport, fallback: "Technical support" },
+  { value: ContactInquiryType.AccountSupport, fallback: "Account support" },
+  {
+    value: ContactInquiryType.CpdPduTracking,
+    fallback: "CPD/PDU tracking question",
+  },
+  {
+    value: ContactInquiryType.AssociationPartnership,
+    fallback: "Association partnership",
+  },
+  {
+    value: ContactInquiryType.OrganizationSolution,
+    fallback: "Organization solution",
+  },
+  {
+    value: ContactInquiryType.ContentProviderInquiry,
+    fallback: "Content provider inquiry",
+  },
+  { value: ContactInquiryType.PrivacyRequest, fallback: "Privacy request" },
+  {
+    value: ContactInquiryType.AccessibilityFeedback,
+    fallback: "Accessibility feedback",
+  },
+  { value: ContactInquiryType.SecurityConcern, fallback: "Security concern" },
+  { value: ContactInquiryType.Other, fallback: "Other" },
+] as const;
 
 export const socialLinks = {
   linkedin: "https://www.linkedin.com",
@@ -496,7 +526,6 @@ export const missionVision = [
 export const defaultOpenItemId = "cpd-tracking";
 
 // ============ Native Picker Inputs ============
-// Input types that render a browser-native picker (and its own indicator icon).
 export const NATIVE_PICKER_TYPES = [
   "date",
   "time",
@@ -506,8 +535,5 @@ export const NATIVE_PICKER_TYPES = [
 ] as const;
 
 // ============== Hero Split Text Animation ==============
-// Per-character stagger and tween length for the landing hero heading.
-// The heading is ~52 chars (EN) / ~59 (FR), so the react-bits demo defaults
-// (50ms / 1.25s) would stretch the reveal past 3.8s. These land it near 2.2s.
 export const HERO_SPLIT_STAGGER_MS = 25;
 export const HERO_SPLIT_DURATION_S = 0.9;
