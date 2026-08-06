@@ -25,6 +25,11 @@
 - `npm run build --workspace front` - pass
 - Local route checks against built app on `127.0.0.1:3007` - all 14 footer-linked routes returned 200
 - Deprecated-content scan for `contact@loopskey.com`, `[Insert Date]`, `Explorer`, and `Resources` in affected files - clean
+- Review fix: `/about`, `/faq`, `/terms`, and `/privacy-policy` keep their existing
+  localized pages and embed the supplied content through `StaticInfoPage`
+  (`embedded`), matching the Contact Us pattern. This preserves the French
+  translations and the Help Center search, category filter, and accordion that a
+  full page replacement would have dropped.
 
 ## Submission
 

@@ -1,9 +1,10 @@
-import { getStaticInfoMetadata, StaticInfoPage } from "@templates/StaticInfoPage";
+import { getStaticInfoMetadata } from "@templates/StaticInfoPage";
+import HelpCenterPageClient from "./HelpCenterPageClient";
 
 export const metadata = getStaticInfoMetadata("helpCenter");
 
 const HelpCenterPage = () => {
-  return <StaticInfoPage pageKey="helpCenter" />;
+  return <HelpCenterPageClient />;
 };
 
 export default HelpCenterPage;

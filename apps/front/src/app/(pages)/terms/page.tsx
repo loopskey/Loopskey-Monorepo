@@ -1,9 +1,10 @@
-import { getStaticInfoMetadata, StaticInfoPage } from "@templates/StaticInfoPage";
+import { getStaticInfoMetadata } from "@templates/StaticInfoPage";
+import TermsPageClient from "./TermsPageClient";
 
 export const metadata = getStaticInfoMetadata("terms");
 
 const TermsPage = () => {
-  return <StaticInfoPage pageKey="terms" />;
+  return <TermsPageClient />;
 };
 
 export default TermsPage;
