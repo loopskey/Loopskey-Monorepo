@@ -3,7 +3,7 @@
 - Scope: `full`
 - Branch: `feature/service-ai-foundation`
 - Base: `102eb9dc0bdf4fd4b53494c6aaf96ecacce8af8c`
-- Status: `Ready`
+- Status: `Submitted`
 
 ## Acceptance
 
@@ -67,6 +67,6 @@ Re-run in full after the docstring restore described under Notes.
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: `875d533`
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/15
+- CI: pending
