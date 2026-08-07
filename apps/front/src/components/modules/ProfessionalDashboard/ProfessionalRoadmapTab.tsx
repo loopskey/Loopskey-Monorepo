@@ -336,6 +336,7 @@ const ProfessionalRoadmapTab = () => {
                       fill
                       alt={roadmap.title}
                       src={roadmap.imageUrl}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
                       className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
                     />
                   ) : (
@@ -478,6 +479,7 @@ const ProfessionalRoadmapTab = () => {
                       fill
                       alt={roadmap.title}
                       src={roadmap.imageUrl}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
                       className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
                     />
                   ) : (

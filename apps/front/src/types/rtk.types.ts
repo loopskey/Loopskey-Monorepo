@@ -1,8 +1,10 @@
-import { DocumentNode } from "graphql";
+import { TypedDocumentString } from "@/lib/graphql/generated";
+
+export type TGraphQLDocument = string | TypedDocumentString<unknown, never>;
 
 export type TGraphQLBaseQueryArgs<TVariables = Record<string, unknown>> = {
   variables?: TVariables;
-  document: string | DocumentNode;
+  document: TGraphQLDocument;
 };
 
 export type TGraphQLError = {

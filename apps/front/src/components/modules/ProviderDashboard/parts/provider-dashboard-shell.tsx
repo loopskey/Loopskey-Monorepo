@@ -1,15 +1,39 @@
 "use client";
 
+import { DashboardContentSkeleton } from "@layouts/parts/DashboardSkeleton";
 import { TProviderDashboardTab } from "@/types/provider-dashboard.types";
 import { useSearchParams } from "next/navigation";
 
-import ProviderPromotionRequestsTab from "@modules/ProviderDashboard/ProviderPromotionRequestsTab";
-import ProviderCreateEventTab from "@modules/ProviderDashboard/ProviderCreateEventTab";
-import ProviderAttendeesTab from "@modules/ProviderDashboard/ProviderAttendeesTab";
-import ProviderAnalyticsTab from "@modules/ProviderDashboard/ProviderAnalyticsTab";
-import ProviderSettingsTab from "@modules/ProviderDashboard/ProviderSettingsTab";
-import ProviderOverviewTab from "@modules/ProviderDashboard/ProviderOverviewTab";
-import ProviderMyEventsTab from "@modules/ProviderDashboard/ProviderMyEventsTab";
+import dynamic from "next/dynamic";
+
+const ProviderPromotionRequestsTab = dynamic(
+  () => import("@modules/ProviderDashboard/ProviderPromotionRequestsTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+const ProviderCreateEventTab = dynamic(
+  () => import("@modules/ProviderDashboard/ProviderCreateEventTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+const ProviderAttendeesTab = dynamic(
+  () => import("@modules/ProviderDashboard/ProviderAttendeesTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+const ProviderAnalyticsTab = dynamic(
+  () => import("@modules/ProviderDashboard/ProviderAnalyticsTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+const ProviderSettingsTab = dynamic(
+  () => import("@modules/ProviderDashboard/ProviderSettingsTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+const ProviderOverviewTab = dynamic(
+  () => import("@modules/ProviderDashboard/ProviderOverviewTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+const ProviderMyEventsTab = dynamic(
+  () => import("@modules/ProviderDashboard/ProviderMyEventsTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
 
 const validTabs: TProviderDashboardTab[] = [
   "overview",
