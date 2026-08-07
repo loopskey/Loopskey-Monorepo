@@ -1,0 +1,9 @@
+# Python build and cache output. The repository root already ignores
+# node_modules, dist and build; these are the Python equivalents.
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/

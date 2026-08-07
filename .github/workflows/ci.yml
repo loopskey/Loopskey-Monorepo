@@ -51,8 +51,19 @@ jobs:
           node-version: 22
           cache: npm
 
+      # Turborepo drives all three applications, and the AI service's tasks
+      # shell out to uv. It must exist before any `turbo run`, not only before
+      # the Python-specific steps.
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: apps/service-ai/uv.lock
+
       - name: Install
         run: npm ci
+
+      - name: Install AI service dependencies
+        run: uv sync --all-groups --project apps/service-ai
 
       - name: Generate Prisma Client
         run: npx prisma generate --schema apps/api/prisma/schema.prisma
@@ -89,3 +100,8 @@ jobs:
         run: |
           npm run codegen --workspace front
           git diff --exit-code -- apps/front/src/lib/graphql/generated.ts
+
+      # The equivalent gate for the AI boundary is
+      # apps/service-ai/tests/test_openapi_contract.py, which runs in the Test
+      # step above. It compares the committed openapi.json against the live
+      # application, so no separate regenerate-and-diff step is needed here.

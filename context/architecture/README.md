@@ -14,10 +14,16 @@ evidence and the trade-off accepted at the time.
 | [004](adr-004-engagement-events-public-port.md) | Engagement calls the Events public port     | Accepted |
 | [005](adr-005-organization-catalog-projections.md) | Organization consumes Catalog projections | Accepted |
 | [006](adr-006-provider-events-projections.md) | Provider Management consumes Events projections | Accepted |
+| [007](adr-007-ai-service-communication.md) | How the AI service communicates | Accepted |
 
-All three are **Proposed** until the Phase 1 exit-gate review accepts them.
-Phase 2 treats them as enforceable architecture, so they must be accepted or
-amended before Phase 2 starts.
+ADR-001 to ADR-003 are **Proposed** until the Phase 1 exit-gate review accepts
+them. Phase 2 treats them as enforceable architecture, so they must be accepted
+or amended before Phase 2 starts.
+
+ADR-007 amends the **scope** of ADR-001 without changing its decision: ADR-001
+forbids network calls between modules of one deployable, and ADR-007 states that
+`apps/service-ai` is a separate deployable that the rule was never about. The
+prohibition on internal calls between NestJS modules is unchanged.
 
 ## The rest of the architecture record
 
@@ -46,12 +52,15 @@ that supersedes it, so the reasoning trail survives.
 
 ## Rules that follow from these ADRs
 
-- One NestJS API, one GraphQL endpoint, one PostgreSQL database.
+- One NestJS API, one GraphQL endpoint, one PostgreSQL database. `apps/api` is
+  the only application the browser talks to.
 - Every Prisma model has exactly one write owner (ADR-002).
 - Cross-context access goes through a published contract, a domain event, a read
   model, or `platform-shared` — never a direct table read (ADR-003).
 - One transaction never spans two contexts.
-- No internal HTTP, GraphQL, gRPC or broker calls between modules.
+- No internal HTTP, GraphQL, gRPC or broker calls between modules. The single
+  permitted network boundary is `apps/api` → `apps/service-ai` (ADR-007), over a
+  committed OpenAPI contract.
 - A new boundary violation is a build failure from Phase 2 onward. Adding an
   entry to the exception register to silence it is not permitted; the register
   only shrinks.
