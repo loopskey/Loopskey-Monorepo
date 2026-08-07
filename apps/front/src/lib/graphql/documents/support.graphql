@@ -1,0 +1,7 @@
+mutation SubmitContactInquiry($input: SubmitContactInquiryInput!) {
+  submitContactInquiry(input: $input) {
+    success
+    code
+    referenceId
+  }
+}

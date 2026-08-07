@@ -1,11 +1,11 @@
+import { assertIsolatedTestDatabase } from "./database-safety";
 import { execFileSync } from "child_process";
 import { resolve } from "path";
-
-import { assertIsolatedTestDatabase } from "./database-safety";
 
 export default function globalSetup() {
   process.env.NODE_ENV = "test";
   assertIsolatedTestDatabase();
+  process.env.DIRECT_DATABASE_URL ??= process.env.DATABASE_URL;
   const prismaBin = resolve(
     __dirname,
     "../../../../node_modules/prisma/build/index.js",

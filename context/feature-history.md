@@ -14,3 +14,4 @@ into this index and do not rewrite previous records.
 - [`monolith-ph6-professional-development`](feature-runs/completed/monolith-ph6-professional-development.md)
 - [`monolith-ph7-reliability-operations`](feature-runs/completed/monolith-ph7-reliability-operations.md)
 - [`footer-contact-audit`](feature-runs/completed/footer-contact-audit.md)
+- [`contact-us-email-delivery`](feature-runs/active/contact-us-email-delivery.md)

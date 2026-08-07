@@ -33,6 +33,9 @@ jobs:
     env:
       NODE_ENV: test
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/loopskey_test_ci
+      # The CI Postgres service is not pooled, so the migration engine can use
+      # the same endpoint. The datasource still requires the variable to resolve.
+      DIRECT_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/loopskey_test_ci
       JWT_ACCESS_SECRET: ci-test-access-secret-at-least-32-characters
       JWT_REFRESH_SECRET: ci-test-refresh-secret-at-least-32-characters
       TURBO_SCM_BASE: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
