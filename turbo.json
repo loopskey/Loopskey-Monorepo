@@ -31,6 +31,10 @@
       ],
       "outputs": ["src/lib/graphql/generated.ts"]
     },
+    "service-ai#codegen": {
+      "inputs": ["src/**/*.py", "scripts/export_openapi.py", "pyproject.toml"],
+      "outputs": ["openapi.json"]
+    },
     "dev": {
       "cache": false,
       "persistent": true
