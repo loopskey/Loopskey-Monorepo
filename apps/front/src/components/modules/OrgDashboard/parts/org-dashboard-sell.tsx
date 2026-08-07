@@ -1,15 +1,39 @@
 "use client";
 
+import { DashboardContentSkeleton } from "@layouts/parts/DashboardSkeleton";
 import { TOrgDashboardTab } from "@/types/org-dashboard.types";
 import { useSearchParams } from "next/navigation";
 
-import OrgCDPCategoriesTab from "@modules/OrgDashboard/OrgCDPCategoriesTab";
-import OrgEventCatalogTab from "@modules/OrgDashboard/OrgEventCatalogTab";
-import OrgAssignmentsTab from "@modules/OrgDashboard/OrgAssignmentsTab";
-import OrgSettingsTab from "@modules/OrgDashboard/OrgSettingsTab";
-import OrgOverviewTab from "@modules/OrgDashboard/OrgOverviewTab";
-import OrgReportsTab from "@modules/OrgDashboard/OrgReportsTab";
-import OrgMembersTab from "@modules/OrgDashboard/OrgMembersTab";
+import dynamic from "next/dynamic";
+
+const OrgCDPCategoriesTab = dynamic(
+  () => import("@modules/OrgDashboard/OrgCDPCategoriesTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+const OrgEventCatalogTab = dynamic(
+  () => import("@modules/OrgDashboard/OrgEventCatalogTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+const OrgAssignmentsTab = dynamic(
+  () => import("@modules/OrgDashboard/OrgAssignmentsTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+const OrgSettingsTab = dynamic(
+  () => import("@modules/OrgDashboard/OrgSettingsTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+const OrgOverviewTab = dynamic(
+  () => import("@modules/OrgDashboard/OrgOverviewTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+const OrgReportsTab = dynamic(
+  () => import("@modules/OrgDashboard/OrgReportsTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+const OrgMembersTab = dynamic(
+  () => import("@modules/OrgDashboard/OrgMembersTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
 
 const validTabs: TOrgDashboardTab[] = [
   "members",

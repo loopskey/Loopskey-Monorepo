@@ -31,6 +31,7 @@ export const OrgEventCatalogCard = ({
               src={imageSrc}
               alt={event.title}
               className="object-cover"
+              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
             />
           ) : (
             <div className="flex h-full items-center justify-center text-muted-foreground">

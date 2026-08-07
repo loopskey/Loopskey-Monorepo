@@ -1,13 +1,31 @@
 "use client";
 
+import { DashboardContentSkeleton } from "@layouts/parts/DashboardSkeleton";
 import { TAdminDashboardTab } from "@/types/admin-dashboard.types";
 import { useSearchParams } from "next/navigation";
 
-import AdminOrgAccessRequestTab from "@modules/AdminDashboard/AdminOrgAccessRequestTab";
-import AdminSettingsTab from "@modules/AdminDashboard/AdminSettingsTab";
-import AdminOrgUsersTab from "@modules/AdminDashboard/AdminOrgUsersTab";
-import AdminOverviewTab from "@modules/AdminDashboard/AdminOverviewTab";
-import AdminUsersTab from "@modules/AdminDashboard/AdminUsersTab";
+import dynamic from "next/dynamic";
+
+const AdminOrgAccessRequestTab = dynamic(
+  () => import("@modules/AdminDashboard/AdminOrgAccessRequestTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+const AdminSettingsTab = dynamic(
+  () => import("@modules/AdminDashboard/AdminSettingsTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+const AdminOrgUsersTab = dynamic(
+  () => import("@modules/AdminDashboard/AdminOrgUsersTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+const AdminOverviewTab = dynamic(
+  () => import("@modules/AdminDashboard/AdminOverviewTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+const AdminUsersTab = dynamic(
+  () => import("@modules/AdminDashboard/AdminUsersTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
 
 const validTabs: TAdminDashboardTab[] = [
   "users",
