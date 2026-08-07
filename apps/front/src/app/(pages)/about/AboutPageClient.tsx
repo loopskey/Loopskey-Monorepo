@@ -17,7 +17,6 @@ const AboutPage = () => {
 
   return (
     <main className="relative overflow-hidden">
-      <StaticInfoPage pageKey="about" embedded />
       <div className="pointer-events-none absolute left-[-10rem] top-20 h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
       <div className="pointer-events-none absolute right-[-12rem] top-[30rem] h-96 w-96 rounded-full bg-accent/20 blur-3xl" />
 
@@ -328,6 +327,8 @@ const AboutPage = () => {
           })}
         </div>
       </section>
+
+      <StaticInfoPage pageKey="about" embedded />
 
       <section className="mx-auto max-w-7xl px-4 py-20 md:px-6">
         <RevealOnScroll>

@@ -23,7 +23,6 @@ const PrivacyPage = () => {
 
   return (
     <main className="overflow-hidden">
-      <StaticInfoPage pageKey="privacy" embedded />
       <section className="relative px-4 py-10 md:py-16">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.18),transparent_34%),radial-gradient(circle_at_bottom_right,hsl(var(--accent)/0.14),transparent_32%)]" />
         <div className="mx-auto max-w-7xl">
@@ -244,6 +243,8 @@ const PrivacyPage = () => {
           </RevealOnScroll>
         </div>
       </section>
+
+      <StaticInfoPage pageKey="privacy" embedded />
 
       <section className="px-4 pb-28">
         <div className="mx-auto max-w-7xl">

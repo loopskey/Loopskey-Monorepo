@@ -1,73 +1,293 @@
-import pages from "@/content/footer-static-pages.json";
-import type { Metadata } from "next";
+"use client";
 
-type PageKey = keyof typeof pages;
-type Block = { type: "heading" | "paragraph" | "listItem"; text: string };
+import { STATIC_INFO_EMAIL, type PageKey } from "./static-info-page.utils";
+import { TStaticInfoBodyProps } from "@/types/pages.types";
+import { useStaticInfoPage } from "@hooks/useStaticInfoPage";
+import { RevealOnScroll } from "@elements/reveal-scroll";
+import { GlassCard } from "@elements/glass-card";
+import { cn } from "@/lib/utils";
 
-const EMAIL = "loopskey.dev@gmail.com";
+import * as L from "lucide-react";
+
+const FOCUS_RING =
+  "outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/35";
 
 const renderText = (text: string) => {
-  const index = text.indexOf(EMAIL);
+  const index = text.indexOf(STATIC_INFO_EMAIL);
   if (index === -1) return text;
-
   return (
     <>
       {text.slice(0, index)}
-      <a className="font-medium text-primary hover:underline" href={`mailto:${EMAIL}`}>
-        {EMAIL}
+      <a
+        href={`mailto:${STATIC_INFO_EMAIL}`}
+        className={cn(
+          "rounded-sm font-medium text-primary hover:underline",
+          FOCUS_RING,
+        )}
+      >
+        {STATIC_INFO_EMAIL}
       </a>
-      {text.slice(index + EMAIL.length)}
+      {text.slice(index + STATIC_INFO_EMAIL.length)}
     </>
   );
 };
 
-export const StaticInfoPage = ({ pageKey, embedded = false }: { pageKey: PageKey; embedded?: boolean }) => {
-  const page = pages[pageKey];
-  const blocks = page.blocks as Block[];
-  const Root = embedded ? "section" : "main";
+const StaticInfoBody = ({ blocks, className }: TStaticInfoBodyProps) => (
+  <div
+    className={cn(
+      "space-y-4 text-sm leading-7 text-muted-foreground md:text-base md:leading-8",
+      className,
+    )}
+  >
+    {blocks.map((block, index) =>
+      block.type === "list" ? (
+        <ul key={`list-${index}`} className="grid gap-3 pt-1">
+          {block.items.map((item) => (
+            <li key={item} className="flex gap-3">
+              <span className="mt-1.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <L.Check className="h-3.5 w-3.5" />
+              </span>
+
+              <span>{renderText(item)}</span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p key={`paragraph-${index}`}>{renderText(block.text)}</p>
+      ),
+    )}
+  </div>
+);
+
+export const StaticInfoPage = ({
+  pageKey,
+  embedded = false,
+}: {
+  pageKey: PageKey;
+  embedded?: boolean;
+}) => {
+  const { t, outline, activeSectionId, setActiveSectionId } = useStaticInfoPage(
+    pageKey,
+    !embedded,
+  );
+  const { title, lead, sections } = outline;
+  const showNav = !embedded && sections.length > 1;
+  const titleId = `static-info-${pageKey}-title`;
+  const domId = (id: string) => (embedded ? `${pageKey}-${id}` : id);
+  const heading = embedded ? (
+    <h2
+      id={titleId}
+      className="mt-6 scroll-mt-28 text-3xl font-medium leading-tight tracking-tight text-foreground md:text-4xl"
+    >
+      {title}
+    </h2>
+  ) : (
+    <h1
+      id={titleId}
+      className="mt-6 scroll-mt-28 text-4xl font-medium leading-tight tracking-tight text-foreground md:text-6xl"
+    >
+      {title}
+    </h1>
+  );
+
+  const sectionCards = (
+    <div
+      className={cn(
+        "grid items-start gap-5",
+        embedded && sections.length > 1 && "lg:grid-cols-2",
+      )}
+    >
+      {sections.map((section, index) => {
+        const SectionHeading = embedded ? "h3" : "h2";
+
+        return (
+          <RevealOnScroll
+            key={section.id}
+            delay={Math.min(index * 45, 260)}
+            direction={index % 2 === 0 ? "right" : "left"}
+          >
+            <GlassCard
+              id={domId(section.id)}
+              className="scroll-mt-28 p-6 md:p-8"
+            >
+              <div className="mb-5">
+                <span className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                  <L.FileText className="h-3.5 w-3.5" />
+                  {t("staticInfoPage.sectionLabel", {
+                    number: String(index + 1).padStart(2, "0"),
+                  })}
+                </span>
+
+                <SectionHeading
+                  className={cn(
+                    "font-medium text-foreground",
+                    embedded ? "text-xl md:text-2xl" : "text-2xl md:text-3xl",
+                  )}
+                >
+                  {section.title}
+                </SectionHeading>
+              </div>
+
+              <StaticInfoBody blocks={section.blocks} />
+            </GlassCard>
+          </RevealOnScroll>
+        );
+      })}
+    </div>
+  );
+
+  const header = (
+    <div className="mx-auto max-w-3xl text-center">
+      <span className="inline-flex w-fit items-center gap-2 rounded-full border border-glass-border bg-background/55 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm ring-1 ring-white/40 backdrop-blur-xl dark:ring-white/5">
+        <L.Sparkles className="h-4 w-4" />
+        {t(
+          embedded
+            ? "staticInfoPage.referenceEyebrow"
+            : "staticInfoPage.eyebrow",
+        )}
+      </span>
+
+      {heading}
+
+      {lead.length > 0 && (
+        <StaticInfoBody
+          blocks={lead}
+          className="mx-auto mt-6 max-w-2xl text-center text-base leading-relaxed md:text-lg md:leading-relaxed"
+        />
+      )}
+    </div>
+  );
+
+  if (embedded) {
+    return (
+      <section
+        aria-labelledby={titleId}
+        className="relative px-4 py-16 sm:px-6 lg:px-8"
+      >
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.12),transparent_34%),radial-gradient(circle_at_bottom_right,hsl(var(--accent)/0.1),transparent_32%)]" />
+
+        <div className="mx-auto max-w-7xl">
+          <RevealOnScroll direction="up">{header}</RevealOnScroll>
+
+          <div className="mt-12">
+            {sections.length > 0 ? (
+              sectionCards
+            ) : (
+              <GlassCard className="mx-auto max-w-3xl p-6 md:p-8">
+                <StaticInfoBody blocks={lead} />
+              </GlassCard>
+            )}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
-    <Root className="relative overflow-hidden px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.12),transparent_34%),radial-gradient(circle_at_bottom_right,hsl(var(--accent)/0.1),transparent_32%)]" />
-      <article className="mx-auto max-w-4xl rounded-[2rem] border border-glass-border bg-background/70 p-6 shadow-xl backdrop-blur-xl sm:p-10 lg:p-14">
-        <h1 className="text-4xl font-medium tracking-tight text-foreground sm:text-5xl">
-          {page.title}
-        </h1>
+    <main className="relative overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.18),transparent_34%),radial-gradient(circle_at_bottom_right,hsl(var(--accent)/0.14),transparent_32%)]" />
 
-        <div className="mt-10 space-y-5 text-base leading-8 text-muted-foreground">
-          {blocks.map((block, index) => {
-            if (block.type === "heading") {
-              return (
-                <h2 key={`${block.text}-${index}`} className="pt-5 text-2xl font-semibold text-foreground">
-                  {block.text}
-                </h2>
-              );
-            }
-            if (block.type === "listItem") {
-              return (
-                <ul key={`${block.text}-${index}`} className="list-disc pl-6 marker:text-primary">
-                  <li>{renderText(block.text)}</li>
-                </ul>
-              );
-            }
-            return <p key={`${block.text}-${index}`}>{renderText(block.text)}</p>;
-          })}
+      <section className="px-4 py-10 sm:px-6 md:py-16 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <RevealOnScroll direction="up">{header}</RevealOnScroll>
         </div>
-      </article>
-    </Root>
-  );
-};
+      </section>
 
-export const getStaticInfoMetadata = (pageKey: PageKey): Metadata => {
-  const page = pages[pageKey];
-  const descriptionBlock = page.blocks.find(
-    (block) => block.type === "paragraph",
-  );
+      <section className="px-4 pb-24 sm:px-6 lg:px-8">
+        <div
+          className={cn(
+            "mx-auto grid max-w-7xl items-start gap-8",
+            showNav && "xl:grid-cols-[330px_1fr]",
+          )}
+        >
+          {showNav && (
+            <aside className="xl:sticky xl:top-24 xl:self-start">
+              <GlassCard className="p-5">
+                <div className="mb-5">
+                  <p className="text-sm font-semibold text-foreground">
+                    {t("staticInfoPage.nav.title")}
+                  </p>
 
-  return {
-    title: `${page.title} | LoopsKey`,
-    description: descriptionBlock?.text,
-  };
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {t("staticInfoPage.nav.description")}
+                  </p>
+                </div>
+
+                <nav
+                  aria-label={t("staticInfoPage.nav.label", { page: title })}
+                >
+                  <ul className="flex flex-wrap gap-2 xl:max-h-[calc(100vh-20rem)] xl:flex-col xl:flex-nowrap xl:overflow-y-auto xl:pr-1">
+                    {sections.map((section, index) => {
+                      const isActive = activeSectionId === section.id;
+
+                      return (
+                        <li key={section.id} className="xl:w-full">
+                          <a
+                            href={`#${section.id}`}
+                            aria-current={isActive ? "location" : undefined}
+                            onClick={() => setActiveSectionId(section.id)}
+                            className={cn(
+                              "group flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition-all duration-300",
+                              "xl:w-full xl:gap-3 xl:rounded-2xl xl:px-4 xl:py-3 xl:text-sm",
+                              FOCUS_RING,
+                              isActive
+                                ? "border-primary/30 bg-primary/10 text-primary shadow-sm"
+                                : "border-glass-border bg-background/35 text-muted-foreground hover:border-primary/25 hover:bg-primary/5 hover:text-foreground",
+                            )}
+                          >
+                            <span
+                              aria-hidden="true"
+                              className={cn(
+                                "hidden h-7 w-7 shrink-0 items-center justify-center rounded-xl text-xs font-bold xl:flex",
+                                isActive
+                                  ? "bg-primary text-primary-foreground"
+                                  : "bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary",
+                              )}
+                            >
+                              {index + 1}
+                            </span>
+
+                            <span className="xl:line-clamp-1">
+                              {section.title}
+                            </span>
+                          </a>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </nav>
+              </GlassCard>
+            </aside>
+          )}
+
+          <div className="space-y-5">
+            {sections.length > 0 ? (
+              sectionCards
+            ) : (
+              <GlassCard className="p-6 md:p-8">
+                <StaticInfoBody blocks={lead} />
+              </GlassCard>
+            )}
+
+            {showNav && (
+              <div className="flex justify-end">
+                <a
+                  href={`#${titleId}`}
+                  className={cn(
+                    "inline-flex items-center gap-2 rounded-full border border-glass-border bg-background/45 px-4 py-2 text-sm text-muted-foreground transition-colors hover:border-primary/25 hover:text-primary",
+                    FOCUS_RING,
+                  )}
+                >
+                  <L.ArrowUp className="h-4 w-4" />
+                  {t("staticInfoPage.backToTop")}
+                </a>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+    </main>
+  );
 };
 
 export type { PageKey };
