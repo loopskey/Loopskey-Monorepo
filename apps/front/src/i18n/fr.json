@@ -1095,6 +1095,17 @@
       }
     ]
   },
+  "staticInfoPage": {
+    "eyebrow": "Informations LoopsKey",
+    "referenceEyebrow": "Informations détaillées",
+    "nav": {
+      "title": "Sur cette page",
+      "description": "Accédez directement à la section souhaitée.",
+      "label": "Sections de {{page}}"
+    },
+    "sectionLabel": "Section {{number}}",
+    "backToTop": "Retour en haut"
+  },
   "theme": {
     "switchToDark": "Passer en mode sombre",
     "switchToLight": "Passer en mode clair",

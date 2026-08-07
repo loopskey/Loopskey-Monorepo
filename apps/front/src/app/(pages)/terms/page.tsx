@@ -1,10 +1,8 @@
-import { getStaticInfoMetadata } from "@templates/StaticInfoPage";
+﻿import { getStaticInfoMetadata } from "@templates/static-info-page.utils";
 import TermsPageClient from "./TermsPageClient";
 
 export const metadata = getStaticInfoMetadata("terms");
 
-const TermsPage = () => {
-  return <TermsPageClient />;
-};
+const TermsPage = () => <TermsPageClient />;
 
 export default TermsPage;

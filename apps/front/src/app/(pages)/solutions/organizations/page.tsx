@@ -1,9 +1,8 @@
-import { getStaticInfoMetadata, StaticInfoPage } from "@templates/StaticInfoPage";
+﻿import { getStaticInfoMetadata } from "@templates/static-info-page.utils";
+import { StaticInfoPage } from "@templates/StaticInfoPage";
 
 export const metadata = getStaticInfoMetadata("organizations");
 
-const OrganizationsPage = () => {
-  return <StaticInfoPage pageKey="organizations" />;
-};
+const OrganizationsPage = () => <StaticInfoPage pageKey="organizations" />;
 
 export default OrganizationsPage;

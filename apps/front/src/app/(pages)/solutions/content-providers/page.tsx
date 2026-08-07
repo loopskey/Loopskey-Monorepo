@@ -1,9 +1,10 @@
-import { getStaticInfoMetadata, StaticInfoPage } from "@templates/StaticInfoPage";
+﻿import { getStaticInfoMetadata } from "@templates/static-info-page.utils";
+import { StaticInfoPage } from "@templates/StaticInfoPage";
 
 export const metadata = getStaticInfoMetadata("solutionContentProviders");
 
-const ContentProvidersPage = () => {
-  return <StaticInfoPage pageKey="solutionContentProviders" />;
-};
+const ContentProvidersPage = () => (
+  <StaticInfoPage pageKey="solutionContentProviders" />
+);
 
 export default ContentProvidersPage;
