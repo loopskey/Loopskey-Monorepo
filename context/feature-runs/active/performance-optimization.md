@@ -2,10 +2,14 @@
 
 - Scope: `front`
 - Branch: `feature/performance-optimization`
-- Base: `7ae7faf`
-- Status: `Ready`
+- Base: `fa487af`
+- Status: `Submitted`
 
 Spec: `context/features/performance/performance-optimization.md`.
+
+`develop` had been deleted on the remote after PR #17 merged it into `main`. It
+was recreated at `main` and this branch rebased onto it; the base tree is
+unchanged from `7ae7faf`, so the baseline numbers below still hold.
 
 ## Measurement
 
@@ -91,6 +95,6 @@ Where the removed weight went:
 
 ## Submission
 
-- Commit:
-- PR:
+- Commit: `a45b3a8`
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/18
 - CI:
