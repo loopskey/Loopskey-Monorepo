@@ -22,3 +22,30 @@ export type TServiceBlockProps = {
   service: TServiceItem;
   consultationHref: string;
 };
+
+// ============ Static Info Pages ============
+export type TStaticInfoBlock = {
+  type: "heading" | "paragraph" | "listItem";
+  text: string;
+};
+
+export type TStaticInfoContentBlock =
+  | { type: "paragraph"; text: string }
+  | { type: "list"; items: string[] };
+
+export type TStaticInfoSection = {
+  id: string;
+  title: string;
+  blocks: TStaticInfoContentBlock[];
+};
+
+export type TStaticInfoOutline = {
+  title: string;
+  sections: TStaticInfoSection[];
+  lead: TStaticInfoContentBlock[];
+};
+
+export type TStaticInfoBodyProps = {
+  className?: string;
+  blocks: TStaticInfoContentBlock[];
+};

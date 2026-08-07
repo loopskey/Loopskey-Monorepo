@@ -1,10 +1,8 @@
-import { getStaticInfoMetadata } from "@templates/StaticInfoPage";
+﻿import { getStaticInfoMetadata } from "@templates/static-info-page.utils";
 import AboutPageClient from "./AboutPageClient";
 
 export const metadata = getStaticInfoMetadata("about");
 
-const AboutPage = () => {
-  return <AboutPageClient />;
-};
+const AboutPage = () => <AboutPageClient />;
 
 export default AboutPage;

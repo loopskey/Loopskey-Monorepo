@@ -1116,6 +1116,17 @@
       }
     ]
   },
+  "staticInfoPage": {
+    "eyebrow": "LoopsKey information",
+    "referenceEyebrow": "Detailed information",
+    "nav": {
+      "title": "On this page",
+      "description": "Jump straight to the section you need.",
+      "label": "Sections of {{page}}"
+    },
+    "sectionLabel": "Section {{number}}",
+    "backToTop": "Back to top"
+  },
   "theme": {
     "switchToDark": "Switch to dark mode",
     "switchToLight": "Switch to light mode",
