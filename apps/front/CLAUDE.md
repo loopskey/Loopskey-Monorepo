@@ -18,3 +18,12 @@ npm run build --workspace front
 
 Run `npm run codegen --workspace front` when GraphQL documents or schema change.
 See `README.md` for local frontend setup.
+
+## Performance
+
+Standards live in `context/features/performance/performance-optimization.md`.
+
+After a build, `npm run bundle-report --workspace front` prints first-load
+JavaScript per prerendered route. Check it when a change adds a dependency or a
+client component, and keep heavy libraries (charts, calendar, spreadsheet,
+WebGL, maps) behind `next/dynamic` or a deferred `import()`.

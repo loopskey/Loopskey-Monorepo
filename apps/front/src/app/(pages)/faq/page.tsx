@@ -1,7 +1,8 @@
-﻿import { getStaticInfoMetadata } from "@templates/static-info-page.utils";
-import HelpCenterPageClient from "./HelpCenterPageClient";
+﻿import { getBespokePageMetadata } from "@/utils/static-info-page.utils";
 
-export const metadata = getStaticInfoMetadata("helpCenter");
+import HelpCenterPageClient from "@templates/HelpCenterPageClient";
+
+export const metadata = getBespokePageMetadata("faqPage");
 
 const HelpCenterPage = () => <HelpCenterPageClient />;
 

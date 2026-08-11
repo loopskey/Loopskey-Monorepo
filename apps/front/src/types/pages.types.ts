@@ -25,8 +25,8 @@ export type TServiceBlockProps = {
 
 // ============ Static Info Pages ============
 export type TStaticInfoBlock = {
-  type: "heading" | "paragraph" | "listItem";
   text: string;
+  type: "heading" | "paragraph" | "listItem";
 };
 
 export type TStaticInfoContentBlock =
@@ -39,8 +39,20 @@ export type TStaticInfoSection = {
   blocks: TStaticInfoContentBlock[];
 };
 
+export type TStaticInfoCta = {
+  label: string;
+  href: string;
+};
+
+export type TStaticInfoPageContent = {
+  title: string;
+  cta?: TStaticInfoCta;
+  blocks: TStaticInfoBlock[];
+};
+
 export type TStaticInfoOutline = {
   title: string;
+  cta?: TStaticInfoCta;
   sections: TStaticInfoSection[];
   lead: TStaticInfoContentBlock[];
 };

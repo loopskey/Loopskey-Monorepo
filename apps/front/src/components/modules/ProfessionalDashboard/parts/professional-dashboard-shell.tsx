@@ -1,23 +1,72 @@
 "use client";
 
 import { TProfessionalDashboardTab } from "@/types/professional-dashboard.types";
+import { DashboardContentSkeleton } from "@layouts/parts/DashboardSkeleton";
 import { useSearchParams } from "next/navigation";
 
-import ProfessionalActivityDetailTab from "@modules/ProfessionalDashboard/ProfessionalActivityDetailTab";
-import ProfessionalExternalLearningTab from "@modules/ProfessionalDashboard/ProfessionalExternalLearningTab";
-import ProfessionalCpdPduProgressTab from "@modules/ProfessionalDashboard/ProfessionalCpdPduProgressTab";
-import ProfessionalCpdPduTrackerTab from "@modules/ProfessionalDashboard/ProfessionalCpdPduTrackerTab";
-import ProfessionalCertificateFormTab from "@modules/ProfessionalDashboard/ProfessionalCertificateFormTab";
-import ProfessionalCertificatesTab from "@modules/ProfessionalDashboard/ProfessionalCertificatesTab";
-import ProfessionalAddActivityTab from "@modules/ProfessionalDashboard/ProfessionalAddActivityTab";
-import ProfessionalOverviewTab from "@modules/ProfessionalDashboard/ProfessionalOverviewTab";
-import ProfessionalCalendarTab from "@modules/ProfessionalDashboard/ProfessionalCalendarTab";
-import ProfessionalWishlistTab from "@modules/ProfessionalDashboard/ProfessionalWishlistTab";
-import ProfessionalSettingsTab from "@modules/ProfessionalDashboard/ProfessionalSettingsTab";
-import ProfessionalPaymentsTab from "@modules/ProfessionalDashboard/ProfessionalPaymentsTab";
-import ProfessionalCoursesTab from "@modules/ProfessionalDashboard/ProfessionalCoursesTab";
-import ProfessionalRoadmapTab from "@modules/ProfessionalDashboard/ProfessionalRoadmapTab";
-import ProfessionalProfileTab from "@modules/ProfessionalDashboard/ProfessionalProfileTab";
+import dynamic from "next/dynamic";
+
+const ProfessionalActivityDetailTab = dynamic(
+  () => import("@modules/ProfessionalDashboard/ProfessionalActivityDetailTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+const ProfessionalExternalLearningTab = dynamic(
+  () =>
+    import("@modules/ProfessionalDashboard/ProfessionalExternalLearningTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+const ProfessionalCpdPduProgressTab = dynamic(
+  () => import("@modules/ProfessionalDashboard/ProfessionalCpdPduProgressTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+const ProfessionalCpdPduTrackerTab = dynamic(
+  () => import("@modules/ProfessionalDashboard/ProfessionalCpdPduTrackerTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+const ProfessionalCertificateFormTab = dynamic(
+  () => import("@modules/ProfessionalDashboard/ProfessionalCertificateFormTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+const ProfessionalCertificatesTab = dynamic(
+  () => import("@modules/ProfessionalDashboard/ProfessionalCertificatesTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+const ProfessionalAddActivityTab = dynamic(
+  () => import("@modules/ProfessionalDashboard/ProfessionalAddActivityTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+const ProfessionalOverviewTab = dynamic(
+  () => import("@modules/ProfessionalDashboard/ProfessionalOverviewTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+const ProfessionalCalendarTab = dynamic(
+  () => import("@modules/ProfessionalDashboard/ProfessionalCalendarTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+const ProfessionalWishlistTab = dynamic(
+  () => import("@modules/ProfessionalDashboard/ProfessionalWishlistTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+const ProfessionalSettingsTab = dynamic(
+  () => import("@modules/ProfessionalDashboard/ProfessionalSettingsTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+const ProfessionalPaymentsTab = dynamic(
+  () => import("@modules/ProfessionalDashboard/ProfessionalPaymentsTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+const ProfessionalCoursesTab = dynamic(
+  () => import("@modules/ProfessionalDashboard/ProfessionalCoursesTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+const ProfessionalRoadmapTab = dynamic(
+  () => import("@modules/ProfessionalDashboard/ProfessionalRoadmapTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+const ProfessionalProfileTab = dynamic(
+  () => import("@modules/ProfessionalDashboard/ProfessionalProfileTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
 
 const validTabs: TProfessionalDashboardTab[] = [
   "profile",

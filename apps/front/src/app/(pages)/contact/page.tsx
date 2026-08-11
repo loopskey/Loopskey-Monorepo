@@ -1,7 +1,8 @@
-﻿import { getStaticInfoMetadata } from "@templates/static-info-page.utils";
-import ContactPageClient from "./ContactPageClient";
+﻿import { getBespokePageMetadata } from "@/utils/static-info-page.utils";
 
-export const metadata = getStaticInfoMetadata("contact");
+import ContactPageClient from "@templates/ContactPageClient";
+
+export const metadata = getBespokePageMetadata("contactPage");
 
 const ContactPage = () => <ContactPageClient />;
 

@@ -21,6 +21,7 @@ export const ProfileDetailsPanel = ({
     isSaving,
     hasError,
     handleSubmit,
+    goalOptions,
     summaryLength,
     industryOptions,
     isSaveDisabled,
@@ -82,6 +83,18 @@ export const ProfileDetailsPanel = ({
               control={rhf.control}
               options={experienceOptions}
               label={t("professionalDashboard.profile.details.experience")}
+              placeholder={t(
+                "professionalDashboard.profile.basic.selectOption",
+              )}
+            />
+
+            <FloatingSelectField
+              name="professionalGoal"
+              disabled={isDisabled}
+              control={rhf.control}
+              options={goalOptions}
+              className="md:col-span-2"
+              label={t("professionalDashboard.profile.details.professionalGoal")}
               placeholder={t(
                 "professionalDashboard.profile.basic.selectOption",
               )}

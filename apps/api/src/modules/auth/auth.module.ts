@@ -1,6 +1,7 @@
 import { AuthOrganizationActivationService } from "@auth/services/auth-organization-activation.service";
-import { ORGANIZATION_ACTIVATION_API } from "@auth/public/organization-activation-api";
 import { OAuthCallbackExceptionFilter } from "@auth/filters/oauth-callback.filter";
+import { AuthOAuthProvisioningService } from "@auth/services/auth-oauth-provisioning.service";
+import { ORGANIZATION_ACTIVATION_API } from "@auth/public/organization-activation-api";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { AuthLinkedInOAuthService } from "@auth/services/auth-linkedin-oauth.service";
 import { AuthRegistrationService } from "@auth/services/auth-registration.service";
@@ -37,6 +38,7 @@ export const AUTH_SERVICE_PROVIDERS = [
   AuthRegistrationService,
   AuthLinkedInOAuthService,
   OAuthCallbackExceptionFilter,
+  AuthOAuthProvisioningService,
   AuthOrganizationActivationService,
 ];
 

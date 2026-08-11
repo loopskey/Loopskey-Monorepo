@@ -59,6 +59,7 @@ fragment ProfessionalCredentialFields on ProfessionalCredential {
   pduTargetId
   licenceNumber
   annualCpdHours
+  certificationId
   issuingOrganization
 }
 
@@ -102,6 +103,8 @@ fragment ProfessionalDashboardProfileFields on ProfessionalDashboardProfile {
   workLocation
   experienceRange
   professionalSummary
+  professionalGoal
+  onboardingCompletedAt
 
   targetSkillLevel
   currentSkillLevel
@@ -526,6 +529,20 @@ mutation UpdateProfessionalDetails($input: UpdateProfessionalDetailsInput!) {
 
 mutation UpdateProfessionalSkills($input: UpdateProfessionalSkillsInput!) {
   updateProfessionalSkills(input: $input) {
+    ...ProfessionalDashboardProfileFields
+  }
+}
+
+mutation StartProfessionalOnboarding {
+  startProfessionalOnboarding {
+    ...ProfessionalDashboardProfileFields
+  }
+}
+
+mutation CompleteProfessionalOnboarding(
+  $input: CompleteProfessionalOnboardingInput!
+) {
+  completeProfessionalOnboarding(input: $input) {
     ...ProfessionalDashboardProfileFields
   }
 }

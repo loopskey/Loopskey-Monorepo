@@ -2,7 +2,7 @@
 import "@testing-library/jest-dom/vitest";
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render } from "@testing-library/react";
+import { act, cleanup, render } from "@testing-library/react";
 
 const themeState = { resolvedTheme: "dark" as string | undefined };
 
@@ -15,6 +15,14 @@ vi.mock("next-themes", () => ({
 vi.mock("@ui/floating-lines", () => ({
   FloatingLines: () => <div data-testid="floating-lines" />,
 }));
+
+// The wrapper loads FloatingLines through next/dynamic, so the stub only lands
+// in the tree after the loader promise settles.
+const settleDynamicImport = async () => {
+  await act(async () => {
+    await Promise.resolve();
+  });
+};
 
 import { LearningParticlesBackground } from "./particles-background";
 
@@ -47,26 +55,29 @@ describe("LearningParticlesBackground", () => {
   });
   afterEach(cleanup);
 
-  it("renders FloatingLines exactly once in dark mode with WebGL and motion allowed", () => {
-    const { queryAllByTestId } = render(<LearningParticlesBackground />);
-    expect(queryAllByTestId("floating-lines")).toHaveLength(1);
+  it("renders FloatingLines exactly once in dark mode with WebGL and motion allowed", async () => {
+    const { findAllByTestId } = render(<LearningParticlesBackground />);
+    expect(await findAllByTestId("floating-lines")).toHaveLength(1);
   });
 
-  it("never initializes FloatingLines in light mode", () => {
+  it("never initializes FloatingLines in light mode", async () => {
     themeState.resolvedTheme = "light";
     const { queryByTestId } = render(<LearningParticlesBackground />);
+    await settleDynamicImport();
     expect(queryByTestId("floating-lines")).toBeNull();
   });
 
-  it("falls back to a static background under reduced motion", () => {
+  it("falls back to a static background under reduced motion", async () => {
     configureEnvironment({ reducedMotion: true });
     const { queryByTestId } = render(<LearningParticlesBackground />);
+    await settleDynamicImport();
     expect(queryByTestId("floating-lines")).toBeNull();
   });
 
-  it("falls back to a static background when WebGL is unavailable", () => {
+  it("falls back to a static background when WebGL is unavailable", async () => {
     configureEnvironment({ webgl: false });
     const { queryByTestId } = render(<LearningParticlesBackground />);
+    await settleDynamicImport();
     expect(queryByTestId("floating-lines")).toBeNull();
   });
 

@@ -121,6 +121,9 @@ export class ProfessionalProfileService {
       workLocation: profile?.workLocation ?? null,
       professionalSummary: profile?.professionalSummary ?? null,
 
+      professionalGoal: profile?.professionalGoal ?? null,
+      onboardingCompletedAt: profile?.onboardingCompletedAt ?? null,
+
       currentSkillLevel: profile?.currentSkillLevel ?? null,
       targetSkillLevel: profile?.targetSkillLevel ?? null,
       mainSkillAreas: this.termsFor(profile, P.ProfileTermUsage.MAIN_SKILL),

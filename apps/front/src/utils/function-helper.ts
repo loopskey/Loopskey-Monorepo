@@ -4,25 +4,17 @@ import { TProfessionalWishlistItem } from "@/types/hooks.types";
 import { ProviderDashboardRange } from "@/lib/graphql/generated";
 import { PromotionRequestStatus } from "@/lib/graphql/generated";
 import { PromotionType, Role } from "@/lib/graphql/generated";
-import { DocumentNode } from "graphql";
-import { print } from "graphql";
-
-import en from "@/i18n/en.json";
-import fr from "@/i18n/fr.json";
+import { TGraphQLDocument } from "@/types/rtk.types";
 
 // ============== OAuth Element ==============
 export const isRole = (value: string | null): value is Role =>
   Object.values(Role).includes(value as Role);
 
 // ============== RTK Query ==============
-export const documentToString = (document: string | DocumentNode): string => {
-  if (typeof document === "string") return document;
-  return print(document);
-};
+export const documentToString = (document: TGraphQLDocument): string =>
+  String(document);
 
 // ============== I18n ==============
-export const dictionaries = { en, fr } as const;
-export type Dictionary = typeof en;
 export type DictValue =
   | null
   | string
@@ -245,8 +237,8 @@ export const getPromotionStatusLabel = (
 
 // =============== Hook FAQ Page ===============
 export const faqCategories = [
-  "AI",
   "ALL",
+  "AI",
   "CPD",
   "SECURITY",
   "PLATFORM",

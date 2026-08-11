@@ -1,7 +1,8 @@
-﻿import { getStaticInfoMetadata } from "@templates/static-info-page.utils";
-import PrivacyPageClient from "./PrivacyPageClient";
+﻿import { getBespokePageMetadata } from "@/utils/static-info-page.utils";
 
-export const metadata = getStaticInfoMetadata("privacy");
+import PrivacyPageClient from "@templates/PrivacyPageClient";
+
+export const metadata = getBespokePageMetadata("privacyPage");
 
 const PrivacyPolicyPage = () => <PrivacyPageClient />;
 

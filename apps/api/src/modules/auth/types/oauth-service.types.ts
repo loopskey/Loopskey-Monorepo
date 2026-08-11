@@ -1,5 +1,5 @@
+import { Prisma, Role } from "@prisma/client";
 import { Request } from "express";
-import { Role } from "@prisma/client";
 
 export type TOAuthProvider = "GOOGLE" | "LINKEDIN";
 
@@ -31,4 +31,12 @@ export type TLinkedInUserInfo = {
   given_name?: string;
   family_name?: string;
   email_verified?: boolean;
+};
+
+export type TCreateOAuthUserInput = {
+  role: Role;
+  email: string;
+  fullName?: string | null;
+  avatarUrl?: string | null;
+  link?: (tx: Prisma.TransactionClient, userId: string) => Promise<void>;
 };

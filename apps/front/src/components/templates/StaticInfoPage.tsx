@@ -1,11 +1,14 @@
 "use client";
 
-import { STATIC_INFO_EMAIL, type PageKey } from "./static-info-page.utils";
+import { STATIC_INFO_EMAIL, type PageKey } from "@utils/static-info-page.utils";
 import { TStaticInfoBodyProps } from "@/types/pages.types";
 import { useStaticInfoPage } from "@hooks/useStaticInfoPage";
 import { RevealOnScroll } from "@elements/reveal-scroll";
 import { GlassCard } from "@elements/glass-card";
+import { Button } from "@ui/button";
 import { cn } from "@/lib/utils";
+
+import Link from "next/link";
 
 import * as L from "lucide-react";
 
@@ -59,80 +62,41 @@ const StaticInfoBody = ({ blocks, className }: TStaticInfoBodyProps) => (
   </div>
 );
 
-export const StaticInfoPage = ({
-  pageKey,
-  embedded = false,
-}: {
-  pageKey: PageKey;
-  embedded?: boolean;
-}) => {
+export const StaticInfoPage = ({ pageKey }: { pageKey: PageKey }) => {
   const { t, outline, activeSectionId, setActiveSectionId } = useStaticInfoPage(
     pageKey,
-    !embedded,
+    true,
   );
-  const { title, lead, sections } = outline;
-  const showNav = !embedded && sections.length > 1;
+  const { title, lead, sections, cta } = outline;
+  const showNav = sections.length > 1;
   const titleId = `static-info-${pageKey}-title`;
-  const domId = (id: string) => (embedded ? `${pageKey}-${id}` : id);
-  const heading = embedded ? (
-    <h2
-      id={titleId}
-      className="mt-6 scroll-mt-28 text-3xl font-medium leading-tight tracking-tight text-foreground md:text-4xl"
-    >
-      {title}
-    </h2>
-  ) : (
-    <h1
-      id={titleId}
-      className="mt-6 scroll-mt-28 text-4xl font-medium leading-tight tracking-tight text-foreground md:text-6xl"
-    >
-      {title}
-    </h1>
-  );
 
   const sectionCards = (
-    <div
-      className={cn(
-        "grid items-start gap-5",
-        embedded && sections.length > 1 && "lg:grid-cols-2",
-      )}
-    >
-      {sections.map((section, index) => {
-        const SectionHeading = embedded ? "h3" : "h2";
+    <div className="grid items-start gap-5">
+      {sections.map((section, index) => (
+        <RevealOnScroll
+          key={section.id}
+          delay={Math.min(index * 45, 260)}
+          direction={index % 2 === 0 ? "right" : "left"}
+        >
+          <GlassCard id={section.id} className="scroll-mt-28 p-6 md:p-8">
+            <div className="mb-5">
+              <span className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                <L.FileText className="h-3.5 w-3.5" />
+                {t("staticInfoPage.sectionLabel", {
+                  number: String(index + 1).padStart(2, "0"),
+                })}
+              </span>
 
-        return (
-          <RevealOnScroll
-            key={section.id}
-            delay={Math.min(index * 45, 260)}
-            direction={index % 2 === 0 ? "right" : "left"}
-          >
-            <GlassCard
-              id={domId(section.id)}
-              className="scroll-mt-28 p-6 md:p-8"
-            >
-              <div className="mb-5">
-                <span className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                  <L.FileText className="h-3.5 w-3.5" />
-                  {t("staticInfoPage.sectionLabel", {
-                    number: String(index + 1).padStart(2, "0"),
-                  })}
-                </span>
+              <h2 className="text-2xl font-medium text-foreground md:text-3xl">
+                {section.title}
+              </h2>
+            </div>
 
-                <SectionHeading
-                  className={cn(
-                    "font-medium text-foreground",
-                    embedded ? "text-xl md:text-2xl" : "text-2xl md:text-3xl",
-                  )}
-                >
-                  {section.title}
-                </SectionHeading>
-              </div>
-
-              <StaticInfoBody blocks={section.blocks} />
-            </GlassCard>
-          </RevealOnScroll>
-        );
-      })}
+            <StaticInfoBody blocks={section.blocks} />
+          </GlassCard>
+        </RevealOnScroll>
+      ))}
     </div>
   );
 
@@ -140,14 +104,15 @@ export const StaticInfoPage = ({
     <div className="mx-auto max-w-3xl text-center">
       <span className="inline-flex w-fit items-center gap-2 rounded-full border border-glass-border bg-background/55 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm ring-1 ring-white/40 backdrop-blur-xl dark:ring-white/5">
         <L.Sparkles className="h-4 w-4" />
-        {t(
-          embedded
-            ? "staticInfoPage.referenceEyebrow"
-            : "staticInfoPage.eyebrow",
-        )}
+        {t("staticInfoPage.eyebrow")}
       </span>
 
-      {heading}
+      <h1
+        id={titleId}
+        className="mt-6 scroll-mt-28 text-4xl font-medium leading-tight tracking-tight text-foreground md:text-6xl"
+      >
+        {title}
+      </h1>
 
       {lead.length > 0 && (
         <StaticInfoBody
@@ -158,33 +123,8 @@ export const StaticInfoPage = ({
     </div>
   );
 
-  if (embedded) {
-    return (
-      <section
-        aria-labelledby={titleId}
-        className="relative px-4 py-16 sm:px-6 lg:px-8"
-      >
-        <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.12),transparent_34%),radial-gradient(circle_at_bottom_right,hsl(var(--accent)/0.1),transparent_32%)]" />
-
-        <div className="mx-auto max-w-7xl">
-          <RevealOnScroll direction="up">{header}</RevealOnScroll>
-
-          <div className="mt-12">
-            {sections.length > 0 ? (
-              sectionCards
-            ) : (
-              <GlassCard className="mx-auto max-w-3xl p-6 md:p-8">
-                <StaticInfoBody blocks={lead} />
-              </GlassCard>
-            )}
-          </div>
-        </div>
-      </section>
-    );
-  }
-
   return (
-    <main className="relative overflow-hidden">
+    <main className="relative overflow-x-clip">
       <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.18),transparent_34%),radial-gradient(circle_at_bottom_right,hsl(var(--accent)/0.14),transparent_32%)]" />
 
       <section className="px-4 py-10 sm:px-6 md:py-16 lg:px-8">
@@ -267,6 +207,19 @@ export const StaticInfoPage = ({
               <GlassCard className="p-6 md:p-8">
                 <StaticInfoBody blocks={lead} />
               </GlassCard>
+            )}
+
+            {cta && (
+              <RevealOnScroll direction="up">
+                <div className="flex justify-center pt-2">
+                  <Button asChild size="lg" radius="xl" variant="brand">
+                    <Link href={cta.href}>
+                      {cta.label}
+                      <L.ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                </div>
+              </RevealOnScroll>
             )}
 
             {showNav && (

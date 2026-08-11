@@ -2,12 +2,12 @@ import { PrismaClient, ProfileTaxonomyKind } from "@prisma/client";
 
 export type TProfileTaxonomySeedTerm = {
   id: string;
-  kind: ProfileTaxonomyKind;
   key: string;
   label: string;
   groupKey: string;
-  groupLabel: string;
   sortOrder: number;
+  groupLabel: string;
+  kind: ProfileTaxonomyKind;
 };
 
 const skillAreas: [string, string, string[]][] = [
@@ -27,6 +27,7 @@ const skillAreas: [string, string, string[]][] = [
     "LEADERSHIP",
     "Leadership",
     [
+      "Leadership",
       "Team Leadership",
       "Coaching & Mentoring",
       "Change Management",
@@ -43,6 +44,9 @@ const skillAreas: [string, string, string[]][] = [
       "Business Strategy",
       "Finance & Accounting",
       "Operations",
+      "Agile Delivery",
+      "Budgeting & Cost Control",
+      "Scheduling",
     ],
   ],
   [
@@ -53,6 +57,7 @@ const skillAreas: [string, string, string[]][] = [
       "Technical Writing",
       "Negotiation",
       "Facilitation",
+      "Stakeholder Communication",
     ],
   ],
   [
@@ -65,11 +70,7 @@ const skillAreas: [string, string, string[]][] = [
       "Professional Ethics",
     ],
   ],
-  [
-    "DESIGN",
-    "Design",
-    ["UX Research", "UI Design", "Design Thinking"],
-  ],
+  ["DESIGN", "Design", ["UX Research", "UI Design", "Design Thinking"]],
 ];
 
 const subjects: [string, string, string[]][] = [
@@ -103,11 +104,7 @@ const subjects: [string, string, string[]][] = [
   [
     "ENGINEERING",
     "Engineering",
-    [
-      "Civil Engineering",
-      "Mechanical Engineering",
-      "Electrical Engineering",
-    ],
+    ["Civil Engineering", "Mechanical Engineering", "Electrical Engineering"],
   ],
   ["DESIGN", "Design", ["UX Design", "Graphic Design"]],
   [
@@ -115,20 +112,37 @@ const subjects: [string, string, string[]][] = [
     "Marketing",
     ["Digital Marketing", "Brand Management", "Content Marketing"],
   ],
+  ["LEADERSHIP", "Leadership", ["People Management", "Organisational Culture"]],
+  ["COMPLIANCE", "Compliance", ["Regulatory Affairs", "Risk & Governance"]],
+  ["EDUCATION", "Education", ["Instructional Design", "Adult Learning"]],
+];
+
+// Role suggestions for the professional onboarding wizard. Roles live in the
+// same taxonomy as skills and subjects rather than in a catalogue of their own;
+// `ProfessionalProfile.currentRole` remains the stored value, so a professional
+// can still type a title that is not listed here.
+const roles: [string, string, string[]][] = [
   [
-    "LEADERSHIP",
-    "Leadership",
-    ["People Management", "Organisational Culture"],
-  ],
-  [
-    "COMPLIANCE",
-    "Compliance",
-    ["Regulatory Affairs", "Risk & Governance"],
-  ],
-  [
-    "EDUCATION",
-    "Education",
-    ["Instructional Design", "Adult Learning"],
+    "COMMON",
+    "Common roles",
+    [
+      "Project Manager",
+      "Product Manager",
+      "Software Engineer",
+      "Data Analyst",
+      "Business Analyst",
+      "Accountant",
+      "Financial Analyst",
+      "HR Manager",
+      "Marketing Manager",
+      "UX Designer",
+      "Nurse",
+      "Civil Engineer",
+      "Consultant",
+      "Teacher",
+      "IT Security Analyst",
+      "Operations Manager",
+    ],
   ],
 ];
 
@@ -138,11 +152,17 @@ const toKey = (label: string) =>
     .replace(/[^A-Z0-9]+/g, "_")
     .replace(/^_+|_+$/g, "");
 
+const TERM_ID_PREFIX: Record<ProfileTaxonomyKind, string> = {
+  [ProfileTaxonomyKind.SKILL_AREA]: "skill",
+  [ProfileTaxonomyKind.SUBJECT]: "subject",
+  [ProfileTaxonomyKind.ROLE]: "role",
+};
+
 const buildTerms = (
   kind: ProfileTaxonomyKind,
   groups: [string, string, string[]][],
 ): TProfileTaxonomySeedTerm[] => {
-  const prefix = kind === ProfileTaxonomyKind.SKILL_AREA ? "skill" : "subject";
+  const prefix = TERM_ID_PREFIX[kind];
   const terms: TProfileTaxonomySeedTerm[] = [];
   groups.forEach(([groupKey, groupLabel, labels], groupIndex) => {
     labels.forEach((label, index) => {
@@ -164,6 +184,7 @@ const buildTerms = (
 export const PROFILE_TAXONOMY_TERMS: TProfileTaxonomySeedTerm[] = [
   ...buildTerms(ProfileTaxonomyKind.SKILL_AREA, skillAreas),
   ...buildTerms(ProfileTaxonomyKind.SUBJECT, subjects),
+  ...buildTerms(ProfileTaxonomyKind.ROLE, roles),
 ];
 
 export const seedProfileTaxonomy = async (prisma: PrismaClient) => {

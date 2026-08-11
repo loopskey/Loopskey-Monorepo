@@ -5,9 +5,11 @@ import { ProfessionalProvisioningApiService } from "@professional/application/pr
 import { ProfessionalCertificatesResolver } from "@professional/resolvers/professional-certificate.resolver";
 import { ProfessionalCertificatesService } from "@professional/services/professional-certificate.service";
 import { ProfessionalRoleProfileHandler } from "@professional/application/professional-role-profile.handler";
+import { ProfessionalOnboardingResolver } from "@professional/resolvers/professional-onboarding.resolver";
 import { ProfessionalCredentialService } from "@professional/services/professional-credential.service";
 import { ProfessionalPduFileController } from "@professional/controllers/professional-pdu-file.controller";
 import { PROFESSIONAL_PROVISIONING_API } from "@professional/public/professional-provisioning-api";
+import { ProfessionalOnboardingService } from "@professional/services/professional-onboarding.service";
 import { ProfessionalCalendarResolver } from "@professional/resolvers/professional-calendar.resolver";
 import { ProfessionalOverviewResolver } from "@professional/resolvers/professional-overview.resolver";
 import { ProfessionalPaymentsResolver } from "@professional/resolvers/professional-payments.resolver";
@@ -42,15 +44,15 @@ import { Module } from "@nestjs/common";
 import "@professional/enums/professional-register.enum";
 @Module({
   imports: [
-    PrismaModule,
     UserModule,
+    PrismaModule,
     CourseModule,
-    ContentInteractionModule,
     ProviderModule,
+    ContentInteractionModule,
   ],
   controllers: [
-    ProfessionalPduFileController,
     ProfessionalAvatarController,
+    ProfessionalPduFileController,
     ProfessionalCertificateFileController,
   ],
   providers: [
@@ -68,6 +70,8 @@ import "@professional/enums/professional-register.enum";
     ProfessionalOverviewService,
     ProfessionalPaymentsService,
     ProfessionalProfileResolver,
+    ProfessionalOnboardingService,
+    ProfessionalOnboardingResolver,
     ProfessionalRoadmapResolver,
     ProfessionalSettingsService,
     ProfessionalCpdPlanResolver,

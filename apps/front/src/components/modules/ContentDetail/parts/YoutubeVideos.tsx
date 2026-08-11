@@ -34,6 +34,7 @@ const YouTubeVideos = ({ videos }: TYouTubeVideosProps) => {
                   alt={video.title}
                   className="object-cover"
                   src={video.thumbnailUrl}
+                  sizes="(max-width: 768px) 100vw, 50vw"
                 />
               ) : (
                 <div className="flex h-full items-center justify-center bg-primary/10">

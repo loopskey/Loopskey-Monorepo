@@ -1,7 +1,7 @@
 "use client";
 
-import { siteLinks, socialLinks } from "@/utils/constant";
 import { TFooterLink, TSocialLink } from "@/types/element.types";
+import { siteLinks, socialLinks } from "@/utils/constant";
 import { Facebook, Linkedin } from "lucide-react";
 import { FooterColumn } from "@layouts/parts/footer-column";
 import { Youtube } from "lucide-react";
@@ -17,53 +17,53 @@ const Footer = () => {
   const solutionLinks: TFooterLink[] = [
     {
       href: siteLinks.professionals,
-      label: "For Professionals",
+      label: t("footer.links.professionals"),
     },
     {
       href: siteLinks.associations,
-      label: "For Associations",
+      label: t("footer.links.associations"),
     },
     {
       href: siteLinks.organizations,
-      label: "For Organizations",
+      label: t("footer.links.organizations"),
     },
     {
       href: siteLinks.solutionContentProviders,
-      label: "For Content Providers",
+      label: t("footer.links.solutionContentProviders"),
     },
   ];
 
   const supportLinks: TFooterLink[] = [
     {
       href: siteLinks.faq,
-      label: "Help Center",
+      label: t("footer.links.helpCenter"),
     },
     {
       href: siteLinks.contact,
-      label: "Contact Us",
+      label: t("footer.links.contactUs"),
     },
     {
       href: siteLinks.accessibility,
-      label: "Accessibility",
+      label: t("footer.links.accessibility"),
     },
     {
       href: siteLinks.securityDataProtection,
-      label: "Security & Data Protection",
+      label: t("footer.links.security"),
     },
   ];
 
   const legalLinks: TFooterLink[] = [
     {
       href: siteLinks.termsOfService,
-      label: "Terms of Use",
+      label: t("footer.links.terms"),
     },
     {
       href: siteLinks.privacyPolicy,
-      label: "Privacy Policy",
+      label: t("footer.links.privacy"),
     },
     {
       href: siteLinks.cookiePolicy,
-      label: "Cookie Statement",
+      label: t("footer.links.cookies"),
     },
   ];
 
@@ -79,9 +79,15 @@ const Footer = () => {
   ];
 
   const companyLinks: TFooterLink[] = [
-    { href: siteLinks.about, label: "About LoopsKey" },
-    { href: siteLinks.associationPartners, label: "Association Partners" },
-    { href: siteLinks.companyContentProviders, label: "Content Providers" },
+    { href: siteLinks.about, label: t("footer.links.about") },
+    {
+      href: siteLinks.associationPartners,
+      label: t("footer.links.associationPartners"),
+    },
+    {
+      href: siteLinks.companyContentProviders,
+      label: t("footer.links.companyContentProviders"),
+    },
   ];
 
   const socials: TSocialLink[] = [
@@ -143,19 +149,31 @@ const Footer = () => {
           </div>
 
           <div>
-            <FooterColumn title="Solutions" links={solutionLinks} />
+            <FooterColumn
+              title={t("footer.columns.solutions")}
+              links={solutionLinks}
+            />
           </div>
 
           <div>
-            <FooterColumn title="Support" links={supportLinks} />
+            <FooterColumn
+              title={t("footer.columns.support")}
+              links={supportLinks}
+            />
           </div>
 
           <div>
-            <FooterColumn title="Legal" links={legalLinks} />
+            <FooterColumn
+              title={t("footer.columns.legal")}
+              links={legalLinks}
+            />
           </div>
 
           <div>
-            <FooterColumn title="Company" links={companyLinks} />
+            <FooterColumn
+              title={t("footer.columns.company")}
+              links={companyLinks}
+            />
           </div>
         </div>
 

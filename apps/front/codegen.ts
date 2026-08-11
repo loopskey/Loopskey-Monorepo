@@ -15,6 +15,11 @@ const config: CodegenConfig = {
     "src/lib/graphql/generated.ts": {
       plugins: ["typescript", "typescript-operations", "typed-document-node"],
       config: {
+        // Emit each operation as its query string rather than a serialized
+        // AST. The AST form made the generated module ~1 MB of JSON that every
+        // route downloaded, and forced `graphql`'s printer into the browser
+        // bundle purely to turn it back into the string the transport sends.
+        documentMode: "string",
         avoidOptionals: false,
         maybeValue: "T | null",
         scalars: {

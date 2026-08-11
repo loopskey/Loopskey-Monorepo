@@ -1,13 +1,18 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { buildStaticInfoOutline } from "@templates/static-info-page.utils";
-import { PageKey } from "@templates/static-info-page.utils";
+import { TStaticInfoPageContent } from "@/types/pages.types";
 import { useI18n } from "@/hooks/useI18n";
 
-export const useStaticInfoPage = (pageKey: PageKey, trackActive: boolean) => {
-  const { t } = useI18n();
-  const outline = useMemo(() => buildStaticInfoOutline(pageKey), [pageKey]);
+import * as U from "@/utils/static-info-page.utils";
+
+export const useStaticInfoPage = (pageKey: U.PageKey, trackActive: boolean) => {
+  const { t, traw } = useI18n();
+  const content = traw<TStaticInfoPageContent>(
+    `staticPages.${pageKey}`,
+    U.getStaticPageContent(pageKey),
+  );
+  const outline = useMemo(() => U.buildStaticInfoOutline(content), [content]);
   const [activeSectionId, setActiveSectionId] = useState<string>(
     () => outline.sections[0]?.id ?? "",
   );
@@ -41,5 +46,12 @@ export const useStaticInfoPage = (pageKey: PageKey, trackActive: boolean) => {
     });
     return () => observer.disconnect();
   }, [sectionIds, trackActive]);
+
+  useEffect(() => {
+    setActiveSectionId((current) =>
+      sectionIds.includes(current) ? current : (sectionIds[0] ?? ""),
+    );
+  }, [sectionIds]);
+
   return { t, outline, activeSectionId, setActiveSectionId };
 };

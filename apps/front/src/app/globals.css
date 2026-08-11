@@ -2,7 +2,6 @@
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
-@import "leaflet/dist/leaflet.css";
 
 :root {
   --background: oklch(0.985 0.012 230);

@@ -112,6 +112,7 @@ export const OrgEventAssignView = ({ hook }: TEventCatalogAssignView) => {
                     src={imageSrc}
                     className="object-cover"
                     alt={selectedEvent.title}
+                    sizes="(max-width: 1280px) 100vw, 380px"
                   />
                 ) : (
                   <div className="flex h-full items-center justify-center text-muted-foreground">

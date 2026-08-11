@@ -10,7 +10,6 @@ import { useForm } from "react-hook-form";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
 
-import * as XLSX from "xlsx";
 import * as API from "@/lib/rtk/endpoints/org-dashboard.api";
 import * as SC from "@/lib/validations/org-dashboard.schema";
 
@@ -145,6 +144,7 @@ export const useOrganizationMembersTab = () => {
   });
 
   const parseExcelFile = async (file: File) => {
+    const XLSX = await import("xlsx");
     const buffer = await file.arrayBuffer();
     const workbook = XLSX.read(buffer);
     const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
