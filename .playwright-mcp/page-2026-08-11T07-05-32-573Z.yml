@@ -1,0 +1,317 @@
+- generic [active] [ref=e1]:
+  - region "Notifications alt+T"
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - link [ref=e4] [cursor=pointer]:
+        - /url: /
+        - img "Loopskey-logo" [ref=e5]
+      - navigation [ref=e6]:
+        - link "Content" [ref=e7] [cursor=pointer]:
+          - /url: /content
+        - link "Services" [ref=e8] [cursor=pointer]:
+          - /url: /services
+        - link "About" [ref=e9] [cursor=pointer]:
+          - /url: /about
+        - link "FAQ" [ref=e10] [cursor=pointer]:
+          - /url: /faq
+        - link "Contact" [ref=e11] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=e12]:
+        - button [disabled]
+        - button "EN" [ref=e13] [cursor=pointer]
+        - link "Login" [ref=e14] [cursor=pointer]:
+          - /url: /auth/professional
+  - main [ref=e15]:
+    - generic [ref=e19]:
+      - generic [ref=e20]: FAQ
+      - heading "Questions, answered" [level=1] [ref=e21]
+      - paragraph [ref=e22]: Guidance for using LoopsKey's main features — professional profiles, learning roadmaps, CPD/PDU tracking, learning activities, certificates, and calendar planning — for individuals, organizations, and content providers.
+    - generic [ref=e24]:
+      - complementary [ref=e25]:
+        - generic [ref=e26]:
+          - generic [ref=e28]:
+            - paragraph [ref=e29]: Browse by category
+            - paragraph [ref=e30]: Filter questions by topic or search across all answers.
+          - generic [ref=e31]:
+            - button "All 31" [ref=e32]:
+              - generic [ref=e33]: All
+              - generic [ref=e37]: "31"
+            - button "AI 5" [ref=e38]:
+              - generic [ref=e39]: AI
+              - generic [ref=e43]: "5"
+            - button "CPD 6" [ref=e44]:
+              - generic [ref=e45]: CPD
+              - generic [ref=e49]: "6"
+            - button "Security 3" [ref=e50]:
+              - generic [ref=e51]: Security
+              - generic [ref=e55]: "3"
+            - button "Platform 6" [ref=e56]:
+              - generic [ref=e57]: Platform
+              - generic [ref=e69]: "6"
+            - button "Providers 4" [ref=e70]:
+              - generic [ref=e71]: Providers
+              - generic [ref=e77]: "4"
+            - button "Organizations 4" [ref=e78]:
+              - generic [ref=e79]: Organizations
+              - generic [ref=e84]: "4"
+            - button "Certifications 3" [ref=e85]:
+              - generic [ref=e86]: Certifications
+              - generic [ref=e90]: "3"
+        - generic [ref=e91]:
+          - generic [ref=e98]:
+            - paragraph [ref=e99]: Still need help?
+            - paragraph [ref=e100]: Tell us what you are trying to achieve and our team will point you in the right direction.
+          - link "Contact support" [ref=e101] [cursor=pointer]:
+            - /url: /contact
+      - generic [ref=e102]:
+        - generic [ref=e104]:
+          - generic [ref=e106]:
+            - textbox "Search questions, answers, or topics" [ref=e107]:
+              - /placeholder: ""
+            - generic [ref=e108]: Search questions, answers, or topics
+          - button "Reset" [disabled]
+        - generic [ref=e109]:
+          - article [ref=e111]:
+            - button "CPD How does LoopsKey track my CPD hours?" [expanded] [ref=e112]:
+              - generic [ref=e118]:
+                - generic [ref=e119]: CPD
+                - heading "How does LoopsKey track my CPD hours?" [level=3] [ref=e120]
+            - region "CPD How does LoopsKey track my CPD hours?" [ref=e123]:
+              - generic [ref=e124]: LoopsKey logs time spent on courses, events, webinars, and reading activities automatically when they are completed through the platform. You can also add manual entries, upload evidence, and generate reports mapped to your professional framework.
+          - article [ref=e127]:
+            - button "CPD Which CPD frameworks do you support?" [ref=e128]:
+              - generic [ref=e134]:
+                - generic [ref=e135]: CPD
+                - heading "Which CPD frameworks do you support?" [level=3] [ref=e136]
+          - article [ref=e140]:
+            - button "CPD Can I add CPD activities manually?" [ref=e141]:
+              - generic [ref=e147]:
+                - generic [ref=e148]: CPD
+                - heading "Can I add CPD activities manually?" [level=3] [ref=e149]
+          - article [ref=e153]:
+            - button "CPD Can I export CPD reports?" [ref=e154]:
+              - generic [ref=e160]:
+                - generic [ref=e161]: CPD
+                - heading "Can I export CPD reports?" [level=3] [ref=e162]
+          - article [ref=e166]:
+            - button "AI How accurate are the AI recommendations?" [ref=e167]:
+              - generic [ref=e173]:
+                - generic [ref=e174]: AI
+                - heading "How accurate are the AI recommendations?" [level=3] [ref=e175]
+          - article [ref=e179]:
+            - button "AI Can I override the AI suggestions?" [ref=e180]:
+              - generic [ref=e186]:
+                - generic [ref=e187]: AI
+                - heading "Can I override the AI suggestions?" [level=3] [ref=e188]
+          - article [ref=e192]:
+            - button "AI Does LoopsKey use my private data to train public AI models?" [ref=e193]:
+              - generic [ref=e199]:
+                - generic [ref=e200]: AI
+                - heading "Does LoopsKey use my private data to train public AI models?" [level=3] [ref=e201]
+          - article [ref=e205]:
+            - button "AI Can I see why something was recommended?" [ref=e206]:
+              - generic [ref=e212]:
+                - generic [ref=e213]: AI
+                - heading "Can I see why something was recommended?" [level=3] [ref=e214]
+          - article [ref=e218]:
+            - button "Organizations Do you offer SSO and SCIM?" [ref=e219]:
+              - generic [ref=e226]:
+                - generic [ref=e227]: Organizations
+                - heading "Do you offer SSO and SCIM?" [level=3] [ref=e228]
+          - article [ref=e232]:
+            - button "Organizations How long does enterprise rollout take?" [ref=e233]:
+              - generic [ref=e240]:
+                - generic [ref=e241]: Organizations
+                - heading "How long does enterprise rollout take?" [level=3] [ref=e242]
+          - article [ref=e246]:
+            - button "Organizations What can organizations track?" [ref=e247]:
+              - generic [ref=e254]:
+                - generic [ref=e255]: Organizations
+                - heading "What can organizations track?" [level=3] [ref=e256]
+          - article [ref=e260]:
+            - button "Organizations Can managers assign courses or events to employees?" [ref=e261]:
+              - generic [ref=e268]:
+                - generic [ref=e269]: Organizations
+                - heading "Can managers assign courses or events to employees?" [level=3] [ref=e270]
+          - article [ref=e274]:
+            - button "Providers How do I list my courses on LoopsKey?" [ref=e275]:
+              - generic [ref=e283]:
+                - generic [ref=e284]: Providers
+                - heading "How do I list my courses on LoopsKey?" [level=3] [ref=e285]
+          - article [ref=e289]:
+            - button "Providers What analytics do providers get?" [ref=e290]:
+              - generic [ref=e298]:
+                - generic [ref=e299]: Providers
+                - heading "What analytics do providers get?" [level=3] [ref=e300]
+          - article [ref=e304]:
+            - button "Providers Can providers promote events or courses?" [ref=e305]:
+              - generic [ref=e313]:
+                - generic [ref=e314]: Providers
+                - heading "Can providers promote events or courses?" [level=3] [ref=e315]
+          - article [ref=e319]:
+            - button "Providers Are providers reviewed before publishing?" [ref=e320]:
+              - generic [ref=e328]:
+                - generic [ref=e329]: Providers
+                - heading "Are providers reviewed before publishing?" [level=3] [ref=e330]
+          - article [ref=e334]:
+            - button "Certifications Can I store my certificates in LoopsKey?" [ref=e335]:
+              - generic [ref=e341]:
+                - generic [ref=e342]: Certifications
+                - heading "Can I store my certificates in LoopsKey?" [level=3] [ref=e343]
+          - article [ref=e347]:
+            - button "Certifications Are certificates shareable or verifiable?" [ref=e348]:
+              - generic [ref=e354]:
+                - generic [ref=e355]: Certifications
+                - heading "Are certificates shareable or verifiable?" [level=3] [ref=e356]
+          - article [ref=e360]:
+            - button "Certifications Can LoopsKey track certificate expiry dates?" [ref=e361]:
+              - generic [ref=e367]:
+                - generic [ref=e368]: Certifications
+                - heading "Can LoopsKey track certificate expiry dates?" [level=3] [ref=e369]
+          - article [ref=e373]:
+            - button "Security How is my data protected?" [ref=e374]:
+              - generic [ref=e380]:
+                - generic [ref=e381]: Security
+                - heading "How is my data protected?" [level=3] [ref=e382]
+          - article [ref=e386]:
+            - button "Security Is LoopsKey GDPR compliant?" [ref=e387]:
+              - generic [ref=e393]:
+                - generic [ref=e394]: Security
+                - heading "Is LoopsKey GDPR compliant?" [level=3] [ref=e395]
+          - article [ref=e399]:
+            - button "Security How does role-based access work?" [ref=e400]:
+              - generic [ref=e406]:
+                - generic [ref=e407]: Security
+                - heading "How does role-based access work?" [level=3] [ref=e408]
+          - article [ref=e412]:
+            - button "Platform Is there a free plan?" [ref=e413]:
+              - generic [ref=e427]:
+                - generic [ref=e428]: Platform
+                - heading "Is there a free plan?" [level=3] [ref=e429]
+          - article [ref=e433]:
+            - button "Platform Do you have a mobile app?" [ref=e434]:
+              - generic [ref=e448]:
+                - generic [ref=e449]: Platform
+                - heading "Do you have a mobile app?" [level=3] [ref=e450]
+          - article [ref=e454]:
+            - button "Platform Can I sync events with my calendar?" [ref=e455]:
+              - generic [ref=e469]:
+                - generic [ref=e470]: Platform
+                - heading "Can I sync events with my calendar?" [level=3] [ref=e471]
+          - article [ref=e475]:
+            - button "Platform How do I get support?" [ref=e476]:
+              - generic [ref=e490]:
+                - generic [ref=e491]: Platform
+                - heading "How do I get support?" [level=3] [ref=e492]
+          - article [ref=e496]:
+            - button "Platform How do I create a LoopsKey account and sign in?" [ref=e497]:
+              - generic [ref=e511]:
+                - generic [ref=e512]: Platform
+                - heading "How do I create a LoopsKey account and sign in?" [level=3] [ref=e513]
+          - article [ref=e517]:
+            - button "Platform What does my Professional Profile store?" [ref=e518]:
+              - generic [ref=e532]:
+                - generic [ref=e533]: Platform
+                - heading "What does my Professional Profile store?" [level=3] [ref=e534]
+          - article [ref=e538]:
+            - button "AI How does My Roadmap build a personalized learning path?" [ref=e539]:
+              - generic [ref=e545]:
+                - generic [ref=e546]: AI
+                - heading "How does My Roadmap build a personalized learning path?" [level=3] [ref=e547]
+          - article [ref=e551]:
+            - button "CPD What can I do in the CPD/PDU Progress section?" [ref=e552]:
+              - generic [ref=e558]:
+                - generic [ref=e559]: CPD
+                - heading "What can I do in the CPD/PDU Progress section?" [level=3] [ref=e560]
+          - article [ref=e564]:
+            - button "CPD Which learning activities can I record?" [ref=e565]:
+              - generic [ref=e571]:
+                - generic [ref=e572]: CPD
+                - heading "Which learning activities can I record?" [level=3] [ref=e573]
+    - generic [ref=e581]:
+      - generic [ref=e582]:
+        - generic [ref=e583]: Need a tailored answer?
+        - heading "Talk to a LoopsKey expert" [level=2] [ref=e586]
+        - paragraph [ref=e587]: Whether you are evaluating LoopsKey for yourself, your organization, or your content business, we can help you find the right setup.
+      - link "Book a consultation" [ref=e588] [cursor=pointer]:
+        - /url: /contact
+  - contentinfo [ref=e589]:
+    - generic [ref=e590]:
+      - generic [ref=e591]:
+        - generic [ref=e592]:
+          - link [ref=e593] [cursor=pointer]:
+            - /url: /
+            - img "Loopskey-logo" [ref=e594]
+          - paragraph [ref=e595]: Your one-stop platform for all educational needs. Discover, learn, and grow with us.
+          - generic [ref=e596]:
+            - link "LinkedIn" [ref=e597] [cursor=pointer]:
+              - /url: https://www.linkedin.com
+            - link "X" [ref=e598] [cursor=pointer]:
+              - /url: https://x.com
+              - generic [ref=e599]: 𝕏
+            - link "Facebook" [ref=e600] [cursor=pointer]:
+              - /url: https://www.facebook.com
+            - link "YouTube" [ref=e601] [cursor=pointer]:
+              - /url: https://www.youtube.com
+        - generic [ref=e603]:
+          - heading "Solutions" [level=3] [ref=e604]
+          - list [ref=e605]:
+            - listitem [ref=e606]:
+              - link "For Professionals" [ref=e607] [cursor=pointer]:
+                - /url: /solutions/professionals
+            - listitem [ref=e608]:
+              - link "For Associations" [ref=e609] [cursor=pointer]:
+                - /url: /solutions/associations
+            - listitem [ref=e610]:
+              - link "For Organizations" [ref=e611] [cursor=pointer]:
+                - /url: /solutions/organizations
+            - listitem [ref=e612]:
+              - link "For Content Providers" [ref=e613] [cursor=pointer]:
+                - /url: /solutions/content-providers
+        - generic [ref=e615]:
+          - heading "Support" [level=3] [ref=e616]
+          - list [ref=e617]:
+            - listitem [ref=e618]:
+              - link "Help Center" [ref=e619] [cursor=pointer]:
+                - /url: /faq
+            - listitem [ref=e620]:
+              - link "Contact Us" [ref=e621] [cursor=pointer]:
+                - /url: /contact
+            - listitem [ref=e622]:
+              - link "Accessibility" [ref=e623] [cursor=pointer]:
+                - /url: /support/accessibility
+            - listitem [ref=e624]:
+              - link "Security & Data Protection" [ref=e625] [cursor=pointer]:
+                - /url: /support/security-data-protection
+        - generic [ref=e627]:
+          - heading "Legal" [level=3] [ref=e628]
+          - list [ref=e629]:
+            - listitem [ref=e630]:
+              - link "Terms of Use" [ref=e631] [cursor=pointer]:
+                - /url: /terms
+            - listitem [ref=e632]:
+              - link "Privacy Policy" [ref=e633] [cursor=pointer]:
+                - /url: /privacy-policy
+            - listitem [ref=e634]:
+              - link "Cookie Statement" [ref=e635] [cursor=pointer]:
+                - /url: /cookies
+        - generic [ref=e637]:
+          - heading "Company" [level=3] [ref=e638]
+          - list [ref=e639]:
+            - listitem [ref=e640]:
+              - link "About LoopsKey" [ref=e641] [cursor=pointer]:
+                - /url: /about
+            - listitem [ref=e642]:
+              - link "Association Partners" [ref=e643] [cursor=pointer]:
+                - /url: /company/association-partners
+            - listitem [ref=e644]:
+              - link "Content Providers" [ref=e645] [cursor=pointer]:
+                - /url: /company/content-providers
+      - generic [ref=e647]:
+        - paragraph [ref=e648]: © 2026 LoopsKey. All rights reserved.
+        - generic [ref=e649]:
+          - link "Privacy Policy" [ref=e650] [cursor=pointer]:
+            - /url: /privacy-policy
+          - link "Terms of Service" [ref=e651] [cursor=pointer]:
+            - /url: /terms
+  - button "Open Next.js Dev Tools" [ref=e657] [cursor=pointer]

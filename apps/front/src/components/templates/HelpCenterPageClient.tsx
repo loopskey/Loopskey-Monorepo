@@ -3,7 +3,6 @@
 import { FloatingInputField } from "@elements/floating-input";
 import { useForm, useWatch } from "react-hook-form";
 import { TFaqCategoryKey } from "@/types/hooks.types";
-import { StaticInfoPage } from "@templates/StaticInfoPage";
 import { RevealOnScroll } from "@elements/reveal-scroll";
 import { useFaqPage } from "@hooks/useFaq";
 import { GlassCard } from "@elements/glass-card";
@@ -72,7 +71,7 @@ const FaqPage = () => {
   };
 
   return (
-    <main className="overflow-hidden">
+    <main className="overflow-x-clip">
       <section className="relative px-4 py-10">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.18),transparent_34%),radial-gradient(circle_at_bottom_right,hsl(var(--accent)/0.14),transparent_32%)]" />
 
@@ -97,8 +96,8 @@ const FaqPage = () => {
       </section>
 
       <section className="px-4 pb-24">
-        <div className="mx-auto grid max-w-7xl gap-8 xl:grid-cols-[330px_1fr] px-4 sm:px-6 lg:px-8">
-          <aside className="space-y-5 xl:sticky xl:top-28">
+        <div className="mx-auto grid max-w-7xl items-start gap-8 px-4 sm:px-6 lg:px-8 xl:grid-cols-[330px_1fr]">
+          <aside className="space-y-5 xl:sticky xl:top-24 xl:self-start">
             <GlassCard className="p-5">
               <div className="mb-5 flex items-center justify-between gap-3">
                 <div>
@@ -183,8 +182,7 @@ const FaqPage = () => {
               </Button>
             </GlassCard>
           </aside>
-          <RevealOnScroll direction="right" delay={120}>
-            <div className="space-y-6">
+          <div className="space-y-6">
               <GlassCard className="p-5 md:p-6">
                 <F.Form {...searchForm}>
                   <form
@@ -234,6 +232,9 @@ const FaqPage = () => {
                         >
                           <button
                             type="button"
+                            id={`faq-trigger-${item.id}`}
+                            aria-expanded={isOpen}
+                            aria-controls={`faq-panel-${item.id}`}
                             onClick={() => toggleItem(item.id)}
                             className="flex w-full items-start justify-between gap-5 p-5 text-left md:p-6"
                           >
@@ -271,12 +272,18 @@ const FaqPage = () => {
                             />
                           </button>
 
+                          {/* `invisible` when collapsed keeps the answer out of
+                              the accessibility tree and the tab order while
+                              the row-height transition still animates. */}
                           <div
+                            role="region"
+                            id={`faq-panel-${item.id}`}
+                            aria-labelledby={`faq-trigger-${item.id}`}
                             className={cn(
                               "grid transition-all duration-300 ease-out",
                               isOpen
                                 ? "grid-rows-[1fr] opacity-100"
-                                : "grid-rows-[0fr] opacity-0",
+                                : "invisible grid-rows-[0fr] opacity-0",
                             )}
                           >
                             <div className="overflow-hidden">
@@ -312,12 +319,9 @@ const FaqPage = () => {
                   </GlassCard>
                 )}
               </div>
-            </div>
-          </RevealOnScroll>
+          </div>
         </div>
       </section>
-
-      <StaticInfoPage pageKey="helpCenter" embedded />
 
       <section className="px-4 pb-28">
         <div className="mx-auto max-w-7xl">
