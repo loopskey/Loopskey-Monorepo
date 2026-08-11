@@ -4,7 +4,6 @@ import { FloatingTextareaField } from "@elements/floating-textarea";
 import { FloatingSelectField } from "@elements/floating-select";
 import { FloatingInputField } from "@elements/floating-input";
 import { RevealOnScroll } from "@elements/reveal-scroll";
-import { StaticInfoPage } from "@templates/StaticInfoPage";
 import { useContactPage } from "@hooks/useContact";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
@@ -46,7 +45,7 @@ const ContactPage = () => {
   } = useContactPage();
 
   return (
-    <main className="overflow-hidden">
+    <main className="overflow-x-clip">
       <section className="relative px-4 py-10">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.18),transparent_34%),radial-gradient(circle_at_bottom_right,hsl(var(--accent)/0.14),transparent_32%)]" />
 
@@ -217,6 +216,10 @@ const ContactPage = () => {
                     );
                   })}
                 </div>
+
+                <p className="mt-5 rounded-2xl border border-primary/20 bg-primary/5 p-4 text-sm leading-6 text-muted-foreground">
+                  {t("contactPage.info.responseNote")}
+                </p>
               </GlassCard>
 
               <GlassCard className="p-6 md:p-8">
@@ -240,7 +243,6 @@ const ContactPage = () => {
         </div>
       </section>
 
-      <StaticInfoPage pageKey="contact" embedded />
 
       <section className="px-4 pb-28">
         <div className="mx-auto max-w-7xl">

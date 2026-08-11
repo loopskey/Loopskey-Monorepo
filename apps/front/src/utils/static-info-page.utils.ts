@@ -1,12 +1,24 @@
+import { defaultDictionary, type Dictionary } from "@/i18n/dictionaries";
 import { Metadata } from "next";
-
-import pages from "@/content/footer-static-pages.json";
 
 import type * as T from "@/types/pages.types";
 
-export type PageKey = keyof typeof pages;
+export type PageKey = keyof Dictionary["staticPages"];
+
+export type BespokePageKey =
+  | "aboutPage"
+  | "contactPage"
+  | "faqPage"
+  | "termsPage"
+  | "privacyPage";
 
 export const STATIC_INFO_EMAIL = "loopskey.dev@gmail.com";
+
+export const getStaticPageContent = (
+  pageKey: PageKey,
+  dictionary: Dictionary = defaultDictionary,
+): T.TStaticInfoPageContent =>
+  dictionary.staticPages[pageKey] as unknown as T.TStaticInfoPageContent;
 
 export const slugifyHeading = (text: string) =>
   text
@@ -35,13 +47,11 @@ const groupBlocks = (
 };
 
 export const buildStaticInfoOutline = (
-  pageKey: PageKey,
+  page: T.TStaticInfoPageContent,
 ): T.TStaticInfoOutline => {
-  const page = pages[pageKey];
-  const blocks = page.blocks as T.TStaticInfoBlock[];
   const lead: T.TStaticInfoBlock[] = [];
   const sections: { title: string; blocks: T.TStaticInfoBlock[] }[] = [];
-  for (const block of blocks) {
+  for (const block of page.blocks) {
     if (block.type === "heading") {
       sections.push({ title: block.text, blocks: [] });
       continue;
@@ -60,11 +70,16 @@ export const buildStaticInfoOutline = (
     usedIds.add(id);
     return { id, title: section.title, blocks: groupBlocks(section.blocks) };
   });
-  return { title: page.title, lead: groupBlocks(lead), sections: withIds };
+  return {
+    title: page.title,
+    lead: groupBlocks(lead),
+    sections: withIds,
+    cta: page.cta,
+  };
 };
 
 export const getStaticInfoMetadata = (pageKey: PageKey): Metadata => {
-  const page = pages[pageKey];
+  const page = getStaticPageContent(pageKey);
   const descriptionBlock = page.blocks.find(
     (block) => block.type === "paragraph",
   );
@@ -72,4 +87,9 @@ export const getStaticInfoMetadata = (pageKey: PageKey): Metadata => {
     title: `${page.title} | LoopsKey`,
     description: descriptionBlock?.text,
   };
+};
+
+export const getBespokePageMetadata = (pageKey: BespokePageKey): Metadata => {
+  const { title, description } = defaultDictionary[pageKey].meta;
+  return { title, description };
 };

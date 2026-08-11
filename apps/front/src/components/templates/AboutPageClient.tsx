@@ -1,6 +1,5 @@
 "use client";
 
-import { StaticInfoPage } from "@templates/StaticInfoPage";
 import { RevealOnScroll } from "@elements/reveal-scroll";
 import { GlassCard } from "@elements/glass-card";
 import { useI18n } from "@hooks/useI18n";
@@ -13,10 +12,10 @@ import * as C from "@/utils/constant";
 import * as L from "lucide-react";
 
 const AboutPage = () => {
-  const { t } = useI18n();
+  const { t, ta } = useI18n();
 
   return (
-    <main className="relative overflow-hidden">
+    <main className="relative overflow-x-clip">
       <div className="pointer-events-none absolute left-[-10rem] top-20 h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
       <div className="pointer-events-none absolute right-[-12rem] top-[30rem] h-96 w-96 rounded-full bg-accent/20 blur-3xl" />
 
@@ -328,7 +327,50 @@ const AboutPage = () => {
         </div>
       </section>
 
-      <StaticInfoPage pageKey="about" embedded />
+      <section className="mx-auto max-w-7xl px-4 py-16 md:px-6">
+        <RevealOnScroll>
+          <div className="max-w-3xl">
+            <span className="inline-flex w-fit items-center rounded-full border border-glass-border bg-background/55 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm backdrop-blur-xl ring-1 ring-white/40 dark:ring-white/5">
+              {t("aboutPage.platform.eyebrow")}
+            </span>
+
+            <h2 className="mt-3 text-3xl font-medium text-foreground md:text-4xl">
+              {t("aboutPage.platform.title")}
+            </h2>
+          </div>
+        </RevealOnScroll>
+
+        <div className="mt-10 grid gap-5 md:grid-cols-2">
+          {(["whatWeDo", "whoWeServe"] as const).map((group, index) => (
+            <RevealOnScroll
+              key={group}
+              delay={index * 120}
+              direction={index === 0 ? "left" : "right"}
+            >
+              <GlassCard className="h-full p-7">
+                <h3 className="text-2xl font-medium">
+                  {t(`aboutPage.platform.${group}.title`)}
+                </h3>
+
+                <ul className="mt-5 grid gap-3">
+                  {ta(`aboutPage.platform.${group}.items`).map((item) => (
+                    <li
+                      key={item}
+                      className="flex gap-3 text-sm leading-7 text-muted-foreground"
+                    >
+                      <span className="mt-1.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                        <L.Check className="h-3.5 w-3.5" />
+                      </span>
+
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </GlassCard>
+            </RevealOnScroll>
+          ))}
+        </div>
+      </section>
 
       <section className="mx-auto max-w-7xl px-4 py-20 md:px-6">
         <RevealOnScroll>

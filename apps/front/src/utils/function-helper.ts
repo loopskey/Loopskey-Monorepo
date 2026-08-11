@@ -237,8 +237,8 @@ export const getPromotionStatusLabel = (
 
 // =============== Hook FAQ Page ===============
 export const faqCategories = [
-  "AI",
   "ALL",
+  "AI",
   "CPD",
   "SECURITY",
   "PLATFORM",
