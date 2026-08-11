@@ -3,7 +3,7 @@
 - Scope: `full`
 - Branch: `feature/professional-onboarding`
 - Base: `c94ae8a01b7b3e8be643f23892a14b0949902bf5`
-- Status: `Ready`
+- Status: `Submitted`
 
 ## Audit (existing sources of truth)
 
@@ -108,6 +108,6 @@ Not run locally:
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: `bae2784`
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/20
+- CI: pending on the metadata commit

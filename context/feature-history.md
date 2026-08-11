@@ -18,3 +18,4 @@ into this index and do not rewrite previous records.
 - [`service-ai-foundation`](feature-runs/active/service-ai-foundation.md)
 - [`footer-pages-ux-redesign`](feature-runs/active/footer-pages-ux-redesign.md)
 - [`performance-optimization`](feature-runs/active/performance-optimization.md)
+- [`professional-onboarding`](feature-runs/active/professional-onboarding.md)
