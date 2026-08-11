@@ -9,15 +9,17 @@ import { notify } from "@/hooks/notify";
 
 import * as PAPI from "@/lib/rtk/endpoints/professional.api";
 import * as C from "@/utils/professional-profile.constant";
+import * as OC from "@/utils/professional-onboarding.constant";
 import * as V from "@/lib/validations/professional-profile.schema";
 
 const toDefaults = (profile?: TProfessionalProfile): V.TDetailsFormInput => ({
   profession: profile?.profession ?? "",
   currentRole: profile?.currentRole ?? "",
+  industry: profile?.industry ?? undefined,
   workLocation: profile?.workLocation ?? "",
   professionalSummary: profile?.professionalSummary ?? "",
-  industry: profile?.industry ?? undefined,
   experienceRange: profile?.experienceRange ?? undefined,
+  professionalGoal: profile?.professionalGoal ?? undefined,
 });
 
 export const useProfessionalDetailsForm = (profile?: TProfessionalProfile) => {
@@ -51,6 +53,15 @@ export const useProfessionalDetailsForm = (profile?: TProfessionalProfile) => {
     [t],
   );
 
+  const goalOptions = useMemo(
+    () =>
+      OC.ONBOARDING_GOALS.map((value) => ({
+        value,
+        label: t(C.enumI18nKey("professionalGoal", value)),
+      })),
+    [t],
+  );
+
   const experienceOptions = useMemo(
     () =>
       C.EXPERIENCE_RANGES.map((value) => ({
@@ -67,6 +78,7 @@ export const useProfessionalDetailsForm = (profile?: TProfessionalProfile) => {
         industry: values.industry ?? null,
         currentRole: values.currentRole ?? null,
         experienceRange: values.experienceRange ?? null,
+        professionalGoal: values.professionalGoal ?? null,
         workLocation: values.workLocation ?? null,
         professionalSummary: values.professionalSummary ?? null,
       }).unwrap();
@@ -80,13 +92,14 @@ export const useProfessionalDetailsForm = (profile?: TProfessionalProfile) => {
   return {
     t,
     rhf,
+    goalOptions,
     handleSubmit,
     summaryLength,
     industryOptions,
     experienceOptions,
-    summaryMaxLength: C.PROFESSIONAL_SUMMARY_MAX_LENGTH,
     isSaving: updateState.isLoading,
     hasError: Boolean(updateState.error),
     isSaveDisabled: updateState.isLoading || !isDirty,
+    summaryMaxLength: C.PROFESSIONAL_SUMMARY_MAX_LENGTH,
   };
 };

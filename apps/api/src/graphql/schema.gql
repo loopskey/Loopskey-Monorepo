@@ -415,6 +415,16 @@ input ChangePasswordInput {
   newPassword: String!
 }
 
+input CompleteProfessionalOnboardingInput {
+  certificationId: ID
+  certificationIssuer: String
+  certificationName: String
+  currentRole: String!
+  professionalGoal: ProfessionalGoal!
+  skillsToImproveIds: [ID!]! = []
+  suggestSkills: Boolean! = false
+}
+
 """Organization compliance cycle"""
 enum ComplianceCycle {
   ANNUAL
@@ -1213,6 +1223,7 @@ type Mutation {
   cancelEventRegistration(eventId: String!): EventRegistration!
   changePassword(input: ChangePasswordInput!): AuthPayload!
   clearCart: ContentActionPayload!
+  completeProfessionalOnboarding(input: CompleteProfessionalOnboardingInput!): ProfessionalDashboardProfile!
   confirmExternalLearning(input: ConfirmExternalLearningInput!): ExternalLearningActivity!
   createCalendarEvent(input: CreateCalendarEventInput!): ProfessionalManualCalendarEvent!
   createCourse(input: CreateCourseInput!): Course!
@@ -1273,6 +1284,7 @@ type Mutation {
   restoreUser(userId: String!): User!
   restoreYouTubeChannel(channelId: String!): YouTubeChannel!
   setProfessionalCertificateCpdPlan(input: SetCertificateCpdPlanInput!): ProfessionalCertificate!
+  startProfessionalOnboarding: ProfessionalDashboardProfile!
   submitContactInquiry(input: SubmitContactInquiryInput!): SubmitContactInquiryPayload!
   submitContentReview(input: SubmitContentReviewInput!): ContentReview!
   submitOrganizationAccessRequest(input: SubmitOrganizationAccessRequestInput!): OrganizationAccessRequest!
@@ -2176,11 +2188,12 @@ type ProfessionalCpdPlan {
 
 type ProfessionalCredential {
   annualCpdHours: Float
+  certificationId: ID
   createdAt: DateTime!
   expiryDate: DateTime
   id: ID!
-  issueDate: DateTime!
-  issuingOrganization: String!
+  issueDate: DateTime
+  issuingOrganization: String
   licenceNumber: String
   name: String!
   pduTargetId: ID
@@ -2210,9 +2223,11 @@ type ProfessionalDashboardProfile {
   learningTimeCommitment: LearningTimeCommitment
   linkedInUrl: String
   mainSkillAreas: [ProfessionalTaxonomyTerm!]!
+  onboardingCompletedAt: DateTime
   phone: String
   preferredLearningFormats: [LearningFormat!]!
   profession: String
+  professionalGoal: ProfessionalGoal
   professionalSummary: String
   role: Role!
   skillsToImprove: [ProfessionalTaxonomyTerm!]!
@@ -2235,6 +2250,13 @@ type ProfessionalExploreRoadmap {
   status: RoadmapStatus!
   title: String!
   totalSteps: Int!
+}
+
+enum ProfessionalGoal {
+  EXPLORE_PROFESSIONAL_PATH
+  GROW_IN_CURRENT_ROLE
+  MAINTAIN_CERTIFICATION
+  PREPARE_FOR_NEXT_ROLE
 }
 
 enum ProfessionalIndustry {
@@ -2520,6 +2542,7 @@ enum ProfileSectionKey {
 }
 
 enum ProfileTaxonomyKind {
+  ROLE
   SKILL_AREA
   SUBJECT
 }
@@ -3179,6 +3202,7 @@ input UpdateProfessionalDetailsInput {
   experienceRange: ExperienceRange
   industry: ProfessionalIndustry
   profession: String
+  professionalGoal: ProfessionalGoal
   professionalSummary: String
   workLocation: String
 }

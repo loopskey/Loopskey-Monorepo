@@ -6,14 +6,15 @@ import { PDUCategory } from "@prisma/client";
 export class ProfessionalCredentialEntity {
   @Field(() => ID) id: string;
   @Field(() => String) name: string;
-  @Field(() => Date) issueDate: Date;
   @Field(() => Date) createdAt: Date;
   @Field(() => Date) updatedAt: Date;
-  @Field(() => String) issuingOrganization: string;
+  @Field(() => Date, { nullable: true }) issueDate?: Date | null;
   @Field(() => Date, { nullable: true }) expiryDate?: Date | null;
   @Field(() => ID, { nullable: true }) pduTargetId?: string | null;
+  @Field(() => ID, { nullable: true }) certificationId?: string | null;
   @Field(() => String, { nullable: true }) licenceNumber?: string | null;
   @Field(() => Float, { nullable: true }) annualCpdHours?: number | null;
+  @Field(() => String, { nullable: true }) issuingOrganization?: string | null;
 }
 
 @ObjectType(ProfessionalGqlObjectNames.PROFESSIONAL_CPD_PLAN)

@@ -70,11 +70,18 @@ export const ProfileCredentialsPanel = ({
               <div className="min-w-0">
                 <p className="truncate font-medium">{credential.name}</p>
                 <p className="mt-1 truncate text-sm text-muted-foreground">
-                  {credential.issuingOrganization}
+                  {credential.issuingOrganization ||
+                    t(
+                      "professionalDashboard.profile.certifications.notProvided",
+                    )}
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
                   {t("professionalDashboard.profile.certifications.issued")}{" "}
-                  {formatDate(credential.issueDate)}
+                  {credential.issueDate
+                    ? formatDate(credential.issueDate)
+                    : t(
+                        "professionalDashboard.profile.certifications.notProvided",
+                      )}
                   {credential.expiryDate
                     ? ` · ${t(
                         "professionalDashboard.profile.certifications.expires",
@@ -189,13 +196,13 @@ export const ProfileCredentialsPanel = ({
             />
 
             <FloatingInputField
+              min={0}
+              step="0.5"
               type="number"
+              inputMode="decimal"
               name="annualCpdHours"
               disabled={isDisabled}
               control={rhf.control}
-              inputMode="decimal"
-              min={0}
-              step="0.5"
               leftIcon={<R.Clock className="h-4 w-4" />}
               label={t(
                 "professionalDashboard.profile.certifications.annualCpdHours",

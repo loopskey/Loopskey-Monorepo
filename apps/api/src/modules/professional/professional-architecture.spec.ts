@@ -7,6 +7,7 @@ const CAPABILITIES = {
   profile: [
     "certification-search.service.ts",
     "professional-credential.service.ts",
+    "professional-onboarding.service.ts",
     "professional-profile-completion.service.ts",
     "professional-profile.service.ts",
     "professional-settings.service.ts",
@@ -30,6 +31,7 @@ const ALLOWED_INTERNAL_EDGES: Readonly<Record<string, readonly string[]>> = {
     "professional-certificate.service.ts",
   ],
   "professional-cpd-plan.service.ts": ["certification-search.service.ts"],
+  "professional-onboarding.service.ts": ["professional-profile.service.ts"],
   "professional-pdu-file.service.ts": ["professional-pdu.service.ts"],
   "professional-profile.service.ts": [
     "professional-profile-completion.service.ts",

@@ -287,6 +287,15 @@ enum LearningBudgetPreference {
   EMPLOYER_SPONSORED
 }
 
+// What the professional asked Loopskey to help them with. Drives onboarding
+// step count and personalisation; editable from the profile afterwards.
+enum ProfessionalGoal {
+  MAINTAIN_CERTIFICATION
+  GROW_IN_CURRENT_ROLE
+  PREPARE_FOR_NEXT_ROLE
+  EXPLORE_PROFESSIONAL_PATH
+}
+
 model ProfessionalProfile {
   id     String @id @default(cuid())
   userId String @unique
@@ -305,6 +314,12 @@ model ProfessionalProfile {
   experienceRange     ExperienceRange?
   workLocation        String?
   professionalSummary String?
+
+  // Onboarding. The goal is ordinary profile data and stays editable from the
+  // profile; the timestamps only record whether the wizard still has to run.
+  professionalGoal      ProfessionalGoal?
+  onboardingStartedAt   DateTime?
+  onboardingCompletedAt DateTime?
 
   // Skills and interests
   currentSkillLevel SkillLevel?
@@ -335,6 +350,7 @@ model ProfessionalProfile {
 enum ProfileTaxonomyKind {
   SKILL_AREA
   SUBJECT
+  ROLE
 }
 
 enum ProfileTermUsage {
@@ -391,14 +407,22 @@ model ProfessionalCredential {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  name                String
-  issuingOrganization String
+  name String
+
+  // Optional since onboarding captures the credential alone: the issuer and the
+  // issue date are filled in later from the profile.
+  issuingOrganization String?
   licenceNumber       String?
 
-  issueDate  DateTime
+  issueDate  DateTime?
   expiryDate DateTime?
 
   annualCpdHours Float?
+
+  // Set when the credential came from the certification catalogue, so the
+  // catalogue stays the single source of truth for the credential's identity.
+  certificationId String?
+  certification   Certification? @relation(fields: [certificationId], references: [id], onDelete: SetNull)
 
   pduTargetId String?
   pduTarget   PDUTarget? @relation(fields: [pduTargetId], references: [id], onDelete: SetNull)
@@ -406,6 +430,7 @@ model ProfessionalCredential {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([userId, certificationId])
   @@index([userId])
   @@index([pduTargetId])
   @@index([expiryDate])
@@ -1456,8 +1481,9 @@ model Certification {
   totalRequiredCredits Float
   suggestedDeadline    DateTime?
 
-  categories CertificationCategory[]
-  plans      CPDPlan[]
+  categories  CertificationCategory[]
+  plans       CPDPlan[]
+  credentials ProfessionalCredential[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

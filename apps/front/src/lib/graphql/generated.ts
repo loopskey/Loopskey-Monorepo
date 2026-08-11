@@ -451,6 +451,16 @@ export type ChangePasswordInput = {
   newPassword: Scalars['String']['input'];
 };
 
+export type CompleteProfessionalOnboardingInput = {
+  certificationId?: InputMaybe<Scalars['ID']['input']>;
+  certificationIssuer?: InputMaybe<Scalars['String']['input']>;
+  certificationName?: InputMaybe<Scalars['String']['input']>;
+  currentRole: Scalars['String']['input'];
+  professionalGoal: ProfessionalGoal;
+  skillsToImproveIds?: Array<Scalars['ID']['input']>;
+  suggestSkills?: Scalars['Boolean']['input'];
+};
+
 /** Organization compliance cycle */
 export enum ComplianceCycle {
   Annual = 'ANNUAL',
@@ -1260,6 +1270,7 @@ export type Mutation = {
   cancelEventRegistration: EventRegistration;
   changePassword: AuthPayload;
   clearCart: ContentActionPayload;
+  completeProfessionalOnboarding: ProfessionalDashboardProfile;
   confirmExternalLearning: ExternalLearningActivity;
   createCalendarEvent: ProfessionalManualCalendarEvent;
   createCourse: Course;
@@ -1320,6 +1331,7 @@ export type Mutation = {
   restoreUser: User;
   restoreYouTubeChannel: YouTubeChannel;
   setProfessionalCertificateCpdPlan: ProfessionalCertificate;
+  startProfessionalOnboarding: ProfessionalDashboardProfile;
   submitContactInquiry: SubmitContactInquiryPayload;
   submitContentReview: ContentReview;
   submitOrganizationAccessRequest: OrganizationAccessRequest;
@@ -1424,6 +1436,11 @@ export type MutationCancelEventRegistrationArgs = {
 
 export type MutationChangePasswordArgs = {
   input: ChangePasswordInput;
+};
+
+
+export type MutationCompleteProfessionalOnboardingArgs = {
+  input: CompleteProfessionalOnboardingInput;
 };
 
 
@@ -2836,11 +2853,12 @@ export type ProfessionalCpdPlan = {
 export type ProfessionalCredential = {
   __typename?: 'ProfessionalCredential';
   annualCpdHours?: Maybe<Scalars['Float']['output']>;
+  certificationId?: Maybe<Scalars['ID']['output']>;
   createdAt: Scalars['DateTime']['output'];
   expiryDate?: Maybe<Scalars['DateTime']['output']>;
   id: Scalars['ID']['output'];
-  issueDate: Scalars['DateTime']['output'];
-  issuingOrganization: Scalars['String']['output'];
+  issueDate?: Maybe<Scalars['DateTime']['output']>;
+  issuingOrganization?: Maybe<Scalars['String']['output']>;
   licenceNumber?: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
   pduTargetId?: Maybe<Scalars['ID']['output']>;
@@ -2871,9 +2889,11 @@ export type ProfessionalDashboardProfile = {
   learningTimeCommitment?: Maybe<LearningTimeCommitment>;
   linkedInUrl?: Maybe<Scalars['String']['output']>;
   mainSkillAreas: Array<ProfessionalTaxonomyTerm>;
+  onboardingCompletedAt?: Maybe<Scalars['DateTime']['output']>;
   phone?: Maybe<Scalars['String']['output']>;
   preferredLearningFormats: Array<LearningFormat>;
   profession?: Maybe<Scalars['String']['output']>;
+  professionalGoal?: Maybe<ProfessionalGoal>;
   professionalSummary?: Maybe<Scalars['String']['output']>;
   role: Role;
   skillsToImprove: Array<ProfessionalTaxonomyTerm>;
@@ -2898,6 +2918,13 @@ export type ProfessionalExploreRoadmap = {
   title: Scalars['String']['output'];
   totalSteps: Scalars['Int']['output'];
 };
+
+export enum ProfessionalGoal {
+  ExploreProfessionalPath = 'EXPLORE_PROFESSIONAL_PATH',
+  GrowInCurrentRole = 'GROW_IN_CURRENT_ROLE',
+  MaintainCertification = 'MAINTAIN_CERTIFICATION',
+  PrepareForNextRole = 'PREPARE_FOR_NEXT_ROLE'
+}
 
 export enum ProfessionalIndustry {
   Construction = 'CONSTRUCTION',
@@ -3203,6 +3230,7 @@ export enum ProfileSectionKey {
 }
 
 export enum ProfileTaxonomyKind {
+  Role = 'ROLE',
   SkillArea = 'SKILL_AREA',
   Subject = 'SUBJECT'
 }
@@ -4285,6 +4313,7 @@ export type UpdateProfessionalDetailsInput = {
   experienceRange?: InputMaybe<ExperienceRange>;
   industry?: InputMaybe<ProfessionalIndustry>;
   profession?: InputMaybe<Scalars['String']['input']>;
+  professionalGoal?: InputMaybe<ProfessionalGoal>;
   professionalSummary?: InputMaybe<Scalars['String']['input']>;
   workLocation?: InputMaybe<Scalars['String']['input']>;
 };
@@ -5767,13 +5796,13 @@ export type ProfessionalTaxonomyTermFieldsFragment = { __typename?: 'Professiona
 
 export type ProfessionalTaxonomyGroupFieldsFragment = { __typename?: 'ProfessionalTaxonomyGroup', kind: ProfileTaxonomyKind, groupKey: string, groupLabel: string, terms: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }> };
 
-export type ProfessionalCredentialFieldsFragment = { __typename?: 'ProfessionalCredential', id: string, name: string, issueDate: string, expiryDate?: string | null, pduTargetId?: string | null, licenceNumber?: string | null, annualCpdHours?: number | null, issuingOrganization: string };
+export type ProfessionalCredentialFieldsFragment = { __typename?: 'ProfessionalCredential', id: string, name: string, issueDate?: string | null, expiryDate?: string | null, pduTargetId?: string | null, licenceNumber?: string | null, annualCpdHours?: number | null, certificationId?: string | null, issuingOrganization?: string | null };
 
 export type ProfessionalCpdPlanFieldsFragment = { __typename?: 'ProfessionalCpdPlan', id: string, year: number, target: number, category: PduCategory };
 
 export type ProfessionalProfileCompletionFieldsFragment = { __typename?: 'ProfessionalProfileCompletion', percentage: number, completedCount: number, totalSections: number, sections: Array<{ __typename?: 'ProfessionalProfileSection', key: ProfileSectionKey, isComplete: boolean, missingFields: Array<string> }> };
 
-export type ProfessionalDashboardProfileFieldsFragment = { __typename?: 'ProfessionalDashboardProfile', id: string, bio?: string | null, role: Role, email?: string | null, phone?: string | null, status: UserStatus, fullName?: string | null, avatarUrl?: string | null, isEmailVerified: boolean, timeZone?: string | null, language?: AppLanguage | null, countryCode?: string | null, linkedInUrl?: string | null, industry?: ProfessionalIndustry | null, profession?: string | null, currentRole?: string | null, workLocation?: string | null, experienceRange?: ExperienceRange | null, professionalSummary?: string | null, targetSkillLevel?: SkillLevel | null, currentSkillLevel?: SkillLevel | null, preferredLearningFormats: Array<LearningFormat>, learningTimeCommitment?: LearningTimeCommitment | null, learningBudgetPreference?: LearningBudgetPreference | null, learningHours: number, coursesEnrolled: number, certificatesEarned: number, mainSkillAreas: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, favoriteSubjects: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, skillsToImprove: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, credentials: Array<{ __typename?: 'ProfessionalCredential', id: string, name: string, issueDate: string, expiryDate?: string | null, pduTargetId?: string | null, licenceNumber?: string | null, annualCpdHours?: number | null, issuingOrganization: string }>, completion: { __typename?: 'ProfessionalProfileCompletion', percentage: number, completedCount: number, totalSections: number, sections: Array<{ __typename?: 'ProfessionalProfileSection', key: ProfileSectionKey, isComplete: boolean, missingFields: Array<string> }> } };
+export type ProfessionalDashboardProfileFieldsFragment = { __typename?: 'ProfessionalDashboardProfile', id: string, bio?: string | null, role: Role, email?: string | null, phone?: string | null, status: UserStatus, fullName?: string | null, avatarUrl?: string | null, isEmailVerified: boolean, timeZone?: string | null, language?: AppLanguage | null, countryCode?: string | null, linkedInUrl?: string | null, industry?: ProfessionalIndustry | null, profession?: string | null, currentRole?: string | null, workLocation?: string | null, experienceRange?: ExperienceRange | null, professionalSummary?: string | null, professionalGoal?: ProfessionalGoal | null, onboardingCompletedAt?: string | null, targetSkillLevel?: SkillLevel | null, currentSkillLevel?: SkillLevel | null, preferredLearningFormats: Array<LearningFormat>, learningTimeCommitment?: LearningTimeCommitment | null, learningBudgetPreference?: LearningBudgetPreference | null, learningHours: number, coursesEnrolled: number, certificatesEarned: number, mainSkillAreas: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, favoriteSubjects: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, skillsToImprove: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, credentials: Array<{ __typename?: 'ProfessionalCredential', id: string, name: string, issueDate?: string | null, expiryDate?: string | null, pduTargetId?: string | null, licenceNumber?: string | null, annualCpdHours?: number | null, certificationId?: string | null, issuingOrganization?: string | null }>, completion: { __typename?: 'ProfessionalProfileCompletion', percentage: number, completedCount: number, totalSections: number, sections: Array<{ __typename?: 'ProfessionalProfileSection', key: ProfileSectionKey, isComplete: boolean, missingFields: Array<string> }> } };
 
 export type ProfessionalSessionFieldsFragment = { __typename?: 'ProfessionalSession', id: string, userId: string, status: SessionStatus, ipAddress?: string | null, userAgent?: string | null, expiresAt: string, revokedAt?: string | null, createdAt: string, updatedAt: string };
 
@@ -5820,7 +5849,7 @@ export type ProfessionalOverviewQuery = { __typename?: 'Query', professionalOver
 export type ProfessionalDashboardProfileQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ProfessionalDashboardProfileQuery = { __typename?: 'Query', professionalDashboardProfile: { __typename?: 'ProfessionalDashboardProfile', id: string, bio?: string | null, role: Role, email?: string | null, phone?: string | null, status: UserStatus, fullName?: string | null, avatarUrl?: string | null, isEmailVerified: boolean, timeZone?: string | null, language?: AppLanguage | null, countryCode?: string | null, linkedInUrl?: string | null, industry?: ProfessionalIndustry | null, profession?: string | null, currentRole?: string | null, workLocation?: string | null, experienceRange?: ExperienceRange | null, professionalSummary?: string | null, targetSkillLevel?: SkillLevel | null, currentSkillLevel?: SkillLevel | null, preferredLearningFormats: Array<LearningFormat>, learningTimeCommitment?: LearningTimeCommitment | null, learningBudgetPreference?: LearningBudgetPreference | null, learningHours: number, coursesEnrolled: number, certificatesEarned: number, mainSkillAreas: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, favoriteSubjects: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, skillsToImprove: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, credentials: Array<{ __typename?: 'ProfessionalCredential', id: string, name: string, issueDate: string, expiryDate?: string | null, pduTargetId?: string | null, licenceNumber?: string | null, annualCpdHours?: number | null, issuingOrganization: string }>, completion: { __typename?: 'ProfessionalProfileCompletion', percentage: number, completedCount: number, totalSections: number, sections: Array<{ __typename?: 'ProfessionalProfileSection', key: ProfileSectionKey, isComplete: boolean, missingFields: Array<string> }> } } };
+export type ProfessionalDashboardProfileQuery = { __typename?: 'Query', professionalDashboardProfile: { __typename?: 'ProfessionalDashboardProfile', id: string, bio?: string | null, role: Role, email?: string | null, phone?: string | null, status: UserStatus, fullName?: string | null, avatarUrl?: string | null, isEmailVerified: boolean, timeZone?: string | null, language?: AppLanguage | null, countryCode?: string | null, linkedInUrl?: string | null, industry?: ProfessionalIndustry | null, profession?: string | null, currentRole?: string | null, workLocation?: string | null, experienceRange?: ExperienceRange | null, professionalSummary?: string | null, professionalGoal?: ProfessionalGoal | null, onboardingCompletedAt?: string | null, targetSkillLevel?: SkillLevel | null, currentSkillLevel?: SkillLevel | null, preferredLearningFormats: Array<LearningFormat>, learningTimeCommitment?: LearningTimeCommitment | null, learningBudgetPreference?: LearningBudgetPreference | null, learningHours: number, coursesEnrolled: number, certificatesEarned: number, mainSkillAreas: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, favoriteSubjects: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, skillsToImprove: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, credentials: Array<{ __typename?: 'ProfessionalCredential', id: string, name: string, issueDate?: string | null, expiryDate?: string | null, pduTargetId?: string | null, licenceNumber?: string | null, annualCpdHours?: number | null, certificationId?: string | null, issuingOrganization?: string | null }>, completion: { __typename?: 'ProfessionalProfileCompletion', percentage: number, completedCount: number, totalSections: number, sections: Array<{ __typename?: 'ProfessionalProfileSection', key: ProfileSectionKey, isComplete: boolean, missingFields: Array<string> }> } } };
 
 export type ProfessionalProfileTaxonomyQueryVariables = Exact<{
   kind?: InputMaybe<ProfileTaxonomyKind>;
@@ -5967,42 +5996,54 @@ export type UpdateProfessionalBasicProfileMutationVariables = Exact<{
 }>;
 
 
-export type UpdateProfessionalBasicProfileMutation = { __typename?: 'Mutation', updateProfessionalBasicProfile: { __typename?: 'ProfessionalDashboardProfile', id: string, bio?: string | null, role: Role, email?: string | null, phone?: string | null, status: UserStatus, fullName?: string | null, avatarUrl?: string | null, isEmailVerified: boolean, timeZone?: string | null, language?: AppLanguage | null, countryCode?: string | null, linkedInUrl?: string | null, industry?: ProfessionalIndustry | null, profession?: string | null, currentRole?: string | null, workLocation?: string | null, experienceRange?: ExperienceRange | null, professionalSummary?: string | null, targetSkillLevel?: SkillLevel | null, currentSkillLevel?: SkillLevel | null, preferredLearningFormats: Array<LearningFormat>, learningTimeCommitment?: LearningTimeCommitment | null, learningBudgetPreference?: LearningBudgetPreference | null, learningHours: number, coursesEnrolled: number, certificatesEarned: number, mainSkillAreas: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, favoriteSubjects: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, skillsToImprove: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, credentials: Array<{ __typename?: 'ProfessionalCredential', id: string, name: string, issueDate: string, expiryDate?: string | null, pduTargetId?: string | null, licenceNumber?: string | null, annualCpdHours?: number | null, issuingOrganization: string }>, completion: { __typename?: 'ProfessionalProfileCompletion', percentage: number, completedCount: number, totalSections: number, sections: Array<{ __typename?: 'ProfessionalProfileSection', key: ProfileSectionKey, isComplete: boolean, missingFields: Array<string> }> } } };
+export type UpdateProfessionalBasicProfileMutation = { __typename?: 'Mutation', updateProfessionalBasicProfile: { __typename?: 'ProfessionalDashboardProfile', id: string, bio?: string | null, role: Role, email?: string | null, phone?: string | null, status: UserStatus, fullName?: string | null, avatarUrl?: string | null, isEmailVerified: boolean, timeZone?: string | null, language?: AppLanguage | null, countryCode?: string | null, linkedInUrl?: string | null, industry?: ProfessionalIndustry | null, profession?: string | null, currentRole?: string | null, workLocation?: string | null, experienceRange?: ExperienceRange | null, professionalSummary?: string | null, professionalGoal?: ProfessionalGoal | null, onboardingCompletedAt?: string | null, targetSkillLevel?: SkillLevel | null, currentSkillLevel?: SkillLevel | null, preferredLearningFormats: Array<LearningFormat>, learningTimeCommitment?: LearningTimeCommitment | null, learningBudgetPreference?: LearningBudgetPreference | null, learningHours: number, coursesEnrolled: number, certificatesEarned: number, mainSkillAreas: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, favoriteSubjects: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, skillsToImprove: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, credentials: Array<{ __typename?: 'ProfessionalCredential', id: string, name: string, issueDate?: string | null, expiryDate?: string | null, pduTargetId?: string | null, licenceNumber?: string | null, annualCpdHours?: number | null, certificationId?: string | null, issuingOrganization?: string | null }>, completion: { __typename?: 'ProfessionalProfileCompletion', percentage: number, completedCount: number, totalSections: number, sections: Array<{ __typename?: 'ProfessionalProfileSection', key: ProfileSectionKey, isComplete: boolean, missingFields: Array<string> }> } } };
 
 export type UpdateProfessionalDetailsMutationVariables = Exact<{
   input: UpdateProfessionalDetailsInput;
 }>;
 
 
-export type UpdateProfessionalDetailsMutation = { __typename?: 'Mutation', updateProfessionalDetails: { __typename?: 'ProfessionalDashboardProfile', id: string, bio?: string | null, role: Role, email?: string | null, phone?: string | null, status: UserStatus, fullName?: string | null, avatarUrl?: string | null, isEmailVerified: boolean, timeZone?: string | null, language?: AppLanguage | null, countryCode?: string | null, linkedInUrl?: string | null, industry?: ProfessionalIndustry | null, profession?: string | null, currentRole?: string | null, workLocation?: string | null, experienceRange?: ExperienceRange | null, professionalSummary?: string | null, targetSkillLevel?: SkillLevel | null, currentSkillLevel?: SkillLevel | null, preferredLearningFormats: Array<LearningFormat>, learningTimeCommitment?: LearningTimeCommitment | null, learningBudgetPreference?: LearningBudgetPreference | null, learningHours: number, coursesEnrolled: number, certificatesEarned: number, mainSkillAreas: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, favoriteSubjects: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, skillsToImprove: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, credentials: Array<{ __typename?: 'ProfessionalCredential', id: string, name: string, issueDate: string, expiryDate?: string | null, pduTargetId?: string | null, licenceNumber?: string | null, annualCpdHours?: number | null, issuingOrganization: string }>, completion: { __typename?: 'ProfessionalProfileCompletion', percentage: number, completedCount: number, totalSections: number, sections: Array<{ __typename?: 'ProfessionalProfileSection', key: ProfileSectionKey, isComplete: boolean, missingFields: Array<string> }> } } };
+export type UpdateProfessionalDetailsMutation = { __typename?: 'Mutation', updateProfessionalDetails: { __typename?: 'ProfessionalDashboardProfile', id: string, bio?: string | null, role: Role, email?: string | null, phone?: string | null, status: UserStatus, fullName?: string | null, avatarUrl?: string | null, isEmailVerified: boolean, timeZone?: string | null, language?: AppLanguage | null, countryCode?: string | null, linkedInUrl?: string | null, industry?: ProfessionalIndustry | null, profession?: string | null, currentRole?: string | null, workLocation?: string | null, experienceRange?: ExperienceRange | null, professionalSummary?: string | null, professionalGoal?: ProfessionalGoal | null, onboardingCompletedAt?: string | null, targetSkillLevel?: SkillLevel | null, currentSkillLevel?: SkillLevel | null, preferredLearningFormats: Array<LearningFormat>, learningTimeCommitment?: LearningTimeCommitment | null, learningBudgetPreference?: LearningBudgetPreference | null, learningHours: number, coursesEnrolled: number, certificatesEarned: number, mainSkillAreas: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, favoriteSubjects: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, skillsToImprove: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, credentials: Array<{ __typename?: 'ProfessionalCredential', id: string, name: string, issueDate?: string | null, expiryDate?: string | null, pduTargetId?: string | null, licenceNumber?: string | null, annualCpdHours?: number | null, certificationId?: string | null, issuingOrganization?: string | null }>, completion: { __typename?: 'ProfessionalProfileCompletion', percentage: number, completedCount: number, totalSections: number, sections: Array<{ __typename?: 'ProfessionalProfileSection', key: ProfileSectionKey, isComplete: boolean, missingFields: Array<string> }> } } };
 
 export type UpdateProfessionalSkillsMutationVariables = Exact<{
   input: UpdateProfessionalSkillsInput;
 }>;
 
 
-export type UpdateProfessionalSkillsMutation = { __typename?: 'Mutation', updateProfessionalSkills: { __typename?: 'ProfessionalDashboardProfile', id: string, bio?: string | null, role: Role, email?: string | null, phone?: string | null, status: UserStatus, fullName?: string | null, avatarUrl?: string | null, isEmailVerified: boolean, timeZone?: string | null, language?: AppLanguage | null, countryCode?: string | null, linkedInUrl?: string | null, industry?: ProfessionalIndustry | null, profession?: string | null, currentRole?: string | null, workLocation?: string | null, experienceRange?: ExperienceRange | null, professionalSummary?: string | null, targetSkillLevel?: SkillLevel | null, currentSkillLevel?: SkillLevel | null, preferredLearningFormats: Array<LearningFormat>, learningTimeCommitment?: LearningTimeCommitment | null, learningBudgetPreference?: LearningBudgetPreference | null, learningHours: number, coursesEnrolled: number, certificatesEarned: number, mainSkillAreas: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, favoriteSubjects: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, skillsToImprove: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, credentials: Array<{ __typename?: 'ProfessionalCredential', id: string, name: string, issueDate: string, expiryDate?: string | null, pduTargetId?: string | null, licenceNumber?: string | null, annualCpdHours?: number | null, issuingOrganization: string }>, completion: { __typename?: 'ProfessionalProfileCompletion', percentage: number, completedCount: number, totalSections: number, sections: Array<{ __typename?: 'ProfessionalProfileSection', key: ProfileSectionKey, isComplete: boolean, missingFields: Array<string> }> } } };
+export type UpdateProfessionalSkillsMutation = { __typename?: 'Mutation', updateProfessionalSkills: { __typename?: 'ProfessionalDashboardProfile', id: string, bio?: string | null, role: Role, email?: string | null, phone?: string | null, status: UserStatus, fullName?: string | null, avatarUrl?: string | null, isEmailVerified: boolean, timeZone?: string | null, language?: AppLanguage | null, countryCode?: string | null, linkedInUrl?: string | null, industry?: ProfessionalIndustry | null, profession?: string | null, currentRole?: string | null, workLocation?: string | null, experienceRange?: ExperienceRange | null, professionalSummary?: string | null, professionalGoal?: ProfessionalGoal | null, onboardingCompletedAt?: string | null, targetSkillLevel?: SkillLevel | null, currentSkillLevel?: SkillLevel | null, preferredLearningFormats: Array<LearningFormat>, learningTimeCommitment?: LearningTimeCommitment | null, learningBudgetPreference?: LearningBudgetPreference | null, learningHours: number, coursesEnrolled: number, certificatesEarned: number, mainSkillAreas: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, favoriteSubjects: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, skillsToImprove: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, credentials: Array<{ __typename?: 'ProfessionalCredential', id: string, name: string, issueDate?: string | null, expiryDate?: string | null, pduTargetId?: string | null, licenceNumber?: string | null, annualCpdHours?: number | null, certificationId?: string | null, issuingOrganization?: string | null }>, completion: { __typename?: 'ProfessionalProfileCompletion', percentage: number, completedCount: number, totalSections: number, sections: Array<{ __typename?: 'ProfessionalProfileSection', key: ProfileSectionKey, isComplete: boolean, missingFields: Array<string> }> } } };
+
+export type StartProfessionalOnboardingMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type StartProfessionalOnboardingMutation = { __typename?: 'Mutation', startProfessionalOnboarding: { __typename?: 'ProfessionalDashboardProfile', id: string, bio?: string | null, role: Role, email?: string | null, phone?: string | null, status: UserStatus, fullName?: string | null, avatarUrl?: string | null, isEmailVerified: boolean, timeZone?: string | null, language?: AppLanguage | null, countryCode?: string | null, linkedInUrl?: string | null, industry?: ProfessionalIndustry | null, profession?: string | null, currentRole?: string | null, workLocation?: string | null, experienceRange?: ExperienceRange | null, professionalSummary?: string | null, professionalGoal?: ProfessionalGoal | null, onboardingCompletedAt?: string | null, targetSkillLevel?: SkillLevel | null, currentSkillLevel?: SkillLevel | null, preferredLearningFormats: Array<LearningFormat>, learningTimeCommitment?: LearningTimeCommitment | null, learningBudgetPreference?: LearningBudgetPreference | null, learningHours: number, coursesEnrolled: number, certificatesEarned: number, mainSkillAreas: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, favoriteSubjects: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, skillsToImprove: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, credentials: Array<{ __typename?: 'ProfessionalCredential', id: string, name: string, issueDate?: string | null, expiryDate?: string | null, pduTargetId?: string | null, licenceNumber?: string | null, annualCpdHours?: number | null, certificationId?: string | null, issuingOrganization?: string | null }>, completion: { __typename?: 'ProfessionalProfileCompletion', percentage: number, completedCount: number, totalSections: number, sections: Array<{ __typename?: 'ProfessionalProfileSection', key: ProfileSectionKey, isComplete: boolean, missingFields: Array<string> }> } } };
+
+export type CompleteProfessionalOnboardingMutationVariables = Exact<{
+  input: CompleteProfessionalOnboardingInput;
+}>;
+
+
+export type CompleteProfessionalOnboardingMutation = { __typename?: 'Mutation', completeProfessionalOnboarding: { __typename?: 'ProfessionalDashboardProfile', id: string, bio?: string | null, role: Role, email?: string | null, phone?: string | null, status: UserStatus, fullName?: string | null, avatarUrl?: string | null, isEmailVerified: boolean, timeZone?: string | null, language?: AppLanguage | null, countryCode?: string | null, linkedInUrl?: string | null, industry?: ProfessionalIndustry | null, profession?: string | null, currentRole?: string | null, workLocation?: string | null, experienceRange?: ExperienceRange | null, professionalSummary?: string | null, professionalGoal?: ProfessionalGoal | null, onboardingCompletedAt?: string | null, targetSkillLevel?: SkillLevel | null, currentSkillLevel?: SkillLevel | null, preferredLearningFormats: Array<LearningFormat>, learningTimeCommitment?: LearningTimeCommitment | null, learningBudgetPreference?: LearningBudgetPreference | null, learningHours: number, coursesEnrolled: number, certificatesEarned: number, mainSkillAreas: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, favoriteSubjects: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, skillsToImprove: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, credentials: Array<{ __typename?: 'ProfessionalCredential', id: string, name: string, issueDate?: string | null, expiryDate?: string | null, pduTargetId?: string | null, licenceNumber?: string | null, annualCpdHours?: number | null, certificationId?: string | null, issuingOrganization?: string | null }>, completion: { __typename?: 'ProfessionalProfileCompletion', percentage: number, completedCount: number, totalSections: number, sections: Array<{ __typename?: 'ProfessionalProfileSection', key: ProfileSectionKey, isComplete: boolean, missingFields: Array<string> }> } } };
 
 export type UpdateProfessionalPreferencesMutationVariables = Exact<{
   input: UpdateProfessionalPreferencesInput;
 }>;
 
 
-export type UpdateProfessionalPreferencesMutation = { __typename?: 'Mutation', updateProfessionalPreferences: { __typename?: 'ProfessionalDashboardProfile', id: string, bio?: string | null, role: Role, email?: string | null, phone?: string | null, status: UserStatus, fullName?: string | null, avatarUrl?: string | null, isEmailVerified: boolean, timeZone?: string | null, language?: AppLanguage | null, countryCode?: string | null, linkedInUrl?: string | null, industry?: ProfessionalIndustry | null, profession?: string | null, currentRole?: string | null, workLocation?: string | null, experienceRange?: ExperienceRange | null, professionalSummary?: string | null, targetSkillLevel?: SkillLevel | null, currentSkillLevel?: SkillLevel | null, preferredLearningFormats: Array<LearningFormat>, learningTimeCommitment?: LearningTimeCommitment | null, learningBudgetPreference?: LearningBudgetPreference | null, learningHours: number, coursesEnrolled: number, certificatesEarned: number, mainSkillAreas: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, favoriteSubjects: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, skillsToImprove: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, credentials: Array<{ __typename?: 'ProfessionalCredential', id: string, name: string, issueDate: string, expiryDate?: string | null, pduTargetId?: string | null, licenceNumber?: string | null, annualCpdHours?: number | null, issuingOrganization: string }>, completion: { __typename?: 'ProfessionalProfileCompletion', percentage: number, completedCount: number, totalSections: number, sections: Array<{ __typename?: 'ProfessionalProfileSection', key: ProfileSectionKey, isComplete: boolean, missingFields: Array<string> }> } } };
+export type UpdateProfessionalPreferencesMutation = { __typename?: 'Mutation', updateProfessionalPreferences: { __typename?: 'ProfessionalDashboardProfile', id: string, bio?: string | null, role: Role, email?: string | null, phone?: string | null, status: UserStatus, fullName?: string | null, avatarUrl?: string | null, isEmailVerified: boolean, timeZone?: string | null, language?: AppLanguage | null, countryCode?: string | null, linkedInUrl?: string | null, industry?: ProfessionalIndustry | null, profession?: string | null, currentRole?: string | null, workLocation?: string | null, experienceRange?: ExperienceRange | null, professionalSummary?: string | null, professionalGoal?: ProfessionalGoal | null, onboardingCompletedAt?: string | null, targetSkillLevel?: SkillLevel | null, currentSkillLevel?: SkillLevel | null, preferredLearningFormats: Array<LearningFormat>, learningTimeCommitment?: LearningTimeCommitment | null, learningBudgetPreference?: LearningBudgetPreference | null, learningHours: number, coursesEnrolled: number, certificatesEarned: number, mainSkillAreas: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, favoriteSubjects: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, skillsToImprove: Array<{ __typename?: 'ProfessionalTaxonomyTerm', id: string, key: string, kind: ProfileTaxonomyKind, label: string, groupKey: string, groupLabel: string, sortOrder: number }>, credentials: Array<{ __typename?: 'ProfessionalCredential', id: string, name: string, issueDate?: string | null, expiryDate?: string | null, pduTargetId?: string | null, licenceNumber?: string | null, annualCpdHours?: number | null, certificationId?: string | null, issuingOrganization?: string | null }>, completion: { __typename?: 'ProfessionalProfileCompletion', percentage: number, completedCount: number, totalSections: number, sections: Array<{ __typename?: 'ProfessionalProfileSection', key: ProfileSectionKey, isComplete: boolean, missingFields: Array<string> }> } } };
 
 export type CreateProfessionalCredentialMutationVariables = Exact<{
   input: CreateProfessionalCredentialInput;
 }>;
 
 
-export type CreateProfessionalCredentialMutation = { __typename?: 'Mutation', createProfessionalCredential: { __typename?: 'ProfessionalCredential', id: string, name: string, issueDate: string, expiryDate?: string | null, pduTargetId?: string | null, licenceNumber?: string | null, annualCpdHours?: number | null, issuingOrganization: string } };
+export type CreateProfessionalCredentialMutation = { __typename?: 'Mutation', createProfessionalCredential: { __typename?: 'ProfessionalCredential', id: string, name: string, issueDate?: string | null, expiryDate?: string | null, pduTargetId?: string | null, licenceNumber?: string | null, annualCpdHours?: number | null, certificationId?: string | null, issuingOrganization?: string | null } };
 
 export type UpdateProfessionalCredentialMutationVariables = Exact<{
   input: UpdateProfessionalCredentialInput;
 }>;
 
 
-export type UpdateProfessionalCredentialMutation = { __typename?: 'Mutation', updateProfessionalCredential: { __typename?: 'ProfessionalCredential', id: string, name: string, issueDate: string, expiryDate?: string | null, pduTargetId?: string | null, licenceNumber?: string | null, annualCpdHours?: number | null, issuingOrganization: string } };
+export type UpdateProfessionalCredentialMutation = { __typename?: 'Mutation', updateProfessionalCredential: { __typename?: 'ProfessionalCredential', id: string, name: string, issueDate?: string | null, expiryDate?: string | null, pduTargetId?: string | null, licenceNumber?: string | null, annualCpdHours?: number | null, certificationId?: string | null, issuingOrganization?: string | null } };
 
 export type DeleteProfessionalCredentialMutationVariables = Exact<{
   credentialId: Scalars['ID']['input'];
@@ -7981,6 +8022,7 @@ export const ProfessionalCredentialFieldsFragmentDoc = new TypedDocumentString(`
   pduTargetId
   licenceNumber
   annualCpdHours
+  certificationId
   issuingOrganization
 }
     `, {"fragmentName":"ProfessionalCredentialFields"}) as unknown as TypedDocumentString<ProfessionalCredentialFieldsFragment, unknown>;
@@ -8017,6 +8059,8 @@ export const ProfessionalDashboardProfileFieldsFragmentDoc = new TypedDocumentSt
   workLocation
   experienceRange
   professionalSummary
+  professionalGoal
+  onboardingCompletedAt
   targetSkillLevel
   currentSkillLevel
   mainSkillAreas {
@@ -8058,6 +8102,7 @@ fragment ProfessionalCredentialFields on ProfessionalCredential {
   pduTargetId
   licenceNumber
   annualCpdHours
+  certificationId
   issuingOrganization
 }
 fragment ProfessionalProfileCompletionFields on ProfessionalProfileCompletion {
@@ -12893,6 +12938,7 @@ fragment ProfessionalCredentialFields on ProfessionalCredential {
   pduTargetId
   licenceNumber
   annualCpdHours
+  certificationId
   issuingOrganization
 }
 fragment ProfessionalProfileCompletionFields on ProfessionalProfileCompletion {
@@ -12925,6 +12971,8 @@ fragment ProfessionalDashboardProfileFields on ProfessionalDashboardProfile {
   workLocation
   experienceRange
   professionalSummary
+  professionalGoal
+  onboardingCompletedAt
   targetSkillLevel
   currentSkillLevel
   mainSkillAreas {
@@ -13557,6 +13605,7 @@ fragment ProfessionalCredentialFields on ProfessionalCredential {
   pduTargetId
   licenceNumber
   annualCpdHours
+  certificationId
   issuingOrganization
 }
 fragment ProfessionalProfileCompletionFields on ProfessionalProfileCompletion {
@@ -13589,6 +13638,8 @@ fragment ProfessionalDashboardProfileFields on ProfessionalDashboardProfile {
   workLocation
   experienceRange
   professionalSummary
+  professionalGoal
+  onboardingCompletedAt
   targetSkillLevel
   currentSkillLevel
   mainSkillAreas {
@@ -13636,6 +13687,7 @@ fragment ProfessionalCredentialFields on ProfessionalCredential {
   pduTargetId
   licenceNumber
   annualCpdHours
+  certificationId
   issuingOrganization
 }
 fragment ProfessionalProfileCompletionFields on ProfessionalProfileCompletion {
@@ -13668,6 +13720,8 @@ fragment ProfessionalDashboardProfileFields on ProfessionalDashboardProfile {
   workLocation
   experienceRange
   professionalSummary
+  professionalGoal
+  onboardingCompletedAt
   targetSkillLevel
   currentSkillLevel
   mainSkillAreas {
@@ -13715,6 +13769,7 @@ fragment ProfessionalCredentialFields on ProfessionalCredential {
   pduTargetId
   licenceNumber
   annualCpdHours
+  certificationId
   issuingOrganization
 }
 fragment ProfessionalProfileCompletionFields on ProfessionalProfileCompletion {
@@ -13747,6 +13802,8 @@ fragment ProfessionalDashboardProfileFields on ProfessionalDashboardProfile {
   workLocation
   experienceRange
   professionalSummary
+  professionalGoal
+  onboardingCompletedAt
   targetSkillLevel
   currentSkillLevel
   mainSkillAreas {
@@ -13771,9 +13828,9 @@ fragment ProfessionalDashboardProfileFields on ProfessionalDashboardProfile {
   coursesEnrolled
   certificatesEarned
 }`) as unknown as TypedDocumentString<UpdateProfessionalSkillsMutation, UpdateProfessionalSkillsMutationVariables>;
-export const UpdateProfessionalPreferencesDocument = new TypedDocumentString(`
-    mutation UpdateProfessionalPreferences($input: UpdateProfessionalPreferencesInput!) {
-  updateProfessionalPreferences(input: $input) {
+export const StartProfessionalOnboardingDocument = new TypedDocumentString(`
+    mutation StartProfessionalOnboarding {
+  startProfessionalOnboarding {
     ...ProfessionalDashboardProfileFields
   }
 }
@@ -13794,6 +13851,7 @@ fragment ProfessionalCredentialFields on ProfessionalCredential {
   pduTargetId
   licenceNumber
   annualCpdHours
+  certificationId
   issuingOrganization
 }
 fragment ProfessionalProfileCompletionFields on ProfessionalProfileCompletion {
@@ -13826,6 +13884,172 @@ fragment ProfessionalDashboardProfileFields on ProfessionalDashboardProfile {
   workLocation
   experienceRange
   professionalSummary
+  professionalGoal
+  onboardingCompletedAt
+  targetSkillLevel
+  currentSkillLevel
+  mainSkillAreas {
+    ...ProfessionalTaxonomyTermFields
+  }
+  favoriteSubjects {
+    ...ProfessionalTaxonomyTermFields
+  }
+  skillsToImprove {
+    ...ProfessionalTaxonomyTermFields
+  }
+  preferredLearningFormats
+  learningTimeCommitment
+  learningBudgetPreference
+  credentials {
+    ...ProfessionalCredentialFields
+  }
+  completion {
+    ...ProfessionalProfileCompletionFields
+  }
+  learningHours
+  coursesEnrolled
+  certificatesEarned
+}`) as unknown as TypedDocumentString<StartProfessionalOnboardingMutation, StartProfessionalOnboardingMutationVariables>;
+export const CompleteProfessionalOnboardingDocument = new TypedDocumentString(`
+    mutation CompleteProfessionalOnboarding($input: CompleteProfessionalOnboardingInput!) {
+  completeProfessionalOnboarding(input: $input) {
+    ...ProfessionalDashboardProfileFields
+  }
+}
+    fragment ProfessionalTaxonomyTermFields on ProfessionalTaxonomyTerm {
+  id
+  key
+  kind
+  label
+  groupKey
+  groupLabel
+  sortOrder
+}
+fragment ProfessionalCredentialFields on ProfessionalCredential {
+  id
+  name
+  issueDate
+  expiryDate
+  pduTargetId
+  licenceNumber
+  annualCpdHours
+  certificationId
+  issuingOrganization
+}
+fragment ProfessionalProfileCompletionFields on ProfessionalProfileCompletion {
+  percentage
+  completedCount
+  totalSections
+  sections {
+    key
+    isComplete
+    missingFields
+  }
+}
+fragment ProfessionalDashboardProfileFields on ProfessionalDashboardProfile {
+  id
+  bio
+  role
+  email
+  phone
+  status
+  fullName
+  avatarUrl
+  isEmailVerified
+  timeZone
+  language
+  countryCode
+  linkedInUrl
+  industry
+  profession
+  currentRole
+  workLocation
+  experienceRange
+  professionalSummary
+  professionalGoal
+  onboardingCompletedAt
+  targetSkillLevel
+  currentSkillLevel
+  mainSkillAreas {
+    ...ProfessionalTaxonomyTermFields
+  }
+  favoriteSubjects {
+    ...ProfessionalTaxonomyTermFields
+  }
+  skillsToImprove {
+    ...ProfessionalTaxonomyTermFields
+  }
+  preferredLearningFormats
+  learningTimeCommitment
+  learningBudgetPreference
+  credentials {
+    ...ProfessionalCredentialFields
+  }
+  completion {
+    ...ProfessionalProfileCompletionFields
+  }
+  learningHours
+  coursesEnrolled
+  certificatesEarned
+}`) as unknown as TypedDocumentString<CompleteProfessionalOnboardingMutation, CompleteProfessionalOnboardingMutationVariables>;
+export const UpdateProfessionalPreferencesDocument = new TypedDocumentString(`
+    mutation UpdateProfessionalPreferences($input: UpdateProfessionalPreferencesInput!) {
+  updateProfessionalPreferences(input: $input) {
+    ...ProfessionalDashboardProfileFields
+  }
+}
+    fragment ProfessionalTaxonomyTermFields on ProfessionalTaxonomyTerm {
+  id
+  key
+  kind
+  label
+  groupKey
+  groupLabel
+  sortOrder
+}
+fragment ProfessionalCredentialFields on ProfessionalCredential {
+  id
+  name
+  issueDate
+  expiryDate
+  pduTargetId
+  licenceNumber
+  annualCpdHours
+  certificationId
+  issuingOrganization
+}
+fragment ProfessionalProfileCompletionFields on ProfessionalProfileCompletion {
+  percentage
+  completedCount
+  totalSections
+  sections {
+    key
+    isComplete
+    missingFields
+  }
+}
+fragment ProfessionalDashboardProfileFields on ProfessionalDashboardProfile {
+  id
+  bio
+  role
+  email
+  phone
+  status
+  fullName
+  avatarUrl
+  isEmailVerified
+  timeZone
+  language
+  countryCode
+  linkedInUrl
+  industry
+  profession
+  currentRole
+  workLocation
+  experienceRange
+  professionalSummary
+  professionalGoal
+  onboardingCompletedAt
   targetSkillLevel
   currentSkillLevel
   mainSkillAreas {
@@ -13864,6 +14088,7 @@ export const CreateProfessionalCredentialDocument = new TypedDocumentString(`
   pduTargetId
   licenceNumber
   annualCpdHours
+  certificationId
   issuingOrganization
 }`) as unknown as TypedDocumentString<CreateProfessionalCredentialMutation, CreateProfessionalCredentialMutationVariables>;
 export const UpdateProfessionalCredentialDocument = new TypedDocumentString(`
@@ -13880,6 +14105,7 @@ export const UpdateProfessionalCredentialDocument = new TypedDocumentString(`
   pduTargetId
   licenceNumber
   annualCpdHours
+  certificationId
   issuingOrganization
 }`) as unknown as TypedDocumentString<UpdateProfessionalCredentialMutation, UpdateProfessionalCredentialMutationVariables>;
 export const DeleteProfessionalCredentialDocument = new TypedDocumentString(`
