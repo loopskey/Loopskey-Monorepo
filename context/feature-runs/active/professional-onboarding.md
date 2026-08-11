@@ -110,4 +110,4 @@ Not run locally:
 
 - Commit: `bae2784`
 - PR: https://github.com/loopskey/Loopskey-Monorepo/pull/20
-- CI: pending on the metadata commit
+- CI: pass — "Lint, types, tests, build" (3m32s) on `e6e4fc5`
