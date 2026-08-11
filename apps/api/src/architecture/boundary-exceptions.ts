@@ -16,21 +16,6 @@ export type BoundaryException = {
 };
 
 export const BOUNDARY_EXCEPTIONS = [
-  // ---------------------------------------------------------------------
-  // Cross-domain reads. The source is coupled to the target's schema.
-  // ---------------------------------------------------------------------
-
-  // ---------------------------------------------------------------------
-  // Role-profile provisioning. These are nested relation writes
-  // (`professionalProfile: { create: … }`) inside a `user` create, so they do
-  // not appear as a top-level `prisma.professionalProfile.create` call and were
-  // missed by the first pass of the baseline audit. Architecturally they are
-  // the same thing as EXC-003: one context creating another's aggregate.
-  // ---------------------------------------------------------------------
-
-  // ---------------------------------------------------------------------
-  // Compile-time imports across contexts, with no database access.
-  // ---------------------------------------------------------------------
   {
     id: "EXC-021",
     source: "professional-development",
@@ -100,6 +85,7 @@ export const BOUNDARY_EXCEPTIONS = [
       "apps/api/src/modules/professional/resolvers/professional-certificate.resolver.ts",
       "apps/api/src/modules/professional/resolvers/professional-courses.resolver.ts",
       "apps/api/src/modules/professional/resolvers/professional-cpd-plan.resolver.ts",
+      "apps/api/src/modules/professional/resolvers/professional-onboarding.resolver.ts",
       "apps/api/src/modules/professional/resolvers/professional-overview.resolver.ts",
       "apps/api/src/modules/professional/resolvers/professional-payments.resolver.ts",
       "apps/api/src/modules/professional/resolvers/professional-pdu.resolver.ts",
@@ -241,6 +227,8 @@ export const IMPORT_EXCEPTION_FINGERPRINTS: Readonly<Record<string, string>> = {
   "EXC-034:apps/api/src/modules/professional/resolvers/professional-payments.resolver.ts":
     "6710421fcb0917e757c5a1d7af793564f3cb2b618246015a06e247aff90fb750",
   "EXC-034:apps/api/src/modules/professional/resolvers/professional-pdu.resolver.ts":
+    "6710421fcb0917e757c5a1d7af793564f3cb2b618246015a06e247aff90fb750",
+  "EXC-034:apps/api/src/modules/professional/resolvers/professional-onboarding.resolver.ts":
     "6710421fcb0917e757c5a1d7af793564f3cb2b618246015a06e247aff90fb750",
   "EXC-034:apps/api/src/modules/professional/resolvers/professional-profile.resolver.ts":
     "6710421fcb0917e757c5a1d7af793564f3cb2b618246015a06e247aff90fb750",

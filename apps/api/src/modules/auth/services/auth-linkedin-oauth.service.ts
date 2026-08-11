@@ -1,5 +1,6 @@
 import { AuthProvider, Prisma, Role, UserStatus } from "@prisma/client";
 import { BadRequestException, Injectable, Logger } from "@nestjs/common";
+import { AuthOAuthProvisioningService } from "@auth/services/auth-oauth-provisioning.service";
 import { LINKEDIN_AUTHORIZATION_URL } from "@auth/types/linkedin-oauth.constant";
 import { LINKEDIN_OAUTH_SCOPES } from "@auth/types/linkedin-oauth.constant";
 import { AuthOAuthStateService } from "@auth/services/auth-oauth-state.service";
@@ -27,6 +28,7 @@ export class AuthLinkedInOAuthService {
     private readonly authCommon: AuthCommonService,
     private readonly authSession: AuthSessionService,
     private readonly oauthState: AuthOAuthStateService,
+    private readonly oauthProvisioning: AuthOAuthProvisioningService,
   ) {}
 
   async linkedinOAuthUrl(role: Role, response: Response) {
@@ -112,6 +114,8 @@ export class AuthLinkedInOAuthService {
           profile.role,
         );
 
+      await this.oauthProvisioning.ensureRoleProfile(user.role, user.id);
+
       const session = await this.authSession.createSession(user.id);
       const tokens = await this.authSession.generateTokens({
         sub: user.id,
@@ -141,7 +145,6 @@ export class AuthLinkedInOAuthService {
       });
       return response.redirect(`${redirectUrl}?${params.toString()}`);
     } catch (error) {
-      // Never log the profile, tokens or the authorization code.
       if (this.isUniqueConstraintError(error)) {
         this.logger.warn(
           "LinkedIn OAuth identity already linked to another user.",
@@ -165,10 +168,6 @@ export class AuthLinkedInOAuthService {
     }
   }
 
-  /**
-   * The LinkedIn subject is already linked. This is the only path that trusts the
-   * provider identity by itself, so it must never fall back to email matching.
-   */
   private async resolveLinkedUser(userId: string) {
     const user = await this.prisma.user.findFirst({
       where: { id: userId, deletedAt: null },
@@ -179,11 +178,6 @@ export class AuthLinkedInOAuthService {
     return user;
   }
 
-  /**
-   * No LinkedIn identity on file. Link to an existing account only when LinkedIn
-   * positively asserts the email is verified — an absent `email_verified` claim is
-   * not good enough to take over a pre-existing account.
-   */
   private async resolveByEmail(email: string, profile: TOAuthProfile) {
     const existingUser = await this.prisma.user.findFirst({
       where: { email, deletedAt: null },
@@ -217,30 +211,21 @@ export class AuthLinkedInOAuthService {
       return {
         errorCode: AuthMessageCode.LINKEDIN_OAUTH_SIGNUP_NOT_ALLOWED_FOR_ROLE,
       } as const;
-
-    // User and identity must appear together or not at all.
-    return this.prisma.$transaction(async (tx) => {
-      const createdUser = await tx.user.create({
-        data: {
-          email,
-          role: profile.role,
-          status: UserStatus.ACTIVE,
-          fullName: profile.fullName,
-          avatarUrl: profile.avatarUrl,
-          emailVerifiedAt: new Date(),
-          forcePasswordChange: false,
-        },
-        select: AUTH_USER_SELECT,
-      });
-      await tx.authAccount.create({
-        data: {
-          userId: createdUser.id,
-          provider: AuthProvider.LINKEDIN,
-          providerUserId: profile.providerId,
-          providerEmail: email,
-        },
-      });
-      return createdUser;
+    return this.oauthProvisioning.createUser({
+      email,
+      role: profile.role,
+      fullName: profile.fullName,
+      avatarUrl: profile.avatarUrl,
+      link: async (tx, userId) => {
+        await tx.authAccount.create({
+          data: {
+            userId,
+            provider: AuthProvider.LINKEDIN,
+            providerUserId: profile.providerId,
+            providerEmail: email,
+          },
+        });
+      },
     });
   }
 

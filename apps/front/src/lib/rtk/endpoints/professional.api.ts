@@ -3,33 +3,24 @@ import { baseApi } from "@/lib/rtk/baseApi";
 import type * as TAPI from "@/lib/graphql/generated";
 import * as API from "@/lib/graphql/generated";
 
-// Every section mutation returns the whole profile (including the recalculated
-// completion), and the header avatar/name come from the current user.
 export const PROFILE_SECTION_TAGS = [
-  "ProfessionalProfile",
-  "ProfessionalOverview",
-  "Professional",
-  "CurrentUser",
   "User",
-] as const;
-
-// Credentials feed the Certifications completion section, so the profile query
-// has to be refreshed alongside them.
-export const CREDENTIAL_TAGS = [
-  "ProfessionalCredentials",
-  "ProfessionalProfile",
+  "CurrentUser",
   "Professional",
+  "ProfessionalProfile",
+  "ProfessionalOverview",
 ] as const;
 
-// A certificate write changes the list, the summary counts, the issuer options
-// and the Overview certificates card, and it can attach or release a CPD plan.
-// Deliberately excludes the catch-all "Professional" tag: 21 queries provide it,
-// so including it would refetch settings, profile, payments and more on every
-// certificate save. These three cover every query that reads certificate data.
+export const CREDENTIAL_TAGS = [
+  "Professional",
+  "ProfessionalProfile",
+  "ProfessionalCredentials",
+] as const;
+
 export const CERTIFICATE_TAGS = [
-  "ProfessionalCertificates",
-  "ProfessionalOverview",
   "ProfessionalCpdPlan",
+  "ProfessionalOverview",
+  "ProfessionalCertificates",
 ] as const;
 
 export const professionalApi = baseApi.injectEndpoints({
@@ -417,6 +408,31 @@ export const professionalApi = baseApi.injectEndpoints({
       invalidatesTags: PROFILE_SECTION_TAGS,
     }),
 
+    startProfessionalOnboarding: builder.mutation<
+      TAPI.StartProfessionalOnboardingMutation["startProfessionalOnboarding"],
+      void
+    >({
+      query: () => ({
+        document: API.StartProfessionalOnboardingDocument,
+      }),
+      transformResponse: (response: TAPI.StartProfessionalOnboardingMutation) =>
+        response.startProfessionalOnboarding,
+    }),
+
+    completeProfessionalOnboarding: builder.mutation<
+      TAPI.CompleteProfessionalOnboardingMutation["completeProfessionalOnboarding"],
+      TAPI.CompleteProfessionalOnboardingMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.CompleteProfessionalOnboardingDocument,
+        variables: { input },
+      }),
+      transformResponse: (
+        response: TAPI.CompleteProfessionalOnboardingMutation,
+      ) => response.completeProfessionalOnboarding,
+      invalidatesTags: PROFILE_SECTION_TAGS,
+    }),
+
     updateProfessionalPreferences: builder.mutation<
       TAPI.UpdateProfessionalPreferencesMutation["updateProfessionalPreferences"],
       TAPI.UpdateProfessionalPreferencesMutationVariables["input"]
@@ -571,7 +587,6 @@ export const {
   useCreateProfessionalCertificateMutation,
   useUpdateProfessionalCertificateMutation,
   useDeleteProfessionalCertificateMutation,
-  useSetProfessionalCertificateCpdPlanMutation,
   useLazyProfessionalSettingsQuery,
   useLazyProfessionalOverviewQuery,
   useLazyProfessionalMyCoursesQuery,
@@ -599,6 +614,7 @@ export const {
   useLazyProfessionalActiveSessionsQuery,
   useCreateProfessionalPduActivityMutation,
   useLazyProfessionalDashboardProfileQuery,
+  useSetProfessionalCertificateCpdPlanMutation,
 
   useProfessionalCpdPlansQuery,
   useProfessionalProfileTaxonomyQuery,
@@ -609,4 +625,7 @@ export const {
   useCreateProfessionalCredentialMutation,
   useUpdateProfessionalCredentialMutation,
   useDeleteProfessionalCredentialMutation,
+
+  useStartProfessionalOnboardingMutation,
+  useCompleteProfessionalOnboardingMutation,
 } = professionalApi;

@@ -3384,7 +3384,8 @@
         "experience": "Années d'expérience",
         "workLocation": "Lieu de travail",
         "workLocationHint": "Par exemple Paris, France ou Télétravail.",
-        "summary": "Résumé professionnel"
+        "summary": "Résumé professionnel",
+        "professionalGoal": "Ce que Loopskey vous aide à faire"
       },
       "skills": {
         "title": "Compétences et intérêts",
@@ -3424,7 +3425,8 @@
         "expires": "Expire le",
         "deleted": "Certification supprimée",
         "deleteTitle": "Supprimer cette certification ?",
-        "deleteDescription": "« {{name}} » sera définitivement retirée de votre profil."
+        "deleteDescription": "« {{name}} » sera définitivement retirée de votre profil.",
+        "notProvided": "Non renseigné"
       },
       "preferences": {
         "title": "Préférences d'apprentissage",
@@ -3487,6 +3489,12 @@
         "language": {
           "EN": "Anglais",
           "FR": "Français"
+        },
+        "professionalGoal": {
+          "MAINTAIN_CERTIFICATION": "Maintenir ma certification",
+          "GROW_IN_CURRENT_ROLE": "Progresser dans mon poste actuel",
+          "PREPARE_FOR_NEXT_ROLE": "Préparer mon prochain poste",
+          "EXPLORE_PROFESSIONAL_PATH": "Explorer mon parcours professionnel"
         }
       },
       "errors": {
@@ -5437,5 +5445,105 @@
   },
   "totalAvailable": "{{count}} éléments disponibles dans cette catégorie",
   "carouselCount": "{{count}} sélections mises en avant",
-  "carouselHint": "Survolez une carte pour l’afficher dans la zone principale."
+  "carouselHint": "Survolez une carte pour l’afficher dans la zone principale.",
+  "professionalOnboarding": {
+    "eyebrow": "Bienvenue sur Loopskey",
+    "title": "Configurez votre profil",
+    "stepLabel": "Étape {{current}} sur {{total}}",
+    "stepsNav": "Étapes de configuration",
+    "steps": {
+      "goal": "Votre objectif",
+      "role": "Poste actuel",
+      "skills": "Compétences",
+      "certification": "Certification"
+    },
+    "goal": {
+      "title": "Que souhaitez-vous que Loopskey vous aide à faire ?",
+      "description": "Cela oriente toutes nos recommandations. Vous pourrez le modifier plus tard.",
+      "options": {
+        "MAINTAIN_CERTIFICATION": {
+          "title": "Maintenir ma certification",
+          "description": "Gérez vos obligations de DPC et préparez votre renouvellement"
+        },
+        "GROW_IN_CURRENT_ROLE": {
+          "title": "Progresser dans mon poste actuel",
+          "description": "Développez les compétences nécessaires pour réussir et évoluer"
+        },
+        "PREPARE_FOR_NEXT_ROLE": {
+          "title": "Préparer mon prochain poste",
+          "description": "Développez les capacités requises pour votre prochaine étape de carrière"
+        },
+        "EXPLORE_PROFESSIONAL_PATH": {
+          "title": "Explorer mon parcours professionnel",
+          "description": "Découvrez des compétences, des postes et des formations pertinents"
+        }
+      }
+    },
+    "role": {
+      "title": "Quel est votre poste actuel ?",
+      "description": "Recherchez, choisissez une suggestion ou saisissez votre propre intitulé",
+      "searchLabel": "Rechercher un poste",
+      "searchPlaceholder": "Rechercher un poste",
+      "suggestions": "Postes suggérés",
+      "useTyped": "Utiliser « {{role}} »",
+      "loading": "Chargement des postes…",
+      "empty": "Aucun poste correspondant. Vous pouvez conserver l'intitulé saisi.",
+      "error": "Nous n'avons pas pu charger les suggestions de postes.",
+      "retry": "Réessayer"
+    },
+    "skills": {
+      "title": "Quelles compétences souhaitez-vous développer ?",
+      "description": "Choisissez jusqu'à 3 compétences à développer - pas celles que vous maîtrisez déjà.",
+      "searchLabel": "Trouver ou ajouter une compétence",
+      "searchPlaceholder": "Trouver ou ajouter une compétence",
+      "selectedLabel": "Compétences sélectionnées",
+      "counter": "{{count}} sur {{max}} sélectionnées",
+      "limitReached": "Vous avez sélectionné le maximum de {{max}} compétences.",
+      "remove": "Retirer {{skill}}",
+      "loading": "Chargement des compétences…",
+      "empty": "Aucune compétence correspondante.",
+      "error": "Nous n'avons pas pu charger les compétences.",
+      "retry": "Réessayer",
+      "notSure": "Je ne sais pas - proposez-moi des compétences",
+      "suggested": "Nous vous proposerons des compétences. Vous pourrez les modifier plus tard.",
+      "clearSuggestion": "Choisir mes compétences moi-même"
+    },
+    "certification": {
+      "title": "Quelle certification maintenez-vous ?",
+      "description": "Seulement le titre pour l'instant - vous pourrez configurer le suivi des crédits plus tard",
+      "searchLabel": "Rechercher une certification, une licence ou un organisme",
+      "searchPlaceholder": "Rechercher une certification, une licence ou un organisme...",
+      "hint": "Saisissez au moins 2 caractères pour lancer la recherche.",
+      "loading": "Recherche…",
+      "empty": "Aucune certification correspondante.",
+      "error": "Nous n'avons pas pu charger les certifications.",
+      "retry": "Réessayer",
+      "cannotFind": "Je ne trouve pas ma certification",
+      "noneYet": "Je n'en ai pas encore",
+      "noneSelected": "Vous avez choisi de continuer sans certification.",
+      "clear": "Effacer la sélection",
+      "manual": {
+        "title": "Ajoutez votre certification",
+        "name": "Nom de la certification ou de la licence",
+        "namePlaceholder": "Par exemple Ingénieur diplômé",
+        "issuer": "Organisme émetteur",
+        "issuerPlaceholder": "Par exemple Ordre des ingénieurs",
+        "optional": "Facultatif",
+        "back": "Revenir à la recherche"
+      }
+    },
+    "actions": {
+      "back": "Retour",
+      "next": "Suivant",
+      "finish": "Terminer",
+      "saving": "Enregistrement…"
+    },
+    "errors": {
+      "roleRequired": "Choisissez une suggestion ou saisissez votre poste actuel.",
+      "skillLimit": "Vous pouvez sélectionner jusqu'à {{max}} compétences.",
+      "certificationName": "Saisissez le nom de la certification ou de la licence.",
+      "saveFailed": "Nous n'avons pas pu enregistrer vos réponses. Veuillez réessayer."
+    },
+    "success": "Votre profil est prêt."
+  }
 }

@@ -58,6 +58,7 @@ export const professionalDetailsSchema = z.object({
   profession: optionalText,
   industry: z.nativeEnum(GQL.ProfessionalIndustry).optional(),
   currentRole: optionalText,
+  professionalGoal: z.nativeEnum(GQL.ProfessionalGoal).optional(),
   experienceRange: z.nativeEnum(GQL.ExperienceRange).optional(),
   workLocation: optionalText,
   professionalSummary: z

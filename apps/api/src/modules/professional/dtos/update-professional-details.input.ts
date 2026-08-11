@@ -2,6 +2,7 @@ import { IsEnum, IsOptional, IsString, MaxLength } from "class-validator";
 import { ExperienceRange, ProfessionalIndustry } from "@prisma/client";
 import { PROFESSIONAL_SUMMARY_MAX_LENGTH } from "@professional/enums/profile-section.enum";
 import { ProfessionalGqlInputNames } from "@professional/enums/gql-names.enum";
+import { ProfessionalGoal } from "@prisma/client";
 import { Field, InputType } from "@nestjs/graphql";
 import { trimToNull } from "@utils/transform.util";
 import { Transform } from "class-transformer";
@@ -31,6 +32,11 @@ export class UpdateProfessionalDetailsInput {
   @IsOptional()
   @IsEnum(ExperienceRange)
   experienceRange?: ExperienceRange | null;
+
+  @Field(() => ProfessionalGoal, { nullable: true })
+  @IsOptional()
+  @IsEnum(ProfessionalGoal)
+  professionalGoal?: ProfessionalGoal | null;
 
   @Field(() => String, { nullable: true })
   @Transform(trimToNull)

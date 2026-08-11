@@ -11,6 +11,7 @@ registerEnumType(Prisma.LearningFormat, { name: "LearningFormat" });
 registerEnumType(Prisma.ExperienceRange, { name: "ExperienceRange" });
 registerEnumType(Prisma.ProfileTermUsage, { name: "ProfileTermUsage" });
 registerEnumType(Prisma.ProfileTaxonomyKind, { name: "ProfileTaxonomyKind" });
+registerEnumType(Prisma.ProfessionalGoal, { name: "ProfessionalGoal" });
 registerEnumType(Prisma.ProfessionalIndustry, {
   name: "ProfessionalIndustry",
 });

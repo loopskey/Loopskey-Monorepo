@@ -76,6 +76,7 @@ export enum ProfessionalGqlInputNames {
   CHANGE_PROFESSIONAL_PASSWORD_INPUT = "ChangeProfessionalPasswordInput",
   UPDATE_PROFESSIONAL_SETTINGS_INPUT = "UpdateProfessionalSettingsInput",
   PROFESSIONAL_CALENDAR_EVENTS_FILTER_INPUT = "ProfessionalCalendarEventsFilterInput",
+  COMPLETE_PROFESSIONAL_ONBOARDING_INPUT = "CompleteProfessionalOnboardingInput",
 }
 
 export enum ProfessionalGqlQueryNames {
@@ -133,4 +134,6 @@ export enum ProfessionalGqlMutationNames {
   UPDATE_PROFESSIONAL_CERTIFICATE = "updateProfessionalCertificate",
   DELETE_PROFESSIONAL_CERTIFICATE = "deleteProfessionalCertificate",
   SET_PROFESSIONAL_CERTIFICATE_CPD_PLAN = "setProfessionalCertificateCpdPlan",
+  START_PROFESSIONAL_ONBOARDING = "startProfessionalOnboarding",
+  COMPLETE_PROFESSIONAL_ONBOARDING = "completeProfessionalOnboarding",
 }

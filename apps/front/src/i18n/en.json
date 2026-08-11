@@ -3393,7 +3393,8 @@
         "experience": "Years of experience",
         "workLocation": "Work location",
         "workLocationHint": "For example London, United Kingdom or Remote.",
-        "summary": "Professional summary"
+        "summary": "Professional summary",
+        "professionalGoal": "What Loopskey helps you with"
       },
       "skills": {
         "title": "Skills & interests",
@@ -3433,7 +3434,8 @@
         "expires": "Expires",
         "deleted": "Credential deleted",
         "deleteTitle": "Delete this credential?",
-        "deleteDescription": "“{{name}}” will be permanently removed from your profile."
+        "deleteDescription": "“{{name}}” will be permanently removed from your profile.",
+        "notProvided": "Not provided"
       },
       "preferences": {
         "title": "Learning preferences",
@@ -3496,6 +3498,12 @@
         "language": {
           "EN": "English",
           "FR": "French"
+        },
+        "professionalGoal": {
+          "MAINTAIN_CERTIFICATION": "Stay on track with my certification",
+          "GROW_IN_CURRENT_ROLE": "Grow in my current role",
+          "PREPARE_FOR_NEXT_ROLE": "Prepare for my next role",
+          "EXPLORE_PROFESSIONAL_PATH": "Explore my professional path"
         }
       },
       "errors": {
@@ -5437,5 +5445,105 @@
   },
   "totalAvailable": "{{count}} items available in this category",
   "carouselCount": "{{count}} featured picks",
-  "carouselHint": "Hover a card to preview it in the spotlight."
+  "carouselHint": "Hover a card to preview it in the spotlight.",
+  "professionalOnboarding": {
+    "eyebrow": "Welcome to Loopskey",
+    "title": "Set up your profile",
+    "stepLabel": "Step {{current}} of {{total}}",
+    "stepsNav": "Onboarding steps",
+    "steps": {
+      "goal": "Your goal",
+      "role": "Current role",
+      "skills": "Skills",
+      "certification": "Certification"
+    },
+    "goal": {
+      "title": "What would you like Loopskey to help you with?",
+      "description": "This shapes everything we recommend. You can change it later.",
+      "options": {
+        "MAINTAIN_CERTIFICATION": {
+          "title": "Stay on track with my certification",
+          "description": "Manage your CPD requirements and prepare for renewal"
+        },
+        "GROW_IN_CURRENT_ROLE": {
+          "title": "Grow in my current role",
+          "description": "Build the skills you need to perform and progress at work"
+        },
+        "PREPARE_FOR_NEXT_ROLE": {
+          "title": "Prepare for my next role",
+          "description": "Develop the capabilities required for your next career move"
+        },
+        "EXPLORE_PROFESSIONAL_PATH": {
+          "title": "Explore my professional path",
+          "description": "Discover relevant skills, roles, and learning opportunities"
+        }
+      }
+    },
+    "role": {
+      "title": "What is your current role?",
+      "description": "Search, pick a suggestion, or type your own title",
+      "searchLabel": "Search roles",
+      "searchPlaceholder": "Search roles",
+      "suggestions": "Suggested roles",
+      "useTyped": "Use “{{role}}”",
+      "loading": "Loading roles…",
+      "empty": "No matching roles. You can keep the title you typed.",
+      "error": "We could not load role suggestions.",
+      "retry": "Try again"
+    },
+    "skills": {
+      "title": "Which skills would you like to develop?",
+      "description": "Pick up to 3 skills you want to grow - not ones you already have.",
+      "searchLabel": "Find or add a skill",
+      "searchPlaceholder": "Find or add a skill",
+      "selectedLabel": "Selected skills",
+      "counter": "{{count}} of {{max}} selected",
+      "limitReached": "You have selected the maximum of {{max}} skills.",
+      "remove": "Remove {{skill}}",
+      "loading": "Loading skills…",
+      "empty": "No matching skills.",
+      "error": "We could not load skills.",
+      "retry": "Try again",
+      "notSure": "I'm not sure - suggest skills for me",
+      "suggested": "We will suggest skills for you. You can change them later.",
+      "clearSuggestion": "Choose my own skills instead"
+    },
+    "certification": {
+      "title": "Which certification are you maintaining?",
+      "description": "Just the credential for now - you can set up credit tracking later",
+      "searchLabel": "Search certification, licence, or issuer",
+      "searchPlaceholder": "Search certification, licence, or issuer...",
+      "hint": "Enter at least 2 characters to search.",
+      "loading": "Searching…",
+      "empty": "No matching certifications.",
+      "error": "We could not load certifications.",
+      "retry": "Try again",
+      "cannotFind": "I can't find my certification",
+      "noneYet": "I don't have one yet",
+      "noneSelected": "You chose to continue without a certification.",
+      "clear": "Clear selection",
+      "manual": {
+        "title": "Add your certification",
+        "name": "Certification or licence name",
+        "namePlaceholder": "For example Chartered Engineer",
+        "issuer": "Issuing organization",
+        "issuerPlaceholder": "For example Engineers Ireland",
+        "optional": "Optional",
+        "back": "Back to search"
+      }
+    },
+    "actions": {
+      "back": "Back",
+      "next": "Next",
+      "finish": "Finish",
+      "saving": "Saving…"
+    },
+    "errors": {
+      "roleRequired": "Choose a suggestion or type your current role.",
+      "skillLimit": "You can select up to {{max}} skills.",
+      "certificationName": "Enter the certification or licence name.",
+      "saveFailed": "We could not save your answers. Please try again."
+    },
+    "success": "Your profile is ready."
+  }
 }

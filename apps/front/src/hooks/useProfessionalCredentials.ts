@@ -28,7 +28,7 @@ const toFormValues = (
 ): V.TCredentialFormInput => ({
   id: credential.id,
   name: credential.name,
-  issuingOrganization: credential.issuingOrganization,
+  issuingOrganization: credential.issuingOrganization ?? "",
   licenceNumber: credential.licenceNumber ?? "",
   issueDate: toDateInput(credential.issueDate),
   expiryDate: toDateInput(credential.expiryDate),
@@ -131,12 +131,12 @@ export const useProfessionalCredentials = (profile?: TProfessionalProfile) => {
   return {
     t,
     rhf,
+    isSaving,
     editingId,
     startEdit,
     startCreate,
     planOptions,
     credentials,
-    isSaving,
     handleDelete,
     handleSubmit,
     isDeleting: deleteState.isLoading,

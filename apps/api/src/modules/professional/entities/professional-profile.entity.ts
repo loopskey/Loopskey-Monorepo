@@ -55,6 +55,11 @@ export class ProfessionalDashboardProfileEntity {
   @Field(() => P.ExperienceRange, { nullable: true })
   experienceRange?: P.ExperienceRange | null;
 
+  @Field(() => P.ProfessionalGoal, { nullable: true })
+  professionalGoal?: P.ProfessionalGoal | null;
+  @Field(() => Date, { nullable: true })
+  onboardingCompletedAt?: Date | null;
+
   // Skills and interests
   @Field(() => P.SkillLevel, { nullable: true })
   currentSkillLevel?: P.SkillLevel | null;

@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable, Logger } from "@nestjs/common";
+import { AuthOAuthProvisioningService } from "@auth/services/auth-oauth-provisioning.service";
 import { AuthOAuthStateService } from "@auth/services/auth-oauth-state.service";
 import { AuthSessionService } from "@auth/services/auth-session.service";
 import { AuthCommonService } from "@auth/services/auth-common.service";
@@ -24,6 +25,7 @@ export class AuthGoogleOAuthService {
     private readonly authCommon: AuthCommonService,
     private readonly authSession: AuthSessionService,
     private readonly oauthState: AuthOAuthStateService,
+    private readonly oauthProvisioning: AuthOAuthProvisioningService,
   ) {}
 
   async googleOAuthUrl(role: Role, response: Response) {
@@ -63,10 +65,7 @@ export class AuthGoogleOAuthService {
       const email = this.authCommon.normalizeEmail(profile.email);
       let user = await this.prisma.user.findUnique({
         where: { email },
-        select: {
-          ...AUTH_USER_SELECT,
-          passwordHash: true,
-        },
+        select: AUTH_USER_SELECT,
       });
       if (user && user.role !== profile.role) {
         const params = new URLSearchParams({
@@ -84,20 +83,11 @@ export class AuthGoogleOAuthService {
             redirectUrl,
             AuthMessageCode.GOOGLE_OAUTH_SIGNUP_NOT_ALLOWED_FOR_ROLE,
           );
-        user = await this.prisma.user.create({
-          data: {
-            email,
-            role: profile.role,
-            status: UserStatus.ACTIVE,
-            fullName: profile.fullName,
-            avatarUrl: profile.avatarUrl,
-            emailVerifiedAt: new Date(),
-            forcePasswordChange: false,
-          },
-          select: {
-            ...AUTH_USER_SELECT,
-            passwordHash: true,
-          },
+        user = await this.oauthProvisioning.createUser({
+          email,
+          role: profile.role,
+          fullName: profile.fullName,
+          avatarUrl: profile.avatarUrl,
         });
       }
       if (user.status !== UserStatus.ACTIVE)
@@ -106,6 +96,7 @@ export class AuthGoogleOAuthService {
           redirectUrl,
           AuthMessageCode.USER_DISABLED,
         );
+      await this.oauthProvisioning.ensureRoleProfile(user.role, user.id);
       const session = await this.authSession.createSession(user.id);
       const tokens = await this.authSession.generateTokens({
         sub: user.id,
@@ -135,7 +126,6 @@ export class AuthGoogleOAuthService {
       });
       return response.redirect(`${redirectUrl}?${params.toString()}`);
     } catch (error) {
-      // Never log the profile, tokens or the authorization code.
       this.logger.error(
         `Google OAuth login failed: ${error instanceof Error ? error.message : "unknown error"}`,
       );
