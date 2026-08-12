@@ -1,11 +1,14 @@
 "use client";
 
-import { useCertificateEvidence, CertificateFileError } from "@/hooks/useCertificateEvidence";
-import { useMyCpdPlansQuery } from "@/lib/rtk/endpoints/cpd-plan.api";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useDebouncedValue } from "@/hooks/useDebounced";
+import {
+  useCertificateEvidence,
+  CertificateFileError,
+} from "@/hooks/useCertificateEvidence";
 import { useEffect, useMemo, useState } from "react";
-import { CertificateStatusFilter } from "@/lib/graphql/generated";
+import { useRouter, useSearchParams } from "next/navigation";
+import { CertificateStatusFilter } from "@/lib/graphql/base";
+import { useMyCpdPlansQuery } from "@/lib/rtk/endpoints/cpd-plan.api";
+import { useDebouncedValue } from "@/hooks/useDebounced";
 import { PAGE_SIZE } from "@/utils/constant";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
@@ -49,7 +52,8 @@ export const useProfessionalCertificates = () => {
   const debouncedSearch = useDebouncedValue(filters.search, SEARCH_DEBOUNCE_MS);
 
   const isFiltered = useMemo(
-    () => H.hasActiveCertificateFilters({ ...filters, search: debouncedSearch }),
+    () =>
+      H.hasActiveCertificateFilters({ ...filters, search: debouncedSearch }),
     [filters, debouncedSearch],
   );
 

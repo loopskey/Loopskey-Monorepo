@@ -1,4 +1,4 @@
-import { PduCategory } from "@lib/graphql/generated";
+import { PduCategory } from "@/lib/graphql/base";
 import { z } from "zod";
 
 import * as C from "@/utils/pdu.constant";

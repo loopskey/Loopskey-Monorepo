@@ -1,7 +1,7 @@
 "use client";
 
 import { CalendarCheck, CheckCircle2, Search, UsersRound } from "lucide-react";
-import { EventRegistrationStatus } from "@/lib/graphql/generated";
+import { EventRegistrationStatus } from "@/lib/graphql/base";
 import { useProviderAttendeesTab } from "@/hooks/useProviderAttendeesTab";
 import { DashboardStatCard } from "@modules/ProfessionalDashboard/parts/dashboard-stat-card";
 import { ContentPagination } from "@elements/pagination";

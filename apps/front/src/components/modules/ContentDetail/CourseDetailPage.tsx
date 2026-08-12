@@ -1,6 +1,7 @@
 "use client";
 
 import { BookOpen, Clock3, GraduationCap, UserPlus, Users } from "lucide-react";
+import { CalendarEventType, ContentType, PduSource } from "@/lib/graphql/base";
 import { TCourseDetailPageProps } from "@/types/content-module.types";
 import { useContentActions } from "@/hooks/useContentActions";
 import { GlassCard } from "@elements/glass-card";
@@ -17,7 +18,6 @@ import DetailHero from "@modules/ContentDetail/parts/DetailHero";
 
 import * as CourseApi from "@/lib/rtk/endpoints/course.api";
 import * as Tabs from "@ui/tabs";
-import * as API from "@/lib/graphql/generated";
 
 const CourseDetailPage = ({ slug }: TCourseDetailPageProps) => {
   const { t } = useI18n();
@@ -27,7 +27,7 @@ const CourseDetailPage = ({ slug }: TCourseDetailPageProps) => {
   });
 
   const actions = useContentActions({
-    contentType: API.ContentType.Course,
+    contentType: ContentType.Course,
     contentId: course?.id,
   });
 
@@ -49,9 +49,9 @@ const CourseDetailPage = ({ slug }: TCourseDetailPageProps) => {
 
   const calendarPrefill = {
     title: course.title,
-    type: API.CalendarEventType.Course,
+    type: CalendarEventType.Course,
     contentId: course.id,
-    contentType: API.ContentType.Course,
+    contentType: ContentType.Course,
   };
 
   const isPaid = !course.isFree && Number(course.price ?? 0) > 0;
@@ -69,13 +69,13 @@ const CourseDetailPage = ({ slug }: TCourseDetailPageProps) => {
           badge={t("contentDetails.course.badge")}
           actions={
             <DetailHeroActions
-              contentType={API.ContentType.Course}
+              contentType={ContentType.Course}
               prefill={calendarPrefill}
               completed={{
                 title: course.title,
                 contentId: course.id,
-                contentType: API.ContentType.Course,
-                activityType: API.PduSource.Course,
+                contentType: ContentType.Course,
+                activityType: PduSource.Course,
                 providerOrganizer: course.instructor,
                 durationMinutes: course.durationMinutes,
                 level: course.level,

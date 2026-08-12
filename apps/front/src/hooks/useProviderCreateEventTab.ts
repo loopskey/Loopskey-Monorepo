@@ -1,57 +1,58 @@
 "use client";
 
 import { FieldPath, FieldPathValue, useForm, useWatch } from "react-hook-form";
+import { AppLanguage, CreateEventInput, PduCategory } from "@/lib/graphql/base";
+import { EventCategory, EventStatus, EventType } from "@/lib/graphql/base";
 import { emptyToUndefined, TOTAL_STEPS } from "@utils/function-helper";
 import { TProviderCreateEventForm } from "@/types/provider-dashboard.types";
 import { useCreateEventMutation } from "@lib/rtk/endpoints/event.api";
 import { TCreateEventStatus } from "@/types/provider-dashboard.types";
+import { EventDeliveryMode } from "@/lib/graphql/base";
 import { useMemo, useState } from "react";
 import { SelectOption } from "@/types/hooks.types";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@hooks/useI18n";
 import { notify } from "@hooks/notify";
 
-import * as API from "@lib/graphql/generated";
-
 export const eventCategories = [
-  API.EventCategory.Cpd,
-  API.EventCategory.Other,
-  API.EventCategory.Design,
-  API.EventCategory.Finance,
-  API.EventCategory.Business,
-  API.EventCategory.Marketing,
-  API.EventCategory.Education,
-  API.EventCategory.Technology,
-  API.EventCategory.Leadership,
-  API.EventCategory.Compliance,
-  API.EventCategory.Healthcare,
-  API.EventCategory.Engineering,
+  EventCategory.Cpd,
+  EventCategory.Other,
+  EventCategory.Design,
+  EventCategory.Finance,
+  EventCategory.Business,
+  EventCategory.Marketing,
+  EventCategory.Education,
+  EventCategory.Technology,
+  EventCategory.Leadership,
+  EventCategory.Compliance,
+  EventCategory.Healthcare,
+  EventCategory.Engineering,
 ];
 
 export const eventTypes = [
-  API.EventType.Course,
-  API.EventType.Webinar,
-  API.EventType.Workshop,
-  API.EventType.Conference,
+  EventType.Course,
+  EventType.Webinar,
+  EventType.Workshop,
+  EventType.Conference,
 ];
 
 export const deliveryModes = [
-  API.EventDeliveryMode.Hybrid,
-  API.EventDeliveryMode.InPerson,
-  API.EventDeliveryMode.Recorded,
-  API.EventDeliveryMode.LiveOnline,
+  EventDeliveryMode.Hybrid,
+  EventDeliveryMode.InPerson,
+  EventDeliveryMode.Recorded,
+  EventDeliveryMode.LiveOnline,
 ];
 
-export const languages = [API.AppLanguage.En, API.AppLanguage.Fr];
+export const languages = [AppLanguage.En, AppLanguage.Fr];
 
 export const pduCategories = [
-  API.PduCategory.Other,
-  API.PduCategory.Ethics,
-  API.PduCategory.Business,
-  API.PduCategory.Strategic,
-  API.PduCategory.Technical,
-  API.PduCategory.Leadership,
-  API.PduCategory.Compliance,
+  PduCategory.Other,
+  PduCategory.Ethics,
+  PduCategory.Business,
+  PduCategory.Strategic,
+  PduCategory.Technical,
+  PduCategory.Leadership,
+  PduCategory.Compliance,
 ];
 
 const defaultFormValues: TProviderCreateEventForm = {
@@ -74,11 +75,11 @@ const defaultFormValues: TProviderCreateEventForm = {
   startTime: "09:00",
   promotionVideoUrl: "",
   earlyBirdDiscount: "",
-  type: API.EventType.Webinar,
-  language: API.AppLanguage.En,
-  category: API.EventCategory.Business,
-  pduCategory: API.PduCategory.Technical,
-  deliveryMode: API.EventDeliveryMode.LiveOnline,
+  type: EventType.Webinar,
+  language: AppLanguage.En,
+  category: EventCategory.Business,
+  pduCategory: PduCategory.Technical,
+  deliveryMode: EventDeliveryMode.LiveOnline,
 };
 
 type TranslateFn = (key: string) => string;
@@ -246,7 +247,7 @@ export const useProviderCreateEventTab = () => {
   const goNext = () =>
     setActiveStep((current) => Math.min(current + 1, TOTAL_STEPS));
   const goPrevious = () => setActiveStep((current) => Math.max(current - 1, 1));
-  const buildInput = (status: TCreateEventStatus): API.CreateEventInput => {
+  const buildInput = (status: TCreateEventStatus): CreateEventInput => {
     if (!startDateTime) throw new Error("Start date is required.");
     return {
       status,
@@ -296,7 +297,7 @@ export const useProviderCreateEventTab = () => {
     try {
       const created = await createEvent(buildInput(status)).unwrap();
       notify.success(
-        status === API.EventStatus.Published
+        status === EventStatus.Published
           ? t("providerDashboard.createEvent.published")
           : t("providerDashboard.createEvent.savedDraft"),
       );
@@ -326,7 +327,7 @@ export const useProviderCreateEventTab = () => {
     canGoPrevious: activeStep > 1,
     canGoNext: activeStep < TOTAL_STEPS,
     isLoading: createEventState.isLoading,
-    saveDraft: () => submit(API.EventStatus.Draft),
-    publishEvent: () => submit(API.EventStatus.Published),
+    saveDraft: () => submit(EventStatus.Draft),
+    publishEvent: () => submit(EventStatus.Published),
   };
 };

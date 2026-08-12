@@ -1,7 +1,7 @@
 "use client";
 
 import { TProfessionalPrivacySettingPanel } from "@/types/professional-dashboard.types";
-import { ProfileVisibility } from "@/lib/graphql/generated";
+import { ProfileVisibility } from "@/lib/graphql/base";
 import { visibilityItems } from "@/utils/constant";
 import { Button } from "@ui/button";
 import { Switch } from "@ui/switch";

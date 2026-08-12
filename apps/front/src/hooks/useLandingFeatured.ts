@@ -1,5 +1,15 @@
 "use client";
 
+import {
+  CourseSortField,
+  EventSortDirection,
+  EventSortField,
+  PodcastSortDirection,
+  PodcastSortField,
+  SortDirection,
+  YouTubeChannelSortDirection,
+  YouTubeChannelSortField,
+} from "@/lib/graphql/base";
 import { TLandingContentKind, TLandingTab } from "@/types/landing-module.types";
 import { useEffect, useMemo, useState } from "react";
 import { TLandingContentItem } from "@/types/landing-module.types";
@@ -10,7 +20,6 @@ import * as PodcastApi from "@/lib/rtk/endpoints/podcast.api";
 import * as YouTubeApi from "@/lib/rtk/endpoints/youtube.api";
 import * as CourseApi from "@/lib/rtk/endpoints/course.api";
 import * as EventApi from "@/lib/rtk/endpoints/event.api";
-import * as API from "@/lib/graphql/generated";
 
 const shuffleItems = <T>(items: T[]) => {
   const cloned = [...items];
@@ -65,8 +74,8 @@ export const useLandingFeatured = () => {
         take: LANDING_HUB_TAKE,
       },
       sort: {
-        field: API.CourseSortField.CreatedAt,
-        direction: API.SortDirection.Desc,
+        field: CourseSortField.CreatedAt,
+        direction: SortDirection.Desc,
       },
     },
     {
@@ -80,8 +89,8 @@ export const useLandingFeatured = () => {
         take: LANDING_HUB_TAKE,
       },
       sort: {
-        field: API.EventSortField.StartDate,
-        direction: API.EventSortDirection.Asc,
+        field: EventSortField.StartDate,
+        direction: EventSortDirection.Asc,
       },
     },
     {
@@ -95,8 +104,8 @@ export const useLandingFeatured = () => {
         take: LANDING_HUB_TAKE,
       },
       sort: {
-        field: API.PodcastSortField.CreatedAt,
-        direction: API.PodcastSortDirection.Desc,
+        field: PodcastSortField.CreatedAt,
+        direction: PodcastSortDirection.Desc,
       },
     },
     {
@@ -110,8 +119,8 @@ export const useLandingFeatured = () => {
         take: LANDING_HUB_TAKE,
       },
       sort: {
-        field: API.YouTubeChannelSortField.CreatedAt,
-        direction: API.YouTubeChannelSortDirection.Desc,
+        field: YouTubeChannelSortField.CreatedAt,
+        direction: YouTubeChannelSortDirection.Desc,
       },
     },
     {

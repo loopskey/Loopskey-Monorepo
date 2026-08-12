@@ -1,6 +1,6 @@
 "use client";
 
-import { OrganizationMemberStatus, Role } from "@lib/graphql/generated";
+import { OrganizationMemberStatus, Role } from "@/lib/graphql/base";
 import { useOrganizationMembersTab } from "@/hooks/useOrgMemberTab";
 import { FloatingTextareaField } from "@elements/floating-textarea";
 import { FloatingSelectField } from "@elements/floating-select";

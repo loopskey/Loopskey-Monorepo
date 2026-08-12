@@ -1,4 +1,4 @@
-import { ProfessionalPduActivityFieldsFragment } from "@/lib/graphql/generated";
+import { ProfessionalPduActivityFieldsFragment } from "@/lib/graphql/operations/professional";
 import { TCpdPlan, TCpdPlanProgress } from "@/types/cpd-plan.types";
 
 type CsvCell = string | number | null | undefined;

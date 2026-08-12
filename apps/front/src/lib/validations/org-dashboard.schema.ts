@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import * as API from "@/lib/graphql/generated";
+import * as API from "@/lib/graphql/base";
 
 export const addMemberSchema = z.object({
   email: z.string().email(),

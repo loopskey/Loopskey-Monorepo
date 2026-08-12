@@ -1,8 +1,8 @@
 "use client";
 
-import { EventDeliveryMode, EventType } from "@/lib/graphql/generated";
+import { EventDeliveryMode, EventType } from "@/lib/graphql/base";
 import { TEventCatalogFilter } from "@/types/org-dashboard.types";
-import { EventCategory } from "@/lib/graphql/generated";
+import { EventCategory } from "@/lib/graphql/base";
 import { GlassCard } from "@elements/glass-card";
 import { ALL_VALUE } from "@/utils/constant";
 import { Button } from "@ui/button";

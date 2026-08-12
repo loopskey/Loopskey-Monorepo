@@ -1,13 +1,14 @@
 "use client";
 
+import { ProfessionalMyCoursesQueryVariables } from "@/lib/graphql/operations/professional";
 import { ChangeEvent, useMemo, useState } from "react";
+import { ContentEnrollmentStatus } from "@/lib/graphql/base";
 import { ProfessionalCourse } from "@/types/professional-dashboard.types";
 import { TCourseStats } from "@/types/professional-dashboard.types";
 import { PAGE_SIZE } from "@/utils/constant";
 import { useI18n } from "@/hooks/useI18n";
 
 import * as API from "@/lib/rtk/endpoints/professional.api";
-import * as GQL from "@/lib/graphql/generated";
 
 const FALLBACK_CURRENCY = "USD";
 
@@ -22,7 +23,7 @@ export const useProfessionalCourses = () => {
   const currentCursor = cursorStack.at(-1);
 
   // ================ Use Memo ===============
-  const variables = useMemo<GQL.ProfessionalMyCoursesQueryVariables>(
+  const variables = useMemo<ProfessionalMyCoursesQueryVariables>(
     () => ({
       filter: {
         search: search.trim() || undefined,
@@ -47,10 +48,10 @@ export const useProfessionalCourses = () => {
   const stats = useMemo<TCourseStats>(() => {
     const total = data?.totalCount ?? 0;
     const active = courses.filter((course) => {
-      return course.status === GQL.ContentEnrollmentStatus.Active;
+      return course.status === ContentEnrollmentStatus.Active;
     }).length;
     const completed = courses.filter((course) => {
-      return course.status === GQL.ContentEnrollmentStatus.Completed;
+      return course.status === ContentEnrollmentStatus.Completed;
     }).length;
     const avgProgress =
       courses.length > 0
@@ -134,7 +135,7 @@ export const useProfessionalCourses = () => {
   };
 
   const getCourseActionLabel = (course: ProfessionalCourse) => {
-    if (course.status === GQL.ContentEnrollmentStatus.Completed)
+    if (course.status === ContentEnrollmentStatus.Completed)
       return t("professionalDashboard.courses.review");
     return t("professionalDashboard.courses.continue");
   };

@@ -1,5 +1,5 @@
 import { TCursorState, TSelectOption } from "@/types/content-module.types";
-import { ContactInquiryType, Role } from "@lib/graphql/generated";
+import { ContactInquiryType, Role } from "@lib/graphql/base";
 import { TLandingHeroContentKind } from "@/types/landing-module.types";
 import { TSelectedRange } from "@/types/professional-dashboard.types";
 import { TServiceItem } from "@/types/pages.types";

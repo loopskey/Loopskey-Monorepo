@@ -1,6 +1,6 @@
-import { CertificateStatusFilter } from "@/lib/graphql/generated";
-import { CertificateStatus } from "@/lib/graphql/generated";
-import { CertificateSort } from "@/lib/graphql/generated";
+import { CertificateStatusFilter } from "@/lib/graphql/base";
+import { CertificateStatus } from "@/lib/graphql/base";
+import { CertificateSort } from "@/lib/graphql/base";
 
 import * as T from "@/types/professional-dashboard.types";
 

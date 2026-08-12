@@ -2,7 +2,7 @@
 
 import { useCurrentUserQuery } from "@/lib/rtk/endpoints/auth.api";
 import { useMemo } from "react";
-import { Role } from "@/lib/graphql/generated";
+import { Role } from "@/lib/graphql/base";
 
 const DASHBOARD_PATH_BY_ROLE: Partial<Record<Role, string>> = {
   [Role.Professional]: "/dashboard/professional",

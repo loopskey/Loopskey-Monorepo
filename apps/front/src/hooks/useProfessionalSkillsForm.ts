@@ -2,7 +2,7 @@
 
 import { TProfileTaxonomyGroup } from "@/types/professional-profile.types";
 import { TProfessionalProfile } from "@/types/professional-profile.types";
-import { ProfileTaxonomyKind } from "@/lib/graphql/generated";
+import { ProfileTaxonomyKind } from "@/lib/graphql/base";
 import { TMultiSelectOption } from "@/types/professional-profile.types";
 import { useEffect, useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";

@@ -4,7 +4,7 @@ import { GlassCard } from "@elements/glass-card";
 import { useState } from "react";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
-import { Role } from "@/lib/graphql/generated";
+import { Role } from "@/lib/graphql/base";
 
 import OrgAccessRequestForm from "@modules/Auth/OrgAccessForm";
 import RoleLoginForm from "@modules/Auth/RoleLoginForm";

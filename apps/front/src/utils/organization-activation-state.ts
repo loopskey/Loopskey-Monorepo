@@ -1,4 +1,4 @@
-import { OrganizationActivationTokenStatus } from "@lib/graphql/generated";
+import { OrganizationActivationTokenStatus } from "@/lib/graphql/base";
 
 export type OrganizationActivationScreen =
   | "form"

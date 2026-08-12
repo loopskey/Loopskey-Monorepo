@@ -1,6 +1,6 @@
 "use client";
 
-import { PromotionRequestStatus, PromotionType } from "@lib/graphql/generated";
+import { PromotionRequestStatus, PromotionType } from "@/lib/graphql/base";
 import { PAGE_SIZE, SEARCH_DEBOUNCE_MS } from "@utils/constant";
 import { useEffect, useMemo, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";

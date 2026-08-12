@@ -12,8 +12,16 @@ const compat = new FlatCompat({
 
 const eslintConfig = [
   // GraphQL Code Generator output is never hand-edited, so linting it only
-  // produces unfixable errors.
-  { ignores: ["src/lib/graphql/generated.ts", ".next/**"] },
+  // produces unfixable errors. Codegen writes the barrel, the shared schema
+  // types and one module per document file.
+  {
+    ignores: [
+      "src/lib/graphql/generated.ts",
+      "src/lib/graphql/base.ts",
+      "src/lib/graphql/operations/**",
+      ".next/**",
+    ],
+  },
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
     rules: {

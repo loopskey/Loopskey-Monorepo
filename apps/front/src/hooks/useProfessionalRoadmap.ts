@@ -1,11 +1,12 @@
 "use client";
 
+import { ProfessionalExploreRoadmapsQueryVariables } from "@/lib/graphql/operations/professional";
+import { ProfessionalMyRoadmapsQueryVariables } from "@/lib/graphql/operations/professional";
 import { ChangeEvent, useMemo, useState } from "react";
 import { PAGE_SIZE } from "@/utils/constant";
 import { useI18n } from "@/hooks/useI18n";
 
 import * as API from "@/lib/rtk/endpoints/professional.api";
-import * as GQL from "@/lib/graphql/generated";
 import * as T from "@/types/professional-dashboard.types";
 
 export const useProfessionalRoadmaps = () => {
@@ -23,7 +24,7 @@ export const useProfessionalRoadmaps = () => {
   const currentExploreCursor = exploreCursorStack.at(-1);
 
   // =============== Use Memo =============
-  const myRoadmapsVariables = useMemo<GQL.ProfessionalMyRoadmapsQueryVariables>(
+  const myRoadmapsVariables = useMemo<ProfessionalMyRoadmapsQueryVariables>(
     () => ({
       filter: {
         search: search.trim() || undefined,
@@ -37,7 +38,7 @@ export const useProfessionalRoadmaps = () => {
   );
 
   const exploreRoadmapsVariables =
-    useMemo<GQL.ProfessionalExploreRoadmapsQueryVariables>(
+    useMemo<ProfessionalExploreRoadmapsQueryVariables>(
       () => ({
         filter: {
           search: exploreSearch.trim() || undefined,

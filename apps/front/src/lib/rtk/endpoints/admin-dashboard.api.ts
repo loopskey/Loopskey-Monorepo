@@ -1,7 +1,7 @@
 import { baseApi } from "@/lib/rtk/baseApi";
 
 import type * as TAPI from "@/lib/graphql/generated";
-import * as API from "@/lib/graphql/generated";
+import * as API from "@/lib/graphql/operations/admin-dashboard";
 
 export const adminApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -334,7 +334,6 @@ export const {
   useUpdateAdminProfileMutation,
   useAdminDashboardOverviewQuery,
   useAdminOrgAccessRequestsQuery,
-  useAdminOrgAccessRequestDetailQuery,
   useLazyAdminOrganizationsQuery,
   useAdminOrganizationDetailQuery,
   useUpdateAdminUserStatusMutation,
@@ -342,10 +341,11 @@ export const {
   useLazyAdminDashboardOverviewQuery,
   useLazyAdminOrgAccessRequestsQuery,
   useLazyAdminOrganizationDetailQuery,
+  useAdminOrgAccessRequestDetailQuery,
   useRejectAdminOrgAccessRequestMutation,
   useApproveAdminOrgAccessRequestMutation,
-  useResendAdminOrgAccessRequestNotificationMutation,
   useUpdateAdminOrganizationMemberMutation,
   useRemoveAdminOrganizationMemberMutation,
   useUpdateAdminOrganizationSettingsMutation,
+  useResendAdminOrgAccessRequestNotificationMutation,
 } = adminApi;

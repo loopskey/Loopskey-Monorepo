@@ -3,7 +3,7 @@
 import { TProfessionalProfile } from "@/types/professional-profile.types";
 import { TLearningFormatCard } from "@/types/professional-profile.types";
 import { useEffect, useMemo } from "react";
-import { LearningFormat } from "@/lib/graphql/generated";
+import { LearningFormat } from "@/lib/graphql/base";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useI18n } from "@/hooks/useI18n";
 import { useForm } from "react-hook-form";

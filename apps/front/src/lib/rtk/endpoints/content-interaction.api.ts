@@ -1,7 +1,8 @@
+import { ContentType } from "@/lib/graphql/base";
 import { baseApi } from "@/lib/rtk/baseApi";
 
 import type * as TAPI from "@/lib/graphql/generated";
-import * as API from "@/lib/graphql/generated";
+import * as API from "@/lib/graphql/operations/content-interaction";
 
 export const contentInteractionApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -262,12 +263,11 @@ export const contentInteractionApi = baseApi.injectEndpoints({
   }),
 });
 
-const getContentListTags = (contentType: API.ContentType) => {
-  if (contentType === API.ContentType.Course) return ["Courses"] as const;
-  if (contentType === API.ContentType.Event) return ["Events"] as const;
-  if (contentType === API.ContentType.Podcast) return ["Podcasts"] as const;
-  if (contentType === API.ContentType.Youtube)
-    return ["YouTubeChannels"] as const;
+const getContentListTags = (contentType: ContentType) => {
+  if (contentType === ContentType.Course) return ["Courses"] as const;
+  if (contentType === ContentType.Event) return ["Events"] as const;
+  if (contentType === ContentType.Podcast) return ["Podcasts"] as const;
+  if (contentType === ContentType.Youtube) return ["YouTubeChannels"] as const;
   return [] as const;
 };
 

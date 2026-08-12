@@ -2,8 +2,8 @@
 
 import { TOrgAssignmentFormProps } from "@/types/org-dashboard.types";
 import { FloatingTextareaField } from "@elements/floating-textarea";
-import { AssignmentTargetKind } from "@/lib/graphql/generated";
-import { AssignmentType, Role } from "@/lib/graphql/generated";
+import { AssignmentTargetKind } from "@/lib/graphql/base";
+import { AssignmentType, Role } from "@/lib/graphql/base";
 import { FloatingSelectField } from "@elements/floating-select";
 import { FloatingInputField } from "@elements/floating-input";
 import { Button } from "@ui/button";

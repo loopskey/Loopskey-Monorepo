@@ -4,7 +4,7 @@ import { useEnrollContentMutation } from "@/lib/rtk/endpoints/content-interactio
 import { getOverviewSectionState } from "@/utils/professional-overview.helper";
 import { OverviewCardMessage } from "@modules/ProfessionalDashboard/parts/overview-card";
 import { useCoursesQuery } from "@/lib/rtk/endpoints/course.api";
-import { ContentType } from "@/lib/graphql/generated";
+import { ContentType } from "@/lib/graphql/base";
 import { GlassCard } from "@elements/glass-card";
 import { Skeleton } from "@ui/skeleton";
 import { useI18n } from "@/hooks/useI18n";

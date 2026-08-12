@@ -2,7 +2,7 @@
 
 import { RoleRouteGuard } from "@guards/role-route-guards";
 import { ReactNode } from "react";
-import { Role } from "@/lib/graphql/generated";
+import { Role } from "@/lib/graphql/base";
 
 export const ProfessionalRouteGuard = ({
   children,

@@ -2,7 +2,7 @@
 
 import { useProviderAnalyticsCsvQuery } from "@/lib/rtk/endpoints/provider.api";
 import { useProviderAnalyticsQuery } from "@/lib/rtk/endpoints/provider.api";
-import { ProviderDashboardRange } from "@/lib/graphql/generated";
+import { ProviderDashboardRange } from "@/lib/graphql/base";
 import { useMemo, useState } from "react";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";

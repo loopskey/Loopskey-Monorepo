@@ -1,8 +1,8 @@
+import { CpdEvidenceType, CpdReportRecipientType } from "@/lib/graphql/base";
+import { CreateCpdPlanInput, CreditType } from "@/lib/graphql/base";
 import { TCertification, TCpdPlan } from "@/types/cpd-plan.types";
 import { CpdPlanFormValues } from "@/lib/validations/cpd-plan.schema";
 import { CpdPlanFormInput } from "@/lib/validations/cpd-plan.schema";
-
-import * as GQL from "@/lib/graphql/generated";
 
 export const toDateInputValue = (iso?: string | null): string => {
   if (!iso) return "";
@@ -53,15 +53,15 @@ export const emptyCpdPlanForm = (certificationName = ""): CpdPlanFormInput => {
     reportingEnd: addMonths(new Date(`${start}T00:00:00.000Z`), 12)
       .toISOString()
       .slice(0, 10),
-    creditType: GQL.CreditType.Cpd,
+    creditType: CreditType.Cpd,
     totalRequiredCredits: 0,
     initialCompletedCredits: 0,
     timeAvailable: null,
     preferredFormats: [],
     categories: [],
-    evidenceTypes: [GQL.CpdEvidenceType.Certificate],
+    evidenceTypes: [CpdEvidenceType.Certificate],
     evidenceOtherNote: "",
-    reportRecipientType: GQL.CpdReportRecipientType.Self,
+    reportRecipientType: CpdReportRecipientType.Self,
     reportRecipientLabel: "",
     remindersEnabled: false,
     reminderTiming: null,
@@ -113,7 +113,7 @@ export const planToForm = (plan: TCpdPlan): CpdPlanFormInput => ({
 export const formToCreateInput = (
   values: CpdPlanFormValues,
   options?: { certificationId?: string; allowDuplicate?: boolean },
-): GQL.CreateCpdPlanInput => ({
+): CreateCpdPlanInput => ({
   certificationId: options?.certificationId,
   certificationName: values.certificationName.trim(),
   organization: values.organization.trim(),
@@ -130,7 +130,7 @@ export const formToCreateInput = (
     completed: category.completed,
   })),
   evidenceTypes: values.evidenceTypes,
-  evidenceOtherNote: values.evidenceTypes.includes(GQL.CpdEvidenceType.Other)
+  evidenceOtherNote: values.evidenceTypes.includes(CpdEvidenceType.Other)
     ? values.evidenceOtherNote?.trim() || undefined
     : undefined,
   reportRecipientType: values.reportRecipientType,

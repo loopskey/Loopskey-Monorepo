@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import { Role, UserStatus } from "@/lib/graphql/generated";
+import { Role, UserStatus } from "@/lib/graphql/base";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
 

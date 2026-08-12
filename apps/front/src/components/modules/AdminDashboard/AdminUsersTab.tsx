@@ -2,7 +2,7 @@
 
 import { DashboardStatCard } from "@modules/ProfessionalDashboard/parts/dashboard-stat-card";
 import { ContentPagination } from "@elements/pagination";
-import { Role, UserStatus } from "@/lib/graphql/generated";
+import { Role, UserStatus } from "@/lib/graphql/base";
 import { useAdminUsersTab } from "@/hooks/useAdminUserstab";
 import { formatDate } from "@/utils/function-helper";
 import { GlassCard } from "@elements/glass-card";

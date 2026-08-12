@@ -4,7 +4,7 @@ import { useLazyGoogleOAuthUrlQuery } from "@/lib/rtk/endpoints/auth.api";
 import { isGoogleOAuthAllowedRole } from "@/utils/oauth.constant";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
-import { Role } from "@/lib/graphql/generated";
+import { Role } from "@/lib/graphql/base";
 
 export const useGoogleSocialOAuth = (role: Role) => {
   const { t } = useI18n();

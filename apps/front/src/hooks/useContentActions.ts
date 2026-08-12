@@ -1,5 +1,7 @@
 "use client";
 
+import { CartItemStatus, ContentEnrollmentStatus } from "@/lib/graphql/base";
+import { MyWishlistInput, WishlistSortBy } from "@/lib/graphql/base";
 import { TUseContentActionsArgs } from "@/types/hooks.types";
 import { useCurrentUserQuery } from "@/lib/rtk/endpoints/auth.api";
 import { useRouter } from "next/navigation";
@@ -9,7 +11,6 @@ import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
 
 import * as ContentApi from "@/lib/rtk/endpoints/content-interaction.api";
-import * as API from "@/lib/graphql/generated";
 
 const getLoginReturnUrl = () => {
   if (typeof window === "undefined") return siteLinks.login;
@@ -57,12 +58,12 @@ export const useContentActions = ({
   const isAuthenticated = Boolean(currentUserData?.user);
   const skip = !contentId;
   const skipAuthQueries = skip || !isAuthenticated;
-  const wishlistInput = useMemo<API.MyWishlistInput>(
+  const wishlistInput = useMemo<MyWishlistInput>(
     () => ({
       page: 1,
       limit: 50,
       contentType,
-      sortBy: API.WishlistSortBy.Newest,
+      sortBy: WishlistSortBy.Newest,
     }),
     [contentType],
   );
@@ -128,7 +129,7 @@ export const useContentActions = ({
         (item) =>
           item.contentType === contentType &&
           item.contentId === contentId &&
-          item.status !== API.ContentEnrollmentStatus.Canceled,
+          item.status !== ContentEnrollmentStatus.Canceled,
       ),
     [enrollments, contentType, contentId],
   );
@@ -140,7 +141,7 @@ export const useContentActions = ({
           (item) =>
             item.contentType === contentType &&
             item.contentId === contentId &&
-            item.status === API.CartItemStatus.Active,
+            item.status === CartItemStatus.Active,
         ),
       ),
     [cart, contentType, contentId],

@@ -1,4 +1,4 @@
-import { ContentType } from "@/lib/graphql/generated";
+import { ContentType } from "@/lib/graphql/base";
 import { LucideIcon } from "lucide-react";
 
 import * as R from "lucide-react";

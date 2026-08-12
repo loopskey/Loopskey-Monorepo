@@ -1,6 +1,6 @@
 "use client";
 
-import { AssignmentTargetKind, AssignmentType } from "@/lib/graphql/generated";
+import { AssignmentTargetKind, AssignmentType } from "@/lib/graphql/base";
 import { TOrganizationAssignmentFormValues } from "@/types/org-dashboard.types";
 import { useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";

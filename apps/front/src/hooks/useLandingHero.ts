@@ -13,7 +13,7 @@ import * as PodcastApi from "@lib/rtk/endpoints/podcast.api";
 import * as YouTubeApi from "@lib/rtk/endpoints/youtube.api";
 import * as CourseApi from "@lib/rtk/endpoints/course.api";
 import * as EventApi from "@lib/rtk/endpoints/event.api";
-import * as API from "@lib/graphql/generated";
+import { CourseCategory, CourseSortField, EventCategory, EventSortDirection, EventSortField, PodcastCategory, PodcastSortDirection, PodcastSortField, SortDirection, YouTubeCategory, YouTubeChannelSortDirection, YouTubeChannelSortField } from "@/lib/graphql/base";
 
 export const useLandingHeroSearch = () => {
   const { t } = useI18n();
@@ -33,55 +33,55 @@ export const useLandingHeroSearch = () => {
       {
         id: "course-technology",
         kind: "course",
-        value: API.CourseCategory.Technology,
+        value: CourseCategory.Technology,
         label: t("landing.hero.categories.technologyCourses"),
       },
       {
         id: "course-business",
         kind: "course",
-        value: API.CourseCategory.Business,
+        value: CourseCategory.Business,
         label: t("landing.hero.categories.businessCourses"),
       },
       {
         id: "course-leadership",
         kind: "course",
-        value: API.CourseCategory.Leadership,
+        value: CourseCategory.Leadership,
         label: t("landing.hero.categories.leadershipCourses"),
       },
       {
         id: "event-cpd",
         kind: "event",
-        value: API.EventCategory.Cpd,
+        value: EventCategory.Cpd,
         label: t("landing.hero.categories.cpdEvents"),
       },
       {
         id: "event-compliance",
         kind: "event",
-        value: API.EventCategory.Compliance,
+        value: EventCategory.Compliance,
         label: t("landing.hero.categories.complianceEvents"),
       },
       {
         id: "podcast-ai",
         kind: "podcast",
-        value: API.PodcastCategory.Ai,
+        value: PodcastCategory.Ai,
         label: t("landing.hero.categories.aiPodcasts"),
       },
       {
         id: "podcast-career",
         kind: "podcast",
-        value: API.PodcastCategory.Career,
+        value: PodcastCategory.Career,
         label: t("landing.hero.categories.careerPodcasts"),
       },
       {
         id: "youtube-data",
         kind: "youtube",
-        value: API.YouTubeCategory.Data,
+        value: YouTubeCategory.Data,
         label: t("landing.hero.categories.dataYouTube"),
       },
       {
         id: "youtube-engineering",
         kind: "youtube",
-        value: API.YouTubeCategory.Engineering,
+        value: YouTubeCategory.Engineering,
         label: t("landing.hero.categories.engineeringYouTube"),
       },
     ],
@@ -92,7 +92,7 @@ export const useLandingHeroSearch = () => {
     search: hasSearch ? debouncedSearch : undefined,
     category:
       selectedCategory?.kind === "course"
-        ? (selectedCategory.value as API.CourseCategory)
+        ? (selectedCategory.value as CourseCategory)
         : undefined,
   };
 
@@ -100,7 +100,7 @@ export const useLandingHeroSearch = () => {
     search: hasSearch ? debouncedSearch : undefined,
     category:
       selectedCategory?.kind === "event"
-        ? (selectedCategory.value as API.EventCategory)
+        ? (selectedCategory.value as EventCategory)
         : undefined,
   };
 
@@ -108,7 +108,7 @@ export const useLandingHeroSearch = () => {
     search: hasSearch ? debouncedSearch : undefined,
     category:
       selectedCategory?.kind === "podcast"
-        ? (selectedCategory.value as API.PodcastCategory)
+        ? (selectedCategory.value as PodcastCategory)
         : undefined,
   };
 
@@ -116,7 +116,7 @@ export const useLandingHeroSearch = () => {
     search: hasSearch ? debouncedSearch : undefined,
     category:
       selectedCategory?.kind === "youtube"
-        ? (selectedCategory.value as API.YouTubeCategory)
+        ? (selectedCategory.value as YouTubeCategory)
         : undefined,
   };
 
@@ -127,8 +127,8 @@ export const useLandingHeroSearch = () => {
       filter: courseFilter,
       pagination: { take },
       sort: {
-        field: API.CourseSortField.CreatedAt,
-        direction: API.SortDirection.Desc,
+        field: CourseSortField.CreatedAt,
+        direction: SortDirection.Desc,
       },
     },
     {
@@ -143,8 +143,8 @@ export const useLandingHeroSearch = () => {
       filter: eventFilter,
       pagination: { take },
       sort: {
-        field: API.EventSortField.StartDate,
-        direction: API.EventSortDirection.Asc,
+        field: EventSortField.StartDate,
+        direction: EventSortDirection.Asc,
       },
     },
     {
@@ -159,8 +159,8 @@ export const useLandingHeroSearch = () => {
       filter: podcastFilter,
       pagination: { take },
       sort: {
-        field: API.PodcastSortField.CreatedAt,
-        direction: API.PodcastSortDirection.Desc,
+        field: PodcastSortField.CreatedAt,
+        direction: PodcastSortDirection.Desc,
       },
     },
     {
@@ -175,8 +175,8 @@ export const useLandingHeroSearch = () => {
       filter: youtubeFilter,
       pagination: { take },
       sort: {
-        field: API.YouTubeChannelSortField.CreatedAt,
-        direction: API.YouTubeChannelSortDirection.Desc,
+        field: YouTubeChannelSortField.CreatedAt,
+        direction: YouTubeChannelSortDirection.Desc,
       },
     },
     {

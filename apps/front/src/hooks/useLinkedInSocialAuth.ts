@@ -4,7 +4,7 @@ import { useLazyLinkedinOAuthUrlQuery } from "@/lib/rtk/endpoints/auth.api";
 import { isLinkedInOAuthAllowedRole } from "@/utils/oauth.constant";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
-import { Role } from "@/lib/graphql/generated";
+import { Role } from "@/lib/graphql/base";
 
 export const useLinkedInSocialOAuth = (role: Role) => {
   const { t } = useI18n();
