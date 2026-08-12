@@ -1,6 +1,6 @@
 "use client";
 
-import { OrganizationMemberStatus } from "@/lib/graphql/generated";
+import { OrganizationMemberStatus } from "@/lib/graphql/base";
 import { TOrgMembersFilters } from "@/types/org-dashboard.types";
 import { Input } from "@ui/input";
 

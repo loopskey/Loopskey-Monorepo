@@ -1,6 +1,9 @@
 "use client";
 
+import { OrganizationReportTopMembersQueryVariables } from "@/lib/graphql/operations/org-dashboard";
+import { OrganizationReportsQueryVariables } from "@/lib/graphql/operations/org-dashboard";
 import { ALL_DEPARTMENTS, CHART_COLORS } from "@/utils/constant";
+import { OrganizationReportRangeEnum } from "@/lib/graphql/base";
 import { reportFilterSchema } from "@/lib/validations/org-dashboard.schema";
 import { useMemo, useState } from "react";
 import { TReportFilterForm } from "@/lib/validations/org-dashboard.schema";
@@ -9,7 +12,6 @@ import { useForm } from "react-hook-form";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
 
-import * as TAPI from "@/lib/graphql/generated";
 import * as API from "@/lib/rtk/endpoints/org-dashboard.api";
 
 export const useOrgReportsTab = () => {
@@ -26,7 +28,7 @@ export const useOrgReportsTab = () => {
       endDate: "",
       startDate: "",
       departmentId: ALL_DEPARTMENTS,
-      range: TAPI.OrganizationReportRangeEnum.CurrentYear,
+      range: OrganizationReportRangeEnum.CurrentYear,
     },
   });
 
@@ -36,16 +38,16 @@ export const useOrgReportsTab = () => {
   const endDate = form.watch("endDate");
   const departmentsQuery = API.useOrganizationDepartmentsQuery();
 
-  const reportVariables = useMemo<TAPI.OrganizationReportsQueryVariables>(
+  const reportVariables = useMemo<OrganizationReportsQueryVariables>(
     () => ({
       filter: {
         range,
         startDate:
-          range === TAPI.OrganizationReportRangeEnum.Custom
+          range === OrganizationReportRangeEnum.Custom
             ? startDate || undefined
             : undefined,
         endDate:
-          range === TAPI.OrganizationReportRangeEnum.Custom
+          range === OrganizationReportRangeEnum.Custom
             ? endDate || undefined
             : undefined,
         departmentId:
@@ -56,16 +58,16 @@ export const useOrgReportsTab = () => {
   );
 
   const topMembersVariables =
-    useMemo<TAPI.OrganizationReportTopMembersQueryVariables>(
+    useMemo<OrganizationReportTopMembersQueryVariables>(
       () => ({
         filter: {
           search: memberSearch.trim() || undefined,
           startDate:
-            range === TAPI.OrganizationReportRangeEnum.Custom
+            range === OrganizationReportRangeEnum.Custom
               ? startDate || undefined
               : undefined,
           endDate:
-            range === TAPI.OrganizationReportRangeEnum.Custom
+            range === OrganizationReportRangeEnum.Custom
               ? endDate || undefined
               : undefined,
           departmentId:

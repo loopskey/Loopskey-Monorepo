@@ -1,13 +1,14 @@
+import { MeDocument, UpdateMeDocument } from "@/lib/graphql/operations/user";
+import { CreateUserDocument } from "@/lib/graphql/operations/user";
 import { baseApi } from "@/lib/rtk/baseApi";
 
 import type * as TAPI from "@/lib/graphql/generated";
-import * as API from "@/lib/graphql/generated";
 
 export const userApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     me: builder.query<TAPI.MeQuery["me"], void>({
       query: () => ({
-        document: API.MeDocument,
+        document: MeDocument,
       }),
       providesTags: ["User", "CurrentUser"],
     }),
@@ -17,7 +18,7 @@ export const userApi = baseApi.injectEndpoints({
       TAPI.UpdateMeMutationVariables["input"]
     >({
       query: (input) => ({
-        document: API.UpdateMeDocument,
+        document: UpdateMeDocument,
         variables: { input },
       }),
       invalidatesTags: ["User", "CurrentUser"],
@@ -28,7 +29,7 @@ export const userApi = baseApi.injectEndpoints({
       TAPI.CreateUserMutationVariables["input"]
     >({
       query: (input) => ({
-        document: API.CreateUserDocument,
+        document: CreateUserDocument,
         variables: { input },
       }),
       invalidatesTags: ["Users"],

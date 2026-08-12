@@ -1,7 +1,7 @@
 "use client";
 
-import { AssignmentTargetKind, AssignmentType } from "@/lib/graphql/generated";
-import { OrganizationMemberStatus, Role } from "@/lib/graphql/generated";
+import { AssignmentTargetKind, AssignmentType } from "@/lib/graphql/base";
+import { OrganizationMemberStatus, Role } from "@/lib/graphql/base";
 import { TOrganizationBulkMemberRow } from "@/types/org-dashboard.types";
 import { useMemo, useState } from "react";
 import { normalizeText } from "@/utils/constant";

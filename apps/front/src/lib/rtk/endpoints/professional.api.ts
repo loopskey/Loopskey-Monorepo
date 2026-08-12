@@ -1,7 +1,7 @@
 import { baseApi } from "@/lib/rtk/baseApi";
 
 import type * as TAPI from "@/lib/graphql/generated";
-import * as API from "@/lib/graphql/generated";
+import * as API from "@/lib/graphql/operations/professional";
 
 export const PROFILE_SECTION_TAGS = [
   "User",
@@ -573,35 +573,26 @@ export const professionalApi = baseApi.injectEndpoints({
 });
 
 export const {
+  useMyCalendarEntriesQuery,
   useProfessionalSettingsQuery,
   useProfessionalOverviewQuery,
   useProfessionalPaymentsQuery,
   useProfessionalPduReportQuery,
   useProfessionalMyCoursesQuery,
   useProfessionalMyRoadmapsQuery,
+  useCreateCalendarEventMutation,
+  useDeleteCalendarEventMutation,
+  useProfessionalPduActivityQuery,
   useLazyProfessionalPaymentsQuery,
   useProfessionalCertificatesQuery,
   useProfessionalCertificateQuery,
-  useProfessionalCertificateSummaryQuery,
-  useProfessionalCertificateIssuersQuery,
-  useCreateProfessionalCertificateMutation,
-  useUpdateProfessionalCertificateMutation,
-  useDeleteProfessionalCertificateMutation,
   useLazyProfessionalSettingsQuery,
   useLazyProfessionalOverviewQuery,
   useLazyProfessionalMyCoursesQuery,
   useLazyProfessionalPduReportQuery,
   useProfessionalPduActivitiesQuery,
-  useProfessionalPduActivityQuery,
-  useProfessionalPduActivitySummaryQuery,
-  useLazyProfessionalPduActivityQuery,
-  useProfessionalContentCompletionQuery,
-  useUpdateProfessionalPduActivityMutation,
-  useDeleteProfessionalPduActivityMutation,
   useProfessionalCalendarEventsQuery,
-  useMyCalendarEntriesQuery,
-  useCreateCalendarEventMutation,
-  useDeleteCalendarEventMutation,
+  useLazyProfessionalPduActivityQuery,
   useProfessionalActiveSessionsQuery,
   useProfessionalExploreRoadmapsQuery,
   useLazyProfessionalCertificatesQuery,
@@ -612,6 +603,15 @@ export const {
   useLazyProfessionalCalendarEventsQuery,
   useUpsertProfessionalPduTargetMutation,
   useLazyProfessionalActiveSessionsQuery,
+  useProfessionalContentCompletionQuery,
+  useProfessionalCertificateSummaryQuery,
+  useProfessionalCertificateIssuersQuery,
+  useProfessionalPduActivitySummaryQuery,
+  useUpdateProfessionalPduActivityMutation,
+  useDeleteProfessionalPduActivityMutation,
+  useCreateProfessionalCertificateMutation,
+  useUpdateProfessionalCertificateMutation,
+  useDeleteProfessionalCertificateMutation,
   useCreateProfessionalPduActivityMutation,
   useLazyProfessionalDashboardProfileQuery,
   useSetProfessionalCertificateCpdPlanMutation,

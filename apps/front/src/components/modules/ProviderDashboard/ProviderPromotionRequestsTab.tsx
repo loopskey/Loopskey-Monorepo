@@ -1,7 +1,7 @@
 "use client";
 
 import { useProviderPromotionRequestsTab } from "@hooks/useProviderPromotionRequestTab";
-import { PromotionRequestStatus } from "@lib/graphql/generated";
+import { PromotionRequestStatus } from "@/lib/graphql/base";
 import { FloatingTextareaField } from "@elements/floating-textarea";
 import { FloatingSelectField } from "@elements/floating-select";
 import { FloatingInputField } from "@elements/floating-input";

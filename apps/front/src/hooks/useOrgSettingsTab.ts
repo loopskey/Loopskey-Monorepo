@@ -3,7 +3,7 @@
 import { useChangePasswordMutation } from "@/lib/rtk/endpoints/auth.api";
 import { useCurrentUserQuery } from "@/lib/rtk/endpoints/auth.api";
 import { useEffect, useMemo } from "react";
-import { ComplianceCycle } from "@/lib/graphql/generated";
+import { ComplianceCycle } from "@/lib/graphql/base";
 import { useForm } from "react-hook-form";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";

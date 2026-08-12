@@ -3,7 +3,7 @@
 import { useOrganizationSettingsTab } from "@/hooks/useOrgSettingsTab";
 import { FloatingSelectField } from "@elements/floating-select";
 import { FloatingInputField } from "@elements/floating-input";
-import { ComplianceCycle } from "@/lib/graphql/generated";
+import { ComplianceCycle } from "@/lib/graphql/base";
 import { PasswordField } from "@elements/password-field";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";

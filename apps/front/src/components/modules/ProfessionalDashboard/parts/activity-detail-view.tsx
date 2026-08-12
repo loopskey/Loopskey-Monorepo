@@ -1,6 +1,6 @@
 "use client";
 
-import { PduCompletionStatus, PduStatus } from "@/lib/graphql/generated";
+import { PduCompletionStatus, PduStatus } from "@/lib/graphql/base";
 import { formatDate, formatDateTime } from "@/utils/function-helper";
 import { TActivityDetailViewProps } from "@/types/professional-dashboard.types";
 import { formatFileSize } from "@/utils/pdu.constant";

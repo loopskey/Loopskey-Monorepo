@@ -4,7 +4,7 @@ import { FloatingTextareaField } from "@elements/floating-textarea";
 import { TCpdCategoryFormProps } from "@/types/org-dashboard.types";
 import { FloatingSelectField } from "@elements/floating-select";
 import { FloatingInputField } from "@elements/floating-input";
-import { PduCategory } from "@/lib/graphql/generated";
+import { PduCategory } from "@/lib/graphql/base";
 import { Button } from "@ui/button";
 import { Switch } from "@ui/switch";
 import { Form } from "@ui/form";

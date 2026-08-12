@@ -8,7 +8,7 @@ import { CalendarPlus } from "lucide-react";
 import { useState } from "react";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
-import { Role } from "@/lib/graphql/generated";
+import { Role } from "@/lib/graphql/base";
 import { cn } from "@/lib/utils";
 
 export const AddToCalendarButton = ({

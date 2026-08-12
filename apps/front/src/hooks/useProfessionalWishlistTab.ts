@@ -7,7 +7,7 @@ import { DEFAULT_PAGE, PAGE_SIZE } from "@/utils/constant";
 import { useMyWishlistQuery } from "@/lib/rtk/endpoints/content-interaction.api";
 import { useMemo, useState } from "react";
 import { useDebouncedValue } from "@/hooks/useDebounced";
-import { ContentType } from "@/lib/graphql/generated";
+import { ContentType } from "@/lib/graphql/base";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
 

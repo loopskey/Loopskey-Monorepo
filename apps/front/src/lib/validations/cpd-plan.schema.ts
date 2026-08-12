@@ -1,7 +1,7 @@
 import { CPD_TARGET_MAX } from "@/utils/cpd-plan.constant";
 import { z } from "zod";
 
-import * as GQL from "@/lib/graphql/generated";
+import * as API from "@/lib/graphql/base";
 
 const requiredText = (max = 200) =>
   z.string().trim().min(1, "cpdProgress.validation.required").max(max);
@@ -31,7 +31,7 @@ export const cpdPlanSchema = z
     // Step 2
     reportingStart: z.string().min(1, "cpdProgress.validation.required"),
     reportingEnd: z.string().min(1, "cpdProgress.validation.required"),
-    creditType: z.nativeEnum(GQL.CreditType),
+    creditType: z.nativeEnum(API.CreditType),
     totalRequiredCredits: z.coerce
       .number({ message: "cpdProgress.validation.number" })
       .positive("cpdProgress.validation.positive")
@@ -40,16 +40,16 @@ export const cpdPlanSchema = z
       .number({ message: "cpdProgress.validation.number" })
       .min(0, "cpdProgress.validation.nonNegative")
       .max(CPD_TARGET_MAX),
-    timeAvailable: z.nativeEnum(GQL.LearningTimeCommitment).nullable(),
-    preferredFormats: z.array(z.nativeEnum(GQL.LearningFormat)),
+    timeAvailable: z.nativeEnum(API.LearningTimeCommitment).nullable(),
+    preferredFormats: z.array(z.nativeEnum(API.LearningFormat)),
     // Step 3
     categories: z.array(cpdCategorySchema),
     // Step 4
     evidenceTypes: z
-      .array(z.nativeEnum(GQL.CpdEvidenceType))
+      .array(z.nativeEnum(API.CpdEvidenceType))
       .min(1, "cpdProgress.validation.evidenceRequired"),
     evidenceOtherNote: z.string().trim().max(500).optional().or(z.literal("")),
-    reportRecipientType: z.nativeEnum(GQL.CpdReportRecipientType),
+    reportRecipientType: z.nativeEnum(API.CpdReportRecipientType),
     reportRecipientLabel: z
       .string()
       .trim()
@@ -57,7 +57,7 @@ export const cpdPlanSchema = z
       .optional()
       .or(z.literal("")),
     remindersEnabled: z.boolean(),
-    reminderTiming: z.nativeEnum(GQL.CpdReminderTiming).nullable(),
+    reminderTiming: z.nativeEnum(API.CpdReminderTiming).nullable(),
   })
   .superRefine((value, ctx) => {
     // End must not be before start.
@@ -109,7 +109,6 @@ export const cpdPlanSchema = z
         message: "cpdProgress.validation.categoryTotalOverTotal",
       });
 
-    // Reminder timing is required once reminders are enabled.
     if (value.remindersEnabled && !value.reminderTiming)
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -117,9 +116,8 @@ export const cpdPlanSchema = z
         message: "cpdProgress.validation.reminderTimingRequired",
       });
 
-    // A custom "Other" recipient needs a label.
     if (
-      value.reportRecipientType === GQL.CpdReportRecipientType.Other &&
+      value.reportRecipientType === API.CpdReportRecipientType.Other &&
       !value.reportRecipientLabel?.trim()
     )
       ctx.addIssue({

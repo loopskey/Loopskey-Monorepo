@@ -1,7 +1,7 @@
 import { baseApi } from "@/lib/rtk/baseApi";
 
 import type * as TAPI from "@/lib/graphql/generated";
-import * as API from "@/lib/graphql/generated";
+import * as API from "@/lib/graphql/operations/event";
 
 export const eventApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({

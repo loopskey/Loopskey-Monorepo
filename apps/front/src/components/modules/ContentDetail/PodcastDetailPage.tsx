@@ -1,5 +1,6 @@
 "use client";
 
+import { CalendarEventType, ContentType, PduSource } from "@/lib/graphql/base";
 import { Clock3, PlayCircle, UserRound } from "lucide-react";
 import { Headphones, ListMusic } from "lucide-react";
 import { useContentActions } from "@/hooks/useContentActions";
@@ -8,7 +9,6 @@ import { useI18n } from "@/hooks/useI18n";
 
 import * as PodcastApi from "@/lib/rtk/endpoints/podcast.api";
 import * as Tabs from "@ui/tabs";
-import * as API from "@/lib/graphql/generated";
 
 import DetailHeroActions from "@modules/ContentDetail/parts/DetailHeroActions";
 import PodcastEpisodes from "@modules/ContentDetail/parts/PodcastEpisodes";
@@ -35,7 +35,7 @@ const PodcastDetailPage = ({ slug }: { slug: string }) => {
   );
 
   const actions = useContentActions({
-    contentType: API.ContentType.Podcast,
+    contentType: ContentType.Podcast,
     contentId: podcast?.id,
   });
 
@@ -59,9 +59,9 @@ const PodcastDetailPage = ({ slug }: { slug: string }) => {
 
   const calendarPrefill = {
     title: podcast.title,
-    type: API.CalendarEventType.Other,
+    type: CalendarEventType.Other,
     contentId: podcast.id,
-    contentType: API.ContentType.Podcast,
+    contentType: ContentType.Podcast,
   };
 
   const primary = latestEpisode?.audioUrl
@@ -92,13 +92,13 @@ const PodcastDetailPage = ({ slug }: { slug: string }) => {
           badge={t("contentDetails.podcast.badge")}
           actions={
             <DetailHeroActions
-              contentType={API.ContentType.Podcast}
+              contentType={ContentType.Podcast}
               prefill={calendarPrefill}
               completed={{
                 title: podcast.title,
                 contentId: podcast.id,
-                contentType: API.ContentType.Podcast,
-                activityType: API.PduSource.Podcast,
+                contentType: ContentType.Podcast,
+                activityType: PduSource.Podcast,
                 providerOrganizer: podcast.host,
                 durationMinutes: podcast.durationMinutes,
               }}

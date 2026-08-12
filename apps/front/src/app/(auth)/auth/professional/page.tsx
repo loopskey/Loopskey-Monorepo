@@ -1,5 +1,6 @@
 "use client";
 
+import { AuthRegisterRole, Role } from "@/lib/graphql/base";
 import { ArrowRight } from "lucide-react";
 import { siteLinks } from "@/utils/constant";
 import { useI18n } from "@/hooks/useI18n";
@@ -9,8 +10,6 @@ import AuthFeaturePanel from "@modules/Auth/parts/AuthFeaturePanel";
 import AuthPageShell from "@modules/Auth/parts/AuthPageSell";
 import RoleAuthCard from "@modules/Auth/parts/RoleAuthCard";
 import Link from "next/link";
-
-import * as API from "@/lib/graphql/generated";
 
 const ProfessionalAuthPage = () => {
   const { t } = useI18n();
@@ -39,8 +38,8 @@ const ProfessionalAuthPage = () => {
       <section className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-2 px-4 sm:px-6 lg:px-8">
         <div className="flex justify-center lg:justify-start">
           <RoleAuthCard
-            loginRole={API.Role.Professional}
-            registerRole={API.AuthRegisterRole.Professional}
+            loginRole={Role.Professional}
+            registerRole={AuthRegisterRole.Professional}
           />
         </div>
 

@@ -1,6 +1,6 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
-import * as API from "@/lib/graphql/generated";
+import type * as API from "@/lib/graphql/base";
 
 export type TProviderDashboardTab =
   | "overview"
@@ -81,11 +81,11 @@ export type TProviderCreateEventForm = {
   description: string;
   type: API.EventType;
   specificTopic: string;
-  promotionVideoUrl: string;
   language: API.AppLanguage;
+  promotionVideoUrl: string;
   earlyBirdDiscount: string;
-  category: API.EventCategory;
   pduCategory: API.PduCategory;
+  category: API.EventCategory;
   deliveryMode: API.EventDeliveryMode;
 };
 

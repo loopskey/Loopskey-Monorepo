@@ -1,9 +1,10 @@
-import { useProfessionalAvatar } from "@/hooks/useProfessionalAvatar";
-import { UseFormReturn } from "react-hook-form";
-import { LucideIcon } from "lucide-react";
+import type { useProfessionalAvatar } from "@/hooks/useProfessionalAvatar";
+import type { LearningFormat } from "@/lib/graphql/base";
+import type { UseFormReturn } from "react-hook-form";
+import type { LucideIcon } from "lucide-react";
 
-import * as GQL from "@/lib/graphql/generated";
-import * as V from "@/lib/validations/professional-profile.schema";
+import type * as API from "@/lib/graphql/operations/professional";
+import type * as V from "@/lib/validations/professional-profile.schema";
 
 export type TProfessionalProfileTab =
   | "basic"
@@ -13,7 +14,7 @@ export type TProfessionalProfileTab =
   | "preferences";
 
 export type TProfessionalProfile =
-  GQL.ProfessionalDashboardProfileQuery["professionalDashboardProfile"];
+  API.ProfessionalDashboardProfileQuery["professionalDashboardProfile"];
 
 export type TProfileCompletion = TProfessionalProfile["completion"];
 export type TProfileCompletionSection = TProfileCompletion["sections"][number];
@@ -22,10 +23,10 @@ export type TProfileTaxonomyTerm =
   TProfessionalProfile["mainSkillAreas"][number];
 
 export type TProfileTaxonomyGroup =
-  GQL.ProfessionalProfileTaxonomyQuery["professionalProfileTaxonomy"][number];
+  API.ProfessionalProfileTaxonomyQuery["professionalProfileTaxonomy"][number];
 
 export type TProfileCpdPlan =
-  GQL.ProfessionalCpdPlansQuery["professionalCpdPlans"][number];
+  API.ProfessionalCpdPlansQuery["professionalCpdPlans"][number];
 
 export type TMultiSelectOption = {
   value: string;
@@ -34,7 +35,7 @@ export type TMultiSelectOption = {
 };
 
 export type TLearningFormatCard = {
-  value: GQL.LearningFormat;
+  value: LearningFormat;
   label: string;
   icon: LucideIcon;
 };

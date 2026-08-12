@@ -1,7 +1,7 @@
+import { SubmitContactInquiryDocument } from "@/lib/graphql/operations/support";
 import { baseApi } from "@/lib/rtk/baseApi";
 
 import type * as TAPI from "@/lib/graphql/generated";
-import * as API from "@/lib/graphql/generated";
 
 export const supportApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -10,7 +10,7 @@ export const supportApi = baseApi.injectEndpoints({
       TAPI.SubmitContactInquiryMutationVariables["input"]
     >({
       query: (input) => ({
-        document: API.SubmitContactInquiryDocument,
+        document: SubmitContactInquiryDocument,
         variables: { input },
       }),
       transformResponse: (response: TAPI.SubmitContactInquiryMutation) =>

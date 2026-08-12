@@ -1,5 +1,21 @@
 "use client";
 
+import {
+  CourseCategory,
+  CourseLevel,
+  CourseSortField,
+  EventCategory,
+  EventSortDirection,
+  EventSortField,
+  EventType,
+  PodcastCategory,
+  PodcastSortDirection,
+  PodcastSortField,
+  SortDirection,
+  YouTubeCategory,
+  YouTubeChannelSortDirection,
+  YouTubeChannelSortField,
+} from "@/lib/graphql/base";
 import { enumOptions, initialCursor, TAKE } from "@utils/constant";
 import { useEffect, useMemo, useState } from "react";
 import { SEARCH_DEBOUNCE_MS } from "@utils/constant";
@@ -10,7 +26,6 @@ import * as YouTubeApi from "@lib/rtk/endpoints/youtube.api";
 import * as PodcastApi from "@lib/rtk/endpoints/podcast.api";
 import * as CourseApi from "@lib/rtk/endpoints/course.api";
 import * as EventApi from "@lib/rtk/endpoints/event.api";
-import * as API from "@lib/graphql/generated";
 import * as T from "@/types/content-module.types";
 
 export const useContentPage = () => {
@@ -55,32 +70,32 @@ export const useContentPage = () => {
   const currentCursor = cursorByTab[activeTab];
 
   const courseCategoryOptions = useMemo(
-    () => enumOptions(API.CourseCategory, "content.enums.courseCategory", t),
+    () => enumOptions(CourseCategory, "content.enums.courseCategory", t),
     [t],
   );
 
   const courseLevelOptions = useMemo(
-    () => enumOptions(API.CourseLevel, "content.enums.courseLevel", t),
+    () => enumOptions(CourseLevel, "content.enums.courseLevel", t),
     [t],
   );
 
   const eventCategoryOptions = useMemo(
-    () => enumOptions(API.EventCategory, "content.enums.eventCategory", t),
+    () => enumOptions(EventCategory, "content.enums.eventCategory", t),
     [t],
   );
 
   const eventTypeOptions = useMemo(
-    () => enumOptions(API.EventType, "content.enums.eventType", t),
+    () => enumOptions(EventType, "content.enums.eventType", t),
     [t],
   );
 
   const podcastCategoryOptions = useMemo(
-    () => enumOptions(API.PodcastCategory, "content.enums.podcastCategory", t),
+    () => enumOptions(PodcastCategory, "content.enums.podcastCategory", t),
     [t],
   );
 
   const youtubeCategoryOptions = useMemo(
-    () => enumOptions(API.YouTubeCategory, "content.enums.youtubeCategory", t),
+    () => enumOptions(YouTubeCategory, "content.enums.youtubeCategory", t),
     [t],
   );
 
@@ -98,8 +113,8 @@ export const useContentPage = () => {
       cursor: currentCursor.cursor,
     },
     sort: {
-      field: API.CourseSortField.CreatedAt,
-      direction: API.SortDirection.Desc,
+      field: CourseSortField.CreatedAt,
+      direction: SortDirection.Desc,
     },
   };
 
@@ -114,8 +129,8 @@ export const useContentPage = () => {
       cursor: currentCursor.cursor,
     },
     sort: {
-      field: API.EventSortField.StartDate,
-      direction: API.EventSortDirection.Asc,
+      field: EventSortField.StartDate,
+      direction: EventSortDirection.Asc,
     },
   };
 
@@ -129,8 +144,8 @@ export const useContentPage = () => {
       cursor: currentCursor.cursor,
     },
     sort: {
-      field: API.PodcastSortField.CreatedAt,
-      direction: API.PodcastSortDirection.Desc,
+      field: PodcastSortField.CreatedAt,
+      direction: PodcastSortDirection.Desc,
     },
   };
 
@@ -144,8 +159,8 @@ export const useContentPage = () => {
       cursor: currentCursor.cursor,
     },
     sort: {
-      field: API.YouTubeChannelSortField.CreatedAt,
-      direction: API.YouTubeChannelSortDirection.Desc,
+      field: YouTubeChannelSortField.CreatedAt,
+      direction: YouTubeChannelSortDirection.Desc,
     },
   };
 
@@ -345,7 +360,7 @@ export const useContentPage = () => {
             onChange: (value: string) =>
               setCourseFilters((prev) => ({
                 ...prev,
-                category: value as API.CourseCategory | "",
+                category: value as CourseCategory | "",
               })),
           },
           {
@@ -357,7 +372,7 @@ export const useContentPage = () => {
             onChange: (value: string) =>
               setCourseFilters((prev) => ({
                 ...prev,
-                level: value as API.CourseLevel | "",
+                level: value as CourseLevel | "",
               })),
           },
           {
@@ -396,7 +411,7 @@ export const useContentPage = () => {
             onChange: (value: string) =>
               setEventFilters((prev) => ({
                 ...prev,
-                category: value as API.EventCategory | "",
+                category: value as EventCategory | "",
               })),
           },
           {
@@ -408,7 +423,7 @@ export const useContentPage = () => {
             onChange: (value: string) =>
               setEventFilters((prev) => ({
                 ...prev,
-                type: value as API.EventType | "",
+                type: value as EventType | "",
               })),
           },
         ],
@@ -430,7 +445,7 @@ export const useContentPage = () => {
             onChange: (value: string) =>
               setPodcastFilters((prev) => ({
                 ...prev,
-                category: value as API.PodcastCategory | "",
+                category: value as PodcastCategory | "",
               })),
           },
         ],
@@ -451,7 +466,7 @@ export const useContentPage = () => {
           onChange: (value: string) =>
             setYoutubeFilters((prev) => ({
               ...prev,
-              category: value as API.YouTubeCategory | "",
+              category: value as YouTubeCategory | "",
             })),
         },
       ],

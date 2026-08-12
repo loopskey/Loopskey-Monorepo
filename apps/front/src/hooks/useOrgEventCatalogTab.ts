@@ -1,10 +1,10 @@
 "use client";
 
-import { AssignmentType, EventCategory } from "@/lib/graphql/generated";
-import { EventDeliveryMode, EventType } from "@/lib/graphql/generated";
+import { AssignmentType, EventCategory } from "@/lib/graphql/base";
+import { EventDeliveryMode, EventType } from "@/lib/graphql/base";
 import { assignmentEventCatalogSchema } from "@/lib/validations/org-dashboard.schema";
 import { TEventCatalogAssignForm } from "@/lib/validations/org-dashboard.schema";
-import { AssignmentTargetKind } from "@/lib/graphql/generated";
+import { AssignmentTargetKind } from "@/lib/graphql/base";
 import { useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ALL_VALUE } from "@/utils/constant";

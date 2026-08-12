@@ -1,6 +1,6 @@
-import { WishlistSortBy } from "@/lib/graphql/generated";
+import type { WishlistSortBy } from "@/lib/graphql/base";
 
-import * as API from "@/lib/graphql/generated";
+import type * as API from "@/lib/graphql/base";
 
 export type TUseContentActionsArgs = {
   contentId?: string;

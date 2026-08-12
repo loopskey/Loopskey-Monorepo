@@ -1,4 +1,4 @@
-import * as GQL from "@/lib/graphql/generated";
+import type { ProfessionalGoal } from "@/lib/graphql/base";
 
 export type TOnboardingStep = "goal" | "role" | "skills" | "certification";
 
@@ -11,7 +11,7 @@ export type TOnboardingStepDescriptor = {
 export type TOnboardingGoalOption = {
   title: string;
   description: string;
-  value: GQL.ProfessionalGoal;
+  value: ProfessionalGoal;
 };
 
 export type TOnboardingRoleOption = {

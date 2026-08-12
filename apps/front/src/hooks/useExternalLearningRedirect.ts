@@ -1,7 +1,7 @@
 "use client";
 
 import { useTrackExternalLearningClickMutation } from "@/lib/rtk/endpoints/external-learning.api";
-import { ExternalLearningProvider } from "@/lib/graphql/generated";
+import { ExternalLearningProvider } from "@/lib/graphql/base";
 import { TTrackRedirectInput } from "@/types/hooks.types";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";

@@ -2,7 +2,7 @@
 
 import { PAGE_SIZE, SEARCH_DEBOUNCE_MS } from "@/utils/constant";
 import { useEffect, useMemo, useState } from "react";
-import { OrganizationMemberStatus } from "@/lib/graphql/generated";
+import { OrganizationMemberStatus } from "@/lib/graphql/base";
 import { useDebouncedValue } from "@/hooks/useDebounced";
 import { useForm, useWatch } from "react-hook-form";
 import { useI18n } from "@/hooks/useI18n";

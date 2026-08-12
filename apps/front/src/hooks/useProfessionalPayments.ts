@@ -1,5 +1,6 @@
 "use client";
 
+import { ProfessionalPaymentsQueryVariables } from "@/lib/graphql/operations/professional";
 import { ChangeEvent, useMemo, useState } from "react";
 import { FALLBACK_CURRENCY, PAGE_SIZE } from "@/utils/constant";
 import { ProfessionalPaymentAmount } from "@/types/professional-dashboard.types";
@@ -7,7 +8,6 @@ import { ProfessionalPayment } from "@/types/professional-dashboard.types";
 import { useI18n } from "@/hooks/useI18n";
 
 import * as API from "@/lib/rtk/endpoints/professional.api";
-import * as GQL from "@/lib/graphql/generated";
 
 export const useProfessionalPayments = () => {
   const { t } = useI18n();
@@ -22,7 +22,7 @@ export const useProfessionalPayments = () => {
     return new Date().getFullYear();
   }, []);
 
-  const variables = useMemo<GQL.ProfessionalPaymentsQueryVariables>(
+  const variables = useMemo<ProfessionalPaymentsQueryVariables>(
     () => ({
       filter: {
         search: search.trim() || undefined,

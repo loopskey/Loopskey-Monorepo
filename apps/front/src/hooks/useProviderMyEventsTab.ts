@@ -1,9 +1,9 @@
 "use client";
 
-import { ProviderEventsTableQueryVariables } from "@/lib/graphql/generated";
+import { ProviderEventsTableQueryVariables } from "@/lib/graphql/operations/provider";
 import { useProviderEventsTableQuery } from "@/lib/rtk/endpoints/provider.api";
 import { useMemo, useState } from "react";
-import { EventStatus } from "@/lib/graphql/generated";
+import { EventStatus } from "@/lib/graphql/base";
 
 type TProviderEventStatusFilter = "ALL" | EventStatus;
 

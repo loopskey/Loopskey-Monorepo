@@ -1,4 +1,4 @@
-import { CreditType, PduCategory, PduSource } from "@/lib/graphql/generated";
+import { CreditType, PduCategory, PduSource } from "@/lib/graphql/base";
 import { evidenceSchema } from "@/lib/validations/pdu-activity.schema";
 import { z } from "zod";
 

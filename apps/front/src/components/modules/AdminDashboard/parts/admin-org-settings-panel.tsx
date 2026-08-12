@@ -1,5 +1,5 @@
 import { TOrgSettingspanel } from "@/types/admin-dashboard.types";
-import { ComplianceCycle } from "@/lib/graphql/generated";
+import { ComplianceCycle } from "@/lib/graphql/base";
 import { GlassCard } from "@elements/glass-card";
 import { useState } from "react";
 import { Switch } from "@ui/switch";

@@ -1,6 +1,6 @@
 import { TProfessionalWishlistFilters } from "@/types/hooks.types";
-import { MyWishlistInput } from "@/lib/graphql/generated";
-import { WishlistSortBy } from "@/lib/graphql/generated";
+import { MyWishlistInput } from "@/lib/graphql/base";
+import { WishlistSortBy } from "@/lib/graphql/base";
 
 export const WISHLIST_INITIAL_FILTERS: TProfessionalWishlistFilters = {
   search: "",

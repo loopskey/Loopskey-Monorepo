@@ -1,9 +1,5 @@
-import {
-  CourseCategory,
-  EventCategory,
-  PodcastCategory,
-  YouTubeCategory,
-} from "@/lib/graphql/generated";
+import type { PodcastCategory, YouTubeCategory } from "@/lib/graphql/base";
+import type { CourseCategory, EventCategory } from "@/lib/graphql/base";
 
 // ================ Featured ================
 export type TLandingContentKind = "course" | "event" | "podcast" | "youtube";

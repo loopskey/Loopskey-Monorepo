@@ -1,7 +1,7 @@
+import { PopularCategoriesDocument } from "@/lib/graphql/operations/landing";
 import { baseApi } from "@/lib/rtk/baseApi";
 
 import type * as TAPI from "@/lib/graphql/generated";
-import * as API from "@/lib/graphql/generated";
 
 export const landingApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -10,7 +10,7 @@ export const landingApi = baseApi.injectEndpoints({
       TAPI.PopularCategoriesQueryVariables["input"] | void
     >({
       query: (input) => ({
-        document: API.PopularCategoriesDocument,
+        document: PopularCategoriesDocument,
         variables: input ? { input } : {},
       }),
       transformResponse: (response: TAPI.PopularCategoriesQuery) =>

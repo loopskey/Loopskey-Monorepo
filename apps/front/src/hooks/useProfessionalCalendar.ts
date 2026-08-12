@@ -1,19 +1,20 @@
 "use client";
 
 import { DateSelectArg, EventClickArg, EventInput } from "@fullcalendar/core";
+import { ProfessionalCalendarEventsQueryVariables } from "@/lib/graphql/operations/professional";
 import { ChangeEvent, useMemo, useState } from "react";
 import { PAGE_SIZE, toDateInputValue } from "@/utils/constant";
-import { getContentTypeStyle } from "@/utils/content-type-style";
 import { TProfessionalCalendarEvent } from "@/types/professional-dashboard.types";
+import { EventRegistrationStatus } from "@/lib/graphql/base";
 import { TUpcomingCalendarItem } from "@/types/professional-dashboard.types";
 import { TManualCalendarEvent } from "@/types/professional-dashboard.types";
+import { getContentTypeStyle } from "@/utils/content-type-style";
 import { TCalendarStats } from "@/types/professional-dashboard.types";
 import { TSelectedRange } from "@/types/professional-dashboard.types";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
 
 import * as API from "@/lib/rtk/endpoints/professional.api";
-import * as GQL from "@/lib/graphql/generated";
 
 const EMPTY_RANGE: TSelectedRange = { start: "", end: "" };
 
@@ -33,7 +34,7 @@ export const useProfessionalCalendar = () => {
 
   const currentCursor = cursorStack.at(-1);
 
-  const variables = useMemo<GQL.ProfessionalCalendarEventsQueryVariables>(
+  const variables = useMemo<ProfessionalCalendarEventsQueryVariables>(
     () => ({
       filter: {
         search: search.trim() || undefined,
@@ -111,7 +112,7 @@ export const useProfessionalCalendar = () => {
       events.filter((item) => item.isLive).length +
       manualEvents.filter((item) => item.isLive).length;
     const completed = events.filter((item) => {
-      return item.status === GQL.EventRegistrationStatus.Completed;
+      return item.status === EventRegistrationStatus.Completed;
     }).length;
     const totalPdus = events.reduce((sum, item) => {
       return sum + Number(item.event?.pdu ?? 0);

@@ -1,5 +1,6 @@
 "use client";
 
+import { CreditType, PduCategory, PduSource } from "@/lib/graphql/base";
 import { useEffect, useMemo, useState } from "react";
 import { orUndefined, toDateInput } from "@/utils/function-helper";
 import { TMarkCompletedPrefill } from "@/types/content-module.types";
@@ -12,7 +13,6 @@ import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
 
 import * as API from "@/lib/rtk/endpoints/professional.api";
-import * as GQL from "@/lib/graphql/generated";
 import * as S from "@/lib/validations/mark-completed.schema";
 
 const MODAL = "contentDetails.markCompleted";
@@ -38,10 +38,9 @@ export const useMarkAsCompleted = (
       providerOrganizer:
         existing?.providerOrganizer ?? prefill.providerOrganizer ?? "",
       dateCompleted: toDateInput(existing?.date),
-      creditType: existing?.creditType ?? GQL.CreditType.Pdu,
+      creditType: existing?.creditType ?? CreditType.Pdu,
       creditValue: existing?.pdus ?? 1,
-      category:
-        existing?.category ?? prefill.category ?? GQL.PduCategory.Technical,
+      category: existing?.category ?? prefill.category ?? PduCategory.Technical,
       subCategory: existing?.subCategory ?? "",
       issuingOrganization: existing?.issuingOrganization ?? "",
       certificateLink: existing?.evidenceUrl ?? "",
@@ -74,7 +73,7 @@ export const useMarkAsCompleted = (
     }));
     if (
       activityType &&
-      !(PDU_ACTIVITY_TYPES as readonly GQL.PduSource[]).includes(activityType)
+      !(PDU_ACTIVITY_TYPES as readonly PduSource[]).includes(activityType)
     )
       options.push({
         value: activityType,

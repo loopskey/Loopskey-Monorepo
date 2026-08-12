@@ -1,7 +1,7 @@
 "use client";
 
 import { contentTypeIcon, contentTypeOptions } from "@/utils/constant";
-import { ContentType, WishlistSortBy } from "@/lib/graphql/generated";
+import { ContentType, WishlistSortBy } from "@/lib/graphql/base";
 import { useProfessionalWishlistTab } from "@/hooks/useProfessionalWishlistTab";
 import { ContentPagination } from "@elements/pagination";
 import { sortOptions } from "@/utils/constant";

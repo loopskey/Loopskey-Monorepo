@@ -1,6 +1,6 @@
 "use client";
 
-import { ProviderDashboardRange } from "@/lib/graphql/generated";
+import { ProviderDashboardRange } from "@/lib/graphql/base";
 import { useProviderOverviewTab } from "@/hooks/useProviderOverviewTab";
 import { DashboardStatCard } from "@modules/ProfessionalDashboard/parts/dashboard-stat-card";
 import { CHART_COLORS } from "@/utils/constant";

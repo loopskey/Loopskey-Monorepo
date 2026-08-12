@@ -1,7 +1,7 @@
-import { TAddCalendarEventPrefill } from "@/types/professional-dashboard.types";
-import { TPduActivity } from "@/types/professional-dashboard.types";
-import { ContentType } from "@/lib/graphql/generated";
-import { ReactNode } from "react";
+import type { TAddCalendarEventPrefill } from "@/types/professional-dashboard.types";
+import type { TPduActivity } from "@/types/professional-dashboard.types";
+import type { ContentType } from "@/lib/graphql/base";
+import type { ReactNode } from "react";
 
 import type * as API from "@/lib/graphql/generated";
 

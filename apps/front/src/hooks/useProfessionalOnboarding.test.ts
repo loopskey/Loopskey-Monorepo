@@ -2,7 +2,7 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import * as GQL from "@/lib/graphql/generated";
+import { ProfessionalGoal } from "@/lib/graphql/base";
 
 // `vi.mock` factories are hoisted above the module body, so everything they
 // close over has to be hoisted with them.
@@ -97,7 +97,7 @@ const setup = () => renderHook(() => useProfessionalOnboarding());
 /** Walks the wizard to the skills step with a goal and a role in place. */
 const advanceToSkills = (
   result: { current: ReturnType<typeof useProfessionalOnboarding> },
-  goal: GQL.ProfessionalGoal,
+  goal: ProfessionalGoal,
 ) => {
   act(() => result.current.chooseGoal(goal));
   act(() => result.current.goNext());
@@ -128,13 +128,13 @@ describe("useProfessionalOnboarding", () => {
     const { result } = setup();
 
     act(() =>
-      result.current.chooseGoal(GQL.ProfessionalGoal.MaintainCertification),
+      result.current.chooseGoal(ProfessionalGoal.MaintainCertification),
     );
     expect(result.current.steps).toHaveLength(4);
     expect(result.current.steps[3]).toBe("certification");
 
     act(() =>
-      result.current.chooseGoal(GQL.ProfessionalGoal.GrowInCurrentRole),
+      result.current.chooseGoal(ProfessionalGoal.GrowInCurrentRole),
     );
     expect(result.current.steps).toHaveLength(3);
   });
@@ -144,7 +144,7 @@ describe("useProfessionalOnboarding", () => {
     expect(result.current.isStepValid).toBe(false);
 
     act(() =>
-      result.current.chooseGoal(GQL.ProfessionalGoal.GrowInCurrentRole),
+      result.current.chooseGoal(ProfessionalGoal.GrowInCurrentRole),
     );
     expect(result.current.isStepValid).toBe(true);
 
@@ -155,7 +155,7 @@ describe("useProfessionalOnboarding", () => {
 
   it("keeps selections when moving back a step", () => {
     const { result } = setup();
-    advanceToSkills(result, GQL.ProfessionalGoal.GrowInCurrentRole);
+    advanceToSkills(result, ProfessionalGoal.GrowInCurrentRole);
 
     act(() => result.current.toggleSkill("skill-1"));
     act(() => result.current.goBack());
@@ -164,13 +164,13 @@ describe("useProfessionalOnboarding", () => {
     expect(result.current.role).toBe("Project Manager");
 
     act(() => result.current.goBack());
-    expect(result.current.goal).toBe(GQL.ProfessionalGoal.GrowInCurrentRole);
+    expect(result.current.goal).toBe(ProfessionalGoal.GrowInCurrentRole);
   });
 
   it("accepts a typed role that is not in the catalogue", () => {
     const { result } = setup();
     act(() =>
-      result.current.chooseGoal(GQL.ProfessionalGoal.GrowInCurrentRole),
+      result.current.chooseGoal(ProfessionalGoal.GrowInCurrentRole),
     );
     act(() => result.current.goNext());
 
@@ -184,7 +184,7 @@ describe("useProfessionalOnboarding", () => {
   it("does not offer to add a typed role that already exists", () => {
     const { result } = setup();
     act(() =>
-      result.current.chooseGoal(GQL.ProfessionalGoal.GrowInCurrentRole),
+      result.current.chooseGoal(ProfessionalGoal.GrowInCurrentRole),
     );
     act(() => result.current.goNext());
     act(() => result.current.setRoleQuery("project manager"));
@@ -194,7 +194,7 @@ describe("useProfessionalOnboarding", () => {
 
   it("caps the skill selection at three and allows deselecting", () => {
     const { result } = setup();
-    advanceToSkills(result, GQL.ProfessionalGoal.GrowInCurrentRole);
+    advanceToSkills(result, ProfessionalGoal.GrowInCurrentRole);
 
     act(() => result.current.toggleSkill("skill-1"));
     act(() => result.current.toggleSkill("skill-2"));
@@ -212,7 +212,7 @@ describe("useProfessionalOnboarding", () => {
 
   it("lets the professional continue when they ask for suggested skills", () => {
     const { result } = setup();
-    advanceToSkills(result, GQL.ProfessionalGoal.GrowInCurrentRole);
+    advanceToSkills(result, ProfessionalGoal.GrowInCurrentRole);
 
     expect(result.current.isStepValid).toBe(false);
 
@@ -223,7 +223,7 @@ describe("useProfessionalOnboarding", () => {
 
   it("submits the non-certification path without certification fields", async () => {
     const { result } = setup();
-    advanceToSkills(result, GQL.ProfessionalGoal.PrepareForNextRole);
+    advanceToSkills(result, ProfessionalGoal.PrepareForNextRole);
     act(() => result.current.toggleSkill("skill-1"));
 
     await act(async () => {
@@ -231,7 +231,7 @@ describe("useProfessionalOnboarding", () => {
     });
 
     expect(completeOnboarding).toHaveBeenCalledWith({
-      professionalGoal: GQL.ProfessionalGoal.PrepareForNextRole,
+      professionalGoal: ProfessionalGoal.PrepareForNextRole,
       currentRole: "Project Manager",
       skillsToImproveIds: ["skill-1"],
       suggestSkills: false,
@@ -248,7 +248,7 @@ describe("useProfessionalOnboarding", () => {
 
   it("submits a catalogue certification by identifier", async () => {
     const { result } = setup();
-    advanceToSkills(result, GQL.ProfessionalGoal.MaintainCertification);
+    advanceToSkills(result, ProfessionalGoal.MaintainCertification);
     act(() => result.current.toggleSkill("skill-1"));
     act(() => result.current.goNext());
 
@@ -279,7 +279,7 @@ describe("useProfessionalOnboarding", () => {
 
   it("completes the certification step without a credential when there is none yet", async () => {
     const { result } = setup();
-    advanceToSkills(result, GQL.ProfessionalGoal.MaintainCertification);
+    advanceToSkills(result, ProfessionalGoal.MaintainCertification);
     act(() => result.current.toggleSkill("skill-1"));
     act(() => result.current.goNext());
 
@@ -301,7 +301,7 @@ describe("useProfessionalOnboarding", () => {
 
   it("requires a name in the manual certification form", () => {
     const { result } = setup();
-    advanceToSkills(result, GQL.ProfessionalGoal.MaintainCertification);
+    advanceToSkills(result, ProfessionalGoal.MaintainCertification);
     act(() => result.current.toggleSkill("skill-1"));
     act(() => result.current.goNext());
 
@@ -326,7 +326,7 @@ describe("useProfessionalOnboarding", () => {
 
   it("submits a manual certification with its optional issuer", async () => {
     const { result } = setup();
-    advanceToSkills(result, GQL.ProfessionalGoal.MaintainCertification);
+    advanceToSkills(result, ProfessionalGoal.MaintainCertification);
     act(() => result.current.toggleSkill("skill-1"));
     act(() => result.current.goNext());
 
@@ -349,12 +349,12 @@ describe("useProfessionalOnboarding", () => {
 
   it("drops certification answers when the goal moves away from certification", () => {
     const { result } = setup();
-    advanceToSkills(result, GQL.ProfessionalGoal.MaintainCertification);
+    advanceToSkills(result, ProfessionalGoal.MaintainCertification);
     act(() => result.current.toggleSkill("skill-1"));
     act(() => result.current.goNext());
     act(() => result.current.chooseNoCertification());
 
-    act(() => result.current.chooseGoal(GQL.ProfessionalGoal.GrowInCurrentRole));
+    act(() => result.current.chooseGoal(ProfessionalGoal.GrowInCurrentRole));
 
     expect(result.current.certification).toBeNull();
     expect(result.current.steps).toHaveLength(3);
@@ -367,7 +367,7 @@ describe("useProfessionalOnboarding", () => {
     });
 
     const { result } = setup();
-    advanceToSkills(result, GQL.ProfessionalGoal.GrowInCurrentRole);
+    advanceToSkills(result, ProfessionalGoal.GrowInCurrentRole);
     act(() => result.current.toggleSkill("skill-1"));
 
     await act(async () => {

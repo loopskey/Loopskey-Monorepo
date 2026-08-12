@@ -1,7 +1,7 @@
 "use client";
 
-import { EventStatus, ProviderDashboardRange } from "@/lib/graphql/generated";
-import { PromotionRequestStatus } from "@/lib/graphql/generated";
+import { EventStatus, ProviderDashboardRange } from "@/lib/graphql/base";
+import { PromotionRequestStatus } from "@/lib/graphql/base";
 import { useMemo } from "react";
 import { useI18n } from "@hooks/useI18n";
 

@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
-import { Role } from "@/lib/graphql/generated";
+import { Role } from "@/lib/graphql/base";
 
 import * as API from "@/lib/rtk/endpoints/auth.api";
 import * as S from "@/lib/validations/auth-form.schema";

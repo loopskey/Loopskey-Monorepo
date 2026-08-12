@@ -1,5 +1,6 @@
 "use client";
 
+import { CpdEvidenceType, CpdReportRecipientType } from "@/lib/graphql/base";
 import { useCpdReportRecipientsQuery } from "@/lib/rtk/endpoints/cpd-plan.api";
 import { CPD_REMINDER_TIMINGS } from "@/utils/cpd-plan.constant";
 import { FloatingSelectField } from "@elements/floating-select";
@@ -11,7 +12,6 @@ import { Checkbox } from "@ui/checkbox";
 import { Switch } from "@ui/switch";
 import { cn } from "@/lib/utils";
 
-import * as GQL from "@/lib/graphql/generated";
 import * as L from "lucide-react";
 
 export const CpdStepEvidence = ({ t, form, control }: TCpdStepProps) => {
@@ -20,14 +20,14 @@ export const CpdStepEvidence = ({ t, form, control }: TCpdStepProps) => {
   const evidenceTypes = form.watch("evidenceTypes");
   const remindersEnabled = form.watch("remindersEnabled");
   const recipientType = form.watch("reportRecipientType");
-  const includesOther = evidenceTypes.includes(GQL.CpdEvidenceType.Other);
-  const isOtherRecipient = recipientType === GQL.CpdReportRecipientType.Other;
+  const includesOther = evidenceTypes.includes(CpdEvidenceType.Other);
+  const isOtherRecipient = recipientType === CpdReportRecipientType.Other;
 
   const evidenceError = form.formState.errors.evidenceTypes as
     | { message?: string }
     | undefined;
 
-  const toggleEvidence = (value: GQL.CpdEvidenceType) => {
+  const toggleEvidence = (value: CpdEvidenceType) => {
     const set = new Set(evidenceTypes);
     if (set.has(value)) set.delete(value);
     else set.add(value);

@@ -8,7 +8,7 @@ import { useProfessionalDetailsForm } from "@/hooks/useProfessionalDetailsForm";
 import { useProfessionalSkillsForm } from "@/hooks/useProfessionalSkillsForm";
 import { TProfessionalProfileTab } from "@/types/professional-profile.types";
 import { useProfessionalAvatar } from "@/hooks/useProfessionalAvatar";
-import { ProfileSectionKey } from "@/lib/graphql/generated";
+import { ProfileSectionKey } from "@/lib/graphql/base";
 import { useI18n } from "@/hooks/useI18n";
 
 import * as PAPI from "@/lib/rtk/endpoints/professional.api";

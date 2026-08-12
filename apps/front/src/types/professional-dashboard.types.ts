@@ -1,15 +1,16 @@
-import { useCreateProfessionalPduActivityMutation } from "@/lib/rtk/endpoints/professional.api";
-import { useUpsertProfessionalPduTargetMutation } from "@/lib/rtk/endpoints/professional.api";
-import { ContentType, UpsertPduTargetInput } from "@/lib/graphql/generated";
-import { ElementType, ReactNode } from "react";
-import { BarChart3, LucideIcon } from "lucide-react";
-import { TCertificateFormInput } from "@/lib/validations/certificate.schema";
-import { TPduActivityFormInput } from "@/lib/validations/pdu-activity.schema";
-import { I18nContextValue } from "@/types/providers.types";
-import { PDU_CATEGORIES } from "@/utils/pdu.constant";
-import { Control } from "react-hook-form";
+import type { useCreateProfessionalPduActivityMutation } from "@/lib/rtk/endpoints/professional.api";
+import type { useUpsertProfessionalPduTargetMutation } from "@/lib/rtk/endpoints/professional.api";
+import type { ContentType, UpsertPduTargetInput } from "@/lib/graphql/base";
+import type { ElementType, ReactNode } from "react";
+import type { BarChart3, LucideIcon } from "lucide-react";
+import type { TCertificateFormInput } from "@/lib/validations/certificate.schema";
+import type { TPduActivityFormInput } from "@/lib/validations/pdu-activity.schema";
+import type { I18nContextValue } from "@/types/providers.types";
+import type { PDU_CATEGORIES } from "@/utils/pdu.constant";
+import type { Control } from "react-hook-form";
 
-import * as API from "@/lib/graphql/generated";
+import type * as BAPI from "@/lib/graphql/base";
+import type * as API from "@/lib/graphql/operations/professional";
 
 export type TProfessionalDashboardTab =
   | "courses"
@@ -23,10 +24,10 @@ export type TProfessionalDashboardTab =
   | "pdu-report"
   | "add-activity"
   | "certificates"
-  | "certificate-form"
   | "cpd-pdu-tracker"
-  | "cpd-pdu-progress"
   | "activity-detail"
+  | "certificate-form"
+  | "cpd-pdu-progress"
   | "external-learning";
 
 export type TStatsCard = {
@@ -71,7 +72,7 @@ export type TTargetForm = TUseProfessionalTargetForm & {
 
 export type TActiveForm = {
   isLoading: boolean;
-  onSubmit: (input: API.CreatePduActivityInput) => Promise<void>;
+  onSubmit: (input: BAPI.CreatePduActivityInput) => Promise<void>;
 };
 
 export type CreateActivityTrigger = ReturnType<
@@ -117,21 +118,21 @@ export type TPduActivityDetail = NonNullable<
 export type TActivityDetailErrorKind = "not-found" | "unauthorized" | "generic";
 
 export type TActivityDetailViewProps = {
+  onEdit: () => void;
+  onCancel: () => void;
   t: I18nContextValue["t"];
   activity: TPduActivityDetail;
-  onCancel: () => void;
-  onEdit: () => void;
-  onDownload: (file: TPduEvidenceFile) => void;
   downloadingFileId: string | null;
+  onDownload: (file: TPduEvidenceFile) => void;
 };
 
-export type TPduActivityType = "ALL" | API.PduSource;
+export type TPduActivityType = "ALL" | BAPI.PduSource;
 
 export type TPduActivityCertificateFilter = "ALL" | "WITH" | "WITHOUT";
 
 export type TPduActivityFilters = {
-  search: string;
   year: number;
+  search: string;
   activityType: TPduActivityType;
   certificate: TPduActivityCertificateFilter;
 };
@@ -154,7 +155,7 @@ export type TPduActivityFiltersProps = {
   yearOptions: number[];
   t: I18nContextValue["t"];
   filters: TPduActivityFilters;
-  activityTypeOptions: API.PduSource[];
+  activityTypeOptions: BAPI.PduSource[];
   onChange: <K extends keyof TPduActivityFilters>(
     key: K,
     value: TPduActivityFilters[K],
@@ -204,13 +205,13 @@ export type TCertificateSummary = NonNullable<
   API.ProfessionalCertificateSummaryQuery["professionalCertificateSummary"]
 >;
 
-export type TCertificateStatusFilter = "ALL" | API.CertificateStatusFilter;
+export type TCertificateStatusFilter = "ALL" | BAPI.CertificateStatusFilter;
 
 export type TCertificateFilters = {
   search: string;
   issuer: string;
   cpdPlan: string;
-  sort: API.CertificateSort;
+  sort: BAPI.CertificateSort;
   status: TCertificateStatusFilter;
 };
 
@@ -223,9 +224,9 @@ export type TCertificatesFiltersProps = {
   isFiltered: boolean;
   onReset: () => void;
   issuerOptions: string[];
-  isIssuersLoading: boolean;
-  t: I18nContextValue["t"];
   isPlansLoading: boolean;
+  t: I18nContextValue["t"];
+  isIssuersLoading: boolean;
   filters: TCertificateFilters;
   planOptions: TCertificatePlanOption[];
   onChange: <K extends keyof TCertificateFilters>(
@@ -236,12 +237,12 @@ export type TCertificatesFiltersProps = {
 
 export type TCertificatesTableProps = {
   isDeleting: boolean;
-  selectedId: string | null;
   t: I18nContextValue["t"];
+  selectedId: string | null;
   deletingCertificateId: string | null;
+  onEdit: (certificateId: string) => void;
   certificates: ProfessionalCertificate[];
   onSelect: (certificateId: string) => void;
-  onEdit: (certificateId: string) => void;
   onDelete: (certificateId: string) => void;
 };
 
@@ -393,7 +394,7 @@ export type TAddCalendarEventPrefill = {
   endDate?: string | null;
   startDate?: string | null;
   contentId?: string | null;
-  type?: API.CalendarEventType;
+  type?: BAPI.CalendarEventType;
   contentType?: ContentType | null;
 };
 
