@@ -3,7 +3,7 @@
 - Scope: `front`
 - Branch: `feature/performance-shell-hydration`
 - Base: `b72bcb7`
-- Status: `Ready`
+- Status: `Submitted`
 
 Spec: `context/features/performance-optimization.md`.
 
@@ -105,6 +105,6 @@ Verified in a browser that the hero still animates and that the gradient line
 
 ## Submission
 
-- Commit:
-- PR:
+- Commit: `321db87`
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/22
 - CI:
