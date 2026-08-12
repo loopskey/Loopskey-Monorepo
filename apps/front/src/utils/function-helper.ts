@@ -1,9 +1,9 @@
 import { TProfessionalWishlistContent } from "@/types/hooks.types";
 import { TFaqCategoryKey, TFaqItem } from "@/types/hooks.types";
 import { TProfessionalWishlistItem } from "@/types/hooks.types";
-import { ProviderDashboardRange } from "@/lib/graphql/generated";
-import { PromotionRequestStatus } from "@/lib/graphql/generated";
-import { PromotionType, Role } from "@/lib/graphql/generated";
+import { ProviderDashboardRange } from "@/lib/graphql/base";
+import { PromotionRequestStatus } from "@/lib/graphql/base";
+import { PromotionType, Role } from "@/lib/graphql/base";
 import { TGraphQLDocument } from "@/types/rtk.types";
 
 // ============== OAuth Element ==============

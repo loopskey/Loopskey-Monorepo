@@ -1,15 +1,15 @@
 "use client";
 
 import { useProfessionalContentCompletionQuery } from "@/lib/rtk/endpoints/professional.api";
-import { MarkAsCompletedDialog } from "@modules/ContentDetail/parts/MarkAsCompletedDialog";
+import { CheckCircle2, CircleCheckBig } from "lucide-react";
 import { TMarkAsCompletedButtonProps } from "@/types/content-module.types";
+import { MarkAsCompletedDialog } from "@modules/ContentDetail/parts/MarkAsCompletedDialog";
 import { getContentTypeStyle } from "@/utils/content-type-style";
 import { useCurrentUserQuery } from "@/lib/rtk/endpoints/auth.api";
-import { CheckCircle2, CircleCheckBig } from "lucide-react";
+import { useState } from "react";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
-import { Role } from "@/lib/graphql/generated";
-import { useState } from "react";
+import { Role } from "@/lib/graphql/base";
 import { cn } from "@/lib/utils";
 
 const MODAL = "contentDetails.markCompleted";

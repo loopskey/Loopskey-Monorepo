@@ -1,10 +1,10 @@
 import { TProfessionalProfileTab } from "@/types/professional-profile.types";
-import { API_ORIGIN } from "@/utils/avatar.util";
 import { TSelectOption } from "@/types/element.types";
+import { API_ORIGIN } from "@/utils/avatar.util";
 
-import * as GQL from "@/lib/graphql/generated";
-import * as L from "lucide-react";
 import * as countries from "i18n-iso-countries";
+import * as API from "@/lib/graphql/base";
+import * as L from "lucide-react";
 
 import enCountries from "i18n-iso-countries/langs/en.json";
 import frCountries from "i18n-iso-countries/langs/fr.json";
@@ -12,25 +12,21 @@ import frCountries from "i18n-iso-countries/langs/fr.json";
 // ================= Tabs =================
 export const PROFILE_TABS: TProfessionalProfileTab[] = [
   "basic",
-  "details",
   "skills",
-  "certifications",
+  "details",
   "preferences",
+  "certifications",
 ];
 
-/**
- * Maps each backend completion section onto the tab that owns it, so an
- * incomplete section can activate the right tab.
- */
 export const SECTION_TAB_MAP: Record<
-  GQL.ProfileSectionKey,
+  API.ProfileSectionKey,
   TProfessionalProfileTab
 > = {
-  [GQL.ProfileSectionKey.BasicProfile]: "basic",
-  [GQL.ProfileSectionKey.ProfessionalDetails]: "details",
-  [GQL.ProfileSectionKey.SkillsInterests]: "skills",
-  [GQL.ProfileSectionKey.Certifications]: "certifications",
-  [GQL.ProfileSectionKey.Preferences]: "preferences",
+  [API.ProfileSectionKey.BasicProfile]: "basic",
+  [API.ProfileSectionKey.ProfessionalDetails]: "details",
+  [API.ProfileSectionKey.SkillsInterests]: "skills",
+  [API.ProfileSectionKey.Certifications]: "certifications",
+  [API.ProfileSectionKey.Preferences]: "preferences",
 };
 
 export const PROFILE_TAB_I18N_KEY: Record<TProfessionalProfileTab, string> = {
@@ -43,72 +39,74 @@ export const PROFILE_TAB_I18N_KEY: Record<TProfessionalProfileTab, string> = {
 
 // ================= Option values =================
 export const INDUSTRIES = [
-  GQL.ProfessionalIndustry.Technology,
-  GQL.ProfessionalIndustry.Healthcare,
-  GQL.ProfessionalIndustry.Finance,
-  GQL.ProfessionalIndustry.Education,
-  GQL.ProfessionalIndustry.Engineering,
-  GQL.ProfessionalIndustry.Construction,
-  GQL.ProfessionalIndustry.Legal,
-  GQL.ProfessionalIndustry.Marketing,
-  GQL.ProfessionalIndustry.Manufacturing,
-  GQL.ProfessionalIndustry.PublicSector,
-  GQL.ProfessionalIndustry.NonProfit,
-  GQL.ProfessionalIndustry.Other,
+  API.ProfessionalIndustry.Technology,
+  API.ProfessionalIndustry.Healthcare,
+  API.ProfessionalIndustry.Finance,
+  API.ProfessionalIndustry.Education,
+  API.ProfessionalIndustry.Engineering,
+  API.ProfessionalIndustry.Construction,
+  API.ProfessionalIndustry.Legal,
+  API.ProfessionalIndustry.Marketing,
+  API.ProfessionalIndustry.Manufacturing,
+  API.ProfessionalIndustry.PublicSector,
+  API.ProfessionalIndustry.NonProfit,
+  API.ProfessionalIndustry.Other,
 ] as const;
 
 export const EXPERIENCE_RANGES = [
-  GQL.ExperienceRange.LessThanOneYear,
-  GQL.ExperienceRange.OneToTwoYears,
-  GQL.ExperienceRange.ThreeToFiveYears,
-  GQL.ExperienceRange.SixToTenYears,
-  GQL.ExperienceRange.ElevenToFifteenYears,
-  GQL.ExperienceRange.SixteenPlusYears,
+  API.ExperienceRange.LessThanOneYear,
+  API.ExperienceRange.OneToTwoYears,
+  API.ExperienceRange.ThreeToFiveYears,
+  API.ExperienceRange.SixToTenYears,
+  API.ExperienceRange.ElevenToFifteenYears,
+  API.ExperienceRange.SixteenPlusYears,
 ] as const;
 
 export const SKILL_LEVELS = [
-  GQL.SkillLevel.Beginner,
-  GQL.SkillLevel.Intermediate,
-  GQL.SkillLevel.Advanced,
-  GQL.SkillLevel.Expert,
+  API.SkillLevel.Beginner,
+  API.SkillLevel.Intermediate,
+  API.SkillLevel.Advanced,
+  API.SkillLevel.Expert,
 ] as const;
 
 export const LEARNING_FORMATS = [
-  GQL.LearningFormat.Course,
-  GQL.LearningFormat.Webinar,
-  GQL.LearningFormat.Workshop,
-  GQL.LearningFormat.Video,
-  GQL.LearningFormat.Podcast,
-  GQL.LearningFormat.Article,
+  API.LearningFormat.Course,
+  API.LearningFormat.Webinar,
+  API.LearningFormat.Workshop,
+  API.LearningFormat.Video,
+  API.LearningFormat.Podcast,
+  API.LearningFormat.Article,
 ] as const;
 
 export const LEARNING_TIME_COMMITMENTS = [
-  GQL.LearningTimeCommitment.LessThanOneHour,
-  GQL.LearningTimeCommitment.OneToThreeHours,
-  GQL.LearningTimeCommitment.FourToSixHours,
-  GQL.LearningTimeCommitment.SevenToTenHours,
-  GQL.LearningTimeCommitment.MoreThanTenHours,
+  API.LearningTimeCommitment.LessThanOneHour,
+  API.LearningTimeCommitment.OneToThreeHours,
+  API.LearningTimeCommitment.FourToSixHours,
+  API.LearningTimeCommitment.SevenToTenHours,
+  API.LearningTimeCommitment.MoreThanTenHours,
 ] as const;
 
 export const LEARNING_BUDGET_PREFERENCES = [
-  GQL.LearningBudgetPreference.FreeOnly,
-  GQL.LearningBudgetPreference.MixedFreeAndPaid,
-  GQL.LearningBudgetPreference.Premium,
-  GQL.LearningBudgetPreference.EmployerSponsored,
+  API.LearningBudgetPreference.FreeOnly,
+  API.LearningBudgetPreference.MixedFreeAndPaid,
+  API.LearningBudgetPreference.Premium,
+  API.LearningBudgetPreference.EmployerSponsored,
 ] as const;
 
-export const PROFILE_LANGUAGES = [GQL.AppLanguage.En, GQL.AppLanguage.Fr] as const;
+export const PROFILE_LANGUAGES = [
+  API.AppLanguage.En,
+  API.AppLanguage.Fr,
+] as const;
 
-export const LEARNING_FORMAT_ICONS: Record<GQL.LearningFormat, L.LucideIcon> = {
-  [GQL.LearningFormat.Course]: L.BookOpen,
-  [GQL.LearningFormat.Webinar]: L.MonitorPlay,
-  [GQL.LearningFormat.Workshop]: L.Wrench,
-  [GQL.LearningFormat.Video]: L.Video,
-  [GQL.LearningFormat.Podcast]: L.Mic,
-  [GQL.LearningFormat.Article]: L.FileText,
+export const LEARNING_FORMAT_ICONS: Record<API.LearningFormat, L.LucideIcon> = {
+  [API.LearningFormat.Course]: L.BookOpen,
+  [API.LearningFormat.Webinar]: L.MonitorPlay,
+  [API.LearningFormat.Workshop]: L.Wrench,
+  [API.LearningFormat.Video]: L.Video,
+  [API.LearningFormat.Podcast]: L.Mic,
+  [API.LearningFormat.Article]: L.FileText,
 };
 
-// Translated labels are resolved from these key suffixes at render time.
 export const enumI18nKey = (group: string, value: string) =>
   `professionalDashboard.profile.options.${group}.${value}`;
 
@@ -142,14 +140,16 @@ export const getCountryOptions = (locale: string): TSelectOption[] => {
     .sort((a, b) => a.label.localeCompare(b.label, language));
 };
 
-export const getCountryName = (code: string | null | undefined, locale: string) => {
+export const getCountryName = (
+  code: string | null | undefined,
+  locale: string,
+) => {
   if (!code) return null;
   const language = locale.toLowerCase().startsWith("fr") ? "fr" : "en";
   return countries.getName(code, language, { select: "official" }) ?? code;
 };
 
-export const isSupportedCountryCode = (code: string) =>
-  countries.isValid(code);
+export const isSupportedCountryCode = (code: string) => countries.isValid(code);
 
 // ================= Time zones =================
 const FALLBACK_TIME_ZONES = [

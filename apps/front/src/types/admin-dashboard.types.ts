@@ -1,5 +1,5 @@
-import { AdminOrgAccessRequestsQuery } from "@/lib/graphql/generated";
-import { ElementType } from "react";
+import type { AdminOrgAccessRequestsQuery } from "@/lib/graphql/operations/admin-dashboard";
+import type { ElementType } from "react";
 
 import type * as TAPI from "@/lib/graphql/generated";
 

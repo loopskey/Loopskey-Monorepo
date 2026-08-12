@@ -1,6 +1,6 @@
 "use client";
 
-import { OrganizationAccessRequestStatus } from "@/lib/graphql/generated";
+import { OrganizationAccessRequestStatus } from "@/lib/graphql/base";
 import { useAdminAccessRequestsTab } from "@/hooks/useAdminAccessRequestsTab";
 import { StatusBadge } from "@modules/AdminDashboard/parts/admin-status-badge";
 import { formatDate } from "@/utils/function-helper";

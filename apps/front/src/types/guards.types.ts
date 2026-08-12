@@ -1,5 +1,5 @@
-import { ReactNode } from "react";
-import { Role } from "@/lib/graphql/generated";
+import type { ReactNode } from "react";
+import type { Role } from "@/lib/graphql/base";
 
 export type TSessionPayload = {
   sub?: string;

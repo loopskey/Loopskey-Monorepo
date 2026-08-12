@@ -2,7 +2,7 @@
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@ui/tooltip";
 import { TPduActivitiesTableProps } from "@/types/professional-dashboard.types";
-import { PduCompletionStatus } from "@/lib/graphql/generated";
+import { PduCompletionStatus } from "@/lib/graphql/base";
 import { I18nContextValue } from "@/types/providers.types";
 import { ConfirmDialog } from "@elements/confirm-dialog";
 import { TPduActivity } from "@/types/professional-dashboard.types";

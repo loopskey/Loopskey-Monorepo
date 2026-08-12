@@ -1,4 +1,4 @@
-import { Sparkles } from "lucide-react";
+import type { Sparkles } from "lucide-react";
 
 // =========== Details Page =============
 export type TContentDetailPageProps = {

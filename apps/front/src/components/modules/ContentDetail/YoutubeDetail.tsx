@@ -1,5 +1,6 @@
 "use client";
 
+import { CalendarEventType, ContentType, PduSource } from "@/lib/graphql/base";
 import { Eye, PlayCircle, Radio, Users } from "lucide-react";
 import { useContentActions } from "@/hooks/useContentActions";
 import { GlassCard } from "@elements/glass-card";
@@ -7,7 +8,6 @@ import { useI18n } from "@/hooks/useI18n";
 
 import * as YouTubeApi from "@/lib/rtk/endpoints/youtube.api";
 import * as Tabs from "@ui/tabs";
-import * as API from "@/lib/graphql/generated";
 
 import DetailHeroActions from "@modules/ContentDetail/parts/DetailHeroActions";
 import DetailSkeleton from "@modules/ContentDetail/parts/DetailSkeleton";
@@ -34,7 +34,7 @@ const YouTubeDetailPage = ({ slug }: { slug: string }) => {
   );
 
   const actions = useContentActions({
-    contentType: API.ContentType.Youtube,
+    contentType: ContentType.Youtube,
     contentId: channel?.id,
   });
 
@@ -56,9 +56,9 @@ const YouTubeDetailPage = ({ slug }: { slug: string }) => {
 
   const calendarPrefill = {
     title: channel.title,
-    type: API.CalendarEventType.Other,
+    type: CalendarEventType.Other,
     contentId: channel.id,
-    contentType: API.ContentType.Youtube,
+    contentType: ContentType.Youtube,
   };
 
   const watchHref = videos[0]?.videoUrl ?? channel.channelUrl ?? undefined;
@@ -91,13 +91,13 @@ const YouTubeDetailPage = ({ slug }: { slug: string }) => {
           badge={t("contentDetails.youtube.badge")}
           actions={
             <DetailHeroActions
-              contentType={API.ContentType.Youtube}
+              contentType={ContentType.Youtube}
               prefill={calendarPrefill}
               completed={{
                 title: channel.title,
                 contentId: channel.id,
-                contentType: API.ContentType.Youtube,
-                activityType: API.PduSource.VideoLecture,
+                contentType: ContentType.Youtube,
+                activityType: PduSource.VideoLecture,
                 providerOrganizer: channel.provider,
               }}
               wishlist={{
@@ -135,37 +135,37 @@ const YouTubeDetailPage = ({ slug }: { slug: string }) => {
 
         <section className="min-w-0">
           <Tabs.Tabs defaultValue="videos" className="space-y-6">
-              <Tabs.TabsList className="grid h-auto grid-cols-2 rounded-3xl border border-glass-border bg-background/60 p-2 backdrop-blur-xl">
-                <Tabs.TabsTrigger
-                  value="videos"
-                  className="rounded-2xl py-3 font-bold"
-                >
-                  {t("contentDetails.tabs.videos")}
-                </Tabs.TabsTrigger>
-                <Tabs.TabsTrigger
-                  value="reviews"
-                  className="rounded-2xl py-3 font-bold"
-                >
-                  {t("contentDetails.tabs.reviews")}
-                </Tabs.TabsTrigger>
-              </Tabs.TabsList>
+            <Tabs.TabsList className="grid h-auto grid-cols-2 rounded-3xl border border-glass-border bg-background/60 p-2 backdrop-blur-xl">
+              <Tabs.TabsTrigger
+                value="videos"
+                className="rounded-2xl py-3 font-bold"
+              >
+                {t("contentDetails.tabs.videos")}
+              </Tabs.TabsTrigger>
+              <Tabs.TabsTrigger
+                value="reviews"
+                className="rounded-2xl py-3 font-bold"
+              >
+                {t("contentDetails.tabs.reviews")}
+              </Tabs.TabsTrigger>
+            </Tabs.TabsList>
 
-              <Tabs.TabsContent value="videos">
-                <YouTubeVideos videos={videos} />
-              </Tabs.TabsContent>
+            <Tabs.TabsContent value="videos">
+              <YouTubeVideos videos={videos} />
+            </Tabs.TabsContent>
 
-              <Tabs.TabsContent value="reviews" className="space-y-6">
-                <ReviewForm
-                  onSubmit={actions.onSubmitReview}
-                  isLoading={actions.isReviewLoading}
-                  defaultRating={actions.myReview?.rating}
-                  defaultComment={actions.myReview?.comment}
-                />
-                <ReviewsList
-                  reviews={actions.reviews}
-                  isLoading={actions.isReviewsLoading}
-                />
-              </Tabs.TabsContent>
+            <Tabs.TabsContent value="reviews" className="space-y-6">
+              <ReviewForm
+                onSubmit={actions.onSubmitReview}
+                isLoading={actions.isReviewLoading}
+                defaultRating={actions.myReview?.rating}
+                defaultComment={actions.myReview?.comment}
+              />
+              <ReviewsList
+                reviews={actions.reviews}
+                isLoading={actions.isReviewsLoading}
+              />
+            </Tabs.TabsContent>
           </Tabs.Tabs>
         </section>
       </div>

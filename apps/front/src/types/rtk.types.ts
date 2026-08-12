@@ -1,4 +1,4 @@
-import { TypedDocumentString } from "@/lib/graphql/generated";
+import type { TypedDocumentString } from "@/lib/graphql/base";
 
 export type TGraphQLDocument = string | TypedDocumentString<unknown, never>;
 

@@ -2,7 +2,7 @@
 
 import { useConfirmExternalLearningMutation } from "@/lib/rtk/endpoints/external-learning.api";
 import { TExternalLearningDialog } from "@/types/professional-dashboard.types";
-import { ExternalLearningStatus } from "@/lib/graphql/generated";
+import { ExternalLearningStatus } from "@/lib/graphql/base";
 import { FloatingTextareaField } from "@elements/floating-textarea";
 import { FloatingSelectField } from "@elements/floating-select";
 import { FloatingInputField } from "@elements/floating-input";

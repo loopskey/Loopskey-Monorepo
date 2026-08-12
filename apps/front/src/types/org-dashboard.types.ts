@@ -1,15 +1,17 @@
-import { useOrganizationAssignmentsTab } from "@/hooks/useOrgDashboardAssignmentTab";
-import { useOrganizationMembersTab } from "@/hooks/useOrgMemberTab";
-import { useOrgCpdCategoriesTab } from "@/hooks/useCPDCategoryTab";
-import { TCpdCategoryFormValues } from "@/lib/validations/org-dashboard.schema";
-import { TCpdCategoryFormInput } from "@/lib/validations/org-dashboard.schema";
-import { useOrgEventCatalogTab } from "@/hooks/useOrgEventCatalogTab";
-import { UseFormReturn } from "react-hook-form";
-import { LucideIcon } from "lucide-react";
-import { ReactNode } from "react";
+import type { useOrganizationAssignmentsTab } from "@/hooks/useOrgDashboardAssignmentTab";
+import type { useOrganizationMembersTab } from "@/hooks/useOrgMemberTab";
+import type { useOrgCpdCategoriesTab } from "@/hooks/useCPDCategoryTab";
+import type { TCpdCategoryFormValues } from "@/lib/validations/org-dashboard.schema";
+import type { TCpdCategoryFormInput } from "@/lib/validations/org-dashboard.schema";
+import type { useOrgEventCatalogTab } from "@/hooks/useOrgEventCatalogTab";
+import type { AssignmentType, Role } from "@/lib/graphql/base";
+import type { AssignmentTargetKind } from "@/lib/graphql/base";
+import type { useOrgReportsTab } from "@/hooks/useOrgReportTab";
+import type { UseFormReturn } from "react-hook-form";
+import type { LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
 
-import * as API from "@/lib/graphql/generated";
-import { useOrgReportsTab } from "@/hooks/useOrgReportTab";
+import type * as API from "@/lib/graphql/operations/org-dashboard";
 
 export type TOrgDashboardTab =
   | "members"
@@ -57,11 +59,11 @@ export type TOrganizationAssignmentFormValues = {
   eventId: string;
   dueDate?: string;
   description?: string;
+  type: AssignmentType;
   departmentId?: string;
+  targetRole?: Role | "";
   targetMemberId?: string;
-  type: API.AssignmentType;
-  targetRole?: API.Role | "";
-  targetKind: API.AssignmentTargetKind;
+  targetKind: AssignmentTargetKind;
 };
 
 export type TOrgAssignmentFormProps = {

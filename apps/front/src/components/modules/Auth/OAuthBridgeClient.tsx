@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { useI18n } from "@hooks/useI18n";
 import { notify } from "@hooks/notify";
 import { isRole } from "@utils/function-helper";
-import { Role } from "@lib/graphql/generated";
+import { Role } from "@/lib/graphql/base";
 
 const OAuthBridgeClient = () => {
   const { t } = useI18n();

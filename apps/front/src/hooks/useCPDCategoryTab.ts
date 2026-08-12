@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { TCpdCategoryItem } from "@/types/org-dashboard.types";
-import { PduCategory } from "@/lib/graphql/generated";
+import { PduCategory } from "@/lib/graphql/base";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useI18n } from "@/hooks/useI18n";

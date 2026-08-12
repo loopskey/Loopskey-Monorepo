@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import * as GQL from "@/lib/graphql/generated";
+import { ProfessionalGoal } from "@/lib/graphql/base";
 import * as C from "@/utils/professional-onboarding.constant";
 
 describe("stepsForGoal", () => {
   it("adds the certification step only for the certification goal", () => {
-    expect(C.stepsForGoal(GQL.ProfessionalGoal.MaintainCertification)).toEqual([
+    expect(C.stepsForGoal(ProfessionalGoal.MaintainCertification)).toEqual([
       "goal",
       "role",
       "skills",
@@ -14,9 +14,9 @@ describe("stepsForGoal", () => {
   });
 
   it.each([
-    GQL.ProfessionalGoal.GrowInCurrentRole,
-    GQL.ProfessionalGoal.PrepareForNextRole,
-    GQL.ProfessionalGoal.ExploreProfessionalPath,
+    ProfessionalGoal.GrowInCurrentRole,
+    ProfessionalGoal.PrepareForNextRole,
+    ProfessionalGoal.ExploreProfessionalPath,
   ])("uses three steps for %s", (goal) => {
     expect(C.stepsForGoal(goal)).toEqual(["goal", "role", "skills"]);
   });
@@ -28,7 +28,7 @@ describe("stepsForGoal", () => {
   it("offers exactly the four documented goals", () => {
     expect(C.ONBOARDING_GOALS).toHaveLength(4);
     expect(new Set(C.ONBOARDING_GOALS)).toEqual(
-      new Set(Object.values(GQL.ProfessionalGoal)),
+      new Set(Object.values(ProfessionalGoal)),
     );
   });
 });

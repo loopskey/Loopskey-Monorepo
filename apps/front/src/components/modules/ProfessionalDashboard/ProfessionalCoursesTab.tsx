@@ -1,6 +1,6 @@
 "use client";
 
-import { ExternalLearningProvider } from "@/lib/graphql/generated";
+import { ExternalLearningProvider } from "@/lib/graphql/base";
 import { ExternalLearningButton } from "@elements/external-learning-btn";
 import { useProfessionalCourses } from "@/hooks/useProfessionalCourses";
 import { ContentPagination } from "@elements/pagination";

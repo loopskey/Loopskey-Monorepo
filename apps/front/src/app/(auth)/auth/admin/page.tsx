@@ -5,13 +5,13 @@ import { GlassCard } from "@elements/glass-card";
 import { siteLinks } from "@/utils/constant";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
+import { Role } from "@/lib/graphql/base";
 
 import AuthFeaturePanel from "@modules/Auth/parts/AuthFeaturePanel";
 import RoleLoginForm from "@modules/Auth/RoleLoginForm";
 import AuthPageShell from "@modules/Auth/parts/AuthPageSell";
 import Link from "next/link";
 
-import * as API from "@/lib/graphql/generated";
 import * as L from "lucide-react";
 
 const AdminAuthPage = () => {
@@ -56,7 +56,7 @@ const AdminAuthPage = () => {
                 </p>
               </div>
 
-              <RoleLoginForm role={API.Role.Admin} />
+              <RoleLoginForm role={Role.Admin} />
             </div>
           </GlassCard>
         </div>

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import * as C from "@/utils/professional-profile.constant";
-import * as GQL from "@/lib/graphql/generated";
+import * as API from "@/lib/graphql/base";
 
 const optionalText = z
   .string()
@@ -37,7 +37,7 @@ export const basicProfileSchema = z.object({
     .optional()
     .or(z.literal(""))
     .transform((value) => (value ? value : undefined)),
-  language: z.nativeEnum(GQL.AppLanguage).optional(),
+  language: z.nativeEnum(API.AppLanguage).optional(),
   timeZone: z
     .string()
     .trim()
@@ -56,10 +56,10 @@ export type TBasicProfileFormValues = z.output<typeof basicProfileSchema>;
 // =============== Professional details ===============
 export const professionalDetailsSchema = z.object({
   profession: optionalText,
-  industry: z.nativeEnum(GQL.ProfessionalIndustry).optional(),
+  industry: z.nativeEnum(API.ProfessionalIndustry).optional(),
   currentRole: optionalText,
-  professionalGoal: z.nativeEnum(GQL.ProfessionalGoal).optional(),
-  experienceRange: z.nativeEnum(GQL.ExperienceRange).optional(),
+  professionalGoal: z.nativeEnum(API.ProfessionalGoal).optional(),
+  experienceRange: z.nativeEnum(API.ExperienceRange).optional(),
   workLocation: optionalText,
   professionalSummary: z
     .string()
@@ -88,8 +88,8 @@ export const professionalSkillsSchema = z.object({
   mainSkillAreaIds: termIds,
   favoriteSubjectIds: termIds,
   skillsToImproveIds: termIds,
-  currentSkillLevel: z.nativeEnum(GQL.SkillLevel).optional(),
-  targetSkillLevel: z.nativeEnum(GQL.SkillLevel).optional(),
+  currentSkillLevel: z.nativeEnum(API.SkillLevel).optional(),
+  targetSkillLevel: z.nativeEnum(API.SkillLevel).optional(),
 });
 
 export type TSkillsFormInput = z.input<typeof professionalSkillsSchema>;
@@ -97,10 +97,10 @@ export type TSkillsFormValues = z.output<typeof professionalSkillsSchema>;
 
 // =============== Preferences ===============
 export const professionalPreferencesSchema = z.object({
-  preferredLearningFormats: z.array(z.nativeEnum(GQL.LearningFormat)),
-  learningTimeCommitment: z.nativeEnum(GQL.LearningTimeCommitment).optional(),
+  preferredLearningFormats: z.array(z.nativeEnum(API.LearningFormat)),
+  learningTimeCommitment: z.nativeEnum(API.LearningTimeCommitment).optional(),
   learningBudgetPreference: z
-    .nativeEnum(GQL.LearningBudgetPreference)
+    .nativeEnum(API.LearningBudgetPreference)
     .optional(),
 });
 

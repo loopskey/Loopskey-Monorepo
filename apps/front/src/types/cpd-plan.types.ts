@@ -1,13 +1,14 @@
-import { Control, UseFieldArrayReturn, UseFormReturn } from "react-hook-form";
-import { CpdPlanFormValues } from "@/lib/validations/cpd-plan.schema";
-import { CpdPlanFormInput } from "@/lib/validations/cpd-plan.schema";
+import type { Control, UseFormReturn } from "react-hook-form";
+import type { UseFieldArrayReturn } from "react-hook-form";
+import type { CpdPlanFormValues } from "@/lib/validations/cpd-plan.schema";
+import type { CpdPlanFormInput } from "@/lib/validations/cpd-plan.schema";
 
-import * as G from "@/lib/graphql/generated";
+import type * as API from "@/lib/graphql/operations/cpd-plan";
 
-export type TCpdPlan = G.CpdPlanFieldsFragment;
-export type TCpdPlanProgress = G.CpdPlanProgressFieldsFragment;
-export type TCertification = G.CertificationFieldsFragment;
-export type TCpdRecipientOption = G.CpdReportRecipientOptionFieldsFragment;
+export type TCpdPlan = API.CpdPlanFieldsFragment;
+export type TCpdPlanProgress = API.CpdPlanProgressFieldsFragment;
+export type TCertification = API.CertificationFieldsFragment;
+export type TCpdRecipientOption = API.CpdReportRecipientOptionFieldsFragment;
 
 export type CpdSetupMode = "manual" | "editSuggestion";
 

@@ -2,15 +2,15 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { PduCategory } from "@/lib/graphql/base";
 import { useForm } from "react-hook-form";
 
 import * as API from "@/lib/rtk/endpoints/professional.api";
 import * as SC from "@/lib/validations/pdu-target.schema";
-import * as GQL from "@/lib/graphql/generated";
 import * as C from "@/utils/pdu.constant";
 import * as T from "@/types/professional-dashboard.types";
 
-const DEFAULT_CATEGORY = GQL.PduCategory.Technical;
+const DEFAULT_CATEGORY = PduCategory.Technical;
 
 const buildDefaults = (year: number): SC.TPduTargetFormInput => ({
   year,
@@ -54,7 +54,8 @@ export const useProfessionalTargetForm = ({
 
   const existingTarget = useMemo<T.TPduReportTarget | null>(
     () =>
-      report?.targets.find((item) => item.category === selectedCategory) ?? null,
+      report?.targets.find((item) => item.category === selectedCategory) ??
+      null,
     [report?.targets, selectedCategory],
   );
 

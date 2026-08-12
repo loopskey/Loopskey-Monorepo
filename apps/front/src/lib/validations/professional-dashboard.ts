@@ -1,4 +1,4 @@
-import { CalendarEventType, ExternalLearningStatus } from "@lib/graphql/generated";
+import { CalendarEventType, ExternalLearningStatus } from "@/lib/graphql/base";
 import { z } from "zod";
 
 export const externalLearningSchema = z.object({

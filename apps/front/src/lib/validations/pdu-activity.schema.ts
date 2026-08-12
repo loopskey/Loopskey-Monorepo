@@ -1,4 +1,4 @@
-import { CreditType, PduCategory, PduSource } from "@lib/graphql/generated";
+import { CreditType, PduCategory, PduSource } from "@/lib/graphql/base";
 import { z } from "zod";
 
 import * as C from "@/utils/pdu.constant";

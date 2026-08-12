@@ -1,5 +1,5 @@
-import { ProfessionalPduActivityFilterInput } from "@/lib/graphql/generated";
-import { PduSource } from "@/lib/graphql/generated";
+import { ProfessionalPduActivityFilterInput } from "@/lib/graphql/base";
+import { PduSource } from "@/lib/graphql/base";
 
 import * as T from "@/types/professional-dashboard.types";
 

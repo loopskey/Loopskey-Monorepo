@@ -19,3 +19,4 @@ into this index and do not rewrite previous records.
 - [`footer-pages-ux-redesign`](feature-runs/active/footer-pages-ux-redesign.md)
 - [`performance-optimization`](feature-runs/active/performance-optimization.md)
 - [`professional-onboarding`](feature-runs/active/professional-onboarding.md)
+- [`performance-shell-hydration`](feature-runs/active/performance-shell-hydration.md)

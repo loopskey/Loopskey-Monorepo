@@ -2,15 +2,16 @@
 
 import { currentYear, orUndefined, toDateInput } from "@/utils/function-helper";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { CreditType, PduCategory, PduSource } from "@/lib/graphql/base";
 import { useRouter, useSearchParams } from "next/navigation";
 import { usePduEvidenceUpload } from "@/hooks/usePduEvidenceUpload";
+import { PduCompletionStatus } from "@/lib/graphql/base";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
 
 import * as API from "@/lib/rtk/endpoints/professional.api";
-import * as GQL from "@/lib/graphql/generated";
 import * as SC from "@/lib/validations/pdu-activity.schema";
 import * as C from "@/utils/pdu.constant";
 import * as T from "@/types/professional-dashboard.types";
@@ -31,9 +32,9 @@ const defaultValues: SC.TPduActivityFormInput = {
   issuingOrganization: "",
   relatedCertification: "",
   reportingYear: currentYear,
-  creditType: GQL.CreditType.Pdu,
-  activityType: GQL.PduSource.Course,
-  category: GQL.PduCategory.Technical,
+  creditType: CreditType.Pdu,
+  activityType: PduSource.Course,
+  category: PduCategory.Technical,
 };
 
 export const useProfessionalAddActivity = () => {
@@ -115,7 +116,7 @@ export const useProfessionalAddActivity = () => {
     }));
     if (
       activityType &&
-      !(C.PDU_ACTIVITY_TYPES as readonly GQL.PduSource[]).includes(activityType)
+      !(C.PDU_ACTIVITY_TYPES as readonly PduSource[]).includes(activityType)
     )
       options.push({
         value: activityType,
@@ -201,7 +202,7 @@ export const useProfessionalAddActivity = () => {
           description: orUndefined(values.description),
           evidenceNote: orUndefined(values.evidenceNote),
           date: new Date(values.dateCompleted).toISOString(),
-          completionStatus: GQL.PduCompletionStatus.Completed,
+          completionStatus: PduCompletionStatus.Completed,
           issuingOrganization: orUndefined(values.issuingOrganization),
           relatedCertification: orUndefined(values.relatedCertification),
         }).unwrap();

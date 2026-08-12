@@ -2,7 +2,7 @@
 
 import { formatCurrency, rangeOptions } from "@/utils/function-helper";
 import { useProviderAnalyticsTab } from "@/hooks/useProviderAnalyticsTab";
-import { ProviderDashboardRange } from "@/lib/graphql/generated";
+import { ProviderDashboardRange } from "@/lib/graphql/base";
 import { DashboardStatCard } from "@modules/ProfessionalDashboard/parts/dashboard-stat-card";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";

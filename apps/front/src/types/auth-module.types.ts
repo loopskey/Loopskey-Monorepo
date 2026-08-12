@@ -1,8 +1,8 @@
-import { AuthRegisterRole, Role } from "@/lib/graphql/generated";
-import { UseFormReturn } from "react-hook-form";
-import { ReactNode } from "react";
+import type { AuthRegisterRole, Role } from "@/lib/graphql/base";
+import type { UseFormReturn } from "react-hook-form";
+import type { ReactNode } from "react";
 
-import * as S from "@/lib/validations/auth-form.schema";
+import type * as S from "@/lib/validations/auth-form.schema";
 
 // ============== Flip Card =============
 export type TAuthFlipCard = {

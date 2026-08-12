@@ -4,7 +4,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { contactInquiryTypes, companyEmail } from "@/utils/constant";
 import { useSubmitContactInquiryMutation } from "@/lib/rtk/endpoints/support.api";
 import { ContactInquiryMessageCode } from "@loopskey/api-contracts/error-codes";
-import { ContactInquiryType } from "@lib/graphql/generated";
+import { ContactInquiryType } from "@/lib/graphql/base";
 import { getAuthErrorCode } from "@/utils/auth-error";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";

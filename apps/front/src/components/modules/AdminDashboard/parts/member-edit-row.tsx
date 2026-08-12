@@ -1,4 +1,4 @@
-import { OrganizationMemberStatus } from "@/lib/graphql/generated";
+import { OrganizationMemberStatus } from "@/lib/graphql/base";
 import { TMemberEditRow } from "@/types/admin-dashboard.types";
 import { numberValue } from "@/utils/function-helper";
 import { useState } from "react";

@@ -2,7 +2,7 @@
 
 import { TCertificatesFiltersProps } from "@/types/professional-dashboard.types";
 import { TCertificateStatusFilter } from "@/types/professional-dashboard.types";
-import { CertificateSort } from "@/lib/graphql/generated";
+import { CertificateSort } from "@/lib/graphql/base";
 import { Button } from "@ui/button";
 import { Input } from "@ui/input";
 import { Label } from "@ui/label";

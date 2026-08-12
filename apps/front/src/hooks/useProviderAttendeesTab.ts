@@ -1,7 +1,7 @@
 "use client";
 
 import { useProviderAttendeesQuery } from "@/lib/rtk/endpoints/provider.api";
-import { EventRegistrationStatus } from "@/lib/graphql/generated";
+import { EventRegistrationStatus } from "@/lib/graphql/base";
 import { useMemo, useState } from "react";
 
 export const useProviderAttendeesTab = () => {

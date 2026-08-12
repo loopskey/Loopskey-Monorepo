@@ -1,7 +1,7 @@
+import { RefreshTokenDocument } from "@/lib/graphql/operations/auth";
 import { documentToString } from "@/utils/function-helper";
 import { BaseQueryFn } from "@reduxjs/toolkit/query";
 
-import * as API from "@/lib/graphql/generated";
 import * as T from "@/types/rtk.types";
 
 let refreshPromise: Promise<boolean> | null = null;
@@ -80,15 +80,10 @@ const executeGraphqlRequest = async (
   }
 };
 
-/**
- * Exported so non-GraphQL transports (the avatar upload posts multipart over
- * XHR) can reuse the same single-flight refresh instead of failing on an
- * expired access token that every GraphQL call would have recovered from.
- */
 export const refreshAccessToken = async () => {
   if (!refreshPromise) {
     refreshPromise = executeGraphqlRequest({
-      document: API.RefreshTokenDocument,
+      document: RefreshTokenDocument,
     }).then((result) => {
       refreshPromise = null;
       return !("error" in result);

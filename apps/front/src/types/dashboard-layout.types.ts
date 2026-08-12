@@ -1,15 +1,14 @@
-import { LucideIcon } from "lucide-react";
-
-import * as API from "@/lib/graphql/generated";
+import type { LucideIcon } from "lucide-react";
+import type { Role } from "@/lib/graphql/base";
 
 export type TDashboardRole =
   | null
   | string
   | undefined
-  | API.Role.Admin
-  | API.Role.Provider
-  | API.Role.Professional
-  | API.Role.Organization;
+  | Role.Admin
+  | Role.Provider
+  | Role.Professional
+  | Role.Organization;
 
 export type TDashboardNavItem = {
   href: string;

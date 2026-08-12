@@ -1,11 +1,11 @@
-import { TextareaHTMLAttributes, InputHTMLAttributes } from "react";
-import { Control, FieldPath, FieldValues, Path } from "react-hook-form";
-import { HTMLAttributes, ReactNode, CSSProperties } from "react";
-import { ExternalLearningProvider } from "@lib/graphql/generated";
-import { AvatarImage } from "@ui/avatar";
-import { ComponentProps } from "react";
-import { buttonVariants } from "@ui/button";
-import { VariantProps } from "class-variance-authority";
+import type { TextareaHTMLAttributes, InputHTMLAttributes } from "react";
+import type { HTMLAttributes, ReactNode, CSSProperties } from "react";
+import type { Control, FieldPath, FieldValues, Path } from "react-hook-form";
+import type { ExternalLearningProvider } from "@/lib/graphql/base";
+import type { ComponentProps } from "react";
+import type { buttonVariants } from "@ui/button";
+import type { VariantProps } from "class-variance-authority";
+import type { AvatarImage } from "@ui/avatar";
 
 export type TLearningParticlesBackgroundProps = {
   className?: string;

@@ -1,6 +1,5 @@
 import { AuthMessageCode } from "@loopskey/api-contracts/error-codes";
-
-import { Role } from "@/lib/graphql/generated";
+import { Role } from "@/lib/graphql/base";
 
 export const GOOGLE_OAUTH_ALLOWED_ROLES = [
   Role.Professional,
@@ -36,22 +35,10 @@ export type OAuthAllowedRole =
   | GoogleOAuthAllowedRole
   | LinkedInOAuthAllowedRole;
 
-/**
- * The OAuth bridge is provider-agnostic — it only sees the role the API sends
- * back — so it checks against any provider's allowed roles rather than Google's.
- */
 export const isOAuthAllowedRole = (role: unknown): role is OAuthAllowedRole => {
   return isGoogleOAuthAllowedRole(role) || isLinkedInOAuthAllowedRole(role);
 };
 
-/**
- * The OAuth subset of the auth vocabulary the API throws.
- *
- * Values come from the shared contract rather than being retyped, so a rename
- * on the backend is a compile error here instead of a silently unhandled
- * redirect. The keys are kept so existing `OAUTH_ERROR_CODE.X` call sites and
- * the translation-key map are untouched.
- */
 export const OAUTH_ERROR_CODE = {
   INVALID_ROLE: AuthMessageCode.INVALID_ROLE,
   USER_DISABLED: AuthMessageCode.USER_DISABLED,

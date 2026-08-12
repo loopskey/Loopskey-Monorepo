@@ -1,6 +1,6 @@
 "use client";
 
-import { AppLanguage, ProfileVisibility } from "@/lib/graphql/generated";
+import { AppLanguage, ProfileVisibility } from "@/lib/graphql/base";
 import { useEffect, useMemo, useState } from "react";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";

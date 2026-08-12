@@ -1,7 +1,7 @@
 "use client";
 
 import { TProfessionalGeneralSetting } from "@/types/professional-dashboard.types";
-import { AppLanguage } from "@/lib/graphql/generated";
+import { AppLanguage } from "@/lib/graphql/base";
 import { Button } from "@ui/button";
 import { Label } from "@ui/label";
 

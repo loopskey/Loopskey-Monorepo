@@ -1,5 +1,5 @@
 import { PASSWORD_STRENGTH_MESSAGE } from "@/utils/constant";
-import { OrganizationType } from "@lib/graphql/generated";
+import { OrganizationType } from "@/lib/graphql/base";
 import { z } from "zod";
 
 export const strongPasswordSchema = z

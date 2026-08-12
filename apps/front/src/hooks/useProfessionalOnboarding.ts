@@ -1,13 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ProfessionalGoal, ProfileTaxonomyKind } from "@/lib/graphql/base";
 import { useCertificationSearchQuery } from "@/lib/rtk/endpoints/cpd-plan.api";
 import { useDebouncedValue } from "@/hooks/useDebounced";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
 
-import * as GQL from "@/lib/graphql/generated";
 import * as PAPI from "@/lib/rtk/endpoints/professional.api";
 import * as C from "@/utils/professional-onboarding.constant";
 import * as T from "@/types/professional-onboarding.types";
@@ -18,7 +18,7 @@ export const useProfessionalOnboarding = () => {
   const { t } = useI18n();
   const router = useRouter();
 
-  const [goal, setGoal] = useState<GQL.ProfessionalGoal | null>(null);
+  const [goal, setGoal] = useState<ProfessionalGoal | null>(null);
   const [stepIndex, setStepIndex] = useState(0);
 
   const [role, setRole] = useState("");
@@ -80,7 +80,7 @@ export const useProfessionalOnboarding = () => {
   const roleOptions: T.TOnboardingRoleOption[] = useMemo(
     () =>
       (taxonomyQuery.data ?? [])
-        .filter((group) => group.kind === GQL.ProfileTaxonomyKind.Role)
+        .filter((group) => group.kind === ProfileTaxonomyKind.Role)
         .flatMap((group) =>
           group.terms.map((term) => ({ id: term.id, label: term.label })),
         ),
@@ -111,7 +111,7 @@ export const useProfessionalOnboarding = () => {
   const skillOptions: T.TOnboardingSkillOption[] = useMemo(
     () =>
       (taxonomyQuery.data ?? [])
-        .filter((group) => group.kind === GQL.ProfileTaxonomyKind.SkillArea)
+        .filter((group) => group.kind === ProfileTaxonomyKind.SkillArea)
         .flatMap((group) =>
           group.terms.map((term) => ({
             id: term.id,
@@ -252,9 +252,9 @@ export const useProfessionalOnboarding = () => {
     [],
   );
 
-  const chooseGoal = useCallback((value: GQL.ProfessionalGoal) => {
+  const chooseGoal = useCallback((value: ProfessionalGoal) => {
     setGoal(value);
-    if (value !== GQL.ProfessionalGoal.MaintainCertification) {
+    if (value !== ProfessionalGoal.MaintainCertification) {
       setCertification(null);
       setIsManualCertification(false);
     }

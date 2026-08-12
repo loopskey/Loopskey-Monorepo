@@ -1,42 +1,42 @@
-import * as GQL from "@/lib/graphql/generated";
+import * as API from "@/lib/graphql/base";
 
 export const CPD_CREDIT_TYPES = [
-  GQL.CreditType.Pdu,
-  GQL.CreditType.Cpd,
-  GQL.CreditType.Cpe,
-  GQL.CreditType.Ceu,
-  GQL.CreditType.TrainingHour,
+  API.CreditType.Pdu,
+  API.CreditType.Cpd,
+  API.CreditType.Cpe,
+  API.CreditType.Ceu,
+  API.CreditType.TrainingHour,
 ] as const;
 
 export const CPD_LEARNING_FORMATS = [
-  GQL.LearningFormat.Course,
-  GQL.LearningFormat.Webinar,
-  GQL.LearningFormat.Workshop,
-  GQL.LearningFormat.Video,
-  GQL.LearningFormat.Podcast,
-  GQL.LearningFormat.Article,
+  API.LearningFormat.Course,
+  API.LearningFormat.Webinar,
+  API.LearningFormat.Workshop,
+  API.LearningFormat.Video,
+  API.LearningFormat.Podcast,
+  API.LearningFormat.Article,
 ] as const;
 
 export const CPD_TIME_COMMITMENTS = [
-  GQL.LearningTimeCommitment.LessThanOneHour,
-  GQL.LearningTimeCommitment.OneToThreeHours,
-  GQL.LearningTimeCommitment.FourToSixHours,
-  GQL.LearningTimeCommitment.SevenToTenHours,
-  GQL.LearningTimeCommitment.MoreThanTenHours,
+  API.LearningTimeCommitment.LessThanOneHour,
+  API.LearningTimeCommitment.OneToThreeHours,
+  API.LearningTimeCommitment.FourToSixHours,
+  API.LearningTimeCommitment.SevenToTenHours,
+  API.LearningTimeCommitment.MoreThanTenHours,
 ] as const;
 
 export const CPD_EVIDENCE_TYPES = [
-  GQL.CpdEvidenceType.Certificate,
-  GQL.CpdEvidenceType.AttendanceProof,
-  GQL.CpdEvidenceType.SelfDeclaration,
-  GQL.CpdEvidenceType.Other,
+  API.CpdEvidenceType.Certificate,
+  API.CpdEvidenceType.AttendanceProof,
+  API.CpdEvidenceType.SelfDeclaration,
+  API.CpdEvidenceType.Other,
 ] as const;
 
 export const CPD_REMINDER_TIMINGS = [
-  GQL.CpdReminderTiming.Days_7,
-  GQL.CpdReminderTiming.Days_14,
-  GQL.CpdReminderTiming.Days_30,
-  GQL.CpdReminderTiming.Days_60,
+  API.CpdReminderTiming.Days_7,
+  API.CpdReminderTiming.Days_14,
+  API.CpdReminderTiming.Days_30,
+  API.CpdReminderTiming.Days_60,
 ] as const;
 
 export const CPD_WIZARD_STEPS = [1, 2, 3, 4] as const;

@@ -6,16 +6,16 @@ import { FloatingTextareaField } from "@elements/floating-textarea";
 import { FloatingSelectField } from "@elements/floating-select";
 import { FloatingInputField } from "@elements/floating-input";
 import { TOrgAccessValues } from "@/lib/validations/auth-form.schema";
+import { OrganizationType } from "@/lib/graphql/base";
 import { TOrgAccessInput } from "@/lib/validations/auth-form.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useRef } from "react";
 import { useI18n } from "@/hooks/useI18n";
+import { useRef } from "react";
 import { notify } from "@/hooks/notify";
 import { Button } from "@ui/button";
 import { Form } from "@ui/form";
 
-import * as API from "@/lib/graphql/generated";
 import * as L from "lucide-react";
 
 const OrgAccessRequestForm = () => {
@@ -34,10 +34,10 @@ const OrgAccessRequestForm = () => {
       representativeJobRole: "",
       representativeFullName: "",
       expectedLicensedProfessionals: 1,
-      organizationType: API.OrganizationType.Company,
+      organizationType: OrganizationType.Company,
     },
   });
-  const organizationTypeOptions = Object.values(API.OrganizationType).map(
+  const organizationTypeOptions = Object.values(OrganizationType).map(
     (value) => ({
       value,
       label: value

@@ -1,132 +1,129 @@
+import { PduCompletionStatus, PduSource } from "@/lib/graphql/base";
+import { CreditType, PduCategory } from "@/lib/graphql/base";
+
 import {
-  DOCUMENT_ACCEPT_ATTRIBUTE,
+  pduEvidenceFileUrl,
   DOCUMENT_MIME_TYPES,
   PDU_EVIDENCE_LIMITS,
-  pduEvidenceFileUrl,
   pduEvidenceUploadUrl,
+  DOCUMENT_ACCEPT_ATTRIBUTE,
 } from "@loopskey/api-contracts/upload";
 
-import * as GQL from "@/lib/graphql/generated";
-
 export const PDU_ACTIVITY_TYPES = [
-  GQL.PduSource.Course,
-  GQL.PduSource.Webinar,
-  GQL.PduSource.Workshop,
-  GQL.PduSource.Seminar,
-  GQL.PduSource.Conference,
-  GQL.PduSource.Meeting,
-  GQL.PduSource.TrainingSession,
-  GQL.PduSource.CertificationProgram,
-  GQL.PduSource.SelfStudy,
-  GQL.PduSource.ReadingArticle,
-  GQL.PduSource.Podcast,
-  GQL.PduSource.VideoLecture,
-  GQL.PduSource.Mentorship,
-  GQL.PduSource.Volunteering,
-  GQL.PduSource.Teaching,
-  GQL.PduSource.ExamAssessment,
-  GQL.PduSource.Other,
+  PduSource.Course,
+  PduSource.Webinar,
+  PduSource.Workshop,
+  PduSource.Seminar,
+  PduSource.Conference,
+  PduSource.Meeting,
+  PduSource.TrainingSession,
+  PduSource.CertificationProgram,
+  PduSource.SelfStudy,
+  PduSource.ReadingArticle,
+  PduSource.Podcast,
+  PduSource.VideoLecture,
+  PduSource.Mentorship,
+  PduSource.Volunteering,
+  PduSource.Teaching,
+  PduSource.ExamAssessment,
+  PduSource.Other,
 ] as const;
 
 export const CREDIT_TYPES = [
-  GQL.CreditType.Cpd,
-  GQL.CreditType.Pdu,
-  GQL.CreditType.Ceu,
-  GQL.CreditType.TrainingHour,
+  CreditType.Cpd,
+  CreditType.Pdu,
+  CreditType.Ceu,
+  CreditType.TrainingHour,
 ] as const;
 
 export const PDU_CATEGORIES = [
-  GQL.PduCategory.Technical,
-  GQL.PduCategory.ProfessionalPractice,
-  GQL.PduCategory.Leadership,
-  GQL.PduCategory.Ethics,
-  GQL.PduCategory.Communication,
-  GQL.PduCategory.Business,
-  GQL.PduCategory.Strategic,
-  GQL.PduCategory.Compliance,
-  GQL.PduCategory.DigitalAi,
-  GQL.PduCategory.ResearchInnovation,
-  GQL.PduCategory.IndustryKnowledge,
-  GQL.PduCategory.Other,
+  PduCategory.Technical,
+  PduCategory.ProfessionalPractice,
+  PduCategory.Leadership,
+  PduCategory.Ethics,
+  PduCategory.Communication,
+  PduCategory.Business,
+  PduCategory.Strategic,
+  PduCategory.Compliance,
+  PduCategory.DigitalAi,
+  PduCategory.ResearchInnovation,
+  PduCategory.IndustryKnowledge,
+  PduCategory.Other,
 ] as const;
 
 export const PDU_COMPLETION_STATUSES = [
-  GQL.PduCompletionStatus.Completed,
-  GQL.PduCompletionStatus.Incomplete,
+  PduCompletionStatus.Completed,
+  PduCompletionStatus.Incomplete,
 ] as const;
 
-export const PDU_SUB_CATEGORIES: Record<GQL.PduCategory, readonly string[]> = {
-  [GQL.PduCategory.Technical]: [
+export const PDU_SUB_CATEGORIES: Record<PduCategory, readonly string[]> = {
+  [PduCategory.Technical]: [
     "Software Engineering",
     "Data & Analytics",
     "Cloud & Infrastructure",
     "Cybersecurity",
     "Quality & Testing",
   ],
-  [GQL.PduCategory.ProfessionalPractice]: [
+  [PduCategory.ProfessionalPractice]: [
     "Project Management",
     "Risk Management",
     "Stakeholder Management",
     "Agile Practices",
   ],
-  [GQL.PduCategory.Leadership]: [
+  [PduCategory.Leadership]: [
     "Team Leadership",
     "Coaching & Mentoring",
     "Change Management",
     "Conflict Resolution",
   ],
-  [GQL.PduCategory.Ethics]: [
+  [PduCategory.Ethics]: [
     "Professional Conduct",
     "Anti-Corruption",
     "Responsible AI",
     "Data Ethics",
   ],
-  [GQL.PduCategory.Communication]: [
+  [PduCategory.Communication]: [
     "Presentation Skills",
     "Technical Writing",
     "Negotiation",
     "Facilitation",
   ],
-  [GQL.PduCategory.Business]: [
+  [PduCategory.Business]: [
     "Strategy",
     "Finance",
     "Operations",
     "Product Management",
   ],
-  [GQL.PduCategory.Strategic]: [
+  [PduCategory.Strategic]: [
     "Business Strategy",
     "Portfolio Management",
     "Benefits Realisation",
   ],
-  [GQL.PduCategory.Compliance]: [
+  [PduCategory.Compliance]: [
     "Health & Safety",
     "Regulatory Compliance",
     "Privacy & GDPR",
     "Audit",
   ],
-  [GQL.PduCategory.DigitalAi]: [
+  [PduCategory.DigitalAi]: [
     "Artificial Intelligence",
     "Machine Learning",
     "Automation",
     "Digital Transformation",
   ],
-  [GQL.PduCategory.ResearchInnovation]: [
+  [PduCategory.ResearchInnovation]: [
     "Applied Research",
     "Innovation Management",
     "Design Thinking",
   ],
-  [GQL.PduCategory.IndustryKnowledge]: [
+  [PduCategory.IndustryKnowledge]: [
     "Sector Trends",
     "Standards & Frameworks",
     "Competitor Analysis",
   ],
-  [GQL.PduCategory.Other]: ["General"],
+  [PduCategory.Other]: ["General"],
 };
 
-/**
- * Upload rules come from the shared contract, so the form cannot accept a file
- * the API will reject — or reject one it would have taken.
- */
 export const MAX_EVIDENCE_FILES = PDU_EVIDENCE_LIMITS.maxFiles;
 export const MAX_EVIDENCE_SIZE_BYTES = PDU_EVIDENCE_LIMITS.maxFileSizeBytes;
 
@@ -137,7 +134,6 @@ export const ACCEPTED_EVIDENCE_ACCEPT_ATTRIBUTE = DOCUMENT_ACCEPT_ATTRIBUTE;
 export const PDU_REPORTING_YEAR_MIN = 1900;
 export const PDU_REPORTING_YEAR_MAX = new Date().getFullYear() + 1;
 
-/** Upper bound for a single category's yearly target. */
 export const PDU_TARGET_MAX = 999;
 
 export const PDU_REPORTING_YEAR_OPTIONS = Array.from(

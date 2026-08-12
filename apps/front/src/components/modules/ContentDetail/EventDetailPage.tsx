@@ -1,7 +1,10 @@
 "use client";
 
-import { CalendarDays, MapPin, MonitorPlay, UserPlus, Users } from "lucide-react";
+import { MapPin, MonitorPlay, UserPlus, Users } from "lucide-react";
+import { ContentType, EventType, PduSource } from "@/lib/graphql/base";
 import { useContentActions } from "@/hooks/useContentActions";
+import { CalendarEventType } from "@/lib/graphql/base";
+import { CalendarDays } from "lucide-react";
 import { formatDate } from "@/utils/function-helper";
 import { GlassCard } from "@elements/glass-card";
 import { useI18n } from "@/hooks/useI18n";
@@ -17,7 +20,6 @@ import DetailHero from "@modules/ContentDetail/parts/DetailHero";
 
 import * as EventApi from "@/lib/rtk/endpoints/event.api";
 import * as Tabs from "@ui/tabs";
-import * as API from "@/lib/graphql/generated";
 
 const EventDetailPage = ({ slug }: { slug: string }) => {
   const { t } = useI18n();
@@ -25,7 +27,7 @@ const EventDetailPage = ({ slug }: { slug: string }) => {
   const { data: event, isLoading } = EventApi.useEventBySlugQuery({ slug });
 
   const actions = useContentActions({
-    contentType: API.ContentType.Event,
+    contentType: ContentType.Event,
     contentId: event?.id,
   });
 
@@ -48,15 +50,15 @@ const EventDetailPage = ({ slug }: { slug: string }) => {
   const calendarPrefill = {
     title: event.title,
     type:
-      event.type === API.EventType.Webinar
-        ? API.CalendarEventType.Webinar
-        : event.type === API.EventType.Training
-          ? API.CalendarEventType.Training
-          : API.CalendarEventType.Event,
+      event.type === EventType.Webinar
+        ? CalendarEventType.Webinar
+        : event.type === EventType.Training
+          ? CalendarEventType.Training
+          : CalendarEventType.Event,
     startDate: event.startDate,
     endDate: event.endDate,
     contentId: event.id,
-    contentType: API.ContentType.Event,
+    contentType: ContentType.Event,
   };
 
   const isPaid = !event.isFree && Number(event.price ?? 0) > 0;
@@ -74,13 +76,13 @@ const EventDetailPage = ({ slug }: { slug: string }) => {
           rating={event.averageRating ?? event.rating}
           actions={
             <DetailHeroActions
-              contentType={API.ContentType.Event}
+              contentType={ContentType.Event}
               prefill={calendarPrefill}
               completed={{
                 title: event.title,
                 contentId: event.id,
-                contentType: API.ContentType.Event,
-                activityType: API.PduSource.Event,
+                contentType: ContentType.Event,
+                activityType: PduSource.Event,
               }}
               wishlist={{
                 isWishlisted: actions.isWishlisted,

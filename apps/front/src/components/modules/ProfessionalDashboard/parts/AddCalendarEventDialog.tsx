@@ -6,7 +6,7 @@ import { FloatingTextareaField } from "@elements/floating-textarea";
 import { FloatingSelectField } from "@elements/floating-select";
 import { FloatingInputField } from "@elements/floating-input";
 import { useEffect, useMemo } from "react";
-import { CalendarEventType } from "@/lib/graphql/generated";
+import { CalendarEventType } from "@/lib/graphql/base";
 import { toDateTimeLocal } from "@/utils/function-helper";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";

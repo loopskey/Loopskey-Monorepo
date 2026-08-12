@@ -4,7 +4,7 @@ import { useEnrollContentMutation } from "@/lib/rtk/endpoints/content-interactio
 import { getPduMonthLabel } from "@/utils/pdu.constant";
 import { useCoursesQuery } from "@/lib/rtk/endpoints/course.api";
 import { CHART_COLORS } from "@/utils/constant";
-import { ContentType } from "@/lib/graphql/generated";
+import { ContentType } from "@/lib/graphql/base";
 import { useMemo } from "react";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";

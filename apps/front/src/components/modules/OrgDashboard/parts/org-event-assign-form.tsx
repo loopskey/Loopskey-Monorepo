@@ -1,6 +1,6 @@
 "use client";
 
-import { AssignmentTargetKind, Role } from "@/lib/graphql/generated";
+import { AssignmentTargetKind, Role } from "@/lib/graphql/base";
 import { FloatingTextareaField } from "@elements/floating-textarea";
 import { FloatingSelectField } from "@elements/floating-select";
 import { FloatingInputField } from "@elements/floating-input";

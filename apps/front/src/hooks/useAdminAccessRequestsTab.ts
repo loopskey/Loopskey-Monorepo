@@ -1,7 +1,7 @@
 "use client";
 
-import { OrganizationAccessRequestStatus } from "@/lib/graphql/generated";
-import { AdminOrgAccessRequestFilter } from "@/lib/graphql/generated";
+import { OrganizationAccessRequestStatus } from "@/lib/graphql/base";
+import { AdminOrgAccessRequestFilter } from "@/lib/graphql/base";
 import { useMemo, useState } from "react";
 import { useDebouncedValue } from "@/hooks/useDebounced";
 import { useI18n } from "@/hooks/useI18n";

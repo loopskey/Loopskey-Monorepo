@@ -5,7 +5,7 @@ import { useLazyCurrentUserQuery } from "@/lib/rtk/endpoints/auth.api";
 import { useEffect, useRef } from "react";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
-import { Role } from "@/lib/graphql/generated";
+import { Role } from "@/lib/graphql/base";
 
 import * as C from "@/utils/oauth.constant";
 
