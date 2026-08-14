@@ -16,22 +16,6 @@ services:
       timeout: 5s
       retries: 10
 
-  service-ai:
-    build:
-      context: .
-      dockerfile: Dockerfile.service-ai
-    restart: unless-stopped
-    environment:
-      SERVICE_AI_ENVIRONMENT: ${SERVICE_AI_ENVIRONMENT:-production}
-      SERVICE_AI_LOG_LEVEL: ${SERVICE_AI_LOG_LEVEL:-INFO}
-      SERVICE_AI_API_KEY: ${SERVICE_AI_API_KEY:?Set SERVICE_AI_API_KEY in .env.docker}
-      SERVICE_AI_CORE_API_URL: http://api:5700
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5800/health')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   api:
     build:
       context: .
@@ -49,8 +33,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      service-ai:
-        condition: service_healthy
     environment:
       NODE_ENV: production
       APP_HOST: 0.0.0.0
@@ -63,8 +45,6 @@ services:
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:?Set JWT_ACCESS_SECRET in .env.docker}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?Set JWT_REFRESH_SECRET in .env.docker}
       SESSION_SECRET_KEY: ${SESSION_SECRET_KEY:?Set SESSION_SECRET_KEY in .env.docker}
-      SERVICE_AI_URL: http://service-ai:5800
-      SERVICE_AI_API_KEY: ${SERVICE_AI_API_KEY:?Set SERVICE_AI_API_KEY in .env.docker}
       GRAPHQL_PLAYGROUND: ${GRAPHQL_PLAYGROUND:-false}
       COOKIE_SECURE: ${COOKIE_SECURE:-false}
       COOKIE_SAME_SITE: ${COOKIE_SAME_SITE:-lax}

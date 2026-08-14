@@ -11,16 +11,9 @@ node_modules
 **/.next
 **/dist
 **/.turbo
-**/__pycache__
-**/.pytest_cache
-**/.ruff_cache
-**/.mypy_cache
-**/.venv
-**/*.pyc
 **/.env
 **/.env.*
 !**/.env.example
 npm-debug.log*
 README.md
 context
-
