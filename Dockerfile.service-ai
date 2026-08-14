@@ -16,7 +16,7 @@ ENV PATH=/app/.venv/bin:$PATH \
     SERVICE_AI_PORT=5800
 RUN addgroup --system app && adduser --system --ingroup app app
 COPY --from=builder --chown=app:app /app/.venv /app/.venv
+COPY --from=builder --chown=app:app /app/src /app/src
 USER app
 EXPOSE 5800
 CMD ["uvicorn", "service_ai.main:app", "--host", "0.0.0.0", "--port", "5800"]
-
