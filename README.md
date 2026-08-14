@@ -101,6 +101,41 @@ is a pytest case inside the AI service, so it runs with the normal test task.
 Deployment is intentionally not automated because this repository does not
 define a deployment target or environment credentials.
 
+## Docker deployment
+
+The production stack contains PostgreSQL, the NestJS API, the private FastAPI
+service, and the Next.js frontend. From the repository root:
+
+```bash
+cp .env.docker.example .env.docker
+# Replace every change-me value and set the public production URLs.
+docker compose --env-file .env.docker up --build -d
+docker compose --env-file .env.docker ps
+```
+
+The frontend is exposed on port `3000` and the API on `5700` by default. The AI
+service and PostgreSQL are intentionally reachable only by other containers.
+Prisma migrations run automatically before each API start. Database data and
+uploaded files live in named Docker volumes and survive container replacement.
+
+For a real deployment, set `PUBLIC_FRONTEND_URL` and
+`NEXT_PUBLIC_GRAPHQL_URL` to the public HTTPS origins, enable
+`COOKIE_SECURE=true`, and put a TLS reverse proxy or platform load balancer in
+front of the exposed services. Because `NEXT_PUBLIC_GRAPHQL_URL` is embedded at
+build time, rebuild the frontend after changing it.
+
+Useful operations:
+
+```bash
+docker compose --env-file .env.docker logs -f
+docker compose --env-file .env.docker pull
+docker compose --env-file .env.docker up --build -d
+docker compose --env-file .env.docker down
+```
+
+`docker compose down` keeps the named volumes. Adding `--volumes` deletes the
+database and uploads and should only be used when that data is no longer needed.
+
 ## Layout
 
 ```text

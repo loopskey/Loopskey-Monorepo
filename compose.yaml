@@ -1,0 +1,97 @@
+name: loopskey
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-loopskey}
+      POSTGRES_USER: ${POSTGRES_USER:-loopskey}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-loopskey_change_me}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  service-ai:
+    build:
+      context: .
+      dockerfile: Dockerfile.service-ai
+    restart: unless-stopped
+    environment:
+      SERVICE_AI_ENVIRONMENT: ${SERVICE_AI_ENVIRONMENT:-production}
+      SERVICE_AI_LOG_LEVEL: ${SERVICE_AI_LOG_LEVEL:-INFO}
+      SERVICE_AI_API_KEY: ${SERVICE_AI_API_KEY:?Set SERVICE_AI_API_KEY in .env.docker}
+      SERVICE_AI_CORE_API_URL: http://api:5700
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5800/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      service-ai:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      APP_HOST: 0.0.0.0
+      APP_PORT: 5700
+      FRONTEND_URL: ${PUBLIC_FRONTEND_URL:-http://localhost:3000}
+      APPLICATION_BASE_URL: ${PUBLIC_FRONTEND_URL:-http://localhost:3000}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-loopskey}:${POSTGRES_PASSWORD:-loopskey_change_me}@db:5432/${POSTGRES_DB:-loopskey}
+      DIRECT_DATABASE_URL: postgresql://${POSTGRES_USER:-loopskey}:${POSTGRES_PASSWORD:-loopskey_change_me}@db:5432/${POSTGRES_DB:-loopskey}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:?Set JWT_ACCESS_SECRET in .env.docker}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?Set JWT_REFRESH_SECRET in .env.docker}
+      SESSION_SECRET_KEY: ${SESSION_SECRET_KEY:?Set SESSION_SECRET_KEY in .env.docker}
+      SERVICE_AI_URL: http://service-ai:5800
+      SERVICE_AI_API_KEY: ${SERVICE_AI_API_KEY:?Set SERVICE_AI_API_KEY in .env.docker}
+      GRAPHQL_PLAYGROUND: ${GRAPHQL_PLAYGROUND:-false}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      COOKIE_SAME_SITE: ${COOKIE_SAME_SITE:-lax}
+      PDU_UPLOAD_DIR: /app/uploads/pdu
+      CERTIFICATE_UPLOAD_DIR: /app/uploads/certificates
+      AVATAR_UPLOAD_DIR: /app/uploads/avatars
+      SUPPORT_EMAIL: ${SUPPORT_EMAIL:-support@example.com}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      EMAIL_FROM: ${EMAIL_FROM:-LoopsKey <notifications@example.com>}
+    volumes:
+      - uploads_data:/app/uploads
+    ports:
+      - "${API_PORT:-5700}:5700"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:5700/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  front:
+    build:
+      context: .
+      dockerfile: Dockerfile.front
+      args:
+        NEXT_PUBLIC_GRAPHQL_URL: ${NEXT_PUBLIC_GRAPHQL_URL:-http://localhost:5700/graphql}
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      SESSION_SECRET_KEY: ${SESSION_SECRET_KEY:?Set SESSION_SECRET_KEY in .env.docker}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:?Set JWT_ACCESS_SECRET in .env.docker}
+      ACCESS_TOKEN_COOKIE_NAME: ${ACCESS_TOKEN_COOKIE_NAME:-}
+    ports:
+      - "${FRONT_PORT:-3000}:3000"
+
+volumes:
+  postgres_data:
+  uploads_data:
+
