@@ -15,8 +15,9 @@ touches. Determine scope from the request and the changed paths.
 | Shared / root    | `packages/**`, CI, deps, cross-app | only the scope files affected |
 
 Shared project context stays at the root: `context/project-overview.md`,
-`context/coding-standards.md`, `context/architecture/`. Read a section of these
-only when the task depends on it; do not preload `context/`.
+`context/coding-standards.md`, `context/feature-history.md`, and
+`context/architecture/`. Read a section of these only when the task depends on
+it; do not preload `context/`.
 
 Permanent repository rules:
 
