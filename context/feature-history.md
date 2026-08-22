@@ -15,7 +15,6 @@ into this index and do not rewrite previous records.
 - [`monolith-ph7-reliability-operations`](feature-runs/completed/monolith-ph7-reliability-operations.md)
 - [`footer-contact-audit`](feature-runs/completed/footer-contact-audit.md)
 - [`contact-us-email-delivery`](feature-runs/active/contact-us-email-delivery.md)
-- [`service-ai-foundation`](feature-runs/active/service-ai-foundation.md)
 - [`footer-pages-ux-redesign`](feature-runs/active/footer-pages-ux-redesign.md)
 - [`performance-optimization`](feature-runs/active/performance-optimization.md)
 - [`professional-onboarding`](feature-runs/active/professional-onboarding.md)

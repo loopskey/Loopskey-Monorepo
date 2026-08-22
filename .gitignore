@@ -7,5 +7,16 @@ node_modules
 .turbo/
 **/.turbo/
 
+# Local Docker deployment secrets
+.env.docker
+
 # Local git worktree checkouts (working copies, not source)
 .worktrees/
+
+# Local project context; keep the reusable feature template versioned.
+/context/*.md
+/context/**/*.md
+!/context/project-overview.md
+!/context/coding-standards.md
+!/context/feature-history.md
+!/context/features/feature-template.md
