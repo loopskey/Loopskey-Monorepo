@@ -88,6 +88,10 @@ export const MODEL_OWNERSHIP = {
   CertificateFile: BOUNDED_CONTEXTS.PROFESSIONAL_DEVELOPMENT,
   CalendarEvent: BOUNDED_CONTEXTS.PROFESSIONAL_DEVELOPMENT,
   ExternalLearningActivity: BOUNDED_CONTEXTS.PROFESSIONAL_DEVELOPMENT,
+  // The roadmap wizard is professional-development work: the draft and its
+  // transcript are the professional's own answers, not catalogue data.
+  RoadmapDraft: BOUNDED_CONTEXTS.PROFESSIONAL_DEVELOPMENT,
+  RoadmapChatMessage: BOUNDED_CONTEXTS.PROFESSIONAL_DEVELOPMENT,
 
   // Organization Management
   Organization: BOUNDED_CONTEXTS.ORGANIZATION_MANAGEMENT,
@@ -113,6 +117,10 @@ export const MODEL_OWNERSHIP = {
   ContentReview: BOUNDED_CONTEXTS.ENGAGEMENT,
   ContentEnrollment: BOUNDED_CONTEXTS.ENGAGEMENT,
   RoadmapEnrollment: BOUNDED_CONTEXTS.ENGAGEMENT,
+  // Progress hangs off RoadmapEnrollment, so it belongs to whoever owns the
+  // enrollment. Professional development reaches it through the engagement
+  // public port rather than through Prisma.
+  RoadmapStepProgress: BOUNDED_CONTEXTS.ENGAGEMENT,
 
   // Cross-cutting operational persistence
   AuditLog: BOUNDED_CONTEXTS.PLATFORM_SHARED,
