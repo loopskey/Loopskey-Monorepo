@@ -30,6 +30,16 @@ export class ProfessionalRoadmapService {
     return Math.min(Math.max(Math.round(value), 0), 100);
   }
 
+  deriveProgress(input: {
+    storedProgress: number;
+    totalSteps: number;
+    completedSteps?: number;
+  }) {
+    if (input.completedSteps === undefined || input.totalSteps === 0)
+      return this.clampProgress(input.storedProgress);
+    return this.clampProgress((input.completedSteps / input.totalSteps) * 100);
+  }
+
   private getPhaseProgress(
     overallProgress: number,
     phaseIndex: number,
@@ -43,7 +53,10 @@ export class ProfessionalRoadmapService {
     return this.clampProgress(rawProgress);
   }
 
-  private mapRoadmapEnrollment(item: T.RoadmapEnrollmentWithRoadmap) {
+  private mapRoadmapEnrollment(
+    item: T.RoadmapEnrollmentWithRoadmap,
+    recordedCompletedSteps?: number,
+  ) {
     const roadmap = item.roadmap;
     const phases = roadmap.phases;
     const phasesCount = phases.length;
@@ -53,11 +66,17 @@ export class ProfessionalRoadmapService {
       },
       0,
     );
-    const completedSteps = Math.round((totalSteps * item.progress) / 100);
+    const progress = this.deriveProgress({
+      totalSteps,
+      storedProgress: item.progress,
+      completedSteps: recordedCompletedSteps,
+    });
+    const completedSteps =
+      recordedCompletedSteps ?? Math.round((totalSteps * progress) / 100);
     const mappedPhases: T.TMappedRoadmapPhase[] = phases.map(
       (phase: T.TRoadmapPhaseWithSteps, index: number) => {
         const phaseProgress = this.getPhaseProgress(
-          item.progress,
+          progress,
           index,
           phasesCount,
         );
@@ -83,9 +102,9 @@ export class ProfessionalRoadmapService {
     );
 
     const nextMilestoneProgress =
-      item.progress >= 100
+      progress >= 100
         ? 100
-        : Math.min(Math.ceil((item.progress + 1) / 25) * 25, 100);
+        : Math.min(Math.ceil((progress + 1) / 25) * 25, 100);
     return {
       id: item.id,
       totalSteps,
@@ -98,8 +117,8 @@ export class ProfessionalRoadmapService {
       title: roadmap.title,
       level: roadmap.level,
       phases: mappedPhases,
+      progress,
       nextMilestoneProgress,
-      progress: item.progress,
       roadmapId: item.roadmapId,
       updatedAt: item.updatedAt,
       imageUrl: roadmap.imageUrl,
@@ -141,9 +160,15 @@ export class ProfessionalRoadmapService {
       ...item,
       roadmap: roadmapMap.get(item.roadmapId),
     })) as unknown as T.RoadmapEnrollmentWithRoadmap[];
+    const completionCounts = await this.engagement.roadmapStepCompletionCounts({
+      userId: user.id,
+      enrollmentIds: merged.map((item) => item.id),
+    });
     return {
       totalCount: result.totalCount,
-      items: merged.map((item) => this.mapRoadmapEnrollment(item)),
+      items: merged.map((item) =>
+        this.mapRoadmapEnrollment(item, completionCounts[item.id]),
+      ),
       pageInfo: {
         hasNextPage: rows.length > take,
         nextCursor: rows.length > take ? items.at(-1)?.id : null,

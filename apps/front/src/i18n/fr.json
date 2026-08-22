@@ -4220,6 +4220,7 @@
       "title": "Vos parcours d’apprentissage",
       "subtitle": "Suivez vos parcours structurés, mesurez la progression par phase et explorez de nouveaux axes de développement professionnel.",
       "createCustomPath": "Créer un parcours personnalisé",
+      "createCustomPathUnavailable": "La création de parcours arrive bientôt. Vous pourrez construire un parcours personnalisé avec le coach de parcours.",
       "enrolled": "Parcours suivis",
       "averageCompletion": "Progression moyenne",
       "completedPhases": "Phases terminées",

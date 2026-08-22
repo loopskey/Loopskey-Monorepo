@@ -18,7 +18,10 @@ const CAPABILITIES = {
     "professional-certificate-file.service.ts",
     "professional-certificate.service.ts",
   ],
-  roadmap: ["professional-roadmap.service.ts"],
+  roadmap: [
+    "professional-roadmap.service.ts",
+    "professional-roadmap-draft.service.ts",
+  ],
   courses: ["professional-courses.service.ts"],
   payments: ["professional-payments.service.ts"],
   overview: ["professional-overview.service.ts"],
