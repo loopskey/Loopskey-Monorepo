@@ -115,6 +115,8 @@ model User {
   professionalCredential ProfessionalCredential[]
   payments               Payment[]
   roadmapEnrollments     RoadmapEnrollment[]
+  roadmapDrafts          RoadmapDraft[]
+  ownedRoadmaps          Roadmap[]                @relation("OwnedRoadmaps")
 
   ownedOrganization       Organization?            @relation("OrganizationOwner")
   organizationMemberships OrganizationMember[]
@@ -1482,9 +1484,10 @@ model Certification {
   totalRequiredCredits Float
   suggestedDeadline    DateTime?
 
-  categories  CertificationCategory[]
-  plans       CPDPlan[]
-  credentials ProfessionalCredential[]
+  categories    CertificationCategory[]
+  plans         CPDPlan[]
+  credentials   ProfessionalCredential[]
+  roadmapDrafts RoadmapDraft[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1542,8 +1545,9 @@ model CPDPlan {
 
   status CPDPlanStatus @default(ACTIVE)
 
-  categories   CPDPlanCategory[]
-  certificates Certificate[]
+  categories    CPDPlanCategory[]
+  certificates  Certificate[]
+  roadmapDrafts RoadmapDraft[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1688,6 +1692,49 @@ enum RoadmapEnrollmentStatus {
   UNENROLLED
 }
 
+// Where a roadmap came from. Catalogue roadmaps have no owner and stay visible
+// in explore; generated ones belong to the professional they were built for.
+enum RoadmapSource {
+  CATALOG
+  GENERATED
+}
+
+// Draft lifecycle. Transitions run forward only, with FAILED reachable from
+// GENERATING so a failed generation can be edited and retried.
+enum RoadmapDraftStatus {
+  COLLECTING
+  READY
+  GENERATING
+  COMPLETED
+  FAILED
+}
+
+enum RoadmapChatRole {
+  ASSISTANT
+  PROFESSIONAL
+  SYSTEM
+}
+
+// The wizard step a draft is on. Finer-grained than the AI service's own
+// section vocabulary; translating between the two happens at the client
+// boundary, not here.
+enum RoadmapDraftStep {
+  GOAL
+  GOAL_REASON
+  CONTEXT
+  TARGET_DATE
+  PREFERENCES
+  CPD_TRACKING
+  CERTIFICATION
+  CPD_REQUIREMENTS
+  REVIEW
+}
+
+enum RoadmapStepProgressStatus {
+  IN_PROGRESS
+  COMPLETED
+}
+
 model Roadmap {
   id   String @id @default(cuid())
   slug String @unique
@@ -1700,6 +1747,21 @@ model Roadmap {
   level    CourseLevel     @default(ALL_LEVELS)
   status   RoadmapStatus   @default(PUBLISHED)
 
+  // A null owner is a catalogue roadmap. Existing rows backfill to null, so
+  // explore behaviour is unchanged.
+  ownerId String?
+  owner   User?   @relation("OwnedRoadmaps", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  source RoadmapSource @default(CATALOG)
+
+  // A generated roadmap states its own duration, so it is stored rather than
+  // inferred from the phase count.
+  estimatedWeeks Int?
+
+  // What the catalogue could and could not supply when this roadmap was
+  // generated, including any credit shortfall against a tracked certification.
+  coverageNote String?
+
   phases      RoadmapPhase[]
   enrollments RoadmapEnrollment[]
 
@@ -1710,6 +1772,8 @@ model Roadmap {
   @@index([status])
   @@index([category])
   @@index([title])
+  @@index([ownerId])
+  @@index([source])
 }
 
 model RoadmapPhase {
@@ -1721,6 +1785,10 @@ model RoadmapPhase {
   title       String
   description String?
   order       Int
+
+  // Pacing from a generated plan. Without it the plan is a list, not a
+  // schedule.
+  estimatedWeeks Int?
 
   steps RoadmapStep[]
 
@@ -1744,6 +1812,10 @@ model RoadmapStep {
   contentType ContentType?
   contentId   String?
 
+  estimatedMinutes Int?
+
+  progress RoadmapStepProgress[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -1761,8 +1833,19 @@ model RoadmapEnrollment {
   roadmapId String
   roadmap   Roadmap @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
 
+  // Retained as the value of record for enrollments created before step-level
+  // progress existed. Enrollments with step progress rows derive from those
+  // rows instead; this column is the fallback, never a second source.
   progress Int                     @default(0)
   status   RoadmapEnrollmentStatus @default(ACTIVE)
+
+  targetDate DateTime?
+
+  // The wizard draft this enrollment was generated from, when it was.
+  draftId String?       @unique
+  draft   RoadmapDraft? @relation(fields: [draftId], references: [id], onDelete: SetNull)
+
+  stepProgress RoadmapStepProgress[]
 
   enrolledAt  DateTime  @default(now())
   completedAt DateTime?
@@ -1772,6 +1855,116 @@ model RoadmapEnrollment {
   @@index([userId])
   @@index([roadmapId])
   @@index([status])
+}
+
+model RoadmapStepProgress {
+  id String @id @default(cuid())
+
+  enrollmentId String
+  enrollment   RoadmapEnrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+
+  stepId String
+  step   RoadmapStep @relation(fields: [stepId], references: [id], onDelete: Cascade)
+
+  status RoadmapStepProgressStatus @default(IN_PROGRESS)
+
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Starting or completing the same step twice updates this row rather than
+  // creating a second one.
+  @@unique([enrollmentId, stepId])
+  @@index([enrollmentId])
+  @@index([stepId])
+  @@index([enrollmentId, status])
+}
+
+// Server-owned wizard state. Both the chat and the review card write here, so
+// the two can never disagree.
+model RoadmapDraft {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  status      RoadmapDraftStatus @default(COLLECTING)
+  currentStep RoadmapDraftStep   @default(GOAL)
+
+  // The goal statement in the professional's own words. Kept separate from
+  // targetRole: a job title alone does not satisfy the AI service, which
+  // cannot generate without the statement.
+  goal       String?
+  targetRole String?
+  goalReason String?
+
+  // Free text the professional wrote about themselves. Never logged, never
+  // returned to anyone but the owner.
+  context String?
+
+  targetDate DateTime?
+
+  skillLevel       SkillLevel?
+  timeCommitment   LearningTimeCommitment?
+  budgetPreference LearningBudgetPreference?
+
+  subjects              String[]         @default([])
+  preferredFormats      LearningFormat[] @default([])
+  preferredContentTypes ContentType[]    @default([])
+
+  cpdEnabled Boolean @default(false)
+
+  // Set when the certification is in the catalogue; the name is kept for the
+  // manual-entry case where it is not.
+  certificationId   String?
+  certification     Certification? @relation(fields: [certificationId], references: [id], onDelete: SetNull)
+  certificationName String?
+
+  cpdPlanId String?
+  cpdPlan   CPDPlan? @relation(fields: [cpdPlanId], references: [id], onDelete: SetNull)
+
+  requiredCredits  Float?
+  completedCredits Float?
+
+  // Outcome of the most recent turn. Persisted so a reload restores the
+  // conversation exactly, rather than re-deriving it from the transcript.
+  needsClarification Boolean @default(false)
+  wasRefused         Boolean @default(false)
+
+  failureReason String?
+
+  messages   RoadmapChatMessage[]
+  enrollment RoadmapEnrollment?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([userId, status])
+  @@index([certificationId])
+  @@index([cpdPlanId])
+}
+
+model RoadmapChatMessage {
+  id String @id @default(cuid())
+
+  draftId String
+  draft   RoadmapDraft @relation(fields: [draftId], references: [id], onDelete: Cascade)
+
+  role    RoadmapChatRole
+  content String
+
+  // The wizard step this message was produced at.
+  stepKey RoadmapDraftStep
+
+  // The shortcut control the assistant suggested for this answer, if any.
+  widget Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([draftId, createdAt])
 }
 
 // ================ Organization ==================

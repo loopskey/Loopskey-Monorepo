@@ -19,6 +19,21 @@ export interface ProfessionalEngagementApi {
     take: number;
   }): Promise<{ rows: Record<string, unknown>[]; totalCount: number }>;
   enrolledRoadmapIds(userId: string): Promise<string[]>;
+  roadmapStepCompletionCounts(input: {
+    userId: string;
+    enrollmentIds: string[];
+  }): Promise<Record<string, number>>;
+
+  startRoadmapStep(input: {
+    userId: string;
+    enrollmentId: string;
+    stepId: string;
+  }): Promise<Record<string, unknown> | null>;
+  completeRoadmapStep(input: {
+    userId: string;
+    enrollmentId: string;
+    stepId: string;
+  }): Promise<Record<string, unknown> | null>;
   payments(input: {
     userId: string;
     search?: string;

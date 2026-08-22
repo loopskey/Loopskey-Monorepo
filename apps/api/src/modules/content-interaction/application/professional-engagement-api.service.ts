@@ -1,12 +1,9 @@
-import { Injectable } from "@nestjs/common";
-import {
-  ContentEnrollmentStatus,
-  ContentType,
-  PaymentStatus,
-  RoadmapEnrollmentStatus,
-} from "@prisma/client";
+import { PaymentStatus, RoadmapEnrollmentStatus } from "@prisma/client";
+import { ContentEnrollmentStatus, ContentType } from "@prisma/client";
+import { RoadmapStepProgressStatus } from "@prisma/client";
+import { ProfessionalEngagementApi } from "@contentAction/public/professional-engagement-api";
 import { PrismaService } from "@prisma/prisma.service";
-import type { ProfessionalEngagementApi } from "@contentAction/public/professional-engagement-api";
+import { Injectable } from "@nestjs/common";
 
 @Injectable()
 export class ProfessionalEngagementApiService
@@ -80,6 +77,112 @@ export class ProfessionalEngagementApiService
       select: { roadmapId: true },
     });
     return rows.map((row) => row.roadmapId);
+  }
+
+  async roadmapStepCompletionCounts(input: {
+    userId: string;
+    enrollmentIds: string[];
+  }) {
+    if (!input.enrollmentIds.length) return {};
+    const groups = await this.prisma.roadmapStepProgress.groupBy({
+      by: ["enrollmentId", "status"],
+      where: {
+        enrollmentId: { in: input.enrollmentIds },
+        enrollment: { userId: input.userId },
+      },
+      _count: { _all: true },
+    });
+
+    // An enrollment appears in the result only if it has at least one row, in
+    // any status. That is what lets the caller distinguish an enrollment with
+    // nothing completed yet from one that predates step tracking entirely.
+    const counts: Record<string, number> = {};
+    for (const group of groups) {
+      counts[group.enrollmentId] ??= 0;
+      if (group.status === RoadmapStepProgressStatus.COMPLETED) {
+        counts[group.enrollmentId] += group._count._all;
+      }
+    }
+    return counts;
+  }
+
+  private async ownedEnrollment(userId: string, enrollmentId: string) {
+    return this.prisma.roadmapEnrollment.findFirst({
+      where: { id: enrollmentId, userId },
+      select: { id: true },
+    });
+  }
+
+  async startRoadmapStep(input: {
+    userId: string;
+    enrollmentId: string;
+    stepId: string;
+  }) {
+    const enrollment = await this.ownedEnrollment(
+      input.userId,
+      input.enrollmentId,
+    );
+    if (!enrollment) return null;
+
+    // The unique constraint on (enrollmentId, stepId) makes this idempotent.
+    // Starting an already-completed step does not reopen it.
+    return this.prisma.roadmapStepProgress.upsert({
+      where: {
+        enrollmentId_stepId: {
+          enrollmentId: input.enrollmentId,
+          stepId: input.stepId,
+        },
+      },
+      create: {
+        enrollmentId: input.enrollmentId,
+        stepId: input.stepId,
+        status: RoadmapStepProgressStatus.IN_PROGRESS,
+      },
+      update: {},
+    });
+  }
+
+  async completeRoadmapStep(input: {
+    userId: string;
+    enrollmentId: string;
+    stepId: string;
+  }) {
+    const enrollment = await this.ownedEnrollment(
+      input.userId,
+      input.enrollmentId,
+    );
+    if (!enrollment) return null;
+
+    const key = {
+      enrollmentId_stepId: {
+        enrollmentId: input.enrollmentId,
+        stepId: input.stepId,
+      },
+    };
+
+    // Repeating the call must not move the completion time, so an already
+    // completed step is returned untouched rather than written again.
+    const existing = await this.prisma.roadmapStepProgress.findUnique({
+      where: key,
+    });
+    if (existing?.status === RoadmapStepProgressStatus.COMPLETED) {
+      return existing;
+    }
+
+    const completedAt = new Date();
+    return this.prisma.roadmapStepProgress.upsert({
+      where: key,
+      create: {
+        enrollmentId: input.enrollmentId,
+        stepId: input.stepId,
+        status: RoadmapStepProgressStatus.COMPLETED,
+        completedAt,
+      },
+      update: {
+        status: RoadmapStepProgressStatus.COMPLETED,
+        completedAt,
+      },
+    });
   }
 
   async payments(input: {
