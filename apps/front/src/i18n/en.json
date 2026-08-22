@@ -4219,6 +4219,7 @@
       "title": "Your learning roadmaps",
       "subtitle": "Track your structured learning paths, monitor phase progress, and explore new professional development journeys.",
       "createCustomPath": "Create custom path",
+      "createCustomPathUnavailable": "Roadmap creation is arriving soon. You will be able to build a custom path with the roadmap coach.",
       "enrolled": "Enrolled roadmaps",
       "averageCompletion": "Average completion",
       "completedPhases": "Completed phases",

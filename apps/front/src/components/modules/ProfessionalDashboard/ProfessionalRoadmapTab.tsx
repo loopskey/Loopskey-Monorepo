@@ -1,6 +1,7 @@
 "use client";
 
 import { useProfessionalRoadmaps } from "@/hooks/useProfessionalRoadmap";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@ui/tooltip";
 import { ContentPagination } from "@elements/pagination";
 import { GlassCard } from "@elements/glass-card";
 import { Progress } from "@ui/progress";
@@ -13,6 +14,8 @@ import Image from "next/image";
 import Link from "next/link";
 
 import * as L from "lucide-react";
+
+const CREATE_PATH_DISABLED_REASON_ID = "professional-roadmap-create-disabled";
 
 const ProfessionalRoadmapTab = () => {
   const {
@@ -68,8 +71,8 @@ const ProfessionalRoadmapTab = () => {
           <Button
             radius="xl"
             variant="glass"
-            disabled={isFetching}
             onClick={refetchAll}
+            disabled={isFetching}
           >
             <L.RefreshCw
               className={cn("h-4 w-4", isFetching && "animate-spin")}
@@ -77,12 +80,29 @@ const ProfessionalRoadmapTab = () => {
             {t("professionalDashboard.common.refresh")}
           </Button>
 
-          <Button radius="xl" variant="brand" asChild>
-            <Link href="/roadmaps/create">
-              <L.Plus className="h-4 w-4" />
-              {t("professionalDashboard.roadmap.createCustomPath")}
-            </Link>
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span tabIndex={-1} className="inline-flex">
+                <Button
+                  disabled
+                  radius="xl"
+                  variant="brand"
+                  aria-describedby={CREATE_PATH_DISABLED_REASON_ID}
+                >
+                  <L.Plus className="h-4 w-4" />
+                  {t("professionalDashboard.roadmap.createCustomPath")}
+                </Button>
+              </span>
+            </TooltipTrigger>
+
+            <TooltipContent>
+              {t("professionalDashboard.roadmap.createCustomPathUnavailable")}
+            </TooltipContent>
+          </Tooltip>
+
+          <span id={CREATE_PATH_DISABLED_REASON_ID} className="sr-only">
+            {t("professionalDashboard.roadmap.createCustomPathUnavailable")}
+          </span>
         </div>
       </div>
 
@@ -344,7 +364,7 @@ const ProfessionalRoadmapTab = () => {
                       <L.BookOpenCheck className="h-10 w-10" />
                     </div>
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-medium/60 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                   <div className="absolute bottom-4 left-4 right-4 flex flex-wrap gap-2">
                     <Badge className="bg-background/90 text-foreground hover:bg-background/90">
                       {roadmap.status}
@@ -374,7 +394,6 @@ const ProfessionalRoadmapTab = () => {
                       <span>{t("professionalDashboard.common.progress")}</span>
                       <span>{getProgressValue(roadmap.progress)}%</span>
                     </div>
-                    medium{" "}
                     <Progress value={getProgressValue(roadmap.progress)} />
                   </div>
                   <div className="mt-5 flex items-center justify-between text-sm text-muted-foreground">
@@ -487,7 +506,7 @@ const ProfessionalRoadmapTab = () => {
                       <L.Compass className="h-10 w-10" />
                     </div>
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-medium/60 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                   <div className="absolute bottom-4 left-4 right-4 flex flex-wrap gap-2">
                     {roadmap.category ? (
                       <Badge className="bg-background/90 text-foreground hover:bg-background/90">
