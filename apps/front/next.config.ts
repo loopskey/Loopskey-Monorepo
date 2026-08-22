@@ -4,6 +4,8 @@ const ONE_DAY_SECONDS = 60 * 60 * 24;
 const ONE_WEEK_SECONDS = ONE_DAY_SECONDS * 7;
 
 const nextConfig: NextConfig = {
+  // Produce a minimal self-contained server bundle for the production image.
+  output: "standalone",
   poweredByHeader: false,
   compress: true,
 

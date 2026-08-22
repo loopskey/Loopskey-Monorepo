@@ -101,8 +101,7 @@ true.
 ## Formatting and Imports
 
 - Use TypeScript for application code in `apps/front`, `apps/api` and
-  `packages/*`. `apps/service-ai` is Python and follows its own section below;
-  ruff owns its formatting the way Prettier owns TypeScript's.
+  `packages/*`.
 - Use two-space indentation, double quotes, semicolons, and trailing commas.
 - Let Prettier control whitespace and wrapping.
 - Prefer guard clauses over deep nesting.
@@ -357,63 +356,6 @@ createCourse(
 }
 ```
 
-## AI Service Standards
-
-`apps/service-ai` is Python, so the rules above about TypeScript, Prisma and
-GraphQL do not apply to it. These do. Full detail is in
-`apps/service-ai/README.md`; this is the rule set.
-
-### Boundaries
-
-```text
-api  ──►  services  ──►  domain  ◄──  adapters
- └────────────┴──────────► core ◄───────┘
-```
-
-- `domain` imports no framework — no FastAPI, no httpx, no provider SDK. It
-  holds types and the `Protocol` ports describing what the service needs from
-  the outside world. This is the same rule `packages/*` follows, for the same
-  reason: it is what makes the layer testable without a network.
-- `services` hold use cases and reach outward only through those ports, so a
-  test substitutes a fake rather than mocking HTTP.
-- `adapters` implement the ports, own retries and timeouts, and translate
-  provider failures into `core.errors`. A raw provider exception must never
-  reach a route.
-- `api` translates transport, applies the auth dependency, and delegates. No
-  business rules — the same boundary resolvers keep on the core API.
-
-### Rules
-
-- Read configuration through `get_settings()`. Nothing calls `os.environ`
-  directly, so a missing or malformed variable fails at startup rather than on
-  the first request that needs it.
-- Return every failure through `core.errors.ErrorResponse`. The `ErrorCode`
-  value is the wire contract, exactly as message codes are on the core API:
-  **add a member, never change an existing value.**
-- Give every outbound call an explicit timeout. Model providers fail slowly, and
-  an unbounded client is how one slow dependency exhausts the worker pool.
-- Never log credentials, provider tokens, or prompts carrying personal data. The
-  JSON formatter redacts keys naming a credential; do not rely on it alone.
-- Do not add CORS or end-user authentication. The service is private, and
-  `apps/api` has already authenticated and authorized the caller. Never
-  re-derive permission from a client-supplied user ID.
-- Type strictly. mypy runs in `strict` mode; do not add `Any` or a bare
-  `# type: ignore` without a reason on the same line.
-
-### The contract
-
-`openapi.json` is generated and committed, and is never hand-edited — the same
-arrangement `schema.gql` has. After changing a route or a Pydantic model:
-
-```bash
-npm run codegen --workspace service-ai
-```
-
-Commit the regenerated file with the change.
-`tests/test_openapi_contract.py` fails otherwise. Adding a field to a `v1`
-response is compatible; renaming or removing one is not — add `v2` rather than
-reshaping a released response.
-
 ## Authentication and Authorization
 
 The API is guarded by default with `JwtAuthGuard` and `RolesGuard`.
@@ -482,10 +424,9 @@ Run the smallest relevant check first, then broaden:
 ```bash
 npm run test --workspace api
 npm run test --workspace front
-npm run test --workspace service-ai
 npm run lint            # every workspace, including packages/api-contracts
 npm run check-types     # every workspace
-npm run test            # all three applications' unit tests
+npm run test            # both applications' unit tests
 npm run build
 ```
 

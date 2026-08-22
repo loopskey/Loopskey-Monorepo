@@ -20,7 +20,6 @@ Determine scope from the request and changed paths:
 
 - frontend: read `apps/front/CLAUDE.md`;
 - core backend: read `apps/api/CLAUDE.md`;
-- AI backend: read `apps/service-ai/CLAUDE.md`;
 - shared/root: read only the app files the change actually affects.
 
 Search code before opening broad documentation. Read a section of
@@ -36,7 +35,7 @@ feature completely.
 1. Require a clean or explicitly scoped worktree; preserve unrelated changes.
 2. Fetch `origin/develop`, create `feature/<slug>` from it, and never reuse a
    branch belonging to another run.
-3. Detect `front`, `api`, `service-ai`, or `full` scope and record it.
+3. Detect `front`, `api`, or `full` scope and record it.
 4. Create `context/feature-runs/active/<slug>.md` containing only:
    name, scope, branch, base commit, status, acceptance checklist, verification,
    and submission fields. The run record is the current-feature context.
@@ -45,8 +44,6 @@ feature completely.
 6. Finish with the scope gate:
    - frontend: frontend lint, types, tests, build; browser behavior when relevant;
    - core backend: API lint, types, tests, build; E2E/Prisma/codegen when relevant;
-   - AI backend: service-ai lint, types, tests, build; codegen when a route or
-     Pydantic model changed, and commit the regenerated `openapi.json`;
    - full/shared: root lint, types, tests, and build plus relevant E2E/codegen.
 7. Set status to `Ready` only when implementation and required checks pass.
 
@@ -93,7 +90,7 @@ has occurred.
 ```markdown
 # <feature>
 
-- Scope: `front|api|service-ai|full`
+- Scope: `front|api|full`
 - Branch: `feature/<slug>`
 - Base: `<sha>`
 - Status: `Working|Ready|Submitted|Blocked`
