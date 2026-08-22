@@ -1,16 +1,12 @@
 # Core API scope
 
-Load this file only for `apps/api` work. For the AI backend, load
-`apps/service-ai/CLAUDE.md` instead.
+Load this file only for `apps/api` work.
 
 - NestJS 11, GraphQL, Prisma, PostgreSQL, strict TypeScript.
 - Preserve module ownership and public-port boundaries.
-- This application is the system's only public edge. It owns authentication and
-  authorization for every request, including those it forwards to the AI
-  service.
-- The only permitted outbound network call is to `apps/service-ai`, over its
-  committed OpenAPI contract and with an explicit timeout (ADR-007). Network
-  calls between NestJS modules remain forbidden (ADR-001).
+- This application is the system's public edge. It owns authentication and
+  authorization for every request.
+- Network calls between NestJS modules remain forbidden (ADR-001).
 - Authentication is global by default; make public/role/owner decisions explicit.
 - Never expose secrets, password hashes, refresh-token hashes, or private files.
 - Use named Prisma migrations; never use `db push` for feature delivery.

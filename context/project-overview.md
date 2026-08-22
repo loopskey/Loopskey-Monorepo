@@ -58,17 +58,6 @@ Course1/
 │   │       ├── providers/          # Theme, language, and Redux providers
 │   │       ├── types/              # Frontend contracts
 │   │       └── utils/              # Constants and focused helpers
-│   └── service-ai/                 # FastAPI AI service (Python 3.12, uv)
-│       ├── openapi.json            # Committed contract; generated, never edited
-│       ├── scripts/                # export_openapi.py
-│       ├── src/service_ai/
-│       │   ├── main.py             # App factory, middleware, routers
-│       │   ├── core/               # Config, logging, correlation, errors, auth
-│       │   ├── api/                # ops (/health, /ready) and versioned v1
-│       │   ├── domain/             # Framework-free types and Protocol ports
-│       │   ├── services/           # Use cases
-│       │   └── adapters/           # Provider clients, core-API callback client
-│       └── tests/
 ├── packages/                       # Internal workspace packages (private)
 │   ├── api-contracts/              # Values both apps must agree on
 │   ├── typescript-config/          # base / nextjs / nestjs compiler presets
@@ -81,12 +70,6 @@ Course1/
 
 The workspace globs are `apps/*` and `packages/*`. Packages are private, never
 published, and referenced as `"@loopskey/<name>": "*"`.
-
-`apps/service-ai` is a Python project, not an npm package. Its `package.json` is
-a thin wrapper whose scripts shell out to uv, which is what puts it in the
-Turborepo task graph so root `npm run dev|lint|check-types|test|build|codegen`
-covers all three applications. uv must be on `PATH` for those root commands to
-succeed, including for frontend-only work.
 
 ## Shared Packages
 
@@ -198,21 +181,6 @@ Payment, SendGrid, Puppeteer, Swagger and `googleapis` dependencies were
 declared but never imported, and were removed on 2026-07-27. Reintroduce one
 only alongside code that uses it.
 
-### AI backend
-
-Added 2026-08-07. See `apps/service-ai/README.md` and ADR-007.
-
-- FastAPI on Python 3.12, managed with uv
-- Pydantic v2 and pydantic-settings for schemas and typed configuration
-- ruff for lint and formatting, mypy in strict mode, pytest for tests
-- httpx for outbound calls, with an explicit timeout budget
-- No database client and no ORM: the service receives what it needs in the
-  request and holds no persistence credentials
-
-It is a private service reachable only from `apps/api`. It configures no CORS,
-performs no end-user authentication, and never re-derives authorization from a
-client-supplied identifier.
-
 ### Workspace
 
 - npm 10 workspaces (`apps/*`, `packages/*`)
@@ -234,39 +202,18 @@ Browser
                   └─ feature services
                       ├─ Prisma
                       │   └─ PostgreSQL
-                      └─ AI client (REST over the committed OpenAPI contract)
-                          └─ FastAPI routes
-                              └─ AI services
-                                  └─ model provider
 ```
 
 ### Communication Architecture
 
-Decided in `context/architecture/adr-007-ai-service-communication.md`. The rule
-is **one contract per boundary type**, not one protocol everywhere: protocol
-uniformity only pays off when the same consumers use both surfaces, and a
-browser and a NestJS service share no needs.
-
 | Boundary                        | Contract               | Artifact                          |
 | ------------------------------- | ---------------------- | --------------------------------- |
 | Browser → `apps/api`            | GraphQL                | `apps/api/src/graphql/schema.gql` |
-| `apps/api` → `apps/service-ai`  | REST over OpenAPI      | `apps/service-ai/openapi.json`    |
 | Deferred / at-least-once        | Outbox domain events   | `apps/api/src/infrastructure/outbox` |
 | Between NestJS modules          | In-process contracts   | published ports (ADR-003)         |
 
-Two rules follow, and neither is negotiable without a superseding ADR:
-
-- **`apps/api` is the only public edge.** The browser never reaches the AI
-  service. Authentication is cookie-based JWT with global guards, and role and
-  ownership rules live in `apps/api` services; a second public origin would mean
-  reimplementing all of it in Python.
-- **No internal network calls between NestJS modules.** ADR-001 is unchanged for
-  `apps/api` internals. The only new network boundary in the system is
-  `apps/api` → `service-ai`.
-
-gRPC was evaluated and deliberately deferred rather than rejected: its wins need
-call volume that AI workloads, dominated by multi-second model latency, do not
-produce. ADR-007 records the three conditions that should trigger a revisit.
+The API is the only public edge. No internal network calls are allowed between
+NestJS modules; they communicate through in-process contracts.
 
 ### Dependency Direction
 
@@ -279,8 +226,6 @@ apps/api       ─┴─► packages/api-contracts
                     packages/typescript-config   (build-time)
                     packages/eslint-config       (build-time)
 
-apps/service-ai ─► nothing in this repository (separate runtime)
-
 packages/*      ─► nothing
 ```
 
@@ -290,21 +235,11 @@ Rules:
 - A package must not import `@prisma/client`, `@nestjs/*`, `next`, `react` or
   `react-dom`. Framework code stays in the application that owns it.
 - No application may import another.
-- `apps/service-ai` shares no code with the TypeScript workspaces. It cannot
-  consume `packages/api-contracts` — a different language makes that impossible
-  rather than merely discouraged — so a value both sides need is carried by the
-  OpenAPI contract, not duplicated by hand.
 
 One intentional exception, and it is a **build input rather than a module
 import**: `apps/front` generates its GraphQL types from
 `apps/api/src/graphql/schema.gql`. That dependency is declared in `turbo.json`
 and is invisible to ESLint.
-
-A second one of the same shape is planned but **not yet built**: `apps/api` will
-generate its AI client types from `apps/service-ai/openapi.json`. It arrives
-with the first feature that calls the AI service, because a generated client
-with no consumer would be unused code (`context/coding-standards.md`). The
-contract it will read from is already committed and drift-tested today.
 
 ### Frontend Architecture
 
@@ -462,8 +397,6 @@ user ID or role is never proof of ownership or permission.
 - Node.js compatible with Next.js 16 and the workspace packages
 - npm 10.8.1 (declared by the root package)
 - PostgreSQL
-- Python 3.12 and uv, required for the root Turborepo commands even when the
-  task touches only TypeScript
 
 ### Commands
 
@@ -485,23 +418,14 @@ Workspace-specific commands:
 ```bash
 npm run dev --workspace front
 npm run dev --workspace api
-npm run dev --workspace service-ai
 npm run codegen --workspace front
-npm run codegen --workspace service-ai
 npm run test --workspace api
-npm run test --workspace service-ai
 npm run test:e2e --workspace api
 npm run db:seed --workspace api
 ```
 
 The frontend defaults to `http://localhost:3000`. The API defaults to
-`http://localhost:5700`, with GraphQL at `/graphql`. The AI service defaults to
-`http://127.0.0.1:5800`, with interactive docs at `/docs` outside production.
-
-`npm run codegen` now regenerates two artifacts: the frontend GraphQL types and
-`apps/service-ai/openapi.json`. Note that the AI service's `test` task
-deliberately does not depend on its `codegen` task — regenerating the contract
-before asserting against it would make the drift test pass unconditionally.
+`http://localhost:5700`, with GraphQL at `/graphql`.
 
 For Prisma work:
 
@@ -552,19 +476,6 @@ Important frontend configuration includes:
 - `NEXT_PUBLIC_NEAT_LICENSE_KEY` when the licensed visual effect is enabled
 - `SESSION_SECRET_KEY` for server-only session helpers
 
-AI service configuration uses the `SERVICE_AI_` prefix so it stays unambiguous
-when the three applications share an environment or secret store:
-
-- `SERVICE_AI_ENVIRONMENT`, `SERVICE_AI_LOG_LEVEL`
-- `SERVICE_AI_HOST`, `SERVICE_AI_PORT` — a private interface, never public
-- `SERVICE_AI_API_KEY` — the credential `apps/api` presents; optional in
-  development, required elsewhere, and a deployment that requires it without
-  setting it fails closed rather than serving unauthenticated traffic
-- `SERVICE_AI_CORE_API_URL`, `SERVICE_AI_REQUEST_TIMEOUT_SECONDS`
-
-No `SERVICE_AI_` value may ever carry the `NEXT_PUBLIC_` prefix or reach the
-browser. Nothing in the AI service is browser-facing.
-
 Only non-sensitive browser configuration may use the `NEXT_PUBLIC_` prefix.
 The repository should maintain sanitized `.env.example` files and explicitly
 ignore real `.env` files before secrets are committed.
@@ -600,10 +511,6 @@ ignore real `.env` files before secrets are committed.
   client.
 - Keep `.graphql` documents, generated frontend types, and backend schema in
   sync.
-- Keep `apps/service-ai/openapi.json` in sync with its routes and Pydantic
-  models; regenerate with `npm run codegen` and commit it alongside the change.
-- Never expose the AI service to the browser, and never add a fourth
-  communication contract without a superseding ADR.
 - Reuse existing components, hooks, endpoints, types, and validation schemas
   before adding equivalents.
 - Put a value in `@loopskey/api-contracts` only when both applications genuinely
