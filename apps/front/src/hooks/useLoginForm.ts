@@ -1,5 +1,6 @@
 "use client";
 
+import { getAuthErrorTranslationKey } from "@/utils/auth-error";
 import { useMemo, useState } from "react";
 import { getDashboardPath } from "@/utils/constant";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -63,8 +64,8 @@ export const useRoleLoginForm = ({ role }: { role: Role }) => {
       }).unwrap();
       notify.success(t("authPages.common.loginSuccess"));
       router.replace(getDashboardPath(res.user?.role));
-    } catch {
-      notify.error(t("authPages.common.genericError"));
+    } catch (error) {
+      notify.error(t(getAuthErrorTranslationKey(error)));
     }
   };
 
@@ -80,8 +81,8 @@ export const useRoleLoginForm = ({ role }: { role: Role }) => {
       });
       setStep("reset");
       notify.success(t("authPages.common.resetCodeSent"));
-    } catch {
-      notify.error(t("authPages.common.genericError"));
+    } catch (error) {
+      notify.error(t(getAuthErrorTranslationKey(error)));
     }
   };
 
@@ -98,8 +99,8 @@ export const useRoleLoginForm = ({ role }: { role: Role }) => {
       resetForm.reset();
       setResetEmail("");
       setStep("login");
-    } catch {
-      notify.error(t("authPages.common.genericError"));
+    } catch (error) {
+      notify.error(t(getAuthErrorTranslationKey(error)));
     }
   };
 

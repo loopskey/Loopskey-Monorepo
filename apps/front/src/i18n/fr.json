@@ -2518,6 +2518,21 @@
     "youtube": "YouTube"
   },
   "authPages": {
+    "errors": {
+      "invalidCredentials": "L’adresse e-mail ou le mot de passe est incorrect.",
+      "invalidRole": "Ce compte ne correspond pas au rôle sélectionné.",
+      "userDisabled": "Ce compte utilisateur n’est pas actif.",
+      "userDeleted": "Ce compte utilisateur n’est plus disponible.",
+      "userNotFound": "Aucun compte utilisateur n’a été trouvé.",
+      "emailNotVerified": "Veuillez vérifier votre adresse e-mail avant de vous connecter.",
+      "userAlreadyExists": "Un compte associé à cette adresse e-mail existe déjà.",
+      "emailAlreadyExists": "Cette adresse e-mail est déjà utilisée.",
+      "roleNotAllowedForRegister": "L’inscription directe n’est pas disponible pour le rôle sélectionné.",
+      "otpResendTooSoon": "Veuillez patienter avant de demander un autre code de vérification.",
+      "emailSendFailed": "Nous n’avons pas pu envoyer l’e-mail. Veuillez réessayer.",
+      "passwordTooObvious": "Choisissez un mot de passe moins prévisible.",
+      "passwordStrength": "Le mot de passe doit contenir au moins 8 caractères, avec des lettres et des chiffres."
+    },
     "oauth": {
       "completingLogin": "Finalisation de votre connexion",
       "pleaseWait": "Veuillez patienter pendant que nous vérifions votre session.",

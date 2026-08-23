@@ -1,6 +1,7 @@
 "use client";
 
 import { useLazyGoogleOAuthUrlQuery } from "@/lib/rtk/endpoints/auth.api";
+import { getAuthErrorTranslationKey } from "@/utils/auth-error";
 import { isGoogleOAuthAllowedRole } from "@/utils/oauth.constant";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
@@ -22,8 +23,8 @@ export const useGoogleSocialOAuth = (role: Role) => {
         return;
       }
       window.location.assign(result.url);
-    } catch {
-      notify.error(t("authPages.common.genericError"));
+    } catch (error) {
+      notify.error(t(getAuthErrorTranslationKey(error)));
     }
   };
   return {

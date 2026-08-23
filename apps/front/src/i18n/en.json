@@ -2518,6 +2518,21 @@
     "youtube": "YouTube"
   },
   "authPages": {
+    "errors": {
+      "invalidCredentials": "The email or password is incorrect.",
+      "invalidRole": "This account does not match the selected role.",
+      "userDisabled": "This user account is not active.",
+      "userDeleted": "This user account is no longer available.",
+      "userNotFound": "No user account was found.",
+      "emailNotVerified": "Please verify your email before signing in.",
+      "userAlreadyExists": "An account with this email already exists.",
+      "emailAlreadyExists": "This email is already in use.",
+      "roleNotAllowedForRegister": "Direct registration is not available for the selected role.",
+      "otpResendTooSoon": "Please wait before requesting another verification code.",
+      "emailSendFailed": "We could not send the email. Please try again.",
+      "passwordTooObvious": "Choose a less predictable password.",
+      "passwordStrength": "Password must be at least 8 characters and include both letters and numbers."
+    },
     "oauth": {
       "completingLogin": "Completing your login",
       "pleaseWait": "Please wait while we verify your session.",
