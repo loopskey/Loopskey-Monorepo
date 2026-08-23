@@ -20,6 +20,7 @@ const CAPABILITIES = {
   ],
   roadmap: [
     "professional-roadmap.service.ts",
+    "professional-roadmap-chat.service.ts",
     "professional-roadmap-draft.service.ts",
   ],
   courses: ["professional-courses.service.ts"],
@@ -38,6 +39,11 @@ const ALLOWED_INTERNAL_EDGES: Readonly<Record<string, readonly string[]>> = {
   "professional-pdu-file.service.ts": ["professional-pdu.service.ts"],
   "professional-profile.service.ts": [
     "professional-profile-completion.service.ts",
+  ],
+  "professional-roadmap-chat.service.ts": [
+    "professional-cpd-plan.service.ts",
+    "professional-profile.service.ts",
+    "professional-roadmap-draft.service.ts",
   ],
 };
 

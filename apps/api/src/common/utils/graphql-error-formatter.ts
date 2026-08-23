@@ -31,6 +31,12 @@ const formatHttpException = (
   const response = exception.getResponse();
   const payload = isRecord(response) ? response : { message: response };
   const domainCode = typeof payload.code === "string" ? payload.code : null;
+  /**
+   * Structured facts a caller has to act on — the wait a busy upstream
+   * advertised, for instance — travel here. Only an explicit `details` record
+   * is forwarded, so nothing else an exception happens to carry leaks out.
+   */
+  const details = isRecord(payload.details) ? payload.details : null;
 
   return {
     ...formattedError,
@@ -42,6 +48,7 @@ const formatHttpException = (
       ...withoutStacktrace(formattedError.extensions),
       code:
         domainCode ?? APOLLO_CODE_BY_STATUS[status] ?? "INTERNAL_SERVER_ERROR",
+      ...(details ? { details } : {}),
       originalError: {
         statusCode: status,
         message: payload.message,

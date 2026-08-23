@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  HttpException,
   UnauthorizedException,
 } from "@nestjs/common";
 import { GraphQLError } from "graphql";
@@ -61,6 +62,36 @@ describe("formatGraphQLError", () => {
       );
       expect(formatGraphQLError(formatted, raw).extensions?.code).toBe(code);
     }
+  });
+
+  it("forwards the structured details a caller has to act on", () => {
+    const [formatted, wrapped] = asApolloPair(
+      new HttpException(
+        {
+          code: "ROADMAP_AI_BUSY",
+          message: "ROADMAP_AI_BUSY",
+          details: { retryAfterSeconds: 45 },
+        },
+        429,
+      ),
+    );
+
+    const result = formatGraphQLError(formatted, wrapped);
+
+    expect(result.extensions).toMatchObject({
+      code: "ROADMAP_AI_BUSY",
+      details: { retryAfterSeconds: 45 },
+    });
+  });
+
+  it("adds no details key when the payload carries none", () => {
+    const [formatted, wrapped] = asApolloPair(
+      new ConflictException({ code: "ROADMAP_DRAFT_LOCKED" }),
+    );
+
+    const result = formatGraphQLError(formatted, wrapped);
+
+    expect(result.extensions).not.toHaveProperty("details");
   });
 
   it("maps a status to an Apollo code when the payload carries none", () => {

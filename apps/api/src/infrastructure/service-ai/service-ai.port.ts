@@ -1,3 +1,12 @@
+/**
+ * The provider's documented input bounds, republished here so a caller that
+ * must validate before spending a call does not have to reach into the
+ * generated types. The port is the only surface a domain module may import,
+ * and these numbers are derived from the vendored contract, so a bound the
+ * provider tightens arrives here in the same regenerated diff.
+ */
+export { SERVICE_AI_LIMITS } from "@infrastructure/service-ai/generated/service-ai.types";
+
 export const SERVICE_AI_PORT = Symbol("SERVICE_AI_PORT");
 
 export enum RoadmapAiMessageCode {

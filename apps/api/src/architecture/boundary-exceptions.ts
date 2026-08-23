@@ -91,6 +91,7 @@ export const BOUNDARY_EXCEPTIONS = [
       "apps/api/src/modules/professional/resolvers/professional-pdu.resolver.ts",
       "apps/api/src/modules/professional/resolvers/professional-profile.resolver.ts",
       "apps/api/src/modules/professional/resolvers/professional-roadmap.resolver.ts",
+      "apps/api/src/modules/professional/resolvers/professional-roadmap-chat.resolver.ts",
       "apps/api/src/modules/professional/resolvers/professional-settings.resolver.ts",
     ],
     models: [],
@@ -233,6 +234,8 @@ export const IMPORT_EXCEPTION_FINGERPRINTS: Readonly<Record<string, string>> = {
   "EXC-034:apps/api/src/modules/professional/resolvers/professional-profile.resolver.ts":
     "6710421fcb0917e757c5a1d7af793564f3cb2b618246015a06e247aff90fb750",
   "EXC-034:apps/api/src/modules/professional/resolvers/professional-roadmap.resolver.ts":
+    "6710421fcb0917e757c5a1d7af793564f3cb2b618246015a06e247aff90fb750",
+  "EXC-034:apps/api/src/modules/professional/resolvers/professional-roadmap-chat.resolver.ts":
     "6710421fcb0917e757c5a1d7af793564f3cb2b618246015a06e247aff90fb750",
   "EXC-034:apps/api/src/modules/professional/resolvers/professional-settings.resolver.ts":
     "6710421fcb0917e757c5a1d7af793564f3cb2b618246015a06e247aff90fb750",

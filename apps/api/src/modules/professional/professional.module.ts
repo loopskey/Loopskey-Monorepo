@@ -5,6 +5,9 @@ import { ProfessionalProvisioningApiService } from "@professional/application/pr
 import { ProfessionalCertificatesResolver } from "@professional/resolvers/professional-certificate.resolver";
 import { ProfessionalCertificatesService } from "@professional/services/professional-certificate.service";
 import { ProfessionalRoadmapDraftService } from "@professional/services/professional-roadmap-draft.service";
+import { ProfessionalRoadmapChatService } from "@professional/services/professional-roadmap-chat.service";
+import { ProfessionalRoadmapChatResolver } from "@professional/resolvers/professional-roadmap-chat.resolver";
+import { ServiceAiModule } from "@infrastructure/service-ai/service-ai.module";
 import { ProfessionalRoleProfileHandler } from "@professional/application/professional-role-profile.handler";
 import { ProfessionalOnboardingResolver } from "@professional/resolvers/professional-onboarding.resolver";
 import { ProfessionalCredentialService } from "@professional/services/professional-credential.service";
@@ -49,6 +52,7 @@ import "@professional/enums/professional-register.enum";
     PrismaModule,
     CourseModule,
     ProviderModule,
+    ServiceAiModule,
     ContentInteractionModule,
   ],
   controllers: [
@@ -83,6 +87,8 @@ import "@professional/enums/professional-register.enum";
     ProfessionalOnboardingResolver,
     ProfessionalRoleProfileHandler,
     ProfessionalRoadmapDraftService,
+    ProfessionalRoadmapChatService,
+    ProfessionalRoadmapChatResolver,
     ProfessionalCertificatesService,
     ProfessionalCertificatesResolver,
     ProfessionalCertificateFileService,
@@ -105,6 +111,7 @@ import "@professional/enums/professional-register.enum";
     ProfessionalCoursesService,
     ProfessionalRoadmapService,
     ProfessionalRoadmapDraftService,
+    ProfessionalRoadmapChatService,
     ProfessionalSettingsService,
     ProfessionalCalendarService,
     ProfessionalOverviewService,

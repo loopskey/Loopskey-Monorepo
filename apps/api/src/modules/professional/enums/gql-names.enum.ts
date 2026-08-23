@@ -49,6 +49,12 @@ export enum ProfessionalGqlObjectNames {
   PAGINATED_PROFESSIONAL_PDU_ACTIVITIES = "PaginatedProfessionalPduActivities",
   PAGINATED_PROFESSIONAL_CALENDAR_EVENTS = "PaginatedProfessionalCalendarEvents",
   PAGINATED_PROFESSIONAL_EXPLORE_ROADMAPS = "PaginatedProfessionalExploreRoadmaps",
+  ROADMAP_WIDGET = "RoadmapWidget",
+  ROADMAP_WIDGET_OPTION = "RoadmapWidgetOption",
+  ROADMAP_CHAT_MESSAGE = "RoadmapChatMessage",
+  ROADMAP_SUBJECT_OPTION = "RoadmapSubjectOption",
+  PROFESSIONAL_ROADMAP_DRAFT = "ProfessionalRoadmapDraft",
+  PAGINATED_ROADMAP_CHAT_MESSAGES = "PaginatedRoadmapChatMessages",
 }
 
 export enum ProfessionalGqlInputNames {
@@ -77,6 +83,8 @@ export enum ProfessionalGqlInputNames {
   UPDATE_PROFESSIONAL_SETTINGS_INPUT = "UpdateProfessionalSettingsInput",
   PROFESSIONAL_CALENDAR_EVENTS_FILTER_INPUT = "ProfessionalCalendarEventsFilterInput",
   COMPLETE_PROFESSIONAL_ONBOARDING_INPUT = "CompleteProfessionalOnboardingInput",
+  ROADMAP_CHAT_TURN_INPUT = "RoadmapChatTurnInput",
+  PATCH_ROADMAP_DRAFT_INPUT = "PatchRoadmapDraftInput",
 }
 
 export enum ProfessionalGqlQueryNames {
@@ -108,6 +116,7 @@ export enum ProfessionalGqlQueryNames {
   CPD_PLAN = "cpdPlan",
   CPD_PLAN_PROGRESS = "cpdPlanProgress",
   CPD_REPORT_RECIPIENTS = "cpdReportRecipients",
+  PROFESSIONAL_ROADMAP_DRAFT = "professionalRoadmapDraft",
 }
 
 export enum ProfessionalGqlMutationNames {
@@ -136,4 +145,7 @@ export enum ProfessionalGqlMutationNames {
   SET_PROFESSIONAL_CERTIFICATE_CPD_PLAN = "setProfessionalCertificateCpdPlan",
   START_PROFESSIONAL_ONBOARDING = "startProfessionalOnboarding",
   COMPLETE_PROFESSIONAL_ONBOARDING = "completeProfessionalOnboarding",
+  START_ROADMAP_DRAFT = "startRoadmapDraft",
+  SEND_ROADMAP_CHAT_TURN = "sendRoadmapChatTurn",
+  PATCH_ROADMAP_DRAFT = "patchRoadmapDraft",
 }
