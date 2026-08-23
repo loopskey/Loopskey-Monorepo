@@ -9,7 +9,8 @@ import { PasswordChangeGuard } from "@auth/guards/password-change.guard";
 import { OrganizationModule } from "@org/org.module";
 import { formatGraphQLError } from "@utils/graphql-error-formatter";
 import { ProfessionalModule } from "@professional/professional.module";
-import { OperationsModule } from "../../infrastructure/operations/operations.module";
+import { OperationsModule } from "@infrastructure/operations/operations.module";
+import { ServiceAiModule } from "@infrastructure/service-ai/service-ai.module";
 import { ProviderModule } from "@provider/provider.module";
 import { SupportModule } from "@support/support.module";
 import { GraphQLModule } from "@nestjs/graphql";
@@ -33,6 +34,7 @@ import { join } from "path";
       envFilePath: ".env",
     }),
     OperationsModule,
+    ServiceAiModule,
 
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
