@@ -2531,6 +2531,7 @@
       "otpResendTooSoon": "Veuillez patienter avant de demander un autre code de vérification.",
       "emailSendFailed": "Nous n’avons pas pu envoyer l’e-mail. Veuillez réessayer.",
       "passwordTooObvious": "Choisissez un mot de passe moins prévisible.",
+      "passwordsDoNotMatch": "Le nouveau mot de passe et sa confirmation ne correspondent pas.",
       "passwordStrength": "Le mot de passe doit contenir au moins 8 caractères, avec des lettres et des chiffres."
     },
     "oauth": {

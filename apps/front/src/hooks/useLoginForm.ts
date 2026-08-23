@@ -1,8 +1,10 @@
 "use client";
 
 import { getAuthErrorTranslationKey } from "@/utils/auth-error";
+import { getAuthMessageCode } from "@/utils/auth-error";
 import { useMemo, useState } from "react";
 import { getDashboardPath } from "@/utils/constant";
+import { AuthMessageCode } from "@loopskey/api-contracts/error-codes";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -100,7 +102,11 @@ export const useRoleLoginForm = ({ role }: { role: Role }) => {
       setResetEmail("");
       setStep("login");
     } catch (error) {
-      notify.error(t(getAuthErrorTranslationKey(error)));
+      const errorKey =
+        getAuthMessageCode(error) === AuthMessageCode.INVALID_CREDENTIALS
+          ? "authPages.errors.passwordsDoNotMatch"
+          : getAuthErrorTranslationKey(error);
+      notify.error(t(errorKey));
     }
   };
 
