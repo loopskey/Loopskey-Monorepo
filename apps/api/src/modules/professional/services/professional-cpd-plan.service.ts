@@ -370,6 +370,56 @@ export class ProfessionalCpdPlanService {
     };
   }
 
+  /**
+   * What a certification demands and what the professional has already banked
+   * against it. The roadmap wizard needs both to state a credit shortfall, and
+   * asking here keeps the credit arithmetic in the capability that owns it
+   * rather than copying it into the chat service.
+   *
+   * Completed credits come from a tracked plan or not at all: outside a
+   * reporting window there is no honest way to decide which recorded activity
+   * counts towards this cycle.
+   */
+  async certificationCredits(user: TUser, certificationId: string) {
+    this.assertProfessional(user);
+    const certification = await this.certificationSearchService.findById(
+      user,
+      certificationId,
+    );
+    if (!certification) return null;
+
+    const plan = await this.prismaService.cPDPlan.findFirst({
+      where: {
+        userId: user.id,
+        certificationId,
+        status: CPDPlanStatus.ACTIVE,
+      },
+      orderBy: { reportingEnd: "desc" },
+      ...planWithCategories,
+    });
+    if (!plan)
+      return {
+        certification,
+        planId: null,
+        requiredCredits: round2(certification.totalRequiredCredits),
+        completedCredits: 0,
+      };
+
+    const aggregate = await this.prismaService.pDUActivity.aggregate({
+      where: this.eligibleActivityWhere(user, plan),
+      _sum: { pdus: true },
+    });
+    return {
+      certification,
+      planId: plan.id,
+      requiredCredits: round2(plan.totalRequiredCredits),
+      completedCredits: computeEarned(
+        plan.initialCompletedCredits,
+        round2(Number(aggregate._sum.pdus ?? 0)),
+      ),
+    };
+  }
+
   async reportRecipients(user: TUser) {
     this.assertProfessional(user);
     const self = await this.identity.profile(user.id);
