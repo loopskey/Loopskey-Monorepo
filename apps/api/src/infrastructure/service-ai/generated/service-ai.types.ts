@@ -10,7 +10,7 @@
  */
 
 /** The contract version these types were generated from. */
-export const SERVICE_AI_CONTRACT_VERSION = "1.0.0";
+export const SERVICE_AI_CONTRACT_VERSION = "1.1.0";
 
 export const SERVICE_AI_LIMITS = {
   historyMaxItems: 12,
@@ -23,7 +23,7 @@ export const SERVICE_AI_LIMITS = {
   maxPhasesMinimum: 1,
   maxPhasesDefault: 4,
   subjectsMaxItems: 5,
-  formatsMaxItems: 4,
+  formatsMaxItems: 6,
   contentTypesMaxItems: 4,
   goalMaxLength: 500,
   targetRoleMaxLength: 250,
@@ -37,7 +37,7 @@ export const SERVICE_AI_LIMITS = {
 /** The provider's own decimal-string rule for every credit field. */
 export const SERVICE_AI_CREDIT_PATTERN = "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,6}|(?=[\\d.]{1,9}0*$)\\d{0,6}\\.\\d{0,2}0*$)";
 
-export type ProviderBudgetPreference = "FREE_ONLY" | "LOW_COST" | "NO_PREFERENCE";
+export type ProviderBudgetPreference = "FREE_ONLY" | "MIXED_FREE_AND_PAID" | "PREMIUM" | "EMPLOYER_SPONSORED";
 
 export type ProviderChatMessage = {
   content: string;
@@ -168,11 +168,11 @@ export type ProviderGeneratedStep = {
   title: string;
 };
 
-export type ProviderLearningFormat = "VIDEO" | "COURSE" | "WEBINAR" | "PODCAST";
+export type ProviderLearningFormat = "COURSE" | "WEBINAR" | "WORKSHOP" | "VIDEO" | "PODCAST" | "ARTICLE";
 
 export type ProviderRoadmapField = "goal" | "target_role" | "goal_reason" | "context" | "target_date" | "skill_level" | "available_time" | "budget" | "subjects" | "formats" | "content_types" | "cpd_enabled" | "certification_name";
 
-export type ProviderSkillLevel = "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
+export type ProviderSkillLevel = "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "EXPERT";
 
 export type ProviderStatsResponse = {
   chat: ProviderGateStatsResponse;
@@ -187,7 +187,7 @@ export type ProviderSubjectOption = {
   label: string;
 };
 
-export type ProviderTimeCommitment = "ONE_TO_THREE_HOURS" | "FOUR_TO_SEVEN_HOURS" | "EIGHT_PLUS_HOURS";
+export type ProviderTimeCommitment = "LESS_THAN_ONE_HOUR" | "ONE_TO_THREE_HOURS" | "FOUR_TO_SIX_HOURS" | "SEVEN_TO_TEN_HOURS" | "MORE_THAN_TEN_HOURS";
 
 export type ProviderWidget = {
   field: ProviderRoadmapField;
