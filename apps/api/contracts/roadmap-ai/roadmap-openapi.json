@@ -1,0 +1,1704 @@
+{
+  "components": {
+    "schemas": {
+      "BudgetPreference": {
+        "description": "Cost preference applied to the supplied candidate catalogue.",
+        "enum": [
+          "FREE_ONLY",
+          "LOW_COST",
+          "NO_PREFERENCE"
+        ],
+        "title": "BudgetPreference",
+        "type": "string"
+      },
+      "ChatMessage": {
+        "additionalProperties": false,
+        "properties": {
+          "content": {
+            "maxLength": 2500,
+            "minLength": 1,
+            "title": "Content",
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "user",
+              "assistant"
+            ],
+            "title": "Role",
+            "type": "string"
+          }
+        },
+        "required": [
+          "role",
+          "content"
+        ],
+        "title": "ChatMessage",
+        "type": "object"
+      },
+      "ChatTurnRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "current_step": {
+            "$ref": "#/components/schemas/StepKey"
+          },
+          "draft": {
+            "$ref": "#/components/schemas/DraftState"
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/ChatMessage"
+            },
+            "maxItems": 12,
+            "title": "History",
+            "type": "array"
+          },
+          "locale": {
+            "default": "en",
+            "enum": [
+              "fa",
+              "en"
+            ],
+            "title": "Locale",
+            "type": "string"
+          },
+          "subject_options": {
+            "items": {
+              "$ref": "#/components/schemas/SubjectOption"
+            },
+            "maxItems": 100,
+            "title": "Subject Options",
+            "type": "array"
+          },
+          "today": {
+            "format": "date",
+            "title": "Today",
+            "type": "string"
+          },
+          "user_message": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Message"
+          }
+        },
+        "required": [
+          "current_step",
+          "draft",
+          "today"
+        ],
+        "title": "ChatTurnRequest",
+        "type": "object"
+      },
+      "ChatTurnResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "assistant_message": {
+            "maxLength": 1500,
+            "minLength": 1,
+            "title": "Assistant Message",
+            "type": "string"
+          },
+          "extracted": {
+            "$ref": "#/components/schemas/ExtractedFields"
+          },
+          "is_complete": {
+            "title": "Is Complete",
+            "type": "boolean"
+          },
+          "needs_clarification": {
+            "title": "Needs Clarification",
+            "type": "boolean"
+          },
+          "suggested_next_step": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StepKey"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "widget": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Widget"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "assistant_message",
+          "extracted",
+          "widget",
+          "suggested_next_step",
+          "is_complete",
+          "needs_clarification"
+        ],
+        "title": "ChatTurnResponse",
+        "type": "object"
+      },
+      "ContentCandidate": {
+        "additionalProperties": false,
+        "properties": {
+          "content_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Content Id",
+            "type": "string"
+          },
+          "content_type": {
+            "$ref": "#/components/schemas/ContentType"
+          },
+          "credits": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,6}|(?=[\\d.]{1,9}0*$)\\d{0,6}\\.\\d{0,2}0*$)",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Credits"
+          },
+          "duration_minutes": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Minutes"
+          },
+          "is_free": {
+            "title": "Is Free",
+            "type": "boolean"
+          },
+          "level": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SkillLevel"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "maxLength": 1500,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Summary"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Tags",
+            "type": "array"
+          },
+          "title": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "content_id",
+          "content_type",
+          "title",
+          "is_free"
+        ],
+        "title": "ContentCandidate",
+        "type": "object"
+      },
+      "ContentType": {
+        "description": "A deliberate DB-independent mirror of the Backend catalogue enum.",
+        "enum": [
+          "COURSE",
+          "EVENT",
+          "PODCAST",
+          "YOUTUBE"
+        ],
+        "title": "ContentType",
+        "type": "string"
+      },
+      "CpdContext": {
+        "additionalProperties": false,
+        "properties": {
+          "certification_name": {
+            "maxLength": 250,
+            "minLength": 1,
+            "title": "Certification Name",
+            "type": "string"
+          },
+          "completed_credits": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,6}|(?=[\\d.]{1,9}0*$)\\d{0,6}\\.\\d{0,2}0*$)",
+                "type": "string"
+              }
+            ],
+            "title": "Completed Credits"
+          },
+          "organization": {
+            "maxLength": 250,
+            "minLength": 1,
+            "title": "Organization",
+            "type": "string"
+          },
+          "remaining_credits": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,6}|(?=[\\d.]{1,9}0*$)\\d{0,6}\\.\\d{0,2}0*$)",
+                "type": "string"
+              }
+            ],
+            "title": "Remaining Credits"
+          },
+          "reporting_end": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reporting End"
+          },
+          "total_required_credits": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,6}|(?=[\\d.]{1,9}0*$)\\d{0,6}\\.\\d{0,2}0*$)",
+                "type": "string"
+              }
+            ],
+            "title": "Total Required Credits"
+          }
+        },
+        "required": [
+          "certification_name",
+          "organization",
+          "total_required_credits",
+          "completed_credits",
+          "remaining_credits"
+        ],
+        "title": "CpdContext",
+        "type": "object"
+      },
+      "DraftState": {
+        "additionalProperties": false,
+        "properties": {
+          "available_time": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TimeCommitment"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "budget": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BudgetPreference"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "certification_name": {
+            "anyOf": [
+              {
+                "maxLength": 250,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Certification Name"
+          },
+          "content_types": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ContentType"
+                },
+                "maxItems": 4,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content Types"
+          },
+          "context": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Context"
+          },
+          "cpd_enabled": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cpd Enabled"
+          },
+          "formats": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/LearningFormat"
+                },
+                "maxItems": 4,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Formats"
+          },
+          "goal": {
+            "anyOf": [
+              {
+                "maxLength": 500,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Goal"
+          },
+          "goal_reason": {
+            "anyOf": [
+              {
+                "maxLength": 1000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Goal Reason"
+          },
+          "skill_level": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SkillLevel"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "subjects": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "maxItems": 5,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subjects"
+          },
+          "target_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Date"
+          },
+          "target_role": {
+            "anyOf": [
+              {
+                "maxLength": 250,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Role"
+          }
+        },
+        "title": "DraftState",
+        "type": "object"
+      },
+      "ErrorResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Code",
+            "type": "string"
+          },
+          "correlation_id": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correlation Id"
+          },
+          "message": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Message",
+            "type": "string"
+          },
+          "retryable": {
+            "title": "Retryable",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "retryable"
+        ],
+        "title": "ErrorResponse",
+        "type": "object"
+      },
+      "ExtractedFields": {
+        "additionalProperties": false,
+        "properties": {
+          "available_time": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TimeCommitment"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "budget": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BudgetPreference"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "certification_name": {
+            "anyOf": [
+              {
+                "maxLength": 250,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Certification Name"
+          },
+          "cleared_fields": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/RoadmapField"
+                },
+                "maxItems": 14,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cleared Fields"
+          },
+          "content_types": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ContentType"
+                },
+                "maxItems": 4,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content Types"
+          },
+          "context": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Context"
+          },
+          "cpd_enabled": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cpd Enabled"
+          },
+          "formats": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/LearningFormat"
+                },
+                "maxItems": 4,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Formats"
+          },
+          "goal": {
+            "anyOf": [
+              {
+                "maxLength": 500,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Goal"
+          },
+          "goal_reason": {
+            "anyOf": [
+              {
+                "maxLength": 1000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Goal Reason"
+          },
+          "skill_level": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SkillLevel"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "subjects": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "maxItems": 5,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subjects"
+          },
+          "target_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Date"
+          },
+          "target_role": {
+            "anyOf": [
+              {
+                "maxLength": 250,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Role"
+          }
+        },
+        "title": "ExtractedFields",
+        "type": "object"
+      },
+      "GateStatsResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "inflight": {
+            "minimum": 0.0,
+            "title": "Inflight",
+            "type": "integer"
+          },
+          "rejected": {
+            "minimum": 0.0,
+            "title": "Rejected",
+            "type": "integer"
+          },
+          "waiting": {
+            "minimum": 0.0,
+            "title": "Waiting",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "inflight",
+          "waiting",
+          "rejected"
+        ],
+        "title": "GateStatsResponse",
+        "type": "object"
+      },
+      "GenerateRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/ContentCandidate"
+            },
+            "maxItems": 50,
+            "minItems": 1,
+            "title": "Candidates",
+            "type": "array"
+          },
+          "cpd": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CpdContext"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "draft": {
+            "$ref": "#/components/schemas/DraftState"
+          },
+          "locale": {
+            "default": "en",
+            "enum": [
+              "fa",
+              "en"
+            ],
+            "title": "Locale",
+            "type": "string"
+          },
+          "max_phases": {
+            "default": 4,
+            "maximum": 8.0,
+            "minimum": 1.0,
+            "title": "Max Phases",
+            "type": "integer"
+          },
+          "subject_options": {
+            "items": {
+              "$ref": "#/components/schemas/SubjectOption"
+            },
+            "maxItems": 100,
+            "title": "Subject Options",
+            "type": "array"
+          },
+          "today": {
+            "format": "date",
+            "title": "Today",
+            "type": "string"
+          }
+        },
+        "required": [
+          "draft",
+          "candidates",
+          "today"
+        ],
+        "title": "GenerateRequest",
+        "type": "object"
+      },
+      "GenerateResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "coverage_note": {
+            "anyOf": [
+              {
+                "maxLength": 1000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coverage Note"
+          },
+          "description": {
+            "maxLength": 1500,
+            "minLength": 1,
+            "title": "Description",
+            "type": "string"
+          },
+          "estimated_weeks": {
+            "minimum": 1.0,
+            "title": "Estimated Weeks",
+            "type": "integer"
+          },
+          "level": {
+            "$ref": "#/components/schemas/SkillLevel"
+          },
+          "phases": {
+            "items": {
+              "$ref": "#/components/schemas/GeneratedPhase"
+            },
+            "maxItems": 8,
+            "minItems": 1,
+            "title": "Phases",
+            "type": "array"
+          },
+          "title": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "description",
+          "level",
+          "estimated_weeks",
+          "phases"
+        ],
+        "title": "GenerateResponse",
+        "type": "object"
+      },
+      "GeneratedPhase": {
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "maxLength": 1500,
+            "minLength": 1,
+            "title": "Description",
+            "type": "string"
+          },
+          "estimated_weeks": {
+            "minimum": 1.0,
+            "title": "Estimated Weeks",
+            "type": "integer"
+          },
+          "order": {
+            "minimum": 1.0,
+            "title": "Order",
+            "type": "integer"
+          },
+          "steps": {
+            "items": {
+              "$ref": "#/components/schemas/GeneratedStep"
+            },
+            "maxItems": 50,
+            "minItems": 1,
+            "title": "Steps",
+            "type": "array"
+          },
+          "title": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "order",
+          "title",
+          "description",
+          "estimated_weeks",
+          "steps"
+        ],
+        "title": "GeneratedPhase",
+        "type": "object"
+      },
+      "GeneratedStep": {
+        "additionalProperties": false,
+        "properties": {
+          "content_id": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content Id"
+          },
+          "content_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ContentType"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "description": {
+            "maxLength": 1500,
+            "minLength": 1,
+            "title": "Description",
+            "type": "string"
+          },
+          "estimated_minutes": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Minutes"
+          },
+          "order": {
+            "minimum": 1.0,
+            "title": "Order",
+            "type": "integer"
+          },
+          "title": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "order",
+          "title",
+          "description"
+        ],
+        "title": "GeneratedStep",
+        "type": "object"
+      },
+      "LearningFormat": {
+        "description": "Soft learning-format preference for V1 planning.",
+        "enum": [
+          "VIDEO",
+          "COURSE",
+          "WEBINAR",
+          "PODCAST"
+        ],
+        "title": "LearningFormat",
+        "type": "string"
+      },
+      "RoadmapField": {
+        "description": "Exact public ``DraftState`` JSON property names.",
+        "enum": [
+          "goal",
+          "target_role",
+          "goal_reason",
+          "context",
+          "target_date",
+          "skill_level",
+          "available_time",
+          "budget",
+          "subjects",
+          "formats",
+          "content_types",
+          "cpd_enabled",
+          "certification_name"
+        ],
+        "title": "RoadmapField",
+        "type": "string"
+      },
+      "SkillLevel": {
+        "description": "Current learner proficiency, provisionally supplied for Roadmap V1.",
+        "enum": [
+          "BEGINNER",
+          "INTERMEDIATE",
+          "ADVANCED"
+        ],
+        "title": "SkillLevel",
+        "type": "string"
+      },
+      "StatsResponse": {
+        "additionalProperties": false,
+        "description": "Per-process gate counters. Not aggregated across uvicorn workers.",
+        "properties": {
+          "chat": {
+            "$ref": "#/components/schemas/GateStatsResponse"
+          },
+          "generate": {
+            "$ref": "#/components/schemas/GateStatsResponse"
+          },
+          "uptime_seconds": {
+            "minimum": 0.0,
+            "title": "Uptime Seconds",
+            "type": "number"
+          }
+        },
+        "required": [
+          "chat",
+          "generate",
+          "uptime_seconds"
+        ],
+        "title": "StatsResponse",
+        "type": "object"
+      },
+      "StepKey": {
+        "description": "Stable UI-level sections, not the internal per-question state machine.",
+        "enum": [
+          "GOAL",
+          "PREFERENCES",
+          "CPD_SETUP",
+          "REVIEW"
+        ],
+        "title": "StepKey",
+        "type": "string"
+      },
+      "SubjectOption": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "maxLength": 250,
+            "minLength": 1,
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "label"
+        ],
+        "title": "SubjectOption",
+        "type": "object"
+      },
+      "TimeCommitment": {
+        "description": "Weekly time available to follow the roadmap.",
+        "enum": [
+          "ONE_TO_THREE_HOURS",
+          "FOUR_TO_SEVEN_HOURS",
+          "EIGHT_PLUS_HOURS"
+        ],
+        "title": "TimeCommitment",
+        "type": "string"
+      },
+      "Widget": {
+        "additionalProperties": false,
+        "properties": {
+          "field": {
+            "$ref": "#/components/schemas/RoadmapField"
+          },
+          "max_selections": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Selections"
+          },
+          "options": {
+            "items": {
+              "$ref": "#/components/schemas/WidgetOption"
+            },
+            "maxItems": 100,
+            "title": "Options",
+            "type": "array"
+          },
+          "type": {
+            "enum": [
+              "text",
+              "single_select",
+              "multi_select",
+              "date",
+              "yes_no"
+            ],
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "field"
+        ],
+        "title": "Widget",
+        "type": "object"
+      },
+      "WidgetOption": {
+        "additionalProperties": false,
+        "properties": {
+          "label": {
+            "maxLength": 250,
+            "minLength": 1,
+            "title": "Label",
+            "type": "string"
+          },
+          "value": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "value",
+          "label"
+        ],
+        "title": "WidgetOption",
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  },
+  "info": {
+    "description": "Stateless service for learning-roadmap interviews and planning.",
+    "title": "LoopsKey Roadmap AI Service",
+    "version": "1.0.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Health Health Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "X-Contract-Version": {
+                "description": "Contract version this service implements.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Correlation-Id": {
+                "description": "The caller's correlation id, or one generated here.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Health",
+        "tags": [
+          "operations"
+        ]
+      }
+    },
+    "/internal/stats": {
+      "get": {
+        "operationId": "internal_stats_internal_stats_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatsResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "X-Contract-Version": {
+                "description": "Contract version this service implements.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Correlation-Id": {
+                "description": "The caller's correlation id, or one generated here.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Internal Stats",
+        "tags": [
+          "operations"
+        ]
+      }
+    },
+    "/ready": {
+      "get": {
+        "operationId": "ready_ready_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Ready Ready Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "X-Contract-Version": {
+                "description": "Contract version this service implements.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Correlation-Id": {
+                "description": "The caller's correlation id, or one generated here.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable",
+            "headers": {
+              "X-Contract-Version": {
+                "description": "Contract version this service implements.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Correlation-Id": {
+                "description": "The caller's correlation id, or one generated here.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Ready",
+        "tags": [
+          "operations"
+        ]
+      }
+    },
+    "/v1/roadmap/chat-turn": {
+      "post": {
+        "operationId": "chat_turn_v1_roadmap_chat_turn_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatTurnRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatTurnResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "X-Contract-Version": {
+                "description": "Contract version this service implements.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Correlation-Id": {
+                "description": "The caller's correlation id, or one generated here.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized",
+            "headers": {
+              "X-Contract-Version": {
+                "description": "Contract version this service implements.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Correlation-Id": {
+                "description": "The caller's correlation id, or one generated here.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity",
+            "headers": {
+              "X-Contract-Version": {
+                "description": "Contract version this service implements.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Correlation-Id": {
+                "description": "The caller's correlation id, or one generated here.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error",
+            "headers": {
+              "X-Contract-Version": {
+                "description": "Contract version this service implements.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Correlation-Id": {
+                "description": "The caller's correlation id, or one generated here.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Gateway",
+            "headers": {
+              "X-Contract-Version": {
+                "description": "Contract version this service implements.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Correlation-Id": {
+                "description": "The caller's correlation id, or one generated here.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable",
+            "headers": {
+              "X-Contract-Version": {
+                "description": "Contract version this service implements.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Correlation-Id": {
+                "description": "The caller's correlation id, or one generated here.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Gateway Timeout",
+            "headers": {
+              "X-Contract-Version": {
+                "description": "Contract version this service implements.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Correlation-Id": {
+                "description": "The caller's correlation id, or one generated here.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Chat Turn",
+        "tags": [
+          "roadmap"
+        ]
+      }
+    },
+    "/v1/roadmap/generate": {
+      "post": {
+        "operationId": "generate_v1_roadmap_generate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerateResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "X-Contract-Version": {
+                "description": "Contract version this service implements.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Correlation-Id": {
+                "description": "The caller's correlation id, or one generated here.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized",
+            "headers": {
+              "X-Contract-Version": {
+                "description": "Contract version this service implements.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Correlation-Id": {
+                "description": "The caller's correlation id, or one generated here.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity",
+            "headers": {
+              "X-Contract-Version": {
+                "description": "Contract version this service implements.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Correlation-Id": {
+                "description": "The caller's correlation id, or one generated here.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error",
+            "headers": {
+              "X-Contract-Version": {
+                "description": "Contract version this service implements.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Correlation-Id": {
+                "description": "The caller's correlation id, or one generated here.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Gateway",
+            "headers": {
+              "X-Contract-Version": {
+                "description": "Contract version this service implements.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Correlation-Id": {
+                "description": "The caller's correlation id, or one generated here.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable",
+            "headers": {
+              "X-Contract-Version": {
+                "description": "Contract version this service implements.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Correlation-Id": {
+                "description": "The caller's correlation id, or one generated here.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Gateway Timeout",
+            "headers": {
+              "X-Contract-Version": {
+                "description": "Contract version this service implements.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Correlation-Id": {
+                "description": "The caller's correlation id, or one generated here.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Generate",
+        "tags": [
+          "roadmap"
+        ]
+      }
+    }
+  }
+}
