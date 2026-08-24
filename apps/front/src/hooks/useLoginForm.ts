@@ -1,7 +1,10 @@
 "use client";
 
+import { getAuthErrorTranslationKey } from "@/utils/auth-error";
+import { getAuthMessageCode } from "@/utils/auth-error";
 import { useMemo, useState } from "react";
 import { getDashboardPath } from "@/utils/constant";
+import { AuthMessageCode } from "@loopskey/api-contracts/error-codes";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -63,8 +66,8 @@ export const useRoleLoginForm = ({ role }: { role: Role }) => {
       }).unwrap();
       notify.success(t("authPages.common.loginSuccess"));
       router.replace(getDashboardPath(res.user?.role));
-    } catch {
-      notify.error(t("authPages.common.genericError"));
+    } catch (error) {
+      notify.error(t(getAuthErrorTranslationKey(error)));
     }
   };
 
@@ -80,8 +83,8 @@ export const useRoleLoginForm = ({ role }: { role: Role }) => {
       });
       setStep("reset");
       notify.success(t("authPages.common.resetCodeSent"));
-    } catch {
-      notify.error(t("authPages.common.genericError"));
+    } catch (error) {
+      notify.error(t(getAuthErrorTranslationKey(error)));
     }
   };
 
@@ -98,8 +101,12 @@ export const useRoleLoginForm = ({ role }: { role: Role }) => {
       resetForm.reset();
       setResetEmail("");
       setStep("login");
-    } catch {
-      notify.error(t("authPages.common.genericError"));
+    } catch (error) {
+      const errorKey =
+        getAuthMessageCode(error) === AuthMessageCode.INVALID_CREDENTIALS
+          ? "authPages.errors.passwordsDoNotMatch"
+          : getAuthErrorTranslationKey(error);
+      notify.error(t(errorKey));
     }
   };
 
