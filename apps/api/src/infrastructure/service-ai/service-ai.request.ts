@@ -7,7 +7,6 @@ import {
   type ProviderCpdContext,
   type ProviderDraftState,
   type ProviderGenerateRequest,
-  type ProviderLearningFormat,
   type ProviderSubjectOption,
 } from "./generated/service-ai.types";
 import {
@@ -79,13 +78,15 @@ const buildDraft = (
 ): ProviderDraftState => {
   const formats = draft.preferredFormats
     ? unique(
-        draft.preferredFormats
-          .map((format) => LEARNING_FORMAT_OUTBOUND[format])
-          .filter(
-            (format): format is ProviderLearningFormat => format !== null,
-          ),
+        draft.preferredFormats.map(
+          (format) => LEARNING_FORMAT_OUTBOUND[format],
+        ),
       )
     : null;
+  /**
+   * No format has been untranslatable since contract 1.1.0, so anything this
+   * counts is a duplicate the caller supplied rather than contract loss.
+   */
   drops.formats +=
     (draft.preferredFormats?.length ?? 0) - (formats?.length ?? 0);
 

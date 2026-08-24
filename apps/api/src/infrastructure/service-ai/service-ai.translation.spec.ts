@@ -76,85 +76,73 @@ describe("inbound tables only ever produce values Prisma accepts", () => {
   });
 });
 
-describe("SkillLevel", () => {
+/**
+ * Contract 1.1.0 aligned the provider's vocabulary with this platform's, so all
+ * four of these enums now round-trip without loss. Before it they did not:
+ * EXPERT collapsed onto ADVANCED, LESS_THAN_ONE_HOUR and ONE_TO_THREE_HOURS
+ * merged, PREMIUM and EMPLOYER_SPONSORED both became NO_PREFERENCE, and
+ * WORKSHOP and ARTICLE were dropped outright. These assertions are what fails
+ * if a later contract narrows one of them again.
+ */
+describe("enum vocabularies aligned in contract 1.1.0", () => {
   it.each([
-    ["BEGINNER", "BEGINNER"],
-    ["INTERMEDIATE", "INTERMEDIATE"],
-    ["ADVANCED", "ADVANCED"],
-    // The provider publishes no fourth level, so the highest it has is used.
-    ["EXPERT", "ADVANCED"],
-  ] as const)("sends %s as %s", (platform, provider) => {
-    expect(SKILL_LEVEL_OUTBOUND[platform]).toBe(provider);
+    ["SkillLevel", SKILL_LEVEL_OUTBOUND, SKILL_LEVEL_INBOUND, SkillLevel],
+    [
+      "LearningFormat",
+      LEARNING_FORMAT_OUTBOUND,
+      LEARNING_FORMAT_INBOUND,
+      LearningFormat,
+    ],
+    [
+      "LearningTimeCommitment",
+      TIME_COMMITMENT_OUTBOUND,
+      TIME_COMMITMENT_INBOUND,
+      LearningTimeCommitment,
+    ],
+    [
+      "LearningBudgetPreference",
+      BUDGET_PREFERENCE_OUTBOUND,
+      BUDGET_PREFERENCE_INBOUND,
+      LearningBudgetPreference,
+    ],
+  ])("round-trips every %s value unchanged", (_name, out, back, prismaEnum) => {
+    const sent = out as Record<string, string>;
+    const read = back as Record<string, string>;
+
+    for (const value of Object.values(prismaEnum)) {
+      expect(sent[value]).toBe(value);
+      expect(read[sent[value]]).toBe(value);
+    }
   });
 
-  it("never widens ADVANCED back out to EXPERT", () => {
-    expect(SKILL_LEVEL_INBOUND.ADVANCED).toBe("ADVANCED");
-    expect(Object.values(SKILL_LEVEL_INBOUND)).not.toContain("EXPERT");
-  });
-});
-
-describe("LearningTimeCommitment", () => {
-  it.each([
-    ["LESS_THAN_ONE_HOUR", "ONE_TO_THREE_HOURS"],
-    ["ONE_TO_THREE_HOURS", "ONE_TO_THREE_HOURS"],
-    ["FOUR_TO_SIX_HOURS", "FOUR_TO_SEVEN_HOURS"],
-    ["SEVEN_TO_TEN_HOURS", "EIGHT_PLUS_HOURS"],
-    ["MORE_THAN_TEN_HOURS", "EIGHT_PLUS_HOURS"],
-  ] as const)("sends %s as %s", (platform, provider) => {
-    expect(TIME_COMMITMENT_OUTBOUND[platform]).toBe(provider);
-  });
-
-  it.each([
-    ["ONE_TO_THREE_HOURS", "ONE_TO_THREE_HOURS"],
-    ["FOUR_TO_SEVEN_HOURS", "FOUR_TO_SIX_HOURS"],
-    ["EIGHT_PLUS_HOURS", "SEVEN_TO_TEN_HOURS"],
-  ] as const)("reads %s back as %s", (provider, platform) => {
-    expect(TIME_COMMITMENT_INBOUND[provider]).toBe(platform);
-  });
-
-  it("never reads a provider band back as the open-ended platform band", () => {
-    expect(Object.values(TIME_COMMITMENT_INBOUND)).not.toContain(
+  it("carries the two values 1.0.0 had to collapse", () => {
+    // Both were unreachable before: the provider published no fourth level and
+    // no band above eight hours.
+    expect(SKILL_LEVEL_OUTBOUND.EXPERT).toBe("EXPERT");
+    expect(TIME_COMMITMENT_OUTBOUND.MORE_THAN_TEN_HOURS).toBe(
       "MORE_THAN_TEN_HOURS",
     );
   });
-});
 
-describe("LearningBudgetPreference", () => {
-  it.each([
-    ["FREE_ONLY", "FREE_ONLY"],
-    ["MIXED_FREE_AND_PAID", "LOW_COST"],
-    ["PREMIUM", "NO_PREFERENCE"],
-    ["EMPLOYER_SPONSORED", "NO_PREFERENCE"],
-  ] as const)("sends %s as %s", (platform, provider) => {
-    expect(BUDGET_PREFERENCE_OUTBOUND[platform]).toBe(provider);
+  it("reads EXPERT back, which the provider can now infer on its own", () => {
+    // 1.1.0 returns it in extracted.skill_level even on a request that never
+    // sent it, so the inbound table has to accept it.
+    expect(SKILL_LEVEL_INBOUND.EXPERT).toBe("EXPERT");
   });
 
-  it("does not treat employer-sponsored as a free-only preference", () => {
-    // Someone else is paying, so cost does not constrain the plan.
+  it("keeps the two formats the provider previously had no word for", () => {
+    expect(LEARNING_FORMAT_OUTBOUND.WORKSHOP).toBe("WORKSHOP");
+    expect(LEARNING_FORMAT_OUTBOUND.ARTICLE).toBe("ARTICLE");
+  });
+
+  it("still distinguishes the budgets the provider does not filter on", () => {
+    // Only FREE_ONLY selects content; the other three reach the planner as
+    // context. They stay distinct so the draft records what was actually said.
     expect(BUDGET_PREFERENCE_OUTBOUND.EMPLOYER_SPONSORED).not.toBe("FREE_ONLY");
+    expect(BUDGET_PREFERENCE_OUTBOUND.PREMIUM).not.toBe(
+      BUDGET_PREFERENCE_OUTBOUND.EMPLOYER_SPONSORED,
+    );
   });
-
-  it("never infers an employer relationship from NO_PREFERENCE", () => {
-    expect(BUDGET_PREFERENCE_INBOUND.NO_PREFERENCE).toBe("PREMIUM");
-  });
-});
-
-describe("LearningFormat", () => {
-  it.each([
-    ["COURSE", "COURSE"],
-    ["WEBINAR", "WEBINAR"],
-    ["VIDEO", "VIDEO"],
-    ["PODCAST", "PODCAST"],
-  ] as const)("sends %s as %s", (platform, provider) => {
-    expect(LEARNING_FORMAT_OUTBOUND[platform]).toBe(provider);
-  });
-
-  it.each(["WORKSHOP", "ARTICLE"] as const)(
-    "drops %s, which the provider has no word for",
-    (platform) => {
-      expect(LEARNING_FORMAT_OUTBOUND[platform]).toBeNull();
-    },
-  );
 });
 
 describe("ContentType", () => {

@@ -2,11 +2,12 @@
   "components": {
     "schemas": {
       "BudgetPreference": {
-        "description": "Cost preference applied to the supplied candidate catalogue.",
+        "description": "Cost preference applied to the supplied candidate catalogue.\n\nOnly FREE_ONLY changes which content may be selected: it removes every\ncandidate whose is_free is false. The other three are recorded on the\ndraft and reach the planner as context, but nothing filters on them — so a\nconsumer must not read PREMIUM as \"prefer paid content\", or\nEMPLOYER_SPONSORED as a raised price ceiling.",
         "enum": [
           "FREE_ONLY",
-          "LOW_COST",
-          "NO_PREFERENCE"
+          "MIXED_FREE_AND_PAID",
+          "PREMIUM",
+          "EMPLOYER_SPONSORED"
         ],
         "title": "BudgetPreference",
         "type": "string"
@@ -409,7 +410,7 @@
                 "items": {
                   "$ref": "#/components/schemas/LearningFormat"
                 },
-                "maxItems": 4,
+                "maxItems": 6,
                 "type": "array"
               },
               {
@@ -580,7 +581,7 @@
                 "items": {
                   "$ref": "#/components/schemas/RoadmapField"
                 },
-                "maxItems": 14,
+                "maxItems": 13,
                 "type": "array"
               },
               {
@@ -634,7 +635,7 @@
                 "items": {
                   "$ref": "#/components/schemas/LearningFormat"
                 },
-                "maxItems": 4,
+                "maxItems": 6,
                 "type": "array"
               },
               {
@@ -981,10 +982,12 @@
       "LearningFormat": {
         "description": "Soft learning-format preference for V1 planning.",
         "enum": [
-          "VIDEO",
           "COURSE",
           "WEBINAR",
-          "PODCAST"
+          "WORKSHOP",
+          "VIDEO",
+          "PODCAST",
+          "ARTICLE"
         ],
         "title": "LearningFormat",
         "type": "string"
@@ -1010,11 +1013,12 @@
         "type": "string"
       },
       "SkillLevel": {
-        "description": "Current learner proficiency, provisionally supplied for Roadmap V1.",
+        "description": "Current learner proficiency. The Backend owns these values.",
         "enum": [
           "BEGINNER",
           "INTERMEDIATE",
-          "ADVANCED"
+          "ADVANCED",
+          "EXPERT"
         ],
         "title": "SkillLevel",
         "type": "string"
@@ -1078,11 +1082,13 @@
         "type": "object"
       },
       "TimeCommitment": {
-        "description": "Weekly time available to follow the roadmap.",
+        "description": "Weekly time available to follow the roadmap.\n\nThese buckets do not map onto the three-value set this service shipped\nwith: the old FOUR_TO_SEVEN_HOURS straddles FOUR_TO_SIX_HOURS and\nSEVEN_TO_TEN_HOURS, so a draft stored against the old vocabulary has to be\nasked again rather than translated.",
         "enum": [
+          "LESS_THAN_ONE_HOUR",
           "ONE_TO_THREE_HOURS",
-          "FOUR_TO_SEVEN_HOURS",
-          "EIGHT_PLUS_HOURS"
+          "FOUR_TO_SIX_HOURS",
+          "SEVEN_TO_TEN_HOURS",
+          "MORE_THAN_TEN_HOURS"
         ],
         "title": "TimeCommitment",
         "type": "string"
@@ -1166,7 +1172,7 @@
   "info": {
     "description": "Stateless service for learning-roadmap interviews and planning.",
     "title": "LoopsKey Roadmap AI Service",
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   "openapi": "3.1.0",
   "paths": {

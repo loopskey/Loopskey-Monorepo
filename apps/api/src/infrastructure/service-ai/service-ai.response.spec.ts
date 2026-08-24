@@ -38,10 +38,10 @@ describe("chat turn responses", () => {
         suggested_next_step: "CPD_SETUP",
         extracted: {
           goal: "Renew my PMP",
-          skill_level: "ADVANCED",
-          available_time: "FOUR_TO_SEVEN_HOURS",
-          budget: "LOW_COST",
-          formats: ["VIDEO"],
+          skill_level: "EXPERT",
+          available_time: "FOUR_TO_SIX_HOURS",
+          budget: "MIXED_FREE_AND_PAID",
+          formats: ["VIDEO", "WORKSHOP"],
           content_types: ["COURSE"],
           target_date: "2027-01-31",
           cleared_fields: ["target_role", "available_time"],
@@ -49,15 +49,20 @@ describe("chat turn responses", () => {
       }),
     );
 
+    /**
+     * Every enum here is one 1.0.0 either could not express or read back
+     * differently. EXPERT and WORKSHOP did not exist provider-side at all, and
+     * FOUR_TO_SIX_HOURS arrived as the wider FOUR_TO_SEVEN_HOURS band.
+     */
     expect(data).toMatchObject({
       suggestedNextSection: "CPD_SETUP",
       clearedFields: ["targetRole", "timeCommitment"],
       extracted: {
         goal: "Renew my PMP",
-        skillLevel: "ADVANCED",
+        skillLevel: "EXPERT",
         timeCommitment: "FOUR_TO_SIX_HOURS",
         budgetPreference: "MIXED_FREE_AND_PAID",
-        preferredFormats: ["VIDEO"],
+        preferredFormats: ["VIDEO", "WORKSHOP"],
         preferredContentTypes: ["COURSE"],
       },
     });

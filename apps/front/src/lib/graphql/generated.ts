@@ -12,6 +12,7 @@ export * from "@/lib/graphql/operations/org-dashboard";
 export * from "@/lib/graphql/operations/podcast";
 export * from "@/lib/graphql/operations/professional";
 export * from "@/lib/graphql/operations/provider";
+export * from "@/lib/graphql/operations/roadmap-chat";
 export * from "@/lib/graphql/operations/support";
 export * from "@/lib/graphql/operations/user";
 export * from "@/lib/graphql/operations/youtube";
