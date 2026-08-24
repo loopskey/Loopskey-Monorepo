@@ -412,9 +412,13 @@ describe("ServiceAiClient", () => {
     it("records what translation had to drop", async () => {
       await new ServiceAiClient(config).chatTurn({
         ...chatTurnInput,
-        draft: { preferredFormats: ["COURSE", "WORKSHOP"] },
+        draft: { preferredFormats: ["COURSE", "COURSE", "WORKSHOP"] },
       });
 
+      /**
+       * Only the repeat is dropped. WORKSHOP travelled under its own name
+       * from contract 1.1.0; under 1.0.0 it was discarded here too.
+       */
       expect(entries[0]).toMatchObject({
         drops: { formats: 1, historyMessages: 0 },
       });

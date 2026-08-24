@@ -63,25 +63,40 @@ describe("chat turn requests", () => {
       }),
     );
 
+    /**
+     * All three enums travel under their own name since contract 1.1.0. Under
+     * 1.0.0 this same draft went out as ADVANCED / EIGHT_PLUS_HOURS /
+     * NO_PREFERENCE, and the professional's actual answer never reached the
+     * planner.
+     */
     expect(body.draft).toMatchObject({
       goal: "Renew my licence",
-      skill_level: "ADVANCED",
+      skill_level: "EXPERT",
       target_date: "2027-01-31",
-      budget: "NO_PREFERENCE",
-      available_time: "EIGHT_PLUS_HOURS",
+      budget: "EMPLOYER_SPONSORED",
+      available_time: "SEVEN_TO_TEN_HOURS",
       content_types: ["COURSE", "PODCAST"],
     });
   });
 
-  it("drops formats the provider has no word for and counts them", () => {
+  it("sends every format, including the two 1.0.0 had no word for", () => {
     const { body, drops } = buildChatTurnRequest(
       chatTurn({
         draft: { preferredFormats: ["COURSE", "WORKSHOP", "ARTICLE"] },
       }),
     );
 
+    expect(body.draft.formats).toEqual(["COURSE", "WORKSHOP", "ARTICLE"]);
+    expect(drops.formats).toBe(0);
+  });
+
+  it("counts a repeated format as collapsed rather than sending it twice", () => {
+    const { body, drops } = buildChatTurnRequest(
+      chatTurn({ draft: { preferredFormats: ["COURSE", "COURSE"] } }),
+    );
+
     expect(body.draft.formats).toEqual(["COURSE"]);
-    expect(drops.formats).toBe(2);
+    expect(drops.formats).toBe(1);
   });
 
   it("drops SYSTEM transcript entries the provider cannot attribute", () => {

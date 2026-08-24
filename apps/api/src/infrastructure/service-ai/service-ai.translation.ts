@@ -21,6 +21,13 @@ import {
   type ProviderWidget,
 } from "./generated/service-ai.types";
 
+/**
+ * Contract 1.1.0 adopted this platform's own enum values, so these four tables
+ * are now identity. They stay because they are the seam: platform and provider
+ * vocabularies remain separate type universes that merely coincide today, and a
+ * `Record<Platform…, Provider…>` stops compiling the day the provider drops a
+ * value again — instead of silently sending something the service will reject.
+ */
 export const SKILL_LEVEL_OUTBOUND: Record<
   PlatformSkillLevel,
   ProviderSkillLevel
@@ -28,7 +35,7 @@ export const SKILL_LEVEL_OUTBOUND: Record<
   BEGINNER: "BEGINNER",
   INTERMEDIATE: "INTERMEDIATE",
   ADVANCED: "ADVANCED",
-  EXPERT: "ADVANCED",
+  EXPERT: "EXPERT",
 };
 
 export const SKILL_LEVEL_INBOUND: Record<
@@ -38,26 +45,29 @@ export const SKILL_LEVEL_INBOUND: Record<
   BEGINNER: "BEGINNER",
   INTERMEDIATE: "INTERMEDIATE",
   ADVANCED: "ADVANCED",
+  EXPERT: "EXPERT",
 };
 
 export const TIME_COMMITMENT_OUTBOUND: Record<
   PlatformTimeCommitment,
   ProviderTimeCommitment
 > = {
-  LESS_THAN_ONE_HOUR: "ONE_TO_THREE_HOURS",
+  LESS_THAN_ONE_HOUR: "LESS_THAN_ONE_HOUR",
   ONE_TO_THREE_HOURS: "ONE_TO_THREE_HOURS",
-  FOUR_TO_SIX_HOURS: "FOUR_TO_SEVEN_HOURS",
-  SEVEN_TO_TEN_HOURS: "EIGHT_PLUS_HOURS",
-  MORE_THAN_TEN_HOURS: "EIGHT_PLUS_HOURS",
+  FOUR_TO_SIX_HOURS: "FOUR_TO_SIX_HOURS",
+  SEVEN_TO_TEN_HOURS: "SEVEN_TO_TEN_HOURS",
+  MORE_THAN_TEN_HOURS: "MORE_THAN_TEN_HOURS",
 };
 
 export const TIME_COMMITMENT_INBOUND: Record<
   ProviderTimeCommitment,
   PlatformTimeCommitment
 > = {
+  LESS_THAN_ONE_HOUR: "LESS_THAN_ONE_HOUR",
   ONE_TO_THREE_HOURS: "ONE_TO_THREE_HOURS",
-  FOUR_TO_SEVEN_HOURS: "FOUR_TO_SIX_HOURS",
-  EIGHT_PLUS_HOURS: "SEVEN_TO_TEN_HOURS",
+  FOUR_TO_SIX_HOURS: "FOUR_TO_SIX_HOURS",
+  SEVEN_TO_TEN_HOURS: "SEVEN_TO_TEN_HOURS",
+  MORE_THAN_TEN_HOURS: "MORE_THAN_TEN_HOURS",
 };
 
 export const BUDGET_PREFERENCE_OUTBOUND: Record<
@@ -65,9 +75,9 @@ export const BUDGET_PREFERENCE_OUTBOUND: Record<
   ProviderBudgetPreference
 > = {
   FREE_ONLY: "FREE_ONLY",
-  MIXED_FREE_AND_PAID: "LOW_COST",
-  PREMIUM: "NO_PREFERENCE",
-  EMPLOYER_SPONSORED: "NO_PREFERENCE",
+  MIXED_FREE_AND_PAID: "MIXED_FREE_AND_PAID",
+  PREMIUM: "PREMIUM",
+  EMPLOYER_SPONSORED: "EMPLOYER_SPONSORED",
 };
 
 export const BUDGET_PREFERENCE_INBOUND: Record<
@@ -75,30 +85,38 @@ export const BUDGET_PREFERENCE_INBOUND: Record<
   PlatformBudgetPreference
 > = {
   FREE_ONLY: "FREE_ONLY",
-  LOW_COST: "MIXED_FREE_AND_PAID",
-  NO_PREFERENCE: "PREMIUM",
+  MIXED_FREE_AND_PAID: "MIXED_FREE_AND_PAID",
+  PREMIUM: "PREMIUM",
+  EMPLOYER_SPONSORED: "EMPLOYER_SPONSORED",
 };
 
+/**
+ * Non-nullable since 1.1.0: every format this platform stores has a provider
+ * target. Typed that way on purpose — reintroducing a `null` here has to be a
+ * deliberate edit, not something a regenerated enum can do quietly.
+ */
 export const LEARNING_FORMAT_OUTBOUND: Record<
   PlatformLearningFormat,
-  ProviderLearningFormat | null
+  ProviderLearningFormat
 > = {
   COURSE: "COURSE",
   WEBINAR: "WEBINAR",
+  WORKSHOP: "WORKSHOP",
   VIDEO: "VIDEO",
   PODCAST: "PODCAST",
-  WORKSHOP: null,
-  ARTICLE: null,
+  ARTICLE: "ARTICLE",
 };
 
 export const LEARNING_FORMAT_INBOUND: Record<
   ProviderLearningFormat,
   PlatformLearningFormat
 > = {
-  VIDEO: "VIDEO",
   COURSE: "COURSE",
   WEBINAR: "WEBINAR",
+  WORKSHOP: "WORKSHOP",
+  VIDEO: "VIDEO",
   PODCAST: "PODCAST",
+  ARTICLE: "ARTICLE",
 };
 
 export const CONTENT_TYPE_OUTBOUND: Record<
