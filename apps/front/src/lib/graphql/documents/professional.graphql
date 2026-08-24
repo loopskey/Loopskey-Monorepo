@@ -789,3 +789,95 @@ mutation DeleteCalendarEvent($id: ID!) {
     id
   }
 }
+
+# ============== Roadmap chat wizard ================
+fragment RoadmapWidgetFields on RoadmapWidget {
+  type
+  field
+  maxSelections
+  options {
+    value
+    label
+  }
+}
+
+fragment RoadmapChatMessageFields on RoadmapChatMessage {
+  id
+  role
+  content
+  stepKey
+  createdAt
+  widget {
+    ...RoadmapWidgetFields
+  }
+}
+
+fragment ProfessionalRoadmapDraftFields on ProfessionalRoadmapDraft {
+  id
+  status
+  currentStep
+  isComplete
+  needsClarification
+  wasRefused
+  updatedAt
+  goal
+  targetRole
+  goalReason
+  context
+  targetDate
+  skillLevel
+  timeCommitment
+  budgetPreference
+  subjects
+  preferredFormats
+  preferredContentTypes
+  cpdEnabled
+  certificationId
+  certificationName
+  requiredCredits
+  completedCredits
+  subjectOptions {
+    id
+    label
+  }
+  widget {
+    ...RoadmapWidgetFields
+  }
+  transcript {
+    totalCount
+    pageInfo {
+      hasNextPage
+      nextCursor
+    }
+    items {
+      ...RoadmapChatMessageFields
+    }
+  }
+}
+
+query ProfessionalRoadmapDraft(
+  $draftId: ID
+  $transcript: ProfessionalPaginationInput
+) {
+  professionalRoadmapDraft(draftId: $draftId, transcript: $transcript) {
+    ...ProfessionalRoadmapDraftFields
+  }
+}
+
+mutation StartRoadmapDraft {
+  startRoadmapDraft {
+    ...ProfessionalRoadmapDraftFields
+  }
+}
+
+mutation SendRoadmapChatTurn($input: RoadmapChatTurnInput!) {
+  sendRoadmapChatTurn(input: $input) {
+    ...ProfessionalRoadmapDraftFields
+  }
+}
+
+mutation PatchRoadmapDraft($input: PatchRoadmapDraftInput!) {
+  patchRoadmapDraft(input: $input) {
+    ...ProfessionalRoadmapDraftFields
+  }
+}

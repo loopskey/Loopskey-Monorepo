@@ -1309,6 +1309,7 @@ export type Mutation = {
   ignoreExternalLearning: ExternalLearningActionResponse;
   login: AuthPayload;
   logout: AuthPayload;
+  patchRoadmapDraft: ProfessionalRoadmapDraft;
   publishCourse: Course;
   publishEvent: Event;
   publishPodcast: Podcast;
@@ -1330,8 +1331,10 @@ export type Mutation = {
   restorePodcast: Podcast;
   restoreUser: User;
   restoreYouTubeChannel: YouTubeChannel;
+  sendRoadmapChatTurn: ProfessionalRoadmapDraft;
   setProfessionalCertificateCpdPlan: ProfessionalCertificate;
   startProfessionalOnboarding: ProfessionalDashboardProfile;
+  startRoadmapDraft: ProfessionalRoadmapDraft;
   submitContactInquiry: SubmitContactInquiryPayload;
   submitContentReview: ContentReview;
   submitOrganizationAccessRequest: OrganizationAccessRequest;
@@ -1629,6 +1632,11 @@ export type MutationLoginArgs = {
 };
 
 
+export type MutationPatchRoadmapDraftArgs = {
+  input: PatchRoadmapDraftInput;
+};
+
+
 export type MutationPublishCourseArgs = {
   courseId: Scalars['String']['input'];
 };
@@ -1721,6 +1729,11 @@ export type MutationRestoreUserArgs = {
 
 export type MutationRestoreYouTubeChannelArgs = {
   channelId: Scalars['String']['input'];
+};
+
+
+export type MutationSendRoadmapChatTurnArgs = {
+  input: RoadmapChatTurnInput;
 };
 
 
@@ -2572,6 +2585,13 @@ export type PaginatedProviderEvents = {
   totalCount: Scalars['Int']['output'];
 };
 
+export type PaginatedRoadmapChatMessages = {
+  __typename?: 'PaginatedRoadmapChatMessages';
+  items: Array<RoadmapChatMessage>;
+  pageInfo: ProfessionalPageInfo;
+  totalCount: Scalars['Int']['output'];
+};
+
 export type PaginatedUsers = {
   __typename?: 'PaginatedUsers';
   items: Array<User>;
@@ -2595,6 +2615,26 @@ export type PaginatedYouTubeChannels = {
   items: Array<YouTubeChannel>;
   pageInfo: YouTubeChannelPageInfo;
   totalCount: Scalars['Int']['output'];
+};
+
+export type PatchRoadmapDraftInput = {
+  budgetPreference?: InputMaybe<LearningBudgetPreference>;
+  certificationId?: InputMaybe<Scalars['ID']['input']>;
+  certificationName?: InputMaybe<Scalars['String']['input']>;
+  completedCredits?: InputMaybe<Scalars['Float']['input']>;
+  context?: InputMaybe<Scalars['String']['input']>;
+  cpdEnabled?: InputMaybe<Scalars['Boolean']['input']>;
+  draftId: Scalars['ID']['input'];
+  goal?: InputMaybe<Scalars['String']['input']>;
+  goalReason?: InputMaybe<Scalars['String']['input']>;
+  preferredContentTypes?: InputMaybe<Array<ContentType>>;
+  preferredFormats?: InputMaybe<Array<LearningFormat>>;
+  requiredCredits?: InputMaybe<Scalars['Float']['input']>;
+  skillLevel?: InputMaybe<SkillLevel>;
+  subjects?: InputMaybe<Array<Scalars['ID']['input']>>;
+  targetDate?: InputMaybe<Scalars['DateTime']['input']>;
+  targetRole?: InputMaybe<Scalars['String']['input']>;
+  timeCommitment?: InputMaybe<LearningTimeCommitment>;
 };
 
 export enum PaymentStatus {
@@ -3143,6 +3183,36 @@ export type ProfessionalRoadmap = {
   userId: Scalars['ID']['output'];
 };
 
+export type ProfessionalRoadmapDraft = {
+  __typename?: 'ProfessionalRoadmapDraft';
+  budgetPreference?: Maybe<LearningBudgetPreference>;
+  certificationId?: Maybe<Scalars['ID']['output']>;
+  certificationName?: Maybe<Scalars['String']['output']>;
+  completedCredits?: Maybe<Scalars['Float']['output']>;
+  context?: Maybe<Scalars['String']['output']>;
+  cpdEnabled: Scalars['Boolean']['output'];
+  currentStep: RoadmapDraftStep;
+  goal?: Maybe<Scalars['String']['output']>;
+  goalReason?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  isComplete: Scalars['Boolean']['output'];
+  needsClarification: Scalars['Boolean']['output'];
+  preferredContentTypes: Array<ContentType>;
+  preferredFormats: Array<LearningFormat>;
+  requiredCredits?: Maybe<Scalars['Float']['output']>;
+  skillLevel?: Maybe<SkillLevel>;
+  status: RoadmapDraftStatus;
+  subjectOptions: Array<RoadmapSubjectOption>;
+  subjects: Array<Scalars['String']['output']>;
+  targetDate?: Maybe<Scalars['DateTime']['output']>;
+  targetRole?: Maybe<Scalars['String']['output']>;
+  timeCommitment?: Maybe<LearningTimeCommitment>;
+  transcript: PaginatedRoadmapChatMessages;
+  updatedAt: Scalars['DateTime']['output'];
+  wasRefused: Scalars['Boolean']['output'];
+  widget?: Maybe<RoadmapWidget>;
+};
+
 export type ProfessionalRoadmapPhase = {
   __typename?: 'ProfessionalRoadmapPhase';
   completed: Scalars['Boolean']['output'];
@@ -3519,6 +3589,7 @@ export type Query = {
   professionalPduActivitySummary: ProfessionalPduActivitySummary;
   professionalPduReport: ProfessionalPduReport;
   professionalProfileTaxonomy: Array<ProfessionalTaxonomyGroup>;
+  professionalRoadmapDraft?: Maybe<ProfessionalRoadmapDraft>;
   professionalSettings: ProfessionalSettings;
   providerAnalytics: ProviderAnalytics;
   providerAnalyticsCsv: CsvExport;
@@ -3873,6 +3944,12 @@ export type QueryProfessionalProfileTaxonomyArgs = {
 };
 
 
+export type QueryProfessionalRoadmapDraftArgs = {
+  draftId?: InputMaybe<Scalars['ID']['input']>;
+  transcript?: InputMaybe<ProfessionalPaginationInput>;
+};
+
+
 export type QueryProviderAnalyticsArgs = {
   input?: InputMaybe<ProviderDashboardRangeInput>;
 };
@@ -3975,6 +4052,63 @@ export type ResetPasswordInput = {
   newPassword: Scalars['String']['input'];
 };
 
+export type RoadmapChatMessage = {
+  __typename?: 'RoadmapChatMessage';
+  content: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  role: RoadmapChatRole;
+  stepKey: RoadmapDraftStep;
+  widget?: Maybe<RoadmapWidget>;
+};
+
+export enum RoadmapChatRole {
+  Assistant = 'ASSISTANT',
+  Professional = 'PROFESSIONAL',
+  System = 'SYSTEM'
+}
+
+export type RoadmapChatTurnInput = {
+  draftId: Scalars['ID']['input'];
+  message: Scalars['String']['input'];
+};
+
+export enum RoadmapDraftFieldKey {
+  BudgetPreference = 'BUDGET_PREFERENCE',
+  CertificationName = 'CERTIFICATION_NAME',
+  Context = 'CONTEXT',
+  CpdEnabled = 'CPD_ENABLED',
+  Goal = 'GOAL',
+  GoalReason = 'GOAL_REASON',
+  PreferredContentTypes = 'PREFERRED_CONTENT_TYPES',
+  PreferredFormats = 'PREFERRED_FORMATS',
+  SkillLevel = 'SKILL_LEVEL',
+  Subjects = 'SUBJECTS',
+  TargetDate = 'TARGET_DATE',
+  TargetRole = 'TARGET_ROLE',
+  TimeCommitment = 'TIME_COMMITMENT'
+}
+
+export enum RoadmapDraftStatus {
+  Collecting = 'COLLECTING',
+  Completed = 'COMPLETED',
+  Failed = 'FAILED',
+  Generating = 'GENERATING',
+  Ready = 'READY'
+}
+
+export enum RoadmapDraftStep {
+  Certification = 'CERTIFICATION',
+  Context = 'CONTEXT',
+  CpdRequirements = 'CPD_REQUIREMENTS',
+  CpdTracking = 'CPD_TRACKING',
+  Goal = 'GOAL',
+  GoalReason = 'GOAL_REASON',
+  Preferences = 'PREFERENCES',
+  Review = 'REVIEW',
+  TargetDate = 'TARGET_DATE'
+}
+
 export enum RoadmapEnrollmentStatus {
   Active = 'ACTIVE',
   Completed = 'COMPLETED',
@@ -3986,6 +4120,34 @@ export enum RoadmapStatus {
   Draft = 'DRAFT',
   Published = 'PUBLISHED'
 }
+
+export type RoadmapSubjectOption = {
+  __typename?: 'RoadmapSubjectOption';
+  id: Scalars['ID']['output'];
+  label: Scalars['String']['output'];
+};
+
+export type RoadmapWidget = {
+  __typename?: 'RoadmapWidget';
+  field: RoadmapDraftFieldKey;
+  maxSelections?: Maybe<Scalars['Int']['output']>;
+  options: Array<RoadmapWidgetOption>;
+  type: RoadmapWidgetKind;
+};
+
+export enum RoadmapWidgetKind {
+  Date = 'DATE',
+  MultiSelect = 'MULTI_SELECT',
+  SingleSelect = 'SINGLE_SELECT',
+  Text = 'TEXT',
+  YesNo = 'YES_NO'
+}
+
+export type RoadmapWidgetOption = {
+  __typename?: 'RoadmapWidgetOption';
+  label: Scalars['String']['output'];
+  value: Scalars['String']['output'];
+};
 
 export enum Role {
   Admin = 'ADMIN',

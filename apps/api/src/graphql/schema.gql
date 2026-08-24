@@ -1262,6 +1262,7 @@ type Mutation {
   ignoreExternalLearning(activityId: String!): ExternalLearningActionResponse!
   login(input: LoginInput!): AuthPayload!
   logout: AuthPayload!
+  patchRoadmapDraft(input: PatchRoadmapDraftInput!): ProfessionalRoadmapDraft!
   publishCourse(courseId: String!): Course!
   publishEvent(eventId: String!): Event!
   publishPodcast(podcastId: String!): Podcast!
@@ -1283,8 +1284,10 @@ type Mutation {
   restorePodcast(podcastId: String!): Podcast!
   restoreUser(userId: String!): User!
   restoreYouTubeChannel(channelId: String!): YouTubeChannel!
+  sendRoadmapChatTurn(input: RoadmapChatTurnInput!): ProfessionalRoadmapDraft!
   setProfessionalCertificateCpdPlan(input: SetCertificateCpdPlanInput!): ProfessionalCertificate!
   startProfessionalOnboarding: ProfessionalDashboardProfile!
+  startRoadmapDraft: ProfessionalRoadmapDraft!
   submitContactInquiry(input: SubmitContactInquiryInput!): SubmitContactInquiryPayload!
   submitContentReview(input: SubmitContentReviewInput!): ContentReview!
   submitOrganizationAccessRequest(input: SubmitOrganizationAccessRequestInput!): OrganizationAccessRequest!
@@ -1924,6 +1927,12 @@ type PaginatedProviderEvents {
   totalCount: Int!
 }
 
+type PaginatedRoadmapChatMessages {
+  items: [RoadmapChatMessage!]!
+  pageInfo: ProfessionalPageInfo!
+  totalCount: Int!
+}
+
 type PaginatedUsers {
   items: [User!]!
   pageInfo: UserPageInfo!
@@ -1944,6 +1953,26 @@ type PaginatedYouTubeChannels {
   items: [YouTubeChannel!]!
   pageInfo: YouTubeChannelPageInfo!
   totalCount: Int!
+}
+
+input PatchRoadmapDraftInput {
+  budgetPreference: LearningBudgetPreference
+  certificationId: ID
+  certificationName: String
+  completedCredits: Float
+  context: String
+  cpdEnabled: Boolean
+  draftId: ID!
+  goal: String
+  goalReason: String
+  preferredContentTypes: [ContentType!]
+  preferredFormats: [LearningFormat!]
+  requiredCredits: Float
+  skillLevel: SkillLevel
+  subjects: [ID!]
+  targetDate: DateTime
+  targetRole: String
+  timeCommitment: LearningTimeCommitment
 }
 
 enum PaymentStatus {
@@ -2461,6 +2490,35 @@ type ProfessionalRoadmap {
   userId: ID!
 }
 
+type ProfessionalRoadmapDraft {
+  budgetPreference: LearningBudgetPreference
+  certificationId: ID
+  certificationName: String
+  completedCredits: Float
+  context: String
+  cpdEnabled: Boolean!
+  currentStep: RoadmapDraftStep!
+  goal: String
+  goalReason: String
+  id: ID!
+  isComplete: Boolean!
+  needsClarification: Boolean!
+  preferredContentTypes: [ContentType!]!
+  preferredFormats: [LearningFormat!]!
+  requiredCredits: Float
+  skillLevel: SkillLevel
+  status: RoadmapDraftStatus!
+  subjectOptions: [RoadmapSubjectOption!]!
+  subjects: [String!]!
+  targetDate: DateTime
+  targetRole: String
+  timeCommitment: LearningTimeCommitment
+  transcript: PaginatedRoadmapChatMessages!
+  updatedAt: DateTime!
+  wasRefused: Boolean!
+  widget: RoadmapWidget
+}
+
 type ProfessionalRoadmapPhase {
   completed: Boolean!
   description: String
@@ -2816,6 +2874,7 @@ type Query {
   professionalPduActivitySummary: ProfessionalPduActivitySummary!
   professionalPduReport(year: Int): ProfessionalPduReport!
   professionalProfileTaxonomy(kind: ProfileTaxonomyKind): [ProfessionalTaxonomyGroup!]!
+  professionalRoadmapDraft(draftId: ID, transcript: ProfessionalPaginationInput): ProfessionalRoadmapDraft
   professionalSettings: ProfessionalSettings!
   providerAnalytics(input: ProviderDashboardRangeInput): ProviderAnalytics!
   providerAnalyticsCsv(input: ProviderDashboardRangeInput): CsvExport!
@@ -2865,6 +2924,62 @@ input ResetPasswordInput {
   newPassword: String!
 }
 
+type RoadmapChatMessage {
+  content: String!
+  createdAt: DateTime!
+  id: ID!
+  role: RoadmapChatRole!
+  stepKey: RoadmapDraftStep!
+  widget: RoadmapWidget
+}
+
+enum RoadmapChatRole {
+  ASSISTANT
+  PROFESSIONAL
+  SYSTEM
+}
+
+input RoadmapChatTurnInput {
+  draftId: ID!
+  message: String!
+}
+
+enum RoadmapDraftFieldKey {
+  BUDGET_PREFERENCE
+  CERTIFICATION_NAME
+  CONTEXT
+  CPD_ENABLED
+  GOAL
+  GOAL_REASON
+  PREFERRED_CONTENT_TYPES
+  PREFERRED_FORMATS
+  SKILL_LEVEL
+  SUBJECTS
+  TARGET_DATE
+  TARGET_ROLE
+  TIME_COMMITMENT
+}
+
+enum RoadmapDraftStatus {
+  COLLECTING
+  COMPLETED
+  FAILED
+  GENERATING
+  READY
+}
+
+enum RoadmapDraftStep {
+  CERTIFICATION
+  CONTEXT
+  CPD_REQUIREMENTS
+  CPD_TRACKING
+  GOAL
+  GOAL_REASON
+  PREFERENCES
+  REVIEW
+  TARGET_DATE
+}
+
 enum RoadmapEnrollmentStatus {
   ACTIVE
   COMPLETED
@@ -2875,6 +2990,31 @@ enum RoadmapStatus {
   ARCHIVED
   DRAFT
   PUBLISHED
+}
+
+type RoadmapSubjectOption {
+  id: ID!
+  label: String!
+}
+
+type RoadmapWidget {
+  field: RoadmapDraftFieldKey!
+  maxSelections: Int
+  options: [RoadmapWidgetOption!]!
+  type: RoadmapWidgetKind!
+}
+
+enum RoadmapWidgetKind {
+  DATE
+  MULTI_SELECT
+  SINGLE_SELECT
+  TEXT
+  YES_NO
+}
+
+type RoadmapWidgetOption {
+  label: String!
+  value: String!
 }
 
 enum Role {
