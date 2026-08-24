@@ -4235,8 +4235,7 @@
       "eyebrow": "Feuille de route professionnelle",
       "title": "Vos parcours d’apprentissage",
       "subtitle": "Suivez vos parcours structurés, mesurez la progression par phase et explorez de nouveaux axes de développement professionnel.",
-      "createCustomPath": "Créer un parcours personnalisé",
-      "createCustomPathUnavailable": "La création de parcours arrive bientôt. Vous pourrez construire un parcours personnalisé avec le coach de parcours.",
+      "createCustomPath": "Créer un parcours sur mesure",
       "enrolled": "Parcours suivis",
       "averageCompletion": "Progression moyenne",
       "completedPhases": "Phases terminées",
@@ -5562,5 +5561,76 @@
       "saveFailed": "Nous n'avons pas pu enregistrer vos réponses. Veuillez réessayer."
     },
     "success": "Votre profil est prêt."
+  },
+  "professionalRoadmapChat": {
+    "title": "Coach de parcours",
+    "subtitle": "Répondez à quelques questions et le coach construit un parcours adapté à votre situation.",
+    "backToRoadmaps": "Retour aux parcours",
+    "transcriptLabel": "Conversation avec le coach de parcours",
+    "thinking": "Le coach réfléchit…",
+    "composer": {
+      "label": "Votre réponse",
+      "placeholder": "Répondez avec vos propres mots…",
+      "send": "Envoyer",
+      "hint": "Entrée pour envoyer, Maj + Entrée pour une nouvelle ligne.",
+      "remaining": "{remaining} caractères restants",
+      "overLimit": "{over} caractères de trop"
+    },
+    "widget": {
+      "chooseDate": "Choisir une date",
+      "useDate": "Utiliser cette date",
+      "confirmSelection": "Confirmer",
+      "selectedOfMax": "{selected} sur {max} sélectionnés"
+    },
+    "system": {
+      "ROADMAP_AI_REFUSED": "Cela semble sans rapport avec la création d'un parcours. Pouvez-vous reformuler ?",
+      "fieldUpdated": "{field} mis à jour."
+    },
+    "error": {
+      "retry": "Réessayer",
+      "sendFailed": "L'envoi a échoué.",
+      "retryIn": "Vous pourrez réessayer dans {seconds} s.",
+      "loadTitle": "La conversation n'a pas pu être chargée",
+      "loadDescription": "Il s'agit d'un problème temporaire de notre côté, pas d'un problème avec vos réponses."
+    },
+    "review": {
+      "title": "Vérifiez vos réponses",
+      "description": "Modifiez ce que vous voulez ici et le coach utilisera la réponse mise à jour. Les modifications sont enregistrées au fur et à mesure.",
+      "edit": "Modifier",
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "yes": "Oui",
+      "no": "Non",
+      "notSet": "Non renseigné",
+      "generate": "Générer mon parcours",
+      "generateUnavailable": "La génération d'un parcours arrive dans la prochaine version.",
+      "keepEditing": "Continuer à modifier"
+    },
+    "field": {
+      "goal": "Objectif",
+      "targetRole": "Poste visé",
+      "goalReason": "Pourquoi cet objectif",
+      "context": "Votre parcours",
+      "targetDate": "Date cible",
+      "skillLevel": "Niveau actuel",
+      "timeCommitment": "Temps par semaine",
+      "budgetPreference": "Budget",
+      "subjects": "Sujets",
+      "preferredFormats": "Formats préférés",
+      "preferredContentTypes": "Contenus préférés",
+      "cpdEnabled": "Suivre les crédits de certification",
+      "certificationId": "Certification",
+      "certificationName": "Certification",
+      "requiredCredits": "Crédits requis",
+      "completedCredits": "Crédits obtenus"
+    },
+    "enum": {
+      "contentType": {
+        "EVENT": "Événements",
+        "COURSE": "Cours",
+        "PODCAST": "Podcasts",
+        "YOUTUBE": "YouTube"
+      }
+    }
   }
 }
