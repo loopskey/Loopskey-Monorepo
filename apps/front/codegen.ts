@@ -32,6 +32,7 @@ const DOMAINS = [
   "podcast",
   "professional",
   "provider",
+  "roadmap-chat",
   "support",
   "user",
   "youtube",

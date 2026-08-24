@@ -27,8 +27,8 @@ vi.mock("react-redux", () => ({
   useDispatch: () => dispatch,
 }));
 
-vi.mock("@/lib/rtk/endpoints/professional.api", () => ({
-  professionalApi: {
+vi.mock("@/lib/rtk/endpoints/roadmap-chat.api", () => ({
+  roadmapChatApi: {
     util: {
       updateQueryData: (
         _endpoint: string,

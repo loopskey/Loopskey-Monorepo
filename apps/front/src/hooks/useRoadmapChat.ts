@@ -8,9 +8,9 @@ import {
   ROADMAP_COUNTER_THRESHOLD,
   ROADMAP_MESSAGE_MAX_LENGTH,
 } from "@/utils/roadmap-chat.constant";
-import { professionalApi } from "@/lib/rtk/endpoints/professional.api";
+import { roadmapChatApi } from "@/lib/rtk/endpoints/roadmap-chat.api";
 
-import * as API from "@/lib/rtk/endpoints/professional.api";
+import * as API from "@/lib/rtk/endpoints/roadmap-chat.api";
 import * as T from "@/types/professional-roadmap-chat.types";
 
 import type { PatchRoadmapDraftInput } from "@/lib/graphql/base";
@@ -72,7 +72,7 @@ export const useRoadmapChat = () => {
   const writeDraft = useCallback(
     (next: T.TRoadmapDraft) => {
       dispatch(
-        professionalApi.util.updateQueryData(
+        roadmapChatApi.util.updateQueryData(
           "professionalRoadmapDraft",
           undefined,
           () => next,

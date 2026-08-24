@@ -2,7 +2,7 @@ import type {
   ProfessionalRoadmapDraftFieldsFragment,
   RoadmapChatMessageFieldsFragment,
   RoadmapWidgetFieldsFragment,
-} from "@/lib/graphql/operations/professional";
+} from "@/lib/graphql/operations/roadmap-chat";
 
 export type TRoadmapDraft = ProfessionalRoadmapDraftFieldsFragment;
 export type TRoadmapChatMessage = RoadmapChatMessageFieldsFragment;
