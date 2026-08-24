@@ -1,8 +1,8 @@
 "use client";
 
+import { getAuthErrorTranslationKey } from "@/utils/auth-error";
 import { TRoleRegisterFormProps } from "@/types/auth-module.types";
 import { useMemo, useState } from "react";
-import { getAuthErrorCode } from "@/utils/auth-error";
 import { getDashboardPath } from "@/utils/constant";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -65,8 +65,8 @@ export const useRoleRegisterForm = ({
       otpForm.reset({ code: "" });
       setStep("otp");
       notify.success(t("authPages.common.otpSent"));
-    } catch {
-      notify.error(t("authPages.common.genericError"));
+    } catch (error) {
+      notify.error(t(getAuthErrorTranslationKey(error)));
     }
   };
 
@@ -86,13 +86,9 @@ export const useRoleRegisterForm = ({
       router.replace(getDashboardPath(res.user?.role));
     } catch (error) {
       setStep("otp");
-      const errorCode = getAuthErrorCode(error);
-      const errorMessage =
-        errorCode === "OTP_EXPIRED"
-          ? t("authPages.common.otpExpired")
-          : errorCode === "OTP_ATTEMPTS_EXCEEDED"
-            ? t("authPages.common.otpAttemptsExceeded")
-            : t("authPages.common.invalidOtp");
+      const errorMessage = t(
+        getAuthErrorTranslationKey(error, "authPages.common.invalidOtp"),
+      );
       otpForm.setError("code", {
         type: "server",
         message: errorMessage,
@@ -107,7 +103,7 @@ export const useRoleRegisterForm = ({
       await resendEmailOtp({ email: normalizedEmail }).unwrap();
       notify.success(t("authPages.common.otpResent"));
     } catch (error) {
-      notify.error(t("authPages.common.genericError"));
+      notify.error(t(getAuthErrorTranslationKey(error)));
       throw error;
     }
   };
