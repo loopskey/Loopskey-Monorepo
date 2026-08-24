@@ -4234,8 +4234,7 @@
       "eyebrow": "Professional roadmap",
       "title": "Your learning roadmaps",
       "subtitle": "Track your structured learning paths, monitor phase progress, and explore new professional development journeys.",
-      "createCustomPath": "Create custom path",
-      "createCustomPathUnavailable": "Roadmap creation is arriving soon. You will be able to build a custom path with the roadmap coach.",
+      "createCustomPath": "Create a custom path",
       "enrolled": "Enrolled roadmaps",
       "averageCompletion": "Average completion",
       "completedPhases": "Completed phases",
@@ -5562,5 +5561,76 @@
       "saveFailed": "We could not save your answers. Please try again."
     },
     "success": "Your profile is ready."
+  },
+  "professionalRoadmapChat": {
+    "title": "Roadmap coach",
+    "subtitle": "Answer a few questions and the coach builds a roadmap around your situation.",
+    "backToRoadmaps": "Back to roadmaps",
+    "transcriptLabel": "Conversation with the roadmap coach",
+    "thinking": "The coach is thinking…",
+    "composer": {
+      "label": "Your answer",
+      "placeholder": "Answer in your own words…",
+      "send": "Send",
+      "hint": "Press Enter to send, Shift + Enter for a new line.",
+      "remaining": "{remaining} characters left",
+      "overLimit": "{over} characters over the limit"
+    },
+    "widget": {
+      "chooseDate": "Choose a date",
+      "useDate": "Use this date",
+      "confirmSelection": "Confirm",
+      "selectedOfMax": "{selected} of {max} selected"
+    },
+    "system": {
+      "ROADMAP_AI_REFUSED": "That looks unrelated to building a roadmap. Could you rephrase it?",
+      "fieldUpdated": "{field} updated."
+    },
+    "error": {
+      "retry": "Try again",
+      "sendFailed": "That did not send.",
+      "retryIn": "You can try again in {seconds}s.",
+      "loadTitle": "The conversation could not be loaded",
+      "loadDescription": "This is a temporary problem on our side, not a problem with your answers."
+    },
+    "review": {
+      "title": "Review your answers",
+      "description": "Change anything here and the coach uses the updated answer. Edits are saved as you make them.",
+      "edit": "Edit",
+      "save": "Save",
+      "cancel": "Cancel",
+      "yes": "Yes",
+      "no": "No",
+      "notSet": "Not set",
+      "generate": "Generate my roadmap",
+      "generateUnavailable": "Generating a roadmap arrives in the next release.",
+      "keepEditing": "Keep editing"
+    },
+    "field": {
+      "goal": "Goal",
+      "targetRole": "Target role",
+      "goalReason": "Why this goal",
+      "context": "Your background",
+      "targetDate": "Target date",
+      "skillLevel": "Current level",
+      "timeCommitment": "Time each week",
+      "budgetPreference": "Budget",
+      "subjects": "Subjects",
+      "preferredFormats": "Preferred formats",
+      "preferredContentTypes": "Preferred content",
+      "cpdEnabled": "Track certification credits",
+      "certificationId": "Certification",
+      "certificationName": "Certification",
+      "requiredCredits": "Credits required",
+      "completedCredits": "Credits completed"
+    },
+    "enum": {
+      "contentType": {
+        "EVENT": "Events",
+        "COURSE": "Courses",
+        "PODCAST": "Podcasts",
+        "YOUTUBE": "YouTube"
+      }
+    }
   }
 }

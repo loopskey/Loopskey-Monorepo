@@ -1,7 +1,6 @@
 "use client";
 
 import { useProfessionalRoadmaps } from "@/hooks/useProfessionalRoadmap";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@ui/tooltip";
 import { ContentPagination } from "@elements/pagination";
 import { GlassCard } from "@elements/glass-card";
 import { Progress } from "@ui/progress";
@@ -15,7 +14,7 @@ import Link from "next/link";
 
 import * as L from "lucide-react";
 
-const CREATE_PATH_DISABLED_REASON_ID = "professional-roadmap-create-disabled";
+const ROADMAP_CHAT_HREF = "/dashboard/professional/roadmap-chat";
 
 const ProfessionalRoadmapTab = () => {
   const {
@@ -80,29 +79,12 @@ const ProfessionalRoadmapTab = () => {
             {t("professionalDashboard.common.refresh")}
           </Button>
 
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span tabIndex={-1} className="inline-flex">
-                <Button
-                  disabled
-                  radius="xl"
-                  variant="brand"
-                  aria-describedby={CREATE_PATH_DISABLED_REASON_ID}
-                >
-                  <L.Plus className="h-4 w-4" />
-                  {t("professionalDashboard.roadmap.createCustomPath")}
-                </Button>
-              </span>
-            </TooltipTrigger>
-
-            <TooltipContent>
-              {t("professionalDashboard.roadmap.createCustomPathUnavailable")}
-            </TooltipContent>
-          </Tooltip>
-
-          <span id={CREATE_PATH_DISABLED_REASON_ID} className="sr-only">
-            {t("professionalDashboard.roadmap.createCustomPathUnavailable")}
-          </span>
+          <Button asChild radius="xl" variant="brand">
+            <Link href={ROADMAP_CHAT_HREF}>
+              <L.Plus className="h-4 w-4" />
+              {t("professionalDashboard.roadmap.createCustomPath")}
+            </Link>
+          </Button>
         </div>
       </div>
 
