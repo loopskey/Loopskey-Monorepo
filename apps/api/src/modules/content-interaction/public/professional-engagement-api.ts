@@ -40,4 +40,20 @@ export interface ProfessionalEngagementApi {
     cursor?: string;
     take: number;
   }): Promise<Record<string, unknown>>;
+
+  createRoadmapEnrollment(
+    input: RoadmapEnrollmentInput,
+    unitOfWork: UnitOfWork,
+  ): Promise<void>;
+
+  hasRoadmapEnrollmentForDraft(draftId: string): Promise<boolean>;
 }
+
+export type UnitOfWork = object;
+
+export type RoadmapEnrollmentInput = {
+  readonly userId: string;
+  readonly draftId: string;
+  readonly roadmapId: string;
+  readonly targetDate: Date | null;
+};

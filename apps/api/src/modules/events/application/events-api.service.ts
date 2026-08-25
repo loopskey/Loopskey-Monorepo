@@ -2,11 +2,11 @@ import { EventRegistrationProjection } from "@events/public/events-api";
 import { RegisterForEventCommand } from "@events/public/events-api";
 import { EventService } from "@events/services/event.service";
 import { Injectable } from "@nestjs/common";
-import type {
-  ProviderAttendeesQuery,
-  ProviderEventsQuery,
-} from "@events/public/events-api";
 import { EventsApi } from "@events/public/events-api";
+
+import type { ProviderAttendeesQuery } from "@events/public/events-api";
+import type { RoadmapCandidateQuery } from "@events/public/events-api";
+import type { ProviderEventsQuery } from "@events/public/events-api";
 
 @Injectable()
 export class EventsApiService implements EventsApi {
@@ -61,5 +61,9 @@ export class EventsApiService implements EventsApi {
     eventId: string,
   ): Promise<void> {
     await this.eventService.assertProviderOwnsEvent(providerId, eventId);
+  }
+
+  roadmapCandidateEvents(query: RoadmapCandidateQuery) {
+    return this.eventService.roadmapCandidates(query);
   }
 }

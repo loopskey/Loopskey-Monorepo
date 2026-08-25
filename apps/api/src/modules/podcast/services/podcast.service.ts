@@ -3,6 +3,7 @@ import { PodcastStatus, Prisma, Role } from "@prisma/client";
 import { CreatePodcastEpisodeInput } from "@podcast/dtos/create-podcast-episode.input";
 import { UpdatePodcastEpisodeInput } from "@podcast/dtos/update-podcast-episode.input";
 import { PodcastPaginationInput } from "@podcast/dtos/podcast-pagination";
+import { PodcastSortDirection } from "@podcast/enums/gql-names.enum";
 import { ForbiddenException } from "@nestjs/common";
 import { CreatePodcastInput } from "@podcast/dtos/create-podcast.input";
 import { UpdatePodcastInput } from "@podcast/dtos/update-podcast.input";
@@ -10,12 +11,11 @@ import { PodcastFilterInput } from "@podcast/dtos/podcast-filter.input";
 import { PodcastMessageCode } from "@podcast/enums/message-code.enum";
 import { PodcastSortInput } from "@podcast/dtos/podcast-sort.input";
 import { PodcastRequester } from "@podcast/types/podcast-service.types";
+import { PodcastSortField } from "@podcast/enums/gql-names.enum";
 import { PrismaService } from "@prisma/prisma.service";
 import { slugify } from "@utils/slug.util";
-import {
-  PodcastSortDirection,
-  PodcastSortField,
-} from "../enums/gql-names.enum";
+
+import type { RoadmapCandidateQuery } from "@podcast/public/podcast-engagement-api";
 
 @Injectable()
 export class PodcastService {
@@ -449,5 +449,46 @@ export class PodcastService {
       counter++;
     }
     return slug;
+  }
+
+  roadmapCandidates(query: RoadmapCandidateQuery) {
+    const subjects = query.subjects.filter((subject) => subject.trim());
+    return this.prismaService.podcast.findMany({
+      where: {
+        deletedAt: null,
+        status: PodcastStatus.PUBLISHED,
+        ...(subjects.length
+          ? {
+              OR: subjects.flatMap((subject) => [
+                { title: { contains: subject, mode: "insensitive" as const } },
+                {
+                  description: {
+                    contains: subject,
+                    mode: "insensitive" as const,
+                  },
+                },
+              ]),
+            }
+          : {}),
+      },
+      select: {
+        id: true,
+        title: true,
+        rating: true,
+        category: true,
+        listeners: true,
+        isFeatured: true,
+        description: true,
+        ratingCount: true,
+        durationMinutes: true,
+      },
+      orderBy: [
+        { isFeatured: "desc" },
+        { rating: "desc" },
+        { listeners: "desc" },
+        { id: "asc" },
+      ],
+      take: query.take,
+    });
   }
 }

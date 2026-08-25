@@ -148,4 +148,5 @@ export enum ProfessionalGqlMutationNames {
   START_ROADMAP_DRAFT = "startRoadmapDraft",
   SEND_ROADMAP_CHAT_TURN = "sendRoadmapChatTurn",
   PATCH_ROADMAP_DRAFT = "patchRoadmapDraft",
+  REQUEST_ROADMAP_GENERATION = "requestRoadmapGeneration",
 }

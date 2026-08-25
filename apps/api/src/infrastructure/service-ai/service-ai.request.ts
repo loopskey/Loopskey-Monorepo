@@ -83,10 +83,7 @@ const buildDraft = (
         ),
       )
     : null;
-  /**
-   * No format has been untranslatable since contract 1.1.0, so anything this
-   * counts is a duplicate the caller supplied rather than contract loss.
-   */
+
   drops.formats +=
     (draft.preferredFormats?.length ?? 0) - (formats?.length ?? 0);
 
@@ -210,11 +207,27 @@ export const buildChatTurnRequest = (
 const buildCandidate = (
   candidate: GenerateInput["candidates"][number],
 ): ProviderContentCandidate => ({
-  tags: candidate.tags ?? [],
-  title: candidate.title,
+  tags: withinCount(
+    candidate.tags ?? [],
+    SERVICE_AI_LIMITS.candidateTagsMaxItems,
+    "candidateTags",
+  ),
+  title: withinLength(
+    candidate.title,
+    SERVICE_AI_LIMITS.candidateTitleMaxLength,
+    "candidateTitle",
+  ),
   is_free: candidate.isFree,
-  summary: candidate.summary ?? null,
-  content_id: candidate.contentId,
+  summary: text(
+    candidate.summary,
+    SERVICE_AI_LIMITS.candidateSummaryMaxLength,
+    "candidateSummary",
+  ),
+  content_id: withinLength(
+    candidate.contentId,
+    SERVICE_AI_LIMITS.candidateContentIdMaxLength,
+    "candidateContentId",
+  ),
   content_type: CONTENT_TYPE_OUTBOUND[candidate.contentType],
   level: candidate.level ? SKILL_LEVEL_OUTBOUND[candidate.level] : null,
   duration_minutes: candidate.durationMinutes ?? null,

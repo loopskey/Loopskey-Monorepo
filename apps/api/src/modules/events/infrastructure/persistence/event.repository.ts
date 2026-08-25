@@ -6,10 +6,10 @@ import { EventSortInput } from "@events/dtos/event-sort.input";
 import { EventSortField } from "@events/enums/event-register.enum";
 import { PrismaService } from "@prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
-import type {
-  ProviderAttendeesQuery,
-  ProviderEventsQuery,
-} from "@events/public/events-api";
+
+import type { ProviderAttendeesQuery } from "@events/public/events-api";
+import type { RoadmapCandidateQuery } from "@events/public/events-api";
+import type { ProviderEventsQuery } from "@events/public/events-api";
 
 @Injectable()
 export class EventRepository {
@@ -509,6 +509,53 @@ export class EventRepository {
       { [field]: direction },
       { id: "desc" },
     ] as Prisma.EventOrderByWithRelationInput[];
+  }
+
+  findRoadmapCandidates(query: RoadmapCandidateQuery) {
+    const subjects = query.subjects.filter((subject) => subject.trim());
+    return this.prisma.event.findMany({
+      where: {
+        deletedAt: null,
+        status: EventStatus.PUBLISHED,
+        startDate: { gte: new Date() },
+        ...(query.freeOnly ? { isFree: true } : {}),
+        ...(subjects.length
+          ? {
+              OR: subjects.flatMap((subject) => [
+                { title: { contains: subject, mode: "insensitive" as const } },
+                {
+                  description: {
+                    contains: subject,
+                    mode: "insensitive" as const,
+                  },
+                },
+                { topic: { contains: subject, mode: "insensitive" as const } },
+              ]),
+            }
+          : {}),
+      },
+      select: {
+        id: true,
+        pdu: true,
+        title: true,
+        topic: true,
+        isFree: true,
+        category: true,
+        startDate: true,
+        attendees: true,
+        description: true,
+        ratingCount: true,
+        specificTopic: true,
+        averageRating: true,
+      },
+      orderBy: [
+        { pdu: "desc" },
+        { averageRating: "desc" },
+        { attendees: "desc" },
+        { id: "asc" },
+      ],
+      take: query.take,
+    });
   }
 }
 
