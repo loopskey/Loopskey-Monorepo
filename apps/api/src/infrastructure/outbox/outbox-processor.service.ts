@@ -1,22 +1,15 @@
 import { Injectable, OnModuleInit } from "@nestjs/common";
 import { Logger, OnModuleDestroy } from "@nestjs/common";
-import { AuditAction, Prisma } from "@prisma/client";
-import { TSendEmailInput } from "@mail/mail-service.type";
+import { type OutboxEventContext } from "@infrastructure/outbox/outbox-handler.port";
+import { OutboxHandlerRegistry } from "@infrastructure/outbox/outbox-handler.port";
+import { OutboxDeferral } from "@infrastructure/outbox/outbox-handler.port";
 import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "@prisma/prisma.service";
-import { MailService } from "@mail/mail.service";
+import { Prisma } from "@prisma/client";
 
 const isUniqueViolation = (error: unknown) =>
   error instanceof Prisma.PrismaClientKnownRequestError &&
   error.code === "P2002";
-
-type AuditPayload = {
-  actorId?: string;
-  entityId?: string;
-  entityType?: string;
-  action: AuditAction;
-  metadata?: Prisma.InputJsonValue;
-};
 
 const MAX_ATTEMPTS = 10;
 const LEASE_MS = 60_000;
@@ -29,7 +22,7 @@ export class OutboxProcessor implements OnModuleInit, OnModuleDestroy {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly mail: MailService,
+    private readonly handlers: OutboxHandlerRegistry,
     private readonly config: ConfigService,
   ) {}
 
@@ -78,42 +71,38 @@ export class OutboxProcessor implements OnModuleInit, OnModuleDestroy {
     });
     if (!event) return false;
 
+    const context: OutboxEventContext = {
+      id: event.id,
+      eventName: event.eventName,
+      attemptCount: event.attemptCount,
+      correlationId: event.correlationId,
+    };
+
     try {
-      const handlerName =
-        event.eventName === "mail.delivery.requested"
-          ? "mail-v1"
-          : event.eventName === "audit.record.requested"
-            ? "audit-v1"
-            : null;
-      if (!handlerName)
+      const handler = this.handlers.resolve(event.eventName);
+      if (!handler)
         throw new Error(
           `No handler for ${event.eventName}@${event.eventVersion}`,
         );
       const delivered = await this.prisma.outboxDelivery.findUnique({
-        where: { eventId_handlerName: { eventId: event.id, handlerName } },
+        where: {
+          eventId_handlerName: {
+            eventId: event.id,
+            handlerName: handler.handlerName,
+          },
+        },
       });
       if (!delivered) {
-        if (event.eventName === "mail.delivery.requested")
-          await this.mail.deliver(event.payload as TSendEmailInput);
-        else {
-          const payload = event.payload as AuditPayload;
-          await this.prisma.auditLog.create({
-            data: {
-              action: payload.action,
-              actorId: payload.actorId,
-              entityType: payload.entityType,
-              entityId: payload.entityId,
-              metadata: payload.metadata,
-            },
-          });
-        }
+        await handler.handle(event.payload, context);
         await this.prisma.outboxDelivery
-          .create({ data: { eventId: event.id, handlerName } })
+          .create({
+            data: { eventId: event.id, handlerName: handler.handlerName },
+          })
           .catch((error: unknown) => {
             if (!isUniqueViolation(error)) throw error;
             this.logger.warn("Outbox delivery already recorded", {
               eventId: event.id,
-              handlerName,
+              handlerName: handler.handlerName,
               correlationId: event.correlationId,
             });
           });
@@ -128,7 +117,12 @@ export class OutboxProcessor implements OnModuleInit, OnModuleDestroy {
         correlationId: event.correlationId,
       });
     } catch (error) {
-      const delay = Math.min(3_600_000, 2 ** event.attemptCount * 1000);
+      // A handler that named its own wait gets exactly that wait. Everything
+      // else backs off exponentially.
+      const delay =
+        error instanceof OutboxDeferral
+          ? error.seconds * 1000
+          : Math.min(3_600_000, 2 ** event.attemptCount * 1000);
       await this.prisma.outboxEvent.update({
         where: { id: event.id },
         data: {
@@ -139,6 +133,14 @@ export class OutboxProcessor implements OnModuleInit, OnModuleDestroy {
               : "Unknown error",
         },
       });
+      if (error instanceof OutboxDeferral) {
+        this.logger.warn("Outbox attempt deferred", {
+          eventId: event.id,
+          seconds: error.seconds,
+          correlationId: event.correlationId,
+        });
+        return true;
+      }
       this.logger.error("Outbox attempt failed", {
         eventId: event.id,
         attempt: event.attemptCount,
@@ -151,6 +153,21 @@ export class OutboxProcessor implements OnModuleInit, OnModuleDestroy {
           attempts: event.attemptCount,
           correlationId: event.correlationId,
         });
+        // The domain gets the last word: an abandoned event must leave
+        // something the professional can see and act on, not a silent stall.
+        await this.handlers
+          .resolve(event.eventName)
+          ?.abandon?.(event.payload, context)
+          .catch((abandonError: unknown) => {
+            this.logger.error("Outbox abandonment hook failed", {
+              eventId: event.id,
+              correlationId: event.correlationId,
+              message:
+                abandonError instanceof Error
+                  ? abandonError.message
+                  : "Unknown error",
+            });
+          });
       }
     }
     return true;

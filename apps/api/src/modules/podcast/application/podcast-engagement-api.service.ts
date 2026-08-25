@@ -3,6 +3,8 @@ import { PodcastEngagementApi } from "@podcast/public/podcast-engagement-api";
 import { PodcastService } from "@podcast/services/podcast.service";
 import { Injectable } from "@nestjs/common";
 
+import type { RoadmapCandidateQuery } from "@podcast/public/podcast-engagement-api";
+
 @Injectable()
 export class PodcastEngagementApiService implements PodcastEngagementApi {
   constructor(private readonly podcastService: PodcastService) {}
@@ -17,5 +19,9 @@ export class PodcastEngagementApiService implements PodcastEngagementApi {
     count: number,
   ): Promise<void> {
     await this.podcastService.updateEngagementRating(podcastId, average, count);
+  }
+
+  roadmapCandidatePodcasts(query: RoadmapCandidateQuery) {
+    return this.podcastService.roadmapCandidates(query);
   }
 }

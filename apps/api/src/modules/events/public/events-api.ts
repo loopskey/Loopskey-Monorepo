@@ -44,6 +44,9 @@ export interface EventsApi {
   providerAttendees(query: ProviderAttendeesQuery): Promise<object>;
   providerEvents(query: ProviderEventsQuery): Promise<object>;
   assertProviderOwnsEvent(providerId: string, eventId: string): Promise<void>;
+  roadmapCandidateEvents(
+    query: RoadmapCandidateQuery,
+  ): Promise<readonly RoadmapCandidateEventProjection[]>;
 }
 
 export type ProviderAnalyticsEventProjection = {
@@ -87,5 +90,32 @@ export type ProviderEventsQuery = {
   readonly status?: string;
   readonly search?: string;
   readonly cursor?: string;
+  readonly take: number;
+};
+
+/**
+ * What the roadmap generator needs to rank an event. `pdu` matters more here
+ * than anywhere else it appears: events are the only catalogue content that
+ * carries a credit value, so this field is what lets a roadmap close a
+ * professional's certification gap rather than merely look relevant to it.
+ */
+export type RoadmapCandidateEventProjection = {
+  readonly id: string;
+  readonly title: string;
+  readonly description: string;
+  readonly isFree: boolean;
+  readonly pdu: number;
+  readonly category: string;
+  readonly topic: string | null;
+  readonly specificTopic: string | null;
+  readonly averageRating: number;
+  readonly ratingCount: number;
+  readonly attendees: number;
+  readonly startDate: Date;
+};
+
+export type RoadmapCandidateQuery = {
+  readonly subjects: readonly string[];
+  readonly freeOnly: boolean;
   readonly take: number;
 };

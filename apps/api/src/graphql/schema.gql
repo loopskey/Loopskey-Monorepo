@@ -1274,6 +1274,7 @@ type Mutation {
   removeAdminOrganizationMember(memberId: String!): AdminOrgMember!
   removeFromCart(input: ContentActionInput!): ContentActionPayload!
   requestEmailChange(input: RequestEmailChangeInput!): AuthPayload!
+  requestRoadmapGeneration(draftId: ID!): ProfessionalRoadmapDraft!
   resendAdminOrgAccessRequestNotification(requestId: String!): AdminOrgAccessRequest!
   resendEmailOtp(input: ResendEmailOtpInput!): AuthPayload!
   resendOrganizationActivation(input: ResendOrganizationActivationInput!): AuthPayload!
@@ -2498,6 +2499,7 @@ type ProfessionalRoadmapDraft {
   context: String
   cpdEnabled: Boolean!
   currentStep: RoadmapDraftStep!
+  failureReason: String
   goal: String
   goalReason: String
   id: ID!

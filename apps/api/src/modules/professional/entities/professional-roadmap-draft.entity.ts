@@ -1,19 +1,11 @@
+import { ContentType, RoadmapDraftStep, SkillLevel } from "@prisma/client";
+import { LearningTimeCommitment, LearningFormat } from "@prisma/client";
+import { RoadmapChatRole, RoadmapDraftStatus } from "@prisma/client";
 import { Field, Float, ID, Int, ObjectType } from "@nestjs/graphql";
-import {
-  ContentType,
-  LearningBudgetPreference,
-  LearningFormat,
-  LearningTimeCommitment,
-  RoadmapChatRole,
-  RoadmapDraftStatus,
-  RoadmapDraftStep,
-  SkillLevel,
-} from "@prisma/client";
-import {
-  RoadmapDraftFieldKey,
-  RoadmapWidgetKind,
-} from "@professional/enums/roadmap-draft.enum";
 import { ProfessionalGqlObjectNames } from "@professional/enums/gql-names.enum";
+import { LearningBudgetPreference } from "@prisma/client";
+import { RoadmapDraftFieldKey } from "@professional/enums/roadmap-draft.enum";
+import { RoadmapWidgetKind } from "@professional/enums/roadmap-draft.enum";
 import { PageInfoEntity } from "@professional/entities/page-info.entity";
 
 @ObjectType(ProfessionalGqlObjectNames.ROADMAP_WIDGET_OPTION)
@@ -39,16 +31,11 @@ export class RoadmapSubjectOptionEntity {
 
 @ObjectType(ProfessionalGqlObjectNames.ROADMAP_CHAT_MESSAGE)
 export class RoadmapChatMessageEntity {
-  @Field(() => ID) id: string;
+  @Field() content: string;
   @Field() createdAt: Date;
+  @Field(() => ID) id: string;
   @Field(() => RoadmapChatRole) role: RoadmapChatRole;
   @Field(() => RoadmapDraftStep) stepKey: RoadmapDraftStep;
-  /**
-   * Prose for assistant and professional messages. System messages carry a
-   * stable message code instead, so the copy stays translatable rather than
-   * frozen in whatever locale the turn happened to run in.
-   */
-  @Field() content: string;
   @Field(() => RoadmapWidgetEntity, { nullable: true })
   widget?: RoadmapWidgetEntity | null;
 }
@@ -63,45 +50,38 @@ export class PaginatedRoadmapChatMessagesEntity {
 
 @ObjectType(ProfessionalGqlObjectNames.PROFESSIONAL_ROADMAP_DRAFT)
 export class ProfessionalRoadmapDraftEntity {
-  @Field(() => ID) id: string;
   @Field() updatedAt: Date;
+  @Field(() => ID) id: string;
   @Field(() => RoadmapDraftStatus) status: RoadmapDraftStatus;
   @Field(() => RoadmapDraftStep) currentStep: RoadmapDraftStep;
-
   @Field(() => String, { nullable: true }) goal?: string | null;
+  @Field(() => Date, { nullable: true }) targetDate?: Date | null;
+  @Field(() => String, { nullable: true }) context?: string | null;
   @Field(() => String, { nullable: true }) targetRole?: string | null;
   @Field(() => String, { nullable: true }) goalReason?: string | null;
-  @Field(() => String, { nullable: true }) context?: string | null;
-  @Field(() => Date, { nullable: true }) targetDate?: Date | null;
-
+  @Field(() => String, { nullable: true }) failureReason: string | null;
   @Field(() => SkillLevel, { nullable: true }) skillLevel?: SkillLevel | null;
   @Field(() => LearningTimeCommitment, { nullable: true })
   timeCommitment?: LearningTimeCommitment | null;
   @Field(() => LearningBudgetPreference, { nullable: true })
   budgetPreference?: LearningBudgetPreference | null;
-
   @Field(() => [String]) subjects: string[];
   @Field(() => [LearningFormat]) preferredFormats: LearningFormat[];
   @Field(() => [ContentType]) preferredContentTypes: ContentType[];
 
   @Field(() => Boolean) cpdEnabled: boolean;
   @Field(() => ID, { nullable: true }) certificationId?: string | null;
-  @Field(() => String, { nullable: true }) certificationName?: string | null;
   @Field(() => Float, { nullable: true }) requiredCredits?: number | null;
   @Field(() => Float, { nullable: true }) completedCredits?: number | null;
+  @Field(() => String, { nullable: true }) certificationName?: string | null;
 
-  /** The last turn could not be understood; the same question stands. */
-  @Field(() => Boolean) needsClarification: boolean;
-  /** The last message was off topic and was not treated as an answer. */
   @Field(() => Boolean) wasRefused: boolean;
-  /** Derived here from the draft's own fields, never taken from the provider. */
   @Field(() => Boolean) isComplete: boolean;
+  @Field(() => Boolean) needsClarification: boolean;
 
-  /** The control the next answer should be collected with, if any. */
   @Field(() => RoadmapWidgetEntity, { nullable: true })
   widget?: RoadmapWidgetEntity | null;
 
-  /** The subjects this draft may choose from, as offered to the provider. */
   @Field(() => [RoadmapSubjectOptionEntity])
   subjectOptions: RoadmapSubjectOptionEntity[];
 

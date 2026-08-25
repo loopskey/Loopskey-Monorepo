@@ -1,28 +1,24 @@
+import { ProfessionalRoadmapGenerationService } from "@professional/services/professional-roadmap-generation.service";
+import { Args, ID, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { ProfessionalRoadmapChatService } from "@professional/services/professional-roadmap-chat.service";
 import { ProfessionalRoadmapDraftEntity } from "@professional/entities/professional-roadmap-draft.entity";
+import { ProfessionalGqlMutationNames } from "@professional/enums/gql-names.enum";
 import { ProfessionalPaginationInput } from "@professional/dtos/professional-pagination.input";
+import { ProfessionalGqlQueryNames } from "@professional/enums/gql-names.enum";
 import { PatchRoadmapDraftInput } from "@professional/dtos/patch-roadmap-draft.input";
 import { RoadmapChatTurnInput } from "@professional/dtos/roadmap-chat-turn.input";
-import { Args, ID, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { TResolverUser } from "@professional/types/professional-service.types";
 import { CurrentUser } from "@auth/decorators/current-user.decorator";
 import { Roles } from "@auth/decorators/roles.decorator";
 import { Role } from "@prisma/client";
 
-import {
-  ProfessionalGqlMutationNames,
-  ProfessionalGqlQueryNames,
-} from "@professional/enums/gql-names.enum";
-
-/**
- * The wizard is the professional's own conversation. Administrators are absent
- * from the guard on purpose: the draft holds free text written about the
- * professional's career and nobody else reads it.
- */
 @Resolver()
 @Roles(Role.PROFESSIONAL)
 export class ProfessionalRoadmapChatResolver {
-  constructor(private readonly chatService: ProfessionalRoadmapChatService) {}
+  constructor(
+    private readonly chatService: ProfessionalRoadmapChatService,
+    private readonly generationService: ProfessionalRoadmapGenerationService,
+  ) {}
 
   private getUser(user: TResolverUser) {
     return { id: user.id ?? user.sub!, role: user.role };
@@ -66,5 +62,18 @@ export class ProfessionalRoadmapChatResolver {
     @Args("input") input: PatchRoadmapDraftInput,
   ) {
     return this.chatService.patchDraft(this.getUser(user), input);
+  }
+
+  @Mutation(() => ProfessionalRoadmapDraftEntity, {
+    name: ProfessionalGqlMutationNames.REQUEST_ROADMAP_GENERATION,
+  })
+  requestRoadmapGeneration(
+    @CurrentUser() user: TResolverUser,
+    @Args("draftId", { type: () => ID }) draftId: string,
+  ) {
+    return this.generationService.requestGeneration(
+      this.getUser(user),
+      draftId,
+    );
   }
 }

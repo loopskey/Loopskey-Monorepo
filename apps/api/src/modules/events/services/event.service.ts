@@ -4,7 +4,6 @@ import { EventDomainEventDispatcher } from "@events/application/events/event-dom
 import { EventStatus, Prisma, Role } from "@prisma/client";
 import { shouldEmitEventPublished } from "@events/domain/policies/event-publication.policy";
 import { EventRegistrationStatus } from "@prisma/client";
-import { type EventPublishedV1 } from "@events/domain/events/event-published-v1";
 import { EventPaginationInput } from "@events/dtos/event-pagination.input";
 import { EVENT_PUBLISHED_V1 } from "@events/domain/events/event-published-v1";
 import { CreateEventInput } from "@events/dtos/create-event.input";
@@ -16,10 +15,12 @@ import { EventSortInput } from "@events/dtos/event-sort.input";
 import { EventRequester } from "@events/enums/event-register.enum";
 import { randomUUID } from "node:crypto";
 import { slugify } from "@utils/slug.util";
-import type {
-  ProviderAttendeesQuery,
-  ProviderEventsQuery,
-} from "@events/public/events-api";
+
+import { type EventPublishedV1 } from "@events/domain/events/event-published-v1";
+
+import type { ProviderAttendeesQuery } from "@events/public/events-api";
+import type { RoadmapCandidateQuery } from "@events/public/events-api";
+import type { ProviderEventsQuery } from "@events/public/events-api";
 
 @Injectable()
 export class EventService {
@@ -341,6 +342,10 @@ export class EventService {
       counter++;
     }
     return slug;
+  }
+
+  roadmapCandidates(query: RoadmapCandidateQuery) {
+    return this.eventRepository.findRoadmapCandidates(query);
   }
 }
 

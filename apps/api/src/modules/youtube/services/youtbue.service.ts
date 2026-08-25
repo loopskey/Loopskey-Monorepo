@@ -15,6 +15,8 @@ import { YouTubeRequester } from "@youtube/enums/youtube.enum";
 import { PrismaService } from "@prisma/prisma.service";
 import { slugify } from "@utils/slug.util";
 
+import type { RoadmapCandidateQuery } from "@youtube/public/youtube-engagement-api";
+
 @Injectable()
 export class YouTubeService {
   constructor(private readonly prismaService: PrismaService) {}
@@ -465,5 +467,45 @@ export class YouTubeService {
       counter++;
     }
     return slug;
+  }
+
+  roadmapCandidates(query: RoadmapCandidateQuery) {
+    const subjects = query.subjects.filter((subject) => subject.trim());
+    return this.prismaService.youTubeChannel.findMany({
+      where: {
+        deletedAt: null,
+        status: YouTubeChannelStatus.PUBLISHED,
+        ...(subjects.length
+          ? {
+              OR: subjects.flatMap((subject) => [
+                { title: { contains: subject, mode: "insensitive" as const } },
+                {
+                  description: {
+                    contains: subject,
+                    mode: "insensitive" as const,
+                  },
+                },
+              ]),
+            }
+          : {}),
+      },
+      select: {
+        id: true,
+        title: true,
+        rating: true,
+        category: true,
+        isFeatured: true,
+        subscribers: true,
+        description: true,
+        ratingCount: true,
+      },
+      orderBy: [
+        { isFeatured: "desc" },
+        { rating: "desc" },
+        { subscribers: "desc" },
+        { id: "asc" },
+      ],
+      take: query.take,
+    });
   }
 }

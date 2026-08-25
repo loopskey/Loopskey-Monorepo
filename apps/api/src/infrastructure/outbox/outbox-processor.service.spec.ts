@@ -1,8 +1,12 @@
 import { OutboxProcessor } from "@infrastructure/outbox/outbox-processor.service";
 import { PrismaService } from "@prisma/prisma.service";
 import { ConfigService } from "@nestjs/config";
-import { MailService } from "@mail/mail.service";
 import { Prisma } from "@prisma/client";
+
+import {
+  OutboxDeferral,
+  OutboxHandlerRegistry,
+} from "@infrastructure/outbox/outbox-handler.port";
 
 const uniqueViolation = () =>
   new Prisma.PrismaClientKnownRequestError("Unique constraint failed", {
@@ -29,8 +33,13 @@ type Harness = {
     auditLog: { create: jest.Mock };
   };
   mail: { deliver: jest.Mock };
+  abandon: jest.Mock;
 };
 
+/**
+ * The mail path is exercised through a registered handler rather than a branch
+ * inside the processor, which is what the processor now actually does.
+ */
 const buildHarness = (event: unknown): Harness => {
   const prisma = {
     $transaction: jest.fn().mockResolvedValue(event),
@@ -42,12 +51,20 @@ const buildHarness = (event: unknown): Harness => {
     auditLog: { create: jest.fn().mockResolvedValue({}) },
   };
   const mail = { deliver: jest.fn().mockResolvedValue({ id: "sent" }) };
+  const abandon = jest.fn().mockResolvedValue(undefined);
+  const registry = new OutboxHandlerRegistry();
+  registry.register({
+    eventName: "mail.delivery.requested",
+    handlerName: "mail-v1",
+    handle: (payload: unknown) => mail.deliver(payload),
+    abandon,
+  });
   const processor = new OutboxProcessor(
     prisma as unknown as PrismaService,
-    mail as unknown as MailService,
+    registry,
     { get: (_k: string, d?: string) => d } as unknown as ConfigService,
   );
-  return { processor, prisma, mail };
+  return { processor, prisma, mail, abandon };
 };
 
 describe("OutboxProcessor", () => {
@@ -123,6 +140,51 @@ describe("OutboxProcessor", () => {
     await processor.processNext();
 
     expect(errors).toContain("Outbox event abandoned after final attempt");
+  });
+
+  it("waits exactly as long as a handler asked rather than backing off", async () => {
+    const { processor, prisma, mail } = buildHarness(buildEvent());
+    mail.deliver.mockRejectedValue(new OutboxDeferral(120, "at capacity"));
+    const before = Date.now();
+
+    await processor.processNext();
+
+    const data = prisma.outboxEvent.update.mock.calls[0][0].data;
+    const waited = (data.availableAt as Date).getTime() - before;
+    // Exponential backoff for attempt 1 would be ~2s, so this proves the
+    // handler's own wait won rather than the processor's default.
+    expect(waited).toBeGreaterThanOrEqual(119_000);
+  });
+
+  it("does not abandon an event that still has attempts left", async () => {
+    const { processor, mail, abandon } = buildHarness(buildEvent());
+    mail.deliver.mockRejectedValue(new Error("provider down"));
+
+    await processor.processNext();
+
+    expect(abandon).not.toHaveBeenCalled();
+  });
+
+  it("gives the handler the last word when the event is abandoned", async () => {
+    const { processor, mail, abandon } = buildHarness(
+      buildEvent({ attemptCount: 10 }),
+    );
+    mail.deliver.mockRejectedValue(new Error("provider down"));
+
+    await processor.processNext();
+
+    expect(abandon).toHaveBeenCalledTimes(1);
+  });
+
+  it("records a failure when no handler claims the event", async () => {
+    const { processor, prisma } = buildHarness(
+      buildEvent({ eventName: "nobody.listens" }),
+    );
+
+    await processor.processNext();
+
+    const data = prisma.outboxEvent.update.mock.calls[0][0].data;
+    expect(data.lastError).toContain("No handler for nobody.listens");
   });
 
   it("reports no work when nothing is claimable", async () => {
