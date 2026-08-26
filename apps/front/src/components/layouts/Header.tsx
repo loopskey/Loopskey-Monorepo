@@ -138,7 +138,7 @@ const Header = () => {
                 >
                   <span>{item.label}</span>
                   {isActive && (
-                    <span className="h-2 w-2 rounded-full bg-primary shadow-[0_0_0_4px_hsl(var(--primary)/0.14)]" />
+                    <span className="h-2 w-2 rounded-full bg-primary shadow-[0_0_0_4px_color-mix(in_oklab,var(--primary)_14%,transparent)]" />
                   )}
                 </Link>
               );

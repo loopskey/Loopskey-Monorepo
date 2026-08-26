@@ -14,7 +14,6 @@
     "codegen": "graphql-codegen --config codegen.ts"
   },
   "dependencies": {
-    "@firecms/neat": "^1.0.1",
     "@fullcalendar/core": "^6.1.18",
     "@fullcalendar/daygrid": "^6.1.20",
     "@fullcalendar/interaction": "^6.1.20",

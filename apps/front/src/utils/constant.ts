@@ -196,7 +196,7 @@ export const statusConfig = {
   active: {
     icon: L.LoaderCircle,
     circleClassName:
-      "bg-background text-primary border-primary shadow-[0_0_0_6px_hsl(var(--primary)/0.12)]",
+      "bg-background text-primary border-primary shadow-[0_0_0_6px_color-mix(in_oklab,var(--primary)_12%,transparent)]",
     lineClassName: "bg-primary/50",
   },
   upcoming: {

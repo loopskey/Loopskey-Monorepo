@@ -30,7 +30,7 @@ export function Toaster(props: ToasterProps) {
           description: "text-sm opacity-90",
           closeButton: "text-foreground/60 hover:text-foreground",
           actionButton:
-            "rounded-lg px-3 py-1.5 font-semibold bg-[var(--brand-orange)] text-white hover:brightness-110",
+            "rounded-lg px-3 py-1.5 font-semibold bg-primary text-primary-foreground hover:brightness-110",
           cancelButton:
             "rounded-lg px-3 py-1.5 border bg-transparent text-foreground hover:bg-black/5 dark:hover:bg-white/5",
           success:

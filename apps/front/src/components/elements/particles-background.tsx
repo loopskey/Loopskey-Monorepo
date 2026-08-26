@@ -74,7 +74,7 @@ export const LearningParticlesBackground = ({
         <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.96),rgba(238,246,255,0.88))]" />
       </div>
 
-      <div className="absolute inset-0 hidden bg-[#09090b] dark:block">
+      <div className="absolute inset-0 hidden bg-background dark:block">
         {showLines ? (
           <FloatingLines
             parallax
