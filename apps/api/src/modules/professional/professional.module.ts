@@ -4,12 +4,13 @@ import { ProfessionalProfileCompletionService } from "@professional/services/pro
 import { ProfessionalRoadmapCandidateService } from "@professional/services/professional-roadmap-candidate.service";
 import { ProfessionalCertificateFileService } from "@professional/services/professional-certificate-file.service";
 import { ProfessionalProvisioningApiService } from "@professional/application/professional-provisioning-api.service";
+import { ProfessionalRoadmapProgressService } from "@professional/services/professional-roadmap-progress.service";
 import { ProfessionalCertificatesResolver } from "@professional/resolvers/professional-certificate.resolver";
 import { ProfessionalCertificatesService } from "@professional/services/professional-certificate.service";
 import { ProfessionalRoadmapDraftService } from "@professional/services/professional-roadmap-draft.service";
+import { ProfessionalRoadmapChatResolver } from "@professional/resolvers/professional-roadmap-chat.resolver";
 import { RoadmapGenerationOutboxHandler } from "@professional/application/roadmap-generation-outbox.handler";
 import { ProfessionalRoadmapChatService } from "@professional/services/professional-roadmap-chat.service";
-import { ProfessionalRoadmapChatResolver } from "@professional/resolvers/professional-roadmap-chat.resolver";
 import { ProfessionalRoleProfileHandler } from "@professional/application/professional-role-profile.handler";
 import { ProfessionalOnboardingResolver } from "@professional/resolvers/professional-onboarding.resolver";
 import { ProfessionalCredentialService } from "@professional/services/professional-credential.service";
@@ -103,6 +104,7 @@ import "@professional/enums/professional-register.enum";
     ProfessionalRoadmapChatResolver,
     ProfessionalCertificatesService,
     ProfessionalCertificatesResolver,
+    ProfessionalRoadmapProgressService,
     ProfessionalCertificateFileService,
     ProfessionalProvisioningApiService,
     ProfessionalRoadmapCandidateService,

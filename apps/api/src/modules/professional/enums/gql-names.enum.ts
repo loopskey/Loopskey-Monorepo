@@ -49,6 +49,8 @@ export enum ProfessionalGqlObjectNames {
   PAGINATED_PROFESSIONAL_PDU_ACTIVITIES = "PaginatedProfessionalPduActivities",
   PAGINATED_PROFESSIONAL_CALENDAR_EVENTS = "PaginatedProfessionalCalendarEvents",
   PAGINATED_PROFESSIONAL_EXPLORE_ROADMAPS = "PaginatedProfessionalExploreRoadmaps",
+  ROADMAP_STEP_PROGRESS = "RoadmapStepProgress",
+  ROADMAP_RECOMMENDATION = "RoadmapRecommendation",
   ROADMAP_WIDGET = "RoadmapWidget",
   ROADMAP_WIDGET_OPTION = "RoadmapWidgetOption",
   ROADMAP_CHAT_MESSAGE = "RoadmapChatMessage",
@@ -117,6 +119,7 @@ export enum ProfessionalGqlQueryNames {
   CPD_PLAN_PROGRESS = "cpdPlanProgress",
   CPD_REPORT_RECIPIENTS = "cpdReportRecipients",
   PROFESSIONAL_ROADMAP_DRAFT = "professionalRoadmapDraft",
+  PROFESSIONAL_ROADMAP_RECOMMENDATIONS = "professionalRoadmapRecommendations",
 }
 
 export enum ProfessionalGqlMutationNames {
@@ -149,4 +152,6 @@ export enum ProfessionalGqlMutationNames {
   SEND_ROADMAP_CHAT_TURN = "sendRoadmapChatTurn",
   PATCH_ROADMAP_DRAFT = "patchRoadmapDraft",
   REQUEST_ROADMAP_GENERATION = "requestRoadmapGeneration",
+  START_ROADMAP_STEP = "startRoadmapStep",
+  COMPLETE_ROADMAP_STEP = "completeRoadmapStep",
 }

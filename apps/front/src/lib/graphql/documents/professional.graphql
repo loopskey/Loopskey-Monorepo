@@ -606,9 +606,12 @@ fragment ProfessionalRoadmapStepFields on ProfessionalRoadmapStep {
   id
   order
   title
+  status
   contentId
   description
   contentType
+  completedAt
+  estimatedMinutes
 }
 
 fragment ProfessionalRoadmapPhaseFields on ProfessionalRoadmapPhase {
@@ -619,6 +622,8 @@ fragment ProfessionalRoadmapPhaseFields on ProfessionalRoadmapPhase {
   completed
   stepsCount
   description
+  completedSteps
+  estimatedWeeks
   steps {
     ...ProfessionalRoadmapStepFields
   }
@@ -646,6 +651,12 @@ fragment ProfessionalRoadmapFields on ProfessionalRoadmap {
   nextPhaseTitle
   completedPhases
   nextMilestoneProgress
+  source
+  targetDate
+  coverageNote
+  earnedCredits
+  estimatedWeeks
+  requiredCredits
   phases {
     ...ProfessionalRoadmapPhaseFields
   }
@@ -683,6 +694,54 @@ fragment PaginatedProfessionalExploreRoadmapsFields on PaginatedProfessionalExpl
   }
   items {
     ...ProfessionalExploreRoadmapFields
+  }
+}
+
+fragment RoadmapStepProgressFields on RoadmapStepProgress {
+  stepId
+  status
+  phaseId
+  progress
+  totalSteps
+  completedAt
+  phaseProgress
+  completedSteps
+  enrollmentId
+  phaseCompleted
+}
+
+mutation StartRoadmapStep($enrollmentId: ID!, $stepId: ID!) {
+  startRoadmapStep(enrollmentId: $enrollmentId, stepId: $stepId) {
+    ...RoadmapStepProgressFields
+  }
+}
+
+mutation CompleteRoadmapStep($enrollmentId: ID!, $stepId: ID!) {
+  completeRoadmapStep(enrollmentId: $enrollmentId, stepId: $stepId) {
+    ...RoadmapStepProgressFields
+  }
+}
+
+# The chat page owns the full draft document. This is the same server query
+# with a three-field selection, declared here so the dashboard never imports the
+# roadmap-chat operations module into the shared bundle.
+query ProfessionalRoadmapDraftStatus {
+  professionalRoadmapDraft {
+    id
+    status
+    failureReason
+  }
+}
+
+query ProfessionalRoadmapRecommendations($enrollmentId: ID!) {
+  professionalRoadmapRecommendations(enrollmentId: $enrollmentId) {
+    title
+    isFree
+    credits
+    summary
+    contentId
+    contentType
+    durationMinutes
   }
 }
 

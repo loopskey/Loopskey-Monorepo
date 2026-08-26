@@ -1,7 +1,10 @@
 "use client";
 
+import { RoadmapGenerationStatus } from "@modules/ProfessionalRoadmap/RoadmapGenerationStatus";
 import { useProfessionalRoadmaps } from "@/hooks/useProfessionalRoadmap";
+import { RoadmapSummarySections } from "@modules/ProfessionalRoadmap/RoadmapSummarySections";
 import { ContentPagination } from "@elements/pagination";
+import { RoadmapPhaseList } from "@modules/ProfessionalRoadmap/RoadmapPhaseList";
 import { GlassCard } from "@elements/glass-card";
 import { Progress } from "@ui/progress";
 import { Button } from "@ui/button";
@@ -21,7 +24,9 @@ const ProfessionalRoadmapTab = () => {
     t,
     page,
     stats,
+    draft,
     search,
+    locale,
     myPageInfo,
     myRoadmaps,
     isFetching,
@@ -29,15 +34,20 @@ const ProfessionalRoadmapTab = () => {
     handleNext,
     explorePage,
     formatWeeks,
+    isGenerating,
+    stepProgress,
     learningSteps,
     exploreSearch,
     myRoadmapsData,
     getRoadmapHref,
+    hasFailedDraft,
     handlePrevious,
+    recommendations,
     featuredRoadmap,
     exploreRoadmaps,
     explorePageInfo,
     getProgressValue,
+    generatedRoadmap,
     handleExploreNext,
     exploreRoadmapsData,
     isMyRoadmapsLoading,
@@ -155,6 +165,60 @@ const ProfessionalRoadmapTab = () => {
           </div>
         </GlassCard>
       </div>
+
+      {isGenerating || hasFailedDraft ? (
+        <RoadmapGenerationStatus
+          t={t}
+          status={draft!.status}
+          failureReason={draft?.failureReason}
+        />
+      ) : null}
+
+      {generatedRoadmap ? (
+        <>
+          {generatedRoadmap.coverageNote ? (
+            <GlassCard className="p-5">
+              <div className="flex items-start gap-3">
+                <L.Info
+                  className="mt-0.5 h-5 w-5 shrink-0 text-primary"
+                  aria-hidden="true"
+                />
+                <div>
+                  <h3 className="text-sm font-medium">
+                    {t("professionalDashboard.roadmap.coverageNote")}
+                  </h3>
+                  {/* Shown in full: it is how the roadmap explains its gaps. */}
+                  <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                    {generatedRoadmap.coverageNote}
+                  </p>
+                </div>
+              </div>
+            </GlassCard>
+          ) : null}
+
+          <RoadmapSummarySections
+            t={t}
+            locale={locale}
+            recommendations={recommendations}
+            progress={generatedRoadmap.progress}
+            totalSteps={generatedRoadmap.totalSteps}
+            targetDate={generatedRoadmap.targetDate}
+            completedSteps={generatedRoadmap.completedSteps}
+            earnedCredits={generatedRoadmap.earnedCredits}
+            requiredCredits={generatedRoadmap.requiredCredits}
+          />
+
+          <RoadmapPhaseList
+            t={t}
+            phases={generatedRoadmap.phases}
+            enrollmentId={generatedRoadmap.id}
+            pending={stepProgress.pending}
+            failedStepId={stepProgress.failedStepId}
+            onStart={stepProgress.start}
+            onComplete={stepProgress.complete}
+          />
+        </>
+      ) : null}
 
       <div className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
         <GlassCard>

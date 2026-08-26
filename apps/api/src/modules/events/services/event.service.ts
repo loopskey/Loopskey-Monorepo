@@ -344,6 +344,13 @@ export class EventService {
     return slug;
   }
 
+  async eventCredits(eventIds: readonly string[]) {
+    const rows = await this.eventRepository.findCreditsByIds(eventIds);
+    const credits: Record<string, number> = {};
+    for (const row of rows) if (row.pdu > 0) credits[row.id] = row.pdu;
+    return credits;
+  }
+
   roadmapCandidates(query: RoadmapCandidateQuery) {
     return this.eventRepository.findRoadmapCandidates(query);
   }

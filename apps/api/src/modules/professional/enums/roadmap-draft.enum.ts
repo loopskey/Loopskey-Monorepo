@@ -37,3 +37,7 @@ registerEnumType(RoadmapWidgetKind, { name: "RoadmapWidgetKind" });
 registerEnumType(Prisma.RoadmapChatRole, { name: "RoadmapChatRole" });
 registerEnumType(Prisma.RoadmapDraftStep, { name: "RoadmapDraftStep" });
 registerEnumType(Prisma.RoadmapDraftStatus, { name: "RoadmapDraftStatus" });
+registerEnumType(Prisma.RoadmapSource, { name: "RoadmapSource" });
+registerEnumType(Prisma.RoadmapStepProgressStatus, {
+  name: "RoadmapStepProgressStatus",
+});

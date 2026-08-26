@@ -1271,6 +1271,7 @@ export type Mutation = {
   changePassword: AuthPayload;
   clearCart: ContentActionPayload;
   completeProfessionalOnboarding: ProfessionalDashboardProfile;
+  completeRoadmapStep: RoadmapStepProgress;
   confirmExternalLearning: ExternalLearningActivity;
   createCalendarEvent: ProfessionalManualCalendarEvent;
   createCourse: Course;
@@ -1321,6 +1322,7 @@ export type Mutation = {
   removeAdminOrganizationMember: AdminOrgMember;
   removeFromCart: ContentActionPayload;
   requestEmailChange: AuthPayload;
+  requestRoadmapGeneration: ProfessionalRoadmapDraft;
   resendAdminOrgAccessRequestNotification: AdminOrgAccessRequest;
   resendEmailOtp: AuthPayload;
   resendOrganizationActivation: AuthPayload;
@@ -1335,6 +1337,7 @@ export type Mutation = {
   setProfessionalCertificateCpdPlan: ProfessionalCertificate;
   startProfessionalOnboarding: ProfessionalDashboardProfile;
   startRoadmapDraft: ProfessionalRoadmapDraft;
+  startRoadmapStep: RoadmapStepProgress;
   submitContactInquiry: SubmitContactInquiryPayload;
   submitContentReview: ContentReview;
   submitOrganizationAccessRequest: OrganizationAccessRequest;
@@ -1444,6 +1447,12 @@ export type MutationChangePasswordArgs = {
 
 export type MutationCompleteProfessionalOnboardingArgs = {
   input: CompleteProfessionalOnboardingInput;
+};
+
+
+export type MutationCompleteRoadmapStepArgs = {
+  enrollmentId: Scalars['ID']['input'];
+  stepId: Scalars['ID']['input'];
 };
 
 
@@ -1687,6 +1696,11 @@ export type MutationRequestEmailChangeArgs = {
 };
 
 
+export type MutationRequestRoadmapGenerationArgs = {
+  draftId: Scalars['ID']['input'];
+};
+
+
 export type MutationResendAdminOrgAccessRequestNotificationArgs = {
   requestId: Scalars['String']['input'];
 };
@@ -1739,6 +1753,12 @@ export type MutationSendRoadmapChatTurnArgs = {
 
 export type MutationSetProfessionalCertificateCpdPlanArgs = {
   input: SetCertificateCpdPlanInput;
+};
+
+
+export type MutationStartRoadmapStepArgs = {
+  enrollmentId: Scalars['ID']['input'];
+  stepId: Scalars['ID']['input'];
 };
 
 
@@ -3163,8 +3183,11 @@ export type ProfessionalRoadmap = {
   completedAt?: Maybe<Scalars['DateTime']['output']>;
   completedPhases: Scalars['Int']['output'];
   completedSteps: Scalars['Int']['output'];
+  coverageNote?: Maybe<Scalars['String']['output']>;
   description: Scalars['String']['output'];
+  earnedCredits: Scalars['Float']['output'];
   enrolledAt: Scalars['DateTime']['output'];
+  estimatedWeeks?: Maybe<Scalars['Int']['output']>;
   id: Scalars['ID']['output'];
   imageUrl?: Maybe<Scalars['String']['output']>;
   level: CourseLevel;
@@ -3173,10 +3196,13 @@ export type ProfessionalRoadmap = {
   phases: Array<ProfessionalRoadmapPhase>;
   phasesCount: Scalars['Int']['output'];
   progress: Scalars['Int']['output'];
+  requiredCredits?: Maybe<Scalars['Float']['output']>;
   roadmapId: Scalars['ID']['output'];
   roadmapStatus: RoadmapStatus;
   slug: Scalars['String']['output'];
+  source: RoadmapSource;
   status: RoadmapEnrollmentStatus;
+  targetDate?: Maybe<Scalars['DateTime']['output']>;
   title: Scalars['String']['output'];
   totalSteps: Scalars['Int']['output'];
   updatedAt: Scalars['DateTime']['output'];
@@ -3192,6 +3218,7 @@ export type ProfessionalRoadmapDraft = {
   context?: Maybe<Scalars['String']['output']>;
   cpdEnabled: Scalars['Boolean']['output'];
   currentStep: RoadmapDraftStep;
+  failureReason?: Maybe<Scalars['String']['output']>;
   goal?: Maybe<Scalars['String']['output']>;
   goalReason?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -3216,7 +3243,9 @@ export type ProfessionalRoadmapDraft = {
 export type ProfessionalRoadmapPhase = {
   __typename?: 'ProfessionalRoadmapPhase';
   completed: Scalars['Boolean']['output'];
+  completedSteps: Scalars['Int']['output'];
   description?: Maybe<Scalars['String']['output']>;
+  estimatedWeeks?: Maybe<Scalars['Int']['output']>;
   id: Scalars['ID']['output'];
   order: Scalars['Int']['output'];
   progress: Scalars['Int']['output'];
@@ -3227,11 +3256,14 @@ export type ProfessionalRoadmapPhase = {
 
 export type ProfessionalRoadmapStep = {
   __typename?: 'ProfessionalRoadmapStep';
+  completedAt?: Maybe<Scalars['DateTime']['output']>;
   contentId?: Maybe<Scalars['String']['output']>;
   contentType?: Maybe<ContentType>;
   description?: Maybe<Scalars['String']['output']>;
+  estimatedMinutes?: Maybe<Scalars['Int']['output']>;
   id: Scalars['ID']['output'];
   order: Scalars['Int']['output'];
+  status?: Maybe<RoadmapStepProgressStatus>;
   title: Scalars['String']['output'];
 };
 
@@ -3590,6 +3622,7 @@ export type Query = {
   professionalPduReport: ProfessionalPduReport;
   professionalProfileTaxonomy: Array<ProfessionalTaxonomyGroup>;
   professionalRoadmapDraft?: Maybe<ProfessionalRoadmapDraft>;
+  professionalRoadmapRecommendations: Array<RoadmapRecommendation>;
   professionalSettings: ProfessionalSettings;
   providerAnalytics: ProviderAnalytics;
   providerAnalyticsCsv: CsvExport;
@@ -3950,6 +3983,11 @@ export type QueryProfessionalRoadmapDraftArgs = {
 };
 
 
+export type QueryProfessionalRoadmapRecommendationsArgs = {
+  enrollmentId: Scalars['ID']['input'];
+};
+
+
 export type QueryProviderAnalyticsArgs = {
   input?: InputMaybe<ProviderDashboardRangeInput>;
 };
@@ -4115,10 +4153,45 @@ export enum RoadmapEnrollmentStatus {
   Unenrolled = 'UNENROLLED'
 }
 
+export type RoadmapRecommendation = {
+  __typename?: 'RoadmapRecommendation';
+  contentId: Scalars['ID']['output'];
+  contentType: ContentType;
+  credits?: Maybe<Scalars['Float']['output']>;
+  durationMinutes?: Maybe<Scalars['Int']['output']>;
+  isFree: Scalars['Boolean']['output'];
+  summary?: Maybe<Scalars['String']['output']>;
+  title: Scalars['String']['output'];
+};
+
+export enum RoadmapSource {
+  Catalog = 'CATALOG',
+  Generated = 'GENERATED'
+}
+
 export enum RoadmapStatus {
   Archived = 'ARCHIVED',
   Draft = 'DRAFT',
   Published = 'PUBLISHED'
+}
+
+export type RoadmapStepProgress = {
+  __typename?: 'RoadmapStepProgress';
+  completedAt?: Maybe<Scalars['DateTime']['output']>;
+  completedSteps: Scalars['Int']['output'];
+  enrollmentId: Scalars['ID']['output'];
+  phaseCompleted: Scalars['Boolean']['output'];
+  phaseId?: Maybe<Scalars['ID']['output']>;
+  phaseProgress: Scalars['Int']['output'];
+  progress: Scalars['Int']['output'];
+  status: RoadmapStepProgressStatus;
+  stepId: Scalars['ID']['output'];
+  totalSteps: Scalars['Int']['output'];
+};
+
+export enum RoadmapStepProgressStatus {
+  Completed = 'COMPLETED',
+  InProgress = 'IN_PROGRESS'
 }
 
 export type RoadmapSubjectOption = {

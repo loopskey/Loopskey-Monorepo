@@ -1,6 +1,7 @@
 import { ContentType, CourseCategory, CourseLevel } from "@prisma/client";
+import { RoadmapSource, RoadmapStepProgressStatus } from "@prisma/client";
 import { RoadmapEnrollmentStatus, RoadmapStatus } from "@prisma/client";
-import { Field, ID, Int, ObjectType } from "@nestjs/graphql";
+import { Field, Float, ID, Int, ObjectType } from "@nestjs/graphql";
 import { ProfessionalGqlObjectNames } from "@professional/enums/gql-names.enum";
 import { PageInfoEntity } from "@professional/entities/page-info.entity";
 
@@ -9,10 +10,14 @@ export class ProfessionalRoadmapStepEntity {
   @Field() title: string;
   @Field(() => ID) id: string;
   @Field(() => Int) order: number;
+  @Field(() => Date, { nullable: true }) completedAt?: Date | null;
   @Field(() => String, { nullable: true }) contentId?: string | null;
   @Field(() => String, { nullable: true }) description?: string | null;
+  @Field(() => Int, { nullable: true }) estimatedMinutes?: number | null;
   @Field(() => ContentType, { nullable: true })
   contentType?: ContentType | null;
+  @Field(() => RoadmapStepProgressStatus, { nullable: true })
+  status?: RoadmapStepProgressStatus | null;
 }
 
 @ObjectType(ProfessionalGqlObjectNames.PROFESSIONAL_ROADMAP_PHASE)
@@ -23,7 +28,9 @@ export class ProfessionalRoadmapPhaseEntity {
   @Field(() => Int) progress: number;
   @Field(() => Int) stepsCount: number;
   @Field(() => Boolean) completed: boolean;
+  @Field(() => Int) completedSteps: number;
   @Field(() => String, { nullable: true }) description?: string | null;
+  @Field(() => Int, { nullable: true }) estimatedWeeks?: number | null;
   @Field(() => [ProfessionalRoadmapStepEntity])
   steps: ProfessionalRoadmapStepEntity[];
 }
@@ -43,17 +50,48 @@ export class ProfessionalRoadmapEntity {
   @Field(() => Int) phasesCount: number;
   @Field(() => Int) completedSteps: number;
   @Field(() => Int) completedPhases: number;
+  @Field(() => Float) earnedCredits: number;
   @Field(() => CourseLevel) level: CourseLevel;
   @Field(() => Int) nextMilestoneProgress: number;
+  @Field(() => RoadmapSource) source: RoadmapSource;
   @Field(() => RoadmapStatus) roadmapStatus: RoadmapStatus;
+  @Field(() => Date, { nullable: true }) targetDate?: Date | null;
   @Field(() => Date, { nullable: true }) completedAt?: Date | null;
   @Field(() => String, { nullable: true }) imageUrl?: string | null;
+  @Field(() => Int, { nullable: true }) estimatedWeeks?: number | null;
+  @Field(() => String, { nullable: true }) coverageNote?: string | null;
   @Field(() => RoadmapEnrollmentStatus) status: RoadmapEnrollmentStatus;
   @Field(() => String, { nullable: true }) nextPhaseTitle?: string | null;
+  @Field(() => Float, { nullable: true }) requiredCredits?: number | null;
   @Field(() => CourseCategory, { nullable: true })
   category?: CourseCategory | null;
   @Field(() => [ProfessionalRoadmapPhaseEntity])
   phases: ProfessionalRoadmapPhaseEntity[];
+}
+
+@ObjectType(ProfessionalGqlObjectNames.ROADMAP_RECOMMENDATION)
+export class RoadmapRecommendationEntity {
+  @Field() title: string;
+  @Field(() => ID) contentId: string;
+  @Field(() => Boolean) isFree: boolean;
+  @Field(() => ContentType) contentType: ContentType;
+  @Field(() => Float, { nullable: true }) credits?: number | null;
+  @Field(() => String, { nullable: true }) summary?: string | null;
+  @Field(() => Int, { nullable: true }) durationMinutes?: number | null;
+}
+
+@ObjectType(ProfessionalGqlObjectNames.ROADMAP_STEP_PROGRESS)
+export class RoadmapStepProgressEntity {
+  @Field(() => ID) stepId: string;
+  @Field(() => Int) progress: number;
+  @Field(() => Int) totalSteps: number;
+  @Field(() => ID) enrollmentId: string;
+  @Field(() => Int) phaseProgress: number;
+  @Field(() => Int) completedSteps: number;
+  @Field(() => Boolean) phaseCompleted: boolean;
+  @Field(() => ID, { nullable: true }) phaseId?: string | null;
+  @Field(() => Date, { nullable: true }) completedAt?: Date | null;
+  @Field(() => RoadmapStepProgressStatus) status: RoadmapStepProgressStatus;
 }
 
 @ObjectType(ProfessionalGqlObjectNames.PROFESSIONAL_EXPLORE_ROADMAP)

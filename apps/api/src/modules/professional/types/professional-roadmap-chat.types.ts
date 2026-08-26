@@ -51,3 +51,8 @@ export type CandidateBuildInput = {
 export type DraftRow = Prisma.RoadmapDraftGetPayload<{
   include: { cpdPlan: true; certification: true };
 }>;
+
+export type RoadmapShape = {
+  id: string;
+  phases: { id: string; steps: { id: string }[] }[];
+};
