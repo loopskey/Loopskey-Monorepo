@@ -63,6 +63,10 @@ export class EventsApiService implements EventsApi {
     await this.eventService.assertProviderOwnsEvent(providerId, eventId);
   }
 
+  eventCredits(eventIds: readonly string[]) {
+    return this.eventService.eventCredits(eventIds);
+  }
+
   roadmapCandidateEvents(query: RoadmapCandidateQuery) {
     return this.eventService.roadmapCandidates(query);
   }

@@ -47,6 +47,8 @@ export interface EventsApi {
   roadmapCandidateEvents(
     query: RoadmapCandidateQuery,
   ): Promise<readonly RoadmapCandidateEventProjection[]>;
+
+  eventCredits(eventIds: readonly string[]): Promise<Record<string, number>>;
 }
 
 export type ProviderAnalyticsEventProjection = {

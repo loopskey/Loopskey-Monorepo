@@ -511,6 +511,14 @@ export class EventRepository {
     ] as Prisma.EventOrderByWithRelationInput[];
   }
 
+  async findCreditsByIds(eventIds: readonly string[]) {
+    if (eventIds.length === 0) return [];
+    return this.prisma.event.findMany({
+      where: { id: { in: [...eventIds] }, deletedAt: null },
+      select: { id: true, pdu: true },
+    });
+  }
+
   findRoadmapCandidates(query: RoadmapCandidateQuery) {
     const subjects = query.subjects.filter((subject) => subject.trim());
     return this.prisma.event.findMany({

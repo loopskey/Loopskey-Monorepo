@@ -1,16 +1,21 @@
 "use client";
 
 import { ProfessionalExploreRoadmapsQueryVariables } from "@/lib/graphql/operations/professional";
+import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { ProfessionalMyRoadmapsQueryVariables } from "@/lib/graphql/operations/professional";
-import { ChangeEvent, useMemo, useState } from "react";
+import { RoadmapDraftStatus, RoadmapSource } from "@/lib/graphql/base";
+import { useRoadmapStepProgress } from "@/hooks/useRoadmapStepProgress";
+import { skipToken } from "@reduxjs/toolkit/query";
 import { PAGE_SIZE } from "@/utils/constant";
 import { useI18n } from "@/hooks/useI18n";
 
 import * as API from "@/lib/rtk/endpoints/professional.api";
 import * as T from "@/types/professional-dashboard.types";
 
+const DRAFT_POLL_INTERVAL_MS = 5000;
+
 export const useProfessionalRoadmaps = () => {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
 
   // ============= States ===============
   const [search, setSearch] = useState<string>("");
@@ -107,6 +112,38 @@ export const useProfessionalRoadmaps = () => {
     return selectedRoadmap?.phases ?? [];
   }, [myRoadmaps]);
 
+  const generatedRoadmap = useMemo(
+    () =>
+      myRoadmaps.find((roadmap) => roadmap.source === RoadmapSource.Generated),
+    [myRoadmaps],
+  );
+
+  const [draftPollMs, setDraftPollMs] = useState(0);
+  const { data: draft } = API.useProfessionalRoadmapDraftStatusQuery(
+    undefined,
+    {
+      pollingInterval: draftPollMs,
+    },
+  );
+
+  useEffect(() => {
+    const generating =
+      !generatedRoadmap && draft?.status === RoadmapDraftStatus.Generating;
+    setDraftPollMs(generating ? DRAFT_POLL_INTERVAL_MS : 0);
+  }, [draft?.status, generatedRoadmap]);
+
+  const isGenerating =
+    !generatedRoadmap && draft?.status === RoadmapDraftStatus.Generating;
+  const hasFailedDraft =
+    !generatedRoadmap && draft?.status === RoadmapDraftStatus.Failed;
+
+  const { data: recommendations } =
+    API.useProfessionalRoadmapRecommendationsQuery(
+      generatedRoadmap ? { enrollmentId: generatedRoadmap.id } : skipToken,
+    );
+
+  const stepProgress = useRoadmapStepProgress(myRoadmapsVariables);
+
   const featuredRoadmap = myRoadmaps[0];
   const isLoading = isMyRoadmapsLoading || isExploreRoadmapsLoading;
   const isFetching = isMyRoadmapsFetching || isExploreRoadmapsFetching;
@@ -184,6 +221,7 @@ export const useProfessionalRoadmaps = () => {
     t,
     page,
     stats,
+    draft,
     search,
     isLoading,
     myRoadmaps,
@@ -193,15 +231,20 @@ export const useProfessionalRoadmaps = () => {
     handleNext,
     formatWeeks,
     explorePage,
+    isGenerating,
+    stepProgress,
     learningSteps,
     exploreSearch,
     myRoadmapsData,
     getRoadmapHref,
     handlePrevious,
+    hasFailedDraft,
     featuredRoadmap,
     exploreRoadmaps,
     explorePageInfo,
+    locale: language,
     getProgressValue,
+    generatedRoadmap,
     handleExploreNext,
     handleSearchChange,
     exploreRoadmapsData,
@@ -213,5 +256,6 @@ export const useProfessionalRoadmaps = () => {
     isExploreRoadmapsFetching,
     handleExploreSearchChange,
     handleExploreSearchInputChange,
+    recommendations: recommendations ?? [],
   };
 };

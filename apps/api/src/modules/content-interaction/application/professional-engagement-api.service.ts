@@ -106,6 +106,75 @@ export class ProfessionalEngagementApiService
     return counts;
   }
 
+  roadmapEnrollmentById(input: { userId: string; enrollmentId: string }) {
+    return this.prisma.roadmapEnrollment.findFirst({
+      where: { id: input.enrollmentId, userId: input.userId },
+      select: {
+        id: true,
+        userId: true,
+        status: true,
+        draftId: true,
+        progress: true,
+        roadmapId: true,
+        targetDate: true,
+        completedAt: true,
+      },
+    });
+  }
+
+  async roadmapStepProgress(input: {
+    userId: string;
+    enrollmentIds: string[];
+  }) {
+    if (input.enrollmentIds.length === 0) return [];
+    return this.prisma.roadmapStepProgress.findMany({
+      where: {
+        enrollmentId: { in: input.enrollmentIds },
+        enrollment: { userId: input.userId },
+      },
+      select: {
+        stepId: true,
+        status: true,
+        completedAt: true,
+        enrollmentId: true,
+      },
+    });
+  }
+
+  async completeRoadmapEnrollment(input: {
+    userId: string;
+    enrollmentId: string;
+  }) {
+    await this.prisma.roadmapEnrollment.updateMany({
+      where: {
+        id: input.enrollmentId,
+        userId: input.userId,
+        status: { not: RoadmapEnrollmentStatus.COMPLETED },
+      },
+      data: {
+        status: RoadmapEnrollmentStatus.COMPLETED,
+        completedAt: new Date(),
+      },
+    });
+  }
+
+  async reopenRoadmapEnrollment(input: {
+    userId: string;
+    enrollmentId: string;
+  }) {
+    await this.prisma.roadmapEnrollment.updateMany({
+      where: {
+        id: input.enrollmentId,
+        userId: input.userId,
+        status: RoadmapEnrollmentStatus.COMPLETED,
+      },
+      data: {
+        status: RoadmapEnrollmentStatus.ACTIVE,
+        completedAt: null,
+      },
+    });
+  }
+
   private async ownedEnrollment(userId: string, enrollmentId: string) {
     return this.prisma.roadmapEnrollment.findFirst({
       where: { id: enrollmentId, userId },
@@ -225,8 +294,6 @@ export class ProfessionalEngagementApiService
     input: RoadmapEnrollmentInput,
     unitOfWork: UnitOfWork,
   ) {
-    // This module owns RoadmapEnrollment, so it narrows the caller's unit of
-    // work rather than making every consumer name a persistence type.
     const writer = unitOfWork as Prisma.TransactionClient;
     await writer.roadmapEnrollment.create({
       data: {
