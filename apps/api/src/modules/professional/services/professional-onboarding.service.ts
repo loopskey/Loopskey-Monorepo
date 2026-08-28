@@ -69,6 +69,35 @@ export class ProfessionalOnboardingService {
     return this.profileService.profile(user);
   }
 
+  async dismiss(user: TUser) {
+    this.assertProfessional(user);
+    const profile = await this.prismaService.professionalProfile.upsert({
+      where: { userId: user.id },
+      create: {
+        userId: user.id,
+        skills: [],
+        interests: [],
+        onboardingDismissedAt: new Date(),
+      },
+      update: {},
+      select: {
+        id: true,
+        onboardingDismissedAt: true,
+        onboardingCompletedAt: true,
+      },
+    });
+
+    if (!profile.onboardingDismissedAt && !profile.onboardingCompletedAt) {
+      await this.prismaService.professionalProfile.update({
+        where: { id: profile.id },
+        data: { onboardingDismissedAt: new Date() },
+      });
+      this.log("professional.onboarding.dismissed", user.id, {});
+    }
+
+    return this.profileService.profile(user);
+  }
+
   private async resolveSkillIds(input: CompleteProfessionalOnboardingInput) {
     const selected = [...new Set(input.skillsToImproveIds)];
     if (selected.length > ONBOARDING_MAX_SKILLS)

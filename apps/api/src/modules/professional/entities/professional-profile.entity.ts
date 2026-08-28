@@ -59,6 +59,8 @@ export class ProfessionalDashboardProfileEntity {
   professionalGoal?: P.ProfessionalGoal | null;
   @Field(() => Date, { nullable: true })
   onboardingCompletedAt?: Date | null;
+  @Field(() => Date, { nullable: true })
+  onboardingDismissedAt?: Date | null;
 
   // Skills and interests
   @Field(() => P.SkillLevel, { nullable: true })

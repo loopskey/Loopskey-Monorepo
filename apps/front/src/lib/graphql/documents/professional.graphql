@@ -105,6 +105,7 @@ fragment ProfessionalDashboardProfileFields on ProfessionalDashboardProfile {
   professionalSummary
   professionalGoal
   onboardingCompletedAt
+  onboardingDismissedAt
 
   targetSkillLevel
   currentSkillLevel
@@ -535,6 +536,12 @@ mutation UpdateProfessionalSkills($input: UpdateProfessionalSkillsInput!) {
 
 mutation StartProfessionalOnboarding {
   startProfessionalOnboarding {
+    ...ProfessionalDashboardProfileFields
+  }
+}
+
+mutation DismissProfessionalOnboarding {
+  dismissProfessionalOnboarding {
     ...ProfessionalDashboardProfileFields
   }
 }

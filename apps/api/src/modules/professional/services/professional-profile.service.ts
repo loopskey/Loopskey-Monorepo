@@ -123,6 +123,7 @@ export class ProfessionalProfileService {
 
       professionalGoal: profile?.professionalGoal ?? null,
       onboardingCompletedAt: profile?.onboardingCompletedAt ?? null,
+      onboardingDismissedAt: profile?.onboardingDismissedAt ?? null,
 
       currentSkillLevel: profile?.currentSkillLevel ?? null,
       targetSkillLevel: profile?.targetSkillLevel ?? null,
