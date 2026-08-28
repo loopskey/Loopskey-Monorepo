@@ -5,6 +5,21 @@ export type OutboxEventContext = {
   readonly eventName: string;
   readonly attemptCount: number;
   readonly correlationId: string | null;
+  /**
+   * A key that is stable across every delivery attempt of this event and
+   * unique to it. Hand it to any provider that accepts one: it is what turns a
+   * retry after a crash, a lease expiry, or a network timeout into the same
+   * side effect rather than a second one.
+   */
+  readonly idempotencyKey: string;
+  /**
+   * Push the claim lease out by another full lease period.
+   *
+   * A handler doing legitimately slow work should call this periodically.
+   * Without it, work that outlives the lease becomes claimable by a second
+   * worker while the first is still running.
+   */
+  readonly renewLease: () => Promise<void>;
 };
 
 /**

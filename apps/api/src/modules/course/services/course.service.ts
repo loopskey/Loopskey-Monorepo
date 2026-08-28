@@ -9,6 +9,7 @@ import { CourseFilterInput } from "@course/dtos/course-filter.input";
 import { CourseMessageCode } from "@course/enums/message-code.enum";
 import { TCourseRequester } from "@course/types/course-service.type";
 import { CourseSortInput } from "@course/dtos/course-sort.input";
+import { CourseRatingWriter } from "@course/public/course-engagement-api";
 import { PrismaService } from "@prisma/prisma.service";
 import { slugify } from "@utils/slug.util";
 
@@ -207,8 +208,9 @@ export class CourseService {
     courseId: string,
     average: number,
     count: number,
+    writer: CourseRatingWriter = this.prismaService,
   ) {
-    await this.prismaService.course.update({
+    await writer.course.update({
       where: { id: courseId },
       data: { rating: average, ratingCount: count },
     });

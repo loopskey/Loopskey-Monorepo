@@ -17,6 +17,10 @@ const MONTHS_PER_YEAR = 12;
 
 const COUNTED_STATUS: Prisma.EnumPDUStatusFilter = { not: PDUStatus.REJECTED };
 
+const isUniqueViolation = (error: unknown) =>
+  error instanceof Prisma.PrismaClientKnownRequestError &&
+  error.code === "P2002";
+
 @Injectable()
 export class ProfessionalPduService {
   private readonly logger = new Logger(ProfessionalPduService.name);
@@ -281,32 +285,71 @@ export class ProfessionalPduService {
     });
   }
 
+  /**
+   * Log a PDU activity.
+   *
+   * Completing the same course twice in two tabs used to leave two activities
+   * claiming the same credit, because the "have I logged this already?" read
+   * and the create that followed it were separate. A content-linked activity is
+   * now one per user per content item by database constraint, and this method
+   * converges on that one row whether it gets there first or second.
+   *
+   * Manually logged activities carry no content link and are deliberately
+   * outside the constraint: a professional may record as many of those as their
+   * record requires.
+   */
   async createPduActivity(user: TUser, input: CreatePduActivityInput) {
     this.assertProfessional(user);
     const { date, contentId, contentType, ...rest } = input;
+    const data = {
+      ...rest,
+      contentId,
+      contentType,
+      date: new Date(date),
+    };
 
-    if (contentId && contentType) {
-      const existing = await this.prismaService.pDUActivity.findFirst({
+    if (!contentId || !contentType)
+      return this.prismaService.pDUActivity.create({
+        data: { userId: user.id, ...data },
+        include: { evidenceFiles: true },
+      });
+
+    const existing = await this.prismaService.pDUActivity.findFirst({
+      where: { userId: user.id, contentType, contentId },
+      select: { id: true },
+    });
+    if (existing) return this.updateContentActivity(existing.id, data);
+    try {
+      return await this.prismaService.pDUActivity.create({
+        data: { userId: user.id, ...data },
+        include: { evidenceFiles: true },
+      });
+    } catch (error) {
+      if (!isUniqueViolation(error)) throw error;
+      // A concurrent request logged this content first. Its row is the one
+      // logical activity, so this request updates it rather than reporting a
+      // conflict for something the professional did once.
+      this.logger.warn("Recovered a concurrent content-linked PDU activity", {
+        userId: user.id,
+        contentType,
+        contentId,
+      });
+      const winner = await this.prismaService.pDUActivity.findFirstOrThrow({
         where: { userId: user.id, contentType, contentId },
         select: { id: true },
       });
-      if (existing)
-        return this.prismaService.pDUActivity.update({
-          where: { id: existing.id },
-          data: { ...rest, contentId, contentType, date: new Date(date) },
-          include: { evidenceFiles: { orderBy: { createdAt: "asc" } } },
-        });
+      return this.updateContentActivity(winner.id, data);
     }
+  }
 
-    return this.prismaService.pDUActivity.create({
-      data: {
-        userId: user.id,
-        ...rest,
-        contentId,
-        contentType,
-        date: new Date(date),
-      },
-      include: { evidenceFiles: true },
+  private updateContentActivity(
+    activityId: string,
+    data: Prisma.PDUActivityUncheckedUpdateInput,
+  ) {
+    return this.prismaService.pDUActivity.update({
+      where: { id: activityId },
+      data,
+      include: { evidenceFiles: { orderBy: { createdAt: "asc" } } },
     });
   }
 

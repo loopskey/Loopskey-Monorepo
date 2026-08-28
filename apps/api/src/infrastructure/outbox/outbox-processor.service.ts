@@ -12,13 +12,21 @@ const isUniqueViolation = (error: unknown) =>
   error.code === "P2002";
 
 const MAX_ATTEMPTS = 10;
-const LEASE_MS = 60_000;
+const DEFAULT_LEASE_MS = 60_000;
+
+/**
+ * The key an external provider sees. Derived from the outbox event id, so every
+ * attempt at the same event presents the same key and a provider that honours
+ * idempotency collapses them into one side effect.
+ */
+export const outboxIdempotencyKey = (eventId: string) => `outbox-${eventId}`;
 
 @Injectable()
 export class OutboxProcessor implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(OutboxProcessor.name);
   private timer?: NodeJS.Timeout;
   private running = false;
+  private leaseMs = DEFAULT_LEASE_MS;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -27,6 +35,15 @@ export class OutboxProcessor implements OnModuleInit, OnModuleDestroy {
   ) {}
 
   onModuleInit() {
+    // A handler that can legitimately outrun the default lease gets a longer
+    // one from configuration rather than a race with the next worker.
+    const configuredLease = Number(
+      this.config.get("OUTBOX_LEASE_MS", String(DEFAULT_LEASE_MS)),
+    );
+    this.leaseMs =
+      Number.isFinite(configuredLease) && configuredLease > 0
+        ? configuredLease
+        : DEFAULT_LEASE_MS;
     const interval = Number(this.config.get("OUTBOX_POLL_INTERVAL_MS", "1000"));
     this.timer = setInterval(() => this.tick(), interval);
     this.timer.unref();
@@ -51,6 +68,23 @@ export class OutboxProcessor implements OnModuleInit, OnModuleDestroy {
       });
   }
 
+  /**
+   * Extend a claim that is still being worked on.
+   *
+   * Conditional on the event still being unprocessed, so a renewal cannot
+   * resurrect an event another path has already finished.
+   */
+  private async renewLease(eventId: string) {
+    const { count } = await this.prisma.outboxEvent.updateMany({
+      where: { id: eventId, processedAt: null },
+      data: { availableAt: new Date(Date.now() + this.leaseMs) },
+    });
+    if (count === 1) return;
+    this.logger.warn("Outbox lease renewal found no claimable event", {
+      eventId,
+    });
+  }
+
   async processNext() {
     const now = new Date();
     const event = await this.prisma.$transaction(async (tx) => {
@@ -65,7 +99,7 @@ export class OutboxProcessor implements OnModuleInit, OnModuleDestroy {
         where: { id: rows[0].id },
         data: {
           attemptCount: { increment: 1 },
-          availableAt: new Date(now.getTime() + LEASE_MS),
+          availableAt: new Date(now.getTime() + this.leaseMs),
         },
       });
     });
@@ -76,6 +110,8 @@ export class OutboxProcessor implements OnModuleInit, OnModuleDestroy {
       eventName: event.eventName,
       attemptCount: event.attemptCount,
       correlationId: event.correlationId,
+      idempotencyKey: outboxIdempotencyKey(event.id),
+      renewLease: () => this.renewLease(event.id),
     };
 
     try {
@@ -93,6 +129,10 @@ export class OutboxProcessor implements OnModuleInit, OnModuleDestroy {
         },
       });
       if (!delivered) {
+        // The window between the side effect and the delivery row is the one
+        // place a crash can duplicate work. It is not closable — the side
+        // effect is outside the database — so it is made harmless instead: the
+        // idempotency key above is what a redelivery presents to the provider.
         await handler.handle(event.payload, context);
         await this.prisma.outboxDelivery
           .create({

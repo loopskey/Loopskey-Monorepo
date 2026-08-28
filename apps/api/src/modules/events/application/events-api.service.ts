@@ -3,6 +3,7 @@ import { RegisterForEventCommand } from "@events/public/events-api";
 import { EventService } from "@events/services/event.service";
 import { Injectable } from "@nestjs/common";
 import { EventsApi } from "@events/public/events-api";
+import { EventRatingWriter } from "@events/public/events-api";
 
 import type { ProviderAttendeesQuery } from "@events/public/events-api";
 import type { RoadmapCandidateQuery } from "@events/public/events-api";
@@ -32,12 +33,24 @@ export class EventsApiService implements EventsApi {
     return this.eventService.resolveForEngagement(eventId);
   }
 
+  /**
+   * `writer` lets the caller recompute and publish the aggregate inside one
+   * transaction, which is what keeps a slower recomputation from landing after
+   * a newer one. It defaults to the ambient client for callers with no
+   * transaction of their own.
+   */
   async updateEventRating(
     eventId: string,
     average: number,
     count: number,
+    writer?: EventRatingWriter,
   ): Promise<void> {
-    await this.eventService.updateEngagementRating(eventId, average, count);
+    await this.eventService.updateEngagementRating(
+      eventId,
+      average,
+      count,
+      writer,
+    );
   }
 
   providerOverview(providerId: string, start: Date, end: Date) {

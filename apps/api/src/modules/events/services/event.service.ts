@@ -3,7 +3,6 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { EventDomainEventDispatcher } from "@events/application/events/event-domain-event.dispatcher";
 import { EventStatus, Prisma, Role } from "@prisma/client";
 import { shouldEmitEventPublished } from "@events/domain/policies/event-publication.policy";
-import { EventRegistrationStatus } from "@prisma/client";
 import { EventPaginationInput } from "@events/dtos/event-pagination.input";
 import { EVENT_PUBLISHED_V1 } from "@events/domain/events/event-published-v1";
 import { CreateEventInput } from "@events/dtos/create-event.input";
@@ -11,6 +10,8 @@ import { EventFilterInput } from "@events/dtos/event-filter.input";
 import { UpdateEventInput } from "@events/dtos/update-event.input";
 import { EventMessageCode } from "@events/enums/message-code.enum";
 import { EventRepository } from "@events/infrastructure/persistence/event.repository";
+import { EventRatingWriter } from "@events/public/events-api";
+import { isEventRegistrationConflict } from "@events/domain/errors/event-registration-conflict.error";
 import { EventSortInput } from "@events/dtos/event-sort.input";
 import { EventRequester } from "@events/enums/event-register.enum";
 import { randomUUID } from "node:crypto";
@@ -148,12 +149,9 @@ export class EventService {
     eventId: string,
     average: number,
     count: number,
+    writer?: EventRatingWriter,
   ) {
-    await this.eventRepository.update(eventId, {
-      averageRating: average,
-      rating: average,
-      ratingCount: count,
-    });
+    await this.eventRepository.updateRating(eventId, average, count, writer);
   }
 
   providerOverview(providerId: string, start: Date, end: Date) {
@@ -206,56 +204,82 @@ export class EventService {
     );
   }
 
+  /**
+   * The explicit "register me" mutation, which still refuses a user who is
+   * already holding a seat. The preflight below only exists to give that user a
+   * readable message; capacity itself is settled by the atomic claim in the
+   * repository, which is the reason two people racing for one seat cannot both
+   * win.
+   */
   async registerEvent(eventId: string, requester: EventRequester) {
-    const event = await this.findExistingEvent(eventId);
-    if (event.status !== EventStatus.PUBLISHED)
-      throw new BadRequestException(EventMessageCode.EVENT_NOT_FOUND);
-    if (!event.registrationEnabled)
-      throw new BadRequestException(
-        EventMessageCode.EVENT_REGISTRATION_DISABLED,
-      );
-    if (event.capacity && event.attendees >= event.capacity)
-      throw new BadRequestException(EventMessageCode.EVENT_CAPACITY_REACHED);
-    if (await this.eventRepository.findRegistration(eventId, requester.id))
+    this.assertOpenForRegistration(await this.findExistingEvent(eventId));
+    const outcome = await this.activateRegistration(eventId, requester.id);
+    if (!outcome.activated)
       throw new BadRequestException(EventMessageCode.EVENT_ALREADY_REGISTERED);
-    return this.eventRepository.register(eventId, requester.id);
+    return outcome.registration;
   }
 
+  /**
+   * Enrollment from the Content Interaction side, which is idempotent by
+   * contract: a user who is already attending gets their existing registration
+   * back rather than an error.
+   */
   async enrollInEvent(eventId: string, participant: EventParticipant) {
-    const event = await this.findExistingEvent(eventId);
-    if (event.status !== EventStatus.PUBLISHED)
-      throw new BadRequestException(EventMessageCode.EVENT_NOT_FOUND);
-    if (!event.registrationEnabled)
-      throw new BadRequestException(
-        EventMessageCode.EVENT_REGISTRATION_DISABLED,
-      );
-    const existing = await this.eventRepository.findRegistration(
-      eventId,
-      participant.id,
-    );
-    if (existing?.status === EventRegistrationStatus.CANCELLED) {
-      if (event.capacity && event.attendees >= event.capacity)
-        throw new BadRequestException(EventMessageCode.EVENT_CAPACITY_REACHED);
-      return this.eventRepository.reactivateRegistration(existing.id, eventId);
-    }
-    if (existing) return existing;
-    if (event.capacity && event.attendees >= event.capacity)
-      throw new BadRequestException(EventMessageCode.EVENT_CAPACITY_REACHED);
-    return this.eventRepository.register(eventId, participant.id);
+    this.assertOpenForRegistration(await this.findExistingEvent(eventId));
+    const outcome = await this.activateRegistration(eventId, participant.id);
+    return outcome.registration;
   }
 
   async cancelEventRegistration(eventId: string, requester: EventParticipant) {
-    const registration = await this.eventRepository.findRegistration(
+    const outcome = await this.eventRepository.cancelRegistration(
       eventId,
       requester.id,
     );
-    if (!registration)
+    if (!outcome)
       throw new NotFoundException(
         EventMessageCode.EVENT_REGISTRATION_NOT_FOUND,
       );
-    if (registration.status === EventRegistrationStatus.CANCELLED)
-      return registration;
-    return this.eventRepository.cancelRegistration(registration.id, eventId);
+    return outcome.registration;
+  }
+
+  /**
+   * Translate a lost race into the domain vocabulary clients already handle.
+   * `ALREADY_REGISTERED` means a concurrent request created this user's row
+   * between our attempt and its commit, so the honest answer is that row.
+   */
+  private async activateRegistration(eventId: string, userId: string) {
+    try {
+      return await this.eventRepository.activateRegistration(eventId, userId);
+    } catch (error) {
+      if (!isEventRegistrationConflict(error)) throw error;
+      if (error.reason === "CAPACITY_REACHED")
+        throw new BadRequestException(EventMessageCode.EVENT_CAPACITY_REACHED);
+      if (error.reason === "REGISTRATION_CLOSED")
+        throw new BadRequestException(
+          EventMessageCode.EVENT_REGISTRATION_DISABLED,
+        );
+      const registration = await this.eventRepository.findRegistration(
+        eventId,
+        userId,
+      );
+      if (!registration)
+        throw new BadRequestException(
+          EventMessageCode.EVENT_ALREADY_REGISTERED,
+        );
+      return { registration, activated: false };
+    }
+  }
+
+  private assertOpenForRegistration(event: {
+    status: EventStatus;
+    registrationEnabled: boolean;
+  }) {
+    if (event.status !== EventStatus.PUBLISHED)
+      throw new BadRequestException(EventMessageCode.EVENT_NOT_FOUND);
+    if (!event.registrationEnabled)
+      throw new BadRequestException(
+        EventMessageCode.EVENT_REGISTRATION_DISABLED,
+      );
   }
 
   myRegisteredEvents(requester: EventRequester) {

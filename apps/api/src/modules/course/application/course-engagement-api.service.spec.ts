@@ -12,6 +12,17 @@ describe("CourseEngagementApiService", () => {
 
   beforeEach(() => jest.clearAllMocks());
 
+  it("passes a caller's transaction through to the rating write", async () => {
+    const writer = { course: { update: jest.fn() } };
+    await service.updateCourseRating("course-1", 4.5, 2, writer);
+    expect(courseService.updateEngagementRating).toHaveBeenCalledWith(
+      "course-1",
+      4.5,
+      2,
+      writer,
+    );
+  });
+
   it("delegates engagement reads and rating writes to Course", async () => {
     courseService.resolveForEngagement.mockResolvedValue({ id: "course-1" });
     await service.resolveCourse("course-1");
@@ -21,6 +32,7 @@ describe("CourseEngagementApiService", () => {
       "course-1",
       4.5,
       2,
+      undefined,
     );
   });
 });
