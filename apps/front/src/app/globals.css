@@ -22,8 +22,15 @@
   --muted: oklch(0.94 0.018 240);
   --muted-foreground: oklch(0.48 0.035 250);
 
-  --accent: oklch(0.88 0.075 190);
-  --accent-foreground: oklch(0.2 0.05 230);
+  /* shadcn treats --accent as the neutral hover/focus surface: every menu
+     item and every ghost/outline button paints with it. Keep it quiet. The
+     teal that used to live here is --brand-teal, for deliberate use only. */
+  --accent: oklch(0.94 0.012 240);
+  --accent-foreground: oklch(0.19 0.035 255);
+
+  --brand-teal: oklch(0.88 0.075 190);
+  --brand-teal-foreground: oklch(0.2 0.05 230);
+  --brand-teal-text: oklch(0.42 0.075 190);
 
   --success: oklch(0.53 0.16 155);
   --success-foreground: oklch(0.99 0 0);
@@ -37,6 +44,21 @@
   --premium: oklch(0.72 0.14 85);
   --premium-foreground: oklch(0.22 0.035 65);
 
+  /* Soft tier: a tinted surface plus text that stays legible on it. Status
+     chips and progress cards need this pairing; without it they reach for
+     raw Tailwind (bg-emerald-500/10 text-emerald-600) and leave the system. */
+  --success-soft: oklch(0.55 0.16 155 / 0.12);
+  --success-soft-foreground: oklch(0.42 0.16 155);
+
+  --warning-soft: oklch(0.55 0.15 75 / 0.12);
+  --warning-soft-foreground: oklch(0.42 0.15 75);
+
+  --destructive-soft: oklch(0.55 0.22 25 / 0.12);
+  --destructive-soft-foreground: oklch(0.42 0.22 25);
+
+  --premium-soft: oklch(0.55 0.14 85 / 0.12);
+  --premium-soft-foreground: oklch(0.42 0.14 85);
+
   --ct-course: oklch(0.55 0.19 255);
   --ct-course-foreground: oklch(0.99 0 0);
   --ct-event: oklch(0.53 0.16 155);
@@ -46,8 +68,21 @@
   --ct-youtube: oklch(0.58 0.22 25);
   --ct-youtube-foreground: oklch(0.99 0 0);
 
-  --border: oklch(0.78 0.03 240);
-  --input: oklch(0.65 0.03 240);
+  /* Chart series. Lightness is staggered on purpose so neighbouring series
+     stay apart in greyscale, and red sits away from green in the order. */
+  --chart-1: oklch(0.5 0.19 255);
+  --chart-2: oklch(0.62 0.12 190);
+  --chart-3: oklch(0.48 0.22 300);
+  --chart-4: oklch(0.66 0.17 55);
+  --chart-5: oklch(0.53 0.16 155);
+  --chart-6: oklch(0.64 0.2 25);
+  --chart-7: oklch(0.58 0.14 90);
+  --chart-8: oklch(0.44 0.13 220);
+
+  /* 0.78 rendered 1.91:1 against --background, under the 3:1 WCAG minimum
+     for non-text UI. Every border in the app inherits this. */
+  --border: oklch(0.65 0.03 240);
+  --input: oklch(0.58 0.03 240);
   --ring: oklch(0.58 0.18 255);
 
   --glass: oklch(1 0 0 / 0.58);
@@ -78,8 +113,12 @@
   --muted: oklch(0.25 0.035 290);
   --muted-foreground: oklch(0.72 0.035 290);
 
-  --accent: oklch(0.62 0.12 190);
-  --accent-foreground: oklch(0.08 0.02 230);
+  --accent: oklch(0.27 0.03 290);
+  --accent-foreground: oklch(0.965 0.012 290);
+
+  --brand-teal: oklch(0.62 0.12 190);
+  --brand-teal-foreground: oklch(0.08 0.02 230);
+  --brand-teal-text: oklch(0.72 0.12 190);
 
   --success: oklch(0.68 0.15 155);
   --success-foreground: oklch(0.09 0.02 155);
@@ -93,6 +132,18 @@
   --premium: oklch(0.82 0.14 85);
   --premium-foreground: oklch(0.13 0.035 65);
 
+  --success-soft: oklch(0.68 0.16 155 / 0.18);
+  --success-soft-foreground: oklch(0.78 0.16 155);
+
+  --warning-soft: oklch(0.68 0.15 75 / 0.18);
+  --warning-soft-foreground: oklch(0.78 0.15 75);
+
+  --destructive-soft: oklch(0.68 0.22 25 / 0.18);
+  --destructive-soft-foreground: oklch(0.84 0.22 25);
+
+  --premium-soft: oklch(0.68 0.14 85 / 0.18);
+  --premium-soft-foreground: oklch(0.78 0.14 85);
+
   --ct-course: oklch(0.7 0.17 255);
   --ct-course-foreground: oklch(0.13 0.035 255);
   --ct-event: oklch(0.72 0.15 155);
@@ -101,6 +152,15 @@
   --ct-podcast-foreground: oklch(0.12 0.03 300);
   --ct-youtube: oklch(0.7 0.2 25);
   --ct-youtube-foreground: oklch(0.12 0.03 25);
+
+  --chart-1: oklch(0.66 0.17 255);
+  --chart-2: oklch(0.78 0.12 190);
+  --chart-3: oklch(0.62 0.19 300);
+  --chart-4: oklch(0.8 0.15 55);
+  --chart-5: oklch(0.72 0.15 155);
+  --chart-6: oklch(0.62 0.2 25);
+  --chart-7: oklch(0.84 0.13 90);
+  --chart-8: oklch(0.7 0.12 220);
 
   --border: oklch(1 0 0 / 0.18);
   --input: oklch(1 0 0 / 0.36);
@@ -132,6 +192,10 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
 
+  --color-brand-teal: var(--brand-teal);
+  --color-brand-teal-foreground: var(--brand-teal-foreground);
+  --color-brand-teal-text: var(--brand-teal-text);
+
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
 
@@ -143,6 +207,24 @@
 
   --color-premium: var(--premium);
   --color-premium-foreground: var(--premium-foreground);
+
+  --color-success-soft: var(--success-soft);
+  --color-success-soft-foreground: var(--success-soft-foreground);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-soft-foreground: var(--warning-soft-foreground);
+  --color-destructive-soft: var(--destructive-soft);
+  --color-destructive-soft-foreground: var(--destructive-soft-foreground);
+  --color-premium-soft: var(--premium-soft);
+  --color-premium-soft-foreground: var(--premium-soft-foreground);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
+  --color-chart-7: var(--chart-7);
+  --color-chart-8: var(--chart-8);
 
   --color-ct-course: var(--ct-course);
   --color-ct-course-foreground: var(--ct-course-foreground);

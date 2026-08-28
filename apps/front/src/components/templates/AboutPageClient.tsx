@@ -17,7 +17,7 @@ const AboutPage = () => {
   return (
     <main className="relative overflow-x-clip">
       <div className="pointer-events-none absolute left-[-10rem] top-20 h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
-      <div className="pointer-events-none absolute right-[-12rem] top-[30rem] h-96 w-96 rounded-full bg-accent/20 blur-3xl" />
+      <div className="pointer-events-none absolute right-[-12rem] top-[30rem] h-96 w-96 rounded-full bg-brand-teal/20 blur-3xl" />
 
       <section className="mx-auto grid max-w-7xl gap-10 px-4 py-20 md:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:py-28">
         <RevealOnScroll direction="left" className="relative z-10">
