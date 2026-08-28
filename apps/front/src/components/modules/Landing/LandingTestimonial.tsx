@@ -83,7 +83,7 @@ const LandingTestimonials = () => {
                   index === 1 && "lg:-mt-6",
                 )}
               >
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,hsl(var(--primary)/0.12),transparent_34%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,color-mix(in_oklab,var(--primary)_12%,transparent),transparent_34%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
                 <div className="relative z-10 flex h-full flex-col">
                   <div className="mb-6 flex items-center justify-between gap-4">

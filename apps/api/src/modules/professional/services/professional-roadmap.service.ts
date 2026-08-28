@@ -1,12 +1,19 @@
 import { ForbiddenException, Inject, Injectable } from "@nestjs/common";
-import { type ProfessionalEngagementApi } from "@contentAction/public/professional-engagement-api";
 import { ProfessionalPaginationInput } from "@professional/dtos/professional-pagination.input";
-import { type ProfessionalCatalogApi } from "@course/public/professional-catalog-api";
 import { PROFESSIONAL_ENGAGEMENT_API } from "@contentAction/public/professional-engagement-api";
 import { PROFESSIONAL_CATALOG_API } from "@course/public/professional-catalog-api";
 import { ProfessionalSearchInput } from "@professional/dtos/professional-search.input";
+import { deriveRoadmapProgress } from "@professional/utils/roadmap-progress.util";
+import { ContentType, Role } from "@prisma/client";
+import { earnedCredits } from "@professional/utils/roadmap-progress.util";
+import { EVENTS_API } from "@events/public/events-api.token";
 import { TUser } from "@common/types/user.types";
-import { Role } from "@prisma/client";
+
+import { type ProfessionalEngagementApi } from "@contentAction/public/professional-engagement-api";
+import { type ProfessionalCatalogApi } from "@course/public/professional-catalog-api";
+import { type StepProgressRecord } from "@professional/utils/roadmap-progress.util";
+
+import type { EventsApi } from "@events/public/events-api";
 
 import * as T from "@professional/types/professional-service.types";
 
@@ -17,6 +24,7 @@ export class ProfessionalRoadmapService {
     private readonly engagement: ProfessionalEngagementApi,
     @Inject(PROFESSIONAL_CATALOG_API)
     private readonly catalog: ProfessionalCatalogApi,
+    @Inject(EVENTS_API) private readonly events: EventsApi,
   ) {}
 
   private assertProfessional(user: TUser) {
@@ -30,86 +38,71 @@ export class ProfessionalRoadmapService {
     return Math.min(Math.max(Math.round(value), 0), 100);
   }
 
-  deriveProgress(input: {
-    storedProgress: number;
-    totalSteps: number;
-    completedSteps?: number;
-  }) {
-    if (input.completedSteps === undefined || input.totalSteps === 0)
-      return this.clampProgress(input.storedProgress);
-    return this.clampProgress((input.completedSteps / input.totalSteps) * 100);
-  }
-
-  private getPhaseProgress(
-    overallProgress: number,
-    phaseIndex: number,
-    phasesCount: number,
-  ) {
-    if (!phasesCount) return 0;
-    const phaseStart = (phaseIndex / phasesCount) * 100;
-    const phaseEnd = ((phaseIndex + 1) / phasesCount) * 100;
-    const phaseSize = phaseEnd - phaseStart;
-    const rawProgress = ((overallProgress - phaseStart) / phaseSize) * 100;
-    return this.clampProgress(rawProgress);
-  }
-
   private mapRoadmapEnrollment(
     item: T.RoadmapEnrollmentWithRoadmap,
-    recordedCompletedSteps?: number,
+    context: {
+      records: StepProgressRecord[];
+      creditsByContentId: Record<string, number>;
+      requiredCredits: number | null;
+    },
   ) {
     const roadmap = item.roadmap;
     const phases = roadmap.phases;
-    const phasesCount = phases.length;
-    const totalSteps = phases.reduce(
-      (sum: number, phase: T.TRoadmapPhaseWithSteps) => {
-        return sum + phase.steps.length;
-      },
-      0,
-    );
-    const progress = this.deriveProgress({
-      totalSteps,
+
+    const derived = deriveRoadmapProgress({
+      phases,
+      records: context.records,
       storedProgress: item.progress,
-      completedSteps: recordedCompletedSteps,
     });
-    const completedSteps =
-      recordedCompletedSteps ?? Math.round((totalSteps * progress) / 100);
-    const mappedPhases: T.TMappedRoadmapPhase[] = phases.map(
-      (phase: T.TRoadmapPhaseWithSteps, index: number) => {
-        const phaseProgress = this.getPhaseProgress(
-          progress,
-          index,
-          phasesCount,
-        );
-        return {
-          id: phase.id,
-          title: phase.title,
-          order: phase.order,
-          steps: phase.steps,
-          progress: phaseProgress,
-          description: phase.description,
-          stepsCount: phase.steps.length,
-          completed: phaseProgress >= 100,
-        };
-      },
-    );
+    const phaseById = new Map(derived.phases.map((phase) => [phase.id, phase]));
+
+    const mappedPhases: T.TMappedRoadmapPhase[] = phases.map((phase) => {
+      const phaseProgress = phaseById.get(phase.id);
+      return {
+        id: phase.id,
+        title: phase.title,
+        order: phase.order,
+        description: phase.description,
+        stepsCount: phase.steps.length,
+        progress: phaseProgress?.progress ?? 0,
+        completed: phaseProgress?.completed ?? false,
+        completedSteps: phaseProgress?.completedSteps ?? 0,
+        estimatedWeeks: phase.estimatedWeeks,
+        steps: phase.steps.map((step) => {
+          const stepProgress = derived.steps.get(step.id);
+          return {
+            ...step,
+            status: stepProgress?.status ?? null,
+            completedAt: stepProgress?.completedAt ?? null,
+          };
+        }),
+      };
+    });
 
     const completedPhases = mappedPhases.filter(
-      (phase: T.TMappedRoadmapPhase) => phase.completed,
+      (phase) => phase.completed,
     ).length;
+    const nextPhase = mappedPhases.find((phase) => !phase.completed);
+    const progress = derived.progress;
 
-    const nextPhase = mappedPhases.find(
-      (phase: T.TMappedRoadmapPhase) => !phase.completed,
-    );
+    const allSteps = phases.flatMap((phase) => phase.steps);
+    const earned = earnedCredits({
+      steps: allSteps,
+      progress: derived.steps,
+      creditsByContentId: context.creditsByContentId,
+    });
 
     const nextMilestoneProgress =
       progress >= 100
         ? 100
         : Math.min(Math.ceil((progress + 1) / 25) * 25, 100);
+
     return {
       id: item.id,
-      totalSteps,
-      phasesCount,
-      completedSteps,
+      progress,
+      phasesCount: phases.length,
+      totalSteps: derived.totalSteps,
+      completedSteps: derived.completedSteps,
       completedPhases,
       slug: roadmap.slug,
       userId: item.userId,
@@ -117,7 +110,6 @@ export class ProfessionalRoadmapService {
       title: roadmap.title,
       level: roadmap.level,
       phases: mappedPhases,
-      progress,
       nextMilestoneProgress,
       roadmapId: item.roadmapId,
       updatedAt: item.updatedAt,
@@ -128,6 +120,12 @@ export class ProfessionalRoadmapService {
       roadmapStatus: roadmap.status,
       description: roadmap.description,
       nextPhaseTitle: nextPhase?.title ?? null,
+      targetDate: item.targetDate,
+      source: roadmap.source,
+      coverageNote: roadmap.coverageNote,
+      estimatedWeeks: roadmap.estimatedWeeks,
+      earnedCredits: earned,
+      requiredCredits: context.requiredCredits,
     };
   }
 
@@ -160,14 +158,41 @@ export class ProfessionalRoadmapService {
       ...item,
       roadmap: roadmapMap.get(item.roadmapId),
     })) as unknown as T.RoadmapEnrollmentWithRoadmap[];
-    const completionCounts = await this.engagement.roadmapStepCompletionCounts({
+    const records = await this.engagement.roadmapStepProgress({
       userId: user.id,
       enrollmentIds: merged.map((item) => item.id),
     });
+    const recordsByEnrollment = new Map<string, StepProgressRecord[]>();
+    for (const record of records) {
+      const list = recordsByEnrollment.get(record.enrollmentId) ?? [];
+      list.push(record);
+      recordsByEnrollment.set(record.enrollmentId, list);
+    }
+
+    const eventIds = [
+      ...new Set(
+        merged.flatMap((item) =>
+          item.roadmap.phases.flatMap((phase) =>
+            phase.steps
+              .filter((step) => step.contentType === ContentType.EVENT)
+              .map((step) => step.contentId)
+              .filter((id): id is string => Boolean(id)),
+          ),
+        ),
+      ),
+    ];
+    const creditsByContentId = eventIds.length
+      ? await this.events.eventCredits(eventIds)
+      : {};
+
     return {
       totalCount: result.totalCount,
       items: merged.map((item) =>
-        this.mapRoadmapEnrollment(item, completionCounts[item.id]),
+        this.mapRoadmapEnrollment(item, {
+          creditsByContentId,
+          requiredCredits: null,
+          records: recordsByEnrollment.get(item.id) ?? [],
+        }),
       ),
       pageInfo: {
         hasNextPage: rows.length > take,

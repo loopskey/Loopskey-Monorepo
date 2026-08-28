@@ -1,7 +1,7 @@
 "use client";
 
+import { siteLinks, socialLinks, solutionEntries } from "@/utils/constant";
 import { TFooterLink, TSocialLink } from "@/types/element.types";
-import { siteLinks, socialLinks } from "@/utils/constant";
 import { Facebook, Linkedin } from "lucide-react";
 import { FooterColumn } from "@layouts/parts/footer-column";
 import { Youtube } from "lucide-react";
@@ -14,24 +14,9 @@ import Link from "next/link";
 const Footer = () => {
   const { t } = useI18n();
 
-  const solutionLinks: TFooterLink[] = [
-    {
-      href: siteLinks.professionals,
-      label: t("footer.links.professionals"),
-    },
-    {
-      href: siteLinks.associations,
-      label: t("footer.links.associations"),
-    },
-    {
-      href: siteLinks.organizations,
-      label: t("footer.links.organizations"),
-    },
-    {
-      href: siteLinks.solutionContentProviders,
-      label: t("footer.links.solutionContentProviders"),
-    },
-  ];
+  const solutionLinks: TFooterLink[] = solutionEntries.map(
+    ({ href, labelKey }) => ({ href, label: t(labelKey) }),
+  );
 
   const supportLinks: TFooterLink[] = [
     {

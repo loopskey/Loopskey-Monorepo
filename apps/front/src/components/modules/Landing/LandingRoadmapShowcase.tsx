@@ -79,7 +79,7 @@ const LandingRoadmapShowcase = () => {
 
         <RevealOnScroll direction="right" delay={120}>
           <GlassCard className="relative overflow-hidden p-5 md:p-7">
-            <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,hsl(var(--primary)/0.12),transparent_34%),radial-gradient(circle_at_bottom_left,hsl(var(--accent)/0.10),transparent_32%)]" />
+            <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,color-mix(in_oklab,var(--primary)_12%,transparent),transparent_34%),radial-gradient(circle_at_bottom_left,color-mix(in_oklab,var(--accent)_10%,transparent),transparent_32%)]" />
             <div className="mb-6 flex flex-col justify-between gap-4 border-b border-glass-border pb-5 sm:flex-row sm:items-center">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
@@ -91,7 +91,7 @@ const LandingRoadmapShowcase = () => {
               </div>
 
               <span className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-primary">
-                <span className="h-2 w-2 rounded-full bg-primary shadow-[0_0_0_4px_hsl(var(--primary)/0.14)]" />
+                <span className="h-2 w-2 rounded-full bg-primary shadow-[0_0_0_4px_color-mix(in_oklab,var(--primary)_14%,transparent)]" />
                 {t("landing.roadmapShowcase.preview.status")}
               </span>
             </div>

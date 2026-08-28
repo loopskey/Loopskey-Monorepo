@@ -1,6 +1,12 @@
 import { EventDeliveryMode, EventRegistrationStatus } from "@prisma/client";
-import { ProfessionalCatalogApi } from "@course/public/professional-catalog-api";
-import { Prisma, RoadmapStatus } from "@prisma/client";
+import {
+  ProfessionalCatalogApi,
+  RoadmapCandidateQuery,
+  type GeneratedRoadmapInput,
+  type UnitOfWork,
+} from "@course/public/professional-catalog-api";
+import { CourseStatus, RoadmapStatus } from "@prisma/client";
+import { Prisma, RoadmapSource } from "@prisma/client";
 import { PrismaService } from "@prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
 
@@ -175,6 +181,87 @@ export class ProfessionalCatalogApiService implements ProfessionalCatalogApi {
         status: EventRegistrationStatus.REGISTERED,
         event: { startDate: { gte: new Date() }, deletedAt: null },
       },
+    });
+  }
+
+  roadmapCandidateCourses(query: RoadmapCandidateQuery) {
+    const subjects = query.subjects.filter((subject) => subject.trim());
+    return this.prisma.course.findMany({
+      where: {
+        deletedAt: null,
+        status: CourseStatus.PUBLISHED,
+        ...(query.freeOnly ? { isFree: true } : {}),
+        ...(subjects.length
+          ? {
+              OR: subjects.flatMap((subject) => [
+                { title: { contains: subject, mode: "insensitive" as const } },
+                {
+                  description: {
+                    contains: subject,
+                    mode: "insensitive" as const,
+                  },
+                },
+              ]),
+            }
+          : {}),
+      },
+      select: {
+        id: true,
+        title: true,
+        level: true,
+        rating: true,
+        isFree: true,
+        category: true,
+        isFeatured: true,
+        description: true,
+        ratingCount: true,
+        professionals: true,
+        durationMinutes: true,
+      },
+      orderBy: [
+        { isFeatured: "desc" },
+        { rating: "desc" },
+        { professionals: "desc" },
+        { id: "asc" },
+      ],
+      take: query.take,
+    });
+  }
+
+  async createGeneratedRoadmap(
+    input: GeneratedRoadmapInput,
+    unitOfWork: UnitOfWork,
+  ) {
+    const writer = unitOfWork as Prisma.TransactionClient;
+    return writer.roadmap.create({
+      data: {
+        slug: input.slug,
+        title: input.title,
+        ownerId: input.ownerId,
+        source: RoadmapSource.GENERATED,
+        description: input.description,
+        coverageNote: input.coverageNote,
+        estimatedWeeks: input.estimatedWeeks,
+        phases: {
+          create: input.phases.map((phase) => ({
+            order: phase.order,
+            title: phase.title,
+            description: phase.description,
+            estimatedWeeks: phase.estimatedWeeks,
+            steps: {
+              create: phase.steps.map((step) => ({
+                order: step.order,
+                title: step.title,
+                description: step.description,
+                contentId: step.contentId,
+                contentType: step.contentType,
+                estimatedMinutes: step.estimatedMinutes,
+              })),
+            },
+          })),
+        },
+      },
+      select: { id: true },
     });
   }
 }

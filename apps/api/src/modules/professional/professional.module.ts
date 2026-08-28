@@ -1,13 +1,16 @@
 import { ProfessionalCertificateFileController } from "@professional/controllers/professional-certificate-file.controller";
+import { ProfessionalRoadmapGenerationService } from "@professional/services/professional-roadmap-generation.service";
 import { ProfessionalProfileCompletionService } from "@professional/services/professional-profile-completion.service";
+import { ProfessionalRoadmapCandidateService } from "@professional/services/professional-roadmap-candidate.service";
 import { ProfessionalCertificateFileService } from "@professional/services/professional-certificate-file.service";
 import { ProfessionalProvisioningApiService } from "@professional/application/professional-provisioning-api.service";
+import { ProfessionalRoadmapProgressService } from "@professional/services/professional-roadmap-progress.service";
 import { ProfessionalCertificatesResolver } from "@professional/resolvers/professional-certificate.resolver";
 import { ProfessionalCertificatesService } from "@professional/services/professional-certificate.service";
 import { ProfessionalRoadmapDraftService } from "@professional/services/professional-roadmap-draft.service";
-import { ProfessionalRoadmapChatService } from "@professional/services/professional-roadmap-chat.service";
 import { ProfessionalRoadmapChatResolver } from "@professional/resolvers/professional-roadmap-chat.resolver";
-import { ServiceAiModule } from "@infrastructure/service-ai/service-ai.module";
+import { RoadmapGenerationOutboxHandler } from "@professional/application/roadmap-generation-outbox.handler";
+import { ProfessionalRoadmapChatService } from "@professional/services/professional-roadmap-chat.service";
 import { ProfessionalRoleProfileHandler } from "@professional/application/professional-role-profile.handler";
 import { ProfessionalOnboardingResolver } from "@professional/resolvers/professional-onboarding.resolver";
 import { ProfessionalCredentialService } from "@professional/services/professional-credential.service";
@@ -39,9 +42,14 @@ import { ContentInteractionModule } from "@contentAction/content-interaction.mod
 import { ProfessionalPduResolver } from "@professional/resolvers/professional-pdu.resolver";
 import { ProfessionalPduService } from "@professional/services/professional-pdu.service";
 import { EVIDENCE_STORAGE } from "@professional/storage/evidence-storage.port";
+import { ServiceAiModule } from "@infrastructure/service-ai/service-ai.module";
 import { ProviderModule } from "@provider/provider.module";
+import { PodcastModule } from "@podcast/podcast.module";
+import { YouTubeModule } from "@youtube/youtube.module";
 import { PrismaModule } from "@prisma/prisma.module";
 import { CourseModule } from "@course/course.module";
+import { EventModule } from "@events/events.module";
+import { MailModule } from "@mail/mail.module";
 import { UserModule } from "@user/user.module";
 import { Module } from "@nestjs/common";
 
@@ -49,8 +57,12 @@ import "@professional/enums/professional-register.enum";
 @Module({
   imports: [
     UserModule,
+    MailModule,
+    EventModule,
     PrismaModule,
     CourseModule,
+    PodcastModule,
+    YouTubeModule,
     ProviderModule,
     ServiceAiModule,
     ContentInteractionModule,
@@ -84,6 +96,7 @@ import "@professional/enums/professional-register.enum";
     ProfessionalPaymentsResolver,
     ProfessionalCredentialService,
     ProfessionalOnboardingService,
+    RoadmapGenerationOutboxHandler,
     ProfessionalOnboardingResolver,
     ProfessionalRoleProfileHandler,
     ProfessionalRoadmapDraftService,
@@ -91,8 +104,11 @@ import "@professional/enums/professional-register.enum";
     ProfessionalRoadmapChatResolver,
     ProfessionalCertificatesService,
     ProfessionalCertificatesResolver,
+    ProfessionalRoadmapProgressService,
     ProfessionalCertificateFileService,
     ProfessionalProvisioningApiService,
+    ProfessionalRoadmapCandidateService,
+    ProfessionalRoadmapGenerationService,
     ProfessionalProfileCompletionService,
     LocalEvidenceStorageAdapter,
     { provide: EVIDENCE_STORAGE, useExisting: LocalEvidenceStorageAdapter },
@@ -103,21 +119,21 @@ import "@professional/enums/professional-register.enum";
   ],
   exports: [
     ProfessionalPduService,
+    ProfessionalAvatarService,
     CertificationSearchService,
     ProfessionalCpdPlanService,
     ProfessionalPduFileService,
-    ProfessionalAvatarService,
     ProfessionalProfileService,
     ProfessionalCoursesService,
     ProfessionalRoadmapService,
-    ProfessionalRoadmapDraftService,
-    ProfessionalRoadmapChatService,
     ProfessionalSettingsService,
     ProfessionalCalendarService,
     ProfessionalOverviewService,
     ProfessionalPaymentsService,
     ProfessionalCredentialService,
     PROFESSIONAL_PROVISIONING_API,
+    ProfessionalRoadmapChatService,
+    ProfessionalRoadmapDraftService,
     ProfessionalCertificatesService,
     ProfessionalProfileCompletionService,
   ],

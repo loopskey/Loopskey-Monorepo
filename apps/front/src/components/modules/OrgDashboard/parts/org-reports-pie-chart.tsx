@@ -48,7 +48,7 @@ export const OrgReportsDepartmentPieChart = ({ hook }: TOrgReportPieChart) => {
                     borderRadius: "1rem",
                     background: "var(--popover)",
                     color: "var(--popover-foreground)",
-                    border: "1px solid var(--glass-bordser)",
+                    border: "1px solid var(--glass-border)",
                     boxShadow: "0 20px 60px oklch(0.18 0.08 255 / 0.18)",
                   }}
                 />

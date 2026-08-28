@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useCurrentUserQuery } from "@lib/rtk/endpoints/auth.api";
 import { usePathname } from "next/navigation";
-import { siteLinks } from "@utils/constant";
-import { TNavItem } from "@/types/element.types";
+import { siteLinks, solutionEntries } from "@utils/constant";
+import { TNavItem, TSolutionLink } from "@/types/element.types";
 import { useI18n } from "@hooks/useI18n";
 import { isValidHref, normalizePath } from "@/utils/function-helper";
 
@@ -32,7 +32,15 @@ export const useHeader = () => {
     ].filter((item) => isValidHref(item.href) && item.label?.trim());
   }, [t]);
 
-  const loginHref = isValidHref(siteLinks.login) ? siteLinks.login : "/login";
+  // A visitor picks the solution that describes them; that page's own call to
+  // action is what carries them on to the sign in screen for the role.
+  const startLinks = useMemo<TSolutionLink[]>(
+    () =>
+      solutionEntries
+        .filter((entry) => isValidHref(entry.href))
+        .map(({ href, icon, labelKey }) => ({ href, icon, label: t(labelKey) })),
+    [t],
+  );
 
   const currentPath = normalizePath(pathname ?? "/");
 
@@ -75,7 +83,7 @@ export const useHeader = () => {
   return {
     t,
     navItems,
-    loginHref,
+    startLinks,
     isScrolled,
     isMobileOpen,
     isUserFetching,

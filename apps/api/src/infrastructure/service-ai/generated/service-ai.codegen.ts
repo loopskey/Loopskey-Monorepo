@@ -153,6 +153,14 @@ const renderLimits = (schemas: Record<string, JsonSchema>) => {
       "certification_name",
       "maxLength",
     ),
+    candidateTitleMaxLength: at("ContentCandidate", "title", "maxLength"),
+    candidateSummaryMaxLength: at("ContentCandidate", "summary", "maxLength"),
+    candidateContentIdMaxLength: at(
+      "ContentCandidate",
+      "content_id",
+      "maxLength",
+    ),
+    candidateTagsMaxItems: at("ContentCandidate", "tags", "maxItems"),
     subjectOptionIdMaxLength: at("SubjectOption", "id", "maxLength"),
     subjectOptionLabelMaxLength: at("SubjectOption", "label", "maxLength"),
   };

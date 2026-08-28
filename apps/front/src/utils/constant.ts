@@ -45,6 +45,29 @@ export const siteLinks = {
   profile: "/dashboard/professional?tab=profile",
 };
 
+export const solutionEntries = [
+  {
+    href: siteLinks.professionals,
+    labelKey: "footer.links.professionals",
+    icon: L.UserRound,
+  },
+  {
+    href: siteLinks.associations,
+    labelKey: "footer.links.associations",
+    icon: L.Users,
+  },
+  {
+    href: siteLinks.organizations,
+    labelKey: "footer.links.organizations",
+    icon: L.Building2,
+  },
+  {
+    href: siteLinks.solutionContentProviders,
+    labelKey: "footer.links.solutionContentProviders",
+    icon: L.LibraryBig,
+  },
+] as const;
+
 export const companyEmail = "loopskey.dev@gmail.com";
 
 // ============== Contact Us ==============
@@ -196,7 +219,7 @@ export const statusConfig = {
   active: {
     icon: L.LoaderCircle,
     circleClassName:
-      "bg-background text-primary border-primary shadow-[0_0_0_6px_hsl(var(--primary)/0.12)]",
+      "bg-background text-primary border-primary shadow-[0_0_0_6px_color-mix(in_oklab,var(--primary)_12%,transparent)]",
     lineClassName: "bg-primary/50",
   },
   upcoming: {

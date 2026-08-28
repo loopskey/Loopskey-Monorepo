@@ -87,7 +87,7 @@ const LandingProvider = () => {
 
           <RevealOnScroll direction="right" delay={120}>
             <GlassCard className="relative overflow-hidden p-5 md:p-6">
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,hsl(var(--primary)/0.18),transparent_34%),radial-gradient(circle_at_bottom_left,hsl(var(--accent)/0.12),transparent_32%)]" />
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,color-mix(in_oklab,var(--primary)_18%,transparent),transparent_34%),radial-gradient(circle_at_bottom_left,color-mix(in_oklab,var(--accent)_12%,transparent),transparent_32%)]" />
 
               <div className="relative z-10">
                 <div className="flex items-start justify-between gap-4">

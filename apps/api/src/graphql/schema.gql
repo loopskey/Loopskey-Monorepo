@@ -1224,6 +1224,7 @@ type Mutation {
   changePassword(input: ChangePasswordInput!): AuthPayload!
   clearCart: ContentActionPayload!
   completeProfessionalOnboarding(input: CompleteProfessionalOnboardingInput!): ProfessionalDashboardProfile!
+  completeRoadmapStep(enrollmentId: ID!, stepId: ID!): RoadmapStepProgress!
   confirmExternalLearning(input: ConfirmExternalLearningInput!): ExternalLearningActivity!
   createCalendarEvent(input: CreateCalendarEventInput!): ProfessionalManualCalendarEvent!
   createCourse(input: CreateCourseInput!): Course!
@@ -1257,6 +1258,7 @@ type Mutation {
   deleteUser(userId: String!): User!
   deleteYouTubeChannel(channelId: String!): YouTubeChannel!
   deleteYouTubeVideo(videoId: String!): YouTubeVideo!
+  dismissProfessionalOnboarding: ProfessionalDashboardProfile!
   enrollContent(input: ContentActionInput!): ContentActionPayload!
   forgotPassword(input: ForgotPasswordInput!): AuthPayload!
   ignoreExternalLearning(activityId: String!): ExternalLearningActionResponse!
@@ -1274,6 +1276,7 @@ type Mutation {
   removeAdminOrganizationMember(memberId: String!): AdminOrgMember!
   removeFromCart(input: ContentActionInput!): ContentActionPayload!
   requestEmailChange(input: RequestEmailChangeInput!): AuthPayload!
+  requestRoadmapGeneration(draftId: ID!): ProfessionalRoadmapDraft!
   resendAdminOrgAccessRequestNotification(requestId: String!): AdminOrgAccessRequest!
   resendEmailOtp(input: ResendEmailOtpInput!): AuthPayload!
   resendOrganizationActivation(input: ResendOrganizationActivationInput!): AuthPayload!
@@ -1288,6 +1291,7 @@ type Mutation {
   setProfessionalCertificateCpdPlan(input: SetCertificateCpdPlanInput!): ProfessionalCertificate!
   startProfessionalOnboarding: ProfessionalDashboardProfile!
   startRoadmapDraft: ProfessionalRoadmapDraft!
+  startRoadmapStep(enrollmentId: ID!, stepId: ID!): RoadmapStepProgress!
   submitContactInquiry(input: SubmitContactInquiryInput!): SubmitContactInquiryPayload!
   submitContentReview(input: SubmitContentReviewInput!): ContentReview!
   submitOrganizationAccessRequest(input: SubmitOrganizationAccessRequestInput!): OrganizationAccessRequest!
@@ -2253,6 +2257,7 @@ type ProfessionalDashboardProfile {
   linkedInUrl: String
   mainSkillAreas: [ProfessionalTaxonomyTerm!]!
   onboardingCompletedAt: DateTime
+  onboardingDismissedAt: DateTime
   phone: String
   preferredLearningFormats: [LearningFormat!]!
   profession: String
@@ -2470,8 +2475,11 @@ type ProfessionalRoadmap {
   completedAt: DateTime
   completedPhases: Int!
   completedSteps: Int!
+  coverageNote: String
   description: String!
+  earnedCredits: Float!
   enrolledAt: DateTime!
+  estimatedWeeks: Int
   id: ID!
   imageUrl: String
   level: CourseLevel!
@@ -2480,10 +2488,13 @@ type ProfessionalRoadmap {
   phases: [ProfessionalRoadmapPhase!]!
   phasesCount: Int!
   progress: Int!
+  requiredCredits: Float
   roadmapId: ID!
   roadmapStatus: RoadmapStatus!
   slug: String!
+  source: RoadmapSource!
   status: RoadmapEnrollmentStatus!
+  targetDate: DateTime
   title: String!
   totalSteps: Int!
   updatedAt: DateTime!
@@ -2498,6 +2509,7 @@ type ProfessionalRoadmapDraft {
   context: String
   cpdEnabled: Boolean!
   currentStep: RoadmapDraftStep!
+  failureReason: String
   goal: String
   goalReason: String
   id: ID!
@@ -2521,7 +2533,9 @@ type ProfessionalRoadmapDraft {
 
 type ProfessionalRoadmapPhase {
   completed: Boolean!
+  completedSteps: Int!
   description: String
+  estimatedWeeks: Int
   id: ID!
   order: Int!
   progress: Int!
@@ -2531,11 +2545,14 @@ type ProfessionalRoadmapPhase {
 }
 
 type ProfessionalRoadmapStep {
+  completedAt: DateTime
   contentId: String
   contentType: ContentType
   description: String
+  estimatedMinutes: Int
   id: ID!
   order: Int!
+  status: RoadmapStepProgressStatus
   title: String!
 }
 
@@ -2875,6 +2892,7 @@ type Query {
   professionalPduReport(year: Int): ProfessionalPduReport!
   professionalProfileTaxonomy(kind: ProfileTaxonomyKind): [ProfessionalTaxonomyGroup!]!
   professionalRoadmapDraft(draftId: ID, transcript: ProfessionalPaginationInput): ProfessionalRoadmapDraft
+  professionalRoadmapRecommendations(enrollmentId: ID!): [RoadmapRecommendation!]!
   professionalSettings: ProfessionalSettings!
   providerAnalytics(input: ProviderDashboardRangeInput): ProviderAnalytics!
   providerAnalyticsCsv(input: ProviderDashboardRangeInput): CsvExport!
@@ -2986,10 +3004,43 @@ enum RoadmapEnrollmentStatus {
   UNENROLLED
 }
 
+type RoadmapRecommendation {
+  contentId: ID!
+  contentType: ContentType!
+  credits: Float
+  durationMinutes: Int
+  isFree: Boolean!
+  summary: String
+  title: String!
+}
+
+enum RoadmapSource {
+  CATALOG
+  GENERATED
+}
+
 enum RoadmapStatus {
   ARCHIVED
   DRAFT
   PUBLISHED
+}
+
+type RoadmapStepProgress {
+  completedAt: DateTime
+  completedSteps: Int!
+  enrollmentId: ID!
+  phaseCompleted: Boolean!
+  phaseId: ID
+  phaseProgress: Int!
+  progress: Int!
+  status: RoadmapStepProgressStatus!
+  stepId: ID!
+  totalSteps: Int!
+}
+
+enum RoadmapStepProgressStatus {
+  COMPLETED
+  IN_PROGRESS
 }
 
 type RoadmapSubjectOption {

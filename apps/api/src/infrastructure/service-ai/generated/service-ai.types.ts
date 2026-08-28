@@ -30,6 +30,10 @@ export const SERVICE_AI_LIMITS = {
   goalReasonMaxLength: 1000,
   contextMaxLength: 2000,
   certificationNameMaxLength: 250,
+  candidateTitleMaxLength: 500,
+  candidateSummaryMaxLength: 1500,
+  candidateContentIdMaxLength: 128,
+  candidateTagsMaxItems: 20,
   subjectOptionIdMaxLength: 128,
   subjectOptionLabelMaxLength: 250,
 } as const;

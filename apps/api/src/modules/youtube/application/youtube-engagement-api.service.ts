@@ -3,6 +3,8 @@ import { YouTubeEngagementApi } from "@youtube/public/youtube-engagement-api";
 import { YouTubeService } from "@youtube/services/youtbue.service";
 import { Injectable } from "@nestjs/common";
 
+import type { RoadmapCandidateQuery } from "@youtube/public/youtube-engagement-api";
+
 @Injectable()
 export class YouTubeEngagementApiService implements YouTubeEngagementApi {
   constructor(private readonly youtubeService: YouTubeService) {}
@@ -17,5 +19,9 @@ export class YouTubeEngagementApiService implements YouTubeEngagementApi {
     count: number,
   ): Promise<void> {
     await this.youtubeService.updateEngagementRating(channelId, average, count);
+  }
+
+  roadmapCandidateChannels(query: RoadmapCandidateQuery) {
+    return this.youtubeService.roadmapCandidates(query);
   }
 }

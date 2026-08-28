@@ -22,6 +22,9 @@ const CAPABILITIES = {
     "professional-roadmap.service.ts",
     "professional-roadmap-chat.service.ts",
     "professional-roadmap-draft.service.ts",
+    "professional-roadmap-candidate.service.ts",
+    "professional-roadmap-progress.service.ts",
+    "professional-roadmap-generation.service.ts",
   ],
   courses: ["professional-courses.service.ts"],
   payments: ["professional-payments.service.ts"],
@@ -44,6 +47,16 @@ const ALLOWED_INTERNAL_EDGES: Readonly<Record<string, readonly string[]>> = {
     "professional-cpd-plan.service.ts",
     "professional-profile.service.ts",
     "professional-roadmap-draft.service.ts",
+  ],
+  // Generation assembles its candidate set through the candidate service and
+  // owns nothing else inside the module.
+  "professional-roadmap-generation.service.ts": [
+    "professional-roadmap-candidate.service.ts",
+  ],
+  // Recommendations reuse the ranking that chose the roadmap's own content,
+  // because the draft behind it is what says what this professional wants.
+  "professional-roadmap-progress.service.ts": [
+    "professional-roadmap-candidate.service.ts",
   ],
 };
 

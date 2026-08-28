@@ -2,7 +2,7 @@ import type { TextareaHTMLAttributes, InputHTMLAttributes } from "react";
 import type { HTMLAttributes, ReactNode, CSSProperties } from "react";
 import type { Control, FieldPath, FieldValues, Path } from "react-hook-form";
 import type { ExternalLearningProvider } from "@/lib/graphql/base";
-import type { ComponentProps } from "react";
+import type { ComponentProps, ElementType } from "react";
 import type { buttonVariants } from "@ui/button";
 import type { VariantProps } from "class-variance-authority";
 import type { AvatarImage } from "@ui/avatar";
@@ -188,6 +188,11 @@ export type TFooterColumn = {
 export type TFooterLink = {
   href: string;
   label: string;
+};
+
+// ============== Solutions ================
+export type TSolutionLink = TFooterLink & {
+  icon: ElementType;
 };
 
 export type TSocialLink = {

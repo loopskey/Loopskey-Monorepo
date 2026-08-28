@@ -419,6 +419,21 @@ export const professionalApi = baseApi.injectEndpoints({
         response.startProfessionalOnboarding,
     }),
 
+    // Onboarding is optional, so leaving the wizard is recorded rather than
+    // blocked. Only the profile query carries the flag the gate reads.
+    dismissProfessionalOnboarding: builder.mutation<
+      TAPI.DismissProfessionalOnboardingMutation["dismissProfessionalOnboarding"],
+      void
+    >({
+      query: () => ({
+        document: API.DismissProfessionalOnboardingDocument,
+      }),
+      transformResponse: (
+        response: TAPI.DismissProfessionalOnboardingMutation,
+      ) => response.dismissProfessionalOnboarding,
+      invalidatesTags: ["ProfessionalProfile"],
+    }),
+
     completeProfessionalOnboarding: builder.mutation<
       TAPI.CompleteProfessionalOnboardingMutation["completeProfessionalOnboarding"],
       TAPI.CompleteProfessionalOnboardingMutationVariables["input"]
@@ -557,6 +572,56 @@ export const professionalApi = baseApi.injectEndpoints({
       providesTags: ["ProfessionalRoadmaps", "Professional"],
     }),
 
+    professionalRoadmapDraftStatus: builder.query<
+      TAPI.ProfessionalRoadmapDraftStatusQuery["professionalRoadmapDraft"],
+      void
+    >({
+      query: () => ({ document: API.ProfessionalRoadmapDraftStatusDocument }),
+      transformResponse: (response: TAPI.ProfessionalRoadmapDraftStatusQuery) =>
+        response.professionalRoadmapDraft,
+      providesTags: ["ProfessionalRoadmaps", "Professional"],
+    }),
+
+    professionalRoadmapRecommendations: builder.query<
+      TAPI.ProfessionalRoadmapRecommendationsQuery["professionalRoadmapRecommendations"],
+      TAPI.ProfessionalRoadmapRecommendationsQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.ProfessionalRoadmapRecommendationsDocument,
+        variables,
+      }),
+      transformResponse: (
+        response: TAPI.ProfessionalRoadmapRecommendationsQuery,
+      ) => response.professionalRoadmapRecommendations,
+      providesTags: ["ProfessionalRoadmaps", "Professional"],
+    }),
+
+    startRoadmapStep: builder.mutation<
+      TAPI.StartRoadmapStepMutation["startRoadmapStep"],
+      TAPI.StartRoadmapStepMutationVariables
+    >({
+      query: (variables) => ({
+        document: API.StartRoadmapStepDocument,
+        variables,
+      }),
+      transformResponse: (response: TAPI.StartRoadmapStepMutation) =>
+        response.startRoadmapStep,
+      // No invalidation: the response carries every number the tab shows, so
+      // refetching the whole list would only replace it with the same values.
+    }),
+
+    completeRoadmapStep: builder.mutation<
+      TAPI.CompleteRoadmapStepMutation["completeRoadmapStep"],
+      TAPI.CompleteRoadmapStepMutationVariables
+    >({
+      query: (variables) => ({
+        document: API.CompleteRoadmapStepDocument,
+        variables,
+      }),
+      transformResponse: (response: TAPI.CompleteRoadmapStepMutation) =>
+        response.completeRoadmapStep,
+    }),
+
     professionalExploreRoadmaps: builder.query<
       TAPI.ProfessionalExploreRoadmapsQuery["professionalExploreRoadmaps"],
       TAPI.ProfessionalExploreRoadmapsQueryVariables | void
@@ -628,5 +693,11 @@ export const {
   useDeleteProfessionalCredentialMutation,
 
   useStartProfessionalOnboardingMutation,
+  useDismissProfessionalOnboardingMutation,
   useCompleteProfessionalOnboardingMutation,
+
+  useStartRoadmapStepMutation,
+  useCompleteRoadmapStepMutation,
+  useProfessionalRoadmapRecommendationsQuery,
+  useProfessionalRoadmapDraftStatusQuery,
 } = professionalApi;

@@ -8,8 +8,27 @@ export type YouTubeEngagementProjection = {
   readonly currency: "USD";
 };
 
+export type RoadmapCandidateChannelProjection = {
+  readonly id: string;
+  readonly title: string;
+  readonly rating: number;
+  readonly category: string;
+  readonly ratingCount: number;
+  readonly subscribers: number;
+  readonly isFeatured: boolean;
+  readonly description: string | null;
+};
+
+export type RoadmapCandidateQuery = {
+  readonly take: number;
+  readonly subjects: readonly string[];
+};
+
 export interface YouTubeEngagementApi {
   resolveChannel(channelId: string): Promise<YouTubeEngagementProjection>;
+  roadmapCandidateChannels(
+    query: RoadmapCandidateQuery,
+  ): Promise<RoadmapCandidateChannelProjection[]>;
   updateChannelRating(
     channelId: string,
     average: number,

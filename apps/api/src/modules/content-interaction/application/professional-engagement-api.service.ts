@@ -1,9 +1,12 @@
-import { PaymentStatus, RoadmapEnrollmentStatus } from "@prisma/client";
+import { PaymentStatus, Prisma, RoadmapEnrollmentStatus } from "@prisma/client";
 import { ContentEnrollmentStatus, ContentType } from "@prisma/client";
 import { RoadmapStepProgressStatus } from "@prisma/client";
 import { ProfessionalEngagementApi } from "@contentAction/public/professional-engagement-api";
 import { PrismaService } from "@prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
+
+import type { RoadmapEnrollmentInput } from "@contentAction/public/professional-engagement-api";
+import type { UnitOfWork } from "@contentAction/public/professional-engagement-api";
 
 @Injectable()
 export class ProfessionalEngagementApiService
@@ -93,9 +96,6 @@ export class ProfessionalEngagementApiService
       _count: { _all: true },
     });
 
-    // An enrollment appears in the result only if it has at least one row, in
-    // any status. That is what lets the caller distinguish an enrollment with
-    // nothing completed yet from one that predates step tracking entirely.
     const counts: Record<string, number> = {};
     for (const group of groups) {
       counts[group.enrollmentId] ??= 0;
@@ -104,6 +104,75 @@ export class ProfessionalEngagementApiService
       }
     }
     return counts;
+  }
+
+  roadmapEnrollmentById(input: { userId: string; enrollmentId: string }) {
+    return this.prisma.roadmapEnrollment.findFirst({
+      where: { id: input.enrollmentId, userId: input.userId },
+      select: {
+        id: true,
+        userId: true,
+        status: true,
+        draftId: true,
+        progress: true,
+        roadmapId: true,
+        targetDate: true,
+        completedAt: true,
+      },
+    });
+  }
+
+  async roadmapStepProgress(input: {
+    userId: string;
+    enrollmentIds: string[];
+  }) {
+    if (input.enrollmentIds.length === 0) return [];
+    return this.prisma.roadmapStepProgress.findMany({
+      where: {
+        enrollmentId: { in: input.enrollmentIds },
+        enrollment: { userId: input.userId },
+      },
+      select: {
+        stepId: true,
+        status: true,
+        completedAt: true,
+        enrollmentId: true,
+      },
+    });
+  }
+
+  async completeRoadmapEnrollment(input: {
+    userId: string;
+    enrollmentId: string;
+  }) {
+    await this.prisma.roadmapEnrollment.updateMany({
+      where: {
+        id: input.enrollmentId,
+        userId: input.userId,
+        status: { not: RoadmapEnrollmentStatus.COMPLETED },
+      },
+      data: {
+        status: RoadmapEnrollmentStatus.COMPLETED,
+        completedAt: new Date(),
+      },
+    });
+  }
+
+  async reopenRoadmapEnrollment(input: {
+    userId: string;
+    enrollmentId: string;
+  }) {
+    await this.prisma.roadmapEnrollment.updateMany({
+      where: {
+        id: input.enrollmentId,
+        userId: input.userId,
+        status: RoadmapEnrollmentStatus.COMPLETED,
+      },
+      data: {
+        status: RoadmapEnrollmentStatus.ACTIVE,
+        completedAt: null,
+      },
+    });
   }
 
   private async ownedEnrollment(userId: string, enrollmentId: string) {
@@ -123,9 +192,6 @@ export class ProfessionalEngagementApiService
       input.enrollmentId,
     );
     if (!enrollment) return null;
-
-    // The unique constraint on (enrollmentId, stepId) makes this idempotent.
-    // Starting an already-completed step does not reopen it.
     return this.prisma.roadmapStepProgress.upsert({
       where: {
         enrollmentId_stepId: {
@@ -159,16 +225,11 @@ export class ProfessionalEngagementApiService
         stepId: input.stepId,
       },
     };
-
-    // Repeating the call must not move the completion time, so an already
-    // completed step is returned untouched rather than written again.
     const existing = await this.prisma.roadmapStepProgress.findUnique({
       where: key,
     });
-    if (existing?.status === RoadmapStepProgressStatus.COMPLETED) {
+    if (existing?.status === RoadmapStepProgressStatus.COMPLETED)
       return existing;
-    }
-
     const completedAt = new Date();
     return this.prisma.roadmapStepProgress.upsert({
       where: key,
@@ -219,5 +280,29 @@ export class ProfessionalEngagementApiService
         nextCursor: rows.length > input.take ? items.at(-1)?.id : null,
       },
     };
+  }
+
+  async hasRoadmapEnrollmentForDraft(draftId: string) {
+    const found = await this.prisma.roadmapEnrollment.findUnique({
+      where: { draftId },
+      select: { id: true },
+    });
+    return found !== null;
+  }
+
+  async createRoadmapEnrollment(
+    input: RoadmapEnrollmentInput,
+    unitOfWork: UnitOfWork,
+  ) {
+    const writer = unitOfWork as Prisma.TransactionClient;
+    await writer.roadmapEnrollment.create({
+      data: {
+        userId: input.userId,
+        draftId: input.draftId,
+        roadmapId: input.roadmapId,
+        targetDate: input.targetDate,
+        status: RoadmapEnrollmentStatus.ACTIVE,
+      },
+    });
   }
 }

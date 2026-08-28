@@ -323,6 +323,7 @@ model ProfessionalProfile {
   professionalGoal      ProfessionalGoal?
   onboardingStartedAt   DateTime?
   onboardingCompletedAt DateTime?
+  onboardingDismissedAt DateTime?
 
   // Skills and interests
   currentSkillLevel SkillLevel?
