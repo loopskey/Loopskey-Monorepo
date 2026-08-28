@@ -22,6 +22,10 @@ it; do not preload `context/`.
 Permanent repository rules:
 
 - Preserve unrelated work and never commit directly to `main` or `develop`.
+- Assume concurrent requests and multiple API instances. A business invariant
+  must rest on a database constraint or a conditional write, never on a read
+  performed before the write. Read "Concurrency and race conditions" in
+  `context/coding-standards.md` before adding or changing one.
 - Target feature PRs to `develop`; never merge or delete branches automatically.
 - Use npm workspaces and run commands from the repository root. Turborepo drives
   both applications.
