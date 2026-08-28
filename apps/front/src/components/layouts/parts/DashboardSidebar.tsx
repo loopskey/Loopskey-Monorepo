@@ -1,10 +1,8 @@
 "use client";
 
-import {
-  getDashboardTabsByRole,
-  isDashboardTabActive,
-} from "@/utils/dashboard-nav.config";
 import { DashboardSidebarSkeleton } from "@layouts/parts/DashboardSkeleton";
+import { getDashboardTabsByRole } from "@/utils/dashboard-nav.config";
+import { isDashboardTabActive } from "@/utils/dashboard-nav.config";
 import { useCurrentUserQuery } from "@/lib/rtk/endpoints/auth.api";
 import { getDashboardPath } from "@/utils/constant";
 import { useSearchParams } from "next/navigation";
