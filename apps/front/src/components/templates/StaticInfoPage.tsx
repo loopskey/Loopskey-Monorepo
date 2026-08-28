@@ -125,7 +125,7 @@ export const StaticInfoPage = ({ pageKey }: { pageKey: PageKey }) => {
 
   return (
     <main className="relative overflow-x-clip">
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.18),transparent_34%),radial-gradient(circle_at_bottom_right,hsl(var(--accent)/0.14),transparent_32%)]" />
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,color-mix(in_oklab,var(--primary)_18%,transparent),transparent_34%),radial-gradient(circle_at_bottom_right,color-mix(in_oklab,var(--accent)_14%,transparent),transparent_32%)]" />
 
       <section className="px-4 py-10 sm:px-6 md:py-16 lg:px-8">
         <div className="mx-auto max-w-7xl">

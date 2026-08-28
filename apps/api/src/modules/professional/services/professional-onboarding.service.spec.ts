@@ -343,3 +343,55 @@ describe("ProfessionalOnboardingService.start", () => {
     expect(prisma.professionalProfile.update).not.toHaveBeenCalled();
   });
 });
+
+describe("ProfessionalOnboardingService.dismiss", () => {
+  it("rejects a caller who is not a professional", async () => {
+    const { service } = createService();
+
+    await expect(
+      service.dismiss({ id: "user-2", role: Role.PROVIDER }),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+  });
+
+  it("stamps the dismissal when the wizard is left unanswered", async () => {
+    const { service, prisma } = createService();
+    prisma.professionalProfile.upsert.mockResolvedValueOnce({
+      id: "profile-1",
+      onboardingDismissedAt: null,
+      onboardingCompletedAt: null,
+    });
+
+    await service.dismiss(professional);
+
+    expect(prisma.professionalProfile.update).toHaveBeenCalledWith({
+      where: { id: "profile-1" },
+      data: { onboardingDismissedAt: expect.any(Date) },
+    });
+  });
+
+  it("keeps the first dismissal rather than moving it", async () => {
+    const { service, prisma } = createService();
+    prisma.professionalProfile.upsert.mockResolvedValueOnce({
+      id: "profile-1",
+      onboardingDismissedAt: new Date("2026-08-01T00:00:00.000Z"),
+      onboardingCompletedAt: null,
+    });
+
+    await service.dismiss(professional);
+
+    expect(prisma.professionalProfile.update).not.toHaveBeenCalled();
+  });
+
+  it("leaves an answered profile alone", async () => {
+    const { service, prisma } = createService();
+    prisma.professionalProfile.upsert.mockResolvedValueOnce({
+      id: "profile-1",
+      onboardingDismissedAt: null,
+      onboardingCompletedAt: new Date("2026-08-02T00:00:00.000Z"),
+    });
+
+    await service.dismiss(professional);
+
+    expect(prisma.professionalProfile.update).not.toHaveBeenCalled();
+  });
+});

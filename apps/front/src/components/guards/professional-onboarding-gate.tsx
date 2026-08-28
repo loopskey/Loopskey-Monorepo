@@ -1,17 +1,13 @@
 "use client";
 
+import { useDismissProfessionalOnboardingMutation } from "@/lib/rtk/endpoints/professional.api";
 import { useProfessionalDashboardProfileQuery } from "@/lib/rtk/endpoints/professional.api";
+import { ReactNode, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { ReactNode, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 
 import * as C from "@/utils/professional-onboarding.constant";
 
-/**
- * Sends a professional who has not finished onboarding to the wizard, and keeps
- * one who has out of it. Completion is read from the profile itself, so the
- * gate and the wizard share a single source of truth.
- */
 export const ProfessionalOnboardingGate = ({
   children,
 }: {
@@ -22,27 +18,36 @@ export const ProfessionalOnboardingGate = ({
 
   const { data, error, isLoading, isFetching } =
     useProfessionalDashboardProfileQuery();
+  const [dismissOnboarding] = useDismissProfessionalOnboardingMutation();
 
   const isOnboardingRoute = pathname === C.ONBOARDING_HREF;
-  const isComplete = Boolean(data?.onboardingCompletedAt);
 
-  // A refetch keeps the previous result, so waiting for it to settle stops the
-  // gate from acting on a profile that predates the wizard's own save.
-  const isChecking = isLoading || isFetching || !data;
-  const needsRedirect =
-    !isChecking && (isComplete ? isOnboardingRoute : !isOnboardingRoute);
+  const isSettled = Boolean(data) && !isFetching && !error;
+  const isOffered =
+    isSettled && !data?.onboardingCompletedAt && !data?.onboardingDismissedAt;
+  const hasSeenWizard = useRef(false);
+  useEffect(() => {
+    if (isOnboardingRoute) hasSeenWizard.current = true;
+  }, [isOnboardingRoute]);
+
+  const hasLeftWizard =
+    isOffered && !isOnboardingRoute && hasSeenWizard.current;
+  const needsOffer = isOffered && !isOnboardingRoute && !hasSeenWizard.current;
+  const needsExit = isSettled && !isOffered && isOnboardingRoute;
+
+  const hasDismissed = useRef(false);
+  useEffect(() => {
+    if (!hasLeftWizard || hasDismissed.current) return;
+    hasDismissed.current = true;
+    void dismissOnboarding();
+  }, [hasLeftWizard, dismissOnboarding]);
 
   useEffect(() => {
-    if (!needsRedirect) return;
-    router.replace(isComplete ? C.PROFILE_TAB_HREF : C.ONBOARDING_HREF);
-  }, [router, isComplete, needsRedirect]);
-
-  // If the profile cannot be read the gate has nothing to decide on. Letting
-  // the page through leaves the user with the screen's own error and retry
-  // rather than a spinner that never resolves.
+    if (needsOffer) router.replace(C.ONBOARDING_HREF);
+    else if (needsExit) router.replace(C.PROFILE_TAB_HREF);
+  }, [router, needsOffer, needsExit]);
   if (error) return <>{children}</>;
-
-  if (isLoading || !data || needsRedirect)
+  if (isLoading || !data || needsOffer || needsExit)
     return (
       <div className="flex min-h-[70vh] items-center justify-center">
         <Loader2 className="h-7 w-7 animate-spin text-primary" />

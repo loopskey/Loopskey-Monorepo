@@ -2,9 +2,9 @@ import { CompleteProfessionalOnboardingInput } from "@professional/dtos/complete
 import { ProfessionalDashboardProfileEntity } from "@professional/entities/professional-profile.entity";
 import { ProfessionalOnboardingService } from "@professional/services/professional-onboarding.service";
 import { ProfessionalGqlMutationNames } from "@professional/enums/gql-names.enum";
+import { Args, Mutation, Resolver } from "@nestjs/graphql";
 import { TResolverUser } from "@professional/types/professional-service.types";
 import { CurrentUser } from "@auth/decorators/current-user.decorator";
-import { Args, Mutation, Resolver } from "@nestjs/graphql";
 import { Roles } from "@auth/decorators/roles.decorator";
 import { Role } from "@prisma/client";
 
@@ -24,6 +24,13 @@ export class ProfessionalOnboardingResolver {
   })
   startProfessionalOnboarding(@CurrentUser() user: TResolverUser) {
     return this.onboardingService.start(this.getUser(user));
+  }
+
+  @Mutation(() => ProfessionalDashboardProfileEntity, {
+    name: ProfessionalGqlMutationNames.DISMISS_PROFESSIONAL_ONBOARDING,
+  })
+  dismissProfessionalOnboarding(@CurrentUser() user: TResolverUser) {
+    return this.onboardingService.dismiss(this.getUser(user));
   }
 
   @Mutation(() => ProfessionalDashboardProfileEntity, {

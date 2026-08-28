@@ -1305,6 +1305,7 @@ export type Mutation = {
   deleteUser: User;
   deleteYouTubeChannel: YouTubeChannel;
   deleteYouTubeVideo: YouTubeVideo;
+  dismissProfessionalOnboarding: ProfessionalDashboardProfile;
   enrollContent: ContentActionPayload;
   forgotPassword: AuthPayload;
   ignoreExternalLearning: ExternalLearningActionResponse;
@@ -2950,6 +2951,7 @@ export type ProfessionalDashboardProfile = {
   linkedInUrl?: Maybe<Scalars['String']['output']>;
   mainSkillAreas: Array<ProfessionalTaxonomyTerm>;
   onboardingCompletedAt?: Maybe<Scalars['DateTime']['output']>;
+  onboardingDismissedAt?: Maybe<Scalars['DateTime']['output']>;
   phone?: Maybe<Scalars['String']['output']>;
   preferredLearningFormats: Array<LearningFormat>;
   profession?: Maybe<Scalars['String']['output']>;

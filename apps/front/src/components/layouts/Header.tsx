@@ -1,10 +1,11 @@
 "use client";
 
-import { ArrowRight, Menu, X } from "lucide-react";
 import { LanguageToggleBtn } from "@elements/language-switcher";
 import { ThemeToggle } from "@elements/theme-toggle";
+import { StartMenu } from "@layouts/parts/start-menu";
 import { useHeader } from "@hooks/useHeader";
 import { UserMenu } from "@layouts/parts/user-menu";
+import { Menu, X } from "lucide-react";
 import { Button } from "@ui/button";
 import { Logo } from "@layouts/parts/logo";
 import { cn } from "@lib/utils";
@@ -15,7 +16,7 @@ const Header = () => {
   const {
     t,
     navItems,
-    loginHref,
+    startLinks,
     isScrolled,
     isMobileOpen,
     isAuthenticated,
@@ -60,16 +61,7 @@ const Header = () => {
         <div className="hidden items-center gap-2 lg:flex">
           <ThemeToggle />
           <LanguageToggleBtn />
-          {isAuthenticated ? (
-            <UserMenu />
-          ) : (
-            <Button asChild variant="brand" radius="full" size="lg">
-              <Link href={loginHref}>
-                {t("common.login")}
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
-          )}
+          {isAuthenticated ? <UserMenu /> : <StartMenu links={startLinks} />}
         </div>
 
         <div className="flex items-center gap-2 lg:hidden">
@@ -138,7 +130,7 @@ const Header = () => {
                 >
                   <span>{item.label}</span>
                   {isActive && (
-                    <span className="h-2 w-2 rounded-full bg-primary shadow-[0_0_0_4px_hsl(var(--primary)/0.14)]" />
+                    <span className="h-2 w-2 rounded-full bg-primary shadow-[0_0_0_4px_color-mix(in_oklab,var(--primary)_14%,transparent)]" />
                   )}
                 </Link>
               );
@@ -148,18 +140,11 @@ const Header = () => {
               {isAuthenticated ? (
                 <UserMenu />
               ) : (
-                <Button
-                  asChild
-                  size="lg"
-                  radius="xl"
-                  variant="brand"
+                <StartMenu
                   className="w-full"
-                >
-                  <Link href={loginHref} onClick={closeMobileMenu}>
-                    {t("common.login")}
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
+                  links={startLinks}
+                  onNavigate={closeMobileMenu}
+                />
               )}
             </div>
           </nav>

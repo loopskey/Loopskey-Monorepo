@@ -25,7 +25,7 @@ const TermsPage = () => {
   return (
     <main className="overflow-x-clip">
       <section className="relative px-4 py-10 md:py-16">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.18),transparent_34%),radial-gradient(circle_at_bottom_right,hsl(var(--accent)/0.14),transparent_32%)]" />
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,color-mix(in_oklab,var(--primary)_18%,transparent),transparent_34%),radial-gradient(circle_at_bottom_right,color-mix(in_oklab,var(--accent)_14%,transparent),transparent_32%)]" />
 
         <div className="mx-auto max-w-7xl">
           <RevealOnScroll direction="up">
@@ -269,7 +269,7 @@ const TermsPage = () => {
         <div className="mx-auto max-w-7xl">
           <RevealOnScroll direction="up">
             <div className="relative overflow-hidden rounded-[2.5rem] border border-primary/20 bg-slate-600 p-8 text-white shadow-2xl md:p-10">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.35),transparent_34%),radial-gradient(circle_at_bottom_right,hsl(var(--accent)/0.25),transparent_30%)]" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,color-mix(in_oklab,var(--primary)_35%,transparent),transparent_34%),radial-gradient(circle_at_bottom_right,color-mix(in_oklab,var(--accent)_25%,transparent),transparent_30%)]" />
 
               <div className="relative z-10 grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
                 <div>

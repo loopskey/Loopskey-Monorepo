@@ -148,6 +148,7 @@ export enum ProfessionalGqlMutationNames {
   SET_PROFESSIONAL_CERTIFICATE_CPD_PLAN = "setProfessionalCertificateCpdPlan",
   START_PROFESSIONAL_ONBOARDING = "startProfessionalOnboarding",
   COMPLETE_PROFESSIONAL_ONBOARDING = "completeProfessionalOnboarding",
+  DISMISS_PROFESSIONAL_ONBOARDING = "dismissProfessionalOnboarding",
   START_ROADMAP_DRAFT = "startRoadmapDraft",
   SEND_ROADMAP_CHAT_TURN = "sendRoadmapChatTurn",
   PATCH_ROADMAP_DRAFT = "patchRoadmapDraft",

@@ -25,13 +25,13 @@
   --accent: oklch(0.88 0.075 190);
   --accent-foreground: oklch(0.2 0.05 230);
 
-  --success: oklch(0.62 0.16 155);
+  --success: oklch(0.53 0.16 155);
   --success-foreground: oklch(0.99 0 0);
 
   --warning: oklch(0.78 0.15 75);
   --warning-foreground: oklch(0.22 0.035 65);
 
-  --destructive: oklch(0.62 0.22 25);
+  --destructive: oklch(0.55 0.22 25);
   --destructive-foreground: oklch(0.99 0 0);
 
   --premium: oklch(0.72 0.14 85);
@@ -39,27 +39,27 @@
 
   --ct-course: oklch(0.55 0.19 255);
   --ct-course-foreground: oklch(0.99 0 0);
-  --ct-event: oklch(0.6 0.16 155);
+  --ct-event: oklch(0.53 0.16 155);
   --ct-event-foreground: oklch(0.99 0 0);
   --ct-podcast: oklch(0.55 0.22 300);
   --ct-podcast-foreground: oklch(0.99 0 0);
   --ct-youtube: oklch(0.58 0.22 25);
   --ct-youtube-foreground: oklch(0.99 0 0);
 
-  --border: oklch(0.88 0.025 240);
-  --input: oklch(0.91 0.022 240);
+  --border: oklch(0.78 0.03 240);
+  --input: oklch(0.65 0.03 240);
   --ring: oklch(0.58 0.18 255);
 
   --glass: oklch(1 0 0 / 0.58);
-  --glass-border: oklch(1 0 0 / 0.65);
+  --glass-border: oklch(0.82 0.02 240);
 
   --radius: 0.875rem;
 }
 
 .dark {
-  /* Surface neutrals sit on the Neat gradient (hue ~280-318), so they are
-     tuned to 290 to match it. Accent hues below are intentionally left off
-     that hue to stay separable from the background. */
+  /* Surface neutrals share hue 290 with --background, which the fixed
+     backdrop layer paints directly. Accent hues below are intentionally
+     left off that hue to stay separable from the background. */
   --background: oklch(0.145 0.04 290);
   --foreground: oklch(0.965 0.012 290);
 
@@ -88,7 +88,7 @@
   --warning-foreground: oklch(0.12 0.035 65);
 
   --destructive: oklch(0.68 0.21 25);
-  --destructive-foreground: oklch(0.99 0 0);
+  --destructive-foreground: oklch(0.16 0.04 25);
 
   --premium: oklch(0.82 0.14 85);
   --premium-foreground: oklch(0.13 0.035 65);
@@ -102,12 +102,12 @@
   --ct-youtube: oklch(0.7 0.2 25);
   --ct-youtube-foreground: oklch(0.12 0.03 25);
 
-  --border: oklch(1 0 0 / 0.1);
-  --input: oklch(1 0 0 / 0.12);
+  --border: oklch(1 0 0 / 0.18);
+  --input: oklch(1 0 0 / 0.36);
   --ring: oklch(0.72 0.16 250);
 
   --glass: oklch(0.21 0.045 290 / 0.58);
-  --glass-border: oklch(1 0 0 / 0.12);
+  --glass-border: oklch(1 0 0 / 0.18);
 }
 
 @theme inline {
@@ -179,15 +179,6 @@ body {
   min-height: 100vh;
   background: var(--background);
   color: var(--foreground);
-}
-
-.glass-panel {
-  background: var(--glass);
-  border: 1px solid var(--glass-border);
-  box-shadow:
-    0 24px 80px oklch(0.18 0.08 255 / 0.12),
-    inset 0 1px 0 oklch(1 0 0 / 0.32);
-  backdrop-filter: blur(20px);
 }
 
 /* ================ Animated Gradient Buttons ================== */
@@ -364,7 +355,7 @@ body {
   position: relative;
   overflow: hidden;
   background: linear-gradient(135deg, oklch(1 0 0 / 0.68), oklch(1 0 0 / 0.32));
-  border: 1px solid oklch(1 0 0 / 0.68);
+  border: 1px solid var(--glass-border);
   box-shadow:
     0 34px 100px oklch(0.25 0.08 255 / 0.2),
     0 12px 34px oklch(0.25 0.08 255 / 0.1),
@@ -380,7 +371,6 @@ body {
     oklch(0.28 0.055 255 / 0.66),
     oklch(0.16 0.045 255 / 0.42)
   );
-  border: 1px solid oklch(1 0 0 / 0.14);
   box-shadow:
     0 38px 110px oklch(0.02 0.03 255 / 0.62),
     0 14px 42px oklch(0.02 0.03 255 / 0.42),
@@ -470,12 +460,12 @@ body {
 
 .landing-carousel-fade-left {
   left: 0;
-  background: linear-gradient(to right, hsl(var(--background)), transparent);
+  background: linear-gradient(to right, var(--background), transparent);
 }
 
 .landing-carousel-fade-right {
   right: 0;
-  background: linear-gradient(to left, hsl(var(--background)), transparent);
+  background: linear-gradient(to left, var(--background), transparent);
 }
 
 @media (max-width: 767px) {
@@ -498,30 +488,50 @@ body {
 
 /* ============== Calendar CSS ================= */
 .calendar-shell .fc {
-  --fc-border-color: hsl(var(--border));
+  --fc-border-color: var(--border);
   --fc-page-bg-color: transparent;
-  --fc-neutral-bg-color: hsl(var(--muted) / 0.35);
-  --fc-list-event-hover-bg-color: hsl(var(--muted) / 0.45);
+  --fc-neutral-bg-color: color-mix(in oklab, var(--muted) 35%, transparent);
+  --fc-list-event-hover-bg-color: color-mix(
+    in oklab,
+    var(--muted) 45%,
+    transparent
+  );
 
-  --fc-today-bg-color: hsl(var(--primary) / 0.08);
+  --fc-today-bg-color: color-mix(in oklab, var(--primary) 8%, transparent);
 
-  --fc-event-bg-color: hsl(var(--primary));
-  --fc-event-border-color: hsl(var(--primary));
-  --fc-event-text-color: hsl(var(--primary-foreground));
+  --fc-event-bg-color: var(--primary);
+  --fc-event-border-color: var(--primary);
+  --fc-event-text-color: var(--primary-foreground);
 
-  --fc-button-bg-color: hsl(var(--primary));
-  --fc-button-border-color: hsl(var(--primary));
-  --fc-button-text-color: hsl(var(--primary-foreground));
-  --fc-button-hover-bg-color: hsl(var(--primary) / 0.9);
-  --fc-button-hover-border-color: hsl(var(--primary) / 0.9);
-  --fc-button-active-bg-color: hsl(var(--primary) / 0.85);
-  --fc-button-active-border-color: hsl(var(--primary) / 0.85);
+  --fc-button-bg-color: var(--primary);
+  --fc-button-border-color: var(--primary);
+  --fc-button-text-color: var(--primary-foreground);
+  --fc-button-hover-bg-color: color-mix(
+    in oklab,
+    var(--primary) 90%,
+    transparent
+  );
+  --fc-button-hover-border-color: color-mix(
+    in oklab,
+    var(--primary) 90%,
+    transparent
+  );
+  --fc-button-active-bg-color: color-mix(
+    in oklab,
+    var(--primary) 85%,
+    transparent
+  );
+  --fc-button-active-border-color: color-mix(
+    in oklab,
+    var(--primary) 85%,
+    transparent
+  );
 
-  color: hsl(var(--foreground));
+  color: var(--foreground);
 }
 
 .calendar-shell .fc .fc-toolbar-title {
-  color: hsl(var(--foreground));
+  color: var(--foreground);
   font-size: 1.15rem;
   font-weight: 800;
 }
@@ -538,15 +548,15 @@ body {
 .calendar-shell .fc .fc-timegrid-slot-label,
 .calendar-shell .fc .fc-list-day-text,
 .calendar-shell .fc .fc-list-day-side-text {
-  color: hsl(var(--foreground));
+  color: var(--foreground);
 }
 
 .calendar-shell .fc .fc-day-other .fc-daygrid-day-number {
-  color: hsl(var(--muted-foreground));
+  color: var(--muted-foreground);
 }
 
 .calendar-shell .fc .fc-day-today .fc-daygrid-day-number {
-  color: hsl(var(--primary));
+  color: var(--primary);
   font-weight: 800;
 }
 
@@ -559,7 +569,7 @@ body {
 .calendar-shell .fc .fc-scrollgrid,
 .calendar-shell .fc .fc-theme-standard td,
 .calendar-shell .fc .fc-theme-standard th {
-  border-color: hsl(var(--border));
+  border-color: var(--border);
 }
 
 .calendar-shell .fc .fc-event {
@@ -589,53 +599,61 @@ body {
 
 .calendar-shell .fc .fc-list-event-title,
 .calendar-shell .fc .fc-list-event-time {
-  color: hsl(var(--foreground));
+  color: var(--foreground);
 }
 
 .calendar-shell .fc .fc-list-event:hover td {
-  background: hsl(var(--muted) / 0.45);
+  background: color-mix(in oklab, var(--muted) 45%, transparent);
 }
 
 .calendar-shell .fc .fc-button,
 .calendar-shell .fc .fc-button-primary {
-  background-color: hsl(var(--background) / 0.75) !important;
-  border: 1px solid hsl(var(--border)) !important;
-  color: hsl(var(--foreground)) !important;
+  background-color: color-mix(
+    in oklab,
+    var(--background) 75%,
+    transparent
+  ) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--foreground) !important;
   box-shadow: none !important;
 }
 
 .calendar-shell .fc .fc-button:hover,
 .calendar-shell .fc .fc-button-primary:hover {
-  background-color: hsl(var(--primary) / 0.1) !important;
-  border-color: hsl(var(--primary) / 0.35) !important;
-  color: hsl(var(--primary)) !important;
+  background-color: color-mix(
+    in oklab,
+    var(--primary) 10%,
+    transparent
+  ) !important;
+  border-color: color-mix(in oklab, var(--primary) 35%, transparent) !important;
+  color: var(--primary) !important;
 }
 
 .calendar-shell .fc .fc-button-active,
 .calendar-shell .fc .fc-button-primary:not(:disabled).fc-button-active,
 .calendar-shell .fc .fc-button-primary:not(:disabled):active {
-  background-color: hsl(var(--primary)) !important;
-  border-color: hsl(var(--primary)) !important;
-  color: hsl(var(--primary-foreground)) !important;
+  background-color: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: var(--primary-foreground) !important;
 }
 
 .calendar-shell .fc .fc-button:focus,
 .calendar-shell .fc .fc-button-primary:focus {
-  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.2) !important;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 20%, transparent) !important;
 }
 
 .calendar-shell .fc .fc-button:disabled,
 .calendar-shell .fc .fc-button-primary:disabled {
-  background-color: hsl(var(--muted)) !important;
-  border-color: hsl(var(--border)) !important;
-  color: hsl(var(--muted-foreground)) !important;
+  background-color: var(--muted) !important;
+  border-color: var(--border) !important;
+  color: var(--muted-foreground) !important;
   opacity: 0.65 !important;
 }
 
 /* =============== Dialog Panel ================= */
 .glass-dialog {
   background: linear-gradient(135deg, oklch(1 0 0 / 0.92), oklch(1 0 0 / 0.76));
-  border: 1px solid oklch(1 0 0 / 0.68);
+  border: 1px solid var(--glass-border);
   box-shadow:
     0 34px 100px oklch(0.25 0.08 255 / 0.2),
     0 12px 34px oklch(0.25 0.08 255 / 0.1),
@@ -650,5 +668,4 @@ body {
     oklch(0.28 0.055 255 / 0.92),
     oklch(0.16 0.045 255 / 0.82)
   );
-  border: 1px solid oklch(1 0 0 / 0.14);
 }

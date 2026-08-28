@@ -419,6 +419,21 @@ export const professionalApi = baseApi.injectEndpoints({
         response.startProfessionalOnboarding,
     }),
 
+    // Onboarding is optional, so leaving the wizard is recorded rather than
+    // blocked. Only the profile query carries the flag the gate reads.
+    dismissProfessionalOnboarding: builder.mutation<
+      TAPI.DismissProfessionalOnboardingMutation["dismissProfessionalOnboarding"],
+      void
+    >({
+      query: () => ({
+        document: API.DismissProfessionalOnboardingDocument,
+      }),
+      transformResponse: (
+        response: TAPI.DismissProfessionalOnboardingMutation,
+      ) => response.dismissProfessionalOnboarding,
+      invalidatesTags: ["ProfessionalProfile"],
+    }),
+
     completeProfessionalOnboarding: builder.mutation<
       TAPI.CompleteProfessionalOnboardingMutation["completeProfessionalOnboarding"],
       TAPI.CompleteProfessionalOnboardingMutationVariables["input"]
@@ -678,6 +693,7 @@ export const {
   useDeleteProfessionalCredentialMutation,
 
   useStartProfessionalOnboardingMutation,
+  useDismissProfessionalOnboardingMutation,
   useCompleteProfessionalOnboardingMutation,
 
   useStartRoadmapStepMutation,
