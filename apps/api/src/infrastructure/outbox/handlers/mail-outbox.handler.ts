@@ -1,5 +1,6 @@
 import { Injectable, OnModuleInit } from "@nestjs/common";
 import { OutboxHandlerRegistry } from "@infrastructure/outbox/outbox-handler.port";
+import { type OutboxEventContext } from "@infrastructure/outbox/outbox-handler.port";
 import { type OutboxHandler } from "@infrastructure/outbox/outbox-handler.port";
 import { TSendEmailInput } from "@mail/mail-service.type";
 import { MailService } from "@mail/mail.service";
@@ -18,7 +19,7 @@ export class MailOutboxHandler implements OutboxHandler, OnModuleInit {
     this.registry.register(this);
   }
 
-  async handle(payload: unknown) {
-    await this.mail.deliver(payload as TSendEmailInput);
+  async handle(payload: unknown, event: OutboxEventContext) {
+    await this.mail.deliver(payload as TSendEmailInput, event.idempotencyKey);
   }
 }

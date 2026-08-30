@@ -12,6 +12,7 @@ import { PodcastMessageCode } from "@podcast/enums/message-code.enum";
 import { PodcastSortInput } from "@podcast/dtos/podcast-sort.input";
 import { PodcastRequester } from "@podcast/types/podcast-service.types";
 import { PodcastSortField } from "@podcast/enums/gql-names.enum";
+import { PodcastRatingWriter } from "@podcast/public/podcast-engagement-api";
 import { PrismaService } from "@prisma/prisma.service";
 import { slugify } from "@utils/slug.util";
 
@@ -145,8 +146,9 @@ export class PodcastService {
     podcastId: string,
     average: number,
     count: number,
+    writer: PodcastRatingWriter = this.prismaService,
   ) {
-    await this.prismaService.podcast.update({
+    await writer.podcast.update({
       where: { id: podcastId },
       data: { rating: average, ratingCount: count },
     });

@@ -12,6 +12,7 @@ import { UpdateYouTubeVideoInput } from "@youtube/dtos/update-youtube-video.inpu
 import { ForbiddenException } from "@nestjs/common";
 import { YouTubeMessageCode } from "@youtube/enums/message-code.enum";
 import { YouTubeRequester } from "@youtube/enums/youtube.enum";
+import { YouTubeRatingWriter } from "@youtube/public/youtube-engagement-api";
 import { PrismaService } from "@prisma/prisma.service";
 import { slugify } from "@utils/slug.util";
 
@@ -139,8 +140,9 @@ export class YouTubeService {
     channelId: string,
     average: number,
     count: number,
+    writer: YouTubeRatingWriter = this.prismaService,
   ) {
-    await this.prismaService.youTubeChannel.update({
+    await writer.youTubeChannel.update({
       where: { id: channelId },
       data: { rating: average, ratingCount: count },
     });

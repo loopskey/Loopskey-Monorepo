@@ -1,5 +1,7 @@
 import { CartItemStatus, CartStatus, ContentType } from "@prisma/client";
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { requestContext } from "@infrastructure/observability/request-context";
+import { Prisma } from "@prisma/client";
 import { UpdateEnrollmentProgressInput } from "@contentAction/dtos/update-enrollment-progress.input";
 import { ContentInteractionMessageCode } from "@contentAction/enums/message-code";
 import { type PodcastEngagementApi } from "@podcast/public/podcast-engagement-api";
@@ -18,8 +20,14 @@ import { EVENTS_API } from "@events/public/events-api.token";
 import { EventsApi } from "@events/public/events-api";
 import { Inject } from "@nestjs/common";
 
+const isUniqueViolation = (error: unknown) =>
+  error instanceof Prisma.PrismaClientKnownRequestError &&
+  error.code === "P2002";
+
 @Injectable()
 export class ContentInteractionService {
+  private readonly logger = new Logger(ContentInteractionService.name);
+
   constructor(
     private readonly prismaService: PrismaService,
     @Inject(COURSE_ENGAGEMENT_API)
@@ -31,40 +39,78 @@ export class ContentInteractionService {
     private readonly youtubeApi: YouTubeEngagementApi,
   ) {}
 
+  /**
+   * Flip the wishlist state for one content item.
+   *
+   * A toggle is ambiguous under concurrency and no implementation can fix that:
+   * two simultaneous toggles of an absent item mean "add" to both callers, and
+   * whichever order they land in, one of them is answering about a state the
+   * other already changed. What is guaranteed here is narrower and sufficient —
+   * each call performs one atomic operation, the two calls do not race into a
+   * duplicate row or a missing-row error, and the final state is one a caller
+   * asked for.
+   *
+   * `addToWishlist` and `removeFromWishlist` below have no such ambiguity, and
+   * are what a client should reach for once explicit mutations are exposed.
+   */
   async toggleWishlist(userId: string, input: ContentActionInput) {
     await this.resolveContent(input.contentType, input.contentId);
-    const existing = await this.prismaService.wishlistItem.findUnique({
-      where: {
-        userId_contentType_contentId: {
+    const removed = await this.removeFromWishlist(userId, input);
+    return removed.active === false && removed.changed
+      ? removed.response
+      : (await this.addToWishlist(userId, input)).response;
+  }
+
+  /**
+   * Idempotent: a repeated add ends active without raising a duplicate error.
+   *
+   * Prisma's `upsert` is not the tool here. It falls back to a read followed by
+   * a write for this shape, which is precisely the race being closed: two
+   * simultaneous adds both find nothing and both insert. The unique constraint
+   * is the arbiter instead, and losing to it means the entry the caller asked
+   * for already exists — which is success, not a conflict.
+   */
+  private async addToWishlist(userId: string, input: ContentActionInput) {
+    await this.prismaService.wishlistItem
+      .create({
+        data: {
           userId,
           contentType: input.contentType,
           contentId: input.contentId,
         },
-      },
-    });
-    if (existing) {
-      await this.prismaService.wishlistItem.delete({
-        where: { id: existing.id },
+      })
+      .catch((error: unknown) => {
+        if (!isUniqueViolation(error)) throw error;
       });
-      return {
+    return {
+      changed: true,
+      response: {
         success: true,
-        code: ContentInteractionMessageCode.REMOVED_FROM_WISHLIST,
-        message: "Removed from wishlist.",
-        active: false,
-      };
-    }
-    await this.prismaService.wishlistItem.create({
-      data: {
+        code: ContentInteractionMessageCode.ADDED_TO_WISHLIST,
+        message: "Added to wishlist.",
+        active: true,
+      },
+    };
+  }
+
+  /** Idempotent: a repeated remove ends inactive rather than not-found. */
+  private async removeFromWishlist(userId: string, input: ContentActionInput) {
+    const { count } = await this.prismaService.wishlistItem.deleteMany({
+      where: {
         userId,
         contentType: input.contentType,
         contentId: input.contentId,
       },
     });
     return {
-      success: true,
-      code: ContentInteractionMessageCode.ADDED_TO_WISHLIST,
-      message: "Added to wishlist.",
-      active: true,
+      changed: count > 0,
+      active: false as const,
+      response: {
+        success: true,
+        code: ContentInteractionMessageCode.REMOVED_FROM_WISHLIST,
+        message: "Removed from wishlist.",
+        active: false,
+      },
     };
   }
 
@@ -419,20 +465,33 @@ export class ContentInteractionService {
     };
   }
 
+  /**
+   * One active cart per user, enforced by the partial unique index on
+   * `Cart(userId) WHERE status = 'ACTIVE'` rather than by the read below.
+   *
+   * The read is the fast path. When two requests both find no cart and both
+   * try to create one, the index rejects the loser, and the right answer for
+   * that request is the cart the winner made — not an internal error.
+   */
   private async getOrCreateActiveCart(userId: string) {
     const existing = await this.prismaService.cart.findFirst({
-      where: {
-        userId,
-        status: CartStatus.ACTIVE,
-      },
+      where: { userId, status: CartStatus.ACTIVE },
     });
     if (existing) return existing;
-    return this.prismaService.cart.create({
-      data: {
+    try {
+      return await this.prismaService.cart.create({
+        data: { userId, status: CartStatus.ACTIVE },
+      });
+    } catch (error) {
+      if (!isUniqueViolation(error)) throw error;
+      this.logger.warn("Recovered a concurrent active-cart creation", {
         userId,
-        status: CartStatus.ACTIVE,
-      },
-    });
+        correlationId: requestContext.correlationId(),
+      });
+      return this.prismaService.cart.findFirstOrThrow({
+        where: { userId, status: CartStatus.ACTIVE },
+      });
+    }
   }
 
   private async registerEvent(userId: string, eventId: string) {
@@ -468,27 +527,78 @@ export class ContentInteractionService {
     }
   }
 
+  /**
+   * Recompute a content item's rating aggregate from the review rows that are
+   * its source of truth, and publish it.
+   *
+   * Read-then-write is the whole hazard here: two reviewers submitting at once
+   * can both read, and the one that reads the older set can commit last,
+   * leaving an average that matches no version of the data. The advisory lock
+   * closes that window by serialising recomputation per content item, and the
+   * write happens inside the same transaction that holds the lock, so the
+   * ordering the lock establishes is the ordering the ratings land in.
+   *
+   * The lock is transaction-scoped, so a crash releases it as surely as a
+   * commit does, and it is taken on a hash of the content key, so reviews of
+   * different items never wait on each other.
+   */
   private async recalculateRating(contentType: ContentType, contentId: string) {
-    const aggregate = await this.prismaService.contentReview.aggregate({
-      where: {
+    await this.prismaService.$transaction(async (tx) => {
+      // `$executeRaw`, not `$queryRaw`: the lock function returns void, which
+      // has no Prisma type to deserialize into. The lock is taken either way.
+      await tx.$executeRaw`
+        SELECT pg_advisory_xact_lock(
+          hashtext('content-review-aggregate'),
+          hashtext(${`${contentType}:${contentId}`})
+        )`;
+      const aggregate = await tx.contentReview.aggregate({
+        where: { contentType, contentId },
+        _avg: { rating: true },
+        _count: { rating: true },
+      });
+      await this.publishRating(
         contentType,
         contentId,
-      },
-      _avg: {
-        rating: true,
-      },
-      _count: {
-        rating: true,
-      },
+        aggregate._avg.rating ?? 0,
+        aggregate._count.rating ?? 0,
+        tx,
+      );
     });
-    const average = aggregate._avg.rating ?? 0;
-    const count = aggregate._count.rating ?? 0;
+  }
+
+  private publishRating(
+    contentType: ContentType,
+    contentId: string,
+    average: number,
+    count: number,
+    writer: Prisma.TransactionClient,
+  ) {
     if (contentType === ContentType.COURSE)
-      return this.courseApi.updateCourseRating(contentId, average, count);
+      return this.courseApi.updateCourseRating(
+        contentId,
+        average,
+        count,
+        writer,
+      );
     if (contentType === ContentType.EVENT)
-      return this.eventsApi.updateEventRating(contentId, average, count);
+      return this.eventsApi.updateEventRating(
+        contentId,
+        average,
+        count,
+        writer,
+      );
     if (contentType === ContentType.PODCAST)
-      return this.podcastApi.updatePodcastRating(contentId, average, count);
-    return this.youtubeApi.updateChannelRating(contentId, average, count);
+      return this.podcastApi.updatePodcastRating(
+        contentId,
+        average,
+        count,
+        writer,
+      );
+    return this.youtubeApi.updateChannelRating(
+      contentId,
+      average,
+      count,
+      writer,
+    );
   }
 }

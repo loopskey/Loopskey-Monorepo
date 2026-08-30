@@ -21,4 +21,8 @@ for the current task.
 - The browser communicates with `apps/api` through GraphQL.
 - Keep NestJS module communication in-process; do not introduce internal HTTP,
   GraphQL, gRPC, or broker calls between modules.
+- Assume concurrent requests and multiple API instances. A business invariant
+  must rest on a database constraint or a conditional write, never on a read
+  performed before the write. See "Concurrency and race conditions" in
+  `context/coding-standards.md` before adding or changing one.
 - Do not commit directly to `main` or `develop`.

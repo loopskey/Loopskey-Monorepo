@@ -6,6 +6,13 @@ assertIsolatedTestDatabase();
 const defaults: Record<string, string> = {
   JWT_ACCESS_SECRET: "e2e-access-secret-at-least-32-characters",
   JWT_REFRESH_SECRET: "e2e-refresh-secret-at-least-32-characters",
+  // Session lifetimes are read with Number(), so a missing value becomes NaN
+  // and reaches Prisma as `new Date(NaN)`. CI has no `.env` for ConfigModule to
+  // fall back on, so anything that signs a token or opens a session needs its
+  // setting here. Values mirror `.env.example`.
+  JWT_ACCESS_EXPIRES_IN: "15m",
+  JWT_REFRESH_EXPIRES_IN_DAYS: "30",
+  ACCESS_TOKEN_COOKIE_MAX_AGE_MS: "900000",
   RESEND_API_KEY: "re_e2e_not_used",
   EMAIL_FROM: "e2e@example.test",
   GOOGLE_CLIENT_ID: "e2e-google-client",

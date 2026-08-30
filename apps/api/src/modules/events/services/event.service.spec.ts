@@ -1,6 +1,7 @@
 import { EventDomainEventDispatcher } from "@events/application/events/event-domain-event.dispatcher";
 import { EVENT_PUBLISHED_V1 } from "@events/domain/events/event-published-v1";
 import { EventMessageCode } from "@events/enums/message-code.enum";
+import { EventRegistrationConflict } from "@events/domain/errors/event-registration-conflict.error";
 import { EventRepository } from "@events/infrastructure/persistence/event.repository";
 import { BadRequestException, ForbiddenException } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
@@ -11,8 +12,8 @@ describe("EventService", () => {
   const repository = {
     findActiveById: jest.fn(),
     findRegistration: jest.fn(),
-    register: jest.fn(),
-    reactivateRegistration: jest.fn(),
+    activateRegistration: jest.fn(),
+    cancelRegistration: jest.fn(),
     update: jest.fn(),
   };
   const dispatcher = { publish: jest.fn() };
@@ -30,7 +31,10 @@ describe("EventService", () => {
     service = moduleRef.get(EventService);
   });
 
-  it("rejects registration when capacity is exhausted", async () => {
+  it("reports a capacity conflict from persistence as the domain code", async () => {
+    // Capacity is settled by the atomic claim in persistence, not by a read
+    // here, so the service's job is to translate the refusal rather than to
+    // predict it.
     repository.findActiveById.mockResolvedValue({
       id: "event-1",
       status: EventStatus.PUBLISHED,
@@ -38,6 +42,9 @@ describe("EventService", () => {
       capacity: 10,
       attendees: 10,
     });
+    repository.activateRegistration.mockRejectedValue(
+      new EventRegistrationConflict("CAPACITY_REACHED"),
+    );
 
     await expect(
       service.registerEvent("event-1", {
@@ -47,7 +54,47 @@ describe("EventService", () => {
     ).rejects.toMatchObject<Partial<BadRequestException>>({
       message: EventMessageCode.EVENT_CAPACITY_REACHED,
     });
-    expect(repository.register).not.toHaveBeenCalled();
+  });
+
+  it("refuses a second registration for a seat the user already holds", async () => {
+    repository.findActiveById.mockResolvedValue({
+      id: "event-1",
+      status: EventStatus.PUBLISHED,
+      registrationEnabled: true,
+      capacity: 10,
+      attendees: 2,
+    });
+    repository.activateRegistration.mockResolvedValue({
+      registration: { id: "registration-1" },
+      activated: false,
+    });
+
+    await expect(
+      service.registerEvent("event-1", {
+        id: "professional-1",
+        role: Role.PROFESSIONAL,
+      }),
+    ).rejects.toMatchObject<Partial<BadRequestException>>({
+      message: EventMessageCode.EVENT_ALREADY_REGISTERED,
+    });
+  });
+
+  it("returns the winning registration when a concurrent request created it", async () => {
+    repository.findActiveById.mockResolvedValue({
+      id: "event-1",
+      status: EventStatus.PUBLISHED,
+      registrationEnabled: true,
+      capacity: 10,
+      attendees: 2,
+    });
+    repository.activateRegistration.mockRejectedValue(
+      new EventRegistrationConflict("ALREADY_REGISTERED"),
+    );
+    repository.findRegistration.mockResolvedValue({ id: "registration-1" });
+
+    await expect(
+      service.enrollInEvent("event-1", { id: "professional-1" }),
+    ).resolves.toMatchObject({ id: "registration-1" });
   });
 
   it("prevents one provider from publishing another provider's event", async () => {
@@ -66,7 +113,10 @@ describe("EventService", () => {
     expect(repository.update).not.toHaveBeenCalled();
   });
 
-  it("reactivates a cancelled enrollment through Event-owned persistence", async () => {
+  it("routes enrollment through one Event-owned activation", async () => {
+    // Creating and reviving a registration are the same act as far as capacity
+    // is concerned, so the service asks for the act rather than choosing which
+    // write to make from a read that may already be stale.
     repository.findActiveById.mockResolvedValue({
       id: "event-1",
       status: EventStatus.PUBLISHED,
@@ -74,18 +124,27 @@ describe("EventService", () => {
       capacity: 10,
       attendees: 2,
     });
-    repository.findRegistration.mockResolvedValue({
-      id: "registration-1",
-      status: "CANCELLED",
+    repository.activateRegistration.mockResolvedValue({
+      registration: { id: "registration-1" },
+      activated: true,
     });
 
     await service.enrollInEvent("event-1", { id: "professional-1" });
 
-    expect(repository.reactivateRegistration).toHaveBeenCalledWith(
-      "registration-1",
+    expect(repository.activateRegistration).toHaveBeenCalledWith(
       "event-1",
+      "professional-1",
     );
-    expect(repository.register).not.toHaveBeenCalled();
+  });
+
+  it("reports a missing registration when cancellation finds nothing", async () => {
+    repository.cancelRegistration.mockResolvedValue(null);
+
+    await expect(
+      service.cancelEventRegistration("event-1", { id: "professional-1" }),
+    ).rejects.toMatchObject({
+      message: EventMessageCode.EVENT_REGISTRATION_NOT_FOUND,
+    });
   });
 
   it("publishes EventPublished.v1 after the state is committed", async () => {

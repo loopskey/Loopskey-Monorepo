@@ -19,3 +19,8 @@ standalone `test` marker.
 Organization email delivery uses Resend. Configure `RESEND_API_KEY`,
 `EMAIL_FROM`, the application URLs, and activation limits described in
 `.env.example`.
+
+Operational runbooks live in `docs/`. `docs/concurrency-operations.md` covers
+where each concurrency invariant is enforced, the duplicate audit to run before
+deploying `20260828140000_concurrency_safety`, how to reconcile event attendee
+counts, and how to inspect and retry terminal outbox failures.

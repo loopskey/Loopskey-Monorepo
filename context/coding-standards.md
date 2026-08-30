@@ -11,6 +11,76 @@
 - Include correlation IDs in structured operational logs and redact keys that
   contain passwords, secrets, tokens, authorization, cookies, or API keys.
 
+## Concurrency and race conditions
+
+Assume every request has a twin running at the same instant, and assume the API
+runs on more than one instance. A read followed by a write is two moments, and
+anything can happen between them.
+
+- A preflight read produces a friendly error. It is never the correctness
+  boundary. Every business invariant must rest on a database constraint or a
+  conditional write that re-checks the condition as it commits.
+- Change state with `updateMany` naming the expected old state, then require
+  `count === 1`. A count of zero means someone else got there first; decide what
+  that means rather than assuming it cannot happen.
+- Guard a counter against its bound inside the statement that moves it
+  (`UPDATE … SET n = n + 1 WHERE … n < limit`), not in an `if` above it.
+  PostgreSQL re-evaluates the predicate after taking the row lock, so concurrent
+  claims queue and the loser matches no row.
+- Wrap a business action that writes several related rows in one transaction,
+  and take row locks in the same order everywhere so two paths cannot deadlock.
+- Never continue inside an interactive transaction after catching a constraint
+  violation — PostgreSQL has already aborted it. Throw out of the transaction
+  and recover outside.
+- Let a unique or partial unique index arbitrate a race, then recover: read the
+  winning row and answer with it. Map the violation to an existing domain code;
+  a raw Prisma error must never reach a client.
+- Rotate sessions and tokens by compare-and-swap on a version column, not by an
+  unconditional write. Distinguish a lost race from a genuine replay before
+  taking a destructive action such as revoking a session.
+- Keep argon2 and other deliberately slow work outside transactions and outside
+  any window that holds a row lock.
+- Spend a rate or attempt allowance before doing the expensive check, in the
+  same statement that tests the limit. Incrementing afterwards lets simultaneous
+  attempts share one slot.
+- Make repeated actions converge: a second add ends added, a second remove ends
+  removed, a second cancel does not decrement twice. Prisma's `upsert` is not
+  automatically atomic — check the query it emits before relying on it.
+- Give every external side effect a stable idempotency key derived from the
+  record that caused it, so a retry after a crash or timeout is the same effect
+  rather than a second one.
+- Recompute a cached aggregate under a lock held across both the read and the
+  write, so a slower recomputation cannot land after a newer one. If you choose
+  read-time or asynchronous recomputation instead, say why in the code.
+
+Migrations that add these guards:
+
+- Audit production-like data for duplicates first and decide an explicit winner
+  policy, including what happens to the losers' child rows. Never let a
+  constraint discover the duplicates for you.
+- Order the migration so duplicates are collapsed and derived counters are
+  reconciled before the constraint that would reject them is created.
+- Prisma cannot express partial unique indexes. Add them as migration SQL and
+  record them as unmanaged in the model's docstring, because `prisma migrate
+  dev` reports them as drift and offers to drop them.
+- For a large table, build the index with `CREATE INDEX CONCURRENTLY` out of
+  band and let an `IF NOT EXISTS` in the migration find it.
+
+Proving it:
+
+- A concurrency test must start its operations from a shared barrier, run
+  against PostgreSQL, and assert the final database state. Promises resolved in
+  sequence are not concurrency, and a response-only assertion passes against an
+  implementation that oversells and reports success to everyone.
+- Log a conflict, a retry, a recovered unique violation, or a detected replay as
+  a warning carrying the correlation ID and non-sensitive identifiers. Expected
+  conflicts are not internal server failures, and no log line may contain a
+  token, hash, cookie, or OTP.
+
+`apps/api/docs/concurrency-operations.md` records where each existing invariant
+is enforced and the operator procedures that go with them. Read it before
+changing one of them.
+
 These rules apply to new code and files being actively changed. Do not perform
 unrelated refactors just to make old code conform. When existing patterns
 conflict, prefer the rule below unless compatibility requires the old pattern.
