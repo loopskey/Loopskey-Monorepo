@@ -19,3 +19,4 @@ into this index and do not rewrite previous records.
 - [`performance-optimization`](feature-runs/active/performance-optimization.md)
 - [`professional-onboarding`](feature-runs/active/professional-onboarding.md)
 - [`performance-shell-hydration`](feature-runs/active/performance-shell-hydration.md)
+- [`concurrency-safety`](feature-runs/active/concurrency-safety.md)

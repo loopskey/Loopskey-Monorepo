@@ -1,5 +1,6 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { Injectable, Logger, UnauthorizedException } from "@nestjs/common";
 import { Role, SessionStatus, UserStatus } from "@prisma/client";
+import { requestContext } from "@infrastructure/observability/request-context";
 import { RequestContextInfo } from "@auth/types/auth-service.types";
 import { AuthCommonService } from "@auth/services/auth-common.service";
 import { AUTH_USER_SELECT } from "@auth/types/auth-user-select.constant";
@@ -20,6 +21,8 @@ import {
 
 @Injectable()
 export class AuthSessionService {
+  private readonly logger = new Logger(AuthSessionService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
@@ -113,6 +116,27 @@ export class AuthSessionService {
         code: AuthMessageCode.SESSION_NOT_FOUND,
         message: "Session not found or expired.",
       });
+    // Reuse is decided before the hash is checked, and it has to be: a
+    // superseded token no longer matches the stored hash, so verifying first
+    // would report every replay as a merely invalid token and never revoke
+    // anything. The JWT signature has already been checked, so the generation
+    // this token claims is trustworthy enough to act on.
+    //
+    // A token minted before this session last rotated should no longer exist
+    // anywhere. That is replay rather than a race, and it costs the session; a
+    // request that merely loses the compare-and-swap below is left alone,
+    // because two browser tabs refreshing at the same instant are not an attack
+    // and should not sign the user out.
+    if ((payload.rot ?? 0) < session.rotationCounter) {
+      await this.revokeSessionOnReuse(session.id, session.userId);
+      throw new UnauthorizedException({
+        code: AuthMessageCode.REFRESH_TOKEN_INVALID,
+        message: "Invalid refresh token.",
+      });
+    }
+    // Argon2 is deliberately slow, so it runs before any conditional write. A
+    // rotation that held a row lock for the length of a hash would turn a burst
+    // of refreshes into a queue.
     const isRefreshValid = await argon2.verify(
       session.refreshTokenHash,
       refreshToken,
@@ -135,14 +159,13 @@ export class AuthSessionService {
         code: AuthMessageCode.USER_NOT_FOUND,
         message: "User not found.",
       });
-    const tokens = await this.generateTokens({
+    const tokens = await this.rotateSessionTokens(session, {
       sub: user.id,
       email: user.email,
       role: user.role,
       status: user.status,
       sessionId: session.id,
     });
-    await this.storeRefreshToken(session.id, tokens.refreshToken);
     this.setAuthCookies(response, tokens.accessToken, tokens.refreshToken);
     return {
       success: true,
@@ -150,6 +173,58 @@ export class AuthSessionService {
       message: "Token refreshed successfully.",
       user,
     };
+  }
+
+  /**
+   * Mint the next token pair for a session and commit it under compare-and-swap.
+   *
+   * The new refresh token carries the counter value it is minted at, and the
+   * write only lands while the stored counter is still the one that was read.
+   * Two requests presenting the same refresh token therefore produce at most
+   * one committed rotation: the loser matches no row, has changed nothing, and
+   * is answered as unauthenticated.
+   */
+  private async rotateSessionTokens(
+    session: { id: string; rotationCounter: number },
+    payload: JwtPayload,
+  ) {
+    const nextRotation = session.rotationCounter + 1;
+    const tokens = await this.generateTokens({ ...payload, rot: nextRotation });
+    const refreshTokenHash = await argon2.hash(tokens.refreshToken);
+    const { count } = await this.prisma.authSession.updateMany({
+      where: {
+        id: session.id,
+        rotationCounter: session.rotationCounter,
+        status: SessionStatus.ACTIVE,
+        revokedAt: null,
+      },
+      data: { refreshTokenHash, rotationCounter: nextRotation },
+    });
+    if (count === 1) return tokens;
+    this.logger.warn("Refresh rotation lost a concurrent compare-and-swap", {
+      sessionId: session.id,
+      correlationId: requestContext.correlationId(),
+    });
+    throw new UnauthorizedException({
+      code: AuthMessageCode.REFRESH_TOKEN_INVALID,
+      message: "Invalid refresh token.",
+    });
+  }
+
+  /**
+   * Reuse of a superseded refresh token means the token left the browser it was
+   * issued to. The session goes with it and the user signs in again.
+   */
+  private async revokeSessionOnReuse(sessionId: string, userId: string) {
+    await this.prisma.authSession.updateMany({
+      where: { id: sessionId, status: SessionStatus.ACTIVE },
+      data: { status: SessionStatus.REVOKED, revokedAt: new Date() },
+    });
+    this.logger.warn("Refresh token reuse detected; session revoked", {
+      sessionId,
+      userId,
+      correlationId: requestContext.correlationId(),
+    });
   }
 
   async logout(user: JwtPayload | null, response: Response) {
@@ -238,12 +313,18 @@ export class AuthSessionService {
     };
   }
 
+  /**
+   * Attach the first refresh token to a session the same request just created.
+   *
+   * There is nothing to compare against yet, so this write is unconditional and
+   * leaves `rotationCounter` at 0 — the value the token it stores implicitly
+   * carries. Every later rotation goes through `rotateSessionTokens`.
+   */
   async storeRefreshToken(sessionId: string, refreshToken: string) {
+    const refreshTokenHash = await argon2.hash(refreshToken);
     await this.prisma.authSession.update({
       where: { id: sessionId },
-      data: {
-        refreshTokenHash: await argon2.hash(refreshToken),
-      },
+      data: { refreshTokenHash },
     });
   }
 

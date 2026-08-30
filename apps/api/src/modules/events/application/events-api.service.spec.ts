@@ -54,6 +54,7 @@ describe("EventsApiService", () => {
       "event-1",
       4.25,
       4,
+      undefined,
     );
   });
 

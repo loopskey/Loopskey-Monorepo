@@ -29,4 +29,16 @@ describe("E2E Jest configuration", () => {
       ],
     ).toBeDefined();
   });
+
+  it("runs E2E suites one at a time against the shared database", () => {
+    // JSON cannot carry the reason, so it lives here. Every E2E suite boots a
+    // full application against one PostgreSQL instance, and the concurrency
+    // suites deliberately saturate it. Running the suites in parallel exhausts
+    // the connection pool and turns real assertions into transaction timeouts,
+    // a failure mode that says nothing about the code under test.
+    const config = localRequire(`${API_ROOT}/test/jest-e2e.json`) as {
+      maxWorkers?: number;
+    };
+    expect(config.maxWorkers).toBe(1);
+  });
 });

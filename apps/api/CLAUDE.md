@@ -10,6 +10,13 @@ Load this file only for `apps/api` work.
 - Authentication is global by default; make public/role/owner decisions explicit.
 - Never expose secrets, password hashes, refresh-token hashes, or private files.
 - Use named Prisma migrations; never use `db push` for feature delivery.
+- Assume concurrent requests and more than one API instance. Business invariants
+  belong in database constraints or conditional writes (`updateMany` with the
+  expected old state, a counter guarded inside the statement that moves it, a
+  compare-and-swap on a version column) — never in a read performed before the
+  write. Recover unique violations into domain codes; never let a Prisma error
+  reach a client. See "Concurrency and race conditions" in
+  `context/coding-standards.md` and `docs/concurrency-operations.md`.
 
 Run from repository root:
 
