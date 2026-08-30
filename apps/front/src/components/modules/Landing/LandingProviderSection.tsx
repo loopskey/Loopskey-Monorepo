@@ -18,7 +18,7 @@ const LandingProvider = () => {
     <section className="relative overflow-x-clip px-4 py-16 sm:px-6 lg:px-8">
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute right-0 top-16 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute bottom-0 left-0 h-96 w-96 rounded-full bg-accent/10 blur-3xl" />
+        <div className="absolute bottom-0 left-0 h-96 w-96 rounded-full bg-brand-teal/10 blur-3xl" />
       </div>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -108,7 +108,7 @@ const LandingProvider = () => {
                       </span>
                     )}
 
-                    <span className="rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-accent">
+                    <span className="rounded-full border border-brand-teal/30 bg-brand-teal/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-teal-text">
                       {isLoading
                         ? t("common.loading")
                         : t("landing.provider.dashboard.status")}
@@ -168,7 +168,7 @@ const LandingProvider = () => {
                             className={cn(
                               "h-full rounded-full transition-all duration-700",
                               index === 0 && "bg-primary",
-                              index === 1 && "bg-accent",
+                              index === 1 && "bg-brand-teal",
                               index === 2 && "bg-emerald-500",
                             )}
                             style={{
@@ -197,7 +197,7 @@ const LandingProvider = () => {
                   </div>
 
                   <div className="rounded-3xl border border-glass-border bg-background/45 p-5">
-                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-accent/10 text-accent">
+                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-teal/10 text-brand-teal-text">
                       <L.LineChart className="h-6 w-6" />
                     </div>
 
