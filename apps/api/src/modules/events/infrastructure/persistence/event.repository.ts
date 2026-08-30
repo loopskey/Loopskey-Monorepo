@@ -1,15 +1,32 @@
 import { EventRegistrationStatus, EventStatus, Prisma } from "@prisma/client";
+import { EventRegistrationConflict } from "@events/domain/errors/event-registration-conflict.error";
 import { EventPaginationInput } from "@events/dtos/event-pagination.input";
 import { EventSortDirection } from "@events/enums/event-register.enum";
 import { EventFilterInput } from "@events/dtos/event-filter.input";
 import { EventSortInput } from "@events/dtos/event-sort.input";
 import { EventSortField } from "@events/enums/event-register.enum";
+import { EventRatingWriter } from "@events/public/events-api";
 import { PrismaService } from "@prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
+
+import {
+  ATTENDING_STATUSES,
+  VACATED_STATUSES,
+} from "@events/domain/policies/registration-attendance.policy";
 
 import type { ProviderAttendeesQuery } from "@events/public/events-api";
 import type { RoadmapCandidateQuery } from "@events/public/events-api";
 import type { ProviderEventsQuery } from "@events/public/events-api";
+
+const isUniqueViolation = (error: unknown) =>
+  error instanceof Prisma.PrismaClientKnownRequestError &&
+  error.code === "P2002";
+
+type RegistrationOutcome = {
+  readonly registration: Prisma.EventRegistrationGetPayload<object>;
+  /** Whether this request is the one that moved the seat counter. */
+  readonly activated: boolean;
+};
 
 @Injectable()
 export class EventRepository {
@@ -21,6 +38,23 @@ export class EventRepository {
 
   update(eventId: string, data: Prisma.EventUpdateInput) {
     return this.prisma.event.update({ where: { id: eventId }, data });
+  }
+
+  /**
+   * `writer` lets the review module publish an aggregate inside the same
+   * transaction it computed it in, so a slower recomputation cannot commit
+   * after a newer one and leave a stale rating behind.
+   */
+  async updateRating(
+    eventId: string,
+    average: number,
+    count: number,
+    writer: EventRatingWriter = this.prisma,
+  ) {
+    await writer.event.update({
+      where: { id: eventId },
+      data: { averageRating: average, rating: average, ratingCount: count },
+    });
   }
 
   findActiveById(eventId: string) {
@@ -184,49 +218,129 @@ export class EventRepository {
     });
   }
 
-  register(eventId: string, userId: string) {
+  /**
+   * Take a seat, whether the user has never registered or is coming back from a
+   * cancellation. Both paths are the same act as far as capacity is concerned,
+   * so both run inside one transaction that ends with a conditional counter
+   * claim; if no seat is left, the state change rolls back with it.
+   *
+   * `activated` is false when the registration was already occupying a seat,
+   * which makes a repeated enrollment a no-op rather than a second increment.
+   */
+  activateRegistration(
+    eventId: string,
+    userId: string,
+  ): Promise<RegistrationOutcome> {
     return this.prisma.$transaction(async (tx) => {
-      const registration = await tx.eventRegistration.create({
-        data: {
-          eventId,
-          userId,
-          status: EventRegistrationStatus.REGISTERED,
-        },
-      });
-      await tx.event.update({
-        where: { id: eventId },
-        data: { attendees: { increment: 1 } },
-      });
-      return registration;
-    });
-  }
-
-  cancelRegistration(registrationId: string, eventId: string) {
-    return this.prisma.$transaction(async (tx) => {
-      const registration = await tx.eventRegistration.update({
-        where: { id: registrationId },
-        data: { status: EventRegistrationStatus.CANCELLED },
-      });
-      await tx.event.update({
-        where: { id: eventId },
-        data: { attendees: { decrement: 1 } },
-      });
-      return registration;
-    });
-  }
-
-  reactivateRegistration(registrationId: string, eventId: string) {
-    return this.prisma.$transaction(async (tx) => {
-      const registration = await tx.eventRegistration.update({
-        where: { id: registrationId },
+      const revived = await tx.eventRegistration.updateMany({
+        where: { eventId, userId, status: { in: [...VACATED_STATUSES] } },
         data: { status: EventRegistrationStatus.REGISTERED },
       });
-      await tx.event.update({
-        where: { id: eventId },
-        data: { attendees: { increment: 1 } },
-      });
-      return registration;
+      if (revived.count === 0) {
+        const attending = await tx.eventRegistration.findUnique({
+          where: { eventId_userId: { eventId, userId } },
+        });
+        if (attending) return { registration: attending, activated: false };
+        // A unique violation here means a concurrent request won the race for
+        // this user's one allowed registration. Postgres has already aborted
+        // the transaction, so the only move left is to fail out of it.
+        await tx.eventRegistration
+          .create({
+            data: {
+              eventId,
+              userId,
+              status: EventRegistrationStatus.REGISTERED,
+            },
+          })
+          .catch((error: unknown) => {
+            throw isUniqueViolation(error)
+              ? new EventRegistrationConflict("ALREADY_REGISTERED")
+              : error;
+          });
+      }
+      await this.claimSeat(tx, eventId);
+      return {
+        registration: await tx.eventRegistration.findUniqueOrThrow({
+          where: { eventId_userId: { eventId, userId } },
+        }),
+        activated: true,
+      };
     });
+  }
+
+  /**
+   * Release a seat exactly once. A second cancellation matches no attending row
+   * and reports `activated: false` rather than decrementing again.
+   */
+  cancelRegistration(
+    eventId: string,
+    userId: string,
+  ): Promise<RegistrationOutcome | null> {
+    return this.prisma.$transaction(async (tx) => {
+      const released = await tx.eventRegistration.updateMany({
+        where: { eventId, userId, status: { in: [...ATTENDING_STATUSES] } },
+        data: { status: EventRegistrationStatus.CANCELLED },
+      });
+      const registration = await tx.eventRegistration.findUnique({
+        where: { eventId_userId: { eventId, userId } },
+      });
+      if (!registration) return null;
+      if (released.count === 0) return { registration, activated: false };
+      // The floor is not defensive decoration: it is what keeps a counter that
+      // drifted below its registration rows from going negative.
+      await tx.$executeRaw`
+        UPDATE "Event"
+        SET "attendees" = GREATEST("attendees" - 1, 0)
+        WHERE "id" = ${eventId}`;
+      return { registration, activated: true };
+    });
+  }
+
+  /**
+   * The capacity boundary. Postgres re-evaluates the predicate after taking the
+   * row lock, so concurrent claims queue behind each other and the one that
+   * finds the room full simply matches no row.
+   */
+  private async claimSeat(tx: Prisma.TransactionClient, eventId: string) {
+    const claimed = await tx.$executeRaw`
+      UPDATE "Event"
+      SET "attendees" = "attendees" + 1
+      WHERE "id" = ${eventId}
+        AND "deletedAt" IS NULL
+        AND "status" = 'PUBLISHED'::"EventStatus"
+        AND "registrationEnabled" = true
+        AND ("capacity" IS NULL OR "attendees" < "capacity")`;
+    if (claimed === 1) return;
+    // Only the losing request pays for this read, and it buys the difference
+    // between "the room is full" and "the doors closed while you queued".
+    const event = await tx.event.findUnique({
+      where: { id: eventId },
+      select: { status: true, registrationEnabled: true, deletedAt: true },
+    });
+    throw new EventRegistrationConflict(
+      event &&
+      event.deletedAt === null &&
+      event.status === EventStatus.PUBLISHED &&
+      event.registrationEnabled
+        ? "CAPACITY_REACHED"
+        : "REGISTRATION_CLOSED",
+    );
+  }
+
+  /**
+   * Recompute `attendees` from the registration rows. Operators reach for this
+   * after a restore or an incident: the counter is a cache of the rows beneath
+   * it, and this is how it is made true again.
+   */
+  async reconcileAttendeeCount(eventId: string) {
+    const attending = await this.prisma.eventRegistration.count({
+      where: { eventId, status: { in: [...ATTENDING_STATUSES] } },
+    });
+    await this.prisma.event.update({
+      where: { id: eventId },
+      data: { attendees: attending },
+    });
+    return attending;
   }
 
   registrationsForUser(userId: string) {

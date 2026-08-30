@@ -164,6 +164,12 @@ model AuthSession {
 
   refreshTokenHash String
 
+  /// Compare-and-swap guard for refresh-token rotation. Every issued refresh
+  /// token carries the counter value it was minted at; a rotation only commits
+  /// when the presented value still matches the stored one, so two concurrent
+  /// refreshes with the same token can never both succeed.
+  rotationCounter Int @default(0)
+
   status SessionStatus @default(ACTIVE)
 
   ipAddress String?
@@ -1143,6 +1149,13 @@ model ContentReview {
   @@index([userId])
 }
 
+/// Carries an unmanaged partial unique index that Prisma cannot express:
+/// "Cart_userId_active_key" on (userId) WHERE status = 'ACTIVE', added in
+/// migration 20260828140000_concurrency_safety. It is the authoritative
+/// guarantee that a user has at most one active cart; concurrent
+/// get-or-create races surface as P2002 and are recovered by re-reading the
+/// winning cart. `prisma migrate dev` will report it as drift and offer to
+/// drop it — do not accept that; re-apply the index if it is ever lost.
 model Cart {
   id String @id @default(cuid())
 
@@ -1372,6 +1385,14 @@ model PDUTarget {
   @@index([category])
 }
 
+/// Carries an unmanaged partial unique index that Prisma cannot express:
+/// "PDUActivity_user_content_key" on (userId, contentType, contentId)
+/// WHERE contentType IS NOT NULL AND contentId IS NOT NULL, added in migration
+/// 20260828140000_concurrency_safety. Content-linked activities are one per
+/// user per content item; manually logged activities carry no content link and
+/// are deliberately left outside the index so a professional can record as many
+/// as they need. `prisma migrate dev` will report it as drift and offer to
+/// drop it — do not accept that; re-apply the index if it is ever lost.
 model PDUActivity {
   id String @id @default(cuid())
 
