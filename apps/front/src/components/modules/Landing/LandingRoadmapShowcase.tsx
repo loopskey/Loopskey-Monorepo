@@ -18,7 +18,7 @@ const LandingRoadmapShowcase = () => {
     <section className="relative overflow-x-clip px-4 py-16 sm:px-6 lg:px-8">
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute left-0 top-20 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-accent/10 blur-3xl" />
+        <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-brand-teal/10 blur-3xl" />
       </div>
 
       <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[0.92fr_1.08fr] px-4 sm:px-6 lg:px-8">
@@ -163,7 +163,7 @@ const LandingRoadmapShowcase = () => {
                               milestone.status === "done" &&
                                 "bg-primary/10 text-primary",
                               milestone.status === "active" &&
-                                "bg-accent/10 text-accent",
+                                "bg-brand-teal/10 text-brand-teal-text",
                               milestone.status === "upcoming" &&
                                 "bg-muted text-muted-foreground",
                             )}

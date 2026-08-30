@@ -20,7 +20,7 @@ const LandingOrganization = () => {
     <section className="relative overflow-x-clip px-4 py-16 sm:px-6 lg:px-8">
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute left-0 top-10 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-accent/10 blur-3xl" />
+        <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-brand-teal/10 blur-3xl" />
       </div>
 
       <div className="mx-auto grid max-w-7xl gap-10 rounded-[2.5rem] border border-glass-border bg-slate-600 p-6 text-white shadow-2xl md:p-10 xl:grid-cols-[1.05fr_0.95fr] xl:items-center">
@@ -97,7 +97,7 @@ const LandingOrganization = () => {
                     {t("landing.organization.dashboard.title")}
                   </p>
                 </div>
-                <span className="rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-accent">
+                <span className="rounded-full border border-brand-teal/30 bg-brand-teal/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-teal-text">
                   {t("landing.organization.dashboard.status")}
                 </span>
               </div>
@@ -139,7 +139,7 @@ const LandingOrganization = () => {
                           className={cn(
                             "h-full rounded-full transition-all duration-700",
                             index === 0 && "bg-primary",
-                            index === 1 && "bg-accent",
+                            index === 1 && "bg-brand-teal",
                             index === 2 && "bg-destructive",
                           )}
                           style={{
@@ -169,7 +169,7 @@ const LandingOrganization = () => {
                         </p>
                       </div>
 
-                      <span className="text-sm font-bold text-accent">
+                      <span className="text-sm font-bold text-brand-teal-text">
                         {topic.percentage}%
                       </span>
                     </div>
