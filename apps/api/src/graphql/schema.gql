@@ -267,6 +267,94 @@ enum AssociationActivationTokenStatus {
   VALID
 }
 
+type AssociationBulkInviteFailure {
+  code: String!
+  email: String!
+  reason: String!
+  row: Int!
+}
+
+type AssociationBulkInviteResult {
+  failed: Int!
+  failures: [AssociationBulkInviteFailure!]!
+  invited: Int!
+  linked: Int!
+  totalRows: Int!
+}
+
+type AssociationGroup {
+  createdAt: DateTime!
+  description: String
+  id: ID!
+  isActive: Boolean!
+  memberCount: Int!
+  title: String!
+  updatedAt: DateTime!
+}
+
+"""
+Whether an invitation linked an account that already existed or sent a new one
+"""
+enum AssociationInviteOutcome {
+  INVITATION_SENT
+  LINKED_EXISTING_USER
+}
+
+type AssociationInviteResult {
+  member: AssociationMember!
+  outcome: AssociationInviteOutcome!
+}
+
+type AssociationMember {
+  activatedAt: DateTime
+  avatarUrl: String
+  deactivatedAt: DateTime
+  email: String
+  fullName: String
+  group: AssociationMemberGroup
+  id: ID!
+  invitedAt: DateTime!
+  memberNumber: String
+  notes: String
+  status: AssociationMemberStatus!
+  userId: ID!
+}
+
+input AssociationMemberFilterInput {
+  groupId: ID
+  search: String
+  status: AssociationMemberStatus
+}
+
+type AssociationMemberGroup {
+  id: ID!
+  isActive: Boolean!
+  title: String!
+}
+
+type AssociationMemberStats {
+  activeMembers: Int!
+  pendingActivation: Int!
+  totalMembers: Int!
+}
+
+"""Where a member stands between invitation and membership"""
+enum AssociationMemberStatus {
+  ACTIVE
+  INACTIVE
+  PENDING_ACTIVATION
+}
+
+type AssociationPageInfo {
+  hasNextPage: Boolean!
+  nextCursor: String
+}
+
+input AssociationPaginationInput {
+  cursor: String
+  take: Int = 20
+}
+
 type AssociationSettings {
   associationId: ID!
   atRiskThreshold: Int!
@@ -340,6 +428,19 @@ type BulkAddOrganizationMembersResult {
   failed: Int!
   totalRows: Int!
   updated: Int!
+}
+
+input BulkInviteAssociationMemberRowInput {
+  email: String!
+  firstName: String
+  groupId: ID
+  groupTitle: String
+  lastName: String
+  memberNumber: String
+}
+
+input BulkInviteAssociationMembersInput {
+  rows: [BulkInviteAssociationMemberRowInput!]!
 }
 
 input BulkOrganizationMemberRowInput {
@@ -740,6 +841,11 @@ input CreateAssociationAccountInput {
   representativeFullName: String!
   website: String
   workEmail: String!
+}
+
+input CreateAssociationGroupInput {
+  description: String
+  title: String!
 }
 
 input CreateCalendarEventInput {
@@ -1242,6 +1348,13 @@ input ForgotPasswordInput {
   email: String!
 }
 
+input InviteAssociationMemberInput {
+  email: String!
+  fullName: String!
+  groupId: ID
+  memberNumber: String
+}
+
 """
 The `JSONObject` scalar type represents JSON objects as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -1288,6 +1401,7 @@ type Mutation {
   archivePodcast(podcastId: String!): Podcast!
   archiveYouTubeChannel(channelId: String!): YouTubeChannel!
   bulkAddOrganizationMembers(input: BulkAddOrganizationMembersInput!): BulkAddOrganizationMembersResult!
+  bulkInviteAssociationMembers(input: BulkInviteAssociationMembersInput!): AssociationBulkInviteResult!
   cancelContentEnrollment(input: ContentActionInput!): ContentActionPayload!
   cancelEvent(eventId: String!): Event!
   cancelEventRegistration(eventId: String!): EventRegistration!
@@ -1297,6 +1411,7 @@ type Mutation {
   completeRoadmapStep(enrollmentId: ID!, stepId: ID!): RoadmapStepProgress!
   confirmExternalLearning(input: ConfirmExternalLearningInput!): ExternalLearningActivity!
   createAssociationAccount(input: CreateAssociationAccountInput!): AssociationActionResponse!
+  createAssociationGroup(input: CreateAssociationGroupInput!): AssociationGroup!
   createCalendarEvent(input: CreateCalendarEventInput!): ProfessionalManualCalendarEvent!
   createCourse(input: CreateCourseInput!): Course!
   createCpdPlan(input: CreateCpdPlanInput!): CpdPlan!
@@ -1333,6 +1448,7 @@ type Mutation {
   enrollContent(input: ContentActionInput!): ContentActionPayload!
   forgotPassword(input: ForgotPasswordInput!): AuthPayload!
   ignoreExternalLearning(activityId: String!): ExternalLearningActionResponse!
+  inviteAssociationMember(input: InviteAssociationMemberInput!): AssociationInviteResult!
   login(input: LoginInput!): AuthPayload!
   logout: AuthPayload!
   patchRoadmapDraft(input: PatchRoadmapDraftInput!): ProfessionalRoadmapDraft!
@@ -1350,6 +1466,7 @@ type Mutation {
   requestRoadmapGeneration(draftId: ID!): ProfessionalRoadmapDraft!
   resendAdminOrgAccessRequestNotification(requestId: String!): AdminOrgAccessRequest!
   resendAssociationActivation(input: ResendAssociationActivationInput!): AssociationActionResponse!
+  resendAssociationMemberInvitation(input: ResendAssociationMemberInvitationInput!): AssociationMember!
   resendEmailOtp(input: ResendEmailOtpInput!): AuthPayload!
   resendOrganizationActivation(input: ResendOrganizationActivationInput!): AuthPayload!
   resetPassword(input: ResetPasswordInput!): AuthPayload!
@@ -1360,6 +1477,8 @@ type Mutation {
   restoreUser(userId: String!): User!
   restoreYouTubeChannel(channelId: String!): YouTubeChannel!
   sendRoadmapChatTurn(input: RoadmapChatTurnInput!): ProfessionalRoadmapDraft!
+  setAssociationGroupActive(input: SetAssociationGroupActiveInput!): AssociationGroup!
+  setAssociationMemberStatus(input: SetAssociationMemberStatusInput!): AssociationMember!
   setProfessionalCertificateCpdPlan(input: SetCertificateCpdPlanInput!): ProfessionalCertificate!
   startProfessionalOnboarding: ProfessionalDashboardProfile!
   startRoadmapDraft: ProfessionalRoadmapDraft!
@@ -1374,6 +1493,8 @@ type Mutation {
   updateAdminOrganizationSettings(input: UpdateAdminOrgSettings!): OrganizationSettings!
   updateAdminProfile(input: UpdateAdminProfile!): AdminProfile!
   updateAdminUserStatus(input: UpdateAdminUserStatus!): AdminUser!
+  updateAssociationGroup(input: UpdateAssociationGroupInput!): AssociationGroup!
+  updateAssociationMember(input: UpdateAssociationMemberInput!): AssociationMember!
   updateAssociationProfile(input: UpdateAssociationProfileInput!): Association!
   updateCourse(input: UpdateCourseInput!): Course!
   updateCpdPlan(input: UpdateCpdPlanInput!): CpdPlan!
@@ -1876,6 +1997,12 @@ type PaginatedAdminOrgMembers {
 type PaginatedAdminUser {
   items: [AdminUser!]!
   pageInfo: AdminPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedAssociationMembers {
+  items: [AssociationMember!]!
+  pageInfo: AssociationPageInfo!
   totalCount: Int!
 }
 
@@ -2893,6 +3020,9 @@ type Query {
   adminUserGrowth(mode: String = "DAILY"): [AdminChartPoint!]!
   adminUsers(filter: AdminUserFilter, pagination: AdminPagination): PaginatedAdminUser!
   associationActivationStatus(token: String!): AssociationActivationStatus!
+  associationGroups(associationId: ID): [AssociationGroup!]!
+  associationMemberStats(associationId: ID): AssociationMemberStats!
+  associationMembers(associationId: ID, filter: AssociationMemberFilterInput, pagination: AssociationPaginationInput): PaginatedAssociationMembers!
   associationProfile(associationId: ID): Association!
   certificationSearch(input: CertificationSearchInput!): [Certification!]!
   contentReviews(contentId: String!, contentType: ContentType!): [ContentReview!]!
@@ -3004,6 +3134,10 @@ input RequestEmailChangeInput {
 
 input ResendAssociationActivationInput {
   associationId: ID!
+}
+
+input ResendAssociationMemberInvitationInput {
+  memberId: ID!
 }
 
 input ResendEmailOtpInput {
@@ -3161,6 +3295,16 @@ enum SessionStatus {
   REVOKED
 }
 
+input SetAssociationGroupActiveInput {
+  groupId: ID!
+  isActive: Boolean!
+}
+
+input SetAssociationMemberStatusInput {
+  memberId: ID!
+  status: AssociationMemberStatus!
+}
+
 input SetCertificateCpdPlanInput {
   certificateId: ID!
   cpdPlanId: ID
@@ -3254,6 +3398,19 @@ input UpdateAdminProfile {
 input UpdateAdminUserStatus {
   status: UserStatus!
   userId: String!
+}
+
+input UpdateAssociationGroupInput {
+  description: String
+  groupId: ID!
+  title: String
+}
+
+input UpdateAssociationMemberInput {
+  groupId: ID
+  memberId: ID!
+  memberNumber: String
+  notes: String
 }
 
 input UpdateAssociationProfileInput {

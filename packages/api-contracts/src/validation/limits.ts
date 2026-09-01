@@ -1,3 +1,15 @@
+export const ASSOCIATION_MEMBER_LIMITS = {
+  emailMax: 254,
+  notesMax: 2000,
+  fullNameMin: 2,
+  fullNameMax: 160,
+  groupTitleMin: 2,
+  bulkRowsMax: 1000,
+  memberNumberMax: 64,
+  groupTitleMax: 120,
+  groupDescriptionMax: 1000,
+} as const;
+
 export const ASSOCIATION_LIMITS = {
   nameMin: 2,
   nameMax: 160,

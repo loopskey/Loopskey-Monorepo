@@ -125,4 +125,39 @@ export class IdentityProfileApiService implements IdentityProfileApi {
     });
     return { id: created.id };
   }
+
+  async resolveAssociationMemberUser(command: {
+    email: string;
+    fullName: string;
+    atomicContext: object;
+  }) {
+    const db = command.atomicContext as Prisma.TransactionClient;
+    const email = command.email.trim().toLowerCase();
+    const existing = await db.user.findUnique({
+      where: { email },
+      select: { id: true, deletedAt: true },
+    });
+    if (existing?.deletedAt)
+      throw new ConflictException({
+        code: "UserDeleted",
+        message:
+          "A deleted account uses this email. Restore it before inviting.",
+      });
+    // An existing account is linked exactly as it stands. Rewriting its name or
+    // role here would let any association edit a person it merely invited.
+    if (existing) return { id: existing.id, linkedExisting: true };
+    const created = await db.user.create({
+      data: {
+        email,
+        passwordHash: null,
+        role: Role.PROFESSIONAL,
+        status: UserStatus.PENDING,
+        forcePasswordChange: false,
+        emailVerifiedAt: null,
+        fullName: command.fullName.trim(),
+      },
+      select: { id: true },
+    });
+    return { id: created.id, linkedExisting: false };
+  }
 }

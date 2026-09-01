@@ -43,3 +43,9 @@ export type TAssociationActivationEmail = TAssociationEmailBase & {
   loginUrl: string;
   username: string;
 };
+
+export type TAssociationMemberInvitationEmail = TAssociationEmailBase & {
+  memberName: string;
+  invitationUrl: string;
+  expiresInMinutes: number;
+};
