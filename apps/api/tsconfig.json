@@ -20,6 +20,7 @@
       "@youtube/*": ["src/modules/youtube/*"],
       "@landing/*": ["src/modules/landing/*"],
       "@org/*": ["src/modules/organization/*"],
+      "@association/*": ["src/modules/association/*"],
       "@support/*": ["src/modules/support/*"],
       "@provider/*": ["src/modules/provider/*"],
       "@ext/*": ["src/modules/external-learning/*"],

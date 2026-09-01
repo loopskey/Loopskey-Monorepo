@@ -1,5 +1,6 @@
 import { TProfessionalDashboardTab } from "@/types/professional-dashboard.types";
 import { TProviderDashboardTab } from "@/types/provider-dashboard.types";
+import { TAssociationDashboardTab } from "@/types/association-dashboard.types";
 import { TAdminDashboardTab } from "@/types/admin-dashboard.types";
 import { TOrgDashboardTab } from "@/types/org-dashboard.types";
 import { ElementType } from "react";
@@ -173,6 +174,52 @@ export const organizationDashboardTabs: TDashboardTab<TOrgDashboardTab>[] = [
   },
 ];
 
+export const associationDashboardTabs: TDashboardTab<TAssociationDashboardTab>[] =
+  [
+    {
+      value: "overview",
+      labelKey: "associationDashboard.sidebar.overview",
+      href: "/dashboard/association?tab=overview",
+      icon: L.LayoutDashboard,
+    },
+    {
+      value: "members",
+      labelKey: "associationDashboard.sidebar.members",
+      href: "/dashboard/association?tab=members",
+      icon: L.Users,
+    },
+    {
+      value: "requirements",
+      labelKey: "associationDashboard.sidebar.requirements",
+      href: "/dashboard/association?tab=requirements",
+      icon: L.ClipboardCheck,
+    },
+    {
+      value: "learning-content",
+      labelKey: "associationDashboard.sidebar.learningContent",
+      href: "/dashboard/association?tab=learning-content",
+      icon: L.BookOpen,
+    },
+    {
+      value: "reports",
+      labelKey: "associationDashboard.sidebar.reports",
+      href: "/dashboard/association?tab=reports",
+      icon: L.FileBarChart,
+    },
+    {
+      value: "messages",
+      labelKey: "associationDashboard.sidebar.messages",
+      href: "/dashboard/association?tab=messages",
+      icon: L.MessageSquare,
+    },
+    {
+      value: "settings",
+      labelKey: "associationDashboard.sidebar.settings",
+      href: "/dashboard/association?tab=settings",
+      icon: L.Settings,
+    },
+  ];
+
 export const adminDashboardTabs: TDashboardTab<TAdminDashboardTab>[] = [
   {
     value: "overview",
@@ -217,6 +264,7 @@ export const getDashboardTabsByRole = (role?: string | null) => {
   if (role === "PROFESSIONAL") return professionalDashboardTabs;
   if (role === "PROVIDER") return providerDashboardTabs;
   if (role === "ORGANIZATION") return organizationDashboardTabs;
+  if (role === "ASSOCIATION") return associationDashboardTabs;
   if (role === "ADMIN") return adminDashboardTabs;
   return [];
 };

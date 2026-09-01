@@ -14,6 +14,7 @@ enum Role {
   PROVIDER
   PROFESSIONAL
   ORGANIZATION
+  ASSOCIATION
 }
 
 enum UserStatus {
@@ -29,6 +30,8 @@ enum OtpPurpose {
   RESET_PASSWORD
   EMAIL_VERIFICATION
   ORGANIZATION_ACTIVATION
+  ASSOCIATION_ACTIVATION
+  ASSOCIATION_MEMBER_INVITE
 }
 
 enum NotificationDeliveryStatus {
@@ -119,6 +122,8 @@ model User {
   ownedRoadmaps          Roadmap[]                @relation("OwnedRoadmaps")
 
   ownedOrganization       Organization?            @relation("OrganizationOwner")
+  ownedAssociation        Association?             @relation("AssociationOwner")
+  associationMemberships  AssociationMember[]
   organizationMemberships OrganizationMember[]
   createdOrgAssignments   OrganizationAssignment[] @relation("CreatedOrgAssignments")
 
@@ -164,10 +169,6 @@ model AuthSession {
 
   refreshTokenHash String
 
-  /// Compare-and-swap guard for refresh-token rotation. Every issued refresh
-  /// token carries the counter value it was minted at; a rotation only commits
-  /// when the presented value still matches the stored one, so two concurrent
-  /// refreshes with the same token can never both succeed.
   rotationCounter Int @default(0)
 
   status SessionStatus @default(ACTIVE)
@@ -324,8 +325,6 @@ model ProfessionalProfile {
   workLocation        String?
   professionalSummary String?
 
-  // Onboarding. The goal is ordinary profile data and stays editable from the
-  // profile; the timestamps only record whether the wizard still has to run.
   professionalGoal      ProfessionalGoal?
   onboardingStartedAt   DateTime?
   onboardingCompletedAt DateTime?
@@ -342,8 +341,6 @@ model ProfessionalProfile {
   learningTimeCommitment   LearningTimeCommitment?
   learningBudgetPreference LearningBudgetPreference?
 
-  // Legacy columns preserved for compatibility. They are backfilled into the
-  // fields above and are no longer written by the professional profile module.
   interests String[]
   skills    String[]
   website   String?
@@ -419,8 +416,6 @@ model ProfessionalCredential {
 
   name String
 
-  // Optional since onboarding captures the credential alone: the issuer and the
-  // issue date are filled in later from the profile.
   issuingOrganization String?
   licenceNumber       String?
 
@@ -429,8 +424,6 @@ model ProfessionalCredential {
 
   annualCpdHours Float?
 
-  // Set when the credential came from the certification catalogue, so the
-  // catalogue stays the single source of truth for the credential's identity.
   certificationId String?
   certification   Certification? @relation(fields: [certificationId], references: [id], onDelete: SetNull)
 
@@ -502,13 +495,6 @@ enum OrganizationType {
   TRAINING_PROVIDER
 }
 
-/// Carries an unmanaged partial unique index that Prisma cannot express:
-/// "OrganizationAccessRequest_workEmail_pending_key" on (workEmail)
-/// WHERE status = 'PENDING', added in migration
-/// 20260720120000_org_access_request_pending_unique. It enforces one pending
-/// request per work email while still allowing resubmission after a rejection.
-/// `prisma migrate dev` will report it as drift and offer to drop it — do not
-/// accept that; re-apply the index if it is ever lost.
 model OrganizationAccessRequest {
   id String @id @default(cuid())
 
@@ -1149,13 +1135,6 @@ model ContentReview {
   @@index([userId])
 }
 
-/// Carries an unmanaged partial unique index that Prisma cannot express:
-/// "Cart_userId_active_key" on (userId) WHERE status = 'ACTIVE', added in
-/// migration 20260828140000_concurrency_safety. It is the authoritative
-/// guarantee that a user has at most one active cart; concurrent
-/// get-or-create races surface as P2002 and are recovered by re-reading the
-/// winning cart. `prisma migrate dev` will report it as drift and offer to
-/// drop it — do not accept that; re-apply the index if it is ever lost.
 model Cart {
   id String @id @default(cuid())
 
@@ -1336,19 +1315,19 @@ enum PDUSource {
   WEBINAR
   PODCAST
   YOUTUBE
-  WORKSHOP
   SEMINAR
-  CONFERENCE
   MEETING
-  TRAINING_SESSION
-  CERTIFICATION_PROGRAM
+  TEACHING
+  WORKSHOP
+  CONFERENCE
   SELF_STUDY
-  READING_ARTICLE
-  VIDEO_LECTURE
   MENTORSHIP
   VOLUNTEERING
-  TEACHING
+  VIDEO_LECTURE
+  READING_ARTICLE
   EXAM_ASSESSMENT
+  TRAINING_SESSION
+  CERTIFICATION_PROGRAM
 }
 
 enum CreditType {
@@ -1385,14 +1364,6 @@ model PDUTarget {
   @@index([category])
 }
 
-/// Carries an unmanaged partial unique index that Prisma cannot express:
-/// "PDUActivity_user_content_key" on (userId, contentType, contentId)
-/// WHERE contentType IS NOT NULL AND contentId IS NOT NULL, added in migration
-/// 20260828140000_concurrency_safety. Content-linked activities are one per
-/// user per content item; manually logged activities carry no content link and
-/// are deliberately left outside the index so a professional can record as many
-/// as they need. `prisma migrate dev` will report it as drift and offer to
-/// drop it — do not accept that; re-apply the index if it is ever lost.
 model PDUActivity {
   id String @id @default(cuid())
 
@@ -1487,10 +1458,6 @@ enum CPDReportRecipientType {
   OTHER
 }
 
-// Replaceable certification catalogue. Seeded from a repository/fixture today,
-// searched with PostgreSQL pg_trgm fuzzy matching (trigram GIN indexes added in
-// the migration on name / abbreviation / organization / organizationAbbr /
-// association). Can later be populated from a real provider feed.
 model Certification {
   id String @id @default(cuid())
 
@@ -1610,8 +1577,6 @@ model Certificate {
 
   title             String
   issuer            String?
-  // Optional free-text identifier printed on the certificate (licence / registration
-  // number). Distinct from the platform-generated `verificationCode`.
   certificateNumber String?
   certificateUrl    String?
   verificationCode  String  @unique
@@ -1619,8 +1584,6 @@ model Certificate {
   contentType ContentType?
   contentId   String?
 
-  // Optional link to one of the owner's CPD/PDU plans. SetNull so deleting the
-  // plan only clears the link; deleting the certificate never touches the plan.
   cpdPlanId String?
   cpdPlan   CPDPlan? @relation(fields: [cpdPlanId], references: [id], onDelete: SetNull)
 
@@ -1638,8 +1601,6 @@ model Certificate {
   @@index([userId])
   @@index([status])
   @@index([issuedAt])
-  // Status filtering and the summary counts always narrow by owner first and
-  // then range over the expiry date, so the composite serves them directly.
   @@index([userId, validUntil])
   @@index([cpdPlanId])
   @@index([contentType, contentId])
@@ -1668,8 +1629,8 @@ model CertificateFile {
 // =================== Payments =================
 enum PaymentStatus {
   PAID
-  PENDING
   FAILED
+  PENDING
   REFUNDED
   CANCELLED
 }
@@ -1714,47 +1675,40 @@ enum RoadmapEnrollmentStatus {
   UNENROLLED
 }
 
-// Where a roadmap came from. Catalogue roadmaps have no owner and stay visible
-// in explore; generated ones belong to the professional they were built for.
 enum RoadmapSource {
   CATALOG
   GENERATED
 }
 
-// Draft lifecycle. Transitions run forward only, with FAILED reachable from
-// GENERATING so a failed generation can be edited and retried.
 enum RoadmapDraftStatus {
-  COLLECTING
   READY
-  GENERATING
-  COMPLETED
   FAILED
+  COMPLETED
+  COLLECTING
+  GENERATING
 }
 
 enum RoadmapChatRole {
+  SYSTEM
   ASSISTANT
   PROFESSIONAL
-  SYSTEM
 }
 
-// The wizard step a draft is on. Finer-grained than the AI service's own
-// section vocabulary; translating between the two happens at the client
-// boundary, not here.
 enum RoadmapDraftStep {
   GOAL
-  GOAL_REASON
+  REVIEW
   CONTEXT
+  GOAL_REASON
   TARGET_DATE
   PREFERENCES
   CPD_TRACKING
   CERTIFICATION
   CPD_REQUIREMENTS
-  REVIEW
 }
 
 enum RoadmapStepProgressStatus {
-  IN_PROGRESS
   COMPLETED
+  IN_PROGRESS
 }
 
 model Roadmap {
@@ -1769,20 +1723,13 @@ model Roadmap {
   level    CourseLevel     @default(ALL_LEVELS)
   status   RoadmapStatus   @default(PUBLISHED)
 
-  // A null owner is a catalogue roadmap. Existing rows backfill to null, so
-  // explore behaviour is unchanged.
   ownerId String?
   owner   User?   @relation("OwnedRoadmaps", fields: [ownerId], references: [id], onDelete: Cascade)
 
   source RoadmapSource @default(CATALOG)
 
-  // A generated roadmap states its own duration, so it is stored rather than
-  // inferred from the phase count.
   estimatedWeeks Int?
-
-  // What the catalogue could and could not supply when this roadmap was
-  // generated, including any credit shortfall against a tracked certification.
-  coverageNote String?
+  coverageNote   String?
 
   phases      RoadmapPhase[]
   enrollments RoadmapEnrollment[]
@@ -1808,8 +1755,6 @@ model RoadmapPhase {
   description String?
   order       Int
 
-  // Pacing from a generated plan. Without it the plan is a list, not a
-  // schedule.
   estimatedWeeks Int?
 
   steps RoadmapStep[]
@@ -1855,9 +1800,6 @@ model RoadmapEnrollment {
   roadmapId String
   roadmap   Roadmap @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
 
-  // Retained as the value of record for enrollments created before step-level
-  // progress existed. Enrollments with step progress rows derive from those
-  // rows instead; this column is the fallback, never a second source.
   progress Int                     @default(0)
   status   RoadmapEnrollmentStatus @default(ACTIVE)
 
@@ -1896,16 +1838,12 @@ model RoadmapStepProgress {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Starting or completing the same step twice updates this row rather than
-  // creating a second one.
   @@unique([enrollmentId, stepId])
   @@index([enrollmentId])
   @@index([stepId])
   @@index([enrollmentId, status])
 }
 
-// Server-owned wizard state. Both the chat and the review card write here, so
-// the two can never disagree.
 model RoadmapDraft {
   id String @id @default(cuid())
 
@@ -1915,15 +1853,10 @@ model RoadmapDraft {
   status      RoadmapDraftStatus @default(COLLECTING)
   currentStep RoadmapDraftStep   @default(GOAL)
 
-  // The goal statement in the professional's own words. Kept separate from
-  // targetRole: a job title alone does not satisfy the AI service, which
-  // cannot generate without the statement.
   goal       String?
   targetRole String?
   goalReason String?
 
-  // Free text the professional wrote about themselves. Never logged, never
-  // returned to anyone but the owner.
   context String?
 
   targetDate DateTime?
@@ -1938,8 +1871,6 @@ model RoadmapDraft {
 
   cpdEnabled Boolean @default(false)
 
-  // Set when the certification is in the catalogue; the name is kept for the
-  // manual-entry case where it is not.
   certificationId   String?
   certification     Certification? @relation(fields: [certificationId], references: [id], onDelete: SetNull)
   certificationName String?
@@ -1950,8 +1881,6 @@ model RoadmapDraft {
   requiredCredits  Float?
   completedCredits Float?
 
-  // Outcome of the most recent turn. Persisted so a reload restores the
-  // conversation exactly, rather than re-deriving it from the transcript.
   needsClarification Boolean @default(false)
   wasRefused         Boolean @default(false)
 
@@ -1978,10 +1907,8 @@ model RoadmapChatMessage {
   role    RoadmapChatRole
   content String
 
-  // The wizard step this message was produced at.
   stepKey RoadmapDraftStep
 
-  // The shortcut control the assistant suggested for this answer, if any.
   widget Json?
 
   createdAt DateTime @default(now())
@@ -2202,6 +2129,123 @@ model OrganizationAssignmentRecipient {
   @@index([completedAt])
 }
 
+// ================ Association ==================
+model Association {
+  id String @id @default(cuid())
+
+  ownerId String @unique
+  owner   User   @relation("AssociationOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  name         String
+  logoUrl      String?
+  description  String?
+  country      String?
+  website      String?
+  contactEmail String?
+
+  settings AssociationSettings?
+  groups   AssociationGroup[]
+  members  AssociationMember[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([ownerId])
+  @@index([name])
+}
+
+model AssociationSettings {
+  id String @id @default(cuid())
+
+  associationId String      @unique
+  association   Association @relation(fields: [associationId], references: [id], onDelete: Cascade)
+
+  defaultCreditType CreditType @default(CPD)
+
+  onTrackThreshold Int @default(70)
+
+  atRiskThreshold Int @default(40)
+
+  renewalRequiresReviewedEvidence Boolean @default(true)
+
+  complianceReminders Boolean @default(true)
+  welcomeMessages     Boolean @default(true)
+  weeklyDigest        Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum AssociationMemberStatus {
+  PENDING_ACTIVATION
+  ACTIVE
+  INACTIVE
+}
+
+/// How an association segments its roster: a chapter, a region, a grade.
+/// Deactivating a group leaves its members in place with no group, so a group
+/// is never a way to lose people.
+model AssociationGroup {
+  id String @id @default(cuid())
+
+  associationId String
+  association   Association @relation(fields: [associationId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String?
+  isActive    Boolean @default(true)
+
+  members AssociationMember[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([associationId, title])
+  @@index([associationId])
+}
+
+/// A professional's membership of an association. Membership is not employment:
+/// the same user may hold this and an OrganizationMember row at once, and
+/// neither side sees the other.
+///
+/// A member number is unique within an association only when it is present, and
+/// Prisma cannot express a partial unique index. The migration creates
+/// `AssociationMember_member_number_key` on (associationId, memberNumber) WHERE
+/// "memberNumber" IS NOT NULL as an unmanaged index. `prisma migrate dev`
+/// reports it as drift and offers to drop it — refuse that offer.
+model AssociationMember {
+  id String @id @default(cuid())
+
+  associationId String
+  association   Association @relation(fields: [associationId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  groupId String?
+  group   AssociationGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
+
+  memberNumber String?
+
+  status AssociationMemberStatus @default(PENDING_ACTIVATION)
+
+  notes String?
+
+  invitedAt     DateTime  @default(now())
+  activatedAt   DateTime?
+  deactivatedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([associationId, userId])
+  @@index([associationId])
+  @@index([userId])
+  @@index([groupId])
+  @@index([status])
+}
+
 // ============== Admin =================
 enum AuditAction {
   USER_EXPORTED
@@ -2211,11 +2255,15 @@ enum AuditAction {
   ORGANIZATION_MEMBER_REMOVED
   ORG_ACCESS_REQUEST_APPROVED
   ORG_ACCESS_REQUEST_REJECTED
-  ORG_ACCESS_REQUEST_SUBMITTED
   ORGANIZATION_MEMBER_UPDATED
-  ORGANIZATION_SETTINGS_UPDATED
-  ORGANIZATION_ACCOUNT_ACTIVATED
+  ASSOCIATION_ACCOUNT_CREATED
+  ORG_ACCESS_REQUEST_SUBMITTED
   ORGANIZATION_ACCOUNT_CREATED
+  ASSOCIATION_SETTINGS_UPDATED
+  ASSOCIATION_ACTIVATION_RESENT
+  ORGANIZATION_SETTINGS_UPDATED
+  ASSOCIATION_ACCOUNT_ACTIVATED
+  ORGANIZATION_ACCOUNT_ACTIVATED
   ORGANIZATION_ACTIVATION_RESENT
   ORGANIZATION_NOTIFICATION_FAILED
 }
@@ -2308,8 +2356,6 @@ model ExternalLearningActivity {
   @@index([clickedAt])
 }
 
-// Durable, versioned integration events. Producers insert these rows in the
-// same transaction as their aggregate changes; delivery happens after commit.
 model OutboxEvent {
   id            String    @id @default(cuid())
   eventName     String
@@ -2331,8 +2377,6 @@ model OutboxEvent {
   @@index([eventName, occurredAt])
 }
 
-// The unique key makes each handler idempotent even when a claimed row is
-// retried after a process crash.
 model OutboxDelivery {
   eventId     String
   handlerName String

@@ -1,28 +1,15 @@
 # Loopskey agent instructions
 
-This repository contains a Next.js frontend and a NestJS backend. Inspect the
-relevant code before making changes and load only the project context required
-for the current task.
+An npm-workspaces monorepo: a Next.js frontend (`apps/front`), a NestJS backend
+(`apps/api`), and shared packages under `packages/`.
 
-## Project context
+Read these two documents before implementing or reviewing code. They hold every
+rule; nothing is restated here.
 
-- Read `context/project-overview.md` when a task depends on the architecture,
-  domains, data model, or application boundaries.
-- Read `context/coding-standards.md` before implementing or reviewing code.
-- Read `context/feature-history.md` when prior feature decisions or completed
-  work affect the current task.
-- Do not preload the rest of `context/`; open individual files only when they
-  are directly relevant.
+- [`context/project-overview.md`](context/project-overview.md) — architecture,
+  domains, data model, stack, repository structure, application boundaries.
+- [`context/coding-standards.md`](context/coding-standards.md) — the rules:
+  concurrency, comments, tests, workflow, frontend and backend standards,
+  verification, definition of done.
 
-## Repository rules
-
-- Preserve unrelated user changes.
-- Use npm workspaces and run project-level commands from the repository root.
-- The browser communicates with `apps/api` through GraphQL.
-- Keep NestJS module communication in-process; do not introduce internal HTTP,
-  GraphQL, gRPC, or broker calls between modules.
-- Assume concurrent requests and multiple API instances. A business invariant
-  must rest on a database constraint or a conditional write, never on a read
-  performed before the write. See "Concurrency and race conditions" in
-  `context/coding-standards.md` before adding or changing one.
-- Do not commit directly to `main` or `develop`.
+Open anything else under `context/` only when the current task depends on it.

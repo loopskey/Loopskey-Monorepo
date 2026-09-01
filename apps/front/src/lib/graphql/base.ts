@@ -19,6 +19,12 @@ export type Scalars = {
   JSONObject: { input: any; output: any; }
 };
 
+export type ActivateAssociationAccountInput = {
+  confirmPassword: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+  token: Scalars['String']['input'];
+};
+
 export type ActivateOrganizationAccountInput = {
   confirmPassword: Scalars['String']['input'];
   password: Scalars['String']['input'];
@@ -254,8 +260,159 @@ export enum AssignmentType {
   Soft = 'SOFT'
 }
 
+export type Association = {
+  __typename?: 'Association';
+  contactEmail?: Maybe<Scalars['String']['output']>;
+  country?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  logoUrl?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
+  ownerEmail?: Maybe<Scalars['String']['output']>;
+  ownerFullName?: Maybe<Scalars['String']['output']>;
+  ownerStatus: UserStatus;
+  settings?: Maybe<AssociationSettings>;
+  updatedAt: Scalars['DateTime']['output'];
+  website?: Maybe<Scalars['String']['output']>;
+};
+
+export type AssociationActionResponse = {
+  __typename?: 'AssociationActionResponse';
+  association?: Maybe<Association>;
+  code: Scalars['String']['output'];
+  message: Scalars['String']['output'];
+  success: Scalars['Boolean']['output'];
+};
+
+export type AssociationActivationStatus = {
+  __typename?: 'AssociationActivationStatus';
+  associationName?: Maybe<Scalars['String']['output']>;
+  status: AssociationActivationTokenStatus;
+};
+
+export enum AssociationActivationTokenStatus {
+  Expired = 'EXPIRED',
+  Invalid = 'INVALID',
+  Used = 'USED',
+  Valid = 'VALID'
+}
+
+export type AssociationBulkInviteFailure = {
+  __typename?: 'AssociationBulkInviteFailure';
+  code: Scalars['String']['output'];
+  email: Scalars['String']['output'];
+  reason: Scalars['String']['output'];
+  row: Scalars['Int']['output'];
+};
+
+export type AssociationBulkInviteResult = {
+  __typename?: 'AssociationBulkInviteResult';
+  failed: Scalars['Int']['output'];
+  failures: Array<AssociationBulkInviteFailure>;
+  invited: Scalars['Int']['output'];
+  linked: Scalars['Int']['output'];
+  totalRows: Scalars['Int']['output'];
+};
+
+export type AssociationGroup = {
+  __typename?: 'AssociationGroup';
+  createdAt: Scalars['DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  memberCount: Scalars['Int']['output'];
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+/** Whether an invitation linked an account that already existed or sent a new one */
+export enum AssociationInviteOutcome {
+  InvitationSent = 'INVITATION_SENT',
+  LinkedExistingUser = 'LINKED_EXISTING_USER'
+}
+
+export type AssociationInviteResult = {
+  __typename?: 'AssociationInviteResult';
+  member: AssociationMember;
+  outcome: AssociationInviteOutcome;
+};
+
+export type AssociationMember = {
+  __typename?: 'AssociationMember';
+  activatedAt?: Maybe<Scalars['DateTime']['output']>;
+  avatarUrl?: Maybe<Scalars['String']['output']>;
+  deactivatedAt?: Maybe<Scalars['DateTime']['output']>;
+  email?: Maybe<Scalars['String']['output']>;
+  fullName?: Maybe<Scalars['String']['output']>;
+  group?: Maybe<AssociationMemberGroup>;
+  id: Scalars['ID']['output'];
+  invitedAt: Scalars['DateTime']['output'];
+  memberNumber?: Maybe<Scalars['String']['output']>;
+  notes?: Maybe<Scalars['String']['output']>;
+  status: AssociationMemberStatus;
+  userId: Scalars['ID']['output'];
+};
+
+export type AssociationMemberFilterInput = {
+  groupId?: InputMaybe<Scalars['ID']['input']>;
+  search?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<AssociationMemberStatus>;
+};
+
+export type AssociationMemberGroup = {
+  __typename?: 'AssociationMemberGroup';
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  title: Scalars['String']['output'];
+};
+
+export type AssociationMemberStats = {
+  __typename?: 'AssociationMemberStats';
+  activeMembers: Scalars['Int']['output'];
+  pendingActivation: Scalars['Int']['output'];
+  totalMembers: Scalars['Int']['output'];
+};
+
+/** Where a member stands between invitation and membership */
+export enum AssociationMemberStatus {
+  Active = 'ACTIVE',
+  Inactive = 'INACTIVE',
+  PendingActivation = 'PENDING_ACTIVATION'
+}
+
+export type AssociationPageInfo = {
+  __typename?: 'AssociationPageInfo';
+  hasNextPage: Scalars['Boolean']['output'];
+  nextCursor?: Maybe<Scalars['String']['output']>;
+};
+
+export type AssociationPaginationInput = {
+  cursor?: InputMaybe<Scalars['String']['input']>;
+  take?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type AssociationSettings = {
+  __typename?: 'AssociationSettings';
+  associationId: Scalars['ID']['output'];
+  atRiskThreshold: Scalars['Int']['output'];
+  complianceReminders: Scalars['Boolean']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  defaultCreditType: CreditType;
+  id: Scalars['ID']['output'];
+  onTrackThreshold: Scalars['Int']['output'];
+  renewalRequiresReviewedEvidence: Scalars['Boolean']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  weeklyDigest: Scalars['Boolean']['output'];
+  welcomeMessages: Scalars['Boolean']['output'];
+};
+
 export enum AuditAction {
   AdminProfileUpdated = 'ADMIN_PROFILE_UPDATED',
+  AssociationAccountActivated = 'ASSOCIATION_ACCOUNT_ACTIVATED',
+  AssociationAccountCreated = 'ASSOCIATION_ACCOUNT_CREATED',
+  AssociationActivationResent = 'ASSOCIATION_ACTIVATION_RESENT',
+  AssociationSettingsUpdated = 'ASSOCIATION_SETTINGS_UPDATED',
   OrganizationAccountActivated = 'ORGANIZATION_ACCOUNT_ACTIVATED',
   OrganizationAccountCreated = 'ORGANIZATION_ACCOUNT_CREATED',
   OrganizationActivationResent = 'ORGANIZATION_ACTIVATION_RESENT',
@@ -313,6 +470,19 @@ export type BulkAddOrganizationMembersResult = {
   failed: Scalars['Int']['output'];
   totalRows: Scalars['Int']['output'];
   updated: Scalars['Int']['output'];
+};
+
+export type BulkInviteAssociationMemberRowInput = {
+  email: Scalars['String']['input'];
+  firstName?: InputMaybe<Scalars['String']['input']>;
+  groupId?: InputMaybe<Scalars['ID']['input']>;
+  groupTitle?: InputMaybe<Scalars['String']['input']>;
+  lastName?: InputMaybe<Scalars['String']['input']>;
+  memberNumber?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type BulkInviteAssociationMembersInput = {
+  rows: Array<BulkInviteAssociationMemberRowInput>;
 };
 
 export type BulkOrganizationMemberRowInput = {
@@ -718,6 +888,21 @@ export type CpdReportRecipientOption = {
   description?: Maybe<Scalars['String']['output']>;
   label: Scalars['String']['output'];
   type: CpdReportRecipientType;
+};
+
+export type CreateAssociationAccountInput = {
+  country?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  logoUrl?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  representativeFullName: Scalars['String']['input'];
+  website?: InputMaybe<Scalars['String']['input']>;
+  workEmail: Scalars['String']['input'];
+};
+
+export type CreateAssociationGroupInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  title: Scalars['String']['input'];
 };
 
 export type CreateCalendarEventInput = {
@@ -1224,6 +1409,13 @@ export type ForgotPasswordInput = {
   email: Scalars['String']['input'];
 };
 
+export type InviteAssociationMemberInput = {
+  email: Scalars['String']['input'];
+  fullName: Scalars['String']['input'];
+  groupId?: InputMaybe<Scalars['ID']['input']>;
+  memberNumber?: InputMaybe<Scalars['String']['input']>;
+};
+
 export enum LearningBudgetPreference {
   EmployerSponsored = 'EMPLOYER_SPONSORED',
   FreeOnly = 'FREE_ONLY',
@@ -1256,6 +1448,7 @@ export type LoginInput = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  activateAssociationAccount: AuthPayload;
   activateOrganizationAccount: AuthPayload;
   addOrganizationMember: OrganizationMember;
   addToCart: ContentActionPayload;
@@ -1265,6 +1458,7 @@ export type Mutation = {
   archivePodcast: Podcast;
   archiveYouTubeChannel: YouTubeChannel;
   bulkAddOrganizationMembers: BulkAddOrganizationMembersResult;
+  bulkInviteAssociationMembers: AssociationBulkInviteResult;
   cancelContentEnrollment: ContentActionPayload;
   cancelEvent: Event;
   cancelEventRegistration: EventRegistration;
@@ -1273,6 +1467,8 @@ export type Mutation = {
   completeProfessionalOnboarding: ProfessionalDashboardProfile;
   completeRoadmapStep: RoadmapStepProgress;
   confirmExternalLearning: ExternalLearningActivity;
+  createAssociationAccount: AssociationActionResponse;
+  createAssociationGroup: AssociationGroup;
   createCalendarEvent: ProfessionalManualCalendarEvent;
   createCourse: Course;
   createCpdPlan: CpdPlan;
@@ -1309,6 +1505,7 @@ export type Mutation = {
   enrollContent: ContentActionPayload;
   forgotPassword: AuthPayload;
   ignoreExternalLearning: ExternalLearningActionResponse;
+  inviteAssociationMember: AssociationInviteResult;
   login: AuthPayload;
   logout: AuthPayload;
   patchRoadmapDraft: ProfessionalRoadmapDraft;
@@ -1325,6 +1522,8 @@ export type Mutation = {
   requestEmailChange: AuthPayload;
   requestRoadmapGeneration: ProfessionalRoadmapDraft;
   resendAdminOrgAccessRequestNotification: AdminOrgAccessRequest;
+  resendAssociationActivation: AssociationActionResponse;
+  resendAssociationMemberInvitation: AssociationMember;
   resendEmailOtp: AuthPayload;
   resendOrganizationActivation: AuthPayload;
   resetPassword: AuthPayload;
@@ -1335,6 +1534,8 @@ export type Mutation = {
   restoreUser: User;
   restoreYouTubeChannel: YouTubeChannel;
   sendRoadmapChatTurn: ProfessionalRoadmapDraft;
+  setAssociationGroupActive: AssociationGroup;
+  setAssociationMemberStatus: AssociationMember;
   setProfessionalCertificateCpdPlan: ProfessionalCertificate;
   startProfessionalOnboarding: ProfessionalDashboardProfile;
   startRoadmapDraft: ProfessionalRoadmapDraft;
@@ -1349,6 +1550,9 @@ export type Mutation = {
   updateAdminOrganizationSettings: OrganizationSettings;
   updateAdminProfile: AdminProfile;
   updateAdminUserStatus: AdminUser;
+  updateAssociationGroup: AssociationGroup;
+  updateAssociationMember: AssociationMember;
+  updateAssociationProfile: Association;
   updateCourse: Course;
   updateCpdPlan: CpdPlan;
   updateEnrollmentProgress: ContentActionPayload;
@@ -1378,6 +1582,11 @@ export type Mutation = {
   upsertProfessionalPduTarget: ProfessionalPduTarget;
   verifyEmailChange: AuthPayload;
   verifyEmailOtp: AuthPayload;
+};
+
+
+export type MutationActivateAssociationAccountArgs = {
+  input: ActivateAssociationAccountInput;
 };
 
 
@@ -1426,6 +1635,11 @@ export type MutationBulkAddOrganizationMembersArgs = {
 };
 
 
+export type MutationBulkInviteAssociationMembersArgs = {
+  input: BulkInviteAssociationMembersInput;
+};
+
+
 export type MutationCancelContentEnrollmentArgs = {
   input: ContentActionInput;
 };
@@ -1459,6 +1673,16 @@ export type MutationCompleteRoadmapStepArgs = {
 
 export type MutationConfirmExternalLearningArgs = {
   input: ConfirmExternalLearningInput;
+};
+
+
+export type MutationCreateAssociationAccountArgs = {
+  input: CreateAssociationAccountInput;
+};
+
+
+export type MutationCreateAssociationGroupArgs = {
+  input: CreateAssociationGroupInput;
 };
 
 
@@ -1637,6 +1861,11 @@ export type MutationIgnoreExternalLearningArgs = {
 };
 
 
+export type MutationInviteAssociationMemberArgs = {
+  input: InviteAssociationMemberInput;
+};
+
+
 export type MutationLoginArgs = {
   input: LoginInput;
 };
@@ -1707,6 +1936,16 @@ export type MutationResendAdminOrgAccessRequestNotificationArgs = {
 };
 
 
+export type MutationResendAssociationActivationArgs = {
+  input: ResendAssociationActivationInput;
+};
+
+
+export type MutationResendAssociationMemberInvitationArgs = {
+  input: ResendAssociationMemberInvitationInput;
+};
+
+
 export type MutationResendEmailOtpArgs = {
   input: ResendEmailOtpInput;
 };
@@ -1749,6 +1988,16 @@ export type MutationRestoreYouTubeChannelArgs = {
 
 export type MutationSendRoadmapChatTurnArgs = {
   input: RoadmapChatTurnInput;
+};
+
+
+export type MutationSetAssociationGroupActiveArgs = {
+  input: SetAssociationGroupActiveInput;
+};
+
+
+export type MutationSetAssociationMemberStatusArgs = {
+  input: SetAssociationMemberStatusInput;
 };
 
 
@@ -1810,6 +2059,21 @@ export type MutationUpdateAdminProfileArgs = {
 
 export type MutationUpdateAdminUserStatusArgs = {
   input: UpdateAdminUserStatus;
+};
+
+
+export type MutationUpdateAssociationGroupArgs = {
+  input: UpdateAssociationGroupInput;
+};
+
+
+export type MutationUpdateAssociationMemberArgs = {
+  input: UpdateAssociationMemberInput;
+};
+
+
+export type MutationUpdateAssociationProfileArgs = {
+  input: UpdateAssociationProfileInput;
 };
 
 
@@ -2458,6 +2722,13 @@ export type PaginatedAdminUser = {
   __typename?: 'PaginatedAdminUser';
   items: Array<AdminUser>;
   pageInfo: AdminPageInfo;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type PaginatedAssociationMembers = {
+  __typename?: 'PaginatedAssociationMembers';
+  items: Array<AssociationMember>;
+  pageInfo: AssociationPageInfo;
   totalCount: Scalars['Int']['output'];
 };
 
@@ -3551,6 +3822,11 @@ export type Query = {
   adminProfile: AdminProfile;
   adminUserGrowth: Array<AdminChartPoint>;
   adminUsers: PaginatedAdminUser;
+  associationActivationStatus: AssociationActivationStatus;
+  associationGroups: Array<AssociationGroup>;
+  associationMemberStats: AssociationMemberStats;
+  associationMembers: PaginatedAssociationMembers;
+  associationProfile: Association;
   certificationSearch: Array<Certification>;
   contentReviews: Array<ContentReview>;
   courseById: Course;
@@ -3685,6 +3961,33 @@ export type QueryAdminUserGrowthArgs = {
 export type QueryAdminUsersArgs = {
   filter?: InputMaybe<AdminUserFilter>;
   pagination?: InputMaybe<AdminPagination>;
+};
+
+
+export type QueryAssociationActivationStatusArgs = {
+  token: Scalars['String']['input'];
+};
+
+
+export type QueryAssociationGroupsArgs = {
+  associationId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type QueryAssociationMemberStatsArgs = {
+  associationId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type QueryAssociationMembersArgs = {
+  associationId?: InputMaybe<Scalars['ID']['input']>;
+  filter?: InputMaybe<AssociationMemberFilterInput>;
+  pagination?: InputMaybe<AssociationPaginationInput>;
+};
+
+
+export type QueryAssociationProfileArgs = {
+  associationId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 
@@ -4077,6 +4380,14 @@ export type RequestEmailChangeInput = {
   newEmail: Scalars['String']['input'];
 };
 
+export type ResendAssociationActivationInput = {
+  associationId: Scalars['ID']['input'];
+};
+
+export type ResendAssociationMemberInvitationInput = {
+  memberId: Scalars['ID']['input'];
+};
+
 export type ResendEmailOtpInput = {
   email: Scalars['String']['input'];
 };
@@ -4226,6 +4537,7 @@ export type RoadmapWidgetOption = {
 
 export enum Role {
   Admin = 'ADMIN',
+  Association = 'ASSOCIATION',
   Organization = 'ORGANIZATION',
   Professional = 'PROFESSIONAL',
   Provider = 'PROVIDER'
@@ -4236,6 +4548,16 @@ export enum SessionStatus {
   Expired = 'EXPIRED',
   Revoked = 'REVOKED'
 }
+
+export type SetAssociationGroupActiveInput = {
+  groupId: Scalars['ID']['input'];
+  isActive: Scalars['Boolean']['input'];
+};
+
+export type SetAssociationMemberStatusInput = {
+  memberId: Scalars['ID']['input'];
+  status: AssociationMemberStatus;
+};
 
 export type SetCertificateCpdPlanInput = {
   certificateId: Scalars['ID']['input'];
@@ -4331,6 +4653,28 @@ export type UpdateAdminProfile = {
 export type UpdateAdminUserStatus = {
   status: UserStatus;
   userId: Scalars['String']['input'];
+};
+
+export type UpdateAssociationGroupInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  groupId: Scalars['ID']['input'];
+  title?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdateAssociationMemberInput = {
+  groupId?: InputMaybe<Scalars['ID']['input']>;
+  memberId: Scalars['ID']['input'];
+  memberNumber?: InputMaybe<Scalars['String']['input']>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdateAssociationProfileInput = {
+  contactEmail?: InputMaybe<Scalars['String']['input']>;
+  country?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  logoUrl?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  website?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateCertificateInput = {

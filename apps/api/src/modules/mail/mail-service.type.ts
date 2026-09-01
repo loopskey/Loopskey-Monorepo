@@ -30,3 +30,22 @@ export type TOrganizationApprovalEmail = TOrganizationEmailBase & {
 export type TOrganizationRejectionEmail = TOrganizationEmailBase & {
   reason: string;
 };
+
+export type TAssociationEmailBase = {
+  appName: string;
+  associationName: string;
+  supportEmail: string;
+};
+
+export type TAssociationActivationEmail = TAssociationEmailBase & {
+  activationUrl: string;
+  expiresInMinutes: number;
+  loginUrl: string;
+  username: string;
+};
+
+export type TAssociationMemberInvitationEmail = TAssociationEmailBase & {
+  memberName: string;
+  invitationUrl: string;
+  expiresInMinutes: number;
+};

@@ -9,14 +9,6 @@ import { PrismaClient } from "@prisma/client";
 import { readFileSync } from "fs";
 import { resolve } from "path";
 
-/**
- * Regression guard for the Jest/tsconfig alias split.
- *
- * The hand-written `moduleNameMapper` mapped 10 of 26 aliases, leaving 130
- * source files across 10 of 17 modules unreachable from any spec — a failure
- * that surfaced as a misleading "Cannot find module". These imports fail at
- * suite load if the derived mapping regresses.
- */
 describe("path alias resolution", () => {
   it("resolves aliases that the hand-written mapper omitted", () => {
     expect(CourseService).toBeDefined();
@@ -38,12 +30,6 @@ describe("path alias resolution", () => {
     expect(typeof PrismaClient).toBe("function");
   });
 
-  /**
-   * `tsconfig.build.json` restates the whole alias map instead of inheriting
-   * it, so an alias added to `tsconfig.json` type-checks and tests cleanly
-   * while `nest build` fails with "Cannot find module". Comparing the two maps
-   * turns that into a failing test next to the mapping it protects.
-   */
   it("mirrors every tsconfig alias in the build config", () => {
     const read = (file: string) =>
       JSON.parse(readFileSync(resolve(__dirname, "../..", file), "utf8")) as {
