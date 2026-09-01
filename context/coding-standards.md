@@ -85,6 +85,34 @@ These rules apply to new code and files being actively changed. Do not perform
 unrelated refactors just to make old code conform. When existing patterns
 conflict, prefer the rule below unless compatibility requires the old pattern.
 
+## Comments
+
+Write no comments. Not JSDoc blocks, not section banners, not inline notes, not
+"why" explanations. Names, types, and structure carry the meaning: a value that
+would need an explanatory comment needs a named constant, and a block that would
+need a heading comment needs to be its own function.
+
+- Do not add a comment back while editing a file it was stripped from.
+- Keep only text a tool or a test reads: `eslint-disable` and `@ts-expect-error`
+  directives, Prisma's `///` field documentation, and any note an existing
+  specification asserts on.
+
+## Frontend tests
+
+`apps/front` has no test suite of its own to extend.
+
+- Do not create `*.test.ts` or `*.test.tsx` anywhere under `apps/front` — no
+  component tests, hook tests, utility tests, or test helpers.
+- Do not put a frontend test run in a feature's verification gate. The frontend
+  gate is lint, type-check, build, `npm run bundle-report --workspace front`,
+  and a browser check of the loading, empty, error, success, responsive and
+  keyboard states.
+- A dozen frontend test files predate this rule. Leave them alone; they are not
+  precedent for adding more.
+
+`apps/api` is unaffected: backend work is still expected to add and run Jest
+suites, and the rest of "Testing and Verification" applies to it in full.
+
 ## Core Principles
 
 - Keep changes focused, typed, testable, and easy to review.
@@ -94,6 +122,7 @@ conflict, prefer the rule below unless compatibility requires the old pattern.
 - Validate at every trust boundary; frontend validation is never authorization.
 - Do not leave unused imports, commented-out code, placeholders, debug logs, or
   unexplained magic values in completed work.
+- Write no comments. See "Comments" above.
 - Do not add a speculative export to a shared package. An export with no
   consumer is unused code that is harder to delete later, because removing it
   looks like a breaking change.
@@ -108,8 +137,13 @@ conflict, prefer the rule below unless compatibility requires the old pattern.
 - Record the base commit so review and explanation use a stable diff.
 - A code change after verification invalidates that verification. A code change
   after review invalidates both review and verification.
-- Do not commit unrelated working-tree files with a feature.
+- Never commit directly to `main` or `develop`. Feature work targets `develop`
+  through a pull request.
+- Preserve unrelated work: do not commit unrelated working-tree files with a
+  feature.
 - Do not commit, push, merge, or delete a branch before the required approval.
+  Never merge a pull request, enable auto-merge, or delete a branch on your own
+  initiative.
 - Preserve an immutable completed run record under
   `context/feature-runs/completed/`.
 
@@ -338,11 +372,35 @@ Push the client boundary as low as practical.
   system for one feature.
 - Keep dates, numbers, currency, and pluralization locale-aware.
 
+### Performance
+
+Standards live in `context/features/performance-optimization.md`. Two rules keep
+the shared shell small and both are easy to undo by accident:
+
+- Import GraphQL from the module that declares it, never from the
+  `@/lib/graphql/generated` barrel. See "Frontend Data and GraphQL" below.
+- A `.types.ts` file imports with `import type`. A plain `import` there is a
+  runtime edge, and type modules are reachable from nearly every component, so
+  one of them once pulled the whole GraphQL surface into every static page.
+
+Keep heavy libraries — charts, calendar, spreadsheet, WebGL, maps — behind
+`next/dynamic` or a deferred `import()`. After a build,
+`npm run bundle-report --workspace front` prints first-load JavaScript per
+prerendered route; check it whenever a change adds a dependency or a client
+component, and confirm the deferred library is absent from the route's chunks
+rather than assuming it.
+
 ## Frontend Data and GraphQL
 
-- GraphQL documents belong in `src/lib/graphql/documents`.
-- Generated output belongs in `src/lib/graphql/generated.ts` and is never
-  manually edited.
+- GraphQL documents belong in `src/lib/graphql/documents`, one file per domain.
+- Codegen writes `src/lib/graphql/base.ts`, `src/lib/graphql/operations/*.ts`
+  and the `src/lib/graphql/generated.ts` barrel, then runs
+  `scripts/graphql-postprocess.js`. None of them are ever edited by hand.
+- Import from the module that declares it, not from the `generated.ts` barrel:
+  `@/lib/graphql/base` for schema types and enums,
+  `@/lib/graphql/operations/<domain>` for documents and operation types. The
+  barrel re-exports everything, so one value import of it pulls every domain
+  into the route. `import type` from the barrel is free.
 - RTK Query endpoints belong in `src/lib/rtk/endpoints`; register them through
   the existing base API.
 - Use generated operation/result/input types rather than handwritten copies.
@@ -387,7 +445,13 @@ modules/<feature>/
 - Entities describe GraphQL output.
 - Feature-internal argument/result shapes belong in `types`.
 - Avoid cross-feature deep imports. Export an intentional service/module
-  contract if another module needs it.
+  contract if another module needs it. Module ownership and public-port
+  boundaries are enforced by the architecture specs; respect them rather than
+  widening an exception.
+- Modules talk to each other in process only. An internal HTTP, GraphQL, gRPC or
+  broker call between NestJS modules is a build failure (ADR-001). `apps/api` is
+  the system's only public edge and owns authentication and authorization for
+  every request.
 - Keep Prisma access in backend services, not resolvers or entities.
 - `enums/message-code.enum.ts` is a re-export shim over
   `@loopskey/api-contracts/error-codes`. Keep it a shim: add codes to the
@@ -445,6 +509,8 @@ The API is guarded by default with `JwtAuthGuard` and `RolesGuard`.
   rotation semantics.
 - Never log passwords, OTPs, tokens, cookies, OAuth credentials, or sensitive
   personal data.
+- Never expose secrets, password hashes, refresh-token hashes, or private files
+  in a response, a GraphQL entity, or an error payload.
 
 ## Prisma and Database
 
@@ -493,12 +559,14 @@ Run the smallest relevant check first, then broaden:
 
 ```bash
 npm run test --workspace api
-npm run test --workspace front
 npm run lint            # every workspace, including packages/api-contracts
 npm run check-types     # every workspace
-npm run test            # both applications' unit tests
 npm run build
 ```
+
+`apps/front` has no test suite to extend and no test file may be added to it;
+see "Frontend tests" below. Frontend work is verified with lint, type-check,
+build, `npm run bundle-report --workspace front`, and the browser.
 
 The root commands are Turborepo tasks and are dependency-ordered, so
 `packages/api-contracts` compiles before either app type-checks against it. A
@@ -509,15 +577,17 @@ after editing the package.
 Use only an isolated database whose name contains a standalone `test` marker;
 the safety guard rejects development and production database names.
 
-Tests should cover:
+API tests should cover:
 
 - happy path and validation failures;
 - anonymous, allowed-role, forbidden-role, and wrong-owner cases;
 - session refresh/revocation behavior;
 - multi-record transaction failure;
-- frontend loading, empty, error, and success states;
-- forms and keyboard-accessible interactions;
 - payment/upload/external-service failure and retry/idempotency behavior.
+
+The frontend equivalents — loading, empty, error and success states, forms, and
+keyboard-accessible interactions — are covered in the browser, not in a test
+file.
 
 Shared-package changes need two extra kinds of test, because their failure modes
 are silent:
