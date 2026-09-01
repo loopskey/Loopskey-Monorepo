@@ -1,9 +1,10 @@
+import { buildOrganizationPasswordChangedEmail } from "@mail/organization-email.template";
+import { buildAssociationPasswordChangedEmail } from "@mail/association-email.template";
 import { buildOtpEmailTemplate } from "@mail/otp-email.template";
 import { ConfigService } from "@nestjs/config";
 import { MailService } from "@mail/mail.service";
 import { OtpPurpose } from "@prisma/client";
 import { Injectable } from "@nestjs/common";
-import { buildOrganizationPasswordChangedEmail } from "@mail/organization-email.template";
 
 @Injectable()
 export class AuthCommonService {
@@ -76,6 +77,21 @@ export class AuthCommonService {
     const template = buildOrganizationPasswordChangedEmail({
       appName: this.configService.get<string>("APP_NAME", "LoopsKey"),
       organizationName,
+      supportEmail: this.configService.get<string>(
+        "SUPPORT_EMAIL",
+        "support@loopskey.com",
+      ),
+    });
+    await this.mailService.sendEmail({ to: email, ...template });
+  }
+
+  async sendAssociationPasswordChangedEmail(
+    email: string,
+    associationName: string,
+  ) {
+    const template = buildAssociationPasswordChangedEmail({
+      appName: this.configService.get<string>("APP_NAME", "LoopsKey"),
+      associationName,
       supportEmail: this.configService.get<string>(
         "SUPPORT_EMAIL",
         "support@loopskey.com",

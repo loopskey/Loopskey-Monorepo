@@ -73,6 +73,20 @@ export type ResendOrganizationActivationMutationVariables = Types.Exact<{
 
 export type ResendOrganizationActivationMutation = { __typename?: 'Mutation', resendOrganizationActivation: { __typename?: 'AuthPayload', code: string, success: boolean, message: string } };
 
+export type AssociationActivationStatusQueryVariables = Types.Exact<{
+  token: Types.Scalars['String']['input'];
+}>;
+
+
+export type AssociationActivationStatusQuery = { __typename?: 'Query', associationActivationStatus: { __typename?: 'AssociationActivationStatus', status: Types.AssociationActivationTokenStatus, associationName?: string | null } };
+
+export type ActivateAssociationAccountMutationVariables = Types.Exact<{
+  input: Types.ActivateAssociationAccountInput;
+}>;
+
+
+export type ActivateAssociationAccountMutation = { __typename?: 'Mutation', activateAssociationAccount: { __typename?: 'AuthPayload', code: string, success: boolean, message: string } };
+
 export type ChangePasswordMutationVariables = Types.Exact<{
   input: Types.ChangePasswordInput;
 }>;
@@ -258,6 +272,23 @@ export const ResendOrganizationActivationDocument = /*#__PURE__*/ new TypedDocum
   }
 }
     `) as unknown as TypedDocumentString<ResendOrganizationActivationMutation, ResendOrganizationActivationMutationVariables>;
+export const AssociationActivationStatusDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query AssociationActivationStatus($token: String!) {
+  associationActivationStatus(token: $token) {
+    status
+    associationName
+  }
+}
+    `) as unknown as TypedDocumentString<AssociationActivationStatusQuery, AssociationActivationStatusQueryVariables>;
+export const ActivateAssociationAccountDocument = /*#__PURE__*/ new TypedDocumentString(`
+    mutation ActivateAssociationAccount($input: ActivateAssociationAccountInput!) {
+  activateAssociationAccount(input: $input) {
+    code
+    success
+    message
+  }
+}
+    `) as unknown as TypedDocumentString<ActivateAssociationAccountMutation, ActivateAssociationAccountMutationVariables>;
 export const ChangePasswordDocument = /*#__PURE__*/ new TypedDocumentString(`
     mutation ChangePassword($input: ChangePasswordInput!) {
   changePassword(input: $input) {
