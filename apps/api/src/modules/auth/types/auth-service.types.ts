@@ -1,9 +1,12 @@
-import { OrganizationActivationTokenStatus } from "@auth/enums/organization-activation-token-status.enum";
 import { Prisma, Role, UserStatus } from "@prisma/client";
+import { ActivationTokenStatus } from "@auth/enums/activation-token-status.enum";
+
+import { type ActivationAccountRole } from "@auth/public/account-activation-api";
 
 export type IssueActivationLinkArgs = {
   userId: string;
   destination: string;
+  role?: ActivationAccountRole;
 };
 
 export const ACTIVATION_RECORD_SELECT = {
@@ -22,25 +25,22 @@ export const ACTIVATION_RECORD_SELECT = {
   },
 } satisfies Prisma.OtpCodeSelect;
 
-export type OrganizationActivationRecord = Prisma.OtpCodeGetPayload<{
+export type AccountActivationRecord = Prisma.OtpCodeGetPayload<{
   select: typeof ACTIVATION_RECORD_SELECT;
 }>;
 
-export type OrganizationActivationSubject = NonNullable<
-  OrganizationActivationRecord["user"]
+export type AccountActivationSubject = NonNullable<
+  AccountActivationRecord["user"]
 >;
 
-export type OrganizationActivationCheck =
+export type AccountActivationCheck =
   | {
-      status: OrganizationActivationTokenStatus.VALID;
+      status: ActivationTokenStatus.VALID;
       otpCodeId: string;
-      subject: OrganizationActivationSubject;
+      subject: AccountActivationSubject;
     }
   | {
-      status: Exclude<
-        OrganizationActivationTokenStatus,
-        OrganizationActivationTokenStatus.VALID
-      >;
+      status: Exclude<ActivationTokenStatus, ActivationTokenStatus.VALID>;
       otpCodeId: null;
       subject: null;
     };

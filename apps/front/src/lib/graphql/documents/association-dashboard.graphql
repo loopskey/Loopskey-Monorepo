@@ -1,0 +1,195 @@
+# ================= Fragments =================
+fragment AssociationSettingsFields on AssociationSettings {
+  id
+  associationId
+  defaultCreditType
+  onTrackThreshold
+  atRiskThreshold
+  renewalRequiresReviewedEvidence
+  complianceReminders
+  welcomeMessages
+  weeklyDigest
+  createdAt
+  updatedAt
+}
+
+fragment AssociationFields on Association {
+  id
+  name
+  logoUrl
+  description
+  country
+  website
+  contactEmail
+  ownerEmail
+  ownerFullName
+  ownerStatus
+  createdAt
+  updatedAt
+  settings {
+    ...AssociationSettingsFields
+  }
+}
+
+# ================= Profile =================
+query AssociationProfile {
+  associationProfile {
+    ...AssociationFields
+  }
+}
+
+mutation UpdateAssociationProfile($input: UpdateAssociationProfileInput!) {
+  updateAssociationProfile(input: $input) {
+    ...AssociationFields
+  }
+}
+
+# ================= Admin account provisioning =================
+mutation CreateAssociationAccount($input: CreateAssociationAccountInput!) {
+  createAssociationAccount(input: $input) {
+    code
+    success
+    message
+    association {
+      ...AssociationFields
+    }
+  }
+}
+
+mutation ResendAssociationActivation(
+  $input: ResendAssociationActivationInput!
+) {
+  resendAssociationActivation(input: $input) {
+    code
+    success
+    message
+  }
+}
+
+# ================= Members and groups =================
+fragment AssociationMemberGroupFields on AssociationMemberGroup {
+  id
+  title
+  isActive
+}
+
+fragment AssociationMemberFields on AssociationMember {
+  id
+  userId
+  fullName
+  email
+  avatarUrl
+  memberNumber
+  notes
+  status
+  invitedAt
+  activatedAt
+  deactivatedAt
+  group {
+    ...AssociationMemberGroupFields
+  }
+}
+
+fragment AssociationGroupFields on AssociationGroup {
+  id
+  title
+  description
+  isActive
+  memberCount
+  createdAt
+  updatedAt
+}
+
+query AssociationMembers(
+  $filter: AssociationMemberFilterInput
+  $pagination: AssociationPaginationInput
+) {
+  associationMembers(filter: $filter, pagination: $pagination) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      nextCursor
+    }
+    items {
+      ...AssociationMemberFields
+    }
+  }
+}
+
+query AssociationMemberStats {
+  associationMemberStats {
+    totalMembers
+    activeMembers
+    pendingActivation
+  }
+}
+
+query AssociationGroups {
+  associationGroups {
+    ...AssociationGroupFields
+  }
+}
+
+mutation InviteAssociationMember($input: InviteAssociationMemberInput!) {
+  inviteAssociationMember(input: $input) {
+    outcome
+    member {
+      ...AssociationMemberFields
+    }
+  }
+}
+
+mutation BulkInviteAssociationMembers(
+  $input: BulkInviteAssociationMembersInput!
+) {
+  bulkInviteAssociationMembers(input: $input) {
+    totalRows
+    invited
+    linked
+    failed
+    failures {
+      row
+      email
+      code
+      reason
+    }
+  }
+}
+
+mutation UpdateAssociationMember($input: UpdateAssociationMemberInput!) {
+  updateAssociationMember(input: $input) {
+    ...AssociationMemberFields
+  }
+}
+
+mutation SetAssociationMemberStatus($input: SetAssociationMemberStatusInput!) {
+  setAssociationMemberStatus(input: $input) {
+    ...AssociationMemberFields
+  }
+}
+
+mutation ResendAssociationMemberInvitation(
+  $input: ResendAssociationMemberInvitationInput!
+) {
+  resendAssociationMemberInvitation(input: $input) {
+    ...AssociationMemberFields
+  }
+}
+
+mutation CreateAssociationGroup($input: CreateAssociationGroupInput!) {
+  createAssociationGroup(input: $input) {
+    ...AssociationGroupFields
+  }
+}
+
+mutation UpdateAssociationGroup($input: UpdateAssociationGroupInput!) {
+  updateAssociationGroup(input: $input) {
+    ...AssociationGroupFields
+  }
+}
+
+mutation SetAssociationGroupActive($input: SetAssociationGroupActiveInput!) {
+  setAssociationGroupActive(input: $input) {
+    ...AssociationGroupFields
+  }
+}

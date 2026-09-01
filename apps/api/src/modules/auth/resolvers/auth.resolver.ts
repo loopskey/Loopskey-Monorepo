@@ -1,5 +1,7 @@
 import { Args, Context, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { OrganizationActivationStatusEntity } from "@auth/entities/organization-activation-status.entity";
+import { AssociationActivationStatusEntity } from "@auth/entities/association-activation-status.entity";
+import { ActivateAssociationAccountInput } from "@auth/dtos/activate-association-account.input";
 import { ResendOrganizationActivationInput } from "@auth/dtos/resend-organization-activation.input";
 import { ActivateOrganizationAccountInput } from "@auth/dtos/activate-organization-account.input";
 import { AllowPasswordChangeRequired } from "@auth/decorators/allow-password-change-required.decorator";
@@ -62,6 +64,24 @@ export class AuthResolver {
     @Args("input") input: ResendOrganizationActivationInput,
   ) {
     return this.authService.resendOrganizationActivation(input);
+  }
+
+  @Public()
+  @Mutation(() => AuthPayloadEntity, {
+    name: AuthGqlMutationNames.ACTIVATE_ASSOCIATION_ACCOUNT,
+  })
+  activateAssociationAccount(
+    @Args("input") input: ActivateAssociationAccountInput,
+  ) {
+    return this.authService.activateAssociationAccount(input);
+  }
+
+  @Public()
+  @Query(() => AssociationActivationStatusEntity, {
+    name: AuthGqlQueryNames.ASSOCIATION_ACTIVATION_STATUS,
+  })
+  associationActivationStatus(@Args("token") token: string) {
+    return this.authService.associationActivationStatus(token);
   }
 
   @Public()
@@ -179,8 +199,6 @@ export class AuthResolver {
     return this.authService.verifyEmailChange(user.sub, input);
   }
 
-  // The response is needed so the OAuth state service can set its httpOnly nonce
-  // cookie alongside the authorization URL it hands back.
   @Public()
   @Query(() => OAuthUrlEntity, { name: AuthGqlQueryNames.GOOGLE_AUTH_URL })
   googleOAuthUrl(

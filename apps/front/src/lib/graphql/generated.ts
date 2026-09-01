@@ -1,6 +1,7 @@
 /* Barrel over the split GraphQL modules. Generated: do not edit. */
 export * from "@/lib/graphql/base";
 export * from "@/lib/graphql/operations/admin-dashboard";
+export * from "@/lib/graphql/operations/association-dashboard";
 export * from "@/lib/graphql/operations/auth";
 export * from "@/lib/graphql/operations/content-interaction";
 export * from "@/lib/graphql/operations/course";

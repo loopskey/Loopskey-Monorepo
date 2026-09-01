@@ -12,7 +12,7 @@ Use only `start`, `review`, and `complete`. Keep output short and load context p
 Always read only:
 
 - this file;
-- `CLAUDE.md` at the repository root;
+- `CLAUDE.md` at the repository root, and the two documents it links;
 - the matching run record under `context/feature-runs/active/`, when one exists;
 - the user-named specification, when one is supplied.
 
@@ -41,10 +41,8 @@ feature completely.
    and submission fields. The run record is the current-feature context.
 5. Implement autonomously until the acceptance criteria are met. Run focused
    checks while iterating and fix feature-caused failures.
-6. Finish with the scope gate:
-   - frontend: frontend lint, types, tests, build; browser behavior when relevant;
-   - core backend: API lint, types, tests, build; E2E/Prisma/codegen when relevant;
-   - full/shared: root lint, types, tests, and build plus relevant E2E/codegen.
+6. Finish with the scope gate defined in "Testing and Verification" and
+   "Frontend tests" in `context/coding-standards.md`.
 7. Set status to `Ready` only when implementation and required checks pass.
 
 Ask only when the feature request is materially ambiguous, the worktree cannot

@@ -21,6 +21,7 @@ import type { CodegenConfig } from "@graphql-codegen/cli";
  */
 const DOMAINS = [
   "admin-dashboard",
+  "association-dashboard",
   "auth",
   "content-interaction",
   "course",

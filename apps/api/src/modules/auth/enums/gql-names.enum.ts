@@ -7,6 +7,7 @@ export enum AuthGqlObjectNames {
   AUTH_USER = "AuthUser",
   AUTH_PAYLOAD = "AuthPayload",
   ORGANIZATION_ACTIVATION_STATUS = "OrganizationActivationStatus",
+  ASSOCIATION_ACTIVATION_STATUS = "AssociationActivationStatus",
 }
 
 export enum AuthGqlInputNames {
@@ -21,6 +22,7 @@ export enum AuthGqlInputNames {
   REQUEST_EMAIL_CHANGE_INPUT = "RequestEmailChangeInput",
   ACTIVATE_ORGANIZATION_ACCOUNT = "ActivateOrganizationAccountInput",
   RESEND_ORGANIZATION_ACTIVATION = "ResendOrganizationActivationInput",
+  ACTIVATE_ASSOCIATION_ACCOUNT = "ActivateAssociationAccountInput",
 }
 
 export enum AuthGqlMutationNames {
@@ -37,6 +39,7 @@ export enum AuthGqlMutationNames {
   REQUEST_EMAIL_CHANGE = "requestEmailChange",
   ACTIVATE_ORGANIZATION_ACCOUNT = "activateOrganizationAccount",
   RESEND_ORGANIZATION_ACTIVATION = "resendOrganizationActivation",
+  ACTIVATE_ASSOCIATION_ACCOUNT = "activateAssociationAccount",
 }
 
 export enum AuthGqlQueryNames {
@@ -44,6 +47,7 @@ export enum AuthGqlQueryNames {
   GOOGLE_AUTH_URL = "googleOAuthUrl",
   LINKEDIN_AUTH_URL = "linkedinOAuthUrl",
   ORGANIZATION_ACTIVATION_STATUS = "organizationActivationStatus",
+  ASSOCIATION_ACTIVATION_STATUS = "associationActivationStatus",
 }
 
 registerEnumType(Role, {

@@ -1,12 +1,12 @@
-import { AuthOrganizationActivationService } from "@auth/services/auth-organization-activation.service";
+import { AuthAccountActivationService } from "@auth/services/auth-account-activation.service";
 import { OAuthCallbackExceptionFilter } from "@auth/filters/oauth-callback.filter";
 import { AuthOAuthProvisioningService } from "@auth/services/auth-oauth-provisioning.service";
-import { ORGANIZATION_ACTIVATION_API } from "@auth/public/organization-activation-api";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { AuthLinkedInOAuthService } from "@auth/services/auth-linkedin-oauth.service";
 import { AuthRegistrationService } from "@auth/services/auth-registration.service";
 import { AuthEmailChangeService } from "@auth/services/auth-email-change.service";
 import { AuthGoogleOAuthService } from "@auth/services/auth-google-oauth.service";
+import { ACCOUNT_ACTIVATION_API } from "@auth/public/account-activation-api";
 import { AuthOAuthStateService } from "@auth/services/auth-oauth-state.service";
 import { AuthPasswordService } from "@auth/services/auth-password.service";
 import { AuthSessionService } from "@auth/services/auth-session.service";
@@ -39,7 +39,7 @@ export const AUTH_SERVICE_PROVIDERS = [
   AuthLinkedInOAuthService,
   OAuthCallbackExceptionFilter,
   AuthOAuthProvisioningService,
-  AuthOrganizationActivationService,
+  AuthAccountActivationService,
 ];
 
 @Module({
@@ -62,10 +62,10 @@ export const AUTH_SERVICE_PROVIDERS = [
   providers: [
     ...AUTH_SERVICE_PROVIDERS,
     {
-      provide: ORGANIZATION_ACTIVATION_API,
-      useExisting: AuthOrganizationActivationService,
+      provide: ACCOUNT_ACTIVATION_API,
+      useExisting: AuthAccountActivationService,
     },
   ],
-  exports: [AuthService, ORGANIZATION_ACTIVATION_API],
+  exports: [AuthService, ACCOUNT_ACTIVATION_API],
 })
 export class AuthModule {}
