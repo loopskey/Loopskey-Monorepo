@@ -8,7 +8,8 @@ export type TDashboardRole =
   | Role.Admin
   | Role.Provider
   | Role.Professional
-  | Role.Organization;
+  | Role.Organization
+  | Role.Association;
 
 export type TDashboardNavItem = {
   href: string;

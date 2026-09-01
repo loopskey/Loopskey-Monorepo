@@ -21,6 +21,8 @@ export const baseApi = createApi({
     "Enrollments",
     "Professional",
     "Organization",
+    "Association",
+    "AssociationProfile",
     "AdminProfile",
     "Organization",
     "AdminOverview",

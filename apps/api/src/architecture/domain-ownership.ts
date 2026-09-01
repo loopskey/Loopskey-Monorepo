@@ -7,6 +7,7 @@ export const BOUNDED_CONTEXTS = {
   LEARNING_CATALOG: "learning-catalog",
   PROVIDER_MANAGEMENT: "provider-management",
   ORGANIZATION_MANAGEMENT: "organization-management",
+  ASSOCIATION_MANAGEMENT: "association-management",
   PLATFORM_ADMINISTRATION: "platform-administration",
   PROFESSIONAL_DEVELOPMENT: "professional-development",
 } as const;
@@ -30,6 +31,7 @@ export const MODULE_OWNERSHIP = {
   "external-learning": BOUNDED_CONTEXTS.PROFESSIONAL_DEVELOPMENT,
 
   organization: BOUNDED_CONTEXTS.ORGANIZATION_MANAGEMENT,
+  association: BOUNDED_CONTEXTS.ASSOCIATION_MANAGEMENT,
   provider: BOUNDED_CONTEXTS.PROVIDER_MANAGEMENT,
   "content-interaction": BOUNDED_CONTEXTS.ENGAGEMENT,
   admin: BOUNDED_CONTEXTS.PLATFORM_ADMINISTRATION,
@@ -104,6 +106,10 @@ export const MODEL_OWNERSHIP = {
   OrganizationAssignmentRecipient: BOUNDED_CONTEXTS.ORGANIZATION_MANAGEMENT,
   OrganizationAccessRequest: BOUNDED_CONTEXTS.ORGANIZATION_MANAGEMENT,
 
+  // Association Management
+  Association: BOUNDED_CONTEXTS.ASSOCIATION_MANAGEMENT,
+  AssociationSettings: BOUNDED_CONTEXTS.ASSOCIATION_MANAGEMENT,
+
   // Provider Management
   ProviderProfile: BOUNDED_CONTEXTS.PROVIDER_MANAGEMENT,
   ProviderSettings: BOUNDED_CONTEXTS.PROVIDER_MANAGEMENT,
@@ -144,6 +150,11 @@ export const DOMAIN_DEPENDENCIES = {
     "learning-catalog",
     "platform-shared",
     "professional-development",
+  ],
+  "association-management": [
+    "communications",
+    "identity-access",
+    "platform-shared",
   ],
   "provider-management": [
     "identity-access",

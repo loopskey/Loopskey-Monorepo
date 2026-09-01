@@ -34,6 +34,18 @@ export const OrganizationRouteGuard = ({
   );
 };
 
+export const AssociationRouteGuard = ({
+  children,
+}: {
+  children: ReactNode;
+}) => {
+  return (
+    <RoleRouteGuard allowedRoles={[Role.Association]}>
+      {children}
+    </RoleRouteGuard>
+  );
+};
+
 export const AdminRouteGuard = ({ children }: { children: ReactNode }) => {
   return (
     <RoleRouteGuard allowedRoles={[Role.Admin]}>{children}</RoleRouteGuard>

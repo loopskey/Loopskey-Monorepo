@@ -143,6 +143,31 @@ export const authApi = baseApi.injectEndpoints({
       invalidatesTags: (result) => (result?.success ? ["CurrentUser"] : []),
     }),
 
+    associationActivationStatus: builder.query<
+      TAPI.AssociationActivationStatusQuery["associationActivationStatus"],
+      TAPI.AssociationActivationStatusQueryVariables["token"]
+    >({
+      query: (token) => ({
+        document: API.AssociationActivationStatusDocument,
+        variables: { token },
+      }),
+      transformResponse: (response: TAPI.AssociationActivationStatusQuery) =>
+        response.associationActivationStatus,
+    }),
+
+    activateAssociationAccount: builder.mutation<
+      TAPI.ActivateAssociationAccountMutation["activateAssociationAccount"],
+      TAPI.ActivateAssociationAccountMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.ActivateAssociationAccountDocument,
+        variables: { input },
+      }),
+      transformResponse: (response: TAPI.ActivateAssociationAccountMutation) =>
+        response.activateAssociationAccount,
+      invalidatesTags: (result) => (result?.success ? ["CurrentUser"] : []),
+    }),
+
     resendOrganizationActivation: builder.mutation<
       TAPI.ResendOrganizationActivationMutation["resendOrganizationActivation"],
       TAPI.ResendOrganizationActivationMutationVariables["input"]
@@ -233,6 +258,8 @@ export const {
   useLazyLinkedinOAuthUrlQuery,
   useRequestEmailChangeMutation,
   useOrganizationActivationStatusQuery,
+  useAssociationActivationStatusQuery,
   useActivateOrganizationAccountMutation,
+  useActivateAssociationAccountMutation,
   useResendOrganizationActivationMutation,
 } = authApi;

@@ -2707,6 +2707,12 @@
       "requestsText": "Examinez et approuvez les demandes d’accès des organisations.",
       "settingsTitle": "Paramètres de la plateforme",
       "settingsText": "Contrôlez les principaux paramètres administratifs depuis un seul endroit."
+    },
+    "associationActivation": {
+      "title": "Définissez votre mot de passe",
+      "description": "Votre compte d'association est prêt. Créez un mot de passe sécurisé pour l'activer.",
+      "descriptionNamed": "Le compte de {{associationName}} est prêt. Créez un mot de passe sécurisé pour l'activer.",
+      "requestNewLink": "Les liens d'activation d'association sont émis par un administrateur de la plateforme. Contactez votre administrateur pour recevoir un nouveau lien."
     }
   },
   "userMenu": {
@@ -5185,6 +5191,51 @@
         "count": "{{value}} participants",
         "empty": "Aucun sujet tendance pour le moment."
       }
+    }
+  },
+  "associationDashboard": {
+    "eyebrow": "Tableau de bord de l'association",
+    "sidebar": {
+      "overview": "Vue d'ensemble",
+      "members": "Membres",
+      "requirements": "Exigences",
+      "learningContent": "Contenu de formation",
+      "reports": "Rapports",
+      "messages": "Messages",
+      "settings": "Paramètres"
+    },
+    "overview": {
+      "title": "Vue d'ensemble de l'association",
+      "description": "L'accueil de votre association. Les membres, les exigences et le suivi de conformité commencent ici.",
+      "comingSoon": "Les compteurs, les graphiques de conformité et la liste des points à traiter arriveront avec la phase Vue d'ensemble.",
+      "loadFailed": "Impossible de charger votre association pour le moment. Actualisez la page pour réessayer.",
+      "contactEmail": "Adresse de contact",
+      "country": "Pays",
+      "website": "Site web"
+    },
+    "members": {
+      "title": "Membres",
+      "comingSoon": "La liste des membres, les invitations et l'import en masse arriveront dans une version ultérieure."
+    },
+    "requirements": {
+      "title": "Exigences",
+      "comingSoon": "La création d'exigences, les catégories et les règles de preuve arriveront dans une version ultérieure."
+    },
+    "learningContent": {
+      "title": "Contenu de formation",
+      "comingSoon": "La bibliothèque de formation de vos membres arrivera dans une version ultérieure."
+    },
+    "reports": {
+      "title": "Rapports",
+      "comingSoon": "Les rapports de conformité, les graphiques et les exports arriveront dans une version ultérieure."
+    },
+    "messages": {
+      "title": "Messages",
+      "comingSoon": "Les rappels et messages de bienvenue à vos membres arriveront dans une version ultérieure."
+    },
+    "settings": {
+      "title": "Paramètres",
+      "comingSoon": "Le profil de l'association, les valeurs de conformité par défaut et les notifications arriveront dans une version ultérieure."
     }
   },
   "adminDashboard": {

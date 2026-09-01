@@ -24,4 +24,10 @@ export interface IdentityProfileApi {
     readonly fullName: string;
     readonly atomicContext: object;
   }): Promise<{ readonly id: string; readonly linkedExisting: boolean }>;
+
+  createPendingAssociationOwner(command: {
+    readonly email: string;
+    readonly fullName: string;
+    readonly atomicContext: object;
+  }): Promise<{ readonly id: string }>;
 }

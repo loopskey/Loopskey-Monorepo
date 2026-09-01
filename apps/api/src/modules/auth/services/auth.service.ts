@@ -1,6 +1,7 @@
 import { ResendOrganizationActivationInput } from "@auth/dtos/resend-organization-activation.input";
-import { AuthOrganizationActivationService } from "@auth/services/auth-organization-activation.service";
 import { ActivateOrganizationAccountInput } from "@auth/dtos/activate-organization-account.input";
+import { ActivateAssociationAccountInput } from "@auth/dtos/activate-association-account.input";
+import { AuthAccountActivationService } from "@auth/services/auth-account-activation.service";
 import { AuthLinkedInOAuthService } from "@auth/services/auth-linkedin-oauth.service";
 import { RequestEmailChangeInput } from "@auth/dtos/request-email-change.input";
 import { AuthRegistrationService } from "@auth/services/auth-registration.service";
@@ -32,7 +33,7 @@ export class AuthService {
     private readonly emailChangeService: AuthEmailChangeService,
     private readonly googleOAuthService: AuthGoogleOAuthService,
     private readonly linkedinOAuthService: AuthLinkedInOAuthService,
-    private readonly organizationActivationService: AuthOrganizationActivationService,
+    private readonly accountActivationService: AuthAccountActivationService,
   ) {}
 
   register(input: RegisterInput) {
@@ -88,17 +89,25 @@ export class AuthService {
   }
 
   activateOrganizationAccount(input: ActivateOrganizationAccountInput) {
-    return this.organizationActivationService.activateOrganizationAccount(
-      input,
-    );
+    return this.accountActivationService.activateOrganizationAccount(input);
   }
 
   organizationActivationStatus(token: string) {
-    return this.organizationActivationService.describeActivationToken(token);
+    return this.accountActivationService.describeActivationToken(token);
   }
 
   resendOrganizationActivation(input: ResendOrganizationActivationInput) {
-    return this.organizationActivationService.resendActivation(input);
+    return this.accountActivationService.resendActivation(input);
+  }
+
+  activateAssociationAccount(input: ActivateAssociationAccountInput) {
+    return this.accountActivationService.activateAssociationAccount(input);
+  }
+
+  associationActivationStatus(token: string) {
+    return this.accountActivationService.describeAssociationActivationToken(
+      token,
+    );
   }
 
   requestEmailChange(userId: string, input: RequestEmailChangeInput) {

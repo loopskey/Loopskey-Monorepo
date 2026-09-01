@@ -2705,6 +2705,12 @@
       "requestsText": "Review and approve organization access requests.",
       "settingsTitle": "Platform settings",
       "settingsText": "Control key administrative settings from one place."
+    },
+    "associationActivation": {
+      "title": "Set your password",
+      "description": "Your association account is ready. Create a secure password to activate it.",
+      "descriptionNamed": "The account for {{associationName}} is ready. Create a secure password to activate it.",
+      "requestNewLink": "Association activation links are issued by a platform administrator. Contact your administrator to have a new link sent."
     }
   },
   "userMenu": {
@@ -5184,6 +5190,51 @@
         "count": "{{value}} participants",
         "empty": "No trending topics yet."
       }
+    }
+  },
+  "associationDashboard": {
+    "eyebrow": "Association dashboard",
+    "sidebar": {
+      "overview": "Overview",
+      "members": "Members",
+      "requirements": "Requirements",
+      "learningContent": "Learning Content",
+      "reports": "Reports",
+      "messages": "Messages",
+      "settings": "Settings"
+    },
+    "overview": {
+      "title": "Association overview",
+      "description": "Your association's home. Members, requirements and compliance reporting all start here.",
+      "comingSoon": "Counts, compliance charts and the needs-attention list arrive with the overview phase.",
+      "loadFailed": "We could not load your association just now. Refresh the page to try again.",
+      "contactEmail": "Contact email",
+      "country": "Country",
+      "website": "Website"
+    },
+    "members": {
+      "title": "Members",
+      "comingSoon": "The member roster, invitations and bulk upload arrive in a later release."
+    },
+    "requirements": {
+      "title": "Requirements",
+      "comingSoon": "Requirement creation, categories and evidence rules arrive in a later release."
+    },
+    "learningContent": {
+      "title": "Learning Content",
+      "comingSoon": "The learning library your members draw on arrives in a later release."
+    },
+    "reports": {
+      "title": "Reports",
+      "comingSoon": "Compliance reporting, charts and exports arrive in a later release."
+    },
+    "messages": {
+      "title": "Messages",
+      "comingSoon": "Reminder and welcome messages to your members arrive in a later release."
+    },
+    "settings": {
+      "title": "Settings",
+      "comingSoon": "Association profile, compliance defaults and notification switches arrive in a later release."
     }
   },
   "adminDashboard": {

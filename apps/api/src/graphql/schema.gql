@@ -2,6 +2,12 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+input ActivateAssociationAccountInput {
+  confirmPassword: String!
+  password: String!
+  token: String!
+}
+
 input ActivateOrganizationAccountInput {
   confirmPassword: String!
   password: String!
@@ -226,8 +232,61 @@ enum AssignmentType {
   SOFT
 }
 
+type Association {
+  contactEmail: String
+  country: String
+  createdAt: DateTime!
+  description: String
+  id: ID!
+  logoUrl: String
+  name: String!
+  ownerEmail: String
+  ownerFullName: String
+  ownerStatus: UserStatus!
+  settings: AssociationSettings
+  updatedAt: DateTime!
+  website: String
+}
+
+type AssociationActionResponse {
+  association: Association
+  code: String!
+  message: String!
+  success: Boolean!
+}
+
+type AssociationActivationStatus {
+  associationName: String
+  status: AssociationActivationTokenStatus!
+}
+
+enum AssociationActivationTokenStatus {
+  EXPIRED
+  INVALID
+  USED
+  VALID
+}
+
+type AssociationSettings {
+  associationId: ID!
+  atRiskThreshold: Int!
+  complianceReminders: Boolean!
+  createdAt: DateTime!
+  defaultCreditType: CreditType!
+  id: ID!
+  onTrackThreshold: Int!
+  renewalRequiresReviewedEvidence: Boolean!
+  updatedAt: DateTime!
+  weeklyDigest: Boolean!
+  welcomeMessages: Boolean!
+}
+
 enum AuditAction {
   ADMIN_PROFILE_UPDATED
+  ASSOCIATION_ACCOUNT_ACTIVATED
+  ASSOCIATION_ACCOUNT_CREATED
+  ASSOCIATION_ACTIVATION_RESENT
+  ASSOCIATION_SETTINGS_UPDATED
   ORGANIZATION_ACCOUNT_ACTIVATED
   ORGANIZATION_ACCOUNT_CREATED
   ORGANIZATION_ACTIVATION_RESENT
@@ -671,6 +730,16 @@ type CpdReportRecipientOption {
   description: String
   label: String!
   type: CPDReportRecipientType!
+}
+
+input CreateAssociationAccountInput {
+  country: String
+  description: String
+  logoUrl: String
+  name: String!
+  representativeFullName: String!
+  website: String
+  workEmail: String!
 }
 
 input CreateCalendarEventInput {
@@ -1209,6 +1278,7 @@ input LoginInput {
 }
 
 type Mutation {
+  activateAssociationAccount(input: ActivateAssociationAccountInput!): AuthPayload!
   activateOrganizationAccount(input: ActivateOrganizationAccountInput!): AuthPayload!
   addOrganizationMember(input: AddOrganizationMemberInput!): OrganizationMember!
   addToCart(input: ContentActionInput!): ContentActionPayload!
@@ -1226,6 +1296,7 @@ type Mutation {
   completeProfessionalOnboarding(input: CompleteProfessionalOnboardingInput!): ProfessionalDashboardProfile!
   completeRoadmapStep(enrollmentId: ID!, stepId: ID!): RoadmapStepProgress!
   confirmExternalLearning(input: ConfirmExternalLearningInput!): ExternalLearningActivity!
+  createAssociationAccount(input: CreateAssociationAccountInput!): AssociationActionResponse!
   createCalendarEvent(input: CreateCalendarEventInput!): ProfessionalManualCalendarEvent!
   createCourse(input: CreateCourseInput!): Course!
   createCpdPlan(input: CreateCpdPlanInput!): CpdPlan!
@@ -1278,6 +1349,7 @@ type Mutation {
   requestEmailChange(input: RequestEmailChangeInput!): AuthPayload!
   requestRoadmapGeneration(draftId: ID!): ProfessionalRoadmapDraft!
   resendAdminOrgAccessRequestNotification(requestId: String!): AdminOrgAccessRequest!
+  resendAssociationActivation(input: ResendAssociationActivationInput!): AssociationActionResponse!
   resendEmailOtp(input: ResendEmailOtpInput!): AuthPayload!
   resendOrganizationActivation(input: ResendOrganizationActivationInput!): AuthPayload!
   resetPassword(input: ResetPasswordInput!): AuthPayload!
@@ -1302,6 +1374,7 @@ type Mutation {
   updateAdminOrganizationSettings(input: UpdateAdminOrgSettings!): OrganizationSettings!
   updateAdminProfile(input: UpdateAdminProfile!): AdminProfile!
   updateAdminUserStatus(input: UpdateAdminUserStatus!): AdminUser!
+  updateAssociationProfile(input: UpdateAssociationProfileInput!): Association!
   updateCourse(input: UpdateCourseInput!): Course!
   updateCpdPlan(input: UpdateCpdPlanInput!): CpdPlan!
   updateEnrollmentProgress(input: UpdateEnrollmentProgressInput!): ContentActionPayload!
@@ -2819,6 +2892,8 @@ type Query {
   adminProfile: AdminProfile!
   adminUserGrowth(mode: String = "DAILY"): [AdminChartPoint!]!
   adminUsers(filter: AdminUserFilter, pagination: AdminPagination): PaginatedAdminUser!
+  associationActivationStatus(token: String!): AssociationActivationStatus!
+  associationProfile(associationId: ID): Association!
   certificationSearch(input: CertificationSearchInput!): [Certification!]!
   contentReviews(contentId: String!, contentType: ContentType!): [ContentReview!]!
   courseById(courseId: String!): Course!
@@ -2925,6 +3000,10 @@ input RejectAdminOrgAccessRequestInput {
 
 input RequestEmailChangeInput {
   newEmail: String!
+}
+
+input ResendAssociationActivationInput {
+  associationId: ID!
 }
 
 input ResendEmailOtpInput {
@@ -3070,6 +3149,7 @@ type RoadmapWidgetOption {
 
 enum Role {
   ADMIN
+  ASSOCIATION
   ORGANIZATION
   PROFESSIONAL
   PROVIDER
@@ -3174,6 +3254,15 @@ input UpdateAdminProfile {
 input UpdateAdminUserStatus {
   status: UserStatus!
   userId: String!
+}
+
+input UpdateAssociationProfileInput {
+  contactEmail: String
+  country: String
+  description: String
+  logoUrl: String
+  name: String
+  website: String
 }
 
 input UpdateCertificateInput {

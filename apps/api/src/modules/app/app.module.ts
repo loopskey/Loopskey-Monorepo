@@ -7,6 +7,7 @@ import { ExternalLearningModule } from "@ext/external-learning.module";
 import { AdminDashboardModule } from "@admin/admin.module";
 import { PasswordChangeGuard } from "@auth/guards/password-change.guard";
 import { OrganizationModule } from "@org/org.module";
+import { AssociationModule } from "@association/association.module";
 import { formatGraphQLError } from "@utils/graphql-error-formatter";
 import { ProfessionalModule } from "@professional/professional.module";
 import { OperationsModule } from "@infrastructure/operations/operations.module";
@@ -70,6 +71,7 @@ import { join } from "path";
     ProviderModule,
     SupportModule,
     OrganizationModule,
+    AssociationModule,
     ProfessionalModule,
     AdminDashboardModule,
     ExternalLearningModule,

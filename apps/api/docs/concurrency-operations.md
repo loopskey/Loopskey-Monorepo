@@ -22,6 +22,9 @@ exist only so a user gets a readable message instead of a constraint violation.
 | One content-linked PDU activity per user | Partial unique index `PDUActivity_user_content_key` |
 | One rating aggregate per recomputation | `pg_advisory_xact_lock` held across aggregate and publish |
 | One delivery per outbox event | `FOR UPDATE SKIP LOCKED` claim plus the `OutboxDelivery` row |
+| One account per work email | `User.email` unique constraint, its violation recovered into the association "email already in use" code |
+| One association per owner | `Association.ownerId` unique constraint |
+| An activation link activates once | `updateMany` on `OtpCode` where `consumedAt IS NULL`, `count === 1` before the user is activated |
 
 ## Decisions
 

@@ -1,12 +1,12 @@
 import { ConflictException, Inject, Injectable, Logger } from "@nestjs/common";
 import { AuditAction, OrganizationAccessRequestStatus } from "@prisma/client";
 import { buildOrganizationRejectionEmail } from "@mail/organization-email.template";
-import { type OrganizationActivationApi } from "@auth/public/organization-activation-api";
 import { buildOrganizationApprovalEmail } from "@mail/organization-email.template";
-import { ORGANIZATION_ACTIVATION_API } from "@auth/public/organization-activation-api";
 import { NotificationDeliveryStatus } from "@prisma/client";
 import { type OrganizationReviewApi } from "@org/public/organization-review-api";
+import { type AccountActivationApi } from "@auth/public/account-activation-api";
 import { ORGANIZATION_REVIEW_API } from "@org/public/organization-review-api";
+import { ACCOUNT_ACTIVATION_API } from "@auth/public/account-activation-api";
 import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "@prisma/prisma.service";
 import { MailService } from "@mail/mail.service";
@@ -21,8 +21,8 @@ export class OrganizationReviewNotificationService {
     private readonly prisma: PrismaService,
     private readonly mail: MailService,
     private readonly config: ConfigService,
-    @Inject(ORGANIZATION_ACTIVATION_API)
-    private readonly organizationActivation: OrganizationActivationApi,
+    @Inject(ACCOUNT_ACTIVATION_API)
+    private readonly accountActivation: AccountActivationApi,
     @Inject(ORGANIZATION_REVIEW_API)
     private readonly organizationReview: OrganizationReviewApi,
   ) {}
@@ -55,8 +55,6 @@ export class OrganizationReviewNotificationService {
         requestId,
         failureCode,
       );
-      // Recorded as an audit event as well as a request column: a failure that
-      // is later retried successfully leaves no trace in the column alone.
       await this.prisma.auditLog.create({
         data: {
           action: AuditAction.ORGANIZATION_NOTIFICATION_FAILED,
@@ -82,9 +80,10 @@ export class OrganizationReviewNotificationService {
     if (!request.approvedUserId)
       throw new ConflictException("Approved request has no Organization user.");
     const { activationUrl, expiresInMinutes } =
-      await this.organizationActivation.issueActivationLink({
+      await this.accountActivation.issueActivationLink({
         userId: request.approvedUserId,
         destination: request.workEmail,
+        role: "ORGANIZATION",
       });
     return buildOrganizationApprovalEmail({
       appName: this.config.get<string>("APP_NAME", "LoopsKey"),

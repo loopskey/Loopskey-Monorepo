@@ -104,4 +104,25 @@ export class IdentityProfileApiService implements IdentityProfileApi {
     });
     return { id: created.id, linkedExisting: false };
   }
+
+  async createPendingAssociationOwner(command: {
+    email: string;
+    fullName: string;
+    atomicContext: object;
+  }) {
+    const db = command.atomicContext as Prisma.TransactionClient;
+    const created = await db.user.create({
+      data: {
+        email: command.email.trim().toLowerCase(),
+        passwordHash: null,
+        role: Role.ASSOCIATION,
+        status: UserStatus.PENDING,
+        forcePasswordChange: false,
+        emailVerifiedAt: null,
+        fullName: command.fullName.trim(),
+      },
+      select: { id: true },
+    });
+    return { id: created.id };
+  }
 }

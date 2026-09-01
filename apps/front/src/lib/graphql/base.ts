@@ -19,6 +19,12 @@ export type Scalars = {
   JSONObject: { input: any; output: any; }
 };
 
+export type ActivateAssociationAccountInput = {
+  confirmPassword: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+  token: Scalars['String']['input'];
+};
+
 export type ActivateOrganizationAccountInput = {
   confirmPassword: Scalars['String']['input'];
   password: Scalars['String']['input'];
@@ -254,8 +260,65 @@ export enum AssignmentType {
   Soft = 'SOFT'
 }
 
+export type Association = {
+  __typename?: 'Association';
+  contactEmail?: Maybe<Scalars['String']['output']>;
+  country?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  logoUrl?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
+  ownerEmail?: Maybe<Scalars['String']['output']>;
+  ownerFullName?: Maybe<Scalars['String']['output']>;
+  ownerStatus: UserStatus;
+  settings?: Maybe<AssociationSettings>;
+  updatedAt: Scalars['DateTime']['output'];
+  website?: Maybe<Scalars['String']['output']>;
+};
+
+export type AssociationActionResponse = {
+  __typename?: 'AssociationActionResponse';
+  association?: Maybe<Association>;
+  code: Scalars['String']['output'];
+  message: Scalars['String']['output'];
+  success: Scalars['Boolean']['output'];
+};
+
+export type AssociationActivationStatus = {
+  __typename?: 'AssociationActivationStatus';
+  associationName?: Maybe<Scalars['String']['output']>;
+  status: AssociationActivationTokenStatus;
+};
+
+export enum AssociationActivationTokenStatus {
+  Expired = 'EXPIRED',
+  Invalid = 'INVALID',
+  Used = 'USED',
+  Valid = 'VALID'
+}
+
+export type AssociationSettings = {
+  __typename?: 'AssociationSettings';
+  associationId: Scalars['ID']['output'];
+  atRiskThreshold: Scalars['Int']['output'];
+  complianceReminders: Scalars['Boolean']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  defaultCreditType: CreditType;
+  id: Scalars['ID']['output'];
+  onTrackThreshold: Scalars['Int']['output'];
+  renewalRequiresReviewedEvidence: Scalars['Boolean']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  weeklyDigest: Scalars['Boolean']['output'];
+  welcomeMessages: Scalars['Boolean']['output'];
+};
+
 export enum AuditAction {
   AdminProfileUpdated = 'ADMIN_PROFILE_UPDATED',
+  AssociationAccountActivated = 'ASSOCIATION_ACCOUNT_ACTIVATED',
+  AssociationAccountCreated = 'ASSOCIATION_ACCOUNT_CREATED',
+  AssociationActivationResent = 'ASSOCIATION_ACTIVATION_RESENT',
+  AssociationSettingsUpdated = 'ASSOCIATION_SETTINGS_UPDATED',
   OrganizationAccountActivated = 'ORGANIZATION_ACCOUNT_ACTIVATED',
   OrganizationAccountCreated = 'ORGANIZATION_ACCOUNT_CREATED',
   OrganizationActivationResent = 'ORGANIZATION_ACTIVATION_RESENT',
@@ -718,6 +781,16 @@ export type CpdReportRecipientOption = {
   description?: Maybe<Scalars['String']['output']>;
   label: Scalars['String']['output'];
   type: CpdReportRecipientType;
+};
+
+export type CreateAssociationAccountInput = {
+  country?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  logoUrl?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  representativeFullName: Scalars['String']['input'];
+  website?: InputMaybe<Scalars['String']['input']>;
+  workEmail: Scalars['String']['input'];
 };
 
 export type CreateCalendarEventInput = {
@@ -1256,6 +1329,7 @@ export type LoginInput = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  activateAssociationAccount: AuthPayload;
   activateOrganizationAccount: AuthPayload;
   addOrganizationMember: OrganizationMember;
   addToCart: ContentActionPayload;
@@ -1273,6 +1347,7 @@ export type Mutation = {
   completeProfessionalOnboarding: ProfessionalDashboardProfile;
   completeRoadmapStep: RoadmapStepProgress;
   confirmExternalLearning: ExternalLearningActivity;
+  createAssociationAccount: AssociationActionResponse;
   createCalendarEvent: ProfessionalManualCalendarEvent;
   createCourse: Course;
   createCpdPlan: CpdPlan;
@@ -1325,6 +1400,7 @@ export type Mutation = {
   requestEmailChange: AuthPayload;
   requestRoadmapGeneration: ProfessionalRoadmapDraft;
   resendAdminOrgAccessRequestNotification: AdminOrgAccessRequest;
+  resendAssociationActivation: AssociationActionResponse;
   resendEmailOtp: AuthPayload;
   resendOrganizationActivation: AuthPayload;
   resetPassword: AuthPayload;
@@ -1349,6 +1425,7 @@ export type Mutation = {
   updateAdminOrganizationSettings: OrganizationSettings;
   updateAdminProfile: AdminProfile;
   updateAdminUserStatus: AdminUser;
+  updateAssociationProfile: Association;
   updateCourse: Course;
   updateCpdPlan: CpdPlan;
   updateEnrollmentProgress: ContentActionPayload;
@@ -1378,6 +1455,11 @@ export type Mutation = {
   upsertProfessionalPduTarget: ProfessionalPduTarget;
   verifyEmailChange: AuthPayload;
   verifyEmailOtp: AuthPayload;
+};
+
+
+export type MutationActivateAssociationAccountArgs = {
+  input: ActivateAssociationAccountInput;
 };
 
 
@@ -1459,6 +1541,11 @@ export type MutationCompleteRoadmapStepArgs = {
 
 export type MutationConfirmExternalLearningArgs = {
   input: ConfirmExternalLearningInput;
+};
+
+
+export type MutationCreateAssociationAccountArgs = {
+  input: CreateAssociationAccountInput;
 };
 
 
@@ -1707,6 +1794,11 @@ export type MutationResendAdminOrgAccessRequestNotificationArgs = {
 };
 
 
+export type MutationResendAssociationActivationArgs = {
+  input: ResendAssociationActivationInput;
+};
+
+
 export type MutationResendEmailOtpArgs = {
   input: ResendEmailOtpInput;
 };
@@ -1810,6 +1902,11 @@ export type MutationUpdateAdminProfileArgs = {
 
 export type MutationUpdateAdminUserStatusArgs = {
   input: UpdateAdminUserStatus;
+};
+
+
+export type MutationUpdateAssociationProfileArgs = {
+  input: UpdateAssociationProfileInput;
 };
 
 
@@ -3551,6 +3648,8 @@ export type Query = {
   adminProfile: AdminProfile;
   adminUserGrowth: Array<AdminChartPoint>;
   adminUsers: PaginatedAdminUser;
+  associationActivationStatus: AssociationActivationStatus;
+  associationProfile: Association;
   certificationSearch: Array<Certification>;
   contentReviews: Array<ContentReview>;
   courseById: Course;
@@ -3685,6 +3784,16 @@ export type QueryAdminUserGrowthArgs = {
 export type QueryAdminUsersArgs = {
   filter?: InputMaybe<AdminUserFilter>;
   pagination?: InputMaybe<AdminPagination>;
+};
+
+
+export type QueryAssociationActivationStatusArgs = {
+  token: Scalars['String']['input'];
+};
+
+
+export type QueryAssociationProfileArgs = {
+  associationId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 
@@ -4077,6 +4186,10 @@ export type RequestEmailChangeInput = {
   newEmail: Scalars['String']['input'];
 };
 
+export type ResendAssociationActivationInput = {
+  associationId: Scalars['ID']['input'];
+};
+
 export type ResendEmailOtpInput = {
   email: Scalars['String']['input'];
 };
@@ -4226,6 +4339,7 @@ export type RoadmapWidgetOption = {
 
 export enum Role {
   Admin = 'ADMIN',
+  Association = 'ASSOCIATION',
   Organization = 'ORGANIZATION',
   Professional = 'PROFESSIONAL',
   Provider = 'PROVIDER'
@@ -4331,6 +4445,15 @@ export type UpdateAdminProfile = {
 export type UpdateAdminUserStatus = {
   status: UserStatus;
   userId: Scalars['String']['input'];
+};
+
+export type UpdateAssociationProfileInput = {
+  contactEmail?: InputMaybe<Scalars['String']['input']>;
+  country?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  logoUrl?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  website?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateCertificateInput = {

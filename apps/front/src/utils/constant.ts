@@ -41,6 +41,7 @@ export const siteLinks = {
   providerDashboard: "/dashboard/provider",
   professionalDashboard: "/dashboard/professional",
   organizationDashboard: "/dashboard/organization",
+  associationDashboard: "/dashboard/association",
 
   profile: "/dashboard/professional?tab=profile",
 };
@@ -116,6 +117,8 @@ export const getDashboardPath = (role?: Role | null) => {
       return siteLinks.providerDashboard;
     case Role.Organization:
       return siteLinks.organizationDashboard;
+    case Role.Association:
+      return siteLinks.associationDashboard;
     case Role.Professional:
       return siteLinks.professionalDashboard;
     default:
@@ -131,6 +134,8 @@ export const getDashboardProfilePath = (role?: Role | null) => {
       return `${siteLinks.providerDashboard}?tab=profile`;
     case Role.Organization:
       return `${siteLinks.organizationDashboard}?tab=profile`;
+    case Role.Association:
+      return `${siteLinks.associationDashboard}?tab=settings`;
     case Role.Admin:
       return siteLinks.adminDashboard;
     default:
