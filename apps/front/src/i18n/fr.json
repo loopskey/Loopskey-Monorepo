@@ -5215,7 +5215,174 @@
     },
     "members": {
       "title": "Membres",
-      "comingSoon": "La liste des membres, les invitations et l'import en masse arriveront dans une version ultérieure."
+      "description": "Toutes les personnes qui appartiennent à votre association, les groupes auxquels elles sont rattachées et les invitations encore en attente.",
+      "actions": {
+        "invite": "Inviter un membre",
+        "manageGroups": "Gérer les groupes",
+        "backToRoster": "Retour à la liste",
+        "resend": "Renvoyer l'invitation",
+        "reactivate": "Réactiver",
+        "deactivate": "Désactiver"
+      },
+      "stats": {
+        "total": "Membres au total",
+        "active": "Membres actifs",
+        "pending": "Activation en attente"
+      },
+      "filters": {
+        "search": "Rechercher",
+        "searchPlaceholder": "Nom, e-mail ou numéro de membre",
+        "group": "Groupe",
+        "allGroups": "Tous les groupes",
+        "status": "Statut",
+        "allStatuses": "Tous les statuts",
+        "clear": "Effacer les filtres"
+      },
+      "status": {
+        "ACTIVE": "Actif",
+        "PENDING_ACTIVATION": "Activation en attente",
+        "INACTIVE": "Inactif"
+      },
+      "table": {
+        "caption": "Membres de l'association, avec leur groupe et le statut de leur compte.",
+        "name": "Nom",
+        "memberNumber": "Numéro de membre",
+        "group": "Groupe",
+        "status": "Statut",
+        "actions": "Actions",
+        "actionsFor": "Actions pour {{name}}"
+      },
+      "confirm": {
+        "cancel": "Annuler",
+        "deactivateTitle": "Désactiver ce membre ?",
+        "deactivateBody": "{{name}} conservera son compte mais ne comptera plus comme membre actif de votre association. Vous pourrez le réactiver à tout moment.",
+        "deactivateConfirm": "Désactiver"
+      },
+      "empty": {
+        "firstRunTitle": "Aucun membre pour le moment",
+        "firstRunBody": "Deux façons de constituer votre liste : inviter les personnes une par une, ou importer un tableur contenant tout le monde d'un coup.",
+        "inviteOne": "Inviter un membre",
+        "importMany": "Importer un tableur",
+        "noResultsTitle": "Aucun membre ne correspond à ces filtres",
+        "noResultsBody": "Personne dans votre liste ne correspond à la recherche et aux filtres appliqués."
+      },
+      "invite": {
+        "title": "Inviter un membre",
+        "description": "Si l'e-mail correspond déjà à un compte Loopskey, la personne rejoint immédiatement votre association. Sinon, elle reçoit une invitation à en créer un.",
+        "email": "E-mail",
+        "fullName": "Nom complet",
+        "group": "Groupe",
+        "groupPlaceholder": "Aucun groupe",
+        "memberNumber": "Numéro de membre",
+        "submit": "Envoyer l'invitation",
+        "linkedTitle": "Compte existant trouvé et rattaché",
+        "linkedBody": "{{name}} possédait déjà un compte Loopskey : la personne a rejoint votre association immédiatement, sans e-mail d'invitation.",
+        "sentTitle": "Invitation envoyée",
+        "sentBody": "Une invitation est en route vers {{email}}. {{name}} deviendra membre actif dès l'activation de son compte.",
+        "inviteAnother": "Inviter quelqu'un d'autre",
+        "done": "Terminé"
+      },
+      "bulk": {
+        "title": "Importer des membres",
+        "description": "Importez un fichier CSV ou Excel pour ajouter plusieurs membres d'un coup. Rien n'est envoyé avant que vous ayez vu le contenu du fichier.",
+        "templateTitle": "Colonnes attendues",
+        "templateColumns": "Prénom, nom, e-mail, numéro de membre, groupe",
+        "downloadTemplate": "Télécharger le modèle",
+        "fileLabel": "Choisir un fichier",
+        "parsing": "Lecture du fichier…",
+        "parseFailed": "Ce fichier n'a pas pu être lu. Vérifiez qu'il s'agit bien d'un fichier CSV ou Excel, puis réessayez.",
+        "previewTitle": "Aperçu de {{file}}",
+        "previewCaption": "Lignes trouvées dans le fichier importé, avec le problème qui les bloque le cas échéant.",
+        "previewCounts": "{{valid}} prêtes, {{invalid}} en erreur",
+        "truncated": "Le fichier contient plus de lignes qu'un import ne peut en traiter. Seules les 1000 premières sont affichées.",
+        "problem": "Problème",
+        "confirm": "Importer {{count}} membres",
+        "blocked": "Corrigez ou retirez les lignes signalées avant d'importer. Rien n'a encore été envoyé.",
+        "resultTitle": "Import terminé",
+        "resultCounts": "{{invited}} invités, {{linked}} rattachés à un compte existant, {{failed}} en échec, sur {{total}} lignes.",
+        "rowNumber": "Ligne {{row}}",
+        "dismissResult": "Fermer",
+        "columns": {
+          "row": "Ligne",
+          "name": "Nom",
+          "firstName": "Prénom",
+          "lastName": "Nom",
+          "email": "E-mail",
+          "memberNumber": "Numéro de membre",
+          "group": "Groupe"
+        },
+        "example": {
+          "firstName": "Ada",
+          "lastName": "Lovelace",
+          "email": "ada@example.org",
+          "memberNumber": "M-001",
+          "group": "Section Nord"
+        },
+        "rowErrors": {
+          "emailMissing": "L'e-mail est obligatoire",
+          "emailInvalid": "Cette adresse e-mail n'est pas valide",
+          "nameMissing": "Un prénom ou un nom est obligatoire",
+          "memberNumberTooLong": "Le numéro de membre est trop long"
+        }
+      },
+      "chart": {
+        "title": "Composition de la liste",
+        "description": "La répartition de vos membres entre les groupes, et l'état d'activation de chacun. Sélectionnez un segment pour filtrer la liste ci-dessous.",
+        "ungrouped": "Sans groupe",
+        "caption": "Membres par groupe, répartis par statut de compte.",
+        "groupHeader": "Groupe",
+        "chartLabel": "Composition de la liste par groupe et par statut",
+        "chartDescription": "Une barre horizontale par groupe, segmentée entre membres actifs, en attente d'activation et inactifs.",
+        "emptyTitle": "Rien à représenter pour l'instant",
+        "emptyBody": "Dès que vous aurez des membres, ce graphique montrera leur répartition entre vos groupes.",
+        "partial": "Établi à partir des {{shown}} premiers membres sur {{total}}."
+      },
+      "groups": {
+        "createTitle": "Créer un groupe",
+        "editTitle": "Renommer ce groupe",
+        "formDescription": "Les groupes servent à segmenter votre liste, par exemple par section, par région ou par catégorie d'adhésion.",
+        "title": "Nom du groupe",
+        "description": "Description",
+        "create": "Créer le groupe",
+        "save": "Enregistrer",
+        "listTitle": "Groupes",
+        "empty": "Vous n'avez encore créé aucun groupe.",
+        "inactive": "Inactif",
+        "memberCount": "{{count}} membres",
+        "rename": "Renommer",
+        "deactivate": "Désactiver",
+        "reactivate": "Réactiver",
+        "deactivateNote": "Désactiver un groupe libère ses membres au lieu de les retirer : ils restent dans votre liste, sans groupe."
+      },
+      "messages": {
+        "invitationResent": "Invitation renvoyée.",
+        "memberDeactivated": "Membre désactivé.",
+        "memberReactivated": "Membre réactivé.",
+        "imported": "{{invited}} invités, {{linked}} rattachés, {{failed}} en échec.",
+        "groupCreated": "Groupe créé.",
+        "groupUpdated": "Groupe mis à jour.",
+        "groupDeactivated": "Groupe désactivé et ses membres libérés.",
+        "groupReactivated": "Groupe réactivé."
+      },
+      "error": {
+        "title": "Impossible de charger votre liste",
+        "body": "Un problème est survenu en chemin vers le serveur. Vos filtres sont conservés.",
+        "retry": "Réessayer"
+      },
+      "errors": {
+        "accessDenied": "Vous n'avez pas accès à cette association.",
+        "associationNotFound": "Nous n'avons pas trouvé votre association.",
+        "groupNotFound": "Ce groupe n'existe plus.",
+        "memberNotFound": "Cette personne ne figure plus dans votre liste.",
+        "groupTitleTaken": "Un groupe porte déjà ce nom.",
+        "invalidImportRow": "Cette ligne n'a pas pu être lue.",
+        "memberNumberTaken": "Un autre membre porte déjà ce numéro.",
+        "emailAlreadyInUse": "Cet e-mail figure déjà dans votre liste.",
+        "memberAlreadyActive": "Cette personne est déjà active.",
+        "memberStatusConflict": "Le statut de cette personne a changé pendant que vous travailliez. Actualisez pour voir son état.",
+        "invitationCooldown": "Une invitation vient d'être envoyée. Patientez un instant avant d'en renvoyer une.",
+        "activationEmailNotSent": "L'invitation n'a pas pu être envoyée. Réessayez dans un instant."
+      }
     },
     "requirements": {
       "title": "Exigences",

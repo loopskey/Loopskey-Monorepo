@@ -22,3 +22,4 @@ into this index and do not rewrite previous records.
 - [`concurrency-safety`](feature-runs/active/concurrency-safety.md)
 - [`association-role-foundation`](feature-runs/active/association-role-foundation.md)
 - [`association-members-groups-invitations`](feature-runs/active/association-members-groups-invitations.md)
+- [`association-members-tab-ui`](feature-runs/active/association-members-tab-ui.md)

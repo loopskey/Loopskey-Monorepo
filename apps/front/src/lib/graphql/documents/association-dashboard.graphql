@@ -65,3 +65,131 @@ mutation ResendAssociationActivation(
     message
   }
 }
+
+# ================= Members and groups =================
+fragment AssociationMemberGroupFields on AssociationMemberGroup {
+  id
+  title
+  isActive
+}
+
+fragment AssociationMemberFields on AssociationMember {
+  id
+  userId
+  fullName
+  email
+  avatarUrl
+  memberNumber
+  notes
+  status
+  invitedAt
+  activatedAt
+  deactivatedAt
+  group {
+    ...AssociationMemberGroupFields
+  }
+}
+
+fragment AssociationGroupFields on AssociationGroup {
+  id
+  title
+  description
+  isActive
+  memberCount
+  createdAt
+  updatedAt
+}
+
+query AssociationMembers(
+  $filter: AssociationMemberFilterInput
+  $pagination: AssociationPaginationInput
+) {
+  associationMembers(filter: $filter, pagination: $pagination) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      nextCursor
+    }
+    items {
+      ...AssociationMemberFields
+    }
+  }
+}
+
+query AssociationMemberStats {
+  associationMemberStats {
+    totalMembers
+    activeMembers
+    pendingActivation
+  }
+}
+
+query AssociationGroups {
+  associationGroups {
+    ...AssociationGroupFields
+  }
+}
+
+mutation InviteAssociationMember($input: InviteAssociationMemberInput!) {
+  inviteAssociationMember(input: $input) {
+    outcome
+    member {
+      ...AssociationMemberFields
+    }
+  }
+}
+
+mutation BulkInviteAssociationMembers(
+  $input: BulkInviteAssociationMembersInput!
+) {
+  bulkInviteAssociationMembers(input: $input) {
+    totalRows
+    invited
+    linked
+    failed
+    failures {
+      row
+      email
+      code
+      reason
+    }
+  }
+}
+
+mutation UpdateAssociationMember($input: UpdateAssociationMemberInput!) {
+  updateAssociationMember(input: $input) {
+    ...AssociationMemberFields
+  }
+}
+
+mutation SetAssociationMemberStatus($input: SetAssociationMemberStatusInput!) {
+  setAssociationMemberStatus(input: $input) {
+    ...AssociationMemberFields
+  }
+}
+
+mutation ResendAssociationMemberInvitation(
+  $input: ResendAssociationMemberInvitationInput!
+) {
+  resendAssociationMemberInvitation(input: $input) {
+    ...AssociationMemberFields
+  }
+}
+
+mutation CreateAssociationGroup($input: CreateAssociationGroupInput!) {
+  createAssociationGroup(input: $input) {
+    ...AssociationGroupFields
+  }
+}
+
+mutation UpdateAssociationGroup($input: UpdateAssociationGroupInput!) {
+  updateAssociationGroup(input: $input) {
+    ...AssociationGroupFields
+  }
+}
+
+mutation SetAssociationGroupActive($input: SetAssociationGroupActiveInput!) {
+  setAssociationGroupActive(input: $input) {
+    ...AssociationGroupFields
+  }
+}

@@ -5214,7 +5214,174 @@
     },
     "members": {
       "title": "Members",
-      "comingSoon": "The member roster, invitations and bulk upload arrive in a later release."
+      "description": "Everyone who belongs to your association, the groups they sit in, and the invitations still waiting to be accepted.",
+      "actions": {
+        "invite": "Invite member",
+        "manageGroups": "Manage groups",
+        "backToRoster": "Back to roster",
+        "resend": "Resend invitation",
+        "reactivate": "Reactivate",
+        "deactivate": "Deactivate"
+      },
+      "stats": {
+        "total": "Total members",
+        "active": "Active members",
+        "pending": "Pending activation"
+      },
+      "filters": {
+        "search": "Search",
+        "searchPlaceholder": "Name, email or member number",
+        "group": "Group",
+        "allGroups": "All groups",
+        "status": "Status",
+        "allStatuses": "All statuses",
+        "clear": "Clear filters"
+      },
+      "status": {
+        "ACTIVE": "Active",
+        "PENDING_ACTIVATION": "Pending activation",
+        "INACTIVE": "Inactive"
+      },
+      "table": {
+        "caption": "Association members, with their group and account status.",
+        "name": "Name",
+        "memberNumber": "Member number",
+        "group": "Group",
+        "status": "Status",
+        "actions": "Actions",
+        "actionsFor": "Actions for {{name}}"
+      },
+      "confirm": {
+        "cancel": "Cancel",
+        "deactivateTitle": "Deactivate this member?",
+        "deactivateBody": "{{name}} will keep their account but will no longer count as an active member of your association. You can reactivate them at any time.",
+        "deactivateConfirm": "Deactivate"
+      },
+      "empty": {
+        "firstRunTitle": "No members yet",
+        "firstRunBody": "There are two ways to build your roster: invite one person at a time, or import a spreadsheet of everyone at once.",
+        "inviteOne": "Invite one member",
+        "importMany": "Import a spreadsheet",
+        "noResultsTitle": "No members match these filters",
+        "noResultsBody": "Nobody on your roster matches the search and filters you have applied."
+      },
+      "invite": {
+        "title": "Invite a member",
+        "description": "If the email already belongs to a Loopskey account, that person joins straight away. If it does not, they receive an invitation to activate one.",
+        "email": "Email",
+        "fullName": "Full name",
+        "group": "Group",
+        "groupPlaceholder": "No group",
+        "memberNumber": "Member number",
+        "submit": "Send invitation",
+        "linkedTitle": "Existing user found and linked",
+        "linkedBody": "{{name}} already had a Loopskey account, so they joined your association immediately. No invitation email was needed.",
+        "sentTitle": "Invitation sent",
+        "sentBody": "An invitation is on its way to {{email}}. {{name}} becomes an active member once they activate their account.",
+        "inviteAnother": "Invite another",
+        "done": "Done"
+      },
+      "bulk": {
+        "title": "Import members",
+        "description": "Upload a CSV or Excel file to add many members at once. Nothing is sent until you have seen what the file contains.",
+        "templateTitle": "Expected columns",
+        "templateColumns": "First name, last name, email, member number, group",
+        "downloadTemplate": "Download template",
+        "fileLabel": "Choose a file",
+        "parsing": "Reading the file…",
+        "parseFailed": "That file could not be read. Check that it is a CSV or Excel file and try again.",
+        "previewTitle": "Preview of {{file}}",
+        "previewCaption": "Rows found in the uploaded file, with any problem that blocks them.",
+        "previewCounts": "{{valid}} ready, {{invalid}} with problems",
+        "truncated": "The file holds more rows than one import can carry. Only the first 1000 are shown.",
+        "problem": "Problem",
+        "confirm": "Import {{count}} members",
+        "blocked": "Fix or remove the flagged rows before importing. Nothing has been sent yet.",
+        "resultTitle": "Import finished",
+        "resultCounts": "{{invited}} invited, {{linked}} linked to existing accounts, {{failed}} failed, out of {{total}} rows.",
+        "rowNumber": "Row {{row}}",
+        "dismissResult": "Dismiss",
+        "columns": {
+          "row": "Row",
+          "name": "Name",
+          "firstName": "First name",
+          "lastName": "Last name",
+          "email": "Email",
+          "memberNumber": "Member number",
+          "group": "Group"
+        },
+        "example": {
+          "firstName": "Ada",
+          "lastName": "Lovelace",
+          "email": "ada@example.org",
+          "memberNumber": "M-001",
+          "group": "Northern Chapter"
+        },
+        "rowErrors": {
+          "emailMissing": "Email is required",
+          "emailInvalid": "That is not a valid email address",
+          "nameMissing": "A first or last name is required",
+          "memberNumberTooLong": "Member number is too long"
+        }
+      },
+      "chart": {
+        "title": "Roster composition",
+        "description": "How your members are spread across groups, and where each group stands on activation. Select a segment to filter the roster below.",
+        "ungrouped": "Ungrouped",
+        "caption": "Members per group, split by account status.",
+        "groupHeader": "Group",
+        "chartLabel": "Roster composition by group and status",
+        "chartDescription": "A horizontal bar per group, segmented by active, pending activation and inactive members.",
+        "emptyTitle": "Nothing to chart yet",
+        "emptyBody": "Once you have members, this shows how they are distributed across your groups.",
+        "partial": "Charted from the first {{shown}} of {{total}} members."
+      },
+      "groups": {
+        "createTitle": "Create a group",
+        "editTitle": "Rename this group",
+        "formDescription": "Groups are how you segment your roster, for example by chapter, region or membership class.",
+        "title": "Group name",
+        "description": "Description",
+        "create": "Create group",
+        "save": "Save changes",
+        "listTitle": "Groups",
+        "empty": "You have not created any groups yet.",
+        "inactive": "Inactive",
+        "memberCount": "{{count}} members",
+        "rename": "Rename",
+        "deactivate": "Deactivate",
+        "reactivate": "Reactivate",
+        "deactivateNote": "Deactivating a group releases its members rather than removing them: they stay on your roster with no group."
+      },
+      "messages": {
+        "invitationResent": "Invitation sent again.",
+        "memberDeactivated": "Member deactivated.",
+        "memberReactivated": "Member reactivated.",
+        "imported": "{{invited}} invited, {{linked}} linked, {{failed}} failed.",
+        "groupCreated": "Group created.",
+        "groupUpdated": "Group updated.",
+        "groupDeactivated": "Group deactivated and its members released.",
+        "groupReactivated": "Group reactivated."
+      },
+      "error": {
+        "title": "We could not load your roster",
+        "body": "Something went wrong on the way to the server. Your filters are still here.",
+        "retry": "Try again"
+      },
+      "errors": {
+        "accessDenied": "You do not have access to this association.",
+        "associationNotFound": "We could not find your association.",
+        "groupNotFound": "That group no longer exists.",
+        "memberNotFound": "That member is no longer on your roster.",
+        "groupTitleTaken": "A group with that name already exists.",
+        "invalidImportRow": "That row could not be read.",
+        "memberNumberTaken": "Another member already holds that member number.",
+        "emailAlreadyInUse": "That email is already on your roster.",
+        "memberAlreadyActive": "That member is already active.",
+        "memberStatusConflict": "That member's status changed while you were working. Refresh to see where it stands.",
+        "invitationCooldown": "An invitation went out recently. Wait a moment before sending another.",
+        "activationEmailNotSent": "The invitation could not be sent. Try again in a moment."
+      }
     },
     "requirements": {
       "title": "Requirements",
