@@ -1,3 +1,4 @@
+import { TAssociationMemberInvitationEmail } from "@mail/mail-service.type";
 import { TAssociationActivationEmail } from "@mail/mail-service.type";
 import { TAssociationEmailBase } from "@mail/mail-service.type";
 
@@ -36,5 +37,17 @@ export const buildAssociationPasswordChangedEmail = (
     input,
     "Password changed",
     `<p>The password for <strong>${escapeHtml(input.associationName)}</strong> was changed successfully.</p><p>If this was not you, contact support immediately.</p>`,
+  ),
+});
+
+export const buildAssociationMemberInvitationEmail = (
+  input: TAssociationMemberInvitationEmail,
+) => ({
+  subject: `${input.appName}: ${input.associationName} invited you`,
+  text: `${input.associationName} invited you to join them on ${input.appName}. Set your password to accept: ${input.invitationUrl}. This single-use link expires in ${input.expiresInMinutes} minutes. Do not share it. Support: ${input.supportEmail}`,
+  html: frame(
+    input,
+    "You have been invited",
+    `<p>Hello ${escapeHtml(input.memberName)},</p><p><strong>${escapeHtml(input.associationName)}</strong> invited you to join them on ${escapeHtml(input.appName)}.</p><p><a href="${escapeHtml(input.invitationUrl)}" style="display:inline-block;padding:12px 20px;background:#2563eb;color:white;text-decoration:none;border-radius:10px">Accept the invitation</a></p><p>This single-use link expires in ${input.expiresInMinutes} minutes. Do not share it.</p>`,
   ),
 });

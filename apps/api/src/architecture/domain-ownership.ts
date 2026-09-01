@@ -109,6 +109,8 @@ export const MODEL_OWNERSHIP = {
   // Association Management
   Association: BOUNDED_CONTEXTS.ASSOCIATION_MANAGEMENT,
   AssociationSettings: BOUNDED_CONTEXTS.ASSOCIATION_MANAGEMENT,
+  AssociationGroup: BOUNDED_CONTEXTS.ASSOCIATION_MANAGEMENT,
+  AssociationMember: BOUNDED_CONTEXTS.ASSOCIATION_MANAGEMENT,
 
   // Provider Management
   ProviderProfile: BOUNDED_CONTEXTS.PROVIDER_MANAGEMENT,
@@ -155,6 +157,7 @@ export const DOMAIN_DEPENDENCIES = {
     "communications",
     "identity-access",
     "platform-shared",
+    "professional-development",
   ],
   "provider-management": [
     "identity-access",

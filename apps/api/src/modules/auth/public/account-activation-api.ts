@@ -13,6 +13,16 @@ export type AccountActivationLink = {
   readonly expiresInMinutes: number;
 };
 
+export type IssueMemberInvitationCommand = {
+  readonly userId: string;
+  readonly destination: string;
+  readonly atomicContext: object;
+};
+
+export type MemberInvitation = AccountActivationLink & {
+  readonly tokenId: string;
+};
+
 export interface AccountActivationApi {
   issueActivationLink(
     command: IssueAccountActivationCommand,
@@ -21,4 +31,8 @@ export interface AccountActivationApi {
   resendActivationLink(
     command: IssueAccountActivationCommand,
   ): Promise<AccountActivationLink | null>;
+
+  issueMemberInvitation(
+    command: IssueMemberInvitationCommand,
+  ): Promise<MemberInvitation | null>;
 }

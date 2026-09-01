@@ -31,6 +31,7 @@ enum OtpPurpose {
   EMAIL_VERIFICATION
   ORGANIZATION_ACTIVATION
   ASSOCIATION_ACTIVATION
+  ASSOCIATION_MEMBER_INVITE
 }
 
 enum NotificationDeliveryStatus {
@@ -122,6 +123,7 @@ model User {
 
   ownedOrganization       Organization?            @relation("OrganizationOwner")
   ownedAssociation        Association?             @relation("AssociationOwner")
+  associationMemberships  AssociationMember[]
   organizationMemberships OrganizationMember[]
   createdOrgAssignments   OrganizationAssignment[] @relation("CreatedOrgAssignments")
 
@@ -2142,6 +2144,8 @@ model Association {
   contactEmail String?
 
   settings AssociationSettings?
+  groups   AssociationGroup[]
+  members  AssociationMember[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -2171,6 +2175,75 @@ model AssociationSettings {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+enum AssociationMemberStatus {
+  PENDING_ACTIVATION
+  ACTIVE
+  INACTIVE
+}
+
+/// How an association segments its roster: a chapter, a region, a grade.
+/// Deactivating a group leaves its members in place with no group, so a group
+/// is never a way to lose people.
+model AssociationGroup {
+  id String @id @default(cuid())
+
+  associationId String
+  association   Association @relation(fields: [associationId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String?
+  isActive    Boolean @default(true)
+
+  members AssociationMember[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([associationId, title])
+  @@index([associationId])
+}
+
+/// A professional's membership of an association. Membership is not employment:
+/// the same user may hold this and an OrganizationMember row at once, and
+/// neither side sees the other.
+///
+/// A member number is unique within an association only when it is present, and
+/// Prisma cannot express a partial unique index. The migration creates
+/// `AssociationMember_member_number_key` on (associationId, memberNumber) WHERE
+/// "memberNumber" IS NOT NULL as an unmanaged index. `prisma migrate dev`
+/// reports it as drift and offers to drop it — refuse that offer.
+model AssociationMember {
+  id String @id @default(cuid())
+
+  associationId String
+  association   Association @relation(fields: [associationId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  groupId String?
+  group   AssociationGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
+
+  memberNumber String?
+
+  status AssociationMemberStatus @default(PENDING_ACTIVATION)
+
+  notes String?
+
+  invitedAt     DateTime  @default(now())
+  activatedAt   DateTime?
+  deactivatedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([associationId, userId])
+  @@index([associationId])
+  @@index([userId])
+  @@index([groupId])
+  @@index([status])
 }
 
 // ============== Admin =================

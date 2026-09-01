@@ -24,15 +24,19 @@ import * as T from "@auth/types/auth-service.types";
 import * as argon2 from "argon2";
 
 const ACTIVATION_TOKEN_BYTES = 32;
+const TOKEN_ID_BYTES = 16;
 const MIN_ACTIVATION_TOKEN_LENGTH = 20;
 const MAX_ACTIVATION_TOKEN_LENGTH = 128;
 
-type ActivationProfile = {
-  readonly role: Role;
+type ActivationLinkProfile = {
   readonly purpose: OtpPurpose;
   readonly lockKeyPrefix: string;
   readonly urlConfigKey: string;
   readonly urlFallbackPath: string;
+};
+
+type ActivationProfile = ActivationLinkProfile & {
+  readonly role: Role;
   readonly loginUrlConfigKey: string;
   readonly nameKey: string;
   readonly fallbackName: string;
@@ -70,6 +74,18 @@ const ASSOCIATION_PROFILE: ActivationProfile = {
   activatedMessage: "Association account activated successfully.",
   auditActivated: AuditAction.ASSOCIATION_ACCOUNT_ACTIVATED,
   auditResent: AuditAction.ASSOCIATION_ACTIVATION_RESENT,
+};
+
+/**
+ * An association member is invited, not provisioned as an account owner: the
+ * user is an ordinary professional, so this profile carries only what issuing a
+ * link needs and none of the account-activation vocabulary.
+ */
+const MEMBER_INVITE_PROFILE: ActivationLinkProfile = {
+  purpose: OtpPurpose.ASSOCIATION_MEMBER_INVITE,
+  lockKeyPrefix: "association-member-invite",
+  urlConfigKey: "ASSOCIATION_MEMBER_INVITE_URL",
+  urlFallbackPath: "/auth/association/join",
 };
 
 const PROFILE_BY_ROLE: Record<string, ActivationProfile> = {
@@ -125,9 +141,31 @@ export class AuthAccountActivationService {
     });
   }
 
+  /**
+   * Written inside the caller's transaction on purpose: the invitation token
+   * and the member row it invites someone to commit together, so a crash can
+   * never leave a live link pointing at nothing.
+   */
+  async issueMemberInvitation({
+    userId,
+    destination,
+    atomicContext,
+  }: {
+    userId: string;
+    destination: string;
+    atomicContext: object;
+  }) {
+    const tx = atomicContext as Prisma.TransactionClient;
+    if (!(await this.canResend(userId, MEMBER_INVITE_PROFILE, tx))) return null;
+    return this.createActivationLink(tx, MEMBER_INVITE_PROFILE, {
+      userId,
+      destination,
+    });
+  }
+
   private async createActivationLink(
     tx: Prisma.TransactionClient,
-    profile: ActivationProfile,
+    profile: ActivationLinkProfile,
     { userId, destination }: { userId: string; destination: string },
   ) {
     const rawToken = randomBytes(ACTIVATION_TOKEN_BYTES).toString("base64url");
@@ -141,8 +179,13 @@ export class AuthAccountActivationService {
       },
       data: { consumedAt: new Date() },
     });
+    // The id is chosen here rather than read back, so callers that need to
+    // name this token — an invitation email's idempotency key — can do so
+    // without the write having to return anything.
+    const tokenId = randomBytes(TOKEN_ID_BYTES).toString("hex");
     await tx.otpCode.create({
       data: {
+        id: tokenId,
         userId,
         destination,
         codeHash: this.hashToken(rawToken),
@@ -155,6 +198,7 @@ export class AuthAccountActivationService {
     return {
       activationUrl: this.buildActivationUrl(profile, rawToken),
       expiresInMinutes,
+      tokenId,
     };
   }
 
@@ -509,7 +553,7 @@ export class AuthAccountActivationService {
 
   private async canResend(
     userId: string,
-    profile: ActivationProfile,
+    profile: ActivationLinkProfile,
     tx: Prisma.TransactionClient,
   ) {
     const [latest, issuedToday] = await Promise.all([
@@ -534,7 +578,7 @@ export class AuthAccountActivationService {
     return createHash("sha256").update(token).digest("hex");
   }
 
-  private buildActivationUrl(profile: ActivationProfile, rawToken: string) {
+  private buildActivationUrl(profile: ActivationLinkProfile, rawToken: string) {
     const configured = this.config.get<string>(profile.urlConfigKey);
     const base = configured
       ? configured
