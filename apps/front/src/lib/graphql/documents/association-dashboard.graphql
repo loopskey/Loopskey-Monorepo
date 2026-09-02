@@ -193,3 +193,144 @@ mutation SetAssociationGroupActive($input: SetAssociationGroupActiveInput!) {
     ...AssociationGroupFields
   }
 }
+
+# ================= Requirements =================
+fragment AssociationRequirementCategoryFields on AssociationRequirementCategory {
+  id
+  name
+  order
+  mappedCategory
+  requiredCredits
+}
+
+fragment AssociationRequirementTargetFields on AssociationRequirementTarget {
+  id
+  kind
+  label
+  groupId
+  memberId
+}
+
+fragment AssociationRequirementFields on AssociationRequirement {
+  id
+  name
+  description
+  creditType
+  totalRequiredCredits
+  deadline
+  reportingCycle
+  cycleLengthYears
+  evidencePolicy
+  reportingStart
+  reportingEnd
+  submissionOpensAt
+  submissionClosesAt
+  gracePeriodDays
+  allowLateSubmission
+  remindersEnabled
+  reminderTiming
+  audienceKind
+  status
+  publishedAt
+  archivedAt
+  assignedMemberCount
+  createdAt
+  updatedAt
+  categories {
+    ...AssociationRequirementCategoryFields
+  }
+  targets {
+    ...AssociationRequirementTargetFields
+  }
+}
+
+query AssociationRequirements(
+  $filter: AssociationRequirementFilterInput
+  $pagination: AssociationPaginationInput
+) {
+  associationRequirements(filter: $filter, pagination: $pagination) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      nextCursor
+    }
+    items {
+      ...AssociationRequirementFields
+    }
+  }
+}
+
+query AssociationRequirement($requirementId: ID!) {
+  associationRequirement(requirementId: $requirementId) {
+    ...AssociationRequirementFields
+  }
+}
+
+query AssociationRequirementStats {
+  associationRequirementStats {
+    totalRequirements
+    publishedRequirements
+    draftRequirements
+    membersCovered
+  }
+}
+
+mutation CreateAssociationRequirementDraft(
+  $input: CreateAssociationRequirementDraftInput!
+) {
+  createAssociationRequirementDraft(input: $input) {
+    ...AssociationRequirementFields
+  }
+}
+
+mutation UpdateAssociationRequirementDetails(
+  $input: UpdateAssociationRequirementDetailsInput!
+) {
+  updateAssociationRequirementDetails(input: $input) {
+    ...AssociationRequirementFields
+  }
+}
+
+mutation UpdateAssociationRequirementCategories(
+  $input: UpdateAssociationRequirementCategoriesInput!
+) {
+  updateAssociationRequirementCategories(input: $input) {
+    ...AssociationRequirementFields
+  }
+}
+
+mutation UpdateAssociationRequirementEvidenceRules(
+  $input: UpdateAssociationRequirementEvidenceRulesInput!
+) {
+  updateAssociationRequirementEvidenceRules(input: $input) {
+    ...AssociationRequirementFields
+  }
+}
+
+mutation UpdateAssociationRequirementReportingRules(
+  $input: UpdateAssociationRequirementReportingRulesInput!
+) {
+  updateAssociationRequirementReportingRules(input: $input) {
+    ...AssociationRequirementFields
+  }
+}
+
+mutation UpdateAssociationRequirementAudience(
+  $input: UpdateAssociationRequirementAudienceInput!
+) {
+  updateAssociationRequirementAudience(input: $input) {
+    ...AssociationRequirementFields
+  }
+}
+
+mutation PublishAssociationRequirement($input: AssociationRequirementIdInput!) {
+  publishAssociationRequirement(input: $input) {
+    ...AssociationRequirementFields
+  }
+}
+
+mutation ArchiveAssociationRequirement($input: AssociationRequirementIdInput!) {
+  archiveAssociationRequirement(input: $input) {
+    ...AssociationRequirementFields
+  }
+}

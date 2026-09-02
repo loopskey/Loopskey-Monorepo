@@ -5381,12 +5381,259 @@
         "memberAlreadyActive": "Cette personne est déjà active.",
         "memberStatusConflict": "Le statut de cette personne a changé pendant que vous travailliez. Actualisez pour voir son état.",
         "invitationCooldown": "Une invitation vient d'être envoyée. Patientez un instant avant d'en renvoyer une.",
-        "activationEmailNotSent": "L'invitation n'a pas pu être envoyée. Réessayez dans un instant."
+        "activationEmailNotSent": "L'invitation n'a pas pu être envoyée. Réessayez dans un instant.",
+        "requirementNotFound": "Cette exigence n'existe plus.",
+        "requirementAlreadyPublished": "Cette exigence a déjà été publiée.",
+        "requirementImmutableField": "Une exigence publiée ne peut pas modifier ce champ.",
+        "requirementArchived": "Une exigence archivée ne peut pas être modifiée.",
+        "categoryCreditsExceedTotal": "Le total des crédits par catégorie dépasse celui de l'exigence.",
+        "categoryNameDuplicate": "Deux catégories portent le même nom.",
+        "categoryMappingDuplicate": "Deux catégories pointent vers la même catégorie d'apprentissage.",
+        "categoryIncomplete": "Une catégorie doit avoir un nom, une catégorie d'apprentissage et une valeur en crédits.",
+        "cycleLengthRequired": "Un cycle pluriannuel doit avoir une durée en années.",
+        "cycleLengthNotAllowed": "Seul un cycle pluriannuel comporte une durée.",
+        "publishValidationFailed": "Cette exigence n'est pas prête à être publiée.",
+        "audienceEmpty": "Choisissez à qui cette exigence s'applique."
       }
     },
     "requirements": {
       "title": "Exigences",
-      "comingSoon": "La création d'exigences, les catégories et les règles de preuve arriveront dans une version ultérieure."
+      "description": "Définissez ce que vos membres doivent accomplir, à qui cela s'applique et pour quand.",
+      "actions": {
+        "create": "Nouvelle exigence",
+        "open": "Ouvrir",
+        "continueDraft": "Reprendre le brouillon",
+        "archive": "Archiver",
+        "publish": "Publier l'exigence",
+        "assign": "Affecter des membres",
+        "backToList": "Retour aux exigences"
+      },
+      "stats": {
+        "total": "Exigences",
+        "published": "Publiées",
+        "draft": "Brouillons",
+        "covered": "Membres couverts"
+      },
+      "filters": {
+        "search": "Rechercher",
+        "searchPlaceholder": "Rechercher par nom d'exigence",
+        "status": "Statut",
+        "allStatuses": "Tous les statuts",
+        "clear": "Effacer les filtres"
+      },
+      "status": {
+        "DRAFT": "Brouillon",
+        "PUBLISHED": "Publiée",
+        "ARCHIVED": "Archivée"
+      },
+      "cycle": {
+        "ONE_TIME": "Une seule fois",
+        "ANNUAL": "Annuel",
+        "MULTI_YEAR": "Pluriannuel"
+      },
+      "audience": {
+        "ALL_MEMBERS": "Tous les membres",
+        "GROUP": "Un groupe",
+        "SPECIFIC_MEMBERS": "Des membres précis"
+      },
+      "evidence": {
+        "NOT_REQUIRED": "Justificatif non requis",
+        "REQUIRED_NO_REVIEW": "Justificatif requis, sans validation",
+        "REQUIRED_NEEDS_REVIEW": "Justificatif requis, avec validation"
+      },
+      "creditType": {
+        "CPD": "CPD",
+        "CEU": "CEU",
+        "CPE": "CPE",
+        "PDU": "PDU",
+        "TRAINING_HOUR": "Heures de formation"
+      },
+      "reminderTiming": {
+        "DAYS_7": "7 jours avant",
+        "DAYS_14": "14 jours avant",
+        "DAYS_30": "30 jours avant",
+        "DAYS_60": "60 jours avant"
+      },
+      "pduCategory": {
+        "BUSINESS": "Gestion",
+        "COMMUNICATION": "Communication",
+        "COMPLIANCE": "Conformité",
+        "DIGITAL_AI": "Numérique et IA",
+        "ETHICS": "Éthique",
+        "INDUSTRY_KNOWLEDGE": "Connaissance du secteur",
+        "LEADERSHIP": "Leadership",
+        "OTHER": "Autre",
+        "PROFESSIONAL_PRACTICE": "Pratique professionnelle",
+        "RESEARCH_INNOVATION": "Recherche et innovation",
+        "STRATEGIC": "Stratégie",
+        "TECHNICAL": "Technique"
+      },
+      "table": {
+        "caption": "Exigences, avec leur total de crédits, leur échéance, leur audience et leur couverture.",
+        "name": "Exigence",
+        "credits": "Crédits",
+        "deadline": "Échéance",
+        "audience": "Audience",
+        "status": "Statut",
+        "covered": "Membres couverts",
+        "actions": "Actions",
+        "actionsFor": "Actions pour {{name}}"
+      },
+      "fields": {
+        "name": "Nom",
+        "description": "Description",
+        "creditType": "Type de crédit",
+        "totalRequiredCredits": "Crédits requis",
+        "deadline": "Échéance",
+        "deadlineHint": "Une exigence doit avoir une échéance avant d'être publiée.",
+        "reportingCycle": "Cycle de déclaration",
+        "cycleLengthYears": "Durée du cycle en années",
+        "cycleLengthHint": "Un cycle pluriannuel doit avoir une durée.",
+        "evidencePolicy": "Justificatif",
+        "audience": "À qui cela s'applique",
+        "group": "Groupe",
+        "groupPlaceholder": "Choisir un groupe",
+        "members": "Membres",
+        "membersPlaceholder": "Rechercher par nom ou courriel",
+        "membersEmpty": "Aucun membre ne correspond à cette recherche.",
+        "membersResults": "{{count}} membres trouvés."
+      },
+      "wizard": {
+        "title": "Nouvelle exigence",
+        "stepsLabel": "Étapes de l'exigence",
+        "steps": {
+          "details": "Détails",
+          "rules": "Règles",
+          "review": "Vérifier et publier"
+        },
+        "hints": {
+          "details": "Nom, crédits, échéance et audience",
+          "rules": "Catégories, justificatifs et déclaration",
+          "review": "Tout vérifier, puis publier"
+        },
+        "detailsBody": "Enregistrée comme brouillon dès que vous continuez, rien n'est perdu si vous quittez.",
+        "rulesBody": "Chaque règle ci-dessous est facultative. Configurez celles dont votre exigence a besoin.",
+        "reviewBody": "Voici ce que verront les membres. La publication l'affecte à votre audience.",
+        "saveAndContinue": "Enregistrer et continuer",
+        "continue": "Continuer",
+        "back": "Retour"
+      },
+      "rules": {
+        "configured": "Configurée",
+        "notConfigured": "Non configurée",
+        "configure": "Configurer",
+        "close": "Fermer",
+        "save": "Enregistrer la règle",
+        "categories": {
+          "title": "Catégories",
+          "description": "Répartissez le total de crédits entre les catégories d'apprentissage déjà utilisées par les membres.",
+          "name": "Nom affiché",
+          "mapped": "Catégorie d'apprentissage",
+          "mappedPlaceholder": "Choisir une catégorie",
+          "credits": "Crédits",
+          "add": "Ajouter une catégorie",
+          "remove": "Retirer {{name}}",
+          "remainder": "Non catégorisé",
+          "running": "{{assigned}} crédits sur {{total}} attribués, {{remainder}} restants.",
+          "overflow": "{{assigned}} crédits attribués, soit {{overflow}} de plus que les {{total}} de l'exigence."
+        },
+        "evidence": {
+          "title": "Justificatifs",
+          "description": "Décidez si les membres doivent joindre une preuve et si vous la validez.",
+          "notRequired": "Justificatif non requis",
+          "required": "Justificatif requis",
+          "reviewTitle": "Qui vérifie le justificatif ?",
+          "noReview": "L'accepter sans validation",
+          "needsReview": "Validation requise",
+          "needsReviewWarning": "Chaque activité correspondante attend l'approbation de votre association avant d'être comptée."
+        },
+        "reporting": {
+          "title": "Déclaration",
+          "description": "Définissez la période de déclaration, la fenêtre de soumission et les rappels.",
+          "periodStart": "Début de la déclaration",
+          "periodEnd": "Fin de la déclaration",
+          "submissionOpens": "Ouverture des soumissions",
+          "submissionCloses": "Clôture des soumissions",
+          "gracePeriod": "Délai de grâce en jours",
+          "allowLate": "Autoriser les soumissions tardives",
+          "reminders": "Envoyer des rappels",
+          "reminderTiming": "Rappeler aux membres"
+        }
+      },
+      "review": {
+        "refusedTitle": "La publication a été refusée pour {{count}} raisons.",
+        "name": "Nom",
+        "credits": "Crédits",
+        "deadline": "Échéance",
+        "cycle": "Cycle de déclaration",
+        "audience": "Audience",
+        "categories": "Catégories",
+        "evidence": "Justificatif",
+        "covered": "Membres couverts",
+        "noCategories": "Aucune catégorie, le total de crédits se suffit à lui-même."
+      },
+      "detail": {
+        "title": "Exigence",
+        "coverage": "{{covered}} membres couverts sur {{total}}.",
+        "editableTitle": "Ce que vous pouvez encore modifier",
+        "lockedTitle": "Figé après publication",
+        "lockedBody": "Les membres y travaillent déjà, ces champs ne peuvent plus changer. Archivez cette exigence et publiez-en une nouvelle.",
+        "lockedDraftBody": "Ces champs restent modifiables tant que l'exigence est un brouillon et se figent une fois publiée.",
+        "rulesTitle": "Règles",
+        "saveChanges": "Enregistrer",
+        "categories": "Catégories",
+        "reportingPeriod": "Période de déclaration",
+        "submissionWindow": "Fenêtre de soumission",
+        "gracePeriodDays": "Délai de grâce en jours",
+        "allowLateSubmission": "Soumission tardive autorisée",
+        "reminders": "Rappels",
+        "yes": "Oui",
+        "no": "Non"
+      },
+      "assign": {
+        "title": "Affecter cette exigence",
+        "description": "Choisissez à qui cette exigence s'applique. Les membres ayant déjà progressé sont conservés.",
+        "submit": "Affecter"
+      },
+      "chart": {
+        "covered": "Couverts",
+        "uncovered": "Non couverts",
+        "coverageLabel": "Membres couverts par les exigences publiées",
+        "rowCoverageLabel": "Membres couverts par {{name}}",
+        "coverageDescription": "{{covered}} membres sur {{total}} sont couverts.",
+        "allocationLabel": "Crédits répartis entre les catégories",
+        "allocationDescription": "{{assigned}} crédits sur {{total}} sont attribués à des catégories.",
+        "segmentHeader": "Catégorie",
+        "creditsHeader": "Crédits"
+      },
+      "empty": {
+        "firstRunTitle": "Aucune exigence pour l'instant",
+        "firstRunBody": "Une exigence est ce que vos membres doivent accomplir : un total de crédits, pour une échéance, éventuellement réparti entre des catégories.",
+        "createFirst": "Créer votre première exigence",
+        "noResultsTitle": "Aucune exigence ne correspond",
+        "noResultsBody": "Essayez une autre recherche ou effacez le filtre de statut."
+      },
+      "confirm": {
+        "cancel": "Annuler",
+        "archiveTitle": "Archiver cette exigence ?",
+        "archiveBody": "{{name}} cesse de s'appliquer aux membres. La progression enregistrée est conservée.",
+        "archiveConfirm": "Archiver"
+      },
+      "messages": {
+        "saved": "Exigence enregistrée.",
+        "rulesSaved": "Règle enregistrée.",
+        "published": "Exigence publiée.",
+        "archived": "Exigence archivée.",
+        "assigned": "{{added}} membres ajoutés."
+      },
+      "errors": {
+        "membersRequired": "Choisissez au moins un membre."
+      },
+      "error": {
+        "title": "Impossible de charger vos exigences",
+        "body": "Un problème est survenu de notre côté. Réessayez dans un instant.",
+        "retry": "Réessayer"
+      }
     },
     "learningContent": {
       "title": "Contenu de formation",

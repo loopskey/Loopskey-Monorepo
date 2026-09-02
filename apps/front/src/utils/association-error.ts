@@ -28,6 +28,30 @@ const ASSOCIATION_ERROR_TRANSLATION_KEYS: Partial<
     "associationDashboard.members.errors.invitationCooldown",
   [AssociationMessageCode.ACTIVATION_EMAIL_NOT_SENT]:
     "associationDashboard.members.errors.activationEmailNotSent",
+  [AssociationMessageCode.REQUIREMENT_NOT_FOUND]:
+    "associationDashboard.members.errors.requirementNotFound",
+  [AssociationMessageCode.REQUIREMENT_ALREADY_PUBLISHED]:
+    "associationDashboard.members.errors.requirementAlreadyPublished",
+  [AssociationMessageCode.REQUIREMENT_IMMUTABLE_FIELD]:
+    "associationDashboard.members.errors.requirementImmutableField",
+  [AssociationMessageCode.REQUIREMENT_ARCHIVED]:
+    "associationDashboard.members.errors.requirementArchived",
+  [AssociationMessageCode.CATEGORY_CREDITS_EXCEED_TOTAL]:
+    "associationDashboard.members.errors.categoryCreditsExceedTotal",
+  [AssociationMessageCode.CATEGORY_NAME_DUPLICATE]:
+    "associationDashboard.members.errors.categoryNameDuplicate",
+  [AssociationMessageCode.CATEGORY_MAPPING_DUPLICATE]:
+    "associationDashboard.members.errors.categoryMappingDuplicate",
+  [AssociationMessageCode.CATEGORY_INCOMPLETE]:
+    "associationDashboard.members.errors.categoryIncomplete",
+  [AssociationMessageCode.CYCLE_LENGTH_REQUIRED]:
+    "associationDashboard.members.errors.cycleLengthRequired",
+  [AssociationMessageCode.CYCLE_LENGTH_NOT_ALLOWED]:
+    "associationDashboard.members.errors.cycleLengthNotAllowed",
+  [AssociationMessageCode.PUBLISH_VALIDATION_FAILED]:
+    "associationDashboard.members.errors.publishValidationFailed",
+  [AssociationMessageCode.AUDIENCE_EMPTY]:
+    "associationDashboard.members.errors.audienceEmpty",
 };
 
 const KNOWN_CODES = new Set<string>(Object.values(AssociationMessageCode));
