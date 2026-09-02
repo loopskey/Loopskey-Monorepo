@@ -11,6 +11,13 @@ export enum AssociationGqlObjectNames {
   PAGINATED_ASSOCIATION_MEMBERS = "PaginatedAssociationMembers",
   ASSOCIATION_BULK_INVITE_RESULT = "AssociationBulkInviteResult",
   ASSOCIATION_BULK_INVITE_FAILURE = "AssociationBulkInviteFailure",
+  ASSOCIATION_REQUIREMENT = "AssociationRequirement",
+  ASSOCIATION_REQUIREMENT_TARGET = "AssociationRequirementTarget",
+  ASSOCIATION_REQUIREMENT_STATS = "AssociationRequirementStats",
+  ASSOCIATION_REQUIREMENT_PROBLEM = "AssociationRequirementProblem",
+  ASSOCIATION_REQUIREMENT_CATEGORY = "AssociationRequirementCategory",
+  ASSOCIATION_REQUIREMENT_AUDIENCE = "AssociationRequirementAudience",
+  PAGINATED_ASSOCIATION_REQUIREMENTS = "PaginatedAssociationRequirements",
 }
 
 export enum AssociationGqlInputNames {
@@ -28,6 +35,15 @@ export enum AssociationGqlInputNames {
   BULK_INVITE_ASSOCIATION_MEMBERS = "BulkInviteAssociationMembersInput",
   BULK_INVITE_ASSOCIATION_MEMBER_ROW = "BulkInviteAssociationMemberRowInput",
   RESEND_ASSOCIATION_MEMBER_INVITATION = "ResendAssociationMemberInvitationInput",
+  ASSOCIATION_REQUIREMENT_FILTER = "AssociationRequirementFilterInput",
+  ASSOCIATION_REQUIREMENT_CATEGORY = "AssociationRequirementCategoryInput",
+  CREATE_ASSOCIATION_REQUIREMENT_DRAFT = "CreateAssociationRequirementDraftInput",
+  UPDATE_ASSOCIATION_REQUIREMENT_DETAILS = "UpdateAssociationRequirementDetailsInput",
+  UPDATE_ASSOCIATION_REQUIREMENT_CATEGORIES = "UpdateAssociationRequirementCategoriesInput",
+  UPDATE_ASSOCIATION_REQUIREMENT_EVIDENCE_RULES = "UpdateAssociationRequirementEvidenceRulesInput",
+  UPDATE_ASSOCIATION_REQUIREMENT_REPORTING_RULES = "UpdateAssociationRequirementReportingRulesInput",
+  UPDATE_ASSOCIATION_REQUIREMENT_AUDIENCE = "UpdateAssociationRequirementAudienceInput",
+  ASSOCIATION_REQUIREMENT_ID = "AssociationRequirementIdInput",
 }
 
 export enum AssociationGqlQueryNames {
@@ -35,6 +51,9 @@ export enum AssociationGqlQueryNames {
   PROFILE = "associationProfile",
   MEMBERS = "associationMembers",
   MEMBER_STATS = "associationMemberStats",
+  REQUIREMENTS = "associationRequirements",
+  REQUIREMENT = "associationRequirement",
+  REQUIREMENT_STATS = "associationRequirementStats",
 }
 
 export enum AssociationGqlMutationNames {
@@ -49,4 +68,12 @@ export enum AssociationGqlMutationNames {
   RESEND_ACTIVATION = "resendAssociationActivation",
   BULK_INVITE_MEMBERS = "bulkInviteAssociationMembers",
   RESEND_MEMBER_INVITATION = "resendAssociationMemberInvitation",
+  CREATE_REQUIREMENT_DRAFT = "createAssociationRequirementDraft",
+  UPDATE_REQUIREMENT_DETAILS = "updateAssociationRequirementDetails",
+  UPDATE_REQUIREMENT_CATEGORIES = "updateAssociationRequirementCategories",
+  UPDATE_REQUIREMENT_EVIDENCE_RULES = "updateAssociationRequirementEvidenceRules",
+  UPDATE_REQUIREMENT_REPORTING_RULES = "updateAssociationRequirementReportingRules",
+  UPDATE_REQUIREMENT_AUDIENCE = "updateAssociationRequirementAudience",
+  PUBLISH_REQUIREMENT = "publishAssociationRequirement",
+  ARCHIVE_REQUIREMENT = "archiveAssociationRequirement",
 }

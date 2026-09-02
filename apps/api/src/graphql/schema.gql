@@ -267,6 +267,13 @@ enum AssociationActivationTokenStatus {
   VALID
 }
 
+"""Which members a requirement applies to"""
+enum AssociationAudienceKind {
+  ALL_MEMBERS
+  GROUP
+  SPECIFIC_MEMBERS
+}
+
 type AssociationBulkInviteFailure {
   code: String!
   email: String!
@@ -280,6 +287,13 @@ type AssociationBulkInviteResult {
   invited: Int!
   linked: Int!
   totalRows: Int!
+}
+
+"""Whether members must attach evidence, and whether it is reviewed"""
+enum AssociationEvidencePolicy {
+  NOT_REQUIRED
+  REQUIRED_NEEDS_REVIEW
+  REQUIRED_NO_REVIEW
 }
 
 type AssociationGroup {
@@ -353,6 +367,88 @@ type AssociationPageInfo {
 input AssociationPaginationInput {
   cursor: String
   take: Int = 20
+}
+
+"""How often a requirement's obligation repeats"""
+enum AssociationReportingCycle {
+  ANNUAL
+  MULTI_YEAR
+  ONE_TIME
+}
+
+type AssociationRequirement {
+  allowLateSubmission: Boolean!
+  archivedAt: DateTime
+  assignedMemberCount: Int!
+  audienceKind: AssociationAudienceKind!
+  categories: [AssociationRequirementCategory!]!
+  createdAt: DateTime!
+  creditType: CreditType!
+  cycleLengthYears: Int
+  deadline: DateTime
+  description: String
+  evidencePolicy: AssociationEvidencePolicy!
+  gracePeriodDays: Int!
+  id: ID!
+  name: String!
+  publishedAt: DateTime
+  reminderTiming: CPDReminderTiming
+  remindersEnabled: Boolean!
+  reportingCycle: AssociationReportingCycle!
+  reportingEnd: DateTime
+  reportingStart: DateTime
+  status: AssociationRequirementStatus!
+  submissionClosesAt: DateTime
+  submissionOpensAt: DateTime
+  targets: [AssociationRequirementTarget!]!
+  totalRequiredCredits: Float!
+  updatedAt: DateTime!
+}
+
+type AssociationRequirementCategory {
+  id: ID!
+  mappedCategory: PDUCategory!
+  name: String!
+  order: Int!
+  requiredCredits: Float!
+}
+
+input AssociationRequirementCategoryInput {
+  mappedCategory: PDUCategory!
+  name: String!
+  order: Int
+  requiredCredits: Float!
+}
+
+input AssociationRequirementFilterInput {
+  search: String
+  status: AssociationRequirementStatus
+}
+
+input AssociationRequirementIdInput {
+  requirementId: ID!
+}
+
+type AssociationRequirementStats {
+  draftRequirements: Int!
+  membersCovered: Int!
+  publishedRequirements: Int!
+  totalRequirements: Int!
+}
+
+"""Where a requirement stands in its draft, published, archived life"""
+enum AssociationRequirementStatus {
+  ARCHIVED
+  DRAFT
+  PUBLISHED
+}
+
+type AssociationRequirementTarget {
+  groupId: ID
+  id: ID!
+  kind: AssociationAudienceKind!
+  label: String
+  memberId: ID
 }
 
 type AssociationSettings {
@@ -846,6 +942,11 @@ input CreateAssociationAccountInput {
 input CreateAssociationGroupInput {
   description: String
   title: String!
+}
+
+input CreateAssociationRequirementDraftInput {
+  creditType: CreditType
+  name: String!
 }
 
 input CreateCalendarEventInput {
@@ -1396,6 +1497,7 @@ type Mutation {
   addOrganizationMember(input: AddOrganizationMemberInput!): OrganizationMember!
   addToCart(input: ContentActionInput!): ContentActionPayload!
   approveAdminOrgAccessRequest(requestId: String!): AdminOrgAccessRequest!
+  archiveAssociationRequirement(input: AssociationRequirementIdInput!): AssociationRequirement!
   archiveCourse(courseId: String!): Course!
   archiveEvent(eventId: String!): Event!
   archivePodcast(podcastId: String!): Podcast!
@@ -1412,6 +1514,7 @@ type Mutation {
   confirmExternalLearning(input: ConfirmExternalLearningInput!): ExternalLearningActivity!
   createAssociationAccount(input: CreateAssociationAccountInput!): AssociationActionResponse!
   createAssociationGroup(input: CreateAssociationGroupInput!): AssociationGroup!
+  createAssociationRequirementDraft(input: CreateAssociationRequirementDraftInput!): AssociationRequirement!
   createCalendarEvent(input: CreateCalendarEventInput!): ProfessionalManualCalendarEvent!
   createCourse(input: CreateCourseInput!): Course!
   createCpdPlan(input: CreateCpdPlanInput!): CpdPlan!
@@ -1452,6 +1555,7 @@ type Mutation {
   login(input: LoginInput!): AuthPayload!
   logout: AuthPayload!
   patchRoadmapDraft(input: PatchRoadmapDraftInput!): ProfessionalRoadmapDraft!
+  publishAssociationRequirement(input: AssociationRequirementIdInput!): AssociationRequirement!
   publishCourse(courseId: String!): Course!
   publishEvent(eventId: String!): Event!
   publishPodcast(podcastId: String!): Podcast!
@@ -1496,6 +1600,11 @@ type Mutation {
   updateAssociationGroup(input: UpdateAssociationGroupInput!): AssociationGroup!
   updateAssociationMember(input: UpdateAssociationMemberInput!): AssociationMember!
   updateAssociationProfile(input: UpdateAssociationProfileInput!): Association!
+  updateAssociationRequirementAudience(input: UpdateAssociationRequirementAudienceInput!): AssociationRequirement!
+  updateAssociationRequirementCategories(input: UpdateAssociationRequirementCategoriesInput!): AssociationRequirement!
+  updateAssociationRequirementDetails(input: UpdateAssociationRequirementDetailsInput!): AssociationRequirement!
+  updateAssociationRequirementEvidenceRules(input: UpdateAssociationRequirementEvidenceRulesInput!): AssociationRequirement!
+  updateAssociationRequirementReportingRules(input: UpdateAssociationRequirementReportingRulesInput!): AssociationRequirement!
   updateCourse(input: UpdateCourseInput!): Course!
   updateCpdPlan(input: UpdateCpdPlanInput!): CpdPlan!
   updateEnrollmentProgress(input: UpdateEnrollmentProgressInput!): ContentActionPayload!
@@ -2002,6 +2111,12 @@ type PaginatedAdminUser {
 
 type PaginatedAssociationMembers {
   items: [AssociationMember!]!
+  pageInfo: AssociationPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedAssociationRequirements {
+  items: [AssociationRequirement!]!
   pageInfo: AssociationPageInfo!
   totalCount: Int!
 }
@@ -3024,6 +3139,9 @@ type Query {
   associationMemberStats(associationId: ID): AssociationMemberStats!
   associationMembers(associationId: ID, filter: AssociationMemberFilterInput, pagination: AssociationPaginationInput): PaginatedAssociationMembers!
   associationProfile(associationId: ID): Association!
+  associationRequirement(associationId: ID, requirementId: ID!): AssociationRequirement!
+  associationRequirementStats(associationId: ID): AssociationRequirementStats!
+  associationRequirements(associationId: ID, filter: AssociationRequirementFilterInput, pagination: AssociationPaginationInput): PaginatedAssociationRequirements!
   certificationSearch(input: CertificationSearchInput!): [Certification!]!
   contentReviews(contentId: String!, contentType: ContentType!): [ContentReview!]!
   courseById(courseId: String!): Course!
@@ -3420,6 +3538,46 @@ input UpdateAssociationProfileInput {
   logoUrl: String
   name: String
   website: String
+}
+
+input UpdateAssociationRequirementAudienceInput {
+  audienceKind: AssociationAudienceKind!
+  groupId: ID
+  memberIds: [ID!]
+  requirementId: ID!
+}
+
+input UpdateAssociationRequirementCategoriesInput {
+  categories: [AssociationRequirementCategoryInput!]!
+  requirementId: ID!
+}
+
+input UpdateAssociationRequirementDetailsInput {
+  creditType: CreditType
+  cycleLengthYears: Int
+  deadline: DateTime
+  description: String
+  name: String
+  reminderTiming: CPDReminderTiming
+  remindersEnabled: Boolean
+  reportingCycle: AssociationReportingCycle
+  requirementId: ID!
+  totalRequiredCredits: Float
+}
+
+input UpdateAssociationRequirementEvidenceRulesInput {
+  evidencePolicy: AssociationEvidencePolicy!
+  requirementId: ID!
+}
+
+input UpdateAssociationRequirementReportingRulesInput {
+  allowLateSubmission: Boolean
+  gracePeriodDays: Int
+  reportingEnd: DateTime
+  reportingStart: DateTime
+  requirementId: ID!
+  submissionClosesAt: DateTime
+  submissionOpensAt: DateTime
 }
 
 input UpdateCertificateInput {

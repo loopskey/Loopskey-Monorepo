@@ -91,9 +91,14 @@ const setup = (
         tokenId: "otp-1",
       }),
   };
+  const assignments = {
+    materialiseForMember: jest.fn().mockResolvedValue(undefined),
+    materialiseForAssociation: jest.fn().mockResolvedValue(undefined),
+  };
   return {
     tx,
     prisma,
+    assignments,
     outbox,
     groups,
     identity,
@@ -108,6 +113,7 @@ const setup = (
       identity as never,
       professional as never,
       activation as never,
+      assignments as never,
     ),
   };
 };

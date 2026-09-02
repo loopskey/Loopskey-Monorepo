@@ -1,3 +1,7 @@
+import { AssociationRequirementAssignmentService } from "@association/services/association-requirement-assignment.service";
+import { AssociationRequirementPublishedHandler } from "@association/application/association-requirement-published.handler";
+import { AssociationRequirementResolver } from "@association/resolvers/association-requirement.resolver";
+import { AssociationRequirementService } from "@association/services/association-requirement.service";
 import { AssociationRoleProfileHandler } from "@association/application/association-role-profile.handler";
 import { AssociationDashboardResolver } from "@association/resolvers/association-dashboard.resolver";
 import { AssociationDashboardService } from "@association/services/association-dashboard.service";
@@ -36,12 +40,18 @@ import "@association/enums/association-register.enum";
     AssociationDashboardService,
     AssociationDashboardResolver,
     AssociationRoleProfileHandler,
+    AssociationRequirementService,
+    AssociationRequirementResolver,
+    AssociationRequirementPublishedHandler,
+    AssociationRequirementAssignmentService,
   ],
   exports: [
     AssociationGroupService,
     AssociationMemberService,
     AssociationAccountService,
     AssociationDashboardService,
+    AssociationRequirementService,
+    AssociationRequirementAssignmentService,
   ],
 })
 export class AssociationModule {}

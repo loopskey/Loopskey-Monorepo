@@ -50,12 +50,17 @@ const setup = (over: { create?: jest.Mock } = {}) => {
     requireOwned: jest.fn().mockResolvedValue(association),
     requireReadable: jest.fn().mockResolvedValue(association),
   };
+  const assignments = {
+    materialiseForAssociation: jest.fn().mockResolvedValue(undefined),
+  };
   return {
     tx,
     prisma,
+    assignments,
     service: new AssociationGroupService(
       prisma as unknown as PrismaService,
       access as unknown as AssociationAccessService,
+      assignments as never,
     ),
   };
 };

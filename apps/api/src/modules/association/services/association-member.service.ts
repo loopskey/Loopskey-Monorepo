@@ -1,3 +1,4 @@
+import { AssociationRequirementAssignmentService } from "@association/services/association-requirement-assignment.service";
 import { ResendAssociationMemberInvitationInput } from "@association/dtos/resend-association-member-invitation.input";
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { buildAssociationMemberInvitationEmail } from "@mail/association-email.template";
@@ -77,6 +78,7 @@ export class AssociationMemberService {
     private readonly professional: ProfessionalProvisioningApi,
     @Inject(ACCOUNT_ACTIVATION_API)
     private readonly activation: AccountActivationApi,
+    private readonly assignments: AssociationRequirementAssignmentService,
   ) {}
 
   // -------------------------------------------------------------------- reads
@@ -152,12 +154,14 @@ export class AssociationMemberService {
     const association = await this.access.requireOwned(user);
     if (input.groupId)
       await this.groups.requireGroup(association.id, input.groupId);
-    return this.inviteOne(association.id, association.name, {
+    const result = await this.inviteOne(association.id, association.name, {
       email: input.email,
       fullName: input.fullName,
       groupId: input.groupId ?? null,
       memberNumber: input.memberNumber ?? null,
     });
+    await this.assignments.materialiseForMember(result.member.id);
+    return result;
   }
 
   async bulkInvite(
@@ -270,6 +274,8 @@ export class AssociationMemberService {
         select: MEMBER_SELECT,
       }),
     );
+    if (input.groupId !== undefined)
+      await this.assignments.materialiseForMember(input.memberId);
     return project(member);
   }
 
@@ -299,6 +305,7 @@ export class AssociationMemberService {
         },
       });
       if (claimed.count !== 1) throw this.statusConflict();
+      await this.assignments.materialiseForMember(input.memberId);
       return project(await this.readMember(association.id, input.memberId));
     }
 
@@ -317,8 +324,10 @@ export class AssociationMemberService {
       },
       data: { status: AssociationMemberStatus.ACTIVE, deactivatedAt: null },
     });
-    if (reactivated.count === 1)
+    if (reactivated.count === 1) {
+      await this.assignments.materialiseForMember(input.memberId);
       return project(await this.readMember(association.id, input.memberId));
+    }
 
     const returnedToPending = await this.prisma.associationMember.updateMany({
       where: {
@@ -332,6 +341,7 @@ export class AssociationMemberService {
       },
     });
     if (returnedToPending.count !== 1) throw this.statusConflict();
+    await this.assignments.materialiseForMember(input.memberId);
     return project(await this.readMember(association.id, input.memberId));
   }
 
