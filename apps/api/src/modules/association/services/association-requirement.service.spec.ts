@@ -193,11 +193,13 @@ describe("AssociationRequirementService publish", () => {
     await expect(service.publish(owner, "req-1")).rejects.toMatchObject({
       response: {
         code: AssociationMessageCode.PUBLISH_VALIDATION_FAILED,
-        problems: expect.arrayContaining([
-          expect.objectContaining({ field: "name" }),
-          expect.objectContaining({ field: "totalRequiredCredits" }),
-          expect.objectContaining({ field: "deadline" }),
-        ]),
+        details: {
+          problems: expect.arrayContaining([
+            expect.objectContaining({ field: "name" }),
+            expect.objectContaining({ field: "totalRequiredCredits" }),
+            expect.objectContaining({ field: "deadline" }),
+          ]),
+        },
       },
     });
   });

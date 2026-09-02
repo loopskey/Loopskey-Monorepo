@@ -5380,12 +5380,259 @@
         "memberAlreadyActive": "That member is already active.",
         "memberStatusConflict": "That member's status changed while you were working. Refresh to see where it stands.",
         "invitationCooldown": "An invitation went out recently. Wait a moment before sending another.",
-        "activationEmailNotSent": "The invitation could not be sent. Try again in a moment."
+        "activationEmailNotSent": "The invitation could not be sent. Try again in a moment.",
+        "requirementNotFound": "That requirement no longer exists.",
+        "requirementAlreadyPublished": "This requirement was already published.",
+        "requirementImmutableField": "A published requirement cannot change that field.",
+        "requirementArchived": "An archived requirement cannot be changed.",
+        "categoryCreditsExceedTotal": "Category credits add up to more than the requirement's total.",
+        "categoryNameDuplicate": "Two categories share the same name.",
+        "categoryMappingDuplicate": "Two categories map to the same learning category.",
+        "categoryIncomplete": "A category needs a name, a learning category and a credit value.",
+        "cycleLengthRequired": "A multi-year cycle needs a length in years.",
+        "cycleLengthNotAllowed": "Only a multi-year cycle carries a cycle length.",
+        "publishValidationFailed": "This requirement is not ready to publish.",
+        "audienceEmpty": "Choose who this requirement applies to."
       }
     },
     "requirements": {
       "title": "Requirements",
-      "comingSoon": "Requirement creation, categories and evidence rules arrive in a later release."
+      "description": "Define what your members must complete, who it applies to, and when it is due.",
+      "actions": {
+        "create": "New requirement",
+        "open": "Open",
+        "continueDraft": "Continue draft",
+        "archive": "Archive",
+        "publish": "Publish requirement",
+        "assign": "Assign members",
+        "backToList": "Back to requirements"
+      },
+      "stats": {
+        "total": "Requirements",
+        "published": "Published",
+        "draft": "Drafts",
+        "covered": "Members covered"
+      },
+      "filters": {
+        "search": "Search",
+        "searchPlaceholder": "Search by requirement name",
+        "status": "Status",
+        "allStatuses": "All statuses",
+        "clear": "Clear filters"
+      },
+      "status": {
+        "DRAFT": "Draft",
+        "PUBLISHED": "Published",
+        "ARCHIVED": "Archived"
+      },
+      "cycle": {
+        "ONE_TIME": "One time",
+        "ANNUAL": "Annual",
+        "MULTI_YEAR": "Multi-year"
+      },
+      "audience": {
+        "ALL_MEMBERS": "All members",
+        "GROUP": "A group",
+        "SPECIFIC_MEMBERS": "Specific members"
+      },
+      "evidence": {
+        "NOT_REQUIRED": "Evidence not required",
+        "REQUIRED_NO_REVIEW": "Evidence required, no review",
+        "REQUIRED_NEEDS_REVIEW": "Evidence required, needs review"
+      },
+      "creditType": {
+        "CPD": "CPD",
+        "CEU": "CEU",
+        "CPE": "CPE",
+        "PDU": "PDU",
+        "TRAINING_HOUR": "Training hours"
+      },
+      "reminderTiming": {
+        "DAYS_7": "7 days before",
+        "DAYS_14": "14 days before",
+        "DAYS_30": "30 days before",
+        "DAYS_60": "60 days before"
+      },
+      "pduCategory": {
+        "BUSINESS": "Business",
+        "COMMUNICATION": "Communication",
+        "COMPLIANCE": "Compliance",
+        "DIGITAL_AI": "Digital and AI",
+        "ETHICS": "Ethics",
+        "INDUSTRY_KNOWLEDGE": "Industry knowledge",
+        "LEADERSHIP": "Leadership",
+        "OTHER": "Other",
+        "PROFESSIONAL_PRACTICE": "Professional practice",
+        "RESEARCH_INNOVATION": "Research and innovation",
+        "STRATEGIC": "Strategic",
+        "TECHNICAL": "Technical"
+      },
+      "table": {
+        "caption": "Requirements, with their credit total, deadline, audience and coverage.",
+        "name": "Requirement",
+        "credits": "Credits",
+        "deadline": "Deadline",
+        "audience": "Audience",
+        "status": "Status",
+        "covered": "Members covered",
+        "actions": "Actions",
+        "actionsFor": "Actions for {{name}}"
+      },
+      "fields": {
+        "name": "Name",
+        "description": "Description",
+        "creditType": "Credit type",
+        "totalRequiredCredits": "Required credits",
+        "deadline": "Deadline",
+        "deadlineHint": "A requirement needs a deadline before it can be published.",
+        "reportingCycle": "Reporting cycle",
+        "cycleLengthYears": "Cycle length in years",
+        "cycleLengthHint": "A multi-year cycle needs a length.",
+        "evidencePolicy": "Evidence",
+        "audience": "Who it applies to",
+        "group": "Group",
+        "groupPlaceholder": "Choose a group",
+        "members": "Members",
+        "membersPlaceholder": "Search members by name or email",
+        "membersEmpty": "No members match that search.",
+        "membersResults": "{{count}} members found."
+      },
+      "wizard": {
+        "title": "New requirement",
+        "stepsLabel": "Requirement steps",
+        "steps": {
+          "details": "Details",
+          "rules": "Rules",
+          "review": "Review and publish"
+        },
+        "hints": {
+          "details": "Name, credits, deadline and audience",
+          "rules": "Categories, evidence and reporting",
+          "review": "Check everything, then publish"
+        },
+        "detailsBody": "Saved as a draft as soon as you continue, so nothing is lost if you leave.",
+        "rulesBody": "Every rule below is optional. Configure the ones your requirement needs.",
+        "reviewBody": "This is what members will see. Publishing assigns it to your audience.",
+        "saveAndContinue": "Save and continue",
+        "continue": "Continue",
+        "back": "Back"
+      },
+      "rules": {
+        "configured": "Configured",
+        "notConfigured": "Not configured",
+        "configure": "Configure",
+        "close": "Close",
+        "save": "Save rule",
+        "categories": {
+          "title": "Categories",
+          "description": "Split the credit total across learning categories members already record against.",
+          "name": "Display name",
+          "mapped": "Learning category",
+          "mappedPlaceholder": "Choose a category",
+          "credits": "Credits",
+          "add": "Add category",
+          "remove": "Remove {{name}}",
+          "remainder": "Uncategorised",
+          "running": "{{assigned}} of {{total}} credits allocated, {{remainder}} left.",
+          "overflow": "{{assigned}} credits allocated, {{overflow}} above the requirement's {{total}}."
+        },
+        "evidence": {
+          "title": "Evidence",
+          "description": "Decide whether members must attach proof, and whether you review it.",
+          "notRequired": "Evidence not required",
+          "required": "Evidence required",
+          "reviewTitle": "Who checks the evidence?",
+          "noReview": "Accept it without review",
+          "needsReview": "Needs review",
+          "needsReviewWarning": "Every matching learning activity waits for your association's approval before it counts."
+        },
+        "reporting": {
+          "title": "Reporting",
+          "description": "Set the reporting period, the submission window and reminders.",
+          "periodStart": "Reporting starts",
+          "periodEnd": "Reporting ends",
+          "submissionOpens": "Submission opens",
+          "submissionCloses": "Submission closes",
+          "gracePeriod": "Grace period in days",
+          "allowLate": "Allow late submission",
+          "reminders": "Send reminders",
+          "reminderTiming": "Remind members"
+        }
+      },
+      "review": {
+        "refusedTitle": "Publishing was refused for {{count}} reasons.",
+        "name": "Name",
+        "credits": "Credits",
+        "deadline": "Deadline",
+        "cycle": "Reporting cycle",
+        "audience": "Audience",
+        "categories": "Categories",
+        "evidence": "Evidence",
+        "covered": "Members covered",
+        "noCategories": "No categories, the credit total stands on its own."
+      },
+      "detail": {
+        "title": "Requirement",
+        "coverage": "{{covered}} of {{total}} members covered.",
+        "editableTitle": "What you can still change",
+        "lockedTitle": "Fixed after publication",
+        "lockedBody": "Members are already working towards these, so they cannot change. Archive this requirement and publish a new one instead.",
+        "lockedDraftBody": "These are editable while the requirement is a draft and become fixed once it is published.",
+        "rulesTitle": "Rules",
+        "saveChanges": "Save changes",
+        "categories": "Categories",
+        "reportingPeriod": "Reporting period",
+        "submissionWindow": "Submission window",
+        "gracePeriodDays": "Grace period in days",
+        "allowLateSubmission": "Late submission allowed",
+        "reminders": "Reminders",
+        "yes": "Yes",
+        "no": "No"
+      },
+      "assign": {
+        "title": "Assign this requirement",
+        "description": "Choose who this requirement applies to. Members already recording progress are kept.",
+        "submit": "Assign"
+      },
+      "chart": {
+        "covered": "Covered",
+        "uncovered": "Not covered",
+        "coverageLabel": "Members covered across published requirements",
+        "rowCoverageLabel": "Members covered by {{name}}",
+        "coverageDescription": "{{covered}} of {{total}} members are covered.",
+        "allocationLabel": "Credits allocated across categories",
+        "allocationDescription": "{{assigned}} of {{total}} credits are allocated to categories.",
+        "segmentHeader": "Category",
+        "creditsHeader": "Credits"
+      },
+      "empty": {
+        "firstRunTitle": "No requirements yet",
+        "firstRunBody": "A requirement is what your members must complete: a credit total, by a deadline, optionally split across categories.",
+        "createFirst": "Create your first requirement",
+        "noResultsTitle": "No requirements match",
+        "noResultsBody": "Try a different search or clear the status filter."
+      },
+      "confirm": {
+        "cancel": "Cancel",
+        "archiveTitle": "Archive this requirement?",
+        "archiveBody": "{{name}} stops applying to members. Recorded progress is kept.",
+        "archiveConfirm": "Archive"
+      },
+      "messages": {
+        "saved": "Requirement saved.",
+        "rulesSaved": "Rule saved.",
+        "published": "Requirement published.",
+        "archived": "Requirement archived.",
+        "assigned": "{{added}} members added."
+      },
+      "errors": {
+        "membersRequired": "Choose at least one member."
+      },
+      "error": {
+        "title": "We could not load your requirements",
+        "body": "Something went wrong on our side. Try again in a moment.",
+        "retry": "Try again"
+      }
     },
     "learningContent": {
       "title": "Learning Content",
