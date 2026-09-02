@@ -1,4 +1,8 @@
+import { AssociationAudienceKind } from "@prisma/client";
+import { AssociationEvidencePolicy } from "@prisma/client";
 import { AssociationMemberStatus } from "@prisma/client";
+import { AssociationReportingCycle } from "@prisma/client";
+import { AssociationRequirementStatus } from "@prisma/client";
 import { registerEnumType } from "@nestjs/graphql";
 
 export enum AssociationInviteOutcome {
@@ -15,4 +19,26 @@ registerEnumType(AssociationInviteOutcome, {
   name: "AssociationInviteOutcome",
   description:
     "Whether an invitation linked an account that already existed or sent a new one",
+});
+
+registerEnumType(AssociationRequirementStatus, {
+  name: "AssociationRequirementStatus",
+  description:
+    "Where a requirement stands in its draft, published, archived life",
+});
+
+registerEnumType(AssociationReportingCycle, {
+  name: "AssociationReportingCycle",
+  description: "How often a requirement's obligation repeats",
+});
+
+registerEnumType(AssociationAudienceKind, {
+  name: "AssociationAudienceKind",
+  description: "Which members a requirement applies to",
+});
+
+registerEnumType(AssociationEvidencePolicy, {
+  name: "AssociationEvidencePolicy",
+  description:
+    "Whether members must attach evidence, and whether it is reviewed",
 });

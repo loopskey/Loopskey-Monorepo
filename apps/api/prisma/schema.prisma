@@ -121,11 +121,12 @@ model User {
   roadmapDrafts          RoadmapDraft[]
   ownedRoadmaps          Roadmap[]                @relation("OwnedRoadmaps")
 
-  ownedOrganization       Organization?            @relation("OrganizationOwner")
-  ownedAssociation        Association?             @relation("AssociationOwner")
-  associationMemberships  AssociationMember[]
-  organizationMemberships OrganizationMember[]
-  createdOrgAssignments   OrganizationAssignment[] @relation("CreatedOrgAssignments")
+  ownedOrganization               Organization?            @relation("OrganizationOwner")
+  ownedAssociation                Association?             @relation("AssociationOwner")
+  associationMemberships          AssociationMember[]
+  authoredAssociationRequirements AssociationRequirement[] @relation("AssociationRequirementAuthor")
+  organizationMemberships         OrganizationMember[]
+  createdOrgAssignments           OrganizationAssignment[] @relation("CreatedOrgAssignments")
 
   promotionRequests          EventPromotionRequest[]
   reviewedPromotionRequests  EventPromotionRequest[]    @relation("ReviewedPromotionRequests")
@@ -2143,9 +2144,10 @@ model Association {
   website      String?
   contactEmail String?
 
-  settings AssociationSettings?
-  groups   AssociationGroup[]
-  members  AssociationMember[]
+  settings     AssociationSettings?
+  groups       AssociationGroup[]
+  members      AssociationMember[]
+  requirements AssociationRequirement[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -2196,7 +2198,8 @@ model AssociationGroup {
   description String?
   isActive    Boolean @default(true)
 
-  members AssociationMember[]
+  members           AssociationMember[]
+  requirementTarget AssociationRequirementTarget[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -2235,6 +2238,9 @@ model AssociationMember {
   invitedAt     DateTime  @default(now())
   activatedAt   DateTime?
   deactivatedAt DateTime?
+
+  requirementTargets     AssociationRequirementTarget[]
+  requirementAssignments AssociationRequirementAssignment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -2385,4 +2391,170 @@ model OutboxDelivery {
 
   @@id([eventId, handlerName])
   @@index([processedAt])
+}
+
+enum AssociationRequirementStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum AssociationReportingCycle {
+  ONE_TIME
+  ANNUAL
+  MULTI_YEAR
+}
+
+enum AssociationAudienceKind {
+  ALL_MEMBERS
+  GROUP
+  SPECIFIC_MEMBERS
+}
+
+enum AssociationEvidencePolicy {
+  NOT_REQUIRED
+  REQUIRED_NO_REVIEW
+  REQUIRED_NEEDS_REVIEW
+}
+
+/// What an association obliges its members to complete: a credit total, by a
+/// deadline, optionally split across categories and gated by an evidence rule.
+///
+/// This is deliberately not a CPDPlan. A plan is a professional's own plan for
+/// their own certification; a requirement is imposed by one association on many
+/// members, and the two lifecycles have nothing in common.
+///
+/// A draft is a real row from the first wizard step, so a half-filled
+/// requirement survives a closed tab. Publishing freezes the fields members are
+/// measured against; the audience, reminders and description stay editable.
+model AssociationRequirement {
+  id String @id @default(cuid())
+
+  associationId String
+  association   Association @relation(fields: [associationId], references: [id], onDelete: Cascade)
+
+  createdById String
+  createdBy   User   @relation("AssociationRequirementAuthor", fields: [createdById], references: [id], onDelete: Cascade)
+
+  name        String
+  description String?
+
+  creditType           CreditType @default(CPD)
+  totalRequiredCredits Float      @default(0)
+  deadline             DateTime?
+
+  reportingCycle   AssociationReportingCycle @default(ONE_TIME)
+  cycleLengthYears Int?
+
+  evidencePolicy AssociationEvidencePolicy @default(NOT_REQUIRED)
+
+  reportingStart DateTime?
+  reportingEnd   DateTime?
+
+  submissionOpensAt  DateTime?
+  submissionClosesAt DateTime?
+
+  gracePeriodDays     Int     @default(0)
+  allowLateSubmission Boolean @default(true)
+
+  remindersEnabled Boolean            @default(false)
+  reminderTiming   CPDReminderTiming?
+
+  audienceKind AssociationAudienceKind @default(ALL_MEMBERS)
+
+  status      AssociationRequirementStatus @default(DRAFT)
+  publishedAt DateTime?
+  archivedAt  DateTime?
+
+  categories  AssociationRequirementCategory[]
+  targets     AssociationRequirementTarget[]
+  assignments AssociationRequirementAssignment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([associationId])
+  @@index([associationId, status])
+  @@index([deadline])
+  @@index([createdAt])
+}
+
+/// One slice of a requirement's total, mapped onto the PDUCategory professionals
+/// already record against. The mapping is the whole point: it makes "progress by
+/// category" computable from existing activity instead of inventing a second
+/// taxonomy nobody records against.
+model AssociationRequirementCategory {
+  id String @id @default(cuid())
+
+  requirementId String
+  requirement   AssociationRequirement @relation(fields: [requirementId], references: [id], onDelete: Cascade)
+
+  name            String
+  mappedCategory  PDUCategory
+  requiredCredits Float       @default(0)
+  order           Int         @default(0)
+
+  @@unique([requirementId, name])
+  @@unique([requirementId, mappedCategory])
+  @@index([requirementId])
+}
+
+/// Who a requirement applies to, when the audience is not simply everyone. A
+/// GROUP audience holds one group row; SPECIFIC_MEMBERS holds one row per
+/// member. ALL_MEMBERS holds none.
+model AssociationRequirementTarget {
+  id String @id @default(cuid())
+
+  requirementId String
+  requirement   AssociationRequirement @relation(fields: [requirementId], references: [id], onDelete: Cascade)
+
+  kind AssociationAudienceKind
+
+  groupId String?
+  group   AssociationGroup? @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  memberId String?
+  member   AssociationMember? @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([requirementId, groupId])
+  @@unique([requirementId, memberId])
+  @@index([requirementId])
+}
+
+/// One member's obligation under one requirement for one cycle. This is the row
+/// every later progress and report reads, so it is materialised rather than
+/// derived: the audience can change and the history must not.
+///
+/// `isTargeted` false means the member has left the audience but recorded
+/// something against it, so the assignment is kept as history instead of being
+/// deleted.
+model AssociationRequirementAssignment {
+  id String @id @default(cuid())
+
+  requirementId String
+  requirement   AssociationRequirement @relation(fields: [requirementId], references: [id], onDelete: Cascade)
+
+  memberId String
+  member   AssociationMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  cycleStart DateTime
+  cycleEnd   DateTime?
+  dueDate    DateTime?
+
+  isTargeted Boolean @default(true)
+
+  /// Credits recorded against this assignment. Phase 05 owns the computation;
+  /// this phase only reads it to decide whether a de-targeted assignment carries
+  /// history worth keeping.
+  recordedCredits Float @default(0)
+
+  assignedAt DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([requirementId, memberId, cycleStart])
+  @@index([memberId])
+  @@index([dueDate])
+  @@index([requirementId])
 }

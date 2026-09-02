@@ -298,6 +298,13 @@ export enum AssociationActivationTokenStatus {
   Valid = 'VALID'
 }
 
+/** Which members a requirement applies to */
+export enum AssociationAudienceKind {
+  AllMembers = 'ALL_MEMBERS',
+  Group = 'GROUP',
+  SpecificMembers = 'SPECIFIC_MEMBERS'
+}
+
 export type AssociationBulkInviteFailure = {
   __typename?: 'AssociationBulkInviteFailure';
   code: Scalars['String']['output'];
@@ -314,6 +321,13 @@ export type AssociationBulkInviteResult = {
   linked: Scalars['Int']['output'];
   totalRows: Scalars['Int']['output'];
 };
+
+/** Whether members must attach evidence, and whether it is reviewed */
+export enum AssociationEvidencePolicy {
+  NotRequired = 'NOT_REQUIRED',
+  RequiredNeedsReview = 'REQUIRED_NEEDS_REVIEW',
+  RequiredNoReview = 'REQUIRED_NO_REVIEW'
+}
 
 export type AssociationGroup = {
   __typename?: 'AssociationGroup';
@@ -390,6 +404,92 @@ export type AssociationPageInfo = {
 export type AssociationPaginationInput = {
   cursor?: InputMaybe<Scalars['String']['input']>;
   take?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** How often a requirement's obligation repeats */
+export enum AssociationReportingCycle {
+  Annual = 'ANNUAL',
+  MultiYear = 'MULTI_YEAR',
+  OneTime = 'ONE_TIME'
+}
+
+export type AssociationRequirement = {
+  __typename?: 'AssociationRequirement';
+  allowLateSubmission: Scalars['Boolean']['output'];
+  archivedAt?: Maybe<Scalars['DateTime']['output']>;
+  assignedMemberCount: Scalars['Int']['output'];
+  audienceKind: AssociationAudienceKind;
+  categories: Array<AssociationRequirementCategory>;
+  createdAt: Scalars['DateTime']['output'];
+  creditType: CreditType;
+  cycleLengthYears?: Maybe<Scalars['Int']['output']>;
+  deadline?: Maybe<Scalars['DateTime']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  evidencePolicy: AssociationEvidencePolicy;
+  gracePeriodDays: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  publishedAt?: Maybe<Scalars['DateTime']['output']>;
+  reminderTiming?: Maybe<CpdReminderTiming>;
+  remindersEnabled: Scalars['Boolean']['output'];
+  reportingCycle: AssociationReportingCycle;
+  reportingEnd?: Maybe<Scalars['DateTime']['output']>;
+  reportingStart?: Maybe<Scalars['DateTime']['output']>;
+  status: AssociationRequirementStatus;
+  submissionClosesAt?: Maybe<Scalars['DateTime']['output']>;
+  submissionOpensAt?: Maybe<Scalars['DateTime']['output']>;
+  targets: Array<AssociationRequirementTarget>;
+  totalRequiredCredits: Scalars['Float']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type AssociationRequirementCategory = {
+  __typename?: 'AssociationRequirementCategory';
+  id: Scalars['ID']['output'];
+  mappedCategory: PduCategory;
+  name: Scalars['String']['output'];
+  order: Scalars['Int']['output'];
+  requiredCredits: Scalars['Float']['output'];
+};
+
+export type AssociationRequirementCategoryInput = {
+  mappedCategory: PduCategory;
+  name: Scalars['String']['input'];
+  order?: InputMaybe<Scalars['Int']['input']>;
+  requiredCredits: Scalars['Float']['input'];
+};
+
+export type AssociationRequirementFilterInput = {
+  search?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<AssociationRequirementStatus>;
+};
+
+export type AssociationRequirementIdInput = {
+  requirementId: Scalars['ID']['input'];
+};
+
+export type AssociationRequirementStats = {
+  __typename?: 'AssociationRequirementStats';
+  draftRequirements: Scalars['Int']['output'];
+  membersCovered: Scalars['Int']['output'];
+  publishedRequirements: Scalars['Int']['output'];
+  totalRequirements: Scalars['Int']['output'];
+};
+
+/** Where a requirement stands in its draft, published, archived life */
+export enum AssociationRequirementStatus {
+  Archived = 'ARCHIVED',
+  Draft = 'DRAFT',
+  Published = 'PUBLISHED'
+}
+
+export type AssociationRequirementTarget = {
+  __typename?: 'AssociationRequirementTarget';
+  groupId?: Maybe<Scalars['ID']['output']>;
+  id: Scalars['ID']['output'];
+  kind: AssociationAudienceKind;
+  label?: Maybe<Scalars['String']['output']>;
+  memberId?: Maybe<Scalars['ID']['output']>;
 };
 
 export type AssociationSettings = {
@@ -903,6 +1003,11 @@ export type CreateAssociationAccountInput = {
 export type CreateAssociationGroupInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   title: Scalars['String']['input'];
+};
+
+export type CreateAssociationRequirementDraftInput = {
+  creditType?: InputMaybe<CreditType>;
+  name: Scalars['String']['input'];
 };
 
 export type CreateCalendarEventInput = {
@@ -1453,6 +1558,7 @@ export type Mutation = {
   addOrganizationMember: OrganizationMember;
   addToCart: ContentActionPayload;
   approveAdminOrgAccessRequest: AdminOrgAccessRequest;
+  archiveAssociationRequirement: AssociationRequirement;
   archiveCourse: Course;
   archiveEvent: Event;
   archivePodcast: Podcast;
@@ -1469,6 +1575,7 @@ export type Mutation = {
   confirmExternalLearning: ExternalLearningActivity;
   createAssociationAccount: AssociationActionResponse;
   createAssociationGroup: AssociationGroup;
+  createAssociationRequirementDraft: AssociationRequirement;
   createCalendarEvent: ProfessionalManualCalendarEvent;
   createCourse: Course;
   createCpdPlan: CpdPlan;
@@ -1509,6 +1616,7 @@ export type Mutation = {
   login: AuthPayload;
   logout: AuthPayload;
   patchRoadmapDraft: ProfessionalRoadmapDraft;
+  publishAssociationRequirement: AssociationRequirement;
   publishCourse: Course;
   publishEvent: Event;
   publishPodcast: Podcast;
@@ -1553,6 +1661,11 @@ export type Mutation = {
   updateAssociationGroup: AssociationGroup;
   updateAssociationMember: AssociationMember;
   updateAssociationProfile: Association;
+  updateAssociationRequirementAudience: AssociationRequirement;
+  updateAssociationRequirementCategories: AssociationRequirement;
+  updateAssociationRequirementDetails: AssociationRequirement;
+  updateAssociationRequirementEvidenceRules: AssociationRequirement;
+  updateAssociationRequirementReportingRules: AssociationRequirement;
   updateCourse: Course;
   updateCpdPlan: CpdPlan;
   updateEnrollmentProgress: ContentActionPayload;
@@ -1607,6 +1720,11 @@ export type MutationAddToCartArgs = {
 
 export type MutationApproveAdminOrgAccessRequestArgs = {
   requestId: Scalars['String']['input'];
+};
+
+
+export type MutationArchiveAssociationRequirementArgs = {
+  input: AssociationRequirementIdInput;
 };
 
 
@@ -1683,6 +1801,11 @@ export type MutationCreateAssociationAccountArgs = {
 
 export type MutationCreateAssociationGroupArgs = {
   input: CreateAssociationGroupInput;
+};
+
+
+export type MutationCreateAssociationRequirementDraftArgs = {
+  input: CreateAssociationRequirementDraftInput;
 };
 
 
@@ -1873,6 +1996,11 @@ export type MutationLoginArgs = {
 
 export type MutationPatchRoadmapDraftArgs = {
   input: PatchRoadmapDraftInput;
+};
+
+
+export type MutationPublishAssociationRequirementArgs = {
+  input: AssociationRequirementIdInput;
 };
 
 
@@ -2074,6 +2202,31 @@ export type MutationUpdateAssociationMemberArgs = {
 
 export type MutationUpdateAssociationProfileArgs = {
   input: UpdateAssociationProfileInput;
+};
+
+
+export type MutationUpdateAssociationRequirementAudienceArgs = {
+  input: UpdateAssociationRequirementAudienceInput;
+};
+
+
+export type MutationUpdateAssociationRequirementCategoriesArgs = {
+  input: UpdateAssociationRequirementCategoriesInput;
+};
+
+
+export type MutationUpdateAssociationRequirementDetailsArgs = {
+  input: UpdateAssociationRequirementDetailsInput;
+};
+
+
+export type MutationUpdateAssociationRequirementEvidenceRulesArgs = {
+  input: UpdateAssociationRequirementEvidenceRulesInput;
+};
+
+
+export type MutationUpdateAssociationRequirementReportingRulesArgs = {
+  input: UpdateAssociationRequirementReportingRulesInput;
 };
 
 
@@ -2728,6 +2881,13 @@ export type PaginatedAdminUser = {
 export type PaginatedAssociationMembers = {
   __typename?: 'PaginatedAssociationMembers';
   items: Array<AssociationMember>;
+  pageInfo: AssociationPageInfo;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type PaginatedAssociationRequirements = {
+  __typename?: 'PaginatedAssociationRequirements';
+  items: Array<AssociationRequirement>;
   pageInfo: AssociationPageInfo;
   totalCount: Scalars['Int']['output'];
 };
@@ -3827,6 +3987,9 @@ export type Query = {
   associationMemberStats: AssociationMemberStats;
   associationMembers: PaginatedAssociationMembers;
   associationProfile: Association;
+  associationRequirement: AssociationRequirement;
+  associationRequirementStats: AssociationRequirementStats;
+  associationRequirements: PaginatedAssociationRequirements;
   certificationSearch: Array<Certification>;
   contentReviews: Array<ContentReview>;
   courseById: Course;
@@ -3988,6 +4151,24 @@ export type QueryAssociationMembersArgs = {
 
 export type QueryAssociationProfileArgs = {
   associationId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type QueryAssociationRequirementArgs = {
+  associationId?: InputMaybe<Scalars['ID']['input']>;
+  requirementId: Scalars['ID']['input'];
+};
+
+
+export type QueryAssociationRequirementStatsArgs = {
+  associationId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type QueryAssociationRequirementsArgs = {
+  associationId?: InputMaybe<Scalars['ID']['input']>;
+  filter?: InputMaybe<AssociationRequirementFilterInput>;
+  pagination?: InputMaybe<AssociationPaginationInput>;
 };
 
 
@@ -4675,6 +4856,46 @@ export type UpdateAssociationProfileInput = {
   logoUrl?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   website?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdateAssociationRequirementAudienceInput = {
+  audienceKind: AssociationAudienceKind;
+  groupId?: InputMaybe<Scalars['ID']['input']>;
+  memberIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  requirementId: Scalars['ID']['input'];
+};
+
+export type UpdateAssociationRequirementCategoriesInput = {
+  categories: Array<AssociationRequirementCategoryInput>;
+  requirementId: Scalars['ID']['input'];
+};
+
+export type UpdateAssociationRequirementDetailsInput = {
+  creditType?: InputMaybe<CreditType>;
+  cycleLengthYears?: InputMaybe<Scalars['Int']['input']>;
+  deadline?: InputMaybe<Scalars['DateTime']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  reminderTiming?: InputMaybe<CpdReminderTiming>;
+  remindersEnabled?: InputMaybe<Scalars['Boolean']['input']>;
+  reportingCycle?: InputMaybe<AssociationReportingCycle>;
+  requirementId: Scalars['ID']['input'];
+  totalRequiredCredits?: InputMaybe<Scalars['Float']['input']>;
+};
+
+export type UpdateAssociationRequirementEvidenceRulesInput = {
+  evidencePolicy: AssociationEvidencePolicy;
+  requirementId: Scalars['ID']['input'];
+};
+
+export type UpdateAssociationRequirementReportingRulesInput = {
+  allowLateSubmission?: InputMaybe<Scalars['Boolean']['input']>;
+  gracePeriodDays?: InputMaybe<Scalars['Int']['input']>;
+  reportingEnd?: InputMaybe<Scalars['DateTime']['input']>;
+  reportingStart?: InputMaybe<Scalars['DateTime']['input']>;
+  requirementId: Scalars['ID']['input'];
+  submissionClosesAt?: InputMaybe<Scalars['DateTime']['input']>;
+  submissionOpensAt?: InputMaybe<Scalars['DateTime']['input']>;
 };
 
 export type UpdateCertificateInput = {
