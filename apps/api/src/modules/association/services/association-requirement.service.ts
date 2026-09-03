@@ -1,6 +1,7 @@
 import { AssociationRequirementAssignmentService } from "@association/services/association-requirement-assignment.service";
 import { BadRequestException, ConflictException } from "@nestjs/common";
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { AssociationComplianceService } from "@association/services/association-compliance.service";
 import { AssociationRequirementStatus } from "@prisma/client";
 import { AssociationPaginationInput } from "@association/dtos/association-pagination.input";
 import { AssociationAccessService } from "@association/services/association-access.service";
@@ -91,6 +92,7 @@ export class AssociationRequirementService {
     private readonly outbox: OutboxService,
     private readonly access: AssociationAccessService,
     private readonly assignments: AssociationRequirementAssignmentService,
+    private readonly compliance: AssociationComplianceService,
   ) {}
 
   async list(
@@ -403,6 +405,7 @@ export class AssociationRequirementService {
     });
 
     await this.assignments.materialise(input.requirementId);
+    await this.compliance.recomputeRequirement(input.requirementId);
 
     return project(await this.require(association.id, input.requirementId));
   }
@@ -460,6 +463,7 @@ export class AssociationRequirementService {
       });
 
     const outcome = await this.assignments.materialise(requirementId);
+    await this.compliance.recomputeRequirement(requirementId);
 
     this.logger.log("Association requirement published", {
       requirementId,

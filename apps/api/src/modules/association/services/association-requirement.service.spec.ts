@@ -1,3 +1,4 @@
+import { AssociationComplianceService } from "@association/services/association-compliance.service";
 import {
   AssociationRequirementStatus,
   PDUCategory,
@@ -100,16 +101,22 @@ const setup = (
     membersCovered: jest.fn().mockResolvedValue(0),
   };
 
+  const compliance = {
+    recomputeRequirement: jest.fn().mockResolvedValue(null),
+  };
+
   return {
     tx,
     prisma,
     outbox,
+    compliance,
     assignments,
     service: new AssociationRequirementService(
       prisma as unknown as PrismaService,
       outbox as unknown as OutboxService,
       access as unknown as AssociationAccessService,
       assignments as unknown as AssociationRequirementAssignmentService,
+      compliance as unknown as AssociationComplianceService,
     ),
   };
 };

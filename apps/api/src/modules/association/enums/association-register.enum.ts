@@ -1,8 +1,9 @@
-import { AssociationAudienceKind } from "@prisma/client";
-import { AssociationEvidencePolicy } from "@prisma/client";
-import { AssociationMemberStatus } from "@prisma/client";
-import { AssociationReportingCycle } from "@prisma/client";
 import { AssociationRequirementStatus } from "@prisma/client";
+import { AssociationComplianceBand } from "@prisma/client";
+import { AssociationReportingCycle } from "@prisma/client";
+import { AssociationEvidencePolicy } from "@prisma/client";
+import { AssociationAudienceKind } from "@prisma/client";
+import { AssociationMemberStatus } from "@prisma/client";
 import { registerEnumType } from "@nestjs/graphql";
 
 export enum AssociationInviteOutcome {
@@ -41,4 +42,9 @@ registerEnumType(AssociationEvidencePolicy, {
   name: "AssociationEvidencePolicy",
   description:
     "Whether members must attach evidence, and whether it is reviewed",
+});
+
+registerEnumType(AssociationComplianceBand, {
+  name: "AssociationComplianceBand",
+  description: "How far a member has got against what was required of them",
 });

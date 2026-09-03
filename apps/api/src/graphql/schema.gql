@@ -267,6 +267,23 @@ enum AssociationActivationTokenStatus {
   VALID
 }
 
+type AssociationAssignmentProgress {
+  awaitingReviewCount: Int!
+  band: AssociationComplianceBand!
+  categories: [AssociationCategoryProgress!]!
+  completedCredits: Float!
+  computedAt: DateTime
+  creditType: CreditType!
+  daysRemaining: Int
+  dueDate: DateTime
+  id: ID!
+  isMissingEvidence: Boolean!
+  percent: Float!
+  requiredCredits: Float!
+  requirementId: ID!
+  requirementName: String!
+}
+
 """Which members a requirement applies to"""
 enum AssociationAudienceKind {
   ALL_MEMBERS
@@ -287,6 +304,37 @@ type AssociationBulkInviteResult {
   invited: Int!
   linked: Int!
   totalRows: Int!
+}
+
+type AssociationCategoryProgress {
+  completedCredits: Float!
+  id: ID!
+  name: String!
+  percent: Float!
+  requiredCredits: Float!
+}
+
+"""How far a member has got against what was required of them"""
+enum AssociationComplianceBand {
+  AT_RISK
+  NOT_STARTED
+  ON_TRACK
+  RENEWAL_READY
+}
+
+input AssociationComplianceFilterInput {
+  groupId: ID
+  memberIds: [ID!]
+  requirementId: ID
+}
+
+type AssociationComplianceSummary {
+  awaitingReviewCount: Int!
+  band: AssociationComplianceBand!
+  computedAt: DateTime
+  isMissingEvidence: Boolean!
+  memberId: ID!
+  percent: Float!
 }
 
 """Whether members must attach evidence, and whether it is reviewed"""
@@ -334,6 +382,12 @@ type AssociationMember {
   userId: ID!
 }
 
+type AssociationMemberCompliance {
+  assignments: [AssociationAssignmentProgress!]!
+  isMissingEvidence: Boolean!
+  memberId: ID!
+}
+
 input AssociationMemberFilterInput {
   groupId: ID
   search: String
@@ -367,6 +421,19 @@ type AssociationPageInfo {
 input AssociationPaginationInput {
   cursor: String
   take: Int = 20
+}
+
+type AssociationPendingReview {
+  activityDate: DateTime!
+  activityId: ID!
+  activityTitle: String!
+  category: PDUCategory!
+  credits: Float!
+  id: ID!
+  memberId: ID!
+  memberName: String
+  requirementId: ID!
+  requirementName: String!
 }
 
 """How often a requirement's obligation repeats"""
@@ -451,6 +518,13 @@ type AssociationRequirementTarget {
   memberId: ID
 }
 
+type AssociationReviewResult {
+  activityId: ID!
+  approved: Boolean!
+  memberId: ID!
+  requirementId: ID!
+}
+
 type AssociationSettings {
   associationId: ID!
   atRiskThreshold: Int!
@@ -470,6 +544,8 @@ enum AuditAction {
   ASSOCIATION_ACCOUNT_ACTIVATED
   ASSOCIATION_ACCOUNT_CREATED
   ASSOCIATION_ACTIVATION_RESENT
+  ASSOCIATION_ACTIVITY_APPROVED
+  ASSOCIATION_ACTIVITY_REJECTED
   ASSOCIATION_SETTINGS_UPDATED
   ORGANIZATION_ACCOUNT_ACTIVATED
   ORGANIZATION_ACCOUNT_CREATED
@@ -1560,6 +1636,7 @@ type Mutation {
   publishEvent(eventId: String!): Event!
   publishPodcast(podcastId: String!): Podcast!
   publishYouTubeChannel(channelId: String!): YouTubeChannel!
+  recomputeAssociationCompliance: AssociationActionResponse!
   refreshToken: AuthPayload!
   register(input: RegisterInput!): AuthPayload!
   registerEvent(eventId: String!): EventRegistration!
@@ -1580,6 +1657,7 @@ type Mutation {
   restorePodcast(podcastId: String!): Podcast!
   restoreUser(userId: String!): User!
   restoreYouTubeChannel(channelId: String!): YouTubeChannel!
+  reviewAssociationLearningActivity(input: ReviewAssociationLearningActivityInput!): AssociationReviewResult!
   sendRoadmapChatTurn(input: RoadmapChatTurnInput!): ProfessionalRoadmapDraft!
   setAssociationGroupActive(input: SetAssociationGroupActiveInput!): AssociationGroup!
   setAssociationMemberStatus(input: SetAssociationMemberStatusInput!): AssociationMember!
@@ -3136,8 +3214,11 @@ type Query {
   adminUsers(filter: AdminUserFilter, pagination: AdminPagination): PaginatedAdminUser!
   associationActivationStatus(token: String!): AssociationActivationStatus!
   associationGroups(associationId: ID): [AssociationGroup!]!
+  associationMemberCompliance(associationId: ID, memberId: ID!): AssociationMemberCompliance!
+  associationMemberComplianceList(associationId: ID, filter: AssociationComplianceFilterInput): [AssociationComplianceSummary!]!
   associationMemberStats(associationId: ID): AssociationMemberStats!
   associationMembers(associationId: ID, filter: AssociationMemberFilterInput, pagination: AssociationPaginationInput): PaginatedAssociationMembers!
+  associationPendingReviews(associationId: ID, filter: AssociationComplianceFilterInput): [AssociationPendingReview!]!
   associationProfile(associationId: ID): Association!
   associationRequirement(associationId: ID, requirementId: ID!): AssociationRequirement!
   associationRequirementStats(associationId: ID): AssociationRequirementStats!
@@ -3271,6 +3352,12 @@ input ResetPasswordInput {
   confirmPassword: String!
   email: String!
   newPassword: String!
+}
+
+input ReviewAssociationLearningActivityInput {
+  activityId: ID!
+  approve: Boolean!
+  reason: String
 }
 
 type RoadmapChatMessage {

@@ -18,6 +18,12 @@ export enum AssociationGqlObjectNames {
   ASSOCIATION_REQUIREMENT_CATEGORY = "AssociationRequirementCategory",
   ASSOCIATION_REQUIREMENT_AUDIENCE = "AssociationRequirementAudience",
   PAGINATED_ASSOCIATION_REQUIREMENTS = "PaginatedAssociationRequirements",
+  ASSOCIATION_MEMBER_COMPLIANCE = "AssociationMemberCompliance",
+  ASSOCIATION_ASSIGNMENT_PROGRESS = "AssociationAssignmentProgress",
+  ASSOCIATION_CATEGORY_PROGRESS = "AssociationCategoryProgress",
+  ASSOCIATION_COMPLIANCE_SUMMARY = "AssociationComplianceSummary",
+  ASSOCIATION_PENDING_REVIEW = "AssociationPendingReview",
+  ASSOCIATION_REVIEW_RESULT = "AssociationReviewResult",
 }
 
 export enum AssociationGqlInputNames {
@@ -44,6 +50,8 @@ export enum AssociationGqlInputNames {
   UPDATE_ASSOCIATION_REQUIREMENT_REPORTING_RULES = "UpdateAssociationRequirementReportingRulesInput",
   UPDATE_ASSOCIATION_REQUIREMENT_AUDIENCE = "UpdateAssociationRequirementAudienceInput",
   ASSOCIATION_REQUIREMENT_ID = "AssociationRequirementIdInput",
+  ASSOCIATION_COMPLIANCE_FILTER = "AssociationComplianceFilterInput",
+  REVIEW_ASSOCIATION_LEARNING_ACTIVITY = "ReviewAssociationLearningActivityInput",
 }
 
 export enum AssociationGqlQueryNames {
@@ -53,6 +61,9 @@ export enum AssociationGqlQueryNames {
   MEMBER_STATS = "associationMemberStats",
   REQUIREMENTS = "associationRequirements",
   REQUIREMENT = "associationRequirement",
+  MEMBER_COMPLIANCE = "associationMemberCompliance",
+  MEMBER_COMPLIANCE_LIST = "associationMemberComplianceList",
+  PENDING_REVIEWS = "associationPendingReviews",
   REQUIREMENT_STATS = "associationRequirementStats",
 }
 
@@ -76,4 +87,6 @@ export enum AssociationGqlMutationNames {
   UPDATE_REQUIREMENT_AUDIENCE = "updateAssociationRequirementAudience",
   PUBLISH_REQUIREMENT = "publishAssociationRequirement",
   ARCHIVE_REQUIREMENT = "archiveAssociationRequirement",
+  REVIEW_LEARNING_ACTIVITY = "reviewAssociationLearningActivity",
+  RECOMPUTE_COMPLIANCE = "recomputeAssociationCompliance",
 }
