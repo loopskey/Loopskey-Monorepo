@@ -2,6 +2,7 @@ import { ProfessionalComplianceApiService } from "@professional/application/prof
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { PDUCompletionStatus, PDUStatus } from "@prisma/client";
 import { CreditType, PDUCategory } from "@prisma/client";
+import { type EvidenceStoragePort } from "@professional/storage/evidence-storage.port";
 import { PrismaService } from "@prisma/prisma.service";
 
 const activityRow = (overrides: Record<string, unknown> = {}) => ({
@@ -18,18 +19,43 @@ const activityRow = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 
+const storedFileRow = (overrides: Record<string, unknown> = {}) => ({
+  id: "file-1",
+  fileName: "proof.pdf",
+  mimeType: "application/pdf",
+  sizeBytes: 2048,
+  storageKey: "abc.pdf",
+  ...overrides,
+});
+
 const setup = ({
   rows = [activityRow()],
   settledCount = 1,
-}: { rows?: ReturnType<typeof activityRow>[]; settledCount?: number } = {}) => {
+  fileRow = null,
+  certificateRows = [],
+  resolvePath = () => "/uploads/pdu/abc.pdf",
+}: {
+  rows?: ReturnType<typeof activityRow>[];
+  settledCount?: number;
+  fileRow?: Record<string, unknown> | null;
+  certificateRows?: Record<string, unknown>[];
+  resolvePath?: () => string;
+} = {}) => {
   const findMany = jest.fn().mockResolvedValue(rows);
   const findFirst = jest.fn().mockResolvedValue(rows[0] ?? null);
   const updateMany = jest.fn().mockResolvedValue({ count: settledCount });
   const findUnique = jest.fn().mockResolvedValue({ userId: "user-1" });
   const append = jest.fn().mockResolvedValue({});
+  const fileFindFirst = jest.fn().mockResolvedValue(fileRow);
+  const certificateFileFindFirst = jest.fn().mockResolvedValue(fileRow);
+  const certificateFindMany = jest.fn().mockResolvedValue(certificateRows);
+  const resolve = jest.fn(resolvePath);
 
   const prisma = {
     pDUActivity: { findMany, findFirst, updateMany, findUnique },
+    pDUActivityFile: { findFirst: fileFindFirst },
+    certificateFile: { findFirst: certificateFileFindFirst },
+    certificate: { findMany: certificateFindMany },
   };
 
   return {
@@ -37,9 +63,14 @@ const setup = ({
     findFirst,
     updateMany,
     append,
+    resolve,
+    fileFindFirst,
+    certificateFindMany,
+    certificateFileFindFirst,
     service: new ProfessionalComplianceApiService(
       prisma as unknown as PrismaService,
       { append } as unknown as OutboxService,
+      { resolve } as unknown as EvidenceStoragePort,
     ),
   };
 };
@@ -160,6 +191,144 @@ describe("ProfessionalComplianceApiService", () => {
           payload: { activityId: "act-1", userId: "user-1" },
         }),
       );
+    });
+  });
+
+  describe("the file and certificate reads phase 06 added", () => {
+    it("reads no file at all without an owner list", async () => {
+      const { service, fileFindFirst, certificateFileFindFirst } = setup();
+
+      await expect(service.evidenceFileForOwners("file-1", [])).resolves.toBe(
+        null,
+      );
+      await expect(
+        service.certificateFileForOwners("file-1", []),
+      ).resolves.toBe(null);
+      expect(fileFindFirst).not.toHaveBeenCalled();
+      expect(certificateFileFindFirst).not.toHaveBeenCalled();
+    });
+
+    it("scopes an evidence file to the owner list and never returns its storage key", async () => {
+      const { service, fileFindFirst } = setup({
+        fileRow: storedFileRow({ activityId: "act-1" }),
+      });
+
+      const stored = await service.evidenceFileForOwners("file-1", ["user-1"]);
+
+      expect(fileFindFirst).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: "file-1", userId: { in: ["user-1"] } },
+        }),
+      );
+      expect(stored).toEqual({
+        sourceId: "act-1",
+        filePath: "/uploads/pdu/abc.pdf",
+        file: {
+          id: "file-1",
+          fileName: "proof.pdf",
+          mimeType: "application/pdf",
+          sizeBytes: 2048,
+        },
+      });
+      expect(JSON.stringify(stored)).not.toContain("storageKey");
+    });
+
+    it("names the certificate a certificate file came from", async () => {
+      const { service } = setup({
+        fileRow: storedFileRow({ certificateId: "cert-1" }),
+        resolvePath: () => "/uploads/certificate/abc.pdf",
+      });
+
+      await expect(
+        service.certificateFileForOwners("file-1", ["user-1"]),
+      ).resolves.toEqual(
+        expect.objectContaining({
+          sourceId: "cert-1",
+          filePath: "/uploads/certificate/abc.pdf",
+        }),
+      );
+    });
+
+    it("treats an unresolvable storage key as a missing file", async () => {
+      const { service } = setup({
+        fileRow: storedFileRow({ activityId: "act-1" }),
+        resolvePath: () => {
+          throw new Error("Invalid object storage key.");
+        },
+      });
+
+      await expect(
+        service.evidenceFileForOwners("file-1", ["user-1"]),
+      ).resolves.toBe(null);
+    });
+
+    it("projects a certificate with its files and earned credits", async () => {
+      const { service, certificateFindMany } = setup({
+        certificateRows: [
+          {
+            id: "cert-1",
+            userId: "user-1",
+            title: "PMP",
+            issuer: "PMI",
+            status: "ACTIVE",
+            issuedAt: new Date("2026-01-01T00:00:00.000Z"),
+            validUntil: null,
+            pduEarned: 35,
+            evidenceFiles: [
+              {
+                id: "file-1",
+                fileName: "pmp.pdf",
+                mimeType: "application/pdf",
+                sizeBytes: 10,
+              },
+            ],
+          },
+        ],
+      });
+
+      await expect(service.certificatesForOwners(["user-1"])).resolves.toEqual([
+        expect.objectContaining({
+          id: "cert-1",
+          creditsEarned: 35,
+          files: [expect.objectContaining({ id: "file-1" })],
+        }),
+      ]);
+      expect(certificateFindMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { userId: { in: ["user-1"] } } }),
+      );
+    });
+
+    it("carries the evidence note, url and rejection reason onto the detail", async () => {
+      const { service } = setup({
+        rows: [
+          activityRow({
+            source: "COURSE",
+            evidenceNote: "Attached the completion letter.",
+            evidenceUrl: "https://example.test/proof",
+            reviewNote: "The certificate does not name you.",
+            evidenceFiles: [
+              {
+                id: "file-1",
+                fileName: "proof.pdf",
+                mimeType: "application/pdf",
+                sizeBytes: 5,
+              },
+            ],
+          }),
+        ],
+      });
+
+      await expect(
+        service.activityDetailsForOwners(["act-1"], ["user-1"]),
+      ).resolves.toEqual([
+        expect.objectContaining({
+          source: "COURSE",
+          hasEvidence: true,
+          evidenceNote: "Attached the completion letter.",
+          reviewNote: "The certificate does not name you.",
+          files: [expect.objectContaining({ fileName: "proof.pdf" })],
+        }),
+      ]);
     });
   });
 

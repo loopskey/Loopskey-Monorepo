@@ -51,9 +51,8 @@ export const associationApi = baseApi.injectEndpoints({
         document: API.ResendAssociationActivationDocument,
         variables: { input },
       }),
-      transformResponse: (
-        response: TAPI.ResendAssociationActivationMutation,
-      ) => response.resendAssociationActivation,
+      transformResponse: (response: TAPI.ResendAssociationActivationMutation) =>
+        response.resendAssociationActivation,
     }),
 
     associationMembers: builder.query<
@@ -138,7 +137,11 @@ export const associationApi = baseApi.injectEndpoints({
       }),
       transformResponse: (response: TAPI.UpdateAssociationMemberMutation) =>
         response.updateAssociationMember,
-      invalidatesTags: ["AssociationMembers", "AssociationGroups"],
+      invalidatesTags: [
+        "AssociationMembers",
+        "AssociationGroups",
+        "AssociationMemberProfile",
+      ],
     }),
 
     setAssociationMemberStatus: builder.mutation<
@@ -151,7 +154,11 @@ export const associationApi = baseApi.injectEndpoints({
       }),
       transformResponse: (response: TAPI.SetAssociationMemberStatusMutation) =>
         response.setAssociationMemberStatus,
-      invalidatesTags: ["AssociationMembers", "AssociationMemberStats"],
+      invalidatesTags: [
+        "AssociationMembers",
+        "AssociationMemberStats",
+        "AssociationMemberProfile",
+      ],
     }),
 
     resendAssociationMemberInvitation: builder.mutation<
@@ -194,6 +201,81 @@ export const associationApi = baseApi.injectEndpoints({
       invalidatesTags: ["AssociationGroups", "AssociationMembers"],
     }),
 
+    associationMemberProfile: builder.query<
+      TAPI.AssociationMemberProfileQuery["associationMemberProfile"],
+      TAPI.AssociationMemberProfileQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.AssociationMemberProfileDocument,
+        variables,
+      }),
+      transformResponse: (response: TAPI.AssociationMemberProfileQuery) =>
+        response.associationMemberProfile,
+      providesTags: ["AssociationMemberProfile"],
+    }),
+
+    associationMemberActivities: builder.query<
+      TAPI.AssociationMemberActivitiesQuery["associationMemberActivities"],
+      TAPI.AssociationMemberActivitiesQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.AssociationMemberActivitiesDocument,
+        variables,
+      }),
+      transformResponse: (response: TAPI.AssociationMemberActivitiesQuery) =>
+        response.associationMemberActivities,
+      providesTags: ["AssociationMemberActivities"],
+    }),
+
+    associationMemberRequirementOptions: builder.query<
+      TAPI.AssociationMemberRequirementOptionsQuery["associationMemberRequirementOptions"],
+      TAPI.AssociationMemberRequirementOptionsQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.AssociationMemberRequirementOptionsDocument,
+        variables,
+      }),
+      transformResponse: (
+        response: TAPI.AssociationMemberRequirementOptionsQuery,
+      ) => response.associationMemberRequirementOptions,
+      providesTags: ["AssociationMemberProfile"],
+    }),
+
+    reviewAssociationLearningActivity: builder.mutation<
+      TAPI.ReviewAssociationLearningActivityMutation["reviewAssociationLearningActivity"],
+      TAPI.ReviewAssociationLearningActivityMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.ReviewAssociationLearningActivityDocument,
+        variables: { input },
+      }),
+      transformResponse: (
+        response: TAPI.ReviewAssociationLearningActivityMutation,
+      ) => response.reviewAssociationLearningActivity,
+      invalidatesTags: [
+        "AssociationMemberProfile",
+        "AssociationMemberActivities",
+        "AssociationMembers",
+      ],
+    }),
+
+    setAssociationMemberRequirements: builder.mutation<
+      TAPI.SetAssociationMemberRequirementsMutation["setAssociationMemberRequirements"],
+      TAPI.SetAssociationMemberRequirementsMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.SetAssociationMemberRequirementsDocument,
+        variables: { input },
+      }),
+      transformResponse: (
+        response: TAPI.SetAssociationMemberRequirementsMutation,
+      ) => response.setAssociationMemberRequirements,
+      invalidatesTags: [
+        "AssociationMemberProfile",
+        "AssociationMemberActivities",
+      ],
+    }),
+
     setAssociationGroupActive: builder.mutation<
       TAPI.SetAssociationGroupActiveMutation["setAssociationGroupActive"],
       TAPI.SetAssociationGroupActiveMutationVariables["input"]
@@ -214,6 +296,11 @@ export const {
   useAssociationGroupsQuery,
   useAssociationMembersQuery,
   useAssociationMemberStatsQuery,
+  useAssociationMemberProfileQuery,
+  useAssociationMemberActivitiesQuery,
+  useAssociationMemberRequirementOptionsQuery,
+  useReviewAssociationLearningActivityMutation,
+  useSetAssociationMemberRequirementsMutation,
   useUpdateAssociationProfileMutation,
   useCreateAssociationAccountMutation,
   useResendAssociationActivationMutation,

@@ -110,6 +110,51 @@ export type SetAssociationGroupActiveMutationVariables = Types.Exact<{
 
 export type SetAssociationGroupActiveMutation = { __typename?: 'Mutation', setAssociationGroupActive: { __typename?: 'AssociationGroup', id: string, title: string, description?: string | null, isActive: boolean, memberCount: number, createdAt: string, updatedAt: string } };
 
+export type AssociationCategoryProgressFieldsFragment = { __typename?: 'AssociationCategoryProgress', id: string, name: string, percent: number, requiredCredits: number, completedCredits: number };
+
+export type AssociationAssignmentProgressFieldsFragment = { __typename?: 'AssociationAssignmentProgress', id: string, requirementId: string, requirementName: string, creditType: Types.CreditType, evidencePolicy: Types.AssociationEvidencePolicy, requiredCredits: number, completedCredits: number, percent: number, band: Types.AssociationComplianceBand, cycleStart: string, cycleEnd?: string | null, dueDate?: string | null, daysRemaining?: number | null, awaitingReviewCount: number, isMissingEvidence: boolean, computedAt?: string | null, categories: Array<{ __typename?: 'AssociationCategoryProgress', id: string, name: string, percent: number, requiredCredits: number, completedCredits: number }> };
+
+export type AssociationEvidenceFileFieldsFragment = { __typename?: 'AssociationEvidenceFile', id: string, fileName: string, mimeType: string, sizeBytes: number };
+
+export type AssociationMemberActivityFieldsFragment = { __typename?: 'AssociationMemberActivity', id: string, memberId: string, title: string, source: Types.PduSource, category: Types.PduCategory, creditType: Types.CreditType, credits: number, date: string, state: Types.AssociationAttributionState, isLate: boolean, canReview: boolean, hasEvidence: boolean, evidenceNote?: string | null, evidenceUrl?: string | null, reviewNote?: string | null, files: Array<{ __typename?: 'AssociationEvidenceFile', id: string, fileName: string, mimeType: string, sizeBytes: number }>, requirements: Array<{ __typename?: 'AssociationActivityRequirement', id: string, name: string, canReview: boolean, creditedAmount: number }> };
+
+export type AssociationMemberProfileQueryVariables = Types.Exact<{
+  memberId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type AssociationMemberProfileQuery = { __typename?: 'Query', associationMemberProfile: { __typename?: 'AssociationMemberProfile', isMissingEvidence: boolean, member: { __typename?: 'AssociationMember', id: string, userId: string, fullName?: string | null, email?: string | null, avatarUrl?: string | null, memberNumber?: string | null, notes?: string | null, status: Types.AssociationMemberStatus, invitedAt: string, activatedAt?: string | null, deactivatedAt?: string | null, group?: { __typename?: 'AssociationMemberGroup', id: string, title: string, isActive: boolean } | null }, summary: { __typename?: 'AssociationMemberSummary', percent: number, band: Types.AssociationComplianceBand, creditsRequired: number, creditsCompleted: number, creditsRemaining: number, awaitingReviewCount: number, nearestDueDate?: string | null, nearestDueDays?: number | null, nearestRequirementId?: string | null, nearestRequirementName?: string | null, pacePercent?: number | null }, assignments: Array<{ __typename?: 'AssociationAssignmentProgress', id: string, requirementId: string, requirementName: string, creditType: Types.CreditType, evidencePolicy: Types.AssociationEvidencePolicy, requiredCredits: number, completedCredits: number, percent: number, band: Types.AssociationComplianceBand, cycleStart: string, cycleEnd?: string | null, dueDate?: string | null, daysRemaining?: number | null, awaitingReviewCount: number, isMissingEvidence: boolean, computedAt?: string | null, categories: Array<{ __typename?: 'AssociationCategoryProgress', id: string, name: string, percent: number, requiredCredits: number, completedCredits: number }> }>, cumulative: Array<{ __typename?: 'AssociationCumulativePoint', date: string, credits: number, requiredCredits: number }>, certificates: Array<{ __typename?: 'AssociationMemberCertificate', id: string, memberId: string, title: string, issuer?: string | null, issuedAt: string, validUntil?: string | null, status: Types.CertificateStatus, creditsEarned: number, files: Array<{ __typename?: 'AssociationEvidenceFile', id: string, fileName: string, mimeType: string, sizeBytes: number }> }> } };
+
+export type AssociationMemberActivitiesQueryVariables = Types.Exact<{
+  memberId: Types.Scalars['ID']['input'];
+  filter?: Types.InputMaybe<Types.AssociationMemberActivityFilterInput>;
+  pagination?: Types.InputMaybe<Types.AssociationPaginationInput>;
+}>;
+
+
+export type AssociationMemberActivitiesQuery = { __typename?: 'Query', associationMemberActivities: { __typename?: 'PaginatedAssociationMemberActivities', totalCount: number, counts: { __typename?: 'AssociationActivityCounts', counted: number, rejected: number, awaitingReview: number }, pageInfo: { __typename?: 'AssociationPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'AssociationMemberActivity', id: string, memberId: string, title: string, source: Types.PduSource, category: Types.PduCategory, creditType: Types.CreditType, credits: number, date: string, state: Types.AssociationAttributionState, isLate: boolean, canReview: boolean, hasEvidence: boolean, evidenceNote?: string | null, evidenceUrl?: string | null, reviewNote?: string | null, files: Array<{ __typename?: 'AssociationEvidenceFile', id: string, fileName: string, mimeType: string, sizeBytes: number }>, requirements: Array<{ __typename?: 'AssociationActivityRequirement', id: string, name: string, canReview: boolean, creditedAmount: number }> }> } };
+
+export type AssociationMemberRequirementOptionsQueryVariables = Types.Exact<{
+  memberId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type AssociationMemberRequirementOptionsQuery = { __typename?: 'Query', associationMemberRequirementOptions: Array<{ __typename?: 'AssociationMemberRequirementOption', id: string, name: string, deadline?: string | null, creditType: Types.CreditType, audienceKind: Types.AssociationAudienceKind, isAssigned: boolean, isMemberManaged: boolean, totalRequiredCredits: number }> };
+
+export type ReviewAssociationLearningActivityMutationVariables = Types.Exact<{
+  input: Types.ReviewAssociationLearningActivityInput;
+}>;
+
+
+export type ReviewAssociationLearningActivityMutation = { __typename?: 'Mutation', reviewAssociationLearningActivity: { __typename?: 'AssociationReviewResult', approved: boolean, memberId: string, activityId: string, requirementId: string } };
+
+export type SetAssociationMemberRequirementsMutationVariables = Types.Exact<{
+  input: Types.SetAssociationMemberRequirementsInput;
+}>;
+
+
+export type SetAssociationMemberRequirementsMutation = { __typename?: 'Mutation', setAssociationMemberRequirements: { __typename?: 'AssociationMemberRequirementsResult', memberId: string, added: number, removed: number } };
+
 export const AssociationSettingsFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
     fragment AssociationSettingsFields on AssociationSettings {
   id
@@ -196,6 +241,85 @@ export const AssociationGroupFieldsFragmentDoc = /*#__PURE__*/ new TypedDocument
   updatedAt
 }
     `, {"fragmentName":"AssociationGroupFields"}) as unknown as TypedDocumentString<AssociationGroupFieldsFragment, unknown>;
+export const AssociationCategoryProgressFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
+    fragment AssociationCategoryProgressFields on AssociationCategoryProgress {
+  id
+  name
+  percent
+  requiredCredits
+  completedCredits
+}
+    `, {"fragmentName":"AssociationCategoryProgressFields"}) as unknown as TypedDocumentString<AssociationCategoryProgressFieldsFragment, unknown>;
+export const AssociationAssignmentProgressFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
+    fragment AssociationAssignmentProgressFields on AssociationAssignmentProgress {
+  id
+  requirementId
+  requirementName
+  creditType
+  evidencePolicy
+  requiredCredits
+  completedCredits
+  percent
+  band
+  cycleStart
+  cycleEnd
+  dueDate
+  daysRemaining
+  awaitingReviewCount
+  isMissingEvidence
+  computedAt
+  categories {
+    ...AssociationCategoryProgressFields
+  }
+}
+    fragment AssociationCategoryProgressFields on AssociationCategoryProgress {
+  id
+  name
+  percent
+  requiredCredits
+  completedCredits
+}`, {"fragmentName":"AssociationAssignmentProgressFields"}) as unknown as TypedDocumentString<AssociationAssignmentProgressFieldsFragment, unknown>;
+export const AssociationEvidenceFileFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
+    fragment AssociationEvidenceFileFields on AssociationEvidenceFile {
+  id
+  fileName
+  mimeType
+  sizeBytes
+}
+    `, {"fragmentName":"AssociationEvidenceFileFields"}) as unknown as TypedDocumentString<AssociationEvidenceFileFieldsFragment, unknown>;
+export const AssociationMemberActivityFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
+    fragment AssociationMemberActivityFields on AssociationMemberActivity {
+  id
+  memberId
+  title
+  source
+  category
+  creditType
+  credits
+  date
+  state
+  isLate
+  canReview
+  hasEvidence
+  evidenceNote
+  evidenceUrl
+  reviewNote
+  files {
+    ...AssociationEvidenceFileFields
+  }
+  requirements {
+    id
+    name
+    canReview
+    creditedAmount
+  }
+}
+    fragment AssociationEvidenceFileFields on AssociationEvidenceFile {
+  id
+  fileName
+  mimeType
+  sizeBytes
+}`, {"fragmentName":"AssociationMemberActivityFields"}) as unknown as TypedDocumentString<AssociationMemberActivityFieldsFragment, unknown>;
 export const AssociationProfileDocument = /*#__PURE__*/ new TypedDocumentString(`
     query AssociationProfile {
   associationProfile {
@@ -548,3 +672,188 @@ export const SetAssociationGroupActiveDocument = /*#__PURE__*/ new TypedDocument
   createdAt
   updatedAt
 }`) as unknown as TypedDocumentString<SetAssociationGroupActiveMutation, SetAssociationGroupActiveMutationVariables>;
+export const AssociationMemberProfileDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query AssociationMemberProfile($memberId: ID!) {
+  associationMemberProfile(memberId: $memberId) {
+    isMissingEvidence
+    member {
+      ...AssociationMemberFields
+    }
+    summary {
+      percent
+      band
+      creditsRequired
+      creditsCompleted
+      creditsRemaining
+      awaitingReviewCount
+      nearestDueDate
+      nearestDueDays
+      nearestRequirementId
+      nearestRequirementName
+      pacePercent
+    }
+    assignments {
+      ...AssociationAssignmentProgressFields
+    }
+    cumulative {
+      date
+      credits
+      requiredCredits
+    }
+    certificates {
+      id
+      memberId
+      title
+      issuer
+      issuedAt
+      validUntil
+      status
+      creditsEarned
+      files {
+        ...AssociationEvidenceFileFields
+      }
+    }
+  }
+}
+    fragment AssociationMemberGroupFields on AssociationMemberGroup {
+  id
+  title
+  isActive
+}
+fragment AssociationMemberFields on AssociationMember {
+  id
+  userId
+  fullName
+  email
+  avatarUrl
+  memberNumber
+  notes
+  status
+  invitedAt
+  activatedAt
+  deactivatedAt
+  group {
+    ...AssociationMemberGroupFields
+  }
+}
+fragment AssociationCategoryProgressFields on AssociationCategoryProgress {
+  id
+  name
+  percent
+  requiredCredits
+  completedCredits
+}
+fragment AssociationAssignmentProgressFields on AssociationAssignmentProgress {
+  id
+  requirementId
+  requirementName
+  creditType
+  evidencePolicy
+  requiredCredits
+  completedCredits
+  percent
+  band
+  cycleStart
+  cycleEnd
+  dueDate
+  daysRemaining
+  awaitingReviewCount
+  isMissingEvidence
+  computedAt
+  categories {
+    ...AssociationCategoryProgressFields
+  }
+}
+fragment AssociationEvidenceFileFields on AssociationEvidenceFile {
+  id
+  fileName
+  mimeType
+  sizeBytes
+}`) as unknown as TypedDocumentString<AssociationMemberProfileQuery, AssociationMemberProfileQueryVariables>;
+export const AssociationMemberActivitiesDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query AssociationMemberActivities($memberId: ID!, $filter: AssociationMemberActivityFilterInput, $pagination: AssociationPaginationInput) {
+  associationMemberActivities(
+    memberId: $memberId
+    filter: $filter
+    pagination: $pagination
+  ) {
+    totalCount
+    counts {
+      counted
+      rejected
+      awaitingReview
+    }
+    pageInfo {
+      hasNextPage
+      nextCursor
+    }
+    items {
+      ...AssociationMemberActivityFields
+    }
+  }
+}
+    fragment AssociationEvidenceFileFields on AssociationEvidenceFile {
+  id
+  fileName
+  mimeType
+  sizeBytes
+}
+fragment AssociationMemberActivityFields on AssociationMemberActivity {
+  id
+  memberId
+  title
+  source
+  category
+  creditType
+  credits
+  date
+  state
+  isLate
+  canReview
+  hasEvidence
+  evidenceNote
+  evidenceUrl
+  reviewNote
+  files {
+    ...AssociationEvidenceFileFields
+  }
+  requirements {
+    id
+    name
+    canReview
+    creditedAmount
+  }
+}`) as unknown as TypedDocumentString<AssociationMemberActivitiesQuery, AssociationMemberActivitiesQueryVariables>;
+export const AssociationMemberRequirementOptionsDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query AssociationMemberRequirementOptions($memberId: ID!) {
+  associationMemberRequirementOptions(memberId: $memberId) {
+    id
+    name
+    deadline
+    creditType
+    audienceKind
+    isAssigned
+    isMemberManaged
+    totalRequiredCredits
+  }
+}
+    `) as unknown as TypedDocumentString<AssociationMemberRequirementOptionsQuery, AssociationMemberRequirementOptionsQueryVariables>;
+export const ReviewAssociationLearningActivityDocument = /*#__PURE__*/ new TypedDocumentString(`
+    mutation ReviewAssociationLearningActivity($input: ReviewAssociationLearningActivityInput!) {
+  reviewAssociationLearningActivity(input: $input) {
+    approved
+    memberId
+    activityId
+    requirementId
+  }
+}
+    `) as unknown as TypedDocumentString<ReviewAssociationLearningActivityMutation, ReviewAssociationLearningActivityMutationVariables>;
+export const SetAssociationMemberRequirementsDocument = /*#__PURE__*/ new TypedDocumentString(`
+    mutation SetAssociationMemberRequirements($input: SetAssociationMemberRequirementsInput!) {
+  setAssociationMemberRequirements(input: $input) {
+    memberId
+    added
+    removed
+  }
+}
+    `) as unknown as TypedDocumentString<SetAssociationMemberRequirementsMutation, SetAssociationMemberRequirementsMutationVariables>;

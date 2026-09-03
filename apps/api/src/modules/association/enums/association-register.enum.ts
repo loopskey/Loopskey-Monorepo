@@ -1,3 +1,4 @@
+import { AssociationAttributionState } from "@prisma/client";
 import { AssociationRequirementStatus } from "@prisma/client";
 import { AssociationComplianceBand } from "@prisma/client";
 import { AssociationReportingCycle } from "@prisma/client";
@@ -47,4 +48,10 @@ registerEnumType(AssociationEvidencePolicy, {
 registerEnumType(AssociationComplianceBand, {
   name: "AssociationComplianceBand",
   description: "How far a member has got against what was required of them",
+});
+
+registerEnumType(AssociationAttributionState, {
+  name: "AssociationAttributionState",
+  description:
+    "Whether one activity counted toward a requirement, waits on a decision, or was rejected",
 });

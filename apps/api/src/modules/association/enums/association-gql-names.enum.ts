@@ -24,6 +24,17 @@ export enum AssociationGqlObjectNames {
   ASSOCIATION_COMPLIANCE_SUMMARY = "AssociationComplianceSummary",
   ASSOCIATION_PENDING_REVIEW = "AssociationPendingReview",
   ASSOCIATION_REVIEW_RESULT = "AssociationReviewResult",
+  ASSOCIATION_EVIDENCE_FILE = "AssociationEvidenceFile",
+  ASSOCIATION_MEMBER_PROFILE = "AssociationMemberProfile",
+  ASSOCIATION_MEMBER_SUMMARY = "AssociationMemberSummary",
+  ASSOCIATION_CUMULATIVE_POINT = "AssociationCumulativePoint",
+  ASSOCIATION_MEMBER_ACTIVITY = "AssociationMemberActivity",
+  ASSOCIATION_ACTIVITY_COUNTS = "AssociationActivityCounts",
+  ASSOCIATION_MEMBER_CERTIFICATE = "AssociationMemberCertificate",
+  ASSOCIATION_ACTIVITY_REQUIREMENT = "AssociationActivityRequirement",
+  ASSOCIATION_MEMBER_REQUIREMENT_OPTION = "AssociationMemberRequirementOption",
+  ASSOCIATION_MEMBER_REQUIREMENTS_RESULT = "AssociationMemberRequirementsResult",
+  PAGINATED_ASSOCIATION_MEMBER_ACTIVITIES = "PaginatedAssociationMemberActivities",
 }
 
 export enum AssociationGqlInputNames {
@@ -52,6 +63,8 @@ export enum AssociationGqlInputNames {
   ASSOCIATION_REQUIREMENT_ID = "AssociationRequirementIdInput",
   ASSOCIATION_COMPLIANCE_FILTER = "AssociationComplianceFilterInput",
   REVIEW_ASSOCIATION_LEARNING_ACTIVITY = "ReviewAssociationLearningActivityInput",
+  ASSOCIATION_MEMBER_ACTIVITY_FILTER = "AssociationMemberActivityFilterInput",
+  SET_ASSOCIATION_MEMBER_REQUIREMENTS = "SetAssociationMemberRequirementsInput",
 }
 
 export enum AssociationGqlQueryNames {
@@ -65,6 +78,9 @@ export enum AssociationGqlQueryNames {
   MEMBER_COMPLIANCE_LIST = "associationMemberComplianceList",
   PENDING_REVIEWS = "associationPendingReviews",
   REQUIREMENT_STATS = "associationRequirementStats",
+  MEMBER_PROFILE = "associationMemberProfile",
+  MEMBER_ACTIVITIES = "associationMemberActivities",
+  MEMBER_REQUIREMENT_OPTIONS = "associationMemberRequirementOptions",
 }
 
 export enum AssociationGqlMutationNames {
@@ -89,4 +105,5 @@ export enum AssociationGqlMutationNames {
   ARCHIVE_REQUIREMENT = "archiveAssociationRequirement",
   REVIEW_LEARNING_ACTIVITY = "reviewAssociationLearningActivity",
   RECOMPUTE_COMPLIANCE = "recomputeAssociationCompliance",
+  SET_MEMBER_REQUIREMENTS = "setAssociationMemberRequirements",
 }

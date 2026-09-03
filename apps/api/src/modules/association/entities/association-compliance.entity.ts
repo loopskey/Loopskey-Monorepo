@@ -1,6 +1,7 @@
-import { AssociationGqlObjectNames } from "@association/enums/association-gql-names.enum";
 import { Field, Float, ID, Int, ObjectType } from "@nestjs/graphql";
+import { AssociationGqlObjectNames } from "@association/enums/association-gql-names.enum";
 import { AssociationComplianceBand } from "@prisma/client";
+import { AssociationEvidencePolicy } from "@prisma/client";
 import { CreditType, PDUCategory } from "@prisma/client";
 
 @ObjectType(AssociationGqlObjectNames.ASSOCIATION_CATEGORY_PROGRESS)
@@ -14,6 +15,7 @@ export class AssociationCategoryProgressEntity {
 
 @ObjectType(AssociationGqlObjectNames.ASSOCIATION_ASSIGNMENT_PROGRESS)
 export class AssociationAssignmentProgressEntity {
+  @Field() cycleStart: Date;
   @Field(() => ID) id: string;
   @Field() requirementName: string;
   @Field() isMissingEvidence: boolean;
@@ -23,6 +25,9 @@ export class AssociationAssignmentProgressEntity {
   @Field(() => Float) completedCredits: number;
   @Field(() => Int) awaitingReviewCount: number;
   @Field(() => CreditType) creditType: CreditType;
+  @Field(() => Date, { nullable: true }) cycleEnd: Date | null;
+  @Field(() => AssociationEvidencePolicy)
+  evidencePolicy: AssociationEvidencePolicy;
   @Field(() => Date, { nullable: true }) dueDate: Date | null;
   @Field(() => Date, { nullable: true }) computedAt: Date | null;
   @Field(() => Int, { nullable: true }) daysRemaining: number | null;

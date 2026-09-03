@@ -193,3 +193,171 @@ mutation SetAssociationGroupActive($input: SetAssociationGroupActiveInput!) {
     ...AssociationGroupFields
   }
 }
+
+# ================= Member detail and evidence review =================
+fragment AssociationCategoryProgressFields on AssociationCategoryProgress {
+  id
+  name
+  percent
+  requiredCredits
+  completedCredits
+}
+
+fragment AssociationAssignmentProgressFields on AssociationAssignmentProgress {
+  id
+  requirementId
+  requirementName
+  creditType
+  evidencePolicy
+  requiredCredits
+  completedCredits
+  percent
+  band
+  cycleStart
+  cycleEnd
+  dueDate
+  daysRemaining
+  awaitingReviewCount
+  isMissingEvidence
+  computedAt
+  categories {
+    ...AssociationCategoryProgressFields
+  }
+}
+
+fragment AssociationEvidenceFileFields on AssociationEvidenceFile {
+  id
+  fileName
+  mimeType
+  sizeBytes
+}
+
+fragment AssociationMemberActivityFields on AssociationMemberActivity {
+  id
+  memberId
+  title
+  source
+  category
+  creditType
+  credits
+  date
+  state
+  isLate
+  canReview
+  hasEvidence
+  evidenceNote
+  evidenceUrl
+  reviewNote
+  files {
+    ...AssociationEvidenceFileFields
+  }
+  requirements {
+    id
+    name
+    canReview
+    creditedAmount
+  }
+}
+
+query AssociationMemberProfile($memberId: ID!) {
+  associationMemberProfile(memberId: $memberId) {
+    isMissingEvidence
+    member {
+      ...AssociationMemberFields
+    }
+    summary {
+      percent
+      band
+      creditsRequired
+      creditsCompleted
+      creditsRemaining
+      awaitingReviewCount
+      nearestDueDate
+      nearestDueDays
+      nearestRequirementId
+      nearestRequirementName
+      pacePercent
+    }
+    assignments {
+      ...AssociationAssignmentProgressFields
+    }
+    cumulative {
+      date
+      credits
+      requiredCredits
+    }
+    certificates {
+      id
+      memberId
+      title
+      issuer
+      issuedAt
+      validUntil
+      status
+      creditsEarned
+      files {
+        ...AssociationEvidenceFileFields
+      }
+    }
+  }
+}
+
+query AssociationMemberActivities(
+  $memberId: ID!
+  $filter: AssociationMemberActivityFilterInput
+  $pagination: AssociationPaginationInput
+) {
+  associationMemberActivities(
+    memberId: $memberId
+    filter: $filter
+    pagination: $pagination
+  ) {
+    totalCount
+    counts {
+      counted
+      rejected
+      awaitingReview
+    }
+    pageInfo {
+      hasNextPage
+      nextCursor
+    }
+    items {
+      ...AssociationMemberActivityFields
+    }
+  }
+}
+
+query AssociationMemberRequirementOptions($memberId: ID!) {
+  associationMemberRequirementOptions(memberId: $memberId) {
+    id
+    name
+    deadline
+    creditType
+    audienceKind
+    isAssigned
+    isMemberManaged
+    totalRequiredCredits
+  }
+}
+
+mutation ReviewAssociationLearningActivity(
+  $input: ReviewAssociationLearningActivityInput!
+) {
+  reviewAssociationLearningActivity(input: $input) {
+    approved
+    memberId
+    activityId
+    requirementId
+  }
+}
+
+mutation SetAssociationMemberRequirements(
+  $input: SetAssociationMemberRequirementsInput!
+) {
+  setAssociationMemberRequirements(input: $input) {
+    memberId
+    added
+    removed
+  }
+}

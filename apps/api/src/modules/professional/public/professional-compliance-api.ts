@@ -20,6 +20,39 @@ export type ComplianceActivityQuery = {
   from?: Date | null;
 };
 
+export type ComplianceFileDescriptor = {
+  id: string;
+  fileName: string;
+  mimeType: string;
+  sizeBytes: number;
+};
+
+export type ComplianceActivityDetail = ComplianceActivity & {
+  source: string;
+  evidenceNote: string | null;
+  evidenceUrl: string | null;
+  reviewNote: string | null;
+  files: ComplianceFileDescriptor[];
+};
+
+export type ComplianceCertificate = {
+  id: string;
+  userId: string;
+  title: string;
+  status: string;
+  issuer: string | null;
+  issuedAt: Date;
+  validUntil: Date | null;
+  creditsEarned: number;
+  files: ComplianceFileDescriptor[];
+};
+
+export type ComplianceStoredFile = {
+  file: ComplianceFileDescriptor;
+  filePath: string;
+  sourceId: string;
+};
+
 export type SettleReviewCommand = {
   approve: boolean;
   activityId: string;
@@ -36,6 +69,25 @@ export interface ProfessionalComplianceApi {
     activityId: string,
     ownerUserIds: string[],
   ): Promise<ComplianceActivity | null>;
+
+  activityDetailsForOwners(
+    activityIds: string[],
+    ownerUserIds: string[],
+  ): Promise<ComplianceActivityDetail[]>;
+
+  certificatesForOwners(
+    ownerUserIds: string[],
+  ): Promise<ComplianceCertificate[]>;
+
+  evidenceFileForOwners(
+    fileId: string,
+    ownerUserIds: string[],
+  ): Promise<ComplianceStoredFile | null>;
+
+  certificateFileForOwners(
+    fileId: string,
+    ownerUserIds: string[],
+  ): Promise<ComplianceStoredFile | null>;
 
   settleReview(command: SettleReviewCommand): Promise<boolean>;
 }

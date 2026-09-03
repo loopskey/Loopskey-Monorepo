@@ -217,3 +217,51 @@ export const daysRemaining = (
   if (!dueDate) return null;
   return Math.ceil((dueDate.getTime() - now.getTime()) / DAY_MS);
 };
+
+export type OverallInput = {
+  onTrackThreshold: number;
+  assignments: { percent: number; awaitingReviewCount: number }[];
+};
+
+export type Overall = {
+  percent: number;
+  awaitingReviewCount: number;
+  band: AssociationComplianceBand;
+};
+
+export const overallFor = ({
+  assignments,
+  onTrackThreshold,
+}: OverallInput): Overall => {
+  const awaitingReviewCount = assignments.reduce(
+    (total, assignment) => total + assignment.awaitingReviewCount,
+    0,
+  );
+
+  const percent = assignments.length
+    ? assignments.reduce(
+        (total, assignment) => total + Math.min(assignment.percent, 100),
+        0,
+      ) / assignments.length
+    : 0;
+
+  return {
+    percent,
+    awaitingReviewCount,
+    band: bandFor({ percent, awaitingReviewCount, onTrackThreshold }),
+  };
+};
+
+export const paceFor = (
+  cycleStart: Date | null,
+  dueDate: Date | null,
+  now: Date,
+): number | null => {
+  if (!cycleStart || !dueDate) return null;
+
+  const span = dueDate.getTime() - cycleStart.getTime();
+  if (span <= 0) return 100;
+
+  const elapsed = now.getTime() - cycleStart.getTime();
+  return Math.min(100, Math.max(0, (elapsed / span) * 100));
+};

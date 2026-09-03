@@ -8,9 +8,11 @@ import { AssociationMessageCode } from "@association/enums/association-message-c
 import { TAssociationUser } from "@association/types/association-service.types";
 import { daysRemaining } from "@association/utils/compliance-attribution.util";
 import { PrismaService } from "@prisma/prisma.service";
-import { bandFor } from "@association/utils/compliance-attribution.util";
+import { overallFor } from "@association/utils/compliance-attribution.util";
 
 const PENDING_REVIEW_LIMIT = 200;
+
+const DEFAULT_ON_TRACK_THRESHOLD = 70;
 
 export type ComplianceFilter = {
   groupId?: string;
@@ -53,7 +55,10 @@ export class AssociationComplianceReadService {
       await this.prisma.associationRequirementAssignment.findMany({
         where: {
           memberId: member.id,
-          requirement: { associationId: association.id },
+          requirement: {
+            associationId: association.id,
+            status: AssociationRequirementStatus.PUBLISHED,
+          },
         },
         include: {
           requirement: {
@@ -61,6 +66,7 @@ export class AssociationComplianceReadService {
               id: true,
               name: true,
               creditType: true,
+              evidencePolicy: true,
               totalRequiredCredits: true,
               status: true,
               categories: {
@@ -91,9 +97,12 @@ export class AssociationComplianceReadService {
       ),
       assignments: assignments.map((assignment) => ({
         id: assignment.id,
+        cycleStart: assignment.cycleStart,
+        cycleEnd: assignment.cycleEnd,
         requirementId: assignment.requirement.id,
         requirementName: assignment.requirement.name,
         creditType: assignment.requirement.creditType,
+        evidencePolicy: assignment.requirement.evidencePolicy,
         requiredCredits: assignment.requirement.totalRequiredCredits,
         completedCredits: assignment.completedCredits,
         percent: assignment.percent,
@@ -182,27 +191,24 @@ export class AssociationComplianceReadService {
       string,
       {
         memberId: string;
-        percentSum: number;
-        assignments: number;
-        awaitingReviewCount: number;
         isMissingEvidence: boolean;
         computedAt: Date | null;
+        assignments: { percent: number; awaitingReviewCount: number }[];
       }
     >();
 
     for (const assignment of assignments) {
       const current = byMember.get(assignment.memberId) ?? {
         memberId: assignment.memberId,
-        percentSum: 0,
-        assignments: 0,
-        awaitingReviewCount: 0,
         isMissingEvidence: false,
         computedAt: null as Date | null,
+        assignments: [] as { percent: number; awaitingReviewCount: number }[],
       };
 
-      current.percentSum += Math.min(assignment.percent, 100);
-      current.assignments += 1;
-      current.awaitingReviewCount += assignment.awaitingReviewCount;
+      current.assignments.push({
+        percent: assignment.percent,
+        awaitingReviewCount: assignment.awaitingReviewCount,
+      });
       current.isMissingEvidence ||= assignment.isMissingEvidence;
       current.computedAt =
         !current.computedAt ||
@@ -214,28 +220,23 @@ export class AssociationComplianceReadService {
       byMember.set(assignment.memberId, current);
     }
 
-    const thresholds = await this.prisma.associationSettings.findUnique({
-      where: { associationId: association.id },
+    const onTrackThreshold = await this.onTrackThreshold(association.id);
+
+    return [...byMember.values()].map((row) => ({
+      memberId: row.memberId,
+      isMissingEvidence: row.isMissingEvidence,
+      computedAt: row.computedAt,
+      ...overallFor({ assignments: row.assignments, onTrackThreshold }),
+    }));
+  }
+
+  async onTrackThreshold(associationId: string) {
+    const settings = await this.prisma.associationSettings.findUnique({
+      where: { associationId },
       select: { onTrackThreshold: true },
     });
 
-    const onTrackThreshold = thresholds?.onTrackThreshold ?? 70;
-
-    return [...byMember.values()].map((row) => {
-      const percent = row.assignments ? row.percentSum / row.assignments : 0;
-      return {
-        memberId: row.memberId,
-        percent,
-        awaitingReviewCount: row.awaitingReviewCount,
-        isMissingEvidence: row.isMissingEvidence,
-        computedAt: row.computedAt,
-        band: bandFor({
-          percent,
-          onTrackThreshold,
-          awaitingReviewCount: row.awaitingReviewCount,
-        }),
-      };
-    });
+    return settings?.onTrackThreshold ?? DEFAULT_ON_TRACK_THRESHOLD;
   }
 
   async pendingReviews(

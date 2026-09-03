@@ -28,6 +28,26 @@ const ASSOCIATION_ERROR_TRANSLATION_KEYS: Partial<
     "associationDashboard.members.errors.invitationCooldown",
   [AssociationMessageCode.ACTIVATION_EMAIL_NOT_SENT]:
     "associationDashboard.members.errors.activationEmailNotSent",
+  [AssociationMessageCode.FILE_NOT_FOUND]:
+    "associationDashboard.memberDetail.errors.fileNotFound",
+  [AssociationMessageCode.FILE_NOT_PERMITTED]:
+    "associationDashboard.memberDetail.errors.fileNotPermitted",
+  [AssociationMessageCode.AUDIENCE_NOT_MEMBER_MANAGED]:
+    "associationDashboard.memberDetail.errors.audienceNotMemberManaged",
+  [AssociationMessageCode.AUDIENCE_EMPTY]:
+    "associationDashboard.memberDetail.errors.audienceEmpty",
+  [AssociationMessageCode.REVIEW_NOT_PERMITTED]:
+    "associationDashboard.memberDetail.errors.reviewNotPermitted",
+  [AssociationMessageCode.ACTIVITY_ALREADY_SETTLED]:
+    "associationDashboard.memberDetail.errors.activityAlreadySettled",
+  [AssociationMessageCode.ACTIVITY_NOT_REVIEWABLE]:
+    "associationDashboard.memberDetail.errors.activityNotReviewable",
+  [AssociationMessageCode.ACTIVITY_NOT_OWNED]:
+    "associationDashboard.memberDetail.errors.activityNotOwned",
+  [AssociationMessageCode.REJECTION_REASON_REQUIRED]:
+    "associationDashboard.memberDetail.errors.rejectionReasonRequired",
+  [AssociationMessageCode.REQUIREMENT_NOT_FOUND]:
+    "associationDashboard.memberDetail.errors.requirementNotFound",
 };
 
 const KNOWN_CODES = new Set<string>(Object.values(AssociationMessageCode));

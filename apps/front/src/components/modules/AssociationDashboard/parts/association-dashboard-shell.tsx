@@ -34,12 +34,25 @@ const AssociationReportsTab = dynamic(
   () => import("@modules/AssociationDashboard/AssociationReportsTab"),
   { loading: () => <DashboardContentSkeleton /> },
 );
+const AssociationMemberDetailView = dynamic(
+  () =>
+    import(
+      "@modules/AssociationDashboard/parts/association-member-detail-view"
+    ),
+  { loading: () => <DashboardContentSkeleton /> },
+);
 
 export const AssociationDashboardShell = () => {
   const searchParams = useSearchParams();
   const activeTab = resolveAssociationTab(searchParams?.get("tab"));
+  const memberId = searchParams?.get("memberId");
 
-  if (activeTab === "members") return <AssociationMembersTab />;
+  if (activeTab === "members")
+    return memberId ? (
+      <AssociationMemberDetailView memberId={memberId} />
+    ) : (
+      <AssociationMembersTab />
+    );
   if (activeTab === "requirements") return <AssociationRequirementsTab />;
   if (activeTab === "learning-content")
     return <AssociationLearningContentTab />;
