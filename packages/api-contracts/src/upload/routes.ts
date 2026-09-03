@@ -24,3 +24,25 @@ export const certificateEvidenceUploadUrl = (
 
 export const certificateEvidenceFileUrl = (origin: string, fileId: string) =>
   join(origin, `${CERTIFICATES_ROUTE}/files/${encodeURIComponent(fileId)}`);
+
+export const ASSOCIATION_MEMBER_FILES_ROUTE = "association/members";
+
+export const associationMemberEvidenceFileUrl = (
+  origin: string,
+  memberId: string,
+  fileId: string,
+) =>
+  join(
+    origin,
+    `${ASSOCIATION_MEMBER_FILES_ROUTE}/${encodeURIComponent(memberId)}/evidence/${encodeURIComponent(fileId)}`,
+  );
+
+export const associationMemberCertificateFileUrl = (
+  origin: string,
+  memberId: string,
+  fileId: string,
+) =>
+  join(
+    origin,
+    `${ASSOCIATION_MEMBER_FILES_ROUTE}/${encodeURIComponent(memberId)}/certificate/${encodeURIComponent(fileId)}`,
+  );

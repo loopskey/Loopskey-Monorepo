@@ -5216,6 +5216,7 @@
       "title": "Members",
       "description": "Everyone who belongs to your association, the groups they sit in, and the invitations still waiting to be accepted.",
       "actions": {
+        "viewDetail": "View member",
         "invite": "Invite member",
         "manageGroups": "Manage groups",
         "backToRoster": "Back to roster",
@@ -5381,6 +5382,171 @@
         "memberStatusConflict": "That member's status changed while you were working. Refresh to see where it stands.",
         "invitationCooldown": "An invitation went out recently. Wait a moment before sending another.",
         "activationEmailNotSent": "The invitation could not be sent. Try again in a moment."
+      }
+    },
+    "memberDetail": {
+      "backToRoster": "Back to the roster",
+      "email": "Email",
+      "noGroup": "No group",
+      "band": {
+        "NOT_STARTED": "Not started",
+        "AT_RISK": "At risk",
+        "ON_TRACK": "On track",
+        "RENEWAL_READY": "Renewal ready"
+      },
+      "state": {
+        "COUNTED": "Approved",
+        "AWAITING_REVIEW": "Under review",
+        "REJECTED": "Rejected"
+      },
+      "evidencePolicy": {
+        "NOT_REQUIRED": "Evidence not required",
+        "REQUIRED_NO_REVIEW": "Evidence required, not reviewed",
+        "REQUIRED_NEEDS_REVIEW": "Evidence required and reviewed by you"
+      },
+      "actions": {
+        "edit": "Edit details",
+        "requirements": "Change requirements"
+      },
+      "confirm": {
+        "deactivateBody": "{{name}} leaves your active counts and stops receiving association email. Their history stays on this page and you can reactivate them at any time."
+      },
+      "cards": {
+        "completed": "Credits completed",
+        "completedNote": "of {{required}} required",
+        "remaining": "Credits remaining",
+        "remainingNote": "across every requirement assigned to them",
+        "deadline": "Days to deadline",
+        "deadlineNote": "{{requirement}}, due {{date}}",
+        "noDeadline": "No deadline",
+        "noDeadlineNote": "No requirement assigned to them carries a date",
+        "days": "{{days}} days",
+        "awaiting": "Awaiting your review",
+        "awaitingNote": "submissions waiting on a decision from you"
+      },
+      "progress": {
+        "title": "Credits over the cycle",
+        "description": "Credits counted toward {{requirement}}, against the pace needed to finish by its deadline.",
+        "noCycle": "Nothing with a deadline is assigned to this member yet.",
+        "emptyTitle": "Nothing counted yet",
+        "emptyBody": "Once this member records learning that falls inside a requirement's window, their line appears here against the pace they need."
+      },
+      "requirements": {
+        "title": "Requirements",
+        "description": "Every requirement assigned to this member, and how far they have got against each one.",
+        "creditLine": "{{completed}} / {{required}} credits ({{percent}}%)",
+        "awaiting": "{{count}} awaiting review",
+        "dueDate": "Due date",
+        "daysRemaining": "Days remaining",
+        "evidencePolicy": "Evidence policy",
+        "noCategories": "This requirement counts credits as a single total rather than by category.",
+        "chartTitle": "Credits by category",
+        "chartEmptyTitle": "No categories to chart",
+        "chartEmptyBody": "None of the requirements assigned to this member splits its total by category.",
+        "emptyTitle": "Nothing is assigned yet",
+        "emptyBody": "This member is not in the audience of any published requirement. Use Change requirements to assign one."
+      },
+      "activities": {
+        "title": "Learning activities",
+        "description": "What this member recorded that counts toward your requirements. Nothing else they logged is shown here.",
+        "filterLabel": "Review state",
+        "filterAll": "All states",
+        "counts": "{{counted}} approved, {{awaiting}} under review, {{rejected}} rejected",
+        "meta": "{{source}} · {{category}} · {{credits}} credits · {{date}}",
+        "counting": "Counts toward: {{requirements}}",
+        "reason": "Reason given: {{reason}}",
+        "late": "Late",
+        "noEvidence": "No evidence",
+        "viewEvidence": "View evidence",
+        "approve": "Approve",
+        "reject": "Reject",
+        "emptyTitle": "Nothing recorded yet",
+        "emptyBody": "This member has recorded no learning that falls inside one of your requirements.",
+        "emptyFiltered": "No activity of this member is in that review state.",
+        "errorTitle": "The activity list could not be loaded."
+      },
+      "evidence": {
+        "title": "Evidence",
+        "description": "What the member attached to this submission.",
+        "note": "Note from the member",
+        "noNote": "The member left no note.",
+        "link": "Evidence link",
+        "noLink": "No link was given.",
+        "files": "Attached files",
+        "noFiles": "No file was attached.",
+        "download": "Download",
+        "downloadFile": "Download {{name}}"
+      },
+      "decision": {
+        "approveTitle": "Approve this submission?",
+        "approveBody": "Its credits count toward every requirement it satisfies, and the member's progress updates immediately.",
+        "rejectTitle": "Reject this submission?",
+        "rejectBody": "The member sees your reason on their own dashboard, so say what would make it acceptable.",
+        "reasonLabel": "Reason"
+      },
+      "edit": {
+        "title": "Edit member details",
+        "description": "Their name can only be corrected before they claim their account; after that it is theirs to change.",
+        "save": "Save changes",
+        "nameLocked": "Their name is theirs to change once they have claimed their account."
+      },
+      "assign": {
+        "title": "Change assigned requirements",
+        "description": "Tick the requirements this member should be held to. A requirement whose audience is everyone or a group is decided on the requirement itself.",
+        "meta": "{{credits}} {{creditType}} credits · due {{deadline}}",
+        "audienceManaged": "Set by audience",
+        "save": "Save assignments",
+        "emptyTitle": "Nothing to assign",
+        "emptyBody": "Publish a requirement first, and it appears here."
+      },
+      "chart": {
+        "gaugeLabel": "Overall completion against everything assigned",
+        "gaugeDescription": "A ring showing how much of everything assigned to this member is complete, with a second ring at the pace needed to meet the nearest deadline.",
+        "gaugeCaption": "Overall completion",
+        "gaugeCompletion": "Completed",
+        "gaugePace": "Pace needed",
+        "categoryChartLabel": "Credits completed against credits required, by category",
+        "categoryChartDescription": "One pair of bars per category: the credits required and the credits completed. A category with no activity is shown at zero rather than left out.",
+        "categoryName": "Category",
+        "categoryRequirement": "Requirement",
+        "categoryCompleted": "Completed",
+        "categoryRequired": "Required",
+        "cumulativeChartLabel": "Credits earned over the cycle against the pace needed",
+        "cumulativeChartDescription": "A line of credits counted to date, and a straight reference line running from the start of the cycle to the required total at the deadline.",
+        "cumulativeDate": "Date",
+        "cumulativeEarned": "Credits earned",
+        "cumulativePace": "Pace needed"
+      },
+      "messages": {
+        "approved": "Approved. The member's progress has been updated.",
+        "rejected": "Rejected. The member can read your reason on their dashboard.",
+        "saved": "Member details saved.",
+        "requirementsChanged": "{{added}} added, {{removed}} removed."
+      },
+      "certificates": {
+        "title": "Certificates",
+        "description": "Certificates this member holds, with the files they attached.",
+        "meta": "{{issuer}} · issued {{issued}} · expires {{expires}} · {{credits}} credits",
+        "noIssuer": "No issuer given",
+        "emptyTitle": "No certificates",
+        "emptyBody": "This member has not recorded a certificate yet."
+      },
+      "error": {
+        "title": "This member could not be loaded.",
+        "body": "The member may have been removed, or the request failed. Try again, or go back to the roster."
+      },
+      "errors": {
+        "fileNotFound": "That file is not available.",
+        "fileNotPermitted": "Only the association itself can download a member's files.",
+        "audienceNotMemberManaged": "That requirement's audience is decided on the requirement, not per member.",
+        "audienceEmpty": "A requirement needs at least one member. Change its audience on the requirement instead.",
+        "reviewNotPermitted": "This requirement does not ask you to review evidence.",
+        "activityAlreadySettled": "That submission has already been decided.",
+        "activityNotReviewable": "That submission is no longer available to review.",
+        "activityNotOwned": "That submission does not belong to one of your members.",
+        "rejectionReasonRequired": "A rejection needs a reason the member can act on.",
+        "requirementNotFound": "That requirement is not published here.",
+        "downloadFailed": "The download failed. Try again."
       }
     },
     "requirements": {

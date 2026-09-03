@@ -1,5 +1,6 @@
 import { ForbiddenException, NotFoundException } from "@nestjs/common";
 import { ProfessionalPduActivityFilterInput } from "@professional/dtos/professional-pdu-activity-filter.input";
+import { LEARNING_ACTIVITY_RECORDED_EVENT } from "@professional/public/professional-compliance-api.events";
 import { PDUCompletionStatus, PDUStatus } from "@prisma/client";
 import { ProfessionalPaginationInput } from "@professional/dtos/professional-pagination.input";
 import { Inject, Injectable, Logger } from "@nestjs/common";
@@ -10,6 +11,7 @@ import { CreatePduActivityInput } from "@professional/dtos/create-pdu-activity.i
 import { UpdatePduActivityInput } from "@professional/dtos/update-pdu-activity.input";
 import { UpsertPduTargetInput } from "@professional/dtos/upsert-pdu-target.input";
 import { EVIDENCE_STORAGE } from "@professional/storage/evidence-storage.port";
+import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { PrismaService } from "@prisma/prisma.service";
 import { TUser } from "@common/types/user.types";
 
@@ -27,8 +29,21 @@ export class ProfessionalPduService {
 
   constructor(
     private readonly prismaService: PrismaService,
+    private readonly outbox: OutboxService,
     @Inject(EVIDENCE_STORAGE) private readonly storage: EvidenceStoragePort,
   ) {}
+
+  private async announceActivity<
+    TActivity extends { id: string; userId: string },
+  >(activity: TActivity): Promise<TActivity> {
+    await this.outbox.append({
+      eventName: LEARNING_ACTIVITY_RECORDED_EVENT,
+      aggregateType: "PDUActivity",
+      aggregateId: activity.id,
+      payload: { activityId: activity.id, userId: activity.userId },
+    });
+    return activity;
+  }
 
   private assertProfessional(user: TUser) {
     if (user.role !== Role.PROFESSIONAL && user.role !== Role.ADMIN)
@@ -245,10 +260,6 @@ export class ProfessionalPduService {
     return this.findOwnedActivity(user, activityId);
   }
 
-  // Summary counts for the "My Learning Activities" header cards. All counts are
-  // scoped to the authenticated user and exclude rejected activities. A completed
-  // activity requires completionStatus COMPLETED; evidence counts are over the
-  // same eligible activities and never double-count a file.
   async pduActivitySummary(user: TUser) {
     this.assertProfessional(user);
     const eligible: Prisma.PDUActivityWhereInput = {
@@ -285,19 +296,6 @@ export class ProfessionalPduService {
     });
   }
 
-  /**
-   * Log a PDU activity.
-   *
-   * Completing the same course twice in two tabs used to leave two activities
-   * claiming the same credit, because the "have I logged this already?" read
-   * and the create that followed it were separate. A content-linked activity is
-   * now one per user per content item by database constraint, and this method
-   * converges on that one row whether it gets there first or second.
-   *
-   * Manually logged activities carry no content link and are deliberately
-   * outside the constraint: a professional may record as many of those as their
-   * record requires.
-   */
   async createPduActivity(user: TUser, input: CreatePduActivityInput) {
     this.assertProfessional(user);
     const { date, contentId, contentType, ...rest } = input;
@@ -309,10 +307,12 @@ export class ProfessionalPduService {
     };
 
     if (!contentId || !contentType)
-      return this.prismaService.pDUActivity.create({
-        data: { userId: user.id, ...data },
-        include: { evidenceFiles: true },
-      });
+      return this.announceActivity(
+        await this.prismaService.pDUActivity.create({
+          data: { userId: user.id, ...data },
+          include: { evidenceFiles: true },
+        }),
+      );
 
     const existing = await this.prismaService.pDUActivity.findFirst({
       where: { userId: user.id, contentType, contentId },
@@ -320,15 +320,14 @@ export class ProfessionalPduService {
     });
     if (existing) return this.updateContentActivity(existing.id, data);
     try {
-      return await this.prismaService.pDUActivity.create({
-        data: { userId: user.id, ...data },
-        include: { evidenceFiles: true },
-      });
+      return await this.announceActivity(
+        await this.prismaService.pDUActivity.create({
+          data: { userId: user.id, ...data },
+          include: { evidenceFiles: true },
+        }),
+      );
     } catch (error) {
       if (!isUniqueViolation(error)) throw error;
-      // A concurrent request logged this content first. Its row is the one
-      // logical activity, so this request updates it rather than reporting a
-      // conflict for something the professional did once.
       this.logger.warn("Recovered a concurrent content-linked PDU activity", {
         userId: user.id,
         contentType,
@@ -342,29 +341,33 @@ export class ProfessionalPduService {
     }
   }
 
-  private updateContentActivity(
+  private async updateContentActivity(
     activityId: string,
     data: Prisma.PDUActivityUncheckedUpdateInput,
   ) {
-    return this.prismaService.pDUActivity.update({
-      where: { id: activityId },
-      data,
-      include: { evidenceFiles: { orderBy: { createdAt: "asc" } } },
-    });
+    return this.announceActivity(
+      await this.prismaService.pDUActivity.update({
+        where: { id: activityId },
+        data,
+        include: { evidenceFiles: { orderBy: { createdAt: "asc" } } },
+      }),
+    );
   }
 
   async updatePduActivity(user: TUser, input: UpdatePduActivityInput) {
     this.assertProfessional(user);
     const { activityId, date, ...rest } = input;
     await this.findOwnedActivity(user, activityId);
-    return this.prismaService.pDUActivity.update({
-      where: { id: activityId },
-      data: {
-        ...rest,
-        ...(date ? { date: new Date(date) } : {}),
-      },
-      include: { evidenceFiles: { orderBy: { createdAt: "asc" } } },
-    });
+    return this.announceActivity(
+      await this.prismaService.pDUActivity.update({
+        where: { id: activityId },
+        data: {
+          ...rest,
+          ...(date ? { date: new Date(date) } : {}),
+        },
+        include: { evidenceFiles: { orderBy: { createdAt: "asc" } } },
+      }),
+    );
   }
 
   async deletePduActivity(user: TUser, activityId: string) {
@@ -372,6 +375,7 @@ export class ProfessionalPduService {
     const activity = await this.findOwnedActivity(user, activityId);
     // The DB cascade removes the file rows; the blobs on disk are ours to clean up.
     await this.prismaService.pDUActivity.delete({ where: { id: activityId } });
+    await this.announceActivity({ id: activityId, userId: activity.userId });
     await this.removeEvidenceBlobs(
       activity.evidenceFiles.map((file) => file.storageKey),
     );

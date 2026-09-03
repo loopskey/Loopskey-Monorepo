@@ -15,6 +15,20 @@ export class IdentityProfileApiService implements IdentityProfileApi {
     });
   }
 
+  async renameUnclaimedUser(userId: string, fullName: string) {
+    const renamed = await this.prisma.user.updateMany({
+      where: {
+        id: userId,
+        deletedAt: null,
+        passwordHash: null,
+        status: UserStatus.PENDING,
+      },
+      data: { fullName: fullName.trim() },
+    });
+
+    return renamed.count === 1;
+  }
+
   async existsByEmail(email: string) {
     return Boolean(
       await this.prisma.user.findUnique({

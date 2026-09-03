@@ -24,3 +24,5 @@ into this index and do not rewrite previous records.
 - [`association-members-groups-invitations`](feature-runs/active/association-members-groups-invitations.md)
 - [`association-members-tab-ui`](feature-runs/active/association-members-tab-ui.md)
 - [`association-requirements-api`](feature-runs/active/association-requirements-api.md)
+- [`association-compliance-projection`](feature-runs/active/association-compliance-projection.md)
+- [`association-member-detail-evidence-review`](feature-runs/active/association-member-detail-evidence-review.md)

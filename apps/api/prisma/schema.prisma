@@ -1395,6 +1395,12 @@ model PDUActivity {
   contentType ContentType?
   contentId   String?
 
+  /// Why an association rejected this submission. Written by the reviewing
+  /// association through the compliance port, read by the member on their own
+  /// dashboard: it is correspondence, which is why it lives with the activity
+  /// the member owns rather than in the association's projection.
+  reviewNote String?
+
   evidenceFiles PDUActivityFile[]
 
   createdAt DateTime @default(now())
@@ -2272,6 +2278,8 @@ enum AuditAction {
   ORGANIZATION_ACCOUNT_ACTIVATED
   ORGANIZATION_ACTIVATION_RESENT
   ORGANIZATION_NOTIFICATION_FAILED
+  ASSOCIATION_ACTIVITY_APPROVED
+  ASSOCIATION_ACTIVITY_REJECTED
 }
 
 model AuditLog {
@@ -2494,6 +2502,8 @@ model AssociationRequirementCategory {
   requiredCredits Float       @default(0)
   order           Int         @default(0)
 
+  attributions AssociationCreditAttribution[]
+
   @@unique([requirementId, name])
   @@unique([requirementId, mappedCategory])
   @@index([requirementId])
@@ -2545,10 +2555,23 @@ model AssociationRequirementAssignment {
 
   isTargeted Boolean @default(true)
 
-  /// Credits recorded against this assignment. Phase 05 owns the computation;
-  /// this phase only reads it to decide whether a de-targeted assignment carries
-  /// history worth keeping.
+  /// Credits recorded against this assignment. Kept in step with the sum of the
+  /// counted attributions below, and read on its own by the phase 03
+  /// materialisation to decide whether a de-targeted assignment carries history
+  /// worth keeping.
   recordedCredits Float @default(0)
+
+  /// Cached projection. Always derivable from the attributions; cached because
+  /// the roster reads it for every member at once. `computedAt` is compared
+  /// before a write so a slow recomputation cannot overwrite a newer one.
+  completedCredits    Float                     @default(0)
+  percent             Float                     @default(0)
+  band                AssociationComplianceBand @default(NOT_STARTED)
+  awaitingReviewCount Int                       @default(0)
+  isMissingEvidence   Boolean                   @default(false)
+  computedAt          DateTime?
+
+  attributions AssociationCreditAttribution[]
 
   assignedAt DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -2557,4 +2580,63 @@ model AssociationRequirementAssignment {
   @@index([memberId])
   @@index([dueDate])
   @@index([requirementId])
+  @@index([band])
+}
+
+/// How far one activity got toward one assignment.
+///
+/// COUNTED credits are in the assignment total. AWAITING_REVIEW is an activity
+/// that would count but for a decision the association has not made yet; it is
+/// what raises the awaiting-review count and the missing-evidence flag.
+/// REJECTED is kept rather than deleted so a member can see why.
+enum AssociationAttributionState {
+  COUNTED
+  AWAITING_REVIEW
+  REJECTED
+}
+
+/// The four bands every association surface reads. RENEWAL_READY additionally
+/// requires every review to be settled, so a member at a hundred percent with a
+/// pending decision is not yet renewal-ready.
+enum AssociationComplianceBand {
+  NOT_STARTED
+  AT_RISK
+  ON_TRACK
+  RENEWAL_READY
+}
+
+/// One learning activity's contribution to one assignment.
+///
+/// `activityId` is a plain string, deliberately not a foreign key. The activity
+/// belongs to the professional module; a constraint between the two would mean
+/// neither module could migrate alone. This row is a projection, so an activity
+/// that disappears leaves an orphan the next recomputation removes rather than
+/// a broken constraint.
+///
+/// The unique index on (assignment, activity) is what makes recomputation
+/// idempotent: running it twice upserts the same row.
+model AssociationCreditAttribution {
+  id String @id @default(cuid())
+
+  assignmentId String
+  assignment   AssociationRequirementAssignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+
+  activityId String
+
+  categoryId String?
+  category   AssociationRequirementCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  creditedAmount Float                       @default(0)
+  activityDate   DateTime
+  isLate         Boolean                     @default(false)
+  state          AssociationAttributionState @default(COUNTED)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([assignmentId, activityId])
+  @@index([assignmentId])
+  @@index([activityId])
+  @@index([categoryId])
+  @@index([state])
 }

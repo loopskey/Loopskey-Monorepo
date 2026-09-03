@@ -254,7 +254,9 @@ export class AssociationMemberService {
 
   async update(user: TAssociationUser, input: UpdateAssociationMemberInput) {
     const association = await this.access.requireOwned(user);
-    await this.requireMember(association.id, input.memberId);
+    const current = await this.requireMember(association.id, input.memberId);
+    if (input.fullName !== undefined)
+      await this.rename(current.userId, input.fullName);
     if (input.groupId)
       await this.groups.requireGroup(association.id, input.groupId);
     const member = await this.recoverMemberNumberClash(
@@ -277,6 +279,17 @@ export class AssociationMemberService {
     if (input.groupId !== undefined)
       await this.assignments.materialiseForMember(input.memberId);
     return project(member);
+  }
+
+  private async rename(userId: string, fullName: string) {
+    const renamed = await this.identity.renameUnclaimedUser(userId, fullName);
+
+    if (!renamed)
+      throw new ConflictException({
+        code: AssociationMessageCode.MEMBER_ALREADY_ACTIVE,
+        message:
+          "This member has claimed their account, so their name is theirs to change.",
+      });
   }
 
   async setStatus(

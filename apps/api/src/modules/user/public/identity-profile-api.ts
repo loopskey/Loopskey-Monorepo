@@ -8,6 +8,7 @@ export type IdentityDisplayProjection = {
 
 export interface IdentityProfileApi {
   display(userId: string): Promise<IdentityDisplayProjection | null>;
+  renameUnclaimedUser(userId: string, fullName: string): Promise<boolean>;
   existsByEmail(email: string): Promise<boolean>;
   upsertProfessionalMember(command: {
     readonly email: string;

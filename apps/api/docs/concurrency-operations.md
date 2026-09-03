@@ -25,6 +25,10 @@ exist only so a user gets a readable message instead of a constraint violation.
 | One account per work email | `User.email` unique constraint, its violation recovered into the association "email already in use" code |
 | One association per owner | `Association.ownerId` unique constraint |
 | An activation link activates once | `updateMany` on `OtpCode` where `consumedAt IS NULL`, `count === 1` before the user is activated |
+| A learning activity is decided once | `updateMany` on `PDUActivity` naming `PENDING`, `count === 1`; the loser of a race receives the already-settled code and writes no audit entry |
+| A stale compliance recomputation is discarded | `updateMany` on the assignment where `computedAt IS NULL OR computedAt <= startedAt`, so a slow pass finishing after a newer one matches nothing |
+| One attribution per assignment and activity | `AssociationCreditAttribution(assignmentId, activityId)` unique index, which is what makes recomputation idempotent |
+| A repeated cycle rollover opens nothing | `AssociationRequirementAssignment(requirementId, memberId, cycleStart)` unique index |
 
 ## Decisions
 

@@ -4,6 +4,7 @@ import { TAssociationMembersTable } from "@/types/association-dashboard.types";
 import { AssociationMemberStatus } from "@/lib/graphql/base";
 import { TAssociationMemberRow } from "@/types/association-dashboard.types";
 import { ConfirmDialog } from "@elements/confirm-dialog";
+import { useRouter } from "next/navigation";
 import { Skeleton } from "@ui/skeleton";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
@@ -27,6 +28,11 @@ const statusVariant = (status: AssociationMemberStatus) => {
 };
 
 export const AssociationMembersTable = ({ hook }: TAssociationMembersTable) => {
+  const router = useRouter();
+
+  const openMember = (memberId: string) =>
+    router.push(`/dashboard/association?tab=members&memberId=${memberId}`);
+
   const {
     t,
     members,
@@ -47,10 +53,16 @@ export const AssociationMembersTable = ({ hook }: TAssociationMembersTable) => {
       id: "name",
       header: t("associationDashboard.members.table.name"),
       cell: (member) => (
-        <div>
-          <p className="font-medium">{member.fullName ?? "-"}</p>
-          <p className="text-xs text-muted-foreground">{member.email ?? "-"}</p>
-        </div>
+        <button
+          type="button"
+          className="text-left underline-offset-4 hover:underline"
+          onClick={() => openMember(member.id)}
+        >
+          <span className="block font-medium">{member.fullName ?? "-"}</span>
+          <span className="block text-xs text-muted-foreground">
+            {member.email ?? "-"}
+          </span>
+        </button>
       ),
     },
     {
@@ -91,6 +103,11 @@ export const AssociationMembersTable = ({ hook }: TAssociationMembersTable) => {
         </D.DropdownMenuTrigger>
 
         <D.DropdownMenuContent align="end" className="z-[9999] rounded-2xl">
+          <D.DropdownMenuItem onSelect={() => openMember(member.id)}>
+            <L.UserSearch className="h-4 w-4" />
+            {t("associationDashboard.members.actions.viewDetail")}
+          </D.DropdownMenuItem>
+
           {member.status === AssociationMemberStatus.PendingActivation && (
             <D.DropdownMenuItem
               onSelect={() => void resendMemberInvitation(member.id)}

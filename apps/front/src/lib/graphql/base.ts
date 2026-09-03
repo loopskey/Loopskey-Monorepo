@@ -298,6 +298,49 @@ export enum AssociationActivationTokenStatus {
   Valid = 'VALID'
 }
 
+export type AssociationActivityCounts = {
+  __typename?: 'AssociationActivityCounts';
+  awaitingReview: Scalars['Int']['output'];
+  counted: Scalars['Int']['output'];
+  rejected: Scalars['Int']['output'];
+};
+
+export type AssociationActivityRequirement = {
+  __typename?: 'AssociationActivityRequirement';
+  canReview: Scalars['Boolean']['output'];
+  creditedAmount: Scalars['Float']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+};
+
+export type AssociationAssignmentProgress = {
+  __typename?: 'AssociationAssignmentProgress';
+  awaitingReviewCount: Scalars['Int']['output'];
+  band: AssociationComplianceBand;
+  categories: Array<AssociationCategoryProgress>;
+  completedCredits: Scalars['Float']['output'];
+  computedAt?: Maybe<Scalars['DateTime']['output']>;
+  creditType: CreditType;
+  cycleEnd?: Maybe<Scalars['DateTime']['output']>;
+  cycleStart: Scalars['DateTime']['output'];
+  daysRemaining?: Maybe<Scalars['Int']['output']>;
+  dueDate?: Maybe<Scalars['DateTime']['output']>;
+  evidencePolicy: AssociationEvidencePolicy;
+  id: Scalars['ID']['output'];
+  isMissingEvidence: Scalars['Boolean']['output'];
+  percent: Scalars['Float']['output'];
+  requiredCredits: Scalars['Float']['output'];
+  requirementId: Scalars['ID']['output'];
+  requirementName: Scalars['String']['output'];
+};
+
+/** Whether one activity counted toward a requirement, waits on a decision, or was rejected */
+export enum AssociationAttributionState {
+  AwaitingReview = 'AWAITING_REVIEW',
+  Counted = 'COUNTED',
+  Rejected = 'REJECTED'
+}
+
 /** Which members a requirement applies to */
 export enum AssociationAudienceKind {
   AllMembers = 'ALL_MEMBERS',
@@ -320,6 +363,54 @@ export type AssociationBulkInviteResult = {
   invited: Scalars['Int']['output'];
   linked: Scalars['Int']['output'];
   totalRows: Scalars['Int']['output'];
+};
+
+export type AssociationCategoryProgress = {
+  __typename?: 'AssociationCategoryProgress';
+  completedCredits: Scalars['Float']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  percent: Scalars['Float']['output'];
+  requiredCredits: Scalars['Float']['output'];
+};
+
+/** How far a member has got against what was required of them */
+export enum AssociationComplianceBand {
+  AtRisk = 'AT_RISK',
+  NotStarted = 'NOT_STARTED',
+  OnTrack = 'ON_TRACK',
+  RenewalReady = 'RENEWAL_READY'
+}
+
+export type AssociationComplianceFilterInput = {
+  groupId?: InputMaybe<Scalars['ID']['input']>;
+  memberIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  requirementId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+export type AssociationComplianceSummary = {
+  __typename?: 'AssociationComplianceSummary';
+  awaitingReviewCount: Scalars['Int']['output'];
+  band: AssociationComplianceBand;
+  computedAt?: Maybe<Scalars['DateTime']['output']>;
+  isMissingEvidence: Scalars['Boolean']['output'];
+  memberId: Scalars['ID']['output'];
+  percent: Scalars['Float']['output'];
+};
+
+export type AssociationCumulativePoint = {
+  __typename?: 'AssociationCumulativePoint';
+  credits: Scalars['Float']['output'];
+  date: Scalars['DateTime']['output'];
+  requiredCredits: Scalars['Float']['output'];
+};
+
+export type AssociationEvidenceFile = {
+  __typename?: 'AssociationEvidenceFile';
+  fileName: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  mimeType: Scalars['String']['output'];
+  sizeBytes: Scalars['Int']['output'];
 };
 
 /** Whether members must attach evidence, and whether it is reviewed */
@@ -368,6 +459,51 @@ export type AssociationMember = {
   userId: Scalars['ID']['output'];
 };
 
+export type AssociationMemberActivity = {
+  __typename?: 'AssociationMemberActivity';
+  canReview: Scalars['Boolean']['output'];
+  category: PduCategory;
+  creditType: CreditType;
+  credits: Scalars['Float']['output'];
+  date: Scalars['DateTime']['output'];
+  evidenceNote?: Maybe<Scalars['String']['output']>;
+  evidenceUrl?: Maybe<Scalars['String']['output']>;
+  files: Array<AssociationEvidenceFile>;
+  hasEvidence: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  isLate: Scalars['Boolean']['output'];
+  memberId: Scalars['ID']['output'];
+  requirements: Array<AssociationActivityRequirement>;
+  reviewNote?: Maybe<Scalars['String']['output']>;
+  source: PduSource;
+  state: AssociationAttributionState;
+  title: Scalars['String']['output'];
+};
+
+export type AssociationMemberActivityFilterInput = {
+  state?: InputMaybe<AssociationAttributionState>;
+};
+
+export type AssociationMemberCertificate = {
+  __typename?: 'AssociationMemberCertificate';
+  creditsEarned: Scalars['Float']['output'];
+  files: Array<AssociationEvidenceFile>;
+  id: Scalars['ID']['output'];
+  issuedAt: Scalars['DateTime']['output'];
+  issuer?: Maybe<Scalars['String']['output']>;
+  memberId: Scalars['ID']['output'];
+  status: CertificateStatus;
+  title: Scalars['String']['output'];
+  validUntil?: Maybe<Scalars['DateTime']['output']>;
+};
+
+export type AssociationMemberCompliance = {
+  __typename?: 'AssociationMemberCompliance';
+  assignments: Array<AssociationAssignmentProgress>;
+  isMissingEvidence: Scalars['Boolean']['output'];
+  memberId: Scalars['ID']['output'];
+};
+
 export type AssociationMemberFilterInput = {
   groupId?: InputMaybe<Scalars['ID']['input']>;
   search?: InputMaybe<Scalars['String']['input']>;
@@ -379,6 +515,35 @@ export type AssociationMemberGroup = {
   id: Scalars['ID']['output'];
   isActive: Scalars['Boolean']['output'];
   title: Scalars['String']['output'];
+};
+
+export type AssociationMemberProfile = {
+  __typename?: 'AssociationMemberProfile';
+  assignments: Array<AssociationAssignmentProgress>;
+  certificates: Array<AssociationMemberCertificate>;
+  cumulative: Array<AssociationCumulativePoint>;
+  isMissingEvidence: Scalars['Boolean']['output'];
+  member: AssociationMember;
+  summary: AssociationMemberSummary;
+};
+
+export type AssociationMemberRequirementOption = {
+  __typename?: 'AssociationMemberRequirementOption';
+  audienceKind: AssociationAudienceKind;
+  creditType: CreditType;
+  deadline?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  isAssigned: Scalars['Boolean']['output'];
+  isMemberManaged: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  totalRequiredCredits: Scalars['Float']['output'];
+};
+
+export type AssociationMemberRequirementsResult = {
+  __typename?: 'AssociationMemberRequirementsResult';
+  added: Scalars['Int']['output'];
+  memberId: Scalars['ID']['output'];
+  removed: Scalars['Int']['output'];
 };
 
 export type AssociationMemberStats = {
@@ -395,6 +560,21 @@ export enum AssociationMemberStatus {
   PendingActivation = 'PENDING_ACTIVATION'
 }
 
+export type AssociationMemberSummary = {
+  __typename?: 'AssociationMemberSummary';
+  awaitingReviewCount: Scalars['Int']['output'];
+  band: AssociationComplianceBand;
+  creditsCompleted: Scalars['Float']['output'];
+  creditsRemaining: Scalars['Float']['output'];
+  creditsRequired: Scalars['Float']['output'];
+  nearestDueDate?: Maybe<Scalars['DateTime']['output']>;
+  nearestDueDays?: Maybe<Scalars['Int']['output']>;
+  nearestRequirementId?: Maybe<Scalars['ID']['output']>;
+  nearestRequirementName?: Maybe<Scalars['String']['output']>;
+  pacePercent?: Maybe<Scalars['Float']['output']>;
+  percent: Scalars['Float']['output'];
+};
+
 export type AssociationPageInfo = {
   __typename?: 'AssociationPageInfo';
   hasNextPage: Scalars['Boolean']['output'];
@@ -404,6 +584,20 @@ export type AssociationPageInfo = {
 export type AssociationPaginationInput = {
   cursor?: InputMaybe<Scalars['String']['input']>;
   take?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type AssociationPendingReview = {
+  __typename?: 'AssociationPendingReview';
+  activityDate: Scalars['DateTime']['output'];
+  activityId: Scalars['ID']['output'];
+  activityTitle: Scalars['String']['output'];
+  category: PduCategory;
+  credits: Scalars['Float']['output'];
+  id: Scalars['ID']['output'];
+  memberId: Scalars['ID']['output'];
+  memberName?: Maybe<Scalars['String']['output']>;
+  requirementId: Scalars['ID']['output'];
+  requirementName: Scalars['String']['output'];
 };
 
 /** How often a requirement's obligation repeats */
@@ -492,6 +686,14 @@ export type AssociationRequirementTarget = {
   memberId?: Maybe<Scalars['ID']['output']>;
 };
 
+export type AssociationReviewResult = {
+  __typename?: 'AssociationReviewResult';
+  activityId: Scalars['ID']['output'];
+  approved: Scalars['Boolean']['output'];
+  memberId: Scalars['ID']['output'];
+  requirementId: Scalars['ID']['output'];
+};
+
 export type AssociationSettings = {
   __typename?: 'AssociationSettings';
   associationId: Scalars['ID']['output'];
@@ -512,6 +714,8 @@ export enum AuditAction {
   AssociationAccountActivated = 'ASSOCIATION_ACCOUNT_ACTIVATED',
   AssociationAccountCreated = 'ASSOCIATION_ACCOUNT_CREATED',
   AssociationActivationResent = 'ASSOCIATION_ACTIVATION_RESENT',
+  AssociationActivityApproved = 'ASSOCIATION_ACTIVITY_APPROVED',
+  AssociationActivityRejected = 'ASSOCIATION_ACTIVITY_REJECTED',
   AssociationSettingsUpdated = 'ASSOCIATION_SETTINGS_UPDATED',
   OrganizationAccountActivated = 'ORGANIZATION_ACCOUNT_ACTIVATED',
   OrganizationAccountCreated = 'ORGANIZATION_ACCOUNT_CREATED',
@@ -1621,6 +1825,7 @@ export type Mutation = {
   publishEvent: Event;
   publishPodcast: Podcast;
   publishYouTubeChannel: YouTubeChannel;
+  recomputeAssociationCompliance: AssociationActionResponse;
   refreshToken: AuthPayload;
   register: AuthPayload;
   registerEvent: EventRegistration;
@@ -1641,8 +1846,10 @@ export type Mutation = {
   restorePodcast: Podcast;
   restoreUser: User;
   restoreYouTubeChannel: YouTubeChannel;
+  reviewAssociationLearningActivity: AssociationReviewResult;
   sendRoadmapChatTurn: ProfessionalRoadmapDraft;
   setAssociationGroupActive: AssociationGroup;
+  setAssociationMemberRequirements: AssociationMemberRequirementsResult;
   setAssociationMemberStatus: AssociationMember;
   setProfessionalCertificateCpdPlan: ProfessionalCertificate;
   startProfessionalOnboarding: ProfessionalDashboardProfile;
@@ -2114,6 +2321,11 @@ export type MutationRestoreYouTubeChannelArgs = {
 };
 
 
+export type MutationReviewAssociationLearningActivityArgs = {
+  input: ReviewAssociationLearningActivityInput;
+};
+
+
 export type MutationSendRoadmapChatTurnArgs = {
   input: RoadmapChatTurnInput;
 };
@@ -2121,6 +2333,11 @@ export type MutationSendRoadmapChatTurnArgs = {
 
 export type MutationSetAssociationGroupActiveArgs = {
   input: SetAssociationGroupActiveInput;
+};
+
+
+export type MutationSetAssociationMemberRequirementsArgs = {
+  input: SetAssociationMemberRequirementsInput;
 };
 
 
@@ -2875,6 +3092,14 @@ export type PaginatedAdminUser = {
   __typename?: 'PaginatedAdminUser';
   items: Array<AdminUser>;
   pageInfo: AdminPageInfo;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type PaginatedAssociationMemberActivities = {
+  __typename?: 'PaginatedAssociationMemberActivities';
+  counts: AssociationActivityCounts;
+  items: Array<AssociationMemberActivity>;
+  pageInfo: AssociationPageInfo;
   totalCount: Scalars['Int']['output'];
 };
 
@@ -3984,8 +4209,14 @@ export type Query = {
   adminUsers: PaginatedAdminUser;
   associationActivationStatus: AssociationActivationStatus;
   associationGroups: Array<AssociationGroup>;
+  associationMemberActivities: PaginatedAssociationMemberActivities;
+  associationMemberCompliance: AssociationMemberCompliance;
+  associationMemberComplianceList: Array<AssociationComplianceSummary>;
+  associationMemberProfile: AssociationMemberProfile;
+  associationMemberRequirementOptions: Array<AssociationMemberRequirementOption>;
   associationMemberStats: AssociationMemberStats;
   associationMembers: PaginatedAssociationMembers;
+  associationPendingReviews: Array<AssociationPendingReview>;
   associationProfile: Association;
   associationRequirement: AssociationRequirement;
   associationRequirementStats: AssociationRequirementStats;
@@ -4137,6 +4368,38 @@ export type QueryAssociationGroupsArgs = {
 };
 
 
+export type QueryAssociationMemberActivitiesArgs = {
+  associationId?: InputMaybe<Scalars['ID']['input']>;
+  filter?: InputMaybe<AssociationMemberActivityFilterInput>;
+  memberId: Scalars['ID']['input'];
+  pagination?: InputMaybe<AssociationPaginationInput>;
+};
+
+
+export type QueryAssociationMemberComplianceArgs = {
+  associationId?: InputMaybe<Scalars['ID']['input']>;
+  memberId: Scalars['ID']['input'];
+};
+
+
+export type QueryAssociationMemberComplianceListArgs = {
+  associationId?: InputMaybe<Scalars['ID']['input']>;
+  filter?: InputMaybe<AssociationComplianceFilterInput>;
+};
+
+
+export type QueryAssociationMemberProfileArgs = {
+  associationId?: InputMaybe<Scalars['ID']['input']>;
+  memberId: Scalars['ID']['input'];
+};
+
+
+export type QueryAssociationMemberRequirementOptionsArgs = {
+  associationId?: InputMaybe<Scalars['ID']['input']>;
+  memberId: Scalars['ID']['input'];
+};
+
+
 export type QueryAssociationMemberStatsArgs = {
   associationId?: InputMaybe<Scalars['ID']['input']>;
 };
@@ -4146,6 +4409,12 @@ export type QueryAssociationMembersArgs = {
   associationId?: InputMaybe<Scalars['ID']['input']>;
   filter?: InputMaybe<AssociationMemberFilterInput>;
   pagination?: InputMaybe<AssociationPaginationInput>;
+};
+
+
+export type QueryAssociationPendingReviewsArgs = {
+  associationId?: InputMaybe<Scalars['ID']['input']>;
+  filter?: InputMaybe<AssociationComplianceFilterInput>;
 };
 
 
@@ -4584,6 +4853,12 @@ export type ResetPasswordInput = {
   newPassword: Scalars['String']['input'];
 };
 
+export type ReviewAssociationLearningActivityInput = {
+  activityId: Scalars['ID']['input'];
+  approve: Scalars['Boolean']['input'];
+  reason?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type RoadmapChatMessage = {
   __typename?: 'RoadmapChatMessage';
   content: Scalars['String']['output'];
@@ -4735,6 +5010,11 @@ export type SetAssociationGroupActiveInput = {
   isActive: Scalars['Boolean']['input'];
 };
 
+export type SetAssociationMemberRequirementsInput = {
+  memberId: Scalars['ID']['input'];
+  requirementIds: Array<Scalars['ID']['input']>;
+};
+
 export type SetAssociationMemberStatusInput = {
   memberId: Scalars['ID']['input'];
   status: AssociationMemberStatus;
@@ -4843,6 +5123,7 @@ export type UpdateAssociationGroupInput = {
 };
 
 export type UpdateAssociationMemberInput = {
+  fullName?: InputMaybe<Scalars['String']['input']>;
   groupId?: InputMaybe<Scalars['ID']['input']>;
   memberId: Scalars['ID']['input'];
   memberNumber?: InputMaybe<Scalars['String']['input']>;

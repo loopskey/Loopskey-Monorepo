@@ -5217,6 +5217,7 @@
       "title": "Membres",
       "description": "Toutes les personnes qui appartiennent à votre association, les groupes auxquels elles sont rattachées et les invitations encore en attente.",
       "actions": {
+        "viewDetail": "Voir le membre",
         "invite": "Inviter un membre",
         "manageGroups": "Gérer les groupes",
         "backToRoster": "Retour à la liste",
@@ -5382,6 +5383,171 @@
         "memberStatusConflict": "Le statut de cette personne a changé pendant que vous travailliez. Actualisez pour voir son état.",
         "invitationCooldown": "Une invitation vient d'être envoyée. Patientez un instant avant d'en renvoyer une.",
         "activationEmailNotSent": "L'invitation n'a pas pu être envoyée. Réessayez dans un instant."
+      }
+    },
+    "memberDetail": {
+      "backToRoster": "Retour à la liste",
+      "email": "E-mail",
+      "noGroup": "Aucun groupe",
+      "band": {
+        "NOT_STARTED": "Non commencé",
+        "AT_RISK": "À risque",
+        "ON_TRACK": "En bonne voie",
+        "RENEWAL_READY": "Prêt au renouvellement"
+      },
+      "state": {
+        "COUNTED": "Approuvé",
+        "AWAITING_REVIEW": "En cours d'examen",
+        "REJECTED": "Refusé"
+      },
+      "evidencePolicy": {
+        "NOT_REQUIRED": "Preuve non exigée",
+        "REQUIRED_NO_REVIEW": "Preuve exigée, sans examen",
+        "REQUIRED_NEEDS_REVIEW": "Preuve exigée et examinée par vous"
+      },
+      "actions": {
+        "edit": "Modifier les informations",
+        "requirements": "Modifier les exigences"
+      },
+      "confirm": {
+        "deactivateBody": "{{name}} sort de vos effectifs actifs et ne reçoit plus les e-mails de l'association. Son historique reste sur cette page et vous pouvez la réactiver à tout moment."
+      },
+      "cards": {
+        "completed": "Crédits obtenus",
+        "completedNote": "sur {{required}} exigés",
+        "remaining": "Crédits restants",
+        "remainingNote": "pour l'ensemble des exigences qui lui sont assignées",
+        "deadline": "Jours avant l'échéance",
+        "deadlineNote": "{{requirement}}, à rendre le {{date}}",
+        "noDeadline": "Aucune échéance",
+        "noDeadlineNote": "Aucune exigence assignée ne porte de date",
+        "days": "{{days}} jours",
+        "awaiting": "En attente de votre examen",
+        "awaitingNote": "soumissions attendant votre décision"
+      },
+      "progress": {
+        "title": "Crédits sur le cycle",
+        "description": "Crédits comptés pour {{requirement}}, comparés au rythme nécessaire pour finir avant l'échéance.",
+        "noCycle": "Aucune exigence avec échéance n'est assignée à ce membre.",
+        "emptyTitle": "Rien de compté pour l'instant",
+        "emptyBody": "Dès que ce membre enregistre une formation comprise dans la fenêtre d'une exigence, sa courbe apparaît ici face au rythme nécessaire."
+      },
+      "requirements": {
+        "title": "Exigences",
+        "description": "Chaque exigence assignée à ce membre, et sa progression pour chacune.",
+        "creditLine": "{{completed}} / {{required}} crédits ({{percent}} %)",
+        "awaiting": "{{count}} en attente d'examen",
+        "dueDate": "Échéance",
+        "daysRemaining": "Jours restants",
+        "evidencePolicy": "Politique de preuve",
+        "noCategories": "Cette exigence compte les crédits en un seul total plutôt que par catégorie.",
+        "chartTitle": "Crédits par catégorie",
+        "chartEmptyTitle": "Aucune catégorie à représenter",
+        "chartEmptyBody": "Aucune exigence assignée à ce membre ne répartit son total par catégorie.",
+        "emptyTitle": "Rien n'est encore assigné",
+        "emptyBody": "Ce membre ne fait partie de l'audience d'aucune exigence publiée. Utilisez Modifier les exigences pour lui en assigner une."
+      },
+      "activities": {
+        "title": "Activités de formation",
+        "description": "Ce que ce membre a enregistré et qui compte pour vos exigences. Rien d'autre de ce qu'il a consigné n'apparaît ici.",
+        "filterLabel": "État d'examen",
+        "filterAll": "Tous les états",
+        "counts": "{{counted}} approuvées, {{awaiting}} en cours d'examen, {{rejected}} refusées",
+        "meta": "{{source}} · {{category}} · {{credits}} crédits · {{date}}",
+        "counting": "Compte pour : {{requirements}}",
+        "reason": "Motif indiqué : {{reason}}",
+        "late": "En retard",
+        "noEvidence": "Sans preuve",
+        "viewEvidence": "Voir la preuve",
+        "approve": "Approuver",
+        "reject": "Refuser",
+        "emptyTitle": "Rien d'enregistré pour l'instant",
+        "emptyBody": "Ce membre n'a enregistré aucune formation comprise dans l'une de vos exigences.",
+        "emptyFiltered": "Aucune activité de ce membre n'est dans cet état d'examen.",
+        "errorTitle": "La liste des activités n'a pas pu être chargée."
+      },
+      "evidence": {
+        "title": "Preuve",
+        "description": "Ce que le membre a joint à cette soumission.",
+        "note": "Note du membre",
+        "noNote": "Le membre n'a laissé aucune note.",
+        "link": "Lien de preuve",
+        "noLink": "Aucun lien n'a été fourni.",
+        "files": "Fichiers joints",
+        "noFiles": "Aucun fichier n'a été joint.",
+        "download": "Télécharger",
+        "downloadFile": "Télécharger {{name}}"
+      },
+      "decision": {
+        "approveTitle": "Approuver cette soumission ?",
+        "approveBody": "Ses crédits comptent pour chaque exigence qu'elle satisfait, et la progression du membre est mise à jour immédiatement.",
+        "rejectTitle": "Refuser cette soumission ?",
+        "rejectBody": "Le membre voit votre motif sur son tableau de bord : dites ce qui rendrait la soumission acceptable.",
+        "reasonLabel": "Motif"
+      },
+      "edit": {
+        "title": "Modifier les informations du membre",
+        "description": "Son nom ne peut être corrigé qu'avant qu'il n'active son compte ; ensuite, il lui appartient.",
+        "save": "Enregistrer",
+        "nameLocked": "Son nom lui appartient dès lors qu'il a activé son compte."
+      },
+      "assign": {
+        "title": "Modifier les exigences assignées",
+        "description": "Cochez les exigences auxquelles ce membre doit être tenu. Une exigence dont l'audience est tout le monde ou un groupe se décide sur l'exigence elle-même.",
+        "meta": "{{credits}} crédits {{creditType}} · échéance {{deadline}}",
+        "audienceManaged": "Défini par l'audience",
+        "save": "Enregistrer les affectations",
+        "emptyTitle": "Rien à assigner",
+        "emptyBody": "Publiez d'abord une exigence, elle apparaîtra ici."
+      },
+      "chart": {
+        "gaugeLabel": "Progression globale par rapport à tout ce qui est assigné",
+        "gaugeDescription": "Un anneau montrant la part de tout ce qui est assigné à ce membre qui est achevée, avec un second anneau au rythme nécessaire pour tenir la prochaine échéance.",
+        "gaugeCaption": "Progression globale",
+        "gaugeCompletion": "Achevé",
+        "gaugePace": "Rythme nécessaire",
+        "categoryChartLabel": "Crédits obtenus par rapport aux crédits exigés, par catégorie",
+        "categoryChartDescription": "Une paire de barres par catégorie : les crédits exigés et les crédits obtenus. Une catégorie sans activité est affichée à zéro plutôt qu'omise.",
+        "categoryName": "Catégorie",
+        "categoryRequirement": "Exigence",
+        "categoryCompleted": "Obtenus",
+        "categoryRequired": "Exigés",
+        "cumulativeChartLabel": "Crédits obtenus sur le cycle par rapport au rythme nécessaire",
+        "cumulativeChartDescription": "Une courbe des crédits comptés à ce jour, et une ligne de référence droite allant du début du cycle au total exigé à l'échéance.",
+        "cumulativeDate": "Date",
+        "cumulativeEarned": "Crédits obtenus",
+        "cumulativePace": "Rythme nécessaire"
+      },
+      "messages": {
+        "approved": "Approuvée. La progression du membre a été mise à jour.",
+        "rejected": "Refusée. Le membre peut lire votre motif sur son tableau de bord.",
+        "saved": "Informations du membre enregistrées.",
+        "requirementsChanged": "{{added}} ajoutée(s), {{removed}} retirée(s)."
+      },
+      "certificates": {
+        "title": "Certificats",
+        "description": "Les certificats détenus par ce membre, avec les fichiers joints.",
+        "meta": "{{issuer}} · délivré le {{issued}} · expire le {{expires}} · {{credits}} crédits",
+        "noIssuer": "Émetteur non précisé",
+        "emptyTitle": "Aucun certificat",
+        "emptyBody": "Ce membre n'a pas encore enregistré de certificat."
+      },
+      "error": {
+        "title": "Ce membre n'a pas pu être chargé.",
+        "body": "Le membre a peut-être été retiré, ou la requête a échoué. Réessayez, ou revenez à la liste."
+      },
+      "errors": {
+        "fileNotFound": "Ce fichier n'est pas disponible.",
+        "fileNotPermitted": "Seule l'association elle-même peut télécharger les fichiers d'un membre.",
+        "audienceNotMemberManaged": "L'audience de cette exigence se décide sur l'exigence, pas membre par membre.",
+        "audienceEmpty": "Une exigence a besoin d'au moins un membre. Modifiez son audience sur l'exigence.",
+        "reviewNotPermitted": "Cette exigence ne vous demande pas d'examiner les preuves.",
+        "activityAlreadySettled": "Cette soumission a déjà été tranchée.",
+        "activityNotReviewable": "Cette soumission n'est plus disponible pour examen.",
+        "activityNotOwned": "Cette soumission n'appartient pas à l'un de vos membres.",
+        "rejectionReasonRequired": "Un refus doit s'accompagner d'un motif exploitable par le membre.",
+        "requirementNotFound": "Cette exigence n'est pas publiée ici.",
+        "downloadFailed": "Le téléchargement a échoué. Réessayez."
       }
     },
     "requirements": {
