@@ -165,7 +165,7 @@ describe("AssociationMemberProfileService", () => {
 
       expect(profile.summary).toEqual(
         expect.objectContaining({
-          percent: 50,
+          percent: 41.67,
           creditsRequired: 60,
           creditsCompleted: 25,
           creditsRemaining: 35,
@@ -194,17 +194,50 @@ describe("AssociationMemberProfileService", () => {
       expect(profile.summary.nearestRequirementId).toBe("req-2");
     });
 
-    it("caps a requirement over a hundred percent before averaging", async () => {
+    it("weights a large requirement above a small one rather than averaging", async () => {
       const { service } = setup({
         assignments: [
-          assignmentRow({ percent: 200, awaitingReviewCount: 0 }),
-          assignmentRow({ id: "assign-2", percent: 0, awaitingReviewCount: 0 }),
+          assignmentRow({
+            requiredCredits: 10,
+            completedCredits: 10,
+            awaitingReviewCount: 0,
+          }),
+          assignmentRow({
+            id: "assign-2",
+            requirementId: "req-2",
+            requiredCredits: 90,
+            completedCredits: 0,
+            awaitingReviewCount: 0,
+          }),
         ],
       });
 
       const profile = await service.profile(owner, "member-1");
 
-      expect(profile.summary.percent).toBe(50);
+      expect(profile.summary.percent).toBe(10);
+    });
+
+    it("agrees with the reports rather than averaging the two percents", async () => {
+      const { service } = setup({
+        assignments: [
+          assignmentRow({
+            requiredCredits: 40,
+            completedCredits: 10,
+            awaitingReviewCount: 0,
+          }),
+          assignmentRow({
+            id: "assign-2",
+            requirementId: "req-2",
+            requiredCredits: 20,
+            completedCredits: 15,
+            awaitingReviewCount: 0,
+          }),
+        ],
+      });
+
+      const profile = await service.profile(owner, "member-1");
+
+      expect(profile.summary.percent).toBe(41.67);
     });
 
     it("refuses a member of another association", async () => {

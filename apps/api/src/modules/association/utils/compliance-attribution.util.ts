@@ -218,13 +218,32 @@ export const daysRemaining = (
   return Math.ceil((dueDate.getTime() - now.getTime()) / DAY_MS);
 };
 
+export const round2 = (value: number) => Math.round(value * 100) / 100;
+
+export const weightedCompletionFor = (
+  requiredCredits: number,
+  completedCredits: number,
+) => {
+  if (requiredCredits > 0)
+    return round2((completedCredits / requiredCredits) * 100);
+  return completedCredits > 0 ? 100 : 0;
+};
+
+export type OverallAssignment = {
+  requiredCredits: number;
+  completedCredits: number;
+  awaitingReviewCount: number;
+};
+
 export type OverallInput = {
   onTrackThreshold: number;
-  assignments: { percent: number; awaitingReviewCount: number }[];
+  assignments: OverallAssignment[];
 };
 
 export type Overall = {
   percent: number;
+  requiredCredits: number;
+  completedCredits: number;
   awaitingReviewCount: number;
   band: AssociationComplianceBand;
 };
@@ -238,15 +257,22 @@ export const overallFor = ({
     0,
   );
 
-  const percent = assignments.length
-    ? assignments.reduce(
-        (total, assignment) => total + Math.min(assignment.percent, 100),
-        0,
-      ) / assignments.length
-    : 0;
+  const requiredCredits = assignments.reduce(
+    (total, assignment) => total + assignment.requiredCredits,
+    0,
+  );
+
+  const completedCredits = assignments.reduce(
+    (total, assignment) => total + assignment.completedCredits,
+    0,
+  );
+
+  const percent = weightedCompletionFor(requiredCredits, completedCredits);
 
   return {
     percent,
+    requiredCredits,
+    completedCredits,
     awaitingReviewCount,
     band: bandFor({ percent, awaitingReviewCount, onTrackThreshold }),
   };

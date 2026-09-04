@@ -354,6 +354,22 @@ type AssociationCategoryProgress {
   requiredCredits: Float!
 }
 
+type AssociationCategoryProgressRow {
+  atRiskCount: Int!
+  averageCompletedCredits: Float!
+  averagePercent: Float!
+  behindCount: Int!
+  belowHalfCount: Int!
+  categoryId: ID!
+  categoryName: String!
+  mappedCategory: PDUCategory!
+  memberCount: Int!
+  onTrackCount: Int!
+  requiredCredits: Float!
+  requirementId: ID!
+  requirementName: String!
+}
+
 """How far a member has got against what was required of them"""
 enum AssociationComplianceBand {
   AT_RISK
@@ -375,6 +391,20 @@ type AssociationComplianceSummary {
   isMissingEvidence: Boolean!
   memberId: ID!
   percent: Float!
+}
+
+type AssociationComplianceTrendPoint {
+  at: DateTime!
+  atRisk: Int!
+  atRiskShare: Float!
+  averageCompletion: Float!
+  notStarted: Int!
+  notStartedShare: Float!
+  onTrack: Int!
+  onTrackShare: Float!
+  renewalReady: Int!
+  renewalReadyShare: Float!
+  totalMembers: Int!
 }
 
 type AssociationCumulativePoint {
@@ -405,6 +435,30 @@ type AssociationGroup {
   memberCount: Int!
   title: String!
   updatedAt: DateTime!
+}
+
+type AssociationGroupCompliance {
+  atRisk: Int!
+  averageCompletion: Float!
+  groupId: ID
+  groupTitle: String
+  memberCount: Int!
+  notStarted: Int!
+  onTrack: Int!
+  renewalReady: Int!
+}
+
+type AssociationGroupProgressRow {
+  atRisk: Int!
+  averageCompletion: Float!
+  groupId: ID
+  groupTitle: String
+  memberCount: Int!
+  missingEvidenceCount: Int!
+  notStarted: Int!
+  notStartedCount: Int!
+  onTrack: Int!
+  renewalReady: Int!
 }
 
 """
@@ -528,6 +582,18 @@ type AssociationMemberCompliance {
   memberId: ID!
 }
 
+type AssociationMemberDistribution {
+  atRisk: Int!
+  atRiskShare: Float!
+  notStarted: Int!
+  notStartedShare: Float!
+  onTrack: Int!
+  onTrackShare: Float!
+  renewalReady: Int!
+  renewalReadyShare: Float!
+  totalMembers: Int!
+}
+
 input AssociationMemberFilterInput {
   groupId: ID
   search: String
@@ -547,6 +613,23 @@ type AssociationMemberProfile {
   isMissingEvidence: Boolean!
   member: AssociationMember!
   summary: AssociationMemberSummary!
+}
+
+type AssociationMemberProgressRow {
+  assignments: [AssociationReportAssignment!]!
+  awaitingReviewCount: Int!
+  band: AssociationComplianceBand!
+  completedCredits: Float!
+  earliestUnmetDeadline: DateTime
+  email: String
+  fullName: String
+  groupTitle: String
+  hasStarted: Boolean!
+  isMissingEvidence: Boolean!
+  memberId: ID!
+  memberNumber: String
+  percent: Float!
+  requiredCredits: Float!
 }
 
 type AssociationMemberRequirementOption {
@@ -593,6 +676,23 @@ type AssociationMemberSummary {
   percent: Float!
 }
 
+type AssociationMissingEvidenceRow {
+  awaitingReviewCount: Int!
+  completedCredits: Float!
+  daysRemaining: Int
+  dueDate: DateTime
+  email: String
+  fullName: String
+  groupTitle: String
+  id: ID!
+  memberId: ID!
+  memberNumber: String
+  percent: Float!
+  requiredCredits: Float!
+  requirementId: ID!
+  requirementName: String!
+}
+
 type AssociationPageInfo {
   hasNextPage: Boolean!
   nextCursor: String
@@ -614,6 +714,80 @@ type AssociationPendingReview {
   memberName: String
   requirementId: ID!
   requirementName: String!
+}
+
+type AssociationRenewalReadinessRow {
+  awaitingReviewCount: Int!
+  band: AssociationComplianceBand!
+  completedCredits: Float!
+  earliestUnmetDeadline: DateTime
+  email: String
+  fullName: String
+  groupTitle: String
+  id: ID!
+  isRenewalReady: Boolean!
+  memberId: ID!
+  memberNumber: String
+  percent: Float!
+  requiredCredits: Float!
+}
+
+type AssociationReportAssignment {
+  assignmentId: ID!
+  awaitingReviewCount: Int!
+  band: AssociationComplianceBand!
+  completedCredits: Float!
+  daysRemaining: Int
+  dueDate: DateTime
+  isMissingEvidence: Boolean!
+  percent: Float!
+  requiredCredits: Float!
+  requirementId: ID!
+  requirementName: String!
+}
+
+input AssociationReportFilterInput {
+  endDate: String
+  groupId: ID
+  includeInactive: Boolean
+  period: AssociationReportPeriod
+  requirementId: ID
+  startDate: String
+}
+
+input AssociationReportPaginationInput {
+  cursor: String
+  take: Int = 50
+}
+
+"""The period a report covers, as a preset or an explicit range"""
+enum AssociationReportPeriod {
+  CUSTOM
+  LAST_30_DAYS
+  LAST_90_DAYS
+  LAST_YEAR
+  THIS_YEAR
+}
+
+type AssociationReportSummary {
+  atRisk: Int!
+  atRiskChange: Int!
+  atRiskShare: Float!
+  averageCompletion: Float!
+  computedAt: DateTime
+  missingEvidence: Int!
+  missingEvidenceChange: Int!
+  missingEvidenceShare: Float!
+  onTrack: Int!
+  onTrackChange: Int!
+  onTrackShare: Float!
+  periodEnd: DateTime!
+  periodStart: DateTime!
+  renewalReady: Int!
+  renewalReadyChange: Int!
+  renewalReadyShare: Float!
+  totalMembers: Int!
+  totalMembersChange: Int!
 }
 
 """How often a requirement's obligation repeats"""
@@ -2398,8 +2572,26 @@ type PaginatedAssociationMemberActivities {
   totalCount: Int!
 }
 
+type PaginatedAssociationMemberProgress {
+  items: [AssociationMemberProgressRow!]!
+  pageInfo: AssociationPageInfo!
+  totalCount: Int!
+}
+
 type PaginatedAssociationMembers {
   items: [AssociationMember!]!
+  pageInfo: AssociationPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedAssociationMissingEvidence {
+  items: [AssociationMissingEvidenceRow!]!
+  pageInfo: AssociationPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedAssociationRenewalReadiness {
+  items: [AssociationRenewalReadinessRow!]!
   pageInfo: AssociationPageInfo!
   totalCount: Int!
 }
@@ -3431,18 +3623,28 @@ type Query {
   adminUsers(filter: AdminUserFilter, pagination: AdminPagination): PaginatedAdminUser!
   associationActivationStatus(token: String!): AssociationActivationStatus!
   associationCatalogSearch(associationId: ID, input: AssociationCatalogSearchInput!): [AssociationCatalogItem!]!
+  associationCategoryCompletionReport(associationId: ID, filter: AssociationReportFilterInput): [AssociationCategoryProgressRow!]!
+  associationComplianceByGroup(associationId: ID, filter: AssociationReportFilterInput): [AssociationGroupCompliance!]!
+  associationComplianceTrend(associationId: ID, filter: AssociationReportFilterInput): [AssociationComplianceTrendPoint!]!
+  associationGroupProgressReport(associationId: ID, filter: AssociationReportFilterInput): [AssociationGroupProgressRow!]!
   associationGroups(associationId: ID): [AssociationGroup!]!
   associationLearningContent(associationId: ID, learningContentId: ID!): AssociationLearningContent!
   associationLearningContents(associationId: ID, filter: AssociationLearningContentFilterInput, pagination: AssociationPaginationInput): PaginatedAssociationLearningContents!
   associationMemberActivities(associationId: ID, filter: AssociationMemberActivityFilterInput, memberId: ID!, pagination: AssociationPaginationInput): PaginatedAssociationMemberActivities!
   associationMemberCompliance(associationId: ID, memberId: ID!): AssociationMemberCompliance!
   associationMemberComplianceList(associationId: ID, filter: AssociationComplianceFilterInput): [AssociationComplianceSummary!]!
+  associationMemberDistribution(associationId: ID, filter: AssociationReportFilterInput): AssociationMemberDistribution!
   associationMemberProfile(associationId: ID, memberId: ID!): AssociationMemberProfile!
+  associationMemberProgressReport(associationId: ID, filter: AssociationReportFilterInput, pagination: AssociationReportPaginationInput): PaginatedAssociationMemberProgress!
   associationMemberRequirementOptions(associationId: ID, memberId: ID!): [AssociationMemberRequirementOption!]!
   associationMemberStats(associationId: ID): AssociationMemberStats!
   associationMembers(associationId: ID, filter: AssociationMemberFilterInput, pagination: AssociationPaginationInput): PaginatedAssociationMembers!
+  associationMissingEvidenceReport(associationId: ID, filter: AssociationReportFilterInput, pagination: AssociationReportPaginationInput): PaginatedAssociationMissingEvidence!
   associationPendingReviews(associationId: ID, filter: AssociationComplianceFilterInput): [AssociationPendingReview!]!
   associationProfile(associationId: ID): Association!
+  associationProgressByCategory(associationId: ID, filter: AssociationReportFilterInput): [AssociationCategoryProgressRow!]!
+  associationRenewalReadinessReport(associationId: ID, filter: AssociationReportFilterInput, pagination: AssociationReportPaginationInput): PaginatedAssociationRenewalReadiness!
+  associationReportSummary(associationId: ID, filter: AssociationReportFilterInput): AssociationReportSummary!
   associationRequirement(associationId: ID, requirementId: ID!): AssociationRequirement!
   associationRequirementStats(associationId: ID): AssociationRequirementStats!
   associationRequirements(associationId: ID, filter: AssociationRequirementFilterInput, pagination: AssociationPaginationInput): PaginatedAssociationRequirements!

@@ -16,10 +16,12 @@ import { AssociationMemberFileService } from "@association/services/association-
 import { AssociationDashboardResolver } from "@association/resolvers/association-dashboard.resolver";
 import { AssociationComplianceService } from "@association/services/association-compliance.service";
 import { AssociationDashboardService } from "@association/services/association-dashboard.service";
+import { AssociationReportResolver } from "@association/resolvers/association-report.resolver";
 import { AssociationMemberResolver } from "@association/resolvers/association-member.resolver";
 import { AssociationAccountService } from "@association/services/association-account.service";
 import { AssociationGroupResolver } from "@association/resolvers/association-group.resolver";
 import { AssociationAccessService } from "@association/services/association-access.service";
+import { AssociationReportService } from "@association/services/association-report.service";
 import { AssociationMemberService } from "@association/services/association-member.service";
 import { AssociationReviewService } from "@association/services/association-review.service";
 import { AssociationAdminResolver } from "@association/resolvers/association-admin.resolver";
@@ -54,6 +56,8 @@ import "@association/enums/association-register.enum";
     AssociationMemberService,
     AssociationReviewService,
     AssociationMemberResolver,
+    AssociationReportService,
+    AssociationReportResolver,
     AssociationAccountService,
     AssociationDashboardService,
     AssociationComplianceService,
@@ -66,10 +70,10 @@ import "@association/enums/association-register.enum";
     AssociationMemberProfileService,
     AssociationComplianceReadService,
     AssociationMemberProfileResolver,
-    AssociationLearningActivityHandler,
-    AssociationMemberRequirementsService,
     AssociationLearningContentService,
+    AssociationLearningActivityHandler,
     AssociationLearningContentResolver,
+    AssociationMemberRequirementsService,
     AssociationRequirementPublishedHandler,
     AssociationRequirementAssignmentService,
   ],
