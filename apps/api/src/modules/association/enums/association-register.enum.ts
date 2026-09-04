@@ -1,3 +1,4 @@
+import { AssociationLearningContentStatus } from "@prisma/client";
 import { AssociationAttributionState } from "@prisma/client";
 import { AssociationRequirementStatus } from "@prisma/client";
 import { AssociationComplianceBand } from "@prisma/client";
@@ -54,4 +55,9 @@ registerEnumType(AssociationAttributionState, {
   name: "AssociationAttributionState",
   description:
     "Whether one activity counted toward a requirement, waits on a decision, or was rejected",
+});
+
+registerEnumType(AssociationLearningContentStatus, {
+  name: "AssociationLearningContentStatus",
+  description: "Whether a library item is a draft, published, or withdrawn",
 });

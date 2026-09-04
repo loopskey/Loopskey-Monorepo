@@ -361,3 +361,118 @@ mutation SetAssociationMemberRequirements(
     removed
   }
 }
+
+# ================= Learning content =================
+fragment AssociationLearningContentFields on AssociationLearningContent {
+  id
+  title
+  isExternal
+  isAvailable
+  contentType
+  contentId
+  provider
+  imageUrl
+  externalUrl
+  description
+  category
+  indicativeCredits
+  requirementId
+  requirementName
+  groupId
+  groupTitle
+  status
+  audienceKind
+  publishedAt
+  withdrawnAt
+  createdAt
+  updatedAt
+}
+
+query AssociationLearningContents(
+  $filter: AssociationLearningContentFilterInput
+  $pagination: AssociationPaginationInput
+) {
+  associationLearningContents(filter: $filter, pagination: $pagination) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      nextCursor
+    }
+    items {
+      ...AssociationLearningContentFields
+    }
+  }
+}
+
+query AssociationLearningContent($learningContentId: ID!) {
+  associationLearningContent(learningContentId: $learningContentId) {
+    ...AssociationLearningContentFields
+    engagement {
+      memberCount
+      credits
+    }
+  }
+}
+
+query AssociationCatalogSearch($input: AssociationCatalogSearchInput!) {
+  associationCatalogSearch(input: $input) {
+    contentType
+    contentId
+    title
+    provider
+    imageUrl
+    isAvailable
+  }
+}
+
+mutation CreateAssociationLearningContent(
+  $input: CreateAssociationLearningContentInput!
+) {
+  createAssociationLearningContent(input: $input) {
+    ...AssociationLearningContentFields
+  }
+}
+
+mutation UpdateAssociationLearningContent(
+  $input: UpdateAssociationLearningContentInput!
+) {
+  updateAssociationLearningContent(input: $input) {
+    ...AssociationLearningContentFields
+  }
+}
+
+mutation PublishAssociationLearningContent(
+  $input: PublishAssociationLearningContentInput!
+) {
+  publishAssociationLearningContent(input: $input) {
+    ...AssociationLearningContentFields
+  }
+}
+
+mutation WithdrawAssociationLearningContent(
+  $input: AssociationLearningContentIdInput!
+) {
+  withdrawAssociationLearningContent(input: $input) {
+    ...AssociationLearningContentFields
+  }
+}
+
+mutation DeleteAssociationLearningContent(
+  $input: AssociationLearningContentIdInput!
+) {
+  deleteAssociationLearningContent(input: $input) {
+    code
+    success
+    message
+  }
+}
+
+query AssociationRequirementOptions($pagination: AssociationPaginationInput) {
+  associationRequirements(pagination: $pagination) {
+    items {
+      id
+      name
+      status
+    }
+  }
+}

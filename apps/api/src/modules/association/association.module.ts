@@ -1,7 +1,9 @@
 import { AssociationRequirementAssignmentService } from "@association/services/association-requirement-assignment.service";
 import { AssociationRequirementPublishedHandler } from "@association/application/association-requirement-published.handler";
 import { AssociationMemberRequirementsService } from "@association/services/association-member-requirements.service";
+import { AssociationLearningContentResolver } from "@association/resolvers/association-learning-content.resolver";
 import { AssociationLearningActivityHandler } from "@association/application/association-learning-activity.handler";
+import { AssociationLearningContentService } from "@association/services/association-learning-content.service";
 import { AssociationMemberProfileResolver } from "@association/resolvers/association-member-profile.resolver";
 import { AssociationComplianceReadService } from "@association/services/association-compliance-read.service";
 import { AssociationMemberProfileService } from "@association/services/association-member-profile.service";
@@ -24,6 +26,7 @@ import { AssociationAdminResolver } from "@association/resolvers/association-adm
 import { AssociationGroupService } from "@association/services/association-group.service";
 import { AssociationCycleService } from "@association/services/association-cycle.service";
 import { ProfessionalModule } from "@professional/professional.module";
+import { LandingModule } from "@landing/landing.module";
 import { PrismaModule } from "@prisma/prisma.module";
 import { AuthModule } from "@auth/auth.module";
 import { MailModule } from "@mail/mail.module";
@@ -38,6 +41,7 @@ import "@association/enums/association-register.enum";
     AuthModule,
     UserModule,
     PrismaModule,
+    LandingModule,
     ProfessionalModule,
   ],
   controllers: [AssociationMemberFileController],
@@ -64,6 +68,8 @@ import "@association/enums/association-register.enum";
     AssociationMemberProfileResolver,
     AssociationLearningActivityHandler,
     AssociationMemberRequirementsService,
+    AssociationLearningContentService,
+    AssociationLearningContentResolver,
     AssociationRequirementPublishedHandler,
     AssociationRequirementAssignmentService,
   ],

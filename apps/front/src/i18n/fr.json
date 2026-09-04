@@ -5556,7 +5556,128 @@
     },
     "learningContent": {
       "title": "Contenu de formation",
-      "comingSoon": "La bibliothèque de formation de vos membres arrivera dans une version ultérieure."
+      "description": "Les formations que vous recommandez à vos membres. Une exigence dit combien de crédits ils doivent ; ceci dit où les obtenir.",
+      "actions": {
+        "addCatalogue": "Recommander depuis le catalogue",
+        "addExternal": "Ajouter une ressource externe",
+        "view": "Voir le détail",
+        "edit": "Modifier",
+        "publish": "Publier",
+        "withdraw": "Retirer",
+        "delete": "Supprimer"
+      },
+      "status": {
+        "DRAFT": "Brouillon",
+        "PUBLISHED": "Publié",
+        "WITHDRAWN": "Retiré"
+      },
+      "filters": {
+        "search": "Rechercher",
+        "searchPlaceholder": "Rechercher par titre",
+        "category": "Catégorie",
+        "allCategories": "Toutes les catégories",
+        "status": "Statut",
+        "allStatuses": "Tous les statuts",
+        "source": "Source",
+        "allSources": "Toutes les sources",
+        "catalogue": "Catalogue de la plateforme",
+        "external": "Ressource externe",
+        "requirement": "Exigence",
+        "allRequirements": "Toutes les exigences",
+        "clear": "Effacer les filtres"
+      },
+      "list": {
+        "untitled": "Élément sans titre",
+        "meta": "{{source}} · {{provider}} · {{category}} · ajouté le {{added}}",
+        "noProvider": "Aucun fournisseur indiqué",
+        "credits": "{{credits}} crédits indicatifs",
+        "forRequirement": "Compte pour {{requirement}}",
+        "forGroup": "Publié auprès de {{group}}",
+        "unavailable": "Plus disponible",
+        "actionsFor": "Actions pour {{title}}"
+      },
+      "empty": {
+        "firstRunTitle": "Votre bibliothèque est vide",
+        "firstRunBody": "Recommandez un cours, un événement, un podcast ou une vidéo du catalogue, ou ajoutez votre propre ressource, et vos membres sauront quoi faire ensuite.",
+        "noResultsTitle": "Aucun résultat pour ces filtres",
+        "noResultsBody": "Effacez les filtres pour voir toute la bibliothèque."
+      },
+      "editor": {
+        "addCatalogueTitle": "Recommander depuis le catalogue",
+        "addExternalTitle": "Ajouter une ressource externe",
+        "editTitle": "Modifier l'élément",
+        "catalogueDescription": "Choisissez un contenu publié sur la plateforme. Son titre, son image et son fournisseur restent alignés sur le catalogue plutôt que d'être recopiés ici.",
+        "externalDescription": "N'importe quoi sur le web ouvert. Les membres l'ouvrent dans un nouvel onglet ; le lien n'est jamais appelé par la plateforme.",
+        "pickContent": "Contenu",
+        "searchPlaceholder": "Rechercher dans le catalogue",
+        "contentType": "Type de contenu",
+        "allTypes": "Tous les types",
+        "noResults": "Aucun contenu du catalogue ne correspond à cette recherche.",
+        "pickOne": "Choisissez un contenu à recommander.",
+        "title": "Titre",
+        "provider": "Fournisseur",
+        "url": "Lien",
+        "category": "Catégorie",
+        "credits": "Crédits indicatifs",
+        "requirement": "Compte pour",
+        "noRequirement": "Aucune exigence",
+        "description": "Pourquoi vous le recommandez",
+        "save": "Enregistrer"
+      },
+      "publish": {
+        "title": "Publier auprès de vos membres",
+        "description": "Un élément publié est visible par l'audience que vous choisissez. Vous pourrez le retirer plus tard sans le perdre.",
+        "audience": "Audience",
+        "allMembers": "Tous les membres",
+        "oneGroup": "Un groupe",
+        "group": "Groupe",
+        "groupPlaceholder": "Choisissez un groupe",
+        "confirm": "Publier"
+      },
+      "detail": {
+        "title": "Élément de la bibliothèque",
+        "description": "L'élément, ses règles, et ce que vos membres en ont fait.",
+        "source": "Source",
+        "provider": "Fournisseur",
+        "category": "Catégorie",
+        "credits": "Crédits indicatifs",
+        "noCredits": "Non précisé",
+        "requirement": "Compte pour",
+        "noRequirement": "Aucune exigence",
+        "audience": "Audience",
+        "allMembers": "Tous les membres",
+        "published": "Publié le",
+        "withdrawn": "Retiré le",
+        "unavailableBody": "Ce contenu n'est plus publié dans le catalogue. Il est conservé ici pour que vous puissiez le remplacer plutôt que de perdre la recommandation.",
+        "engagementTitle": "Ce que les membres en ont fait",
+        "engagementBody": "{{members}} membres ont enregistré une activité liée à ce contenu, pour {{credits}} crédits.",
+        "engagementExternal": "L'engagement se compte pour le contenu du catalogue, auquel les membres peuvent rattacher une activité. Une ressource externe n'a pas ce lien."
+      },
+      "confirm": {
+        "deleteTitle": "Supprimer ce brouillon ?",
+        "deleteBody": "{{title}} n'a pas été publié, aucun membre ne l'a donc vu. Cette action est irréversible.",
+        "deleteConfirm": "Supprimer"
+      },
+      "messages": {
+        "added": "Ajouté à votre bibliothèque.",
+        "saved": "Élément enregistré.",
+        "published": "Publié auprès de vos membres.",
+        "withdrawn": "Retiré. L'élément reste dans votre bibliothèque.",
+        "deleted": "Brouillon supprimé."
+      },
+      "error": {
+        "title": "La bibliothèque n'a pas pu être chargée.",
+        "body": "La requête a échoué. Réessayez dans un instant."
+      },
+      "errors": {
+        "notFound": "Cet élément est introuvable.",
+        "invalid": "Une ressource externe a besoin d'un titre et d'un lien.",
+        "alreadyEndorsed": "Vous avez déjà recommandé ce contenu.",
+        "notDeletable": "Des membres ont peut-être déjà agi sur cet élément. Retirez-le plutôt.",
+        "statusConflict": "Le statut de cet élément a changé pendant que vous travailliez. Actualisez pour voir son état.",
+        "catalogNotFound": "Ce contenu n'est pas dans le catalogue.",
+        "catalogNotPublished": "Seul un contenu publié peut être recommandé."
+      }
     },
     "reports": {
       "title": "Rapports",

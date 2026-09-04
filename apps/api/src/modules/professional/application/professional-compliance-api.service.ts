@@ -1,15 +1,18 @@
-import { PDUCompletionStatus, PDUStatus, Prisma } from "@prisma/client";
+import { ContentType, PDUCompletionStatus } from "@prisma/client";
 import { LEARNING_ACTIVITY_RECORDED_EVENT } from "@professional/public/professional-compliance-api.events";
+import { ContentEngagementProjection } from "@professional/public/professional-compliance-api";
 import { ProfessionalComplianceApi } from "@professional/public/professional-compliance-api";
 import { ComplianceActivityDetail } from "@professional/public/professional-compliance-api";
 import { ComplianceFileDescriptor } from "@professional/public/professional-compliance-api";
 import { type EvidenceStoragePort } from "@professional/storage/evidence-storage.port";
 import { ComplianceActivityQuery } from "@professional/public/professional-compliance-api";
+import { ContentEngagementQuery } from "@professional/public/professional-compliance-api";
 import { ComplianceCertificate } from "@professional/public/professional-compliance-api";
 import { ComplianceStoredFile } from "@professional/public/professional-compliance-api";
 import { SettleReviewCommand } from "@professional/public/professional-compliance-api";
 import { ComplianceActivity } from "@professional/public/professional-compliance-api";
 import { Inject, Injectable } from "@nestjs/common";
+import { PDUStatus, Prisma } from "@prisma/client";
 import { EVIDENCE_STORAGE } from "@professional/storage/evidence-storage.port";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { PrismaService } from "@prisma/prisma.service";
@@ -217,6 +220,38 @@ export class ProfessionalComplianceApiService
     } catch {
       return null;
     }
+  }
+
+  async contentEngagement(
+    query: ContentEngagementQuery,
+  ): Promise<ContentEngagementProjection[]> {
+    if (!query.userIds.length || !query.references.length) return [];
+
+    const activities = await this.prisma.pDUActivity.findMany({
+      where: {
+        userId: { in: [...query.userIds] },
+        OR: query.references.map((reference) => ({
+          contentType: reference.contentType as ContentType,
+          contentId: reference.contentId,
+        })),
+      },
+      select: { userId: true, pdus: true, contentType: true, contentId: true },
+    });
+
+    return query.references.map((reference) => {
+      const matching = activities.filter(
+        (activity) =>
+          activity.contentType === reference.contentType &&
+          activity.contentId === reference.contentId,
+      );
+
+      return {
+        contentType: reference.contentType,
+        contentId: reference.contentId,
+        memberCount: new Set(matching.map((activity) => activity.userId)).size,
+        credits: matching.reduce((total, activity) => total + activity.pdus, 0),
+      };
+    });
   }
 
   async settleReview(command: SettleReviewCommand): Promise<boolean> {

@@ -331,6 +331,21 @@ type AssociationBulkInviteResult {
   totalRows: Int!
 }
 
+type AssociationCatalogItem {
+  contentId: ID!
+  contentType: ContentType!
+  imageUrl: String
+  isAvailable: Boolean!
+  provider: String
+  title: String!
+}
+
+input AssociationCatalogSearchInput {
+  contentType: ContentType
+  search: String
+  take: Int = 20
+}
+
 type AssociationCategoryProgress {
   completedCredits: Float!
   id: ID!
@@ -403,6 +418,57 @@ enum AssociationInviteOutcome {
 type AssociationInviteResult {
   member: AssociationMember!
   outcome: AssociationInviteOutcome!
+}
+
+type AssociationLearningContent {
+  audienceKind: AssociationAudienceKind!
+  category: PDUCategory!
+  contentId: ID
+  contentType: ContentType
+  createdAt: DateTime!
+  description: String
+  engagement: AssociationLearningEngagement
+  externalUrl: String
+  groupId: ID
+  groupTitle: String
+  id: ID!
+  imageUrl: String
+  indicativeCredits: Float
+  isAvailable: Boolean!
+  isExternal: Boolean!
+  provider: String
+  publishedAt: DateTime
+  requirementId: ID
+  requirementName: String
+  status: AssociationLearningContentStatus!
+  title: String!
+  updatedAt: DateTime!
+  withdrawnAt: DateTime
+}
+
+input AssociationLearningContentFilterInput {
+  category: PDUCategory
+  contentType: ContentType
+  isExternal: Boolean
+  requirementId: ID
+  search: String
+  status: AssociationLearningContentStatus
+}
+
+input AssociationLearningContentIdInput {
+  learningContentId: ID!
+}
+
+"""Whether a library item is a draft, published, or withdrawn"""
+enum AssociationLearningContentStatus {
+  DRAFT
+  PUBLISHED
+  WITHDRAWN
+}
+
+type AssociationLearningEngagement {
+  credits: Float!
+  memberCount: Int!
 }
 
 type AssociationMember {
@@ -1134,6 +1200,18 @@ input CreateAssociationGroupInput {
   title: String!
 }
 
+input CreateAssociationLearningContentInput {
+  category: PDUCategory!
+  contentId: ID
+  contentType: ContentType
+  description: String
+  externalProvider: String
+  externalTitle: String
+  externalUrl: String
+  indicativeCredits: Float
+  requirementId: ID
+}
+
 input CreateAssociationRequirementDraftInput {
   creditType: CreditType
   name: String!
@@ -1704,6 +1782,7 @@ type Mutation {
   confirmExternalLearning(input: ConfirmExternalLearningInput!): ExternalLearningActivity!
   createAssociationAccount(input: CreateAssociationAccountInput!): AssociationActionResponse!
   createAssociationGroup(input: CreateAssociationGroupInput!): AssociationGroup!
+  createAssociationLearningContent(input: CreateAssociationLearningContentInput!): AssociationLearningContent!
   createAssociationRequirementDraft(input: CreateAssociationRequirementDraftInput!): AssociationRequirement!
   createCalendarEvent(input: CreateCalendarEventInput!): ProfessionalManualCalendarEvent!
   createCourse(input: CreateCourseInput!): Course!
@@ -1721,6 +1800,7 @@ type Mutation {
   createUser(input: CreateUserInput!): User!
   createYouTubeChannel(input: CreateYouTubeChannelInput!): YouTubeChannel!
   createYouTubeVideo(input: CreateYouTubeVideoInput!): YouTubeVideo!
+  deleteAssociationLearningContent(input: AssociationLearningContentIdInput!): AssociationActionResponse!
   deleteCalendarEvent(id: ID!): ProfessionalActionResponse!
   deleteContentReview(input: ContentActionInput!): ContentActionPayload!
   deleteCourse(courseId: String!): Course!
@@ -1745,6 +1825,7 @@ type Mutation {
   login(input: LoginInput!): AuthPayload!
   logout: AuthPayload!
   patchRoadmapDraft(input: PatchRoadmapDraftInput!): ProfessionalRoadmapDraft!
+  publishAssociationLearningContent(input: PublishAssociationLearningContentInput!): AssociationLearningContent!
   publishAssociationRequirement(input: AssociationRequirementIdInput!): AssociationRequirement!
   publishCourse(courseId: String!): Course!
   publishEvent(eventId: String!): Event!
@@ -1791,6 +1872,7 @@ type Mutation {
   updateAdminProfile(input: UpdateAdminProfile!): AdminProfile!
   updateAdminUserStatus(input: UpdateAdminUserStatus!): AdminUser!
   updateAssociationGroup(input: UpdateAssociationGroupInput!): AssociationGroup!
+  updateAssociationLearningContent(input: UpdateAssociationLearningContentInput!): AssociationLearningContent!
   updateAssociationMember(input: UpdateAssociationMemberInput!): AssociationMember!
   updateAssociationProfile(input: UpdateAssociationProfileInput!): Association!
   updateAssociationRequirementAudience(input: UpdateAssociationRequirementAudienceInput!): AssociationRequirement!
@@ -1827,6 +1909,7 @@ type Mutation {
   upsertProfessionalPduTarget(input: UpsertPduTargetInput!): ProfessionalPduTarget!
   verifyEmailChange(input: VerifyEmailChangeInput!): AuthPayload!
   verifyEmailOtp(input: VerifyEmailOtpInput!): AuthPayload!
+  withdrawAssociationLearningContent(input: AssociationLearningContentIdInput!): AssociationLearningContent!
 }
 
 input MyWishlistInput {
@@ -2299,6 +2382,12 @@ type PaginatedAdminOrgMembers {
 type PaginatedAdminUser {
   items: [AdminUser!]!
   pageInfo: AdminPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedAssociationLearningContents {
+  items: [AssociationLearningContent!]!
+  pageInfo: AssociationPageInfo!
   totalCount: Int!
 }
 
@@ -3323,6 +3412,12 @@ type ProviderTopEvent {
   views: Int!
 }
 
+input PublishAssociationLearningContentInput {
+  audienceKind: AssociationAudienceKind!
+  groupId: ID
+  learningContentId: ID!
+}
+
 type Query {
   adminAuditLogs(filter: AdminAuditLogFilter, pagination: AdminPagination): PaginatedAdminAuditLogs!
   adminDashboardOverview: AdminDashboardOverview!
@@ -3335,7 +3430,10 @@ type Query {
   adminUserGrowth(mode: String = "DAILY"): [AdminChartPoint!]!
   adminUsers(filter: AdminUserFilter, pagination: AdminPagination): PaginatedAdminUser!
   associationActivationStatus(token: String!): AssociationActivationStatus!
+  associationCatalogSearch(associationId: ID, input: AssociationCatalogSearchInput!): [AssociationCatalogItem!]!
   associationGroups(associationId: ID): [AssociationGroup!]!
+  associationLearningContent(associationId: ID, learningContentId: ID!): AssociationLearningContent!
+  associationLearningContents(associationId: ID, filter: AssociationLearningContentFilterInput, pagination: AssociationPaginationInput): PaginatedAssociationLearningContents!
   associationMemberActivities(associationId: ID, filter: AssociationMemberActivityFilterInput, memberId: ID!, pagination: AssociationPaginationInput): PaginatedAssociationMemberActivities!
   associationMemberCompliance(associationId: ID, memberId: ID!): AssociationMemberCompliance!
   associationMemberComplianceList(associationId: ID, filter: AssociationComplianceFilterInput): [AssociationComplianceSummary!]!
@@ -3739,6 +3837,19 @@ input UpdateAssociationGroupInput {
   description: String
   groupId: ID!
   title: String
+}
+
+input UpdateAssociationLearningContentInput {
+  category: PDUCategory!
+  contentId: ID
+  contentType: ContentType
+  description: String
+  externalProvider: String
+  externalTitle: String
+  externalUrl: String
+  indicativeCredits: Float
+  learningContentId: ID!
+  requirementId: ID
 }
 
 input UpdateAssociationMemberInput {

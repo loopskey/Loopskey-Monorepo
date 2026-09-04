@@ -1,3 +1,4 @@
+import type { TUseAssociationLearningContent } from "@hooks/useAssociationLearningContent";
 import type { TUseAssociationMemberDetail } from "@hooks/useAssociationMemberDetail";
 import type { TUseAssociationMembersTab } from "@hooks/useAssociationMembersTab";
 import type { TRosterCompositionRow } from "@utils/association-roster-composition";
@@ -110,3 +111,18 @@ export type TAssociationCumulativeChart = {
   label: (key: string) => string;
   rows: TAssociationCumulativePoint[];
 };
+
+export type TAssociationLearningContentRow =
+  TAPI.AssociationLearningContentsQuery["associationLearningContents"]["items"][number];
+
+export type TAssociationCatalogItem =
+  TAPI.AssociationCatalogSearchQuery["associationCatalogSearch"][number];
+
+type TWithLibrary = { hook: TUseAssociationLearningContent };
+
+export type TAssociationLearningContentTab = TWithLibrary;
+export type TAssociationLearningFilters = TWithLibrary;
+export type TAssociationLearningList = TWithLibrary;
+export type TAssociationLearningEditor = TWithLibrary;
+export type TAssociationLearningPublishDialog = TWithLibrary;
+export type TAssociationLearningDetail = TWithLibrary;
