@@ -8,6 +8,7 @@ import { AssociationMessageCode } from "@association/enums/association-message-c
 import { TAssociationUser } from "@association/types/association-service.types";
 import { daysRemaining } from "@association/utils/compliance-attribution.util";
 import { PrismaService } from "@prisma/prisma.service";
+import { OverallAssignment } from "@association/utils/compliance-attribution.util";
 import { overallFor } from "@association/utils/compliance-attribution.util";
 
 const PENDING_REVIEW_LIMIT = 200;
@@ -184,6 +185,7 @@ export class AssociationComplianceReadService {
           isMissingEvidence: true,
           completedCredits: true,
           computedAt: true,
+          requirement: { select: { totalRequiredCredits: true } },
         },
       });
 
@@ -193,7 +195,7 @@ export class AssociationComplianceReadService {
         memberId: string;
         isMissingEvidence: boolean;
         computedAt: Date | null;
-        assignments: { percent: number; awaitingReviewCount: number }[];
+        assignments: OverallAssignment[];
       }
     >();
 
@@ -202,11 +204,12 @@ export class AssociationComplianceReadService {
         memberId: assignment.memberId,
         isMissingEvidence: false,
         computedAt: null as Date | null,
-        assignments: [] as { percent: number; awaitingReviewCount: number }[],
+        assignments: [] as OverallAssignment[],
       };
 
       current.assignments.push({
-        percent: assignment.percent,
+        requiredCredits: assignment.requirement.totalRequiredCredits,
+        completedCredits: assignment.completedCredits,
         awaitingReviewCount: assignment.awaitingReviewCount,
       });
       current.isMissingEvidence ||= assignment.isMissingEvidence;

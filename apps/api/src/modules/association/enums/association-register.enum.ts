@@ -1,3 +1,4 @@
+import { AssociationReportPeriod } from "@association/utils/association-report-period.util";
 import { AssociationLearningContentStatus } from "@prisma/client";
 import { AssociationAttributionState } from "@prisma/client";
 import { AssociationRequirementStatus } from "@prisma/client";
@@ -60,4 +61,9 @@ registerEnumType(AssociationAttributionState, {
 registerEnumType(AssociationLearningContentStatus, {
   name: "AssociationLearningContentStatus",
   description: "Whether a library item is a draft, published, or withdrawn",
+});
+
+registerEnumType(AssociationReportPeriod, {
+  name: "AssociationReportPeriod",
+  description: "The period a report covers, as a preset or an explicit range",
 });

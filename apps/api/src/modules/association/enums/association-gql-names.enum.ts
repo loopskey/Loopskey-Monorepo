@@ -39,6 +39,19 @@ export enum AssociationGqlObjectNames {
   ASSOCIATION_CATALOG_ITEM = "AssociationCatalogItem",
   ASSOCIATION_LEARNING_ENGAGEMENT = "AssociationLearningEngagement",
   PAGINATED_ASSOCIATION_LEARNING_CONTENTS = "PaginatedAssociationLearningContents",
+  ASSOCIATION_REPORT_SUMMARY = "AssociationReportSummary",
+  ASSOCIATION_GROUP_COMPLIANCE = "AssociationGroupCompliance",
+  ASSOCIATION_CATEGORY_PROGRESS_ROW = "AssociationCategoryProgressRow",
+  ASSOCIATION_MEMBER_DISTRIBUTION = "AssociationMemberDistribution",
+  ASSOCIATION_COMPLIANCE_TREND_POINT = "AssociationComplianceTrendPoint",
+  ASSOCIATION_REPORT_ASSIGNMENT = "AssociationReportAssignment",
+  ASSOCIATION_MEMBER_PROGRESS_ROW = "AssociationMemberProgressRow",
+  ASSOCIATION_GROUP_PROGRESS_ROW = "AssociationGroupProgressRow",
+  ASSOCIATION_MISSING_EVIDENCE_ROW = "AssociationMissingEvidenceRow",
+  ASSOCIATION_RENEWAL_READINESS_ROW = "AssociationRenewalReadinessRow",
+  PAGINATED_ASSOCIATION_MEMBER_PROGRESS = "PaginatedAssociationMemberProgress",
+  PAGINATED_ASSOCIATION_MISSING_EVIDENCE = "PaginatedAssociationMissingEvidence",
+  PAGINATED_ASSOCIATION_RENEWAL_READINESS = "PaginatedAssociationRenewalReadiness",
 }
 
 export enum AssociationGqlInputNames {
@@ -75,6 +88,8 @@ export enum AssociationGqlInputNames {
   UPDATE_ASSOCIATION_LEARNING_CONTENT = "UpdateAssociationLearningContentInput",
   PUBLISH_ASSOCIATION_LEARNING_CONTENT = "PublishAssociationLearningContentInput",
   ASSOCIATION_LEARNING_CONTENT_ID = "AssociationLearningContentIdInput",
+  ASSOCIATION_REPORT_FILTER = "AssociationReportFilterInput",
+  ASSOCIATION_REPORT_PAGINATION = "AssociationReportPaginationInput",
 }
 
 export enum AssociationGqlQueryNames {
@@ -94,6 +109,16 @@ export enum AssociationGqlQueryNames {
   LEARNING_CONTENTS = "associationLearningContents",
   LEARNING_CONTENT = "associationLearningContent",
   CATALOG_SEARCH = "associationCatalogSearch",
+  REPORT_SUMMARY = "associationReportSummary",
+  COMPLIANCE_BY_GROUP = "associationComplianceByGroup",
+  PROGRESS_BY_CATEGORY = "associationProgressByCategory",
+  MEMBER_DISTRIBUTION = "associationMemberDistribution",
+  COMPLIANCE_TREND = "associationComplianceTrend",
+  MEMBER_PROGRESS_REPORT = "associationMemberProgressReport",
+  GROUP_PROGRESS_REPORT = "associationGroupProgressReport",
+  CATEGORY_COMPLETION_REPORT = "associationCategoryCompletionReport",
+  MISSING_EVIDENCE_REPORT = "associationMissingEvidenceReport",
+  RENEWAL_READINESS_REPORT = "associationRenewalReadinessReport",
 }
 
 export enum AssociationGqlMutationNames {

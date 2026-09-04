@@ -105,12 +105,8 @@ export class AssociationMemberProfileService {
         percent: overall.percent,
         band: overall.band,
         awaitingReviewCount: overall.awaitingReviewCount,
-        creditsRequired: this.sum(
-          compliance.assignments.map((row) => row.requiredCredits),
-        ),
-        creditsCompleted: this.sum(
-          compliance.assignments.map((row) => row.completedCredits),
-        ),
+        creditsRequired: overall.requiredCredits,
+        creditsCompleted: overall.completedCredits,
         creditsRemaining: this.sum(
           compliance.assignments.map((row) =>
             Math.max(0, row.requiredCredits - row.completedCredits),
