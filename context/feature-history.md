@@ -26,3 +26,4 @@ into this index and do not rewrite previous records.
 - [`association-requirements-api`](feature-runs/active/association-requirements-api.md)
 - [`association-compliance-projection`](feature-runs/active/association-compliance-projection.md)
 - [`association-member-detail-evidence-review`](feature-runs/active/association-member-detail-evidence-review.md)
+- [`association-learning-content`](feature-runs/active/association-learning-content.md)

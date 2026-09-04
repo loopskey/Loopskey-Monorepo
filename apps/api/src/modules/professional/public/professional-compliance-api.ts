@@ -53,6 +53,21 @@ export type ComplianceStoredFile = {
   sourceId: string;
 };
 
+export type ContentEngagementQuery = {
+  readonly userIds: readonly string[];
+  readonly references: readonly {
+    readonly contentType: string;
+    readonly contentId: string;
+  }[];
+};
+
+export type ContentEngagementProjection = {
+  readonly contentType: string;
+  readonly contentId: string;
+  readonly memberCount: number;
+  readonly credits: number;
+};
+
 export type SettleReviewCommand = {
   approve: boolean;
   activityId: string;
@@ -88,6 +103,10 @@ export interface ProfessionalComplianceApi {
     fileId: string,
     ownerUserIds: string[],
   ): Promise<ComplianceStoredFile | null>;
+
+  contentEngagement(
+    query: ContentEngagementQuery,
+  ): Promise<ContentEngagementProjection[]>;
 
   settleReview(command: SettleReviewCommand): Promise<boolean>;
 }

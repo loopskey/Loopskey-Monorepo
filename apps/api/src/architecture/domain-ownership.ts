@@ -114,6 +114,7 @@ export const MODEL_OWNERSHIP = {
   AssociationRequirementCategory: BOUNDED_CONTEXTS.ASSOCIATION_MANAGEMENT,
   AssociationRequirementAssignment: BOUNDED_CONTEXTS.ASSOCIATION_MANAGEMENT,
   AssociationCreditAttribution: BOUNDED_CONTEXTS.ASSOCIATION_MANAGEMENT,
+  AssociationLearningContent: BOUNDED_CONTEXTS.ASSOCIATION_MANAGEMENT,
 
   // Provider Management
   ProviderProfile: BOUNDED_CONTEXTS.PROVIDER_MANAGEMENT,
@@ -156,6 +157,7 @@ export const DOMAIN_DEPENDENCIES = {
   "association-management": [
     "communications",
     "identity-access",
+    "learning-catalog",
     "platform-shared",
     "professional-development",
   ],

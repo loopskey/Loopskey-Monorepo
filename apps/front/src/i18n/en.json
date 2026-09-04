@@ -5555,7 +5555,128 @@
     },
     "learningContent": {
       "title": "Learning Content",
-      "comingSoon": "The learning library your members draw on arrives in a later release."
+      "description": "The learning you endorse for your members. A requirement says how many credits they owe; this says where to earn them.",
+      "actions": {
+        "addCatalogue": "Endorse from the catalogue",
+        "addExternal": "Add an external resource",
+        "view": "View details",
+        "edit": "Edit",
+        "publish": "Publish",
+        "withdraw": "Withdraw",
+        "delete": "Delete"
+      },
+      "status": {
+        "DRAFT": "Draft",
+        "PUBLISHED": "Published",
+        "WITHDRAWN": "Withdrawn"
+      },
+      "filters": {
+        "search": "Search",
+        "searchPlaceholder": "Search by title",
+        "category": "Category",
+        "allCategories": "All categories",
+        "status": "Status",
+        "allStatuses": "All statuses",
+        "source": "Source",
+        "allSources": "All sources",
+        "catalogue": "Platform catalogue",
+        "external": "External resource",
+        "requirement": "Requirement",
+        "allRequirements": "All requirements",
+        "clear": "Clear filters"
+      },
+      "list": {
+        "untitled": "Untitled item",
+        "meta": "{{source}} · {{provider}} · {{category}} · added {{added}}",
+        "noProvider": "No provider named",
+        "credits": "{{credits}} indicative credits",
+        "forRequirement": "Counts toward {{requirement}}",
+        "forGroup": "Published to {{group}}",
+        "unavailable": "No longer available",
+        "actionsFor": "Actions for {{title}}"
+      },
+      "empty": {
+        "firstRunTitle": "Your library is empty",
+        "firstRunBody": "Endorse a course, event, podcast or video from the platform catalogue, or add a resource of your own, and your members will know what to do next.",
+        "noResultsTitle": "Nothing matches those filters",
+        "noResultsBody": "Clear the filters to see the whole library."
+      },
+      "editor": {
+        "addCatalogueTitle": "Endorse from the catalogue",
+        "addExternalTitle": "Add an external resource",
+        "editTitle": "Edit library item",
+        "catalogueDescription": "Pick published content from the platform. Its title, image and provider stay in step with the catalogue rather than being copied here.",
+        "externalDescription": "Anything on the open web. Members open it in a new tab; the link is never fetched by the platform.",
+        "pickContent": "Content",
+        "searchPlaceholder": "Search the catalogue",
+        "contentType": "Content type",
+        "allTypes": "All types",
+        "noResults": "Nothing in the catalogue matches that search.",
+        "pickOne": "Choose a piece of content to endorse.",
+        "title": "Title",
+        "provider": "Provider",
+        "url": "Link",
+        "category": "Category",
+        "credits": "Indicative credits",
+        "requirement": "Counts toward",
+        "noRequirement": "No requirement",
+        "description": "Why you are recommending it",
+        "save": "Save item"
+      },
+      "publish": {
+        "title": "Publish to your members",
+        "description": "A published item is visible to the audience you choose. You can withdraw it later without losing it.",
+        "audience": "Audience",
+        "allMembers": "All members",
+        "oneGroup": "One group",
+        "group": "Group",
+        "groupPlaceholder": "Choose a group",
+        "confirm": "Publish"
+      },
+      "detail": {
+        "title": "Library item",
+        "description": "The item, its rules, and what your members did with it.",
+        "source": "Source",
+        "provider": "Provider",
+        "category": "Category",
+        "credits": "Indicative credits",
+        "noCredits": "Not stated",
+        "requirement": "Counts toward",
+        "noRequirement": "No requirement",
+        "audience": "Audience",
+        "allMembers": "All members",
+        "published": "Published",
+        "withdrawn": "Withdrawn",
+        "unavailableBody": "This content is no longer published in the catalogue. It is kept here so you can replace it rather than losing the endorsement.",
+        "engagementTitle": "What members did with it",
+        "engagementBody": "{{members}} members recorded an activity against this, carrying {{credits}} credits.",
+        "engagementExternal": "Engagement is counted for catalogue content, which members can link an activity to. An external resource has no such link."
+      },
+      "confirm": {
+        "deleteTitle": "Delete this draft?",
+        "deleteBody": "{{title}} has not been published, so no member has seen it. This cannot be undone.",
+        "deleteConfirm": "Delete"
+      },
+      "messages": {
+        "added": "Added to your library.",
+        "saved": "Library item saved.",
+        "published": "Published to your members.",
+        "withdrawn": "Withdrawn. The item is kept in your library.",
+        "deleted": "Draft deleted."
+      },
+      "error": {
+        "title": "The library could not be loaded.",
+        "body": "The request failed. Try again in a moment."
+      },
+      "errors": {
+        "notFound": "That library item was not found.",
+        "invalid": "An external resource needs a title and a link.",
+        "alreadyEndorsed": "You have already endorsed that content.",
+        "notDeletable": "Members may already have acted on this item. Withdraw it instead.",
+        "statusConflict": "That item's status changed while you were working. Refresh to see where it stands.",
+        "catalogNotFound": "That content is not in the catalogue.",
+        "catalogNotPublished": "Only published content can be endorsed."
+      }
     },
     "reports": {
       "title": "Reports",

@@ -121,12 +121,13 @@ model User {
   roadmapDrafts          RoadmapDraft[]
   ownedRoadmaps          Roadmap[]                @relation("OwnedRoadmaps")
 
-  ownedOrganization               Organization?            @relation("OrganizationOwner")
-  ownedAssociation                Association?             @relation("AssociationOwner")
+  ownedOrganization               Organization?                @relation("OrganizationOwner")
+  ownedAssociation                Association?                 @relation("AssociationOwner")
   associationMemberships          AssociationMember[]
-  authoredAssociationRequirements AssociationRequirement[] @relation("AssociationRequirementAuthor")
+  authoredAssociationRequirements AssociationRequirement[]     @relation("AssociationRequirementAuthor")
+  authoredAssociationLearning     AssociationLearningContent[] @relation("AssociationLearningContentAuthor")
   organizationMemberships         OrganizationMember[]
-  createdOrgAssignments           OrganizationAssignment[] @relation("CreatedOrgAssignments")
+  createdOrgAssignments           OrganizationAssignment[]     @relation("CreatedOrgAssignments")
 
   promotionRequests          EventPromotionRequest[]
   reviewedPromotionRequests  EventPromotionRequest[]    @relation("ReviewedPromotionRequests")
@@ -2150,10 +2151,11 @@ model Association {
   website      String?
   contactEmail String?
 
-  settings     AssociationSettings?
-  groups       AssociationGroup[]
-  members      AssociationMember[]
-  requirements AssociationRequirement[]
+  settings         AssociationSettings?
+  groups           AssociationGroup[]
+  members          AssociationMember[]
+  requirements     AssociationRequirement[]
+  learningContents AssociationLearningContent[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -2206,6 +2208,7 @@ model AssociationGroup {
 
   members           AssociationMember[]
   requirementTarget AssociationRequirementTarget[]
+  learningContents  AssociationLearningContent[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -2474,9 +2477,10 @@ model AssociationRequirement {
   publishedAt DateTime?
   archivedAt  DateTime?
 
-  categories  AssociationRequirementCategory[]
-  targets     AssociationRequirementTarget[]
-  assignments AssociationRequirementAssignment[]
+  categories       AssociationRequirementCategory[]
+  targets          AssociationRequirementTarget[]
+  assignments      AssociationRequirementAssignment[]
+  learningContents AssociationLearningContent[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -2639,4 +2643,71 @@ model AssociationCreditAttribution {
   @@index([activityId])
   @@index([categoryId])
   @@index([state])
+}
+
+/// Where a member should go to earn the credits a requirement asks for.
+///
+/// An item is either a reference into the platform catalogue — a `ContentType`
+/// and the id of a published course, event, podcast or video — or an external
+/// resource the association wrote down itself. Catalogue titles, images and
+/// availability are deliberately not copied here: they are resolved at read
+/// time through the learning-catalog module's port, so the library can never
+/// show a title the catalogue has since changed.
+///
+/// One catalogue item is endorsed once per association, which Prisma cannot
+/// express because the constraint must ignore the external rows where both
+/// content columns are null. The migration creates
+/// `AssociationLearningContent_catalog_key` on (associationId, contentType,
+/// contentId) WHERE both are NOT NULL as an unmanaged index. `prisma migrate
+/// dev` reports it as drift and offers to drop it — refuse that offer.
+model AssociationLearningContent {
+  id String @id @default(cuid())
+
+  associationId String
+  association   Association @relation(fields: [associationId], references: [id], onDelete: Cascade)
+
+  createdById String
+  createdBy   User   @relation("AssociationLearningContentAuthor", fields: [createdById], references: [id], onDelete: Cascade)
+
+  contentType ContentType?
+  contentId   String?
+
+  externalTitle    String?
+  externalProvider String?
+  externalUrl      String?
+
+  description String?
+
+  category          PDUCategory
+  indicativeCredits Float?
+
+  requirementId String?
+  requirement   AssociationRequirement? @relation(fields: [requirementId], references: [id], onDelete: SetNull)
+
+  status      AssociationLearningContentStatus @default(DRAFT)
+  publishedAt DateTime?
+  withdrawnAt DateTime?
+
+  audienceKind AssociationAudienceKind @default(ALL_MEMBERS)
+
+  groupId String?
+  group   AssociationGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([associationId])
+  @@index([associationId, status])
+  @@index([category])
+  @@index([requirementId])
+  @@index([groupId])
+  @@index([contentType, contentId])
+}
+
+/// A library item's life. `WITHDRAWN` is kept rather than deleted because
+/// members may already have acted on the endorsement.
+enum AssociationLearningContentStatus {
+  DRAFT
+  PUBLISHED
+  WITHDRAWN
 }

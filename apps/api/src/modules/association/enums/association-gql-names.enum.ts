@@ -35,6 +35,10 @@ export enum AssociationGqlObjectNames {
   ASSOCIATION_MEMBER_REQUIREMENT_OPTION = "AssociationMemberRequirementOption",
   ASSOCIATION_MEMBER_REQUIREMENTS_RESULT = "AssociationMemberRequirementsResult",
   PAGINATED_ASSOCIATION_MEMBER_ACTIVITIES = "PaginatedAssociationMemberActivities",
+  ASSOCIATION_LEARNING_CONTENT = "AssociationLearningContent",
+  ASSOCIATION_CATALOG_ITEM = "AssociationCatalogItem",
+  ASSOCIATION_LEARNING_ENGAGEMENT = "AssociationLearningEngagement",
+  PAGINATED_ASSOCIATION_LEARNING_CONTENTS = "PaginatedAssociationLearningContents",
 }
 
 export enum AssociationGqlInputNames {
@@ -65,6 +69,12 @@ export enum AssociationGqlInputNames {
   REVIEW_ASSOCIATION_LEARNING_ACTIVITY = "ReviewAssociationLearningActivityInput",
   ASSOCIATION_MEMBER_ACTIVITY_FILTER = "AssociationMemberActivityFilterInput",
   SET_ASSOCIATION_MEMBER_REQUIREMENTS = "SetAssociationMemberRequirementsInput",
+  ASSOCIATION_LEARNING_CONTENT_FILTER = "AssociationLearningContentFilterInput",
+  ASSOCIATION_CATALOG_SEARCH = "AssociationCatalogSearchInput",
+  CREATE_ASSOCIATION_LEARNING_CONTENT = "CreateAssociationLearningContentInput",
+  UPDATE_ASSOCIATION_LEARNING_CONTENT = "UpdateAssociationLearningContentInput",
+  PUBLISH_ASSOCIATION_LEARNING_CONTENT = "PublishAssociationLearningContentInput",
+  ASSOCIATION_LEARNING_CONTENT_ID = "AssociationLearningContentIdInput",
 }
 
 export enum AssociationGqlQueryNames {
@@ -81,6 +91,9 @@ export enum AssociationGqlQueryNames {
   MEMBER_PROFILE = "associationMemberProfile",
   MEMBER_ACTIVITIES = "associationMemberActivities",
   MEMBER_REQUIREMENT_OPTIONS = "associationMemberRequirementOptions",
+  LEARNING_CONTENTS = "associationLearningContents",
+  LEARNING_CONTENT = "associationLearningContent",
+  CATALOG_SEARCH = "associationCatalogSearch",
 }
 
 export enum AssociationGqlMutationNames {
@@ -106,4 +119,9 @@ export enum AssociationGqlMutationNames {
   REVIEW_LEARNING_ACTIVITY = "reviewAssociationLearningActivity",
   RECOMPUTE_COMPLIANCE = "recomputeAssociationCompliance",
   SET_MEMBER_REQUIREMENTS = "setAssociationMemberRequirements",
+  CREATE_LEARNING_CONTENT = "createAssociationLearningContent",
+  UPDATE_LEARNING_CONTENT = "updateAssociationLearningContent",
+  PUBLISH_LEARNING_CONTENT = "publishAssociationLearningContent",
+  WITHDRAW_LEARNING_CONTENT = "withdrawAssociationLearningContent",
+  DELETE_LEARNING_CONTENT = "deleteAssociationLearningContent",
 }

@@ -276,6 +276,127 @@ export const associationApi = baseApi.injectEndpoints({
       ],
     }),
 
+    associationRequirementOptions: builder.query<
+      TAPI.AssociationRequirementOptionsQuery["associationRequirements"],
+      TAPI.AssociationRequirementOptionsQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.AssociationRequirementOptionsDocument,
+        variables,
+      }),
+      transformResponse: (response: TAPI.AssociationRequirementOptionsQuery) =>
+        response.associationRequirements,
+      providesTags: ["AssociationLearningContent"],
+    }),
+
+    associationLearningContents: builder.query<
+      TAPI.AssociationLearningContentsQuery["associationLearningContents"],
+      TAPI.AssociationLearningContentsQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.AssociationLearningContentsDocument,
+        variables,
+      }),
+      transformResponse: (response: TAPI.AssociationLearningContentsQuery) =>
+        response.associationLearningContents,
+      providesTags: ["AssociationLearningContent"],
+    }),
+
+    associationLearningContent: builder.query<
+      TAPI.AssociationLearningContentQuery["associationLearningContent"],
+      TAPI.AssociationLearningContentQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.AssociationLearningContentDocument,
+        variables,
+      }),
+      transformResponse: (response: TAPI.AssociationLearningContentQuery) =>
+        response.associationLearningContent,
+      providesTags: ["AssociationLearningContent"],
+    }),
+
+    associationCatalogSearch: builder.query<
+      TAPI.AssociationCatalogSearchQuery["associationCatalogSearch"],
+      TAPI.AssociationCatalogSearchQueryVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.AssociationCatalogSearchDocument,
+        variables: { input },
+      }),
+      transformResponse: (response: TAPI.AssociationCatalogSearchQuery) =>
+        response.associationCatalogSearch,
+    }),
+
+    createAssociationLearningContent: builder.mutation<
+      TAPI.CreateAssociationLearningContentMutation["createAssociationLearningContent"],
+      TAPI.CreateAssociationLearningContentMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.CreateAssociationLearningContentDocument,
+        variables: { input },
+      }),
+      transformResponse: (
+        response: TAPI.CreateAssociationLearningContentMutation,
+      ) => response.createAssociationLearningContent,
+      invalidatesTags: ["AssociationLearningContent"],
+    }),
+
+    updateAssociationLearningContent: builder.mutation<
+      TAPI.UpdateAssociationLearningContentMutation["updateAssociationLearningContent"],
+      TAPI.UpdateAssociationLearningContentMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.UpdateAssociationLearningContentDocument,
+        variables: { input },
+      }),
+      transformResponse: (
+        response: TAPI.UpdateAssociationLearningContentMutation,
+      ) => response.updateAssociationLearningContent,
+      invalidatesTags: ["AssociationLearningContent"],
+    }),
+
+    publishAssociationLearningContent: builder.mutation<
+      TAPI.PublishAssociationLearningContentMutation["publishAssociationLearningContent"],
+      TAPI.PublishAssociationLearningContentMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.PublishAssociationLearningContentDocument,
+        variables: { input },
+      }),
+      transformResponse: (
+        response: TAPI.PublishAssociationLearningContentMutation,
+      ) => response.publishAssociationLearningContent,
+      invalidatesTags: ["AssociationLearningContent"],
+    }),
+
+    withdrawAssociationLearningContent: builder.mutation<
+      TAPI.WithdrawAssociationLearningContentMutation["withdrawAssociationLearningContent"],
+      TAPI.WithdrawAssociationLearningContentMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.WithdrawAssociationLearningContentDocument,
+        variables: { input },
+      }),
+      transformResponse: (
+        response: TAPI.WithdrawAssociationLearningContentMutation,
+      ) => response.withdrawAssociationLearningContent,
+      invalidatesTags: ["AssociationLearningContent"],
+    }),
+
+    deleteAssociationLearningContent: builder.mutation<
+      TAPI.DeleteAssociationLearningContentMutation["deleteAssociationLearningContent"],
+      TAPI.DeleteAssociationLearningContentMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.DeleteAssociationLearningContentDocument,
+        variables: { input },
+      }),
+      transformResponse: (
+        response: TAPI.DeleteAssociationLearningContentMutation,
+      ) => response.deleteAssociationLearningContent,
+      invalidatesTags: ["AssociationLearningContent"],
+    }),
+
     setAssociationGroupActive: builder.mutation<
       TAPI.SetAssociationGroupActiveMutation["setAssociationGroupActive"],
       TAPI.SetAssociationGroupActiveMutationVariables["input"]
@@ -301,6 +422,15 @@ export const {
   useAssociationMemberRequirementOptionsQuery,
   useReviewAssociationLearningActivityMutation,
   useSetAssociationMemberRequirementsMutation,
+  useAssociationRequirementOptionsQuery,
+  useAssociationLearningContentsQuery,
+  useAssociationLearningContentQuery,
+  useAssociationCatalogSearchQuery,
+  useCreateAssociationLearningContentMutation,
+  useUpdateAssociationLearningContentMutation,
+  usePublishAssociationLearningContentMutation,
+  useWithdrawAssociationLearningContentMutation,
+  useDeleteAssociationLearningContentMutation,
   useUpdateAssociationProfileMutation,
   useCreateAssociationAccountMutation,
   useResendAssociationActivationMutation,

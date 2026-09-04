@@ -365,6 +365,22 @@ export type AssociationBulkInviteResult = {
   totalRows: Scalars['Int']['output'];
 };
 
+export type AssociationCatalogItem = {
+  __typename?: 'AssociationCatalogItem';
+  contentId: Scalars['ID']['output'];
+  contentType: ContentType;
+  imageUrl?: Maybe<Scalars['String']['output']>;
+  isAvailable: Scalars['Boolean']['output'];
+  provider?: Maybe<Scalars['String']['output']>;
+  title: Scalars['String']['output'];
+};
+
+export type AssociationCatalogSearchInput = {
+  contentType?: InputMaybe<ContentType>;
+  search?: InputMaybe<Scalars['String']['input']>;
+  take?: InputMaybe<Scalars['Int']['input']>;
+};
+
 export type AssociationCategoryProgress = {
   __typename?: 'AssociationCategoryProgress';
   completedCredits: Scalars['Float']['output'];
@@ -441,6 +457,59 @@ export type AssociationInviteResult = {
   __typename?: 'AssociationInviteResult';
   member: AssociationMember;
   outcome: AssociationInviteOutcome;
+};
+
+export type AssociationLearningContent = {
+  __typename?: 'AssociationLearningContent';
+  audienceKind: AssociationAudienceKind;
+  category: PduCategory;
+  contentId?: Maybe<Scalars['ID']['output']>;
+  contentType?: Maybe<ContentType>;
+  createdAt: Scalars['DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  engagement?: Maybe<AssociationLearningEngagement>;
+  externalUrl?: Maybe<Scalars['String']['output']>;
+  groupId?: Maybe<Scalars['ID']['output']>;
+  groupTitle?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  imageUrl?: Maybe<Scalars['String']['output']>;
+  indicativeCredits?: Maybe<Scalars['Float']['output']>;
+  isAvailable: Scalars['Boolean']['output'];
+  isExternal: Scalars['Boolean']['output'];
+  provider?: Maybe<Scalars['String']['output']>;
+  publishedAt?: Maybe<Scalars['DateTime']['output']>;
+  requirementId?: Maybe<Scalars['ID']['output']>;
+  requirementName?: Maybe<Scalars['String']['output']>;
+  status: AssociationLearningContentStatus;
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  withdrawnAt?: Maybe<Scalars['DateTime']['output']>;
+};
+
+export type AssociationLearningContentFilterInput = {
+  category?: InputMaybe<PduCategory>;
+  contentType?: InputMaybe<ContentType>;
+  isExternal?: InputMaybe<Scalars['Boolean']['input']>;
+  requirementId?: InputMaybe<Scalars['ID']['input']>;
+  search?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<AssociationLearningContentStatus>;
+};
+
+export type AssociationLearningContentIdInput = {
+  learningContentId: Scalars['ID']['input'];
+};
+
+/** Whether a library item is a draft, published, or withdrawn */
+export enum AssociationLearningContentStatus {
+  Draft = 'DRAFT',
+  Published = 'PUBLISHED',
+  Withdrawn = 'WITHDRAWN'
+}
+
+export type AssociationLearningEngagement = {
+  __typename?: 'AssociationLearningEngagement';
+  credits: Scalars['Float']['output'];
+  memberCount: Scalars['Int']['output'];
 };
 
 export type AssociationMember = {
@@ -1209,6 +1278,18 @@ export type CreateAssociationGroupInput = {
   title: Scalars['String']['input'];
 };
 
+export type CreateAssociationLearningContentInput = {
+  category: PduCategory;
+  contentId?: InputMaybe<Scalars['ID']['input']>;
+  contentType?: InputMaybe<ContentType>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  externalProvider?: InputMaybe<Scalars['String']['input']>;
+  externalTitle?: InputMaybe<Scalars['String']['input']>;
+  externalUrl?: InputMaybe<Scalars['String']['input']>;
+  indicativeCredits?: InputMaybe<Scalars['Float']['input']>;
+  requirementId?: InputMaybe<Scalars['ID']['input']>;
+};
+
 export type CreateAssociationRequirementDraftInput = {
   creditType?: InputMaybe<CreditType>;
   name: Scalars['String']['input'];
@@ -1779,6 +1860,7 @@ export type Mutation = {
   confirmExternalLearning: ExternalLearningActivity;
   createAssociationAccount: AssociationActionResponse;
   createAssociationGroup: AssociationGroup;
+  createAssociationLearningContent: AssociationLearningContent;
   createAssociationRequirementDraft: AssociationRequirement;
   createCalendarEvent: ProfessionalManualCalendarEvent;
   createCourse: Course;
@@ -1796,6 +1878,7 @@ export type Mutation = {
   createUser: User;
   createYouTubeChannel: YouTubeChannel;
   createYouTubeVideo: YouTubeVideo;
+  deleteAssociationLearningContent: AssociationActionResponse;
   deleteCalendarEvent: ProfessionalActionResponse;
   deleteContentReview: ContentActionPayload;
   deleteCourse: Course;
@@ -1820,6 +1903,7 @@ export type Mutation = {
   login: AuthPayload;
   logout: AuthPayload;
   patchRoadmapDraft: ProfessionalRoadmapDraft;
+  publishAssociationLearningContent: AssociationLearningContent;
   publishAssociationRequirement: AssociationRequirement;
   publishCourse: Course;
   publishEvent: Event;
@@ -1866,6 +1950,7 @@ export type Mutation = {
   updateAdminProfile: AdminProfile;
   updateAdminUserStatus: AdminUser;
   updateAssociationGroup: AssociationGroup;
+  updateAssociationLearningContent: AssociationLearningContent;
   updateAssociationMember: AssociationMember;
   updateAssociationProfile: Association;
   updateAssociationRequirementAudience: AssociationRequirement;
@@ -1902,6 +1987,7 @@ export type Mutation = {
   upsertProfessionalPduTarget: ProfessionalPduTarget;
   verifyEmailChange: AuthPayload;
   verifyEmailOtp: AuthPayload;
+  withdrawAssociationLearningContent: AssociationLearningContent;
 };
 
 
@@ -2011,6 +2097,11 @@ export type MutationCreateAssociationGroupArgs = {
 };
 
 
+export type MutationCreateAssociationLearningContentArgs = {
+  input: CreateAssociationLearningContentInput;
+};
+
+
 export type MutationCreateAssociationRequirementDraftArgs = {
   input: CreateAssociationRequirementDraftInput;
 };
@@ -2093,6 +2184,11 @@ export type MutationCreateYouTubeChannelArgs = {
 
 export type MutationCreateYouTubeVideoArgs = {
   input: CreateYouTubeVideoInput;
+};
+
+
+export type MutationDeleteAssociationLearningContentArgs = {
+  input: AssociationLearningContentIdInput;
 };
 
 
@@ -2203,6 +2299,11 @@ export type MutationLoginArgs = {
 
 export type MutationPatchRoadmapDraftArgs = {
   input: PatchRoadmapDraftInput;
+};
+
+
+export type MutationPublishAssociationLearningContentArgs = {
+  input: PublishAssociationLearningContentInput;
 };
 
 
@@ -2412,6 +2513,11 @@ export type MutationUpdateAssociationGroupArgs = {
 };
 
 
+export type MutationUpdateAssociationLearningContentArgs = {
+  input: UpdateAssociationLearningContentInput;
+};
+
+
 export type MutationUpdateAssociationMemberArgs = {
   input: UpdateAssociationMemberInput;
 };
@@ -2589,6 +2695,11 @@ export type MutationVerifyEmailChangeArgs = {
 
 export type MutationVerifyEmailOtpArgs = {
   input: VerifyEmailOtpInput;
+};
+
+
+export type MutationWithdrawAssociationLearningContentArgs = {
+  input: AssociationLearningContentIdInput;
 };
 
 export type MyWishlistInput = {
@@ -3092,6 +3203,13 @@ export type PaginatedAdminUser = {
   __typename?: 'PaginatedAdminUser';
   items: Array<AdminUser>;
   pageInfo: AdminPageInfo;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type PaginatedAssociationLearningContents = {
+  __typename?: 'PaginatedAssociationLearningContents';
+  items: Array<AssociationLearningContent>;
+  pageInfo: AssociationPageInfo;
   totalCount: Scalars['Int']['output'];
 };
 
@@ -4195,6 +4313,12 @@ export type ProviderTopEvent = {
   views: Scalars['Int']['output'];
 };
 
+export type PublishAssociationLearningContentInput = {
+  audienceKind: AssociationAudienceKind;
+  groupId?: InputMaybe<Scalars['ID']['input']>;
+  learningContentId: Scalars['ID']['input'];
+};
+
 export type Query = {
   __typename?: 'Query';
   adminAuditLogs: PaginatedAdminAuditLogs;
@@ -4208,7 +4332,10 @@ export type Query = {
   adminUserGrowth: Array<AdminChartPoint>;
   adminUsers: PaginatedAdminUser;
   associationActivationStatus: AssociationActivationStatus;
+  associationCatalogSearch: Array<AssociationCatalogItem>;
   associationGroups: Array<AssociationGroup>;
+  associationLearningContent: AssociationLearningContent;
+  associationLearningContents: PaginatedAssociationLearningContents;
   associationMemberActivities: PaginatedAssociationMemberActivities;
   associationMemberCompliance: AssociationMemberCompliance;
   associationMemberComplianceList: Array<AssociationComplianceSummary>;
@@ -4363,8 +4490,27 @@ export type QueryAssociationActivationStatusArgs = {
 };
 
 
+export type QueryAssociationCatalogSearchArgs = {
+  associationId?: InputMaybe<Scalars['ID']['input']>;
+  input: AssociationCatalogSearchInput;
+};
+
+
 export type QueryAssociationGroupsArgs = {
   associationId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type QueryAssociationLearningContentArgs = {
+  associationId?: InputMaybe<Scalars['ID']['input']>;
+  learningContentId: Scalars['ID']['input'];
+};
+
+
+export type QueryAssociationLearningContentsArgs = {
+  associationId?: InputMaybe<Scalars['ID']['input']>;
+  filter?: InputMaybe<AssociationLearningContentFilterInput>;
+  pagination?: InputMaybe<AssociationPaginationInput>;
 };
 
 
@@ -5120,6 +5266,19 @@ export type UpdateAssociationGroupInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   groupId: Scalars['ID']['input'];
   title?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdateAssociationLearningContentInput = {
+  category: PduCategory;
+  contentId?: InputMaybe<Scalars['ID']['input']>;
+  contentType?: InputMaybe<ContentType>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  externalProvider?: InputMaybe<Scalars['String']['input']>;
+  externalTitle?: InputMaybe<Scalars['String']['input']>;
+  externalUrl?: InputMaybe<Scalars['String']['input']>;
+  indicativeCredits?: InputMaybe<Scalars['Float']['input']>;
+  learningContentId: Scalars['ID']['input'];
+  requirementId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 export type UpdateAssociationMemberInput = {
