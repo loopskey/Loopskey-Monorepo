@@ -115,6 +115,7 @@ export const MODEL_OWNERSHIP = {
   AssociationRequirementAssignment: BOUNDED_CONTEXTS.ASSOCIATION_MANAGEMENT,
   AssociationCreditAttribution: BOUNDED_CONTEXTS.ASSOCIATION_MANAGEMENT,
   AssociationLearningContent: BOUNDED_CONTEXTS.ASSOCIATION_MANAGEMENT,
+  AssociationGeneratedReport: BOUNDED_CONTEXTS.ASSOCIATION_MANAGEMENT,
 
   // Provider Management
   ProviderProfile: BOUNDED_CONTEXTS.PROVIDER_MANAGEMENT,

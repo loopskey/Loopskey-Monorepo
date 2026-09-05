@@ -29,6 +29,9 @@ exist only so a user gets a readable message instead of a constraint violation.
 | A stale compliance recomputation is discarded | `updateMany` on the assignment where `computedAt IS NULL OR computedAt <= startedAt`, so a slow pass finishing after a newer one matches nothing |
 | One attribution per assignment and activity | `AssociationCreditAttribution(assignmentId, activityId)` unique index, which is what makes recomputation idempotent |
 | A repeated cycle rollover opens nothing | `AssociationRequirementAssignment(requirementId, memberId, cycleStart)` unique index |
+| One generation per pending report export | Partial unique index `AssociationGeneratedReport_pending_key` on (association, report type, format, filter hash) WHERE state is `PENDING`, its violation recovered into a read of the winning record |
+| A generated export becomes ready once | `updateMany` naming `PENDING`, `count === 1`, written only after the file exists in object storage |
+| An expired export never points at a readable file | The retention sweep removes the object first, then marks the record with a `updateMany` naming `READY` |
 
 ## Decisions
 
@@ -161,6 +164,13 @@ accepts one — the mail handler passes it to Resend as `Idempotency-Key`. This 
 what makes the unavoidable window between an external side effect and the
 `OutboxDelivery` row harmless: a process killed in that window retries, and the
 provider collapses the two requests into one.
+
+A handler whose failure will not improve on retry should not throw. The report
+export handler marks its record `FAILED` and returns for anything the domain
+refused — a deleted group, a filter the period rules reject — and throws only
+for the unexpected, so a user sees a reason in seconds rather than after ten
+backoffs. Its `abandon` hook writes the same terminal state when the processor
+does give up.
 
 Retries stop at ten attempts. Inspect what is stuck:
 

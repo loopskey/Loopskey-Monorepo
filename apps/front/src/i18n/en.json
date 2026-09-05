@@ -5772,6 +5772,42 @@
         "share": "Share",
         "month": "Month"
       },
+      "exports": {
+        "reasons": {
+          "periodInvalid": "The period this export covered is not a range the report can produce.",
+          "periodTooLong": "The period this export covered is longer than a report can span.",
+          "unsupported": "That report cannot be exported in this format.",
+          "failed": "Generation did not finish. Try again.",
+          "unknown": "Generation did not finish. Try again."
+        },
+        "title": "Generated exports",
+        "description": "Past exports of these reports, newest first. Each one keeps the filter it was generated with.",
+        "action": "Export",
+        "menuLabel": "Export the {{report}} report",
+        "menuHeading": "Export this report as",
+        "requested": "Your export is being generated. It will appear below when it is ready.",
+        "requestFailed": "That export could not be requested. Try again.",
+        "downloadFailed": "That export could not be downloaded. Try again.",
+        "download": "Download",
+        "regenerate": "Generate again",
+        "error": "Past exports could not be loaded.",
+        "meta": "Requested {{created}} · {{rows}} rows · {{size}}",
+        "failureReason": "Reason: {{reason}}",
+        "formats": {
+          "PDF": "PDF document",
+          "EXCEL": "Excel workbook"
+        },
+        "states": {
+          "PENDING": "Generating",
+          "READY": "Ready",
+          "FAILED": "Failed",
+          "EXPIRED": "Expired"
+        },
+        "empty": {
+          "title": "No exports yet",
+          "body": "Export any report as a PDF for circulation or an Excel workbook for analysis, and it will be listed here."
+        }
+      },
       "library": {
         "title": "Report library",
         "description": "Six reports, each answering one question about your membership.",

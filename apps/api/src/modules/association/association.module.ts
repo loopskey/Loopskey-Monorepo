@@ -1,4 +1,11 @@
 import { AssociationRequirementAssignmentService } from "@association/services/association-requirement-assignment.service";
+import { AssociationReportRetentionService } from "@association/services/association-report-retention.service";
+import { AssociationReportGenerationService } from "@association/services/association-report-generation.service";
+import { AssociationReportExportResolver } from "@association/resolvers/association-report-export.resolver";
+import { AssociationReportFileController } from "@association/controllers/association-report-file.controller";
+import { AssociationReportExportHandler } from "@association/application/association-report-export.handler";
+import { AssociationReportDatasetService } from "@association/services/association-report-dataset.service";
+import { AssociationReportExportService } from "@association/services/association-report-export.service";
 import { AssociationRequirementPublishedHandler } from "@association/application/association-requirement-published.handler";
 import { AssociationMemberRequirementsService } from "@association/services/association-member-requirements.service";
 import { AssociationLearningContentResolver } from "@association/resolvers/association-learning-content.resolver";
@@ -27,6 +34,7 @@ import { AssociationReviewService } from "@association/services/association-revi
 import { AssociationAdminResolver } from "@association/resolvers/association-admin.resolver";
 import { AssociationGroupService } from "@association/services/association-group.service";
 import { AssociationCycleService } from "@association/services/association-cycle.service";
+import { StorageModule } from "@infrastructure/storage/storage.module";
 import { ProfessionalModule } from "@professional/professional.module";
 import { LandingModule } from "@landing/landing.module";
 import { PrismaModule } from "@prisma/prisma.module";
@@ -44,9 +52,13 @@ import "@association/enums/association-register.enum";
     UserModule,
     PrismaModule,
     LandingModule,
+    StorageModule,
     ProfessionalModule,
   ],
-  controllers: [AssociationMemberFileController],
+  controllers: [
+    AssociationMemberFileController,
+    AssociationReportFileController,
+  ],
   providers: [
     AssociationGroupService,
     AssociationAdminResolver,
@@ -76,6 +88,12 @@ import "@association/enums/association-register.enum";
     AssociationMemberRequirementsService,
     AssociationRequirementPublishedHandler,
     AssociationRequirementAssignmentService,
+    AssociationReportExportService,
+    AssociationReportExportResolver,
+    AssociationReportDatasetService,
+    AssociationReportExportHandler,
+    AssociationReportGenerationService,
+    AssociationReportRetentionService,
   ],
   exports: [
     AssociationGroupService,

@@ -683,3 +683,52 @@ query AssociationRenewalReadinessReport(
     }
   }
 }
+
+fragment AssociationGeneratedReportFields on AssociationGeneratedReport {
+  id
+  reportType
+  format
+  state
+  fileName
+  sizeBytes
+  rowCount
+  failureReason
+  readyAt
+  expiresAt
+  createdAt
+  filter {
+    period
+    startDate
+    endDate
+    groupId
+    requirementId
+    includeInactive
+  }
+}
+
+query AssociationGeneratedReports($pagination: AssociationReportPaginationInput) {
+  associationGeneratedReports(pagination: $pagination) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      nextCursor
+    }
+    items {
+      ...AssociationGeneratedReportFields
+    }
+  }
+}
+
+mutation RequestAssociationReportExport(
+  $input: RequestAssociationReportExportInput!
+) {
+  requestAssociationReportExport(input: $input) {
+    ...AssociationGeneratedReportFields
+  }
+}
+
+mutation RetryAssociationReportExport($input: AssociationReportExportIdInput!) {
+  retryAssociationReportExport(input: $input) {
+    ...AssociationGeneratedReportFields
+  }
+}

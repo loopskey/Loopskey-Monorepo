@@ -52,6 +52,9 @@ export enum AssociationGqlObjectNames {
   PAGINATED_ASSOCIATION_MEMBER_PROGRESS = "PaginatedAssociationMemberProgress",
   PAGINATED_ASSOCIATION_MISSING_EVIDENCE = "PaginatedAssociationMissingEvidence",
   PAGINATED_ASSOCIATION_RENEWAL_READINESS = "PaginatedAssociationRenewalReadiness",
+  ASSOCIATION_GENERATED_REPORT = "AssociationGeneratedReport",
+  ASSOCIATION_GENERATED_REPORT_FILTER = "AssociationGeneratedReportFilter",
+  PAGINATED_ASSOCIATION_GENERATED_REPORTS = "PaginatedAssociationGeneratedReports",
 }
 
 export enum AssociationGqlInputNames {
@@ -90,6 +93,8 @@ export enum AssociationGqlInputNames {
   ASSOCIATION_LEARNING_CONTENT_ID = "AssociationLearningContentIdInput",
   ASSOCIATION_REPORT_FILTER = "AssociationReportFilterInput",
   ASSOCIATION_REPORT_PAGINATION = "AssociationReportPaginationInput",
+  ASSOCIATION_REPORT_EXPORT_ID = "AssociationReportExportIdInput",
+  REQUEST_ASSOCIATION_REPORT_EXPORT = "RequestAssociationReportExportInput",
 }
 
 export enum AssociationGqlQueryNames {
@@ -119,6 +124,8 @@ export enum AssociationGqlQueryNames {
   CATEGORY_COMPLETION_REPORT = "associationCategoryCompletionReport",
   MISSING_EVIDENCE_REPORT = "associationMissingEvidenceReport",
   RENEWAL_READINESS_REPORT = "associationRenewalReadinessReport",
+  GENERATED_REPORTS = "associationGeneratedReports",
+  GENERATED_REPORT = "associationGeneratedReport",
 }
 
 export enum AssociationGqlMutationNames {
@@ -149,4 +156,6 @@ export enum AssociationGqlMutationNames {
   PUBLISH_LEARNING_CONTENT = "publishAssociationLearningContent",
   WITHDRAW_LEARNING_CONTENT = "withdrawAssociationLearningContent",
   DELETE_LEARNING_CONTENT = "deleteAssociationLearningContent",
+  REQUEST_REPORT_EXPORT = "requestAssociationReportExport",
+  RETRY_REPORT_EXPORT = "retryAssociationReportExport",
 }

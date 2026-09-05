@@ -1,5 +1,8 @@
 import { AssociationReportPeriod } from "@association/utils/association-report-period.util";
+import { AssociationGeneratedReportState } from "@prisma/client";
 import { AssociationLearningContentStatus } from "@prisma/client";
+import { AssociationReportFormat } from "@prisma/client";
+import { AssociationReportType } from "@prisma/client";
 import { AssociationAttributionState } from "@prisma/client";
 import { AssociationRequirementStatus } from "@prisma/client";
 import { AssociationComplianceBand } from "@prisma/client";
@@ -66,4 +69,21 @@ registerEnumType(AssociationLearningContentStatus, {
 registerEnumType(AssociationReportPeriod, {
   name: "AssociationReportPeriod",
   description: "The period a report covers, as a preset or an explicit range",
+});
+
+registerEnumType(AssociationReportType, {
+  name: "AssociationReportType",
+  description: "Which of the six reports an export renders",
+});
+
+registerEnumType(AssociationReportFormat, {
+  name: "AssociationReportFormat",
+  description:
+    "Whether an export is a branded document for circulation or a workbook for analysis",
+});
+
+registerEnumType(AssociationGeneratedReportState, {
+  name: "AssociationGeneratedReportState",
+  description:
+    "Whether an export is being generated, ready to download, failed, or past its retention",
 });

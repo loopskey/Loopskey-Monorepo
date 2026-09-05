@@ -62,6 +62,14 @@ const ASSOCIATION_ERROR_TRANSLATION_KEYS: Partial<
     "associationDashboard.learningContent.errors.catalogNotFound",
   [AssociationMessageCode.CATALOG_CONTENT_NOT_PUBLISHED]:
     "associationDashboard.learningContent.errors.catalogNotPublished",
+  [AssociationMessageCode.REPORT_PERIOD_INVALID]:
+    "associationDashboard.reports.exports.reasons.periodInvalid",
+  [AssociationMessageCode.REPORT_PERIOD_TOO_LONG]:
+    "associationDashboard.reports.exports.reasons.periodTooLong",
+  [AssociationMessageCode.EXPORT_UNSUPPORTED]:
+    "associationDashboard.reports.exports.reasons.unsupported",
+  [AssociationMessageCode.EXPORT_FAILED]:
+    "associationDashboard.reports.exports.reasons.failed",
 };
 
 const KNOWN_CODES = new Set<string>(Object.values(AssociationMessageCode));

@@ -481,6 +481,40 @@ export enum AssociationEvidencePolicy {
   RequiredNoReview = "REQUIRED_NO_REVIEW",
 }
 
+export type AssociationGeneratedReport = {
+  __typename?: "AssociationGeneratedReport";
+  createdAt: Scalars["DateTime"]["output"];
+  expiresAt?: Maybe<Scalars["DateTime"]["output"]>;
+  failureReason?: Maybe<Scalars["String"]["output"]>;
+  fileName: Scalars["String"]["output"];
+  filter: AssociationGeneratedReportFilter;
+  format: AssociationReportFormat;
+  id: Scalars["ID"]["output"];
+  readyAt?: Maybe<Scalars["DateTime"]["output"]>;
+  reportType: AssociationReportType;
+  rowCount?: Maybe<Scalars["Int"]["output"]>;
+  sizeBytes?: Maybe<Scalars["Int"]["output"]>;
+  state: AssociationGeneratedReportState;
+};
+
+export type AssociationGeneratedReportFilter = {
+  __typename?: "AssociationGeneratedReportFilter";
+  endDate?: Maybe<Scalars["String"]["output"]>;
+  groupId?: Maybe<Scalars["ID"]["output"]>;
+  includeInactive: Scalars["Boolean"]["output"];
+  period: AssociationReportPeriod;
+  requirementId?: Maybe<Scalars["ID"]["output"]>;
+  startDate?: Maybe<Scalars["String"]["output"]>;
+};
+
+/** Whether an export is being generated, ready to download, failed, or past its retention */
+export enum AssociationGeneratedReportState {
+  Expired = "EXPIRED",
+  Failed = "FAILED",
+  Pending = "PENDING",
+  Ready = "READY",
+}
+
 export type AssociationGroup = {
   __typename?: "AssociationGroup";
   createdAt: Scalars["DateTime"]["output"];
@@ -821,6 +855,10 @@ export type AssociationReportAssignment = {
   requirementName: Scalars["String"]["output"];
 };
 
+export type AssociationReportExportIdInput = {
+  exportId: Scalars["ID"]["input"];
+};
+
 export type AssociationReportFilterInput = {
   endDate?: InputMaybe<Scalars["String"]["input"]>;
   groupId?: InputMaybe<Scalars["ID"]["input"]>;
@@ -829,6 +867,12 @@ export type AssociationReportFilterInput = {
   requirementId?: InputMaybe<Scalars["ID"]["input"]>;
   startDate?: InputMaybe<Scalars["String"]["input"]>;
 };
+
+/** Whether an export is a branded document for circulation or a workbook for analysis */
+export enum AssociationReportFormat {
+  Excel = "EXCEL",
+  Pdf = "PDF",
+}
 
 export type AssociationReportPaginationInput = {
   cursor?: InputMaybe<Scalars["String"]["input"]>;
@@ -865,6 +909,16 @@ export type AssociationReportSummary = {
   totalMembers: Scalars["Int"]["output"];
   totalMembersChange: Scalars["Int"]["output"];
 };
+
+/** Which of the six reports an export renders */
+export enum AssociationReportType {
+  CategoryCompletion = "CATEGORY_COMPLETION",
+  GroupProgress = "GROUP_PROGRESS",
+  MemberProgress = "MEMBER_PROGRESS",
+  MissingEvidence = "MISSING_EVIDENCE",
+  OverviewSummary = "OVERVIEW_SUMMARY",
+  RenewalReadiness = "RENEWAL_READINESS",
+}
 
 /** How often a requirement's obligation repeats */
 export enum AssociationReportingCycle {
@@ -2113,6 +2167,7 @@ export type Mutation = {
   rejectAdminOrgAccessRequest: AdminOrgAccessRequest;
   removeAdminOrganizationMember: AdminOrgMember;
   removeFromCart: ContentActionPayload;
+  requestAssociationReportExport: AssociationGeneratedReport;
   requestEmailChange: AuthPayload;
   requestRoadmapGeneration: ProfessionalRoadmapDraft;
   resendAdminOrgAccessRequestNotification: AdminOrgAccessRequest;
@@ -2127,6 +2182,7 @@ export type Mutation = {
   restorePodcast: Podcast;
   restoreUser: User;
   restoreYouTubeChannel: YouTubeChannel;
+  retryAssociationReportExport: AssociationGeneratedReport;
   reviewAssociationLearningActivity: AssociationReviewResult;
   sendRoadmapChatTurn: ProfessionalRoadmapDraft;
   setAssociationGroupActive: AssociationGroup;
@@ -2480,6 +2536,10 @@ export type MutationRemoveFromCartArgs = {
   input: ContentActionInput;
 };
 
+export type MutationRequestAssociationReportExportArgs = {
+  input: RequestAssociationReportExportInput;
+};
+
 export type MutationRequestEmailChangeArgs = {
   input: RequestEmailChangeInput;
 };
@@ -2530,6 +2590,10 @@ export type MutationRestoreUserArgs = {
 
 export type MutationRestoreYouTubeChannelArgs = {
   channelId: Scalars["String"]["input"];
+};
+
+export type MutationRetryAssociationReportExportArgs = {
+  input: AssociationReportExportIdInput;
 };
 
 export type MutationReviewAssociationLearningActivityArgs = {
@@ -3258,6 +3322,13 @@ export type PaginatedAdminUser = {
   __typename?: "PaginatedAdminUser";
   items: Array<AdminUser>;
   pageInfo: AdminPageInfo;
+  totalCount: Scalars["Int"]["output"];
+};
+
+export type PaginatedAssociationGeneratedReports = {
+  __typename?: "PaginatedAssociationGeneratedReports";
+  items: Array<AssociationGeneratedReport>;
+  pageInfo: AssociationPageInfo;
   totalCount: Scalars["Int"]["output"];
 };
 
@@ -4412,6 +4483,8 @@ export type Query = {
   associationCategoryCompletionReport: Array<AssociationCategoryProgressRow>;
   associationComplianceByGroup: Array<AssociationGroupCompliance>;
   associationComplianceTrend: Array<AssociationComplianceTrendPoint>;
+  associationGeneratedReport: AssociationGeneratedReport;
+  associationGeneratedReports: PaginatedAssociationGeneratedReports;
   associationGroupProgressReport: Array<AssociationGroupProgressRow>;
   associationGroups: Array<AssociationGroup>;
   associationLearningContent: AssociationLearningContent;
@@ -4584,6 +4657,16 @@ export type QueryAssociationComplianceByGroupArgs = {
 export type QueryAssociationComplianceTrendArgs = {
   associationId?: InputMaybe<Scalars["ID"]["input"]>;
   filter?: InputMaybe<AssociationReportFilterInput>;
+};
+
+export type QueryAssociationGeneratedReportArgs = {
+  associationId?: InputMaybe<Scalars["ID"]["input"]>;
+  exportId: Scalars["ID"]["input"];
+};
+
+export type QueryAssociationGeneratedReportsArgs = {
+  associationId?: InputMaybe<Scalars["ID"]["input"]>;
+  pagination?: InputMaybe<AssociationReportPaginationInput>;
 };
 
 export type QueryAssociationGroupProgressReportArgs = {
@@ -5018,6 +5101,13 @@ export type RegisterInput = {
 export type RejectAdminOrgAccessRequestInput = {
   reason: Scalars["String"]["input"];
   requestId: Scalars["String"]["input"];
+};
+
+export type RequestAssociationReportExportInput = {
+  filter?: InputMaybe<AssociationReportFilterInput>;
+  format: AssociationReportFormat;
+  locale?: InputMaybe<Scalars["String"]["input"]>;
+  reportType: AssociationReportType;
 };
 
 export type RequestEmailChangeInput = {

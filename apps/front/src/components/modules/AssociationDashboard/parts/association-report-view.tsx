@@ -1,5 +1,6 @@
 "use client";
 
+import { AssociationReportExportMenu } from "@modules/AssociationDashboard/parts/association-report-export-menu";
 import { DashboardContentSkeleton } from "@layouts/parts/DashboardSkeleton";
 import { AssociationReportPeriod } from "@/lib/graphql/base";
 import { TAssociationReportView } from "@/types/association-dashboard.types";
@@ -115,11 +116,13 @@ export const AssociationReportDrilldown = ({
 
   return (
     <div className="space-y-6">
-      <div>
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <Button radius="xl" type="button" variant="glass" onClick={closeReport}>
           <L.ArrowLeft className="h-4 w-4" />
           {label("view.back")}
         </Button>
+
+        <AssociationReportExportMenu hook={hook} />
       </div>
 
       <div>

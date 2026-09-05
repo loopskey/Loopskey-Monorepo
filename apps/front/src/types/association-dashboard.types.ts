@@ -141,6 +141,8 @@ export type TAssociationCategoryCompletionReport = TWithReports;
 export type TAssociationMissingEvidenceReport = TWithReports;
 export type TAssociationRenewalReadinessReport = TWithReports;
 export type TAssociationOverviewSummaryReport = TWithReports;
+export type TAssociationReportExportMenu = TWithReports;
+export type TAssociationReportExports = TWithReports;
 
 type TOverview = TAPI.AssociationReportsOverviewQuery;
 

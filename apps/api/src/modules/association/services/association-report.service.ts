@@ -274,6 +274,17 @@ export class AssociationReportService {
     return this.paginate(rows, page, (row) => row.id);
   }
 
+  async assertFilterUsable(
+    user: TAssociationUser,
+    filter: ReportFilter = {},
+    associationId?: string,
+  ) {
+    const association = await this.access.requireReadable(user, associationId);
+    const window = this.window(filter);
+    await this.assertFilterTargets(association.id, filter);
+    return { association, window };
+  }
+
   private paginate<TRow>(
     rows: TRow[],
     page: ReportPage | undefined,
