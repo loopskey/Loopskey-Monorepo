@@ -1,6 +1,8 @@
 "use client";
 
+import { AssociationReportExportMenu } from "@modules/AssociationDashboard/parts/association-report-export-menu";
 import { AssociationReportsFilters } from "@modules/AssociationDashboard/parts/association-reports-filters";
+import { AssociationReportExports } from "@modules/AssociationDashboard/parts/association-report-exports";
 import { AssociationReportDrilldown } from "@modules/AssociationDashboard/parts/association-report-view";
 import { AssociationReportLibrary } from "@modules/AssociationDashboard/parts/association-report-library";
 import { AssociationReportsCharts } from "@modules/AssociationDashboard/parts/association-reports-charts";
@@ -32,18 +34,24 @@ const AssociationReportsTab = () => {
     t(`associationDashboard.reports.${key}`, vars);
 
   const header = (
-    <section>
-      <p className="text-sm font-medium text-primary">
-        {t("associationDashboard.eyebrow")}
-      </p>
+    <section className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <p className="text-sm font-medium text-primary">
+          {t("associationDashboard.eyebrow")}
+        </p>
 
-      <h1 className="mt-2 text-3xl font-medium tracking-tight md:text-4xl">
-        {label("title")}
-      </h1>
+        <h1 className="mt-2 text-3xl font-medium tracking-tight md:text-4xl">
+          {label("title")}
+        </h1>
 
-      <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-        {label("description")}
-      </p>
+        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+          {label("description")}
+        </p>
+      </div>
+
+      {!hasNoRequirements && !report && (
+        <AssociationReportExportMenu hook={hook} />
+      )}
     </section>
   );
 
@@ -131,6 +139,7 @@ const AssociationReportsTab = () => {
           <AssociationReportsCards hook={hook} />
           <AssociationReportsCharts hook={hook} />
           <AssociationReportLibrary hook={hook} />
+          <AssociationReportExports hook={hook} />
         </>
       )}
     </div>

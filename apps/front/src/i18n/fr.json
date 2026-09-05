@@ -5773,6 +5773,42 @@
         "share": "Part",
         "month": "Mois"
       },
+      "exports": {
+        "reasons": {
+          "periodInvalid": "La période couverte par cet export n'est pas un intervalle que le rapport peut produire.",
+          "periodTooLong": "La période couverte par cet export dépasse ce qu'un rapport peut couvrir.",
+          "unsupported": "Ce rapport ne peut pas être exporté dans ce format.",
+          "failed": "La génération ne s'est pas terminée. Réessayez.",
+          "unknown": "La génération ne s'est pas terminée. Réessayez."
+        },
+        "title": "Exports générés",
+        "description": "Les exports passés de ces rapports, du plus récent au plus ancien. Chacun conserve le filtre avec lequel il a été généré.",
+        "action": "Exporter",
+        "menuLabel": "Exporter le rapport {{report}}",
+        "menuHeading": "Exporter ce rapport en",
+        "requested": "Votre export est en cours de génération. Il apparaîtra ci-dessous une fois prêt.",
+        "requestFailed": "Cet export n'a pas pu être demandé. Réessayez.",
+        "downloadFailed": "Cet export n'a pas pu être téléchargé. Réessayez.",
+        "download": "Télécharger",
+        "regenerate": "Générer à nouveau",
+        "error": "Les exports passés n'ont pas pu être chargés.",
+        "meta": "Demandé le {{created}} · {{rows}} lignes · {{size}}",
+        "failureReason": "Raison : {{reason}}",
+        "formats": {
+          "PDF": "Document PDF",
+          "EXCEL": "Classeur Excel"
+        },
+        "states": {
+          "PENDING": "Génération",
+          "READY": "Prêt",
+          "FAILED": "Échec",
+          "EXPIRED": "Expiré"
+        },
+        "empty": {
+          "title": "Aucun export pour le moment",
+          "body": "Exportez n'importe quel rapport en PDF pour le diffuser ou en classeur Excel pour l'analyser, et il apparaîtra ici."
+        }
+      },
       "library": {
         "title": "Bibliothèque de rapports",
         "description": "Six rapports, chacun répondant à une question sur vos membres.",

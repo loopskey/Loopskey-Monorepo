@@ -46,3 +46,11 @@ export const associationMemberCertificateFileUrl = (
     origin,
     `${ASSOCIATION_MEMBER_FILES_ROUTE}/${encodeURIComponent(memberId)}/certificate/${encodeURIComponent(fileId)}`,
   );
+
+export const ASSOCIATION_REPORT_FILES_ROUTE = "association/reports";
+
+export const associationReportDownloadUrl = (origin: string, id: string) =>
+  join(
+    origin,
+    `${ASSOCIATION_REPORT_FILES_ROUTE}/${encodeURIComponent(id)}/download`,
+  );

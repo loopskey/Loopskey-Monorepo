@@ -126,6 +126,7 @@ model User {
   associationMemberships          AssociationMember[]
   authoredAssociationRequirements AssociationRequirement[]     @relation("AssociationRequirementAuthor")
   authoredAssociationLearning     AssociationLearningContent[] @relation("AssociationLearningContentAuthor")
+  requestedAssociationReports     AssociationGeneratedReport[] @relation("AssociationReportRequester")
   organizationMemberships         OrganizationMember[]
   createdOrgAssignments           OrganizationAssignment[]     @relation("CreatedOrgAssignments")
 
@@ -2156,6 +2157,7 @@ model Association {
   members          AssociationMember[]
   requirements     AssociationRequirement[]
   learningContents AssociationLearningContent[]
+  generatedReports AssociationGeneratedReport[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -2710,4 +2712,90 @@ enum AssociationLearningContentStatus {
   DRAFT
   PUBLISHED
   WITHDRAWN
+}
+
+/// Which of the six reports an export renders. The values match the report
+/// keys the Reports tab uses, so a link into the tab and an export of what it
+/// shows name the same thing.
+enum AssociationReportType {
+  OVERVIEW_SUMMARY
+  MEMBER_PROGRESS
+  GROUP_PROGRESS
+  CATEGORY_COMPLETION
+  MISSING_EVIDENCE
+  RENEWAL_READINESS
+}
+
+/// What an export is rendered as: a branded document for circulation, or a
+/// workbook for analysis.
+enum AssociationReportFormat {
+  PDF
+  EXCEL
+}
+
+/// An export's life. It moves forward only: `PENDING` becomes `READY` once the
+/// file exists, or `FAILED`; a `READY` file becomes `EXPIRED` once retention
+/// removes it. The one backward move is a repair, from `FAILED` to `PENDING`
+/// when the association retries.
+enum AssociationGeneratedReportState {
+  PENDING
+  READY
+  FAILED
+  EXPIRED
+}
+
+/// One requested export of one report, in one format, under one filter.
+///
+/// The record outlives its file: retention deletes the object and marks the row
+/// `EXPIRED`, so an association can still see what it asked for and when, and
+/// ask for it again.
+///
+/// `storageKey` is assigned once, at request time, and never leaves the API. It
+/// is opaque rather than derived from the id, so knowing a record's id tells an
+/// attacker nothing about where its bytes are; persisting it is what makes a
+/// retry overwrite the same object instead of orphaning the first one.
+///
+/// A pending export is unique per (association, report, format, filter) so a
+/// double request joins the generation already running. Prisma cannot express a
+/// partial unique index, so the migration creates
+/// `AssociationGeneratedReport_pending_key` on those four columns WHERE
+/// "state" = 'PENDING' as an unmanaged index. `prisma migrate dev` reports it
+/// as drift and offers to drop it — refuse that offer.
+model AssociationGeneratedReport {
+  id String @id @default(cuid())
+
+  associationId String
+  association   Association @relation(fields: [associationId], references: [id], onDelete: Cascade)
+
+  requestedById String
+  requestedBy   User   @relation("AssociationReportRequester", fields: [requestedById], references: [id], onDelete: Cascade)
+
+  reportType AssociationReportType
+  format     AssociationReportFormat
+
+  filter     Json
+  filterHash String
+
+  locale String @default("en")
+
+  state AssociationGeneratedReportState @default(PENDING)
+
+  storageKey String
+  fileName   String
+  mimeType   String
+
+  sizeBytes Int?
+  rowCount  Int?
+
+  failureReason String?
+
+  readyAt   DateTime?
+  expiresAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([associationId, createdAt])
+  @@index([associationId, state])
+  @@index([state, expiresAt])
 }

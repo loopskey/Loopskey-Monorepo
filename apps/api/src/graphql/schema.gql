@@ -427,6 +427,40 @@ enum AssociationEvidencePolicy {
   REQUIRED_NO_REVIEW
 }
 
+type AssociationGeneratedReport {
+  createdAt: DateTime!
+  expiresAt: DateTime
+  failureReason: String
+  fileName: String!
+  filter: AssociationGeneratedReportFilter!
+  format: AssociationReportFormat!
+  id: ID!
+  readyAt: DateTime
+  reportType: AssociationReportType!
+  rowCount: Int
+  sizeBytes: Int
+  state: AssociationGeneratedReportState!
+}
+
+type AssociationGeneratedReportFilter {
+  endDate: String
+  groupId: ID
+  includeInactive: Boolean!
+  period: AssociationReportPeriod!
+  requirementId: ID
+  startDate: String
+}
+
+"""
+Whether an export is being generated, ready to download, failed, or past its retention
+"""
+enum AssociationGeneratedReportState {
+  EXPIRED
+  FAILED
+  PENDING
+  READY
+}
+
 type AssociationGroup {
   createdAt: DateTime!
   description: String
@@ -746,6 +780,10 @@ type AssociationReportAssignment {
   requirementName: String!
 }
 
+input AssociationReportExportIdInput {
+  exportId: ID!
+}
+
 input AssociationReportFilterInput {
   endDate: String
   groupId: ID
@@ -753,6 +791,14 @@ input AssociationReportFilterInput {
   period: AssociationReportPeriod
   requirementId: ID
   startDate: String
+}
+
+"""
+Whether an export is a branded document for circulation or a workbook for analysis
+"""
+enum AssociationReportFormat {
+  EXCEL
+  PDF
 }
 
 input AssociationReportPaginationInput {
@@ -788,6 +834,16 @@ type AssociationReportSummary {
   renewalReadyShare: Float!
   totalMembers: Int!
   totalMembersChange: Int!
+}
+
+"""Which of the six reports an export renders"""
+enum AssociationReportType {
+  CATEGORY_COMPLETION
+  GROUP_PROGRESS
+  MEMBER_PROGRESS
+  MISSING_EVIDENCE
+  OVERVIEW_SUMMARY
+  RENEWAL_READINESS
 }
 
 """How often a requirement's obligation repeats"""
@@ -2012,6 +2068,7 @@ type Mutation {
   rejectAdminOrgAccessRequest(input: RejectAdminOrgAccessRequestInput!): AdminOrgAccessRequest!
   removeAdminOrganizationMember(memberId: String!): AdminOrgMember!
   removeFromCart(input: ContentActionInput!): ContentActionPayload!
+  requestAssociationReportExport(input: RequestAssociationReportExportInput!): AssociationGeneratedReport!
   requestEmailChange(input: RequestEmailChangeInput!): AuthPayload!
   requestRoadmapGeneration(draftId: ID!): ProfessionalRoadmapDraft!
   resendAdminOrgAccessRequestNotification(requestId: String!): AdminOrgAccessRequest!
@@ -2026,6 +2083,7 @@ type Mutation {
   restorePodcast(podcastId: String!): Podcast!
   restoreUser(userId: String!): User!
   restoreYouTubeChannel(channelId: String!): YouTubeChannel!
+  retryAssociationReportExport(input: AssociationReportExportIdInput!): AssociationGeneratedReport!
   reviewAssociationLearningActivity(input: ReviewAssociationLearningActivityInput!): AssociationReviewResult!
   sendRoadmapChatTurn(input: RoadmapChatTurnInput!): ProfessionalRoadmapDraft!
   setAssociationGroupActive(input: SetAssociationGroupActiveInput!): AssociationGroup!
@@ -2556,6 +2614,12 @@ type PaginatedAdminOrgMembers {
 type PaginatedAdminUser {
   items: [AdminUser!]!
   pageInfo: AdminPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedAssociationGeneratedReports {
+  items: [AssociationGeneratedReport!]!
+  pageInfo: AssociationPageInfo!
   totalCount: Int!
 }
 
@@ -3626,6 +3690,8 @@ type Query {
   associationCategoryCompletionReport(associationId: ID, filter: AssociationReportFilterInput): [AssociationCategoryProgressRow!]!
   associationComplianceByGroup(associationId: ID, filter: AssociationReportFilterInput): [AssociationGroupCompliance!]!
   associationComplianceTrend(associationId: ID, filter: AssociationReportFilterInput): [AssociationComplianceTrendPoint!]!
+  associationGeneratedReport(associationId: ID, exportId: ID!): AssociationGeneratedReport!
+  associationGeneratedReports(associationId: ID, pagination: AssociationReportPaginationInput): PaginatedAssociationGeneratedReports!
   associationGroupProgressReport(associationId: ID, filter: AssociationReportFilterInput): [AssociationGroupProgressRow!]!
   associationGroups(associationId: ID): [AssociationGroup!]!
   associationLearningContent(associationId: ID, learningContentId: ID!): AssociationLearningContent!
@@ -3750,6 +3816,13 @@ input RegisterInput {
 input RejectAdminOrgAccessRequestInput {
   reason: String!
   requestId: String!
+}
+
+input RequestAssociationReportExportInput {
+  filter: AssociationReportFilterInput
+  format: AssociationReportFormat!
+  locale: String
+  reportType: AssociationReportType!
 }
 
 input RequestEmailChangeInput {

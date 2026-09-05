@@ -502,6 +502,46 @@ export const associationApi = baseApi.injectEndpoints({
       ) => response.associationRenewalReadinessReport,
       providesTags: ["AssociationReports"],
     }),
+
+    associationGeneratedReports: builder.query<
+      TAPI.AssociationGeneratedReportsQuery["associationGeneratedReports"],
+      TAPI.AssociationGeneratedReportsQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.AssociationGeneratedReportsDocument,
+        variables,
+      }),
+      transformResponse: (response: TAPI.AssociationGeneratedReportsQuery) =>
+        response.associationGeneratedReports,
+      providesTags: ["AssociationReportExports"],
+    }),
+
+    requestAssociationReportExport: builder.mutation<
+      TAPI.RequestAssociationReportExportMutation["requestAssociationReportExport"],
+      TAPI.RequestAssociationReportExportMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.RequestAssociationReportExportDocument,
+        variables: { input },
+      }),
+      transformResponse: (
+        response: TAPI.RequestAssociationReportExportMutation,
+      ) => response.requestAssociationReportExport,
+      invalidatesTags: ["AssociationReportExports"],
+    }),
+
+    retryAssociationReportExport: builder.mutation<
+      TAPI.RetryAssociationReportExportMutation["retryAssociationReportExport"],
+      TAPI.RetryAssociationReportExportMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.RetryAssociationReportExportDocument,
+        variables: { input },
+      }),
+      transformResponse: (response: TAPI.RetryAssociationReportExportMutation) =>
+        response.retryAssociationReportExport,
+      invalidatesTags: ["AssociationReportExports"],
+    }),
   }),
 });
 
@@ -542,4 +582,7 @@ export const {
   useAssociationCategoryCompletionReportQuery,
   useAssociationMissingEvidenceReportQuery,
   useAssociationRenewalReadinessReportQuery,
+  useAssociationGeneratedReportsQuery,
+  useRequestAssociationReportExportMutation,
+  useRetryAssociationReportExportMutation,
 } = associationApi;

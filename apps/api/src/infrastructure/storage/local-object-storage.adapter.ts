@@ -16,6 +16,11 @@ export class LocalObjectStorageAdapter implements ObjectStoragePort {
       return (
         process.env.PDU_UPLOAD_DIR ?? join(process.cwd(), "uploads", "pdu")
       );
+    if (namespace === "report")
+      return (
+        process.env.REPORT_STORAGE_DIR ??
+        join(process.cwd(), "uploads", "reports")
+      );
     return (
       process.env.CERTIFICATE_UPLOAD_DIR ??
       join(process.cwd(), "uploads", "certificate")

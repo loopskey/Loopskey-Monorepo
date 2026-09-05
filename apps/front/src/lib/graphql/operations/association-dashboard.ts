@@ -283,6 +283,29 @@ export type AssociationRenewalReadinessReportQueryVariables = Types.Exact<{
 
 export type AssociationRenewalReadinessReportQuery = { __typename?: 'Query', associationRenewalReadinessReport: { __typename?: 'PaginatedAssociationRenewalReadiness', totalCount: number, pageInfo: { __typename?: 'AssociationPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'AssociationRenewalReadinessRow', id: string, memberId: string, fullName?: string | null, email?: string | null, memberNumber?: string | null, groupTitle?: string | null, band: Types.AssociationComplianceBand, percent: number, requiredCredits: number, completedCredits: number, awaitingReviewCount: number, isRenewalReady: boolean, earliestUnmetDeadline?: string | null }> } };
 
+export type AssociationGeneratedReportFieldsFragment = { __typename?: 'AssociationGeneratedReport', id: string, reportType: Types.AssociationReportType, format: Types.AssociationReportFormat, state: Types.AssociationGeneratedReportState, fileName: string, sizeBytes?: number | null, rowCount?: number | null, failureReason?: string | null, readyAt?: string | null, expiresAt?: string | null, createdAt: string, filter: { __typename?: 'AssociationGeneratedReportFilter', period: Types.AssociationReportPeriod, startDate?: string | null, endDate?: string | null, groupId?: string | null, requirementId?: string | null, includeInactive: boolean } };
+
+export type AssociationGeneratedReportsQueryVariables = Types.Exact<{
+  pagination?: Types.InputMaybe<Types.AssociationReportPaginationInput>;
+}>;
+
+
+export type AssociationGeneratedReportsQuery = { __typename?: 'Query', associationGeneratedReports: { __typename?: 'PaginatedAssociationGeneratedReports', totalCount: number, pageInfo: { __typename?: 'AssociationPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'AssociationGeneratedReport', id: string, reportType: Types.AssociationReportType, format: Types.AssociationReportFormat, state: Types.AssociationGeneratedReportState, fileName: string, sizeBytes?: number | null, rowCount?: number | null, failureReason?: string | null, readyAt?: string | null, expiresAt?: string | null, createdAt: string, filter: { __typename?: 'AssociationGeneratedReportFilter', period: Types.AssociationReportPeriod, startDate?: string | null, endDate?: string | null, groupId?: string | null, requirementId?: string | null, includeInactive: boolean } }> } };
+
+export type RequestAssociationReportExportMutationVariables = Types.Exact<{
+  input: Types.RequestAssociationReportExportInput;
+}>;
+
+
+export type RequestAssociationReportExportMutation = { __typename?: 'Mutation', requestAssociationReportExport: { __typename?: 'AssociationGeneratedReport', id: string, reportType: Types.AssociationReportType, format: Types.AssociationReportFormat, state: Types.AssociationGeneratedReportState, fileName: string, sizeBytes?: number | null, rowCount?: number | null, failureReason?: string | null, readyAt?: string | null, expiresAt?: string | null, createdAt: string, filter: { __typename?: 'AssociationGeneratedReportFilter', period: Types.AssociationReportPeriod, startDate?: string | null, endDate?: string | null, groupId?: string | null, requirementId?: string | null, includeInactive: boolean } } };
+
+export type RetryAssociationReportExportMutationVariables = Types.Exact<{
+  input: Types.AssociationReportExportIdInput;
+}>;
+
+
+export type RetryAssociationReportExportMutation = { __typename?: 'Mutation', retryAssociationReportExport: { __typename?: 'AssociationGeneratedReport', id: string, reportType: Types.AssociationReportType, format: Types.AssociationReportFormat, state: Types.AssociationGeneratedReportState, fileName: string, sizeBytes?: number | null, rowCount?: number | null, failureReason?: string | null, readyAt?: string | null, expiresAt?: string | null, createdAt: string, filter: { __typename?: 'AssociationGeneratedReportFilter', period: Types.AssociationReportPeriod, startDate?: string | null, endDate?: string | null, groupId?: string | null, requirementId?: string | null, includeInactive: boolean } } };
+
 export const AssociationSettingsFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
     fragment AssociationSettingsFields on AssociationSettings {
   id
@@ -553,6 +576,29 @@ export const AssociationComplianceTrendFieldsFragmentDoc = /*#__PURE__*/ new Typ
   averageCompletion
 }
     `, {"fragmentName":"AssociationComplianceTrendFields"}) as unknown as TypedDocumentString<AssociationComplianceTrendFieldsFragment, unknown>;
+export const AssociationGeneratedReportFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
+    fragment AssociationGeneratedReportFields on AssociationGeneratedReport {
+  id
+  reportType
+  format
+  state
+  fileName
+  sizeBytes
+  rowCount
+  failureReason
+  readyAt
+  expiresAt
+  createdAt
+  filter {
+    period
+    startDate
+    endDate
+    groupId
+    requirementId
+    includeInactive
+  }
+}
+    `, {"fragmentName":"AssociationGeneratedReportFields"}) as unknown as TypedDocumentString<AssociationGeneratedReportFieldsFragment, unknown>;
 export const AssociationProfileDocument = /*#__PURE__*/ new TypedDocumentString(`
     query AssociationProfile {
   associationProfile {
@@ -1537,3 +1583,91 @@ export const AssociationRenewalReadinessReportDocument = /*#__PURE__*/ new Typed
   }
 }
     `) as unknown as TypedDocumentString<AssociationRenewalReadinessReportQuery, AssociationRenewalReadinessReportQueryVariables>;
+export const AssociationGeneratedReportsDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query AssociationGeneratedReports($pagination: AssociationReportPaginationInput) {
+  associationGeneratedReports(pagination: $pagination) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      nextCursor
+    }
+    items {
+      ...AssociationGeneratedReportFields
+    }
+  }
+}
+    fragment AssociationGeneratedReportFields on AssociationGeneratedReport {
+  id
+  reportType
+  format
+  state
+  fileName
+  sizeBytes
+  rowCount
+  failureReason
+  readyAt
+  expiresAt
+  createdAt
+  filter {
+    period
+    startDate
+    endDate
+    groupId
+    requirementId
+    includeInactive
+  }
+}`) as unknown as TypedDocumentString<AssociationGeneratedReportsQuery, AssociationGeneratedReportsQueryVariables>;
+export const RequestAssociationReportExportDocument = /*#__PURE__*/ new TypedDocumentString(`
+    mutation RequestAssociationReportExport($input: RequestAssociationReportExportInput!) {
+  requestAssociationReportExport(input: $input) {
+    ...AssociationGeneratedReportFields
+  }
+}
+    fragment AssociationGeneratedReportFields on AssociationGeneratedReport {
+  id
+  reportType
+  format
+  state
+  fileName
+  sizeBytes
+  rowCount
+  failureReason
+  readyAt
+  expiresAt
+  createdAt
+  filter {
+    period
+    startDate
+    endDate
+    groupId
+    requirementId
+    includeInactive
+  }
+}`) as unknown as TypedDocumentString<RequestAssociationReportExportMutation, RequestAssociationReportExportMutationVariables>;
+export const RetryAssociationReportExportDocument = /*#__PURE__*/ new TypedDocumentString(`
+    mutation RetryAssociationReportExport($input: AssociationReportExportIdInput!) {
+  retryAssociationReportExport(input: $input) {
+    ...AssociationGeneratedReportFields
+  }
+}
+    fragment AssociationGeneratedReportFields on AssociationGeneratedReport {
+  id
+  reportType
+  format
+  state
+  fileName
+  sizeBytes
+  rowCount
+  failureReason
+  readyAt
+  expiresAt
+  createdAt
+  filter {
+    period
+    startDate
+    endDate
+    groupId
+    requirementId
+    includeInactive
+  }
+}`) as unknown as TypedDocumentString<RetryAssociationReportExportMutation, RetryAssociationReportExportMutationVariables>;

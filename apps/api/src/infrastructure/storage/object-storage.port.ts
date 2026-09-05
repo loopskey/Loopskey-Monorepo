@@ -1,6 +1,10 @@
 export const OBJECT_STORAGE = Symbol("OBJECT_STORAGE");
 
-export type ObjectStorageNamespace = "avatar" | "pdu" | "certificate";
+export type ObjectStorageNamespace =
+  | "avatar"
+  | "pdu"
+  | "certificate"
+  | "report";
 
 export interface ObjectStoragePort {
   store(

@@ -1,12 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AssociationRequirementStatus } from "@/lib/graphql/base";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useI18n } from "@hooks/useI18n";
+import { notify } from "@hooks/notify";
 
 import * as API from "@lib/rtk/endpoints/association-dashboard.api";
 import * as R from "@utils/association-reports";
+import * as X from "@utils/association-report-exports";
+
+import type { AssociationReportFormat } from "@/lib/graphql/base";
 
 const SCROLL_KEY_PREFIX = "association-reports-scroll:";
 
@@ -126,6 +130,75 @@ export const useAssociationReportsTab = () => {
 
   const hasNoRequirements =
     requirementsQuery.isSuccess && requirements.length === 0;
+
+  const [isPollingExports, setIsPollingExports] = useState(false);
+
+  const exportsQuery = API.useAssociationGeneratedReportsQuery(
+    {},
+    { pollingInterval: isPollingExports ? X.EXPORT_POLL_MS : 0 },
+  );
+
+  const generatedReports = useMemo(
+    () => exportsQuery.data?.items ?? [],
+    [exportsQuery.data?.items],
+  );
+
+  const hasPendingExport = generatedReports.some((record) =>
+    X.isExportPending(record.state),
+  );
+
+  useEffect(() => {
+    setIsPollingExports(hasPendingExport);
+  }, [hasPendingExport]);
+
+  const [requestExport, requestExportState] =
+    API.useRequestAssociationReportExportMutation();
+
+  const [retryExport, retryExportState] =
+    API.useRetryAssociationReportExportMutation();
+
+  const [downloadingExportId, setDownloadingExportId] = useState<string | null>(
+    null,
+  );
+
+  const exportLabel = (key: string) =>
+    t(`associationDashboard.reports.exports.${key}`);
+
+  const createExport = async (format: AssociationReportFormat) => {
+    try {
+      await requestExport({
+        format,
+        locale: language,
+        filter: filterInput,
+        reportType: X.REPORT_TYPE_OF[report ?? "overview-summary"],
+      }).unwrap();
+
+      notify.success(exportLabel("requested"));
+    } catch {
+      notify.error(exportLabel("requestFailed"));
+    }
+  };
+
+  const regenerateExport = async (exportId: string) => {
+    try {
+      await retryExport({ exportId }).unwrap();
+      notify.success(exportLabel("requested"));
+    } catch {
+      notify.error(exportLabel("requestFailed"));
+    }
+  };
+
+  const downloadExport = async (file: { id: string; fileName: string }) => {
+    setDownloadingExportId(file.id);
+
+    try {
+      await X.downloadAssociationReportExport(file);
+    } catch {
+      notify.error(exportLabel("downloadFailed"));
+    } finally {
+      setDownloadingExportId(null);
+    }
+  };
 
   const scrollKey = SCROLL_KEY_PREFIX + R.associationReportHref(view);
 
@@ -257,6 +330,15 @@ export const useAssociationReportsTab = () => {
     isLoading: overviewQuery.isLoading,
     isRefetching: overviewQuery.isFetching && !overviewQuery.isLoading,
     isReportLoading: !isReportSettled,
+    createExport,
+    downloadExport,
+    generatedReports,
+    regenerateExport,
+    downloadingExportId,
+    isExportsLoading: exportsQuery.isLoading,
+    isExportsError: exportsQuery.isError,
+    isRequestingExport:
+      requestExportState.isLoading || retryExportState.isLoading,
     memberProgress: memberProgressQuery.data ?? null,
     groupProgress: groupProgressQuery.data ?? [],
     categoryCompletion: categoryCompletionQuery.data ?? [],
