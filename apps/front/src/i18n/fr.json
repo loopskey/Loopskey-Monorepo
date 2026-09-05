@@ -5681,7 +5681,196 @@
     },
     "reports": {
       "title": "Rapports",
-      "comingSoon": "Les rapports de conformité, les graphiques et les exports arriveront dans une version ultérieure."
+      "description": "L'état de vos membres : par groupe, par catégorie et dans le temps. Ouvrez un graphique pour voir les membres qui le composent.",
+      "computedAt": "Chiffres calculés {{when}}",
+      "error": {
+        "title": "Impossible d'exécuter ce rapport",
+        "body": "Votre filtre est inchangé : réessayer est sans risque.",
+        "retry": "Réessayer"
+      },
+      "empty": {
+        "title": "Rien à rapporter pour l'instant",
+        "body": "Les rapports décrivent la progression face à vos exigences. Publiez une exigence et attribuez-la à des membres, et cet onglet se remplira.",
+        "action": "Aller aux exigences"
+      },
+      "rangeIncomplete": "Choisissez une date de début et de fin pour une période personnalisée.",
+      "filters": {
+        "legend": "Filtre du rapport",
+        "period": "Période",
+        "from": "Du",
+        "to": "Au",
+        "group": "Groupe",
+        "requirement": "Exigence",
+        "allGroups": "Tous les groupes",
+        "allRequirements": "Toutes les exigences",
+        "includeInactive": "Inclure les membres désactivés",
+        "clear": "Effacer le filtre"
+      },
+      "periods": {
+        "THIS_YEAR": "Cette année",
+        "LAST_YEAR": "L'année dernière",
+        "LAST_30_DAYS": "30 derniers jours",
+        "LAST_90_DAYS": "90 derniers jours",
+        "CUSTOM": "Période personnalisée"
+      },
+      "customRange": "Du {{start}} au {{end}}",
+      "bands": {
+        "RENEWAL_READY": "Prêt au renouvellement",
+        "ON_TRACK": "En bonne voie",
+        "AT_RISK": "À risque",
+        "NOT_STARTED": "Pas commencé"
+      },
+      "cards": {
+        "totalMembers": "Membres",
+        "renewalReady": "Prêts au renouvellement",
+        "onTrack": "En bonne voie",
+        "atRisk": "À risque",
+        "missingEvidence": "Preuves manquantes",
+        "share": "{{share}} % des membres",
+        "rise": "+{{change}} par rapport à la période précédente",
+        "fall": "{{change}} par rapport à la période précédente",
+        "flat": "Inchangé par rapport à la période précédente",
+        "open": "Ouvrir le rapport {{report}}"
+      },
+      "charts": {
+        "viewReport": "Voir le rapport complet",
+        "empty": "Aucune donnée pour ce filtre pour l'instant.",
+        "group": {
+          "title": "Conformité par groupe",
+          "description": "Progression moyenne de chaque groupe face à votre seuil de bonne voie. Sélectionnez une barre pour voir les membres du groupe.",
+          "label": "Progression moyenne par groupe",
+          "threshold": "Seuil de bonne voie, {{percent}} %",
+          "members": "{{count}} membres"
+        },
+        "category": {
+          "title": "Progression par catégorie",
+          "description": "Crédits requis face à la moyenne obtenue dans chaque catégorie, plus grand écart en premier.",
+          "label": "Crédits requis et obtenus par catégorie",
+          "required": "Requis",
+          "earned": "Moyenne obtenue"
+        },
+        "distribution": {
+          "title": "Répartition des membres",
+          "description": "La répartition des membres entre les quatre paliers de conformité. Sélectionnez un segment pour voir ces membres.",
+          "label": "Membres par palier de conformité",
+          "centre": "membres"
+        },
+        "trend": {
+          "title": "Tendance de conformité",
+          "description": "La part des membres dans chaque palier à la fin de chaque mois de la période.",
+          "label": "Paliers de conformité dans le temps"
+        }
+      },
+      "chartTable": {
+        "group": "Groupe",
+        "members": "Membres",
+        "completion": "Progression moyenne",
+        "category": "Catégorie",
+        "requirement": "Exigence",
+        "required": "Crédits requis",
+        "earned": "Moyenne obtenue",
+        "band": "Palier",
+        "share": "Part",
+        "month": "Mois"
+      },
+      "library": {
+        "title": "Bibliothèque de rapports",
+        "description": "Six rapports, chacun répondant à une question sur vos membres.",
+        "open": "Ouvrir le rapport"
+      },
+      "names": {
+        "overview-summary": "Synthèse générale",
+        "member-progress": "Progression des membres",
+        "group-progress": "Progression des groupes",
+        "category-completion": "Progression par catégorie",
+        "missing-evidence": "Preuves manquantes",
+        "renewal-readiness": "Prêts au renouvellement"
+      },
+      "answers": {
+        "overview-summary": "Où en sont vos membres dans l'ensemble, et comment cela a évolué par rapport à la période précédente.",
+        "member-progress": "Qui est en avance et qui est en retard, membre par membre.",
+        "group-progress": "Quels groupes portent l'association et lesquels sont en retard.",
+        "category-completion": "Quelles catégories les membres complètent et lesquelles ils évitent.",
+        "missing-evidence": "Quels membres doivent fournir une preuve avant que leurs crédits comptent.",
+        "renewal-readiness": "Qui pourrait renouveler aujourd'hui et qui ne pourrait pas."
+      },
+      "view": {
+        "back": "Retour aux rapports",
+        "filter": "Filtre actif",
+        "rows": "{{count}} lignes",
+        "rowCount": "Lignes",
+        "band": "Palier",
+        "allBands": "Tous les paliers",
+        "truncated": "Affichage des {{shown}} membres les plus en retard, sur {{total}}. Affinez le filtre pour voir les autres.",
+        "sortNote": "Le tri et la pagination portent sur les lignes chargées pour ce filtre."
+      },
+      "table": {
+        "member": "Membre",
+        "memberNumber": "Numéro de membre",
+        "group": "Groupe",
+        "band": "Palier",
+        "completion": "Progression",
+        "credits": "Crédits",
+        "awaiting": "En attente de revue",
+        "deadline": "Première échéance",
+        "requirement": "Exigence",
+        "dueDate": "Date d'échéance",
+        "daysRemaining": "Jours restants",
+        "category": "Catégorie",
+        "required": "Requis",
+        "earned": "Moyenne obtenue",
+        "belowHalf": "Sous la moitié",
+        "members": "Membres",
+        "missingEvidence": "Preuves manquantes",
+        "notStarted": "Pas commencé",
+        "readiness": "Renouvellement",
+        "ready": "Prêt",
+        "notReady": "Pas prêt",
+        "creditLine": "{{completed}} sur {{required}}",
+        "openMember": "Ouvrir la fiche de {{name}}",
+        "sort": "Trier par {{column}}",
+        "empty": "Aucune ligne ne correspond à ce filtre.",
+        "none": "-",
+        "days": "{{days}} jours"
+      },
+      "summaryReport": {
+        "caption": "Membres par palier de conformité",
+        "average": "Progression moyenne",
+        "period": "Période",
+        "change": "Évolution"
+      },
+      "heatmap": {
+        "title": "Groupes et catégories",
+        "description": "Progression moyenne de chaque groupe dans chaque catégorie. Chaque cellule porte son chiffre : la couleur n'est jamais le seul signal.",
+        "caption": "Progression moyenne par groupe et par catégorie",
+        "group": "Groupe",
+        "limited": "{{count}} groupes affichés. Les membres sans groupe sont exclus : une répartition par catégorie ne peut être filtrée que sur un groupe nommé.",
+        "empty": "Aucune catégorie à comparer pour ce filtre."
+      },
+      "extremes": {
+        "title": "Les plus avancés et les plus en retard",
+        "description": "Les dix membres avec la plus forte progression et les dix avec la plus faible, pour ce filtre.",
+        "label": "Membres les plus avancés et les plus en retard",
+        "leaders": "Les plus avancés",
+        "laggards": "Les plus en retard"
+      },
+      "readiness": {
+        "title": "Membres par état de renouvellement",
+        "description": "Une seule barre, découpée selon la capacité des membres à renouveler.",
+        "label": "Membres par état de renouvellement"
+      },
+      "categoryChart": {
+        "title": "Progression par catégorie",
+        "description": "Progression moyenne dans chaque catégorie, avec la part des membres sous la moitié.",
+        "label": "Progression moyenne et membres sous la moitié par catégorie",
+        "average": "Progression moyenne",
+        "belowHalf": "Membres sous la moitié"
+      },
+      "groupChart": {
+        "title": "Groupes par palier",
+        "description": "La répartition des membres de chaque groupe entre les quatre paliers de conformité.",
+        "label": "Membres par groupe et par palier de conformité"
+      }
     },
     "messages": {
       "title": "Messages",

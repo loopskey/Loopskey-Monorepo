@@ -1,4 +1,5 @@
 import type { TUseAssociationLearningContent } from "@hooks/useAssociationLearningContent";
+import type { TUseAssociationReportsTab } from "@hooks/useAssociationReportsTab";
 import type { TUseAssociationMemberDetail } from "@hooks/useAssociationMemberDetail";
 import type { TUseAssociationMembersTab } from "@hooks/useAssociationMembersTab";
 import type { TRosterCompositionRow } from "@utils/association-roster-composition";
@@ -126,3 +127,90 @@ export type TAssociationLearningList = TWithLibrary;
 export type TAssociationLearningEditor = TWithLibrary;
 export type TAssociationLearningPublishDialog = TWithLibrary;
 export type TAssociationLearningDetail = TWithLibrary;
+
+type TWithReports = { hook: TUseAssociationReportsTab };
+
+export type TAssociationReportsFilters = TWithReports;
+export type TAssociationReportsCards = TWithReports;
+export type TAssociationReportsCharts = TWithReports;
+export type TAssociationReportLibrary = TWithReports;
+export type TAssociationReportView = TWithReports;
+export type TAssociationMemberProgressReport = TWithReports;
+export type TAssociationGroupProgressReport = TWithReports;
+export type TAssociationCategoryCompletionReport = TWithReports;
+export type TAssociationMissingEvidenceReport = TWithReports;
+export type TAssociationRenewalReadinessReport = TWithReports;
+export type TAssociationOverviewSummaryReport = TWithReports;
+
+type TOverview = TAPI.AssociationReportsOverviewQuery;
+
+export type TAssociationReportSummaryRow =
+  TOverview["associationReportSummary"];
+export type TAssociationDistributionRow =
+  TOverview["associationMemberDistribution"];
+export type TAssociationGroupComplianceRow =
+  TOverview["associationComplianceByGroup"][number];
+export type TAssociationCategoryReportRow =
+  TOverview["associationProgressByCategory"][number];
+export type TAssociationTrendPoint =
+  TOverview["associationComplianceTrend"][number];
+
+export type TAssociationMemberProgressRow =
+  TAPI.AssociationMemberProgressReportQuery["associationMemberProgressReport"]["items"][number];
+
+export type TAssociationGroupProgressRow =
+  TAPI.AssociationGroupProgressReportQuery["associationGroupProgressReport"][number];
+
+export type TAssociationMissingEvidenceRow =
+  TAPI.AssociationMissingEvidenceReportQuery["associationMissingEvidenceReport"]["items"][number];
+
+export type TAssociationRenewalReadinessRow =
+  TAPI.AssociationRenewalReadinessReportQuery["associationRenewalReadinessReport"]["items"][number];
+
+type TChartFrame = {
+  locale: string;
+  palette: string[];
+  label: (key: string, vars?: Record<string, string | number>) => string;
+};
+
+export type TAssociationGroupComplianceChart = TChartFrame & {
+  threshold: number | null;
+  ungroupedLabel: string;
+  rows: TAssociationGroupComplianceRow[];
+  onSelectGroup: (groupId: string | null) => void;
+};
+
+export type TAssociationCategoryReportChart = TChartFrame & {
+  rows: TAssociationCategoryReportRow[];
+};
+
+export type TAssociationDistributionChart = TChartFrame & {
+  distribution: TAssociationDistributionRow;
+  onSelectBand: (band: TAPI.AssociationComplianceBand) => void;
+};
+
+export type TAssociationTrendChart = TChartFrame & {
+  rows: TAssociationTrendPoint[];
+};
+
+export type TAssociationGroupBandsChart = TChartFrame & {
+  ungroupedLabel: string;
+  rows: TAssociationGroupProgressRow[];
+};
+
+export type TAssociationReadinessSegment = {
+  id: string;
+  label: string;
+  count: number;
+  share: number;
+  color: string;
+};
+
+export type TAssociationReadinessChart = TChartFrame & {
+  segments: TAssociationReadinessSegment[];
+};
+
+export type TAssociationExtremesChart = TChartFrame & {
+  leaders: TAssociationMemberProgressRow[];
+  laggards: TAssociationMemberProgressRow[];
+};

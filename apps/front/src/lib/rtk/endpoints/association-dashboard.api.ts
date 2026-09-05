@@ -409,6 +409,99 @@ export const associationApi = baseApi.injectEndpoints({
         response.setAssociationGroupActive,
       invalidatesTags: ["AssociationGroups", "AssociationMembers"],
     }),
+
+    associationReportsOverview: builder.query<
+      TAPI.AssociationReportsOverviewQuery,
+      TAPI.AssociationReportsOverviewQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.AssociationReportsOverviewDocument,
+        variables,
+      }),
+      providesTags: ["AssociationReports"],
+    }),
+
+    associationProgressByCategory: builder.query<
+      TAPI.AssociationProgressByCategoryQuery["associationProgressByCategory"],
+      TAPI.AssociationProgressByCategoryQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.AssociationProgressByCategoryDocument,
+        variables,
+      }),
+      transformResponse: (response: TAPI.AssociationProgressByCategoryQuery) =>
+        response.associationProgressByCategory,
+      providesTags: ["AssociationReports"],
+    }),
+
+    associationMemberProgressReport: builder.query<
+      TAPI.AssociationMemberProgressReportQuery["associationMemberProgressReport"],
+      TAPI.AssociationMemberProgressReportQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.AssociationMemberProgressReportDocument,
+        variables,
+      }),
+      transformResponse: (
+        response: TAPI.AssociationMemberProgressReportQuery,
+      ) => response.associationMemberProgressReport,
+      providesTags: ["AssociationReports"],
+    }),
+
+    associationGroupProgressReport: builder.query<
+      TAPI.AssociationGroupProgressReportQuery["associationGroupProgressReport"],
+      TAPI.AssociationGroupProgressReportQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.AssociationGroupProgressReportDocument,
+        variables,
+      }),
+      transformResponse: (response: TAPI.AssociationGroupProgressReportQuery) =>
+        response.associationGroupProgressReport,
+      providesTags: ["AssociationReports"],
+    }),
+
+    associationCategoryCompletionReport: builder.query<
+      TAPI.AssociationCategoryCompletionReportQuery["associationCategoryCompletionReport"],
+      TAPI.AssociationCategoryCompletionReportQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.AssociationCategoryCompletionReportDocument,
+        variables,
+      }),
+      transformResponse: (
+        response: TAPI.AssociationCategoryCompletionReportQuery,
+      ) => response.associationCategoryCompletionReport,
+      providesTags: ["AssociationReports"],
+    }),
+
+    associationMissingEvidenceReport: builder.query<
+      TAPI.AssociationMissingEvidenceReportQuery["associationMissingEvidenceReport"],
+      TAPI.AssociationMissingEvidenceReportQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.AssociationMissingEvidenceReportDocument,
+        variables,
+      }),
+      transformResponse: (
+        response: TAPI.AssociationMissingEvidenceReportQuery,
+      ) => response.associationMissingEvidenceReport,
+      providesTags: ["AssociationReports"],
+    }),
+
+    associationRenewalReadinessReport: builder.query<
+      TAPI.AssociationRenewalReadinessReportQuery["associationRenewalReadinessReport"],
+      TAPI.AssociationRenewalReadinessReportQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.AssociationRenewalReadinessReportDocument,
+        variables,
+      }),
+      transformResponse: (
+        response: TAPI.AssociationRenewalReadinessReportQuery,
+      ) => response.associationRenewalReadinessReport,
+      providesTags: ["AssociationReports"],
+    }),
   }),
 });
 
@@ -442,4 +535,11 @@ export const {
   useCreateAssociationGroupMutation,
   useUpdateAssociationGroupMutation,
   useSetAssociationGroupActiveMutation,
+  useAssociationReportsOverviewQuery,
+  useAssociationProgressByCategoryQuery,
+  useAssociationMemberProgressReportQuery,
+  useAssociationGroupProgressReportQuery,
+  useAssociationCategoryCompletionReportQuery,
+  useAssociationMissingEvidenceReportQuery,
+  useAssociationRenewalReadinessReportQuery,
 } = associationApi;

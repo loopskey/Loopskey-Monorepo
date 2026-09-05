@@ -28,3 +28,4 @@ into this index and do not rewrite previous records.
 - [`association-member-detail-evidence-review`](feature-runs/active/association-member-detail-evidence-review.md)
 - [`association-learning-content`](feature-runs/active/association-learning-content.md)
 - [`association-reports-api`](feature-runs/active/association-reports-api.md)
+- [`association-reports-tab-ui`](feature-runs/active/association-reports-tab-ui.md)

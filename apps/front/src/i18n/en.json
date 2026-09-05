@@ -5680,7 +5680,196 @@
     },
     "reports": {
       "title": "Reports",
-      "comingSoon": "Compliance reporting, charts and exports arrive in a later release."
+      "description": "How your membership is doing: by group, by category and over time. Open any chart for the members behind it.",
+      "computedAt": "Figures computed {{when}}",
+      "error": {
+        "title": "We could not run that report",
+        "body": "Your filter is unchanged, so trying again is safe.",
+        "retry": "Try again"
+      },
+      "empty": {
+        "title": "Nothing to report yet",
+        "body": "Reports describe progress against your requirements. Publish a requirement and assign it to members, and this tab fills in.",
+        "action": "Go to requirements"
+      },
+      "rangeIncomplete": "Pick a start and an end date to run a custom range.",
+      "filters": {
+        "legend": "Report filter",
+        "period": "Period",
+        "from": "From",
+        "to": "To",
+        "group": "Group",
+        "requirement": "Requirement",
+        "allGroups": "All groups",
+        "allRequirements": "All requirements",
+        "includeInactive": "Include deactivated members",
+        "clear": "Clear filter"
+      },
+      "periods": {
+        "THIS_YEAR": "This year",
+        "LAST_YEAR": "Last year",
+        "LAST_30_DAYS": "Last 30 days",
+        "LAST_90_DAYS": "Last 90 days",
+        "CUSTOM": "Custom range"
+      },
+      "customRange": "{{start}} to {{end}}",
+      "bands": {
+        "RENEWAL_READY": "Renewal ready",
+        "ON_TRACK": "On track",
+        "AT_RISK": "At risk",
+        "NOT_STARTED": "Not started"
+      },
+      "cards": {
+        "totalMembers": "Members",
+        "renewalReady": "Renewal ready",
+        "onTrack": "On track",
+        "atRisk": "At risk",
+        "missingEvidence": "Missing evidence",
+        "share": "{{share}}% of members",
+        "rise": "+{{change}} on the previous period",
+        "fall": "{{change}} on the previous period",
+        "flat": "Unchanged on the previous period",
+        "open": "Open the {{report}} report"
+      },
+      "charts": {
+        "viewReport": "View full report",
+        "empty": "No data for this filter yet.",
+        "group": {
+          "title": "Compliance by group",
+          "description": "Average completion for each group against your on-track threshold. Select a bar for that group's members.",
+          "label": "Average completion by group",
+          "threshold": "On-track threshold, {{percent}}%",
+          "members": "{{count}} members"
+        },
+        "category": {
+          "title": "Progress by category",
+          "description": "Credits required against the average earned in each category, widest gap first.",
+          "label": "Required and earned credits by category",
+          "required": "Required",
+          "earned": "Average earned"
+        },
+        "distribution": {
+          "title": "Member distribution",
+          "description": "How the membership splits across the four compliance bands. Select a segment for those members.",
+          "label": "Members by compliance band",
+          "centre": "members"
+        },
+        "trend": {
+          "title": "Compliance trend",
+          "description": "The share of members in each band at the end of every month in the period.",
+          "label": "Compliance bands over time"
+        }
+      },
+      "chartTable": {
+        "group": "Group",
+        "members": "Members",
+        "completion": "Average completion",
+        "category": "Category",
+        "requirement": "Requirement",
+        "required": "Required credits",
+        "earned": "Average earned",
+        "band": "Band",
+        "share": "Share",
+        "month": "Month"
+      },
+      "library": {
+        "title": "Report library",
+        "description": "Six reports, each answering one question about your membership.",
+        "open": "Open report"
+      },
+      "names": {
+        "overview-summary": "Overview summary",
+        "member-progress": "Member progress",
+        "group-progress": "Group progress",
+        "category-completion": "Category completion",
+        "missing-evidence": "Missing evidence",
+        "renewal-readiness": "Renewal readiness"
+      },
+      "answers": {
+        "overview-summary": "Where the membership stands overall, and how that moved against the previous period.",
+        "member-progress": "Who is ahead and who is behind, member by member.",
+        "group-progress": "Which groups carry the membership and which lag behind.",
+        "category-completion": "Which categories members complete and which they avoid.",
+        "missing-evidence": "Which members owe evidence before their credits can count.",
+        "renewal-readiness": "Who could renew today and who could not."
+      },
+      "view": {
+        "back": "Back to reports",
+        "filter": "Active filter",
+        "rows": "{{count}} rows",
+        "rowCount": "Rows",
+        "band": "Band",
+        "allBands": "All bands",
+        "truncated": "Showing the {{shown}} members furthest behind, of {{total}}. Narrow the filter to see the rest.",
+        "sortNote": "Sorting and paging apply to the rows loaded for this filter."
+      },
+      "table": {
+        "member": "Member",
+        "memberNumber": "Member number",
+        "group": "Group",
+        "band": "Band",
+        "completion": "Completion",
+        "credits": "Credits",
+        "awaiting": "Awaiting review",
+        "deadline": "Earliest deadline",
+        "requirement": "Requirement",
+        "dueDate": "Due date",
+        "daysRemaining": "Days remaining",
+        "category": "Category",
+        "required": "Required",
+        "earned": "Average earned",
+        "belowHalf": "Below half",
+        "members": "Members",
+        "missingEvidence": "Missing evidence",
+        "notStarted": "Not started",
+        "readiness": "Renewal",
+        "ready": "Ready",
+        "notReady": "Not ready",
+        "creditLine": "{{completed}} of {{required}}",
+        "openMember": "Open the detail view for {{name}}",
+        "sort": "Sort by {{column}}",
+        "empty": "No rows match this filter.",
+        "none": "-",
+        "days": "{{days}} days"
+      },
+      "summaryReport": {
+        "caption": "Membership by compliance band",
+        "average": "Average completion",
+        "period": "Period",
+        "change": "Change"
+      },
+      "heatmap": {
+        "title": "Groups against categories",
+        "description": "Average completion for each group in each category. Every cell carries its number, so colour is never the only signal.",
+        "caption": "Average completion by group and category",
+        "group": "Group",
+        "limited": "Showing {{count}} groups. Members without a group are left out, because a category breakdown can only be filtered to a named group.",
+        "empty": "No categories to compare for this filter."
+      },
+      "extremes": {
+        "title": "Furthest ahead and furthest behind",
+        "description": "The ten members with the highest completion and the ten with the lowest, for this filter.",
+        "label": "Members furthest ahead and furthest behind",
+        "leaders": "Furthest ahead",
+        "laggards": "Furthest behind"
+      },
+      "readiness": {
+        "title": "Membership by readiness",
+        "description": "One bar, split by how ready the membership is to renew.",
+        "label": "Membership by renewal readiness"
+      },
+      "categoryChart": {
+        "title": "Completion by category",
+        "description": "Average completion in each category, with the share of members below half alongside.",
+        "label": "Average completion and members below half by category",
+        "average": "Average completion",
+        "belowHalf": "Members below half"
+      },
+      "groupChart": {
+        "title": "Groups by band",
+        "description": "How each group's members split across the four compliance bands.",
+        "label": "Members by group and compliance band"
+      }
     },
     "messages": {
       "title": "Messages",

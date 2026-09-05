@@ -221,6 +221,68 @@ export type AssociationRequirementOptionsQueryVariables = Types.Exact<{
 
 export type AssociationRequirementOptionsQuery = { __typename?: 'Query', associationRequirements: { __typename?: 'PaginatedAssociationRequirements', items: Array<{ __typename?: 'AssociationRequirement', id: string, name: string, status: Types.AssociationRequirementStatus }> } };
 
+export type AssociationReportSummaryFieldsFragment = { __typename?: 'AssociationReportSummary', periodStart: string, periodEnd: string, computedAt?: string | null, totalMembers: number, totalMembersChange: number, renewalReady: number, renewalReadyShare: number, renewalReadyChange: number, onTrack: number, onTrackShare: number, onTrackChange: number, atRisk: number, atRiskShare: number, atRiskChange: number, missingEvidence: number, missingEvidenceShare: number, missingEvidenceChange: number, averageCompletion: number };
+
+export type AssociationGroupComplianceFieldsFragment = { __typename?: 'AssociationGroupCompliance', groupId?: string | null, groupTitle?: string | null, memberCount: number, averageCompletion: number, renewalReady: number, onTrack: number, atRisk: number, notStarted: number };
+
+export type AssociationCategoryProgressRowFieldsFragment = { __typename?: 'AssociationCategoryProgressRow', categoryId: string, categoryName: string, mappedCategory: Types.PduCategory, requirementId: string, requirementName: string, requiredCredits: number, averageCompletedCredits: number, averagePercent: number, memberCount: number, onTrackCount: number, behindCount: number, atRiskCount: number, belowHalfCount: number };
+
+export type AssociationMemberDistributionFieldsFragment = { __typename?: 'AssociationMemberDistribution', totalMembers: number, renewalReady: number, renewalReadyShare: number, onTrack: number, onTrackShare: number, atRisk: number, atRiskShare: number, notStarted: number, notStartedShare: number };
+
+export type AssociationComplianceTrendFieldsFragment = { __typename?: 'AssociationComplianceTrendPoint', at: string, totalMembers: number, renewalReady: number, renewalReadyShare: number, onTrack: number, onTrackShare: number, atRisk: number, atRiskShare: number, notStarted: number, notStartedShare: number, averageCompletion: number };
+
+export type AssociationReportsOverviewQueryVariables = Types.Exact<{
+  filter?: Types.InputMaybe<Types.AssociationReportFilterInput>;
+}>;
+
+
+export type AssociationReportsOverviewQuery = { __typename?: 'Query', associationReportSummary: { __typename?: 'AssociationReportSummary', periodStart: string, periodEnd: string, computedAt?: string | null, totalMembers: number, totalMembersChange: number, renewalReady: number, renewalReadyShare: number, renewalReadyChange: number, onTrack: number, onTrackShare: number, onTrackChange: number, atRisk: number, atRiskShare: number, atRiskChange: number, missingEvidence: number, missingEvidenceShare: number, missingEvidenceChange: number, averageCompletion: number }, associationMemberDistribution: { __typename?: 'AssociationMemberDistribution', totalMembers: number, renewalReady: number, renewalReadyShare: number, onTrack: number, onTrackShare: number, atRisk: number, atRiskShare: number, notStarted: number, notStartedShare: number }, associationComplianceByGroup: Array<{ __typename?: 'AssociationGroupCompliance', groupId?: string | null, groupTitle?: string | null, memberCount: number, averageCompletion: number, renewalReady: number, onTrack: number, atRisk: number, notStarted: number }>, associationProgressByCategory: Array<{ __typename?: 'AssociationCategoryProgressRow', categoryId: string, categoryName: string, mappedCategory: Types.PduCategory, requirementId: string, requirementName: string, requiredCredits: number, averageCompletedCredits: number, averagePercent: number, memberCount: number, onTrackCount: number, behindCount: number, atRiskCount: number, belowHalfCount: number }>, associationComplianceTrend: Array<{ __typename?: 'AssociationComplianceTrendPoint', at: string, totalMembers: number, renewalReady: number, renewalReadyShare: number, onTrack: number, onTrackShare: number, atRisk: number, atRiskShare: number, notStarted: number, notStartedShare: number, averageCompletion: number }> };
+
+export type AssociationProgressByCategoryQueryVariables = Types.Exact<{
+  filter?: Types.InputMaybe<Types.AssociationReportFilterInput>;
+}>;
+
+
+export type AssociationProgressByCategoryQuery = { __typename?: 'Query', associationProgressByCategory: Array<{ __typename?: 'AssociationCategoryProgressRow', categoryId: string, categoryName: string, mappedCategory: Types.PduCategory, requirementId: string, requirementName: string, requiredCredits: number, averageCompletedCredits: number, averagePercent: number, memberCount: number, onTrackCount: number, behindCount: number, atRiskCount: number, belowHalfCount: number }> };
+
+export type AssociationMemberProgressReportQueryVariables = Types.Exact<{
+  filter?: Types.InputMaybe<Types.AssociationReportFilterInput>;
+  pagination?: Types.InputMaybe<Types.AssociationReportPaginationInput>;
+}>;
+
+
+export type AssociationMemberProgressReportQuery = { __typename?: 'Query', associationMemberProgressReport: { __typename?: 'PaginatedAssociationMemberProgress', totalCount: number, pageInfo: { __typename?: 'AssociationPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'AssociationMemberProgressRow', memberId: string, fullName?: string | null, email?: string | null, memberNumber?: string | null, groupTitle?: string | null, band: Types.AssociationComplianceBand, percent: number, requiredCredits: number, completedCredits: number, awaitingReviewCount: number, isMissingEvidence: boolean, hasStarted: boolean, earliestUnmetDeadline?: string | null }> } };
+
+export type AssociationGroupProgressReportQueryVariables = Types.Exact<{
+  filter?: Types.InputMaybe<Types.AssociationReportFilterInput>;
+}>;
+
+
+export type AssociationGroupProgressReportQuery = { __typename?: 'Query', associationGroupProgressReport: Array<{ __typename?: 'AssociationGroupProgressRow', groupId?: string | null, groupTitle?: string | null, memberCount: number, averageCompletion: number, renewalReady: number, onTrack: number, atRisk: number, notStarted: number, notStartedCount: number, missingEvidenceCount: number }> };
+
+export type AssociationCategoryCompletionReportQueryVariables = Types.Exact<{
+  filter?: Types.InputMaybe<Types.AssociationReportFilterInput>;
+}>;
+
+
+export type AssociationCategoryCompletionReportQuery = { __typename?: 'Query', associationCategoryCompletionReport: Array<{ __typename?: 'AssociationCategoryProgressRow', categoryId: string, categoryName: string, mappedCategory: Types.PduCategory, requirementId: string, requirementName: string, requiredCredits: number, averageCompletedCredits: number, averagePercent: number, memberCount: number, onTrackCount: number, behindCount: number, atRiskCount: number, belowHalfCount: number }> };
+
+export type AssociationMissingEvidenceReportQueryVariables = Types.Exact<{
+  filter?: Types.InputMaybe<Types.AssociationReportFilterInput>;
+  pagination?: Types.InputMaybe<Types.AssociationReportPaginationInput>;
+}>;
+
+
+export type AssociationMissingEvidenceReportQuery = { __typename?: 'Query', associationMissingEvidenceReport: { __typename?: 'PaginatedAssociationMissingEvidence', totalCount: number, pageInfo: { __typename?: 'AssociationPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'AssociationMissingEvidenceRow', id: string, memberId: string, fullName?: string | null, email?: string | null, memberNumber?: string | null, groupTitle?: string | null, requirementId: string, requirementName: string, percent: number, requiredCredits: number, completedCredits: number, awaitingReviewCount: number, dueDate?: string | null, daysRemaining?: number | null }> } };
+
+export type AssociationRenewalReadinessReportQueryVariables = Types.Exact<{
+  filter?: Types.InputMaybe<Types.AssociationReportFilterInput>;
+  pagination?: Types.InputMaybe<Types.AssociationReportPaginationInput>;
+}>;
+
+
+export type AssociationRenewalReadinessReportQuery = { __typename?: 'Query', associationRenewalReadinessReport: { __typename?: 'PaginatedAssociationRenewalReadiness', totalCount: number, pageInfo: { __typename?: 'AssociationPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'AssociationRenewalReadinessRow', id: string, memberId: string, fullName?: string | null, email?: string | null, memberNumber?: string | null, groupTitle?: string | null, band: Types.AssociationComplianceBand, percent: number, requiredCredits: number, completedCredits: number, awaitingReviewCount: number, isRenewalReady: boolean, earliestUnmetDeadline?: string | null }> } };
+
 export const AssociationSettingsFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
     fragment AssociationSettingsFields on AssociationSettings {
   id
@@ -412,6 +474,85 @@ export const AssociationLearningContentFieldsFragmentDoc = /*#__PURE__*/ new Typ
   updatedAt
 }
     `, {"fragmentName":"AssociationLearningContentFields"}) as unknown as TypedDocumentString<AssociationLearningContentFieldsFragment, unknown>;
+export const AssociationReportSummaryFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
+    fragment AssociationReportSummaryFields on AssociationReportSummary {
+  periodStart
+  periodEnd
+  computedAt
+  totalMembers
+  totalMembersChange
+  renewalReady
+  renewalReadyShare
+  renewalReadyChange
+  onTrack
+  onTrackShare
+  onTrackChange
+  atRisk
+  atRiskShare
+  atRiskChange
+  missingEvidence
+  missingEvidenceShare
+  missingEvidenceChange
+  averageCompletion
+}
+    `, {"fragmentName":"AssociationReportSummaryFields"}) as unknown as TypedDocumentString<AssociationReportSummaryFieldsFragment, unknown>;
+export const AssociationGroupComplianceFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
+    fragment AssociationGroupComplianceFields on AssociationGroupCompliance {
+  groupId
+  groupTitle
+  memberCount
+  averageCompletion
+  renewalReady
+  onTrack
+  atRisk
+  notStarted
+}
+    `, {"fragmentName":"AssociationGroupComplianceFields"}) as unknown as TypedDocumentString<AssociationGroupComplianceFieldsFragment, unknown>;
+export const AssociationCategoryProgressRowFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
+    fragment AssociationCategoryProgressRowFields on AssociationCategoryProgressRow {
+  categoryId
+  categoryName
+  mappedCategory
+  requirementId
+  requirementName
+  requiredCredits
+  averageCompletedCredits
+  averagePercent
+  memberCount
+  onTrackCount
+  behindCount
+  atRiskCount
+  belowHalfCount
+}
+    `, {"fragmentName":"AssociationCategoryProgressRowFields"}) as unknown as TypedDocumentString<AssociationCategoryProgressRowFieldsFragment, unknown>;
+export const AssociationMemberDistributionFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
+    fragment AssociationMemberDistributionFields on AssociationMemberDistribution {
+  totalMembers
+  renewalReady
+  renewalReadyShare
+  onTrack
+  onTrackShare
+  atRisk
+  atRiskShare
+  notStarted
+  notStartedShare
+}
+    `, {"fragmentName":"AssociationMemberDistributionFields"}) as unknown as TypedDocumentString<AssociationMemberDistributionFieldsFragment, unknown>;
+export const AssociationComplianceTrendFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
+    fragment AssociationComplianceTrendFields on AssociationComplianceTrendPoint {
+  at
+  totalMembers
+  renewalReady
+  renewalReadyShare
+  onTrack
+  onTrackShare
+  atRisk
+  atRiskShare
+  notStarted
+  notStartedShare
+  averageCompletion
+}
+    `, {"fragmentName":"AssociationComplianceTrendFields"}) as unknown as TypedDocumentString<AssociationComplianceTrendFieldsFragment, unknown>;
 export const AssociationProfileDocument = /*#__PURE__*/ new TypedDocumentString(`
     query AssociationProfile {
   associationProfile {
@@ -1172,3 +1313,227 @@ export const AssociationRequirementOptionsDocument = /*#__PURE__*/ new TypedDocu
   }
 }
     `) as unknown as TypedDocumentString<AssociationRequirementOptionsQuery, AssociationRequirementOptionsQueryVariables>;
+export const AssociationReportsOverviewDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query AssociationReportsOverview($filter: AssociationReportFilterInput) {
+  associationReportSummary(filter: $filter) {
+    ...AssociationReportSummaryFields
+  }
+  associationMemberDistribution(filter: $filter) {
+    ...AssociationMemberDistributionFields
+  }
+  associationComplianceByGroup(filter: $filter) {
+    ...AssociationGroupComplianceFields
+  }
+  associationProgressByCategory(filter: $filter) {
+    ...AssociationCategoryProgressRowFields
+  }
+  associationComplianceTrend(filter: $filter) {
+    ...AssociationComplianceTrendFields
+  }
+}
+    fragment AssociationReportSummaryFields on AssociationReportSummary {
+  periodStart
+  periodEnd
+  computedAt
+  totalMembers
+  totalMembersChange
+  renewalReady
+  renewalReadyShare
+  renewalReadyChange
+  onTrack
+  onTrackShare
+  onTrackChange
+  atRisk
+  atRiskShare
+  atRiskChange
+  missingEvidence
+  missingEvidenceShare
+  missingEvidenceChange
+  averageCompletion
+}
+fragment AssociationGroupComplianceFields on AssociationGroupCompliance {
+  groupId
+  groupTitle
+  memberCount
+  averageCompletion
+  renewalReady
+  onTrack
+  atRisk
+  notStarted
+}
+fragment AssociationCategoryProgressRowFields on AssociationCategoryProgressRow {
+  categoryId
+  categoryName
+  mappedCategory
+  requirementId
+  requirementName
+  requiredCredits
+  averageCompletedCredits
+  averagePercent
+  memberCount
+  onTrackCount
+  behindCount
+  atRiskCount
+  belowHalfCount
+}
+fragment AssociationMemberDistributionFields on AssociationMemberDistribution {
+  totalMembers
+  renewalReady
+  renewalReadyShare
+  onTrack
+  onTrackShare
+  atRisk
+  atRiskShare
+  notStarted
+  notStartedShare
+}
+fragment AssociationComplianceTrendFields on AssociationComplianceTrendPoint {
+  at
+  totalMembers
+  renewalReady
+  renewalReadyShare
+  onTrack
+  onTrackShare
+  atRisk
+  atRiskShare
+  notStarted
+  notStartedShare
+  averageCompletion
+}`) as unknown as TypedDocumentString<AssociationReportsOverviewQuery, AssociationReportsOverviewQueryVariables>;
+export const AssociationProgressByCategoryDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query AssociationProgressByCategory($filter: AssociationReportFilterInput) {
+  associationProgressByCategory(filter: $filter) {
+    ...AssociationCategoryProgressRowFields
+  }
+}
+    fragment AssociationCategoryProgressRowFields on AssociationCategoryProgressRow {
+  categoryId
+  categoryName
+  mappedCategory
+  requirementId
+  requirementName
+  requiredCredits
+  averageCompletedCredits
+  averagePercent
+  memberCount
+  onTrackCount
+  behindCount
+  atRiskCount
+  belowHalfCount
+}`) as unknown as TypedDocumentString<AssociationProgressByCategoryQuery, AssociationProgressByCategoryQueryVariables>;
+export const AssociationMemberProgressReportDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query AssociationMemberProgressReport($filter: AssociationReportFilterInput, $pagination: AssociationReportPaginationInput) {
+  associationMemberProgressReport(filter: $filter, pagination: $pagination) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      nextCursor
+    }
+    items {
+      memberId
+      fullName
+      email
+      memberNumber
+      groupTitle
+      band
+      percent
+      requiredCredits
+      completedCredits
+      awaitingReviewCount
+      isMissingEvidence
+      hasStarted
+      earliestUnmetDeadline
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<AssociationMemberProgressReportQuery, AssociationMemberProgressReportQueryVariables>;
+export const AssociationGroupProgressReportDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query AssociationGroupProgressReport($filter: AssociationReportFilterInput) {
+  associationGroupProgressReport(filter: $filter) {
+    groupId
+    groupTitle
+    memberCount
+    averageCompletion
+    renewalReady
+    onTrack
+    atRisk
+    notStarted
+    notStartedCount
+    missingEvidenceCount
+  }
+}
+    `) as unknown as TypedDocumentString<AssociationGroupProgressReportQuery, AssociationGroupProgressReportQueryVariables>;
+export const AssociationCategoryCompletionReportDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query AssociationCategoryCompletionReport($filter: AssociationReportFilterInput) {
+  associationCategoryCompletionReport(filter: $filter) {
+    ...AssociationCategoryProgressRowFields
+  }
+}
+    fragment AssociationCategoryProgressRowFields on AssociationCategoryProgressRow {
+  categoryId
+  categoryName
+  mappedCategory
+  requirementId
+  requirementName
+  requiredCredits
+  averageCompletedCredits
+  averagePercent
+  memberCount
+  onTrackCount
+  behindCount
+  atRiskCount
+  belowHalfCount
+}`) as unknown as TypedDocumentString<AssociationCategoryCompletionReportQuery, AssociationCategoryCompletionReportQueryVariables>;
+export const AssociationMissingEvidenceReportDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query AssociationMissingEvidenceReport($filter: AssociationReportFilterInput, $pagination: AssociationReportPaginationInput) {
+  associationMissingEvidenceReport(filter: $filter, pagination: $pagination) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      nextCursor
+    }
+    items {
+      id
+      memberId
+      fullName
+      email
+      memberNumber
+      groupTitle
+      requirementId
+      requirementName
+      percent
+      requiredCredits
+      completedCredits
+      awaitingReviewCount
+      dueDate
+      daysRemaining
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<AssociationMissingEvidenceReportQuery, AssociationMissingEvidenceReportQueryVariables>;
+export const AssociationRenewalReadinessReportDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query AssociationRenewalReadinessReport($filter: AssociationReportFilterInput, $pagination: AssociationReportPaginationInput) {
+  associationRenewalReadinessReport(filter: $filter, pagination: $pagination) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      nextCursor
+    }
+    items {
+      id
+      memberId
+      fullName
+      email
+      memberNumber
+      groupTitle
+      band
+      percent
+      requiredCredits
+      completedCredits
+      awaitingReviewCount
+      isRenewalReady
+      earliestUnmetDeadline
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<AssociationRenewalReadinessReportQuery, AssociationRenewalReadinessReportQueryVariables>;
