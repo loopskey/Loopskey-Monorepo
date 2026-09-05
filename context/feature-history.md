@@ -29,3 +29,4 @@ into this index and do not rewrite previous records.
 - [`association-learning-content`](feature-runs/active/association-learning-content.md)
 - [`association-reports-api`](feature-runs/active/association-reports-api.md)
 - [`association-reports-tab-ui`](feature-runs/active/association-reports-tab-ui.md)
+- [`association-report-exports`](feature-runs/active/association-report-exports.md)
