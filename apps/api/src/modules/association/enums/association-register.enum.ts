@@ -1,5 +1,7 @@
 import { AssociationReportPeriod } from "@association/utils/association-report-period.util";
+import { AssociationMessageDeliveryState } from "@prisma/client";
 import { AssociationGeneratedReportState } from "@prisma/client";
+import { AssociationMessageType } from "@prisma/client";
 import { AssociationLearningContentStatus } from "@prisma/client";
 import { AssociationReportFormat } from "@prisma/client";
 import { AssociationReportType } from "@prisma/client";
@@ -10,6 +12,8 @@ import { AssociationReportingCycle } from "@prisma/client";
 import { AssociationEvidencePolicy } from "@prisma/client";
 import { AssociationAudienceKind } from "@prisma/client";
 import { AssociationMemberStatus } from "@prisma/client";
+import { AssociationAttentionSection } from "@association/enums/association-attention.enum";
+import { AssociationMessageSkipReason } from "@association/enums/association-attention.enum";
 import { registerEnumType } from "@nestjs/graphql";
 
 export enum AssociationInviteOutcome {
@@ -86,4 +90,25 @@ registerEnumType(AssociationGeneratedReportState, {
   name: "AssociationGeneratedReportState",
   description:
     "Whether an export is being generated, ready to download, failed, or past its retention",
+});
+
+registerEnumType(AssociationAttentionSection, {
+  name: "AssociationAttentionSection",
+  description: "Which attention list a row or a send belongs to",
+});
+
+registerEnumType(AssociationMessageType, {
+  name: "AssociationMessageType",
+  description:
+    "Which templated message the platform sends on the association's behalf",
+});
+
+registerEnumType(AssociationMessageDeliveryState, {
+  name: "AssociationMessageDeliveryState",
+  description: "Where one recipient's copy of a message stands",
+});
+
+registerEnumType(AssociationMessageSkipReason, {
+  name: "AssociationMessageSkipReason",
+  description: "Why a member in the audience was deliberately not written to",
 });

@@ -15,6 +15,14 @@ export type ReportMemberRecord = Prisma.AssociationMemberGetPayload<{
   select: typeof REPORT_MEMBER_SELECT;
 }>;
 
+export type ReportAssignmentCategory = {
+  categoryId: string;
+  categoryName: string;
+  requiredCredits: number;
+  completedCredits: number;
+  percent: number;
+};
+
 export type ReportAssignmentRow = {
   assignmentId: string;
   requirementId: string;
@@ -27,6 +35,7 @@ export type ReportAssignmentRow = {
   isMissingEvidence: boolean;
   dueDate: Date | null;
   daysRemaining: number | null;
+  categories: ReportAssignmentCategory[];
 };
 
 export type ReportMemberRow = {

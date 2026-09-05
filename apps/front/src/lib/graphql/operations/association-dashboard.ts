@@ -306,6 +306,43 @@ export type RetryAssociationReportExportMutationVariables = Types.Exact<{
 
 export type RetryAssociationReportExportMutation = { __typename?: 'Mutation', retryAssociationReportExport: { __typename?: 'AssociationGeneratedReport', id: string, reportType: Types.AssociationReportType, format: Types.AssociationReportFormat, state: Types.AssociationGeneratedReportState, fileName: string, sizeBytes?: number | null, rowCount?: number | null, failureReason?: string | null, readyAt?: string | null, expiresAt?: string | null, createdAt: string, filter: { __typename?: 'AssociationGeneratedReportFilter', period: Types.AssociationReportPeriod, startDate?: string | null, endDate?: string | null, groupId?: string | null, requirementId?: string | null, includeInactive: boolean } } };
 
+export type AssociationAttentionRowFieldsFragment = { __typename?: 'AssociationAttentionRow', memberId: string, fullName?: string | null, email?: string | null, memberNumber?: string | null, groupId?: string | null, groupTitle?: string | null, percent?: number | null, band?: Types.AssociationComplianceBand | null, requiredCredits?: number | null, completedCredits?: number | null, deadline?: string | null, detail?: string | null, detailDate?: string | null };
+
+export type AssociationAttentionListsQueryVariables = Types.Exact<{ [key: string]: never; }>;
+
+
+export type AssociationAttentionListsQuery = { __typename?: 'Query', associationAttentionLists: { __typename?: 'AssociationAttentionLists', counts: { __typename?: 'AssociationAttentionCounts', belowThreshold: number, newJoiners: number, categoryBehind: number, expiringCertificates: number, readyReports: number }, distribution: { __typename?: 'AssociationMemberDistribution', totalMembers: number, renewalReady: number, onTrack: number, atRisk: number, notStarted: number, renewalReadyShare: number, onTrackShare: number, atRiskShare: number, notStartedShare: number } } };
+
+export type AssociationAttentionMembersQueryVariables = Types.Exact<{
+  section: Types.AssociationAttentionSection;
+  pagination?: Types.InputMaybe<Types.AssociationReportPaginationInput>;
+}>;
+
+
+export type AssociationAttentionMembersQuery = { __typename?: 'Query', associationAttentionMembers: { __typename?: 'PaginatedAssociationAttentionRows', totalCount: number, pageInfo: { __typename?: 'AssociationPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'AssociationAttentionRow', memberId: string, fullName?: string | null, email?: string | null, memberNumber?: string | null, groupId?: string | null, groupTitle?: string | null, percent?: number | null, band?: Types.AssociationComplianceBand | null, requiredCredits?: number | null, completedCredits?: number | null, deadline?: string | null, detail?: string | null, detailDate?: string | null }> } };
+
+export type AssociationMessagePreviewQueryVariables = Types.Exact<{
+  messageType: Types.AssociationMessageType;
+  audience: Types.AssociationMessageAudienceInput;
+}>;
+
+
+export type AssociationMessagePreviewQuery = { __typename?: 'Query', associationMessagePreview: { __typename?: 'AssociationMessagePreview', messageType: Types.AssociationMessageType, subject?: string | null, body?: string | null, recipientName?: string | null, language?: Types.AppLanguage | null, recipientCount: number, skippedCount: number, skipped: Array<{ __typename?: 'AssociationMessageSkip', memberId: string, fullName?: string | null, reason: Types.AssociationMessageSkipReason }> } };
+
+export type AssociationMessageHistoryQueryVariables = Types.Exact<{
+  pagination?: Types.InputMaybe<Types.AssociationReportPaginationInput>;
+}>;
+
+
+export type AssociationMessageHistoryQuery = { __typename?: 'Query', associationMessageHistory: { __typename?: 'PaginatedAssociationMessageHistory', totalCount: number, pageInfo: { __typename?: 'AssociationPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'AssociationMessageHistoryRow', id: string, memberId: string, fullName?: string | null, email?: string | null, memberNumber?: string | null, messageType: Types.AssociationMessageType, state: Types.AssociationMessageDeliveryState, language: Types.AppLanguage, templateVersion: number, skipReason?: string | null, failureReason?: string | null, sentAt?: string | null, createdAt: string }> } };
+
+export type SendAssociationMessageMutationVariables = Types.Exact<{
+  input: Types.SendAssociationMessageInput;
+}>;
+
+
+export type SendAssociationMessageMutation = { __typename?: 'Mutation', sendAssociationMessage: { __typename?: 'AssociationMessageBatch', messageType: Types.AssociationMessageType, acceptedCount: number, skippedCount: number, skipped: Array<{ __typename?: 'AssociationMessageSkip', memberId: string, fullName?: string | null, reason: Types.AssociationMessageSkipReason }> } };
+
 export const AssociationSettingsFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
     fragment AssociationSettingsFields on AssociationSettings {
   id
@@ -599,6 +636,23 @@ export const AssociationGeneratedReportFieldsFragmentDoc = /*#__PURE__*/ new Typ
   }
 }
     `, {"fragmentName":"AssociationGeneratedReportFields"}) as unknown as TypedDocumentString<AssociationGeneratedReportFieldsFragment, unknown>;
+export const AssociationAttentionRowFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
+    fragment AssociationAttentionRowFields on AssociationAttentionRow {
+  memberId
+  fullName
+  email
+  memberNumber
+  groupId
+  groupTitle
+  percent
+  band
+  requiredCredits
+  completedCredits
+  deadline
+  detail
+  detailDate
+}
+    `, {"fragmentName":"AssociationAttentionRowFields"}) as unknown as TypedDocumentString<AssociationAttentionRowFieldsFragment, unknown>;
 export const AssociationProfileDocument = /*#__PURE__*/ new TypedDocumentString(`
     query AssociationProfile {
   associationProfile {
@@ -1671,3 +1725,113 @@ export const RetryAssociationReportExportDocument = /*#__PURE__*/ new TypedDocum
     includeInactive
   }
 }`) as unknown as TypedDocumentString<RetryAssociationReportExportMutation, RetryAssociationReportExportMutationVariables>;
+export const AssociationAttentionListsDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query AssociationAttentionLists {
+  associationAttentionLists {
+    counts {
+      belowThreshold
+      newJoiners
+      categoryBehind
+      expiringCertificates
+      readyReports
+    }
+    distribution {
+      totalMembers
+      renewalReady
+      onTrack
+      atRisk
+      notStarted
+      renewalReadyShare
+      onTrackShare
+      atRiskShare
+      notStartedShare
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<AssociationAttentionListsQuery, AssociationAttentionListsQueryVariables>;
+export const AssociationAttentionMembersDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query AssociationAttentionMembers($section: AssociationAttentionSection!, $pagination: AssociationReportPaginationInput) {
+  associationAttentionMembers(section: $section, pagination: $pagination) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      nextCursor
+    }
+    items {
+      ...AssociationAttentionRowFields
+    }
+  }
+}
+    fragment AssociationAttentionRowFields on AssociationAttentionRow {
+  memberId
+  fullName
+  email
+  memberNumber
+  groupId
+  groupTitle
+  percent
+  band
+  requiredCredits
+  completedCredits
+  deadline
+  detail
+  detailDate
+}`) as unknown as TypedDocumentString<AssociationAttentionMembersQuery, AssociationAttentionMembersQueryVariables>;
+export const AssociationMessagePreviewDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query AssociationMessagePreview($messageType: AssociationMessageType!, $audience: AssociationMessageAudienceInput!) {
+  associationMessagePreview(messageType: $messageType, audience: $audience) {
+    messageType
+    subject
+    body
+    recipientName
+    language
+    recipientCount
+    skippedCount
+    skipped {
+      memberId
+      fullName
+      reason
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<AssociationMessagePreviewQuery, AssociationMessagePreviewQueryVariables>;
+export const AssociationMessageHistoryDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query AssociationMessageHistory($pagination: AssociationReportPaginationInput) {
+  associationMessageHistory(pagination: $pagination) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      nextCursor
+    }
+    items {
+      id
+      memberId
+      fullName
+      email
+      memberNumber
+      messageType
+      state
+      language
+      templateVersion
+      skipReason
+      failureReason
+      sentAt
+      createdAt
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<AssociationMessageHistoryQuery, AssociationMessageHistoryQueryVariables>;
+export const SendAssociationMessageDocument = /*#__PURE__*/ new TypedDocumentString(`
+    mutation SendAssociationMessage($input: SendAssociationMessageInput!) {
+  sendAssociationMessage(input: $input) {
+    messageType
+    acceptedCount
+    skippedCount
+    skipped {
+      memberId
+      fullName
+      reason
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<SendAssociationMessageMutation, SendAssociationMessageMutationVariables>;

@@ -347,6 +347,47 @@ export type AssociationAssignmentProgress = {
   requirementName: Scalars["String"]["output"];
 };
 
+export type AssociationAttentionCounts = {
+  __typename?: "AssociationAttentionCounts";
+  belowThreshold: Scalars["Int"]["output"];
+  categoryBehind: Scalars["Int"]["output"];
+  expiringCertificates: Scalars["Int"]["output"];
+  newJoiners: Scalars["Int"]["output"];
+  readyReports: Scalars["Int"]["output"];
+};
+
+export type AssociationAttentionLists = {
+  __typename?: "AssociationAttentionLists";
+  counts: AssociationAttentionCounts;
+  distribution: AssociationMemberDistribution;
+};
+
+export type AssociationAttentionRow = {
+  __typename?: "AssociationAttentionRow";
+  band?: Maybe<AssociationComplianceBand>;
+  completedCredits?: Maybe<Scalars["Float"]["output"]>;
+  deadline?: Maybe<Scalars["DateTime"]["output"]>;
+  detail?: Maybe<Scalars["String"]["output"]>;
+  detailDate?: Maybe<Scalars["DateTime"]["output"]>;
+  email?: Maybe<Scalars["String"]["output"]>;
+  fullName?: Maybe<Scalars["String"]["output"]>;
+  groupId?: Maybe<Scalars["ID"]["output"]>;
+  groupTitle?: Maybe<Scalars["String"]["output"]>;
+  memberId: Scalars["ID"]["output"];
+  memberNumber?: Maybe<Scalars["String"]["output"]>;
+  percent?: Maybe<Scalars["Float"]["output"]>;
+  requiredCredits?: Maybe<Scalars["Float"]["output"]>;
+};
+
+/** Which attention list a row or a send belongs to */
+export enum AssociationAttentionSection {
+  BelowThreshold = "BELOW_THRESHOLD",
+  CategoryBehind = "CATEGORY_BEHIND",
+  ExpiringCertificates = "EXPIRING_CERTIFICATES",
+  NewJoiners = "NEW_JOINERS",
+  ReadyReports = "READY_REPORTS",
+}
+
 /** Whether one activity counted toward a requirement, waits on a decision, or was rejected */
 export enum AssociationAttributionState {
   AwaitingReview = "AWAITING_REVIEW",
@@ -779,6 +820,80 @@ export type AssociationMemberSummary = {
   pacePercent?: Maybe<Scalars["Float"]["output"]>;
   percent: Scalars["Float"]["output"];
 };
+
+export type AssociationMessageAudienceInput = {
+  groupId?: InputMaybe<Scalars["ID"]["input"]>;
+  memberIds?: InputMaybe<Array<Scalars["ID"]["input"]>>;
+  section: AssociationAttentionSection;
+};
+
+export type AssociationMessageBatch = {
+  __typename?: "AssociationMessageBatch";
+  acceptedCount: Scalars["Int"]["output"];
+  messageType: AssociationMessageType;
+  skipped: Array<AssociationMessageSkip>;
+  skippedCount: Scalars["Int"]["output"];
+};
+
+/** Where one recipient's copy of a message stands */
+export enum AssociationMessageDeliveryState {
+  Failed = "FAILED",
+  Queued = "QUEUED",
+  Sent = "SENT",
+  Skipped = "SKIPPED",
+}
+
+export type AssociationMessageHistoryRow = {
+  __typename?: "AssociationMessageHistoryRow";
+  createdAt: Scalars["DateTime"]["output"];
+  email?: Maybe<Scalars["String"]["output"]>;
+  failureReason?: Maybe<Scalars["String"]["output"]>;
+  fullName?: Maybe<Scalars["String"]["output"]>;
+  id: Scalars["ID"]["output"];
+  language: AppLanguage;
+  memberId: Scalars["ID"]["output"];
+  memberNumber?: Maybe<Scalars["String"]["output"]>;
+  messageType: AssociationMessageType;
+  sentAt?: Maybe<Scalars["DateTime"]["output"]>;
+  skipReason?: Maybe<Scalars["String"]["output"]>;
+  state: AssociationMessageDeliveryState;
+  templateVersion: Scalars["Int"]["output"];
+};
+
+export type AssociationMessagePreview = {
+  __typename?: "AssociationMessagePreview";
+  body?: Maybe<Scalars["String"]["output"]>;
+  language?: Maybe<AppLanguage>;
+  messageType: AssociationMessageType;
+  recipientCount: Scalars["Int"]["output"];
+  recipientName?: Maybe<Scalars["String"]["output"]>;
+  skipped: Array<AssociationMessageSkip>;
+  skippedCount: Scalars["Int"]["output"];
+  subject?: Maybe<Scalars["String"]["output"]>;
+};
+
+export type AssociationMessageSkip = {
+  __typename?: "AssociationMessageSkip";
+  fullName?: Maybe<Scalars["String"]["output"]>;
+  memberId: Scalars["ID"]["output"];
+  reason: AssociationMessageSkipReason;
+};
+
+/** Why a member in the audience was deliberately not written to */
+export enum AssociationMessageSkipReason {
+  Cooldown = "COOLDOWN",
+  InactiveAccount = "INACTIVE_ACCOUNT",
+  NotInList = "NOT_IN_LIST",
+  NoVerifiedEmail = "NO_VERIFIED_EMAIL",
+}
+
+/** Which templated message the platform sends on the association's behalf */
+export enum AssociationMessageType {
+  BehindThreshold = "BEHIND_THRESHOLD",
+  CategoryBehind = "CATEGORY_BEHIND",
+  CertificateExpiring = "CERTIFICATE_EXPIRING",
+  Welcome = "WELCOME",
+}
 
 export type AssociationMissingEvidenceRow = {
   __typename?: "AssociationMissingEvidenceRow";
@@ -2184,6 +2299,7 @@ export type Mutation = {
   restoreYouTubeChannel: YouTubeChannel;
   retryAssociationReportExport: AssociationGeneratedReport;
   reviewAssociationLearningActivity: AssociationReviewResult;
+  sendAssociationMessage: AssociationMessageBatch;
   sendRoadmapChatTurn: ProfessionalRoadmapDraft;
   setAssociationGroupActive: AssociationGroup;
   setAssociationMemberRequirements: AssociationMemberRequirementsResult;
@@ -2598,6 +2714,10 @@ export type MutationRetryAssociationReportExportArgs = {
 
 export type MutationReviewAssociationLearningActivityArgs = {
   input: ReviewAssociationLearningActivityInput;
+};
+
+export type MutationSendAssociationMessageArgs = {
+  input: SendAssociationMessageInput;
 };
 
 export type MutationSendRoadmapChatTurnArgs = {
@@ -3325,6 +3445,13 @@ export type PaginatedAdminUser = {
   totalCount: Scalars["Int"]["output"];
 };
 
+export type PaginatedAssociationAttentionRows = {
+  __typename?: "PaginatedAssociationAttentionRows";
+  items: Array<AssociationAttentionRow>;
+  pageInfo: AssociationPageInfo;
+  totalCount: Scalars["Int"]["output"];
+};
+
 export type PaginatedAssociationGeneratedReports = {
   __typename?: "PaginatedAssociationGeneratedReports";
   items: Array<AssociationGeneratedReport>;
@@ -3357,6 +3484,13 @@ export type PaginatedAssociationMemberProgress = {
 export type PaginatedAssociationMembers = {
   __typename?: "PaginatedAssociationMembers";
   items: Array<AssociationMember>;
+  pageInfo: AssociationPageInfo;
+  totalCount: Scalars["Int"]["output"];
+};
+
+export type PaginatedAssociationMessageHistory = {
+  __typename?: "PaginatedAssociationMessageHistory";
+  items: Array<AssociationMessageHistoryRow>;
   pageInfo: AssociationPageInfo;
   totalCount: Scalars["Int"]["output"];
 };
@@ -4479,6 +4613,8 @@ export type Query = {
   adminUserGrowth: Array<AdminChartPoint>;
   adminUsers: PaginatedAdminUser;
   associationActivationStatus: AssociationActivationStatus;
+  associationAttentionLists: AssociationAttentionLists;
+  associationAttentionMembers: PaginatedAssociationAttentionRows;
   associationCatalogSearch: Array<AssociationCatalogItem>;
   associationCategoryCompletionReport: Array<AssociationCategoryProgressRow>;
   associationComplianceByGroup: Array<AssociationGroupCompliance>;
@@ -4498,6 +4634,8 @@ export type Query = {
   associationMemberRequirementOptions: Array<AssociationMemberRequirementOption>;
   associationMemberStats: AssociationMemberStats;
   associationMembers: PaginatedAssociationMembers;
+  associationMessageHistory: PaginatedAssociationMessageHistory;
+  associationMessagePreview: AssociationMessagePreview;
   associationMissingEvidenceReport: PaginatedAssociationMissingEvidence;
   associationPendingReviews: Array<AssociationPendingReview>;
   associationProfile: Association;
@@ -4639,6 +4777,16 @@ export type QueryAssociationActivationStatusArgs = {
   token: Scalars["String"]["input"];
 };
 
+export type QueryAssociationAttentionListsArgs = {
+  associationId?: InputMaybe<Scalars["ID"]["input"]>;
+};
+
+export type QueryAssociationAttentionMembersArgs = {
+  associationId?: InputMaybe<Scalars["ID"]["input"]>;
+  pagination?: InputMaybe<AssociationReportPaginationInput>;
+  section: AssociationAttentionSection;
+};
+
 export type QueryAssociationCatalogSearchArgs = {
   associationId?: InputMaybe<Scalars["ID"]["input"]>;
   input: AssociationCatalogSearchInput;
@@ -4735,6 +4883,16 @@ export type QueryAssociationMembersArgs = {
   associationId?: InputMaybe<Scalars["ID"]["input"]>;
   filter?: InputMaybe<AssociationMemberFilterInput>;
   pagination?: InputMaybe<AssociationPaginationInput>;
+};
+
+export type QueryAssociationMessageHistoryArgs = {
+  associationId?: InputMaybe<Scalars["ID"]["input"]>;
+  pagination?: InputMaybe<AssociationReportPaginationInput>;
+};
+
+export type QueryAssociationMessagePreviewArgs = {
+  audience: AssociationMessageAudienceInput;
+  messageType: AssociationMessageType;
 };
 
 export type QueryAssociationMissingEvidenceReportArgs = {
@@ -5282,6 +5440,11 @@ export enum Role {
   Professional = "PROFESSIONAL",
   Provider = "PROVIDER",
 }
+
+export type SendAssociationMessageInput = {
+  audience: AssociationMessageAudienceInput;
+  messageType: AssociationMessageType;
+};
 
 export enum SessionStatus {
   Active = "ACTIVE",

@@ -542,6 +542,68 @@ export const associationApi = baseApi.injectEndpoints({
         response.retryAssociationReportExport,
       invalidatesTags: ["AssociationReportExports"],
     }),
+
+    associationAttentionLists: builder.query<
+      TAPI.AssociationAttentionListsQuery["associationAttentionLists"],
+      void
+    >({
+      query: () => ({ document: API.AssociationAttentionListsDocument }),
+      transformResponse: (response: TAPI.AssociationAttentionListsQuery) =>
+        response.associationAttentionLists,
+      providesTags: ["AssociationAttention"],
+    }),
+
+    associationAttentionMembers: builder.query<
+      TAPI.AssociationAttentionMembersQuery["associationAttentionMembers"],
+      TAPI.AssociationAttentionMembersQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.AssociationAttentionMembersDocument,
+        variables,
+      }),
+      transformResponse: (response: TAPI.AssociationAttentionMembersQuery) =>
+        response.associationAttentionMembers,
+      providesTags: ["AssociationAttention"],
+    }),
+
+    associationMessagePreview: builder.query<
+      TAPI.AssociationMessagePreviewQuery["associationMessagePreview"],
+      TAPI.AssociationMessagePreviewQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.AssociationMessagePreviewDocument,
+        variables,
+      }),
+      transformResponse: (response: TAPI.AssociationMessagePreviewQuery) =>
+        response.associationMessagePreview,
+      providesTags: ["AssociationAttention"],
+    }),
+
+    associationMessageHistory: builder.query<
+      TAPI.AssociationMessageHistoryQuery["associationMessageHistory"],
+      TAPI.AssociationMessageHistoryQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.AssociationMessageHistoryDocument,
+        variables,
+      }),
+      transformResponse: (response: TAPI.AssociationMessageHistoryQuery) =>
+        response.associationMessageHistory,
+      providesTags: ["AssociationMessageHistory"],
+    }),
+
+    sendAssociationMessage: builder.mutation<
+      TAPI.SendAssociationMessageMutation["sendAssociationMessage"],
+      TAPI.SendAssociationMessageMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.SendAssociationMessageDocument,
+        variables: { input },
+      }),
+      transformResponse: (response: TAPI.SendAssociationMessageMutation) =>
+        response.sendAssociationMessage,
+      invalidatesTags: ["AssociationAttention", "AssociationMessageHistory"],
+    }),
   }),
 });
 
@@ -585,4 +647,9 @@ export const {
   useAssociationGeneratedReportsQuery,
   useRequestAssociationReportExportMutation,
   useRetryAssociationReportExportMutation,
+  useAssociationAttentionListsQuery,
+  useAssociationAttentionMembersQuery,
+  useAssociationMessagePreviewQuery,
+  useAssociationMessageHistoryQuery,
+  useSendAssociationMessageMutation,
 } = associationApi;

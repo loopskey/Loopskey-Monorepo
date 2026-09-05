@@ -127,6 +127,7 @@ model User {
   authoredAssociationRequirements AssociationRequirement[]     @relation("AssociationRequirementAuthor")
   authoredAssociationLearning     AssociationLearningContent[] @relation("AssociationLearningContentAuthor")
   requestedAssociationReports     AssociationGeneratedReport[] @relation("AssociationReportRequester")
+  associationMessageDeliveries    AssociationMessageDelivery[]
   organizationMemberships         OrganizationMember[]
   createdOrgAssignments           OrganizationAssignment[]     @relation("CreatedOrgAssignments")
 
@@ -2152,12 +2153,13 @@ model Association {
   website      String?
   contactEmail String?
 
-  settings         AssociationSettings?
-  groups           AssociationGroup[]
-  members          AssociationMember[]
-  requirements     AssociationRequirement[]
-  learningContents AssociationLearningContent[]
-  generatedReports AssociationGeneratedReport[]
+  settings          AssociationSettings?
+  groups            AssociationGroup[]
+  members           AssociationMember[]
+  requirements      AssociationRequirement[]
+  learningContents  AssociationLearningContent[]
+  generatedReports  AssociationGeneratedReport[]
+  messageDeliveries AssociationMessageDelivery[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -2252,6 +2254,7 @@ model AssociationMember {
 
   requirementTargets     AssociationRequirementTarget[]
   requirementAssignments AssociationRequirementAssignment[]
+  messageDeliveries      AssociationMessageDelivery[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -2798,4 +2801,84 @@ model AssociationGeneratedReport {
   @@index([associationId, createdAt])
   @@index([associationId, state])
   @@index([state, expiresAt])
+}
+
+/// Which templated message an association sent. The platform owns the wording,
+/// so the type is the message: there is no body to store and nothing for an
+/// association to edit.
+enum AssociationMessageType {
+  BEHIND_THRESHOLD
+  WELCOME
+  CATEGORY_BEHIND
+  CERTIFICATE_EXPIRING
+}
+
+/// Where one recipient's copy stands. `SKIPPED` is a decision, not a failure:
+/// the member was in the audience and was deliberately not written to, and the
+/// reason says why.
+enum AssociationMessageDeliveryState {
+  QUEUED
+  SENT
+  FAILED
+  SKIPPED
+}
+
+/// One recipient's copy of one templated message.
+///
+/// The rendered text is never stored. The type and the template version are
+/// enough to reproduce what was sent, and the body carries the member's name
+/// and progress figures, which have no business sitting in a history table.
+///
+/// `cooldownBucket` is what enforces "not twice inside the window" in the
+/// database rather than in a read before the write: it is derived from the send
+/// time and the window length, so two sends inside one window compute the same
+/// bucket and the second violates the unique index. The loser is recovered as a
+/// skip.
+///
+/// Prisma can express this one as a plain unique constraint because every
+/// column is non-null, so unlike the export index it is managed here rather
+/// than in migration SQL.
+model AssociationMessageDelivery {
+  id String @id @default(cuid())
+
+  associationId String
+  association   Association @relation(fields: [associationId], references: [id], onDelete: Cascade)
+
+  memberId String
+  member   AssociationMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  recipientUserId String
+  recipientUser   User   @relation(fields: [recipientUserId], references: [id], onDelete: Cascade)
+
+  messageType     AssociationMessageType
+  templateVersion Int                    @default(1)
+
+  audience Json
+
+  /// The figures the template needs, captured when the send was accepted: the
+  /// percent, the deadline, the category or the certificate. Not the rendered
+  /// body — that is built at delivery time and never stored. Capturing them
+  /// here is also what stops delivery rebuilding the whole compliance
+  /// projection once per recipient.
+  context Json
+
+  language AppLanguage @default(EN)
+
+  cooldownBucket Int
+
+  state AssociationMessageDeliveryState @default(QUEUED)
+
+  skipReason    String?
+  failureReason String?
+
+  sentAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([associationId, memberId, messageType, cooldownBucket])
+  @@index([associationId, createdAt])
+  @@index([associationId, messageType])
+  @@index([memberId])
+  @@index([state])
 }

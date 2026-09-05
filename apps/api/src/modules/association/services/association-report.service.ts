@@ -657,6 +657,18 @@ export class AssociationReportService {
         dueDate: assignment.dueDate,
         daysRemaining: U.daysRemaining(assignment.dueDate, at),
         band: U.bandFor({ percent, awaitingReviewCount, onTrackThreshold }),
+        categories: assignment.requirement.categories.map((category) => {
+          const earned =
+            credits.byCategory.get(`${assignment.id}:${category.id}`) ?? 0;
+
+          return {
+            categoryId: category.id,
+            categoryName: category.name,
+            completedCredits: earned,
+            requiredCredits: category.requiredCredits,
+            percent: P.weightedCompletionFor(category.requiredCredits, earned),
+          };
+        }),
       };
     });
 

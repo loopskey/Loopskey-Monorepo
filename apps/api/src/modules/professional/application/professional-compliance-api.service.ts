@@ -8,6 +8,7 @@ import { type EvidenceStoragePort } from "@professional/storage/evidence-storage
 import { ComplianceActivityQuery } from "@professional/public/professional-compliance-api";
 import { ContentEngagementQuery } from "@professional/public/professional-compliance-api";
 import { ComplianceCertificate } from "@professional/public/professional-compliance-api";
+import { ProfessionalLanguageProjection } from "@professional/public/professional-compliance-api";
 import { ComplianceStoredFile } from "@professional/public/professional-compliance-api";
 import { SettleReviewCommand } from "@professional/public/professional-compliance-api";
 import { ComplianceActivity } from "@professional/public/professional-compliance-api";
@@ -143,6 +144,22 @@ export class ProfessionalComplianceApiService
       evidenceUrl: activity.evidenceUrl,
       reviewNote: activity.reviewNote,
       files: activity.evidenceFiles,
+    }));
+  }
+
+  async languagesForOwners(
+    ownerUserIds: readonly string[],
+  ): Promise<ProfessionalLanguageProjection[]> {
+    if (!ownerUserIds.length) return [];
+
+    const profiles = await this.prisma.professionalProfile.findMany({
+      where: { userId: { in: [...ownerUserIds] } },
+      select: { userId: true, language: true },
+    });
+
+    return profiles.map((profile) => ({
+      userId: profile.userId,
+      language: profile.language,
     }));
   }
 
