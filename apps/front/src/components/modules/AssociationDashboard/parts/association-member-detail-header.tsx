@@ -1,11 +1,11 @@
 "use client";
 
-import { AssociationComplianceBand } from "@/lib/graphql/base";
 import { TAssociationMemberHeader } from "@/types/association-dashboard.types";
+import { ASSOCIATION_BAND_VARIANTS } from "@utils/association-compliance-bands";
 import { AssociationMemberStatus } from "@/lib/graphql/base";
 import { CHART_SEMANTIC_SLOTS } from "@hooks/useChartPalette";
-import { semanticChartColor } from "@hooks/useChartPalette";
 import { useChartPalette } from "@hooks/useChartPalette";
+import { bandChartColor } from "@utils/association-compliance-bands";
 import { ConfirmDialog } from "@elements/confirm-dialog";
 import { GlassCard } from "@elements/glass-card";
 import { Skeleton } from "@ui/skeleton";
@@ -17,20 +17,6 @@ import dynamic from "next/dynamic";
 import * as L from "lucide-react";
 
 const GAUGE_HEIGHT = "h-52";
-
-const BAND_SEMANTICS = {
-  [AssociationComplianceBand.RenewalReady]: "renewalReady",
-  [AssociationComplianceBand.OnTrack]: "onTrack",
-  [AssociationComplianceBand.AtRisk]: "atRisk",
-  [AssociationComplianceBand.NotStarted]: "notStarted",
-} as const;
-
-const BAND_VARIANTS = {
-  [AssociationComplianceBand.RenewalReady]: "default",
-  [AssociationComplianceBand.OnTrack]: "default",
-  [AssociationComplianceBand.AtRisk]: "orange",
-  [AssociationComplianceBand.NotStarted]: "secondary",
-} as const;
 
 const CompletionGauge = dynamic(
   () =>
@@ -100,7 +86,7 @@ export const AssociationMemberDetailHeader = ({
               </Badge>
 
               {summary && (
-                <Badge variant={BAND_VARIANTS[summary.band]}>
+                <Badge variant={ASSOCIATION_BAND_VARIANTS[summary.band]}>
                   {t(`associationDashboard.memberDetail.band.${summary.band}`)}
                 </Badge>
               )}
@@ -206,7 +192,7 @@ export const AssociationMemberDetailHeader = ({
               label={label}
               percent={summary.percent}
               pacePercent={summary.pacePercent ?? null}
-              color={semanticChartColor(palette, BAND_SEMANTICS[summary.band])}
+              color={bandChartColor(palette, summary.band)}
               paceColor={palette[CHART_SEMANTIC_SLOTS.notStarted]}
             />
           )}

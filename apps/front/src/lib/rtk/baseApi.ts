@@ -29,6 +29,7 @@ export const baseApi = createApi({
     "AssociationMemberProfile",
     "AssociationMemberActivities",
     "AssociationLearningContent",
+    "AssociationReports",
     "AdminProfile",
     "Organization",
     "AdminOverview",
