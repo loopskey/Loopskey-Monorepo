@@ -1,13 +1,105 @@
 "use client";
 
-import { AssociationTabPlaceholder } from "@modules/AssociationDashboard/parts/association-tab-placeholder";
+import { AssociationAttentionSectionCard } from "@modules/AssociationDashboard/parts/association-attention-section";
+import { AssociationMessagePreviewDialog } from "@modules/AssociationDashboard/parts/association-message-preview-dialog";
+import { AssociationMessageHistory } from "@modules/AssociationDashboard/parts/association-message-history";
+import { AssociationAttentionStrip } from "@modules/AssociationDashboard/parts/association-attention-strip";
+import { AssociationReadyReports } from "@modules/AssociationDashboard/parts/association-ready-reports";
+import { useAssociationMessagesTab } from "@hooks/useAssociationMessagesTab";
+import { GlassCard } from "@elements/glass-card";
+import { Button } from "@ui/button";
+
+import * as M from "@utils/association-messages";
+import * as L from "lucide-react";
 
 const AssociationMessagesTab = () => {
+  const hook = useAssociationMessagesTab();
+
+  const { t, counts, isListsError, retryLists } = hook;
+
+  const label = (key: string, vars?: Record<string, string | number>) =>
+    t(`associationDashboard.messages.${key}`, vars);
+
+  const header = (
+    <section>
+      <p className="text-sm font-medium text-primary">
+        {t("associationDashboard.eyebrow")}
+      </p>
+
+      <h1 className="mt-2 text-3xl font-medium tracking-tight md:text-4xl">
+        {label("title")}
+      </h1>
+
+      <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+        {label("description")}
+      </p>
+    </section>
+  );
+
+  if (isListsError)
+    return (
+      <div className="space-y-6">
+        {header}
+
+        <GlassCard glow={false}>
+          <div className="relative z-10 py-8 text-center">
+            <L.TriangleAlert className="mx-auto h-8 w-8 text-destructive" />
+
+            <p className="mt-4 font-medium">{label("error.title")}</p>
+
+            <p className="mt-1 text-sm text-muted-foreground">
+              {label("error.body")}
+            </p>
+
+            <Button
+              radius="xl"
+              type="button"
+              variant="glass"
+              className="mt-5"
+              onClick={retryLists}
+            >
+              <L.RotateCcw className="h-4 w-4" />
+              {label("error.retry")}
+            </Button>
+          </div>
+        </GlassCard>
+      </div>
+    );
+
+  const isEverythingSettled =
+    counts !== null &&
+    counts.belowThreshold === 0 &&
+    counts.newJoiners === 0 &&
+    counts.categoryBehind === 0 &&
+    counts.expiringCertificates === 0 &&
+    counts.readyReports === 0;
+
   return (
-    <AssociationTabPlaceholder
-      titleKey="associationDashboard.messages.title"
-      bodyKey="associationDashboard.messages.comingSoon"
-    />
+    <div className="space-y-6">
+      {header}
+
+      <AssociationAttentionStrip hook={hook} />
+
+      {isEverythingSettled && (
+        <p className="rounded-2xl border border-glass-border bg-background/50 p-4 text-sm text-muted-foreground">
+          {label("allSettled")}
+        </p>
+      )}
+
+      {M.ACTIONABLE_SECTIONS.map((section) => (
+        <AssociationAttentionSectionCard
+          key={section}
+          hook={hook}
+          section={section}
+        />
+      ))}
+
+      <AssociationReadyReports hook={hook} />
+
+      <AssociationMessageHistory hook={hook} />
+
+      <AssociationMessagePreviewDialog hook={hook} />
+    </div>
   );
 };
 

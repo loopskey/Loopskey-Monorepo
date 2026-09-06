@@ -5909,7 +5909,113 @@
     },
     "messages": {
       "title": "Messages",
-      "comingSoon": "Reminder and welcome messages to your members arrive in a later release."
+      "description": "Five lists of members who need something, each with a message Loopskey sends on your behalf. You choose who; the wording is ours.",
+      "allSettled": "Nothing needs your attention right now. Every list is clear.",
+      "sent": "Sent to {{count}} members.",
+      "sendFailed": "That message could not be sent. Try again.",
+      "strip": {
+        "title": "Where your membership stands",
+        "label": "Membership by compliance band",
+        "description": "A single bar showing how many members sit in each compliance band, from renewal ready to not started.",
+        "atRisk": "{{count}} at risk ({{share}}% of members)"
+      },
+      "error": {
+        "title": "These lists could not be loaded",
+        "body": "Something went wrong while working out who needs attention.",
+        "retry": "Try again"
+      },
+      "section": {
+        "count": "{{count}} members",
+        "countReports": "{{count}} reports",
+        "group": "Narrow to a group",
+        "selected": "{{count}} selected",
+        "clear": "Clear selection",
+        "selectMember": "Include {{name}} in this message",
+        "joinedOn": "Joined {{when}}",
+        "truncated": "Showing {{shown}} of {{total}}. Narrow to a group to see the rest."
+      },
+      "sections": {
+        "BELOW_THRESHOLD": {
+          "title": "Members needing attention",
+          "description": "Members below your at-risk threshold on at least one requirement.",
+          "action": "Send the reminder",
+          "settled": "No member is below your at-risk threshold."
+        },
+        "NEW_JOINERS": {
+          "title": "New joiners",
+          "description": "Members who activated in the last thirty days and have not been welcomed yet.",
+          "action": "Send the welcome",
+          "settled": "Everyone who joined recently has been welcomed."
+        },
+        "CATEGORY_BEHIND": {
+          "title": "Categories behind",
+          "description": "Members short in one category in particular, so the reminder can name it.",
+          "action": "Send the category reminder",
+          "settled": "No member is materially short in any single category."
+        },
+        "EXPIRING_CERTIFICATES": {
+          "title": "Expiring certifications",
+          "description": "Members holding a certificate that has expired or expires within ninety days.",
+          "action": "Send the expiry notice",
+          "settled": "No certificate is expiring in the next ninety days."
+        },
+        "READY_REPORTS": {
+          "title": "Reports ready",
+          "description": "Exports that have finished generating and are waiting in your report library.",
+          "action": "Open the report library",
+          "settled": "No export is waiting for you."
+        }
+      },
+      "preview": {
+        "title": "Review before sending",
+        "description": "This is the message Loopskey will send, exactly as one recipient will read it. The wording is fixed; you choose who receives it.",
+        "asSeenBy": "As {{name}} will read it",
+        "recipients": "Recipients",
+        "skipped": "Skipped",
+        "language": "Language",
+        "skippedTitle": "Who will not receive it",
+        "fixedCopy": "Loopskey writes this message. You cannot change its wording, only who receives it.",
+        "nobody": "Nobody in this list can be messaged right now.",
+        "cancel": "Cancel",
+        "confirm": "Send to {{count}}",
+        "error": "This preview could not be built."
+      },
+      "types": {
+        "BEHIND_THRESHOLD": "Progress reminder",
+        "WELCOME": "Welcome",
+        "CATEGORY_BEHIND": "Category reminder",
+        "CERTIFICATE_EXPIRING": "Certificate expiry"
+      },
+      "states": {
+        "QUEUED": "Sending",
+        "SENT": "Sent",
+        "FAILED": "Failed",
+        "SKIPPED": "Skipped"
+      },
+      "skipReasons": {
+        "COOLDOWN": "Already sent this message recently",
+        "NOT_IN_LIST": "No longer in this list",
+        "NO_VERIFIED_EMAIL": "No verified email address",
+        "INACTIVE_ACCOUNT": "Account is not active"
+      },
+      "errors": {
+        "typeUnknown": "That message does not belong to this list.",
+        "noRecipients": "Nobody in this list can be messaged.",
+        "notMember": "That person is not one of your members.",
+        "batchTooLarge": "A single send covers at most five hundred members. Narrow to a group first.",
+        "deliveryFailed": "Delivery did not complete."
+      },
+      "history": {
+        "title": "Outreach history",
+        "description": "Every copy Loopskey sent on your behalf, newest first.",
+        "total": "{{count}} in total",
+        "error": "The history could not be loaded.",
+        "unknownReason": "No reason recorded.",
+        "empty": {
+          "title": "Nothing sent yet",
+          "body": "Once you send a reminder or a welcome, every recipient's copy is listed here with its state."
+        }
+      }
     },
     "settings": {
       "title": "Settings",

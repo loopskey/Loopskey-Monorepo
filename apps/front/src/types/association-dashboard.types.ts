@@ -1,8 +1,10 @@
 import type { TUseAssociationLearningContent } from "@hooks/useAssociationLearningContent";
+import type { TUseAssociationMessagesTab } from "@hooks/useAssociationMessagesTab";
 import type { TUseAssociationReportsTab } from "@hooks/useAssociationReportsTab";
 import type { TUseAssociationMemberDetail } from "@hooks/useAssociationMemberDetail";
 import type { TUseAssociationMembersTab } from "@hooks/useAssociationMembersTab";
 import type { TRosterCompositionRow } from "@utils/association-roster-composition";
+import type { TAttentionSection } from "@utils/association-messages";
 
 import type * as TAPI from "@/lib/graphql/generated";
 
@@ -143,6 +145,26 @@ export type TAssociationRenewalReadinessReport = TWithReports;
 export type TAssociationOverviewSummaryReport = TWithReports;
 export type TAssociationReportExportMenu = TWithReports;
 export type TAssociationReportExports = TWithReports;
+
+type TWithMessages = { hook: TUseAssociationMessagesTab };
+
+export type TAssociationAttentionStrip = TWithMessages;
+export type TAssociationMessageHistory = TWithMessages;
+export type TAssociationReadyReports = TWithMessages;
+
+export type TAssociationAttentionSectionProps = TWithMessages & {
+  section: TAttentionSection;
+};
+
+export type TAssociationMessagePreviewDialog = TWithMessages;
+
+export type TAssociationAttentionStripChart = {
+  locale: string;
+  palette: string[];
+  onSelectAtRisk: () => void;
+  rows: { id: string; name: string; count: number; share: number }[];
+  label: (key: string, vars?: Record<string, string | number>) => string;
+};
 
 type TOverview = TAPI.AssociationReportsOverviewQuery;
 

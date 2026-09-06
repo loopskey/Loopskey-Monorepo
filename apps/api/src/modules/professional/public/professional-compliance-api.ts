@@ -75,7 +75,16 @@ export type SettleReviewCommand = {
   reviewNote?: string | null;
 };
 
+export type ProfessionalLanguageProjection = {
+  readonly userId: string;
+  readonly language: string | null;
+};
+
 export interface ProfessionalComplianceApi {
+  languagesForOwners(
+    ownerUserIds: readonly string[],
+  ): Promise<ProfessionalLanguageProjection[]>;
+
   activitiesForMembers(
     query: ComplianceActivityQuery,
   ): Promise<ComplianceActivity[]>;

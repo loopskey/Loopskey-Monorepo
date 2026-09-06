@@ -55,6 +55,15 @@ export enum AssociationGqlObjectNames {
   ASSOCIATION_GENERATED_REPORT = "AssociationGeneratedReport",
   ASSOCIATION_GENERATED_REPORT_FILTER = "AssociationGeneratedReportFilter",
   PAGINATED_ASSOCIATION_GENERATED_REPORTS = "PaginatedAssociationGeneratedReports",
+  ASSOCIATION_ATTENTION_COUNTS = "AssociationAttentionCounts",
+  ASSOCIATION_ATTENTION_LISTS = "AssociationAttentionLists",
+  ASSOCIATION_ATTENTION_ROW = "AssociationAttentionRow",
+  PAGINATED_ASSOCIATION_ATTENTION_ROWS = "PaginatedAssociationAttentionRows",
+  ASSOCIATION_MESSAGE_SKIP = "AssociationMessageSkip",
+  ASSOCIATION_MESSAGE_PREVIEW = "AssociationMessagePreview",
+  ASSOCIATION_MESSAGE_BATCH = "AssociationMessageBatch",
+  ASSOCIATION_MESSAGE_HISTORY_ROW = "AssociationMessageHistoryRow",
+  PAGINATED_ASSOCIATION_MESSAGE_HISTORY = "PaginatedAssociationMessageHistory",
 }
 
 export enum AssociationGqlInputNames {
@@ -95,6 +104,8 @@ export enum AssociationGqlInputNames {
   ASSOCIATION_REPORT_PAGINATION = "AssociationReportPaginationInput",
   ASSOCIATION_REPORT_EXPORT_ID = "AssociationReportExportIdInput",
   REQUEST_ASSOCIATION_REPORT_EXPORT = "RequestAssociationReportExportInput",
+  ASSOCIATION_MESSAGE_AUDIENCE = "AssociationMessageAudienceInput",
+  SEND_ASSOCIATION_MESSAGE = "SendAssociationMessageInput",
 }
 
 export enum AssociationGqlQueryNames {
@@ -126,6 +137,10 @@ export enum AssociationGqlQueryNames {
   RENEWAL_READINESS_REPORT = "associationRenewalReadinessReport",
   GENERATED_REPORTS = "associationGeneratedReports",
   GENERATED_REPORT = "associationGeneratedReport",
+  ATTENTION_LISTS = "associationAttentionLists",
+  ATTENTION_MEMBERS = "associationAttentionMembers",
+  MESSAGE_PREVIEW = "associationMessagePreview",
+  MESSAGE_HISTORY = "associationMessageHistory",
 }
 
 export enum AssociationGqlMutationNames {
@@ -158,4 +173,5 @@ export enum AssociationGqlMutationNames {
   DELETE_LEARNING_CONTENT = "deleteAssociationLearningContent",
   REQUEST_REPORT_EXPORT = "requestAssociationReportExport",
   RETRY_REPORT_EXPORT = "retryAssociationReportExport",
+  SEND_MESSAGE = "sendAssociationMessage",
 }

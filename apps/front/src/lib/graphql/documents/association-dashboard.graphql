@@ -732,3 +732,116 @@ mutation RetryAssociationReportExport($input: AssociationReportExportIdInput!) {
     ...AssociationGeneratedReportFields
   }
 }
+
+fragment AssociationAttentionRowFields on AssociationAttentionRow {
+  memberId
+  fullName
+  email
+  memberNumber
+  groupId
+  groupTitle
+  percent
+  band
+  requiredCredits
+  completedCredits
+  deadline
+  detail
+  detailDate
+}
+
+query AssociationAttentionLists {
+  associationAttentionLists {
+    counts {
+      belowThreshold
+      newJoiners
+      categoryBehind
+      expiringCertificates
+      readyReports
+    }
+    distribution {
+      totalMembers
+      renewalReady
+      onTrack
+      atRisk
+      notStarted
+      renewalReadyShare
+      onTrackShare
+      atRiskShare
+      notStartedShare
+    }
+  }
+}
+
+query AssociationAttentionMembers(
+  $section: AssociationAttentionSection!
+  $pagination: AssociationReportPaginationInput
+) {
+  associationAttentionMembers(section: $section, pagination: $pagination) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      nextCursor
+    }
+    items {
+      ...AssociationAttentionRowFields
+    }
+  }
+}
+
+query AssociationMessagePreview(
+  $messageType: AssociationMessageType!
+  $audience: AssociationMessageAudienceInput!
+) {
+  associationMessagePreview(messageType: $messageType, audience: $audience) {
+    messageType
+    subject
+    body
+    recipientName
+    language
+    recipientCount
+    skippedCount
+    skipped {
+      memberId
+      fullName
+      reason
+    }
+  }
+}
+
+query AssociationMessageHistory($pagination: AssociationReportPaginationInput) {
+  associationMessageHistory(pagination: $pagination) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      nextCursor
+    }
+    items {
+      id
+      memberId
+      fullName
+      email
+      memberNumber
+      messageType
+      state
+      language
+      templateVersion
+      skipReason
+      failureReason
+      sentAt
+      createdAt
+    }
+  }
+}
+
+mutation SendAssociationMessage($input: SendAssociationMessageInput!) {
+  sendAssociationMessage(input: $input) {
+    messageType
+    acceptedCount
+    skippedCount
+    skipped {
+      memberId
+      fullName
+      reason
+    }
+  }
+}

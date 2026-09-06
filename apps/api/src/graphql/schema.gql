@@ -300,6 +300,44 @@ type AssociationAssignmentProgress {
   requirementName: String!
 }
 
+type AssociationAttentionCounts {
+  belowThreshold: Int!
+  categoryBehind: Int!
+  expiringCertificates: Int!
+  newJoiners: Int!
+  readyReports: Int!
+}
+
+type AssociationAttentionLists {
+  counts: AssociationAttentionCounts!
+  distribution: AssociationMemberDistribution!
+}
+
+type AssociationAttentionRow {
+  band: AssociationComplianceBand
+  completedCredits: Float
+  deadline: DateTime
+  detail: String
+  detailDate: DateTime
+  email: String
+  fullName: String
+  groupId: ID
+  groupTitle: String
+  memberId: ID!
+  memberNumber: String
+  percent: Float
+  requiredCredits: Float
+}
+
+"""Which attention list a row or a send belongs to"""
+enum AssociationAttentionSection {
+  BELOW_THRESHOLD
+  CATEGORY_BEHIND
+  EXPIRING_CERTIFICATES
+  NEW_JOINERS
+  READY_REPORTS
+}
+
 """
 Whether one activity counted toward a requirement, waits on a decision, or was rejected
 """
@@ -708,6 +746,76 @@ type AssociationMemberSummary {
   nearestRequirementName: String
   pacePercent: Float
   percent: Float!
+}
+
+input AssociationMessageAudienceInput {
+  groupId: ID
+  memberIds: [ID!]
+  section: AssociationAttentionSection!
+}
+
+type AssociationMessageBatch {
+  acceptedCount: Int!
+  messageType: AssociationMessageType!
+  skipped: [AssociationMessageSkip!]!
+  skippedCount: Int!
+}
+
+"""Where one recipient's copy of a message stands"""
+enum AssociationMessageDeliveryState {
+  FAILED
+  QUEUED
+  SENT
+  SKIPPED
+}
+
+type AssociationMessageHistoryRow {
+  createdAt: DateTime!
+  email: String
+  failureReason: String
+  fullName: String
+  id: ID!
+  language: AppLanguage!
+  memberId: ID!
+  memberNumber: String
+  messageType: AssociationMessageType!
+  sentAt: DateTime
+  skipReason: String
+  state: AssociationMessageDeliveryState!
+  templateVersion: Int!
+}
+
+type AssociationMessagePreview {
+  body: String
+  language: AppLanguage
+  messageType: AssociationMessageType!
+  recipientCount: Int!
+  recipientName: String
+  skipped: [AssociationMessageSkip!]!
+  skippedCount: Int!
+  subject: String
+}
+
+type AssociationMessageSkip {
+  fullName: String
+  memberId: ID!
+  reason: AssociationMessageSkipReason!
+}
+
+"""Why a member in the audience was deliberately not written to"""
+enum AssociationMessageSkipReason {
+  COOLDOWN
+  INACTIVE_ACCOUNT
+  NOT_IN_LIST
+  NO_VERIFIED_EMAIL
+}
+
+"""Which templated message the platform sends on the association's behalf"""
+enum AssociationMessageType {
+  BEHIND_THRESHOLD
+  CATEGORY_BEHIND
+  CERTIFICATE_EXPIRING
+  WELCOME
 }
 
 type AssociationMissingEvidenceRow {
@@ -2085,6 +2193,7 @@ type Mutation {
   restoreYouTubeChannel(channelId: String!): YouTubeChannel!
   retryAssociationReportExport(input: AssociationReportExportIdInput!): AssociationGeneratedReport!
   reviewAssociationLearningActivity(input: ReviewAssociationLearningActivityInput!): AssociationReviewResult!
+  sendAssociationMessage(input: SendAssociationMessageInput!): AssociationMessageBatch!
   sendRoadmapChatTurn(input: RoadmapChatTurnInput!): ProfessionalRoadmapDraft!
   setAssociationGroupActive(input: SetAssociationGroupActiveInput!): AssociationGroup!
   setAssociationMemberRequirements(input: SetAssociationMemberRequirementsInput!): AssociationMemberRequirementsResult!
@@ -2617,6 +2726,12 @@ type PaginatedAdminUser {
   totalCount: Int!
 }
 
+type PaginatedAssociationAttentionRows {
+  items: [AssociationAttentionRow!]!
+  pageInfo: AssociationPageInfo!
+  totalCount: Int!
+}
+
 type PaginatedAssociationGeneratedReports {
   items: [AssociationGeneratedReport!]!
   pageInfo: AssociationPageInfo!
@@ -2644,6 +2759,12 @@ type PaginatedAssociationMemberProgress {
 
 type PaginatedAssociationMembers {
   items: [AssociationMember!]!
+  pageInfo: AssociationPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedAssociationMessageHistory {
+  items: [AssociationMessageHistoryRow!]!
   pageInfo: AssociationPageInfo!
   totalCount: Int!
 }
@@ -3686,6 +3807,8 @@ type Query {
   adminUserGrowth(mode: String = "DAILY"): [AdminChartPoint!]!
   adminUsers(filter: AdminUserFilter, pagination: AdminPagination): PaginatedAdminUser!
   associationActivationStatus(token: String!): AssociationActivationStatus!
+  associationAttentionLists(associationId: ID): AssociationAttentionLists!
+  associationAttentionMembers(associationId: ID, pagination: AssociationReportPaginationInput, section: AssociationAttentionSection!): PaginatedAssociationAttentionRows!
   associationCatalogSearch(associationId: ID, input: AssociationCatalogSearchInput!): [AssociationCatalogItem!]!
   associationCategoryCompletionReport(associationId: ID, filter: AssociationReportFilterInput): [AssociationCategoryProgressRow!]!
   associationComplianceByGroup(associationId: ID, filter: AssociationReportFilterInput): [AssociationGroupCompliance!]!
@@ -3705,6 +3828,8 @@ type Query {
   associationMemberRequirementOptions(associationId: ID, memberId: ID!): [AssociationMemberRequirementOption!]!
   associationMemberStats(associationId: ID): AssociationMemberStats!
   associationMembers(associationId: ID, filter: AssociationMemberFilterInput, pagination: AssociationPaginationInput): PaginatedAssociationMembers!
+  associationMessageHistory(associationId: ID, pagination: AssociationReportPaginationInput): PaginatedAssociationMessageHistory!
+  associationMessagePreview(audience: AssociationMessageAudienceInput!, messageType: AssociationMessageType!): AssociationMessagePreview!
   associationMissingEvidenceReport(associationId: ID, filter: AssociationReportFilterInput, pagination: AssociationReportPaginationInput): PaginatedAssociationMissingEvidence!
   associationPendingReviews(associationId: ID, filter: AssociationComplianceFilterInput): [AssociationPendingReview!]!
   associationProfile(associationId: ID): Association!
@@ -3990,6 +4115,11 @@ enum Role {
   ORGANIZATION
   PROFESSIONAL
   PROVIDER
+}
+
+input SendAssociationMessageInput {
+  audience: AssociationMessageAudienceInput!
+  messageType: AssociationMessageType!
 }
 
 enum SessionStatus {

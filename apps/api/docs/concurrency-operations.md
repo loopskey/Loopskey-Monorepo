@@ -32,6 +32,9 @@ exist only so a user gets a readable message instead of a constraint violation.
 | One generation per pending report export | Partial unique index `AssociationGeneratedReport_pending_key` on (association, report type, format, filter hash) WHERE state is `PENDING`, its violation recovered into a read of the winning record |
 | A generated export becomes ready once | `updateMany` naming `PENDING`, `count === 1`, written only after the file exists in object storage |
 | An expired export never points at a readable file | The retention sweep removes the object first, then marks the record with a `updateMany` naming `READY` |
+| A member is messaged once per type per cooldown window | Unique constraint `AssociationMessageDelivery(associationId, memberId, messageType, cooldownBucket)`, its violation recovered into a skip carrying the cooldown reason |
+| A queued message always has an email behind it | The delivery row and its outbox event are written in one transaction, chunk by chunk |
+| One recipient receives one copy | `updateMany` naming `QUEUED` after the provider accepts it, with the outbox idempotency key handed to the provider so a retry is the same email |
 
 ## Decisions
 
@@ -164,6 +167,13 @@ accepts one — the mail handler passes it to Resend as `Idempotency-Key`. This 
 what makes the unavoidable window between an external side effect and the
 `OutboxDelivery` row harmless: a process killed in that window retries, and the
 provider collapses the two requests into one.
+
+Two association handlers now consume their own events rather than the shared
+`mail.delivery.requested`. The templated-message handler renders each recipient's
+copy at delivery time from the figures captured when the send was accepted, so
+neither the rendered body nor the member's name and progress ever sit in an
+outbox payload. It hands the provider `context.idempotencyKey`, which is what
+makes a redelivery the same email rather than a second one.
 
 A handler whose failure will not improve on retry should not throw. The report
 export handler marks its record `FAILED` and returns for anything the domain

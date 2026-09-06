@@ -2,7 +2,7 @@ import { TAssociationMemberInvitationEmail } from "@mail/mail-service.type";
 import { TAssociationActivationEmail } from "@mail/mail-service.type";
 import { TAssociationEmailBase } from "@mail/mail-service.type";
 
-const escapeHtml = (value: string) =>
+export const escapeHtml = (value: string) =>
   value
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")

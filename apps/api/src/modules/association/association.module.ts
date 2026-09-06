@@ -1,5 +1,9 @@
 import { AssociationRequirementAssignmentService } from "@association/services/association-requirement-assignment.service";
 import { AssociationReportRetentionService } from "@association/services/association-report-retention.service";
+import { AssociationAttentionService } from "@association/services/association-attention.service";
+import { AssociationMessageResolver } from "@association/resolvers/association-message.resolver";
+import { AssociationMessageService } from "@association/services/association-message.service";
+import { AssociationMessageHandler } from "@association/application/association-message.handler";
 import { AssociationReportGenerationService } from "@association/services/association-report-generation.service";
 import { AssociationReportExportResolver } from "@association/resolvers/association-report-export.resolver";
 import { AssociationReportFileController } from "@association/controllers/association-report-file.controller";
@@ -94,6 +98,10 @@ import "@association/enums/association-register.enum";
     AssociationReportExportHandler,
     AssociationReportGenerationService,
     AssociationReportRetentionService,
+    AssociationAttentionService,
+    AssociationMessageService,
+    AssociationMessageResolver,
+    AssociationMessageHandler,
   ],
   exports: [
     AssociationGroupService,

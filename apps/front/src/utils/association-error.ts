@@ -70,6 +70,18 @@ const ASSOCIATION_ERROR_TRANSLATION_KEYS: Partial<
     "associationDashboard.reports.exports.reasons.unsupported",
   [AssociationMessageCode.EXPORT_FAILED]:
     "associationDashboard.reports.exports.reasons.failed",
+  [AssociationMessageCode.MESSAGE_TYPE_UNKNOWN]:
+    "associationDashboard.messages.errors.typeUnknown",
+  [AssociationMessageCode.MESSAGE_NO_RECIPIENTS]:
+    "associationDashboard.messages.errors.noRecipients",
+  [AssociationMessageCode.MESSAGE_RECIPIENT_NOT_MEMBER]:
+    "associationDashboard.messages.errors.notMember",
+  [AssociationMessageCode.MESSAGE_BATCH_TOO_LARGE]:
+    "associationDashboard.messages.errors.batchTooLarge",
+  [AssociationMessageCode.MESSAGE_COOLDOWN_ACTIVE]:
+    "associationDashboard.messages.skipReasons.COOLDOWN",
+  [AssociationMessageCode.MESSAGE_DELIVERY_FAILED]:
+    "associationDashboard.messages.errors.deliveryFailed",
 };
 
 const KNOWN_CODES = new Set<string>(Object.values(AssociationMessageCode));
