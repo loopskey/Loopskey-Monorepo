@@ -4,6 +4,7 @@ import { PaginatedAssociationMemberProgressEntity } from "@association/entities/
 import { AssociationComplianceTrendPointEntity } from "@association/entities/association-report.entity";
 import { AssociationCategoryProgressRowEntity } from "@association/entities/association-report.entity";
 import { AssociationMemberDistributionEntity } from "@association/entities/association-report.entity";
+import { AssociationRequirementProgressRowEntity } from "@association/entities/association-report.entity";
 import { AssociationGroupProgressRowEntity } from "@association/entities/association-report.entity";
 import { AssociationGroupComplianceEntity } from "@association/entities/association-report.entity";
 import { AssociationReportSummaryEntity } from "@association/entities/association-report.entity";
@@ -159,6 +160,23 @@ export class AssociationReportResolver {
     associationId?: string,
   ) {
     return this.reports.categoryCompletionReport(
+      this.getUser(user),
+      filter ?? {},
+      associationId,
+    );
+  }
+
+  @Query(() => [AssociationRequirementProgressRowEntity], {
+    name: AssociationGqlQueryNames.REQUIREMENT_PROGRESS_REPORT,
+  })
+  associationRequirementProgressReport(
+    @CurrentUser() user: TResolverUser,
+    @Args("filter", { nullable: true })
+    filter?: DTO.AssociationReportFilterInput,
+    @Args("associationId", { type: () => ID, nullable: true })
+    associationId?: string,
+  ) {
+    return this.reports.requirementProgressReport(
       this.getUser(user),
       filter ?? {},
       associationId,

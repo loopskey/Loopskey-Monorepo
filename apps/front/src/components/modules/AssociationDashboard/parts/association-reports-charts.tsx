@@ -3,49 +3,13 @@
 import { TAssociationReportsCharts } from "@/types/association-dashboard.types";
 import { useChartPalette } from "@hooks/useChartPalette";
 import { GlassCard } from "@elements/glass-card";
-import { Skeleton } from "@ui/skeleton";
 import { Button } from "@ui/button";
 
-import dynamic from "next/dynamic";
-
+import * as C from "@modules/AssociationDashboard/parts/association-report-chart-loaders";
 import * as L from "lucide-react";
 
 import type { TAssociationReportKey } from "@utils/association-reports";
 import type { ReactNode } from "react";
-
-const chartSkeleton = () => <Skeleton className="h-72 w-full rounded-2xl" />;
-
-const GroupComplianceChart = dynamic(
-  () =>
-    import(
-      "@modules/AssociationDashboard/parts/association-report-charts"
-    ).then((module) => module.GroupComplianceChart),
-  { ssr: false, loading: chartSkeleton },
-);
-
-const CategoryProgressChart = dynamic(
-  () =>
-    import(
-      "@modules/AssociationDashboard/parts/association-report-charts"
-    ).then((module) => module.CategoryProgressChart),
-  { ssr: false, loading: chartSkeleton },
-);
-
-const MemberDistributionChart = dynamic(
-  () =>
-    import(
-      "@modules/AssociationDashboard/parts/association-report-charts"
-    ).then((module) => module.MemberDistributionChart),
-  { ssr: false, loading: chartSkeleton },
-);
-
-const ComplianceTrendChart = dynamic(
-  () =>
-    import(
-      "@modules/AssociationDashboard/parts/association-report-charts"
-    ).then((module) => module.ComplianceTrendChart),
-  { ssr: false, loading: chartSkeleton },
-);
 
 export const AssociationReportsCharts = ({
   hook,
@@ -110,7 +74,7 @@ export const AssociationReportsCharts = ({
 
         <div className="mt-5">
           {isLoading ? (
-            chartSkeleton()
+            C.chartSkeleton()
           ) : isEmpty ? (
             <div className="flex h-72 items-center justify-center rounded-2xl border border-dashed border-glass-border text-sm text-muted-foreground">
               {label("charts.empty")}
@@ -129,7 +93,7 @@ export const AssociationReportsCharts = ({
         "group",
         "group-progress",
         groupCompliance.length === 0,
-        <GroupComplianceChart
+        <C.GroupComplianceChart
           {...frame}
           rows={groupCompliance}
           threshold={onTrackThreshold}
@@ -146,7 +110,7 @@ export const AssociationReportsCharts = ({
         "category",
         "category-completion",
         byWidestGap.length === 0,
-        <CategoryProgressChart {...frame} rows={byWidestGap} />,
+        <C.CategoryProgressChart {...frame} rows={byWidestGap} />,
       )}
 
       {card(
@@ -154,7 +118,7 @@ export const AssociationReportsCharts = ({
         "member-progress",
         !distribution || distribution.totalMembers === 0,
         distribution ? (
-          <MemberDistributionChart
+          <C.MemberDistributionChart
             {...frame}
             distribution={distribution}
             onSelectBand={(band) => openReport("member-progress", { band })}
@@ -166,7 +130,7 @@ export const AssociationReportsCharts = ({
         "trend",
         "overview-summary",
         trend.length === 0,
-        <ComplianceTrendChart {...frame} rows={trend} />,
+        <C.ComplianceTrendChart {...frame} rows={trend} />,
       )}
     </div>
   );

@@ -10,6 +10,7 @@ import { REPORT_MEMBER_SELECT } from "@association/types/association-report.type
 import { ReportAssignmentRow } from "@association/types/association-report.types";
 import { Injectable, Logger } from "@nestjs/common";
 import { ReportMemberRecord } from "@association/types/association-report.types";
+import { ReportRequirementRow } from "@association/types/association-report.types";
 import { ReportCategoryRow } from "@association/types/association-report.types";
 import { ReportProjection } from "@association/types/association-report.types";
 import { TAssociationUser } from "@association/types/association-service.types";
@@ -215,6 +216,15 @@ export class AssociationReportService {
     return projection.categories;
   }
 
+  async requirementProgressReport(
+    user: TAssociationUser,
+    filter: ReportFilter = {},
+    associationId?: string,
+  ) {
+    const { projection } = await this.resolve(user, filter, associationId);
+    return this.byRequirement(projection);
+  }
+
   async missingEvidenceReport(
     user: TAssociationUser,
     filter: ReportFilter = {},
@@ -332,6 +342,93 @@ export class AssociationReportService {
     );
 
     return P.weightedCompletionFor(required, completed);
+  }
+
+  private byRequirement(projection: ReportProjection): ReportRequirementRow[] {
+    const requirements = new Map<
+      string,
+      { name: string; assignments: ReportAssignmentRow[] }
+    >();
+
+    for (const member of projection.members) {
+      for (const assignment of member.assignments) {
+        const current = requirements.get(assignment.requirementId) ?? {
+          name: assignment.requirementName,
+          assignments: [],
+        };
+        current.assignments.push(assignment);
+        requirements.set(assignment.requirementId, current);
+      }
+    }
+
+    const rows = [...requirements.entries()].map(([requirementId, entry]) =>
+      this.requirementRow({
+        at: projection.at,
+        requirementId,
+        requirementName: entry.name,
+        assignments: entry.assignments,
+      }),
+    );
+
+    return rows.sort((left, right) => {
+      if (left.dueDate && right.dueDate)
+        return (
+          left.dueDate.getTime() - right.dueDate.getTime() ||
+          left.requirementName.localeCompare(right.requirementName)
+        );
+      if (left.dueDate) return -1;
+      if (right.dueDate) return 1;
+      return left.requirementName.localeCompare(right.requirementName);
+    });
+  }
+
+  private requirementRow({
+    at,
+    requirementId,
+    requirementName,
+    assignments,
+  }: {
+    at: Date;
+    requirementId: string;
+    requirementName: string;
+    assignments: ReportAssignmentRow[];
+  }): ReportRequirementRow {
+    const requiredCredits = assignments.reduce(
+      (total, assignment) => total + assignment.requiredCredits,
+      0,
+    );
+    const completedCredits = assignments.reduce(
+      (total, assignment) => total + assignment.completedCredits,
+      0,
+    );
+    const awaitingReviewCount = assignments.reduce(
+      (total, assignment) => total + assignment.awaitingReviewCount,
+      0,
+    );
+
+    const dueDate =
+      assignments
+        .map((assignment) => assignment.dueDate)
+        .filter((value): value is Date => value !== null)
+        .sort((left, right) => left.getTime() - right.getTime())
+        .at(0) ?? null;
+
+    return {
+      requirementId,
+      requirementName,
+      memberCount: assignments.length,
+      requiredCredits: assignments.at(0)?.requiredCredits ?? 0,
+      averageCompletedCredits: assignments.length
+        ? completedCredits / assignments.length
+        : 0,
+      averagePercent: P.weightedCompletionFor(
+        requiredCredits,
+        completedCredits,
+      ),
+      awaitingReviewCount,
+      dueDate,
+      daysRemaining: U.daysRemaining(dueDate, at),
+    };
   }
 
   private byGroup(projection: ReportProjection) {

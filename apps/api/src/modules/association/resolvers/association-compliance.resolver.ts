@@ -1,8 +1,9 @@
-import { Args, ID, Mutation, Query, Resolver } from "@nestjs/graphql";
+import { Args, ID, Int, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { AssociationComplianceSummaryEntity } from "@association/entities/association-compliance.entity";
 import { AssociationMemberComplianceEntity } from "@association/entities/association-compliance.entity";
 import { AssociationComplianceReadService } from "@association/services/association-compliance-read.service";
 import { AssociationActionResponseEntity } from "@association/entities/association-action-response.entity";
+import { AssociationRecentActivityEntity } from "@association/entities/association-compliance.entity";
 import { AssociationPendingReviewEntity } from "@association/entities/association-compliance.entity";
 import { AssociationReviewResultEntity } from "@association/entities/association-compliance.entity";
 import { AssociationComplianceService } from "@association/services/association-compliance.service";
@@ -79,6 +80,22 @@ export class AssociationComplianceResolver {
     return this.reads.pendingReviews(
       this.getUser(user),
       filter ?? {},
+      associationId,
+    );
+  }
+
+  @Query(() => [AssociationRecentActivityEntity], {
+    name: AssociationGqlQueryNames.RECENT_ACTIVITY,
+  })
+  associationRecentActivity(
+    @CurrentUser() user: TResolverUser,
+    @Args("limit", { type: () => Int, nullable: true }) limit?: number,
+    @Args("associationId", { type: () => ID, nullable: true })
+    associationId?: string,
+  ) {
+    return this.reads.recentActivity(
+      this.getUser(user),
+      limit ?? undefined,
       associationId,
     );
   }

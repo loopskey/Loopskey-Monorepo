@@ -543,6 +543,44 @@ export const associationApi = baseApi.injectEndpoints({
       invalidatesTags: ["AssociationReportExports"],
     }),
 
+    associationOverviewCounts: builder.query<
+      TAPI.AssociationOverviewCountsQuery,
+      void
+    >({
+      query: () => ({ document: API.AssociationOverviewCountsDocument }),
+      providesTags: [
+        "AssociationMemberStats",
+        "AssociationLearningContent",
+      ],
+    }),
+
+    associationRequirementProgressReport: builder.query<
+      TAPI.AssociationRequirementProgressReportQuery["associationRequirementProgressReport"],
+      TAPI.AssociationRequirementProgressReportQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.AssociationRequirementProgressReportDocument,
+        variables,
+      }),
+      transformResponse: (
+        response: TAPI.AssociationRequirementProgressReportQuery,
+      ) => response.associationRequirementProgressReport,
+      providesTags: ["AssociationReports"],
+    }),
+
+    associationRecentActivity: builder.query<
+      TAPI.AssociationRecentActivityQuery["associationRecentActivity"],
+      TAPI.AssociationRecentActivityQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.AssociationRecentActivityDocument,
+        variables,
+      }),
+      transformResponse: (response: TAPI.AssociationRecentActivityQuery) =>
+        response.associationRecentActivity,
+      providesTags: ["AssociationMemberActivities"],
+    }),
+
     associationAttentionLists: builder.query<
       TAPI.AssociationAttentionListsQuery["associationAttentionLists"],
       void
@@ -647,6 +685,9 @@ export const {
   useAssociationGeneratedReportsQuery,
   useRequestAssociationReportExportMutation,
   useRetryAssociationReportExportMutation,
+  useAssociationOverviewCountsQuery,
+  useAssociationRequirementProgressReportQuery,
+  useAssociationRecentActivityQuery,
   useAssociationAttentionListsQuery,
   useAssociationAttentionMembersQuery,
   useAssociationMessagePreviewQuery,

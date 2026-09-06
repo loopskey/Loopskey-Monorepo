@@ -858,6 +858,22 @@ type AssociationPendingReview {
   requirementName: String!
 }
 
+type AssociationRecentActivity {
+  activityDate: DateTime!
+  activityId: ID!
+  activityTitle: String!
+  category: PDUCategory!
+  creditedAmount: Float!
+  credits: Float!
+  id: ID!
+  memberId: ID!
+  memberName: String
+  recordedAt: DateTime!
+  requirementId: ID!
+  requirementName: String!
+  state: AssociationAttributionState!
+}
+
 type AssociationRenewalReadinessRow {
   awaitingReviewCount: Int!
   band: AssociationComplianceBand!
@@ -1012,6 +1028,18 @@ input AssociationRequirementFilterInput {
 
 input AssociationRequirementIdInput {
   requirementId: ID!
+}
+
+type AssociationRequirementProgressRow {
+  averageCompletedCredits: Float!
+  averagePercent: Float!
+  awaitingReviewCount: Int!
+  daysRemaining: Int
+  dueDate: DateTime
+  memberCount: Int!
+  requiredCredits: Float!
+  requirementId: ID!
+  requirementName: String!
 }
 
 type AssociationRequirementStats {
@@ -3834,9 +3862,11 @@ type Query {
   associationPendingReviews(associationId: ID, filter: AssociationComplianceFilterInput): [AssociationPendingReview!]!
   associationProfile(associationId: ID): Association!
   associationProgressByCategory(associationId: ID, filter: AssociationReportFilterInput): [AssociationCategoryProgressRow!]!
+  associationRecentActivity(associationId: ID, limit: Int): [AssociationRecentActivity!]!
   associationRenewalReadinessReport(associationId: ID, filter: AssociationReportFilterInput, pagination: AssociationReportPaginationInput): PaginatedAssociationRenewalReadiness!
   associationReportSummary(associationId: ID, filter: AssociationReportFilterInput): AssociationReportSummary!
   associationRequirement(associationId: ID, requirementId: ID!): AssociationRequirement!
+  associationRequirementProgressReport(associationId: ID, filter: AssociationReportFilterInput): [AssociationRequirementProgressRow!]!
   associationRequirementStats(associationId: ID): AssociationRequirementStats!
   associationRequirements(associationId: ID, filter: AssociationRequirementFilterInput, pagination: AssociationPaginationInput): PaginatedAssociationRequirements!
   certificationSearch(input: CertificationSearchInput!): [Certification!]!

@@ -343,6 +343,25 @@ export type SendAssociationMessageMutationVariables = Types.Exact<{
 
 export type SendAssociationMessageMutation = { __typename?: 'Mutation', sendAssociationMessage: { __typename?: 'AssociationMessageBatch', messageType: Types.AssociationMessageType, acceptedCount: number, skippedCount: number, skipped: Array<{ __typename?: 'AssociationMessageSkip', memberId: string, fullName?: string | null, reason: Types.AssociationMessageSkipReason }> } };
 
+export type AssociationOverviewCountsQueryVariables = Types.Exact<{ [key: string]: never; }>;
+
+
+export type AssociationOverviewCountsQuery = { __typename?: 'Query', associationMemberStats: { __typename?: 'AssociationMemberStats', totalMembers: number, activeMembers: number, pendingActivation: number }, associationRequirements: { __typename?: 'PaginatedAssociationRequirements', totalCount: number }, associationLearningContents: { __typename?: 'PaginatedAssociationLearningContents', totalCount: number } };
+
+export type AssociationRequirementProgressReportQueryVariables = Types.Exact<{
+  filter?: Types.InputMaybe<Types.AssociationReportFilterInput>;
+}>;
+
+
+export type AssociationRequirementProgressReportQuery = { __typename?: 'Query', associationRequirementProgressReport: Array<{ __typename?: 'AssociationRequirementProgressRow', requirementId: string, requirementName: string, memberCount: number, requiredCredits: number, averagePercent: number, averageCompletedCredits: number, awaitingReviewCount: number, dueDate?: string | null, daysRemaining?: number | null }> };
+
+export type AssociationRecentActivityQueryVariables = Types.Exact<{
+  limit?: Types.InputMaybe<Types.Scalars['Int']['input']>;
+}>;
+
+
+export type AssociationRecentActivityQuery = { __typename?: 'Query', associationRecentActivity: Array<{ __typename?: 'AssociationRecentActivity', id: string, state: Types.AssociationAttributionState, activityId: string, activityTitle: string, activityDate: string, recordedAt: string, credits: number, creditedAmount: number, category: Types.PduCategory, memberId: string, memberName?: string | null, requirementId: string, requirementName: string }> };
+
 export const AssociationSettingsFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
     fragment AssociationSettingsFields on AssociationSettings {
   id
@@ -1835,3 +1854,52 @@ export const SendAssociationMessageDocument = /*#__PURE__*/ new TypedDocumentStr
   }
 }
     `) as unknown as TypedDocumentString<SendAssociationMessageMutation, SendAssociationMessageMutationVariables>;
+export const AssociationOverviewCountsDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query AssociationOverviewCounts {
+  associationMemberStats {
+    totalMembers
+    activeMembers
+    pendingActivation
+  }
+  associationRequirements(pagination: {take: 1}) {
+    totalCount
+  }
+  associationLearningContents(pagination: {take: 1}) {
+    totalCount
+  }
+}
+    `) as unknown as TypedDocumentString<AssociationOverviewCountsQuery, AssociationOverviewCountsQueryVariables>;
+export const AssociationRequirementProgressReportDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query AssociationRequirementProgressReport($filter: AssociationReportFilterInput) {
+  associationRequirementProgressReport(filter: $filter) {
+    requirementId
+    requirementName
+    memberCount
+    requiredCredits
+    averagePercent
+    averageCompletedCredits
+    awaitingReviewCount
+    dueDate
+    daysRemaining
+  }
+}
+    `) as unknown as TypedDocumentString<AssociationRequirementProgressReportQuery, AssociationRequirementProgressReportQueryVariables>;
+export const AssociationRecentActivityDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query AssociationRecentActivity($limit: Int) {
+  associationRecentActivity(limit: $limit) {
+    id
+    state
+    activityId
+    activityTitle
+    activityDate
+    recordedAt
+    credits
+    creditedAmount
+    category
+    memberId
+    memberName
+    requirementId
+    requirementName
+  }
+}
+    `) as unknown as TypedDocumentString<AssociationRecentActivityQuery, AssociationRecentActivityQueryVariables>;

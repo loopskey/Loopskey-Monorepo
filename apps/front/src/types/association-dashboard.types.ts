@@ -1,10 +1,13 @@
 import type { TUseAssociationLearningContent } from "@hooks/useAssociationLearningContent";
 import type { TUseAssociationMessagesTab } from "@hooks/useAssociationMessagesTab";
+import type { TUseAssociationOverviewTab } from "@hooks/useAssociationOverviewTab";
 import type { TUseAssociationReportsTab } from "@hooks/useAssociationReportsTab";
 import type { TUseAssociationMemberDetail } from "@hooks/useAssociationMemberDetail";
 import type { TUseAssociationMembersTab } from "@hooks/useAssociationMembersTab";
 import type { TRosterCompositionRow } from "@utils/association-roster-composition";
 import type { TAttentionSection } from "@utils/association-messages";
+
+import type { ReactNode } from "react";
 
 import type * as TAPI from "@/lib/graphql/generated";
 
@@ -237,4 +240,31 @@ export type TAssociationReadinessChart = TChartFrame & {
 export type TAssociationExtremesChart = TChartFrame & {
   leaders: TAssociationMemberProgressRow[];
   laggards: TAssociationMemberProgressRow[];
+};
+
+export type TAssociationRequirementProgressRow =
+  TAPI.AssociationRequirementProgressReportQuery["associationRequirementProgressReport"][number];
+
+export type TAssociationRecentActivityRow =
+  TAPI.AssociationRecentActivityQuery["associationRecentActivity"][number];
+
+type TWithOverviewHook = { hook: TUseAssociationOverviewTab };
+
+export type TAssociationOverviewCards = TWithOverviewHook;
+export type TAssociationOverviewCharts = TWithOverviewHook;
+export type TAssociationOverviewAttention = TWithOverviewHook;
+export type TAssociationOverviewRequirements = TWithOverviewHook;
+export type TAssociationOverviewActivity = TWithOverviewHook;
+
+export type TAssociationOverviewPanelProps = {
+  title: string;
+  action?: ReactNode;
+  children: ReactNode;
+  isError: boolean;
+  isLoading: boolean;
+  retry: () => void;
+  description?: string;
+  retryLabel: string;
+  errorMessage: string;
+  skeleton?: ReactNode;
 };

@@ -845,3 +845,52 @@ mutation SendAssociationMessage($input: SendAssociationMessageInput!) {
     }
   }
 }
+
+# ================= Overview =================
+query AssociationOverviewCounts {
+  associationMemberStats {
+    totalMembers
+    activeMembers
+    pendingActivation
+  }
+  associationRequirements(pagination: { take: 1 }) {
+    totalCount
+  }
+  associationLearningContents(pagination: { take: 1 }) {
+    totalCount
+  }
+}
+
+query AssociationRequirementProgressReport(
+  $filter: AssociationReportFilterInput
+) {
+  associationRequirementProgressReport(filter: $filter) {
+    requirementId
+    requirementName
+    memberCount
+    requiredCredits
+    averagePercent
+    averageCompletedCredits
+    awaitingReviewCount
+    dueDate
+    daysRemaining
+  }
+}
+
+query AssociationRecentActivity($limit: Int) {
+  associationRecentActivity(limit: $limit) {
+    id
+    state
+    activityId
+    activityTitle
+    activityDate
+    recordedAt
+    credits
+    creditedAmount
+    category
+    memberId
+    memberName
+    requirementId
+    requirementName
+  }
+}

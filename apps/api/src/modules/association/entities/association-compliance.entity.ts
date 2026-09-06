@@ -1,5 +1,6 @@
 import { Field, Float, ID, Int, ObjectType } from "@nestjs/graphql";
 import { AssociationGqlObjectNames } from "@association/enums/association-gql-names.enum";
+import { AssociationAttributionState } from "@prisma/client";
 import { AssociationComplianceBand } from "@prisma/client";
 import { AssociationEvidencePolicy } from "@prisma/client";
 import { CreditType, PDUCategory } from "@prisma/client";
@@ -66,6 +67,24 @@ export class AssociationPendingReviewEntity {
   @Field(() => ID) requirementId: string;
   @Field(() => PDUCategory) category: PDUCategory;
   @Field(() => String, { nullable: true }) memberName: string | null;
+}
+
+@ObjectType(AssociationGqlObjectNames.ASSOCIATION_RECENT_ACTIVITY)
+export class AssociationRecentActivityEntity {
+  @Field(() => ID) id: string;
+  @Field() recordedAt: Date;
+  @Field() activityDate: Date;
+  @Field() activityTitle: string;
+  @Field() requirementName: string;
+  @Field(() => ID) memberId: string;
+  @Field(() => Float) credits: number;
+  @Field(() => Float) creditedAmount: number;
+  @Field(() => ID) activityId: string;
+  @Field(() => ID) requirementId: string;
+  @Field(() => PDUCategory) category: PDUCategory;
+  @Field(() => String, { nullable: true }) memberName: string | null;
+  @Field(() => AssociationAttributionState)
+  state: AssociationAttributionState;
 }
 
 @ObjectType(AssociationGqlObjectNames.ASSOCIATION_REVIEW_RESULT)

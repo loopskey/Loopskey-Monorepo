@@ -87,3 +87,15 @@ export type BandCounts = {
   atRisk: number;
   notStarted: number;
 };
+
+export type ReportRequirementRow = {
+  requirementId: string;
+  requirementName: string;
+  memberCount: number;
+  requiredCredits: number;
+  averageCompletedCredits: number;
+  averagePercent: number;
+  awaitingReviewCount: number;
+  dueDate: Date | null;
+  daysRemaining: number | null;
+};
