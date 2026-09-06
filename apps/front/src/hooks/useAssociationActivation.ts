@@ -61,7 +61,7 @@ export const useAssociationActivation = () => {
       }).unwrap();
       passwordForm.reset();
       notify.success(t("authPages.activation.successTitle"));
-      router.replace(siteLinks.login);
+      router.replace(siteLinks.associationAuth);
     } catch (error) {
       const code = getAuthErrorCode(error);
       if (code === "PASSWORD_TOO_OBVIOUS") {
@@ -82,7 +82,7 @@ export const useAssociationActivation = () => {
     passwordForm,
     onSetPassword,
     associationName,
-    loginHref: siteLinks.login,
+    loginHref: siteLinks.associationAuth,
     isActivating: activateState.isLoading,
   };
 };
