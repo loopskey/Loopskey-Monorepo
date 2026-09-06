@@ -85,8 +85,6 @@ describe("AssociationGroupService", () => {
   });
 
   it("releases its members when a group is deactivated, leaving them active", async () => {
-    // Deactivating a group must never be a way to lose people: the members stay
-    // in the roster and simply have no group.
     const { service, tx } = setup();
 
     await service.setActive(owner, { groupId: "group-1", isActive: false });

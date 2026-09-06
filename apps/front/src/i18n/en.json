@@ -5206,16 +5206,92 @@
     "overview": {
       "title": "Association overview",
       "description": "Your association's home. Members, requirements and compliance reporting all start here.",
-      "comingSoon": "Counts, compliance charts and the needs-attention list arrive with the overview phase.",
-      "loadFailed": "We could not load your association just now. Refresh the page to try again.",
-      "contactEmail": "Contact email",
-      "country": "Country",
-      "website": "Website"
+      "retry": "Try again",
+      "cards": {
+        "error": "We could not load your headline counts just now.",
+        "members": {
+          "title": "Members",
+          "meaning": "Everyone invited to your association, active or not yet activated.",
+          "action": "Open the roster"
+        },
+        "requirements": {
+          "title": "Requirements",
+          "meaning": "The obligations you have defined, including drafts.",
+          "action": "Open requirements"
+        },
+        "learningContent": {
+          "title": "Learning content",
+          "meaning": "What you have put in front of members to earn credits.",
+          "action": "Open the library"
+        }
+      },
+      "charts": {
+        "error": "We could not load this chart just now."
+      },
+      "attention": {
+        "title": "Needs your attention",
+        "description": "The five lists the Messages tab can act on, counted for you here.",
+        "error": "We could not count what needs attention just now.",
+        "openTab": "Open Messages",
+        "settled": "Nothing is waiting on you. Every list is clear."
+      },
+      "requirements": {
+        "title": "Active requirements",
+        "description": "How far your membership has got against each published requirement.",
+        "error": "We could not load requirement progress just now.",
+        "openTab": "Open requirements",
+        "empty": "No requirement is published yet, so there is nothing to measure members against.",
+        "emptyAction": "Define a requirement",
+        "members": "{{count}} members",
+        "daysLeft": "{{days}} days left",
+        "overdue": "{{days}} days past the deadline",
+        "noDeadline": "No deadline set",
+        "progressLabel": "Average completion of {{name}}",
+        "awaitingReview": "{{count}} awaiting review",
+        "truncated": "Showing {{shown}} of {{total}}. Open the requirements tab to see the rest.",
+        "credits": "{{earned}} of {{required}} credits on average"
+      },
+      "activity": {
+        "title": "Recent activity",
+        "description": "The latest learning members recorded against your requirements.",
+        "error": "We could not load recent activity just now.",
+        "openTab": "Open the roster",
+        "empty": "No member has recorded learning against a requirement yet. Publishing content members can complete is the fastest way to start.",
+        "emptyAction": "Open the library",
+        "credits": "{{credits}} credits",
+        "review": "Review",
+        "states": {
+          "COUNTED": "Counted",
+          "AWAITING_REVIEW": "Awaiting review",
+          "REJECTED": "Rejected"
+        }
+      },
+      "guided": {
+        "title": "Let's get your association set up",
+        "description": "Three steps stand between you and a dashboard that tells you where your membership stands.",
+        "step": "Step",
+        "members": {
+          "title": "Invite your members",
+          "body": "Nothing can be measured until the people you are measuring are here.",
+          "action": "Invite members"
+        },
+        "requirements": {
+          "title": "Define a requirement",
+          "body": "Say how many credits members owe you, over what period, and who it applies to.",
+          "action": "Create a requirement"
+        },
+        "learningContent": {
+          "title": "Publish learning content",
+          "body": "Give members somewhere to earn what you have just asked of them.",
+          "action": "Add content"
+        }
+      }
     },
     "members": {
       "title": "Members",
       "description": "Everyone who belongs to your association, the groups they sit in, and the invitations still waiting to be accepted.",
       "actions": {
+        "viewDetail": "View member",
         "invite": "Invite member",
         "manageGroups": "Manage groups",
         "backToRoster": "Back to roster",
@@ -5381,7 +5457,6 @@
         "memberStatusConflict": "That member's status changed while you were working. Refresh to see where it stands.",
         "invitationCooldown": "An invitation went out recently. Wait a moment before sending another.",
         "activationEmailNotSent": "The invitation could not be sent. Try again in a moment.",
-        "requirementNotFound": "That requirement no longer exists.",
         "requirementAlreadyPublished": "This requirement was already published.",
         "requirementImmutableField": "A published requirement cannot change that field.",
         "requirementArchived": "An archived requirement cannot be changed.",
@@ -5391,8 +5466,172 @@
         "categoryIncomplete": "A category needs a name, a learning category and a credit value.",
         "cycleLengthRequired": "A multi-year cycle needs a length in years.",
         "cycleLengthNotAllowed": "Only a multi-year cycle carries a cycle length.",
-        "publishValidationFailed": "This requirement is not ready to publish.",
-        "audienceEmpty": "Choose who this requirement applies to."
+        "publishValidationFailed": "This requirement is not ready to publish."
+      }
+    },
+    "memberDetail": {
+      "backToRoster": "Back to the roster",
+      "email": "Email",
+      "noGroup": "No group",
+      "band": {
+        "NOT_STARTED": "Not started",
+        "AT_RISK": "At risk",
+        "ON_TRACK": "On track",
+        "RENEWAL_READY": "Renewal ready"
+      },
+      "state": {
+        "COUNTED": "Approved",
+        "AWAITING_REVIEW": "Under review",
+        "REJECTED": "Rejected"
+      },
+      "evidencePolicy": {
+        "NOT_REQUIRED": "Evidence not required",
+        "REQUIRED_NO_REVIEW": "Evidence required, not reviewed",
+        "REQUIRED_NEEDS_REVIEW": "Evidence required and reviewed by you"
+      },
+      "actions": {
+        "edit": "Edit details",
+        "requirements": "Change requirements"
+      },
+      "confirm": {
+        "deactivateBody": "{{name}} leaves your active counts and stops receiving association email. Their history stays on this page and you can reactivate them at any time."
+      },
+      "cards": {
+        "completed": "Credits completed",
+        "completedNote": "of {{required}} required",
+        "remaining": "Credits remaining",
+        "remainingNote": "across every requirement assigned to them",
+        "deadline": "Days to deadline",
+        "deadlineNote": "{{requirement}}, due {{date}}",
+        "noDeadline": "No deadline",
+        "noDeadlineNote": "No requirement assigned to them carries a date",
+        "days": "{{days}} days",
+        "awaiting": "Awaiting your review",
+        "awaitingNote": "submissions waiting on a decision from you"
+      },
+      "progress": {
+        "title": "Credits over the cycle",
+        "description": "Credits counted toward {{requirement}}, against the pace needed to finish by its deadline.",
+        "noCycle": "Nothing with a deadline is assigned to this member yet.",
+        "emptyTitle": "Nothing counted yet",
+        "emptyBody": "Once this member records learning that falls inside a requirement's window, their line appears here against the pace they need."
+      },
+      "requirements": {
+        "title": "Requirements",
+        "description": "Every requirement assigned to this member, and how far they have got against each one.",
+        "creditLine": "{{completed}} / {{required}} credits ({{percent}}%)",
+        "awaiting": "{{count}} awaiting review",
+        "dueDate": "Due date",
+        "daysRemaining": "Days remaining",
+        "evidencePolicy": "Evidence policy",
+        "noCategories": "This requirement counts credits as a single total rather than by category.",
+        "chartTitle": "Credits by category",
+        "chartEmptyTitle": "No categories to chart",
+        "chartEmptyBody": "None of the requirements assigned to this member splits its total by category.",
+        "emptyTitle": "Nothing is assigned yet",
+        "emptyBody": "This member is not in the audience of any published requirement. Use Change requirements to assign one."
+      },
+      "activities": {
+        "title": "Learning activities",
+        "description": "What this member recorded that counts toward your requirements. Nothing else they logged is shown here.",
+        "filterLabel": "Review state",
+        "filterAll": "All states",
+        "counts": "{{counted}} approved, {{awaiting}} under review, {{rejected}} rejected",
+        "meta": "{{source}} · {{category}} · {{credits}} credits · {{date}}",
+        "counting": "Counts toward: {{requirements}}",
+        "reason": "Reason given: {{reason}}",
+        "late": "Late",
+        "noEvidence": "No evidence",
+        "viewEvidence": "View evidence",
+        "approve": "Approve",
+        "reject": "Reject",
+        "emptyTitle": "Nothing recorded yet",
+        "emptyBody": "This member has recorded no learning that falls inside one of your requirements.",
+        "emptyFiltered": "No activity of this member is in that review state.",
+        "errorTitle": "The activity list could not be loaded."
+      },
+      "evidence": {
+        "title": "Evidence",
+        "description": "What the member attached to this submission.",
+        "note": "Note from the member",
+        "noNote": "The member left no note.",
+        "link": "Evidence link",
+        "noLink": "No link was given.",
+        "files": "Attached files",
+        "noFiles": "No file was attached.",
+        "download": "Download",
+        "downloadFile": "Download {{name}}"
+      },
+      "decision": {
+        "approveTitle": "Approve this submission?",
+        "approveBody": "Its credits count toward every requirement it satisfies, and the member's progress updates immediately.",
+        "rejectTitle": "Reject this submission?",
+        "rejectBody": "The member sees your reason on their own dashboard, so say what would make it acceptable.",
+        "reasonLabel": "Reason"
+      },
+      "edit": {
+        "title": "Edit member details",
+        "description": "Their name can only be corrected before they claim their account; after that it is theirs to change.",
+        "save": "Save changes",
+        "nameLocked": "Their name is theirs to change once they have claimed their account."
+      },
+      "assign": {
+        "title": "Change assigned requirements",
+        "description": "Tick the requirements this member should be held to. A requirement whose audience is everyone or a group is decided on the requirement itself.",
+        "meta": "{{credits}} {{creditType}} credits · due {{deadline}}",
+        "audienceManaged": "Set by audience",
+        "save": "Save assignments",
+        "emptyTitle": "Nothing to assign",
+        "emptyBody": "Publish a requirement first, and it appears here."
+      },
+      "chart": {
+        "gaugeLabel": "Overall completion against everything assigned",
+        "gaugeDescription": "A ring showing how much of everything assigned to this member is complete, with a second ring at the pace needed to meet the nearest deadline.",
+        "gaugeCaption": "Overall completion",
+        "gaugeCompletion": "Completed",
+        "gaugePace": "Pace needed",
+        "categoryChartLabel": "Credits completed against credits required, by category",
+        "categoryChartDescription": "One pair of bars per category: the credits required and the credits completed. A category with no activity is shown at zero rather than left out.",
+        "categoryName": "Category",
+        "categoryRequirement": "Requirement",
+        "categoryCompleted": "Completed",
+        "categoryRequired": "Required",
+        "cumulativeChartLabel": "Credits earned over the cycle against the pace needed",
+        "cumulativeChartDescription": "A line of credits counted to date, and a straight reference line running from the start of the cycle to the required total at the deadline.",
+        "cumulativeDate": "Date",
+        "cumulativeEarned": "Credits earned",
+        "cumulativePace": "Pace needed"
+      },
+      "messages": {
+        "approved": "Approved. The member's progress has been updated.",
+        "rejected": "Rejected. The member can read your reason on their dashboard.",
+        "saved": "Member details saved.",
+        "requirementsChanged": "{{added}} added, {{removed}} removed."
+      },
+      "certificates": {
+        "title": "Certificates",
+        "description": "Certificates this member holds, with the files they attached.",
+        "meta": "{{issuer}} · issued {{issued}} · expires {{expires}} · {{credits}} credits",
+        "noIssuer": "No issuer given",
+        "emptyTitle": "No certificates",
+        "emptyBody": "This member has not recorded a certificate yet."
+      },
+      "error": {
+        "title": "This member could not be loaded.",
+        "body": "The member may have been removed, or the request failed. Try again, or go back to the roster."
+      },
+      "errors": {
+        "fileNotFound": "That file is not available.",
+        "fileNotPermitted": "Only the association itself can download a member's files.",
+        "audienceNotMemberManaged": "That requirement's audience is decided on the requirement, not per member.",
+        "audienceEmpty": "That requirement's audience has no members.",
+        "reviewNotPermitted": "This requirement does not ask you to review evidence.",
+        "activityAlreadySettled": "That submission has already been decided.",
+        "activityNotReviewable": "That submission is no longer available to review.",
+        "activityNotOwned": "That submission does not belong to one of your members.",
+        "rejectionReasonRequired": "A rejection needs a reason the member can act on.",
+        "requirementNotFound": "That requirement is no longer available.",
+        "downloadFailed": "The download failed. Try again."
       }
     },
     "requirements": {
@@ -5636,19 +5875,564 @@
     },
     "learningContent": {
       "title": "Learning Content",
-      "comingSoon": "The learning library your members draw on arrives in a later release."
+      "description": "The learning you endorse for your members. A requirement says how many credits they owe; this says where to earn them.",
+      "actions": {
+        "addCatalogue": "Endorse from the catalogue",
+        "addExternal": "Add an external resource",
+        "view": "View details",
+        "edit": "Edit",
+        "publish": "Publish",
+        "withdraw": "Withdraw",
+        "delete": "Delete"
+      },
+      "status": {
+        "DRAFT": "Draft",
+        "PUBLISHED": "Published",
+        "WITHDRAWN": "Withdrawn"
+      },
+      "filters": {
+        "search": "Search",
+        "searchPlaceholder": "Search by title",
+        "category": "Category",
+        "allCategories": "All categories",
+        "status": "Status",
+        "allStatuses": "All statuses",
+        "source": "Source",
+        "allSources": "All sources",
+        "catalogue": "Platform catalogue",
+        "external": "External resource",
+        "requirement": "Requirement",
+        "allRequirements": "All requirements",
+        "clear": "Clear filters"
+      },
+      "list": {
+        "untitled": "Untitled item",
+        "meta": "{{source}} · {{provider}} · {{category}} · added {{added}}",
+        "noProvider": "No provider named",
+        "credits": "{{credits}} indicative credits",
+        "forRequirement": "Counts toward {{requirement}}",
+        "forGroup": "Published to {{group}}",
+        "unavailable": "No longer available",
+        "actionsFor": "Actions for {{title}}"
+      },
+      "empty": {
+        "firstRunTitle": "Your library is empty",
+        "firstRunBody": "Endorse a course, event, podcast or video from the platform catalogue, or add a resource of your own, and your members will know what to do next.",
+        "noResultsTitle": "Nothing matches those filters",
+        "noResultsBody": "Clear the filters to see the whole library."
+      },
+      "editor": {
+        "addCatalogueTitle": "Endorse from the catalogue",
+        "addExternalTitle": "Add an external resource",
+        "editTitle": "Edit library item",
+        "catalogueDescription": "Pick published content from the platform. Its title, image and provider stay in step with the catalogue rather than being copied here.",
+        "externalDescription": "Anything on the open web. Members open it in a new tab; the link is never fetched by the platform.",
+        "pickContent": "Content",
+        "searchPlaceholder": "Search the catalogue",
+        "contentType": "Content type",
+        "allTypes": "All types",
+        "noResults": "Nothing in the catalogue matches that search.",
+        "pickOne": "Choose a piece of content to endorse.",
+        "title": "Title",
+        "provider": "Provider",
+        "url": "Link",
+        "category": "Category",
+        "credits": "Indicative credits",
+        "requirement": "Counts toward",
+        "noRequirement": "No requirement",
+        "description": "Why you are recommending it",
+        "save": "Save item"
+      },
+      "publish": {
+        "title": "Publish to your members",
+        "description": "A published item is visible to the audience you choose. You can withdraw it later without losing it.",
+        "audience": "Audience",
+        "allMembers": "All members",
+        "oneGroup": "One group",
+        "group": "Group",
+        "groupPlaceholder": "Choose a group",
+        "confirm": "Publish"
+      },
+      "detail": {
+        "title": "Library item",
+        "description": "The item, its rules, and what your members did with it.",
+        "source": "Source",
+        "provider": "Provider",
+        "category": "Category",
+        "credits": "Indicative credits",
+        "noCredits": "Not stated",
+        "requirement": "Counts toward",
+        "noRequirement": "No requirement",
+        "audience": "Audience",
+        "allMembers": "All members",
+        "published": "Published",
+        "withdrawn": "Withdrawn",
+        "unavailableBody": "This content is no longer published in the catalogue. It is kept here so you can replace it rather than losing the endorsement.",
+        "engagementTitle": "What members did with it",
+        "engagementBody": "{{members}} members recorded an activity against this, carrying {{credits}} credits.",
+        "engagementExternal": "Engagement is counted for catalogue content, which members can link an activity to. An external resource has no such link."
+      },
+      "confirm": {
+        "deleteTitle": "Delete this draft?",
+        "deleteBody": "{{title}} has not been published, so no member has seen it. This cannot be undone.",
+        "deleteConfirm": "Delete"
+      },
+      "messages": {
+        "added": "Added to your library.",
+        "saved": "Library item saved.",
+        "published": "Published to your members.",
+        "withdrawn": "Withdrawn. The item is kept in your library.",
+        "deleted": "Draft deleted."
+      },
+      "error": {
+        "title": "The library could not be loaded.",
+        "body": "The request failed. Try again in a moment."
+      },
+      "errors": {
+        "notFound": "That library item was not found.",
+        "invalid": "An external resource needs a title and a link.",
+        "alreadyEndorsed": "You have already endorsed that content.",
+        "notDeletable": "Members may already have acted on this item. Withdraw it instead.",
+        "statusConflict": "That item's status changed while you were working. Refresh to see where it stands.",
+        "catalogNotFound": "That content is not in the catalogue.",
+        "catalogNotPublished": "Only published content can be endorsed."
+      }
     },
     "reports": {
       "title": "Reports",
-      "comingSoon": "Compliance reporting, charts and exports arrive in a later release."
+      "description": "How your membership is doing: by group, by category and over time. Open any chart for the members behind it.",
+      "computedAt": "Figures computed {{when}}",
+      "error": {
+        "title": "We could not run that report",
+        "body": "Your filter is unchanged, so trying again is safe.",
+        "retry": "Try again"
+      },
+      "empty": {
+        "title": "Nothing to report yet",
+        "body": "Reports describe progress against your requirements. Publish a requirement and assign it to members, and this tab fills in.",
+        "action": "Go to requirements"
+      },
+      "rangeIncomplete": "Pick a start and an end date to run a custom range.",
+      "filters": {
+        "legend": "Report filter",
+        "period": "Period",
+        "from": "From",
+        "to": "To",
+        "group": "Group",
+        "requirement": "Requirement",
+        "allGroups": "All groups",
+        "allRequirements": "All requirements",
+        "includeInactive": "Include deactivated members",
+        "clear": "Clear filter"
+      },
+      "periods": {
+        "THIS_YEAR": "This year",
+        "LAST_YEAR": "Last year",
+        "LAST_30_DAYS": "Last 30 days",
+        "LAST_90_DAYS": "Last 90 days",
+        "CUSTOM": "Custom range"
+      },
+      "customRange": "{{start}} to {{end}}",
+      "bands": {
+        "RENEWAL_READY": "Renewal ready",
+        "ON_TRACK": "On track",
+        "AT_RISK": "At risk",
+        "NOT_STARTED": "Not started"
+      },
+      "cards": {
+        "totalMembers": "Members",
+        "renewalReady": "Renewal ready",
+        "onTrack": "On track",
+        "atRisk": "At risk",
+        "missingEvidence": "Missing evidence",
+        "share": "{{share}}% of members",
+        "rise": "+{{change}} on the previous period",
+        "fall": "{{change}} on the previous period",
+        "flat": "Unchanged on the previous period",
+        "open": "Open the {{report}} report"
+      },
+      "charts": {
+        "viewReport": "View full report",
+        "empty": "No data for this filter yet.",
+        "group": {
+          "title": "Compliance by group",
+          "description": "Average completion for each group against your on-track threshold. Select a bar for that group's members.",
+          "label": "Average completion by group",
+          "threshold": "On-track threshold, {{percent}}%",
+          "members": "{{count}} members"
+        },
+        "category": {
+          "title": "Progress by category",
+          "description": "Credits required against the average earned in each category, widest gap first.",
+          "label": "Required and earned credits by category",
+          "required": "Required",
+          "earned": "Average earned"
+        },
+        "distribution": {
+          "title": "Member distribution",
+          "description": "How the membership splits across the four compliance bands. Select a segment for those members.",
+          "label": "Members by compliance band",
+          "centre": "members"
+        },
+        "trend": {
+          "title": "Compliance trend",
+          "description": "The share of members in each band at the end of every month in the period.",
+          "label": "Compliance bands over time"
+        }
+      },
+      "chartTable": {
+        "group": "Group",
+        "members": "Members",
+        "completion": "Average completion",
+        "category": "Category",
+        "requirement": "Requirement",
+        "required": "Required credits",
+        "earned": "Average earned",
+        "band": "Band",
+        "share": "Share",
+        "month": "Month"
+      },
+      "exports": {
+        "reasons": {
+          "periodInvalid": "The period this export covered is not a range the report can produce.",
+          "periodTooLong": "The period this export covered is longer than a report can span.",
+          "unsupported": "That report cannot be exported in this format.",
+          "failed": "Generation did not finish. Try again.",
+          "unknown": "Generation did not finish. Try again."
+        },
+        "title": "Generated exports",
+        "description": "Past exports of these reports, newest first. Each one keeps the filter it was generated with.",
+        "action": "Export",
+        "menuLabel": "Export the {{report}} report",
+        "menuHeading": "Export this report as",
+        "requested": "Your export is being generated. It will appear below when it is ready.",
+        "requestFailed": "That export could not be requested. Try again.",
+        "downloadFailed": "That export could not be downloaded. Try again.",
+        "download": "Download",
+        "regenerate": "Generate again",
+        "error": "Past exports could not be loaded.",
+        "meta": "Requested {{created}} · {{rows}} rows · {{size}}",
+        "failureReason": "Reason: {{reason}}",
+        "formats": {
+          "PDF": "PDF document",
+          "EXCEL": "Excel workbook"
+        },
+        "states": {
+          "PENDING": "Generating",
+          "READY": "Ready",
+          "FAILED": "Failed",
+          "EXPIRED": "Expired"
+        },
+        "empty": {
+          "title": "No exports yet",
+          "body": "Export any report as a PDF for circulation or an Excel workbook for analysis, and it will be listed here."
+        }
+      },
+      "library": {
+        "title": "Report library",
+        "description": "Six reports, each answering one question about your membership.",
+        "open": "Open report"
+      },
+      "names": {
+        "overview-summary": "Overview summary",
+        "member-progress": "Member progress",
+        "group-progress": "Group progress",
+        "category-completion": "Category completion",
+        "missing-evidence": "Missing evidence",
+        "renewal-readiness": "Renewal readiness"
+      },
+      "answers": {
+        "overview-summary": "Where the membership stands overall, and how that moved against the previous period.",
+        "member-progress": "Who is ahead and who is behind, member by member.",
+        "group-progress": "Which groups carry the membership and which lag behind.",
+        "category-completion": "Which categories members complete and which they avoid.",
+        "missing-evidence": "Which members owe evidence before their credits can count.",
+        "renewal-readiness": "Who could renew today and who could not."
+      },
+      "view": {
+        "back": "Back to reports",
+        "filter": "Active filter",
+        "rows": "{{count}} rows",
+        "rowCount": "Rows",
+        "band": "Band",
+        "allBands": "All bands",
+        "truncated": "Showing the {{shown}} members furthest behind, of {{total}}. Narrow the filter to see the rest.",
+        "sortNote": "Sorting and paging apply to the rows loaded for this filter."
+      },
+      "table": {
+        "member": "Member",
+        "memberNumber": "Member number",
+        "group": "Group",
+        "band": "Band",
+        "completion": "Completion",
+        "credits": "Credits",
+        "awaiting": "Awaiting review",
+        "deadline": "Earliest deadline",
+        "requirement": "Requirement",
+        "dueDate": "Due date",
+        "daysRemaining": "Days remaining",
+        "category": "Category",
+        "required": "Required",
+        "earned": "Average earned",
+        "belowHalf": "Below half",
+        "members": "Members",
+        "missingEvidence": "Missing evidence",
+        "notStarted": "Not started",
+        "readiness": "Renewal",
+        "ready": "Ready",
+        "notReady": "Not ready",
+        "creditLine": "{{completed}} of {{required}}",
+        "openMember": "Open the detail view for {{name}}",
+        "sort": "Sort by {{column}}",
+        "empty": "No rows match this filter.",
+        "none": "-",
+        "days": "{{days}} days"
+      },
+      "summaryReport": {
+        "caption": "Membership by compliance band",
+        "average": "Average completion",
+        "period": "Period",
+        "change": "Change"
+      },
+      "heatmap": {
+        "title": "Groups against categories",
+        "description": "Average completion for each group in each category. Every cell carries its number, so colour is never the only signal.",
+        "caption": "Average completion by group and category",
+        "group": "Group",
+        "limited": "Showing {{count}} groups. Members without a group are left out, because a category breakdown can only be filtered to a named group.",
+        "empty": "No categories to compare for this filter."
+      },
+      "extremes": {
+        "title": "Furthest ahead and furthest behind",
+        "description": "The ten members with the highest completion and the ten with the lowest, for this filter.",
+        "label": "Members furthest ahead and furthest behind",
+        "leaders": "Furthest ahead",
+        "laggards": "Furthest behind"
+      },
+      "readiness": {
+        "title": "Membership by readiness",
+        "description": "One bar, split by how ready the membership is to renew.",
+        "label": "Membership by renewal readiness"
+      },
+      "categoryChart": {
+        "title": "Completion by category",
+        "description": "Average completion in each category, with the share of members below half alongside.",
+        "label": "Average completion and members below half by category",
+        "average": "Average completion",
+        "belowHalf": "Members below half"
+      },
+      "groupChart": {
+        "title": "Groups by band",
+        "description": "How each group's members split across the four compliance bands.",
+        "label": "Members by group and compliance band"
+      }
     },
     "messages": {
       "title": "Messages",
-      "comingSoon": "Reminder and welcome messages to your members arrive in a later release."
+      "description": "Five lists of members who need something, each with a message Loopskey sends on your behalf. You choose who; the wording is ours.",
+      "allSettled": "Nothing needs your attention right now. Every list is clear.",
+      "sent": "Sent to {{count}} members.",
+      "sendFailed": "That message could not be sent. Try again.",
+      "strip": {
+        "title": "Where your membership stands",
+        "label": "Membership by compliance band",
+        "description": "A single bar showing how many members sit in each compliance band, from renewal ready to not started.",
+        "atRisk": "{{count}} at risk ({{share}}% of members)"
+      },
+      "error": {
+        "title": "These lists could not be loaded",
+        "body": "Something went wrong while working out who needs attention.",
+        "retry": "Try again"
+      },
+      "section": {
+        "count": "{{count}} members",
+        "countReports": "{{count}} reports",
+        "group": "Narrow to a group",
+        "selected": "{{count}} selected",
+        "clear": "Clear selection",
+        "selectMember": "Include {{name}} in this message",
+        "joinedOn": "Joined {{when}}",
+        "truncated": "Showing {{shown}} of {{total}}. Narrow to a group to see the rest."
+      },
+      "sections": {
+        "BELOW_THRESHOLD": {
+          "title": "Members needing attention",
+          "description": "Members below your at-risk threshold on at least one requirement.",
+          "action": "Send the reminder",
+          "settled": "No member is below your at-risk threshold."
+        },
+        "NEW_JOINERS": {
+          "title": "New joiners",
+          "description": "Members who activated in the last thirty days and have not been welcomed yet.",
+          "action": "Send the welcome",
+          "settled": "Everyone who joined recently has been welcomed."
+        },
+        "CATEGORY_BEHIND": {
+          "title": "Categories behind",
+          "description": "Members short in one category in particular, so the reminder can name it.",
+          "action": "Send the category reminder",
+          "settled": "No member is materially short in any single category."
+        },
+        "EXPIRING_CERTIFICATES": {
+          "title": "Expiring certifications",
+          "description": "Members holding a certificate that has expired or expires within ninety days.",
+          "action": "Send the expiry notice",
+          "settled": "No certificate is expiring in the next ninety days."
+        },
+        "READY_REPORTS": {
+          "title": "Reports ready",
+          "description": "Exports that have finished generating and are waiting in your report library.",
+          "action": "Open the report library",
+          "settled": "No export is waiting for you."
+        }
+      },
+      "preview": {
+        "title": "Review before sending",
+        "description": "This is the message Loopskey will send, exactly as one recipient will read it. The wording is fixed; you choose who receives it.",
+        "asSeenBy": "As {{name}} will read it",
+        "recipients": "Recipients",
+        "skipped": "Skipped",
+        "language": "Language",
+        "skippedTitle": "Who will not receive it",
+        "fixedCopy": "Loopskey writes this message. You cannot change its wording, only who receives it.",
+        "nobody": "Nobody in this list can be messaged right now.",
+        "cancel": "Cancel",
+        "confirm": "Send to {{count}}",
+        "error": "This preview could not be built."
+      },
+      "types": {
+        "BEHIND_THRESHOLD": "Progress reminder",
+        "WELCOME": "Welcome",
+        "CATEGORY_BEHIND": "Category reminder",
+        "CERTIFICATE_EXPIRING": "Certificate expiry"
+      },
+      "states": {
+        "QUEUED": "Sending",
+        "SENT": "Sent",
+        "FAILED": "Failed",
+        "SKIPPED": "Skipped"
+      },
+      "skipReasons": {
+        "COOLDOWN": "Already sent this message recently",
+        "NOT_IN_LIST": "No longer in this list",
+        "NO_VERIFIED_EMAIL": "No verified email address",
+        "INACTIVE_ACCOUNT": "Account is not active",
+        "EMAIL_SUPPRESSED": "Association email is suppressed"
+      },
+      "errors": {
+        "typeUnknown": "That message does not belong to this list.",
+        "noRecipients": "Nobody in this list can be messaged.",
+        "notMember": "That person is not one of your members.",
+        "batchTooLarge": "A single send covers at most five hundred members. Narrow to a group first.",
+        "deliveryFailed": "Delivery did not complete."
+      },
+      "history": {
+        "title": "Outreach history",
+        "description": "Every copy Loopskey sent on your behalf, newest first.",
+        "total": "{{count}} in total",
+        "error": "The history could not be loaded.",
+        "unknownReason": "No reason recorded.",
+        "empty": {
+          "title": "Nothing sent yet",
+          "body": "Once you send a reminder or a welcome, every recipient's copy is listed here with its state."
+        }
+      },
+      "suppressed": "All association email is suppressed in your settings, so a send here records every recipient as skipped.",
+      "suppressedAction": "Open settings"
     },
     "settings": {
       "title": "Settings",
-      "comingSoon": "Association profile, compliance defaults and notification switches arrive in a later release."
+      "description": "Your profile, your branding, and the thresholds every figure on this dashboard is measured against.",
+      "retry": "Try again",
+      "profile": {
+        "title": "Association profile",
+        "description": "Who you are. The name and logo appear on every report you generate.",
+        "save": "Save profile",
+        "saved": "Profile saved.",
+        "name": "Association name",
+        "country": "Country",
+        "website": "Website",
+        "contactEmail": "Contact email",
+        "contactEmailHint": "Shown to members in the messages sent on your behalf.",
+        "descriptionField": "Description"
+      },
+      "branding": {
+        "title": "Logo",
+        "description": "Used on the dashboard and stamped on the reports you export.",
+        "upload": "Upload a logo",
+        "remove": "Remove",
+        "saved": "Logo updated.",
+        "removed": "Logo removed.",
+        "failed": "We could not update the logo just now.",
+        "alt": "Your association's logo",
+        "rules": "{{types}}, up to {{limit}} MB.",
+        "reportNote": "Only a logo uploaded here is placed on a report. A website address typed into the profile is never fetched.",
+        "tooLarge": "That image is larger than {{limit}} MB.",
+        "wrongType": "A logo must be one of {{types}}."
+      },
+      "compliance": {
+        "title": "Compliance defaults",
+        "description": "How progress is classified. These change how members are grouped, never how many credits they owe.",
+        "review": "Review changes",
+        "saved": "Compliance defaults saved.",
+        "defaultCreditType": "Default credit type",
+        "defaultCreditTypeHint": "Applied to a new requirement unless you change it there.",
+        "onTrackThreshold": "On-track threshold",
+        "onTrackThresholdHint": "At or above this percentage a member counts as on track.",
+        "atRiskThreshold": "At-risk threshold",
+        "atRiskThresholdHint": "Below this percentage a member appears on the Messages tab's attention lists.",
+        "renewalRequiresReviewedEvidence": "Renewal needs every review settled",
+        "renewalRequiresReviewedEvidenceHint": "A member with evidence still awaiting your decision is held back from renewal ready.",
+        "orderInvalid": "The at-risk threshold must sit below the on-track threshold.",
+        "creditTypes": {
+          "CPD": "CPD",
+          "PDU": "PDU"
+        }
+      },
+      "notifications": {
+        "title": "Notifications",
+        "description": "What the platform is allowed to send on your behalf.",
+        "save": "Save notifications",
+        "saved": "Notification preferences saved.",
+        "suppressAllEmail": "Suppress all association email",
+        "suppressAllEmailHint": "Overrides everything below. Nothing you author reaches a member while this is on.",
+        "suppressAllActive": "While this is on, the three preferences below have no effect and every send is recorded as skipped.",
+        "complianceReminders": "Compliance reminders",
+        "complianceRemindersHint": "Nudges to members who are behind on a requirement.",
+        "welcomeMessages": "Welcome messages",
+        "welcomeMessagesHint": "A greeting to members who have just joined.",
+        "weeklyDigest": "Weekly digest",
+        "weeklyDigestHint": "A summary of where your membership stands."
+      },
+      "account": {
+        "title": "Your account",
+        "description": "The owner account for this association. One owner, as your account was created.",
+        "email": "Account email",
+        "status": "Status",
+        "changePassword": "Change password",
+        "changeEmail": "Change email"
+      },
+      "confirm": {
+        "title": "Apply this threshold change?",
+        "body": "Nothing is saved until you confirm. Here is what moves.",
+        "change": "{{from}}% to {{to}}%",
+        "movingBand": "{{count}} of {{total}} members change band.",
+        "enteringAtRisk": "{{count}} members join the attention lists.",
+        "leavingAtRisk": "{{count}} members leave the attention lists.",
+        "creditsUnchanged": "No credit is added or removed. Reports already generated keep the figures they were generated with.",
+        "cancel": "Cancel",
+        "apply": "Apply the change"
+      },
+      "errors": {
+        "loadFailed": "We could not load your settings just now.",
+        "notFound": "This association has no settings record.",
+        "stale": "These settings changed while you were editing them. Reload and try again.",
+        "thresholdOrder": "The at-risk threshold must sit below the on-track threshold.",
+        "thresholdRange": "A threshold is a whole number between 1 and 100.",
+        "logoType": "That file type cannot be used as a logo.",
+        "logoSize": "That image is too large to use as a logo.",
+        "logoNotFound": "That logo is no longer available."
+      }
     }
   },
   "adminDashboard": {

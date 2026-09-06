@@ -1,5 +1,6 @@
 import { ConflictException, Injectable } from "@nestjs/common";
 import { IdentityDisplayProjection } from "@user/public/identity-profile-api";
+import { IdentityRecipientProjection } from "@user/public/identity-profile-api";
 import { Prisma, Role, UserStatus } from "@prisma/client";
 import { IdentityProfileApi } from "@user/public/identity-profile-api";
 import { PrismaService } from "@prisma/prisma.service";
@@ -13,6 +14,45 @@ export class IdentityProfileApiService implements IdentityProfileApi {
       where: { id: userId, deletedAt: null },
       select: { id: true, email: true, fullName: true },
     });
+  }
+
+  async recipients(
+    userIds: readonly string[],
+  ): Promise<IdentityRecipientProjection[]> {
+    if (userIds.length === 0) return [];
+
+    const users = await this.prisma.user.findMany({
+      where: { id: { in: [...userIds] }, deletedAt: null },
+      select: {
+        id: true,
+        email: true,
+        status: true,
+        fullName: true,
+        emailVerifiedAt: true,
+      },
+    });
+
+    return users.map((user) => ({
+      id: user.id,
+      email: user.email,
+      fullName: user.fullName,
+      emailVerifiedAt: user.emailVerifiedAt,
+      isActive: user.status === UserStatus.ACTIVE,
+    }));
+  }
+
+  async renameUnclaimedUser(userId: string, fullName: string) {
+    const renamed = await this.prisma.user.updateMany({
+      where: {
+        id: userId,
+        deletedAt: null,
+        passwordHash: null,
+        status: UserStatus.PENDING,
+      },
+      data: { fullName: fullName.trim() },
+    });
+
+    return renamed.count === 1;
   }
 
   async existsByEmail(email: string) {

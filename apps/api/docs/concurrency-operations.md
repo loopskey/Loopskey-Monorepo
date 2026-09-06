@@ -25,6 +25,19 @@ exist only so a user gets a readable message instead of a constraint violation.
 | One account per work email | `User.email` unique constraint, its violation recovered into the association "email already in use" code |
 | One association per owner | `Association.ownerId` unique constraint |
 | An activation link activates once | `updateMany` on `OtpCode` where `consumedAt IS NULL`, `count === 1` before the user is activated |
+| A learning activity is decided once | `updateMany` on `PDUActivity` naming `PENDING`, `count === 1`; the loser of a race receives the already-settled code and writes no audit entry |
+| A stale compliance recomputation is discarded | `updateMany` on the assignment where `computedAt IS NULL OR computedAt <= startedAt`, so a slow pass finishing after a newer one matches nothing |
+| One attribution per assignment and activity | `AssociationCreditAttribution(assignmentId, activityId)` unique index, which is what makes recomputation idempotent |
+| A repeated cycle rollover opens nothing | `AssociationRequirementAssignment(requirementId, memberId, cycleStart)` unique index |
+| One generation per pending report export | Partial unique index `AssociationGeneratedReport_pending_key` on (association, report type, format, filter hash) WHERE state is `PENDING`, its violation recovered into a read of the winning record |
+| A generated export becomes ready once | `updateMany` naming `PENDING`, `count === 1`, written only after the file exists in object storage |
+| An expired export never points at a readable file | The retention sweep removes the object first, then marks the record with a `updateMany` naming `READY` |
+| A member is messaged once per type per cooldown window | Unique constraint `AssociationMessageDelivery(associationId, memberId, messageType, cooldownBucket)`, its violation recovered into a skip carrying the cooldown reason |
+| A queued message always has an email behind it | The delivery row and its outbox event are written in one transaction, chunk by chunk |
+| One recipient receives one copy | `updateMany` naming `QUEUED` after the provider accepts it, with the outbox idempotency key handed to the provider so a retry is the same email |
+| Two administrators cannot silently overwrite each other's settings | `updateMany` on `AssociationSettings` naming the `updatedAt` the client last read, `count === 1`; the loser receives the settings-stale code and re-reads rather than losing its edit |
+| A threshold pair is never stored out of order | Both thresholds arrive together and are validated as a unit before the conditional write, so there is no read-modify-write window in which one could be saved against a stale partner |
+| A reclassification follows every threshold change | The recompute event is appended to the outbox inside the same transaction as the settings write, so a settings change that commits always has a reclassification queued behind it |
 
 ## Decisions
 
@@ -158,6 +171,20 @@ what makes the unavoidable window between an external side effect and the
 `OutboxDelivery` row harmless: a process killed in that window retries, and the
 provider collapses the two requests into one.
 
+Two association handlers now consume their own events rather than the shared
+`mail.delivery.requested`. The templated-message handler renders each recipient's
+copy at delivery time from the figures captured when the send was accepted, so
+neither the rendered body nor the member's name and progress ever sit in an
+outbox payload. It hands the provider `context.idempotencyKey`, which is what
+makes a redelivery the same email rather than a second one.
+
+A handler whose failure will not improve on retry should not throw. The report
+export handler marks its record `FAILED` and returns for anything the domain
+refused — a deleted group, a filter the period rules reject — and throws only
+for the unexpected, so a user sees a reason in seconds rather than after ten
+backoffs. Its `abandon` hook writes the same terminal state when the processor
+does give up.
+
 Retries stop at ten attempts. Inspect what is stuck:
 
 ```sql
@@ -198,6 +225,8 @@ correlation ID and non-sensitive identifiers only.
 | `Recovered a concurrent content-linked PDU activity` | Two requests logged the same content; the winner was updated |
 | `Outbox lease renewal found no claimable event` | A handler renewed a lease for work that had already finished |
 | `Outbox delivery already recorded` | A redelivery found its delivery row already present |
+| `Association compliance settings updated` | A settings write committed; the line carries the new thresholds and whether a reclassification was queued |
+| `Association reclassified after a threshold change` | The queued recompute finished, with the assignment count it touched |
 
 Expected conflicts are logged at `warn` and answered with domain error codes.
 None of them are internal server failures, and none should be alerted on

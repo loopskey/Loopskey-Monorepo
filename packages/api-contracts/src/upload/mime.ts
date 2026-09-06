@@ -30,3 +30,32 @@ export const isAcceptedDocumentFile = (
   if (!allowed) return false;
   return allowed.includes(extension.toLowerCase());
 };
+
+export const IMAGE_MIME_EXTENSIONS = {
+  "image/jpeg": [".jpg", ".jpeg"],
+  "image/png": [".png"],
+  "image/webp": [".webp"],
+} as const satisfies Record<string, readonly string[]>;
+
+export type ImageMimeType = keyof typeof IMAGE_MIME_EXTENSIONS;
+
+export const IMAGE_MIME_TYPES = Object.keys(
+  IMAGE_MIME_EXTENSIONS,
+) as readonly ImageMimeType[];
+
+export const IMAGE_EXTENSIONS: readonly string[] = Object.values(
+  IMAGE_MIME_EXTENSIONS,
+).flat();
+
+export const IMAGE_ACCEPT_ATTRIBUTE = IMAGE_EXTENSIONS.join(",");
+
+export const isAcceptedImageFile = (
+  mimeType: string,
+  extension: string,
+): boolean => {
+  const allowed = (
+    IMAGE_MIME_EXTENSIONS as Record<string, readonly string[] | undefined>
+  )[mimeType];
+  if (!allowed) return false;
+  return allowed.includes(extension.toLowerCase());
+};

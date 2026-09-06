@@ -15,6 +15,8 @@ import { ProfessionalRoleProfileHandler } from "@professional/application/profes
 import { ProfessionalOnboardingResolver } from "@professional/resolvers/professional-onboarding.resolver";
 import { ProfessionalCredentialService } from "@professional/services/professional-credential.service";
 import { ProfessionalPduFileController } from "@professional/controllers/professional-pdu-file.controller";
+import { ProfessionalComplianceApiService } from "@professional/application/professional-compliance-api.service";
+import { PROFESSIONAL_COMPLIANCE_API } from "@professional/public/professional-compliance-api";
 import { PROFESSIONAL_PROVISIONING_API } from "@professional/public/professional-provisioning-api";
 import { ProfessionalOnboardingService } from "@professional/services/professional-onboarding.service";
 import { ProfessionalCalendarResolver } from "@professional/resolvers/professional-calendar.resolver";
@@ -107,6 +109,7 @@ import "@professional/enums/professional-register.enum";
     ProfessionalRoadmapProgressService,
     ProfessionalCertificateFileService,
     ProfessionalProvisioningApiService,
+    ProfessionalComplianceApiService,
     ProfessionalRoadmapCandidateService,
     ProfessionalRoadmapGenerationService,
     ProfessionalProfileCompletionService,
@@ -115,6 +118,10 @@ import "@professional/enums/professional-register.enum";
     {
       provide: PROFESSIONAL_PROVISIONING_API,
       useExisting: ProfessionalProvisioningApiService,
+    },
+    {
+      provide: PROFESSIONAL_COMPLIANCE_API,
+      useExisting: ProfessionalComplianceApiService,
     },
   ],
   exports: [
@@ -132,6 +139,7 @@ import "@professional/enums/professional-register.enum";
     ProfessionalPaymentsService,
     ProfessionalCredentialService,
     PROFESSIONAL_PROVISIONING_API,
+    PROFESSIONAL_COMPLIANCE_API,
     ProfessionalRoadmapChatService,
     ProfessionalRoadmapDraftService,
     ProfessionalCertificatesService,

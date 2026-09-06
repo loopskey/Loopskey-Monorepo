@@ -1,4 +1,4 @@
-import { IsOptional, IsString, MaxLength } from "class-validator";
+import { IsOptional, IsString, MaxLength, MinLength } from "class-validator";
 import { ASSOCIATION_MEMBER_LIMITS } from "@loopskey/api-contracts/validation";
 import { AssociationGqlInputNames } from "@association/enums/association-gql-names.enum";
 import { Field, ID, InputType } from "@nestjs/graphql";
@@ -6,6 +6,13 @@ import { Field, ID, InputType } from "@nestjs/graphql";
 @InputType(AssociationGqlInputNames.UPDATE_ASSOCIATION_MEMBER)
 export class UpdateAssociationMemberInput {
   @Field(() => ID) @IsString() memberId!: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MinLength(ASSOCIATION_MEMBER_LIMITS.fullNameMin)
+  @MaxLength(ASSOCIATION_MEMBER_LIMITS.fullNameMax)
+  fullName?: string;
 
   @Field(() => ID, { nullable: true })
   @IsOptional()

@@ -28,8 +28,76 @@ const ASSOCIATION_ERROR_TRANSLATION_KEYS: Partial<
     "associationDashboard.members.errors.invitationCooldown",
   [AssociationMessageCode.ACTIVATION_EMAIL_NOT_SENT]:
     "associationDashboard.members.errors.activationEmailNotSent",
+  [AssociationMessageCode.FILE_NOT_FOUND]:
+    "associationDashboard.memberDetail.errors.fileNotFound",
+  [AssociationMessageCode.FILE_NOT_PERMITTED]:
+    "associationDashboard.memberDetail.errors.fileNotPermitted",
+  [AssociationMessageCode.AUDIENCE_NOT_MEMBER_MANAGED]:
+    "associationDashboard.memberDetail.errors.audienceNotMemberManaged",
+  [AssociationMessageCode.AUDIENCE_EMPTY]:
+    "associationDashboard.memberDetail.errors.audienceEmpty",
+  [AssociationMessageCode.REVIEW_NOT_PERMITTED]:
+    "associationDashboard.memberDetail.errors.reviewNotPermitted",
+  [AssociationMessageCode.ACTIVITY_ALREADY_SETTLED]:
+    "associationDashboard.memberDetail.errors.activityAlreadySettled",
+  [AssociationMessageCode.ACTIVITY_NOT_REVIEWABLE]:
+    "associationDashboard.memberDetail.errors.activityNotReviewable",
+  [AssociationMessageCode.ACTIVITY_NOT_OWNED]:
+    "associationDashboard.memberDetail.errors.activityNotOwned",
+  [AssociationMessageCode.REJECTION_REASON_REQUIRED]:
+    "associationDashboard.memberDetail.errors.rejectionReasonRequired",
   [AssociationMessageCode.REQUIREMENT_NOT_FOUND]:
-    "associationDashboard.members.errors.requirementNotFound",
+    "associationDashboard.memberDetail.errors.requirementNotFound",
+  [AssociationMessageCode.LEARNING_CONTENT_NOT_FOUND]:
+    "associationDashboard.learningContent.errors.notFound",
+  [AssociationMessageCode.LEARNING_CONTENT_INVALID]:
+    "associationDashboard.learningContent.errors.invalid",
+  [AssociationMessageCode.LEARNING_CONTENT_ALREADY_ENDORSED]:
+    "associationDashboard.learningContent.errors.alreadyEndorsed",
+  [AssociationMessageCode.LEARNING_CONTENT_NOT_DELETABLE]:
+    "associationDashboard.learningContent.errors.notDeletable",
+  [AssociationMessageCode.LEARNING_CONTENT_STATUS_CONFLICT]:
+    "associationDashboard.learningContent.errors.statusConflict",
+  [AssociationMessageCode.CATALOG_CONTENT_NOT_FOUND]:
+    "associationDashboard.learningContent.errors.catalogNotFound",
+  [AssociationMessageCode.CATALOG_CONTENT_NOT_PUBLISHED]:
+    "associationDashboard.learningContent.errors.catalogNotPublished",
+  [AssociationMessageCode.REPORT_PERIOD_INVALID]:
+    "associationDashboard.reports.exports.reasons.periodInvalid",
+  [AssociationMessageCode.REPORT_PERIOD_TOO_LONG]:
+    "associationDashboard.reports.exports.reasons.periodTooLong",
+  [AssociationMessageCode.EXPORT_UNSUPPORTED]:
+    "associationDashboard.reports.exports.reasons.unsupported",
+  [AssociationMessageCode.EXPORT_FAILED]:
+    "associationDashboard.reports.exports.reasons.failed",
+  [AssociationMessageCode.MESSAGE_TYPE_UNKNOWN]:
+    "associationDashboard.messages.errors.typeUnknown",
+  [AssociationMessageCode.MESSAGE_NO_RECIPIENTS]:
+    "associationDashboard.messages.errors.noRecipients",
+  [AssociationMessageCode.MESSAGE_RECIPIENT_NOT_MEMBER]:
+    "associationDashboard.messages.errors.notMember",
+  [AssociationMessageCode.MESSAGE_BATCH_TOO_LARGE]:
+    "associationDashboard.messages.errors.batchTooLarge",
+  [AssociationMessageCode.MESSAGE_COOLDOWN_ACTIVE]:
+    "associationDashboard.messages.skipReasons.COOLDOWN",
+  [AssociationMessageCode.MESSAGE_DELIVERY_FAILED]:
+    "associationDashboard.messages.errors.deliveryFailed",
+  [AssociationMessageCode.MESSAGE_EMAIL_SUPPRESSED]:
+    "associationDashboard.messages.skipReasons.EMAIL_SUPPRESSED",
+  [AssociationMessageCode.SETTINGS_NOT_FOUND]:
+    "associationDashboard.settings.errors.notFound",
+  [AssociationMessageCode.SETTINGS_STALE]:
+    "associationDashboard.settings.errors.stale",
+  [AssociationMessageCode.THRESHOLD_ORDER_INVALID]:
+    "associationDashboard.settings.errors.thresholdOrder",
+  [AssociationMessageCode.THRESHOLD_OUT_OF_RANGE]:
+    "associationDashboard.settings.errors.thresholdRange",
+  [AssociationMessageCode.LOGO_INVALID_TYPE]:
+    "associationDashboard.settings.errors.logoType",
+  [AssociationMessageCode.LOGO_TOO_LARGE]:
+    "associationDashboard.settings.errors.logoSize",
+  [AssociationMessageCode.LOGO_NOT_FOUND]:
+    "associationDashboard.settings.errors.logoNotFound",
   [AssociationMessageCode.REQUIREMENT_ALREADY_PUBLISHED]:
     "associationDashboard.members.errors.requirementAlreadyPublished",
   [AssociationMessageCode.REQUIREMENT_IMMUTABLE_FIELD]:
@@ -50,8 +118,6 @@ const ASSOCIATION_ERROR_TRANSLATION_KEYS: Partial<
     "associationDashboard.members.errors.cycleLengthNotAllowed",
   [AssociationMessageCode.PUBLISH_VALIDATION_FAILED]:
     "associationDashboard.members.errors.publishValidationFailed",
-  [AssociationMessageCode.AUDIENCE_EMPTY]:
-    "associationDashboard.members.errors.audienceEmpty",
 };
 
 const KNOWN_CODES = new Set<string>(Object.values(AssociationMessageCode));

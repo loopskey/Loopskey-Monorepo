@@ -267,6 +267,86 @@ enum AssociationActivationTokenStatus {
   VALID
 }
 
+type AssociationActivityCounts {
+  awaitingReview: Int!
+  counted: Int!
+  rejected: Int!
+}
+
+type AssociationActivityRequirement {
+  canReview: Boolean!
+  creditedAmount: Float!
+  id: ID!
+  name: String!
+}
+
+type AssociationAssignmentProgress {
+  awaitingReviewCount: Int!
+  band: AssociationComplianceBand!
+  categories: [AssociationCategoryProgress!]!
+  completedCredits: Float!
+  computedAt: DateTime
+  creditType: CreditType!
+  cycleEnd: DateTime
+  cycleStart: DateTime!
+  daysRemaining: Int
+  dueDate: DateTime
+  evidencePolicy: AssociationEvidencePolicy!
+  id: ID!
+  isMissingEvidence: Boolean!
+  percent: Float!
+  requiredCredits: Float!
+  requirementId: ID!
+  requirementName: String!
+}
+
+type AssociationAttentionCounts {
+  belowThreshold: Int!
+  categoryBehind: Int!
+  expiringCertificates: Int!
+  newJoiners: Int!
+  readyReports: Int!
+}
+
+type AssociationAttentionLists {
+  counts: AssociationAttentionCounts!
+  distribution: AssociationMemberDistribution!
+}
+
+type AssociationAttentionRow {
+  band: AssociationComplianceBand
+  completedCredits: Float
+  deadline: DateTime
+  detail: String
+  detailDate: DateTime
+  email: String
+  fullName: String
+  groupId: ID
+  groupTitle: String
+  memberId: ID!
+  memberNumber: String
+  percent: Float
+  requiredCredits: Float
+}
+
+"""Which attention list a row or a send belongs to"""
+enum AssociationAttentionSection {
+  BELOW_THRESHOLD
+  CATEGORY_BEHIND
+  EXPIRING_CERTIFICATES
+  NEW_JOINERS
+  READY_REPORTS
+}
+
+"""
+Whether one activity counted toward a requirement, waits on a decision, or was rejected
+"""
+enum AssociationAttributionState {
+  AWAITING_REVIEW
+  COUNTED
+  REJECTED
+}
+
 """Which members a requirement applies to"""
 enum AssociationAudienceKind {
   ALL_MEMBERS
@@ -289,11 +369,140 @@ type AssociationBulkInviteResult {
   totalRows: Int!
 }
 
+type AssociationCatalogItem {
+  contentId: ID!
+  contentType: ContentType!
+  imageUrl: String
+  isAvailable: Boolean!
+  provider: String
+  title: String!
+}
+
+input AssociationCatalogSearchInput {
+  contentType: ContentType
+  search: String
+  take: Int = 20
+}
+
+type AssociationCategoryProgress {
+  completedCredits: Float!
+  id: ID!
+  name: String!
+  percent: Float!
+  requiredCredits: Float!
+}
+
+type AssociationCategoryProgressRow {
+  atRiskCount: Int!
+  averageCompletedCredits: Float!
+  averagePercent: Float!
+  behindCount: Int!
+  belowHalfCount: Int!
+  categoryId: ID!
+  categoryName: String!
+  mappedCategory: PDUCategory!
+  memberCount: Int!
+  onTrackCount: Int!
+  requiredCredits: Float!
+  requirementId: ID!
+  requirementName: String!
+}
+
+"""How far a member has got against what was required of them"""
+enum AssociationComplianceBand {
+  AT_RISK
+  NOT_STARTED
+  ON_TRACK
+  RENEWAL_READY
+}
+
+input AssociationComplianceFilterInput {
+  groupId: ID
+  memberIds: [ID!]
+  requirementId: ID
+}
+
+type AssociationComplianceSettingsPayload {
+  applied: Boolean!
+  impact: AssociationSettingsImpact!
+  settings: AssociationSettings!
+}
+
+type AssociationComplianceSummary {
+  awaitingReviewCount: Int!
+  band: AssociationComplianceBand!
+  computedAt: DateTime
+  isMissingEvidence: Boolean!
+  memberId: ID!
+  percent: Float!
+}
+
+type AssociationComplianceTrendPoint {
+  at: DateTime!
+  atRisk: Int!
+  atRiskShare: Float!
+  averageCompletion: Float!
+  notStarted: Int!
+  notStartedShare: Float!
+  onTrack: Int!
+  onTrackShare: Float!
+  renewalReady: Int!
+  renewalReadyShare: Float!
+  totalMembers: Int!
+}
+
+type AssociationCumulativePoint {
+  credits: Float!
+  date: DateTime!
+  requiredCredits: Float!
+}
+
+type AssociationEvidenceFile {
+  fileName: String!
+  id: ID!
+  mimeType: String!
+  sizeBytes: Int!
+}
+
 """Whether members must attach evidence, and whether it is reviewed"""
 enum AssociationEvidencePolicy {
   NOT_REQUIRED
   REQUIRED_NEEDS_REVIEW
   REQUIRED_NO_REVIEW
+}
+
+type AssociationGeneratedReport {
+  createdAt: DateTime!
+  expiresAt: DateTime
+  failureReason: String
+  fileName: String!
+  filter: AssociationGeneratedReportFilter!
+  format: AssociationReportFormat!
+  id: ID!
+  readyAt: DateTime
+  reportType: AssociationReportType!
+  rowCount: Int
+  sizeBytes: Int
+  state: AssociationGeneratedReportState!
+}
+
+type AssociationGeneratedReportFilter {
+  endDate: String
+  groupId: ID
+  includeInactive: Boolean!
+  period: AssociationReportPeriod!
+  requirementId: ID
+  startDate: String
+}
+
+"""
+Whether an export is being generated, ready to download, failed, or past its retention
+"""
+enum AssociationGeneratedReportState {
+  EXPIRED
+  FAILED
+  PENDING
+  READY
 }
 
 type AssociationGroup {
@@ -304,6 +513,30 @@ type AssociationGroup {
   memberCount: Int!
   title: String!
   updatedAt: DateTime!
+}
+
+type AssociationGroupCompliance {
+  atRisk: Int!
+  averageCompletion: Float!
+  groupId: ID
+  groupTitle: String
+  memberCount: Int!
+  notStarted: Int!
+  onTrack: Int!
+  renewalReady: Int!
+}
+
+type AssociationGroupProgressRow {
+  atRisk: Int!
+  averageCompletion: Float!
+  groupId: ID
+  groupTitle: String
+  memberCount: Int!
+  missingEvidenceCount: Int!
+  notStarted: Int!
+  notStartedCount: Int!
+  onTrack: Int!
+  renewalReady: Int!
 }
 
 """
@@ -317,6 +550,57 @@ enum AssociationInviteOutcome {
 type AssociationInviteResult {
   member: AssociationMember!
   outcome: AssociationInviteOutcome!
+}
+
+type AssociationLearningContent {
+  audienceKind: AssociationAudienceKind!
+  category: PDUCategory!
+  contentId: ID
+  contentType: ContentType
+  createdAt: DateTime!
+  description: String
+  engagement: AssociationLearningEngagement
+  externalUrl: String
+  groupId: ID
+  groupTitle: String
+  id: ID!
+  imageUrl: String
+  indicativeCredits: Float
+  isAvailable: Boolean!
+  isExternal: Boolean!
+  provider: String
+  publishedAt: DateTime
+  requirementId: ID
+  requirementName: String
+  status: AssociationLearningContentStatus!
+  title: String!
+  updatedAt: DateTime!
+  withdrawnAt: DateTime
+}
+
+input AssociationLearningContentFilterInput {
+  category: PDUCategory
+  contentType: ContentType
+  isExternal: Boolean
+  requirementId: ID
+  search: String
+  status: AssociationLearningContentStatus
+}
+
+input AssociationLearningContentIdInput {
+  learningContentId: ID!
+}
+
+"""Whether a library item is a draft, published, or withdrawn"""
+enum AssociationLearningContentStatus {
+  DRAFT
+  PUBLISHED
+  WITHDRAWN
+}
+
+type AssociationLearningEngagement {
+  credits: Float!
+  memberCount: Int!
 }
 
 type AssociationMember {
@@ -334,6 +618,60 @@ type AssociationMember {
   userId: ID!
 }
 
+type AssociationMemberActivity {
+  canReview: Boolean!
+  category: PDUCategory!
+  creditType: CreditType!
+  credits: Float!
+  date: DateTime!
+  evidenceNote: String
+  evidenceUrl: String
+  files: [AssociationEvidenceFile!]!
+  hasEvidence: Boolean!
+  id: ID!
+  isLate: Boolean!
+  memberId: ID!
+  requirements: [AssociationActivityRequirement!]!
+  reviewNote: String
+  source: PDUSource!
+  state: AssociationAttributionState!
+  title: String!
+}
+
+input AssociationMemberActivityFilterInput {
+  state: AssociationAttributionState
+}
+
+type AssociationMemberCertificate {
+  creditsEarned: Float!
+  files: [AssociationEvidenceFile!]!
+  id: ID!
+  issuedAt: DateTime!
+  issuer: String
+  memberId: ID!
+  status: CertificateStatus!
+  title: String!
+  validUntil: DateTime
+}
+
+type AssociationMemberCompliance {
+  assignments: [AssociationAssignmentProgress!]!
+  isMissingEvidence: Boolean!
+  memberId: ID!
+}
+
+type AssociationMemberDistribution {
+  atRisk: Int!
+  atRiskShare: Float!
+  notStarted: Int!
+  notStartedShare: Float!
+  onTrack: Int!
+  onTrackShare: Float!
+  renewalReady: Int!
+  renewalReadyShare: Float!
+  totalMembers: Int!
+}
+
 input AssociationMemberFilterInput {
   groupId: ID
   search: String
@@ -344,6 +682,49 @@ type AssociationMemberGroup {
   id: ID!
   isActive: Boolean!
   title: String!
+}
+
+type AssociationMemberProfile {
+  assignments: [AssociationAssignmentProgress!]!
+  certificates: [AssociationMemberCertificate!]!
+  cumulative: [AssociationCumulativePoint!]!
+  isMissingEvidence: Boolean!
+  member: AssociationMember!
+  summary: AssociationMemberSummary!
+}
+
+type AssociationMemberProgressRow {
+  assignments: [AssociationReportAssignment!]!
+  awaitingReviewCount: Int!
+  band: AssociationComplianceBand!
+  completedCredits: Float!
+  earliestUnmetDeadline: DateTime
+  email: String
+  fullName: String
+  groupTitle: String
+  hasStarted: Boolean!
+  isMissingEvidence: Boolean!
+  memberId: ID!
+  memberNumber: String
+  percent: Float!
+  requiredCredits: Float!
+}
+
+type AssociationMemberRequirementOption {
+  audienceKind: AssociationAudienceKind!
+  creditType: CreditType!
+  deadline: DateTime
+  id: ID!
+  isAssigned: Boolean!
+  isMemberManaged: Boolean!
+  name: String!
+  totalRequiredCredits: Float!
+}
+
+type AssociationMemberRequirementsResult {
+  added: Int!
+  memberId: ID!
+  removed: Int!
 }
 
 type AssociationMemberStats {
@@ -359,6 +740,108 @@ enum AssociationMemberStatus {
   PENDING_ACTIVATION
 }
 
+type AssociationMemberSummary {
+  awaitingReviewCount: Int!
+  band: AssociationComplianceBand!
+  creditsCompleted: Float!
+  creditsRemaining: Float!
+  creditsRequired: Float!
+  nearestDueDate: DateTime
+  nearestDueDays: Int
+  nearestRequirementId: ID
+  nearestRequirementName: String
+  pacePercent: Float
+  percent: Float!
+}
+
+input AssociationMessageAudienceInput {
+  groupId: ID
+  memberIds: [ID!]
+  section: AssociationAttentionSection!
+}
+
+type AssociationMessageBatch {
+  acceptedCount: Int!
+  messageType: AssociationMessageType!
+  skipped: [AssociationMessageSkip!]!
+  skippedCount: Int!
+}
+
+"""Where one recipient's copy of a message stands"""
+enum AssociationMessageDeliveryState {
+  FAILED
+  QUEUED
+  SENT
+  SKIPPED
+}
+
+type AssociationMessageHistoryRow {
+  createdAt: DateTime!
+  email: String
+  failureReason: String
+  fullName: String
+  id: ID!
+  language: AppLanguage!
+  memberId: ID!
+  memberNumber: String
+  messageType: AssociationMessageType!
+  sentAt: DateTime
+  skipReason: String
+  state: AssociationMessageDeliveryState!
+  templateVersion: Int!
+}
+
+type AssociationMessagePreview {
+  body: String
+  language: AppLanguage
+  messageType: AssociationMessageType!
+  recipientCount: Int!
+  recipientName: String
+  skipped: [AssociationMessageSkip!]!
+  skippedCount: Int!
+  subject: String
+}
+
+type AssociationMessageSkip {
+  fullName: String
+  memberId: ID!
+  reason: AssociationMessageSkipReason!
+}
+
+"""Why a member in the audience was deliberately not written to"""
+enum AssociationMessageSkipReason {
+  COOLDOWN
+  EMAIL_SUPPRESSED
+  INACTIVE_ACCOUNT
+  NOT_IN_LIST
+  NO_VERIFIED_EMAIL
+}
+
+"""Which templated message the platform sends on the association's behalf"""
+enum AssociationMessageType {
+  BEHIND_THRESHOLD
+  CATEGORY_BEHIND
+  CERTIFICATE_EXPIRING
+  WELCOME
+}
+
+type AssociationMissingEvidenceRow {
+  awaitingReviewCount: Int!
+  completedCredits: Float!
+  daysRemaining: Int
+  dueDate: DateTime
+  email: String
+  fullName: String
+  groupTitle: String
+  id: ID!
+  memberId: ID!
+  memberNumber: String
+  percent: Float!
+  requiredCredits: Float!
+  requirementId: ID!
+  requirementName: String!
+}
+
 type AssociationPageInfo {
   hasNextPage: Boolean!
   nextCursor: String
@@ -367,6 +850,131 @@ type AssociationPageInfo {
 input AssociationPaginationInput {
   cursor: String
   take: Int = 20
+}
+
+type AssociationPendingReview {
+  activityDate: DateTime!
+  activityId: ID!
+  activityTitle: String!
+  category: PDUCategory!
+  credits: Float!
+  id: ID!
+  memberId: ID!
+  memberName: String
+  requirementId: ID!
+  requirementName: String!
+}
+
+type AssociationRecentActivity {
+  activityDate: DateTime!
+  activityId: ID!
+  activityTitle: String!
+  category: PDUCategory!
+  creditedAmount: Float!
+  credits: Float!
+  id: ID!
+  memberId: ID!
+  memberName: String
+  recordedAt: DateTime!
+  requirementId: ID!
+  requirementName: String!
+  state: AssociationAttributionState!
+}
+
+type AssociationRenewalReadinessRow {
+  awaitingReviewCount: Int!
+  band: AssociationComplianceBand!
+  completedCredits: Float!
+  earliestUnmetDeadline: DateTime
+  email: String
+  fullName: String
+  groupTitle: String
+  id: ID!
+  isRenewalReady: Boolean!
+  memberId: ID!
+  memberNumber: String
+  percent: Float!
+  requiredCredits: Float!
+}
+
+type AssociationReportAssignment {
+  assignmentId: ID!
+  awaitingReviewCount: Int!
+  band: AssociationComplianceBand!
+  completedCredits: Float!
+  daysRemaining: Int
+  dueDate: DateTime
+  isMissingEvidence: Boolean!
+  percent: Float!
+  requiredCredits: Float!
+  requirementId: ID!
+  requirementName: String!
+}
+
+input AssociationReportExportIdInput {
+  exportId: ID!
+}
+
+input AssociationReportFilterInput {
+  endDate: String
+  groupId: ID
+  includeInactive: Boolean
+  period: AssociationReportPeriod
+  requirementId: ID
+  startDate: String
+}
+
+"""
+Whether an export is a branded document for circulation or a workbook for analysis
+"""
+enum AssociationReportFormat {
+  EXCEL
+  PDF
+}
+
+input AssociationReportPaginationInput {
+  cursor: String
+  take: Int = 50
+}
+
+"""The period a report covers, as a preset or an explicit range"""
+enum AssociationReportPeriod {
+  CUSTOM
+  LAST_30_DAYS
+  LAST_90_DAYS
+  LAST_YEAR
+  THIS_YEAR
+}
+
+type AssociationReportSummary {
+  atRisk: Int!
+  atRiskChange: Int!
+  atRiskShare: Float!
+  averageCompletion: Float!
+  computedAt: DateTime
+  missingEvidence: Int!
+  missingEvidenceChange: Int!
+  missingEvidenceShare: Float!
+  onTrack: Int!
+  onTrackChange: Int!
+  onTrackShare: Float!
+  periodEnd: DateTime!
+  periodStart: DateTime!
+  renewalReady: Int!
+  renewalReadyChange: Int!
+  renewalReadyShare: Float!
+  totalMembers: Int!
+  totalMembersChange: Int!
+}
+
+"""Which of the six reports an export renders"""
+enum AssociationReportType {
+  CATEGORY_COMPLETION
+  GROUP_PROGRESS
+  MEMBER_PROGRESS
+  MISSING_EVIDENCE
+  OVERVIEW_SUMMARY
+  RENEWAL_READINESS
 }
 
 """How often a requirement's obligation repeats"""
@@ -429,6 +1037,18 @@ input AssociationRequirementIdInput {
   requirementId: ID!
 }
 
+type AssociationRequirementProgressRow {
+  averageCompletedCredits: Float!
+  averagePercent: Float!
+  awaitingReviewCount: Int!
+  daysRemaining: Int
+  dueDate: DateTime
+  memberCount: Int!
+  requiredCredits: Float!
+  requirementId: ID!
+  requirementName: String!
+}
+
 type AssociationRequirementStats {
   draftRequirements: Int!
   membersCovered: Int!
@@ -451,6 +1071,13 @@ type AssociationRequirementTarget {
   memberId: ID
 }
 
+type AssociationReviewResult {
+  activityId: ID!
+  approved: Boolean!
+  memberId: ID!
+  requirementId: ID!
+}
+
 type AssociationSettings {
   associationId: ID!
   atRiskThreshold: Int!
@@ -460,9 +1087,17 @@ type AssociationSettings {
   id: ID!
   onTrackThreshold: Int!
   renewalRequiresReviewedEvidence: Boolean!
+  suppressAllEmail: Boolean!
   updatedAt: DateTime!
   weeklyDigest: Boolean!
   welcomeMessages: Boolean!
+}
+
+type AssociationSettingsImpact {
+  membersChangingBand: Int!
+  membersEnteringAtRisk: Int!
+  membersLeavingAtRisk: Int!
+  totalMembers: Int!
 }
 
 enum AuditAction {
@@ -470,6 +1105,8 @@ enum AuditAction {
   ASSOCIATION_ACCOUNT_ACTIVATED
   ASSOCIATION_ACCOUNT_CREATED
   ASSOCIATION_ACTIVATION_RESENT
+  ASSOCIATION_ACTIVITY_APPROVED
+  ASSOCIATION_ACTIVITY_REJECTED
   ASSOCIATION_SETTINGS_UPDATED
   ORGANIZATION_ACCOUNT_ACTIVATED
   ORGANIZATION_ACCOUNT_CREATED
@@ -942,6 +1579,18 @@ input CreateAssociationAccountInput {
 input CreateAssociationGroupInput {
   description: String
   title: String!
+}
+
+input CreateAssociationLearningContentInput {
+  category: PDUCategory!
+  contentId: ID
+  contentType: ContentType
+  description: String
+  externalProvider: String
+  externalTitle: String
+  externalUrl: String
+  indicativeCredits: Float
+  requirementId: ID
 }
 
 input CreateAssociationRequirementDraftInput {
@@ -1514,6 +2163,7 @@ type Mutation {
   confirmExternalLearning(input: ConfirmExternalLearningInput!): ExternalLearningActivity!
   createAssociationAccount(input: CreateAssociationAccountInput!): AssociationActionResponse!
   createAssociationGroup(input: CreateAssociationGroupInput!): AssociationGroup!
+  createAssociationLearningContent(input: CreateAssociationLearningContentInput!): AssociationLearningContent!
   createAssociationRequirementDraft(input: CreateAssociationRequirementDraftInput!): AssociationRequirement!
   createCalendarEvent(input: CreateCalendarEventInput!): ProfessionalManualCalendarEvent!
   createCourse(input: CreateCourseInput!): Course!
@@ -1531,6 +2181,7 @@ type Mutation {
   createUser(input: CreateUserInput!): User!
   createYouTubeChannel(input: CreateYouTubeChannelInput!): YouTubeChannel!
   createYouTubeVideo(input: CreateYouTubeVideoInput!): YouTubeVideo!
+  deleteAssociationLearningContent(input: AssociationLearningContentIdInput!): AssociationActionResponse!
   deleteCalendarEvent(id: ID!): ProfessionalActionResponse!
   deleteContentReview(input: ContentActionInput!): ContentActionPayload!
   deleteCourse(courseId: String!): Course!
@@ -1555,17 +2206,20 @@ type Mutation {
   login(input: LoginInput!): AuthPayload!
   logout: AuthPayload!
   patchRoadmapDraft(input: PatchRoadmapDraftInput!): ProfessionalRoadmapDraft!
+  publishAssociationLearningContent(input: PublishAssociationLearningContentInput!): AssociationLearningContent!
   publishAssociationRequirement(input: AssociationRequirementIdInput!): AssociationRequirement!
   publishCourse(courseId: String!): Course!
   publishEvent(eventId: String!): Event!
   publishPodcast(podcastId: String!): Podcast!
   publishYouTubeChannel(channelId: String!): YouTubeChannel!
+  recomputeAssociationCompliance: AssociationActionResponse!
   refreshToken: AuthPayload!
   register(input: RegisterInput!): AuthPayload!
   registerEvent(eventId: String!): EventRegistration!
   rejectAdminOrgAccessRequest(input: RejectAdminOrgAccessRequestInput!): AdminOrgAccessRequest!
   removeAdminOrganizationMember(memberId: String!): AdminOrgMember!
   removeFromCart(input: ContentActionInput!): ContentActionPayload!
+  requestAssociationReportExport(input: RequestAssociationReportExportInput!): AssociationGeneratedReport!
   requestEmailChange(input: RequestEmailChangeInput!): AuthPayload!
   requestRoadmapGeneration(draftId: ID!): ProfessionalRoadmapDraft!
   resendAdminOrgAccessRequestNotification(requestId: String!): AdminOrgAccessRequest!
@@ -1580,8 +2234,12 @@ type Mutation {
   restorePodcast(podcastId: String!): Podcast!
   restoreUser(userId: String!): User!
   restoreYouTubeChannel(channelId: String!): YouTubeChannel!
+  retryAssociationReportExport(input: AssociationReportExportIdInput!): AssociationGeneratedReport!
+  reviewAssociationLearningActivity(input: ReviewAssociationLearningActivityInput!): AssociationReviewResult!
+  sendAssociationMessage(input: SendAssociationMessageInput!): AssociationMessageBatch!
   sendRoadmapChatTurn(input: RoadmapChatTurnInput!): ProfessionalRoadmapDraft!
   setAssociationGroupActive(input: SetAssociationGroupActiveInput!): AssociationGroup!
+  setAssociationMemberRequirements(input: SetAssociationMemberRequirementsInput!): AssociationMemberRequirementsResult!
   setAssociationMemberStatus(input: SetAssociationMemberStatusInput!): AssociationMember!
   setProfessionalCertificateCpdPlan(input: SetCertificateCpdPlanInput!): ProfessionalCertificate!
   startProfessionalOnboarding: ProfessionalDashboardProfile!
@@ -1597,8 +2255,11 @@ type Mutation {
   updateAdminOrganizationSettings(input: UpdateAdminOrgSettings!): OrganizationSettings!
   updateAdminProfile(input: UpdateAdminProfile!): AdminProfile!
   updateAdminUserStatus(input: UpdateAdminUserStatus!): AdminUser!
+  updateAssociationComplianceSettings(input: UpdateAssociationComplianceSettingsInput!): AssociationComplianceSettingsPayload!
   updateAssociationGroup(input: UpdateAssociationGroupInput!): AssociationGroup!
+  updateAssociationLearningContent(input: UpdateAssociationLearningContentInput!): AssociationLearningContent!
   updateAssociationMember(input: UpdateAssociationMemberInput!): AssociationMember!
+  updateAssociationNotificationSettings(input: UpdateAssociationNotificationSettingsInput!): AssociationSettings!
   updateAssociationProfile(input: UpdateAssociationProfileInput!): Association!
   updateAssociationRequirementAudience(input: UpdateAssociationRequirementAudienceInput!): AssociationRequirement!
   updateAssociationRequirementCategories(input: UpdateAssociationRequirementCategoriesInput!): AssociationRequirement!
@@ -1634,6 +2295,7 @@ type Mutation {
   upsertProfessionalPduTarget(input: UpsertPduTargetInput!): ProfessionalPduTarget!
   verifyEmailChange(input: VerifyEmailChangeInput!): AuthPayload!
   verifyEmailOtp(input: VerifyEmailOtpInput!): AuthPayload!
+  withdrawAssociationLearningContent(input: AssociationLearningContentIdInput!): AssociationLearningContent!
 }
 
 input MyWishlistInput {
@@ -2109,8 +2771,57 @@ type PaginatedAdminUser {
   totalCount: Int!
 }
 
+type PaginatedAssociationAttentionRows {
+  items: [AssociationAttentionRow!]!
+  pageInfo: AssociationPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedAssociationGeneratedReports {
+  items: [AssociationGeneratedReport!]!
+  pageInfo: AssociationPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedAssociationLearningContents {
+  items: [AssociationLearningContent!]!
+  pageInfo: AssociationPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedAssociationMemberActivities {
+  counts: AssociationActivityCounts!
+  items: [AssociationMemberActivity!]!
+  pageInfo: AssociationPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedAssociationMemberProgress {
+  items: [AssociationMemberProgressRow!]!
+  pageInfo: AssociationPageInfo!
+  totalCount: Int!
+}
+
 type PaginatedAssociationMembers {
   items: [AssociationMember!]!
+  pageInfo: AssociationPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedAssociationMessageHistory {
+  items: [AssociationMessageHistoryRow!]!
+  pageInfo: AssociationPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedAssociationMissingEvidence {
+  items: [AssociationMissingEvidenceRow!]!
+  pageInfo: AssociationPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedAssociationRenewalReadiness {
+  items: [AssociationRenewalReadinessRow!]!
   pageInfo: AssociationPageInfo!
   totalCount: Int!
 }
@@ -3123,6 +3834,12 @@ type ProviderTopEvent {
   views: Int!
 }
 
+input PublishAssociationLearningContentInput {
+  audienceKind: AssociationAudienceKind!
+  groupId: ID
+  learningContentId: ID!
+}
+
 type Query {
   adminAuditLogs(filter: AdminAuditLogFilter, pagination: AdminPagination): PaginatedAdminAuditLogs!
   adminDashboardOverview: AdminDashboardOverview!
@@ -3135,13 +3852,41 @@ type Query {
   adminUserGrowth(mode: String = "DAILY"): [AdminChartPoint!]!
   adminUsers(filter: AdminUserFilter, pagination: AdminPagination): PaginatedAdminUser!
   associationActivationStatus(token: String!): AssociationActivationStatus!
+  associationAttentionLists(associationId: ID): AssociationAttentionLists!
+  associationAttentionMembers(associationId: ID, pagination: AssociationReportPaginationInput, section: AssociationAttentionSection!): PaginatedAssociationAttentionRows!
+  associationCatalogSearch(associationId: ID, input: AssociationCatalogSearchInput!): [AssociationCatalogItem!]!
+  associationCategoryCompletionReport(associationId: ID, filter: AssociationReportFilterInput): [AssociationCategoryProgressRow!]!
+  associationComplianceByGroup(associationId: ID, filter: AssociationReportFilterInput): [AssociationGroupCompliance!]!
+  associationComplianceTrend(associationId: ID, filter: AssociationReportFilterInput): [AssociationComplianceTrendPoint!]!
+  associationGeneratedReport(associationId: ID, exportId: ID!): AssociationGeneratedReport!
+  associationGeneratedReports(associationId: ID, pagination: AssociationReportPaginationInput): PaginatedAssociationGeneratedReports!
+  associationGroupProgressReport(associationId: ID, filter: AssociationReportFilterInput): [AssociationGroupProgressRow!]!
   associationGroups(associationId: ID): [AssociationGroup!]!
+  associationLearningContent(associationId: ID, learningContentId: ID!): AssociationLearningContent!
+  associationLearningContents(associationId: ID, filter: AssociationLearningContentFilterInput, pagination: AssociationPaginationInput): PaginatedAssociationLearningContents!
+  associationMemberActivities(associationId: ID, filter: AssociationMemberActivityFilterInput, memberId: ID!, pagination: AssociationPaginationInput): PaginatedAssociationMemberActivities!
+  associationMemberCompliance(associationId: ID, memberId: ID!): AssociationMemberCompliance!
+  associationMemberComplianceList(associationId: ID, filter: AssociationComplianceFilterInput): [AssociationComplianceSummary!]!
+  associationMemberDistribution(associationId: ID, filter: AssociationReportFilterInput): AssociationMemberDistribution!
+  associationMemberProfile(associationId: ID, memberId: ID!): AssociationMemberProfile!
+  associationMemberProgressReport(associationId: ID, filter: AssociationReportFilterInput, pagination: AssociationReportPaginationInput): PaginatedAssociationMemberProgress!
+  associationMemberRequirementOptions(associationId: ID, memberId: ID!): [AssociationMemberRequirementOption!]!
   associationMemberStats(associationId: ID): AssociationMemberStats!
   associationMembers(associationId: ID, filter: AssociationMemberFilterInput, pagination: AssociationPaginationInput): PaginatedAssociationMembers!
+  associationMessageHistory(associationId: ID, pagination: AssociationReportPaginationInput): PaginatedAssociationMessageHistory!
+  associationMessagePreview(audience: AssociationMessageAudienceInput!, messageType: AssociationMessageType!): AssociationMessagePreview!
+  associationMissingEvidenceReport(associationId: ID, filter: AssociationReportFilterInput, pagination: AssociationReportPaginationInput): PaginatedAssociationMissingEvidence!
+  associationPendingReviews(associationId: ID, filter: AssociationComplianceFilterInput): [AssociationPendingReview!]!
   associationProfile(associationId: ID): Association!
+  associationProgressByCategory(associationId: ID, filter: AssociationReportFilterInput): [AssociationCategoryProgressRow!]!
+  associationRecentActivity(associationId: ID, limit: Int): [AssociationRecentActivity!]!
+  associationRenewalReadinessReport(associationId: ID, filter: AssociationReportFilterInput, pagination: AssociationReportPaginationInput): PaginatedAssociationRenewalReadiness!
+  associationReportSummary(associationId: ID, filter: AssociationReportFilterInput): AssociationReportSummary!
   associationRequirement(associationId: ID, requirementId: ID!): AssociationRequirement!
+  associationRequirementProgressReport(associationId: ID, filter: AssociationReportFilterInput): [AssociationRequirementProgressRow!]!
   associationRequirementStats(associationId: ID): AssociationRequirementStats!
   associationRequirements(associationId: ID, filter: AssociationRequirementFilterInput, pagination: AssociationPaginationInput): PaginatedAssociationRequirements!
+  associationSettings(associationId: ID): AssociationSettings!
   certificationSearch(input: CertificationSearchInput!): [Certification!]!
   contentReviews(contentId: String!, contentType: ContentType!): [ContentReview!]!
   courseById(courseId: String!): Course!
@@ -3246,6 +3991,13 @@ input RejectAdminOrgAccessRequestInput {
   requestId: String!
 }
 
+input RequestAssociationReportExportInput {
+  filter: AssociationReportFilterInput
+  format: AssociationReportFormat!
+  locale: String
+  reportType: AssociationReportType!
+}
+
 input RequestEmailChangeInput {
   newEmail: String!
 }
@@ -3271,6 +4023,12 @@ input ResetPasswordInput {
   confirmPassword: String!
   email: String!
   newPassword: String!
+}
+
+input ReviewAssociationLearningActivityInput {
+  activityId: ID!
+  approve: Boolean!
+  reason: String
 }
 
 type RoadmapChatMessage {
@@ -3407,6 +4165,11 @@ enum Role {
   PROVIDER
 }
 
+input SendAssociationMessageInput {
+  audience: AssociationMessageAudienceInput!
+  messageType: AssociationMessageType!
+}
+
 enum SessionStatus {
   ACTIVE
   EXPIRED
@@ -3416,6 +4179,11 @@ enum SessionStatus {
 input SetAssociationGroupActiveInput {
   groupId: ID!
   isActive: Boolean!
+}
+
+input SetAssociationMemberRequirementsInput {
+  memberId: ID!
+  requirementIds: [ID!]!
 }
 
 input SetAssociationMemberStatusInput {
@@ -3518,17 +4286,48 @@ input UpdateAdminUserStatus {
   userId: String!
 }
 
+input UpdateAssociationComplianceSettingsInput {
+  atRiskThreshold: Int!
+  defaultCreditType: CreditType!
+  dryRun: Boolean
+  expectedUpdatedAt: DateTime!
+  onTrackThreshold: Int!
+  renewalRequiresReviewedEvidence: Boolean!
+}
+
 input UpdateAssociationGroupInput {
   description: String
   groupId: ID!
   title: String
 }
 
+input UpdateAssociationLearningContentInput {
+  category: PDUCategory!
+  contentId: ID
+  contentType: ContentType
+  description: String
+  externalProvider: String
+  externalTitle: String
+  externalUrl: String
+  indicativeCredits: Float
+  learningContentId: ID!
+  requirementId: ID
+}
+
 input UpdateAssociationMemberInput {
+  fullName: String
   groupId: ID
   memberId: ID!
   memberNumber: String
   notes: String
+}
+
+input UpdateAssociationNotificationSettingsInput {
+  complianceReminders: Boolean!
+  expectedUpdatedAt: DateTime!
+  suppressAllEmail: Boolean!
+  weeklyDigest: Boolean!
+  welcomeMessages: Boolean!
 }
 
 input UpdateAssociationProfileInput {

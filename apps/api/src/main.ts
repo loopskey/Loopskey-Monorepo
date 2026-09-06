@@ -2,6 +2,7 @@ import { ConsoleLogger, Logger, ValidationPipe } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "@app/app.module";
+import { resolveCorsOrigins } from "@utils/cors-origins.util";
 
 import cookieParser from "cookie-parser";
 
@@ -27,8 +28,13 @@ async function bootstrap() {
 
   app.use(cookieParser());
 
+  const corsOrigins = resolveCorsOrigins(
+    configService.get<string>("CORS_ORIGIN"),
+    frontendUrl,
+  );
+
   app.enableCors({
-    origin: frontendUrl,
+    origin: corsOrigins,
     credentials: true,
   });
 
@@ -50,6 +56,7 @@ async function bootstrap() {
   logger.log(`🔗 API URL: ${apiUrl}`);
   logger.log(`🧩 GraphQL URL: ${graphqlUrl}`);
   logger.log(`🎨 Frontend URL: ${frontendUrl}`);
+  logger.log(`🛡️ Allowed CORS origins: ${corsOrigins.join(", ")}`);
 }
 
 bootstrap();

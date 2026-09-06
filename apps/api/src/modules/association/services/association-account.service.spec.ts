@@ -151,8 +151,6 @@ describe("AssociationAccountService account creation", () => {
   });
 
   it("turns a lost race on the work email into a domain code, not a Prisma error", async () => {
-    // Two admins submitting the same address: the loser's insert violates the
-    // unique index on User.email, which is the only thing arbitrating them.
     const { service } = setup({
       createOwner: jest.fn().mockRejectedValue(uniqueViolation()),
     });
