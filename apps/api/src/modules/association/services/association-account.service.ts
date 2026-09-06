@@ -217,7 +217,7 @@ export class AssociationAccountService {
     if (configured) return configured;
     const base = this.config.get<string>("APPLICATION_BASE_URL");
     if (!base) throw new Error("APPLICATION_BASE_URL is not configured.");
-    return `${base.replace(/\/$/, "")}/auth/professional`;
+    return `${base.replace(/\/$/, "")}/auth/association`;
   }
 
   private isEmailTaken(error: unknown) {

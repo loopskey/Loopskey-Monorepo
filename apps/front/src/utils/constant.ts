@@ -12,6 +12,7 @@ export const siteLinks = {
   login: "/auth/professional",
   providerAuth: "/auth/provider",
   organizationAuth: "/auth/organization",
+  associationAuth: "/auth/association",
 
   content: "/content",
   about: "/about",

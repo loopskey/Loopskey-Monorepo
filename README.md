@@ -89,43 +89,98 @@ GitHub Actions validates pull requests and pushes to `develop` and `main`.
 Turborepo runs affected lint, type, test, and build tasks across both
 applications; PostgreSQL-backed API E2E tests and GraphQL generated-type drift
 checks run in the same required job.
-Deployment is intentionally not automated because this repository does not
-define a deployment target or environment credentials.
+A push to `main` additionally builds the API and frontend images and publishes
+them to GHCR. Deployment itself stays manual: a host runs `scripts/deploy.sh`.
 
 ## Docker deployment
 
-The production stack contains PostgreSQL, the NestJS API, and the Next.js
-frontend. From the repository root:
+The production stack is PostgreSQL, the NestJS API, and the Next.js frontend,
+described by `compose.production.yaml`. `compose.yaml` is the local variant: it
+carries development defaults for every value, while the production file fails
+loudly when one is missing.
+
+First deployment on a host:
 
 ```bash
 cp .env.docker.example .env.docker
-# Replace every change-me value and set the public production URLs.
-docker compose --env-file .env.docker up --build -d
-docker compose --env-file .env.docker ps
+# Fill in every blank, and set the public HTTPS origins.
+docker compose -f compose.production.yaml --env-file .env.docker up --build -d
 ```
 
-The frontend is exposed on port `3000` and the API on `5700` by default.
-PostgreSQL is intentionally reachable only by other containers.
+Every deployment after that:
+
+```bash
+scripts/deploy.sh
+```
+
+`deploy.sh` dumps the database, refuses to continue when a previous migration
+was left unresolved, fast-forwards the checkout to `origin/main`, pulls the new
+images, restarts the stack, waits for both health checks, and restores the
+previous images if either one fails. `--build` builds on the host instead of
+pulling; `--no-git` deploys the checkout as it is.
+
 Prisma migrations run automatically before each API start. Database data and
 uploaded files live in named Docker volumes and survive container replacement.
 
-For a real deployment, set `PUBLIC_FRONTEND_URL` and
-`NEXT_PUBLIC_GRAPHQL_URL` to the public HTTPS origins, enable
-`COOKIE_SECURE=true`, and put a TLS reverse proxy or platform load balancer in
-front of the exposed services. Because `NEXT_PUBLIC_GRAPHQL_URL` is embedded at
-build time, rebuild the frontend after changing it.
+### Images
 
-Useful operations:
+Pushes to `main` build both images and publish them to GHCR through
+`.github/workflows/images.yml`. Because `NEXT_PUBLIC_GRAPHQL_URL` is baked into
+the frontend bundle at build time, the workflow reads it from the repository
+variable of the same name; changing the public API origin means changing that
+variable and rebuilding.
+
+To deploy published images rather than building on the host, authenticate the
+host to GHCR once and point `.env.docker` at them:
 
 ```bash
-docker compose --env-file .env.docker logs -f
-docker compose --env-file .env.docker pull
-docker compose --env-file .env.docker up --build -d
-docker compose --env-file .env.docker down
+echo "$GHCR_TOKEN" | docker login ghcr.io -u <github-user> --password-stdin
+# in .env.docker
+API_IMAGE=ghcr.io/loopskey/loopskey-monorepo/api:latest
+FRONT_IMAGE=ghcr.io/loopskey/loopskey-monorepo/front:latest
 ```
 
-`docker compose down` keeps the named volumes. Adding `--volumes` deletes the
-database and uploads and should only be used when that data is no longer needed.
+Leaving both blank keeps the locally built `loopskey-api:latest` and
+`loopskey-front:latest`.
+
+### Ports and TLS
+
+Every published port binds to `127.0.0.1`, so a TLS reverse proxy in front of
+the host is required. `CORS_ORIGIN` must list every hostname the frontend is
+reachable on — serving both the apex and the `www` host while allowing only
+`www` fails every request from the apex.
+
+### Recovering a failed migration
+
+`prisma migrate deploy` refuses to apply anything once a migration is recorded
+as started but unfinished, so the API will not start until that row is
+resolved. Check what the migration actually applied, then mark it accordingly:
+
+```bash
+DC="docker compose -f compose.production.yaml --env-file .env.docker"
+$DC run --rm api sh -c '
+  P=$(node -p "encodeURIComponent(process.env.POSTGRES_PASSWORD)")
+  export DATABASE_URL="postgresql://${POSTGRES_USER}:${P}@db:5432/${POSTGRES_DB}"
+  export DIRECT_DATABASE_URL="$DATABASE_URL"
+  npx prisma migrate resolve --rolled-back <migration_name> --schema apps/api/prisma/schema.prisma
+'
+```
+
+Use `--rolled-back` when the migration applied nothing and should run again, and
+`--applied` when it completed but was not recorded. Rehearse the run against a
+restored dump before touching production.
+
+### Useful operations
+
+```bash
+DC="docker compose -f compose.production.yaml --env-file .env.docker"
+$DC logs -f api
+$DC ps
+$DC down
+```
+
+`down` keeps the named volumes. Adding `--volumes` deletes the database and
+uploads and should only be used when that data is no longer needed.
 
 ## Layout
 
@@ -175,5 +230,4 @@ reference one value.
 
 - [`project-overview.md`](context/project-overview.md) — architecture, domains, data model
 - [`coding-standards.md`](context/coding-standards.md) — conventions for both applications
-- [`architecture/`](context/architecture/README.md) — architecture decisions
-- [`monorepo-audit.md`](context/monorepo-audit.md) — monorepo audit and improvement roadmap
+- [`feature-runs/`](context/feature-runs) — execution state for in-flight features

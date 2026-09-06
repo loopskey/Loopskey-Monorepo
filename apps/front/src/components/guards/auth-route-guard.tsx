@@ -9,6 +9,7 @@ import { Loader2 } from "lucide-react";
 const AUTH_GUARD_EXCLUDED_PATHS = [
   "/auth/oauth",
   "/auth/organization/activate",
+  "/auth/association/activate",
 ] as const;
 
 export const AuthRouteGuard = ({ children }: { children: ReactNode }) => {

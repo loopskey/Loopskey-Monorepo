@@ -65,7 +65,7 @@ const setup = (
       (name: string, fallback?: string) =>
         ({
           APPLICATION_BASE_URL: "https://app.example.com",
-          ASSOCIATION_LOGIN_URL: "https://app.example.com/auth/professional",
+          ASSOCIATION_LOGIN_URL: "https://app.example.com/auth/association",
           SUPPORT_EMAIL: "support@example.com",
         })[name] ?? fallback,
     ),
