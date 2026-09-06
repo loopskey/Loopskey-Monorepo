@@ -139,6 +139,19 @@ export class AssociationGroupProgressRowEntity {
   @Field(() => String, { nullable: true }) groupTitle: string | null;
 }
 
+@ObjectType(AssociationGqlObjectNames.ASSOCIATION_REQUIREMENT_PROGRESS_ROW)
+export class AssociationRequirementProgressRowEntity {
+  @Field() requirementName: string;
+  @Field(() => ID) requirementId: string;
+  @Field(() => Int) memberCount: number;
+  @Field(() => Int) awaitingReviewCount: number;
+  @Field(() => Float) requiredCredits: number;
+  @Field(() => Float) averagePercent: number;
+  @Field(() => Float) averageCompletedCredits: number;
+  @Field(() => Date, { nullable: true }) dueDate: Date | null;
+  @Field(() => Int, { nullable: true }) daysRemaining: number | null;
+}
+
 @ObjectType(AssociationGqlObjectNames.ASSOCIATION_MISSING_EVIDENCE_ROW)
 export class AssociationMissingEvidenceRowEntity {
   @Field(() => ID) id: string;

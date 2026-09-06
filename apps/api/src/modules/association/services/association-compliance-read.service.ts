@@ -13,6 +13,10 @@ import { overallFor } from "@association/utils/compliance-attribution.util";
 
 const PENDING_REVIEW_LIMIT = 200;
 
+export const RECENT_ACTIVITY_DEFAULT = 10;
+
+export const RECENT_ACTIVITY_MAX = 50;
+
 const DEFAULT_ON_TRACK_THRESHOLD = 70;
 
 export type ComplianceFilter = {
@@ -240,6 +244,84 @@ export class AssociationComplianceReadService {
     });
 
     return settings?.onTrackThreshold ?? DEFAULT_ON_TRACK_THRESHOLD;
+  }
+
+  async recentActivity(
+    user: TAssociationUser,
+    limit = RECENT_ACTIVITY_DEFAULT,
+    associationId?: string,
+  ) {
+    const association = await this.scope(user, associationId);
+
+    const take = Math.min(Math.max(limit, 1), RECENT_ACTIVITY_MAX);
+
+    const attributions =
+      await this.prisma.associationCreditAttribution.findMany({
+        where: {
+          assignment: {
+            requirement: {
+              associationId: association.id,
+              status: AssociationRequirementStatus.PUBLISHED,
+            },
+            member: { associationId: association.id },
+          },
+        },
+        select: {
+          id: true,
+          state: true,
+          activityId: true,
+          activityDate: true,
+          createdAt: true,
+          creditedAmount: true,
+          assignment: {
+            select: {
+              member: {
+                select: {
+                  id: true,
+                  userId: true,
+                  user: { select: { fullName: true } },
+                },
+              },
+              requirement: { select: { id: true, name: true } },
+            },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+        take,
+      });
+
+    if (!attributions.length) return [];
+
+    const activities = await this.activities.activitiesForMembers({
+      userIds: [
+        ...new Set(attributions.map((row) => row.assignment.member.userId)),
+      ],
+    });
+
+    const byId = new Map(activities.map((activity) => [activity.id, activity]));
+
+    return attributions.flatMap((row) => {
+      const activity = byId.get(row.activityId);
+      if (!activity) return [];
+
+      return [
+        {
+          id: row.id,
+          state: row.state,
+          activityId: row.activityId,
+          activityTitle: activity.title,
+          activityDate: row.activityDate,
+          recordedAt: row.createdAt,
+          credits: activity.credits,
+          creditedAmount: row.creditedAmount,
+          category: activity.category,
+          memberId: row.assignment.member.id,
+          memberName: row.assignment.member.user.fullName,
+          requirementId: row.assignment.requirement.id,
+          requirementName: row.assignment.requirement.name,
+        },
+      ];
+    });
   }
 
   async pendingReviews(

@@ -938,6 +938,23 @@ export type AssociationPendingReview = {
   requirementName: Scalars["String"]["output"];
 };
 
+export type AssociationRecentActivity = {
+  __typename?: "AssociationRecentActivity";
+  activityDate: Scalars["DateTime"]["output"];
+  activityId: Scalars["ID"]["output"];
+  activityTitle: Scalars["String"]["output"];
+  category: PduCategory;
+  creditedAmount: Scalars["Float"]["output"];
+  credits: Scalars["Float"]["output"];
+  id: Scalars["ID"]["output"];
+  memberId: Scalars["ID"]["output"];
+  memberName?: Maybe<Scalars["String"]["output"]>;
+  recordedAt: Scalars["DateTime"]["output"];
+  requirementId: Scalars["ID"]["output"];
+  requirementName: Scalars["String"]["output"];
+  state: AssociationAttributionState;
+};
+
 export type AssociationRenewalReadinessRow = {
   __typename?: "AssociationRenewalReadinessRow";
   awaitingReviewCount: Scalars["Int"]["output"];
@@ -1095,6 +1112,19 @@ export type AssociationRequirementFilterInput = {
 
 export type AssociationRequirementIdInput = {
   requirementId: Scalars["ID"]["input"];
+};
+
+export type AssociationRequirementProgressRow = {
+  __typename?: "AssociationRequirementProgressRow";
+  averageCompletedCredits: Scalars["Float"]["output"];
+  averagePercent: Scalars["Float"]["output"];
+  awaitingReviewCount: Scalars["Int"]["output"];
+  daysRemaining?: Maybe<Scalars["Int"]["output"]>;
+  dueDate?: Maybe<Scalars["DateTime"]["output"]>;
+  memberCount: Scalars["Int"]["output"];
+  requiredCredits: Scalars["Float"]["output"];
+  requirementId: Scalars["ID"]["output"];
+  requirementName: Scalars["String"]["output"];
 };
 
 export type AssociationRequirementStats = {
@@ -4640,9 +4670,11 @@ export type Query = {
   associationPendingReviews: Array<AssociationPendingReview>;
   associationProfile: Association;
   associationProgressByCategory: Array<AssociationCategoryProgressRow>;
+  associationRecentActivity: Array<AssociationRecentActivity>;
   associationRenewalReadinessReport: PaginatedAssociationRenewalReadiness;
   associationReportSummary: AssociationReportSummary;
   associationRequirement: AssociationRequirement;
+  associationRequirementProgressReport: Array<AssociationRequirementProgressRow>;
   associationRequirementStats: AssociationRequirementStats;
   associationRequirements: PaginatedAssociationRequirements;
   certificationSearch: Array<Certification>;
@@ -4915,6 +4947,11 @@ export type QueryAssociationProgressByCategoryArgs = {
   filter?: InputMaybe<AssociationReportFilterInput>;
 };
 
+export type QueryAssociationRecentActivityArgs = {
+  associationId?: InputMaybe<Scalars["ID"]["input"]>;
+  limit?: InputMaybe<Scalars["Int"]["input"]>;
+};
+
 export type QueryAssociationRenewalReadinessReportArgs = {
   associationId?: InputMaybe<Scalars["ID"]["input"]>;
   filter?: InputMaybe<AssociationReportFilterInput>;
@@ -4929,6 +4966,11 @@ export type QueryAssociationReportSummaryArgs = {
 export type QueryAssociationRequirementArgs = {
   associationId?: InputMaybe<Scalars["ID"]["input"]>;
   requirementId: Scalars["ID"]["input"];
+};
+
+export type QueryAssociationRequirementProgressReportArgs = {
+  associationId?: InputMaybe<Scalars["ID"]["input"]>;
+  filter?: InputMaybe<AssociationReportFilterInput>;
 };
 
 export type QueryAssociationRequirementStatsArgs = {

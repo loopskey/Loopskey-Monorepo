@@ -5206,11 +5206,86 @@
     "overview": {
       "title": "Association overview",
       "description": "Your association's home. Members, requirements and compliance reporting all start here.",
-      "comingSoon": "Counts, compliance charts and the needs-attention list arrive with the overview phase.",
-      "loadFailed": "We could not load your association just now. Refresh the page to try again.",
-      "contactEmail": "Contact email",
-      "country": "Country",
-      "website": "Website"
+      "retry": "Try again",
+      "cards": {
+        "error": "We could not load your headline counts just now.",
+        "members": {
+          "title": "Members",
+          "meaning": "Everyone invited to your association, active or not yet activated.",
+          "action": "Open the roster"
+        },
+        "requirements": {
+          "title": "Requirements",
+          "meaning": "The obligations you have defined, including drafts.",
+          "action": "Open requirements"
+        },
+        "learningContent": {
+          "title": "Learning content",
+          "meaning": "What you have put in front of members to earn credits.",
+          "action": "Open the library"
+        }
+      },
+      "charts": {
+        "error": "We could not load this chart just now."
+      },
+      "attention": {
+        "title": "Needs your attention",
+        "description": "The five lists the Messages tab can act on, counted for you here.",
+        "error": "We could not count what needs attention just now.",
+        "openTab": "Open Messages",
+        "settled": "Nothing is waiting on you. Every list is clear."
+      },
+      "requirements": {
+        "title": "Active requirements",
+        "description": "How far your membership has got against each published requirement.",
+        "error": "We could not load requirement progress just now.",
+        "openTab": "Open requirements",
+        "empty": "No requirement is published yet, so there is nothing to measure members against.",
+        "emptyAction": "Define a requirement",
+        "members": "{{count}} members",
+        "daysLeft": "{{days}} days left",
+        "overdue": "{{days}} days past the deadline",
+        "noDeadline": "No deadline set",
+        "progressLabel": "Average completion of {{name}}",
+        "awaitingReview": "{{count}} awaiting review",
+        "truncated": "Showing {{shown}} of {{total}}. Open the requirements tab to see the rest.",
+        "credits": "{{earned}} of {{required}} credits on average"
+      },
+      "activity": {
+        "title": "Recent activity",
+        "description": "The latest learning members recorded against your requirements.",
+        "error": "We could not load recent activity just now.",
+        "openTab": "Open the roster",
+        "empty": "No member has recorded learning against a requirement yet. Publishing content members can complete is the fastest way to start.",
+        "emptyAction": "Open the library",
+        "credits": "{{credits}} credits",
+        "review": "Review",
+        "states": {
+          "COUNTED": "Counted",
+          "AWAITING_REVIEW": "Awaiting review",
+          "REJECTED": "Rejected"
+        }
+      },
+      "guided": {
+        "title": "Let's get your association set up",
+        "description": "Three steps stand between you and a dashboard that tells you where your membership stands.",
+        "step": "Step",
+        "members": {
+          "title": "Invite your members",
+          "body": "Nothing can be measured until the people you are measuring are here.",
+          "action": "Invite members"
+        },
+        "requirements": {
+          "title": "Define a requirement",
+          "body": "Say how many credits members owe you, over what period, and who it applies to.",
+          "action": "Create a requirement"
+        },
+        "learningContent": {
+          "title": "Publish learning content",
+          "body": "Give members somewhere to earn what you have just asked of them.",
+          "action": "Add content"
+        }
+      }
     },
     "members": {
       "title": "Members",

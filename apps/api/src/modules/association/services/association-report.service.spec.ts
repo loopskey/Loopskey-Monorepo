@@ -707,4 +707,139 @@ describe("AssociationReportService", () => {
       expect(second.pageInfo.nextCursor).toBe(null);
     });
   });
+
+  describe("requirement progress", () => {
+    it("covers exactly the members the member report covers", async () => {
+      const members = [
+        member({ id: "member-1", userId: "user-1" }),
+        member({ id: "member-2", userId: "user-2" }),
+        member({ id: "member-3", userId: "user-3" }),
+      ];
+
+      const options = {
+        members,
+        assignments: members.map((row, index) =>
+          assignment({ id: `assign-${index}`, memberId: row.id as string }),
+        ),
+        attributions: [],
+      };
+
+      const rows = await setup(options).service.requirementProgressReport(
+        owner,
+        THIS_YEAR,
+      );
+
+      const report = await setup(options).service.memberProgressReport(
+        owner,
+        THIS_YEAR,
+      );
+
+      expect(rows).toHaveLength(1);
+      expect(rows[0].memberCount).toBe(report.totalCount);
+    });
+
+    it("weights the average by credits rather than averaging percentages", async () => {
+      const { service } = setup({
+        members: [
+          member({ id: "member-1", userId: "user-1" }),
+          member({ id: "member-2", userId: "user-2" }),
+        ],
+        assignments: [
+          assignment({ id: "assign-1", memberId: "member-1" }),
+          assignment({ id: "assign-2", memberId: "member-2" }),
+        ],
+        attributions: [
+          attribution({ assignmentId: "assign-1", creditedAmount: 10 }),
+          attribution({ assignmentId: "assign-2", creditedAmount: 0 }),
+        ],
+      });
+
+      const [row] = await service.requirementProgressReport(owner, THIS_YEAR);
+
+      expect(row.memberCount).toBe(2);
+      expect(row.requiredCredits).toBe(10);
+      expect(row.averagePercent).toBe(50);
+      expect(row.averageCompletedCredits).toBe(5);
+    });
+
+    it("reports the earliest deadline any member is holding", async () => {
+      const { service } = setup({
+        members: [
+          member({ id: "member-1", userId: "user-1" }),
+          member({ id: "member-2", userId: "user-2" }),
+        ],
+        assignments: [
+          assignment({
+            id: "assign-1",
+            memberId: "member-1",
+            dueDate: new Date("2026-12-31T00:00:00.000Z"),
+          }),
+          assignment({
+            id: "assign-2",
+            memberId: "member-2",
+            dueDate: new Date("2026-03-31T00:00:00.000Z"),
+          }),
+        ],
+        attributions: [],
+      });
+
+      const [row] = await service.requirementProgressReport(owner, THIS_YEAR);
+
+      expect(row.dueDate).toEqual(new Date("2026-03-31T00:00:00.000Z"));
+    });
+
+    it("puts the soonest deadline first and an undated requirement last", async () => {
+      const requirementOf = (id: string, name: string) => ({
+        id,
+        name,
+        totalRequiredCredits: 10,
+        categories: [],
+      });
+
+      const { service } = setup({
+        assignments: [
+          assignment({
+            id: "assign-late",
+            dueDate: new Date("2026-12-31T00:00:00.000Z"),
+            requirement: requirementOf("req-late", "Annual CPD"),
+          }),
+          assignment({
+            id: "assign-none",
+            dueDate: null,
+            requirement: requirementOf("req-none", "Ethics"),
+          }),
+          assignment({
+            id: "assign-soon",
+            dueDate: new Date("2026-03-31T00:00:00.000Z"),
+            requirement: requirementOf("req-soon", "Safety"),
+          }),
+        ],
+        attributions: [],
+      });
+
+      const rows = await service.requirementProgressReport(owner, THIS_YEAR);
+
+      expect(rows.map((row) => row.requirementId)).toEqual([
+        "req-soon",
+        "req-late",
+        "req-none",
+      ]);
+    });
+
+    it("counts what is waiting on the association rather than on the member", async () => {
+      const { service } = setup({
+        attributions: [
+          attribution({
+            creditedAmount: 4,
+            state: AssociationAttributionState.AWAITING_REVIEW,
+          }),
+        ],
+      });
+
+      const [row] = await service.requirementProgressReport(owner, THIS_YEAR);
+
+      expect(row.awaitingReviewCount).toBe(1);
+      expect(row.averageCompletedCredits).toBe(0);
+    });
+  });
 });

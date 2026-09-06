@@ -5206,12 +5206,87 @@
     },
     "overview": {
       "title": "Vue d'ensemble de l'association",
-      "description": "L'accueil de votre association. Les membres, les exigences et le suivi de conformité commencent ici.",
-      "comingSoon": "Les compteurs, les graphiques de conformité et la liste des points à traiter arriveront avec la phase Vue d'ensemble.",
-      "loadFailed": "Impossible de charger votre association pour le moment. Actualisez la page pour réessayer.",
-      "contactEmail": "Adresse de contact",
-      "country": "Pays",
-      "website": "Site web"
+      "description": "L'accueil de votre association. Membres, exigences et rapports de conformité commencent ici.",
+      "retry": "Réessayer",
+      "cards": {
+        "error": "Nous n'avons pas pu charger vos chiffres clés pour le moment.",
+        "members": {
+          "title": "Membres",
+          "meaning": "Toutes les personnes invitées dans votre association, activées ou non.",
+          "action": "Ouvrir la liste"
+        },
+        "requirements": {
+          "title": "Exigences",
+          "meaning": "Les obligations que vous avez définies, brouillons compris.",
+          "action": "Ouvrir les exigences"
+        },
+        "learningContent": {
+          "title": "Contenu de formation",
+          "meaning": "Ce que vous proposez aux membres pour obtenir des crédits.",
+          "action": "Ouvrir la bibliothèque"
+        }
+      },
+      "charts": {
+        "error": "Nous n'avons pas pu charger ce graphique pour le moment."
+      },
+      "attention": {
+        "title": "Demande votre attention",
+        "description": "Les cinq listes sur lesquelles l'onglet Messages peut agir, comptées ici.",
+        "error": "Nous n'avons pas pu compter ce qui demande votre attention pour le moment.",
+        "openTab": "Ouvrir Messages",
+        "settled": "Rien ne vous attend. Toutes les listes sont vides."
+      },
+      "requirements": {
+        "title": "Exigences actives",
+        "description": "Où en sont vos membres pour chaque exigence publiée.",
+        "error": "Nous n'avons pas pu charger la progression des exigences pour le moment.",
+        "openTab": "Ouvrir les exigences",
+        "empty": "Aucune exigence n'est publiée, il n'y a donc rien à mesurer chez vos membres.",
+        "emptyAction": "Définir une exigence",
+        "members": "{{count}} membres",
+        "daysLeft": "{{days}} jours restants",
+        "overdue": "{{days}} jours après l'échéance",
+        "noDeadline": "Aucune échéance définie",
+        "progressLabel": "Progression moyenne de {{name}}",
+        "awaitingReview": "{{count}} en attente d'examen",
+        "truncated": "{{shown}} sur {{total}} affichées. Ouvrez l'onglet des exigences pour voir le reste.",
+        "credits": "{{earned}} crédits sur {{required}} en moyenne"
+      },
+      "activity": {
+        "title": "Activité récente",
+        "description": "Les dernières formations enregistrées par vos membres pour vos exigences.",
+        "error": "Nous n'avons pas pu charger l'activité récente pour le moment.",
+        "openTab": "Ouvrir la liste",
+        "empty": "Aucun membre n'a encore enregistré de formation pour une exigence. Publier du contenu à suivre est le moyen le plus rapide de démarrer.",
+        "emptyAction": "Ouvrir la bibliothèque",
+        "credits": "{{credits}} crédits",
+        "review": "Examiner",
+        "states": {
+          "COUNTED": "Comptabilisée",
+          "AWAITING_REVIEW": "En attente d'examen",
+          "REJECTED": "Rejetée"
+        }
+      },
+      "guided": {
+        "title": "Mettons votre association en place",
+        "description": "Trois étapes vous séparent d'un tableau de bord qui vous dit où en sont vos membres.",
+        "step": "Étape",
+        "members": {
+          "title": "Invitez vos membres",
+          "body": "Rien ne peut être mesuré tant que les personnes concernées ne sont pas là.",
+          "action": "Inviter des membres"
+        },
+        "requirements": {
+          "title": "Définissez une exigence",
+          "body": "Indiquez combien de crédits vos membres doivent obtenir, sur quelle période et pour qui.",
+          "action": "Créer une exigence"
+        },
+        "learningContent": {
+          "title": "Publiez du contenu",
+          "body": "Donnez à vos membres un moyen d'obtenir ce que vous venez de leur demander.",
+          "action": "Ajouter du contenu"
+        }
+      }
     },
     "members": {
       "title": "Membres",

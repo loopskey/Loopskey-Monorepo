@@ -2648,6 +2648,7 @@ model AssociationCreditAttribution {
   @@index([activityId])
   @@index([categoryId])
   @@index([state])
+  @@index([assignmentId, createdAt])
 }
 
 /// Where a member should go to earn the credits a requirement asks for.
