@@ -66,6 +66,7 @@ const createService = (prisma = createPrismaMock()) => {
       remove: jest.fn().mockResolvedValue(undefined),
       resolve: jest.fn(),
       exists: jest.fn(),
+      read: jest.fn(),
     },
   );
   return { service, prisma };

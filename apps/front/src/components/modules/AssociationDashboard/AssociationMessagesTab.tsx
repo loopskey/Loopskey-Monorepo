@@ -4,10 +4,11 @@ import { AssociationAttentionSectionCard } from "@modules/AssociationDashboard/p
 import { AssociationMessagePreviewDialog } from "@modules/AssociationDashboard/parts/association-message-preview-dialog";
 import { AssociationMessageHistory } from "@modules/AssociationDashboard/parts/association-message-history";
 import { AssociationAttentionStrip } from "@modules/AssociationDashboard/parts/association-attention-strip";
-import { AssociationReadyReports } from "@modules/AssociationDashboard/parts/association-ready-reports";
 import { useAssociationMessagesTab } from "@hooks/useAssociationMessagesTab";
+import { AssociationReadyReports } from "@modules/AssociationDashboard/parts/association-ready-reports";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
+import Link from "next/link";
 
 import * as M from "@utils/association-messages";
 import * as L from "lucide-react";
@@ -15,7 +16,7 @@ import * as L from "lucide-react";
 const AssociationMessagesTab = () => {
   const hook = useAssociationMessagesTab();
 
-  const { t, counts, isListsError, retryLists } = hook;
+  const { t, counts, isListsError, retryLists, isEmailSuppressed } = hook;
 
   const label = (key: string, vars?: Record<string, string | number>) =>
     t(`associationDashboard.messages.${key}`, vars);
@@ -77,6 +78,22 @@ const AssociationMessagesTab = () => {
   return (
     <div className="space-y-6">
       {header}
+
+      {isEmailSuppressed && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-destructive/40 bg-destructive/5 p-4">
+          <p role="alert" className="text-sm text-muted-foreground">
+            <L.MailX className="mr-2 inline h-4 w-4 text-destructive" />
+            {label("suppressed")}
+          </p>
+
+          <Button size="sm" radius="xl" variant="glass" asChild>
+            <Link href="/dashboard/association?tab=settings">
+              <L.Settings className="h-4 w-4" />
+              {label("suppressedAction")}
+            </Link>
+          </Button>
+        </div>
+      )}
 
       <AssociationAttentionStrip hook={hook} />
 

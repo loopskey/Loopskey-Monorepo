@@ -191,8 +191,6 @@ describe("AssociationMemberService invitations", () => {
   });
 
   it("answers a lost race with the winning row rather than a Prisma error", async () => {
-    // The unique index on (association, user) is the arbiter. Nothing read the
-    // membership first, so the loser learns it lost from the constraint.
     const winner = memberRow({
       id: "member-winner",
       status: AssociationMemberStatus.PENDING_ACTIVATION,

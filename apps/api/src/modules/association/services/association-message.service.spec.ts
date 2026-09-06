@@ -3,6 +3,7 @@ import { AssociationMessageType, Prisma, Role } from "@prisma/client";
 import { AssociationAttentionService } from "@association/services/association-attention.service";
 import { AssociationMessageSkipReason } from "@association/enums/association-attention.enum";
 import { AssociationAttentionSection } from "@association/enums/association-attention.enum";
+import { AssociationSettingsService } from "@association/services/association-settings.service";
 import { AssociationAccessService } from "@association/services/association-access.service";
 import { AssociationMessageService } from "@association/services/association-message.service";
 import { cooldownBucketFor } from "@association/services/association-message.service";
@@ -67,9 +68,11 @@ const setup = ({
   identities,
   languages = [],
   transaction,
+  suppressAllEmail = false,
 }: {
   rows?: AttentionRow[];
   recent?: { memberId: string }[];
+  suppressAllEmail?: boolean;
   identities?: {
     id: string;
     email: string | null;
@@ -114,6 +117,10 @@ const setup = ({
       .mockResolvedValue({ id: "assoc-1", name: "Institute" }),
   };
 
+  const settings = {
+    suppressesEmail: jest.fn().mockResolvedValue(suppressAllEmail),
+  };
+
   const attention = { rowsFor: jest.fn().mockResolvedValue(rows) };
 
   const outbox = { append: jest.fn().mockResolvedValue({ id: "event-1" }) };
@@ -150,11 +157,13 @@ const setup = ({
     identity,
     professional,
     transaction: prisma.$transaction as jest.Mock,
+    settings,
     service: new AssociationMessageService(
       prisma as unknown as PrismaService,
       config as unknown as ConfigService,
       outbox as unknown as OutboxService,
       access as unknown as AssociationAccessService,
+      settings as unknown as AssociationSettingsService,
       attention as unknown as AssociationAttentionService,
       identity as unknown as IdentityProfileApi,
       professional as unknown as ProfessionalComplianceApi,
@@ -475,6 +484,48 @@ describe("AssociationMessageService", () => {
       expect(history.items[0]?.state).toBe(
         AssociationMessageDeliveryState.SENT,
       );
+    });
+  });
+
+  describe("suppressed email", () => {
+    it("delivers nothing and reports every recipient with the reason", async () => {
+      const { service, create, outbox } = setup({
+        rows: [row(1), row(2), row(3)],
+        suppressAllEmail: true,
+      });
+
+      const outcome = await service.send(owner, TYPE, audience);
+
+      expect(outcome.acceptedCount).toBe(0);
+      expect(outcome.skippedCount).toBe(3);
+      expect(
+        outcome.skipped.every(
+          (one) => one.reason === AssociationMessageSkipReason.EMAIL_SUPPRESSED,
+        ),
+      ).toBe(true);
+      expect(create).not.toHaveBeenCalled();
+      expect(outbox.append).not.toHaveBeenCalled();
+    });
+
+    it("never asks the identity port for an address it may not use", async () => {
+      const { service, identity } = setup({
+        rows: [row(1)],
+        suppressAllEmail: true,
+      });
+
+      await service.send(owner, TYPE, audience);
+
+      expect(identity.recipients).not.toHaveBeenCalled();
+    });
+
+    it("shows the preview the same suppression rather than a body", async () => {
+      const { service } = setup({ rows: [row(1)], suppressAllEmail: true });
+
+      const preview = await service.preview(owner, TYPE, audience);
+
+      expect(preview.recipientCount).toBe(0);
+      expect(preview.skippedCount).toBe(1);
+      expect(preview.body).toBe(null);
     });
   });
 });

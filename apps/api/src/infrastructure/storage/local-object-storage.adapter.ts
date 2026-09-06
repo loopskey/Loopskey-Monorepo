@@ -1,4 +1,4 @@
-import { access, mkdir, rm, writeFile } from "fs/promises";
+import { access, mkdir, readFile, rm, writeFile } from "fs/promises";
 import { ObjectStorageNamespace } from "./object-storage.port";
 import { join, resolve, sep } from "path";
 import { ObjectStoragePort } from "./object-storage.port";
@@ -21,6 +21,10 @@ export class LocalObjectStorageAdapter implements ObjectStoragePort {
         process.env.REPORT_STORAGE_DIR ??
         join(process.cwd(), "uploads", "reports")
       );
+    if (namespace === "logo")
+      return (
+        process.env.LOGO_UPLOAD_DIR ?? join(process.cwd(), "uploads", "logos")
+      );
     return (
       process.env.CERTIFICATE_UPLOAD_DIR ??
       join(process.cwd(), "uploads", "certificate")
@@ -38,6 +42,10 @@ export class LocalObjectStorageAdapter implements ObjectStoragePort {
   async store(namespace: ObjectStorageNamespace, key: string, data: Buffer) {
     await mkdir(resolve(this.root(namespace)), { recursive: true });
     await writeFile(this.resolve(namespace, key), data);
+  }
+
+  read(namespace: ObjectStorageNamespace, key: string) {
+    return readFile(this.resolve(namespace, key));
   }
 
   remove(namespace: ObjectStorageNamespace, key: string) {

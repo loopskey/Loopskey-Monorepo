@@ -6071,7 +6071,8 @@
         "COOLDOWN": "Already sent this message recently",
         "NOT_IN_LIST": "No longer in this list",
         "NO_VERIFIED_EMAIL": "No verified email address",
-        "INACTIVE_ACCOUNT": "Account is not active"
+        "INACTIVE_ACCOUNT": "Account is not active",
+        "EMAIL_SUPPRESSED": "Association email is suppressed"
       },
       "errors": {
         "typeUnknown": "That message does not belong to this list.",
@@ -6090,11 +6091,103 @@
           "title": "Nothing sent yet",
           "body": "Once you send a reminder or a welcome, every recipient's copy is listed here with its state."
         }
-      }
+      },
+      "suppressed": "All association email is suppressed in your settings, so a send here records every recipient as skipped.",
+      "suppressedAction": "Open settings"
     },
     "settings": {
       "title": "Settings",
-      "comingSoon": "Association profile, compliance defaults and notification switches arrive in a later release."
+      "description": "Your profile, your branding, and the thresholds every figure on this dashboard is measured against.",
+      "retry": "Try again",
+      "profile": {
+        "title": "Association profile",
+        "description": "Who you are. The name and logo appear on every report you generate.",
+        "save": "Save profile",
+        "saved": "Profile saved.",
+        "name": "Association name",
+        "country": "Country",
+        "website": "Website",
+        "contactEmail": "Contact email",
+        "contactEmailHint": "Shown to members in the messages sent on your behalf.",
+        "descriptionField": "Description"
+      },
+      "branding": {
+        "title": "Logo",
+        "description": "Used on the dashboard and stamped on the reports you export.",
+        "upload": "Upload a logo",
+        "remove": "Remove",
+        "saved": "Logo updated.",
+        "removed": "Logo removed.",
+        "failed": "We could not update the logo just now.",
+        "alt": "Your association's logo",
+        "rules": "{{types}}, up to {{limit}} MB.",
+        "reportNote": "Only a logo uploaded here is placed on a report. A website address typed into the profile is never fetched.",
+        "tooLarge": "That image is larger than {{limit}} MB.",
+        "wrongType": "A logo must be one of {{types}}."
+      },
+      "compliance": {
+        "title": "Compliance defaults",
+        "description": "How progress is classified. These change how members are grouped, never how many credits they owe.",
+        "review": "Review changes",
+        "saved": "Compliance defaults saved.",
+        "defaultCreditType": "Default credit type",
+        "defaultCreditTypeHint": "Applied to a new requirement unless you change it there.",
+        "onTrackThreshold": "On-track threshold",
+        "onTrackThresholdHint": "At or above this percentage a member counts as on track.",
+        "atRiskThreshold": "At-risk threshold",
+        "atRiskThresholdHint": "Below this percentage a member appears on the Messages tab's attention lists.",
+        "renewalRequiresReviewedEvidence": "Renewal needs every review settled",
+        "renewalRequiresReviewedEvidenceHint": "A member with evidence still awaiting your decision is held back from renewal ready.",
+        "orderInvalid": "The at-risk threshold must sit below the on-track threshold.",
+        "creditTypes": {
+          "CPD": "CPD",
+          "PDU": "PDU"
+        }
+      },
+      "notifications": {
+        "title": "Notifications",
+        "description": "What the platform is allowed to send on your behalf.",
+        "save": "Save notifications",
+        "saved": "Notification preferences saved.",
+        "suppressAllEmail": "Suppress all association email",
+        "suppressAllEmailHint": "Overrides everything below. Nothing you author reaches a member while this is on.",
+        "suppressAllActive": "While this is on, the three preferences below have no effect and every send is recorded as skipped.",
+        "complianceReminders": "Compliance reminders",
+        "complianceRemindersHint": "Nudges to members who are behind on a requirement.",
+        "welcomeMessages": "Welcome messages",
+        "welcomeMessagesHint": "A greeting to members who have just joined.",
+        "weeklyDigest": "Weekly digest",
+        "weeklyDigestHint": "A summary of where your membership stands."
+      },
+      "account": {
+        "title": "Your account",
+        "description": "The owner account for this association. One owner, as your account was created.",
+        "email": "Account email",
+        "status": "Status",
+        "changePassword": "Change password",
+        "changeEmail": "Change email"
+      },
+      "confirm": {
+        "title": "Apply this threshold change?",
+        "body": "Nothing is saved until you confirm. Here is what moves.",
+        "change": "{{from}}% to {{to}}%",
+        "movingBand": "{{count}} of {{total}} members change band.",
+        "enteringAtRisk": "{{count}} members join the attention lists.",
+        "leavingAtRisk": "{{count}} members leave the attention lists.",
+        "creditsUnchanged": "No credit is added or removed. Reports already generated keep the figures they were generated with.",
+        "cancel": "Cancel",
+        "apply": "Apply the change"
+      },
+      "errors": {
+        "loadFailed": "We could not load your settings just now.",
+        "notFound": "This association has no settings record.",
+        "stale": "These settings changed while you were editing them. Reload and try again.",
+        "thresholdOrder": "The at-risk threshold must sit below the on-track threshold.",
+        "thresholdRange": "A threshold is a whole number between 1 and 100.",
+        "logoType": "That file type cannot be used as a logo.",
+        "logoSize": "That image is too large to use as a logo.",
+        "logoNotFound": "That logo is no longer available."
+      }
     }
   },
   "adminDashboard": {

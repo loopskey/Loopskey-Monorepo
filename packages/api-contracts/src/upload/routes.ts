@@ -54,3 +54,11 @@ export const associationReportDownloadUrl = (origin: string, id: string) =>
     origin,
     `${ASSOCIATION_REPORT_FILES_ROUTE}/${encodeURIComponent(id)}/download`,
   );
+
+export const ASSOCIATION_LOGO_ROUTE = "association/logo";
+
+export const associationLogoPath = (storageKey: string) =>
+  `/${ASSOCIATION_LOGO_ROUTE}/${encodeURIComponent(storageKey)}`;
+
+export const associationLogoUploadUrl = (origin: string) =>
+  join(origin, ASSOCIATION_LOGO_ROUTE);

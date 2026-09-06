@@ -82,6 +82,22 @@ const ASSOCIATION_ERROR_TRANSLATION_KEYS: Partial<
     "associationDashboard.messages.skipReasons.COOLDOWN",
   [AssociationMessageCode.MESSAGE_DELIVERY_FAILED]:
     "associationDashboard.messages.errors.deliveryFailed",
+  [AssociationMessageCode.MESSAGE_EMAIL_SUPPRESSED]:
+    "associationDashboard.messages.skipReasons.EMAIL_SUPPRESSED",
+  [AssociationMessageCode.SETTINGS_NOT_FOUND]:
+    "associationDashboard.settings.errors.notFound",
+  [AssociationMessageCode.SETTINGS_STALE]:
+    "associationDashboard.settings.errors.stale",
+  [AssociationMessageCode.THRESHOLD_ORDER_INVALID]:
+    "associationDashboard.settings.errors.thresholdOrder",
+  [AssociationMessageCode.THRESHOLD_OUT_OF_RANGE]:
+    "associationDashboard.settings.errors.thresholdRange",
+  [AssociationMessageCode.LOGO_INVALID_TYPE]:
+    "associationDashboard.settings.errors.logoType",
+  [AssociationMessageCode.LOGO_TOO_LARGE]:
+    "associationDashboard.settings.errors.logoSize",
+  [AssociationMessageCode.LOGO_NOT_FOUND]:
+    "associationDashboard.settings.errors.logoNotFound",
 };
 
 const KNOWN_CODES = new Set<string>(Object.values(AssociationMessageCode));

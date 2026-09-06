@@ -216,8 +216,6 @@ model OtpCode {
   @@index([destination])
   @@index([purpose])
   @@index([expiresAt])
-  // Organization activation resolves a link straight from its hashed token, so
-  // this is the only OTP lookup that has no user or destination to narrow it.
   @@index([codeHash, purpose])
 }
 
@@ -271,42 +269,40 @@ enum ExperienceRange {
 }
 
 enum SkillLevel {
-  BEGINNER
-  INTERMEDIATE
-  ADVANCED
   EXPERT
+  BEGINNER
+  ADVANCED
+  INTERMEDIATE
 }
 
 enum LearningFormat {
+  VIDEO
   COURSE
   WEBINAR
-  WORKSHOP
-  VIDEO
   PODCAST
   ARTICLE
+  WORKSHOP
 }
 
 enum LearningTimeCommitment {
+  FOUR_TO_SIX_HOURS
   LESS_THAN_ONE_HOUR
   ONE_TO_THREE_HOURS
-  FOUR_TO_SIX_HOURS
   SEVEN_TO_TEN_HOURS
   MORE_THAN_TEN_HOURS
 }
 
 enum LearningBudgetPreference {
-  FREE_ONLY
-  MIXED_FREE_AND_PAID
   PREMIUM
+  FREE_ONLY
   EMPLOYER_SPONSORED
+  MIXED_FREE_AND_PAID
 }
 
-// What the professional asked Loopskey to help them with. Drives onboarding
-// step count and personalisation; editable from the profile afterwards.
 enum ProfessionalGoal {
-  MAINTAIN_CERTIFICATION
   GROW_IN_CURRENT_ROLE
   PREPARE_FOR_NEXT_ROLE
+  MAINTAIN_CERTIFICATION
   EXPLORE_PROFESSIONAL_PATH
 }
 
@@ -315,13 +311,11 @@ model ProfessionalProfile {
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Basic profile
   linkedInUrl String?
   countryCode String?
   language    AppLanguage?
   timeZone    String?
 
-  // Professional details
   profession          String?
   industry            ProfessionalIndustry?
   currentRole         String?
@@ -334,7 +328,6 @@ model ProfessionalProfile {
   onboardingCompletedAt DateTime?
   onboardingDismissedAt DateTime?
 
-  // Skills and interests
   currentSkillLevel SkillLevel?
   targetSkillLevel  SkillLevel?
 
@@ -359,9 +352,9 @@ model ProfessionalProfile {
 
 // ========== Professional profile taxonomy ==========
 enum ProfileTaxonomyKind {
-  SKILL_AREA
-  SUBJECT
   ROLE
+  SUBJECT
+  SKILL_AREA
 }
 
 enum ProfileTermUsage {
@@ -1193,10 +1186,10 @@ enum PDUCategory {
   STRATEGIC
   LEADERSHIP
   COMPLIANCE
-  COMMUNICATION
   DIGITAL_AI
-  RESEARCH_INNOVATION
+  COMMUNICATION
   INDUSTRY_KNOWLEDGE
+  RESEARCH_INNOVATION
   PROFESSIONAL_PRACTICE
 }
 
@@ -1398,10 +1391,6 @@ model PDUActivity {
   contentType ContentType?
   contentId   String?
 
-  /// Why an association rejected this submission. Written by the reviewing
-  /// association through the compliance port, read by the member on their own
-  /// dashboard: it is correspondence, which is why it lives with the activity
-  /// the member owns rather than in the association's projection.
   reviewNote String?
 
   evidenceFiles PDUActivityFile[]
@@ -1514,7 +1503,6 @@ model CPDPlan {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Optional link to the catalogue record the plan was suggested from.
   certificationId String?
   certification   Certification? @relation(fields: [certificationId], references: [id], onDelete: SetNull)
 
@@ -1526,8 +1514,6 @@ model CPDPlan {
 
   creditType              CreditType @default(CPD)
   totalRequiredCredits    Float
-  // Baseline of credits completed before LoopsKey tracking began. Kept separate
-  // from recorded PDUActivity credits to avoid double counting.
   initialCompletedCredits Float      @default(0)
 
   timeAvailable    LearningTimeCommitment?
@@ -1815,7 +1801,6 @@ model RoadmapEnrollment {
 
   targetDate DateTime?
 
-  // The wizard draft this enrollment was generated from, when it was.
   draftId String?       @unique
   draft   RoadmapDraft? @relation(fields: [draftId], references: [id], onDelete: SetNull)
 
@@ -2146,12 +2131,14 @@ model Association {
   ownerId String @unique
   owner   User   @relation("AssociationOwner", fields: [ownerId], references: [id], onDelete: Cascade)
 
-  name         String
-  logoUrl      String?
-  description  String?
-  country      String?
-  website      String?
-  contactEmail String?
+  name    String
+  logoUrl String?
+
+  logoStorageKey String?
+  description    String?
+  country        String?
+  website        String?
+  contactEmail   String?
 
   settings          AssociationSettings?
   groups            AssociationGroup[]
@@ -2187,19 +2174,18 @@ model AssociationSettings {
   welcomeMessages     Boolean @default(true)
   weeklyDigest        Boolean @default(true)
 
+  suppressAllEmail Boolean @default(false)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 enum AssociationMemberStatus {
-  PENDING_ACTIVATION
   ACTIVE
   INACTIVE
+  PENDING_ACTIVATION
 }
 
-/// How an association segments its roster: a chapter, a region, a grade.
-/// Deactivating a group leaves its members in place with no group, so a group
-/// is never a way to lose people.
 model AssociationGroup {
   id String @id @default(cuid())
 
@@ -2221,15 +2207,6 @@ model AssociationGroup {
   @@index([associationId])
 }
 
-/// A professional's membership of an association. Membership is not employment:
-/// the same user may hold this and an OrganizationMember row at once, and
-/// neither side sees the other.
-///
-/// A member number is unique within an association only when it is present, and
-/// Prisma cannot express a partial unique index. The migration creates
-/// `AssociationMember_member_number_key` on (associationId, memberNumber) WHERE
-/// "memberNumber" IS NOT NULL as an unmanaged index. `prisma migrate dev`
-/// reports it as drift and offers to drop it — refuse that offer.
 model AssociationMember {
   id String @id @default(cuid())
 
@@ -2433,16 +2410,6 @@ enum AssociationEvidencePolicy {
   REQUIRED_NEEDS_REVIEW
 }
 
-/// What an association obliges its members to complete: a credit total, by a
-/// deadline, optionally split across categories and gated by an evidence rule.
-///
-/// This is deliberately not a CPDPlan. A plan is a professional's own plan for
-/// their own certification; a requirement is imposed by one association on many
-/// members, and the two lifecycles have nothing in common.
-///
-/// A draft is a real row from the first wizard step, so a half-filled
-/// requirement survives a closed tab. Publishing freezes the fields members are
-/// measured against; the audience, reminders and description stay editable.
 model AssociationRequirement {
   id String @id @default(cuid())
 
@@ -2496,10 +2463,6 @@ model AssociationRequirement {
   @@index([createdAt])
 }
 
-/// One slice of a requirement's total, mapped onto the PDUCategory professionals
-/// already record against. The mapping is the whole point: it makes "progress by
-/// category" computable from existing activity instead of inventing a second
-/// taxonomy nobody records against.
 model AssociationRequirementCategory {
   id String @id @default(cuid())
 
@@ -2518,9 +2481,6 @@ model AssociationRequirementCategory {
   @@index([requirementId])
 }
 
-/// Who a requirement applies to, when the audience is not simply everyone. A
-/// GROUP audience holds one group row; SPECIFIC_MEMBERS holds one row per
-/// member. ALL_MEMBERS holds none.
 model AssociationRequirementTarget {
   id String @id @default(cuid())
 
@@ -2542,13 +2502,6 @@ model AssociationRequirementTarget {
   @@index([requirementId])
 }
 
-/// One member's obligation under one requirement for one cycle. This is the row
-/// every later progress and report reads, so it is materialised rather than
-/// derived: the audience can change and the history must not.
-///
-/// `isTargeted` false means the member has left the audience but recorded
-/// something against it, so the assignment is kept as history instead of being
-/// deleted.
 model AssociationRequirementAssignment {
   id String @id @default(cuid())
 
@@ -2564,15 +2517,7 @@ model AssociationRequirementAssignment {
 
   isTargeted Boolean @default(true)
 
-  /// Credits recorded against this assignment. Kept in step with the sum of the
-  /// counted attributions below, and read on its own by the phase 03
-  /// materialisation to decide whether a de-targeted assignment carries history
-  /// worth keeping.
-  recordedCredits Float @default(0)
-
-  /// Cached projection. Always derivable from the attributions; cached because
-  /// the roster reads it for every member at once. `computedAt` is compared
-  /// before a write so a slow recomputation cannot overwrite a newer one.
+  recordedCredits     Float                     @default(0)
   completedCredits    Float                     @default(0)
   percent             Float                     @default(0)
   band                AssociationComplianceBand @default(NOT_STARTED)
@@ -2592,21 +2537,12 @@ model AssociationRequirementAssignment {
   @@index([band])
 }
 
-/// How far one activity got toward one assignment.
-///
-/// COUNTED credits are in the assignment total. AWAITING_REVIEW is an activity
-/// that would count but for a decision the association has not made yet; it is
-/// what raises the awaiting-review count and the missing-evidence flag.
-/// REJECTED is kept rather than deleted so a member can see why.
 enum AssociationAttributionState {
   COUNTED
   AWAITING_REVIEW
   REJECTED
 }
 
-/// The four bands every association surface reads. RENEWAL_READY additionally
-/// requires every review to be settled, so a member at a hundred percent with a
-/// pending decision is not yet renewal-ready.
 enum AssociationComplianceBand {
   NOT_STARTED
   AT_RISK
@@ -2614,16 +2550,6 @@ enum AssociationComplianceBand {
   RENEWAL_READY
 }
 
-/// One learning activity's contribution to one assignment.
-///
-/// `activityId` is a plain string, deliberately not a foreign key. The activity
-/// belongs to the professional module; a constraint between the two would mean
-/// neither module could migrate alone. This row is a projection, so an activity
-/// that disappears leaves an orphan the next recomputation removes rather than
-/// a broken constraint.
-///
-/// The unique index on (assignment, activity) is what makes recomputation
-/// idempotent: running it twice upserts the same row.
 model AssociationCreditAttribution {
   id String @id @default(cuid())
 
@@ -2651,21 +2577,6 @@ model AssociationCreditAttribution {
   @@index([assignmentId, createdAt])
 }
 
-/// Where a member should go to earn the credits a requirement asks for.
-///
-/// An item is either a reference into the platform catalogue — a `ContentType`
-/// and the id of a published course, event, podcast or video — or an external
-/// resource the association wrote down itself. Catalogue titles, images and
-/// availability are deliberately not copied here: they are resolved at read
-/// time through the learning-catalog module's port, so the library can never
-/// show a title the catalogue has since changed.
-///
-/// One catalogue item is endorsed once per association, which Prisma cannot
-/// express because the constraint must ignore the external rows where both
-/// content columns are null. The migration creates
-/// `AssociationLearningContent_catalog_key` on (associationId, contentType,
-/// contentId) WHERE both are NOT NULL as an unmanaged index. `prisma migrate
-/// dev` reports it as drift and offers to drop it — refuse that offer.
 model AssociationLearningContent {
   id String @id @default(cuid())
 
@@ -2710,61 +2621,33 @@ model AssociationLearningContent {
   @@index([contentType, contentId])
 }
 
-/// A library item's life. `WITHDRAWN` is kept rather than deleted because
-/// members may already have acted on the endorsement.
 enum AssociationLearningContentStatus {
   DRAFT
   PUBLISHED
   WITHDRAWN
 }
 
-/// Which of the six reports an export renders. The values match the report
-/// keys the Reports tab uses, so a link into the tab and an export of what it
-/// shows name the same thing.
 enum AssociationReportType {
-  OVERVIEW_SUMMARY
-  MEMBER_PROGRESS
   GROUP_PROGRESS
-  CATEGORY_COMPLETION
+  MEMBER_PROGRESS
+  OVERVIEW_SUMMARY
   MISSING_EVIDENCE
   RENEWAL_READINESS
+  CATEGORY_COMPLETION
 }
 
-/// What an export is rendered as: a branded document for circulation, or a
-/// workbook for analysis.
 enum AssociationReportFormat {
   PDF
   EXCEL
 }
 
-/// An export's life. It moves forward only: `PENDING` becomes `READY` once the
-/// file exists, or `FAILED`; a `READY` file becomes `EXPIRED` once retention
-/// removes it. The one backward move is a repair, from `FAILED` to `PENDING`
-/// when the association retries.
 enum AssociationGeneratedReportState {
-  PENDING
   READY
   FAILED
+  PENDING
   EXPIRED
 }
 
-/// One requested export of one report, in one format, under one filter.
-///
-/// The record outlives its file: retention deletes the object and marks the row
-/// `EXPIRED`, so an association can still see what it asked for and when, and
-/// ask for it again.
-///
-/// `storageKey` is assigned once, at request time, and never leaves the API. It
-/// is opaque rather than derived from the id, so knowing a record's id tells an
-/// attacker nothing about where its bytes are; persisting it is what makes a
-/// retry overwrite the same object instead of orphaning the first one.
-///
-/// A pending export is unique per (association, report, format, filter) so a
-/// double request joins the generation already running. Prisma cannot express a
-/// partial unique index, so the migration creates
-/// `AssociationGeneratedReport_pending_key` on those four columns WHERE
-/// "state" = 'PENDING' as an unmanaged index. `prisma migrate dev` reports it
-/// as drift and offers to drop it — refuse that offer.
 model AssociationGeneratedReport {
   id String @id @default(cuid())
 
@@ -2804,41 +2687,20 @@ model AssociationGeneratedReport {
   @@index([state, expiresAt])
 }
 
-/// Which templated message an association sent. The platform owns the wording,
-/// so the type is the message: there is no body to store and nothing for an
-/// association to edit.
 enum AssociationMessageType {
-  BEHIND_THRESHOLD
   WELCOME
   CATEGORY_BEHIND
+  BEHIND_THRESHOLD
   CERTIFICATE_EXPIRING
 }
 
-/// Where one recipient's copy stands. `SKIPPED` is a decision, not a failure:
-/// the member was in the audience and was deliberately not written to, and the
-/// reason says why.
 enum AssociationMessageDeliveryState {
-  QUEUED
   SENT
+  QUEUED
   FAILED
   SKIPPED
 }
 
-/// One recipient's copy of one templated message.
-///
-/// The rendered text is never stored. The type and the template version are
-/// enough to reproduce what was sent, and the body carries the member's name
-/// and progress figures, which have no business sitting in a history table.
-///
-/// `cooldownBucket` is what enforces "not twice inside the window" in the
-/// database rather than in a read before the write: it is derived from the send
-/// time and the window length, so two sends inside one window compute the same
-/// bucket and the second violates the unique index. The loser is recovered as a
-/// skip.
-///
-/// Prisma can express this one as a plain unique constraint because every
-/// column is non-null, so unlike the export index it is managed here rather
-/// than in migration SQL.
 model AssociationMessageDelivery {
   id String @id @default(cuid())
 
@@ -2856,11 +2718,6 @@ model AssociationMessageDelivery {
 
   audience Json
 
-  /// The figures the template needs, captured when the send was accepted: the
-  /// percent, the deadline, the category or the certificate. Not the rendered
-  /// body — that is built at delivery time and never stored. Capturing them
-  /// here is also what stops delivery rebuilding the whole compliance
-  /// projection once per recipient.
   context Json
 
   language AppLanguage @default(EN)
