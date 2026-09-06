@@ -52,7 +52,7 @@ services:
 
       ORGANIZATION_LOGIN_URL: ${PUBLIC_FRONTEND_URL}/auth/organization
       ORGANIZATION_ACTIVATION_URL: ${PUBLIC_FRONTEND_URL}/auth/organization/activate
-      ASSOCIATION_LOGIN_URL: ${PUBLIC_FRONTEND_URL}/auth/professional
+      ASSOCIATION_LOGIN_URL: ${PUBLIC_FRONTEND_URL}/auth/association
       ASSOCIATION_ACTIVATION_URL: ${PUBLIC_FRONTEND_URL}/auth/association/activate
 
     command:

@@ -1425,7 +1425,7 @@
       "title": "Pour les associations",
       "cta": {
         "label": "Réserver une association",
-        "href": "/contact"
+        "href": "/auth/association"
       },
       "blocks": [
         {
@@ -2689,6 +2689,26 @@
       "loginTitle": "Connexion organisation",
       "requestTitle": "Demander un accès organisation",
       "requestDescription": "L’administrateur examinera votre demande. Si elle est approuvée, des identifiants temporaires seront générés."
+    },
+    "association": {
+      "eyebrow": "Portail association",
+      "titlePrefix": "Bienvenue sur",
+      "titleBrand": "LoopsKey",
+      "subtitle": "Connectez-vous pour gérer vos membres, publier des exigences et suivre la conformité de votre association.",
+      "loginTitle": "Connexion association",
+      "loginDescription": "Connectez-vous avec vos identifiants d’association pour continuer.",
+      "professionalLink": "Vous voulez apprendre ? Connectez-vous comme professionnel",
+      "partnerPrompt": "Nouvelle association ?",
+      "partnerLink": "Contactez notre équipe",
+      "joined": "Accès sécurisé pour les administrateurs d’association et leurs équipes.",
+      "complianceTitle": "La conformité en un coup d’œil",
+      "complianceText": "Voyez qui est sur la bonne voie, à risque ou en retard, selon les seuils que vous définissez.",
+      "membersTitle": "Gestion des membres",
+      "membersText": "Invitez des membres, regroupez-les et gardez leurs dossiers à jour.",
+      "requirementsTitle": "Exigences",
+      "requirementsText": "Publiez des exigences de crédits et attribuez-les aux bons membres.",
+      "reportsTitle": "Rapports et exports",
+      "reportsText": "Lisez l’effectif derrière un seul filtre et emportez-le avec vous."
     },
     "admin": {
       "eyebrow": "Portail administrateur",

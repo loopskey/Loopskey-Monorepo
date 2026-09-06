@@ -1425,7 +1425,7 @@
       "title": "For Associations",
       "cta": {
         "label": "Book an Association",
-        "href": "/contact"
+        "href": "/auth/association"
       },
       "blocks": [
         {
@@ -2687,6 +2687,26 @@
       "loginTitle": "Organization login",
       "requestTitle": "Request organization access",
       "requestDescription": "Admin will review your request. If approved, temporary credentials will be generated."
+    },
+    "association": {
+      "eyebrow": "Association Portal",
+      "titlePrefix": "Welcome to",
+      "titleBrand": "LoopsKey",
+      "subtitle": "Sign in to manage your members, publish requirements and follow compliance across your association.",
+      "loginTitle": "Association Login",
+      "loginDescription": "Sign in with your association credentials to continue.",
+      "professionalLink": "Looking to learn? Sign in as a professional",
+      "partnerPrompt": "New association?",
+      "partnerLink": "Talk to our team",
+      "joined": "Secure access for association administrators and their teams.",
+      "complianceTitle": "Compliance at a glance",
+      "complianceText": "See who is on track, at risk or behind, with the thresholds you set.",
+      "membersTitle": "Member management",
+      "membersText": "Invite members, group them and keep their records current.",
+      "requirementsTitle": "Requirements",
+      "requirementsText": "Publish credit requirements and assign them to the right members.",
+      "reportsTitle": "Reports and exports",
+      "reportsText": "Read the membership behind one filter and take it with you."
     },
     "admin": {
       "eyebrow": "Admin Portal",
