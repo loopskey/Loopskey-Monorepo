@@ -32,3 +32,4 @@ into this index and do not rewrite previous records.
 - [`association-report-exports`](feature-runs/active/association-report-exports.md)
 - [`association-messages-tab`](feature-runs/active/association-messages-tab.md)
 - [`association-overview-tab`](feature-runs/active/association-overview-tab.md)
+- [`api-cors-allowed-origins`](feature-runs/active/api-cors-allowed-origins.md)
