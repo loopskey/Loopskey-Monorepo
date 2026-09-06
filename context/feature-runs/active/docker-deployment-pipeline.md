@@ -3,7 +3,7 @@
 - Scope: `full`
 - Branch: `feature/docker-deployment-pipeline`
 - Base: `47c3436a2141a085117bfbe6dab8226b494d5991`
-- Status: `Ready`
+- Status: `Submitted`
 
 ## Acceptance
 
@@ -40,6 +40,6 @@
 
 ## Submission
 
-- Commit:
-- PR:
+- Commit: `471dd1b`
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/60
 - CI:
