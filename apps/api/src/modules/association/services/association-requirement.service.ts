@@ -539,7 +539,7 @@ export class AssociationRequirementService {
           ? problems[0].code
           : AssociationMessageCode.PUBLISH_VALIDATION_FAILED,
       message: problems[0].message,
-      problems,
+      details: { problems },
     });
   }
 }

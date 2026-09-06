@@ -538,8 +538,9 @@ export const associationApi = baseApi.injectEndpoints({
         document: API.RetryAssociationReportExportDocument,
         variables: { input },
       }),
-      transformResponse: (response: TAPI.RetryAssociationReportExportMutation) =>
-        response.retryAssociationReportExport,
+      transformResponse: (
+        response: TAPI.RetryAssociationReportExportMutation,
+      ) => response.retryAssociationReportExport,
       invalidatesTags: ["AssociationReportExports"],
     }),
 
@@ -595,10 +596,7 @@ export const associationApi = baseApi.injectEndpoints({
       void
     >({
       query: () => ({ document: API.AssociationOverviewCountsDocument }),
-      providesTags: [
-        "AssociationMemberStats",
-        "AssociationLearningContent",
-      ],
+      providesTags: ["AssociationMemberStats", "AssociationLearningContent"],
     }),
 
     associationRequirementProgressReport: builder.query<
@@ -689,6 +687,167 @@ export const associationApi = baseApi.injectEndpoints({
         response.sendAssociationMessage,
       invalidatesTags: ["AssociationAttention", "AssociationMessageHistory"],
     }),
+    associationRequirements: builder.query<
+      TAPI.AssociationRequirementsQuery["associationRequirements"],
+      TAPI.AssociationRequirementsQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.AssociationRequirementsDocument,
+        variables,
+      }),
+      transformResponse: (response: TAPI.AssociationRequirementsQuery) =>
+        response.associationRequirements,
+      providesTags: ["AssociationRequirements"],
+    }),
+
+    associationRequirement: builder.query<
+      TAPI.AssociationRequirementQuery["associationRequirement"],
+      TAPI.AssociationRequirementQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.AssociationRequirementDocument,
+        variables,
+      }),
+      transformResponse: (response: TAPI.AssociationRequirementQuery) =>
+        response.associationRequirement,
+      providesTags: ["AssociationRequirements"],
+    }),
+
+    associationRequirementStats: builder.query<
+      TAPI.AssociationRequirementStatsQuery["associationRequirementStats"],
+      void
+    >({
+      query: () => ({
+        document: API.AssociationRequirementStatsDocument,
+      }),
+      transformResponse: (response: TAPI.AssociationRequirementStatsQuery) =>
+        response.associationRequirementStats,
+      providesTags: ["AssociationRequirementStats"],
+    }),
+
+    createAssociationRequirementDraft: builder.mutation<
+      TAPI.CreateAssociationRequirementDraftMutation["createAssociationRequirementDraft"],
+      TAPI.CreateAssociationRequirementDraftMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.CreateAssociationRequirementDraftDocument,
+        variables: { input },
+      }),
+      transformResponse: (
+        response: TAPI.CreateAssociationRequirementDraftMutation,
+      ) => response.createAssociationRequirementDraft,
+      invalidatesTags: [
+        "AssociationRequirements",
+        "AssociationRequirementStats",
+      ],
+    }),
+
+    updateAssociationRequirementDetails: builder.mutation<
+      TAPI.UpdateAssociationRequirementDetailsMutation["updateAssociationRequirementDetails"],
+      TAPI.UpdateAssociationRequirementDetailsMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.UpdateAssociationRequirementDetailsDocument,
+        variables: { input },
+      }),
+      transformResponse: (
+        response: TAPI.UpdateAssociationRequirementDetailsMutation,
+      ) => response.updateAssociationRequirementDetails,
+      invalidatesTags: ["AssociationRequirements"],
+    }),
+
+    updateAssociationRequirementCategories: builder.mutation<
+      TAPI.UpdateAssociationRequirementCategoriesMutation["updateAssociationRequirementCategories"],
+      TAPI.UpdateAssociationRequirementCategoriesMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.UpdateAssociationRequirementCategoriesDocument,
+        variables: { input },
+      }),
+      transformResponse: (
+        response: TAPI.UpdateAssociationRequirementCategoriesMutation,
+      ) => response.updateAssociationRequirementCategories,
+      invalidatesTags: ["AssociationRequirements"],
+    }),
+
+    updateAssociationRequirementEvidenceRules: builder.mutation<
+      TAPI.UpdateAssociationRequirementEvidenceRulesMutation["updateAssociationRequirementEvidenceRules"],
+      TAPI.UpdateAssociationRequirementEvidenceRulesMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.UpdateAssociationRequirementEvidenceRulesDocument,
+        variables: { input },
+      }),
+      transformResponse: (
+        response: TAPI.UpdateAssociationRequirementEvidenceRulesMutation,
+      ) => response.updateAssociationRequirementEvidenceRules,
+      invalidatesTags: ["AssociationRequirements"],
+    }),
+
+    updateAssociationRequirementReportingRules: builder.mutation<
+      TAPI.UpdateAssociationRequirementReportingRulesMutation["updateAssociationRequirementReportingRules"],
+      TAPI.UpdateAssociationRequirementReportingRulesMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.UpdateAssociationRequirementReportingRulesDocument,
+        variables: { input },
+      }),
+      transformResponse: (
+        response: TAPI.UpdateAssociationRequirementReportingRulesMutation,
+      ) => response.updateAssociationRequirementReportingRules,
+      invalidatesTags: ["AssociationRequirements"],
+    }),
+
+    updateAssociationRequirementAudience: builder.mutation<
+      TAPI.UpdateAssociationRequirementAudienceMutation["updateAssociationRequirementAudience"],
+      TAPI.UpdateAssociationRequirementAudienceMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.UpdateAssociationRequirementAudienceDocument,
+        variables: { input },
+      }),
+      transformResponse: (
+        response: TAPI.UpdateAssociationRequirementAudienceMutation,
+      ) => response.updateAssociationRequirementAudience,
+      invalidatesTags: [
+        "AssociationRequirements",
+        "AssociationRequirementStats",
+      ],
+    }),
+
+    publishAssociationRequirement: builder.mutation<
+      TAPI.PublishAssociationRequirementMutation["publishAssociationRequirement"],
+      TAPI.PublishAssociationRequirementMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.PublishAssociationRequirementDocument,
+        variables: { input },
+      }),
+      transformResponse: (
+        response: TAPI.PublishAssociationRequirementMutation,
+      ) => response.publishAssociationRequirement,
+      invalidatesTags: [
+        "AssociationRequirements",
+        "AssociationRequirementStats",
+      ],
+    }),
+
+    archiveAssociationRequirement: builder.mutation<
+      TAPI.ArchiveAssociationRequirementMutation["archiveAssociationRequirement"],
+      TAPI.ArchiveAssociationRequirementMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.ArchiveAssociationRequirementDocument,
+        variables: { input },
+      }),
+      transformResponse: (
+        response: TAPI.ArchiveAssociationRequirementMutation,
+      ) => response.archiveAssociationRequirement,
+      invalidatesTags: [
+        "AssociationRequirements",
+        "AssociationRequirementStats",
+      ],
+    }),
   }),
 });
 
@@ -743,4 +902,15 @@ export const {
   useAssociationMessagePreviewQuery,
   useAssociationMessageHistoryQuery,
   useSendAssociationMessageMutation,
+  useAssociationRequirementsQuery,
+  useAssociationRequirementQuery,
+  useAssociationRequirementStatsQuery,
+  useCreateAssociationRequirementDraftMutation,
+  useUpdateAssociationRequirementDetailsMutation,
+  useUpdateAssociationRequirementCategoriesMutation,
+  useUpdateAssociationRequirementEvidenceRulesMutation,
+  useUpdateAssociationRequirementReportingRulesMutation,
+  useUpdateAssociationRequirementAudienceMutation,
+  usePublishAssociationRequirementMutation,
+  useArchiveAssociationRequirementMutation,
 } = associationApi;
