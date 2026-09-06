@@ -6072,7 +6072,8 @@
         "COOLDOWN": "Ce message a déjà été envoyé récemment",
         "NOT_IN_LIST": "Ne figure plus dans cette liste",
         "NO_VERIFIED_EMAIL": "Aucune adresse e-mail vérifiée",
-        "INACTIVE_ACCOUNT": "Le compte n'est pas actif"
+        "INACTIVE_ACCOUNT": "Le compte n'est pas actif",
+        "EMAIL_SUPPRESSED": "Les courriels de l'association sont suspendus"
       },
       "errors": {
         "typeUnknown": "Ce message n'appartient pas à cette liste.",
@@ -6091,11 +6092,103 @@
           "title": "Rien n'a encore été envoyé",
           "body": "Dès que vous enverrez un rappel ou un message de bienvenue, la copie de chaque destinataire sera listée ici avec son état."
         }
-      }
+      },
+      "suppressed": "Tous les courriels de l'association sont suspendus dans vos paramètres : un envoi ici enregistre chaque destinataire comme ignoré.",
+      "suppressedAction": "Ouvrir les paramètres"
     },
     "settings": {
       "title": "Paramètres",
-      "comingSoon": "Le profil de l'association, les valeurs de conformité par défaut et les notifications arriveront dans une version ultérieure."
+      "description": "Votre profil, votre identité visuelle et les seuils auxquels chaque chiffre de ce tableau de bord est comparé.",
+      "retry": "Réessayer",
+      "profile": {
+        "title": "Profil de l'association",
+        "description": "Qui vous êtes. Le nom et le logo figurent sur chaque rapport que vous générez.",
+        "save": "Enregistrer le profil",
+        "saved": "Profil enregistré.",
+        "name": "Nom de l'association",
+        "country": "Pays",
+        "website": "Site web",
+        "contactEmail": "Adresse de contact",
+        "contactEmailHint": "Visible par les membres dans les messages envoyés en votre nom.",
+        "descriptionField": "Description"
+      },
+      "branding": {
+        "title": "Logo",
+        "description": "Utilisé sur le tableau de bord et apposé sur les rapports que vous exportez.",
+        "upload": "Téléverser un logo",
+        "remove": "Retirer",
+        "saved": "Logo mis à jour.",
+        "removed": "Logo retiré.",
+        "failed": "Nous n'avons pas pu mettre le logo à jour pour le moment.",
+        "alt": "Le logo de votre association",
+        "rules": "{{types}}, jusqu'à {{limit}} Mo.",
+        "reportNote": "Seul un logo téléversé ici est apposé sur un rapport. Une adresse de site saisie dans le profil n'est jamais récupérée.",
+        "tooLarge": "Cette image dépasse {{limit}} Mo.",
+        "wrongType": "Un logo doit être au format {{types}}."
+      },
+      "compliance": {
+        "title": "Règles de conformité",
+        "description": "Comment la progression est classée. Ces seuils changent le regroupement des membres, jamais le nombre de crédits exigés.",
+        "review": "Examiner les changements",
+        "saved": "Règles de conformité enregistrées.",
+        "defaultCreditType": "Type de crédit par défaut",
+        "defaultCreditTypeHint": "Appliqué à une nouvelle exigence sauf si vous le changez sur place.",
+        "onTrackThreshold": "Seuil « en bonne voie »",
+        "onTrackThresholdHint": "À partir de ce pourcentage, un membre est considéré en bonne voie.",
+        "atRiskThreshold": "Seuil « à risque »",
+        "atRiskThresholdHint": "En dessous de ce pourcentage, un membre apparaît dans les listes de l'onglet Messages.",
+        "renewalRequiresReviewedEvidence": "Le renouvellement exige tous les examens réglés",
+        "renewalRequiresReviewedEvidenceHint": "Un membre dont une preuve attend encore votre décision n'est pas déclaré prêt au renouvellement.",
+        "orderInvalid": "Le seuil « à risque » doit rester sous le seuil « en bonne voie ».",
+        "creditTypes": {
+          "CPD": "CPD",
+          "PDU": "PDU"
+        }
+      },
+      "notifications": {
+        "title": "Notifications",
+        "description": "Ce que la plateforme est autorisée à envoyer en votre nom.",
+        "save": "Enregistrer les notifications",
+        "saved": "Préférences de notification enregistrées.",
+        "suppressAllEmail": "Suspendre tous les courriels de l'association",
+        "suppressAllEmailHint": "Prime sur tout ce qui suit. Rien de ce que vous rédigez n'atteint un membre tant que ceci est actif.",
+        "suppressAllActive": "Tant que ceci est actif, les trois préférences ci-dessous n'ont aucun effet et chaque envoi est enregistré comme ignoré.",
+        "complianceReminders": "Rappels de conformité",
+        "complianceRemindersHint": "Relances aux membres en retard sur une exigence.",
+        "welcomeMessages": "Messages de bienvenue",
+        "welcomeMessagesHint": "Un accueil pour les membres qui viennent de rejoindre.",
+        "weeklyDigest": "Résumé hebdomadaire",
+        "weeklyDigestHint": "Un point sur l'état de vos membres."
+      },
+      "account": {
+        "title": "Votre compte",
+        "description": "Le compte propriétaire de cette association. Un seul propriétaire, comme à la création du compte.",
+        "email": "Adresse du compte",
+        "status": "Statut",
+        "changePassword": "Changer le mot de passe",
+        "changeEmail": "Changer l'adresse"
+      },
+      "confirm": {
+        "title": "Appliquer ce changement de seuil ?",
+        "body": "Rien n'est enregistré avant votre confirmation. Voici ce qui change.",
+        "change": "{{from}} % vers {{to}} %",
+        "movingBand": "{{count}} membres sur {{total}} changent de catégorie.",
+        "enteringAtRisk": "{{count}} membres rejoignent les listes d'attention.",
+        "leavingAtRisk": "{{count}} membres quittent les listes d'attention.",
+        "creditsUnchanged": "Aucun crédit n'est ajouté ni retiré. Les rapports déjà générés conservent les chiffres avec lesquels ils ont été produits.",
+        "cancel": "Annuler",
+        "apply": "Appliquer le changement"
+      },
+      "errors": {
+        "loadFailed": "Nous n'avons pas pu charger vos paramètres pour le moment.",
+        "notFound": "Cette association n'a pas d'enregistrement de paramètres.",
+        "stale": "Ces paramètres ont changé pendant votre modification. Rechargez puis réessayez.",
+        "thresholdOrder": "Le seuil « à risque » doit rester sous le seuil « en bonne voie ».",
+        "thresholdRange": "Un seuil est un nombre entier entre 1 et 100.",
+        "logoType": "Ce type de fichier ne peut pas servir de logo.",
+        "logoSize": "Cette image est trop grande pour servir de logo.",
+        "logoNotFound": "Ce logo n'est plus disponible."
+      }
     }
   },
   "adminDashboard": {

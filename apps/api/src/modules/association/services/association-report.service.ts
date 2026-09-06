@@ -7,10 +7,10 @@ import { AssociationAccessService } from "@association/services/association-acce
 import { AssociationMemberStatus } from "@prisma/client";
 import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
 import { REPORT_MEMBER_SELECT } from "@association/types/association-report.types";
+import { ReportRequirementRow } from "@association/types/association-report.types";
 import { ReportAssignmentRow } from "@association/types/association-report.types";
 import { Injectable, Logger } from "@nestjs/common";
 import { ReportMemberRecord } from "@association/types/association-report.types";
-import { ReportRequirementRow } from "@association/types/association-report.types";
 import { ReportCategoryRow } from "@association/types/association-report.types";
 import { ReportProjection } from "@association/types/association-report.types";
 import { TAssociationUser } from "@association/types/association-service.types";

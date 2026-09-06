@@ -81,8 +81,6 @@ export class AssociationMemberService {
     private readonly assignments: AssociationRequirementAssignmentService,
   ) {}
 
-  // -------------------------------------------------------------------- reads
-
   async list(
     user: TAssociationUser,
     filter?: AssociationMemberFilterInput,
@@ -147,8 +145,6 @@ export class AssociationMemberService {
     ]);
     return { totalMembers, activeMembers, pendingActivation };
   }
-
-  // ------------------------------------------------------------------ invites
 
   async invite(user: TAssociationUser, input: InviteAssociationMemberInput) {
     const association = await this.access.requireOwned(user);

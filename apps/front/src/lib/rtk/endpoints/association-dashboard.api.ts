@@ -543,6 +543,53 @@ export const associationApi = baseApi.injectEndpoints({
       invalidatesTags: ["AssociationReportExports"],
     }),
 
+    associationSettings: builder.query<
+      TAPI.AssociationSettingsQuery["associationSettings"],
+      void
+    >({
+      query: () => ({ document: API.AssociationSettingsDocument }),
+      transformResponse: (response: TAPI.AssociationSettingsQuery) =>
+        response.associationSettings,
+      providesTags: ["AssociationSettings"],
+    }),
+
+    updateAssociationComplianceSettings: builder.mutation<
+      TAPI.UpdateAssociationComplianceSettingsMutation["updateAssociationComplianceSettings"],
+      TAPI.UpdateAssociationComplianceSettingsMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.UpdateAssociationComplianceSettingsDocument,
+        variables: { input },
+      }),
+      transformResponse: (
+        response: TAPI.UpdateAssociationComplianceSettingsMutation,
+      ) => response.updateAssociationComplianceSettings,
+      invalidatesTags: (_result, _error, input) =>
+        input.dryRun
+          ? []
+          : [
+              "AssociationSettings",
+              "AssociationProfile",
+              "AssociationReports",
+              "AssociationAttention",
+              "AssociationMemberProfile",
+            ],
+    }),
+
+    updateAssociationNotificationSettings: builder.mutation<
+      TAPI.UpdateAssociationNotificationSettingsMutation["updateAssociationNotificationSettings"],
+      TAPI.UpdateAssociationNotificationSettingsMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.UpdateAssociationNotificationSettingsDocument,
+        variables: { input },
+      }),
+      transformResponse: (
+        response: TAPI.UpdateAssociationNotificationSettingsMutation,
+      ) => response.updateAssociationNotificationSettings,
+      invalidatesTags: ["AssociationSettings", "AssociationProfile"],
+    }),
+
     associationOverviewCounts: builder.query<
       TAPI.AssociationOverviewCountsQuery,
       void
@@ -685,6 +732,9 @@ export const {
   useAssociationGeneratedReportsQuery,
   useRequestAssociationReportExportMutation,
   useRetryAssociationReportExportMutation,
+  useAssociationSettingsQuery,
+  useUpdateAssociationComplianceSettingsMutation,
+  useUpdateAssociationNotificationSettingsMutation,
   useAssociationOverviewCountsQuery,
   useAssociationRequirementProgressReportQuery,
   useAssociationRecentActivityQuery,

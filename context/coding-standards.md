@@ -530,6 +530,56 @@ The API is guarded by default with `JwtAuthGuard` and `RolesGuard`.
 - Regenerate Prisma Client after schema changes.
 - Never modify an existing applied migration to represent a new change.
 
+## Text search
+
+Every user-facing search here is a substring search over names, titles and
+descriptions. `contains` with `mode: "insensitive"` compiles to
+`ILIKE '%term%'`, which no btree index can serve, so a search assembled only
+from Prisma filters is a sequential scan that grows with the table. A search
+feature is not finished when it returns the right rows; it is finished when the
+plan shows it reached an index.
+
+- Back every searched column with a `pg_trgm` GIN index. `similarity()` and the
+  `%` operator need the extension, and `ILIKE '%term%'` reaches the same index
+  through `gin_trgm_ops`.
+- Keep the search predicate on one table at a time. An `OR` whose branches span
+  a join — a column on the row and a column on its relation — makes the planner
+  complete the join and filter afterwards, and no index on either side is ever
+  touched. Resolve the matching ids per table, `UNION` them, then join.
+- Rank with `similarity()` only next to a predicate the index can serve.
+  Ranking is not filtering: a `similarity()` in `SELECT` or `ORDER BY` is
+  computed for every row that survives the `WHERE`.
+- Require a minimum term length before entering the search path, and leave the
+  unsearched path on its ordinary indexes.
+- Reuse an existing shape instead of inventing another one.
+  `findCoursesWithTrgmSearch`, `findPodcastsWithTrgmSearch` and
+  `findChannelsWithTrgmSearch` are the reference implementations.
+
+Migrations that add these indexes:
+
+- Prisma cannot express a GIN index, so it is raw SQL inside a **timestamped
+  migration directory**. A `.sql` file anywhere else — including the root of
+  `prisma/migrations/` — is silently never applied, and no lint, type check or
+  build reports it.
+- Use `CREATE INDEX CONCURRENTLY IF NOT EXISTS`, and record the index as
+  unmanaged in the model's docstring, the same way the partial unique indexes
+  above are recorded.
+- Put `CREATE EXTENSION IF NOT EXISTS pg_trgm` in the same migration rather than
+  assuming an earlier one enabled it.
+
+Proving it:
+
+- Read an `EXPLAIN (ANALYZE)` taken against production-like row counts. The
+  search is done when the plan shows a `Bitmap Index Scan` on the trigram index.
+  A `Seq Scan` over the searched table means the index is missing or the query
+  shape cannot reach it, and a development database is too small to tell you
+  which.
+- Confirm the index exists where the code actually runs:
+  `SELECT indexname FROM pg_indexes WHERE indexdef ILIKE '%gin%'`. A service
+  method named for trigram search asserts nothing about the database.
+- `apps/api/benchmark` seeds a scaled database and measures these paths. Its
+  README records the measured cost of each shape.
+
 ## Errors and Logging
 
 - Distinguish bad input, unauthenticated, forbidden, not found, conflict, rate
@@ -619,6 +669,8 @@ A change is ready when:
 - loading/error/empty/success and accessibility states are handled;
 - relevant tests, type checks, lint, and builds have been run;
 - migrations and generated artifacts are included when required;
+- any search the change adds or touches reaches a trigram index, shown by an
+  `EXPLAIN` plan rather than assumed;
 - every new shared-package export has a consumer, and anything the package
   restates has a drift test;
 - the diff contains no unrelated reformatting;

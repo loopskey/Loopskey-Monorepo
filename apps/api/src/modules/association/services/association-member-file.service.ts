@@ -1,13 +1,13 @@
-import { Role } from "@prisma/client";
-import { type ProfessionalComplianceApi } from "@professional/public/professional-compliance-api";
 import { ForbiddenException, NotFoundException } from "@nestjs/common";
+import { type ProfessionalComplianceApi } from "@professional/public/professional-compliance-api";
 import { AssociationRequirementStatus } from "@prisma/client";
 import { PROFESSIONAL_COMPLIANCE_API } from "@professional/public/professional-compliance-api";
 import { AssociationAccessService } from "@association/services/association-access.service";
 import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
-import { TAssociationUser } from "@association/types/association-service.types";
 import { Inject, Injectable } from "@nestjs/common";
+import { TAssociationUser } from "@association/types/association-service.types";
 import { PrismaService } from "@prisma/prisma.service";
+import { Role } from "@prisma/client";
 
 @Injectable()
 export class AssociationMemberFileService {

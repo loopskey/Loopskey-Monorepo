@@ -34,3 +34,4 @@ into this index and do not rewrite previous records.
 - [`association-overview-tab`](feature-runs/active/association-overview-tab.md)
 - [`api-cors-allowed-origins`](feature-runs/active/api-cors-allowed-origins.md)
 - [`compose-cors-origin-passthrough`](feature-runs/active/compose-cors-origin-passthrough.md)
+- [`association-settings-tab`](feature-runs/active/association-settings-tab.md)

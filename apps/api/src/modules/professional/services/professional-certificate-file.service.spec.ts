@@ -52,6 +52,7 @@ const createService = (prisma = createPrismaMock()) => {
       return `certificate/${storageKey}`;
     }),
     exists: jest.fn().mockResolvedValue(true),
+    read: jest.fn(),
   };
   const service = new ProfessionalCertificateFileService(
     prisma as unknown as PrismaService,

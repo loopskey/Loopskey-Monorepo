@@ -1,8 +1,8 @@
-import { type ExportColumn } from "@association/types/association-report-export.types";
 import { type ReportExportDocument } from "@association/types/association-report-export.types";
 import { type ExportTranslator } from "@association/utils/association-report-export-labels.util";
-import { exportTranslator } from "@association/utils/association-report-export-labels.util";
 import { type ExportFormatter } from "@association/utils/association-report-export-format.util";
+import { type ExportColumn } from "@association/types/association-report-export.types";
+import { exportTranslator } from "@association/utils/association-report-export-labels.util";
 import { exportFormatter } from "@association/utils/association-report-export-format.util";
 import { exportLocaleOf } from "@association/utils/association-report-export.util";
 
@@ -11,6 +11,8 @@ import PDFDocument from "pdfkit";
 const PAGE_MARGIN = 36;
 
 const LETTERHEAD_HEIGHT = 52;
+
+const LOGO_BOX = 24;
 
 const FOOTER_OFFSET = 24;
 
@@ -143,12 +145,26 @@ const letterhead = (
 ) => {
   const width = doc.page.width - PAGE_MARGIN * 2;
 
+  if (document.associationLogo) {
+    try {
+      doc.image(document.associationLogo, PAGE_MARGIN, PAGE_MARGIN - 4, {
+        fit: [LOGO_BOX, LOGO_BOX],
+      });
+    } catch {
+      doc.x = PAGE_MARGIN;
+    }
+  }
+
+  const textLeft = document.associationLogo
+    ? PAGE_MARGIN + LOGO_BOX + 8
+    : PAGE_MARGIN;
+
   doc
     .font("Helvetica-Bold")
     .fontSize(11)
     .fillColor(INK)
-    .text(t("document.platform"), PAGE_MARGIN, PAGE_MARGIN, {
-      width,
+    .text(t("document.platform"), textLeft, PAGE_MARGIN, {
+      width: width - (textLeft - PAGE_MARGIN),
       lineBreak: false,
     });
 

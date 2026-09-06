@@ -35,6 +35,9 @@ exist only so a user gets a readable message instead of a constraint violation.
 | A member is messaged once per type per cooldown window | Unique constraint `AssociationMessageDelivery(associationId, memberId, messageType, cooldownBucket)`, its violation recovered into a skip carrying the cooldown reason |
 | A queued message always has an email behind it | The delivery row and its outbox event are written in one transaction, chunk by chunk |
 | One recipient receives one copy | `updateMany` naming `QUEUED` after the provider accepts it, with the outbox idempotency key handed to the provider so a retry is the same email |
+| Two administrators cannot silently overwrite each other's settings | `updateMany` on `AssociationSettings` naming the `updatedAt` the client last read, `count === 1`; the loser receives the settings-stale code and re-reads rather than losing its edit |
+| A threshold pair is never stored out of order | Both thresholds arrive together and are validated as a unit before the conditional write, so there is no read-modify-write window in which one could be saved against a stale partner |
+| A reclassification follows every threshold change | The recompute event is appended to the outbox inside the same transaction as the settings write, so a settings change that commits always has a reclassification queued behind it |
 
 ## Decisions
 
@@ -222,6 +225,8 @@ correlation ID and non-sensitive identifiers only.
 | `Recovered a concurrent content-linked PDU activity` | Two requests logged the same content; the winner was updated |
 | `Outbox lease renewal found no claimable event` | A handler renewed a lease for work that had already finished |
 | `Outbox delivery already recorded` | A redelivery found its delivery row already present |
+| `Association compliance settings updated` | A settings write committed; the line carries the new thresholds and whether a reclassification was queued |
+| `Association reclassified after a threshold change` | The queued recompute finished, with the assignment count it touched |
 
 Expected conflicts are logged at `warn` and answered with domain error codes.
 None of them are internal server failures, and none should be alerted on

@@ -1,18 +1,14 @@
-import {
-  AssociationGeneratedReportState,
-  AssociationMemberStatus,
-} from "@prisma/client";
-import {
-  AssociationComplianceBand,
-  AssociationMessageType,
-} from "@prisma/client";
-import { Inject, Injectable, Logger } from "@nestjs/common";
+import { AssociationGeneratedReportState } from "@prisma/client";
 import { type ProfessionalComplianceApi } from "@professional/public/professional-compliance-api";
-import { PROFESSIONAL_COMPLIANCE_API } from "@professional/public/professional-compliance-api";
-import { AssociationReportPeriod } from "@association/utils/association-report-period.util";
 import { AssociationAttentionSection } from "@association/enums/association-attention.enum";
+import { PROFESSIONAL_COMPLIANCE_API } from "@professional/public/professional-compliance-api";
+import { Inject, Injectable, Logger } from "@nestjs/common";
+import { AssociationComplianceBand } from "@prisma/client";
 import { AssociationReportService } from "@association/services/association-report.service";
 import { AssociationAccessService } from "@association/services/association-access.service";
+import { AssociationMemberStatus } from "@prisma/client";
+import { AssociationReportPeriod } from "@association/utils/association-report-period.util";
+import { AssociationMessageType } from "@prisma/client";
 import { type TAssociationUser } from "@association/types/association-service.types";
 import { type ReportMemberRow } from "@association/types/association-report.types";
 import { type AttentionCounts } from "@association/types/association-attention.types";

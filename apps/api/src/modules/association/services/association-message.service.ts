@@ -1,29 +1,26 @@
 import { AppLanguage, AssociationMessageDeliveryState } from "@prisma/client";
+import { ASSOCIATION_MESSAGE_TEMPLATE_VERSION } from "@mail/association-message.template";
 import { AssociationMessageType, Prisma } from "@prisma/client";
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  Logger,
-} from "@nestjs/common";
 import { type ProfessionalComplianceApi } from "@professional/public/professional-compliance-api";
+import { type TAssociationMessageInput } from "@mail/mail-service.type";
+import { AssociationMessageSkipReason } from "@association/enums/association-attention.enum";
+import { buildAssociationMessageEmail } from "@mail/association-message.template";
 import { PROFESSIONAL_COMPLIANCE_API } from "@professional/public/professional-compliance-api";
 import { AssociationAttentionService } from "@association/services/association-attention.service";
-import { SECTION_BY_MESSAGE_TYPE } from "@association/enums/association-attention.enum";
-import { AssociationMessageSkipReason } from "@association/enums/association-attention.enum";
+import { Inject, Injectable, Logger } from "@nestjs/common";
+import { AssociationSettingsService } from "@association/services/association-settings.service";
 import { AssociationAccessService } from "@association/services/association-access.service";
-import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
-import { buildAssociationMessageEmail } from "@mail/association-message.template";
-import { messageContextOf } from "@association/utils/association-message-context.util";
-import { messageTemplateInput } from "@association/utils/association-message-context.util";
-import { readMessageContext } from "@association/utils/association-message-context.util";
-import { ASSOCIATION_MESSAGE_TEMPLATE_VERSION } from "@mail/association-message.template";
 import { type IdentityProfileApi } from "@user/public/identity-profile-api";
-import { IDENTITY_PROFILE_API } from "@user/public/identity-profile-api";
-import { type TAssociationMessageInput } from "@mail/mail-service.type";
+import { SECTION_BY_MESSAGE_TYPE } from "@association/enums/association-attention.enum";
+import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
 import { type TAssociationUser } from "@association/types/association-service.types";
-import { type AttentionRow } from "@association/types/association-attention.types";
+import { messageTemplateInput } from "@association/utils/association-message-context.util";
+import { IDENTITY_PROFILE_API } from "@user/public/identity-profile-api";
 import { type MessageAudience } from "@association/types/association-attention.types";
+import { BadRequestException } from "@nestjs/common";
+import { readMessageContext } from "@association/utils/association-message-context.util";
+import { type AttentionRow } from "@association/types/association-attention.types";
+import { messageContextOf } from "@association/utils/association-message-context.util";
 import { type MessageSkip } from "@association/types/association-attention.types";
 import { requestContext } from "@infrastructure/observability/request-context";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
@@ -67,6 +64,7 @@ export class AssociationMessageService {
     private readonly config: ConfigService,
     private readonly outbox: OutboxService,
     private readonly access: AssociationAccessService,
+    private readonly settings: AssociationSettingsService,
     private readonly attention: AssociationAttentionService,
     @Inject(IDENTITY_PROFILE_API)
     private readonly identity: IdentityProfileApi,
@@ -311,6 +309,19 @@ export class AssociationMessageService {
 
       candidates.push(row);
     }
+
+    if (await this.settings.suppressesEmail(association.id))
+      return {
+        eligible: [],
+        skipped: [
+          ...skipped,
+          ...candidates.map((row) => ({
+            memberId: row.memberId,
+            fullName: row.fullName,
+            reason: AssociationMessageSkipReason.EMAIL_SUPPRESSED,
+          })),
+        ],
+      };
 
     const [recipients, languages, recent] = await Promise.all([
       this.identity.recipients(candidates.map((row) => row.userId)),

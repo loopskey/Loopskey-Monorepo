@@ -9,6 +9,7 @@ fragment AssociationSettingsFields on AssociationSettings {
   complianceReminders
   welcomeMessages
   weeklyDigest
+  suppressAllEmail
   createdAt
   updatedAt
 }
@@ -892,5 +893,37 @@ query AssociationRecentActivity($limit: Int) {
     memberName
     requirementId
     requirementName
+  }
+}
+
+# ================= Settings =================
+query AssociationSettings {
+  associationSettings {
+    ...AssociationSettingsFields
+  }
+}
+
+mutation UpdateAssociationComplianceSettings(
+  $input: UpdateAssociationComplianceSettingsInput!
+) {
+  updateAssociationComplianceSettings(input: $input) {
+    applied
+    settings {
+      ...AssociationSettingsFields
+    }
+    impact {
+      totalMembers
+      membersChangingBand
+      membersEnteringAtRisk
+      membersLeavingAtRisk
+    }
+  }
+}
+
+mutation UpdateAssociationNotificationSettings(
+  $input: UpdateAssociationNotificationSettingsInput!
+) {
+  updateAssociationNotificationSettings(input: $input) {
+    ...AssociationSettingsFields
   }
 }

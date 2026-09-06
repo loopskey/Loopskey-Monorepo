@@ -41,6 +41,7 @@ export type ReportExportDocument = {
   generatedAt: Date;
   associationName: string;
   associationLogoUrl: string | null;
+  associationLogo: Buffer | null;
   dataset: ReportExportDataset;
 };
 

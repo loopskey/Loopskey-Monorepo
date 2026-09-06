@@ -1,8 +1,8 @@
 "use client";
 
+import { getAssociationErrorTranslationKey } from "@utils/association-error";
 import { useCallback, useMemo, useState } from "react";
 import { AssociationAttentionSection } from "@/lib/graphql/base";
-import { getAssociationErrorTranslationKey } from "@utils/association-error";
 import { useI18n } from "@hooks/useI18n";
 import { notify } from "@hooks/notify";
 
@@ -23,6 +23,7 @@ export const useAssociationMessagesTab = () => {
   const [groupFilter, setGroupFilter] = useState<Record<string, string>>({});
 
   const listsQuery = API.useAssociationAttentionListsQuery();
+  const settingsQuery = API.useAssociationSettingsQuery();
   const groupsQuery = API.useAssociationGroupsQuery();
   const historyQuery = API.useAssociationMessageHistoryQuery({});
   const exportsQuery = API.useAssociationGeneratedReportsQuery({});
@@ -122,6 +123,7 @@ export const useAssociationMessagesTab = () => {
 
   return {
     t,
+    isEmailSuppressed: settingsQuery.data?.suppressAllEmail ?? false,
     locale,
     counts,
     countOf,

@@ -1,12 +1,12 @@
-import { AssociationGeneratedReportState, Role } from "@prisma/client";
-import { AssociationReportFormat } from "@prisma/client";
 import { HttpException, Inject, Injectable, Logger } from "@nestjs/common";
+import { AssociationGeneratedReportState, Role } from "@prisma/client";
 import { AssociationReportDatasetService } from "@association/services/association-report-dataset.service";
-import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
 import { type ReportExportDocument } from "@association/types/association-report-export.types";
+import { AssociationReportFormat } from "@prisma/client";
+import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
 import { type ObjectStoragePort } from "@infrastructure/storage/object-storage.port";
-import { OBJECT_STORAGE } from "@infrastructure/storage/object-storage.port";
 import { writeReportWorkbook } from "@association/utils/association-report-excel.writer";
+import { OBJECT_STORAGE } from "@infrastructure/storage/object-storage.port";
 import { writeReportPdf } from "@association/utils/association-report-pdf.writer";
 import { PrismaService } from "@prisma/prisma.service";
 
@@ -32,10 +32,25 @@ export class AssociationReportGenerationService {
     private readonly storage: ObjectStoragePort,
   ) {}
 
+  private async logoBytes(storageKey: string | null) {
+    if (!storageKey) return null;
+    if (!(await this.storage.exists("logo", storageKey))) return null;
+
+    try {
+      return await this.storage.read("logo", storageKey);
+    } catch {
+      return null;
+    }
+  }
+
   async run(exportId: string) {
     const record = await this.prisma.associationGeneratedReport.findUnique({
       where: { id: exportId },
-      include: { association: { select: { name: true, logoUrl: true } } },
+      include: {
+        association: {
+          select: { name: true, logoUrl: true, logoStorageKey: true },
+        },
+      },
     });
 
     if (!record) return;
@@ -65,6 +80,9 @@ export class AssociationReportGenerationService {
         generatedAt: new Date(),
         associationName: record.association.name,
         associationLogoUrl: record.association.logoUrl,
+        associationLogo: await this.logoBytes(
+          record.association.logoStorageKey,
+        ),
       };
 
       const file =

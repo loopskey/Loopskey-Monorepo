@@ -9,7 +9,7 @@ rule; nothing is restated here.
 - [`context/project-overview.md`](context/project-overview.md) — architecture,
   domains, data model, stack, repository structure, application boundaries.
 - [`context/coding-standards.md`](context/coding-standards.md) — the rules:
-  concurrency, comments, tests, workflow, frontend and backend standards,
-  verification, definition of done.
+  concurrency, comments, tests, workflow, frontend and backend standards, text
+  search and indexing, verification, definition of done.
 
 Open anything else under `context/` only when the current task depends on it.

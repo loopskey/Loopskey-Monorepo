@@ -475,6 +475,13 @@ export type AssociationComplianceFilterInput = {
   requirementId?: InputMaybe<Scalars["ID"]["input"]>;
 };
 
+export type AssociationComplianceSettingsPayload = {
+  __typename?: "AssociationComplianceSettingsPayload";
+  applied: Scalars["Boolean"]["output"];
+  impact: AssociationSettingsImpact;
+  settings: AssociationSettings;
+};
+
 export type AssociationComplianceSummary = {
   __typename?: "AssociationComplianceSummary";
   awaitingReviewCount: Scalars["Int"]["output"];
@@ -882,6 +889,7 @@ export type AssociationMessageSkip = {
 /** Why a member in the audience was deliberately not written to */
 export enum AssociationMessageSkipReason {
   Cooldown = "COOLDOWN",
+  EmailSuppressed = "EMAIL_SUPPRESSED",
   InactiveAccount = "INACTIVE_ACCOUNT",
   NotInList = "NOT_IN_LIST",
   NoVerifiedEmail = "NO_VERIFIED_EMAIL",
@@ -1169,9 +1177,18 @@ export type AssociationSettings = {
   id: Scalars["ID"]["output"];
   onTrackThreshold: Scalars["Int"]["output"];
   renewalRequiresReviewedEvidence: Scalars["Boolean"]["output"];
+  suppressAllEmail: Scalars["Boolean"]["output"];
   updatedAt: Scalars["DateTime"]["output"];
   weeklyDigest: Scalars["Boolean"]["output"];
   welcomeMessages: Scalars["Boolean"]["output"];
+};
+
+export type AssociationSettingsImpact = {
+  __typename?: "AssociationSettingsImpact";
+  membersChangingBand: Scalars["Int"]["output"];
+  membersEnteringAtRisk: Scalars["Int"]["output"];
+  membersLeavingAtRisk: Scalars["Int"]["output"];
+  totalMembers: Scalars["Int"]["output"];
 };
 
 export enum AuditAction {
@@ -2348,9 +2365,11 @@ export type Mutation = {
   updateAdminOrganizationSettings: OrganizationSettings;
   updateAdminProfile: AdminProfile;
   updateAdminUserStatus: AdminUser;
+  updateAssociationComplianceSettings: AssociationComplianceSettingsPayload;
   updateAssociationGroup: AssociationGroup;
   updateAssociationLearningContent: AssociationLearningContent;
   updateAssociationMember: AssociationMember;
+  updateAssociationNotificationSettings: AssociationSettings;
   updateAssociationProfile: Association;
   updateAssociationRequirementAudience: AssociationRequirement;
   updateAssociationRequirementCategories: AssociationRequirement;
@@ -2815,6 +2834,10 @@ export type MutationUpdateAdminUserStatusArgs = {
   input: UpdateAdminUserStatus;
 };
 
+export type MutationUpdateAssociationComplianceSettingsArgs = {
+  input: UpdateAssociationComplianceSettingsInput;
+};
+
 export type MutationUpdateAssociationGroupArgs = {
   input: UpdateAssociationGroupInput;
 };
@@ -2825,6 +2848,10 @@ export type MutationUpdateAssociationLearningContentArgs = {
 
 export type MutationUpdateAssociationMemberArgs = {
   input: UpdateAssociationMemberInput;
+};
+
+export type MutationUpdateAssociationNotificationSettingsArgs = {
+  input: UpdateAssociationNotificationSettingsInput;
 };
 
 export type MutationUpdateAssociationProfileArgs = {
@@ -4677,6 +4704,7 @@ export type Query = {
   associationRequirementProgressReport: Array<AssociationRequirementProgressRow>;
   associationRequirementStats: AssociationRequirementStats;
   associationRequirements: PaginatedAssociationRequirements;
+  associationSettings: AssociationSettings;
   certificationSearch: Array<Certification>;
   contentReviews: Array<ContentReview>;
   courseById: Course;
@@ -4981,6 +5009,10 @@ export type QueryAssociationRequirementsArgs = {
   associationId?: InputMaybe<Scalars["ID"]["input"]>;
   filter?: InputMaybe<AssociationRequirementFilterInput>;
   pagination?: InputMaybe<AssociationPaginationInput>;
+};
+
+export type QueryAssociationSettingsArgs = {
+  associationId?: InputMaybe<Scalars["ID"]["input"]>;
 };
 
 export type QueryCertificationSearchArgs = {
@@ -5605,6 +5637,15 @@ export type UpdateAdminUserStatus = {
   userId: Scalars["String"]["input"];
 };
 
+export type UpdateAssociationComplianceSettingsInput = {
+  atRiskThreshold: Scalars["Int"]["input"];
+  defaultCreditType: CreditType;
+  dryRun?: InputMaybe<Scalars["Boolean"]["input"]>;
+  expectedUpdatedAt: Scalars["DateTime"]["input"];
+  onTrackThreshold: Scalars["Int"]["input"];
+  renewalRequiresReviewedEvidence: Scalars["Boolean"]["input"];
+};
+
 export type UpdateAssociationGroupInput = {
   description?: InputMaybe<Scalars["String"]["input"]>;
   groupId: Scalars["ID"]["input"];
@@ -5630,6 +5671,14 @@ export type UpdateAssociationMemberInput = {
   memberId: Scalars["ID"]["input"];
   memberNumber?: InputMaybe<Scalars["String"]["input"]>;
   notes?: InputMaybe<Scalars["String"]["input"]>;
+};
+
+export type UpdateAssociationNotificationSettingsInput = {
+  complianceReminders: Scalars["Boolean"]["input"];
+  expectedUpdatedAt: Scalars["DateTime"]["input"];
+  suppressAllEmail: Scalars["Boolean"]["input"];
+  weeklyDigest: Scalars["Boolean"]["input"];
+  welcomeMessages: Scalars["Boolean"]["input"];
 };
 
 export type UpdateAssociationProfileInput = {

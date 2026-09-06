@@ -1,5 +1,6 @@
 import type { TUseAssociationLearningContent } from "@hooks/useAssociationLearningContent";
 import type { TUseAssociationMessagesTab } from "@hooks/useAssociationMessagesTab";
+import type { TUseAssociationSettingsTab } from "@hooks/useAssociationSettingsTab";
 import type { TUseAssociationOverviewTab } from "@hooks/useAssociationOverviewTab";
 import type { TUseAssociationReportsTab } from "@hooks/useAssociationReportsTab";
 import type { TUseAssociationMemberDetail } from "@hooks/useAssociationMemberDetail";
@@ -267,4 +268,18 @@ export type TAssociationOverviewPanelProps = {
   retryLabel: string;
   errorMessage: string;
   skeleton?: ReactNode;
+};
+
+type TWithSettingsHook = { hook: TUseAssociationSettingsTab };
+
+export type TAssociationSettingsProps = TWithSettingsHook;
+
+export type TAssociationSettingsSectionProps = {
+  title: string;
+  description: string;
+  children: ReactNode;
+  saveLabel?: string;
+  isSaving?: boolean;
+  isDisabled?: boolean;
+  onSave?: () => void | Promise<void>;
 };

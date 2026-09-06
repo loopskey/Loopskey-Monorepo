@@ -20,7 +20,16 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "db:seed": "ts-node -r tsconfig-paths/register prisma/seed.ts"
+    "db:seed": "ts-node -r tsconfig-paths/register prisma/seed.ts",
+    "bench:setup": "node benchmark/setup-bench-db.js",
+    "bench:seed": "node benchmark/seed-bench.js",
+    "bench:queries": "node benchmark/bench-queries.js",
+    "bench:concurrency": "node benchmark/bench-concurrency.js",
+    "bench:pool": "node benchmark/bench-pool.js",
+    "bench:report": "node benchmark/bench-report-overview.js",
+    "bench:memory": "node --expose-gc benchmark/bench-report-memory.js",
+    "bench:search": "node benchmark/bench-search-index.js",
+    "bench:search-rewrite": "node benchmark/bench-search-rewrite.js"
   },
   "dependencies": {
     "@apollo/server": "^4.12.2",

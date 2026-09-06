@@ -1,27 +1,27 @@
 import * as Types from "@/lib/graphql/base";
 import { TypedDocumentString } from "@/lib/graphql/base";
-export type AssociationSettingsFieldsFragment = { __typename?: 'AssociationSettings', id: string, associationId: string, defaultCreditType: Types.CreditType, onTrackThreshold: number, atRiskThreshold: number, renewalRequiresReviewedEvidence: boolean, complianceReminders: boolean, welcomeMessages: boolean, weeklyDigest: boolean, createdAt: string, updatedAt: string };
+export type AssociationSettingsFieldsFragment = { __typename?: 'AssociationSettings', id: string, associationId: string, defaultCreditType: Types.CreditType, onTrackThreshold: number, atRiskThreshold: number, renewalRequiresReviewedEvidence: boolean, complianceReminders: boolean, welcomeMessages: boolean, weeklyDigest: boolean, suppressAllEmail: boolean, createdAt: string, updatedAt: string };
 
-export type AssociationFieldsFragment = { __typename?: 'Association', id: string, name: string, logoUrl?: string | null, description?: string | null, country?: string | null, website?: string | null, contactEmail?: string | null, ownerEmail?: string | null, ownerFullName?: string | null, ownerStatus: Types.UserStatus, createdAt: string, updatedAt: string, settings?: { __typename?: 'AssociationSettings', id: string, associationId: string, defaultCreditType: Types.CreditType, onTrackThreshold: number, atRiskThreshold: number, renewalRequiresReviewedEvidence: boolean, complianceReminders: boolean, welcomeMessages: boolean, weeklyDigest: boolean, createdAt: string, updatedAt: string } | null };
+export type AssociationFieldsFragment = { __typename?: 'Association', id: string, name: string, logoUrl?: string | null, description?: string | null, country?: string | null, website?: string | null, contactEmail?: string | null, ownerEmail?: string | null, ownerFullName?: string | null, ownerStatus: Types.UserStatus, createdAt: string, updatedAt: string, settings?: { __typename?: 'AssociationSettings', id: string, associationId: string, defaultCreditType: Types.CreditType, onTrackThreshold: number, atRiskThreshold: number, renewalRequiresReviewedEvidence: boolean, complianceReminders: boolean, welcomeMessages: boolean, weeklyDigest: boolean, suppressAllEmail: boolean, createdAt: string, updatedAt: string } | null };
 
 export type AssociationProfileQueryVariables = Types.Exact<{ [key: string]: never; }>;
 
 
-export type AssociationProfileQuery = { __typename?: 'Query', associationProfile: { __typename?: 'Association', id: string, name: string, logoUrl?: string | null, description?: string | null, country?: string | null, website?: string | null, contactEmail?: string | null, ownerEmail?: string | null, ownerFullName?: string | null, ownerStatus: Types.UserStatus, createdAt: string, updatedAt: string, settings?: { __typename?: 'AssociationSettings', id: string, associationId: string, defaultCreditType: Types.CreditType, onTrackThreshold: number, atRiskThreshold: number, renewalRequiresReviewedEvidence: boolean, complianceReminders: boolean, welcomeMessages: boolean, weeklyDigest: boolean, createdAt: string, updatedAt: string } | null } };
+export type AssociationProfileQuery = { __typename?: 'Query', associationProfile: { __typename?: 'Association', id: string, name: string, logoUrl?: string | null, description?: string | null, country?: string | null, website?: string | null, contactEmail?: string | null, ownerEmail?: string | null, ownerFullName?: string | null, ownerStatus: Types.UserStatus, createdAt: string, updatedAt: string, settings?: { __typename?: 'AssociationSettings', id: string, associationId: string, defaultCreditType: Types.CreditType, onTrackThreshold: number, atRiskThreshold: number, renewalRequiresReviewedEvidence: boolean, complianceReminders: boolean, welcomeMessages: boolean, weeklyDigest: boolean, suppressAllEmail: boolean, createdAt: string, updatedAt: string } | null } };
 
 export type UpdateAssociationProfileMutationVariables = Types.Exact<{
   input: Types.UpdateAssociationProfileInput;
 }>;
 
 
-export type UpdateAssociationProfileMutation = { __typename?: 'Mutation', updateAssociationProfile: { __typename?: 'Association', id: string, name: string, logoUrl?: string | null, description?: string | null, country?: string | null, website?: string | null, contactEmail?: string | null, ownerEmail?: string | null, ownerFullName?: string | null, ownerStatus: Types.UserStatus, createdAt: string, updatedAt: string, settings?: { __typename?: 'AssociationSettings', id: string, associationId: string, defaultCreditType: Types.CreditType, onTrackThreshold: number, atRiskThreshold: number, renewalRequiresReviewedEvidence: boolean, complianceReminders: boolean, welcomeMessages: boolean, weeklyDigest: boolean, createdAt: string, updatedAt: string } | null } };
+export type UpdateAssociationProfileMutation = { __typename?: 'Mutation', updateAssociationProfile: { __typename?: 'Association', id: string, name: string, logoUrl?: string | null, description?: string | null, country?: string | null, website?: string | null, contactEmail?: string | null, ownerEmail?: string | null, ownerFullName?: string | null, ownerStatus: Types.UserStatus, createdAt: string, updatedAt: string, settings?: { __typename?: 'AssociationSettings', id: string, associationId: string, defaultCreditType: Types.CreditType, onTrackThreshold: number, atRiskThreshold: number, renewalRequiresReviewedEvidence: boolean, complianceReminders: boolean, welcomeMessages: boolean, weeklyDigest: boolean, suppressAllEmail: boolean, createdAt: string, updatedAt: string } | null } };
 
 export type CreateAssociationAccountMutationVariables = Types.Exact<{
   input: Types.CreateAssociationAccountInput;
 }>;
 
 
-export type CreateAssociationAccountMutation = { __typename?: 'Mutation', createAssociationAccount: { __typename?: 'AssociationActionResponse', code: string, success: boolean, message: string, association?: { __typename?: 'Association', id: string, name: string, logoUrl?: string | null, description?: string | null, country?: string | null, website?: string | null, contactEmail?: string | null, ownerEmail?: string | null, ownerFullName?: string | null, ownerStatus: Types.UserStatus, createdAt: string, updatedAt: string, settings?: { __typename?: 'AssociationSettings', id: string, associationId: string, defaultCreditType: Types.CreditType, onTrackThreshold: number, atRiskThreshold: number, renewalRequiresReviewedEvidence: boolean, complianceReminders: boolean, welcomeMessages: boolean, weeklyDigest: boolean, createdAt: string, updatedAt: string } | null } | null } };
+export type CreateAssociationAccountMutation = { __typename?: 'Mutation', createAssociationAccount: { __typename?: 'AssociationActionResponse', code: string, success: boolean, message: string, association?: { __typename?: 'Association', id: string, name: string, logoUrl?: string | null, description?: string | null, country?: string | null, website?: string | null, contactEmail?: string | null, ownerEmail?: string | null, ownerFullName?: string | null, ownerStatus: Types.UserStatus, createdAt: string, updatedAt: string, settings?: { __typename?: 'AssociationSettings', id: string, associationId: string, defaultCreditType: Types.CreditType, onTrackThreshold: number, atRiskThreshold: number, renewalRequiresReviewedEvidence: boolean, complianceReminders: boolean, welcomeMessages: boolean, weeklyDigest: boolean, suppressAllEmail: boolean, createdAt: string, updatedAt: string } | null } | null } };
 
 export type ResendAssociationActivationMutationVariables = Types.Exact<{
   input: Types.ResendAssociationActivationInput;
@@ -362,6 +362,25 @@ export type AssociationRecentActivityQueryVariables = Types.Exact<{
 
 export type AssociationRecentActivityQuery = { __typename?: 'Query', associationRecentActivity: Array<{ __typename?: 'AssociationRecentActivity', id: string, state: Types.AssociationAttributionState, activityId: string, activityTitle: string, activityDate: string, recordedAt: string, credits: number, creditedAmount: number, category: Types.PduCategory, memberId: string, memberName?: string | null, requirementId: string, requirementName: string }> };
 
+export type AssociationSettingsQueryVariables = Types.Exact<{ [key: string]: never; }>;
+
+
+export type AssociationSettingsQuery = { __typename?: 'Query', associationSettings: { __typename?: 'AssociationSettings', id: string, associationId: string, defaultCreditType: Types.CreditType, onTrackThreshold: number, atRiskThreshold: number, renewalRequiresReviewedEvidence: boolean, complianceReminders: boolean, welcomeMessages: boolean, weeklyDigest: boolean, suppressAllEmail: boolean, createdAt: string, updatedAt: string } };
+
+export type UpdateAssociationComplianceSettingsMutationVariables = Types.Exact<{
+  input: Types.UpdateAssociationComplianceSettingsInput;
+}>;
+
+
+export type UpdateAssociationComplianceSettingsMutation = { __typename?: 'Mutation', updateAssociationComplianceSettings: { __typename?: 'AssociationComplianceSettingsPayload', applied: boolean, settings: { __typename?: 'AssociationSettings', id: string, associationId: string, defaultCreditType: Types.CreditType, onTrackThreshold: number, atRiskThreshold: number, renewalRequiresReviewedEvidence: boolean, complianceReminders: boolean, welcomeMessages: boolean, weeklyDigest: boolean, suppressAllEmail: boolean, createdAt: string, updatedAt: string }, impact: { __typename?: 'AssociationSettingsImpact', totalMembers: number, membersChangingBand: number, membersEnteringAtRisk: number, membersLeavingAtRisk: number } } };
+
+export type UpdateAssociationNotificationSettingsMutationVariables = Types.Exact<{
+  input: Types.UpdateAssociationNotificationSettingsInput;
+}>;
+
+
+export type UpdateAssociationNotificationSettingsMutation = { __typename?: 'Mutation', updateAssociationNotificationSettings: { __typename?: 'AssociationSettings', id: string, associationId: string, defaultCreditType: Types.CreditType, onTrackThreshold: number, atRiskThreshold: number, renewalRequiresReviewedEvidence: boolean, complianceReminders: boolean, welcomeMessages: boolean, weeklyDigest: boolean, suppressAllEmail: boolean, createdAt: string, updatedAt: string } };
+
 export const AssociationSettingsFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
     fragment AssociationSettingsFields on AssociationSettings {
   id
@@ -373,6 +392,7 @@ export const AssociationSettingsFieldsFragmentDoc = /*#__PURE__*/ new TypedDocum
   complianceReminders
   welcomeMessages
   weeklyDigest
+  suppressAllEmail
   createdAt
   updatedAt
 }
@@ -405,6 +425,7 @@ export const AssociationFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentStrin
   complianceReminders
   welcomeMessages
   weeklyDigest
+  suppressAllEmail
   createdAt
   updatedAt
 }`, {"fragmentName":"AssociationFields"}) as unknown as TypedDocumentString<AssociationFieldsFragment, unknown>;
@@ -688,6 +709,7 @@ export const AssociationProfileDocument = /*#__PURE__*/ new TypedDocumentString(
   complianceReminders
   welcomeMessages
   weeklyDigest
+  suppressAllEmail
   createdAt
   updatedAt
 }
@@ -724,6 +746,7 @@ export const UpdateAssociationProfileDocument = /*#__PURE__*/ new TypedDocumentS
   complianceReminders
   welcomeMessages
   weeklyDigest
+  suppressAllEmail
   createdAt
   updatedAt
 }
@@ -765,6 +788,7 @@ export const CreateAssociationAccountDocument = /*#__PURE__*/ new TypedDocumentS
   complianceReminders
   welcomeMessages
   weeklyDigest
+  suppressAllEmail
   createdAt
   updatedAt
 }
@@ -1903,3 +1927,72 @@ export const AssociationRecentActivityDocument = /*#__PURE__*/ new TypedDocument
   }
 }
     `) as unknown as TypedDocumentString<AssociationRecentActivityQuery, AssociationRecentActivityQueryVariables>;
+export const AssociationSettingsDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query AssociationSettings {
+  associationSettings {
+    ...AssociationSettingsFields
+  }
+}
+    fragment AssociationSettingsFields on AssociationSettings {
+  id
+  associationId
+  defaultCreditType
+  onTrackThreshold
+  atRiskThreshold
+  renewalRequiresReviewedEvidence
+  complianceReminders
+  welcomeMessages
+  weeklyDigest
+  suppressAllEmail
+  createdAt
+  updatedAt
+}`) as unknown as TypedDocumentString<AssociationSettingsQuery, AssociationSettingsQueryVariables>;
+export const UpdateAssociationComplianceSettingsDocument = /*#__PURE__*/ new TypedDocumentString(`
+    mutation UpdateAssociationComplianceSettings($input: UpdateAssociationComplianceSettingsInput!) {
+  updateAssociationComplianceSettings(input: $input) {
+    applied
+    settings {
+      ...AssociationSettingsFields
+    }
+    impact {
+      totalMembers
+      membersChangingBand
+      membersEnteringAtRisk
+      membersLeavingAtRisk
+    }
+  }
+}
+    fragment AssociationSettingsFields on AssociationSettings {
+  id
+  associationId
+  defaultCreditType
+  onTrackThreshold
+  atRiskThreshold
+  renewalRequiresReviewedEvidence
+  complianceReminders
+  welcomeMessages
+  weeklyDigest
+  suppressAllEmail
+  createdAt
+  updatedAt
+}`) as unknown as TypedDocumentString<UpdateAssociationComplianceSettingsMutation, UpdateAssociationComplianceSettingsMutationVariables>;
+export const UpdateAssociationNotificationSettingsDocument = /*#__PURE__*/ new TypedDocumentString(`
+    mutation UpdateAssociationNotificationSettings($input: UpdateAssociationNotificationSettingsInput!) {
+  updateAssociationNotificationSettings(input: $input) {
+    ...AssociationSettingsFields
+  }
+}
+    fragment AssociationSettingsFields on AssociationSettings {
+  id
+  associationId
+  defaultCreditType
+  onTrackThreshold
+  atRiskThreshold
+  renewalRequiresReviewedEvidence
+  complianceReminders
+  welcomeMessages
+  weeklyDigest
+  suppressAllEmail
+  createdAt
+  updatedAt
+}`) as unknown as TypedDocumentString<UpdateAssociationNotificationSettingsMutation, UpdateAssociationNotificationSettingsMutationVariables>;

@@ -422,6 +422,12 @@ input AssociationComplianceFilterInput {
   requirementId: ID
 }
 
+type AssociationComplianceSettingsPayload {
+  applied: Boolean!
+  impact: AssociationSettingsImpact!
+  settings: AssociationSettings!
+}
+
 type AssociationComplianceSummary {
   awaitingReviewCount: Int!
   band: AssociationComplianceBand!
@@ -805,6 +811,7 @@ type AssociationMessageSkip {
 """Why a member in the audience was deliberately not written to"""
 enum AssociationMessageSkipReason {
   COOLDOWN
+  EMAIL_SUPPRESSED
   INACTIVE_ACCOUNT
   NOT_IN_LIST
   NO_VERIFIED_EMAIL
@@ -1080,9 +1087,17 @@ type AssociationSettings {
   id: ID!
   onTrackThreshold: Int!
   renewalRequiresReviewedEvidence: Boolean!
+  suppressAllEmail: Boolean!
   updatedAt: DateTime!
   weeklyDigest: Boolean!
   welcomeMessages: Boolean!
+}
+
+type AssociationSettingsImpact {
+  membersChangingBand: Int!
+  membersEnteringAtRisk: Int!
+  membersLeavingAtRisk: Int!
+  totalMembers: Int!
 }
 
 enum AuditAction {
@@ -2240,9 +2255,11 @@ type Mutation {
   updateAdminOrganizationSettings(input: UpdateAdminOrgSettings!): OrganizationSettings!
   updateAdminProfile(input: UpdateAdminProfile!): AdminProfile!
   updateAdminUserStatus(input: UpdateAdminUserStatus!): AdminUser!
+  updateAssociationComplianceSettings(input: UpdateAssociationComplianceSettingsInput!): AssociationComplianceSettingsPayload!
   updateAssociationGroup(input: UpdateAssociationGroupInput!): AssociationGroup!
   updateAssociationLearningContent(input: UpdateAssociationLearningContentInput!): AssociationLearningContent!
   updateAssociationMember(input: UpdateAssociationMemberInput!): AssociationMember!
+  updateAssociationNotificationSettings(input: UpdateAssociationNotificationSettingsInput!): AssociationSettings!
   updateAssociationProfile(input: UpdateAssociationProfileInput!): Association!
   updateAssociationRequirementAudience(input: UpdateAssociationRequirementAudienceInput!): AssociationRequirement!
   updateAssociationRequirementCategories(input: UpdateAssociationRequirementCategoriesInput!): AssociationRequirement!
@@ -3869,6 +3886,7 @@ type Query {
   associationRequirementProgressReport(associationId: ID, filter: AssociationReportFilterInput): [AssociationRequirementProgressRow!]!
   associationRequirementStats(associationId: ID): AssociationRequirementStats!
   associationRequirements(associationId: ID, filter: AssociationRequirementFilterInput, pagination: AssociationPaginationInput): PaginatedAssociationRequirements!
+  associationSettings(associationId: ID): AssociationSettings!
   certificationSearch(input: CertificationSearchInput!): [Certification!]!
   contentReviews(contentId: String!, contentType: ContentType!): [ContentReview!]!
   courseById(courseId: String!): Course!
@@ -4268,6 +4286,15 @@ input UpdateAdminUserStatus {
   userId: String!
 }
 
+input UpdateAssociationComplianceSettingsInput {
+  atRiskThreshold: Int!
+  defaultCreditType: CreditType!
+  dryRun: Boolean
+  expectedUpdatedAt: DateTime!
+  onTrackThreshold: Int!
+  renewalRequiresReviewedEvidence: Boolean!
+}
+
 input UpdateAssociationGroupInput {
   description: String
   groupId: ID!
@@ -4293,6 +4320,14 @@ input UpdateAssociationMemberInput {
   memberId: ID!
   memberNumber: String
   notes: String
+}
+
+input UpdateAssociationNotificationSettingsInput {
+  complianceReminders: Boolean!
+  expectedUpdatedAt: DateTime!
+  suppressAllEmail: Boolean!
+  weeklyDigest: Boolean!
+  welcomeMessages: Boolean!
 }
 
 input UpdateAssociationProfileInput {
