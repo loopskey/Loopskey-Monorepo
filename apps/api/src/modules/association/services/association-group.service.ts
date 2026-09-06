@@ -1,3 +1,4 @@
+import { AssociationRequirementAssignmentService } from "@association/services/association-requirement-assignment.service";
 import { SetAssociationGroupActiveInput } from "@association/dtos/association-group.input";
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { CreateAssociationGroupInput } from "@association/dtos/association-group.input";
@@ -35,6 +36,7 @@ export class AssociationGroupService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly access: AssociationAccessService,
+    private readonly assignments: AssociationRequirementAssignmentService,
   ) {}
 
   async list(user: TAssociationUser, associationId?: string) {
@@ -100,6 +102,8 @@ export class AssociationGroupService {
         select: GROUP_SELECT,
       });
     });
+    if (!input.isActive)
+      await this.assignments.materialiseForAssociation(association.id);
     return project(group);
   }
 

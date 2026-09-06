@@ -121,11 +121,15 @@ model User {
   roadmapDrafts          RoadmapDraft[]
   ownedRoadmaps          Roadmap[]                @relation("OwnedRoadmaps")
 
-  ownedOrganization       Organization?            @relation("OrganizationOwner")
-  ownedAssociation        Association?             @relation("AssociationOwner")
-  associationMemberships  AssociationMember[]
-  organizationMemberships OrganizationMember[]
-  createdOrgAssignments   OrganizationAssignment[] @relation("CreatedOrgAssignments")
+  ownedOrganization               Organization?                @relation("OrganizationOwner")
+  ownedAssociation                Association?                 @relation("AssociationOwner")
+  associationMemberships          AssociationMember[]
+  authoredAssociationRequirements AssociationRequirement[]     @relation("AssociationRequirementAuthor")
+  authoredAssociationLearning     AssociationLearningContent[] @relation("AssociationLearningContentAuthor")
+  requestedAssociationReports     AssociationGeneratedReport[] @relation("AssociationReportRequester")
+  associationMessageDeliveries    AssociationMessageDelivery[]
+  organizationMemberships         OrganizationMember[]
+  createdOrgAssignments           OrganizationAssignment[]     @relation("CreatedOrgAssignments")
 
   promotionRequests          EventPromotionRequest[]
   reviewedPromotionRequests  EventPromotionRequest[]    @relation("ReviewedPromotionRequests")
@@ -212,8 +216,6 @@ model OtpCode {
   @@index([destination])
   @@index([purpose])
   @@index([expiresAt])
-  // Organization activation resolves a link straight from its hashed token, so
-  // this is the only OTP lookup that has no user or destination to narrow it.
   @@index([codeHash, purpose])
 }
 
@@ -267,42 +269,40 @@ enum ExperienceRange {
 }
 
 enum SkillLevel {
-  BEGINNER
-  INTERMEDIATE
-  ADVANCED
   EXPERT
+  BEGINNER
+  ADVANCED
+  INTERMEDIATE
 }
 
 enum LearningFormat {
+  VIDEO
   COURSE
   WEBINAR
-  WORKSHOP
-  VIDEO
   PODCAST
   ARTICLE
+  WORKSHOP
 }
 
 enum LearningTimeCommitment {
+  FOUR_TO_SIX_HOURS
   LESS_THAN_ONE_HOUR
   ONE_TO_THREE_HOURS
-  FOUR_TO_SIX_HOURS
   SEVEN_TO_TEN_HOURS
   MORE_THAN_TEN_HOURS
 }
 
 enum LearningBudgetPreference {
-  FREE_ONLY
-  MIXED_FREE_AND_PAID
   PREMIUM
+  FREE_ONLY
   EMPLOYER_SPONSORED
+  MIXED_FREE_AND_PAID
 }
 
-// What the professional asked Loopskey to help them with. Drives onboarding
-// step count and personalisation; editable from the profile afterwards.
 enum ProfessionalGoal {
-  MAINTAIN_CERTIFICATION
   GROW_IN_CURRENT_ROLE
   PREPARE_FOR_NEXT_ROLE
+  MAINTAIN_CERTIFICATION
   EXPLORE_PROFESSIONAL_PATH
 }
 
@@ -311,13 +311,11 @@ model ProfessionalProfile {
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Basic profile
   linkedInUrl String?
   countryCode String?
   language    AppLanguage?
   timeZone    String?
 
-  // Professional details
   profession          String?
   industry            ProfessionalIndustry?
   currentRole         String?
@@ -330,7 +328,6 @@ model ProfessionalProfile {
   onboardingCompletedAt DateTime?
   onboardingDismissedAt DateTime?
 
-  // Skills and interests
   currentSkillLevel SkillLevel?
   targetSkillLevel  SkillLevel?
 
@@ -355,9 +352,9 @@ model ProfessionalProfile {
 
 // ========== Professional profile taxonomy ==========
 enum ProfileTaxonomyKind {
-  SKILL_AREA
-  SUBJECT
   ROLE
+  SUBJECT
+  SKILL_AREA
 }
 
 enum ProfileTermUsage {
@@ -1189,10 +1186,10 @@ enum PDUCategory {
   STRATEGIC
   LEADERSHIP
   COMPLIANCE
-  COMMUNICATION
   DIGITAL_AI
-  RESEARCH_INNOVATION
+  COMMUNICATION
   INDUSTRY_KNOWLEDGE
+  RESEARCH_INNOVATION
   PROFESSIONAL_PRACTICE
 }
 
@@ -1394,6 +1391,8 @@ model PDUActivity {
   contentType ContentType?
   contentId   String?
 
+  reviewNote String?
+
   evidenceFiles PDUActivityFile[]
 
   createdAt DateTime @default(now())
@@ -1504,7 +1503,6 @@ model CPDPlan {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Optional link to the catalogue record the plan was suggested from.
   certificationId String?
   certification   Certification? @relation(fields: [certificationId], references: [id], onDelete: SetNull)
 
@@ -1516,8 +1514,6 @@ model CPDPlan {
 
   creditType              CreditType @default(CPD)
   totalRequiredCredits    Float
-  // Baseline of credits completed before LoopsKey tracking began. Kept separate
-  // from recorded PDUActivity credits to avoid double counting.
   initialCompletedCredits Float      @default(0)
 
   timeAvailable    LearningTimeCommitment?
@@ -1805,7 +1801,6 @@ model RoadmapEnrollment {
 
   targetDate DateTime?
 
-  // The wizard draft this enrollment was generated from, when it was.
   draftId String?       @unique
   draft   RoadmapDraft? @relation(fields: [draftId], references: [id], onDelete: SetNull)
 
@@ -2136,16 +2131,22 @@ model Association {
   ownerId String @unique
   owner   User   @relation("AssociationOwner", fields: [ownerId], references: [id], onDelete: Cascade)
 
-  name         String
-  logoUrl      String?
-  description  String?
-  country      String?
-  website      String?
-  contactEmail String?
+  name    String
+  logoUrl String?
 
-  settings AssociationSettings?
-  groups   AssociationGroup[]
-  members  AssociationMember[]
+  logoStorageKey String?
+  description    String?
+  country        String?
+  website        String?
+  contactEmail   String?
+
+  settings          AssociationSettings?
+  groups            AssociationGroup[]
+  members           AssociationMember[]
+  requirements      AssociationRequirement[]
+  learningContents  AssociationLearningContent[]
+  generatedReports  AssociationGeneratedReport[]
+  messageDeliveries AssociationMessageDelivery[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -2173,19 +2174,18 @@ model AssociationSettings {
   welcomeMessages     Boolean @default(true)
   weeklyDigest        Boolean @default(true)
 
+  suppressAllEmail Boolean @default(false)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 enum AssociationMemberStatus {
-  PENDING_ACTIVATION
   ACTIVE
   INACTIVE
+  PENDING_ACTIVATION
 }
 
-/// How an association segments its roster: a chapter, a region, a grade.
-/// Deactivating a group leaves its members in place with no group, so a group
-/// is never a way to lose people.
 model AssociationGroup {
   id String @id @default(cuid())
 
@@ -2196,7 +2196,9 @@ model AssociationGroup {
   description String?
   isActive    Boolean @default(true)
 
-  members AssociationMember[]
+  members           AssociationMember[]
+  requirementTarget AssociationRequirementTarget[]
+  learningContents  AssociationLearningContent[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -2205,15 +2207,6 @@ model AssociationGroup {
   @@index([associationId])
 }
 
-/// A professional's membership of an association. Membership is not employment:
-/// the same user may hold this and an OrganizationMember row at once, and
-/// neither side sees the other.
-///
-/// A member number is unique within an association only when it is present, and
-/// Prisma cannot express a partial unique index. The migration creates
-/// `AssociationMember_member_number_key` on (associationId, memberNumber) WHERE
-/// "memberNumber" IS NOT NULL as an unmanaged index. `prisma migrate dev`
-/// reports it as drift and offers to drop it — refuse that offer.
 model AssociationMember {
   id String @id @default(cuid())
 
@@ -2235,6 +2228,10 @@ model AssociationMember {
   invitedAt     DateTime  @default(now())
   activatedAt   DateTime?
   deactivatedAt DateTime?
+
+  requirementTargets     AssociationRequirementTarget[]
+  requirementAssignments AssociationRequirementAssignment[]
+  messageDeliveries      AssociationMessageDelivery[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -2266,6 +2263,8 @@ enum AuditAction {
   ORGANIZATION_ACCOUNT_ACTIVATED
   ORGANIZATION_ACTIVATION_RESENT
   ORGANIZATION_NOTIFICATION_FAILED
+  ASSOCIATION_ACTIVITY_APPROVED
+  ASSOCIATION_ACTIVITY_REJECTED
 }
 
 model AuditLog {
@@ -2385,4 +2384,359 @@ model OutboxDelivery {
 
   @@id([eventId, handlerName])
   @@index([processedAt])
+}
+
+enum AssociationRequirementStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum AssociationReportingCycle {
+  ONE_TIME
+  ANNUAL
+  MULTI_YEAR
+}
+
+enum AssociationAudienceKind {
+  ALL_MEMBERS
+  GROUP
+  SPECIFIC_MEMBERS
+}
+
+enum AssociationEvidencePolicy {
+  NOT_REQUIRED
+  REQUIRED_NO_REVIEW
+  REQUIRED_NEEDS_REVIEW
+}
+
+model AssociationRequirement {
+  id String @id @default(cuid())
+
+  associationId String
+  association   Association @relation(fields: [associationId], references: [id], onDelete: Cascade)
+
+  createdById String
+  createdBy   User   @relation("AssociationRequirementAuthor", fields: [createdById], references: [id], onDelete: Cascade)
+
+  name        String
+  description String?
+
+  creditType           CreditType @default(CPD)
+  totalRequiredCredits Float      @default(0)
+  deadline             DateTime?
+
+  reportingCycle   AssociationReportingCycle @default(ONE_TIME)
+  cycleLengthYears Int?
+
+  evidencePolicy AssociationEvidencePolicy @default(NOT_REQUIRED)
+
+  reportingStart DateTime?
+  reportingEnd   DateTime?
+
+  submissionOpensAt  DateTime?
+  submissionClosesAt DateTime?
+
+  gracePeriodDays     Int     @default(0)
+  allowLateSubmission Boolean @default(true)
+
+  remindersEnabled Boolean            @default(false)
+  reminderTiming   CPDReminderTiming?
+
+  audienceKind AssociationAudienceKind @default(ALL_MEMBERS)
+
+  status      AssociationRequirementStatus @default(DRAFT)
+  publishedAt DateTime?
+  archivedAt  DateTime?
+
+  categories       AssociationRequirementCategory[]
+  targets          AssociationRequirementTarget[]
+  assignments      AssociationRequirementAssignment[]
+  learningContents AssociationLearningContent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([associationId])
+  @@index([associationId, status])
+  @@index([deadline])
+  @@index([createdAt])
+}
+
+model AssociationRequirementCategory {
+  id String @id @default(cuid())
+
+  requirementId String
+  requirement   AssociationRequirement @relation(fields: [requirementId], references: [id], onDelete: Cascade)
+
+  name            String
+  mappedCategory  PDUCategory
+  requiredCredits Float       @default(0)
+  order           Int         @default(0)
+
+  attributions AssociationCreditAttribution[]
+
+  @@unique([requirementId, name])
+  @@unique([requirementId, mappedCategory])
+  @@index([requirementId])
+}
+
+model AssociationRequirementTarget {
+  id String @id @default(cuid())
+
+  requirementId String
+  requirement   AssociationRequirement @relation(fields: [requirementId], references: [id], onDelete: Cascade)
+
+  kind AssociationAudienceKind
+
+  groupId String?
+  group   AssociationGroup? @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  memberId String?
+  member   AssociationMember? @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([requirementId, groupId])
+  @@unique([requirementId, memberId])
+  @@index([requirementId])
+}
+
+model AssociationRequirementAssignment {
+  id String @id @default(cuid())
+
+  requirementId String
+  requirement   AssociationRequirement @relation(fields: [requirementId], references: [id], onDelete: Cascade)
+
+  memberId String
+  member   AssociationMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  cycleStart DateTime
+  cycleEnd   DateTime?
+  dueDate    DateTime?
+
+  isTargeted Boolean @default(true)
+
+  recordedCredits     Float                     @default(0)
+  completedCredits    Float                     @default(0)
+  percent             Float                     @default(0)
+  band                AssociationComplianceBand @default(NOT_STARTED)
+  awaitingReviewCount Int                       @default(0)
+  isMissingEvidence   Boolean                   @default(false)
+  computedAt          DateTime?
+
+  attributions AssociationCreditAttribution[]
+
+  assignedAt DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([requirementId, memberId, cycleStart])
+  @@index([memberId])
+  @@index([dueDate])
+  @@index([requirementId])
+  @@index([band])
+}
+
+enum AssociationAttributionState {
+  COUNTED
+  AWAITING_REVIEW
+  REJECTED
+}
+
+enum AssociationComplianceBand {
+  NOT_STARTED
+  AT_RISK
+  ON_TRACK
+  RENEWAL_READY
+}
+
+model AssociationCreditAttribution {
+  id String @id @default(cuid())
+
+  assignmentId String
+  assignment   AssociationRequirementAssignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+
+  activityId String
+
+  categoryId String?
+  category   AssociationRequirementCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  creditedAmount Float                       @default(0)
+  activityDate   DateTime
+  isLate         Boolean                     @default(false)
+  state          AssociationAttributionState @default(COUNTED)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([assignmentId, activityId])
+  @@index([assignmentId])
+  @@index([activityId])
+  @@index([categoryId])
+  @@index([state])
+  @@index([assignmentId, createdAt])
+}
+
+model AssociationLearningContent {
+  id String @id @default(cuid())
+
+  associationId String
+  association   Association @relation(fields: [associationId], references: [id], onDelete: Cascade)
+
+  createdById String
+  createdBy   User   @relation("AssociationLearningContentAuthor", fields: [createdById], references: [id], onDelete: Cascade)
+
+  contentType ContentType?
+  contentId   String?
+
+  externalTitle    String?
+  externalProvider String?
+  externalUrl      String?
+
+  description String?
+
+  category          PDUCategory
+  indicativeCredits Float?
+
+  requirementId String?
+  requirement   AssociationRequirement? @relation(fields: [requirementId], references: [id], onDelete: SetNull)
+
+  status      AssociationLearningContentStatus @default(DRAFT)
+  publishedAt DateTime?
+  withdrawnAt DateTime?
+
+  audienceKind AssociationAudienceKind @default(ALL_MEMBERS)
+
+  groupId String?
+  group   AssociationGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([associationId])
+  @@index([associationId, status])
+  @@index([category])
+  @@index([requirementId])
+  @@index([groupId])
+  @@index([contentType, contentId])
+}
+
+enum AssociationLearningContentStatus {
+  DRAFT
+  PUBLISHED
+  WITHDRAWN
+}
+
+enum AssociationReportType {
+  GROUP_PROGRESS
+  MEMBER_PROGRESS
+  OVERVIEW_SUMMARY
+  MISSING_EVIDENCE
+  RENEWAL_READINESS
+  CATEGORY_COMPLETION
+}
+
+enum AssociationReportFormat {
+  PDF
+  EXCEL
+}
+
+enum AssociationGeneratedReportState {
+  READY
+  FAILED
+  PENDING
+  EXPIRED
+}
+
+model AssociationGeneratedReport {
+  id String @id @default(cuid())
+
+  associationId String
+  association   Association @relation(fields: [associationId], references: [id], onDelete: Cascade)
+
+  requestedById String
+  requestedBy   User   @relation("AssociationReportRequester", fields: [requestedById], references: [id], onDelete: Cascade)
+
+  reportType AssociationReportType
+  format     AssociationReportFormat
+
+  filter     Json
+  filterHash String
+
+  locale String @default("en")
+
+  state AssociationGeneratedReportState @default(PENDING)
+
+  storageKey String
+  fileName   String
+  mimeType   String
+
+  sizeBytes Int?
+  rowCount  Int?
+
+  failureReason String?
+
+  readyAt   DateTime?
+  expiresAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([associationId, createdAt])
+  @@index([associationId, state])
+  @@index([state, expiresAt])
+}
+
+enum AssociationMessageType {
+  WELCOME
+  CATEGORY_BEHIND
+  BEHIND_THRESHOLD
+  CERTIFICATE_EXPIRING
+}
+
+enum AssociationMessageDeliveryState {
+  SENT
+  QUEUED
+  FAILED
+  SKIPPED
+}
+
+model AssociationMessageDelivery {
+  id String @id @default(cuid())
+
+  associationId String
+  association   Association @relation(fields: [associationId], references: [id], onDelete: Cascade)
+
+  memberId String
+  member   AssociationMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  recipientUserId String
+  recipientUser   User   @relation(fields: [recipientUserId], references: [id], onDelete: Cascade)
+
+  messageType     AssociationMessageType
+  templateVersion Int                    @default(1)
+
+  audience Json
+
+  context Json
+
+  language AppLanguage @default(EN)
+
+  cooldownBucket Int
+
+  state AssociationMessageDeliveryState @default(QUEUED)
+
+  skipReason    String?
+  failureReason String?
+
+  sentAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([associationId, memberId, messageType, cooldownBucket])
+  @@index([associationId, createdAt])
+  @@index([associationId, messageType])
+  @@index([memberId])
+  @@index([state])
 }

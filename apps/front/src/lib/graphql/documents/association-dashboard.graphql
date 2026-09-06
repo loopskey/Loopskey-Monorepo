@@ -9,6 +9,7 @@ fragment AssociationSettingsFields on AssociationSettings {
   complianceReminders
   welcomeMessages
   weeklyDigest
+  suppressAllEmail
   createdAt
   updatedAt
 }
@@ -191,5 +192,738 @@ mutation UpdateAssociationGroup($input: UpdateAssociationGroupInput!) {
 mutation SetAssociationGroupActive($input: SetAssociationGroupActiveInput!) {
   setAssociationGroupActive(input: $input) {
     ...AssociationGroupFields
+  }
+}
+
+# ================= Member detail and evidence review =================
+fragment AssociationCategoryProgressFields on AssociationCategoryProgress {
+  id
+  name
+  percent
+  requiredCredits
+  completedCredits
+}
+
+fragment AssociationAssignmentProgressFields on AssociationAssignmentProgress {
+  id
+  requirementId
+  requirementName
+  creditType
+  evidencePolicy
+  requiredCredits
+  completedCredits
+  percent
+  band
+  cycleStart
+  cycleEnd
+  dueDate
+  daysRemaining
+  awaitingReviewCount
+  isMissingEvidence
+  computedAt
+  categories {
+    ...AssociationCategoryProgressFields
+  }
+}
+
+fragment AssociationEvidenceFileFields on AssociationEvidenceFile {
+  id
+  fileName
+  mimeType
+  sizeBytes
+}
+
+fragment AssociationMemberActivityFields on AssociationMemberActivity {
+  id
+  memberId
+  title
+  source
+  category
+  creditType
+  credits
+  date
+  state
+  isLate
+  canReview
+  hasEvidence
+  evidenceNote
+  evidenceUrl
+  reviewNote
+  files {
+    ...AssociationEvidenceFileFields
+  }
+  requirements {
+    id
+    name
+    canReview
+    creditedAmount
+  }
+}
+
+query AssociationMemberProfile($memberId: ID!) {
+  associationMemberProfile(memberId: $memberId) {
+    isMissingEvidence
+    member {
+      ...AssociationMemberFields
+    }
+    summary {
+      percent
+      band
+      creditsRequired
+      creditsCompleted
+      creditsRemaining
+      awaitingReviewCount
+      nearestDueDate
+      nearestDueDays
+      nearestRequirementId
+      nearestRequirementName
+      pacePercent
+    }
+    assignments {
+      ...AssociationAssignmentProgressFields
+    }
+    cumulative {
+      date
+      credits
+      requiredCredits
+    }
+    certificates {
+      id
+      memberId
+      title
+      issuer
+      issuedAt
+      validUntil
+      status
+      creditsEarned
+      files {
+        ...AssociationEvidenceFileFields
+      }
+    }
+  }
+}
+
+query AssociationMemberActivities(
+  $memberId: ID!
+  $filter: AssociationMemberActivityFilterInput
+  $pagination: AssociationPaginationInput
+) {
+  associationMemberActivities(
+    memberId: $memberId
+    filter: $filter
+    pagination: $pagination
+  ) {
+    totalCount
+    counts {
+      counted
+      rejected
+      awaitingReview
+    }
+    pageInfo {
+      hasNextPage
+      nextCursor
+    }
+    items {
+      ...AssociationMemberActivityFields
+    }
+  }
+}
+
+query AssociationMemberRequirementOptions($memberId: ID!) {
+  associationMemberRequirementOptions(memberId: $memberId) {
+    id
+    name
+    deadline
+    creditType
+    audienceKind
+    isAssigned
+    isMemberManaged
+    totalRequiredCredits
+  }
+}
+
+mutation ReviewAssociationLearningActivity(
+  $input: ReviewAssociationLearningActivityInput!
+) {
+  reviewAssociationLearningActivity(input: $input) {
+    approved
+    memberId
+    activityId
+    requirementId
+  }
+}
+
+mutation SetAssociationMemberRequirements(
+  $input: SetAssociationMemberRequirementsInput!
+) {
+  setAssociationMemberRequirements(input: $input) {
+    memberId
+    added
+    removed
+  }
+}
+
+# ================= Learning content =================
+fragment AssociationLearningContentFields on AssociationLearningContent {
+  id
+  title
+  isExternal
+  isAvailable
+  contentType
+  contentId
+  provider
+  imageUrl
+  externalUrl
+  description
+  category
+  indicativeCredits
+  requirementId
+  requirementName
+  groupId
+  groupTitle
+  status
+  audienceKind
+  publishedAt
+  withdrawnAt
+  createdAt
+  updatedAt
+}
+
+query AssociationLearningContents(
+  $filter: AssociationLearningContentFilterInput
+  $pagination: AssociationPaginationInput
+) {
+  associationLearningContents(filter: $filter, pagination: $pagination) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      nextCursor
+    }
+    items {
+      ...AssociationLearningContentFields
+    }
+  }
+}
+
+query AssociationLearningContent($learningContentId: ID!) {
+  associationLearningContent(learningContentId: $learningContentId) {
+    ...AssociationLearningContentFields
+    engagement {
+      memberCount
+      credits
+    }
+  }
+}
+
+query AssociationCatalogSearch($input: AssociationCatalogSearchInput!) {
+  associationCatalogSearch(input: $input) {
+    contentType
+    contentId
+    title
+    provider
+    imageUrl
+    isAvailable
+  }
+}
+
+mutation CreateAssociationLearningContent(
+  $input: CreateAssociationLearningContentInput!
+) {
+  createAssociationLearningContent(input: $input) {
+    ...AssociationLearningContentFields
+  }
+}
+
+mutation UpdateAssociationLearningContent(
+  $input: UpdateAssociationLearningContentInput!
+) {
+  updateAssociationLearningContent(input: $input) {
+    ...AssociationLearningContentFields
+  }
+}
+
+mutation PublishAssociationLearningContent(
+  $input: PublishAssociationLearningContentInput!
+) {
+  publishAssociationLearningContent(input: $input) {
+    ...AssociationLearningContentFields
+  }
+}
+
+mutation WithdrawAssociationLearningContent(
+  $input: AssociationLearningContentIdInput!
+) {
+  withdrawAssociationLearningContent(input: $input) {
+    ...AssociationLearningContentFields
+  }
+}
+
+mutation DeleteAssociationLearningContent(
+  $input: AssociationLearningContentIdInput!
+) {
+  deleteAssociationLearningContent(input: $input) {
+    code
+    success
+    message
+  }
+}
+
+query AssociationRequirementOptions($pagination: AssociationPaginationInput) {
+  associationRequirements(pagination: $pagination) {
+    items {
+      id
+      name
+      status
+    }
+  }
+}
+
+# ================= Reports =================
+fragment AssociationReportSummaryFields on AssociationReportSummary {
+  periodStart
+  periodEnd
+  computedAt
+  totalMembers
+  totalMembersChange
+  renewalReady
+  renewalReadyShare
+  renewalReadyChange
+  onTrack
+  onTrackShare
+  onTrackChange
+  atRisk
+  atRiskShare
+  atRiskChange
+  missingEvidence
+  missingEvidenceShare
+  missingEvidenceChange
+  averageCompletion
+}
+
+fragment AssociationGroupComplianceFields on AssociationGroupCompliance {
+  groupId
+  groupTitle
+  memberCount
+  averageCompletion
+  renewalReady
+  onTrack
+  atRisk
+  notStarted
+}
+
+fragment AssociationCategoryProgressRowFields on AssociationCategoryProgressRow {
+  categoryId
+  categoryName
+  mappedCategory
+  requirementId
+  requirementName
+  requiredCredits
+  averageCompletedCredits
+  averagePercent
+  memberCount
+  onTrackCount
+  behindCount
+  atRiskCount
+  belowHalfCount
+}
+
+fragment AssociationMemberDistributionFields on AssociationMemberDistribution {
+  totalMembers
+  renewalReady
+  renewalReadyShare
+  onTrack
+  onTrackShare
+  atRisk
+  atRiskShare
+  notStarted
+  notStartedShare
+}
+
+fragment AssociationComplianceTrendFields on AssociationComplianceTrendPoint {
+  at
+  totalMembers
+  renewalReady
+  renewalReadyShare
+  onTrack
+  onTrackShare
+  atRisk
+  atRiskShare
+  notStarted
+  notStartedShare
+  averageCompletion
+}
+
+query AssociationReportsOverview($filter: AssociationReportFilterInput) {
+  associationReportSummary(filter: $filter) {
+    ...AssociationReportSummaryFields
+  }
+  associationMemberDistribution(filter: $filter) {
+    ...AssociationMemberDistributionFields
+  }
+  associationComplianceByGroup(filter: $filter) {
+    ...AssociationGroupComplianceFields
+  }
+  associationProgressByCategory(filter: $filter) {
+    ...AssociationCategoryProgressRowFields
+  }
+  associationComplianceTrend(filter: $filter) {
+    ...AssociationComplianceTrendFields
+  }
+}
+
+query AssociationProgressByCategory($filter: AssociationReportFilterInput) {
+  associationProgressByCategory(filter: $filter) {
+    ...AssociationCategoryProgressRowFields
+  }
+}
+
+query AssociationMemberProgressReport(
+  $filter: AssociationReportFilterInput
+  $pagination: AssociationReportPaginationInput
+) {
+  associationMemberProgressReport(filter: $filter, pagination: $pagination) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      nextCursor
+    }
+    items {
+      memberId
+      fullName
+      email
+      memberNumber
+      groupTitle
+      band
+      percent
+      requiredCredits
+      completedCredits
+      awaitingReviewCount
+      isMissingEvidence
+      hasStarted
+      earliestUnmetDeadline
+    }
+  }
+}
+
+query AssociationGroupProgressReport($filter: AssociationReportFilterInput) {
+  associationGroupProgressReport(filter: $filter) {
+    groupId
+    groupTitle
+    memberCount
+    averageCompletion
+    renewalReady
+    onTrack
+    atRisk
+    notStarted
+    notStartedCount
+    missingEvidenceCount
+  }
+}
+
+query AssociationCategoryCompletionReport(
+  $filter: AssociationReportFilterInput
+) {
+  associationCategoryCompletionReport(filter: $filter) {
+    ...AssociationCategoryProgressRowFields
+  }
+}
+
+query AssociationMissingEvidenceReport(
+  $filter: AssociationReportFilterInput
+  $pagination: AssociationReportPaginationInput
+) {
+  associationMissingEvidenceReport(filter: $filter, pagination: $pagination) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      nextCursor
+    }
+    items {
+      id
+      memberId
+      fullName
+      email
+      memberNumber
+      groupTitle
+      requirementId
+      requirementName
+      percent
+      requiredCredits
+      completedCredits
+      awaitingReviewCount
+      dueDate
+      daysRemaining
+    }
+  }
+}
+
+query AssociationRenewalReadinessReport(
+  $filter: AssociationReportFilterInput
+  $pagination: AssociationReportPaginationInput
+) {
+  associationRenewalReadinessReport(filter: $filter, pagination: $pagination) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      nextCursor
+    }
+    items {
+      id
+      memberId
+      fullName
+      email
+      memberNumber
+      groupTitle
+      band
+      percent
+      requiredCredits
+      completedCredits
+      awaitingReviewCount
+      isRenewalReady
+      earliestUnmetDeadline
+    }
+  }
+}
+
+fragment AssociationGeneratedReportFields on AssociationGeneratedReport {
+  id
+  reportType
+  format
+  state
+  fileName
+  sizeBytes
+  rowCount
+  failureReason
+  readyAt
+  expiresAt
+  createdAt
+  filter {
+    period
+    startDate
+    endDate
+    groupId
+    requirementId
+    includeInactive
+  }
+}
+
+query AssociationGeneratedReports($pagination: AssociationReportPaginationInput) {
+  associationGeneratedReports(pagination: $pagination) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      nextCursor
+    }
+    items {
+      ...AssociationGeneratedReportFields
+    }
+  }
+}
+
+mutation RequestAssociationReportExport(
+  $input: RequestAssociationReportExportInput!
+) {
+  requestAssociationReportExport(input: $input) {
+    ...AssociationGeneratedReportFields
+  }
+}
+
+mutation RetryAssociationReportExport($input: AssociationReportExportIdInput!) {
+  retryAssociationReportExport(input: $input) {
+    ...AssociationGeneratedReportFields
+  }
+}
+
+fragment AssociationAttentionRowFields on AssociationAttentionRow {
+  memberId
+  fullName
+  email
+  memberNumber
+  groupId
+  groupTitle
+  percent
+  band
+  requiredCredits
+  completedCredits
+  deadline
+  detail
+  detailDate
+}
+
+query AssociationAttentionLists {
+  associationAttentionLists {
+    counts {
+      belowThreshold
+      newJoiners
+      categoryBehind
+      expiringCertificates
+      readyReports
+    }
+    distribution {
+      totalMembers
+      renewalReady
+      onTrack
+      atRisk
+      notStarted
+      renewalReadyShare
+      onTrackShare
+      atRiskShare
+      notStartedShare
+    }
+  }
+}
+
+query AssociationAttentionMembers(
+  $section: AssociationAttentionSection!
+  $pagination: AssociationReportPaginationInput
+) {
+  associationAttentionMembers(section: $section, pagination: $pagination) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      nextCursor
+    }
+    items {
+      ...AssociationAttentionRowFields
+    }
+  }
+}
+
+query AssociationMessagePreview(
+  $messageType: AssociationMessageType!
+  $audience: AssociationMessageAudienceInput!
+) {
+  associationMessagePreview(messageType: $messageType, audience: $audience) {
+    messageType
+    subject
+    body
+    recipientName
+    language
+    recipientCount
+    skippedCount
+    skipped {
+      memberId
+      fullName
+      reason
+    }
+  }
+}
+
+query AssociationMessageHistory($pagination: AssociationReportPaginationInput) {
+  associationMessageHistory(pagination: $pagination) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      nextCursor
+    }
+    items {
+      id
+      memberId
+      fullName
+      email
+      memberNumber
+      messageType
+      state
+      language
+      templateVersion
+      skipReason
+      failureReason
+      sentAt
+      createdAt
+    }
+  }
+}
+
+mutation SendAssociationMessage($input: SendAssociationMessageInput!) {
+  sendAssociationMessage(input: $input) {
+    messageType
+    acceptedCount
+    skippedCount
+    skipped {
+      memberId
+      fullName
+      reason
+    }
+  }
+}
+
+# ================= Overview =================
+query AssociationOverviewCounts {
+  associationMemberStats {
+    totalMembers
+    activeMembers
+    pendingActivation
+  }
+  associationRequirements(pagination: { take: 1 }) {
+    totalCount
+  }
+  associationLearningContents(pagination: { take: 1 }) {
+    totalCount
+  }
+}
+
+query AssociationRequirementProgressReport(
+  $filter: AssociationReportFilterInput
+) {
+  associationRequirementProgressReport(filter: $filter) {
+    requirementId
+    requirementName
+    memberCount
+    requiredCredits
+    averagePercent
+    averageCompletedCredits
+    awaitingReviewCount
+    dueDate
+    daysRemaining
+  }
+}
+
+query AssociationRecentActivity($limit: Int) {
+  associationRecentActivity(limit: $limit) {
+    id
+    state
+    activityId
+    activityTitle
+    activityDate
+    recordedAt
+    credits
+    creditedAmount
+    category
+    memberId
+    memberName
+    requirementId
+    requirementName
+  }
+}
+
+# ================= Settings =================
+query AssociationSettings {
+  associationSettings {
+    ...AssociationSettingsFields
+  }
+}
+
+mutation UpdateAssociationComplianceSettings(
+  $input: UpdateAssociationComplianceSettingsInput!
+) {
+  updateAssociationComplianceSettings(input: $input) {
+    applied
+    settings {
+      ...AssociationSettingsFields
+    }
+    impact {
+      totalMembers
+      membersChangingBand
+      membersEnteringAtRisk
+      membersLeavingAtRisk
+    }
+  }
+}
+
+mutation UpdateAssociationNotificationSettings(
+  $input: UpdateAssociationNotificationSettingsInput!
+) {
+  updateAssociationNotificationSettings(input: $input) {
+    ...AssociationSettingsFields
   }
 }

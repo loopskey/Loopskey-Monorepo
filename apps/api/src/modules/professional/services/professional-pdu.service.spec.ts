@@ -1,3 +1,4 @@
+import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import {
   PDUCompletionStatus,
   PDUSource,
@@ -27,10 +28,14 @@ const createService = (prisma = createPrismaMock()) => {
   const service = new ProfessionalPduService(
     prisma as unknown as PrismaService,
     {
+      append: jest.fn().mockResolvedValue(undefined),
+    } as unknown as OutboxService,
+    {
       store: jest.fn(),
       remove: jest.fn().mockResolvedValue(undefined),
       resolve: jest.fn(),
       exists: jest.fn(),
+      read: jest.fn(),
     },
   );
   return { service, prisma };

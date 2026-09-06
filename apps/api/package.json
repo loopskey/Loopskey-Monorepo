@@ -20,7 +20,16 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "db:seed": "ts-node -r tsconfig-paths/register prisma/seed.ts"
+    "db:seed": "ts-node -r tsconfig-paths/register prisma/seed.ts",
+    "bench:setup": "node benchmark/setup-bench-db.js",
+    "bench:seed": "node benchmark/seed-bench.js",
+    "bench:queries": "node benchmark/bench-queries.js",
+    "bench:concurrency": "node benchmark/bench-concurrency.js",
+    "bench:pool": "node benchmark/bench-pool.js",
+    "bench:report": "node benchmark/bench-report-overview.js",
+    "bench:memory": "node --expose-gc benchmark/bench-report-memory.js",
+    "bench:search": "node benchmark/bench-search-index.js",
+    "bench:search-rewrite": "node benchmark/bench-search-rewrite.js"
   },
   "dependencies": {
     "@apollo/server": "^4.12.2",
@@ -50,6 +59,7 @@
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",
     "passport-oauth2": "^1.8.0",
+    "pdfkit": "^0.17.2",
     "pg": "^8.16.3",
     "reflect-metadata": "^0.2.2",
     "resend": "^6.16.0",
@@ -76,6 +86,7 @@
     "@types/passport-google-oauth20": "^2.0.17",
     "@types/passport-jwt": "^4.0.1",
     "@types/passport-oauth2": "^1.8.0",
+    "@types/pdfkit": "^0.17.6",
     "@types/sanitize-html": "^2.16.0",
     "@types/supertest": "^6.0.2",
     "eslint": "^9.18.0",

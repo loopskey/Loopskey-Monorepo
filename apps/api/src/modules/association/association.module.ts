@@ -1,14 +1,51 @@
+import { AssociationRequirementAssignmentService } from "@association/services/association-requirement-assignment.service";
+import { AssociationRequirementPublishedHandler } from "@association/application/association-requirement-published.handler";
+import { AssociationMemberRequirementsService } from "@association/services/association-member-requirements.service";
+import { AssociationSettingsRecomputeHandler } from "@association/application/association-settings-recompute.handler";
+import { AssociationReportGenerationService } from "@association/services/association-report-generation.service";
+import { AssociationLearningContentResolver } from "@association/resolvers/association-learning-content.resolver";
+import { AssociationLearningActivityHandler } from "@association/application/association-learning-activity.handler";
+import { AssociationReportRetentionService } from "@association/services/association-report-retention.service";
+import { AssociationLearningContentService } from "@association/services/association-learning-content.service";
+import { AssociationMemberProfileResolver } from "@association/resolvers/association-member-profile.resolver";
+import { AssociationComplianceReadService } from "@association/services/association-compliance-read.service";
+import { AssociationReportFileController } from "@association/controllers/association-report-file.controller";
+import { AssociationReportExportResolver } from "@association/resolvers/association-report-export.resolver";
+import { AssociationReportDatasetService } from "@association/services/association-report-dataset.service";
+import { AssociationMemberProfileService } from "@association/services/association-member-profile.service";
+import { AssociationMemberFileController } from "@association/controllers/association-member-file.controller";
+import { AssociationReportExportHandler } from "@association/application/association-report-export.handler";
+import { AssociationReportExportService } from "@association/services/association-report-export.service";
+import { AssociationRequirementResolver } from "@association/resolvers/association-requirement.resolver";
+import { AssociationComplianceResolver } from "@association/resolvers/association-compliance.resolver";
+import { AssociationRequirementService } from "@association/services/association-requirement.service";
 import { AssociationRoleProfileHandler } from "@association/application/association-role-profile.handler";
+import { AssociationMemberFileService } from "@association/services/association-member-file.service";
 import { AssociationDashboardResolver } from "@association/resolvers/association-dashboard.resolver";
+import { AssociationComplianceService } from "@association/services/association-compliance.service";
+import { AssociationAttentionService } from "@association/services/association-attention.service";
 import { AssociationDashboardService } from "@association/services/association-dashboard.service";
+import { AssociationSettingsResolver } from "@association/resolvers/association-settings.resolver";
+import { AssociationSettingsService } from "@association/services/association-settings.service";
+import { AssociationMessageResolver } from "@association/resolvers/association-message.resolver";
+import { AssociationLogoController } from "@association/controllers/association-logo.controller";
+import { AssociationMessageService } from "@association/services/association-message.service";
+import { AssociationMessageHandler } from "@association/application/association-message.handler";
+import { AssociationReportResolver } from "@association/resolvers/association-report.resolver";
 import { AssociationMemberResolver } from "@association/resolvers/association-member.resolver";
 import { AssociationAccountService } from "@association/services/association-account.service";
 import { AssociationGroupResolver } from "@association/resolvers/association-group.resolver";
 import { AssociationAccessService } from "@association/services/association-access.service";
+import { AssociationReportService } from "@association/services/association-report.service";
 import { AssociationMemberService } from "@association/services/association-member.service";
+import { AssociationReviewService } from "@association/services/association-review.service";
 import { AssociationAdminResolver } from "@association/resolvers/association-admin.resolver";
 import { AssociationGroupService } from "@association/services/association-group.service";
+import { AssociationCycleService } from "@association/services/association-cycle.service";
+import { AssociationLogoService } from "@association/services/association-logo.service";
 import { ProfessionalModule } from "@professional/professional.module";
+import { StorageModule } from "@infrastructure/storage/storage.module";
+import { LandingModule } from "@landing/landing.module";
 import { PrismaModule } from "@prisma/prisma.module";
 import { AuthModule } from "@auth/auth.module";
 import { MailModule } from "@mail/mail.module";
@@ -23,25 +60,69 @@ import "@association/enums/association-register.enum";
     AuthModule,
     UserModule,
     PrismaModule,
+    LandingModule,
+    StorageModule,
     ProfessionalModule,
+  ],
+  controllers: [
+    AssociationLogoController,
+    AssociationMemberFileController,
+    AssociationReportFileController,
   ],
   providers: [
     AssociationGroupService,
     AssociationAdminResolver,
+    AssociationCycleService,
     AssociationAccessService,
     AssociationGroupResolver,
     AssociationMemberService,
+    AssociationReviewService,
     AssociationMemberResolver,
+    AssociationReportService,
+    AssociationReportResolver,
     AssociationAccountService,
     AssociationDashboardService,
+    AssociationComplianceService,
+    AssociationMemberFileService,
     AssociationDashboardResolver,
+    AssociationComplianceResolver,
     AssociationRoleProfileHandler,
+    AssociationRequirementService,
+    AssociationRequirementResolver,
+    AssociationMemberProfileService,
+    AssociationComplianceReadService,
+    AssociationMemberProfileResolver,
+    AssociationLearningContentService,
+    AssociationLearningActivityHandler,
+    AssociationLearningContentResolver,
+    AssociationMemberRequirementsService,
+    AssociationRequirementPublishedHandler,
+    AssociationRequirementAssignmentService,
+    AssociationReportExportService,
+    AssociationReportExportResolver,
+    AssociationReportDatasetService,
+    AssociationReportExportHandler,
+    AssociationReportGenerationService,
+    AssociationReportRetentionService,
+    AssociationAttentionService,
+    AssociationMessageService,
+    AssociationMessageResolver,
+    AssociationMessageHandler,
+    AssociationSettingsService,
+    AssociationSettingsResolver,
+    AssociationSettingsRecomputeHandler,
+    AssociationLogoService,
   ],
   exports: [
     AssociationGroupService,
+    AssociationCycleService,
     AssociationMemberService,
     AssociationAccountService,
     AssociationDashboardService,
+    AssociationComplianceService,
+    AssociationRequirementService,
+    AssociationRequirementAssignmentService,
+    AssociationSettingsService,
   ],
 })
 export class AssociationModule {}

@@ -10,6 +10,19 @@ export const ASSOCIATION_MEMBER_LIMITS = {
   groupDescriptionMax: 1000,
 } as const;
 
+export const ASSOCIATION_REQUIREMENT_LIMITS = {
+  nameMin: 2,
+  nameMax: 200,
+  descriptionMax: 2000,
+  categoryNameMin: 2,
+  categoryNameMax: 120,
+  categoriesMax: 20,
+  creditsMax: 10000,
+  cycleLengthYearsMax: 10,
+  gracePeriodDaysMax: 365,
+  specificMembersMax: 1000,
+} as const;
+
 export const ASSOCIATION_LIMITS = {
   nameMin: 2,
   nameMax: 160,

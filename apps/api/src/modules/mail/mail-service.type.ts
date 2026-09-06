@@ -1,3 +1,4 @@
+import { AppLanguage, AssociationMessageType } from "@prisma/client";
 import { OtpPurpose } from "@prisma/client";
 
 export type TSendEmailInput = {
@@ -49,3 +50,34 @@ export type TAssociationMemberInvitationEmail = TAssociationEmailBase & {
   invitationUrl: string;
   expiresInMinutes: number;
 };
+
+export type TAssociationMessageBase = {
+  appName: string;
+  memberName: string;
+  dashboardUrl: string;
+  supportEmail: string;
+  language: AppLanguage;
+  associationName: string;
+};
+
+export type TAssociationMessageInput = TAssociationMessageBase &
+  (
+    | {
+        messageType: typeof AssociationMessageType.BEHIND_THRESHOLD;
+        percent: number;
+        deadline: Date | null;
+        requiredCredits: number;
+        completedCredits: number;
+      }
+    | { messageType: typeof AssociationMessageType.WELCOME }
+    | {
+        messageType: typeof AssociationMessageType.CATEGORY_BEHIND;
+        percent: number;
+        categoryName: string;
+      }
+    | {
+        messageType: typeof AssociationMessageType.CERTIFICATE_EXPIRING;
+        expiresOn: Date | null;
+        certificateTitle: string;
+      }
+  );
