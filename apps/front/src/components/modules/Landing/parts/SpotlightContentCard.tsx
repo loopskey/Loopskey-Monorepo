@@ -64,7 +64,7 @@ const SpotlightContentCard = ({ item }: { item: TLandingContentItem }) => {
             )}
 
             {item.rating && item.rating > 0 && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-yellow-500/10 px-3 py-1 text-xs font-medium text-yellow-600 dark:text-yellow-400">
+              <span className="inline-flex items-center gap-1 rounded-full bg-yellow-500/10 px-3 py-1 text-xs font-medium text-yellow-600">
                 <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
                 {item.rating.toFixed(1)}
                 {item.ratingCount ? (

@@ -38,3 +38,4 @@ into this index and do not rewrite previous records.
 - [`association-requirements-tab-ui`](feature-runs/active/association-requirements-tab-ui.md)
 - [`docker-deployment-pipeline`](feature-runs/active/docker-deployment-pipeline.md)
 - [`admin-association-provisioning`](feature-runs/active/admin-association-provisioning.md)
+- [`light-theme-only`](feature-runs/active/light-theme-only.md)

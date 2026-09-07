@@ -10,15 +10,7 @@ export const Logo = () => {
         height={54}
         alt="Loopskey-logo"
         src="/Loopskey-light.svg"
-        className="h-8 w-auto dark:hidden"
-      />
-      <Image
-        priority
-        width={205}
-        height={54}
-        alt="Loopskey-logo"
-        src="/Loopskey.svg"
-        className="hidden h-8 w-auto dark:block"
+        className="h-8 w-auto"
       />
     </Link>
   );

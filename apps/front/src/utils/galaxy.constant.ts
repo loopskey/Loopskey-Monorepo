@@ -1,8 +1,8 @@
-import { TGalaxyConfig, TThemeMode } from "@/types/element.types";
+import { TGalaxyConfig } from "@/types/element.types";
 
 const GALAXY_BRAND_HUE = 220;
 
-const GALAXY_BASE_CONFIG: TGalaxyConfig = {
+export const GALAXY_CONFIG: TGalaxyConfig = {
   speed: 0.8,
   starSpeed: 0.4,
   rotation: [1, 0],
@@ -13,29 +13,14 @@ const GALAXY_BASE_CONFIG: TGalaxyConfig = {
   mouseRepulsion: true,
   mouseInteraction: true,
   hueShift: GALAXY_BRAND_HUE,
+  density: 0.9,
+  glowIntensity: 0.2,
+  saturation: 0.55,
+  twinkleIntensity: 0.25,
 };
 
-export const GALAXY_THEME_CONFIG: Record<TThemeMode, TGalaxyConfig> = {
-  light: {
-    ...GALAXY_BASE_CONFIG,
-    density: 0.9,
-    glowIntensity: 0.2,
-    saturation: 0.55,
-    twinkleIntensity: 0.25,
-  },
-  dark: {
-    ...GALAXY_BASE_CONFIG,
-    density: 1.1,
-    glowIntensity: 0.35,
-    saturation: 0.45,
-    twinkleIntensity: 0.35,
-  },
-};
-
-export const GALAXY_LAYER_CLASS: Record<TThemeMode, string> = {
-  light: "opacity-50 [filter:invert(1)_hue-rotate(180deg)]",
-  dark: "opacity-100",
-};
+export const GALAXY_LAYER_CLASS =
+  "opacity-50 [filter:invert(1)_hue-rotate(180deg)]";
 
 export const GALAXY_BACKDROP_CLASS =
-  "bg-gradient-to-br from-primary/10 via-transparent to-accent/10 dark:from-primary/25 dark:via-ct-podcast/10 dark:to-accent/20";
+  "bg-gradient-to-br from-primary/10 via-transparent to-accent/10";

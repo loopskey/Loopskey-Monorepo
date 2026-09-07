@@ -15,9 +15,9 @@ const TONE_CLASS: Record<
   string
 > = {
   active:
-    "border-transparent bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+    "border-transparent bg-emerald-500/15 text-emerald-700",
   warning:
-    "border-transparent bg-amber-500/15 text-amber-700 dark:text-amber-300",
+    "border-transparent bg-amber-500/15 text-amber-700",
   danger: "border-transparent bg-destructive/15 text-destructive",
   neutral: "border-transparent bg-muted text-muted-foreground",
 };
