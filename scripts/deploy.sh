@@ -107,9 +107,23 @@ if [ "$DO_GIT" -eq 1 ]; then
   echo "  now at $(git rev-parse --short HEAD) $(git log -1 --format=%s)"
 fi
 
+ROLLBACK_READY=1
+tag_running_image() {
+  local service="$1" target="$2" container image
+  container="$("${DC[@]}" ps -q "$service" 2>/dev/null || true)"
+  if [ -z "$container" ]; then
+    echo "  $service is not running, so it gets no rollback point"
+    ROLLBACK_READY=0
+    return 0
+  fi
+  image="$(docker inspect -f '{{.Image}}' "$container")"
+  docker tag "$image" "$target"
+  echo "  $service -> $target"
+}
+
 log "Tagging the running images for rollback"
-docker tag "$API_IMG" loopskey-api:previous
-docker tag "$FRONT_IMG" loopskey-front:previous
+tag_running_image api loopskey-api:previous
+tag_running_image front loopskey-front:previous
 
 if [ "$SOURCE" = "build" ]; then
   log "Building images on this host"
@@ -120,6 +134,9 @@ else
 fi
 
 rollback() {
+  if [ "$ROLLBACK_READY" -eq 0 ]; then
+    fail "deploy failed and no rollback point was captured. Database dump: $BACKUP_DIR/db-$STAMP.dump"
+  fi
   log "Rolling back to the previous images"
   docker tag loopskey-api:previous "$API_IMG"
   docker tag loopskey-front:previous "$FRONT_IMG"
