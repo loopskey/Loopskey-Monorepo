@@ -33,3 +33,6 @@ node_modules
 /.claude/skills/slides/
 /.claude/skills/ui-styling/
 /.claude/skills/ui-ux-pro-max/
+
+# Deployment backups written by scripts/deploy.sh
+/backups/
