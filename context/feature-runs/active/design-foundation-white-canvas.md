@@ -3,7 +3,7 @@
 - Scope: `front`
 - Branch: `feature/design-foundation-white-canvas`
 - Base: `d0e51b3`
-- Status: `Ready`
+- Status: `Submitted`
 
 Phase 1 of
 `context/features/course-visual-restoration/01-design-foundation-white-canvas.md`.
@@ -70,6 +70,6 @@ a production build without it prerenders a 404.
 
 ## Submission
 
-- Commit:
-- PR:
+- Commit: `1d7378f`
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/73
 - CI:
