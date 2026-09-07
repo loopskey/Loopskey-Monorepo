@@ -3,7 +3,7 @@
 - Scope: `full`
 - Branch: `feature/continuous-deployment`
 - Base: `7dc93b7048aa3cb4a8737ef1e0fb6dc90bfb73a1`
-- Status: `Ready`
+- Status: `Submitted`
 
 ## Acceptance
 
@@ -33,6 +33,6 @@
 
 ## Submission
 
-- Commit:
-- PR:
+- Commit: `a014238`
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/66
 - CI:
