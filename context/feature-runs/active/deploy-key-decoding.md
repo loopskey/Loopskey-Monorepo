@@ -3,7 +3,7 @@
 - Scope: `full`
 - Branch: `fix/deploy-key-decoding`
 - Base: `97f72b6add2da6b756b17c7d8081f624c6ae1d43`
-- Status: `Ready`
+- Status: `Submitted`
 
 ## Acceptance
 
@@ -24,6 +24,6 @@
 
 ## Submission
 
-- Commit:
-- PR:
+- Commit: `df82841`
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/68
 - CI:
