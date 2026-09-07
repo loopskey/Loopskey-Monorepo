@@ -43,6 +43,19 @@ export const associationApi = baseApi.injectEndpoints({
       invalidatesTags: ["Association"],
     }),
 
+    associationAccounts: builder.query<
+      TAPI.AssociationAccountsQuery["associationAccounts"],
+      TAPI.AssociationAccountsQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.AssociationAccountsDocument,
+        variables,
+      }),
+      transformResponse: (response: TAPI.AssociationAccountsQuery) =>
+        response.associationAccounts,
+      providesTags: ["Association"],
+    }),
+
     resendAssociationActivation: builder.mutation<
       TAPI.ResendAssociationActivationMutation["resendAssociationActivation"],
       TAPI.ResendAssociationActivationMutationVariables["input"]
@@ -871,6 +884,7 @@ export const {
   useWithdrawAssociationLearningContentMutation,
   useDeleteAssociationLearningContentMutation,
   useUpdateAssociationProfileMutation,
+  useAssociationAccountsQuery,
   useCreateAssociationAccountMutation,
   useResendAssociationActivationMutation,
   useInviteAssociationMemberMutation,

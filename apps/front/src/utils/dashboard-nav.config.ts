@@ -234,6 +234,12 @@ export const adminDashboardTabs: TDashboardTab<TAdminDashboardTab>[] = [
     icon: L.Building2,
   },
   {
+    value: "associations",
+    labelKey: "adminDashboard.sidebar.associations",
+    href: "/dashboard/admin?tab=associations",
+    icon: L.Landmark,
+  },
+  {
     value: "users",
     labelKey: "adminDashboard.sidebar.users",
     href: "/dashboard/admin?tab=users",
