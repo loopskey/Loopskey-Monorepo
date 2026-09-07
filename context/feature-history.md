@@ -40,3 +40,4 @@ into this index and do not rewrite previous records.
 - [`admin-association-provisioning`](feature-runs/active/admin-association-provisioning.md)
 - [`light-theme-only`](feature-runs/active/light-theme-only.md)
 - [`continuous-deployment`](feature-runs/active/continuous-deployment.md)
+- [`deploy-key-decoding`](feature-runs/active/deploy-key-decoding.md)
