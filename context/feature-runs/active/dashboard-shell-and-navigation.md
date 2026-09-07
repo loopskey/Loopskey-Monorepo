@@ -3,7 +3,7 @@
 - Scope: `front`
 - Branch: `feature/dashboard-shell-and-navigation`
 - Base: `0251d86`
-- Status: `Ready`
+- Status: `Submitted`
 
 Phase 2 of
 `context/features/course-visual-restoration/02-dashboard-shell-and-navigation.md`.
@@ -82,6 +82,6 @@ Scope decisions:
 
 ## Submission
 
-- Commit:
-- PR:
+- Commit: `042157b`
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/74
 - CI:
