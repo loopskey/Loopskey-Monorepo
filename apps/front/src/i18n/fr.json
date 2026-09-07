@@ -2458,12 +2458,6 @@
       ]
     }
   },
-  "theme": {
-    "switchToDark": "Passer en mode sombre",
-    "switchToLight": "Passer en mode clair",
-    "dark": "Mode sombre",
-    "light": "Mode clair"
-  },
   "navigation": {
     "home": "Accueil",
     "content": "Contenu",

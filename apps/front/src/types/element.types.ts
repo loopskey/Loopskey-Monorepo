@@ -26,8 +26,6 @@ export type TUserAvatarProps = {
 };
 
 // ================ Galaxy Background ==============
-export type TThemeMode = "light" | "dark";
-
 export type TGalaxyProps = HTMLAttributes<HTMLDivElement> & {
   focal?: [number, number];
   rotation?: [number, number];

@@ -30,7 +30,7 @@ const TermsPage = () => {
         <div className="mx-auto max-w-7xl">
           <RevealOnScroll direction="up">
             <div className="mx-auto max-w-3xl text-center">
-              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-glass-border bg-background/55 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm backdrop-blur-xl ring-1 ring-white/40 dark:ring-white/5">
+              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-glass-border bg-background/55 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm backdrop-blur-xl ring-1 ring-white/40">
                 <L.ScrollText className="h-4 w-4" />
                 {t("termsPage.hero.eyebrow")}
               </span>

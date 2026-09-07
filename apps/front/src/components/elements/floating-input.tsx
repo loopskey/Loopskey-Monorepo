@@ -112,7 +112,7 @@ export const FloatingInputField = <T extends FieldValues>({
                     {rightSlot}
                   </div>
                 )}
-                <div className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-white/40 dark:ring-white/5" />
+                <div className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-white/40"/>
               </div>
             </F.FormControl>
             {description && (

@@ -102,7 +102,7 @@ export const StaticInfoPage = ({ pageKey }: { pageKey: PageKey }) => {
 
   const header = (
     <div className="mx-auto max-w-3xl text-center">
-      <span className="inline-flex w-fit items-center gap-2 rounded-full border border-glass-border bg-background/55 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm ring-1 ring-white/40 backdrop-blur-xl dark:ring-white/5">
+      <span className="inline-flex w-fit items-center gap-2 rounded-full border border-glass-border bg-background/55 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm ring-1 ring-white/40 backdrop-blur-xl">
         <L.Sparkles className="h-4 w-4" />
         {t("staticInfoPage.eyebrow")}
       </span>

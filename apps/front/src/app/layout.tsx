@@ -1,4 +1,3 @@
-import { LearningParticlesBackground } from "@elements/particles-background";
 import { StoreProvider } from "@/providers/rtk-provider";
 import { AppProviders } from "@/providers/app-provider";
 import { AppToaster } from "@elements/app-toaster";
@@ -18,14 +17,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        suppressHydrationWarning
-        className="min-h-screen bg-background text-foreground antialiased transition-colors"
-      >
+    <html lang="en">
+      <body className="min-h-screen bg-background text-foreground antialiased">
         <StoreProvider>
           <AppProviders>
-            <LearningParticlesBackground />
             <AppToaster />
             <Header />
             {children}

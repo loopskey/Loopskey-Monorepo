@@ -54,7 +54,7 @@ const DetailHero = ({
             )}
 
             {typeof rating === "number" && rating > 0 && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-yellow-500/10 px-4 py-2 text-xs font-extrabold text-yellow-600 dark:text-yellow-400">
+              <span className="inline-flex items-center gap-1 rounded-full bg-yellow-500/10 px-4 py-2 text-xs font-extrabold text-yellow-600">
                 <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
                 {rating.toFixed(1)}
                 {typeof ratingCount === "number" && (

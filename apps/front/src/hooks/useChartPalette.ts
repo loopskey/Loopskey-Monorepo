@@ -2,7 +2,6 @@
 
 import { CHART_COLORS } from "@utils/constant";
 import { useEffect, useState } from "react";
-import { useTheme } from "next-themes";
 
 const CHART_TOKEN_COUNT = 8;
 
@@ -20,7 +19,6 @@ export const resolveChartPalette = (
   });
 
 export const useChartPalette = (): string[] => {
-  const { resolvedTheme } = useTheme();
   const [palette, setPalette] = useState<string[]>(CHART_COLORS);
 
   useEffect(() => {
@@ -34,7 +32,7 @@ export const useChartPalette = (): string[] => {
     } catch {
       setPalette(CHART_COLORS);
     }
-  }, [resolvedTheme]);
+  }, []);
 
   return palette;
 };

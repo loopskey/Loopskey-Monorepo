@@ -116,7 +116,7 @@ const AboutPage = () => {
       <section className="mx-auto max-w-7xl px-4 py-12 md:px-6">
         <RevealOnScroll>
           <div className="mx-auto max-w-3xl text-center">
-            <span className="inline-flex w-fit items-center rounded-full border border-glass-border bg-background/55 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm backdrop-blur-xl ring-1 ring-white/40 dark:ring-white/5">
+            <span className="inline-flex w-fit items-center rounded-full border border-glass-border bg-background/55 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm backdrop-blur-xl ring-1 ring-white/40">
               {t("aboutPage.story.eyebrow")}
             </span>
 
@@ -177,7 +177,7 @@ const AboutPage = () => {
       <section className="mx-auto max-w-7xl px-4 py-16 md:px-6">
         <RevealOnScroll>
           <div className="max-w-3xl">
-            <span className="inline-flex w-fit items-center rounded-full border border-glass-border bg-background/55 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm backdrop-blur-xl ring-1 ring-white/40 dark:ring-white/5">
+            <span className="inline-flex w-fit items-center rounded-full border border-glass-border bg-background/55 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm backdrop-blur-xl ring-1 ring-white/40">
               {t("aboutPage.values.eyebrow")}
             </span>
 
@@ -215,7 +215,7 @@ const AboutPage = () => {
       <section className="mx-auto max-w-7xl px-4 py-16 md:px-6">
         <RevealOnScroll>
           <div className="max-w-3xl">
-            <span className="inline-flex w-fit items-center rounded-full border border-glass-border bg-background/55 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm backdrop-blur-xl ring-1 ring-white/40 dark:ring-white/5">
+            <span className="inline-flex w-fit items-center rounded-full border border-glass-border bg-background/55 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm backdrop-blur-xl ring-1 ring-white/40">
               {t("aboutPage.team.eyebrow")}
             </span>
             <h2 className="mt-3 text-3xl font-medium text-foreground md:text-4xl">
@@ -250,7 +250,7 @@ const AboutPage = () => {
       <section className="mx-auto max-w-7xl px-4 py-16 md:px-6">
         <RevealOnScroll>
           <div className="max-w-3xl">
-            <span className="inline-flex w-fit items-center rounded-full border border-glass-border bg-background/55 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm backdrop-blur-xl ring-1 ring-white/40 dark:ring-white/5">
+            <span className="inline-flex w-fit items-center rounded-full border border-glass-border bg-background/55 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm backdrop-blur-xl ring-1 ring-white/40">
               {t("aboutPage.timeline.eyebrow")}
             </span>
             <h2 className="mt-3 text-3xl font-medium text-foreground md:text-4xl">
@@ -290,7 +290,7 @@ const AboutPage = () => {
       <section className="mx-auto max-w-7xl px-4 py-16 md:px-6">
         <RevealOnScroll>
           <div className="max-w-3xl">
-            <span className="inline-flex w-fit items-center rounded-full border border-glass-border bg-background/55 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm backdrop-blur-xl ring-1 ring-white/40 dark:ring-white/5">
+            <span className="inline-flex w-fit items-center rounded-full border border-glass-border bg-background/55 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm backdrop-blur-xl ring-1 ring-white/40">
               {t("aboutPage.trust.eyebrow")}
             </span>
             <h2 className="mt-3 text-3xl font-medium text-foreground md:text-4xl">
@@ -330,7 +330,7 @@ const AboutPage = () => {
       <section className="mx-auto max-w-7xl px-4 py-16 md:px-6">
         <RevealOnScroll>
           <div className="max-w-3xl">
-            <span className="inline-flex w-fit items-center rounded-full border border-glass-border bg-background/55 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm backdrop-blur-xl ring-1 ring-white/40 dark:ring-white/5">
+            <span className="inline-flex w-fit items-center rounded-full border border-glass-border bg-background/55 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm backdrop-blur-xl ring-1 ring-white/40">
               {t("aboutPage.platform.eyebrow")}
             </span>
 
