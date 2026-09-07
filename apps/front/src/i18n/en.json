@@ -6454,8 +6454,75 @@
       "overview": "Overview",
       "settings": "Settings",
       "orgAccessRequests": "Org Access Requests",
+      "associations": "Associations",
       "users": "Users",
       "organizationUsers": "Organization Users"
+    },
+    "associations": {
+      "eyebrow": "Association accounts",
+      "title": "Associations",
+      "description": "Provision an association, then track whether its owner has activated the account.",
+      "error": "We could not load the association directory.",
+      "empty": "No association has been provisioned yet.",
+      "noResults": "No association matches these filters.",
+      "actions": {
+        "create": "New association",
+        "resend": "Resend activation",
+        "noneNeeded": "Activated"
+      },
+      "filters": {
+        "search": "Search by association name or contact email",
+        "ownerStatus": "Owner status"
+      },
+      "ownerStatus": {
+        "ALL": "All owners",
+        "PENDING": "Awaiting activation",
+        "ACTIVE": "Active",
+        "DISABLED": "Disabled",
+        "DELETED": "Deleted"
+      },
+      "table": {
+        "association": "Association",
+        "representative": "Representative",
+        "workEmail": "Work email",
+        "ownerStatus": "Owner status",
+        "createdAt": "Created",
+        "actions": "Actions"
+      },
+      "create": {
+        "title": "Provision an association account",
+        "description": "The representative receives an activation link and chooses their own password. No password is set here.",
+        "name": "Association name",
+        "representativeFullName": "Representative full name",
+        "workEmail": "Work email",
+        "country": "Country",
+        "website": "Website",
+        "logoUrl": "Logo URL",
+        "descriptionField": "Description",
+        "activationNote": "The activation link expires, and you can resend it from this table while the account is still pending.",
+        "submit": "Create account",
+        "sentTitle": "Account created",
+        "sentBody": "{name} was created and the activation email is on its way to the representative.",
+        "notSentTitle": "Account created, email not sent",
+        "notSentBody": "{name} was created, but the activation email could not be queued. Resend it from the table.",
+        "createAnother": "Create another",
+        "done": "Done"
+      },
+      "resend": {
+        "title": "Resend the activation email?",
+        "description": "A new activation link is sent to the representative of {name}, and the previous link stops working.",
+        "confirm": "Resend"
+      },
+      "messages": {
+        "activationResent": "A new activation email was queued for {name}."
+      },
+      "errors": {
+        "emailAlreadyInUse": "An account already uses this work email.",
+        "notFound": "That association could not be found.",
+        "alreadyActivated": "That account has already been activated.",
+        "resendTooSoon": "An activation email was sent recently. Try again after the cooldown.",
+        "activationEmailNotSent": "The activation email could not be queued. Try again in a moment."
+      }
     },
     "overview": {
       "eyebrow": "Admin overview",

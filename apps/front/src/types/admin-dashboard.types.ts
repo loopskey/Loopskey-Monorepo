@@ -1,4 +1,5 @@
 import type { AdminOrgAccessRequestsQuery } from "@/lib/graphql/operations/admin-dashboard";
+import type { TUseAdminAssociationsTab } from "@hooks/useAdminAssociationsTab";
 import type { ElementType } from "react";
 
 import type * as TAPI from "@/lib/graphql/generated";
@@ -8,7 +9,8 @@ export type TAdminDashboardTab =
   | "overview"
   | "settings"
   | "org-access-requests"
-  | "organization-users";
+  | "organization-users"
+  | "associations";
 
 export type TAdminProfileForm = {
   bio: string;
@@ -117,3 +119,12 @@ export type TOverviewMetricCard = {
   description: string;
   icon: React.ElementType;
 };
+
+export type TAdminAssociationItem =
+  TAPI.AssociationAccountsQuery["associationAccounts"]["items"][number];
+
+type TWithAssociationsHook = { hook: TUseAdminAssociationsTab };
+
+export type TAdminAssociationsFilters = TWithAssociationsHook;
+export type TAdminAssociationsTable = TWithAssociationsHook;
+export type TAdminAssociationCreateDialog = TWithAssociationsHook;
