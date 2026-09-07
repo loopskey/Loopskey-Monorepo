@@ -37,3 +37,4 @@ into this index and do not rewrite previous records.
 - [`association-settings-tab`](feature-runs/active/association-settings-tab.md)
 - [`association-requirements-tab-ui`](feature-runs/active/association-requirements-tab-ui.md)
 - [`docker-deployment-pipeline`](feature-runs/active/docker-deployment-pipeline.md)
+- [`admin-association-provisioning`](feature-runs/active/admin-association-provisioning.md)

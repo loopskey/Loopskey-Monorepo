@@ -55,6 +55,8 @@ const setup = (
   const prisma = {
     association: {
       findFirst: jest.fn(),
+      findMany: jest.fn().mockResolvedValue([]),
+      count: jest.fn().mockResolvedValue(0),
     },
     $transaction: jest.fn((argument: unknown) =>
       (argument as (client: typeof tx) => unknown)(tx),
@@ -233,5 +235,111 @@ describe("AssociationAccountService activation resend", () => {
       response: { code: AssociationMessageCode.ALREADY_ACTIVATED },
     });
     expect(activation.resendActivationLink).not.toHaveBeenCalled();
+  });
+});
+
+describe("AssociationAccountService account directory", () => {
+  const row = (id: string, status: UserStatus = UserStatus.PENDING) => ({
+    ...createdAssociation,
+    id,
+    owner: { ...createdAssociation.owner, status },
+  });
+
+  it("flattens the owner onto every row and never returns the owner object", async () => {
+    const { service, prisma } = setup();
+    prisma.association.findMany.mockResolvedValue([row("assoc-1")]);
+    prisma.association.count.mockResolvedValue(1);
+
+    const page = await service.listAccounts();
+
+    expect(page.items).toHaveLength(1);
+    expect(page.items[0]).toMatchObject({
+      id: "assoc-1",
+      ownerEmail: "chair@example.org",
+      ownerStatus: UserStatus.PENDING,
+    });
+    expect(page.items[0]).not.toHaveProperty("owner");
+    expect(page.totalCount).toBe(1);
+  });
+
+  it("reads one row past the page to decide the next cursor without a second query", async () => {
+    const { service, prisma } = setup();
+    prisma.association.findMany.mockResolvedValue([
+      row("assoc-1"),
+      row("assoc-2"),
+      row("assoc-3"),
+    ]);
+
+    const page = await service.listAccounts(undefined, { take: 2 });
+
+    expect(prisma.association.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ take: 3 }),
+    );
+    expect(page.items.map((item) => item.id)).toEqual(["assoc-1", "assoc-2"]);
+    expect(page.pageInfo).toEqual({ hasNextPage: true, nextCursor: "assoc-2" });
+  });
+
+  it("reports no next cursor once the last page fits", async () => {
+    const { service, prisma } = setup();
+    prisma.association.findMany.mockResolvedValue([row("assoc-1")]);
+
+    const page = await service.listAccounts(undefined, { take: 2 });
+
+    expect(page.pageInfo).toEqual({ hasNextPage: false, nextCursor: null });
+  });
+
+  it("skips the cursor row so a page never repeats its predecessor", async () => {
+    const { service, prisma } = setup();
+
+    await service.listAccounts(undefined, { take: 2, cursor: "assoc-9" });
+
+    expect(prisma.association.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ cursor: { id: "assoc-9" }, skip: 1 }),
+    );
+  });
+
+  it("keeps the search predicate on the association row so no join blocks the index", async () => {
+    const { service, prisma } = setup();
+
+    await service.listAccounts({ search: "  nurses  " });
+
+    const { where } = prisma.association.findMany.mock.calls[0][0];
+    expect(where.OR).toEqual([
+      { name: { contains: "nurses", mode: "insensitive" } },
+      { contactEmail: { contains: "nurses", mode: "insensitive" } },
+    ]);
+  });
+
+  it("leaves a one-character term on the unsearched path", async () => {
+    const { service, prisma } = setup();
+
+    await service.listAccounts({ search: "n" });
+
+    const { where } = prisma.association.findMany.mock.calls[0][0];
+    expect(where).not.toHaveProperty("OR");
+  });
+
+  it("counts the same rows it lists", async () => {
+    const { service, prisma } = setup();
+
+    await service.listAccounts({ ownerStatus: UserStatus.PENDING });
+
+    const listed = prisma.association.findMany.mock.calls[0][0].where;
+    const counted = prisma.association.count.mock.calls[0][0].where;
+    expect(counted).toEqual(listed);
+    expect(listed).toMatchObject({
+      deletedAt: null,
+      owner: { status: UserStatus.PENDING },
+    });
+  });
+
+  it("hides soft-deleted associations from the directory", async () => {
+    const { service, prisma } = setup();
+
+    await service.listAccounts();
+
+    expect(prisma.association.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { deletedAt: null } }),
+    );
   });
 });

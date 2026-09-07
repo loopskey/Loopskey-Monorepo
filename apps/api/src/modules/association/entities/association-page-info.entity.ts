@@ -1,5 +1,6 @@
 import { AssociationGqlObjectNames } from "@association/enums/association-gql-names.enum";
 import { AssociationMemberEntity } from "@association/entities/association-member.entity";
+import { AssociationEntity } from "@association/entities/association.entity";
 import { Field, Int, ObjectType } from "@nestjs/graphql";
 
 @ObjectType(AssociationGqlObjectNames.ASSOCIATION_PAGE_INFO)
@@ -12,5 +13,12 @@ export class AssociationPageInfoEntity {
 export class PaginatedAssociationMembersEntity {
   @Field(() => Int) totalCount: number;
   @Field(() => [AssociationMemberEntity]) items: AssociationMemberEntity[];
+  @Field(() => AssociationPageInfoEntity) pageInfo: AssociationPageInfoEntity;
+}
+
+@ObjectType(AssociationGqlObjectNames.PAGINATED_ASSOCIATION_ACCOUNTS)
+export class PaginatedAssociationAccountsEntity {
+  @Field(() => Int) totalCount: number;
+  @Field(() => [AssociationEntity]) items: AssociationEntity[];
   @Field(() => AssociationPageInfoEntity) pageInfo: AssociationPageInfoEntity;
 }

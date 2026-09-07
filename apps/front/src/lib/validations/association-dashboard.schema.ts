@@ -1,5 +1,6 @@
 import { ASSOCIATION_REQUIREMENT_LIMITS as REQUIREMENT_LIMITS } from "@loopskey/api-contracts/validation";
 import { ASSOCIATION_MEMBER_LIMITS as LIMITS } from "@loopskey/api-contracts/validation";
+import { ASSOCIATION_LIMITS as ACCOUNT_LIMITS } from "@loopskey/api-contracts/validation";
 import { AssociationAudienceKind } from "@/lib/graphql/base";
 import { AssociationReportingCycle } from "@/lib/graphql/base";
 import { CreditType, PduCategory } from "@/lib/graphql/base";
@@ -86,7 +87,6 @@ export type TInviteAssociationMemberForm = z.infer<
   typeof inviteAssociationMemberSchema
 >;
 export type TAssociationGroupForm = z.infer<typeof associationGroupSchema>;
-
 
 export const associationRequirementDetailsSchema = z
   .object({
@@ -201,4 +201,36 @@ export type TAssociationRequirementReportingForm = z.input<
 >;
 export type TAssociationRequirementReportingValues = z.output<
   typeof associationRequirementReportingSchema
+>;
+
+export const createAssociationAccountSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(ACCOUNT_LIMITS.nameMin)
+    .max(ACCOUNT_LIMITS.nameMax),
+  representativeFullName: z
+    .string()
+    .trim()
+    .min(ACCOUNT_LIMITS.representativeNameMin)
+    .max(ACCOUNT_LIMITS.representativeNameMax),
+  workEmail: z.string().trim().email().max(ACCOUNT_LIMITS.emailMax),
+  country: z.string().trim().max(ACCOUNT_LIMITS.countryMax).optional(),
+  description: z.string().trim().max(ACCOUNT_LIMITS.descriptionMax).optional(),
+  website: z
+    .union([
+      z.literal(""),
+      z.string().trim().url().max(ACCOUNT_LIMITS.websiteMax),
+    ])
+    .optional(),
+  logoUrl: z
+    .union([
+      z.literal(""),
+      z.string().trim().url().max(ACCOUNT_LIMITS.logoUrlMax),
+    ])
+    .optional(),
+});
+
+export type TCreateAssociationAccountForm = z.infer<
+  typeof createAssociationAccountSchema
 >;

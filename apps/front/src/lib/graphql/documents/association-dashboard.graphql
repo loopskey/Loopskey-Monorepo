@@ -67,6 +67,35 @@ mutation ResendAssociationActivation(
   }
 }
 
+fragment AssociationAccountRowFields on Association {
+  id
+  name
+  country
+  website
+  logoUrl
+  contactEmail
+  ownerEmail
+  ownerFullName
+  ownerStatus
+  createdAt
+}
+
+query AssociationAccounts(
+  $filter: AssociationAccountFilterInput
+  $pagination: AssociationPaginationInput
+) {
+  associationAccounts(filter: $filter, pagination: $pagination) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      nextCursor
+    }
+    items {
+      ...AssociationAccountRowFields
+    }
+  }
+}
+
 # ================= Members and groups =================
 fragment AssociationMemberGroupFields on AssociationMemberGroup {
   id

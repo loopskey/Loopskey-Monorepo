@@ -11,6 +11,7 @@ export enum AssociationGqlObjectNames {
   ASSOCIATION_INVITE_RESULT = "AssociationInviteResult",
   ASSOCIATION_ACTION_RESPONSE = "AssociationActionResponse",
   PAGINATED_ASSOCIATION_MEMBERS = "PaginatedAssociationMembers",
+  PAGINATED_ASSOCIATION_ACCOUNTS = "PaginatedAssociationAccounts",
   ASSOCIATION_BULK_INVITE_RESULT = "AssociationBulkInviteResult",
   ASSOCIATION_BULK_INVITE_FAILURE = "AssociationBulkInviteFailure",
   ASSOCIATION_REQUIREMENT = "AssociationRequirement",
@@ -78,6 +79,7 @@ export enum AssociationGqlInputNames {
   UPDATE_ASSOCIATION_MEMBER = "UpdateAssociationMemberInput",
   INVITE_ASSOCIATION_MEMBER = "InviteAssociationMemberInput",
   CREATE_ASSOCIATION_ACCOUNT = "CreateAssociationAccountInput",
+  ASSOCIATION_ACCOUNT_FILTER = "AssociationAccountFilterInput",
   UPDATE_ASSOCIATION_PROFILE = "UpdateAssociationProfileInput",
   UPDATE_ASSOCIATION_COMPLIANCE_SETTINGS = "UpdateAssociationComplianceSettingsInput",
   UPDATE_ASSOCIATION_NOTIFICATION_SETTINGS = "UpdateAssociationNotificationSettingsInput",
@@ -117,6 +119,7 @@ export enum AssociationGqlInputNames {
 export enum AssociationGqlQueryNames {
   GROUPS = "associationGroups",
   PROFILE = "associationProfile",
+  ACCOUNTS = "associationAccounts",
   SETTINGS = "associationSettings",
   MEMBERS = "associationMembers",
   MEMBER_STATS = "associationMemberStats",

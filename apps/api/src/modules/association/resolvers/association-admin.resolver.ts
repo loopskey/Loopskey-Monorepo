@@ -1,9 +1,13 @@
 import { ResendAssociationActivationInput } from "@association/dtos/resend-association-activation.input";
 import { AssociationActionResponseEntity } from "@association/entities/association-action-response.entity";
+import { PaginatedAssociationAccountsEntity } from "@association/entities/association-page-info.entity";
 import { CreateAssociationAccountInput } from "@association/dtos/create-association-account.input";
+import { AssociationAccountFilterInput } from "@association/dtos/association-account-filter.input";
+import { AssociationPaginationInput } from "@association/dtos/association-pagination.input";
 import { AssociationGqlMutationNames } from "@association/enums/association-gql-names.enum";
+import { AssociationGqlQueryNames } from "@association/enums/association-gql-names.enum";
 import { AssociationAccountService } from "@association/services/association-account.service";
-import { Args, Mutation, Resolver } from "@nestjs/graphql";
+import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { TResolverUser } from "@association/types/association-service.types";
 import { CurrentUser } from "@common/decorators/current-user.decorator";
 import { Roles } from "@common/decorators/roles.decorator";
@@ -16,6 +20,17 @@ export class AssociationAdminResolver {
 
   private actorId(user: TResolverUser) {
     return user.id ?? user.sub!;
+  }
+
+  @Query(() => PaginatedAssociationAccountsEntity, {
+    name: AssociationGqlQueryNames.ACCOUNTS,
+  })
+  associationAccounts(
+    @Args("filter", { nullable: true }) filter?: AssociationAccountFilterInput,
+    @Args("pagination", { nullable: true })
+    pagination?: AssociationPaginationInput,
+  ) {
+    return this.accounts.listAccounts(filter, pagination);
   }
 
   @Mutation(() => AssociationActionResponseEntity, {

@@ -2,6 +2,8 @@ import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { AuditAction, Prisma, UserStatus } from "@prisma/client";
 import { buildAssociationActivationEmail } from "@mail/association-email.template";
 import { CreateAssociationAccountInput } from "@association/dtos/create-association-account.input";
+import { AssociationAccountFilterInput } from "@association/dtos/association-account-filter.input";
+import { AssociationPaginationInput } from "@association/dtos/association-pagination.input";
 import { ConflictException, Inject } from "@nestjs/common";
 import { type IdentityProfileApi } from "@user/public/identity-profile-api";
 import { ACCOUNT_ACTIVATION_API } from "@auth/public/account-activation-api";
@@ -19,6 +21,7 @@ import {
 } from "@auth/public/account-activation-api";
 
 const UNIQUE_VIOLATION = "P2002";
+const ACCOUNT_SEARCH_MIN_LENGTH = 2;
 
 @Injectable()
 export class AssociationAccountService {
@@ -121,6 +124,53 @@ export class AssociationAccountService {
       message: "A new activation email was queued.",
       association: null,
     };
+  }
+
+  async listAccounts(
+    filter?: AssociationAccountFilterInput,
+    pagination?: AssociationPaginationInput,
+  ) {
+    const take = pagination?.take ?? 20;
+    const where = this.accountsWhere(filter);
+    const rows = await this.prisma.association.findMany({
+      where,
+      take: take + 1,
+      ...(pagination?.cursor
+        ? { cursor: { id: pagination.cursor }, skip: 1 }
+        : {}),
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      select: ASSOCIATION_SELECT,
+    });
+    const items = rows.slice(0, take).map(projectAssociation);
+    return {
+      items,
+      totalCount: await this.prisma.association.count({ where }),
+      pageInfo: {
+        hasNextPage: rows.length > take,
+        nextCursor: rows.length > take ? (items.at(-1)?.id ?? null) : null,
+      },
+    };
+  }
+
+  private accountsWhere(filter?: AssociationAccountFilterInput) {
+    const search = filter?.search?.trim() ?? "";
+    return {
+      deletedAt: null,
+      ...(filter?.ownerStatus ? { owner: { status: filter.ownerStatus } } : {}),
+      ...(search.length >= ACCOUNT_SEARCH_MIN_LENGTH
+        ? {
+            OR: [
+              { name: { contains: search, mode: "insensitive" as const } },
+              {
+                contactEmail: {
+                  contains: search,
+                  mode: "insensitive" as const,
+                },
+              },
+            ],
+          }
+        : {}),
+    } satisfies Prisma.AssociationWhereInput;
   }
 
   private createRecords(

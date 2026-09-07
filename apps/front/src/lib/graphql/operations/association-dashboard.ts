@@ -30,6 +30,16 @@ export type ResendAssociationActivationMutationVariables = Types.Exact<{
 
 export type ResendAssociationActivationMutation = { __typename?: 'Mutation', resendAssociationActivation: { __typename?: 'AssociationActionResponse', code: string, success: boolean, message: string } };
 
+export type AssociationAccountRowFieldsFragment = { __typename?: 'Association', id: string, name: string, country?: string | null, website?: string | null, logoUrl?: string | null, contactEmail?: string | null, ownerEmail?: string | null, ownerFullName?: string | null, ownerStatus: Types.UserStatus, createdAt: string };
+
+export type AssociationAccountsQueryVariables = Types.Exact<{
+  filter?: Types.InputMaybe<Types.AssociationAccountFilterInput>;
+  pagination?: Types.InputMaybe<Types.AssociationPaginationInput>;
+}>;
+
+
+export type AssociationAccountsQuery = { __typename?: 'Query', associationAccounts: { __typename?: 'PaginatedAssociationAccounts', totalCount: number, pageInfo: { __typename?: 'AssociationPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'Association', id: string, name: string, country?: string | null, website?: string | null, logoUrl?: string | null, contactEmail?: string | null, ownerEmail?: string | null, ownerFullName?: string | null, ownerStatus: Types.UserStatus, createdAt: string }> } };
+
 export type AssociationMemberGroupFieldsFragment = { __typename?: 'AssociationMemberGroup', id: string, title: string, isActive: boolean };
 
 export type AssociationMemberFieldsFragment = { __typename?: 'AssociationMember', id: string, userId: string, fullName?: string | null, email?: string | null, avatarUrl?: string | null, memberNumber?: string | null, notes?: string | null, status: Types.AssociationMemberStatus, invitedAt: string, activatedAt?: string | null, deactivatedAt?: string | null, group?: { __typename?: 'AssociationMemberGroup', id: string, title: string, isActive: boolean } | null };
@@ -511,6 +521,20 @@ export const AssociationFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentStrin
   createdAt
   updatedAt
 }`, {"fragmentName":"AssociationFields"}) as unknown as TypedDocumentString<AssociationFieldsFragment, unknown>;
+export const AssociationAccountRowFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
+    fragment AssociationAccountRowFields on Association {
+  id
+  name
+  country
+  website
+  logoUrl
+  contactEmail
+  ownerEmail
+  ownerFullName
+  ownerStatus
+  createdAt
+}
+    `, {"fragmentName":"AssociationAccountRowFields"}) as unknown as TypedDocumentString<AssociationAccountRowFieldsFragment, unknown>;
 export const AssociationMemberGroupFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
     fragment AssociationMemberGroupFields on AssociationMemberGroup {
   id
@@ -965,6 +989,31 @@ export const ResendAssociationActivationDocument = /*#__PURE__*/ new TypedDocume
   }
 }
     `) as unknown as TypedDocumentString<ResendAssociationActivationMutation, ResendAssociationActivationMutationVariables>;
+export const AssociationAccountsDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query AssociationAccounts($filter: AssociationAccountFilterInput, $pagination: AssociationPaginationInput) {
+  associationAccounts(filter: $filter, pagination: $pagination) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      nextCursor
+    }
+    items {
+      ...AssociationAccountRowFields
+    }
+  }
+}
+    fragment AssociationAccountRowFields on Association {
+  id
+  name
+  country
+  website
+  logoUrl
+  contactEmail
+  ownerEmail
+  ownerFullName
+  ownerStatus
+  createdAt
+}`) as unknown as TypedDocumentString<AssociationAccountsQuery, AssociationAccountsQueryVariables>;
 export const AssociationMembersDocument = /*#__PURE__*/ new TypedDocumentString(`
     query AssociationMembers($filter: AssociationMemberFilterInput, $pagination: AssociationPaginationInput) {
   associationMembers(filter: $filter, pagination: $pagination) {

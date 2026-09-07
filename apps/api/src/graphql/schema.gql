@@ -248,6 +248,11 @@ type Association {
   website: String
 }
 
+input AssociationAccountFilterInput {
+  ownerStatus: UserStatus
+  search: String
+}
+
 type AssociationActionResponse {
   association: Association
   code: String!
@@ -2771,6 +2776,12 @@ type PaginatedAdminUser {
   totalCount: Int!
 }
 
+type PaginatedAssociationAccounts {
+  items: [Association!]!
+  pageInfo: AssociationPageInfo!
+  totalCount: Int!
+}
+
 type PaginatedAssociationAttentionRows {
   items: [AssociationAttentionRow!]!
   pageInfo: AssociationPageInfo!
@@ -3851,6 +3862,7 @@ type Query {
   adminProfile: AdminProfile!
   adminUserGrowth(mode: String = "DAILY"): [AdminChartPoint!]!
   adminUsers(filter: AdminUserFilter, pagination: AdminPagination): PaginatedAdminUser!
+  associationAccounts(filter: AssociationAccountFilterInput, pagination: AssociationPaginationInput): PaginatedAssociationAccounts!
   associationActivationStatus(token: String!): AssociationActivationStatus!
   associationAttentionLists(associationId: ID): AssociationAttentionLists!
   associationAttentionMembers(associationId: ID, pagination: AssociationReportPaginationInput, section: AssociationAttentionSection!): PaginatedAssociationAttentionRows!
