@@ -2458,12 +2458,6 @@
       ]
     }
   },
-  "theme": {
-    "switchToDark": "Passer en mode sombre",
-    "switchToLight": "Passer en mode clair",
-    "dark": "Mode sombre",
-    "light": "Mode clair"
-  },
   "navigation": {
     "home": "Accueil",
     "content": "Contenu",
@@ -6461,8 +6455,75 @@
       "overview": "Aperçu",
       "settings": "Paramètres",
       "orgAccessRequests": "Demandes d’accès organisation",
+      "associations": "Associations",
       "users": "Utilisateurs",
       "organizationUsers": "Utilisateurs d’organisation"
+    },
+    "associations": {
+      "eyebrow": "Comptes d'association",
+      "title": "Associations",
+      "description": "Créez une association, puis suivez si son responsable a activé le compte.",
+      "error": "Nous n'avons pas pu charger l'annuaire des associations.",
+      "empty": "Aucune association n'a encore été créée.",
+      "noResults": "Aucune association ne correspond à ces filtres.",
+      "actions": {
+        "create": "Nouvelle association",
+        "resend": "Renvoyer l'activation",
+        "noneNeeded": "Activé"
+      },
+      "filters": {
+        "search": "Rechercher par nom d'association ou e-mail de contact",
+        "ownerStatus": "Statut du responsable"
+      },
+      "ownerStatus": {
+        "ALL": "Tous les responsables",
+        "PENDING": "En attente d'activation",
+        "ACTIVE": "Actif",
+        "DISABLED": "Désactivé",
+        "DELETED": "Supprimé"
+      },
+      "table": {
+        "association": "Association",
+        "representative": "Représentant",
+        "workEmail": "E-mail professionnel",
+        "ownerStatus": "Statut du responsable",
+        "createdAt": "Créée le",
+        "actions": "Actions"
+      },
+      "create": {
+        "title": "Créer un compte d'association",
+        "description": "Le représentant reçoit un lien d'activation et choisit lui-même son mot de passe. Aucun mot de passe n'est défini ici.",
+        "name": "Nom de l'association",
+        "representativeFullName": "Nom complet du représentant",
+        "workEmail": "E-mail professionnel",
+        "country": "Pays",
+        "website": "Site web",
+        "logoUrl": "URL du logo",
+        "descriptionField": "Description",
+        "activationNote": "Le lien d'activation expire ; vous pouvez le renvoyer depuis ce tableau tant que le compte est en attente.",
+        "submit": "Créer le compte",
+        "sentTitle": "Compte créé",
+        "sentBody": "{name} a été créée et l'e-mail d'activation part vers le représentant.",
+        "notSentTitle": "Compte créé, e-mail non envoyé",
+        "notSentBody": "{name} a été créée, mais l'e-mail d'activation n'a pas pu être mis en file. Renvoyez-le depuis le tableau.",
+        "createAnother": "Créer une autre",
+        "done": "Terminé"
+      },
+      "resend": {
+        "title": "Renvoyer l'e-mail d'activation ?",
+        "description": "Un nouveau lien d'activation est envoyé au représentant de {name}, et le lien précédent cesse de fonctionner.",
+        "confirm": "Renvoyer"
+      },
+      "messages": {
+        "activationResent": "Un nouvel e-mail d'activation a été mis en file pour {name}."
+      },
+      "errors": {
+        "emailAlreadyInUse": "Un compte utilise déjà cet e-mail professionnel.",
+        "notFound": "Cette association est introuvable.",
+        "alreadyActivated": "Ce compte a déjà été activé.",
+        "resendTooSoon": "Un e-mail d'activation a été envoyé récemment. Réessayez après le délai d'attente.",
+        "activationEmailNotSent": "L'e-mail d'activation n'a pas pu être mis en file. Réessayez dans un instant."
+      }
     },
     "overview": {
       "eyebrow": "Vue administrateur",

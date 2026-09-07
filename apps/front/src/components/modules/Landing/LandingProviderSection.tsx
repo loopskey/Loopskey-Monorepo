@@ -25,7 +25,7 @@ const LandingProvider = () => {
         <div className="grid gap-10 xl:grid-cols-[0.95fr_1.05fr] xl:items-center">
           <RevealOnScroll direction="left">
             <div>
-              <span className="inline-flex w-fit items-center rounded-full border border-glass-border bg-background/55 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm backdrop-blur-xl ring-1 ring-white/40 dark:ring-white/5">
+              <span className="inline-flex w-fit items-center rounded-full border border-glass-border bg-background/55 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm backdrop-blur-xl ring-1 ring-white/40">
                 {t("landing.provider.eyebrow")}
               </span>
 

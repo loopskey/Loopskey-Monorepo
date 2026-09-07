@@ -82,7 +82,7 @@ export const OverviewCardMessage = ({
         className={cn(
           "rounded-2xl p-3",
           tone === "danger"
-            ? "bg-red-500/10 text-red-600 dark:text-red-400"
+            ?"bg-red-500/10 text-red-600"
             : "bg-muted text-muted-foreground",
         )}
       >

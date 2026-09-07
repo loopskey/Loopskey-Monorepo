@@ -11,7 +11,7 @@ const buttonVariants = cva(
     "disabled:pointer-events-none disabled:opacity-50",
     "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
     "outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/35",
-    "aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40",
+    "aria-invalid:border-destructive aria-invalid:ring-destructive/20",
   ].join(" "),
   {
     variants: {
@@ -35,25 +35,25 @@ const buttonVariants = cva(
           "btn-gradient btn-gradient-danger text-destructive-foreground shadow-[0_14px_36px_rgba(220,38,38,0.2)] hover:shadow-[0_18px_48px_rgba(220,38,38,0.32)] focus-visible:ring-destructive/25",
 
         brandSoft:
-          "cursor-pointer border border-primary/20 bg-primary/10 text-primary shadow-sm hover:border-primary/35 hover:bg-primary/15 dark:border-primary/25 dark:bg-primary/10",
+          "cursor-pointer border border-primary/20 bg-primary/10 text-primary shadow-sm hover:border-primary/35 hover:bg-primary/15",
 
         brandOutline:
-          "cursor-pointer border border-primary/35 bg-background/55 text-primary shadow-sm backdrop-blur-xl hover:border-primary/60 hover:bg-primary/10 dark:bg-background/25",
+          "cursor-pointer border border-primary/35 bg-background/55 text-primary shadow-sm backdrop-blur-xl hover:border-primary/60 hover:bg-primary/10",
 
         cancel:
-          "cursor-pointer border border-border bg-muted/60 text-muted-foreground shadow-sm hover:bg-muted hover:text-foreground dark:bg-muted/35 dark:hover:bg-muted/55",
+          "cursor-pointer border border-border bg-muted/60 text-muted-foreground shadow-sm hover:bg-muted hover:text-foreground",
 
         outline:
-          "cursor-pointer border border-border bg-background shadow-sm hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:hover:bg-input/50",
+          "cursor-pointer border border-border bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
 
         secondary:
           "cursor-pointer bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
 
         ghost:
-          "cursor-pointer hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
+          "cursor-pointer hover:bg-accent hover:text-accent-foreground",
 
         glass:
-          "cursor-pointer border border-glass-border bg-glass text-foreground shadow-sm backdrop-blur-xl hover:bg-background/70 dark:hover:bg-white/10",
+          "cursor-pointer border border-glass-border bg-glass text-foreground shadow-sm backdrop-blur-xl hover:bg-background/70",
 
         link: "text-primary underline-offset-4 hover:underline",
       },

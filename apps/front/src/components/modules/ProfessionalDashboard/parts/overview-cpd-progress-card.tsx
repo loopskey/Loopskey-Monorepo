@@ -18,10 +18,10 @@ import * as PC from "@modules/ProfessionalDashboard/parts/overview-card";
 import * as L from "lucide-react";
 
 const TONE_CLASSES: Record<string, string> = {
-  success: "text-emerald-600 bg-emerald-500/10 dark:text-emerald-400",
-  info: "text-blue-600 bg-blue-500/10 dark:text-blue-400",
-  warning: "text-amber-600 bg-amber-500/10 dark:text-amber-400",
-  danger: "text-red-600 bg-red-500/10 dark:text-red-400",
+  success:"text-emerald-600 bg-emerald-500/10",
+  info:"text-blue-600 bg-blue-500/10",
+  warning:"text-amber-600 bg-amber-500/10",
+  danger:"text-red-600 bg-red-500/10",
   neutral: "text-muted-foreground bg-muted",
 };
 

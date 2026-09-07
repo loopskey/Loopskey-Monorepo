@@ -290,6 +290,11 @@ export type Association = {
   website?: Maybe<Scalars["String"]["output"]>;
 };
 
+export type AssociationAccountFilterInput = {
+  ownerStatus?: InputMaybe<UserStatus>;
+  search?: InputMaybe<Scalars["String"]["input"]>;
+};
+
 export type AssociationActionResponse = {
   __typename?: "AssociationActionResponse";
   association?: Maybe<Association>;
@@ -3502,6 +3507,13 @@ export type PaginatedAdminUser = {
   totalCount: Scalars["Int"]["output"];
 };
 
+export type PaginatedAssociationAccounts = {
+  __typename?: "PaginatedAssociationAccounts";
+  items: Array<Association>;
+  pageInfo: AssociationPageInfo;
+  totalCount: Scalars["Int"]["output"];
+};
+
 export type PaginatedAssociationAttentionRows = {
   __typename?: "PaginatedAssociationAttentionRows";
   items: Array<AssociationAttentionRow>;
@@ -4669,6 +4681,7 @@ export type Query = {
   adminProfile: AdminProfile;
   adminUserGrowth: Array<AdminChartPoint>;
   adminUsers: PaginatedAdminUser;
+  associationAccounts: PaginatedAssociationAccounts;
   associationActivationStatus: AssociationActivationStatus;
   associationAttentionLists: AssociationAttentionLists;
   associationAttentionMembers: PaginatedAssociationAttentionRows;
@@ -4831,6 +4844,11 @@ export type QueryAdminUserGrowthArgs = {
 export type QueryAdminUsersArgs = {
   filter?: InputMaybe<AdminUserFilter>;
   pagination?: InputMaybe<AdminPagination>;
+};
+
+export type QueryAssociationAccountsArgs = {
+  filter?: InputMaybe<AssociationAccountFilterInput>;
+  pagination?: InputMaybe<AssociationPaginationInput>;
 };
 
 export type QueryAssociationActivationStatusArgs = {

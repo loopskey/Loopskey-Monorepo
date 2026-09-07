@@ -2125,6 +2125,9 @@ model OrganizationAssignmentRecipient {
 }
 
 // ================ Association ==================
+/// Unmanaged indexes: Association_name_trgm_idx and
+/// Association_contactEmail_trgm_idx are pg_trgm GIN indexes created in raw
+/// migration SQL, because Prisma cannot express them and reports them as drift.
 model Association {
   id String @id @default(cuid())
 

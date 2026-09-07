@@ -1,16 +1,14 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
-
 :root {
-  --background: oklch(0.985 0.012 230);
+  --background: oklch(1 0 0);
   --foreground: oklch(0.19 0.035 255);
 
-  --card: oklch(1 0 0 / 0.86);
+  --card: oklch(1 0 0);
   --card-foreground: oklch(0.19 0.035 255);
 
-  --popover: oklch(1 0 0 / 0.96);
+  --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.19 0.035 255);
 
   --primary: oklch(0.55 0.19 255);
@@ -85,89 +83,10 @@
   --input: oklch(0.58 0.03 240);
   --ring: oklch(0.58 0.18 255);
 
-  --glass: oklch(1 0 0 / 0.58);
-  --glass-border: oklch(0.82 0.02 240);
+  --glass: oklch(1 0 0);
+  --glass-border: oklch(0.66 0.025 240);
 
   --radius: 0.875rem;
-}
-
-.dark {
-  /* Surface neutrals share hue 290 with --background, which the fixed
-     backdrop layer paints directly. Accent hues below are intentionally
-     left off that hue to stay separable from the background. */
-  --background: oklch(0.145 0.04 290);
-  --foreground: oklch(0.965 0.012 290);
-
-  --card: oklch(0.21 0.045 290 / 0.78);
-  --card-foreground: oklch(0.965 0.012 290);
-
-  --popover: oklch(0.19 0.045 290 / 0.96);
-  --popover-foreground: oklch(0.965 0.012 290);
-
-  --primary: oklch(0.68 0.18 250);
-  --primary-foreground: oklch(0.13 0.035 255);
-
-  --secondary: oklch(0.27 0.045 290);
-  --secondary-foreground: oklch(0.94 0.012 290);
-
-  --muted: oklch(0.25 0.035 290);
-  --muted-foreground: oklch(0.72 0.035 290);
-
-  --accent: oklch(0.27 0.03 290);
-  --accent-foreground: oklch(0.965 0.012 290);
-
-  --brand-teal: oklch(0.62 0.12 190);
-  --brand-teal-foreground: oklch(0.08 0.02 230);
-  --brand-teal-text: oklch(0.72 0.12 190);
-
-  --success: oklch(0.68 0.15 155);
-  --success-foreground: oklch(0.09 0.02 155);
-
-  --warning: oklch(0.78 0.16 80);
-  --warning-foreground: oklch(0.12 0.035 65);
-
-  --destructive: oklch(0.68 0.21 25);
-  --destructive-foreground: oklch(0.16 0.04 25);
-
-  --premium: oklch(0.82 0.14 85);
-  --premium-foreground: oklch(0.13 0.035 65);
-
-  --success-soft: oklch(0.68 0.16 155 / 0.18);
-  --success-soft-foreground: oklch(0.78 0.16 155);
-
-  --warning-soft: oklch(0.68 0.15 75 / 0.18);
-  --warning-soft-foreground: oklch(0.78 0.15 75);
-
-  --destructive-soft: oklch(0.68 0.22 25 / 0.18);
-  --destructive-soft-foreground: oklch(0.84 0.22 25);
-
-  --premium-soft: oklch(0.68 0.14 85 / 0.18);
-  --premium-soft-foreground: oklch(0.78 0.14 85);
-
-  --ct-course: oklch(0.7 0.17 255);
-  --ct-course-foreground: oklch(0.13 0.035 255);
-  --ct-event: oklch(0.72 0.15 155);
-  --ct-event-foreground: oklch(0.1 0.02 155);
-  --ct-podcast: oklch(0.7 0.19 300);
-  --ct-podcast-foreground: oklch(0.12 0.03 300);
-  --ct-youtube: oklch(0.7 0.2 25);
-  --ct-youtube-foreground: oklch(0.12 0.03 25);
-
-  --chart-1: oklch(0.66 0.17 255);
-  --chart-2: oklch(0.78 0.12 190);
-  --chart-3: oklch(0.62 0.19 300);
-  --chart-4: oklch(0.8 0.15 55);
-  --chart-5: oklch(0.72 0.15 155);
-  --chart-6: oklch(0.62 0.2 25);
-  --chart-7: oklch(0.84 0.13 90);
-  --chart-8: oklch(0.7 0.12 220);
-
-  --border: oklch(1 0 0 / 0.18);
-  --input: oklch(1 0 0 / 0.36);
-  --ring: oklch(0.72 0.16 250);
-
-  --glass: oklch(0.21 0.045 290 / 0.58);
-  --glass-border: oklch(1 0 0 / 0.18);
 }
 
 @theme inline {
@@ -332,26 +251,6 @@ body {
     );
 }
 
-.dark .btn-gradient-brand::before {
-  background-image:
-    radial-gradient(
-      circle at 12% 18%,
-      rgba(165, 180, 252, 0.48),
-      transparent 30%
-    ),
-    radial-gradient(
-      circle at 85% 15%,
-      rgba(45, 212, 191, 0.36),
-      transparent 34%
-    ),
-    linear-gradient(
-      135deg,
-      rgb(67, 56, 202),
-      rgb(14, 116, 144),
-      rgb(30, 64, 175)
-    );
-}
-
 .btn-gradient-warning::before {
   background-image:
     radial-gradient(
@@ -436,71 +335,11 @@ body {
 .glass-panel {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, oklch(1 0 0 / 0.68), oklch(1 0 0 / 0.32));
+  background: var(--card);
   border: 1px solid var(--glass-border);
   box-shadow:
-    0 34px 100px oklch(0.25 0.08 255 / 0.2),
-    0 12px 34px oklch(0.25 0.08 255 / 0.1),
-    inset 0 1px 0 oklch(1 0 0 / 0.82),
-    inset 0 -1px 0 oklch(1 0 0 / 0.22);
-  backdrop-filter: blur(30px) saturate(165%);
-  -webkit-backdrop-filter: blur(30px) saturate(165%);
-}
-
-.dark .glass-panel {
-  background: linear-gradient(
-    135deg,
-    oklch(0.28 0.055 255 / 0.66),
-    oklch(0.16 0.045 255 / 0.42)
-  );
-  box-shadow:
-    0 38px 110px oklch(0.02 0.03 255 / 0.62),
-    0 14px 42px oklch(0.02 0.03 255 / 0.42),
-    inset 0 1px 0 oklch(1 0 0 / 0.16),
-    inset 0 -1px 0 oklch(1 0 0 / 0.07);
-}
-
-.glass-panel::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(
-      circle at 12% 10%,
-      oklch(0.82 0.14 235 / 0.22),
-      transparent 32%
-    ),
-    radial-gradient(
-      circle at 90% 15%,
-      oklch(0.8 0.12 190 / 0.16),
-      transparent 30%
-    ),
-    radial-gradient(
-      circle at 50% 105%,
-      oklch(0.82 0.14 85 / 0.12),
-      transparent 38%
-    );
-}
-
-.dark .glass-panel::after {
-  background:
-    radial-gradient(
-      circle at 12% 10%,
-      oklch(0.68 0.17 250 / 0.2),
-      transparent 32%
-    ),
-    radial-gradient(
-      circle at 90% 15%,
-      oklch(0.62 0.13 190 / 0.15),
-      transparent 30%
-    ),
-    radial-gradient(
-      circle at 50% 105%,
-      oklch(0.72 0.14 85 / 0.1),
-      transparent 38%
-    );
+    0 1px 2px oklch(0.25 0.08 255 / 0.05),
+    0 8px 24px -12px oklch(0.25 0.08 255 / 0.12);
 }
 
 .glass-card-enter {
@@ -674,11 +513,6 @@ body {
   filter: brightness(0.95);
 }
 
-.dark .calendar-shell .fc .fc-daygrid-event:hover,
-.dark .calendar-shell .fc .fc-event:hover {
-  filter: brightness(1.1);
-}
-
 .calendar-shell .fc .fc-list-event-title,
 .calendar-shell .fc .fc-list-event-time {
   color: var(--foreground);
@@ -734,20 +568,9 @@ body {
 
 /* =============== Dialog Panel ================= */
 .glass-dialog {
-  background: linear-gradient(135deg, oklch(1 0 0 / 0.92), oklch(1 0 0 / 0.76));
+  background: var(--popover);
   border: 1px solid var(--glass-border);
   box-shadow:
-    0 34px 100px oklch(0.25 0.08 255 / 0.2),
-    0 12px 34px oklch(0.25 0.08 255 / 0.1),
-    inset 0 1px 0 oklch(1 0 0 / 0.82);
-  backdrop-filter: blur(30px) saturate(165%);
-  -webkit-backdrop-filter: blur(30px) saturate(165%);
-}
-
-.dark .glass-dialog {
-  background: linear-gradient(
-    135deg,
-    oklch(0.28 0.055 255 / 0.92),
-    oklch(0.16 0.045 255 / 0.82)
-  );
+    0 1px 2px oklch(0.25 0.08 255 / 0.06),
+    0 24px 60px -24px oklch(0.25 0.08 255 / 0.22);
 }

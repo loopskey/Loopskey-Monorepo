@@ -24,7 +24,7 @@ export const CpdMissingRequirements = ({
     </div>
 
     {progress.missingRequirements.length === 0 ? (
-      <div className="flex items-center gap-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-700 dark:text-emerald-400">
+      <div className="flex items-center gap-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-700">
         <L.CheckCircle2 className="h-5 w-5" />
         {t("cpdProgress.progress.missingNone")}
       </div>

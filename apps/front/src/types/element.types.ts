@@ -7,11 +7,6 @@ import type { buttonVariants } from "@ui/button";
 import type { VariantProps } from "class-variance-authority";
 import type { AvatarImage } from "@ui/avatar";
 
-export type TLearningParticlesBackgroundProps = {
-  className?: string;
-  withBottomFade?: boolean;
-};
-
 // ================ User Avatar ==============
 export type TUserAvatarProps = {
   alt?: string;
@@ -26,8 +21,6 @@ export type TUserAvatarProps = {
 };
 
 // ================ Galaxy Background ==============
-export type TThemeMode = "light" | "dark";
-
 export type TGalaxyProps = HTMLAttributes<HTMLDivElement> & {
   focal?: [number, number];
   rotation?: [number, number];

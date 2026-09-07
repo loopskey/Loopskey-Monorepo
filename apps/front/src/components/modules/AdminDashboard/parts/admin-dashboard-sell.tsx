@@ -6,6 +6,10 @@ import { useSearchParams } from "next/navigation";
 
 import dynamic from "next/dynamic";
 
+const AdminAssociationsTab = dynamic(
+  () => import("@modules/AdminDashboard/AdminAssociationsTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
 const AdminOrgAccessRequestTab = dynamic(
   () => import("@modules/AdminDashboard/AdminOrgAccessRequestTab"),
   { loading: () => <DashboardContentSkeleton /> },
@@ -33,6 +37,7 @@ const validTabs: TAdminDashboardTab[] = [
   "settings",
   "organization-users",
   "org-access-requests",
+  "associations",
 ];
 
 export const AdminDashboardShell = () => {
@@ -47,6 +52,7 @@ export const AdminDashboardShell = () => {
   if (activeTab === "overview") return <AdminOverviewTab />;
   if (activeTab === "organization-users") return <AdminOrgUsersTab />;
   if (activeTab === "org-access-requests") return <AdminOrgAccessRequestTab />;
+  if (activeTab === "associations") return <AdminAssociationsTab />;
   if (activeTab === "settings") return <AdminSettingsTab />;
 
   return (
