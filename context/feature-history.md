@@ -41,3 +41,4 @@ into this index and do not rewrite previous records.
 - [`light-theme-only`](feature-runs/active/light-theme-only.md)
 - [`continuous-deployment`](feature-runs/active/continuous-deployment.md)
 - [`deploy-key-decoding`](feature-runs/active/deploy-key-decoding.md)
+- [`course-visual-audit-and-scope`](feature-runs/active/course-visual-audit-and-scope.md)
