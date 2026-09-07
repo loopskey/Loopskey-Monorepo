@@ -3,7 +3,7 @@
 - Scope: `front`
 - Branch: `feature/course-visual-audit-and-scope`
 - Base: `6984893` (`origin/develop`)
-- Status: `Ready`
+- Status: `Submitted`
 
 ## Acceptance
 
@@ -48,6 +48,6 @@ Scope decisions recorded during the audit:
 
 ## Submission
 
-- Commit:
-- PR:
+- Commit: `96970f0`
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/72
 - CI:
