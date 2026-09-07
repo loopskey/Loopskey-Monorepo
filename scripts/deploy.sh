@@ -2,10 +2,12 @@
 #
 # Deploy the Loopskey production stack.
 #
-#   scripts/deploy.sh              pull images from the registry, then restart
-#   scripts/deploy.sh --build      build images on this host instead of pulling
-#   scripts/deploy.sh --no-git     deploy the checkout as it is, without pulling
-#   scripts/deploy.sh --ref <ref>  fast-forward to a specific ref instead of main
+#   scripts/deploy.sh              pull published images when API_IMAGE is set,
+#                                  otherwise build on this host
+#   scripts/deploy.sh --build      always build on this host
+#   scripts/deploy.sh --pull       always pull, and fail when an image is absent
+#   scripts/deploy.sh --no-git     deploy the checkout as it is, without fetching
+#   scripts/deploy.sh --ref <ref>  track a ref other than main
 #
 # Backups land in $LOOPSKEY_BACKUP_DIR (default ./backups). A failed health
 # check restores the previous images automatically; the database dump taken at
@@ -23,14 +25,15 @@ BACKUPS_KEPT=10
 HEALTH_TIMEOUT_SECONDS=300
 GIT_REF="main"
 DO_GIT=1
-DO_BUILD=0
+SOURCE="auto"
 
 while [ $# -gt 0 ]; do
   case "$1" in
-    --build) DO_BUILD=1 ;;
+    --build) SOURCE="build" ;;
+    --pull) SOURCE="pull" ;;
     --no-git) DO_GIT=0 ;;
     --ref) GIT_REF="${2:?--ref needs a value}"; shift ;;
-    -h|--help) sed -n '2,13p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    -h|--help) sed -n '2,15p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "unknown argument: $1" >&2; exit 2 ;;
   esac
   shift
@@ -49,8 +52,12 @@ read_env() { grep -E "^$1=" "$ENV_FILE" | tail -1 | cut -d= -f2- | tr -d '\r"' |
 
 PGUSER_VALUE="$(read_env POSTGRES_USER)"
 PGDB_VALUE="$(read_env POSTGRES_DB)"
-API_IMG="$(read_env API_IMAGE)"; API_IMG="${API_IMG:-loopskey-api:latest}"
+PUBLISHED_API_IMAGE="$(read_env API_IMAGE)"
+API_IMG="${PUBLISHED_API_IMAGE:-loopskey-api:latest}"
 FRONT_IMG="$(read_env FRONT_IMAGE)"; FRONT_IMG="${FRONT_IMG:-loopskey-front:latest}"
+if [ "$SOURCE" = "auto" ]; then
+  if [ -n "$PUBLISHED_API_IMAGE" ]; then SOURCE="pull"; else SOURCE="build"; fi
+fi
 [ -n "$PGUSER_VALUE" ] && [ -n "$PGDB_VALUE" ] || fail "POSTGRES_USER and POSTGRES_DB must be set in $ENV_FILE"
 
 "${DC[@]}" config >/dev/null || fail "compose configuration is invalid"
@@ -92,6 +99,8 @@ MSG
 fi
 
 if [ "$DO_GIT" -eq 1 ]; then
+  CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+  [ "$CURRENT_BRANCH" = "$GIT_REF" ] || fail "the checkout is on '$CURRENT_BRANCH' but this deploy tracks '$GIT_REF'"
   log "Fast-forwarding to origin/$GIT_REF"
   git fetch origin "$GIT_REF"
   git merge --ff-only "origin/$GIT_REF"
@@ -102,11 +111,11 @@ log "Tagging the running images for rollback"
 docker tag "$API_IMG" loopskey-api:previous
 docker tag "$FRONT_IMG" loopskey-front:previous
 
-if [ "$DO_BUILD" -eq 1 ]; then
-  log "Building images"
+if [ "$SOURCE" = "build" ]; then
+  log "Building images on this host"
   "${DC[@]}" build
 else
-  log "Pulling images"
+  log "Pulling published images"
   "${DC[@]}" pull api front
 fi
 

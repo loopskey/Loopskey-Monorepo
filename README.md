@@ -107,31 +107,42 @@ cp .env.docker.example .env.docker
 docker compose -f compose.production.yaml --env-file .env.docker up --build -d
 ```
 
-Every deployment after that:
+After that a merge to `main` deploys on its own; see "Continuous deployment"
+below. To deploy by hand:
 
 ```bash
 scripts/deploy.sh
 ```
 
 `deploy.sh` dumps the database, refuses to continue when a previous migration
-was left unresolved, fast-forwards the checkout to `origin/main`, pulls the new
-images, restarts the stack, waits for both health checks, and restores the
-previous images if either one fails. `--build` builds on the host instead of
-pulling; `--no-git` deploys the checkout as it is.
+was left unresolved, fast-forwards the checkout to `origin/main`, pulls or
+builds the images, restarts the stack, waits for both health checks, and
+restores the previous images if either one fails. It pulls when `API_IMAGE` is
+set and builds otherwise; `--build` and `--pull` force one or the other, and
+`--no-git` deploys the checkout as it is.
 
 Prisma migrations run automatically before each API start. Database data and
 uploaded files live in named Docker volumes and survive container replacement.
 
-### Images
+### Continuous deployment
 
-Pushes to `main` build both images and publish them to GHCR through
-`.github/workflows/images.yml`. Because `NEXT_PUBLIC_GRAPHQL_URL` is baked into
-the frontend bundle at build time, the workflow reads it from the repository
-variable of the same name; changing the public API origin means changing that
-variable and rebuilding.
+`.github/workflows/release.yml` runs on every push to `main`. It publishes both
+images to GHCR, then opens an SSH session to the host and deploys. A merge to
+`main` is therefore the whole deployment.
 
-To deploy published images rather than building on the host, authenticate the
-host to GHCR once and point `.env.docker` at them:
+The frontend bundle carries `NEXT_PUBLIC_GRAPHQL_URL`, baked in at build time,
+so the workflow reads it from the repository variable of the same name and fails
+when it is unset — an empty value ships a frontend that calls nothing. Changing
+the public API origin means changing that variable and re-running the workflow.
+
+Deployment is a single concurrency group, so two merges in quick succession
+deploy one after the other rather than racing.
+
+#### Host setup, once
+
+Authenticate the host to GHCR and point `.env.docker` at the published images,
+so deployments pull instead of building on a machine that is also serving
+traffic:
 
 ```bash
 echo "$GHCR_TOKEN" | docker login ghcr.io -u <github-user> --password-stdin
@@ -141,7 +152,52 @@ FRONT_IMAGE=ghcr.io/loopskey/loopskey-monorepo/front:latest
 ```
 
 Leaving both blank keeps the locally built `loopskey-api:latest` and
-`loopskey-front:latest`.
+`loopskey-front:latest`, and `deploy.sh` builds instead of pulling.
+
+Then create a key that can do nothing but deploy:
+
+```bash
+ssh-keygen -t ed25519 -N "" -C loopskey-ci -f ~/.ssh/loopskey_ci
+
+RESTRICT='command="'$(pwd)'/scripts/ci-deploy.sh",no-agent-forwarding,'
+RESTRICT="${RESTRICT}no-port-forwarding,no-pty,no-user-rc,no-X11-forwarding"
+echo "$RESTRICT $(cat ~/.ssh/loopskey_ci.pub)" >> ~/.ssh/authorized_keys
+```
+
+The `command=` prefix is what makes the key safe to hand to CI: the server
+ignores whatever the client asks for and runs `scripts/ci-deploy.sh` instead, so
+a leaked key can deploy and nothing else.
+
+Host settings that do not belong in the repository go in
+`/etc/loopskey/deploy.env`, which `ci-deploy.sh` sources:
+
+```bash
+install -d /etc/loopskey
+echo 'LOOPSKEY_BACKUP_DIR=/root/backups' > /etc/loopskey/deploy.env
+```
+
+#### Repository secrets
+
+| Secret               | Required | Value                                                |
+| -------------------- | -------- | ---------------------------------------------------- |
+| `DEPLOY_HOST`        | yes      | Host or IP of the deployment machine                 |
+| `DEPLOY_SSH_KEY`     | yes      | The private key generated above                      |
+| `DEPLOY_USER`        | no       | Defaults to `root`                                   |
+| `DEPLOY_PORT`        | no       | Defaults to `22`                                     |
+| `DEPLOY_KNOWN_HOSTS` | no       | Pins the host key; `ssh-keyscan` is used when absent |
+
+```bash
+gh secret set DEPLOY_HOST --body "<host>"
+gh secret set DEPLOY_SSH_KEY < ~/.ssh/loopskey_ci
+gh secret set DEPLOY_KNOWN_HOSTS --body "$(ssh-keyscan -H <host> 2>/dev/null)"
+```
+
+#### Requiring an approval before a deployment
+
+The `deploy` job takes no approval by design. To add one, create a GitHub
+Environment named `production` with required reviewers and add
+`environment: production` to that job; the workflow then waits for a click after
+the images are published.
 
 ### Ports and TLS
 
