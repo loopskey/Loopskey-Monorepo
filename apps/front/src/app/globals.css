@@ -1,70 +1,46 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* Light only. The product ships no theme switch and this phase does not add
-   one, so every token lives in :root and none of them key off a theme
-   selector or a colour-scheme media query. The hex in each comment is the
-   design reference; the OKLCH value is what ships. */
 :root {
-  --background: oklch(1 0 0); /* #FFFFFF */
-  --foreground: oklch(0.3791 0 0); /* #424242 */
-
-  --card: oklch(1 0 0); /* #FFFFFF */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.3791 0 0);
+  --card: oklch(1 0 0);
   --card-foreground: oklch(0.3791 0 0);
 
-  --popover: oklch(1 0 0); /* #FFFFFF */
+  --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.3791 0 0);
 
-  /* Carries the sidebar, the primary action, the active link and the focus
-     ring, so it is the whole product's blue, not just the sidebar's. */
-  --primary: oklch(0.3351 0.1745 271.87); /* #1F1F8E */
-  --primary-foreground: oklch(1 0 0); /* #FFFFFF */
-  --primary-hover: oklch(0.2978 0.1579 271.48); /* #18187A */
-  --primary-active: oklch(0.2619 0.133 272.4); /* #141463 */
-
+  --primary: oklch(0.3351 0.1745 271.87);
+  --primary-foreground: oklch(1 0 0);
+  --primary-hover: oklch(0.2978 0.1579 271.48);
+  --primary-active: oklch(0.2619 0.133 272.4);
   --secondary: oklch(0.96 0.004 260);
   --secondary-foreground: oklch(0.3791 0 0);
 
   --muted: oklch(0.96 0.004 260);
-  --muted-foreground: oklch(0.551 0.0234 264.36); /* #6B7280 */
-
-  /* shadcn treats --accent as the neutral hover/focus surface: every menu
-     item and every ghost/outline button paints with it. Keep it quiet —
-     turning it into the brand orange would tint the entire interface. */
+  --muted-foreground: oklch(0.551 0.0234 264.36);
   --accent: oklch(0.96 0.004 260);
   --accent-foreground: oklch(0.3791 0 0);
 
-  /* Deprecated: superseded by --brand-orange. Its remaining consumers are
-     decorative blur blobs and landing badges, retired in phase 6; the token
-     stays until that count reaches zero. Teal survives as --chart-3. */
   --brand-teal: oklch(0.88 0.075 190);
   --brand-teal-foreground: oklch(0.2 0.05 230);
   --brand-teal-text: oklch(0.42 0.075 190);
 
-  /* The historic accent. 2.82:1 on white, so it is a filled surface or a
-     decorative mark — never body text and never a lone essential indicator.
-     Text that needs to read as orange uses --brand-orange-text. */
-  --brand-orange: oklch(0.7009 0.1744 52.07); /* #F07915 */
-  --brand-orange-foreground: oklch(0.2101 0.0318 264.66); /* #111827 */
-  --brand-orange-text: oklch(0.5553 0.1455 49); /* #B45309 */
-
-  --success: oklch(0.5273 0.1371 150.07); /* #15803D */
+  --brand-orange: oklch(0.7009 0.1744 52.07);
+  --brand-orange-foreground: oklch(0.2101 0.0318 264.66);
+  --brand-orange-text: oklch(0.5553 0.1455 49);
+  --success: oklch(0.5273 0.1371 150.07);
   --success-foreground: oklch(1 0 0);
 
-  --warning: oklch(0.5553 0.1455 49); /* #B45309 */
+  --warning: oklch(0.5553 0.1455 49);
   --warning-foreground: oklch(1 0 0);
 
-  --destructive: oklch(0.5771 0.2152 27.33); /* #DC2626 */
+  --destructive: oklch(0.5771 0.2152 27.33);
   --destructive-foreground: oklch(1 0 0);
 
   --premium: oklch(0.72 0.14 85);
   --premium-foreground: oklch(0.22 0.035 65);
 
-  /* Soft tier: a tinted surface plus text that stays legible on it. Status
-     chips and progress cards need this pairing; without it they reach for
-     raw Tailwind (bg-emerald-500/10 text-emerald-600) and leave the system.
-     The foreground is the strong value, which clears 4.5:1 on white and on
-     its own 12% tint. */
   --success-soft: oklch(0.5273 0.1371 150.07 / 0.12);
   --success-soft-foreground: oklch(0.5273 0.1371 150.07);
 
@@ -86,52 +62,30 @@
   --ct-youtube: oklch(0.58 0.22 25);
   --ct-youtube-foreground: oklch(0.99 0 0);
 
-  /* Categorical chart series, for data with no inherent good or bad. Every
-     entry clears 3:1 on white, and green and red are deliberately absent —
-     they are reserved for the semantic slots below so a colour never means
-     "success" in one chart and "category four" in the next. */
-  --chart-1: oklch(0.3351 0.1745 271.87); /* #1F1F8E */
-  --chart-2: oklch(0.5461 0.2152 262.88); /* #2563EB */
-  --chart-3: oklch(0.5109 0.0861 186.39); /* #0F766E */
-  --chart-4: oklch(0.5413 0.2466 293.01); /* #7C3AED */
-  --chart-5: oklch(0.6004 0.1555 51.47); /* #C65F00 */
-  --chart-6: oklch(0.5246 0.199 3.96); /* #BE185D */
-  --chart-7: oklch(0.5 0.1193 242.75); /* #0369A1 */
-  --chart-8: oklch(0.4455 0.0374 257.28); /* #475569 */
-
-  /* Semantic chart slots, chosen by the data's key and never by array index,
-     so re-sorting a series cannot change what a colour means. These match the
-     status tokens above so a badge and its chart slice agree. */
-  --chart-semantic-success: oklch(0.5273 0.1371 150.07); /* #15803D */
-  --chart-semantic-on-track: oklch(0.3351 0.1745 271.87); /* #1F1F8E */
-  --chart-semantic-warning: oklch(0.5553 0.1455 49); /* #B45309 */
-  --chart-semantic-danger: oklch(0.5771 0.2152 27.33); /* #DC2626 */
-  --chart-semantic-neutral: oklch(0.5544 0.0407 257.42); /* #64748B */
-
-  /* Decorative remainder behind a progress or gauge mark. Too light to be a
-     category or to carry meaning on its own, so it is only allowed where a
-     number and an accessible summary carry the value. */
-  --chart-track: oklch(0.9288 0.0126 255.51); /* #E2E8F0 */
-
+  --chart-1: oklch(0.3351 0.1745 271.87);
+  --chart-2: oklch(0.5461 0.2152 262.88);
+  --chart-3: oklch(0.5109 0.0861 186.39);
+  --chart-4: oklch(0.5413 0.2466 293.01);
+  --chart-5: oklch(0.6004 0.1555 51.47);
+  --chart-6: oklch(0.5246 0.199 3.96);
+  --chart-7: oklch(0.5 0.1193 242.75);
+  --chart-8: oklch(0.4455 0.0374 257.28);
+  --chart-semantic-success: oklch(0.5273 0.1371 150.07);
+  --chart-semantic-on-track: oklch(0.3351 0.1745 271.87);
+  --chart-semantic-warning: oklch(0.5553 0.1455 49);
+  --chart-semantic-danger: oklch(0.5771 0.2152 27.33);
+  --chart-semantic-neutral: oklch(0.5544 0.0407 257.42);
+  --chart-track: oklch(0.9288 0.0126 255.51);
   --chart-grid: oklch(0.92 0.004 260);
   --chart-axis: oklch(0.551 0.0234 264.36);
 
-  /* 0.78 rendered 1.91:1 against --background, under the 3:1 WCAG minimum
-     for non-text UI. Every border in the app inherits this. */
   --border: oklch(0.65 0.03 240);
   --input: oklch(0.58 0.03 240);
-  --ring: oklch(0.3351 0.1745 271.87); /* #1F1F8E */
-
-  /* --ring is the same blue as the sidebar, so a focus ring drawn on the
-     sidebar would be invisible against it. Anything sitting on a primary
-     surface focuses with this instead. */
-  --ring-on-primary: oklch(1 0 0); /* #FFFFFF */
-
+  --ring: oklch(0.3351 0.1745 271.87);
+  --ring-on-primary: oklch(1 0 0);
   --glass: oklch(1 0 0);
   --glass-border: oklch(0.66 0.025 240);
 
-  /* 12px. The scale puts cards on --radius-lg (12px) and buttons and inputs
-     on --radius-md (8px), which is the Course geometry. */
   --radius: 0.75rem;
 }
 
@@ -635,4 +589,77 @@ body {
   box-shadow:
     0 1px 2px oklch(0.25 0.08 255 / 0.06),
     0 24px 60px -24px oklch(0.25 0.08 255 / 0.22);
+}
+
+.sidebar-item {
+  position: relative;
+  border-top-left-radius: 24px;
+  border-bottom-left-radius: 24px;
+}
+
+.sidebar-item::before,
+.sidebar-item::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: transparent;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sidebar-item::before {
+  top: -40px;
+  box-shadow: 28px 28px 0 8px var(--background);
+}
+
+.sidebar-item::after {
+  bottom: -40px;
+  box-shadow: 28px -28px 0 8px var(--background);
+}
+
+.sidebar-item:hover::before,
+.sidebar-item:hover::after,
+.sidebar-item[data-active="true"]::before,
+.sidebar-item[data-active="true"]::after {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .sidebar-item:hover::before,
+  .sidebar-item:hover::after {
+    opacity: 0;
+  }
+}
+
+@media (min-width: 768px) {
+  .sidebar-item {
+    border-top-left-radius: 30px;
+    border-bottom-left-radius: 30px;
+  }
+
+  .sidebar-item::before,
+  .sidebar-item::after {
+    width: 50px;
+    height: 50px;
+  }
+
+  .sidebar-item::before {
+    top: -50px;
+    box-shadow: 35px 35px 0 10px var(--background);
+  }
+
+  .sidebar-item::after {
+    bottom: -50px;
+    box-shadow: 35px -35px 0 10px var(--background);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-item,
+  .sidebar-item * {
+    transition: none;
+  }
 }

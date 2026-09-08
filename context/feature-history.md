@@ -43,3 +43,4 @@ into this index and do not rewrite previous records.
 - [`deploy-key-decoding`](feature-runs/active/deploy-key-decoding.md)
 - [`course-visual-audit-and-scope`](feature-runs/active/course-visual-audit-and-scope.md)
 - [`design-foundation-white-canvas`](feature-runs/active/design-foundation-white-canvas.md)
+- [`dashboard-shell-and-navigation`](feature-runs/active/dashboard-shell-and-navigation.md)
