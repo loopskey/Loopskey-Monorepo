@@ -99,7 +99,7 @@ export const OrgEventAssignForm = ({ hook }: TEventCatalogForm) => {
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             onClick={closeAssignView}
           >
             {t("common.cancel")}
@@ -108,7 +108,6 @@ export const OrgEventAssignForm = ({ hook }: TEventCatalogForm) => {
           <Button
             radius="xl"
             type="submit"
-            variant="brand"
             disabled={isLoading}
           >
             <L.Send className="h-4 w-4" />

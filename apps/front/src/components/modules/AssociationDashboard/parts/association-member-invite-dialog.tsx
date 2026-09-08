@@ -33,7 +33,7 @@ export const AssociationMemberInviteDialog = ({
       open={isInviteOpen}
       onOpenChange={(open) => (open ? openInvite() : closeInvite())}
     >
-      <D.DialogContent className="glass-dialog z-[9999] max-w-lg rounded-3xl border-glass-border">
+      <D.DialogContent className="glass-dialog z-[9999] max-w-lg rounded-lg border-border">
         <D.DialogHeader>
           <D.DialogTitle className="text-xl">
             {t("associationDashboard.members.invite.title")}
@@ -48,9 +48,9 @@ export const AssociationMemberInviteDialog = ({
           <div className="space-y-4">
             <div
               role="status"
-              className="flex items-start gap-3 rounded-3xl border border-primary/25 bg-primary/5 p-4"
+              className="flex items-start gap-3 rounded-lg border border-primary/25 bg-primary/5 p-4"
             >
-              <div className="rounded-2xl bg-primary/10 p-2 text-primary">
+              <div className="rounded-md bg-primary/10 p-2 text-primary">
                 {isLinked ? (
                   <L.UserCheck className="h-5 w-5" />
                 ) : (
@@ -85,7 +85,7 @@ export const AssociationMemberInviteDialog = ({
               <Button
                 radius="xl"
                 type="button"
-                variant="glass"
+                variant="outline"
                 onClick={openInvite}
               >
                 {t("associationDashboard.members.invite.inviteAnother")}
@@ -94,7 +94,6 @@ export const AssociationMemberInviteDialog = ({
               <Button
                 radius="xl"
                 type="button"
-                variant="brand"
                 onClick={closeInvite}
               >
                 {t("associationDashboard.members.invite.done")}
@@ -149,7 +148,6 @@ export const AssociationMemberInviteDialog = ({
                 <Button
                   radius="xl"
                   type="submit"
-                  variant="brand"
                   disabled={isInviting}
                 >
                   {isInviting && <L.Loader2 className="h-4 w-4 animate-spin" />}

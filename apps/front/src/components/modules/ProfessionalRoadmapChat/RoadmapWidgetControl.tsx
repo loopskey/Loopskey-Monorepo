@@ -66,7 +66,6 @@ export const RoadmapWidgetControl = ({ widget, disabled, onAnswer }: Props) => {
         />
         <Button
           radius="xl"
-          variant="brand"
           disabled={disabled || !date}
           onClick={() => onAnswer(date)}
         >
@@ -82,7 +81,7 @@ export const RoadmapWidgetControl = ({ widget, disabled, onAnswer }: Props) => {
           <Button
             key={option.value}
             radius="xl"
-            variant="glass"
+            variant="outline"
             disabled={disabled}
             onClick={() => onAnswer(option.value)}
           >
@@ -99,7 +98,7 @@ export const RoadmapWidgetControl = ({ widget, disabled, onAnswer }: Props) => {
           <Button
             key={option.value}
             radius="xl"
-            variant="glass"
+            variant="outline"
             disabled={disabled}
             onClick={() => onAnswer(option.value)}
           >
@@ -140,7 +139,6 @@ export const RoadmapWidgetControl = ({ widget, disabled, onAnswer }: Props) => {
 
         <Button
           radius="xl"
-          variant="brand"
           disabled={disabled || selected.length === 0}
           onClick={() => onAnswer(selected.join(", "))}
         >

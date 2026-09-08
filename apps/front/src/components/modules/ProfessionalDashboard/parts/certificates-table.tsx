@@ -177,13 +177,13 @@ export const CertificatesTable = ({
   return (
     <>
       {/* Seven columns never fit a phone; below lg each row becomes a card. */}
-      <div className="hidden overflow-x-auto rounded-[2rem] border border-glass-border lg:block">
+      <div className="hidden overflow-x-auto rounded-lg border lg:block">
         <table className="w-full min-w-[960px] border-collapse text-sm">
           <caption className="sr-only">
             {t(`${CERTIFICATES}.table.caption`)}
           </caption>
           <thead>
-            <tr className="border-b border-glass-border bg-primary/5 text-left text-xs font-black uppercase tracking-wider text-muted-foreground">
+            <tr className="border-b border-border bg-primary/5 text-left text-xs font-black uppercase tracking-wider text-muted-foreground">
               {columns.map((column) => (
                 <th
                   key={column}
@@ -196,7 +196,7 @@ export const CertificatesTable = ({
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-glass-border">
+          <tbody className="divide-y divide-border">
             {certificates.map((certificate) => {
               const isSelected = selectedId === certificate.id;
 
@@ -205,7 +205,7 @@ export const CertificatesTable = ({
                   key={certificate.id}
                   onClick={() => onSelect(certificate.id)}
                   className={cn(
-                    "cursor-pointer bg-background/35 transition-colors hover:bg-primary/5",
+                    "cursor-pointer bg-muted transition-colors hover:bg-primary/5",
                     isSelected &&
                       "bg-primary/10 shadow-[inset_3px_0_0_0_var(--color-primary)] hover:bg-primary/15",
                   )}
@@ -271,7 +271,7 @@ export const CertificatesTable = ({
               <div
                 onClick={() => onSelect(certificate.id)}
                 className={cn(
-                  "w-full cursor-pointer rounded-[1.5rem] border border-glass-border bg-background/40 p-5 text-left transition-colors",
+                  "w-full cursor-pointer rounded-lg border p-5 text-left transition-colors",
                   isSelected && "border-primary/50 bg-primary/10",
                 )}
               >

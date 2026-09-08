@@ -78,7 +78,7 @@ const ServicesPage = () => {
             <div className="absolute left-5 top-5 z-20 rounded-full border border-white/20 bg-background/70 px-4 py-2 text-sm font-medium shadow-xl backdrop-blur-xl">
               {t("servicesPage.hero.visualLabel")}
             </div>
-            <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem]">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
               <Image
                 fill
                 priority

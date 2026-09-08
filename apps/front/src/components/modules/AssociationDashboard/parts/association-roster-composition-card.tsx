@@ -19,7 +19,7 @@ const CompositionChart = dynamic(
   {
     ssr: false,
     loading: () => (
-      <Skeleton className={`${CHART_HEIGHT} w-full rounded-2xl`} />
+      <Skeleton className={`${CHART_HEIGHT} w-full rounded-md`} />
     ),
   },
 );
@@ -61,10 +61,10 @@ export const AssociationRosterCompositionCard = ({
         </p>
 
         {isLoading ? (
-          <Skeleton className={`mt-6 ${CHART_HEIGHT} w-full rounded-2xl`} />
+          <Skeleton className={`mt-6 ${CHART_HEIGHT} w-full rounded-md`} />
         ) : compositionRows.length === 0 ? (
           <div
-            className={`mt-6 flex ${CHART_HEIGHT} flex-col items-center justify-center rounded-2xl border border-dashed border-glass-border text-center`}
+            className={`mt-6 flex ${CHART_HEIGHT} flex-col items-center justify-center rounded-md border border-dashed border-border text-center`}
           >
             <L.ChartNoAxesColumn className="h-8 w-8 text-muted-foreground" />
 

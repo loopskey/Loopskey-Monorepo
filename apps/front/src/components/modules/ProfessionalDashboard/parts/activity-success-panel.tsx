@@ -16,7 +16,7 @@ export const ActivitySuccessPanel = ({
 }: TActivitySuccessPanelProps) => (
   <GlassCard>
     <div className="flex flex-col items-center py-10 text-center">
-      <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-primary/10">
+      <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-primary/10">
         <L.CheckCircle2 className="h-8 w-8 text-primary" />
       </div>
 
@@ -34,7 +34,6 @@ export const ActivitySuccessPanel = ({
         <Button
           radius="xl"
           type="button"
-          variant="brand"
           onClick={onViewActivities}
         >
           <L.ListChecks className="h-4 w-4" />
@@ -44,7 +43,7 @@ export const ActivitySuccessPanel = ({
         <Button
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           onClick={onAddAnother}
         >
           <L.Plus className="h-4 w-4" />

@@ -33,7 +33,6 @@ const AssociationLearningContentTab = () => {
         <Button
           radius="xl"
           type="button"
-          variant="brand"
           onClick={() => openCreate(false)}
         >
           <L.LibraryBig className="h-4 w-4" />
@@ -43,7 +42,7 @@ const AssociationLearningContentTab = () => {
         <Button
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           onClick={() => openCreate(true)}
         >
           <L.Link className="h-4 w-4" />
@@ -81,7 +80,7 @@ const AssociationLearningContentTab = () => {
             <Button
               radius="xl"
               type="button"
-              variant="glass"
+              variant="outline"
               className="mt-5"
               onClick={hook.retry}
             >

@@ -11,7 +11,7 @@ export const SelectField = ({
 }: TSelectField) => (
   <Field label={label}>
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className="rounded-2xl">
+      <SelectTrigger className="rounded-md">
         <SelectValue />
       </SelectTrigger>
 

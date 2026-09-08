@@ -40,7 +40,7 @@ export const ProfessionalRoadmapChatPage = () => {
         <p className="text-sm text-muted-foreground">
           {t("professionalRoadmapChat.error.loadDescription")}
         </p>
-        <Button radius="xl" variant="brand" onClick={() => chat.refetchDraft()}>
+        <Button radius="xl" onClick={() => chat.refetchDraft()}>
           {t("professionalRoadmapChat.error.retry")}
         </Button>
       </GlassCard>
@@ -58,7 +58,7 @@ export const ProfessionalRoadmapChatPage = () => {
           </p>
         </div>
 
-        <Button asChild radius="xl" variant="glass">
+        <Button asChild radius="xl" variant="outline">
           <Link href={ROADMAP_TAB_HREF}>
             {t("professionalRoadmapChat.backToRoadmaps")}
           </Link>

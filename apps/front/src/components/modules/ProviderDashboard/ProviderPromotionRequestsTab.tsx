@@ -63,7 +63,7 @@ const ProviderPromotionRequestsTab = () => {
             <Button
               radius="xl"
               type="button"
-              variant="glass"
+              variant="outline"
               disabled={isLoading}
               onClick={resetFilters}
             >
@@ -75,7 +75,7 @@ const ProviderPromotionRequestsTab = () => {
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             disabled={isLoading}
             onClick={refreshAll}
           >
@@ -114,7 +114,7 @@ const ProviderPromotionRequestsTab = () => {
       <section className="grid gap-6 xl:grid-cols-[420px_1fr]">
         <GlassCard>
           <div className="flex items-start gap-3">
-            <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+            <div className="rounded-md bg-primary/10 p-3 text-primary">
               <L.BadgeDollarSign className="h-5 w-5" />
             </div>
 
@@ -174,7 +174,6 @@ const ProviderPromotionRequestsTab = () => {
               <Button
                 radius="xl"
                 type="submit"
-                variant="brand"
                 className="w-full"
                 disabled={isSubmitDisabled}
               >
@@ -230,7 +229,7 @@ const ProviderPromotionRequestsTab = () => {
             </form>
           </F.Form>
 
-          <div className="mt-6 overflow-hidden rounded-3xl border border-glass-border">
+          <div className="mt-6 overflow-hidden rounded-lg border">
             <div className="hidden grid-cols-[1.2fr_1fr_0.8fr_0.8fr_0.8fr] gap-4 bg-muted/50 px-5 py-4 text-xs font-medium uppercase text-muted-foreground lg:grid">
               <span>{t("providerDashboard.promotions.table.event")}</span>
               <span>{t("providerDashboard.promotions.table.type")}</span>
@@ -239,7 +238,7 @@ const ProviderPromotionRequestsTab = () => {
               <span>{t("providerDashboard.promotions.table.date")}</span>
             </div>
 
-            <div className="divide-y divide-glass-border">
+            <div className="divide-y divide-border">
               {requests.length ? (
                 requests.map((item) => (
                   <div

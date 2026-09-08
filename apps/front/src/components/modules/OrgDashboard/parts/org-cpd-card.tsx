@@ -40,14 +40,14 @@ export const OrgCpdCategoryCard = ({
         </p>
 
         <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-2xl bg-background/55 p-3">
+          <div className="rounded-md bg-muted p-3">
             <p className="text-xs text-muted-foreground">
               {t("organizationDashboard.cpd.card.requiredHours")}
             </p>
             <p className="mt-1 text-lg font-semibold">{item.requiredHours}</p>
           </div>
 
-          <div className="rounded-2xl bg-background/55 p-3">
+          <div className="rounded-md bg-muted p-3">
             <p className="text-xs text-muted-foreground">
               {t("organizationDashboard.cpd.card.activeMembers")}
             </p>
@@ -72,7 +72,7 @@ export const OrgCpdCategoryCard = ({
           <Button
             size="sm"
             radius="xl"
-            variant="glass"
+            variant="outline"
             disabled={isLoading}
             onClick={() => onEdit(item)}
           >
@@ -83,7 +83,7 @@ export const OrgCpdCategoryCard = ({
           <Button
             size="sm"
             radius="xl"
-            variant="glass"
+            variant="outline"
             disabled={isLoading}
             onClick={() => onToggle(item)}
           >

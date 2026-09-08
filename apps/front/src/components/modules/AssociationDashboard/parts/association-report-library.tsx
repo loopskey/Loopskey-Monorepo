@@ -39,10 +39,10 @@ export const AssociationReportLibrary = ({
             return (
               <li
                 key={key}
-                className="flex flex-col rounded-3xl border border-glass-border bg-background/50 p-5"
+                className="flex flex-col rounded-lg border p-5"
               >
                 <div className="flex items-center gap-3">
-                  <span className="rounded-2xl bg-primary/10 p-2.5 text-primary">
+                  <span className="rounded-md bg-primary/10 p-2.5 text-primary">
                     <Icon className="h-5 w-5" />
                   </span>
 
@@ -58,7 +58,7 @@ export const AssociationReportLibrary = ({
                     size="sm"
                     radius="xl"
                     type="button"
-                    variant="glass"
+                    variant="outline"
                     onClick={() => openReport(key)}
                   >
                     <L.ArrowUpRight className="h-4 w-4" />

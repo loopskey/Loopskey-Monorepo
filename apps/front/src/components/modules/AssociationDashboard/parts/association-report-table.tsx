@@ -59,14 +59,14 @@ export const AssociationReportTable = <TRow,>({
     return (
       <div className="space-y-3" aria-busy="true">
         {Array.from({ length: SKELETON_ROWS }, (_, index) => (
-          <Skeleton key={index} className="h-14 w-full rounded-2xl" />
+          <Skeleton key={index} className="h-14 w-full rounded-md" />
         ))}
       </div>
     );
 
   if (rows.length === 0)
     return (
-      <div className="rounded-3xl border border-dashed border-glass-border py-12 text-center text-sm text-muted-foreground">
+      <div className="rounded-lg border border-dashed border-border py-12 text-center text-sm text-muted-foreground">
         {emptyLabel}
       </div>
     );
@@ -112,7 +112,7 @@ export const AssociationReportTable = <TRow,>({
         size="sm"
         radius="xl"
         type="button"
-        variant="glass"
+        variant="outline"
         onClick={() => onOpenRow(row)}
         aria-label={openLabel?.(row) ?? undefined}
       >
@@ -127,7 +127,7 @@ export const AssociationReportTable = <TRow,>({
           <caption className="sr-only">{caption}</caption>
 
           <thead className="text-xs uppercase text-muted-foreground">
-            <tr className="border-b border-glass-border">
+            <tr className="border-b border-border">
               {columns.map((column) => (
                 <th
                   key={column.id}
@@ -147,7 +147,7 @@ export const AssociationReportTable = <TRow,>({
             {rows.map((row) => (
               <tr
                 key={rowKey(row)}
-                className="border-b border-glass-border/70 transition-colors hover:bg-primary/5"
+                className="border-b border-border/70 transition-colors hover:bg-primary/5"
               >
                 {columns.map((column) => (
                   <td key={column.id} className="py-4 pr-4 align-middle">
@@ -168,7 +168,7 @@ export const AssociationReportTable = <TRow,>({
         {rows.map((row) => (
           <li
             key={rowKey(row)}
-            className="rounded-3xl border border-glass-border bg-background/50 p-4"
+            className="rounded-lg border p-4"
           >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0 font-medium">{columns[0]?.cell(row)}</div>

@@ -143,16 +143,16 @@ const PodcastDetailPage = ({ slug }: { slug: string }) => {
 
         <section className="min-w-0">
           <Tabs.Tabs defaultValue="episodes" className="space-y-6">
-            <Tabs.TabsList className="grid h-auto grid-cols-2 rounded-3xl border border-glass-border bg-background/60 p-2 backdrop-blur-xl">
+            <Tabs.TabsList className="grid h-auto grid-cols-2 rounded-lg border p-2">
               <Tabs.TabsTrigger
                 value="episodes"
-                className="rounded-2xl py-3 font-bold"
+                className="rounded-md py-3 font-bold"
               >
                 {t("contentDetails.tabs.episodes")}
               </Tabs.TabsTrigger>
               <Tabs.TabsTrigger
                 value="reviews"
-                className="rounded-2xl py-3 font-bold"
+                className="rounded-md py-3 font-bold"
               >
                 {t("contentDetails.tabs.reviews")}
               </Tabs.TabsTrigger>

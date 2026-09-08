@@ -40,7 +40,7 @@ const EventSchedule = ({ items }: TEventScheduleProps) => {
               {dayItems.map((item) => (
                 <div
                   key={item.id}
-                  className="rounded-2xl border border-glass-border bg-background/45 p-4"
+                  className="rounded-md border p-4"
                 >
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
@@ -60,7 +60,7 @@ const EventSchedule = ({ items }: TEventScheduleProps) => {
                       )}
                     </div>
 
-                    <div className="flex shrink-0 items-center gap-2 rounded-2xl bg-primary/10 px-3 py-2 text-sm font-bold text-primary">
+                    <div className="flex shrink-0 items-center gap-2 rounded-md bg-primary/10 px-3 py-2 text-sm font-bold text-primary">
                       <Clock3 className="h-4 w-4" />
                       {formatTime(item.startTime)} - {formatTime(item.endTime)}
                     </div>

@@ -29,7 +29,7 @@ export const AssociationMemberEditDialog = ({
       open={isEditOpen}
       onOpenChange={(open) => (open ? openEdit() : setEditOpen(false))}
     >
-      <D.DialogContent className="glass-dialog z-[9999] max-w-lg rounded-3xl border-glass-border">
+      <D.DialogContent className="glass-dialog z-[9999] max-w-lg rounded-lg border-border">
         <D.DialogHeader>
           <D.DialogTitle className="text-xl">
             {t("associationDashboard.memberDetail.edit.title")}
@@ -86,7 +86,6 @@ export const AssociationMemberEditDialog = ({
               <Button
                 radius="xl"
                 type="submit"
-                variant="brand"
                 disabled={isMutating}
               >
                 {isMutating && <L.Loader2 className="h-4 w-4 animate-spin" />}

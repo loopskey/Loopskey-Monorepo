@@ -35,7 +35,7 @@ export const AssociationMembersBulkCard = ({
     <GlassCard>
       <div className="relative z-10">
         <div className="flex items-start gap-3">
-          <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+          <div className="rounded-md bg-primary/10 p-3 text-primary">
             <L.FileSpreadsheet className="h-5 w-5" />
           </div>
 
@@ -50,7 +50,7 @@ export const AssociationMembersBulkCard = ({
           </div>
         </div>
 
-        <div className="mt-5 rounded-3xl border border-dashed border-primary/30 bg-primary/5 p-4 text-sm leading-7">
+        <div className="mt-5 rounded-lg border border-dashed border-primary/30 bg-primary/5 p-4 text-sm leading-7">
           <p className="font-medium">
             {t("associationDashboard.members.bulk.templateTitle")}
           </p>
@@ -63,7 +63,7 @@ export const AssociationMembersBulkCard = ({
             size="sm"
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             className="mt-3"
             onClick={downloadTemplate}
           >
@@ -79,7 +79,7 @@ export const AssociationMembersBulkCard = ({
 
           <Input
             type="file"
-            className="rounded-2xl"
+            className="rounded-md"
             accept=".xlsx,.xls,.csv"
             id="association-import-file"
             disabled={isParsing || isImporting}
@@ -118,14 +118,14 @@ export const AssociationMembersBulkCard = ({
               </p>
             )}
 
-            <div className="max-h-72 overflow-auto rounded-2xl border border-glass-border">
+            <div className="max-h-72 overflow-auto rounded-md border">
               <table className="w-full min-w-[560px] text-left text-sm">
                 <caption className="sr-only">
                   {t("associationDashboard.members.bulk.previewCaption")}
                 </caption>
 
                 <thead className="text-xs uppercase text-muted-foreground">
-                  <tr className="border-b border-glass-border">
+                  <tr className="border-b border-border">
                     <th scope="col" className="p-3">
                       {t("associationDashboard.members.bulk.columns.row")}
                     </th>
@@ -145,7 +145,7 @@ export const AssociationMembersBulkCard = ({
                   {importPreview.rows.map((row) => (
                     <tr
                       key={row.row}
-                      className="border-b border-glass-border/60 last:border-0"
+                      className="border-b border-border/60 last:border-0"
                     >
                       <td className="p-3 tabular-nums">{row.row}</td>
                       <td className="p-3">{row.email || "-"}</td>
@@ -173,7 +173,6 @@ export const AssociationMembersBulkCard = ({
               <Button
                 radius="xl"
                 type="button"
-                variant="brand"
                 disabled={!canSubmit || isImporting}
                 onClick={() => void confirmImport()}
               >
@@ -186,7 +185,7 @@ export const AssociationMembersBulkCard = ({
               <Button
                 radius="xl"
                 type="button"
-                variant="glass"
+                variant="outline"
                 onClick={clearImport}
                 disabled={isImporting}
               >
@@ -205,7 +204,7 @@ export const AssociationMembersBulkCard = ({
         {importResult && (
           <div
             role="status"
-            className="mt-5 space-y-3 rounded-3xl border border-glass-border bg-background/50 p-4"
+            className="mt-5 space-y-3 rounded-lg border p-4"
           >
             <p className="font-medium">
               {t("associationDashboard.members.bulk.resultTitle")}
@@ -241,7 +240,7 @@ export const AssociationMembersBulkCard = ({
               size="sm"
               radius="xl"
               type="button"
-              variant="glass"
+              variant="outline"
               onClick={clearImport}
             >
               {t("associationDashboard.members.bulk.dismissResult")}

@@ -40,7 +40,7 @@ export const ProfileCredentialsPanel = ({
   return (
     <div className="space-y-6">
       <div className="flex items-start gap-3">
-        <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+        <div className="rounded-md bg-primary/10 p-3 text-primary">
           <Icon className="h-5 w-5" />
         </div>
         <div>
@@ -53,7 +53,7 @@ export const ProfileCredentialsPanel = ({
         </div>
       </div>
 
-      <Alert className="rounded-2xl border-glass-border bg-primary/5">
+      <Alert className="rounded-md border-border bg-primary/5">
         <Info className="h-4 w-4" />
         <AlertDescription>
           {t("professionalDashboard.profile.certifications.alert")}
@@ -65,7 +65,7 @@ export const ProfileCredentialsPanel = ({
           {credentials.map((credential) => (
             <li
               key={credential.id}
-              className="flex flex-col gap-3 rounded-3xl border border-glass-border bg-background/45 p-4 sm:flex-row sm:items-center sm:justify-between"
+              className="flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="min-w-0">
                 <p className="truncate font-medium">{credential.name}</p>
@@ -95,7 +95,7 @@ export const ProfileCredentialsPanel = ({
                   size="sm"
                   radius="xl"
                   type="button"
-                  variant="glass"
+                  variant="outline"
                   disabled={isDisabled}
                   onClick={() => startEdit(credential)}
                 >
@@ -121,7 +121,7 @@ export const ProfileCredentialsPanel = ({
                       size="sm"
                       radius="xl"
                       type="button"
-                      variant="glass"
+                      variant="outline"
                       disabled={isDisabled}
                       aria-label={`${t("common.delete")}: ${credential.name}`}
                     >
@@ -134,7 +134,7 @@ export const ProfileCredentialsPanel = ({
           ))}
         </ul>
       ) : (
-        <div className="rounded-3xl border border-dashed border-glass-border bg-background/40 p-6 text-center">
+        <div className="rounded-lg border border-dashed border-border p-6 text-center">
           <p className="text-sm text-muted-foreground">
             {t("professionalDashboard.profile.certifications.empty")}
           </p>
@@ -145,7 +145,7 @@ export const ProfileCredentialsPanel = ({
         <form
           onSubmit={handleSubmit}
           noValidate
-          className="space-y-6 rounded-3xl border border-glass-border bg-background/45 p-5"
+          className="space-y-6 rounded-lg border p-5"
         >
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h3 className="text-lg font-medium">
@@ -159,7 +159,7 @@ export const ProfileCredentialsPanel = ({
                 size="sm"
                 radius="xl"
                 type="button"
-                variant="glass"
+                variant="outline"
                 onClick={startCreate}
               >
                 <Plus className="h-4 w-4" />
@@ -259,14 +259,13 @@ export const ProfileCredentialsPanel = ({
             <Button
               radius="xl"
               type="submit"
-              variant="brand"
               disabled={isSaveDisabled}
             >
               {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               {t("professionalDashboard.profile.save")}
             </Button>
 
-            <Button radius="xl" variant="glass" asChild>
+            <Button radius="xl" variant="outline" asChild>
               <Link href={CERTIFICATES_TAB_HREF}>
                 <R.FolderOpen className="h-4 w-4" />
                 {t("professionalDashboard.profile.certifications.manageFiles")}

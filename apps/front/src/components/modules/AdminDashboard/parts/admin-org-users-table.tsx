@@ -43,7 +43,7 @@ export const AdminOrganizationUsersTable = ({ hook }: Props) => {
           <tbody>
             {organizations.length ? (
               organizations.map((org) => (
-                <tr key={org.id} className="border-t border-glass-border">
+                <tr key={org.id} className="border-t border-border">
                   <td className="px-5 py-4">
                     <div>
                       <p className="font-medium">{org.name}</p>
@@ -72,7 +72,7 @@ export const AdminOrganizationUsersTable = ({ hook }: Props) => {
                       size="sm"
                       radius="xl"
                       type="button"
-                      variant="brandOutline"
+                      variant="outline"
                       onClick={() => openOrganizationDetail(org.id)}
                     >
                       <L.Eye className="h-4 w-4" />

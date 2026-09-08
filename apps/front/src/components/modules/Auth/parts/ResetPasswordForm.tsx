@@ -47,7 +47,7 @@ const ResetPasswordForm = ({
     <Form {...form}>
       <form className="space-y-5" onSubmit={form.handleSubmit(onSubmit)}>
         <div className="text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-inner">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-md bg-primary/10 text-primary shadow-inner">
             <ShieldCheck className="h-6 w-6" />
           </div>
 
@@ -93,7 +93,6 @@ const ResetPasswordForm = ({
           size="lg"
           radius="xl"
           type="submit"
-          variant="brand"
           className="w-full"
           disabled={isLoading}
         >
@@ -111,7 +110,7 @@ const ResetPasswordForm = ({
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             className="w-full"
             disabled={isLoading}
             onClick={onBackToLogin}

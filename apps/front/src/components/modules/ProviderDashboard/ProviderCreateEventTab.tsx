@@ -54,11 +54,11 @@ const ProviderCreateEventTab = () => {
             {t("providerDashboard.createEvent.description")}
           </p>
         </div>
-        <div className="flex flex-col-reverse gap-3 border-t border-glass-border pt-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col-reverse gap-3 border-t border-border pt-5 sm:flex-row sm:items-center sm:justify-between">
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             onClick={goPrevious}
             disabled={!canGoPrevious || isLoading}
           >
@@ -69,7 +69,6 @@ const ProviderCreateEventTab = () => {
               <Button
                 radius="xl"
                 type="button"
-                variant="brand"
                 onClick={goNext}
                 disabled={isLoading}
               >
@@ -80,7 +79,7 @@ const ProviderCreateEventTab = () => {
                 <Button
                   radius="xl"
                   type="button"
-                  variant="glass"
+                  variant="outline"
                   onClick={saveDraft}
                   disabled={isLoading}
                 >
@@ -91,7 +90,6 @@ const ProviderCreateEventTab = () => {
                 <Button
                   radius="xl"
                   type="button"
-                  variant="brand"
                   disabled={isLoading}
                   onClick={publishEvent}
                 >
@@ -232,7 +230,7 @@ const ProviderCreateEventTab = () => {
 
             {activeStep === 3 && (
               <div className="grid gap-5 md:grid-cols-2">
-                <div className="flex items-center justify-between rounded-3xl border border-glass-border bg-background/45 p-4 md:col-span-2">
+                <div className="flex items-center justify-between rounded-lg border p-4 md:col-span-2">
                   <div>
                     <p className="font-medium">
                       {t("providerDashboard.createEvent.fields.freeEvent")}
@@ -334,8 +332,8 @@ const ProviderCreateEventTab = () => {
               </h2>
             </div>
 
-            <div className="mt-5 overflow-hidden rounded-3xl border border-glass-border">
-              <div className="relative aspect-video overflow-hidden rounded-3xl bg-muted">
+            <div className="mt-5 overflow-hidden rounded-lg border">
+              <div className="relative aspect-video overflow-hidden rounded-lg bg-muted">
                 {hasValidThumbnail ? (
                   <Image
                     fill

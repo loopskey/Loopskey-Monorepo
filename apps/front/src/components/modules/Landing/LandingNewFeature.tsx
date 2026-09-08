@@ -33,7 +33,7 @@ const LandingNewFeature = () => {
     <section className="relative overflow-x-clip px-4 py-10 sm:px-6 lg:px-8">
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute left-10 top-20 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute bottom-10 right-10 h-72 w-72 rounded-full bg-cyan-500/10 blur-3xl" />
+        <div className="absolute bottom-10 right-10 h-72 w-72 rounded-full bg-chart-7/10 blur-3xl" />
       </div>
 
       <div className="mx-auto grid max-w-7xl items-center gap-8 lg:grid-cols-[0.9fr_1.1fr] px-4 sm:px-6 lg:px-8">
@@ -53,7 +53,7 @@ const LandingNewFeature = () => {
                 {t("landing.newFeature.description")}
               </p>
 
-              <div className="mt-8 rounded-[2rem] border border-glass-border bg-background/45 p-5 backdrop-blur-xl">
+              <div className="mt-8 rounded-lg border p-5">
                 <h3 className="text-xl font-bold">
                   {t("landing.newFeature.ctaTitle")}
                 </h3>
@@ -64,7 +64,6 @@ const LandingNewFeature = () => {
                 <Button
                   asChild
                   className="mt-5"
-                  variant="brand"
                   radius="xl"
                   size="lg"
                 >
@@ -89,7 +88,7 @@ const LandingNewFeature = () => {
               >
                 <GlassCard className="p-5" glow={false}>
                   <div className="relative z-10 flex gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
                       <Icon className="h-5 w-5" />
                     </div>
                     <div>

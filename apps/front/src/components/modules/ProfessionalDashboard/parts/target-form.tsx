@@ -85,7 +85,6 @@ export const TargetForm = ({
           <Button
             radius="xl"
             type="submit"
-            variant="brand"
             className="w-full sm:w-auto"
             disabled={isLoading || isLoadingTargets}
           >

@@ -19,7 +19,7 @@ export const ProfileInterestTagsCard = ({
   return (
     <GlassCard className="space-y-4">
       <div className="flex items-start gap-3">
-        <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+        <div className="rounded-md bg-primary/10 p-3 text-primary">
           <Sparkles className="h-5 w-5" />
         </div>
         <div>
@@ -52,14 +52,14 @@ export const ProfileInterestTagsCard = ({
           ))}
         </ul>
       ) : (
-        <div className="rounded-3xl border border-dashed border-glass-border bg-background/40 p-5 text-center">
+        <div className="rounded-lg border border-dashed border-border p-5 text-center">
           <p className="text-sm text-muted-foreground">
             {t("professionalDashboard.profile.interests.empty")}
           </p>
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             className="mt-3"
             onClick={() => setActiveTab("skills")}
           >

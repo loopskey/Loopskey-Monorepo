@@ -17,7 +17,7 @@ export const Field = ({
       <Input
         value={value ?? ""}
         placeholder={placeholder}
-        className="h-12 rounded-2xl bg-background/60"
+        className="h-12 rounded-md bg-muted"
         onChange={(event) => onChange(event.target.value)}
       />
       {hint ? <p className="text-xs text-muted-foreground">{hint}</p> : null}

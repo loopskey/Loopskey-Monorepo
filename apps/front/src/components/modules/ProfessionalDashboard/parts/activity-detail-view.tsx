@@ -73,7 +73,7 @@ const EvidenceFiles = ({
         return (
           <li
             key={file.id}
-            className="flex flex-col gap-3 rounded-2xl border border-glass-border bg-background/40 p-4 sm:flex-row sm:items-center sm:justify-between"
+            className="flex flex-col gap-3 rounded-md border p-4 sm:flex-row sm:items-center sm:justify-between"
           >
             <div className="flex min-w-0 items-start gap-3">
               <L.FileText
@@ -97,7 +97,7 @@ const EvidenceFiles = ({
               size="sm"
               radius="xl"
               type="button"
-              variant="glass"
+              variant="outline"
               onClick={() => onDownload(file)}
               disabled={Boolean(downloadingFileId)}
               className="shrink-0 focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2"
@@ -146,12 +146,12 @@ export const ActivityDetailView = ({
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <Button radius="xl" type="button" variant="glass" onClick={onCancel}>
+          <Button radius="xl" type="button" variant="outline" onClick={onCancel}>
             <L.ArrowLeft className="h-4 w-4" aria-hidden />
             {t(`${TRACKER}.detail.cancel`)}
           </Button>
 
-          <Button radius="xl" type="button" variant="brand" onClick={onEdit}>
+          <Button radius="xl" type="button" onClick={onEdit}>
             <L.Pencil className="h-4 w-4" aria-hidden />
             {t(`${TRACKER}.detail.edit`)}
           </Button>

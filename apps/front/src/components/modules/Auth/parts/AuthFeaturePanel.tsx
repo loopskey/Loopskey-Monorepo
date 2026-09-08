@@ -47,11 +47,11 @@ const AuthFeaturePanel = ({
           return (
             <GlassCard
               key={feature.title}
-              className="rounded-3xl p-4"
+              className="rounded-lg p-4"
               glow={false}
             >
               <div className="relative z-10 flex gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
                   <Icon className="h-5 w-5" />
                 </div>
 

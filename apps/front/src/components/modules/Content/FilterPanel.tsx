@@ -22,7 +22,7 @@ const FilterPanel = ({
         <div className="mb-5 space-y-4">
           <div>
             <div className="flex items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary">
                 <SlidersHorizontal className="h-4 w-4" />
               </div>
 
@@ -40,7 +40,7 @@ const FilterPanel = ({
 
           <Button
             type="button"
-            variant="glass"
+            variant="outline"
             radius="xl"
             className="w-full justify-center"
             onClick={onReset}
@@ -63,11 +63,11 @@ const FilterPanel = ({
                   filter.onChange(value === "ALL" ? "" : value)
                 }
               >
-                <S.SelectTrigger className="h-12 rounded-2xl border-border/70 bg-background/60 shadow-sm backdrop-blur-xl">
+                <S.SelectTrigger className="h-12 rounded-md border-border/70 bg-muted shadow-sm">
                   <S.SelectValue placeholder={filter.placeholder} />
                 </S.SelectTrigger>
 
-                <S.SelectContent className="rounded-2xl">
+                <S.SelectContent className="rounded-md">
                   <S.SelectItem value="ALL">
                     {t("content.filters.all")}
                   </S.SelectItem>

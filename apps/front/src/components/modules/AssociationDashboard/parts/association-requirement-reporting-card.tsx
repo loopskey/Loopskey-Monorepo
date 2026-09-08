@@ -97,7 +97,7 @@ export const AssociationRequirementReportingCard = ({
           name="allowLateSubmission"
           control={reportingForm.control}
           render={({ field }) => (
-            <div className="flex items-center justify-between rounded-2xl border border-glass-border p-4">
+            <div className="flex items-center justify-between rounded-md border p-4">
               <Label htmlFor="allow-late-submission" className="font-normal">
                 {t(
                   "associationDashboard.requirements.rules.reporting.allowLate",
@@ -113,7 +113,7 @@ export const AssociationRequirementReportingCard = ({
           )}
         />
 
-        <div className="space-y-3 rounded-2xl border border-glass-border p-4">
+        <div className="space-y-3 rounded-md border p-4">
           <div className="flex items-center justify-between">
             <Label htmlFor="reminders-enabled" className="font-normal">
               {t("associationDashboard.requirements.rules.reporting.reminders")}
@@ -142,12 +142,12 @@ export const AssociationRequirementReportingCard = ({
               >
                 <S.SelectTrigger
                   id="reminder-timing"
-                  className="h-11 rounded-2xl"
+                  className="h-11 rounded-md"
                 >
                   <S.SelectValue />
                 </S.SelectTrigger>
 
-                <S.SelectContent className="z-[9999] rounded-2xl">
+                <S.SelectContent className="z-[9999] rounded-md">
                   {Object.values(CpdReminderTiming).map((value) => (
                     <S.SelectItem key={value} value={value}>
                       {t(
@@ -162,7 +162,7 @@ export const AssociationRequirementReportingCard = ({
         </div>
 
         <div className="flex justify-end">
-          <Button radius="xl" type="submit" variant="brand" disabled={isSaving}>
+          <Button radius="xl" type="submit" disabled={isSaving}>
             {isSaving && <L.Loader2 className="h-4 w-4 animate-spin" />}
             {t("associationDashboard.requirements.rules.save")}
           </Button>

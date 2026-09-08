@@ -16,7 +16,7 @@ export const CpdSuggestedRequirement = ({
   onUseSuggested,
 }: CpdSuggestedRequirementProps) => (
   <div className="space-y-5">
-    <div className="rounded-2xl border border-primary/40 bg-primary/5 p-4">
+    <div className="rounded-md border border-primary/40 bg-primary/5 p-4">
       <div className="flex items-center gap-2 text-primary">
         <L.Sparkles className="h-4 w-4" />
         <p className="text-sm font-medium">
@@ -28,7 +28,7 @@ export const CpdSuggestedRequirement = ({
       </p>
     </div>
 
-    <div className="space-y-4 rounded-2xl border border-glass-border bg-background/50 p-5">
+    <div className="space-y-4 rounded-md border p-5">
       <div>
         <h3 className="text-lg font-medium">{certification.name}</h3>
         <p className="text-sm text-muted-foreground">
@@ -103,7 +103,7 @@ export const CpdSuggestedRequirement = ({
         <Button
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           disabled={isSubmitting}
           onClick={() => onEditManually(certification)}
         >
@@ -114,7 +114,6 @@ export const CpdSuggestedRequirement = ({
         <Button
           radius="xl"
           type="button"
-          variant="brand"
           disabled={isSubmitting}
           onClick={() => onUseSuggested(certification)}
         >

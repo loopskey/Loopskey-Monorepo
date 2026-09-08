@@ -58,7 +58,7 @@ const AssociationRequirementsTab = () => {
             <Button
               radius="xl"
               type="button"
-              variant="glass"
+              variant="outline"
               className="mt-5"
               onClick={hook.retry}
             >

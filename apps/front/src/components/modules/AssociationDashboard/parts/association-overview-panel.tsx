@@ -43,7 +43,7 @@ export const AssociationOverviewPanel = ({
               {errorMessage}
             </p>
 
-            <Button size="sm" radius="xl" variant="glass" onClick={retry}>
+            <Button size="sm" radius="xl" variant="outline" onClick={retry}>
               <L.RotateCcw className="h-4 w-4" />
               {retryLabel}
             </Button>

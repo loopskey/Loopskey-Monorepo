@@ -47,7 +47,7 @@ export const ProfessionalPrivacySettingsPanel = ({
   return (
     <section className="space-y-6">
       <div className="flex items-start gap-4">
-        <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+        <div className="rounded-md bg-primary/10 p-3 text-primary">
           <Icon className="h-5 w-5" />
         </div>
 
@@ -75,10 +75,10 @@ export const ProfessionalPrivacySettingsPanel = ({
                 }))
               }
               className={cn(
-                "rounded-3xl border p-4 text-left transition-all",
+                "rounded-lg border p-4 text-left transition-all",
                 active
                   ? "border-primary bg-primary/10"
-                  : "border-glass-border bg-background/45 hover:border-primary/40",
+                  : "border-border hover:border-primary/40",
               )}
             >
               <p className="font-medium">
@@ -98,7 +98,7 @@ export const ProfessionalPrivacySettingsPanel = ({
         {ProfessionalPrivacyConst.map((row) => (
           <div
             key={row.key}
-            className="flex items-center justify-between gap-4 rounded-3xl border border-glass-border bg-background/45 p-4"
+            className="flex items-center justify-between gap-4 rounded-lg border p-4"
           >
             <div>
               <p className="font-medium">{row.title}</p>
@@ -126,7 +126,6 @@ export const ProfessionalPrivacySettingsPanel = ({
         <Button
           radius="xl"
           type="button"
-          variant="brand"
           disabled={isLoading}
           onClick={savePrivacySettings}
         >
@@ -136,7 +135,7 @@ export const ProfessionalPrivacySettingsPanel = ({
         <Button
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           disabled={isLoading}
           onClick={resetPrivacySettings}
         >

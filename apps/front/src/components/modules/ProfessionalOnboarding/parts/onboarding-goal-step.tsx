@@ -34,11 +34,11 @@ export const OnboardingGoalStep = ({ hook }: TOnboardingStepProps) => {
               aria-checked={isSelected}
               onClick={() => chooseGoal(option.value)}
               className={cn(
-                "flex items-start gap-3 rounded-3xl border p-5 text-left transition-colors",
+                "flex items-start gap-3 rounded-lg border p-5 text-left transition-colors",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                 isSelected
                   ? "border-primary bg-primary/10"
-                  : "border-glass-border bg-background/45 hover:border-primary/40",
+                  : "border-border hover:border-primary/40",
               )}
             >
               <span

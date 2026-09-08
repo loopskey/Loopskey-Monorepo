@@ -40,7 +40,7 @@ const PodcastEpisodes = ({ episodes }: TPodcastEpisodesProps) => {
             <Button
               radius="xl"
               type="button"
-              variant="brandSoft"
+              variant="outline"
               disabled={!episode.audioUrl}
               asChild={Boolean(episode.audioUrl)}
             >

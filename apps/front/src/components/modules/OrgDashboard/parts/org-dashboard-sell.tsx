@@ -62,7 +62,7 @@ export const OrgDashboardShell = () => {
   if (activeTab === "cpd-categories") return <OrgCDPCategoriesTab />;
 
   return (
-    <div className="rounded-[2rem] border border-glass-border bg-background/60 p-8 backdrop-blur-xl">
+    <div className="rounded-lg border p-8">
       Provider tab: {activeTab}
     </div>
   );

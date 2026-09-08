@@ -62,7 +62,6 @@ export const AssociationGroupsManager = ({
                 <Button
                   radius="xl"
                   type="submit"
-                  variant="brand"
                   disabled={isGroupSaving}
                 >
                   {isGroupSaving && (
@@ -79,7 +78,7 @@ export const AssociationGroupsManager = ({
                   <Button
                     radius="xl"
                     type="button"
-                    variant="glass"
+                    variant="outline"
                     onClick={cancelGroupEdit}
                     disabled={isGroupSaving}
                   >
@@ -101,7 +100,7 @@ export const AssociationGroupsManager = ({
           {isLoading ? (
             <div className="mt-5 space-y-3">
               {Array.from({ length: 3 }, (_, index) => (
-                <Skeleton key={index} className="h-20 w-full rounded-2xl" />
+                <Skeleton key={index} className="h-20 w-full rounded-md" />
               ))}
             </div>
           ) : groups.length === 0 ? (
@@ -113,7 +112,7 @@ export const AssociationGroupsManager = ({
               {groups.map((group) => (
                 <li
                   key={group.id}
-                  className="flex flex-col gap-3 rounded-3xl border border-glass-border bg-background/50 p-4 sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
@@ -144,7 +143,7 @@ export const AssociationGroupsManager = ({
                       size="sm"
                       radius="xl"
                       type="button"
-                      variant="glass"
+                      variant="outline"
                       disabled={isGroupSaving}
                       onClick={() => startGroupEdit(group)}
                     >
@@ -156,7 +155,7 @@ export const AssociationGroupsManager = ({
                       size="sm"
                       radius="xl"
                       type="button"
-                      variant="glass"
+                      variant="outline"
                       disabled={isGroupSaving}
                       onClick={() => void toggleGroupActive(group)}
                     >

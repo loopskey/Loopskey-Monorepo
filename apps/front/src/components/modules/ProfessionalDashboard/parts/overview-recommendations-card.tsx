@@ -59,7 +59,7 @@ export const OverviewRecommendationsCard = () => {
           </p>
         </div>
 
-        <Button asChild variant="glass" radius="xl">
+        <Button asChild variant="outline" radius="xl">
           <Link href="/courses">
             {t("professionalDashboard.overview.browseAll")}
           </Link>
@@ -138,7 +138,7 @@ export const OverviewRecommendationsCard = () => {
 
                 <div className="flex items-center justify-between text-sm">
                   <span className="flex items-center gap-1 font-medium">
-                    <L.Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                    <L.Star className="h-4 w-4 fill-amber-400 text-warning-soft-foreground" />
                     {course.rating ?? 0}
                   </span>
 

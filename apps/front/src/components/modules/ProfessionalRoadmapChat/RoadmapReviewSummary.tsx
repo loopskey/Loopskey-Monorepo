@@ -178,7 +178,6 @@ export const RoadmapReviewSummary = ({
         <div className="flex flex-wrap gap-3">
           <Button
             radius="xl"
-            variant="brand"
             aria-describedby={
               onGenerate ? undefined : "roadmap-generate-unavailable"
             }
@@ -188,7 +187,7 @@ export const RoadmapReviewSummary = ({
             {t("professionalRoadmapChat.review.generate")}
           </Button>
 
-          <Button radius="xl" variant="glass" onClick={onKeepEditing}>
+          <Button radius="xl" variant="outline" onClick={onKeepEditing}>
             {t("professionalRoadmapChat.review.keepEditing")}
           </Button>
         </div>
@@ -401,7 +400,6 @@ const RowEditor = ({ row, draft, onCancel, onCommit }: EditorProps) => {
           <Button
             size="sm"
             radius="xl"
-            variant="brand"
             onClick={() => onCommit(field, chosen as Patch[keyof Patch])}
           >
             {t("professionalRoadmapChat.review.save")}
@@ -462,7 +460,7 @@ const RowEditor = ({ row, draft, onCancel, onCommit }: EditorProps) => {
       )}
 
       <div className="flex flex-wrap gap-2">
-        <Button size="sm" radius="xl" variant="brand" onClick={commitText}>
+        <Button size="sm" radius="xl" onClick={commitText}>
           {t("professionalRoadmapChat.review.save")}
         </Button>
         {cancel}

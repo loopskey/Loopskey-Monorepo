@@ -117,7 +117,7 @@ export const AssociationReportDrilldown = ({
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <Button radius="xl" type="button" variant="glass" onClick={closeReport}>
+        <Button radius="xl" type="button" variant="outline" onClick={closeReport}>
           <L.ArrowLeft className="h-4 w-4" />
           {label("view.back")}
         </Button>
@@ -139,7 +139,7 @@ export const AssociationReportDrilldown = ({
           {chips.map((chip) => (
             <li
               key={chip}
-              className="rounded-full border border-glass-border bg-background/50 px-3 py-1 text-xs"
+              className="rounded-full border px-3 py-1 text-xs"
             >
               {chip}
             </li>

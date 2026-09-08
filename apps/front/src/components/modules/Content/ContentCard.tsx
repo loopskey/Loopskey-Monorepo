@@ -52,14 +52,14 @@ const ContentCard = ({ item, className }: TContentCardProps) => {
 
           <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/10 to-transparent" />
 
-          <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full border border-white/30 bg-background/55 px-3 py-1 text-xs font-bold backdrop-blur-xl">
+          <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full border border-white/30 bg-muted px-3 py-1 text-xs font-bold">
             <Icon className="h-3.5 w-3.5 text-primary" />
             {t(`content.tabs.${item.kind}`)}
           </div>
 
           {typeof item.rating === "number" && (
-            <div className="absolute right-4 top-4 flex items-center gap-1 rounded-full border border-white/30 bg-background/55 px-3 py-1 text-xs font-bold backdrop-blur-xl">
-              <L.Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+            <div className="absolute right-4 top-4 flex items-center gap-1 rounded-full border border-white/30 bg-muted px-3 py-1 text-xs font-bold">
+              <L.Star className="h-3.5 w-3.5 fill-yellow-400 text-warning-soft-foreground" />
               {item.rating.toFixed(1)}
             </div>
           )}
@@ -94,14 +94,14 @@ const ContentCard = ({ item, className }: TContentCardProps) => {
 
           <div className="grid grid-cols-2 gap-3 text-xs text-muted-foreground">
             {item.metaPrimary && (
-              <div className="flex items-center gap-2 rounded-2xl bg-background/45 px-3 py-2">
+              <div className="flex items-center gap-2 rounded-md bg-muted px-3 py-2">
                 <L.Users className="h-4 w-4 text-primary" />
                 <span className="truncate">{item.metaPrimary}</span>
               </div>
             )}
 
             {item.metaSecondary && (
-              <div className="flex items-center gap-2 rounded-2xl bg-background/45 px-3 py-2">
+              <div className="flex items-center gap-2 rounded-md bg-muted px-3 py-2">
                 <L.Clock3 className="h-4 w-4 text-primary" />
                 <span className="truncate">{item.metaSecondary}</span>
               </div>
@@ -117,7 +117,7 @@ const ContentCard = ({ item, className }: TContentCardProps) => {
                   : ""}
             </div>
 
-            <Button asChild variant="brandSoft" radius="xl">
+            <Button asChild variant="outline" radius="xl">
               <Link href={item.href}>
                 {t("content.card.viewDetails")}
                 <L.ArrowRight className="h-4 w-4" />

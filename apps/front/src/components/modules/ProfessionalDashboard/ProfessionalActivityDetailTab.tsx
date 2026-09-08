@@ -18,12 +18,12 @@ const DetailSkeleton = () => (
         <Skeleton className="h-10 w-72 max-w-full" />
       </div>
       <div className="flex gap-3">
-        <Skeleton className="h-11 w-28 rounded-2xl" />
-        <Skeleton className="h-11 w-28 rounded-2xl" />
+        <Skeleton className="h-11 w-28 rounded-md" />
+        <Skeleton className="h-11 w-28 rounded-md" />
       </div>
     </div>
-    <Skeleton className="h-56 w-full rounded-[2rem]" />
-    <Skeleton className="h-56 w-full rounded-[2rem]" />
+    <Skeleton className="h-56 w-full rounded-lg" />
+    <Skeleton className="h-56 w-full rounded-lg" />
   </div>
 );
 
@@ -81,7 +81,7 @@ const ProfessionalActivityDetailTab = () => {
               <Button
                 radius="xl"
                 type="button"
-                variant="glass"
+                variant="outline"
                 onClick={handleCancel}
               >
                 <L.ArrowLeft className="h-4 w-4" aria-hidden />
@@ -92,7 +92,6 @@ const ProfessionalActivityDetailTab = () => {
                 <Button
                   radius="xl"
                   type="button"
-                  variant="brand"
                   onClick={handleRetry}
                 >
                   <L.RefreshCw className="h-4 w-4" aria-hidden />

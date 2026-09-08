@@ -45,7 +45,7 @@ export const CpdStepCategories = ({
       </div>
 
       {categories.fields.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-glass-border bg-background/40 p-8 text-center text-sm text-muted-foreground">
+        <div className="rounded-md border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
           {t("cpdProgress.setup.categories.empty")}
         </div>
       ) : (
@@ -53,7 +53,7 @@ export const CpdStepCategories = ({
           {categories.fields.map((field, index) => (
             <div
               key={field.id}
-              className="grid grid-cols-1 gap-3 rounded-2xl border border-glass-border bg-background/40 p-4 md:grid-cols-[1fr_7rem_7rem_auto] md:items-start"
+              className="grid grid-cols-1 gap-3 rounded-md border p-4 md:grid-cols-[1fr_7rem_7rem_auto] md:items-start"
             >
               <FloatingInputField
                 control={control}
@@ -98,7 +98,7 @@ export const CpdStepCategories = ({
       )}
 
       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-        <Button radius="xl" type="button" variant="glass" onClick={addCategory}>
+        <Button radius="xl" type="button" variant="outline" onClick={addCategory}>
           <L.Plus className="h-4 w-4" />
           {t("cpdProgress.setup.categories.add")}
         </Button>
@@ -115,7 +115,7 @@ export const CpdStepCategories = ({
         open={pendingDelete !== null}
         onOpenChange={(open) => !open && setPendingDelete(null)}
       >
-        <A.AlertDialogContent className="glass-dialog rounded-3xl border-glass-border">
+        <A.AlertDialogContent className="glass-dialog rounded-lg border-border">
           <A.AlertDialogHeader>
             <A.AlertDialogTitle>
               {t("cpdProgress.setup.categories.deleteConfirmTitle")}

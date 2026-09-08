@@ -25,7 +25,7 @@ const SummaryCard = ({
   <GlassCard className="flex flex-col p-5">
     <div className="flex items-start justify-between gap-4">
       <p className="text-sm text-muted-foreground">{label}</p>
-      <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+      <div className="rounded-md bg-primary/10 p-3 text-primary">
         <Icon className="h-5 w-5" aria-hidden />
       </div>
     </div>
@@ -49,9 +49,9 @@ export const CertificateSummaryCards = ({
   if (isLoading)
     return (
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        <Skeleton className="h-56 w-full rounded-[2rem]" />
-        <Skeleton className="h-56 w-full rounded-[2rem]" />
-        <Skeleton className="h-56 w-full rounded-[2rem]" />
+        <Skeleton className="h-56 w-full rounded-lg" />
+        <Skeleton className="h-56 w-full rounded-lg" />
+        <Skeleton className="h-56 w-full rounded-lg" />
       </div>
     );
 
@@ -69,7 +69,7 @@ export const CertificateSummaryCards = ({
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             className="w-full"
             onClick={onViewActive}
           >
@@ -91,7 +91,7 @@ export const CertificateSummaryCards = ({
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             className="w-full"
             onClick={onViewExpiring}
           >
@@ -124,7 +124,7 @@ export const CertificateSummaryCards = ({
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             className="w-full"
             onClick={onViewAll}
           >
@@ -152,7 +152,7 @@ export const CertificateSummaryCards = ({
             </dt>
             <dd className="font-medium">{count(summary?.expired)}</dd>
           </div>
-          <div className="flex items-center justify-between gap-3 border-t border-glass-border pt-2">
+          <div className="flex items-center justify-between gap-3 border-t border-border pt-2">
             <dt className="text-muted-foreground">
               {t(`${CERTIFICATES}.summary.total`)}
             </dt>

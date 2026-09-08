@@ -137,7 +137,7 @@ export const RoadmapSummarySections = ({
             {recommendations.map((item) => (
               <li
                 key={`${item.contentType}:${item.contentId}`}
-                className="rounded-2xl border border-glass-border bg-background/40 p-3"
+                className="rounded-md border p-3"
               >
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-sm font-medium">{item.title}</p>

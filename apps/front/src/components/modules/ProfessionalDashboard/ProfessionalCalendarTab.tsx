@@ -80,7 +80,6 @@ const ProfessionalCalendarTab = () => {
           <Button
             type="button"
             radius="xl"
-            variant="brand"
             onClick={openAddDialog}
           >
             <L.CalendarPlus className="h-4 w-4" />
@@ -98,7 +97,7 @@ const ProfessionalCalendarTab = () => {
               </p>
               <p className="mt-2 text-3xl font-medium">{stats.total}</p>
             </div>
-            <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+            <div className="rounded-md bg-primary/10 p-3 text-primary">
               <L.CalendarDays className="h-5 w-5" />
             </div>
           </div>
@@ -112,7 +111,7 @@ const ProfessionalCalendarTab = () => {
               </p>
               <p className="mt-2 text-3xl font-medium">{stats.upcoming}</p>
             </div>
-            <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+            <div className="rounded-md bg-primary/10 p-3 text-primary">
               <L.Clock className="h-5 w-5" />
             </div>
           </div>
@@ -126,7 +125,7 @@ const ProfessionalCalendarTab = () => {
               </p>
               <p className="mt-2 text-3xl font-medium">{stats.live}</p>
             </div>
-            <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+            <div className="rounded-md bg-primary/10 p-3 text-primary">
               <L.Video className="h-5 w-5" />
             </div>
           </div>
@@ -140,7 +139,7 @@ const ProfessionalCalendarTab = () => {
               </p>
               <p className="mt-2 text-3xl font-medium">{stats.completed}</p>
             </div>
-            <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+            <div className="rounded-md bg-primary/10 p-3 text-primary">
               <L.CalendarCheck className="h-5 w-5" />
             </div>
           </div>
@@ -154,7 +153,7 @@ const ProfessionalCalendarTab = () => {
               </p>
               <p className="mt-2 text-3xl font-medium">{stats.totalPdus}</p>
             </div>
-            <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+            <div className="rounded-md bg-primary/10 p-3 text-primary">
               <L.Sparkles className="h-5 w-5" />
             </div>
           </div>
@@ -174,7 +173,7 @@ const ProfessionalCalendarTab = () => {
             </div>
           </div>
 
-          <div className="calendar-shell rounded-[2rem] border border-glass-border bg-background/45 p-3">
+          <div className="calendar-shell rounded-lg border p-3">
             {isLoading ? (
               <div className="flex min-h-96 items-center justify-center">
                 <L.Loader2 className="h-7 w-7 animate-spin text-primary" />
@@ -216,7 +215,7 @@ const ProfessionalCalendarTab = () => {
                 {t("professionalDashboard.calendar.upcoming.description")}
               </p>
             </div>
-            <div className="rounded-2xl bg-primary/10 p-2.5 text-primary">
+            <div className="rounded-md bg-primary/10 p-2.5 text-primary">
               <L.CalendarClock className="h-5 w-5" />
             </div>
           </div>
@@ -230,7 +229,7 @@ const ProfessionalCalendarTab = () => {
               {upcomingEvents.slice(0, 8).map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-start justify-between gap-3 rounded-2xl border border-glass-border bg-background/45 px-4 py-3"
+                  className="flex items-start justify-between gap-3 rounded-md border px-4 py-3"
                 >
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
@@ -297,7 +296,7 @@ const ProfessionalCalendarTab = () => {
             <Button
               radius="xl"
               type="button"
-              variant="glass"
+              variant="outline"
               onClick={resetFilters}
               className="w-full lg:w-auto"
             >
@@ -319,7 +318,7 @@ const ProfessionalCalendarTab = () => {
                 value={search}
                 onChange={handleSearchInputChange}
                 placeholder={t("professionalDashboard.calendar.search")}
-                className="h-12 rounded-2xl bg-background/60 pl-10"
+                className="h-12 rounded-md bg-muted pl-10"
               />
             </div>
           </div>
@@ -334,7 +333,7 @@ const ProfessionalCalendarTab = () => {
                 type="date"
                 value={selectedRange.start}
                 onChange={handleStartDateChange}
-                className="h-12 rounded-2xl bg-background/60"
+                className="h-12 rounded-md bg-muted"
               />
             </div>
 
@@ -347,7 +346,7 @@ const ProfessionalCalendarTab = () => {
                 type="date"
                 value={selectedRange.end}
                 onChange={handleEndDateChange}
-                className="h-12 rounded-2xl bg-background/60"
+                className="h-12 rounded-md bg-muted"
               />
             </div>
           </div>
@@ -366,7 +365,7 @@ const ProfessionalCalendarTab = () => {
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-3xl border border-glass-border">
+        <div className="overflow-hidden rounded-lg border">
           <div className="hidden grid-cols-[1.4fr_0.8fr_0.8fr_0.8fr_0.7fr] bg-primary/5 px-5 py-4 text-sm font-medium text-muted-foreground lg:grid">
             <span>{t("professionalDashboard.calendar.table.event")}</span>
             <span>{t("professionalDashboard.calendar.table.date")}</span>
@@ -441,7 +440,7 @@ const ProfessionalCalendarTab = () => {
                       <Button
                         radius="xl"
                         size="sm"
-                        variant="glass"
+                        variant="outline"
                         disabled={isDeletingManual}
                         onClick={() => void handleDeleteManualEvent(manual.id)}
                       >
@@ -515,7 +514,7 @@ const ProfessionalCalendarTab = () => {
 
                     <div className="flex justify-start gap-2 lg:justify-end">
                       {registration.event?.onlineUrl ? (
-                        <Button radius="xl" variant="brand" size="sm" asChild>
+                        <Button radius="xl" size="sm" asChild>
                           <Link
                             href={registration.event.onlineUrl}
                             target="_blank"
@@ -527,7 +526,7 @@ const ProfessionalCalendarTab = () => {
                         </Button>
                       ) : null}
 
-                      <Button radius="xl" variant="glass" size="sm" asChild>
+                      <Button radius="xl" variant="outline" size="sm" asChild>
                         <Link href={getEventHref(registration)}>
                           {t("professionalDashboard.common.details")}
                         </Link>

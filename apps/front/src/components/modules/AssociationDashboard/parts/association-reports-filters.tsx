@@ -41,11 +41,11 @@ export const AssociationReportsFilters = ({
       </label>
 
       <S.Select value={value} onValueChange={onChange}>
-        <S.SelectTrigger id={id} className="mt-1 rounded-2xl">
+        <S.SelectTrigger id={id} className="mt-1 rounded-md">
           <S.SelectValue />
         </S.SelectTrigger>
 
-        <S.SelectContent className="z-[9999] rounded-2xl">
+        <S.SelectContent className="z-[9999] rounded-md">
           {options.map((option) => (
             <S.SelectItem key={option.value} value={option.value}>
               {option.label}
@@ -71,7 +71,7 @@ export const AssociationReportsFilters = ({
         id={id}
         type="date"
         value={value}
-        className="mt-1 rounded-2xl"
+        className="mt-1 rounded-md"
         onChange={(event) => onChange(event.target.value)}
       />
     </div>
@@ -156,7 +156,7 @@ export const AssociationReportsFilters = ({
             size="sm"
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             onClick={resetFilter}
           >
             <L.FilterX className="h-4 w-4" />

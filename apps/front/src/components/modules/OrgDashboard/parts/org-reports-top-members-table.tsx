@@ -38,7 +38,7 @@ export const OrgReportsTopMembersTable = ({
 
           <Input
             value={memberSearch}
-            className="max-w-md rounded-2xl print:hidden"
+            className="max-w-md rounded-md print:hidden"
             onChange={(event) => setMemberSearch(event.target.value)}
             placeholder={t("organizationDashboard.reports.topMembers.search")}
           />
@@ -47,7 +47,7 @@ export const OrgReportsTopMembersTable = ({
         <div className="mt-6 overflow-x-auto">
           <table className="w-full min-w-[760px] text-left text-sm">
             <thead className="text-xs uppercase text-muted-foreground">
-              <tr className="border-b border-glass-border">
+              <tr className="border-b border-border">
                 <th className="py-3">
                   {t("organizationDashboard.reports.topMembers.columns.name")}
                 </th>
@@ -77,7 +77,7 @@ export const OrgReportsTopMembersTable = ({
 
             <tbody>
               {topMembers.map((member) => (
-                <tr key={member.id} className="border-b border-glass-border/70">
+                <tr key={member.id} className="border-b border-border/70">
                   <td className="py-4">
                     <p className="font-medium">{member.fullName ?? "-"}</p>
                     <p className="text-xs text-muted-foreground">

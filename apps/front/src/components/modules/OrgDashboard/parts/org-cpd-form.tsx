@@ -52,7 +52,7 @@ export const OrgCpdCategoryForm = ({
           label={t("organizationDashboard.cpd.form.fields.requiredHours")}
         />
 
-        <div className="flex h-14 items-center justify-between rounded-2xl border border-border/70 bg-background/55 px-4">
+        <div className="flex h-14 items-center justify-between rounded-md border border-border/70 bg-muted px-4">
           <div>
             <p className="text-sm font-medium">
               {t("organizationDashboard.cpd.form.fields.active")}
@@ -82,7 +82,7 @@ export const OrgCpdCategoryForm = ({
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             onClick={onCancel}
             disabled={isLoading}
           >
@@ -92,7 +92,6 @@ export const OrgCpdCategoryForm = ({
           <Button
             radius="xl"
             type="submit"
-            variant="brand"
             disabled={isLoading}
           >
             <L.Save className="h-4 w-4" />

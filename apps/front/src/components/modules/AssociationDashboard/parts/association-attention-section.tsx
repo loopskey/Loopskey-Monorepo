@@ -83,7 +83,7 @@ export const AssociationAttentionSectionCard = ({
       <div className="relative z-10">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-start gap-3">
-            <span className="rounded-2xl bg-primary/10 p-2.5 text-primary">
+            <span className="rounded-md bg-primary/10 p-2.5 text-primary">
               <Icon className="h-5 w-5" />
             </span>
 
@@ -104,7 +104,7 @@ export const AssociationAttentionSectionCard = ({
         </div>
 
         {count === 0 ? (
-          <div className="mt-5 flex items-center gap-2 rounded-2xl border border-glass-border bg-background/50 p-4 text-sm text-muted-foreground">
+          <div className="mt-5 flex items-center gap-2 rounded-md border p-4 text-sm text-muted-foreground">
             <L.CircleCheck className="h-4 w-4 text-primary" />
             {label(`sections.${section}.settled`)}
           </div>
@@ -151,7 +151,7 @@ export const AssociationAttentionSectionCard = ({
               <ul className="mt-5 space-y-2">
                 {[0, 1, 2].map((row) => (
                   <li key={row}>
-                    <Skeleton className="h-12 w-full rounded-2xl" />
+                    <Skeleton className="h-12 w-full rounded-md" />
                   </li>
                 ))}
               </ul>
@@ -160,7 +160,7 @@ export const AssociationAttentionSectionCard = ({
                 {rows.map((row) => (
                   <li
                     key={row.memberId}
-                    className="flex flex-wrap items-center gap-3 rounded-2xl border border-glass-border bg-background/50 p-3"
+                    className="flex flex-wrap items-center gap-3 rounded-md border p-3"
                   >
                     <Checkbox
                       id={`attention-${section}-${row.memberId}`}
@@ -213,7 +213,6 @@ export const AssociationAttentionSectionCard = ({
               <Button
                 radius="xl"
                 type="button"
-                variant="brand"
                 disabled={isSending}
                 id={M.sectionSendButtonId(section)}
                 onClick={() => setOpenSection(section)}
@@ -234,7 +233,7 @@ export const AssociationAttentionSectionCard = ({
                     size="sm"
                     radius="xl"
                     type="button"
-                    variant="glass"
+                    variant="outline"
                     onClick={() => clearSelection(section)}
                   >
                     {label("section.clear")}

@@ -17,7 +17,7 @@ export const Stepper = ({ step }: { step: number }) => {
               className={cn(
                 "h-8 w-8 rounded-full flex items-center justify-center text-sm font-medium border",
                 active && "bg-primary text-white border-primary",
-                completed && "bg-green-600 text-white border-green-600",
+                completed && "bg-success text-white border-success",
                 !active && !completed && "bg-muted text-muted-foreground"
               )}
             >

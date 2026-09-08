@@ -23,7 +23,7 @@ export const OrgCpdCategoryHeader = ({ hook }: TCPDHeader) => {
       </div>
       <div className="flex flex-col gap-3 sm:flex-row">
         <S.Select value={year} onValueChange={setYear}>
-          <S.SelectTrigger className="h-11 min-w-36 rounded-2xl bg-background/70">
+          <S.SelectTrigger className="h-11 min-w-36 rounded-md bg-muted">
             <S.SelectValue />
           </S.SelectTrigger>
           <S.SelectContent>
@@ -34,7 +34,7 @@ export const OrgCpdCategoryHeader = ({ hook }: TCPDHeader) => {
             ))}
           </S.SelectContent>
         </S.Select>
-        <Button radius="xl" variant="brand" onClick={openCreateView}>
+        <Button radius="xl" onClick={openCreateView}>
           <L.Plus className="h-4 w-4" />
           {t("organizationDashboard.cpd.actions.addCategory")}
         </Button>

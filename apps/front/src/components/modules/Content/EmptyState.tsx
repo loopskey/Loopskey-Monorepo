@@ -8,7 +8,7 @@ const EmptyState = () => {
   return (
     <GlassCard className="p-10 text-center" glow={false}>
       <div className="relative z-10 mx-auto flex max-w-md flex-col items-center">
-        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-primary/10 text-primary">
+        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-lg bg-primary/10 text-primary">
           <SearchX className="h-8 w-8" />
         </div>
         <h3 className="text-xl font-extrabold">{t("content.empty.title")}</h3>

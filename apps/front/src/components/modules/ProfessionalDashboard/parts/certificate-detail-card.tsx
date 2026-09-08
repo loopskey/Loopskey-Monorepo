@@ -99,11 +99,10 @@ export const CertificateDetailCard = ({
         </p>
       )}
 
-      <div className="mt-6 flex flex-col gap-3 border-t border-glass-border pt-5 sm:flex-row">
+      <div className="mt-6 flex flex-col gap-3 border-t border-border pt-5 sm:flex-row">
         <Button
           radius="xl"
           type="button"
-          variant="brand"
           className="sm:flex-1"
           disabled={!evidenceFile || Boolean(downloadingFileId)}
           onClick={() => evidenceFile && onDownload(evidenceFile)}
@@ -126,7 +125,7 @@ export const CertificateDetailCard = ({
         <Button
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           className="sm:flex-1"
           onClick={() => onEdit(certificate.id)}
         >

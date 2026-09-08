@@ -55,7 +55,7 @@ const AssociationMessagesTab = () => {
             <Button
               radius="xl"
               type="button"
-              variant="glass"
+              variant="outline"
               className="mt-5"
               onClick={retryLists}
             >
@@ -80,13 +80,13 @@ const AssociationMessagesTab = () => {
       {header}
 
       {isEmailSuppressed && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-destructive/40 bg-destructive/5 p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-destructive/40 bg-destructive/5 p-4">
           <p role="alert" className="text-sm text-muted-foreground">
             <L.MailX className="mr-2 inline h-4 w-4 text-destructive" />
             {label("suppressed")}
           </p>
 
-          <Button size="sm" radius="xl" variant="glass" asChild>
+          <Button size="sm" radius="xl" variant="outline" asChild>
             <Link href="/dashboard/association?tab=settings">
               <L.Settings className="h-4 w-4" />
               {label("suppressedAction")}
@@ -98,7 +98,7 @@ const AssociationMessagesTab = () => {
       <AssociationAttentionStrip hook={hook} />
 
       {isEverythingSettled && (
-        <p className="rounded-2xl border border-glass-border bg-background/50 p-4 text-sm text-muted-foreground">
+        <p className="rounded-md border p-4 text-sm text-muted-foreground">
           {label("allSettled")}
         </p>
       )}

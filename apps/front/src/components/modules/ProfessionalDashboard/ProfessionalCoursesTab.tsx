@@ -60,7 +60,7 @@ const ProfessionalCoursesTab = () => {
         <Button
           type="button"
           radius="xl"
-          variant="glass"
+          variant="outline"
           disabled={isFetching}
           onClick={() => refetch()}
         >
@@ -82,7 +82,7 @@ const ProfessionalCoursesTab = () => {
               <p className="mt-2 text-3xl font-medium">{stats.total}</p>
             </div>
 
-            <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+            <div className="rounded-md bg-primary/10 p-3 text-primary">
               <L.BookOpen className="h-5 w-5" />
             </div>
           </div>
@@ -98,7 +98,7 @@ const ProfessionalCoursesTab = () => {
               <p className="mt-2 text-3xl font-medium">{stats.active}</p>
             </div>
 
-            <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+            <div className="rounded-md bg-primary/10 p-3 text-primary">
               <L.PlayCircle className="h-5 w-5" />
             </div>
           </div>
@@ -113,7 +113,7 @@ const ProfessionalCoursesTab = () => {
               <p className="mt-2 text-3xl font-medium">{stats.completed}</p>
             </div>
 
-            <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+            <div className="rounded-md bg-primary/10 p-3 text-primary">
               <L.CheckCircle2 className="h-5 w-5" />
             </div>
           </div>
@@ -129,7 +129,7 @@ const ProfessionalCoursesTab = () => {
               <p className="mt-2 text-3xl font-medium">{stats.avgProgress}%</p>
             </div>
 
-            <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+            <div className="rounded-md bg-primary/10 p-3 text-primary">
               <L.TrendingUp className="h-5 w-5" />
             </div>
           </div>
@@ -154,7 +154,7 @@ const ProfessionalCoursesTab = () => {
               value={search}
               onChange={handleSearchInputChange}
               placeholder={t("professionalDashboard.courses.search")}
-              className="h-12 rounded-2xl bg-background/60 pl-10"
+              className="h-12 rounded-md bg-muted pl-10"
             />
           </div>
         </div>
@@ -164,7 +164,7 @@ const ProfessionalCoursesTab = () => {
             <L.Loader2 className="h-7 w-7 animate-spin text-primary" />
           </div>
         ) : courses.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-glass-border bg-background/40 p-10 text-center">
+          <div className="rounded-lg border border-dashed border-border p-10 text-center">
             <L.BookOpen className="mx-auto h-10 w-10 text-muted-foreground" />
             <p className="mt-4 font-medium">
               {t("professionalDashboard.courses.emptyTitle")}
@@ -172,7 +172,7 @@ const ProfessionalCoursesTab = () => {
             <p className="mx-auto mt-1 max-w-md text-sm leading-6 text-muted-foreground">
               {t("professionalDashboard.courses.emptyDescription")}
             </p>
-            <Button className="mt-5" radius="xl" variant="brand" asChild>
+            <Button className="mt-5" radius="xl" asChild>
               <Link href="/courses">
                 <L.GraduationCap className="h-4 w-4" />
                 {t("professionalDashboard.certificates.earnMore")}
@@ -188,7 +188,7 @@ const ProfessionalCoursesTab = () => {
               return (
                 <div
                   key={course.id}
-                  className="group overflow-hidden rounded-[2rem] border border-glass-border bg-background/45 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:bg-primary/5"
+                  className="group overflow-hidden rounded-lg border transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:bg-primary/5"
                 >
                   <div className="grid gap-0 lg:grid-cols-[260px_1fr]">
                     <Link
@@ -210,7 +210,7 @@ const ProfessionalCoursesTab = () => {
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-medium/60 via-medium/10 to-transparent" />
                       <div className="absolute bottom-4 left-4 right-4 flex flex-wrap gap-2">
-                        <Badge className="bg-background/90 text-foreground hover:bg-background/90">
+                        <Badge className="bg-muted text-foreground hover:bg-muted">
                           {course.status}
                         </Badge>
                         {course.courseIsFree ? (
@@ -310,7 +310,7 @@ const ProfessionalCoursesTab = () => {
                           </div>
                         </div>
                         <div className="flex flex-col gap-2 sm:flex-row lg:flex-col">
-                          <div className="rounded-2xl bg-primary/5 px-4 py-2 text-center">
+                          <div className="rounded-md bg-primary/5 px-4 py-2 text-center">
                             <p className="text-xs text-muted-foreground">
                               {t("professionalDashboard.courses.price")}
                             </p>
@@ -331,7 +331,7 @@ const ProfessionalCoursesTab = () => {
                               label={getCourseActionLabel(course)}
                             />
                           ) : (
-                            <Button radius="xl" variant="brand" asChild>
+                            <Button radius="xl" asChild>
                               <Link href={courseHref}>
                                 <L.PlayCircle className="h-4 w-4" />
                                 {getCourseActionLabel(course)}

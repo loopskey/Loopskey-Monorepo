@@ -22,7 +22,7 @@ export const RoadmapGenerationStatus = ({
     return (
       <GlassCard className="p-8">
         <div className="flex flex-col items-center text-center">
-          <div className="rounded-2xl bg-destructive/10 p-3 text-destructive">
+          <div className="rounded-md bg-destructive/10 p-3 text-destructive">
             <L.AlertTriangle className="h-6 w-6" aria-hidden="true" />
           </div>
 
@@ -40,7 +40,7 @@ export const RoadmapGenerationStatus = ({
             </p>
           ) : null}
 
-          <Button asChild radius="xl" variant="brand" className="mt-6">
+          <Button asChild radius="xl" className="mt-6">
             <Link href={ROADMAP_CHAT_HREF}>{t(`${key}.failed.action`)}</Link>
           </Button>
         </div>
@@ -54,7 +54,7 @@ export const RoadmapGenerationStatus = ({
         role="status"
         aria-live="polite"
       >
-        <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+        <div className="rounded-md bg-primary/10 p-3 text-primary">
           <L.Loader2 className="h-6 w-6 animate-spin" aria-hidden="true" />
         </div>
 

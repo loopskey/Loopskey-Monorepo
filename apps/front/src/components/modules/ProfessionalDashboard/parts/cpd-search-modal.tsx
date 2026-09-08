@@ -65,7 +65,7 @@ export const CpdSearchModal = ({
 
   return (
     <D.Dialog open={open} onOpenChange={preventCloseWhileSubmitting}>
-      <D.DialogContent className="glass-dialog max-h-[90vh] max-w-xl overflow-y-auto rounded-3xl border-glass-border">
+      <D.DialogContent className="glass-dialog max-h-[90vh] max-w-xl overflow-y-auto rounded-lg border-border">
         <D.DialogHeader>
           <D.DialogTitle>{t("cpdProgress.search.title")}</D.DialogTitle>
           <D.DialogDescription>
@@ -102,7 +102,7 @@ export const CpdSearchModal = ({
                 onChange={(event) => setQuery(event.target.value)}
                 aria-label={t("cpdProgress.search.sectionTitle")}
                 placeholder={t("cpdProgress.search.placeholder")}
-                className="h-12 rounded-2xl bg-background/60 pl-11"
+                className="h-12 rounded-md bg-muted pl-11"
               />
             </div>
 
@@ -127,7 +127,7 @@ export const CpdSearchModal = ({
                   <Button
                     radius="xl"
                     size="sm"
-                    variant="glass"
+                    variant="outline"
                     type="button"
                     onClick={() => refetch()}
                   >
@@ -156,14 +156,14 @@ export const CpdSearchModal = ({
               )}
             </div>
 
-            <div className="flex flex-col items-center gap-2 border-t border-glass-border pt-4 text-center">
+            <div className="flex flex-col items-center gap-2 border-t border-border pt-4 text-center">
               <p className="text-sm text-muted-foreground">
                 {t("cpdProgress.search.cantFind")}
               </p>
               <Button
                 radius="xl"
                 type="button"
-                variant="glass"
+                variant="outline"
                 onClick={() => onAddManually(query)}
               >
                 <L.PlusCircle className="h-4 w-4" />

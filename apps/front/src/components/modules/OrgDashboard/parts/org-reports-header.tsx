@@ -22,11 +22,11 @@ export const OrgReportsHeader = ({ hook }: TOrgReportHeader) => {
         </p>
       </div>
       <div className="flex flex-wrap gap-2 print:hidden">
-        <Button radius="xl" variant="glass" onClick={exportExcel}>
+        <Button radius="xl" variant="outline" onClick={exportExcel}>
           <L.FileSpreadsheet className="h-4 w-4" />
           {t("organizationDashboard.reports.actions.exportExcel")}
         </Button>
-        <Button radius="xl" variant="brand" onClick={exportPdf}>
+        <Button radius="xl" onClick={exportPdf}>
           <L.FileText className="h-4 w-4" />
           {t("organizationDashboard.reports.actions.exportPdf")}
         </Button>

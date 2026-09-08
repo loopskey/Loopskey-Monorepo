@@ -64,7 +64,7 @@ export const AssociationReportsCharts = ({
             size="sm"
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             onClick={() => openReport(report)}
           >
             <L.ArrowUpRight className="h-4 w-4" />
@@ -76,7 +76,7 @@ export const AssociationReportsCharts = ({
           {isLoading ? (
             C.chartSkeleton()
           ) : isEmpty ? (
-            <div className="flex h-72 items-center justify-center rounded-2xl border border-dashed border-glass-border text-sm text-muted-foreground">
+            <div className="flex h-72 items-center justify-center rounded-md border border-dashed border-border text-sm text-muted-foreground">
               {label("charts.empty")}
             </div>
           ) : (

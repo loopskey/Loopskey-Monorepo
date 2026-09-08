@@ -23,10 +23,10 @@ export const CpdPlanSelector = ({
           {t("cpdProgress.progress.planLabel")}
         </span>
         <S.Select value={selectedPlanId} onValueChange={onSelect}>
-          <S.SelectTrigger className="h-11 min-w-56 rounded-2xl bg-background/60">
+          <S.SelectTrigger className="h-11 min-w-56 rounded-md bg-muted">
             <S.SelectValue />
           </S.SelectTrigger>
-          <S.SelectContent className="z-[9999] rounded-2xl">
+          <S.SelectContent className="z-[9999] rounded-md">
             {plans.map((plan) => (
               <S.SelectItem key={plan.id} value={plan.id}>
                 {plan.certificationName}

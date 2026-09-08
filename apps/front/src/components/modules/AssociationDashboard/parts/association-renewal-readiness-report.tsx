@@ -23,7 +23,7 @@ const RenewalReadinessChart = dynamic(
     ).then((module) => module.RenewalReadinessChart),
   {
     ssr: false,
-    loading: () => <Skeleton className="h-40 w-full rounded-2xl" />,
+    loading: () => <Skeleton className="h-40 w-full rounded-md" />,
   },
 );
 
@@ -128,7 +128,7 @@ export const AssociationRenewalReadinessReport = ({
       />
 
       {isTruncated && (
-        <p className="rounded-2xl border border-glass-border bg-background/50 p-4 text-sm text-muted-foreground">
+        <p className="rounded-md border p-4 text-sm text-muted-foreground">
           {label("view.truncated", {
             shown: (renewalReadiness?.items.length ?? 0).toLocaleString(locale),
             total: (renewalReadiness?.totalCount ?? 0).toLocaleString(locale),

@@ -42,7 +42,7 @@ export const AssociationLearningList = ({ hook }: TAssociationLearningList) => {
   const row = (item: TAssociationLearningContentRow) => (
     <li
       key={item.id}
-      className="rounded-3xl border border-glass-border bg-background/50 p-4"
+      className="rounded-lg border p-4"
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
@@ -86,7 +86,7 @@ export const AssociationLearningList = ({ hook }: TAssociationLearningList) => {
                 size="sm"
                 radius="xl"
                 type="button"
-                variant="glass"
+                variant="outline"
                 disabled={isMutating}
                 aria-label={t(
                   "associationDashboard.learningContent.list.actionsFor",
@@ -97,7 +97,7 @@ export const AssociationLearningList = ({ hook }: TAssociationLearningList) => {
               </Button>
             </D.DropdownMenuTrigger>
 
-            <D.DropdownMenuContent align="end" className="z-[9999] rounded-2xl">
+            <D.DropdownMenuContent align="end" className="z-[9999] rounded-md">
               <D.DropdownMenuItem onSelect={() => setDetailId(item.id)}>
                 <L.Eye className="h-4 w-4" />
                 {t("associationDashboard.learningContent.actions.view")}
@@ -191,14 +191,14 @@ export const AssociationLearningList = ({ hook }: TAssociationLearningList) => {
     return (
       <div className="mt-6 space-y-3" aria-busy="true">
         {Array.from({ length: 4 }, (_, index) => (
-          <Skeleton key={index} className="h-32 w-full rounded-3xl" />
+          <Skeleton key={index} className="h-32 w-full rounded-lg" />
         ))}
       </div>
     );
 
   if (items.length === 0)
     return (
-      <div className="mt-6 rounded-2xl border border-dashed border-glass-border p-10 text-center">
+      <div className="mt-6 rounded-md border border-dashed border-border p-10 text-center">
         <L.LibraryBig className="mx-auto h-8 w-8 text-muted-foreground" />
 
         <p className="mt-3 font-medium">
@@ -222,7 +222,6 @@ export const AssociationLearningList = ({ hook }: TAssociationLearningList) => {
             <Button
               radius="xl"
               type="button"
-              variant="brand"
               onClick={() => openCreate(false)}
             >
               <L.LibraryBig className="h-4 w-4" />
@@ -232,7 +231,7 @@ export const AssociationLearningList = ({ hook }: TAssociationLearningList) => {
             <Button
               radius="xl"
               type="button"
-              variant="glass"
+              variant="outline"
               onClick={() => openCreate(true)}
             >
               <L.Link className="h-4 w-4" />

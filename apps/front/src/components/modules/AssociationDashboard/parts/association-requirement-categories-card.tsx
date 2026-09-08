@@ -20,7 +20,7 @@ const AllocationChart = dynamic(
     ),
   {
     ssr: false,
-    loading: () => <Skeleton className="h-16 w-full rounded-2xl" />,
+    loading: () => <Skeleton className="h-16 w-full rounded-md" />,
   },
 );
 
@@ -51,7 +51,7 @@ export const AssociationRequirementCategoriesCard = ({
           return (
             <div
               key={row.id}
-              className="grid gap-3 rounded-2xl border border-glass-border p-3 lg:grid-cols-[1fr_220px_140px_auto]"
+              className="grid gap-3 rounded-md border p-3 lg:grid-cols-[1fr_220px_140px_auto]"
             >
               <div className="space-y-1.5">
                 <Label htmlFor={`category-name-${index}`}>
@@ -60,7 +60,7 @@ export const AssociationRequirementCategoriesCard = ({
 
                 <Input
                   id={`category-name-${index}`}
-                  className="h-11 rounded-2xl"
+                  className="h-11 rounded-md"
                   {...categoriesForm.register(`categories.${index}.name`)}
                 />
               </div>
@@ -84,7 +84,7 @@ export const AssociationRequirementCategoriesCard = ({
                 >
                   <S.SelectTrigger
                     id={`category-mapped-${index}`}
-                    className="h-11 rounded-2xl"
+                    className="h-11 rounded-md"
                   >
                     <S.SelectValue
                       placeholder={t(
@@ -93,7 +93,7 @@ export const AssociationRequirementCategoriesCard = ({
                     />
                   </S.SelectTrigger>
 
-                  <S.SelectContent className="z-[9999] rounded-2xl">
+                  <S.SelectContent className="z-[9999] rounded-md">
                     {Object.values(PduCategory).map((value) => (
                       <S.SelectItem
                         key={value}
@@ -120,7 +120,7 @@ export const AssociationRequirementCategoriesCard = ({
 
                 <Input
                   type="number"
-                  className="h-11 rounded-2xl"
+                  className="h-11 rounded-md"
                   id={`category-credits-${index}`}
                   {...categoriesForm.register(
                     `categories.${index}.requiredCredits`,
@@ -132,7 +132,7 @@ export const AssociationRequirementCategoriesCard = ({
                 <Button
                   radius="xl"
                   type="button"
-                  variant="glass"
+                  variant="outline"
                   className="h-11"
                   onClick={() => categoryRows.remove(index)}
                   aria-label={t(
@@ -151,7 +151,7 @@ export const AssociationRequirementCategoriesCard = ({
       <Button
         radius="xl"
         type="button"
-        variant="glass"
+        variant="outline"
         onClick={() =>
           categoryRows.append({
             name: "",
@@ -211,7 +211,6 @@ export const AssociationRequirementCategoriesCard = ({
         <Button
           radius="xl"
           type="submit"
-          variant="brand"
           disabled={isSaving || allocation.isOverflowing}
         >
           {isSaving && <L.Loader2 className="h-4 w-4 animate-spin" />}

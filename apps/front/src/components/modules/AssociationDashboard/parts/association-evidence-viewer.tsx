@@ -29,7 +29,7 @@ export const AssociationEvidenceViewer = ({
     >
       <SH.SheetContent
         side="right"
-        className="glass-dialog z-[9999] w-full gap-0 overflow-y-auto border-glass-border sm:max-w-lg"
+        className="glass-dialog z-[9999] w-full gap-0 overflow-y-auto border-border sm:max-w-lg"
       >
         <SH.SheetHeader>
           <SH.SheetTitle>
@@ -91,7 +91,7 @@ export const AssociationEvidenceViewer = ({
                   {openActivity.files.map((file) => (
                     <li
                       key={file.id}
-                      className="flex items-center justify-between gap-3 rounded-2xl border border-glass-border p-3"
+                      className="flex items-center justify-between gap-3 rounded-md border p-3"
                     >
                       <div className="min-w-0">
                         <p className="truncate text-sm">{file.fileName}</p>
@@ -104,7 +104,7 @@ export const AssociationEvidenceViewer = ({
                         size="sm"
                         radius="xl"
                         type="button"
-                        variant="glass"
+                        variant="outline"
                         disabled={downloadingFileId === file.id}
                         onClick={() => void download("evidence", file)}
                         aria-label={t(
@@ -143,7 +143,6 @@ export const AssociationEvidenceViewer = ({
                 <Button
                   radius="xl"
                   type="button"
-                  variant="brand"
                   disabled={isMutating}
                   onClick={() => openDecision(openActivity.id, true)}
                 >

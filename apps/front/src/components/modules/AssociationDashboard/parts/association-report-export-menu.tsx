@@ -28,7 +28,7 @@ export const AssociationReportExportMenu = ({
         <Button
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           disabled={isRequestingExport || isRangeIncomplete}
           aria-label={label("menuLabel", {
             report: t(

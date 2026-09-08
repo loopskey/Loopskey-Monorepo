@@ -32,13 +32,13 @@ export const OrgEventCatalogFilters = ({ hook }: TEventCatalogFilter) => {
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder={t("organizationDashboard.eventCatalog.filters.search")}
-            className="h-14 rounded-2xl border-border/70 bg-background/70 px-4 shadow-sm backdrop-blur-xl"
+            className="h-14 rounded-md border-border/70 bg-muted px-4 shadow-sm"
           />
         </div>
         <select
           value={category}
           onChange={(event) => setCategory(event.target.value)}
-          className="h-14 rounded-2xl border border-border/70 bg-background/70 px-4 text-sm"
+          className="h-14 rounded-md border border-border/70 bg-muted px-4 text-sm"
         >
           <option value={ALL_VALUE}>
             {t("organizationDashboard.eventCatalog.filters.allCategories")}
@@ -52,7 +52,7 @@ export const OrgEventCatalogFilters = ({ hook }: TEventCatalogFilter) => {
         <select
           value={type}
           onChange={(event) => setType(event.target.value)}
-          className="h-14 rounded-2xl border border-border/70 bg-background/70 px-4 text-sm"
+          className="h-14 rounded-md border border-border/70 bg-muted px-4 text-sm"
         >
           <option value={ALL_VALUE}>
             {t("organizationDashboard.eventCatalog.filters.allTypes")}
@@ -66,7 +66,7 @@ export const OrgEventCatalogFilters = ({ hook }: TEventCatalogFilter) => {
         <select
           value={deliveryMode}
           onChange={(event) => setDeliveryMode(event.target.value)}
-          className="h-14 rounded-2xl border border-border/70 bg-background/70 px-4 text-sm md:col-span-2"
+          className="h-14 rounded-md border border-border/70 bg-muted px-4 text-sm md:col-span-2"
         >
           <option value={ALL_VALUE}>
             {t("organizationDashboard.eventCatalog.filters.allDeliveryModes")}
@@ -81,7 +81,7 @@ export const OrgEventCatalogFilters = ({ hook }: TEventCatalogFilter) => {
         <Button
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           className="h-14"
           onClick={resetFilters}
         >

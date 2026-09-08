@@ -38,7 +38,6 @@ export const AssociationSettingsSection = ({
           <Button
             radius="xl"
             type="submit"
-            variant="brand"
             disabled={isSaving || isDisabled}
           >
             {isSaving ? (

@@ -46,7 +46,7 @@ export const AssociationOverviewAttention = ({
         </ul>
       }
       action={
-        <Button size="sm" radius="xl" variant="glass" asChild>
+        <Button size="sm" radius="xl" variant="outline" asChild>
           <Link href={O.associationTabHref("messages")}>
             <L.ArrowUpRight className="h-4 w-4" />
             {label("attention.openTab")}

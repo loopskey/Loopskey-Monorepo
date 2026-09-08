@@ -59,7 +59,7 @@ export const OnboardingRoleStep = ({ hook }: TOnboardingStepProps) => {
       </div>
 
       {hasRolesError ? (
-        <div className="flex flex-col items-center gap-3 rounded-3xl border border-glass-border p-6 text-center">
+        <div className="flex flex-col items-center gap-3 rounded-lg border p-6 text-center">
           <L.TriangleAlert aria-hidden className="h-5 w-5 text-destructive" />
           <p className="text-sm text-muted-foreground">
             {t("professionalOnboarding.role.error")}
@@ -67,7 +67,7 @@ export const OnboardingRoleStep = ({ hook }: TOnboardingStepProps) => {
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             onClick={() => void refetchTaxonomy()}
           >
             {t("professionalOnboarding.role.retry")}
@@ -82,7 +82,7 @@ export const OnboardingRoleStep = ({ hook }: TOnboardingStepProps) => {
             {t("professionalOnboarding.role.loading")}
           </span>
           {Array.from({ length: 6 }).map((_, index) => (
-            <Skeleton key={index} className="h-12 w-full rounded-2xl" />
+            <Skeleton key={index} className="h-12 w-full rounded-md" />
           ))}
         </div>
       ) : (
@@ -109,11 +109,11 @@ export const OnboardingRoleStep = ({ hook }: TOnboardingStepProps) => {
                     aria-selected={isSelected}
                     onClick={() => selectRole(option.label)}
                     className={cn(
-                      "flex items-center justify-between gap-2 rounded-2xl border px-4 py-3 text-left text-sm transition-colors",
+                      "flex items-center justify-between gap-2 rounded-md border px-4 py-3 text-left text-sm transition-colors",
                       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                       isSelected
                         ? "border-primary bg-primary/10 font-medium"
-                        : "border-glass-border bg-background/45 hover:border-primary/40",
+                        : "border-border hover:border-primary/40",
                     )}
                   >
                     <span className="min-w-0 truncate">{option.label}</span>
@@ -125,7 +125,7 @@ export const OnboardingRoleStep = ({ hook }: TOnboardingStepProps) => {
               })}
             </div>
           ) : (
-            <p className="rounded-2xl border border-glass-border bg-background/45 px-4 py-3 text-sm text-muted-foreground">
+            <p className="rounded-md border px-4 py-3 text-sm text-muted-foreground">
               {t("professionalOnboarding.role.empty")}
             </p>
           )}
@@ -134,7 +134,7 @@ export const OnboardingRoleStep = ({ hook }: TOnboardingStepProps) => {
             <Button
               radius="xl"
               type="button"
-              variant="glass"
+              variant="outline"
               className="w-full sm:w-auto"
               onClick={() => selectRole(typedRole)}
             >

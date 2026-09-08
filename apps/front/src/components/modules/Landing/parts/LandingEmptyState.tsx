@@ -8,7 +8,7 @@ const LandingEmptyState = () => {
   return (
     <GlassCard className="p-10 text-center" glow={false}>
       <div className="relative z-10">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-primary/10 text-primary">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-lg bg-primary/10 text-primary">
           <SearchX className="h-8 w-8" />
         </div>
 

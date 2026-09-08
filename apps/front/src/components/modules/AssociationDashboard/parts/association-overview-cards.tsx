@@ -36,7 +36,7 @@ export const AssociationOverviewCards = ({
           <Button
             size="sm"
             radius="xl"
-            variant="glass"
+            variant="outline"
             onClick={countsPanel.retry}
           >
             <L.RotateCcw className="h-4 w-4" />

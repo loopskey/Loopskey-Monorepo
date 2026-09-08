@@ -15,7 +15,7 @@ const HeroSearchBox = ({
   onToggleExplorer,
 }: THeroSearchBoxProps) => {
   return (
-    <div className="relative rounded-[2rem] border border-glass-border bg-background/62 p-3 shadow-[0_24px_80px_rgba(15,23,42,0.10)] backdrop-blur-2xl">
+    <div className="relative rounded-lg border p-3 shadow-[0_24px_80px_rgba(15,23,42,0.10)]">
       <div className="flex flex-col gap-3 md:flex-row">
         <div className="relative min-w-0 flex-1">
           <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
@@ -25,7 +25,7 @@ const HeroSearchBox = ({
             onChange={(event) => onChange(event.target.value)}
             placeholder={placeholder}
             className={cn(
-              "h-14 w-full rounded-2xl border border-border/60 bg-background/55 pl-12 pr-12 text-sm font-semibold outline-none backdrop-blur-xl",
+              "h-14 w-full rounded-md border border-border/60 bg-muted pl-12 pr-12 text-sm font-semibold outline-none",
               "transition-all placeholder:text-muted-foreground/70",
               "focus:border-primary/55 focus:ring-4 focus:ring-primary/15",
             )}

@@ -70,9 +70,9 @@ export const RoadmapChatTranscript = ({
   if (isLoading)
     return (
       <div className="flex flex-col gap-4" aria-busy="true">
-        <Skeleton className="h-16 w-3/4 rounded-2xl" />
-        <Skeleton className="ml-auto h-12 w-1/2 rounded-2xl" />
-        <Skeleton className="h-20 w-2/3 rounded-2xl" />
+        <Skeleton className="h-16 w-3/4 rounded-md" />
+        <Skeleton className="ml-auto h-12 w-1/2 rounded-md" />
+        <Skeleton className="h-20 w-2/3 rounded-md" />
       </div>
     );
 
@@ -94,7 +94,7 @@ export const RoadmapChatTranscript = ({
           <div
             key={message.id}
             className={cn(
-              "max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-6",
+              "max-w-[85%] rounded-md px-4 py-3 text-sm leading-6",
               !reducedMotion && "motion-safe:animate-in motion-safe:fade-in",
               isProfessional
                 ? "ml-auto bg-primary text-primary-foreground"
@@ -110,7 +110,7 @@ export const RoadmapChatTranscript = ({
         <div className="ml-auto flex max-w-[85%] flex-col items-end gap-2">
           <div
             className={cn(
-              "rounded-2xl px-4 py-3 text-sm leading-6",
+              "rounded-md px-4 py-3 text-sm leading-6",
               pending.failed
                 ? "bg-primary/60 text-primary-foreground"
                 : "bg-primary text-primary-foreground",
@@ -133,7 +133,7 @@ export const RoadmapChatTranscript = ({
               <Button
                 size="sm"
                 radius="xl"
-                variant="glass"
+                variant="outline"
                 disabled={retryAfter > 0}
                 onClick={onRetry}
               >

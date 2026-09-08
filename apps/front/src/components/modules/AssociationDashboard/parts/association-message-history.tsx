@@ -48,7 +48,7 @@ export const AssociationMessageHistory = ({
         <ul className="mt-6 space-y-2">
           {[0, 1, 2].map((row) => (
             <li key={row}>
-              <Skeleton className="h-14 w-full rounded-2xl" />
+              <Skeleton className="h-14 w-full rounded-md" />
             </li>
           ))}
         </ul>
@@ -63,7 +63,7 @@ export const AssociationMessageHistory = ({
 
     if (history.length === 0)
       return (
-        <div className="mt-6 rounded-3xl border border-glass-border bg-background/50 p-8 text-center">
+        <div className="mt-6 rounded-lg border p-8 text-center">
           <L.MailCheck className="mx-auto h-7 w-7 text-muted-foreground" />
 
           <p className="mt-3 font-medium">{label("history.empty.title")}</p>
@@ -79,7 +79,7 @@ export const AssociationMessageHistory = ({
         {history.map((row) => (
           <li
             key={row.id}
-            className="flex flex-wrap items-center gap-3 rounded-2xl border border-glass-border bg-background/50 p-3"
+            className="flex flex-wrap items-center gap-3 rounded-md border p-3"
           >
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium">

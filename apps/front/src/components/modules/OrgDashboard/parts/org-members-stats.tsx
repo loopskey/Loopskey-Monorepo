@@ -27,12 +27,12 @@ export const OrgMembersStats = ({ t, stats, totalCount }: TOrgMembersStats) => {
           <p className="mt-3 text-3xl font-semibold">{totalMembers}</p>
 
           <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
-            <div className="rounded-2xl bg-emerald-500/10 p-3 text-emerald-600">
+            <div className="rounded-md bg-success-soft p-3 text-success-soft-foreground">
               {t("organizationDashboard.members.stats.active")}:{" "}
               <b>{activeMembers}</b>
             </div>
 
-            <div className="rounded-2xl bg-muted p-3 text-muted-foreground">
+            <div className="rounded-md bg-muted p-3 text-muted-foreground">
               {t("organizationDashboard.members.stats.inactive")}:{" "}
               <b>{inactiveMembers}</b>
             </div>

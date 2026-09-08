@@ -12,7 +12,7 @@ import * as L from "lucide-react";
 const PREFIX = "professionalDashboard.cpdPduTracker.filters";
 
 const SELECT_CLASS =
-  "h-11 w-full rounded-2xl border border-input bg-background/60 px-3 text-sm outline-none transition-colors focus:border-primary/55 focus:ring-2 focus:ring-primary/20";
+  "h-11 w-full rounded-md border border-input bg-muted px-3 text-sm outline-none transition-colors focus:border-primary/55 focus:ring-2 focus:ring-primary/20";
 
 const CERTIFICATE_VALUES: TPduActivityCertificateFilter[] = [
   "ALL",
@@ -31,7 +31,7 @@ export const ActivitiesFilters = ({
   activityTypeOptions,
 }: TPduActivityFiltersProps) => {
   return (
-    <div className="rounded-[1.75rem] border border-glass-border bg-background/40 p-5">
+    <div className="rounded-lg border p-5">
       <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
         <div className="space-y-2">
           <Label
@@ -46,7 +46,7 @@ export const ActivitiesFilters = ({
               id="activity-search"
               value={filters.search}
               placeholder={t(`${PREFIX}.searchPlaceholder`)}
-              className="h-11 rounded-2xl bg-background/60 pl-9"
+              className="h-11 rounded-md bg-muted pl-9"
               onChange={(event) => onChange("search", event.target.value)}
             />
           </div>

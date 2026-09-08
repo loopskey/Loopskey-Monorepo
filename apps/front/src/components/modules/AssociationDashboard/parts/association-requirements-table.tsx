@@ -155,7 +155,7 @@ export const AssociationRequirementsTable = ({
           size="sm"
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           disabled={isSaving}
           aria-label={t("associationDashboard.requirements.table.actionsFor", {
             name: requirement.name,
@@ -165,7 +165,7 @@ export const AssociationRequirementsTable = ({
         </Button>
       </D.DropdownMenuTrigger>
 
-      <D.DropdownMenuContent align="end" className="z-[9999] rounded-2xl">
+      <D.DropdownMenuContent align="end" className="z-[9999] rounded-md">
         <D.DropdownMenuItem onSelect={() => goTo(requirement.id)}>
           <L.Eye className="h-4 w-4" />
           {t("associationDashboard.requirements.actions.open")}
@@ -211,7 +211,7 @@ export const AssociationRequirementsTable = ({
     return (
       <div className="mt-6 space-y-3" aria-busy="true">
         {Array.from({ length: 5 }, (_, index) => (
-          <Skeleton key={index} className="h-16 w-full rounded-2xl" />
+          <Skeleton key={index} className="h-16 w-full rounded-md" />
         ))}
       </div>
     );
@@ -226,7 +226,7 @@ export const AssociationRequirementsTable = ({
           </caption>
 
           <thead className="text-xs uppercase text-muted-foreground">
-            <tr className="border-b border-glass-border">
+            <tr className="border-b border-border">
               {columns.map((column) => (
                 <th key={column.id} scope="col" className="py-3">
                   {column.header}
@@ -243,7 +243,7 @@ export const AssociationRequirementsTable = ({
             {requirements.map((requirement) => (
               <tr
                 key={requirement.id}
-                className="border-b border-glass-border/70 transition-colors hover:bg-primary/5"
+                className="border-b border-border/70 transition-colors hover:bg-primary/5"
               >
                 {columns.map((column) => (
                   <td key={column.id} className="py-4 pr-4 align-middle">
@@ -262,7 +262,7 @@ export const AssociationRequirementsTable = ({
         {requirements.map((requirement) => (
           <li
             key={requirement.id}
-            className="rounded-3xl border border-glass-border bg-background/50 p-4"
+            className="rounded-lg border p-4"
           >
             <div className="flex items-start justify-between gap-3">
               <div>
