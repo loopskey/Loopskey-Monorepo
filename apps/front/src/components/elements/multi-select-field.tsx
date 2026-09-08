@@ -116,7 +116,7 @@ export const MultiSelectField = <T extends FieldValues>({
                     aria-expanded={open}
                     disabled={isDisabled}
                     aria-invalid={Boolean(fieldState.error)}
-                    className="h-12 w-full justify-between rounded-2xl border-border/70 bg-background/70 backdrop-blur-xl"
+                    className="h-12 w-full justify-between rounded-md border-input bg-background"
                   >
                     <span
                       className={cn(
@@ -240,7 +240,7 @@ export const MultiSelectField = <T extends FieldValues>({
                         disabled={disabled}
                         onClick={() => remove(item.value)}
                         aria-label={`${removeLabel}: ${item.label}`}
-                        className="rounded-full p-0.5 transition-colors hover:bg-background/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        className="rounded-full p-0.5 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       >
                         <X className="h-3 w-3" />
                       </button>

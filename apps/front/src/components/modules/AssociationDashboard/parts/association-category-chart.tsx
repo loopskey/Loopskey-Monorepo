@@ -1,7 +1,7 @@
 "use client";
 
 import { TAssociationCategoryChart } from "@/types/association-dashboard.types";
-import { CHART_SEMANTIC_SLOTS } from "@hooks/useChartPalette";
+import { useChartSemantics } from "@hooks/useChartPalette";
 
 import * as R from "recharts";
 
@@ -14,8 +14,9 @@ const MIN_HEIGHT = 220;
 export const AssociationCategoryChart = ({
   rows,
   label,
-  palette,
 }: TAssociationCategoryChart) => {
+  const semantics = useChartSemantics();
+
   const height = Math.max(MIN_HEIGHT, rows.length * ROW_HEIGHT);
 
   return (
@@ -42,14 +43,14 @@ export const AssociationCategoryChart = ({
               radius={[0, 8, 8, 0]}
               dataKey="requiredCredits"
               name={label("categoryRequired")}
-              fill={palette[CHART_SEMANTIC_SLOTS.notStarted]}
+              fill={semantics.notStarted}
             />
 
             <R.Bar
               radius={[0, 8, 8, 0]}
               dataKey="completedCredits"
               name={label("categoryCompleted")}
-              fill={palette[CHART_SEMANTIC_SLOTS.onTrack]}
+              fill={semantics.onTrack}
             />
           </R.BarChart>
         </R.ResponsiveContainer>

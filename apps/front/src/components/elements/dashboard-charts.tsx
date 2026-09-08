@@ -1,29 +1,41 @@
 "use client";
 
+import { useChartPalette } from "@hooks/useChartPalette";
+
 import * as T from "@/types/element.types";
 import * as R from "recharts";
 
+const AXIS_TICK = { fontSize: 12, fill: "var(--chart-axis)" } as const;
+
+const TOOLTIP_STYLE = {
+  border: "1px solid var(--border)",
+  borderRadius: "8px",
+  background: "var(--popover)",
+  color: "var(--popover-foreground)",
+  boxShadow: "0 6px 18px -8px rgb(13 25 61 / 12%)",
+} as const;
+
 export const PduOverTimeChart = ({ data }: { data: T.TPduOverTimePoint[] }) => {
+  const palette = useChartPalette();
+
   return (
     <R.ResponsiveContainer width="100%" height="100%">
       <R.AreaChart data={data}>
-        <defs>
-          <linearGradient id="pduOverTimeGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="#2563eb" stopOpacity={0.35} />
-            <stop offset="95%" stopColor="#14b8a6" stopOpacity={0.04} />
-          </linearGradient>
-        </defs>
-
-        <R.CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-        <R.XAxis dataKey="month" fontSize={12} />
-        <R.YAxis fontSize={12} />
-        <R.Tooltip />
+        <R.CartesianGrid
+          strokeDasharray="3 3"
+          stroke="var(--chart-grid)"
+          vertical={false}
+        />
+        <R.XAxis dataKey="month" tick={AXIS_TICK} stroke="var(--chart-grid)" />
+        <R.YAxis tick={AXIS_TICK} stroke="var(--chart-grid)" />
+        <R.Tooltip contentStyle={TOOLTIP_STYLE} />
         <R.Area
           dataKey="pdus"
           type="monotone"
-          strokeWidth={3}
-          stroke="#2563eb"
-          fill="url(#pduOverTimeGradient)"
+          strokeWidth={2.5}
+          stroke={palette[0]}
+          fill={palette[0]}
+          fillOpacity={0.1}
         />
       </R.AreaChart>
     </R.ResponsiveContainer>
@@ -35,16 +47,29 @@ export const PduByCategoryChart = ({
 }: {
   data: T.TPduCategoryPoint[];
 }) => {
+  const palette = useChartPalette();
+
   return (
     <R.ResponsiveContainer width="100%" height="100%">
       <R.BarChart data={data}>
-        <R.CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-        <R.XAxis dataKey="category" fontSize={11} />
-        <R.YAxis fontSize={12} />
-        <R.Tooltip />
-        <R.Bar dataKey="pdus" radius={[12, 12, 0, 0]}>
-          {data.map((entry) => (
-            <R.Cell key={entry.category} fill={entry.fill} />
+        <R.CartesianGrid
+          strokeDasharray="3 3"
+          stroke="var(--chart-grid)"
+          vertical={false}
+        />
+        <R.XAxis
+          dataKey="category"
+          tick={{ ...AXIS_TICK, fontSize: 11 }}
+          stroke="var(--chart-grid)"
+        />
+        <R.YAxis tick={AXIS_TICK} stroke="var(--chart-grid)" />
+        <R.Tooltip contentStyle={TOOLTIP_STYLE} />
+        <R.Bar dataKey="pdus" radius={[6, 6, 0, 0]}>
+          {data.map((entry, index) => (
+            <R.Cell
+              key={entry.category}
+              fill={entry.fill ?? palette[index % palette.length]}
+            />
           ))}
         </R.Bar>
       </R.BarChart>
@@ -79,6 +104,7 @@ export const ProgressDonutChart = ({
             ))}
           </R.Pie>
           <R.Tooltip
+            contentStyle={TOOLTIP_STYLE}
             formatter={(value, name) => [`${value ?? 0}${suffix}`, name]}
           />
         </R.PieChart>

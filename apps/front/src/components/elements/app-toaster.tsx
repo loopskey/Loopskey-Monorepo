@@ -12,7 +12,7 @@ export const AppToaster = () => {
       toastOptions={{
         classNames: {
           toast:
-            "group rounded-2xl border border-border/70 bg-card/90 text-card-foreground shadow-2xl backdrop-blur-xl",
+            "group rounded-lg border bg-card text-card-foreground shadow-md",
           title: "text-sm font-semibold",
           description: "text-sm text-muted-foreground",
           actionButton:

@@ -2,7 +2,7 @@
 
 import { TTimePoint, TTopEventPoint } from "@/types/provider-dashboard.types";
 import { TBreakdownPoint } from "@/types/provider-dashboard.types";
-import { CHART_COLORS } from "@/utils/constant";
+import { useChartPalette } from "@hooks/useChartPalette";
 
 import * as R from "recharts";
 
@@ -11,6 +11,8 @@ export const ProviderRegistrationsOverTimeChart = ({
 }: {
   data: TTimePoint[];
 }) => {
+  const palette = useChartPalette();
+
   return (
     <R.ResponsiveContainer width="100%" height="100%">
       <R.AreaChart data={data}>
@@ -22,8 +24,8 @@ export const ProviderRegistrationsOverTimeChart = ({
             x2="0"
             y2="1"
           >
-            <stop offset="5%" stopColor="#2563eb" stopOpacity={0.35} />
-            <stop offset="95%" stopColor="#2563eb" stopOpacity={0.02} />
+            <stop offset="5%" stopColor={palette[0]} stopOpacity={0.12} />
+            <stop offset="95%" stopColor={palette[0]} stopOpacity={0.08} />
           </linearGradient>
         </defs>
 
@@ -36,7 +38,7 @@ export const ProviderRegistrationsOverTimeChart = ({
         <R.Area
           type="monotone"
           strokeWidth={3}
-          stroke="#2563eb"
+          stroke={palette[0]}
           dataKey="registrations"
           fill="url(#providerRegistrationsGradient)"
         />
@@ -46,7 +48,7 @@ export const ProviderRegistrationsOverTimeChart = ({
           type="monotone"
           strokeWidth={3}
           dataKey="revenue"
-          stroke="#14b8a6"
+          stroke={palette[2]}
         />
       </R.AreaChart>
     </R.ResponsiveContainer>
@@ -60,6 +62,8 @@ export const ProviderBreakdownBarChart = ({
   data: TBreakdownPoint[];
   dataKey?: "count" | "value";
 }) => {
+  const palette = useChartPalette();
+
   return (
     <R.ResponsiveContainer width="100%" height="100%">
       <R.BarChart data={data}>
@@ -72,7 +76,7 @@ export const ProviderBreakdownBarChart = ({
           {data.map((_, index) => (
             <R.Cell
               key={index}
-              fill={CHART_COLORS[index % CHART_COLORS.length]}
+              fill={palette[index % palette.length]}
             />
           ))}
         </R.Bar>
@@ -86,6 +90,8 @@ export const ProviderEventTypePieChart = ({
 }: {
   data: TBreakdownPoint[];
 }) => {
+  const palette = useChartPalette();
+
   return (
     <R.ResponsiveContainer width="100%" height="100%">
       <R.PieChart>
@@ -103,7 +109,7 @@ export const ProviderEventTypePieChart = ({
           {data.map((_, index) => (
             <R.Cell
               key={index}
-              fill={CHART_COLORS[index % CHART_COLORS.length]}
+              fill={palette[index % palette.length]}
             />
           ))}
         </R.Pie>
@@ -117,6 +123,8 @@ export const ProviderTopPerformingChart = ({
 }: {
   data: TTopEventPoint[];
 }) => {
+  const palette = useChartPalette();
+
   return (
     <R.ResponsiveContainer width="100%" height="100%">
       <R.BarChart data={data} layout="vertical">
@@ -139,7 +147,7 @@ export const ProviderTopPerformingChart = ({
           {data.map((_, index) => (
             <R.Cell
               key={index}
-              fill={CHART_COLORS[index % CHART_COLORS.length]}
+              fill={palette[index % palette.length]}
             />
           ))}
         </R.Bar>

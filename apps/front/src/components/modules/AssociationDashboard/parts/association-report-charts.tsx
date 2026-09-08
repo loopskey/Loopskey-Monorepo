@@ -5,6 +5,7 @@ import { AssociationComplianceBand } from "@/lib/graphql/base";
 import { ASSOCIATION_BAND_ORDER } from "@utils/association-compliance-bands";
 import { NEUTRAL_CHART_SLOT } from "@utils/association-compliance-bands";
 import { semanticChartColor } from "@hooks/useChartPalette";
+import { useChartSemantics } from "@hooks/useChartPalette";
 import { chartTone } from "@utils/association-reports";
 
 import * as T from "@/types/association-dashboard.types";
@@ -32,6 +33,8 @@ export const GroupComplianceChart = ({
   onSelectGroup,
   ungroupedLabel,
 }: T.TAssociationGroupComplianceChart) => {
+  const semantics = useChartSemantics();
+
   const descriptionId = "association-report-group-description";
 
   const data = rows.map((row) => ({
@@ -65,7 +68,7 @@ export const GroupComplianceChart = ({
               <R.ReferenceLine
                 x={threshold}
                 strokeDasharray="4 4"
-                stroke={semanticChartColor(palette, "onTrack")}
+                stroke={semanticChartColor(semantics, "onTrack")}
                 label={{
                   fontSize: 11,
                   position: "top",
@@ -134,8 +137,9 @@ export const CategoryProgressChart = ({
   rows,
   label,
   locale,
-  palette,
 }: T.TAssociationCategoryReportChart) => {
+  const semantics = useChartSemantics();
+
   const descriptionId = "association-report-category-description";
 
   const data = rows.map((row) => ({
@@ -168,14 +172,14 @@ export const CategoryProgressChart = ({
               radius={[0, 8, 8, 0]}
               dataKey="requiredCredits"
               name={label("charts.category.required")}
-              fill={chartTone(semanticChartColor(palette, "notStarted"), 0.55)}
+              fill={chartTone(semanticChartColor(semantics, "notStarted"), 0.55)}
             />
 
             <R.Bar
               radius={[0, 8, 8, 0]}
               dataKey="averageCompletedCredits"
               name={label("charts.category.earned")}
-              fill={semanticChartColor(palette, "onTrack")}
+              fill={semanticChartColor(semantics, "onTrack")}
             />
           </R.BarChart>
         </R.ResponsiveContainer>
@@ -211,10 +215,11 @@ export const CategoryProgressChart = ({
 export const MemberDistributionChart = ({
   label,
   locale,
-  palette,
   distribution,
   onSelectBand,
 }: T.TAssociationDistributionChart) => {
+  const semantics = useChartSemantics();
+
   const descriptionId = "association-report-distribution-description";
 
   const counts: Record<AssociationComplianceBand, number> = {
@@ -236,7 +241,7 @@ export const MemberDistributionChart = ({
     value: counts[band],
     share: shares[band],
     name: label(`bands.${band}`),
-    fill: semanticChartColor(palette, ASSOCIATION_BAND_SEMANTICS[band]),
+    fill: semanticChartColor(semantics, ASSOCIATION_BAND_SEMANTICS[band]),
   }));
 
   return (
@@ -328,8 +333,9 @@ export const ComplianceTrendChart = ({
   rows,
   label,
   locale,
-  palette,
 }: T.TAssociationTrendChart) => {
+  const semantics = useChartSemantics();
+
   const descriptionId = "association-report-trend-description";
 
   const data: (Record<AssociationComplianceBand, number> & {
@@ -375,11 +381,11 @@ export const ComplianceTrendChart = ({
                 strokeWidth={2}
                 name={label(`bands.${band}`)}
                 stroke={semanticChartColor(
-                  palette,
+                  semantics,
                   ASSOCIATION_BAND_SEMANTICS[band],
                 )}
                 fill={chartTone(
-                  semanticChartColor(palette, ASSOCIATION_BAND_SEMANTICS[band]),
+                  semanticChartColor(semantics, ASSOCIATION_BAND_SEMANTICS[band]),
                   0.4,
                 )}
               />

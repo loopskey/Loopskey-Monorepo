@@ -3,8 +3,7 @@
 import { TAssociationMemberHeader } from "@/types/association-dashboard.types";
 import { ASSOCIATION_BAND_VARIANTS } from "@utils/association-compliance-bands";
 import { AssociationMemberStatus } from "@/lib/graphql/base";
-import { CHART_SEMANTIC_SLOTS } from "@hooks/useChartPalette";
-import { useChartPalette } from "@hooks/useChartPalette";
+import { useChartSemantics } from "@hooks/useChartPalette";
 import { bandChartColor } from "@utils/association-compliance-bands";
 import { ConfirmDialog } from "@elements/confirm-dialog";
 import { GlassCard } from "@elements/glass-card";
@@ -32,7 +31,7 @@ const CompletionGauge = dynamic(
 export const AssociationMemberDetailHeader = ({
   hook,
 }: TAssociationMemberHeader) => {
-  const palette = useChartPalette();
+  const semantics = useChartSemantics();
 
   const {
     t,
@@ -192,8 +191,8 @@ export const AssociationMemberDetailHeader = ({
               label={label}
               percent={summary.percent}
               pacePercent={summary.pacePercent ?? null}
-              color={bandChartColor(palette, summary.band)}
-              paceColor={palette[CHART_SEMANTIC_SLOTS.notStarted]}
+              color={bandChartColor(semantics, summary.band)}
+              paceColor={semantics.notStarted}
             />
           )}
         </div>

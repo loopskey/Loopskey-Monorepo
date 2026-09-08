@@ -33,7 +33,7 @@ export const FloatingSelectField = <T extends FieldValues>({
             onValueChange={field.onChange}
           >
             <F.FormControl>
-              <S.SelectTrigger className="h-12 rounded-2xl border-border/70 bg-background/70 shadow-sm backdrop-blur-xl">
+              <S.SelectTrigger className="h-12 rounded-md border-input bg-background">
                 <S.SelectValue placeholder={placeholder} />
               </S.SelectTrigger>
             </F.FormControl>
@@ -41,7 +41,7 @@ export const FloatingSelectField = <T extends FieldValues>({
             <S.SelectContent
               position="popper"
               sideOffset={8}
-              className="z-[9999] max-h-72 rounded-2xl border border-border bg-popover text-popover-foreground shadow-2xl"
+              className="z-[9999] max-h-72 rounded-md border bg-popover text-popover-foreground shadow-md"
             >
               {options
                 .filter((option) => option.value !== "")
