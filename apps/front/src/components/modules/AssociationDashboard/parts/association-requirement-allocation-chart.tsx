@@ -3,6 +3,7 @@
 import { TAssociationAllocationChart } from "@/types/association-dashboard.types";
 import { allocationChartRow } from "@utils/association-requirement";
 import { semanticChartColor } from "@hooks/useChartPalette";
+import { useChartSemantics } from "@hooks/useChartPalette";
 
 import * as R from "recharts";
 
@@ -16,8 +17,10 @@ export const AssociationRequirementAllocationChart = ({
   creditsHeader,
   chartDescription,
 }: TAssociationAllocationChart) => {
+  const semantics = useChartSemantics();
+
   const row = allocationChartRow(allocation);
-  const remainderColor = semanticChartColor(palette, "notStarted");
+  const remainderColor = semanticChartColor(semantics, "notStarted");
 
   return (
     <div>

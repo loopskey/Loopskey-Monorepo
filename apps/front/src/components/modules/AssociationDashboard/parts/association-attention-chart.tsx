@@ -3,6 +3,7 @@
 import { ASSOCIATION_BAND_SEMANTICS } from "@utils/association-compliance-bands";
 import { ASSOCIATION_BAND_ORDER } from "@utils/association-compliance-bands";
 import { semanticChartColor } from "@hooks/useChartPalette";
+import { useChartSemantics } from "@hooks/useChartPalette";
 
 import * as T from "@/types/association-dashboard.types";
 import * as R from "recharts";
@@ -13,9 +14,10 @@ export const AttentionBandStrip = ({
   rows,
   label,
   locale,
-  palette,
   onSelectAtRisk,
 }: T.TAssociationAttentionStripChart) => {
+  const semantics = useChartSemantics();
+
   const descriptionId = "association-attention-strip-description";
 
   const stacked = [
@@ -70,7 +72,7 @@ export const AttentionBandStrip = ({
                 cursor={band === "AT_RISK" ? "pointer" : undefined}
                 onClick={band === "AT_RISK" ? onSelectAtRisk : undefined}
                 fill={semanticChartColor(
-                  palette,
+                  semantics,
                   ASSOCIATION_BAND_SEMANTICS[band],
                 )}
               />

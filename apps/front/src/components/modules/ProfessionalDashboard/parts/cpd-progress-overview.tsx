@@ -1,5 +1,7 @@
 "use client";
 
+import { useChartSemantics } from "@hooks/useChartPalette";
+
 import { CPD_COMPLIANCE_META } from "@/utils/cpd-plan.constant";
 import { GoalHalfPieChart } from "@elements/dashboard-charts";
 import { MetricCard } from "@modules/ProfessionalDashboard/parts/metric-card";
@@ -32,6 +34,8 @@ export const CpdProgressOverview = ({
   plan,
   progress,
 }: CpdProgressOverviewProps) => {
+  const semantics = useChartSemantics();
+
   const creditLabel = t(`cpdProgress.creditTypes.${plan.creditType}`);
   const meta = CPD_COMPLIANCE_META[progress.complianceStatus] ?? {
     tone: "neutral",
@@ -44,14 +48,14 @@ export const CpdProgressOverview = ({
     progress.totalRequiredCredits,
   );
   const chartData = [
-    { name: "earned", value: earnedForArc, fill: "#2563eb" },
+    { name: "earned", value: earnedForArc, fill: semantics.onTrack },
     {
       name: "remaining",
       value: Math.max(
         progress.totalRequiredCredits - progress.earnedCredits,
         0,
       ),
-      fill: "#e2e8f0",
+      fill: semantics.track,
     },
   ];
 

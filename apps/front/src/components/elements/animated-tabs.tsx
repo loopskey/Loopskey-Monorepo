@@ -12,7 +12,7 @@ export const AnimatedTabs = <T extends string>({
 }: TAnimatedTabsProps<T>) => {
   return (
     <div className={cn("w-full overflow-x-auto", className)}>
-      <div className="inline-flex min-w-max gap-2 rounded-full border border-glass-border bg-background/45 p-1.5 shadow-sm backdrop-blur-xl">
+      <div className="inline-flex min-w-max gap-1 rounded-md border bg-card p-1">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.value;
           return (
@@ -20,35 +20,31 @@ export const AnimatedTabs = <T extends string>({
               type="button"
               key={tab.value}
               onClick={() => onChange(tab.value)}
+              aria-current={isActive ? "true" : undefined}
               className={cn(
-                "relative overflow-hidden rounded-full p-[2px] transition-all duration-300",
+                "flex items-center justify-center rounded-md px-4 py-2 text-sm font-semibold outline-none transition-colors sm:px-5",
+                "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
+                showDescription &&
+                  "min-w-[132px] flex-col px-4 py-2 sm:min-w-[150px]",
                 isActive
-                  ? "text-foreground"
-                  : "text-muted-foreground hover:text-primary",
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
               )}
             >
-              {isActive && (
-                <span className="absolute inset-0 animate-[spin_2.8s_linear_infinite] rounded-full bg-[conic-gradient(from_0deg,transparent_0deg,rgba(59,130,246,0.95)_80deg,rgba(20,184,166,0.95)_160deg,rgba(168,85,247,0.95)_240deg,transparent_360deg)]" />
-              )}
+              <span>{tab.label}</span>
 
-              <span
-                className={cn(
-                  "relative z-10 flex items-center justify-center rounded-full px-4 py-2.5 text-sm font-bold transition-all duration-300 sm:px-5",
-                  showDescription &&
-                    "min-w-[132px] flex-col px-4 py-2 sm:min-w-[150px]",
-                  isActive
-                    ? "bg-background/95 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)] backdrop-blur-xl"
-                    : "hover:bg-primary/10",
-                )}
-              >
-                <span>{tab.label}</span>
-
-                {showDescription && tab.description ? (
-                  <span className="mt-0.5 line-clamp-1 text-[11px] font-medium text-muted-foreground">
-                    {tab.description}
-                  </span>
-                ) : null}
-              </span>
+              {showDescription && tab.description ? (
+                <span
+                  className={cn(
+                    "mt-0.5 line-clamp-1 text-[11px] font-medium",
+                    isActive
+                      ? "text-primary-foreground/80"
+                      : "text-muted-foreground",
+                  )}
+                >
+                  {tab.description}
+                </span>
+              ) : null}
             </button>
           );
         })}

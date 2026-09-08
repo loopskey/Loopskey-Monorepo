@@ -21,7 +21,7 @@ export const ContentPagination = ({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-between gap-4 rounded-3xl border border-glass-border bg-background/50 p-4 backdrop-blur-xl sm:flex-row",
+        "flex flex-col items-center justify-between gap-4 border-t pt-4 sm:flex-row",
         className,
       )}
     >
@@ -35,9 +35,8 @@ export const ContentPagination = ({
       </div>
       <div className="flex items-center gap-3">
         <Button
-          radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           onClick={onPrevious}
           disabled={!canPrevious || isLoading}
         >
@@ -45,9 +44,7 @@ export const ContentPagination = ({
           {t("content.pagination.previous")}
         </Button>
         <Button
-          radius="xl"
           type="button"
-          variant="brand"
           onClick={onNext}
           disabled={!hasNextPage || isLoading}
         >

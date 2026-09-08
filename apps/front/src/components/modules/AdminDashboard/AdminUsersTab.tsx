@@ -1,5 +1,7 @@
 "use client";
 
+import { useChartPalette } from "@hooks/useChartPalette";
+
 import { DashboardStatCard } from "@modules/ProfessionalDashboard/parts/dashboard-stat-card";
 import { ContentPagination } from "@elements/pagination";
 import { Role, UserStatus } from "@/lib/graphql/base";
@@ -23,6 +25,8 @@ const statusOptions = [
 ];
 
 const AdminUsersTab = () => {
+  const palette = useChartPalette();
+
   const {
     t,
     users,
@@ -163,17 +167,17 @@ const AdminUsersTab = () => {
               <R.Area
                 type="monotone"
                 strokeWidth={3}
-                fill="#2563eb"
-                stroke="#2563eb"
+                fill={palette[0]}
+                stroke={palette[0]}
                 fillOpacity={0.18}
                 dataKey="providers"
                 name={t("adminDashboard.users.growth.providers")}
               />
               <R.Area
-                fill="#14b8a6"
+                fill={palette[2]}
                 type="monotone"
                 strokeWidth={3}
-                stroke="#14b8a6"
+                stroke={palette[2]}
                 fillOpacity={0.18}
                 dataKey="professionals"
                 name={t("adminDashboard.users.growth.professionals")}

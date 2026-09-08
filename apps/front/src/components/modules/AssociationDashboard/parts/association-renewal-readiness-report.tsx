@@ -7,6 +7,7 @@ import { ASSOCIATION_BAND_VARIANTS } from "@utils/association-compliance-bands";
 import { ASSOCIATION_BAND_ORDER } from "@utils/association-compliance-bands";
 import { AssociationReportTable } from "@modules/AssociationDashboard/parts/association-report-table";
 import { useChartPalette } from "@hooks/useChartPalette";
+import { useChartSemantics } from "@hooks/useChartPalette";
 import { bandChartColor } from "@utils/association-compliance-bands";
 import { Skeleton } from "@ui/skeleton";
 import { Badge } from "@ui/badge";
@@ -29,6 +30,8 @@ const RenewalReadinessChart = dynamic(
 export const AssociationRenewalReadinessReport = ({
   hook,
 }: TAssociationRenewalReadinessReport) => {
+  const semantics = useChartSemantics();
+
   const palette = useChartPalette();
 
   const {
@@ -85,7 +88,7 @@ export const AssociationRenewalReadinessReport = ({
     count: counts[band],
     share: shares[band],
     label: label(`bands.${band}`),
-    color: bandChartColor(palette, band),
+    color: bandChartColor(semantics, band),
   }));
 
   const isTruncated =

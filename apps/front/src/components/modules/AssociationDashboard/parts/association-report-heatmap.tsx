@@ -2,6 +2,7 @@
 
 import { TAssociationGroupProgressRow } from "@/types/association-dashboard.types";
 import { semanticChartColor } from "@hooks/useChartPalette";
+import { useChartSemantics } from "@hooks/useChartPalette";
 import { chartTone } from "@utils/association-reports";
 import { Skeleton } from "@ui/skeleton";
 
@@ -88,8 +89,9 @@ export const AssociationReportHeatmap = ({
   filter,
   locale,
   columns,
-  palette,
 }: THeatmapProps) => {
+  const semantics = useChartSemantics();
+
   const named = groups.filter(
     (group): group is TAssociationGroupProgressRow & { groupId: string } =>
       Boolean(group.groupId),
@@ -102,7 +104,7 @@ export const AssociationReportHeatmap = ({
       </div>
     );
 
-  const tone = semanticChartColor(palette, "renewalReady");
+  const tone = semanticChartColor(semantics, "renewalReady");
 
   return (
     <div>
