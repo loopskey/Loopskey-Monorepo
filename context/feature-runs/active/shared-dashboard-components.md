@@ -3,7 +3,7 @@
 - Scope: `front`
 - Branch: `feature/shared-dashboard-components`
 - Base: `6301248`
-- Status: `Ready`
+- Status: `Submitted`
 
 Phase 3 of
 `context/features/course-visual-restoration/03-shared-dashboard-components.md`.
@@ -89,6 +89,6 @@ Scope decisions:
 
 ## Submission
 
-- Commit:
-- PR:
+- Commit: `0710776`
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/75
 - CI:
