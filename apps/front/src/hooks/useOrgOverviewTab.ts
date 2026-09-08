@@ -1,12 +1,13 @@
 "use client";
 
 import { useOrganizationOverviewQuery } from "@/lib/rtk/endpoints/org-dashboard.api";
-import { CHART_COLORS } from "@utils/constant";
+import { useChartSemantics } from "@hooks/useChartPalette";
 import { useMemo } from "react";
 import { useI18n } from "@hooks/useI18n";
 
 export const useOrgOverviewTab = () => {
   const { t } = useI18n();
+  const semantics = useChartSemantics();
 
   const overviewQuery = useOrganizationOverviewQuery();
 
@@ -39,19 +40,25 @@ export const useOrgOverviewTab = () => {
   }, [complianceDistribution]);
 
   const complianceChartData = useMemo(() => {
-    return complianceDistribution.map((item, index) => {
+    const complianceColors: Record<string, string> = {
+      compliant: semantics.renewalReady,
+      atRisk: semantics.atRisk,
+      nonCompliant: semantics.critical,
+    };
+
+    return complianceDistribution.map((item) => {
       const percent =
         totalDistribution > 0 ? (item.value / totalDistribution) * 100 : 0;
       return {
         ...item,
         percent: Math.round(percent),
-        color: CHART_COLORS[index % CHART_COLORS.length],
+        color: complianceColors[item.key] ?? semantics.notStarted,
         meta: t("organizationDashboard.overview.compliance.percentOfMembers", {
           value: Math.round(percent),
         }),
       };
     });
-  }, [complianceDistribution, totalDistribution, t]);
+  }, [complianceDistribution, totalDistribution, semantics, t]);
 
   const hasComplianceChartData = useMemo(() => {
     return complianceChartData.some((item) => item.value > 0);

@@ -21,7 +21,7 @@ export const OverviewCard = ({
   return (
     <GlassCard className={cn("flex flex-col", className)}>
       <div className="flex items-center gap-3">
-        <div className="rounded-2xl bg-primary/10 p-2.5 text-primary">
+        <div className="rounded-md bg-primary/10 p-2.5 text-primary">
           <Icon className="h-5 w-5" />
         </div>
         <h2 className="text-lg font-medium">{title}</h2>
@@ -53,7 +53,7 @@ export const OverviewCardLink = ({ href, label }: OverviewCardLinkProps) => {
 export const OverviewCardLoading = ({ lines = 3 }: { lines?: number }) => {
   return (
     <div className="space-y-3" aria-hidden>
-      <Skeleton className="h-28 w-full rounded-2xl" />
+      <Skeleton className="h-28 w-full rounded-md" />
       {Array.from({ length: lines }).map((_, index) => (
         <Skeleton key={index} className="h-4 w-full rounded-md" />
       ))}
@@ -77,10 +77,10 @@ export const OverviewCardMessage = ({
   tone = "muted",
 }: OverviewCardMessageProps) => {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-glass-border p-6 text-center">
+    <div className="flex flex-1 flex-col items-center justify-center gap-3 rounded-md border border-dashed border-border p-6 text-center">
       <span
         className={cn(
-          "rounded-2xl p-3",
+          "rounded-md p-3",
           tone === "danger"
             ?"bg-red-500/10 text-red-600"
             : "bg-muted text-muted-foreground",

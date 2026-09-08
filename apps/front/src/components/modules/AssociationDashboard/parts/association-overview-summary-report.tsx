@@ -5,19 +5,12 @@ import { AssociationReportSummaryStrip } from "@modules/AssociationDashboard/par
 import { ASSOCIATION_BAND_ORDER } from "@utils/association-compliance-bands";
 import { AssociationReportTable } from "@modules/AssociationDashboard/parts/association-report-table";
 import { useChartPalette } from "@hooks/useChartPalette";
+import { TBandRow } from "@/types/association-dashboard.types";
 import { Skeleton } from "@ui/skeleton";
 
 import dynamic from "next/dynamic";
 
 import * as REPORTS from "@utils/association-reports";
-
-type TBandRow = {
-  id: string;
-  name: string;
-  count: number;
-  share: number;
-  change: number | null;
-};
 
 const ComplianceTrendChart = dynamic(
   () =>
@@ -26,7 +19,7 @@ const ComplianceTrendChart = dynamic(
     ).then((module) => module.ComplianceTrendChart),
   {
     ssr: false,
-    loading: () => <Skeleton className="h-72 w-full rounded-2xl" />,
+    loading: () => <Skeleton className="h-72 w-full rounded-md" />,
   },
 );
 

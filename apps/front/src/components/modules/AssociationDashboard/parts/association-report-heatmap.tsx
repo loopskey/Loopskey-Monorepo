@@ -3,32 +3,11 @@
 import { TAssociationGroupProgressRow } from "@/types/association-dashboard.types";
 import { semanticChartColor } from "@hooks/useChartPalette";
 import { useChartSemantics } from "@hooks/useChartPalette";
+import { THeatmapProps, THeatmapRowProps } from "@/types/association-dashboard.types";
 import { chartTone } from "@utils/association-reports";
 import { Skeleton } from "@ui/skeleton";
 
 import * as API from "@lib/rtk/endpoints/association-dashboard.api";
-
-import type { AssociationReportFilterInput } from "@/lib/graphql/base";
-
-type TCategoryColumn = { id: string; name: string };
-
-type THeatmapFrame = {
-  locale: string;
-  columns: TCategoryColumn[];
-  filter: AssociationReportFilterInput;
-  label: (key: string, vars?: Record<string, string | number>) => string;
-};
-
-type THeatmapRowProps = THeatmapFrame & {
-  tone: string;
-  groupId: string;
-  groupTitle: string;
-};
-
-type THeatmapProps = THeatmapFrame & {
-  palette: string[];
-  groups: TAssociationGroupProgressRow[];
-};
 
 const HeatmapRow = ({
   tone,

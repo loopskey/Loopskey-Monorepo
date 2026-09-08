@@ -1,7 +1,7 @@
 "use client";
 
-import { AssociationOverviewPanel } from "@modules/AssociationDashboard/parts/association-overview-panel";
 import { TAssociationOverviewActivity } from "@/types/association-dashboard.types";
+import { AssociationOverviewPanel } from "@modules/AssociationDashboard/parts/association-overview-panel";
 import { Skeleton } from "@ui/skeleton";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
@@ -34,7 +34,7 @@ export const AssociationOverviewActivity = ({
         <ul className="space-y-2">
           {[0, 1, 2, 3].map((row) => (
             <li key={row}>
-              <Skeleton className="h-16 w-full rounded-2xl" />
+              <Skeleton className="h-16 w-full rounded-md" />
             </li>
           ))}
         </ul>
@@ -49,10 +49,10 @@ export const AssociationOverviewActivity = ({
       }
     >
       {activity.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-glass-border p-5 text-sm text-muted-foreground">
+        <div className="rounded-md border border-dashed border-border p-5 text-sm text-muted-foreground">
           <p>{label("activity.empty")}</p>
 
-          <Button radius="xl" variant="brand" className="mt-4" asChild>
+          <Button radius="xl" className="mt-4" asChild>
             <Link href={O.associationTabHref("learning-content")}>
               <L.ArrowUpRight className="h-4 w-4" />
               {label("activity.emptyAction")}
@@ -65,7 +65,7 @@ export const AssociationOverviewActivity = ({
             <li key={row.id}>
               <Link
                 href={O.memberDetailHref(row.memberId)}
-                className="flex flex-wrap items-center gap-3 rounded-2xl border border-glass-border bg-background/50 p-3 transition-colors hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="flex flex-wrap items-center gap-3 rounded-md border p-3 transition-colors hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm font-medium">

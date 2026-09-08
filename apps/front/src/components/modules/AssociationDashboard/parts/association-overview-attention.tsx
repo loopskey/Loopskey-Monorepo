@@ -1,7 +1,7 @@
 "use client";
 
-import { AssociationOverviewPanel } from "@modules/AssociationDashboard/parts/association-overview-panel";
 import { TAssociationOverviewAttention } from "@/types/association-dashboard.types";
+import { AssociationOverviewPanel } from "@modules/AssociationDashboard/parts/association-overview-panel";
 import { Skeleton } from "@ui/skeleton";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
@@ -40,7 +40,7 @@ export const AssociationOverviewAttention = ({
         <ul className="space-y-2">
           {M.ATTENTION_SECTIONS.map((section) => (
             <li key={section}>
-              <Skeleton className="h-12 w-full rounded-2xl" />
+              <Skeleton className="h-12 w-full rounded-md" />
             </li>
           ))}
         </ul>
@@ -55,7 +55,7 @@ export const AssociationOverviewAttention = ({
       }
     >
       {attentionTotal === 0 ? (
-        <div className="flex items-center gap-2 rounded-2xl border border-glass-border bg-background/50 p-4 text-sm text-muted-foreground">
+        <div className="flex items-center gap-2 rounded-md border p-4 text-sm text-muted-foreground">
           <L.CircleCheck className="h-4 w-4 text-primary" />
           {label("attention.settled")}
         </div>
@@ -69,7 +69,7 @@ export const AssociationOverviewAttention = ({
               <li key={section}>
                 <Link
                   href={M.attentionSectionHref(section)}
-                  className="flex items-center gap-3 rounded-2xl border border-glass-border bg-background/50 p-3 transition-colors hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="flex items-center gap-3 rounded-md border p-3 transition-colors hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <span className="rounded-xl bg-primary/10 p-2 text-primary">
                     <Icon className="h-4 w-4" />

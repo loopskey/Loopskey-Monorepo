@@ -6,8 +6,8 @@ import { AssociationReportSummaryStrip } from "@modules/AssociationDashboard/par
 import { ASSOCIATION_BAND_VARIANTS } from "@utils/association-compliance-bands";
 import { ASSOCIATION_BAND_ORDER } from "@utils/association-compliance-bands";
 import { AssociationReportTable } from "@modules/AssociationDashboard/parts/association-report-table";
-import { useChartPalette } from "@hooks/useChartPalette";
 import { useChartSemantics } from "@hooks/useChartPalette";
+import { useChartPalette } from "@hooks/useChartPalette";
 import { bandChartColor } from "@utils/association-compliance-bands";
 import { Skeleton } from "@ui/skeleton";
 import { Badge } from "@ui/badge";

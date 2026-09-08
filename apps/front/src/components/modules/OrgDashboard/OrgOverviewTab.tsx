@@ -150,18 +150,17 @@ const OrgOverviewTab = () => {
                           }}
                           labelFormatter={(label) => `${label}`}
                           contentStyle={{
-                            borderRadius: "1rem",
-                            border: "1px solid var(--glass-border)",
+                            borderRadius: "8px",
+                            border: "1px solid var(--border)",
                             background: "var(--popover)",
                             color: "var(--popover-foreground)",
-                            boxShadow:
-                              "0 20px 60px oklch(0.18 0.08 255 / 0.18)",
+                            boxShadow: "0 6px 18px -8px rgb(13 25 61 / 12%)",
                           }}
                         />
 
                         <R.Bar
                           dataKey="value"
-                          radius={[14, 14, 0, 0]}
+                          radius={[6, 6, 0, 0]}
                           barSize={48}
                         >
                           {complianceChartData.map((item) => (
@@ -176,7 +175,7 @@ const OrgOverviewTab = () => {
                     {complianceChartData.map((item) => (
                       <div
                         key={item.key}
-                        className="rounded-3xl border border-glass-border bg-background/45 p-4"
+                        className="rounded-lg border p-4"
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div>
@@ -203,7 +202,7 @@ const OrgOverviewTab = () => {
                   </div>
                 </>
               ) : (
-                <p className="rounded-3xl bg-background/45 p-5 text-sm text-muted-foreground">
+                <p className="rounded-lg bg-muted p-5 text-sm text-muted-foreground">
                   {t("organizationDashboard.overview.compliance.empty")}
                 </p>
               )}
@@ -225,7 +224,7 @@ const OrgOverviewTab = () => {
               {attentionMembers.map((member) => (
                 <div
                   key={member.id}
-                  className="rounded-3xl border border-glass-border bg-background/45 p-4"
+                  className="rounded-lg border p-4"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
@@ -254,7 +253,7 @@ const OrgOverviewTab = () => {
               ))}
 
               {!attentionMembers.length && (
-                <p className="rounded-3xl bg-background/45 p-5 text-sm text-muted-foreground">
+                <p className="rounded-lg bg-muted p-5 text-sm text-muted-foreground">
                   {t("organizationDashboard.overview.attention.empty")}
                 </p>
               )}
@@ -293,7 +292,7 @@ const OrgOverviewTab = () => {
           </div>
 
           {!trendingTopics.length && (
-            <p className="mt-6 rounded-3xl bg-background/45 p-5 text-sm text-muted-foreground">
+            <p className="mt-6 rounded-lg bg-muted p-5 text-sm text-muted-foreground">
               {t("organizationDashboard.overview.topics.empty")}
             </p>
           )}

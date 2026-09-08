@@ -4,6 +4,7 @@ import { TAssociationOverviewCards } from "@/types/association-dashboard.types";
 import { GlassCard } from "@elements/glass-card";
 import { Skeleton } from "@ui/skeleton";
 import { Button } from "@ui/button";
+
 import Link from "next/link";
 
 import * as O from "@utils/association-overview";
@@ -54,10 +55,10 @@ export const AssociationOverviewCards = ({
           <GlassCard key={card} glow={false} className="p-0 md:p-0">
             <Link
               href={O.associationTabHref(O.COUNT_CARD_TABS[card])}
-              className="relative z-10 flex h-full flex-col gap-3 rounded-[2rem] p-6 transition-colors hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:p-5"
+              className="relative z-10 flex h-full flex-col gap-3 rounded-lg p-6 transition-colors hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:p-5"
             >
               <span className="flex items-center gap-3">
-                <span className="rounded-2xl bg-primary/10 p-2.5 text-primary">
+                <span className="rounded-md bg-primary/10 p-2.5 text-primary">
                   <Icon className="h-5 w-5" />
                 </span>
 
@@ -67,7 +68,7 @@ export const AssociationOverviewCards = ({
               </span>
 
               {countsPanel.isLoading ? (
-                <Skeleton className="h-14 w-full rounded-2xl" />
+                <Skeleton className="h-14 w-full rounded-md" />
               ) : (
                 <span className="block">
                   <span className="block text-3xl font-medium tabular-nums">

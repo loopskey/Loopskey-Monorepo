@@ -1,7 +1,7 @@
 "use client";
 
+import { useChartPalette, useChartSemantics } from "@hooks/useChartPalette";
 import { useAdminOverviewTab } from "@/hooks/useAdminOverviewTab";
-import { CHART_COLORS } from "@/utils/constant";
 import { MetricCard } from "@modules/AdminDashboard/parts/admin-overview-metric-card";
 import { formatDate } from "@/utils/function-helper";
 import { GlassCard } from "@elements/glass-card";
@@ -14,6 +14,14 @@ import * as L from "lucide-react";
 
 const AdminOverviewTab = () => {
   const { t } = useI18n();
+  const palette = useChartPalette();
+  const semantics = useChartSemantics();
+
+  const statusColors: Record<string, string> = {
+    pending: semantics.atRisk,
+    approved: semantics.renewalReady,
+    rejected: semantics.critical,
+  };
 
   const {
     overview,
@@ -109,9 +117,10 @@ const AdminOverviewTab = () => {
                   <R.Area
                     type="monotone"
                     dataKey="count"
-                    fillOpacity={0.12}
-                    fill="currentColor"
-                    stroke="currentColor"
+                    strokeWidth={2.5}
+                    fillOpacity={0.1}
+                    fill={palette[0]}
+                    stroke={palette[0]}
                   />
                 </R.AreaChart>
               </R.ResponsiveContainer>
@@ -140,11 +149,11 @@ const AdminOverviewTab = () => {
                   <R.XAxis dataKey="label" />
                   <R.YAxis allowDecimals={false} />
                   <R.Tooltip />
-                  <R.Bar dataKey="count" radius={[14, 14, 0, 0]}>
-                    {statusChartData.map((item, index) => (
+                  <R.Bar dataKey="count" radius={[6, 6, 0, 0]}>
+                    {statusChartData.map((item) => (
                       <R.Cell
-                        key={item.label}
-                        fill={CHART_COLORS[index % CHART_COLORS.length]}
+                        key={item.key}
+                        fill={statusColors[item.key] ?? semantics.notStarted}
                       />
                     ))}
                   </R.Bar>
@@ -159,7 +168,7 @@ const AdminOverviewTab = () => {
         <GlassCard>
           <div className="relative z-10">
             <div className="flex items-center gap-3">
-              <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+              <div className="rounded-md bg-primary/10 p-3 text-primary">
                 <L.Users className="h-5 w-5" />
               </div>
               <div>
@@ -172,7 +181,7 @@ const AdminOverviewTab = () => {
               </div>
             </div>
 
-            <div className="mt-5 divide-y divide-glass-border">
+            <div className="mt-5 divide-y divide-border">
               {recentUsers.map((user) => (
                 <div
                   key={user.id}
@@ -198,7 +207,7 @@ const AdminOverviewTab = () => {
         <GlassCard>
           <div className="relative z-10">
             <div className="flex items-center gap-3">
-              <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+              <div className="rounded-md bg-primary/10 p-3 text-primary">
                 <L.Activity className="h-5 w-5" />
               </div>
               <div>
@@ -211,7 +220,7 @@ const AdminOverviewTab = () => {
               </div>
             </div>
 
-            <div className="mt-5 divide-y divide-glass-border">
+            <div className="mt-5 divide-y divide-border">
               {recentAuditLogs.map((log) => (
                 <div key={log.id} className="py-4">
                   <div className="flex items-center justify-between gap-3">

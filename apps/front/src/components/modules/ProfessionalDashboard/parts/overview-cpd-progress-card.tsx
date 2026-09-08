@@ -7,6 +7,7 @@ import { buildCpdProgressView } from "@/utils/professional-overview.helper";
 import { CPD_COMPLIANCE_META } from "@/utils/cpd-plan.constant";
 import { useMyCpdPlansQuery } from "@/lib/rtk/endpoints/cpd-plan.api";
 import { ProgressDonutChart } from "@elements/dashboard-charts";
+import { useChartSemantics } from "@hooks/useChartPalette";
 import { formatDeadline } from "@/utils/function-helper";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
@@ -18,10 +19,10 @@ import * as PC from "@modules/ProfessionalDashboard/parts/overview-card";
 import * as L from "lucide-react";
 
 const TONE_CLASSES: Record<string, string> = {
-  success:"text-emerald-600 bg-emerald-500/10",
-  info:"text-blue-600 bg-blue-500/10",
-  warning:"text-amber-600 bg-amber-500/10",
-  danger:"text-red-600 bg-red-500/10",
+  success: "text-emerald-600 bg-emerald-500/10",
+  info: "text-blue-600 bg-blue-500/10",
+  warning: "text-amber-600 bg-amber-500/10",
+  danger: "text-red-600 bg-red-500/10",
   neutral: "text-muted-foreground bg-muted",
 };
 
@@ -36,6 +37,7 @@ const STATUS_ICONS: Record<string, L.LucideIcon> = {
 };
 
 export const OverviewCpdProgressCard = () => {
+  const semantics = useChartSemantics();
   const { t } = useI18n();
 
   const plansQuery = useMyCpdPlansQuery();
@@ -92,7 +94,7 @@ export const OverviewCpdProgressCard = () => {
             "professionalDashboard.overview.cpdCard.emptyDescription",
           )}
           action={
-            <Button asChild variant="brand" radius="xl" size="sm">
+            <Button asChild radius="xl" size="sm">
               <Link href={PROFESSIONAL_OVERVIEW_LINKS.cpdProgress}>
                 {t("professionalDashboard.overview.cpdCard.emptyAction")}
               </Link>
@@ -105,10 +107,14 @@ export const OverviewCpdProgressCard = () => {
 
   const progress = progressQuery.data;
   const creditLabel = t(`cpdProgress.creditTypes.${primaryPlan.creditType}`);
-  const view = buildCpdProgressView(progress, {
-    earned: t("professionalDashboard.overview.cpdCard.earned"),
-    remaining: t("professionalDashboard.overview.cpdCard.remaining"),
-  });
+  const view = buildCpdProgressView(
+    progress,
+    {
+      earned: t("professionalDashboard.overview.cpdCard.earned"),
+      remaining: t("professionalDashboard.overview.cpdCard.remaining"),
+    },
+    { progress: semantics.onTrack, remainder: semantics.track },
+  );
 
   const meta = CPD_COMPLIANCE_META[progress.complianceStatus] ?? {
     tone: "neutral",
@@ -165,7 +171,7 @@ export const OverviewCpdProgressCard = () => {
       ) : null}
 
       <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
-        <div className="rounded-2xl bg-background/45 p-3">
+        <div className="rounded-md bg-muted p-3">
           <dt className="text-xs text-muted-foreground">
             {t("professionalDashboard.overview.cpdCard.earned")}
           </dt>
@@ -173,7 +179,7 @@ export const OverviewCpdProgressCard = () => {
             {view.earned} {creditLabel}
           </dd>
         </div>
-        <div className="rounded-2xl bg-background/45 p-3">
+        <div className="rounded-md bg-muted p-3">
           <dt className="text-xs text-muted-foreground">
             {t("professionalDashboard.overview.cpdCard.remaining")}
           </dt>
@@ -185,7 +191,7 @@ export const OverviewCpdProgressCard = () => {
 
       <div
         className={cn(
-          "mt-4 flex items-center gap-3 rounded-2xl p-3",
+          "mt-4 flex items-center gap-3 rounded-md p-3",
           TONE_CLASSES[meta.tone],
         )}
       >

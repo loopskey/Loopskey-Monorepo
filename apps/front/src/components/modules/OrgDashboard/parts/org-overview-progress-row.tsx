@@ -9,7 +9,7 @@ export const OverviewProgressRow = ({
   meta,
 }: TOverviewProgressRowProps) => {
   return (
-    <div className="rounded-2xl bg-background/50 p-4">
+    <div className="rounded-md bg-muted p-4">
       <div className="mb-2 flex items-center justify-between text-sm">
         <p className="font-medium">{title}</p>
         <p className="text-muted-foreground">{Math.round(value)}%</p>

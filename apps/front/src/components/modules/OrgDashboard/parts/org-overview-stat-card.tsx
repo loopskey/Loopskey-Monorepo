@@ -14,7 +14,7 @@ export const OverviewStatCard = ({
       <div className="relative z-10">
         <div className="flex items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">{title}</p>
-          <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+          <div className="rounded-md bg-primary/10 p-3 text-primary">
             {icon}
           </div>
         </div>

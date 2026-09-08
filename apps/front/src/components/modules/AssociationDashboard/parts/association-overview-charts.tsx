@@ -1,10 +1,11 @@
 "use client";
 
-import { AssociationOverviewPanel } from "@modules/AssociationDashboard/parts/association-overview-panel";
 import { TAssociationOverviewCharts } from "@/types/association-dashboard.types";
+import { AssociationOverviewPanel } from "@modules/AssociationDashboard/parts/association-overview-panel";
 import { useChartPalette } from "@hooks/useChartPalette";
 import { useRouter } from "next/navigation";
 import { Button } from "@ui/button";
+
 import Link from "next/link";
 
 import * as C from "@modules/AssociationDashboard/parts/association-report-chart-loaders";
@@ -71,7 +72,7 @@ export const AssociationOverviewCharts = ({
       }
     >
       {isEmpty ? (
-        <div className="flex h-72 items-center justify-center rounded-2xl border border-dashed border-glass-border text-sm text-muted-foreground">
+        <div className="flex h-72 items-center justify-center rounded-md border border-dashed border-border text-sm text-muted-foreground">
           {reportLabel("charts.empty")}
         </div>
       ) : (
