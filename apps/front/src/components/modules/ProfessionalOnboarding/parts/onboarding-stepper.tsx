@@ -28,17 +28,17 @@ export const OnboardingStepper = ({
           key={step.step}
           aria-current={isActive ? "step" : undefined}
           className={cn(
-            "flex items-center gap-3 rounded-3xl border p-4",
+            "flex items-center gap-3 rounded-lg border p-4",
             isActive
               ? "border-primary bg-primary/10"
-              : "border-glass-border bg-background/45",
+              : "border-border bg-muted",
             !isActive && !isDone && "opacity-60",
           )}
         >
           <span
             aria-hidden
             className={cn(
-              "flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl text-sm font-medium",
+              "flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-sm font-medium",
               isActive || isDone
                 ? "bg-primary text-primary-foreground"
                 : "bg-muted text-muted-foreground",

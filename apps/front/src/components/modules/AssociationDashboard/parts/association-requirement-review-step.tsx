@@ -109,7 +109,7 @@ export const AssociationRequirementReviewStep = ({
                   <Button
                     radius="xl"
                     type="button"
-                    variant="glass"
+                    variant="outline"
                     ref={index === 0 ? firstProblemRef : undefined}
                     onClick={() =>
                       goTo(requirementId, problemStep(problem.field))
@@ -163,13 +163,13 @@ export const AssociationRequirementReviewStep = ({
 
       <GlassCard
         glow={false}
-        className="sticky bottom-4 z-30 backdrop-blur lg:static"
+        className="sticky bottom-4 z-30 lg:static"
       >
         <div className="relative z-10 flex flex-col gap-3 sm:flex-row sm:justify-end">
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             disabled={isSaving}
             onClick={() => goTo(requirementId, "rules")}
           >
@@ -180,7 +180,6 @@ export const AssociationRequirementReviewStep = ({
           <Button
             radius="xl"
             type="button"
-            variant="brand"
             disabled={isSaving}
             onClick={() => void publishRequirement()}
           >

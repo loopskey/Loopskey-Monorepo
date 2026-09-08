@@ -36,7 +36,7 @@ export const AssociationLearningPublishDialog = ({
         if (!open) closePublish();
       }}
     >
-      <D.DialogContent className="glass-dialog z-[9999] max-w-lg rounded-3xl border-glass-border">
+      <D.DialogContent className="glass-dialog z-[9999] max-w-lg rounded-lg border-border">
         <D.DialogHeader>
           <D.DialogTitle className="text-xl">{label("title")}</D.DialogTitle>
 
@@ -60,12 +60,12 @@ export const AssociationLearningPublishDialog = ({
             >
               <S.SelectTrigger
                 id="association-library-audience"
-                className="mt-1 rounded-2xl"
+                className="mt-1 rounded-md"
               >
                 <S.SelectValue />
               </S.SelectTrigger>
 
-              <S.SelectContent className="z-[9999] rounded-2xl">
+              <S.SelectContent className="z-[9999] rounded-md">
                 <S.SelectItem value={AssociationAudienceKind.AllMembers}>
                   {label("allMembers")}
                 </S.SelectItem>
@@ -91,12 +91,12 @@ export const AssociationLearningPublishDialog = ({
               >
                 <S.SelectTrigger
                   id="association-library-group"
-                  className="mt-1 rounded-2xl"
+                  className="mt-1 rounded-md"
                 >
                   <S.SelectValue placeholder={label("groupPlaceholder")} />
                 </S.SelectTrigger>
 
-                <S.SelectContent className="z-[9999] rounded-2xl">
+                <S.SelectContent className="z-[9999] rounded-md">
                   {groupOptions.map((option) => (
                     <S.SelectItem key={option.value} value={option.value}>
                       {option.label}
@@ -122,7 +122,6 @@ export const AssociationLearningPublishDialog = ({
           <Button
             radius="xl"
             type="button"
-            variant="brand"
             onClick={() => void confirmPublish()}
             disabled={isPublishing || (isGroup && !publishGroupId)}
           >

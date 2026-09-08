@@ -130,7 +130,7 @@ export const AssociationRequirementDetailsStep = ({
                   <RG.RadioGroup
                     value={field.value}
                     onValueChange={changeCycle}
-                    className="gap-2 rounded-2xl border border-glass-border p-3"
+                    className="gap-2 rounded-md border p-3"
                   >
                     {cycleOptions.map((option) => (
                       <div
@@ -184,7 +184,7 @@ export const AssociationRequirementDetailsStep = ({
                 <RG.RadioGroup
                   value={field.value}
                   onValueChange={field.onChange}
-                  className="gap-2 rounded-2xl border border-glass-border p-3"
+                  className="gap-2 rounded-md border p-3"
                 >
                   {Object.values(AssociationAudienceKind).map((value) => (
                     <div key={value} className="flex items-center gap-3">

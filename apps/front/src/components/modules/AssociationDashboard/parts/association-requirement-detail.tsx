@@ -173,7 +173,7 @@ export const AssociationRequirementDetail = ({
               <Button
                 radius="xl"
                 type="button"
-                variant="glass"
+                variant="outline"
                 onClick={() => goTo(requirement.id, "details")}
               >
                 <L.PencilLine className="h-4 w-4" />
@@ -184,7 +184,6 @@ export const AssociationRequirementDetail = ({
             <Button
               radius="xl"
               type="button"
-              variant="brand"
               onClick={() => setAssignOpen(true)}
             >
               <L.UserPlus className="h-4 w-4" />
@@ -225,7 +224,6 @@ export const AssociationRequirementDetail = ({
                 <Button
                   radius="xl"
                   type="submit"
-                  variant="brand"
                   disabled={isSaving}
                 >
                   {isSaving && <L.Loader2 className="h-4 w-4 animate-spin" />}

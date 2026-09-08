@@ -48,7 +48,7 @@ const ProviderAnalyticsTab = () => {
             value={range}
             onValueChange={(value) => setRange(value as ProviderDashboardRange)}
           >
-            <S.SelectTrigger className="h-11 w-44 rounded-2xl">
+            <S.SelectTrigger className="h-11 w-44 rounded-md">
               <S.SelectValue />
             </S.SelectTrigger>
 
@@ -64,7 +64,7 @@ const ProviderAnalyticsTab = () => {
           <Button
             type="button"
             radius="xl"
-            variant="glass"
+            variant="outline"
             disabled={isFetching}
             onClick={refreshAll}
           >
@@ -74,7 +74,6 @@ const ProviderAnalyticsTab = () => {
           <Button
             type="button"
             radius="xl"
-            variant="brand"
             onClick={downloadCsv}
           >
             <L.Download className="h-4 w-4" />
@@ -182,7 +181,7 @@ const ProviderAnalyticsTab = () => {
         <div className="mt-5 overflow-x-auto">
           <table className="w-full min-w-[760px] text-sm">
             <thead>
-              <tr className="border-b border-glass-border text-left text-muted-foreground">
+              <tr className="border-b border-border text-left text-muted-foreground">
                 <th className="py-3">
                   {t("providerDashboard.analytics.topEventsTable.event")}
                 </th>

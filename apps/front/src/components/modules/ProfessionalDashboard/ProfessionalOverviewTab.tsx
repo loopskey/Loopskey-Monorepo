@@ -38,7 +38,7 @@ const ProfessionalOverviewTab = () => {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <Button asChild variant="glass" radius="xl">
+          <Button asChild variant="outline" radius="xl">
             <Link href={PROFESSIONAL_OVERVIEW_LINKS.calendar}>
               {t("professionalDashboard.overview.viewCalendar")}
             </Link>

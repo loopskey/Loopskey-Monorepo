@@ -58,7 +58,7 @@ export const AssociationMemberActivitiesSection = ({
   const row = (activity: TAssociationMemberActivityRow) => (
     <li
       key={activity.id}
-      className="rounded-3xl border border-glass-border bg-background/50 p-4"
+      className="rounded-lg border p-4"
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
@@ -114,7 +114,7 @@ export const AssociationMemberActivitiesSection = ({
           size="sm"
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           disabled={!activity.hasEvidence}
           onClick={() => openEvidence(activity.id)}
         >
@@ -128,7 +128,6 @@ export const AssociationMemberActivitiesSection = ({
               size="sm"
               radius="xl"
               type="button"
-              variant="brand"
               disabled={isMutating}
               onClick={() => openDecision(activity.id, true)}
             >
@@ -178,12 +177,12 @@ export const AssociationMemberActivitiesSection = ({
             <S.Select value={stateFilter} onValueChange={changeStateFilter}>
               <S.SelectTrigger
                 id="association-activity-state"
-                className="mt-1 rounded-2xl"
+                className="mt-1 rounded-md"
               >
                 <S.SelectValue />
               </S.SelectTrigger>
 
-              <S.SelectContent className="z-[9999] rounded-2xl">
+              <S.SelectContent className="z-[9999] rounded-md">
                 {STATE_FILTERS.map((value) => (
                   <S.SelectItem key={value} value={value}>
                     {filterLabel(value)}
@@ -207,11 +206,11 @@ export const AssociationMemberActivitiesSection = ({
         {hook.isActivitiesLoading || hook.isActivitiesRefetching ? (
           <div className="mt-6 space-y-3" aria-busy="true">
             {Array.from({ length: 3 }, (_, index) => (
-              <Skeleton key={index} className="h-32 w-full rounded-3xl" />
+              <Skeleton key={index} className="h-32 w-full rounded-lg" />
             ))}
           </div>
         ) : hook.isActivitiesError ? (
-          <div className="mt-6 rounded-2xl border border-dashed border-destructive/40 p-8 text-center">
+          <div className="mt-6 rounded-md border border-dashed border-destructive/40 p-8 text-center">
             <L.TriangleAlert className="mx-auto h-8 w-8 text-destructive" />
 
             <p className="mt-3 font-medium">
@@ -221,7 +220,7 @@ export const AssociationMemberActivitiesSection = ({
             <Button
               radius="xl"
               type="button"
-              variant="glass"
+              variant="outline"
               className="mt-4"
               onClick={hook.retry}
             >
@@ -230,7 +229,7 @@ export const AssociationMemberActivitiesSection = ({
             </Button>
           </div>
         ) : activities.length === 0 ? (
-          <div className="mt-6 rounded-2xl border border-dashed border-glass-border p-8 text-center">
+          <div className="mt-6 rounded-md border border-dashed border-border p-8 text-center">
             <L.NotebookPen className="mx-auto h-8 w-8 text-muted-foreground" />
 
             <p className="mt-3 font-medium">

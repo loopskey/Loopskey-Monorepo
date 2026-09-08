@@ -24,7 +24,7 @@ export const CpdMissingRequirements = ({
     </div>
 
     {progress.missingRequirements.length === 0 ? (
-      <div className="flex items-center gap-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-700">
+      <div className="flex items-center gap-3 rounded-md border border-success bg-success-soft p-4 text-sm text-success-soft-foreground">
         <L.CheckCircle2 className="h-5 w-5" />
         {t("cpdProgress.progress.missingNone")}
       </div>
@@ -35,10 +35,10 @@ export const CpdMissingRequirements = ({
           return (
             <li
               key={`${item.code}-${index}`}
-              className="flex flex-col gap-3 rounded-2xl border border-glass-border bg-background/40 p-4 sm:flex-row sm:items-center sm:justify-between"
+              className="flex flex-col gap-3 rounded-md border p-4 sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="flex items-start gap-3">
-                <L.AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
+                <L.AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-warning-soft-foreground" />
                 <p className="text-sm">
                   {t(`cpdProgress.missing.${item.code}`, {
                     detail: item.detail ?? "",
@@ -51,7 +51,7 @@ export const CpdMissingRequirements = ({
                   size="sm"
                   radius="xl"
                   type="button"
-                  variant="glass"
+                  variant="outline"
                   onClick={onAddActivity}
                 >
                   <L.Plus className="h-4 w-4" />
@@ -63,7 +63,7 @@ export const CpdMissingRequirements = ({
                   size="sm"
                   radius="xl"
                   type="button"
-                  variant="glass"
+                  variant="outline"
                   onClick={onEditPlan}
                 >
                   <L.Upload className="h-4 w-4" />

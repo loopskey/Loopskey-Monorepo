@@ -26,7 +26,7 @@ export const OrgCpdCategoryEditView = ({ hook }: TCPDEditView) => {
         <Button
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           onClick={closeEditView}
         >
           <L.ArrowLeft className="h-4 w-4" />
@@ -47,7 +47,7 @@ export const OrgCpdCategoryEditView = ({ hook }: TCPDEditView) => {
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             onClick={closeEditView}
           >
             <L.ArrowLeft className="h-4 w-4" />
@@ -80,7 +80,7 @@ export const OrgCpdCategoryEditView = ({ hook }: TCPDEditView) => {
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             disabled={isLoading}
             onClick={() => toggleCategoryStatus(editingItem)}
           >
@@ -126,7 +126,7 @@ export const OrgCpdCategoryEditView = ({ hook }: TCPDEditView) => {
                 {t("organizationDashboard.cpd.form.editTitle")}
               </h2>
               <div className="mt-5 grid gap-3 text-sm">
-                <div className="rounded-2xl bg-background/45 p-4">
+                <div className="rounded-md bg-muted p-4">
                   <p className="text-xs text-muted-foreground">
                     {t("organizationDashboard.cpd.card.requiredHours")}
                   </p>
@@ -134,7 +134,7 @@ export const OrgCpdCategoryEditView = ({ hook }: TCPDEditView) => {
                     {editingItem.requiredHours}
                   </p>
                 </div>
-                <div className="rounded-2xl bg-background/45 p-4">
+                <div className="rounded-md bg-muted p-4">
                   <p className="text-xs text-muted-foreground">
                     {t("organizationDashboard.cpd.card.activeMembers")}
                   </p>
@@ -142,7 +142,7 @@ export const OrgCpdCategoryEditView = ({ hook }: TCPDEditView) => {
                     {editingItem.activeMembers ?? 0}
                   </p>
                 </div>
-                <div className="rounded-2xl bg-background/45 p-4">
+                <div className="rounded-md bg-muted p-4">
                   <p className="text-xs text-muted-foreground">
                     {t("organizationDashboard.cpd.card.updated")}
                   </p>
@@ -150,7 +150,7 @@ export const OrgCpdCategoryEditView = ({ hook }: TCPDEditView) => {
                     {String(editingItem.updatedAt).slice(0, 10)}
                   </p>
                 </div>
-                <div className="rounded-2xl bg-background/45 p-4">
+                <div className="rounded-md bg-muted p-4">
                   <p className="text-xs text-muted-foreground">
                     {t("organizationDashboard.cpd.card.created")}
                   </p>

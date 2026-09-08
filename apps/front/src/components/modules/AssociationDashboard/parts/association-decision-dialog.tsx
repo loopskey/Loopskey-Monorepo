@@ -30,7 +30,7 @@ export const AssociationDecisionDialog = ({
         if (!open) closeDecision();
       }}
     >
-      <D.DialogContent className="glass-dialog z-[9999] max-w-lg rounded-3xl border-glass-border">
+      <D.DialogContent className="glass-dialog z-[9999] max-w-lg rounded-lg border-border">
         <D.DialogHeader>
           <D.DialogTitle className="text-xl">
             {t(
@@ -64,7 +64,6 @@ export const AssociationDecisionDialog = ({
             <Button
               radius="xl"
               type="button"
-              variant="brand"
               disabled={isDeciding}
               onClick={() => void confirmApproval()}
             >

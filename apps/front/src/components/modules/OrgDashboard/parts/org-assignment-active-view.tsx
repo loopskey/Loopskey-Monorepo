@@ -29,7 +29,7 @@ export const OrgAssignmentsActiveView = ({ hook }: TOrgAssignmentActive) => {
         <div className="relative z-10">
           <Input
             value={search}
-            className="max-w-md rounded-2xl"
+            className="max-w-md rounded-md"
             placeholder={t("organizationDashboard.assignments.filters.search")}
             onChange={(event) => setSearch(event.target.value)}
           />

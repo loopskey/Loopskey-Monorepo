@@ -31,7 +31,7 @@ export const AddToCalendarButton = ({
         size="lg"
         radius="xl"
         type="button"
-        variant="glass"
+        variant="outline"
         className={cn(style.softClass, "justify-center", className)}
         onClick={() => setOpen(true)}
       >

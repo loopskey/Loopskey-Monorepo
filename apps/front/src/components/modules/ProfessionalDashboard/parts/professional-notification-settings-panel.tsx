@@ -68,7 +68,7 @@ export const ProfessionalNotificationSettingsPanel = ({
   return (
     <section className="space-y-6">
       <div className="flex items-start gap-4">
-        <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+        <div className="rounded-md bg-primary/10 p-3 text-primary">
           <Icon className="h-5 w-5" />
         </div>
 
@@ -86,7 +86,7 @@ export const ProfessionalNotificationSettingsPanel = ({
         {rows.map((row) => (
           <div
             key={row.key}
-            className="flex items-center justify-between gap-4 rounded-3xl border border-glass-border bg-background/45 p-4"
+            className="flex items-center justify-between gap-4 rounded-lg border p-4"
           >
             <div>
               <p className="font-medium">{row.title}</p>
@@ -111,7 +111,6 @@ export const ProfessionalNotificationSettingsPanel = ({
       <Button
         radius="xl"
         type="button"
-        variant="brand"
         disabled={isLoading}
         onClick={saveNotificationSettings}
       >

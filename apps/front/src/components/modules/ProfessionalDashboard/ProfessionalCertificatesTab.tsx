@@ -75,7 +75,7 @@ const ProfessionalCertificatesTab = () => {
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             disabled={isFetching}
             onClick={handleRefresh}
           >
@@ -90,7 +90,6 @@ const ProfessionalCertificatesTab = () => {
           <Button
             radius="xl"
             type="button"
-            variant="brand"
             onClick={handleUpload}
           >
             <L.UploadCloud className="h-4 w-4" aria-hidden />
@@ -148,7 +147,7 @@ const ProfessionalCertificatesTab = () => {
           ) : isError ? (
             <div
               role="alert"
-              className="rounded-[2rem] border border-dashed border-destructive/40 bg-destructive/5 p-10 text-center"
+              className="rounded-lg border border-dashed border-destructive/40 bg-destructive/5 p-10 text-center"
             >
               <L.CircleAlert
                 aria-hidden
@@ -163,7 +162,7 @@ const ProfessionalCertificatesTab = () => {
               <Button
                 radius="xl"
                 type="button"
-                variant="glass"
+                variant="outline"
                 className="mt-5"
                 onClick={handleRefresh}
               >
@@ -172,7 +171,7 @@ const ProfessionalCertificatesTab = () => {
               </Button>
             </div>
           ) : certificates.length === 0 ? (
-            <div className="rounded-[2rem] border border-dashed border-glass-border bg-background/40 p-10 text-center">
+            <div className="rounded-lg border border-dashed border-border p-10 text-center">
               <L.Award
                 aria-hidden
                 className="mx-auto h-10 w-10 text-muted-foreground"
@@ -192,7 +191,7 @@ const ProfessionalCertificatesTab = () => {
                 <Button
                   radius="xl"
                   type="button"
-                  variant="glass"
+                  variant="outline"
                   className="mt-5"
                   onClick={handleResetFilters}
                 >
@@ -203,7 +202,6 @@ const ProfessionalCertificatesTab = () => {
                 <Button
                   radius="xl"
                   type="button"
-                  variant="brand"
                   className="mt-5"
                   onClick={handleUpload}
                 >

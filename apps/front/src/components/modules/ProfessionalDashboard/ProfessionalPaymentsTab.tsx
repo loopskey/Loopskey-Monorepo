@@ -52,7 +52,7 @@ const ProfessionalPaymentsTab = () => {
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             disabled={isFetching}
             onClick={() => refetch()}
           >
@@ -65,7 +65,7 @@ const ProfessionalPaymentsTab = () => {
             {t("professionalDashboard.common.refresh")}
           </Button>
 
-          <Button radius="xl" variant="brand" asChild>
+          <Button radius="xl" asChild>
             <Link href="/pricing">
               <L.Sparkles className="h-4 w-4" />
               {t("professionalDashboard.payments.manageBilling")}
@@ -78,7 +78,7 @@ const ProfessionalPaymentsTab = () => {
         <div className="grid gap-0 lg:grid-cols-[1.15fr_0.85fr]">
           <div className="p-6 md:p-7">
             <div className="flex items-center gap-3">
-              <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+              <div className="rounded-md bg-primary/10 p-3 text-primary">
                 <L.WalletCards className="h-5 w-5" />
               </div>
 
@@ -94,7 +94,7 @@ const ProfessionalPaymentsTab = () => {
             </div>
 
             <div className="mt-6 grid gap-4 md:grid-cols-3">
-              <div className="rounded-[1.5rem] border border-glass-border bg-background/45 p-5">
+              <div className="rounded-lg border p-5">
                 <p className="text-sm text-muted-foreground">
                   {t("professionalDashboard.payments.totalSpent")}
                 </p>
@@ -108,7 +108,7 @@ const ProfessionalPaymentsTab = () => {
                 </p>
               </div>
 
-              <div className="rounded-[1.5rem] border border-glass-border bg-background/45 p-5">
+              <div className="rounded-lg border p-5">
                 <p className="text-sm text-muted-foreground">
                   {t("professionalDashboard.payments.spentThisYear")}
                 </p>
@@ -122,7 +122,7 @@ const ProfessionalPaymentsTab = () => {
                 </p>
               </div>
 
-              <div className="rounded-[1.5rem] border border-glass-border bg-background/45 p-5">
+              <div className="rounded-lg border p-5">
                 <p className="text-sm text-muted-foreground">
                   {t("professionalDashboard.payments.totalTransactions")}
                 </p>
@@ -138,9 +138,9 @@ const ProfessionalPaymentsTab = () => {
             </div>
           </div>
 
-          <div className="border-t border-glass-border bg-primary/5 p-6 md:p-7 lg:border-l lg:border-t-0">
+          <div className="border-t border-border bg-primary/5 p-6 md:p-7 lg:border-l lg:border-t-0">
             <div className="flex items-center gap-3">
-              <div className="rounded-2xl bg-background/70 p-3 text-primary">
+              <div className="rounded-md bg-muted p-3 text-primary">
                 <L.CreditCard className="h-5 w-5" />
               </div>
 
@@ -155,7 +155,7 @@ const ProfessionalPaymentsTab = () => {
               </div>
             </div>
 
-            <div className="mt-6 rounded-[1.5rem] border border-dashed border-primary/25 bg-background/50 p-5">
+            <div className="mt-6 rounded-lg border border-dashed border-primary/25 bg-muted p-5">
               <div className="flex items-start gap-3">
                 <L.ShieldCheck className="mt-0.5 h-5 w-5 text-primary" />
 
@@ -190,7 +190,7 @@ const ProfessionalPaymentsTab = () => {
             <Input
               value={search}
               onChange={handleSearchInputChange}
-              className="h-12 rounded-2xl bg-background/60"
+              className="h-12 rounded-md bg-muted"
               placeholder={t("professionalDashboard.payments.search")}
             />
           </div>
@@ -201,7 +201,7 @@ const ProfessionalPaymentsTab = () => {
             <L.Loader2 className="h-7 w-7 animate-spin text-primary" />
           </div>
         ) : payments.length === 0 ? (
-          <div className="flex min-h-72 flex-col items-center justify-center rounded-[2rem] border border-dashed border-glass-border bg-background/40 p-8 text-center">
+          <div className="flex min-h-72 flex-col items-center justify-center rounded-lg border border-dashed border-border p-8 text-center">
             <L.ReceiptText className="h-12 w-12 text-muted-foreground" />
 
             <h3 className="mt-4 text-xl font-medium">
@@ -212,15 +212,15 @@ const ProfessionalPaymentsTab = () => {
               {t("professionalDashboard.payments.emptyDescription")}
             </p>
 
-            <Button className="mt-5" radius="xl" variant="brand" asChild>
+            <Button className="mt-5" radius="xl" asChild>
               <Link href="/courses">
                 {t("professionalDashboard.payments.browseCourses")}
               </Link>
             </Button>
           </div>
         ) : (
-          <div className="overflow-hidden rounded-[2rem] border border-glass-border">
-            <div className="hidden grid-cols-[1.4fr_0.8fr_0.8fr_0.8fr_0.6fr] gap-4 border-b border-glass-border bg-primary/5 px-5 py-4 text-xs font-medium uppercase tracking-wider text-muted-foreground lg:grid">
+          <div className="overflow-hidden rounded-lg border">
+            <div className="hidden grid-cols-[1.4fr_0.8fr_0.8fr_0.8fr_0.6fr] gap-4 border-b border-border bg-primary/5 px-5 py-4 text-xs font-medium uppercase tracking-wider text-muted-foreground lg:grid">
               <span>{t("professionalDashboard.payments.table.item")}</span>
               <span>{t("professionalDashboard.payments.table.date")}</span>
               <span>{t("professionalDashboard.payments.table.status")}</span>
@@ -231,11 +231,11 @@ const ProfessionalPaymentsTab = () => {
               </span>
             </div>
 
-            <div className="divide-y divide-glass-border">
+            <div className="divide-y divide-border">
               {payments.map((payment) => (
                 <div
                   key={payment.id}
-                  className="grid gap-4 bg-background/35 px-5 py-5 transition-colors hover:bg-primary/5 lg:grid-cols-[1.4fr_0.8fr_0.8fr_0.8fr_0.6fr] lg:items-center"
+                  className="grid gap-4 bg-muted px-5 py-5 transition-colors hover:bg-primary/5 lg:grid-cols-[1.4fr_0.8fr_0.8fr_0.8fr_0.6fr] lg:items-center"
                 >
                   <div>
                     <p className="font-medium">{payment.title}</p>
@@ -275,7 +275,7 @@ const ProfessionalPaymentsTab = () => {
 
                   <div className="flex justify-start lg:justify-end">
                     {payment.receiptUrl ? (
-                      <Button radius="xl" variant="glass" size="sm" asChild>
+                      <Button radius="xl" variant="outline" size="sm" asChild>
                         <Link
                           target="_blank"
                           rel="noreferrer"

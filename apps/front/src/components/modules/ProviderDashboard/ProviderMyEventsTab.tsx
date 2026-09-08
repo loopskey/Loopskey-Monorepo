@@ -47,7 +47,7 @@ const ProviderMyEventsTab = () => {
           </p>
         </div>
 
-        <Button asChild radius="xl" variant="brand">
+        <Button asChild radius="xl">
           <Link href="/dashboard/provider?tab=create-event">
             <Plus className="h-4 w-4" />
             {t("providerDashboard.myEvents.createEvent")}
@@ -91,7 +91,7 @@ const ProviderMyEventsTab = () => {
           </div>
 
           <S.Select value={status} onValueChange={setStatus}>
-            <S.SelectTrigger className="rounded-2xl">
+            <S.SelectTrigger className="rounded-md">
               <S.SelectValue />
             </S.SelectTrigger>
             <S.SelectContent>
@@ -115,7 +115,7 @@ const ProviderMyEventsTab = () => {
 
           <Button
             radius="xl"
-            variant="glass"
+            variant="outline"
             disabled={isFetching}
             onClick={() => refetch()}
           >
@@ -127,7 +127,7 @@ const ProviderMyEventsTab = () => {
       <GlassCard className="overflow-hidden p-0">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px]">
-            <thead className="border-b border-glass-border bg-muted/30">
+            <thead className="border-b border-border bg-muted/30">
               <tr className="text-left text-sm text-muted-foreground">
                 <th className="px-5 py-4">
                   {t("providerDashboard.myEvents.table.event")}
@@ -152,7 +152,7 @@ const ProviderMyEventsTab = () => {
 
             <tbody>
               {items.map((item) => (
-                <tr key={item.id} className="border-b border-glass-border/70">
+                <tr key={item.id} className="border-b border-border/70">
                   <td className="px-5 py-4 font-medium">{item.title}</td>
                   <td className="px-5 py-4 text-sm text-muted-foreground">
                     {new Date(item.startDate).toLocaleDateString()}

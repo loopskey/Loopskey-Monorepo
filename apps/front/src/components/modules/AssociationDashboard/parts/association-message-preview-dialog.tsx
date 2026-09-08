@@ -55,7 +55,7 @@ export const AssociationMessagePreviewDialog = ({
       }}
     >
       <DIALOG.DialogContent
-        className="glass-dialog max-h-[85vh] overflow-y-auto border-glass-border sm:max-w-2xl"
+        className="glass-dialog max-h-[85vh] overflow-y-auto border-border sm:max-w-2xl"
         onCloseAutoFocus={(event) => {
           const section = openedBy.current;
           if (!section) return;
@@ -85,13 +85,13 @@ export const AssociationMessagePreviewDialog = ({
         {previewQuery.isLoading ? (
           <div className="space-y-3">
             <Skeleton className="h-6 w-2/3 rounded-xl" />
-            <Skeleton className="h-40 w-full rounded-2xl" />
+            <Skeleton className="h-40 w-full rounded-md" />
           </div>
         ) : previewQuery.isError ? (
           <p className="text-sm text-destructive">{label("preview.error")}</p>
         ) : (
           <div className="space-y-4">
-            <dl className="grid gap-3 rounded-2xl border border-glass-border bg-background/50 p-4 sm:grid-cols-3">
+            <dl className="grid gap-3 rounded-md border p-4 sm:grid-cols-3">
               <div>
                 <dt className="text-xs uppercase text-muted-foreground">
                   {label("preview.recipients")}
@@ -135,7 +135,7 @@ export const AssociationMessagePreviewDialog = ({
 
                 <p className="mt-2 font-medium">{preview?.subject}</p>
 
-                <p className="mt-2 whitespace-pre-line rounded-2xl border border-glass-border bg-background/50 p-4 text-sm leading-relaxed">
+                <p className="mt-2 whitespace-pre-line rounded-md border p-4 text-sm leading-relaxed">
                   {preview?.body}
                 </p>
 
@@ -144,7 +144,7 @@ export const AssociationMessagePreviewDialog = ({
                 </p>
               </section>
             ) : (
-              <p className="rounded-2xl border border-glass-border bg-background/50 p-4 text-sm text-muted-foreground">
+              <p className="rounded-md border p-4 text-sm text-muted-foreground">
                 {label("preview.nobody")}
               </p>
             )}
@@ -172,7 +172,7 @@ export const AssociationMessagePreviewDialog = ({
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             onClick={() => setOpenSection(null)}
           >
             {label("preview.cancel")}
@@ -181,7 +181,6 @@ export const AssociationMessagePreviewDialog = ({
           <Button
             radius="xl"
             type="button"
-            variant="brand"
             disabled={!canSend || isSending}
             onClick={() => openSection && void send(openSection)}
           >

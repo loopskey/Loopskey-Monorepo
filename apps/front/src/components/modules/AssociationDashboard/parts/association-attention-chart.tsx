@@ -50,10 +50,12 @@ export const AttentionBandStrip = ({
                 label(`bands.${String(name)}`),
               ]}
               contentStyle={{
-                borderRadius: 12,
+                borderRadius: 8,
                 fontSize: 12,
-                border: "1px solid var(--glass-border)",
-                background: "var(--background)",
+                border: "1px solid var(--border)",
+                background: "var(--popover)",
+                color: "var(--popover-foreground)",
+                boxShadow: "0 6px 18px -8px rgb(13 25 61 / 12%)",
               }}
             />
 

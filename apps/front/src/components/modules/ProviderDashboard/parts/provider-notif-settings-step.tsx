@@ -24,7 +24,7 @@ export const ProviderNotificationSettingsStep = ({ hook }: Props) => {
   return (
     <section className="space-y-6">
       <div className="flex items-start gap-4">
-        <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+        <div className="rounded-md bg-primary/10 p-3 text-primary">
           <BellRing className="h-5 w-5" />
         </div>
 
@@ -39,9 +39,9 @@ export const ProviderNotificationSettingsStep = ({ hook }: Props) => {
       </div>
 
       <div className="grid gap-4">
-        <div className="flex items-center justify-between gap-4 rounded-3xl border border-glass-border bg-background/45 p-5">
+        <div className="flex items-center justify-between gap-4 rounded-lg border p-5">
           <div className="flex gap-4">
-            <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+            <div className="rounded-md bg-primary/10 p-3 text-primary">
               <UserPlus className="h-5 w-5" />
             </div>
             <div>
@@ -69,10 +69,10 @@ export const ProviderNotificationSettingsStep = ({ hook }: Props) => {
           />
         </div>
 
-        <div className="rounded-3xl border border-glass-border bg-background/45 p-5">
+        <div className="rounded-lg border p-5">
           <div className="flex items-center justify-between gap-4">
             <div className="flex gap-4">
-              <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+              <div className="rounded-md bg-primary/10 p-3 text-primary">
                 <Clock className="h-5 w-5" />
               </div>
               <div>
@@ -106,7 +106,7 @@ export const ProviderNotificationSettingsStep = ({ hook }: Props) => {
               min={1}
               max={168}
               type="number"
-              className="rounded-2xl"
+              className="rounded-md"
               disabled={!notificationForm.eventReminderEnabled}
               value={notificationForm.reminderHoursBeforeEvent}
               onChange={(event) =>
@@ -123,7 +123,6 @@ export const ProviderNotificationSettingsStep = ({ hook }: Props) => {
       <Button
         radius="xl"
         type="button"
-        variant="brand"
         disabled={isLoading}
         onClick={saveNotificationSettings}
       >

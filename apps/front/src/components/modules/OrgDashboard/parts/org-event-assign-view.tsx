@@ -20,7 +20,7 @@ export const OrgEventAssignView = ({ hook }: TEventCatalogAssignView) => {
         <Button
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           onClick={closeAssignView}
         >
           <L.ArrowLeft className="h-4 w-4" />
@@ -47,7 +47,7 @@ export const OrgEventAssignView = ({ hook }: TEventCatalogAssignView) => {
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             onClick={closeAssignView}
           >
             <L.ArrowLeft className="h-4 w-4" />
@@ -82,7 +82,7 @@ export const OrgEventAssignView = ({ hook }: TEventCatalogAssignView) => {
           <GlassCard>
             <div className="relative z-10">
               <div className="flex items-start gap-3">
-                <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+                <div className="rounded-md bg-primary/10 p-3 text-primary">
                   <L.Send className="h-5 w-5" />
                 </div>
                 <div>
@@ -127,7 +127,7 @@ export const OrgEventAssignView = ({ hook }: TEventCatalogAssignView) => {
                 </h2>
 
                 <div className="mt-5 grid gap-3 text-sm">
-                  <div className="rounded-2xl bg-background/45 p-4">
+                  <div className="rounded-md bg-muted p-4">
                     <p className="text-xs text-muted-foreground">
                       {t("organizationDashboard.eventCatalog.card.rating")}
                     </p>
@@ -137,7 +137,7 @@ export const OrgEventAssignView = ({ hook }: TEventCatalogAssignView) => {
                     </p>
                   </div>
 
-                  <div className="rounded-2xl bg-background/45 p-4">
+                  <div className="rounded-md bg-muted p-4">
                     <p className="text-xs text-muted-foreground">
                       {t("organizationDashboard.eventCatalog.card.capacity")}
                     </p>
@@ -146,7 +146,7 @@ export const OrgEventAssignView = ({ hook }: TEventCatalogAssignView) => {
                     </p>
                   </div>
 
-                  <div className="rounded-2xl bg-background/45 p-4">
+                  <div className="rounded-md bg-muted p-4">
                     <p className="text-xs text-muted-foreground">
                       {t("organizationDashboard.eventCatalog.card.price")}
                     </p>
@@ -159,7 +159,7 @@ export const OrgEventAssignView = ({ hook }: TEventCatalogAssignView) => {
                     </p>
                   </div>
 
-                  <div className="rounded-2xl bg-background/45 p-4">
+                  <div className="rounded-md bg-muted p-4">
                     <p className="text-xs text-muted-foreground">
                       {t("organizationDashboard.eventCatalog.card.location")}
                     </p>

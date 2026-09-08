@@ -36,7 +36,7 @@ export const AssociationRequirementsFilters = ({
           <Input
             value={search}
             id="association-requirement-search"
-            className="h-11 rounded-2xl pl-9"
+            className="h-11 rounded-md pl-9"
             onChange={(event) => setSearch(event.target.value)}
             placeholder={t(
               "associationDashboard.requirements.filters.searchPlaceholder",
@@ -53,12 +53,12 @@ export const AssociationRequirementsFilters = ({
         <S.Select value={status} onValueChange={setStatus}>
           <S.SelectTrigger
             id="association-requirement-status"
-            className="h-11 rounded-2xl"
+            className="h-11 rounded-md"
           >
             <S.SelectValue />
           </S.SelectTrigger>
 
-          <S.SelectContent className="z-[9999] rounded-2xl">
+          <S.SelectContent className="z-[9999] rounded-md">
             <S.SelectItem value={ALL}>
               {t("associationDashboard.requirements.filters.allStatuses")}
             </S.SelectItem>
@@ -76,7 +76,7 @@ export const AssociationRequirementsFilters = ({
         <Button
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           className="h-11"
           onClick={resetFilters}
         >

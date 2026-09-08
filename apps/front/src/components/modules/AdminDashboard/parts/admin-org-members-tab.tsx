@@ -1,14 +1,13 @@
 "use client";
 
-import { Fragment } from "react";
-
 import { useAdminOrganizationUsersTab } from "@/hooks/useAdminOrgUsersTab";
-import { MemberEditRow } from "@modules/AdminDashboard/parts/member-edit-row";
 import { FloatingSelectField } from "@elements/floating-select";
 import { FloatingInputField } from "@elements/floating-input";
 import { ContentPagination } from "@elements/pagination";
+import { MemberEditRow } from "@modules/AdminDashboard/parts/member-edit-row";
 import { ConfirmDialog } from "@elements/confirm-dialog";
 import { GlassCard } from "@elements/glass-card";
+import { Fragment } from "react";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
 
@@ -29,8 +28,8 @@ export const AdminOrganizationMembersTab = ({ hook }: Props) => {
     membersQuery,
     memberPage,
     hasNextMember,
-    canPreviousMember,
     nextMemberPage,
+    canPreviousMember,
     previousMemberPage,
     resetMemberFilters,
     hasActiveMemberFilters,
@@ -58,7 +57,7 @@ export const AdminOrganizationMembersTab = ({ hook }: Props) => {
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             disabled={!hasActiveMemberFilters || isLoading}
             onClick={resetMemberFilters}
           >
@@ -87,7 +86,7 @@ export const AdminOrganizationMembersTab = ({ hook }: Props) => {
         </F.Form>
       </GlassCard>
 
-      <div className="overflow-x-auto rounded-3xl border border-glass-border">
+      <div className="overflow-x-auto rounded-lg border">
         <table className="w-full min-w-[980px] text-sm">
           <thead className="bg-muted/40 text-left text-xs uppercase text-muted-foreground">
             <tr>
@@ -116,7 +115,7 @@ export const AdminOrganizationMembersTab = ({ hook }: Props) => {
             {members.length ? (
               members.map((member) => (
                 <Fragment key={member.id}>
-                  <tr className="border-t border-glass-border">
+                  <tr className="border-t border-border">
                     <td className="px-4 py-3 font-medium">
                       {member.fullName ?? "-"}
                     </td>
@@ -143,7 +142,7 @@ export const AdminOrganizationMembersTab = ({ hook }: Props) => {
                           size="sm"
                           radius="xl"
                           type="button"
-                          variant="glass"
+                          variant="outline"
                           onClick={() => setEditingMemberId(member.id)}
                         >
                           <L.Pencil className="h-4 w-4" />

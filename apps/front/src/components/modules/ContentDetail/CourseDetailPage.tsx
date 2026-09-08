@@ -133,22 +133,22 @@ const CourseDetailPage = ({ slug }: TCourseDetailPageProps) => {
         >
           <section className="min-w-0">
             <Tabs.Tabs defaultValue="overview" className="space-y-6">
-              <Tabs.TabsList className="grid h-auto grid-cols-3 rounded-3xl border border-glass-border bg-background/60 p-2 backdrop-blur-xl">
+              <Tabs.TabsList className="grid h-auto grid-cols-3 rounded-lg border p-2">
                 <Tabs.TabsTrigger
                   value="overview"
-                  className="rounded-2xl py-3 font-bold"
+                  className="rounded-md py-3 font-bold"
                 >
                   {t("contentDetails.tabs.overview")}
                 </Tabs.TabsTrigger>
                 <Tabs.TabsTrigger
                   value="curriculum"
-                  className="rounded-2xl py-3 font-bold"
+                  className="rounded-md py-3 font-bold"
                 >
                   {t("contentDetails.tabs.curriculum")}
                 </Tabs.TabsTrigger>
                 <Tabs.TabsTrigger
                   value="reviews"
-                  className="rounded-2xl py-3 font-bold"
+                  className="rounded-md py-3 font-bold"
                 >
                   {t("contentDetails.tabs.reviews")}
                 </Tabs.TabsTrigger>
@@ -164,7 +164,7 @@ const CourseDetailPage = ({ slug }: TCourseDetailPageProps) => {
                       {(course.learnings ?? []).map((item) => (
                         <div
                           key={item}
-                          className="rounded-2xl bg-primary/10 px-4 py-3 text-sm font-semibold text-primary"
+                          className="rounded-md bg-primary/10 px-4 py-3 text-sm font-semibold text-primary"
                         >
                           {item}
                         </div>
@@ -182,7 +182,7 @@ const CourseDetailPage = ({ slug }: TCourseDetailPageProps) => {
                       {(course.requirements ?? []).map((item) => (
                         <li
                           key={item}
-                          className="rounded-2xl border border-glass-border bg-background/45 px-4 py-3 text-sm text-muted-foreground"
+                          className="rounded-md border px-4 py-3 text-sm text-muted-foreground"
                         >
                           {item}
                         </li>

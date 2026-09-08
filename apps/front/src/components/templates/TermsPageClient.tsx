@@ -199,7 +199,7 @@ const TermsPage = () => {
                             className={cn(
                               "mt-6 rounded-3xl border p-5",
                               isWarn
-                                ? "border-amber-500/25 bg-amber-500/10"
+                                ? "border-warning bg-warning-soft"
                                 : "border-primary/20 bg-primary/5",
                             )}
                           >
@@ -208,7 +208,7 @@ const TermsPage = () => {
                                 className={cn(
                                   "flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl",
                                   isWarn
-                                    ? "bg-amber-500/15 text-amber-500"
+                                    ? "bg-warning-soft text-warning-soft-foreground"
                                     : "bg-primary/10 text-primary",
                                 )}
                               >
@@ -268,7 +268,7 @@ const TermsPage = () => {
       <section className="px-4 pb-28">
         <div className="mx-auto max-w-7xl">
           <RevealOnScroll direction="up">
-            <div className="relative overflow-hidden rounded-[2.5rem] border border-primary/20 bg-slate-600 p-8 text-white shadow-2xl md:p-10">
+            <div className="relative overflow-hidden rounded-lg border border-primary/20 bg-muted-foreground p-8 text-white shadow-2xl md:p-10">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,color-mix(in_oklab,var(--primary)_35%,transparent),transparent_34%),radial-gradient(circle_at_bottom_right,color-mix(in_oklab,var(--accent)_25%,transparent),transparent_30%)]" />
 
               <div className="relative z-10 grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
@@ -282,7 +282,7 @@ const TermsPage = () => {
                     {t("termsPage.cta.title")}
                   </h2>
 
-                  <p className="mt-4 max-w-2xl text-lg leading-relaxed text-slate-300">
+                  <p className="mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
                     {t("termsPage.cta.description")}
                   </p>
                 </div>

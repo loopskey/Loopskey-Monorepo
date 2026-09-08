@@ -56,7 +56,7 @@ export const ExternalLearningConfirmDialog = ({
 
   return (
     <D.Dialog open={open} onOpenChange={onOpenChange}>
-      <D.DialogContent className="glass-dialog max-w-2xl rounded-3xl border-glass-border">
+      <D.DialogContent className="glass-dialog max-w-2xl rounded-lg border-border">
         <D.DialogHeader>
           <D.DialogTitle>
             {t("professionalDashboard.externalLearning.confirm.title")}
@@ -137,7 +137,7 @@ export const ExternalLearningConfirmDialog = ({
               <Button
                 radius="xl"
                 type="button"
-                variant="glass"
+                variant="outline"
                 onClick={() => onOpenChange(false)}
               >
                 {t("common.cancel")}
@@ -146,7 +146,6 @@ export const ExternalLearningConfirmDialog = ({
               <Button
                 radius="xl"
                 type="submit"
-                variant="brand"
                 disabled={state.isLoading}
               >
                 {t("common.save")}

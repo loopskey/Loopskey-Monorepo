@@ -103,7 +103,7 @@ const Header = () => {
 
         <div
           className={cn(
-            "absolute left-4 right-4 top-20 z-50 origin-top rounded-[2rem] border border-glass-border bg-background/80 p-4 shadow-2xl backdrop-blur-2xl transition-all duration-300",
+            "absolute left-4 right-4 top-20 z-50 origin-top rounded-lg border border-glass-border bg-background/80 p-4 shadow-2xl backdrop-blur-2xl transition-all duration-300",
             isMobileOpen
               ? "translate-y-0 scale-100 opacity-100"
               : "-translate-y-3 scale-95 opacity-0",

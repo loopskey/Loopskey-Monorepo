@@ -53,7 +53,7 @@ const AdminOverviewTab = () => {
         <Button
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           onClick={refreshAll}
           disabled={isLoading}
         >

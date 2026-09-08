@@ -79,7 +79,7 @@ const ProfessionalRoadmapTab = () => {
         <div className="flex flex-wrap gap-3">
           <Button
             radius="xl"
-            variant="glass"
+            variant="outline"
             onClick={refetchAll}
             disabled={isFetching}
           >
@@ -89,7 +89,7 @@ const ProfessionalRoadmapTab = () => {
             {t("professionalDashboard.common.refresh")}
           </Button>
 
-          <Button asChild radius="xl" variant="brand">
+          <Button asChild radius="xl">
             <Link href={ROADMAP_CHAT_HREF}>
               <L.Plus className="h-4 w-4" />
               {t("professionalDashboard.roadmap.createCustomPath")}
@@ -108,7 +108,7 @@ const ProfessionalRoadmapTab = () => {
               <p className="mt-2 text-3xl font-medium">{stats.enrolled}</p>
             </div>
 
-            <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+            <div className="rounded-md bg-primary/10 p-3 text-primary">
               <L.Route className="h-5 w-5" />
             </div>
           </div>
@@ -125,7 +125,7 @@ const ProfessionalRoadmapTab = () => {
               </p>
             </div>
 
-            <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+            <div className="rounded-md bg-primary/10 p-3 text-primary">
               <L.TrendingUp className="h-5 w-5" />
             </div>
           </div>
@@ -142,7 +142,7 @@ const ProfessionalRoadmapTab = () => {
               </p>
             </div>
 
-            <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+            <div className="rounded-md bg-primary/10 p-3 text-primary">
               <L.CheckCircle2 className="h-5 w-5" />
             </div>
           </div>
@@ -159,7 +159,7 @@ const ProfessionalRoadmapTab = () => {
               </p>
             </div>
 
-            <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+            <div className="rounded-md bg-primary/10 p-3 text-primary">
               <L.Target className="h-5 w-5" />
             </div>
           </div>
@@ -243,7 +243,7 @@ const ProfessionalRoadmapTab = () => {
               <L.Loader2 className="h-7 w-7 animate-spin text-primary" />
             </div>
           ) : learningSteps.length === 0 ? (
-            <div className="rounded-3xl border border-dashed border-glass-border bg-background/40 p-10 text-center">
+            <div className="rounded-lg border border-dashed border-border p-10 text-center">
               <L.BookOpenCheck className="mx-auto h-10 w-10 text-muted-foreground" />
               <p className="mt-4 font-medium">
                 {t("professionalDashboard.roadmap.noLearningPath")}
@@ -257,10 +257,10 @@ const ProfessionalRoadmapTab = () => {
               {learningSteps.map((step, index) => (
                 <div
                   key={step.id}
-                  className="rounded-3xl border border-glass-border bg-background/45 p-4 backdrop-blur-xl"
+                  className="rounded-lg border p-4"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-sm font-medium text-primary">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary/10 text-sm font-medium text-primary">
                       {index + 1}
                     </div>
 
@@ -317,7 +317,7 @@ const ProfessionalRoadmapTab = () => {
             </p>
           </div>
 
-          <div className="flex flex-col items-center justify-center rounded-[2rem] border border-glass-border bg-background/45 p-8 text-center">
+          <div className="flex flex-col items-center justify-center rounded-lg border p-8 text-center">
             <div className="flex h-32 w-32 items-center justify-center rounded-full border-[10px] border-primary/20">
               <span className="text-3xl font-medium text-primary">
                 {stats.averageProgress}%
@@ -367,7 +367,7 @@ const ProfessionalRoadmapTab = () => {
               value={search}
               onChange={handleSearchInputChange}
               placeholder={t("professionalDashboard.roadmap.searchMyRoadmaps")}
-              className="h-12 rounded-2xl bg-background/60 pl-10"
+              className="h-12 rounded-md bg-muted pl-10"
             />
           </div>
         </div>
@@ -377,7 +377,7 @@ const ProfessionalRoadmapTab = () => {
             <L.Loader2 className="h-7 w-7 animate-spin text-primary" />
           </div>
         ) : myRoadmaps.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-glass-border bg-background/40 p-10 text-center">
+          <div className="rounded-lg border border-dashed border-border p-10 text-center">
             <L.Route className="mx-auto h-10 w-10 text-muted-foreground" />
             <p className="mt-4 font-medium">
               {t("professionalDashboard.roadmap.emptyMyRoadmapsTitle")}
@@ -391,7 +391,7 @@ const ProfessionalRoadmapTab = () => {
             {myRoadmaps.map((roadmap) => (
               <div
                 key={roadmap.id}
-                className="overflow-hidden rounded-[2rem] border border-glass-border bg-background/45 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-primary/30"
+                className="overflow-hidden rounded-lg border transition-all duration-300 hover:-translate-y-1 hover:border-primary/30"
               >
                 <Link
                   href={getRoadmapHref(roadmap)}
@@ -412,7 +412,7 @@ const ProfessionalRoadmapTab = () => {
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                   <div className="absolute bottom-4 left-4 right-4 flex flex-wrap gap-2">
-                    <Badge className="bg-background/90 text-foreground hover:bg-background/90">
+                    <Badge className="bg-muted text-foreground hover:bg-muted">
                       {roadmap.status}
                     </Badge>
                     {roadmap.category ? (
@@ -458,7 +458,6 @@ const ProfessionalRoadmapTab = () => {
                       asChild
                       size="sm"
                       radius="xl"
-                      variant="brand"
                       className="flex-1"
                     >
                       <Link href={getRoadmapHref(roadmap)}>
@@ -467,7 +466,7 @@ const ProfessionalRoadmapTab = () => {
                       </Link>
                     </Button>
 
-                    <Button radius="xl" variant="glass" size="sm">
+                    <Button radius="xl" variant="outline" size="sm">
                       {t("professionalDashboard.roadmap.unenroll")}
                     </Button>
                   </div>
@@ -509,7 +508,7 @@ const ProfessionalRoadmapTab = () => {
               placeholder={t(
                 "professionalDashboard.roadmap.searchExploreRoadmaps",
               )}
-              className="h-12 rounded-2xl bg-background/60 pl-10"
+              className="h-12 rounded-md bg-muted pl-10"
             />
           </div>
         </div>
@@ -519,7 +518,7 @@ const ProfessionalRoadmapTab = () => {
             <L.Loader2 className="h-7 w-7 animate-spin text-primary" />
           </div>
         ) : exploreRoadmaps.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-glass-border bg-background/40 p-10 text-center">
+          <div className="rounded-lg border border-dashed border-border p-10 text-center">
             <L.Compass className="mx-auto h-10 w-10 text-muted-foreground" />
             <p className="mt-4 font-medium">
               {t("professionalDashboard.roadmap.emptyExploreTitle")}
@@ -533,7 +532,7 @@ const ProfessionalRoadmapTab = () => {
             {exploreRoadmaps.map((roadmap) => (
               <div
                 key={roadmap.id}
-                className="overflow-hidden rounded-[2rem] border border-glass-border bg-background/45 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-primary/30"
+                className="overflow-hidden rounded-lg border transition-all duration-300 hover:-translate-y-1 hover:border-primary/30"
               >
                 <Link
                   href={getRoadmapHref(roadmap)}
@@ -555,7 +554,7 @@ const ProfessionalRoadmapTab = () => {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                   <div className="absolute bottom-4 left-4 right-4 flex flex-wrap gap-2">
                     {roadmap.category ? (
-                      <Badge className="bg-background/90 text-foreground hover:bg-background/90">
+                      <Badge className="bg-muted text-foreground hover:bg-muted">
                         {roadmap.category}
                       </Badge>
                     ) : null}
@@ -570,14 +569,14 @@ const ProfessionalRoadmapTab = () => {
                     {roadmap.description}
                   </p>
                   <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-                    <div className="rounded-2xl bg-primary/5 p-3">
+                    <div className="rounded-md bg-primary/5 p-3">
                       <p className="text-xs text-muted-foreground">
                         {t("professionalDashboard.roadmap.phases")}
                       </p>
                       <p className="mt-1 font-medium">{roadmap.phasesCount}</p>
                     </div>
 
-                    <div className="rounded-2xl bg-primary/5 p-3">
+                    <div className="rounded-md bg-primary/5 p-3">
                       <p className="text-xs text-muted-foreground">
                         {t("professionalDashboard.roadmap.duration")}
                       </p>
@@ -591,13 +590,12 @@ const ProfessionalRoadmapTab = () => {
                     <Button
                       size="sm"
                       radius="xl"
-                      variant="brand"
                       className="flex-1"
                     >
                       {t("professionalDashboard.roadmap.enroll")}
                     </Button>
 
-                    <Button radius="xl" variant="glass" size="sm" asChild>
+                    <Button radius="xl" variant="outline" size="sm" asChild>
                       <Link href={getRoadmapHref(roadmap)}>
                         {t("professionalDashboard.common.details")}
                       </Link>

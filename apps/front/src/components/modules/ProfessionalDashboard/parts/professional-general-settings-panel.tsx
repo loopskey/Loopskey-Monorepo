@@ -17,7 +17,7 @@ export const ProfessionalGeneralSettingsPanel = ({
   return (
     <div className="space-y-6">
       <div className="flex items-start gap-3">
-        <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+        <div className="rounded-md bg-primary/10 p-3 text-primary">
           <Icon className="h-5 w-5" />
         </div>
 
@@ -44,7 +44,7 @@ export const ProfessionalGeneralSettingsPanel = ({
               }))
             }
           >
-            <S.SelectTrigger className="rounded-2xl">
+            <S.SelectTrigger className="rounded-md">
               <S.SelectValue />
             </S.SelectTrigger>
             <S.SelectContent>
@@ -59,14 +59,13 @@ export const ProfessionalGeneralSettingsPanel = ({
         </div>
       </div>
 
-      <div className="rounded-3xl bg-primary/5 p-4 text-sm text-muted-foreground">
+      <div className="rounded-lg bg-primary/5 p-4 text-sm text-muted-foreground">
         {t("professionalDashboard.settings.general.note")}
       </div>
 
       <Button
         radius="xl"
         type="button"
-        variant="brand"
         disabled={isLoading}
         onClick={saveGeneralSettings}
       >

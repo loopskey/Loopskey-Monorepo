@@ -118,7 +118,6 @@ export const RoadmapChatComposer = ({
 
             <Button
               radius="xl"
-              variant="brand"
               disabled={!canSend}
               onClick={onSend}
             >

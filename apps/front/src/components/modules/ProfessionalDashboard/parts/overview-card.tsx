@@ -41,7 +41,7 @@ type OverviewCardLinkProps = {
 
 export const OverviewCardLink = ({ href, label }: OverviewCardLinkProps) => {
   return (
-    <Button asChild variant="glass" radius="xl" size="sm" className="w-full">
+    <Button asChild variant="outline" radius="xl" size="sm" className="w-full">
       <Link href={href}>
         {label}
         <L.ArrowRight className="h-4 w-4" />
@@ -82,7 +82,7 @@ export const OverviewCardMessage = ({
         className={cn(
           "rounded-md p-3",
           tone === "danger"
-            ?"bg-red-500/10 text-red-600"
+            ?"bg-destructive-soft text-destructive-soft-foreground"
             : "bg-muted text-muted-foreground",
         )}
       >

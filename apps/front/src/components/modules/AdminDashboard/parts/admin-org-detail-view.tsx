@@ -33,7 +33,7 @@ export const AdminOrganizationDetailView = ({ hook }: Props) => {
         <Button
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           onClick={closeOrganizationDetail}
         >
           <L.ArrowLeft className="h-4 w-4" />
@@ -54,7 +54,7 @@ export const AdminOrganizationDetailView = ({ hook }: Props) => {
         <Button
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           onClick={closeOrganizationDetail}
         >
           <L.ArrowLeft className="h-4 w-4" />
@@ -76,7 +76,7 @@ export const AdminOrganizationDetailView = ({ hook }: Props) => {
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             onClick={closeOrganizationDetail}
           >
             <L.ArrowLeft className="h-4 w-4" />
@@ -116,7 +116,7 @@ export const AdminOrganizationDetailView = ({ hook }: Props) => {
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             disabled={isLoading}
             onClick={refreshAll}
           >
@@ -138,7 +138,7 @@ export const AdminOrganizationDetailView = ({ hook }: Props) => {
               </p>
             </div>
 
-            <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+            <div className="rounded-md bg-primary/10 p-3 text-primary">
               <L.Users className="h-5 w-5" />
             </div>
           </div>
@@ -155,7 +155,7 @@ export const AdminOrganizationDetailView = ({ hook }: Props) => {
               </p>
             </div>
 
-            <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+            <div className="rounded-md bg-primary/10 p-3 text-primary">
               <L.Activity className="h-5 w-5" />
             </div>
           </div>
@@ -172,7 +172,7 @@ export const AdminOrganizationDetailView = ({ hook }: Props) => {
               </p>
             </div>
 
-            <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+            <div className="rounded-md bg-primary/10 p-3 text-primary">
               <L.GraduationCap className="h-5 w-5" />
             </div>
           </div>
@@ -189,7 +189,7 @@ export const AdminOrganizationDetailView = ({ hook }: Props) => {
               </p>
             </div>
 
-            <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+            <div className="rounded-md bg-primary/10 p-3 text-primary">
               <L.UserCheck className="h-5 w-5" />
             </div>
           </div>
@@ -233,7 +233,7 @@ export const AdminOrganizationDetailView = ({ hook }: Props) => {
 
       <GlassCard className="p-5">
         <T.Tabs defaultValue="members" className="space-y-5">
-          <T.TabsList className="grid w-full grid-cols-3 rounded-2xl">
+          <T.TabsList className="grid w-full grid-cols-3 rounded-md">
             <T.TabsTrigger value="members">
               {t("adminDashboard.organizationUsers.tabs.members")}
             </T.TabsTrigger>

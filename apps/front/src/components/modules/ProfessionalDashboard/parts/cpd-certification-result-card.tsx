@@ -15,7 +15,7 @@ export const CpdCertificationResultCard = ({
     type="button"
     onClick={() => onSelect(certification)}
     className={cn(
-      "group flex w-full items-center gap-4 rounded-2xl border border-glass-border bg-background/50 p-4 text-left transition-all",
+      "group flex w-full items-center gap-4 rounded-md border p-4 text-left transition-all",
       "hover:border-primary/50 hover:bg-primary/5 focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
     )}
   >

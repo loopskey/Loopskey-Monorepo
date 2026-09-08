@@ -26,7 +26,7 @@ export const MemberEditRow = ({
   return (
     <tr className="bg-primary/5">
       <td colSpan={8} className="p-4">
-        <div className="grid gap-3 rounded-3xl border border-glass-border bg-background/70 p-4 md:grid-cols-3">
+        <div className="grid gap-3 rounded-lg border p-4 md:grid-cols-3">
           <Input
             value={form.jobRole}
             placeholder={t("adminDashboard.organizationUsers.members.role")}
@@ -44,7 +44,7 @@ export const MemberEditRow = ({
               }))
             }
           >
-            <S.SelectTrigger className="rounded-2xl">
+            <S.SelectTrigger className="rounded-md">
               <S.SelectValue />
             </S.SelectTrigger>
             <S.SelectContent>
@@ -65,7 +65,7 @@ export const MemberEditRow = ({
               }))
             }
           >
-            <S.SelectTrigger className="rounded-2xl">
+            <S.SelectTrigger className="rounded-md">
               <S.SelectValue
                 placeholder={t(
                   "adminDashboard.organizationUsers.members.department",
@@ -115,7 +115,6 @@ export const MemberEditRow = ({
           <div className="flex gap-2 md:col-span-3">
             <Button
               radius="xl"
-              variant="brand"
               type="button"
               onClick={() =>
                 onSave({
@@ -135,7 +134,7 @@ export const MemberEditRow = ({
             <Button
               radius="xl"
               type="button"
-              variant="glass"
+              variant="outline"
               onClick={onCancel}
             >
               {t("common.cancel")}

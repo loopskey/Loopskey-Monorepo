@@ -42,14 +42,14 @@ export const OnboardingSkillsStep = ({ hook }: TOnboardingStepProps) => {
       </div>
 
       {wantsSuggestedSkills ? (
-        <div className="flex flex-col items-start gap-3 rounded-3xl border border-primary bg-primary/10 p-5">
+        <div className="flex flex-col items-start gap-3 rounded-lg border border-primary bg-primary/10 p-5">
           <p className="text-sm">
             {t("professionalOnboarding.skills.suggested")}
           </p>
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             onClick={cancelSuggestedSkills}
           >
             {t("professionalOnboarding.skills.clearSuggestion")}
@@ -114,7 +114,7 @@ export const OnboardingSkillsStep = ({ hook }: TOnboardingStepProps) => {
           )}
 
           {hasSkillsError ? (
-            <div className="flex flex-col items-center gap-3 rounded-3xl border border-glass-border p-6 text-center">
+            <div className="flex flex-col items-center gap-3 rounded-lg border p-6 text-center">
               <L.TriangleAlert
                 aria-hidden
                 className="h-5 w-5 text-destructive"
@@ -125,7 +125,7 @@ export const OnboardingSkillsStep = ({ hook }: TOnboardingStepProps) => {
               <Button
                 radius="xl"
                 type="button"
-                variant="glass"
+                variant="outline"
                 onClick={() => void refetchTaxonomy()}
               >
                 {t("professionalOnboarding.skills.retry")}
@@ -140,7 +140,7 @@ export const OnboardingSkillsStep = ({ hook }: TOnboardingStepProps) => {
                 {t("professionalOnboarding.skills.loading")}
               </span>
               {Array.from({ length: 6 }).map((_, index) => (
-                <Skeleton key={index} className="h-12 w-full rounded-2xl" />
+                <Skeleton key={index} className="h-12 w-full rounded-md" />
               ))}
             </div>
           ) : filteredSkills.length ? (
@@ -159,11 +159,11 @@ export const OnboardingSkillsStep = ({ hook }: TOnboardingStepProps) => {
                     aria-pressed={isSelected}
                     onClick={() => toggleSkill(skill.id)}
                     className={cn(
-                      "flex items-center justify-between gap-2 rounded-2xl border px-4 py-3 text-left text-sm transition-colors",
+                      "flex items-center justify-between gap-2 rounded-md border px-4 py-3 text-left text-sm transition-colors",
                       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                       isSelected
                         ? "border-primary bg-primary/10 font-medium"
-                        : "border-glass-border bg-background/45 hover:border-primary/40",
+                        : "border-border hover:border-primary/40",
                       isBlocked && "cursor-not-allowed opacity-50",
                     )}
                   >
@@ -181,7 +181,7 @@ export const OnboardingSkillsStep = ({ hook }: TOnboardingStepProps) => {
               })}
             </div>
           ) : (
-            <p className="rounded-2xl border border-glass-border bg-background/45 px-4 py-3 text-sm text-muted-foreground">
+            <p className="rounded-md border px-4 py-3 text-sm text-muted-foreground">
               {t("professionalOnboarding.skills.empty")}
             </p>
           )}

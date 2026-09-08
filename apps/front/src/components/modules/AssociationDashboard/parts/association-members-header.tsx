@@ -30,7 +30,7 @@ export const AssociationMembersHeader = ({
         <Button
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           disabled={isLoading}
           aria-pressed={view === "groups"}
           onClick={() => setView(view === "groups" ? "roster" : "groups")}
@@ -46,7 +46,6 @@ export const AssociationMembersHeader = ({
         <Button
           radius="xl"
           type="button"
-          variant="brand"
           onClick={openInvite}
           disabled={isLoading}
         >

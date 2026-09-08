@@ -19,7 +19,7 @@ const ForgotPasswordRequestForm = ({
     <Form {...form}>
       <form className="space-y-5" onSubmit={form.handleSubmit(onSubmit)}>
         <div className="text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-inner">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-md bg-primary/10 text-primary shadow-inner">
             <KeyRound className="h-6 w-6" />
           </div>
 
@@ -45,7 +45,6 @@ const ForgotPasswordRequestForm = ({
           size="lg"
           radius="xl"
           type="submit"
-          variant="brand"
           className="w-full"
           disabled={isLoading}
         >
@@ -61,7 +60,7 @@ const ForgotPasswordRequestForm = ({
 
         <Button
           type="button"
-          variant="glass"
+          variant="outline"
           radius="xl"
           className="w-full"
           disabled={isLoading}

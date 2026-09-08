@@ -41,7 +41,7 @@ export const OrgMemberDetailView = ({ hook }: OrgMemberDetailViewProps) => {
         <Button
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           onClick={closeMemberDetail}
         >
           <L.ArrowLeft className="h-4 w-4" />
@@ -67,7 +67,7 @@ export const OrgMemberDetailView = ({ hook }: OrgMemberDetailViewProps) => {
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             onClick={closeMemberDetail}
           >
             <L.ArrowLeft className="h-4 w-4" />
@@ -103,7 +103,7 @@ export const OrgMemberDetailView = ({ hook }: OrgMemberDetailViewProps) => {
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             disabled={isLoading}
             onClick={saveNotes}
           >
@@ -118,7 +118,7 @@ export const OrgMemberDetailView = ({ hook }: OrgMemberDetailViewProps) => {
           <GlassCard>
             <div className="relative z-10">
               <div className="flex items-start gap-3">
-                <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+                <div className="rounded-md bg-primary/10 p-3 text-primary">
                   <L.UserRound className="h-5 w-5" />
                 </div>
 
@@ -176,7 +176,7 @@ export const OrgMemberDetailView = ({ hook }: OrgMemberDetailViewProps) => {
 
           <T.Tabs defaultValue="settings" className="w-full">
             <div className="overflow-x-auto pb-1">
-              <T.TabsList className="grid min-w-[640px] grid-cols-4 rounded-2xl md:min-w-0">
+              <T.TabsList className="grid min-w-[640px] grid-cols-4 rounded-md md:min-w-0">
                 <T.TabsTrigger value="settings">
                   {t("organizationDashboard.members.detail.tabs.settings")}
                 </T.TabsTrigger>
@@ -265,7 +265,7 @@ export const OrgMemberDetailView = ({ hook }: OrgMemberDetailViewProps) => {
                   {t("organizationDashboard.members.detail.historyHint")}
                 </p>
                 <div className="mt-5 grid gap-3 md:grid-cols-3">
-                  <div className="rounded-2xl bg-background/45 p-4">
+                  <div className="rounded-md bg-muted p-4">
                     <p className="text-xs text-muted-foreground">
                       {t("organizationDashboard.members.detail.lastActivity")}
                     </p>
@@ -273,7 +273,7 @@ export const OrgMemberDetailView = ({ hook }: OrgMemberDetailViewProps) => {
                       {selectedMember.lastActivityAt ?? "-"}
                     </p>
                   </div>
-                  <div className="rounded-2xl bg-background/45 p-4">
+                  <div className="rounded-md bg-muted p-4">
                     <p className="text-xs text-muted-foreground">
                       {t("organizationDashboard.members.detail.lastCourse")}
                     </p>
@@ -282,7 +282,7 @@ export const OrgMemberDetailView = ({ hook }: OrgMemberDetailViewProps) => {
                     </p>
                   </div>
 
-                  <div className="rounded-2xl bg-background/45 p-4">
+                  <div className="rounded-md bg-muted p-4">
                     <p className="text-xs text-muted-foreground">
                       {t("organizationDashboard.members.detail.pduGoal")}
                     </p>
@@ -296,7 +296,7 @@ export const OrgMemberDetailView = ({ hook }: OrgMemberDetailViewProps) => {
             <T.TabsContent value="assignment" className="mt-5">
               <GlassCard glow={false} className="p-5">
                 <div className="mb-5 flex items-start gap-3">
-                  <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+                  <div className="rounded-md bg-primary/10 p-3 text-primary">
                     <L.Send className="h-5 w-5" />
                   </div>
                   <div>
@@ -344,7 +344,6 @@ export const OrgMemberDetailView = ({ hook }: OrgMemberDetailViewProps) => {
                     <Button
                       radius="xl"
                       type="submit"
-                      variant="brand"
                       disabled={isLoading}
                     >
                       <L.Send className="h-4 w-4" />
@@ -365,11 +364,10 @@ export const OrgMemberDetailView = ({ hook }: OrgMemberDetailViewProps) => {
                 <textarea
                   value={notes}
                   onChange={(event) => setNotes(event.target.value)}
-                  className="mt-4 min-h-48 w-full rounded-2xl border border-border bg-background/60 p-4 outline-none focus:border-primary"
+                  className="mt-4 min-h-48 w-full rounded-md border border-border p-4 outline-none focus:border-primary"
                 />
                 <Button
                   radius="xl"
-                  variant="brand"
                   onClick={saveNotes}
                   disabled={isLoading}
                   className="mt-4"
@@ -390,7 +388,7 @@ export const OrgMemberDetailView = ({ hook }: OrgMemberDetailViewProps) => {
               </h2>
 
               <div className="mt-5 grid gap-4">
-                <div className="rounded-3xl bg-background/45 p-4">
+                <div className="rounded-lg bg-muted p-4">
                   <p className="text-xs text-muted-foreground">
                     {t("organizationDashboard.members.detail.status")}
                   </p>
@@ -403,7 +401,7 @@ export const OrgMemberDetailView = ({ hook }: OrgMemberDetailViewProps) => {
                       )
                     }
                   >
-                    <S.SelectTrigger className="mt-2 rounded-2xl">
+                    <S.SelectTrigger className="mt-2 rounded-md">
                       <S.SelectValue />
                     </S.SelectTrigger>
 
@@ -417,7 +415,7 @@ export const OrgMemberDetailView = ({ hook }: OrgMemberDetailViewProps) => {
                   </S.Select>
                 </div>
 
-                <div className="rounded-3xl bg-background/45 p-4">
+                <div className="rounded-lg bg-muted p-4">
                   <p className="text-xs text-muted-foreground">
                     {t("organizationDashboard.members.detail.role")}
                   </p>
@@ -428,7 +426,7 @@ export const OrgMemberDetailView = ({ hook }: OrgMemberDetailViewProps) => {
                       updateMemberRole(selectedMember.id, value as Role)
                     }
                   >
-                    <S.SelectTrigger className="mt-2 rounded-2xl">
+                    <S.SelectTrigger className="mt-2 rounded-md">
                       <S.SelectValue />
                     </S.SelectTrigger>
                     <S.SelectContent>
@@ -451,7 +449,7 @@ export const OrgMemberDetailView = ({ hook }: OrgMemberDetailViewProps) => {
                 {t("organizationDashboard.members.detail.activity")}
               </h2>
               <div className="mt-5 grid gap-3 text-sm">
-                <div className="flex items-center justify-between gap-3 rounded-2xl bg-background/45 p-3">
+                <div className="flex items-center justify-between gap-3 rounded-md bg-muted p-3">
                   <span className="text-muted-foreground">
                     {t("organizationDashboard.members.detail.completed")}
                   </span>
@@ -460,13 +458,13 @@ export const OrgMemberDetailView = ({ hook }: OrgMemberDetailViewProps) => {
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between gap-3 rounded-2xl bg-background/45 p-3">
+                <div className="flex items-center justify-between gap-3 rounded-md bg-muted p-3">
                   <span className="text-muted-foreground">
                     {t("organizationDashboard.members.detail.pdus")}
                   </span>
                   <span className="font-semibold">{selectedMember.pdus}</span>
                 </div>
-                <div className="flex items-center justify-between gap-3 rounded-2xl bg-background/45 p-3">
+                <div className="flex items-center justify-between gap-3 rounded-md bg-muted p-3">
                   <span className="text-muted-foreground">
                     {t("organizationDashboard.members.detail.compliance")}
                   </span>

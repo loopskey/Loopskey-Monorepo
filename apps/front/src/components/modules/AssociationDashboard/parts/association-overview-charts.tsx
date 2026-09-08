@@ -63,7 +63,7 @@ export const AssociationOverviewCharts = ({
       title={reportLabel(`charts.${id}.title`)}
       description={reportLabel(`charts.${id}.description`)}
       action={
-        <Button size="sm" radius="xl" variant="glass" asChild>
+        <Button size="sm" radius="xl" variant="outline" asChild>
           <Link href={O.overviewReportHref(report, filter)}>
             <L.ArrowUpRight className="h-4 w-4" />
             {reportLabel("charts.viewReport")}

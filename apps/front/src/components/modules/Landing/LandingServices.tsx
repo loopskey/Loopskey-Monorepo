@@ -24,13 +24,13 @@ const LandingServices = () => {
     <section className="relative overflow-x-clip px-4 py-10 sm:px-6 lg:px-8">
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute right-0 top-10 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute bottom-0 left-0 h-96 w-96 rounded-full bg-teal-500/10 blur-3xl" />
+        <div className="absolute bottom-0 left-0 h-96 w-96 rounded-full bg-chart-3/10 blur-3xl" />
       </div>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <RevealOnScroll direction="up">
           <div className="mx-auto max-w-3xl text-center">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-glass-border bg-background/60 px-4 py-2 text-sm font-bold text-primary shadow-sm backdrop-blur-xl">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold text-primary shadow-sm">
               {t("landing.services.badge")}
             </div>
 
@@ -55,7 +55,7 @@ const LandingServices = () => {
               >
                 <GlassCard className="group h-full p-6" glow={false}>
                   <div className="relative z-10">
-                    <div className="mb-5 flex h-13 w-13 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-all duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground">
+                    <div className="mb-5 flex h-13 w-13 items-center justify-center rounded-md bg-primary/10 text-primary transition-all duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground">
                       <Icon className="h-6 w-6" />
                     </div>
 

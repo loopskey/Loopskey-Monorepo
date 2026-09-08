@@ -47,7 +47,7 @@ const AssociationActivationCard = () => {
               onSubmit={passwordForm.handleSubmit(onSetPassword)}
             >
               <div className="text-center">
-                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-inner">
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-md bg-primary/10 text-primary shadow-inner">
                   <ShieldCheck className="h-6 w-6" />
                 </div>
 
@@ -84,7 +84,6 @@ const AssociationActivationCard = () => {
                 size="lg"
                 radius="xl"
                 type="submit"
-                variant="brand"
                 className="w-full"
                 disabled={isActivating}
               >
@@ -106,7 +105,7 @@ const AssociationActivationCard = () => {
 
         {screen === "used" && (
           <div className="space-y-5 text-center">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-inner">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-md bg-primary/10 text-primary shadow-inner">
               <ShieldCheck className="h-6 w-6" />
             </div>
             <h1 className="text-xl font-extrabold tracking-tight">
@@ -127,7 +126,7 @@ const AssociationActivationCard = () => {
         {needsNewLink && (
           <div className="space-y-5">
             <div className="text-center">
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-destructive/10 text-destructive shadow-inner">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-md bg-destructive/10 text-destructive shadow-inner">
                 {screen === "expired" ? (
                   <MailWarning className="h-6 w-6" />
                 ) : (
@@ -146,7 +145,7 @@ const AssociationActivationCard = () => {
               </p>
             </div>
 
-            <Button asChild radius="xl" variant="glass" className="w-full">
+            <Button asChild radius="xl" variant="outline" className="w-full">
               <Link href={loginHref}>
                 <LogIn className="h-4 w-4" />
                 {t("authPages.common.backToLogin")}

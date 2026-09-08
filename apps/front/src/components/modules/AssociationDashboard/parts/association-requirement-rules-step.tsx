@@ -58,7 +58,7 @@ export const AssociationRequirementRulesStep = ({
             <div className="relative z-10">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-4">
-                  <span className="rounded-2xl bg-primary/10 p-3 text-primary">
+                  <span className="rounded-md bg-primary/10 p-3 text-primary">
                     <card.icon className="h-5 w-5" />
                   </span>
 
@@ -91,7 +91,7 @@ export const AssociationRequirementRulesStep = ({
                   <Button
                     radius="xl"
                     type="button"
-                    variant="glass"
+                    variant="outline"
                     aria-expanded={isOpen}
                     aria-controls={panelId}
                     onClick={() => setOpenRule(isOpen ? null : card.id)}
@@ -108,7 +108,7 @@ export const AssociationRequirementRulesStep = ({
               {isOpen && (
                 <div
                   id={panelId}
-                  className="mt-6 border-t border-glass-border pt-6"
+                  className="mt-6 border-t border-border pt-6"
                 >
                   {card.id === "categories" && (
                     <AssociationRequirementCategoriesCard hook={hook} />

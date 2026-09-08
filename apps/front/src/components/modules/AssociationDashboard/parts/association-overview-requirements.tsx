@@ -57,7 +57,7 @@ export const AssociationOverviewRequirements = ({
         </ul>
       }
       action={
-        <Button size="sm" radius="xl" variant="glass" asChild>
+        <Button size="sm" radius="xl" variant="outline" asChild>
           <Link href={O.associationTabHref("requirements")}>
             <L.ArrowUpRight className="h-4 w-4" />
             {label("requirements.openTab")}

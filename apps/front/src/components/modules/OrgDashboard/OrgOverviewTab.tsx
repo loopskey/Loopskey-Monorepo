@@ -41,7 +41,7 @@ const OrgOverviewTab = () => {
 
         <Button
           radius="xl"
-          variant="glass"
+          variant="outline"
           disabled={isLoading}
           onClick={() => refetch()}
         >

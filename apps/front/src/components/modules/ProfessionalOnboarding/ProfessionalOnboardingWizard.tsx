@@ -61,7 +61,7 @@ const ProfessionalOnboardingWizard = () => {
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             onClick={goBack}
             disabled={stepIndex === 0 || isSaving}
           >
@@ -72,7 +72,6 @@ const ProfessionalOnboardingWizard = () => {
           <Button
             radius="xl"
             type="button"
-            variant="brand"
             onClick={goNext}
             disabled={!isStepValid || isSaving}
           >

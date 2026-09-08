@@ -22,12 +22,12 @@ const HeroMiniResultCard = ({ item }: { item: TLandingHeroResultItem }) => {
     <Link
       href={item.href}
       className={cn(
-        "group block rounded-3xl border border-glass-border bg-background/58 p-3 shadow-sm backdrop-blur-xl",
-        "transition-all duration-300 hover:-translate-y-1 hover:border-primary/45 hover:bg-background/75 hover:shadow-[0_18px_50px_rgba(37,99,235,0.16)]",
+        "group block rounded-lg border p-3 shadow-sm",
+        "transition-all duration-300 hover:-translate-y-1 hover:border-primary/45 hover:bg-muted hover:shadow-[0_18px_50px_rgba(37,99,235,0.16)]",
       )}
     >
       <div className="flex gap-3">
-        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-muted">
+        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md bg-muted">
           {item.imageUrl ? (
             <Image
               fill
@@ -49,8 +49,8 @@ const HeroMiniResultCard = ({ item }: { item: TLandingHeroResultItem }) => {
             </span>
 
             {item.rating && item.rating > 0 ? (
-              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-yellow-500">
-                <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-warning-soft-foreground">
+                <Star className="h-3 w-3 fill-yellow-400 text-warning-soft-foreground" />
                 {item.rating.toFixed(1)}
               </span>
             ) : null}

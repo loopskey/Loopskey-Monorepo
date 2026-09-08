@@ -9,7 +9,7 @@ const AuthTabs = ({ active, onChange }: TAuthTabsProps) => {
   const { t } = useI18n();
 
   return (
-    <div className="grid grid-cols-2 gap-2 rounded-2xl border border-border/70 bg-background/45 p-1 backdrop-blur-xl">
+    <div className="grid grid-cols-2 gap-2 rounded-md border border-border/70 bg-muted p-1">
       <Button
         radius="xl"
         type="button"

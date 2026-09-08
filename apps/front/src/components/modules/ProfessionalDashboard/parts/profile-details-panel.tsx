@@ -32,7 +32,7 @@ export const ProfileDetailsPanel = ({
   return (
     <div className="space-y-6">
       <div className="flex items-start gap-3">
-        <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+        <div className="rounded-md bg-primary/10 p-3 text-primary">
           <Icon className="h-5 w-5" />
         </div>
         <div>
@@ -141,7 +141,6 @@ export const ProfileDetailsPanel = ({
           <Button
             radius="xl"
             type="submit"
-            variant="brand"
             disabled={isSaveDisabled}
           >
             {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}

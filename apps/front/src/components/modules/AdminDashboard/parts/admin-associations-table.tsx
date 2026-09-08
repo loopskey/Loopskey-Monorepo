@@ -1,11 +1,11 @@
 "use client";
 
 import { TAdminAssociationsTable } from "@/types/admin-dashboard.types";
-import { Td, Th } from "@modules/AdminDashboard/parts/td-and-th-table";
 import { ConfirmDialog } from "@elements/confirm-dialog";
+import { UserStatus } from "@/lib/graphql/base";
 import { formatDate } from "@/utils/function-helper";
 import { GlassCard } from "@elements/glass-card";
-import { UserStatus } from "@/lib/graphql/base";
+import { Td, Th } from "@modules/AdminDashboard/parts/td-and-th-table";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
 
@@ -20,7 +20,7 @@ export const AdminAssociationsTable = ({ hook }: TAdminAssociationsTable) => {
     <GlassCard className="overflow-hidden p-0">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[960px] text-sm">
-          <thead className="border-b border-glass-border bg-muted/40 text-left">
+          <thead className="border-b border-border bg-muted/40 text-left">
             <tr>
               <Th>{t("adminDashboard.associations.table.association")}</Th>
               <Th>{t("adminDashboard.associations.table.representative")}</Th>
@@ -55,7 +55,7 @@ export const AdminAssociationsTable = ({ hook }: TAdminAssociationsTable) => {
               items.map((item) => (
                 <tr
                   key={item.id}
-                  className="border-b border-glass-border/70 transition-colors hover:bg-primary/5"
+                  className="border-b border-border/70 transition-colors hover:bg-primary/5"
                 >
                   <Td>
                     <div className="font-medium">{item.name}</div>
@@ -109,7 +109,7 @@ export const AdminAssociationsTable = ({ hook }: TAdminAssociationsTable) => {
                           { name: item.name },
                         )}
                         trigger={
-                          <Button radius="xl" size="sm" variant="glass">
+                          <Button radius="xl" size="sm" variant="outline">
                             <L.Send className="h-4 w-4" />
                             {t("adminDashboard.associations.actions.resend")}
                           </Button>

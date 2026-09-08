@@ -40,7 +40,7 @@ export const AssociationOverviewActivity = ({
         </ul>
       }
       action={
-        <Button size="sm" radius="xl" variant="glass" asChild>
+        <Button size="sm" radius="xl" variant="outline" asChild>
           <Link href={O.associationTabHref("members")}>
             <L.ArrowUpRight className="h-4 w-4" />
             {label("activity.openTab")}

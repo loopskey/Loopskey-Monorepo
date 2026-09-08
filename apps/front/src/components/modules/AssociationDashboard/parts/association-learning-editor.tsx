@@ -62,7 +62,7 @@ export const AssociationLearningEditor = ({
         if (!open) closeEditor();
       }}
     >
-      <D.DialogContent className="glass-dialog z-[9999] max-h-[90vh] max-w-2xl overflow-y-auto rounded-3xl border-glass-border">
+      <D.DialogContent className="glass-dialog z-[9999] max-h-[90vh] max-w-2xl overflow-y-auto rounded-lg border-border">
         <D.DialogHeader>
           <D.DialogTitle className="text-xl">
             {label(
@@ -115,7 +115,7 @@ export const AssociationLearningEditor = ({
 
                     <Input
                       value={catalogSearch}
-                      className="rounded-2xl pl-9"
+                      className="rounded-md pl-9"
                       placeholder={label("searchPlaceholder")}
                       aria-label={label("searchPlaceholder")}
                       onChange={(event) => setCatalogSearch(event.target.value)}
@@ -124,13 +124,13 @@ export const AssociationLearningEditor = ({
 
                   <S.Select value={catalogType} onValueChange={setCatalogType}>
                     <S.SelectTrigger
-                      className="w-40 rounded-2xl"
+                      className="w-40 rounded-md"
                       aria-label={label("contentType")}
                     >
                       <S.SelectValue />
                     </S.SelectTrigger>
 
-                    <S.SelectContent className="z-[9999] rounded-2xl">
+                    <S.SelectContent className="z-[9999] rounded-md">
                       {CONTENT_TYPES.map((value) => (
                         <S.SelectItem key={value} value={value}>
                           {value === ALL
@@ -147,12 +147,12 @@ export const AssociationLearningEditor = ({
                     {Array.from({ length: 3 }, (_, index) => (
                       <Skeleton
                         key={index}
-                        className="h-14 w-full rounded-2xl"
+                        className="h-14 w-full rounded-md"
                       />
                     ))}
                   </div>
                 ) : catalogResults.length === 0 ? (
-                  <p className="mt-3 rounded-2xl border border-dashed border-glass-border p-6 text-center text-sm text-muted-foreground">
+                  <p className="mt-3 rounded-md border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
                     {label("noResults")}
                   </p>
                 ) : (
@@ -164,10 +164,10 @@ export const AssociationLearningEditor = ({
                           onClick={() => pickCatalogItem(item)}
                           aria-pressed={selectedContentId === item.contentId}
                           className={cn(
-                            "flex w-full items-center gap-3 rounded-2xl border p-3 text-left transition-colors",
+                            "flex w-full items-center gap-3 rounded-md border p-3 text-left transition-colors",
                             selectedContentId === item.contentId
                               ? "border-primary bg-primary/5"
-                              : "border-glass-border hover:bg-primary/5",
+                              : "border-border hover:bg-primary/5",
                           )}
                         >
                           <span className="min-w-0 flex-1">
@@ -246,7 +246,6 @@ export const AssociationLearningEditor = ({
               <Button
                 radius="xl"
                 type="submit"
-                variant="brand"
                 disabled={isSaving}
               >
                 {isSaving && <L.Loader2 className="h-4 w-4 animate-spin" />}

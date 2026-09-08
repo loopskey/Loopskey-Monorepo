@@ -35,7 +35,7 @@ export const AssociationLearningDetail = ({
     >
       <SH.SheetContent
         side="right"
-        className="glass-dialog z-[9999] w-full gap-0 overflow-y-auto border-glass-border sm:max-w-lg"
+        className="glass-dialog z-[9999] w-full gap-0 overflow-y-auto border-border sm:max-w-lg"
       >
         <SH.SheetHeader>
           <SH.SheetTitle>{detail?.title ?? label("title")}</SH.SheetTitle>
@@ -46,7 +46,7 @@ export const AssociationLearningDetail = ({
         {isDetailLoading || !detail ? (
           <div className="space-y-3 px-4 pb-6" aria-busy="true">
             {Array.from({ length: 4 }, (_, index) => (
-              <Skeleton key={index} className="h-16 w-full rounded-2xl" />
+              <Skeleton key={index} className="h-16 w-full rounded-md" />
             ))}
           </div>
         ) : (
@@ -66,7 +66,7 @@ export const AssociationLearningDetail = ({
             </div>
 
             {!detail.isAvailable && (
-              <p className="rounded-2xl border border-dashed border-destructive/40 p-4 text-sm text-muted-foreground">
+              <p className="rounded-md border border-dashed border-destructive/40 p-4 text-sm text-muted-foreground">
                 {label("unavailableBody")}
               </p>
             )}
@@ -124,7 +124,7 @@ export const AssociationLearningDetail = ({
               </a>
             )}
 
-            <div className="rounded-2xl border border-glass-border p-4">
+            <div className="rounded-md border p-4">
               <h3 className="font-medium">{label("engagementTitle")}</h3>
 
               {detail.engagement ? (

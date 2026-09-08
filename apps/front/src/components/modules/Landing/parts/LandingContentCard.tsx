@@ -25,8 +25,8 @@ const LandingContentCard = ({ item }: { item: TLandingContentItem }) => {
   return (
     <article
       className={cn(
-        "group relative h-full overflow-hidden rounded-[1.75rem]",
-        "border border-glass-border bg-background/60 shadow-sm backdrop-blur-xl",
+        "group relative h-full overflow-hidden rounded-lg",
+        "border shadow-sm",
         "transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_24px_70px_rgba(37,99,235,0.18)]",
       )}
     >
@@ -45,14 +45,14 @@ const LandingContentCard = ({ item }: { item: TLandingContentItem }) => {
 
         <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/10 to-transparent" />
 
-        <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full bg-background/70 px-3 py-2 text-xs font-medium text-primary shadow-sm backdrop-blur-xl">
+        <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full bg-muted px-3 py-2 text-xs font-medium text-primary shadow-sm">
           {getKindIcon(item.kind)}
           {item.kind}
         </div>
 
         {item.rating && item.rating > 0 && (
-          <div className="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-background/70 px-3 py-2 text-xs font-medium text-yellow-500 shadow-sm backdrop-blur-xl">
-            <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+          <div className="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-muted px-3 py-2 text-xs font-medium text-warning-soft-foreground shadow-sm">
+            <Star className="h-3.5 w-3.5 fill-yellow-400 text-warning-soft-foreground" />
             {item.rating.toFixed(1)}
           </div>
         )}
@@ -93,7 +93,7 @@ const LandingContentCard = ({ item }: { item: TLandingContentItem }) => {
             </span>
           </div>
 
-          <Button asChild variant="brandSoft" radius="xl" className="w-full">
+          <Button asChild variant="outline" radius="xl" className="w-full">
             <Link href={item.href}>
               View details
               <ArrowRight className="h-4 w-4" />

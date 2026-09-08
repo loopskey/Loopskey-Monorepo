@@ -82,7 +82,7 @@ const OrganizationSettingsTab = () => {
         <div className="space-y-6">
           <GlassCard>
             <div className="flex items-start gap-3">
-              <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+              <div className="rounded-md bg-primary/10 p-3 text-primary">
                 <L.ShieldCheck className="h-5 w-5" />
               </div>
               <div>
@@ -122,7 +122,7 @@ const OrganizationSettingsTab = () => {
                   />
                 </div>
 
-                <div className="flex items-center justify-between rounded-3xl border border-glass-border bg-background/45 p-4">
+                <div className="flex items-center justify-between rounded-lg border p-4">
                   <div>
                     <p className="font-medium">
                       {t("organizationDashboard.settings.compliance.strict")}
@@ -146,7 +146,6 @@ const OrganizationSettingsTab = () => {
 
                 <Button
                   radius="xl"
-                  variant="brand"
                   type="submit"
                   disabled={isLoading}
                 >
@@ -158,7 +157,7 @@ const OrganizationSettingsTab = () => {
 
           <GlassCard>
             <div className="flex items-start gap-3">
-              <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+              <div className="rounded-md bg-primary/10 p-3 text-primary">
                 <L.BellRing className="h-5 w-5" />
               </div>
               <div>
@@ -181,7 +180,7 @@ const OrganizationSettingsTab = () => {
                 {notificationItems.map((item) => (
                   <div
                     key={item.key}
-                    className="flex items-center justify-between rounded-3xl border border-glass-border bg-background/45 p-4"
+                    className="flex items-center justify-between rounded-lg border p-4"
                   >
                     <div>
                       <p className="font-medium">{item.title}</p>
@@ -203,7 +202,6 @@ const OrganizationSettingsTab = () => {
 
                 <Button
                   radius="xl"
-                  variant="brand"
                   type="submit"
                   disabled={isLoading}
                 >
@@ -215,7 +213,7 @@ const OrganizationSettingsTab = () => {
 
           <GlassCard>
             <div className="flex items-start gap-3">
-              <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+              <div className="rounded-md bg-primary/10 p-3 text-primary">
                 <L.Building2 className="h-5 w-5" />
               </div>
               <div>
@@ -246,7 +244,6 @@ const OrganizationSettingsTab = () => {
                 <Button
                   radius="xl"
                   type="submit"
-                  variant="brand"
                   className="h-14"
                   disabled={isLoading}
                 >
@@ -275,7 +272,7 @@ const OrganizationSettingsTab = () => {
         <div className="space-y-6">
           <GlassCard>
             <div className="flex items-center gap-3">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              <div className="flex h-14 w-14 items-center justify-center rounded-md bg-primary/10 text-primary">
                 <L.UserRound className="h-6 w-6" />
               </div>
               <div>
@@ -286,7 +283,7 @@ const OrganizationSettingsTab = () => {
               </div>
             </div>
 
-            <div className="mt-5 rounded-3xl bg-background/45 p-4 text-sm">
+            <div className="mt-5 rounded-lg bg-muted p-4 text-sm">
               <p className="text-muted-foreground">
                 {t("organizationDashboard.settings.profile.role")}
               </p>
@@ -296,7 +293,7 @@ const OrganizationSettingsTab = () => {
 
           <GlassCard>
             <div className="flex items-start gap-3">
-              <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+              <div className="rounded-md bg-primary/10 p-3 text-primary">
                 <L.KeyRound className="h-5 w-5" />
               </div>
               <div>
@@ -338,7 +335,6 @@ const OrganizationSettingsTab = () => {
                 <Button
                   radius="xl"
                   type="submit"
-                  variant="brand"
                   disabled={isLoading}
                 >
                   {t("organizationDashboard.settings.password.update")}

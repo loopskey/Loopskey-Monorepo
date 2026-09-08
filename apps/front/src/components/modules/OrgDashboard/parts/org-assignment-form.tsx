@@ -115,7 +115,7 @@ export const OrgAssignmentForm = ({
             <Button
               radius="xl"
               type="button"
-              variant="glass"
+              variant="outline"
               onClick={onCancel}
             >
               {t("common.cancel")}
@@ -125,7 +125,6 @@ export const OrgAssignmentForm = ({
           <Button
             radius="xl"
             type="submit"
-            variant="brand"
             disabled={isLoading}
           >
             <L.Save className="h-4 w-4" />

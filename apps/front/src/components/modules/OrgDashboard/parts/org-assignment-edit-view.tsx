@@ -28,7 +28,7 @@ export const OrgAssignmentEditView = ({ hook }: TOrgAssignmentEditView) => {
         <Button
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           onClick={closeAssignmentEdit}
         >
           <L.ArrowLeft className="h-4 w-4" />
@@ -49,7 +49,7 @@ export const OrgAssignmentEditView = ({ hook }: TOrgAssignmentEditView) => {
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             onClick={closeAssignmentEdit}
           >
             <L.ArrowLeft className="h-4 w-4" />

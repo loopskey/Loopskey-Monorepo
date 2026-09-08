@@ -51,7 +51,7 @@ const AdminSettingsTab = () => {
         <Button
           type="button"
           radius="xl"
-          variant="glass"
+          variant="outline"
           disabled={isLoading}
           onClick={refreshAll}
         >
@@ -63,7 +63,7 @@ const AdminSettingsTab = () => {
       <div className="grid gap-6 xl:grid-cols-[1fr_420px]">
         <GlassCard>
           <div className="flex items-start gap-3">
-            <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+            <div className="rounded-md bg-primary/10 p-3 text-primary">
               <L.UserRound className="h-5 w-5" />
             </div>
 
@@ -77,7 +77,7 @@ const AdminSettingsTab = () => {
             </div>
           </div>
 
-          <div className="mt-6 flex flex-col gap-4 rounded-3xl border border-glass-border bg-background/45 p-5 sm:flex-row sm:items-center">
+          <div className="mt-6 flex flex-col gap-4 rounded-lg border p-5 sm:flex-row sm:items-center">
             <UserAvatar
               fullName={fullName}
               avatarUrl={avatarUrl}
@@ -94,7 +94,7 @@ const AdminSettingsTab = () => {
             <Button
               radius="xl"
               type="button"
-              variant="glass"
+              variant="outline"
               disabled={isLoading}
               onClick={removeAvatar}
             >
@@ -131,7 +131,6 @@ const AdminSettingsTab = () => {
               <Button
                 radius="xl"
                 type="submit"
-                variant="brand"
                 disabled={isLoading}
               >
                 {t("adminDashboard.settings.profile.save")}
@@ -143,7 +142,7 @@ const AdminSettingsTab = () => {
         <div className="space-y-6">
           <GlassCard>
             <div className="flex items-start gap-3">
-              <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+              <div className="rounded-md bg-primary/10 p-3 text-primary">
                 <L.Mail className="h-5 w-5" />
               </div>
               <div>
@@ -156,7 +155,7 @@ const AdminSettingsTab = () => {
               </div>
             </div>
 
-            <div className="mt-5 rounded-3xl bg-muted/45 p-4 text-sm">
+            <div className="mt-5 rounded-lg bg-muted/45 p-4 text-sm">
               <span className="text-muted-foreground">
                 {t("adminDashboard.settings.email.currentEmail")}:
               </span>{" "}
@@ -186,7 +185,7 @@ const AdminSettingsTab = () => {
                   <Button
                     radius="xl"
                     type="button"
-                    variant="glass"
+                    variant="outline"
                     disabled={isLoading}
                     onClick={sendEmailOtp}
                   >
@@ -197,7 +196,6 @@ const AdminSettingsTab = () => {
                     <Button
                       radius="xl"
                       type="button"
-                      variant="brand"
                       disabled={isLoading}
                       onClick={verifyEmailOtp}
                     >
@@ -211,7 +209,7 @@ const AdminSettingsTab = () => {
 
           <GlassCard>
             <div className="flex items-start gap-3">
-              <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+              <div className="rounded-md bg-primary/10 p-3 text-primary">
                 <L.KeyRound className="h-5 w-5" />
               </div>
 
@@ -251,7 +249,6 @@ const AdminSettingsTab = () => {
                 <Button
                   radius="xl"
                   type="submit"
-                  variant="brand"
                   disabled={isLoading}
                 >
                   {t("adminDashboard.settings.password.update")}

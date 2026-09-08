@@ -55,7 +55,7 @@ const ProfessionalProfileTab = () => {
         <Button
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           disabled={isFetching}
           onClick={() => void refreshProfile()}
         >
@@ -75,7 +75,6 @@ const ProfessionalProfileTab = () => {
           <Button
             radius="xl"
             type="button"
-            variant="brand"
             onClick={() => void refreshProfile()}
           >
             {t("common.refresh")}
@@ -97,12 +96,12 @@ const ProfessionalProfileTab = () => {
               {isLoading ? (
                 <div className="space-y-4">
                   <Skeleton className="h-8 w-56" />
-                  <Skeleton className="h-28 w-full rounded-3xl" />
+                  <Skeleton className="h-28 w-full rounded-lg" />
                   <div className="grid gap-5 md:grid-cols-2">
                     {Array.from({ length: 6 }).map((_, index) => (
                       <Skeleton
                         key={index}
-                        className="h-14 w-full rounded-2xl"
+                        className="h-14 w-full rounded-md"
                       />
                     ))}
                   </div>

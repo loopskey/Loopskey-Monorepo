@@ -23,7 +23,7 @@ const CompletionGauge = dynamic(
   {
     ssr: false,
     loading: () => (
-      <Skeleton className={`${GAUGE_HEIGHT} w-full rounded-2xl`} />
+      <Skeleton className={`${GAUGE_HEIGHT} w-full rounded-md`} />
     ),
   },
 );
@@ -56,7 +56,7 @@ export const AssociationMemberDetailHeader = ({
           size="sm"
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           onClick={backToRoster}
         >
           <L.ArrowLeft className="h-4 w-4" />
@@ -120,7 +120,7 @@ export const AssociationMemberDetailHeader = ({
               <Button
                 radius="xl"
                 type="button"
-                variant="glass"
+                variant="outline"
                 onClick={openEdit}
                 disabled={isMutating}
               >
@@ -131,7 +131,7 @@ export const AssociationMemberDetailHeader = ({
               <Button
                 radius="xl"
                 type="button"
-                variant="glass"
+                variant="outline"
                 disabled={isMutating}
                 onClick={openRequirements}
               >
@@ -143,7 +143,6 @@ export const AssociationMemberDetailHeader = ({
                 <Button
                   radius="xl"
                   type="button"
-                  variant="brand"
                   disabled={isMutating}
                   onClick={() =>
                     void changeStatus(AssociationMemberStatus.Active)
@@ -174,7 +173,7 @@ export const AssociationMemberDetailHeader = ({
                     <Button
                       radius="xl"
                       type="button"
-                      variant="glass"
+                      variant="outline"
                       disabled={isMutating}
                     >
                       <L.UserMinus className="h-4 w-4" />

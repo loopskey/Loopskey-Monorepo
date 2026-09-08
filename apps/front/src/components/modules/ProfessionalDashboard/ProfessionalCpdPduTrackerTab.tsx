@@ -78,7 +78,7 @@ const ProfessionalCpdPduTrackerTab = () => {
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             disabled={isRefreshing}
             onClick={handleRefresh}
           >
@@ -93,7 +93,6 @@ const ProfessionalCpdPduTrackerTab = () => {
           <Button
             radius="xl"
             type="button"
-            variant="brand"
             onClick={handleAddActivity}
           >
             <L.FilePlus2 className="h-4 w-4" />
@@ -106,8 +105,8 @@ const ProfessionalCpdPduTrackerTab = () => {
       <div className="grid gap-4 md:grid-cols-2">
         {isSummaryLoading ? (
           <>
-            <Skeleton className="h-40 w-full rounded-[2rem]" />
-            <Skeleton className="h-40 w-full rounded-[2rem]" />
+            <Skeleton className="h-40 w-full rounded-lg" />
+            <Skeleton className="h-40 w-full rounded-lg" />
           </>
         ) : (
           <>
@@ -161,7 +160,7 @@ const ProfessionalCpdPduTrackerTab = () => {
             <L.Loader2 className="h-7 w-7 animate-spin text-primary" />
           </div>
         ) : activities.length === 0 ? (
-          <div className="rounded-[2rem] border border-dashed border-glass-border bg-background/40 p-10 text-center">
+          <div className="rounded-lg border border-dashed border-border p-10 text-center">
             <h3 className="text-xl font-medium">
               {isFiltered
                 ? t(`${TRACKER}.activities.noMatchTitle`)
@@ -177,7 +176,7 @@ const ProfessionalCpdPduTrackerTab = () => {
               <Button
                 radius="xl"
                 type="button"
-                variant="glass"
+                variant="outline"
                 className="mt-5"
                 onClick={handleResetFilters}
               >
@@ -188,7 +187,6 @@ const ProfessionalCpdPduTrackerTab = () => {
               <Button
                 radius="xl"
                 type="button"
-                variant="brand"
                 className="mt-5"
                 onClick={handleAddActivity}
               >
@@ -235,9 +233,9 @@ const ProfessionalCpdPduTrackerTab = () => {
         </div>
 
         {isReportLoading ? (
-          <Skeleton className="h-56 w-full rounded-[1.5rem]" />
+          <Skeleton className="h-56 w-full rounded-lg" />
         ) : categoryRows.length === 0 ? (
-          <div className="rounded-[1.5rem] border border-dashed border-glass-border bg-background/40 p-10 text-center text-sm text-muted-foreground">
+          <div className="rounded-lg border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
             {t(`${TRACKER}.byCategory.empty`)}
           </div>
         ) : (
@@ -245,7 +243,7 @@ const ProfessionalCpdPduTrackerTab = () => {
             {categoryRows.map((item) => (
               <div
                 key={item.category}
-                className="rounded-[1.5rem] border border-glass-border bg-background/40 p-4"
+                className="rounded-lg border p-4"
               >
                 <div className="mb-3 flex items-center justify-between gap-3">
                   <div>
@@ -295,13 +293,13 @@ const ProfessionalCpdPduTrackerTab = () => {
         </div>
 
         {isReportLoading ? (
-          <Skeleton className="h-72 w-full rounded-[1.5rem]" />
+          <Skeleton className="h-72 w-full rounded-lg" />
         ) : hasChartData ? (
           <div className="h-72">
             <PduOverTimeChart data={pduOverTime} />
           </div>
         ) : (
-          <div className="flex h-72 items-center justify-center rounded-[1.5rem] border border-dashed border-glass-border bg-background/40 p-10 text-center text-sm text-muted-foreground">
+          <div className="flex h-72 items-center justify-center rounded-lg border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
             {t(`${TRACKER}.overTime.empty`)}
           </div>
         )}

@@ -38,7 +38,7 @@ const ServiceBlock = ({
               className="object-cover transition-transform duration-700 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-tr from-primary/30 via-transparent to-background/20" />
-            <div className="absolute left-5 top-5 rounded-2xl border border-white/15 bg-background/70 p-3 text-primary shadow-xl backdrop-blur-xl">
+            <div className="absolute left-5 top-5 rounded-md border border-white/15 bg-muted p-3 text-primary shadow-xl">
               <Icon className="h-6 w-6" />
             </div>
           </div>
@@ -59,7 +59,7 @@ const ServiceBlock = ({
                   delay={120 + benefitIndex * 70}
                   direction={isReversed ? "left" : "right"}
                 >
-                  <div className="flex items-start gap-3 rounded-2xl border border-glass-border bg-background/45 p-3">
+                  <div className="flex items-start gap-3 rounded-md border p-3">
                     <div className="mt-0.5 rounded-full bg-primary/10 p-1 text-primary">
                       <Check className="h-3.5 w-3.5" />
                     </div>
@@ -74,7 +74,7 @@ const ServiceBlock = ({
             </div>
 
             <div className="mt-7">
-              <Button asChild radius="xl" variant="brand">
+              <Button asChild radius="xl">
                 <Link href={consultationHref}>
                   {t("servicesPage.common.bookConsultation")}
                   <ArrowRight className="h-4 w-4" />

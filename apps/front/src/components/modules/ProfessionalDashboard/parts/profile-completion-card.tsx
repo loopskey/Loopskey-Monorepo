@@ -21,7 +21,7 @@ export const ProfileCompletionCard = ({ hook }: TProfileCompletionCardProps) => 
         <Skeleton className="h-2 w-full" />
         <div className="space-y-2">
           {Array.from({ length: 5 }).map((_, index) => (
-            <Skeleton key={index} className="h-14 w-full rounded-2xl" />
+            <Skeleton key={index} className="h-14 w-full rounded-md" />
           ))}
         </div>
       </GlassCard>
@@ -31,7 +31,7 @@ export const ProfileCompletionCard = ({ hook }: TProfileCompletionCardProps) => 
     <GlassCard className="space-y-5">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-start gap-3">
-          <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+          <div className="rounded-md bg-primary/10 p-3 text-primary">
             <Gauge className="h-5 w-5" />
           </div>
           <div>
@@ -69,7 +69,7 @@ export const ProfileCompletionCard = ({ hook }: TProfileCompletionCardProps) => 
               type="button"
               onClick={() => setActiveTab(section.tab)}
               className={cn(
-                "group flex w-full items-center gap-3 rounded-2xl border border-glass-border bg-background/45 px-4 py-3 text-left",
+                "group flex w-full items-center gap-3 rounded-md border px-4 py-3 text-left",
                 "transition-colors hover:border-primary/30 hover:bg-primary/5",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45",
               )}
@@ -77,7 +77,7 @@ export const ProfileCompletionCard = ({ hook }: TProfileCompletionCardProps) => 
               {section.isComplete ? (
                 <CheckCircle2
                   aria-hidden
-                  className="h-4 w-4 shrink-0 text-emerald-500"
+                  className="h-4 w-4 shrink-0 text-success-soft-foreground"
                 />
               ) : (
                 <Circle
@@ -94,7 +94,7 @@ export const ProfileCompletionCard = ({ hook }: TProfileCompletionCardProps) => 
                 className={cn(
                   "shrink-0 text-xs font-medium",
                   section.isComplete
-                    ? "text-emerald-500"
+                    ? "text-success-soft-foreground"
                     : "text-muted-foreground",
                 )}
               >

@@ -27,7 +27,7 @@ const HeatmapRow = ({
       ?.averagePercent ?? null;
 
   return (
-    <tr className="border-b border-glass-border/70">
+    <tr className="border-b border-border/70">
       <th scope="row" className="py-2 pr-4 text-left font-medium">
         {groupTitle}
       </th>
@@ -78,7 +78,7 @@ export const AssociationReportHeatmap = ({
 
   if (columns.length === 0 || named.length === 0)
     return (
-      <div className="rounded-3xl border border-dashed border-glass-border py-10 text-center text-sm text-muted-foreground">
+      <div className="rounded-lg border border-dashed border-border py-10 text-center text-sm text-muted-foreground">
         {label("heatmap.empty")}
       </div>
     );
@@ -96,7 +96,7 @@ export const AssociationReportHeatmap = ({
           <caption className="sr-only">{label("heatmap.caption")}</caption>
 
           <thead className="text-xs uppercase text-muted-foreground">
-            <tr className="border-b border-glass-border">
+            <tr className="border-b border-border">
               <th scope="col" className="py-3 pr-4 text-left">
                 {label("heatmap.group")}
               </th>

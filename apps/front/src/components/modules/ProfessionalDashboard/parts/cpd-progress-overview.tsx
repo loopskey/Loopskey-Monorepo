@@ -12,10 +12,10 @@ import * as L from "lucide-react";
 import { CpdProgressOverviewProps } from "@/types/cpd-plan.types";
 
 const TONE_CLASSES: Record<string, string> = {
-  success:"text-emerald-600 bg-emerald-500/10",
-  info:"text-blue-600 bg-blue-500/10",
-  warning:"text-amber-600 bg-amber-500/10",
-  danger:"text-red-600 bg-red-500/10",
+  success:"text-success-soft-foreground bg-success-soft",
+  info:"text-primary bg-primary/10",
+  warning:"text-warning-soft-foreground bg-warning-soft",
+  danger:"text-destructive-soft-foreground bg-destructive-soft",
   neutral: "text-muted-foreground bg-muted",
 };
 
@@ -136,7 +136,7 @@ export const CpdProgressOverview = ({
 
           <div
             className={cn(
-              "flex items-center gap-4 rounded-2xl p-5",
+              "flex items-center gap-4 rounded-md p-5",
               TONE_CLASSES[meta.tone],
             )}
           >

@@ -51,13 +51,13 @@ const LandingHero = () => {
     <section className="relative overflow-x-clip px-4 py-10 sm:px-6 lg:px-8">
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute left-1/2 top-0 h-[34rem] w-[34rem] -translate-x-1/2 rounded-full bg-primary/14 blur-3xl" />
-        <div className="absolute right-0 top-32 h-80 w-80 rounded-full bg-cyan-500/10 blur-3xl" />
-        <div className="absolute bottom-0 left-0 h-80 w-80 rounded-full bg-violet-500/10 blur-3xl" />
+        <div className="absolute right-0 top-32 h-80 w-80 rounded-full bg-chart-7/10 blur-3xl" />
+        <div className="absolute bottom-0 left-0 h-80 w-80 rounded-full bg-chart-4/10 blur-3xl" />
       </div>
 
       <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] px-4 sm:px-6 lg:px-8">
         <div className="animate-in fade-in-0 slide-in-from-bottom-5 duration-700">
-          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-glass-border bg-background/60 px-4 py-2 text-sm font-bold text-primary shadow-sm backdrop-blur-xl">
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold text-primary shadow-sm">
             <Sparkles className="h-4 w-4" />
             {t("landing.hero.badge")}
           </div>
@@ -100,7 +100,7 @@ const LandingHero = () => {
           </p>
 
           <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-            <Button asChild size="xl" radius="xl" variant="brand">
+            <Button asChild size="xl" radius="xl">
               <Link href="/content">
                 {t("landing.hero.primaryCta")}
                 <ArrowRight className="h-4 w-4" />
@@ -109,14 +109,14 @@ const LandingHero = () => {
 
             {isAuthenticated ? (
               dashboardHref ? (
-                <Button asChild size="xl" radius="xl" variant="glass">
+                <Button asChild size="xl" radius="xl" variant="outline">
                   <Link href={dashboardHref}>
                     {t("landing.hero.dashboardCta")}
                   </Link>
                 </Button>
               ) : null
             ) : (
-              <Button asChild size="xl" radius="xl" variant="glass">
+              <Button asChild size="xl" radius="xl" variant="outline">
                 <Link href="/auth/professional">
                   {t("landing.hero.secondaryCta")}
                 </Link>
@@ -148,7 +148,7 @@ const LandingHero = () => {
             ) : null}
 
             {selectedCategory ? (
-              <div className="flex items-center justify-between rounded-2xl border border-glass-border bg-background/50 px-4 py-3 text-sm backdrop-blur-xl">
+              <div className="flex items-center justify-between rounded-md border px-4 py-3 text-sm">
                 <span className="font-medium text-muted-foreground">
                   {t("landing.hero.selectedCategory")}:{" "}
                   <span className="text-primary">{selectedCategory.label}</span>

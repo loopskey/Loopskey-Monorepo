@@ -84,7 +84,7 @@ export const AssociationReportExports = ({
         <ul className="mt-6 space-y-3">
           {[0, 1, 2].map((row) => (
             <li key={row}>
-              <Skeleton className="h-20 w-full rounded-3xl" />
+              <Skeleton className="h-20 w-full rounded-lg" />
             </li>
           ))}
         </ul>
@@ -97,7 +97,7 @@ export const AssociationReportExports = ({
 
     if (generatedReports.length === 0)
       return (
-        <div className="mt-6 rounded-3xl border border-glass-border bg-background/50 p-8 text-center">
+        <div className="mt-6 rounded-lg border p-8 text-center">
           <L.FileDown className="mx-auto h-7 w-7 text-muted-foreground" />
 
           <p className="mt-3 font-medium">{label("empty.title")}</p>
@@ -113,7 +113,7 @@ export const AssociationReportExports = ({
         {generatedReports.map((record) => (
           <li
             key={record.id}
-            className="flex flex-col gap-4 rounded-3xl border border-glass-border bg-background/50 p-5 sm:flex-row sm:items-center sm:justify-between"
+            className="flex flex-col gap-4 rounded-lg border p-5 sm:flex-row sm:items-center sm:justify-between"
           >
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
@@ -178,7 +178,7 @@ export const AssociationReportExports = ({
                   size="sm"
                   radius="xl"
                   type="button"
-                  variant="glass"
+                  variant="outline"
                   disabled={downloadingExportId === record.id}
                   onClick={() =>
                     void downloadExport({
@@ -201,7 +201,7 @@ export const AssociationReportExports = ({
                   size="sm"
                   radius="xl"
                   type="button"
-                  variant="glass"
+                  variant="outline"
                   disabled={isRequestingExport}
                   onClick={() => void regenerateExport(record.id)}
                 >

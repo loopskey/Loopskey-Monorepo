@@ -42,10 +42,10 @@ const CourseCurriculum = ({ sections }: TCourseCurriculumProps) => {
               {(section.lessons ?? []).map((lesson) => (
                 <div
                   key={lesson.id}
-                  className="flex items-start justify-between gap-4 rounded-2xl border border-glass-border bg-background/45 p-4"
+                  className="flex items-start justify-between gap-4 rounded-md border p-4"
                 >
                   <div className="flex gap-3">
-                    <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                    <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
                       {lesson.isPreview ? (
                         <PlayCircle className="h-5 w-5" />
                       ) : (

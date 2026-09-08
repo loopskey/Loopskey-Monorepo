@@ -13,7 +13,7 @@ export const OrgAssignmentCard = ({ hook, assignment }: TOrgAssignmentCard) => {
     hook;
 
   return (
-    <div className="rounded-3xl border border-glass-border bg-background/45 p-5">
+    <div className="rounded-lg border p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h3 className="font-medium">{assignment.title}</h3>
@@ -26,13 +26,13 @@ export const OrgAssignmentCard = ({ hook, assignment }: TOrgAssignmentCard) => {
         <Badge variant="secondary">{assignment.status}</Badge>
       </div>
       <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-        <div className="rounded-2xl bg-background/60 p-3">
+        <div className="rounded-md bg-muted p-3">
           <p className="text-muted-foreground">
             {t("organizationDashboard.assignments.card.members")}
           </p>
           <p className="mt-1 font-semibold">{assignment.members}</p>
         </div>
-        <div className="rounded-2xl bg-background/60 p-3">
+        <div className="rounded-md bg-muted p-3">
           <p className="text-muted-foreground">
             {t("organizationDashboard.assignments.card.target")}
           </p>
@@ -51,7 +51,7 @@ export const OrgAssignmentCard = ({ hook, assignment }: TOrgAssignmentCard) => {
           size="sm"
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           onClick={() => openAssignmentDetail(assignment.id)}
         >
           <L.Eye className="h-4 w-4" />
@@ -62,7 +62,7 @@ export const OrgAssignmentCard = ({ hook, assignment }: TOrgAssignmentCard) => {
           size="sm"
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           onClick={() => startEdit(assignment.id)}
         >
           <L.Pencil className="h-4 w-4" />

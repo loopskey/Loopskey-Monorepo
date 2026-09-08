@@ -12,7 +12,7 @@ export const OrgCpdCategoryFilters = ({ hook }: TCPDFilters) => {
     <div className="grid gap-3 md:grid-cols-[1fr_220px]">
       <Input
         value={search}
-        className="rounded-2xl"
+        className="rounded-md"
         onChange={(event) => setSearch(event.target.value)}
         placeholder={t("organizationDashboard.cpd.filters.search")}
       />
@@ -23,7 +23,7 @@ export const OrgCpdCategoryFilters = ({ hook }: TCPDFilters) => {
           setStatus(value as "ALL" | "ACTIVE" | "INACTIVE")
         }
       >
-        <S.SelectTrigger className="rounded-2xl bg-background/70">
+        <S.SelectTrigger className="rounded-md bg-muted">
           <S.SelectValue />
         </S.SelectTrigger>
 

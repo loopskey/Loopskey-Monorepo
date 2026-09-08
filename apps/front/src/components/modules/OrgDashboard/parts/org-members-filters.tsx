@@ -20,7 +20,7 @@ export const OrgMembersFilters = ({
     <div className="grid gap-3 md:grid-cols-3">
       <Input
         value={search}
-        className="rounded-2xl"
+        className="rounded-md"
         onChange={(event) => setSearch(event.target.value)}
         placeholder={t("organizationDashboard.members.filters.search")}
       />
@@ -31,7 +31,7 @@ export const OrgMembersFilters = ({
           setStatus(value as "ALL" | OrganizationMemberStatus)
         }
       >
-        <S.SelectTrigger className="rounded-2xl">
+        <S.SelectTrigger className="rounded-md">
           <S.SelectValue />
         </S.SelectTrigger>
         <S.SelectContent>
@@ -47,7 +47,7 @@ export const OrgMembersFilters = ({
       </S.Select>
 
       <S.Select value={departmentId} onValueChange={setDepartmentId}>
-        <S.SelectTrigger className="rounded-2xl">
+        <S.SelectTrigger className="rounded-md">
           <S.SelectValue />
         </S.SelectTrigger>
         <S.SelectContent>

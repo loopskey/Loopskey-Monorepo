@@ -38,7 +38,7 @@ export const ProviderProfileSettingsStep = ({ hook }: Props) => {
     <F.Form {...form}>
       <section className="space-y-6">
         <div className="flex items-start gap-4">
-          <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+          <div className="rounded-md bg-primary/10 p-3 text-primary">
             <Building2 className="h-5 w-5" />
           </div>
 
@@ -54,7 +54,7 @@ export const ProviderProfileSettingsStep = ({ hook }: Props) => {
         </div>
 
         <div className="grid gap-4 lg:grid-cols-3">
-          <div className="rounded-3xl border border-glass-border bg-background/45 p-5">
+          <div className="rounded-lg border p-5">
             <UserRound className="h-5 w-5 text-primary" />
 
             <p className="mt-3 text-sm text-muted-foreground">
@@ -66,7 +66,7 @@ export const ProviderProfileSettingsStep = ({ hook }: Props) => {
             </p>
           </div>
 
-          <div className="rounded-3xl border border-glass-border bg-background/45 p-5">
+          <div className="rounded-lg border p-5">
             <Mail className="h-5 w-5 text-primary" />
 
             <p className="mt-3 text-sm text-muted-foreground">
@@ -78,7 +78,7 @@ export const ProviderProfileSettingsStep = ({ hook }: Props) => {
             </p>
           </div>
 
-          <div className="rounded-3xl border border-glass-border bg-background/45 p-5">
+          <div className="rounded-lg border p-5">
             <Building2 className="h-5 w-5 text-primary" />
 
             <p className="mt-3 text-sm text-muted-foreground">
@@ -124,7 +124,7 @@ export const ProviderProfileSettingsStep = ({ hook }: Props) => {
               <FileText className="pointer-events-none absolute left-4 top-4 h-4 w-4 text-muted-foreground" />
 
               <Textarea
-                className="min-h-32 rounded-2xl border-border/70 bg-background/55 pl-11 pt-4 text-base shadow-sm backdrop-blur-xl transition-all duration-200 hover:border-primary/30 focus-visible:border-primary/55 focus-visible:ring-primary/25"
+                className="min-h-32 rounded-md border-border/70 bg-muted pl-11 pt-4 text-base shadow-sm transition-all duration-200 hover:border-primary/30 focus-visible:border-primary/55 focus-visible:ring-primary/25"
                 value={watchedValues?.aboutOrganization ?? ""}
                 onChange={(event) =>
                   updateTextareaField(
@@ -140,7 +140,6 @@ export const ProviderProfileSettingsStep = ({ hook }: Props) => {
         <Button
           radius="xl"
           type="button"
-          variant="brand"
           disabled={isLoading}
           onClick={saveProfileSettings}
         >

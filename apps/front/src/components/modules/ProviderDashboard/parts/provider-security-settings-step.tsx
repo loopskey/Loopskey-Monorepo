@@ -31,7 +31,7 @@ export const ProviderSecuritySettingsStep = ({ hook }: Props) => {
   return (
     <section className="space-y-6">
       <div className="flex items-start gap-4">
-        <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+        <div className="rounded-md bg-primary/10 p-3 text-primary">
           <ShieldCheck className="h-5 w-5" />
         </div>
         <div>
@@ -44,7 +44,7 @@ export const ProviderSecuritySettingsStep = ({ hook }: Props) => {
         </div>
       </div>
       <div className="grid gap-4 xl:grid-cols-2">
-        <div className="rounded-3xl border border-glass-border bg-background/45 p-5">
+        <div className="rounded-lg border p-5">
           <div className="flex items-center gap-3">
             <KeyRound className="h-5 w-5 text-primary" />
             <h3 className="font-medium">
@@ -82,7 +82,6 @@ export const ProviderSecuritySettingsStep = ({ hook }: Props) => {
               <Button
                 radius="xl"
                 type="submit"
-                variant="brand"
                 disabled={isPasswordSubmitDisabled}
               >
                 {t("providerDashboard.settings.security.updatePassword")}
@@ -91,7 +90,7 @@ export const ProviderSecuritySettingsStep = ({ hook }: Props) => {
           </F.Form>
         </div>
 
-        <div className="rounded-3xl border border-glass-border bg-background/45 p-5">
+        <div className="rounded-lg border p-5">
           <div className="flex items-center gap-3">
             <Mail className="h-5 w-5 text-primary" />
             <h3 className="font-medium">
@@ -132,7 +131,7 @@ export const ProviderSecuritySettingsStep = ({ hook }: Props) => {
                 <Button
                   radius="xl"
                   type="button"
-                  variant="glass"
+                  variant="outline"
                   disabled={isSendOtpDisabled}
                   onClick={handleSendEmailChangeOtp}
                 >
@@ -143,7 +142,6 @@ export const ProviderSecuritySettingsStep = ({ hook }: Props) => {
                   <Button
                     radius="xl"
                     type="button"
-                    variant="brand"
                     disabled={isVerifyEmailDisabled}
                     onClick={handleVerifyEmailChangeOtp}
                   >

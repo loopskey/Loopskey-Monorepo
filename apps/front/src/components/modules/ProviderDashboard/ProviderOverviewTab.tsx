@@ -65,7 +65,7 @@ const ProviderOverviewTab = () => {
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             disabled={isLoading}
             onClick={refreshAll}
           >
@@ -73,7 +73,7 @@ const ProviderOverviewTab = () => {
             {t("common.refresh")}
           </Button>
 
-          <Button asChild radius="xl" variant="glass">
+          <Button asChild radius="xl" variant="outline">
             <Link href="/dashboard/provider?tab=my-events">
               {t("providerDashboard.overview.viewAllEvents")}
             </Link>
@@ -214,12 +214,12 @@ const ProviderOverviewTab = () => {
 
           <div className="mt-5 space-y-3">
             <SummaryRow
-              className="bg-emerald-500/10"
+              className="bg-success-soft"
               value={statusBreakdown?.published ?? 0}
               label={t("providerDashboard.overview.summary.published")}
             />
             <SummaryRow
-              className="bg-amber-500/10"
+              className="bg-warning-soft"
               value={statusBreakdown?.draft ?? 0}
               label={t("providerDashboard.overview.summary.draft")}
             />
@@ -248,7 +248,7 @@ const ProviderOverviewTab = () => {
                 {t("providerDashboard.overview.upcoming.description")}
               </p>
             </div>
-            <Button asChild size="sm" radius="xl" variant="glass">
+            <Button asChild size="sm" radius="xl" variant="outline">
               <Link href="/dashboard/provider?tab=my-events">
                 {t("providerDashboard.overview.viewAllEvents")}
               </Link>

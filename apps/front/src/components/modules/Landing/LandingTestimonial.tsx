@@ -54,7 +54,7 @@ const LandingTestimonials = () => {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <RevealOnScroll direction="up">
           <div className="mx-auto max-w-3xl text-center">
-            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-glass-border bg-background/55 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm backdrop-blur-xl ring-1 ring-white/40">
+            <span className="inline-flex w-fit items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm ring-1 ring-white/40">
               <Sparkles className="h-4 w-4" />
               {t("landing.testimonials.eyebrow")}
             </span>
@@ -103,7 +103,7 @@ const LandingTestimonials = () => {
                     </span>
                   </div>
 
-                  <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-all duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground">
+                  <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-md bg-primary/10 text-primary transition-all duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground">
                     <Quote className="h-6 w-6" />
                   </div>
 
@@ -111,8 +111,8 @@ const LandingTestimonials = () => {
                     “{item.quote}”
                   </blockquote>
 
-                  <div className="mt-8 flex items-center gap-4 border-t border-glass-border pt-5">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 text-sm font-bold text-primary ring-1 ring-primary/20">
+                  <div className="mt-8 flex items-center gap-4 border-t border-border pt-5">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-md bg-gradient-to-br from-primary/20 to-accent/20 text-sm font-bold text-primary ring-1 ring-primary/20">
                       {item.avatar}
                     </div>
 

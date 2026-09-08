@@ -53,7 +53,6 @@ const ProfessionalCertificateFormTab = () => {
         <Button
           radius="xl"
           type="button"
-          variant="brand"
           className="mt-5"
           onClick={handleCancel}
         >
@@ -105,7 +104,7 @@ const ProfessionalCertificateFormTab = () => {
               onDownloadExisting={handleDownloadExistingFile}
             />
 
-            <div className="mt-8 flex flex-col-reverse gap-3 border-t border-glass-border pt-6 sm:flex-row sm:items-center sm:justify-between">
+            <div className="mt-8 flex flex-col-reverse gap-3 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
               {isDirty ? (
                 <ConfirmDialog
                   trigger={cancelButton}
@@ -130,7 +129,6 @@ const ProfessionalCertificateFormTab = () => {
               <Button
                 radius="xl"
                 type="submit"
-                variant="brand"
                 disabled={isSaving}
               >
                 {isSaving && (

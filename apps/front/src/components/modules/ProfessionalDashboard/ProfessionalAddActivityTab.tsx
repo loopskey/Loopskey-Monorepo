@@ -137,7 +137,7 @@ const ProfessionalAddActivityTab = () => {
               />
             )}
 
-            <div className="mt-8 flex flex-col-reverse gap-3 border-t border-glass-border pt-6 sm:flex-row sm:items-center sm:justify-between">
+            <div className="mt-8 flex flex-col-reverse gap-3 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
               {form.formState.isDirty || files.length > 0 ? (
                 <ConfirmDialog
                   trigger={cancelButton}
@@ -164,7 +164,7 @@ const ProfessionalAddActivityTab = () => {
                   <Button
                     radius="xl"
                     type="button"
-                    variant="glass"
+                    variant="outline"
                     onClick={goBack}
                     disabled={isSaving}
                   >
@@ -177,7 +177,6 @@ const ProfessionalAddActivityTab = () => {
                   <Button
                     radius="xl"
                     type="submit"
-                    variant="brand"
                     disabled={isSaving}
                   >
                     {isSaving && <L.Loader2 className="h-4 w-4 animate-spin" />}
@@ -189,7 +188,6 @@ const ProfessionalAddActivityTab = () => {
                   <Button
                     radius="xl"
                     type="button"
-                    variant="brand"
                     onClick={goNext}
                   >
                     {t(`${TRACKER}.addActivity.next`)}

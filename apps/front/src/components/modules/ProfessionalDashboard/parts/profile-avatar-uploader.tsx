@@ -43,7 +43,7 @@ export const ProfileAvatarUploader = ({
   };
 
   return (
-    <div className="flex flex-col gap-4 rounded-3xl border border-glass-border bg-background/45 p-5 sm:flex-row sm:items-center">
+    <div className="flex flex-col gap-4 rounded-lg border p-5 sm:flex-row sm:items-center">
       <UserAvatar
         email={profile?.email}
         fullName={profile?.fullName}
@@ -108,7 +108,7 @@ export const ProfileAvatarUploader = ({
         <Button
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           disabled={isBusy}
           onClick={() => inputRef.current?.click()}
         >
@@ -134,7 +134,7 @@ export const ProfileAvatarUploader = ({
             <Button
               radius="xl"
               type="button"
-              variant="glass"
+              variant="outline"
               disabled={isBusy || !profile?.avatarUrl}
             >
               {isRemoving ? (

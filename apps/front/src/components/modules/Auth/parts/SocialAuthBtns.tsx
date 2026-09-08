@@ -34,7 +34,7 @@ const SocialAuthButtons = ({ role, disabled }: TSocialAuthBtns) => {
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             onClick={continueWithGoogle}
             disabled={disabled || isRedirecting}
           >
@@ -51,7 +51,7 @@ const SocialAuthButtons = ({ role, disabled }: TSocialAuthBtns) => {
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             onClick={continueWithLinkedIn}
             disabled={disabled || isRedirecting}
           >
@@ -64,7 +64,7 @@ const SocialAuthButtons = ({ role, disabled }: TSocialAuthBtns) => {
           </Button>
         )}
 
-        <Button type="button" variant="glass" radius="xl" disabled>
+        <Button type="button" variant="outline" radius="xl" disabled>
           <Facebook className="h-4 w-4" />
           <span className="sr-only">{t("authPages.common.facebook")}</span>
         </Button>

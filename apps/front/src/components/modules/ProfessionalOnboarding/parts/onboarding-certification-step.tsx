@@ -50,7 +50,7 @@ export const OnboardingCertificationStep = ({ hook }: TOnboardingStepProps) => {
       </div>
 
       {isManualCertification ? (
-        <div className="space-y-4 rounded-3xl border border-glass-border bg-background/45 p-5">
+        <div className="space-y-4 rounded-lg border p-5">
           <h3 className="font-medium">
             {t("professionalOnboarding.certification.manual.title")}
           </h3>
@@ -101,7 +101,7 @@ export const OnboardingCertificationStep = ({ hook }: TOnboardingStepProps) => {
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             onClick={closeManualCertification}
           >
             <L.ArrowLeft aria-hidden className="h-4 w-4" />
@@ -132,7 +132,7 @@ export const OnboardingCertificationStep = ({ hook }: TOnboardingStepProps) => {
           </div>
 
           {certification?.kind === "catalogue" && (
-            <div className="flex items-center justify-between gap-3 rounded-2xl border border-primary bg-primary/10 px-4 py-3">
+            <div className="flex items-center justify-between gap-3 rounded-md border border-primary bg-primary/10 px-4 py-3">
               <span className="min-w-0 text-sm">
                 <span className="block truncate font-medium">
                   {certification.option.name}
@@ -145,7 +145,7 @@ export const OnboardingCertificationStep = ({ hook }: TOnboardingStepProps) => {
                 size="sm"
                 radius="xl"
                 type="button"
-                variant="glass"
+                variant="outline"
                 onClick={clearCertification}
               >
                 {t("professionalOnboarding.certification.clear")}
@@ -154,13 +154,13 @@ export const OnboardingCertificationStep = ({ hook }: TOnboardingStepProps) => {
           )}
 
           {certification?.kind === "none" && (
-            <p className="rounded-2xl border border-primary bg-primary/10 px-4 py-3 text-sm">
+            <p className="rounded-md border border-primary bg-primary/10 px-4 py-3 text-sm">
               {t("professionalOnboarding.certification.noneSelected")}
             </p>
           )}
 
           {hasCertificationError ? (
-            <div className="flex flex-col items-center gap-3 rounded-3xl border border-glass-border p-6 text-center">
+            <div className="flex flex-col items-center gap-3 rounded-lg border p-6 text-center">
               <L.TriangleAlert
                 aria-hidden
                 className="h-5 w-5 text-destructive"
@@ -171,7 +171,7 @@ export const OnboardingCertificationStep = ({ hook }: TOnboardingStepProps) => {
               <Button
                 radius="xl"
                 type="button"
-                variant="glass"
+                variant="outline"
                 onClick={() => void refetchCertifications()}
               >
                 {t("professionalOnboarding.certification.retry")}
@@ -187,7 +187,7 @@ export const OnboardingCertificationStep = ({ hook }: TOnboardingStepProps) => {
                 {t("professionalOnboarding.certification.loading")}
               </span>
               {Array.from({ length: 4 }).map((_, index) => (
-                <Skeleton key={index} className="h-14 w-full rounded-2xl" />
+                <Skeleton key={index} className="h-14 w-full rounded-md" />
               ))}
             </div>
           ) : certificationOptions.length ? (
@@ -207,11 +207,11 @@ export const OnboardingCertificationStep = ({ hook }: TOnboardingStepProps) => {
                       aria-pressed={isSelected}
                       onClick={() => selectCertification(option)}
                       className={cn(
-                        "flex w-full items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-left transition-colors",
+                        "flex w-full items-center justify-between gap-3 rounded-md border px-4 py-3 text-left transition-colors",
                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                         isSelected
                           ? "border-primary bg-primary/10"
-                          : "border-glass-border bg-background/45 hover:border-primary/40",
+                          : "border-border hover:border-primary/40",
                       )}
                     >
                       <span className="min-w-0">
@@ -231,7 +231,7 @@ export const OnboardingCertificationStep = ({ hook }: TOnboardingStepProps) => {
               })}
             </ul>
           ) : (
-            <p className="rounded-2xl border border-glass-border bg-background/45 px-4 py-3 text-sm text-muted-foreground">
+            <p className="rounded-md border px-4 py-3 text-sm text-muted-foreground">
               {t("professionalOnboarding.certification.empty")}
             </p>
           )}
@@ -240,7 +240,7 @@ export const OnboardingCertificationStep = ({ hook }: TOnboardingStepProps) => {
             <Button
               radius="xl"
               type="button"
-              variant="glass"
+              variant="outline"
               onClick={openManualCertification}
             >
               <L.PencilLine aria-hidden className="h-4 w-4" />

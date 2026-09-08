@@ -30,10 +30,10 @@ export const AssociationMemberDetailView = ({
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <Skeleton className="h-64 w-full rounded-3xl" />
+        <Skeleton className="h-64 w-full rounded-lg" />
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {Array.from({ length: 4 }, (_, index) => (
-            <Skeleton key={index} className="h-32 w-full rounded-3xl" />
+            <Skeleton key={index} className="h-32 w-full rounded-lg" />
           ))}
         </div>
         <DashboardContentSkeleton />
@@ -59,7 +59,7 @@ export const AssociationMemberDetailView = ({
             <Button
               radius="xl"
               type="button"
-              variant="glass"
+              variant="outline"
               onClick={hook.retry}
             >
               <L.RotateCcw className="h-4 w-4" />
@@ -69,7 +69,7 @@ export const AssociationMemberDetailView = ({
             <Button
               radius="xl"
               type="button"
-              variant="glass"
+              variant="outline"
               onClick={hook.backToRoster}
             >
               <L.ArrowLeft className="h-4 w-4" />

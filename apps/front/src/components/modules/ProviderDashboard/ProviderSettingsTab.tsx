@@ -51,7 +51,7 @@ export const ProviderSettingsTab = () => {
         <Button
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           disabled={isLoading}
           onClick={refreshAll}
         >
@@ -72,15 +72,15 @@ export const ProviderSettingsTab = () => {
                 type="button"
                 onClick={() => setActiveStep(step.value)}
                 className={cn(
-                  "relative flex items-center gap-4 rounded-3xl border p-4 text-left transition-all",
+                  "relative flex items-center gap-4 rounded-lg border p-4 text-left transition-all",
                   isActive
                     ? "border-primary bg-primary/10 shadow-lg shadow-primary/10"
-                    : "border-glass-border bg-background/45 hover:border-primary/40",
+                    : "border-border hover:border-primary/40",
                 )}
               >
                 <div
                   className={cn(
-                    "flex h-11 w-11 items-center justify-center rounded-2xl",
+                    "flex h-11 w-11 items-center justify-center rounded-md",
                     isActive || isDone
                       ? "bg-primary text-primary-foreground"
                       : "bg-muted text-muted-foreground",
@@ -106,7 +106,7 @@ export const ProviderSettingsTab = () => {
                 </div>
 
                 {index < steps.length - 1 && (
-                  <span className="pointer-events-none absolute -right-2 top-1/2 hidden h-4 w-4 -translate-y-1/2 rotate-45 border-r border-t border-glass-border bg-background md:block" />
+                  <span className="pointer-events-none absolute -right-2 top-1/2 hidden h-4 w-4 -translate-y-1/2 rotate-45 border-r border-t border-border bg-background md:block" />
                 )}
               </button>
             );

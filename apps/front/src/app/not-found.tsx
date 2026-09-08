@@ -15,12 +15,12 @@ const NotFoundPage = () => {
     <main className="flex min-h-[calc(100vh-5rem)] items-center overflow-hidden px-4 py-20 sm:px-6 lg:px-8">
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute left-1/2 top-10 h-96 w-96 -translate-x-1/2 rounded-full bg-primary/15 blur-3xl" />
-        <div className="absolute bottom-10 left-10 h-80 w-80 rounded-full bg-cyan-500/10 blur-3xl" />
-        <div className="absolute bottom-20 right-10 h-80 w-80 rounded-full bg-violet-500/10 blur-3xl" />
+        <div className="absolute bottom-10 left-10 h-80 w-80 rounded-full bg-chart-7/10 blur-3xl" />
+        <div className="absolute bottom-20 right-10 h-80 w-80 rounded-full bg-chart-4/10 blur-3xl" />
       </div>
 
       <RevealOnScroll className="mx-auto w-full max-w-4xl text-center">
-        <div className="mx-auto mb-7 flex h-20 w-20 items-center justify-center rounded-[2rem] bg-primary/10 text-primary shadow-inner">
+        <div className="mx-auto mb-7 flex h-20 w-20 items-center justify-center rounded-lg bg-primary/10 text-primary shadow-inner">
           <SearchX className="h-10 w-10" />
         </div>
 

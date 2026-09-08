@@ -5,7 +5,7 @@ import { Skeleton } from "@ui/skeleton";
 import dynamic from "next/dynamic";
 
 export const chartSkeleton = () => (
-  <Skeleton className="h-72 w-full rounded-2xl" />
+  <Skeleton className="h-72 w-full rounded-md" />
 );
 
 export const GroupComplianceChart = dynamic(

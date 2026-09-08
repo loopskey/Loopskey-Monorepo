@@ -11,12 +11,12 @@ export const AdminOrganizationAuditTab = ({ hook }: Props) => {
   const { t, auditLogs } = hook;
 
   return (
-    <div className="rounded-3xl border border-glass-border">
+    <div className="rounded-lg border">
       {auditLogs.length ? (
         auditLogs.map((log) => (
           <div
             key={log.id}
-            className="border-b border-glass-border p-4 last:border-b-0"
+            className="border-b border-border p-4 last:border-b-0"
           >
             <p className="font-medium">{log.action}</p>
 

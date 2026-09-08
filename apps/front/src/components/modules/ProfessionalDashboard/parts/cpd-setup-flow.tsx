@@ -127,7 +127,7 @@ export const CpdSetupFlow = ({
                 <Button
                   radius="xl"
                   type="button"
-                  variant="glass"
+                  variant="outline"
                   onClick={back}
                   disabled={isSubmitting}
                 >
@@ -140,7 +140,6 @@ export const CpdSetupFlow = ({
                 <Button
                   radius="xl"
                   type="submit"
-                  variant="brand"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
@@ -151,7 +150,7 @@ export const CpdSetupFlow = ({
                   {t("cpdProgress.setup.actions.create")}
                 </Button>
               ) : (
-                <Button radius="xl" type="submit" variant="brand">
+                <Button radius="xl" type="submit">
                   {t("cpdProgress.common.next")}
                   <L.ArrowRight className="h-4 w-4" />
                 </Button>
@@ -162,7 +161,7 @@ export const CpdSetupFlow = ({
       </GlassCard>
 
       <A.AlertDialog open={confirmCancel} onOpenChange={setConfirmCancel}>
-        <A.AlertDialogContent className="glass-dialog rounded-3xl border-glass-border">
+        <A.AlertDialogContent className="glass-dialog rounded-lg border-border">
           <A.AlertDialogHeader>
             <A.AlertDialogTitle>
               {t("cpdProgress.setup.unsaved.title")}

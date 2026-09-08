@@ -27,7 +27,7 @@ export const AssociationMembersEmpty = ({ hook }: TAssociationMembersEmpty) => {
         <Button
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           className="mt-5"
           onClick={resetFilters}
         >
@@ -51,12 +51,12 @@ export const AssociationMembersEmpty = ({ hook }: TAssociationMembersEmpty) => {
       </p>
 
       <div className="mt-5 flex flex-wrap justify-center gap-3">
-        <Button radius="xl" type="button" variant="brand" onClick={openInvite}>
+        <Button radius="xl" type="button" onClick={openInvite}>
           <L.UserPlus className="h-4 w-4" />
           {t("associationDashboard.members.empty.inviteOne")}
         </Button>
 
-        <Button radius="xl" type="button" variant="glass" onClick={focusImport}>
+        <Button radius="xl" type="button" variant="outline" onClick={focusImport}>
           <L.FileSpreadsheet className="h-4 w-4" />
           {t("associationDashboard.members.empty.importMany")}
         </Button>

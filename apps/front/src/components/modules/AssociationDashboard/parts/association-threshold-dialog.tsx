@@ -37,7 +37,7 @@ export const AssociationThresholdDialog = ({
 
         {pending && impact && settings && (
           <div className="space-y-4">
-            <dl className="space-y-2 rounded-2xl border border-glass-border bg-background/50 p-4 text-sm">
+            <dl className="space-y-2 rounded-md border p-4 text-sm">
               <div className="flex items-baseline justify-between gap-3">
                 <dt className="text-muted-foreground">
                   {label("compliance.onTrackThreshold")}
@@ -74,7 +74,7 @@ export const AssociationThresholdDialog = ({
 
               {impact.membersEnteringAtRisk > 0 && (
                 <li className="flex items-start gap-2">
-                  <L.TriangleAlert className="mt-0.5 h-4 w-4 shrink-0 text-orange-500" />
+                  <L.TriangleAlert className="mt-0.5 h-4 w-4 shrink-0 text-brand-orange-text" />
                   {label("confirm.enteringAtRisk", {
                     count: impact.membersEnteringAtRisk,
                   })}
@@ -102,7 +102,7 @@ export const AssociationThresholdDialog = ({
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             onClick={closeConfirmation}
           >
             {label("confirm.cancel")}
@@ -111,7 +111,6 @@ export const AssociationThresholdDialog = ({
           <Button
             radius="xl"
             type="button"
-            variant="brand"
             disabled={isSavingCompliance}
             onClick={() => void confirmCompliance()}
           >
