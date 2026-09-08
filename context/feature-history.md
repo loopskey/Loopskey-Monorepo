@@ -46,3 +46,4 @@ into this index and do not rewrite previous records.
 - [`dashboard-shell-and-navigation`](feature-runs/active/dashboard-shell-and-navigation.md)
 - [`shared-dashboard-components`](feature-runs/active/shared-dashboard-components.md)
 - [`role-overviews`](feature-runs/active/role-overviews.md)
+- [`dashboard-tabs`](feature-runs/active/dashboard-tabs.md)

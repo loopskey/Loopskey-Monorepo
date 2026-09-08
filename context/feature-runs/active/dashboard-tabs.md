@@ -3,7 +3,7 @@
 - Scope: `front`
 - Branch: `feature/dashboard-tabs`
 - Base: `f3a9cc4`
-- Status: `Ready`
+- Status: `Submitted`
 
 Phase 5 of `context/features/course-visual-restoration/05-dashboard-tabs.md`.
 
@@ -86,6 +86,6 @@ Scope decisions:
 
 ## Submission
 
-- Commit:
-- PR:
+- Commit: `c72dcad`
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/78
 - CI:
