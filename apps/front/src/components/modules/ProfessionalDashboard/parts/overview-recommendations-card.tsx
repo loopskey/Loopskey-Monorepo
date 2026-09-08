@@ -72,7 +72,7 @@ export const OverviewRecommendationsCard = () => {
           aria-hidden
         >
           {Array.from({ length: 3 }).map((_, index) => (
-            <Skeleton key={index} className="h-72 w-full rounded-[2rem]" />
+            <Skeleton key={index} className="h-72 w-full rounded-lg" />
           ))}
         </div>
       ) : null}
@@ -109,7 +109,7 @@ export const OverviewRecommendationsCard = () => {
           {courses.map((course) => (
             <div
               key={course.id}
-              className="overflow-hidden rounded-[2rem] border border-glass-border"
+              className="overflow-hidden rounded-lg border"
             >
               <div className="relative aspect-video overflow-hidden bg-muted">
                 {course.imageUrl ? (
@@ -151,8 +151,7 @@ export const OverviewRecommendationsCard = () => {
 
                 <Button
                   radius="xl"
-                  variant="brand"
-                  className="w-full"
+                          className="w-full"
                   disabled={enrollState.isLoading}
                   onClick={() => enrollCourse(course.id)}
                 >

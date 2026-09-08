@@ -1,9 +1,9 @@
 "use client";
 
 import { useEnrollContentMutation } from "@/lib/rtk/endpoints/content-interaction.api";
+import { useChartSemantics } from "@hooks/useChartPalette";
 import { getPduMonthLabel } from "@/utils/pdu.constant";
 import { useCoursesQuery } from "@/lib/rtk/endpoints/course.api";
-import { CHART_COLORS } from "@/utils/constant";
 import { ContentType } from "@/lib/graphql/base";
 import { useMemo } from "react";
 import { useI18n } from "@/hooks/useI18n";
@@ -12,6 +12,8 @@ import { notify } from "@/hooks/notify";
 import * as API from "@/lib/rtk/endpoints/professional.api";
 
 export const useProfessionalOverviewTab = () => {
+  const semantics = useChartSemantics();
+
   const { t } = useI18n();
   const currentYear = new Date().getFullYear();
 
@@ -85,10 +87,9 @@ export const useProfessionalOverviewTab = () => {
   );
 
   const pduByCategory = useMemo(() => {
-    return (pduReport?.byCategory ?? []).map((item, index) => ({
+    return (pduReport?.byCategory ?? []).map((item) => ({
       category: item.category,
       pdus: Number(item.pdus ?? 0),
-      fill: CHART_COLORS[index % CHART_COLORS.length],
     }));
   }, [pduReport?.byCategory]);
 
@@ -99,15 +100,15 @@ export const useProfessionalOverviewTab = () => {
       {
         name: "earned",
         value: Math.min(goalProgress, 100),
-        fill: "#2563eb",
+        fill: semantics.onTrack,
       },
       {
         name: "remaining",
         value: Math.max(100 - goalProgress, 0),
-        fill: "#e5e7eb",
+        fill: semantics.track,
       },
     ],
-    [goalProgress],
+    [goalProgress, semantics],
   );
 
   const activeCourses = useMemo(() => {

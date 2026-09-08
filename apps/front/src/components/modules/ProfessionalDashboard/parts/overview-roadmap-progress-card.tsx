@@ -5,6 +5,7 @@ import { PROFESSIONAL_OVERVIEW_LINKS } from "@/utils/professional-overview.helpe
 import { buildRoadmapProgressView } from "@/utils/professional-overview.helper";
 import { getOverviewSectionState } from "@/utils/professional-overview.helper";
 import { ProgressDonutChart } from "@elements/dashboard-charts";
+import { useChartSemantics } from "@hooks/useChartPalette";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
 
@@ -14,6 +15,7 @@ import * as PC from "@modules/ProfessionalDashboard/parts/overview-card";
 import * as L from "lucide-react";
 
 export const OverviewRoadmapProgressCard = () => {
+  const semantics = useChartSemantics();
   const { t } = useI18n();
 
   const roadmapsQuery = useProfessionalMyRoadmapsQuery({
@@ -62,7 +64,7 @@ export const OverviewRoadmapProgressCard = () => {
             "professionalDashboard.overview.roadmapCard.emptyDescription",
           )}
           action={
-            <Button asChild variant="brand" radius="xl" size="sm">
+            <Button asChild radius="xl" size="sm">
               <Link href={PROFESSIONAL_OVERVIEW_LINKS.roadmap}>
                 {t("professionalDashboard.overview.roadmapCard.emptyAction")}
               </Link>
@@ -73,10 +75,14 @@ export const OverviewRoadmapProgressCard = () => {
     );
   }
 
-  const view = buildRoadmapProgressView(featured, {
-    completed: t("professionalDashboard.overview.roadmapCard.completed"),
-    remaining: t("professionalDashboard.overview.roadmapCard.remaining"),
-  });
+  const view = buildRoadmapProgressView(
+    featured,
+    {
+      completed: t("professionalDashboard.overview.roadmapCard.completed"),
+      remaining: t("professionalDashboard.overview.roadmapCard.remaining"),
+    },
+    { progress: semantics.renewalReady, remainder: semantics.track },
+  );
   const stepsSuffix = t(
     "professionalDashboard.overview.roadmapCard.stepsSuffix",
   );
@@ -115,7 +121,7 @@ export const OverviewRoadmapProgressCard = () => {
       </p>
 
       <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
-        <div className="rounded-2xl bg-background/45 p-3">
+        <div className="rounded-md bg-muted p-3">
           <dt className="text-xs text-muted-foreground">
             {t("professionalDashboard.overview.roadmapCard.phases")}
           </dt>
@@ -123,7 +129,7 @@ export const OverviewRoadmapProgressCard = () => {
             {view.completedPhases}/{view.phasesCount}
           </dd>
         </div>
-        <div className="rounded-2xl bg-background/45 p-3">
+        <div className="rounded-md bg-muted p-3">
           <dt className="text-xs text-muted-foreground">
             {t("professionalDashboard.overview.roadmapCard.remainingSteps")}
           </dt>
@@ -132,7 +138,7 @@ export const OverviewRoadmapProgressCard = () => {
       </dl>
 
       {featured.nextPhaseTitle ? (
-        <p className="mt-4 flex items-center gap-2 rounded-2xl bg-primary/5 p-3 text-xs text-muted-foreground">
+        <p className="mt-4 flex items-center gap-2 rounded-md bg-primary/5 p-3 text-xs text-muted-foreground">
           <L.Flag className="h-4 w-4 shrink-0 text-primary" />
           <span className="truncate">
             {t("professionalDashboard.overview.roadmapCard.nextPhase", {

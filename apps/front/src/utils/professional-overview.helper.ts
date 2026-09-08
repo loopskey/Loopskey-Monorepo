@@ -8,9 +8,7 @@ export const PROFESSIONAL_OVERVIEW_LINKS = {
 
 export const CERTIFICATE_EXPIRING_WINDOW_DAYS = 30;
 
-const EARNED_COLOR = "#2563eb";
-const REMAINING_COLOR = "#e2e8f0";
-const COMPLETED_COLOR = "#14b8a6";
+export type DonutColors = { progress: string; remainder: string };
 
 export type OverviewSectionState = "loading" | "error" | "empty" | "content";
 
@@ -88,6 +86,7 @@ export type CpdProgressView = {
 export const buildCpdProgressView = (
   progress: CpdProgressInput,
   labels: { earned: string; remaining: string },
+  colors: DonutColors,
 ): CpdProgressView => {
   const earned = Math.max(toFiniteNumber(progress.earnedCredits), 0);
   const total = Math.max(toFiniteNumber(progress.totalRequiredCredits), 0);
@@ -109,7 +108,7 @@ export const buildCpdProgressView = (
       name: "earned",
       label: labels.earned,
       value: earnedForArc,
-      fill: EARNED_COLOR,
+      fill: colors.progress,
     });
   }
   if (!hasTarget && earnedForArc <= 0) {
@@ -117,14 +116,14 @@ export const buildCpdProgressView = (
       name: "remaining",
       label: labels.remaining,
       value: 1,
-      fill: REMAINING_COLOR,
+      fill: colors.remainder,
     });
   } else if (remaining > 0) {
     chartData.push({
       name: "remaining",
       label: labels.remaining,
       value: remaining,
-      fill: REMAINING_COLOR,
+      fill: colors.remainder,
     });
   }
 
@@ -170,6 +169,7 @@ export type RoadmapProgressView = {
 export const buildRoadmapProgressView = (
   roadmap: RoadmapProgressInput,
   labels: { completed: string; remaining: string },
+  colors: DonutColors,
 ): RoadmapProgressView => {
   const total = Math.max(toFiniteNumber(roadmap.totalSteps), 0);
   const completedRaw = Math.max(toFiniteNumber(roadmap.completedSteps), 0);
@@ -188,7 +188,7 @@ export const buildRoadmapProgressView = (
       name: "completed",
       label: labels.completed,
       value: completed,
-      fill: COMPLETED_COLOR,
+      fill: colors.progress,
     });
   }
   if (remaining > 0 || completed <= 0) {
@@ -196,7 +196,7 @@ export const buildRoadmapProgressView = (
       name: "remaining",
       label: labels.remaining,
       value: remaining > 0 ? remaining : 1,
-      fill: REMAINING_COLOR,
+      fill: colors.remainder,
     });
   }
 

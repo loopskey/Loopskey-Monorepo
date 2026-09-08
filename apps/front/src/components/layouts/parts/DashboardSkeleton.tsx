@@ -31,7 +31,7 @@ export const DashboardContentSkeleton = () => {
       <section className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
         <div className="space-y-3">
           <Skeleton className="h-4 w-40 rounded-full" />
-          <Skeleton className="h-10 w-72 rounded-2xl md:w-96" />
+          <Skeleton className="h-10 w-72 rounded-md md:w-96" />
           <Skeleton className="h-5 w-full max-w-2xl rounded-full" />
         </div>
         <div className="flex gap-2">
@@ -44,11 +44,11 @@ export const DashboardContentSkeleton = () => {
         {Array.from({ length: 4 }).map((_, index) => (
           <div
             key={index}
-            className="rounded-[2rem] border border-glass-border bg-background/60 p-5 backdrop-blur-xl"
+            className="rounded-lg border p-5"
           >
             <div className="flex items-center justify-between">
               <Skeleton className="h-4 w-28 rounded-full" />
-              <Skeleton className="h-10 w-10 rounded-2xl" />
+              <Skeleton className="h-10 w-10 rounded-md" />
             </div>
             <Skeleton className="mt-5 h-9 w-24 rounded-xl" />
             <Skeleton className="mt-4 h-3 w-full rounded-full" />
@@ -57,29 +57,29 @@ export const DashboardContentSkeleton = () => {
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1fr_420px]">
-        <div className="rounded-[2rem] border border-glass-border bg-background/60 p-6 backdrop-blur-xl">
+        <div className="rounded-lg border p-6">
           <Skeleton className="h-6 w-52 rounded-xl" />
           <Skeleton className="mt-2 h-4 w-72 rounded-full" />
-          <Skeleton className="mt-6 h-80 rounded-[2rem]" />
+          <Skeleton className="mt-6 h-80 rounded-lg" />
         </div>
 
-        <div className="rounded-[2rem] border border-glass-border bg-background/60 p-6 backdrop-blur-xl">
+        <div className="rounded-lg border p-6">
           <Skeleton className="h-6 w-44 rounded-xl" />
           <Skeleton className="mt-2 h-4 w-64 rounded-full" />
           <div className="mt-6 space-y-3">
             {Array.from({ length: 5 }).map((_, index) => (
-              <Skeleton key={index} className="h-20 rounded-3xl" />
+              <Skeleton key={index} className="h-20 rounded-lg" />
             ))}
           </div>
         </div>
       </section>
 
-      <section className="rounded-[2rem] border border-glass-border bg-background/60 p-6 backdrop-blur-xl">
+      <section className="rounded-lg border p-6">
         <Skeleton className="h-6 w-48 rounded-xl" />
         <Skeleton className="mt-2 h-4 w-72 rounded-full" />
         <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {Array.from({ length: 6 }).map((_, index) => (
-            <Skeleton key={index} className="h-32 rounded-3xl" />
+            <Skeleton key={index} className="h-32 rounded-lg" />
           ))}
         </div>
       </section>

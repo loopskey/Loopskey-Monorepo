@@ -1,15 +1,14 @@
 import type { TUseAssociationLearningContent } from "@hooks/useAssociationLearningContent";
+import type { TUseAssociationRequirementsTab } from "@hooks/useAssociationRequirementsTab";
+import type { TUseAssociationMemberDetail } from "@hooks/useAssociationMemberDetail";
 import type { TUseAssociationMessagesTab } from "@hooks/useAssociationMessagesTab";
 import type { TUseAssociationSettingsTab } from "@hooks/useAssociationSettingsTab";
 import type { TUseAssociationOverviewTab } from "@hooks/useAssociationOverviewTab";
 import type { TUseAssociationReportsTab } from "@hooks/useAssociationReportsTab";
-import type { TUseAssociationMemberDetail } from "@hooks/useAssociationMemberDetail";
 import type { TUseAssociationMembersTab } from "@hooks/useAssociationMembersTab";
-import type { TUseAssociationRequirementsTab } from "@hooks/useAssociationRequirementsTab";
-import type { TCategoryAllocation } from "@utils/association-requirement";
 import type { TRosterCompositionRow } from "@utils/association-roster-composition";
+import type { TCategoryAllocation } from "@utils/association-requirement";
 import type { TAttentionSection } from "@utils/association-messages";
-
 import type { ReactNode } from "react";
 
 import type * as TAPI from "@/lib/graphql/generated";
@@ -341,4 +340,32 @@ export type TAssociationAllocationChart = {
   segmentHeader: string;
   chartDescription: string;
   allocation: TCategoryAllocation;
+};
+
+export type TBandRow = {
+  id: string;
+  name: string;
+  count: number;
+  share: number;
+  change: number | null;
+};
+
+type TCategoryColumn = { id: string; name: string };
+
+type THeatmapFrame = {
+  locale: string;
+  columns: TCategoryColumn[];
+  filter: TAPI.AssociationReportFilterInput;
+  label: (key: string, vars?: Record<string, string | number>) => string;
+};
+
+export type THeatmapRowProps = THeatmapFrame & {
+  tone: string;
+  groupId: string;
+  groupTitle: string;
+};
+
+export type THeatmapProps = THeatmapFrame & {
+  palette: string[];
+  groups: TAssociationGroupProgressRow[];
 };

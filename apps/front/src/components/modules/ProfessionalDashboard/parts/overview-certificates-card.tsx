@@ -68,13 +68,13 @@ export const OverviewCertificatesCard = () => {
   return (
     <PC.OverviewCard title={title} icon={L.Award} footer={footer}>
       <dl className="grid grid-cols-2 gap-3 text-sm">
-        <div className="rounded-2xl bg-background/45 p-3">
+        <div className="rounded-md bg-muted p-3">
           <dt className="text-xs text-muted-foreground">
             {t("professionalDashboard.overview.certificatesCard.active")}
           </dt>
           <dd className="mt-1 text-2xl font-medium">{summary.activeCount}</dd>
         </div>
-        <div className="rounded-2xl bg-background/45 p-3">
+        <div className="rounded-md bg-muted p-3">
           <dt className="text-xs text-muted-foreground">
             {t("professionalDashboard.overview.certificatesCard.expiringSoon")}
           </dt>
@@ -94,7 +94,7 @@ export const OverviewCertificatesCard = () => {
       </p>
 
       {items[0] ? (
-        <div className="mt-4 rounded-2xl border border-glass-border bg-background/45 p-3">
+        <div className="mt-4 rounded-md border p-3">
           <p className="text-xs text-muted-foreground">
             {t("professionalDashboard.overview.certificatesCard.recent")}
           </p>
