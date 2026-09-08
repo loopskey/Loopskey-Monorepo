@@ -384,7 +384,7 @@ export const AdminAccessRequestReviewView = ({ hook }: Props) => {
             <A.AlertDialogAction asChild>
               <Button
                 radius="xl"
-                variant={reviewAction === "reject" ? "cancel" : "brand"}
+                variant={reviewAction === "reject" ? "cancel" : "default"}
                 disabled={
                   isReviewing ||
                   (reviewAction === "reject" && rejectReason.trim().length < 3)

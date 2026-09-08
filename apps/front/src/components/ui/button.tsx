@@ -19,26 +19,8 @@ const buttonVariants = cva(
         default:
           "cursor-pointer bg-primary text-primary-foreground shadow-sm hover:bg-primary/90",
 
-        brand:
-          "cursor-pointer btn-gradient btn-gradient-brand text-white shadow-[0_14px_36px_rgba(37,99,235,0.25)] hover:scale-[1.015] hover:shadow-[0_18px_52px_rgba(37,99,235,0.38)]",
-
-        warning:
-          "cursor-pointer btn-gradient btn-gradient-warning text-warning-foreground shadow-[0_14px_36px_rgba(234,179,8,0.2)] hover:scale-[1.012] hover:shadow-[0_18px_48px_rgba(234,179,8,0.3)]",
-
-        premium:
-          "cursor-pointer btn-gradient btn-gradient-premium text-premium-foreground shadow-[0_14px_36px_rgba(217,119,6,0.22)] hover:scale-[1.015] hover:shadow-[0_18px_52px_rgba(217,119,6,0.34)]",
-
-        success:
-          "cursor-pointer btn-gradient btn-gradient-success text-success-foreground shadow-[0_14px_36px_rgba(22,163,74,0.2)] hover:scale-[1.012] hover:shadow-[0_18px_48px_rgba(22,163,74,0.32)]",
-
         destructive:
-          "btn-gradient btn-gradient-danger text-destructive-foreground shadow-[0_14px_36px_rgba(220,38,38,0.2)] hover:shadow-[0_18px_48px_rgba(220,38,38,0.32)] focus-visible:ring-destructive/25",
-
-        brandSoft:
-          "cursor-pointer border border-primary/20 bg-primary/10 text-primary shadow-sm hover:border-primary/35 hover:bg-primary/15",
-
-        brandOutline:
-          "cursor-pointer border border-primary/35 bg-background text-primary shadow-sm hover:border-primary/60 hover:bg-primary/10",
+          "cursor-pointer bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 focus-visible:ring-destructive/25",
 
         cancel:
           "cursor-pointer border border-border bg-muted/60 text-muted-foreground shadow-sm hover:bg-muted hover:text-foreground",
@@ -51,9 +33,6 @@ const buttonVariants = cva(
 
         ghost:
           "cursor-pointer hover:bg-accent hover:text-accent-foreground",
-
-        glass:
-          "cursor-pointer border bg-card text-foreground shadow-sm hover:bg-muted",
 
         link: "text-primary underline-offset-4 hover:underline",
       },

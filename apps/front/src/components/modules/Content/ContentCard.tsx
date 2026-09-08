@@ -35,7 +35,7 @@ const ContentCard = ({ item, className }: TContentCardProps) => {
       )}
     >
       <div className="relative z-10">
-        <div className="relative h-48 overflow-hidden rounded-t-[2rem] bg-muted">
+        <div className="relative h-48 overflow-hidden rounded-t-lg bg-muted">
           {hasValidImage ? (
             <Image
               fill
@@ -45,7 +45,7 @@ const ContentCard = ({ item, className }: TContentCardProps) => {
               className="object-cover transition-transform duration-700 group-hover:scale-110"
             />
           ) : (
-            <div className="flex h-full items-center justify-center bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.25),transparent_35%),linear-gradient(135deg,rgba(59,130,246,0.16),rgba(20,184,166,0.10))]">
+            <div className="flex h-full items-center justify-center bg-muted">
               <Icon className="h-12 w-12 text-primary/70" />
             </div>
           )}

@@ -1,5 +1,3 @@
-// src/components/modules/Landing/LandingOrganization.tsx
-
 "use client";
 
 import { useLandingOrganizationShowcase } from "@/hooks/useLandingOrgShowcase";
@@ -18,10 +16,7 @@ const LandingOrganization = () => {
 
   return (
     <section className="relative overflow-x-clip px-4 py-16 sm:px-6 lg:px-8">
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute left-0 top-10 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-brand-teal/10 blur-3xl" />
-      </div>
+      <div className="pointer-events-none absolute inset-0 -z-10"></div>
 
       <div className="mx-auto grid max-w-7xl gap-10 rounded-lg border bg-muted-foreground p-6 text-white shadow-md md:p-10 xl:grid-cols-[1.05fr_0.95fr] xl:items-center">
         <RevealOnScroll direction="left">
@@ -85,7 +80,6 @@ const LandingOrganization = () => {
 
         <RevealOnScroll direction="right" delay={120}>
           <GlassCard className="relative overflow-hidden border-white/10 bg-white/[0.07] p-5 text-white shadow-md">
-            <div className="absolute right-0 top-0 h-40 w-40 rounded-full bg-primary/20 blur-3xl" />
             <div className="relative z-10">
               <div className="flex items-start justify-between gap-4">
                 <div>
@@ -97,7 +91,7 @@ const LandingOrganization = () => {
                     {t("landing.organization.dashboard.title")}
                   </p>
                 </div>
-                <span className="rounded-full border border-brand-teal/30 bg-brand-teal/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-teal-text">
+                <span className="rounded-full border border-brand-orange/30 bg-brand-orange/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-orange-text">
                   {t("landing.organization.dashboard.status")}
                 </span>
               </div>
@@ -139,7 +133,7 @@ const LandingOrganization = () => {
                           className={cn(
                             "h-full rounded-full transition-all duration-700",
                             index === 0 && "bg-primary",
-                            index === 1 && "bg-brand-teal",
+                            index === 1 && "bg-brand-orange",
                             index === 2 && "bg-destructive",
                           )}
                           style={{
@@ -169,7 +163,7 @@ const LandingOrganization = () => {
                         </p>
                       </div>
 
-                      <span className="text-sm font-bold text-brand-teal-text">
+                      <span className="text-sm font-bold text-brand-orange-text">
                         {topic.percentage}%
                       </span>
                     </div>

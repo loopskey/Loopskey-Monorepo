@@ -19,9 +19,6 @@ const ServicesPage = () => {
   return (
     <main className="relative overflow-hidden">
       <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute left-[-10%] top-20 h-72 w-72 rounded-full bg-primary/15 blur-3xl" />
-        <div className="absolute right-[-8%] top-[28rem] h-80 w-80 rounded-full bg-brand-teal/15 blur-3xl" />
-        <div className="absolute bottom-20 left-1/3 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
       </div>
 
       <section className="mx-auto grid max-w-7xl gap-10 px-4 py-20 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-28">
@@ -34,7 +31,7 @@ const ServicesPage = () => {
 
             <h1 className="mt-6 max-w-4xl text-4xl font-medium tracking-tight text-foreground md:text-6xl">
               {t("servicesPage.hero.titleStart")}{" "}
-              <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+              <span className="text-primary">
                 {t("servicesPage.hero.titleHighlight")}
               </span>
             </h1>
@@ -44,14 +41,14 @@ const ServicesPage = () => {
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Button asChild radius="xl" size="lg" variant="brand">
+              <Button asChild radius="xl" size="lg">
                 <Link href={"/content"}>
                   {t("servicesPage.common.bookConsultation")}
                   <L.ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
 
-              <Button asChild radius="xl" size="lg" variant="glass">
+              <Button asChild radius="xl" size="lg" variant="outline">
                 <Link href="#services">
                   {t("servicesPage.hero.exploreServices")}
                 </Link>
@@ -75,7 +72,7 @@ const ServicesPage = () => {
 
         <RevealOnScroll direction="right" delay={120}>
           <GlassCard className="relative overflow-hidden p-0">
-            <div className="absolute left-5 top-5 z-20 rounded-full border border-white/20 bg-background/70 px-4 py-2 text-sm font-medium shadow-xl backdrop-blur-xl">
+            <div className="absolute left-5 top-5 z-20 rounded-full border bg-background px-4 py-2 text-sm font-medium shadow-xl">
               {t("servicesPage.hero.visualLabel")}
             </div>
             <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
@@ -92,7 +89,7 @@ const ServicesPage = () => {
                 {[0, 1, 2].map((index) => (
                   <div
                     key={index}
-                    className="flex items-center gap-3 rounded-2xl border border-white/15 bg-background/70 p-3 shadow-xl backdrop-blur-xl"
+                    className="flex items-center gap-3 rounded-md border bg-background p-3 shadow-md"
                   >
                     <div className="rounded-xl bg-primary/10 p-2 text-primary">
                       <L.Check className="h-4 w-4" />
@@ -135,7 +132,7 @@ const ServicesPage = () => {
                 direction={index % 2 === 0 ? "left" : "right"}
               >
                 <GlassCard className="h-full p-5">
-                  <div className="rounded-2xl bg-primary/10 p-3 text-primary w-fit">
+                  <div className="rounded-md bg-primary/10 p-3 text-primary w-fit">
                     <Icon className="h-5 w-5" />
                   </div>
                   <h3 className="mt-5 text-lg font-semibold">
@@ -196,13 +193,13 @@ const ServicesPage = () => {
                 </p>
               </div>
               <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
-                <Button asChild radius="xl" size="lg" variant="brand">
+                <Button asChild radius="xl" size="lg">
                   <Link href={"/content"}>
                     {t("servicesPage.common.bookConsultation")}
                     <L.ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
-                <Button asChild radius="xl" size="lg" variant="glass">
+                <Button asChild radius="xl" size="lg" variant="outline">
                   <Link href={siteLinks.content ?? "/content"}>
                     {t("servicesPage.cta.exploreContent")}
                   </Link>

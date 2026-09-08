@@ -1,69 +1,36 @@
 "use client";
 
-import { useState } from "react";
-
-import {
-  ContentType,
-  LearningBudgetPreference,
-  LearningFormat,
-  LearningTimeCommitment,
-  SkillLevel,
-} from "@/lib/graphql/base";
-import { Button } from "@/components/ui/button";
+import { ContentType, LearningFormat, SkillLevel } from "@/lib/graphql/base";
+import { LearningBudgetPreference } from "@/lib/graphql/base";
+import { LearningTimeCommitment } from "@/lib/graphql/base";
 import { GlassCard } from "@/components/elements/glass-card";
-import { Input } from "@/components/ui/input";
+import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
 import { useI18n } from "@/hooks/useI18n";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
-import type { PatchRoadmapDraftInput } from "@/lib/graphql/base";
 import type * as T from "@/types/professional-roadmap-chat.types";
 
-type Patch = Omit<PatchRoadmapDraftInput, "draftId">;
-
-type Props = {
-  draft: T.TRoadmapDraft;
-  isPatching: boolean;
-  onPatch: (changes: Patch) => void;
-  onKeepEditing: () => void;
-  /**
-   * Absent until phase 05 builds generation. The control is rendered either
-   * way so the completed state reads correctly, but it is disabled and says
-   * why rather than pretending to work.
-   */
-  onGenerate?: () => void;
-};
-
-/** Enum labels are shared with the profile tab so the two never disagree. */
 const OPTION_NS = "professionalDashboard.profile.options";
-
-type EditorKind =
-  | { kind: "text"; multiline: boolean }
-  | { kind: "date" }
-  | { kind: "number" }
-  | { kind: "single"; values: string[]; labelNs: string }
-  | { kind: "multi"; values: string[]; labelNs: string }
-  | { kind: "subjects" }
-  | { kind: "boolean" };
-
-type Row = {
-  field: keyof Patch;
-  editor: EditorKind;
-  value: string | string[] | number | boolean | null | undefined;
-};
 
 export const RoadmapReviewSummary = ({
   draft,
-  isPatching,
   onPatch,
+  isPatching,
   onGenerate,
   onKeepEditing,
-}: Props) => {
+}: T.TRoadmapReviewSummary) => {
   const { t } = useI18n();
-  const [editing, setEditing] = useState<keyof Patch | null>(null);
+  const [editing, setEditing] = useState<keyof T.Patch | null>(null);
 
-  const rows: Row[] = [
-    { field: "goal", editor: { kind: "text", multiline: true }, value: draft.goal },
+  const rows: T.Row[] = [
+    {
+      field: "goal",
+      editor: { kind: "text", multiline: true },
+      value: draft.goal,
+    },
     {
       field: "targetRole",
       editor: { kind: "text", multiline: false },
@@ -126,7 +93,11 @@ export const RoadmapReviewSummary = ({
       },
       value: draft.preferredContentTypes,
     },
-    { field: "cpdEnabled", editor: { kind: "boolean" }, value: draft.cpdEnabled },
+    {
+      field: "cpdEnabled",
+      editor: { kind: "boolean" },
+      value: draft.cpdEnabled,
+    },
   ];
 
   if (draft.cpdEnabled)
@@ -143,9 +114,9 @@ export const RoadmapReviewSummary = ({
       },
     );
 
-  const commit = (field: keyof Patch, value: Patch[keyof Patch]) => {
+  const commit = (field: keyof T.Patch, value: T.Patch[keyof T.Patch]) => {
     setEditing(null);
-    onPatch({ [field]: value } as Patch);
+    onPatch({ [field]: value } as T.Patch);
   };
 
   return (
@@ -162,14 +133,14 @@ export const RoadmapReviewSummary = ({
       <dl className="flex flex-col divide-y divide-border/60">
         {rows.map((row) => (
           <SummaryRow
-            key={String(row.field)}
             row={row}
             draft={draft}
-            isEditing={editing === row.field}
-            isPatching={isPatching}
-            onEdit={() => setEditing(row.field)}
-            onCancel={() => setEditing(null)}
             onCommit={commit}
+            isPatching={isPatching}
+            key={String(row.field)}
+            onCancel={() => setEditing(null)}
+            isEditing={editing === row.field}
+            onEdit={() => setEditing(row.field)}
           />
         ))}
       </dl>
@@ -205,25 +176,15 @@ export const RoadmapReviewSummary = ({
   );
 };
 
-type RowProps = {
-  row: Row;
-  draft: T.TRoadmapDraft;
-  isEditing: boolean;
-  isPatching: boolean;
-  onEdit: () => void;
-  onCancel: () => void;
-  onCommit: (field: keyof Patch, value: Patch[keyof Patch]) => void;
-};
-
 const SummaryRow = ({
   row,
   draft,
-  isEditing,
-  isPatching,
   onEdit,
   onCancel,
   onCommit,
-}: RowProps) => {
+  isEditing,
+  isPatching,
+}: T.TRowProps) => {
   const { t } = useI18n();
   const label = t(`professionalRoadmapChat.field.${String(row.field)}`);
 
@@ -252,7 +213,8 @@ const SummaryRow = ({
     if (value === null || value === undefined || value === "")
       return t("professionalRoadmapChat.review.notSet");
 
-    if (editor.kind === "single") return t(`${editor.labelNs}.${String(value)}`);
+    if (editor.kind === "single")
+      return t(`${editor.labelNs}.${String(value)}`);
     if (editor.kind === "date")
       return new Date(String(value)).toLocaleDateString();
 
@@ -291,14 +253,7 @@ const SummaryRow = ({
   );
 };
 
-type EditorProps = {
-  row: Row;
-  draft: T.TRoadmapDraft;
-  onCancel: () => void;
-  onCommit: (field: keyof Patch, value: Patch[keyof Patch]) => void;
-};
-
-const RowEditor = ({ row, draft, onCancel, onCommit }: EditorProps) => {
+const RowEditor = ({ row, draft, onCancel, onCommit }: T.TEditorProps) => {
   const { t } = useI18n();
   const { field, editor } = row;
 
@@ -325,7 +280,7 @@ const RowEditor = ({ row, draft, onCancel, onCommit }: EditorProps) => {
         <Button
           size="sm"
           radius="xl"
-          variant={row.value ? "brand" : "glass"}
+          variant={row.value ? "default" : "outline"}
           onClick={() => onCommit(field, true)}
         >
           {t("professionalRoadmapChat.review.yes")}
@@ -333,7 +288,7 @@ const RowEditor = ({ row, draft, onCancel, onCommit }: EditorProps) => {
         <Button
           size="sm"
           radius="xl"
-          variant={row.value ? "glass" : "brand"}
+          variant={row.value ? "outline" : "default"}
           onClick={() => onCommit(field, false)}
         >
           {t("professionalRoadmapChat.review.no")}
@@ -347,11 +302,11 @@ const RowEditor = ({ row, draft, onCancel, onCommit }: EditorProps) => {
       <div className="flex flex-wrap gap-2">
         {editor.values.map((value) => (
           <Button
-            key={value}
             size="sm"
+            key={value}
             radius="xl"
-            variant={row.value === value ? "brand" : "glass"}
-            onClick={() => onCommit(field, value as Patch[keyof Patch])}
+            variant={row.value === value ? "default" : "outline"}
+            onClick={() => onCommit(field, value as T.Patch[keyof T.Patch])}
           >
             {t(`${editor.labelNs}.${value}`)}
           </Button>
@@ -384,12 +339,12 @@ const RowEditor = ({ row, draft, onCancel, onCommit }: EditorProps) => {
         <div className="flex flex-wrap gap-2">
           {options.map((option) => (
             <Button
-              key={option.value}
               size="sm"
               radius="xl"
-              aria-pressed={chosen.includes(option.value)}
-              variant={chosen.includes(option.value) ? "brand" : "glass"}
+              key={option.value}
               onClick={() => toggle(option.value)}
+              aria-pressed={chosen.includes(option.value)}
+              variant={chosen.includes(option.value) ? "default" : "outline"}
             >
               {option.label}
             </Button>
@@ -400,7 +355,7 @@ const RowEditor = ({ row, draft, onCancel, onCommit }: EditorProps) => {
           <Button
             size="sm"
             radius="xl"
-            onClick={() => onCommit(field, chosen as Patch[keyof Patch])}
+            onClick={() => onCommit(field, chosen as T.Patch[keyof T.Patch])}
           >
             {t("professionalRoadmapChat.review.save")}
           </Button>
@@ -417,7 +372,7 @@ const RowEditor = ({ row, draft, onCancel, onCommit }: EditorProps) => {
         field,
         (text.trim() === "" || Number.isNaN(parsed)
           ? null
-          : parsed) as Patch[keyof Patch],
+          : parsed) as T.Patch[keyof T.Patch],
       );
       return;
     }
@@ -425,13 +380,14 @@ const RowEditor = ({ row, draft, onCancel, onCommit }: EditorProps) => {
     if (editor.kind === "date") {
       onCommit(
         field,
-        (text ? new Date(`${text}T00:00:00.000Z`).toISOString() : null) as
-          Patch[keyof Patch],
+        (text
+          ? new Date(`${text}T00:00:00.000Z`).toISOString()
+          : null) as T.Patch[keyof T.Patch],
       );
       return;
     }
 
-    onCommit(field, (text.trim() || null) as Patch[keyof Patch]);
+    onCommit(field, (text.trim() || null) as T.Patch[keyof T.Patch]);
   };
 
   return (
@@ -446,6 +402,9 @@ const RowEditor = ({ row, draft, onCancel, onCommit }: EditorProps) => {
       ) : (
         <Input
           value={text}
+          onChange={(event) => setText(event.target.value)}
+          className={cn(editor.kind !== "text" && "w-auto")}
+          aria-label={t(`professionalRoadmapChat.field.${String(field)}`)}
           type={
             editor.kind === "date"
               ? "date"
@@ -453,9 +412,6 @@ const RowEditor = ({ row, draft, onCancel, onCommit }: EditorProps) => {
                 ? "number"
                 : "text"
           }
-          onChange={(event) => setText(event.target.value)}
-          aria-label={t(`professionalRoadmapChat.field.${String(field)}`)}
-          className={cn(editor.kind !== "text" && "w-auto")}
         />
       )}
 

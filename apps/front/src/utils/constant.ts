@@ -230,8 +230,8 @@ export const statusConfig = {
   },
   upcoming: {
     icon: L.Circle,
-    circleClassName: "bg-background text-muted-foreground border-glass-border",
-    lineClassName: "bg-glass-border",
+    circleClassName: "bg-background text-muted-foreground border-border",
+    lineClassName: "bg-border",
   },
 } as const;
 

@@ -34,7 +34,7 @@ const SpotlightContentCard = ({ item }: { item: TLandingContentItem }) => {
               sizes="(max-width: 1024px) 100vw, 520px"
             />
           ) : (
-            <div className="h-full w-full bg-[radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.42),transparent_34%),radial-gradient(circle_at_80%_20%,rgba(20,184,166,0.28),transparent_32%),linear-gradient(135deg,rgba(59,130,246,0.18),rgba(20,184,166,0.12))]" />
+            <div className="h-full w-full bg-muted" />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/15 to-transparent" />
           <div className="absolute left-5 top-5 flex items-center gap-2 rounded-full bg-muted px-4 py-2 text-xs font-medium text-primary shadow-sm">

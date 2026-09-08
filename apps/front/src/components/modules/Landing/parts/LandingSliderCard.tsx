@@ -41,7 +41,7 @@ const LandingSliderCard = ({ item, isActive, onHover }: TLandingSlider) => {
             className="object-cover transition duration-700 group-hover:scale-110"
           />
         ) : (
-          <div className="h-full w-full bg-[radial-gradient(circle_at_25%_20%,rgba(59,130,246,0.35),transparent_35%),radial-gradient(circle_at_80%_20%,rgba(20,184,166,0.22),transparent_34%),linear-gradient(135deg,rgba(59,130,246,0.18),rgba(20,184,166,0.14))]" />
+          <div className="h-full w-full bg-muted" />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/20 to-transparent" />
         <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full bg-muted px-3 py-2 text-xs font-medium uppercase tracking-wide text-primary shadow-sm">
@@ -100,7 +100,7 @@ const LandingSliderCard = ({ item, isActive, onHover }: TLandingSlider) => {
           asChild
           radius="xl"
           className="mt-auto w-full"
-          variant={isActive ? "brand" : "brandSoft"}
+          variant={isActive ? "default" : "outline"}
         >
           <Link href={item.href}>
             {t("landing.learningHub.viewDetails")}

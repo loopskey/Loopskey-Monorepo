@@ -20,7 +20,6 @@ export const StartMenu = ({ links, className, onNavigate }: TStartMenu) => {
           size="lg"
           type="button"
           radius="full"
-          variant="brand"
           className={className}
         >
           {t("common.start")}
@@ -31,7 +30,7 @@ export const StartMenu = ({ links, className, onNavigate }: TStartMenu) => {
       <D.DropdownMenuContent
         align="end"
         className={cn(
-          "w-72 rounded-3xl border-glass-border bg-background/85 p-2 shadow-2xl backdrop-blur-2xl",
+          "w-72 rounded-lg border-border p-2 shadow-md",
         )}
       >
         <D.DropdownMenuLabel className="px-3 pb-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
@@ -42,7 +41,7 @@ export const StartMenu = ({ links, className, onNavigate }: TStartMenu) => {
           <D.DropdownMenuItem
             asChild
             key={link.href}
-            className="rounded-2xl p-3"
+            className="rounded-md p-3"
           >
             <Link href={link.href} onClick={onNavigate}>
               <link.icon aria-hidden className="mr-2 h-4 w-4 text-primary" />

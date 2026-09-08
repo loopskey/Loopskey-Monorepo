@@ -54,7 +54,7 @@ const OrgAuthPage = () => {
               return (
                 <GlassCard key={item.title} className="p-5" glow={false}>
                   <div className="relative z-10 flex gap-4">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
                       <Icon className="h-5 w-5" />
                     </div>
                     <div>
@@ -68,7 +68,7 @@ const OrgAuthPage = () => {
               );
             })}
           </div>
-          <Button asChild variant="glass" radius="xl" className="mt-6">
+          <Button asChild variant="outline" radius="xl" className="mt-6">
             <Link href={siteLinks.login}>
               {t("authPages.organization.professionalLink")}
               <L.ArrowRight className="h-4 w-4" />

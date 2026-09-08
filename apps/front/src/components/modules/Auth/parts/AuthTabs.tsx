@@ -13,7 +13,7 @@ const AuthTabs = ({ active, onChange }: TAuthTabsProps) => {
       <Button
         radius="xl"
         type="button"
-        variant={active === "register" ? "brand" : "ghost"}
+        variant={active === "register" ? "default" : "ghost"}
         className={cn(active !== "register" && "text-muted-foreground")}
         onClick={() => onChange("register")}
       >
@@ -23,7 +23,7 @@ const AuthTabs = ({ active, onChange }: TAuthTabsProps) => {
       <Button
         radius="xl"
         type="button"
-        variant={active === "login" ? "brand" : "ghost"}
+        variant={active === "login" ? "default" : "ghost"}
         className={cn(active !== "login" && "text-muted-foreground")}
         onClick={() => onChange("login")}
       >

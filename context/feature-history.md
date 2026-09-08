@@ -47,3 +47,4 @@ into this index and do not rewrite previous records.
 - [`shared-dashboard-components`](feature-runs/active/shared-dashboard-components.md)
 - [`role-overviews`](feature-runs/active/role-overviews.md)
 - [`dashboard-tabs`](feature-runs/active/dashboard-tabs.md)
+- [`public-and-auth-pages`](feature-runs/active/public-and-auth-pages.md)

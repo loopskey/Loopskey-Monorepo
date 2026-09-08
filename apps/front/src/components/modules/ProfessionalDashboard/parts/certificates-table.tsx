@@ -1,11 +1,13 @@
 "use client";
 
-import { CertificateStatusBadge } from "@modules/ProfessionalDashboard/parts/certificate-status-badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@ui/tooltip";
 import { TCertificatesTableProps } from "@/types/professional-dashboard.types";
 import { ProfessionalCertificate } from "@/types/professional-dashboard.types";
-import { I18nContextValue } from "@/types/providers.types";
+import { TLinkedTo, TRowActions } from "@/types/professional-dashboard.types";
+import { CertificateStatusBadge } from "@modules/ProfessionalDashboard/parts/certificate-status-badge";
 import { ConfirmDialog } from "@elements/confirm-dialog";
+import { TSelectButton } from "@/types/professional-dashboard.types";
+import { TIconAction } from "@/types/professional-dashboard.types";
 import { formatDate } from "@/utils/function-helper";
 import { Button } from "@ui/button";
 import { cn } from "@/lib/utils";
@@ -19,14 +21,8 @@ const IconAction = ({
   label,
   onClick,
   disabled,
-  variant = "glass",
-}: {
-  label: string;
-  icon: typeof L.Pencil;
-  disabled?: boolean;
-  onClick?: () => void;
-  variant?: "glass" | "cancel";
-}) => (
+  variant = "outline",
+}: TIconAction) => (
   <Tooltip>
     <TooltipTrigger asChild>
       <Button
@@ -48,22 +44,15 @@ const IconAction = ({
 
 const SelectButton = ({
   onSelect,
+  className,
   isSelected,
   certificate,
-  className,
-}: {
-  isSelected: boolean;
-  className?: string;
-  certificate: ProfessionalCertificate;
-  onSelect: TCertificatesTableProps["onSelect"];
-}) => (
+}: TSelectButton) => (
   <button
     type="button"
     aria-pressed={isSelected}
     title={certificate.title}
     onClick={(event) => {
-      // The row itself also selects on click; without this the two handlers
-      // would toggle each other out.
       event.stopPropagation();
       onSelect(certificate.id);
     }}
@@ -84,17 +73,9 @@ const RowActions = ({
   isDeleting,
   certificate,
   deletingCertificateId,
-}: {
-  isDeleting: boolean;
-  t: I18nContextValue["t"];
-  deletingCertificateId: string | null;
-  certificate: ProfessionalCertificate;
-  onEdit: TCertificatesTableProps["onEdit"];
-  onDelete: TCertificatesTableProps["onDelete"];
-}) => (
+}: TRowActions) => (
   <div
     className="flex items-center gap-2"
-    // Row selection is a click on the row; the actions must not trigger it.
     onClick={(event) => event.stopPropagation()}
   >
     <IconAction
@@ -108,8 +89,8 @@ const RowActions = ({
       confirmVariant="destructive"
       cancelText={t("common.cancel")}
       confirmText={t("common.delete")}
-      onConfirm={() => onDelete(certificate.id)}
       title={t(`${CERTIFICATES}.deleteTitle`)}
+      onConfirm={() => onDelete(certificate.id)}
       isLoading={deletingCertificateId === certificate.id}
       description={t(`${CERTIFICATES}.deleteDescription`)}
       trigger={
@@ -126,13 +107,7 @@ const RowActions = ({
   </div>
 );
 
-const LinkedTo = ({
-  t,
-  certificate,
-}: {
-  t: I18nContextValue["t"];
-  certificate: ProfessionalCertificate;
-}) =>
+const LinkedTo = ({ t, certificate }: TLinkedTo) =>
   certificate.cpdPlanName ? (
     <span className="block truncate" title={certificate.cpdPlanName}>
       {certificate.cpdPlanName}
@@ -176,7 +151,6 @@ export const CertificatesTable = ({
 
   return (
     <>
-      {/* Seven columns never fit a phone; below lg each row becomes a card. */}
       <div className="hidden overflow-x-auto rounded-lg border lg:block">
         <table className="w-full min-w-[960px] border-collapse text-sm">
           <caption className="sr-only">
@@ -211,10 +185,6 @@ export const CertificatesTable = ({
                   )}
                 >
                   <td className="max-w-72 px-4 py-4">
-                    {/* The name is the keyboard-reachable selection control.
-                        `aria-selected` is not valid on a plain table row, and a
-                        focusable row would swallow Enter from the action
-                        buttons inside it. */}
                     <SelectButton
                       className="truncate"
                       onSelect={onSelect}
@@ -232,8 +202,7 @@ export const CertificatesTable = ({
                       className="block truncate"
                       title={certificate.issuer ?? undefined}
                     >
-                      {certificate.issuer ??
-                        t(`${CERTIFICATES}.unknownIssuer`)}
+                      {certificate.issuer ?? t(`${CERTIFICATES}.unknownIssuer`)}
                     </span>
                   </td>
                   <td className="whitespace-nowrap px-4 py-4 text-muted-foreground">
@@ -265,9 +234,6 @@ export const CertificatesTable = ({
 
           return (
             <li key={certificate.id}>
-              {/* A plain container, not a button: the card holds the edit and
-                  delete controls, and nesting interactive elements is invalid.
-                  The name below is the selection control. */}
               <div
                 onClick={() => onSelect(certificate.id)}
                 className={cn(

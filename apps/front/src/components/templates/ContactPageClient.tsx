@@ -18,7 +18,7 @@ const ContactMap = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex h-[320px] items-center justify-center rounded-lg border border-glass-border bg-background/55 text-sm text-muted-foreground">
+      <div className="flex h-[320px] items-center justify-center rounded-lg border text-sm text-muted-foreground">
         Loading map...
       </div>
     ),
@@ -47,18 +47,17 @@ const ContactPage = () => {
   return (
     <main className="overflow-x-clip">
       <section className="relative px-4 py-10">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,color-mix(in_oklab,var(--primary)_18%,transparent),transparent_34%),radial-gradient(circle_at_bottom_right,color-mix(in_oklab,var(--accent)_14%,transparent),transparent_32%)]" />
 
         <div className="mx-auto max-w-7xl">
           <RevealOnScroll direction="up">
             <div className="mx-auto max-w-3xl text-center">
-              <span className="inline-flex w-fit items-center rounded-full border border-glass-border bg-background/55 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm backdrop-blur-xl ring-1 ring-white/40">
+              <span className="inline-flex w-fit items-center rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm ring-1 ring-white/40">
                 {t("contactPage.hero.eyebrow")}
               </span>
 
               <h1 className="mt-6 text-4xl font-medium tracking-tight text-foreground md:text-6xl">
                 {t("contactPage.hero.title")}{" "}
-                <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+                <span className="text-primary">
                   {t("contactPage.hero.highlight")}
                 </span>
               </h1>
@@ -138,7 +137,7 @@ const ContactPage = () => {
                     <div
                       role="alert"
                       aria-live="assertive"
-                      className="rounded-2xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive"
+                      className="rounded-md border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive"
                     >
                       <p>{submitError}</p>
                       <p className="mt-2 text-muted-foreground">
@@ -162,7 +161,6 @@ const ContactPage = () => {
                     size="lg"
                     radius="xl"
                     type="submit"
-                    variant="brand"
                     disabled={isSubmitting}
                     className="w-full md:w-auto"
                   >
@@ -180,7 +178,7 @@ const ContactPage = () => {
             <div className="space-y-6">
               <GlassCard className="p-6 md:p-8">
                 <div className="mb-6">
-                  <span className="inline-flex w-fit items-center rounded-full border border-glass-border bg-background/55 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm backdrop-blur-xl">
+                  <span className="inline-flex w-fit items-center rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm">
                     {t("contactPage.info.eyebrow")}
                   </span>
                   <h2 className="mt-4 text-2xl font-medium text-foreground">
@@ -197,9 +195,9 @@ const ContactPage = () => {
                         direction="right"
                         delay={index * 90}
                       >
-                        <div className="group rounded-3xl border border-glass-border bg-background/45 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:bg-primary/5">
+                        <div className="group rounded-lg border p-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:bg-primary/5">
                           <div className="flex items-start gap-4">
-                            <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+                            <div className="rounded-md bg-primary/10 p-3 text-primary">
                               <Icon className="h-5 w-5" />
                             </div>
                             <div>
@@ -217,14 +215,14 @@ const ContactPage = () => {
                   })}
                 </div>
 
-                <p className="mt-5 rounded-2xl border border-primary/20 bg-primary/5 p-4 text-sm leading-6 text-muted-foreground">
+                <p className="mt-5 rounded-md border border-primary/20 bg-primary/5 p-4 text-sm leading-6 text-muted-foreground">
                   {t("contactPage.info.responseNote")}
                 </p>
               </GlassCard>
 
               <GlassCard className="p-6 md:p-8">
                 <div className="mb-4 flex items-center gap-3">
-                  <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+                  <div className="rounded-md bg-primary/10 p-3 text-primary">
                     <L.MapPin className="h-5 w-5" />
                   </div>
                   <div>
@@ -243,15 +241,13 @@ const ContactPage = () => {
         </div>
       </section>
 
-
       <section className="px-4 pb-28">
         <div className="mx-auto max-w-7xl">
           <RevealOnScroll direction="up">
-            <div className="relative overflow-hidden rounded-lg border border-primary/20 bg-muted-foreground p-8 text-white shadow-2xl md:p-10">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,color-mix(in_oklab,var(--primary)_35%,transparent),transparent_34%),radial-gradient(circle_at_bottom_right,color-mix(in_oklab,var(--accent)_25%,transparent),transparent_30%)]" />
+            <div className="relative overflow-hidden rounded-lg border border-primary/20 bg-muted-foreground p-8 text-white shadow-md md:p-10">
               <div className="relative z-10 grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
                 <div>
-                  <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white/80 backdrop-blur-xl">
+                  <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white/80">
                     <L.Sparkles className="h-4 w-4" />
                     {t("contactPage.cta.eyebrow")}
                   </div>
@@ -267,7 +263,6 @@ const ContactPage = () => {
                   size="lg"
                   radius="xl"
                   type="button"
-                  variant="brand"
                   onClick={scrollToForm}
                   className="w-full lg:w-auto"
                 >

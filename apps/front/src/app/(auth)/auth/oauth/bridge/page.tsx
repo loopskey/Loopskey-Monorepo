@@ -15,7 +15,7 @@ const OAuthBridgeContent = () => {
   return (
     <AuthPageShell>
       <section className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center px-4 text-center">
-        <div className="rounded-3xl border border-border/60 bg-background/70 p-8 shadow-xl backdrop-blur">
+        <div className="rounded-lg border bg-card p-8 shadow-md">
           <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
             <Loader2 className="h-7 w-7 animate-spin" />
           </div>
@@ -39,7 +39,7 @@ const OAuthBridgePage = () => {
       fallback={
         <AuthPageShell>
           <section className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center px-4 text-center">
-            <div className="rounded-3xl border border-border/60 bg-background/70 p-8 shadow-xl backdrop-blur">
+            <div className="rounded-lg border bg-card p-8 shadow-md">
               <Loader2 className="mx-auto h-7 w-7 animate-spin text-primary" />
             </div>
           </section>

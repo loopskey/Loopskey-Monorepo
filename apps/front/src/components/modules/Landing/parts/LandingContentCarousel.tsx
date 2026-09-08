@@ -92,7 +92,6 @@ const LandingContentCarousel = ({
 
   return (
     <div className="relative overflow-hidden rounded-lg border p-4 shadow-sm md:p-5">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(59,130,246,0.14),transparent_34%),radial-gradient(circle_at_90%_20%,rgba(20,184,166,0.10),transparent_36%)]" />
       <div className="relative z-10 mb-5 flex items-center justify-between gap-4">
         <div>
           <p className="text-sm font-medium">

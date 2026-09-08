@@ -1,7 +1,7 @@
 "use client";
 
-import { Loader2, ShoppingCart } from "lucide-react";
 import { TDetailActionPanelProps } from "@/types/content-module.types";
+import { Loader2, ShoppingCart } from "lucide-react";
 import { GlassCard } from "@elements/glass-card";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
@@ -40,7 +40,7 @@ const DetailActionPanel = ({
           onClick={onAddToCart}
           className="w-full justify-center"
           disabled={cartLoading || isInCart}
-          variant={isInCart ? "brandSoft" : "premium"}
+          variant={isInCart ? "outline" : "outline"}
         >
           {cartLoading ? (
             <Loader2 className="h-4 w-4 animate-spin" />

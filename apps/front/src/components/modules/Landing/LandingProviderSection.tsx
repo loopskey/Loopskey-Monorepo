@@ -17,8 +17,6 @@ const LandingProvider = () => {
   return (
     <section className="relative overflow-x-clip px-4 py-16 sm:px-6 lg:px-8">
       <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute right-0 top-16 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute bottom-0 left-0 h-96 w-96 rounded-full bg-brand-teal/10 blur-3xl" />
       </div>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -87,7 +85,6 @@ const LandingProvider = () => {
 
           <RevealOnScroll direction="right" delay={120}>
             <GlassCard className="relative overflow-hidden p-5 md:p-6">
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,color-mix(in_oklab,var(--primary)_18%,transparent),transparent_34%),radial-gradient(circle_at_bottom_left,color-mix(in_oklab,var(--accent)_12%,transparent),transparent_32%)]" />
 
               <div className="relative z-10">
                 <div className="flex items-start justify-between gap-4">
@@ -108,7 +105,7 @@ const LandingProvider = () => {
                       </span>
                     )}
 
-                    <span className="rounded-full border border-brand-teal/30 bg-brand-teal/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-teal-text">
+                    <span className="rounded-full border border-brand-orange/30 bg-brand-orange/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-orange-text">
                       {isLoading
                         ? t("common.loading")
                         : t("landing.provider.dashboard.status")}
@@ -168,7 +165,7 @@ const LandingProvider = () => {
                             className={cn(
                               "h-full rounded-full transition-all duration-700",
                               index === 0 && "bg-primary",
-                              index === 1 && "bg-brand-teal",
+                              index === 1 && "bg-brand-orange",
                               index === 2 && "bg-success",
                             )}
                             style={{
@@ -197,7 +194,7 @@ const LandingProvider = () => {
                   </div>
 
                   <div className="rounded-lg border p-5">
-                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-md bg-brand-teal/10 text-brand-teal-text">
+                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-md bg-brand-orange/10 text-brand-orange-text">
                       <L.LineChart className="h-6 w-6" />
                     </div>
 

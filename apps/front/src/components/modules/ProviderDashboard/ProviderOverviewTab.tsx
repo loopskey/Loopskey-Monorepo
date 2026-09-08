@@ -106,7 +106,7 @@ const ProviderOverviewTab = () => {
                 radius="xl"
                 type="button"
                 onClick={() => setRange(item)}
-                variant={range === item ? "brand" : "glass"}
+                variant={range === item ? "default" : "outline"}
               >
                 {t(`providerDashboard.ranges.${item}`)}
               </Button>

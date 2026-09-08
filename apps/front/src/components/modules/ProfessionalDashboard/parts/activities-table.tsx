@@ -68,13 +68,13 @@ const IconAction = ({
   label,
   onClick,
   disabled,
-  variant = "glass",
+  variant = "outline",
 }: {
   icon: typeof L.Eye;
   label: string;
   disabled?: boolean;
   onClick?: () => void;
-  variant?: "glass" | "cancel";
+  variant?: "outline" | "cancel";
 }) => (
   <Tooltip>
     <TooltipTrigger asChild>

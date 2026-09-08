@@ -31,7 +31,7 @@ const AuthFeaturePanel = ({
 
       <h1 className="max-w-xl text-center text-2xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-4xl">
         {titlePrefix}
-        <span className="bg-gradient-to-r from-sky-500 to-indigo-600 bg-clip-text px-2 text-transparent">
+        <span className="text-primary px-2">
           {titleBrand}
         </span>
       </h1>

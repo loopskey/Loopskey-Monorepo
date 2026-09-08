@@ -102,7 +102,7 @@ export const StaticInfoPage = ({ pageKey }: { pageKey: PageKey }) => {
 
   const header = (
     <div className="mx-auto max-w-3xl text-center">
-      <span className="inline-flex w-fit items-center gap-2 rounded-full border border-glass-border bg-background/55 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm ring-1 ring-white/40 backdrop-blur-xl">
+      <span className="inline-flex w-fit items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm ring-1 ring-white/40">
         <L.Sparkles className="h-4 w-4" />
         {t("staticInfoPage.eyebrow")}
       </span>
@@ -125,7 +125,6 @@ export const StaticInfoPage = ({ pageKey }: { pageKey: PageKey }) => {
 
   return (
     <main className="relative overflow-x-clip">
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,color-mix(in_oklab,var(--primary)_18%,transparent),transparent_34%),radial-gradient(circle_at_bottom_right,color-mix(in_oklab,var(--accent)_14%,transparent),transparent_32%)]" />
 
       <section className="px-4 py-10 sm:px-6 md:py-16 lg:px-8">
         <div className="mx-auto max-w-7xl">
@@ -168,11 +167,11 @@ export const StaticInfoPage = ({ pageKey }: { pageKey: PageKey }) => {
                             onClick={() => setActiveSectionId(section.id)}
                             className={cn(
                               "group flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition-all duration-300",
-                              "xl:w-full xl:gap-3 xl:rounded-2xl xl:px-4 xl:py-3 xl:text-sm",
+                              "xl:w-full xl:gap-3 xl:rounded-md xl:px-4 xl:py-3 xl:text-sm",
                               FOCUS_RING,
                               isActive
                                 ? "border-primary/30 bg-primary/10 text-primary shadow-sm"
-                                : "border-glass-border bg-background/35 text-muted-foreground hover:border-primary/25 hover:bg-primary/5 hover:text-foreground",
+                                : "border-border text-muted-foreground hover:border-primary/25 hover:bg-primary/5 hover:text-foreground",
                             )}
                           >
                             <span
@@ -212,7 +211,7 @@ export const StaticInfoPage = ({ pageKey }: { pageKey: PageKey }) => {
             {cta && (
               <RevealOnScroll direction="up">
                 <div className="flex justify-center pt-2">
-                  <Button asChild size="lg" radius="xl" variant="brand">
+                  <Button asChild size="lg" radius="xl">
                     <Link href={cta.href}>
                       {cta.label}
                       <L.ArrowRight className="h-4 w-4" />
@@ -227,7 +226,7 @@ export const StaticInfoPage = ({ pageKey }: { pageKey: PageKey }) => {
                 <a
                   href={`#${titleId}`}
                   className={cn(
-                    "inline-flex items-center gap-2 rounded-full border border-glass-border bg-background/45 px-4 py-2 text-sm text-muted-foreground transition-colors hover:border-primary/25 hover:text-primary",
+                    "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm text-muted-foreground transition-colors hover:border-primary/25 hover:text-primary",
                     FOCUS_RING,
                   )}
                 >

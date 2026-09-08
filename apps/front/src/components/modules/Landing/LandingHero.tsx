@@ -37,8 +37,6 @@ const LandingHero = () => {
 
   const shouldShowResults = hasSearch || hasSelectedCategory;
 
-  // Each line is its own SplitText, so the following lines are offset by the
-  // characters ahead of them to keep one continuous reveal in every locale.
   const titleLine1 = t("landing.hero.titleLine1");
   const titleLine2 = t("landing.hero.titleLine2");
   const titleLine3 = t("landing.hero.titleLine3");
@@ -49,11 +47,7 @@ const LandingHero = () => {
 
   return (
     <section className="relative overflow-x-clip px-4 py-10 sm:px-6 lg:px-8">
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute left-1/2 top-0 h-[34rem] w-[34rem] -translate-x-1/2 rounded-full bg-primary/14 blur-3xl" />
-        <div className="absolute right-0 top-32 h-80 w-80 rounded-full bg-chart-7/10 blur-3xl" />
-        <div className="absolute bottom-0 left-0 h-80 w-80 rounded-full bg-chart-4/10 blur-3xl" />
-      </div>
+      <div className="pointer-events-none absolute inset-0 -z-10"></div>
 
       <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] px-4 sm:px-6 lg:px-8">
         <div className="animate-in fade-in-0 slide-in-from-bottom-5 duration-700">
@@ -72,14 +66,13 @@ const LandingHero = () => {
               duration={HERO_SPLIT_DURATION_S}
             />
             <SplitText
-              inheritGradient
               tag="span"
-              text={titleLine2}
               textAlign="left"
+              text={titleLine2}
               startDelay={line2StartDelay}
               delay={HERO_SPLIT_STAGGER_MS}
+              className="block text-primary"
               duration={HERO_SPLIT_DURATION_S}
-              className="block bg-gradient-to-r from-primary to-teal-400 bg-clip-text text-transparent"
             />
             <SplitText
               tag="span"
@@ -209,7 +202,6 @@ const LandingHero = () => {
         </div>
 
         <div className="relative animate-in fade-in-0 zoom-in-95 slide-in-from-bottom-6 duration-700 lg:min-h-[620px]">
-          <div className="absolute left-1/2 top-1/2 -z-10 h-[34rem] w-[34rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-3xl" />
           <div className="relative mx-auto flex max-w-xl items-center justify-center [perspective:1400px]">
             <div className="relative h-[420px] w-full sm:h-[520px] animate-[hero-float_5s_ease-in-out_infinite] transition-transform duration-700 lg:[transform:rotateY(-8deg)] lg:hover:[transform:rotateY(0deg)_scale(1.03)]">
               <Image

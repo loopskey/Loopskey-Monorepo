@@ -17,8 +17,6 @@ const LandingRoadmapShowcase = () => {
   return (
     <section className="relative overflow-x-clip px-4 py-16 sm:px-6 lg:px-8">
       <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute left-0 top-20 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-brand-teal/10 blur-3xl" />
       </div>
 
       <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[0.92fr_1.08fr] px-4 sm:px-6 lg:px-8">
@@ -31,7 +29,7 @@ const LandingRoadmapShowcase = () => {
 
             <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
               {t("landing.roadmapShowcase.title")}{" "}
-              <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+              <span className="text-primary">
                 {t("landing.roadmapShowcase.highlight")}
               </span>
             </h2>
@@ -79,7 +77,6 @@ const LandingRoadmapShowcase = () => {
 
         <RevealOnScroll direction="right" delay={120}>
           <GlassCard className="relative overflow-hidden p-5 md:p-7">
-            <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,color-mix(in_oklab,var(--primary)_12%,transparent),transparent_34%),radial-gradient(circle_at_bottom_left,color-mix(in_oklab,var(--accent)_10%,transparent),transparent_32%)]" />
             <div className="mb-6 flex flex-col justify-between gap-4 border-b border-border pb-5 sm:flex-row sm:items-center">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
@@ -163,7 +160,7 @@ const LandingRoadmapShowcase = () => {
                               milestone.status === "done" &&
                                 "bg-primary/10 text-primary",
                               milestone.status === "active" &&
-                                "bg-brand-teal/10 text-brand-teal-text",
+                                "bg-brand-orange/10 text-brand-orange-text",
                               milestone.status === "upcoming" &&
                                 "bg-muted text-muted-foreground",
                             )}
