@@ -3,7 +3,7 @@
 - Scope: `front`
 - Branch: `feature/role-overviews`
 - Base: `fae0433`
-- Status: `Ready`
+- Status: `Submitted`
 
 Phase 4 of `context/features/course-visual-restoration/04-role-overviews.md`.
 
@@ -79,6 +79,6 @@ Scope decisions:
 
 ## Submission
 
-- Commit:
-- PR:
+- Commit: `7641561`
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/77
 - CI:
