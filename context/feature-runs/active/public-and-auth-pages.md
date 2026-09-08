@@ -3,7 +3,7 @@
 - Scope: `front`
 - Branch: `feature/public-and-auth-pages`
 - Base: `2ad8dba`
-- Status: `Ready`
+- Status: `Submitted`
 
 Phase 6 of `context/features/course-visual-restoration/06-public-and-auth-pages.md`.
 
@@ -107,6 +107,6 @@ white rule.
 
 ## Submission
 
-- Commit:
-- PR:
+- Commit: `1fb170f`
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/79
 - CI:
