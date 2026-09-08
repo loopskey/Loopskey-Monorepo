@@ -30,7 +30,7 @@ export const PasswordField = <T extends FieldValues>({
           type="button"
           size="iconSm"
           radius="full"
-          variant="glass"
+          variant="outline"
           className="h-8 w-8"
           onClick={() => setVisible((current) => !current)}
           aria-label={visible ? "Hide password" : "Show password"}

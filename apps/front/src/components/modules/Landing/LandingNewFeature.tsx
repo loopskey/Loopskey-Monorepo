@@ -32,8 +32,6 @@ const LandingNewFeature = () => {
   return (
     <section className="relative overflow-x-clip px-4 py-10 sm:px-6 lg:px-8">
       <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute left-10 top-20 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute bottom-10 right-10 h-72 w-72 rounded-full bg-chart-7/10 blur-3xl" />
       </div>
 
       <div className="mx-auto grid max-w-7xl items-center gap-8 lg:grid-cols-[0.9fr_1.1fr] px-4 sm:px-6 lg:px-8">

@@ -8,7 +8,7 @@ const ContentCardSkeleton = ({ className }: { className?: string }) => {
       className={cn("overflow-hidden p-0", "animate-pulse", className)}
     >
       <div className="relative z-10">
-        <div className="h-48 w-full rounded-t-[2rem] bg-muted/70" />
+        <div className="h-48 w-full rounded-t-lg bg-muted/70" />
         <div className="space-y-4 p-5">
           <div className="h-4 w-24 rounded-full bg-muted" />
           <div className="h-6 w-4/5 rounded-full bg-muted" />

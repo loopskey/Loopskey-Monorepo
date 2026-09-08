@@ -47,8 +47,6 @@ const LandingTestimonials = () => {
   return (
     <section className="relative overflow-x-clip px-4 py-16 sm:px-6 lg:px-8">
       <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute left-0 top-16 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-brand-teal/10 blur-3xl" />
       </div>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -83,7 +81,6 @@ const LandingTestimonials = () => {
                   index === 1 && "lg:-mt-6",
                 )}
               >
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,color-mix(in_oklab,var(--primary)_12%,transparent),transparent_34%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
                 <div className="relative z-10 flex h-full flex-col">
                   <div className="mb-6 flex items-center justify-between gap-4">

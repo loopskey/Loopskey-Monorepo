@@ -1,8 +1,8 @@
 import type { useCreateProfessionalPduActivityMutation } from "@/lib/rtk/endpoints/professional.api";
 import type { useUpsertProfessionalPduTargetMutation } from "@/lib/rtk/endpoints/professional.api";
 import type { ContentType, UpsertPduTargetInput } from "@/lib/graphql/base";
+import type { BarChart3, LucideIcon, Pencil } from "lucide-react";
 import type { ElementType, ReactNode } from "react";
-import type { BarChart3, LucideIcon } from "lucide-react";
 import type { TCertificateFormInput } from "@/lib/validations/certificate.schema";
 import type { TPduActivityFormInput } from "@/lib/validations/pdu-activity.schema";
 import type { I18nContextValue } from "@/types/providers.types";
@@ -502,4 +502,33 @@ export type TCertificateFormFieldsProps = {
   existingFiles: TCertificateEvidenceFile[];
   onRemoveExisting: (fileId: string) => void;
   onDownloadExisting: (file: TEvidenceFileLike) => void;
+};
+
+export type TIconAction = {
+  label: string;
+  disabled?: boolean;
+  icon: typeof Pencil;
+  onClick?: () => void;
+  variant?: "outline" | "cancel";
+};
+
+export type TLinkedTo = {
+  t: I18nContextValue["t"];
+  certificate: ProfessionalCertificate;
+};
+
+export type TRowActions = {
+  isDeleting: boolean;
+  t: I18nContextValue["t"];
+  deletingCertificateId: string | null;
+  certificate: ProfessionalCertificate;
+  onEdit: TCertificatesTableProps["onEdit"];
+  onDelete: TCertificatesTableProps["onDelete"];
+};
+
+export type TSelectButton = {
+  className?: string;
+  isSelected: boolean;
+  certificate: ProfessionalCertificate;
+  onSelect: TCertificatesTableProps["onSelect"];
 };

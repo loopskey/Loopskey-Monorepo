@@ -99,8 +99,7 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="relative mt-24 overflow-hidden border-t border-glass-border bg-background/60 backdrop-blur-xl">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_15%,rgba(59,130,246,0.12),transparent_30%),radial-gradient(circle_at_85%_10%,rgba(20,184,166,0.1),transparent_28%),radial-gradient(circle_at_50%_105%,rgba(245,158,11,0.08),transparent_34%)]" />
+    <footer className="relative mt-24 overflow-hidden border-t border-border">
 
       <div className="relative mx-auto max-w-7xl py-14 lg:py-18 px-4 sm:px-6 lg:px-8">
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-5">
@@ -116,7 +115,7 @@ const Footer = () => {
                   asChild
                   size="icon"
                   radius="full"
-                  variant="glass"
+                  variant="outline"
                   key={social.href}
                   className="h-10 w-10"
                 >

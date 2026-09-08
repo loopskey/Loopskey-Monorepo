@@ -24,7 +24,7 @@ export const OrgEventCatalogCard = ({
   return (
     <GlassCard className="overflow-hidden p-0">
       <div className="relative z-10">
-        <div className="relative h-44 overflow-hidden rounded-t-[2rem] bg-muted">
+        <div className="relative h-44 overflow-hidden rounded-t-lg bg-muted">
           {imageSrc ? (
             <Image
               fill

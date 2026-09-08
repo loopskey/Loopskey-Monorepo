@@ -45,7 +45,7 @@ const ProfessionalAuthPage = () => {
 
         <div className="order-1 lg:order-2">
           <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-            <Button asChild variant="glass" radius="xl" className="flex-1">
+            <Button asChild variant="outline" radius="xl" className="flex-1">
               <Link href={siteLinks.providerAuth}>
                 {t("authPages.professional.providerLink")}
                 <ArrowRight className="h-4 w-4" />

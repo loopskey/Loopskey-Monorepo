@@ -14,7 +14,7 @@ export const ConfirmDialog = ({
   isLoading = false,
   cancelText = "Cancel",
   confirmText = "Confirm",
-  confirmVariant = "brand",
+  confirmVariant = "default",
 }: TConfirmDialogProps) => {
   return (
     <A.AlertDialog>

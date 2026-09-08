@@ -19,7 +19,6 @@ export const ExternalLearningButton = ({
   return (
     <Button
       radius="xl"
-      variant="brand"
       disabled={disabled || isTracking}
       onClick={() =>
         trackAndOpen({

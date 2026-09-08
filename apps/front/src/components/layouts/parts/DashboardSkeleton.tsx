@@ -89,7 +89,7 @@ export const DashboardContentSkeleton = () => {
 
 export const DashboardPageSkeleton = () => {
   return (
-    <div className="flex h-[calc(100dvh-5rem)] overflow-hidden">
+    <div className="flex h-[calc(100dvh-4rem)] overflow-hidden">
       <DashboardSidebarSkeleton />
       <main className="min-w-0 flex-1 overflow-y-auto bg-background px-3 py-4 md:px-6 md:py-6">
         <div className="mx-auto max-w-7xl">

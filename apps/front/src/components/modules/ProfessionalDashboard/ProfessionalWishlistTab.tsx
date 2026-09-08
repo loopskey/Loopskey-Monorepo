@@ -147,7 +147,7 @@ const ProfessionalWishlistTab = () => {
                 radius="xl"
                 type="button"
                 key={option.value}
-                variant={isActive ? "brand" : "glass"}
+                variant={isActive ? "default" : "outline"}
                 onClick={() =>
                   updateFilter(
                     "contentType",
@@ -223,7 +223,7 @@ const ProfessionalWishlistTab = () => {
                   key={item.id}
                   className="overflow-hidden p-0"
                 >
-                  <div className="relative aspect-video rounded-t-[2rem] bg-muted">
+                  <div className="relative aspect-video rounded-t-lg bg-muted">
                     {content?.imageUrl ? (
                       <Image
                         fill

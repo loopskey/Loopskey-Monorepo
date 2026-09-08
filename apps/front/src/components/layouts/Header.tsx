@@ -27,13 +27,13 @@ const Header = () => {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 w-full transition-all duration-300",
+        "sticky top-0 z-50 w-full bg-background transition-all duration-300",
         isScrolled
-          ? "border-b border-glass-border bg-background/65 shadow-[0_16px_50px_rgba(15,23,42,0.08)] backdrop-blur-2xl"
-          : "border-b border-transparent bg-transparent",
+          ? "border-b shadow-sm"
+          : "border-b",
       )}
     >
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Logo />
         <nav className="hidden items-center gap-1 lg:flex">
           {navItems.map((item) => {
@@ -68,7 +68,7 @@ const Header = () => {
             size="icon"
             type="button"
             radius="full"
-            variant="glass"
+            variant="outline"
             aria-label={
               isMobileOpen
                 ? t("navigation.closeMenu")
@@ -95,7 +95,7 @@ const Header = () => {
       >
         <div
           className={cn(
-            "fixed inset-0 top-20 z-40 bg-background/45 backdrop-blur-sm transition-opacity duration-300",
+            "fixed inset-0 top-16 z-40 bg-foreground/20 transition-opacity duration-300",
             isMobileOpen ? "opacity-100" : "opacity-0",
           )}
           onClick={closeMobileMenu}
@@ -103,7 +103,7 @@ const Header = () => {
 
         <div
           className={cn(
-            "absolute left-4 right-4 top-20 z-50 origin-top rounded-lg border border-glass-border bg-background/80 p-4 shadow-2xl backdrop-blur-2xl transition-all duration-300",
+            "absolute left-4 right-4 top-16 z-50 origin-top rounded-lg border bg-popover p-4 shadow-md transition-all duration-300",
             isMobileOpen
               ? "translate-y-0 scale-100 opacity-100"
               : "-translate-y-3 scale-95 opacity-0",
@@ -119,7 +119,7 @@ const Header = () => {
                   key={`mobile-${item.href}-${item.label}`}
                   aria-current={isActive ? "page" : undefined}
                   className={cn(
-                    "flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-semibold transition-all duration-300",
+                    "flex items-center justify-between rounded-md px-4 py-3 text-sm font-semibold transition-all duration-300",
                     isActive
                       ? "bg-primary/10 text-primary ring-1 ring-primary/15"
                       : "text-foreground hover:bg-primary/10 hover:text-primary",

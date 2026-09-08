@@ -48,7 +48,7 @@ const HeroSearchBox = ({
           type="button"
           className="h-14 shrink-0"
           onClick={onToggleExplorer}
-          variant={isExplorerOpen ? "brand" : "brandSoft"}
+          variant={isExplorerOpen ? "default" : "outline"}
         >
           <Sparkles className="h-4 w-4" />
           {exploreLabel}

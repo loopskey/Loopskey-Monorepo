@@ -29,9 +29,6 @@ const LandingFeatured = () => {
   return (
     <section className="relative overflow-x-clip px-4 py-10 sm:px-6 lg:px-8">
       <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute left-1/2 top-10 h-80 w-80 -translate-x-1/2 rounded-full bg-primary/15 blur-3xl" />
-        <div className="absolute right-10 bottom-10 h-72 w-72 rounded-full bg-chart-7/10 blur-3xl" />
-        <div className="absolute bottom-20 left-10 h-72 w-72 rounded-full bg-chart-4/10 blur-3xl" />
       </div>
 
       <div className="mx-auto max-w-7xl space-y-8 px-4 sm:px-6 lg:px-8">

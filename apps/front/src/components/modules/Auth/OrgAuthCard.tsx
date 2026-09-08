@@ -22,7 +22,7 @@ const OrgAuthCard = () => {
             radius="xl"
             type="button"
             onClick={() => setActive("request")}
-            variant={active === "request" ? "brand" : "ghost"}
+            variant={active === "request" ? "default" : "ghost"}
           >
             {t("authPages.organization.requestTab")}
           </Button>
@@ -31,7 +31,7 @@ const OrgAuthCard = () => {
             radius="xl"
             type="button"
             onClick={() => setActive("login")}
-            variant={active === "login" ? "brand" : "ghost"}
+            variant={active === "login" ? "default" : "ghost"}
           >
             {t("authPages.organization.loginTab")}
           </Button>

@@ -37,7 +37,7 @@ const HeroMiniResultCard = ({ item }: { item: TLandingHeroResultItem }) => {
               className="object-cover transition duration-500 group-hover:scale-110"
             />
           ) : (
-            <div className="h-full w-full bg-[radial-gradient(circle_at_25%_20%,rgba(59,130,246,0.35),transparent_35%),linear-gradient(135deg,rgba(59,130,246,0.18),rgba(20,184,166,0.14))]" />
+            <div className="h-full w-full bg-muted" />
           )}
         </div>
 

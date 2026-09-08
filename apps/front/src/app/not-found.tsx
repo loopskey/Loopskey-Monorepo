@@ -14,9 +14,6 @@ const NotFoundPage = () => {
   return (
     <main className="flex min-h-[calc(100vh-5rem)] items-center overflow-hidden px-4 py-20 sm:px-6 lg:px-8">
       <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute left-1/2 top-10 h-96 w-96 -translate-x-1/2 rounded-full bg-primary/15 blur-3xl" />
-        <div className="absolute bottom-10 left-10 h-80 w-80 rounded-full bg-chart-7/10 blur-3xl" />
-        <div className="absolute bottom-20 right-10 h-80 w-80 rounded-full bg-chart-4/10 blur-3xl" />
       </div>
 
       <RevealOnScroll className="mx-auto w-full max-w-4xl text-center">
@@ -28,7 +25,7 @@ const NotFoundPage = () => {
           {t("notFound.badge")}
         </p>
 
-        <h1 className="mt-5 bg-gradient-to-r from-primary via-cyan-400 to-violet-400 bg-clip-text text-8xl font-black tracking-tight text-transparent sm:text-9xl">
+        <h1 className="mt-5 text-primary text-8xl font-black tracking-tight sm:text-9xl">
           404
         </h1>
 
@@ -41,14 +38,14 @@ const NotFoundPage = () => {
         </p>
 
         <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-          <Button asChild variant="brand" radius="xl" size="lg">
+          <Button asChild radius="xl" size="lg">
             <Link href={siteLinks.home}>
               <Home className="h-4 w-4" />
               {t("notFound.backHome")}
             </Link>
           </Button>
 
-          <Button asChild variant="glass" radius="xl" size="lg">
+          <Button asChild variant="outline" radius="xl" size="lg">
             <Link href={siteLinks.home}>
               <ArrowLeft className="h-4 w-4" />
               {t("notFound.goBack")}
@@ -59,7 +56,7 @@ const NotFoundPage = () => {
         <div className="mx-auto mt-10 grid max-w-2xl gap-4 sm:grid-cols-2">
           <a
             href="mailto:Loopskey.dev@gmail.com"
-            className="group rounded-3xl border border-glass-border bg-background/35 p-5 text-left shadow-sm backdrop-blur-xl transition hover:border-primary/40 hover:bg-primary/5"
+            className="group rounded-lg border p-5 text-left shadow-sm transition hover:border-primary/40 hover:bg-primary/5"
           >
             <Mail className="mb-3 h-5 w-5 text-primary" />
             <p className="text-sm font-bold">{t("notFound.emailTitle")}</p>
@@ -70,7 +67,7 @@ const NotFoundPage = () => {
 
           <Link
             href={siteLinks.contact}
-            className="group rounded-3xl border border-glass-border bg-background/35 p-5 text-left shadow-sm backdrop-blur-xl transition hover:border-primary/40 hover:bg-primary/5"
+            className="group rounded-lg border p-5 text-left shadow-sm transition hover:border-primary/40 hover:bg-primary/5"
           >
             <LifeBuoy className="mb-3 h-5 w-5 text-primary" />
             <p className="text-sm font-bold">{t("notFound.supportTitle")}</p>
