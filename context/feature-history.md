@@ -51,3 +51,4 @@ into this index and do not rewrite previous records.
 - [`content-thumbnail`](feature-runs/active/content-thumbnail.md)
 - [`external-reference-identity`](feature-runs/active/external-reference-identity.md)
 - [`ingestion-foundation`](feature-runs/active/ingestion-foundation.md)
+- [`course-ingestion-endpoint`](feature-runs/active/course-ingestion-endpoint.md)
