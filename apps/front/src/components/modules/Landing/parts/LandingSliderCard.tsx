@@ -1,3 +1,4 @@
+import { ContentThumbnail } from "@elements/content-thumbnail";
 import { ArrowRight, Star } from "lucide-react";
 import { TLandingSlider } from "@/types/landing-module.types";
 import { getKindIcon } from "./LandingContentCarousel";
@@ -5,7 +6,6 @@ import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
 import { cn } from "@/lib/utils";
 
-import Image from "next/image";
 import Link from "next/link";
 
 const LandingSliderCard = ({ item, isActive, onHover }: TLandingSlider) => {
@@ -32,17 +32,15 @@ const LandingSliderCard = ({ item, isActive, onHover }: TLandingSlider) => {
       )}
     >
       <div className="relative h-48 overflow-hidden bg-muted">
-        {item.imageUrl ? (
-          <Image
-            fill
-            alt={item.title}
-            src={item.imageUrl}
-            sizes="(max-width: 640px) 86vw, (max-width: 1024px) 46vw, 320px"
-            className="object-cover transition duration-700 group-hover:scale-110"
-          />
-        ) : (
-          <div className="h-full w-full bg-muted" />
-        )}
+        <ContentThumbnail
+          id={item.id}
+          kind={item.kind}
+          title={item.title}
+          imageUrl={item.imageUrl}
+          category={item.category}
+          sizes="(max-width: 640px) 86vw, (max-width: 1024px) 46vw, 320px"
+          className="transition duration-700 group-hover:scale-110"
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/20 to-transparent" />
         <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full bg-muted px-3 py-2 text-xs font-medium uppercase tracking-wide text-primary shadow-sm">
           {getKindIcon(item.kind)}

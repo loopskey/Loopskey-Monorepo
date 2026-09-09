@@ -1,13 +1,12 @@
 "use client";
 
 import { TContentCardProps } from "@/types/content-module.types";
-import { isValidImageSrc } from "@/utils/function-helper";
+import { ContentThumbnail } from "@elements/content-thumbnail";
 import { GlassCard } from "@elements/glass-card";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
 import { cn } from "@/lib/utils";
 
-import Image from "next/image";
 import Link from "next/link";
 
 import * as L from "lucide-react";
@@ -23,7 +22,6 @@ const ContentCard = ({ item, className }: TContentCardProps) => {
   const { t } = useI18n();
 
   const Icon = kindIcon[item.kind] ?? L.BookOpen;
-  const hasValidImage = isValidImageSrc(item.imageUrl);
 
   return (
     <GlassCard
@@ -36,19 +34,15 @@ const ContentCard = ({ item, className }: TContentCardProps) => {
     >
       <div className="relative z-10">
         <div className="relative h-48 overflow-hidden rounded-t-lg bg-muted">
-          {hasValidImage ? (
-            <Image
-              fill
-              alt={item.title || "Content image"}
-              src={item.imageUrl!.trim()}
-              sizes="(max-width: 768px) 100vw, 33vw"
-              className="object-cover transition-transform duration-700 group-hover:scale-110"
-            />
-          ) : (
-            <div className="flex h-full items-center justify-center bg-muted">
-              <Icon className="h-12 w-12 text-primary/70" />
-            </div>
-          )}
+          <ContentThumbnail
+            id={item.id}
+            kind={item.kind}
+            title={item.title}
+            imageUrl={item.imageUrl}
+            category={item.category}
+            sizes="(max-width: 768px) 100vw, 33vw"
+            className="transition-transform duration-700 group-hover:scale-110"
+          />
 
           <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/10 to-transparent" />
 

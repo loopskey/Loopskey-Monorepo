@@ -67,6 +67,8 @@ const EventDetailPage = ({ slug }: { slug: string }) => {
     <main className="px-4 py-10 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-8">
         <DetailHero
+          kind="event"
+          id={event.id}
           title={event.title}
           imageUrl={event.imageUrl}
           category={event.category}

@@ -2,12 +2,10 @@
 
 import { TEventCatalogAssignView } from "@/types/org-dashboard.types";
 import { OrgEventAssignForm } from "@modules/OrgDashboard/parts/org-event-assign-form";
-import { isValidImageSrc } from "@utils/function-helper";
+import { ContentThumbnail } from "@elements/content-thumbnail";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
-
-import Image from "next/image";
 
 import * as L from "lucide-react";
 
@@ -33,12 +31,6 @@ export const OrgEventAssignView = ({ hook }: TEventCatalogAssignView) => {
         </GlassCard>
       </div>
     );
-
-  const imageSrc =
-    typeof selectedEvent.imageUrl === "string" &&
-    isValidImageSrc(selectedEvent.imageUrl)
-      ? selectedEvent.imageUrl
-      : null;
 
   return (
     <div className="space-y-6">
@@ -106,19 +98,14 @@ export const OrgEventAssignView = ({ hook }: TEventCatalogAssignView) => {
           <GlassCard className="overflow-hidden p-0">
             <div className="relative z-10">
               <div className="relative h-44 overflow-hidden rounded-t-lg bg-muted">
-                {imageSrc ? (
-                  <Image
-                    fill
-                    src={imageSrc}
-                    className="object-cover"
-                    alt={selectedEvent.title}
-                    sizes="(max-width: 1280px) 100vw, 380px"
-                  />
-                ) : (
-                  <div className="flex h-full items-center justify-center text-muted-foreground">
-                    <L.CalendarDays className="h-10 w-10" />
-                  </div>
-                )}
+                <ContentThumbnail
+                  kind="event"
+                  id={selectedEvent.id}
+                  title={selectedEvent.title}
+                  imageUrl={selectedEvent.imageUrl}
+                  category={selectedEvent.category}
+                  sizes="(max-width: 1280px) 100vw, 380px"
+                />
               </div>
 
               <div className="p-5">

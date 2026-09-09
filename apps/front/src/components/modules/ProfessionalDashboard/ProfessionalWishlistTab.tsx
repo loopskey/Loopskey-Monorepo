@@ -3,7 +3,9 @@
 import { contentTypeIcon, contentTypeOptions } from "@/utils/constant";
 import { ContentType, WishlistSortBy } from "@/lib/graphql/base";
 import { useProfessionalWishlistTab } from "@/hooks/useProfessionalWishlistTab";
+import { TContentThumbnailKind } from "@/types/element.types";
 import { ContentPagination } from "@elements/pagination";
+import { ContentThumbnail } from "@elements/content-thumbnail";
 import { sortOptions } from "@/utils/constant";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
@@ -12,10 +14,16 @@ import { Input } from "@ui/input";
 import { Label } from "@ui/label";
 import { cn } from "@/lib/utils";
 
-import Image from "next/image";
 import Link from "next/link";
 
 import * as L from "lucide-react";
+
+const THUMBNAIL_KIND: Record<ContentType, TContentThumbnailKind> = {
+  [ContentType.Course]: "course",
+  [ContentType.Event]: "event",
+  [ContentType.Podcast]: "podcast",
+  [ContentType.Youtube]: "youtube",
+};
 
 const ProfessionalWishlistTab = () => {
   const {
@@ -224,19 +232,15 @@ const ProfessionalWishlistTab = () => {
                   className="overflow-hidden p-0"
                 >
                   <div className="relative aspect-video rounded-t-lg bg-muted">
-                    {content?.imageUrl ? (
-                      <Image
-                        fill
-                        alt={title}
-                        src={content.imageUrl}
-                        className="object-cover"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-primary/10 text-primary">
-                        <Icon className="h-10 w-10" />
-                      </div>
-                    )}
+                    <ContentThumbnail
+                      title={title}
+                      id={item.contentId}
+                      imageUrl={content?.imageUrl}
+                      category={content?.category}
+                      sourceLabel={content?.providerName}
+                      kind={THUMBNAIL_KIND[item.contentType]}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                    />
                     <Badge className="absolute left-4 top-4 rounded-full">
                       {item.contentType}
                     </Badge>

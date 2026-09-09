@@ -3,10 +3,10 @@
 import { Headphones, PlayCircle, Star } from "lucide-react";
 import { ArrowRight, CalendarDays } from "lucide-react";
 import { TLandingContentItem } from "@/types/landing-module.types";
+import { ContentThumbnail } from "@elements/content-thumbnail";
 import { Button } from "@ui/button";
 import { cn } from "@/lib/utils";
 
-import Image from "next/image";
 import Link from "next/link";
 
 const getKindIcon = (kind: TLandingContentItem["kind"]) => {
@@ -31,17 +31,15 @@ const LandingContentCard = ({ item }: { item: TLandingContentItem }) => {
       )}
     >
       <div className="relative h-44 overflow-hidden bg-muted">
-        {item.imageUrl ? (
-          <Image
-            fill
-            sizes="320px"
-            alt={item.title}
-            src={item.imageUrl}
-            className="object-cover transition duration-700 group-hover:scale-110"
-          />
-        ) : (
-          <div className="h-full w-full bg-muted" />
-        )}
+        <ContentThumbnail
+          sizes="320px"
+          id={item.id}
+          kind={item.kind}
+          title={item.title}
+          imageUrl={item.imageUrl}
+          category={item.category}
+          className="transition duration-700 group-hover:scale-110"
+        />
 
         <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/10 to-transparent" />
 

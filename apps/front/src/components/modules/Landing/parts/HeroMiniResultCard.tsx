@@ -3,10 +3,10 @@
 import { Headphones, PlayCircle, Star } from "lucide-react";
 import { ArrowRight, CalendarDays } from "lucide-react";
 import { TLandingHeroResultItem } from "@/types/landing-module.types";
+import { ContentThumbnail } from "@elements/content-thumbnail";
 import { useI18n } from "@/hooks/useI18n";
 import { cn } from "@/lib/utils";
 
-import Image from "next/image";
 import Link from "next/link";
 
 const getIcon = (kind: TLandingHeroResultItem["kind"]) => {
@@ -28,17 +28,15 @@ const HeroMiniResultCard = ({ item }: { item: TLandingHeroResultItem }) => {
     >
       <div className="flex gap-3">
         <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md bg-muted">
-          {item.imageUrl ? (
-            <Image
-              fill
-              sizes="64px"
-              alt={item.title}
-              src={item.imageUrl}
-              className="object-cover transition duration-500 group-hover:scale-110"
-            />
-          ) : (
-            <div className="h-full w-full bg-muted" />
-          )}
+          <ContentThumbnail
+            sizes="64px"
+            id={item.id}
+            kind={item.kind}
+            title={item.title}
+            imageUrl={item.imageUrl}
+            category={item.category}
+            className="transition duration-500 group-hover:scale-110"
+          />
         </div>
 
         <div className="min-w-0 flex-1">
