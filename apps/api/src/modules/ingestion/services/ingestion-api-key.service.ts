@@ -78,6 +78,7 @@ export class IngestionApiKeyService {
             isActive: true,
             autoPublish: true,
             stalenessWindowDays: true,
+            fieldMap: true,
           },
         },
       },
@@ -123,6 +124,7 @@ export class IngestionApiKeyService {
         kind: key.source.kind,
         autoPublish: key.source.autoPublish,
         stalenessWindowDays: key.source.stalenessWindowDays,
+        fieldMap: key.source.fieldMap,
       },
     };
   }

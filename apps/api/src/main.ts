@@ -1,14 +1,21 @@
 import { ConsoleLogger, Logger, ValidationPipe } from "@nestjs/common";
+import { NestExpressApplication } from "@nestjs/platform-express";
+import { resolveCorsOrigins } from "@utils/cors-origins.util";
 import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "@app/app.module";
-import { resolveCorsOrigins } from "@utils/cors-origins.util";
+import { json } from "body-parser";
 
 import cookieParser from "cookie-parser";
 
+const INGESTION_PATH = "/v1/ingest";
+const INGESTION_JSON_BODY_LIMIT = "10mb";
+const URLENCODED_BODY_LIMIT = "100kb";
+
 async function bootstrap() {
   const logger = new Logger("Bootstrap");
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    bodyParser: false,
     logger:
       process.env.NODE_ENV === "production"
         ? new ConsoleLogger({ json: true })
@@ -26,6 +33,12 @@ async function bootstrap() {
 
   app.enableShutdownHooks();
 
+  app.use(INGESTION_PATH, json({ limit: INGESTION_JSON_BODY_LIMIT }));
+  app.useBodyParser("json");
+  app.useBodyParser("urlencoded", {
+    extended: true,
+    limit: URLENCODED_BODY_LIMIT,
+  });
   app.use(cookieParser());
 
   const corsOrigins = resolveCorsOrigins(

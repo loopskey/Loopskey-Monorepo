@@ -1,16 +1,28 @@
-import { CourseLevel, CourseStatus, Prisma } from "@prisma/client";
 import { BadRequestException, Injectable, Logger } from "@nestjs/common";
+import { normalizeCourseDurationMinutes } from "@utils/course-normalizer.util";
 import { InternalServerErrorException } from "@nestjs/common";
-import { CourseCategory, Role } from "@prisma/client";
-import { requestContext } from "@infrastructure/observability/request-context";
+import { detectCourseSourcePlatform } from "@utils/course-normalizer.util";
+import { normalizeCourseStringList } from "@utils/course-normalizer.util";
+import { cleanCourseOptionalText } from "@utils/course-normalizer.util";
+import { cleanCourseRequiredText } from "@utils/course-normalizer.util";
+import { normalizeCourseCategory } from "@utils/course-normalizer.util";
+import { resolveCourseInstructor } from "@utils/course-normalizer.util";
+import { cleanCourseDescription } from "@utils/course-normalizer.util";
+import { normalizeCourseBoolean } from "@utils/course-normalizer.util";
+import { normalizeCourseInteger } from "@utils/course-normalizer.util";
+import { normalizeCourseNumber } from "@utils/course-normalizer.util";
+import { resolveCourseCurrency } from "@utils/course-normalizer.util";
+import { CourseStatus, Prisma } from "@prisma/client";
+import { normalizeCourseLevel } from "@utils/course-normalizer.util";
+import { normalizeCourseDate } from "@utils/course-normalizer.util";
 import { TCourseImportResult } from "@course/types/course-import.types";
 import { TCrawledCourseRow } from "@course/types/course-import.types";
 import { TCourseRequester } from "@course/types/course-service.type";
+import { requestContext } from "@infrastructure/observability/request-context";
 import { PrismaService } from "@prisma/prisma.service";
 import { createHash } from "crypto";
 import { Readable } from "node:stream";
-
-import sanitizeHtml from "sanitize-html";
+import { Role } from "@prisma/client";
 
 import * as ExcelJS from "exceljs";
 import "multer";
@@ -160,15 +172,15 @@ export class CourseImportService {
   private buildUpdateData(row: TCrawledCourseRow) {
     const isFree = row.isFree ?? (!row.price || row.price <= 0);
     return {
-      title: this.cleanRequiredText(row.title),
-      instructor: this.resolveInstructor(row),
-      imageUrl: this.cleanOptionalText(row.imageUrl),
-      description: this.cleanDescription(row.description),
-      category: row.category ?? CourseCategory.OTHER,
-      level: row.level ?? CourseLevel.ALL_LEVELS,
+      title: cleanCourseRequiredText(row.title),
+      instructor: resolveCourseInstructor(row),
+      imageUrl: cleanCourseOptionalText(row.imageUrl),
+      description: cleanCourseDescription(row.description),
+      category: row.category ?? normalizeCourseCategory(null),
+      level: row.level ?? normalizeCourseLevel(null),
       status: row.status ?? CourseStatus.PUBLISHED,
       price: isFree ? null : new Prisma.Decimal(row.price ?? 0),
-      currency: this.resolveCurrency(row.currency),
+      currency: resolveCourseCurrency(row.currency),
       isFree,
       durationMinutes: row.durationMinutes ?? null,
       lastUpdatedAt: row.lastUpdatedAt ?? new Date(),
@@ -233,25 +245,26 @@ export class CourseImportService {
         rowNumber,
         externalCourseId: cells[0],
         title: cells[1],
-        category: this.normalizeCategory(cells[2]),
-        level: this.normalizeLevel(cells[3]),
+        category: normalizeCourseCategory(cells[2]),
+        level: normalizeCourseLevel(cells[3]),
         instructor: cells[4],
-        price: this.normalizeNumber(cells[5]),
-        durationMinutes: this.normalizeDurationMinutes(cells[6]),
-        isFree: this.normalizeBoolean(cells[7]),
-        rating: this.normalizeNumber(cells[8]),
+        price: normalizeCourseNumber(cells[5]),
+        durationMinutes: normalizeCourseDurationMinutes(cells[6]),
+        isFree: normalizeCourseBoolean(cells[7]),
+        rating: normalizeCourseNumber(cells[8]),
         currency: cells[9] || "USD",
         sourceUrl: cells[10],
         imageUrl: cells[11],
         description: cells[12],
         sourcePlatform:
-          this.detectSourcePlatform(cells[10]) ?? options.defaultSourcePlatform,
-        lastUpdatedAt: this.normalizeDate(cells[15]) ?? new Date(),
+          detectCourseSourcePlatform(cells[10]) ??
+          options.defaultSourcePlatform,
+        lastUpdatedAt: normalizeCourseDate(cells[15]) ?? new Date(),
         status: options.defaultStatus,
-        requirements: this.normalizeStringList(cells[16]),
-        learnings: this.normalizeStringList(cells[17]),
-        ratingCount: this.normalizeInteger(cells[18]),
-        professionals: this.normalizeInteger(cells[19]),
+        requirements: normalizeCourseStringList(cells[16]),
+        learnings: normalizeCourseStringList(cells[17]),
+        ratingCount: normalizeCourseInteger(cells[18]),
+        professionals: normalizeCourseInteger(cells[19]),
         rawData,
       });
     });
@@ -306,152 +319,6 @@ export class CourseImportService {
     return this.slugify(`${platform}-${row.externalCourseId}`);
   }
 
-  private resolveInstructor(row: TCrawledCourseRow) {
-    const instructor = row.instructor?.trim();
-    if (instructor) return instructor;
-    if (row.sourcePlatform?.toUpperCase() === "COURSERA") return "Coursera";
-    if (row.sourcePlatform?.toUpperCase() === "UDEMY") return "Udemy";
-    if (row.sourcePlatform?.toUpperCase() === "EDX") return "edX";
-    return "External Provider";
-  }
-
-  private resolveCurrency(currency?: string | null) {
-    const value = currency?.trim().toUpperCase();
-    if (!value) return "USD";
-    return value.slice(0, 3);
-  }
-
-  private cleanRequiredText(value?: string | null) {
-    return value?.trim() || "Untitled Course";
-  }
-
-  private cleanOptionalText(value?: string | null) {
-    const cleaned = value?.trim();
-    return cleaned || null;
-  }
-
-  private cleanDescription(value?: string | null) {
-    const cleaned = sanitizeHtml(value?.trim() || "", {
-      allowedTags: [],
-      allowedAttributes: {},
-    });
-    return cleaned || "No description provided.";
-  }
-
-  private normalizeCategory(value?: string | null): CourseCategory {
-    const normalized = value
-      ?.trim()
-      .toUpperCase()
-      .replace(/[\s-]+/g, "_");
-    if (!normalized) return CourseCategory.OTHER;
-    const categoryMap: Record<string, CourseCategory> = {
-      AI: CourseCategory.TECHNOLOGY,
-      DATA: CourseCategory.TECHNOLOGY,
-      TECH: CourseCategory.TECHNOLOGY,
-      TECHNOLOGY: CourseCategory.TECHNOLOGY,
-      COMPUTER_SCIENCE: CourseCategory.TECHNOLOGY,
-      SOFTWARE: CourseCategory.TECHNOLOGY,
-      PROGRAMMING: CourseCategory.TECHNOLOGY,
-      BUSINESS: CourseCategory.BUSINESS,
-      MANAGEMENT: CourseCategory.BUSINESS,
-      ENTREPRENEURSHIP: CourseCategory.BUSINESS,
-      FINANCE: CourseCategory.FINANCE,
-      ACCOUNTING: CourseCategory.FINANCE,
-      MARKETING: CourseCategory.MARKETING,
-      SALES: CourseCategory.MARKETING,
-      ENGINEERING: CourseCategory.ENGINEERING,
-      DESIGN: CourseCategory.DESIGN,
-      EDUCATION: CourseCategory.EDUCATION,
-      HEALTHCARE: CourseCategory.HEALTHCARE,
-      LEADERSHIP: CourseCategory.LEADERSHIP,
-      COMPLIANCE: CourseCategory.COMPLIANCE,
-      CPD: CourseCategory.CPD,
-    };
-    if (normalized in CourseCategory) return normalized as CourseCategory;
-    return categoryMap[normalized] ?? CourseCategory.OTHER;
-  }
-
-  private normalizeLevel(value?: string | null): CourseLevel {
-    const normalized = value
-      ?.trim()
-      .toUpperCase()
-      .replace(/[\s-]+/g, "_");
-    if (!normalized) return CourseLevel.ALL_LEVELS;
-    const levelMap: Record<string, CourseLevel> = {
-      BEGINNER: CourseLevel.BEGINNER,
-      BASIC: CourseLevel.BEGINNER,
-      INTRODUCTORY: CourseLevel.BEGINNER,
-      INTERMEDIATE: CourseLevel.INTERMEDIATE,
-      MEDIUM: CourseLevel.INTERMEDIATE,
-      ADVANCED: CourseLevel.ADVANCED,
-      EXPERT: CourseLevel.ADVANCED,
-      ALL: CourseLevel.ALL_LEVELS,
-      ALL_LEVELS: CourseLevel.ALL_LEVELS,
-      MIXED: CourseLevel.ALL_LEVELS,
-    };
-    return levelMap[normalized] ?? CourseLevel.ALL_LEVELS;
-  }
-
-  private normalizeBoolean(value?: string | null): boolean | null {
-    const normalized = value?.trim().toLowerCase();
-    if (!normalized) return null;
-    if (["yes", "true", "free", "1"].includes(normalized)) return true;
-    if (["no", "false", "paid", "0"].includes(normalized)) return false;
-    return null;
-  }
-
-  private normalizeNumber(value?: string | null): number | null {
-    if (!value) return null;
-    const cleaned = value.replace(/[^0-9.-]/g, "");
-    const number = Number(cleaned);
-    return Number.isFinite(number) ? number : null;
-  }
-
-  private normalizeInteger(value?: string | null): number {
-    const number = this.normalizeNumber(value);
-    return number ? Math.max(0, Math.round(number)) : 0;
-  }
-
-  private normalizeDurationMinutes(value?: string | null): number | null {
-    if (!value) return null;
-    const normalized = value.toLowerCase().trim();
-    const hourMatch = normalized.match(
-      /(\d+(?:\.\d+)?)\s*(hour|hours|hr|hrs|h)/,
-    );
-    const minuteMatch = normalized.match(/(\d+)\s*(minute|minutes|min|mins|m)/);
-    let minutes = 0;
-    if (hourMatch) minutes += Math.round(Number(hourMatch[1]) * 60);
-    if (minuteMatch) minutes += Number(minuteMatch[1]);
-    if (minutes > 0) return minutes;
-    const directNumber = this.normalizeNumber(normalized);
-    return directNumber ? Math.round(directNumber) : null;
-  }
-
-  private normalizeDate(value?: string | null): Date | null {
-    if (!value) return null;
-    const parsed = new Date(value);
-    if (Number.isNaN(parsed.getTime())) return null;
-    return parsed;
-  }
-
-  private normalizeStringList(value?: string | null): string[] {
-    if (!value?.trim()) return [];
-    return value
-      .split(/\n|;|\|/)
-      .map((item) => item.trim())
-      .filter(Boolean);
-  }
-
-  private detectSourcePlatform(sourceUrl?: string | null): string | null {
-    const url = sourceUrl?.toLowerCase();
-    if (!url) return null;
-    if (url.includes("coursera.org")) return "COURSERA";
-    if (url.includes("udemy.com")) return "UDEMY";
-    if (url.includes("edx.org")) return "EDX";
-    if (url.includes("linkedin.com")) return "LINKEDIN_LEARNING";
-    return "OTHER";
-  }
-
   private cellToString(value: unknown): string {
     if (value === null || value === undefined) return "";
     if (value instanceof Date) return value.toISOString();
@@ -485,10 +352,6 @@ export class CourseImportService {
     return createHash("sha1").update(value).digest("hex").slice(0, 10);
   }
 
-  /**
-   * Import requires a slug to exist, so this wraps the shared implementation
-   * with the domain error rather than reimplementing the transformation.
-   */
   private slugify(value: string) {
     const slug = toSlug(value);
     if (!slug)
