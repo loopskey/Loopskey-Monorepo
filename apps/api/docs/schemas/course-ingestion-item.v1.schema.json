@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://api.loopskey.com/schemas/course-ingestion-item.v1.schema.json",
+  "title": "Loopskey canonical course ingestion item v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["externalId", "canonicalUrl", "title", "description"],
+  "properties": {
+    "externalId": { "type": "string", "minLength": 1, "maxLength": 500 },
+    "canonicalUrl": {
+      "type": "string",
+      "format": "uri",
+      "minLength": 1,
+      "maxLength": 2048
+    },
+    "sourcePlatform": { "type": ["string", "null"], "maxLength": 100 },
+    "title": { "type": "string", "minLength": 1, "maxLength": 500 },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 50000
+    },
+    "instructor": { "type": ["string", "null"], "maxLength": 500 },
+    "imageCandidateUrl": {
+      "type": ["string", "null"],
+      "format": "uri",
+      "maxLength": 2048
+    },
+    "category": {
+      "type": ["string", "null"],
+      "enum": [
+        "CPD",
+        "OTHER",
+        "DESIGN",
+        "FINANCE",
+        "BUSINESS",
+        "EDUCATION",
+        "MARKETING",
+        "TECHNOLOGY",
+        "LEADERSHIP",
+        "COMPLIANCE",
+        "HEALTHCARE",
+        "ENGINEERING",
+        null
+      ]
+    },
+    "level": {
+      "type": ["string", "null"],
+      "enum": ["BEGINNER", "ADVANCED", "ALL_LEVELS", "INTERMEDIATE", null]
+    },
+    "requirements": {
+      "type": ["array", "string", "null"],
+      "maxItems": 100,
+      "items": { "type": "string", "maxLength": 2000 }
+    },
+    "learnings": {
+      "type": ["array", "string", "null"],
+      "maxItems": 100,
+      "items": { "type": "string", "maxLength": 2000 }
+    },
+    "price": { "type": ["number", "string", "null"], "minimum": 0 },
+    "currency": { "type": ["string", "null"], "maxLength": 3 },
+    "isFree": { "type": ["boolean", "string", "null"] },
+    "durationMinutes": {
+      "type": ["integer", "number", "string", "null"],
+      "minimum": 0
+    },
+    "lastUpdatedAt": {
+      "type": ["string", "null"],
+      "format": "date-time"
+    },
+    "rawCategory": { "type": ["string", "null"], "maxLength": 500 },
+    "rawLevel": { "type": ["string", "null"], "maxLength": 500 },
+    "rawDuration": { "type": ["string", "null"], "maxLength": 500 },
+    "language": { "type": ["string", "null"], "maxLength": 8 },
+    "contentType": {
+      "type": ["string", "null"],
+      "enum": ["COURSE", null]
+    },
+    "internalCategory": {
+      "type": ["string", "null"],
+      "maxLength": 500
+    },
+    "offersCertificate": { "type": ["boolean", "string", "null"] },
+    "creditValue": { "type": ["number", "string", "null"], "minimum": 0 },
+    "creditSource": { "type": ["string", "null"], "maxLength": 200 },
+    "creditConfidence": {
+      "type": ["number", "string", "null"],
+      "minimum": 0,
+      "maximum": 1
+    },
+    "crawledAt": { "type": ["string", "null"], "format": "date-time" },
+    "updatedAt": { "type": ["string", "null"], "format": "date-time" }
+  }
+}

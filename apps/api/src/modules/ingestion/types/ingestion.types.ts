@@ -2,11 +2,12 @@ import { IngestionContentKind } from "@prisma/client";
 
 export type TIngestionSourceContext = {
   keyId: string;
-  keyPrefix: string;
   sourceId: string;
+  fieldMap: unknown;
+  keyPrefix: string;
   sourceSlug: string;
-  kind: IngestionContentKind;
   autoPublish: boolean;
+  kind: IngestionContentKind;
   stalenessWindowDays: number | null;
 };
 
