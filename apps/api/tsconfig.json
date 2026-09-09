@@ -26,6 +26,7 @@
       "@ext/*": ["src/modules/external-learning/*"],
       "@professional/*": ["src/modules/professional/*"],
       "@contentAction/*": ["src/modules/content-interaction/*"],
+      "@ingestion/*": ["src/modules/ingestion/*"],
 
       "@utils/*": ["src/common/utils/*"],
       "@prisma/*": ["src/modules/prisma/*"]

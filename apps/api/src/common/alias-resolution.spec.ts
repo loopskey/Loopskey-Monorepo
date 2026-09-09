@@ -1,4 +1,5 @@
 import { ContentInteractionService } from "@contentAction/services/content-interaction.service";
+import { IngestionMessageCode } from "@ingestion/enums/message-code.enum";
 import { ProviderMessageCode } from "@provider/enums/message-code.enum";
 import { PodcastMessageCode } from "@podcast/enums/message-code.enum";
 import { YouTubeMessageCode } from "@youtube/enums/message-code.enum";
@@ -23,6 +24,9 @@ describe("path alias resolution", () => {
       "YOUTUBE_VIDEO_CREATED",
     );
     expect(ProviderMessageCode.EVENT_NOT_FOUND).toBe("EVENT_NOT_FOUND");
+    expect(IngestionMessageCode.INGESTION_UNAUTHORIZED).toBe(
+      "INGESTION_UNAUTHORIZED",
+    );
   });
 
   it("still resolves @prisma/client to the real package, not the alias", () => {
