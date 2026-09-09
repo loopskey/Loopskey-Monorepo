@@ -24,6 +24,7 @@
       "@ext/*": ["src/modules/external-learning/*"],
       "@professional/*": ["src/modules/professional/*"],
       "@contentAction/*": ["src/modules/content-interaction/*"],
+      "@ingestion/*": ["src/modules/ingestion/*"],
 
       "@config/*": ["src/config/*"],
       "@dto/*": ["src/common/dto/*"],
