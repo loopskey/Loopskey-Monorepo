@@ -49,3 +49,4 @@ into this index and do not rewrite previous records.
 - [`dashboard-tabs`](feature-runs/active/dashboard-tabs.md)
 - [`public-and-auth-pages`](feature-runs/active/public-and-auth-pages.md)
 - [`content-thumbnail`](feature-runs/active/content-thumbnail.md)
+- [`external-reference-identity`](feature-runs/active/external-reference-identity.md)
