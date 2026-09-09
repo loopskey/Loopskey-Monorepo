@@ -573,9 +573,20 @@ enum CurriculumLessonType {
   LIVE_SESSION
 }
 
+/// Unmanaged indexes: Course_title_trgm_idx, Course_instructor_trgm_idx and
+/// Course_description_trgm_idx are pg_trgm GIN indexes created in raw migration
+/// SQL, because Prisma cannot express them and reports them as drift. All three
+/// are needed together: the search ORs the columns, and one unindexed branch
+/// makes the planner scan the whole table.
+///
+/// `externalRef` is the identity of an externally sourced row, namespaced as
+/// `"<source>:<external-id>"`. The slug is a display and URL concern and is
+/// never used as an import key, so a source that rewrites its own slug cannot
+/// move a URL here.
 model Course {
-  id   String @id @default(cuid())
-  slug String @unique
+  id          String  @id @default(cuid())
+  slug        String  @unique
+  externalRef String? @unique
 
   title       String
   instructor  String
@@ -715,9 +726,18 @@ enum EventRegistrationStatus {
   NOT_ATTENDED
 }
 
+/// Unmanaged indexes: Event_title_trgm_idx and Event_description_trgm_idx are pg_trgm GIN
+/// indexes created in raw migration SQL, because Prisma cannot express them
+/// and reports them as drift.
+///
+/// `externalRef` is the identity of an externally sourced row, namespaced as
+/// `"<source>:<external-id>"`. The slug is a display and URL concern and is
+/// never used as an import key, so a source that rewrites its own slug cannot
+/// move a URL here.
 model Event {
-  id   String @id @default(cuid())
-  slug String @unique
+  id          String  @id @default(cuid())
+  slug        String  @unique
+  externalRef String? @unique
 
   title        String
   type         EventType
@@ -893,9 +913,18 @@ enum PodcastStatus {
   PUBLISHED
 }
 
+/// Unmanaged indexes: Podcast_title_trgm_idx and Podcast_description_trgm_idx are pg_trgm GIN
+/// indexes created in raw migration SQL, because Prisma cannot express them
+/// and reports them as drift.
+///
+/// `externalRef` is the identity of an externally sourced row, namespaced as
+/// `"<source>:<external-id>"`. The slug is a display and URL concern and is
+/// never used as an import key, so a source that rewrites its own slug cannot
+/// move a URL here.
 model Podcast {
-  id   String @id @default(cuid())
-  slug String @unique
+  id          String  @id @default(cuid())
+  slug        String  @unique
+  externalRef String? @unique
 
   title       String
   host        String
@@ -982,9 +1011,18 @@ enum YouTubeVideoStatus {
   PUBLISHED
 }
 
+/// Unmanaged indexes: YouTubeChannel_title_trgm_idx and YouTubeChannel_description_trgm_idx are pg_trgm GIN
+/// indexes created in raw migration SQL, because Prisma cannot express them
+/// and reports them as drift.
+///
+/// `externalRef` is the identity of an externally sourced row, namespaced as
+/// `"<source>:<external-id>"`. The slug is a display and URL concern and is
+/// never used as an import key, so a source that rewrites its own slug cannot
+/// move a URL here.
 model YouTubeChannel {
-  id   String @id @default(cuid())
-  slug String @unique
+  id          String  @id @default(cuid())
+  slug        String  @unique
+  externalRef String? @unique
 
   title       String
   description String?

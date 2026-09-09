@@ -1,7 +1,8 @@
 import { CourseLevel, CourseStatus, Prisma } from "@prisma/client";
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, Logger } from "@nestjs/common";
 import { InternalServerErrorException } from "@nestjs/common";
 import { CourseCategory, Role } from "@prisma/client";
+import { requestContext } from "@infrastructure/observability/request-context";
 import { TCourseImportResult } from "@course/types/course-import.types";
 import { TCrawledCourseRow } from "@course/types/course-import.types";
 import { TCourseRequester } from "@course/types/course-service.type";
@@ -15,9 +16,13 @@ import * as ExcelJS from "exceljs";
 import "multer";
 import { slugify as toSlug } from "@utils/slug.util";
 
+const SLUG_COLLISION_ATTEMPTS = 5;
+const UNIQUE_VIOLATION = "P2002";
+
 @Injectable()
 export class CourseImportService {
   private readonly batchSize = 100;
+  private readonly logger = new Logger(CourseImportService.name);
   constructor(private readonly prismaService: PrismaService) {}
   async importCoursesFromExcel(
     file: Express.Multer.File,
@@ -89,63 +94,12 @@ export class CourseImportService {
     };
     for (const row of rows) {
       try {
-        const slug = this.buildStableSlug(row);
-        const existing = await this.prismaService.course.findUnique({
-          where: { slug },
-          select: { id: true },
-        });
-        const isFree = row.isFree ?? (!row.price || row.price <= 0);
-        const data = {
-          slug,
-          title: this.cleanRequiredText(row.title),
-          instructor: this.resolveInstructor(row),
-          imageUrl: this.cleanOptionalText(row.imageUrl),
-          description: this.cleanDescription(row.description),
-          category: row.category ?? CourseCategory.OTHER,
-          level: row.level ?? CourseLevel.ALL_LEVELS,
-          status: row.status ?? CourseStatus.PUBLISHED,
-          price: isFree ? null : new Prisma.Decimal(row.price ?? 0),
-          currency: this.resolveCurrency(row.currency),
-          isFree,
-          durationMinutes: row.durationMinutes ?? null,
-          lastUpdatedAt: row.lastUpdatedAt ?? new Date(),
-          requirements: row.requirements ?? [],
-          learnings: row.learnings ?? [],
-          rating: row.rating ?? 0,
-          ratingCount: row.ratingCount ?? 0,
-          professionals: row.professionals ?? 0,
-          isFeatured: false,
-          providerId: null,
-          userId: null,
-          deletedAt: null,
-        };
-
-        await this.prismaService.course.upsert({
-          where: { slug },
-          create: data,
-          update: {
-            title: data.title,
-            instructor: data.instructor,
-            imageUrl: data.imageUrl,
-            description: data.description,
-            category: data.category,
-            level: data.level,
-            status: data.status,
-            price: data.price,
-            currency: data.currency,
-            isFree: data.isFree,
-            durationMinutes: data.durationMinutes,
-            lastUpdatedAt: data.lastUpdatedAt,
-            requirements: data.requirements,
-            learnings: data.learnings,
-            rating: data.rating,
-            ratingCount: data.ratingCount,
-            professionals: data.professionals,
-            deletedAt: null,
-          },
-        });
-        if (existing) result.updated += 1;
-        else result.created += 1;
+        const outcome = await this.persistCourse(
+          row,
+          this.buildExternalRef(row),
+        );
+        if (outcome === "created") result.created += 1;
+        else result.updated += 1;
       } catch (error) {
         result.failed += 1;
         result.errors.push({
@@ -156,6 +110,109 @@ export class CourseImportService {
       }
     }
     return result;
+  }
+
+  private async persistCourse(
+    row: TCrawledCourseRow,
+    externalRef: string,
+  ): Promise<"created" | "updated"> {
+    const update = this.buildUpdateData(row);
+
+    const claimed = await this.prismaService.course.updateMany({
+      where: { externalRef },
+      data: update,
+    });
+    if (claimed.count > 0) return "updated";
+
+    const baseSlug = this.buildStableSlug(row);
+    for (let attempt = 0; attempt < SLUG_COLLISION_ATTEMPTS; attempt += 1) {
+      try {
+        await this.prismaService.course.create({
+          data: {
+            ...update,
+            externalRef,
+            slug: this.buildSlugCandidate(baseSlug, externalRef, attempt),
+            isFeatured: false,
+            providerId: null,
+            userId: null,
+          },
+        });
+        return "created";
+      } catch (error) {
+        const conflicted = this.uniqueViolationTargets(error);
+        if (!conflicted) throw error;
+        if (conflicted.includes("externalRef")) {
+          this.logRecoveredConflict(externalRef);
+          await this.prismaService.course.updateMany({
+            where: { externalRef },
+            data: update,
+          });
+          return "updated";
+        }
+        if (!conflicted.includes("slug")) throw error;
+      }
+    }
+    throw this.importFailure(
+      `Could not find a free slug for "${baseSlug}" after ${SLUG_COLLISION_ATTEMPTS} attempts.`,
+    );
+  }
+
+  private buildUpdateData(row: TCrawledCourseRow) {
+    const isFree = row.isFree ?? (!row.price || row.price <= 0);
+    return {
+      title: this.cleanRequiredText(row.title),
+      instructor: this.resolveInstructor(row),
+      imageUrl: this.cleanOptionalText(row.imageUrl),
+      description: this.cleanDescription(row.description),
+      category: row.category ?? CourseCategory.OTHER,
+      level: row.level ?? CourseLevel.ALL_LEVELS,
+      status: row.status ?? CourseStatus.PUBLISHED,
+      price: isFree ? null : new Prisma.Decimal(row.price ?? 0),
+      currency: this.resolveCurrency(row.currency),
+      isFree,
+      durationMinutes: row.durationMinutes ?? null,
+      lastUpdatedAt: row.lastUpdatedAt ?? new Date(),
+      requirements: row.requirements ?? [],
+      learnings: row.learnings ?? [],
+      rating: row.rating ?? 0,
+      ratingCount: row.ratingCount ?? 0,
+      professionals: row.professionals ?? 0,
+      deletedAt: null,
+    };
+  }
+
+  private buildSlugCandidate(
+    baseSlug: string,
+    externalRef: string,
+    attempt: number,
+  ) {
+    if (attempt === 0) return baseSlug;
+    const discriminator = this.hashValue(externalRef).slice(0, 6);
+    if (attempt === 1) return `${baseSlug}-${discriminator}`;
+    return `${baseSlug}-${discriminator}-${attempt}`;
+  }
+
+  private uniqueViolationTargets(error: unknown): string[] | null {
+    if (
+      !(error instanceof Prisma.PrismaClientKnownRequestError) ||
+      error.code !== UNIQUE_VIOLATION
+    )
+      return null;
+    const target = error.meta?.target;
+    if (Array.isArray(target)) return target.map(String);
+    if (typeof target === "string") return [target];
+    return [];
+  }
+
+  private logRecoveredConflict(externalRef: string) {
+    this.logger.warn(
+      `Recovered a unique violation while importing ${externalRef}.`,
+      { correlationId: requestContext.correlationId(), externalRef },
+    );
+  }
+
+  private importFailure(message: string) {
+    return new InternalServerErrorException(message);
   }
 
   private parseWorksheet(
@@ -228,18 +285,25 @@ export class CourseImportService {
 
   private validateRow(row: TCrawledCourseRow): string | null {
     if (!row.title?.trim()) return "Missing title.";
-    if (!row.sourceUrl?.trim() && !row.externalCourseId?.trim())
-      return "Missing both sourceUrl and externalCourseId.";
+    if (!toSlug(row.externalCourseId ?? ""))
+      return "Missing a usable externalCourseId, which is the only stable identity a re-crawl can match on.";
     if (!row.description?.trim()) return "Missing description.";
     return null;
   }
 
+  private buildExternalRef(row: TCrawledCourseRow) {
+    const source = (row.sourcePlatform || "EXTERNAL")
+      .trim()
+      .toUpperCase()
+      .replace(/[^A-Z0-9]+/g, "_")
+      .replace(/^_+|_+$/g, "");
+    if (!source) throw this.importFailure("Could not resolve a course source.");
+    return `${source}:${this.slugify(row.externalCourseId ?? "")}`;
+  }
+
   private buildStableSlug(row: TCrawledCourseRow) {
     const platform = this.slugify(row.sourcePlatform || "external");
-    if (row.externalCourseId?.trim())
-      return this.slugify(`${platform}-${row.externalCourseId}`);
-    const urlHash = this.hashValue(row.sourceUrl || row.title || "");
-    return this.slugify(`${platform}-${row.title}-${urlHash}`);
+    return this.slugify(`${platform}-${row.externalCourseId}`);
   }
 
   private resolveInstructor(row: TCrawledCourseRow) {

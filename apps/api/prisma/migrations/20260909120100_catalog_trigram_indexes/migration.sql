@@ -1,3 +1,13 @@
+-- Relocated from prisma/migrations/migration.sql, which sat at the root of the
+-- migrations directory and was therefore never applied: Prisma only runs SQL
+-- inside a timestamped migration directory, and no lint, type check or build
+-- reports the difference. Every trigram index the catalog search depends on,
+-- and the wishlist search view, were missing as a result.
+--
+-- CONCURRENTLY is deliberately absent: Prisma runs a migration inside a
+-- transaction, which forbids it. On a large table, build the index out of band
+-- with CREATE INDEX CONCURRENTLY and let the IF NOT EXISTS here find it.
+
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 CREATE INDEX IF NOT EXISTS "Course_title_trgm_idx"
@@ -5,6 +15,14 @@ ON "Course" USING GIN ("title" gin_trgm_ops);
 
 CREATE INDEX IF NOT EXISTS "Course_description_trgm_idx"
 ON "Course" USING GIN ("description" gin_trgm_ops);
+
+-- The course search ORs title, instructor and description together. An OR whose
+-- branches are not all indexable forces a sequential scan over the whole table,
+-- so leaving "instructor" out would make the other two indexes unreachable:
+-- measured at 40,000 rows, a selective term ran 291 ms on a Seq Scan without
+-- this index and 0.3 ms on a BitmapOr with it.
+CREATE INDEX IF NOT EXISTS "Course_instructor_trgm_idx"
+ON "Course" USING GIN ("instructor" gin_trgm_ops);
 
 CREATE INDEX IF NOT EXISTS "Event_title_trgm_idx"
 ON "Event" USING GIN ("title" gin_trgm_ops);
