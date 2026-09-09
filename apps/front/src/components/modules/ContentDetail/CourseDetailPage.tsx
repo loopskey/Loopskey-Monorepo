@@ -60,6 +60,8 @@ const CourseDetailPage = ({ slug }: TCourseDetailPageProps) => {
     <main className="px-4 py-10 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-8">
         <DetailHero
+          kind="course"
+          id={course.id}
           title={course.title}
           rating={course.rating}
           imageUrl={course.imageUrl}

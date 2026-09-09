@@ -1,7 +1,7 @@
 "use client";
 
 import { TDetailHeroProps } from "@/types/content-module.types";
-import { isValidImageSrc } from "@/utils/function-helper";
+import { ContentThumbnail } from "@elements/content-thumbnail";
 import { ArrowLeft, Star } from "lucide-react";
 import { GlassCard } from "@elements/glass-card";
 import { useRouter } from "next/navigation";
@@ -9,9 +9,9 @@ import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
 import { cn } from "@/lib/utils";
 
-import Image from "next/image";
-
 const DetailHero = ({
+  id,
+  kind,
   title,
   badge,
   rating,
@@ -24,8 +24,6 @@ const DetailHero = ({
 }: TDetailHeroProps) => {
   const { t } = useI18n();
   const router = useRouter();
-
-  const validImageUrl = isValidImageSrc(imageUrl) ? imageUrl!.trim() : null;
 
   return (
     <GlassCard className="overflow-hidden p-0">
@@ -84,18 +82,15 @@ const DetailHero = ({
         </div>
 
         <div className="relative min-h-[300px] overflow-hidden bg-muted lg:min-h-[520px]">
-          {validImageUrl ? (
-            <Image
-              fill
-              priority
-              src={validImageUrl}
-              className="object-cover"
-              alt={title || "Content detail image"}
-              sizes="(max-width: 1024px) 100vw, 50vw"
-            />
-          ) : (
-            <div className="h-full w-full bg-muted" />
-          )}
+          <ContentThumbnail
+            priority
+            id={id}
+            kind={kind}
+            title={title}
+            imageUrl={imageUrl}
+            category={category}
+            sizes="(max-width: 1024px) 100vw, 50vw"
+          />
 
           <div
             className={cn(

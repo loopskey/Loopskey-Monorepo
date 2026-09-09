@@ -3,6 +3,7 @@
 import { useEnrollContentMutation } from "@/lib/rtk/endpoints/content-interaction.api";
 import { getOverviewSectionState } from "@/utils/professional-overview.helper";
 import { OverviewCardMessage } from "@modules/ProfessionalDashboard/parts/overview-card";
+import { ContentThumbnail } from "@elements/content-thumbnail";
 import { useCoursesQuery } from "@/lib/rtk/endpoints/course.api";
 import { ContentType } from "@/lib/graphql/base";
 import { GlassCard } from "@elements/glass-card";
@@ -12,7 +13,6 @@ import { notify } from "@/hooks/notify";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
 
-import Image from "next/image";
 import Link from "next/link";
 
 import * as L from "lucide-react";
@@ -112,15 +112,14 @@ export const OverviewRecommendationsCard = () => {
               className="overflow-hidden rounded-lg border"
             >
               <div className="relative aspect-video overflow-hidden bg-muted">
-                {course.imageUrl ? (
-                  <Image
-                    fill
-                    alt={course.title}
-                    src={course.imageUrl}
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                  />
-                ) : null}
+                <ContentThumbnail
+                  kind="course"
+                  id={course.id}
+                  title={course.title}
+                  imageUrl={course.imageUrl}
+                  category={course.category}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                />
               </div>
 
               <div className="space-y-4 p-5">

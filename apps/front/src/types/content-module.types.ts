@@ -131,8 +131,10 @@ export type TDetailHeroPrimary = {
 };
 
 export type TDetailHeroProps = {
+  id: string;
   title: string;
   badge: string;
+  kind: TDetailKind;
   actions?: ReactNode;
   rating?: number | null;
   category?: string | null;

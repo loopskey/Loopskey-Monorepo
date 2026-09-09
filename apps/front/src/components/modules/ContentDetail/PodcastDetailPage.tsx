@@ -83,6 +83,8 @@ const PodcastDetailPage = ({ slug }: { slug: string }) => {
     <main className="px-4 py-10 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-8">
         <DetailHero
+          kind="podcast"
+          id={podcast.id}
           title={podcast.title}
           rating={podcast.rating}
           imageUrl={podcast.imageUrl}

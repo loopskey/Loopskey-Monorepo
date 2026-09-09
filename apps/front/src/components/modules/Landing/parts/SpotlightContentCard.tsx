@@ -2,11 +2,11 @@
 
 import { ArrowRight, BadgeCheck, Sparkles, Star } from "lucide-react";
 import { TLandingContentItem } from "@/types/landing-module.types";
+import { ContentThumbnail } from "@elements/content-thumbnail";
 import { GlassCard } from "@elements/glass-card";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
 
-import Image from "next/image";
 import Link from "next/link";
 
 const SpotlightContentCard = ({ item }: { item: TLandingContentItem }) => {
@@ -21,21 +21,18 @@ const SpotlightContentCard = ({ item }: { item: TLandingContentItem }) => {
     <GlassCard className="h-full overflow-hidden p-0">
       <div
         key={`${item.kind}-${item.id}`}
-        className="relative z-10 grid h-full animate-in fade-in-0 zoom-in-95 duration-500 lg:grid-rows-[310px_1fr]"
+        className="relative z-10 grid h-full animate-in fade-in-0 zoom-in-95 duration-500 grid-rows-[240px_1fr] lg:grid-rows-[310px_1fr]"
       >
         <div className="relative overflow-hidden bg-muted">
-          {item.imageUrl ? (
-            <Image
-              fill
-              priority
-              alt={item.title}
-              src={item.imageUrl}
-              className="object-cover"
-              sizes="(max-width: 1024px) 100vw, 520px"
-            />
-          ) : (
-            <div className="h-full w-full bg-muted" />
-          )}
+          <ContentThumbnail
+            priority
+            id={item.id}
+            kind={item.kind}
+            title={item.title}
+            imageUrl={item.imageUrl}
+            category={item.category}
+            sizes="(max-width: 1024px) 100vw, 520px"
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/15 to-transparent" />
           <div className="absolute left-5 top-5 flex items-center gap-2 rounded-full bg-muted px-4 py-2 text-xs font-medium text-primary shadow-sm">
             <BadgeCheck className="h-4 w-4" />
