@@ -56,7 +56,7 @@ const AuthFeaturePanel = ({
                 </div>
 
                 <div>
-                  <h3 className="font-bold text-foreground">{feature.title}</h3>
+                  <h2 className="font-bold text-foreground">{feature.title}</h2>
                   <p className="mt-1 text-sm leading-6 text-muted-foreground">
                     {feature.text}
                   </p>

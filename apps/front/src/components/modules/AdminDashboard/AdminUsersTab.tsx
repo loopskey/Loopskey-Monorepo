@@ -253,7 +253,11 @@ const AdminUsersTab = () => {
             <span className="text-sm font-medium">
               {t("adminDashboard.users.filters.premiumOnly")}
             </span>
-            <Switch checked={premiumOnly} onCheckedChange={setPremiumOnly} />
+            <Switch
+              checked={premiumOnly}
+              onCheckedChange={setPremiumOnly}
+              aria-label={t("adminDashboard.users.filters.premiumOnly")}
+            />
           </div>
         </div>
         <div className="mt-6 overflow-hidden rounded-lg border">

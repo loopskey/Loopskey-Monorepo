@@ -66,6 +66,9 @@ export const ProviderNotificationSettingsStep = ({ hook }: Props) => {
                 newRegistrationAlertEnabled: checked,
               }))
             }
+            aria-label={t(
+              "providerDashboard.settings.notifications.registrationTitle",
+            )}
           />
         </div>
 
@@ -95,6 +98,9 @@ export const ProviderNotificationSettingsStep = ({ hook }: Props) => {
                   eventReminderEnabled: checked,
                 }))
               }
+              aria-label={t(
+                "providerDashboard.settings.notifications.reminderTitle",
+              )}
             />
           </div>
 

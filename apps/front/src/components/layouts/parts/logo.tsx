@@ -12,7 +12,17 @@ export const Logo = ({ variant = "default", className }: LogoProps) => {
   const isOnPrimary = variant === "onPrimary";
 
   return (
-    <Link href="/" className={cn("flex flex-shrink-0 items-center", className)}>
+    <Link
+      href="/"
+      className={cn(
+        "flex flex-shrink-0 items-center rounded-md outline-none",
+        "focus-visible:ring-2 focus-visible:ring-offset-2",
+        isOnPrimary
+          ? "focus-visible:ring-ring-on-primary focus-visible:ring-offset-primary"
+          : "focus-visible:ring-ring focus-visible:ring-offset-background",
+        className,
+      )}
+    >
       <Image
         priority
         width={205}

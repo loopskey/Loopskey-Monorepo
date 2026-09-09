@@ -103,6 +103,7 @@ export const ProfessionalNotificationSettingsPanel = ({
                   [row.key]: checked,
                 }))
               }
+              aria-label={row.title}
             />
           </div>
         ))}
