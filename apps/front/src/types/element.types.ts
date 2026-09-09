@@ -20,35 +20,6 @@ export type TUserAvatarProps = {
   >["onLoadingStatusChange"];
 };
 
-// ================ Galaxy Background ==============
-export type TGalaxyProps = HTMLAttributes<HTMLDivElement> & {
-  focal?: [number, number];
-  rotation?: [number, number];
-  starSpeed?: number;
-  density?: number;
-  hueShift?: number;
-  disableAnimation?: boolean;
-  speed?: number;
-  mouseInteraction?: boolean;
-  glowIntensity?: number;
-  saturation?: number;
-  mouseRepulsion?: boolean;
-  twinkleIntensity?: number;
-  rotationSpeed?: number;
-  repulsionStrength?: number;
-  autoCenterRepulsion?: number;
-  transparent?: boolean;
-  /** `window` lets the galaxy track the cursor from behind a pointer-events-none layer. */
-  mouseTarget?: "element" | "window";
-};
-
-export type TGalaxyConfig = Omit<TGalaxyProps, "className" | "mouseTarget">;
-
-export type TGalaxyBackgroundProps = {
-  className?: string;
-  withBottomFade?: boolean;
-};
-
 // ================ Split Text ==================
 export type TSplitTextProps = {
   text: string;

@@ -141,14 +141,13 @@ const OrganizationSettingsTab = () => {
                         shouldDirty: true,
                       })
                     }
+                    aria-label={t(
+                      "organizationDashboard.settings.compliance.strict",
+                    )}
                   />
                 </div>
 
-                <Button
-                  radius="xl"
-                  type="submit"
-                  disabled={isLoading}
-                >
+                <Button radius="xl" type="submit" disabled={isLoading}>
                   {t("organizationDashboard.settings.compliance.save")}
                 </Button>
               </form>
@@ -196,15 +195,12 @@ const OrganizationSettingsTab = () => {
                           shouldDirty: true,
                         })
                       }
+                      aria-label={item.title}
                     />
                   </div>
                 ))}
 
-                <Button
-                  radius="xl"
-                  type="submit"
-                  disabled={isLoading}
-                >
+                <Button radius="xl" type="submit" disabled={isLoading}>
                   {t("organizationDashboard.settings.notifications.save")}
                 </Button>
               </form>
@@ -332,11 +328,7 @@ const OrganizationSettingsTab = () => {
                   label={t("organizationDashboard.settings.password.confirm")}
                 />
 
-                <Button
-                  radius="xl"
-                  type="submit"
-                  disabled={isLoading}
-                >
+                <Button radius="xl" type="submit" disabled={isLoading}>
                   {t("organizationDashboard.settings.password.update")}
                 </Button>
               </form>

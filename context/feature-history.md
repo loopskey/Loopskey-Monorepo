@@ -48,3 +48,4 @@ into this index and do not rewrite previous records.
 - [`role-overviews`](feature-runs/active/role-overviews.md)
 - [`dashboard-tabs`](feature-runs/active/dashboard-tabs.md)
 - [`public-and-auth-pages`](feature-runs/active/public-and-auth-pages.md)
+- [`verification-and-rollout`](feature-runs/active/verification-and-rollout.md)

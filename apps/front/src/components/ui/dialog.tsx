@@ -52,16 +52,44 @@ function DialogContent({
   className,
   children,
   showCloseButton = true,
+  onCloseAutoFocus,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean;
 }) {
+  const opener = React.useRef<HTMLElement | null>(null);
+
+  React.useEffect(() => {
+    const remember = (event: FocusEvent) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      if (target.closest("[data-slot=dialog-content]")) return;
+
+      opener.current = target;
+    };
+
+    document.addEventListener("focusin", remember, true);
+    return () => document.removeEventListener("focusin", remember, true);
+  }, []);
+
+  const restoreFocus = (event: Event) => {
+    onCloseAutoFocus?.(event);
+    if (event.defaultPrevented) return;
+
+    const target = opener.current;
+    if (!target || !document.body.contains(target)) return;
+
+    event.preventDefault();
+    target.focus();
+  };
+
   return (
     <DialogPortal>
       <DialogOverlay />
 
       <DialogPrimitive.Content
         data-slot="dialog-content"
+        onCloseAutoFocus={restoreFocus}
         className={cn(
           "fixed left-1/2 top-1/2 z-[9999] grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4",
           "rounded-lg border bg-background p-6 shadow-md duration-200 sm:max-w-lg",

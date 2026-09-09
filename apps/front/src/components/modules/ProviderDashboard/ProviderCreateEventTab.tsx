@@ -242,6 +242,9 @@ const ProviderCreateEventTab = () => {
                   <Switch
                     checked={form.isFree}
                     onCheckedChange={toggleFreeEvent}
+                    aria-label={t(
+                      "providerDashboard.createEvent.fields.freeEvent",
+                    )}
                   />
                 </div>
 

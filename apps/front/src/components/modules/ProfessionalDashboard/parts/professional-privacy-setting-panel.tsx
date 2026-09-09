@@ -117,6 +117,7 @@ export const ProfessionalPrivacySettingsPanel = ({
                   [row.key]: checked,
                 }))
               }
+              aria-label={row.title}
             />
           </div>
         ))}

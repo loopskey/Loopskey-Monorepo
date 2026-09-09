@@ -68,6 +68,7 @@ export const OrgCpdCategoryForm = ({
                 shouldValidate: true,
               })
             }
+            aria-label={t("organizationDashboard.cpd.form.fields.active")}
           />
         </div>
 
@@ -89,11 +90,7 @@ export const OrgCpdCategoryForm = ({
             {t("common.cancel")}
           </Button>
 
-          <Button
-            radius="xl"
-            type="submit"
-            disabled={isLoading}
-          >
+          <Button radius="xl" type="submit" disabled={isLoading}>
             <L.Save className="h-4 w-4" />
             {isEditMode
               ? t("organizationDashboard.cpd.form.saveChanges")

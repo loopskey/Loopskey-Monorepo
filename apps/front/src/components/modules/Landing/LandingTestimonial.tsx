@@ -46,8 +46,7 @@ const LandingTestimonials = () => {
 
   return (
     <section className="relative overflow-x-clip px-4 py-16 sm:px-6 lg:px-8">
-      <div className="pointer-events-none absolute inset-0 -z-10">
-      </div>
+      <div className="pointer-events-none absolute inset-0 -z-10"></div>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <RevealOnScroll direction="up">
@@ -81,7 +80,6 @@ const LandingTestimonials = () => {
                   index === 1 && "lg:-mt-6",
                 )}
               >
-
                 <div className="relative z-10 flex h-full flex-col">
                   <div className="mb-6 flex items-center justify-between gap-4">
                     <div className="flex items-center gap-1">
@@ -109,7 +107,7 @@ const LandingTestimonials = () => {
                   </blockquote>
 
                   <div className="mt-8 flex items-center gap-4 border-t border-border pt-5">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-md bg-gradient-to-br from-primary/20 to-accent/20 text-sm font-bold text-primary ring-1 ring-primary/20">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-md bg-primary/10 text-sm font-bold text-primary ring-1 ring-primary/20">
                       {item.avatar}
                     </div>
 

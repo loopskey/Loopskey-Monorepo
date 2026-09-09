@@ -39,6 +39,12 @@ export const OrgReportsDepartmentPieChart = ({ hook }: TOrgReportPieChart) => {
                   ))}
                 </R.Pie>
 
+                <R.Legend
+                  verticalAlign="bottom"
+                  iconType="circle"
+                  wrapperStyle={{ fontSize: "12px" }}
+                />
+
                 <R.Tooltip
                   formatter={(value, name) => [
                     `${Number(value ?? 0).toFixed(2)}%`,

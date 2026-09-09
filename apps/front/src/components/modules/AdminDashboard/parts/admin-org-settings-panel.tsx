@@ -113,6 +113,9 @@ export const OrganizationSettingsPanel = ({
             onCheckedChange={(value) =>
               setForm((prev) => ({ ...prev, strictCompliance: value }))
             }
+            aria-label={t(
+              "adminDashboard.organizationUsers.settings.strictCompliance",
+            )}
           />
         </div>
       </GlassCard>
@@ -136,6 +139,9 @@ export const OrganizationSettingsPanel = ({
               onCheckedChange={(value) =>
                 setForm((prev) => ({ ...prev, [item.key]: value }))
               }
+              aria-label={t(
+                `adminDashboard.organizationUsers.settings.${item.label}`,
+              )}
             />
           </div>
         ))}
