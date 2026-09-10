@@ -14,15 +14,17 @@ import { CourseIngestionService } from "@ingestion/services/course-ingestion.ser
 import { EventIngestionService } from "@ingestion/services/event-ingestion.service";
 import { PodcastIngestionService } from "@ingestion/services/podcast-ingestion.service";
 import { YouTubeIngestionService } from "@ingestion/services/youtube-ingestion.service";
+import { IngestionItemPublishedHandler } from "@ingestion/handlers/ingestion-item-published.handler";
 import { IngestionApiKeyGuard } from "@ingestion/guards/ingestion-api-key.guard";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { PrismaModule } from "@prisma/prisma.module";
+import { MailModule } from "@mail/mail.module";
 import { Module } from "@nestjs/common";
 
 import "@ingestion/enums/enum-register";
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, MailModule],
   controllers: [
     CourseIngestionController,
     EventIngestionController,
@@ -43,6 +45,7 @@ import "@ingestion/enums/enum-register";
     YouTubeIngestionService,
     IngestionAdminService,
     IngestionAdminResolver,
+    IngestionItemPublishedHandler,
     OutboxService,
   ],
   exports: [IngestionApiKeyService, IngestionApiKeyGuard],
