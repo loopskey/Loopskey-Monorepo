@@ -132,4 +132,4 @@ Specification: `context/features/content-ingestion/07-crawler-integration-guide.
 
 - Commit: `6b603be`
 - PR: https://github.com/loopskey/Loopskey-Monorepo/pull/88 (base `develop`)
-- CI: pass (run 34462529024, "Lint, types, tests, build", `146d80e`)
+- CI: pass — run 34462529024 (`146d80e`). Re-validated after merging current develop and resolving a one-line `feature-history.md` conflict (PR #89 landed first): run 34467579344 (`767d35a`), pass.
