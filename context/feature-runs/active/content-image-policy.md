@@ -4,7 +4,7 @@
 - Model: `High reasoning — a server route that rasterises untrusted title text with an embedded multi-script font, a change to the image-host allow-list, and a new object-storage namespace whose path-traversal guard must hold.`
 - Branch: `feature/content-image-policy`
 - Base: `1bcb489` (stacked on `feature/additional-content-kinds` / phase 05, which is not yet merged)
-- Status: `Ready`
+- Status: `Submitted`
 
 Specification: `context/features/content-ingestion/06-content-image-policy.md`
 
@@ -132,6 +132,8 @@ Specification: `context/features/content-ingestion/06-content-image-policy.md`
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: `e7dee71`
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/86 (base `develop`;
+  stacked on phase 05 `feature/additional-content-kinds`, so the PR diff also
+  carries `fe82bb2` and `1bcb489` until phase 05 merges)
+- CI: pending
