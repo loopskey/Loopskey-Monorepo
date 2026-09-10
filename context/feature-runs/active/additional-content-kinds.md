@@ -4,7 +4,7 @@
 - Model: `High reasoning — a Prisma migration, transactional parent+child writes with lock-order-sensitive concurrency, and platform-owned-field rejection across three new content kinds.`
 - Branch: `feature/additional-content-kinds`
 - Base: `a41f806` (origin/develop, includes the phase 04 admin console)
-- Status: `Ready`
+- Status: `Submitted`
 
 Specification: `context/features/content-ingestion/05-additional-content-kinds.md`
 
@@ -103,7 +103,11 @@ spec required.
 
 ## Submission
 
-- Commit: `fe82bb2` (committed early so phase 06 can stack on it; `/feature
-  complete` for this run still needs to push the branch and open the PR)
-- PR:
-- CI:
+- Commit: `fe82bb2` (feat) + `1bcb489` (docs), committed early so phase 06 could
+  stack on this branch.
+- PR: none of its own. Phase 06 (`feature/content-image-policy`) was branched
+  from this branch's tip, so when phase 06's PR #86 merged into `develop` these
+  commits landed with it. `feature/additional-content-kinds` is now an ancestor
+  of `origin/develop`; opening a separate PR would have an empty diff.
+- CI: pass — validated as part of PR #86 (run 34456821845), whose tree is
+  `fe82bb2` + `1bcb489` + phase 06's `e7dee71`.
