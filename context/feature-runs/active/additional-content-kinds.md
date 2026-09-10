@@ -103,6 +103,7 @@ spec required.
 
 ## Submission
 
-- Commit:
+- Commit: `fe82bb2` (committed early so phase 06 can stack on it; `/feature
+  complete` for this run still needs to push the branch and open the PR)
 - PR:
 - CI:
