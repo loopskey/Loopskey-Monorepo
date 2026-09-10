@@ -12,6 +12,17 @@ const UNIQUE_VIOLATION = "P2002";
 const PREFIX_ATTEMPTS = 5;
 const ARGON2_OPTIONS: argon2.Options = { type: argon2.argon2id };
 
+const SAFE_KEY_SELECT = {
+  id: true,
+  sourceId: true,
+  name: true,
+  prefix: true,
+  createdAt: true,
+  expiresAt: true,
+  revokedAt: true,
+  lastUsedAt: true,
+} satisfies Prisma.IngestionApiKeySelect;
+
 @Injectable()
 export class IngestionApiKeyService {
   private decoyHash: Promise<string> | null = null;
@@ -56,6 +67,32 @@ export class IngestionApiKeyService {
     throw new InternalServerErrorException(
       "Could not allocate an unused ingestion key prefix.",
     );
+  }
+
+  async listForSource(sourceId: string) {
+    return this.prismaService.ingestionApiKey.findMany({
+      where: { sourceId },
+      orderBy: { createdAt: "desc" },
+      select: SAFE_KEY_SELECT,
+    });
+  }
+
+  async revokeKey(keyId: string) {
+    const existing = await this.prismaService.ingestionApiKey.findUnique({
+      where: { id: keyId },
+      select: SAFE_KEY_SELECT,
+    });
+    if (!existing) return null;
+    if (existing.revokedAt) return existing;
+
+    await this.prismaService.ingestionApiKey.updateMany({
+      where: { id: keyId, revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
+    return this.prismaService.ingestionApiKey.findUniqueOrThrow({
+      where: { id: keyId },
+      select: SAFE_KEY_SELECT,
+    });
   }
 
   async verify(presented: string | null): Promise<TIngestionVerification> {

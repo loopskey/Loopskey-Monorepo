@@ -8,6 +8,7 @@ export * from "@/lib/graphql/operations/course";
 export * from "@/lib/graphql/operations/cpd-plan";
 export * from "@/lib/graphql/operations/event";
 export * from "@/lib/graphql/operations/external-learning";
+export * from "@/lib/graphql/operations/ingestion";
 export * from "@/lib/graphql/operations/landing";
 export * from "@/lib/graphql/operations/org-dashboard";
 export * from "@/lib/graphql/operations/podcast";

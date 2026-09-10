@@ -6456,6 +6456,7 @@
       "settings": "Paramètres",
       "orgAccessRequests": "Demandes d’accès organisation",
       "associations": "Associations",
+      "ingestion": "Ingestion",
       "users": "Utilisateurs",
       "organizationUsers": "Utilisateurs d’organisation"
     },
@@ -6523,6 +6524,165 @@
         "alreadyActivated": "Ce compte a déjà été activé.",
         "resendTooSoon": "Un e-mail d'activation a été envoyé récemment. Réessayez après le délai d'attente.",
         "activationEmailNotSent": "L'e-mail d'activation n'a pas pu être mis en file. Réessayez dans un instant."
+      }
+    },
+    "ingestion": {
+      "eyebrow": "Ingestion des robots",
+      "title": "Ingestion",
+      "description": "Intégrez une équipe de collecte, surveillez ce qu'elle envoie et décidez ce qui rejoint le catalogue public.",
+      "viewSwitchLabel": "Vue d'ingestion",
+      "tabs": {
+        "sources": "Sources",
+        "review": "File de revue"
+      },
+      "validation": {
+        "slugPattern": "Utilisez uniquement des lettres minuscules, des chiffres et des tirets, en commençant par une lettre.",
+        "fieldMapInvalidJson": "Ceci doit être un objet JSON valide, par exemple {\"source_title\": \"title\"}."
+      },
+      "errors": {
+        "sourceNotFound": "Cette source d'ingestion n'a pas été trouvée.",
+        "slugExists": "Une source d'ingestion avec ce slug existe déjà.",
+        "fieldMapInvalid": "La correspondance de champs ne peut que renommer et sélectionner des champs ; elle ne peut pas les transformer.",
+        "keyNotFound": "Cette clé API n'a pas été trouvée.",
+        "itemNotFound": "Cet élément n'a pas été trouvé.",
+        "itemHasNoCatalogRow": "Cet élément n'a jamais produit de fiche catalogue et ne peut pas être approuvé.",
+        "itemNotEligible": "Cet élément n'est pas éligible à la revue pour le moment.",
+        "reviewConflict": "Cet élément a changé d'état ; actualisez et réessayez.",
+        "generic": "Une erreur s'est produite. Veuillez réessayer."
+      },
+      "sources": {
+        "searchPlaceholder": "Rechercher par slug ou nom",
+        "error": "Nous n'avons pas pu charger les sources d'ingestion.",
+        "empty": "Aucune source d'ingestion n'a encore été créée.",
+        "emptyFiltered": "Aucune source ne correspond à ces filtres.",
+        "created": "Source d'ingestion créée.",
+        "updated": "Source d'ingestion mise à jour.",
+        "activated": "Source activée.",
+        "deactivated": "Source désactivée.",
+        "filters": {
+          "kind": "Type de contenu",
+          "allKinds": "Tous les types",
+          "status": "Statut",
+          "allStatuses": "Tous les statuts",
+          "active": "Active",
+          "inactive": "Inactive"
+        },
+        "table": {
+          "slug": "Slug",
+          "name": "Nom",
+          "kind": "Type",
+          "autoPublish": "Publication automatique",
+          "status": "Statut",
+          "actions": "Actions",
+          "manage": "Gérer"
+        },
+        "create": {
+          "action": "Nouvelle source",
+          "title": "Créer une source d'ingestion",
+          "description": "Le slug est permanent une fois créé : il constitue la moitié de chaque identité que cette source produira.",
+          "slug": "Slug",
+          "slugHint": "Lettres minuscules, chiffres et tirets uniquement. Ne peut pas être modifié ultérieurement.",
+          "name": "Nom d'affichage",
+          "kind": "Type de contenu",
+          "stalenessWindowDays": "Fenêtre d'obsolescence (jours, facultatif)",
+          "autoPublish": "Publication automatique",
+          "autoPublishHint": "Activé, un élément soumis est publié immédiatement. Désactivé, il attend dans la file de revue.",
+          "fieldMap": "Correspondance de champs (facultatif)",
+          "fieldMapHint": "Un objet JSON de {\"leur champ\": \"notre champ\"}. Il ne peut que renommer et sélectionner des champs.",
+          "submit": "Créer la source"
+        },
+        "actions": {
+          "activate": "Activer",
+          "deactivate": "Désactiver"
+        },
+        "detail": {
+          "settingsTitle": "Paramètres"
+        }
+      },
+      "keys": {
+        "title": "Clés API",
+        "issue": "Émettre une clé",
+        "revoke": "Révoquer",
+        "revoked": "Clé révoquée.",
+        "copied": "Identifiant copié.",
+        "copyFailed": "Impossible de copier l'identifiant.",
+        "copy": "Copier",
+        "neverUsed": "Jamais utilisée",
+        "liveBadge": "Active",
+        "revokedBadge": "Révoquée",
+        "empty": "Aucune clé n'a encore été émise pour cette source.",
+        "table": {
+          "prefix": "Préfixe",
+          "name": "Nom",
+          "lastUsed": "Dernière utilisation",
+          "status": "Statut",
+          "actions": "Actions"
+        },
+        "issueDialog": {
+          "title": "Émettre une nouvelle clé API",
+          "description": "Le secret est affiché une seule fois, ici même. Il ne pourra pas être récupéré à nouveau.",
+          "name": "Nom de la clé",
+          "expiresAt": "Expiration (facultatif)",
+          "submit": "Émettre la clé",
+          "warning": "Copiez cet identifiant maintenant. Il ne sera plus jamais affiché — le perdre signifie émettre une nouvelle clé et révoquer celle-ci.",
+          "done": "Je l'ai copié, terminé",
+          "mustConfirm": "Copiez l'identifiant, puis choisissez Terminé pour fermer cette fenêtre."
+        },
+        "revokeDialog": {
+          "title": "Révoquer cette clé ?",
+          "description": "La révocation de la clé {{prefix}} est immédiate et irréversible. Tout robot l'utilisant cessera de fonctionner immédiatement.",
+          "confirm": "Révoquer la clé"
+        }
+      },
+      "batches": {
+        "title": "Lots",
+        "error": "Nous n'avons pas pu charger les lots de cette source.",
+        "empty": "Cette source n'a pas encore soumis de lot.",
+        "viewReport": "Voir le rapport",
+        "table": {
+          "submitted": "Soumis",
+          "mode": "Mode",
+          "status": "Statut",
+          "received": "Reçus",
+          "created": "Créés",
+          "updated": "Mis à jour",
+          "rejected": "Rejetés",
+          "actions": "Actions"
+        },
+        "detailDialog": {
+          "title": "Rapport du lot",
+          "unchanged": "Inchangés",
+          "externalId": "ID externe",
+          "reason": "Raison"
+        }
+      },
+      "review": {
+        "searchPlaceholder": "Rechercher par titre",
+        "approve": "Approuver",
+        "reject": "Rejeter",
+        "approved": "Élément approuvé et publié.",
+        "rejected": "Élément rejeté.",
+        "error": "Nous n'avons pas pu charger la file de revue.",
+        "empty": "La file de revue est vide pour ces filtres.",
+        "filters": {
+          "source": "Source",
+          "allSources": "Toutes les sources",
+          "state": "État"
+        },
+        "table": {
+          "title": "Titre",
+          "source": "Source",
+          "externalId": "ID externe",
+          "firstSeen": "Vu pour la première fois",
+          "state": "État",
+          "actions": "Actions"
+        },
+        "rejectDialog": {
+          "title": "Rejeter cet élément",
+          "description": "Indiquez pourquoi, afin que l'équipe de collecte sache quoi corriger. La fiche catalogue reste non publiée.",
+          "reason": "Raison",
+          "confirm": "Rejeter l'élément"
+        }
       }
     },
     "overview": {

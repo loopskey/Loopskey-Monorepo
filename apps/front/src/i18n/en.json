@@ -6455,6 +6455,7 @@
       "settings": "Settings",
       "orgAccessRequests": "Org Access Requests",
       "associations": "Associations",
+      "ingestion": "Ingestion",
       "users": "Users",
       "organizationUsers": "Organization Users"
     },
@@ -6522,6 +6523,165 @@
         "alreadyActivated": "That account has already been activated.",
         "resendTooSoon": "An activation email was sent recently. Try again after the cooldown.",
         "activationEmailNotSent": "The activation email could not be queued. Try again in a moment."
+      }
+    },
+    "ingestion": {
+      "eyebrow": "Crawler ingestion",
+      "title": "Ingestion",
+      "description": "Onboard a crawler team, watch what it sends, and decide what reaches the public catalog.",
+      "viewSwitchLabel": "Ingestion view",
+      "tabs": {
+        "sources": "Sources",
+        "review": "Review queue"
+      },
+      "validation": {
+        "slugPattern": "Use lowercase letters, digits and hyphens only, starting with a letter.",
+        "fieldMapInvalidJson": "This must be a valid JSON object, such as {\"source_title\": \"title\"}."
+      },
+      "errors": {
+        "sourceNotFound": "That ingestion source could not be found.",
+        "slugExists": "An ingestion source with this slug already exists.",
+        "fieldMapInvalid": "The field map may only rename and pick fields; it cannot transform them.",
+        "keyNotFound": "That API key could not be found.",
+        "itemNotFound": "That item could not be found.",
+        "itemHasNoCatalogRow": "This item never produced a catalog row and cannot be approved.",
+        "itemNotEligible": "This item is not eligible for review right now.",
+        "reviewConflict": "This item changed state; refresh and try again.",
+        "generic": "Something went wrong. Please try again."
+      },
+      "sources": {
+        "searchPlaceholder": "Search by slug or name",
+        "error": "We could not load the ingestion sources.",
+        "empty": "No ingestion source has been created yet.",
+        "emptyFiltered": "No source matches these filters.",
+        "created": "Ingestion source created.",
+        "updated": "Ingestion source updated.",
+        "activated": "Source activated.",
+        "deactivated": "Source deactivated.",
+        "filters": {
+          "kind": "Content kind",
+          "allKinds": "All kinds",
+          "status": "Status",
+          "allStatuses": "All statuses",
+          "active": "Active",
+          "inactive": "Inactive"
+        },
+        "table": {
+          "slug": "Slug",
+          "name": "Name",
+          "kind": "Kind",
+          "autoPublish": "Auto-publish",
+          "status": "Status",
+          "actions": "Actions",
+          "manage": "Manage"
+        },
+        "create": {
+          "action": "New source",
+          "title": "Create an ingestion source",
+          "description": "The slug is permanent once created: it is half of every identity this source will produce.",
+          "slug": "Slug",
+          "slugHint": "Lowercase letters, digits and hyphens only. Cannot be changed later.",
+          "name": "Display name",
+          "kind": "Content kind",
+          "stalenessWindowDays": "Staleness window (days, optional)",
+          "autoPublish": "Auto-publish",
+          "autoPublishHint": "When on, a submitted item is published immediately. When off, it waits in the review queue.",
+          "fieldMap": "Field map (optional)",
+          "fieldMapHint": "A JSON object of {\"their field\": \"our field\"}. It may only rename and pick fields.",
+          "submit": "Create source"
+        },
+        "actions": {
+          "activate": "Activate",
+          "deactivate": "Deactivate"
+        },
+        "detail": {
+          "settingsTitle": "Settings"
+        }
+      },
+      "keys": {
+        "title": "API keys",
+        "issue": "Issue key",
+        "revoke": "Revoke",
+        "revoked": "Key revoked.",
+        "copied": "Credential copied.",
+        "copyFailed": "Could not copy the credential.",
+        "copy": "Copy",
+        "neverUsed": "Never used",
+        "liveBadge": "Live",
+        "revokedBadge": "Revoked",
+        "empty": "No key has been issued for this source yet.",
+        "table": {
+          "prefix": "Prefix",
+          "name": "Name",
+          "lastUsed": "Last used",
+          "status": "Status",
+          "actions": "Actions"
+        },
+        "issueDialog": {
+          "title": "Issue a new API key",
+          "description": "The secret is shown once, right here. It cannot be retrieved again.",
+          "name": "Key name",
+          "expiresAt": "Expires (optional)",
+          "submit": "Issue key",
+          "warning": "Copy this credential now. It will not be shown again — losing it means issuing a new key and revoking this one.",
+          "done": "I've copied it, done",
+          "mustConfirm": "Copy the credential, then choose Done to close this dialog."
+        },
+        "revokeDialog": {
+          "title": "Revoke this key?",
+          "description": "Revoking key {{prefix}} is immediate and cannot be undone. Any crawler using it will stop working right away.",
+          "confirm": "Revoke key"
+        }
+      },
+      "batches": {
+        "title": "Batches",
+        "error": "We could not load the batches for this source.",
+        "empty": "This source has not submitted a batch yet.",
+        "viewReport": "View report",
+        "table": {
+          "submitted": "Submitted",
+          "mode": "Mode",
+          "status": "Status",
+          "received": "Received",
+          "created": "Created",
+          "updated": "Updated",
+          "rejected": "Rejected",
+          "actions": "Actions"
+        },
+        "detailDialog": {
+          "title": "Batch report",
+          "unchanged": "Unchanged",
+          "externalId": "External ID",
+          "reason": "Reason"
+        }
+      },
+      "review": {
+        "searchPlaceholder": "Search by title",
+        "approve": "Approve",
+        "reject": "Reject",
+        "approved": "Item approved and published.",
+        "rejected": "Item rejected.",
+        "error": "We could not load the review queue.",
+        "empty": "The review queue is empty for these filters.",
+        "filters": {
+          "source": "Source",
+          "allSources": "All sources",
+          "state": "State"
+        },
+        "table": {
+          "title": "Title",
+          "source": "Source",
+          "externalId": "External ID",
+          "firstSeen": "First seen",
+          "state": "State",
+          "actions": "Actions"
+        },
+        "rejectDialog": {
+          "title": "Reject this item",
+          "description": "State why, so the crawler team knows what to fix. The catalog row stays unpublished.",
+          "reason": "Reason",
+          "confirm": "Reject item"
+        }
       }
     },
     "overview": {
