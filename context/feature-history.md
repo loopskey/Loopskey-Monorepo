@@ -55,3 +55,4 @@ into this index and do not rewrite previous records.
 - [`ingestion-admin-console`](feature-runs/active/ingestion-admin-console.md)
 - [`additional-content-kinds`](feature-runs/active/additional-content-kinds.md)
 - [`content-image-policy`](feature-runs/active/content-image-policy.md)
+- [`ingestion-image-candidate-consumer`](feature-runs/active/ingestion-image-candidate-consumer.md)

@@ -4,7 +4,7 @@
 - Model: `High reasoning — model-selection routes outbox work here; implemented on Sonnet 5. The handler holds no transaction, makes no outbound request, adds no dependency and no schema change, so the residual risk is a single new outbox consumer registration.`
 - Branch: `feature/ingestion-image-candidate-consumer`
 - Base: `f9681ee` (origin/develop)
-- Status: `Ready`
+- Status: `Submitted`
 
 ## Why this run exists
 
@@ -65,6 +65,6 @@ This run closes that gap the minimal way, keeping fetching OFF:
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: `a164d94`
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/89 (base `develop`)
+- CI: pending
