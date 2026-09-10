@@ -1,9 +1,15 @@
-import { CourseStatus, IngestionItemState, Prisma } from "@prisma/client";
+import { IngestionContentKind } from "@prisma/client";
+import { IngestionItemState, Prisma } from "@prisma/client";
 import { BadRequestException, ConflictException } from "@nestjs/common";
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { COURSE_INGESTION_EVENT_VERSION } from "@ingestion/enums/course-ingestion.constant";
 import { COURSE_INGESTION_EVENT_NAME } from "@ingestion/enums/course-ingestion.constant";
 import { validateCourseFieldMap } from "@ingestion/utils/course-field-map.util";
+import { validateCanonicalFieldMap } from "@ingestion/utils/canonical-field-map.util";
+import { CanonicalFieldMapError } from "@ingestion/utils/canonical-field-map.util";
+import { EVENT_CANONICAL_FIELDS } from "@ingestion/enums/event-ingestion.constant";
+import { PODCAST_CANONICAL_FIELDS } from "@ingestion/enums/podcast-ingestion.constant";
+import { YOUTUBE_CANONICAL_FIELDS } from "@ingestion/enums/youtube-ingestion.constant";
 import { CourseIngestionService } from "@ingestion/services/course-ingestion.service";
 import { IngestionApiKeyService } from "@ingestion/services/ingestion-api-key.service";
 import { IngestionMessageCode } from "@ingestion/enums/message-code.enum";
@@ -242,7 +248,7 @@ export class IngestionAdminService {
         ? { cursor: { id: pagination.cursor }, skip: 1 }
         : {}),
       include: {
-        source: { select: { slug: true } },
+        source: { select: { slug: true, kind: true } },
         reviewedBy: { select: { fullName: true, email: true } },
       },
     });
@@ -251,7 +257,12 @@ export class IngestionAdminService {
     const totalCount = await this.prisma.ingestionItem.count({ where });
 
     const catalog = await this.catalogSummaries(
-      page.map((item) => item.catalogId).filter((id): id is string => !!id),
+      page
+        .filter((item) => item.catalogId)
+        .map((item) => ({
+          catalogId: item.catalogId as string,
+          kind: item.source.kind,
+        })),
     );
 
     return {
@@ -298,6 +309,11 @@ export class IngestionAdminService {
             "This item never produced a catalog row and cannot be approved.",
         });
 
+      const source = await tx.ingestionSource.findUniqueOrThrow({
+        where: { id: item.sourceId },
+        select: { kind: true },
+      });
+
       const claim = await tx.ingestionItem.updateMany({
         where: { id: itemId, state: item.state },
         data: {
@@ -319,10 +335,7 @@ export class IngestionAdminService {
         });
       }
 
-      await tx.course.update({
-        where: { id: item.catalogId },
-        data: { status: CourseStatus.PUBLISHED },
-      });
+      await this.setCatalogStatus(tx, source.kind, item.catalogId, "PUBLISHED");
       await this.outbox.append(
         {
           eventName: COURSE_INGESTION_EVENT_NAME,
@@ -383,11 +396,13 @@ export class IngestionAdminService {
         });
       }
 
-      if (item.catalogId)
-        await tx.course.update({
-          where: { id: item.catalogId },
-          data: { status: CourseStatus.DRAFT },
+      if (item.catalogId) {
+        const source = await tx.ingestionSource.findUniqueOrThrow({
+          where: { id: item.sourceId },
+          select: { kind: true },
         });
+        await this.setCatalogStatus(tx, source.kind, item.catalogId, "DRAFT");
+      }
 
       this.logger.log("Rejected an ingestion item.", {
         correlationId: requestContext.correlationId(),
@@ -403,12 +418,14 @@ export class IngestionAdminService {
     const item = await tx.ingestionItem.findUniqueOrThrow({
       where: { id: itemId },
       include: {
-        source: { select: { slug: true } },
+        source: { select: { slug: true, kind: true } },
         reviewedBy: { select: { fullName: true, email: true } },
       },
     });
     const catalog = item.catalogId
-      ? await this.catalogSummaries([item.catalogId])
+      ? await this.catalogSummaries([
+          { catalogId: item.catalogId, kind: item.source.kind },
+        ])
       : new Map();
     return {
       ...item,
@@ -419,29 +436,101 @@ export class IngestionAdminService {
     };
   }
 
-  private async catalogSummaries(catalogIds: string[]) {
-    const unique = [...new Set(catalogIds)];
-    if (unique.length === 0) return new Map<string, unknown>();
-    const rows = await this.prisma.course.findMany({
-      where: { id: { in: unique } },
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        status: true,
-        imageUrl: true,
-      },
+  /**
+   * The review queue and batch detail cover every kind, so a catalog summary
+   * is read from whichever table the item's kind writes to. `status` is
+   * flattened onto the shared DRAFT / PUBLISHED / ARCHIVED vocabulary — an
+   * event's CANCELLED reads as ARCHIVED — so the GraphQL contract stays a
+   * single enum.
+   */
+  private async catalogSummaries(
+    entries: Array<{ catalogId: string; kind: IngestionContentKind }>,
+  ) {
+    const summaries = new Map<string, unknown>();
+    const byKind = new Map<IngestionContentKind, string[]>();
+    for (const { catalogId, kind } of entries) {
+      const ids = byKind.get(kind) ?? [];
+      ids.push(catalogId);
+      byKind.set(kind, ids);
+    }
+
+    const select = {
+      id: true,
+      title: true,
+      slug: true,
+      status: true,
+      imageUrl: true,
+    } as const;
+    const flatten = (row: {
+      id: string;
+      title: string;
+      slug: string;
+      status: string;
+      imageUrl: string | null;
+    }) => ({
+      ...row,
+      status: row.status === "CANCELLED" ? "ARCHIVED" : row.status,
     });
-    return new Map(rows.map((row) => [row.id, row]));
+
+    for (const [kind, ids] of byKind) {
+      const unique = [...new Set(ids)];
+      if (unique.length === 0) continue;
+      const rows =
+        kind === IngestionContentKind.COURSE
+          ? await this.prisma.course.findMany({
+              where: { id: { in: unique } },
+              select,
+            })
+          : kind === IngestionContentKind.EVENT
+            ? await this.prisma.event.findMany({
+                where: { id: { in: unique } },
+                select,
+              })
+            : kind === IngestionContentKind.PODCAST
+              ? await this.prisma.podcast.findMany({
+                  where: { id: { in: unique } },
+                  select,
+                })
+              : await this.prisma.youTubeChannel.findMany({
+                  where: { id: { in: unique } },
+                  select,
+                });
+      for (const row of rows) summaries.set(row.id, flatten(row));
+    }
+    return summaries;
   }
 
   private async matchingCatalogIds(search: string) {
     const rows = await this.prisma.$queryRaw<Array<{ id: string }>>`
-      SELECT id FROM "Course"
-      WHERE title ILIKE '%' || ${search} || '%' OR title % ${search}
+      SELECT id FROM "Course"  WHERE title ILIKE '%' || ${search} || '%' OR title % ${search}
+      UNION
+      SELECT id FROM "Event"   WHERE title ILIKE '%' || ${search} || '%' OR title % ${search}
+      UNION
+      SELECT id FROM "Podcast" WHERE title ILIKE '%' || ${search} || '%' OR title % ${search}
+      UNION
+      SELECT id FROM "YouTubeChannel" WHERE title ILIKE '%' || ${search} || '%' OR title % ${search}
       LIMIT ${ITEM_SEARCH_ID_LIMIT}
     `;
     return rows.map((row) => row.id);
+  }
+
+  private async setCatalogStatus(
+    tx: Prisma.TransactionClient,
+    kind: IngestionContentKind,
+    catalogId: string,
+    status: "PUBLISHED" | "DRAFT",
+  ) {
+    if (kind === IngestionContentKind.COURSE)
+      await tx.course.update({ where: { id: catalogId }, data: { status } });
+    else if (kind === IngestionContentKind.EVENT)
+      await tx.event.update({ where: { id: catalogId }, data: { status } });
+    else if (kind === IngestionContentKind.PODCAST)
+      await tx.podcast.update({ where: { id: catalogId }, data: { status } });
+    else
+      await tx.youTubeChannel.update({
+        where: { id: catalogId },
+        data: { status },
+      });
   }
 
   private async requireSource(sourceId: string) {
@@ -456,20 +545,36 @@ export class IngestionAdminService {
     return source;
   }
 
-  private validateFieldMap(kind: string, fieldMap: unknown) {
+  private validateFieldMap(
+    kind: IngestionContentKind | string,
+    fieldMap: unknown,
+  ) {
     if (fieldMap === undefined || fieldMap === null) return {};
-    if (kind !== "COURSE") {
-      if (Object.keys(fieldMap as Record<string, unknown>).length > 0)
-        throw new BadRequestException({
-          code: IngestionMessageCode.INGESTION_FIELD_MAP_INVALID,
-          message: "Field maps are only supported for course sources today.",
-        });
-      return {};
-    }
     try {
-      return validateCourseFieldMap(fieldMap);
+      if (kind === IngestionContentKind.COURSE)
+        return validateCourseFieldMap(fieldMap);
+      if (kind === IngestionContentKind.EVENT)
+        return validateCanonicalFieldMap(
+          fieldMap,
+          EVENT_CANONICAL_FIELDS,
+          "event",
+        );
+      if (kind === IngestionContentKind.PODCAST)
+        return validateCanonicalFieldMap(
+          fieldMap,
+          PODCAST_CANONICAL_FIELDS,
+          "podcast",
+        );
+      return validateCanonicalFieldMap(
+        fieldMap,
+        YOUTUBE_CANONICAL_FIELDS,
+        "youtube",
+      );
     } catch (error) {
-      if (error instanceof CourseFieldMapError)
+      if (
+        error instanceof CourseFieldMapError ||
+        error instanceof CanonicalFieldMapError
+      )
         throw new BadRequestException({
           code: IngestionMessageCode.INGESTION_FIELD_MAP_INVALID,
           message: error.message,

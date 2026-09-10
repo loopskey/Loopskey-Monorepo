@@ -1060,11 +1060,17 @@ model YouTubeChannel {
   @@index([slug])
 }
 
+/// `externalRef` is the identity of an externally sourced video within its
+/// channel, namespaced as `"<source>:<channel-external-id>:<video-id>"`. A
+/// channel crawl upserts its videos on this key; a crawl that omits the videos
+/// field leaves existing rows untouched.
 model YouTubeVideo {
   id String @id @default(cuid())
 
   channelId String
   channel   YouTubeChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  externalRef String? @unique
 
   title        String
   description  String?
