@@ -39,6 +39,16 @@ const YOUTUBE_MAP = {
   name: "title",
   channel_url: "channelUrl",
 };
+const COURSE_MAP = {
+  external_id: "externalId",
+  url: "canonicalUrl",
+  name: "title",
+  summary: "description",
+  teacher: "instructor",
+  cat: "category",
+  lvl: "level",
+  image: "imageCandidateUrl",
+};
 
 const signAccessToken = (id: string, email: string) =>
   new JwtService({ secret: process.env.JWT_ACCESS_SECRET }).sign({
@@ -68,6 +78,9 @@ describe("Additional content kinds ingestion HTTP (e2e)", () => {
         items
           .filter((item) => item.source.kind === kind && item.catalogId)
           .map((item) => item.catalogId as string);
+      await prisma.course.deleteMany({
+        where: { id: { in: catalog(IngestionContentKind.COURSE) } },
+      });
       await prisma.event.deleteMany({
         where: { id: { in: catalog(IngestionContentKind.EVENT) } },
       });
@@ -266,5 +279,81 @@ describe("Additional content kinds ingestion HTTP (e2e)", () => {
       items: [],
     });
     expect(response.status).toBe(401);
+  }, 120000);
+
+  it("consumes ingestion.item.published and screens the image candidate without fetching", async () => {
+    const { credential } = await makeSource(
+      IngestionContentKind.COURSE,
+      COURSE_MAP,
+    );
+    const insecureId = `crs-insecure-${unique()}`;
+    const okId = `crs-ok-${unique()}`;
+    const response = await post(
+      "/v1/ingest/course/batches",
+      {
+        contractVersion: CONTRACT_VERSION,
+        kind: "COURSE",
+        mode: "INCREMENTAL",
+        items: [
+          {
+            external_id: insecureId,
+            url: "https://example.com/c/insecure",
+            name: "Insecure image course",
+            summary: "Its image URL is not fetchable.",
+            teacher: "Ada",
+            cat: "TECHNOLOGY",
+            lvl: "BEGINNER",
+            image: "http://cdn.example.com/x.jpg",
+          },
+          {
+            external_id: okId,
+            url: "https://example.com/c/ok",
+            name: "Fine image course",
+            summary: "Its image URL is a public https URL.",
+            teacher: "Ada",
+            cat: "TECHNOLOGY",
+            lvl: "BEGINNER",
+            image: "https://cdn.example.com/ok.jpg",
+          },
+        ],
+      },
+      credential,
+    );
+    expect(response.status).toBe(201);
+    expect(response.body.createdCount).toBe(2);
+
+    const items = await prisma.ingestionItem.findMany({
+      where: { externalId: { in: [insecureId, okId] } },
+      select: { id: true, externalId: true },
+    });
+    expect(items).toHaveLength(2);
+    const eventIds = items.map((item) => item.id);
+
+    const deadline = Date.now() + 30_000;
+    let processed = 0;
+    while (Date.now() < deadline) {
+      processed = await prisma.outboxEvent.count({
+        where: {
+          eventName: "ingestion.item.published",
+          aggregateId: { in: eventIds },
+          processedAt: { not: null },
+        },
+      });
+      if (processed === 2) break;
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+    // The event now has a registered consumer, so it is delivered rather than
+    // retried to a terminal failure.
+    expect(processed).toBe(2);
+
+    const after = await prisma.ingestionItem.findMany({
+      where: { externalId: { in: [insecureId, okId] } },
+      select: { externalId: true, imageCandidateUrl: true },
+    });
+    const byExternalId = Object.fromEntries(
+      after.map((item) => [item.externalId, item.imageCandidateUrl]),
+    );
+    expect(byExternalId[insecureId]).toBeNull();
+    expect(byExternalId[okId]).toBe("https://cdn.example.com/ok.jpg");
   }, 120000);
 });
