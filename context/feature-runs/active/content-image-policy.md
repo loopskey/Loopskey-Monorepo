@@ -136,4 +136,4 @@ Specification: `context/features/content-ingestion/06-content-image-policy.md`
 - PR: https://github.com/loopskey/Loopskey-Monorepo/pull/86 (base `develop`;
   stacked on phase 05 `feature/additional-content-kinds`, so the PR diff also
   carries `fe82bb2` and `1bcb489` until phase 05 merges)
-- CI: pending
+- CI: pass (run 34456821845, "Lint, types, tests, build", 4m39s, on `0ffb46b`)
