@@ -4,7 +4,7 @@
 - Model: `Standard development — a documentation deliverable plus one mechanical drift test and a dev-only sandbox helper; it restates the security-relevant ingestion surface (auth, rate limits, protected fields) so accuracy matters, but changes no contract, migration, or runtime path.`
 - Branch: `feature/crawler-integration-guide`
 - Base: `f9681ee` (origin/develop)
-- Status: `Ready`
+- Status: `Submitted`
 
 Specification: `context/features/content-ingestion/07-crawler-integration-guide.md`
 
@@ -130,6 +130,6 @@ Specification: `context/features/content-ingestion/07-crawler-integration-guide.
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: `6b603be`
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/88 (base `develop`)
+- CI: pending
