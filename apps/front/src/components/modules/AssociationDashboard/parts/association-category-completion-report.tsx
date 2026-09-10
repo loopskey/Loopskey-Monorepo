@@ -18,7 +18,7 @@ const CategoryCompletionChart = dynamic(
     ).then((module) => module.CategoryCompletionChart),
   {
     ssr: false,
-    loading: () => <Skeleton className="h-72 w-full rounded-2xl" />,
+    loading: () => <Skeleton className="h-72 w-full rounded-md" />,
   },
 );
 

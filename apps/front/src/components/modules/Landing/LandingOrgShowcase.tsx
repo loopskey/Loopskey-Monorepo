@@ -1,5 +1,3 @@
-// src/components/modules/Landing/LandingOrganization.tsx
-
 "use client";
 
 import { useLandingOrganizationShowcase } from "@/hooks/useLandingOrgShowcase";
@@ -18,15 +16,12 @@ const LandingOrganization = () => {
 
   return (
     <section className="relative overflow-x-clip px-4 py-16 sm:px-6 lg:px-8">
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute left-0 top-10 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-brand-teal/10 blur-3xl" />
-      </div>
+      <div className="pointer-events-none absolute inset-0 -z-10"></div>
 
-      <div className="mx-auto grid max-w-7xl gap-10 rounded-[2.5rem] border border-glass-border bg-slate-600 p-6 text-white shadow-2xl md:p-10 xl:grid-cols-[1.05fr_0.95fr] xl:items-center">
+      <div className="mx-auto grid max-w-7xl gap-10 rounded-lg border bg-muted-foreground p-6 text-white shadow-md md:p-10 xl:grid-cols-[1.05fr_0.95fr] xl:items-center">
         <RevealOnScroll direction="left">
           <div>
-            <span className="inline-flex w-fit items-center rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary-foreground/80 backdrop-blur-xl">
+            <span className="inline-flex w-fit items-center rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary-foreground/80">
               {t("landing.organization.eyebrow")}
             </span>
 
@@ -47,7 +42,7 @@ const LandingOrganization = () => {
                     delay={index * 80}
                     direction={index % 2 === 0 ? "left" : "right"}
                   >
-                    <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.06] p-4 backdrop-blur-xl transition-all duration-300 hover:border-primary/40 hover:bg-primary/10">
+                    <div className="flex items-center gap-3 rounded-md border border-white/10 bg-white/[0.06] p-4 transition-all duration-300 hover:border-primary/40 hover:bg-primary/10">
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary">
                         <Icon className="h-5 w-5" />
                       </div>
@@ -61,7 +56,7 @@ const LandingOrganization = () => {
             </div>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Button asChild radius="xl" variant="brand" size="lg">
+              <Button asChild radius="xl" size="lg">
                 <Link href="/contact">
                   {t("landing.organization.primaryAction")}
                   <L.ArrowRight className="h-4 w-4" />
@@ -72,7 +67,7 @@ const LandingOrganization = () => {
                 asChild
                 size="lg"
                 radius="xl"
-                variant="glass"
+                variant="outline"
                 className="border-white/15 bg-white/10 text-white hover:bg-white/15"
               >
                 <Link href="/services">
@@ -84,8 +79,7 @@ const LandingOrganization = () => {
         </RevealOnScroll>
 
         <RevealOnScroll direction="right" delay={120}>
-          <GlassCard className="relative overflow-hidden border-white/10 bg-white/[0.07] p-5 text-white shadow-2xl backdrop-blur-2xl">
-            <div className="absolute right-0 top-0 h-40 w-40 rounded-full bg-primary/20 blur-3xl" />
+          <GlassCard className="relative overflow-hidden border-white/10 bg-white/[0.07] p-5 text-white shadow-md">
             <div className="relative z-10">
               <div className="flex items-start justify-between gap-4">
                 <div>
@@ -97,7 +91,7 @@ const LandingOrganization = () => {
                     {t("landing.organization.dashboard.title")}
                   </p>
                 </div>
-                <span className="rounded-full border border-brand-teal/30 bg-brand-teal/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-teal-text">
+                <span className="rounded-full border border-brand-orange/30 bg-brand-orange/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-orange-text">
                   {t("landing.organization.dashboard.status")}
                 </span>
               </div>
@@ -106,7 +100,7 @@ const LandingOrganization = () => {
                 {stats.map((stat) => (
                   <div
                     key={stat.key}
-                    className="rounded-2xl border border-white/10 bg-white/[0.06] p-4"
+                    className="rounded-md border border-white/10 bg-white/[0.06] p-4"
                   >
                     <p className="text-xs text-primary-foreground/55">
                       {stat.label}
@@ -118,7 +112,7 @@ const LandingOrganization = () => {
                 ))}
               </div>
 
-              <div className="mt-6 rounded-3xl border border-white/10 bg-slate-900/60 p-5">
+              <div className="mt-6 rounded-lg border border-white/10 bg-foreground/60 p-5">
                 <p className="mb-4 text-xs font-semibold text-white">
                   {t("landing.organization.dashboard.complianceTitle")}
                 </p>
@@ -139,7 +133,7 @@ const LandingOrganization = () => {
                           className={cn(
                             "h-full rounded-full transition-all duration-700",
                             index === 0 && "bg-primary",
-                            index === 1 && "bg-brand-teal",
+                            index === 1 && "bg-brand-orange",
                             index === 2 && "bg-destructive",
                           )}
                           style={{
@@ -159,7 +153,7 @@ const LandingOrganization = () => {
                     direction="up"
                     delay={index * 80}
                   >
-                    <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.05] p-4">
+                    <div className="flex items-center justify-between rounded-md border border-white/10 bg-white/[0.05] p-4">
                       <div className="flex items-center gap-3">
                         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/15 text-primary">
                           <L.TrendingUp className="h-4 w-4" />
@@ -169,7 +163,7 @@ const LandingOrganization = () => {
                         </p>
                       </div>
 
-                      <span className="text-sm font-bold text-brand-teal-text">
+                      <span className="text-sm font-bold text-brand-orange-text">
                         {topic.percentage}%
                       </span>
                     </div>

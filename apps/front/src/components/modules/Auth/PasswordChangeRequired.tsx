@@ -18,7 +18,7 @@ const PasswordChangeRequired = () => {
           <Form {...form}>
             <form className="space-y-5" onSubmit={form.handleSubmit(onSubmit)}>
               <div className="text-center">
-                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 shadow-inner">
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-md bg-warning-soft text-warning-soft-foreground shadow-inner">
                   <ShieldAlert className="h-6 w-6" />
                 </div>
 
@@ -58,7 +58,6 @@ const PasswordChangeRequired = () => {
                 size="lg"
                 radius="xl"
                 type="submit"
-                variant="brand"
                 className="w-full"
                 disabled={isSaving}
               >
@@ -78,7 +77,7 @@ const PasswordChangeRequired = () => {
               <Button
                 radius="xl"
                 type="button"
-                variant="glass"
+                variant="outline"
                 className="w-full"
                 onClick={onLogout}
                 disabled={isLoggingOut}

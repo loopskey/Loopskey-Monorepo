@@ -45,11 +45,11 @@ export const OrgReportsDepartmentPieChart = ({ hook }: TOrgReportPieChart) => {
                     name,
                   ]}
                   contentStyle={{
-                    borderRadius: "1rem",
+                    borderRadius: "8px",
                     background: "var(--popover)",
                     color: "var(--popover-foreground)",
-                    border: "1px solid var(--glass-border)",
-                    boxShadow: "0 20px 60px oklch(0.18 0.08 255 / 0.18)",
+                    border: "1px solid var(--border)",
+                    boxShadow: "0 6px 18px -8px rgb(13 25 61 / 12%)",
                   }}
                 />
               </R.PieChart>

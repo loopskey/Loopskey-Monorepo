@@ -51,13 +51,13 @@ export const AssociationOverviewRequirements = ({
         <ul className="space-y-2">
           {[0, 1, 2].map((row) => (
             <li key={row}>
-              <Skeleton className="h-20 w-full rounded-2xl" />
+              <Skeleton className="h-20 w-full rounded-md" />
             </li>
           ))}
         </ul>
       }
       action={
-        <Button size="sm" radius="xl" variant="glass" asChild>
+        <Button size="sm" radius="xl" variant="outline" asChild>
           <Link href={O.associationTabHref("requirements")}>
             <L.ArrowUpRight className="h-4 w-4" />
             {label("requirements.openTab")}
@@ -66,10 +66,10 @@ export const AssociationOverviewRequirements = ({
       }
     >
       {shown.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-glass-border p-5 text-sm text-muted-foreground">
+        <div className="rounded-md border border-dashed border-border p-5 text-sm text-muted-foreground">
           <p>{label("requirements.empty")}</p>
 
-          <Button radius="xl" variant="brand" className="mt-4" asChild>
+          <Button radius="xl"  className="mt-4" asChild>
             <Link href={O.associationTabHref("requirements")}>
               <L.Plus className="h-4 w-4" />
               {label("requirements.emptyAction")}
@@ -82,7 +82,7 @@ export const AssociationOverviewRequirements = ({
             {shown.map((row) => (
               <li
                 key={row.requirementId}
-                className="rounded-2xl border border-glass-border bg-background/50 p-4"
+                className="rounded-md border p-4"
               >
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
                   <p className="min-w-0 flex-1 truncate font-medium">

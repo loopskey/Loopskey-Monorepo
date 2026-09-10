@@ -3,56 +3,48 @@
 
 :root {
   --background: oklch(1 0 0);
-  --foreground: oklch(0.19 0.035 255);
-
+  --foreground: oklch(0.3791 0 0);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.19 0.035 255);
+  --card-foreground: oklch(0.3791 0 0);
 
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.19 0.035 255);
+  --popover-foreground: oklch(0.3791 0 0);
 
-  --primary: oklch(0.55 0.19 255);
-  --primary-foreground: oklch(0.99 0 0);
+  --primary: oklch(0.3351 0.1745 271.87);
+  --primary-foreground: oklch(1 0 0);
+  --primary-hover: oklch(0.2978 0.1579 271.48);
+  --primary-active: oklch(0.2619 0.133 272.4);
+  --secondary: oklch(0.96 0.004 260);
+  --secondary-foreground: oklch(0.3791 0 0);
 
-  --secondary: oklch(0.93 0.035 235);
-  --secondary-foreground: oklch(0.25 0.06 255);
+  --muted: oklch(0.96 0.004 260);
+  --muted-foreground: oklch(0.551 0.0234 264.36);
+  --accent: oklch(0.96 0.004 260);
+  --accent-foreground: oklch(0.3791 0 0);
 
-  --muted: oklch(0.94 0.018 240);
-  --muted-foreground: oklch(0.48 0.035 250);
+  --brand-orange: oklch(0.7009 0.1744 52.07);
+  --brand-orange-foreground: oklch(0.2101 0.0318 264.66);
+  --brand-orange-text: oklch(0.5553 0.1455 49);
+  --success: oklch(0.5273 0.1371 150.07);
+  --success-foreground: oklch(1 0 0);
 
-  /* shadcn treats --accent as the neutral hover/focus surface: every menu
-     item and every ghost/outline button paints with it. Keep it quiet. The
-     teal that used to live here is --brand-teal, for deliberate use only. */
-  --accent: oklch(0.94 0.012 240);
-  --accent-foreground: oklch(0.19 0.035 255);
+  --warning: oklch(0.5553 0.1455 49);
+  --warning-foreground: oklch(1 0 0);
 
-  --brand-teal: oklch(0.88 0.075 190);
-  --brand-teal-foreground: oklch(0.2 0.05 230);
-  --brand-teal-text: oklch(0.42 0.075 190);
-
-  --success: oklch(0.53 0.16 155);
-  --success-foreground: oklch(0.99 0 0);
-
-  --warning: oklch(0.78 0.15 75);
-  --warning-foreground: oklch(0.22 0.035 65);
-
-  --destructive: oklch(0.55 0.22 25);
-  --destructive-foreground: oklch(0.99 0 0);
+  --destructive: oklch(0.5771 0.2152 27.33);
+  --destructive-foreground: oklch(1 0 0);
 
   --premium: oklch(0.72 0.14 85);
   --premium-foreground: oklch(0.22 0.035 65);
 
-  /* Soft tier: a tinted surface plus text that stays legible on it. Status
-     chips and progress cards need this pairing; without it they reach for
-     raw Tailwind (bg-emerald-500/10 text-emerald-600) and leave the system. */
-  --success-soft: oklch(0.55 0.16 155 / 0.12);
-  --success-soft-foreground: oklch(0.42 0.16 155);
+  --success-soft: oklch(0.5273 0.1371 150.07 / 0.12);
+  --success-soft-foreground: oklch(0.5273 0.1371 150.07);
 
-  --warning-soft: oklch(0.55 0.15 75 / 0.12);
-  --warning-soft-foreground: oklch(0.42 0.15 75);
+  --warning-soft: oklch(0.5553 0.1455 49 / 0.12);
+  --warning-soft-foreground: oklch(0.5553 0.1455 49);
 
-  --destructive-soft: oklch(0.55 0.22 25 / 0.12);
-  --destructive-soft-foreground: oklch(0.42 0.22 25);
+  --destructive-soft: oklch(0.5771 0.2152 27.33 / 0.12);
+  --destructive-soft-foreground: oklch(0.5771 0.2152 27.33);
 
   --premium-soft: oklch(0.55 0.14 85 / 0.12);
   --premium-soft-foreground: oklch(0.42 0.14 85);
@@ -66,27 +58,28 @@
   --ct-youtube: oklch(0.58 0.22 25);
   --ct-youtube-foreground: oklch(0.99 0 0);
 
-  /* Chart series. Lightness is staggered on purpose so neighbouring series
-     stay apart in greyscale, and red sits away from green in the order. */
-  --chart-1: oklch(0.5 0.19 255);
-  --chart-2: oklch(0.62 0.12 190);
-  --chart-3: oklch(0.48 0.22 300);
-  --chart-4: oklch(0.66 0.17 55);
-  --chart-5: oklch(0.53 0.16 155);
-  --chart-6: oklch(0.64 0.2 25);
-  --chart-7: oklch(0.58 0.14 90);
-  --chart-8: oklch(0.44 0.13 220);
+  --chart-1: oklch(0.3351 0.1745 271.87);
+  --chart-2: oklch(0.5461 0.2152 262.88);
+  --chart-3: oklch(0.5109 0.0861 186.39);
+  --chart-4: oklch(0.5413 0.2466 293.01);
+  --chart-5: oklch(0.6004 0.1555 51.47);
+  --chart-6: oklch(0.5246 0.199 3.96);
+  --chart-7: oklch(0.5 0.1193 242.75);
+  --chart-8: oklch(0.4455 0.0374 257.28);
+  --chart-semantic-success: oklch(0.5273 0.1371 150.07);
+  --chart-semantic-on-track: oklch(0.3351 0.1745 271.87);
+  --chart-semantic-warning: oklch(0.5553 0.1455 49);
+  --chart-semantic-danger: oklch(0.5771 0.2152 27.33);
+  --chart-semantic-neutral: oklch(0.5544 0.0407 257.42);
+  --chart-track: oklch(0.9288 0.0126 255.51);
+  --chart-grid: oklch(0.92 0.004 260);
+  --chart-axis: oklch(0.551 0.0234 264.36);
 
-  /* 0.78 rendered 1.91:1 against --background, under the 3:1 WCAG minimum
-     for non-text UI. Every border in the app inherits this. */
   --border: oklch(0.65 0.03 240);
   --input: oklch(0.58 0.03 240);
-  --ring: oklch(0.58 0.18 255);
-
-  --glass: oklch(1 0 0);
-  --glass-border: oklch(0.66 0.025 240);
-
-  --radius: 0.875rem;
+  --ring: oklch(0.3351 0.1745 271.87);
+  --ring-on-primary: oklch(1 0 0);
+  --radius: 0.75rem;
 }
 
 @theme inline {
@@ -101,6 +94,8 @@
 
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-active: var(--primary-active);
 
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
@@ -111,9 +106,9 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
 
-  --color-brand-teal: var(--brand-teal);
-  --color-brand-teal-foreground: var(--brand-teal-foreground);
-  --color-brand-teal-text: var(--brand-teal-text);
+  --color-brand-orange: var(--brand-orange);
+  --color-brand-orange-foreground: var(--brand-orange-foreground);
+  --color-brand-orange-text: var(--brand-orange-text);
 
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
@@ -145,6 +140,15 @@
   --color-chart-7: var(--chart-7);
   --color-chart-8: var(--chart-8);
 
+  --color-chart-semantic-success: var(--chart-semantic-success);
+  --color-chart-semantic-on-track: var(--chart-semantic-on-track);
+  --color-chart-semantic-warning: var(--chart-semantic-warning);
+  --color-chart-semantic-danger: var(--chart-semantic-danger);
+  --color-chart-semantic-neutral: var(--chart-semantic-neutral);
+  --color-chart-track: var(--chart-track);
+  --color-chart-grid: var(--chart-grid);
+  --color-chart-axis: var(--chart-axis);
+
   --color-ct-course: var(--ct-course);
   --color-ct-course-foreground: var(--ct-course-foreground);
   --color-ct-event: var(--ct-event);
@@ -157,9 +161,7 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-
-  --color-glass: var(--glass);
-  --color-glass-border: var(--glass-border);
+  --color-ring-on-primary: var(--ring-on-primary);
 
   --radius-sm: calc(var(--radius) - 6px);
   --radius-md: calc(var(--radius) - 4px);
@@ -180,192 +182,6 @@ body {
   min-height: 100vh;
   background: var(--background);
   color: var(--foreground);
-}
-
-/* ================ Animated Gradient Buttons ================== */
-.btn-gradient-motion {
-  background-size: 220% 220%;
-  background-position: 0% 50%;
-  transition:
-    background-position 650ms ease,
-    transform 220ms ease,
-    box-shadow 220ms ease,
-    border-color 220ms ease,
-    color 220ms ease;
-}
-
-.btn-gradient-motion:hover {
-  background-position: 100% 50%;
-}
-
-.btn-gradient-motion:active {
-  transform: scale(0.985);
-}
-/* ==================== Animated Button Gradient ==================== */
-
-.btn-gradient {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-}
-
-.btn-gradient::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background-size: 260% 260%;
-  background-position: 0% 50%;
-  transition:
-    background-position 700ms ease,
-    transform 300ms ease,
-    opacity 300ms ease;
-}
-
-.btn-gradient:hover::before {
-  background-position: 100% 50%;
-  transform: scale(1.04);
-}
-
-.btn-gradient:active::before {
-  transform: scale(1.01);
-}
-
-.btn-gradient-brand::before {
-  background-image:
-    radial-gradient(
-      circle at 12% 18%,
-      rgba(125, 211, 252, 0.95),
-      transparent 28%
-    ),
-    radial-gradient(
-      circle at 85% 15%,
-      rgba(196, 181, 253, 0.82),
-      transparent 32%
-    ),
-    linear-gradient(
-      135deg,
-      rgb(37, 99, 235),
-      rgb(79, 70, 229),
-      rgb(14, 165, 233)
-    );
-}
-
-.btn-gradient-warning::before {
-  background-image:
-    radial-gradient(
-      circle at 12% 18%,
-      rgba(254, 240, 138, 0.95),
-      transparent 30%
-    ),
-    radial-gradient(
-      circle at 85% 15%,
-      rgba(251, 146, 60, 0.55),
-      transparent 34%
-    ),
-    linear-gradient(
-      135deg,
-      rgb(250, 204, 21),
-      rgb(245, 158, 11),
-      rgb(251, 191, 36)
-    );
-}
-
-.btn-gradient-premium::before {
-  background-image:
-    radial-gradient(
-      circle at 12% 18%,
-      rgba(254, 240, 138, 0.95),
-      transparent 28%
-    ),
-    radial-gradient(
-      circle at 85% 15%,
-      rgba(251, 191, 36, 0.72),
-      transparent 32%
-    ),
-    linear-gradient(
-      135deg,
-      rgb(245, 158, 11),
-      rgb(217, 119, 6),
-      rgb(251, 191, 36)
-    );
-}
-
-.btn-gradient-success::before {
-  background-image:
-    radial-gradient(
-      circle at 12% 18%,
-      rgba(134, 239, 172, 0.82),
-      transparent 30%
-    ),
-    radial-gradient(
-      circle at 85% 15%,
-      rgba(45, 212, 191, 0.55),
-      transparent 34%
-    ),
-    linear-gradient(
-      135deg,
-      rgb(22, 163, 74),
-      rgb(13, 148, 136),
-      rgb(16, 185, 129)
-    );
-}
-
-.btn-gradient-danger::before {
-  background-image:
-    radial-gradient(
-      circle at 12% 18%,
-      rgba(252, 165, 165, 0.85),
-      transparent 30%
-    ),
-    radial-gradient(
-      circle at 85% 15%,
-      rgba(251, 113, 133, 0.62),
-      transparent 34%
-    ),
-    linear-gradient(
-      135deg,
-      rgb(220, 38, 38),
-      rgb(190, 18, 60),
-      rgb(239, 68, 68)
-    );
-}
-
-/* ==================== Premium Glass Card ==================== */
-.glass-panel {
-  position: relative;
-  overflow: hidden;
-  background: var(--card);
-  border: 1px solid var(--glass-border);
-  box-shadow:
-    0 1px 2px oklch(0.25 0.08 255 / 0.05),
-    0 8px 24px -12px oklch(0.25 0.08 255 / 0.12);
-}
-
-.glass-card-enter {
-  animation: glass-card-enter 2500ms cubic-bezier(0.16, 1, 0.3, 1) both;
-  transform-origin: center center;
-  will-change: opacity, transform, filter;
-}
-
-@keyframes glass-card-enter {
-  0% {
-    opacity: 0;
-    transform: scale(0.72);
-    filter: blur(14px);
-  }
-
-  55% {
-    opacity: 1;
-    transform: scale(1.035);
-    filter: blur(0);
-  }
-
-  100% {
-    opacity: 1;
-    transform: scale(1);
-    filter: blur(0);
-  }
 }
 
 /* ================= Landing Embla Carousel ================= */
@@ -569,8 +385,79 @@ body {
 /* =============== Dialog Panel ================= */
 .glass-dialog {
   background: var(--popover);
-  border: 1px solid var(--glass-border);
-  box-shadow:
-    0 1px 2px oklch(0.25 0.08 255 / 0.06),
-    0 24px 60px -24px oklch(0.25 0.08 255 / 0.22);
+  border: 1px solid var(--border);
+  box-shadow: 0 12px 28px -12px rgb(13 25 61 / 16%);
+}
+
+.sidebar-item {
+  position: relative;
+  border-top-left-radius: 24px;
+  border-bottom-left-radius: 24px;
+}
+
+.sidebar-item::before,
+.sidebar-item::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: transparent;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sidebar-item::before {
+  top: -40px;
+  box-shadow: 28px 28px 0 8px var(--background);
+}
+
+.sidebar-item::after {
+  bottom: -40px;
+  box-shadow: 28px -28px 0 8px var(--background);
+}
+
+.sidebar-item:hover::before,
+.sidebar-item:hover::after,
+.sidebar-item[data-active="true"]::before,
+.sidebar-item[data-active="true"]::after {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .sidebar-item:hover::before,
+  .sidebar-item:hover::after {
+    opacity: 0;
+  }
+}
+
+@media (min-width: 768px) {
+  .sidebar-item {
+    border-top-left-radius: 30px;
+    border-bottom-left-radius: 30px;
+  }
+
+  .sidebar-item::before,
+  .sidebar-item::after {
+    width: 50px;
+    height: 50px;
+  }
+
+  .sidebar-item::before {
+    top: -50px;
+    box-shadow: 35px 35px 0 10px var(--background);
+  }
+
+  .sidebar-item::after {
+    bottom: -50px;
+    box-shadow: 35px -35px 0 10px var(--background);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-item,
+  .sidebar-item * {
+    transition: none;
+  }
 }

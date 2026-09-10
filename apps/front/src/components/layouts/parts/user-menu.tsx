@@ -50,7 +50,7 @@ export const UserMenu = () => {
         <Button
           type="button"
           radius="full"
-          variant="glass"
+          variant="outline"
           className="h-12 gap-3 px-2 pr-4"
         >
           <UserAvatar
@@ -73,10 +73,10 @@ export const UserMenu = () => {
       <D.DropdownMenuContent
         align="end"
         className={cn(
-          "w-72 rounded-3xl border-glass-border bg-background/85 p-2 shadow-2xl backdrop-blur-2xl",
+          "w-72 rounded-lg border-border p-2 shadow-md",
         )}
       >
-        <div className="flex items-center gap-3 rounded-2xl bg-primary/5 p-3">
+        <div className="flex items-center gap-3 rounded-md bg-primary/5 p-3">
           <UserAvatar
             email={user.email}
             fullName={user.fullName}
@@ -98,13 +98,13 @@ export const UserMenu = () => {
           </div>
         </div>
         <D.DropdownMenuSeparator className="my-2" />
-        <D.DropdownMenuItem asChild className="rounded-2xl p-3">
+        <D.DropdownMenuItem asChild className="rounded-md p-3">
           <Link href={dashboardPath}>
             <LayoutDashboard className="mr-2 h-4 w-4" />
             {t("userMenu.dashboard")}
           </Link>
         </D.DropdownMenuItem>
-        <D.DropdownMenuItem asChild className="rounded-2xl p-3">
+        <D.DropdownMenuItem asChild className="rounded-md p-3">
           <Link href={profilePath}>
             <UserRound className="mr-2 h-4 w-4" />
             {t("userMenu.profile")}
@@ -114,7 +114,7 @@ export const UserMenu = () => {
         <D.DropdownMenuItem
           onClick={handleLogout}
           disabled={isLoggingOut}
-          className="rounded-2xl p-3 text-destructive focus:text-destructive"
+          className="rounded-md p-3 text-destructive focus:text-destructive"
         >
           <LogOut className="mr-2 h-4 w-4" />
           {isLoggingOut ? t("userMenu.loggingOut") : t("userMenu.logout")}

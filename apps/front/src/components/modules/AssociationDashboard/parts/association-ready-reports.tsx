@@ -26,7 +26,7 @@ export const AssociationReadyReports = ({ hook }: TAssociationReadyReports) => {
       <div className="relative z-10">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-start gap-3">
-            <span className="rounded-2xl bg-primary/10 p-2.5 text-primary">
+            <span className="rounded-md bg-primary/10 p-2.5 text-primary">
               <L.FileDown className="h-5 w-5" />
             </span>
 
@@ -50,10 +50,10 @@ export const AssociationReadyReports = ({ hook }: TAssociationReadyReports) => {
 
         {isReportsLoading ? (
           <div className="mt-5">
-            <Skeleton className="h-14 w-full rounded-2xl" />
+            <Skeleton className="h-14 w-full rounded-md" />
           </div>
         ) : readyReports.length === 0 ? (
-          <div className="mt-5 flex items-center gap-2 rounded-2xl border border-glass-border bg-background/50 p-4 text-sm text-muted-foreground">
+          <div className="mt-5 flex items-center gap-2 rounded-md border p-4 text-sm text-muted-foreground">
             <L.CircleCheck className="h-4 w-4 text-primary" />
             {label("sections.READY_REPORTS.settled")}
           </div>
@@ -62,7 +62,7 @@ export const AssociationReadyReports = ({ hook }: TAssociationReadyReports) => {
             {readyReports.map((record) => (
               <li
                 key={record.id}
-                className="flex flex-wrap items-center gap-3 rounded-2xl border border-glass-border bg-background/50 p-3"
+                className="flex flex-wrap items-center gap-3 rounded-md border p-3"
               >
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">
@@ -87,7 +87,7 @@ export const AssociationReadyReports = ({ hook }: TAssociationReadyReports) => {
         )}
 
         <div className="mt-5">
-          <Button radius="xl" variant="glass" asChild>
+          <Button radius="xl" variant="outline" asChild>
             <Link href={LIBRARY_HREF}>
               <L.ArrowUpRight className="h-4 w-4" />
               {label("sections.READY_REPORTS.action")}

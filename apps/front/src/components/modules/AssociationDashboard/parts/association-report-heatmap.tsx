@@ -2,32 +2,12 @@
 
 import { TAssociationGroupProgressRow } from "@/types/association-dashboard.types";
 import { semanticChartColor } from "@hooks/useChartPalette";
+import { useChartSemantics } from "@hooks/useChartPalette";
+import { THeatmapProps, THeatmapRowProps } from "@/types/association-dashboard.types";
 import { chartTone } from "@utils/association-reports";
 import { Skeleton } from "@ui/skeleton";
 
 import * as API from "@lib/rtk/endpoints/association-dashboard.api";
-
-import type { AssociationReportFilterInput } from "@/lib/graphql/base";
-
-type TCategoryColumn = { id: string; name: string };
-
-type THeatmapFrame = {
-  locale: string;
-  columns: TCategoryColumn[];
-  filter: AssociationReportFilterInput;
-  label: (key: string, vars?: Record<string, string | number>) => string;
-};
-
-type THeatmapRowProps = THeatmapFrame & {
-  tone: string;
-  groupId: string;
-  groupTitle: string;
-};
-
-type THeatmapProps = THeatmapFrame & {
-  palette: string[];
-  groups: TAssociationGroupProgressRow[];
-};
 
 const HeatmapRow = ({
   tone,
@@ -47,7 +27,7 @@ const HeatmapRow = ({
       ?.averagePercent ?? null;
 
   return (
-    <tr className="border-b border-glass-border/70">
+    <tr className="border-b border-border/70">
       <th scope="row" className="py-2 pr-4 text-left font-medium">
         {groupTitle}
       </th>
@@ -88,8 +68,9 @@ export const AssociationReportHeatmap = ({
   filter,
   locale,
   columns,
-  palette,
 }: THeatmapProps) => {
+  const semantics = useChartSemantics();
+
   const named = groups.filter(
     (group): group is TAssociationGroupProgressRow & { groupId: string } =>
       Boolean(group.groupId),
@@ -97,12 +78,12 @@ export const AssociationReportHeatmap = ({
 
   if (columns.length === 0 || named.length === 0)
     return (
-      <div className="rounded-3xl border border-dashed border-glass-border py-10 text-center text-sm text-muted-foreground">
+      <div className="rounded-lg border border-dashed border-border py-10 text-center text-sm text-muted-foreground">
         {label("heatmap.empty")}
       </div>
     );
 
-  const tone = semanticChartColor(palette, "renewalReady");
+  const tone = semanticChartColor(semantics, "renewalReady");
 
   return (
     <div>
@@ -115,7 +96,7 @@ export const AssociationReportHeatmap = ({
           <caption className="sr-only">{label("heatmap.caption")}</caption>
 
           <thead className="text-xs uppercase text-muted-foreground">
-            <tr className="border-b border-glass-border">
+            <tr className="border-b border-border">
               <th scope="col" className="py-3 pr-4 text-left">
                 {label("heatmap.group")}
               </th>

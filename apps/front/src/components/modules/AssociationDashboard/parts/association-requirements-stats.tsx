@@ -64,9 +64,9 @@ export const AssociationRequirementsStats = ({
             variant="ghost"
             onClick={() => applyStatCard(card.id)}
             aria-pressed={isCardActive(card.id)}
-            className="relative z-10 h-auto w-full justify-start gap-4 rounded-3xl p-6 text-left"
+            className="relative z-10 h-auto w-full justify-start gap-4 rounded-lg p-6 text-left"
           >
-            <span className="rounded-2xl bg-primary/10 p-3 text-primary">
+            <span className="rounded-md bg-primary/10 p-3 text-primary">
               <card.icon className="h-5 w-5" />
             </span>
 

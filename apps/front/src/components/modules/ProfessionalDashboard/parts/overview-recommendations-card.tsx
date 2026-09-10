@@ -3,6 +3,7 @@
 import { useEnrollContentMutation } from "@/lib/rtk/endpoints/content-interaction.api";
 import { getOverviewSectionState } from "@/utils/professional-overview.helper";
 import { OverviewCardMessage } from "@modules/ProfessionalDashboard/parts/overview-card";
+import { ContentThumbnail } from "@elements/content-thumbnail";
 import { useCoursesQuery } from "@/lib/rtk/endpoints/course.api";
 import { ContentType } from "@/lib/graphql/base";
 import { GlassCard } from "@elements/glass-card";
@@ -12,7 +13,6 @@ import { notify } from "@/hooks/notify";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
 
-import Image from "next/image";
 import Link from "next/link";
 
 import * as L from "lucide-react";
@@ -59,7 +59,7 @@ export const OverviewRecommendationsCard = () => {
           </p>
         </div>
 
-        <Button asChild variant="glass" radius="xl">
+        <Button asChild variant="outline" radius="xl">
           <Link href="/courses">
             {t("professionalDashboard.overview.browseAll")}
           </Link>
@@ -72,7 +72,7 @@ export const OverviewRecommendationsCard = () => {
           aria-hidden
         >
           {Array.from({ length: 3 }).map((_, index) => (
-            <Skeleton key={index} className="h-72 w-full rounded-[2rem]" />
+            <Skeleton key={index} className="h-72 w-full rounded-lg" />
           ))}
         </div>
       ) : null}
@@ -109,18 +109,17 @@ export const OverviewRecommendationsCard = () => {
           {courses.map((course) => (
             <div
               key={course.id}
-              className="overflow-hidden rounded-[2rem] border border-glass-border"
+              className="overflow-hidden rounded-lg border"
             >
               <div className="relative aspect-video overflow-hidden bg-muted">
-                {course.imageUrl ? (
-                  <Image
-                    fill
-                    alt={course.title}
-                    src={course.imageUrl}
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                  />
-                ) : null}
+                <ContentThumbnail
+                  kind="course"
+                  id={course.id}
+                  title={course.title}
+                  imageUrl={course.imageUrl}
+                  category={course.category}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                />
               </div>
 
               <div className="space-y-4 p-5">
@@ -138,7 +137,7 @@ export const OverviewRecommendationsCard = () => {
 
                 <div className="flex items-center justify-between text-sm">
                   <span className="flex items-center gap-1 font-medium">
-                    <L.Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                    <L.Star className="h-4 w-4 fill-amber-400 text-warning-soft-foreground" />
                     {course.rating ?? 0}
                   </span>
 
@@ -151,8 +150,7 @@ export const OverviewRecommendationsCard = () => {
 
                 <Button
                   radius="xl"
-                  variant="brand"
-                  className="w-full"
+                          className="w-full"
                   disabled={enrollState.isLoading}
                   onClick={() => enrollCourse(course.id)}
                 >

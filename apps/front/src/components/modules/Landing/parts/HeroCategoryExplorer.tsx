@@ -31,7 +31,7 @@ const HeroCategoryExplorer = ({
                 "hover:-translate-y-0.5 hover:border-primary/45 hover:text-primary",
                 active
                   ? "border-primary bg-primary text-primary-foreground shadow-lg"
-                  : "border-glass-border bg-background/55 text-muted-foreground backdrop-blur-xl",
+                  : "border-border text-muted-foreground",
               )}
             >
               {category.label}

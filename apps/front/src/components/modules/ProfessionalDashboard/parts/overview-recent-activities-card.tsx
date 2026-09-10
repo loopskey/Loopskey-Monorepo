@@ -73,7 +73,7 @@ export const OverviewRecentActivitiesCard = () => {
           return (
             <li
               key={activity.id}
-              className="rounded-2xl border border-glass-border bg-background/45 p-3"
+              className="rounded-md border p-3"
             >
               <div className="flex items-start justify-between gap-2">
                 <p

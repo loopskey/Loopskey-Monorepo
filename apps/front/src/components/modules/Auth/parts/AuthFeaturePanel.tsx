@@ -31,7 +31,7 @@ const AuthFeaturePanel = ({
 
       <h1 className="max-w-xl text-center text-2xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-4xl">
         {titlePrefix}
-        <span className="bg-gradient-to-r from-sky-500 to-indigo-600 bg-clip-text px-2 text-transparent">
+        <span className="text-primary px-2">
           {titleBrand}
         </span>
       </h1>
@@ -47,11 +47,11 @@ const AuthFeaturePanel = ({
           return (
             <GlassCard
               key={feature.title}
-              className="rounded-3xl p-4"
+              className="rounded-lg p-4"
               glow={false}
             >
               <div className="relative z-10 flex gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
                   <Icon className="h-5 w-5" />
                 </div>
 

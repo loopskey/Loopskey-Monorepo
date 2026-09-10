@@ -9,11 +9,11 @@ const AuthTabs = ({ active, onChange }: TAuthTabsProps) => {
   const { t } = useI18n();
 
   return (
-    <div className="grid grid-cols-2 gap-2 rounded-2xl border border-border/70 bg-background/45 p-1 backdrop-blur-xl">
+    <div className="grid grid-cols-2 gap-2 rounded-md border border-border/70 bg-muted p-1">
       <Button
         radius="xl"
         type="button"
-        variant={active === "register" ? "brand" : "ghost"}
+        variant={active === "register" ? "default" : "ghost"}
         className={cn(active !== "register" && "text-muted-foreground")}
         onClick={() => onChange("register")}
       >
@@ -23,7 +23,7 @@ const AuthTabs = ({ active, onChange }: TAuthTabsProps) => {
       <Button
         radius="xl"
         type="button"
-        variant={active === "login" ? "brand" : "ghost"}
+        variant={active === "login" ? "default" : "ghost"}
         className={cn(active !== "login" && "text-muted-foreground")}
         onClick={() => onChange("login")}
       >

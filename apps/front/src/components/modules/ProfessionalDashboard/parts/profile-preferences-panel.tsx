@@ -30,7 +30,7 @@ export const ProfilePreferencesPanel = ({
   return (
     <div className="space-y-6">
       <div className="flex items-start gap-3">
-        <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+        <div className="rounded-md bg-primary/10 p-3 text-primary">
           <Icon className="h-5 w-5" />
         </div>
         <div>
@@ -66,12 +66,12 @@ export const ProfilePreferencesPanel = ({
                     disabled={isDisabled}
                     onClick={() => toggleFormat(card.value)}
                     className={cn(
-                      "group relative flex flex-col items-start gap-2 rounded-2xl border p-4 text-left transition-all duration-200",
+                      "group relative flex flex-col items-start gap-2 rounded-md border p-4 text-left transition-all duration-200",
                       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                       "disabled:cursor-not-allowed disabled:opacity-50",
                       isActive
                         ? "border-primary bg-primary/10 text-foreground shadow-sm"
-                        : "border-glass-border bg-background/45 text-muted-foreground hover:border-primary/40 hover:bg-primary/5 hover:text-foreground",
+                        : "border-border text-muted-foreground hover:border-primary/40 hover:bg-primary/5 hover:text-foreground",
                     )}
                   >
                     <span
@@ -128,7 +128,6 @@ export const ProfilePreferencesPanel = ({
           <Button
             radius="xl"
             type="submit"
-            variant="brand"
             disabled={isSaveDisabled}
           >
             {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}

@@ -50,7 +50,7 @@ const ReviewsList = ({ reviews, isLoading }: TReviewsListProps) => {
                   key={index}
                   className={
                     index + 1 <= review.rating
-                      ? "h-4 w-4 fill-yellow-400 text-yellow-400"
+                      ? "h-4 w-4 fill-yellow-400 text-warning-soft-foreground"
                       : "h-4 w-4 text-muted-foreground/30"
                   }
                 />

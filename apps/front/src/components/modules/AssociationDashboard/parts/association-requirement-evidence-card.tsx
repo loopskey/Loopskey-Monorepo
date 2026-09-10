@@ -62,7 +62,7 @@ export const AssociationRequirementEvidenceCard = ({
       </RG.RadioGroup>
 
       {isRequired && (
-        <div className="rounded-2xl border border-glass-border p-4">
+        <div className="rounded-md border p-4">
           <p className="text-sm font-medium">
             {t("associationDashboard.requirements.rules.evidence.reviewTitle")}
           </p>
@@ -114,7 +114,6 @@ export const AssociationRequirementEvidenceCard = ({
         <Button
           radius="xl"
           type="button"
-          variant="brand"
           disabled={isSaving}
           onClick={() => void submitEvidence(policy)}
         >

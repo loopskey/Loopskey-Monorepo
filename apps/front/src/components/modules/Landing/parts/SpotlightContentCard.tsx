@@ -2,11 +2,11 @@
 
 import { ArrowRight, BadgeCheck, Sparkles, Star } from "lucide-react";
 import { TLandingContentItem } from "@/types/landing-module.types";
+import { ContentThumbnail } from "@elements/content-thumbnail";
 import { GlassCard } from "@elements/glass-card";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
 
-import Image from "next/image";
 import Link from "next/link";
 
 const SpotlightContentCard = ({ item }: { item: TLandingContentItem }) => {
@@ -21,23 +21,20 @@ const SpotlightContentCard = ({ item }: { item: TLandingContentItem }) => {
     <GlassCard className="h-full overflow-hidden p-0">
       <div
         key={`${item.kind}-${item.id}`}
-        className="relative z-10 grid h-full animate-in fade-in-0 zoom-in-95 duration-500 lg:grid-rows-[310px_1fr]"
+        className="relative z-10 grid h-full animate-in fade-in-0 zoom-in-95 duration-500 grid-rows-[240px_1fr] lg:grid-rows-[310px_1fr]"
       >
         <div className="relative overflow-hidden bg-muted">
-          {item.imageUrl ? (
-            <Image
-              fill
-              priority
-              alt={item.title}
-              src={item.imageUrl}
-              className="object-cover"
-              sizes="(max-width: 1024px) 100vw, 520px"
-            />
-          ) : (
-            <div className="h-full w-full bg-[radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.42),transparent_34%),radial-gradient(circle_at_80%_20%,rgba(20,184,166,0.28),transparent_32%),linear-gradient(135deg,rgba(59,130,246,0.18),rgba(20,184,166,0.12))]" />
-          )}
+          <ContentThumbnail
+            priority
+            id={item.id}
+            kind={item.kind}
+            title={item.title}
+            imageUrl={item.imageUrl}
+            category={item.category}
+            sizes="(max-width: 1024px) 100vw, 520px"
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/15 to-transparent" />
-          <div className="absolute left-5 top-5 flex items-center gap-2 rounded-full bg-background/75 px-4 py-2 text-xs font-medium text-primary shadow-sm backdrop-blur-xl">
+          <div className="absolute left-5 top-5 flex items-center gap-2 rounded-full bg-muted px-4 py-2 text-xs font-medium text-primary shadow-sm">
             <BadgeCheck className="h-4 w-4" />
             {t("landing.learningHub.spotlight")}
           </div>
@@ -48,7 +45,7 @@ const SpotlightContentCard = ({ item }: { item: TLandingContentItem }) => {
             </span>
 
             {item.category && (
-              <span className="rounded-full bg-background/75 px-3 py-1.5 text-xs font-medium text-foreground shadow-sm backdrop-blur-xl">
+              <span className="rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-foreground shadow-sm">
                 {item.category}
               </span>
             )}
@@ -64,8 +61,8 @@ const SpotlightContentCard = ({ item }: { item: TLandingContentItem }) => {
             )}
 
             {item.rating && item.rating > 0 && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-yellow-500/10 px-3 py-1 text-xs font-medium text-yellow-600">
-                <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+              <span className="inline-flex items-center gap-1 rounded-full bg-warning-soft px-3 py-1 text-xs font-medium text-warning-soft-foreground">
+                <Star className="h-3.5 w-3.5 fill-yellow-400 text-warning-soft-foreground" />
                 {item.rating.toFixed(1)}
                 {item.ratingCount ? (
                   <span className="text-muted-foreground">
@@ -86,7 +83,7 @@ const SpotlightContentCard = ({ item }: { item: TLandingContentItem }) => {
             </p>
           )}
 
-          <div className="mt-6 grid gap-3 rounded-3xl border border-glass-border bg-background/45 p-4 sm:grid-cols-2">
+          <div className="mt-6 grid gap-3 rounded-lg border p-4 sm:grid-cols-2">
             <div>
               <p className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
                 <Sparkles className="h-3.5 w-3.5 text-primary" />
@@ -111,7 +108,6 @@ const SpotlightContentCard = ({ item }: { item: TLandingContentItem }) => {
             asChild
             size="lg"
             radius="xl"
-            variant="brand"
             className="mt-6"
           >
             <Link href={item.href}>

@@ -95,7 +95,7 @@ export const OverviewUpcomingCalendarCard = () => {
         {items.map((item: H.UpcomingCalendarItem) => (
           <li
             key={item.id}
-            className="rounded-2xl border border-glass-border bg-background/45 p-3"
+            className="rounded-md border p-3"
           >
             <div className="flex items-start justify-between gap-2">
               <p className="min-w-0 truncate font-medium" title={item.title}>

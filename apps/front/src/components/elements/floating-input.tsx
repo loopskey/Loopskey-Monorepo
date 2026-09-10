@@ -66,10 +66,9 @@ export const FloatingInputField = <T extends FieldValues>({
                   value={value ?? ""}
                   placeholder=""
                   className={cn(
-                    "h-14 rounded-2xl border-border/70 bg-background/55 text-base shadow-sm backdrop-blur-xl",
-                    "transition-all duration-200",
-                    "focus-visible:border-primary/55 focus-visible:ring-primary/25",
-                    "hover:border-primary/30",
+                    "h-14 rounded-md border-input bg-background text-base",
+                    "transition-colors duration-200",
+                    "focus-visible:border-primary focus-visible:ring-ring",
                     hasLeftIcon ? "pl-12" : "pl-4",
                     hasRightSlot ? "pr-12" : "pr-4",
                     "pt-5 pb-2",
@@ -112,7 +111,6 @@ export const FloatingInputField = <T extends FieldValues>({
                     {rightSlot}
                   </div>
                 )}
-                <div className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-white/40"/>
               </div>
             </F.FormControl>
             {description && (

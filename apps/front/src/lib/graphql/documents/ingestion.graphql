@@ -1,0 +1,219 @@
+# ================= Sources =================
+fragment IngestionSourceFields on IngestionSource {
+  id
+  slug
+  name
+  kind
+  isActive
+  autoPublish
+  stalenessWindowDays
+  fieldMap
+  createdAt
+  updatedAt
+}
+
+fragment IngestionPageInfoFields on IngestionPageInfo {
+  hasNextPage
+  nextCursor
+}
+
+fragment PaginatedIngestionSourcesFields on PaginatedIngestionSources {
+  totalCount
+  pageInfo {
+    ...IngestionPageInfoFields
+  }
+  items {
+    ...IngestionSourceFields
+  }
+}
+
+query IngestionSources($filter: IngestionSourceFilter, $pagination: IngestionPagination) {
+  ingestionSources(filter: $filter, pagination: $pagination) {
+    ...PaginatedIngestionSourcesFields
+  }
+}
+
+query IngestionSource($sourceId: String!) {
+  ingestionSource(sourceId: $sourceId) {
+    ...IngestionSourceFields
+  }
+}
+
+mutation CreateIngestionSource($input: CreateIngestionSource!) {
+  createIngestionSource(input: $input) {
+    ...IngestionSourceFields
+  }
+}
+
+mutation UpdateIngestionSource($input: UpdateIngestionSource!) {
+  updateIngestionSource(input: $input) {
+    ...IngestionSourceFields
+  }
+}
+
+mutation ActivateIngestionSource($sourceId: String!) {
+  activateIngestionSource(sourceId: $sourceId) {
+    ...IngestionSourceFields
+  }
+}
+
+mutation DeactivateIngestionSource($sourceId: String!) {
+  deactivateIngestionSource(sourceId: $sourceId) {
+    ...IngestionSourceFields
+  }
+}
+
+# ================= API Keys =================
+fragment IngestionApiKeyFields on IngestionApiKey {
+  id
+  sourceId
+  name
+  prefix
+  createdAt
+  expiresAt
+  revokedAt
+  lastUsedAt
+}
+
+query IngestionApiKeys($sourceId: String!) {
+  ingestionApiKeys(sourceId: $sourceId) {
+    ...IngestionApiKeyFields
+  }
+}
+
+mutation IssueIngestionApiKey($input: IssueIngestionApiKey!) {
+  issueIngestionApiKey(input: $input) {
+    id
+    sourceId
+    name
+    prefix
+    createdAt
+    expiresAt
+    revokedAt
+    lastUsedAt
+    credential
+  }
+}
+
+mutation RevokeIngestionApiKey($keyId: String!) {
+  revokeIngestionApiKey(keyId: $keyId) {
+    ...IngestionApiKeyFields
+  }
+}
+
+# ================= Batches =================
+fragment IngestionBatchFields on IngestionBatch {
+  id
+  sourceId
+  idempotencyKey
+  mode
+  status
+  correlationId
+  createdAt
+  receivedCount
+  acceptedCount
+  rejectedCount
+  createdCount
+  updatedCount
+  unchangedCount
+}
+
+fragment PaginatedIngestionBatchesFields on PaginatedIngestionBatches {
+  totalCount
+  pageInfo {
+    ...IngestionPageInfoFields
+  }
+  items {
+    ...IngestionBatchFields
+  }
+}
+
+query IngestionBatches($sourceId: String!, $pagination: IngestionPagination) {
+  ingestionBatches(sourceId: $sourceId, pagination: $pagination) {
+    ...PaginatedIngestionBatchesFields
+  }
+}
+
+query IngestionBatch($batchId: String!) {
+  ingestionBatch(batchId: $batchId) {
+    id
+    sourceId
+    idempotencyKey
+    mode
+    status
+    correlationId
+    createdAt
+    receivedCount
+    acceptedCount
+    rejectedCount
+    createdCount
+    updatedCount
+    unchangedCount
+    items {
+      externalId
+      state
+      catalogId
+      reason
+      unmappedFields
+    }
+  }
+}
+
+# ================= Review queue =================
+fragment IngestionItemCatalogFields on IngestionItemCatalog {
+  id
+  title
+  slug
+  status
+  imageUrl
+}
+
+fragment IngestionItemFields on IngestionItem {
+  id
+  sourceId
+  sourceSlug
+  batchId
+  externalId
+  canonicalUrl
+  imageCandidateUrl
+  unmappedFields
+  state
+  rejectionReason
+  reviewedById
+  reviewedByName
+  reviewedAt
+  catalogId
+  firstSeenAt
+  lastSeenAt
+  catalog {
+    ...IngestionItemCatalogFields
+  }
+}
+
+fragment PaginatedIngestionItemsFields on PaginatedIngestionItems {
+  totalCount
+  pageInfo {
+    ...IngestionPageInfoFields
+  }
+  items {
+    ...IngestionItemFields
+  }
+}
+
+query IngestionItems($filter: IngestionItemFilter, $pagination: IngestionPagination) {
+  ingestionItems(filter: $filter, pagination: $pagination) {
+    ...PaginatedIngestionItemsFields
+  }
+}
+
+mutation ApproveIngestionItem($itemId: String!) {
+  approveIngestionItem(itemId: $itemId) {
+    ...IngestionItemFields
+  }
+}
+
+mutation RejectIngestionItem($input: RejectIngestionItem!) {
+  rejectIngestionItem(input: $input) {
+    ...IngestionItemFields
+  }
+}

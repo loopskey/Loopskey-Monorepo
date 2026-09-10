@@ -33,7 +33,7 @@ const ContentSearchHero = ({ value, onChange }: TContentSearchHeroProps) => {
             value={value}
             onChange={(event) => onChange(event.target.value)}
             placeholder={t("content.hero.searchPlaceholder")}
-            className="h-16 rounded-[1.5rem] border-primary/20 bg-background/65 pl-14 pr-5 text-base shadow-xl backdrop-blur-xl focus-visible:ring-primary/25"
+            className="h-16 rounded-lg border-primary/20 bg-muted pl-14 pr-5 text-base shadow-xl focus-visible:ring-primary/25"
           />
         </div>
       </div>

@@ -43,7 +43,7 @@ const AdminAuthPage = () => {
           <GlassCard className="h-fit w-full max-w-md self-start">
             <div className="relative z-10 space-y-6">
               <div className="text-center">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-md bg-primary/10 text-primary">
                   <ShieldCheck className="h-7 w-7" />
                 </div>
 
@@ -63,7 +63,7 @@ const AdminAuthPage = () => {
 
         <div className="order-1 lg:order-2">
           <div className="flex flex-col gap-3 sm:flex-row">
-            <Button asChild variant="glass" radius="xl" className="flex-1">
+            <Button asChild variant="outline" radius="xl" className="flex-1">
               <Link href={siteLinks.login}>
                 {t("authPages.admin.professionalLink")}
                 <L.ArrowRight className="h-4 w-4" />

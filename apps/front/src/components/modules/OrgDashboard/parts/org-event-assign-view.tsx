@@ -2,12 +2,10 @@
 
 import { TEventCatalogAssignView } from "@/types/org-dashboard.types";
 import { OrgEventAssignForm } from "@modules/OrgDashboard/parts/org-event-assign-form";
-import { isValidImageSrc } from "@utils/function-helper";
+import { ContentThumbnail } from "@elements/content-thumbnail";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
-
-import Image from "next/image";
 
 import * as L from "lucide-react";
 
@@ -20,7 +18,7 @@ export const OrgEventAssignView = ({ hook }: TEventCatalogAssignView) => {
         <Button
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           onClick={closeAssignView}
         >
           <L.ArrowLeft className="h-4 w-4" />
@@ -34,12 +32,6 @@ export const OrgEventAssignView = ({ hook }: TEventCatalogAssignView) => {
       </div>
     );
 
-  const imageSrc =
-    typeof selectedEvent.imageUrl === "string" &&
-    isValidImageSrc(selectedEvent.imageUrl)
-      ? selectedEvent.imageUrl
-      : null;
-
   return (
     <div className="space-y-6">
       <section className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
@@ -47,7 +39,7 @@ export const OrgEventAssignView = ({ hook }: TEventCatalogAssignView) => {
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             onClick={closeAssignView}
           >
             <L.ArrowLeft className="h-4 w-4" />
@@ -82,7 +74,7 @@ export const OrgEventAssignView = ({ hook }: TEventCatalogAssignView) => {
           <GlassCard>
             <div className="relative z-10">
               <div className="flex items-start gap-3">
-                <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+                <div className="rounded-md bg-primary/10 p-3 text-primary">
                   <L.Send className="h-5 w-5" />
                 </div>
                 <div>
@@ -105,20 +97,15 @@ export const OrgEventAssignView = ({ hook }: TEventCatalogAssignView) => {
         <aside className="space-y-6 xl:sticky xl:top-24 xl:self-start">
           <GlassCard className="overflow-hidden p-0">
             <div className="relative z-10">
-              <div className="relative h-44 overflow-hidden rounded-t-[2rem] bg-muted">
-                {imageSrc ? (
-                  <Image
-                    fill
-                    src={imageSrc}
-                    className="object-cover"
-                    alt={selectedEvent.title}
-                    sizes="(max-width: 1280px) 100vw, 380px"
-                  />
-                ) : (
-                  <div className="flex h-full items-center justify-center text-muted-foreground">
-                    <L.CalendarDays className="h-10 w-10" />
-                  </div>
-                )}
+              <div className="relative h-44 overflow-hidden rounded-t-lg bg-muted">
+                <ContentThumbnail
+                  kind="event"
+                  id={selectedEvent.id}
+                  title={selectedEvent.title}
+                  imageUrl={selectedEvent.imageUrl}
+                  category={selectedEvent.category}
+                  sizes="(max-width: 1280px) 100vw, 380px"
+                />
               </div>
 
               <div className="p-5">
@@ -127,7 +114,7 @@ export const OrgEventAssignView = ({ hook }: TEventCatalogAssignView) => {
                 </h2>
 
                 <div className="mt-5 grid gap-3 text-sm">
-                  <div className="rounded-2xl bg-background/45 p-4">
+                  <div className="rounded-md bg-muted p-4">
                     <p className="text-xs text-muted-foreground">
                       {t("organizationDashboard.eventCatalog.card.rating")}
                     </p>
@@ -137,7 +124,7 @@ export const OrgEventAssignView = ({ hook }: TEventCatalogAssignView) => {
                     </p>
                   </div>
 
-                  <div className="rounded-2xl bg-background/45 p-4">
+                  <div className="rounded-md bg-muted p-4">
                     <p className="text-xs text-muted-foreground">
                       {t("organizationDashboard.eventCatalog.card.capacity")}
                     </p>
@@ -146,7 +133,7 @@ export const OrgEventAssignView = ({ hook }: TEventCatalogAssignView) => {
                     </p>
                   </div>
 
-                  <div className="rounded-2xl bg-background/45 p-4">
+                  <div className="rounded-md bg-muted p-4">
                     <p className="text-xs text-muted-foreground">
                       {t("organizationDashboard.eventCatalog.card.price")}
                     </p>
@@ -159,7 +146,7 @@ export const OrgEventAssignView = ({ hook }: TEventCatalogAssignView) => {
                     </p>
                   </div>
 
-                  <div className="rounded-2xl bg-background/45 p-4">
+                  <div className="rounded-md bg-muted p-4">
                     <p className="text-xs text-muted-foreground">
                       {t("organizationDashboard.eventCatalog.card.location")}
                     </p>

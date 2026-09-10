@@ -14,7 +14,7 @@ export const OrgMembersBulkCard = ({
   return (
     <GlassCard>
       <div className="flex items-start gap-3">
-        <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+        <div className="rounded-md bg-primary/10 p-3 text-primary">
           <L.FileSpreadsheet className="h-5 w-5" />
         </div>
 
@@ -29,7 +29,7 @@ export const OrgMembersBulkCard = ({
         </div>
       </div>
 
-      <div className="mt-5 rounded-3xl border border-dashed border-primary/30 bg-primary/5 p-4 text-sm leading-7">
+      <div className="mt-5 rounded-lg border border-dashed border-primary/30 bg-primary/5 p-4 text-sm leading-7">
         <p className="font-medium">
           {t("organizationDashboard.members.bulk.templateTitle")}
         </p>
@@ -42,7 +42,7 @@ export const OrgMembersBulkCard = ({
         type="file"
         disabled={isLoading}
         accept=".xlsx,.xls,.csv"
-        className="mt-5 rounded-2xl"
+        className="mt-5 rounded-md"
         onChange={(event) => uploadBulkMembers(event.target.files?.[0])}
       />
     </GlassCard>

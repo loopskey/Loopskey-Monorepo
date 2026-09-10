@@ -18,7 +18,7 @@ const ContactMap = () => {
   const position: [number, number] = [37.7749, -122.4194];
 
   return (
-    <div className="h-[320px] overflow-hidden rounded-[2rem] border border-glass-border shadow-xl">
+    <div className="h-[320px] overflow-hidden rounded-lg border shadow-xl">
       <MapContainer
         center={position}
         zoom={12}

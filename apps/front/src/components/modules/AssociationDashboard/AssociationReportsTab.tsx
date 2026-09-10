@@ -70,7 +70,7 @@ const AssociationReportsTab = () => {
               {label("empty.body")}
             </p>
 
-            <Button radius="xl" variant="brand" className="mt-5" asChild>
+            <Button radius="xl" className="mt-5" asChild>
               <Link href="/dashboard/association?tab=requirements">
                 <L.ArrowUpRight className="h-4 w-4" />
                 {label("empty.action")}
@@ -92,7 +92,7 @@ const AssociationReportsTab = () => {
       </GlassCard>
 
       {isRangeIncomplete && (
-        <p className="rounded-2xl border border-glass-border bg-background/50 p-4 text-sm text-muted-foreground">
+        <p className="rounded-md border p-4 text-sm text-muted-foreground">
           {label("rangeIncomplete")}
         </p>
       )}
@@ -123,7 +123,7 @@ const AssociationReportsTab = () => {
             <Button
               radius="xl"
               type="button"
-              variant="glass"
+              variant="outline"
               className="mt-5"
               onClick={retry}
             >

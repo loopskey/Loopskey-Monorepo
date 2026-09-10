@@ -28,7 +28,7 @@ export const AssociationMemberCertificatesSection = ({
         </p>
 
         {certificates.length === 0 ? (
-          <div className="mt-6 rounded-2xl border border-dashed border-glass-border p-8 text-center">
+          <div className="mt-6 rounded-md border border-dashed border-border p-8 text-center">
             <L.Award className="mx-auto h-8 w-8 text-muted-foreground" />
 
             <p className="mt-3 font-medium">
@@ -44,7 +44,7 @@ export const AssociationMemberCertificatesSection = ({
             {certificates.map((certificate) => (
               <li
                 key={certificate.id}
-                className="rounded-3xl border border-glass-border bg-background/50 p-4"
+                className="rounded-lg border p-4"
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
@@ -77,7 +77,7 @@ export const AssociationMemberCertificatesSection = ({
                     {certificate.files.map((file) => (
                       <li
                         key={file.id}
-                        className="flex items-center justify-between gap-3 rounded-2xl border border-glass-border p-3"
+                        className="flex items-center justify-between gap-3 rounded-md border p-3"
                       >
                         <div className="min-w-0">
                           <p className="truncate text-sm">{file.fileName}</p>
@@ -90,7 +90,7 @@ export const AssociationMemberCertificatesSection = ({
                           size="sm"
                           radius="xl"
                           type="button"
-                          variant="glass"
+                          variant="outline"
                           disabled={downloadingFileId === file.id}
                           onClick={() => void download("certificate", file)}
                           aria-label={t(

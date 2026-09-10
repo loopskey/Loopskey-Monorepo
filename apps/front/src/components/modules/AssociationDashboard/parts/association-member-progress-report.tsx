@@ -23,7 +23,7 @@ const MemberExtremesChart = dynamic(
     ).then((module) => module.MemberExtremesChart),
   {
     ssr: false,
-    loading: () => <Skeleton className="h-72 w-full rounded-2xl" />,
+    loading: () => <Skeleton className="h-72 w-full rounded-md" />,
   },
 );
 
@@ -104,7 +104,7 @@ export const AssociationMemberProgressReport = ({
       />
 
       {isTruncated && (
-        <p className="rounded-2xl border border-glass-border bg-background/50 p-4 text-sm text-muted-foreground">
+        <p className="rounded-md border p-4 text-sm text-muted-foreground">
           {label("view.truncated", {
             shown: (memberProgress?.items.length ?? 0).toLocaleString(locale),
             total: (memberProgress?.totalCount ?? 0).toLocaleString(locale),
@@ -123,12 +123,12 @@ export const AssociationMemberProgressReport = ({
         <S.Select value={band} onValueChange={setBand}>
           <S.SelectTrigger
             id="association-report-band"
-            className="mt-1 rounded-2xl"
+            className="mt-1 rounded-md"
           >
             <S.SelectValue />
           </S.SelectTrigger>
 
-          <S.SelectContent className="z-[9999] rounded-2xl">
+          <S.SelectContent className="z-[9999] rounded-md">
             <S.SelectItem value={ALL_FILTER_VALUE}>
               {label("view.allBands")}
             </S.SelectItem>

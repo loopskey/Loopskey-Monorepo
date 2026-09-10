@@ -57,7 +57,7 @@ const ProfessionalSettingsTab = () => {
         <Button
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           disabled={isLoading}
           onClick={refreshAll}
         >

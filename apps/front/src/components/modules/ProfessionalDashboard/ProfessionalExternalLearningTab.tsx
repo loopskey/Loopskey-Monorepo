@@ -75,7 +75,7 @@ const ProfessionalExternalLearningTab = () => {
         <div className="relative z-10">
           <Input
             value={search}
-            className="max-w-md rounded-2xl"
+            className="max-w-md rounded-md"
             placeholder={t("professionalDashboard.externalLearning.search")}
             onChange={(event) => {
               setSearch(event.target.value);
@@ -87,7 +87,7 @@ const ProfessionalExternalLearningTab = () => {
             {activities.map((activity) => (
               <div
                 key={activity.id}
-                className="rounded-3xl border border-glass-border bg-background/45 p-5"
+                className="rounded-lg border p-5"
               >
                 <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
                   <div>
@@ -107,7 +107,6 @@ const ProfessionalExternalLearningTab = () => {
                   <div className="flex flex-wrap gap-2">
                     <Button
                       radius="xl"
-                      variant="brand"
                       onClick={() => setSelectedActivityId(activity.id)}
                     >
                       <L.CheckCircle2 className="h-4 w-4" />
@@ -117,7 +116,7 @@ const ProfessionalExternalLearningTab = () => {
                     </Button>
                     <Button
                       radius="xl"
-                      variant="glass"
+                      variant="outline"
                       onClick={() =>
                         window.open(
                           activity.externalUrl,

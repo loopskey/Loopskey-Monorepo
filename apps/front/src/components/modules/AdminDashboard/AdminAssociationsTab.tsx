@@ -55,7 +55,7 @@ const AdminAssociationsTab = () => {
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             disabled={!hasActiveFilters || isLoading}
             onClick={resetFilters}
           >
@@ -66,7 +66,7 @@ const AdminAssociationsTab = () => {
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             disabled={isLoading}
             onClick={() => refresh()}
           >
@@ -77,7 +77,6 @@ const AdminAssociationsTab = () => {
           <Button
             radius="xl"
             type="button"
-            variant="brand"
             onClick={openCreate}
           >
             <L.Plus className="h-4 w-4" />
@@ -93,7 +92,7 @@ const AdminAssociationsTab = () => {
 
             <Input
               value={search}
-              className="h-12 rounded-2xl pl-10"
+              className="h-12 rounded-md pl-10"
               onChange={(event) => setSearch(event.target.value)}
               placeholder={t("adminDashboard.associations.filters.search")}
             />
@@ -105,7 +104,7 @@ const AdminAssociationsTab = () => {
             onChange={(event) =>
               setOwnerStatus(event.target.value as typeof ownerStatus)
             }
-            className="h-12 rounded-2xl border border-border bg-background px-4 text-sm"
+            className="h-12 rounded-md border border-border bg-background px-4 text-sm"
           >
             {ownerStatusOptions.map((option) => (
               <option key={option} value={option}>

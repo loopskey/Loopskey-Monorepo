@@ -83,7 +83,7 @@ const AdminAccessRequestsTab = () => {
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             disabled={!hasActiveFilters || isLoading}
             onClick={resetFilters}
           >
@@ -94,7 +94,7 @@ const AdminAccessRequestsTab = () => {
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             disabled={isLoading}
             onClick={() => refresh()}
           >
@@ -111,7 +111,7 @@ const AdminAccessRequestsTab = () => {
 
             <Input
               value={search}
-              className="h-12 rounded-2xl pl-10"
+              className="h-12 rounded-md pl-10"
               onChange={(event) => setSearch(event.target.value)}
               placeholder={t("adminDashboard.accessRequests.filters.search")}
             />
@@ -121,7 +121,7 @@ const AdminAccessRequestsTab = () => {
             aria-label={t("adminDashboard.accessRequests.filters.status")}
             value={status}
             onChange={(event) => setStatus(event.target.value as typeof status)}
-            className="h-12 rounded-2xl border border-border bg-background px-4 text-sm"
+            className="h-12 rounded-md border border-border bg-background px-4 text-sm"
           >
             {statusOptions.map((item) => (
               <option key={item} value={item}>
@@ -136,7 +136,7 @@ const AdminAccessRequestsTab = () => {
             onChange={(event) =>
               setSortDirection(event.target.value as typeof sortDirection)
             }
-            className="h-12 rounded-2xl border border-border bg-background px-4 text-sm"
+            className="h-12 rounded-md border border-border bg-background px-4 text-sm"
           >
             <option value="desc">
               {t("adminDashboard.accessRequests.filters.newest")}
@@ -151,7 +151,7 @@ const AdminAccessRequestsTab = () => {
       <GlassCard className="overflow-hidden p-0">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[920px] text-sm">
-            <thead className="border-b border-glass-border bg-muted/40 text-left">
+            <thead className="border-b border-border bg-muted/40 text-left">
               <tr>
                 <Th>{t("adminDashboard.accessRequests.table.status")}</Th>
                 <Th>{t("adminDashboard.accessRequests.table.organization")}</Th>
@@ -187,7 +187,7 @@ const AdminAccessRequestsTab = () => {
                 items.map((item) => (
                   <tr
                     key={item.id}
-                    className="border-b border-glass-border/70 transition-colors hover:bg-primary/5"
+                    className="border-b border-border/70 transition-colors hover:bg-primary/5"
                   >
                     <Td>
                       <StatusBadge status={item.status} />
@@ -221,7 +221,7 @@ const AdminAccessRequestsTab = () => {
                       <Button
                         radius="xl"
                         type="button"
-                        variant="glass"
+                        variant="outline"
                         size="sm"
                         onClick={() => openRequestReview(item)}
                       >

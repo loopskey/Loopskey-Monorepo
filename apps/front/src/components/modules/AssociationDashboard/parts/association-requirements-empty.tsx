@@ -26,7 +26,7 @@ export const AssociationRequirementsEmpty = ({
         <Button
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           className="mt-5"
           onClick={resetFilters}
         >
@@ -52,7 +52,6 @@ export const AssociationRequirementsEmpty = ({
       <Button
         radius="xl"
         type="button"
-        variant="brand"
         className="mt-5"
         onClick={startWizard}
       >

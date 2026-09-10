@@ -43,7 +43,7 @@ export const AdminAccessRequestReviewView = ({ hook }: Props) => {
         <Button
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           onClick={closeRequestReview}
         >
           <L.ArrowLeft className="h-4 w-4" />
@@ -75,7 +75,7 @@ export const AdminAccessRequestReviewView = ({ hook }: Props) => {
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             onClick={closeRequestReview}
           >
             <L.ArrowLeft className="h-4 w-4" />
@@ -110,7 +110,7 @@ export const AdminAccessRequestReviewView = ({ hook }: Props) => {
         <div className="space-y-6">
           <GlassCard>
             <div className="flex items-start gap-3">
-              <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+              <div className="rounded-md bg-primary/10 p-3 text-primary">
                 <L.Building2 className="h-5 w-5" />
               </div>
 
@@ -125,7 +125,7 @@ export const AdminAccessRequestReviewView = ({ hook }: Props) => {
               </div>
             </div>
 
-            <div className="mt-6 grid gap-3 rounded-3xl bg-background/45 p-4 text-sm">
+            <div className="mt-6 grid gap-3 rounded-lg bg-muted p-4 text-sm">
               <InfoRow
                 value={selectedRequest.organizationName}
                 label={t("adminDashboard.accessRequests.dialog.organization")}
@@ -150,7 +150,7 @@ export const AdminAccessRequestReviewView = ({ hook }: Props) => {
 
           <GlassCard>
             <div className="flex items-start gap-3">
-              <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+              <div className="rounded-md bg-primary/10 p-3 text-primary">
                 <L.UserRound className="h-5 w-5" />
               </div>
 
@@ -165,7 +165,7 @@ export const AdminAccessRequestReviewView = ({ hook }: Props) => {
               </div>
             </div>
 
-            <div className="mt-6 grid gap-3 rounded-3xl bg-background/45 p-4 text-sm">
+            <div className="mt-6 grid gap-3 rounded-lg bg-muted p-4 text-sm">
               <InfoRow
                 value={selectedRequest.representativeFullName}
                 label={t("adminDashboard.accessRequests.dialog.representative")}
@@ -185,7 +185,7 @@ export const AdminAccessRequestReviewView = ({ hook }: Props) => {
 
           <GlassCard>
             <div className="flex items-start gap-3">
-              <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+              <div className="rounded-md bg-primary/10 p-3 text-primary">
                 <L.Target className="h-5 w-5" />
               </div>
 
@@ -200,7 +200,7 @@ export const AdminAccessRequestReviewView = ({ hook }: Props) => {
               </div>
             </div>
 
-            <p className="mt-6 rounded-3xl bg-background/45 p-4 text-sm leading-7 text-muted-foreground">
+            <p className="mt-6 rounded-lg bg-muted p-4 text-sm leading-7 text-muted-foreground">
               {selectedRequest.goals}
             </p>
           </GlassCard>
@@ -277,7 +277,6 @@ export const AdminAccessRequestReviewView = ({ hook }: Props) => {
               <Button
                 radius="xl"
                 type="button"
-                variant="brand"
                 className="mt-5 w-full"
                 disabled={isResendingNotification}
                 onClick={openResendConfirmation}
@@ -306,7 +305,6 @@ export const AdminAccessRequestReviewView = ({ hook }: Props) => {
                 <Button
                   radius="xl"
                   type="button"
-                  variant="brand"
                   disabled={isReviewing}
                   onClick={() => openReviewAction("approve")}
                 >
@@ -336,7 +334,7 @@ export const AdminAccessRequestReviewView = ({ hook }: Props) => {
           if (!open) closeReviewAction();
         }}
       >
-        <A.AlertDialogContent className="glass-dialog rounded-3xl border-glass-border">
+        <A.AlertDialogContent className="glass-dialog rounded-lg border-border">
           <A.AlertDialogHeader>
             <A.AlertDialogTitle>
               {reviewAction === "reject"
@@ -363,7 +361,7 @@ export const AdminAccessRequestReviewView = ({ hook }: Props) => {
                 maxLength={1000}
                 value={rejectReason}
                 disabled={isReviewing}
-                className="min-h-32 rounded-2xl"
+                className="min-h-32 rounded-md"
                 onChange={(event) => setRejectReason(event.target.value)}
               />
               <p className="text-xs text-muted-foreground">
@@ -376,7 +374,7 @@ export const AdminAccessRequestReviewView = ({ hook }: Props) => {
             <A.AlertDialogCancel asChild>
               <Button
                 radius="xl"
-                variant="glass"
+                variant="outline"
                 disabled={isReviewing}
                 onClick={closeReviewAction}
               >
@@ -386,7 +384,7 @@ export const AdminAccessRequestReviewView = ({ hook }: Props) => {
             <A.AlertDialogAction asChild>
               <Button
                 radius="xl"
-                variant={reviewAction === "reject" ? "cancel" : "brand"}
+                variant={reviewAction === "reject" ? "cancel" : "default"}
                 disabled={
                   isReviewing ||
                   (reviewAction === "reject" && rejectReason.trim().length < 3)
@@ -412,7 +410,7 @@ export const AdminAccessRequestReviewView = ({ hook }: Props) => {
           if (!open) closeResendConfirmation();
         }}
       >
-        <A.AlertDialogContent className="glass-dialog rounded-3xl border-glass-border">
+        <A.AlertDialogContent className="glass-dialog rounded-lg border-border">
           <A.AlertDialogHeader>
             <A.AlertDialogTitle>
               {t("adminDashboard.accessRequests.confirm.resendTitle")}
@@ -427,7 +425,7 @@ export const AdminAccessRequestReviewView = ({ hook }: Props) => {
             <A.AlertDialogCancel asChild>
               <Button
                 radius="xl"
-                variant="glass"
+                variant="outline"
                 disabled={isResendingNotification}
                 onClick={closeResendConfirmation}
               >
@@ -437,7 +435,6 @@ export const AdminAccessRequestReviewView = ({ hook }: Props) => {
             <A.AlertDialogAction asChild>
               <Button
                 radius="xl"
-                variant="brand"
                 disabled={isResendingNotification}
                 onClick={(event) => {
                   event.preventDefault();

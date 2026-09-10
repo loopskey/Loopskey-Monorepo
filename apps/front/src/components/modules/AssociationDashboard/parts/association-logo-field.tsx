@@ -16,7 +16,7 @@ export const AssociationLogoField = ({ hook }: TAssociationSettingsProps) => {
 
   return (
     <div className="flex flex-wrap items-center gap-5">
-      <span className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-glass-border bg-background/50">
+      <span className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-muted">
         {logoUrl ? (
           <Image
             width={96}
@@ -57,7 +57,6 @@ export const AssociationLogoField = ({ hook }: TAssociationSettingsProps) => {
           <Button
             radius="xl"
             type="button"
-            variant="brand"
             disabled={isLogoBusy}
             onClick={() => picker.current?.click()}
           >
@@ -73,7 +72,7 @@ export const AssociationLogoField = ({ hook }: TAssociationSettingsProps) => {
             <Button
               radius="xl"
               type="button"
-              variant="glass"
+              variant="outline"
               disabled={isLogoBusy}
               onClick={() => void removeLogo()}
             >

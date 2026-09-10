@@ -29,7 +29,7 @@ export const AdminAssociationCreateDialog = ({
       open={isCreateOpen}
       onOpenChange={(open) => (open ? openCreate() : closeCreate())}
     >
-      <D.DialogContent className="glass-dialog z-[9999] max-h-[85vh] max-w-2xl overflow-y-auto rounded-3xl border-glass-border">
+      <D.DialogContent className="glass-dialog z-[9999] max-h-[85vh] max-w-2xl overflow-y-auto rounded-lg border-border">
         <D.DialogHeader>
           <D.DialogTitle className="text-xl">
             {t("adminDashboard.associations.create.title")}
@@ -44,9 +44,9 @@ export const AdminAssociationCreateDialog = ({
           <div className="space-y-4">
             <div
               role="status"
-              className="flex items-start gap-3 rounded-3xl border border-primary/25 bg-primary/5 p-4"
+              className="flex items-start gap-3 rounded-lg border border-primary/25 bg-primary/5 p-4"
             >
-              <div className="rounded-2xl bg-primary/10 p-2 text-primary">
+              <div className="rounded-md bg-primary/10 p-2 text-primary">
                 {emailQueued ? (
                   <L.MailCheck className="h-5 w-5" />
                 ) : (
@@ -78,7 +78,7 @@ export const AdminAssociationCreateDialog = ({
               <Button
                 radius="xl"
                 type="button"
-                variant="glass"
+                variant="outline"
                 onClick={openCreate}
               >
                 {t("adminDashboard.associations.create.createAnother")}
@@ -87,7 +87,6 @@ export const AdminAssociationCreateDialog = ({
               <Button
                 radius="xl"
                 type="button"
-                variant="brand"
                 onClick={closeCreate}
               >
                 {t("adminDashboard.associations.create.done")}
@@ -164,7 +163,6 @@ export const AdminAssociationCreateDialog = ({
                 <Button
                   radius="xl"
                   type="submit"
-                  variant="brand"
                   disabled={isCreating}
                 >
                   {isCreating && <L.Loader2 className="h-4 w-4 animate-spin" />}

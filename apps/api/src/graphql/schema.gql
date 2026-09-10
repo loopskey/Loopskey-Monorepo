@@ -1703,6 +1703,15 @@ input CreateExternalLearningClickInput {
   title: String!
 }
 
+input CreateIngestionSource {
+  autoPublish: Boolean! = false
+  fieldMap: JSONObject
+  kind: IngestionContentKind!
+  name: String!
+  slug: String!
+  stalenessWindowDays: Int
+}
+
 input CreateOrganizationAssignmentInput {
   courseId: String
   departmentId: String
@@ -2103,11 +2112,174 @@ input ForgotPasswordInput {
   email: String!
 }
 
+type IngestionApiKey {
+  createdAt: DateTime!
+  expiresAt: DateTime
+  id: ID!
+  lastUsedAt: DateTime
+  name: String!
+  prefix: String!
+  revokedAt: DateTime
+  sourceId: String!
+}
+
+type IngestionBatch {
+  acceptedCount: Int!
+  correlationId: String
+  createdAt: DateTime!
+  createdCount: Int!
+  id: ID!
+  idempotencyKey: String!
+  mode: IngestionBatchMode!
+  receivedCount: Int!
+  rejectedCount: Int!
+  sourceId: String!
+  status: IngestionBatchStatus!
+  unchangedCount: Int!
+  updatedCount: Int!
+}
+
+type IngestionBatchDetail {
+  acceptedCount: Int!
+  correlationId: String
+  createdAt: DateTime!
+  createdCount: Int!
+  id: ID!
+  idempotencyKey: String!
+  items: [IngestionItemReport!]!
+  mode: IngestionBatchMode!
+  receivedCount: Int!
+  rejectedCount: Int!
+  sourceId: String!
+  status: IngestionBatchStatus!
+  unchangedCount: Int!
+  updatedCount: Int!
+}
+
+enum IngestionBatchMode {
+  FULL
+  INCREMENTAL
+}
+
+enum IngestionBatchStatus {
+  COMPLETED
+  FAILED
+  PROCESSING
+  RECEIVED
+}
+
+enum IngestionContentKind {
+  COURSE
+  EVENT
+  PODCAST
+  YOUTUBE
+}
+
+type IngestionItem {
+  batchId: String
+  canonicalUrl: String
+  catalog: IngestionItemCatalog
+  catalogId: String
+  externalId: String!
+  firstSeenAt: DateTime!
+  id: ID!
+  imageCandidateUrl: String
+  lastSeenAt: DateTime!
+  rejectionReason: String
+  reviewedAt: DateTime
+  reviewedById: String
+  reviewedByName: String
+  sourceId: String!
+  sourceSlug: String
+  state: IngestionItemState!
+  unmappedFields: [String!]!
+}
+
+type IngestionItemCatalog {
+  id: ID!
+  imageUrl: String
+  slug: String
+  status: CourseStatus!
+  title: String!
+}
+
+input IngestionItemFilter {
+  search: String
+  sourceId: String
+  state: IngestionItemState
+}
+
+type IngestionItemReport {
+  catalogId: ID
+  externalId: String
+  reason: String
+  state: String!
+  unmappedFields: [String!]!
+}
+
+enum IngestionItemState {
+  ACCEPTED
+  PENDING
+  REJECTED
+  STALE
+}
+
+type IngestionPageInfo {
+  hasNextPage: Boolean!
+  nextCursor: String
+}
+
+input IngestionPagination {
+  cursor: String
+  take: Int = 20
+}
+
+type IngestionSource {
+  autoPublish: Boolean!
+  createdAt: DateTime!
+  fieldMap: JSONObject!
+  id: ID!
+  isActive: Boolean!
+  kind: IngestionContentKind!
+  name: String!
+  slug: String!
+  stalenessWindowDays: Int
+  updatedAt: DateTime!
+}
+
+input IngestionSourceFilter {
+  isActive: Boolean
+  kind: IngestionContentKind
+  search: String
+}
+
 input InviteAssociationMemberInput {
   email: String!
   fullName: String!
   groupId: ID
   memberNumber: String
+}
+
+input IssueIngestionApiKey {
+  expiresAt: String
+  name: String!
+  sourceId: String!
+}
+
+type IssuedIngestionApiKey {
+  createdAt: DateTime!
+
+  """
+  The plaintext credential. Shown exactly once, at issuance; it cannot be retrieved again.
+  """
+  credential: String!
+  expiresAt: DateTime
+  id: ID!
+  lastUsedAt: DateTime
+  name: String!
+  prefix: String!
+  revokedAt: DateTime
+  sourceId: String!
 }
 
 """
@@ -2147,10 +2319,12 @@ input LoginInput {
 
 type Mutation {
   activateAssociationAccount(input: ActivateAssociationAccountInput!): AuthPayload!
+  activateIngestionSource(sourceId: String!): IngestionSource!
   activateOrganizationAccount(input: ActivateOrganizationAccountInput!): AuthPayload!
   addOrganizationMember(input: AddOrganizationMemberInput!): OrganizationMember!
   addToCart(input: ContentActionInput!): ContentActionPayload!
   approveAdminOrgAccessRequest(requestId: String!): AdminOrgAccessRequest!
+  approveIngestionItem(itemId: String!): IngestionItem!
   archiveAssociationRequirement(input: AssociationRequirementIdInput!): AssociationRequirement!
   archiveCourse(courseId: String!): Course!
   archiveEvent(eventId: String!): Event!
@@ -2175,6 +2349,7 @@ type Mutation {
   createCpdPlan(input: CreateCpdPlanInput!): CpdPlan!
   createCpdPlanFromSuggestion(input: CreateCpdPlanFromSuggestionInput!): CpdPlan!
   createEvent(input: CreateEventInput!): Event!
+  createIngestionSource(input: CreateIngestionSource!): IngestionSource!
   createOrganizationAssignment(input: CreateOrganizationAssignmentInput!): OrganizationAssignment!
   createOrganizationCpdCategory(input: CreateOrganizationCpdCategoryInput!): OrganizationCpdCategory!
   createOrganizationDepartment(input: CreateOrganizationDepartmentInput!): OrganizationDepartment!
@@ -2186,6 +2361,7 @@ type Mutation {
   createUser(input: CreateUserInput!): User!
   createYouTubeChannel(input: CreateYouTubeChannelInput!): YouTubeChannel!
   createYouTubeVideo(input: CreateYouTubeVideoInput!): YouTubeVideo!
+  deactivateIngestionSource(sourceId: String!): IngestionSource!
   deleteAssociationLearningContent(input: AssociationLearningContentIdInput!): AssociationActionResponse!
   deleteCalendarEvent(id: ID!): ProfessionalActionResponse!
   deleteContentReview(input: ContentActionInput!): ContentActionPayload!
@@ -2208,6 +2384,7 @@ type Mutation {
   forgotPassword(input: ForgotPasswordInput!): AuthPayload!
   ignoreExternalLearning(activityId: String!): ExternalLearningActionResponse!
   inviteAssociationMember(input: InviteAssociationMemberInput!): AssociationInviteResult!
+  issueIngestionApiKey(input: IssueIngestionApiKey!): IssuedIngestionApiKey!
   login(input: LoginInput!): AuthPayload!
   logout: AuthPayload!
   patchRoadmapDraft(input: PatchRoadmapDraftInput!): ProfessionalRoadmapDraft!
@@ -2222,6 +2399,7 @@ type Mutation {
   register(input: RegisterInput!): AuthPayload!
   registerEvent(eventId: String!): EventRegistration!
   rejectAdminOrgAccessRequest(input: RejectAdminOrgAccessRequestInput!): AdminOrgAccessRequest!
+  rejectIngestionItem(input: RejectIngestionItem!): IngestionItem!
   removeAdminOrganizationMember(memberId: String!): AdminOrgMember!
   removeFromCart(input: ContentActionInput!): ContentActionPayload!
   requestAssociationReportExport(input: RequestAssociationReportExportInput!): AssociationGeneratedReport!
@@ -2241,6 +2419,7 @@ type Mutation {
   restoreYouTubeChannel(channelId: String!): YouTubeChannel!
   retryAssociationReportExport(input: AssociationReportExportIdInput!): AssociationGeneratedReport!
   reviewAssociationLearningActivity(input: ReviewAssociationLearningActivityInput!): AssociationReviewResult!
+  revokeIngestionApiKey(keyId: String!): IngestionApiKey!
   sendAssociationMessage(input: SendAssociationMessageInput!): AssociationMessageBatch!
   sendRoadmapChatTurn(input: RoadmapChatTurnInput!): ProfessionalRoadmapDraft!
   setAssociationGroupActive(input: SetAssociationGroupActiveInput!): AssociationGroup!
@@ -2275,6 +2454,7 @@ type Mutation {
   updateCpdPlan(input: UpdateCpdPlanInput!): CpdPlan!
   updateEnrollmentProgress(input: UpdateEnrollmentProgressInput!): ContentActionPayload!
   updateEvent(input: UpdateEventInput!): Event!
+  updateIngestionSource(input: UpdateIngestionSource!): IngestionSource!
   updateMe(input: UpdateMeInput!): User!
   updateOrganizationAssignment(input: UpdateOrganizationAssignmentInput!): OrganizationAssignment!
   updateOrganizationCpdCategory(input: UpdateOrganizationCpdCategoryInput!): OrganizationCpdCategory!
@@ -2858,6 +3038,24 @@ type PaginatedEvents {
 type PaginatedExternalLearning {
   items: [ExternalLearningActivity!]!
   pageInfo: OrganizationPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedIngestionBatches {
+  items: [IngestionBatch!]!
+  pageInfo: IngestionPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedIngestionItems {
+  items: [IngestionItem!]!
+  pageInfo: IngestionPageInfo!
+  totalCount: Int!
+}
+
+type PaginatedIngestionSources {
+  items: [IngestionSource!]!
+  pageInfo: IngestionPageInfo!
   totalCount: Int!
 }
 
@@ -3916,6 +4114,12 @@ type Query {
   featuredPodcasts(take: Int = 12): [Podcast!]!
   featuredYouTubeChannels(take: Int = 12): [YouTubeChannel!]!
   googleOAuthUrl(role: Role!): AuthUrl!
+  ingestionApiKeys(sourceId: String!): [IngestionApiKey!]!
+  ingestionBatch(batchId: String!): IngestionBatchDetail!
+  ingestionBatches(pagination: IngestionPagination, sourceId: String!): PaginatedIngestionBatches!
+  ingestionItems(filter: IngestionItemFilter, pagination: IngestionPagination): PaginatedIngestionItems!
+  ingestionSource(sourceId: String!): IngestionSource!
+  ingestionSources(filter: IngestionSourceFilter, pagination: IngestionPagination): PaginatedIngestionSources!
   linkedinOAuthUrl(role: Role!): AuthUrl!
   me: User!
   myCalendarEntries: [ProfessionalManualCalendarEvent!]!
@@ -4001,6 +4205,11 @@ input RegisterInput {
 input RejectAdminOrgAccessRequestInput {
   reason: String!
   requestId: String!
+}
+
+input RejectIngestionItem {
+  itemId: String!
+  reason: String!
 }
 
 input RequestAssociationReportExportInput {
@@ -4473,6 +4682,14 @@ input UpdateEventInput {
   timezone: String = "UTC"
   title: String
   type: EventType
+}
+
+input UpdateIngestionSource {
+  autoPublish: Boolean
+  fieldMap: JSONObject
+  name: String
+  sourceId: String!
+  stalenessWindowDays: Int
 }
 
 input UpdateMeInput {

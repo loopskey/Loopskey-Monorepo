@@ -30,7 +30,7 @@ export const AssociationMemberRequirementsDialog = ({
 
   return (
     <D.Dialog open={isRequirementsOpen} onOpenChange={setRequirementsOpen}>
-      <D.DialogContent className="glass-dialog z-[9999] max-w-xl rounded-3xl border-glass-border">
+      <D.DialogContent className="glass-dialog z-[9999] max-w-xl rounded-lg border-border">
         <D.DialogHeader>
           <D.DialogTitle className="text-xl">
             {t("associationDashboard.memberDetail.assign.title")}
@@ -44,11 +44,11 @@ export const AssociationMemberRequirementsDialog = ({
         {isOptionsLoading ? (
           <div className="space-y-3" aria-busy="true">
             {Array.from({ length: 3 }, (_, index) => (
-              <Skeleton key={index} className="h-16 w-full rounded-2xl" />
+              <Skeleton key={index} className="h-16 w-full rounded-md" />
             ))}
           </div>
         ) : requirementOptions.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-glass-border p-8 text-center">
+          <div className="rounded-md border border-dashed border-border p-8 text-center">
             <L.ClipboardList className="mx-auto h-8 w-8 text-muted-foreground" />
 
             <p className="mt-3 font-medium">
@@ -64,7 +64,7 @@ export const AssociationMemberRequirementsDialog = ({
             {requirementOptions.map((option) => (
               <li
                 key={option.id}
-                className="rounded-2xl border border-glass-border p-3"
+                className="rounded-md border p-3"
               >
                 <label className="flex cursor-pointer items-start gap-3">
                   <Checkbox
@@ -119,7 +119,6 @@ export const AssociationMemberRequirementsDialog = ({
           <Button
             radius="xl"
             type="button"
-            variant="brand"
             disabled={isSavingRequirements || requirementOptions.length === 0}
             onClick={() => void submitRequirements()}
           >

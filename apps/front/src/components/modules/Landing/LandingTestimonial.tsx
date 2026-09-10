@@ -47,14 +47,12 @@ const LandingTestimonials = () => {
   return (
     <section className="relative overflow-x-clip px-4 py-16 sm:px-6 lg:px-8">
       <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute left-0 top-16 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-brand-teal/10 blur-3xl" />
       </div>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <RevealOnScroll direction="up">
           <div className="mx-auto max-w-3xl text-center">
-            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-glass-border bg-background/55 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm backdrop-blur-xl ring-1 ring-white/40">
+            <span className="inline-flex w-fit items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm ring-1 ring-white/40">
               <Sparkles className="h-4 w-4" />
               {t("landing.testimonials.eyebrow")}
             </span>
@@ -83,7 +81,6 @@ const LandingTestimonials = () => {
                   index === 1 && "lg:-mt-6",
                 )}
               >
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,color-mix(in_oklab,var(--primary)_12%,transparent),transparent_34%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
                 <div className="relative z-10 flex h-full flex-col">
                   <div className="mb-6 flex items-center justify-between gap-4">
@@ -103,7 +100,7 @@ const LandingTestimonials = () => {
                     </span>
                   </div>
 
-                  <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-all duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground">
+                  <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-md bg-primary/10 text-primary transition-all duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground">
                     <Quote className="h-6 w-6" />
                   </div>
 
@@ -111,8 +108,8 @@ const LandingTestimonials = () => {
                     “{item.quote}”
                   </blockquote>
 
-                  <div className="mt-8 flex items-center gap-4 border-t border-glass-border pt-5">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 text-sm font-bold text-primary ring-1 ring-primary/20">
+                  <div className="mt-8 flex items-center gap-4 border-t border-border pt-5">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-md bg-gradient-to-br from-primary/20 to-accent/20 text-sm font-bold text-primary ring-1 ring-primary/20">
                       {item.avatar}
                     </div>
 

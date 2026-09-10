@@ -31,7 +31,7 @@ export const AssociationRequirementWizard = ({
     <div className="space-y-6">
       <nav
         aria-label={t("associationDashboard.requirements.wizard.stepsLabel")}
-        className="sticky top-16 z-30 rounded-3xl border border-glass-border bg-background/80 p-2 backdrop-blur"
+        className="sticky top-16 z-30 rounded-lg border p-2"
       >
         <ol className="flex flex-col gap-1 sm:flex-row sm:gap-2">
           {REQUIREMENT_WIZARD_STEPS.map((wizardStep, index) => {
@@ -48,7 +48,7 @@ export const AssociationRequirementWizard = ({
                   aria-current={isActive ? "step" : undefined}
                   onClick={() => goTo(requirementId, wizardStep)}
                   className={cn(
-                    "h-auto w-full justify-start gap-3 rounded-2xl px-4 py-3 text-left",
+                    "h-auto w-full justify-start gap-3 rounded-md px-4 py-3 text-left",
                     isActive && "bg-primary/10 text-primary",
                   )}
                 >
@@ -94,14 +94,14 @@ export const AssociationRequirementWizard = ({
       {step !== "review" && (
         <GlassCard
           glow={false}
-          className="sticky bottom-4 z-30 backdrop-blur lg:static"
+          className="sticky bottom-4 z-30 lg:static"
         >
           <div className="relative z-10 flex flex-col gap-3 sm:flex-row sm:justify-end">
             {step === "rules" && (
               <Button
                 radius="xl"
                 type="button"
-                variant="glass"
+                variant="outline"
                 disabled={isSaving}
                 onClick={() => goTo(requirementId, "details")}
               >
@@ -113,7 +113,6 @@ export const AssociationRequirementWizard = ({
             <Button
               radius="xl"
               type="button"
-              variant="brand"
               disabled={isSaving}
               onClick={() =>
                 step === "details"

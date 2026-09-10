@@ -2,6 +2,7 @@
 
 import { TAssociationCoverageChart } from "@/types/association-dashboard.types";
 import { semanticChartColor } from "@hooks/useChartPalette";
+import { useChartSemantics } from "@hooks/useChartPalette";
 import { useId } from "react";
 
 import * as R from "recharts";
@@ -10,12 +11,13 @@ export const AssociationRequirementCoverageChart = ({
   size,
   total,
   covered,
-  palette,
   chartLabel,
   coveredLabel,
   uncoveredLabel,
   chartDescription,
 }: TAssociationCoverageChart) => {
+  const semantics = useChartSemantics();
+
   const descriptionId = useId();
   const uncovered = Math.max(0, total - covered);
   const slices = [
@@ -23,8 +25,8 @@ export const AssociationRequirementCoverageChart = ({
     { name: uncoveredLabel, value: uncovered },
   ];
   const colors = [
-    semanticChartColor(palette, "onTrack"),
-    semanticChartColor(palette, "notStarted"),
+    semanticChartColor(semantics, "onTrack"),
+    semanticChartColor(semantics, "notStarted"),
   ];
 
   return (

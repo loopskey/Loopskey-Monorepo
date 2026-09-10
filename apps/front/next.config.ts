@@ -40,14 +40,9 @@ const nextConfig: NextConfig = {
         hostname: "lh3.googleusercontent.com",
       },
       { protocol: "https", hostname: "example.com" },
-      {
-        protocol: "https",
-        hostname: "d3njjcbhbojbot.cloudfront.net",
-      },
-      {
-        protocol: "https",
-        hostname: "coursera-course-photos.s3.amazonaws.com",
-      },
+      // The two Coursera image hosts were removed in the content image policy
+      // phase: crawled catalog artwork is never hot-linked. A row without a
+      // platform-hosted image renders the generated card instead.
     ],
   },
 

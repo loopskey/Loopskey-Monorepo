@@ -52,7 +52,7 @@ export const FloatingTextareaField = <T extends FieldValues>({
                   onBlur={field.onBlur}
                   onChange={field.onChange}
                   className={cn(
-                    "min-h-32 resize-none rounded-2xl border-border/70 bg-background/55 text-base shadow-sm backdrop-blur-xl",
+                    "min-h-32 resize-none rounded-md border-input bg-background text-base",
                     "pt-6 pb-3",
                     leftIcon ? "pl-12" : "pl-4",
                     "focus-visible:border-primary/55 focus-visible:ring-primary/25",

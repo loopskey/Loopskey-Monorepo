@@ -82,7 +82,7 @@ const AssociationSettingsTab = () => {
               {label("errors.loadFailed")}
             </p>
 
-            <Button size="sm" radius="xl" variant="glass" onClick={retry}>
+            <Button size="sm" radius="xl" variant="outline" onClick={retry}>
               <L.RotateCcw className="h-4 w-4" />
               {label("retry")}
             </Button>
@@ -99,7 +99,7 @@ const AssociationSettingsTab = () => {
         {[0, 1, 2].map((row) => (
           <GlassCard key={row} glow={false}>
             <div className="relative z-10">
-              <Skeleton className="h-48 w-full rounded-2xl" />
+              <Skeleton className="h-48 w-full rounded-md" />
             </div>
           </GlassCard>
         ))}
@@ -205,7 +205,7 @@ const AssociationSettingsTab = () => {
             control={complianceForm.control}
             name="renewalRequiresReviewedEvidence"
             render={({ field }) => (
-              <F.FormItem className="flex items-start justify-between gap-4 rounded-2xl border border-glass-border bg-background/50 p-4">
+              <F.FormItem className="flex items-start justify-between gap-4 rounded-md border p-4">
                 <div>
                   <F.FormLabel className="font-medium">
                     {label("compliance.renewalRequiresReviewedEvidence")}
@@ -243,7 +243,7 @@ const AssociationSettingsTab = () => {
             control={notificationForm.control}
             name="suppressAllEmail"
             render={({ field }) => (
-              <F.FormItem className="flex items-start justify-between gap-4 rounded-2xl border border-glass-border bg-destructive/5 p-4">
+              <F.FormItem className="flex items-start justify-between gap-4 rounded-md border bg-destructive/5 p-4">
                 <div>
                   <F.FormLabel className="font-medium">
                     {label("notifications.suppressAllEmail")}
@@ -266,7 +266,7 @@ const AssociationSettingsTab = () => {
           />
 
           {suppressAll && (
-            <p className="rounded-2xl border border-glass-border bg-background/50 p-4 text-sm text-muted-foreground">
+            <p className="rounded-md border p-4 text-sm text-muted-foreground">
               <L.Info className="mr-2 inline h-4 w-4 text-primary" />
               {label("notifications.suppressAllActive")}
             </p>
@@ -278,7 +278,7 @@ const AssociationSettingsTab = () => {
               control={notificationForm.control}
               name={item.key}
               render={({ field }) => (
-                <F.FormItem className="flex items-start justify-between gap-4 rounded-2xl border border-glass-border bg-background/50 p-4">
+                <F.FormItem className="flex items-start justify-between gap-4 rounded-md border p-4">
                   <div>
                     <F.FormLabel className="font-medium">
                       {label(`notifications.${item.key}`)}
@@ -329,14 +329,14 @@ const AssociationSettingsTab = () => {
         </dl>
 
         <div className="flex flex-wrap gap-3">
-          <Button radius="xl" variant="glass" asChild>
+          <Button radius="xl" variant="outline" asChild>
             <Link href="/dashboard/profile">
               <L.KeyRound className="h-4 w-4" />
               {label("account.changePassword")}
             </Link>
           </Button>
 
-          <Button radius="xl" variant="glass" asChild>
+          <Button radius="xl" variant="outline" asChild>
             <Link href="/dashboard/profile">
               <L.AtSign className="h-4 w-4" />
               {label("account.changeEmail")}

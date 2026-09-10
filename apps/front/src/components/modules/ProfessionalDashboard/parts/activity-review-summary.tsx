@@ -23,14 +23,14 @@ const ReviewSection = ({
   onEditStep: (step: number) => void;
   rows: { label: string; value: string }[];
 }) => (
-  <div className="rounded-[1.5rem] border border-glass-border bg-background/40 p-5">
+  <div className="rounded-lg border p-5">
     <div className="mb-4 flex items-center justify-between gap-3">
       <h3 className="font-medium">{title}</h3>
       <Button
         size="sm"
         radius="xl"
         type="button"
-        variant="glass"
+        variant="outline"
         onClick={() => onEditStep(step)}
       >
         <L.Pencil className="h-3.5 w-3.5" />

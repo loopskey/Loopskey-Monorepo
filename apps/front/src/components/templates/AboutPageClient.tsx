@@ -16,8 +16,6 @@ const AboutPage = () => {
 
   return (
     <main className="relative overflow-x-clip">
-      <div className="pointer-events-none absolute left-[-10rem] top-20 h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
-      <div className="pointer-events-none absolute right-[-12rem] top-[30rem] h-96 w-96 rounded-full bg-brand-teal/20 blur-3xl" />
 
       <section className="mx-auto grid max-w-7xl gap-10 px-4 py-20 md:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:py-28">
         <RevealOnScroll direction="left" className="relative z-10">
@@ -27,7 +25,7 @@ const AboutPage = () => {
 
           <h1 className="mt-6 max-w-4xl text-4xl font-medium leading-tight tracking-tight text-foreground md:text-6xl">
             {t("aboutPage.hero.titleStart")}{" "}
-            <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+            <span className="text-primary">
               {t("aboutPage.hero.titleHighlight")}
             </span>
           </h1>
@@ -37,14 +35,14 @@ const AboutPage = () => {
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
-            <Button asChild radius="xl" variant="brand" size="lg">
+            <Button asChild radius="xl" size="lg">
               <Link href={C.siteLinks.contact}>
                 {t("aboutPage.hero.primaryCta")}
                 <L.ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
 
-            <Button asChild radius="xl" variant="glass" size="lg">
+            <Button asChild radius="xl" variant="outline" size="lg">
               <Link href={C.siteLinks.services}>
                 {t("aboutPage.hero.secondaryCta")}
               </Link>
@@ -55,11 +53,10 @@ const AboutPage = () => {
         <RevealOnScroll direction="right" className="relative z-10">
           <GlassCard className="overflow-hidden p-0">
             <div className="relative min-h-[430px] bg-gradient-to-br from-primary/20 via-background to-accent/20 p-6">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.16),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.1),transparent_35%)]" />
               <div className="relative z-10 grid h-full gap-4">
                 <GlassCard glow={false} className="p-5">
                   <div className="flex items-center gap-4">
-                    <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+                    <div className="rounded-md bg-primary/10 p-3 text-primary">
                       <L.Award className="h-6 w-6" />
                     </div>
 
@@ -76,7 +73,7 @@ const AboutPage = () => {
 
                 <GlassCard glow={false} className="ml-8 p-5">
                   <div className="flex items-center gap-4">
-                    <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+                    <div className="rounded-md bg-primary/10 p-3 text-primary">
                       <L.Compass className="h-6 w-6" />
                     </div>
 
@@ -93,7 +90,7 @@ const AboutPage = () => {
 
                 <GlassCard glow={false} className="p-5">
                   <div className="flex items-center gap-4">
-                    <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+                    <div className="rounded-md bg-primary/10 p-3 text-primary">
                       <L.Sparkles className="h-6 w-6" />
                     </div>
 
@@ -116,7 +113,7 @@ const AboutPage = () => {
       <section className="mx-auto max-w-7xl px-4 py-12 md:px-6">
         <RevealOnScroll>
           <div className="mx-auto max-w-3xl text-center">
-            <span className="inline-flex w-fit items-center rounded-full border border-glass-border bg-background/55 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm backdrop-blur-xl ring-1 ring-white/40">
+            <span className="inline-flex w-fit items-center rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm ring-1 ring-white/40">
               {t("aboutPage.story.eyebrow")}
             </span>
 
@@ -156,7 +153,7 @@ const AboutPage = () => {
                 delay={index * 120}
               >
                 <GlassCard className="group h-full p-7 transition-transform duration-300 hover:-translate-y-1">
-                  <div className="mb-5 inline-flex rounded-2xl bg-primary/10 p-3 text-primary">
+                  <div className="mb-5 inline-flex rounded-md bg-primary/10 p-3 text-primary">
                     <Icon className="h-6 w-6" />
                   </div>
 
@@ -177,7 +174,7 @@ const AboutPage = () => {
       <section className="mx-auto max-w-7xl px-4 py-16 md:px-6">
         <RevealOnScroll>
           <div className="max-w-3xl">
-            <span className="inline-flex w-fit items-center rounded-full border border-glass-border bg-background/55 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm backdrop-blur-xl ring-1 ring-white/40">
+            <span className="inline-flex w-fit items-center rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm ring-1 ring-white/40">
               {t("aboutPage.values.eyebrow")}
             </span>
 
@@ -197,7 +194,7 @@ const AboutPage = () => {
                 direction={item.direction}
               >
                 <GlassCard className="group h-full p-6 transition-all duration-300 hover:-translate-y-1">
-                  <div className="mb-5 inline-flex rounded-2xl bg-primary/10 p-3 text-primary transition-transform duration-300 group-hover:scale-110">
+                  <div className="mb-5 inline-flex rounded-md bg-primary/10 p-3 text-primary transition-transform duration-300 group-hover:scale-110">
                     <Icon className="h-5 w-5" />
                   </div>
                   <h3 className="text-lg font-medium">
@@ -215,7 +212,7 @@ const AboutPage = () => {
       <section className="mx-auto max-w-7xl px-4 py-16 md:px-6">
         <RevealOnScroll>
           <div className="max-w-3xl">
-            <span className="inline-flex w-fit items-center rounded-full border border-glass-border bg-background/55 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm backdrop-blur-xl ring-1 ring-white/40">
+            <span className="inline-flex w-fit items-center rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm ring-1 ring-white/40">
               {t("aboutPage.team.eyebrow")}
             </span>
             <h2 className="mt-3 text-3xl font-medium text-foreground md:text-4xl">
@@ -232,7 +229,7 @@ const AboutPage = () => {
               delay={index * 120}
             >
               <GlassCard className="group h-full p-6 text-center transition-all duration-300 hover:-translate-y-1">
-                <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-primary to-accent text-xl font-medium text-primary-foreground shadow-lg transition-transform duration-300 group-hover:scale-105">
+                <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-xl font-medium text-primary-foreground shadow-lg transition-transform duration-300 group-hover:scale-105">
                   {member.initials}
                 </div>
                 <h3 className="mt-5 text-lg font-medium">
@@ -250,7 +247,7 @@ const AboutPage = () => {
       <section className="mx-auto max-w-7xl px-4 py-16 md:px-6">
         <RevealOnScroll>
           <div className="max-w-3xl">
-            <span className="inline-flex w-fit items-center rounded-full border border-glass-border bg-background/55 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm backdrop-blur-xl ring-1 ring-white/40">
+            <span className="inline-flex w-fit items-center rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm ring-1 ring-white/40">
               {t("aboutPage.timeline.eyebrow")}
             </span>
             <h2 className="mt-3 text-3xl font-medium text-foreground md:text-4xl">
@@ -290,7 +287,7 @@ const AboutPage = () => {
       <section className="mx-auto max-w-7xl px-4 py-16 md:px-6">
         <RevealOnScroll>
           <div className="max-w-3xl">
-            <span className="inline-flex w-fit items-center rounded-full border border-glass-border bg-background/55 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm backdrop-blur-xl ring-1 ring-white/40">
+            <span className="inline-flex w-fit items-center rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm ring-1 ring-white/40">
               {t("aboutPage.trust.eyebrow")}
             </span>
             <h2 className="mt-3 text-3xl font-medium text-foreground md:text-4xl">
@@ -309,7 +306,7 @@ const AboutPage = () => {
                 direction={index % 2 === 0 ? "left" : "right"}
               >
                 <GlassCard className="h-full p-6">
-                  <div className="mb-5 inline-flex rounded-2xl bg-primary/10 p-3 text-primary">
+                  <div className="mb-5 inline-flex rounded-md bg-primary/10 p-3 text-primary">
                     <Icon className="h-5 w-5" />
                   </div>
 
@@ -330,7 +327,7 @@ const AboutPage = () => {
       <section className="mx-auto max-w-7xl px-4 py-16 md:px-6">
         <RevealOnScroll>
           <div className="max-w-3xl">
-            <span className="inline-flex w-fit items-center rounded-full border border-glass-border bg-background/55 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm backdrop-blur-xl ring-1 ring-white/40">
+            <span className="inline-flex w-fit items-center rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm ring-1 ring-white/40">
               {t("aboutPage.platform.eyebrow")}
             </span>
 
@@ -375,7 +372,6 @@ const AboutPage = () => {
       <section className="mx-auto max-w-7xl px-4 py-20 md:px-6">
         <RevealOnScroll>
           <GlassCard className="relative overflow-hidden p-8 md:p-12">
-            <div className="pointer-events-none absolute right-0 top-0 h-60 w-60 rounded-full bg-primary/20 blur-3xl" />
             <div className="relative z-10 grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
               <div>
                 <Badge variant="secondary" className="rounded-full">
@@ -400,7 +396,7 @@ const AboutPage = () => {
                   ))}
                 </div>
               </div>
-              <Button asChild radius="xl" variant="brand" size="lg">
+              <Button asChild radius="xl" size="lg">
                 <Link href={C.siteLinks.contact}>
                   {t("aboutPage.cta.button")}
                   <L.ArrowRight className="h-4 w-4" />

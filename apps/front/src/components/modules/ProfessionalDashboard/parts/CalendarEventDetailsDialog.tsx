@@ -86,7 +86,7 @@ export const CalendarEventDetailsDialog = ({
 
             <div className="flex flex-wrap gap-2 pt-2">
               {registration.event?.onlineUrl ? (
-                <Button radius="xl" variant="brand" asChild>
+                <Button radius="xl" asChild>
                   <Link
                     target="_blank"
                     rel="noreferrer"
@@ -98,7 +98,7 @@ export const CalendarEventDetailsDialog = ({
                 </Button>
               ) : null}
 
-              <Button radius="xl" variant="glass" asChild>
+              <Button radius="xl" variant="outline" asChild>
                 <Link href={getEventHref(registration)}>
                   <ExternalLink className="h-4 w-4" />
                   {t("professionalDashboard.common.details")}

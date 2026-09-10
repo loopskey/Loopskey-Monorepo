@@ -17,15 +17,13 @@ const LandingProvider = () => {
   return (
     <section className="relative overflow-x-clip px-4 py-16 sm:px-6 lg:px-8">
       <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute right-0 top-16 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute bottom-0 left-0 h-96 w-96 rounded-full bg-brand-teal/10 blur-3xl" />
       </div>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid gap-10 xl:grid-cols-[0.95fr_1.05fr] xl:items-center">
           <RevealOnScroll direction="left">
             <div>
-              <span className="inline-flex w-fit items-center rounded-full border border-glass-border bg-background/55 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm backdrop-blur-xl ring-1 ring-white/40">
+              <span className="inline-flex w-fit items-center rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm ring-1 ring-white/40">
                 {t("landing.provider.eyebrow")}
               </span>
 
@@ -51,7 +49,7 @@ const LandingProvider = () => {
                         glow={false}
                         className="group h-full p-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary/25 hover:bg-primary/5"
                       >
-                        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-all duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground">
+                        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-md bg-primary/10 text-primary transition-all duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground">
                           <Icon className="h-6 w-6" />
                         </div>
 
@@ -69,14 +67,14 @@ const LandingProvider = () => {
               </div>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Button asChild radius="xl" variant="brand" size="lg">
+                <Button asChild radius="xl" size="lg">
                   <Link href="/contact">
                     {t("landing.provider.primaryAction")}
                     <L.ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
 
-                <Button asChild radius="xl" variant="glass" size="lg">
+                <Button asChild radius="xl" variant="outline" size="lg">
                   <Link href="/services">
                     {t("landing.provider.secondaryAction")}
                   </Link>
@@ -87,7 +85,6 @@ const LandingProvider = () => {
 
           <RevealOnScroll direction="right" delay={120}>
             <GlassCard className="relative overflow-hidden p-5 md:p-6">
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,color-mix(in_oklab,var(--primary)_18%,transparent),transparent_34%),radial-gradient(circle_at_bottom_left,color-mix(in_oklab,var(--accent)_12%,transparent),transparent_32%)]" />
 
               <div className="relative z-10">
                 <div className="flex items-start justify-between gap-4">
@@ -103,12 +100,12 @@ const LandingProvider = () => {
 
                   <div className="flex flex-wrap justify-end gap-2">
                     {hasApiError && (
-                      <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-amber-500">
+                      <span className="rounded-full border border-warning bg-warning-soft px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-warning-soft-foreground">
                         {t("landing.provider.dashboard.demoData")}
                       </span>
                     )}
 
-                    <span className="rounded-full border border-brand-teal/30 bg-brand-teal/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-teal-text">
+                    <span className="rounded-full border border-brand-orange/30 bg-brand-orange/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-orange-text">
                       {isLoading
                         ? t("common.loading")
                         : t("landing.provider.dashboard.status")}
@@ -120,7 +117,7 @@ const LandingProvider = () => {
                   {stats.map((stat) => (
                     <div
                       key={stat.key}
-                      className="rounded-2xl border border-glass-border bg-background/45 p-4"
+                      className="rounded-md border p-4"
                     >
                       <p className="text-xs text-muted-foreground">
                         {stat.label}
@@ -133,7 +130,7 @@ const LandingProvider = () => {
                   ))}
                 </div>
 
-                <div className="mt-6 rounded-3xl border border-glass-border bg-background/45 p-5">
+                <div className="mt-6 rounded-lg border p-5">
                   <div className="mb-5 flex items-center justify-between gap-3">
                     <div>
                       <p className="text-sm font-semibold text-foreground">
@@ -145,7 +142,7 @@ const LandingProvider = () => {
                       </p>
                     </div>
 
-                    <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+                    <div className="rounded-md bg-primary/10 p-3 text-primary">
                       <L.Activity className="h-5 w-5" />
                     </div>
                   </div>
@@ -168,8 +165,8 @@ const LandingProvider = () => {
                             className={cn(
                               "h-full rounded-full transition-all duration-700",
                               index === 0 && "bg-primary",
-                              index === 1 && "bg-brand-teal",
-                              index === 2 && "bg-emerald-500",
+                              index === 1 && "bg-brand-orange",
+                              index === 2 && "bg-success",
                             )}
                             style={{
                               width: `${item.value}%`,
@@ -182,8 +179,8 @@ const LandingProvider = () => {
                 </div>
 
                 <div className="mt-6 grid gap-3 md:grid-cols-2">
-                  <div className="rounded-3xl border border-glass-border bg-background/45 p-5">
-                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                  <div className="rounded-lg border p-5">
+                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-md bg-primary/10 text-primary">
                       <L.Radar className="h-6 w-6" />
                     </div>
 
@@ -196,8 +193,8 @@ const LandingProvider = () => {
                     </p>
                   </div>
 
-                  <div className="rounded-3xl border border-glass-border bg-background/45 p-5">
-                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-teal/10 text-brand-teal-text">
+                  <div className="rounded-lg border p-5">
+                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-md bg-brand-orange/10 text-brand-orange-text">
                       <L.LineChart className="h-6 w-6" />
                     </div>
 
@@ -211,7 +208,7 @@ const LandingProvider = () => {
                   </div>
                 </div>
 
-                <div className="mt-6 rounded-3xl border border-glass-border bg-background/45 p-5">
+                <div className="mt-6 rounded-lg border p-5">
                   <div className="mb-4 flex items-center justify-between gap-3">
                     <div>
                       <p className="text-sm font-semibold text-foreground">
@@ -223,13 +220,13 @@ const LandingProvider = () => {
                       </p>
                     </div>
 
-                    <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+                    <div className="rounded-md bg-primary/10 p-3 text-primary">
                       <L.Trophy className="h-5 w-5" />
                     </div>
                   </div>
 
                   <div className="grid gap-3 sm:grid-cols-3">
-                    <div className="rounded-2xl bg-background/50 p-4">
+                    <div className="rounded-md bg-muted p-4">
                       <p className="text-xs text-muted-foreground">
                         {t("landing.provider.dashboard.revenue")}
                       </p>
@@ -238,7 +235,7 @@ const LandingProvider = () => {
                       </p>
                     </div>
 
-                    <div className="rounded-2xl bg-background/50 p-4">
+                    <div className="rounded-md bg-muted p-4">
                       <p className="text-xs text-muted-foreground">
                         {t("landing.provider.dashboard.rating")}
                       </p>
@@ -247,7 +244,7 @@ const LandingProvider = () => {
                       </p>
                     </div>
 
-                    <div className="rounded-2xl bg-background/50 p-4">
+                    <div className="rounded-md bg-muted p-4">
                       <p className="text-xs text-muted-foreground">
                         {t("landing.provider.dashboard.registrations")}
                       </p>

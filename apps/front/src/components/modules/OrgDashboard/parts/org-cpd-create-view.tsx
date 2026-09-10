@@ -16,7 +16,7 @@ export const OrgCpdCategoryCreateView = ({ hook }: TCPDCreateView) => {
         <Button
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           onClick={closeCreateView}
         >
           <L.ArrowLeft className="h-4 w-4" />
@@ -54,7 +54,7 @@ export const OrgCpdCategoryCreateView = ({ hook }: TCPDCreateView) => {
 
         <GlassCard className="h-fit">
           <div className="relative z-10">
-            <div className="rounded-2xl bg-primary/10 p-3 text-primary w-fit">
+            <div className="rounded-md bg-primary/10 p-3 text-primary w-fit">
               <L.BookOpenCheck className="h-5 w-5" />
             </div>
 

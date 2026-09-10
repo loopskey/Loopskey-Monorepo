@@ -60,7 +60,7 @@ export const ActivityEvidenceUpload = ({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-[1.5rem] border border-dashed border-glass-border bg-background/40 p-8 text-center">
+      <div className="rounded-lg border border-dashed border-border p-8 text-center">
         <L.UploadCloud className="mx-auto h-9 w-9 text-muted-foreground" />
         <p className="mt-3 font-medium">{t(`${TRACKER}.evidence.dropTitle`)}</p>
         <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
@@ -78,7 +78,7 @@ export const ActivityEvidenceUpload = ({
         <Button
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           className="mt-5"
           disabled={remainingSlots <= 0}
           onClick={() => inputRef.current?.click()}
@@ -105,7 +105,7 @@ export const ActivityEvidenceUpload = ({
           {existingFiles.map((file) => (
             <div
               key={file.id}
-              className="flex items-center justify-between gap-3 rounded-2xl border border-glass-border bg-background/40 px-4 py-3"
+              className="flex items-center justify-between gap-3 rounded-md border px-4 py-3"
             >
               <div className="flex min-w-0 items-center gap-3">
                 <L.FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -125,7 +125,7 @@ export const ActivityEvidenceUpload = ({
                     size="sm"
                     radius="xl"
                     type="button"
-                    variant="glass"
+                    variant="outline"
                     onClick={() => onDownloadExisting(file)}
                     aria-label={t(`${TRACKER}.evidence.download`)}
                   >
@@ -161,7 +161,7 @@ export const ActivityEvidenceUpload = ({
           {files.map((file, index) => (
             <div
               key={`${file.name}-${index}`}
-              className="flex items-center justify-between gap-3 rounded-2xl border border-glass-border bg-background/40 px-4 py-3"
+              className="flex items-center justify-between gap-3 rounded-md border px-4 py-3"
             >
               <div className="flex min-w-0 items-center gap-3">
                 <L.FileUp className="h-4 w-4 shrink-0 text-primary" />

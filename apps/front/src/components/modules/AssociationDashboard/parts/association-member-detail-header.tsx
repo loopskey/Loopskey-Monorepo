@@ -3,8 +3,7 @@
 import { TAssociationMemberHeader } from "@/types/association-dashboard.types";
 import { ASSOCIATION_BAND_VARIANTS } from "@utils/association-compliance-bands";
 import { AssociationMemberStatus } from "@/lib/graphql/base";
-import { CHART_SEMANTIC_SLOTS } from "@hooks/useChartPalette";
-import { useChartPalette } from "@hooks/useChartPalette";
+import { useChartSemantics } from "@hooks/useChartPalette";
 import { bandChartColor } from "@utils/association-compliance-bands";
 import { ConfirmDialog } from "@elements/confirm-dialog";
 import { GlassCard } from "@elements/glass-card";
@@ -24,7 +23,7 @@ const CompletionGauge = dynamic(
   {
     ssr: false,
     loading: () => (
-      <Skeleton className={`${GAUGE_HEIGHT} w-full rounded-2xl`} />
+      <Skeleton className={`${GAUGE_HEIGHT} w-full rounded-md`} />
     ),
   },
 );
@@ -32,7 +31,7 @@ const CompletionGauge = dynamic(
 export const AssociationMemberDetailHeader = ({
   hook,
 }: TAssociationMemberHeader) => {
-  const palette = useChartPalette();
+  const semantics = useChartSemantics();
 
   const {
     t,
@@ -57,7 +56,7 @@ export const AssociationMemberDetailHeader = ({
           size="sm"
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           onClick={backToRoster}
         >
           <L.ArrowLeft className="h-4 w-4" />
@@ -121,7 +120,7 @@ export const AssociationMemberDetailHeader = ({
               <Button
                 radius="xl"
                 type="button"
-                variant="glass"
+                variant="outline"
                 onClick={openEdit}
                 disabled={isMutating}
               >
@@ -132,7 +131,7 @@ export const AssociationMemberDetailHeader = ({
               <Button
                 radius="xl"
                 type="button"
-                variant="glass"
+                variant="outline"
                 disabled={isMutating}
                 onClick={openRequirements}
               >
@@ -144,7 +143,6 @@ export const AssociationMemberDetailHeader = ({
                 <Button
                   radius="xl"
                   type="button"
-                  variant="brand"
                   disabled={isMutating}
                   onClick={() =>
                     void changeStatus(AssociationMemberStatus.Active)
@@ -175,7 +173,7 @@ export const AssociationMemberDetailHeader = ({
                     <Button
                       radius="xl"
                       type="button"
-                      variant="glass"
+                      variant="outline"
                       disabled={isMutating}
                     >
                       <L.UserMinus className="h-4 w-4" />
@@ -192,8 +190,8 @@ export const AssociationMemberDetailHeader = ({
               label={label}
               percent={summary.percent}
               pacePercent={summary.pacePercent ?? null}
-              color={bandChartColor(palette, summary.band)}
-              paceColor={palette[CHART_SEMANTIC_SLOTS.notStarted]}
+              color={bandChartColor(semantics, summary.band)}
+              paceColor={semantics.notStarted}
             />
           )}
         </div>

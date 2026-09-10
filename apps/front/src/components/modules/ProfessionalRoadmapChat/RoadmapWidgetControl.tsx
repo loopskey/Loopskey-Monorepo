@@ -1,31 +1,22 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-
+import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { useI18n } from "@/hooks/useI18n";
 
 import type * as T from "@/types/professional-roadmap-chat.types";
 
-type Props = {
-  widget: T.TRoadmapWidget;
-  disabled: boolean;
-  onAnswer: (value: string) => void;
-};
-
-/**
- * The shortcut the server suggests for the current question. It is never the
- * only way to answer — the composer's free-text input sits beside it, because
- * one sentence may fill several fields at once and the widget only covers one.
- */
-export const RoadmapWidgetControl = ({ widget, disabled, onAnswer }: Props) => {
+export const RoadmapWidgetControl = ({
+  widget,
+  disabled,
+  onAnswer,
+}: T.TRoadmapWidgetControl) => {
   const { t } = useI18n();
   const [selected, setSelected] = useState<string[]>([]);
   const [date, setDate] = useState<string>("");
 
-  // A new question clears whatever was half-chosen for the previous one.
   useEffect(() => {
     setSelected([]);
     setDate("");
@@ -59,14 +50,13 @@ export const RoadmapWidgetControl = ({ widget, disabled, onAnswer }: Props) => {
         <Input
           type="date"
           value={date}
-          disabled={disabled}
           className="w-auto"
+          disabled={disabled}
           aria-label={t("professionalRoadmapChat.widget.chooseDate")}
           onChange={(event) => setDate(event.target.value)}
         />
         <Button
           radius="xl"
-          variant="brand"
           disabled={disabled || !date}
           onClick={() => onAnswer(date)}
         >
@@ -80,9 +70,9 @@ export const RoadmapWidgetControl = ({ widget, disabled, onAnswer }: Props) => {
       <div className="flex flex-wrap gap-2">
         {widget.options.map((option) => (
           <Button
-            key={option.value}
             radius="xl"
-            variant="glass"
+            variant="outline"
+            key={option.value}
             disabled={disabled}
             onClick={() => onAnswer(option.value)}
           >
@@ -97,9 +87,9 @@ export const RoadmapWidgetControl = ({ widget, disabled, onAnswer }: Props) => {
       <div className="flex flex-wrap gap-2" role="group">
         {widget.options.map((option) => (
           <Button
-            key={option.value}
             radius="xl"
-            variant="glass"
+            variant="outline"
+            key={option.value}
             disabled={disabled}
             onClick={() => onAnswer(option.value)}
           >
@@ -117,15 +107,13 @@ export const RoadmapWidgetControl = ({ widget, disabled, onAnswer }: Props) => {
 
           return (
             <Button
-              key={option.value}
               radius="xl"
-              variant={isSelected ? "brand" : "glass"}
+              key={option.value}
               aria-pressed={isSelected}
-              // Options past the limit stay reachable so a screen reader can
-              // still read them; only choosing a new one is refused.
+              onClick={() => toggle(option.value)}
+              variant={isSelected ? "default" : "outline"}
               disabled={disabled || (atLimit && !isSelected)}
               className={cn(atLimit && !isSelected && "opacity-50")}
-              onClick={() => toggle(option.value)}
             >
               {option.label}
             </Button>
@@ -140,7 +128,6 @@ export const RoadmapWidgetControl = ({ widget, disabled, onAnswer }: Props) => {
 
         <Button
           radius="xl"
-          variant="brand"
           disabled={disabled || selected.length === 0}
           onClick={() => onAnswer(selected.join(", "))}
         >

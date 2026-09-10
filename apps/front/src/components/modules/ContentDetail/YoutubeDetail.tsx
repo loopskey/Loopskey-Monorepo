@@ -82,6 +82,8 @@ const YouTubeDetailPage = ({ slug }: { slug: string }) => {
     <main className="px-4 py-10 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-8">
         <DetailHero
+          kind="youtube"
+          id={channel.id}
           title={channel.title}
           rating={channel.rating}
           category={channel.category}
@@ -135,16 +137,16 @@ const YouTubeDetailPage = ({ slug }: { slug: string }) => {
 
         <section className="min-w-0">
           <Tabs.Tabs defaultValue="videos" className="space-y-6">
-            <Tabs.TabsList className="grid h-auto grid-cols-2 rounded-3xl border border-glass-border bg-background/60 p-2 backdrop-blur-xl">
+            <Tabs.TabsList className="grid h-auto grid-cols-2 rounded-lg border p-2">
               <Tabs.TabsTrigger
                 value="videos"
-                className="rounded-2xl py-3 font-bold"
+                className="rounded-md py-3 font-bold"
               >
                 {t("contentDetails.tabs.videos")}
               </Tabs.TabsTrigger>
               <Tabs.TabsTrigger
                 value="reviews"
-                className="rounded-2xl py-3 font-bold"
+                className="rounded-md py-3 font-bold"
               >
                 {t("contentDetails.tabs.reviews")}
               </Tabs.TabsTrigger>

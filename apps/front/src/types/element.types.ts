@@ -22,23 +22,22 @@ export type TUserAvatarProps = {
 
 // ================ Galaxy Background ==============
 export type TGalaxyProps = HTMLAttributes<HTMLDivElement> & {
-  focal?: [number, number];
-  rotation?: [number, number];
-  starSpeed?: number;
+  speed?: number;
   density?: number;
   hueShift?: number;
-  disableAnimation?: boolean;
-  speed?: number;
-  mouseInteraction?: boolean;
-  glowIntensity?: number;
+  starSpeed?: number;
   saturation?: number;
-  mouseRepulsion?: boolean;
-  twinkleIntensity?: number;
+  transparent?: boolean;
+  glowIntensity?: number;
   rotationSpeed?: number;
+  mouseRepulsion?: boolean;
+  focal?: [number, number];
+  twinkleIntensity?: number;
+  disableAnimation?: boolean;
+  mouseInteraction?: boolean;
+  rotation?: [number, number];
   repulsionStrength?: number;
   autoCenterRepulsion?: number;
-  transparent?: boolean;
-  /** `window` lets the galaxy track the cursor from behind a pointer-events-none layer. */
   mouseTarget?: "element" | "window";
 };
 
@@ -52,26 +51,20 @@ export type TGalaxyBackgroundProps = {
 // ================ Split Text ==================
 export type TSplitTextProps = {
   text: string;
-  className?: string;
-  /** Stagger between each split target, in ms. */
   delay?: number;
-  /** Offset before this block starts, in ms. Lets a multi-line heading run one
-   *  continuous reveal instead of every line animating at once. */
-  startDelay?: number;
   duration?: number;
+  threshold?: number;
+  className?: string;
+  startDelay?: number;
+  to?: gsap.TweenVars;
+  rootMargin?: string;
+  from?: gsap.TweenVars;
+  inheritGradient?: boolean;
+  textAlign?: CSSProperties["textAlign"];
+  onLetterAnimationComplete?: () => void;
   ease?: string | ((t: number) => number);
   splitType?: "chars" | "words" | "lines" | "words, chars";
-  from?: gsap.TweenVars;
-  to?: gsap.TweenVars;
-  threshold?: number;
-  rootMargin?: string;
   tag?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "p" | "span";
-  textAlign?: CSSProperties["textAlign"];
-  /** Re-paints a `bg-clip-text` gradient onto each split character. Without it
-   *  the tween's transform/opacity drops the characters out of the parent's
-   *  text clip and the line renders invisible. */
-  inheritGradient?: boolean;
-  onLetterAnimationComplete?: () => void;
 };
 
 // ================ Floating Input ==============
@@ -114,11 +107,11 @@ export type TFloatingSelectFieldProps<T extends FieldValues> = {
 // ============== TextArea ===============
 export type TFloatingTextareaFieldProps<T extends FieldValues> =
   TextareaHTMLAttributes<HTMLTextAreaElement> & {
-    name: FieldPath<T>;
     label: string;
+    className?: string;
+    name: FieldPath<T>;
     control: Control<T>;
     leftIcon?: ReactNode;
-    className?: string;
     textareaClassName?: string;
   };
 
@@ -137,21 +130,21 @@ export type TMultiSelectItem = {
 export type TMultiSelectFieldProps<T extends FieldValues> = {
   label: string;
   name: Path<T>;
-  control: Control<T>;
-  items: TMultiSelectItem[];
+  emptyText: string;
   disabled?: boolean;
-  isLoading?: boolean;
   hasError?: boolean;
   className?: string;
-  emptyText: string;
   errorText?: string;
-  description?: string;
+  retryText?: string;
+  control: Control<T>;
+  isLoading?: boolean;
   loadingText: string;
   placeholder: string;
   removeLabel: string;
-  searchPlaceholder: string;
+  description?: string;
   onRetry?: () => void;
-  retryText?: string;
+  items: TMultiSelectItem[];
+  searchPlaceholder: string;
 };
 
 // ============ Confirm Dialog =============
@@ -254,16 +247,16 @@ export type TGoalHaphPie = {
 
 export type TDonutSlice = {
   name: string;
+  fill: string;
   label: string;
   value: number;
-  fill: string;
 };
 
 export type TProgressDonutChart = {
-  data: TDonutSlice[];
   ariaLabel: string;
-  centerLabel: ReactNode;
+  data: TDonutSlice[];
   valueSuffix?: string;
+  centerLabel: ReactNode;
 };
 
 // ================ External Btn =================
@@ -275,4 +268,18 @@ export type TExternalLearningBtn = {
   eventId?: string | null;
   courseId?: string | null;
   provider?: ExternalLearningProvider;
+};
+
+export type TContentThumbnailKind = "course" | "event" | "podcast" | "youtube";
+
+export type TContentThumbnailProps = {
+  id: string;
+  title: string;
+  sizes: string;
+  priority?: boolean;
+  className?: string;
+  imageUrl?: string | null;
+  category?: string | null;
+  kind: TContentThumbnailKind;
+  sourceLabel?: string | null;
 };

@@ -1,10 +1,10 @@
-import { cn } from "@/lib/utils";
 import { TSummaryRow } from "@/types/providers.types";
+import { cn } from "@/lib/utils";
 
 export const SummaryRow = ({ label, value, className }: TSummaryRow) => (
   <div
     className={cn(
-      "flex items-center justify-between rounded-2xl px-4 py-3",
+      "flex items-center justify-between rounded-md px-4 py-3",
       className,
     )}
   >

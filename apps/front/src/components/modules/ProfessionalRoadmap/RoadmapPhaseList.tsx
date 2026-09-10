@@ -46,10 +46,10 @@ export const RoadmapPhaseList = ({
       {phases.map((phase, index) => (
         <li
           key={phase.id}
-          className="rounded-3xl border border-glass-border bg-background/45 p-4 backdrop-blur-xl"
+          className="rounded-lg border p-4"
         >
           <div className="flex items-start gap-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-sm font-medium text-primary">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary/10 text-sm font-medium text-primary">
               {index + 1}
             </div>
 
@@ -90,7 +90,7 @@ export const RoadmapPhaseList = ({
                   return (
                     <li
                       key={step.id}
-                      className="rounded-2xl border border-glass-border bg-background/40 p-3"
+                      className="rounded-md border p-3"
                     >
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div className="min-w-0 flex-1">
@@ -141,7 +141,7 @@ export const RoadmapPhaseList = ({
                                 <Button
                                   size="sm"
                                   radius="xl"
-                                  variant="glass"
+                                  variant="outline"
                                   disabled={busy}
                                   onClick={() => onStart(enrollmentId, step.id)}
                                 >
@@ -152,7 +152,6 @@ export const RoadmapPhaseList = ({
                               <Button
                                 size="sm"
                                 radius="xl"
-                                variant="brand"
                                 disabled={busy}
                                 onClick={() =>
                                   onComplete(enrollmentId, step.id)

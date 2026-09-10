@@ -12,7 +12,7 @@ export const AppToaster = () => {
       toastOptions={{
         classNames: {
           toast:
-            "group rounded-2xl border border-border/70 bg-card/90 text-card-foreground shadow-2xl backdrop-blur-xl",
+            "group rounded-lg border bg-card text-card-foreground shadow-md",
           title: "text-sm font-semibold",
           description: "text-sm text-muted-foreground",
           actionButton:
@@ -20,13 +20,10 @@ export const AppToaster = () => {
           cancelButton: "rounded-xl bg-muted px-3 py-2 text-muted-foreground",
           closeButton:
             "border-border bg-background text-foreground hover:bg-muted",
-          success:
-            "border-success/30 bg-[radial-gradient(circle_at_10%_10%,oklch(0.68_0.15_155/0.20),transparent_35%),var(--card)]",
-          error:
-            "border-destructive/30 bg-[radial-gradient(circle_at_10%_10%,oklch(0.68_0.21_25/0.20),transparent_35%),var(--card)]",
-          warning:
-            "border-warning/30 bg-[radial-gradient(circle_at_10%_10%,oklch(0.78_0.16_80/0.22),transparent_35%),var(--card)]",
-          info: "border-primary/30 bg-[radial-gradient(circle_at_10%_10%,oklch(0.68_0.18_250/0.18),transparent_35%),var(--card)]",
+          success: "border-success bg-success-soft",
+          error: "border-destructive bg-destructive-soft",
+          warning: "border-warning bg-warning-soft",
+          info: "border-primary bg-primary/10",
         },
       }}
     />

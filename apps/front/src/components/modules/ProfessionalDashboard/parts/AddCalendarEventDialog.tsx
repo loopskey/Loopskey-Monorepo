@@ -95,7 +95,7 @@ export const AddCalendarEventDialog = ({
 
   return (
     <D.Dialog open={open} onOpenChange={onOpenChange}>
-      <D.DialogContent className="glass-dialog max-w-lg rounded-3xl border-glass-border">
+      <D.DialogContent className="glass-dialog max-w-lg rounded-lg border-border">
         <D.DialogHeader>
           <D.DialogTitle>
             {t("professionalDashboard.calendar.addDialog.title")}
@@ -157,7 +157,7 @@ export const AddCalendarEventDialog = ({
               <Button
                 radius="xl"
                 type="button"
-                variant="glass"
+                variant="outline"
                 disabled={state.isLoading}
                 onClick={() => onOpenChange(false)}
               >
@@ -167,7 +167,6 @@ export const AddCalendarEventDialog = ({
               <Button
                 radius="xl"
                 type="submit"
-                variant="brand"
                 disabled={state.isLoading}
               >
                 {t("professionalDashboard.calendar.addDialog.submit")}

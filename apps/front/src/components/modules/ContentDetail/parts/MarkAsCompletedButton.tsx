@@ -40,7 +40,7 @@ export const MarkAsCompletedButton = ({
         size="lg"
         radius="xl"
         type="button"
-        variant="glass"
+        variant="outline"
         onClick={() => setOpen(true)}
         className={cn(style.softClass, "justify-center", className)}
       >

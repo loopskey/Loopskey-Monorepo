@@ -51,7 +51,7 @@ const CertificateCell = ({
       size="sm"
       radius="xl"
       type="button"
-      variant="glass"
+      variant="outline"
       onClick={() => onDownload(firstFile)}
       title={firstFile.fileName}
     >
@@ -68,13 +68,13 @@ const IconAction = ({
   label,
   onClick,
   disabled,
-  variant = "glass",
+  variant = "outline",
 }: {
   icon: typeof L.Eye;
   label: string;
   disabled?: boolean;
   onClick?: () => void;
-  variant?: "glass" | "cancel";
+  variant?: "outline" | "cancel";
 }) => (
   <Tooltip>
     <TooltipTrigger asChild>
@@ -180,10 +180,10 @@ export const ActivitiesTable = ({
   return (
     <>
       {/* Eleven columns never fit a phone; below lg each row becomes a card. */}
-      <div className="hidden overflow-x-auto rounded-[2rem] border border-glass-border lg:block">
+      <div className="hidden overflow-x-auto rounded-lg border lg:block">
         <table className="w-full min-w-[1200px] border-collapse text-sm">
           <thead>
-            <tr className="border-b border-glass-border bg-primary/5 text-left text-xs font-black uppercase tracking-wider text-muted-foreground">
+            <tr className="border-b border-border bg-primary/5 text-left text-xs font-black uppercase tracking-wider text-muted-foreground">
               {columns.map((column) => (
                 <th key={column} className="whitespace-nowrap px-4 py-4">
                   {t(`${TRACKER}.table.${column}`)}
@@ -192,11 +192,11 @@ export const ActivitiesTable = ({
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-glass-border">
+          <tbody className="divide-y divide-border">
             {activities.map((activity) => (
               <tr
                 key={activity.id}
-                className="bg-background/35 transition-colors hover:bg-primary/5"
+                className="bg-muted transition-colors hover:bg-primary/5"
               >
                 <td className="max-w-72 px-4 py-4">
                   <p className="truncate font-medium" title={activity.title}>
@@ -264,7 +264,7 @@ export const ActivitiesTable = ({
         {activities.map((activity) => (
           <div
             key={activity.id}
-            className="rounded-[1.5rem] border border-glass-border bg-background/40 p-5"
+            className="rounded-lg border p-5"
           >
             <div className="flex items-start justify-between gap-3">
               <p className="font-medium">{activity.title}</p>

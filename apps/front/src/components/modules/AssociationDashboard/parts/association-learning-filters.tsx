@@ -57,11 +57,11 @@ export const AssociationLearningFilters = ({
       </label>
 
       <S.Select value={value} onValueChange={onChange}>
-        <S.SelectTrigger id={id} className="mt-1 rounded-2xl">
+        <S.SelectTrigger id={id} className="mt-1 rounded-md">
           <S.SelectValue />
         </S.SelectTrigger>
 
-        <S.SelectContent className="z-[9999] rounded-2xl">
+        <S.SelectContent className="z-[9999] rounded-md">
           {options.map((option) => (
             <S.SelectItem key={option.value} value={option.value}>
               {option.label}
@@ -88,7 +88,7 @@ export const AssociationLearningFilters = ({
           <Input
             id="association-library-search"
             value={search}
-            className="rounded-2xl pl-9"
+            className="rounded-md pl-9"
             onChange={(event) => setSearch(event.target.value)}
             placeholder={label("searchPlaceholder")}
           />
@@ -146,7 +146,7 @@ export const AssociationLearningFilters = ({
             size="sm"
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             onClick={resetFilters}
           >
             <L.FilterX className="h-4 w-4" />

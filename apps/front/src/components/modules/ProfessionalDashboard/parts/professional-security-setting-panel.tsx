@@ -33,7 +33,7 @@ export const ProfessionalSecuritySettingsPanel = ({
   return (
     <section className="space-y-6">
       <div className="flex items-start gap-4">
-        <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+        <div className="rounded-md bg-primary/10 p-3 text-primary">
           <Icon className="h-5 w-5" />
         </div>
 
@@ -49,7 +49,7 @@ export const ProfessionalSecuritySettingsPanel = ({
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-3xl border border-glass-border bg-background/45 p-5">
+        <div className="rounded-lg border p-5">
           <div className="flex items-center gap-3">
             <ShieldCheck className="h-5 w-5 text-primary" />
             <h3 className="font-medium">
@@ -90,7 +90,6 @@ export const ProfessionalSecuritySettingsPanel = ({
               <Button
                 radius="xl"
                 type="submit"
-                variant="brand"
                 disabled={isPasswordSubmitDisabled}
               >
                 {t("professionalDashboard.settings.security.updatePassword")}
@@ -99,7 +98,7 @@ export const ProfessionalSecuritySettingsPanel = ({
           </F.Form>
         </div>
 
-        <div className="rounded-3xl border border-glass-border bg-background/45 p-5">
+        <div className="rounded-lg border p-5">
           <div className="flex items-center gap-3">
             <Mail className="h-5 w-5 text-primary" />
             <h3 className="font-medium">
@@ -134,7 +133,7 @@ export const ProfessionalSecuritySettingsPanel = ({
                 <Button
                   radius="xl"
                   type="button"
-                  variant="glass"
+                  variant="outline"
                   onClick={handleSendEmailOtp}
                   disabled={isSendOtpDisabled}
                 >
@@ -145,7 +144,6 @@ export const ProfessionalSecuritySettingsPanel = ({
                   <Button
                     radius="xl"
                     type="button"
-                    variant="brand"
                     onClick={handleVerifyEmail}
                     disabled={isVerifyEmailDisabled}
                   >
@@ -158,7 +156,7 @@ export const ProfessionalSecuritySettingsPanel = ({
         </div>
       </div>
 
-      <div className="rounded-3xl border border-glass-border bg-background/45 p-5">
+      <div className="rounded-lg border p-5">
         <div className="flex items-center gap-3">
           <Laptop className="h-5 w-5 text-primary" />
           <h3 className="font-medium">
@@ -166,7 +164,7 @@ export const ProfessionalSecuritySettingsPanel = ({
           </h3>
         </div>
 
-        <div className="mt-4 rounded-2xl bg-muted/40 p-4">
+        <div className="mt-4 rounded-md bg-muted/40 p-4">
           <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
             <div>
               <p className="font-medium">

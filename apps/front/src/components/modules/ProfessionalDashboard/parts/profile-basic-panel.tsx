@@ -37,7 +37,7 @@ export const ProfileBasicPanel = ({
   return (
     <div className="space-y-6">
       <div className="flex items-start gap-3">
-        <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+        <div className="rounded-md bg-primary/10 p-3 text-primary">
           <Icon className="h-5 w-5" />
         </div>
         <div>
@@ -83,7 +83,7 @@ export const ProfileBasicPanel = ({
                   id="professional-profile-email"
                   value={profile?.email ?? ""}
                   aria-describedby="professional-profile-email-hint"
-                  className="h-14 rounded-2xl border-border/70 bg-muted/40 pl-12 pr-4"
+                  className="h-14 rounded-md border-border/70 bg-muted/40 pl-12 pr-4"
                 />
               </div>
               <p
@@ -93,12 +93,12 @@ export const ProfileBasicPanel = ({
                 {profile?.isEmailVerified ? (
                   <BadgeCheck
                     aria-hidden
-                    className="h-3.5 w-3.5 text-emerald-500"
+                    className="h-3.5 w-3.5 text-success-soft-foreground"
                   />
                 ) : (
                   <ShieldAlert
                     aria-hidden
-                    className="h-3.5 w-3.5 text-amber-500"
+                    className="h-3.5 w-3.5 text-warning-soft-foreground"
                   />
                 )}
                 {profile?.isEmailVerified
@@ -169,7 +169,6 @@ export const ProfileBasicPanel = ({
           <Button
             radius="xl"
             type="submit"
-            variant="brand"
             disabled={isSaveDisabled}
           >
             {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}

@@ -6,6 +6,7 @@ import { AssociationReportSummaryStrip } from "@modules/AssociationDashboard/par
 import { ASSOCIATION_BAND_VARIANTS } from "@utils/association-compliance-bands";
 import { ASSOCIATION_BAND_ORDER } from "@utils/association-compliance-bands";
 import { AssociationReportTable } from "@modules/AssociationDashboard/parts/association-report-table";
+import { useChartSemantics } from "@hooks/useChartPalette";
 import { useChartPalette } from "@hooks/useChartPalette";
 import { bandChartColor } from "@utils/association-compliance-bands";
 import { Skeleton } from "@ui/skeleton";
@@ -22,13 +23,15 @@ const RenewalReadinessChart = dynamic(
     ).then((module) => module.RenewalReadinessChart),
   {
     ssr: false,
-    loading: () => <Skeleton className="h-40 w-full rounded-2xl" />,
+    loading: () => <Skeleton className="h-40 w-full rounded-md" />,
   },
 );
 
 export const AssociationRenewalReadinessReport = ({
   hook,
 }: TAssociationRenewalReadinessReport) => {
+  const semantics = useChartSemantics();
+
   const palette = useChartPalette();
 
   const {
@@ -85,7 +88,7 @@ export const AssociationRenewalReadinessReport = ({
     count: counts[band],
     share: shares[band],
     label: label(`bands.${band}`),
-    color: bandChartColor(palette, band),
+    color: bandChartColor(semantics, band),
   }));
 
   const isTruncated =
@@ -125,7 +128,7 @@ export const AssociationRenewalReadinessReport = ({
       />
 
       {isTruncated && (
-        <p className="rounded-2xl border border-glass-border bg-background/50 p-4 text-sm text-muted-foreground">
+        <p className="rounded-md border p-4 text-sm text-muted-foreground">
           {label("view.truncated", {
             shown: (renewalReadiness?.items.length ?? 0).toLocaleString(locale),
             total: (renewalReadiness?.totalCount ?? 0).toLocaleString(locale),

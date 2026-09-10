@@ -75,7 +75,7 @@ export const AssociationMissingEvidenceReport = ({
       />
 
       {isTruncated && (
-        <p className="rounded-2xl border border-glass-border bg-background/50 p-4 text-sm text-muted-foreground">
+        <p className="rounded-md border p-4 text-sm text-muted-foreground">
           {label("view.truncated", {
             shown: (missingEvidence?.items.length ?? 0).toLocaleString(locale),
             total: (missingEvidence?.totalCount ?? 0).toLocaleString(locale),

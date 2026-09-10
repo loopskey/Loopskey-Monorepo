@@ -3,7 +3,9 @@
 import { contentTypeIcon, contentTypeOptions } from "@/utils/constant";
 import { ContentType, WishlistSortBy } from "@/lib/graphql/base";
 import { useProfessionalWishlistTab } from "@/hooks/useProfessionalWishlistTab";
+import { TContentThumbnailKind } from "@/types/element.types";
 import { ContentPagination } from "@elements/pagination";
+import { ContentThumbnail } from "@elements/content-thumbnail";
 import { sortOptions } from "@/utils/constant";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
@@ -12,10 +14,16 @@ import { Input } from "@ui/input";
 import { Label } from "@ui/label";
 import { cn } from "@/lib/utils";
 
-import Image from "next/image";
 import Link from "next/link";
 
 import * as L from "lucide-react";
+
+const THUMBNAIL_KIND: Record<ContentType, TContentThumbnailKind> = {
+  [ContentType.Course]: "course",
+  [ContentType.Event]: "event",
+  [ContentType.Podcast]: "podcast",
+  [ContentType.Youtube]: "youtube",
+};
 
 const ProfessionalWishlistTab = () => {
   const {
@@ -62,7 +70,7 @@ const ProfessionalWishlistTab = () => {
             <Button
               radius="xl"
               type="button"
-              variant="glass"
+              variant="outline"
               onClick={resetFilters}
               disabled={isFetching}
             >
@@ -74,7 +82,6 @@ const ProfessionalWishlistTab = () => {
           <Button
             radius="xl"
             type="button"
-            variant="brand"
             disabled={isFetching}
             onClick={handleRefresh}
           >
@@ -112,7 +119,7 @@ const ProfessionalWishlistTab = () => {
 
               <Input
                 value={filters.search}
-                className="h-12 rounded-2xl pl-10"
+                className="h-12 rounded-md pl-10"
                 onChange={(event) => updateFilter("search", event.target.value)}
                 placeholder={t("professionalDashboard.wishlist.search")}
               />
@@ -127,7 +134,7 @@ const ProfessionalWishlistTab = () => {
               onChange={(event) =>
                 updateFilter("sortBy", event.target.value as WishlistSortBy)
               }
-              className="h-12 w-full rounded-2xl border border-input bg-background px-4 text-sm outline-none transition-colors focus:border-primary/55 focus:ring-2 focus:ring-primary/20"
+              className="h-12 w-full rounded-md border border-input bg-background px-4 text-sm outline-none transition-colors focus:border-primary/55 focus:ring-2 focus:ring-primary/20"
             >
               {sortOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -148,7 +155,7 @@ const ProfessionalWishlistTab = () => {
                 radius="xl"
                 type="button"
                 key={option.value}
-                variant={isActive ? "brand" : "glass"}
+                variant={isActive ? "default" : "outline"}
                 onClick={() =>
                   updateFilter(
                     "contentType",
@@ -193,7 +200,6 @@ const ProfessionalWishlistTab = () => {
             <Button
               radius="xl"
               type="button"
-              variant="brand"
               className="mt-5"
               onClick={resetFilters}
             >
@@ -225,20 +231,16 @@ const ProfessionalWishlistTab = () => {
                   key={item.id}
                   className="overflow-hidden p-0"
                 >
-                  <div className="relative aspect-video rounded-t-[2rem] bg-muted">
-                    {content?.imageUrl ? (
-                      <Image
-                        fill
-                        alt={title}
-                        src={content.imageUrl}
-                        className="object-cover"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-primary/10 text-primary">
-                        <Icon className="h-10 w-10" />
-                      </div>
-                    )}
+                  <div className="relative aspect-video rounded-t-lg bg-muted">
+                    <ContentThumbnail
+                      title={title}
+                      id={item.contentId}
+                      imageUrl={content?.imageUrl}
+                      category={content?.category}
+                      sourceLabel={content?.providerName}
+                      kind={THUMBNAIL_KIND[item.contentType]}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                    />
                     <Badge className="absolute left-4 top-4 rounded-full">
                       {item.contentType}
                     </Badge>
@@ -246,7 +248,7 @@ const ProfessionalWishlistTab = () => {
                       radius="full"
                       size="iconSm"
                       type="button"
-                      variant="brandSoft"
+                      variant="outline"
                       disabled={isRemoving}
                       onClick={() =>
                         handleRemove(item.contentType, item.contentId)
@@ -263,7 +265,7 @@ const ProfessionalWishlistTab = () => {
                         <h3 className="line-clamp-2 text-base font-medium">
                           {title}
                         </h3>
-                        <div className="rounded-2xl bg-primary/10 p-2 text-primary">
+                        <div className="rounded-md bg-primary/10 p-2 text-primary">
                           <Icon className="h-4 w-4" />
                         </div>
                       </div>
@@ -283,7 +285,7 @@ const ProfessionalWishlistTab = () => {
 
                       {typeof content?.rating === "number" ? (
                         <Badge variant="secondary" className="rounded-full">
-                          <L.Star className="mr-1 h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                          <L.Star className="mr-1 h-3.5 w-3.5 fill-amber-400 text-warning-soft-foreground" />
                           {content.rating}
                         </Badge>
                       ) : null}
@@ -316,7 +318,6 @@ const ProfessionalWishlistTab = () => {
                         asChild
                         radius="xl"
                         type="button"
-                        variant="brand"
                         className="w-full"
                       >
                         <Link href={href}>
@@ -327,7 +328,7 @@ const ProfessionalWishlistTab = () => {
                       <Button
                         radius="xl"
                         type="button"
-                        variant="glass"
+                        variant="outline"
                         className="w-full"
                         disabled
                       >

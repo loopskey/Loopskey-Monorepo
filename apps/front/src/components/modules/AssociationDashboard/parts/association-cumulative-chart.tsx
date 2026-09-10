@@ -1,7 +1,7 @@
 "use client";
 
 import { TAssociationCumulativeChart } from "@/types/association-dashboard.types";
-import { CHART_SEMANTIC_SLOTS } from "@hooks/useChartPalette";
+import { useChartSemantics } from "@hooks/useChartPalette";
 
 import * as R from "recharts";
 
@@ -13,8 +13,9 @@ export const AssociationCumulativeChart = ({
   rows,
   label,
   locale,
-  palette,
 }: TAssociationCumulativeChart) => {
+  const semantics = useChartSemantics();
+
   const shortDate = (value: string) =>
     new Date(value).toLocaleDateString(locale, {
       day: "numeric",
@@ -53,7 +54,7 @@ export const AssociationCumulativeChart = ({
               type="linear"
               strokeDasharray="6 4"
               name={label("cumulativePace")}
-              stroke={palette[CHART_SEMANTIC_SLOTS.notStarted]}
+              stroke={semantics.notStarted}
             />
 
             <R.Line
@@ -62,7 +63,7 @@ export const AssociationCumulativeChart = ({
               strokeWidth={2}
               connectNulls={false}
               name={label("cumulativeEarned")}
-              stroke={palette[CHART_SEMANTIC_SLOTS.onTrack]}
+              stroke={semantics.onTrack}
             />
           </R.LineChart>
         </R.ResponsiveContainer>

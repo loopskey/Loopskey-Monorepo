@@ -1,7 +1,7 @@
 "use client";
 
 import { TDetailHeroProps } from "@/types/content-module.types";
-import { isValidImageSrc } from "@/utils/function-helper";
+import { ContentThumbnail } from "@elements/content-thumbnail";
 import { ArrowLeft, Star } from "lucide-react";
 import { GlassCard } from "@elements/glass-card";
 import { useRouter } from "next/navigation";
@@ -9,9 +9,9 @@ import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
 import { cn } from "@/lib/utils";
 
-import Image from "next/image";
-
 const DetailHero = ({
+  id,
+  kind,
   title,
   badge,
   rating,
@@ -25,8 +25,6 @@ const DetailHero = ({
   const { t } = useI18n();
   const router = useRouter();
 
-  const validImageUrl = isValidImageSrc(imageUrl) ? imageUrl!.trim() : null;
-
   return (
     <GlassCard className="overflow-hidden p-0">
       <div className="relative z-10 grid gap-0 lg:grid-cols-[1.05fr_0.95fr]">
@@ -34,7 +32,7 @@ const DetailHero = ({
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             className="mb-6 w-fit"
             onClick={() => router.push("/content")}
           >
@@ -54,8 +52,8 @@ const DetailHero = ({
             )}
 
             {typeof rating === "number" && rating > 0 && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-yellow-500/10 px-4 py-2 text-xs font-extrabold text-yellow-600">
-                <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+              <span className="inline-flex items-center gap-1 rounded-full bg-warning-soft px-4 py-2 text-xs font-extrabold text-warning-soft-foreground">
+                <Star className="h-3.5 w-3.5 fill-yellow-400 text-warning-soft-foreground" />
                 {rating.toFixed(1)}
                 {typeof ratingCount === "number" && (
                   <span className="text-muted-foreground">({ratingCount})</span>
@@ -84,18 +82,15 @@ const DetailHero = ({
         </div>
 
         <div className="relative min-h-[300px] overflow-hidden bg-muted lg:min-h-[520px]">
-          {validImageUrl ? (
-            <Image
-              fill
-              priority
-              src={validImageUrl}
-              className="object-cover"
-              alt={title || "Content detail image"}
-              sizes="(max-width: 1024px) 100vw, 50vw"
-            />
-          ) : (
-            <div className="h-full w-full bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.35),transparent_36%),linear-gradient(135deg,rgba(59,130,246,0.16),rgba(20,184,166,0.12))]" />
-          )}
+          <ContentThumbnail
+            priority
+            id={id}
+            kind={kind}
+            title={title}
+            imageUrl={imageUrl}
+            category={category}
+            sizes="(max-width: 1024px) 100vw, 50vw"
+          />
 
           <div
             className={cn(

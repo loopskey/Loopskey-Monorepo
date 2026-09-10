@@ -14,7 +14,7 @@ const AttentionBandStrip = dynamic(
     import(
       "@modules/AssociationDashboard/parts/association-attention-chart"
     ).then((module) => module.AttentionBandStrip),
-  { ssr: false, loading: () => <Skeleton className="h-24 w-full rounded-2xl" /> },
+  { ssr: false, loading: () => <Skeleton className="h-24 w-full rounded-md" /> },
 );
 
 export const AssociationAttentionStrip = ({
@@ -30,7 +30,7 @@ export const AssociationAttentionStrip = ({
     return (
       <GlassCard glow={false}>
         <div className="relative z-10">
-          <Skeleton className="h-24 w-full rounded-2xl" />
+          <Skeleton className="h-24 w-full rounded-md" />
         </div>
       </GlassCard>
     );

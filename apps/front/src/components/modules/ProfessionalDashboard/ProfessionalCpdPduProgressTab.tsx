@@ -47,7 +47,7 @@ const ProfessionalCpdPduProgressTab = () => {
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             onClick={cpd.generateSummary}
             disabled={!cpd.canGenerateSummary || cpd.isGenerating}
           >
@@ -62,7 +62,6 @@ const ProfessionalCpdPduProgressTab = () => {
           <Button
             radius="xl"
             type="button"
-            variant="brand"
             onClick={cpd.openSearch}
           >
             <L.Plus className="h-4 w-4" />
@@ -131,7 +130,7 @@ const ProfessionalCpdPduProgressTab = () => {
         open={Boolean(cpd.pendingDuplicate)}
         onOpenChange={(open) => !open && cpd.cancelDuplicate()}
       >
-        <A.AlertDialogContent className="glass-dialog rounded-3xl border-glass-border">
+        <A.AlertDialogContent className="glass-dialog rounded-lg border-border">
           <A.AlertDialogHeader>
             <A.AlertDialogTitle>
               {t("cpdProgress.duplicate.title")}
@@ -159,7 +158,7 @@ const ProfessionalCpdPduProgressTab = () => {
         open={Boolean(cpd.deleteTargetId)}
         onOpenChange={(open) => !open && cpd.cancelDelete()}
       >
-        <A.AlertDialogContent className="glass-dialog rounded-3xl border-glass-border">
+        <A.AlertDialogContent className="glass-dialog rounded-lg border-border">
           <A.AlertDialogHeader>
             <A.AlertDialogTitle>
               {t("cpdProgress.delete.title")}

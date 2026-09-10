@@ -62,7 +62,7 @@ const ProviderAttendeesTab = () => {
         <Button
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           disabled={isFetching}
           onClick={() => refetch()}
         >
@@ -102,7 +102,7 @@ const ProviderAttendeesTab = () => {
             <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={search}
-              className="h-12 rounded-2xl pl-10"
+              className="h-12 rounded-md pl-10"
               placeholder={t("providerDashboard.attendees.search")}
               onChange={(event) => setSearch(event.target.value)}
             />
@@ -114,7 +114,7 @@ const ProviderAttendeesTab = () => {
               setStatus(value as EventRegistrationStatus | "ALL")
             }
           >
-            <S.SelectTrigger className="h-12 rounded-2xl">
+            <S.SelectTrigger className="h-12 rounded-md">
               <S.SelectValue />
             </S.SelectTrigger>
 
@@ -134,7 +134,7 @@ const ProviderAttendeesTab = () => {
       <GlassCard className="overflow-hidden p-0">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[960px] text-left">
-            <thead className="border-b border-glass-border bg-muted/40 text-xs uppercase text-muted-foreground">
+            <thead className="border-b border-border bg-muted/40 text-xs uppercase text-muted-foreground">
               <tr>
                 <th className="px-5 py-4">
                   {t("providerDashboard.attendees.table.name")}
@@ -173,7 +173,7 @@ const ProviderAttendeesTab = () => {
                   return (
                     <tr
                       key={item.registrationId}
-                      className="border-b border-glass-border/70 last:border-0"
+                      className="border-b border-border/70 last:border-0"
                     >
                       <td className="px-5 py-4 font-medium">
                         {item.name ?? "-"}
@@ -201,7 +201,7 @@ const ProviderAttendeesTab = () => {
                         </Badge>
                       </td>
                       <td className="px-5 py-4">
-                        <Button size="sm" radius="xl" variant="glass">
+                        <Button size="sm" radius="xl" variant="outline">
                           {t("providerDashboard.attendees.view")}
                         </Button>
                       </td>

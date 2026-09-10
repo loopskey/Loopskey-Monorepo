@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://api.loopskey.com/schemas/podcast-ingestion-item.v1.schema.json",
+  "title": "Loopskey canonical podcast ingestion item v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["externalId", "canonicalUrl", "title", "description", "host"],
+  "properties": {
+    "externalId": { "type": "string", "minLength": 1, "maxLength": 500 },
+    "canonicalUrl": { "type": "string", "format": "uri", "minLength": 1, "maxLength": 2048 },
+    "sourcePlatform": { "type": ["string", "null"], "maxLength": 100 },
+    "title": { "type": "string", "minLength": 1, "maxLength": 500 },
+    "description": { "type": "string", "minLength": 1, "maxLength": 50000 },
+    "host": { "type": "string", "minLength": 1, "maxLength": 500 },
+    "imageCandidateUrl": { "type": ["string", "null"], "format": "uri", "maxLength": 2048 },
+    "category": {
+      "type": ["string", "null"],
+      "enum": ["AI", "CPD", "DATA", "OTHER", "CAREER", "DESIGN", "FINANCE", "BUSINESS", "EDUCATION", "MARKETING", "TECHNOLOGY", "HEALTHCARE", "LEADERSHIP", "COMPLIANCE", "ENGINEERING", null]
+    },
+    "durationMinutes": { "type": ["integer", "number", "string", "null"], "minimum": 0 },
+    "language": { "type": ["string", "null"], "maxLength": 8 },
+    "rawCategory": { "type": ["string", "null"], "maxLength": 500 },
+    "episodes": {
+      "description": "Omit to leave stored episodes unchanged; supply an array (empty clears them) as the authoritative set. An episode without a number is skipped; the podcast and its numbered episodes still land. episodeCount is derived from stored rows and is never read from here.",
+      "type": ["array", "null"],
+      "maxItems": 2000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["episodeNumber", "title"],
+        "properties": {
+          "episodeNumber": { "type": ["integer", "string"], "minimum": 1 },
+          "title": { "type": "string", "minLength": 1, "maxLength": 500 },
+          "description": { "type": ["string", "null"], "maxLength": 50000 },
+          "audioUrl": { "type": ["string", "null"], "maxLength": 2048 },
+          "durationMinutes": { "type": ["integer", "number", "string", "null"], "minimum": 0 },
+          "publishedAt": { "type": ["string", "null"], "format": "date-time" }
+        }
+      }
+    },
+    "lastUpdatedAt": { "type": ["string", "null"], "format": "date-time" },
+    "crawledAt": { "type": ["string", "null"], "format": "date-time" },
+    "updatedAt": { "type": ["string", "null"], "format": "date-time" }
+  }
+}

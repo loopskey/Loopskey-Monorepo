@@ -34,7 +34,7 @@ export const AssociationRequirementAssignDialog = ({
 
   return (
     <D.Dialog open={isAssignOpen} onOpenChange={setAssignOpen}>
-      <D.DialogContent className="glass-dialog z-[9999] max-w-lg rounded-3xl border-glass-border">
+      <D.DialogContent className="glass-dialog z-[9999] max-w-lg rounded-lg border-border">
         <D.DialogHeader>
           <D.DialogTitle className="text-xl">
             {t("associationDashboard.requirements.assign.title")}
@@ -54,7 +54,7 @@ export const AssociationRequirementAssignDialog = ({
                 <RG.RadioGroup
                   value={field.value}
                   onValueChange={field.onChange}
-                  className="gap-2 rounded-2xl border border-glass-border p-3"
+                  className="gap-2 rounded-md border p-3"
                 >
                   {Object.values(AssociationAudienceKind).map((value) => (
                     <div key={value} className="flex items-center gap-3">
@@ -129,7 +129,6 @@ export const AssociationRequirementAssignDialog = ({
               <Button
                 radius="xl"
                 type="submit"
-                variant="brand"
                 disabled={isSaving}
               >
                 {isSaving && <L.Loader2 className="h-4 w-4 animate-spin" />}

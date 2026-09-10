@@ -57,14 +57,14 @@ export const MarkAsCompletedDialog = ({
 
   return (
     <D.Dialog open={open} onOpenChange={onOpenChange}>
-      <D.DialogContent className="glass-dialog max-h-[90vh] max-w-2xl overflow-y-auto rounded-3xl border-glass-border">
+      <D.DialogContent className="glass-dialog max-h-[90vh] max-w-2xl overflow-y-auto rounded-lg border-border">
         <D.DialogHeader>
           <D.DialogTitle>{t(`${MODAL}.title`)}</D.DialogTitle>
           <D.DialogDescription>{t(`${MODAL}.description`)}</D.DialogDescription>
         </D.DialogHeader>
 
         {isAlreadyCompleted && (
-          <div className="flex items-center gap-2 rounded-2xl border border-primary/30 bg-primary/10 px-4 py-3 text-sm font-medium text-primary">
+          <div className="flex items-center gap-2 rounded-md border border-primary/30 bg-primary/10 px-4 py-3 text-sm font-medium text-primary">
             <CheckCircle2 className="h-4 w-4" />
             {t(`${MODAL}.alreadyCompleted`)}
           </div>
@@ -136,7 +136,7 @@ export const MarkAsCompletedDialog = ({
               />
             </div>
 
-            <div className="grid gap-3 rounded-2xl border border-glass-border bg-background/40 p-4 sm:grid-cols-3">
+            <div className="grid gap-3 rounded-md border p-4 sm:grid-cols-3">
               {readOnlyRows.map((row) => (
                 <div key={row.label}>
                   <p className="text-xs font-medium text-muted-foreground">
@@ -176,7 +176,7 @@ export const MarkAsCompletedDialog = ({
               <Button
                 radius="xl"
                 type="button"
-                variant="glass"
+                variant="outline"
                 disabled={isSaving}
                 onClick={() => onOpenChange(false)}
               >
@@ -186,7 +186,6 @@ export const MarkAsCompletedDialog = ({
               <Button
                 radius="xl"
                 type="submit"
-                variant="brand"
                 disabled={isSaving}
               >
                 {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}

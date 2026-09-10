@@ -28,7 +28,7 @@ const CategoryChart = dynamic(
   {
     ssr: false,
     loading: () => (
-      <Skeleton className={`${CHART_HEIGHT} w-full rounded-2xl`} />
+      <Skeleton className={`${CHART_HEIGHT} w-full rounded-md`} />
     ),
   },
 );
@@ -61,7 +61,7 @@ export const AssociationMemberRequirementsSection = ({
         </p>
 
         {assignments.length === 0 ? (
-          <div className="mt-6 rounded-2xl border border-dashed border-glass-border p-8 text-center">
+          <div className="mt-6 rounded-md border border-dashed border-border p-8 text-center">
             <L.ClipboardList className="mx-auto h-8 w-8 text-muted-foreground" />
 
             <p className="mt-3 font-medium">
@@ -189,7 +189,7 @@ export const AssociationMemberRequirementsSection = ({
 
               {categoryRows.length === 0 ? (
                 <div
-                  className={`mt-4 flex ${CHART_HEIGHT} flex-col items-center justify-center rounded-2xl border border-dashed border-glass-border text-center`}
+                  className={`mt-4 flex ${CHART_HEIGHT} flex-col items-center justify-center rounded-md border border-dashed border-border text-center`}
                 >
                   <L.ChartNoAxesColumn className="h-8 w-8 text-muted-foreground" />
 

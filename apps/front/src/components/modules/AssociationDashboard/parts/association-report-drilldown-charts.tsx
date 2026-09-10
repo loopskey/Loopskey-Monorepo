@@ -5,6 +5,7 @@ import { AssociationComplianceBand } from "@/lib/graphql/base";
 import { ASSOCIATION_BAND_ORDER } from "@utils/association-compliance-bands";
 import { NEUTRAL_CHART_SLOT } from "@utils/association-compliance-bands";
 import { semanticChartColor } from "@hooks/useChartPalette";
+import { useChartSemantics } from "@hooks/useChartPalette";
 import { chartTone } from "@utils/association-reports";
 
 import * as T from "@/types/association-dashboard.types";
@@ -31,9 +32,10 @@ export const GroupBandsChart = ({
   rows,
   label,
   locale,
-  palette,
   ungroupedLabel,
 }: T.TAssociationGroupBandsChart) => {
+  const semantics = useChartSemantics();
+
   const descriptionId = "association-report-group-bands-description";
 
   const data = rows.map((row) => ({
@@ -69,7 +71,7 @@ export const GroupBandsChart = ({
                 radius={[0, 8, 8, 0]}
                 name={label(`bands.${band}`)}
                 fill={semanticChartColor(
-                  palette,
+                  semantics,
                   ASSOCIATION_BAND_SEMANTICS[band],
                 )}
               />
@@ -117,6 +119,8 @@ export const CategoryCompletionChart = ({
   locale,
   palette,
 }: T.TAssociationCategoryReportChart) => {
+  const semantics = useChartSemantics();
+
   const descriptionId = "association-report-category-completion-description";
 
   const data = rows.map((row) => ({
@@ -164,7 +168,7 @@ export const CategoryCompletionChart = ({
               radius={[0, 8, 8, 0]}
               dataKey="belowHalfCount"
               name={label("categoryChart.belowHalf")}
-              fill={chartTone(semanticChartColor(palette, "atRisk"), 0.55)}
+              fill={chartTone(semanticChartColor(semantics, "atRisk"), 0.55)}
             />
           </R.BarChart>
         </R.ResponsiveContainer>
@@ -284,9 +288,10 @@ export const MemberExtremesChart = ({
   label,
   locale,
   leaders,
-  palette,
   laggards,
 }: T.TAssociationExtremesChart) => {
+  const semantics = useChartSemantics();
+
   const descriptionId = "association-report-extremes-description";
 
   const toData = (rows: T.TAssociationExtremesChart["leaders"]) =>
@@ -365,13 +370,13 @@ export const MemberExtremesChart = ({
         {strip(
           label("extremes.leaders"),
           leaderRows,
-          semanticChartColor(palette, "renewalReady"),
+          semanticChartColor(semantics, "renewalReady"),
         )}
 
         {strip(
           label("extremes.laggards"),
           laggardRows,
-          semanticChartColor(palette, "atRisk"),
+          semanticChartColor(semantics, "atRisk"),
         )}
       </div>
 

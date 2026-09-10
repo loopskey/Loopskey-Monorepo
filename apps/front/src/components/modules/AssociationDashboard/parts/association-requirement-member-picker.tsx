@@ -82,7 +82,7 @@ export const AssociationRequirementMemberPicker = ({
         placeholder={placeholder}
         aria-describedby={describedById}
         aria-invalid={hasError ? "true" : undefined}
-        className={cn("h-11 rounded-2xl", hasError && "border-destructive")}
+        className={cn("h-11 rounded-md", hasError && "border-destructive")}
         aria-activedescendant={
           options[activeIndex] ? `${listId}-${activeIndex}` : undefined
         }
@@ -99,7 +99,7 @@ export const AssociationRequirementMemberPicker = ({
         role="listbox"
         aria-multiselectable="true"
         aria-label={label}
-        className="max-h-56 overflow-y-auto rounded-2xl border border-glass-border p-1"
+        className="max-h-56 overflow-y-auto rounded-md border p-1"
       >
         {options.length === 0 && (
           <li className="px-3 py-6 text-center text-sm text-muted-foreground">

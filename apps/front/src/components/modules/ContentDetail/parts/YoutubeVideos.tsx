@@ -58,7 +58,7 @@ const YouTubeVideos = ({ videos }: TYouTubeVideosProps) => {
                 radius="xl"
                 type="button"
                 className="mt-4"
-                variant="brandSoft"
+                variant="outline"
                 disabled={!video.videoUrl}
                 asChild={Boolean(video.videoUrl)}
               >

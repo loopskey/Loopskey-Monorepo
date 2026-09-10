@@ -37,7 +37,7 @@ export const AssociationRequirementsHeader = ({
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             onClick={() => goTo(null)}
           >
             <L.ArrowLeft className="h-4 w-4" />
@@ -49,7 +49,6 @@ export const AssociationRequirementsHeader = ({
           <Button
             radius="xl"
             type="button"
-            variant="brand"
             disabled={isLoading}
             onClick={startWizard}
           >

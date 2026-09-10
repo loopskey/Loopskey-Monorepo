@@ -73,17 +73,16 @@ const FaqPage = () => {
   return (
     <main className="overflow-x-clip">
       <section className="relative px-4 py-10">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,color-mix(in_oklab,var(--primary)_18%,transparent),transparent_34%),radial-gradient(circle_at_bottom_right,color-mix(in_oklab,var(--accent)_14%,transparent),transparent_32%)]" />
 
         <div className="mx-auto max-w-7xl">
           <div className="mx-auto max-w-3xl text-center">
-            <span className="inline-flex w-fit items-center rounded-full border border-glass-border bg-background/55 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm backdrop-blur-xl ring-1 ring-white/40">
+            <span className="inline-flex w-fit items-center rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary shadow-sm ring-1 ring-white/40">
               {t("faqPage.hero.eyebrow")}
             </span>
 
             <h1 className="mt-6 text-4xl font-medium leading-tight text-foreground md:text-6xl">
               {t("faqPage.hero.title")}{" "}
-              <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+              <span className="text-primary">
                 {t("faqPage.hero.highlight")}
               </span>
             </h1>
@@ -114,7 +113,7 @@ const FaqPage = () => {
                     type="button"
                     size="iconSm"
                     radius="full"
-                    variant="glass"
+                    variant="outline"
                     onClick={handleResetFilters}
                     aria-label={t("common.reset")}
                   >
@@ -133,10 +132,10 @@ const FaqPage = () => {
                       type="button"
                       onClick={() => setActiveCategory(category)}
                       className={cn(
-                        "group flex items-center justify-between rounded-2xl border px-4 py-3 text-left text-sm transition-all duration-300",
+                        "group flex items-center justify-between rounded-md border px-4 py-3 text-left text-sm transition-all duration-300",
                         isActive
                           ? "border-primary/30 bg-primary/10 text-primary shadow-sm"
-                          : "border-glass-border bg-background/35 text-muted-foreground hover:border-primary/25 hover:bg-primary/5 hover:text-foreground",
+                          : "border-border text-muted-foreground hover:border-primary/25 hover:bg-primary/5 hover:text-foreground",
                       )}
                     >
                       <span className="flex items-center gap-3">
@@ -157,7 +156,7 @@ const FaqPage = () => {
 
             <GlassCard className="p-5">
               <div className="flex items-start gap-3">
-                <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+                <div className="rounded-md bg-primary/10 p-3 text-primary">
                   <L.LockKeyhole className="h-5 w-5" />
                 </div>
                 <div>
@@ -172,7 +171,6 @@ const FaqPage = () => {
               <Button
                 asChild
                 radius="xl"
-                variant="brand"
                 className="mt-5 w-full"
               >
                 <Link href="/contact">
@@ -199,7 +197,7 @@ const FaqPage = () => {
                     <Button
                       radius="xl"
                       type="button"
-                      variant="glass"
+                      variant="outline"
                       className="h-14"
                       onClick={handleResetFilters}
                       disabled={!hasActiveFilters}
@@ -224,7 +222,7 @@ const FaqPage = () => {
                       >
                         <article
                           className={cn(
-                            "group overflow-hidden rounded-[2rem] border border-glass-border bg-background/55 shadow-sm backdrop-blur-xl transition-all duration-300",
+                            "group overflow-hidden rounded-lg border shadow-sm transition-all duration-300",
                             isOpen
                               ? "border-primary/30 shadow-xl shadow-primary/5"
                               : "hover:-translate-y-1 hover:border-primary/20 hover:bg-primary/5",
@@ -241,7 +239,7 @@ const FaqPage = () => {
                             <div className="flex gap-4">
                               <div
                                 className={cn(
-                                  "mt-1 rounded-2xl p-3 transition-colors",
+                                  "mt-1 rounded-md p-3 transition-colors",
                                   isOpen
                                     ? "bg-primary text-primary-foreground"
                                     : "bg-primary/10 text-primary",
@@ -298,7 +296,7 @@ const FaqPage = () => {
                   })
                 ) : (
                   <GlassCard className="p-10 text-center">
-                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-md bg-primary/10 text-primary">
                       <L.HelpCircle className="h-6 w-6" />
                     </div>
                     <h3 className="mt-5 text-xl font-semibold text-foreground">
@@ -310,7 +308,6 @@ const FaqPage = () => {
                     <Button
                       radius="xl"
                       type="button"
-                      variant="brand"
                       className="mt-6"
                       onClick={resetFilters}
                     >
@@ -326,11 +323,10 @@ const FaqPage = () => {
       <section className="px-4 pb-28">
         <div className="mx-auto max-w-7xl">
           <RevealOnScroll direction="up">
-            <div className="relative overflow-hidden rounded-[2.5rem] border border-primary/20 bg-slate-600 p-8 text-white shadow-2xl md:p-10">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,color-mix(in_oklab,var(--primary)_35%,transparent),transparent_34%),radial-gradient(circle_at_bottom_right,color-mix(in_oklab,var(--accent)_25%,transparent),transparent_30%)]" />
+            <div className="relative overflow-hidden rounded-lg border border-primary/20 bg-muted-foreground p-8 text-white shadow-md md:p-10">
               <div className="relative z-10 grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
                 <div>
-                  <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white/80 backdrop-blur-xl">
+                  <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white/80">
                     <L.Sparkles className="h-4 w-4" />
                     {t("faqPage.cta.eyebrow")}
                   </div>
@@ -339,7 +335,7 @@ const FaqPage = () => {
                     {t("faqPage.cta.title")}
                   </h2>
 
-                  <p className="mt-4 max-w-2xl text-lg leading-relaxed text-slate-300">
+                  <p className="mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
                     {t("faqPage.cta.description")}
                   </p>
                 </div>
@@ -348,7 +344,6 @@ const FaqPage = () => {
                   asChild
                   size="lg"
                   radius="xl"
-                  variant="brand"
                   className="w-full lg:w-auto"
                 >
                   <Link href="/contact">

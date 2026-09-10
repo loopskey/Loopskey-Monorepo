@@ -1,4 +1,5 @@
 import { RoadmapStepProgressStatus } from "@/lib/graphql/base";
+import { PatchRoadmapDraftInput } from "@/lib/graphql/base";
 import { RoadmapDraftStatus } from "@/lib/graphql/base";
 import { StepPending } from "@/hooks/useRoadmapStepProgress";
 
@@ -86,4 +87,52 @@ export type TRoadmapSummaryProps = {
   requiredCredits?: number | null;
   recommendations: Recommendation[];
   t: (key: string, values?: Record<string, string | number>) => string;
+};
+
+export type Patch = Omit<PatchRoadmapDraftInput, "draftId">;
+
+export type TRoadmapReviewSummary = {
+  isPatching: boolean;
+  draft: TRoadmapDraft;
+  onGenerate?: () => void;
+  onKeepEditing: () => void;
+  onPatch: (changes: Patch) => void;
+};
+
+type EditorKind =
+  | { kind: "text"; multiline: boolean }
+  | { kind: "date" }
+  | { kind: "number" }
+  | { kind: "single"; values: string[]; labelNs: string }
+  | { kind: "multi"; values: string[]; labelNs: string }
+  | { kind: "subjects" }
+  | { kind: "boolean" };
+
+export type Row = {
+  field: keyof Patch;
+  editor: EditorKind;
+  value: string | string[] | number | boolean | null | undefined;
+};
+
+export type TRowProps = {
+  row: Row;
+  isEditing: boolean;
+  onEdit: () => void;
+  isPatching: boolean;
+  onCancel: () => void;
+  draft: TRoadmapDraft;
+  onCommit: (field: keyof Patch, value: Patch[keyof Patch]) => void;
+};
+
+export type TEditorProps = {
+  row: Row;
+  onCancel: () => void;
+  draft: TRoadmapDraft;
+  onCommit: (field: keyof Patch, value: Patch[keyof Patch]) => void;
+};
+
+export type TRoadmapWidgetControl = {
+  disabled: boolean;
+  widget: TRoadmapWidget;
+  onAnswer: (value: string) => void;
 };

@@ -19,7 +19,7 @@ const OrgAssignmentsTab = () => {
     <div className="space-y-6">
       <OrgAssignmentsHeader t={hook.t} />
       <T.Tabs defaultValue="active" className="space-y-6">
-        <T.TabsList className="grid w-full max-w-xl grid-cols-2 rounded-2xl">
+        <T.TabsList className="grid w-full max-w-xl grid-cols-2 rounded-md">
           <T.TabsTrigger value="active">
             {hook.t("organizationDashboard.assignments.tabs.active")}
           </T.TabsTrigger>

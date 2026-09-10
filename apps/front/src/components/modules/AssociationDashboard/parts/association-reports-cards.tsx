@@ -87,7 +87,7 @@ export const AssociationReportsCards = ({ hook }: TAssociationReportsCards) => {
         <GlassCard key={card.id} glow={false} className="p-0 md:p-0">
           <button
             type="button"
-            className="relative z-10 flex h-full w-full flex-col gap-3 rounded-[2rem] p-6 text-left transition-colors hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:p-5"
+            className="relative z-10 flex h-full w-full flex-col gap-3 rounded-lg p-6 text-left transition-colors hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:p-5"
             aria-label={label("cards.open", {
               report: label(`names.${card.report}`),
             })}
@@ -99,7 +99,7 @@ export const AssociationReportsCards = ({ hook }: TAssociationReportsCards) => {
             }
           >
             <span className="flex items-center gap-3">
-              <span className="rounded-2xl bg-primary/10 p-2.5 text-primary">
+              <span className="rounded-md bg-primary/10 p-2.5 text-primary">
                 <card.icon className="h-5 w-5" />
               </span>
 
@@ -109,7 +109,7 @@ export const AssociationReportsCards = ({ hook }: TAssociationReportsCards) => {
             </span>
 
             {isLoading ? (
-              <Skeleton className="h-16 w-full rounded-2xl" />
+              <Skeleton className="h-16 w-full rounded-md" />
             ) : (
               <span className="block">
                 <span className="block text-2xl font-medium tabular-nums">

@@ -3,7 +3,7 @@
 import { ProviderDashboardRange } from "@/lib/graphql/base";
 import { useProviderOverviewTab } from "@/hooks/useProviderOverviewTab";
 import { DashboardStatCard } from "@modules/ProfessionalDashboard/parts/dashboard-stat-card";
-import { CHART_COLORS } from "@/utils/constant";
+import { useChartPalette } from "@hooks/useChartPalette";
 import { QuickAction } from "@modules/ProviderDashboard/parts/provider-quick-action";
 import { formatDate } from "@/utils/function-helper";
 import { MiniMetric } from "@modules/ProviderDashboard/parts/provider-mini-metric";
@@ -27,6 +27,8 @@ const rangeItems = [
 ];
 
 const ProviderOverviewTab = () => {
+  const palette = useChartPalette();
+
   const { t } = useI18n();
 
   const {
@@ -63,7 +65,7 @@ const ProviderOverviewTab = () => {
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             disabled={isLoading}
             onClick={refreshAll}
           >
@@ -71,13 +73,13 @@ const ProviderOverviewTab = () => {
             {t("common.refresh")}
           </Button>
 
-          <Button asChild radius="xl" variant="glass">
+          <Button asChild radius="xl" variant="outline">
             <Link href="/dashboard/provider?tab=my-events">
               {t("providerDashboard.overview.viewAllEvents")}
             </Link>
           </Button>
 
-          <Button asChild radius="xl" variant="brand">
+          <Button asChild radius="xl">
             <Link href="/dashboard/provider?tab=create-event">
               <L.FilePlus2 className="h-4 w-4" />
               {t("providerDashboard.overview.createEvent")}
@@ -104,7 +106,7 @@ const ProviderOverviewTab = () => {
                 radius="xl"
                 type="button"
                 onClick={() => setRange(item)}
-                variant={range === item ? "brand" : "glass"}
+                variant={range === item ? "default" : "outline"}
               >
                 {t(`providerDashboard.ranges.${item}`)}
               </Button>
@@ -164,26 +166,6 @@ const ProviderOverviewTab = () => {
                     bottom: 8,
                   }}
                 >
-                  <defs>
-                    <linearGradient
-                      id="registrationsGradient"
-                      x1="0"
-                      x2="0"
-                      y1="0"
-                      y2="1"
-                    >
-                      <stop
-                        offset="5%"
-                        stopOpacity={0.35}
-                        stopColor="var(--primary)"
-                      />
-                      <stop
-                        offset="95%"
-                        stopOpacity={0.04}
-                        stopColor="var(--primary)"
-                      />
-                    </linearGradient>
-                  </defs>
                   <R.CartesianGrid strokeDasharray="3 3" opacity={0.2} />
                   <R.XAxis
                     fontSize={12}
@@ -203,11 +185,12 @@ const ProviderOverviewTab = () => {
                   <R.Tooltip />
                   <R.Area
                     type="monotone"
-                    strokeWidth={3}
+                    strokeWidth={2.5}
                     dataKey="registrations"
                     stroke="var(--primary)"
                     isAnimationActive={false}
-                    fill="url(#registrationsGradient)"
+                    fill="var(--primary)"
+                    fillOpacity={0.1}
                     dot={{ r: 4, fill: "var(--primary)", strokeWidth: 0 }}
                     activeDot={{ r: 6, fill: "var(--primary)", strokeWidth: 0 }}
                     name={t(
@@ -217,7 +200,7 @@ const ProviderOverviewTab = () => {
                 </R.AreaChart>
               </R.ResponsiveContainer>
             ) : (
-              <div className="flex h-full items-center justify-center rounded-3xl border border-dashed border-glass-border text-sm text-muted-foreground">
+              <div className="flex h-full items-center justify-center rounded-lg border border-dashed border-border text-sm text-muted-foreground">
                 {t("providerDashboard.overview.performance.empty")}
               </div>
             )}
@@ -231,12 +214,12 @@ const ProviderOverviewTab = () => {
 
           <div className="mt-5 space-y-3">
             <SummaryRow
-              className="bg-emerald-500/10"
+              className="bg-success-soft"
               value={statusBreakdown?.published ?? 0}
               label={t("providerDashboard.overview.summary.published")}
             />
             <SummaryRow
-              className="bg-amber-500/10"
+              className="bg-warning-soft"
               value={statusBreakdown?.draft ?? 0}
               label={t("providerDashboard.overview.summary.draft")}
             />
@@ -265,7 +248,7 @@ const ProviderOverviewTab = () => {
                 {t("providerDashboard.overview.upcoming.description")}
               </p>
             </div>
-            <Button asChild size="sm" radius="xl" variant="glass">
+            <Button asChild size="sm" radius="xl" variant="outline">
               <Link href="/dashboard/provider?tab=my-events">
                 {t("providerDashboard.overview.viewAllEvents")}
               </Link>
@@ -274,10 +257,7 @@ const ProviderOverviewTab = () => {
           <div className="mt-5 grid gap-3 md:grid-cols-2">
             {upcomingEvents.length ? (
               upcomingEvents.map((event) => (
-                <div
-                  key={event.id}
-                  className="rounded-3xl border border-glass-border bg-background/45 p-4"
-                >
+                <div key={event.id} className="rounded-lg border p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="line-clamp-1 font-medium">{event.title}</p>
@@ -301,7 +281,7 @@ const ProviderOverviewTab = () => {
                 </div>
               ))
             ) : (
-              <div className="rounded-3xl border border-dashed border-glass-border p-6 text-sm text-muted-foreground md:col-span-2">
+              <div className="rounded-lg border border-dashed border-border p-6 text-sm text-muted-foreground md:col-span-2">
                 {t("providerDashboard.overview.upcoming.empty")}
               </div>
             )}
@@ -345,11 +325,11 @@ const ProviderOverviewTab = () => {
                 <R.XAxis dataKey="title" fontSize={11} />
                 <R.YAxis fontSize={12} />
                 <R.Tooltip />
-                <R.Bar dataKey="registrations" radius={[12, 12, 0, 0]}>
+                <R.Bar dataKey="registrations" radius={[6, 6, 0, 0]}>
                   {topEvents.slice(0, 6).map((_, index) => (
                     <R.Cell
                       key={index}
-                      fill={CHART_COLORS[index % CHART_COLORS.length]}
+                      fill={palette[index % palette.length]}
                     />
                   ))}
                 </R.Bar>

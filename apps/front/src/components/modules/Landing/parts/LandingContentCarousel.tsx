@@ -91,8 +91,7 @@ const LandingContentCarousel = ({
   if (!carouselItems.length) return null;
 
   return (
-    <div className="relative overflow-hidden rounded-[2rem] border border-glass-border bg-background/35 p-4 shadow-sm backdrop-blur-xl md:p-5">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(59,130,246,0.14),transparent_34%),radial-gradient(circle_at_90%_20%,rgba(20,184,166,0.10),transparent_36%)]" />
+    <div className="relative overflow-hidden rounded-lg border p-4 shadow-sm md:p-5">
       <div className="relative z-10 mb-5 flex items-center justify-between gap-4">
         <div>
           <p className="text-sm font-medium">
@@ -111,7 +110,7 @@ const LandingContentCarousel = ({
             size="icon"
             type="button"
             radius="full"
-            variant="glass"
+            variant="outline"
             onClick={scrollPrev}
             aria-label="Previous slide"
           >
@@ -122,7 +121,7 @@ const LandingContentCarousel = ({
             size="icon"
             type="button"
             radius="full"
-            variant="glass"
+            variant="outline"
             onClick={scrollNext}
             aria-label="Next slide"
           >

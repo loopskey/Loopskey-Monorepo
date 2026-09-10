@@ -59,7 +59,7 @@ const EmailOtpVerificationForm = ({
     <Form {...form}>
       <form className="space-y-5" onSubmit={form.handleSubmit(onVerify)}>
         <div className="text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-inner">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-md bg-primary/10 text-primary shadow-inner">
             <ShieldCheck className="h-6 w-6" />
           </div>
           <h2 className="text-xl font-extrabold tracking-tight">
@@ -89,7 +89,6 @@ const EmailOtpVerificationForm = ({
           size="lg"
           radius="xl"
           type="submit"
-          variant="brand"
           className="w-full"
           disabled={isVerifying}
         >
@@ -107,7 +106,7 @@ const EmailOtpVerificationForm = ({
           <Button
             radius="xl"
             type="button"
-            variant="glass"
+            variant="outline"
             onClick={onBack}
             disabled={isVerifying || isResending}
           >
@@ -119,7 +118,7 @@ const EmailOtpVerificationForm = ({
             <Button
               radius="xl"
               type="button"
-              variant="brandSoft"
+              variant="outline"
               onClick={handleResend}
               disabled={isVerifying || isResending}
             >

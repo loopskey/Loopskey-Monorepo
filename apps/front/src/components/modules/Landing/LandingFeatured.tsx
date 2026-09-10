@@ -29,15 +29,12 @@ const LandingFeatured = () => {
   return (
     <section className="relative overflow-x-clip px-4 py-10 sm:px-6 lg:px-8">
       <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute left-1/2 top-10 h-80 w-80 -translate-x-1/2 rounded-full bg-primary/15 blur-3xl" />
-        <div className="absolute right-10 bottom-10 h-72 w-72 rounded-full bg-cyan-500/10 blur-3xl" />
-        <div className="absolute bottom-20 left-10 h-72 w-72 rounded-full bg-violet-500/10 blur-3xl" />
       </div>
 
       <div className="mx-auto max-w-7xl space-y-8 px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center text-center gap-6">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-glass-border bg-background/60 px-4 py-2 text-sm font-bold text-primary shadow-sm backdrop-blur-xl">
+          <div className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold text-primary shadow-sm">
             <Sparkles className="h-4 w-4" />
             {t("landing.learningHub.badge")}
           </div>
@@ -64,7 +61,7 @@ const LandingFeatured = () => {
           {/* Button */}
           <Button
             asChild
-            variant="brandSoft"
+            variant="outline"
             radius="xl"
             size="lg"
             className="mt-4"

@@ -68,10 +68,10 @@ export const CpdStepEvidence = ({ t, form, control }: TCpdStepProps) => {
               <label
                 key={value}
                 className={cn(
-                  "flex cursor-pointer items-center gap-3 rounded-2xl border p-4 transition-all",
+                  "flex cursor-pointer items-center gap-3 rounded-md border p-4 transition-all",
                   checked
                     ? "border-primary bg-primary/5"
-                    : "border-glass-border bg-background/40 hover:border-primary/40",
+                    : "border-border hover:border-primary/40",
                 )}
               >
                 <Checkbox
@@ -122,7 +122,7 @@ export const CpdStepEvidence = ({ t, form, control }: TCpdStepProps) => {
         />
       )}
 
-      <div className="space-y-4 rounded-2xl border border-glass-border bg-background/40 p-4">
+      <div className="space-y-4 rounded-md border p-4">
         <div className="flex items-center justify-between gap-4">
           <div>
             <p className="text-sm font-medium">

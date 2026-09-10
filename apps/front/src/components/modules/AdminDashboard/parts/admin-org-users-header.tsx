@@ -33,7 +33,7 @@ export const AdminOrganizationUsersHeader = ({ hook }: Props) => {
         <Button
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           disabled={!hasActiveOrgFilters || isLoading}
           onClick={resetOrgFilters}
         >
@@ -44,7 +44,7 @@ export const AdminOrganizationUsersHeader = ({ hook }: Props) => {
         <Button
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           disabled={isLoading}
           onClick={refreshAll}
         >

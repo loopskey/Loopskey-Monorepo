@@ -84,7 +84,7 @@ export const OrganizationSettingsPanel = ({
               }))
             }
           >
-            <S.SelectTrigger className="rounded-2xl">
+            <S.SelectTrigger className="rounded-md">
               <S.SelectValue />
             </S.SelectTrigger>
             <S.SelectContent>
@@ -97,7 +97,7 @@ export const OrganizationSettingsPanel = ({
           </S.Select>
         </div>
 
-        <div className="mt-5 flex items-center justify-between rounded-2xl bg-background/45 p-4">
+        <div className="mt-5 flex items-center justify-between rounded-md bg-muted p-4">
           <div>
             <p className="font-medium">
               {t("adminDashboard.organizationUsers.settings.strictCompliance")}
@@ -125,7 +125,7 @@ export const OrganizationSettingsPanel = ({
         {booleanSettings.map((item) => (
           <div
             key={item.key}
-            className="mt-4 flex items-center justify-between rounded-2xl bg-background/45 p-4"
+            className="mt-4 flex items-center justify-between rounded-md bg-muted p-4"
           >
             <p className="font-medium">
               {t(`adminDashboard.organizationUsers.settings.${item.label}`)}
@@ -145,7 +145,7 @@ export const OrganizationSettingsPanel = ({
         radius="xl"
         disabled={isLoading}
         onClick={handleSave}
-        variant="brandOutline"
+        variant="outline"
       >
         {t("common.save")}
       </Button>

@@ -24,7 +24,7 @@ export const CpdCategoryCompletion = ({
       </div>
 
       {progress.categories.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-glass-border bg-background/40 p-8 text-center text-sm text-muted-foreground">
+        <div className="rounded-md border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
           {t("cpdProgress.progress.noCategories")}
         </div>
       ) : (
@@ -32,7 +32,7 @@ export const CpdCategoryCompletion = ({
           {progress.categories.map((category) => (
             <div
               key={category.id}
-              className="rounded-2xl border border-glass-border bg-background/40 p-4"
+              className="rounded-md border p-4"
             >
               <div className="mb-3 flex items-center justify-between gap-3">
                 <div>

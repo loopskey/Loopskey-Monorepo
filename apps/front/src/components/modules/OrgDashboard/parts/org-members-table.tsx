@@ -17,7 +17,7 @@ export const OrgMembersTable = ({
     <div className="mt-6 overflow-x-auto">
       <table className="w-full min-w-[900px] text-left text-sm">
         <thead className="text-xs uppercase text-muted-foreground">
-          <tr className="border-b border-glass-border">
+          <tr className="border-b border-border">
             <th className="py-3">
               {t("organizationDashboard.members.table.name")}
             </th>
@@ -35,7 +35,7 @@ export const OrgMembersTable = ({
           {members.map((member) => (
             <tr
               key={member.id}
-              className="border-b border-glass-border/70 transition-colors hover:bg-primary/5"
+              className="border-b border-border/70 transition-colors hover:bg-primary/5"
             >
               <td className="py-4">
                 <div>
@@ -70,7 +70,7 @@ export const OrgMembersTable = ({
                   size="sm"
                   radius="xl"
                   type="button"
-                  variant="glass"
+                  variant="outline"
                   disabled={isLoading}
                   onClick={() => openMemberDetail(member.id)}
                 >

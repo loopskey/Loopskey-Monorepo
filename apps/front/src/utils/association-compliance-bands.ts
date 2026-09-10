@@ -1,7 +1,7 @@
 import { AssociationComplianceBand } from "@/lib/graphql/base";
 import { semanticChartColor } from "@hooks/useChartPalette";
 
-import type { TChartSemantic } from "@hooks/useChartPalette";
+import type { TChartSemantic, TChartSemantics } from "@hooks/useChartPalette";
 
 export const ASSOCIATION_BAND_ORDER = [
   AssociationComplianceBand.RenewalReady,
@@ -30,6 +30,6 @@ export const ASSOCIATION_BAND_VARIANTS = {
 export const NEUTRAL_CHART_SLOT = 1;
 
 export const bandChartColor = (
-  palette: string[],
+  semantics: TChartSemantics,
   band: AssociationComplianceBand,
-) => semanticChartColor(palette, ASSOCIATION_BAND_SEMANTICS[band]);
+) => semanticChartColor(semantics, ASSOCIATION_BAND_SEMANTICS[band]);

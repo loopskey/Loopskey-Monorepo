@@ -1,5 +1,7 @@
 "use client";
 
+import { useChartPalette } from "@hooks/useChartPalette";
+
 import { DashboardStatCard } from "@modules/ProfessionalDashboard/parts/dashboard-stat-card";
 import { ContentPagination } from "@elements/pagination";
 import { Role, UserStatus } from "@/lib/graphql/base";
@@ -23,6 +25,8 @@ const statusOptions = [
 ];
 
 const AdminUsersTab = () => {
+  const palette = useChartPalette();
+
   const {
     t,
     users,
@@ -80,7 +84,7 @@ const AdminUsersTab = () => {
         <Button
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           disabled={isLoading}
           onClick={refreshAll}
         >
@@ -128,7 +132,7 @@ const AdminUsersTab = () => {
                 setGrowthMode(value as "DAILY" | "MONTHLY")
               }
             >
-              <S.SelectTrigger className="w-40 rounded-2xl">
+              <S.SelectTrigger className="w-40 rounded-md">
                 <S.SelectValue />
               </S.SelectTrigger>
               <S.SelectContent>
@@ -143,7 +147,7 @@ const AdminUsersTab = () => {
             <Button
               radius="xl"
               type="button"
-              variant="glass"
+              variant="outline"
               onClick={exportGrowthPng}
             >
               <L.Download className="h-4 w-4" />
@@ -152,7 +156,7 @@ const AdminUsersTab = () => {
           </div>
         </div>
 
-        <div ref={chartRef} className="mt-6 h-80 rounded-3xl bg-background p-4">
+        <div ref={chartRef} className="mt-6 h-80 rounded-lg bg-background p-4">
           <R.ResponsiveContainer width="100%" height="100%">
             <R.AreaChart data={growth}>
               <R.CartesianGrid strokeDasharray="3 3" opacity={0.25} />
@@ -163,17 +167,17 @@ const AdminUsersTab = () => {
               <R.Area
                 type="monotone"
                 strokeWidth={3}
-                fill="#2563eb"
-                stroke="#2563eb"
+                fill={palette[0]}
+                stroke={palette[0]}
                 fillOpacity={0.18}
                 dataKey="providers"
                 name={t("adminDashboard.users.growth.providers")}
               />
               <R.Area
-                fill="#14b8a6"
+                fill={palette[2]}
                 type="monotone"
                 strokeWidth={3}
-                stroke="#14b8a6"
+                stroke={palette[2]}
                 fillOpacity={0.18}
                 dataKey="professionals"
                 name={t("adminDashboard.users.growth.professionals")}
@@ -199,7 +203,7 @@ const AdminUsersTab = () => {
             <L.Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={userSearch}
-              className="rounded-2xl pl-10"
+              className="rounded-md pl-10"
               placeholder={t("adminDashboard.users.filters.search")}
               onChange={(event) => setUserSearch(event.target.value)}
             />
@@ -209,7 +213,7 @@ const AdminUsersTab = () => {
             value={userRole}
             onValueChange={(value) => setUserRole(value as Role | "ALL")}
           >
-            <S.SelectTrigger className="rounded-2xl">
+            <S.SelectTrigger className="rounded-md">
               <S.SelectValue />
             </S.SelectTrigger>
             <S.SelectContent>
@@ -230,7 +234,7 @@ const AdminUsersTab = () => {
               setUserStatus(value as UserStatus | "ALL")
             }
           >
-            <S.SelectTrigger className="rounded-2xl">
+            <S.SelectTrigger className="rounded-md">
               <S.SelectValue />
             </S.SelectTrigger>
             <S.SelectContent>
@@ -245,14 +249,14 @@ const AdminUsersTab = () => {
             </S.SelectContent>
           </S.Select>
 
-          <div className="flex items-center justify-between rounded-2xl border border-glass-border bg-background/45 px-4">
+          <div className="flex items-center justify-between rounded-md border px-4">
             <span className="text-sm font-medium">
               {t("adminDashboard.users.filters.premiumOnly")}
             </span>
             <Switch checked={premiumOnly} onCheckedChange={setPremiumOnly} />
           </div>
         </div>
-        <div className="mt-6 overflow-hidden rounded-3xl border border-glass-border">
+        <div className="mt-6 overflow-hidden rounded-lg border">
           <div className="hidden grid-cols-[1.2fr_0.8fr_0.8fr_0.8fr_0.9fr_0.8fr_1fr] gap-4 bg-muted/50 px-5 py-4 text-xs font-medium uppercase text-muted-foreground xl:grid">
             <span>{t("adminDashboard.users.table.user")}</span>
             <span>{t("adminDashboard.users.table.role")}</span>
@@ -263,7 +267,7 @@ const AdminUsersTab = () => {
             <span>{t("adminDashboard.users.table.actions")}</span>
           </div>
 
-          <div className="divide-y divide-glass-border">
+          <div className="divide-y divide-border">
             {users.length ? (
               users.map((user) => (
                 <div
@@ -295,7 +299,7 @@ const AdminUsersTab = () => {
                     <Button
                       size="sm"
                       radius="xl"
-                      variant="glass"
+                      variant="outline"
                       disabled={isLoading}
                       onClick={() =>
                         changeUserStatus(user.id, UserStatus.Active)
@@ -338,7 +342,7 @@ const AdminUsersTab = () => {
       </GlassCard>
       <GlassCard>
         <div className="flex items-start gap-3">
-          <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+          <div className="rounded-md bg-primary/10 p-3 text-primary">
             <L.Activity className="h-5 w-5" />
           </div>
 
@@ -356,13 +360,13 @@ const AdminUsersTab = () => {
           <L.Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={auditSearch}
-            className="rounded-2xl pl-10"
+            className="rounded-md pl-10"
             placeholder={t("adminDashboard.users.audit.search")}
             onChange={(event) => setAuditSearch(event.target.value)}
           />
         </div>
 
-        <div className="mt-6 overflow-hidden rounded-3xl border border-glass-border">
+        <div className="mt-6 overflow-hidden rounded-lg border">
           <div className="hidden grid-cols-[1fr_1fr_1fr_1fr] gap-4 bg-muted/50 px-5 py-4 text-xs font-medium uppercase text-muted-foreground lg:grid">
             <span>{t("adminDashboard.users.audit.action")}</span>
             <span>{t("adminDashboard.users.audit.actor")}</span>
@@ -370,7 +374,7 @@ const AdminUsersTab = () => {
             <span>{t("adminDashboard.users.audit.date")}</span>
           </div>
 
-          <div className="divide-y divide-glass-border">
+          <div className="divide-y divide-border">
             {auditLogs.length ? (
               auditLogs.map((log) => (
                 <div

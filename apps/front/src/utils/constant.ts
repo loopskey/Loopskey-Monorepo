@@ -230,8 +230,8 @@ export const statusConfig = {
   },
   upcoming: {
     icon: L.Circle,
-    circleClassName: "bg-background text-muted-foreground border-glass-border",
-    lineClassName: "bg-glass-border",
+    circleClassName: "bg-background text-muted-foreground border-border",
+    lineClassName: "bg-border",
   },
 } as const;
 
@@ -287,14 +287,14 @@ export const fallbackFeatures = [
 
 // ============= Charts =================
 export const CHART_COLORS = [
-  "#2563eb",
-  "#14b8a6",
-  "#a855f7",
-  "#f97316",
-  "#22c55e",
-  "#ef4444",
-  "#eab308",
-  "#06b6d4",
+  "#1F1F8E",
+  "#2563EB",
+  "#0F766E",
+  "#7C3AED",
+  "#C65F00",
+  "#BE185D",
+  "#0369A1",
+  "#475569",
 ];
 
 export const PAGE_SIZE = 10;

@@ -14,13 +14,13 @@ export const ConfirmDialog = ({
   isLoading = false,
   cancelText = "Cancel",
   confirmText = "Confirm",
-  confirmVariant = "brand",
+  confirmVariant = "default",
 }: TConfirmDialogProps) => {
   return (
     <A.AlertDialog>
       <A.AlertDialogTrigger asChild>{trigger}</A.AlertDialogTrigger>
 
-      <A.AlertDialogContent className="glass-dialog z-[9999] rounded-3xl border-glass-border">
+      <A.AlertDialogContent className="z-[9999] rounded-lg">
         <A.AlertDialogHeader>
           <A.AlertDialogTitle className="text-xl">{title}</A.AlertDialogTitle>
 

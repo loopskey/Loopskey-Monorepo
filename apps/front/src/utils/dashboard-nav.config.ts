@@ -240,6 +240,12 @@ export const adminDashboardTabs: TDashboardTab<TAdminDashboardTab>[] = [
     icon: L.Landmark,
   },
   {
+    value: "ingestion",
+    labelKey: "adminDashboard.sidebar.ingestion",
+    href: "/dashboard/admin?tab=ingestion",
+    icon: L.DatabaseZap,
+  },
+  {
     value: "users",
     labelKey: "adminDashboard.sidebar.users",
     href: "/dashboard/admin?tab=users",

@@ -19,7 +19,7 @@ export const OrgMembersAddCard = ({
   return (
     <GlassCard>
       <div className="flex items-start gap-3">
-        <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+        <div className="rounded-md bg-primary/10 p-3 text-primary">
           <L.UserPlus className="h-5 w-5" />
         </div>
 
@@ -74,7 +74,6 @@ export const OrgMembersAddCard = ({
           <Button
             radius="xl"
             type="submit"
-            variant="brand"
             className="w-full"
             disabled={isLoading}
           >

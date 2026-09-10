@@ -55,7 +55,7 @@ export const AssociationMembersFilters = ({
           <Input
             value={search}
             id="association-member-search"
-            className="h-11 rounded-2xl pl-9"
+            className="h-11 rounded-md pl-9"
             onChange={(event) => setSearch(event.target.value)}
             placeholder={t(
               "associationDashboard.members.filters.searchPlaceholder",
@@ -70,11 +70,11 @@ export const AssociationMembersFilters = ({
         </Label>
 
         <S.Select value={groupId} onValueChange={setGroupId}>
-          <S.SelectTrigger id="association-member-group" className="h-11 rounded-2xl">
+          <S.SelectTrigger id="association-member-group" className="h-11 rounded-md">
             <S.SelectValue />
           </S.SelectTrigger>
 
-          <S.SelectContent className="z-[9999] rounded-2xl">
+          <S.SelectContent className="z-[9999] rounded-md">
             <S.SelectItem value={ALL}>
               {t("associationDashboard.members.filters.allGroups")}
             </S.SelectItem>
@@ -96,12 +96,12 @@ export const AssociationMembersFilters = ({
         <S.Select value={status} onValueChange={setStatus}>
           <S.SelectTrigger
             id="association-member-status"
-            className="h-11 rounded-2xl"
+            className="h-11 rounded-md"
           >
             <S.SelectValue />
           </S.SelectTrigger>
 
-          <S.SelectContent className="z-[9999] rounded-2xl">
+          <S.SelectContent className="z-[9999] rounded-md">
             <S.SelectItem value={ALL}>
               {t("associationDashboard.members.filters.allStatuses")}
             </S.SelectItem>
@@ -119,7 +119,7 @@ export const AssociationMembersFilters = ({
         <Button
           radius="xl"
           type="button"
-          variant="glass"
+          variant="outline"
           className="h-11"
           onClick={resetFilters}
         >

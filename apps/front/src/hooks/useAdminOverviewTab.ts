@@ -21,14 +21,17 @@ export const useAdminOverviewTab = () => {
     if (!overview) return [];
     return [
       {
+        key: "pending",
         label: "Pending",
         count: overview.pendingRequests,
       },
       {
+        key: "approved",
         label: "Approved",
         count: overview.approvedRequests,
       },
       {
+        key: "rejected",
         label: "Rejected",
         count: overview.rejectedRequests,
       },

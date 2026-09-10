@@ -3,10 +3,10 @@
 import { Headphones, PlayCircle, Star } from "lucide-react";
 import { ArrowRight, CalendarDays } from "lucide-react";
 import { TLandingHeroResultItem } from "@/types/landing-module.types";
+import { ContentThumbnail } from "@elements/content-thumbnail";
 import { useI18n } from "@/hooks/useI18n";
 import { cn } from "@/lib/utils";
 
-import Image from "next/image";
 import Link from "next/link";
 
 const getIcon = (kind: TLandingHeroResultItem["kind"]) => {
@@ -22,23 +22,21 @@ const HeroMiniResultCard = ({ item }: { item: TLandingHeroResultItem }) => {
     <Link
       href={item.href}
       className={cn(
-        "group block rounded-3xl border border-glass-border bg-background/58 p-3 shadow-sm backdrop-blur-xl",
-        "transition-all duration-300 hover:-translate-y-1 hover:border-primary/45 hover:bg-background/75 hover:shadow-[0_18px_50px_rgba(37,99,235,0.16)]",
+        "group block rounded-lg border p-3 shadow-sm",
+        "transition-all duration-300 hover:-translate-y-1 hover:border-primary/45 hover:bg-muted hover:shadow-[0_18px_50px_rgba(37,99,235,0.16)]",
       )}
     >
       <div className="flex gap-3">
-        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-muted">
-          {item.imageUrl ? (
-            <Image
-              fill
-              sizes="64px"
-              alt={item.title}
-              src={item.imageUrl}
-              className="object-cover transition duration-500 group-hover:scale-110"
-            />
-          ) : (
-            <div className="h-full w-full bg-[radial-gradient(circle_at_25%_20%,rgba(59,130,246,0.35),transparent_35%),linear-gradient(135deg,rgba(59,130,246,0.18),rgba(20,184,166,0.14))]" />
-          )}
+        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md bg-muted">
+          <ContentThumbnail
+            sizes="64px"
+            id={item.id}
+            kind={item.kind}
+            title={item.title}
+            imageUrl={item.imageUrl}
+            category={item.category}
+            className="transition duration-500 group-hover:scale-110"
+          />
         </div>
 
         <div className="min-w-0 flex-1">
@@ -49,8 +47,8 @@ const HeroMiniResultCard = ({ item }: { item: TLandingHeroResultItem }) => {
             </span>
 
             {item.rating && item.rating > 0 ? (
-              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-yellow-500">
-                <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-warning-soft-foreground">
+                <Star className="h-3 w-3 fill-yellow-400 text-warning-soft-foreground" />
                 {item.rating.toFixed(1)}
               </span>
             ) : null}

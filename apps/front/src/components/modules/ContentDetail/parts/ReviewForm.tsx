@@ -52,7 +52,7 @@ const ReviewForm = ({
                   className={cn(
                     "h-7 w-7",
                     active
-                      ? "fill-yellow-400 text-yellow-400"
+                      ? "fill-yellow-400 text-warning-soft-foreground"
                       : "text-muted-foreground/40",
                   )}
                 />
@@ -65,13 +65,12 @@ const ReviewForm = ({
           value={comment}
           onChange={(event) => setComment(event.target.value)}
           placeholder={t("contentDetails.reviews.commentPlaceholder")}
-          className="min-h-32 rounded-2xl border-border/70 bg-background/60 shadow-sm backdrop-blur-xl"
+          className="min-h-32 rounded-md border-border/70 bg-muted shadow-sm"
         />
 
         <Button
           radius="xl"
           type="button"
-          variant="brand"
           disabled={isLoading || rating < 1}
           onClick={() => onSubmit(rating, comment)}
         >

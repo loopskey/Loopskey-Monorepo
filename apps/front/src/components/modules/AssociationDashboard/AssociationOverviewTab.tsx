@@ -3,10 +3,10 @@
 import { AssociationOverviewRequirements } from "@modules/AssociationDashboard/parts/association-overview-requirements";
 import { AssociationOverviewAttention } from "@modules/AssociationDashboard/parts/association-overview-attention";
 import { AssociationOverviewActivity } from "@modules/AssociationDashboard/parts/association-overview-activity";
+import { useAssociationOverviewTab } from "@hooks/useAssociationOverviewTab";
 import { AssociationOverviewCharts } from "@modules/AssociationDashboard/parts/association-overview-charts";
 import { AssociationOverviewEmpty } from "@modules/AssociationDashboard/parts/association-overview-empty";
 import { AssociationOverviewCards } from "@modules/AssociationDashboard/parts/association-overview-cards";
-import { useAssociationOverviewTab } from "@hooks/useAssociationOverviewTab";
 import { Skeleton } from "@ui/skeleton";
 
 const AssociationOverviewTab = () => {
@@ -14,9 +14,9 @@ const AssociationOverviewTab = () => {
 
   const {
     t,
+    associationName,
     isNewAssociation,
     isProfileLoading,
-    associationName,
     associationDescription,
   } = hook;
 
@@ -29,7 +29,7 @@ const AssociationOverviewTab = () => {
       </p>
 
       {isProfileLoading ? (
-        <Skeleton className="mt-2 h-10 w-72 rounded-2xl" />
+        <Skeleton className="mt-2 h-10 w-72 rounded-md" />
       ) : (
         <h1 className="mt-2 text-3xl font-medium tracking-tight md:text-4xl">
           {associationName ?? label("title")}
@@ -54,16 +54,12 @@ const AssociationOverviewTab = () => {
   return (
     <div className="space-y-6">
       {header}
-
       <AssociationOverviewCards hook={hook} />
-
       <div className="grid gap-6 xl:grid-cols-2">
         <AssociationOverviewAttention hook={hook} />
         <AssociationOverviewRequirements hook={hook} />
       </div>
-
       <AssociationOverviewCharts hook={hook} />
-
       <AssociationOverviewActivity hook={hook} />
     </div>
   );
