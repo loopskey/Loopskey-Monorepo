@@ -209,11 +209,22 @@ Browser
 | Boundary                        | Contract               | Artifact                          |
 | ------------------------------- | ---------------------- | --------------------------------- |
 | Browser → `apps/api`            | GraphQL                | `apps/api/src/graphql/schema.gql` |
+| Crawler team → `apps/api`       | Versioned REST (batch ingestion) | `apps/api/docs/content-ingestion.md`, `apps/api/docs/schemas/*.v1.schema.json` |
 | Deferred / at-least-once        | Outbox domain events   | `apps/api/src/infrastructure/outbox` |
 | Between NestJS modules          | In-process contracts   | published ports (ADR-003)         |
 
 The API is the only public edge. No internal network calls are allowed between
 NestJS modules; they communicate through in-process contracts.
+
+The **content-ingestion edge** is the one deliberate REST exception on that edge
+besides upload/OAuth: `POST /v1/ingest/<kind>/batches` accepts crawled courses,
+events, podcasts and YouTube channels from an authenticated crawler team, keyed
+by a per-source `lk_ing_…` credential, and writes them into the catalogue as
+drafts for editorial review. It is machine-to-machine and batch-shaped, so it is
+REST rather than GraphQL. The `ingestion` module owns it end to end — the
+canonical DTOs, the versioned JSON Schemas, the mapping pipeline, the review
+queue, and the admin console for onboarding and key rotation — and it is
+described for external integrators in `apps/api/docs/content-ingestion.md`.
 
 ### Dependency Direction
 
@@ -358,6 +369,11 @@ refresh-token sessions, account status, and role-based access.
 - YouTube channels and videos
 - Roadmaps with phases, steps, and enrollments
 - Certifications and certification categories
+- `ingestion`: the crawler-facing REST intake for all four content kinds
+  (`IngestionSource`, `IngestionApiKey`, `IngestionBatch`, `IngestionItem`),
+  its mapping pipeline, review queue, and admin console. It writes catalogue
+  rows in a draft state; it does not own the catalogue models themselves. See
+  the Communication Architecture section and `apps/api/docs/content-ingestion.md`.
 
 ### Engagement and commerce
 
@@ -495,9 +511,9 @@ ignore real `.env` files before secrets are committed.
 - `npm run test:e2e --workspace api` points at `./test/jest-e2e.json`; the
   `apps/api/test` directory has never existed. Either create it or drop the
   script.
-- The API has REST controllers for selected upload/OAuth flows in addition to
-  GraphQL. Do not assume every backend interaction is GraphQL; confirm the
-  existing feature contract.
+- The API has REST controllers for selected upload/OAuth flows and for crawler
+  content ingestion (`/v1/ingest/*`) in addition to GraphQL. Do not assume every
+  backend interaction is GraphQL; confirm the existing feature contract.
 
 ## Rules for Future Changes
 
