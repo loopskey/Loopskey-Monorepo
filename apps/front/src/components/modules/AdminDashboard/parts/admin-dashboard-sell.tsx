@@ -30,11 +30,16 @@ const AdminUsersTab = dynamic(
   () => import("@modules/AdminDashboard/AdminUsersTab"),
   { loading: () => <DashboardContentSkeleton /> },
 );
+const AdminIngestionTab = dynamic(
+  () => import("@modules/AdminDashboard/AdminIngestionTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
 
 const validTabs: TAdminDashboardTab[] = [
   "users",
   "overview",
   "settings",
+  "ingestion",
   "organization-users",
   "org-access-requests",
   "associations",
@@ -53,6 +58,7 @@ export const AdminDashboardShell = () => {
   if (activeTab === "organization-users") return <AdminOrgUsersTab />;
   if (activeTab === "org-access-requests") return <AdminOrgAccessRequestTab />;
   if (activeTab === "associations") return <AdminAssociationsTab />;
+  if (activeTab === "ingestion") return <AdminIngestionTab />;
   if (activeTab === "settings") return <AdminSettingsTab />;
 
   return (

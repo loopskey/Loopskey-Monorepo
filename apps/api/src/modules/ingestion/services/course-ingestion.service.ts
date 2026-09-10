@@ -164,6 +164,64 @@ export class CourseIngestionService {
     return this.toStoredReceipt(batch);
   }
 
+  /**
+   * The administrator counterpart of `getBatch`, not scoped to a caller's own
+   * source: an admin is platform-wide and reads any batch by id.
+   */
+  async getBatchForAdmin(batchId: string) {
+    const batch = await this.prisma.ingestionBatch.findUnique({
+      where: { id: batchId },
+    });
+    if (!batch)
+      throw new NotFoundException({
+        code: IngestionMessageCode.INGESTION_BATCH_NOT_FOUND,
+        message: "Ingestion batch not found.",
+      });
+    const receipt = this.toStoredReceipt(batch);
+    return {
+      ...receipt,
+      id: batch.id,
+      sourceId: batch.sourceId,
+      idempotencyKey: batch.idempotencyKey,
+      correlationId: batch.correlationId,
+      createdAt: batch.createdAt,
+    };
+  }
+
+  async listBatchesForSource(
+    sourceId: string,
+    pagination: { take: number; cursor?: string },
+  ) {
+    const rows = await this.prisma.ingestionBatch.findMany({
+      where: { sourceId },
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      take: pagination.take + 1,
+      ...(pagination.cursor
+        ? { cursor: { id: pagination.cursor }, skip: 1 }
+        : {}),
+    });
+    const hasNextPage = rows.length > pagination.take;
+    const page = hasNextPage ? rows.slice(0, pagination.take) : rows;
+    const totalCount = await this.prisma.ingestionBatch.count({
+      where: { sourceId },
+    });
+    return {
+      totalCount,
+      pageInfo: {
+        hasNextPage,
+        nextCursor: hasNextPage ? (page.at(-1)?.id ?? null) : null,
+      },
+      items: page.map((batch) => ({
+        ...this.toStoredReceipt(batch),
+        id: batch.id,
+        sourceId: batch.sourceId,
+        idempotencyKey: batch.idempotencyKey,
+        correlationId: batch.correlationId,
+        createdAt: batch.createdAt,
+      })),
+    };
+  }
+
   private parseEnvelope(
     envelope: CourseBatchEnvelopeInput,
     source: TIngestionSourceContext,

@@ -28,6 +28,7 @@ const DOMAINS = [
   "cpd-plan",
   "event",
   "external-learning",
+  "ingestion",
   "landing",
   "org-dashboard",
   "podcast",

@@ -93,6 +93,11 @@ export const baseApi = createApi({
     "OrganizationCpdCategories",
     "OrganizationAccessRequest",
     "OrganizationAccessRequests",
+    "IngestionSources",
+    "IngestionSource",
+    "IngestionApiKeys",
+    "IngestionBatches",
+    "IngestionItems",
   ],
   endpoints: () => ({}),
 });

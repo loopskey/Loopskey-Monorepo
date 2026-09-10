@@ -95,6 +95,7 @@ model User {
   updatedAt                  DateTime                    @updatedAt
   deletedAt                  DateTime?
   organizationAccessRequests OrganizationAccessRequest[]
+  reviewedIngestionItems     IngestionItem[]
   courses                    Course[]
   createdCourses             Course[]                    @relation("ProviderCourses")
   events                     Event[]
@@ -2905,6 +2906,10 @@ model IngestionBatch {
 /// There is deliberately no raw-payload column: the crawler's own store is the
 /// system of record for what it fetched, and copying it here would duplicate
 /// unbounded third-party content of unclear provenance.
+///
+/// `reviewedById`/`reviewedAt` record an administrator's approve or reject
+/// decision from the phase 04 review queue. They stay null for an item an
+/// autoPublish source accepted without review.
 model IngestionItem {
   id String @id @default(cuid())
 
@@ -2921,11 +2926,15 @@ model IngestionItem {
   /// without storing what was submitted.
   canonicalHash String
 
-  unmappedFields String[] @default([])
+  unmappedFields    String[] @default([])
   imageCandidateUrl String?
 
   state           IngestionItemState @default(PENDING)
   rejectionReason String?
+
+  reviewedById String?
+  reviewedBy   User?     @relation(fields: [reviewedById], references: [id], onDelete: SetNull)
+  reviewedAt   DateTime?
 
   /// The catalog row this item produced, once phase 03 writes one.
   catalogId String?
