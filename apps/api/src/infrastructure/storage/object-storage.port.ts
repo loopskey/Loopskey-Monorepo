@@ -5,7 +5,11 @@ export type ObjectStorageNamespace =
   | "pdu"
   | "certificate"
   | "report"
-  | "logo";
+  | "logo"
+  // Re-hosted catalog images. Written only by the content-image fetch pipeline
+  // (a later phase); the key is always derived server-side from the item and a
+  // content hash, never from a crawler-supplied name.
+  | "content";
 
 export interface ObjectStoragePort {
   store(

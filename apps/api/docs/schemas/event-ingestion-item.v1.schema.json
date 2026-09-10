@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://api.loopskey.com/schemas/event-ingestion-item.v1.schema.json",
+  "title": "Loopskey canonical event ingestion item v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["externalId", "canonicalUrl", "title", "description", "startDate", "timezone"],
+  "properties": {
+    "externalId": { "type": "string", "minLength": 1, "maxLength": 500 },
+    "canonicalUrl": { "type": "string", "format": "uri", "minLength": 1, "maxLength": 2048 },
+    "sourcePlatform": { "type": ["string", "null"], "maxLength": 100 },
+    "title": { "type": "string", "minLength": 1, "maxLength": 500 },
+    "description": { "type": "string", "minLength": 1, "maxLength": 50000 },
+    "speaker": { "type": ["string", "null"], "maxLength": 500 },
+    "organizer": { "type": ["string", "null"], "maxLength": 500 },
+    "imageCandidateUrl": { "type": ["string", "null"], "format": "uri", "maxLength": 2048 },
+    "type": {
+      "type": ["string", "null"],
+      "enum": ["OTHER", "COURSE", "WEBINAR", "SEMINAR", "WORKSHOP", "TRAINING", "CONFERENCE", "NETWORKING", null]
+    },
+    "deliveryMode": {
+      "type": ["string", "null"],
+      "enum": ["HYBRID", "RECORDED", "IN_PERSON", "LIVE_ONLINE", null]
+    },
+    "category": {
+      "type": ["string", "null"],
+      "enum": ["CPD", "OTHER", "DESIGN", "FINANCE", "BUSINESS", "EDUCATION", "MARKETING", "TECHNOLOGY", "HEALTHCARE", "LEADERSHIP", "COMPLIANCE", "ENGINEERING", null]
+    },
+    "startDate": { "type": "string", "format": "date-time" },
+    "endDate": { "type": ["string", "null"], "format": "date-time" },
+    "timezone": { "type": "string", "minLength": 1, "maxLength": 64 },
+    "location": { "type": ["string", "null"], "maxLength": 500 },
+    "onlineUrl": { "type": ["string", "null"], "format": "uri", "maxLength": 2048 },
+    "price": { "type": ["number", "string", "null"], "minimum": 0 },
+    "currency": { "type": ["string", "null"], "maxLength": 3 },
+    "isFree": { "type": ["boolean", "string", "null"] },
+    "pdu": { "type": ["number", "string", "null"], "minimum": 0 },
+    "language": { "type": ["string", "null"], "maxLength": 8 },
+    "topic": { "type": ["string", "null"], "maxLength": 200 },
+    "rawType": { "type": ["string", "null"], "maxLength": 500 },
+    "rawDeliveryMode": { "type": ["string", "null"], "maxLength": 500 },
+    "rawCategory": { "type": ["string", "null"], "maxLength": 500 },
+    "scheduleItems": {
+      "description": "Omit to leave the event's schedule unchanged; supply an array (empty clears it) to replace it as a set.",
+      "type": ["array", "null"],
+      "maxItems": 200,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["dayNumber", "startTime", "endTime", "title"],
+        "properties": {
+          "dayNumber": { "type": ["integer", "string"], "minimum": 1 },
+          "startTime": { "type": "string", "format": "date-time" },
+          "endTime": { "type": "string", "format": "date-time" },
+          "title": { "type": "string", "minLength": 1, "maxLength": 500 },
+          "description": { "type": ["string", "null"], "maxLength": 2000 },
+          "speaker": { "type": ["string", "null"], "maxLength": 500 }
+        }
+      }
+    },
+    "lastUpdatedAt": { "type": ["string", "null"], "format": "date-time" },
+    "crawledAt": { "type": ["string", "null"], "format": "date-time" },
+    "updatedAt": { "type": ["string", "null"], "format": "date-time" }
+  }
+}

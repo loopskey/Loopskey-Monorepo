@@ -53,3 +53,4 @@ into this index and do not rewrite previous records.
 - [`ingestion-foundation`](feature-runs/active/ingestion-foundation.md)
 - [`course-ingestion-endpoint`](feature-runs/active/course-ingestion-endpoint.md)
 - [`ingestion-admin-console`](feature-runs/active/ingestion-admin-console.md)
+- [`content-image-policy`](feature-runs/active/content-image-policy.md)

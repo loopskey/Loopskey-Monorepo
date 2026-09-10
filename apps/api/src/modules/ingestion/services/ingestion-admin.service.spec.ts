@@ -1,4 +1,3 @@
-import { BadRequestException } from "@nestjs/common";
 import { IngestionContentKind } from "@prisma/client";
 import { PrismaService } from "@prisma/prisma.service";
 
@@ -44,15 +43,36 @@ describe("IngestionAdminService", () => {
     expect(create).not.toHaveBeenCalled();
   });
 
-  it("rejects any field map on a kind that has no canonical field list yet", async () => {
+  it("accepts a field map that renames onto a canonical event field", async () => {
+    create.mockResolvedValue({ id: "source-1", slug: "acme-events" });
+    await service.createSource("admin-1", {
+      slug: "acme-events",
+      name: "Acme events",
+      kind: IngestionContentKind.EVENT,
+      fieldMap: { source_title: "title", starts_at: "startDate" },
+    });
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          fieldMap: { source_title: "title", starts_at: "startDate" },
+        }),
+      }),
+    );
+  });
+
+  it("rejects an event field map whose target is not a canonical event field", async () => {
     await expect(
       service.createSource("admin-1", {
         slug: "acme-events",
         name: "Acme events",
         kind: IngestionContentKind.EVENT,
-        fieldMap: { source_title: "title" },
+        fieldMap: { source_title: "not_a_field" },
       }),
-    ).rejects.toBeInstanceOf(BadRequestException);
+    ).rejects.toMatchObject({
+      response: expect.objectContaining({
+        code: "INGESTION_FIELD_MAP_INVALID",
+      }),
+    });
     expect(create).not.toHaveBeenCalled();
   });
 
@@ -61,7 +81,7 @@ describe("IngestionAdminService", () => {
     await service.createSource("admin-1", {
       slug: "acme-events",
       name: "Acme events",
-      kind: IngestionContentKind.EVENT,
+      kind: IngestionContentKind.PODCAST,
     });
     expect(create).toHaveBeenCalledWith(
       expect.objectContaining({

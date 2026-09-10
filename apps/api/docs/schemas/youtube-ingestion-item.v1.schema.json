@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://api.loopskey.com/schemas/youtube-ingestion-item.v1.schema.json",
+  "title": "Loopskey canonical YouTube channel ingestion item v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["externalId", "canonicalUrl", "title", "channelUrl"],
+  "properties": {
+    "externalId": { "type": "string", "minLength": 1, "maxLength": 500 },
+    "canonicalUrl": { "type": "string", "format": "uri", "minLength": 1, "maxLength": 2048 },
+    "sourcePlatform": { "type": ["string", "null"], "maxLength": 100 },
+    "title": { "type": "string", "minLength": 1, "maxLength": 500 },
+    "description": { "type": ["string", "null"], "maxLength": 50000 },
+    "imageCandidateUrl": { "type": ["string", "null"], "format": "uri", "maxLength": 2048 },
+    "channelUrl": { "type": "string", "format": "uri", "minLength": 1, "maxLength": 2048 },
+    "category": {
+      "type": ["string", "null"],
+      "enum": ["AI", "CPD", "DATA", "OTHER", "DESIGN", "CAREER", "FINANCE", "BUSINESS", "EDUCATION", "MARKETING", "TECHNOLOGY", "HEALTHCARE", "LEADERSHIP", "COMPLIANCE", "ENGINEERING", null]
+    },
+    "subscribers": { "type": ["integer", "number", "string", "null"], "minimum": 0 },
+    "views": { "type": ["integer", "number", "string", "null"], "minimum": 0 },
+    "videoCount": { "type": ["integer", "number", "string", "null"], "minimum": 0 },
+    "language": { "type": ["string", "null"], "maxLength": 8 },
+    "rawCategory": { "type": ["string", "null"], "maxLength": 500 },
+    "videos": {
+      "description": "Omit to leave stored videos unchanged; supply an array to upsert those videos by their id within the channel. A supplied array does not delete videos it omits.",
+      "type": ["array", "null"],
+      "maxItems": 2000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["externalId", "title"],
+        "properties": {
+          "externalId": { "type": "string", "minLength": 1, "maxLength": 500 },
+          "title": { "type": "string", "minLength": 1, "maxLength": 500 },
+          "description": { "type": ["string", "null"], "maxLength": 50000 },
+          "videoUrl": { "type": ["string", "null"], "maxLength": 2048 },
+          "durationMinutes": { "type": ["integer", "number", "string", "null"], "minimum": 0 },
+          "views": { "type": ["integer", "number", "string", "null"], "minimum": 0 },
+          "likes": { "type": ["integer", "number", "string", "null"], "minimum": 0 },
+          "publishedAt": { "type": ["string", "null"], "format": "date-time" }
+        }
+      }
+    },
+    "lastUpdatedAt": { "type": ["string", "null"], "format": "date-time" },
+    "crawledAt": { "type": ["string", "null"], "format": "date-time" },
+    "updatedAt": { "type": ["string", "null"], "format": "date-time" }
+  }
+}
