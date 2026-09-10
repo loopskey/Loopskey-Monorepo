@@ -3,7 +3,7 @@
 - Scope: `full`
 - Branch: `feature/ingestion-admin-console`
 - Base: `2f14476` (origin/develop)
-- Status: `Ready`
+- Status: `Submitted`
 
 Specification: `context/features/content-ingestion/04-ingestion-admin-console.md`
 
@@ -154,6 +154,6 @@ Specification: `context/features/content-ingestion/04-ingestion-admin-console.md
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: `c4b495f`
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/85
+- CI: pending
