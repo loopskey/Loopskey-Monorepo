@@ -7,7 +7,6 @@ import { useCurrentUserQuery } from "@/lib/rtk/endpoints/auth.api";
 import { getDashboardPath } from "@/utils/constant";
 import { useSearchParams } from "next/navigation";
 import { useI18n } from "@/hooks/useI18n";
-import { Logo } from "@layouts/parts/logo";
 import { cn } from "@/lib/utils";
 
 import Link from "next/link";
@@ -23,9 +22,6 @@ export const DashboardSidebar = () => {
 
   return (
     <aside className="flex h-full w-[72px] shrink-0 flex-col bg-primary text-primary-foreground md:w-64">
-      <div className="flex h-16 shrink-0 items-center justify-center px-2 md:justify-start md:px-4">
-        <Logo variant="onPrimary" />
-      </div>
       <nav className="min-h-0 flex-1 overflow-y-auto py-2 pl-2 md:pl-3">
         <ul>
           {tabs.map((item) => {
