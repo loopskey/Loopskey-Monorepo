@@ -22,7 +22,7 @@ export const DashboardSidebar = () => {
   const tabs = getDashboardTabsByRole(role);
 
   return (
-    <aside className="flex h-full w-[72px] shrink-0 flex-col bg-primary text-primary-foreground md:w-64">
+    <aside className="flex w-[72px] shrink-0 flex-col bg-primary text-primary-foreground md:w-64">
       <div className="flex h-16 shrink-0 items-center justify-center px-2 md:justify-start md:px-4">
         <Logo variant="onPrimary" />
       </div>

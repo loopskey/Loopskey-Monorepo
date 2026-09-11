@@ -48,7 +48,6 @@ export const FloatingInputField = <T extends FieldValues>({
                     className={cn(
                       "pointer-events-none absolute left-4 top-1/2 z-20 -translate-y-1/2 text-muted-foreground transition-all duration-200",
                       "group-focus-within:text-primary",
-                      shouldFloat && "top-[1.05rem] scale-90",
                     )}
                   >
                     {leftIcon}
@@ -68,10 +67,10 @@ export const FloatingInputField = <T extends FieldValues>({
                   className={cn(
                     "h-14 rounded-md border-input bg-background text-base",
                     "transition-colors duration-200",
-                    "focus-visible:border-primary focus-visible:ring-ring",
+                    "focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/15",
                     hasLeftIcon ? "pl-12" : "pl-4",
                     hasRightSlot ? "pr-12" : "pr-4",
-                    "pt-5 pb-2",
+                    "pt-6 pb-1.5",
                     isNativePicker &&
                       !isFilled && [
                         "text-transparent caret-transparent",
@@ -95,13 +94,13 @@ export const FloatingInputField = <T extends FieldValues>({
                 <F.FormLabel
                   htmlFor={generatedId}
                   className={cn(
-                    "absolute z-20 origin-left rounded-full px-1 text-sm text-muted-foreground transition-all duration-200 ease-out",
+                    "absolute z-20 origin-left text-sm text-muted-foreground transition-all duration-200 ease-out",
                     isNativePicker ? "cursor-pointer" : "cursor-text",
                     "top-1/2 -translate-y-1/2",
                     shouldFloatOnFocus &&
-                      "group-focus-within:top-0 group-focus-within:translate-y-[-50%] group-focus-within:scale-[0.88] group-focus-within:text-primary",
-                    shouldFloat && "top-0 translate-y-[-50%] scale-[0.88]",
-                    hasLeftIcon ? "left-11" : "left-4",
+                      "group-focus-within:top-2 group-focus-within:translate-y-0 group-focus-within:scale-[0.85] group-focus-within:text-primary",
+                    shouldFloat && "top-2 translate-y-0 scale-[0.85]",
+                    hasLeftIcon ? "left-12" : "left-4",
                   )}
                 >
                   {label}

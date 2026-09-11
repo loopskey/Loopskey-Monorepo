@@ -32,7 +32,7 @@ export const CertificateDetailCard = ({
   );
 
   return (
-    <GlassCard className="lg:sticky lg:top-6">
+    <GlassCard className="lg:sticky lg:top-22">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-xs font-medium uppercase tracking-wider text-primary">

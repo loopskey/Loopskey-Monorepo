@@ -53,9 +53,9 @@ export const FloatingTextareaField = <T extends FieldValues>({
                   onChange={field.onChange}
                   className={cn(
                     "min-h-32 resize-none rounded-md border-input bg-background text-base",
-                    "pt-6 pb-3",
+                    "pt-8 pb-3",
                     leftIcon ? "pl-12" : "pl-4",
-                    "focus-visible:border-primary/55 focus-visible:ring-primary/25",
+                    "focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/15",
                     textareaClassName,
                   )}
                 />
@@ -63,11 +63,11 @@ export const FloatingTextareaField = <T extends FieldValues>({
                 <F.FormLabel
                   htmlFor={generatedId}
                   className={cn(
-                    "absolute z-20 origin-left cursor-text rounded-full px-1 text-sm text-muted-foreground transition-all duration-200 ease-out",
+                    "absolute z-20 origin-left cursor-text text-sm text-muted-foreground transition-all duration-200 ease-out",
                     "top-7 -translate-y-1/2",
-                    "group-focus-within:top-0 group-focus-within:translate-y-[-50%] group-focus-within:scale-[0.88] group-focus-within:text-primary",
-                    isFilled && "top-0 translate-y-[-50%] scale-[0.88]",
-                    leftIcon ? "left-11" : "left-4",
+                    "group-focus-within:top-2.5 group-focus-within:translate-y-0 group-focus-within:scale-[0.85] group-focus-within:text-primary",
+                    isFilled && "top-2.5 translate-y-0 scale-[0.85]",
+                    leftIcon ? "left-12" : "left-4",
                   )}
                 >
                   {label}

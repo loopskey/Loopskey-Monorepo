@@ -4,7 +4,7 @@ import { Skeleton } from "@ui/skeleton";
 
 export const DashboardSidebarSkeleton = () => {
   return (
-    <aside className="flex h-full w-[72px] shrink-0 flex-col bg-primary md:w-64">
+    <aside className="flex w-[72px] shrink-0 flex-col bg-primary md:w-64">
       <div className="flex h-16 shrink-0 items-center justify-center px-2 md:justify-start md:px-4">
         <Skeleton className="size-8 rounded-md bg-primary-foreground/20 md:w-28" />
       </div>
@@ -89,9 +89,9 @@ export const DashboardContentSkeleton = () => {
 
 export const DashboardPageSkeleton = () => {
   return (
-    <div className="flex h-[calc(100dvh-4rem)] overflow-hidden">
+    <div className="flex min-h-[calc(100dvh-4rem)]">
       <DashboardSidebarSkeleton />
-      <main className="min-w-0 flex-1 overflow-y-auto bg-background px-3 py-4 md:px-6 md:py-6">
+      <main className="min-w-0 flex-1 bg-background px-3 py-4 md:px-6 md:py-6">
         <div className="mx-auto max-w-7xl">
           <DashboardContentSkeleton />
         </div>
