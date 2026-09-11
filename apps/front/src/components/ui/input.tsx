@@ -42,7 +42,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           "file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium",
           "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
           // Focus/invalid states
-          "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+          "focus-visible:border-ring focus-visible:ring-ring/15 focus-visible:ring-[3px]",
           "aria-invalid:ring-destructive/20 aria-invalid:border-destructive",
           // Native picker indicators sit at the right edge and collide with
           // labels/placeholders, so they are hidden in favour of click-to-open.

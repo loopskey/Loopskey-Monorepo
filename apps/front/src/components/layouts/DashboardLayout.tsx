@@ -5,9 +5,9 @@ import { ReactNode } from "react";
 
 const DashboardLayout = ({ children }: { children: ReactNode }) => {
   return (
-    <div className="flex h-[calc(100dvh-4rem)] overflow-hidden">
+    <div className="flex min-h-[calc(100dvh-4rem)]">
       <DashboardSidebar />
-      <main className="min-w-0 flex-1 overflow-y-auto bg-background px-3 py-4 md:px-6 md:py-6">
+      <main className="min-w-0 flex-1 bg-background px-3 py-4 md:px-6 md:py-6">
         <div className="mx-auto max-w-7xl">{children}</div>
       </main>
     </div>

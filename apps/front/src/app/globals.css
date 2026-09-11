@@ -75,8 +75,8 @@
   --chart-grid: oklch(0.92 0.004 260);
   --chart-axis: oklch(0.551 0.0234 264.36);
 
-  --border: oklch(0.65 0.03 240);
-  --input: oklch(0.58 0.03 240);
+  --border: oklch(0.92 0.006 260);
+  --input: oklch(0.87 0.01 260);
   --ring: oklch(0.3351 0.1745 271.87);
   --ring-on-primary: oklch(1 0 0);
   --radius: 0.75rem;
