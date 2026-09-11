@@ -154,7 +154,7 @@ const ProfessionalProfileTab = () => {
             </GlassCard>
           </div>
 
-          <aside className="space-y-6 xl:sticky xl:top-6">
+          <aside className="space-y-6 xl:sticky xl:top-22">
             <ProfileCompletionCard hook={hook} />
             <ProfileInterestTagsCard hook={hook} />
           </aside>

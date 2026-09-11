@@ -245,7 +245,7 @@ const ProfessionalCertificatesTab = () => {
               downloadingFileId={downloadingFileId}
             />
           ) : (
-            <GlassCard className="flex min-h-56 flex-col items-center justify-center text-center lg:sticky lg:top-6">
+            <GlassCard className="flex min-h-56 flex-col items-center justify-center text-center lg:sticky lg:top-22">
               <L.MousePointerClick
                 aria-hidden
                 className="h-9 w-9 text-muted-foreground"

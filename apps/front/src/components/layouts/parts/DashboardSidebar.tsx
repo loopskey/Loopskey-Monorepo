@@ -21,7 +21,7 @@ export const DashboardSidebar = () => {
   const tabs = getDashboardTabsByRole(role);
 
   return (
-    <aside className="flex h-full w-[72px] shrink-0 flex-col bg-primary text-primary-foreground md:w-64">
+    <aside className="flex w-[72px] shrink-0 flex-col bg-primary text-primary-foreground md:w-64">
       <nav className="min-h-0 flex-1 overflow-y-auto py-2 pl-2 md:pl-3">
         <ul>
           {tabs.map((item) => {
