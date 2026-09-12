@@ -4,7 +4,7 @@
 - Model: `High reasoning — cross-association ownership/ID validation on member and requirement assignment flows is security-sensitive, even though this pass turned out to be pure frontend wiring.`
 - Branch: `feature/association-members-requirements-corrections`
 - Base: `840c153` (origin/develop)
-- Status: `Ready`
+- Status: `Submitted`
 
 ## Acceptance
 
@@ -50,9 +50,9 @@ level table layout was not re-verified.
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: `bc01dc6`
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/99
+- CI: pending
 
 ## Notes
 
