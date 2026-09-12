@@ -18,6 +18,7 @@ into this index and do not rewrite previous records.
 - [`footer-pages-ux-redesign`](feature-runs/active/footer-pages-ux-redesign.md)
 - [`performance-optimization`](feature-runs/active/performance-optimization.md)
 - [`professional-onboarding`](feature-runs/active/professional-onboarding.md)
+- [`registration-profile-corrections`](feature-runs/active/registration-profile-corrections.md)
 - [`performance-shell-hydration`](feature-runs/active/performance-shell-hydration.md)
 - [`concurrency-safety`](feature-runs/active/concurrency-safety.md)
 - [`association-role-foundation`](feature-runs/active/association-role-foundation.md)

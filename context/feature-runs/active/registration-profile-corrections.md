@@ -5,7 +5,7 @@
   package boundary, and file-upload/storage error handling across both apps.`
 - Branch: `feature/registration-profile-corrections`
 - Base: `8474f44` (origin/develop)
-- Status: `Ready`
+- Status: `Submitted`
 
 ## Acceptance
 
@@ -51,9 +51,9 @@ error/message additions to existing, already-tested components.
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: `3d79566`
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/95
+- CI: pending
 
 ## Notes
 
