@@ -1,8 +1,10 @@
 "use client";
 
+import { useSearchParams, usePathname, useRouter } from "next/navigation";
+import { legacyAssociationTabAlias } from "@utils/association-dashboard-tabs";
 import { DashboardContentSkeleton } from "@layouts/parts/DashboardSkeleton";
 import { resolveAssociationTab } from "@utils/association-dashboard-tabs";
-import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 
 import dynamic from "next/dynamic";
 
@@ -43,9 +45,20 @@ const AssociationMemberDetailView = dynamic(
 );
 
 export const AssociationDashboardShell = () => {
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const activeTab = resolveAssociationTab(searchParams?.get("tab"));
+  const rawTab = searchParams?.get("tab") ?? null;
+  const activeTab = resolveAssociationTab(rawTab);
   const memberId = searchParams?.get("memberId");
+
+  useEffect(() => {
+    if (!legacyAssociationTabAlias(rawTab)) return;
+
+    const next = new URLSearchParams(searchParams?.toString());
+    next.set("tab", activeTab);
+    router.replace(`${pathname}?${next.toString()}`);
+  }, [rawTab, activeTab, pathname, router, searchParams]);
 
   if (activeTab === "members")
     return memberId ? (
@@ -57,7 +70,7 @@ export const AssociationDashboardShell = () => {
   if (activeTab === "learning-content")
     return <AssociationLearningContentTab />;
   if (activeTab === "reports") return <AssociationReportsTab />;
-  if (activeTab === "messages") return <AssociationMessagesTab />;
+  if (activeTab === "notifications") return <AssociationMessagesTab />;
   if (activeTab === "settings") return <AssociationSettingsTab />;
   return <AssociationOverviewTab />;
 };

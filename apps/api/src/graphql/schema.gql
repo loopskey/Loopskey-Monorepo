@@ -315,7 +315,6 @@ type AssociationAttentionCounts {
 
 type AssociationAttentionLists {
   counts: AssociationAttentionCounts!
-  distribution: AssociationMemberDistribution!
 }
 
 type AssociationAttentionRow {
@@ -387,6 +386,16 @@ input AssociationCatalogSearchInput {
   contentType: ContentType
   search: String
   take: Int = 20
+}
+
+type AssociationCategoryAttentionGroup {
+  affectedCount: Int!
+  categoryId: ID!
+  categoryName: String!
+  deadline: DateTime
+  members: [AssociationAttentionRow!]!
+  requirementId: ID!
+  requirementName: String!
 }
 
 type AssociationCategoryProgress {
@@ -2974,6 +2983,12 @@ type PaginatedAssociationAttentionRows {
   totalCount: Int!
 }
 
+type PaginatedAssociationCategoryAttentionGroups {
+  items: [AssociationCategoryAttentionGroup!]!
+  pageInfo: AssociationPageInfo!
+  totalCount: Int!
+}
+
 type PaginatedAssociationGeneratedReports {
   items: [AssociationGeneratedReport!]!
   pageInfo: AssociationPageInfo!
@@ -4083,6 +4098,7 @@ type Query {
   associationAttentionLists(associationId: ID): AssociationAttentionLists!
   associationAttentionMembers(associationId: ID, pagination: AssociationReportPaginationInput, section: AssociationAttentionSection!): PaginatedAssociationAttentionRows!
   associationCatalogSearch(associationId: ID, input: AssociationCatalogSearchInput!): [AssociationCatalogItem!]!
+  associationCategoryAttentionGroups(associationId: ID, pagination: AssociationReportPaginationInput): PaginatedAssociationCategoryAttentionGroups!
   associationCategoryCompletionReport(associationId: ID, filter: AssociationReportFilterInput): [AssociationCategoryProgressRow!]!
   associationComplianceByGroup(associationId: ID, filter: AssociationReportFilterInput): [AssociationGroupCompliance!]!
   associationComplianceTrend(associationId: ID, filter: AssociationReportFilterInput): [AssociationComplianceTrendPoint!]!

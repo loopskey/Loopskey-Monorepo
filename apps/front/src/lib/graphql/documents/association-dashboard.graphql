@@ -797,16 +797,28 @@ query AssociationAttentionLists {
       expiringCertificates
       readyReports
     }
-    distribution {
-      totalMembers
-      renewalReady
-      onTrack
-      atRisk
-      notStarted
-      renewalReadyShare
-      onTrackShare
-      atRiskShare
-      notStartedShare
+  }
+}
+
+query AssociationCategoryAttentionGroups(
+  $pagination: AssociationReportPaginationInput
+) {
+  associationCategoryAttentionGroups(pagination: $pagination) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      nextCursor
+    }
+    items {
+      requirementId
+      requirementName
+      categoryId
+      categoryName
+      deadline
+      affectedCount
+      members {
+        ...AssociationAttentionRowFields
+      }
     }
   }
 }

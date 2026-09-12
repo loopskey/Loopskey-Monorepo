@@ -1,10 +1,10 @@
 import { AssociationComplianceReadService } from "@association/services/association-compliance-read.service";
 import { AssociationAttentionSection } from "@association/enums/association-attention.enum";
+import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
 import { AssociationAttentionService } from "@association/services/association-attention.service";
 import { AssociationAccessService } from "@association/services/association-access.service";
 import { AssociationReportService } from "@association/services/association-report.service";
 import { type ProfessionalComplianceApi } from "@professional/public/professional-compliance-api";
-import { AssociationReportPeriod } from "@association/utils/association-report-period.util";
 import { AssociationAttributionState, Role } from "@prisma/client";
 import { PrismaService } from "@prisma/prisma.service";
 
@@ -12,9 +12,18 @@ const owner = { id: "owner-1", role: Role.ASSOCIATION };
 
 const AT_RISK_THRESHOLD = 40;
 
-const THIS_YEAR = { period: AssociationReportPeriod.THIS_YEAR };
+const NOW = new Date("2026-01-01T00:00:00.000Z");
 
-const member = (index: number, ethics: number, leadership = 0) => ({
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+const daysFromNow = (days: number) => new Date(NOW.getTime() + days * DAY_MS);
+
+const member = (
+  index: number,
+  ethics: number,
+  leadership = 0,
+  dueDate: Date = daysFromNow(365),
+) => ({
   id: `member-${index}`,
   userId: `user-${index}`,
   status: "ACTIVE",
@@ -27,6 +36,7 @@ const member = (index: number, ethics: number, leadership = 0) => ({
   },
   ethics,
   leadership,
+  dueDate,
 });
 
 const CATEGORIES = [
@@ -72,7 +82,7 @@ const setup = ({
         members.map((row) => ({
           id: `assign-${row.id}`,
           memberId: row.id,
-          dueDate: new Date("2026-12-31T00:00:00.000Z"),
+          dueDate: row.dueDate,
           computedAt: new Date("2026-06-01T00:00:00.000Z"),
           requirement: {
             id: "req-1",
@@ -144,47 +154,75 @@ const setup = ({
 };
 
 describe("AssociationAttentionService", () => {
+  beforeEach(() => {
+    jest.useFakeTimers().setSystemTime(NOW);
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
   describe("members needing attention", () => {
-    it("lists exactly the members the reports tab shows below the threshold", async () => {
-      const { service, reports } = setup({
-        members: [member(1, 10), member(2, 3), member(3, 1)],
+    it("includes a member whose incomplete assignment is due in exactly 30 days", async () => {
+      const { service } = setup({
+        members: [member(1, 2, 0, daysFromNow(30))],
       });
 
-      const onScreen = await reports.memberProgressReport(owner, THIS_YEAR);
-      const behind = onScreen.items.filter((row) =>
-        row.assignments.some(
-          (assignment) => assignment.percent < AT_RISK_THRESHOLD,
-        ),
-      );
-
       const rows = await service.rowsFor(
         owner,
         AssociationAttentionSection.BELOW_THRESHOLD,
       );
 
-      expect(rows.map((row) => row.memberId)).toEqual(
-        behind.map((row) => row.memberId),
-      );
-      expect(rows).toHaveLength(2);
+      expect(rows).toHaveLength(1);
+      expect(rows[0].deadline).toEqual(daysFromNow(30));
     });
 
-    it("carries the percent and deadline the reports tab carries", async () => {
-      const { service, reports } = setup({ members: [member(1, 2)] });
+    it("excludes a member whose incomplete assignment is due in 31 days", async () => {
+      const { service } = setup({
+        members: [member(1, 2, 0, daysFromNow(31))],
+      });
 
-      const onScreen = await reports.memberProgressReport(owner, THIS_YEAR);
-      const rows = await service.rowsFor(
-        owner,
-        AssociationAttentionSection.BELOW_THRESHOLD,
-      );
+      expect(
+        await service.rowsFor(
+          owner,
+          AssociationAttentionSection.BELOW_THRESHOLD,
+        ),
+      ).toEqual([]);
+    });
 
-      expect(rows[0].percent).toBe(onScreen.items[0].percent);
-      expect(rows[0].deadline).toEqual(onScreen.items[0].earliestUnmetDeadline);
-      expect(rows[0].groupTitle).toBe("Fellows");
+    it("excludes a member whose assignment is already complete, even if due soon", async () => {
+      const { service } = setup({
+        members: [member(1, 10, 0, daysFromNow(5))],
+      });
+
+      expect(
+        await service.rowsFor(
+          owner,
+          AssociationAttentionSection.BELOW_THRESHOLD,
+        ),
+      ).toEqual([]);
+    });
+
+    it("excludes an incomplete assignment due before today", async () => {
+      const { service } = setup({
+        members: [member(1, 2, 0, daysFromNow(-1))],
+      });
+
+      expect(
+        await service.rowsFor(
+          owner,
+          AssociationAttentionSection.BELOW_THRESHOLD,
+        ),
+      ).toEqual([]);
     });
 
     it("counts the same figure the section lists", async () => {
       const { service } = setup({
-        members: [member(1, 10), member(2, 3), member(3, 1)],
+        members: [
+          member(1, 2, 0, daysFromNow(10)),
+          member(2, 3, 0, daysFromNow(20)),
+          member(3, 10, 0, daysFromNow(15)),
+        ],
       });
 
       const { counts } = await service.lists(owner);
@@ -194,6 +232,7 @@ describe("AssociationAttentionService", () => {
       );
 
       expect(counts.belowThreshold).toBe(rows.length);
+      expect(rows).toHaveLength(2);
     });
   });
 
@@ -223,9 +262,74 @@ describe("AssociationAttentionService", () => {
     });
   });
 
+  describe("category attention groups", () => {
+    it("groups affected members under their requirement and category", async () => {
+      const { service } = setup({
+        members: [member(1, 1, 0), member(2, 0, 1)],
+      });
+
+      const { items, totalCount } =
+        await service.categoryAttentionGroups(owner);
+
+      expect(totalCount).toBe(2);
+      expect(items.map((group) => group.categoryName).sort()).toEqual([
+        "Ethics",
+        "Leadership",
+      ]);
+
+      const ethics = items.find((group) => group.categoryName === "Ethics")!;
+      expect(ethics.requirementName).toBe("Annual CPD");
+      expect(ethics.affectedCount).toBe(2);
+      expect(ethics.members.map((row) => row.memberId).sort()).toEqual([
+        "member-1",
+        "member-2",
+      ]);
+    });
+
+    it("keeps its own totalCount consistent across pages", async () => {
+      const { service } = setup({
+        members: [member(1, 1, 0), member(2, 0, 1)],
+      });
+
+      const first = await service.categoryAttentionGroups(owner, { take: 1 });
+      expect(first.items).toHaveLength(1);
+      expect(first.totalCount).toBe(2);
+      expect(first.pageInfo.hasNextPage).toBe(true);
+
+      const second = await service.categoryAttentionGroups(owner, {
+        take: 1,
+        cursor: first.pageInfo.nextCursor,
+      });
+      expect(second.items).toHaveLength(1);
+      expect(second.pageInfo.hasNextPage).toBe(false);
+    });
+
+    it("still counts the flat member list on the summary card", async () => {
+      const { service } = setup({ members: [member(1, 1, 0)] });
+
+      const { counts } = await service.lists(owner);
+      const rows = await service.rowsFor(
+        owner,
+        AssociationAttentionSection.CATEGORY_BEHIND,
+      );
+
+      expect(counts.categoryBehind).toBe(rows.length);
+    });
+
+    it("excludes a member who is short in nothing", async () => {
+      const { service } = setup({ members: [member(1, 8, 12)] });
+
+      const { items, totalCount } =
+        await service.categoryAttentionGroups(owner);
+
+      expect(items).toEqual([]);
+      expect(totalCount).toBe(0);
+    });
+  });
+
   describe("expiring certificates", () => {
-    it("lists a member whose certificate expires inside the window", async () => {
-      const soon = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    it("lists a member whose certificate expires in exactly 30 days", async () => {
+      const soon = daysFromNow(30);
 
       const { service } = setup({
         members: [member(1, 10)],
@@ -249,8 +353,8 @@ describe("AssociationAttentionService", () => {
       expect(rows[0].detailDate).toEqual(soon);
     });
 
-    it("ignores a certificate that expires beyond the window", async () => {
-      const later = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
+    it("ignores a certificate that expires in 31 days", async () => {
+      const later = daysFromNow(31);
 
       const { service } = setup({
         members: [member(1, 10)],
@@ -272,9 +376,33 @@ describe("AssociationAttentionService", () => {
       ).toEqual([]);
     });
 
+    it("lists a certificate that already expired", async () => {
+      const past = daysFromNow(-5);
+
+      const { service } = setup({
+        members: [member(1, 10)],
+        certificates: [
+          {
+            id: "cert-1",
+            userId: "user-1",
+            title: "First Aid",
+            validUntil: past,
+          },
+        ],
+      });
+
+      const rows = await service.rowsFor(
+        owner,
+        AssociationAttentionSection.EXPIRING_CERTIFICATES,
+      );
+
+      expect(rows).toHaveLength(1);
+      expect(rows[0].detailDate).toEqual(past);
+    });
+
     it("keeps the soonest of a member's certificates", async () => {
-      const soon = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000);
-      const sooner = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
+      const soon = daysFromNow(10);
+      const sooner = daysFromNow(2);
 
       const { service } = setup({
         members: [member(1, 10)],
@@ -316,6 +444,23 @@ describe("AssociationAttentionService", () => {
           AssociationAttentionSection.EXPIRING_CERTIFICATES,
         ),
       ).toEqual([]);
+    });
+
+    it("wraps a professional-module failure as a source-data-unavailable error", async () => {
+      const { service, professional } = setup({ members: [member(1, 10)] });
+
+      professional.certificatesForOwners.mockRejectedValueOnce(
+        new Error("boom"),
+      );
+
+      await expect(
+        service.rowsFor(
+          owner,
+          AssociationAttentionSection.EXPIRING_CERTIFICATES,
+        ),
+      ).rejects.toMatchObject({
+        response: { code: AssociationMessageCode.SOURCE_DATA_UNAVAILABLE },
+      });
     });
   });
 

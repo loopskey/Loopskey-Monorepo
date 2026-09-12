@@ -5209,7 +5209,7 @@
       "requirements": "Exigences",
       "learningContent": "Contenu de formation",
       "reports": "Rapports",
-      "messages": "Messages",
+      "notifications": "Notifications",
       "settings": "Paramètres"
     },
     "overview": {
@@ -6270,17 +6270,11 @@
       }
     },
     "messages": {
-      "title": "Messages",
+      "title": "Notifications",
       "description": "Cinq listes de membres qui ont besoin de quelque chose, chacune avec un message que Loopskey envoie en votre nom. Vous choisissez les destinataires ; la formulation est la nôtre.",
       "allSettled": "Rien ne requiert votre attention pour le moment. Toutes les listes sont vides.",
       "sent": "Envoyé à {{count}} membres.",
       "sendFailed": "Ce message n'a pas pu être envoyé. Réessayez.",
-      "strip": {
-        "title": "Où en sont vos membres",
-        "label": "Membres par statut de conformité",
-        "description": "Une barre unique montrant combien de membres se trouvent dans chaque statut de conformité, de prêt au renouvellement à pas commencé.",
-        "atRisk": "{{count}} à risque ({{share}} % des membres)"
-      },
       "error": {
         "title": "Ces listes n'ont pas pu être chargées",
         "body": "Une erreur s'est produite pendant le calcul des membres à contacter.",
@@ -6294,14 +6288,15 @@
         "clear": "Effacer la sélection",
         "selectMember": "Inclure {{name}} dans ce message",
         "joinedOn": "Inscrit le {{when}}",
-        "truncated": "{{shown}} sur {{total}} affichés. Restreignez à un groupe pour voir le reste."
+        "truncated": "{{shown}} sur {{total}} affichés. Restreignez à un groupe pour voir le reste.",
+        "viewDetails": "Voir les détails"
       },
       "sections": {
         "BELOW_THRESHOLD": {
           "title": "Membres à contacter",
-          "description": "Membres sous votre seuil de risque sur au moins une exigence.",
+          "description": "Membres actifs ayant une exigence incomplète dont l'échéance tombe dans les trente prochains jours.",
           "action": "Envoyer le rappel",
-          "settled": "Aucun membre n'est sous votre seuil de risque."
+          "settled": "Aucun membre n'a d'exigence incomplète échéant dans les trente prochains jours."
         },
         "NEW_JOINERS": {
           "title": "Nouveaux membres",
@@ -6310,16 +6305,16 @@
           "settled": "Tous les membres récents ont été accueillis."
         },
         "CATEGORY_BEHIND": {
-          "title": "Catégories en retard",
-          "description": "Membres en retard dans une catégorie en particulier, pour que le rappel puisse la nommer.",
+          "title": "Catégories à traiter",
+          "description": "Catégories où un ou plusieurs membres sont en retard, regroupées par exigence.",
           "action": "Envoyer le rappel par catégorie",
-          "settled": "Aucun membre n'est nettement en retard dans une seule catégorie."
+          "settled": "Aucune catégorie n'a de membre nettement en retard."
         },
         "EXPIRING_CERTIFICATES": {
-          "title": "Certifications qui expirent",
-          "description": "Membres détenant un certificat expiré ou qui expire dans les quatre-vingt-dix jours.",
+          "title": "Certifications expirées ou qui expirent",
+          "description": "Membres détenant un certificat déjà expiré ou qui expire dans les trente jours.",
           "action": "Envoyer l'avis d'expiration",
-          "settled": "Aucun certificat n'expire dans les quatre-vingt-dix prochains jours."
+          "settled": "Aucun certificat n'a expiré ou n'expire dans les trente prochains jours."
         },
         "READY_REPORTS": {
           "title": "Rapports prêts",
@@ -6327,6 +6322,32 @@
           "action": "Ouvrir la bibliothèque de rapports",
           "settled": "Aucun export ne vous attend."
         }
+      },
+      "detail": {
+        "title": "{{title}} — détails",
+        "close": "Fermer",
+        "next": "Suivant",
+        "previous": "Précédent",
+        "reason": "{{completed}} sur {{required}} crédits",
+        "expired": "Expiré le {{when}}",
+        "expiring": "Expire le {{when}}",
+        "affected": "{{count}} concernés",
+        "deadline": "Échéance {{when}}",
+        "viewMember": "Voir le membre",
+        "empty": "Il n'y a rien à afficher ici.",
+        "reportName": "Rapport",
+        "reportType": "Type",
+        "reportPeriod": "Période couverte",
+        "reportGenerated": "Généré",
+        "reportStatus": "Statut",
+        "reportActions": "Actions",
+        "download": "Télécharger",
+        "columnJoined": "Inscrit",
+        "columnDeadline": "Échéance",
+        "columnCertificate": "Certification",
+        "columnCategory": "Catégorie",
+        "columnAffected": "Membres concernés",
+        "columnEarned": "Acquis / requis"
       },
       "preview": {
         "title": "Relire avant d'envoyer",
@@ -6422,7 +6443,7 @@
         "onTrackThreshold": "Seuil « en bonne voie »",
         "onTrackThresholdHint": "À partir de ce pourcentage, un membre est considéré en bonne voie.",
         "atRiskThreshold": "Seuil « à risque »",
-        "atRiskThresholdHint": "En dessous de ce pourcentage, un membre apparaît dans les listes de l'onglet Messages.",
+        "atRiskThresholdHint": "En dessous de ce pourcentage, un membre apparaît dans les listes de l'onglet Notifications.",
         "renewalRequiresReviewedEvidence": "Le renouvellement exige tous les examens réglés",
         "renewalRequiresReviewedEvidenceHint": "Un membre dont une preuve attend encore votre décision n'est pas déclaré prêt au renouvellement.",
         "orderInvalid": "Le seuil « à risque » doit rester sous le seuil « en bonne voie ».",

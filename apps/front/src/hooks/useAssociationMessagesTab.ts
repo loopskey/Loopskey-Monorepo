@@ -1,8 +1,9 @@
 "use client";
 
 import { getAssociationErrorTranslationKey } from "@utils/association-error";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AssociationAttentionSection } from "@/lib/graphql/base";
+import { useSearchParams } from "next/navigation";
 import { useI18n } from "@hooks/useI18n";
 import { notify } from "@hooks/notify";
 
@@ -11,18 +12,25 @@ import * as M from "@utils/association-messages";
 
 type TSelection = Record<string, string[]>;
 
+const ATTENTION_POLL_MS = 30_000;
+
 export const useAssociationMessagesTab = () => {
   const { t, language } = useI18n();
+  const searchParams = useSearchParams();
 
   const locale = language === "fr" ? "fr-FR" : "en-GB";
 
   const [openSection, setOpenSection] = useState<M.TAttentionSection | null>(
     null,
   );
+  const [viewingSection, setViewingSection] =
+    useState<M.TAttentionSection | null>(null);
   const [selection, setSelection] = useState<TSelection>({});
   const [groupFilter, setGroupFilter] = useState<Record<string, string>>({});
 
-  const listsQuery = API.useAssociationAttentionListsQuery();
+  const listsQuery = API.useAssociationAttentionListsQuery(undefined, {
+    pollingInterval: ATTENTION_POLL_MS,
+  });
   const settingsQuery = API.useAssociationSettingsQuery();
   const groupsQuery = API.useAssociationGroupsQuery();
   const historyQuery = API.useAssociationMessageHistoryQuery({});
@@ -30,8 +38,19 @@ export const useAssociationMessagesTab = () => {
 
   const [sendMessage, sendState] = API.useSendAssociationMessageMutation();
 
+  const openedFromUrl = useRef(false);
+
+  useEffect(() => {
+    if (openedFromUrl.current) return;
+    const requested = searchParams?.get("section");
+    if (!requested) return;
+
+    openedFromUrl.current = true;
+    if (M.ATTENTION_SECTIONS.includes(requested as M.TAttentionSection))
+      setViewingSection(requested as M.TAttentionSection);
+  }, [searchParams]);
+
   const counts = listsQuery.data?.counts ?? null;
-  const distribution = listsQuery.data?.distribution ?? null;
 
   const groupOptions = useMemo(
     () =>
@@ -127,7 +146,9 @@ export const useAssociationMessagesTab = () => {
     locale,
     counts,
     countOf,
-    distribution,
+    viewingSection,
+    openDetails: setViewingSection,
+    closeDetails: () => setViewingSection(null),
     groupOf,
     setGroup,
     groupOptions,

@@ -351,7 +351,6 @@ export type AssociationAttentionCounts = {
 export type AssociationAttentionLists = {
   __typename?: 'AssociationAttentionLists';
   counts: AssociationAttentionCounts;
-  distribution: AssociationMemberDistribution;
 };
 
 export type AssociationAttentionRow = {
@@ -425,6 +424,17 @@ export type AssociationCatalogSearchInput = {
   contentType?: InputMaybe<ContentType>;
   search?: InputMaybe<Scalars['String']['input']>;
   take?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type AssociationCategoryAttentionGroup = {
+  __typename?: 'AssociationCategoryAttentionGroup';
+  affectedCount: Scalars['Int']['output'];
+  categoryId: Scalars['ID']['output'];
+  categoryName: Scalars['String']['output'];
+  deadline?: Maybe<Scalars['DateTime']['output']>;
+  members: Array<AssociationAttentionRow>;
+  requirementId: Scalars['ID']['output'];
+  requirementName: Scalars['String']['output'];
 };
 
 export type AssociationCategoryProgress = {
@@ -3888,6 +3898,13 @@ export type PaginatedAssociationAttentionRows = {
   totalCount: Scalars['Int']['output'];
 };
 
+export type PaginatedAssociationCategoryAttentionGroups = {
+  __typename?: 'PaginatedAssociationCategoryAttentionGroups';
+  items: Array<AssociationCategoryAttentionGroup>;
+  pageInfo: AssociationPageInfo;
+  totalCount: Scalars['Int']['output'];
+};
+
 export type PaginatedAssociationGeneratedReports = {
   __typename?: 'PaginatedAssociationGeneratedReports';
   items: Array<AssociationGeneratedReport>;
@@ -5087,6 +5104,7 @@ export type Query = {
   associationAttentionLists: AssociationAttentionLists;
   associationAttentionMembers: PaginatedAssociationAttentionRows;
   associationCatalogSearch: Array<AssociationCatalogItem>;
+  associationCategoryAttentionGroups: PaginatedAssociationCategoryAttentionGroups;
   associationCategoryCompletionReport: Array<AssociationCategoryProgressRow>;
   associationComplianceByGroup: Array<AssociationGroupCompliance>;
   associationComplianceTrend: Array<AssociationComplianceTrendPoint>;
@@ -5289,6 +5307,12 @@ export type QueryAssociationAttentionMembersArgs = {
 export type QueryAssociationCatalogSearchArgs = {
   associationId?: InputMaybe<Scalars['ID']['input']>;
   input: AssociationCatalogSearchInput;
+};
+
+
+export type QueryAssociationCategoryAttentionGroupsArgs = {
+  associationId?: InputMaybe<Scalars['ID']['input']>;
+  pagination?: InputMaybe<AssociationReportPaginationInput>;
 };
 
 
