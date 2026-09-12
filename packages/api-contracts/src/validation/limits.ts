@@ -1,3 +1,8 @@
+export const FULL_NAME_LIMITS = {
+  min: 2,
+  max: 120,
+} as const;
+
 export const ASSOCIATION_MEMBER_LIMITS = {
   emailMax: 254,
   notesMax: 2000,

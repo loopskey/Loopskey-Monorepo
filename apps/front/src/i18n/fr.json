@@ -2527,7 +2527,9 @@
       "emailSendFailed": "Nous n’avons pas pu envoyer l’e-mail. Veuillez réessayer.",
       "passwordTooObvious": "Choisissez un mot de passe moins prévisible.",
       "passwordsDoNotMatch": "Le nouveau mot de passe et sa confirmation ne correspondent pas.",
-      "passwordStrength": "Le mot de passe doit contenir au moins 8 caractères, avec des lettres et des chiffres."
+      "passwordStrength": "Le mot de passe doit contenir au moins 8 caractères, avec des lettres et des chiffres.",
+      "fullNameMin": "Le nom complet doit contenir au moins 2 caractères.",
+      "fullNameMax": "Le nom complet doit contenir au maximum 120 caractères."
     },
     "oauth": {
       "completingLogin": "Finalisation de votre connexion",
@@ -2565,7 +2567,6 @@
       "orContinueWith": "Ou continuer avec",
       "google": "Google",
       "linkedin": "LinkedIn",
-      "facebook": "Facebook",
       "back": "Retour",
       "backToHome": "Retour à l'accueil",
       "loginSuccess": "Connexion réussie.",
@@ -3394,7 +3395,8 @@
         "removed": "Photo de profil supprimée",
         "hint": "JPG, PNG ou WebP. Jusqu'à {{size}} Mo.",
         "deleteTitle": "Supprimer la photo de profil ?",
-        "deleteDescription": "Votre photo de profil sera définitivement supprimée. Vous pourrez en téléverser une nouvelle à tout moment."
+        "deleteDescription": "Votre photo de profil sera définitivement supprimée. Vous pourrez en téléverser une nouvelle à tout moment.",
+        "retry": "Réessayer"
       },
       "basic": {
         "title": "Profil de base",
@@ -3404,7 +3406,6 @@
         "email": "Adresse e-mail",
         "emailVerified": "Adresse e-mail vérifiée.",
         "emailUnverified": "Cette adresse e-mail n'est pas encore vérifiée.",
-        "changeEmail": "Modifier l'e-mail en toute sécurité",
         "linkedInUrl": "URL LinkedIn",
         "linkedInUrlHint": "Par exemple https://www.linkedin.com/in/votre-nom",
         "country": "Pays",
@@ -3553,6 +3554,8 @@
         "avatarUpload": "Impossible de téléverser votre photo. Veuillez réessayer.",
         "avatarDelete": "Impossible de supprimer votre photo. Veuillez réessayer.",
         "avatarUnavailable": "Impossible de charger votre photo. Veuillez la téléverser à nouveau.",
+        "avatarStorageUnavailable": "Le stockage des photos est temporairement indisponible. Veuillez réessayer sous peu.",
+        "avatarUnauthenticated": "Votre session a expiré. Veuillez vous reconnecter pour téléverser une photo.",
         "saveFailed": "Impossible d'enregistrer vos modifications. Veuillez réessayer.",
         "deleteFailed": "Impossible de supprimer cet élément. Veuillez réessayer.",
         "loadFailed": "Impossible de charger votre profil."

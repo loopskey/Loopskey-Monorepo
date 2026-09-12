@@ -1,5 +1,6 @@
 import { PduCompletionStatus, PduSource } from "@/lib/graphql/base";
 import { CreditType, PduCategory } from "@/lib/graphql/base";
+import { API_ORIGIN as PDU_API_ORIGIN } from "@/utils/api-origin.util";
 
 import {
   pduEvidenceFileUrl,
@@ -168,15 +169,7 @@ export const formatFileSize = (bytes: number) => {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 };
 
-const graphqlUrl =
-  process.env.NEXT_PUBLIC_GRAPHQL_URL ?? "http://localhost:5700/graphql";
-
-/**
- * REST and GraphQL are assumed co-hosted. Deriving the origin this way is the
- * pre-existing behaviour, kept deliberately: making the REST origin its own
- * variable is a deployment-configuration change, not a refactor.
- */
-export const PDU_API_ORIGIN = graphqlUrl.replace(/\/graphql\/?$/, "");
+export { PDU_API_ORIGIN };
 
 export const getEvidenceUploadUrl = (activityId: string) =>
   pduEvidenceUploadUrl(PDU_API_ORIGIN, activityId);

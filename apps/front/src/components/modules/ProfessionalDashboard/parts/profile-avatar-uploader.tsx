@@ -2,11 +2,11 @@
 
 import { TProfileAvatarUploaderProps } from "@/types/professional-profile.types";
 import { ImageUp, Loader2, Trash2 } from "lucide-react";
+import { useRef, useState } from "react";
 import { ConfirmDialog } from "@elements/confirm-dialog";
 import { UserAvatar } from "@elements/user-avatar";
 import { Progress } from "@ui/progress";
 import { useI18n } from "@/hooks/useI18n";
-import { useRef, useState } from "react";
 import { Button } from "@ui/button";
 
 import * as C from "@/utils/professional-profile.constant";
@@ -22,11 +22,13 @@ export const ProfileAvatarUploader = ({
 
   const {
     error,
+    canRetry,
     progress,
     isRemoving,
     isUploading,
     uploadAvatar,
     removeAvatar,
+    retryUpload,
   } = avatar;
 
   const isBusy = isUploading || isRemoving || isDisabled;
@@ -37,8 +39,6 @@ export const ProfileAvatarUploader = ({
     const input = event.target;
     const file = input.files?.[0];
     if (file) await uploadAvatar(file);
-    // Reset once the file has been read, so re-picking the same file still
-    // fires a change event without clearing the FileList mid-upload.
     input.value = "";
   };
 
@@ -77,15 +77,23 @@ export const ProfileAvatarUploader = ({
         ) : null}
 
         {error ? (
-          <p role="alert" className="mt-2 text-sm text-destructive">
-            {error}
+          <p
+            role="alert"
+            aria-live="polite"
+            className="mt-2 flex flex-wrap items-center gap-2 text-sm text-destructive"
+          >
+            <span>{error}</span>
+            {canRetry ? (
+              <button
+                type="button"
+                onClick={retryUpload}
+                className="font-medium underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                {t("professionalDashboard.profile.avatar.retry")}
+              </button>
+            ) : null}
           </p>
         ) : null}
-
-        {/* Without this a stored avatar that fails to load is indistinguishable
-            from having none, because the fallback initials quietly take over.
-            Having no photo at all also reports "error", so this stays keyed to
-            a photo actually being set. */}
         {!error && !isUploading && profile?.avatarUrl && hasImageError ? (
           <p role="alert" className="mt-2 text-sm text-destructive">
             {t("professionalDashboard.profile.errors.avatarUnavailable")}
