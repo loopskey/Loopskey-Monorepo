@@ -63,3 +63,4 @@ into this index and do not rewrite previous records.
 - [`association-members-requirements-corrections`](feature-runs/active/association-members-requirements-corrections.md)
 - [`association-learning-content-corrections`](feature-runs/active/association-learning-content-corrections.md)
 - [`association-activity-sync-corrections`](feature-runs/active/association-activity-sync-corrections.md)
+- [`association-reports-and-notifications-corrections`](feature-runs/active/association-reports-and-notifications-corrections.md)
