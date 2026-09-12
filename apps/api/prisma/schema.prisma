@@ -2251,9 +2251,9 @@ model AssociationGroup {
   description String?
   isActive    Boolean @default(true)
 
-  members           AssociationMember[]
-  requirementTarget AssociationRequirementTarget[]
-  learningContents  AssociationLearningContent[]
+  members                AssociationMember[]
+  requirementTarget      AssociationRequirementTarget[]
+  learningContentTargets AssociationLearningContentTarget[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -2286,6 +2286,7 @@ model AssociationMember {
 
   requirementTargets     AssociationRequirementTarget[]
   requirementAssignments AssociationRequirementAssignment[]
+  learningContentTargets AssociationLearningContentTarget[]
   messageDeliveries      AssociationMessageDelivery[]
 
   createdAt DateTime @default(now())
@@ -2650,7 +2651,7 @@ model AssociationLearningContent {
 
   description String?
 
-  category          PDUCategory
+  category          PDUCategory?
   indicativeCredits Float?
 
   requirementId String?
@@ -2661,9 +2662,7 @@ model AssociationLearningContent {
   withdrawnAt DateTime?
 
   audienceKind AssociationAudienceKind @default(ALL_MEMBERS)
-
-  groupId String?
-  group   AssociationGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  targets      AssociationLearningContentTarget[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -2672,8 +2671,28 @@ model AssociationLearningContent {
   @@index([associationId, status])
   @@index([category])
   @@index([requirementId])
-  @@index([groupId])
   @@index([contentType, contentId])
+}
+
+model AssociationLearningContentTarget {
+  id String @id @default(cuid())
+
+  learningContentId String
+  learningContent   AssociationLearningContent @relation(fields: [learningContentId], references: [id], onDelete: Cascade)
+
+  kind AssociationAudienceKind
+
+  groupId String?
+  group   AssociationGroup? @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  memberId String?
+  member   AssociationMember? @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([learningContentId, groupId])
+  @@unique([learningContentId, memberId])
+  @@index([learningContentId])
 }
 
 enum AssociationLearningContentStatus {

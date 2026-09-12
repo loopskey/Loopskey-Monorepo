@@ -5892,6 +5892,7 @@
         "view": "View details",
         "edit": "Edit",
         "publish": "Publish",
+        "reassign": "Change audience",
         "withdraw": "Withdraw",
         "delete": "Delete"
       },
@@ -5921,7 +5922,7 @@
         "noProvider": "No provider named",
         "credits": "{{credits}} indicative credits",
         "forRequirement": "Counts toward {{requirement}}",
-        "forGroup": "Published to {{group}}",
+        "uncategorised": "Uncategorised",
         "unavailable": "No longer available",
         "actionsFor": "Actions for {{title}}"
       },
@@ -5946,22 +5947,52 @@
         "title": "Title",
         "provider": "Provider",
         "url": "Link",
-        "category": "Category",
         "credits": "Indicative credits",
-        "requirement": "Counts toward",
-        "noRequirement": "No requirement",
         "description": "Why you are recommending it",
-        "save": "Save item"
+        "cpdAdvisory": "This credit value is informational only. A member only earns credit once they record a matching activity and, if required, it passes evidence review.",
+        "unsavedTitle": "Discard your changes?",
+        "unsavedBody": "You have entered details that have not been saved. Closing now discards them.",
+        "unsavedKeep": "Keep editing",
+        "unsavedDiscard": "Discard"
       },
-      "publish": {
-        "title": "Publish to your members",
-        "description": "A published item is visible to the audience you choose. You can withdraw it later without losing it.",
+      "wizard": {
+        "step1": {
+          "title": "Content",
+          "description": "What you are sharing"
+        },
+        "step2": {
+          "title": "CPD Setup",
+          "description": "Advisory credit value"
+        },
+        "step3": {
+          "title": "Assignment",
+          "description": "Who sees it"
+        },
+        "step4": {
+          "title": "Review",
+          "description": "Confirm and publish"
+        }
+      },
+      "assignment": {
+        "groups": "Groups",
+        "noGroups": "You have not created any groups yet.",
+        "groupsRequired": "Choose at least one group.",
+        "members": "Members",
+        "membersEmpty": "No members match your search.",
+        "membersResults": "{{count}} members",
+        "membersRequired": "Choose at least one member.",
+        "membersPlaceholder": "Search by name, email or member number",
+        "membersCount": "{{count}} members"
+      },
+      "review": {
+        "title": "Review",
+        "cpdNotice": "Publishing does not award or approve credit. Members earn credit only by recording a qualifying activity of their own.",
+        "contentPending": "No content selected yet",
+        "credits": "Indicative credits",
+        "noCredits": "Not stated",
         "audience": "Audience",
-        "allMembers": "All members",
-        "oneGroup": "One group",
-        "group": "Group",
-        "groupPlaceholder": "Choose a group",
-        "confirm": "Publish"
+        "saveDraft": "Save as draft",
+        "publish": "Publish"
       },
       "detail": {
         "title": "Library item",
@@ -5969,12 +6000,12 @@
         "source": "Source",
         "provider": "Provider",
         "category": "Category",
+        "uncategorised": "Uncategorised",
         "credits": "Indicative credits",
         "noCredits": "Not stated",
         "requirement": "Counts toward",
         "noRequirement": "No requirement",
         "audience": "Audience",
-        "allMembers": "All members",
         "published": "Published",
         "withdrawn": "Withdrawn",
         "unavailableBody": "This content is no longer published in the catalogue. It is kept here so you can replace it rather than losing the endorsement.",

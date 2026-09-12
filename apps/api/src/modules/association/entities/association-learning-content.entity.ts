@@ -21,6 +21,15 @@ export class AssociationLearningEngagementEntity {
   @Field(() => Int) memberCount: number;
 }
 
+@ObjectType(AssociationGqlObjectNames.ASSOCIATION_LEARNING_CONTENT_TARGET)
+export class AssociationLearningContentTargetEntity {
+  @Field(() => ID) id: string;
+  @Field(() => AssociationAudienceKind) kind: AssociationAudienceKind;
+  @Field(() => ID, { nullable: true }) groupId: string | null;
+  @Field(() => ID, { nullable: true }) memberId: string | null;
+  @Field(() => String, { nullable: true }) label: string | null;
+}
+
 @ObjectType(AssociationGqlObjectNames.ASSOCIATION_LEARNING_CONTENT)
 export class AssociationLearningContentEntity {
   @Field() title: string;
@@ -29,7 +38,7 @@ export class AssociationLearningContentEntity {
   @Field(() => ID) id: string;
   @Field() isAvailable: boolean;
   @Field() isExternal: boolean;
-  @Field(() => PDUCategory) category: PDUCategory;
+  @Field(() => PDUCategory, { nullable: true }) category: PDUCategory | null;
   @Field(() => AssociationAudienceKind) audienceKind: AssociationAudienceKind;
   @Field(() => AssociationLearningContentStatus)
   status: AssociationLearningContentStatus;
@@ -42,8 +51,8 @@ export class AssociationLearningContentEntity {
   @Field(() => Float, { nullable: true }) indicativeCredits: number | null;
   @Field(() => ID, { nullable: true }) requirementId: string | null;
   @Field(() => String, { nullable: true }) requirementName: string | null;
-  @Field(() => ID, { nullable: true }) groupId: string | null;
-  @Field(() => String, { nullable: true }) groupTitle: string | null;
+  @Field(() => [AssociationLearningContentTargetEntity])
+  targets: AssociationLearningContentTargetEntity[];
   @Field(() => Date, { nullable: true }) publishedAt: Date | null;
   @Field(() => Date, { nullable: true }) withdrawnAt: Date | null;
   @Field(() => AssociationLearningEngagementEntity, { nullable: true })

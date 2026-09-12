@@ -42,6 +42,7 @@ export enum AssociationGqlObjectNames {
   ASSOCIATION_LEARNING_CONTENT = "AssociationLearningContent",
   ASSOCIATION_CATALOG_ITEM = "AssociationCatalogItem",
   ASSOCIATION_LEARNING_ENGAGEMENT = "AssociationLearningEngagement",
+  ASSOCIATION_LEARNING_CONTENT_TARGET = "AssociationLearningContentTarget",
   PAGINATED_ASSOCIATION_LEARNING_CONTENTS = "PaginatedAssociationLearningContents",
   ASSOCIATION_REPORT_SUMMARY = "AssociationReportSummary",
   ASSOCIATION_GROUP_COMPLIANCE = "AssociationGroupCompliance",

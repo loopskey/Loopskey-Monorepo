@@ -5893,6 +5893,7 @@
         "view": "Voir le détail",
         "edit": "Modifier",
         "publish": "Publier",
+        "reassign": "Modifier l'audience",
         "withdraw": "Retirer",
         "delete": "Supprimer"
       },
@@ -5922,7 +5923,7 @@
         "noProvider": "Aucun fournisseur indiqué",
         "credits": "{{credits}} crédits indicatifs",
         "forRequirement": "Compte pour {{requirement}}",
-        "forGroup": "Publié auprès de {{group}}",
+        "uncategorised": "Sans catégorie",
         "unavailable": "Plus disponible",
         "actionsFor": "Actions pour {{title}}"
       },
@@ -5947,22 +5948,52 @@
         "title": "Titre",
         "provider": "Fournisseur",
         "url": "Lien",
-        "category": "Catégorie",
         "credits": "Crédits indicatifs",
-        "requirement": "Compte pour",
-        "noRequirement": "Aucune exigence",
         "description": "Pourquoi vous le recommandez",
-        "save": "Enregistrer"
+        "cpdAdvisory": "Cette valeur de crédit est purement indicative. Un membre ne gagne un crédit qu'en enregistrant une activité correspondante et, si nécessaire, après validation des preuves.",
+        "unsavedTitle": "Abandonner vos modifications ?",
+        "unsavedBody": "Vous avez saisi des informations qui n'ont pas été enregistrées. Fermer maintenant les abandonnera.",
+        "unsavedKeep": "Continuer la modification",
+        "unsavedDiscard": "Abandonner"
       },
-      "publish": {
-        "title": "Publier auprès de vos membres",
-        "description": "Un élément publié est visible par l'audience que vous choisissez. Vous pourrez le retirer plus tard sans le perdre.",
+      "wizard": {
+        "step1": {
+          "title": "Contenu",
+          "description": "Ce que vous partagez"
+        },
+        "step2": {
+          "title": "Paramètres CPD",
+          "description": "Valeur de crédit indicative"
+        },
+        "step3": {
+          "title": "Attribution",
+          "description": "Qui le voit"
+        },
+        "step4": {
+          "title": "Révision",
+          "description": "Confirmer et publier"
+        }
+      },
+      "assignment": {
+        "groups": "Groupes",
+        "noGroups": "Vous n'avez pas encore créé de groupe.",
+        "groupsRequired": "Choisissez au moins un groupe.",
+        "members": "Membres",
+        "membersEmpty": "Aucun membre ne correspond à votre recherche.",
+        "membersResults": "{{count}} membres",
+        "membersRequired": "Choisissez au moins un membre.",
+        "membersPlaceholder": "Rechercher par nom, e-mail ou numéro de membre",
+        "membersCount": "{{count}} membres"
+      },
+      "review": {
+        "title": "Révision",
+        "cpdNotice": "La publication n'attribue ni n'approuve aucun crédit. Les membres ne gagnent un crédit qu'en enregistrant eux-mêmes une activité admissible.",
+        "contentPending": "Aucun contenu sélectionné pour le moment",
+        "credits": "Crédits indicatifs",
+        "noCredits": "Non précisé",
         "audience": "Audience",
-        "allMembers": "Tous les membres",
-        "oneGroup": "Un groupe",
-        "group": "Groupe",
-        "groupPlaceholder": "Choisissez un groupe",
-        "confirm": "Publier"
+        "saveDraft": "Enregistrer comme brouillon",
+        "publish": "Publier"
       },
       "detail": {
         "title": "Élément de la bibliothèque",
@@ -5970,12 +6001,12 @@
         "source": "Source",
         "provider": "Fournisseur",
         "category": "Catégorie",
+        "uncategorised": "Sans catégorie",
         "credits": "Crédits indicatifs",
         "noCredits": "Non précisé",
         "requirement": "Compte pour",
         "noRequirement": "Aucune exigence",
         "audience": "Audience",
-        "allMembers": "Tous les membres",
         "published": "Publié le",
         "withdrawn": "Retiré le",
         "unavailableBody": "Ce contenu n'est plus publié dans le catalogue. Il est conservé ici pour que vous puissiez le remplacer plutôt que de perdre la recommandation.",
