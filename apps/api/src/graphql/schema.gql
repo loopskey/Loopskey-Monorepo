@@ -1562,6 +1562,7 @@ type CpdPlanProgress {
   remainingCredits: Float!
   reportingExpired: Boolean!
   reportingNotStarted: Boolean!
+  startingCredits: Float!
   totalRequiredCredits: Float!
 }
 

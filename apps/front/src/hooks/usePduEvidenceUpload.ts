@@ -6,6 +6,17 @@ import { TPduEvidenceFile } from "@/types/professional-dashboard.types";
 import { professionalApi } from "@/lib/rtk/endpoints/professional.api";
 import { useDispatch } from "react-redux";
 
+const uploadKeysByFile = new WeakMap<File, string>();
+
+const getUploadKey = (file: File) => {
+  let key = uploadKeysByFile.get(file);
+  if (!key) {
+    key = crypto.randomUUID();
+    uploadKeysByFile.set(file, key);
+  }
+  return key;
+};
+
 export const usePduEvidenceUpload = () => {
   const dispatch = useDispatch();
   const [isUploading, setIsUploading] = useState(false);
@@ -21,6 +32,10 @@ export const usePduEvidenceUpload = () => {
       try {
         const body = new FormData();
         for (const file of files) body.append("files", file);
+        body.append(
+          "uploadKeys",
+          JSON.stringify(files.map((file) => getUploadKey(file))),
+        );
         const response = await fetch(getEvidenceUploadUrl(activityId), {
           method: "POST",
           credentials: "include",

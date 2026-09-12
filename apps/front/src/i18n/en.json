@@ -188,6 +188,7 @@
         "evidenceMissing": "Evidence Missing",
         "evidenceMissingHelper": "Activities without evidence"
       },
+      "startingCredits": "Plus {{amount}} {{credit}} of starting credits from before you began tracking activities here, shown for historical reference and not counted toward Earned, Remaining, or the progress chart.",
       "overallTitle": "Overall Progress",
       "overallSubtitle": "Earned versus required credits",
       "accessibleSummary": "Earned {{earned}} of {{total}} {{credit}} ({{percent}}%).",
@@ -3851,18 +3852,6 @@
           }
         }
       },
-      "byCategory": {
-        "title": "PDUs by Category",
-        "subtitle": "Progress vs target by professional development category.",
-        "empty": "Add a learning activity or set a yearly target to see your category breakdown.",
-        "noTarget": "No target",
-        "exceededBy": "Exceeded by {{amount}} PDUs"
-      },
-      "overTime": {
-        "title": "PDUs Over Time",
-        "subtitle": "Monthly credits earned across the selected report year.",
-        "empty": "No credits recorded for this year yet."
-      },
       "activities": {
         "title": "Activities",
         "subtitle": "Manage every learning activity you have recorded.",
@@ -3992,7 +3981,8 @@
         "download": "Download",
         "remove": "Remove",
         "removed": "File removed.",
-        "uploadFailed": "The activity was saved, but the files could not be uploaded. Please try attaching them again.",
+        "uploadFailed": "The activity was saved, but the files could not be uploaded. Your files are still selected — use Retry to finish.",
+        "retryUpload": "Retry Upload",
         "fileTooLarge": "\"{{name}}\" is larger than 20 MB.",
         "fileTypeInvalid": "\"{{name}}\" is not an accepted file type.",
         "tooManyFiles": "You can attach at most {{max}} files."

@@ -10,6 +10,7 @@ import { CurrentUser } from "@auth/decorators/current-user.decorator";
 import { Response } from "express";
 import { extname } from "path";
 import { Roles } from "@auth/decorators/roles.decorator";
+import { Body } from "@nestjs/common";
 import { Role } from "@prisma/client";
 
 import * as C from "@professional/enums/pdu-file.constant";
@@ -51,11 +52,13 @@ export class ProfessionalPduFileController {
     @CurrentUser() user: TResolverUser,
     @Param("activityId") activityId: string,
     @UploadedFiles() files: Express.Multer.File[],
+    @Body("uploadKeys") uploadKeysJson?: string,
   ) {
     return this.professionalPduFileService.uploadEvidence(
       this.getUser(user),
       activityId,
       files,
+      C.parseUploadKeys(uploadKeysJson),
     );
   }
 

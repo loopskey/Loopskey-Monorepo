@@ -32,9 +32,11 @@ const ProfessionalAddActivityTab = () => {
     isEditing,
     isRemoving,
     isSubmitted,
+    retryUpload,
     goToTracker,
     existingFiles,
     handleAddAnother,
+    hasUploadFailed,
     handleFilesChange,
     activityTypeOptions,
     subCategoryOptions,
@@ -70,19 +72,19 @@ const ProfessionalAddActivityTab = () => {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-3xl space-y-5">
       <div>
         <p className="text-sm font-medium text-primary">
           {t(`${TRACKER}.title`)}
         </p>
 
-        <h1 className="mt-2 text-3xl font-medium tracking-tight md:text-4xl">
+        <h1 className="mt-2 text-2xl font-medium tracking-tight md:text-3xl">
           {isEditing
             ? t(`${TRACKER}.addActivity.editTitle`)
             : t(`${TRACKER}.addActivity.title`)}
         </h1>
 
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">
           {t(`${TRACKER}.addActivity.subtitle`)}
         </p>
       </div>
@@ -137,6 +139,26 @@ const ProfessionalAddActivityTab = () => {
               />
             )}
 
+            {hasUploadFailed && (
+              <div
+                role="alert"
+                aria-live="polite"
+                className="mt-6 flex flex-col gap-3 rounded-lg border border-destructive/30 bg-destructive-soft p-4 text-sm text-destructive-soft-foreground sm:flex-row sm:items-center sm:justify-between"
+              >
+                <p>{t(`${TRACKER}.evidence.uploadFailed`)}</p>
+                <Button
+                  radius="xl"
+                  type="button"
+                  variant="outline"
+                  disabled={isSaving}
+                  onClick={() => void retryUpload()}
+                >
+                  {isSaving && <L.Loader2 className="h-4 w-4 animate-spin" />}
+                  {t(`${TRACKER}.evidence.retryUpload`)}
+                </Button>
+              </div>
+            )}
+
             <div className="mt-8 flex flex-col-reverse gap-3 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
               {form.formState.isDirty || files.length > 0 ? (
                 <ConfirmDialog
@@ -177,7 +199,7 @@ const ProfessionalAddActivityTab = () => {
                   <Button
                     radius="xl"
                     type="submit"
-                    disabled={isSaving}
+                    disabled={isSaving || hasUploadFailed}
                   >
                     {isSaving && <L.Loader2 className="h-4 w-4 animate-spin" />}
                     {isEditing

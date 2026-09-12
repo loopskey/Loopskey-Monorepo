@@ -58,3 +58,4 @@ into this index and do not rewrite previous records.
 - [`content-image-policy`](feature-runs/active/content-image-policy.md)
 - [`ingestion-image-candidate-consumer`](feature-runs/active/ingestion-image-candidate-consumer.md)
 - [`crawler-integration-guide`](feature-runs/active/crawler-integration-guide.md)
+- [`cpd-activity-corrections`](feature-runs/active/cpd-activity-corrections.md)
