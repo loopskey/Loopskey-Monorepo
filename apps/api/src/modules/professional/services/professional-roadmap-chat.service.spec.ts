@@ -305,6 +305,18 @@ describe("starting the wizard", () => {
     expect(calls[0].userMessage).toBeNull();
   });
 
+  it("exposes the brief's completion counts, consistent with its remaining fields", async () => {
+    const { service } = setup();
+
+    const view = await service.startDraft(OWNER);
+
+    expect(view.requiredFieldCount).toBeGreaterThan(0);
+    expect(view.completedFieldCount).toBe(
+      view.requiredFieldCount - view.remainingFields.length,
+    );
+    expect(view.remainingFields).not.toContain(RoadmapDraftStep.REVIEW);
+  });
+
   it("stores no professional message for the introduction", async () => {
     const { service, store } = setup();
 

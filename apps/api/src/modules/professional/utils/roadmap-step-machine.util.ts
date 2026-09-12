@@ -1,9 +1,7 @@
 import { RoadmapDraftStep } from "@prisma/client";
 
-import type {
-  AnsweredFields,
-  RoadmapDraftFields,
-} from "@professional/types/professional-roadmap-chat.types";
+import type { RoadmapDraftFields } from "@professional/types/professional-roadmap-chat.types";
+import type { AnsweredFields } from "@professional/types/professional-roadmap-chat.types";
 
 export const STEP_ORDER: readonly RoadmapDraftStep[] = [
   RoadmapDraftStep.GOAL,
@@ -17,11 +15,6 @@ export const STEP_ORDER: readonly RoadmapDraftStep[] = [
   RoadmapDraftStep.REVIEW,
 ] as const;
 
-/**
- * Steps that only exist once the professional opted into certification
- * tracking. Declining removes them from the sequence entirely rather than
- * marking them satisfied, so a later change of mind puts them back.
- */
 const CPD_BRANCH_STEPS: readonly RoadmapDraftStep[] = [
   RoadmapDraftStep.CERTIFICATION,
   RoadmapDraftStep.CPD_REQUIREMENTS,
@@ -42,11 +35,6 @@ export const applicableSteps = (
 export type StepContext = {
   draft: RoadmapDraftFields;
   currentStep: RoadmapDraftStep;
-  /**
-   * Fields the provider extracted or retracted on this turn. It is what lets a
-   * step whose answer is legitimately empty — declining CPD, skipping the
-   * context prose — count as answered rather than asked forever.
-   */
   answered?: AnsweredFields;
 };
 
@@ -97,24 +85,26 @@ export const isStepSatisfied = (
   }
 };
 
-/**
- * The next question to ask. Scanning from the start rather than from the
- * current step is what makes a turn that answered several questions at once
- * skip every step it satisfied, and what sends the wizard back to a step whose
- * answer the professional has since retracted.
- */
 export const nextStep = (context: StepContext): RoadmapDraftStep => {
   for (const step of applicableSteps(context.draft))
     if (!isStepSatisfied(context, step)) return step;
   return RoadmapDraftStep.REVIEW;
 };
 
-/**
- * Completeness is derived from the draft's own fields rather than taken from
- * the provider's flag, which is computed against a coarser field set than this
- * wizard collects. GOAL_REASON and CONTEXT are absent on purpose: they colour
- * the plan without gating it.
- */
+export const draftCompletionSummary = (context: StepContext) => {
+  const steps = applicableSteps(context.draft).filter(
+    (step) => step !== RoadmapDraftStep.REVIEW,
+  );
+  const remainingFields = steps.filter(
+    (step) => !isStepSatisfied(context, step),
+  );
+  return {
+    requiredFieldCount: steps.length,
+    completedFieldCount: steps.length - remainingFields.length,
+    remainingFields,
+  };
+};
+
 export const isDraftComplete = (draft: RoadmapDraftFields): boolean => {
   const base =
     filled(draft.goal) &&

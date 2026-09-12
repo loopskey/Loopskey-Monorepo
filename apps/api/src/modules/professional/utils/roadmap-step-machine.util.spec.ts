@@ -11,6 +11,7 @@ import type { RoadmapDraftFields } from "@professional/types/professional-roadma
 import {
   STEP_ORDER,
   applicableSteps,
+  draftCompletionSummary,
   isDraftComplete,
   nextStep,
 } from "./roadmap-step-machine.util";
@@ -229,5 +230,43 @@ describe("roadmap draft completeness", () => {
         }),
       ),
     ).toBe(true);
+  });
+});
+
+describe("draftCompletionSummary", () => {
+  it("counts every applicable field as remaining on a brand-new draft", () => {
+    const summary = draftCompletionSummary({
+      draft: draft({}),
+      currentStep: RoadmapDraftStep.GOAL,
+    });
+    expect(summary.requiredFieldCount).toBe(6);
+    expect(summary.completedFieldCount).toBe(0);
+    expect(summary.remainingFields).toHaveLength(6);
+    expect(summary.remainingFields).not.toContain(RoadmapDraftStep.REVIEW);
+  });
+
+  it("counts every field complete once the wizard reaches review", () => {
+    const summary = draftCompletionSummary({
+      draft: draft(READY_TO_REVIEW),
+      currentStep: RoadmapDraftStep.REVIEW,
+    });
+    expect(summary.requiredFieldCount).toBe(6);
+    expect(summary.completedFieldCount).toBe(6);
+    expect(summary.remainingFields).toHaveLength(0);
+  });
+
+  it("includes the certification branch in the required count once CPD tracking is on", () => {
+    const summary = draftCompletionSummary({
+      draft: draft({
+        ...READY_TO_REVIEW,
+        cpdEnabled: true,
+        certificationName: "PMP",
+        requiredCredits: 60,
+      }),
+      currentStep: RoadmapDraftStep.REVIEW,
+    });
+    expect(summary.requiredFieldCount).toBe(8);
+    expect(summary.completedFieldCount).toBe(8);
+    expect(summary.remainingFields).toHaveLength(0);
   });
 });

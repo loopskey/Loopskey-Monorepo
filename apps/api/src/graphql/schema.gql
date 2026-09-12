@@ -3742,6 +3742,7 @@ type ProfessionalRoadmapDraft {
   certificationId: ID
   certificationName: String
   completedCredits: Float
+  completedFieldCount: Int!
   context: String
   cpdEnabled: Boolean!
   currentStep: RoadmapDraftStep!
@@ -3753,7 +3754,9 @@ type ProfessionalRoadmapDraft {
   needsClarification: Boolean!
   preferredContentTypes: [ContentType!]!
   preferredFormats: [LearningFormat!]!
+  remainingFields: [RoadmapDraftStep!]!
   requiredCredits: Float
+  requiredFieldCount: Int!
   skillLevel: SkillLevel
   status: RoadmapDraftStatus!
   subjectOptions: [RoadmapSubjectOption!]!
@@ -3778,6 +3781,14 @@ type ProfessionalRoadmapPhase {
   steps: [ProfessionalRoadmapStep!]!
   stepsCount: Int!
   title: String!
+}
+
+type ProfessionalRoadmapStats {
+  averageProgress: Int!
+  completedPhaseCount: Int!
+  enrolledCount: Int!
+  nextMilestone: Int
+  totalPhaseCount: Int!
 }
 
 type ProfessionalRoadmapStep {
@@ -4178,6 +4189,7 @@ type Query {
   professionalProfileTaxonomy(kind: ProfileTaxonomyKind): [ProfessionalTaxonomyGroup!]!
   professionalRoadmapDraft(draftId: ID, transcript: ProfessionalPaginationInput): ProfessionalRoadmapDraft
   professionalRoadmapRecommendations(enrollmentId: ID!): [RoadmapRecommendation!]!
+  professionalRoadmapStats: ProfessionalRoadmapStats!
   professionalSettings: ProfessionalSettings!
   providerAnalytics(input: ProviderDashboardRangeInput): ProviderAnalytics!
   providerAnalyticsCsv(input: ProviderDashboardRangeInput): CsvExport!

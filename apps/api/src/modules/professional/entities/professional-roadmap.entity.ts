@@ -125,3 +125,12 @@ export class PaginatedProfessionalExploreRoadmapsEntity {
   @Field(() => [ProfessionalExploreRoadmapEntity])
   items: ProfessionalExploreRoadmapEntity[];
 }
+
+@ObjectType(ProfessionalGqlObjectNames.PROFESSIONAL_ROADMAP_STATS)
+export class ProfessionalRoadmapStatsEntity {
+  @Field(() => Int) enrolledCount: number;
+  @Field(() => Int) averageProgress: number;
+  @Field(() => Int) completedPhaseCount: number;
+  @Field(() => Int) totalPhaseCount: number;
+  @Field(() => Int, { nullable: true }) nextMilestone?: number | null;
+}

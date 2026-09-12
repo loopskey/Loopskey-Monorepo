@@ -118,6 +118,15 @@ export const deriveRoadmapProgress = (input: {
   };
 };
 
+export const computeRoadmapNextMilestone = (
+  averageProgress: number,
+  enrolledCount: number,
+): number | null => {
+  if (enrolledCount <= 0) return null;
+  const clamped = Math.min(Math.max(averageProgress, 0), 100);
+  return Math.min(Math.floor(clamped / 25) * 25 + 25, 100);
+};
+
 export const earnedCredits = (input: {
   steps: { id: string; contentId: string | null }[];
   progress: Map<string, DerivedStep>;

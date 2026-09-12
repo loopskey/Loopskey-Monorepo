@@ -620,6 +620,20 @@ export const professionalApi = baseApi.injectEndpoints({
       }),
       transformResponse: (response: TAPI.CompleteRoadmapStepMutation) =>
         response.completeRoadmapStep,
+      // The roadmap list is patched in place (see useRoadmapStepProgress), but
+      // the owner-wide aggregate is a separate contract and must be
+      // recomputed whenever a step completion changes progress.
+      invalidatesTags: ["ProfessionalRoadmapStats"],
+    }),
+
+    professionalRoadmapStats: builder.query<
+      TAPI.ProfessionalRoadmapStatsQuery["professionalRoadmapStats"],
+      void
+    >({
+      query: () => ({ document: API.ProfessionalRoadmapStatsDocument }),
+      transformResponse: (response: TAPI.ProfessionalRoadmapStatsQuery) =>
+        response.professionalRoadmapStats,
+      providesTags: ["ProfessionalRoadmapStats", "Professional"],
     }),
 
     professionalExploreRoadmaps: builder.query<
@@ -698,6 +712,7 @@ export const {
 
   useStartRoadmapStepMutation,
   useCompleteRoadmapStepMutation,
+  useProfessionalRoadmapStatsQuery,
   useProfessionalRoadmapRecommendationsQuery,
   useProfessionalRoadmapDraftStatusQuery,
 } = professionalApi;

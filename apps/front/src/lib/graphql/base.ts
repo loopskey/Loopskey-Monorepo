@@ -4723,6 +4723,7 @@ export type ProfessionalRoadmapDraft = {
   certificationId?: Maybe<Scalars['ID']['output']>;
   certificationName?: Maybe<Scalars['String']['output']>;
   completedCredits?: Maybe<Scalars['Float']['output']>;
+  completedFieldCount: Scalars['Int']['output'];
   context?: Maybe<Scalars['String']['output']>;
   cpdEnabled: Scalars['Boolean']['output'];
   currentStep: RoadmapDraftStep;
@@ -4734,7 +4735,9 @@ export type ProfessionalRoadmapDraft = {
   needsClarification: Scalars['Boolean']['output'];
   preferredContentTypes: Array<ContentType>;
   preferredFormats: Array<LearningFormat>;
+  remainingFields: Array<RoadmapDraftStep>;
   requiredCredits?: Maybe<Scalars['Float']['output']>;
+  requiredFieldCount: Scalars['Int']['output'];
   skillLevel?: Maybe<SkillLevel>;
   status: RoadmapDraftStatus;
   subjectOptions: Array<RoadmapSubjectOption>;
@@ -4760,6 +4763,15 @@ export type ProfessionalRoadmapPhase = {
   steps: Array<ProfessionalRoadmapStep>;
   stepsCount: Scalars['Int']['output'];
   title: Scalars['String']['output'];
+};
+
+export type ProfessionalRoadmapStats = {
+  __typename?: 'ProfessionalRoadmapStats';
+  averageProgress: Scalars['Int']['output'];
+  completedPhaseCount: Scalars['Int']['output'];
+  enrolledCount: Scalars['Int']['output'];
+  nextMilestone?: Maybe<Scalars['Int']['output']>;
+  totalPhaseCount: Scalars['Int']['output'];
 };
 
 export type ProfessionalRoadmapStep = {
@@ -5180,6 +5192,7 @@ export type Query = {
   professionalProfileTaxonomy: Array<ProfessionalTaxonomyGroup>;
   professionalRoadmapDraft?: Maybe<ProfessionalRoadmapDraft>;
   professionalRoadmapRecommendations: Array<RoadmapRecommendation>;
+  professionalRoadmapStats: ProfessionalRoadmapStats;
   professionalSettings: ProfessionalSettings;
   providerAnalytics: ProviderAnalytics;
   providerAnalyticsCsv: CsvExport;
