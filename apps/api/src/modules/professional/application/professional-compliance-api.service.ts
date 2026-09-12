@@ -1,6 +1,8 @@
 import { ContentType, PDUCompletionStatus } from "@prisma/client";
-import { LEARNING_ACTIVITY_RECORDED_EVENT } from "@professional/public/professional-compliance-api.events";
+import { LEARNING_ACTIVITY_CHANGED_EVENT } from "@professional/public/professional-compliance-api.events";
+import { ProfessionalLanguageProjection } from "@professional/public/professional-compliance-api";
 import { ContentEngagementProjection } from "@professional/public/professional-compliance-api";
+import { LearningActivityChangeKind } from "@professional/public/professional-compliance-api.events";
 import { ProfessionalComplianceApi } from "@professional/public/professional-compliance-api";
 import { ComplianceActivityDetail } from "@professional/public/professional-compliance-api";
 import { ComplianceFileDescriptor } from "@professional/public/professional-compliance-api";
@@ -8,7 +10,6 @@ import { type EvidenceStoragePort } from "@professional/storage/evidence-storage
 import { ComplianceActivityQuery } from "@professional/public/professional-compliance-api";
 import { ContentEngagementQuery } from "@professional/public/professional-compliance-api";
 import { ComplianceCertificate } from "@professional/public/professional-compliance-api";
-import { ProfessionalLanguageProjection } from "@professional/public/professional-compliance-api";
 import { ComplianceStoredFile } from "@professional/public/professional-compliance-api";
 import { SettleReviewCommand } from "@professional/public/professional-compliance-api";
 import { ComplianceActivity } from "@professional/public/professional-compliance-api";
@@ -274,33 +275,44 @@ export class ProfessionalComplianceApiService
   async settleReview(command: SettleReviewCommand): Promise<boolean> {
     if (!command.ownerUserIds.length) return false;
 
-    const settled = await this.prisma.pDUActivity.updateMany({
-      where: {
-        id: command.activityId,
-        userId: { in: command.ownerUserIds },
-        status: PDUStatus.PENDING,
-      },
-      data: {
-        status: command.approve ? PDUStatus.APPROVED : PDUStatus.REJECTED,
-        reviewNote: command.reviewNote?.trim() || null,
-      },
-    });
-
-    if (settled.count !== 1) return false;
-
-    const activity = await this.prisma.pDUActivity.findUnique({
-      where: { id: command.activityId },
-      select: { userId: true },
-    });
-
-    if (activity)
-      await this.outbox.append({
-        eventName: LEARNING_ACTIVITY_RECORDED_EVENT,
-        aggregateType: "PDUActivity",
-        aggregateId: command.activityId,
-        payload: { activityId: command.activityId, userId: activity.userId },
+    return this.prisma.$transaction(async (tx) => {
+      const settled = await tx.pDUActivity.updateMany({
+        where: {
+          id: command.activityId,
+          userId: { in: command.ownerUserIds },
+          status: PDUStatus.PENDING,
+        },
+        data: {
+          status: command.approve ? PDUStatus.APPROVED : PDUStatus.REJECTED,
+          reviewNote: command.reviewNote?.trim() || null,
+        },
       });
 
-    return true;
+      if (settled.count !== 1) return false;
+
+      const activity = await tx.pDUActivity.findUnique({
+        where: { id: command.activityId },
+        select: { userId: true, updatedAt: true },
+      });
+
+      if (activity)
+        await this.outbox.append(
+          {
+            eventName: LEARNING_ACTIVITY_CHANGED_EVENT,
+            aggregateType: "PDUActivity",
+            aggregateId: command.activityId,
+            payload: {
+              activityId: command.activityId,
+              userId: activity.userId,
+              changeKind: LearningActivityChangeKind.STATUS_CHANGED,
+              revision: activity.updatedAt.toISOString(),
+              occurredAt: new Date().toISOString(),
+            },
+          },
+          tx,
+        );
+
+      return true;
+    });
   }
 }

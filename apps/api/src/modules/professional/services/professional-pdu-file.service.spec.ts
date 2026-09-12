@@ -1,6 +1,7 @@
 import { BadRequestException, ForbiddenException } from "@nestjs/common";
 import { NotFoundException } from "@nestjs/common";
 import { Prisma, Role } from "@prisma/client";
+import { LearningActivityChangeKind } from "@professional/public/professional-compliance-api.events";
 import { ProfessionalPduFileService } from "./professional-pdu-file.service";
 import type { PrismaService } from "@prisma/prisma.service";
 import type { ProfessionalPduService } from "./professional-pdu.service";
@@ -27,20 +28,36 @@ const uniqueViolation = () => {
   return error;
 };
 
-const createPrismaMock = () => ({
-  pDUActivity: {
-    findFirst: jest
-      .fn()
-      .mockResolvedValue({ id: "activity-1", _count: { evidenceFiles: 0 } }),
-  },
-  pDUActivityFile: {
-    findMany: jest.fn().mockResolvedValue([]),
-    create: jest.fn(),
-    findFirst: jest.fn(),
-    findFirstOrThrow: jest.fn(),
-    delete: jest.fn(),
-  },
-});
+const createPrismaMock = () => {
+  const prisma: Record<string, unknown> = {
+    pDUActivity: {
+      findFirst: jest
+        .fn()
+        .mockResolvedValue({ id: "activity-1", _count: { evidenceFiles: 0 } }),
+    },
+    pDUActivityFile: {
+      findMany: jest.fn().mockResolvedValue([]),
+      create: jest.fn(),
+      findFirst: jest.fn(),
+      findFirstOrThrow: jest.fn(),
+      delete: jest.fn(),
+    },
+  };
+  prisma.$transaction = jest.fn(async (run: (tx: unknown) => unknown) =>
+    run(prisma),
+  );
+  return prisma as unknown as {
+    pDUActivity: { findFirst: jest.Mock };
+    pDUActivityFile: {
+      findMany: jest.Mock;
+      create: jest.Mock;
+      findFirst: jest.Mock;
+      findFirstOrThrow: jest.Mock;
+      delete: jest.Mock;
+    };
+    $transaction: jest.Mock;
+  };
+};
 
 const createService = (prisma = createPrismaMock()) => {
   const pduService = {
@@ -96,8 +113,10 @@ describe("ProfessionalPduFileService.uploadEvidence", () => {
     expect(result).toEqual({ activityId: "activity-1", uploaded: 2 });
     expect(prisma.pDUActivityFile.create).toHaveBeenCalledTimes(2);
     expect(pduService.announceEvidenceChange).toHaveBeenCalledWith(
+      prisma,
       "activity-1",
       "user-1",
+      LearningActivityChangeKind.EVIDENCE_ADDED,
     );
   });
 
@@ -189,8 +208,10 @@ describe("ProfessionalPduFileService.deleteEvidence", () => {
     expect(result).toEqual({ id: "file-1" });
     expect(pduService.removeEvidenceBlobs).toHaveBeenCalledWith(["key.pdf"]);
     expect(pduService.announceEvidenceChange).toHaveBeenCalledWith(
+      prisma,
       "activity-1",
       "user-1",
+      LearningActivityChangeKind.EVIDENCE_REMOVED,
     );
   });
 

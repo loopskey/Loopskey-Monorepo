@@ -11,6 +11,11 @@ const assignmentRow = (overrides: Record<string, unknown> = {}) => ({
   id: "assign-1",
   cycleStart: day("2026-01-01"),
   cycleEnd: null,
+  percent: 0,
+  band: AssociationComplianceBand.NOT_STARTED,
+  completedCredits: 0,
+  awaitingReviewCount: 0,
+  isMissingEvidence: false,
   member: { id: "member-1", userId: "user-1" },
   requirement: {
     id: "req-1",
@@ -150,6 +155,15 @@ describe("AssociationComplianceService", () => {
     expect(outcome.discarded).toBe(1);
   });
 
+  it("never touches attributions when a newer recompute already won the claim", async () => {
+    const { service, upsert, deleteMany } = setup({ applied: 0 });
+
+    await service.recomputeAssignment("assign-1");
+
+    expect(upsert).not.toHaveBeenCalled();
+    expect(deleteMany).not.toHaveBeenCalled();
+  });
+
   it("removes an attribution whose activity no longer qualifies", async () => {
     const { service, deleteMany } = setup({ activities: [] });
 
@@ -217,5 +231,40 @@ describe("AssociationComplianceService", () => {
     expect(port.activitiesForMembers).toHaveBeenCalledWith({
       userIds: ["user-1"],
     });
+  });
+});
+
+describe("AssociationComplianceService.previewAssignment", () => {
+  it("is read-only: it never writes to the assignment or its attributions", async () => {
+    const { service, updateMany, upsert, deleteMany } = setup();
+
+    const preview = await service.previewAssignment("assign-1");
+
+    expect(preview?.wouldChange).toBe(true);
+    expect(updateMany).not.toHaveBeenCalled();
+    expect(upsert).not.toHaveBeenCalled();
+    expect(deleteMany).not.toHaveBeenCalled();
+  });
+
+  it("reports no change when the stored snapshot already matches the live one", async () => {
+    const { service } = setup({
+      assignments: [
+        assignmentRow({
+          percent: 50,
+          band: AssociationComplianceBand.AT_RISK,
+          completedCredits: 10,
+        }),
+      ],
+    });
+
+    const preview = await service.previewAssignment("assign-1");
+
+    expect(preview?.wouldChange).toBe(false);
+  });
+
+  it("returns null for an assignment that no longer exists", async () => {
+    const { service } = setup({ assignments: [] });
+
+    await expect(service.previewAssignment("gone")).resolves.toBeNull();
   });
 });
