@@ -37,6 +37,7 @@ export const AssociationMembersTable = ({ hook }: TAssociationMembersTable) => {
     t,
     members,
     isMutating,
+    goToMember,
     isRefetching,
     changeMemberStatus,
     resendMemberInvitation,
@@ -107,6 +108,20 @@ export const AssociationMembersTable = ({ hook }: TAssociationMembersTable) => {
             <L.UserSearch className="h-4 w-4" />
             {t("associationDashboard.members.actions.viewDetail")}
           </D.DropdownMenuItem>
+
+          <D.DropdownMenuItem onSelect={() => goToMember(member.id, "edit")}>
+            <L.Pencil className="h-4 w-4" />
+            {t("associationDashboard.members.actions.edit")}
+          </D.DropdownMenuItem>
+
+          {!isInactive && (
+            <D.DropdownMenuItem
+              onSelect={() => goToMember(member.id, "assign")}
+            >
+              <L.ListChecks className="h-4 w-4" />
+              {t("associationDashboard.members.actions.assignRequirement")}
+            </D.DropdownMenuItem>
+          )}
 
           {member.status === AssociationMemberStatus.PendingActivation && (
             <D.DropdownMenuItem

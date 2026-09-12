@@ -5305,7 +5305,11 @@
         "backToRoster": "Back to roster",
         "resend": "Resend invitation",
         "reactivate": "Reactivate",
-        "deactivate": "Deactivate"
+        "deactivate": "Deactivate",
+        "upload": "Import members",
+        "assignRequirement": "Assign requirement",
+        "more": "More actions",
+        "edit": "Edit member"
       },
       "stats": {
         "total": "Total members",
@@ -5408,17 +5412,15 @@
           "memberNumberTooLong": "Member number is too long"
         }
       },
-      "chart": {
-        "title": "Roster composition",
-        "description": "How your members are spread across groups, and where each group stands on activation. Select a segment to filter the roster below.",
-        "ungrouped": "Ungrouped",
-        "caption": "Members per group, split by account status.",
-        "groupHeader": "Group",
-        "chartLabel": "Roster composition by group and status",
-        "chartDescription": "A horizontal bar per group, segmented by active, pending activation and inactive members.",
-        "emptyTitle": "Nothing to chart yet",
-        "emptyBody": "Once you have members, this shows how they are distributed across your groups.",
-        "partial": "Charted from the first {{shown}} of {{total}} members."
+      "assignPicker": {
+        "title": "Assign a requirement",
+        "description": "Choose a member to open their requirements list and assign one to them.",
+        "selectLabel": "Member",
+        "placeholder": "Search by name, email or member number",
+        "empty": "No members match your search.",
+        "results": "{{count}} members",
+        "cancel": "Cancel",
+        "continue": "Continue"
       },
       "groups": {
         "createTitle": "Create a group",
