@@ -25,8 +25,8 @@ export class RoadmapWidgetEntity {
 
 @ObjectType(ProfessionalGqlObjectNames.ROADMAP_SUBJECT_OPTION)
 export class RoadmapSubjectOptionEntity {
-  @Field(() => ID) id: string;
   @Field() label: string;
+  @Field(() => ID) id: string;
 }
 
 @ObjectType(ProfessionalGqlObjectNames.ROADMAP_CHAT_MESSAGE)
@@ -78,6 +78,10 @@ export class ProfessionalRoadmapDraftEntity {
   @Field(() => Boolean) wasRefused: boolean;
   @Field(() => Boolean) isComplete: boolean;
   @Field(() => Boolean) needsClarification: boolean;
+
+  @Field(() => Int) completedFieldCount: number;
+  @Field(() => Int) requiredFieldCount: number;
+  @Field(() => [RoadmapDraftStep]) remainingFields: RoadmapDraftStep[];
 
   @Field(() => RoadmapWidgetEntity, { nullable: true })
   widget?: RoadmapWidgetEntity | null;

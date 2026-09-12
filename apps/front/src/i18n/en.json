@@ -4253,6 +4253,7 @@
       "averageCompletion": "Average completion",
       "completedPhases": "Completed phases",
       "nextMilestone": "Next milestone",
+      "notAvailable": "Not available",
       "yourLearningPath": "Your current learning path",
       "learningPathDescription": "Your roadmap phases will appear here once you enroll in a roadmap.",
       "noLearningPath": "No active learning path yet",
@@ -7120,8 +7121,11 @@
       "no": "No",
       "notSet": "Not set",
       "generate": "Generate my roadmap",
-      "generateUnavailable": "Generating a roadmap arrives in the next release.",
-      "keepEditing": "Keep editing"
+      "generating": "Starting generation...",
+      "generateFailed": "We could not start generating your roadmap. Please try again.",
+      "generateUnavailable": "Answer the remaining required fields to generate your roadmap.",
+      "briefProgress": "Brief completion",
+      "briefProgressValue": "{{completed}} of {{required}} fields complete"
     },
     "field": {
       "goal": "Goal",

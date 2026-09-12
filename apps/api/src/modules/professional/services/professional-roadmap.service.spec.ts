@@ -160,3 +160,74 @@ describe("ProfessionalRoadmapService.myRoadmaps", () => {
     expect(steps[1]).toMatchObject({ status: null });
   });
 });
+
+describe("ProfessionalRoadmapService.roadmapStats", () => {
+  const enrollment = (id: string, roadmapId: string, progress: number) => ({
+    id,
+    userId: "user-1",
+    roadmapId,
+    progress,
+    status: "ACTIVE",
+    enrolledAt: new Date(),
+    completedAt: null,
+    updatedAt: new Date(),
+  });
+
+  it("returns zero counts and a null next milestone with no enrollments", async () => {
+    const { service, engagement } = createService();
+    engagement.roadmapEnrollments.mockResolvedValue({
+      rows: [],
+      totalCount: 0,
+    });
+
+    const stats = await service.roadmapStats(professional);
+
+    expect(stats).toEqual({
+      enrolledCount: 0,
+      averageProgress: 0,
+      completedPhaseCount: 0,
+      totalPhaseCount: 0,
+      nextMilestone: null,
+    });
+  });
+
+  it("averages stored progress and sums phase counts across every enrollment", async () => {
+    const { service, engagement, catalog } = createService();
+    catalog.roadmaps.mockResolvedValue([
+      { ...roadmap, id: "roadmap-1" },
+      { ...roadmap, id: "roadmap-2" },
+    ]);
+    engagement.roadmapEnrollments.mockResolvedValue({
+      rows: [
+        enrollment("enrollment-1", "roadmap-1", 20),
+        enrollment("enrollment-2", "roadmap-2", 60),
+      ],
+      totalCount: 2,
+    });
+
+    const stats = await service.roadmapStats(professional);
+
+    expect(stats.enrolledCount).toBe(2);
+    // No step-progress records, so each enrollment falls back to its stored
+    // progress: (20 + 60) / 2 = 40.
+    expect(stats.averageProgress).toBe(40);
+    expect(stats.totalPhaseCount).toBe(4);
+    expect(stats.nextMilestone).toBe(50);
+  });
+
+  it("pages through every enrollment when there is more than one page's worth", async () => {
+    const { service, engagement } = createService();
+    const firstPageRows = Array.from({ length: 201 }, (_, index) =>
+      enrollment(`enrollment-${index}`, "roadmap-1", 0),
+    );
+    const secondPageRows = [enrollment("enrollment-200", "roadmap-1", 0)];
+    engagement.roadmapEnrollments
+      .mockResolvedValueOnce({ rows: firstPageRows, totalCount: 201 })
+      .mockResolvedValueOnce({ rows: secondPageRows, totalCount: 201 });
+
+    const stats = await service.roadmapStats(professional);
+
+    expect(engagement.roadmapEnrollments).toHaveBeenCalledTimes(2);
+    expect(stats.enrolledCount).toBe(201);
+  });
+});

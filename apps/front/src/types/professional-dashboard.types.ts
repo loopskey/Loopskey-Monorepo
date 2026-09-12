@@ -281,9 +281,10 @@ export type TProfessionalExploreRoadmap = TExploreRoadmapsData["items"][number];
 
 export type TRoadmapStats = {
   enrolled: number;
-  nextMilestone: number;
+  nextMilestone: number | null;
   averageProgress: number;
   completedPhases: number;
+  totalPhases: number;
 };
 
 export type TCalendarEventsData = NonNullable<

@@ -770,6 +770,16 @@ query ProfessionalExploreRoadmaps(
   }
 }
 
+query ProfessionalRoadmapStats {
+  professionalRoadmapStats {
+    enrolledCount
+    averageProgress
+    completedPhaseCount
+    totalPhaseCount
+    nextMilestone
+  }
+}
+
 # ============== Calendar ===============
 fragment ProfessionalCalendarEventFields on ProfessionalCalendarEvent {
   id

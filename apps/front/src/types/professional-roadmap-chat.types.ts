@@ -94,8 +94,8 @@ export type Patch = Omit<PatchRoadmapDraftInput, "draftId">;
 export type TRoadmapReviewSummary = {
   isPatching: boolean;
   draft: TRoadmapDraft;
+  isGenerating?: boolean;
   onGenerate?: () => void;
-  onKeepEditing: () => void;
   onPatch: (changes: Patch) => void;
 };
 

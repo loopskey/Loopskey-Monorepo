@@ -4254,6 +4254,7 @@
       "averageCompletion": "Progression moyenne",
       "completedPhases": "Phases terminées",
       "nextMilestone": "Prochain jalon",
+      "notAvailable": "Non disponible",
       "yourLearningPath": "Votre parcours actuel",
       "learningPathDescription": "Les phases de votre parcours apparaîtront ici dès que vous serez inscrit à une feuille de route.",
       "noLearningPath": "Aucun parcours actif",
@@ -7120,8 +7121,11 @@
       "no": "Non",
       "notSet": "Non renseigné",
       "generate": "Générer mon parcours",
-      "generateUnavailable": "La génération d'un parcours arrive dans la prochaine version.",
-      "keepEditing": "Continuer à modifier"
+      "generating": "Démarrage de la génération...",
+      "generateFailed": "Impossible de démarrer la génération de votre parcours. Veuillez réessayer.",
+      "generateUnavailable": "Répondez aux champs obligatoires restants pour générer votre parcours.",
+      "briefProgress": "Progression du résumé",
+      "briefProgressValue": "{{completed}} champs sur {{required}} complétés"
     },
     "field": {
       "goal": "Objectif",
