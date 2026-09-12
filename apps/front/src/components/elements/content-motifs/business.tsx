@@ -6,10 +6,9 @@ export const BusinessMotif = () => (
     strokeLinecap="round"
     strokeLinejoin="round"
   >
-    <path d="M26 78h108" opacity="0.45" />
-    <rect x="38" y="52" width="20" height="26" rx="3" />
-    <rect x="68" y="38" width="20" height="40" rx="3" />
-    <rect x="98" y="22" width="20" height="56" rx="3" />
-    <path d="M48 44 78 30l30-14" opacity="0.4" />
+    <rect x="32" y="46" width="96" height="52" rx="6" />
+    <path d="M60 46v-8c0-6 4-10 10-10h20c6 0 10 4 10 10v8" />
+    <path d="M32 66h96" opacity="0.5" />
+    <rect x="72" y="60" width="16" height="12" rx="2" opacity="0.7" />
   </g>
 );

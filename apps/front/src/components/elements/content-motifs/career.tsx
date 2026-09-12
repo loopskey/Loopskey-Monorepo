@@ -6,8 +6,8 @@ export const CareerMotif = () => (
     strokeLinecap="round"
     strokeLinejoin="round"
   >
-    <path d="M26 78h26V60h26V42h26V24h20" />
-    <circle cx="130" cy="18" r="7" />
-    <path d="M26 78h108" opacity="0.35" />
+    <path d="M20 94C50 94 40 58 70 58S100 30 116 30" opacity="0.6" />
+    <path d="M116 30V10" />
+    <path d="M116 10h18l-7 8 7 8h-18z" fill="currentColor" stroke="none" opacity="0.85" />
   </g>
 );
