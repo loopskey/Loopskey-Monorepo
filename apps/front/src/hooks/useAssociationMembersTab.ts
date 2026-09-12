@@ -3,10 +3,10 @@
 import { getAssociationErrorTranslationKey } from "@utils/association-error";
 import { useCallback, useMemo, useState } from "react";
 import { AssociationMemberStatus } from "@/lib/graphql/base";
-import { buildRosterComposition } from "@utils/association-roster-composition";
 import { SEARCH_DEBOUNCE_MS } from "@utils/constant";
 import { useDebouncedValue } from "@hooks/useDebounced";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useI18n } from "@hooks/useI18n";
 import { notify } from "@hooks/notify";
@@ -18,12 +18,13 @@ import * as T from "@/types/association-dashboard.types";
 
 const PAGE_SIZE = 10;
 
-const COMPOSITION_SAMPLE_SIZE = 100;
+const ASSIGN_PICKER_SIZE = 25;
 
 const ALL = "ALL";
 
 export const useAssociationMembersTab = () => {
   const { t, language } = useI18n();
+  const router = useRouter();
 
   const [search, setSearch] = useState("");
   const [groupId, setGroupId] = useState<string>(ALL);
@@ -35,6 +36,7 @@ export const useAssociationMembersTab = () => {
   const [inviteOutcome, setInviteOutcome] =
     useState<T.TAssociationInviteOutcomeView | null>(null);
 
+  const [isUploadOpen, setUploadOpen] = useState(false);
   const [importPreview, setImportPreview] =
     useState<IMPORT.TAssociationImportPreview | null>(null);
   const [importFileName, setImportFileName] = useState("");
@@ -44,7 +46,15 @@ export const useAssociationMembersTab = () => {
 
   const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
 
+  const [isAssignPickerOpen, setAssignPickerOpen] = useState(false);
+  const [assignPickerSearch, setAssignPickerSearch] = useState("");
+  const [assignMemberId, setAssignMemberId] = useState<string | null>(null);
+
   const debouncedSearch = useDebouncedValue(search, SEARCH_DEBOUNCE_MS);
+  const debouncedAssignPickerSearch = useDebouncedValue(
+    assignPickerSearch,
+    SEARCH_DEBOUNCE_MS,
+  );
   const cursor = cursorStack.at(-1);
 
   const inviteForm = useForm<SC.TInviteAssociationMemberForm>({
@@ -74,9 +84,13 @@ export const useAssociationMembersTab = () => {
   const statsQuery = API.useAssociationMemberStatsQuery();
   const groupsQuery = API.useAssociationGroupsQuery();
 
-  const compositionQuery = API.useAssociationMembersQuery({
-    pagination: { take: COMPOSITION_SAMPLE_SIZE },
-  });
+  const assignPickerQuery = API.useAssociationMembersQuery(
+    {
+      filter: { search: debouncedAssignPickerSearch.trim() || undefined },
+      pagination: { take: ASSIGN_PICKER_SIZE },
+    },
+    { skip: !isAssignPickerOpen },
+  );
 
   const [inviteMember, inviteState] = API.useInviteAssociationMemberMutation();
   const [bulkInvite, bulkInviteState] =
@@ -107,17 +121,17 @@ export const useAssociationMembersTab = () => {
     [groups],
   );
 
-  const compositionRows = useMemo(
+  const assignPickerOptions = useMemo(
     () =>
-      buildRosterComposition(
-        compositionQuery.data?.items ?? [],
-        t("associationDashboard.members.chart.ungrouped"),
-      ),
-    [compositionQuery.data?.items, t],
+      (assignPickerQuery.data?.items ?? [])
+        .filter((member) => member.status !== AssociationMemberStatus.Inactive)
+        .map((member) => ({
+          value: member.id,
+          label: member.fullName ?? member.email ?? member.id,
+          hint: member.memberNumber ?? member.email ?? "",
+        })),
+    [assignPickerQuery.data?.items],
   );
-
-  const compositionTotal = compositionQuery.data?.totalCount ?? 0;
-  const compositionSampled = compositionQuery.data?.items.length ?? 0;
 
   const isFiltered =
     Boolean(debouncedSearch.trim()) || groupId !== ALL || status !== ALL;
@@ -156,15 +170,6 @@ export const useAssociationMembersTab = () => {
   const previousPage = () =>
     setCursorStack((previous) => previous.slice(0, -1));
 
-  const applyCompositionSegment = (
-    segmentGroupId: string | null,
-    segmentStatus: AssociationMemberStatus,
-  ) => {
-    setCursorStack([]);
-    setGroupId(segmentGroupId ?? ALL);
-    setStatus(segmentStatus);
-  };
-
   const openInvite = () => {
     setInviteOutcome(null);
     inviteForm.reset();
@@ -193,6 +198,33 @@ export const useAssociationMembersTab = () => {
   const closeInvite = () => {
     setInviteOpen(false);
     setInviteOutcome(null);
+  };
+
+  const goToMember = (memberId: string, action?: "edit" | "assign") => {
+    const params = new URLSearchParams({ tab: "members", memberId });
+    if (action) params.set("action", action);
+    router.push(`/dashboard/association?${params.toString()}`);
+  };
+
+  const openUpload = () => {
+    clearImport();
+    setUploadOpen(true);
+  };
+
+  const closeUpload = () => setUploadOpen(false);
+
+  const openAssignPicker = () => {
+    setAssignMemberId(null);
+    setAssignPickerSearch("");
+    setAssignPickerOpen(true);
+  };
+
+  const closeAssignPicker = () => setAssignPickerOpen(false);
+
+  const confirmAssignPicker = () => {
+    if (!assignMemberId) return;
+    setAssignPickerOpen(false);
+    goToMember(assignMemberId, "assign");
   };
 
   const resendMemberInvitation = async (memberId: string) => {
@@ -376,12 +408,9 @@ export const useAssociationMembersTab = () => {
     resetFilters,
     setInviteOpen,
     inviteOutcome,
-    compositionRows,
-    compositionTotal,
-    compositionSampled,
+    goToMember,
     resendMemberInvitation,
     stats: statsQuery.data,
-    applyCompositionSegment,
     page: cursorStack.length + 1,
     setSearch: changeFilter(setSearch),
     setStatus: changeFilter(setStatus),
@@ -391,9 +420,11 @@ export const useAssociationMembersTab = () => {
     totalCount: membersQuery.data?.totalCount ?? 0,
     hasNoMembers: (statsQuery.data?.totalMembers ?? 0) === 0,
     hasNextPage: Boolean(membersQuery.data?.pageInfo?.hasNextPage),
-    isCompositionPartial: compositionTotal > compositionSampled,
     isInviting: inviteState.isLoading,
     changeMemberStatus,
+    isUploadOpen,
+    openUpload,
+    closeUpload,
     isParsing,
     clearImport,
     importResult,
@@ -413,18 +444,24 @@ export const useAssociationMembersTab = () => {
     toggleGroupActive,
     isGroupSaving: createGroupState.isLoading || updateGroupState.isLoading,
     isMutating,
+    isAssignPickerOpen,
+    openAssignPicker,
+    closeAssignPicker,
+    confirmAssignPicker,
+    assignMemberId,
+    setAssignMemberId,
+    assignPickerSearch,
+    setAssignPickerSearch,
+    assignPickerOptions,
+    isAssignPickerLoading: assignPickerQuery.isFetching,
     isRefetching: membersQuery.isFetching && !membersQuery.isLoading,
     isError: membersQuery.isError || statsQuery.isError,
     isLoading:
-      membersQuery.isLoading ||
-      statsQuery.isLoading ||
-      groupsQuery.isLoading ||
-      compositionQuery.isLoading,
+      membersQuery.isLoading || statsQuery.isLoading || groupsQuery.isLoading,
     retry: () => {
       void membersQuery.refetch();
       void statsQuery.refetch();
       void groupsQuery.refetch();
-      void compositionQuery.refetch();
     },
   };
 };

@@ -5306,7 +5306,11 @@
         "backToRoster": "Retour à la liste",
         "resend": "Renvoyer l'invitation",
         "reactivate": "Réactiver",
-        "deactivate": "Désactiver"
+        "deactivate": "Désactiver",
+        "upload": "Importer des membres",
+        "assignRequirement": "Assigner une exigence",
+        "more": "Plus d'actions",
+        "edit": "Modifier le membre"
       },
       "stats": {
         "total": "Membres au total",
@@ -5409,17 +5413,15 @@
           "memberNumberTooLong": "Le numéro de membre est trop long"
         }
       },
-      "chart": {
-        "title": "Composition de la liste",
-        "description": "La répartition de vos membres entre les groupes, et l'état d'activation de chacun. Sélectionnez un segment pour filtrer la liste ci-dessous.",
-        "ungrouped": "Sans groupe",
-        "caption": "Membres par groupe, répartis par statut de compte.",
-        "groupHeader": "Groupe",
-        "chartLabel": "Composition de la liste par groupe et par statut",
-        "chartDescription": "Une barre horizontale par groupe, segmentée entre membres actifs, en attente d'activation et inactifs.",
-        "emptyTitle": "Rien à représenter pour l'instant",
-        "emptyBody": "Dès que vous aurez des membres, ce graphique montrera leur répartition entre vos groupes.",
-        "partial": "Établi à partir des {{shown}} premiers membres sur {{total}}."
+      "assignPicker": {
+        "title": "Assigner une exigence",
+        "description": "Choisissez un membre pour ouvrir sa liste d'exigences et lui en assigner une.",
+        "selectLabel": "Membre",
+        "placeholder": "Rechercher par nom, e-mail ou numéro de membre",
+        "empty": "Aucun membre ne correspond à votre recherche.",
+        "results": "{{count}} membres",
+        "cancel": "Annuler",
+        "continue": "Continuer"
       },
       "groups": {
         "createTitle": "Créer un groupe",

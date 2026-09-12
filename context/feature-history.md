@@ -60,3 +60,4 @@ into this index and do not rewrite previous records.
 - [`crawler-integration-guide`](feature-runs/active/crawler-integration-guide.md)
 - [`cpd-activity-corrections`](feature-runs/active/cpd-activity-corrections.md)
 - [`roadmap-generation-and-stats-corrections`](feature-runs/active/roadmap-generation-and-stats-corrections.md)
+- [`association-members-requirements-corrections`](feature-runs/active/association-members-requirements-corrections.md)

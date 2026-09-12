@@ -6,7 +6,6 @@ import type { TUseAssociationSettingsTab } from "@hooks/useAssociationSettingsTa
 import type { TUseAssociationOverviewTab } from "@hooks/useAssociationOverviewTab";
 import type { TUseAssociationReportsTab } from "@hooks/useAssociationReportsTab";
 import type { TUseAssociationMembersTab } from "@hooks/useAssociationMembersTab";
-import type { TRosterCompositionRow } from "@utils/association-roster-composition";
 import type { TCategoryAllocation } from "@utils/association-requirement";
 import type { TAttentionSection } from "@utils/association-messages";
 import type { ReactNode } from "react";
@@ -48,16 +47,8 @@ export type TAssociationMembersEmpty = TWithHook;
 export type TAssociationMembersBulkCard = TWithHook;
 export type TAssociationMemberInviteDialog = TWithHook;
 export type TAssociationGroupsManager = TWithHook;
-
-export type TAssociationCompositionChart = {
-  rows: TRosterCompositionRow[];
-  palette: string[];
-  statusLabel: (key: string) => string;
-  onSegmentClick: (
-    groupId: string | null,
-    status: TAPI.AssociationMemberStatus,
-  ) => void;
-};
+export type TAssociationMembersUploadDialog = TWithHook;
+export type TAssociationMemberAssignPickerDialog = TWithHook;
 
 export type TAssociationDecision = {
   activityId: string;
