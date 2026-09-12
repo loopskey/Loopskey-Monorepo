@@ -1,8 +1,9 @@
 import { ForbiddenException, NotFoundException } from "@nestjs/common";
 import { ProfessionalPduActivityFilterInput } from "@professional/dtos/professional-pdu-activity-filter.input";
-import { LEARNING_ACTIVITY_RECORDED_EVENT } from "@professional/public/professional-compliance-api.events";
+import { LEARNING_ACTIVITY_CHANGED_EVENT } from "@professional/public/professional-compliance-api.events";
 import { PDUCompletionStatus, PDUStatus } from "@prisma/client";
 import { ProfessionalPaginationInput } from "@professional/dtos/professional-pagination.input";
+import { LearningActivityChangeKind } from "@professional/public/professional-compliance-api.events";
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { ContentType, Prisma, Role } from "@prisma/client";
 import { type EvidenceStoragePort } from "@professional/storage/evidence-storage.port";
@@ -34,24 +35,53 @@ export class ProfessionalPduService {
   ) {}
 
   private async announceActivity<
-    TActivity extends { id: string; userId: string },
-  >(activity: TActivity): Promise<TActivity> {
-    await this.outbox.append({
-      eventName: LEARNING_ACTIVITY_RECORDED_EVENT,
-      aggregateType: "PDUActivity",
-      aggregateId: activity.id,
-      payload: { activityId: activity.id, userId: activity.userId },
-    });
+    TActivity extends { id: string; userId: string; updatedAt?: Date },
+  >(
+    tx: Prisma.TransactionClient,
+    activity: TActivity,
+    changeKind: LearningActivityChangeKind,
+  ): Promise<TActivity> {
+    await this.outbox.append(
+      {
+        eventName: LEARNING_ACTIVITY_CHANGED_EVENT,
+        aggregateType: "PDUActivity",
+        aggregateId: activity.id,
+        payload: {
+          activityId: activity.id,
+          userId: activity.userId,
+          changeKind,
+          revision: (activity.updatedAt ?? new Date()).toISOString(),
+          occurredAt: new Date().toISOString(),
+        },
+      },
+      tx,
+    );
     return activity;
   }
 
-  async announceEvidenceChange(activityId: string, userId: string) {
-    await this.outbox.append({
-      eventName: LEARNING_ACTIVITY_RECORDED_EVENT,
-      aggregateType: "PDUActivity",
-      aggregateId: activityId,
-      payload: { activityId, userId },
-    });
+  async announceEvidenceChange(
+    tx: Prisma.TransactionClient,
+    activityId: string,
+    userId: string,
+    changeKind:
+      | LearningActivityChangeKind.EVIDENCE_ADDED
+      | LearningActivityChangeKind.EVIDENCE_REMOVED,
+  ) {
+    await this.outbox.append(
+      {
+        eventName: LEARNING_ACTIVITY_CHANGED_EVENT,
+        aggregateType: "PDUActivity",
+        aggregateId: activityId,
+        payload: {
+          activityId,
+          userId,
+          changeKind,
+          revision: new Date().toISOString(),
+          occurredAt: new Date().toISOString(),
+        },
+      },
+      tx,
+    );
   }
 
   private assertProfessional(user: TUser) {
@@ -316,12 +346,17 @@ export class ProfessionalPduService {
     };
 
     if (!contentId || !contentType)
-      return this.announceActivity(
-        await this.prismaService.pDUActivity.create({
+      return this.prismaService.$transaction(async (tx) => {
+        const created = await tx.pDUActivity.create({
           data: { userId: user.id, ...data },
           include: { evidenceFiles: true },
-        }),
-      );
+        });
+        return this.announceActivity(
+          tx,
+          created,
+          LearningActivityChangeKind.CREATED,
+        );
+      });
 
     const existing = await this.prismaService.pDUActivity.findFirst({
       where: { userId: user.id, contentType, contentId },
@@ -329,12 +364,17 @@ export class ProfessionalPduService {
     });
     if (existing) return this.updateContentActivity(existing.id, data);
     try {
-      return await this.announceActivity(
-        await this.prismaService.pDUActivity.create({
+      return await this.prismaService.$transaction(async (tx) => {
+        const created = await tx.pDUActivity.create({
           data: { userId: user.id, ...data },
           include: { evidenceFiles: true },
-        }),
-      );
+        });
+        return this.announceActivity(
+          tx,
+          created,
+          LearningActivityChangeKind.CREATED,
+        );
+      });
     } catch (error) {
       if (!isUniqueViolation(error)) throw error;
       this.logger.warn("Recovered a concurrent content-linked PDU activity", {
@@ -354,37 +394,52 @@ export class ProfessionalPduService {
     activityId: string,
     data: Prisma.PDUActivityUncheckedUpdateInput,
   ) {
-    return this.announceActivity(
-      await this.prismaService.pDUActivity.update({
+    return this.prismaService.$transaction(async (tx) => {
+      const updated = await tx.pDUActivity.update({
         where: { id: activityId },
         data,
         include: { evidenceFiles: { orderBy: { createdAt: "asc" } } },
-      }),
-    );
+      });
+      return this.announceActivity(
+        tx,
+        updated,
+        LearningActivityChangeKind.UPDATED,
+      );
+    });
   }
 
   async updatePduActivity(user: TUser, input: UpdatePduActivityInput) {
     this.assertProfessional(user);
     const { activityId, date, ...rest } = input;
     await this.findOwnedActivity(user, activityId);
-    return this.announceActivity(
-      await this.prismaService.pDUActivity.update({
+    return this.prismaService.$transaction(async (tx) => {
+      const updated = await tx.pDUActivity.update({
         where: { id: activityId },
         data: {
           ...rest,
           ...(date ? { date: new Date(date) } : {}),
         },
         include: { evidenceFiles: { orderBy: { createdAt: "asc" } } },
-      }),
-    );
+      });
+      return this.announceActivity(
+        tx,
+        updated,
+        LearningActivityChangeKind.UPDATED,
+      );
+    });
   }
 
   async deletePduActivity(user: TUser, activityId: string) {
     this.assertProfessional(user);
     const activity = await this.findOwnedActivity(user, activityId);
-    // The DB cascade removes the file rows; the blobs on disk are ours to clean up.
-    await this.prismaService.pDUActivity.delete({ where: { id: activityId } });
-    await this.announceActivity({ id: activityId, userId: activity.userId });
+    await this.prismaService.$transaction(async (tx) => {
+      await tx.pDUActivity.delete({ where: { id: activityId } });
+      await this.announceActivity(
+        tx,
+        { id: activityId, userId: activity.userId },
+        LearningActivityChangeKind.DELETED,
+      );
+    });
     await this.removeEvidenceBlobs(
       activity.evidenceFiles.map((file) => file.storageKey),
     );

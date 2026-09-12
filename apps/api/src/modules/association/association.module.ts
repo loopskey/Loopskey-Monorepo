@@ -1,4 +1,5 @@
 import { AssociationLearningContentPublishedHandler } from "@association/application/association-learning-content-published.handler";
+import { AssociationComplianceReconciliationService } from "@association/services/association-compliance-reconciliation.service";
 import { AssociationRequirementAssignmentService } from "@association/services/association-requirement-assignment.service";
 import { AssociationRequirementPublishedHandler } from "@association/application/association-requirement-published.handler";
 import { AssociationMemberRequirementsService } from "@association/services/association-member-requirements.service";
@@ -90,22 +91,23 @@ import "@association/enums/association-register.enum";
     AssociationRoleProfileHandler,
     AssociationRequirementService,
     AssociationRequirementResolver,
+    AssociationReportExportService,
+    AssociationReportExportHandler,
+    AssociationReportExportResolver,
+    AssociationReportDatasetService,
     AssociationMemberProfileService,
     AssociationComplianceReadService,
     AssociationMemberProfileResolver,
     AssociationLearningContentService,
+    AssociationReportRetentionService,
+    AssociationReportGenerationService,
     AssociationLearningActivityHandler,
     AssociationLearningContentResolver,
-    AssociationLearningContentPublishedHandler,
     AssociationMemberRequirementsService,
     AssociationRequirementPublishedHandler,
     AssociationRequirementAssignmentService,
-    AssociationReportExportService,
-    AssociationReportExportResolver,
-    AssociationReportDatasetService,
-    AssociationReportExportHandler,
-    AssociationReportGenerationService,
-    AssociationReportRetentionService,
+    AssociationLearningContentPublishedHandler,
+    AssociationComplianceReconciliationService,
     AssociationAttentionService,
     AssociationMessageService,
     AssociationMessageResolver,

@@ -1,5 +1,6 @@
 import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { ForbiddenException, Injectable } from "@nestjs/common";
+import { LearningActivityChangeKind } from "@professional/public/professional-compliance-api.events";
 import { type EvidenceStoragePort } from "@professional/storage/evidence-storage.port";
 import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
 import { ProfessionalPduService } from "@professional/services/professional-pdu.service";
@@ -99,17 +100,26 @@ export class ProfessionalPduFileService {
       await this.storage.store("pdu", storageKey, file.buffer);
       let row: { id: string };
       try {
-        row = await this.prismaService.pDUActivityFile.create({
-          data: {
+        row = await this.prismaService.$transaction(async (tx) => {
+          const createdFile = await tx.pDUActivityFile.create({
+            data: {
+              activityId,
+              userId: user.id,
+              fileName: file.originalname,
+              storageKey,
+              mimeType: file.mimetype,
+              sizeBytes: file.size,
+              uploadKey,
+            },
+            select: { id: true },
+          });
+          await this.professionalPduService.announceEvidenceChange(
+            tx,
             activityId,
-            userId: user.id,
-            fileName: file.originalname,
-            storageKey,
-            mimeType: file.mimetype,
-            sizeBytes: file.size,
-            uploadKey,
-          },
-          select: { id: true },
+            user.id,
+            LearningActivityChangeKind.EVIDENCE_ADDED,
+          );
+          return createdFile;
         });
       } catch (error) {
         if (isUniqueViolation(error) && uploadKey) {
@@ -126,10 +136,6 @@ export class ProfessionalPduFileService {
       }
       created.push(row);
     }
-    await this.professionalPduService.announceEvidenceChange(
-      activityId,
-      user.id,
-    );
     return { activityId, uploaded: created.length };
   }
 
@@ -163,12 +169,16 @@ export class ProfessionalPduFileService {
   async deleteEvidence(user: TUser, fileId: string) {
     this.assertProfessional(user);
     const file = await this.findOwnedFile(user, fileId);
-    await this.prismaService.pDUActivityFile.delete({ where: { id: file.id } });
+    await this.prismaService.$transaction(async (tx) => {
+      await tx.pDUActivityFile.delete({ where: { id: file.id } });
+      await this.professionalPduService.announceEvidenceChange(
+        tx,
+        file.activityId,
+        user.id,
+        LearningActivityChangeKind.EVIDENCE_REMOVED,
+      );
+    });
     await this.professionalPduService.removeEvidenceBlobs([file.storageKey]);
-    await this.professionalPduService.announceEvidenceChange(
-      file.activityId,
-      user.id,
-    );
     return { id: file.id };
   }
 }
