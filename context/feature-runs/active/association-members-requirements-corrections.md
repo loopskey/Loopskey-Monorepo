@@ -52,7 +52,7 @@ level table layout was not re-verified.
 
 - Commit: `bc01dc6`
 - PR: https://github.com/loopskey/Loopskey-Monorepo/pull/99
-- CI: pending
+- CI: pass (https://github.com/loopskey/Loopskey-Monorepo/actions/runs/34693642864/job/103553279974)
 
 ## Notes
 
