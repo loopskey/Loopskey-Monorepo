@@ -12,4 +12,8 @@ rule; nothing is restated here.
   concurrency, comments, tests, workflow, frontend and backend standards, text
   search and indexing, verification, definition of done.
 
+Before feature implementation or review, select the model tier using
+[`context/model-selection.md`](context/model-selection.md). It guides the model
+request; it cannot change the active Codex model by itself.
+
 Open anything else under `context/` only when the current task depends on it.

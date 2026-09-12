@@ -13,6 +13,7 @@ Always read only:
 
 - this file;
 - `CLAUDE.md` at the repository root, and the two documents it links;
+- `context/model-selection.md` to select and record the developer model tier;
 - the matching run record under `context/feature-runs/active/`, when one exists;
 - the user-named specification, when one is supplied.
 
@@ -35,10 +36,12 @@ feature completely.
 1. Require a clean or explicitly scoped worktree; preserve unrelated changes.
 2. Fetch `origin/develop`, create `feature/<slug>` from it, and never reuse a
    branch belonging to another run.
-3. Detect `front`, `api`, or `full` scope and record it.
+3. Detect `front`, `api`, or `full` scope, choose the model tier using
+   `context/model-selection.md`, and record both.
 4. Create `context/feature-runs/active/<slug>.md` containing only:
-   name, scope, branch, base commit, status, acceptance checklist, verification,
-   and submission fields. The run record is the current-feature context.
+   name, scope, model tier and reason, branch, base commit, status, acceptance
+   checklist, verification, and submission fields. The run record is the
+   current-feature context.
 5. Implement autonomously until the acceptance criteria are met. Run focused
    checks while iterating and fix feature-caused failures.
 6. Finish with the scope gate defined in "Testing and Verification" and
@@ -89,6 +92,7 @@ has occurred.
 # <feature>
 
 - Scope: `front|api|full`
+- Model: `<tier> — <one-sentence reason>`
 - Branch: `feature/<slug>`
 - Base: `<sha>`
 - Status: `Working|Ready|Submitted|Blocked`
