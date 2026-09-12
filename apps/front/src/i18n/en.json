@@ -2527,7 +2527,9 @@
       "emailSendFailed": "We could not send the email. Please try again.",
       "passwordTooObvious": "Choose a less predictable password.",
       "passwordsDoNotMatch": "The new password and confirmation do not match.",
-      "passwordStrength": "Password must be at least 8 characters and include both letters and numbers."
+      "passwordStrength": "Password must be at least 8 characters and include both letters and numbers.",
+      "fullNameMin": "Full name must be at least 2 characters.",
+      "fullNameMax": "Full name must be at most 120 characters."
     },
     "oauth": {
       "completingLogin": "Completing your login",
@@ -2563,7 +2565,6 @@
       "orContinueWith": "Or continue with",
       "google": "Google",
       "linkedin": "LinkedIn",
-      "facebook": "Facebook",
       "back": "Back",
       "backToHome": "Back to Home",
       "loginSuccess": "Login successful.",
@@ -3403,7 +3404,8 @@
         "removed": "Profile photo removed",
         "hint": "JPG, PNG or WebP. Up to {{size}} MB.",
         "deleteTitle": "Remove profile photo?",
-        "deleteDescription": "Your profile photo will be permanently deleted. You can upload a new one at any time."
+        "deleteDescription": "Your profile photo will be permanently deleted. You can upload a new one at any time.",
+        "retry": "Retry"
       },
       "basic": {
         "title": "Basic profile",
@@ -3413,7 +3415,6 @@
         "email": "Email address",
         "emailVerified": "Verified email address.",
         "emailUnverified": "This email address is not verified yet.",
-        "changeEmail": "Change email securely",
         "linkedInUrl": "LinkedIn URL",
         "linkedInUrlHint": "For example https://www.linkedin.com/in/your-name",
         "country": "Country",
@@ -3562,6 +3563,8 @@
         "avatarUpload": "We could not upload your photo. Please try again.",
         "avatarDelete": "We could not remove your photo. Please try again.",
         "avatarUnavailable": "Your photo could not be loaded. Please upload it again.",
+        "avatarStorageUnavailable": "Photo storage is temporarily unavailable. Please try again shortly.",
+        "avatarUnauthenticated": "Your session has expired. Please sign in again to upload a photo.",
         "saveFailed": "We could not save your changes. Please try again.",
         "deleteFailed": "We could not delete that item. Please try again.",
         "loadFailed": "We could not load your profile."

@@ -1,8 +1,11 @@
-import { IsEmail, IsEnum, IsString, Matches, MinLength } from "class-validator";
+import { IsEmail, IsEnum, IsString, Length, Matches } from "class-validator";
 import { AuthGqlInputNames } from "@auth/enums/gql-names.enum";
+import { FULL_NAME_LIMITS } from "@loopskey/api-contracts/validation";
 import { Field, InputType } from "@nestjs/graphql";
 import { AuthRegisterRole } from "@auth/enums/register-role.enum";
 import { AuthMessageCode } from "@auth/enums/message-code.enum";
+import { MinLength } from "class-validator";
+import { Transform } from "class-transformer";
 
 @InputType(AuthGqlInputNames.REGISTER)
 export class RegisterInput {
@@ -15,7 +18,13 @@ export class RegisterInput {
   })
   password!: string;
 
-  @Field(() => String) @IsString() fullName!: string;
+  @Field(() => String)
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === "string" ? value.trim() : value,
+  )
+  @IsString()
+  @Length(FULL_NAME_LIMITS.min, FULL_NAME_LIMITS.max)
+  fullName!: string;
 
   @Field(() => String)
   @IsString()

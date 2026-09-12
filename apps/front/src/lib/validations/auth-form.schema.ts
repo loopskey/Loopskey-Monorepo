@@ -1,4 +1,5 @@
 import { PASSWORD_STRENGTH_MESSAGE } from "@/utils/constant";
+import { FULL_NAME_LIMITS } from "@loopskey/api-contracts/validation";
 import { OrganizationType } from "@/lib/graphql/base";
 import { z } from "zod";
 
@@ -16,7 +17,11 @@ export type TLoginValues = z.infer<typeof loginSchema>;
 
 export const registerSchema = z
   .object({
-    fullName: z.string().min(2),
+    fullName: z
+      .string()
+      .trim()
+      .min(FULL_NAME_LIMITS.min, "authPages.errors.fullNameMin")
+      .max(FULL_NAME_LIMITS.max, "authPages.errors.fullNameMax"),
     email: z.string().email(),
     password: strongPasswordSchema,
     confirmPassword: z.string().min(1, "Please confirm your password."),

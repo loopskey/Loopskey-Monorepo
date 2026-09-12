@@ -1,3 +1,4 @@
+import { FULL_NAME_LIMITS } from "@loopskey/api-contracts/validation";
 import { z } from "zod";
 
 import * as C from "@/utils/professional-profile.constant";
@@ -15,8 +16,8 @@ export const basicProfileSchema = z.object({
   fullName: z
     .string()
     .trim()
-    .min(2, "professionalDashboard.profile.errors.fullNameMin")
-    .max(120, "professionalDashboard.profile.errors.fullNameMax"),
+    .min(FULL_NAME_LIMITS.min, "professionalDashboard.profile.errors.fullNameMin")
+    .max(FULL_NAME_LIMITS.max, "professionalDashboard.profile.errors.fullNameMax"),
   linkedInUrl: z
     .string()
     .trim()
