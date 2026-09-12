@@ -6,10 +6,9 @@ export const FinanceMotif = () => (
     strokeLinecap="round"
     strokeLinejoin="round"
   >
-    <path d="M26 78h108" opacity="0.45" />
-    <path d="M30 68 56 46l22 14 24-28 22 14" />
-    <path d="M136 18v16h-16" opacity="0.65" />
-    <circle cx="56" cy="46" r="4" opacity="0.65" />
-    <circle cx="102" cy="32" r="4" opacity="0.65" />
+    <circle cx="44" cy="58" r="22" />
+    <path d="M44 46v24M37 52h14M37 64h14" opacity="0.7" />
+    <path d="M84 80 104 58 122 70 140 42" />
+    <path d="M126 42h14v14" opacity="0.6" />
   </g>
 );

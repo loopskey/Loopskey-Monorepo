@@ -6,9 +6,8 @@ export const CpdMotif = () => (
     strokeLinecap="round"
     strokeLinejoin="round"
   >
-    <circle cx="80" cy="46" r="30" opacity="0.3" />
-    <path d="M80 16a30 30 0 0 1 30 30" />
-    <path d="M110 46a30 30 0 0 1-22 28.9" opacity="0.7" />
-    <circle cx="80" cy="46" r="11" opacity="0.5" />
+    <circle cx="80" cy="42" r="22" />
+    <path d="M70 43 76 49 91 32" />
+    <path d="M66 60 58 94 80 80 102 94 94 60" opacity="0.6" />
   </g>
 );
