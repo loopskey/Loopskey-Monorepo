@@ -56,7 +56,7 @@ server in this pass.
 
 - Commit: `97f96f8`
 - PR: https://github.com/loopskey/Loopskey-Monorepo/pull/98
-- CI: pending
+- CI: pass (https://github.com/loopskey/Loopskey-Monorepo/actions/runs/34691999415/job/103548808984)
 
 ## Notes
 
