@@ -12,7 +12,7 @@ export type CpdCategoryProgressFieldsFragment = { __typename?: 'CpdCategoryProgr
 
 export type CpdMissingRequirementFieldsFragment = { __typename?: 'CpdMissingRequirement', code: string, detail?: string | null };
 
-export type CpdPlanProgressFieldsFragment = { __typename?: 'CpdPlanProgress', planId: string, earnedCredits: number, initialCompletedCredits: number, activityCredits: number, totalRequiredCredits: number, remainingCredits: number, progressPercent: number, categoriesMissing: number, evidenceMissing: number, activitiesCounted: number, complianceStatus: string, reportingExpired: boolean, reportingNotStarted: boolean, categories: Array<{ __typename?: 'CpdCategoryProgress', id: string, name: string, target: number, completed: number, remaining: number, progress: number, isComplete: boolean }>, missingRequirements: Array<{ __typename?: 'CpdMissingRequirement', code: string, detail?: string | null }> };
+export type CpdPlanProgressFieldsFragment = { __typename?: 'CpdPlanProgress', planId: string, earnedCredits: number, startingCredits: number, initialCompletedCredits: number, activityCredits: number, totalRequiredCredits: number, remainingCredits: number, progressPercent: number, categoriesMissing: number, evidenceMissing: number, activitiesCounted: number, complianceStatus: string, reportingExpired: boolean, reportingNotStarted: boolean, categories: Array<{ __typename?: 'CpdCategoryProgress', id: string, name: string, target: number, completed: number, remaining: number, progress: number, isComplete: boolean }>, missingRequirements: Array<{ __typename?: 'CpdMissingRequirement', code: string, detail?: string | null }> };
 
 export type CpdReportRecipientOptionFieldsFragment = { __typename?: 'CpdReportRecipientOption', type: Types.CpdReportRecipientType, label: string, description?: string | null };
 
@@ -40,7 +40,7 @@ export type CpdPlanProgressQueryVariables = Types.Exact<{
 }>;
 
 
-export type CpdPlanProgressQuery = { __typename?: 'Query', cpdPlanProgress: { __typename?: 'CpdPlanProgress', planId: string, earnedCredits: number, initialCompletedCredits: number, activityCredits: number, totalRequiredCredits: number, remainingCredits: number, progressPercent: number, categoriesMissing: number, evidenceMissing: number, activitiesCounted: number, complianceStatus: string, reportingExpired: boolean, reportingNotStarted: boolean, categories: Array<{ __typename?: 'CpdCategoryProgress', id: string, name: string, target: number, completed: number, remaining: number, progress: number, isComplete: boolean }>, missingRequirements: Array<{ __typename?: 'CpdMissingRequirement', code: string, detail?: string | null }> } };
+export type CpdPlanProgressQuery = { __typename?: 'Query', cpdPlanProgress: { __typename?: 'CpdPlanProgress', planId: string, earnedCredits: number, startingCredits: number, initialCompletedCredits: number, activityCredits: number, totalRequiredCredits: number, remainingCredits: number, progressPercent: number, categoriesMissing: number, evidenceMissing: number, activitiesCounted: number, complianceStatus: string, reportingExpired: boolean, reportingNotStarted: boolean, categories: Array<{ __typename?: 'CpdCategoryProgress', id: string, name: string, target: number, completed: number, remaining: number, progress: number, isComplete: boolean }>, missingRequirements: Array<{ __typename?: 'CpdMissingRequirement', code: string, detail?: string | null }> } };
 
 export type CpdReportRecipientsQueryVariables = Types.Exact<{ [key: string]: never; }>;
 
@@ -169,6 +169,7 @@ export const CpdPlanProgressFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentS
     fragment CpdPlanProgressFields on CpdPlanProgress {
   planId
   earnedCredits
+  startingCredits
   initialCompletedCredits
   activityCredits
   totalRequiredCredits
@@ -333,6 +334,7 @@ fragment CpdMissingRequirementFields on CpdMissingRequirement {
 fragment CpdPlanProgressFields on CpdPlanProgress {
   planId
   earnedCredits
+  startingCredits
   initialCompletedCredits
   activityCredits
   totalRequiredCredits

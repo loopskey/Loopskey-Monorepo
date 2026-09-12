@@ -6,7 +6,6 @@ import type { ElementType, ReactNode } from "react";
 import type { TCertificateFormInput } from "@/lib/validations/certificate.schema";
 import type { TPduActivityFormInput } from "@/lib/validations/pdu-activity.schema";
 import type { I18nContextValue } from "@/types/providers.types";
-import type { PDU_CATEGORIES } from "@/utils/pdu.constant";
 import type { Control } from "react-hook-form";
 
 import type * as BAPI from "@/lib/graphql/base";
@@ -93,15 +92,6 @@ export type TPduReport = NonNullable<
 >;
 
 export type TPduReportTarget = TPduReport["targets"][number];
-
-export type PduCategoryRow = {
-  earned: number;
-  target: number;
-  progress: number;
-  barValue: number;
-  exceededBy: number;
-  category: (typeof PDU_CATEGORIES)[number];
-};
 
 export type TPduActivitiesData = NonNullable<
   API.ProfessionalPduActivitiesQuery["professionalPduActivities"]

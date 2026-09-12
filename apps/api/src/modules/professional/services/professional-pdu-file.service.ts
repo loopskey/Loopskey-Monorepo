@@ -8,10 +8,15 @@ import { PrismaService } from "@prisma/prisma.service";
 import { randomUUID } from "crypto";
 import { extname } from "path";
 import { Inject } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 import { TUser } from "@common/types/user.types";
 import { Role } from "@prisma/client";
 
 import * as C from "@professional/enums/pdu-file.constant";
+
+const isUniqueViolation = (error: unknown) =>
+  error instanceof Prisma.PrismaClientKnownRequestError &&
+  error.code === "P2002";
 
 @Injectable()
 export class ProfessionalPduFileService {
@@ -45,6 +50,7 @@ export class ProfessionalPduFileService {
     user: TUser,
     activityId: string,
     files: Express.Multer.File[],
+    uploadKeys: (string | null)[] = [],
   ) {
     this.assertProfessional(user);
     if (!files?.length)
@@ -52,17 +58,43 @@ export class ProfessionalPduFileService {
         ProfessionalMessageCode.PDU_ACTIVITY_FILE_INVALID_TYPE,
       );
     const activity = await this.assertActivityOwned(user, activityId);
-    if (activity._count.evidenceFiles + files.length > C.MAX_EVIDENCE_FILES)
+    const keys = files.map((_, index) => uploadKeys[index] ?? null);
+
+    const alreadyUploaded = await this.prismaService.pDUActivityFile.findMany({
+      where: {
+        activityId,
+        uploadKey: { in: keys.filter((key): key is string => key !== null) },
+      },
+      select: { id: true, uploadKey: true },
+    });
+    const existingByKey = new Map(
+      alreadyUploaded.map((file) => [file.uploadKey, file.id]),
+    );
+
+    const newFileCount = keys.filter(
+      (key) => key === null || !existingByKey.has(key),
+    ).length;
+    if (activity._count.evidenceFiles + newFileCount > C.MAX_EVIDENCE_FILES)
       throw new BadRequestException(
         ProfessionalMessageCode.PDU_ACTIVITY_FILE_LIMIT_EXCEEDED,
       );
+
     const created: { id: string }[] = [];
-    for (const file of files) {
+    for (let index = 0; index < files.length; index += 1) {
+      const file = files[index];
+      const uploadKey = keys[index];
       const extension = extname(file.originalname).toLowerCase();
       if (!C.isAcceptedEvidenceFile(file.mimetype, extension))
         throw new BadRequestException(
           ProfessionalMessageCode.PDU_ACTIVITY_FILE_INVALID_TYPE,
         );
+
+      const existingId = uploadKey ? existingByKey.get(uploadKey) : undefined;
+      if (existingId) {
+        created.push({ id: existingId });
+        continue;
+      }
+
       const storageKey = `${randomUUID()}${extension}`;
       await this.storage.store("pdu", storageKey, file.buffer);
       let row: { id: string };
@@ -75,15 +107,29 @@ export class ProfessionalPduFileService {
             storageKey,
             mimeType: file.mimetype,
             sizeBytes: file.size,
+            uploadKey,
           },
           select: { id: true },
         });
       } catch (error) {
+        if (isUniqueViolation(error) && uploadKey) {
+          await this.storage.remove("pdu", storageKey);
+          row = await this.prismaService.pDUActivityFile.findFirstOrThrow({
+            where: { activityId, uploadKey },
+            select: { id: true },
+          });
+          created.push(row);
+          continue;
+        }
         await this.storage.remove("pdu", storageKey);
         throw error;
       }
       created.push(row);
     }
+    await this.professionalPduService.announceEvidenceChange(
+      activityId,
+      user.id,
+    );
     return { activityId, uploaded: created.length };
   }
 
@@ -119,6 +165,10 @@ export class ProfessionalPduFileService {
     const file = await this.findOwnedFile(user, fileId);
     await this.prismaService.pDUActivityFile.delete({ where: { id: file.id } });
     await this.professionalPduService.removeEvidenceBlobs([file.storageKey]);
+    await this.professionalPduService.announceEvidenceChange(
+      file.activityId,
+      user.id,
+    );
     return { id: file.id };
   }
 }

@@ -74,6 +74,7 @@ fragment CpdMissingRequirementFields on CpdMissingRequirement {
 fragment CpdPlanProgressFields on CpdPlanProgress {
   planId
   earnedCredits
+  startingCredits
   initialCompletedCredits
   activityCredits
   totalRequiredCredits

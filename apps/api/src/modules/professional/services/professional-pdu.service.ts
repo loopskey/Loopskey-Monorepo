@@ -45,6 +45,15 @@ export class ProfessionalPduService {
     return activity;
   }
 
+  async announceEvidenceChange(activityId: string, userId: string) {
+    await this.outbox.append({
+      eventName: LEARNING_ACTIVITY_RECORDED_EVENT,
+      aggregateType: "PDUActivity",
+      aggregateId: activityId,
+      payload: { activityId, userId },
+    });
+  }
+
   private assertProfessional(user: TUser) {
     if (user.role !== Role.PROFESSIONAL && user.role !== Role.ADMIN)
       throw new ForbiddenException(

@@ -1466,8 +1466,15 @@ model PDUActivityFile {
   mimeType   String
   sizeBytes  Int
 
+  /// Client-supplied idempotency key for one upload attempt of one file.
+  /// Nullable: existing rows predate this column and are never backfilled.
+  /// Postgres allows multiple NULLs under a unique index, so old rows never
+  /// collide with each other or with a future keyed upload.
+  uploadKey String?
+
   createdAt DateTime @default(now())
 
+  @@unique([activityId, uploadKey])
   @@index([activityId])
   @@index([userId])
 }

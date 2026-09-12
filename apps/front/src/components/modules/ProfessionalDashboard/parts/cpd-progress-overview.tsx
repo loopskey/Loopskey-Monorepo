@@ -1,21 +1,20 @@
 "use client";
 
-import { useChartSemantics } from "@hooks/useChartPalette";
-
+import { CpdProgressOverviewProps } from "@/types/cpd-plan.types";
 import { CPD_COMPLIANCE_META } from "@/utils/cpd-plan.constant";
+import { useChartSemantics } from "@hooks/useChartPalette";
 import { GoalHalfPieChart } from "@elements/dashboard-charts";
 import { MetricCard } from "@modules/ProfessionalDashboard/parts/metric-card";
 import { GlassCard } from "@elements/glass-card";
 import { cn } from "@/lib/utils";
 
 import * as L from "lucide-react";
-import { CpdProgressOverviewProps } from "@/types/cpd-plan.types";
 
 const TONE_CLASSES: Record<string, string> = {
-  success:"text-success-soft-foreground bg-success-soft",
-  info:"text-primary bg-primary/10",
-  warning:"text-warning-soft-foreground bg-warning-soft",
-  danger:"text-destructive-soft-foreground bg-destructive-soft",
+  success: "text-success-soft-foreground bg-success-soft",
+  info: "text-primary bg-primary/10",
+  warning: "text-warning-soft-foreground bg-warning-soft",
+  danger: "text-destructive-soft-foreground bg-destructive-soft",
   neutral: "text-muted-foreground bg-muted",
 };
 
@@ -91,6 +90,16 @@ export const CpdProgressOverview = ({
           helper={t("cpdProgress.progress.cards.evidenceMissingHelper")}
         />
       </div>
+
+      {progress.startingCredits > 0 && (
+        <p className="flex items-center gap-2 text-sm text-muted-foreground">
+          <L.History aria-hidden className="h-4 w-4 shrink-0" />
+          {t("cpdProgress.progress.startingCredits", {
+            amount: progress.startingCredits,
+            credit: creditLabel,
+          })}
+        </p>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
         <GlassCard>

@@ -1658,6 +1658,7 @@ export type CpdPlanProgress = {
   remainingCredits: Scalars['Float']['output'];
   reportingExpired: Scalars['Boolean']['output'];
   reportingNotStarted: Scalars['Boolean']['output'];
+  startingCredits: Scalars['Float']['output'];
   totalRequiredCredits: Scalars['Float']['output'];
 };
 

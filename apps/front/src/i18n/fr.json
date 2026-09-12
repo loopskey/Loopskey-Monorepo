@@ -188,6 +188,7 @@
         "evidenceMissing": "Preuves manquantes",
         "evidenceMissingHelper": "Activités sans preuve"
       },
+      "startingCredits": "Plus {{amount}} {{credit}} de crédits de départ antérieurs au suivi de vos activités ici, affichés à titre historique et non comptabilisés dans les crédits obtenus, restants ou le graphique de progression.",
       "overallTitle": "Progression globale",
       "overallSubtitle": "Crédits obtenus par rapport aux crédits requis",
       "accessibleSummary": "Obtenu {{earned}} sur {{total}} {{credit}} ({{percent}} %).",
@@ -3852,18 +3853,6 @@
           }
         }
       },
-      "byCategory": {
-        "title": "PDU par catégorie",
-        "subtitle": "Progression par rapport aux objectifs de chaque catégorie.",
-        "empty": "Ajoutez une activité ou définissez un objectif annuel pour voir la répartition par catégorie.",
-        "noTarget": "Aucun objectif",
-        "exceededBy": "Dépassé de {{amount}} PDU"
-      },
-      "overTime": {
-        "title": "PDU dans le temps",
-        "subtitle": "Crédits mensuels obtenus sur l’année sélectionnée.",
-        "empty": "Aucun crédit enregistré pour cette année."
-      },
       "activities": {
         "title": "Activités",
         "subtitle": "Gérez toutes les activités d’apprentissage que vous avez enregistrées.",
@@ -3993,7 +3982,8 @@
         "download": "Télécharger",
         "remove": "Supprimer",
         "removed": "Fichier supprimé.",
-        "uploadFailed": "L’activité a été enregistrée, mais les fichiers n’ont pas pu être téléversés. Veuillez réessayer de les joindre.",
+        "uploadFailed": "L’activité a été enregistrée, mais les fichiers n’ont pas pu être téléversés. Vos fichiers restent sélectionnés — utilisez Réessayer pour terminer.",
+        "retryUpload": "Réessayer le téléversement",
         "fileTooLarge": "« {{name}} » dépasse 20 Mo.",
         "fileTypeInvalid": "« {{name}} » n’est pas un type de fichier accepté.",
         "tooManyFiles": "Vous pouvez joindre au maximum {{max}} fichiers."
