@@ -28,6 +28,11 @@ export const ASSOCIATION_REQUIREMENT_LIMITS = {
   specificMembersMax: 1000,
 } as const;
 
+export const ASSOCIATION_LEARNING_CONTENT_LIMITS = {
+  groupsMax: 50,
+  specificMembersMax: 1000,
+} as const;
+
 export const ASSOCIATION_LIMITS = {
   nameMin: 2,
   nameMax: 160,

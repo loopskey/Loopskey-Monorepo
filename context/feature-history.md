@@ -61,3 +61,4 @@ into this index and do not rewrite previous records.
 - [`cpd-activity-corrections`](feature-runs/active/cpd-activity-corrections.md)
 - [`roadmap-generation-and-stats-corrections`](feature-runs/active/roadmap-generation-and-stats-corrections.md)
 - [`association-members-requirements-corrections`](feature-runs/active/association-members-requirements-corrections.md)
+- [`association-learning-content-corrections`](feature-runs/active/association-learning-content-corrections.md)

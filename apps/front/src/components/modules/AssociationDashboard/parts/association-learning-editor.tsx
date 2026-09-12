@@ -1,33 +1,18 @@
 "use client";
 
+import { AssociationLearningStepAssignment } from "@modules/AssociationDashboard/parts/association-learning-step-assignment";
+import { AssociationLearningStepContent } from "@modules/AssociationDashboard/parts/association-learning-step-content";
+import { AssociationLearningStepReview } from "@modules/AssociationDashboard/parts/association-learning-step-review";
+import { AssociationLearningStepCpd } from "@modules/AssociationDashboard/parts/association-learning-step-cpd";
 import { TAssociationLearningEditor } from "@/types/association-dashboard.types";
-import { FloatingTextareaField } from "@elements/floating-textarea";
-import { FloatingSelectField } from "@elements/floating-select";
-import { FloatingInputField } from "@elements/floating-input";
-import { humanizeEnumValue } from "@utils/function-helper";
-import { PDU_CATEGORIES } from "@utils/pdu.constant";
-import { ContentType } from "@/lib/graphql/base";
-import { Skeleton } from "@ui/skeleton";
+import { useMemo, useState } from "react";
+import { ActivityStepper } from "@modules/ProfessionalDashboard/parts/activity-stepper";
 import { Button } from "@ui/button";
-import { Input } from "@ui/input";
-import { cn } from "@/lib/utils";
 
-import * as S from "@ui/select";
+import * as A from "@ui/alert-dialog";
 import * as D from "@ui/dialog";
 import * as F from "@ui/form";
 import * as L from "lucide-react";
-
-const ALL = "ALL";
-
-const CONTENT_TYPES = [
-  ALL,
-  ContentType.Course,
-  ContentType.Event,
-  ContentType.Podcast,
-  ContentType.Youtube,
-] as const;
-
-const NO_REQUIREMENT = "NONE";
 
 export const AssociationLearningEditor = ({
   hook,
@@ -35,226 +20,130 @@ export const AssociationLearningEditor = ({
   const {
     t,
     form,
-    isSaving,
+    step,
+    next,
+    goToStep,
     isEditing,
     isExternal,
-    catalogType,
     closeEditor,
     isEditorOpen,
-    catalogSearch,
-    submitEditor,
-    catalogResults,
-    setCatalogType,
-    pickCatalogItem,
-    setCatalogSearch,
-    isCatalogLoading,
-    requirementOptions,
-    selectedContentId,
   } = hook;
+
+  const [confirmClose, setConfirmClose] = useState(false);
 
   const label = (key: string) =>
     t(`associationDashboard.learningContent.editor.${key}`);
 
+  const steps = useMemo(
+    () =>
+      [1, 2, 3, 4].map((value) => ({
+        value,
+        title: t(
+          `associationDashboard.learningContent.wizard.step${value}.title`,
+        ),
+        description: t(
+          `associationDashboard.learningContent.wizard.step${value}.description`,
+        ),
+      })),
+    [t],
+  );
+
+  const requestClose = () => {
+    if (form.formState.isDirty) setConfirmClose(true);
+    else closeEditor();
+  };
+
   return (
-    <D.Dialog
-      open={isEditorOpen}
-      onOpenChange={(open) => {
-        if (!open) closeEditor();
-      }}
-    >
-      <D.DialogContent className="glass-dialog z-[9999] max-h-[90vh] max-w-2xl overflow-y-auto rounded-lg border-border">
-        <D.DialogHeader>
-          <D.DialogTitle className="text-xl">
-            {label(
-              isEditing
-                ? "editTitle"
-                : isExternal
-                  ? "addExternalTitle"
-                  : "addCatalogueTitle",
-            )}
-          </D.DialogTitle>
+    <>
+      <D.Dialog
+        open={isEditorOpen}
+        onOpenChange={(open) => {
+          if (!open) requestClose();
+        }}
+      >
+        <D.DialogContent className="glass-dialog z-[9999] max-h-[90vh] max-w-2xl overflow-y-auto rounded-lg border-border">
+          <D.DialogHeader>
+            <D.DialogTitle className="text-xl">
+              {label(
+                isEditing
+                  ? "editTitle"
+                  : isExternal
+                    ? "addExternalTitle"
+                    : "addCatalogueTitle",
+              )}
+            </D.DialogTitle>
 
-          <D.DialogDescription className="leading-6">
-            {label(isExternal ? "externalDescription" : "catalogueDescription")}
-          </D.DialogDescription>
-        </D.DialogHeader>
+            <D.DialogDescription className="leading-6">
+              {label(
+                isExternal ? "externalDescription" : "catalogueDescription",
+              )}
+            </D.DialogDescription>
+          </D.DialogHeader>
 
-        <F.Form {...form}>
-          <form className="space-y-4" onSubmit={submitEditor} noValidate>
-            {isExternal ? (
-              <>
-                <FloatingInputField
-                  name="externalTitle"
-                  control={form.control}
-                  label={label("title")}
-                />
+          <ActivityStepper
+            steps={steps}
+            activeStep={step}
+            onChange={goToStep}
+          />
 
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <FloatingInputField
-                    name="externalProvider"
-                    control={form.control}
-                    label={label("provider")}
-                  />
+          <F.Form {...form}>
+            <form
+              className="space-y-4"
+              noValidate
+              onSubmit={(event) => {
+                event.preventDefault();
+                if (step < 4) void next();
+              }}
+            >
+              {step === 1 && <AssociationLearningStepContent hook={hook} />}
+              {step === 2 && <AssociationLearningStepCpd hook={hook} />}
+              {step === 3 && <AssociationLearningStepAssignment hook={hook} />}
+              {step === 4 && <AssociationLearningStepReview hook={hook} />}
 
-                  <FloatingInputField
-                    name="externalUrl"
-                    control={form.control}
-                    label={label("url")}
-                  />
-                </div>
-              </>
-            ) : (
-              <div>
-                <p className="text-xs uppercase text-muted-foreground">
-                  {label("pickContent")}
-                </p>
+              {step < 4 && (
+                <D.DialogFooter>
+                  <Button
+                    radius="xl"
+                    type="button"
+                    variant="cancel"
+                    onClick={requestClose}
+                  >
+                    {t("associationDashboard.requirements.confirm.cancel")}
+                  </Button>
 
-                <div className="mt-2 flex flex-wrap gap-3">
-                  <div className="relative min-w-0 flex-1">
-                    <L.Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Button radius="xl" type="submit">
+                    {t("associationDashboard.requirements.wizard.next")}
+                    <L.ArrowRight className="h-4 w-4" />
+                  </Button>
+                </D.DialogFooter>
+              )}
+            </form>
+          </F.Form>
+        </D.DialogContent>
+      </D.Dialog>
 
-                    <Input
-                      value={catalogSearch}
-                      className="rounded-md pl-9"
-                      placeholder={label("searchPlaceholder")}
-                      aria-label={label("searchPlaceholder")}
-                      onChange={(event) => setCatalogSearch(event.target.value)}
-                    />
-                  </div>
-
-                  <S.Select value={catalogType} onValueChange={setCatalogType}>
-                    <S.SelectTrigger
-                      className="w-40 rounded-md"
-                      aria-label={label("contentType")}
-                    >
-                      <S.SelectValue />
-                    </S.SelectTrigger>
-
-                    <S.SelectContent className="z-[9999] rounded-md">
-                      {CONTENT_TYPES.map((value) => (
-                        <S.SelectItem key={value} value={value}>
-                          {value === ALL
-                            ? label("allTypes")
-                            : humanizeEnumValue(value)}
-                        </S.SelectItem>
-                      ))}
-                    </S.SelectContent>
-                  </S.Select>
-                </div>
-
-                {isCatalogLoading ? (
-                  <div className="mt-3 space-y-2" aria-busy="true">
-                    {Array.from({ length: 3 }, (_, index) => (
-                      <Skeleton
-                        key={index}
-                        className="h-14 w-full rounded-md"
-                      />
-                    ))}
-                  </div>
-                ) : catalogResults.length === 0 ? (
-                  <p className="mt-3 rounded-md border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-                    {label("noResults")}
-                  </p>
-                ) : (
-                  <ul className="mt-3 max-h-64 space-y-2 overflow-y-auto pr-1">
-                    {catalogResults.map((item) => (
-                      <li key={`${item.contentType}:${item.contentId}`}>
-                        <button
-                          type="button"
-                          onClick={() => pickCatalogItem(item)}
-                          aria-pressed={selectedContentId === item.contentId}
-                          className={cn(
-                            "flex w-full items-center gap-3 rounded-md border p-3 text-left transition-colors",
-                            selectedContentId === item.contentId
-                              ? "border-primary bg-primary/5"
-                              : "border-border hover:bg-primary/5",
-                          )}
-                        >
-                          <span className="min-w-0 flex-1">
-                            <span className="block truncate font-medium">
-                              {item.title}
-                            </span>
-                            <span className="block text-xs text-muted-foreground">
-                              {humanizeEnumValue(item.contentType)}
-                              {item.provider ? ` · ${item.provider}` : ""}
-                            </span>
-                          </span>
-
-                          {selectedContentId === item.contentId && (
-                            <L.Check className="h-4 w-4 shrink-0 text-primary" />
-                          )}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-
-                {form.formState.errors.contentId && (
-                  <p className="mt-2 text-sm text-destructive">
-                    {label("pickOne")}
-                  </p>
-                )}
-              </div>
-            )}
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <FloatingSelectField
-                name="category"
-                control={form.control}
-                label={label("category")}
-                options={PDU_CATEGORIES.map((value) => ({
-                  value,
-                  label: humanizeEnumValue(value),
-                }))}
-              />
-
-              <FloatingInputField
-                type="number"
-                name="indicativeCredits"
-                control={form.control}
-                label={label("credits")}
-              />
-            </div>
-
-            <FloatingSelectField
-              name="requirementId"
-              control={form.control}
-              label={label("requirement")}
-              options={[
-                { value: NO_REQUIREMENT, label: label("noRequirement") },
-                ...requirementOptions,
-              ]}
-            />
-
-            <FloatingTextareaField
-              name="description"
-              control={form.control}
-              label={label("description")}
-            />
-
-            <D.DialogFooter>
-              <Button
-                radius="xl"
-                type="button"
-                variant="cancel"
-                disabled={isSaving}
-                onClick={closeEditor}
-              >
-                {t("associationDashboard.members.confirm.cancel")}
-              </Button>
-
-              <Button
-                radius="xl"
-                type="submit"
-                disabled={isSaving}
-              >
-                {isSaving && <L.Loader2 className="h-4 w-4 animate-spin" />}
-                {label("save")}
-              </Button>
-            </D.DialogFooter>
-          </form>
-        </F.Form>
-      </D.DialogContent>
-    </D.Dialog>
+      <A.AlertDialog open={confirmClose} onOpenChange={setConfirmClose}>
+        <A.AlertDialogContent className="glass-dialog z-[9999] rounded-lg border-border">
+          <A.AlertDialogHeader>
+            <A.AlertDialogTitle>{label("unsavedTitle")}</A.AlertDialogTitle>
+            <A.AlertDialogDescription>
+              {label("unsavedBody")}
+            </A.AlertDialogDescription>
+          </A.AlertDialogHeader>
+          <A.AlertDialogFooter>
+            <A.AlertDialogCancel>{label("unsavedKeep")}</A.AlertDialogCancel>
+            <A.AlertDialogAction
+              className="bg-destructive text-white hover:bg-destructive/90"
+              onClick={() => {
+                setConfirmClose(false);
+                closeEditor();
+              }}
+            >
+              {label("unsavedDiscard")}
+            </A.AlertDialogAction>
+          </A.AlertDialogFooter>
+        </A.AlertDialogContent>
+      </A.AlertDialog>
+    </>
   );
 };

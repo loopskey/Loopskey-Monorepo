@@ -1,6 +1,5 @@
 "use client";
 
-import { AssociationLearningPublishDialog } from "@modules/AssociationDashboard/parts/association-learning-publish-dialog";
 import { useAssociationLearningContent } from "@hooks/useAssociationLearningContent";
 import { AssociationLearningFilters } from "@modules/AssociationDashboard/parts/association-learning-filters";
 import { AssociationLearningEditor } from "@modules/AssociationDashboard/parts/association-learning-editor";
@@ -99,7 +98,6 @@ const AssociationLearningContentTab = () => {
       )}
 
       <AssociationLearningEditor hook={hook} />
-      <AssociationLearningPublishDialog hook={hook} />
       <AssociationLearningDetail hook={hook} />
     </div>
   );

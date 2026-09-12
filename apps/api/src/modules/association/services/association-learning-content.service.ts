@@ -7,17 +7,21 @@ import { type CatalogEndorsementApi } from "@landing/public/catalog-endorsement-
 import { AssociationPaginationInput } from "@association/dtos/association-pagination.input";
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { AssociationAccessService } from "@association/services/association-access.service";
+import { AssociationMemberStatus } from "@prisma/client";
 import { CATALOG_ENDORSEMENT_API } from "@landing/public/catalog-endorsement-api";
-import { AssociationGroupService } from "@association/services/association-group.service";
 import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
 import { CatalogItemProjection } from "@landing/public/catalog-endorsement-api";
 import { NotFoundException } from "@nestjs/common";
 import { TAssociationUser } from "@association/types/association-service.types";
+import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { PrismaService } from "@prisma/prisma.service";
 
 import * as DTO from "@association/dtos/association-learning-content.input";
 
 const UNIQUE_VIOLATION = "P2002";
+
+export const LEARNING_CONTENT_PUBLISHED_EVENT =
+  "association.learning-content.published.v1";
 
 const CONTENT_SELECT = {
   id: true,
@@ -34,11 +38,19 @@ const CONTENT_SELECT = {
   publishedAt: true,
   withdrawnAt: true,
   audienceKind: true,
-  groupId: true,
   createdAt: true,
   updatedAt: true,
-  group: { select: { title: true } },
   requirement: { select: { name: true } },
+  targets: {
+    select: {
+      id: true,
+      kind: true,
+      groupId: true,
+      memberId: true,
+      group: { select: { title: true } },
+      member: { select: { user: { select: { fullName: true } } } },
+    },
+  },
 } satisfies Prisma.AssociationLearningContentSelect;
 
 type ContentRecord = Prisma.AssociationLearningContentGetPayload<{
@@ -69,8 +81,8 @@ export class AssociationLearningContentService {
 
   constructor(
     private readonly prisma: PrismaService,
+    private readonly outbox: OutboxService,
     private readonly access: AssociationAccessService,
-    private readonly groups: AssociationGroupService,
     @Inject(CATALOG_ENDORSEMENT_API)
     private readonly catalog: CatalogEndorsementApi,
     @Inject(PROFESSIONAL_COMPLIANCE_API)
@@ -222,8 +234,13 @@ export class AssociationLearningContentService {
       indicativeCredits: row.indicativeCredits,
       requirementId: row.requirementId,
       requirementName: row.requirement?.name ?? null,
-      groupId: row.groupId,
-      groupTitle: row.group?.title ?? null,
+      targets: row.targets.map((target) => ({
+        id: target.id,
+        kind: target.kind,
+        groupId: target.groupId,
+        memberId: target.memberId,
+        label: target.group?.title ?? target.member?.user.fullName ?? null,
+      })),
       status: row.status,
       audienceKind: row.audienceKind,
       publishedAt: row.publishedAt,
@@ -239,7 +256,7 @@ export class AssociationLearningContentService {
     input: DTO.CreateAssociationLearningContentInput,
   ) {
     const association = await this.access.requireOwned(user);
-    const shape = await this.validateShape(association.id, input);
+    const shape = await this.validateShape(input);
 
     try {
       const created = await this.prisma.associationLearningContent.create({
@@ -302,7 +319,7 @@ export class AssociationLearningContentService {
     input: DTO.CreateAssociationLearningContentInput,
   ) {
     await this.require(associationId, learningContentId);
-    const shape = await this.validateShape(associationId, input);
+    const shape = await this.validateShape(input);
 
     const updated = await this.prisma.associationLearningContent.update({
       where: { id: learningContentId },
@@ -314,7 +331,6 @@ export class AssociationLearningContentService {
   }
 
   private async validateShape(
-    associationId: string,
     input: DTO.CreateAssociationLearningContentInput,
   ) {
     const reference = catalogRefOf({
@@ -337,8 +353,6 @@ export class AssociationLearningContentService {
     }
 
     if (reference) await this.assertCatalogPublished(reference);
-    if (input.requirementId)
-      await this.assertRequirement(associationId, input.requirementId);
 
     return {
       contentType: reference?.contentType ?? null,
@@ -349,9 +363,7 @@ export class AssociationLearningContentService {
         : input.externalProvider?.trim() || null,
       externalUrl: reference ? null : (input.externalUrl?.trim() ?? null),
       description: input.description?.trim() || null,
-      category: input.category,
       indicativeCredits: input.indicativeCredits ?? null,
-      requirementId: input.requirementId ?? null,
     };
   }
 
@@ -371,20 +383,47 @@ export class AssociationLearningContentService {
       });
   }
 
-  private async assertRequirement(
-    associationId: string,
-    requirementId: string,
-  ) {
-    const requirement = await this.prisma.associationRequirement.findFirst({
-      where: { id: requirementId, associationId },
+  private async verifyGroups(associationId: string, groupIds: string[]) {
+    const unique = [...new Set(groupIds)];
+
+    const rows = await this.prisma.associationGroup.findMany({
+      where: { id: { in: unique }, associationId },
       select: { id: true },
     });
 
-    if (!requirement)
+    if (rows.length !== unique.length)
       throw new NotFoundException({
-        code: AssociationMessageCode.REQUIREMENT_NOT_FOUND,
-        message: "That requirement does not belong to this association.",
+        code: AssociationMessageCode.GROUP_NOT_FOUND,
+        message: "One or more groups do not belong to this association.",
       });
+
+    return unique;
+  }
+
+  private async verifyActiveMembers(
+    associationId: string,
+    memberIds: string[],
+  ) {
+    const unique = [...new Set(memberIds)];
+
+    const rows = await this.prisma.associationMember.findMany({
+      where: { id: { in: unique }, associationId },
+      select: { id: true, status: true },
+    });
+
+    if (rows.length !== unique.length)
+      throw new NotFoundException({
+        code: AssociationMessageCode.MEMBER_NOT_FOUND,
+        message: "One or more members do not belong to this association.",
+      });
+
+    if (rows.some((row) => row.status === AssociationMemberStatus.INACTIVE))
+      throw new BadRequestException({
+        code: AssociationMessageCode.LEARNING_CONTENT_TARGET_INACTIVE,
+        message: "An inactive member cannot be targeted.",
+      });
+
+    return unique;
   }
 
   async publish(
@@ -394,46 +433,91 @@ export class AssociationLearningContentService {
     const association = await this.access.requireOwned(user);
     await this.require(association.id, input.learningContentId);
 
+    let groupIds: string[] = [];
+    let memberIds: string[] = [];
+
     if (input.audienceKind === AssociationAudienceKind.GROUP) {
-      if (!input.groupId)
+      if (!input.groupIds?.length)
         throw new BadRequestException({
           code: AssociationMessageCode.AUDIENCE_EMPTY,
-          message: "A group audience needs a group.",
+          message: "A group audience needs at least one group.",
         });
-      await this.groups.requireGroup(association.id, input.groupId);
+      groupIds = await this.verifyGroups(association.id, input.groupIds);
     }
 
-    if (input.audienceKind === AssociationAudienceKind.SPECIFIC_MEMBERS)
-      throw new BadRequestException({
-        code: AssociationMessageCode.AUDIENCE_EMPTY,
-        message: "A library item is published to all members or to one group.",
+    if (input.audienceKind === AssociationAudienceKind.SPECIFIC_MEMBERS) {
+      if (!input.memberIds?.length)
+        throw new BadRequestException({
+          code: AssociationMessageCode.AUDIENCE_EMPTY,
+          message: "A specific-members audience needs at least one member.",
+        });
+      memberIds = await this.verifyActiveMembers(
+        association.id,
+        input.memberIds,
+      );
+    }
+
+    const publishedAt = new Date();
+
+    await this.prisma.$transaction(async (tx) => {
+      const transition = await tx.associationLearningContent.updateMany({
+        where: {
+          id: input.learningContentId,
+          associationId: association.id,
+          status: { not: AssociationLearningContentStatus.PUBLISHED },
+        },
+        data: {
+          status: AssociationLearningContentStatus.PUBLISHED,
+          publishedAt,
+          withdrawnAt: null,
+        },
       });
 
-    const claimed = await this.prisma.associationLearningContent.updateMany({
-      where: {
-        id: input.learningContentId,
-        associationId: association.id,
-        status: { not: AssociationLearningContentStatus.PUBLISHED },
-      },
-      data: {
-        status: AssociationLearningContentStatus.PUBLISHED,
-        audienceKind: input.audienceKind,
-        groupId:
-          input.audienceKind === AssociationAudienceKind.GROUP
-            ? input.groupId
-            : null,
-        publishedAt: new Date(),
-        withdrawnAt: null,
-      },
+      await tx.associationLearningContent.update({
+        where: { id: input.learningContentId },
+        data: { audienceKind: input.audienceKind },
+      });
+
+      await tx.associationLearningContentTarget.deleteMany({
+        where: { learningContentId: input.learningContentId },
+      });
+
+      if (groupIds.length)
+        await tx.associationLearningContentTarget.createMany({
+          data: groupIds.map((groupId) => ({
+            learningContentId: input.learningContentId,
+            kind: input.audienceKind,
+            groupId,
+          })),
+          skipDuplicates: true,
+        });
+
+      if (memberIds.length)
+        await tx.associationLearningContentTarget.createMany({
+          data: memberIds.map((memberId) => ({
+            learningContentId: input.learningContentId,
+            kind: input.audienceKind,
+            memberId,
+          })),
+          skipDuplicates: true,
+        });
+
+      if (transition.count === 1)
+        await this.outbox.append(
+          {
+            eventName: LEARNING_CONTENT_PUBLISHED_EVENT,
+            aggregateType: "AssociationLearningContent",
+            aggregateId: input.learningContentId,
+            payload: {
+              learningContentId: input.learningContentId,
+              associationId: association.id,
+            },
+          },
+          tx,
+        );
     });
 
-    if (claimed.count !== 1)
-      throw new ConflictException({
-        code: AssociationMessageCode.LEARNING_CONTENT_STATUS_CONFLICT,
-        message: "That item is already published.",
-      });
-
-    this.logger.log("Association published a library item", {
+    this.logger.log("Association published or retargeted a library item", {
       associationId: association.id,
       learningContentId: input.learningContentId,
       audienceKind: input.audienceKind,

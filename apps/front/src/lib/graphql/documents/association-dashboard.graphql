@@ -393,6 +393,14 @@ mutation SetAssociationMemberRequirements(
 }
 
 # ================= Learning content =================
+fragment AssociationLearningContentTargetFields on AssociationLearningContentTarget {
+  id
+  kind
+  label
+  groupId
+  memberId
+}
+
 fragment AssociationLearningContentFields on AssociationLearningContent {
   id
   title
@@ -408,8 +416,9 @@ fragment AssociationLearningContentFields on AssociationLearningContent {
   indicativeCredits
   requirementId
   requirementName
-  groupId
-  groupTitle
+  targets {
+    ...AssociationLearningContentTargetFields
+  }
   status
   audienceKind
   publishedAt

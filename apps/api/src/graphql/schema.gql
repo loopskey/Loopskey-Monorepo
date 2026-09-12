@@ -559,15 +559,13 @@ type AssociationInviteResult {
 
 type AssociationLearningContent {
   audienceKind: AssociationAudienceKind!
-  category: PDUCategory!
+  category: PDUCategory
   contentId: ID
   contentType: ContentType
   createdAt: DateTime!
   description: String
   engagement: AssociationLearningEngagement
   externalUrl: String
-  groupId: ID
-  groupTitle: String
   id: ID!
   imageUrl: String
   indicativeCredits: Float
@@ -578,6 +576,7 @@ type AssociationLearningContent {
   requirementId: ID
   requirementName: String
   status: AssociationLearningContentStatus!
+  targets: [AssociationLearningContentTarget!]!
   title: String!
   updatedAt: DateTime!
   withdrawnAt: DateTime
@@ -601,6 +600,14 @@ enum AssociationLearningContentStatus {
   DRAFT
   PUBLISHED
   WITHDRAWN
+}
+
+type AssociationLearningContentTarget {
+  groupId: ID
+  id: ID!
+  kind: AssociationAudienceKind!
+  label: String
+  memberId: ID
 }
 
 type AssociationLearningEngagement {
@@ -1588,7 +1595,6 @@ input CreateAssociationGroupInput {
 }
 
 input CreateAssociationLearningContentInput {
-  category: PDUCategory!
   contentId: ID
   contentType: ContentType
   description: String
@@ -1596,7 +1602,6 @@ input CreateAssociationLearningContentInput {
   externalTitle: String
   externalUrl: String
   indicativeCredits: Float
-  requirementId: ID
 }
 
 input CreateAssociationRequirementDraftInput {
@@ -4057,8 +4062,9 @@ type ProviderTopEvent {
 
 input PublishAssociationLearningContentInput {
   audienceKind: AssociationAudienceKind!
-  groupId: ID
+  groupIds: [ID!]
   learningContentId: ID!
+  memberIds: [ID!]
 }
 
 type Query {
@@ -4536,7 +4542,6 @@ input UpdateAssociationGroupInput {
 }
 
 input UpdateAssociationLearningContentInput {
-  category: PDUCategory!
   contentId: ID
   contentType: ContentType
   description: String
@@ -4545,7 +4550,6 @@ input UpdateAssociationLearningContentInput {
   externalUrl: String
   indicativeCredits: Float
   learningContentId: ID!
-  requirementId: ID
 }
 
 input UpdateAssociationMemberInput {

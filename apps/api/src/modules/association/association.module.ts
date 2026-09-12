@@ -1,3 +1,4 @@
+import { AssociationLearningContentPublishedHandler } from "@association/application/association-learning-content-published.handler";
 import { AssociationRequirementAssignmentService } from "@association/services/association-requirement-assignment.service";
 import { AssociationRequirementPublishedHandler } from "@association/application/association-requirement-published.handler";
 import { AssociationMemberRequirementsService } from "@association/services/association-member-requirements.service";
@@ -95,6 +96,7 @@ import "@association/enums/association-register.enum";
     AssociationLearningContentService,
     AssociationLearningActivityHandler,
     AssociationLearningContentResolver,
+    AssociationLearningContentPublishedHandler,
     AssociationMemberRequirementsService,
     AssociationRequirementPublishedHandler,
     AssociationRequirementAssignmentService,
@@ -118,11 +120,11 @@ import "@association/enums/association-register.enum";
     AssociationCycleService,
     AssociationMemberService,
     AssociationAccountService,
+    AssociationSettingsService,
     AssociationDashboardService,
     AssociationComplianceService,
     AssociationRequirementService,
     AssociationRequirementAssignmentService,
-    AssociationSettingsService,
   ],
 })
 export class AssociationModule {}

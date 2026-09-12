@@ -3,6 +3,7 @@
 import { AssociationLearningContentStatus } from "@/lib/graphql/base";
 import { TAssociationLearningContentRow } from "@/types/association-dashboard.types";
 import { TAssociationLearningList } from "@/types/association-dashboard.types";
+import { audienceSummaryLabel } from "@utils/association-learning-content";
 import { humanizeEnumValue } from "@utils/function-helper";
 import { ContentPagination } from "@elements/pagination";
 import { ConfirmDialog } from "@elements/confirm-dialog";
@@ -63,7 +64,9 @@ export const AssociationLearningList = ({ hook }: TAssociationLearningList) => {
               provider:
                 item.provider ??
                 t("associationDashboard.learningContent.list.noProvider"),
-              category: humanizeEnumValue(item.category),
+              category: item.category
+                ? humanizeEnumValue(item.category)
+                : t("associationDashboard.learningContent.list.uncategorised"),
               added: date(item.createdAt as string),
             })}
           </p>
@@ -114,10 +117,17 @@ export const AssociationLearningList = ({ hook }: TAssociationLearningList) => {
                   {t("associationDashboard.learningContent.actions.publish")}
                 </D.DropdownMenuItem>
               ) : (
-                <D.DropdownMenuItem onSelect={() => void withdraw(item.id)}>
-                  <L.Undo2 className="h-4 w-4" />
-                  {t("associationDashboard.learningContent.actions.withdraw")}
-                </D.DropdownMenuItem>
+                <>
+                  <D.DropdownMenuItem onSelect={() => openPublish(item)}>
+                    <L.Users className="h-4 w-4" />
+                    {t("associationDashboard.learningContent.actions.reassign")}
+                  </D.DropdownMenuItem>
+
+                  <D.DropdownMenuItem onSelect={() => void withdraw(item.id)}>
+                    <L.Undo2 className="h-4 w-4" />
+                    {t("associationDashboard.learningContent.actions.withdraw")}
+                  </D.DropdownMenuItem>
+                </>
               )}
 
               {item.status === AssociationLearningContentStatus.Draft && (
@@ -176,13 +186,9 @@ export const AssociationLearningList = ({ hook }: TAssociationLearningList) => {
           </span>
         )}
 
-        {item.groupTitle && (
-          <span>
-            {t("associationDashboard.learningContent.list.forGroup", {
-              group: item.groupTitle,
-            })}
-          </span>
-        )}
+        <span>
+          {audienceSummaryLabel(item.audienceKind, item.targets, t)}
+        </span>
       </div>
     </li>
   );

@@ -2,11 +2,12 @@ import { AssociationLearningContentService } from "@association/services/associa
 import { type ProfessionalComplianceApi } from "@professional/public/professional-compliance-api";
 import { type CatalogEndorsementApi } from "@landing/public/catalog-endorsement-api";
 import { AssociationAccessService } from "@association/services/association-access.service";
-import { AssociationGroupService } from "@association/services/association-group.service";
 import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
 import { AssociationLearningContentStatus } from "@prisma/client";
+import { AssociationMemberStatus } from "@prisma/client";
 import { AssociationAudienceKind } from "@prisma/client";
 import { ContentType, PDUCategory, Prisma, Role } from "@prisma/client";
+import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { PrismaService } from "@prisma/prisma.service";
 
 const owner = { id: "owner-1", role: Role.ASSOCIATION };
@@ -26,11 +27,10 @@ const contentRow = (overrides: Record<string, unknown> = {}) => ({
   publishedAt: null,
   withdrawnAt: null,
   audienceKind: AssociationAudienceKind.ALL_MEMBERS,
-  groupId: null,
   createdAt: new Date("2026-06-01T00:00:00.000Z"),
   updatedAt: new Date("2026-06-01T00:00:00.000Z"),
-  group: null,
   requirement: null,
+  targets: [] as unknown[],
   ...overrides,
 });
 
@@ -56,7 +56,6 @@ const setup = ({
   createResult = contentRow(),
   createError = null,
   winner = { id: "item-1" },
-  requirement = { id: "req-1" },
   engagement = [
     {
       contentType: ContentType.COURSE,
@@ -68,17 +67,20 @@ const setup = ({
   resolveThrows = false,
   updateManyCount = 1,
   deleteManyCount = 1,
+  groups = [{ id: "g-1" }],
+  members = [{ id: "m-1", status: AssociationMemberStatus.ACTIVE }],
 }: {
   rows?: ReturnType<typeof contentRow>[];
   resolved?: ReturnType<typeof catalogItem>[];
   createResult?: ReturnType<typeof contentRow>;
   createError?: unknown;
   winner?: { id: string } | null;
-  requirement?: { id: string } | null;
   engagement?: Record<string, unknown>[];
   resolveThrows?: boolean;
   updateManyCount?: number;
   deleteManyCount?: number;
+  groups?: { id: string }[];
+  members?: { id: string; status: AssociationMemberStatus }[];
 } = {}) => {
   const create = createError
     ? jest.fn().mockRejectedValue(createError)
@@ -100,6 +102,19 @@ const setup = ({
     ? jest.fn().mockRejectedValue(new Error("catalogue unreachable"))
     : jest.fn().mockResolvedValue(resolved);
 
+  const targetCreateMany = jest.fn().mockResolvedValue({ count: 0 });
+  const targetDeleteMany = jest.fn().mockResolvedValue({ count: 0 });
+
+  const memberFindMany = jest
+    .fn()
+    .mockImplementation(({ where }: { where: { id?: unknown } }) =>
+      where?.id ? members : [{ userId: "user-1" }],
+    );
+
+  const groupFindMany = jest.fn().mockResolvedValue(groups);
+
+  const outboxAppend = jest.fn().mockResolvedValue(undefined);
+
   const prisma = {
     associationLearningContent: {
       create,
@@ -110,20 +125,21 @@ const setup = ({
       findFirst,
       count,
     },
-    associationRequirement: {
-      findFirst: jest.fn().mockResolvedValue(requirement),
+    associationLearningContentTarget: {
+      createMany: targetCreateMany,
+      deleteMany: targetDeleteMany,
     },
-    associationMember: {
-      findMany: jest.fn().mockResolvedValue([{ userId: "user-1" }]),
-    },
+    associationGroup: { findMany: groupFindMany },
+    associationMember: { findMany: memberFindMany },
   };
+  (prisma as Record<string, unknown>).$transaction = jest.fn(
+    async (callback: (tx: unknown) => Promise<unknown>) => callback(prisma),
+  );
 
   const access = {
     requireOwned: jest.fn().mockResolvedValue({ id: "assoc-1", name: "A" }),
     requireReadable: jest.fn().mockResolvedValue({ id: "assoc-1", name: "A" }),
   };
-
-  const groups = { requireGroup: jest.fn().mockResolvedValue({ id: "g-1" }) };
 
   const catalog = {
     resolveCatalogItems,
@@ -134,19 +150,25 @@ const setup = ({
     contentEngagement: jest.fn().mockResolvedValue(engagement),
   };
 
+  const outbox = { append: outboxAppend };
+
   return {
     create,
     update,
-    groups,
     catalog,
     updateMany,
     deleteMany,
     activities,
+    outboxAppend,
+    groupFindMany,
+    memberFindMany,
+    targetCreateMany,
+    targetDeleteMany,
     resolveCatalogItems,
     service: new AssociationLearningContentService(
       prisma as unknown as PrismaService,
+      outbox as unknown as OutboxService,
       access as unknown as AssociationAccessService,
-      groups as unknown as AssociationGroupService,
       catalog as unknown as CatalogEndorsementApi,
       activities as unknown as ProfessionalComplianceApi,
     ),
@@ -159,7 +181,6 @@ describe("AssociationLearningContentService", () => {
       const { service, create } = setup();
 
       await service.create(owner, {
-        category: PDUCategory.TECHNICAL,
         contentType: ContentType.COURSE,
         contentId: "course-1",
       });
@@ -192,7 +213,6 @@ describe("AssociationLearningContentService", () => {
 
       await expect(
         service.create(owner, {
-          category: PDUCategory.TECHNICAL,
           contentType: ContentType.COURSE,
           contentId: "course-9",
         }),
@@ -208,7 +228,6 @@ describe("AssociationLearningContentService", () => {
 
       await expect(
         service.create(owner, {
-          category: PDUCategory.TECHNICAL,
           contentType: ContentType.COURSE,
           contentId: "course-1",
         }),
@@ -223,7 +242,6 @@ describe("AssociationLearningContentService", () => {
       const { service, update } = setup({ createError: duplicate() });
 
       const item = await service.create(owner, {
-        category: PDUCategory.TECHNICAL,
         contentType: ContentType.COURSE,
         contentId: "course-1",
       });
@@ -239,7 +257,6 @@ describe("AssociationLearningContentService", () => {
 
       await expect(
         service.create(owner, {
-          category: PDUCategory.TECHNICAL,
           contentType: ContentType.COURSE,
           contentId: "course-1",
         }),
@@ -253,7 +270,6 @@ describe("AssociationLearningContentService", () => {
 
       await expect(
         service.create(owner, {
-          category: PDUCategory.TECHNICAL,
           externalTitle: "A useful webinar",
         }),
       ).rejects.toMatchObject({
@@ -266,7 +282,6 @@ describe("AssociationLearningContentService", () => {
 
       await expect(
         service.create(owner, {
-          category: PDUCategory.TECHNICAL,
           externalUrl: "https://example.test/webinar",
         }),
       ).rejects.toMatchObject({
@@ -285,7 +300,6 @@ describe("AssociationLearningContentService", () => {
       });
 
       const item = await service.create(owner, {
-        category: PDUCategory.TECHNICAL,
         externalTitle: "A useful webinar",
         externalUrl: "https://example.test/webinar",
       });
@@ -330,7 +344,7 @@ describe("AssociationLearningContentService", () => {
 
   describe("publication", () => {
     it("moves a draft to published with a conditional write", async () => {
-      const { service, updateMany } = setup();
+      const { service, updateMany, outboxAppend } = setup();
 
       await service.publish(owner, {
         learningContentId: "item-1",
@@ -345,21 +359,19 @@ describe("AssociationLearningContentService", () => {
           }),
         }),
       );
+      expect(outboxAppend).toHaveBeenCalledTimes(1);
     });
 
-    it("tells the loser of a publish race that it was already published", async () => {
-      const { service } = setup({ updateManyCount: 0 });
+    it("re-targets an already-published item instead of failing, without a second notification", async () => {
+      const { service, outboxAppend } = setup({ updateManyCount: 0 });
 
       await expect(
         service.publish(owner, {
           learningContentId: "item-1",
           audienceKind: AssociationAudienceKind.ALL_MEMBERS,
         }),
-      ).rejects.toMatchObject({
-        response: {
-          code: AssociationMessageCode.LEARNING_CONTENT_STATUS_CONFLICT,
-        },
-      });
+      ).resolves.toMatchObject({ id: "item-1" });
+      expect(outboxAppend).not.toHaveBeenCalled();
     });
 
     it("refuses a group audience with no group", async () => {
@@ -375,7 +387,50 @@ describe("AssociationLearningContentService", () => {
       });
     });
 
-    it("refuses a specific-members audience, which a library does not have", async () => {
+    it("publishes to one or more groups, deduplicated", async () => {
+      const { service, targetCreateMany, groupFindMany } = setup({
+        groups: [{ id: "g-1" }, { id: "g-2" }],
+      });
+
+      await service.publish(owner, {
+        learningContentId: "item-1",
+        audienceKind: AssociationAudienceKind.GROUP,
+        groupIds: ["g-1", "g-2", "g-1"],
+      });
+
+      expect(groupFindMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            id: { in: ["g-1", "g-2"] },
+            associationId: "assoc-1",
+          }),
+        }),
+      );
+      expect(targetCreateMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: [
+            expect.objectContaining({ groupId: "g-1" }),
+            expect.objectContaining({ groupId: "g-2" }),
+          ],
+        }),
+      );
+    });
+
+    it("refuses a group that does not belong to this association", async () => {
+      const { service } = setup({ groups: [{ id: "g-1" }] });
+
+      await expect(
+        service.publish(owner, {
+          learningContentId: "item-1",
+          audienceKind: AssociationAudienceKind.GROUP,
+          groupIds: ["g-1", "g-cross-association"],
+        }),
+      ).rejects.toMatchObject({
+        response: { code: AssociationMessageCode.GROUP_NOT_FOUND },
+      });
+    });
+
+    it("refuses a specific-members audience with no member", async () => {
       const { service } = setup();
 
       await expect(
@@ -385,6 +440,65 @@ describe("AssociationLearningContentService", () => {
         }),
       ).rejects.toMatchObject({
         response: { code: AssociationMessageCode.AUDIENCE_EMPTY },
+      });
+    });
+
+    it("publishes to explicitly selected active members", async () => {
+      const { service, targetCreateMany } = setup({
+        members: [
+          { id: "m-1", status: AssociationMemberStatus.ACTIVE },
+          { id: "m-2", status: AssociationMemberStatus.PENDING_ACTIVATION },
+        ],
+      });
+
+      await service.publish(owner, {
+        learningContentId: "item-1",
+        audienceKind: AssociationAudienceKind.SPECIFIC_MEMBERS,
+        memberIds: ["m-1", "m-2"],
+      });
+
+      expect(targetCreateMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: [
+            expect.objectContaining({ memberId: "m-1" }),
+            expect.objectContaining({ memberId: "m-2" }),
+          ],
+        }),
+      );
+    });
+
+    it("refuses a cross-association member id without partial publication", async () => {
+      const { service, updateMany } = setup({
+        members: [{ id: "m-1", status: AssociationMemberStatus.ACTIVE }],
+      });
+
+      await expect(
+        service.publish(owner, {
+          learningContentId: "item-1",
+          audienceKind: AssociationAudienceKind.SPECIFIC_MEMBERS,
+          memberIds: ["m-1", "m-cross-association"],
+        }),
+      ).rejects.toMatchObject({
+        response: { code: AssociationMessageCode.MEMBER_NOT_FOUND },
+      });
+      expect(updateMany).not.toHaveBeenCalled();
+    });
+
+    it("refuses an inactive member target", async () => {
+      const { service } = setup({
+        members: [{ id: "m-1", status: AssociationMemberStatus.INACTIVE }],
+      });
+
+      await expect(
+        service.publish(owner, {
+          learningContentId: "item-1",
+          audienceKind: AssociationAudienceKind.SPECIFIC_MEMBERS,
+          memberIds: ["m-1"],
+        }),
+      ).rejects.toMatchObject({
+        response: {
+          code: AssociationMessageCode.LEARNING_CONTENT_TARGET_INACTIVE,
+        },
       });
     });
 
