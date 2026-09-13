@@ -2,6 +2,7 @@ import { ProfessionalCpdPlanService } from "./professional-cpd-plan.service";
 import type { PrismaService } from "@prisma/prisma.service";
 import type { CertificationSearchService } from "./certification-search.service";
 import type { ProfessionalIdentityApi } from "@user/public/professional-identity-api";
+import { NotFoundException } from "@nestjs/common";
 import {
   CPDEvidenceType,
   CPDPlanStatus,
@@ -38,6 +39,7 @@ const basePlan = {
 const createPrismaMock = () => ({
   cPDPlan: {
     findFirst: jest.fn().mockResolvedValue(basePlan),
+    create: jest.fn().mockResolvedValue(basePlan),
   },
   pDUActivity: {
     aggregate: jest.fn(),
@@ -45,10 +47,13 @@ const createPrismaMock = () => ({
   },
 });
 
-const createService = (prisma = createPrismaMock()) => {
+const createService = (
+  prisma = createPrismaMock(),
+  certificationSearchService: Partial<CertificationSearchService> = {},
+) => {
   const service = new ProfessionalCpdPlanService(
     prisma as unknown as PrismaService,
-    {} as CertificationSearchService,
+    certificationSearchService as CertificationSearchService,
     {} as ProfessionalIdentityApi,
   );
   return { service, prisma };
@@ -145,5 +150,66 @@ describe("ProfessionalCpdPlanService.progress", () => {
     const progress = await service.progress(professional, "plan-1");
 
     expect(progress.earnedCredits).toBe(3.33);
+  });
+});
+
+const cert = {
+  id: "cert-1",
+  name: "Project Management Professional",
+  abbreviation: "PMP",
+  organization: "Project Management Institute",
+  association: "Project Management Institute (PMI)",
+  creditType: CreditType.PDU,
+  totalRequiredCredits: 60,
+  renewalCycleMonths: 36,
+  categories: [],
+};
+
+describe("ProfessionalCpdPlanService.createPlanFromSuggestion", () => {
+  it("derives the end date from the plan's own start plus the renewal cycle, never a catalogue-fixed date", async () => {
+    const prisma = createPrismaMock();
+    prisma.cPDPlan.findFirst.mockResolvedValue(null);
+    const { service } = createService(prisma, {
+      findById: jest.fn().mockResolvedValue(cert),
+    });
+
+    await service.createPlanFromSuggestion(professional, {
+      certificationId: "cert-1",
+      reportingStart: "2026-02-01T00:00:00.000Z",
+    });
+
+    const data = prisma.cPDPlan.create.mock.calls[0][0].data;
+    expect(data.reportingStart).toEqual(new Date("2026-02-01T00:00:00.000Z"));
+    expect(data.reportingEnd).toEqual(new Date(Date.UTC(2029, 1, 1)));
+  });
+
+  it("falls back to a 12-month cycle when the certification has no renewalCycleMonths", async () => {
+    const prisma = createPrismaMock();
+    prisma.cPDPlan.findFirst.mockResolvedValue(null);
+    const { service } = createService(prisma, {
+      findById: jest
+        .fn()
+        .mockResolvedValue({ ...cert, renewalCycleMonths: null }),
+    });
+
+    await service.createPlanFromSuggestion(professional, {
+      certificationId: "cert-1",
+      reportingStart: "2026-02-01T00:00:00.000Z",
+    });
+
+    const data = prisma.cPDPlan.create.mock.calls[0][0].data;
+    expect(data.reportingEnd).toEqual(new Date(Date.UTC(2027, 1, 1)));
+  });
+
+  it("rejects an unknown certification id", async () => {
+    const { service } = createService(createPrismaMock(), {
+      findById: jest.fn().mockResolvedValue(null),
+    });
+
+    await expect(
+      service.createPlanFromSuggestion(professional, {
+        certificationId: "missing",
+      }),
+    ).rejects.toBeInstanceOf(NotFoundException);
   });
 });

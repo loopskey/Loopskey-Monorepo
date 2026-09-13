@@ -16,7 +16,7 @@ fragment CertificationFields on Certification {
   renewalCycleLabel
   renewalCycleMonths
   totalRequiredCredits
-  suggestedDeadline
+  isActive
   categories {
     ...CertificationCategoryFields
   }

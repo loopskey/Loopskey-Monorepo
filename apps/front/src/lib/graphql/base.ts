@@ -1389,12 +1389,12 @@ export type Certification = {
   categories: Array<CertificationCategory>;
   creditType: CreditType;
   id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
   name: Scalars['String']['output'];
   organization: Scalars['String']['output'];
   organizationAbbr?: Maybe<Scalars['String']['output']>;
   renewalCycleLabel: Scalars['String']['output'];
   renewalCycleMonths?: Maybe<Scalars['Int']['output']>;
-  suggestedDeadline?: Maybe<Scalars['DateTime']['output']>;
   totalRequiredCredits: Scalars['Float']['output'];
 };
 

@@ -29,24 +29,29 @@ export class CertificationSearchService {
       Prisma.sql`
         SELECT c."id",
           GREATEST(
-            similarity(lower(c."name"), lower(${term})),
-            similarity(lower(c."abbreviation"), lower(${term})),
-            similarity(lower(c."organization"), lower(${term})),
-            similarity(lower(COALESCE(c."organizationAbbr", '')), lower(${term})),
-            similarity(lower(COALESCE(c."association", '')), lower(${term}))
+            similarity(certification_unaccent(lower(c."name")), certification_unaccent(lower(${term}))),
+            similarity(certification_unaccent(lower(c."abbreviation")), certification_unaccent(lower(${term}))),
+            similarity(certification_unaccent(lower(c."organization")), certification_unaccent(lower(${term}))),
+            similarity(certification_unaccent(lower(COALESCE(c."organizationAbbr", ''))), certification_unaccent(lower(${term}))),
+            similarity(certification_unaccent(lower(COALESCE(c."association", ''))), certification_unaccent(lower(${term}))),
+            similarity(certification_unaccent_array(c."aliases"), certification_unaccent(lower(${term})))
           ) AS score
         FROM "Certification" c
-        WHERE
-          lower(c."name") % lower(${term})
-          OR lower(c."abbreviation") % lower(${term})
-          OR lower(c."organization") % lower(${term})
-          OR lower(COALESCE(c."organizationAbbr", '')) % lower(${term})
-          OR lower(COALESCE(c."association", '')) % lower(${term})
+        WHERE c."isActive" = true
+        AND (
+          certification_unaccent(lower(c."name")) % certification_unaccent(lower(${term}))
+          OR certification_unaccent(lower(c."abbreviation")) % certification_unaccent(lower(${term}))
+          OR certification_unaccent(lower(c."organization")) % certification_unaccent(lower(${term}))
+          OR certification_unaccent(lower(COALESCE(c."organizationAbbr", ''))) % certification_unaccent(lower(${term}))
+          OR certification_unaccent(lower(COALESCE(c."association", ''))) % certification_unaccent(lower(${term}))
+          OR certification_unaccent_array(c."aliases") % certification_unaccent(lower(${term}))
           OR c."name" ILIKE ${likeTerm}
           OR c."abbreviation" ILIKE ${likeTerm}
           OR c."organization" ILIKE ${likeTerm}
           OR c."organizationAbbr" ILIKE ${likeTerm}
           OR c."association" ILIKE ${likeTerm}
+          OR EXISTS (SELECT 1 FROM unnest(c."aliases") alias WHERE alias ILIKE ${likeTerm})
+        )
         ORDER BY
           (CASE WHEN lower(c."abbreviation") = lower(${term}) THEN 1 ELSE 0 END) DESC,
           score DESC,

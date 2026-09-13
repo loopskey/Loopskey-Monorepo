@@ -1517,12 +1517,22 @@ model Certification {
   organization     String
   organizationAbbr String?
   association      String?
+  aliases          String[] @default([])
 
   creditType           CreditType @default(CPD)
   renewalCycleLabel    String
   renewalCycleMonths   Int?
   totalRequiredCredits Float
-  suggestedDeadline    DateTime?
+  // Superseded: a catalogue item stores renewal-cycle rules, not a global
+  // absolute personal deadline. Column kept (existing rows migrated to null)
+  // so it can be dropped in a later migration once nothing reads it.
+  suggestedDeadline DateTime?
+
+  // Import provenance: which source version last wrote this row, and
+  // whether the current source still lists it (false = retired, kept for
+  // rows other tables still reference).
+  sourceVersion String?
+  isActive      Boolean @default(true)
 
   categories    CertificationCategory[]
   plans         CPDPlan[]
@@ -1534,6 +1544,7 @@ model Certification {
 
   @@index([abbreviation])
   @@index([organization])
+  @@index([isActive])
 }
 
 model CertificationCategory {
