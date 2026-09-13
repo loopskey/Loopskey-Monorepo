@@ -200,11 +200,7 @@ export class ProfessionalCpdPlanService {
       : this.startOfTodayUtc();
     const end = input.reportingEnd
       ? new Date(input.reportingEnd)
-      : this.suggestedEnd(
-          start,
-          cert.suggestedDeadline,
-          cert.renewalCycleMonths,
-        );
+      : this.suggestedEnd(start, cert.renewalCycleMonths);
     const certificationName = `${cert.abbreviation} (${cert.name})`;
     const existing = await this.prismaService.cPDPlan.findFirst({
       where: {
@@ -449,13 +445,10 @@ export class ProfessionalCpdPlanService {
     );
   }
 
-  private suggestedEnd(
-    start: Date,
-    suggestedDeadline: Date | null,
-    renewalMonths: number | null,
-  ) {
-    if (suggestedDeadline && suggestedDeadline.getTime() > start.getTime())
-      return suggestedDeadline;
+  // A catalogue item stores renewal-cycle rules, not a global absolute
+  // deadline: the suggested end date is always derived from the plan's own
+  // start date and the certification's renewal cycle.
+  private suggestedEnd(start: Date, renewalMonths: number | null) {
     const months = renewalMonths && renewalMonths > 0 ? renewalMonths : 12;
     return new Date(
       Date.UTC(

@@ -1302,12 +1302,12 @@ type Certification {
   categories: [CertificationCategory!]!
   creditType: CreditType!
   id: ID!
+  isActive: Boolean!
   name: String!
   organization: String!
   organizationAbbr: String
   renewalCycleLabel: String!
   renewalCycleMonths: Int
-  suggestedDeadline: DateTime
   totalRequiredCredits: Float!
 }
 

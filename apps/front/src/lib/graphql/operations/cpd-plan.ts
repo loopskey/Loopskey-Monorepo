@@ -2,7 +2,7 @@ import * as Types from "@/lib/graphql/base";
 import { TypedDocumentString } from "@/lib/graphql/base";
 export type CertificationCategoryFieldsFragment = { __typename?: 'CertificationCategory', id: string, name: string, requiredCredits: number, order: number };
 
-export type CertificationFieldsFragment = { __typename?: 'Certification', id: string, name: string, abbreviation: string, organization: string, organizationAbbr?: string | null, association?: string | null, creditType: Types.CreditType, renewalCycleLabel: string, renewalCycleMonths?: number | null, totalRequiredCredits: number, suggestedDeadline?: string | null, categories: Array<{ __typename?: 'CertificationCategory', id: string, name: string, requiredCredits: number, order: number }> };
+export type CertificationFieldsFragment = { __typename?: 'Certification', id: string, name: string, abbreviation: string, organization: string, organizationAbbr?: string | null, association?: string | null, creditType: Types.CreditType, renewalCycleLabel: string, renewalCycleMonths?: number | null, totalRequiredCredits: number, isActive: boolean, categories: Array<{ __typename?: 'CertificationCategory', id: string, name: string, requiredCredits: number, order: number }> };
 
 export type CpdPlanCategoryFieldsFragment = { __typename?: 'CpdPlanCategory', id: string, name: string, targetCredits: number, completedCredits: number, order: number };
 
@@ -21,7 +21,7 @@ export type CertificationSearchQueryVariables = Types.Exact<{
 }>;
 
 
-export type CertificationSearchQuery = { __typename?: 'Query', certificationSearch: Array<{ __typename?: 'Certification', id: string, name: string, abbreviation: string, organization: string, organizationAbbr?: string | null, association?: string | null, creditType: Types.CreditType, renewalCycleLabel: string, renewalCycleMonths?: number | null, totalRequiredCredits: number, suggestedDeadline?: string | null, categories: Array<{ __typename?: 'CertificationCategory', id: string, name: string, requiredCredits: number, order: number }> }> };
+export type CertificationSearchQuery = { __typename?: 'Query', certificationSearch: Array<{ __typename?: 'Certification', id: string, name: string, abbreviation: string, organization: string, organizationAbbr?: string | null, association?: string | null, creditType: Types.CreditType, renewalCycleLabel: string, renewalCycleMonths?: number | null, totalRequiredCredits: number, isActive: boolean, categories: Array<{ __typename?: 'CertificationCategory', id: string, name: string, requiredCredits: number, order: number }> }> };
 
 export type MyCpdPlansQueryVariables = Types.Exact<{ [key: string]: never; }>;
 
@@ -95,7 +95,7 @@ export const CertificationFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentStr
   renewalCycleLabel
   renewalCycleMonths
   totalRequiredCredits
-  suggestedDeadline
+  isActive
   categories {
     ...CertificationCategoryFields
   }
@@ -231,7 +231,7 @@ fragment CertificationFields on Certification {
   renewalCycleLabel
   renewalCycleMonths
   totalRequiredCredits
-  suggestedDeadline
+  isActive
   categories {
     ...CertificationCategoryFields
   }
