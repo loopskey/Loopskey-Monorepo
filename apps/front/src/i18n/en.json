@@ -2469,6 +2469,14 @@
     "openMenu": "Open menu",
     "closeMenu": "Close menu"
   },
+  "dashboardShell": {
+    "drawer": {
+      "openMenu": "Open dashboard menu",
+      "closeMenu": "Close dashboard menu",
+      "title": "Dashboard menu",
+      "navLabel": "Dashboard navigation"
+    }
+  },
   "footer": {
     "brandDescription": "Your one-stop platform for all educational needs. Discover, learn, and grow with us.",
     "explore": "Explore",
@@ -4372,11 +4380,17 @@
         "description": "Search events and select a start and end date to focus your calendar view.",
         "from": "From",
         "to": "To",
-        "reset": "Reset filters"
+        "reset": "Reset filters",
+        "trigger": "Filters",
+        "active": "Filters active"
       },
       "calendarChart": {
         "title": "Interactive calendar",
-        "description": "Select a date range directly on the calendar or click an event to view details."
+        "description": "Select a date range directly on the calendar or click an event to view details.",
+        "view": {
+          "agenda": "Agenda",
+          "month": "Month"
+        }
       },
       "allEvents": {
         "title": "All registered events",

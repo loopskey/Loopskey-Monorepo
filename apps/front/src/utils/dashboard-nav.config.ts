@@ -47,12 +47,6 @@ export const professionalDashboardTabs: TDashboardTab<TProfessionalDashboardTab>
       icon: L.UserRound,
     },
     {
-      value: "payments",
-      labelKey: "professionalDashboard.sidebar.payments",
-      href: "/dashboard/professional?tab=payments",
-      icon: L.CreditCard,
-    },
-    {
       value: "cpd-pdu-tracker",
       labelKey: "professionalDashboard.sidebar.cpdPduTracker",
       href: "/dashboard/professional?tab=cpd-pdu-tracker",
