@@ -419,8 +419,8 @@ export const professionalApi = baseApi.injectEndpoints({
         response.startProfessionalOnboarding,
     }),
 
-    // Onboarding is optional, so leaving the wizard is recorded rather than
-    // blocked. Only the profile query carries the flag the gate reads.
+    // Onboarding is optional. This is only ever called from the wizard's
+    // explicit Skip confirmation, never from navigation/refresh handling.
     dismissProfessionalOnboarding: builder.mutation<
       TAPI.DismissProfessionalOnboardingMutation["dismissProfessionalOnboarding"],
       void
@@ -620,6 +620,20 @@ export const professionalApi = baseApi.injectEndpoints({
       }),
       transformResponse: (response: TAPI.CompleteRoadmapStepMutation) =>
         response.completeRoadmapStep,
+      // The roadmap list is patched in place (see useRoadmapStepProgress), but
+      // the owner-wide aggregate is a separate contract and must be
+      // recomputed whenever a step completion changes progress.
+      invalidatesTags: ["ProfessionalRoadmapStats"],
+    }),
+
+    professionalRoadmapStats: builder.query<
+      TAPI.ProfessionalRoadmapStatsQuery["professionalRoadmapStats"],
+      void
+    >({
+      query: () => ({ document: API.ProfessionalRoadmapStatsDocument }),
+      transformResponse: (response: TAPI.ProfessionalRoadmapStatsQuery) =>
+        response.professionalRoadmapStats,
+      providesTags: ["ProfessionalRoadmapStats", "Professional"],
     }),
 
     professionalExploreRoadmaps: builder.query<
@@ -698,6 +712,7 @@ export const {
 
   useStartRoadmapStepMutation,
   useCompleteRoadmapStepMutation,
+  useProfessionalRoadmapStatsQuery,
   useProfessionalRoadmapRecommendationsQuery,
   useProfessionalRoadmapDraftStatusQuery,
 } = professionalApi;

@@ -1,6 +1,7 @@
 import { RoadmapStepProgressStatus } from "@prisma/client";
 
 import {
+  computeRoadmapNextMilestone,
   deriveRoadmapProgress,
   earnedCredits,
   type StepProgressRecord,
@@ -227,5 +228,27 @@ describe("earnedCredits", () => {
     });
 
     expect(total).toBe(0);
+  });
+});
+
+describe("computeRoadmapNextMilestone", () => {
+  it("is null with no enrolled roadmap, never a fabricated 25", () => {
+    expect(computeRoadmapNextMilestone(0, 0)).toBeNull();
+  });
+
+  it.each([
+    [0, 25],
+    [24.9, 25],
+    [25, 50],
+    [99.9, 100],
+    [100, 100],
+  ])("resolves an average of %s to %s", (average, expected) => {
+    expect(computeRoadmapNextMilestone(average, 1)).toBe(expected);
+  });
+
+  it("uses the unrounded average rather than a pre-rounded display value", () => {
+    // 24.9 would round to 25 for display, which would wrongly resolve to the
+    // next boundary of 50 instead of 25.
+    expect(computeRoadmapNextMilestone(24.9, 3)).toBe(25);
   });
 });

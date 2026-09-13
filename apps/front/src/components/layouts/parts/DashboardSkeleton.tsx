@@ -2,19 +2,31 @@
 
 import { Skeleton } from "@ui/skeleton";
 
+export const DashboardTopBarSkeleton = () => {
+  return (
+    <div className="flex h-16 shrink-0 items-center justify-between border-b bg-background px-3 md:px-6">
+      <div className="flex items-center gap-2">
+        <Skeleton className="h-11 w-11 rounded-md md:hidden" />
+        <Skeleton className="h-8 w-32 rounded-md" />
+      </div>
+      <Skeleton className="h-11 w-11 rounded-full" />
+    </div>
+  );
+};
+
 export const DashboardSidebarSkeleton = () => {
   return (
-    <aside className="flex w-[72px] shrink-0 flex-col bg-primary md:w-64">
-      <div className="min-h-0 flex-1 py-2 pl-2 md:pl-3">
+    <aside className="hidden w-64 shrink-0 flex-col bg-primary md:flex">
+      <div className="min-h-0 flex-1 py-2 pl-3">
         {Array.from({ length: 8 }).map((_, index) => (
           <Skeleton
             key={index}
-            className="mb-1 h-14 rounded-l-[24px] bg-primary-foreground/15 md:h-[60px] md:rounded-l-[30px]"
+            className="mb-1 h-[60px] rounded-l-[30px] bg-primary-foreground/15"
           />
         ))}
       </div>
 
-      <div className="shrink-0 border-t border-primary-foreground/20 p-2 md:p-3">
+      <div className="shrink-0 border-t border-primary-foreground/20 p-3">
         <Skeleton className="h-12 rounded-md bg-primary-foreground/15" />
       </div>
     </aside>
@@ -85,13 +97,16 @@ export const DashboardContentSkeleton = () => {
 
 export const DashboardPageSkeleton = () => {
   return (
-    <div className="flex min-h-[calc(100dvh-4rem)]">
-      <DashboardSidebarSkeleton />
-      <main className="min-w-0 flex-1 bg-background px-3 py-4 md:px-6 md:py-6">
-        <div className="mx-auto max-w-7xl">
-          <DashboardContentSkeleton />
-        </div>
-      </main>
+    <div className="flex min-h-dvh flex-col">
+      <DashboardTopBarSkeleton />
+      <div className="flex min-h-0 flex-1">
+        <DashboardSidebarSkeleton />
+        <main className="min-w-0 flex-1 bg-background px-3 py-4 md:px-6 md:py-6">
+          <div className="mx-auto max-w-7xl">
+            <DashboardContentSkeleton />
+          </div>
+        </main>
+      </div>
     </div>
   );
 };

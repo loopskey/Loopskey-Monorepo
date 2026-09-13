@@ -6,7 +6,6 @@ import type { TUseAssociationSettingsTab } from "@hooks/useAssociationSettingsTa
 import type { TUseAssociationOverviewTab } from "@hooks/useAssociationOverviewTab";
 import type { TUseAssociationReportsTab } from "@hooks/useAssociationReportsTab";
 import type { TUseAssociationMembersTab } from "@hooks/useAssociationMembersTab";
-import type { TRosterCompositionRow } from "@utils/association-roster-composition";
 import type { TCategoryAllocation } from "@utils/association-requirement";
 import type { TAttentionSection } from "@utils/association-messages";
 import type { ReactNode } from "react";
@@ -19,7 +18,7 @@ export type TAssociationDashboardTab =
   | "requirements"
   | "learning-content"
   | "reports"
-  | "messages"
+  | "notifications"
   | "settings";
 
 export type TAssociationMembersView = "roster" | "groups";
@@ -48,16 +47,8 @@ export type TAssociationMembersEmpty = TWithHook;
 export type TAssociationMembersBulkCard = TWithHook;
 export type TAssociationMemberInviteDialog = TWithHook;
 export type TAssociationGroupsManager = TWithHook;
-
-export type TAssociationCompositionChart = {
-  rows: TRosterCompositionRow[];
-  palette: string[];
-  statusLabel: (key: string) => string;
-  onSegmentClick: (
-    groupId: string | null,
-    status: TAPI.AssociationMemberStatus,
-  ) => void;
-};
+export type TAssociationMembersUploadDialog = TWithHook;
+export type TAssociationMemberAssignPickerDialog = TWithHook;
 
 export type TAssociationDecision = {
   activityId: string;
@@ -132,7 +123,10 @@ export type TAssociationLearningContentTab = TWithLibrary;
 export type TAssociationLearningFilters = TWithLibrary;
 export type TAssociationLearningList = TWithLibrary;
 export type TAssociationLearningEditor = TWithLibrary;
-export type TAssociationLearningPublishDialog = TWithLibrary;
+export type TAssociationLearningStepContent = TWithLibrary;
+export type TAssociationLearningStepCpd = TWithLibrary;
+export type TAssociationLearningStepAssignment = TWithLibrary;
+export type TAssociationLearningStepReview = TWithLibrary;
 export type TAssociationLearningDetail = TWithLibrary;
 
 type TWithReports = { hook: TUseAssociationReportsTab };
@@ -153,7 +147,6 @@ export type TAssociationReportExports = TWithReports;
 
 type TWithMessages = { hook: TUseAssociationMessagesTab };
 
-export type TAssociationAttentionStrip = TWithMessages;
 export type TAssociationMessageHistory = TWithMessages;
 export type TAssociationReadyReports = TWithMessages;
 
@@ -163,13 +156,15 @@ export type TAssociationAttentionSectionProps = TWithMessages & {
 
 export type TAssociationMessagePreviewDialog = TWithMessages;
 
-export type TAssociationAttentionStripChart = {
-  locale: string;
-  palette: string[];
-  onSelectAtRisk: () => void;
-  rows: { id: string; name: string; count: number; share: number }[];
-  label: (key: string, vars?: Record<string, string | number>) => string;
-};
+export type TAssociationAttentionDetailDialog = TWithMessages;
+export type TAssociationCategoryAttentionDialog = TWithMessages;
+export type TAssociationReadyReportsDialog = TWithMessages;
+
+export type TAssociationAttentionMemberRow =
+  TAPI.AssociationAttentionMembersQuery["associationAttentionMembers"]["items"][number];
+
+export type TAssociationCategoryAttentionGroupRow =
+  TAPI.AssociationCategoryAttentionGroupsQuery["associationCategoryAttentionGroups"]["items"][number];
 
 type TOverview = TAPI.AssociationReportsOverviewQuery;
 

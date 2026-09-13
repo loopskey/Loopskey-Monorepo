@@ -18,6 +18,7 @@ node_modules
 /context/**/*.md
 !/context/project-overview.md
 !/context/coding-standards.md
+!/context/model-selection.md
 !/context/feature-history.md
 !/context/features/feature-template.md
 

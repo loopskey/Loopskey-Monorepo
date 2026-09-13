@@ -65,6 +65,7 @@ export const baseApi = createApi({
     "OrganizationReports",
     "ProfessionalRoadmaps",
     "ProfessionalRoadmapDraft",
+    "ProfessionalRoadmapStats",
     "OrganizationSettings",
     "OrganizationOverview",
     "ProfessionalOverview",

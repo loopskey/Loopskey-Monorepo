@@ -51,6 +51,11 @@ export const computeEarned = (
   activityCredits: number,
 ) => round2(initialCompletedCredits + activityCredits);
 
+export const computeProgressPercent = (earned: number, total: number) => {
+  if (total <= 0) return 0;
+  return Math.min(100, Math.max(0, round2((earned / total) * 100)));
+};
+
 export const computeCategoryProgress = (
   categories: CategoryInput[],
 ): CategoryProgress[] =>

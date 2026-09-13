@@ -1466,8 +1466,15 @@ model PDUActivityFile {
   mimeType   String
   sizeBytes  Int
 
+  /// Client-supplied idempotency key for one upload attempt of one file.
+  /// Nullable: existing rows predate this column and are never backfilled.
+  /// Postgres allows multiple NULLs under a unique index, so old rows never
+  /// collide with each other or with a future keyed upload.
+  uploadKey String?
+
   createdAt DateTime @default(now())
 
+  @@unique([activityId, uploadKey])
   @@index([activityId])
   @@index([userId])
 }
@@ -1510,12 +1517,22 @@ model Certification {
   organization     String
   organizationAbbr String?
   association      String?
+  aliases          String[] @default([])
 
   creditType           CreditType @default(CPD)
   renewalCycleLabel    String
   renewalCycleMonths   Int?
   totalRequiredCredits Float
-  suggestedDeadline    DateTime?
+  // Superseded: a catalogue item stores renewal-cycle rules, not a global
+  // absolute personal deadline. Column kept (existing rows migrated to null)
+  // so it can be dropped in a later migration once nothing reads it.
+  suggestedDeadline DateTime?
+
+  // Import provenance: which source version last wrote this row, and
+  // whether the current source still lists it (false = retired, kept for
+  // rows other tables still reference).
+  sourceVersion String?
+  isActive      Boolean @default(true)
 
   categories    CertificationCategory[]
   plans         CPDPlan[]
@@ -1527,6 +1544,7 @@ model Certification {
 
   @@index([abbreviation])
   @@index([organization])
+  @@index([isActive])
 }
 
 model CertificationCategory {
@@ -2244,9 +2262,9 @@ model AssociationGroup {
   description String?
   isActive    Boolean @default(true)
 
-  members           AssociationMember[]
-  requirementTarget AssociationRequirementTarget[]
-  learningContents  AssociationLearningContent[]
+  members                AssociationMember[]
+  requirementTarget      AssociationRequirementTarget[]
+  learningContentTargets AssociationLearningContentTarget[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -2279,6 +2297,7 @@ model AssociationMember {
 
   requirementTargets     AssociationRequirementTarget[]
   requirementAssignments AssociationRequirementAssignment[]
+  learningContentTargets AssociationLearningContentTarget[]
   messageDeliveries      AssociationMessageDelivery[]
 
   createdAt DateTime @default(now())
@@ -2643,7 +2662,7 @@ model AssociationLearningContent {
 
   description String?
 
-  category          PDUCategory
+  category          PDUCategory?
   indicativeCredits Float?
 
   requirementId String?
@@ -2654,9 +2673,7 @@ model AssociationLearningContent {
   withdrawnAt DateTime?
 
   audienceKind AssociationAudienceKind @default(ALL_MEMBERS)
-
-  groupId String?
-  group   AssociationGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  targets      AssociationLearningContentTarget[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -2665,8 +2682,28 @@ model AssociationLearningContent {
   @@index([associationId, status])
   @@index([category])
   @@index([requirementId])
-  @@index([groupId])
   @@index([contentType, contentId])
+}
+
+model AssociationLearningContentTarget {
+  id String @id @default(cuid())
+
+  learningContentId String
+  learningContent   AssociationLearningContent @relation(fields: [learningContentId], references: [id], onDelete: Cascade)
+
+  kind AssociationAudienceKind
+
+  groupId String?
+  group   AssociationGroup? @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  memberId String?
+  member   AssociationMember? @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([learningContentId, groupId])
+  @@unique([learningContentId, memberId])
+  @@index([learningContentId])
 }
 
 enum AssociationLearningContentStatus {

@@ -36,8 +36,10 @@ const ProfessionalRoadmapTab = () => {
     formatWeeks,
     isGenerating,
     stepProgress,
+    isStatsError,
     learningSteps,
     exploreSearch,
+    isStatsLoading,
     myRoadmapsData,
     getRoadmapHref,
     hasFailedDraft,
@@ -58,6 +60,12 @@ const ProfessionalRoadmapTab = () => {
     isExploreRoadmapsFetching,
     handleExploreSearchInputChange,
   } = useProfessionalRoadmaps();
+
+  const statValue = (value: number | string) => {
+    if (isStatsError) return "—";
+    if (isStatsLoading) return "…";
+    return value;
+  };
 
   return (
     <div className="space-y-6">
@@ -105,7 +113,9 @@ const ProfessionalRoadmapTab = () => {
               <p className="text-sm text-muted-foreground">
                 {t("professionalDashboard.roadmap.enrolled")}
               </p>
-              <p className="mt-2 text-3xl font-medium">{stats.enrolled}</p>
+              <p className="mt-2 text-3xl font-medium">
+                {statValue(stats.enrolled)}
+              </p>
             </div>
 
             <div className="rounded-md bg-primary/10 p-3 text-primary">
@@ -121,7 +131,9 @@ const ProfessionalRoadmapTab = () => {
                 {t("professionalDashboard.roadmap.averageCompletion")}
               </p>
               <p className="mt-2 text-3xl font-medium">
-                {stats.averageProgress}%
+                {isStatsError || isStatsLoading
+                  ? statValue(stats.averageProgress)
+                  : `${stats.averageProgress}%`}
               </p>
             </div>
 
@@ -138,7 +150,7 @@ const ProfessionalRoadmapTab = () => {
                 {t("professionalDashboard.roadmap.completedPhases")}
               </p>
               <p className="mt-2 text-3xl font-medium">
-                {stats.completedPhases}
+                {statValue(`${stats.completedPhases}/${stats.totalPhases}`)}
               </p>
             </div>
 
@@ -155,7 +167,13 @@ const ProfessionalRoadmapTab = () => {
                 {t("professionalDashboard.roadmap.nextMilestone")}
               </p>
               <p className="mt-2 text-3xl font-medium">
-                {stats.nextMilestone}%
+                {isStatsError
+                  ? "—"
+                  : isStatsLoading
+                    ? "…"
+                    : stats.nextMilestone === null
+                      ? t("professionalDashboard.roadmap.notAvailable")
+                      : `${stats.nextMilestone}%`}
               </p>
             </div>
 
@@ -255,10 +273,7 @@ const ProfessionalRoadmapTab = () => {
           ) : (
             <div className="space-y-4">
               {learningSteps.map((step, index) => (
-                <div
-                  key={step.id}
-                  className="rounded-lg border p-4"
-                >
+                <div key={step.id} className="rounded-lg border p-4">
                   <div className="flex items-start gap-4">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary/10 text-sm font-medium text-primary">
                       {index + 1}
@@ -320,7 +335,9 @@ const ProfessionalRoadmapTab = () => {
           <div className="flex flex-col items-center justify-center rounded-lg border p-8 text-center">
             <div className="flex h-32 w-32 items-center justify-center rounded-full border-[10px] border-primary/20">
               <span className="text-3xl font-medium text-primary">
-                {stats.averageProgress}%
+                {isStatsError || isStatsLoading
+                  ? statValue(stats.averageProgress)
+                  : `${stats.averageProgress}%`}
               </span>
             </div>
 
@@ -454,12 +471,7 @@ const ProfessionalRoadmapTab = () => {
                   </div>
 
                   <div className="mt-5 flex gap-2">
-                    <Button
-                      asChild
-                      size="sm"
-                      radius="xl"
-                      className="flex-1"
-                    >
+                    <Button asChild size="sm" radius="xl" className="flex-1">
                       <Link href={getRoadmapHref(roadmap)}>
                         {t("professionalDashboard.common.details")}
                         <L.ArrowRight className="h-4 w-4" />
@@ -587,11 +599,7 @@ const ProfessionalRoadmapTab = () => {
                   </div>
 
                   <div className="mt-5 flex gap-2">
-                    <Button
-                      size="sm"
-                      radius="xl"
-                      className="flex-1"
-                    >
+                    <Button size="sm" radius="xl" className="flex-1">
                       {t("professionalDashboard.roadmap.enroll")}
                     </Button>
 

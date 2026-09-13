@@ -6,11 +6,10 @@ export const LeadershipMotif = () => (
     strokeLinecap="round"
     strokeLinejoin="round"
   >
-    <circle cx="80" cy="46" r="12" />
-    <circle cx="38" cy="24" r="7" />
-    <circle cx="122" cy="24" r="7" />
-    <circle cx="30" cy="68" r="7" />
-    <circle cx="130" cy="68" r="7" />
-    <path d="M70 40 45 28M90 40l25-12M71 54 37 65M89 54l34 11" opacity="0.45" />
+    <rect x="26" y="66" width="30" height="32" />
+    <rect x="58" y="38" width="30" height="60" />
+    <rect x="90" y="76" width="30" height="22" />
+    <circle cx="73" cy="24" r="10" />
+    <path d="M67 24 72 29 81 18" opacity="0.8" />
   </g>
 );

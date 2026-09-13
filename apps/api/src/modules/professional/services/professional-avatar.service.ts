@@ -1,10 +1,12 @@
-import { BadRequestException, ForbiddenException } from "@nestjs/common";
 import { Inject, Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException } from "@nestjs/common";
 import { type ProfessionalIdentityApi } from "@user/public/professional-identity-api";
+import { ServiceUnavailableException } from "@nestjs/common";
 import { PROFESSIONAL_IDENTITY_API } from "@user/public/professional-identity-api";
 import { type EvidenceStoragePort } from "@professional/storage/evidence-storage.port";
 import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
 import { EVIDENCE_STORAGE } from "@professional/storage/evidence-storage.port";
+import { requestContext } from "@infrastructure/observability/request-context";
 import { randomUUID } from "crypto";
 import { extname } from "path";
 import { TUser } from "@common/types/user.types";
@@ -54,24 +56,46 @@ export class ProfessionalAvatarService {
 
   async uploadAvatar(user: TUser, file?: Express.Multer.File) {
     this.assertProfessional(user);
-    if (!file)
-      throw new BadRequestException(
-        ProfessionalMessageCode.AVATAR_FILE_REQUIRED,
-      );
+    const startedAt = Date.now();
+    const logFields = (resultCode: string) => ({
+      userId: user.id,
+      mimeType: file?.mimetype,
+      byteCount: file?.size,
+      resultCode,
+      correlationId: requestContext.correlationId(),
+      latencyMs: Date.now() - startedAt,
+    });
+
+    if (!file) {
+      const code = ProfessionalMessageCode.AVATAR_FILE_REQUIRED;
+      this.logger.warn("Avatar upload rejected", logFields(code));
+      throw new BadRequestException(code);
+    }
     const extension = extname(file.originalname).toLowerCase();
-    if (!C.isAcceptedAvatarFile(file.mimetype, extension))
-      throw new BadRequestException(
-        ProfessionalMessageCode.AVATAR_FILE_INVALID_TYPE,
-      );
-    if (file.size > C.MAX_AVATAR_SIZE_BYTES)
-      throw new BadRequestException(
-        ProfessionalMessageCode.AVATAR_FILE_TOO_LARGE,
-      );
+    if (!C.isAcceptedAvatarFile(file.mimetype, extension)) {
+      const code = ProfessionalMessageCode.AVATAR_FILE_INVALID_TYPE;
+      this.logger.warn("Avatar upload rejected", logFields(code));
+      throw new BadRequestException(code);
+    }
+    if (file.size > C.MAX_AVATAR_SIZE_BYTES) {
+      const code = ProfessionalMessageCode.AVATAR_FILE_TOO_LARGE;
+      this.logger.warn("Avatar upload rejected", logFields(code));
+      throw new BadRequestException(code);
+    }
     const current = await this.identity.avatar(user.id);
     if (!current)
       throw new NotFoundException(ProfessionalMessageCode.USER_NOT_FOUND);
     const storageKey = `${randomUUID()}${extension}`;
-    await this.storage.store("avatar", storageKey, file.buffer);
+    try {
+      await this.storage.store("avatar", storageKey, file.buffer);
+    } catch (error) {
+      const code = ProfessionalMessageCode.AVATAR_STORAGE_UNAVAILABLE;
+      this.logger.error("Avatar storage unavailable", {
+        ...logFields(code),
+        cause: error instanceof Error ? error.message : String(error),
+      });
+      throw new ServiceUnavailableException(code);
+    }
     let updated: { id: string; avatarUrl: string | null };
     try {
       updated = await this.identity.setAvatar(user.id, {
@@ -80,9 +104,17 @@ export class ProfessionalAvatarService {
       });
     } catch (error) {
       await this.storage.remove("avatar", storageKey);
+      this.logger.warn(
+        "Avatar object cleaned up after failed profile update",
+        logFields("AVATAR_PROFILE_UPDATE_FAILED"),
+      );
       throw error;
     }
     await this.removeStoredFile(current.avatarStorageKey);
+    this.logger.log(
+      "Avatar uploaded",
+      logFields(ProfessionalMessageCode.PROFILE_UPDATED),
+    );
     return updated;
   }
 

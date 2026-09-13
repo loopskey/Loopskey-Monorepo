@@ -6,6 +6,8 @@ import { LearningTimeCommitment } from "@/lib/graphql/base";
 import { GlassCard } from "@/components/elements/glass-card";
 import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
+import { Progress } from "@/components/ui/progress";
+import { Loader2 } from "lucide-react";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,7 +22,7 @@ export const RoadmapReviewSummary = ({
   onPatch,
   isPatching,
   onGenerate,
-  onKeepEditing,
+  isGenerating,
 }: T.TRoadmapReviewSummary) => {
   const { t } = useI18n();
   const [editing, setEditing] = useState<keyof T.Patch | null>(null);
@@ -119,6 +121,11 @@ export const RoadmapReviewSummary = ({
     onPatch({ [field]: value } as T.Patch);
   };
 
+  const fieldProgress =
+    draft.requiredFieldCount > 0
+      ? Math.round((draft.completedFieldCount / draft.requiredFieldCount) * 100)
+      : 100;
+
   return (
     <GlassCard className="flex flex-col gap-4 p-5">
       <div>
@@ -128,6 +135,26 @@ export const RoadmapReviewSummary = ({
         <p className="mt-1 text-sm text-muted-foreground">
           {t("professionalRoadmapChat.review.description")}
         </p>
+      </div>
+
+      <div className="space-y-2">
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span>{t("professionalRoadmapChat.review.briefProgress")}</span>
+          <span aria-hidden>
+            {draft.completedFieldCount}/{draft.requiredFieldCount}
+          </span>
+        </div>
+        <Progress
+          value={fieldProgress}
+          aria-label={t("professionalRoadmapChat.review.briefProgress")}
+          aria-valuetext={t(
+            "professionalRoadmapChat.review.briefProgressValue",
+            {
+              completed: draft.completedFieldCount,
+              required: draft.requiredFieldCount,
+            },
+          )}
+        />
       </div>
 
       <dl className="flex flex-col divide-y divide-border/60">
@@ -152,18 +179,21 @@ export const RoadmapReviewSummary = ({
             aria-describedby={
               onGenerate ? undefined : "roadmap-generate-unavailable"
             }
-            disabled={!draft.isComplete || isPatching || !onGenerate}
+            disabled={
+              !draft.isComplete || isPatching || isGenerating || !onGenerate
+            }
             onClick={onGenerate}
           >
-            {t("professionalRoadmapChat.review.generate")}
-          </Button>
-
-          <Button radius="xl" variant="outline" onClick={onKeepEditing}>
-            {t("professionalRoadmapChat.review.keepEditing")}
+            {isGenerating ? (
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+            ) : null}
+            {isGenerating
+              ? t("professionalRoadmapChat.review.generating")
+              : t("professionalRoadmapChat.review.generate")}
           </Button>
         </div>
 
-        {!onGenerate ? (
+        {!draft.isComplete ? (
           <p
             id="roadmap-generate-unavailable"
             className="text-xs text-muted-foreground"

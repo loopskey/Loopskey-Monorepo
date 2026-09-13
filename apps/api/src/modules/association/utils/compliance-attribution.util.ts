@@ -218,6 +218,12 @@ export const daysRemaining = (
   return Math.ceil((dueDate.getTime() - now.getTime()) / DAY_MS);
 };
 
+export const calendarDayFloor = (date: Date) =>
+  Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+
+export const calendarDaysUntil = (from: Date, to: Date): number =>
+  Math.round((calendarDayFloor(to) - calendarDayFloor(from)) / DAY_MS);
+
 export const round2 = (value: number) => Math.round(value * 100) / 100;
 
 export const weightedCompletionFor = (

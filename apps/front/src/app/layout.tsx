@@ -4,9 +4,6 @@ import { AppToaster } from "@elements/app-toaster";
 import { ReactNode } from "react";
 import { Metadata } from "next";
 
-import Header from "@layouts/Header";
-import Footer from "@layouts/Footer";
-
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -25,9 +22,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <StoreProvider>
           <AppProviders>
             <AppToaster />
-            <Header />
             {children}
-            <Footer />
           </AppProviders>
         </StoreProvider>
       </body>

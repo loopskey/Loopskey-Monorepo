@@ -1,34 +1,22 @@
+import { CPDEvidenceType, PDUStatus, Prisma, Role } from "@prisma/client";
+import { BadRequestException, ForbiddenException } from "@nestjs/common";
+import { CPDPlanStatus, CPDReportRecipientType } from "@prisma/client";
+import { NotFoundException, Injectable, Inject } from "@nestjs/common";
 import { CreateCpdPlanFromSuggestionInput } from "@professional/dtos/create-cpd-plan-from-suggestion.input";
+import { type ProfessionalIdentityApi } from "@user/public/professional-identity-api";
 import { CertificationSearchService } from "@professional/services/certification-search.service";
+import { PROFESSIONAL_IDENTITY_API } from "@user/public/professional-identity-api";
 import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
 import { CreateCpdPlanInput } from "@professional/dtos/create-cpd-plan.input";
 import { UpdateCpdPlanInput } from "@professional/dtos/update-cpd-plan.input";
 import { PrismaService } from "@prisma/prisma.service";
 import { TUser } from "@common/types/user.types";
 import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-  Inject,
-} from "@nestjs/common";
-import {
-  PROFESSIONAL_IDENTITY_API,
-  type ProfessionalIdentityApi,
-} from "@user/public/professional-identity-api";
-import {
-  CPDEvidenceType,
-  CPDPlanStatus,
-  CPDReportRecipientType,
-  PDUStatus,
-  Prisma,
-  Role,
-} from "@prisma/client";
-import {
   buildMissingRequirements,
   computeCategoryProgress,
   computeCompliance,
   computeEarned,
+  computeProgressPercent,
   countCategoriesMissing,
   requiresFileEvidence,
   round2,
@@ -212,11 +200,7 @@ export class ProfessionalCpdPlanService {
       : this.startOfTodayUtc();
     const end = input.reportingEnd
       ? new Date(input.reportingEnd)
-      : this.suggestedEnd(
-          start,
-          cert.suggestedDeadline,
-          cert.renewalCycleMonths,
-        );
+      : this.suggestedEnd(start, cert.renewalCycleMonths);
     const certificationName = `${cert.abbreviation} (${cert.name})`;
     const existing = await this.prismaService.cPDPlan.findFirst({
       where: {
@@ -321,10 +305,15 @@ export class ProfessionalCpdPlanService {
 
     const activityCredits = round2(Number(aggregate._sum.pdus ?? 0));
     const activitiesCounted = aggregate._count;
-    const earned = computeEarned(plan.initialCompletedCredits, activityCredits);
+    // earnedCredits is activity-based only: startingCredits (the historical
+    // initialCompletedCredits) is reported separately and never folds into
+    // earned, remaining, the donut, or compliance so every progress surface
+    // agrees on one activity-based definition.
+    const earned = activityCredits;
+    const startingCredits = round2(plan.initialCompletedCredits);
     const total = plan.totalRequiredCredits;
     const remaining = round2(Math.max(total - earned, 0));
-    const progressPercent = total > 0 ? round2((earned / total) * 100) : 0;
+    const progressPercent = computeProgressPercent(earned, total);
 
     const categories = computeCategoryProgress(plan.categories);
     const categoriesMissing = countCategoriesMissing(categories);
@@ -354,6 +343,7 @@ export class ProfessionalCpdPlanService {
     return {
       planId: plan.id,
       earnedCredits: earned,
+      startingCredits,
       initialCompletedCredits: round2(plan.initialCompletedCredits),
       activityCredits,
       totalRequiredCredits: total,
@@ -370,16 +360,6 @@ export class ProfessionalCpdPlanService {
     };
   }
 
-  /**
-   * What a certification demands and what the professional has already banked
-   * against it. The roadmap wizard needs both to state a credit shortfall, and
-   * asking here keeps the credit arithmetic in the capability that owns it
-   * rather than copying it into the chat service.
-   *
-   * Completed credits come from a tracked plan or not at all: outside a
-   * reporting window there is no honest way to decide which recorded activity
-   * counts towards this cycle.
-   */
   async certificationCredits(user: TUser, certificationId: string) {
     this.assertProfessional(user);
     const certification = await this.certificationSearchService.findById(
@@ -465,13 +445,10 @@ export class ProfessionalCpdPlanService {
     );
   }
 
-  private suggestedEnd(
-    start: Date,
-    suggestedDeadline: Date | null,
-    renewalMonths: number | null,
-  ) {
-    if (suggestedDeadline && suggestedDeadline.getTime() > start.getTime())
-      return suggestedDeadline;
+  // A catalogue item stores renewal-cycle rules, not a global absolute
+  // deadline: the suggested end date is always derived from the plan's own
+  // start date and the certification's renewal cycle.
+  private suggestedEnd(start: Date, renewalMonths: number | null) {
     const months = renewalMonths && renewalMonths > 0 ? renewalMonths : 12;
     return new Date(
       Date.UTC(

@@ -2,6 +2,7 @@ import { PaginatedProfessionalExploreRoadmapsEntity } from "@professional/entiti
 import { PaginatedProfessionalRoadmapsEntity } from "@professional/entities/professional-roadmap.entity";
 import { Args, ID, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { ProfessionalRoadmapProgressService } from "@professional/services/professional-roadmap-progress.service";
+import { ProfessionalRoadmapStatsEntity } from "@professional/entities/professional-roadmap.entity";
 import { ProfessionalGqlMutationNames } from "@professional/enums/gql-names.enum";
 import { ProfessionalPaginationInput } from "@professional/dtos/professional-pagination.input";
 import { RoadmapRecommendationEntity } from "@professional/entities/professional-roadmap.entity";
@@ -102,5 +103,12 @@ export class ProfessionalRoadmapResolver {
       this.getUser(user),
       enrollmentId,
     );
+  }
+
+  @Query(() => ProfessionalRoadmapStatsEntity, {
+    name: ProfessionalGqlQueryNames.PROFESSIONAL_ROADMAP_STATS,
+  })
+  professionalRoadmapStats(@CurrentUser() user: TResolverUser) {
+    return this.professionalRoadmapService.roadmapStats(this.getUser(user));
   }
 }

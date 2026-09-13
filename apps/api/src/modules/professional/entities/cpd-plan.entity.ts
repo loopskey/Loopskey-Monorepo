@@ -69,6 +69,7 @@ export class CpdPlanProgressEntity {
   @Field(() => ID) planId: string;
   @Field() complianceStatus: string;
   @Field(() => Float) earnedCredits: number;
+  @Field(() => Float) startingCredits: number;
   @Field(() => Int) evidenceMissing: number;
   @Field(() => Float) activityCredits: number;
   @Field(() => Float) progressPercent: number;

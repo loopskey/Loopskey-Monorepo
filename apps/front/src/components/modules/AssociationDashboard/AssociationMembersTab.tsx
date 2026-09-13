@@ -1,8 +1,8 @@
 "use client";
 
-import { AssociationRosterCompositionCard } from "@modules/AssociationDashboard/parts/association-roster-composition-card";
+import { AssociationMemberAssignPickerDialog } from "@modules/AssociationDashboard/parts/association-member-assign-picker-dialog";
+import { AssociationMembersUploadDialog } from "@modules/AssociationDashboard/parts/association-members-upload-dialog";
 import { AssociationMemberInviteDialog } from "@modules/AssociationDashboard/parts/association-member-invite-dialog";
-import { AssociationMembersBulkCard } from "@modules/AssociationDashboard/parts/association-members-bulk-card";
 import { AssociationMembersFilters } from "@modules/AssociationDashboard/parts/association-members-filters";
 import { AssociationGroupsManager } from "@modules/AssociationDashboard/parts/association-groups-manager";
 import { AssociationMembersHeader } from "@modules/AssociationDashboard/parts/association-members-header";
@@ -65,35 +65,33 @@ const AssociationMembersTab = () => {
       ) : (
         <>
           <AssociationMembersStats hook={hook} />
-          <AssociationRosterCompositionCard hook={hook} />
-          <div className="grid gap-6 xl:grid-cols-[420px_1fr]">
-            <AssociationMembersBulkCard hook={hook} />
-            <GlassCard>
-              <div className="relative z-10">
-                <AssociationMembersFilters hook={hook} />
-                {members.length === 0 || hasNoMembers ? (
-                  <AssociationMembersEmpty hook={hook} />
-                ) : (
-                  <>
-                    <AssociationMembersTable hook={hook} />
-                    <ContentPagination
-                      className="mt-6"
-                      page={hook.page}
-                      onNext={hook.nextPage}
-                      totalCount={hook.totalCount}
-                      isLoading={hook.isRefetching}
-                      onPrevious={hook.previousPage}
-                      canPrevious={hook.canPrevious}
-                      hasNextPage={hook.hasNextPage}
-                    />
-                  </>
-                )}
-              </div>
-            </GlassCard>
-          </div>
+          <GlassCard>
+            <div className="relative z-10">
+              <AssociationMembersFilters hook={hook} />
+              {members.length === 0 || hasNoMembers ? (
+                <AssociationMembersEmpty hook={hook} />
+              ) : (
+                <>
+                  <AssociationMembersTable hook={hook} />
+                  <ContentPagination
+                    className="mt-6"
+                    page={hook.page}
+                    onNext={hook.nextPage}
+                    totalCount={hook.totalCount}
+                    isLoading={hook.isRefetching}
+                    onPrevious={hook.previousPage}
+                    canPrevious={hook.canPrevious}
+                    hasNextPage={hook.hasNextPage}
+                  />
+                </>
+              )}
+            </div>
+          </GlassCard>
         </>
       )}
       <AssociationMemberInviteDialog hook={hook} />
+      <AssociationMembersUploadDialog hook={hook} />
+      <AssociationMemberAssignPickerDialog hook={hook} />
     </div>
   );
 };

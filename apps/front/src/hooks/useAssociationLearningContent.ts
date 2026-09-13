@@ -5,6 +5,7 @@ import { AssociationLearningContentStatus } from "@/lib/graphql/base";
 import { useCallback, useMemo, useState } from "react";
 import { ContentType, PduCategory } from "@/lib/graphql/base";
 import { AssociationAudienceKind } from "@/lib/graphql/base";
+import { AssociationMemberStatus } from "@/lib/graphql/base";
 import { SEARCH_DEBOUNCE_MS } from "@utils/constant";
 import { useDebouncedValue } from "@hooks/useDebounced";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,11 +23,29 @@ const ALL = "ALL";
 
 const CATALOG_TAKE = 20;
 
-const NO_REQUIREMENT = "NONE";
+const MEMBER_PICKER_SIZE = 25;
+
+export const LEARNING_CONTENT_WIZARD_LAST_STEP = 4;
+
+const LEARNING_CONTENT_STEP_FIELDS: Record<
+  number,
+  (keyof SC.TAssociationLearningContentForm)[]
+> = {
+  1: [
+    "contentType",
+    "contentId",
+    "externalTitle",
+    "externalProvider",
+    "externalUrl",
+    "description",
+  ],
+  2: ["indicativeCredits"],
+  3: ["audienceKind", "groupIds", "memberIds"],
+  4: [],
+};
 
 const emptyForm: SC.TAssociationLearningContentForm = {
   isExternal: false,
-  category: PduCategory.Technical,
   contentType: undefined,
   contentId: undefined,
   externalTitle: "",
@@ -34,7 +53,9 @@ const emptyForm: SC.TAssociationLearningContentForm = {
   externalUrl: "",
   description: "",
   indicativeCredits: "",
-  requirementId: NO_REQUIREMENT,
+  audienceKind: AssociationAudienceKind.AllMembers,
+  groupIds: [],
+  memberIds: [],
 };
 
 export const useAssociationLearningContent = () => {
@@ -49,18 +70,20 @@ export const useAssociationLearningContent = () => {
 
   const [editorId, setEditorId] = useState<string | null>(null);
   const [isEditorOpen, setEditorOpen] = useState(false);
+  const [step, setStep] = useState(1);
   const [detailId, setDetailId] = useState<string | null>(null);
-  const [publishingId, setPublishingId] = useState<string | null>(null);
-  const [publishAudience, setPublishAudience] = useState<string>(
-    AssociationAudienceKind.AllMembers,
-  );
-  const [publishGroupId, setPublishGroupId] = useState<string>("");
 
   const [catalogSearch, setCatalogSearch] = useState("");
   const [catalogType, setCatalogType] = useState<string>(ALL);
+  const [assignSearch, setAssignSearch] = useState("");
+  const [pickedTitle, setPickedTitle] = useState("");
 
   const debouncedSearch = useDebouncedValue(search, SEARCH_DEBOUNCE_MS);
   const debouncedCatalog = useDebouncedValue(catalogSearch, SEARCH_DEBOUNCE_MS);
+  const debouncedAssignSearch = useDebouncedValue(
+    assignSearch,
+    SEARCH_DEBOUNCE_MS,
+  );
 
   const form = useForm<SC.TAssociationLearningContentForm>({
     resolver: zodResolver(SC.associationLearningContentSchema),
@@ -98,7 +121,7 @@ export const useAssociationLearningContent = () => {
   });
 
   const groupsQuery = API.useAssociationGroupsQuery(undefined, {
-    skip: !publishingId,
+    skip: !isEditorOpen,
   });
 
   const catalogQuery = API.useAssociationCatalogSearchQuery(
@@ -109,6 +132,17 @@ export const useAssociationLearningContent = () => {
       take: CATALOG_TAKE,
     },
     { skip: !isEditorOpen || isExternal },
+  );
+
+  // Deactivated members cannot receive a new assignment, so the picker
+  // filters them out client-side rather than adding a multi-status server
+  // filter for this one dialog.
+  const assignMemberQuery = API.useAssociationMembersQuery(
+    {
+      filter: { search: debouncedAssignSearch.trim() || undefined },
+      pagination: { take: MEMBER_PICKER_SIZE },
+    },
+    { skip: !isEditorOpen },
   );
 
   const [createItem, createState] =
@@ -139,6 +173,18 @@ export const useAssociationLearningContent = () => {
         .filter((group) => group.isActive)
         .map((group) => ({ value: group.id, label: group.title })),
     [groupsQuery.data],
+  );
+
+  const assignMemberOptions = useMemo(
+    () =>
+      (assignMemberQuery.data?.items ?? [])
+        .filter((member) => member.status !== AssociationMemberStatus.Inactive)
+        .map((member) => ({
+          value: member.id,
+          label: member.fullName ?? member.email ?? member.id,
+          hint: member.memberNumber ?? member.email ?? "",
+        })),
+    [assignMemberQuery.data?.items],
   );
 
   const catalogResults = useMemo(
@@ -182,15 +228,32 @@ export const useAssociationLearningContent = () => {
     setEditorId(null);
     setCatalogSearch("");
     setCatalogType(ALL);
+    setAssignSearch("");
+    setPickedTitle("");
+    setStep(1);
     form.reset({ ...emptyForm, isExternal: external });
     setEditorOpen(true);
   };
 
-  const openEdit = (item: T.TAssociationLearningContentRow) => {
+  const targetsToAudience = (item: T.TAssociationLearningContentRow) => ({
+    groupIds: item.targets
+      .filter((target) => target.groupId)
+      .map((target) => target.groupId as string),
+    memberIds: item.targets
+      .filter((target) => target.memberId)
+      .map((target) => target.memberId as string),
+  });
+
+  const openEditAtStep = (
+    item: T.TAssociationLearningContentRow,
+    initialStep: number,
+  ) => {
     setEditorId(item.id);
+    setAssignSearch("");
+    setPickedTitle(item.isExternal ? "" : item.title);
+    const { groupIds, memberIds } = targetsToAudience(item);
     form.reset({
       isExternal: item.isExternal,
-      category: item.category,
       contentType: item.contentType ?? undefined,
       contentId: item.contentId ?? undefined,
       externalTitle: item.isExternal ? item.title : "",
@@ -199,10 +262,19 @@ export const useAssociationLearningContent = () => {
       description: item.description ?? "",
       indicativeCredits:
         item.indicativeCredits === null ? "" : String(item.indicativeCredits),
-      requirementId: item.requirementId ?? NO_REQUIREMENT,
+      audienceKind: item.audienceKind,
+      groupIds,
+      memberIds,
     });
+    setStep(initialStep);
     setEditorOpen(true);
   };
+
+  const openEdit = (item: T.TAssociationLearningContentRow) =>
+    openEditAtStep(item, 1);
+
+  const openPublish = (item: T.TAssociationLearningContentRow) =>
+    openEditAtStep(item, 3);
 
   const closeEditor = () => {
     setEditorOpen(false);
@@ -213,19 +285,27 @@ export const useAssociationLearningContent = () => {
     form.setValue("contentType", item.contentType);
     form.setValue("contentId", item.contentId);
     form.clearErrors("contentId");
+    setPickedTitle(item.title);
   };
 
-  const submitEditor = form.handleSubmit(async (values) => {
+  const goToStep = (target: number) => {
+    if (target <= step) setStep(target);
+  };
+
+  const next = async () => {
+    const fields = LEARNING_CONTENT_STEP_FIELDS[step] ?? [];
+    const valid = await form.trigger(fields, { shouldFocus: true });
+    if (valid && step < LEARNING_CONTENT_WIZARD_LAST_STEP) setStep(step + 1);
+  };
+
+  const back = () => setStep((current) => Math.max(1, current - 1));
+
+  const buildContentInput = (values: SC.TAssociationLearningContentForm) => {
     const credits = values.indicativeCredits?.trim();
 
-    const input = {
-      category: values.category as PduCategory,
+    return {
       description: values.description?.trim() || undefined,
       indicativeCredits: credits ? Number(credits) : undefined,
-      requirementId:
-        values.requirementId === NO_REQUIREMENT
-          ? undefined
-          : values.requirementId,
       ...(values.isExternal
         ? {
             externalTitle: values.externalTitle?.trim(),
@@ -237,12 +317,27 @@ export const useAssociationLearningContent = () => {
             contentId: values.contentId,
           }),
     };
+  };
 
+  const persistContent = async (values: SC.TAssociationLearningContentForm) => {
+    const input = buildContentInput(values);
+
+    if (editorId) {
+      const updated = await updateItem({
+        ...input,
+        learningContentId: editorId,
+      }).unwrap();
+      return updated.id;
+    }
+
+    const created = await createItem(input).unwrap();
+    setEditorId(created.id);
+    return created.id;
+  };
+
+  const saveDraft = form.handleSubmit(async (values) => {
     try {
-      if (editorId)
-        await updateItem({ ...input, learningContentId: editorId }).unwrap();
-      else await createItem(input).unwrap();
-
+      await persistContent(values);
       notify.success(
         t(
           editorId
@@ -256,34 +351,31 @@ export const useAssociationLearningContent = () => {
     }
   });
 
-  const openPublish = (item: T.TAssociationLearningContentRow) => {
-    setPublishingId(item.id);
-    setPublishAudience(item.audienceKind);
-    setPublishGroupId(item.groupId ?? "");
-  };
-
-  const closePublish = () => setPublishingId(null);
-
-  const confirmPublish = async () => {
-    if (!publishingId) return;
-
+  const publish = form.handleSubmit(async (values) => {
     try {
+      const learningContentId = await persistContent(values);
+
       await publishItem({
-        learningContentId: publishingId,
-        audienceKind: publishAudience as AssociationAudienceKind,
-        groupId:
-          publishAudience === AssociationAudienceKind.Group
-            ? publishGroupId || undefined
+        learningContentId,
+        audienceKind: values.audienceKind,
+        groupIds:
+          values.audienceKind === AssociationAudienceKind.Group
+            ? values.groupIds
+            : undefined,
+        memberIds:
+          values.audienceKind === AssociationAudienceKind.SpecificMembers
+            ? values.memberIds
             : undefined,
       }).unwrap();
+
       notify.success(
         t("associationDashboard.learningContent.messages.published"),
       );
-      setPublishingId(null);
+      closeEditor();
     } catch (error) {
       failWith(error);
     }
-  };
+  });
 
   const withdraw = async (learningContentId: string) => {
     try {
@@ -325,11 +417,15 @@ export const useAssociationLearningContent = () => {
   return {
     t,
     form,
+    step,
+    next,
+    back,
     items,
     remove,
     status,
     source,
     search,
+    goToStep,
     withdraw,
     category,
     openEdit,
@@ -341,31 +437,30 @@ export const useAssociationLearningContent = () => {
     closeEditor,
     isMutating,
     openPublish,
-    closePublish,
     previousPage,
     resetFilters,
-    submitEditor,
+    saveDraft,
+    publish,
     isEditorOpen,
     catalogType,
     catalogSearch,
     catalogResults,
-    confirmPublish,
-    publishGroupId,
     groupOptions,
-    publishAudience,
     setCatalogType,
     setCatalogSearch,
     requirementOptions,
-    setPublishGroupId,
-    setPublishAudience,
+    assignSearch,
+    setAssignSearch,
+    assignMemberOptions,
+    isAssignPickerLoading: assignMemberQuery.isFetching,
     pickCatalogItem,
     selectedContentId,
+    pickedTitle,
     requirementId,
     isEditing: Boolean(editorId),
     detail: detailQuery.data,
     detailId,
     isDetailLoading: detailQuery.isLoading,
-    publishingId,
     page: cursorStack.length + 1,
     canPrevious: cursorStack.length > 0,
     locale: language === "fr" ? "fr-FR" : "en-GB",

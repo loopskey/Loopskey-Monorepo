@@ -1,3 +1,4 @@
+import { ASSOCIATION_LEARNING_CONTENT_LIMITS as AUDIENCE_LIMITS } from "@loopskey/api-contracts/validation";
 import { ASSOCIATION_REQUIREMENT_LIMITS as LIMITS } from "@loopskey/api-contracts/validation";
 import { IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
 import { AssociationLearningContentStatus } from "@prisma/client";
@@ -6,6 +7,7 @@ import { IsUrl, Max, MaxLength, Min } from "class-validator";
 import { AssociationGqlInputNames } from "@association/enums/association-gql-names.enum";
 import { ContentType, PDUCategory } from "@prisma/client";
 import { AssociationAudienceKind } from "@prisma/client";
+import { ArrayMaxSize, IsArray } from "class-validator";
 
 const TITLE_MAX = 200;
 const PROVIDER_MAX = 200;
@@ -69,10 +71,6 @@ export class AssociationCatalogSearchInput {
 
 @InputType(AssociationGqlInputNames.CREATE_ASSOCIATION_LEARNING_CONTENT)
 export class CreateAssociationLearningContentInput {
-  @Field(() => PDUCategory)
-  @IsEnum(PDUCategory)
-  category!: PDUCategory;
-
   @Field(() => ContentType, { nullable: true })
   @IsOptional()
   @IsEnum(ContentType)
@@ -113,11 +111,6 @@ export class CreateAssociationLearningContentInput {
   @Min(0)
   @Max(LIMITS.creditsMax)
   indicativeCredits?: number;
-
-  @Field(() => ID, { nullable: true })
-  @IsOptional()
-  @IsString()
-  requirementId?: string;
 }
 
 @InputType(AssociationGqlInputNames.UPDATE_ASSOCIATION_LEARNING_CONTENT)
@@ -136,8 +129,17 @@ export class PublishAssociationLearningContentInput extends AssociationLearningC
   @IsEnum(AssociationAudienceKind)
   audienceKind!: AssociationAudienceKind;
 
-  @Field(() => ID, { nullable: true })
+  @Field(() => [ID], { nullable: true })
   @IsOptional()
-  @IsString()
-  groupId?: string;
+  @IsArray()
+  @ArrayMaxSize(AUDIENCE_LIMITS.groupsMax)
+  @IsString({ each: true })
+  groupIds?: string[];
+
+  @Field(() => [ID], { nullable: true })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(AUDIENCE_LIMITS.specificMembersMax)
+  @IsString({ each: true })
+  memberIds?: string[];
 }

@@ -6,14 +6,6 @@ import {
 } from "@loopskey/api-contracts/upload";
 import { join } from "path";
 
-/**
- * PDU evidence upload rules.
- *
- * Values come from the shared contract so the browser cannot accept a file the
- * API will reject. The names stay PDU-specific: PDU and certificate limits are
- * equal today but are separate policies, and raising one must not move the
- * other.
- */
 export const MAX_EVIDENCE_FILES = PDU_EVIDENCE_LIMITS.maxFiles;
 export const MAX_EVIDENCE_SIZE_BYTES = PDU_EVIDENCE_LIMITS.maxFileSizeBytes;
 
@@ -28,3 +20,16 @@ export const getPduUploadDir = () =>
   process.env.PDU_UPLOAD_DIR ?? join(process.cwd(), "uploads", "pdu");
 
 export const isAcceptedEvidenceFile = isAcceptedDocumentFile;
+
+export const parseUploadKeys = (
+  uploadKeysJson: string | undefined,
+): (string | null)[] => {
+  if (!uploadKeysJson) return [];
+  try {
+    const parsed: unknown = JSON.parse(uploadKeysJson);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.map((value) => (typeof value === "string" ? value : null));
+  } catch {
+    return [];
+  }
+};

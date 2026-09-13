@@ -1,6 +1,7 @@
 "use client";
 
 import { CpdSuggestedRequirementProps } from "@/types/cpd-plan.types";
+import { suggestedDeadlinePreview } from "@/utils/cpd-plan.helper";
 import { formatDeadline } from "@/utils/function-helper";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
@@ -66,7 +67,7 @@ export const CpdSuggestedRequirement = ({
             {t("cpdProgress.suggested.deadline")}
           </dt>
           <dd className="font-medium">
-            {formatDeadline(certification.suggestedDeadline)}
+            {formatDeadline(suggestedDeadlinePreview(certification))}
           </dd>
         </div>
       </dl>

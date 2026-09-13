@@ -1,18 +1,19 @@
+import { PaginatedAssociationCategoryAttentionGroupsEntity } from "@association/entities/association-message.entity";
 import { PaginatedAssociationMessageHistoryEntity } from "@association/entities/association-message.entity";
 import { PaginatedAssociationAttentionRowsEntity } from "@association/entities/association-message.entity";
+import { Args, ID, Mutation, Query, Resolver } from "@nestjs/graphql";
+import { AssociationReportPaginationInput } from "@association/dtos/association-report.input";
 import { AssociationMessagePreviewEntity } from "@association/entities/association-message.entity";
 import { AssociationAttentionListsEntity } from "@association/entities/association-message.entity";
 import { AssociationMessageBatchEntity } from "@association/entities/association-message.entity";
 import { AssociationAttentionSection } from "@association/enums/association-attention.enum";
 import { AssociationAttentionService } from "@association/services/association-attention.service";
-import { AssociationMessageService } from "@association/services/association-message.service";
-import { AssociationReportPaginationInput } from "@association/dtos/association-report.input";
 import { AssociationGqlMutationNames } from "@association/enums/association-gql-names.enum";
+import { AssociationMessageService } from "@association/services/association-message.service";
 import { AssociationGqlQueryNames } from "@association/enums/association-gql-names.enum";
-import { Args, ID, Mutation, Query, Resolver } from "@nestjs/graphql";
+import { AssociationMessageType } from "@prisma/client";
 import { TResolverUser } from "@association/types/association-service.types";
 import { CurrentUser } from "@common/decorators/current-user.decorator";
-import { AssociationMessageType } from "@prisma/client";
 import { Roles } from "@common/decorators/roles.decorator";
 import { Role } from "@prisma/client";
 
@@ -56,6 +57,23 @@ export class AssociationMessageResolver {
     return this.attention.section(
       this.getUser(user),
       section,
+      pagination,
+      associationId,
+    );
+  }
+
+  @Query(() => PaginatedAssociationCategoryAttentionGroupsEntity, {
+    name: AssociationGqlQueryNames.CATEGORY_ATTENTION_GROUPS,
+  })
+  associationCategoryAttentionGroups(
+    @CurrentUser() user: TResolverUser,
+    @Args("pagination", { nullable: true })
+    pagination?: AssociationReportPaginationInput,
+    @Args("associationId", { type: () => ID, nullable: true })
+    associationId?: string,
+  ) {
+    return this.attention.categoryAttentionGroups(
+      this.getUser(user),
       pagination,
       associationId,
     );

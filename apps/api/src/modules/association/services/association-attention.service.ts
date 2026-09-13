@@ -2,6 +2,8 @@ import { AssociationGeneratedReportState } from "@prisma/client";
 import { type ProfessionalComplianceApi } from "@professional/public/professional-compliance-api";
 import { AssociationAttentionSection } from "@association/enums/association-attention.enum";
 import { PROFESSIONAL_COMPLIANCE_API } from "@professional/public/professional-compliance-api";
+import { ServiceUnavailableException } from "@nestjs/common";
+import { type CategoryAttentionGroup } from "@association/types/association-attention.types";
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { AssociationComplianceBand } from "@prisma/client";
 import { AssociationReportService } from "@association/services/association-report.service";
@@ -9,10 +11,12 @@ import { AssociationAccessService } from "@association/services/association-acce
 import { AssociationMemberStatus } from "@prisma/client";
 import { AssociationReportPeriod } from "@association/utils/association-report-period.util";
 import { AssociationMessageType } from "@prisma/client";
+import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
 import { type TAssociationUser } from "@association/types/association-service.types";
 import { type ReportMemberRow } from "@association/types/association-report.types";
 import { type AttentionCounts } from "@association/types/association-attention.types";
 import { type AttentionRow } from "@association/types/association-attention.types";
+import { calendarDaysUntil } from "@association/utils/compliance-attribution.util";
 import { PrismaService } from "@prisma/prisma.service";
 
 import * as A from "@association/types/association-attention.types";
@@ -39,9 +43,9 @@ export class AssociationAttentionService {
     const association = await this.access.requireReadable(user, associationId);
     const now = new Date();
 
-    const [belowThreshold, newJoiners, categoryBehind, expiring] =
+    const [needingAttention, newJoiners, categoryBehind, expiring] =
       await Promise.all([
-        this.belowThreshold(user, associationId),
+        this.membersNeedingAttention(user, associationId),
         this.newJoiners(association.id, now),
         this.categoryBehind(user, associationId),
         this.expiringCertificates(association.id, now),
@@ -54,16 +58,10 @@ export class AssociationAttentionService {
       },
     });
 
-    const distribution = await this.reports.memberDistribution(
-      user,
-      ATTENTION_FILTER,
-      associationId,
-    );
-
     const counts: AttentionCounts = {
       readyReports,
       newJoiners: newJoiners.length,
-      belowThreshold: belowThreshold.length,
+      belowThreshold: needingAttention.length,
       categoryBehind: categoryBehind.length,
       expiringCertificates: expiring.length,
     };
@@ -73,7 +71,7 @@ export class AssociationAttentionService {
       ...counts,
     });
 
-    return { counts, distribution };
+    return { counts };
   }
 
   async section(
@@ -111,7 +109,7 @@ export class AssociationAttentionService {
     associationId?: string,
   ): Promise<AttentionRow[]> {
     if (section === AssociationAttentionSection.BELOW_THRESHOLD)
-      return this.belowThreshold(user, associationId);
+      return this.membersNeedingAttention(user, associationId);
 
     if (section === AssociationAttentionSection.CATEGORY_BEHIND)
       return this.categoryBehind(user, associationId);
@@ -128,6 +126,37 @@ export class AssociationAttentionService {
     return [];
   }
 
+  async categoryAttentionGroups(
+    user: TAssociationUser,
+    page?: { take?: number | null; cursor?: string | null },
+    associationId?: string,
+  ) {
+    const groups = await this.categoryGroupsFor(user, associationId);
+    const take = Math.min(
+      page?.take ?? A.ATTENTION_PAGE_DEFAULT,
+      A.ATTENTION_PAGE_MAX,
+    );
+
+    const cursorKey = (group: CategoryAttentionGroup) =>
+      `${group.requirementId}:${group.categoryId}`;
+
+    const cursorIndex = page?.cursor
+      ? groups.findIndex((group) => cursorKey(group) === page.cursor)
+      : -1;
+    const start = cursorIndex < 0 ? 0 : cursorIndex + 1;
+    const items = groups.slice(start, start + take);
+    const hasNextPage = start + take < groups.length;
+
+    return {
+      items,
+      totalCount: groups.length,
+      pageInfo: {
+        hasNextPage,
+        nextCursor: hasNextPage ? cursorKey(items.at(-1)!) : null,
+      },
+    };
+  }
+
   async atRiskThreshold(associationId: string) {
     const settings = await this.prisma.associationSettings.findUnique({
       where: { associationId },
@@ -137,12 +166,12 @@ export class AssociationAttentionService {
     return settings?.atRiskThreshold ?? DEFAULT_AT_RISK_THRESHOLD;
   }
 
-  private async belowThreshold(
+  private async membersNeedingAttention(
     user: TAssociationUser,
     associationId?: string,
   ): Promise<AttentionRow[]> {
-    const association = await this.access.requireReadable(user, associationId);
-    const threshold = await this.atRiskThreshold(association.id);
+    await this.access.requireReadable(user, associationId);
+    const now = new Date();
 
     const report = await this.reports.memberProgressReport(
       user,
@@ -151,11 +180,36 @@ export class AssociationAttentionService {
       associationId,
     );
 
-    return report.items
-      .filter((member) =>
-        member.assignments.some((assignment) => assignment.percent < threshold),
-      )
-      .map((member) => this.rowOf(member));
+    return report.items.flatMap((member) => {
+      const due = member.assignments
+        .filter(
+          (assignment) =>
+            assignment.dueDate &&
+            assignment.percent < 100 &&
+            calendarDaysUntil(now, assignment.dueDate) >= 0 &&
+            calendarDaysUntil(now, assignment.dueDate) <=
+              A.MEMBER_ATTENTION_WINDOW_DAYS,
+        )
+        .sort(
+          (left, right) => left.dueDate!.getTime() - right.dueDate!.getTime(),
+        );
+
+      if (!due.length) return [];
+
+      const earliest = due[0];
+
+      return [
+        {
+          ...this.rowOf(member),
+          deadline: earliest.dueDate,
+          percent: earliest.percent,
+          band: earliest.band,
+          requiredCredits: earliest.requiredCredits,
+          completedCredits: earliest.completedCredits,
+          detail: earliest.requirementName,
+        },
+      ];
+    });
   }
 
   private async categoryBehind(
@@ -193,6 +247,72 @@ export class AssociationAttentionService {
           completedCredits: weakest.completedCredits,
         },
       ];
+    });
+  }
+
+  private async categoryGroupsFor(
+    user: TAssociationUser,
+    associationId?: string,
+  ): Promise<CategoryAttentionGroup[]> {
+    const association = await this.access.requireReadable(user, associationId);
+    const threshold = await this.atRiskThreshold(association.id);
+
+    const report = await this.reports.memberProgressReport(
+      user,
+      ATTENTION_FILTER,
+      { take: A.ATTENTION_PAGE_MAX },
+      associationId,
+    );
+
+    const groups = new Map<string, CategoryAttentionGroup>();
+
+    for (const member of report.items) {
+      for (const assignment of member.assignments) {
+        for (const category of assignment.categories) {
+          if (category.requiredCredits <= 0) continue;
+          if (category.percent >= threshold) continue;
+
+          const key = `${assignment.requirementId}:${category.categoryId}`;
+          const group = groups.get(key) ?? {
+            requirementId: assignment.requirementId,
+            requirementName: assignment.requirementName,
+            categoryId: category.categoryId,
+            categoryName: category.categoryName,
+            deadline: null,
+            affectedCount: 0,
+            members: [],
+          };
+
+          group.deadline =
+            assignment.dueDate &&
+            (!group.deadline || assignment.dueDate < group.deadline)
+              ? assignment.dueDate
+              : group.deadline;
+          group.affectedCount += 1;
+
+          if (group.members.length < A.CATEGORY_GROUP_MEMBERS_MAX)
+            group.members.push({
+              ...this.rowOf(member),
+              percent: category.percent,
+              band: null,
+              deadline: assignment.dueDate,
+              requiredCredits: category.requiredCredits,
+              completedCredits: category.completedCredits,
+              detail: category.categoryName,
+              detailDate: null,
+            });
+
+          groups.set(key, group);
+        }
+      }
+    }
+
+    return [...groups.values()].sort((left, right) => {
+      if (left.deadline && right.deadline)
+        return left.deadline.getTime() - right.deadline.getTime();
+      if (left.deadline) return -1;
+      if (right.deadline) return 1;
+      return left.requirementName.localeCompare(right.requirementName);
     });
   }
 
@@ -241,6 +361,21 @@ export class AssociationAttentionService {
     }));
   }
 
+  private async certificatesFor(userIds: string[]) {
+    try {
+      return await this.professional.certificatesForOwners(userIds);
+    } catch (error) {
+      this.logger.error("Certification source data unavailable", {
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+
+      throw new ServiceUnavailableException({
+        code: AssociationMessageCode.SOURCE_DATA_UNAVAILABLE,
+        message: "Certification data is temporarily unavailable.",
+      });
+    }
+  }
+
   private async expiringCertificates(
     associationId: string,
     now: Date,
@@ -262,19 +397,19 @@ export class AssociationAttentionService {
 
     if (!members.length) return [];
 
-    const certificates = await this.professional.certificatesForOwners(
+    const certificates = await this.certificatesFor(
       members.map((member) => member.userId),
-    );
-
-    const horizon = new Date(
-      now.getTime() + A.CERTIFICATE_EXPIRY_WINDOW_DAYS * DAY_MS,
     );
 
     const soonest = new Map<string, { title: string; validUntil: Date }>();
 
     for (const certificate of certificates) {
       if (!certificate.validUntil) continue;
-      if (certificate.validUntil > horizon) continue;
+      if (
+        calendarDaysUntil(now, certificate.validUntil) >
+        A.CERTIFICATE_EXPIRY_WINDOW_DAYS
+      )
+        continue;
 
       const held = soonest.get(certificate.userId);
       if (held && held.validUntil <= certificate.validUntil) continue;

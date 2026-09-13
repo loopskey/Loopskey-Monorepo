@@ -1,6 +1,6 @@
 import { TProfessionalProfileTab } from "@/types/professional-profile.types";
 import { TSelectOption } from "@/types/element.types";
-import { API_ORIGIN } from "@/utils/avatar.util";
+import { API_ORIGIN } from "@/utils/api-origin.util";
 
 import * as countries from "i18n-iso-countries";
 import * as API from "@/lib/graphql/base";
@@ -12,10 +12,10 @@ import frCountries from "i18n-iso-countries/langs/fr.json";
 // ================= Tabs =================
 export const PROFILE_TABS: TProfessionalProfileTab[] = [
   "basic",
-  "skills",
   "details",
-  "preferences",
+  "skills",
   "certifications",
+  "preferences",
 ];
 
 export const SECTION_TAB_MAP: Record<
@@ -208,4 +208,3 @@ export const getBrowserTimeZone = () => {
 
 // ================= Routes =================
 export const CERTIFICATES_TAB_HREF = "/dashboard/professional?tab=certificates";
-export const SECURITY_SETTINGS_HREF = "/dashboard/professional?tab=settings";

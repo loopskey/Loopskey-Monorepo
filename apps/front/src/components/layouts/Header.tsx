@@ -28,9 +28,7 @@ const Header = () => {
     <header
       className={cn(
         "sticky top-0 z-50 w-full bg-background transition-all duration-300",
-        isScrolled
-          ? "border-b shadow-sm"
-          : "border-b",
+        isScrolled ? "border-b shadow-sm" : "border-b",
       )}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">

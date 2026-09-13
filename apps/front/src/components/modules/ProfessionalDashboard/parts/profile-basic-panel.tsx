@@ -2,15 +2,12 @@
 
 import { BadgeCheck, Loader2, ShieldAlert } from "lucide-react";
 import { TBasicProfilePanelProps } from "@/types/professional-profile.types";
-import { SECURITY_SETTINGS_HREF } from "@/utils/professional-profile.constant";
 import { ProfileAvatarUploader } from "@modules/ProfessionalDashboard/parts/profile-avatar-uploader";
 import { FloatingSelectField } from "@elements/floating-select";
 import { FloatingInputField } from "@elements/floating-input";
 import { Button } from "@ui/button";
 import { Input } from "@ui/input";
 import { Label } from "@ui/label";
-
-import Link from "next/link";
 
 import * as R from "lucide-react";
 import * as F from "@ui/form";
@@ -25,9 +22,9 @@ export const ProfileBasicPanel = ({
   const {
     t,
     rhf,
-    handleSubmit,
     isSaving,
     hasError,
+    handleSubmit,
     countryOptions,
     languageOptions,
     timeZoneOptions,
@@ -104,12 +101,6 @@ export const ProfileBasicPanel = ({
                 {profile?.isEmailVerified
                   ? t("professionalDashboard.profile.basic.emailVerified")
                   : t("professionalDashboard.profile.basic.emailUnverified")}
-                <Link
-                  href={SECURITY_SETTINGS_HREF}
-                  className="font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  {t("professionalDashboard.profile.basic.changeEmail")}
-                </Link>
               </p>
             </div>
 
@@ -166,11 +157,7 @@ export const ProfileBasicPanel = ({
             </p>
           ) : null}
 
-          <Button
-            radius="xl"
-            type="submit"
-            disabled={isSaveDisabled}
-          >
+          <Button radius="xl" type="submit" disabled={isSaveDisabled}>
             {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             {t("professionalDashboard.profile.save")}
           </Button>

@@ -32,10 +32,6 @@ const suggestedEndInput = (
   cert: TCertification,
   startInput: string,
 ): string => {
-  if (cert.suggestedDeadline) {
-    const deadline = toDateInputValue(cert.suggestedDeadline);
-    if (deadline && deadline > startInput) return deadline;
-  }
   const start = new Date(`${startInput}T00:00:00.000Z`);
   const months =
     cert.renewalCycleMonths && cert.renewalCycleMonths > 0
@@ -43,6 +39,9 @@ const suggestedEndInput = (
       : 12;
   return addMonths(start, months).toISOString().slice(0, 10);
 };
+
+export const suggestedDeadlinePreview = (cert: TCertification): string =>
+  dateInputToIso(suggestedEndInput(cert, todayInput()));
 
 export const emptyCpdPlanForm = (certificationName = ""): CpdPlanFormInput => {
   const start = todayInput();

@@ -1,13 +1,13 @@
 "use client";
 
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getAssociationErrorTranslationKey } from "@utils/association-error";
-import { useCallback, useMemo, useState } from "react";
 import { downloadAssociationMemberFile } from "@utils/association-member-files";
 import { AssociationAttributionState } from "@/lib/graphql/base";
+import { useRouter, useSearchParams } from "next/navigation";
 import { TAssociationDownloadKind } from "@utils/association-member-files";
 import { AssociationMemberStatus } from "@/lib/graphql/base";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useI18n } from "@hooks/useI18n";
 import { notify } from "@hooks/notify";
@@ -25,6 +25,8 @@ const NO_GROUP = "NONE";
 export const useAssociationMemberDetail = (memberId: string) => {
   const { t, language } = useI18n();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const handledActionRef = useRef(false);
 
   const [stateFilter, setStateFilter] = useState<string>(ALL);
   const [cursorStack, setCursorStack] = useState<string[]>([]);
@@ -274,6 +276,21 @@ export const useAssociationMemberDetail = (memberId: string) => {
     setRequirementsOpen(true);
   };
 
+  useEffect(() => {
+    if (handledActionRef.current || !member) return;
+    const action = searchParams.get("action");
+    if (action !== "edit" && action !== "assign") return;
+
+    handledActionRef.current = true;
+    if (action === "edit") openEdit();
+    else openRequirements();
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("action");
+    router.replace(`/dashboard/association?${params.toString()}`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [member]);
+
   const assignedRequirementIds = useMemo(
     () =>
       requirementOptions
@@ -356,13 +373,13 @@ export const useAssociationMemberDetail = (memberId: string) => {
     download,
     nextPage,
     memberId,
-    isMutating,
     openEdit,
+    selection,
+    isMutating,
     isEditOpen,
+    submitEdit,
     setEditOpen,
     detailsForm,
-    submitEdit,
-    canRenameMember,
     groupOptions,
     activities,
     assignments,
@@ -380,8 +397,8 @@ export const useAssociationMemberDetail = (memberId: string) => {
     backToRoster,
     changeStatus,
     cumulativeRows,
+    canRenameMember,
     cycleAssignment,
-    selection,
     toggleRequirement,
     openRequirements,
     isRequirementsOpen,

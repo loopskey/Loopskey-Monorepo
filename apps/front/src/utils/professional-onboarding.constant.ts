@@ -1,7 +1,11 @@
 import { ProfessionalGoal } from "@/lib/graphql/base";
 import { TOnboardingStep } from "@/types/professional-onboarding.types";
 
+import * as L from "lucide-react";
+
 export const ONBOARDING_MAX_SKILLS = 3;
+
+export const ONBOARDING_SUGGESTION_LIMIT = 8;
 
 export const CERTIFICATION_MIN_QUERY_LENGTH = 2;
 
@@ -28,8 +32,16 @@ export const ONBOARDING_STEP_I18N_KEY: Record<TOnboardingStep, string> = {
   certification: "professionalOnboarding.steps.certification",
 };
 
+export const ONBOARDING_STEP_ICON: Record<TOnboardingStep, L.LucideIcon> = {
+  goal: L.Target,
+  role: L.Briefcase,
+  skills: L.Sparkles,
+  certification: L.Award,
+};
+
 export const goalI18nKey = (goal: ProfessionalGoal, field: string) =>
   `professionalOnboarding.goal.options.${goal}.${field}`;
 
 export const PROFILE_TAB_HREF = "/dashboard/professional?tab=profile";
-export const ONBOARDING_HREF = "/dashboard/professional/onboarding";
+export const OVERVIEW_HREF = "/dashboard/professional";
+export const ONBOARDING_HREF = "/onboarding/professional";

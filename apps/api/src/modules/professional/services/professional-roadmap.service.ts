@@ -1,6 +1,7 @@
 import { ForbiddenException, Inject, Injectable } from "@nestjs/common";
 import { ProfessionalPaginationInput } from "@professional/dtos/professional-pagination.input";
 import { PROFESSIONAL_ENGAGEMENT_API } from "@contentAction/public/professional-engagement-api";
+import { computeRoadmapNextMilestone } from "@professional/utils/roadmap-progress.util";
 import { PROFESSIONAL_CATALOG_API } from "@course/public/professional-catalog-api";
 import { ProfessionalSearchInput } from "@professional/dtos/professional-search.input";
 import { deriveRoadmapProgress } from "@professional/utils/roadmap-progress.util";
@@ -248,6 +249,86 @@ export class ProfessionalRoadmapService {
         hasNextPage: rows.length > take,
         nextCursor: rows.length > take ? items.at(-1)?.id : null,
       },
+    };
+  }
+
+  private async fetchAllEnrollments(userId: string) {
+    const PAGE_SIZE = 200;
+    const all: T.RoadmapEnrollmentWithRoadmap[] = [];
+    let cursor: string | undefined;
+    for (;;) {
+      const result = await this.engagement.roadmapEnrollments({
+        userId,
+        cursor,
+        take: PAGE_SIZE,
+      });
+      const rows = result.rows as unknown as T.RoadmapEnrollmentWithRoadmap[];
+      const items = rows.slice(0, PAGE_SIZE);
+      all.push(...items);
+      if (rows.length <= PAGE_SIZE || !items.length) break;
+      cursor = items.at(-1)?.id;
+    }
+    return all;
+  }
+
+  async roadmapStats(user: TUser) {
+    this.assertProfessional(user);
+    const enrollments = await this.fetchAllEnrollments(user.id);
+    if (enrollments.length === 0)
+      return {
+        enrolledCount: 0,
+        averageProgress: 0,
+        completedPhaseCount: 0,
+        totalPhaseCount: 0,
+        nextMilestone: null,
+      };
+
+    const roadmapIds = [...new Set(enrollments.map((item) => item.roadmapId))];
+    const roadmaps = (await this.catalog.roadmaps(
+      roadmapIds,
+    )) as unknown as T.RoadmapEnrollmentWithRoadmap["roadmap"][];
+    const roadmapMap = new Map(
+      roadmaps.map((roadmap) => [roadmap.id, roadmap]),
+    );
+
+    const records = await this.engagement.roadmapStepProgress({
+      userId: user.id,
+      enrollmentIds: enrollments.map((item) => item.id),
+    });
+    const recordsByEnrollment = new Map<string, StepProgressRecord[]>();
+    for (const record of records) {
+      const list = recordsByEnrollment.get(record.enrollmentId) ?? [];
+      list.push(record);
+      recordsByEnrollment.set(record.enrollmentId, list);
+    }
+
+    let progressTotal = 0;
+    let completedPhaseCount = 0;
+    let totalPhaseCount = 0;
+    for (const enrollment of enrollments) {
+      const phases = roadmapMap.get(enrollment.roadmapId)?.phases ?? [];
+      const derived = deriveRoadmapProgress({
+        phases,
+        records: recordsByEnrollment.get(enrollment.id) ?? [],
+        storedProgress: enrollment.progress,
+      });
+      progressTotal += derived.progress;
+      completedPhaseCount += derived.phases.filter(
+        (phase) => phase.completed,
+      ).length;
+      totalPhaseCount += phases.length;
+    }
+
+    const averageProgressRaw = progressTotal / enrollments.length;
+    return {
+      enrolledCount: enrollments.length,
+      averageProgress: this.clampProgress(averageProgressRaw),
+      completedPhaseCount,
+      totalPhaseCount,
+      nextMilestone: computeRoadmapNextMilestone(
+        averageProgressRaw,
+        enrollments.length,
+      ),
     };
   }
 }

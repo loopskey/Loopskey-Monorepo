@@ -3,14 +3,11 @@
 import { useProfessionalCpdPduTracker } from "@/hooks/useProfessionalCpdPduTracker";
 import { ActivitiesFilters } from "@modules/ProfessionalDashboard/parts/activities-filters";
 import { ContentPagination } from "@elements/pagination";
-import { PduOverTimeChart } from "@elements/dashboard-charts";
 import { ActivitiesTable } from "@modules/ProfessionalDashboard/parts/activities-table";
 import { MetricCard } from "@modules/ProfessionalDashboard/parts/metric-card";
 import { GlassCard } from "@elements/glass-card";
-import { Progress } from "@ui/progress";
 import { Skeleton } from "@ui/skeleton";
 import { Button } from "@ui/button";
-import { Badge } from "@ui/badge";
 
 import * as L from "lucide-react";
 
@@ -27,15 +24,11 @@ const ProfessionalCpdPduTrackerTab = () => {
     activities,
     handleNext,
     yearOptions,
-    pduOverTime,
-    hasChartData,
-    categoryRows,
     handleRefresh,
     isRefreshing,
     activitiesData,
     handlePrevious,
     isSummaryError,
-    isReportLoading,
     isSummaryLoading,
     handleAddActivity,
     handleViewActivity,
@@ -218,91 +211,6 @@ const ProfessionalCpdPduTrackerTab = () => {
           totalCount={activitiesData?.totalCount}
           hasNextPage={Boolean(pageInfo?.hasNextPage)}
         />
-      </GlassCard>
-
-      {/* 5. PDUs by Category */}
-      <GlassCard>
-        <div className="mb-6">
-          <h2 className="text-xl font-medium">
-            {t(`${TRACKER}.byCategory.title`)}
-          </h2>
-
-          <p className="mt-1 text-sm text-muted-foreground">
-            {t(`${TRACKER}.byCategory.subtitle`)}
-          </p>
-        </div>
-
-        {isReportLoading ? (
-          <Skeleton className="h-56 w-full rounded-lg" />
-        ) : categoryRows.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
-            {t(`${TRACKER}.byCategory.empty`)}
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {categoryRows.map((item) => (
-              <div
-                key={item.category}
-                className="rounded-lg border p-4"
-              >
-                <div className="mb-3 flex items-center justify-between gap-3">
-                  <div>
-                    <p className="font-medium">
-                      {t(`${TRACKER}.categories.${item.category}`)}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {item.earned.toFixed(1)} / {item.target.toFixed(1)}{" "}
-                      {t(`${TRACKER}.creditTypes.PDU`)}
-                    </p>
-
-                    {item.exceededBy > 0 && (
-                      <p className="mt-1 text-xs font-medium text-primary">
-                        {t(`${TRACKER}.byCategory.exceededBy`, {
-                          amount: item.exceededBy.toFixed(1),
-                        })}
-                      </p>
-                    )}
-                  </div>
-
-                  <Badge
-                    variant={item.exceededBy > 0 ? "default" : "secondary"}
-                  >
-                    {item.target > 0
-                      ? `${item.progress.toFixed(0)}%`
-                      : t(`${TRACKER}.byCategory.noTarget`)}
-                  </Badge>
-                </div>
-
-                <Progress value={item.barValue} className="h-2.5" />
-              </div>
-            ))}
-          </div>
-        )}
-      </GlassCard>
-
-      {/* 6. PDUs Over Time */}
-      <GlassCard>
-        <div className="mb-6">
-          <h2 className="text-xl font-medium">
-            {t(`${TRACKER}.overTime.title`)}
-          </h2>
-
-          <p className="mt-1 text-sm text-muted-foreground">
-            {t(`${TRACKER}.overTime.subtitle`)}
-          </p>
-        </div>
-
-        {isReportLoading ? (
-          <Skeleton className="h-72 w-full rounded-lg" />
-        ) : hasChartData ? (
-          <div className="h-72">
-            <PduOverTimeChart data={pduOverTime} />
-          </div>
-        ) : (
-          <div className="flex h-72 items-center justify-center rounded-lg border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
-            {t(`${TRACKER}.overTime.empty`)}
-          </div>
-        )}
       </GlassCard>
     </div>
   );

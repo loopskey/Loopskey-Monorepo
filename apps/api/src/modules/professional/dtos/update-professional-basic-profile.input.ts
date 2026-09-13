@@ -1,5 +1,6 @@
 import { IsEnum, IsOptional, IsString, Length, Matches } from "class-validator";
 import { ProfessionalGqlInputNames } from "@professional/enums/gql-names.enum";
+import { FULL_NAME_LIMITS } from "@loopskey/api-contracts/validation";
 import { Field, InputType } from "@nestjs/graphql";
 import { AppLanguage } from "@prisma/client";
 import { IsTimeZone } from "@professional/enums/profile-timezone.constant";
@@ -13,7 +14,7 @@ export class UpdateProfessionalBasicProfileInput {
     typeof value === "string" ? value.trim() : value,
   )
   @IsString()
-  @Length(2, 120)
+  @Length(FULL_NAME_LIMITS.min, FULL_NAME_LIMITS.max)
   fullName: string;
 
   @Field(() => String, { nullable: true })

@@ -47,12 +47,6 @@ export const professionalDashboardTabs: TDashboardTab<TProfessionalDashboardTab>
       icon: L.UserRound,
     },
     {
-      value: "payments",
-      labelKey: "professionalDashboard.sidebar.payments",
-      href: "/dashboard/professional?tab=payments",
-      icon: L.CreditCard,
-    },
-    {
       value: "cpd-pdu-tracker",
       labelKey: "professionalDashboard.sidebar.cpdPduTracker",
       href: "/dashboard/professional?tab=cpd-pdu-tracker",
@@ -207,10 +201,10 @@ export const associationDashboardTabs: TDashboardTab<TAssociationDashboardTab>[]
       icon: L.FileBarChart,
     },
     {
-      value: "messages",
-      labelKey: "associationDashboard.sidebar.messages",
-      href: "/dashboard/association?tab=messages",
-      icon: L.MessageSquare,
+      value: "notifications",
+      labelKey: "associationDashboard.sidebar.notifications",
+      href: "/dashboard/association?tab=notifications",
+      icon: L.Bell,
     },
     {
       value: "settings",

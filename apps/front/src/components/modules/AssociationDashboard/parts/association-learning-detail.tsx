@@ -1,6 +1,7 @@
 "use client";
 
 import { TAssociationLearningDetail } from "@/types/association-dashboard.types";
+import { audienceSummaryLabel } from "@utils/association-learning-content";
 import { humanizeEnumValue } from "@utils/function-helper";
 import { Skeleton } from "@ui/skeleton";
 import { Badge } from "@ui/badge";
@@ -89,7 +90,12 @@ export const AssociationLearningDetail = ({
                   t("associationDashboard.learningContent.list.noProvider"),
               )}
 
-              {entry(label("category"), humanizeEnumValue(detail.category))}
+              {entry(
+                label("category"),
+                detail.category
+                  ? humanizeEnumValue(detail.category)
+                  : label("uncategorised"),
+              )}
 
               {entry(
                 label("credits"),
@@ -105,7 +111,7 @@ export const AssociationLearningDetail = ({
 
               {entry(
                 label("audience"),
-                detail.groupTitle ?? label("allMembers"),
+                audienceSummaryLabel(detail.audienceKind, detail.targets, t),
               )}
 
               {entry(label("published"), date(detail.publishedAt as string))}

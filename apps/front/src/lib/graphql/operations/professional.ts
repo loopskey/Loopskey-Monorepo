@@ -357,6 +357,11 @@ export type ProfessionalExploreRoadmapsQueryVariables = Types.Exact<{
 
 export type ProfessionalExploreRoadmapsQuery = { __typename?: 'Query', professionalExploreRoadmaps: { __typename?: 'PaginatedProfessionalExploreRoadmaps', totalCount: number, pageInfo: { __typename?: 'ProfessionalPageInfo', nextCursor?: string | null, hasNextPage: boolean }, items: Array<{ __typename?: 'ProfessionalExploreRoadmap', id: string, slug: string, title: string, level: Types.CourseLevel, status: Types.RoadmapStatus, imageUrl?: string | null, category?: Types.CourseCategory | null, totalSteps: number, isEnrolled: boolean, description: string, phasesCount: number, estimatedWeeks: number }> } };
 
+export type ProfessionalRoadmapStatsQueryVariables = Types.Exact<{ [key: string]: never; }>;
+
+
+export type ProfessionalRoadmapStatsQuery = { __typename?: 'Query', professionalRoadmapStats: { __typename?: 'ProfessionalRoadmapStats', enrolledCount: number, averageProgress: number, completedPhaseCount: number, totalPhaseCount: number, nextMilestone?: number | null } };
+
 export type ProfessionalCalendarEventFieldsFragment = { __typename?: 'ProfessionalCalendarEvent', id: string, status: Types.EventRegistrationStatus, isLive: boolean, isPast: boolean, userId: string, eventId: string, createdAt: string, updatedAt: string, attendedAt?: string | null, isUpcoming: boolean, completedAt?: string | null, durationMinutes: number, startsInMinutes?: number | null, event?: { __typename?: 'ProfessionalCalendarEventInfo', id: string, pdu: number, slug: string, type: Types.EventType, title: string, endDate?: string | null, timezone: string, location?: string | null, onlineUrl?: string | null, startDate: string, deliveryMode: Types.EventDeliveryMode } | null };
 
 export type PaginatedProfessionalCalendarEventsFieldsFragment = { __typename?: 'PaginatedProfessionalCalendarEvents', totalCount: number, pageInfo: { __typename?: 'ProfessionalPageInfo', nextCursor?: string | null, hasNextPage: boolean }, items: Array<{ __typename?: 'ProfessionalCalendarEvent', id: string, status: Types.EventRegistrationStatus, isLive: boolean, isPast: boolean, userId: string, eventId: string, createdAt: string, updatedAt: string, attendedAt?: string | null, isUpcoming: boolean, completedAt?: string | null, durationMinutes: number, startsInMinutes?: number | null, event?: { __typename?: 'ProfessionalCalendarEventInfo', id: string, pdu: number, slug: string, type: Types.EventType, title: string, endDate?: string | null, timezone: string, location?: string | null, onlineUrl?: string | null, startDate: string, deliveryMode: Types.EventDeliveryMode } | null }> };
@@ -2853,6 +2858,17 @@ fragment PaginatedProfessionalExploreRoadmapsFields on PaginatedProfessionalExpl
     ...ProfessionalExploreRoadmapFields
   }
 }`) as unknown as TypedDocumentString<ProfessionalExploreRoadmapsQuery, ProfessionalExploreRoadmapsQueryVariables>;
+export const ProfessionalRoadmapStatsDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query ProfessionalRoadmapStats {
+  professionalRoadmapStats {
+    enrolledCount
+    averageProgress
+    completedPhaseCount
+    totalPhaseCount
+    nextMilestone
+  }
+}
+    `) as unknown as TypedDocumentString<ProfessionalRoadmapStatsQuery, ProfessionalRoadmapStatsQueryVariables>;
 export const ProfessionalCalendarEventsDocument = /*#__PURE__*/ new TypedDocumentString(`
     query ProfessionalCalendarEvents($filter: ProfessionalCalendarEventsFilterInput, $pagination: ProfessionalPaginationInput) {
   professionalCalendarEvents(filter: $filter, pagination: $pagination) {

@@ -1,4 +1,5 @@
 import { ASSOCIATION_REQUIREMENT_LIMITS as REQUIREMENT_LIMITS } from "@loopskey/api-contracts/validation";
+import { ASSOCIATION_LEARNING_CONTENT_LIMITS as CONTENT_LIMITS } from "@loopskey/api-contracts/validation";
 import { ASSOCIATION_MEMBER_LIMITS as LIMITS } from "@loopskey/api-contracts/validation";
 import { ASSOCIATION_LIMITS as ACCOUNT_LIMITS } from "@loopskey/api-contracts/validation";
 import { AssociationAudienceKind } from "@/lib/graphql/base";
@@ -38,7 +39,6 @@ export type TAssociationRejectionForm = z.infer<
 export const associationLearningContentSchema = z
   .object({
     isExternal: z.boolean(),
-    category: z.string().min(1),
     contentType: z.string().optional(),
     contentId: z.string().optional(),
     externalTitle: z.string().max(200).optional(),
@@ -46,7 +46,9 @@ export const associationLearningContentSchema = z
     externalUrl: z.string().max(2000).optional(),
     description: z.string().max(REQUIREMENT_LIMITS.descriptionMax).optional(),
     indicativeCredits: z.string().optional(),
-    requirementId: z.string().optional(),
+    audienceKind: z.nativeEnum(AssociationAudienceKind),
+    groupIds: z.array(z.string()).max(CONTENT_LIMITS.groupsMax),
+    memberIds: z.array(z.string()).max(CONTENT_LIMITS.specificMembersMax),
   })
   .superRefine((values, context) => {
     if (values.isExternal) {
@@ -68,14 +70,31 @@ export const associationLearningContentSchema = z
           path: ["externalUrl"],
           message: "invalid",
         });
-      return;
-    }
-
-    if (!values.contentType || !values.contentId)
+    } else if (!values.contentType || !values.contentId)
       context.addIssue({
         code: "custom",
         path: ["contentId"],
         message: "required",
+      });
+
+    if (
+      values.audienceKind === AssociationAudienceKind.Group &&
+      values.groupIds.length === 0
+    )
+      context.addIssue({
+        code: "custom",
+        path: ["groupIds"],
+        message: "groupsRequired",
+      });
+
+    if (
+      values.audienceKind === AssociationAudienceKind.SpecificMembers &&
+      values.memberIds.length === 0
+    )
+      context.addIssue({
+        code: "custom",
+        path: ["memberIds"],
+        message: "membersRequired",
       });
   });
 

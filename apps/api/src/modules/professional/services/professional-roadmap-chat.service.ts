@@ -27,6 +27,7 @@ import {
   SERVICE_AI_LIMITS,
 } from "@infrastructure/service-ai/service-ai.port";
 import {
+  draftCompletionSummary,
   isDraftComplete,
   nextStep,
 } from "@professional/utils/roadmap-step-machine.util";
@@ -268,6 +269,10 @@ export class ProfessionalRoadmapChatService {
       this.subjectOptions(user),
     ]);
     const pending = await this.drafts.lastAssistantMessage(user.id, draft.id);
+    const completion = draftCompletionSummary({
+      draft: fields,
+      currentStep: draft.currentStep,
+    });
     return {
       ...fields,
       id: draft.id,
@@ -277,6 +282,9 @@ export class ProfessionalRoadmapChatService {
       needsClarification: draft.needsClarification,
       wasRefused: draft.wasRefused,
       isComplete: isDraftComplete(fields),
+      completedFieldCount: completion.completedFieldCount,
+      requiredFieldCount: completion.requiredFieldCount,
+      remainingFields: completion.remainingFields,
       widget: pending ? this.toWidget(pending.widget) : null,
       subjectOptions,
       transcript: transcript ?? {

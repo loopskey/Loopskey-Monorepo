@@ -1,9 +1,11 @@
 "use client";
 
+import { AssociationReadyReportsDetailDialog } from "@modules/AssociationDashboard/parts/association-ready-reports-detail-dialog";
+import { AssociationCategoryAttentionDialog } from "@modules/AssociationDashboard/parts/association-category-attention-dialog";
+import { AssociationAttentionDetailDialog } from "@modules/AssociationDashboard/parts/association-attention-detail-dialog";
 import { AssociationAttentionSectionCard } from "@modules/AssociationDashboard/parts/association-attention-section";
 import { AssociationMessagePreviewDialog } from "@modules/AssociationDashboard/parts/association-message-preview-dialog";
 import { AssociationMessageHistory } from "@modules/AssociationDashboard/parts/association-message-history";
-import { AssociationAttentionStrip } from "@modules/AssociationDashboard/parts/association-attention-strip";
 import { useAssociationMessagesTab } from "@hooks/useAssociationMessagesTab";
 import { AssociationReadyReports } from "@modules/AssociationDashboard/parts/association-ready-reports";
 import { GlassCard } from "@elements/glass-card";
@@ -95,8 +97,6 @@ const AssociationMessagesTab = () => {
         </div>
       )}
 
-      <AssociationAttentionStrip hook={hook} />
-
       {isEverythingSettled && (
         <p className="rounded-md border p-4 text-sm text-muted-foreground">
           {label("allSettled")}
@@ -116,6 +116,9 @@ const AssociationMessagesTab = () => {
       <AssociationMessageHistory hook={hook} />
 
       <AssociationMessagePreviewDialog hook={hook} />
+      <AssociationAttentionDetailDialog hook={hook} />
+      <AssociationCategoryAttentionDialog hook={hook} />
+      <AssociationReadyReportsDetailDialog hook={hook} />
     </div>
   );
 };

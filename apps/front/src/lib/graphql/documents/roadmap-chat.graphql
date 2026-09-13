@@ -27,6 +27,10 @@ fragment ProfessionalRoadmapDraftFields on ProfessionalRoadmapDraft {
   isComplete
   needsClarification
   wasRefused
+  failureReason
+  completedFieldCount
+  requiredFieldCount
+  remainingFields
   updatedAt
   goal
   targetRole
@@ -86,6 +90,12 @@ mutation SendRoadmapChatTurn($input: RoadmapChatTurnInput!) {
 
 mutation PatchRoadmapDraft($input: PatchRoadmapDraftInput!) {
   patchRoadmapDraft(input: $input) {
+    ...ProfessionalRoadmapDraftFields
+  }
+}
+
+mutation RequestRoadmapGeneration($draftId: ID!) {
+  requestRoadmapGeneration(draftId: $draftId) {
     ...ProfessionalRoadmapDraftFields
   }
 }

@@ -1,8 +1,8 @@
 "use client";
 
-import { Facebook, Linkedin, Loader2 } from "lucide-react";
 import { useLinkedInSocialOAuth } from "@/hooks/useLinkedInSocialAuth";
 import { useGoogleSocialOAuth } from "@/hooks/useGoogleSocialAuth";
+import { Linkedin, Loader2 } from "lucide-react";
 import { TSocialAuthBtns } from "@/types/auth-module.types";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
@@ -29,7 +29,7 @@ const SocialAuthButtons = ({ role, disabled }: TSocialAuthBtns) => {
         </span>
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 gap-2">
         {isGoogleAllowed && (
           <Button
             radius="xl"
@@ -63,11 +63,6 @@ const SocialAuthButtons = ({ role, disabled }: TSocialAuthBtns) => {
             <span className="sr-only">{t("authPages.common.linkedin")}</span>
           </Button>
         )}
-
-        <Button type="button" variant="outline" radius="xl" disabled>
-          <Facebook className="h-4 w-4" />
-          <span className="sr-only">{t("authPages.common.facebook")}</span>
-        </Button>
       </div>
     </div>
   );

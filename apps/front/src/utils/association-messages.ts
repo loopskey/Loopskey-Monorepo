@@ -60,4 +60,4 @@ export const sectionSendButtonId = (section: TAttentionSection) =>
   `attention-send-${section}`;
 
 export const attentionSectionHref = (section: TAttentionSection) =>
-  `/dashboard/association?tab=messages&section=${section}`;
+  `/dashboard/association?tab=notifications&section=${section}`;

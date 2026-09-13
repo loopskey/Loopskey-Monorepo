@@ -1,6 +1,7 @@
 "use client";
 
 import { TAssociationReadyReports } from "@/types/association-dashboard.types";
+import { AssociationAttentionSection } from "@/lib/graphql/base";
 import { GlassCard } from "@elements/glass-card";
 import { Skeleton } from "@ui/skeleton";
 import { Button } from "@ui/button";
@@ -14,7 +15,7 @@ import * as L from "lucide-react";
 const LIBRARY_HREF = "/dashboard/association?tab=reports";
 
 export const AssociationReadyReports = ({ hook }: TAssociationReadyReports) => {
-  const { t, locale, readyReports, isReportsLoading } = hook;
+  const { t, locale, readyReports, isReportsLoading, openDetails } = hook;
 
   const label = (key: string, vars?: Record<string, string | number>) =>
     t(`associationDashboard.messages.${key}`, vars);
@@ -41,11 +42,26 @@ export const AssociationReadyReports = ({ hook }: TAssociationReadyReports) => {
             </div>
           </div>
 
-          <Badge variant={readyReports.length > 0 ? "secondary" : "outline"}>
-            {label("section.countReports", {
-              count: readyReports.length.toLocaleString(locale),
-            })}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant={readyReports.length > 0 ? "secondary" : "outline"}>
+              {label("section.countReports", {
+                count: readyReports.length.toLocaleString(locale),
+              })}
+            </Badge>
+
+            {readyReports.length > 0 && (
+              <Button
+                size="sm"
+                radius="xl"
+                type="button"
+                variant="outline"
+                onClick={() => openDetails(AssociationAttentionSection.ReadyReports)}
+              >
+                <L.ArrowUpRight className="h-4 w-4" />
+                {label("section.viewDetails")}
+              </Button>
+            )}
+          </div>
         </div>
 
         {isReportsLoading ? (

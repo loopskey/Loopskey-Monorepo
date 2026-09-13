@@ -19,6 +19,13 @@ import * as T from "@/types/professional-dashboard.types";
 const TRACKER = "professionalDashboard.cpdPduTracker";
 const TRACKER_HREF = "/dashboard/professional?tab=cpd-pdu-tracker";
 
+type TAddActivityStage =
+  | "idle"
+  | "saving"
+  | "uploading"
+  | "complete"
+  | "upload-failed";
+
 const defaultValues: SC.TPduActivityFormInput = {
   title: "",
   files: [],
@@ -46,6 +53,10 @@ export const useProfessionalAddActivity = () => {
   const [step, setStep] = useState<number>(1);
   const [files, setFiles] = useState<File[]>([]);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+  const [stage, setStage] = useState<TAddActivityStage>("idle");
+  const [pendingActivityId, setPendingActivityId] = useState<string | null>(
+    null,
+  );
 
   const reportingYearTouched = useRef<boolean>(false);
   const form = useForm<
@@ -174,19 +185,29 @@ export const useProfessionalAddActivity = () => {
     }
   };
 
-  const uploadPendingFiles = async (targetId: string) => {
-    if (!files.length) return true;
+  const successKey = isEditing
+    ? `${TRACKER}.addActivity.updateSuccess`
+    : `${TRACKER}.addActivity.createSuccess`;
+
+  const runUpload = async (targetId: string) => {
+    setStage("uploading");
     try {
       await uploadEvidence(targetId, files);
-      return true;
+      setFiles([]);
+      form.setValue("files", []);
+      setStage("complete");
+      setIsSubmitted(true);
+      notify.success(t(successKey));
     } catch {
+      setStage("upload-failed");
       notify.error(t(`${TRACKER}.evidence.uploadFailed`));
-      return false;
     }
   };
 
   const onSubmit = form.handleSubmit(async (values) => {
+    setStage("saving");
     try {
+      let targetId: string;
       if (isEditing && activityId) {
         await updateActivity({
           activityId,
@@ -206,38 +227,46 @@ export const useProfessionalAddActivity = () => {
           issuingOrganization: orUndefined(values.issuingOrganization),
           relatedCertification: orUndefined(values.relatedCertification),
         }).unwrap();
-        const uploaded = await uploadPendingFiles(activityId);
-        setFiles([]);
-        form.setValue("files", []);
-        if (uploaded) notify.success(t(`${TRACKER}.addActivity.updateSuccess`));
+        targetId = activityId;
+      } else {
+        const created = await createActivity({
+          title: values.title,
+          date: new Date(values.dateCompleted).toISOString(),
+          pdus: values.creditValue,
+          source: values.activityType,
+          category: values.category,
+          creditType: values.creditType,
+          reportingYear: values.reportingYear,
+          providerOrganizer: values.providerOrganizer,
+          learningOutcome: values.learningOutcome,
+          subCategory: orUndefined(values.subCategory),
+          issuingOrganization: orUndefined(values.issuingOrganization),
+          relatedCertification: orUndefined(values.relatedCertification),
+          description: orUndefined(values.description),
+          evidenceNote: orUndefined(values.evidenceNote),
+        }).unwrap();
+        targetId = created.id;
+        setPendingActivityId(created.id);
+      }
+
+      if (!files.length) {
+        setStage("complete");
         setIsSubmitted(true);
+        notify.success(t(successKey));
         return;
       }
-      const created = await createActivity({
-        title: values.title,
-        date: new Date(values.dateCompleted).toISOString(),
-        pdus: values.creditValue,
-        source: values.activityType,
-        category: values.category,
-        creditType: values.creditType,
-        reportingYear: values.reportingYear,
-        providerOrganizer: values.providerOrganizer,
-        learningOutcome: values.learningOutcome,
-        subCategory: orUndefined(values.subCategory),
-        issuingOrganization: orUndefined(values.issuingOrganization),
-        relatedCertification: orUndefined(values.relatedCertification),
-        description: orUndefined(values.description),
-        evidenceNote: orUndefined(values.evidenceNote),
-      }).unwrap();
-      const uploaded = await uploadPendingFiles(created.id);
-      setFiles([]);
-      form.setValue("files", []);
-      if (uploaded) notify.success(t(`${TRACKER}.addActivity.createSuccess`));
-      setIsSubmitted(true);
+      await runUpload(targetId);
     } catch {
+      setStage("idle");
       notify.error(t("authPages.common.genericError"));
     }
   });
+
+  const retryUpload = async () => {
+    const targetId = isEditing ? activityId : pendingActivityId;
+    if (!targetId || stage !== "upload-failed") return;
+    await runUpload(targetId);
+  };
 
   const handleAddAnother = () => {
     reportingYearTouched.current = false;
@@ -245,6 +274,8 @@ export const useProfessionalAddActivity = () => {
     setFiles([]);
     setStep(1);
     setIsSubmitted(false);
+    setStage("idle");
+    setPendingActivityId(null);
     if (isEditing) router.push("/dashboard/professional?tab=add-activity");
   };
 
@@ -263,6 +294,7 @@ export const useProfessionalAddActivity = () => {
     t,
     form,
     step,
+    stage,
     steps,
     files,
     goNext,
@@ -273,6 +305,7 @@ export const useProfessionalAddActivity = () => {
     isUploading,
     isRemoving,
     isSubmitted,
+    retryUpload,
     goToTracker,
     existingFiles,
     handleAddAnother,
@@ -282,6 +315,7 @@ export const useProfessionalAddActivity = () => {
     markReportingYearTouched,
     handleRemoveExistingFile,
     handleDownloadExistingFile,
+    hasUploadFailed: stage === "upload-failed",
     isLoadingActivity: isEditing && isLoadingActivity,
     isSaving: isCreating || isUpdating || isUploading,
   };

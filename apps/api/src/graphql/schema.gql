@@ -315,7 +315,6 @@ type AssociationAttentionCounts {
 
 type AssociationAttentionLists {
   counts: AssociationAttentionCounts!
-  distribution: AssociationMemberDistribution!
 }
 
 type AssociationAttentionRow {
@@ -387,6 +386,16 @@ input AssociationCatalogSearchInput {
   contentType: ContentType
   search: String
   take: Int = 20
+}
+
+type AssociationCategoryAttentionGroup {
+  affectedCount: Int!
+  categoryId: ID!
+  categoryName: String!
+  deadline: DateTime
+  members: [AssociationAttentionRow!]!
+  requirementId: ID!
+  requirementName: String!
 }
 
 type AssociationCategoryProgress {
@@ -559,15 +568,13 @@ type AssociationInviteResult {
 
 type AssociationLearningContent {
   audienceKind: AssociationAudienceKind!
-  category: PDUCategory!
+  category: PDUCategory
   contentId: ID
   contentType: ContentType
   createdAt: DateTime!
   description: String
   engagement: AssociationLearningEngagement
   externalUrl: String
-  groupId: ID
-  groupTitle: String
   id: ID!
   imageUrl: String
   indicativeCredits: Float
@@ -578,6 +585,7 @@ type AssociationLearningContent {
   requirementId: ID
   requirementName: String
   status: AssociationLearningContentStatus!
+  targets: [AssociationLearningContentTarget!]!
   title: String!
   updatedAt: DateTime!
   withdrawnAt: DateTime
@@ -601,6 +609,14 @@ enum AssociationLearningContentStatus {
   DRAFT
   PUBLISHED
   WITHDRAWN
+}
+
+type AssociationLearningContentTarget {
+  groupId: ID
+  id: ID!
+  kind: AssociationAudienceKind!
+  label: String
+  memberId: ID
 }
 
 type AssociationLearningEngagement {
@@ -1286,12 +1302,12 @@ type Certification {
   categories: [CertificationCategory!]!
   creditType: CreditType!
   id: ID!
+  isActive: Boolean!
   name: String!
   organization: String!
   organizationAbbr: String
   renewalCycleLabel: String!
   renewalCycleMonths: Int
-  suggestedDeadline: DateTime
   totalRequiredCredits: Float!
 }
 
@@ -1562,6 +1578,7 @@ type CpdPlanProgress {
   remainingCredits: Float!
   reportingExpired: Boolean!
   reportingNotStarted: Boolean!
+  startingCredits: Float!
   totalRequiredCredits: Float!
 }
 
@@ -1587,7 +1604,6 @@ input CreateAssociationGroupInput {
 }
 
 input CreateAssociationLearningContentInput {
-  category: PDUCategory!
   contentId: ID
   contentType: ContentType
   description: String
@@ -1595,7 +1611,6 @@ input CreateAssociationLearningContentInput {
   externalTitle: String
   externalUrl: String
   indicativeCredits: Float
-  requirementId: ID
 }
 
 input CreateAssociationRequirementDraftInput {
@@ -2968,6 +2983,12 @@ type PaginatedAssociationAttentionRows {
   totalCount: Int!
 }
 
+type PaginatedAssociationCategoryAttentionGroups {
+  items: [AssociationCategoryAttentionGroup!]!
+  pageInfo: AssociationPageInfo!
+  totalCount: Int!
+}
+
 type PaginatedAssociationGeneratedReports {
   items: [AssociationGeneratedReport!]!
   pageInfo: AssociationPageInfo!
@@ -3741,6 +3762,7 @@ type ProfessionalRoadmapDraft {
   certificationId: ID
   certificationName: String
   completedCredits: Float
+  completedFieldCount: Int!
   context: String
   cpdEnabled: Boolean!
   currentStep: RoadmapDraftStep!
@@ -3752,7 +3774,9 @@ type ProfessionalRoadmapDraft {
   needsClarification: Boolean!
   preferredContentTypes: [ContentType!]!
   preferredFormats: [LearningFormat!]!
+  remainingFields: [RoadmapDraftStep!]!
   requiredCredits: Float
+  requiredFieldCount: Int!
   skillLevel: SkillLevel
   status: RoadmapDraftStatus!
   subjectOptions: [RoadmapSubjectOption!]!
@@ -3777,6 +3801,14 @@ type ProfessionalRoadmapPhase {
   steps: [ProfessionalRoadmapStep!]!
   stepsCount: Int!
   title: String!
+}
+
+type ProfessionalRoadmapStats {
+  averageProgress: Int!
+  completedPhaseCount: Int!
+  enrolledCount: Int!
+  nextMilestone: Int
+  totalPhaseCount: Int!
 }
 
 type ProfessionalRoadmapStep {
@@ -4045,8 +4077,9 @@ type ProviderTopEvent {
 
 input PublishAssociationLearningContentInput {
   audienceKind: AssociationAudienceKind!
-  groupId: ID
+  groupIds: [ID!]
   learningContentId: ID!
+  memberIds: [ID!]
 }
 
 type Query {
@@ -4065,6 +4098,7 @@ type Query {
   associationAttentionLists(associationId: ID): AssociationAttentionLists!
   associationAttentionMembers(associationId: ID, pagination: AssociationReportPaginationInput, section: AssociationAttentionSection!): PaginatedAssociationAttentionRows!
   associationCatalogSearch(associationId: ID, input: AssociationCatalogSearchInput!): [AssociationCatalogItem!]!
+  associationCategoryAttentionGroups(associationId: ID, pagination: AssociationReportPaginationInput): PaginatedAssociationCategoryAttentionGroups!
   associationCategoryCompletionReport(associationId: ID, filter: AssociationReportFilterInput): [AssociationCategoryProgressRow!]!
   associationComplianceByGroup(associationId: ID, filter: AssociationReportFilterInput): [AssociationGroupCompliance!]!
   associationComplianceTrend(associationId: ID, filter: AssociationReportFilterInput): [AssociationComplianceTrendPoint!]!
@@ -4177,6 +4211,7 @@ type Query {
   professionalProfileTaxonomy(kind: ProfileTaxonomyKind): [ProfessionalTaxonomyGroup!]!
   professionalRoadmapDraft(draftId: ID, transcript: ProfessionalPaginationInput): ProfessionalRoadmapDraft
   professionalRoadmapRecommendations(enrollmentId: ID!): [RoadmapRecommendation!]!
+  professionalRoadmapStats: ProfessionalRoadmapStats!
   professionalSettings: ProfessionalSettings!
   providerAnalytics(input: ProviderDashboardRangeInput): ProviderAnalytics!
   providerAnalyticsCsv(input: ProviderDashboardRangeInput): CsvExport!
@@ -4523,7 +4558,6 @@ input UpdateAssociationGroupInput {
 }
 
 input UpdateAssociationLearningContentInput {
-  category: PDUCategory!
   contentId: ID
   contentType: ContentType
   description: String
@@ -4532,7 +4566,6 @@ input UpdateAssociationLearningContentInput {
   externalUrl: String
   indicativeCredits: Float
   learningContentId: ID!
-  requirementId: ID
 }
 
 input UpdateAssociationMemberInput {

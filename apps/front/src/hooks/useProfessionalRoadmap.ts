@@ -81,31 +81,23 @@ export const useProfessionalRoadmaps = () => {
   const myPageInfo = myRoadmapsData?.pageInfo;
   const explorePageInfo = exploreRoadmapsData?.pageInfo;
 
-  const stats = useMemo<T.TRoadmapStats>(() => {
-    const enrolled = myRoadmapsData?.totalCount ?? 0;
-    const averageProgress =
-      myRoadmaps.length > 0
-        ? Math.round(
-            myRoadmaps.reduce((sum, roadmap) => {
-              return sum + Number(roadmap.progress ?? 0);
-            }, 0) / myRoadmaps.length,
-          )
-        : 0;
-    const completedPhases = myRoadmaps.reduce((sum, roadmap) => {
-      return sum + Number(roadmap.completedPhases ?? 0);
-    }, 0);
+  const {
+    data: statsData,
+    isLoading: isStatsLoading,
+    isError: isStatsError,
+    refetch: refetchStats,
+  } = API.useProfessionalRoadmapStatsQuery();
 
-    const nextMilestone =
-      averageProgress >= 100
-        ? 100
-        : Math.min(Math.ceil((averageProgress + 1) / 25) * 25, 100);
-    return {
-      enrolled,
-      nextMilestone,
-      averageProgress,
-      completedPhases,
-    };
-  }, [myRoadmaps, myRoadmapsData?.totalCount]);
+  const stats = useMemo<T.TRoadmapStats>(
+    () => ({
+      enrolled: statsData?.enrolledCount ?? 0,
+      averageProgress: statsData?.averageProgress ?? 0,
+      completedPhases: statsData?.completedPhaseCount ?? 0,
+      totalPhases: statsData?.totalPhaseCount ?? 0,
+      nextMilestone: statsData?.nextMilestone ?? null,
+    }),
+    [statsData],
+  );
 
   const learningSteps = useMemo(() => {
     const selectedRoadmap = myRoadmaps[0];
@@ -201,6 +193,7 @@ export const useProfessionalRoadmaps = () => {
   const refetchAll = () => {
     refetchMyRoadmaps();
     refetchExploreRoadmaps();
+    refetchStats();
   };
 
   const formatWeeks = (weeks?: number | null) => {
@@ -257,5 +250,7 @@ export const useProfessionalRoadmaps = () => {
     handleExploreSearchChange,
     handleExploreSearchInputChange,
     recommendations: recommendations ?? [],
+    isStatsLoading,
+    isStatsError,
   };
 };

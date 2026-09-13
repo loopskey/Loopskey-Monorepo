@@ -662,6 +662,20 @@ export const associationApi = baseApi.injectEndpoints({
       providesTags: ["AssociationAttention"],
     }),
 
+    associationCategoryAttentionGroups: builder.query<
+      TAPI.AssociationCategoryAttentionGroupsQuery["associationCategoryAttentionGroups"],
+      TAPI.AssociationCategoryAttentionGroupsQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.AssociationCategoryAttentionGroupsDocument,
+        variables,
+      }),
+      transformResponse: (
+        response: TAPI.AssociationCategoryAttentionGroupsQuery,
+      ) => response.associationCategoryAttentionGroups,
+      providesTags: ["AssociationAttention"],
+    }),
+
     associationMessagePreview: builder.query<
       TAPI.AssociationMessagePreviewQuery["associationMessagePreview"],
       TAPI.AssociationMessagePreviewQueryVariables
@@ -913,6 +927,7 @@ export const {
   useAssociationRecentActivityQuery,
   useAssociationAttentionListsQuery,
   useAssociationAttentionMembersQuery,
+  useAssociationCategoryAttentionGroupsQuery,
   useAssociationMessagePreviewQuery,
   useAssociationMessageHistoryQuery,
   useSendAssociationMessageMutation,

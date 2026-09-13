@@ -72,6 +72,30 @@ export const roadmapChatApi = baseApi.injectEndpoints({
       transformResponse: (response: TAPI.PatchRoadmapDraftMutation) =>
         response.patchRoadmapDraft,
     }),
+
+    /**
+     * Accepting generation only flips the draft to GENERATING; the roadmap
+     * itself is built by the outbox worker. Invalidating both roadmap tags
+     * lets the My Roadmap tab's own bounded poll pick the new status up the
+     * moment it next queries, rather than waiting on a manual refresh.
+     */
+    requestRoadmapGeneration: builder.mutation<
+      TAPI.RequestRoadmapGenerationMutation["requestRoadmapGeneration"],
+      TAPI.RequestRoadmapGenerationMutationVariables["draftId"]
+    >({
+      query: (draftId) => ({
+        document: API.RequestRoadmapGenerationDocument,
+        variables: { draftId },
+      }),
+      transformResponse: (response: TAPI.RequestRoadmapGenerationMutation) =>
+        response.requestRoadmapGeneration,
+      invalidatesTags: [
+        "ProfessionalRoadmapDraft",
+        "ProfessionalRoadmaps",
+        "ProfessionalRoadmapStats",
+        "Professional",
+      ],
+    }),
   }),
 });
 
@@ -81,4 +105,5 @@ export const {
   useSendRoadmapChatTurnMutation,
   useProfessionalRoadmapDraftQuery,
   useLazyProfessionalRoadmapDraftQuery,
+  useRequestRoadmapGenerationMutation,
 } = roadmapChatApi;

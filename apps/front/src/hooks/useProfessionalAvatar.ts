@@ -1,17 +1,16 @@
 "use client";
 
-import { professionalApi } from "@/lib/rtk/endpoints/professional.api";
-import { refreshAccessToken } from "@/lib/rtk/graphqlBaseQuery";
+import { ProfessionalMessageCode } from "@loopskey/api-contracts/error-codes";
 import { useCallback, useState } from "react";
+import { refreshAccessToken } from "@/lib/rtk/graphqlBaseQuery";
+import { professionalApi } from "@/lib/rtk/endpoints/professional.api";
 import { useDispatch } from "react-redux";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
 
 import * as C from "@/utils/professional-profile.constant";
 
-type TAvatarTagList = Parameters<
-  typeof professionalApi.util.invalidateTags
->[0];
+type TAvatarTagList = Parameters<typeof professionalApi.util.invalidateTags>[0];
 
 const AVATAR_TAGS: TAvatarTagList = [
   "ProfessionalProfile",
@@ -22,12 +21,28 @@ const AVATAR_TAGS: TAvatarTagList = [
 
 const UNAUTHORIZED_STATUS = 401;
 
-/**
- * XHR (not fetch) so the upload can report real progress. Resolves with the
- * HTTP status rather than throwing, so the caller can decide what to retry.
- */
+const AVATAR_ERROR_MESSAGE_KEY: Record<string, string> = {
+  [ProfessionalMessageCode.AVATAR_FILE_INVALID_TYPE]:
+    "professionalDashboard.profile.errors.avatarType",
+  [ProfessionalMessageCode.AVATAR_FILE_TOO_LARGE]:
+    "professionalDashboard.profile.errors.avatarSize",
+  [ProfessionalMessageCode.AVATAR_STORAGE_UNAVAILABLE]:
+    "professionalDashboard.profile.errors.avatarStorageUnavailable",
+};
+
+type TAvatarUploadResult = { status: number; code?: string };
+
+const parseErrorCode = (responseText: string): string | undefined => {
+  try {
+    const body = JSON.parse(responseText) as { message?: unknown };
+    return typeof body.message === "string" ? body.message : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 const sendAvatarUpload = (file: File, onProgress: (value: number) => void) =>
-  new Promise<number>((resolve, reject) => {
+  new Promise<TAvatarUploadResult>((resolve, reject) => {
     const body = new FormData();
     body.append("file", file);
 
@@ -39,7 +54,11 @@ const sendAvatarUpload = (file: File, onProgress: (value: number) => void) =>
       if (!event.lengthComputable) return;
       onProgress(Math.round((event.loaded / event.total) * 100));
     };
-    request.onload = () => resolve(request.status);
+    request.onload = () => {
+      const status = request.status;
+      if (status >= 200 && status < 300) return resolve({ status });
+      resolve({ status, code: parseErrorCode(request.responseText) });
+    };
     request.onerror = () => reject(new Error("network"));
     request.send(body);
   });
@@ -51,15 +70,12 @@ export const useProfessionalAvatar = () => {
   const [isRemoving, setIsRemoving] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
 
   const refreshAvatarCaches = useCallback(() => {
     dispatch(professionalApi.util.invalidateTags(AVATAR_TAGS));
   }, [dispatch]);
 
-  /**
-   * Mirrors the API's own limits so an oversized or unsupported file never
-   * leaves the browser. The API re-validates both independently.
-   */
   const validateFile = useCallback(
     (file: File) => {
       const isAcceptedType = (
@@ -78,33 +94,50 @@ export const useProfessionalAvatar = () => {
     async (file: File) => {
       const validationError = validateFile(file);
       if (validationError) {
+        setPendingFile(null);
         setError(validationError);
         notify.error(validationError);
         return;
       }
 
+      setPendingFile(file);
       setError(null);
       setProgress(0);
       setIsUploading(true);
 
       try {
-        let status = await sendAvatarUpload(file, setProgress);
-        // This transport does not go through graphqlBaseQuery, so it has to
-        // recover from an expired access token itself or the upload would fail
-        // at a moment when every GraphQL call still succeeds.
-        if (status === UNAUTHORIZED_STATUS && (await refreshAccessToken()))
-          status = await sendAvatarUpload(file, setProgress);
-        if (status < 200 || status >= 300) throw new Error(String(status));
+        let result = await sendAvatarUpload(file, setProgress);
+        if (result.status === UNAUTHORIZED_STATUS) {
+          const refreshed = await refreshAccessToken();
+          if (!refreshed) {
+            const message = t(
+              "professionalDashboard.profile.errors.avatarUnauthenticated",
+            );
+            setError(message);
+            notify.error(message);
+            return;
+          }
+          result = await sendAvatarUpload(file, setProgress);
+        }
 
+        if (result.status < 200 || result.status >= 300) {
+          const message = t(
+            (result.code && AVATAR_ERROR_MESSAGE_KEY[result.code]) ||
+              "professionalDashboard.profile.errors.avatarUpload",
+          );
+          setError(message);
+          notify.error(message);
+          refreshAvatarCaches();
+          return;
+        }
+
+        setPendingFile(null);
         refreshAvatarCaches();
         notify.success(t("professionalDashboard.profile.avatar.uploaded"));
       } catch {
         const message = t("professionalDashboard.profile.errors.avatarUpload");
         setError(message);
         notify.error(message);
-        // The upload may have been persisted before whatever failed, so refresh
-        // rather than leave the UI asserting an avatar that is already stale.
-        refreshAvatarCaches();
       } finally {
         setIsUploading(false);
         setProgress(0);
@@ -112,6 +145,11 @@ export const useProfessionalAvatar = () => {
     },
     [refreshAvatarCaches, t, validateFile],
   );
+
+  const retryUpload = useCallback(() => {
+    if (!pendingFile || isUploading) return;
+    void uploadAvatar(pendingFile);
+  }, [isUploading, pendingFile, uploadAvatar]);
 
   const removeAvatar = useCallback(async () => {
     setError(null);
@@ -140,5 +178,7 @@ export const useProfessionalAvatar = () => {
     isUploading,
     uploadAvatar,
     removeAvatar,
+    retryUpload,
+    canRetry: Boolean(pendingFile) && !isUploading,
   };
 };

@@ -1,6 +1,5 @@
 "use client";
 
-import { PDU_CATEGORIES, getPduMonthLabel } from "@/utils/pdu.constant";
 import { useRouter, useSearchParams } from "next/navigation";
 import { usePduEvidenceUpload } from "@/hooks/usePduEvidenceUpload";
 import { useDebouncedValue } from "@/hooks/useDebounced";
@@ -48,13 +47,6 @@ export const useProfessionalCpdPduTracker = () => {
     [filters, debouncedSearch, currentYear],
   );
 
-  const {
-    data: report,
-    isLoading: isReportLoading,
-    isFetching: isReportFetching,
-    refetch: refetchReport,
-  } = API.useProfessionalPduReportQuery({ year: filters.year });
-
   const activityFilter = useMemo(
     () => H.buildActivityFilterInput({ filters, search: debouncedSearch }),
     [filters, debouncedSearch],
@@ -82,41 +74,6 @@ export const useProfessionalCpdPduTracker = () => {
 
   const activities = activitiesData?.items ?? [];
   const pageInfo = activitiesData?.pageInfo;
-
-  const categoryRows = useMemo<T.PduCategoryRow[]>(() => {
-    return PDU_CATEGORIES.map((category) => {
-      const earned = Number(
-        report?.byCategory?.find((item) => item.category === category)?.pdus ??
-          0,
-      );
-      const target = Number(
-        report?.targets?.find((item) => item.category === category)?.target ??
-          0,
-      );
-      const progress = target > 0 ? (earned / target) * 100 : 0;
-
-      return {
-        category,
-        earned,
-        target,
-        progress,
-        barValue: Math.min(progress, 100),
-        exceededBy: target > 0 && earned > target ? earned - target : 0,
-      };
-    }).filter((row) => row.earned > 0 || row.target > 0);
-  }, [report?.byCategory, report?.targets]);
-
-  const pduOverTime = useMemo(() => {
-    return (report?.byMonth ?? []).map((point) => ({
-      month: getPduMonthLabel(point.month),
-      pdus: Number(point.pdus ?? 0),
-    }));
-  }, [report?.byMonth]);
-
-  const hasChartData = useMemo(
-    () => pduOverTime.some((point) => point.pdus > 0),
-    [pduOverTime],
-  );
 
   const yearOptions = useMemo(
     () => H.buildActivityYearOptions(currentYear),
@@ -153,7 +110,6 @@ export const useProfessionalCpdPduTracker = () => {
   };
 
   const handleRefresh = () => {
-    void refetchReport();
     void refetchActivities();
     void refetchSummary();
   };
@@ -204,7 +160,6 @@ export const useProfessionalCpdPduTracker = () => {
   return {
     t,
     page,
-    report,
     filters,
     summary,
     pageInfo,
@@ -212,14 +167,10 @@ export const useProfessionalCpdPduTracker = () => {
     activities,
     handleNext,
     yearOptions,
-    pduOverTime,
-    hasChartData,
-    categoryRows,
     handleRefresh,
     activitiesData,
     handlePrevious,
     isSummaryError,
-    isReportLoading,
     isSummaryLoading,
     handleAddActivity,
     handleViewActivity,
@@ -232,7 +183,7 @@ export const useProfessionalCpdPduTracker = () => {
     isActivitiesFetching,
     handleDownloadEvidence,
     activityTypeOptions: H.ACTIVITY_TYPE_OPTIONS,
-    isRefreshing: isReportFetching || isActivitiesFetching,
+    isRefreshing: isActivitiesFetching,
     isDeletingActivity: Boolean(deletingActivityId),
   };
 };

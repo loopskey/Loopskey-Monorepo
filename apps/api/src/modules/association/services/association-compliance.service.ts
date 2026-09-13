@@ -63,6 +63,28 @@ const EMPTY: RecomputeOutcome = {
   discarded: 0,
 };
 
+export type AssignmentSnapshot = {
+  percent: number;
+  band: string;
+  completedCredits: number;
+  awaitingReviewCount: number;
+  isMissingEvidence: boolean;
+};
+
+export type AssignmentPreview = {
+  current: AssignmentSnapshot;
+  computed: AssignmentSnapshot;
+  wouldChange: boolean;
+};
+
+const snapshotsDiffer = (a: AssignmentSnapshot, b: AssignmentSnapshot) =>
+  Math.round(a.percent * 100) !== Math.round(b.percent * 100) ||
+  a.band !== b.band ||
+  Math.round(a.completedCredits * 100) !==
+    Math.round(b.completedCredits * 100) ||
+  a.awaitingReviewCount !== b.awaitingReviewCount ||
+  a.isMissingEvidence !== b.isMissingEvidence;
+
 @Injectable()
 export class AssociationComplianceService {
   private readonly logger = new Logger(AssociationComplianceService.name);
@@ -79,6 +101,77 @@ export class AssociationComplianceService {
       select: { onTrackThreshold: true },
     });
     return settings?.onTrackThreshold ?? DEFAULT_ON_TRACK_THRESHOLD;
+  }
+
+  private async computeTotals(
+    assignment: AssignmentForCompute,
+    activitiesForUser?: ComplianceActivity[],
+  ) {
+    const userId = assignment.member.userId;
+    const activityList =
+      activitiesForUser ??
+      (await this.activities.activitiesForMembers({ userIds: [userId] }));
+
+    const thresholds = await this.onTrackThreshold(
+      assignment.requirement.associationId,
+    );
+
+    const attributed = activityList
+      .map((activity) =>
+        C.attributionFor(activity, assignment.requirement, assignment),
+      )
+      .filter((attribution): attribution is C.Attribution =>
+        Boolean(attribution),
+      );
+
+    const totals = C.totalsFor(
+      attributed,
+      assignment.requirement.totalRequiredCredits,
+    );
+
+    const band = C.bandFor({
+      percent: totals.percent,
+      awaitingReviewCount: totals.awaitingReviewCount,
+      onTrackThreshold: thresholds,
+    });
+
+    return { attributed, totals, band };
+  }
+
+  /** Read-only comparison used by reconciliation dry-runs: never writes. */
+  async previewAssignment(
+    assignmentId: string,
+  ): Promise<AssignmentPreview | null> {
+    const assignment =
+      await this.prisma.associationRequirementAssignment.findUnique({
+        where: { id: assignmentId },
+        include: ASSIGNMENT_INCLUDE,
+      });
+
+    if (!assignment) return null;
+
+    const current: AssignmentSnapshot = {
+      percent: assignment.percent,
+      band: assignment.band,
+      completedCredits: assignment.completedCredits,
+      awaitingReviewCount: assignment.awaitingReviewCount,
+      isMissingEvidence: assignment.isMissingEvidence,
+    };
+
+    const { totals, band } = await this.computeTotals(assignment);
+    const computed: AssignmentSnapshot = {
+      percent: totals.percent,
+      band,
+      completedCredits: totals.completedCredits,
+      awaitingReviewCount: totals.awaitingReviewCount,
+      isMissingEvidence: totals.isMissingEvidence,
+    };
+
+    return {
+      current,
+      computed,
+      wouldChange: snapshotsDiffer(current, computed),
+    };
   }
 
   private async recomputeAssignments(
@@ -98,32 +191,36 @@ export class AssociationComplianceService {
           await this.activities.activitiesForMembers({ userIds: [userId] }),
         );
 
-      const thresholds = await this.onTrackThreshold(
-        assignment.requirement.associationId,
+      const { attributed, totals, band } = await this.computeTotals(
+        assignment,
+        byUser.get(userId),
       );
-
-      const attributed = (byUser.get(userId) ?? [])
-        .map((activity) =>
-          C.attributionFor(activity, assignment.requirement, assignment),
-        )
-        .filter((attribution): attribution is C.Attribution =>
-          Boolean(attribution),
-        );
-
-      const totals = C.totalsFor(
-        attributed,
-        assignment.requirement.totalRequiredCredits,
-      );
-
-      const band = C.bandFor({
-        percent: totals.percent,
-        awaitingReviewCount: totals.awaitingReviewCount,
-        onTrackThreshold: thresholds,
-      });
 
       const keep = attributed.map((attribution) => attribution.activityId);
 
+      // Claim the assignment under the same staleness guard before touching
+      // attributions: a slower, older recompute must not overwrite rows a
+      // newer concurrent recompute already wrote once it loses the claim.
       const written = await this.prisma.$transaction(async (tx) => {
+        const applied = await tx.associationRequirementAssignment.updateMany({
+          where: {
+            id: assignment.id,
+            OR: [{ computedAt: null }, { computedAt: { lte: startedAt } }],
+          },
+          data: {
+            completedCredits: totals.completedCredits,
+            recordedCredits: totals.completedCredits,
+            percent: totals.percent,
+            band,
+            awaitingReviewCount: totals.awaitingReviewCount,
+            isMissingEvidence: totals.isMissingEvidence,
+            computedAt: startedAt,
+          },
+        });
+
+        if (applied.count === 0)
+          return { attributions: 0, removed: 0, applied: 0 };
+
         for (const attribution of attributed)
           await tx.associationCreditAttribution.upsert({
             where: {
@@ -146,22 +243,6 @@ export class AssociationComplianceService {
           where: {
             assignmentId: assignment.id,
             ...(keep.length ? { activityId: { notIn: keep } } : {}),
-          },
-        });
-
-        const applied = await tx.associationRequirementAssignment.updateMany({
-          where: {
-            id: assignment.id,
-            OR: [{ computedAt: null }, { computedAt: { lte: startedAt } }],
-          },
-          data: {
-            completedCredits: totals.completedCredits,
-            recordedCredits: totals.completedCredits,
-            percent: totals.percent,
-            band,
-            awaitingReviewCount: totals.awaitingReviewCount,
-            isMissingEvidence: totals.isMissingEvidence,
-            computedAt: startedAt,
           },
         });
 

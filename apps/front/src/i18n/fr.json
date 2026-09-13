@@ -188,6 +188,7 @@
         "evidenceMissing": "Preuves manquantes",
         "evidenceMissingHelper": "Activités sans preuve"
       },
+      "startingCredits": "Plus {{amount}} {{credit}} de crédits de départ antérieurs au suivi de vos activités ici, affichés à titre historique et non comptabilisés dans les crédits obtenus, restants ou le graphique de progression.",
       "overallTitle": "Progression globale",
       "overallSubtitle": "Crédits obtenus par rapport aux crédits requis",
       "accessibleSummary": "Obtenu {{earned}} sur {{total}} {{credit}} ({{percent}} %).",
@@ -2468,6 +2469,14 @@
     "openMenu": "Ouvrir le menu",
     "closeMenu": "Fermer le menu"
   },
+  "dashboardShell": {
+    "drawer": {
+      "openMenu": "Ouvrir le menu du tableau de bord",
+      "closeMenu": "Fermer le menu du tableau de bord",
+      "title": "Menu du tableau de bord",
+      "navLabel": "Navigation du tableau de bord"
+    }
+  },
   "footer": {
     "brandDescription": "Votre plateforme tout-en-un pour tous vos besoins éducatifs. Découvrez, apprenez et progressez avec nous.",
     "explore": "Explorer",
@@ -2527,7 +2536,9 @@
       "emailSendFailed": "Nous n’avons pas pu envoyer l’e-mail. Veuillez réessayer.",
       "passwordTooObvious": "Choisissez un mot de passe moins prévisible.",
       "passwordsDoNotMatch": "Le nouveau mot de passe et sa confirmation ne correspondent pas.",
-      "passwordStrength": "Le mot de passe doit contenir au moins 8 caractères, avec des lettres et des chiffres."
+      "passwordStrength": "Le mot de passe doit contenir au moins 8 caractères, avec des lettres et des chiffres.",
+      "fullNameMin": "Le nom complet doit contenir au moins 2 caractères.",
+      "fullNameMax": "Le nom complet doit contenir au maximum 120 caractères."
     },
     "oauth": {
       "completingLogin": "Finalisation de votre connexion",
@@ -2565,7 +2576,6 @@
       "orContinueWith": "Ou continuer avec",
       "google": "Google",
       "linkedin": "LinkedIn",
-      "facebook": "Facebook",
       "back": "Retour",
       "backToHome": "Retour à l'accueil",
       "loginSuccess": "Connexion réussie.",
@@ -3394,7 +3404,8 @@
         "removed": "Photo de profil supprimée",
         "hint": "JPG, PNG ou WebP. Jusqu'à {{size}} Mo.",
         "deleteTitle": "Supprimer la photo de profil ?",
-        "deleteDescription": "Votre photo de profil sera définitivement supprimée. Vous pourrez en téléverser une nouvelle à tout moment."
+        "deleteDescription": "Votre photo de profil sera définitivement supprimée. Vous pourrez en téléverser une nouvelle à tout moment.",
+        "retry": "Réessayer"
       },
       "basic": {
         "title": "Profil de base",
@@ -3404,7 +3415,6 @@
         "email": "Adresse e-mail",
         "emailVerified": "Adresse e-mail vérifiée.",
         "emailUnverified": "Cette adresse e-mail n'est pas encore vérifiée.",
-        "changeEmail": "Modifier l'e-mail en toute sécurité",
         "linkedInUrl": "URL LinkedIn",
         "linkedInUrlHint": "Par exemple https://www.linkedin.com/in/votre-nom",
         "country": "Pays",
@@ -3553,6 +3563,8 @@
         "avatarUpload": "Impossible de téléverser votre photo. Veuillez réessayer.",
         "avatarDelete": "Impossible de supprimer votre photo. Veuillez réessayer.",
         "avatarUnavailable": "Impossible de charger votre photo. Veuillez la téléverser à nouveau.",
+        "avatarStorageUnavailable": "Le stockage des photos est temporairement indisponible. Veuillez réessayer sous peu.",
+        "avatarUnauthenticated": "Votre session a expiré. Veuillez vous reconnecter pour téléverser une photo.",
         "saveFailed": "Impossible d'enregistrer vos modifications. Veuillez réessayer.",
         "deleteFailed": "Impossible de supprimer cet élément. Veuillez réessayer.",
         "loadFailed": "Impossible de charger votre profil."
@@ -3849,18 +3861,6 @@
           }
         }
       },
-      "byCategory": {
-        "title": "PDU par catégorie",
-        "subtitle": "Progression par rapport aux objectifs de chaque catégorie.",
-        "empty": "Ajoutez une activité ou définissez un objectif annuel pour voir la répartition par catégorie.",
-        "noTarget": "Aucun objectif",
-        "exceededBy": "Dépassé de {{amount}} PDU"
-      },
-      "overTime": {
-        "title": "PDU dans le temps",
-        "subtitle": "Crédits mensuels obtenus sur l’année sélectionnée.",
-        "empty": "Aucun crédit enregistré pour cette année."
-      },
       "activities": {
         "title": "Activités",
         "subtitle": "Gérez toutes les activités d’apprentissage que vous avez enregistrées.",
@@ -3990,7 +3990,8 @@
         "download": "Télécharger",
         "remove": "Supprimer",
         "removed": "Fichier supprimé.",
-        "uploadFailed": "L’activité a été enregistrée, mais les fichiers n’ont pas pu être téléversés. Veuillez réessayer de les joindre.",
+        "uploadFailed": "L’activité a été enregistrée, mais les fichiers n’ont pas pu être téléversés. Vos fichiers restent sélectionnés — utilisez Réessayer pour terminer.",
+        "retryUpload": "Réessayer le téléversement",
         "fileTooLarge": "« {{name}} » dépasse 20 Mo.",
         "fileTypeInvalid": "« {{name}} » n’est pas un type de fichier accepté.",
         "tooManyFiles": "Vous pouvez joindre au maximum {{max}} fichiers."
@@ -4261,6 +4262,7 @@
       "averageCompletion": "Progression moyenne",
       "completedPhases": "Phases terminées",
       "nextMilestone": "Prochain jalon",
+      "notAvailable": "Non disponible",
       "yourLearningPath": "Votre parcours actuel",
       "learningPathDescription": "Les phases de votre parcours apparaîtront ici dès que vous serez inscrit à une feuille de route.",
       "noLearningPath": "Aucun parcours actif",
@@ -4379,11 +4381,17 @@
         "description": "Recherchez des événements et sélectionnez une date de début et de fin pour affiner la vue du calendrier.",
         "from": "Du",
         "to": "Au",
-        "reset": "Réinitialiser"
+        "reset": "Réinitialiser",
+        "trigger": "Filtres",
+        "active": "Filtres actifs"
       },
       "calendarChart": {
         "title": "Calendrier interactif",
-        "description": "Sélectionnez une plage de dates directement dans le calendrier ou cliquez sur un événement pour voir les détails."
+        "description": "Sélectionnez une plage de dates directement dans le calendrier ou cliquez sur un événement pour voir les détails.",
+        "view": {
+          "agenda": "Agenda",
+          "month": "Mois"
+        }
       },
       "allEvents": {
         "title": "Tous les événements inscrits",
@@ -5215,7 +5223,7 @@
       "requirements": "Exigences",
       "learningContent": "Contenu de formation",
       "reports": "Rapports",
-      "messages": "Messages",
+      "notifications": "Notifications",
       "settings": "Paramètres"
     },
     "overview": {
@@ -5312,7 +5320,11 @@
         "backToRoster": "Retour à la liste",
         "resend": "Renvoyer l'invitation",
         "reactivate": "Réactiver",
-        "deactivate": "Désactiver"
+        "deactivate": "Désactiver",
+        "upload": "Importer des membres",
+        "assignRequirement": "Assigner une exigence",
+        "more": "Plus d'actions",
+        "edit": "Modifier le membre"
       },
       "stats": {
         "total": "Membres au total",
@@ -5415,17 +5427,15 @@
           "memberNumberTooLong": "Le numéro de membre est trop long"
         }
       },
-      "chart": {
-        "title": "Composition de la liste",
-        "description": "La répartition de vos membres entre les groupes, et l'état d'activation de chacun. Sélectionnez un segment pour filtrer la liste ci-dessous.",
-        "ungrouped": "Sans groupe",
-        "caption": "Membres par groupe, répartis par statut de compte.",
-        "groupHeader": "Groupe",
-        "chartLabel": "Composition de la liste par groupe et par statut",
-        "chartDescription": "Une barre horizontale par groupe, segmentée entre membres actifs, en attente d'activation et inactifs.",
-        "emptyTitle": "Rien à représenter pour l'instant",
-        "emptyBody": "Dès que vous aurez des membres, ce graphique montrera leur répartition entre vos groupes.",
-        "partial": "Établi à partir des {{shown}} premiers membres sur {{total}}."
+      "assignPicker": {
+        "title": "Assigner une exigence",
+        "description": "Choisissez un membre pour ouvrir sa liste d'exigences et lui en assigner une.",
+        "selectLabel": "Membre",
+        "placeholder": "Rechercher par nom, e-mail ou numéro de membre",
+        "empty": "Aucun membre ne correspond à votre recherche.",
+        "results": "{{count}} membres",
+        "cancel": "Annuler",
+        "continue": "Continuer"
       },
       "groups": {
         "createTitle": "Créer un groupe",
@@ -5897,6 +5907,7 @@
         "view": "Voir le détail",
         "edit": "Modifier",
         "publish": "Publier",
+        "reassign": "Modifier l'audience",
         "withdraw": "Retirer",
         "delete": "Supprimer"
       },
@@ -5926,7 +5937,7 @@
         "noProvider": "Aucun fournisseur indiqué",
         "credits": "{{credits}} crédits indicatifs",
         "forRequirement": "Compte pour {{requirement}}",
-        "forGroup": "Publié auprès de {{group}}",
+        "uncategorised": "Sans catégorie",
         "unavailable": "Plus disponible",
         "actionsFor": "Actions pour {{title}}"
       },
@@ -5951,22 +5962,52 @@
         "title": "Titre",
         "provider": "Fournisseur",
         "url": "Lien",
-        "category": "Catégorie",
         "credits": "Crédits indicatifs",
-        "requirement": "Compte pour",
-        "noRequirement": "Aucune exigence",
         "description": "Pourquoi vous le recommandez",
-        "save": "Enregistrer"
+        "cpdAdvisory": "Cette valeur de crédit est purement indicative. Un membre ne gagne un crédit qu'en enregistrant une activité correspondante et, si nécessaire, après validation des preuves.",
+        "unsavedTitle": "Abandonner vos modifications ?",
+        "unsavedBody": "Vous avez saisi des informations qui n'ont pas été enregistrées. Fermer maintenant les abandonnera.",
+        "unsavedKeep": "Continuer la modification",
+        "unsavedDiscard": "Abandonner"
       },
-      "publish": {
-        "title": "Publier auprès de vos membres",
-        "description": "Un élément publié est visible par l'audience que vous choisissez. Vous pourrez le retirer plus tard sans le perdre.",
+      "wizard": {
+        "step1": {
+          "title": "Contenu",
+          "description": "Ce que vous partagez"
+        },
+        "step2": {
+          "title": "Paramètres CPD",
+          "description": "Valeur de crédit indicative"
+        },
+        "step3": {
+          "title": "Attribution",
+          "description": "Qui le voit"
+        },
+        "step4": {
+          "title": "Révision",
+          "description": "Confirmer et publier"
+        }
+      },
+      "assignment": {
+        "groups": "Groupes",
+        "noGroups": "Vous n'avez pas encore créé de groupe.",
+        "groupsRequired": "Choisissez au moins un groupe.",
+        "members": "Membres",
+        "membersEmpty": "Aucun membre ne correspond à votre recherche.",
+        "membersResults": "{{count}} membres",
+        "membersRequired": "Choisissez au moins un membre.",
+        "membersPlaceholder": "Rechercher par nom, e-mail ou numéro de membre",
+        "membersCount": "{{count}} membres"
+      },
+      "review": {
+        "title": "Révision",
+        "cpdNotice": "La publication n'attribue ni n'approuve aucun crédit. Les membres ne gagnent un crédit qu'en enregistrant eux-mêmes une activité admissible.",
+        "contentPending": "Aucun contenu sélectionné pour le moment",
+        "credits": "Crédits indicatifs",
+        "noCredits": "Non précisé",
         "audience": "Audience",
-        "allMembers": "Tous les membres",
-        "oneGroup": "Un groupe",
-        "group": "Groupe",
-        "groupPlaceholder": "Choisissez un groupe",
-        "confirm": "Publier"
+        "saveDraft": "Enregistrer comme brouillon",
+        "publish": "Publier"
       },
       "detail": {
         "title": "Élément de la bibliothèque",
@@ -5974,12 +6015,12 @@
         "source": "Source",
         "provider": "Fournisseur",
         "category": "Catégorie",
+        "uncategorised": "Sans catégorie",
         "credits": "Crédits indicatifs",
         "noCredits": "Non précisé",
         "requirement": "Compte pour",
         "noRequirement": "Aucune exigence",
         "audience": "Audience",
-        "allMembers": "Tous les membres",
         "published": "Publié le",
         "withdrawn": "Retiré le",
         "unavailableBody": "Ce contenu n'est plus publié dans le catalogue. Il est conservé ici pour que vous puissiez le remplacer plutôt que de perdre la recommandation.",
@@ -6243,17 +6284,11 @@
       }
     },
     "messages": {
-      "title": "Messages",
+      "title": "Notifications",
       "description": "Cinq listes de membres qui ont besoin de quelque chose, chacune avec un message que Loopskey envoie en votre nom. Vous choisissez les destinataires ; la formulation est la nôtre.",
       "allSettled": "Rien ne requiert votre attention pour le moment. Toutes les listes sont vides.",
       "sent": "Envoyé à {{count}} membres.",
       "sendFailed": "Ce message n'a pas pu être envoyé. Réessayez.",
-      "strip": {
-        "title": "Où en sont vos membres",
-        "label": "Membres par statut de conformité",
-        "description": "Une barre unique montrant combien de membres se trouvent dans chaque statut de conformité, de prêt au renouvellement à pas commencé.",
-        "atRisk": "{{count}} à risque ({{share}} % des membres)"
-      },
       "error": {
         "title": "Ces listes n'ont pas pu être chargées",
         "body": "Une erreur s'est produite pendant le calcul des membres à contacter.",
@@ -6267,14 +6302,15 @@
         "clear": "Effacer la sélection",
         "selectMember": "Inclure {{name}} dans ce message",
         "joinedOn": "Inscrit le {{when}}",
-        "truncated": "{{shown}} sur {{total}} affichés. Restreignez à un groupe pour voir le reste."
+        "truncated": "{{shown}} sur {{total}} affichés. Restreignez à un groupe pour voir le reste.",
+        "viewDetails": "Voir les détails"
       },
       "sections": {
         "BELOW_THRESHOLD": {
           "title": "Membres à contacter",
-          "description": "Membres sous votre seuil de risque sur au moins une exigence.",
+          "description": "Membres actifs ayant une exigence incomplète dont l'échéance tombe dans les trente prochains jours.",
           "action": "Envoyer le rappel",
-          "settled": "Aucun membre n'est sous votre seuil de risque."
+          "settled": "Aucun membre n'a d'exigence incomplète échéant dans les trente prochains jours."
         },
         "NEW_JOINERS": {
           "title": "Nouveaux membres",
@@ -6283,16 +6319,16 @@
           "settled": "Tous les membres récents ont été accueillis."
         },
         "CATEGORY_BEHIND": {
-          "title": "Catégories en retard",
-          "description": "Membres en retard dans une catégorie en particulier, pour que le rappel puisse la nommer.",
+          "title": "Catégories à traiter",
+          "description": "Catégories où un ou plusieurs membres sont en retard, regroupées par exigence.",
           "action": "Envoyer le rappel par catégorie",
-          "settled": "Aucun membre n'est nettement en retard dans une seule catégorie."
+          "settled": "Aucune catégorie n'a de membre nettement en retard."
         },
         "EXPIRING_CERTIFICATES": {
-          "title": "Certifications qui expirent",
-          "description": "Membres détenant un certificat expiré ou qui expire dans les quatre-vingt-dix jours.",
+          "title": "Certifications expirées ou qui expirent",
+          "description": "Membres détenant un certificat déjà expiré ou qui expire dans les trente jours.",
           "action": "Envoyer l'avis d'expiration",
-          "settled": "Aucun certificat n'expire dans les quatre-vingt-dix prochains jours."
+          "settled": "Aucun certificat n'a expiré ou n'expire dans les trente prochains jours."
         },
         "READY_REPORTS": {
           "title": "Rapports prêts",
@@ -6300,6 +6336,32 @@
           "action": "Ouvrir la bibliothèque de rapports",
           "settled": "Aucun export ne vous attend."
         }
+      },
+      "detail": {
+        "title": "{{title}} — détails",
+        "close": "Fermer",
+        "next": "Suivant",
+        "previous": "Précédent",
+        "reason": "{{completed}} sur {{required}} crédits",
+        "expired": "Expiré le {{when}}",
+        "expiring": "Expire le {{when}}",
+        "affected": "{{count}} concernés",
+        "deadline": "Échéance {{when}}",
+        "viewMember": "Voir le membre",
+        "empty": "Il n'y a rien à afficher ici.",
+        "reportName": "Rapport",
+        "reportType": "Type",
+        "reportPeriod": "Période couverte",
+        "reportGenerated": "Généré",
+        "reportStatus": "Statut",
+        "reportActions": "Actions",
+        "download": "Télécharger",
+        "columnJoined": "Inscrit",
+        "columnDeadline": "Échéance",
+        "columnCertificate": "Certification",
+        "columnCategory": "Catégorie",
+        "columnAffected": "Membres concernés",
+        "columnEarned": "Acquis / requis"
       },
       "preview": {
         "title": "Relire avant d'envoyer",
@@ -6395,7 +6457,7 @@
         "onTrackThreshold": "Seuil « en bonne voie »",
         "onTrackThresholdHint": "À partir de ce pourcentage, un membre est considéré en bonne voie.",
         "atRiskThreshold": "Seuil « à risque »",
-        "atRiskThresholdHint": "En dessous de ce pourcentage, un membre apparaît dans les listes de l'onglet Messages.",
+        "atRiskThresholdHint": "En dessous de ce pourcentage, un membre apparaît dans les listes de l'onglet Notifications.",
         "renewalRequiresReviewedEvidence": "Le renouvellement exige tous les examens réglés",
         "renewalRequiresReviewedEvidenceHint": "Un membre dont une preuve attend encore votre décision n'est pas déclaré prêt au renouvellement.",
         "orderInvalid": "Le seuil « à risque » doit rester sous le seuil « en bonne voie ».",
@@ -7076,7 +7138,16 @@
       "back": "Retour",
       "next": "Suivant",
       "finish": "Terminer",
-      "saving": "Enregistrement…"
+      "saving": "Enregistrement…",
+      "skip": "Passer pour l'instant"
+    },
+    "skip": {
+      "title": "Passer la configuration pour l'instant ?",
+      "description": "Vous pourrez terminer plus tard depuis votre profil. Vos réponses déjà données sont conservées.",
+      "confirm": "Passer la configuration",
+      "cancel": "Continuer la configuration",
+      "skipping": "Passage en cours…",
+      "error": "Nous n'avons pas pu passer la configuration. Veuillez réessayer."
     },
     "errors": {
       "roleRequired": "Choisissez une suggestion ou saisissez votre poste actuel.",
@@ -7127,8 +7198,11 @@
       "no": "Non",
       "notSet": "Non renseigné",
       "generate": "Générer mon parcours",
-      "generateUnavailable": "La génération d'un parcours arrive dans la prochaine version.",
-      "keepEditing": "Continuer à modifier"
+      "generating": "Démarrage de la génération...",
+      "generateFailed": "Impossible de démarrer la génération de votre parcours. Veuillez réessayer.",
+      "generateUnavailable": "Répondez aux champs obligatoires restants pour générer votre parcours.",
+      "briefProgress": "Progression du résumé",
+      "briefProgressValue": "{{completed}} champs sur {{required}} complétés"
     },
     "field": {
       "goal": "Objectif",

@@ -1,8 +1,10 @@
 import { associationReportDownloadUrl } from "@loopskey/api-contracts/upload";
 import { AssociationGeneratedReportState } from "@/lib/graphql/base";
 import { AssociationReportFormat, AssociationReportType } from "@/lib/graphql/base";
+import { AssociationReportPeriod } from "@/lib/graphql/base";
 
 import { PDU_API_ORIGIN } from "@utils/pdu.constant";
+import { formatReportDate } from "@utils/association-reports";
 
 import type { TAssociationReportKey } from "@utils/association-reports";
 
@@ -65,6 +67,30 @@ export const formatExportSize = (
   }
 
   return `${size.toLocaleString(locale, { maximumFractionDigits: unit === 0 ? 0 : 1 })} ${SIZE_UNITS[unit]}`;
+};
+
+export const formatExportPeriod = (
+  filter: {
+    period?: AssociationReportPeriod | null;
+    startDate?: string | null;
+    endDate?: string | null;
+  },
+  t: (key: string, vars?: Record<string, string | number>) => string,
+  locale: string,
+  none: string,
+) => {
+  if (!filter.period) return none;
+
+  if (filter.period !== AssociationReportPeriod.Custom)
+    return t(`associationDashboard.reports.periods.${filter.period}`);
+
+  if (!filter.startDate || !filter.endDate)
+    return t("associationDashboard.reports.periods.CUSTOM");
+
+  return t("associationDashboard.reports.customRange", {
+    start: formatReportDate(filter.startDate, locale, none),
+    end: formatReportDate(filter.endDate, locale, none),
+  });
 };
 
 export const downloadAssociationReportExport = async (file: {

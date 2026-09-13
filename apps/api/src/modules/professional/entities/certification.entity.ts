@@ -20,9 +20,9 @@ export class CertificationEntity {
   @Field(() => CreditType) creditType: CreditType;
   @Field(() => Float) totalRequiredCredits: number;
   @Field(() => String, { nullable: true }) association?: string | null;
-  @Field(() => Date, { nullable: true }) suggestedDeadline?: Date | null;
   @Field(() => Int, { nullable: true }) renewalCycleMonths?: number | null;
   @Field(() => String, { nullable: true }) organizationAbbr?: string | null;
+  @Field(() => Boolean) isActive: boolean;
   @Field(() => [CertificationCategoryEntity])
   categories: CertificationCategoryEntity[];
 }

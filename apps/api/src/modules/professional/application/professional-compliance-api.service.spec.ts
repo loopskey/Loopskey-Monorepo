@@ -1,4 +1,5 @@
 import { ProfessionalComplianceApiService } from "@professional/application/professional-compliance-api.service";
+import { LearningActivityChangeKind } from "@professional/public/professional-compliance-api.events";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { PDUCompletionStatus, PDUStatus } from "@prisma/client";
 import { CreditType, PDUCategory } from "@prisma/client";
@@ -44,19 +45,25 @@ const setup = ({
   const findMany = jest.fn().mockResolvedValue(rows);
   const findFirst = jest.fn().mockResolvedValue(rows[0] ?? null);
   const updateMany = jest.fn().mockResolvedValue({ count: settledCount });
-  const findUnique = jest.fn().mockResolvedValue({ userId: "user-1" });
+  const findUnique = jest.fn().mockResolvedValue({
+    userId: "user-1",
+    updatedAt: new Date("2026-06-01T00:00:00.000Z"),
+  });
   const append = jest.fn().mockResolvedValue({});
   const fileFindFirst = jest.fn().mockResolvedValue(fileRow);
   const certificateFileFindFirst = jest.fn().mockResolvedValue(fileRow);
   const certificateFindMany = jest.fn().mockResolvedValue(certificateRows);
   const resolve = jest.fn(resolvePath);
 
-  const prisma = {
+  const prisma: Record<string, unknown> = {
     pDUActivity: { findMany, findFirst, updateMany, findUnique },
     pDUActivityFile: { findFirst: fileFindFirst },
     certificateFile: { findFirst: certificateFileFindFirst },
     certificate: { findMany: certificateFindMany },
   };
+  prisma.$transaction = jest.fn(async (run: (tx: unknown) => unknown) =>
+    run(prisma),
+  );
 
   return {
     findMany,
@@ -188,8 +195,13 @@ describe("ProfessionalComplianceApiService", () => {
       expect(append).toHaveBeenCalledWith(
         expect.objectContaining({
           aggregateId: "act-1",
-          payload: { activityId: "act-1", userId: "user-1" },
+          payload: expect.objectContaining({
+            activityId: "act-1",
+            userId: "user-1",
+            changeKind: LearningActivityChangeKind.STATUS_CHANGED,
+          }),
         }),
+        expect.anything(),
       );
     });
   });
