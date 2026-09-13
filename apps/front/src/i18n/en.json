@@ -2470,12 +2470,7 @@
     "closeMenu": "Close menu"
   },
   "dashboardShell": {
-    "drawer": {
-      "openMenu": "Open dashboard menu",
-      "closeMenu": "Close dashboard menu",
-      "title": "Dashboard menu",
-      "navLabel": "Dashboard navigation"
-    }
+    "navLabel": "Dashboard navigation"
   },
   "footer": {
     "brandDescription": "Your one-stop platform for all educational needs. Discover, learn, and grow with us.",
