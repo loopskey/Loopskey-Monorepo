@@ -2,8 +2,10 @@
 
 import { siteLinks, socialLinks, solutionEntries } from "@/utils/constant";
 import { TFooterLink, TSocialLink } from "@/types/element.types";
+import { isFocusedShellRoute } from "@/utils/focused-shell";
 import { Facebook, Linkedin } from "lucide-react";
 import { FooterColumn } from "@layouts/parts/footer-column";
+import { usePathname } from "next/navigation";
 import { Youtube } from "lucide-react";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
@@ -13,6 +15,9 @@ import Link from "next/link";
 
 const Footer = () => {
   const { t } = useI18n();
+  const pathname = usePathname();
+
+  if (isFocusedShellRoute(pathname)) return null;
 
   const solutionLinks: TFooterLink[] = solutionEntries.map(
     ({ href, labelKey }) => ({ href, label: t(labelKey) }),

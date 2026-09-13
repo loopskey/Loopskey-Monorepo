@@ -7,26 +7,25 @@ import { Loader2 } from "lucide-react";
 
 import * as C from "@/utils/professional-onboarding.constant";
 
-export const ProfessionalOnboardingGate = ({
+export const ProfessionalOnboardingEntryGuard = ({
   children,
 }: {
   children: ReactNode;
 }) => {
   const router = useRouter();
-
   const { data, error, isLoading, isFetching } =
     useProfessionalDashboardProfileQuery();
 
   const isSettled = Boolean(data) && !isFetching && !error;
-  const needsOffer =
-    isSettled && !data?.onboardingCompletedAt && !data?.onboardingDismissedAt;
+  const isAlreadyResolved =
+    isSettled && Boolean(data?.onboardingCompletedAt || data?.onboardingDismissedAt);
 
   useEffect(() => {
-    if (needsOffer) router.replace(C.ONBOARDING_HREF);
-  }, [router, needsOffer]);
+    if (isAlreadyResolved) router.replace(C.PROFILE_TAB_HREF);
+  }, [isAlreadyResolved, router]);
 
   if (error) return <>{children}</>;
-  if (isLoading || !data || needsOffer)
+  if (isLoading || !data || isAlreadyResolved)
     return (
       <div className="flex min-h-[70vh] items-center justify-center">
         <Loader2 className="h-7 w-7 animate-spin text-primary" />
