@@ -14,7 +14,10 @@ const MANUAL_NAME_ID = "onboarding-certification-name";
 const MANUAL_ISSUER_ID = "onboarding-certification-issuer";
 const MANUAL_ERROR_ID = "onboarding-certification-name-error";
 
-export const OnboardingCertificationStep = ({ hook }: TOnboardingStepProps) => {
+export const OnboardingCertificationStep = ({
+  hook,
+  headingRef,
+}: TOnboardingStepProps) => {
   const {
     t,
     manualName,
@@ -41,7 +44,11 @@ export const OnboardingCertificationStep = ({ hook }: TOnboardingStepProps) => {
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <h2 className="text-2xl font-medium tracking-tight">
+        <h2
+          tabIndex={-1}
+          ref={headingRef}
+          className="text-2xl font-medium tracking-tight outline-none"
+        >
           {t("professionalOnboarding.certification.title")}
         </h2>
         <p className="text-muted-foreground">

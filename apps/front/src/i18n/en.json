@@ -7124,7 +7124,16 @@
       "back": "Back",
       "next": "Next",
       "finish": "Finish",
-      "saving": "Saving…"
+      "saving": "Saving…",
+      "skip": "Skip for now"
+    },
+    "skip": {
+      "title": "Skip setup for now?",
+      "description": "You can finish this later from your profile. Anything you already answered is kept.",
+      "confirm": "Skip setup",
+      "cancel": "Keep setting up",
+      "skipping": "Skipping…",
+      "error": "We could not skip setup. Please try again."
     },
     "errors": {
       "roleRequired": "Choose a suggestion or type your current role.",

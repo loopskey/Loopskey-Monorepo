@@ -11,7 +11,10 @@ import * as L from "lucide-react";
 
 const ROLE_SEARCH_ID = "onboarding-role-search";
 
-export const OnboardingRoleStep = ({ hook }: TOnboardingStepProps) => {
+export const OnboardingRoleStep = ({
+  hook,
+  headingRef,
+}: TOnboardingStepProps) => {
   const {
     t,
     role,
@@ -28,7 +31,11 @@ export const OnboardingRoleStep = ({ hook }: TOnboardingStepProps) => {
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <h2 className="text-2xl font-medium tracking-tight">
+        <h2
+          tabIndex={-1}
+          ref={headingRef}
+          className="text-2xl font-medium tracking-tight outline-none"
+        >
           {t("professionalOnboarding.role.title")}
         </h2>
         <p className="text-muted-foreground">
@@ -46,14 +53,12 @@ export const OnboardingRoleStep = ({ hook }: TOnboardingStepProps) => {
             className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
           />
           <Input
-            id={ROLE_SEARCH_ID}
-            value={roleQuery}
             className="pl-9"
+            value={roleQuery}
+            id={ROLE_SEARCH_ID}
             autoComplete="organization-title"
-            placeholder={t("professionalOnboarding.role.searchPlaceholder")}
-            // Typing is itself an answer, so the free-text title stays in step
-            // with the field until a suggestion is picked.
             onChange={(event) => selectRole(event.target.value)}
+            placeholder={t("professionalOnboarding.role.searchPlaceholder")}
           />
         </div>
       </div>
