@@ -323,7 +323,14 @@ export type AssociationAttentionRowFieldsFragment = { __typename?: 'AssociationA
 export type AssociationAttentionListsQueryVariables = Types.Exact<{ [key: string]: never; }>;
 
 
-export type AssociationAttentionListsQuery = { __typename?: 'Query', associationAttentionLists: { __typename?: 'AssociationAttentionLists', counts: { __typename?: 'AssociationAttentionCounts', belowThreshold: number, newJoiners: number, categoryBehind: number, expiringCertificates: number, readyReports: number }, distribution: { __typename?: 'AssociationMemberDistribution', totalMembers: number, renewalReady: number, onTrack: number, atRisk: number, notStarted: number, renewalReadyShare: number, onTrackShare: number, atRiskShare: number, notStartedShare: number } } };
+export type AssociationAttentionListsQuery = { __typename?: 'Query', associationAttentionLists: { __typename?: 'AssociationAttentionLists', counts: { __typename?: 'AssociationAttentionCounts', belowThreshold: number, newJoiners: number, categoryBehind: number, expiringCertificates: number, readyReports: number } } };
+
+export type AssociationCategoryAttentionGroupsQueryVariables = Types.Exact<{
+  pagination?: Types.InputMaybe<Types.AssociationReportPaginationInput>;
+}>;
+
+
+export type AssociationCategoryAttentionGroupsQuery = { __typename?: 'Query', associationCategoryAttentionGroups: { __typename?: 'PaginatedAssociationCategoryAttentionGroups', totalCount: number, pageInfo: { __typename?: 'AssociationPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'AssociationCategoryAttentionGroup', requirementId: string, requirementName: string, categoryId: string, categoryName: string, deadline?: string | null, affectedCount: number, members: Array<{ __typename?: 'AssociationAttentionRow', memberId: string, fullName?: string | null, email?: string | null, memberNumber?: string | null, groupId?: string | null, groupTitle?: string | null, percent?: number | null, band?: Types.AssociationComplianceBand | null, requiredCredits?: number | null, completedCredits?: number | null, deadline?: string | null, detail?: string | null, detailDate?: string | null }> }> } };
 
 export type AssociationAttentionMembersQueryVariables = Types.Exact<{
   section: Types.AssociationAttentionSection;
@@ -2040,20 +2047,45 @@ export const AssociationAttentionListsDocument = /*#__PURE__*/ new TypedDocument
       expiringCertificates
       readyReports
     }
-    distribution {
-      totalMembers
-      renewalReady
-      onTrack
-      atRisk
-      notStarted
-      renewalReadyShare
-      onTrackShare
-      atRiskShare
-      notStartedShare
-    }
   }
 }
     `) as unknown as TypedDocumentString<AssociationAttentionListsQuery, AssociationAttentionListsQueryVariables>;
+export const AssociationCategoryAttentionGroupsDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query AssociationCategoryAttentionGroups($pagination: AssociationReportPaginationInput) {
+  associationCategoryAttentionGroups(pagination: $pagination) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      nextCursor
+    }
+    items {
+      requirementId
+      requirementName
+      categoryId
+      categoryName
+      deadline
+      affectedCount
+      members {
+        ...AssociationAttentionRowFields
+      }
+    }
+  }
+}
+    fragment AssociationAttentionRowFields on AssociationAttentionRow {
+  memberId
+  fullName
+  email
+  memberNumber
+  groupId
+  groupTitle
+  percent
+  band
+  requiredCredits
+  completedCredits
+  deadline
+  detail
+  detailDate
+}`) as unknown as TypedDocumentString<AssociationCategoryAttentionGroupsQuery, AssociationCategoryAttentionGroupsQueryVariables>;
 export const AssociationAttentionMembersDocument = /*#__PURE__*/ new TypedDocumentString(`
     query AssociationAttentionMembers($section: AssociationAttentionSection!, $pagination: AssociationReportPaginationInput) {
   associationAttentionMembers(section: $section, pagination: $pagination) {

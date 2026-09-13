@@ -1,17 +1,17 @@
 "use client";
 
 import { TAssociationAttentionSectionProps } from "@/types/association-dashboard.types";
-import { ASSOCIATION_BAND_VARIANTS } from "@utils/association-compliance-bands";
 import { AssociationAttentionSection } from "@/lib/graphql/base";
+import { ASSOCIATION_BAND_VARIANTS } from "@utils/association-compliance-bands";
 import { GlassCard } from "@elements/glass-card";
 import { Checkbox } from "@ui/checkbox";
 import { Skeleton } from "@ui/skeleton";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
 
-import * as API from "@lib/rtk/endpoints/association-dashboard.api";
 import * as REPORTS from "@utils/association-reports";
 import * as SELECT from "@ui/select";
+import * as API from "@lib/rtk/endpoints/association-dashboard.api";
 import * as M from "@utils/association-messages";
 import * as L from "lucide-react";
 
@@ -35,12 +35,13 @@ export const AssociationAttentionSectionCard = ({
     countOf,
     groupOf,
     setGroup,
-    groupOptions,
+    isSending,
     selectedIn,
+    openDetails,
     toggleMember,
+    groupOptions,
     clearSelection,
     setOpenSection,
-    isSending,
   } = hook;
 
   const label = (key: string, vars?: Record<string, string | number>) =>
@@ -88,7 +89,9 @@ export const AssociationAttentionSectionCard = ({
             </span>
 
             <div>
-              <h2 className="font-medium">{label(`sections.${section}.title`)}</h2>
+              <h2 className="font-medium">
+                {label(`sections.${section}.title`)}
+              </h2>
 
               <p className="mt-1 max-w-xl text-sm text-muted-foreground">
                 {label(`sections.${section}.description`)}
@@ -100,6 +103,19 @@ export const AssociationAttentionSectionCard = ({
             <Badge variant={count > 0 ? "secondary" : "outline"}>
               {label("section.count", { count: count.toLocaleString(locale) })}
             </Badge>
+
+            {count > 0 && (
+              <Button
+                size="sm"
+                radius="xl"
+                type="button"
+                variant="outline"
+                onClick={() => openDetails(section)}
+              >
+                <L.ArrowUpRight className="h-4 w-4" />
+                {label("section.viewDetails")}
+              </Button>
+            )}
           </div>
         </div>
 
@@ -138,7 +154,10 @@ export const AssociationAttentionSectionCard = ({
                     </SELECT.SelectItem>
 
                     {groupOptions.map((option) => (
-                      <SELECT.SelectItem key={option.value} value={option.value}>
+                      <SELECT.SelectItem
+                        key={option.value}
+                        value={option.value}
+                      >
                         {option.label}
                       </SELECT.SelectItem>
                     ))}
@@ -165,7 +184,9 @@ export const AssociationAttentionSectionCard = ({
                     <Checkbox
                       id={`attention-${section}-${row.memberId}`}
                       checked={selected.includes(row.memberId)}
-                      onCheckedChange={() => toggleMember(section, row.memberId)}
+                      onCheckedChange={() =>
+                        toggleMember(section, row.memberId)
+                      }
                       aria-label={label("section.selectMember", {
                         name: row.fullName ?? row.email ?? row.memberId,
                       })}

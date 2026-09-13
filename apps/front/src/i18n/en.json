@@ -5208,7 +5208,7 @@
       "requirements": "Requirements",
       "learningContent": "Learning Content",
       "reports": "Reports",
-      "messages": "Messages",
+      "notifications": "Notifications",
       "settings": "Settings"
     },
     "overview": {
@@ -6269,17 +6269,11 @@
       }
     },
     "messages": {
-      "title": "Messages",
+      "title": "Notifications",
       "description": "Five lists of members who need something, each with a message Loopskey sends on your behalf. You choose who; the wording is ours.",
       "allSettled": "Nothing needs your attention right now. Every list is clear.",
       "sent": "Sent to {{count}} members.",
       "sendFailed": "That message could not be sent. Try again.",
-      "strip": {
-        "title": "Where your membership stands",
-        "label": "Membership by compliance band",
-        "description": "A single bar showing how many members sit in each compliance band, from renewal ready to not started.",
-        "atRisk": "{{count}} at risk ({{share}}% of members)"
-      },
       "error": {
         "title": "These lists could not be loaded",
         "body": "Something went wrong while working out who needs attention.",
@@ -6293,14 +6287,15 @@
         "clear": "Clear selection",
         "selectMember": "Include {{name}} in this message",
         "joinedOn": "Joined {{when}}",
-        "truncated": "Showing {{shown}} of {{total}}. Narrow to a group to see the rest."
+        "truncated": "Showing {{shown}} of {{total}}. Narrow to a group to see the rest.",
+        "viewDetails": "View details"
       },
       "sections": {
         "BELOW_THRESHOLD": {
           "title": "Members needing attention",
-          "description": "Members below your at-risk threshold on at least one requirement.",
+          "description": "Active members with an incomplete requirement due within the next thirty days.",
           "action": "Send the reminder",
-          "settled": "No member is below your at-risk threshold."
+          "settled": "No member has an incomplete requirement due in the next thirty days."
         },
         "NEW_JOINERS": {
           "title": "New joiners",
@@ -6309,16 +6304,16 @@
           "settled": "Everyone who joined recently has been welcomed."
         },
         "CATEGORY_BEHIND": {
-          "title": "Categories behind",
-          "description": "Members short in one category in particular, so the reminder can name it.",
+          "title": "Categories needing action",
+          "description": "Categories where one or more members are behind, grouped by requirement.",
           "action": "Send the category reminder",
-          "settled": "No member is materially short in any single category."
+          "settled": "No category has a member materially behind."
         },
         "EXPIRING_CERTIFICATES": {
-          "title": "Expiring certifications",
-          "description": "Members holding a certificate that has expired or expires within ninety days.",
+          "title": "Certifications expired or expiring",
+          "description": "Members holding a certificate that has already expired or expires within thirty days.",
           "action": "Send the expiry notice",
-          "settled": "No certificate is expiring in the next ninety days."
+          "settled": "No certificate has expired or is expiring in the next thirty days."
         },
         "READY_REPORTS": {
           "title": "Reports ready",
@@ -6326,6 +6321,32 @@
           "action": "Open the report library",
           "settled": "No export is waiting for you."
         }
+      },
+      "detail": {
+        "title": "{{title}} — details",
+        "close": "Close",
+        "next": "Next",
+        "previous": "Previous",
+        "reason": "{{completed}} of {{required}} credits",
+        "expired": "Expired {{when}}",
+        "expiring": "Expires {{when}}",
+        "affected": "{{count}} affected",
+        "deadline": "Deadline {{when}}",
+        "viewMember": "View member",
+        "empty": "There is nothing to show here.",
+        "reportName": "Report",
+        "reportType": "Type",
+        "reportPeriod": "Covered period",
+        "reportGenerated": "Generated",
+        "reportStatus": "Status",
+        "reportActions": "Actions",
+        "download": "Download",
+        "columnJoined": "Joined",
+        "columnDeadline": "Deadline",
+        "columnCertificate": "Certificate",
+        "columnCategory": "Category",
+        "columnAffected": "Affected members",
+        "columnEarned": "Earned / required"
       },
       "preview": {
         "title": "Review before sending",
@@ -6421,7 +6442,7 @@
         "onTrackThreshold": "On-track threshold",
         "onTrackThresholdHint": "At or above this percentage a member counts as on track.",
         "atRiskThreshold": "At-risk threshold",
-        "atRiskThresholdHint": "Below this percentage a member appears on the Messages tab's attention lists.",
+        "atRiskThresholdHint": "Below this percentage a member appears on the Notifications tab's attention lists.",
         "renewalRequiresReviewedEvidence": "Renewal needs every review settled",
         "renewalRequiresReviewedEvidenceHint": "A member with evidence still awaiting your decision is held back from renewal ready.",
         "orderInvalid": "The at-risk threshold must sit below the on-track threshold.",

@@ -65,6 +65,8 @@ export enum AssociationGqlObjectNames {
   ASSOCIATION_ATTENTION_LISTS = "AssociationAttentionLists",
   ASSOCIATION_ATTENTION_ROW = "AssociationAttentionRow",
   PAGINATED_ASSOCIATION_ATTENTION_ROWS = "PaginatedAssociationAttentionRows",
+  ASSOCIATION_CATEGORY_ATTENTION_GROUP = "AssociationCategoryAttentionGroup",
+  PAGINATED_ASSOCIATION_CATEGORY_ATTENTION_GROUPS = "PaginatedAssociationCategoryAttentionGroups",
   ASSOCIATION_MESSAGE_SKIP = "AssociationMessageSkip",
   ASSOCIATION_MESSAGE_PREVIEW = "AssociationMessagePreview",
   ASSOCIATION_MESSAGE_BATCH = "AssociationMessageBatch",
@@ -152,6 +154,7 @@ export enum AssociationGqlQueryNames {
   GENERATED_REPORT = "associationGeneratedReport",
   ATTENTION_LISTS = "associationAttentionLists",
   ATTENTION_MEMBERS = "associationAttentionMembers",
+  CATEGORY_ATTENTION_GROUPS = "associationCategoryAttentionGroups",
   MESSAGE_PREVIEW = "associationMessagePreview",
   MESSAGE_HISTORY = "associationMessageHistory",
 }

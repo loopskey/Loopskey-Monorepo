@@ -18,7 +18,7 @@ export type TAssociationDashboardTab =
   | "requirements"
   | "learning-content"
   | "reports"
-  | "messages"
+  | "notifications"
   | "settings";
 
 export type TAssociationMembersView = "roster" | "groups";
@@ -147,7 +147,6 @@ export type TAssociationReportExports = TWithReports;
 
 type TWithMessages = { hook: TUseAssociationMessagesTab };
 
-export type TAssociationAttentionStrip = TWithMessages;
 export type TAssociationMessageHistory = TWithMessages;
 export type TAssociationReadyReports = TWithMessages;
 
@@ -157,13 +156,15 @@ export type TAssociationAttentionSectionProps = TWithMessages & {
 
 export type TAssociationMessagePreviewDialog = TWithMessages;
 
-export type TAssociationAttentionStripChart = {
-  locale: string;
-  palette: string[];
-  onSelectAtRisk: () => void;
-  rows: { id: string; name: string; count: number; share: number }[];
-  label: (key: string, vars?: Record<string, string | number>) => string;
-};
+export type TAssociationAttentionDetailDialog = TWithMessages;
+export type TAssociationCategoryAttentionDialog = TWithMessages;
+export type TAssociationReadyReportsDialog = TWithMessages;
+
+export type TAssociationAttentionMemberRow =
+  TAPI.AssociationAttentionMembersQuery["associationAttentionMembers"]["items"][number];
+
+export type TAssociationCategoryAttentionGroupRow =
+  TAPI.AssociationCategoryAttentionGroupsQuery["associationCategoryAttentionGroups"]["items"][number];
 
 type TOverview = TAPI.AssociationReportsOverviewQuery;
 

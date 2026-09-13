@@ -23,6 +23,9 @@ const REQUIRED_CREDITS = 20;
 
 const day = (iso: string) => new Date(`${iso}T00:00:00.000Z`);
 
+const inDays = (days: number) =>
+  new Date(Date.now() + days * 24 * 60 * 60 * 1000);
+
 describe("Association templated messages (e2e)", () => {
   let app: INestApplication;
   let prisma: PrismaService;
@@ -109,7 +112,7 @@ describe("Association templated messages (e2e)", () => {
         memberId: member.id,
         requirementId: requirement.id,
         cycleStart: day("2026-01-01"),
-        dueDate: day("2026-12-31"),
+        dueDate: inDays(10),
       },
     });
 

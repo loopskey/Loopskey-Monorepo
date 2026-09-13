@@ -207,10 +207,10 @@ export const associationDashboardTabs: TDashboardTab<TAssociationDashboardTab>[]
       icon: L.FileBarChart,
     },
     {
-      value: "messages",
-      labelKey: "associationDashboard.sidebar.messages",
-      href: "/dashboard/association?tab=messages",
-      icon: L.MessageSquare,
+      value: "notifications",
+      labelKey: "associationDashboard.sidebar.notifications",
+      href: "/dashboard/association?tab=notifications",
+      icon: L.Bell,
     },
     {
       value: "settings",
