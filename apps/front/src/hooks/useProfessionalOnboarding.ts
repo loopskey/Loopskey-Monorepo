@@ -38,6 +38,12 @@ export const useProfessionalOnboarding = () => {
   const [startOnboarding] = PAPI.useStartProfessionalOnboardingMutation();
   const [completeOnboarding, completeState] =
     PAPI.useCompleteProfessionalOnboardingMutation();
+  const [dismissOnboarding, dismissState] =
+    PAPI.useDismissProfessionalOnboardingMutation();
+
+  const [isSkipConfirmOpen, setIsSkipConfirmOpen] = useState(false);
+  const openSkipConfirm = useCallback(() => setIsSkipConfirmOpen(true), []);
+  const closeSkipConfirm = useCallback(() => setIsSkipConfirmOpen(false), []);
 
   const taxonomyQuery = PAPI.useProfessionalProfileTaxonomyQuery();
 
@@ -62,6 +68,7 @@ export const useProfessionalOnboarding = () => {
         step,
         index,
         label: t(C.ONBOARDING_STEP_I18N_KEY[step]),
+        icon: C.ONBOARDING_STEP_ICON[step],
       })),
     [steps, t],
   );
@@ -124,10 +131,12 @@ export const useProfessionalOnboarding = () => {
 
   const filteredSkills = useMemo(() => {
     const query = skillQuery.trim().toLowerCase();
-    if (!query) return skillOptions;
-    return skillOptions.filter((option) =>
-      option.label.toLowerCase().includes(query),
-    );
+    const matches = query
+      ? skillOptions.filter((option) =>
+          option.label.toLowerCase().includes(query),
+        )
+      : skillOptions;
+    return matches.slice(0, C.ONBOARDING_SUGGESTION_LIMIT);
   }, [skillOptions, skillQuery]);
 
   const selectedSkills = useMemo(
@@ -322,6 +331,17 @@ export const useProfessionalOnboarding = () => {
     setStepIndex((current) => current + 1);
   }, [isStepValid, isLastStep, submit]);
 
+  const confirmSkip = useCallback(async () => {
+    try {
+      await dismissOnboarding().unwrap();
+      setIsSkipConfirmOpen(false);
+      router.replace(C.OVERVIEW_HREF);
+    } catch {
+      setIsSkipConfirmOpen(false);
+      notify.error(t("professionalOnboarding.skip.error"));
+    }
+  }, [dismissOnboarding, router, t]);
+
   return {
     t,
     goal,
@@ -370,6 +390,11 @@ export const useProfessionalOnboarding = () => {
     saveManualCertification,
     openManualCertification,
     closeManualCertification,
+    confirmSkip,
+    openSkipConfirm,
+    closeSkipConfirm,
+    isSkipConfirmOpen,
+    isSkipping: dismissState.isLoading,
     isSaving: completeState.isLoading,
     maxSkills: C.ONBOARDING_MAX_SKILLS,
     refetchTaxonomy: taxonomyQuery.refetch,

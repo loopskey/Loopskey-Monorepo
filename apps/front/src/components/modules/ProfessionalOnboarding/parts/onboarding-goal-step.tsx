@@ -5,13 +5,20 @@ import { cn } from "@/lib/utils";
 
 import * as L from "lucide-react";
 
-export const OnboardingGoalStep = ({ hook }: TOnboardingStepProps) => {
+export const OnboardingGoalStep = ({
+  hook,
+  headingRef,
+}: TOnboardingStepProps) => {
   const { t, goal, goalOptions, chooseGoal } = hook;
 
   return (
     <fieldset className="space-y-6">
       <legend className="space-y-2">
-        <h2 className="text-2xl font-medium tracking-tight">
+        <h2
+          tabIndex={-1}
+          ref={headingRef}
+          className="text-2xl font-medium tracking-tight outline-none"
+        >
           {t("professionalOnboarding.goal.title")}
         </h2>
         <p className="text-muted-foreground">

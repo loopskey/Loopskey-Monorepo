@@ -11,7 +11,10 @@ import * as L from "lucide-react";
 
 const SKILL_SEARCH_ID = "onboarding-skill-search";
 
-export const OnboardingSkillsStep = ({ hook }: TOnboardingStepProps) => {
+export const OnboardingSkillsStep = ({
+  hook,
+  headingRef,
+}: TOnboardingStepProps) => {
   const {
     t,
     skillIds,
@@ -33,7 +36,11 @@ export const OnboardingSkillsStep = ({ hook }: TOnboardingStepProps) => {
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <h2 className="text-2xl font-medium tracking-tight">
+        <h2
+          tabIndex={-1}
+          ref={headingRef}
+          className="text-2xl font-medium tracking-tight outline-none"
+        >
           {t("professionalOnboarding.skills.title")}
         </h2>
         <p className="text-muted-foreground">
@@ -147,8 +154,6 @@ export const OnboardingSkillsStep = ({ hook }: TOnboardingStepProps) => {
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {filteredSkills.map((skill) => {
                 const isSelected = skillIds.includes(skill.id);
-                // A fourth pick is blocked at the control itself, so the limit
-                // is visible before it is reached.
                 const isBlocked = !isSelected && isSkillLimitReached;
 
                 return (

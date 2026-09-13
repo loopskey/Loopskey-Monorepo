@@ -419,8 +419,8 @@ export const professionalApi = baseApi.injectEndpoints({
         response.startProfessionalOnboarding,
     }),
 
-    // Onboarding is optional, so leaving the wizard is recorded rather than
-    // blocked. Only the profile query carries the flag the gate reads.
+    // Onboarding is optional. This is only ever called from the wizard's
+    // explicit Skip confirmation, never from navigation/refresh handling.
     dismissProfessionalOnboarding: builder.mutation<
       TAPI.DismissProfessionalOnboardingMutation["dismissProfessionalOnboarding"],
       void

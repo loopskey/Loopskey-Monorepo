@@ -7124,7 +7124,16 @@
       "back": "Retour",
       "next": "Suivant",
       "finish": "Terminer",
-      "saving": "Enregistrement…"
+      "saving": "Enregistrement…",
+      "skip": "Passer pour l'instant"
+    },
+    "skip": {
+      "title": "Passer la configuration pour l'instant ?",
+      "description": "Vous pourrez terminer plus tard depuis votre profil. Vos réponses déjà données sont conservées.",
+      "confirm": "Passer la configuration",
+      "cancel": "Continuer la configuration",
+      "skipping": "Passage en cours…",
+      "error": "Nous n'avons pas pu passer la configuration. Veuillez réessayer."
     },
     "errors": {
       "roleRequired": "Choisissez une suggestion ou saisissez votre poste actuel.",
