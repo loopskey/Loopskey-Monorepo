@@ -4,7 +4,7 @@
 - Model: `High reasoning — the fix moves the onboarding route out of the shared dashboard shell and changes globally-used Header/Footer components and an auth route guard; a mistake here risks breaking navigation on every other page, not just onboarding.`
 - Branch: `feature/professional-onboarding-corrections`
 - Base: `57c859e` (origin/develop)
-- Status: `Ready`
+- Status: `Submitted`
 
 ## Acceptance
 
@@ -71,9 +71,9 @@
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: `14b853c`
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/104
+- CI: pending
 
 ## Notes
 
