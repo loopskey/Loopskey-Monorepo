@@ -90,7 +90,7 @@
 
 - Commit: `b403675`
 - PR: https://github.com/loopskey/Loopskey-Monorepo/pull/105
-- CI: pending
+- CI: pass (https://github.com/loopskey/Loopskey-Monorepo/actions/runs/34745997448/job/103693960238, 4m4s)
 
 ## Notes
 
