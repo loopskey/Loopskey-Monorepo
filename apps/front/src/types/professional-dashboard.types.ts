@@ -18,7 +18,6 @@ export type TProfessionalDashboardTab =
   | "profile"
   | "settings"
   | "calendar"
-  | "payments"
   | "wishlist"
   | "pdu-report"
   | "add-activity"

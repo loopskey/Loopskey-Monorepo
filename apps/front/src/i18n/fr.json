@@ -2469,6 +2469,14 @@
     "openMenu": "Ouvrir le menu",
     "closeMenu": "Fermer le menu"
   },
+  "dashboardShell": {
+    "drawer": {
+      "openMenu": "Ouvrir le menu du tableau de bord",
+      "closeMenu": "Fermer le menu du tableau de bord",
+      "title": "Menu du tableau de bord",
+      "navLabel": "Navigation du tableau de bord"
+    }
+  },
   "footer": {
     "brandDescription": "Votre plateforme tout-en-un pour tous vos besoins éducatifs. Découvrez, apprenez et progressez avec nous.",
     "explore": "Explorer",
@@ -4373,11 +4381,17 @@
         "description": "Recherchez des événements et sélectionnez une date de début et de fin pour affiner la vue du calendrier.",
         "from": "Du",
         "to": "Au",
-        "reset": "Réinitialiser"
+        "reset": "Réinitialiser",
+        "trigger": "Filtres",
+        "active": "Filtres actifs"
       },
       "calendarChart": {
         "title": "Calendrier interactif",
-        "description": "Sélectionnez une plage de dates directement dans le calendrier ou cliquez sur un événement pour voir les détails."
+        "description": "Sélectionnez une plage de dates directement dans le calendrier ou cliquez sur un événement pour voir les détails.",
+        "view": {
+          "agenda": "Agenda",
+          "month": "Mois"
+        }
       },
       "allEvents": {
         "title": "Tous les événements inscrits",

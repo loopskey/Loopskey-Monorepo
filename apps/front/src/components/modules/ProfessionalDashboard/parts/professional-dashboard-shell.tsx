@@ -51,10 +51,6 @@ const ProfessionalSettingsTab = dynamic(
   () => import("@modules/ProfessionalDashboard/ProfessionalSettingsTab"),
   { loading: () => <DashboardContentSkeleton /> },
 );
-const ProfessionalPaymentsTab = dynamic(
-  () => import("@modules/ProfessionalDashboard/ProfessionalPaymentsTab"),
-  { loading: () => <DashboardContentSkeleton /> },
-);
 const ProfessionalCoursesTab = dynamic(
   () => import("@modules/ProfessionalDashboard/ProfessionalCoursesTab"),
   { loading: () => <DashboardContentSkeleton /> },
@@ -76,7 +72,6 @@ const validTabs: TProfessionalDashboardTab[] = [
   "calendar",
   "wishlist",
   "settings",
-  "payments",
   "pdu-report",
   "add-activity",
   "certificates",
@@ -104,7 +99,6 @@ export const ProfessionalDashboardShell = () => {
   if (activeTab === "certificates") return <ProfessionalCertificatesTab />;
   if (activeTab === "certificate-form")
     return <ProfessionalCertificateFormTab />;
-  if (activeTab === "payments") return <ProfessionalPaymentsTab />;
   if (activeTab === "cpd-pdu-tracker" || activeTab === "pdu-report")
     return <ProfessionalCpdPduTrackerTab />;
   if (activeTab === "cpd-pdu-progress")

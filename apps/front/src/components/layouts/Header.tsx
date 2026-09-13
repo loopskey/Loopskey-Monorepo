@@ -1,8 +1,6 @@
 "use client";
 
-import { isFocusedShellRoute } from "@/utils/focused-shell";
 import { LanguageToggleBtn } from "@elements/language-switcher";
-import { usePathname } from "next/navigation";
 import { StartMenu } from "@layouts/parts/start-menu";
 import { useHeader } from "@hooks/useHeader";
 import { UserMenu } from "@layouts/parts/user-menu";
@@ -14,7 +12,6 @@ import { cn } from "@lib/utils";
 import Link from "next/link";
 
 const Header = () => {
-  const pathname = usePathname();
   const {
     t,
     navItems,
@@ -26,19 +23,6 @@ const Header = () => {
     closeMobileMenu,
     toggleMobileMenu,
   } = useHeader();
-
-  if (isFocusedShellRoute(pathname))
-    return (
-      <header className="sticky top-0 z-50 w-full border-b bg-background">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Logo />
-          <div className="flex items-center gap-2">
-            <LanguageToggleBtn />
-            {isAuthenticated && <UserMenu />}
-          </div>
-        </div>
-      </header>
-    );
 
   return (
     <header
