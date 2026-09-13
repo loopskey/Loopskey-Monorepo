@@ -2470,12 +2470,7 @@
     "closeMenu": "Fermer le menu"
   },
   "dashboardShell": {
-    "drawer": {
-      "openMenu": "Ouvrir le menu du tableau de bord",
-      "closeMenu": "Fermer le menu du tableau de bord",
-      "title": "Menu du tableau de bord",
-      "navLabel": "Navigation du tableau de bord"
-    }
+    "navLabel": "Navigation du tableau de bord"
   },
   "footer": {
     "brandDescription": "Votre plateforme tout-en-un pour tous vos besoins éducatifs. Découvrez, apprenez et progressez avec nous.",

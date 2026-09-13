@@ -23,7 +23,7 @@ import Link from "next/link";
 import * as L from "lucide-react";
 import * as P from "@ui/popover";
 
-const MOBILE_CALENDAR_QUERY = "(max-width: 639px)";
+const MOBILE_CALENDAR_QUERY = "(max-width: 1023px)";
 
 const ProfessionalCalendarTab = () => {
   const {

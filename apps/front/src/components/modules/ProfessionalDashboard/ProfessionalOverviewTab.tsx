@@ -53,7 +53,7 @@ const ProfessionalOverviewTab = () => {
       </section>
 
       {/* Primary dashboard cards */}
-      <section className="grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
+      <section className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
         <OverviewCpdProgressCard />
         <OverviewRoadmapProgressCard />
         <OverviewUpcomingCalendarCard />
@@ -63,7 +63,7 @@ const ProfessionalOverviewTab = () => {
       <OverviewRecommendationsCard />
 
       {/* Recent activities + certificates */}
-      <section className="grid gap-6 xl:grid-cols-3">
+      <section className="grid grid-cols-1 gap-6 xl:grid-cols-3">
         <div className="xl:col-span-2">
           <OverviewRecentActivitiesCard />
         </div>
