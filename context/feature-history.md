@@ -68,3 +68,4 @@ into this index and do not rewrite previous records.
 - [`dashboard-shell-calendar-and-mobile-corrections`](feature-runs/active/dashboard-shell-calendar-and-mobile-corrections.md)
 - [`certification-catalogue-completion`](feature-runs/active/certification-catalogue-completion.md)
 - [`ingestion-review-queue-scale-readiness`](feature-runs/active/ingestion-review-queue-scale-readiness.md)
+- [`color-token-refresh`](feature-runs/active/color-token-refresh.md)
