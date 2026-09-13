@@ -1,22 +1,24 @@
-import { IngestionContentKind } from "@prisma/client";
-import { IngestionItemState, Prisma } from "@prisma/client";
 import { BadRequestException, ConflictException } from "@nestjs/common";
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { COURSE_INGESTION_EVENT_VERSION } from "@ingestion/enums/course-ingestion.constant";
 import { COURSE_INGESTION_EVENT_NAME } from "@ingestion/enums/course-ingestion.constant";
-import { validateCourseFieldMap } from "@ingestion/utils/course-field-map.util";
+import { IngestionItemState, Prisma } from "@prisma/client";
 import { validateCanonicalFieldMap } from "@ingestion/utils/canonical-field-map.util";
-import { CanonicalFieldMapError } from "@ingestion/utils/canonical-field-map.util";
-import { EVENT_CANONICAL_FIELDS } from "@ingestion/enums/event-ingestion.constant";
 import { PODCAST_CANONICAL_FIELDS } from "@ingestion/enums/podcast-ingestion.constant";
 import { YOUTUBE_CANONICAL_FIELDS } from "@ingestion/enums/youtube-ingestion.constant";
+import { validateCourseFieldMap } from "@ingestion/utils/course-field-map.util";
+import { CanonicalFieldMapError } from "@ingestion/utils/canonical-field-map.util";
+import { EVENT_CANONICAL_FIELDS } from "@ingestion/enums/event-ingestion.constant";
 import { CourseIngestionService } from "@ingestion/services/course-ingestion.service";
 import { IngestionApiKeyService } from "@ingestion/services/ingestion-api-key.service";
+import { IngestionContentKind } from "@prisma/client";
 import { IngestionMessageCode } from "@ingestion/enums/message-code.enum";
 import { CourseFieldMapError } from "@ingestion/utils/course-field-map.util";
+import { TIngestionItemRow } from "@ingestion/types/ingestion-admin.types";
 import { requestContext } from "@infrastructure/observability/request-context";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { PrismaService } from "@prisma/prisma.service";
+import { Pagination } from "@ingestion/types/ingestion-admin.types";
 
 import type { CreateIngestionSourceInput } from "@ingestion/dtos/create-ingestion-source.input";
 import type { UpdateIngestionSourceInput } from "@ingestion/dtos/update-ingestion-source.input";
@@ -26,9 +28,6 @@ import type { IngestionItemFilterInput } from "@ingestion/dtos/ingestion-item-fi
 
 const UNIQUE_VIOLATION = "P2002";
 const ITEM_SEARCH_MIN_LENGTH = 2;
-const ITEM_SEARCH_ID_LIMIT = 500;
-
-type Pagination = { take: number; cursor?: string };
 
 @Injectable()
 export class IngestionAdminService {
@@ -229,15 +228,12 @@ export class IngestionAdminService {
     pagination: Pagination,
   ) {
     const search = filter?.search?.trim();
-    const catalogIds =
-      search && search.length >= ITEM_SEARCH_MIN_LENGTH
-        ? await this.matchingCatalogIds(search)
-        : null;
+    if (search && search.length >= ITEM_SEARCH_MIN_LENGTH)
+      return this.listItemsBySearch(filter, pagination, search);
 
     const where: Prisma.IngestionItemWhereInput = {
       ...(filter?.sourceId ? { sourceId: filter.sourceId } : {}),
       ...(filter?.state ? { state: filter.state } : {}),
-      ...(catalogIds ? { catalogId: { in: catalogIds } } : {}),
     };
 
     const rows = await this.prisma.ingestionItem.findMany({
@@ -256,6 +252,87 @@ export class IngestionAdminService {
     const page = hasNextPage ? rows.slice(0, pagination.take) : rows;
     const totalCount = await this.prisma.ingestionItem.count({ where });
 
+    return this.toItemsResult(page, totalCount, hasNextPage);
+  }
+
+  private async listItemsBySearch(
+    filter: IngestionItemFilterInput | undefined,
+    pagination: Pagination,
+    search: string,
+  ) {
+    const sourceId = filter?.sourceId ?? null;
+    const state = filter?.state ?? null;
+    const totalCount = await this.countSearchMatches(sourceId, state, search);
+
+    const cursorAnchor = pagination.cursor
+      ? await this.prisma.ingestionItem.findUnique({
+          where: { id: pagination.cursor },
+          select: { id: true, createdAt: true },
+        })
+      : null;
+    if (pagination.cursor && !cursorAnchor)
+      return this.toItemsResult([], totalCount, false);
+
+    const matches = this.matchingCatalogIdsFragment(search);
+    const pageRows = await this.prisma.$queryRaw<Array<{ id: string }>>(
+      Prisma.sql`
+        SELECT ii."id"
+        FROM "IngestionItem" ii
+        JOIN (${matches}) matched ON matched."id" = ii."catalogId"
+        WHERE (${sourceId}::text IS NULL OR ii."sourceId" = ${sourceId}::text)
+          AND (${state}::"IngestionItemState" IS NULL OR ii."state" = ${state}::"IngestionItemState")
+          AND (
+            ${cursorAnchor?.createdAt ?? null}::timestamp(3) IS NULL
+            OR (ii."createdAt", ii."id") < (${cursorAnchor?.createdAt ?? null}::timestamp(3), ${cursorAnchor?.id ?? null}::text)
+          )
+        ORDER BY ii."createdAt" DESC, ii."id" DESC
+        LIMIT ${pagination.take + 1}
+      `,
+    );
+
+    const hasNextPage = pageRows.length > pagination.take;
+    const pageIds = (
+      hasNextPage ? pageRows.slice(0, pagination.take) : pageRows
+    ).map((row) => row.id);
+
+    const rows = await this.prisma.ingestionItem.findMany({
+      where: { id: { in: pageIds } },
+      include: {
+        source: { select: { slug: true, kind: true } },
+        reviewedBy: { select: { fullName: true, email: true } },
+      },
+    });
+    const byId = new Map(rows.map((row) => [row.id, row]));
+    const page = pageIds
+      .map((id) => byId.get(id))
+      .filter((row): row is TIngestionItemRow => Boolean(row));
+
+    return this.toItemsResult(page, totalCount, hasNextPage);
+  }
+
+  private async countSearchMatches(
+    sourceId: string | null,
+    state: IngestionItemState | null,
+    search: string,
+  ) {
+    const matches = this.matchingCatalogIdsFragment(search);
+    const rows = await this.prisma.$queryRaw<Array<{ count: bigint }>>(
+      Prisma.sql`
+        SELECT COUNT(*)::bigint AS count
+        FROM "IngestionItem" ii
+        JOIN (${matches}) matched ON matched."id" = ii."catalogId"
+        WHERE (${sourceId}::text IS NULL OR ii."sourceId" = ${sourceId}::text)
+          AND (${state}::"IngestionItemState" IS NULL OR ii."state" = ${state}::"IngestionItemState")
+      `,
+    );
+    return Number(rows[0]?.count ?? 0);
+  }
+
+  private async toItemsResult(
+    page: TIngestionItemRow[],
+    totalCount: number,
+    hasNextPage: boolean,
+  ) {
     const catalog = await this.catalogSummaries(
       page
         .filter((item) => item.catalogId)
@@ -281,15 +358,6 @@ export class IngestionAdminService {
     };
   }
 
-  /**
-   * Approval moves the item with a conditional write naming the observed
-   * previous state; the item state change and the catalog publish share one
-   * transaction. Postgres re-evaluates the WHERE clause after taking the row
-   * lock, so two concurrent approvals of the same item serialize: the winner
-   * publishes once and appends one outbox event, the loser matches no row,
-   * re-reads, finds the item already ACCEPTED, and returns the same result
-   * without a second publish or a server error.
-   */
   async approveItem(actorId: string, itemId: string) {
     return this.prisma.$transaction(async (tx) => {
       const item = await tx.ingestionItem.findUnique({
@@ -436,13 +504,6 @@ export class IngestionAdminService {
     };
   }
 
-  /**
-   * The review queue and batch detail cover every kind, so a catalog summary
-   * is read from whichever table the item's kind writes to. `status` is
-   * flattened onto the shared DRAFT / PUBLISHED / ARCHIVED vocabulary — an
-   * event's CANCELLED reads as ARCHIVED — so the GraphQL contract stays a
-   * single enum.
-   */
   private async catalogSummaries(
     entries: Array<{ catalogId: string; kind: IngestionContentKind }>,
   ) {
@@ -500,8 +561,8 @@ export class IngestionAdminService {
     return summaries;
   }
 
-  private async matchingCatalogIds(search: string) {
-    const rows = await this.prisma.$queryRaw<Array<{ id: string }>>`
+  private matchingCatalogIdsFragment(search: string) {
+    return Prisma.sql`
       SELECT id FROM "Course"  WHERE title ILIKE '%' || ${search} || '%' OR title % ${search}
       UNION
       SELECT id FROM "Event"   WHERE title ILIKE '%' || ${search} || '%' OR title % ${search}
@@ -509,9 +570,7 @@ export class IngestionAdminService {
       SELECT id FROM "Podcast" WHERE title ILIKE '%' || ${search} || '%' OR title % ${search}
       UNION
       SELECT id FROM "YouTubeChannel" WHERE title ILIKE '%' || ${search} || '%' OR title % ${search}
-      LIMIT ${ITEM_SEARCH_ID_LIMIT}
     `;
-    return rows.map((row) => row.id);
   }
 
   private async setCatalogStatus(

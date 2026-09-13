@@ -727,14 +727,6 @@ enum EventRegistrationStatus {
   NOT_ATTENDED
 }
 
-/// Unmanaged indexes: Event_title_trgm_idx and Event_description_trgm_idx are pg_trgm GIN
-/// indexes created in raw migration SQL, because Prisma cannot express them
-/// and reports them as drift.
-///
-/// `externalRef` is the identity of an externally sourced row, namespaced as
-/// `"<source>:<external-id>"`. The slug is a display and URL concern and is
-/// never used as an import key, so a source that rewrites its own slug cannot
-/// move a URL here.
 model Event {
   id          String  @id @default(cuid())
   slug        String  @unique
@@ -857,12 +849,12 @@ model EventScheduleItem {
 
 // ============== Calendar ================
 enum CalendarEventType {
+  EVENT
+  OTHER
   COURSE
   WEBINAR
   MEETING
-  EVENT
   TRAINING
-  OTHER
 }
 
 model CalendarEvent {
@@ -914,14 +906,6 @@ enum PodcastStatus {
   PUBLISHED
 }
 
-/// Unmanaged indexes: Podcast_title_trgm_idx and Podcast_description_trgm_idx are pg_trgm GIN
-/// indexes created in raw migration SQL, because Prisma cannot express them
-/// and reports them as drift.
-///
-/// `externalRef` is the identity of an externally sourced row, namespaced as
-/// `"<source>:<external-id>"`. The slug is a display and URL concern and is
-/// never used as an import key, so a source that rewrites its own slug cannot
-/// move a URL here.
 model Podcast {
   id          String  @id @default(cuid())
   slug        String  @unique
@@ -1012,14 +996,6 @@ enum YouTubeVideoStatus {
   PUBLISHED
 }
 
-/// Unmanaged indexes: YouTubeChannel_title_trgm_idx and YouTubeChannel_description_trgm_idx are pg_trgm GIN
-/// indexes created in raw migration SQL, because Prisma cannot express them
-/// and reports them as drift.
-///
-/// `externalRef` is the identity of an externally sourced row, namespaced as
-/// `"<source>:<external-id>"`. The slug is a display and URL concern and is
-/// never used as an import key, so a source that rewrites its own slug cannot
-/// move a URL here.
 model YouTubeChannel {
   id          String  @id @default(cuid())
   slug        String  @unique
@@ -1060,10 +1036,6 @@ model YouTubeChannel {
   @@index([slug])
 }
 
-/// `externalRef` is the identity of an externally sourced video within its
-/// channel, namespaced as `"<source>:<channel-external-id>:<video-id>"`. A
-/// channel crawl upserts its videos on this key; a crawl that omits the videos
-/// field leaves existing rows untouched.
 model YouTubeVideo {
   id String @id @default(cuid())
 
@@ -1465,12 +1437,7 @@ model PDUActivityFile {
   storageKey String
   mimeType   String
   sizeBytes  Int
-
-  /// Client-supplied idempotency key for one upload attempt of one file.
-  /// Nullable: existing rows predate this column and are never backfilled.
-  /// Postgres allows multiple NULLs under a unique index, so old rows never
-  /// collide with each other or with a future keyed upload.
-  uploadKey String?
+  uploadKey  String?
 
   createdAt DateTime @default(now())
 
@@ -1483,8 +1450,8 @@ model PDUActivityFile {
 enum CPDPlanStatus {
   DRAFT
   ACTIVE
-  COMPLETED
   ARCHIVED
+  COMPLETED
 }
 
 enum CPDEvidenceType {
@@ -1503,10 +1470,10 @@ enum CPDReminderTiming {
 
 enum CPDReportRecipientType {
   SELF
+  OTHER
   MANAGER
   ORGANIZATION
   ASSOCIATION
-  OTHER
 }
 
 model Certification {
@@ -1523,14 +1490,8 @@ model Certification {
   renewalCycleLabel    String
   renewalCycleMonths   Int?
   totalRequiredCredits Float
-  // Superseded: a catalogue item stores renewal-cycle rules, not a global
-  // absolute personal deadline. Column kept (existing rows migrated to null)
-  // so it can be dropped in a later migration once nothing reads it.
-  suggestedDeadline DateTime?
+  suggestedDeadline    DateTime?
 
-  // Import provenance: which source version last wrote this row, and
-  // whether the current source still lists it (false = retired, kept for
-  // rows other tables still reference).
   sourceVersion String?
   isActive      Boolean @default(true)
 
@@ -2188,9 +2149,6 @@ model OrganizationAssignmentRecipient {
 }
 
 // ================ Association ==================
-/// Unmanaged indexes: Association_name_trgm_idx and
-/// Association_contactEmail_trgm_idx are pg_trgm GIN indexes created in raw
-/// migration SQL, because Prisma cannot express them and reports them as drift.
 model Association {
   id String @id @default(cuid())
 
@@ -2460,14 +2418,14 @@ enum AssociationRequirementStatus {
 }
 
 enum AssociationReportingCycle {
-  ONE_TIME
   ANNUAL
+  ONE_TIME
   MULTI_YEAR
 }
 
 enum AssociationAudienceKind {
-  ALL_MEMBERS
   GROUP
+  ALL_MEMBERS
   SPECIFIC_MEMBERS
 }
 
@@ -2606,14 +2564,14 @@ model AssociationRequirementAssignment {
 
 enum AssociationAttributionState {
   COUNTED
-  AWAITING_REVIEW
   REJECTED
+  AWAITING_REVIEW
 }
 
 enum AssociationComplianceBand {
-  NOT_STARTED
   AT_RISK
   ON_TRACK
+  NOT_STARTED
   RENEWAL_READY
 }
 
@@ -2672,7 +2630,7 @@ model AssociationLearningContent {
   publishedAt DateTime?
   withdrawnAt DateTime?
 
-  audienceKind AssociationAudienceKind @default(ALL_MEMBERS)
+  audienceKind AssociationAudienceKind            @default(ALL_MEMBERS)
   targets      AssociationLearningContentTarget[]
 
   createdAt DateTime @default(now())
@@ -2853,8 +2811,6 @@ enum IngestionItemState {
   STALE
 }
 
-/// One crawler team's stream for one content kind. Deactivating a source stops
-/// its keys from authenticating without deleting anything it has submitted.
 model IngestionSource {
   id   String @id @default(cuid())
   slug String @unique
@@ -2865,10 +2821,8 @@ model IngestionSource {
   isActive    Boolean @default(true)
   autoPublish Boolean @default(false)
 
-  /// Null means an item from this source never goes stale on age alone.
   stalenessWindowDays Int?
 
-  /// Field mapping consumed in phase 03. Empty until an administrator sets it.
   fieldMap Json @default("{}")
 
   apiKeys IngestionApiKey[]
@@ -2881,12 +2835,6 @@ model IngestionSource {
   @@index([kind, isActive])
 }
 
-/// A machine credential for exactly one source.
-///
-/// `prefix` is public and is the only part safe to display; `secretHash` is an
-/// Argon2id hash and the plaintext secret exists only in the issuance response.
-/// The rate allowance lives here rather than in memory so it survives a restart
-/// and is shared across instances.
 model IngestionApiKey {
   id String @id @default(cuid())
 
@@ -2914,8 +2862,6 @@ model IngestionApiKey {
   @@index([sourceId])
 }
 
-/// One submission. `(sourceId, idempotencyKey)` is unique, so a retried
-/// submission resolves to the batch that already exists instead of a second one.
 model IngestionBatch {
   id String @id @default(cuid())
 
@@ -2944,15 +2890,6 @@ model IngestionBatch {
   @@index([sourceId, createdAt])
 }
 
-/// One crawled entity, identified by `(sourceId, externalId)`.
-///
-/// There is deliberately no raw-payload column: the crawler's own store is the
-/// system of record for what it fetched, and copying it here would duplicate
-/// unbounded third-party content of unclear provenance.
-///
-/// `reviewedById`/`reviewedAt` record an administrator's approve or reject
-/// decision from the phase 04 review queue. They stay null for an item an
-/// autoPublish source accepted without review.
 model IngestionItem {
   id String @id @default(cuid())
 
@@ -2962,11 +2899,8 @@ model IngestionItem {
   batchId String?
   batch   IngestionBatch? @relation(fields: [batchId], references: [id], onDelete: SetNull)
 
-  externalId   String
-  canonicalUrl String?
-
-  /// Hash of the canonical shape, so an unchanged re-submission is detectable
-  /// without storing what was submitted.
+  externalId    String
+  canonicalUrl  String?
   canonicalHash String
 
   unmappedFields    String[] @default([])
@@ -2978,9 +2912,7 @@ model IngestionItem {
   reviewedById String?
   reviewedBy   User?     @relation(fields: [reviewedById], references: [id], onDelete: SetNull)
   reviewedAt   DateTime?
-
-  /// The catalog row this item produced, once phase 03 writes one.
-  catalogId String?
+  catalogId    String?
 
   firstSeenAt DateTime @default(now())
   lastSeenAt  DateTime @default(now())
@@ -2989,6 +2921,8 @@ model IngestionItem {
   updatedAt DateTime @updatedAt
 
   @@unique([sourceId, externalId])
-  @@index([sourceId, state])
+  @@index([sourceId, state, createdAt, id])
+  @@index([state, createdAt, id])
+  @@index([catalogId])
   @@index([batchId])
 }
