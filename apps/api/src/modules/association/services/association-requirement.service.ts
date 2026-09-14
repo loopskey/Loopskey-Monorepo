@@ -32,10 +32,10 @@ const REQUIREMENT_SELECT = {
   evidencePolicy: true,
   reportingStart: true,
   reportingEnd: true,
-  submissionOpensAt: true,
-  submissionClosesAt: true,
+  submissionWindow: true,
   gracePeriodDays: true,
-  allowLateSubmission: true,
+  lateSubmissionPolicy: true,
+  renewalCondition: true,
   remindersEnabled: true,
   reminderTiming: true,
   audienceKind: true,
@@ -331,17 +331,17 @@ export class AssociationRequirementService {
           ...(patch.reportingEnd !== undefined
             ? { reportingEnd: patch.reportingEnd }
             : {}),
-          ...(patch.submissionOpensAt !== undefined
-            ? { submissionOpensAt: patch.submissionOpensAt }
-            : {}),
-          ...(patch.submissionClosesAt !== undefined
-            ? { submissionClosesAt: patch.submissionClosesAt }
+          ...(patch.submissionWindow !== undefined
+            ? { submissionWindow: patch.submissionWindow }
             : {}),
           ...(patch.gracePeriodDays !== undefined
             ? { gracePeriodDays: patch.gracePeriodDays }
             : {}),
-          ...(patch.allowLateSubmission !== undefined
-            ? { allowLateSubmission: patch.allowLateSubmission }
+          ...(patch.lateSubmissionPolicy !== undefined
+            ? { lateSubmissionPolicy: patch.lateSubmissionPolicy }
+            : {}),
+          ...(patch.renewalCondition !== undefined
+            ? { renewalCondition: patch.renewalCondition }
             : {}),
         },
         select: REQUIREMENT_SELECT,
@@ -356,10 +356,13 @@ export class AssociationRequirementService {
     const association = await this.access.requireOwned(user);
     await this.require(association.id, input.requirementId);
 
-    if (input.audienceKind === AssociationAudienceKind.GROUP && !input.groupId)
+    if (
+      input.audienceKind === AssociationAudienceKind.GROUP &&
+      !input.groupIds?.length
+    )
       throw new BadRequestException({
         code: AssociationMessageCode.AUDIENCE_EMPTY,
-        message: "A group audience needs a group.",
+        message: "A group audience needs at least one group.",
       });
 
     if (
@@ -376,13 +379,17 @@ export class AssociationRequirementService {
         where: { requirementId: input.requirementId },
       });
 
-      if (input.audienceKind === AssociationAudienceKind.GROUP && input.groupId)
-        await tx.associationRequirementTarget.create({
-          data: {
+      if (
+        input.audienceKind === AssociationAudienceKind.GROUP &&
+        input.groupIds?.length
+      )
+        await tx.associationRequirementTarget.createMany({
+          data: input.groupIds.map((groupId) => ({
             requirementId: input.requirementId,
             kind: input.audienceKind,
-            groupId: input.groupId,
-          },
+            groupId,
+          })),
+          skipDuplicates: true,
         });
 
       if (

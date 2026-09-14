@@ -4,80 +4,45 @@ import { PROFESSIONAL_COMPLIANCE_API } from "@professional/public/professional-c
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { type ComplianceActivity } from "@professional/public/professional-compliance-api";
 import { PrismaService } from "@prisma/prisma.service";
-import { PDUCategory } from "@prisma/client";
+
+import {
+  TAssignmentForCompute,
+  TAssignmentSnapshot,
+  TAssignmentPreview,
+  TRecomputeOutcome,
+} from "@association/types/association-attention.types";
 
 import * as C from "@association/utils/compliance-attribution.util";
 
 const DEFAULT_ON_TRACK_THRESHOLD = 70;
-
-type AssignmentForCompute = {
-  id: string;
-  cycleStart: Date;
-  cycleEnd: Date | null;
-  member: { id: string; userId: string };
-  requirement: {
-    id: string;
-    associationId: string;
-    creditType: C.AttributionRequirement["creditType"];
-    evidencePolicy: C.AttributionRequirement["evidencePolicy"];
-    reportingStart: Date | null;
-    reportingEnd: Date | null;
-    deadline: Date | null;
-    gracePeriodDays: number;
-    allowLateSubmission: boolean;
-    totalRequiredCredits: number;
-    categories: { id: string; mappedCategory: PDUCategory }[];
-  };
-};
 
 const ASSIGNMENT_INCLUDE = {
   member: { select: { id: true, userId: true } },
   requirement: {
     select: {
       id: true,
-      associationId: true,
+      deadline: true,
       creditType: true,
+      reportingEnd: true,
+      associationId: true,
       evidencePolicy: true,
       reportingStart: true,
-      reportingEnd: true,
-      deadline: true,
       gracePeriodDays: true,
-      allowLateSubmission: true,
+      lateSubmissionPolicy: true,
       totalRequiredCredits: true,
       categories: { select: { id: true, mappedCategory: true } },
     },
   },
 } satisfies Prisma.AssociationRequirementAssignmentInclude;
 
-export type RecomputeOutcome = {
-  assignments: number;
-  attributionsWritten: number;
-  attributionsRemoved: number;
-  discarded: number;
-};
-
-const EMPTY: RecomputeOutcome = {
+const EMPTY: TRecomputeOutcome = {
+  discarded: 0,
   assignments: 0,
   attributionsWritten: 0,
   attributionsRemoved: 0,
-  discarded: 0,
 };
 
-export type AssignmentSnapshot = {
-  percent: number;
-  band: string;
-  completedCredits: number;
-  awaitingReviewCount: number;
-  isMissingEvidence: boolean;
-};
-
-export type AssignmentPreview = {
-  current: AssignmentSnapshot;
-  computed: AssignmentSnapshot;
-  wouldChange: boolean;
-};
-
-const snapshotsDiffer = (a: AssignmentSnapshot, b: AssignmentSnapshot) =>
+const snapshotsDiffer = (a: TAssignmentSnapshot, b: TAssignmentSnapshot) =>
   Math.round(a.percent * 100) !== Math.round(b.percent * 100) ||
   a.band !== b.band ||
   Math.round(a.completedCredits * 100) !==
@@ -104,7 +69,7 @@ export class AssociationComplianceService {
   }
 
   private async computeTotals(
-    assignment: AssignmentForCompute,
+    assignment: TAssignmentForCompute,
     activitiesForUser?: ComplianceActivity[],
   ) {
     const userId = assignment.member.userId;
@@ -138,10 +103,9 @@ export class AssociationComplianceService {
     return { attributed, totals, band };
   }
 
-  /** Read-only comparison used by reconciliation dry-runs: never writes. */
   async previewAssignment(
     assignmentId: string,
-  ): Promise<AssignmentPreview | null> {
+  ): Promise<TAssignmentPreview | null> {
     const assignment =
       await this.prisma.associationRequirementAssignment.findUnique({
         where: { id: assignmentId },
@@ -150,7 +114,7 @@ export class AssociationComplianceService {
 
     if (!assignment) return null;
 
-    const current: AssignmentSnapshot = {
+    const current: TAssignmentSnapshot = {
       percent: assignment.percent,
       band: assignment.band,
       completedCredits: assignment.completedCredits,
@@ -159,7 +123,7 @@ export class AssociationComplianceService {
     };
 
     const { totals, band } = await this.computeTotals(assignment);
-    const computed: AssignmentSnapshot = {
+    const computed: TAssignmentSnapshot = {
       percent: totals.percent,
       band,
       completedCredits: totals.completedCredits,
@@ -175,9 +139,9 @@ export class AssociationComplianceService {
   }
 
   private async recomputeAssignments(
-    assignments: AssignmentForCompute[],
+    assignments: TAssignmentForCompute[],
     startedAt: Date,
-  ): Promise<RecomputeOutcome> {
+  ): Promise<TRecomputeOutcome> {
     if (!assignments.length) return EMPTY;
 
     const outcome = { ...EMPTY };
@@ -198,9 +162,6 @@ export class AssociationComplianceService {
 
       const keep = attributed.map((attribution) => attribution.activityId);
 
-      // Claim the assignment under the same staleness guard before touching
-      // attributions: a slower, older recompute must not overwrite rows a
-      // newer concurrent recompute already wrote once it loses the claim.
       const written = await this.prisma.$transaction(async (tx) => {
         const applied = await tx.associationRequirementAssignment.updateMany({
           where: {

@@ -1,7 +1,11 @@
 import { ASSOCIATION_REQUIREMENT_LIMITS as REQUIREMENT_LIMITS } from "@loopskey/api-contracts/validation";
 import { ASSOCIATION_LEARNING_CONTENT_LIMITS as CONTENT_LIMITS } from "@loopskey/api-contracts/validation";
+import { ASSOCIATION_GRACE_PERIOD_OPTIONS } from "@loopskey/api-contracts/validation";
 import { ASSOCIATION_MEMBER_LIMITS as LIMITS } from "@loopskey/api-contracts/validation";
 import { ASSOCIATION_LIMITS as ACCOUNT_LIMITS } from "@loopskey/api-contracts/validation";
+import { AssociationLateSubmissionPolicy } from "@/lib/graphql/base";
+import { AssociationSubmissionWindow } from "@/lib/graphql/base";
+import { AssociationRenewalCondition } from "@/lib/graphql/base";
 import { AssociationAudienceKind } from "@/lib/graphql/base";
 import { AssociationReportingCycle } from "@/lib/graphql/base";
 import { CreditType, PduCategory } from "@/lib/graphql/base";
@@ -133,7 +137,7 @@ export const associationRequirementDetailsSchema = z
       ])
       .optional(),
     audienceKind: z.nativeEnum(AssociationAudienceKind),
-    groupId: z.string().optional(),
+    groupIds: z.array(z.string()).max(REQUIREMENT_LIMITS.groupsMax),
     memberIds: z.array(z.string()).max(REQUIREMENT_LIMITS.specificMembersMax),
   })
   .superRefine((values, context) => {
@@ -152,12 +156,12 @@ export const associationRequirementDetailsSchema = z
 
     if (
       values.audienceKind === AssociationAudienceKind.Group &&
-      !values.groupId
+      values.groupIds.length === 0
     )
       context.addIssue({
         code: z.ZodIssueCode.custom,
-        path: ["groupId"],
-        message: "groupRequired",
+        path: ["groupIds"],
+        message: "groupsRequired",
       });
 
     if (
@@ -193,14 +197,19 @@ export const associationRequirementCategoriesSchema = z.object({
 export const associationRequirementReportingSchema = z.object({
   reportingStart: z.string().optional(),
   reportingEnd: z.string().optional(),
-  submissionOpensAt: z.string().optional(),
-  submissionClosesAt: z.string().optional(),
+  submissionWindow: z.nativeEnum(AssociationSubmissionWindow),
   gracePeriodDays: z.coerce
     .number()
     .int()
-    .min(0)
-    .max(REQUIREMENT_LIMITS.gracePeriodDaysMax),
-  allowLateSubmission: z.boolean(),
+    .refine(
+      (value) =>
+        (ASSOCIATION_GRACE_PERIOD_OPTIONS as readonly number[]).includes(
+          value,
+        ),
+      { message: "invalidGracePeriod" },
+    ),
+  lateSubmissionPolicy: z.nativeEnum(AssociationLateSubmissionPolicy),
+  renewalCondition: z.nativeEnum(AssociationRenewalCondition),
 });
 
 export type TAssociationRequirementDetailsForm = z.input<

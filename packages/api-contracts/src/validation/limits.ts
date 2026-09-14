@@ -26,6 +26,17 @@ export const ASSOCIATION_REQUIREMENT_LIMITS = {
   cycleLengthYearsMax: 10,
   gracePeriodDaysMax: 365,
   specificMembersMax: 1000,
+  groupsMax: 50,
+} as const;
+
+export const ASSOCIATION_GRACE_PERIOD_OPTIONS = [0, 14, 30, 60, 90] as const;
+
+export const ASSOCIATION_SUBMISSION_WINDOW_DAYS = {
+  WHOLE_PERIOD: null,
+  DAYS_180: 180,
+  DAYS_90: 90,
+  DAYS_60: 60,
+  DAYS_30: 30,
 } as const;
 
 export const ASSOCIATION_LEARNING_CONTENT_LIMITS = {

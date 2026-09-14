@@ -1,17 +1,20 @@
 "use client";
 
-import { getAssociationErrorTranslationKey } from "@utils/association-error";
-import { AssociationRequirementStatus } from "@/lib/graphql/base";
-import { AssociationReportingCycle } from "@/lib/graphql/base";
-import { AssociationAudienceKind } from "@/lib/graphql/base";
-import { AssociationEvidencePolicy } from "@/lib/graphql/base";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { getAssociationErrorTranslationKey } from "@utils/association-error";
+import { AssociationLateSubmissionPolicy } from "@/lib/graphql/base";
 import { CpdReminderTiming, CreditType } from "@/lib/graphql/base";
+import { AssociationRequirementStatus } from "@/lib/graphql/base";
+import { AssociationSubmissionWindow } from "@/lib/graphql/base";
+import { AssociationRenewalCondition } from "@/lib/graphql/base";
+import { useRouter, useSearchParams } from "next/navigation";
+import { AssociationReportingCycle } from "@/lib/graphql/base";
+import { AssociationEvidencePolicy } from "@/lib/graphql/base";
+import { AssociationAudienceKind } from "@/lib/graphql/base";
+import { useFieldArray, useForm } from "react-hook-form";
 import { SEARCH_DEBOUNCE_MS } from "@utils/constant";
 import { useDebouncedValue } from "@hooks/useDebounced";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useFieldArray, useForm } from "react-hook-form";
 import { useI18n } from "@hooks/useI18n";
 import { notify } from "@hooks/notify";
 
@@ -31,11 +34,11 @@ const detailsDefaults: SC.TAssociationRequirementDetailsForm = {
   memberIds: [],
   description: "",
   deadline: "",
-  groupId: "",
+  groupIds: [],
   cycleLengthYears: "",
   creditType: CreditType.Cpd,
   totalRequiredCredits: 0,
-  reportingCycle: AssociationReportingCycle.OneTime,
+  reportingCycle: AssociationReportingCycle.Annual,
   audienceKind: AssociationAudienceKind.AllMembers,
 };
 
@@ -174,10 +177,10 @@ export const useAssociationRequirementsTab = () => {
     defaultValues: {
       reportingStart: "",
       reportingEnd: "",
-      submissionOpensAt: "",
-      submissionClosesAt: "",
+      submissionWindow: AssociationSubmissionWindow.WholePeriod,
       gracePeriodDays: 0,
-      allowLateSubmission: true,
+      lateSubmissionPolicy: AssociationLateSubmissionPolicy.AcceptedFlaggedLate,
+      renewalCondition: AssociationRenewalCondition.TotalCreditsMet,
     },
   });
 
@@ -197,8 +200,9 @@ export const useAssociationRequirementsTab = () => {
       reportingCycle: requirement.reportingCycle,
       cycleLengthYears: requirement.cycleLengthYears ?? "",
       audienceKind: requirement.audienceKind,
-      groupId:
-        requirement.targets.find((target) => target.groupId)?.groupId ?? "",
+      groupIds: requirement.targets
+        .map((target) => target.groupId)
+        .filter((groupId): groupId is string => Boolean(groupId)),
       memberIds: requirement.targets
         .map((target) => target.memberId)
         .filter((memberId): memberId is string => Boolean(memberId)),
@@ -215,10 +219,10 @@ export const useAssociationRequirementsTab = () => {
     resetReporting({
       reportingStart: REQ.toDateInputValue(requirement.reportingStart),
       reportingEnd: REQ.toDateInputValue(requirement.reportingEnd),
-      submissionOpensAt: REQ.toDateInputValue(requirement.submissionOpensAt),
-      submissionClosesAt: REQ.toDateInputValue(requirement.submissionClosesAt),
+      submissionWindow: requirement.submissionWindow,
       gracePeriodDays: requirement.gracePeriodDays,
-      allowLateSubmission: requirement.allowLateSubmission,
+      lateSubmissionPolicy: requirement.lateSubmissionPolicy,
+      renewalCondition: requirement.renewalCondition,
     });
   }, [requirement, resetDetails, resetCategories, resetReporting]);
 
@@ -249,9 +253,9 @@ export const useAssociationRequirementsTab = () => {
 
   const audienceInput = (values: SC.TAssociationRequirementDetailsValues) => ({
     audienceKind: values.audienceKind,
-    groupId:
+    groupIds:
       values.audienceKind === AssociationAudienceKind.Group
-        ? values.groupId || undefined
+        ? values.groupIds
         : undefined,
     memberIds:
       values.audienceKind === AssociationAudienceKind.SpecificMembers
@@ -355,10 +359,10 @@ export const useAssociationRequirementsTab = () => {
         requirementId,
         reportingStart: REQ.fromDateInputValue(values.reportingStart),
         reportingEnd: REQ.fromDateInputValue(values.reportingEnd),
-        submissionOpensAt: REQ.fromDateInputValue(values.submissionOpensAt),
-        submissionClosesAt: REQ.fromDateInputValue(values.submissionClosesAt),
+        submissionWindow: values.submissionWindow,
         gracePeriodDays: values.gracePeriodDays,
-        allowLateSubmission: values.allowLateSubmission,
+        lateSubmissionPolicy: values.lateSubmissionPolicy,
+        renewalCondition: values.renewalCondition,
       }).unwrap();
       notify.success(
         t("associationDashboard.requirements.messages.rulesSaved"),

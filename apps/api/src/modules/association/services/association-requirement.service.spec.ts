@@ -29,10 +29,10 @@ const requirementRow = (over: Record<string, unknown> = {}) => ({
   evidencePolicy: "NOT_REQUIRED",
   reportingStart: null,
   reportingEnd: null,
-  submissionOpensAt: null,
-  submissionClosesAt: null,
+  submissionWindow: "WHOLE_PERIOD",
   gracePeriodDays: 0,
-  allowLateSubmission: true,
+  lateSubmissionPolicy: "ACCEPTED_FLAGGED_LATE",
+  renewalCondition: "TOTAL_CREDITS_MET",
   remindersEnabled: false,
   reminderTiming: null,
   audienceKind: "ALL_MEMBERS",
@@ -66,7 +66,6 @@ const setup = (
     },
     associationRequirementTarget: {
       deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
-      create: jest.fn().mockResolvedValue({}),
       createMany: jest.fn().mockResolvedValue({ count: 0 }),
     },
     outboxEvent: { create: jest.fn().mockResolvedValue({ id: "event-1" }) },
@@ -323,13 +322,42 @@ describe("AssociationRequirementService audience", () => {
     await service.updateAudience(owner, {
       requirementId: "req-1",
       audienceKind: "GROUP" as never,
-      groupId: "group-1",
+      groupIds: ["group-1"],
     });
 
     expect(tx.associationRequirementTarget.deleteMany).toHaveBeenCalledWith({
       where: { requirementId: "req-1" },
     });
-    expect(tx.associationRequirementTarget.create).toHaveBeenCalled();
+    expect(tx.associationRequirementTarget.createMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: [
+          expect.objectContaining({
+            requirementId: "req-1",
+            groupId: "group-1",
+          }),
+        ],
+      }),
+    );
+  });
+
+  it("assigns every checked group at once", async () => {
+    const { service, tx } = setup();
+
+    await service.updateAudience(owner, {
+      requirementId: "req-1",
+      audienceKind: "GROUP" as never,
+      groupIds: ["group-1", "group-2", "group-3"],
+    });
+
+    expect(tx.associationRequirementTarget.createMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: [
+          expect.objectContaining({ groupId: "group-1" }),
+          expect.objectContaining({ groupId: "group-2" }),
+          expect.objectContaining({ groupId: "group-3" }),
+        ],
+      }),
+    );
   });
 });
 

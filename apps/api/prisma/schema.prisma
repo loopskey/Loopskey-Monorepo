@@ -2435,6 +2435,24 @@ enum AssociationEvidencePolicy {
   REQUIRED_NEEDS_REVIEW
 }
 
+enum AssociationSubmissionWindow {
+  DAYS_90
+  DAYS_60
+  DAYS_30
+  DAYS_180
+  WHOLE_PERIOD
+}
+
+enum AssociationLateSubmissionPolicy {
+  NOT_ACCEPTED
+  ACCEPTED_DURING_GRACE
+  ACCEPTED_FLAGGED_LATE
+}
+
+enum AssociationRenewalCondition {
+  TOTAL_CREDITS_MET
+}
+
 model AssociationRequirement {
   id String @id @default(cuid())
 
@@ -2459,11 +2477,12 @@ model AssociationRequirement {
   reportingStart DateTime?
   reportingEnd   DateTime?
 
-  submissionOpensAt  DateTime?
-  submissionClosesAt DateTime?
+  submissionWindow AssociationSubmissionWindow @default(WHOLE_PERIOD)
 
-  gracePeriodDays     Int     @default(0)
-  allowLateSubmission Boolean @default(true)
+  gracePeriodDays      Int                             @default(0)
+  lateSubmissionPolicy AssociationLateSubmissionPolicy @default(ACCEPTED_FLAGGED_LATE)
+
+  renewalCondition AssociationRenewalCondition @default(TOTAL_CREDITS_MET)
 
   remindersEnabled Boolean            @default(false)
   reminderTiming   CPDReminderTiming?
@@ -2786,8 +2805,8 @@ model AssociationMessageDelivery {
 
 // ================ Ingestion ====================
 enum IngestionContentKind {
-  COURSE
   EVENT
+  COURSE
   PODCAST
   YOUTUBE
 }
@@ -2798,17 +2817,17 @@ enum IngestionBatchMode {
 }
 
 enum IngestionBatchStatus {
-  RECEIVED
-  PROCESSING
-  COMPLETED
   FAILED
+  RECEIVED
+  COMPLETED
+  PROCESSING
 }
 
 enum IngestionItemState {
+  STALE
   PENDING
   ACCEPTED
   REJECTED
-  STALE
 }
 
 model IngestionSource {

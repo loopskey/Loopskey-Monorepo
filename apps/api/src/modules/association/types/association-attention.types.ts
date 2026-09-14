@@ -1,6 +1,7 @@
 import { type AssociationAttentionSection } from "@association/enums/association-attention.enum";
-import { AssociationComplianceBand } from "@prisma/client";
+import { AssociationComplianceBand, PDUCategory } from "@prisma/client";
 import { AssociationMessageType } from "@prisma/client";
+import { AttributionRequirement } from "../utils/compliance-attribution.util";
 
 export const CERTIFICATE_EXPIRY_WINDOW_DAYS = 30;
 
@@ -66,4 +67,45 @@ export type MessageBatchResult = {
   acceptedCount: number;
   skipped: MessageSkip[];
   messageType: AssociationMessageType;
+};
+
+export type TAssignmentForCompute = {
+  id: string;
+  cycleStart: Date;
+  cycleEnd: Date | null;
+  member: { id: string; userId: string };
+  requirement: {
+    id: string;
+    associationId: string;
+    deadline: Date | null;
+    gracePeriodDays: number;
+    reportingEnd: Date | null;
+    reportingStart: Date | null;
+    totalRequiredCredits: number;
+    creditType: AttributionRequirement["creditType"];
+    evidencePolicy: AttributionRequirement["evidencePolicy"];
+    categories: { id: string; mappedCategory: PDUCategory }[];
+    lateSubmissionPolicy: AttributionRequirement["lateSubmissionPolicy"];
+  };
+};
+
+export type TRecomputeOutcome = {
+  discarded: number;
+  assignments: number;
+  attributionsWritten: number;
+  attributionsRemoved: number;
+};
+
+export type TAssignmentSnapshot = {
+  band: string;
+  percent: number;
+  completedCredits: number;
+  isMissingEvidence: boolean;
+  awaitingReviewCount: number;
+};
+
+export type TAssignmentPreview = {
+  wouldChange: boolean;
+  current: TAssignmentSnapshot;
+  computed: TAssignmentSnapshot;
 };

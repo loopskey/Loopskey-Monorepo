@@ -566,6 +566,13 @@ type AssociationInviteResult {
   outcome: AssociationInviteOutcome!
 }
 
+"""Whether a submission after the deadline is accepted, and how"""
+enum AssociationLateSubmissionPolicy {
+  ACCEPTED_DURING_GRACE
+  ACCEPTED_FLAGGED_LATE
+  NOT_ACCEPTED
+}
+
 type AssociationLearningContent {
   audienceKind: AssociationAudienceKind!
   category: PDUCategory
@@ -902,6 +909,11 @@ type AssociationRecentActivity {
   state: AssociationAttributionState!
 }
 
+"""What must be true for a requirement to count as renewed"""
+enum AssociationRenewalCondition {
+  TOTAL_CREDITS_MET
+}
+
 type AssociationRenewalReadinessRow {
   awaitingReviewCount: Int!
   band: AssociationComplianceBand!
@@ -1006,7 +1018,6 @@ enum AssociationReportingCycle {
 }
 
 type AssociationRequirement {
-  allowLateSubmission: Boolean!
   archivedAt: DateTime
   assignedMemberCount: Int!
   audienceKind: AssociationAudienceKind!
@@ -1019,16 +1030,17 @@ type AssociationRequirement {
   evidencePolicy: AssociationEvidencePolicy!
   gracePeriodDays: Int!
   id: ID!
+  lateSubmissionPolicy: AssociationLateSubmissionPolicy!
   name: String!
   publishedAt: DateTime
   reminderTiming: CPDReminderTiming
   remindersEnabled: Boolean!
+  renewalCondition: AssociationRenewalCondition!
   reportingCycle: AssociationReportingCycle!
   reportingEnd: DateTime
   reportingStart: DateTime
   status: AssociationRequirementStatus!
-  submissionClosesAt: DateTime
-  submissionOpensAt: DateTime
+  submissionWindow: AssociationSubmissionWindow!
   targets: [AssociationRequirementTarget!]!
   totalRequiredCredits: Float!
   updatedAt: DateTime!
@@ -1119,6 +1131,15 @@ type AssociationSettingsImpact {
   membersEnteringAtRisk: Int!
   membersLeavingAtRisk: Int!
   totalMembers: Int!
+}
+
+"""When a requirement's submission window opens, relative to its deadline"""
+enum AssociationSubmissionWindow {
+  DAYS_30
+  DAYS_60
+  DAYS_90
+  DAYS_180
+  WHOLE_PERIOD
 }
 
 enum AuditAction {
@@ -4595,7 +4616,7 @@ input UpdateAssociationProfileInput {
 
 input UpdateAssociationRequirementAudienceInput {
   audienceKind: AssociationAudienceKind!
-  groupId: ID
+  groupIds: [ID!]
   memberIds: [ID!]
   requirementId: ID!
 }
@@ -4624,13 +4645,13 @@ input UpdateAssociationRequirementEvidenceRulesInput {
 }
 
 input UpdateAssociationRequirementReportingRulesInput {
-  allowLateSubmission: Boolean
   gracePeriodDays: Int
+  lateSubmissionPolicy: AssociationLateSubmissionPolicy
+  renewalCondition: AssociationRenewalCondition
   reportingEnd: DateTime
   reportingStart: DateTime
   requirementId: ID!
-  submissionClosesAt: DateTime
-  submissionOpensAt: DateTime
+  submissionWindow: AssociationSubmissionWindow
 }
 
 input UpdateCertificateInput {
