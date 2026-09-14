@@ -1,19 +1,22 @@
-import { AssociationReportPeriod } from "@association/utils/association-report-period.util";
+import { AssociationLearningContentStatus } from "@prisma/client";
 import { AssociationMessageDeliveryState } from "@prisma/client";
 import { AssociationGeneratedReportState } from "@prisma/client";
-import { AssociationMessageType } from "@prisma/client";
-import { AssociationLearningContentStatus } from "@prisma/client";
-import { AssociationReportFormat } from "@prisma/client";
-import { AssociationReportType } from "@prisma/client";
-import { AssociationAttributionState } from "@prisma/client";
+import { AssociationLateSubmissionPolicy } from "@prisma/client";
 import { AssociationRequirementStatus } from "@prisma/client";
-import { AssociationComplianceBand } from "@prisma/client";
-import { AssociationReportingCycle } from "@prisma/client";
-import { AssociationEvidencePolicy } from "@prisma/client";
-import { AssociationAudienceKind } from "@prisma/client";
-import { AssociationMemberStatus } from "@prisma/client";
-import { AssociationAttentionSection } from "@association/enums/association-attention.enum";
 import { AssociationMessageSkipReason } from "@association/enums/association-attention.enum";
+import { AssociationAttributionState } from "@prisma/client";
+import { AssociationSubmissionWindow } from "@prisma/client";
+import { AssociationRenewalCondition } from "@prisma/client";
+import { AssociationAttentionSection } from "@association/enums/association-attention.enum";
+import { AssociationReportingCycle } from "@prisma/client";
+import { AssociationComplianceBand } from "@prisma/client";
+import { AssociationEvidencePolicy } from "@prisma/client";
+import { AssociationReportPeriod } from "@association/utils/association-report-period.util";
+import { AssociationReportFormat } from "@prisma/client";
+import { AssociationMemberStatus } from "@prisma/client";
+import { AssociationAudienceKind } from "@prisma/client";
+import { AssociationMessageType } from "@prisma/client";
+import { AssociationReportType } from "@prisma/client";
 import { registerEnumType } from "@nestjs/graphql";
 
 export enum AssociationInviteOutcome {
@@ -52,6 +55,22 @@ registerEnumType(AssociationEvidencePolicy, {
   name: "AssociationEvidencePolicy",
   description:
     "Whether members must attach evidence, and whether it is reviewed",
+});
+
+registerEnumType(AssociationSubmissionWindow, {
+  name: "AssociationSubmissionWindow",
+  description:
+    "When a requirement's submission window opens, relative to its deadline",
+});
+
+registerEnumType(AssociationLateSubmissionPolicy, {
+  name: "AssociationLateSubmissionPolicy",
+  description: "Whether a submission after the deadline is accepted, and how",
+});
+
+registerEnumType(AssociationRenewalCondition, {
+  name: "AssociationRenewalCondition",
+  description: "What must be true for a requirement to count as renewed",
 });
 
 registerEnumType(AssociationComplianceBand, {

@@ -1,6 +1,11 @@
 "use client";
 
+import { ASSOCIATION_GRACE_PERIOD_OPTIONS } from "@loopskey/api-contracts/validation";
 import { TAssociationRequirementRulesStep } from "@/types/association-dashboard.types";
+import { AssociationLateSubmissionPolicy } from "@/lib/graphql/base";
+import { AssociationSubmissionWindow } from "@/lib/graphql/base";
+import { AssociationRenewalCondition } from "@/lib/graphql/base";
+import { FloatingSelectField } from "@elements/floating-select";
 import { FloatingInputField } from "@elements/floating-input";
 import { CpdReminderTiming } from "@/lib/graphql/base";
 import { useState } from "react";
@@ -23,6 +28,34 @@ export const AssociationRequirementReportingCard = ({
     submitReporting,
     submitReminders,
   } = hook;
+
+  const submissionWindowOptions = Object.values(AssociationSubmissionWindow).map(
+    (value) => ({
+      value,
+      label: t(`associationDashboard.requirements.submissionWindow.${value}`),
+    }),
+  );
+
+  const gracePeriodOptions = ASSOCIATION_GRACE_PERIOD_OPTIONS.map((days) => ({
+    value: String(days),
+    label: t(`associationDashboard.requirements.gracePeriod.${days}`),
+  }));
+
+  const lateSubmissionPolicyOptions = Object.values(
+    AssociationLateSubmissionPolicy,
+  ).map((value) => ({
+    value,
+    label: t(
+      `associationDashboard.requirements.lateSubmissionPolicy.${value}`,
+    ),
+  }));
+
+  const renewalConditionOptions = Object.values(
+    AssociationRenewalCondition,
+  ).map((value) => ({
+    value,
+    label: t(`associationDashboard.requirements.renewalCondition.${value}`),
+  }));
 
   const [remindersEnabled, setRemindersEnabled] = useState(
     requirement?.remindersEnabled ?? false,
@@ -65,53 +98,42 @@ export const AssociationRequirementReportingCard = ({
             )}
           />
 
-          <FloatingInputField
-            type="date"
-            name="submissionOpensAt"
+          <FloatingSelectField
+            name="submissionWindow"
             control={reportingForm.control}
+            options={submissionWindowOptions}
             label={t(
-              "associationDashboard.requirements.rules.reporting.submissionOpens",
+              "associationDashboard.requirements.rules.reporting.submissionWindow",
             )}
           />
 
-          <FloatingInputField
-            type="date"
-            name="submissionClosesAt"
-            control={reportingForm.control}
-            label={t(
-              "associationDashboard.requirements.rules.reporting.submissionCloses",
-            )}
-          />
-
-          <FloatingInputField
-            type="number"
+          <FloatingSelectField
             name="gracePeriodDays"
             control={reportingForm.control}
+            options={gracePeriodOptions}
             label={t(
               "associationDashboard.requirements.rules.reporting.gracePeriod",
             )}
           />
+
+          <FloatingSelectField
+            name="lateSubmissionPolicy"
+            control={reportingForm.control}
+            options={lateSubmissionPolicyOptions}
+            label={t(
+              "associationDashboard.requirements.rules.reporting.lateSubmissionPolicy",
+            )}
+          />
+
+          <FloatingSelectField
+            name="renewalCondition"
+            control={reportingForm.control}
+            options={renewalConditionOptions}
+            label={t(
+              "associationDashboard.requirements.rules.reporting.renewalCondition",
+            )}
+          />
         </div>
-
-        <F.FormField
-          name="allowLateSubmission"
-          control={reportingForm.control}
-          render={({ field }) => (
-            <div className="flex items-center justify-between rounded-md border p-4">
-              <Label htmlFor="allow-late-submission" className="font-normal">
-                {t(
-                  "associationDashboard.requirements.rules.reporting.allowLate",
-                )}
-              </Label>
-
-              <Switch
-                id="allow-late-submission"
-                checked={field.value}
-                onCheckedChange={field.onChange}
-              />
-            </div>
-          )}
-        />
 
         <div className="space-y-3 rounded-md border p-4">
           <div className="flex items-center justify-between">

@@ -1,11 +1,11 @@
 "use client";
 
-import { TAssociationRequirementRulesStep } from "@/types/association-dashboard.types";
-import { AssociationRequirementReportingCard } from "@modules/AssociationDashboard/parts/association-requirement-reporting-card";
 import { AssociationRequirementCategoriesCard } from "@modules/AssociationDashboard/parts/association-requirement-categories-card";
+import { AssociationRequirementReportingCard } from "@modules/AssociationDashboard/parts/association-requirement-reporting-card";
 import { AssociationRequirementEvidenceCard } from "@modules/AssociationDashboard/parts/association-requirement-evidence-card";
-import { TRequirementRuleCard } from "@/types/association-dashboard.types";
+import { TAssociationRequirementRulesStep } from "@/types/association-dashboard.types";
 import { AssociationEvidencePolicy } from "@/lib/graphql/base";
+import { TRequirementRuleCard } from "@/types/association-dashboard.types";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
@@ -24,8 +24,6 @@ export const AssociationRequirementRulesStep = ({
     reporting: Boolean(
       requirement?.reportingStart ||
         requirement?.reportingEnd ||
-        requirement?.submissionOpensAt ||
-        requirement?.submissionClosesAt ||
         requirement?.gracePeriodDays ||
         requirement?.remindersEnabled,
     ),
@@ -106,10 +104,7 @@ export const AssociationRequirementRulesStep = ({
               </div>
 
               {isOpen && (
-                <div
-                  id={panelId}
-                  className="mt-6 border-t border-border pt-6"
-                >
+                <div id={panelId} className="mt-6 border-t border-border pt-6">
                   {card.id === "categories" && (
                     <AssociationRequirementCategoriesCard hook={hook} />
                   )}

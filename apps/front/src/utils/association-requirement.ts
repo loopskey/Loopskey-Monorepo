@@ -1,4 +1,6 @@
+import { ASSOCIATION_SUBMISSION_WINDOW_DAYS } from "@loopskey/api-contracts/validation";
 import { AssociationRequirementStatus } from "@/lib/graphql/base";
+import { AssociationSubmissionWindow } from "@/lib/graphql/base";
 
 export const REQUIREMENT_WIZARD_STEPS = ["details", "rules", "review"] as const;
 
@@ -133,4 +135,17 @@ export const fromDateInputValue = (value: string | null | undefined) => {
   if (!value) return undefined;
   const parsed = new Date(`${value}T00:00:00.000Z`);
   return Number.isNaN(parsed.getTime()) ? undefined : parsed.toISOString();
+};
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+export const submissionOpensAt = (
+  deadline: string | null | undefined,
+  submissionWindow: AssociationSubmissionWindow,
+): Date | null => {
+  const days = ASSOCIATION_SUBMISSION_WINDOW_DAYS[submissionWindow];
+  if (!deadline || days === null) return null;
+  const parsed = new Date(deadline);
+  if (Number.isNaN(parsed.getTime())) return null;
+  return new Date(parsed.getTime() - days * DAY_MS);
 };

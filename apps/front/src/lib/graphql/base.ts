@@ -614,6 +614,13 @@ export type AssociationInviteResult = {
   outcome: AssociationInviteOutcome;
 };
 
+/** Whether a submission after the deadline is accepted, and how */
+export enum AssociationLateSubmissionPolicy {
+  AcceptedDuringGrace = 'ACCEPTED_DURING_GRACE',
+  AcceptedFlaggedLate = 'ACCEPTED_FLAGGED_LATE',
+  NotAccepted = 'NOT_ACCEPTED'
+}
+
 export type AssociationLearningContent = {
   __typename?: 'AssociationLearningContent';
   audienceKind: AssociationAudienceKind;
@@ -973,6 +980,11 @@ export type AssociationRecentActivity = {
   state: AssociationAttributionState;
 };
 
+/** What must be true for a requirement to count as renewed */
+export enum AssociationRenewalCondition {
+  TotalCreditsMet = 'TOTAL_CREDITS_MET'
+}
+
 export type AssociationRenewalReadinessRow = {
   __typename?: 'AssociationRenewalReadinessRow';
   awaitingReviewCount: Scalars['Int']['output'];
@@ -1079,7 +1091,6 @@ export enum AssociationReportingCycle {
 
 export type AssociationRequirement = {
   __typename?: 'AssociationRequirement';
-  allowLateSubmission: Scalars['Boolean']['output'];
   archivedAt?: Maybe<Scalars['DateTime']['output']>;
   assignedMemberCount: Scalars['Int']['output'];
   audienceKind: AssociationAudienceKind;
@@ -1092,16 +1103,17 @@ export type AssociationRequirement = {
   evidencePolicy: AssociationEvidencePolicy;
   gracePeriodDays: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
+  lateSubmissionPolicy: AssociationLateSubmissionPolicy;
   name: Scalars['String']['output'];
   publishedAt?: Maybe<Scalars['DateTime']['output']>;
   reminderTiming?: Maybe<CpdReminderTiming>;
   remindersEnabled: Scalars['Boolean']['output'];
+  renewalCondition: AssociationRenewalCondition;
   reportingCycle: AssociationReportingCycle;
   reportingEnd?: Maybe<Scalars['DateTime']['output']>;
   reportingStart?: Maybe<Scalars['DateTime']['output']>;
   status: AssociationRequirementStatus;
-  submissionClosesAt?: Maybe<Scalars['DateTime']['output']>;
-  submissionOpensAt?: Maybe<Scalars['DateTime']['output']>;
+  submissionWindow: AssociationSubmissionWindow;
   targets: Array<AssociationRequirementTarget>;
   totalRequiredCredits: Scalars['Float']['output'];
   updatedAt: Scalars['DateTime']['output'];
@@ -1200,6 +1212,15 @@ export type AssociationSettingsImpact = {
   membersLeavingAtRisk: Scalars['Int']['output'];
   totalMembers: Scalars['Int']['output'];
 };
+
+/** When a requirement's submission window opens, relative to its deadline */
+export enum AssociationSubmissionWindow {
+  Days_30 = 'DAYS_30',
+  Days_60 = 'DAYS_60',
+  Days_90 = 'DAYS_90',
+  Days_180 = 'DAYS_180',
+  WholePeriod = 'WHOLE_PERIOD'
+}
 
 export enum AuditAction {
   AdminProfileUpdated = 'ADMIN_PROFILE_UPDATED',
@@ -6289,7 +6310,7 @@ export type UpdateAssociationProfileInput = {
 
 export type UpdateAssociationRequirementAudienceInput = {
   audienceKind: AssociationAudienceKind;
-  groupId?: InputMaybe<Scalars['ID']['input']>;
+  groupIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   memberIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   requirementId: Scalars['ID']['input'];
 };
@@ -6318,13 +6339,13 @@ export type UpdateAssociationRequirementEvidenceRulesInput = {
 };
 
 export type UpdateAssociationRequirementReportingRulesInput = {
-  allowLateSubmission?: InputMaybe<Scalars['Boolean']['input']>;
   gracePeriodDays?: InputMaybe<Scalars['Int']['input']>;
+  lateSubmissionPolicy?: InputMaybe<AssociationLateSubmissionPolicy>;
+  renewalCondition?: InputMaybe<AssociationRenewalCondition>;
   reportingEnd?: InputMaybe<Scalars['DateTime']['input']>;
   reportingStart?: InputMaybe<Scalars['DateTime']['input']>;
   requirementId: Scalars['ID']['input'];
-  submissionClosesAt?: InputMaybe<Scalars['DateTime']['input']>;
-  submissionOpensAt?: InputMaybe<Scalars['DateTime']['input']>;
+  submissionWindow?: InputMaybe<AssociationSubmissionWindow>;
 };
 
 export type UpdateCertificateInput = {

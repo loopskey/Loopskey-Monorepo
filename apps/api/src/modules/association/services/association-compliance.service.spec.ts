@@ -26,7 +26,7 @@ const assignmentRow = (overrides: Record<string, unknown> = {}) => ({
     reportingEnd: day("2026-12-31"),
     deadline: day("2026-12-31"),
     gracePeriodDays: 0,
-    allowLateSubmission: false,
+    lateSubmissionPolicy: "NOT_ACCEPTED",
     totalRequiredCredits: 20,
     categories: [],
   },

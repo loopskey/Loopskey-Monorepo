@@ -314,7 +314,7 @@ export type TAssociationRequirementMemberPicker = {
   hasError?: boolean;
   onSearch: (value: string) => void;
   onChange: (ids: string[]) => void;
-  options: Array<{ value: string; label: string; hint: string }>;
+  options: Array<{ value: string; label: string; hint?: string }>;
 };
 
 export type TAssociationCoverageChart = {

@@ -3,7 +3,7 @@
 import { TAssociationRequirementAssignDialog } from "@/types/association-dashboard.types";
 import { AssociationRequirementMemberPicker } from "@modules/AssociationDashboard/parts/association-requirement-member-picker";
 import { AssociationAudienceKind } from "@/lib/graphql/base";
-import { FloatingSelectField } from "@elements/floating-select";
+import { useMemo, useState } from "react";
 import { Button } from "@ui/button";
 import { Label } from "@ui/label";
 
@@ -29,8 +29,19 @@ export const AssociationRequirementAssignDialog = ({
     isMemberPickerLoading,
   } = hook;
 
+  const [groupSearch, setGroupSearch] = useState("");
+
   const audienceKind = detailsForm.watch("audienceKind");
   const memberIds = detailsForm.watch("memberIds");
+  const groupIds = detailsForm.watch("groupIds");
+
+  const filteredGroupOptions = useMemo(
+    () =>
+      groupOptions.filter((option) =>
+        option.label.toLowerCase().includes(groupSearch.trim().toLowerCase()),
+      ),
+    [groupOptions, groupSearch],
+  );
 
   return (
     <D.Dialog open={isAssignOpen} onOpenChange={setAssignOpen}>
@@ -78,14 +89,28 @@ export const AssociationRequirementAssignDialog = ({
             />
 
             {audienceKind === AssociationAudienceKind.Group && (
-              <FloatingSelectField
-                name="groupId"
-                options={groupOptions}
-                control={detailsForm.control}
+              <AssociationRequirementMemberPicker
+                search={groupSearch}
+                options={filteredGroupOptions}
+                selectedIds={groupIds}
+                onSearch={setGroupSearch}
+                isLoading={false}
                 label={t("associationDashboard.requirements.fields.group")}
+                emptyText={t(
+                  "associationDashboard.requirements.fields.groupsEmpty",
+                )}
+                countLabel={t(
+                  "associationDashboard.requirements.fields.groupsResults",
+                  { count: filteredGroupOptions.length },
+                )}
                 placeholder={t(
                   "associationDashboard.requirements.fields.groupPlaceholder",
                 )}
+                onChange={(ids) =>
+                  detailsForm.setValue("groupIds", ids, {
+                    shouldValidate: true,
+                  })
+                }
               />
             )}
 
@@ -126,11 +151,7 @@ export const AssociationRequirementAssignDialog = ({
                 {t("associationDashboard.requirements.confirm.cancel")}
               </Button>
 
-              <Button
-                radius="xl"
-                type="submit"
-                disabled={isSaving}
-              >
+              <Button radius="xl" type="submit" disabled={isSaving}>
                 {isSaving && <L.Loader2 className="h-4 w-4 animate-spin" />}
                 {t("associationDashboard.requirements.assign.submit")}
               </Button>

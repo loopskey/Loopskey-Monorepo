@@ -1,6 +1,9 @@
 import { CPDReminderTiming, CreditType, PDUCategory } from "@prisma/client";
 import { Field, Float, ID, Int, ObjectType } from "@nestjs/graphql";
+import { AssociationLateSubmissionPolicy } from "@prisma/client";
 import { AssociationRequirementStatus } from "@prisma/client";
+import { AssociationSubmissionWindow } from "@prisma/client";
+import { AssociationRenewalCondition } from "@prisma/client";
 import { AssociationEvidencePolicy } from "@prisma/client";
 import { AssociationGqlObjectNames } from "@association/enums/association-gql-names.enum";
 import { AssociationReportingCycle } from "@prisma/client";
@@ -47,10 +50,13 @@ export class AssociationRequirementEntity {
   evidencePolicy: AssociationEvidencePolicy;
   @Field(() => Date, { nullable: true }) reportingStart: Date | null;
   @Field(() => Date, { nullable: true }) reportingEnd: Date | null;
-  @Field(() => Date, { nullable: true }) submissionOpensAt: Date | null;
-  @Field(() => Date, { nullable: true }) submissionClosesAt: Date | null;
+  @Field(() => AssociationSubmissionWindow)
+  submissionWindow: AssociationSubmissionWindow;
   @Field(() => Int) gracePeriodDays: number;
-  @Field() allowLateSubmission: boolean;
+  @Field(() => AssociationLateSubmissionPolicy)
+  lateSubmissionPolicy: AssociationLateSubmissionPolicy;
+  @Field(() => AssociationRenewalCondition)
+  renewalCondition: AssociationRenewalCondition;
   @Field() remindersEnabled: boolean;
   @Field(() => CPDReminderTiming, { nullable: true })
   reminderTiming: CPDReminderTiming | null;

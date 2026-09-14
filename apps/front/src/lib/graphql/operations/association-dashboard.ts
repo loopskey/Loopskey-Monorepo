@@ -404,7 +404,7 @@ export type AssociationRequirementCategoryFieldsFragment = { __typename?: 'Assoc
 
 export type AssociationRequirementTargetFieldsFragment = { __typename?: 'AssociationRequirementTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null };
 
-export type AssociationRequirementFieldsFragment = { __typename?: 'AssociationRequirement', id: string, name: string, description?: string | null, creditType: Types.CreditType, totalRequiredCredits: number, deadline?: string | null, reportingCycle: Types.AssociationReportingCycle, cycleLengthYears?: number | null, evidencePolicy: Types.AssociationEvidencePolicy, reportingStart?: string | null, reportingEnd?: string | null, submissionOpensAt?: string | null, submissionClosesAt?: string | null, gracePeriodDays: number, allowLateSubmission: boolean, remindersEnabled: boolean, reminderTiming?: Types.CpdReminderTiming | null, audienceKind: Types.AssociationAudienceKind, status: Types.AssociationRequirementStatus, publishedAt?: string | null, archivedAt?: string | null, assignedMemberCount: number, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'AssociationRequirementCategory', id: string, name: string, order: number, mappedCategory: Types.PduCategory, requiredCredits: number }>, targets: Array<{ __typename?: 'AssociationRequirementTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> };
+export type AssociationRequirementFieldsFragment = { __typename?: 'AssociationRequirement', id: string, name: string, description?: string | null, creditType: Types.CreditType, totalRequiredCredits: number, deadline?: string | null, reportingCycle: Types.AssociationReportingCycle, cycleLengthYears?: number | null, evidencePolicy: Types.AssociationEvidencePolicy, reportingStart?: string | null, reportingEnd?: string | null, submissionWindow: Types.AssociationSubmissionWindow, gracePeriodDays: number, lateSubmissionPolicy: Types.AssociationLateSubmissionPolicy, renewalCondition: Types.AssociationRenewalCondition, remindersEnabled: boolean, reminderTiming?: Types.CpdReminderTiming | null, audienceKind: Types.AssociationAudienceKind, status: Types.AssociationRequirementStatus, publishedAt?: string | null, archivedAt?: string | null, assignedMemberCount: number, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'AssociationRequirementCategory', id: string, name: string, order: number, mappedCategory: Types.PduCategory, requiredCredits: number }>, targets: Array<{ __typename?: 'AssociationRequirementTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> };
 
 export type AssociationRequirementsQueryVariables = Types.Exact<{
   filter?: Types.InputMaybe<Types.AssociationRequirementFilterInput>;
@@ -412,14 +412,14 @@ export type AssociationRequirementsQueryVariables = Types.Exact<{
 }>;
 
 
-export type AssociationRequirementsQuery = { __typename?: 'Query', associationRequirements: { __typename?: 'PaginatedAssociationRequirements', totalCount: number, pageInfo: { __typename?: 'AssociationPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'AssociationRequirement', id: string, name: string, description?: string | null, creditType: Types.CreditType, totalRequiredCredits: number, deadline?: string | null, reportingCycle: Types.AssociationReportingCycle, cycleLengthYears?: number | null, evidencePolicy: Types.AssociationEvidencePolicy, reportingStart?: string | null, reportingEnd?: string | null, submissionOpensAt?: string | null, submissionClosesAt?: string | null, gracePeriodDays: number, allowLateSubmission: boolean, remindersEnabled: boolean, reminderTiming?: Types.CpdReminderTiming | null, audienceKind: Types.AssociationAudienceKind, status: Types.AssociationRequirementStatus, publishedAt?: string | null, archivedAt?: string | null, assignedMemberCount: number, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'AssociationRequirementCategory', id: string, name: string, order: number, mappedCategory: Types.PduCategory, requiredCredits: number }>, targets: Array<{ __typename?: 'AssociationRequirementTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> }> } };
+export type AssociationRequirementsQuery = { __typename?: 'Query', associationRequirements: { __typename?: 'PaginatedAssociationRequirements', totalCount: number, pageInfo: { __typename?: 'AssociationPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'AssociationRequirement', id: string, name: string, description?: string | null, creditType: Types.CreditType, totalRequiredCredits: number, deadline?: string | null, reportingCycle: Types.AssociationReportingCycle, cycleLengthYears?: number | null, evidencePolicy: Types.AssociationEvidencePolicy, reportingStart?: string | null, reportingEnd?: string | null, submissionWindow: Types.AssociationSubmissionWindow, gracePeriodDays: number, lateSubmissionPolicy: Types.AssociationLateSubmissionPolicy, renewalCondition: Types.AssociationRenewalCondition, remindersEnabled: boolean, reminderTiming?: Types.CpdReminderTiming | null, audienceKind: Types.AssociationAudienceKind, status: Types.AssociationRequirementStatus, publishedAt?: string | null, archivedAt?: string | null, assignedMemberCount: number, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'AssociationRequirementCategory', id: string, name: string, order: number, mappedCategory: Types.PduCategory, requiredCredits: number }>, targets: Array<{ __typename?: 'AssociationRequirementTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> }> } };
 
 export type AssociationRequirementQueryVariables = Types.Exact<{
   requirementId: Types.Scalars['ID']['input'];
 }>;
 
 
-export type AssociationRequirementQuery = { __typename?: 'Query', associationRequirement: { __typename?: 'AssociationRequirement', id: string, name: string, description?: string | null, creditType: Types.CreditType, totalRequiredCredits: number, deadline?: string | null, reportingCycle: Types.AssociationReportingCycle, cycleLengthYears?: number | null, evidencePolicy: Types.AssociationEvidencePolicy, reportingStart?: string | null, reportingEnd?: string | null, submissionOpensAt?: string | null, submissionClosesAt?: string | null, gracePeriodDays: number, allowLateSubmission: boolean, remindersEnabled: boolean, reminderTiming?: Types.CpdReminderTiming | null, audienceKind: Types.AssociationAudienceKind, status: Types.AssociationRequirementStatus, publishedAt?: string | null, archivedAt?: string | null, assignedMemberCount: number, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'AssociationRequirementCategory', id: string, name: string, order: number, mappedCategory: Types.PduCategory, requiredCredits: number }>, targets: Array<{ __typename?: 'AssociationRequirementTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> } };
+export type AssociationRequirementQuery = { __typename?: 'Query', associationRequirement: { __typename?: 'AssociationRequirement', id: string, name: string, description?: string | null, creditType: Types.CreditType, totalRequiredCredits: number, deadline?: string | null, reportingCycle: Types.AssociationReportingCycle, cycleLengthYears?: number | null, evidencePolicy: Types.AssociationEvidencePolicy, reportingStart?: string | null, reportingEnd?: string | null, submissionWindow: Types.AssociationSubmissionWindow, gracePeriodDays: number, lateSubmissionPolicy: Types.AssociationLateSubmissionPolicy, renewalCondition: Types.AssociationRenewalCondition, remindersEnabled: boolean, reminderTiming?: Types.CpdReminderTiming | null, audienceKind: Types.AssociationAudienceKind, status: Types.AssociationRequirementStatus, publishedAt?: string | null, archivedAt?: string | null, assignedMemberCount: number, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'AssociationRequirementCategory', id: string, name: string, order: number, mappedCategory: Types.PduCategory, requiredCredits: number }>, targets: Array<{ __typename?: 'AssociationRequirementTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> } };
 
 export type AssociationRequirementStatsQueryVariables = Types.Exact<{ [key: string]: never; }>;
 
@@ -431,56 +431,56 @@ export type CreateAssociationRequirementDraftMutationVariables = Types.Exact<{
 }>;
 
 
-export type CreateAssociationRequirementDraftMutation = { __typename?: 'Mutation', createAssociationRequirementDraft: { __typename?: 'AssociationRequirement', id: string, name: string, description?: string | null, creditType: Types.CreditType, totalRequiredCredits: number, deadline?: string | null, reportingCycle: Types.AssociationReportingCycle, cycleLengthYears?: number | null, evidencePolicy: Types.AssociationEvidencePolicy, reportingStart?: string | null, reportingEnd?: string | null, submissionOpensAt?: string | null, submissionClosesAt?: string | null, gracePeriodDays: number, allowLateSubmission: boolean, remindersEnabled: boolean, reminderTiming?: Types.CpdReminderTiming | null, audienceKind: Types.AssociationAudienceKind, status: Types.AssociationRequirementStatus, publishedAt?: string | null, archivedAt?: string | null, assignedMemberCount: number, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'AssociationRequirementCategory', id: string, name: string, order: number, mappedCategory: Types.PduCategory, requiredCredits: number }>, targets: Array<{ __typename?: 'AssociationRequirementTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> } };
+export type CreateAssociationRequirementDraftMutation = { __typename?: 'Mutation', createAssociationRequirementDraft: { __typename?: 'AssociationRequirement', id: string, name: string, description?: string | null, creditType: Types.CreditType, totalRequiredCredits: number, deadline?: string | null, reportingCycle: Types.AssociationReportingCycle, cycleLengthYears?: number | null, evidencePolicy: Types.AssociationEvidencePolicy, reportingStart?: string | null, reportingEnd?: string | null, submissionWindow: Types.AssociationSubmissionWindow, gracePeriodDays: number, lateSubmissionPolicy: Types.AssociationLateSubmissionPolicy, renewalCondition: Types.AssociationRenewalCondition, remindersEnabled: boolean, reminderTiming?: Types.CpdReminderTiming | null, audienceKind: Types.AssociationAudienceKind, status: Types.AssociationRequirementStatus, publishedAt?: string | null, archivedAt?: string | null, assignedMemberCount: number, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'AssociationRequirementCategory', id: string, name: string, order: number, mappedCategory: Types.PduCategory, requiredCredits: number }>, targets: Array<{ __typename?: 'AssociationRequirementTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> } };
 
 export type UpdateAssociationRequirementDetailsMutationVariables = Types.Exact<{
   input: Types.UpdateAssociationRequirementDetailsInput;
 }>;
 
 
-export type UpdateAssociationRequirementDetailsMutation = { __typename?: 'Mutation', updateAssociationRequirementDetails: { __typename?: 'AssociationRequirement', id: string, name: string, description?: string | null, creditType: Types.CreditType, totalRequiredCredits: number, deadline?: string | null, reportingCycle: Types.AssociationReportingCycle, cycleLengthYears?: number | null, evidencePolicy: Types.AssociationEvidencePolicy, reportingStart?: string | null, reportingEnd?: string | null, submissionOpensAt?: string | null, submissionClosesAt?: string | null, gracePeriodDays: number, allowLateSubmission: boolean, remindersEnabled: boolean, reminderTiming?: Types.CpdReminderTiming | null, audienceKind: Types.AssociationAudienceKind, status: Types.AssociationRequirementStatus, publishedAt?: string | null, archivedAt?: string | null, assignedMemberCount: number, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'AssociationRequirementCategory', id: string, name: string, order: number, mappedCategory: Types.PduCategory, requiredCredits: number }>, targets: Array<{ __typename?: 'AssociationRequirementTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> } };
+export type UpdateAssociationRequirementDetailsMutation = { __typename?: 'Mutation', updateAssociationRequirementDetails: { __typename?: 'AssociationRequirement', id: string, name: string, description?: string | null, creditType: Types.CreditType, totalRequiredCredits: number, deadline?: string | null, reportingCycle: Types.AssociationReportingCycle, cycleLengthYears?: number | null, evidencePolicy: Types.AssociationEvidencePolicy, reportingStart?: string | null, reportingEnd?: string | null, submissionWindow: Types.AssociationSubmissionWindow, gracePeriodDays: number, lateSubmissionPolicy: Types.AssociationLateSubmissionPolicy, renewalCondition: Types.AssociationRenewalCondition, remindersEnabled: boolean, reminderTiming?: Types.CpdReminderTiming | null, audienceKind: Types.AssociationAudienceKind, status: Types.AssociationRequirementStatus, publishedAt?: string | null, archivedAt?: string | null, assignedMemberCount: number, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'AssociationRequirementCategory', id: string, name: string, order: number, mappedCategory: Types.PduCategory, requiredCredits: number }>, targets: Array<{ __typename?: 'AssociationRequirementTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> } };
 
 export type UpdateAssociationRequirementCategoriesMutationVariables = Types.Exact<{
   input: Types.UpdateAssociationRequirementCategoriesInput;
 }>;
 
 
-export type UpdateAssociationRequirementCategoriesMutation = { __typename?: 'Mutation', updateAssociationRequirementCategories: { __typename?: 'AssociationRequirement', id: string, name: string, description?: string | null, creditType: Types.CreditType, totalRequiredCredits: number, deadline?: string | null, reportingCycle: Types.AssociationReportingCycle, cycleLengthYears?: number | null, evidencePolicy: Types.AssociationEvidencePolicy, reportingStart?: string | null, reportingEnd?: string | null, submissionOpensAt?: string | null, submissionClosesAt?: string | null, gracePeriodDays: number, allowLateSubmission: boolean, remindersEnabled: boolean, reminderTiming?: Types.CpdReminderTiming | null, audienceKind: Types.AssociationAudienceKind, status: Types.AssociationRequirementStatus, publishedAt?: string | null, archivedAt?: string | null, assignedMemberCount: number, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'AssociationRequirementCategory', id: string, name: string, order: number, mappedCategory: Types.PduCategory, requiredCredits: number }>, targets: Array<{ __typename?: 'AssociationRequirementTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> } };
+export type UpdateAssociationRequirementCategoriesMutation = { __typename?: 'Mutation', updateAssociationRequirementCategories: { __typename?: 'AssociationRequirement', id: string, name: string, description?: string | null, creditType: Types.CreditType, totalRequiredCredits: number, deadline?: string | null, reportingCycle: Types.AssociationReportingCycle, cycleLengthYears?: number | null, evidencePolicy: Types.AssociationEvidencePolicy, reportingStart?: string | null, reportingEnd?: string | null, submissionWindow: Types.AssociationSubmissionWindow, gracePeriodDays: number, lateSubmissionPolicy: Types.AssociationLateSubmissionPolicy, renewalCondition: Types.AssociationRenewalCondition, remindersEnabled: boolean, reminderTiming?: Types.CpdReminderTiming | null, audienceKind: Types.AssociationAudienceKind, status: Types.AssociationRequirementStatus, publishedAt?: string | null, archivedAt?: string | null, assignedMemberCount: number, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'AssociationRequirementCategory', id: string, name: string, order: number, mappedCategory: Types.PduCategory, requiredCredits: number }>, targets: Array<{ __typename?: 'AssociationRequirementTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> } };
 
 export type UpdateAssociationRequirementEvidenceRulesMutationVariables = Types.Exact<{
   input: Types.UpdateAssociationRequirementEvidenceRulesInput;
 }>;
 
 
-export type UpdateAssociationRequirementEvidenceRulesMutation = { __typename?: 'Mutation', updateAssociationRequirementEvidenceRules: { __typename?: 'AssociationRequirement', id: string, name: string, description?: string | null, creditType: Types.CreditType, totalRequiredCredits: number, deadline?: string | null, reportingCycle: Types.AssociationReportingCycle, cycleLengthYears?: number | null, evidencePolicy: Types.AssociationEvidencePolicy, reportingStart?: string | null, reportingEnd?: string | null, submissionOpensAt?: string | null, submissionClosesAt?: string | null, gracePeriodDays: number, allowLateSubmission: boolean, remindersEnabled: boolean, reminderTiming?: Types.CpdReminderTiming | null, audienceKind: Types.AssociationAudienceKind, status: Types.AssociationRequirementStatus, publishedAt?: string | null, archivedAt?: string | null, assignedMemberCount: number, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'AssociationRequirementCategory', id: string, name: string, order: number, mappedCategory: Types.PduCategory, requiredCredits: number }>, targets: Array<{ __typename?: 'AssociationRequirementTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> } };
+export type UpdateAssociationRequirementEvidenceRulesMutation = { __typename?: 'Mutation', updateAssociationRequirementEvidenceRules: { __typename?: 'AssociationRequirement', id: string, name: string, description?: string | null, creditType: Types.CreditType, totalRequiredCredits: number, deadline?: string | null, reportingCycle: Types.AssociationReportingCycle, cycleLengthYears?: number | null, evidencePolicy: Types.AssociationEvidencePolicy, reportingStart?: string | null, reportingEnd?: string | null, submissionWindow: Types.AssociationSubmissionWindow, gracePeriodDays: number, lateSubmissionPolicy: Types.AssociationLateSubmissionPolicy, renewalCondition: Types.AssociationRenewalCondition, remindersEnabled: boolean, reminderTiming?: Types.CpdReminderTiming | null, audienceKind: Types.AssociationAudienceKind, status: Types.AssociationRequirementStatus, publishedAt?: string | null, archivedAt?: string | null, assignedMemberCount: number, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'AssociationRequirementCategory', id: string, name: string, order: number, mappedCategory: Types.PduCategory, requiredCredits: number }>, targets: Array<{ __typename?: 'AssociationRequirementTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> } };
 
 export type UpdateAssociationRequirementReportingRulesMutationVariables = Types.Exact<{
   input: Types.UpdateAssociationRequirementReportingRulesInput;
 }>;
 
 
-export type UpdateAssociationRequirementReportingRulesMutation = { __typename?: 'Mutation', updateAssociationRequirementReportingRules: { __typename?: 'AssociationRequirement', id: string, name: string, description?: string | null, creditType: Types.CreditType, totalRequiredCredits: number, deadline?: string | null, reportingCycle: Types.AssociationReportingCycle, cycleLengthYears?: number | null, evidencePolicy: Types.AssociationEvidencePolicy, reportingStart?: string | null, reportingEnd?: string | null, submissionOpensAt?: string | null, submissionClosesAt?: string | null, gracePeriodDays: number, allowLateSubmission: boolean, remindersEnabled: boolean, reminderTiming?: Types.CpdReminderTiming | null, audienceKind: Types.AssociationAudienceKind, status: Types.AssociationRequirementStatus, publishedAt?: string | null, archivedAt?: string | null, assignedMemberCount: number, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'AssociationRequirementCategory', id: string, name: string, order: number, mappedCategory: Types.PduCategory, requiredCredits: number }>, targets: Array<{ __typename?: 'AssociationRequirementTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> } };
+export type UpdateAssociationRequirementReportingRulesMutation = { __typename?: 'Mutation', updateAssociationRequirementReportingRules: { __typename?: 'AssociationRequirement', id: string, name: string, description?: string | null, creditType: Types.CreditType, totalRequiredCredits: number, deadline?: string | null, reportingCycle: Types.AssociationReportingCycle, cycleLengthYears?: number | null, evidencePolicy: Types.AssociationEvidencePolicy, reportingStart?: string | null, reportingEnd?: string | null, submissionWindow: Types.AssociationSubmissionWindow, gracePeriodDays: number, lateSubmissionPolicy: Types.AssociationLateSubmissionPolicy, renewalCondition: Types.AssociationRenewalCondition, remindersEnabled: boolean, reminderTiming?: Types.CpdReminderTiming | null, audienceKind: Types.AssociationAudienceKind, status: Types.AssociationRequirementStatus, publishedAt?: string | null, archivedAt?: string | null, assignedMemberCount: number, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'AssociationRequirementCategory', id: string, name: string, order: number, mappedCategory: Types.PduCategory, requiredCredits: number }>, targets: Array<{ __typename?: 'AssociationRequirementTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> } };
 
 export type UpdateAssociationRequirementAudienceMutationVariables = Types.Exact<{
   input: Types.UpdateAssociationRequirementAudienceInput;
 }>;
 
 
-export type UpdateAssociationRequirementAudienceMutation = { __typename?: 'Mutation', updateAssociationRequirementAudience: { __typename?: 'AssociationRequirement', id: string, name: string, description?: string | null, creditType: Types.CreditType, totalRequiredCredits: number, deadline?: string | null, reportingCycle: Types.AssociationReportingCycle, cycleLengthYears?: number | null, evidencePolicy: Types.AssociationEvidencePolicy, reportingStart?: string | null, reportingEnd?: string | null, submissionOpensAt?: string | null, submissionClosesAt?: string | null, gracePeriodDays: number, allowLateSubmission: boolean, remindersEnabled: boolean, reminderTiming?: Types.CpdReminderTiming | null, audienceKind: Types.AssociationAudienceKind, status: Types.AssociationRequirementStatus, publishedAt?: string | null, archivedAt?: string | null, assignedMemberCount: number, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'AssociationRequirementCategory', id: string, name: string, order: number, mappedCategory: Types.PduCategory, requiredCredits: number }>, targets: Array<{ __typename?: 'AssociationRequirementTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> } };
+export type UpdateAssociationRequirementAudienceMutation = { __typename?: 'Mutation', updateAssociationRequirementAudience: { __typename?: 'AssociationRequirement', id: string, name: string, description?: string | null, creditType: Types.CreditType, totalRequiredCredits: number, deadline?: string | null, reportingCycle: Types.AssociationReportingCycle, cycleLengthYears?: number | null, evidencePolicy: Types.AssociationEvidencePolicy, reportingStart?: string | null, reportingEnd?: string | null, submissionWindow: Types.AssociationSubmissionWindow, gracePeriodDays: number, lateSubmissionPolicy: Types.AssociationLateSubmissionPolicy, renewalCondition: Types.AssociationRenewalCondition, remindersEnabled: boolean, reminderTiming?: Types.CpdReminderTiming | null, audienceKind: Types.AssociationAudienceKind, status: Types.AssociationRequirementStatus, publishedAt?: string | null, archivedAt?: string | null, assignedMemberCount: number, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'AssociationRequirementCategory', id: string, name: string, order: number, mappedCategory: Types.PduCategory, requiredCredits: number }>, targets: Array<{ __typename?: 'AssociationRequirementTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> } };
 
 export type PublishAssociationRequirementMutationVariables = Types.Exact<{
   input: Types.AssociationRequirementIdInput;
 }>;
 
 
-export type PublishAssociationRequirementMutation = { __typename?: 'Mutation', publishAssociationRequirement: { __typename?: 'AssociationRequirement', id: string, name: string, description?: string | null, creditType: Types.CreditType, totalRequiredCredits: number, deadline?: string | null, reportingCycle: Types.AssociationReportingCycle, cycleLengthYears?: number | null, evidencePolicy: Types.AssociationEvidencePolicy, reportingStart?: string | null, reportingEnd?: string | null, submissionOpensAt?: string | null, submissionClosesAt?: string | null, gracePeriodDays: number, allowLateSubmission: boolean, remindersEnabled: boolean, reminderTiming?: Types.CpdReminderTiming | null, audienceKind: Types.AssociationAudienceKind, status: Types.AssociationRequirementStatus, publishedAt?: string | null, archivedAt?: string | null, assignedMemberCount: number, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'AssociationRequirementCategory', id: string, name: string, order: number, mappedCategory: Types.PduCategory, requiredCredits: number }>, targets: Array<{ __typename?: 'AssociationRequirementTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> } };
+export type PublishAssociationRequirementMutation = { __typename?: 'Mutation', publishAssociationRequirement: { __typename?: 'AssociationRequirement', id: string, name: string, description?: string | null, creditType: Types.CreditType, totalRequiredCredits: number, deadline?: string | null, reportingCycle: Types.AssociationReportingCycle, cycleLengthYears?: number | null, evidencePolicy: Types.AssociationEvidencePolicy, reportingStart?: string | null, reportingEnd?: string | null, submissionWindow: Types.AssociationSubmissionWindow, gracePeriodDays: number, lateSubmissionPolicy: Types.AssociationLateSubmissionPolicy, renewalCondition: Types.AssociationRenewalCondition, remindersEnabled: boolean, reminderTiming?: Types.CpdReminderTiming | null, audienceKind: Types.AssociationAudienceKind, status: Types.AssociationRequirementStatus, publishedAt?: string | null, archivedAt?: string | null, assignedMemberCount: number, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'AssociationRequirementCategory', id: string, name: string, order: number, mappedCategory: Types.PduCategory, requiredCredits: number }>, targets: Array<{ __typename?: 'AssociationRequirementTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> } };
 
 export type ArchiveAssociationRequirementMutationVariables = Types.Exact<{
   input: Types.AssociationRequirementIdInput;
 }>;
 
 
-export type ArchiveAssociationRequirementMutation = { __typename?: 'Mutation', archiveAssociationRequirement: { __typename?: 'AssociationRequirement', id: string, name: string, description?: string | null, creditType: Types.CreditType, totalRequiredCredits: number, deadline?: string | null, reportingCycle: Types.AssociationReportingCycle, cycleLengthYears?: number | null, evidencePolicy: Types.AssociationEvidencePolicy, reportingStart?: string | null, reportingEnd?: string | null, submissionOpensAt?: string | null, submissionClosesAt?: string | null, gracePeriodDays: number, allowLateSubmission: boolean, remindersEnabled: boolean, reminderTiming?: Types.CpdReminderTiming | null, audienceKind: Types.AssociationAudienceKind, status: Types.AssociationRequirementStatus, publishedAt?: string | null, archivedAt?: string | null, assignedMemberCount: number, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'AssociationRequirementCategory', id: string, name: string, order: number, mappedCategory: Types.PduCategory, requiredCredits: number }>, targets: Array<{ __typename?: 'AssociationRequirementTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> } };
+export type ArchiveAssociationRequirementMutation = { __typename?: 'Mutation', archiveAssociationRequirement: { __typename?: 'AssociationRequirement', id: string, name: string, description?: string | null, creditType: Types.CreditType, totalRequiredCredits: number, deadline?: string | null, reportingCycle: Types.AssociationReportingCycle, cycleLengthYears?: number | null, evidencePolicy: Types.AssociationEvidencePolicy, reportingStart?: string | null, reportingEnd?: string | null, submissionWindow: Types.AssociationSubmissionWindow, gracePeriodDays: number, lateSubmissionPolicy: Types.AssociationLateSubmissionPolicy, renewalCondition: Types.AssociationRenewalCondition, remindersEnabled: boolean, reminderTiming?: Types.CpdReminderTiming | null, audienceKind: Types.AssociationAudienceKind, status: Types.AssociationRequirementStatus, publishedAt?: string | null, archivedAt?: string | null, assignedMemberCount: number, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'AssociationRequirementCategory', id: string, name: string, order: number, mappedCategory: Types.PduCategory, requiredCredits: number }>, targets: Array<{ __typename?: 'AssociationRequirementTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> } };
 
 export const AssociationSettingsFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
     fragment AssociationSettingsFields on AssociationSettings {
@@ -855,10 +855,10 @@ export const AssociationRequirementFieldsFragmentDoc = /*#__PURE__*/ new TypedDo
   evidencePolicy
   reportingStart
   reportingEnd
-  submissionOpensAt
-  submissionClosesAt
+  submissionWindow
   gracePeriodDays
-  allowLateSubmission
+  lateSubmissionPolicy
+  renewalCondition
   remindersEnabled
   reminderTiming
   audienceKind
@@ -2329,10 +2329,10 @@ fragment AssociationRequirementFields on AssociationRequirement {
   evidencePolicy
   reportingStart
   reportingEnd
-  submissionOpensAt
-  submissionClosesAt
+  submissionWindow
   gracePeriodDays
-  allowLateSubmission
+  lateSubmissionPolicy
+  renewalCondition
   remindersEnabled
   reminderTiming
   audienceKind
@@ -2381,10 +2381,10 @@ fragment AssociationRequirementFields on AssociationRequirement {
   evidencePolicy
   reportingStart
   reportingEnd
-  submissionOpensAt
-  submissionClosesAt
+  submissionWindow
   gracePeriodDays
-  allowLateSubmission
+  lateSubmissionPolicy
+  renewalCondition
   remindersEnabled
   reminderTiming
   audienceKind
@@ -2443,10 +2443,10 @@ fragment AssociationRequirementFields on AssociationRequirement {
   evidencePolicy
   reportingStart
   reportingEnd
-  submissionOpensAt
-  submissionClosesAt
+  submissionWindow
   gracePeriodDays
-  allowLateSubmission
+  lateSubmissionPolicy
+  renewalCondition
   remindersEnabled
   reminderTiming
   audienceKind
@@ -2495,10 +2495,10 @@ fragment AssociationRequirementFields on AssociationRequirement {
   evidencePolicy
   reportingStart
   reportingEnd
-  submissionOpensAt
-  submissionClosesAt
+  submissionWindow
   gracePeriodDays
-  allowLateSubmission
+  lateSubmissionPolicy
+  renewalCondition
   remindersEnabled
   reminderTiming
   audienceKind
@@ -2547,10 +2547,10 @@ fragment AssociationRequirementFields on AssociationRequirement {
   evidencePolicy
   reportingStart
   reportingEnd
-  submissionOpensAt
-  submissionClosesAt
+  submissionWindow
   gracePeriodDays
-  allowLateSubmission
+  lateSubmissionPolicy
+  renewalCondition
   remindersEnabled
   reminderTiming
   audienceKind
@@ -2599,10 +2599,10 @@ fragment AssociationRequirementFields on AssociationRequirement {
   evidencePolicy
   reportingStart
   reportingEnd
-  submissionOpensAt
-  submissionClosesAt
+  submissionWindow
   gracePeriodDays
-  allowLateSubmission
+  lateSubmissionPolicy
+  renewalCondition
   remindersEnabled
   reminderTiming
   audienceKind
@@ -2651,10 +2651,10 @@ fragment AssociationRequirementFields on AssociationRequirement {
   evidencePolicy
   reportingStart
   reportingEnd
-  submissionOpensAt
-  submissionClosesAt
+  submissionWindow
   gracePeriodDays
-  allowLateSubmission
+  lateSubmissionPolicy
+  renewalCondition
   remindersEnabled
   reminderTiming
   audienceKind
@@ -2703,10 +2703,10 @@ fragment AssociationRequirementFields on AssociationRequirement {
   evidencePolicy
   reportingStart
   reportingEnd
-  submissionOpensAt
-  submissionClosesAt
+  submissionWindow
   gracePeriodDays
-  allowLateSubmission
+  lateSubmissionPolicy
+  renewalCondition
   remindersEnabled
   reminderTiming
   audienceKind
@@ -2755,10 +2755,10 @@ fragment AssociationRequirementFields on AssociationRequirement {
   evidencePolicy
   reportingStart
   reportingEnd
-  submissionOpensAt
-  submissionClosesAt
+  submissionWindow
   gracePeriodDays
-  allowLateSubmission
+  lateSubmissionPolicy
+  renewalCondition
   remindersEnabled
   reminderTiming
   audienceKind
@@ -2807,10 +2807,10 @@ fragment AssociationRequirementFields on AssociationRequirement {
   evidencePolicy
   reportingStart
   reportingEnd
-  submissionOpensAt
-  submissionClosesAt
+  submissionWindow
   gracePeriodDays
-  allowLateSubmission
+  lateSubmissionPolicy
+  renewalCondition
   remindersEnabled
   reminderTiming
   audienceKind

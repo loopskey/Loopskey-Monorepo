@@ -5699,6 +5699,28 @@
         "REQUIRED_NO_REVIEW": "Justificatif requis, sans validation",
         "REQUIRED_NEEDS_REVIEW": "Justificatif requis, avec validation"
       },
+      "submissionWindow": {
+        "WHOLE_PERIOD": "Toute la période de déclaration",
+        "DAYS_180": "180 jours avant l'échéance",
+        "DAYS_90": "90 jours avant l'échéance",
+        "DAYS_60": "60 jours avant l'échéance",
+        "DAYS_30": "30 jours avant l'échéance"
+      },
+      "lateSubmissionPolicy": {
+        "NOT_ACCEPTED": "Non acceptée",
+        "ACCEPTED_DURING_GRACE": "Acceptée pendant le délai de grâce",
+        "ACCEPTED_FLAGGED_LATE": "Acceptée, signalée comme tardive"
+      },
+      "renewalCondition": {
+        "TOTAL_CREDITS_MET": "Total de crédits atteint"
+      },
+      "gracePeriod": {
+        "0": "Aucun délai de grâce",
+        "14": "14 jours après l'échéance",
+        "30": "30 jours après l'échéance",
+        "60": "60 jours après l'échéance",
+        "90": "90 jours après l'échéance"
+      },
       "creditType": {
         "CPD": "CPD",
         "CEU": "CEU",
@@ -5749,8 +5771,10 @@
         "cycleLengthHint": "Un cycle pluriannuel doit avoir une durée.",
         "evidencePolicy": "Justificatif",
         "audience": "À qui cela s'applique",
-        "group": "Groupe",
-        "groupPlaceholder": "Choisir un groupe",
+        "group": "Groupes",
+        "groupPlaceholder": "Rechercher des groupes par nom",
+        "groupsEmpty": "Aucun groupe ne correspond à cette recherche.",
+        "groupsResults": "{{count}} groupes trouvés.",
         "members": "Membres",
         "membersPlaceholder": "Rechercher par nom ou courriel",
         "membersEmpty": "Aucun membre ne correspond à cette recherche.",
@@ -5810,10 +5834,10 @@
           "description": "Définissez la période de déclaration, la fenêtre de soumission et les rappels.",
           "periodStart": "Début de la déclaration",
           "periodEnd": "Fin de la déclaration",
-          "submissionOpens": "Ouverture des soumissions",
-          "submissionCloses": "Clôture des soumissions",
-          "gracePeriod": "Délai de grâce en jours",
-          "allowLate": "Autoriser les soumissions tardives",
+          "submissionWindow": "Fenêtre de soumission",
+          "gracePeriod": "Délai de grâce",
+          "lateSubmissionPolicy": "Soumissions tardives",
+          "renewalCondition": "Condition de renouvellement",
           "reminders": "Envoyer des rappels",
           "reminderTiming": "Rappeler aux membres"
         }
@@ -5842,8 +5866,10 @@
         "categories": "Catégories",
         "reportingPeriod": "Période de déclaration",
         "submissionWindow": "Fenêtre de soumission",
-        "gracePeriodDays": "Délai de grâce en jours",
-        "allowLateSubmission": "Soumission tardive autorisée",
+        "submissionOpens": "Ouverture des soumissions",
+        "gracePeriod": "Délai de grâce",
+        "lateSubmissionPolicy": "Soumissions tardives",
+        "renewalCondition": "Condition de renouvellement",
         "reminders": "Rappels",
         "yes": "Oui",
         "no": "Non"
@@ -5885,7 +5911,8 @@
         "assigned": "{{added}} membres ajoutés."
       },
       "errors": {
-        "membersRequired": "Choisissez au moins un membre."
+        "membersRequired": "Choisissez au moins un membre.",
+        "groupsRequired": "Choisissez au moins un groupe."
       },
       "error": {
         "title": "Impossible de charger vos exigences",
