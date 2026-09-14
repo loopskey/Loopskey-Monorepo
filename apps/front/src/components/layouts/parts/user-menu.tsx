@@ -72,11 +72,12 @@ export const UserMenu = () => {
       </D.DropdownMenuTrigger>
       <D.DropdownMenuContent
         align="end"
-        className={cn(
-          "w-72 rounded-lg border-border p-2 shadow-md",
-        )}
+        className={cn("w-56 rounded-lg border-border p-2 shadow-md sm:w-72")}
       >
-        <div className="flex items-center gap-3 rounded-md bg-primary/5 p-3">
+        <div
+          style={{ animationDelay: "0ms" }}
+          className="animate-in fade-in-0 slide-in-from-top-1 flex items-center gap-3 rounded-md bg-primary/5 p-3 duration-200 motion-reduce:animate-none"
+        >
           <UserAvatar
             email={user.email}
             fullName={user.fullName}
@@ -98,13 +99,21 @@ export const UserMenu = () => {
           </div>
         </div>
         <D.DropdownMenuSeparator className="my-2" />
-        <D.DropdownMenuItem asChild className="rounded-md p-3">
+        <D.DropdownMenuItem
+          asChild
+          style={{ animationDelay: "50ms" }}
+          className="animate-in fade-in-0 slide-in-from-top-1 rounded-md p-3 duration-200 motion-reduce:animate-none"
+        >
           <Link href={dashboardPath}>
             <LayoutDashboard className="mr-2 h-4 w-4" />
             {t("userMenu.dashboard")}
           </Link>
         </D.DropdownMenuItem>
-        <D.DropdownMenuItem asChild className="rounded-md p-3">
+        <D.DropdownMenuItem
+          asChild
+          style={{ animationDelay: "100ms" }}
+          className="animate-in fade-in-0 slide-in-from-top-1 rounded-md p-3 duration-200 motion-reduce:animate-none"
+        >
           <Link href={profilePath}>
             <UserRound className="mr-2 h-4 w-4" />
             {t("userMenu.profile")}
@@ -114,7 +123,8 @@ export const UserMenu = () => {
         <D.DropdownMenuItem
           onClick={handleLogout}
           disabled={isLoggingOut}
-          className="rounded-md p-3 text-destructive focus:text-destructive"
+          style={{ animationDelay: "150ms" }}
+          className="animate-in fade-in-0 slide-in-from-top-1 rounded-md p-3 text-destructive duration-200 motion-reduce:animate-none focus:text-destructive"
         >
           <LogOut className="mr-2 h-4 w-4" />
           {isLoggingOut ? t("userMenu.loggingOut") : t("userMenu.logout")}

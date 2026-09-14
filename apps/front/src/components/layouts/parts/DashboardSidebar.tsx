@@ -1,69 +1,31 @@
 "use client";
 
+import { Tooltip, TooltipContent, TooltipTrigger } from "@ui/tooltip";
 import { DashboardSidebarSkeleton } from "@layouts/parts/DashboardSkeleton";
 import { getDashboardTabsByRole } from "@/utils/dashboard-nav.config";
 import { isDashboardTabActive } from "@/utils/dashboard-nav.config";
 import { useCurrentUserQuery } from "@/lib/rtk/endpoints/auth.api";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@ui/tooltip";
 import { getDashboardPath } from "@/utils/constant";
 import { useSearchParams } from "next/navigation";
+import { useState } from "react";
 import { useI18n } from "@/hooks/useI18n";
-import { useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 import Link from "next/link";
-
-const LONG_PRESS_MS = 500;
-const LONG_PRESS_AUTO_DISMISS_MS = 1800;
 
 export const DashboardSidebar = () => {
   const { t } = useI18n();
   const searchParams = useSearchParams();
   const { data, isLoading, isFetching } = useCurrentUserQuery();
   const [peekedTab, setPeekedTab] = useState<string | null>(null);
-  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const autoDismissTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const longPressFired = useRef(false);
 
   const role = data?.user?.role;
   const activeTab = searchParams?.get("tab") ?? "overview";
   if (isLoading || isFetching || !role) return <DashboardSidebarSkeleton />;
   const tabs = getDashboardTabsByRole(role);
 
-  const clearTimers = () => {
-    if (longPressTimer.current) clearTimeout(longPressTimer.current);
-    if (autoDismissTimer.current) clearTimeout(autoDismissTimer.current);
-    longPressTimer.current = null;
-    autoDismissTimer.current = null;
-  };
-
-  const handleTouchStart = (value: string) => () => {
-    longPressFired.current = false;
-    clearTimers();
-    setPeekedTab(null);
-    longPressTimer.current = setTimeout(() => {
-      longPressFired.current = true;
-      setPeekedTab(value);
-      autoDismissTimer.current = setTimeout(
-        () => setPeekedTab(null),
-        LONG_PRESS_AUTO_DISMISS_MS,
-      );
-    }, LONG_PRESS_MS);
-  };
-
-  const handleTouchEnd = () => {
-    if (longPressTimer.current) clearTimeout(longPressTimer.current);
-    longPressTimer.current = null;
-  };
-
-  const handleClickCapture = (event: React.MouseEvent) => {
-    if (!longPressFired.current) return;
-    event.preventDefault();
-    longPressFired.current = false;
-  };
-
   return (
-    <aside className="flex w-[72px] shrink-0 flex-col bg-primary text-primary-foreground lg:w-64">
+    <aside className="sticky top-16 z-30 flex h-[calc(100dvh-4rem)] w-[72px] shrink-0 flex-col bg-primary text-primary-foreground lg:w-64">
       <nav
         aria-label={t("dashboardShell.navLabel")}
         className="min-h-0 flex-1 overflow-y-auto py-2 pl-3"
@@ -81,7 +43,7 @@ export const DashboardSidebar = () => {
                 data-active={isActive}
               >
                 <Tooltip
-                  open={peekedTab === item.value}
+                  open={isActive || peekedTab === item.value}
                   onOpenChange={(open) =>
                     setPeekedTab(open ? item.value : null)
                   }
@@ -92,12 +54,6 @@ export const DashboardSidebar = () => {
                       title={label}
                       aria-label={label}
                       aria-current={isActive ? "page" : undefined}
-                      onTouchStart={handleTouchStart(item.value)}
-                      onTouchEnd={handleTouchEnd}
-                      onTouchCancel={handleTouchEnd}
-                      onTouchMove={handleTouchEnd}
-                      onClickCapture={handleClickCapture}
-                      onClick={() => setPeekedTab(null)}
                       className={cn(
                         "relative z-10 flex h-[60px] items-center rounded-l-[30px] outline-none transition-colors duration-200",
                         "text-sm font-semibold text-primary-foreground",
