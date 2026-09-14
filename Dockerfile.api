@@ -34,7 +34,16 @@ COPY --from=builder /app/packages/typescript-config/package.json ./packages/type
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 COPY --from=builder /app/apps/api/prisma ./apps/api/prisma
 COPY --from=builder /app/packages/api-contracts/dist ./packages/api-contracts/dist
-RUN chown -R node:node /app
+# Create the upload namespaces before chown so they exist, owned by node, in the
+# image itself. Without this, a freshly created uploads_data volume is mounted
+# over an absent directory and Docker makes the mount point root-owned, and
+# every LocalObjectStorageAdapter write fails with EACCES under the non-root
+# user below. An already-populated volume from an earlier image is unaffected
+# by this rebuild — its existing ownership on the host must be fixed once with
+# `docker compose exec -u root api chown -R node:node /app/uploads`.
+RUN mkdir -p /app/uploads/avatars /app/uploads/certificates /app/uploads/pdu \
+             /app/uploads/logos /app/uploads/reports /app/uploads/content \
+    && chown -R node:node /app
 USER node
 EXPOSE 5700
 CMD ["sh", "-c", "DB_PASSWORD_ENCODED=$(node -p \"encodeURIComponent(process.env.POSTGRES_PASSWORD)\") && export DATABASE_URL=postgresql://${POSTGRES_USER}:${DB_PASSWORD_ENCODED}@db:5432/${POSTGRES_DB} DIRECT_DATABASE_URL=postgresql://${POSTGRES_USER}:${DB_PASSWORD_ENCODED}@db:5432/${POSTGRES_DB} && npx prisma migrate deploy --schema apps/api/prisma/schema.prisma && node apps/api/dist/src/main.js"]
