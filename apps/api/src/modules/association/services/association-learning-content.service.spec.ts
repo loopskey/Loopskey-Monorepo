@@ -578,4 +578,91 @@ describe("AssociationLearningContentService", () => {
       expect(activities.contentEngagement).not.toHaveBeenCalled();
     });
   });
+
+  describe("resolving the audience to actual members", () => {
+    const memberRow = () => ({
+      id: "m-1",
+      userId: "user-1",
+      memberNumber: "M-1",
+      notes: null,
+      status: AssociationMemberStatus.ACTIVE,
+      invitedAt: new Date("2026-01-01T00:00:00.000Z"),
+      activatedAt: new Date("2026-01-02T00:00:00.000Z"),
+      deactivatedAt: null,
+      group: null,
+      user: {
+        fullName: "Ada Lovelace",
+        email: "ada@example.test",
+        avatarUrl: null,
+      },
+    });
+
+    it("queries every active member for ALL_MEMBERS", async () => {
+      const { service, memberFindMany } = setup({
+        rows: [
+          contentRow({ audienceKind: AssociationAudienceKind.ALL_MEMBERS }),
+        ],
+      });
+      memberFindMany.mockResolvedValueOnce([memberRow()]);
+
+      const members = await service.members(owner, "item-1");
+
+      expect(memberFindMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            associationId: "assoc-1",
+            status: { not: AssociationMemberStatus.INACTIVE },
+          }),
+        }),
+      );
+      expect(members).toEqual([
+        expect.objectContaining({
+          id: "m-1",
+          fullName: "Ada Lovelace",
+          email: "ada@example.test",
+        }),
+      ]);
+    });
+
+    it("filters to the targeted groups for GROUP", async () => {
+      const { service, memberFindMany } = setup({
+        rows: [
+          contentRow({
+            audienceKind: AssociationAudienceKind.GROUP,
+            targets: [{ groupId: "g-1", memberId: null }],
+          }),
+        ],
+      });
+      memberFindMany.mockResolvedValueOnce([memberRow()]);
+
+      await service.members(owner, "item-1");
+
+      expect(memberFindMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ groupId: { in: ["g-1"] } }),
+        }),
+      );
+    });
+
+    it("filters to exactly the targeted members for SPECIFIC_MEMBERS, inactive included", async () => {
+      const { service, memberFindMany } = setup({
+        rows: [
+          contentRow({
+            audienceKind: AssociationAudienceKind.SPECIFIC_MEMBERS,
+            targets: [{ groupId: null, memberId: "m-1" }],
+          }),
+        ],
+      });
+      memberFindMany.mockResolvedValueOnce([memberRow()]);
+
+      await service.members(owner, "item-1");
+
+      const where = memberFindMany.mock.calls[0][0].where as {
+        id?: unknown;
+        status?: unknown;
+      };
+      expect(where.id).toEqual({ in: ["m-1"] });
+      expect(where.status).toBeUndefined();
+    });
+  });
 });

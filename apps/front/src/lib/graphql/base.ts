@@ -758,6 +758,7 @@ export type AssociationMemberDistribution = {
 
 export type AssociationMemberFilterInput = {
   groupId?: InputMaybe<Scalars['ID']['input']>;
+  requirementId?: InputMaybe<Scalars['ID']['input']>;
   search?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<AssociationMemberStatus>;
 };
@@ -1193,15 +1194,11 @@ export type AssociationSettings = {
   __typename?: 'AssociationSettings';
   associationId: Scalars['ID']['output'];
   atRiskThreshold: Scalars['Int']['output'];
-  complianceReminders: Scalars['Boolean']['output'];
   createdAt: Scalars['DateTime']['output'];
-  defaultCreditType: CreditType;
   id: Scalars['ID']['output'];
   onTrackThreshold: Scalars['Int']['output'];
-  renewalRequiresReviewedEvidence: Scalars['Boolean']['output'];
   suppressAllEmail: Scalars['Boolean']['output'];
   updatedAt: Scalars['DateTime']['output'];
-  weeklyDigest: Scalars['Boolean']['output'];
   welcomeMessages: Scalars['Boolean']['output'];
 };
 
@@ -5134,6 +5131,7 @@ export type Query = {
   associationGroupProgressReport: Array<AssociationGroupProgressRow>;
   associationGroups: Array<AssociationGroup>;
   associationLearningContent: AssociationLearningContent;
+  associationLearningContentMembers: Array<AssociationMember>;
   associationLearningContents: PaginatedAssociationLearningContents;
   associationMemberActivities: PaginatedAssociationMemberActivities;
   associationMemberCompliance: AssociationMemberCompliance;
@@ -5379,6 +5377,12 @@ export type QueryAssociationGroupsArgs = {
 
 
 export type QueryAssociationLearningContentArgs = {
+  associationId?: InputMaybe<Scalars['ID']['input']>;
+  learningContentId: Scalars['ID']['input'];
+};
+
+
+export type QueryAssociationLearningContentMembersArgs = {
   associationId?: InputMaybe<Scalars['ID']['input']>;
   learningContentId: Scalars['ID']['input'];
 };
@@ -6259,11 +6263,9 @@ export type UpdateAdminUserStatus = {
 
 export type UpdateAssociationComplianceSettingsInput = {
   atRiskThreshold: Scalars['Int']['input'];
-  defaultCreditType: CreditType;
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
   expectedUpdatedAt: Scalars['DateTime']['input'];
   onTrackThreshold: Scalars['Int']['input'];
-  renewalRequiresReviewedEvidence: Scalars['Boolean']['input'];
 };
 
 export type UpdateAssociationGroupInput = {
@@ -6292,10 +6294,8 @@ export type UpdateAssociationMemberInput = {
 };
 
 export type UpdateAssociationNotificationSettingsInput = {
-  complianceReminders: Scalars['Boolean']['input'];
   expectedUpdatedAt: Scalars['DateTime']['input'];
   suppressAllEmail: Scalars['Boolean']['input'];
-  weeklyDigest: Scalars['Boolean']['input'];
   welcomeMessages: Scalars['Boolean']['input'];
 };
 

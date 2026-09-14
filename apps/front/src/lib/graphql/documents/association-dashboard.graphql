@@ -2,13 +2,9 @@
 fragment AssociationSettingsFields on AssociationSettings {
   id
   associationId
-  defaultCreditType
   onTrackThreshold
   atRiskThreshold
-  renewalRequiresReviewedEvidence
-  complianceReminders
   welcomeMessages
-  weeklyDigest
   suppressAllEmail
   createdAt
   updatedAt
@@ -450,6 +446,12 @@ query AssociationLearningContent($learningContentId: ID!) {
       memberCount
       credits
     }
+  }
+}
+
+query AssociationLearningContentMembers($learningContentId: ID!) {
+  associationLearningContentMembers(learningContentId: $learningContentId) {
+    ...AssociationMemberFields
   }
 }
 

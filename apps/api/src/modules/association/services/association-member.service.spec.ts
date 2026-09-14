@@ -375,4 +375,34 @@ describe("AssociationMemberService roster", () => {
     };
     expect(where.OR).toHaveLength(3);
   });
+
+  it("filters to members holding an assignment for the chosen requirement", async () => {
+    const { service, prisma } = setup();
+    await service.list(owner, { requirementId: "req-1" });
+    const where = prisma.associationMember.findMany.mock.calls[0][0].where as {
+      requirementAssignments?: { some: { requirementId: string } };
+    };
+    expect(where.requirementAssignments).toEqual({
+      some: { requirementId: "req-1" },
+    });
+  });
+
+  it("combines the requirement filter with group and status", async () => {
+    const { service, prisma } = setup();
+    await service.list(owner, {
+      requirementId: "req-1",
+      groupId: "group-1",
+      status: "ACTIVE" as never,
+    });
+    const where = prisma.associationMember.findMany.mock.calls[0][0].where as {
+      groupId?: string;
+      status?: string;
+      requirementAssignments?: { some: { requirementId: string } };
+    };
+    expect(where.groupId).toBe("group-1");
+    expect(where.status).toBe("ACTIVE");
+    expect(where.requirementAssignments).toEqual({
+      some: { requirementId: "req-1" },
+    });
+  });
 });

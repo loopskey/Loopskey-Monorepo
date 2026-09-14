@@ -72,3 +72,4 @@ into this index and do not rewrite previous records.
 - [`dashboard-sidebar-responsive-refresh`](feature-runs/active/dashboard-sidebar-responsive-refresh.md)
 - [`dashboard-header-ux-corrections`](feature-runs/active/dashboard-header-ux-corrections.md)
 - [`requirement-audience-and-renewal-rules`](feature-runs/active/requirement-audience-and-renewal-rules.md)
+- [`members-filter-settings-and-menu-wording-corrections`](feature-runs/active/members-filter-settings-and-menu-wording-corrections.md)

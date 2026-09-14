@@ -118,7 +118,7 @@ const setup = ({
   };
 
   const settings = {
-    suppressesEmail: jest.fn().mockResolvedValue(suppressAllEmail),
+    suppressesMessageType: jest.fn().mockResolvedValue(suppressAllEmail),
   };
 
   const attention = { rowsFor: jest.fn().mockResolvedValue(rows) };

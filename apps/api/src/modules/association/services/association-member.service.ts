@@ -94,6 +94,13 @@ export class AssociationMemberService {
       associationId: association.id,
       ...(filter?.status ? { status: filter.status } : {}),
       ...(filter?.groupId ? { groupId: filter.groupId } : {}),
+      ...(filter?.requirementId
+        ? {
+            requirementAssignments: {
+              some: { requirementId: filter.requirementId },
+            },
+          }
+        : {}),
       ...(search
         ? {
             OR: [

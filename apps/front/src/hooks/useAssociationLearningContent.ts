@@ -78,10 +78,18 @@ export const useAssociationLearningContent = () => {
   const [assignSearch, setAssignSearch] = useState("");
   const [pickedTitle, setPickedTitle] = useState("");
 
+  const [membersItem, setMembersItem] =
+    useState<T.TAssociationLearningContentRow | null>(null);
+  const [memberAddSearch, setMemberAddSearch] = useState("");
+
   const debouncedSearch = useDebouncedValue(search, SEARCH_DEBOUNCE_MS);
   const debouncedCatalog = useDebouncedValue(catalogSearch, SEARCH_DEBOUNCE_MS);
   const debouncedAssignSearch = useDebouncedValue(
     assignSearch,
+    SEARCH_DEBOUNCE_MS,
+  );
+  const debouncedMemberAddSearch = useDebouncedValue(
+    memberAddSearch,
     SEARCH_DEBOUNCE_MS,
   );
 
@@ -116,6 +124,23 @@ export const useAssociationLearningContent = () => {
     { skip: !detailId },
   );
 
+  const membersQuery = API.useAssociationLearningContentMembersQuery(
+    { learningContentId: membersItem?.id ?? "" },
+    { skip: !membersItem },
+  );
+
+  const memberAddQuery = API.useAssociationMembersQuery(
+    {
+      filter: { search: debouncedMemberAddSearch.trim() || undefined },
+      pagination: { take: MEMBER_PICKER_SIZE },
+    },
+    {
+      skip:
+        !membersItem ||
+        membersItem.audienceKind !== AssociationAudienceKind.SpecificMembers,
+    },
+  );
+
   const requirementsQuery = API.useAssociationRequirementOptionsQuery({
     pagination: { take: 100 },
   });
@@ -134,9 +159,6 @@ export const useAssociationLearningContent = () => {
     { skip: !isEditorOpen || isExternal },
   );
 
-  // Deactivated members cannot receive a new assignment, so the picker
-  // filters them out client-side rather than adding a multi-status server
-  // filter for this one dialog.
   const assignMemberQuery = API.useAssociationMembersQuery(
     {
       filter: { search: debouncedAssignSearch.trim() || undefined },
@@ -191,6 +213,23 @@ export const useAssociationLearningContent = () => {
     () => catalogQuery.data ?? [],
     [catalogQuery.data],
   );
+
+  const members = useMemo(() => membersQuery.data ?? [], [membersQuery.data]);
+
+  const memberAddOptions = useMemo(() => {
+    const targeted = new Set(members.map((member) => member.id));
+    return (memberAddQuery.data?.items ?? [])
+      .filter(
+        (member) =>
+          member.status !== AssociationMemberStatus.Inactive &&
+          !targeted.has(member.id),
+      )
+      .map((member) => ({
+        value: member.id,
+        label: member.fullName ?? member.email ?? member.id,
+        hint: member.memberNumber ?? member.email ?? "",
+      }));
+  }, [memberAddQuery.data?.items, members]);
 
   const selectedContentId = form.watch("contentId");
 
@@ -388,6 +427,49 @@ export const useAssociationLearningContent = () => {
     }
   };
 
+  const openMembers = (item: T.TAssociationLearningContentRow) => {
+    setMemberAddSearch("");
+    setMembersItem(item);
+  };
+
+  const closeMembers = () => setMembersItem(null);
+
+  // Reads the current roster from `members` (the live, auto-refetching
+  // members query) rather than the possibly-stale `membersItem.targets`
+  // snapshot, so two adds/removes in quick succession each build on the
+  // other's result instead of racing to overwrite it.
+  const addMember = async (memberId: string) => {
+    if (!membersItem) return;
+
+    try {
+      await publishItem({
+        learningContentId: membersItem.id,
+        audienceKind: membersItem.audienceKind,
+        memberIds: [...members.map((member) => member.id), memberId],
+      }).unwrap();
+      notify.success(t("associationDashboard.learningContent.members.added"));
+    } catch (error) {
+      failWith(error);
+    }
+  };
+
+  const removeMember = async (memberId: string) => {
+    if (!membersItem) return;
+
+    try {
+      await publishItem({
+        learningContentId: membersItem.id,
+        audienceKind: membersItem.audienceKind,
+        memberIds: members
+          .map((member) => member.id)
+          .filter((id) => id !== memberId),
+      }).unwrap();
+      notify.success(t("associationDashboard.learningContent.members.removed"));
+    } catch (error) {
+      failWith(error);
+    }
+  };
+
   const remove = async (learningContentId: string) => {
     try {
       await deleteItem({ learningContentId }).unwrap();
@@ -437,6 +519,17 @@ export const useAssociationLearningContent = () => {
     closeEditor,
     isMutating,
     openPublish,
+    openMembers,
+    closeMembers,
+    membersItem,
+    members,
+    isMembersLoading: membersQuery.isFetching,
+    addMember,
+    removeMember,
+    memberAddSearch,
+    setMemberAddSearch,
+    memberAddOptions,
+    isMemberAddLoading: memberAddQuery.isFetching,
     previousPage,
     resetFilters,
     saveDraft,

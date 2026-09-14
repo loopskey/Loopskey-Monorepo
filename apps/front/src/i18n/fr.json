@@ -5331,6 +5331,8 @@
         "searchPlaceholder": "Nom, e-mail ou numéro de membre",
         "group": "Groupe",
         "allGroups": "Tous les groupes",
+        "requirement": "Exigence",
+        "allRequirements": "Toutes les exigences",
         "status": "Statut",
         "allStatuses": "Tous les statuts",
         "clear": "Effacer les filtres"
@@ -5929,7 +5931,8 @@
         "view": "Voir le détail",
         "edit": "Modifier",
         "publish": "Publier",
-        "reassign": "Modifier l'audience",
+        "reassign": "Affecter",
+        "viewMembers": "Voir les membres",
         "withdraw": "Retirer",
         "delete": "Supprimer"
       },
@@ -6049,6 +6052,20 @@
         "engagementTitle": "Ce que les membres en ont fait",
         "engagementBody": "{{members}} membres ont enregistré une activité liée à ce contenu, pour {{credits}} crédits.",
         "engagementExternal": "L'engagement se compte pour le contenu du catalogue, auquel les membres peuvent rattacher une activité. Une ressource externe n'a pas ce lien."
+      },
+      "members": {
+        "title": "Membres",
+        "description": "À qui cette audience correspond actuellement.",
+        "count": "{{count}} membres",
+        "empty": "Aucun membre ne correspond encore à cette audience.",
+        "remove": "Retirer {{name}}",
+        "removed": "Membre retiré.",
+        "add": "Ajouter des membres",
+        "addPlaceholder": "Rechercher des membres par nom ou courriel",
+        "added": "Membre ajouté.",
+        "readOnlyGroup": "Cette audience est un groupe. Ajoutez ou retirez des groupes entiers depuis Affecter ; les membres individuels ici suivent leur appartenance au groupe.",
+        "readOnlyAll": "Cette audience couvre tous les membres de votre association, il n'y a donc rien à ajouter ou retirer ici.",
+        "close": "Fermer"
       },
       "confirm": {
         "deleteTitle": "Supprimer ce brouillon ?",
@@ -6474,19 +6491,11 @@
         "description": "Comment la progression est classée. Ces seuils changent le regroupement des membres, jamais le nombre de crédits exigés.",
         "review": "Examiner les changements",
         "saved": "Règles de conformité enregistrées.",
-        "defaultCreditType": "Type de crédit par défaut",
-        "defaultCreditTypeHint": "Appliqué à une nouvelle exigence sauf si vous le changez sur place.",
         "onTrackThreshold": "Seuil « en bonne voie »",
         "onTrackThresholdHint": "À partir de ce pourcentage, un membre est considéré en bonne voie.",
         "atRiskThreshold": "Seuil « à risque »",
         "atRiskThresholdHint": "En dessous de ce pourcentage, un membre apparaît dans les listes de l'onglet Notifications.",
-        "renewalRequiresReviewedEvidence": "Le renouvellement exige tous les examens réglés",
-        "renewalRequiresReviewedEvidenceHint": "Un membre dont une preuve attend encore votre décision n'est pas déclaré prêt au renouvellement.",
-        "orderInvalid": "Le seuil « à risque » doit rester sous le seuil « en bonne voie ».",
-        "creditTypes": {
-          "CPD": "CPD",
-          "PDU": "PDU"
-        }
+        "orderInvalid": "Le seuil « à risque » doit rester sous le seuil « en bonne voie »."
       },
       "notifications": {
         "title": "Notifications",
@@ -6495,13 +6504,9 @@
         "saved": "Préférences de notification enregistrées.",
         "suppressAllEmail": "Suspendre tous les courriels de l'association",
         "suppressAllEmailHint": "Prime sur tout ce qui suit. Rien de ce que vous rédigez n'atteint un membre tant que ceci est actif.",
-        "suppressAllActive": "Tant que ceci est actif, les trois préférences ci-dessous n'ont aucun effet et chaque envoi est enregistré comme ignoré.",
-        "complianceReminders": "Rappels de conformité",
-        "complianceRemindersHint": "Relances aux membres en retard sur une exigence.",
+        "suppressAllActive": "Tant que ceci est actif, la préférence ci-dessous n'a aucun effet et chaque envoi est enregistré comme ignoré.",
         "welcomeMessages": "Messages de bienvenue",
-        "welcomeMessagesHint": "Un accueil pour les membres qui viennent de rejoindre.",
-        "weeklyDigest": "Résumé hebdomadaire",
-        "weeklyDigestHint": "Un point sur l'état de vos membres."
+        "welcomeMessagesHint": "Un accueil pour les membres qui viennent de rejoindre."
       },
       "account": {
         "title": "Votre compte",

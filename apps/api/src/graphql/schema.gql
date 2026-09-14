@@ -702,6 +702,7 @@ type AssociationMemberDistribution {
 
 input AssociationMemberFilterInput {
   groupId: ID
+  requirementId: ID
   search: String
   status: AssociationMemberStatus
 }
@@ -1114,15 +1115,11 @@ type AssociationReviewResult {
 type AssociationSettings {
   associationId: ID!
   atRiskThreshold: Int!
-  complianceReminders: Boolean!
   createdAt: DateTime!
-  defaultCreditType: CreditType!
   id: ID!
   onTrackThreshold: Int!
-  renewalRequiresReviewedEvidence: Boolean!
   suppressAllEmail: Boolean!
   updatedAt: DateTime!
-  weeklyDigest: Boolean!
   welcomeMessages: Boolean!
 }
 
@@ -4128,6 +4125,7 @@ type Query {
   associationGroupProgressReport(associationId: ID, filter: AssociationReportFilterInput): [AssociationGroupProgressRow!]!
   associationGroups(associationId: ID): [AssociationGroup!]!
   associationLearningContent(associationId: ID, learningContentId: ID!): AssociationLearningContent!
+  associationLearningContentMembers(associationId: ID, learningContentId: ID!): [AssociationMember!]!
   associationLearningContents(associationId: ID, filter: AssociationLearningContentFilterInput, pagination: AssociationPaginationInput): PaginatedAssociationLearningContents!
   associationMemberActivities(associationId: ID, filter: AssociationMemberActivityFilterInput, memberId: ID!, pagination: AssociationPaginationInput): PaginatedAssociationMemberActivities!
   associationMemberCompliance(associationId: ID, memberId: ID!): AssociationMemberCompliance!
@@ -4565,11 +4563,9 @@ input UpdateAdminUserStatus {
 
 input UpdateAssociationComplianceSettingsInput {
   atRiskThreshold: Int!
-  defaultCreditType: CreditType!
   dryRun: Boolean
   expectedUpdatedAt: DateTime!
   onTrackThreshold: Int!
-  renewalRequiresReviewedEvidence: Boolean!
 }
 
 input UpdateAssociationGroupInput {
@@ -4598,10 +4594,8 @@ input UpdateAssociationMemberInput {
 }
 
 input UpdateAssociationNotificationSettingsInput {
-  complianceReminders: Boolean!
   expectedUpdatedAt: DateTime!
   suppressAllEmail: Boolean!
-  weeklyDigest: Boolean!
   welcomeMessages: Boolean!
 }
 
