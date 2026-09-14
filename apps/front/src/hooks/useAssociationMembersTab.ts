@@ -2,6 +2,7 @@
 
 import { getAssociationErrorTranslationKey } from "@utils/association-error";
 import { useCallback, useMemo, useState } from "react";
+import { AssociationRequirementStatus } from "@/lib/graphql/base";
 import { AssociationMemberStatus } from "@/lib/graphql/base";
 import { SEARCH_DEBOUNCE_MS } from "@utils/constant";
 import { useDebouncedValue } from "@hooks/useDebounced";
@@ -28,6 +29,7 @@ export const useAssociationMembersTab = () => {
 
   const [search, setSearch] = useState("");
   const [groupId, setGroupId] = useState<string>(ALL);
+  const [requirementId, setRequirementId] = useState<string>(ALL);
   const [status, setStatus] = useState<string>(ALL);
   const [cursorStack, setCursorStack] = useState<string[]>([]);
   const [view, setView] = useState<T.TAssociationMembersView>("roster");
@@ -71,9 +73,10 @@ export const useAssociationMembersTab = () => {
     () => ({
       search: debouncedSearch.trim() || undefined,
       groupId: groupId === ALL ? undefined : groupId,
+      requirementId: requirementId === ALL ? undefined : requirementId,
       status: status === ALL ? undefined : (status as AssociationMemberStatus),
     }),
-    [debouncedSearch, groupId, status],
+    [debouncedSearch, groupId, requirementId, status],
   );
 
   const membersQuery = API.useAssociationMembersQuery({
@@ -83,6 +86,10 @@ export const useAssociationMembersTab = () => {
 
   const statsQuery = API.useAssociationMemberStatsQuery();
   const groupsQuery = API.useAssociationGroupsQuery();
+  const requirementsQuery = API.useAssociationRequirementsQuery({
+    filter: { status: AssociationRequirementStatus.Published },
+    pagination: { take: 100 },
+  });
 
   const assignPickerQuery = API.useAssociationMembersQuery(
     {
@@ -121,6 +128,15 @@ export const useAssociationMembersTab = () => {
     [groups],
   );
 
+  const requirementOptions = useMemo(
+    () =>
+      (requirementsQuery.data?.items ?? []).map((requirement) => ({
+        value: requirement.id,
+        label: requirement.name,
+      })),
+    [requirementsQuery.data?.items],
+  );
+
   const assignPickerOptions = useMemo(
     () =>
       (assignPickerQuery.data?.items ?? [])
@@ -134,7 +150,10 @@ export const useAssociationMembersTab = () => {
   );
 
   const isFiltered =
-    Boolean(debouncedSearch.trim()) || groupId !== ALL || status !== ALL;
+    Boolean(debouncedSearch.trim()) ||
+    groupId !== ALL ||
+    requirementId !== ALL ||
+    status !== ALL;
 
   const failWith = useCallback(
     (error: unknown) =>
@@ -158,6 +177,7 @@ export const useAssociationMembersTab = () => {
   const resetFilters = () => {
     setSearch("");
     setGroupId(ALL);
+    setRequirementId(ALL);
     setStatus(ALL);
     setCursorStack([]);
   };
@@ -404,6 +424,9 @@ export const useAssociationMembersTab = () => {
     submitInvite,
     isInviteOpen,
     groupOptions,
+    requirementId,
+    requirementOptions,
+    setRequirementId: changeFilter(setRequirementId),
     previousPage,
     resetFilters,
     setInviteOpen,
@@ -457,11 +480,15 @@ export const useAssociationMembersTab = () => {
     isRefetching: membersQuery.isFetching && !membersQuery.isLoading,
     isError: membersQuery.isError || statsQuery.isError,
     isLoading:
-      membersQuery.isLoading || statsQuery.isLoading || groupsQuery.isLoading,
+      membersQuery.isLoading ||
+      statsQuery.isLoading ||
+      groupsQuery.isLoading ||
+      requirementsQuery.isLoading,
     retry: () => {
       void membersQuery.refetch();
       void statsQuery.refetch();
       void groupsQuery.refetch();
+      void requirementsQuery.refetch();
     },
   };
 };

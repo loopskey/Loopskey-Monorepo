@@ -2186,17 +2186,11 @@ model AssociationSettings {
   associationId String      @unique
   association   Association @relation(fields: [associationId], references: [id], onDelete: Cascade)
 
-  defaultCreditType CreditType @default(CPD)
-
   onTrackThreshold Int @default(70)
 
   atRiskThreshold Int @default(40)
 
-  renewalRequiresReviewedEvidence Boolean @default(true)
-
-  complianceReminders Boolean @default(true)
-  welcomeMessages     Boolean @default(true)
-  weeklyDigest        Boolean @default(true)
+  welcomeMessages Boolean @default(true)
 
   suppressAllEmail Boolean @default(false)
 

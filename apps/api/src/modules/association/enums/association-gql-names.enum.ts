@@ -138,6 +138,7 @@ export enum AssociationGqlQueryNames {
   MEMBER_REQUIREMENT_OPTIONS = "associationMemberRequirementOptions",
   LEARNING_CONTENTS = "associationLearningContents",
   LEARNING_CONTENT = "associationLearningContent",
+  LEARNING_CONTENT_MEMBERS = "associationLearningContentMembers",
   CATALOG_SEARCH = "associationCatalogSearch",
   REPORT_SUMMARY = "associationReportSummary",
   COMPLIANCE_BY_GROUP = "associationComplianceByGroup",

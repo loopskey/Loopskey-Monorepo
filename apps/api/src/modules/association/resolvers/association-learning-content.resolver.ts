@@ -7,6 +7,7 @@ import { AssociationCatalogItemEntity } from "@association/entities/association-
 import { AssociationGqlMutationNames } from "@association/enums/association-gql-names.enum";
 import { AssociationPaginationInput } from "@association/dtos/association-pagination.input";
 import { AssociationGqlQueryNames } from "@association/enums/association-gql-names.enum";
+import { AssociationMemberEntity } from "@association/entities/association-member.entity";
 import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
 import { TResolverUser } from "@association/types/association-service.types";
 import { CurrentUser } from "@common/decorators/current-user.decorator";
@@ -54,6 +55,22 @@ export class AssociationLearningContentResolver {
     associationId?: string,
   ) {
     return this.library.one(
+      this.getUser(user),
+      learningContentId,
+      associationId,
+    );
+  }
+
+  @Query(() => [AssociationMemberEntity], {
+    name: AssociationGqlQueryNames.LEARNING_CONTENT_MEMBERS,
+  })
+  associationLearningContentMembers(
+    @CurrentUser() user: TResolverUser,
+    @Args("learningContentId", { type: () => ID }) learningContentId: string,
+    @Args("associationId", { type: () => ID, nullable: true })
+    associationId?: string,
+  ) {
+    return this.library.members(
       this.getUser(user),
       learningContentId,
       associationId,

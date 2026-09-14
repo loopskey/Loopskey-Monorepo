@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getAssociationErrorTranslationKey } from "@utils/association-error";
-import { CreditType } from "@/lib/graphql/base";
 import { useForm } from "react-hook-form";
 import { useI18n } from "@hooks/useI18n";
 import { notify } from "@hooks/notify";
@@ -12,23 +11,19 @@ import * as S from "@utils/association-settings";
 
 type TProfileForm = {
   name: string;
-  description: string;
   country: string;
   website: string;
+  description: string;
   contactEmail: string;
 };
 
 type TComplianceForm = {
-  defaultCreditType: CreditType;
   onTrackThreshold: number;
   atRiskThreshold: number;
-  renewalRequiresReviewedEvidence: boolean;
 };
 
 type TNotificationForm = {
-  complianceReminders: boolean;
   welcomeMessages: boolean;
-  weeklyDigest: boolean;
   suppressAllEmail: boolean;
 };
 
@@ -75,18 +70,14 @@ export const useAssociationSettingsTab = () => {
 
   const complianceForm = useForm<TComplianceForm>({
     defaultValues: {
-      defaultCreditType: CreditType.Cpd,
       onTrackThreshold: 70,
       atRiskThreshold: 40,
-      renewalRequiresReviewedEvidence: true,
     },
   });
 
   const notificationForm = useForm<TNotificationForm>({
     defaultValues: {
-      complianceReminders: true,
       welcomeMessages: true,
-      weeklyDigest: true,
       suppressAllEmail: false,
     },
   });
@@ -112,16 +103,12 @@ export const useAssociationSettingsTab = () => {
     loadedSettings.current = true;
 
     complianceForm.reset({
-      defaultCreditType: settings.defaultCreditType,
       onTrackThreshold: settings.onTrackThreshold,
       atRiskThreshold: settings.atRiskThreshold,
-      renewalRequiresReviewedEvidence: settings.renewalRequiresReviewedEvidence,
     });
 
     notificationForm.reset({
-      complianceReminders: settings.complianceReminders,
       welcomeMessages: settings.welcomeMessages,
-      weeklyDigest: settings.weeklyDigest,
       suppressAllEmail: settings.suppressAllEmail,
     });
   }, [settings, complianceForm, notificationForm]);
@@ -153,17 +140,12 @@ export const useAssociationSettingsTab = () => {
     setImpact(null);
   };
 
-  const applyCompliance = async (
-    values: TComplianceForm,
-    dryRun: boolean,
-  ) => {
+  const applyCompliance = async (values: TComplianceForm, dryRun: boolean) => {
     if (!settings) return null;
 
     return updateCompliance({
-      defaultCreditType: values.defaultCreditType,
       onTrackThreshold: Number(values.onTrackThreshold),
       atRiskThreshold: Number(values.atRiskThreshold),
-      renewalRequiresReviewedEvidence: values.renewalRequiresReviewedEvidence,
       expectedUpdatedAt: settings.updatedAt,
       dryRun,
     }).unwrap();
@@ -212,9 +194,7 @@ export const useAssociationSettingsTab = () => {
 
     try {
       await updateNotifications({
-        complianceReminders: values.complianceReminders,
         welcomeMessages: values.welcomeMessages,
-        weeklyDigest: values.weeklyDigest,
         suppressAllEmail: values.suppressAllEmail,
         expectedUpdatedAt: settings.updatedAt,
       }).unwrap();
@@ -227,6 +207,24 @@ export const useAssociationSettingsTab = () => {
   });
 
   const [isLogoBusy, setIsLogoBusy] = useState(false);
+
+  const logoFailureMessage = (error: unknown) => {
+    const code =
+      error instanceof S.AssociationLogoUploadError ? error.code : null;
+
+    if (code === "ASSOCIATION_LOGO_TOO_LARGE")
+      return label("branding.tooLarge", {
+        limit: S.LOGO_MAX_MB,
+        types: S.LOGO_ACCEPT_ATTRIBUTE,
+      });
+    if (code === "ASSOCIATION_LOGO_INVALID_TYPE")
+      return label("branding.wrongType", {
+        limit: S.LOGO_MAX_MB,
+        types: S.LOGO_ACCEPT_ATTRIBUTE,
+      });
+
+    return label("branding.failed");
+  };
 
   const uploadLogo = async (file: File) => {
     const rejection = S.rejectionOf(file);
@@ -247,8 +245,8 @@ export const useAssociationSettingsTab = () => {
       await S.uploadAssociationLogo(file);
       await profileQuery.refetch();
       notify.success(label("branding.saved"));
-    } catch {
-      notify.error(label("branding.failed"));
+    } catch (error) {
+      notify.error(logoFailureMessage(error));
     } finally {
       setIsLogoBusy(false);
     }
@@ -261,8 +259,8 @@ export const useAssociationSettingsTab = () => {
       await S.removeAssociationLogo();
       await profileQuery.refetch();
       notify.success(label("branding.removed"));
-    } catch {
-      notify.error(label("branding.failed"));
+    } catch (error) {
+      notify.error(logoFailureMessage(error));
     } finally {
       setIsLogoBusy(false);
     }

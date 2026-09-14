@@ -1,10 +1,11 @@
 import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { ConflictException, Injectable, Logger } from "@nestjs/common";
-import { AuditAction, CreditType, Prisma } from "@prisma/client";
 import { AssociationRequirementStatus } from "@prisma/client";
 import { AssociationAccessService } from "@association/services/association-access.service";
 import { AssociationMemberStatus } from "@prisma/client";
+import { AssociationMessageType } from "@prisma/client";
 import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
+import { AuditAction, Prisma } from "@prisma/client";
 import { ASSOCIATION_LIMITS } from "@loopskey/api-contracts/validation";
 import { TAssociationUser } from "@association/types/association-service.types";
 import { requestContext } from "@infrastructure/observability/request-context";
@@ -20,31 +21,23 @@ export const SETTINGS_AGGREGATE = "AssociationSettings";
 export const SETTINGS_SELECT = {
   id: true,
   associationId: true,
-  defaultCreditType: true,
   onTrackThreshold: true,
   atRiskThreshold: true,
-  renewalRequiresReviewedEvidence: true,
-  complianceReminders: true,
   welcomeMessages: true,
-  weeklyDigest: true,
   suppressAllEmail: true,
   createdAt: true,
   updatedAt: true,
 } satisfies Prisma.AssociationSettingsSelect;
 
 export type ComplianceSettingsCommand = {
-  defaultCreditType: CreditType;
   onTrackThreshold: number;
   atRiskThreshold: number;
-  renewalRequiresReviewedEvidence: boolean;
   expectedUpdatedAt: Date;
   dryRun?: boolean | null;
 };
 
 export type NotificationSettingsCommand = {
-  complianceReminders: boolean;
   welcomeMessages: boolean;
-  weeklyDigest: boolean;
   suppressAllEmail: boolean;
   expectedUpdatedAt: Date;
 };
@@ -71,13 +64,22 @@ export class AssociationSettingsService {
     return this.read(association.id);
   }
 
-  async suppressesEmail(associationId: string) {
+  async suppressesMessageType(
+    associationId: string,
+    messageType: AssociationMessageType,
+  ) {
     const settings = await this.prisma.associationSettings.findUnique({
       where: { associationId },
-      select: { suppressAllEmail: true },
+      select: { suppressAllEmail: true, welcomeMessages: true },
     });
 
-    return settings?.suppressAllEmail ?? false;
+    if (!settings) return false;
+    if (settings.suppressAllEmail) return true;
+
+    return (
+      messageType === AssociationMessageType.WELCOME &&
+      !settings.welcomeMessages
+    );
   }
 
   async updateCompliance(
@@ -108,11 +110,8 @@ export class AssociationSettingsService {
           updatedAt: command.expectedUpdatedAt,
         },
         data: {
-          defaultCreditType: command.defaultCreditType,
           onTrackThreshold: command.onTrackThreshold,
           atRiskThreshold: command.atRiskThreshold,
-          renewalRequiresReviewedEvidence:
-            command.renewalRequiresReviewedEvidence,
         },
       });
 
@@ -128,18 +127,12 @@ export class AssociationSettingsService {
             associationId: association.id,
             section: "compliance",
             previous: {
-              defaultCreditType: current.defaultCreditType,
               onTrackThreshold: current.onTrackThreshold,
               atRiskThreshold: current.atRiskThreshold,
-              renewalRequiresReviewedEvidence:
-                current.renewalRequiresReviewedEvidence,
             },
             next: {
-              defaultCreditType: command.defaultCreditType,
               onTrackThreshold: command.onTrackThreshold,
               atRiskThreshold: command.atRiskThreshold,
-              renewalRequiresReviewedEvidence:
-                command.renewalRequiresReviewedEvidence,
             },
             membersChangingBand: impact.membersChangingBand,
           },
@@ -188,9 +181,7 @@ export class AssociationSettingsService {
         updatedAt: command.expectedUpdatedAt,
       },
       data: {
-        complianceReminders: command.complianceReminders,
         welcomeMessages: command.welcomeMessages,
-        weeklyDigest: command.weeklyDigest,
         suppressAllEmail: command.suppressAllEmail,
       },
     });
@@ -207,15 +198,11 @@ export class AssociationSettingsService {
           associationId: association.id,
           section: "notifications",
           previous: {
-            complianceReminders: current.complianceReminders,
             welcomeMessages: current.welcomeMessages,
-            weeklyDigest: current.weeklyDigest,
             suppressAllEmail: current.suppressAllEmail,
           },
           next: {
-            complianceReminders: command.complianceReminders,
             welcomeMessages: command.welcomeMessages,
-            weeklyDigest: command.weeklyDigest,
             suppressAllEmail: command.suppressAllEmail,
           },
         },

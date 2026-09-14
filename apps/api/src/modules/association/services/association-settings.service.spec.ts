@@ -2,7 +2,8 @@ import { AssociationSettingsService } from "@association/services/association-se
 import { SETTINGS_RECOMPUTE_EVENT } from "@association/services/association-settings.service";
 import { AssociationAccessService } from "@association/services/association-access.service";
 import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
-import { AssociationComplianceBand, CreditType, Role } from "@prisma/client";
+import { AssociationComplianceBand, Role } from "@prisma/client";
+import { AssociationMessageType } from "@prisma/client";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { overallFor } from "@association/utils/compliance-attribution.util";
 import { PrismaService } from "@prisma/prisma.service";
@@ -14,13 +15,9 @@ const UPDATED_AT = new Date("2026-09-01T10:00:00.000Z");
 const storedSettings = (overrides: Record<string, unknown> = {}) => ({
   id: "settings-1",
   associationId: "assoc-1",
-  defaultCreditType: CreditType.CPD,
   onTrackThreshold: 70,
   atRiskThreshold: 40,
-  renewalRequiresReviewedEvidence: true,
-  complianceReminders: true,
   welcomeMessages: true,
-  weeklyDigest: true,
   suppressAllEmail: false,
   createdAt: UPDATED_AT,
   updatedAt: UPDATED_AT,
@@ -37,10 +34,8 @@ const assignment = (overrides: Record<string, unknown> = {}) => ({
 });
 
 const command = (overrides: Record<string, unknown> = {}) => ({
-  defaultCreditType: CreditType.CPD,
   onTrackThreshold: 70,
   atRiskThreshold: 40,
-  renewalRequiresReviewedEvidence: true,
   expectedUpdatedAt: UPDATED_AT,
   ...overrides,
 });
@@ -263,9 +258,7 @@ describe("AssociationSettingsService concurrency", () => {
     expect(
       await codeOf(
         service.updateNotifications(owner, {
-          complianceReminders: true,
           welcomeMessages: true,
-          weeklyDigest: false,
           suppressAllEmail: true,
           expectedUpdatedAt: UPDATED_AT,
         }),
@@ -311,11 +304,52 @@ describe("AssociationSettingsService recomputation", () => {
 });
 
 describe("AssociationSettingsService suppression", () => {
-  it("reports the stored switch to the message service", async () => {
-    const on = setup({ settings: storedSettings({ suppressAllEmail: true }) });
-    expect(await on.service.suppressesEmail("assoc-1")).toBe(true);
+  it("suppresses every message type once suppressAllEmail is on", async () => {
+    const { service } = setup({
+      settings: storedSettings({ suppressAllEmail: true }),
+    });
 
-    const off = setup();
-    expect(await off.service.suppressesEmail("assoc-1")).toBe(false);
+    expect(
+      await service.suppressesMessageType(
+        "assoc-1",
+        AssociationMessageType.WELCOME,
+      ),
+    ).toBe(true);
+    expect(
+      await service.suppressesMessageType(
+        "assoc-1",
+        AssociationMessageType.CATEGORY_BEHIND,
+      ),
+    ).toBe(true);
+  });
+
+  it("suppresses only WELCOME when welcomeMessages is off", async () => {
+    const { service } = setup({
+      settings: storedSettings({ welcomeMessages: false }),
+    });
+
+    expect(
+      await service.suppressesMessageType(
+        "assoc-1",
+        AssociationMessageType.WELCOME,
+      ),
+    ).toBe(true);
+    expect(
+      await service.suppressesMessageType(
+        "assoc-1",
+        AssociationMessageType.CATEGORY_BEHIND,
+      ),
+    ).toBe(false);
+  });
+
+  it("suppresses nothing when both switches are on", async () => {
+    const { service } = setup();
+
+    expect(
+      await service.suppressesMessageType(
+        "assoc-1",
+        AssociationMessageType.WELCOME,
+      ),
+    ).toBe(false);
   });
 });

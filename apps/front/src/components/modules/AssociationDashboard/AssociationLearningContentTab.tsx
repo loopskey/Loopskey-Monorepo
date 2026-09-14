@@ -1,5 +1,6 @@
 "use client";
 
+import { AssociationLearningMembersDialog } from "@modules/AssociationDashboard/parts/association-learning-members-dialog";
 import { useAssociationLearningContent } from "@hooks/useAssociationLearningContent";
 import { AssociationLearningFilters } from "@modules/AssociationDashboard/parts/association-learning-filters";
 import { AssociationLearningEditor } from "@modules/AssociationDashboard/parts/association-learning-editor";
@@ -29,11 +30,7 @@ const AssociationLearningContentTab = () => {
       </div>
 
       <div className="flex flex-wrap gap-3">
-        <Button
-          radius="xl"
-          type="button"
-          onClick={() => openCreate(false)}
-        >
+        <Button radius="xl" type="button" onClick={() => openCreate(false)}>
           <L.LibraryBig className="h-4 w-4" />
           {t("associationDashboard.learningContent.actions.addCatalogue")}
         </Button>
@@ -99,6 +96,7 @@ const AssociationLearningContentTab = () => {
 
       <AssociationLearningEditor hook={hook} />
       <AssociationLearningDetail hook={hook} />
+      <AssociationLearningMembersDialog hook={hook} />
     </div>
   );
 };

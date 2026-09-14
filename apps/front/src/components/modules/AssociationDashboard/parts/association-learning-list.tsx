@@ -34,6 +34,7 @@ export const AssociationLearningList = ({ hook }: TAssociationLearningList) => {
     openPublish,
     isFiltered,
     openCreate,
+    openMembers,
     previousPage,
     isRefetching,
   } = hook;
@@ -106,28 +107,35 @@ export const AssociationLearningList = ({ hook }: TAssociationLearningList) => {
                 {t("associationDashboard.learningContent.actions.view")}
               </D.DropdownMenuItem>
 
-              <D.DropdownMenuItem onSelect={() => openEdit(item)}>
-                <L.PenLine className="h-4 w-4" />
-                {t("associationDashboard.learningContent.actions.edit")}
-              </D.DropdownMenuItem>
-
               {item.status !== AssociationLearningContentStatus.Published ? (
                 <D.DropdownMenuItem onSelect={() => openPublish(item)}>
                   <L.Send className="h-4 w-4" />
                   {t("associationDashboard.learningContent.actions.publish")}
                 </D.DropdownMenuItem>
               ) : (
-                <>
-                  <D.DropdownMenuItem onSelect={() => openPublish(item)}>
-                    <L.Users className="h-4 w-4" />
-                    {t("associationDashboard.learningContent.actions.reassign")}
-                  </D.DropdownMenuItem>
+                <D.DropdownMenuItem onSelect={() => openPublish(item)}>
+                  <L.Users className="h-4 w-4" />
+                  {t("associationDashboard.learningContent.actions.reassign")}
+                </D.DropdownMenuItem>
+              )}
 
-                  <D.DropdownMenuItem onSelect={() => void withdraw(item.id)}>
-                    <L.Undo2 className="h-4 w-4" />
-                    {t("associationDashboard.learningContent.actions.withdraw")}
-                  </D.DropdownMenuItem>
-                </>
+              <D.DropdownMenuItem onSelect={() => openEdit(item)}>
+                <L.PenLine className="h-4 w-4" />
+                {t("associationDashboard.learningContent.actions.edit")}
+              </D.DropdownMenuItem>
+
+              {item.status === AssociationLearningContentStatus.Published && (
+                <D.DropdownMenuItem onSelect={() => openMembers(item)}>
+                  <L.UsersRound className="h-4 w-4" />
+                  {t("associationDashboard.learningContent.actions.viewMembers")}
+                </D.DropdownMenuItem>
+              )}
+
+              {item.status === AssociationLearningContentStatus.Published && (
+                <D.DropdownMenuItem onSelect={() => void withdraw(item.id)}>
+                  <L.Undo2 className="h-4 w-4" />
+                  {t("associationDashboard.learningContent.actions.withdraw")}
+                </D.DropdownMenuItem>
               )}
 
               {item.status === AssociationLearningContentStatus.Draft && (

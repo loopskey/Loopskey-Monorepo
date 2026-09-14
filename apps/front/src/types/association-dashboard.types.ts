@@ -128,6 +128,7 @@ export type TAssociationLearningStepCpd = TWithLibrary;
 export type TAssociationLearningStepAssignment = TWithLibrary;
 export type TAssociationLearningStepReview = TWithLibrary;
 export type TAssociationLearningDetail = TWithLibrary;
+export type TAssociationLearningMembersDialog = TWithLibrary;
 
 type TWithReports = { hook: TUseAssociationReportsTab };
 

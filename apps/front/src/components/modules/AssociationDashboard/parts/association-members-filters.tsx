@@ -25,6 +25,9 @@ export const AssociationMembersFilters = ({
     setGroupId,
     groupOptions,
     resetFilters,
+    requirementId,
+    setRequirementId,
+    requirementOptions,
   } = hook;
 
   const statusOptions = [
@@ -87,6 +90,35 @@ export const AssociationMembersFilters = ({
           </S.SelectContent>
         </S.Select>
       </div>
+
+      {requirementOptions.length > 0 && (
+        <div className="space-y-2 lg:w-56">
+          <Label htmlFor="association-member-requirement">
+            {t("associationDashboard.members.filters.requirement")}
+          </Label>
+
+          <S.Select value={requirementId} onValueChange={setRequirementId}>
+            <S.SelectTrigger
+              id="association-member-requirement"
+              className="h-11 rounded-md"
+            >
+              <S.SelectValue />
+            </S.SelectTrigger>
+
+            <S.SelectContent className="z-[9999] rounded-md">
+              <S.SelectItem value={ALL}>
+                {t("associationDashboard.members.filters.allRequirements")}
+              </S.SelectItem>
+
+              {requirementOptions.map((option) => (
+                <S.SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </S.SelectItem>
+              ))}
+            </S.SelectContent>
+          </S.Select>
+        </div>
+      )}
 
       <div className="space-y-2 lg:w-56">
         <Label htmlFor="association-member-status">
