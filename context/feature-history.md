@@ -69,3 +69,4 @@ into this index and do not rewrite previous records.
 - [`certification-catalogue-completion`](feature-runs/active/certification-catalogue-completion.md)
 - [`ingestion-review-queue-scale-readiness`](feature-runs/active/ingestion-review-queue-scale-readiness.md)
 - [`color-token-refresh`](feature-runs/active/color-token-refresh.md)
+- [`dashboard-sidebar-responsive-refresh`](feature-runs/active/dashboard-sidebar-responsive-refresh.md)

@@ -22,6 +22,10 @@ node_modules
 !/context/feature-history.md
 !/context/features/feature-template.md
 
+# Non-markdown feature artifacts (e.g. visual-regression baseline screenshots)
+# are local context too; only the docs above are project assets.
+/context/features/**/baseline/
+
 # Local MCP server config; contains API keys.
 /.mcp.json
 
@@ -34,6 +38,19 @@ node_modules
 /.claude/skills/slides/
 /.claude/skills/ui-styling/
 /.claude/skills/ui-ux-pro-max/
+
+# Skills installed locally by the `skills` CLI (npx skills add); not project assets.
+/.agents/
+/skills-lock.json
+/.claude/skills/apollo-server/
+/.claude/skills/find-skills/
+/.claude/skills/graphql-schema/
+/.claude/skills/nestjs-best-practices/
+/.claude/skills/prisma-cli/
+/.claude/skills/prisma-client-api/
+/.claude/skills/shadcn/
+/.claude/skills/tailwind-4-docs/
+/.claude/skills/vercel-react-best-practices/
 
 # Deployment backups written by scripts/deploy.sh
 /backups/
