@@ -2,6 +2,7 @@
 
 import { LanguageToggleBtn } from "@elements/language-switcher";
 import { StartMenu } from "@layouts/parts/start-menu";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useHeader } from "@hooks/useHeader";
 import { UserMenu } from "@layouts/parts/user-menu";
 import { Menu, X } from "lucide-react";
@@ -10,6 +11,8 @@ import { Logo } from "@layouts/parts/logo";
 import { cn } from "@lib/utils";
 
 import Link from "next/link";
+
+const MOBILE_NAV_STAGGER_MS = 50;
 
 const Header = () => {
   const {
@@ -23,6 +26,14 @@ const Header = () => {
     closeMobileMenu,
     toggleMobileMenu,
   } = useHeader();
+  const prefersReducedMotion = useMediaQuery(
+    "(prefers-reduced-motion: reduce)",
+  );
+
+  const staggerDelay = (index: number) =>
+    prefersReducedMotion || !isMobileOpen
+      ? "0ms"
+      : `${index * MOBILE_NAV_STAGGER_MS}ms`;
 
   return (
     <header
@@ -108,7 +119,7 @@ const Header = () => {
           )}
         >
           <nav className="flex flex-col gap-2">
-            {navItems.map((item) => {
+            {navItems.map((item, index) => {
               const isActive = isActiveNavItem(item.href);
               return (
                 <Link
@@ -116,8 +127,12 @@ const Header = () => {
                   onClick={closeMobileMenu}
                   key={`mobile-${item.href}-${item.label}`}
                   aria-current={isActive ? "page" : undefined}
+                  style={{ transitionDelay: staggerDelay(index) }}
                   className={cn(
                     "flex items-center justify-between rounded-md px-4 py-3 text-sm font-semibold transition-all duration-300",
+                    isMobileOpen
+                      ? "translate-y-0 opacity-100"
+                      : "-translate-y-2 opacity-0",
                     isActive
                       ? "bg-primary/10 text-primary ring-1 ring-primary/15"
                       : "text-foreground hover:bg-primary/10 hover:text-primary",
@@ -131,7 +146,15 @@ const Header = () => {
               );
             })}
 
-            <div className="mt-2 border-t border-border/70 pt-4">
+            <div
+              style={{ transitionDelay: staggerDelay(navItems.length) }}
+              className={cn(
+                "mt-2 border-t border-border/70 pt-4 transition-all duration-300",
+                isMobileOpen
+                  ? "translate-y-0 opacity-100"
+                  : "-translate-y-2 opacity-0",
+              )}
+            >
               {isAuthenticated ? (
                 <UserMenu />
               ) : (
