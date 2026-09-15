@@ -1,10 +1,11 @@
 "use client";
 
-import { LanguageToggleBtn } from "@elements/language-switcher";
 import { getAuthHrefForSolutionHref } from "@utils/constant";
+import { LanguageToggleBtn } from "@elements/language-switcher";
+import { RoleMenuSection } from "@layouts/parts/role-menu-section";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useActiveRole } from "@/providers/active-role-provider";
 import { RoleStrip } from "@layouts/parts/role-strip";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useHeader } from "@hooks/useHeader";
 import { UserMenu } from "@layouts/parts/user-menu";
 import { Menu, X } from "lucide-react";
@@ -117,8 +118,7 @@ const Header = () => {
       >
         <div
           className={cn(
-            "fixed inset-0 z-40 bg-foreground/20 transition-opacity duration-300",
-            showRoleStrip ? "top-[6.5rem]" : "top-16",
+            "fixed inset-0 top-16 z-40 bg-foreground/20 transition-opacity duration-300",
             isMobileOpen ? "opacity-100" : "opacity-0",
           )}
           onClick={closeMobileMenu}
@@ -126,8 +126,7 @@ const Header = () => {
 
         <div
           className={cn(
-            "absolute left-4 right-4 z-50 origin-top rounded-lg border bg-popover p-4 shadow-md transition-all duration-300",
-            showRoleStrip ? "top-[6.5rem]" : "top-16",
+            "absolute left-4 right-4 top-16 z-50 origin-top rounded-lg border bg-popover p-4 shadow-md transition-all duration-300",
             isMobileOpen
               ? "translate-y-0 scale-100 opacity-100"
               : "-translate-y-3 scale-95 opacity-0",
@@ -161,10 +160,26 @@ const Header = () => {
               );
             })}
 
+            {showRoleStrip && (
+              <div
+                style={{ transitionDelay: staggerDelay(navItems.length) }}
+                className={cn(
+                  "mt-2 transition-all duration-300",
+                  isMobileOpen
+                    ? "translate-y-0 opacity-100"
+                    : "-translate-y-2 opacity-0",
+                )}
+              >
+                <RoleMenuSection onSelect={closeMobileMenu} />
+              </div>
+            )}
+
             <div
-              style={{ transitionDelay: staggerDelay(navItems.length) }}
+              style={{ transitionDelay: staggerDelay(navItems.length + 1) }}
               className={cn(
-                "mt-2 border-t border-border/70 pt-4 transition-all duration-300",
+                "mt-2 pt-4 transition-all duration-300",
+                showRoleStrip && "border-t-0",
+                !showRoleStrip && "border-t border-border/70",
                 isMobileOpen
                   ? "translate-y-0 opacity-100"
                   : "-translate-y-2 opacity-0",
