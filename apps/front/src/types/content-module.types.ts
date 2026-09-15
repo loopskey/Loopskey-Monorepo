@@ -262,6 +262,7 @@ export type TDetailHeroActionsProps = {
   wishlist: TDetailHeroWishlist;
   prefill: TAddCalendarEventPrefill;
   completed: TMarkCompletedPrefill;
+  sourceUrl?: string | null;
 };
 
 export type TMarkAsCompletedButtonProps = {

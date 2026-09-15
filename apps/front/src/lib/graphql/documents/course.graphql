@@ -5,6 +5,7 @@ fragment CourseFields on Course {
   title
   instructor
   imageUrl
+  sourceUrl
   description
   category
   level

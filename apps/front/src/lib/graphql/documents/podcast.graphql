@@ -8,6 +8,7 @@ fragment PodcastFields on Podcast {
   rating
   category
   imageUrl
+  sourceUrl
   listeners
   createdAt
   updatedAt
@@ -24,6 +25,7 @@ fragment PodcastEpisodeFields on PodcastEpisode {
   id
   title
   audioUrl
+  sourceUrl
   podcastId
   updatedAt
   createdAt

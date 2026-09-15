@@ -23,7 +23,7 @@ const buttonVariants = cva(
           "cursor-pointer bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 focus-visible:ring-destructive/25",
 
         cancel:
-          "cursor-pointer border border-border bg-muted/60 text-muted-foreground shadow-sm hover:bg-muted hover:text-foreground",
+          "cursor-pointer border border-border bg-muted/60 text-muted-foreground shadow-sm hover:border-primary/40 hover:bg-muted hover:text-foreground",
 
         outline:
           "cursor-pointer border border-border bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",

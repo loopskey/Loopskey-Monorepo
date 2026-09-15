@@ -56,7 +56,6 @@ export const useProfessionalCpdPduTracker = () => {
     data: activitiesData,
     isLoading: isActivitiesLoading,
     isFetching: isActivitiesFetching,
-    refetch: refetchActivities,
   } = API.useProfessionalPduActivitiesQuery({
     filter: activityFilter,
     pagination: { take: PAGE_SIZE, cursor: currentCursor },
@@ -66,7 +65,6 @@ export const useProfessionalCpdPduTracker = () => {
     data: summary,
     isLoading: isSummaryLoading,
     isError: isSummaryError,
-    refetch: refetchSummary,
   } = API.useProfessionalPduActivitySummaryQuery();
 
   const [deleteActivity] = API.useDeleteProfessionalPduActivityMutation();
@@ -107,11 +105,6 @@ export const useProfessionalCpdPduTracker = () => {
   const handlePrevious = () => {
     setCursorStack((previousStack) => previousStack.slice(0, -1));
     setPage((previousPage) => Math.max(1, previousPage - 1));
-  };
-
-  const handleRefresh = () => {
-    void refetchActivities();
-    void refetchSummary();
   };
 
   const handleAddActivity = () => {
@@ -167,7 +160,6 @@ export const useProfessionalCpdPduTracker = () => {
     activities,
     handleNext,
     yearOptions,
-    handleRefresh,
     activitiesData,
     handlePrevious,
     isSummaryError,
@@ -183,7 +175,6 @@ export const useProfessionalCpdPduTracker = () => {
     isActivitiesFetching,
     handleDownloadEvidence,
     activityTypeOptions: H.ACTIVITY_TYPE_OPTIONS,
-    isRefreshing: isActivitiesFetching,
     isDeletingActivity: Boolean(deletingActivityId),
   };
 };

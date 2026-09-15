@@ -1,17 +1,17 @@
 import { EventStatus, IngestionContentKind, Prisma } from "@prisma/client";
-import { EVENT_CANONICAL_FIELDS } from "@ingestion/enums/event-ingestion.constant";
-import { validateCanonicalFieldMap } from "@ingestion/utils/canonical-field-map.util";
 import { AbstractKindIngestionService } from "@ingestion/services/abstract-kind-ingestion.service";
+import { validateCanonicalFieldMap } from "@ingestion/utils/canonical-field-map.util";
+import { EVENT_CANONICAL_FIELDS } from "@ingestion/enums/event-ingestion.constant";
 import { EventIngestionPipeline } from "@ingestion/services/event-ingestion-pipeline.service";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { PrismaService } from "@prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
 
-import type { AcceptedKindItem } from "@ingestion/types/kind-ingestion.types";
-import type { CatalogWriteResult } from "@ingestion/services/abstract-kind-ingestion.service";
-import type { EventCanonical } from "@ingestion/types/event-ingestion.types";
-import type { PreparedKindItem } from "@ingestion/types/kind-ingestion.types";
 import type { TIngestionSourceContext } from "@ingestion/types/ingestion.types";
+import type { CatalogWriteResult } from "@ingestion/services/abstract-kind-ingestion.service";
+import type { AcceptedKindItem } from "@ingestion/types/kind-ingestion.types";
+import type { PreparedKindItem } from "@ingestion/types/kind-ingestion.types";
+import type { EventCanonical } from "@ingestion/types/event-ingestion.types";
 
 @Injectable()
 export class EventIngestionService extends AbstractKindIngestionService<EventCanonical> {
@@ -72,6 +72,7 @@ export class EventIngestionService extends AbstractKindIngestionService<EventCan
     const data = {
       title: core.title,
       description: core.description,
+      sourceUrl: core.canonicalUrl,
       type: core.type,
       deliveryMode: core.deliveryMode,
       category: core.category,

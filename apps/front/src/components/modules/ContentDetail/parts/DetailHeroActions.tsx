@@ -1,20 +1,21 @@
 "use client";
 
+import { Check, ExternalLink, Heart, Loader2 } from "lucide-react";
 import { TDetailHeroActionsProps } from "@/types/content-module.types";
-import { Check, Heart, Loader2 } from "lucide-react";
 import { getContentTypeStyle } from "@/utils/content-type-style";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
 import { cn } from "@/lib/utils";
 
-import AddToCalendarButton from "@modules/ContentDetail/parts/AddToCalendarButton";
 import MarkAsCompletedButton from "@modules/ContentDetail/parts/MarkAsCompletedButton";
+import AddToCalendarButton from "@modules/ContentDetail/parts/AddToCalendarButton";
 
 const DetailHeroActions = ({
   primary,
   wishlist,
   prefill,
   completed,
+  sourceUrl,
   contentType,
 }: TDetailHeroActionsProps) => {
   const { t } = useI18n();
@@ -96,6 +97,21 @@ const DetailHeroActions = ({
           ? t("contentDetails.actions.saved")
           : t("contentDetails.actions.addWishlist")}
       </Button>
+
+      {sourceUrl && (
+        <Button
+          asChild
+          size="lg"
+          radius="xl"
+          variant="outline"
+          className="justify-center"
+        >
+          <a href={sourceUrl} target="_blank" rel="noreferrer">
+            <ExternalLink className="h-4 w-4" />
+            {t("contentDetails.actions.viewSource")}
+          </a>
+        </Button>
+      )}
     </>
   );
 };

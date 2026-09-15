@@ -254,6 +254,8 @@
     "reset": "Reset",
     "login": "Login",
     "start": "Start",
+    "joinForFree": "Join for Free",
+    "iAmA": "I am a",
     "delete": "Delete",
     "french": "French",
     "cancel": "Cancel",
@@ -2893,7 +2895,8 @@
       "enrolled": "Enrolled",
       "addCart": "Add to cart",
       "inCart": "In cart",
-      "addToCalendar": "Add to calendar"
+      "addToCalendar": "Add to calendar",
+      "viewSource": "View original source"
     },
     "markCompleted": {
       "button": "Mark as Completed",

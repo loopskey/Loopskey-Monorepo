@@ -1460,6 +1460,7 @@ type Course {
   ratingCount: Int!
   requirements: [String!]!
   slug: String!
+  sourceUrl: String
   status: CourseStatus!
   title: String!
   updatedAt: DateTime!
@@ -1942,6 +1943,7 @@ type Event {
   registrationEnabled: Boolean!
   scheduleItems: [EventScheduleItem!]
   slug: String!
+  sourceUrl: String
   speaker: String
   specificTopic: String
   startDate: DateTime!
@@ -3277,6 +3279,7 @@ type Podcast {
   rating: Float!
   ratingCount: Int!
   slug: String!
+  sourceUrl: String
   status: PodcastStatus!
   title: String!
   updatedAt: DateTime!
@@ -3309,6 +3312,7 @@ type PodcastEpisode {
   id: ID!
   podcastId: String!
   publishedAt: DateTime
+  sourceUrl: String
   title: String!
   updatedAt: DateTime!
 }

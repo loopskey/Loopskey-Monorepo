@@ -13,11 +13,10 @@ export const ActivityStepBasic = ({
   control,
   activityTypeOptions,
 }: TActivityStepBasicProps) => (
-  <div className="grid gap-5 md:grid-cols-2">
+  <div className="grid gap-5">
     <FloatingInputField
       name="title"
       control={control}
-      className="md:col-span-2"
       label={t(`${TRACKER}.fields.title`)}
       leftIcon={<L.Type className="h-4 w-4" />}
       placeholder={t(`${TRACKER}.fields.titlePlaceholder`)}
@@ -41,7 +40,6 @@ export const ActivityStepBasic = ({
     <FloatingInputField
       control={control}
       name="providerOrganizer"
-      className="md:col-span-2"
       leftIcon={<L.Building2 className="h-4 w-4" />}
       label={t(`${TRACKER}.fields.providerOrganizer`)}
       placeholder={t(`${TRACKER}.fields.providerOrganizerPlaceholder`)}

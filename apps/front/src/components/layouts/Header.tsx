@@ -1,8 +1,11 @@
 "use client";
 
+import { getAuthHrefForSolutionHref } from "@utils/constant";
 import { LanguageToggleBtn } from "@elements/language-switcher";
-import { StartMenu } from "@layouts/parts/start-menu";
+import { RoleMenuSection } from "@layouts/parts/role-menu-section";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { useActiveRole } from "@/providers/active-role-provider";
+import { RoleStrip } from "@layouts/parts/role-strip";
 import { useHeader } from "@hooks/useHeader";
 import { UserMenu } from "@layouts/parts/user-menu";
 import { Menu, X } from "lucide-react";
@@ -18,14 +21,17 @@ const Header = () => {
   const {
     t,
     navItems,
-    startLinks,
     isScrolled,
+    isLandingPage,
     isMobileOpen,
     isAuthenticated,
     isActiveNavItem,
     closeMobileMenu,
     toggleMobileMenu,
   } = useHeader();
+  const { activeRoleHref } = useActiveRole();
+  const joinHref = getAuthHrefForSolutionHref(activeRoleHref);
+  const showRoleStrip = isLandingPage && !isAuthenticated;
   const prefersReducedMotion = useMediaQuery(
     "(prefers-reduced-motion: reduce)",
   );
@@ -42,6 +48,8 @@ const Header = () => {
         isScrolled ? "border-b shadow-sm" : "border-b",
       )}
     >
+      {showRoleStrip && <RoleStrip />}
+
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Logo />
         <nav className="hidden items-center gap-1 lg:flex">
@@ -68,7 +76,13 @@ const Header = () => {
 
         <div className="hidden items-center gap-2 lg:flex">
           <LanguageToggleBtn />
-          {isAuthenticated ? <UserMenu /> : <StartMenu links={startLinks} />}
+          {isAuthenticated ? (
+            <UserMenu />
+          ) : (
+            <Button asChild size="lg" radius="full">
+              <Link href={joinHref}>{t("common.joinForFree")}</Link>
+            </Button>
+          )}
         </div>
 
         <div className="flex items-center gap-2 lg:hidden">
@@ -146,23 +160,43 @@ const Header = () => {
               );
             })}
 
+            {showRoleStrip && (
+              <div
+                style={{ transitionDelay: staggerDelay(navItems.length) }}
+                className={cn(
+                  "mt-2 transition-all duration-300",
+                  isMobileOpen
+                    ? "translate-y-0 opacity-100"
+                    : "-translate-y-2 opacity-0",
+                )}
+              >
+                <RoleMenuSection onSelect={closeMobileMenu} />
+              </div>
+            )}
+
             <div
-              style={{ transitionDelay: staggerDelay(navItems.length) }}
+              style={{ transitionDelay: staggerDelay(navItems.length + 1) }}
               className={cn(
-                "mt-2 border-t border-border/70 pt-4 transition-all duration-300",
+                "mt-2 pt-4 transition-all duration-300",
+                showRoleStrip && "border-t-0",
+                !showRoleStrip && "border-t border-border/70",
                 isMobileOpen
                   ? "translate-y-0 opacity-100"
                   : "-translate-y-2 opacity-0",
               )}
             >
               {isAuthenticated ? (
-                <UserMenu />
+                <UserMenu variant="inline" onNavigate={closeMobileMenu} />
               ) : (
-                <StartMenu
+                <Button
+                  asChild
+                  size="lg"
+                  radius="full"
                   className="w-full"
-                  links={startLinks}
-                  onNavigate={closeMobileMenu}
-                />
+                  onClick={closeMobileMenu}
+                >
+                  <Link href={joinHref}>{t("common.joinForFree")}</Link>
+                </Button>
               )}
             </div>
           </nav>

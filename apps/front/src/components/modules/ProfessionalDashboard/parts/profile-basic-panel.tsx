@@ -68,20 +68,23 @@ export const ProfileBasicPanel = ({
               )}
             />
 
-            <div className="space-y-2">
-              <Label htmlFor="professional-profile-email">
-                {t("professionalDashboard.profile.basic.email")}
-              </Label>
-              <div className="relative">
-                <R.Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <div className="min-w-0 space-y-2">
+              <div className="group relative">
+                <R.Mail className="pointer-events-none absolute left-4 top-1/2 z-20 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   readOnly
                   type="email"
                   id="professional-profile-email"
                   value={profile?.email ?? ""}
                   aria-describedby="professional-profile-email-hint"
-                  className="h-14 rounded-md border-border/70 bg-muted/40 pl-12 pr-4"
+                  className="h-14 rounded-md border-border/70 bg-muted/40 pl-12 pr-4 pt-6 pb-1.5 text-base"
                 />
+                <Label
+                  htmlFor="professional-profile-email"
+                  className="pointer-events-none absolute left-12 top-2 z-20 origin-left -translate-y-0 scale-[0.85] text-sm text-muted-foreground"
+                >
+                  {t("professionalDashboard.profile.basic.email")}
+                </Label>
               </div>
               <p
                 id="professional-profile-email-hint"

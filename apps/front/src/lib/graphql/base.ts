@@ -1552,6 +1552,7 @@ export type Course = {
   ratingCount: Scalars['Int']['output'];
   requirements: Array<Scalars['String']['output']>;
   slug: Scalars['String']['output'];
+  sourceUrl?: Maybe<Scalars['String']['output']>;
   status: CourseStatus;
   title: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
@@ -2040,6 +2041,7 @@ export type Event = {
   registrationEnabled: Scalars['Boolean']['output'];
   scheduleItems?: Maybe<Array<EventScheduleItem>>;
   slug: Scalars['String']['output'];
+  sourceUrl?: Maybe<Scalars['String']['output']>;
   speaker?: Maybe<Scalars['String']['output']>;
   specificTopic?: Maybe<Scalars['String']['output']>;
   startDate: Scalars['DateTime']['output'];
@@ -4230,6 +4232,7 @@ export type Podcast = {
   rating: Scalars['Float']['output'];
   ratingCount: Scalars['Int']['output'];
   slug: Scalars['String']['output'];
+  sourceUrl?: Maybe<Scalars['String']['output']>;
   status: PodcastStatus;
   title: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
@@ -4263,6 +4266,7 @@ export type PodcastEpisode = {
   id: Scalars['ID']['output'];
   podcastId: Scalars['String']['output'];
   publishedAt?: Maybe<Scalars['DateTime']['output']>;
+  sourceUrl?: Maybe<Scalars['String']['output']>;
   title: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
 };

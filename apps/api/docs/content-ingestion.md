@@ -90,7 +90,7 @@ Every item **must** carry:
 | Field | Rule |
 | --- | --- |
 | `externalId` | A string, 1–500 characters, that your crawler assigns to this entity and **never changes for the life of that entity**. It is scoped to your source, so it only has to be unique within your own stream. |
-| `canonicalUrl` | The absolute `https://` URL of the entity on the source site. Used for de-duplication hints and shown to editors. Required, up to 2048 characters. |
+| `canonicalUrl` | The absolute `https://` URL of the entity on the source site. Used for de-duplication hints, shown to editors, and stored on the published catalog row (`sourceUrl`) so the public detail page can link back to it. Required, up to 2048 characters. |
 
 **`externalId` stability is the single most important rule in this document.**
 

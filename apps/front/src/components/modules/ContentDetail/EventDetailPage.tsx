@@ -79,6 +79,7 @@ const EventDetailPage = ({ slug }: { slug: string }) => {
           actions={
             <DetailHeroActions
               contentType={ContentType.Event}
+              sourceUrl={event.sourceUrl}
               prefill={calendarPrefill}
               completed={{
                 title: event.title,

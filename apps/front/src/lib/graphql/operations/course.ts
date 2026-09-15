@@ -1,6 +1,6 @@
 import * as Types from "@/lib/graphql/base";
 import { TypedDocumentString } from "@/lib/graphql/base";
-export type CourseFieldsFragment = { __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null };
+export type CourseFieldsFragment = { __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, sourceUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null };
 
 export type CoursePageInfoFieldsFragment = { __typename?: 'CoursePageInfo', nextCursor?: string | null, hasNextPage: boolean };
 
@@ -15,28 +15,28 @@ export type CoursesQueryVariables = Types.Exact<{
 }>;
 
 
-export type CoursesQuery = { __typename?: 'Query', courses: { __typename?: 'PaginatedCourses', totalCount: number, items: Array<{ __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null }>, pageInfo: { __typename?: 'CoursePageInfo', nextCursor?: string | null, hasNextPage: boolean } } };
+export type CoursesQuery = { __typename?: 'Query', courses: { __typename?: 'PaginatedCourses', totalCount: number, items: Array<{ __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, sourceUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null }>, pageInfo: { __typename?: 'CoursePageInfo', nextCursor?: string | null, hasNextPage: boolean } } };
 
 export type CourseByIdQueryVariables = Types.Exact<{
   courseId: Types.Scalars['String']['input'];
 }>;
 
 
-export type CourseByIdQuery = { __typename?: 'Query', courseById: { __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null } };
+export type CourseByIdQuery = { __typename?: 'Query', courseById: { __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, sourceUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null } };
 
 export type CourseBySlugQueryVariables = Types.Exact<{
   slug: Types.Scalars['String']['input'];
 }>;
 
 
-export type CourseBySlugQuery = { __typename?: 'Query', courseBySlug: { __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null, curriculumSections?: Array<{ __typename?: 'CurriculumSection', id: string, title: string, order: number, courseId: string, description?: string | null, createdAt: string, updatedAt: string, lessons: Array<{ __typename?: 'CurriculumLesson', id: string, type: Types.CurriculumLessonType, title: string, order: number, isPreview: boolean, createdAt: string, updatedAt: string, sectionId: string, description?: string | null, durationMinutes?: number | null }> }> | null } };
+export type CourseBySlugQuery = { __typename?: 'Query', courseBySlug: { __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, sourceUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null, curriculumSections?: Array<{ __typename?: 'CurriculumSection', id: string, title: string, order: number, courseId: string, description?: string | null, createdAt: string, updatedAt: string, lessons: Array<{ __typename?: 'CurriculumLesson', id: string, type: Types.CurriculumLessonType, title: string, order: number, isPreview: boolean, createdAt: string, updatedAt: string, sectionId: string, description?: string | null, durationMinutes?: number | null }> }> | null } };
 
 export type FeaturedCoursesQueryVariables = Types.Exact<{
   take?: Types.InputMaybe<Types.Scalars['Int']['input']>;
 }>;
 
 
-export type FeaturedCoursesQuery = { __typename?: 'Query', featuredCourses: Array<{ __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null }> };
+export type FeaturedCoursesQuery = { __typename?: 'Query', featuredCourses: Array<{ __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, sourceUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null }> };
 
 export type MyProviderCoursesQueryVariables = Types.Exact<{
   filter?: Types.InputMaybe<Types.CourseFilterInput>;
@@ -45,49 +45,49 @@ export type MyProviderCoursesQueryVariables = Types.Exact<{
 }>;
 
 
-export type MyProviderCoursesQuery = { __typename?: 'Query', myProviderCourses: { __typename?: 'PaginatedCourses', totalCount: number, items: Array<{ __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null }>, pageInfo: { __typename?: 'CoursePageInfo', nextCursor?: string | null, hasNextPage: boolean } } };
+export type MyProviderCoursesQuery = { __typename?: 'Query', myProviderCourses: { __typename?: 'PaginatedCourses', totalCount: number, items: Array<{ __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, sourceUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null }>, pageInfo: { __typename?: 'CoursePageInfo', nextCursor?: string | null, hasNextPage: boolean } } };
 
 export type CreateCourseMutationVariables = Types.Exact<{
   input: Types.CreateCourseInput;
 }>;
 
 
-export type CreateCourseMutation = { __typename?: 'Mutation', createCourse: { __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null } };
+export type CreateCourseMutation = { __typename?: 'Mutation', createCourse: { __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, sourceUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null } };
 
 export type UpdateCourseMutationVariables = Types.Exact<{
   input: Types.UpdateCourseInput;
 }>;
 
 
-export type UpdateCourseMutation = { __typename?: 'Mutation', updateCourse: { __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null } };
+export type UpdateCourseMutation = { __typename?: 'Mutation', updateCourse: { __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, sourceUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null } };
 
 export type PublishCourseMutationVariables = Types.Exact<{
   courseId: Types.Scalars['String']['input'];
 }>;
 
 
-export type PublishCourseMutation = { __typename?: 'Mutation', publishCourse: { __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null } };
+export type PublishCourseMutation = { __typename?: 'Mutation', publishCourse: { __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, sourceUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null } };
 
 export type ArchiveCourseMutationVariables = Types.Exact<{
   courseId: Types.Scalars['String']['input'];
 }>;
 
 
-export type ArchiveCourseMutation = { __typename?: 'Mutation', archiveCourse: { __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null } };
+export type ArchiveCourseMutation = { __typename?: 'Mutation', archiveCourse: { __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, sourceUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null } };
 
 export type DeleteCourseMutationVariables = Types.Exact<{
   courseId: Types.Scalars['String']['input'];
 }>;
 
 
-export type DeleteCourseMutation = { __typename?: 'Mutation', deleteCourse: { __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null } };
+export type DeleteCourseMutation = { __typename?: 'Mutation', deleteCourse: { __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, sourceUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null } };
 
 export type RestoreCourseMutationVariables = Types.Exact<{
   courseId: Types.Scalars['String']['input'];
 }>;
 
 
-export type RestoreCourseMutation = { __typename?: 'Mutation', restoreCourse: { __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null } };
+export type RestoreCourseMutation = { __typename?: 'Mutation', restoreCourse: { __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, sourceUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null } };
 
 export const CourseFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
     fragment CourseFields on Course {
@@ -96,6 +96,7 @@ export const CourseFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
   title
   instructor
   imageUrl
+  sourceUrl
   description
   category
   level
@@ -180,6 +181,7 @@ export const CoursesDocument = /*#__PURE__*/ new TypedDocumentString(`
   title
   instructor
   imageUrl
+  sourceUrl
   description
   category
   level
@@ -216,6 +218,7 @@ export const CourseByIdDocument = /*#__PURE__*/ new TypedDocumentString(`
   title
   instructor
   imageUrl
+  sourceUrl
   description
   category
   level
@@ -251,6 +254,7 @@ export const CourseBySlugDocument = /*#__PURE__*/ new TypedDocumentString(`
   title
   instructor
   imageUrl
+  sourceUrl
   description
   category
   level
@@ -307,6 +311,7 @@ export const FeaturedCoursesDocument = /*#__PURE__*/ new TypedDocumentString(`
   title
   instructor
   imageUrl
+  sourceUrl
   description
   category
   level
@@ -345,6 +350,7 @@ export const MyProviderCoursesDocument = /*#__PURE__*/ new TypedDocumentString(`
   title
   instructor
   imageUrl
+  sourceUrl
   description
   category
   level
@@ -381,6 +387,7 @@ export const CreateCourseDocument = /*#__PURE__*/ new TypedDocumentString(`
   title
   instructor
   imageUrl
+  sourceUrl
   description
   category
   level
@@ -413,6 +420,7 @@ export const UpdateCourseDocument = /*#__PURE__*/ new TypedDocumentString(`
   title
   instructor
   imageUrl
+  sourceUrl
   description
   category
   level
@@ -445,6 +453,7 @@ export const PublishCourseDocument = /*#__PURE__*/ new TypedDocumentString(`
   title
   instructor
   imageUrl
+  sourceUrl
   description
   category
   level
@@ -477,6 +486,7 @@ export const ArchiveCourseDocument = /*#__PURE__*/ new TypedDocumentString(`
   title
   instructor
   imageUrl
+  sourceUrl
   description
   category
   level
@@ -509,6 +519,7 @@ export const DeleteCourseDocument = /*#__PURE__*/ new TypedDocumentString(`
   title
   instructor
   imageUrl
+  sourceUrl
   description
   category
   level
@@ -541,6 +552,7 @@ export const RestoreCourseDocument = /*#__PURE__*/ new TypedDocumentString(`
   title
   instructor
   imageUrl
+  sourceUrl
   description
   category
   level

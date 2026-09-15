@@ -254,6 +254,8 @@
     "language": "Langue",
     "login": "Connexion",
     "start": "Commencer",
+    "joinForFree": "Rejoindre gratuitement",
+    "iAmA": "Je suis",
     "english": "Anglais",
     "french": "Français",
     "save": "Enregistrer",
@@ -2895,7 +2897,8 @@
       "enrolled": "Inscrit",
       "addCart": "Ajouter au panier",
       "inCart": "Dans le panier",
-      "addToCalendar": "Ajouter au calendrier"
+      "addToCalendar": "Ajouter au calendrier",
+      "viewSource": "Voir la source originale"
     },
     "markCompleted": {
       "button": "Marquer comme terminé",

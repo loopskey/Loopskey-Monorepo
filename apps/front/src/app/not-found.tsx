@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowLeft, Home, LifeBuoy, Mail, SearchX } from "lucide-react";
+import { ActiveRoleProvider } from "@/providers/active-role-provider";
 import { RevealOnScroll } from "@elements/reveal-scroll";
 import { siteLinks } from "@/utils/constant";
 import { useI18n } from "@/hooks/useI18n";
@@ -17,7 +18,7 @@ const NotFoundPage = () => {
   const { t } = useI18n();
 
   return (
-    <>
+    <ActiveRoleProvider>
       <Header />
       <main className="flex min-h-[calc(100vh-5rem)] items-center overflow-hidden px-4 py-20 sm:px-6 lg:px-8">
         <div className="pointer-events-none absolute inset-0 -z-10"></div>
@@ -85,7 +86,7 @@ const NotFoundPage = () => {
         </RevealOnScroll>
       </main>
       <Footer />
-    </>
+    </ActiveRoleProvider>
   );
 };
 
