@@ -1775,6 +1775,7 @@ input CreatePduActivityInput {
   category: PDUCategory!
   contentId: String
   contentType: ContentType
+  cpdPlanId: ID
   creditType: CreditType!
   date: String!
   description: String
@@ -2444,7 +2445,6 @@ type Mutation {
   resendEmailOtp(input: ResendEmailOtpInput!): AuthPayload!
   resendOrganizationActivation(input: ResendOrganizationActivationInput!): AuthPayload!
   resetPassword(input: ResetPasswordInput!): AuthPayload!
-  resetProfessionalSettings: ProfessionalSettings!
   restoreCourse(courseId: String!): Course!
   restoreEvent(eventId: String!): Event!
   restorePodcast(podcastId: String!): Podcast!
@@ -3642,6 +3642,7 @@ type ProfessionalPduActivity {
   completionStatus: PDUCompletionStatus!
   contentId: String
   contentType: ContentType
+  cpdPlanId: ID
   createdAt: DateTime!
   creditType: CreditType!
   date: DateTime!
@@ -3858,19 +3859,9 @@ type ProfessionalSession {
 }
 
 type ProfessionalSettings {
-  courseUpdates: Boolean!
   createdAt: DateTime!
-  emailNotifications: Boolean!
-  eventReminders: Boolean!
   id: ID!
   interfaceLanguage: AppLanguage!
-  loginAlerts: Boolean!
-  messages: Boolean!
-  profileVisibility: ProfileVisibility!
-  pushNotifications: Boolean!
-  showCertificates: Boolean!
-  showEmail: Boolean!
-  showLearningProgress: Boolean!
   theme: Theme!
   updatedAt: DateTime!
   userId: ID!
@@ -3905,12 +3896,6 @@ enum ProfileTaxonomyKind {
   ROLE
   SKILL_AREA
   SUBJECT
-}
-
-enum ProfileVisibility {
-  FOLLOWERS_ONLY
-  PRIVATE
-  PUBLIC
 }
 
 type PromotionRequest {
@@ -4808,6 +4793,7 @@ input UpdatePduActivityInput {
   completionStatus: PDUCompletionStatus
   contentId: String
   contentType: ContentType
+  cpdPlanId: ID
   creditType: CreditType
   date: String
   description: String
@@ -4885,17 +4871,7 @@ input UpdateProfessionalPreferencesInput {
 }
 
 input UpdateProfessionalSettingsInput {
-  courseUpdates: Boolean
-  emailNotifications: Boolean
-  eventReminders: Boolean
   interfaceLanguage: AppLanguage
-  loginAlerts: Boolean
-  messages: Boolean
-  profileVisibility: ProfileVisibility
-  pushNotifications: Boolean
-  showCertificates: Boolean
-  showEmail: Boolean
-  showLearningProgress: Boolean
   theme: Theme
 }
 

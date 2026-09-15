@@ -2,10 +2,11 @@
 
 import { useLazyProfessionalPduActivitiesQuery } from "@/lib/rtk/endpoints/professional.api";
 import { buildCpdSummaryCsv, downloadCsv } from "@/utils/cpd-summary";
-import { CpdSetupState, TCertification } from "@/types/cpd-plan.types";
 import { useEffect, useMemo, useState } from "react";
-import { CpdPlanFormValues } from "@/lib/validations/cpd-plan.schema";
+import { CpdSetupState, TCpdPlan } from "@/types/cpd-plan.types";
 import { ProfessionalMessageCode } from "@loopskey/api-contracts/error-codes";
+import { CpdPlanFormValues } from "@/lib/validations/cpd-plan.schema";
+import { TCertification } from "@/types/cpd-plan.types";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
@@ -67,6 +68,8 @@ export const useCpdPduProgress = () => {
     API.useCreateCpdPlanFromSuggestionMutation();
   const [createPlan, { isLoading: isCreatingPlan }] =
     API.useCreateCpdPlanMutation();
+  const [updatePlan, { isLoading: isUpdatingPlan }] =
+    API.useUpdateCpdPlanMutation();
   const [deletePlan, { isLoading: isDeleting }] =
     API.useDeleteCpdPlanMutation();
   const [fetchActivities] = useLazyProfessionalPduActivitiesQuery();
@@ -108,22 +111,39 @@ export const useCpdPduProgress = () => {
     setSetup({ mode: "manual", initial: H.emptyCpdPlanForm(query.trim()) });
   };
 
+  const editPlan = (plan: TCpdPlan) => {
+    setSetup({
+      mode: "edit",
+      planId: plan.id,
+      certificationId: plan.certificationId ?? undefined,
+      initial: H.planToForm(plan),
+    });
+  };
+
   const closeSetup = () => setSetup(null);
 
   const persistPlan = async (
     values: CpdPlanFormValues,
     allowDuplicate: boolean,
   ) => {
-    const plan = await createPlan(
-      H.formToCreateInput(values, {
-        certificationId: setup?.certificationId,
-        allowDuplicate,
-      }),
-    ).unwrap();
+    const input = H.formToCreateInput(values, {
+      certificationId: setup?.certificationId,
+      allowDuplicate,
+    });
+    const plan =
+      setup?.mode === "edit" && setup.planId
+        ? await updatePlan({ ...input, id: setup.planId }).unwrap()
+        : await createPlan(input).unwrap();
     setSelectedPlanId(plan.id);
     setSetup(null);
     setPendingDuplicate(null);
-    notify.success(t("cpdProgress.toast.planCreated"));
+    notify.success(
+      t(
+        setup?.mode === "edit"
+          ? "cpdProgress.toast.planUpdated"
+          : "cpdProgress.toast.planCreated",
+      ),
+    );
   };
 
   const submitSetup = async (values: CpdPlanFormValues) => {
@@ -134,7 +154,13 @@ export const useCpdPduProgress = () => {
         setPendingDuplicate(values);
         return;
       }
-      notify.error(t("cpdProgress.toast.createError"));
+      notify.error(
+        t(
+          setup?.mode === "edit"
+            ? "cpdProgress.toast.updateError"
+            : "cpdProgress.toast.createError",
+        ),
+      );
     }
   };
 
@@ -200,6 +226,9 @@ export const useCpdPduProgress = () => {
     plans,
     progress,
     hasPlans,
+    openSearch,
+    searchOpen,
+    closeSearch,
     selectedPlan,
     refetchPlans,
     selectedPlanId,
@@ -209,28 +238,26 @@ export const useCpdPduProgress = () => {
     isProgressLoading,
     isProgressFetching,
     isCreatingSuggestion,
-    isSubmittingPlan: isCreatingPlan,
-    searchOpen,
-    openSearch,
-    closeSearch,
-    useSuggested,
-    creatingCertId,
-    editManually,
-    addManually,
     setup,
+    editPlan,
     closeSetup,
-    submitSetup,
-    pendingDuplicate,
-    confirmDuplicate,
-    cancelDuplicate,
-    deleteTargetId,
-    requestDelete,
-    cancelDelete,
-    confirmDelete,
     isDeleting,
-    canGenerateSummary,
-    generateSummary,
+    addManually,
+    submitSetup,
+    editManually,
+    useSuggested,
     isGenerating,
+    cancelDelete,
+    requestDelete,
+    confirmDelete,
+    creatingCertId,
+    deleteTargetId,
+    cancelDuplicate,
     goToAddActivity,
+    generateSummary,
+    confirmDuplicate,
+    pendingDuplicate,
+    canGenerateSummary,
+    isSubmittingPlan: isCreatingPlan || isUpdatingPlan,
   };
 };

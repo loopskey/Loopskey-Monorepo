@@ -40,7 +40,7 @@ export type TSnapShotProps = {
   value: string | number;
 };
 
-export type TSettingsTab = "general" | "privacy" | "security" | "notifications";
+export type TSettingsTab = "general" | "security";
 
 export type TFieldProps = {
   label: string;
@@ -303,14 +303,6 @@ export type TUpcomingCalendarItem = {
   source: "registration" | "manual";
 };
 
-export type TCalendarStats = {
-  live: number;
-  total: number;
-  upcoming: number;
-  completed: number;
-  totalPdus: number;
-};
-
 export type TSelectedRange = {
   end: string;
   start: string;
@@ -356,20 +348,6 @@ export type ProfessionalProfileSettingsFormValues = {
   avatarUrl: string;
   education: string;
   occupation: string;
-};
-
-export type TProfessionalPrivacySettingPanel = {
-  icon: LucideIcon;
-  hook: ReturnType<
-    typeof import("@/hooks/useProfessionalSettingstab").useProfessionalSettingsTab
-  >;
-};
-
-export type TProfessionalNotificationSetting = {
-  icon: LucideIcon;
-  hook: ReturnType<
-    typeof import("@/hooks/useProfessionalSettingstab").useProfessionalSettingsTab
-  >;
 };
 
 export type TProfessionalGeneralSetting = {
@@ -442,6 +420,7 @@ export type TActivityStepBasicProps = {
 export type TActivityStepCreditsProps = {
   t: I18nContextValue["t"];
   subCategoryOptions: string[];
+  planOptions: { value: string; label: string }[];
   onReportingYearTouched: () => void;
   control: Control<TPduActivityFormInput>;
 };

@@ -5,6 +5,8 @@ import { IsInt, IsOptional, IsPositive } from "class-validator";
 import { IsString, Max, MaxLength, Min } from "class-validator";
 import { ProfessionalGqlInputNames } from "@professional/enums/gql-names.enum";
 import { IsDateString, IsEnum } from "class-validator";
+import { trimToNull } from "@utils/transform.util";
+import { Transform } from "class-transformer";
 
 @InputType(ProfessionalGqlInputNames.UPDATE_PDU_ACTIVITY_INPUT)
 export class UpdatePduActivityInput {
@@ -103,4 +105,10 @@ export class UpdatePduActivityInput {
   @IsOptional()
   @IsEnum(ContentType)
   contentType?: ContentType;
+
+  @Field(() => ID, { nullable: true })
+  @Transform(trimToNull)
+  @IsOptional()
+  @IsString()
+  cpdPlanId?: string | null;
 }

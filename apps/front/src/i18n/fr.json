@@ -48,6 +48,7 @@
     "setup": {
       "titleManual": "Ajouter un CPD/PDU manuellement",
       "titleSuggestion": "Vérifiez votre configuration CPD/PDU",
+      "titleEdit": "Modifier le plan CPD/PDU",
       "subtitle": "Complétez les quatre étapes pour créer votre plan.",
       "step1": {
         "title": "Détails de la certification",
@@ -105,7 +106,8 @@
         "deleteConfirmDescription": "Ceci retirera"
       },
       "actions": {
-        "create": "Créer le plan CPD"
+        "create": "Créer le plan CPD",
+        "save": "Enregistrer les modifications"
       },
       "unsaved": {
         "title": "Abandonner les modifications ?",
@@ -177,6 +179,7 @@
     },
     "progress": {
       "planLabel": "Plan",
+      "editPlan": "Modifier le plan",
       "deletePlan": "Supprimer le plan",
       "cards": {
         "earned": "Obtenus",
@@ -222,6 +225,8 @@
     "toast": {
       "planCreated": "Plan CPD/PDU créé.",
       "createError": "Impossible de créer le plan. Veuillez réessayer.",
+      "planUpdated": "Plan CPD/PDU mis à jour.",
+      "updateError": "Impossible de mettre à jour le plan. Veuillez réessayer.",
       "planDeleted": "Plan supprimé.",
       "deleteError": "Impossible de supprimer le plan.",
       "summaryReady": "Résumé CPD téléchargé.",
@@ -3673,18 +3678,12 @@
     "settings": {
       "eyebrow": "Paramètres professionnels",
       "title": "Paramètres",
-      "description": "Personnalisez votre expérience LoopsKey : langue, thème, notifications et visibilité du profil.",
+      "description": "Personnalisez votre expérience LoopsKey : langue et sécurité du compte.",
       "saved": "Paramètres enregistrés avec succès.",
       "profileSaved": "Profil mis à jour avec succès.",
-      "resetDone": "Paramètres réinitialisés par défaut.",
       "saveChanges": "Enregistrer les modifications",
-      "saveNotifications": "Enregistrer les notifications",
-      "savePrivacy": "Enregistrer la confidentialité",
-      "resetDefault": "Réinitialiser par défaut",
       "tabs": {
         "general": "Général",
-        "notifications": "Notifications",
-        "privacy": "Confidentialité",
         "security": "Sécurité"
       },
       "general": {
@@ -3694,41 +3693,6 @@
         "languageHint": "Choisissez la langue utilisée dans votre tableau de bord.",
         "note": "Ces paramètres affectent uniquement votre tableau de bord personnel.",
         "save": "Enregistrer les modifications"
-      },
-      "notifications": {
-        "title": "Notifications",
-        "description": "Choisissez comment LoopsKey vous informe des mises à jour importantes.",
-        "emailNotifications": "Notifications par e-mail",
-        "emailNotificationsDescription": "Recevez les mises à jour et alertes importantes par e-mail.",
-        "pushNotifications": "Notifications push",
-        "pushNotificationsDescription": "Autorisez les notifications dans le navigateur ou l’application.",
-        "courseUpdates": "Mises à jour des cours",
-        "courseUpdatesDescription": "Soyez informé lorsque vos cours inscrits sont mis à jour.",
-        "messages": "Messages",
-        "messagesDescription": "Alertes pour les nouveaux messages des fournisseurs ou administrateurs.",
-        "eventReminders": "Rappels d’événements",
-        "eventRemindersDescription": "Rappels pour les sessions, échéances et événements à venir.",
-        "loginAlerts": "Alertes de connexion",
-        "loginAlertsDescription": "Soyez informé lorsqu’une nouvelle connexion est détectée sur votre compte.",
-        "save": "Enregistrer les notifications"
-      },
-      "privacy": {
-        "title": "Profil et confidentialité",
-        "description": "Contrôlez ce que les autres peuvent voir sur votre profil public LoopsKey.",
-        "public": "Public",
-        "publicDescription": "Visible par tous sur LoopsKey.",
-        "followersOnly": "Abonnés uniquement",
-        "followersOnlyDescription": "Visible uniquement par vos abonnés acceptés.",
-        "private": "Privé",
-        "privateDescription": "Vous seul pouvez voir votre profil complet.",
-        "showEmail": "Afficher l’e-mail",
-        "showEmailDescription": "Autoriser les collaborateurs à vous contacter directement.",
-        "showLearningProgress": "Afficher la progression d’apprentissage",
-        "showLearningProgressDescription": "Afficher publiquement votre parcours d’apprentissage.",
-        "showCertificates": "Afficher les certificats",
-        "showCertificatesDescription": "Autoriser les autres à voir vos certificats vérifiés.",
-        "save": "Enregistrer la confidentialité",
-        "reset": "Réinitialiser par défaut"
       },
       "profile": {
         "bio": "Bio",
@@ -3966,6 +3930,9 @@
         "reportingYearHint": "Par défaut, l’année de la date de fin.",
         "issuingOrganization": "Organisme émetteur",
         "relatedCertification": "Certification / licence associée",
+        "cpdPlan": "Plan CPD/PDU",
+        "cpdPlanHint": "Attribuez les crédits de cette activité à l’un de vos plans. Laissez vide pour la compter dans votre progression globale comme d’habitude.",
+        "cpdPlanPlaceholder": "Aucun plan sélectionné",
         "description": "Description / notes de l’activité",
         "descriptionPlaceholder": "Décrivez brièvement l’activité.",
         "evidenceNote": "Notes sur les fichiers",
@@ -4362,13 +4329,6 @@
           "duration": "Durée en minutes (facultatif)",
           "notes": "Notes (facultatif)"
         }
-      },
-      "cards": {
-        "totalEvents": "Total des événements",
-        "upcoming": "À venir",
-        "live": "En direct",
-        "completed": "Terminés",
-        "totalPdus": "Total PDU"
       },
       "filters": {
         "searchLabel": "Recherche",

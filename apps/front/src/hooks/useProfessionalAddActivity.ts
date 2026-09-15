@@ -12,6 +12,7 @@ import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
 
 import * as API from "@/lib/rtk/endpoints/professional.api";
+import * as CpdAPI from "@/lib/rtk/endpoints/cpd-plan.api";
 import * as SC from "@/lib/validations/pdu-activity.schema";
 import * as C from "@/utils/pdu.constant";
 import * as T from "@/types/professional-dashboard.types";
@@ -31,6 +32,7 @@ const defaultValues: SC.TPduActivityFormInput = {
   files: [],
   creditValue: 1,
   subCategory: "",
+  cpdPlanId: "",
   description: "",
   evidenceNote: "",
   dateCompleted: "",
@@ -75,6 +77,17 @@ export const useProfessionalAddActivity = () => {
       { skip: !activityId },
     );
 
+  const { data: cpdPlans = [] } = CpdAPI.useMyCpdPlansQuery();
+
+  const planOptions = useMemo(
+    () =>
+      cpdPlans.map((plan) => ({
+        value: plan.id,
+        label: plan.certificationName,
+      })),
+    [cpdPlans],
+  );
+
   const [createActivity, { isLoading: isCreating }] =
     API.useCreateProfessionalPduActivityMutation();
 
@@ -106,6 +119,7 @@ export const useProfessionalAddActivity = () => {
       creditType: activity.creditType,
       description: activity.description ?? "",
       subCategory: activity.subCategory ?? "",
+      cpdPlanId: activity.cpdPlanId ?? "",
       evidenceNote: activity.evidenceNote ?? "",
       dateCompleted: toDateInput(activity.date),
       learningOutcome: activity.learningOutcome ?? "",
@@ -220,6 +234,7 @@ export const useProfessionalAddActivity = () => {
           learningOutcome: values.learningOutcome,
           providerOrganizer: values.providerOrganizer,
           subCategory: orUndefined(values.subCategory),
+          cpdPlanId: orUndefined(values.cpdPlanId),
           description: orUndefined(values.description),
           evidenceNote: orUndefined(values.evidenceNote),
           date: new Date(values.dateCompleted).toISOString(),
@@ -240,6 +255,7 @@ export const useProfessionalAddActivity = () => {
           providerOrganizer: values.providerOrganizer,
           learningOutcome: values.learningOutcome,
           subCategory: orUndefined(values.subCategory),
+          cpdPlanId: orUndefined(values.cpdPlanId),
           issuingOrganization: orUndefined(values.issuingOrganization),
           relatedCertification: orUndefined(values.relatedCertification),
           description: orUndefined(values.description),
@@ -312,6 +328,7 @@ export const useProfessionalAddActivity = () => {
     handleFilesChange,
     activityTypeOptions,
     subCategoryOptions,
+    planOptions,
     markReportingYearTouched,
     handleRemoveExistingFile,
     handleDownloadExistingFile,

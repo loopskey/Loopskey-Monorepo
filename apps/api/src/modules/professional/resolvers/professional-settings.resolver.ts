@@ -44,13 +44,6 @@ export class ProfessionalSettingsResolver {
     );
   }
 
-  @Mutation(() => ProfessionalSettingsEntity, {
-    name: ProfessionalGqlMutationNames.RESET_PROFESSIONAL_SETTINGS,
-  })
-  resetProfessionalSettings(@CurrentUser() user: TResolverUser) {
-    return this.professionalSettingsService.resetSettings(this.getUser(user));
-  }
-
   @Query(() => [ProfessionalSessionEntity], {
     name: ProfessionalGqlQueryNames.PROFESSIONAL_ACTIVE_SESSIONS,
   })

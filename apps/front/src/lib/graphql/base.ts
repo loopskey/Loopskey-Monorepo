@@ -1874,6 +1874,7 @@ export type CreatePduActivityInput = {
   category: PduCategory;
   contentId?: InputMaybe<Scalars['String']['input']>;
   contentType?: InputMaybe<ContentType>;
+  cpdPlanId?: InputMaybe<Scalars['ID']['input']>;
   creditType: CreditType;
   date: Scalars['String']['input'];
   description?: InputMaybe<Scalars['String']['input']>;
@@ -2549,7 +2550,6 @@ export type Mutation = {
   resendEmailOtp: AuthPayload;
   resendOrganizationActivation: AuthPayload;
   resetPassword: AuthPayload;
-  resetProfessionalSettings: ProfessionalSettings;
   restoreCourse: Course;
   restoreEvent: Event;
   restorePodcast: Podcast;
@@ -4615,6 +4615,7 @@ export type ProfessionalPduActivity = {
   completionStatus: PduCompletionStatus;
   contentId?: Maybe<Scalars['String']['output']>;
   contentType?: Maybe<ContentType>;
+  cpdPlanId?: Maybe<Scalars['ID']['output']>;
   createdAt: Scalars['DateTime']['output'];
   creditType: CreditType;
   date: Scalars['DateTime']['output'];
@@ -4847,19 +4848,9 @@ export type ProfessionalSession = {
 
 export type ProfessionalSettings = {
   __typename?: 'ProfessionalSettings';
-  courseUpdates: Scalars['Boolean']['output'];
   createdAt: Scalars['DateTime']['output'];
-  emailNotifications: Scalars['Boolean']['output'];
-  eventReminders: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   interfaceLanguage: AppLanguage;
-  loginAlerts: Scalars['Boolean']['output'];
-  messages: Scalars['Boolean']['output'];
-  profileVisibility: ProfileVisibility;
-  pushNotifications: Scalars['Boolean']['output'];
-  showCertificates: Scalars['Boolean']['output'];
-  showEmail: Scalars['Boolean']['output'];
-  showLearningProgress: Scalars['Boolean']['output'];
   theme: Theme;
   updatedAt: Scalars['DateTime']['output'];
   userId: Scalars['ID']['output'];
@@ -4896,12 +4887,6 @@ export enum ProfileTaxonomyKind {
   Role = 'ROLE',
   SkillArea = 'SKILL_AREA',
   Subject = 'SUBJECT'
-}
-
-export enum ProfileVisibility {
-  FollowersOnly = 'FOLLOWERS_ONLY',
-  Private = 'PRIVATE',
-  Public = 'PUBLIC'
 }
 
 export type PromotionRequest = {
@@ -6508,6 +6493,7 @@ export type UpdatePduActivityInput = {
   completionStatus?: InputMaybe<PduCompletionStatus>;
   contentId?: InputMaybe<Scalars['String']['input']>;
   contentType?: InputMaybe<ContentType>;
+  cpdPlanId?: InputMaybe<Scalars['ID']['input']>;
   creditType?: InputMaybe<CreditType>;
   date?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
@@ -6585,17 +6571,7 @@ export type UpdateProfessionalPreferencesInput = {
 };
 
 export type UpdateProfessionalSettingsInput = {
-  courseUpdates?: InputMaybe<Scalars['Boolean']['input']>;
-  emailNotifications?: InputMaybe<Scalars['Boolean']['input']>;
-  eventReminders?: InputMaybe<Scalars['Boolean']['input']>;
   interfaceLanguage?: InputMaybe<AppLanguage>;
-  loginAlerts?: InputMaybe<Scalars['Boolean']['input']>;
-  messages?: InputMaybe<Scalars['Boolean']['input']>;
-  profileVisibility?: InputMaybe<ProfileVisibility>;
-  pushNotifications?: InputMaybe<Scalars['Boolean']['input']>;
-  showCertificates?: InputMaybe<Scalars['Boolean']['input']>;
-  showEmail?: InputMaybe<Scalars['Boolean']['input']>;
-  showLearningProgress?: InputMaybe<Scalars['Boolean']['input']>;
   theme?: InputMaybe<Theme>;
 };
 

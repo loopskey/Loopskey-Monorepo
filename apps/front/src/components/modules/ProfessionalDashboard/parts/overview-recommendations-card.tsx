@@ -60,7 +60,7 @@ export const OverviewRecommendationsCard = () => {
         </div>
 
         <Button asChild variant="outline" radius="xl">
-          <Link href="/courses">
+          <Link href="/content">
             {t("professionalDashboard.overview.browseAll")}
           </Link>
         </Button>

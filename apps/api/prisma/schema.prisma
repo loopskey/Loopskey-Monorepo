@@ -1282,12 +1282,6 @@ enum AppTheme {
   SYSTEM
 }
 
-enum ProfileVisibility {
-  PUBLIC
-  PRIVATE
-  FOLLOWERS_ONLY
-}
-
 model ProfessionalSettings {
   id String @id @default(cuid())
 
@@ -1296,18 +1290,6 @@ model ProfessionalSettings {
 
   interfaceLanguage AppLanguage @default(EN)
   theme             AppTheme    @default(SYSTEM)
-
-  emailNotifications Boolean @default(true)
-  pushNotifications  Boolean @default(true)
-  courseUpdates      Boolean @default(true)
-  messages           Boolean @default(true)
-  eventReminders     Boolean @default(true)
-  loginAlerts        Boolean @default(true)
-
-  profileVisibility    ProfileVisibility @default(PUBLIC)
-  showEmail            Boolean           @default(false)
-  showLearningProgress Boolean           @default(true)
-  showCertificates     Boolean           @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1384,6 +1366,9 @@ model PDUActivity {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  cpdPlanId String?
+  cpdPlan   CPDPlan? @relation(fields: [cpdPlanId], references: [id], onDelete: SetNull)
+
   title       String
   description String?
   source      PDUSource   @default(OTHER)
@@ -1422,6 +1407,7 @@ model PDUActivity {
   @@index([reportingYear])
   @@index([completionStatus])
   @@index([contentType, contentId])
+  @@index([cpdPlanId])
 }
 
 model PDUActivityFile {
@@ -1557,6 +1543,7 @@ model CPDPlan {
   categories    CPDPlanCategory[]
   certificates  Certificate[]
   roadmapDrafts RoadmapDraft[]
+  pduActivities PDUActivity[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

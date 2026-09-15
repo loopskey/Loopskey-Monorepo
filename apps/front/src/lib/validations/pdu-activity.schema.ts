@@ -49,6 +49,7 @@ export const creditDetailsSchema = z.object({
   issuingOrganization: optionalText(200),
   relatedCertification: optionalText(200),
   description: optionalText(2000),
+  cpdPlanId: optionalText(64),
 });
 
 export const evidenceSchema = z.object({
@@ -86,6 +87,7 @@ export const PDU_STEP_FIELDS: Record<number, (keyof TPduActivityFormInput)[]> =
       "issuingOrganization",
       "relatedCertification",
       "description",
+      "cpdPlanId",
     ],
     3: ["files", "evidenceNote"],
     4: ["learningOutcome"],

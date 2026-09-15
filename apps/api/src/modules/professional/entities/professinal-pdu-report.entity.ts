@@ -1,6 +1,6 @@
 import { PDUCategory, PDUCompletionStatus, PDUSource } from "@prisma/client";
 import { ContentType, CreditType, PDUStatus } from "@prisma/client";
-import { Field, Float, Int, ObjectType } from "@nestjs/graphql";
+import { Field, Float, ID, Int, ObjectType } from "@nestjs/graphql";
 import { ProfessionalGqlObjectNames } from "@professional/enums/gql-names.enum";
 import { PageInfoEntity } from "@professional/entities/page-info.entity";
 
@@ -27,10 +27,10 @@ export class ProfessionalPduMonthlyPointEntity {
 @ObjectType(ProfessionalGqlObjectNames.PROFESSIONAL_PDU_ACTIVITY_FILE)
 export class ProfessionalPduActivityFileEntity {
   @Field() id: string;
+  @Field() createdAt: Date;
   @Field() fileName: string;
   @Field() mimeType: string;
   @Field(() => Int) sizeBytes: number;
-  @Field() createdAt: Date;
 }
 
 @ObjectType(ProfessionalGqlObjectNames.PROFESSIONAL_PDU_ACTIVITY)
@@ -45,17 +45,18 @@ export class ProfessionalPduActivityEntity {
   @Field(() => PDUStatus) status: PDUStatus;
   @Field(() => PDUCategory) category: PDUCategory;
   @Field(() => CreditType) creditType: CreditType;
-  @Field(() => PDUCompletionStatus) completionStatus: PDUCompletionStatus;
-  @Field(() => Int, { nullable: true }) reportingYear?: number | null;
-  @Field(() => String, { nullable: true }) providerOrganizer?: string | null;
-  @Field(() => String, { nullable: true }) subCategory?: string | null;
-  @Field(() => String, { nullable: true }) issuingOrganization?: string | null;
-  @Field(() => String, { nullable: true }) relatedCertification?: string | null;
-  @Field(() => String, { nullable: true }) learningOutcome?: string | null;
-  @Field(() => String, { nullable: true }) evidenceNote?: string | null;
+  @Field(() => ID, { nullable: true }) cpdPlanId?: string | null;
   @Field(() => String, { nullable: true }) contentId?: string | null;
+  @Field(() => Int, { nullable: true }) reportingYear?: number | null;
+  @Field(() => String, { nullable: true }) subCategory?: string | null;
   @Field(() => String, { nullable: true }) description?: string | null;
   @Field(() => String, { nullable: true }) evidenceUrl?: string | null;
+  @Field(() => String, { nullable: true }) evidenceNote?: string | null;
+  @Field(() => PDUCompletionStatus) completionStatus: PDUCompletionStatus;
+  @Field(() => String, { nullable: true }) learningOutcome?: string | null;
+  @Field(() => String, { nullable: true }) providerOrganizer?: string | null;
+  @Field(() => String, { nullable: true }) issuingOrganization?: string | null;
+  @Field(() => String, { nullable: true }) relatedCertification?: string | null;
   @Field(() => ContentType, { nullable: true })
   contentType?: ContentType | null;
   @Field(() => [ProfessionalPduActivityFileEntity])
@@ -64,12 +65,9 @@ export class ProfessionalPduActivityEntity {
 
 @ObjectType(ProfessionalGqlObjectNames.PROFESSIONAL_PDU_ACTIVITY_SUMMARY)
 export class ProfessionalPduActivitySummaryEntity {
-  // Completed and logged (not rejected, not deleted) activities for the user.
-  @Field(() => Int) completedActivities: number;
-  // Activities that have at least one uploaded evidence file.
-  @Field(() => Int) activitiesWithEvidence: number;
-  // Total number of evidence files uploaded across the user's activities.
   @Field(() => Int) evidenceFilesCount: number;
+  @Field(() => Int) completedActivities: number;
+  @Field(() => Int) activitiesWithEvidence: number;
 }
 
 @ObjectType(ProfessionalGqlObjectNames.PROFESSIONAL_PDU_REPORT)

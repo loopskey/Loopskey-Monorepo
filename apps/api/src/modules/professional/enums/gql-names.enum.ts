@@ -127,7 +127,6 @@ export enum ProfessionalGqlQueryNames {
 export enum ProfessionalGqlMutationNames {
   CREATE_CALENDAR_EVENT = "createCalendarEvent",
   DELETE_CALENDAR_EVENT = "deleteCalendarEvent",
-  RESET_PROFESSIONAL_SETTINGS = "resetProfessionalSettings",
   UPDATE_PROFESSIONAL_SETTINGS = "updateProfessionalSettings",
   UPSERT_PROFESSIONAL_PDU_TARGET = "upsertProfessionalPduTarget",
   CREATE_PROFESSIONAL_PDU_ACTIVITY = "createProfessionalPduActivity",

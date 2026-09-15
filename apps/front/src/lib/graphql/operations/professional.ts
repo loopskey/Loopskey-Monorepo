@@ -2,7 +2,7 @@ import * as Types from "@/lib/graphql/base";
 import { TypedDocumentString } from "@/lib/graphql/base";
 export type ProfessionalPageInfoFieldsFragment = { __typename?: 'ProfessionalPageInfo', nextCursor?: string | null, hasNextPage: boolean };
 
-export type ProfessionalSettingsFieldsFragment = { __typename?: 'ProfessionalSettings', id: string, theme: Types.Theme, userId: string, messages: boolean, updatedAt: string, createdAt: string, showEmail: boolean, loginAlerts: boolean, courseUpdates: boolean, eventReminders: boolean, showCertificates: boolean, profileVisibility: Types.ProfileVisibility, interfaceLanguage: Types.AppLanguage, pushNotifications: boolean, emailNotifications: boolean, showLearningProgress: boolean };
+export type ProfessionalSettingsFieldsFragment = { __typename?: 'ProfessionalSettings', id: string, theme: Types.Theme, userId: string, updatedAt: string, createdAt: string, interfaceLanguage: Types.AppLanguage };
 
 export type ProfessionalOverviewFieldsFragment = { __typename?: 'ProfessionalOverview', totalPdus: number, activeCourses: number, upcomingEvents: number, professionalName?: string | null, completedCourses: number, certificatesEarned: number, yearlyPduGoalProgress: number };
 
@@ -32,11 +32,11 @@ export type ProfessionalPduMonthlyPointFieldsFragment = { __typename?: 'Professi
 
 export type ProfessionalPduActivityFileFieldsFragment = { __typename?: 'ProfessionalPduActivityFile', id: string, fileName: string, mimeType: string, sizeBytes: number, createdAt: string };
 
-export type ProfessionalPduActivityFieldsFragment = { __typename?: 'ProfessionalPduActivity', id: string, pdus: number, date: string, title: string, status: Types.PduStatus, source: Types.PduSource, category: Types.PduCategory, creditType: Types.CreditType, completionStatus: Types.PduCompletionStatus, reportingYear?: number | null, providerOrganizer?: string | null, subCategory?: string | null, issuingOrganization?: string | null, relatedCertification?: string | null, learningOutcome?: string | null, evidenceNote?: string | null, updatedAt: string, contentId?: string | null, createdAt: string, description?: string | null, evidenceUrl?: string | null, contentType?: Types.ContentType | null, evidenceFiles: Array<{ __typename?: 'ProfessionalPduActivityFile', id: string, fileName: string, mimeType: string, sizeBytes: number, createdAt: string }> };
+export type ProfessionalPduActivityFieldsFragment = { __typename?: 'ProfessionalPduActivity', id: string, pdus: number, date: string, title: string, status: Types.PduStatus, source: Types.PduSource, category: Types.PduCategory, creditType: Types.CreditType, completionStatus: Types.PduCompletionStatus, reportingYear?: number | null, providerOrganizer?: string | null, subCategory?: string | null, issuingOrganization?: string | null, relatedCertification?: string | null, learningOutcome?: string | null, evidenceNote?: string | null, updatedAt: string, contentId?: string | null, createdAt: string, description?: string | null, evidenceUrl?: string | null, contentType?: Types.ContentType | null, cpdPlanId?: string | null, evidenceFiles: Array<{ __typename?: 'ProfessionalPduActivityFile', id: string, fileName: string, mimeType: string, sizeBytes: number, createdAt: string }> };
 
 export type ProfessionalPduReportFieldsFragment = { __typename?: 'ProfessionalPduReport', year: number, totalPdus: number, activities: number, progressToGoal: number, averagePerMonth: number, targets: Array<{ __typename?: 'ProfessionalPduTarget', id: string, year: number, target: number, category: Types.PduCategory }>, byCategory: Array<{ __typename?: 'ProfessionalPduCategorySummary', pdus: number, category: Types.PduCategory }>, byMonth: Array<{ __typename?: 'ProfessionalPduMonthlyPoint', month: number, pdus: number }> };
 
-export type PaginatedProfessionalPduActivitiesFieldsFragment = { __typename?: 'PaginatedProfessionalPduActivities', totalCount: number, pageInfo: { __typename?: 'ProfessionalPageInfo', nextCursor?: string | null, hasNextPage: boolean }, items: Array<{ __typename?: 'ProfessionalPduActivity', id: string, pdus: number, date: string, title: string, status: Types.PduStatus, source: Types.PduSource, category: Types.PduCategory, creditType: Types.CreditType, completionStatus: Types.PduCompletionStatus, reportingYear?: number | null, providerOrganizer?: string | null, subCategory?: string | null, issuingOrganization?: string | null, relatedCertification?: string | null, learningOutcome?: string | null, evidenceNote?: string | null, updatedAt: string, contentId?: string | null, createdAt: string, description?: string | null, evidenceUrl?: string | null, contentType?: Types.ContentType | null, evidenceFiles: Array<{ __typename?: 'ProfessionalPduActivityFile', id: string, fileName: string, mimeType: string, sizeBytes: number, createdAt: string }> }> };
+export type PaginatedProfessionalPduActivitiesFieldsFragment = { __typename?: 'PaginatedProfessionalPduActivities', totalCount: number, pageInfo: { __typename?: 'ProfessionalPageInfo', nextCursor?: string | null, hasNextPage: boolean }, items: Array<{ __typename?: 'ProfessionalPduActivity', id: string, pdus: number, date: string, title: string, status: Types.PduStatus, source: Types.PduSource, category: Types.PduCategory, creditType: Types.CreditType, completionStatus: Types.PduCompletionStatus, reportingYear?: number | null, providerOrganizer?: string | null, subCategory?: string | null, issuingOrganization?: string | null, relatedCertification?: string | null, learningOutcome?: string | null, evidenceNote?: string | null, updatedAt: string, contentId?: string | null, createdAt: string, description?: string | null, evidenceUrl?: string | null, contentType?: Types.ContentType | null, cpdPlanId?: string | null, evidenceFiles: Array<{ __typename?: 'ProfessionalPduActivityFile', id: string, fileName: string, mimeType: string, sizeBytes: number, createdAt: string }> }> };
 
 export type ProfessionalPaymentFieldsFragment = { __typename?: 'ProfessionalPayment', id: string, title: string, amount: number, userId: string, status: Types.PaymentStatus, paidAt?: string | null, currency: string, contentId?: string | null, createdAt: string, updatedAt: string, receiptUrl?: string | null, contentType?: Types.ContentType | null, providerPaymentId?: string | null };
 
@@ -53,7 +53,7 @@ export type PaginatedProfessionalCertificatesFieldsFragment = { __typename?: 'Pa
 export type ProfessionalSettingsQueryVariables = Types.Exact<{ [key: string]: never; }>;
 
 
-export type ProfessionalSettingsQuery = { __typename?: 'Query', professionalSettings: { __typename?: 'ProfessionalSettings', id: string, theme: Types.Theme, userId: string, messages: boolean, updatedAt: string, createdAt: string, showEmail: boolean, loginAlerts: boolean, courseUpdates: boolean, eventReminders: boolean, showCertificates: boolean, profileVisibility: Types.ProfileVisibility, interfaceLanguage: Types.AppLanguage, pushNotifications: boolean, emailNotifications: boolean, showLearningProgress: boolean } };
+export type ProfessionalSettingsQuery = { __typename?: 'Query', professionalSettings: { __typename?: 'ProfessionalSettings', id: string, theme: Types.Theme, userId: string, updatedAt: string, createdAt: string, interfaceLanguage: Types.AppLanguage } };
 
 export type ProfessionalOverviewQueryVariables = Types.Exact<{ [key: string]: never; }>;
 
@@ -103,14 +103,14 @@ export type ProfessionalPduActivitiesQueryVariables = Types.Exact<{
 }>;
 
 
-export type ProfessionalPduActivitiesQuery = { __typename?: 'Query', professionalPduActivities: { __typename?: 'PaginatedProfessionalPduActivities', totalCount: number, pageInfo: { __typename?: 'ProfessionalPageInfo', nextCursor?: string | null, hasNextPage: boolean }, items: Array<{ __typename?: 'ProfessionalPduActivity', id: string, pdus: number, date: string, title: string, status: Types.PduStatus, source: Types.PduSource, category: Types.PduCategory, creditType: Types.CreditType, completionStatus: Types.PduCompletionStatus, reportingYear?: number | null, providerOrganizer?: string | null, subCategory?: string | null, issuingOrganization?: string | null, relatedCertification?: string | null, learningOutcome?: string | null, evidenceNote?: string | null, updatedAt: string, contentId?: string | null, createdAt: string, description?: string | null, evidenceUrl?: string | null, contentType?: Types.ContentType | null, evidenceFiles: Array<{ __typename?: 'ProfessionalPduActivityFile', id: string, fileName: string, mimeType: string, sizeBytes: number, createdAt: string }> }> } };
+export type ProfessionalPduActivitiesQuery = { __typename?: 'Query', professionalPduActivities: { __typename?: 'PaginatedProfessionalPduActivities', totalCount: number, pageInfo: { __typename?: 'ProfessionalPageInfo', nextCursor?: string | null, hasNextPage: boolean }, items: Array<{ __typename?: 'ProfessionalPduActivity', id: string, pdus: number, date: string, title: string, status: Types.PduStatus, source: Types.PduSource, category: Types.PduCategory, creditType: Types.CreditType, completionStatus: Types.PduCompletionStatus, reportingYear?: number | null, providerOrganizer?: string | null, subCategory?: string | null, issuingOrganization?: string | null, relatedCertification?: string | null, learningOutcome?: string | null, evidenceNote?: string | null, updatedAt: string, contentId?: string | null, createdAt: string, description?: string | null, evidenceUrl?: string | null, contentType?: Types.ContentType | null, cpdPlanId?: string | null, evidenceFiles: Array<{ __typename?: 'ProfessionalPduActivityFile', id: string, fileName: string, mimeType: string, sizeBytes: number, createdAt: string }> }> } };
 
 export type ProfessionalPduActivityQueryVariables = Types.Exact<{
   activityId: Types.Scalars['ID']['input'];
 }>;
 
 
-export type ProfessionalPduActivityQuery = { __typename?: 'Query', professionalPduActivity: { __typename?: 'ProfessionalPduActivity', id: string, pdus: number, date: string, title: string, status: Types.PduStatus, source: Types.PduSource, category: Types.PduCategory, creditType: Types.CreditType, completionStatus: Types.PduCompletionStatus, reportingYear?: number | null, providerOrganizer?: string | null, subCategory?: string | null, issuingOrganization?: string | null, relatedCertification?: string | null, learningOutcome?: string | null, evidenceNote?: string | null, updatedAt: string, contentId?: string | null, createdAt: string, description?: string | null, evidenceUrl?: string | null, contentType?: Types.ContentType | null, evidenceFiles: Array<{ __typename?: 'ProfessionalPduActivityFile', id: string, fileName: string, mimeType: string, sizeBytes: number, createdAt: string }> } };
+export type ProfessionalPduActivityQuery = { __typename?: 'Query', professionalPduActivity: { __typename?: 'ProfessionalPduActivity', id: string, pdus: number, date: string, title: string, status: Types.PduStatus, source: Types.PduSource, category: Types.PduCategory, creditType: Types.CreditType, completionStatus: Types.PduCompletionStatus, reportingYear?: number | null, providerOrganizer?: string | null, subCategory?: string | null, issuingOrganization?: string | null, relatedCertification?: string | null, learningOutcome?: string | null, evidenceNote?: string | null, updatedAt: string, contentId?: string | null, createdAt: string, description?: string | null, evidenceUrl?: string | null, contentType?: Types.ContentType | null, cpdPlanId?: string | null, evidenceFiles: Array<{ __typename?: 'ProfessionalPduActivityFile', id: string, fileName: string, mimeType: string, sizeBytes: number, createdAt: string }> } };
 
 export type ProfessionalPduActivitySummaryFieldsFragment = { __typename?: 'ProfessionalPduActivitySummary', completedActivities: number, activitiesWithEvidence: number, evidenceFilesCount: number };
 
@@ -125,7 +125,7 @@ export type ProfessionalContentCompletionQueryVariables = Types.Exact<{
 }>;
 
 
-export type ProfessionalContentCompletionQuery = { __typename?: 'Query', professionalContentCompletion?: { __typename?: 'ProfessionalPduActivity', id: string, pdus: number, date: string, title: string, status: Types.PduStatus, source: Types.PduSource, category: Types.PduCategory, creditType: Types.CreditType, completionStatus: Types.PduCompletionStatus, reportingYear?: number | null, providerOrganizer?: string | null, subCategory?: string | null, issuingOrganization?: string | null, relatedCertification?: string | null, learningOutcome?: string | null, evidenceNote?: string | null, updatedAt: string, contentId?: string | null, createdAt: string, description?: string | null, evidenceUrl?: string | null, contentType?: Types.ContentType | null, evidenceFiles: Array<{ __typename?: 'ProfessionalPduActivityFile', id: string, fileName: string, mimeType: string, sizeBytes: number, createdAt: string }> } | null };
+export type ProfessionalContentCompletionQuery = { __typename?: 'Query', professionalContentCompletion?: { __typename?: 'ProfessionalPduActivity', id: string, pdus: number, date: string, title: string, status: Types.PduStatus, source: Types.PduSource, category: Types.PduCategory, creditType: Types.CreditType, completionStatus: Types.PduCompletionStatus, reportingYear?: number | null, providerOrganizer?: string | null, subCategory?: string | null, issuingOrganization?: string | null, relatedCertification?: string | null, learningOutcome?: string | null, evidenceNote?: string | null, updatedAt: string, contentId?: string | null, createdAt: string, description?: string | null, evidenceUrl?: string | null, contentType?: Types.ContentType | null, cpdPlanId?: string | null, evidenceFiles: Array<{ __typename?: 'ProfessionalPduActivityFile', id: string, fileName: string, mimeType: string, sizeBytes: number, createdAt: string }> } | null };
 
 export type ProfessionalPaymentsQueryVariables = Types.Exact<{
   filter?: Types.InputMaybe<Types.ProfessionalSearchInput>;
@@ -198,12 +198,7 @@ export type UpdateProfessionalSettingsMutationVariables = Types.Exact<{
 }>;
 
 
-export type UpdateProfessionalSettingsMutation = { __typename?: 'Mutation', updateProfessionalSettings: { __typename?: 'ProfessionalSettings', id: string, theme: Types.Theme, userId: string, messages: boolean, updatedAt: string, createdAt: string, showEmail: boolean, loginAlerts: boolean, courseUpdates: boolean, eventReminders: boolean, showCertificates: boolean, profileVisibility: Types.ProfileVisibility, interfaceLanguage: Types.AppLanguage, pushNotifications: boolean, emailNotifications: boolean, showLearningProgress: boolean } };
-
-export type ResetProfessionalSettingsMutationVariables = Types.Exact<{ [key: string]: never; }>;
-
-
-export type ResetProfessionalSettingsMutation = { __typename?: 'Mutation', resetProfessionalSettings: { __typename?: 'ProfessionalSettings', id: string, theme: Types.Theme, userId: string, messages: boolean, updatedAt: string, createdAt: string, showEmail: boolean, loginAlerts: boolean, courseUpdates: boolean, eventReminders: boolean, showCertificates: boolean, profileVisibility: Types.ProfileVisibility, interfaceLanguage: Types.AppLanguage, pushNotifications: boolean, emailNotifications: boolean, showLearningProgress: boolean } };
+export type UpdateProfessionalSettingsMutation = { __typename?: 'Mutation', updateProfessionalSettings: { __typename?: 'ProfessionalSettings', id: string, theme: Types.Theme, userId: string, updatedAt: string, createdAt: string, interfaceLanguage: Types.AppLanguage } };
 
 export type UpdateProfessionalBasicProfileMutationVariables = Types.Exact<{
   input: Types.UpdateProfessionalBasicProfileInput;
@@ -276,14 +271,14 @@ export type CreateProfessionalPduActivityMutationVariables = Types.Exact<{
 }>;
 
 
-export type CreateProfessionalPduActivityMutation = { __typename?: 'Mutation', createProfessionalPduActivity: { __typename?: 'ProfessionalPduActivity', id: string, pdus: number, date: string, title: string, status: Types.PduStatus, source: Types.PduSource, category: Types.PduCategory, creditType: Types.CreditType, completionStatus: Types.PduCompletionStatus, reportingYear?: number | null, providerOrganizer?: string | null, subCategory?: string | null, issuingOrganization?: string | null, relatedCertification?: string | null, learningOutcome?: string | null, evidenceNote?: string | null, updatedAt: string, contentId?: string | null, createdAt: string, description?: string | null, evidenceUrl?: string | null, contentType?: Types.ContentType | null, evidenceFiles: Array<{ __typename?: 'ProfessionalPduActivityFile', id: string, fileName: string, mimeType: string, sizeBytes: number, createdAt: string }> } };
+export type CreateProfessionalPduActivityMutation = { __typename?: 'Mutation', createProfessionalPduActivity: { __typename?: 'ProfessionalPduActivity', id: string, pdus: number, date: string, title: string, status: Types.PduStatus, source: Types.PduSource, category: Types.PduCategory, creditType: Types.CreditType, completionStatus: Types.PduCompletionStatus, reportingYear?: number | null, providerOrganizer?: string | null, subCategory?: string | null, issuingOrganization?: string | null, relatedCertification?: string | null, learningOutcome?: string | null, evidenceNote?: string | null, updatedAt: string, contentId?: string | null, createdAt: string, description?: string | null, evidenceUrl?: string | null, contentType?: Types.ContentType | null, cpdPlanId?: string | null, evidenceFiles: Array<{ __typename?: 'ProfessionalPduActivityFile', id: string, fileName: string, mimeType: string, sizeBytes: number, createdAt: string }> } };
 
 export type UpdateProfessionalPduActivityMutationVariables = Types.Exact<{
   input: Types.UpdatePduActivityInput;
 }>;
 
 
-export type UpdateProfessionalPduActivityMutation = { __typename?: 'Mutation', updateProfessionalPduActivity: { __typename?: 'ProfessionalPduActivity', id: string, pdus: number, date: string, title: string, status: Types.PduStatus, source: Types.PduSource, category: Types.PduCategory, creditType: Types.CreditType, completionStatus: Types.PduCompletionStatus, reportingYear?: number | null, providerOrganizer?: string | null, subCategory?: string | null, issuingOrganization?: string | null, relatedCertification?: string | null, learningOutcome?: string | null, evidenceNote?: string | null, updatedAt: string, contentId?: string | null, createdAt: string, description?: string | null, evidenceUrl?: string | null, contentType?: Types.ContentType | null, evidenceFiles: Array<{ __typename?: 'ProfessionalPduActivityFile', id: string, fileName: string, mimeType: string, sizeBytes: number, createdAt: string }> } };
+export type UpdateProfessionalPduActivityMutation = { __typename?: 'Mutation', updateProfessionalPduActivity: { __typename?: 'ProfessionalPduActivity', id: string, pdus: number, date: string, title: string, status: Types.PduStatus, source: Types.PduSource, category: Types.PduCategory, creditType: Types.CreditType, completionStatus: Types.PduCompletionStatus, reportingYear?: number | null, providerOrganizer?: string | null, subCategory?: string | null, issuingOrganization?: string | null, relatedCertification?: string | null, learningOutcome?: string | null, evidenceNote?: string | null, updatedAt: string, contentId?: string | null, createdAt: string, description?: string | null, evidenceUrl?: string | null, contentType?: Types.ContentType | null, cpdPlanId?: string | null, evidenceFiles: Array<{ __typename?: 'ProfessionalPduActivityFile', id: string, fileName: string, mimeType: string, sizeBytes: number, createdAt: string }> } };
 
 export type DeleteProfessionalPduActivityMutationVariables = Types.Exact<{
   activityId: Types.Scalars['ID']['input'];
@@ -400,19 +395,9 @@ export const ProfessionalSettingsFieldsFragmentDoc = /*#__PURE__*/ new TypedDocu
   id
   theme
   userId
-  messages
   updatedAt
   createdAt
-  showEmail
-  loginAlerts
-  courseUpdates
-  eventReminders
-  showCertificates
-  profileVisibility
   interfaceLanguage
-  pushNotifications
-  emailNotifications
-  showLearningProgress
 }
     `, {"fragmentName":"ProfessionalSettingsFields"}) as unknown as TypedDocumentString<ProfessionalSettingsFieldsFragment, unknown>;
 export const ProfessionalOverviewFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
@@ -737,6 +722,7 @@ export const ProfessionalPduActivityFieldsFragmentDoc = /*#__PURE__*/ new TypedD
   description
   evidenceUrl
   contentType
+  cpdPlanId
   evidenceFiles {
     ...ProfessionalPduActivityFileFields
   }
@@ -792,6 +778,7 @@ fragment ProfessionalPduActivityFields on ProfessionalPduActivity {
   description
   evidenceUrl
   contentType
+  cpdPlanId
   evidenceFiles {
     ...ProfessionalPduActivityFileFields
   }
@@ -1273,19 +1260,9 @@ export const ProfessionalSettingsDocument = /*#__PURE__*/ new TypedDocumentStrin
   id
   theme
   userId
-  messages
   updatedAt
   createdAt
-  showEmail
-  loginAlerts
-  courseUpdates
-  eventReminders
-  showCertificates
-  profileVisibility
   interfaceLanguage
-  pushNotifications
-  emailNotifications
-  showLearningProgress
 }`) as unknown as TypedDocumentString<ProfessionalSettingsQuery, ProfessionalSettingsQueryVariables>;
 export const ProfessionalOverviewDocument = /*#__PURE__*/ new TypedDocumentString(`
     query ProfessionalOverview {
@@ -1558,6 +1535,7 @@ fragment ProfessionalPduActivityFields on ProfessionalPduActivity {
   description
   evidenceUrl
   contentType
+  cpdPlanId
   evidenceFiles {
     ...ProfessionalPduActivityFileFields
   }
@@ -1607,6 +1585,7 @@ fragment ProfessionalPduActivityFields on ProfessionalPduActivity {
   description
   evidenceUrl
   contentType
+  cpdPlanId
   evidenceFiles {
     ...ProfessionalPduActivityFileFields
   }
@@ -1658,6 +1637,7 @@ fragment ProfessionalPduActivityFields on ProfessionalPduActivity {
   description
   evidenceUrl
   contentType
+  cpdPlanId
   evidenceFiles {
     ...ProfessionalPduActivityFileFields
   }
@@ -1932,44 +1912,10 @@ export const UpdateProfessionalSettingsDocument = /*#__PURE__*/ new TypedDocumen
   id
   theme
   userId
-  messages
   updatedAt
   createdAt
-  showEmail
-  loginAlerts
-  courseUpdates
-  eventReminders
-  showCertificates
-  profileVisibility
   interfaceLanguage
-  pushNotifications
-  emailNotifications
-  showLearningProgress
 }`) as unknown as TypedDocumentString<UpdateProfessionalSettingsMutation, UpdateProfessionalSettingsMutationVariables>;
-export const ResetProfessionalSettingsDocument = /*#__PURE__*/ new TypedDocumentString(`
-    mutation ResetProfessionalSettings {
-  resetProfessionalSettings {
-    ...ProfessionalSettingsFields
-  }
-}
-    fragment ProfessionalSettingsFields on ProfessionalSettings {
-  id
-  theme
-  userId
-  messages
-  updatedAt
-  createdAt
-  showEmail
-  loginAlerts
-  courseUpdates
-  eventReminders
-  showCertificates
-  profileVisibility
-  interfaceLanguage
-  pushNotifications
-  emailNotifications
-  showLearningProgress
-}`) as unknown as TypedDocumentString<ResetProfessionalSettingsMutation, ResetProfessionalSettingsMutationVariables>;
 export const UpdateProfessionalBasicProfileDocument = /*#__PURE__*/ new TypedDocumentString(`
     mutation UpdateProfessionalBasicProfile($input: UpdateProfessionalBasicProfileInput!) {
   updateProfessionalBasicProfile(input: $input) {
@@ -2628,6 +2574,7 @@ fragment ProfessionalPduActivityFields on ProfessionalPduActivity {
   description
   evidenceUrl
   contentType
+  cpdPlanId
   evidenceFiles {
     ...ProfessionalPduActivityFileFields
   }
@@ -2668,6 +2615,7 @@ fragment ProfessionalPduActivityFields on ProfessionalPduActivity {
   description
   evidenceUrl
   contentType
+  cpdPlanId
   evidenceFiles {
     ...ProfessionalPduActivityFileFields
   }

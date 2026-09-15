@@ -85,6 +85,10 @@ const ProfessionalCpdPduProgressTab = () => {
             onDelete={cpd.requestDelete}
             onSelect={cpd.setSelectedPlanId}
             selectedPlanId={cpd.selectedPlanId}
+            onEdit={(planId) => {
+              const plan = cpd.plans.find((item) => item.id === planId);
+              if (plan) cpd.editPlan(plan);
+            }}
           />
 
           {cpd.isProgressLoading || !cpd.progress || !cpd.selectedPlan ? (
