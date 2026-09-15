@@ -52,7 +52,7 @@ export const useAssociationRequirementsTab = () => {
   const step: REQ.TRequirementWizardStep =
     REQ.REQUIREMENT_WIZARD_STEPS.find((known) => known === stepParam) ??
     "details";
-  const isWizard = Boolean(requirementId) && Boolean(stepParam);
+  const isWizard = Boolean(stepParam);
   const isDetail = Boolean(requirementId) && !stepParam;
 
   const [search, setSearch] = useState("");
