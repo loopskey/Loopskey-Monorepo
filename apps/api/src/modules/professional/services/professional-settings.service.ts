@@ -38,28 +38,6 @@ export class ProfessionalSettingsService {
     });
   }
 
-  async resetSettings(user: TUser) {
-    this.assertProfessional(user);
-    return this.prismaService.professionalSettings.upsert({
-      where: { userId: user.id },
-      create: { userId: user.id },
-      update: {
-        messages: true,
-        theme: "SYSTEM",
-        showEmail: false,
-        loginAlerts: true,
-        courseUpdates: true,
-        eventReminders: true,
-        showCertificates: true,
-        pushNotifications: true,
-        interfaceLanguage: "EN",
-        emailNotifications: true,
-        showLearningProgress: true,
-        profileVisibility: "PUBLIC",
-      },
-    });
-  }
-
   async activeSessions(user: TUser) {
     this.assertProfessional(user);
     return this.identity.activeSessions(user.id);

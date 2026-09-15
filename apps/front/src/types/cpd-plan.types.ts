@@ -10,10 +10,11 @@ export type TCpdPlanProgress = API.CpdPlanProgressFieldsFragment;
 export type TCertification = API.CertificationFieldsFragment;
 export type TCpdRecipientOption = API.CpdReportRecipientOptionFieldsFragment;
 
-export type CpdSetupMode = "manual" | "editSuggestion";
+export type CpdSetupMode = "manual" | "editSuggestion" | "edit";
 
 export type CpdSetupState = {
   mode: CpdSetupMode;
+  planId?: string;
   certificationId?: string;
   initial: CpdPlanFormInput;
 };
@@ -63,6 +64,7 @@ export type CpdPlanSelectorProps = {
   selectedPlanId: string | null;
   onSelect: (planId: string) => void;
   onDelete: (planId: string) => void;
+  onEdit: (planId: string) => void;
 };
 
 export type CpdProgressOverviewProps = {

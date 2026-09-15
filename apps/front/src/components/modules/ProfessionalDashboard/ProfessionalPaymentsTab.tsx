@@ -213,7 +213,7 @@ const ProfessionalPaymentsTab = () => {
             </p>
 
             <Button className="mt-5" radius="xl" asChild>
-              <Link href="/courses">
+              <Link href="/content">
                 {t("professionalDashboard.payments.browseCourses")}
               </Link>
             </Button>

@@ -40,6 +40,7 @@ const ProfessionalAddActivityTab = () => {
     handleFilesChange,
     activityTypeOptions,
     subCategoryOptions,
+    planOptions,
     isLoadingActivity,
     markReportingYearTouched,
     handleRemoveExistingFile,
@@ -106,6 +107,7 @@ const ProfessionalAddActivityTab = () => {
               <ActivityStepCredits
                 t={t}
                 control={form.control}
+                planOptions={planOptions}
                 subCategoryOptions={subCategoryOptions}
                 onReportingYearTouched={markReportingYearTouched}
               />

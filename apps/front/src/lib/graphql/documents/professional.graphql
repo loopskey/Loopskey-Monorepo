@@ -7,19 +7,9 @@ fragment ProfessionalSettingsFields on ProfessionalSettings {
   id
   theme
   userId
-  messages
   updatedAt
   createdAt
-  showEmail
-  loginAlerts
-  courseUpdates
-  eventReminders
-  showCertificates
-  profileVisibility
   interfaceLanguage
-  pushNotifications
-  emailNotifications
-  showLearningProgress
 }
 
 fragment ProfessionalOverviewFields on ProfessionalOverview {
@@ -233,6 +223,7 @@ fragment ProfessionalPduActivityFields on ProfessionalPduActivity {
   description
   evidenceUrl
   contentType
+  cpdPlanId
   evidenceFiles {
     ...ProfessionalPduActivityFileFields
   }
@@ -504,12 +495,6 @@ mutation DeleteProfessionalCertificate($id: ID!) {
 
 mutation UpdateProfessionalSettings($input: UpdateProfessionalSettingsInput!) {
   updateProfessionalSettings(input: $input) {
-    ...ProfessionalSettingsFields
-  }
-}
-
-mutation ResetProfessionalSettings {
-  resetProfessionalSettings {
     ...ProfessionalSettingsFields
   }
 }

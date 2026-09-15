@@ -384,30 +384,8 @@ const seedProfessionalSettings = async (
           : index % 3 === 1
             ? P.AppTheme.LIGHT
             : P.AppTheme.DARK,
-
-      emailNotifications: true,
-      pushNotifications: index % 2 === 0,
-      courseUpdates: true,
-      messages: true,
-      eventReminders: true,
-      loginAlerts: true,
-
-      profileVisibility:
-        index % 4 === 0
-          ? P.ProfileVisibility.FOLLOWERS_ONLY
-          : P.ProfileVisibility.PUBLIC,
-
-      showEmail: index % 5 === 0,
-      showLearningProgress: true,
-      showCertificates: true,
     },
     update: {
-      messages: true,
-      loginAlerts: true,
-      courseUpdates: true,
-      eventReminders: true,
-      showCertificates: true,
-      showLearningProgress: true,
       interfaceLanguage: P.AppLanguage.EN,
     },
   });

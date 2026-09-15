@@ -1,10 +1,8 @@
 "use client";
 
-import { ProfessionalNotificationSettingsPanel } from "@modules/ProfessionalDashboard/parts/professional-notification-settings-panel";
-import { Bell, Palette, RefreshCcw, Shield } from "lucide-react";
+import { Palette, RefreshCcw, Shield } from "lucide-react";
 import { ProfessionalSecuritySettingsPanel } from "@modules/ProfessionalDashboard/parts/professional-security-setting-panel";
 import { ProfessionalGeneralSettingsPanel } from "@modules/ProfessionalDashboard/parts/professional-general-settings-panel";
-import { ProfessionalPrivacySettingsPanel } from "@modules/ProfessionalDashboard/parts/professional-privacy-setting-panel";
 import { useProfessionalSettingsTab } from "@/hooks/useProfessionalSettingstab";
 import { TSettingsTab } from "@/types/professional-dashboard.types";
 import { AnimatedTabs } from "@elements/animated-tabs";
@@ -22,14 +20,6 @@ const ProfessionalSettingsTab = () => {
     {
       value: "general",
       label: t("professionalDashboard.settings.tabs.general"),
-    },
-    {
-      value: "notifications",
-      label: t("professionalDashboard.settings.tabs.notifications"),
-    },
-    {
-      value: "privacy",
-      label: t("professionalDashboard.settings.tabs.privacy"),
     },
     {
       value: "security",
@@ -71,14 +61,6 @@ const ProfessionalSettingsTab = () => {
       <GlassCard>
         {activeTab === "general" && (
           <ProfessionalGeneralSettingsPanel icon={Palette} hook={hook} />
-        )}
-
-        {activeTab === "notifications" && (
-          <ProfessionalNotificationSettingsPanel icon={Bell} hook={hook} />
-        )}
-
-        {activeTab === "privacy" && (
-          <ProfessionalPrivacySettingsPanel icon={Shield} hook={hook} />
         )}
 
         {activeTab === "security" && (

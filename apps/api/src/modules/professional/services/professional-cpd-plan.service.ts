@@ -283,8 +283,14 @@ export class ProfessionalCpdPlanService {
     return {
       userId: user.id,
       status: COUNTED_STATUS,
-      creditType: plan.creditType,
-      date: { gte: plan.reportingStart, lte: plan.reportingEnd },
+      OR: [
+        { cpdPlanId: plan.id },
+        {
+          cpdPlanId: null,
+          creditType: plan.creditType,
+          date: { gte: plan.reportingStart, lte: plan.reportingEnd },
+        },
+      ],
     };
   }
 

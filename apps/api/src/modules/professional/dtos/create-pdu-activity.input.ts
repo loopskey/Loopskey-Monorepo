@@ -1,5 +1,5 @@
 import { IsOptional, IsString, MaxLength } from "class-validator";
-import { Field, Float, InputType, Int } from "@nestjs/graphql";
+import { Field, Float, ID, InputType, Int } from "@nestjs/graphql";
 import { IsDateString, IsEnum, IsInt } from "class-validator";
 import { ProfessionalGqlInputNames } from "@professional/enums/gql-names.enum";
 import { ContentType, CreditType } from "@prisma/client";
@@ -66,4 +66,9 @@ export class CreatePduActivityInput {
   @IsOptional()
   @IsEnum(ContentType)
   contentType?: ContentType;
+
+  @Field(() => ID, { nullable: true })
+  @IsOptional()
+  @IsString()
+  cpdPlanId?: string;
 }

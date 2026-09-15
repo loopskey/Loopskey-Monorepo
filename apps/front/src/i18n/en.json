@@ -48,6 +48,7 @@
     "setup": {
       "titleManual": "Add CPD/PDU manually",
       "titleSuggestion": "Review your CPD/PDU setup",
+      "titleEdit": "Edit CPD/PDU plan",
       "subtitle": "Complete the four steps to create your plan.",
       "step1": {
         "title": "Certification Details",
@@ -105,7 +106,8 @@
         "deleteConfirmDescription": "This will remove"
       },
       "actions": {
-        "create": "Create CPD Plan"
+        "create": "Create CPD Plan",
+        "save": "Save Changes"
       },
       "unsaved": {
         "title": "Discard changes?",
@@ -177,6 +179,7 @@
     },
     "progress": {
       "planLabel": "Plan",
+      "editPlan": "Edit plan",
       "deletePlan": "Delete plan",
       "cards": {
         "earned": "Earned",
@@ -222,6 +225,8 @@
     "toast": {
       "planCreated": "CPD/PDU plan created.",
       "createError": "Could not create the plan. Please try again.",
+      "planUpdated": "CPD/PDU plan updated.",
+      "updateError": "Could not update the plan. Please try again.",
       "planDeleted": "Plan deleted.",
       "deleteError": "Could not delete the plan.",
       "summaryReady": "CPD summary downloaded.",
@@ -3673,18 +3678,12 @@
     "settings": {
       "eyebrow": "Professional Settings",
       "title": "Settings",
-      "description": "Personalize your LoopsKey experience: language, theme, notifications and profile visibility.",
+      "description": "Personalize your LoopsKey experience: language and account security.",
       "saved": "Settings saved successfully.",
       "profileSaved": "Profile updated successfully.",
-      "resetDone": "Settings reset to default.",
       "saveChanges": "Save changes",
-      "saveNotifications": "Save notification settings",
-      "savePrivacy": "Save privacy settings",
-      "resetDefault": "Reset to default",
       "tabs": {
         "general": "General",
-        "notifications": "Notifications",
-        "privacy": "Privacy",
         "security": "Security"
       },
       "general": {
@@ -3694,41 +3693,6 @@
         "languageHint": "Choose the language used across your dashboard.",
         "note": "These settings affect only your personal dashboard experience.",
         "save": "Save changes"
-      },
-      "notifications": {
-        "title": "Notifications",
-        "description": "Choose how LoopsKey keeps you informed about important updates.",
-        "emailNotifications": "Email notifications",
-        "emailNotificationsDescription": "Receive important updates and alerts via email.",
-        "pushNotifications": "Push notifications",
-        "pushNotificationsDescription": "Allow in-browser or in-app notifications for key events.",
-        "courseUpdates": "Course updates",
-        "courseUpdatesDescription": "Get notified when your enrolled courses are updated.",
-        "messages": "Messages",
-        "messagesDescription": "Alerts for new messages from providers or admins.",
-        "eventReminders": "Event reminders",
-        "eventRemindersDescription": "Reminders for upcoming sessions, deadlines and events.",
-        "loginAlerts": "Login alerts",
-        "loginAlertsDescription": "Get notified when a new login is detected on your account.",
-        "save": "Save notification settings"
-      },
-      "privacy": {
-        "title": "Profile & Privacy",
-        "description": "Control what others can see on your public LoopsKey profile.",
-        "public": "Public",
-        "publicDescription": "Visible to everyone on LoopsKey.",
-        "followersOnly": "Followers only",
-        "followersOnlyDescription": "Visible only to your accepted followers.",
-        "private": "Private",
-        "privateDescription": "Only you can see your full profile.",
-        "showEmail": "Show email",
-        "showEmailDescription": "Allow collaborators to contact you directly.",
-        "showLearningProgress": "Show learning progress",
-        "showLearningProgressDescription": "Display your learning journey publicly.",
-        "showCertificates": "Show certificates",
-        "showCertificatesDescription": "Allow others to view your verified certificates.",
-        "save": "Save privacy settings",
-        "reset": "Reset to default"
       },
       "profile": {
         "bio": "Bio",
@@ -3965,6 +3929,9 @@
         "reportingYearHint": "Defaults to the year of the completion date.",
         "issuingOrganization": "Issuing organization",
         "relatedCertification": "Related certification / licence",
+        "cpdPlan": "CPD/PDU plan",
+        "cpdPlanHint": "Attribute this activity's credits to one of your plans. Leave unselected to count it toward your overall progress as usual.",
+        "cpdPlanPlaceholder": "No plan selected",
         "description": "Activity description / notes",
         "descriptionPlaceholder": "Briefly describe the activity.",
         "evidenceNote": "File notes",
@@ -4361,13 +4328,6 @@
           "duration": "Duration in minutes (optional)",
           "notes": "Notes (optional)"
         }
-      },
-      "cards": {
-        "totalEvents": "Total events",
-        "upcoming": "Upcoming",
-        "live": "Live now",
-        "completed": "Completed",
-        "totalPdus": "Total PDUs"
       },
       "filters": {
         "searchLabel": "Search",

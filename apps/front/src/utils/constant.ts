@@ -316,21 +316,6 @@ export const getDefaultRange = (): TSelectedRange => {
   };
 };
 
-export const visibilityItems = [
-  {
-    value: "PUBLIC",
-    key: "public",
-  },
-  {
-    value: "FOLLOWERS_ONLY",
-    key: "followersOnly",
-  },
-  {
-    value: "PRIVATE",
-    key: "private",
-  },
-] as const;
-
 export const contentTypeIcon = {
   COURSE: L.BookOpen,
   EVENT: L.CalendarDays,

@@ -12,7 +12,6 @@ import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
 import { Input } from "@ui/input";
 import { Label } from "@ui/label";
-import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 
@@ -42,7 +41,6 @@ const ProfessionalWishlistTab = () => {
     updateFilter,
     resetFilters,
     handleRemove,
-    handleRefresh,
     wishlistItems,
     isFilteredEmpty,
     hasActiveFilters,
@@ -78,18 +76,6 @@ const ProfessionalWishlistTab = () => {
               {t("common.reset")}
             </Button>
           )}
-
-          <Button
-            radius="xl"
-            type="button"
-            disabled={isFetching}
-            onClick={handleRefresh}
-          >
-            <L.RefreshCcw
-              className={cn("h-4 w-4", isFetching && "animate-spin")}
-            />
-            {t("common.refresh")}
-          </Button>
         </div>
       </div>
 

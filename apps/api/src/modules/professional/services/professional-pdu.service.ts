@@ -110,6 +110,15 @@ export class ProfessionalPduService {
     return activity;
   }
 
+  private async assertOwnedPlan(user: TUser, cpdPlanId: string) {
+    const plan = await this.prismaService.cPDPlan.findFirst({
+      where: { id: cpdPlanId, userId: user.id },
+      select: { id: true },
+    });
+    if (!plan)
+      throw new NotFoundException(ProfessionalMessageCode.CPD_PLAN_NOT_FOUND);
+  }
+
   async pduReport(user: TUser, year = new Date().getFullYear()) {
     this.assertProfessional(user);
     const { start, end } = this.yearWindow(year);
@@ -337,6 +346,7 @@ export class ProfessionalPduService {
 
   async createPduActivity(user: TUser, input: CreatePduActivityInput) {
     this.assertProfessional(user);
+    if (input.cpdPlanId) await this.assertOwnedPlan(user, input.cpdPlanId);
     const { date, contentId, contentType, ...rest } = input;
     const data = {
       ...rest,
@@ -412,6 +422,7 @@ export class ProfessionalPduService {
     this.assertProfessional(user);
     const { activityId, date, ...rest } = input;
     await this.findOwnedActivity(user, activityId);
+    if (input.cpdPlanId) await this.assertOwnedPlan(user, input.cpdPlanId);
     return this.prismaService.$transaction(async (tx) => {
       const updated = await tx.pDUActivity.update({
         where: { id: activityId },
