@@ -54,3 +54,10 @@ node_modules
 
 # Deployment backups written by scripts/deploy.sh
 /backups/
+
+
+# Scratch space for local audits and throwaway databases.
+/.tmp/
+
+# Browser artifacts written by the Playwright MCP server.
+/.playwright-mcp/
