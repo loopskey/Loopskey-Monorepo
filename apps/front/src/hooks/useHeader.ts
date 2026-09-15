@@ -21,6 +21,7 @@ export const useHeader = () => {
     });
 
   const isAuthenticated = Boolean(currentUserData?.user);
+  const currentUserRole = currentUserData?.user?.role;
 
   const navItems = useMemo<TNavItem[]>(() => {
     return [
@@ -80,6 +81,7 @@ export const useHeader = () => {
     isUserFetching,
     openMobileMenu,
     isAuthenticated,
+    currentUserRole,
     isActiveNavItem,
     closeMobileMenu,
     toggleMobileMenu,

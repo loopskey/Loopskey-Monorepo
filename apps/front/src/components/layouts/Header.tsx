@@ -1,6 +1,9 @@
 "use client";
 
-import { getAuthHrefForSolutionHref } from "@utils/constant";
+import {
+  getAuthHrefForSolutionHref,
+  getSolutionHrefForRole,
+} from "@utils/constant";
 import { LanguageToggleBtn } from "@elements/language-switcher";
 import { RoleMenuSection } from "@layouts/parts/role-menu-section";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
@@ -25,13 +28,19 @@ const Header = () => {
     isLandingPage,
     isMobileOpen,
     isAuthenticated,
+    currentUserRole,
     isActiveNavItem,
     closeMobileMenu,
     toggleMobileMenu,
   } = useHeader();
   const { activeRoleHref } = useActiveRole();
   const joinHref = getAuthHrefForSolutionHref(activeRoleHref);
-  const showRoleStrip = isLandingPage && !isAuthenticated;
+  const authenticatedRoleHref =
+    isAuthenticated && currentUserRole
+      ? getSolutionHrefForRole(currentUserRole)
+      : undefined;
+  const showRoleStrip = isLandingPage;
+  const showRoleMenuMobile = isLandingPage && !isAuthenticated;
   const prefersReducedMotion = useMediaQuery(
     "(prefers-reduced-motion: reduce)",
   );
@@ -48,7 +57,7 @@ const Header = () => {
         isScrolled ? "border-b shadow-sm" : "border-b",
       )}
     >
-      {showRoleStrip && <RoleStrip />}
+      {showRoleStrip && <RoleStrip lockedHref={authenticatedRoleHref} />}
 
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Logo />
@@ -160,7 +169,7 @@ const Header = () => {
               );
             })}
 
-            {showRoleStrip && (
+            {showRoleMenuMobile && (
               <div
                 style={{ transitionDelay: staggerDelay(navItems.length) }}
                 className={cn(
@@ -170,7 +179,7 @@ const Header = () => {
                     : "-translate-y-2 opacity-0",
                 )}
               >
-                <RoleMenuSection onSelect={closeMobileMenu} />
+                <RoleMenuSection />
               </div>
             )}
 
@@ -178,8 +187,8 @@ const Header = () => {
               style={{ transitionDelay: staggerDelay(navItems.length + 1) }}
               className={cn(
                 "mt-2 pt-4 transition-all duration-300",
-                showRoleStrip && "border-t-0",
-                !showRoleStrip && "border-t border-border/70",
+                showRoleMenuMobile && "border-t-0",
+                !showRoleMenuMobile && "border-t border-border/70",
                 isMobileOpen
                   ? "translate-y-0 opacity-100"
                   : "-translate-y-2 opacity-0",
