@@ -132,28 +132,22 @@ const Footer = () => {
             </div>
           </div>
 
-          <div>
+          <div className="grid grid-cols-2 gap-x-6 gap-y-10 md:contents">
             <FooterColumn
               title={t("footer.columns.solutions")}
               links={solutionLinks}
             />
-          </div>
 
-          <div>
             <FooterColumn
               title={t("footer.columns.support")}
               links={supportLinks}
             />
-          </div>
 
-          <div>
             <FooterColumn
               title={t("footer.columns.legal")}
               links={legalLinks}
             />
-          </div>
 
-          <div>
             <FooterColumn
               title={t("footer.columns.company")}
               links={companyLinks}
