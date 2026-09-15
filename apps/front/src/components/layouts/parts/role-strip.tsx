@@ -10,8 +10,8 @@ export const RoleStrip = () => {
   const { activeRoleHref, setActiveRoleHref } = useActiveRole();
 
   return (
-    <div className="h-10 w-full border-b border-border/70 bg-primary/5">
-      <div className="mx-auto flex h-10 max-w-7xl items-center gap-1 overflow-x-auto px-4 sm:px-6 lg:px-8">
+    <div className="hidden h-10 w-full border-b border-border/70 bg-primary/5 lg:block">
+      <div className="mx-auto flex h-10 max-w-7xl items-center gap-1 px-4 sm:px-6 lg:px-8">
         {solutionEntries.map((entry) => {
           const isActive = entry.href === activeRoleHref;
 
