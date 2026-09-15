@@ -1,7 +1,7 @@
 import { CourseCategory, CourseLevel, CourseStatus } from "@prisma/client";
 import { Field, Float, ID, Int, ObjectType } from "@nestjs/graphql";
-import { CourseGqlObjectNames } from "@course/enums/gql-names.enum";
 import { CurriculumSectionEntity } from "./curriculum-section.entity";
+import { CourseGqlObjectNames } from "@course/enums/gql-names.enum";
 
 @ObjectType(CourseGqlObjectNames.COURSE)
 export class CourseEntity {
@@ -27,6 +27,7 @@ export class CourseEntity {
   @Field(() => Float, { nullable: true }) price?: number | null;
   @Field(() => Date, { nullable: true }) deletedAt?: Date | null;
   @Field(() => String, { nullable: true }) imageUrl?: string | null;
+  @Field(() => String, { nullable: true }) sourceUrl?: string | null;
   @Field(() => String, { nullable: true }) providerId?: string | null;
   @Field(() => Int, { nullable: true }) durationMinutes?: number | null;
   @Field(() => [CurriculumSectionEntity], { nullable: true })

@@ -95,6 +95,7 @@ const PodcastDetailPage = ({ slug }: { slug: string }) => {
           actions={
             <DetailHeroActions
               contentType={ContentType.Podcast}
+              sourceUrl={podcast.sourceUrl}
               prefill={calendarPrefill}
               completed={{
                 title: podcast.title,

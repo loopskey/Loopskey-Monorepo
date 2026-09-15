@@ -36,6 +36,7 @@ export class EventEntity {
   @Field(() => String, { nullable: true }) location?: string | null;
   @Field(() => String, { nullable: true }) organizer?: string | null;
   @Field(() => String, { nullable: true }) onlineUrl?: string | null;
+  @Field(() => String, { nullable: true }) sourceUrl?: string | null;
   @Field(() => String, { nullable: true }) providerId?: string | null;
   @Field(() => String, { nullable: true }) specificTopic?: string | null;
   @Field(() => Float, { nullable: true }) earlyBirdDiscount?: number | null;

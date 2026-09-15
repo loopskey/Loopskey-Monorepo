@@ -72,6 +72,7 @@ const CourseDetailPage = ({ slug }: TCourseDetailPageProps) => {
           actions={
             <DetailHeroActions
               contentType={ContentType.Course}
+              sourceUrl={course.sourceUrl}
               prefill={calendarPrefill}
               completed={{
                 title: course.title,
