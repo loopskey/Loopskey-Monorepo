@@ -7,20 +7,35 @@ import { isDashboardTabActive } from "@/utils/dashboard-nav.config";
 import { useCurrentUserQuery } from "@/lib/rtk/endpoints/auth.api";
 import { getDashboardPath } from "@/utils/constant";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useI18n } from "@/hooks/useI18n";
 import { cn } from "@/lib/utils";
 
 import Link from "next/link";
+
+const ACTIVE_TAB_PEEK_MS = 2000;
 
 export const DashboardSidebar = () => {
   const { t } = useI18n();
   const searchParams = useSearchParams();
   const { data, isLoading, isFetching } = useCurrentUserQuery();
   const [peekedTab, setPeekedTab] = useState<string | null>(null);
+  const peekTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const role = data?.user?.role;
   const activeTab = searchParams?.get("tab") ?? "overview";
+
+  useEffect(() => {
+    setPeekedTab(activeTab);
+    if (peekTimeoutRef.current) clearTimeout(peekTimeoutRef.current);
+    peekTimeoutRef.current = setTimeout(() => {
+      setPeekedTab(null);
+    }, ACTIVE_TAB_PEEK_MS);
+    return () => {
+      if (peekTimeoutRef.current) clearTimeout(peekTimeoutRef.current);
+    };
+  }, [activeTab]);
+
   if (isLoading || isFetching || !role) return <DashboardSidebarSkeleton />;
   const tabs = getDashboardTabsByRole(role);
 
@@ -43,7 +58,10 @@ export const DashboardSidebar = () => {
                 data-active={isActive}
               >
                 <Tooltip
-                  open={isActive || peekedTab === item.value}
+                  open={
+                    peekedTab !== null &&
+                    isDashboardTabActive(item.value, peekedTab)
+                  }
                   onOpenChange={(open) =>
                     setPeekedTab(open ? item.value : null)
                   }

@@ -35,8 +35,8 @@ const ProfessionalCertificatesTab = () => {
     certificates,
     handleViewAll,
     issuerOptions,
-    handleRefresh,
     handleDownload,
+    handleRetryAfterError,
     isPlansLoading,
     handlePrevious,
     isSummaryError,
@@ -72,26 +72,7 @@ const ProfessionalCertificatesTab = () => {
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <Button
-            radius="xl"
-            type="button"
-            variant="outline"
-            disabled={isFetching}
-            onClick={handleRefresh}
-          >
-            {isFetching ? (
-              <L.Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-            ) : (
-              <L.RefreshCw className="h-4 w-4" aria-hidden />
-            )}
-            {t("professionalDashboard.common.refresh")}
-          </Button>
-
-          <Button
-            radius="xl"
-            type="button"
-            onClick={handleUpload}
-          >
+          <Button radius="xl" type="button" onClick={handleUpload}>
             <L.UploadCloud className="h-4 w-4" aria-hidden />
             {t(`${CERTIFICATES}.uploadCertificate`)}
           </Button>
@@ -164,7 +145,7 @@ const ProfessionalCertificatesTab = () => {
                 type="button"
                 variant="outline"
                 className="mt-5"
-                onClick={handleRefresh}
+                onClick={handleRetryAfterError}
               >
                 <L.RefreshCw className="h-4 w-4" aria-hidden />
                 {t("professionalDashboard.common.refresh")}

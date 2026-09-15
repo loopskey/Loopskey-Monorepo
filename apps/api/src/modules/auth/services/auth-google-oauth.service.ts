@@ -115,7 +115,6 @@ export class AuthGoogleOAuthService {
         where: { id: user.id },
         data: {
           lastLoginAt: new Date(),
-          avatarUrl: user.avatarUrl ?? profile.avatarUrl,
           emailVerifiedAt: user.emailVerifiedAt ?? new Date(),
         },
       });

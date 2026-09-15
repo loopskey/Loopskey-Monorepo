@@ -16,7 +16,15 @@ import Link from "next/link";
 
 import * as D from "@ui/dropdown-menu";
 
-export const UserMenu = () => {
+type TUserMenuProps = {
+  variant?: "dropdown" | "inline";
+  onNavigate?: () => void;
+};
+
+export const UserMenu = ({
+  onNavigate,
+  variant = "dropdown",
+}: TUserMenuProps = {}) => {
   const { t } = useI18n();
   const router = useRouter();
 
@@ -37,12 +45,69 @@ export const UserMenu = () => {
     try {
       await logout().unwrap();
       notify.success(t("userMenu.logout"));
+      onNavigate?.();
       router.replace(siteLinks.home);
       router.refresh();
     } catch {
       notify.error(t("authPages.common.genericError"));
     }
   };
+
+  if (variant === "inline") {
+    return (
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-3 rounded-md bg-primary/5 p-3">
+          <UserAvatar
+            email={user.email}
+            fullName={user.fullName}
+            avatarUrl={user.avatarUrl}
+            className="h-11 w-11 border border-primary/20"
+            fallbackClassName="bg-primary/10 font-bold text-primary"
+          />
+
+          <div className="min-w-0">
+            <p className="truncate text-sm font-bold">
+              {user.fullName ?? "User"}
+            </p>
+            <p className="truncate text-xs text-muted-foreground">
+              {user.email}
+            </p>
+            <p className="mt-1 text-xs font-semibold text-primary">
+              {user.role}
+            </p>
+          </div>
+        </div>
+
+        <Link
+          href={dashboardPath}
+          onClick={onNavigate}
+          className="flex items-center rounded-md px-4 py-3 text-sm font-semibold text-foreground transition-colors duration-300 hover:bg-primary/10 hover:text-primary"
+        >
+          <LayoutDashboard className="mr-2 h-4 w-4" />
+          {t("userMenu.dashboard")}
+        </Link>
+
+        <Link
+          href={profilePath}
+          onClick={onNavigate}
+          className="flex items-center rounded-md px-4 py-3 text-sm font-semibold text-foreground transition-colors duration-300 hover:bg-primary/10 hover:text-primary"
+        >
+          <UserRound className="mr-2 h-4 w-4" />
+          {t("userMenu.profile")}
+        </Link>
+
+        <button
+          type="button"
+          disabled={isLoggingOut}
+          onClick={() => void handleLogout()}
+          className="flex items-center rounded-md px-4 py-3 text-start text-sm font-semibold text-destructive transition-colors duration-300 hover:bg-destructive/10 disabled:pointer-events-none disabled:opacity-50"
+        >
+          <LogOut className="mr-2 h-4 w-4" />
+          {isLoggingOut ? t("userMenu.loggingOut") : t("userMenu.logout")}
+        </button>
+      </div>
+    );
+  }
 
   return (
     <D.DropdownMenu>

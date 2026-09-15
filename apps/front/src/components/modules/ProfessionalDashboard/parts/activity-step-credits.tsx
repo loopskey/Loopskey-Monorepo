@@ -83,7 +83,6 @@ export const ActivityStepCredits = ({
 
     <FloatingInputField
       control={control}
-      className="md:col-span-2"
       name="relatedCertification"
       leftIcon={<L.BadgeCheck className="h-4 w-4" />}
       label={t(`${TRACKER}.fields.relatedCertification`)}
@@ -93,7 +92,6 @@ export const ActivityStepCredits = ({
       rows={4}
       name="description"
       control={control}
-      className="md:col-span-2"
       label={t(`${TRACKER}.fields.description`)}
     />
 
@@ -101,7 +99,6 @@ export const ActivityStepCredits = ({
       <FloatingSelectField
         name="cpdPlanId"
         control={control}
-        className="md:col-span-2"
         options={planOptions}
         label={t(`${TRACKER}.fields.cpdPlan`)}
         description={t(`${TRACKER}.fields.cpdPlanHint`)}

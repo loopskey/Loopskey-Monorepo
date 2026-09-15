@@ -313,11 +313,35 @@ body {
 }
 
 .calendar-shell .fc .fc-event {
+  max-width: 100%;
   border-radius: 0.75rem;
   padding: 0.1rem 0.35rem;
   font-size: 0.78rem;
   font-weight: 700;
   cursor: pointer;
+}
+
+.calendar-shell .fc .fc-event-title,
+.calendar-shell .fc .fc-list-event-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .calendar-shell .fc .fc-event {
+    padding: 0.05rem 0.25rem;
+    font-size: 0.66rem;
+  }
+
+  .calendar-shell .fc .fc-daygrid-day-number {
+    padding: 0.15rem;
+    font-size: 0.75rem;
+  }
+
+  .calendar-shell .fc .fc-daygrid-day-events {
+    min-height: 1.25rem;
+  }
 }
 
 /* filled daygrid block events inherit the inline textColor (var(--ct-*-foreground)) */
