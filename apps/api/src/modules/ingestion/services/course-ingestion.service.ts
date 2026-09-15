@@ -602,6 +602,7 @@ export class CourseIngestionService {
       title: canonical.title,
       instructor: canonical.instructor,
       description: canonical.description,
+      sourceUrl: canonical.canonicalUrl,
       category: canonical.category,
       level: canonical.level,
       status: source.autoPublish ? CourseStatus.PUBLISHED : CourseStatus.DRAFT,

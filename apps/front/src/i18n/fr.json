@@ -2897,7 +2897,8 @@
       "enrolled": "Inscrit",
       "addCart": "Ajouter au panier",
       "inCart": "Dans le panier",
-      "addToCalendar": "Ajouter au calendrier"
+      "addToCalendar": "Ajouter au calendrier",
+      "viewSource": "Voir la source originale"
     },
     "markCompleted": {
       "button": "Marquer comme terminé",

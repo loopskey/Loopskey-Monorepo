@@ -11,6 +11,7 @@ export class PodcastEpisodeEntity {
   @Field(() => Int) episodeNumber: number;
   @Field(() => Date, { nullable: true }) publishedAt?: Date | null;
   @Field(() => String, { nullable: true }) audioUrl?: string | null;
+  @Field(() => String, { nullable: true }) sourceUrl?: string | null;
   @Field(() => String, { nullable: true }) description?: string | null;
   @Field(() => Int, { nullable: true }) durationMinutes?: number | null;
 }

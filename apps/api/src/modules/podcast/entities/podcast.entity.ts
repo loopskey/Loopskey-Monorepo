@@ -20,6 +20,7 @@ export class PodcastEntity {
   @Field(() => PodcastCategory) category: PodcastCategory;
   @Field(() => Date, { nullable: true }) deletedAt?: Date | null;
   @Field(() => String, { nullable: true }) imageUrl?: string | null;
+  @Field(() => String, { nullable: true }) sourceUrl?: string | null;
   @Field(() => String, { nullable: true }) providerId?: string | null;
   @Field(() => Int, { nullable: true }) durationMinutes?: number | null;
 }

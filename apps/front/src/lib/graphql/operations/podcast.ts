@@ -1,8 +1,8 @@
 import * as Types from "@/lib/graphql/base";
 import { TypedDocumentString } from "@/lib/graphql/base";
-export type PodcastFieldsFragment = { __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null };
+export type PodcastFieldsFragment = { __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, sourceUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null };
 
-export type PodcastEpisodeFieldsFragment = { __typename?: 'PodcastEpisode', id: string, title: string, audioUrl?: string | null, podcastId: string, updatedAt: string, createdAt: string, publishedAt?: string | null, description?: string | null, episodeNumber: number, durationMinutes?: number | null };
+export type PodcastEpisodeFieldsFragment = { __typename?: 'PodcastEpisode', id: string, title: string, audioUrl?: string | null, sourceUrl?: string | null, podcastId: string, updatedAt: string, createdAt: string, publishedAt?: string | null, description?: string | null, episodeNumber: number, durationMinutes?: number | null };
 
 export type PodcastPageInfoFieldsFragment = { __typename?: 'PodcastPageInfo', nextCursor?: string | null, hasNextPage: boolean };
 
@@ -13,35 +13,35 @@ export type PodcastsQueryVariables = Types.Exact<{
 }>;
 
 
-export type PodcastsQuery = { __typename?: 'Query', podcasts: { __typename?: 'PaginatedPodcasts', totalCount: number, items: Array<{ __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null }>, pageInfo: { __typename?: 'PodcastPageInfo', nextCursor?: string | null, hasNextPage: boolean } } };
+export type PodcastsQuery = { __typename?: 'Query', podcasts: { __typename?: 'PaginatedPodcasts', totalCount: number, items: Array<{ __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, sourceUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null }>, pageInfo: { __typename?: 'PodcastPageInfo', nextCursor?: string | null, hasNextPage: boolean } } };
 
 export type PodcastByIdQueryVariables = Types.Exact<{
   podcastId: Types.Scalars['String']['input'];
 }>;
 
 
-export type PodcastByIdQuery = { __typename?: 'Query', podcastById: { __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null } };
+export type PodcastByIdQuery = { __typename?: 'Query', podcastById: { __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, sourceUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null } };
 
 export type PodcastBySlugQueryVariables = Types.Exact<{
   slug: Types.Scalars['String']['input'];
 }>;
 
 
-export type PodcastBySlugQuery = { __typename?: 'Query', podcastBySlug: { __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null } };
+export type PodcastBySlugQuery = { __typename?: 'Query', podcastBySlug: { __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, sourceUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null } };
 
 export type FeaturedPodcastsQueryVariables = Types.Exact<{
   take?: Types.InputMaybe<Types.Scalars['Int']['input']>;
 }>;
 
 
-export type FeaturedPodcastsQuery = { __typename?: 'Query', featuredPodcasts: Array<{ __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null }> };
+export type FeaturedPodcastsQuery = { __typename?: 'Query', featuredPodcasts: Array<{ __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, sourceUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null }> };
 
 export type PodcastEpisodesQueryVariables = Types.Exact<{
   podcastId: Types.Scalars['String']['input'];
 }>;
 
 
-export type PodcastEpisodesQuery = { __typename?: 'Query', podcastEpisodes: Array<{ __typename?: 'PodcastEpisode', id: string, title: string, audioUrl?: string | null, podcastId: string, updatedAt: string, createdAt: string, publishedAt?: string | null, description?: string | null, episodeNumber: number, durationMinutes?: number | null }> };
+export type PodcastEpisodesQuery = { __typename?: 'Query', podcastEpisodes: Array<{ __typename?: 'PodcastEpisode', id: string, title: string, audioUrl?: string | null, sourceUrl?: string | null, podcastId: string, updatedAt: string, createdAt: string, publishedAt?: string | null, description?: string | null, episodeNumber: number, durationMinutes?: number | null }> };
 
 export type MyProviderPodcastsQueryVariables = Types.Exact<{
   filter?: Types.InputMaybe<Types.PodcastFilterInput>;
@@ -50,70 +50,70 @@ export type MyProviderPodcastsQueryVariables = Types.Exact<{
 }>;
 
 
-export type MyProviderPodcastsQuery = { __typename?: 'Query', myProviderPodcasts: { __typename?: 'PaginatedPodcasts', totalCount: number, items: Array<{ __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null }>, pageInfo: { __typename?: 'PodcastPageInfo', nextCursor?: string | null, hasNextPage: boolean } } };
+export type MyProviderPodcastsQuery = { __typename?: 'Query', myProviderPodcasts: { __typename?: 'PaginatedPodcasts', totalCount: number, items: Array<{ __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, sourceUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null }>, pageInfo: { __typename?: 'PodcastPageInfo', nextCursor?: string | null, hasNextPage: boolean } } };
 
 export type CreatePodcastMutationVariables = Types.Exact<{
   input: Types.CreatePodcastInput;
 }>;
 
 
-export type CreatePodcastMutation = { __typename?: 'Mutation', createPodcast: { __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null } };
+export type CreatePodcastMutation = { __typename?: 'Mutation', createPodcast: { __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, sourceUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null } };
 
 export type UpdatePodcastMutationVariables = Types.Exact<{
   input: Types.UpdatePodcastInput;
 }>;
 
 
-export type UpdatePodcastMutation = { __typename?: 'Mutation', updatePodcast: { __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null } };
+export type UpdatePodcastMutation = { __typename?: 'Mutation', updatePodcast: { __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, sourceUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null } };
 
 export type PublishPodcastMutationVariables = Types.Exact<{
   podcastId: Types.Scalars['String']['input'];
 }>;
 
 
-export type PublishPodcastMutation = { __typename?: 'Mutation', publishPodcast: { __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null } };
+export type PublishPodcastMutation = { __typename?: 'Mutation', publishPodcast: { __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, sourceUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null } };
 
 export type ArchivePodcastMutationVariables = Types.Exact<{
   podcastId: Types.Scalars['String']['input'];
 }>;
 
 
-export type ArchivePodcastMutation = { __typename?: 'Mutation', archivePodcast: { __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null } };
+export type ArchivePodcastMutation = { __typename?: 'Mutation', archivePodcast: { __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, sourceUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null } };
 
 export type DeletePodcastMutationVariables = Types.Exact<{
   podcastId: Types.Scalars['String']['input'];
 }>;
 
 
-export type DeletePodcastMutation = { __typename?: 'Mutation', deletePodcast: { __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null } };
+export type DeletePodcastMutation = { __typename?: 'Mutation', deletePodcast: { __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, sourceUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null } };
 
 export type RestorePodcastMutationVariables = Types.Exact<{
   podcastId: Types.Scalars['String']['input'];
 }>;
 
 
-export type RestorePodcastMutation = { __typename?: 'Mutation', restorePodcast: { __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null } };
+export type RestorePodcastMutation = { __typename?: 'Mutation', restorePodcast: { __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, sourceUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null } };
 
 export type CreatePodcastEpisodeMutationVariables = Types.Exact<{
   input: Types.CreatePodcastEpisodeInput;
 }>;
 
 
-export type CreatePodcastEpisodeMutation = { __typename?: 'Mutation', createPodcastEpisode: { __typename?: 'PodcastEpisode', id: string, title: string, audioUrl?: string | null, podcastId: string, updatedAt: string, createdAt: string, publishedAt?: string | null, description?: string | null, episodeNumber: number, durationMinutes?: number | null } };
+export type CreatePodcastEpisodeMutation = { __typename?: 'Mutation', createPodcastEpisode: { __typename?: 'PodcastEpisode', id: string, title: string, audioUrl?: string | null, sourceUrl?: string | null, podcastId: string, updatedAt: string, createdAt: string, publishedAt?: string | null, description?: string | null, episodeNumber: number, durationMinutes?: number | null } };
 
 export type UpdatePodcastEpisodeMutationVariables = Types.Exact<{
   input: Types.UpdatePodcastEpisodeInput;
 }>;
 
 
-export type UpdatePodcastEpisodeMutation = { __typename?: 'Mutation', updatePodcastEpisode: { __typename?: 'PodcastEpisode', id: string, title: string, audioUrl?: string | null, podcastId: string, updatedAt: string, createdAt: string, publishedAt?: string | null, description?: string | null, episodeNumber: number, durationMinutes?: number | null } };
+export type UpdatePodcastEpisodeMutation = { __typename?: 'Mutation', updatePodcastEpisode: { __typename?: 'PodcastEpisode', id: string, title: string, audioUrl?: string | null, sourceUrl?: string | null, podcastId: string, updatedAt: string, createdAt: string, publishedAt?: string | null, description?: string | null, episodeNumber: number, durationMinutes?: number | null } };
 
 export type DeletePodcastEpisodeMutationVariables = Types.Exact<{
   episodeId: Types.Scalars['String']['input'];
 }>;
 
 
-export type DeletePodcastEpisodeMutation = { __typename?: 'Mutation', deletePodcastEpisode: { __typename?: 'PodcastEpisode', id: string, title: string, audioUrl?: string | null, podcastId: string, updatedAt: string, createdAt: string, publishedAt?: string | null, description?: string | null, episodeNumber: number, durationMinutes?: number | null } };
+export type DeletePodcastEpisodeMutation = { __typename?: 'Mutation', deletePodcastEpisode: { __typename?: 'PodcastEpisode', id: string, title: string, audioUrl?: string | null, sourceUrl?: string | null, podcastId: string, updatedAt: string, createdAt: string, publishedAt?: string | null, description?: string | null, episodeNumber: number, durationMinutes?: number | null } };
 
 export const PodcastFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
     fragment PodcastFields on Podcast {
@@ -125,6 +125,7 @@ export const PodcastFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
   rating
   category
   imageUrl
+  sourceUrl
   listeners
   createdAt
   updatedAt
@@ -142,6 +143,7 @@ export const PodcastEpisodeFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentSt
   id
   title
   audioUrl
+  sourceUrl
   podcastId
   updatedAt
   createdAt
@@ -178,6 +180,7 @@ export const PodcastsDocument = /*#__PURE__*/ new TypedDocumentString(`
   rating
   category
   imageUrl
+  sourceUrl
   listeners
   createdAt
   updatedAt
@@ -208,6 +211,7 @@ export const PodcastByIdDocument = /*#__PURE__*/ new TypedDocumentString(`
   rating
   category
   imageUrl
+  sourceUrl
   listeners
   createdAt
   updatedAt
@@ -234,6 +238,7 @@ export const PodcastBySlugDocument = /*#__PURE__*/ new TypedDocumentString(`
   rating
   category
   imageUrl
+  sourceUrl
   listeners
   createdAt
   updatedAt
@@ -260,6 +265,7 @@ export const FeaturedPodcastsDocument = /*#__PURE__*/ new TypedDocumentString(`
   rating
   category
   imageUrl
+  sourceUrl
   listeners
   createdAt
   updatedAt
@@ -281,6 +287,7 @@ export const PodcastEpisodesDocument = /*#__PURE__*/ new TypedDocumentString(`
   id
   title
   audioUrl
+  sourceUrl
   podcastId
   updatedAt
   createdAt
@@ -310,6 +317,7 @@ export const MyProviderPodcastsDocument = /*#__PURE__*/ new TypedDocumentString(
   rating
   category
   imageUrl
+  sourceUrl
   listeners
   createdAt
   updatedAt
@@ -340,6 +348,7 @@ export const CreatePodcastDocument = /*#__PURE__*/ new TypedDocumentString(`
   rating
   category
   imageUrl
+  sourceUrl
   listeners
   createdAt
   updatedAt
@@ -366,6 +375,7 @@ export const UpdatePodcastDocument = /*#__PURE__*/ new TypedDocumentString(`
   rating
   category
   imageUrl
+  sourceUrl
   listeners
   createdAt
   updatedAt
@@ -392,6 +402,7 @@ export const PublishPodcastDocument = /*#__PURE__*/ new TypedDocumentString(`
   rating
   category
   imageUrl
+  sourceUrl
   listeners
   createdAt
   updatedAt
@@ -418,6 +429,7 @@ export const ArchivePodcastDocument = /*#__PURE__*/ new TypedDocumentString(`
   rating
   category
   imageUrl
+  sourceUrl
   listeners
   createdAt
   updatedAt
@@ -444,6 +456,7 @@ export const DeletePodcastDocument = /*#__PURE__*/ new TypedDocumentString(`
   rating
   category
   imageUrl
+  sourceUrl
   listeners
   createdAt
   updatedAt
@@ -470,6 +483,7 @@ export const RestorePodcastDocument = /*#__PURE__*/ new TypedDocumentString(`
   rating
   category
   imageUrl
+  sourceUrl
   listeners
   createdAt
   updatedAt
@@ -491,6 +505,7 @@ export const CreatePodcastEpisodeDocument = /*#__PURE__*/ new TypedDocumentStrin
   id
   title
   audioUrl
+  sourceUrl
   podcastId
   updatedAt
   createdAt
@@ -509,6 +524,7 @@ export const UpdatePodcastEpisodeDocument = /*#__PURE__*/ new TypedDocumentStrin
   id
   title
   audioUrl
+  sourceUrl
   podcastId
   updatedAt
   createdAt
@@ -527,6 +543,7 @@ export const DeletePodcastEpisodeDocument = /*#__PURE__*/ new TypedDocumentStrin
   id
   title
   audioUrl
+  sourceUrl
   podcastId
   updatedAt
   createdAt

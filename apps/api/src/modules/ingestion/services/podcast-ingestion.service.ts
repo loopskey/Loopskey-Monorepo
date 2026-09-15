@@ -1,7 +1,7 @@
 import { IngestionContentKind, PodcastStatus, Prisma } from "@prisma/client";
-import { PODCAST_CANONICAL_FIELDS } from "@ingestion/enums/podcast-ingestion.constant";
-import { validateCanonicalFieldMap } from "@ingestion/utils/canonical-field-map.util";
 import { AbstractKindIngestionService } from "@ingestion/services/abstract-kind-ingestion.service";
+import { validateCanonicalFieldMap } from "@ingestion/utils/canonical-field-map.util";
+import { PODCAST_CANONICAL_FIELDS } from "@ingestion/enums/podcast-ingestion.constant";
 import { PodcastIngestionPipeline } from "@ingestion/services/podcast-ingestion-pipeline.service";
 import { IngestionMessageCode } from "@ingestion/enums/message-code.enum";
 import { requestContext } from "@infrastructure/observability/request-context";
@@ -9,11 +9,11 @@ import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { PrismaService } from "@prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
 
-import type { AcceptedKindItem } from "@ingestion/types/kind-ingestion.types";
+import type { TIngestionSourceContext } from "@ingestion/types/ingestion.types";
 import type { CatalogWriteResult } from "@ingestion/services/abstract-kind-ingestion.service";
+import type { AcceptedKindItem } from "@ingestion/types/kind-ingestion.types";
 import type { PodcastCanonical } from "@ingestion/types/podcast-ingestion.types";
 import type { PreparedKindItem } from "@ingestion/types/kind-ingestion.types";
-import type { TIngestionSourceContext } from "@ingestion/types/ingestion.types";
 
 type LockedEpisode = { episodeNumber: number };
 
@@ -84,6 +84,7 @@ export class PodcastIngestionService extends AbstractKindIngestionService<Podcas
     const data = {
       title: core.title,
       description: core.description,
+      sourceUrl: core.canonicalUrl,
       host: core.host,
       category: core.category,
       status: this.publishedStatus(source) as PodcastStatus,
@@ -138,6 +139,7 @@ export class PodcastIngestionService extends AbstractKindIngestionService<Podcas
             title: episode.title,
             description: episode.description,
             audioUrl: episode.audioUrl,
+            sourceUrl: core.canonicalUrl,
             durationMinutes: episode.durationMinutes,
             publishedAt: episode.publishedAt
               ? new Date(episode.publishedAt)
@@ -147,6 +149,7 @@ export class PodcastIngestionService extends AbstractKindIngestionService<Podcas
             title: episode.title,
             description: episode.description,
             audioUrl: episode.audioUrl,
+            sourceUrl: core.canonicalUrl,
             durationMinutes: episode.durationMinutes,
             publishedAt: episode.publishedAt
               ? new Date(episode.publishedAt)
