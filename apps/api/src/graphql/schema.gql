@@ -566,6 +566,13 @@ type AssociationInviteResult {
   outcome: AssociationInviteOutcome!
 }
 
+"""Whether a submission after the deadline is accepted, and how"""
+enum AssociationLateSubmissionPolicy {
+  ACCEPTED_DURING_GRACE
+  ACCEPTED_FLAGGED_LATE
+  NOT_ACCEPTED
+}
+
 type AssociationLearningContent {
   audienceKind: AssociationAudienceKind!
   category: PDUCategory
@@ -695,6 +702,7 @@ type AssociationMemberDistribution {
 
 input AssociationMemberFilterInput {
   groupId: ID
+  requirementId: ID
   search: String
   status: AssociationMemberStatus
 }
@@ -902,6 +910,11 @@ type AssociationRecentActivity {
   state: AssociationAttributionState!
 }
 
+"""What must be true for a requirement to count as renewed"""
+enum AssociationRenewalCondition {
+  TOTAL_CREDITS_MET
+}
+
 type AssociationRenewalReadinessRow {
   awaitingReviewCount: Int!
   band: AssociationComplianceBand!
@@ -1006,7 +1019,6 @@ enum AssociationReportingCycle {
 }
 
 type AssociationRequirement {
-  allowLateSubmission: Boolean!
   archivedAt: DateTime
   assignedMemberCount: Int!
   audienceKind: AssociationAudienceKind!
@@ -1019,16 +1031,17 @@ type AssociationRequirement {
   evidencePolicy: AssociationEvidencePolicy!
   gracePeriodDays: Int!
   id: ID!
+  lateSubmissionPolicy: AssociationLateSubmissionPolicy!
   name: String!
   publishedAt: DateTime
   reminderTiming: CPDReminderTiming
   remindersEnabled: Boolean!
+  renewalCondition: AssociationRenewalCondition!
   reportingCycle: AssociationReportingCycle!
   reportingEnd: DateTime
   reportingStart: DateTime
   status: AssociationRequirementStatus!
-  submissionClosesAt: DateTime
-  submissionOpensAt: DateTime
+  submissionWindow: AssociationSubmissionWindow!
   targets: [AssociationRequirementTarget!]!
   totalRequiredCredits: Float!
   updatedAt: DateTime!
@@ -1102,15 +1115,11 @@ type AssociationReviewResult {
 type AssociationSettings {
   associationId: ID!
   atRiskThreshold: Int!
-  complianceReminders: Boolean!
   createdAt: DateTime!
-  defaultCreditType: CreditType!
   id: ID!
   onTrackThreshold: Int!
-  renewalRequiresReviewedEvidence: Boolean!
   suppressAllEmail: Boolean!
   updatedAt: DateTime!
-  weeklyDigest: Boolean!
   welcomeMessages: Boolean!
 }
 
@@ -1119,6 +1128,15 @@ type AssociationSettingsImpact {
   membersEnteringAtRisk: Int!
   membersLeavingAtRisk: Int!
   totalMembers: Int!
+}
+
+"""When a requirement's submission window opens, relative to its deadline"""
+enum AssociationSubmissionWindow {
+  DAYS_30
+  DAYS_60
+  DAYS_90
+  DAYS_180
+  WHOLE_PERIOD
 }
 
 enum AuditAction {
@@ -1757,6 +1775,7 @@ input CreatePduActivityInput {
   category: PDUCategory!
   contentId: String
   contentType: ContentType
+  cpdPlanId: ID
   creditType: CreditType!
   date: String!
   description: String
@@ -2426,7 +2445,6 @@ type Mutation {
   resendEmailOtp(input: ResendEmailOtpInput!): AuthPayload!
   resendOrganizationActivation(input: ResendOrganizationActivationInput!): AuthPayload!
   resetPassword(input: ResetPasswordInput!): AuthPayload!
-  resetProfessionalSettings: ProfessionalSettings!
   restoreCourse(courseId: String!): Course!
   restoreEvent(eventId: String!): Event!
   restorePodcast(podcastId: String!): Podcast!
@@ -3624,6 +3642,7 @@ type ProfessionalPduActivity {
   completionStatus: PDUCompletionStatus!
   contentId: String
   contentType: ContentType
+  cpdPlanId: ID
   createdAt: DateTime!
   creditType: CreditType!
   date: DateTime!
@@ -3840,19 +3859,9 @@ type ProfessionalSession {
 }
 
 type ProfessionalSettings {
-  courseUpdates: Boolean!
   createdAt: DateTime!
-  emailNotifications: Boolean!
-  eventReminders: Boolean!
   id: ID!
   interfaceLanguage: AppLanguage!
-  loginAlerts: Boolean!
-  messages: Boolean!
-  profileVisibility: ProfileVisibility!
-  pushNotifications: Boolean!
-  showCertificates: Boolean!
-  showEmail: Boolean!
-  showLearningProgress: Boolean!
   theme: Theme!
   updatedAt: DateTime!
   userId: ID!
@@ -3887,12 +3896,6 @@ enum ProfileTaxonomyKind {
   ROLE
   SKILL_AREA
   SUBJECT
-}
-
-enum ProfileVisibility {
-  FOLLOWERS_ONLY
-  PRIVATE
-  PUBLIC
 }
 
 type PromotionRequest {
@@ -4107,6 +4110,7 @@ type Query {
   associationGroupProgressReport(associationId: ID, filter: AssociationReportFilterInput): [AssociationGroupProgressRow!]!
   associationGroups(associationId: ID): [AssociationGroup!]!
   associationLearningContent(associationId: ID, learningContentId: ID!): AssociationLearningContent!
+  associationLearningContentMembers(associationId: ID, learningContentId: ID!): [AssociationMember!]!
   associationLearningContents(associationId: ID, filter: AssociationLearningContentFilterInput, pagination: AssociationPaginationInput): PaginatedAssociationLearningContents!
   associationMemberActivities(associationId: ID, filter: AssociationMemberActivityFilterInput, memberId: ID!, pagination: AssociationPaginationInput): PaginatedAssociationMemberActivities!
   associationMemberCompliance(associationId: ID, memberId: ID!): AssociationMemberCompliance!
@@ -4544,11 +4548,9 @@ input UpdateAdminUserStatus {
 
 input UpdateAssociationComplianceSettingsInput {
   atRiskThreshold: Int!
-  defaultCreditType: CreditType!
   dryRun: Boolean
   expectedUpdatedAt: DateTime!
   onTrackThreshold: Int!
-  renewalRequiresReviewedEvidence: Boolean!
 }
 
 input UpdateAssociationGroupInput {
@@ -4577,10 +4579,8 @@ input UpdateAssociationMemberInput {
 }
 
 input UpdateAssociationNotificationSettingsInput {
-  complianceReminders: Boolean!
   expectedUpdatedAt: DateTime!
   suppressAllEmail: Boolean!
-  weeklyDigest: Boolean!
   welcomeMessages: Boolean!
 }
 
@@ -4595,7 +4595,7 @@ input UpdateAssociationProfileInput {
 
 input UpdateAssociationRequirementAudienceInput {
   audienceKind: AssociationAudienceKind!
-  groupId: ID
+  groupIds: [ID!]
   memberIds: [ID!]
   requirementId: ID!
 }
@@ -4624,13 +4624,13 @@ input UpdateAssociationRequirementEvidenceRulesInput {
 }
 
 input UpdateAssociationRequirementReportingRulesInput {
-  allowLateSubmission: Boolean
   gracePeriodDays: Int
+  lateSubmissionPolicy: AssociationLateSubmissionPolicy
+  renewalCondition: AssociationRenewalCondition
   reportingEnd: DateTime
   reportingStart: DateTime
   requirementId: ID!
-  submissionClosesAt: DateTime
-  submissionOpensAt: DateTime
+  submissionWindow: AssociationSubmissionWindow
 }
 
 input UpdateCertificateInput {
@@ -4793,6 +4793,7 @@ input UpdatePduActivityInput {
   completionStatus: PDUCompletionStatus
   contentId: String
   contentType: ContentType
+  cpdPlanId: ID
   creditType: CreditType
   date: String
   description: String
@@ -4870,17 +4871,7 @@ input UpdateProfessionalPreferencesInput {
 }
 
 input UpdateProfessionalSettingsInput {
-  courseUpdates: Boolean
-  emailNotifications: Boolean
-  eventReminders: Boolean
   interfaceLanguage: AppLanguage
-  loginAlerts: Boolean
-  messages: Boolean
-  profileVisibility: ProfileVisibility
-  pushNotifications: Boolean
-  showCertificates: Boolean
-  showEmail: Boolean
-  showLearningProgress: Boolean
   theme: Theme
 }
 

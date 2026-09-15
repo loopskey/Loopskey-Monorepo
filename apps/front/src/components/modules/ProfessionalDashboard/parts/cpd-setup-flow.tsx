@@ -69,9 +69,11 @@ export const CpdSetupFlow = ({
         </p>
         <h1 className="mt-2 text-3xl font-medium tracking-tight md:text-4xl">
           {t(
-            setup.mode === "manual"
-              ? "cpdProgress.setup.titleManual"
-              : "cpdProgress.setup.titleSuggestion",
+            setup.mode === "edit"
+              ? "cpdProgress.setup.titleEdit"
+              : setup.mode === "manual"
+                ? "cpdProgress.setup.titleManual"
+                : "cpdProgress.setup.titleSuggestion",
           )}
         </h1>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
@@ -147,7 +149,11 @@ export const CpdSetupFlow = ({
                   ) : (
                     <L.Check className="h-4 w-4" />
                   )}
-                  {t("cpdProgress.setup.actions.create")}
+                  {t(
+                    setup.mode === "edit"
+                      ? "cpdProgress.setup.actions.save"
+                      : "cpdProgress.setup.actions.create",
+                  )}
                 </Button>
               ) : (
                 <Button radius="xl" type="submit">

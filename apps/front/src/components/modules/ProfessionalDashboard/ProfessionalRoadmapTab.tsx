@@ -10,7 +10,6 @@ import { Progress } from "@ui/progress";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
 import { Input } from "@ui/input";
-import { cn } from "@/lib/utils";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -29,8 +28,6 @@ const ProfessionalRoadmapTab = () => {
     locale,
     myPageInfo,
     myRoadmaps,
-    isFetching,
-    refetchAll,
     handleNext,
     explorePage,
     formatWeeks,
@@ -85,18 +82,6 @@ const ProfessionalRoadmapTab = () => {
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <Button
-            radius="xl"
-            variant="outline"
-            onClick={refetchAll}
-            disabled={isFetching}
-          >
-            <L.RefreshCw
-              className={cn("h-4 w-4", isFetching && "animate-spin")}
-            />
-            {t("professionalDashboard.common.refresh")}
-          </Button>
-
           <Button asChild radius="xl">
             <Link href={ROADMAP_CHAT_HREF}>
               <L.Plus className="h-4 w-4" />

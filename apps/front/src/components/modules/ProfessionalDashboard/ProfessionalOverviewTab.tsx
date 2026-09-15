@@ -45,7 +45,7 @@ const ProfessionalOverviewTab = () => {
           </Button>
 
           <Button asChild  radius="xl">
-            <Link href="/courses">
+            <Link href="/content">
               {t("professionalDashboard.overview.browseCourses")}
             </Link>
           </Button>

@@ -2,7 +2,6 @@ import { ASSOCIATION_LOGO_LIMITS } from "@loopskey/api-contracts/upload";
 import { associationLogoUploadUrl } from "@loopskey/api-contracts/upload";
 import { IMAGE_ACCEPT_ATTRIBUTE } from "@loopskey/api-contracts/upload";
 import { isAcceptedImageFile } from "@loopskey/api-contracts/upload";
-import { CreditType } from "@/lib/graphql/base";
 
 import { PDU_API_ORIGIN } from "@utils/pdu.constant";
 
@@ -16,11 +15,6 @@ export const ASSOCIATION_SETTINGS_SECTIONS = [
 
 export type TAssociationSettingsSection =
   (typeof ASSOCIATION_SETTINGS_SECTIONS)[number];
-
-export const ASSOCIATION_CREDIT_TYPES = [
-  CreditType.Cpd,
-  CreditType.Pdu,
-] as const;
 
 export const LOGO_ACCEPT_ATTRIBUTE = IMAGE_ACCEPT_ATTRIBUTE;
 
@@ -53,6 +47,24 @@ export const rejectionOf = (file: File): TLogoRejection => {
   return null;
 };
 
+export class AssociationLogoUploadError extends Error {
+  code: string | null;
+
+  constructor(code: string | null) {
+    super(code ?? "LOGO_UPLOAD_FAILED");
+    this.code = code;
+  }
+}
+
+const codeOfResponse = async (response: Response) => {
+  try {
+    const body = (await response.json()) as { code?: unknown };
+    return typeof body.code === "string" ? body.code : null;
+  } catch {
+    return null;
+  }
+};
+
 export const uploadAssociationLogo = async (file: File) => {
   const body = new FormData();
   body.append("file", file);
@@ -63,7 +75,8 @@ export const uploadAssociationLogo = async (file: File) => {
     body,
   });
 
-  if (!response.ok) throw new Error(`Upload failed (${response.status})`);
+  if (!response.ok)
+    throw new AssociationLogoUploadError(await codeOfResponse(response));
 
   return response.json() as Promise<{ logoUrl: string | null }>;
 };
@@ -74,7 +87,8 @@ export const removeAssociationLogo = async () => {
     credentials: "include",
   });
 
-  if (!response.ok) throw new Error(`Removal failed (${response.status})`);
+  if (!response.ok)
+    throw new AssociationLogoUploadError(await codeOfResponse(response));
 };
 
 export const isThresholdPairValid = (

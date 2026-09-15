@@ -7,6 +7,7 @@ import { AssociationAudienceKind } from "@/lib/graphql/base";
 import { FloatingTextareaField } from "@elements/floating-textarea";
 import { FloatingSelectField } from "@elements/floating-select";
 import { FloatingInputField } from "@elements/floating-input";
+import { useMemo, useState } from "react";
 import { CreditType } from "@/lib/graphql/base";
 import { GlassCard } from "@elements/glass-card";
 import { Label } from "@ui/label";
@@ -28,9 +29,12 @@ export const AssociationRequirementDetailsStep = ({
     isMemberPickerLoading,
   } = hook;
 
+  const [groupSearch, setGroupSearch] = useState("");
+
   const cycle = detailsForm.watch("reportingCycle");
   const audienceKind = detailsForm.watch("audienceKind");
   const memberIds = detailsForm.watch("memberIds");
+  const groupIds = detailsForm.watch("groupIds");
   const errors = detailsForm.formState.errors;
 
   const isMultiYear = cycle === AssociationReportingCycle.MultiYear;
@@ -40,11 +44,23 @@ export const AssociationRequirementDetailsStep = ({
     label: t(`associationDashboard.requirements.creditType.${value}`),
   }));
 
-  const cycleOptions = Object.values(AssociationReportingCycle).map(
-    (value) => ({
+  const cycleOptions = Object.values(AssociationReportingCycle)
+    .filter(
+      (value) =>
+        value !== AssociationReportingCycle.OneTime ||
+        cycle === AssociationReportingCycle.OneTime,
+    )
+    .map((value) => ({
       value,
       label: t(`associationDashboard.requirements.cycle.${value}`),
-    }),
+    }));
+
+  const filteredGroupOptions = useMemo(
+    () =>
+      groupOptions.filter((option) =>
+        option.label.toLowerCase().includes(groupSearch.trim().toLowerCase()),
+      ),
+    [groupOptions, groupSearch],
   );
 
   const changeCycle = (value: string) => {
@@ -90,8 +106,8 @@ export const AssociationRequirementDetailsStep = ({
           <div className="grid gap-4 sm:grid-cols-2">
             <FloatingSelectField
               name="creditType"
-              control={detailsForm.control}
               options={creditTypeOptions}
+              control={detailsForm.control}
               label={t("associationDashboard.requirements.fields.creditType")}
             />
 
@@ -211,15 +227,43 @@ export const AssociationRequirementDetailsStep = ({
           />
 
           {audienceKind === AssociationAudienceKind.Group && (
-            <FloatingSelectField
-              name="groupId"
-              options={groupOptions}
-              control={detailsForm.control}
-              label={t("associationDashboard.requirements.fields.group")}
-              placeholder={t(
-                "associationDashboard.requirements.fields.groupPlaceholder",
+            <div>
+              <AssociationRequirementMemberPicker
+                search={groupSearch}
+                options={filteredGroupOptions}
+                selectedIds={groupIds}
+                onSearch={setGroupSearch}
+                isLoading={false}
+                hasError={Boolean(errors.groupIds)}
+                describedById="requirement-group-picker-error"
+                label={t("associationDashboard.requirements.fields.group")}
+                emptyText={t(
+                  "associationDashboard.requirements.fields.groupsEmpty",
+                )}
+                countLabel={t(
+                  "associationDashboard.requirements.fields.groupsResults",
+                  { count: filteredGroupOptions.length },
+                )}
+                placeholder={t(
+                  "associationDashboard.requirements.fields.groupPlaceholder",
+                )}
+                onChange={(ids) =>
+                  detailsForm.setValue("groupIds", ids, {
+                    shouldValidate: true,
+                  })
+                }
+              />
+
+              {errors.groupIds && (
+                <p
+                  role="alert"
+                  id="requirement-group-picker-error"
+                  className="mt-2 text-sm text-destructive"
+                >
+                  {t("associationDashboard.requirements.errors.groupsRequired")}
+                </p>
               )}
-            />
+            </div>
           )}
 
           {audienceKind === AssociationAudienceKind.SpecificMembers && (

@@ -60,15 +60,19 @@ export const useProfessionalRoadmaps = () => {
     data: myRoadmapsData,
     isLoading: isMyRoadmapsLoading,
     isFetching: isMyRoadmapsFetching,
-    refetch: refetchMyRoadmaps,
-  } = API.useProfessionalMyRoadmapsQuery(myRoadmapsVariables);
+  } = API.useProfessionalMyRoadmapsQuery(myRoadmapsVariables, {
+    refetchOnFocus: true,
+    refetchOnMountOrArgChange: true,
+  });
 
   const {
     data: exploreRoadmapsData,
     isLoading: isExploreRoadmapsLoading,
     isFetching: isExploreRoadmapsFetching,
-    refetch: refetchExploreRoadmaps,
-  } = API.useProfessionalExploreRoadmapsQuery(exploreRoadmapsVariables);
+  } = API.useProfessionalExploreRoadmapsQuery(exploreRoadmapsVariables, {
+    refetchOnFocus: true,
+    refetchOnMountOrArgChange: true,
+  });
 
   const myRoadmaps = useMemo<T.TProfessionalRoadmap[]>(() => {
     return myRoadmapsData?.items ?? [];
@@ -85,8 +89,10 @@ export const useProfessionalRoadmaps = () => {
     data: statsData,
     isLoading: isStatsLoading,
     isError: isStatsError,
-    refetch: refetchStats,
-  } = API.useProfessionalRoadmapStatsQuery();
+  } = API.useProfessionalRoadmapStatsQuery(undefined, {
+    refetchOnFocus: true,
+    refetchOnMountOrArgChange: true,
+  });
 
   const stats = useMemo<T.TRoadmapStats>(
     () => ({
@@ -138,7 +144,6 @@ export const useProfessionalRoadmaps = () => {
 
   const featuredRoadmap = myRoadmaps[0];
   const isLoading = isMyRoadmapsLoading || isExploreRoadmapsLoading;
-  const isFetching = isMyRoadmapsFetching || isExploreRoadmapsFetching;
 
   const handleSearchChange = (value: string) => {
     setSearch(value);
@@ -190,12 +195,6 @@ export const useProfessionalRoadmaps = () => {
     setExplorePage((previousPage) => Math.max(1, previousPage - 1));
   };
 
-  const refetchAll = () => {
-    refetchMyRoadmaps();
-    refetchExploreRoadmaps();
-    refetchStats();
-  };
-
   const formatWeeks = (weeks?: number | null) => {
     return `${Number(weeks ?? 0)} ${t("professionalDashboard.roadmap.weeks")}`;
   };
@@ -219,20 +218,20 @@ export const useProfessionalRoadmaps = () => {
     isLoading,
     myRoadmaps,
     myPageInfo,
-    isFetching,
-    refetchAll,
     handleNext,
     formatWeeks,
     explorePage,
     isGenerating,
     stepProgress,
     learningSteps,
+    isStatsError,
     exploreSearch,
     myRoadmapsData,
     getRoadmapHref,
     handlePrevious,
     hasFailedDraft,
     featuredRoadmap,
+    isStatsLoading,
     exploreRoadmaps,
     explorePageInfo,
     locale: language,
@@ -250,7 +249,5 @@ export const useProfessionalRoadmaps = () => {
     handleExploreSearchChange,
     handleExploreSearchInputChange,
     recommendations: recommendations ?? [],
-    isStatsLoading,
-    isStatsError,
   };
 };

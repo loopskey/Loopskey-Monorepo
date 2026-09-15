@@ -48,6 +48,7 @@
     "setup": {
       "titleManual": "Ajouter un CPD/PDU manuellement",
       "titleSuggestion": "Vérifiez votre configuration CPD/PDU",
+      "titleEdit": "Modifier le plan CPD/PDU",
       "subtitle": "Complétez les quatre étapes pour créer votre plan.",
       "step1": {
         "title": "Détails de la certification",
@@ -105,7 +106,8 @@
         "deleteConfirmDescription": "Ceci retirera"
       },
       "actions": {
-        "create": "Créer le plan CPD"
+        "create": "Créer le plan CPD",
+        "save": "Enregistrer les modifications"
       },
       "unsaved": {
         "title": "Abandonner les modifications ?",
@@ -177,6 +179,7 @@
     },
     "progress": {
       "planLabel": "Plan",
+      "editPlan": "Modifier le plan",
       "deletePlan": "Supprimer le plan",
       "cards": {
         "earned": "Obtenus",
@@ -222,6 +225,8 @@
     "toast": {
       "planCreated": "Plan CPD/PDU créé.",
       "createError": "Impossible de créer le plan. Veuillez réessayer.",
+      "planUpdated": "Plan CPD/PDU mis à jour.",
+      "updateError": "Impossible de mettre à jour le plan. Veuillez réessayer.",
       "planDeleted": "Plan supprimé.",
       "deleteError": "Impossible de supprimer le plan.",
       "summaryReady": "Résumé CPD téléchargé.",
@@ -3673,18 +3678,12 @@
     "settings": {
       "eyebrow": "Paramètres professionnels",
       "title": "Paramètres",
-      "description": "Personnalisez votre expérience LoopsKey : langue, thème, notifications et visibilité du profil.",
+      "description": "Personnalisez votre expérience LoopsKey : langue et sécurité du compte.",
       "saved": "Paramètres enregistrés avec succès.",
       "profileSaved": "Profil mis à jour avec succès.",
-      "resetDone": "Paramètres réinitialisés par défaut.",
       "saveChanges": "Enregistrer les modifications",
-      "saveNotifications": "Enregistrer les notifications",
-      "savePrivacy": "Enregistrer la confidentialité",
-      "resetDefault": "Réinitialiser par défaut",
       "tabs": {
         "general": "Général",
-        "notifications": "Notifications",
-        "privacy": "Confidentialité",
         "security": "Sécurité"
       },
       "general": {
@@ -3694,41 +3693,6 @@
         "languageHint": "Choisissez la langue utilisée dans votre tableau de bord.",
         "note": "Ces paramètres affectent uniquement votre tableau de bord personnel.",
         "save": "Enregistrer les modifications"
-      },
-      "notifications": {
-        "title": "Notifications",
-        "description": "Choisissez comment LoopsKey vous informe des mises à jour importantes.",
-        "emailNotifications": "Notifications par e-mail",
-        "emailNotificationsDescription": "Recevez les mises à jour et alertes importantes par e-mail.",
-        "pushNotifications": "Notifications push",
-        "pushNotificationsDescription": "Autorisez les notifications dans le navigateur ou l’application.",
-        "courseUpdates": "Mises à jour des cours",
-        "courseUpdatesDescription": "Soyez informé lorsque vos cours inscrits sont mis à jour.",
-        "messages": "Messages",
-        "messagesDescription": "Alertes pour les nouveaux messages des fournisseurs ou administrateurs.",
-        "eventReminders": "Rappels d’événements",
-        "eventRemindersDescription": "Rappels pour les sessions, échéances et événements à venir.",
-        "loginAlerts": "Alertes de connexion",
-        "loginAlertsDescription": "Soyez informé lorsqu’une nouvelle connexion est détectée sur votre compte.",
-        "save": "Enregistrer les notifications"
-      },
-      "privacy": {
-        "title": "Profil et confidentialité",
-        "description": "Contrôlez ce que les autres peuvent voir sur votre profil public LoopsKey.",
-        "public": "Public",
-        "publicDescription": "Visible par tous sur LoopsKey.",
-        "followersOnly": "Abonnés uniquement",
-        "followersOnlyDescription": "Visible uniquement par vos abonnés acceptés.",
-        "private": "Privé",
-        "privateDescription": "Vous seul pouvez voir votre profil complet.",
-        "showEmail": "Afficher l’e-mail",
-        "showEmailDescription": "Autoriser les collaborateurs à vous contacter directement.",
-        "showLearningProgress": "Afficher la progression d’apprentissage",
-        "showLearningProgressDescription": "Afficher publiquement votre parcours d’apprentissage.",
-        "showCertificates": "Afficher les certificats",
-        "showCertificatesDescription": "Autoriser les autres à voir vos certificats vérifiés.",
-        "save": "Enregistrer la confidentialité",
-        "reset": "Réinitialiser par défaut"
       },
       "profile": {
         "bio": "Bio",
@@ -3966,6 +3930,9 @@
         "reportingYearHint": "Par défaut, l’année de la date de fin.",
         "issuingOrganization": "Organisme émetteur",
         "relatedCertification": "Certification / licence associée",
+        "cpdPlan": "Plan CPD/PDU",
+        "cpdPlanHint": "Attribuez les crédits de cette activité à l’un de vos plans. Laissez vide pour la compter dans votre progression globale comme d’habitude.",
+        "cpdPlanPlaceholder": "Aucun plan sélectionné",
         "description": "Description / notes de l’activité",
         "descriptionPlaceholder": "Décrivez brièvement l’activité.",
         "evidenceNote": "Notes sur les fichiers",
@@ -4362,13 +4329,6 @@
           "duration": "Durée en minutes (facultatif)",
           "notes": "Notes (facultatif)"
         }
-      },
-      "cards": {
-        "totalEvents": "Total des événements",
-        "upcoming": "À venir",
-        "live": "En direct",
-        "completed": "Terminés",
-        "totalPdus": "Total PDU"
       },
       "filters": {
         "searchLabel": "Recherche",
@@ -5331,6 +5291,8 @@
         "searchPlaceholder": "Nom, e-mail ou numéro de membre",
         "group": "Groupe",
         "allGroups": "Tous les groupes",
+        "requirement": "Exigence",
+        "allRequirements": "Toutes les exigences",
         "status": "Statut",
         "allStatuses": "Tous les statuts",
         "clear": "Effacer les filtres"
@@ -5699,6 +5661,28 @@
         "REQUIRED_NO_REVIEW": "Justificatif requis, sans validation",
         "REQUIRED_NEEDS_REVIEW": "Justificatif requis, avec validation"
       },
+      "submissionWindow": {
+        "WHOLE_PERIOD": "Toute la période de déclaration",
+        "DAYS_180": "180 jours avant l'échéance",
+        "DAYS_90": "90 jours avant l'échéance",
+        "DAYS_60": "60 jours avant l'échéance",
+        "DAYS_30": "30 jours avant l'échéance"
+      },
+      "lateSubmissionPolicy": {
+        "NOT_ACCEPTED": "Non acceptée",
+        "ACCEPTED_DURING_GRACE": "Acceptée pendant le délai de grâce",
+        "ACCEPTED_FLAGGED_LATE": "Acceptée, signalée comme tardive"
+      },
+      "renewalCondition": {
+        "TOTAL_CREDITS_MET": "Total de crédits atteint"
+      },
+      "gracePeriod": {
+        "0": "Aucun délai de grâce",
+        "14": "14 jours après l'échéance",
+        "30": "30 jours après l'échéance",
+        "60": "60 jours après l'échéance",
+        "90": "90 jours après l'échéance"
+      },
       "creditType": {
         "CPD": "CPD",
         "CEU": "CEU",
@@ -5749,8 +5733,10 @@
         "cycleLengthHint": "Un cycle pluriannuel doit avoir une durée.",
         "evidencePolicy": "Justificatif",
         "audience": "À qui cela s'applique",
-        "group": "Groupe",
-        "groupPlaceholder": "Choisir un groupe",
+        "group": "Groupes",
+        "groupPlaceholder": "Rechercher des groupes par nom",
+        "groupsEmpty": "Aucun groupe ne correspond à cette recherche.",
+        "groupsResults": "{{count}} groupes trouvés.",
         "members": "Membres",
         "membersPlaceholder": "Rechercher par nom ou courriel",
         "membersEmpty": "Aucun membre ne correspond à cette recherche.",
@@ -5810,10 +5796,10 @@
           "description": "Définissez la période de déclaration, la fenêtre de soumission et les rappels.",
           "periodStart": "Début de la déclaration",
           "periodEnd": "Fin de la déclaration",
-          "submissionOpens": "Ouverture des soumissions",
-          "submissionCloses": "Clôture des soumissions",
-          "gracePeriod": "Délai de grâce en jours",
-          "allowLate": "Autoriser les soumissions tardives",
+          "submissionWindow": "Fenêtre de soumission",
+          "gracePeriod": "Délai de grâce",
+          "lateSubmissionPolicy": "Soumissions tardives",
+          "renewalCondition": "Condition de renouvellement",
           "reminders": "Envoyer des rappels",
           "reminderTiming": "Rappeler aux membres"
         }
@@ -5842,8 +5828,10 @@
         "categories": "Catégories",
         "reportingPeriod": "Période de déclaration",
         "submissionWindow": "Fenêtre de soumission",
-        "gracePeriodDays": "Délai de grâce en jours",
-        "allowLateSubmission": "Soumission tardive autorisée",
+        "submissionOpens": "Ouverture des soumissions",
+        "gracePeriod": "Délai de grâce",
+        "lateSubmissionPolicy": "Soumissions tardives",
+        "renewalCondition": "Condition de renouvellement",
         "reminders": "Rappels",
         "yes": "Oui",
         "no": "Non"
@@ -5885,7 +5873,8 @@
         "assigned": "{{added}} membres ajoutés."
       },
       "errors": {
-        "membersRequired": "Choisissez au moins un membre."
+        "membersRequired": "Choisissez au moins un membre.",
+        "groupsRequired": "Choisissez au moins un groupe."
       },
       "error": {
         "title": "Impossible de charger vos exigences",
@@ -5902,7 +5891,8 @@
         "view": "Voir le détail",
         "edit": "Modifier",
         "publish": "Publier",
-        "reassign": "Modifier l'audience",
+        "reassign": "Affecter",
+        "viewMembers": "Voir les membres",
         "withdraw": "Retirer",
         "delete": "Supprimer"
       },
@@ -6022,6 +6012,20 @@
         "engagementTitle": "Ce que les membres en ont fait",
         "engagementBody": "{{members}} membres ont enregistré une activité liée à ce contenu, pour {{credits}} crédits.",
         "engagementExternal": "L'engagement se compte pour le contenu du catalogue, auquel les membres peuvent rattacher une activité. Une ressource externe n'a pas ce lien."
+      },
+      "members": {
+        "title": "Membres",
+        "description": "À qui cette audience correspond actuellement.",
+        "count": "{{count}} membres",
+        "empty": "Aucun membre ne correspond encore à cette audience.",
+        "remove": "Retirer {{name}}",
+        "removed": "Membre retiré.",
+        "add": "Ajouter des membres",
+        "addPlaceholder": "Rechercher des membres par nom ou courriel",
+        "added": "Membre ajouté.",
+        "readOnlyGroup": "Cette audience est un groupe. Ajoutez ou retirez des groupes entiers depuis Affecter ; les membres individuels ici suivent leur appartenance au groupe.",
+        "readOnlyAll": "Cette audience couvre tous les membres de votre association, il n'y a donc rien à ajouter ou retirer ici.",
+        "close": "Fermer"
       },
       "confirm": {
         "deleteTitle": "Supprimer ce brouillon ?",
@@ -6447,19 +6451,11 @@
         "description": "Comment la progression est classée. Ces seuils changent le regroupement des membres, jamais le nombre de crédits exigés.",
         "review": "Examiner les changements",
         "saved": "Règles de conformité enregistrées.",
-        "defaultCreditType": "Type de crédit par défaut",
-        "defaultCreditTypeHint": "Appliqué à une nouvelle exigence sauf si vous le changez sur place.",
         "onTrackThreshold": "Seuil « en bonne voie »",
         "onTrackThresholdHint": "À partir de ce pourcentage, un membre est considéré en bonne voie.",
         "atRiskThreshold": "Seuil « à risque »",
         "atRiskThresholdHint": "En dessous de ce pourcentage, un membre apparaît dans les listes de l'onglet Notifications.",
-        "renewalRequiresReviewedEvidence": "Le renouvellement exige tous les examens réglés",
-        "renewalRequiresReviewedEvidenceHint": "Un membre dont une preuve attend encore votre décision n'est pas déclaré prêt au renouvellement.",
-        "orderInvalid": "Le seuil « à risque » doit rester sous le seuil « en bonne voie ».",
-        "creditTypes": {
-          "CPD": "CPD",
-          "PDU": "PDU"
-        }
+        "orderInvalid": "Le seuil « à risque » doit rester sous le seuil « en bonne voie »."
       },
       "notifications": {
         "title": "Notifications",
@@ -6468,13 +6464,9 @@
         "saved": "Préférences de notification enregistrées.",
         "suppressAllEmail": "Suspendre tous les courriels de l'association",
         "suppressAllEmailHint": "Prime sur tout ce qui suit. Rien de ce que vous rédigez n'atteint un membre tant que ceci est actif.",
-        "suppressAllActive": "Tant que ceci est actif, les trois préférences ci-dessous n'ont aucun effet et chaque envoi est enregistré comme ignoré.",
-        "complianceReminders": "Rappels de conformité",
-        "complianceRemindersHint": "Relances aux membres en retard sur une exigence.",
+        "suppressAllActive": "Tant que ceci est actif, la préférence ci-dessous n'a aucun effet et chaque envoi est enregistré comme ignoré.",
         "welcomeMessages": "Messages de bienvenue",
-        "welcomeMessagesHint": "Un accueil pour les membres qui viennent de rejoindre.",
-        "weeklyDigest": "Résumé hebdomadaire",
-        "weeklyDigestHint": "Un point sur l'état de vos membres."
+        "welcomeMessagesHint": "Un accueil pour les membres qui viennent de rejoindre."
       },
       "account": {
         "title": "Votre compte",

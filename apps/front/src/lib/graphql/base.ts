@@ -614,6 +614,13 @@ export type AssociationInviteResult = {
   outcome: AssociationInviteOutcome;
 };
 
+/** Whether a submission after the deadline is accepted, and how */
+export enum AssociationLateSubmissionPolicy {
+  AcceptedDuringGrace = 'ACCEPTED_DURING_GRACE',
+  AcceptedFlaggedLate = 'ACCEPTED_FLAGGED_LATE',
+  NotAccepted = 'NOT_ACCEPTED'
+}
+
 export type AssociationLearningContent = {
   __typename?: 'AssociationLearningContent';
   audienceKind: AssociationAudienceKind;
@@ -751,6 +758,7 @@ export type AssociationMemberDistribution = {
 
 export type AssociationMemberFilterInput = {
   groupId?: InputMaybe<Scalars['ID']['input']>;
+  requirementId?: InputMaybe<Scalars['ID']['input']>;
   search?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<AssociationMemberStatus>;
 };
@@ -973,6 +981,11 @@ export type AssociationRecentActivity = {
   state: AssociationAttributionState;
 };
 
+/** What must be true for a requirement to count as renewed */
+export enum AssociationRenewalCondition {
+  TotalCreditsMet = 'TOTAL_CREDITS_MET'
+}
+
 export type AssociationRenewalReadinessRow = {
   __typename?: 'AssociationRenewalReadinessRow';
   awaitingReviewCount: Scalars['Int']['output'];
@@ -1079,7 +1092,6 @@ export enum AssociationReportingCycle {
 
 export type AssociationRequirement = {
   __typename?: 'AssociationRequirement';
-  allowLateSubmission: Scalars['Boolean']['output'];
   archivedAt?: Maybe<Scalars['DateTime']['output']>;
   assignedMemberCount: Scalars['Int']['output'];
   audienceKind: AssociationAudienceKind;
@@ -1092,16 +1104,17 @@ export type AssociationRequirement = {
   evidencePolicy: AssociationEvidencePolicy;
   gracePeriodDays: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
+  lateSubmissionPolicy: AssociationLateSubmissionPolicy;
   name: Scalars['String']['output'];
   publishedAt?: Maybe<Scalars['DateTime']['output']>;
   reminderTiming?: Maybe<CpdReminderTiming>;
   remindersEnabled: Scalars['Boolean']['output'];
+  renewalCondition: AssociationRenewalCondition;
   reportingCycle: AssociationReportingCycle;
   reportingEnd?: Maybe<Scalars['DateTime']['output']>;
   reportingStart?: Maybe<Scalars['DateTime']['output']>;
   status: AssociationRequirementStatus;
-  submissionClosesAt?: Maybe<Scalars['DateTime']['output']>;
-  submissionOpensAt?: Maybe<Scalars['DateTime']['output']>;
+  submissionWindow: AssociationSubmissionWindow;
   targets: Array<AssociationRequirementTarget>;
   totalRequiredCredits: Scalars['Float']['output'];
   updatedAt: Scalars['DateTime']['output'];
@@ -1181,15 +1194,11 @@ export type AssociationSettings = {
   __typename?: 'AssociationSettings';
   associationId: Scalars['ID']['output'];
   atRiskThreshold: Scalars['Int']['output'];
-  complianceReminders: Scalars['Boolean']['output'];
   createdAt: Scalars['DateTime']['output'];
-  defaultCreditType: CreditType;
   id: Scalars['ID']['output'];
   onTrackThreshold: Scalars['Int']['output'];
-  renewalRequiresReviewedEvidence: Scalars['Boolean']['output'];
   suppressAllEmail: Scalars['Boolean']['output'];
   updatedAt: Scalars['DateTime']['output'];
-  weeklyDigest: Scalars['Boolean']['output'];
   welcomeMessages: Scalars['Boolean']['output'];
 };
 
@@ -1200,6 +1209,15 @@ export type AssociationSettingsImpact = {
   membersLeavingAtRisk: Scalars['Int']['output'];
   totalMembers: Scalars['Int']['output'];
 };
+
+/** When a requirement's submission window opens, relative to its deadline */
+export enum AssociationSubmissionWindow {
+  Days_30 = 'DAYS_30',
+  Days_60 = 'DAYS_60',
+  Days_90 = 'DAYS_90',
+  Days_180 = 'DAYS_180',
+  WholePeriod = 'WHOLE_PERIOD'
+}
 
 export enum AuditAction {
   AdminProfileUpdated = 'ADMIN_PROFILE_UPDATED',
@@ -1856,6 +1874,7 @@ export type CreatePduActivityInput = {
   category: PduCategory;
   contentId?: InputMaybe<Scalars['String']['input']>;
   contentType?: InputMaybe<ContentType>;
+  cpdPlanId?: InputMaybe<Scalars['ID']['input']>;
   creditType: CreditType;
   date: Scalars['String']['input'];
   description?: InputMaybe<Scalars['String']['input']>;
@@ -2531,7 +2550,6 @@ export type Mutation = {
   resendEmailOtp: AuthPayload;
   resendOrganizationActivation: AuthPayload;
   resetPassword: AuthPayload;
-  resetProfessionalSettings: ProfessionalSettings;
   restoreCourse: Course;
   restoreEvent: Event;
   restorePodcast: Podcast;
@@ -4597,6 +4615,7 @@ export type ProfessionalPduActivity = {
   completionStatus: PduCompletionStatus;
   contentId?: Maybe<Scalars['String']['output']>;
   contentType?: Maybe<ContentType>;
+  cpdPlanId?: Maybe<Scalars['ID']['output']>;
   createdAt: Scalars['DateTime']['output'];
   creditType: CreditType;
   date: Scalars['DateTime']['output'];
@@ -4829,19 +4848,9 @@ export type ProfessionalSession = {
 
 export type ProfessionalSettings = {
   __typename?: 'ProfessionalSettings';
-  courseUpdates: Scalars['Boolean']['output'];
   createdAt: Scalars['DateTime']['output'];
-  emailNotifications: Scalars['Boolean']['output'];
-  eventReminders: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   interfaceLanguage: AppLanguage;
-  loginAlerts: Scalars['Boolean']['output'];
-  messages: Scalars['Boolean']['output'];
-  profileVisibility: ProfileVisibility;
-  pushNotifications: Scalars['Boolean']['output'];
-  showCertificates: Scalars['Boolean']['output'];
-  showEmail: Scalars['Boolean']['output'];
-  showLearningProgress: Scalars['Boolean']['output'];
   theme: Theme;
   updatedAt: Scalars['DateTime']['output'];
   userId: Scalars['ID']['output'];
@@ -4878,12 +4887,6 @@ export enum ProfileTaxonomyKind {
   Role = 'ROLE',
   SkillArea = 'SKILL_AREA',
   Subject = 'SUBJECT'
-}
-
-export enum ProfileVisibility {
-  FollowersOnly = 'FOLLOWERS_ONLY',
-  Private = 'PRIVATE',
-  Public = 'PUBLIC'
 }
 
 export type PromotionRequest = {
@@ -5113,6 +5116,7 @@ export type Query = {
   associationGroupProgressReport: Array<AssociationGroupProgressRow>;
   associationGroups: Array<AssociationGroup>;
   associationLearningContent: AssociationLearningContent;
+  associationLearningContentMembers: Array<AssociationMember>;
   associationLearningContents: PaginatedAssociationLearningContents;
   associationMemberActivities: PaginatedAssociationMemberActivities;
   associationMemberCompliance: AssociationMemberCompliance;
@@ -5358,6 +5362,12 @@ export type QueryAssociationGroupsArgs = {
 
 
 export type QueryAssociationLearningContentArgs = {
+  associationId?: InputMaybe<Scalars['ID']['input']>;
+  learningContentId: Scalars['ID']['input'];
+};
+
+
+export type QueryAssociationLearningContentMembersArgs = {
   associationId?: InputMaybe<Scalars['ID']['input']>;
   learningContentId: Scalars['ID']['input'];
 };
@@ -6238,11 +6248,9 @@ export type UpdateAdminUserStatus = {
 
 export type UpdateAssociationComplianceSettingsInput = {
   atRiskThreshold: Scalars['Int']['input'];
-  defaultCreditType: CreditType;
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
   expectedUpdatedAt: Scalars['DateTime']['input'];
   onTrackThreshold: Scalars['Int']['input'];
-  renewalRequiresReviewedEvidence: Scalars['Boolean']['input'];
 };
 
 export type UpdateAssociationGroupInput = {
@@ -6271,10 +6279,8 @@ export type UpdateAssociationMemberInput = {
 };
 
 export type UpdateAssociationNotificationSettingsInput = {
-  complianceReminders: Scalars['Boolean']['input'];
   expectedUpdatedAt: Scalars['DateTime']['input'];
   suppressAllEmail: Scalars['Boolean']['input'];
-  weeklyDigest: Scalars['Boolean']['input'];
   welcomeMessages: Scalars['Boolean']['input'];
 };
 
@@ -6289,7 +6295,7 @@ export type UpdateAssociationProfileInput = {
 
 export type UpdateAssociationRequirementAudienceInput = {
   audienceKind: AssociationAudienceKind;
-  groupId?: InputMaybe<Scalars['ID']['input']>;
+  groupIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   memberIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   requirementId: Scalars['ID']['input'];
 };
@@ -6318,13 +6324,13 @@ export type UpdateAssociationRequirementEvidenceRulesInput = {
 };
 
 export type UpdateAssociationRequirementReportingRulesInput = {
-  allowLateSubmission?: InputMaybe<Scalars['Boolean']['input']>;
   gracePeriodDays?: InputMaybe<Scalars['Int']['input']>;
+  lateSubmissionPolicy?: InputMaybe<AssociationLateSubmissionPolicy>;
+  renewalCondition?: InputMaybe<AssociationRenewalCondition>;
   reportingEnd?: InputMaybe<Scalars['DateTime']['input']>;
   reportingStart?: InputMaybe<Scalars['DateTime']['input']>;
   requirementId: Scalars['ID']['input'];
-  submissionClosesAt?: InputMaybe<Scalars['DateTime']['input']>;
-  submissionOpensAt?: InputMaybe<Scalars['DateTime']['input']>;
+  submissionWindow?: InputMaybe<AssociationSubmissionWindow>;
 };
 
 export type UpdateCertificateInput = {
@@ -6487,6 +6493,7 @@ export type UpdatePduActivityInput = {
   completionStatus?: InputMaybe<PduCompletionStatus>;
   contentId?: InputMaybe<Scalars['String']['input']>;
   contentType?: InputMaybe<ContentType>;
+  cpdPlanId?: InputMaybe<Scalars['ID']['input']>;
   creditType?: InputMaybe<CreditType>;
   date?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
@@ -6564,17 +6571,7 @@ export type UpdateProfessionalPreferencesInput = {
 };
 
 export type UpdateProfessionalSettingsInput = {
-  courseUpdates?: InputMaybe<Scalars['Boolean']['input']>;
-  emailNotifications?: InputMaybe<Scalars['Boolean']['input']>;
-  eventReminders?: InputMaybe<Scalars['Boolean']['input']>;
   interfaceLanguage?: InputMaybe<AppLanguage>;
-  loginAlerts?: InputMaybe<Scalars['Boolean']['input']>;
-  messages?: InputMaybe<Scalars['Boolean']['input']>;
-  profileVisibility?: InputMaybe<ProfileVisibility>;
-  pushNotifications?: InputMaybe<Scalars['Boolean']['input']>;
-  showCertificates?: InputMaybe<Scalars['Boolean']['input']>;
-  showEmail?: InputMaybe<Scalars['Boolean']['input']>;
-  showLearningProgress?: InputMaybe<Scalars['Boolean']['input']>;
   theme?: InputMaybe<Theme>;
 };
 

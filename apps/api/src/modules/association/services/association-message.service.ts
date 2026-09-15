@@ -310,7 +310,7 @@ export class AssociationMessageService {
       candidates.push(row);
     }
 
-    if (await this.settings.suppressesEmail(association.id))
+    if (await this.settings.suppressesMessageType(association.id, messageType))
       return {
         eligible: [],
         skipped: [

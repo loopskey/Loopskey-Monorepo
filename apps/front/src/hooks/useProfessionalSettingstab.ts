@@ -1,7 +1,7 @@
 "use client";
 
-import { AppLanguage, ProfileVisibility } from "@/lib/graphql/base";
 import { useEffect, useMemo, useState } from "react";
+import { AppLanguage } from "@/lib/graphql/base";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
 
@@ -31,21 +31,8 @@ export const useProfessionalSettingsTab = () => {
   const [updateSettings, updateSettingsState] =
     PAPI.useUpdateProfessionalSettingsMutation();
 
-  const [resetSettings, resetSettingsState] =
-    PAPI.useResetProfessionalSettingsMutation();
-
   const [settingsForm, setSettingsForm] = useState({
-    messages: true,
-    showEmail: false,
-    loginAlerts: true,
-    courseUpdates: true,
-    eventReminders: true,
-    showCertificates: true,
-    pushNotifications: true,
-    emailNotifications: true,
-    showLearningProgress: true,
     interfaceLanguage: AppLanguage.En,
-    profileVisibility: ProfileVisibility.Public,
   });
 
   const [passwordForm, setPasswordForm] = useState({
@@ -63,17 +50,7 @@ export const useProfessionalSettingsTab = () => {
   useEffect(() => {
     if (!settings) return;
     setSettingsForm({
-      messages: settings.messages,
-      showEmail: settings.showEmail,
-      loginAlerts: settings.loginAlerts,
-      courseUpdates: settings.courseUpdates,
-      eventReminders: settings.eventReminders,
-      showCertificates: settings.showCertificates,
       interfaceLanguage: settings.interfaceLanguage,
-      profileVisibility: settings.profileVisibility,
-      pushNotifications: settings.pushNotifications,
-      emailNotifications: settings.emailNotifications,
-      showLearningProgress: settings.showLearningProgress,
     });
   }, [settings]);
 
@@ -96,52 +73,6 @@ export const useProfessionalSettingsTab = () => {
       }).unwrap();
       applyAppPreferences(saved);
       notify.success(t("professionalDashboard.settings.saved"));
-    } catch {
-      notify.error(t("authPages.common.genericError"));
-    }
-  };
-
-  const saveNotificationSettings = async () => {
-    try {
-      await updateSettings({
-        messages: settingsForm.messages,
-        loginAlerts: settingsForm.loginAlerts,
-        courseUpdates: settingsForm.courseUpdates,
-        eventReminders: settingsForm.eventReminders,
-        pushNotifications: settingsForm.pushNotifications,
-        emailNotifications: settingsForm.emailNotifications,
-      }).unwrap();
-      notify.success(t("professionalDashboard.settings.saved"));
-    } catch {
-      notify.error(t("authPages.common.genericError"));
-    }
-  };
-
-  const savePrivacySettings = async () => {
-    try {
-      await updateSettings({
-        showEmail: settingsForm.showEmail,
-        showCertificates: settingsForm.showCertificates,
-        profileVisibility: settingsForm.profileVisibility,
-        showLearningProgress: settingsForm.showLearningProgress,
-      }).unwrap();
-      notify.success(t("professionalDashboard.settings.saved"));
-    } catch {
-      notify.error(t("authPages.common.genericError"));
-    }
-  };
-
-  const resetPrivacySettings = async () => {
-    try {
-      const saved = await resetSettings().unwrap();
-      setSettingsForm((prev) => ({
-        ...prev,
-        showEmail: saved.showEmail,
-        showCertificates: saved.showCertificates,
-        profileVisibility: saved.profileVisibility,
-        showLearningProgress: saved.showLearningProgress,
-      }));
-      notify.success(t("professionalDashboard.settings.resetDone"));
     } catch {
       notify.error(t("authPages.common.genericError"));
     }
@@ -209,14 +140,12 @@ export const useProfessionalSettingsTab = () => {
     () =>
       isSettingsFetching ||
       updateSettingsState.isLoading ||
-      resetSettingsState.isLoading ||
       changePasswordState.isLoading ||
       requestEmailChangeState.isLoading ||
       verifyEmailChangeState.isLoading,
     [
       isSettingsFetching,
       updateSettingsState.isLoading,
-      resetSettingsState.isLoading,
       changePasswordState.isLoading,
       requestEmailChangeState.isLoading,
       verifyEmailChangeState.isLoading,
@@ -237,9 +166,6 @@ export const useProfessionalSettingsTab = () => {
     setPasswordForm,
     sendEmailChangeOtp,
     saveGeneralSettings,
-    savePrivacySettings,
-    resetPrivacySettings,
     verifyEmailChangeOtp,
-    saveNotificationSettings,
   };
 };

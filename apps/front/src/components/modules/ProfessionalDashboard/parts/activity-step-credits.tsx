@@ -13,6 +13,7 @@ const TRACKER = "professionalDashboard.cpdPduTracker";
 export const ActivityStepCredits = ({
   t,
   control,
+  planOptions,
   subCategoryOptions,
   onReportingYearTouched,
 }: TActivityStepCreditsProps) => (
@@ -95,5 +96,17 @@ export const ActivityStepCredits = ({
       className="md:col-span-2"
       label={t(`${TRACKER}.fields.description`)}
     />
+
+    {planOptions.length > 0 && (
+      <FloatingSelectField
+        name="cpdPlanId"
+        control={control}
+        className="md:col-span-2"
+        options={planOptions}
+        label={t(`${TRACKER}.fields.cpdPlan`)}
+        description={t(`${TRACKER}.fields.cpdPlanHint`)}
+        placeholder={t(`${TRACKER}.fields.cpdPlanPlaceholder`)}
+      />
+    )}
   </div>
 );

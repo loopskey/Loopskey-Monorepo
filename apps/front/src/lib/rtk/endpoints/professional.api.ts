@@ -356,18 +356,6 @@ export const professionalApi = baseApi.injectEndpoints({
       invalidatesTags: ["ProfessionalSettings", "Professional"],
     }),
 
-    resetProfessionalSettings: builder.mutation<
-      TAPI.ResetProfessionalSettingsMutation["resetProfessionalSettings"],
-      void
-    >({
-      query: () => ({
-        document: API.ResetProfessionalSettingsDocument,
-      }),
-      transformResponse: (response: TAPI.ResetProfessionalSettingsMutation) =>
-        response.resetProfessionalSettings,
-      invalidatesTags: ["ProfessionalSettings", "Professional"],
-    }),
-
     updateProfessionalBasicProfile: builder.mutation<
       TAPI.UpdateProfessionalBasicProfileMutation["updateProfessionalBasicProfile"],
       TAPI.UpdateProfessionalBasicProfileMutationVariables["input"]
@@ -676,7 +664,6 @@ export const {
   useProfessionalActiveSessionsQuery,
   useProfessionalExploreRoadmapsQuery,
   useLazyProfessionalCertificatesQuery,
-  useResetProfessionalSettingsMutation,
   useProfessionalDashboardProfileQuery,
   useLazyProfessionalPduActivitiesQuery,
   useUpdateProfessionalSettingsMutation,

@@ -48,6 +48,7 @@
     "setup": {
       "titleManual": "Add CPD/PDU manually",
       "titleSuggestion": "Review your CPD/PDU setup",
+      "titleEdit": "Edit CPD/PDU plan",
       "subtitle": "Complete the four steps to create your plan.",
       "step1": {
         "title": "Certification Details",
@@ -105,7 +106,8 @@
         "deleteConfirmDescription": "This will remove"
       },
       "actions": {
-        "create": "Create CPD Plan"
+        "create": "Create CPD Plan",
+        "save": "Save Changes"
       },
       "unsaved": {
         "title": "Discard changes?",
@@ -177,6 +179,7 @@
     },
     "progress": {
       "planLabel": "Plan",
+      "editPlan": "Edit plan",
       "deletePlan": "Delete plan",
       "cards": {
         "earned": "Earned",
@@ -222,6 +225,8 @@
     "toast": {
       "planCreated": "CPD/PDU plan created.",
       "createError": "Could not create the plan. Please try again.",
+      "planUpdated": "CPD/PDU plan updated.",
+      "updateError": "Could not update the plan. Please try again.",
       "planDeleted": "Plan deleted.",
       "deleteError": "Could not delete the plan.",
       "summaryReady": "CPD summary downloaded.",
@@ -3673,18 +3678,12 @@
     "settings": {
       "eyebrow": "Professional Settings",
       "title": "Settings",
-      "description": "Personalize your LoopsKey experience: language, theme, notifications and profile visibility.",
+      "description": "Personalize your LoopsKey experience: language and account security.",
       "saved": "Settings saved successfully.",
       "profileSaved": "Profile updated successfully.",
-      "resetDone": "Settings reset to default.",
       "saveChanges": "Save changes",
-      "saveNotifications": "Save notification settings",
-      "savePrivacy": "Save privacy settings",
-      "resetDefault": "Reset to default",
       "tabs": {
         "general": "General",
-        "notifications": "Notifications",
-        "privacy": "Privacy",
         "security": "Security"
       },
       "general": {
@@ -3694,41 +3693,6 @@
         "languageHint": "Choose the language used across your dashboard.",
         "note": "These settings affect only your personal dashboard experience.",
         "save": "Save changes"
-      },
-      "notifications": {
-        "title": "Notifications",
-        "description": "Choose how LoopsKey keeps you informed about important updates.",
-        "emailNotifications": "Email notifications",
-        "emailNotificationsDescription": "Receive important updates and alerts via email.",
-        "pushNotifications": "Push notifications",
-        "pushNotificationsDescription": "Allow in-browser or in-app notifications for key events.",
-        "courseUpdates": "Course updates",
-        "courseUpdatesDescription": "Get notified when your enrolled courses are updated.",
-        "messages": "Messages",
-        "messagesDescription": "Alerts for new messages from providers or admins.",
-        "eventReminders": "Event reminders",
-        "eventRemindersDescription": "Reminders for upcoming sessions, deadlines and events.",
-        "loginAlerts": "Login alerts",
-        "loginAlertsDescription": "Get notified when a new login is detected on your account.",
-        "save": "Save notification settings"
-      },
-      "privacy": {
-        "title": "Profile & Privacy",
-        "description": "Control what others can see on your public LoopsKey profile.",
-        "public": "Public",
-        "publicDescription": "Visible to everyone on LoopsKey.",
-        "followersOnly": "Followers only",
-        "followersOnlyDescription": "Visible only to your accepted followers.",
-        "private": "Private",
-        "privateDescription": "Only you can see your full profile.",
-        "showEmail": "Show email",
-        "showEmailDescription": "Allow collaborators to contact you directly.",
-        "showLearningProgress": "Show learning progress",
-        "showLearningProgressDescription": "Display your learning journey publicly.",
-        "showCertificates": "Show certificates",
-        "showCertificatesDescription": "Allow others to view your verified certificates.",
-        "save": "Save privacy settings",
-        "reset": "Reset to default"
       },
       "profile": {
         "bio": "Bio",
@@ -3965,6 +3929,9 @@
         "reportingYearHint": "Defaults to the year of the completion date.",
         "issuingOrganization": "Issuing organization",
         "relatedCertification": "Related certification / licence",
+        "cpdPlan": "CPD/PDU plan",
+        "cpdPlanHint": "Attribute this activity's credits to one of your plans. Leave unselected to count it toward your overall progress as usual.",
+        "cpdPlanPlaceholder": "No plan selected",
         "description": "Activity description / notes",
         "descriptionPlaceholder": "Briefly describe the activity.",
         "evidenceNote": "File notes",
@@ -4361,13 +4328,6 @@
           "duration": "Duration in minutes (optional)",
           "notes": "Notes (optional)"
         }
-      },
-      "cards": {
-        "totalEvents": "Total events",
-        "upcoming": "Upcoming",
-        "live": "Live now",
-        "completed": "Completed",
-        "totalPdus": "Total PDUs"
       },
       "filters": {
         "searchLabel": "Search",
@@ -5330,6 +5290,8 @@
         "searchPlaceholder": "Name, email or member number",
         "group": "Group",
         "allGroups": "All groups",
+        "requirement": "Requirement",
+        "allRequirements": "All requirements",
         "status": "Status",
         "allStatuses": "All statuses",
         "clear": "Clear filters"
@@ -5698,6 +5660,28 @@
         "REQUIRED_NO_REVIEW": "Evidence required, no review",
         "REQUIRED_NEEDS_REVIEW": "Evidence required, needs review"
       },
+      "submissionWindow": {
+        "WHOLE_PERIOD": "Whole reporting period",
+        "DAYS_180": "180 days before deadline",
+        "DAYS_90": "90 days before deadline",
+        "DAYS_60": "60 days before deadline",
+        "DAYS_30": "30 days before deadline"
+      },
+      "lateSubmissionPolicy": {
+        "NOT_ACCEPTED": "Not accepted",
+        "ACCEPTED_DURING_GRACE": "Accepted during the grace period",
+        "ACCEPTED_FLAGGED_LATE": "Accepted, flagged as late"
+      },
+      "renewalCondition": {
+        "TOTAL_CREDITS_MET": "Total credits met"
+      },
+      "gracePeriod": {
+        "0": "No grace period",
+        "14": "14 days after deadline",
+        "30": "30 days after deadline",
+        "60": "60 days after deadline",
+        "90": "90 days after deadline"
+      },
       "creditType": {
         "CPD": "CPD",
         "CEU": "CEU",
@@ -5748,8 +5732,10 @@
         "cycleLengthHint": "A multi-year cycle needs a length.",
         "evidencePolicy": "Evidence",
         "audience": "Who it applies to",
-        "group": "Group",
-        "groupPlaceholder": "Choose a group",
+        "group": "Groups",
+        "groupPlaceholder": "Search groups by name",
+        "groupsEmpty": "No groups match that search.",
+        "groupsResults": "{{count}} groups found.",
         "members": "Members",
         "membersPlaceholder": "Search members by name or email",
         "membersEmpty": "No members match that search.",
@@ -5809,10 +5795,10 @@
           "description": "Set the reporting period, the submission window and reminders.",
           "periodStart": "Reporting starts",
           "periodEnd": "Reporting ends",
-          "submissionOpens": "Submission opens",
-          "submissionCloses": "Submission closes",
-          "gracePeriod": "Grace period in days",
-          "allowLate": "Allow late submission",
+          "submissionWindow": "Submission window",
+          "gracePeriod": "Grace period",
+          "lateSubmissionPolicy": "Late submissions",
+          "renewalCondition": "Renewal condition",
           "reminders": "Send reminders",
           "reminderTiming": "Remind members"
         }
@@ -5841,8 +5827,10 @@
         "categories": "Categories",
         "reportingPeriod": "Reporting period",
         "submissionWindow": "Submission window",
-        "gracePeriodDays": "Grace period in days",
-        "allowLateSubmission": "Late submission allowed",
+        "submissionOpens": "Submission opens",
+        "gracePeriod": "Grace period",
+        "lateSubmissionPolicy": "Late submissions",
+        "renewalCondition": "Renewal condition",
         "reminders": "Reminders",
         "yes": "Yes",
         "no": "No"
@@ -5884,7 +5872,8 @@
         "assigned": "{{added}} members added."
       },
       "errors": {
-        "membersRequired": "Choose at least one member."
+        "membersRequired": "Choose at least one member.",
+        "groupsRequired": "Choose at least one group."
       },
       "error": {
         "title": "We could not load your requirements",
@@ -5901,7 +5890,8 @@
         "view": "View details",
         "edit": "Edit",
         "publish": "Publish",
-        "reassign": "Change audience",
+        "reassign": "Assign",
+        "viewMembers": "View members",
         "withdraw": "Withdraw",
         "delete": "Delete"
       },
@@ -6021,6 +6011,20 @@
         "engagementTitle": "What members did with it",
         "engagementBody": "{{members}} members recorded an activity against this, carrying {{credits}} credits.",
         "engagementExternal": "Engagement is counted for catalogue content, which members can link an activity to. An external resource has no such link."
+      },
+      "members": {
+        "title": "Members",
+        "description": "Who this item's audience resolves to right now.",
+        "count": "{{count}} members",
+        "empty": "No members match this audience yet.",
+        "remove": "Remove {{name}}",
+        "removed": "Member removed.",
+        "add": "Add members",
+        "addPlaceholder": "Search members by name or email",
+        "added": "Member added.",
+        "readOnlyGroup": "This audience is a group. Add or remove whole groups from Assign; individual members here follow their group membership.",
+        "readOnlyAll": "This audience is every member of your association, so there is nothing to add or remove here.",
+        "close": "Close"
       },
       "confirm": {
         "deleteTitle": "Delete this draft?",
@@ -6446,19 +6450,11 @@
         "description": "How progress is classified. These change how members are grouped, never how many credits they owe.",
         "review": "Review changes",
         "saved": "Compliance defaults saved.",
-        "defaultCreditType": "Default credit type",
-        "defaultCreditTypeHint": "Applied to a new requirement unless you change it there.",
         "onTrackThreshold": "On-track threshold",
         "onTrackThresholdHint": "At or above this percentage a member counts as on track.",
         "atRiskThreshold": "At-risk threshold",
         "atRiskThresholdHint": "Below this percentage a member appears on the Notifications tab's attention lists.",
-        "renewalRequiresReviewedEvidence": "Renewal needs every review settled",
-        "renewalRequiresReviewedEvidenceHint": "A member with evidence still awaiting your decision is held back from renewal ready.",
-        "orderInvalid": "The at-risk threshold must sit below the on-track threshold.",
-        "creditTypes": {
-          "CPD": "CPD",
-          "PDU": "PDU"
-        }
+        "orderInvalid": "The at-risk threshold must sit below the on-track threshold."
       },
       "notifications": {
         "title": "Notifications",
@@ -6467,13 +6463,9 @@
         "saved": "Notification preferences saved.",
         "suppressAllEmail": "Suppress all association email",
         "suppressAllEmailHint": "Overrides everything below. Nothing you author reaches a member while this is on.",
-        "suppressAllActive": "While this is on, the three preferences below have no effect and every send is recorded as skipped.",
-        "complianceReminders": "Compliance reminders",
-        "complianceRemindersHint": "Nudges to members who are behind on a requirement.",
+        "suppressAllActive": "While this is on, the preference below has no effect and every send is recorded as skipped.",
         "welcomeMessages": "Welcome messages",
-        "welcomeMessagesHint": "A greeting to members who have just joined.",
-        "weeklyDigest": "Weekly digest",
-        "weeklyDigestHint": "A summary of where your membership stands."
+        "welcomeMessagesHint": "A greeting to members who have just joined."
       },
       "account": {
         "title": "Your account",

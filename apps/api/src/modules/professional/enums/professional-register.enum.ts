@@ -29,7 +29,6 @@ registerEnumType(Prisma.PDUStatus, { name: "PDUStatus" });
 registerEnumType(Prisma.AppLanguage, { name: "AppLanguage" });
 registerEnumType(Prisma.RoadmapStatus, { name: "RoadmapStatus" });
 registerEnumType(Prisma.PaymentStatus, { name: "PaymentStatus" });
-registerEnumType(Prisma.ProfileVisibility, { name: "ProfileVisibility" });
 registerEnumType(Prisma.CertificateStatus, { name: "CertificateStatus" });
 registerEnumType(Prisma.RoadmapEnrollmentStatus, {
   name: "RoadmapEnrollmentStatus",

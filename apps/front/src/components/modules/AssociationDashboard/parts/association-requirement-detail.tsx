@@ -4,6 +4,7 @@ import { TAssociationRequirementDetailView } from "@/types/association-dashboard
 import { AssociationRequirementStatus } from "@/lib/graphql/base";
 import { FloatingTextareaField } from "@elements/floating-textarea";
 import { FloatingInputField } from "@elements/floating-input";
+import { submissionOpensAt } from "@utils/association-requirement";
 import { useChartPalette } from "@hooks/useChartPalette";
 import { GlassCard } from "@elements/glass-card";
 import { Skeleton } from "@ui/skeleton";
@@ -98,18 +99,35 @@ export const AssociationRequirementDetail = ({
     },
     {
       id: "submissionWindow",
-      value: `${formatDate(requirement.submissionOpensAt)} — ${formatDate(requirement.submissionClosesAt)}`,
-    },
-    {
-      id: "gracePeriodDays",
-      value: requirement.gracePeriodDays.toLocaleString(locale),
-    },
-    {
-      id: "allowLateSubmission",
       value: t(
-        requirement.allowLateSubmission
-          ? "associationDashboard.requirements.detail.yes"
-          : "associationDashboard.requirements.detail.no",
+        `associationDashboard.requirements.submissionWindow.${requirement.submissionWindow}`,
+      ),
+    },
+    {
+      id: "submissionOpens",
+      value: formatDate(
+        submissionOpensAt(
+          requirement.deadline,
+          requirement.submissionWindow,
+        )?.toISOString(),
+      ),
+    },
+    {
+      id: "gracePeriod",
+      value: t(
+        `associationDashboard.requirements.gracePeriod.${requirement.gracePeriodDays}`,
+      ),
+    },
+    {
+      id: "lateSubmissionPolicy",
+      value: t(
+        `associationDashboard.requirements.lateSubmissionPolicy.${requirement.lateSubmissionPolicy}`,
+      ),
+    },
+    {
+      id: "renewalCondition",
+      value: t(
+        `associationDashboard.requirements.renewalCondition.${requirement.renewalCondition}`,
       ),
     },
     {
@@ -221,11 +239,7 @@ export const AssociationRequirementDetail = ({
               />
 
               <div className="flex justify-end">
-                <Button
-                  radius="xl"
-                  type="submit"
-                  disabled={isSaving}
-                >
+                <Button radius="xl" type="submit" disabled={isSaving}>
                   {isSaving && <L.Loader2 className="h-4 w-4 animate-spin" />}
                   {t("associationDashboard.requirements.detail.saveChanges")}
                 </Button>

@@ -1,1 +1,9 @@
 *.sh text eol=lf
+*.gql text eol=lf
+
+# graphql-codegen always writes LF. Without this, `core.autocrlf=true`
+# checkouts flip these files to CRLF on disk, and every regeneration then
+# shows a spurious LF/CRLF-only diff with no real content change.
+apps/front/src/lib/graphql/generated.ts text eol=lf
+apps/front/src/lib/graphql/base.ts text eol=lf
+apps/front/src/lib/graphql/operations/*.ts text eol=lf

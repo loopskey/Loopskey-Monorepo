@@ -30,7 +30,6 @@ const ProfessionalCalendarTab = () => {
     t,
     data,
     page,
-    stats,
     search,
     events,
     pageInfo,
@@ -101,78 +100,6 @@ const ProfessionalCalendarTab = () => {
             {t("professionalDashboard.calendar.addEvent")}
           </Button>
         </div>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-        <GlassCard className="p-5">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="text-sm text-muted-foreground">
-                {t("professionalDashboard.calendar.cards.totalEvents")}
-              </p>
-              <p className="mt-2 text-3xl font-medium">{stats.total}</p>
-            </div>
-            <div className="rounded-md bg-primary/10 p-3 text-primary">
-              <L.CalendarDays className="h-5 w-5" />
-            </div>
-          </div>
-        </GlassCard>
-
-        <GlassCard className="p-5">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="text-sm text-muted-foreground">
-                {t("professionalDashboard.calendar.cards.upcoming")}
-              </p>
-              <p className="mt-2 text-3xl font-medium">{stats.upcoming}</p>
-            </div>
-            <div className="rounded-md bg-primary/10 p-3 text-primary">
-              <L.Clock className="h-5 w-5" />
-            </div>
-          </div>
-        </GlassCard>
-
-        <GlassCard className="p-5">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="text-sm text-muted-foreground">
-                {t("professionalDashboard.calendar.cards.live")}
-              </p>
-              <p className="mt-2 text-3xl font-medium">{stats.live}</p>
-            </div>
-            <div className="rounded-md bg-primary/10 p-3 text-primary">
-              <L.Video className="h-5 w-5" />
-            </div>
-          </div>
-        </GlassCard>
-
-        <GlassCard className="p-5">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="text-sm text-muted-foreground">
-                {t("professionalDashboard.calendar.cards.completed")}
-              </p>
-              <p className="mt-2 text-3xl font-medium">{stats.completed}</p>
-            </div>
-            <div className="rounded-md bg-primary/10 p-3 text-primary">
-              <L.CalendarCheck className="h-5 w-5" />
-            </div>
-          </div>
-        </GlassCard>
-
-        <GlassCard className="p-5">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="text-sm text-muted-foreground">
-                {t("professionalDashboard.calendar.cards.totalPdus")}
-              </p>
-              <p className="mt-2 text-3xl font-medium">{stats.totalPdus}</p>
-            </div>
-            <div className="rounded-md bg-primary/10 p-3 text-primary">
-              <L.Sparkles className="h-5 w-5" />
-            </div>
-          </div>
-        </GlassCard>
       </div>
 
       <div className="grid gap-4 xl:grid-cols-3">

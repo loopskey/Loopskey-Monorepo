@@ -5,7 +5,6 @@ import { AssociationSettingsSection } from "@modules/AssociationDashboard/parts/
 import { useAssociationSettingsTab } from "@hooks/useAssociationSettingsTab";
 import { FloatingTextareaField } from "@elements/floating-textarea";
 import { AssociationLogoField } from "@modules/AssociationDashboard/parts/association-logo-field";
-import { FloatingSelectField } from "@elements/floating-select";
 import { FloatingInputField } from "@elements/floating-input";
 import { GlassCard } from "@elements/glass-card";
 import { Skeleton } from "@ui/skeleton";
@@ -40,17 +39,6 @@ const AssociationSettingsTab = () => {
     isSavingCompliance,
     isSavingNotifications,
   } = hook;
-
-  const creditTypeOptions = S.ASSOCIATION_CREDIT_TYPES.map((value) => ({
-    value,
-    label: label(`compliance.creditTypes.${value}`),
-  }));
-
-  const switches = [
-    { key: "complianceReminders" as const, isMaster: false },
-    { key: "welcomeMessages" as const, isMaster: false },
-    { key: "weeklyDigest" as const, isMaster: false },
-  ];
 
   const suppressAll = notificationForm.watch("suppressAllEmail");
 
@@ -170,16 +158,6 @@ const AssociationSettingsTab = () => {
           description={label("compliance.description")}
         >
           <div className="grid gap-5 md:grid-cols-2">
-            <FloatingSelectField
-              name="defaultCreditType"
-              options={creditTypeOptions}
-              control={complianceForm.control}
-              label={label("compliance.defaultCreditType")}
-              description={label("compliance.defaultCreditTypeHint")}
-            />
-
-            <div />
-
             <FloatingInputField
               type="number"
               name="onTrackThreshold"
@@ -200,34 +178,6 @@ const AssociationSettingsTab = () => {
               description={label("compliance.atRiskThresholdHint")}
             />
           </div>
-
-          <F.FormField
-            control={complianceForm.control}
-            name="renewalRequiresReviewedEvidence"
-            render={({ field }) => (
-              <F.FormItem className="flex items-start justify-between gap-4 rounded-md border p-4">
-                <div>
-                  <F.FormLabel className="font-medium">
-                    {label("compliance.renewalRequiresReviewedEvidence")}
-                  </F.FormLabel>
-
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {label("compliance.renewalRequiresReviewedEvidenceHint")}
-                  </p>
-                </div>
-
-                <F.FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                    aria-label={label(
-                      "compliance.renewalRequiresReviewedEvidence",
-                    )}
-                  />
-                </F.FormControl>
-              </F.FormItem>
-            )}
-          />
         </AssociationSettingsSection>
       </F.Form>
 
@@ -272,35 +222,32 @@ const AssociationSettingsTab = () => {
             </p>
           )}
 
-          {switches.map((item) => (
-            <F.FormField
-              key={item.key}
-              control={notificationForm.control}
-              name={item.key}
-              render={({ field }) => (
-                <F.FormItem className="flex items-start justify-between gap-4 rounded-md border p-4">
-                  <div>
-                    <F.FormLabel className="font-medium">
-                      {label(`notifications.${item.key}`)}
-                    </F.FormLabel>
+          <F.FormField
+            control={notificationForm.control}
+            name="welcomeMessages"
+            render={({ field }) => (
+              <F.FormItem className="flex items-start justify-between gap-4 rounded-md border p-4">
+                <div>
+                  <F.FormLabel className="font-medium">
+                    {label("notifications.welcomeMessages")}
+                  </F.FormLabel>
 
-                    <p className="mt-1 max-w-xl text-sm text-muted-foreground">
-                      {label(`notifications.${item.key}Hint`)}
-                    </p>
-                  </div>
+                  <p className="mt-1 max-w-xl text-sm text-muted-foreground">
+                    {label("notifications.welcomeMessagesHint")}
+                  </p>
+                </div>
 
-                  <F.FormControl>
-                    <Switch
-                      disabled={suppressAll}
-                      checked={field.value && !suppressAll}
-                      onCheckedChange={field.onChange}
-                      aria-label={label(`notifications.${item.key}`)}
-                    />
-                  </F.FormControl>
-                </F.FormItem>
-              )}
-            />
-          ))}
+                <F.FormControl>
+                  <Switch
+                    disabled={suppressAll}
+                    checked={field.value && !suppressAll}
+                    onCheckedChange={field.onChange}
+                    aria-label={label("notifications.welcomeMessages")}
+                  />
+                </F.FormControl>
+              </F.FormItem>
+            )}
+          />
         </AssociationSettingsSection>
       </F.Form>
 

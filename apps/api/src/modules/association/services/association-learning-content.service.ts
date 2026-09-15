@@ -167,6 +167,53 @@ export class AssociationLearningContentService {
     };
   }
 
+  async members(user: TAssociationUser, id: string, associationId?: string) {
+    const association = await this.access.requireReadable(user, associationId);
+    const row = await this.require(association.id, id);
+
+    const groupIds = row.targets
+      .filter((target) => target.groupId)
+      .map((target) => target.groupId as string);
+    const memberIds = row.targets
+      .filter((target) => target.memberId)
+      .map((target) => target.memberId as string);
+
+    const where: Prisma.AssociationMemberWhereInput =
+      row.audienceKind === AssociationAudienceKind.SPECIFIC_MEMBERS
+        ? { associationId: association.id, id: { in: memberIds } }
+        : {
+            associationId: association.id,
+            status: { not: AssociationMemberStatus.INACTIVE },
+            ...(row.audienceKind === AssociationAudienceKind.GROUP
+              ? { groupId: { in: groupIds } }
+              : {}),
+          };
+
+    const rows = await this.prisma.associationMember.findMany({
+      where,
+      orderBy: [{ invitedAt: "desc" }, { id: "desc" }],
+      select: {
+        id: true,
+        userId: true,
+        memberNumber: true,
+        notes: true,
+        status: true,
+        invitedAt: true,
+        activatedAt: true,
+        deactivatedAt: true,
+        group: { select: { id: true, title: true, isActive: true } },
+        user: { select: { fullName: true, email: true, avatarUrl: true } },
+      },
+    });
+
+    return rows.map(({ user: memberUser, ...member }) => ({
+      ...member,
+      fullName: memberUser.fullName,
+      email: memberUser.email,
+      avatarUrl: memberUser.avatarUrl,
+    }));
+  }
+
   private async engagement(
     associationId: string,
     row: ContentRecord,

@@ -76,7 +76,7 @@ describe("ProfessionalCpdPlanService.progress", () => {
     expect(progress.startingCredits).toBe(22);
   });
 
-  it("scopes the aggregate to non-rejected activities in the plan's credit type and reporting window", async () => {
+  it("scopes the aggregate to non-rejected activities either linked to the plan or matching its credit type and reporting window", async () => {
     const { service, prisma } = createService();
     prisma.pDUActivity.aggregate.mockResolvedValue({
       _sum: { pdus: 12 },
@@ -87,12 +87,18 @@ describe("ProfessionalCpdPlanService.progress", () => {
 
     const where = prisma.pDUActivity.aggregate.mock.calls[0][0].where;
     expect(where.userId).toBe("user-1");
-    expect(where.creditType).toBe(CreditType.PDU);
     expect(where.status).toEqual({ not: "REJECTED" });
-    expect(where.date).toEqual({
-      gte: basePlan.reportingStart,
-      lte: basePlan.reportingEnd,
-    });
+    expect(where.OR).toEqual([
+      { cpdPlanId: "plan-1" },
+      {
+        cpdPlanId: null,
+        creditType: CreditType.PDU,
+        date: {
+          gte: basePlan.reportingStart,
+          lte: basePlan.reportingEnd,
+        },
+      },
+    ]);
   });
 
   it("does not let starting credits inflate earned, remaining, or the donut", async () => {

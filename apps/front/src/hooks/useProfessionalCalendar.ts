@@ -5,11 +5,9 @@ import { ProfessionalCalendarEventsQueryVariables } from "@/lib/graphql/operatio
 import { ChangeEvent, useMemo, useState } from "react";
 import { PAGE_SIZE, toDateInputValue } from "@/utils/constant";
 import { TProfessionalCalendarEvent } from "@/types/professional-dashboard.types";
-import { EventRegistrationStatus } from "@/lib/graphql/base";
 import { TUpcomingCalendarItem } from "@/types/professional-dashboard.types";
 import { TManualCalendarEvent } from "@/types/professional-dashboard.types";
 import { getContentTypeStyle } from "@/utils/content-type-style";
-import { TCalendarStats } from "@/types/professional-dashboard.types";
 import { TSelectedRange } from "@/types/professional-dashboard.types";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
@@ -102,29 +100,6 @@ export const useProfessionalCalendar = () => {
   }, [manualEvents, search, selectedRange.start, selectedRange.end, t]);
 
   const pageInfo = data?.pageInfo;
-
-  const stats = useMemo<TCalendarStats>(() => {
-    const total = (data?.totalCount ?? 0) + manualEvents.length;
-    const upcoming =
-      events.filter((item) => item.isUpcoming).length +
-      manualEvents.filter((item) => item.isUpcoming).length;
-    const live =
-      events.filter((item) => item.isLive).length +
-      manualEvents.filter((item) => item.isLive).length;
-    const completed = events.filter((item) => {
-      return item.status === EventRegistrationStatus.Completed;
-    }).length;
-    const totalPdus = events.reduce((sum, item) => {
-      return sum + Number(item.event?.pdu ?? 0);
-    }, 0);
-    return {
-      live,
-      total,
-      upcoming,
-      completed,
-      totalPdus,
-    };
-  }, [data?.totalCount, events, manualEvents]);
 
   const calendarEvents = useMemo<EventInput[]>(() => {
     const registrationEvents = events
@@ -334,7 +309,6 @@ export const useProfessionalCalendar = () => {
     t,
     data,
     page,
-    stats,
     search,
     events,
     refetch,
@@ -347,8 +321,6 @@ export const useProfessionalCalendar = () => {
     manualEvents,
     openAddDialog,
     getEventHref,
-    closeEventDetails,
-    filteredManualEvents,
     resetFilters,
     selectedEvent,
     selectedRange,
@@ -358,11 +330,13 @@ export const useProfessionalCalendar = () => {
     formatDateTime,
     handlePrevious,
     isManualFetching,
-    selectedManualEvent,
-    handleAddOpenChange,
+    closeEventDetails,
     closeSelectedEvent,
     handleSearchChange,
+    selectedManualEvent,
+    handleAddOpenChange,
     handleEndDateChange,
+    filteredManualEvents,
     handleStartDateChange,
     handleSearchInputChange,
     handleDeleteManualEvent,

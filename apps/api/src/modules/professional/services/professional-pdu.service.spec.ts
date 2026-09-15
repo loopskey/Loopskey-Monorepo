@@ -28,6 +28,9 @@ const createPrismaMock = () => {
     pDUActivityFile: {
       count: jest.fn(),
     },
+    cPDPlan: {
+      findFirst: jest.fn(),
+    },
   };
   prisma.$transaction = jest.fn(async (run: (tx: unknown) => unknown) =>
     run(prisma),
@@ -42,6 +45,7 @@ const createPrismaMock = () => {
       delete: jest.Mock;
     };
     pDUActivityFile: { count: jest.Mock };
+    cPDPlan: { findFirst: jest.Mock };
     $transaction: jest.Mock;
   };
 };
@@ -173,6 +177,82 @@ describe("ProfessionalPduService.pduActivities filters", () => {
 
     const where = prisma.pDUActivity.findMany.mock.calls[0][0].where;
     expect(where.evidenceFiles).toEqual({ none: {} });
+  });
+});
+
+describe("ProfessionalPduService cpdPlanId linking", () => {
+  it("links a created activity to an owned plan", async () => {
+    const { service, prisma } = createService();
+    prisma.cPDPlan.findFirst.mockResolvedValue({ id: "plan-1" });
+    prisma.pDUActivity.create.mockResolvedValue({
+      id: "activity-1",
+      userId: "user-1",
+    });
+
+    await service.createPduActivity(
+      professional,
+      createInput({ cpdPlanId: "plan-1" }),
+    );
+
+    expect(prisma.cPDPlan.findFirst).toHaveBeenCalledWith({
+      where: { id: "plan-1", userId: "user-1" },
+      select: { id: true },
+    });
+    const data = prisma.pDUActivity.create.mock.calls[0][0].data;
+    expect(data.cpdPlanId).toBe("plan-1");
+  });
+
+  it("refuses to link a created activity to a plan owned by someone else", async () => {
+    const { service, prisma } = createService();
+    prisma.cPDPlan.findFirst.mockResolvedValue(null);
+
+    await expect(
+      service.createPduActivity(
+        professional,
+        createInput({ cpdPlanId: "foreign-plan" }),
+      ),
+    ).rejects.toBeInstanceOf(NotFoundException);
+    expect(prisma.pDUActivity.create).not.toHaveBeenCalled();
+  });
+
+  it("refuses to relink an existing activity to a plan owned by someone else", async () => {
+    const { service, prisma } = createService();
+    prisma.pDUActivity.findFirst.mockResolvedValue({
+      id: "activity-1",
+      userId: "user-1",
+      evidenceFiles: [],
+    });
+    prisma.cPDPlan.findFirst.mockResolvedValue(null);
+
+    await expect(
+      service.updatePduActivity(professional, {
+        activityId: "activity-1",
+        cpdPlanId: "foreign-plan",
+      } as never),
+    ).rejects.toBeInstanceOf(NotFoundException);
+    expect(prisma.pDUActivity.update).not.toHaveBeenCalled();
+  });
+
+  it("unlinks an activity from its plan without an ownership lookup", async () => {
+    const { service, prisma } = createService();
+    prisma.pDUActivity.findFirst.mockResolvedValue({
+      id: "activity-1",
+      userId: "user-1",
+      evidenceFiles: [],
+    });
+    prisma.pDUActivity.update.mockResolvedValue({
+      id: "activity-1",
+      userId: "user-1",
+    });
+
+    await service.updatePduActivity(professional, {
+      activityId: "activity-1",
+      cpdPlanId: null,
+    } as never);
+
+    expect(prisma.cPDPlan.findFirst).not.toHaveBeenCalled();
+    const data = prisma.pDUActivity.update.mock.calls[0][0].data;
+    expect(data.cpdPlanId).toBeNull();
   });
 });
 

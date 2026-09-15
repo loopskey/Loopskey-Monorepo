@@ -1,9 +1,13 @@
 import { CPDReminderTiming, CreditType, PDUCategory } from "@prisma/client";
 import { ASSOCIATION_REQUIREMENT_LIMITS as LIMITS } from "@loopskey/api-contracts/validation";
 import { MaxLength, MinLength, ValidateNested } from "class-validator";
+import { ASSOCIATION_GRACE_PERIOD_OPTIONS } from "@loopskey/api-contracts/validation";
 import { Field, ID, InputType, Int, Float } from "@nestjs/graphql";
+import { IsInt, IsString, Max, Min, IsIn } from "class-validator";
+import { AssociationLateSubmissionPolicy } from "@prisma/client";
 import { AssociationRequirementStatus } from "@prisma/client";
-import { IsInt, IsString, Max, Min } from "class-validator";
+import { AssociationSubmissionWindow } from "@prisma/client";
+import { AssociationRenewalCondition } from "@prisma/client";
 import { AssociationEvidencePolicy } from "@prisma/client";
 import { IsBoolean, IsDate, IsEnum } from "class-validator";
 import { AssociationReportingCycle } from "@prisma/client";
@@ -150,20 +154,27 @@ export class UpdateAssociationRequirementEvidenceRulesInput extends AssociationR
 export class UpdateAssociationRequirementReportingRulesInput extends AssociationRequirementIdInput {
   @Field({ nullable: true }) @IsOptional() @IsDate() reportingStart?: Date;
   @Field({ nullable: true }) @IsOptional() @IsDate() reportingEnd?: Date;
-  @Field({ nullable: true }) @IsOptional() @IsDate() submissionOpensAt?: Date;
-  @Field({ nullable: true }) @IsOptional() @IsDate() submissionClosesAt?: Date;
+
+  @Field(() => AssociationSubmissionWindow, { nullable: true })
+  @IsOptional()
+  @IsEnum(AssociationSubmissionWindow)
+  submissionWindow?: AssociationSubmissionWindow;
 
   @Field(() => Int, { nullable: true })
   @IsOptional()
   @IsInt()
-  @Min(0)
-  @Max(LIMITS.gracePeriodDaysMax)
+  @IsIn(ASSOCIATION_GRACE_PERIOD_OPTIONS)
   gracePeriodDays?: number;
 
-  @Field({ nullable: true })
+  @Field(() => AssociationLateSubmissionPolicy, { nullable: true })
   @IsOptional()
-  @IsBoolean()
-  allowLateSubmission?: boolean;
+  @IsEnum(AssociationLateSubmissionPolicy)
+  lateSubmissionPolicy?: AssociationLateSubmissionPolicy;
+
+  @Field(() => AssociationRenewalCondition, { nullable: true })
+  @IsOptional()
+  @IsEnum(AssociationRenewalCondition)
+  renewalCondition?: AssociationRenewalCondition;
 }
 
 @InputType(AssociationGqlInputNames.UPDATE_ASSOCIATION_REQUIREMENT_AUDIENCE)
@@ -172,10 +183,12 @@ export class UpdateAssociationRequirementAudienceInput extends AssociationRequir
   @IsEnum(AssociationAudienceKind)
   audienceKind!: AssociationAudienceKind;
 
-  @Field(() => ID, { nullable: true })
+  @Field(() => [ID], { nullable: true })
   @IsOptional()
-  @IsString()
-  groupId?: string;
+  @IsArray()
+  @ArrayMaxSize(LIMITS.groupsMax)
+  @IsString({ each: true })
+  groupIds?: string[];
 
   @Field(() => [ID], { nullable: true })
   @IsOptional()

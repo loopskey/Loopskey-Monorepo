@@ -1,4 +1,5 @@
 import { AssociationEvidencePolicy, PDUStatus } from "@prisma/client";
+import { AssociationLateSubmissionPolicy } from "@prisma/client";
 import { AssociationAttributionState } from "@prisma/client";
 import { AssociationComplianceBand } from "@prisma/client";
 import { CreditType, PDUCategory } from "@prisma/client";
@@ -7,22 +8,22 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 
 export type AttributionActivity = {
   id: string;
-  category: string;
-  creditType: string;
-  credits: number;
   date: Date;
   status: string;
+  credits: number;
+  category: string;
+  creditType: string;
   hasEvidence: boolean;
 };
 
 export type AttributionRequirement = {
-  creditType: CreditType;
-  evidencePolicy: AssociationEvidencePolicy;
-  reportingStart: Date | null;
-  reportingEnd: Date | null;
   deadline: Date | null;
+  creditType: CreditType;
   gracePeriodDays: number;
-  allowLateSubmission: boolean;
+  reportingEnd: Date | null;
+  reportingStart: Date | null;
+  evidencePolicy: AssociationEvidencePolicy;
+  lateSubmissionPolicy: AssociationLateSubmissionPolicy;
   categories: { id: string; mappedCategory: PDUCategory }[];
 };
 
@@ -32,17 +33,17 @@ export type AttributionAssignment = {
 };
 
 export type EffectiveWindow = {
-  from: Date | null;
   to: Date | null;
+  from: Date | null;
   lateFrom: Date | null;
 };
 
 export type Attribution = {
-  activityId: string;
-  categoryId: string | null;
-  creditedAmount: number;
-  activityDate: Date;
   isLate: boolean;
+  activityDate: Date;
+  activityId: string;
+  creditedAmount: number;
+  categoryId: string | null;
   state: AssociationAttributionState;
 };
 
@@ -65,10 +66,12 @@ export const effectiveWindow = (
   const from = latest(assignment.cycleStart, requirement.reportingStart);
   const hardEnd = earliest(assignment.cycleEnd, requirement.reportingEnd);
   const to = earliest(hardEnd, requirement.deadline);
-
-  if (!requirement.allowLateSubmission || !to)
+  if (
+    requirement.lateSubmissionPolicy ===
+      AssociationLateSubmissionPolicy.NOT_ACCEPTED ||
+    !to
+  )
     return { from, to, lateFrom: null };
-
   return {
     from,
     to,
@@ -76,12 +79,20 @@ export const effectiveWindow = (
   };
 };
 
-const withinWindow = (date: Date, window: EffectiveWindow) => {
+const withinWindow = (
+  date: Date,
+  window: EffectiveWindow,
+  lateSubmissionPolicy: AssociationLateSubmissionPolicy,
+) => {
   const at = date.getTime();
   if (window.from && at < window.from.getTime()) return null;
   if (!window.to || at <= window.to.getTime()) return { isLate: false };
   if (window.lateFrom && at <= window.lateFrom.getTime())
-    return { isLate: true };
+    return {
+      isLate:
+        lateSubmissionPolicy ===
+        AssociationLateSubmissionPolicy.ACCEPTED_FLAGGED_LATE,
+    };
   return null;
 };
 
@@ -91,15 +102,11 @@ const stateFor = (
 ): AssociationAttributionState | null => {
   if (activity.status === PDUStatus.REJECTED)
     return AssociationAttributionState.REJECTED;
-
   if (policy === AssociationEvidencePolicy.NOT_REQUIRED)
     return AssociationAttributionState.COUNTED;
-
   if (!activity.hasEvidence) return null;
-
   if (policy === AssociationEvidencePolicy.REQUIRED_NO_REVIEW)
     return AssociationAttributionState.COUNTED;
-
   return activity.status === PDUStatus.APPROVED
     ? AssociationAttributionState.COUNTED
     : AssociationAttributionState.AWAITING_REVIEW;
@@ -111,20 +118,17 @@ export const attributionFor = (
   assignment: AttributionAssignment,
 ): Attribution | null => {
   if (activity.creditType !== requirement.creditType) return null;
-
   const placement = withinWindow(
     activity.date,
     effectiveWindow(requirement, assignment),
+    requirement.lateSubmissionPolicy,
   );
   if (!placement) return null;
-
   const state = stateFor(activity, requirement.evidencePolicy);
   if (!state) return null;
-
   const category = requirement.categories.find(
     (candidate) => candidate.mappedCategory === activity.category,
   );
-
   return {
     activityId: activity.id,
     categoryId: category?.id ?? null,
@@ -139,12 +143,12 @@ export const attributionFor = (
 };
 
 export type AssignmentTotals = {
-  completedCredits: number;
   percent: number;
-  awaitingReviewCount: number;
+  completedCredits: number;
   isMissingEvidence: boolean;
-  byCategory: Map<string, number>;
+  awaitingReviewCount: number;
   uncategorisedCredits: number;
+  byCategory: Map<string, number>;
 };
 
 export const totalsFor = (
@@ -162,14 +166,11 @@ export const totalsFor = (
       continue;
     }
     if (attribution.state !== AssociationAttributionState.COUNTED) continue;
-
     completedCredits += attribution.creditedAmount;
-
     if (!attribution.categoryId) {
       uncategorisedCredits += attribution.creditedAmount;
       continue;
     }
-
     byCategory.set(
       attribution.categoryId,
       (byCategory.get(attribution.categoryId) ?? 0) +

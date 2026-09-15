@@ -16,6 +16,11 @@ export class AssociationMemberFilterInput {
   @IsString()
   groupId?: string;
 
+  @Field(() => ID, { nullable: true })
+  @IsOptional()
+  @IsString()
+  requirementId?: string;
+
   @Field(() => AssociationMemberStatus, { nullable: true })
   @IsOptional()
   @IsEnum(AssociationMemberStatus)

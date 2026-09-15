@@ -40,7 +40,10 @@ export const useProfessionalWishlistTab = () => {
     [page, pageSize, debouncedSearch, filters],
   );
 
-  const { data, isFetching, refetch } = useMyWishlistQuery(queryInput);
+  const { data, isFetching, refetch } = useMyWishlistQuery(queryInput, {
+    refetchOnFocus: true,
+    refetchOnMountOrArgChange: true,
+  });
 
   const [toggleWishlist, { isLoading: isRemoving }] =
     useToggleWishlistMutation();
@@ -74,7 +77,6 @@ export const useProfessionalWishlistTab = () => {
   const goNext = () => setPage((current) => Math.min(current + 1, totalPages));
   const goPrevious = () =>
     setPage((current) => Math.max(current - 1, DEFAULT_PAGE));
-  const handleRefresh = () => refetch();
 
   const handleRemove = async (contentType: ContentType, contentId: string) => {
     try {
@@ -108,7 +110,6 @@ export const useProfessionalWishlistTab = () => {
     updateFilter,
     handleRemove,
     resetFilters,
-    handleRefresh,
     wishlistItems,
     page: safePage,
     isFilteredEmpty,
