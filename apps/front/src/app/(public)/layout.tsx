@@ -1,3 +1,4 @@
+import { ScrollToTopButton } from "@elements/scroll-to-top-button";
 import { ReactNode } from "react";
 
 import Header from "@layouts/Header";
@@ -9,6 +10,7 @@ const PublicLayout = ({ children }: { children: ReactNode }) => {
       <Header />
       {children}
       <Footer />
+      <ScrollToTopButton />
     </>
   );
 };
