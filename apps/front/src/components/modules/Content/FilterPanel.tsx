@@ -63,7 +63,7 @@ const FilterPanel = ({
                   filter.onChange(value === "ALL" ? "" : value)
                 }
               >
-                <S.SelectTrigger className="h-12 rounded-md border-border/70 bg-muted shadow-sm">
+                <S.SelectTrigger className="h-12 w-full rounded-md border-border/70 bg-muted shadow-sm">
                   <S.SelectValue placeholder={filter.placeholder} />
                 </S.SelectTrigger>
 

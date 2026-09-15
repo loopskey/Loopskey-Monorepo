@@ -4,8 +4,8 @@ import { Logo } from "@layouts/parts/logo";
 
 export const DashboardTopBar = () => {
   return (
-    <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center border-b bg-background px-3 md:px-6">
-      <div className="flex w-full items-center justify-between gap-3">
+    <header className="sticky top-0 z-40 w-full shrink-0 border-b bg-background">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
         <Logo />
 
         <div className="flex items-center gap-2">

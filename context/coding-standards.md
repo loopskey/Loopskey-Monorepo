@@ -364,6 +364,34 @@ Push the client boundary as low as practical.
 - Respect reduced-motion preferences for non-essential animation.
 - All async screens must handle loading, empty, error, and success states.
 
+### Animation
+
+- Prefer `<ViewTransition>` (from `react`, stable since React 19.3) over a new
+  animation dependency or hand-rolled enter/exit CSS-transition state. It reads
+  the component-tree change (enter, exit, update, or a named `share` between two
+  spots) and drives the browser's View Transitions API; unsupported browsers
+  just skip the animation and render the new state immediately, so no fallback
+  branch is needed.
+- The state update must be wrapped in `startTransition` (or come from a
+  `<Suspense>` reveal or `useDeferredValue`) or no animation fires — a plain
+  `setState` renders immediately as before.
+- Use `addTransitionType` plus per-type `enter`/`exit` props only when the
+  animation must depend on the cause of the change (for example, a forward step
+  sliding from the right, a back step from the left). Skip it for a plain
+  cross-fade — the default `update` behavior already provides one.
+- Good fit: a conditional render that swaps one component subtree for another
+  with no transition today — a dashboard tab shell's `if (activeTab === ...)`
+  chain, or a wizard's `step === "..." && <Step />` chain. Wrapping the switch
+  point is enough; it replaces a hard cut, not an existing animation.
+- Do not use it to replace the Radix/shadcn primitives (`dialog`, `dropdown-menu`,
+  `popover`, `tooltip`, `sheet`, `alert-dialog`, `menubar`, `context-menu`,
+  `navigation-menu`, `hover-card`) — they already animate through Radix
+  `data-state` plus `tailwindcss-animate`, and "Reuse Radix/shadcn primitives"
+  above still applies. It also does not fit a per-item staggered reveal (see the
+  mobile nav panel in `layouts/Header.tsx`), since it animates a subtree as one
+  unit, not each child on its own delay.
+- DOM only today; do not reach for it in a React Native context.
+
 ### Internationalization
 
 - Do not hard-code user-facing copy when the surrounding feature is translated.
