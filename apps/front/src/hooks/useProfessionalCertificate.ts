@@ -80,7 +80,6 @@ export const useProfessionalCertificates = () => {
     data: summary,
     isLoading: isSummaryLoading,
     isError: isSummaryError,
-    refetch: refetchSummary,
   } = API.useProfessionalCertificateSummaryQuery();
 
   const { data: issuers, isLoading: isIssuersLoading } =
@@ -169,9 +168,8 @@ export const useProfessionalCertificates = () => {
     setPage((previousPage) => Math.max(1, previousPage - 1));
   };
 
-  const handleRefresh = () => {
+  const handleRetryAfterError = () => {
     void refetchCertificates();
-    void refetchSummary();
   };
 
   const handleSelect = (certificateId: string) => {
@@ -250,8 +248,8 @@ export const useProfessionalCertificates = () => {
     handleUpload,
     handleSelect,
     handleDelete,
-    handleRefresh,
     handleViewAll,
+    handleRetryAfterError,
     issuerOptions,
     handleDownload,
     handlePrevious,

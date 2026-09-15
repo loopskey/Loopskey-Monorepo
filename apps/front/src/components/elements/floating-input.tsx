@@ -40,7 +40,7 @@ export const FloatingInputField = <T extends FieldValues>({
         const shouldFloatOnFocus = !isNativePicker;
         const shouldFloat = isFilled;
         return (
-          <F.FormItem className={cn("space-y-2", className)}>
+          <F.FormItem className={cn("min-w-0 space-y-2", className)}>
             <F.FormControl>
               <div className={cn("group relative", isFilled && "is-filled")}>
                 {leftIcon && (

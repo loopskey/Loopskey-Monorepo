@@ -95,7 +95,12 @@ const ProfessionalCalendarTab = () => {
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <Button type="button" radius="xl" onClick={openAddDialog}>
+          <Button
+            type="button"
+            radius="xl"
+            onClick={openAddDialog}
+            className="w-full justify-center sm:w-auto"
+          >
             <L.CalendarPlus className="h-4 w-4" />
             {t("professionalDashboard.calendar.addEvent")}
           </Button>
@@ -267,6 +272,9 @@ const ProfessionalCalendarTab = () => {
                 events={calendarEvents}
                 select={handleCalendarRangeSelect}
                 eventClick={handleCalendarEventClick}
+                eventDidMount={(arg) => {
+                  arg.el.setAttribute("title", arg.event.title);
+                }}
                 height="auto"
               />
             )}

@@ -156,7 +156,7 @@ const Header = () => {
               )}
             >
               {isAuthenticated ? (
-                <UserMenu />
+                <UserMenu variant="inline" onNavigate={closeMobileMenu} />
               ) : (
                 <StartMenu
                   className="w-full"

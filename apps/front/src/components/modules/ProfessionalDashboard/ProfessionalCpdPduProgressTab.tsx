@@ -43,13 +43,14 @@ const ProfessionalCpdPduProgressTab = () => {
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row">
           <Button
             radius="xl"
             type="button"
             variant="outline"
             onClick={cpd.generateSummary}
             disabled={!cpd.canGenerateSummary || cpd.isGenerating}
+            className="w-full justify-center sm:w-auto"
           >
             {cpd.isGenerating ? (
               <L.Loader2 className="h-4 w-4 animate-spin" />
@@ -63,6 +64,7 @@ const ProfessionalCpdPduProgressTab = () => {
             radius="xl"
             type="button"
             onClick={cpd.openSearch}
+            className="w-full justify-center sm:w-auto"
           >
             <L.Plus className="h-4 w-4" />
             {t("cpdProgress.actions.createNew")}

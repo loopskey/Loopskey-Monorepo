@@ -24,8 +24,6 @@ const ProfessionalCpdPduTrackerTab = () => {
     activities,
     handleNext,
     yearOptions,
-    handleRefresh,
-    isRefreshing,
     activitiesData,
     handlePrevious,
     isSummaryError,
@@ -68,26 +66,7 @@ const ProfessionalCpdPduTrackerTab = () => {
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <Button
-            radius="xl"
-            type="button"
-            variant="outline"
-            disabled={isRefreshing}
-            onClick={handleRefresh}
-          >
-            {isRefreshing ? (
-              <L.Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <L.RefreshCw className="h-4 w-4" />
-            )}
-            {t("professionalDashboard.common.refresh")}
-          </Button>
-
-          <Button
-            radius="xl"
-            type="button"
-            onClick={handleAddActivity}
-          >
+          <Button radius="xl" type="button" onClick={handleAddActivity}>
             <L.FilePlus2 className="h-4 w-4" />
             {t(`${TRACKER}.quickActions.addActivity`)}
           </Button>
