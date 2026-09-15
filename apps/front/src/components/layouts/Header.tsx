@@ -1,7 +1,9 @@
 "use client";
 
 import { LanguageToggleBtn } from "@elements/language-switcher";
-import { StartMenu } from "@layouts/parts/start-menu";
+import { getAuthHrefForSolutionHref } from "@utils/constant";
+import { useActiveRole } from "@/providers/active-role-provider";
+import { RoleStrip } from "@layouts/parts/role-strip";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useHeader } from "@hooks/useHeader";
 import { UserMenu } from "@layouts/parts/user-menu";
@@ -18,14 +20,17 @@ const Header = () => {
   const {
     t,
     navItems,
-    startLinks,
     isScrolled,
+    isLandingPage,
     isMobileOpen,
     isAuthenticated,
     isActiveNavItem,
     closeMobileMenu,
     toggleMobileMenu,
   } = useHeader();
+  const { activeRoleHref } = useActiveRole();
+  const joinHref = getAuthHrefForSolutionHref(activeRoleHref);
+  const showRoleStrip = isLandingPage && !isAuthenticated;
   const prefersReducedMotion = useMediaQuery(
     "(prefers-reduced-motion: reduce)",
   );
@@ -42,6 +47,8 @@ const Header = () => {
         isScrolled ? "border-b shadow-sm" : "border-b",
       )}
     >
+      {showRoleStrip && <RoleStrip />}
+
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Logo />
         <nav className="hidden items-center gap-1 lg:flex">
@@ -68,7 +75,13 @@ const Header = () => {
 
         <div className="hidden items-center gap-2 lg:flex">
           <LanguageToggleBtn />
-          {isAuthenticated ? <UserMenu /> : <StartMenu links={startLinks} />}
+          {isAuthenticated ? (
+            <UserMenu />
+          ) : (
+            <Button asChild size="lg" radius="full">
+              <Link href={joinHref}>{t("common.joinForFree")}</Link>
+            </Button>
+          )}
         </div>
 
         <div className="flex items-center gap-2 lg:hidden">
@@ -104,7 +117,8 @@ const Header = () => {
       >
         <div
           className={cn(
-            "fixed inset-0 top-16 z-40 bg-foreground/20 transition-opacity duration-300",
+            "fixed inset-0 z-40 bg-foreground/20 transition-opacity duration-300",
+            showRoleStrip ? "top-[6.5rem]" : "top-16",
             isMobileOpen ? "opacity-100" : "opacity-0",
           )}
           onClick={closeMobileMenu}
@@ -112,7 +126,8 @@ const Header = () => {
 
         <div
           className={cn(
-            "absolute left-4 right-4 top-16 z-50 origin-top rounded-lg border bg-popover p-4 shadow-md transition-all duration-300",
+            "absolute left-4 right-4 z-50 origin-top rounded-lg border bg-popover p-4 shadow-md transition-all duration-300",
+            showRoleStrip ? "top-[6.5rem]" : "top-16",
             isMobileOpen
               ? "translate-y-0 scale-100 opacity-100"
               : "-translate-y-3 scale-95 opacity-0",
@@ -158,11 +173,15 @@ const Header = () => {
               {isAuthenticated ? (
                 <UserMenu variant="inline" onNavigate={closeMobileMenu} />
               ) : (
-                <StartMenu
+                <Button
+                  asChild
+                  size="lg"
+                  radius="full"
                   className="w-full"
-                  links={startLinks}
-                  onNavigate={closeMobileMenu}
-                />
+                  onClick={closeMobileMenu}
+                >
+                  <Link href={joinHref}>{t("common.joinForFree")}</Link>
+                </Button>
               )}
             </div>
           </nav>

@@ -50,25 +50,33 @@ export const siteLinks = {
 export const solutionEntries = [
   {
     href: siteLinks.professionals,
+    authHref: siteLinks.login,
     labelKey: "footer.links.professionals",
     icon: L.UserRound,
   },
   {
     href: siteLinks.associations,
+    authHref: siteLinks.associationAuth,
     labelKey: "footer.links.associations",
     icon: L.Users,
   },
   {
     href: siteLinks.organizations,
+    authHref: siteLinks.organizationAuth,
     labelKey: "footer.links.organizations",
     icon: L.Building2,
   },
   {
     href: siteLinks.solutionContentProviders,
+    authHref: siteLinks.providerAuth,
     labelKey: "footer.links.solutionContentProviders",
     icon: L.LibraryBig,
   },
 ] as const;
+
+export const getAuthHrefForSolutionHref = (href: string) =>
+  solutionEntries.find((entry) => entry.href === href)?.authHref ??
+  siteLinks.login;
 
 export const companyEmail = "loopskey.dev@gmail.com";
 
