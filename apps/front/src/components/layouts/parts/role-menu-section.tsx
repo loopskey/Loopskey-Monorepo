@@ -5,7 +5,7 @@ import { useActiveRole } from "@/providers/active-role-provider";
 import { useI18n } from "@/hooks/useI18n";
 import { cn } from "@/lib/utils";
 
-export const RoleMenuSection = ({ onSelect }: { onSelect?: () => void }) => {
+export const RoleMenuSection = () => {
   const { t } = useI18n();
   const { activeRoleHref, setActiveRoleHref } = useActiveRole();
 
@@ -24,10 +24,7 @@ export const RoleMenuSection = ({ onSelect }: { onSelect?: () => void }) => {
               key={entry.href}
               type="button"
               aria-pressed={isActive}
-              onClick={() => {
-                setActiveRoleHref(entry.href);
-                onSelect?.();
-              }}
+              onClick={() => setActiveRoleHref(entry.href)}
               className={cn(
                 "flex items-center gap-2 rounded-md border px-3 py-2.5 text-left text-sm font-semibold transition-colors duration-200",
                 isActive
