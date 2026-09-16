@@ -1,9 +1,7 @@
 "use client";
 
-import {
-  getAuthHrefForSolutionHref,
-  getSolutionHrefForRole,
-} from "@utils/constant";
+import { getAuthHrefForSolutionHref } from "@utils/constant";
+import { getSolutionHrefForRole } from "@utils/constant";
 import { LanguageToggleBtn } from "@elements/language-switcher";
 import { RoleMenuSection } from "@layouts/parts/role-menu-section";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
@@ -25,7 +23,7 @@ const Header = () => {
     t,
     navItems,
     isScrolled,
-    isLandingPage,
+    showRoleStrip,
     isMobileOpen,
     isAuthenticated,
     currentUserRole,
@@ -39,8 +37,7 @@ const Header = () => {
     isAuthenticated && currentUserRole
       ? getSolutionHrefForRole(currentUserRole)
       : undefined;
-  const showRoleStrip = isLandingPage;
-  const showRoleMenuMobile = isLandingPage && !isAuthenticated;
+  const showRoleMenuMobile = showRoleStrip && !isAuthenticated;
   const prefersReducedMotion = useMediaQuery(
     "(prefers-reduced-motion: reduce)",
   );
