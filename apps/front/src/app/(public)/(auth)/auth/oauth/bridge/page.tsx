@@ -15,9 +15,12 @@ const OAuthBridgeSkeleton = ({ label }: { label?: string }) => (
       className="w-full rounded-lg border bg-card p-8 shadow-md"
     >
       {label && <span className="sr-only">{label}</span>}
-      <Skeleton className="mx-auto mb-5 h-14 w-14 rounded-full" />
+      <Skeleton className="mx-auto mb-6 h-14 w-14 rounded-full" />
       <Skeleton className="mx-auto h-6 w-48 rounded-md" />
-      <Skeleton className="mx-auto mt-3 h-4 w-56 rounded-full" />
+      <div className="mx-auto mt-4 max-w-xs space-y-2">
+        <Skeleton className="h-4 w-full rounded-full" />
+        <Skeleton className="mx-auto h-4 w-2/3 rounded-full" />
+      </div>
     </div>
   </section>
 );
