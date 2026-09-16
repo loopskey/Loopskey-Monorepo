@@ -7156,6 +7156,12 @@
     "backToRoadmaps": "Back to roadmaps",
     "transcriptLabel": "Conversation with the roadmap coach",
     "thinking": "The coach is thinking…",
+    "stepper": {
+      "goal": "Goal",
+      "preferences": "Preferences",
+      "cpdSetup": "CPD Setup",
+      "review": "Review & Generate"
+    },
     "composer": {
       "label": "Your answer",
       "placeholder": "Answer in your own words…",

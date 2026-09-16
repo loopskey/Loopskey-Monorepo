@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { RoadmapChatTranscript } from "./RoadmapChatTranscript";
 import { RoadmapReviewSummary } from "./RoadmapReviewSummary";
+import { RoadmapChatStepper } from "./RoadmapChatStepper";
 import { RoadmapChatComposer } from "./RoadmapChatComposer";
 import { useRoadmapChat } from "@/hooks/useRoadmapChat";
 import { ChevronDown } from "lucide-react";
@@ -82,6 +83,10 @@ export const ProfessionalRoadmapChatPage = () => {
           </Link>
         </Button>
       </div>
+
+      {chat.draft ? (
+        <RoadmapChatStepper t={t} currentStep={chat.draft.currentStep} />
+      ) : null}
 
       <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr] lg:items-start">
         {brief ? (

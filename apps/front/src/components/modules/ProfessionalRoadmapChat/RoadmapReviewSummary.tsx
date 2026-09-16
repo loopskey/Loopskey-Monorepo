@@ -3,6 +3,8 @@
 import { ContentType, LearningFormat, SkillLevel } from "@/lib/graphql/base";
 import { LearningBudgetPreference } from "@/lib/graphql/base";
 import { LearningTimeCommitment } from "@/lib/graphql/base";
+import { isRoadmapStepReached } from "@/utils/roadmap-chat-step.util";
+import { RoadmapDraftStep } from "@/lib/graphql/base";
 import { GlassCard } from "@/components/elements/glass-card";
 import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,6 +18,23 @@ import { cn } from "@/lib/utils";
 import type * as T from "@/types/professional-roadmap-chat.types";
 
 const OPTION_NS = "professionalDashboard.profile.options";
+
+const FIELD_STEP: Partial<Record<keyof T.Patch, RoadmapDraftStep>> = {
+  goal: RoadmapDraftStep.Goal,
+  targetRole: RoadmapDraftStep.Goal,
+  goalReason: RoadmapDraftStep.GoalReason,
+  context: RoadmapDraftStep.Context,
+  targetDate: RoadmapDraftStep.TargetDate,
+  skillLevel: RoadmapDraftStep.Preferences,
+  timeCommitment: RoadmapDraftStep.Preferences,
+  budgetPreference: RoadmapDraftStep.Preferences,
+  subjects: RoadmapDraftStep.Preferences,
+  preferredFormats: RoadmapDraftStep.Preferences,
+  preferredContentTypes: RoadmapDraftStep.Preferences,
+  cpdEnabled: RoadmapDraftStep.CpdTracking,
+  certificationName: RoadmapDraftStep.Certification,
+  requiredCredits: RoadmapDraftStep.CpdRequirements,
+};
 
 export const RoadmapReviewSummary = ({
   draft,
@@ -116,6 +135,11 @@ export const RoadmapReviewSummary = ({
       },
     );
 
+  const visibleRows = rows.filter((row) => {
+    const step = FIELD_STEP[row.field];
+    return !step || isRoadmapStepReached(draft.currentStep, step);
+  });
+
   const commit = (field: keyof T.Patch, value: T.Patch[keyof T.Patch]) => {
     setEditing(null);
     onPatch({ [field]: value } as T.Patch);
@@ -158,7 +182,7 @@ export const RoadmapReviewSummary = ({
       </div>
 
       <dl className="flex flex-col divide-y divide-border/60">
-        {rows.map((row) => (
+        {visibleRows.map((row) => (
           <SummaryRow
             row={row}
             draft={draft}

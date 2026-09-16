@@ -7158,6 +7158,12 @@
     "backToRoadmaps": "Retour aux parcours",
     "transcriptLabel": "Conversation avec le coach de parcours",
     "thinking": "Le coach réfléchit…",
+    "stepper": {
+      "goal": "Objectif",
+      "preferences": "Préférences",
+      "cpdSetup": "Configuration DPC",
+      "review": "Vérification et génération"
+    },
     "composer": {
       "label": "Votre réponse",
       "placeholder": "Répondez avec vos propres mots…",
