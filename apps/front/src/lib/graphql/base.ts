@@ -2011,6 +2011,13 @@ export type CurriculumSection = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
+export enum DeliveryFormat {
+  InPerson = 'IN_PERSON',
+  LiveCohort = 'LIVE_COHORT',
+  Online = 'ONLINE',
+  SelfPaced = 'SELF_PACED'
+}
+
 export type Event = {
   __typename?: 'Event';
   attendees: Scalars['Int']['output'];
@@ -2528,6 +2535,7 @@ export type Mutation = {
   issueIngestionApiKey: IssuedIngestionApiKey;
   login: AuthPayload;
   logout: AuthPayload;
+  patchRoadmapCpdSetup: ProfessionalRoadmapDraft;
   patchRoadmapDraft: ProfessionalRoadmapDraft;
   publishAssociationLearningContent: AssociationLearningContent;
   publishAssociationRequirement: AssociationRequirement;
@@ -2575,6 +2583,7 @@ export type Mutation = {
   submitPromotionRequest: PromotionRequest;
   toggleWishlist: ContentActionPayload;
   trackExternalLearningClick: ExternalLearningActivity;
+  unenrollRoadmap: Scalars['Boolean']['output'];
   updateAdminOrganizationMember: AdminOrgMember;
   updateAdminOrganizationSettings: OrganizationSettings;
   updateAdminProfile: AdminProfile;
@@ -2955,6 +2964,11 @@ export type MutationLoginArgs = {
 };
 
 
+export type MutationPatchRoadmapCpdSetupArgs = {
+  input: PatchRoadmapCpdSetupInput;
+};
+
+
 export type MutationPatchRoadmapDraftArgs = {
   input: PatchRoadmapDraftInput;
 };
@@ -3168,6 +3182,11 @@ export type MutationToggleWishlistArgs = {
 
 export type MutationTrackExternalLearningClickArgs = {
   input: CreateExternalLearningClickInput;
+};
+
+
+export type MutationUnenrollRoadmapArgs = {
+  enrollmentId: Scalars['ID']['input'];
 };
 
 
@@ -4187,6 +4206,21 @@ export type PaginatedYouTubeChannels = {
   totalCount: Scalars['Int']['output'];
 };
 
+export type PatchRoadmapCpdSetupInput = {
+  categories?: InputMaybe<Array<CpdPlanCategoryInput>>;
+  certificationId?: InputMaybe<Scalars['ID']['input']>;
+  certificationName?: InputMaybe<Scalars['String']['input']>;
+  draftId: Scalars['ID']['input'];
+  evidenceOtherNote?: InputMaybe<Scalars['String']['input']>;
+  evidenceTypes?: InputMaybe<Array<CpdEvidenceType>>;
+  organization?: InputMaybe<Scalars['String']['input']>;
+  reportRecipientLabel?: InputMaybe<Scalars['String']['input']>;
+  reportRecipientType?: InputMaybe<CpdReportRecipientType>;
+  reportingEnd?: InputMaybe<Scalars['String']['input']>;
+  reportingStart?: InputMaybe<Scalars['String']['input']>;
+  totalRequiredCredits?: InputMaybe<Scalars['Float']['input']>;
+};
+
 export type PatchRoadmapDraftInput = {
   budgetPreference?: InputMaybe<LearningBudgetPreference>;
   certificationId?: InputMaybe<Scalars['ID']['input']>;
@@ -4198,6 +4232,7 @@ export type PatchRoadmapDraftInput = {
   goal?: InputMaybe<Scalars['String']['input']>;
   goalReason?: InputMaybe<Scalars['String']['input']>;
   preferredContentTypes?: InputMaybe<Array<ContentType>>;
+  preferredDeliveryFormats?: InputMaybe<Array<DeliveryFormat>>;
   preferredFormats?: InputMaybe<Array<LearningFormat>>;
   requiredCredits?: InputMaybe<Scalars['Float']['input']>;
   skillLevel?: InputMaybe<SkillLevel>;
@@ -4772,6 +4807,7 @@ export type ProfessionalRoadmapDraft = {
   completedFieldCount: Scalars['Int']['output'];
   context?: Maybe<Scalars['String']['output']>;
   cpdEnabled: Scalars['Boolean']['output'];
+  cpdPlan?: Maybe<CpdPlan>;
   currentStep: RoadmapDraftStep;
   failureReason?: Maybe<Scalars['String']['output']>;
   goal?: Maybe<Scalars['String']['output']>;
@@ -4780,6 +4816,7 @@ export type ProfessionalRoadmapDraft = {
   isComplete: Scalars['Boolean']['output'];
   needsClarification: Scalars['Boolean']['output'];
   preferredContentTypes: Array<ContentType>;
+  preferredDeliveryFormats: Array<DeliveryFormat>;
   preferredFormats: Array<LearningFormat>;
   remainingFields: Array<RoadmapDraftStep>;
   requiredCredits?: Maybe<Scalars['Float']['output']>;
@@ -4825,6 +4862,7 @@ export type ProfessionalRoadmapStep = {
   completedAt?: Maybe<Scalars['DateTime']['output']>;
   contentId?: Maybe<Scalars['String']['output']>;
   contentType?: Maybe<ContentType>;
+  credits?: Maybe<Scalars['Float']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   estimatedMinutes?: Maybe<Scalars['Int']['output']>;
   id: Scalars['ID']['output'];
@@ -5856,7 +5894,7 @@ export type QueryProfessionalRoadmapDraftArgs = {
 
 
 export type QueryProfessionalRoadmapRecommendationsArgs = {
-  enrollmentId: Scalars['ID']['input'];
+  enrollmentId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 

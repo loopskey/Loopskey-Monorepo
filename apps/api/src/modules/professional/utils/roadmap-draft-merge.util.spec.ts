@@ -23,6 +23,7 @@ const draft = (
   subjects: [],
   preferredFormats: [],
   preferredContentTypes: [],
+  preferredDeliveryFormats: [],
   cpdEnabled: false,
   certificationId: null,
   certificationName: null,

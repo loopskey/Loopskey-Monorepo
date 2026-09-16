@@ -1914,6 +1914,13 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+enum DeliveryFormat {
+  IN_PERSON
+  LIVE_COHORT
+  ONLINE
+  SELF_PACED
+}
+
 type Event {
   attendees: Int!
   averageRating: Float!
@@ -2423,6 +2430,7 @@ type Mutation {
   issueIngestionApiKey(input: IssueIngestionApiKey!): IssuedIngestionApiKey!
   login(input: LoginInput!): AuthPayload!
   logout: AuthPayload!
+  patchRoadmapCpdSetup(input: PatchRoadmapCpdSetupInput!): ProfessionalRoadmapDraft!
   patchRoadmapDraft(input: PatchRoadmapDraftInput!): ProfessionalRoadmapDraft!
   publishAssociationLearningContent(input: PublishAssociationLearningContentInput!): AssociationLearningContent!
   publishAssociationRequirement(input: AssociationRequirementIdInput!): AssociationRequirement!
@@ -2470,6 +2478,7 @@ type Mutation {
   submitPromotionRequest(input: SubmitPromotionRequestInput!): PromotionRequest!
   toggleWishlist(input: ContentActionInput!): ContentActionPayload!
   trackExternalLearningClick(input: CreateExternalLearningClickInput!): ExternalLearningActivity!
+  unenrollRoadmap(enrollmentId: ID!): Boolean!
   updateAdminOrganizationMember(input: UpdateAdminOrgMember!): AdminOrgMember!
   updateAdminOrganizationSettings(input: UpdateAdminOrgSettings!): OrganizationSettings!
   updateAdminProfile(input: UpdateAdminProfile!): AdminProfile!
@@ -3235,6 +3244,21 @@ type PaginatedYouTubeChannels {
   totalCount: Int!
 }
 
+input PatchRoadmapCpdSetupInput {
+  categories: [CpdPlanCategoryInput!]
+  certificationId: ID
+  certificationName: String
+  draftId: ID!
+  evidenceOtherNote: String
+  evidenceTypes: [CPDEvidenceType!]
+  organization: String
+  reportRecipientLabel: String
+  reportRecipientType: CPDReportRecipientType
+  reportingEnd: String
+  reportingStart: String
+  totalRequiredCredits: Float
+}
+
 input PatchRoadmapDraftInput {
   budgetPreference: LearningBudgetPreference
   certificationId: ID
@@ -3246,6 +3270,7 @@ input PatchRoadmapDraftInput {
   goal: String
   goalReason: String
   preferredContentTypes: [ContentType!]
+  preferredDeliveryFormats: [DeliveryFormat!]
   preferredFormats: [LearningFormat!]
   requiredCredits: Float
   skillLevel: SkillLevel
@@ -3788,6 +3813,7 @@ type ProfessionalRoadmapDraft {
   completedFieldCount: Int!
   context: String
   cpdEnabled: Boolean!
+  cpdPlan: CpdPlan
   currentStep: RoadmapDraftStep!
   failureReason: String
   goal: String
@@ -3796,6 +3822,7 @@ type ProfessionalRoadmapDraft {
   isComplete: Boolean!
   needsClarification: Boolean!
   preferredContentTypes: [ContentType!]!
+  preferredDeliveryFormats: [DeliveryFormat!]!
   preferredFormats: [LearningFormat!]!
   remainingFields: [RoadmapDraftStep!]!
   requiredCredits: Float
@@ -3838,6 +3865,7 @@ type ProfessionalRoadmapStep {
   completedAt: DateTime
   contentId: String
   contentType: ContentType
+  credits: Float
   description: String
   estimatedMinutes: Int
   id: ID!
@@ -4218,7 +4246,7 @@ type Query {
   professionalPduReport(year: Int): ProfessionalPduReport!
   professionalProfileTaxonomy(kind: ProfileTaxonomyKind): [ProfessionalTaxonomyGroup!]!
   professionalRoadmapDraft(draftId: ID, transcript: ProfessionalPaginationInput): ProfessionalRoadmapDraft
-  professionalRoadmapRecommendations(enrollmentId: ID!): [RoadmapRecommendation!]!
+  professionalRoadmapRecommendations(enrollmentId: ID): [RoadmapRecommendation!]!
   professionalRoadmapStats: ProfessionalRoadmapStats!
   professionalSettings: ProfessionalSettings!
   providerAnalytics(input: ProviderDashboardRangeInput): ProviderAnalytics!

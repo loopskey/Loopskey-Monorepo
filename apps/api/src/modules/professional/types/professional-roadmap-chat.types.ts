@@ -2,6 +2,7 @@ import { LearningFormat, LearningTimeCommitment } from "@prisma/client";
 import { ContentType, Prisma, SkillLevel } from "@prisma/client";
 import { LearningBudgetPreference } from "@prisma/client";
 import { RoadmapDraftStep } from "@prisma/client";
+import { DeliveryFormat } from "@prisma/client";
 
 import type { PlatformContentType } from "@infrastructure/service-ai/service-ai.port";
 import type { RoadmapDraftField } from "@infrastructure/service-ai/service-ai.port";
@@ -22,6 +23,7 @@ export type RoadmapDraftFields = {
   certificationName: string | null;
   preferredFormats: LearningFormat[];
   preferredContentTypes: ContentType[];
+  preferredDeliveryFormats: DeliveryFormat[];
   timeCommitment: LearningTimeCommitment | null;
   budgetPreference: LearningBudgetPreference | null;
 };

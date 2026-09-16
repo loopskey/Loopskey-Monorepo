@@ -2,20 +2,57 @@
 
 import { ContentType, LearningFormat, SkillLevel } from "@/lib/graphql/base";
 import { LearningBudgetPreference } from "@/lib/graphql/base";
+import { Loader2, MoreHorizontal } from "lucide-react";
 import { LearningTimeCommitment } from "@/lib/graphql/base";
+import { isRoadmapStepReached } from "@/utils/roadmap-chat-step.util";
+import { RoadmapCpdSetupPanel } from "./RoadmapCpdSetupPanel";
+import { RoadmapDraftStep } from "@/lib/graphql/base";
 import { GlassCard } from "@/components/elements/glass-card";
 import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
-import { Loader2 } from "lucide-react";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
+import type { ReactNode } from "react";
 import type * as T from "@/types/professional-roadmap-chat.types";
 
 const OPTION_NS = "professionalDashboard.profile.options";
+
+const FIELD_STEP: Partial<Record<keyof T.Patch, RoadmapDraftStep>> = {
+  goal: RoadmapDraftStep.Goal,
+  targetRole: RoadmapDraftStep.Goal,
+  goalReason: RoadmapDraftStep.GoalReason,
+  context: RoadmapDraftStep.Context,
+  targetDate: RoadmapDraftStep.TargetDate,
+  skillLevel: RoadmapDraftStep.Preferences,
+  timeCommitment: RoadmapDraftStep.Preferences,
+  budgetPreference: RoadmapDraftStep.Preferences,
+  subjects: RoadmapDraftStep.Preferences,
+  preferredFormats: RoadmapDraftStep.Preferences,
+  preferredContentTypes: RoadmapDraftStep.Preferences,
+  cpdEnabled: RoadmapDraftStep.CpdTracking,
+  certificationName: RoadmapDraftStep.Certification,
+  requiredCredits: RoadmapDraftStep.CpdRequirements,
+};
+
+const GOAL_FIELDS: (keyof T.Patch)[] = [
+  "goal",
+  "targetRole",
+  "goalReason",
+  "context",
+  "targetDate",
+];
+const PREFERENCE_FIELDS: (keyof T.Patch)[] = [
+  "skillLevel",
+  "timeCommitment",
+  "budgetPreference",
+  "subjects",
+  "preferredFormats",
+  "preferredContentTypes",
+];
 
 export const RoadmapReviewSummary = ({
   draft,
@@ -23,11 +60,15 @@ export const RoadmapReviewSummary = ({
   isPatching,
   onGenerate,
   isGenerating,
+  onPatchCpdSetup,
+  isPatchingCpdSetup,
 }: T.TRoadmapReviewSummary) => {
   const { t } = useI18n();
-  const [editing, setEditing] = useState<keyof T.Patch | null>(null);
+  const [editingCard, setEditingCard] = useState<
+    "goal" | "preferences" | "cpd" | null
+  >(null);
 
-  const rows: T.Row[] = [
+  const allRows: T.Row[] = [
     {
       field: "goal",
       editor: { kind: "text", multiline: true },
@@ -102,22 +143,14 @@ export const RoadmapReviewSummary = ({
     },
   ];
 
-  if (draft.cpdEnabled)
-    rows.push(
-      {
-        field: "certificationName",
-        editor: { kind: "text", multiline: false },
-        value: draft.certificationName,
-      },
-      {
-        field: "requiredCredits",
-        editor: { kind: "number" },
-        value: draft.requiredCredits,
-      },
-    );
+  const visible = (fields: (keyof T.Patch)[]) =>
+    allRows.filter((row) => {
+      if (!fields.includes(row.field)) return false;
+      const step = FIELD_STEP[row.field];
+      return !step || isRoadmapStepReached(draft.currentStep, step);
+    });
 
   const commit = (field: keyof T.Patch, value: T.Patch[keyof T.Patch]) => {
-    setEditing(null);
     onPatch({ [field]: value } as T.Patch);
   };
 
@@ -126,51 +159,118 @@ export const RoadmapReviewSummary = ({
       ? Math.round((draft.completedFieldCount / draft.requiredFieldCount) * 100)
       : 100;
 
+  const cpdEnabledReached = isRoadmapStepReached(
+    draft.currentStep,
+    RoadmapDraftStep.CpdTracking,
+  );
+
   return (
-    <GlassCard className="flex flex-col gap-4 p-5">
-      <div>
-        <h2 className="text-lg font-medium">
-          {t("professionalRoadmapChat.review.title")}
-        </h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {t("professionalRoadmapChat.review.description")}
-        </p>
-      </div>
-
-      <div className="space-y-2">
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>{t("professionalRoadmapChat.review.briefProgress")}</span>
-          <span aria-hidden>
-            {draft.completedFieldCount}/{draft.requiredFieldCount}
-          </span>
+    <div className="flex flex-col gap-4">
+      <GlassCard className="flex flex-col gap-3 p-5">
+        <div>
+          <h2 className="text-lg font-medium">
+            {t("professionalRoadmapChat.review.title")}
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {t("professionalRoadmapChat.review.description")}
+          </p>
         </div>
-        <Progress
-          value={fieldProgress}
-          aria-label={t("professionalRoadmapChat.review.briefProgress")}
-          aria-valuetext={t(
-            "professionalRoadmapChat.review.briefProgressValue",
-            {
-              completed: draft.completedFieldCount,
-              required: draft.requiredFieldCount,
-            },
-          )}
-        />
-      </div>
 
-      <dl className="flex flex-col divide-y divide-border/60">
-        {rows.map((row) => (
-          <SummaryRow
-            row={row}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <span>{t("professionalRoadmapChat.review.briefProgress")}</span>
+            <span aria-hidden>
+              {draft.completedFieldCount}/{draft.requiredFieldCount}
+            </span>
+          </div>
+          <Progress
+            value={fieldProgress}
+            aria-label={t("professionalRoadmapChat.review.briefProgress")}
+            aria-valuetext={t(
+              "professionalRoadmapChat.review.briefProgressValue",
+              {
+                completed: draft.completedFieldCount,
+                required: draft.requiredFieldCount,
+              },
+            )}
+          />
+        </div>
+      </GlassCard>
+
+      <SectionCard
+        title={t("professionalRoadmapChat.sections.goal")}
+        isEditing={editingCard === "goal"}
+        isPatching={isPatching}
+        onToggleEdit={() =>
+          setEditingCard((current) => (current === "goal" ? null : "goal"))
+        }
+      >
+        <dl className="flex flex-col divide-y divide-border/60">
+          {visible(GOAL_FIELDS).map((row) => (
+            <SectionRow
+              row={row}
+              draft={draft}
+              onCommit={commit}
+              key={String(row.field)}
+              isEditing={editingCard === "goal"}
+            />
+          ))}
+        </dl>
+      </SectionCard>
+
+      <SectionCard
+        title={t("professionalRoadmapChat.sections.preferences")}
+        isEditing={editingCard === "preferences"}
+        isPatching={isPatching}
+        onToggleEdit={() =>
+          setEditingCard((current) =>
+            current === "preferences" ? null : "preferences",
+          )
+        }
+      >
+        <dl className="flex flex-col divide-y divide-border/60">
+          {visible(PREFERENCE_FIELDS).map((row) => (
+            <SectionRow
+              row={row}
+              draft={draft}
+              onCommit={commit}
+              key={String(row.field)}
+              isEditing={editingCard === "preferences"}
+            />
+          ))}
+        </dl>
+      </SectionCard>
+
+      {cpdEnabledReached ? (
+        <SectionCard
+          title={t("professionalRoadmapChat.sections.cpdSetup")}
+          isEditing={editingCard === "cpd"}
+          isPatching={isPatching || Boolean(isPatchingCpdSetup)}
+          onToggleEdit={() =>
+            setEditingCard((current) => (current === "cpd" ? null : "cpd"))
+          }
+        >
+          <SectionRow
+            row={{
+              field: "cpdEnabled",
+              editor: { kind: "boolean" },
+              value: draft.cpdEnabled,
+            }}
             draft={draft}
             onCommit={commit}
-            isPatching={isPatching}
-            key={String(row.field)}
-            onCancel={() => setEditing(null)}
-            isEditing={editing === row.field}
-            onEdit={() => setEditing(row.field)}
+            isEditing={editingCard === "cpd"}
           />
-        ))}
-      </dl>
+
+          {draft.cpdEnabled && onPatchCpdSetup ? (
+            <RoadmapCpdSetupPanel
+              draft={draft}
+              onPatch={onPatchCpdSetup}
+              isEditing={editingCard === "cpd"}
+              isPatching={Boolean(isPatchingCpdSetup)}
+            />
+          ) : null}
+        </SectionCard>
+      ) : null}
 
       <div className="flex flex-col gap-2">
         <div className="flex flex-wrap gap-3">
@@ -202,19 +302,55 @@ export const RoadmapReviewSummary = ({
           </p>
         ) : null}
       </div>
+    </div>
+  );
+};
+
+export type TSectionCard = {
+  title: string;
+  isEditing: boolean;
+  children: ReactNode;
+  isPatching: boolean;
+  onToggleEdit: () => void;
+};
+
+const SectionCard = ({
+  title,
+  isEditing,
+  children,
+  isPatching,
+  onToggleEdit,
+}: TSectionCard) => {
+  const { t } = useI18n();
+  return (
+    <GlassCard className="flex flex-col gap-4 p-5">
+      <div className="flex items-start justify-between gap-3">
+        <h3 className="text-base font-medium">{title}</h3>
+        <Button
+          size="sm"
+          radius="xl"
+          variant="ghost"
+          disabled={isPatching}
+          onClick={onToggleEdit}
+          aria-pressed={isEditing}
+          aria-label={t("professionalRoadmapChat.review.edit")}
+        >
+          <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
+        </Button>
+      </div>
+      {children}
     </GlassCard>
   );
 };
 
-const SummaryRow = ({
-  row,
-  draft,
-  onEdit,
-  onCancel,
-  onCommit,
-  isEditing,
-  isPatching,
-}: T.TRowProps) => {
+export type TSectionRow = {
+  row: T.Row;
+  isEditing: boolean;
+  draft: T.TRoadmapDraft;
+  onCommit: (field: keyof T.Patch, value: T.Patch[keyof T.Patch]) => void;
+};
+
+const SectionRow = ({ row, draft, onCommit, isEditing }: TSectionRow) => {
   const { t } = useI18n();
   const label = t(`professionalRoadmapChat.field.${String(row.field)}`);
 
@@ -253,37 +389,24 @@ const SummaryRow = ({
 
   return (
     <div className="flex flex-col gap-2 py-3">
-      <div className="flex items-start justify-between gap-3">
-        <dt className="text-sm text-muted-foreground">{label}</dt>
-
-        {!isEditing ? (
-          <Button
-            size="sm"
-            radius="xl"
-            variant="ghost"
-            disabled={isPatching}
-            onClick={onEdit}
-          >
-            {t("professionalRoadmapChat.review.edit")}
-          </Button>
-        ) : null}
-      </div>
+      <dt className="text-sm text-muted-foreground">{label}</dt>
 
       {!isEditing ? (
         <dd className="text-sm">{display()}</dd>
       ) : (
-        <RowEditor
-          row={row}
-          draft={draft}
-          onCancel={onCancel}
-          onCommit={onCommit}
-        />
+        <RowEditor row={row} draft={draft} onCommit={onCommit} />
       )}
     </div>
   );
 };
 
-const RowEditor = ({ row, draft, onCancel, onCommit }: T.TEditorProps) => {
+export type TRowEditor = {
+  row: T.Row;
+  draft: T.TRoadmapDraft;
+  onCommit: (field: keyof T.Patch, value: T.Patch[keyof T.Patch]) => void;
+};
+
+const RowEditor = ({ row, draft, onCommit }: TRowEditor) => {
   const { t } = useI18n();
   const { field, editor } = row;
 
@@ -298,32 +421,25 @@ const RowEditor = ({ row, draft, onCancel, onCommit }: T.TEditorProps) => {
     Array.isArray(row.value) ? row.value : [],
   );
 
-  const cancel = (
-    <Button size="sm" radius="xl" variant="ghost" onClick={onCancel}>
-      {t("professionalRoadmapChat.review.cancel")}
-    </Button>
-  );
-
   if (editor.kind === "boolean")
     return (
       <div className="flex flex-wrap gap-2">
         <Button
           size="sm"
           radius="xl"
-          variant={row.value ? "default" : "outline"}
           onClick={() => onCommit(field, true)}
+          variant={row.value ? "default" : "outline"}
         >
           {t("professionalRoadmapChat.review.yes")}
         </Button>
         <Button
           size="sm"
           radius="xl"
-          variant={row.value ? "outline" : "default"}
           onClick={() => onCommit(field, false)}
+          variant={row.value ? "outline" : "default"}
         >
           {t("professionalRoadmapChat.review.no")}
         </Button>
-        {cancel}
       </div>
     );
 
@@ -341,7 +457,6 @@ const RowEditor = ({ row, draft, onCancel, onCommit }: T.TEditorProps) => {
             {t(`${editor.labelNs}.${value}`)}
           </Button>
         ))}
-        {cancel}
       </div>
     );
 
@@ -381,16 +496,14 @@ const RowEditor = ({ row, draft, onCancel, onCommit }: T.TEditorProps) => {
           ))}
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          <Button
-            size="sm"
-            radius="xl"
-            onClick={() => onCommit(field, chosen as T.Patch[keyof T.Patch])}
-          >
-            {t("professionalRoadmapChat.review.save")}
-          </Button>
-          {cancel}
-        </div>
+        <Button
+          size="sm"
+          radius="xl"
+          className="w-fit"
+          onClick={() => onCommit(field, chosen as T.Patch[keyof T.Patch])}
+        >
+          {t("professionalRoadmapChat.review.save")}
+        </Button>
       </div>
     );
   }
@@ -445,12 +558,9 @@ const RowEditor = ({ row, draft, onCancel, onCommit }: T.TEditorProps) => {
         />
       )}
 
-      <div className="flex flex-wrap gap-2">
-        <Button size="sm" radius="xl" onClick={commitText}>
-          {t("professionalRoadmapChat.review.save")}
-        </Button>
-        {cancel}
-      </div>
+      <Button size="sm" radius="xl" className="w-fit" onClick={commitText}>
+        {t("professionalRoadmapChat.review.save")}
+      </Button>
     </div>
   );
 };

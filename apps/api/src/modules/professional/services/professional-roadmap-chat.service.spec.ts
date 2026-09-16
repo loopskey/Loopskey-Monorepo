@@ -247,6 +247,37 @@ const setup = (
       completedCredits: 12,
       certification: { id: "cert-1", name: "PMP" },
     })),
+    upsertDraftPlan: jest.fn(
+      async (
+        _user: unknown,
+        input: {
+          planId: string | null;
+          certificationId?: string | null;
+          certificationName?: string | null;
+          organization?: string | null;
+          totalRequiredCredits?: number | null;
+        },
+      ) => ({
+        id: input.planId ?? "plan-1",
+        certificationId: input.certificationId ?? null,
+        certificationName: input.certificationName ?? "",
+        organization: input.organization ?? "",
+        totalRequiredCredits: input.totalRequiredCredits ?? 0,
+        categories: [],
+        evidenceTypes: [],
+        reportRecipientType: "SELF",
+      }),
+    ),
+    plan: jest.fn(async (_user: unknown, planId: string) => ({
+      id: planId,
+      certificationId: null,
+      certificationName: "",
+      organization: "",
+      totalRequiredCredits: 0,
+      categories: [],
+      evidenceTypes: [],
+      reportRecipientType: "SELF",
+    })),
   } as unknown as ProfessionalCpdPlanService;
 
   const service = new ProfessionalRoadmapChatService(
@@ -836,6 +867,95 @@ describe("patching a draft", () => {
 
     await expect(
       service.patchDraft(OWNER, { draftId: "draft-1", goal: "too late" }),
+    ).rejects.toMatchObject({
+      response: { code: ProfessionalMessageCode.ROADMAP_DRAFT_LOCKED },
+    });
+  });
+});
+
+describe("patching CPD Setup", () => {
+  it("links the draft to the upserted plan and mirrors its fields for the step machine", async () => {
+    const { service, store, cpdPlans } = setup();
+    store.seed(emptyDraft({ ...collected, cpdEnabled: true, cpdPlanId: null }));
+
+    const view = await service.patchCpdSetup(OWNER, {
+      draftId: "draft-1",
+      certificationId: "cert-1",
+      certificationName: "PMP",
+      totalRequiredCredits: 60,
+    });
+
+    expect(cpdPlans.upsertDraftPlan).toHaveBeenCalledWith(
+      OWNER,
+      expect.objectContaining({
+        planId: null,
+        certificationId: "cert-1",
+        certificationName: "PMP",
+        totalRequiredCredits: 60,
+      }),
+    );
+    expect(view.certificationId).toBe("cert-1");
+    expect(view.certificationName).toBe("PMP");
+    expect(view.requiredCredits).toBe(60);
+    expect(store.drafts[0].cpdPlanId).toBe("plan-1");
+  });
+
+  it("treats a zero requirement default as not yet answered, the same as an unset certification name", async () => {
+    // upsertDraftPlan defaults an unspecified requirement to 0 and an unset
+    // name to "" on first create; neither should satisfy CPD_REQUIREMENTS or
+    // CERTIFICATION for a professional who has only patched, say, the
+    // organization so far.
+    const { service, store } = setup();
+    store.seed(emptyDraft({ ...collected, cpdEnabled: true }));
+
+    const view = await service.patchCpdSetup(OWNER, {
+      draftId: "draft-1",
+      organization: "Acme Corp",
+    });
+
+    expect(view.requiredCredits).toBeNull();
+    expect(view.certificationName).toBeNull();
+    expect(view.currentStep).toBe(RoadmapDraftStep.CERTIFICATION);
+  });
+
+  it("advances to review once certification and requirement are both known", async () => {
+    const { service, store } = setup();
+    store.seed(emptyDraft({ ...collected, cpdEnabled: true }));
+
+    const view = await service.patchCpdSetup(OWNER, {
+      draftId: "draft-1",
+      certificationName: "PMP",
+      totalRequiredCredits: 60,
+    });
+
+    expect(view.currentStep).toBe(RoadmapDraftStep.REVIEW);
+    expect(view.isComplete).toBe(true);
+  });
+
+  it("records a system message so the transcript reflects the edit", async () => {
+    const { service, store } = setup();
+    store.seed(emptyDraft({ ...collected, cpdEnabled: true }));
+
+    await service.patchCpdSetup(OWNER, {
+      draftId: "draft-1",
+      organization: "Acme Corp",
+    });
+
+    expect(store.messages.at(-1)).toMatchObject({
+      role: RoadmapChatRole.SYSTEM,
+      content: `${ProfessionalMessageCode.ROADMAP_DRAFT_FIELD_UPDATED}:cpdSetup`,
+    });
+  });
+
+  it("refuses to touch a draft that generation is reading", async () => {
+    const { service, store } = setup();
+    store.seed(emptyDraft({ status: RoadmapDraftStatus.GENERATING }));
+
+    await expect(
+      service.patchCpdSetup(OWNER, {
+        draftId: "draft-1",
+        organization: "too late",
+      }),
     ).rejects.toMatchObject({
       response: { code: ProfessionalMessageCode.ROADMAP_DRAFT_LOCKED },
     });

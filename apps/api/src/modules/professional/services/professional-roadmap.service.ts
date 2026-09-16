@@ -271,6 +271,15 @@ export class ProfessionalRoadmapService {
     return all;
   }
 
+  async unenrollRoadmap(user: TUser, enrollmentId: string) {
+    this.assertProfessional(user);
+    await this.engagement.unenrollRoadmap({
+      userId: user.id,
+      enrollmentId,
+    });
+    return true;
+  }
+
   async roadmapStats(user: TUser) {
     this.assertProfessional(user);
     const enrollments = await this.fetchAllEnrollments(user.id);

@@ -1,9 +1,12 @@
 "use client";
 
 import { TRoadmapSummaryProps } from "@/types/professional-roadmap-chat.types";
+import { RoadmapRecommendationsCard } from "@modules/ProfessionalRoadmap/RoadmapRecommendationsCard";
+import { buildCpdProgressView } from "@/utils/professional-overview.helper";
+import { ProgressDonutChart } from "@elements/dashboard-charts";
+import { useChartSemantics } from "@hooks/useChartPalette";
 import { GlassCard } from "@elements/glass-card";
 import { Progress } from "@ui/progress";
-import { Badge } from "@ui/badge";
 
 import * as L from "lucide-react";
 
@@ -35,13 +38,23 @@ export const RoadmapSummarySections = ({
   recommendations,
 }: TRoadmapSummaryProps) => {
   const key = "professionalDashboard.roadmap";
+  const semantics = useChartSemantics();
   const target = targetDate ? new Date(targetDate) : null;
   const remaining = target ? daysUntil(target) : null;
   const tracksCredits =
     typeof requiredCredits === "number" && requiredCredits > 0;
-  const creditProgress = tracksCredits
-    ? Math.min(Math.round((earnedCredits / requiredCredits) * 100), 100)
-    : 0;
+  const cpdView = buildCpdProgressView(
+    {
+      earnedCredits,
+      totalRequiredCredits: requiredCredits,
+      progressPercent: progress,
+    },
+    {
+      earned: t(`${key}.creditsEarnedLabel`),
+      remaining: t(`${key}.creditsRemainingLabel`),
+    },
+    { progress: semantics.onTrack, remainder: semantics.track },
+  );
 
   const targetLabel = () => {
     if (remaining === null) return t(`${key}.noTargetDate`);
@@ -100,65 +113,45 @@ export const RoadmapSummarySections = ({
         >
           {targetLabel()}
         </p>
-
-        {tracksCredits ? (
-          <div className="mt-4">
-            <div className="mb-2 flex justify-between text-xs font-medium text-muted-foreground">
-              <span>{t(`${key}.creditsProgress`)}</span>
-              <span>
-                {t(`${key}.creditsOf`, {
-                  earned: earnedCredits,
-                  required: requiredCredits,
-                })}
-              </span>
-            </div>
-            <Progress
-              value={creditProgress}
-              aria-label={t(`${key}.creditsProgress`)}
-            />
-          </div>
-        ) : null}
       </GlassCard>
 
-      {recommendations.length > 0 ? (
+      {tracksCredits ? (
         <GlassCard className="p-5">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-medium text-muted-foreground">
-              {t(`${key}.recommended`)}
+              {t(`${key}.cpdTarget`)}
             </h3>
-            <L.Sparkles className="h-5 w-5 text-primary" aria-hidden="true" />
+            <L.Target className="h-5 w-5 text-primary" aria-hidden="true" />
           </div>
 
-          <p className="mt-2 text-xs leading-5 text-muted-foreground">
-            {t(`${key}.recommendedDescription`)}
+          <ProgressDonutChart
+            data={cpdView.chartData}
+            ariaLabel={t(`${key}.creditsOf`, {
+              earned: earnedCredits,
+              required: requiredCredits,
+            })}
+            centerLabel={
+              <>
+                <p className="text-3xl font-medium text-primary">
+                  {cpdView.chartPercent}%
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {t(`${key}.cpdTargetComplete`)}
+                </p>
+              </>
+            }
+          />
+
+          <p className="text-center text-sm text-muted-foreground">
+            {t(`${key}.creditsOf`, {
+              earned: earnedCredits,
+              required: requiredCredits,
+            })}
           </p>
-
-          <ul className="mt-4 space-y-3">
-            {recommendations.map((item) => (
-              <li
-                key={`${item.contentType}:${item.contentId}`}
-                className="rounded-md border p-3"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <p className="text-sm font-medium">{item.title}</p>
-                  {item.isFree ? (
-                    <Badge variant="secondary">{t(`${key}.free`)}</Badge>
-                  ) : null}
-                </div>
-
-                <div className="mt-1 flex flex-wrap gap-2 text-xs text-muted-foreground">
-                  <span>{item.contentType}</span>
-                  {item.durationMinutes ? (
-                    <span>
-                      {t(`${key}.minutes`, { count: item.durationMinutes })}
-                    </span>
-                  ) : null}
-                </div>
-              </li>
-            ))}
-          </ul>
         </GlassCard>
       ) : null}
+
+      <RoadmapRecommendationsCard t={t} recommendations={recommendations} />
     </div>
   );
 };

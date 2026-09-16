@@ -41,6 +41,7 @@ const buildHarness = (options: { records?: unknown[] } = {}) => {
   };
   const catalog = { roadmaps: jest.fn().mockResolvedValue([ROADMAP]) };
   const candidates = { build: jest.fn().mockResolvedValue([]) };
+  const drafts = { findEditableDraft: jest.fn().mockResolvedValue(null) };
   const prisma = {
     roadmapDraft: { findUnique: jest.fn().mockResolvedValue(null) },
   };
@@ -48,9 +49,10 @@ const buildHarness = (options: { records?: unknown[] } = {}) => {
     engagement as never,
     catalog as never,
     candidates as never,
+    drafts as never,
     prisma as never,
   );
-  return { service, engagement, catalog, candidates, prisma };
+  return { service, engagement, catalog, candidates, drafts, prisma };
 };
 
 describe("ProfessionalRoadmapProgressService", () => {
@@ -170,6 +172,54 @@ describe("ProfessionalRoadmapProgressService", () => {
       const result = await service.startStep(USER, "enrollment-1", "s1");
 
       expect(result.progress).toBe(0);
+    });
+  });
+
+  describe("recommendations", () => {
+    it("sources preferences from the enrollment's linked draft when given an enrollmentId", async () => {
+      const { service, engagement, prisma, candidates } = buildHarness();
+      engagement.roadmapEnrollmentById.mockResolvedValue({
+        ...ENROLLMENT,
+        draftId: "draft-1",
+      });
+      prisma.roadmapDraft.findUnique.mockResolvedValue({
+        subjects: ["term-data"],
+        skillLevel: "INTERMEDIATE",
+        budgetPreference: "MIXED_FREE_AND_PAID",
+        preferredContentTypes: ["COURSE"],
+      });
+
+      await service.recommendations(USER, "enrollment-1");
+
+      expect(candidates.build).toHaveBeenCalledWith(
+        expect.objectContaining({ subjects: ["term-data"] }),
+      );
+    });
+
+    it("falls back to the professional's editable draft when no enrollment exists yet", async () => {
+      const { service, drafts, candidates, engagement } = buildHarness();
+      drafts.findEditableDraft.mockResolvedValue({
+        subjects: ["term-leadership"],
+        skillLevel: "BEGINNER",
+        budgetPreference: "FREE_ONLY",
+        preferredContentTypes: ["WEBINAR"],
+      });
+
+      await service.recommendations(USER);
+
+      expect(engagement.roadmapEnrollmentById).not.toHaveBeenCalled();
+      expect(candidates.build).toHaveBeenCalledWith(
+        expect.objectContaining({ subjects: ["term-leadership"] }),
+      );
+    });
+
+    it("returns nothing when there is neither an enrollment nor an editable draft", async () => {
+      const { service, candidates } = buildHarness();
+
+      const result = await service.recommendations(USER);
+
+      expect(result).toEqual([]);
+      expect(candidates.build).not.toHaveBeenCalled();
     });
   });
 });

@@ -572,11 +572,11 @@ export const professionalApi = baseApi.injectEndpoints({
 
     professionalRoadmapRecommendations: builder.query<
       TAPI.ProfessionalRoadmapRecommendationsQuery["professionalRoadmapRecommendations"],
-      TAPI.ProfessionalRoadmapRecommendationsQueryVariables
+      TAPI.ProfessionalRoadmapRecommendationsQueryVariables | void
     >({
       query: (variables) => ({
         document: API.ProfessionalRoadmapRecommendationsDocument,
-        variables,
+        variables: variables ?? {},
       }),
       transformResponse: (
         response: TAPI.ProfessionalRoadmapRecommendationsQuery,
@@ -635,6 +635,19 @@ export const professionalApi = baseApi.injectEndpoints({
       transformResponse: (response: TAPI.ProfessionalExploreRoadmapsQuery) =>
         response.professionalExploreRoadmaps,
       providesTags: ["ProfessionalRoadmaps", "Professional"],
+    }),
+
+    unenrollRoadmap: builder.mutation<
+      TAPI.UnenrollRoadmapMutation["unenrollRoadmap"],
+      TAPI.UnenrollRoadmapMutationVariables
+    >({
+      query: (variables) => ({
+        document: API.UnenrollRoadmapDocument,
+        variables,
+      }),
+      transformResponse: (response: TAPI.UnenrollRoadmapMutation) =>
+        response.unenrollRoadmap,
+      invalidatesTags: ["ProfessionalRoadmaps", "ProfessionalRoadmapStats"],
     }),
 
   }),
@@ -699,6 +712,7 @@ export const {
 
   useStartRoadmapStepMutation,
   useCompleteRoadmapStepMutation,
+  useUnenrollRoadmapMutation,
   useProfessionalRoadmapStatsQuery,
   useProfessionalRoadmapRecommendationsQuery,
   useProfessionalRoadmapDraftStatusQuery,

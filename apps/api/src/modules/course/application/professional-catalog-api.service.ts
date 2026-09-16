@@ -256,6 +256,7 @@ export class ProfessionalCatalogApiService implements ProfessionalCatalogApi {
                 contentId: step.contentId,
                 contentType: step.contentType,
                 estimatedMinutes: step.estimatedMinutes,
+                credits: step.credits,
               })),
             },
           })),

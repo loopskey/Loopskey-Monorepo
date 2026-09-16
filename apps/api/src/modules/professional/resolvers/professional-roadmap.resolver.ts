@@ -97,7 +97,8 @@ export class ProfessionalRoadmapResolver {
   })
   professionalRoadmapRecommendations(
     @CurrentUser() user: TResolverUser,
-    @Args("enrollmentId", { type: () => ID }) enrollmentId: string,
+    @Args("enrollmentId", { type: () => ID, nullable: true })
+    enrollmentId?: string,
   ) {
     return this.progressService.recommendations(
       this.getUser(user),
@@ -110,5 +111,18 @@ export class ProfessionalRoadmapResolver {
   })
   professionalRoadmapStats(@CurrentUser() user: TResolverUser) {
     return this.professionalRoadmapService.roadmapStats(this.getUser(user));
+  }
+
+  @Mutation(() => Boolean, {
+    name: ProfessionalGqlMutationNames.UNENROLL_ROADMAP,
+  })
+  unenrollRoadmap(
+    @CurrentUser() user: TResolverUser,
+    @Args("enrollmentId", { type: () => ID }) enrollmentId: string,
+  ) {
+    return this.professionalRoadmapService.unenrollRoadmap(
+      this.getUser(user),
+      enrollmentId,
+    );
   }
 }
