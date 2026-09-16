@@ -599,6 +599,7 @@ fragment ProfessionalRoadmapStepFields on ProfessionalRoadmapStep {
   order
   title
   status
+  credits
   contentId
   description
   contentType
@@ -714,6 +715,10 @@ mutation CompleteRoadmapStep($enrollmentId: ID!, $stepId: ID!) {
   }
 }
 
+mutation UnenrollRoadmap($enrollmentId: ID!) {
+  unenrollRoadmap(enrollmentId: $enrollmentId)
+}
+
 # The chat page owns the full draft document. This is the same server query
 # with a three-field selection, declared here so the dashboard never imports the
 # roadmap-chat operations module into the shared bundle.
@@ -725,7 +730,7 @@ query ProfessionalRoadmapDraftStatus {
   }
 }
 
-query ProfessionalRoadmapRecommendations($enrollmentId: ID!) {
+query ProfessionalRoadmapRecommendations($enrollmentId: ID) {
   professionalRoadmapRecommendations(enrollmentId: $enrollmentId) {
     title
     isFree

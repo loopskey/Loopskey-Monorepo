@@ -73,6 +73,18 @@ export const roadmapChatApi = baseApi.injectEndpoints({
         response.patchRoadmapDraft,
     }),
 
+    patchRoadmapCpdSetup: builder.mutation<
+      TAPI.PatchRoadmapCpdSetupMutation["patchRoadmapCpdSetup"],
+      TAPI.PatchRoadmapCpdSetupMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.PatchRoadmapCpdSetupDocument,
+        variables: { input },
+      }),
+      transformResponse: (response: TAPI.PatchRoadmapCpdSetupMutation) =>
+        response.patchRoadmapCpdSetup,
+    }),
+
     /**
      * Accepting generation only flips the draft to GENERATING; the roadmap
      * itself is built by the outbox worker. Invalidating both roadmap tags
@@ -101,6 +113,7 @@ export const roadmapChatApi = baseApi.injectEndpoints({
 
 export const {
   usePatchRoadmapDraftMutation,
+  usePatchRoadmapCpdSetupMutation,
   useStartRoadmapDraftMutation,
   useSendRoadmapChatTurnMutation,
   useProfessionalRoadmapDraftQuery,

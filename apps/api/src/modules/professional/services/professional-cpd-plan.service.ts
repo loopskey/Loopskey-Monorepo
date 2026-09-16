@@ -10,6 +10,7 @@ import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
 import { CreateCpdPlanInput } from "@professional/dtos/create-cpd-plan.input";
 import { UpdateCpdPlanInput } from "@professional/dtos/update-cpd-plan.input";
 import { PrismaService } from "@prisma/prisma.service";
+import { CreditType } from "@prisma/client";
 import { TUser } from "@common/types/user.types";
 import {
   buildMissingRequirements,
@@ -241,6 +242,149 @@ export class ProfessionalCpdPlanService {
     });
   }
 
+  async upsertDraftPlan(
+    user: TUser,
+    input: {
+      planId?: string | null;
+      certificationId?: string | null;
+      certificationName?: string | null;
+      organization?: string | null;
+      reportingStart?: string | null;
+      reportingEnd?: string | null;
+      totalRequiredCredits?: number | null;
+      categories?:
+        | { name: string; target: number; completed?: number }[]
+        | null;
+      evidenceTypes?: CPDEvidenceType[] | null;
+      evidenceOtherNote?: string | null;
+      reportRecipientType?: CPDReportRecipientType | null;
+      reportRecipientLabel?: string | null;
+    },
+  ): Promise<PlanWithCategories> {
+    this.assertProfessional(user);
+
+    const existing = input.planId
+      ? await this.findOwnedPlan(user, input.planId)
+      : null;
+
+    let catalog: {
+      certificationId: string;
+      certificationName: string;
+      organization: string;
+      creditType: PlanWithCategories["creditType"];
+      totalRequiredCredits: number;
+      reportingStart: Date;
+      reportingEnd: Date;
+      categories: { name: string; target: number; completed: number }[];
+    } | null = null;
+
+    if (input.certificationId) {
+      const cert = await this.certificationSearchService.findById(
+        user,
+        input.certificationId,
+      );
+      if (!cert)
+        throw new NotFoundException(
+          ProfessionalMessageCode.CERTIFICATION_NOT_FOUND,
+        );
+      const start = existing?.reportingStart ?? this.startOfTodayUtc();
+      catalog = {
+        certificationId: cert.id,
+        certificationName: `${cert.abbreviation} (${cert.name})`,
+        organization: cert.association ?? cert.organization,
+        creditType: cert.creditType,
+        totalRequiredCredits: cert.totalRequiredCredits,
+        reportingStart: start,
+        reportingEnd: this.suggestedEnd(start, cert.renewalCycleMonths),
+        categories: cert.categories.map((category) => ({
+          name: category.name,
+          target: category.requiredCredits,
+          completed: 0,
+        })),
+      };
+    }
+
+    const start = input.reportingStart
+      ? new Date(input.reportingStart)
+      : (catalog?.reportingStart ??
+        existing?.reportingStart ??
+        this.startOfTodayUtc());
+    const end = input.reportingEnd
+      ? new Date(input.reportingEnd)
+      : (catalog?.reportingEnd ??
+        existing?.reportingEnd ??
+        this.suggestedEnd(start, null));
+
+    const data = {
+      certificationId:
+        input.certificationId !== undefined
+          ? (catalog?.certificationId ?? null)
+          : (existing?.certificationId ?? null),
+      certificationName:
+        input.certificationName ??
+        catalog?.certificationName ??
+        existing?.certificationName ??
+        "",
+      organization:
+        input.organization ??
+        catalog?.organization ??
+        existing?.organization ??
+        "",
+      reportingStart: start,
+      reportingEnd: end,
+      creditType: catalog?.creditType ?? existing?.creditType ?? CreditType.CPD,
+      totalRequiredCredits:
+        input.totalRequiredCredits ??
+        catalog?.totalRequiredCredits ??
+        existing?.totalRequiredCredits ??
+        0,
+      evidenceTypes: input.evidenceTypes ?? existing?.evidenceTypes ?? [],
+      evidenceOtherNote:
+        input.evidenceOtherNote !== undefined
+          ? input.evidenceOtherNote
+          : (existing?.evidenceOtherNote ?? null),
+      reportRecipientType:
+        input.reportRecipientType ??
+        existing?.reportRecipientType ??
+        CPDReportRecipientType.SELF,
+      reportRecipientLabel:
+        input.reportRecipientLabel !== undefined
+          ? input.reportRecipientLabel
+          : (existing?.reportRecipientLabel ?? null),
+    } as const;
+
+    const categorySource = input.categories ?? catalog?.categories ?? null;
+    const categories = categorySource?.map((category, index) => ({
+      name: category.name,
+      targetCredits: category.target,
+      completedCredits: category.completed ?? 0,
+      order: index,
+    }));
+
+    if (existing) {
+      return this.prismaService.cPDPlan.update({
+        where: { id: existing.id },
+        data: {
+          ...data,
+          ...(categories
+            ? { categories: { deleteMany: {}, create: categories } }
+            : {}),
+        },
+        ...planWithCategories,
+      });
+    }
+
+    return this.prismaService.cPDPlan.create({
+      data: {
+        userId: user.id,
+        status: CPDPlanStatus.ACTIVE,
+        ...data,
+        categories: { create: categories ?? [] },
+      },
+      ...planWithCategories,
+    });
+  }
+
   async updatePlan(user: TUser, input: UpdateCpdPlanInput) {
     this.assertProfessional(user);
     await this.findOwnedPlan(user, input.id);
@@ -451,9 +595,6 @@ export class ProfessionalCpdPlanService {
     );
   }
 
-  // A catalogue item stores renewal-cycle rules, not a global absolute
-  // deadline: the suggested end date is always derived from the plan's own
-  // start date and the certification's renewal cycle.
   private suggestedEnd(start: Date, renewalMonths: number | null) {
     const months = renewalMonths && renewalMonths > 0 ? renewalMonths : 12;
     return new Date(

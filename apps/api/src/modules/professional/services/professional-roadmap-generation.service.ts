@@ -241,7 +241,7 @@ export class ProfessionalRoadmapGenerationService {
       return;
     }
 
-    await this.persist({ draft, data, verdict });
+    await this.persist({ draft, data, verdict, candidates: selected });
 
     this.logger.log("Roadmap generated", {
       draftId,
@@ -261,8 +261,27 @@ export class ProfessionalRoadmapGenerationService {
     draft: DraftRow;
     data: GenerateData;
     verdict: Extract<ReturnType<typeof verifyGeneratedRoadmap>, { ok: true }>;
+    candidates: RankableCandidate[];
   }) {
-    const { draft, data, verdict } = input;
+    const { draft, data, verdict, candidates } = input;
+    /**
+     * The verified step only carries `contentId`/`contentType` — the credit
+     * value lived on the candidate offered to the provider, so it is looked
+     * up back out by the same key rather than round-tripped through the AI.
+     */
+    const creditsByKey = new Map(
+      candidates.map((candidate) => [
+        `${candidate.contentType}:${candidate.contentId}`,
+        candidate.credits,
+      ]),
+    );
+    const creditsFor = (
+      contentId: string | null,
+      contentType: string | null,
+    ) =>
+      contentId && contentType
+        ? (creditsByKey.get(`${contentType}:${contentId}`) ?? null)
+        : null;
     const coverage = verdict.droppedContentIds.length
       ? [
           data.coverageNote,
@@ -292,9 +311,20 @@ export class ProfessionalRoadmapGenerationService {
               contentId: step.contentId,
               contentType: step.contentType,
               estimatedMinutes: step.estimatedMinutes,
+              credits: creditsFor(step.contentId, step.contentType),
             })),
           })),
         },
+        tx,
+      );
+
+      /**
+       * Only one generated roadmap is ever "current" for a user — starting a
+       * new one automatically archives the previously-active one instead of
+       * leaving multiple ambiguous "generated" enrollments around.
+       */
+      await this.engagement.archiveGeneratedRoadmapEnrollments(
+        { userId: draft.userId },
         tx,
       );
 

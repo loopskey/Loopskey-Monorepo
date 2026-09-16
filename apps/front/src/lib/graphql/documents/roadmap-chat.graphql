@@ -20,6 +20,31 @@ fragment RoadmapChatMessageFields on RoadmapChatMessage {
   }
 }
 
+fragment RoadmapCpdPlanCategoryFields on CpdPlanCategory {
+  id
+  name
+  targetCredits
+  completedCredits
+  order
+}
+
+fragment RoadmapCpdPlanFields on CpdPlan {
+  id
+  certificationId
+  certificationName
+  organization
+  reportingStart
+  reportingEnd
+  totalRequiredCredits
+  evidenceTypes
+  evidenceOtherNote
+  reportRecipientType
+  reportRecipientLabel
+  categories {
+    ...RoadmapCpdPlanCategoryFields
+  }
+}
+
 fragment ProfessionalRoadmapDraftFields on ProfessionalRoadmapDraft {
   id
   status
@@ -48,6 +73,9 @@ fragment ProfessionalRoadmapDraftFields on ProfessionalRoadmapDraft {
   certificationName
   requiredCredits
   completedCredits
+  cpdPlan {
+    ...RoadmapCpdPlanFields
+  }
   subjectOptions {
     id
     label
@@ -90,6 +118,12 @@ mutation SendRoadmapChatTurn($input: RoadmapChatTurnInput!) {
 
 mutation PatchRoadmapDraft($input: PatchRoadmapDraftInput!) {
   patchRoadmapDraft(input: $input) {
+    ...ProfessionalRoadmapDraftFields
+  }
+}
+
+mutation PatchRoadmapCpdSetup($input: PatchRoadmapCpdSetupInput!) {
+  patchRoadmapCpdSetup(input: $input) {
     ...ProfessionalRoadmapDraftFields
   }
 }

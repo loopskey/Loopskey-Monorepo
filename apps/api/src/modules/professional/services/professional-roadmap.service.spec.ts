@@ -37,6 +37,7 @@ const createEngagementMock = () =>
     roadmapStepProgress: jest.fn().mockResolvedValue([]),
     startRoadmapStep: jest.fn(),
     completeRoadmapStep: jest.fn(),
+    unenrollRoadmap: jest.fn().mockResolvedValue(undefined),
     courseEnrollments: jest.fn(),
     courseCounts: jest.fn(),
     payments: jest.fn(),
@@ -229,5 +230,19 @@ describe("ProfessionalRoadmapService.roadmapStats", () => {
 
     expect(engagement.roadmapEnrollments).toHaveBeenCalledTimes(2);
     expect(stats.enrolledCount).toBe(201);
+  });
+});
+
+describe("ProfessionalRoadmapService.unenrollRoadmap", () => {
+  it("delegates to the engagement port for the caller's own enrollment", async () => {
+    const { service, engagement } = createService();
+
+    const result = await service.unenrollRoadmap(professional, "enrollment-1");
+
+    expect(engagement.unenrollRoadmap).toHaveBeenCalledWith({
+      userId: "user-1",
+      enrollmentId: "enrollment-1",
+    });
+    expect(result).toBe(true);
   });
 });

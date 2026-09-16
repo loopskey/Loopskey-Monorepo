@@ -38,9 +38,10 @@ export type GeneratedRoadmapStepInput = {
   readonly order: number;
   readonly title: string;
   readonly description: string;
+  readonly credits: number | null;
   readonly contentId: string | null;
-  readonly contentType: "EVENT" | "COURSE" | "PODCAST" | "YOUTUBE" | null;
   readonly estimatedMinutes: number | null;
+  readonly contentType: "EVENT" | "COURSE" | "PODCAST" | "YOUTUBE" | null;
 };
 
 export type GeneratedRoadmapPhaseInput = {
@@ -64,15 +65,15 @@ export type GeneratedRoadmapInput = {
 export type RoadmapCandidateCourseProjection = {
   readonly id: string;
   readonly title: string;
-  readonly description: string;
   readonly level: string;
-  readonly isFree: boolean;
-  readonly durationMinutes: number | null;
-  readonly category: string;
   readonly rating: number;
+  readonly isFree: boolean;
+  readonly category: string;
+  readonly description: string;
   readonly ratingCount: number;
-  readonly professionals: number;
   readonly isFeatured: boolean;
+  readonly professionals: number;
+  readonly durationMinutes: number | null;
 };
 
 export type RoadmapCandidateQuery = {

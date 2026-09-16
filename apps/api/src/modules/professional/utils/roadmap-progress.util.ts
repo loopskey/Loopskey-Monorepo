@@ -128,19 +128,24 @@ export const computeRoadmapNextMilestone = (
 };
 
 export const earnedCredits = (input: {
-  steps: { id: string; contentId: string | null }[];
+  steps: { id: string; contentId: string | null; credits?: number | null }[];
   progress: Map<string, DerivedStep>;
   creditsByContentId: Record<string, number>;
 }): number => {
   let total = 0;
   for (const step of input.steps) {
-    if (!step.contentId) continue;
     if (
       input.progress.get(step.id)?.status !==
       RoadmapStepProgressStatus.COMPLETED
     )
       continue;
-    total += input.creditsByContentId[step.contentId] ?? 0;
+    // Live-looked-up credits (currently only populated for EVENT-type
+    // steps) take priority; everything else falls back to the value
+    // persisted on the step at generation time.
+    const live = step.contentId
+      ? input.creditsByContentId[step.contentId]
+      : undefined;
+    total += live ?? step.credits ?? 0;
   }
   return Math.round(total * 100) / 100;
 };

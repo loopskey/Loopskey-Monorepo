@@ -1,6 +1,7 @@
 import { RoadmapStepProgressStatus } from "@/lib/graphql/base";
 import { PatchRoadmapDraftInput } from "@/lib/graphql/base";
 import { RoadmapDraftStatus } from "@/lib/graphql/base";
+import { PatchRoadmapCpdSetupInput } from "@/lib/graphql/base";
 import { StepPending } from "@/hooks/useRoadmapStepProgress";
 
 import type * as G from "@/lib/graphql/operations/roadmap-chat";
@@ -41,6 +42,7 @@ type Step = {
   description?: string | null;
   contentType?: string | null;
   estimatedMinutes?: number | null;
+  credits?: number | null;
   status?: RoadmapStepProgressStatus | null;
 };
 
@@ -67,7 +69,7 @@ export type TRoadmapPhaseProps = {
   t: (key: string, values?: Record<string, string | number>) => string;
 };
 
-type Recommendation = {
+export type Recommendation = {
   title: string;
   isFree: boolean;
   contentId: string;
@@ -90,13 +92,16 @@ export type TRoadmapSummaryProps = {
 };
 
 export type Patch = Omit<PatchRoadmapDraftInput, "draftId">;
+export type CpdSetupPatch = Omit<PatchRoadmapCpdSetupInput, "draftId">;
 
 export type TRoadmapReviewSummary = {
   isPatching: boolean;
   draft: TRoadmapDraft;
   isGenerating?: boolean;
+  isPatchingCpdSetup?: boolean;
   onGenerate?: () => void;
   onPatch: (changes: Patch) => void;
+  onPatchCpdSetup?: (changes: CpdSetupPatch) => void;
 };
 
 type EditorKind =

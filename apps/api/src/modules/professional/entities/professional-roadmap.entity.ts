@@ -14,6 +14,7 @@ export class ProfessionalRoadmapStepEntity {
   @Field(() => String, { nullable: true }) contentId?: string | null;
   @Field(() => String, { nullable: true }) description?: string | null;
   @Field(() => Int, { nullable: true }) estimatedMinutes?: number | null;
+  @Field(() => Float, { nullable: true }) credits?: number | null;
   @Field(() => ContentType, { nullable: true })
   contentType?: ContentType | null;
   @Field(() => RoadmapStepProgressStatus, { nullable: true })
@@ -130,7 +131,7 @@ export class PaginatedProfessionalExploreRoadmapsEntity {
 export class ProfessionalRoadmapStatsEntity {
   @Field(() => Int) enrolledCount: number;
   @Field(() => Int) averageProgress: number;
-  @Field(() => Int) completedPhaseCount: number;
   @Field(() => Int) totalPhaseCount: number;
+  @Field(() => Int) completedPhaseCount: number;
   @Field(() => Int, { nullable: true }) nextMilestone?: number | null;
 }

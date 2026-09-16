@@ -14,9 +14,10 @@ import { notify } from "@/hooks/notify";
 import * as API from "@/lib/rtk/endpoints/roadmap-chat.api";
 import * as T from "@/types/professional-roadmap-chat.types";
 
+import type { PatchRoadmapCpdSetupInput } from "@/lib/graphql/base";
+import type { TGraphQLBaseQueryError } from "@/types/rtk.types";
 import type { PatchRoadmapDraftInput } from "@/lib/graphql/base";
 import type { TAppDispatch } from "@/lib/rtk/store";
-import type { TGraphQLBaseQueryError } from "@/types/rtk.types";
 
 const ROADMAP_TAB_HREF = "/dashboard/professional?tab=roadmap";
 
@@ -61,6 +62,8 @@ export const useRoadmapChat = () => {
     API.useSendRoadmapChatTurnMutation();
   const [patchDraft, { isLoading: isPatching }] =
     API.usePatchRoadmapDraftMutation();
+  const [patchCpdSetupMutation, { isLoading: isPatchingCpdSetup }] =
+    API.usePatchRoadmapCpdSetupMutation();
   const [requestGeneration, { isLoading: isGenerating }] =
     API.useRequestRoadmapGenerationMutation();
 
@@ -198,6 +201,24 @@ export const useRoadmapChat = () => {
     [draft, patchDraft, writeDraft],
   );
 
+  const patchCpdSetup = useCallback(
+    async (changes: Omit<PatchRoadmapCpdSetupInput, "draftId">) => {
+      if (!draft) return;
+      setTurnError(null);
+
+      try {
+        const next = await patchCpdSetupMutation({
+          draftId: draft.id,
+          ...changes,
+        }).unwrap();
+        writeDraft(next);
+      } catch (error: unknown) {
+        setTurnError(readChatError(error));
+      }
+    },
+    [draft, patchCpdSetupMutation, writeDraft],
+  );
+
   const generate = useCallback(async () => {
     if (!draft || draft.status === RoadmapDraftStatus.Generating) return;
     try {
@@ -227,7 +248,9 @@ export const useRoadmapChat = () => {
     refetchDraft,
     isDraftError,
     isGenerating,
+    patchCpdSetup,
     dismissPending,
+    isPatchingCpdSetup,
     draft: draft ?? null,
     widget: draft?.widget ?? null,
     isLoading: isDraftLoading || isStarting,

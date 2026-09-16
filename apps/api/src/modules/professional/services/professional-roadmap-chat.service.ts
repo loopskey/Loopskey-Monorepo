@@ -26,20 +26,19 @@ import {
   type ServiceAiPort,
   SERVICE_AI_LIMITS,
 } from "@infrastructure/service-ai/service-ai.port";
-import {
-  draftCompletionSummary,
-  isDraftComplete,
-  nextStep,
-} from "@professional/utils/roadmap-step-machine.util";
-import { mergeExtractedFields } from "@professional/utils/roadmap-draft-merge.util";
 import { ProfessionalRoadmapDraftService } from "@professional/services/professional-roadmap-draft.service";
+import { ProfessionalPaginationInput } from "@professional/dtos/professional-pagination.input";
 import { ProfessionalCpdPlanService } from "@professional/services/professional-cpd-plan.service";
 import { ProfessionalProfileService } from "@professional/services/professional-profile.service";
-import { PatchRoadmapDraftInput } from "@professional/dtos/patch-roadmap-draft.input";
-import { ProfessionalPaginationInput } from "@professional/dtos/professional-pagination.input";
+import { PatchRoadmapCpdSetupInput } from "@professional/dtos/patch-roadmap-cpd-setup.input";
 import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
+import { draftCompletionSummary } from "@professional/utils/roadmap-step-machine.util";
+import { PatchRoadmapDraftInput } from "@professional/dtos/patch-roadmap-draft.input";
+import { mergeExtractedFields } from "@professional/utils/roadmap-draft-merge.util";
 import { RoadmapChatTurnInput } from "@professional/dtos/roadmap-chat-turn.input";
+import { isDraftComplete } from "@professional/utils/roadmap-step-machine.util";
 import { requestContext } from "@infrastructure/observability/request-context";
+import { nextStep } from "@professional/utils/roadmap-step-machine.util";
 import { TUser } from "@common/types/user.types";
 
 import * as T from "@professional/types/professional-roadmap-chat.types";
@@ -47,7 +46,6 @@ import * as T from "@professional/types/professional-roadmap-chat.types";
 type DraftRow = Prisma.RoadmapDraftGetPayload<object>;
 type MessageRow = Prisma.RoadmapChatMessageGetPayload<object>;
 
-/** Every field the patch mutation may carry, in the order they are asked. */
 const PATCHABLE_FIELDS = [
   "goal",
   "targetRole",
@@ -60,6 +58,7 @@ const PATCHABLE_FIELDS = [
   "subjects",
   "preferredFormats",
   "preferredContentTypes",
+  "preferredDeliveryFormats",
   "cpdEnabled",
   "certificationId",
   "certificationName",
@@ -69,18 +68,12 @@ const PATCHABLE_FIELDS = [
 
 type PatchableField = (typeof PATCHABLE_FIELDS)[number];
 
-/** A patch is never applied to a draft the generator is already reading. */
 const PATCHABLE_STATUS: RoadmapDraftStatus[] = [
   RoadmapDraftStatus.COLLECTING,
   RoadmapDraftStatus.READY,
   RoadmapDraftStatus.FAILED,
 ];
 
-/**
- * Which collected field a patch actually answers, in the provider's own
- * vocabulary. The three credit and identifier columns have no counterpart
- * there because the provider never extracts them.
- */
 const PATCH_ANSWERS: Partial<Record<PatchableField, RoadmapDraftField>> = {
   goal: "goal",
   targetRole: "targetRole",
@@ -97,10 +90,6 @@ const PATCH_ANSWERS: Partial<Record<PatchableField, RoadmapDraftField>> = {
   certificationName: "certificationName",
 };
 
-/**
- * Generation is reading the draft; changing it underneath would produce a plan
- * for a state that never existed.
- */
 class RoadmapDraftLockedException extends HttpException {
   constructor() {
     super(
@@ -116,14 +105,6 @@ class RoadmapDraftLockedException extends HttpException {
 @Injectable()
 export class ProfessionalRoadmapChatService {
   private readonly logger = new Logger(ProfessionalRoadmapChatService.name);
-
-  /**
-   * Per-draft serialization. Two turns for the same draft would otherwise both
-   * read the pre-turn step and the second would overwrite the first's answer.
-   * This holds within one process; a multi-instance deployment needs the same
-   * guarantee in the database, which is noted as a known gap rather than
-   * pretended away.
-   */
   private readonly inFlight = new Map<string, Promise<unknown>>();
 
   constructor(
@@ -157,10 +138,6 @@ export class ProfessionalRoadmapChatService {
 
   private async ownedDraft(user: TUser, draftId: string) {
     const draft = await this.drafts.findDraft(user.id, draftId);
-    /**
-     * Not-found rather than forbidden: a professional who guesses another
-     * draft's identifier must not learn that it exists.
-     */
     if (!draft)
       throw new NotFoundException(
         ProfessionalMessageCode.ROADMAP_DRAFT_NOT_FOUND,
@@ -198,6 +175,7 @@ export class ProfessionalRoadmapChatService {
       subjects: draft.subjects,
       preferredFormats: draft.preferredFormats,
       preferredContentTypes: draft.preferredContentTypes,
+      preferredDeliveryFormats: draft.preferredDeliveryFormats,
       cpdEnabled: draft.cpdEnabled,
       certificationId: draft.certificationId,
       certificationName: draft.certificationName,
@@ -206,11 +184,6 @@ export class ProfessionalRoadmapChatService {
     };
   }
 
-  /**
-   * What the provider is told about the draft. The accumulated state goes out
-   * on every turn — sending an empty draft is documented as leaving the
-   * interview unable to finish.
-   */
   private toProviderDraft(fields: T.RoadmapDraftFields): RoadmapDraftState {
     return {
       goal: fields.goal,
@@ -229,11 +202,6 @@ export class ProfessionalRoadmapChatService {
     };
   }
 
-  /**
-   * The window the provider sees. System messages never leave: they carry
-   * platform message codes rather than prose, and feeding those back as
-   * conversation would teach the model to answer in codes.
-   */
   private toHistory(messages: MessageRow[]): RoadmapChatEntry[] {
     return messages
       .filter((message) => message.role !== RoadmapChatRole.SYSTEM)
@@ -264,9 +232,10 @@ export class ProfessionalRoadmapChatService {
     pagination?: ProfessionalPaginationInput,
   ) {
     const fields = this.fields(draft);
-    const [transcript, subjectOptions] = await Promise.all([
+    const [transcript, subjectOptions, cpdPlan] = await Promise.all([
       this.drafts.transcriptPage(user.id, draft.id, pagination),
       this.subjectOptions(user),
+      draft.cpdPlanId ? this.cpdPlans.plan(user, draft.cpdPlanId) : null,
     ]);
     const pending = await this.drafts.lastAssistantMessage(user.id, draft.id);
     const completion = draftCompletionSummary({
@@ -287,6 +256,7 @@ export class ProfessionalRoadmapChatService {
       remainingFields: completion.remainingFields,
       widget: pending ? this.toWidget(pending.widget) : null,
       subjectOptions,
+      cpdPlan,
       transcript: transcript ?? {
         items: [],
         totalCount: 0,
@@ -295,10 +265,6 @@ export class ProfessionalRoadmapChatService {
     };
   }
 
-  /**
-   * The AI service is stateless, so the whole conversation travels with every
-   * call. Everything the provider needs is assembled here.
-   */
   private async turnInput(
     user: TUser,
     draft: DraftRow,
@@ -338,11 +304,6 @@ export class ProfessionalRoadmapChatService {
     });
   }
 
-  /**
-   * A retried turn must not leave a second copy of the same answer behind. The
-   * previous attempt persisted the message before calling the provider, so the
-   * duplicate is always the message immediately preceding.
-   */
   private async recordProfessionalMessage(
     user: TUser,
     draft: DraftRow,
@@ -359,11 +320,6 @@ export class ProfessionalRoadmapChatService {
     });
   }
 
-  /**
-   * Everything a completed turn changes about the draft, in one write: the
-   * merged answers, the step the machine chose, and the two outcome flags a
-   * reload restores the conversation from.
-   */
   private async applyTurn(
     user: TUser,
     draft: DraftRow,
@@ -381,11 +337,6 @@ export class ProfessionalRoadmapChatService {
     const credits = await this.creditsFor(user, current, merged);
     Object.assign(merged, credits);
 
-    /**
-     * A turn the provider could not understand asks the same question again.
-     * Whatever it did manage to extract is still merged, so the professional
-     * never has to repeat something they already said.
-     */
     const step = data.needsClarification
       ? draft.currentStep
       : nextStep({ draft: merged, currentStep: draft.currentStep, answered });
@@ -410,11 +361,6 @@ export class ProfessionalRoadmapChatService {
     return updated ?? draft;
   }
 
-  /**
-   * A certification the professional named by hand carries no credits; one
-   * that resolves to the catalogue brings its requirement and whatever they
-   * have already banked against it.
-   */
   private async creditsFor(
     user: TUser,
     before: T.RoadmapDraftFields,
@@ -448,18 +394,9 @@ export class ProfessionalRoadmapChatService {
     return this.view(user, draft, pagination);
   }
 
-  /**
-   * The introduction costs no model call on the provider's side because it
-   * carries no professional message, which is why the wizard can open with a
-   * real question rather than fixed copy.
-   */
   async startDraft(user: TUser, pagination?: ProfessionalPaginationInput) {
     this.assertProfessional(user);
     const existing = await this.drafts.findEditableDraft(user.id);
-    /**
-     * A draft with no messages is a start whose introduction never arrived.
-     * Reusing it stops a provider outage from leaving a trail of empty drafts.
-     */
     const reusable =
       existing && (await this.drafts.messageCount(user.id, existing.id)) === 0
         ? existing
@@ -523,11 +460,6 @@ export class ProfessionalRoadmapChatService {
 
       if (!result.ok) {
         this.log(draft, result.kind, started);
-        /**
-         * An off-topic message is a normal thing to say, not a fault. The step
-         * stands, the refusal is recorded, and the mutation succeeds so the
-         * browser can show the rephrase prompt inside the conversation.
-         */
         if (result.kind === "refused")
           return this.applyRefusal(user, draft, result.messageCode);
         this.raise(result);
@@ -553,12 +485,6 @@ export class ProfessionalRoadmapChatService {
       wasRefused: true,
       needsClarification: false,
     });
-    /**
-     * The provider returns no text for a refusal, so the rephrase prompt is
-     * ours. It is stored as the stable code rather than rendered prose, so the
-     * browser translates it like any other copy and it never travels back to
-     * the provider as conversation.
-     */
     await this.drafts.appendMessage(user.id, draft.id, {
       content: code,
       role: RoadmapChatRole.SYSTEM,
@@ -620,6 +546,64 @@ export class ProfessionalRoadmapChatService {
     });
   }
 
+  async patchCpdSetup(user: TUser, input: PatchRoadmapCpdSetupInput) {
+    this.assertProfessional(user);
+    await this.ownedDraft(user, input.draftId);
+
+    return this.serialize(input.draftId, async () => {
+      const draft = await this.ownedDraft(user, input.draftId);
+      if (!PATCHABLE_STATUS.includes(draft.status))
+        throw new RoadmapDraftLockedException();
+
+      const { draftId: _draftId, ...changes } = input;
+      const plan = await this.cpdPlans.upsertDraftPlan(user, {
+        planId: draft.cpdPlanId,
+        ...changes,
+      });
+
+      const current = this.fields(draft);
+      const merged: T.RoadmapDraftFields = {
+        ...current,
+        certificationId: plan.certificationId ?? null,
+        certificationName: plan.certificationName || null,
+        // `upsertDraftPlan` defaults an unset requirement to 0 on first
+        // create; a real CPD requirement is always positive (matching
+        // CreateCpdPlanInput's @IsPositive()), so 0 still reads as
+        // "not answered yet" to the step machine, exactly like the
+        // certificationName default above.
+        requiredCredits:
+          plan.totalRequiredCredits > 0 ? plan.totalRequiredCredits : null,
+      };
+
+      const updated = await this.drafts.updateDraft(user.id, draft.id, {
+        cpdPlanId: plan.id,
+        certificationId: merged.certificationId,
+        certificationName: merged.certificationName,
+        requiredCredits: merged.requiredCredits,
+        wasRefused: false,
+        needsClarification: false,
+        currentStep: nextStep({
+          draft: merged,
+          currentStep: draft.currentStep,
+          answered: new Set<RoadmapDraftField>(),
+        }),
+        status: isDraftComplete(merged)
+          ? RoadmapDraftStatus.READY
+          : RoadmapDraftStatus.COLLECTING,
+      });
+
+      await this.drafts.appendMessage(user.id, draft.id, {
+        role: RoadmapChatRole.SYSTEM,
+        stepKey: updated?.currentStep ?? draft.currentStep,
+        content: [
+          ProfessionalMessageCode.ROADMAP_DRAFT_FIELD_UPDATED,
+          "cpdSetup",
+        ].join(":"),
+      });
+      return this.view(user, updated ?? draft);
+    });
+  }
+
   private async patchChanges(
     user: TUser,
     field: PatchableField,
@@ -673,25 +657,18 @@ export class ProfessionalRoadmapChatService {
       };
     }
 
-    /**
-     * Array columns are not nullable, so clearing one means emptying it. Every
-     * other field takes the supplied value, null included.
-     */
     if (field === "preferredFormats")
       return { preferredFormats: input.preferredFormats ?? [] };
     if (field === "preferredContentTypes")
       return { preferredContentTypes: input.preferredContentTypes ?? [] };
+    if (field === "preferredDeliveryFormats")
+      return {
+        preferredDeliveryFormats: input.preferredDeliveryFormats ?? [],
+      };
     if (field === "cpdEnabled") return { cpdEnabled: value === true };
     return { [field]: value };
   }
 
-  /**
-   * One line per turn. The correlation identifier comes from the ambient
-   * request rather than back through the port, which is the same value the AI
-   * client stamps on its own line and sends as `x-correlation-id`: one turn is
-   * joinable across this log, the client's, and the provider's. Message
-   * content never appears here.
-   */
   private log(draft: DraftRow, outcome: string, started: number) {
     this.logger.log({
       outcome,

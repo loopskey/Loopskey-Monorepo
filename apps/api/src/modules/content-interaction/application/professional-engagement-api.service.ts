@@ -1,4 +1,5 @@
 import { PaymentStatus, Prisma, RoadmapEnrollmentStatus } from "@prisma/client";
+import { RoadmapSource } from "@prisma/client";
 import { ContentEnrollmentStatus, ContentType } from "@prisma/client";
 import { RoadmapStepProgressStatus } from "@prisma/client";
 import { ProfessionalEngagementApi } from "@contentAction/public/professional-engagement-api";
@@ -303,6 +304,32 @@ export class ProfessionalEngagementApiService
         targetDate: input.targetDate,
         status: RoadmapEnrollmentStatus.ACTIVE,
       },
+    });
+  }
+
+  async unenrollRoadmap(input: { userId: string; enrollmentId: string }) {
+    await this.prisma.roadmapEnrollment.updateMany({
+      where: {
+        id: input.enrollmentId,
+        userId: input.userId,
+        status: { not: RoadmapEnrollmentStatus.UNENROLLED },
+      },
+      data: { status: RoadmapEnrollmentStatus.UNENROLLED },
+    });
+  }
+
+  async archiveGeneratedRoadmapEnrollments(
+    input: { userId: string },
+    unitOfWork: UnitOfWork,
+  ) {
+    const writer = unitOfWork as Prisma.TransactionClient;
+    await writer.roadmapEnrollment.updateMany({
+      where: {
+        userId: input.userId,
+        status: { not: RoadmapEnrollmentStatus.UNENROLLED },
+        roadmap: { source: RoadmapSource.GENERATED },
+      },
+      data: { status: RoadmapEnrollmentStatus.UNENROLLED },
     });
   }
 }

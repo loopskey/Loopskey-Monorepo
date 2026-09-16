@@ -6,7 +6,9 @@ import { ProfessionalGqlObjectNames } from "@professional/enums/gql-names.enum";
 import { LearningBudgetPreference } from "@prisma/client";
 import { RoadmapDraftFieldKey } from "@professional/enums/roadmap-draft.enum";
 import { RoadmapWidgetKind } from "@professional/enums/roadmap-draft.enum";
+import { DeliveryFormat } from "@prisma/client";
 import { PageInfoEntity } from "@professional/entities/page-info.entity";
+import { CpdPlanEntity } from "@professional/entities/cpd-plan.entity";
 
 @ObjectType(ProfessionalGqlObjectNames.ROADMAP_WIDGET_OPTION)
 export class RoadmapWidgetOptionEntity {
@@ -52,11 +54,14 @@ export class PaginatedRoadmapChatMessagesEntity {
 export class ProfessionalRoadmapDraftEntity {
   @Field() updatedAt: Date;
   @Field(() => ID) id: string;
+  @Field(() => [String]) subjects: string[];
   @Field(() => RoadmapDraftStatus) status: RoadmapDraftStatus;
   @Field(() => RoadmapDraftStep) currentStep: RoadmapDraftStep;
   @Field(() => String, { nullable: true }) goal?: string | null;
   @Field(() => Date, { nullable: true }) targetDate?: Date | null;
   @Field(() => String, { nullable: true }) context?: string | null;
+  @Field(() => [ContentType]) preferredContentTypes: ContentType[];
+  @Field(() => [LearningFormat]) preferredFormats: LearningFormat[];
   @Field(() => String, { nullable: true }) targetRole?: string | null;
   @Field(() => String, { nullable: true }) goalReason?: string | null;
   @Field(() => String, { nullable: true }) failureReason: string | null;
@@ -65,15 +70,16 @@ export class ProfessionalRoadmapDraftEntity {
   timeCommitment?: LearningTimeCommitment | null;
   @Field(() => LearningBudgetPreference, { nullable: true })
   budgetPreference?: LearningBudgetPreference | null;
-  @Field(() => [String]) subjects: string[];
-  @Field(() => [LearningFormat]) preferredFormats: LearningFormat[];
-  @Field(() => [ContentType]) preferredContentTypes: ContentType[];
+  @Field(() => [DeliveryFormat])
+  preferredDeliveryFormats: DeliveryFormat[];
 
   @Field(() => Boolean) cpdEnabled: boolean;
   @Field(() => ID, { nullable: true }) certificationId?: string | null;
   @Field(() => Float, { nullable: true }) requiredCredits?: number | null;
   @Field(() => Float, { nullable: true }) completedCredits?: number | null;
   @Field(() => String, { nullable: true }) certificationName?: string | null;
+  @Field(() => CpdPlanEntity, { nullable: true })
+  cpdPlan?: CpdPlanEntity | null;
 
   @Field(() => Boolean) wasRefused: boolean;
   @Field(() => Boolean) isComplete: boolean;

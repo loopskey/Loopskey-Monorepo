@@ -22,6 +22,7 @@ registerEnumType(Prisma.LearningTimeCommitment, {
 registerEnumType(Prisma.LearningBudgetPreference, {
   name: "LearningBudgetPreference",
 });
+registerEnumType(Prisma.DeliveryFormat, { name: "DeliveryFormat" });
 
 registerEnumType(Prisma.AppTheme, { name: "Theme" });
 registerEnumType(Prisma.PDUSource, { name: "PDUSource" });
