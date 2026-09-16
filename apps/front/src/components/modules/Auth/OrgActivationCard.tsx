@@ -6,6 +6,7 @@ import { useOrganizationActivation } from "@hooks/useOrganizationActivation";
 import { FloatingInputField } from "@elements/floating-input";
 import { PasswordField } from "@elements/password-field";
 import { GlassCard } from "@elements/glass-card";
+import { Skeleton } from "@ui/skeleton";
 import { Button } from "@ui/button";
 import { Form } from "@ui/form";
 
@@ -31,15 +32,18 @@ const OrgActivationCard = () => {
     <GlassCard className="mx-auto w-full max-w-md p-6 sm:p-8" glow={false}>
       <div className="relative z-10">
         {screen === "checking" && (
-          <div
-            role="status"
-            aria-live="polite"
-            className="flex min-h-56 flex-col items-center justify-center gap-3"
-          >
-            <Loader2 className="h-7 w-7 animate-spin text-primary" />
-            <p className="text-sm text-muted-foreground">
+          <div role="status" aria-live="polite" className="space-y-5">
+            <span className="sr-only">
               {t("authPages.activation.checking")}
-            </p>
+            </span>
+            <div className="text-center">
+              <Skeleton className="mx-auto mb-4 h-14 w-14 rounded-md" />
+              <Skeleton className="mx-auto h-6 w-56 rounded-md" />
+              <Skeleton className="mx-auto mt-3 h-4 w-full max-w-sm rounded-full" />
+            </div>
+            <Skeleton className="h-14 w-full rounded-md" />
+            <Skeleton className="h-14 w-full rounded-md" />
+            <Skeleton className="h-11 w-full rounded-xl" />
           </div>
         )}
 
