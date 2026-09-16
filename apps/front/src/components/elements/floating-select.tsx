@@ -2,7 +2,6 @@
 
 import { TFloatingSelectFieldProps } from "@/types/element.types";
 import { FieldValues } from "react-hook-form";
-import { useId } from "react";
 import { cn } from "@/lib/utils";
 
 import * as F from "@ui/form";
@@ -15,17 +14,15 @@ export const FloatingSelectField = <T extends FieldValues>({
   options,
   disabled,
   className,
+  placeholder,
   description,
 }: TFloatingSelectFieldProps<T>) => {
-  const generatedId = useId();
-
   return (
     <F.FormField
       control={control}
       name={name}
       render={({ field }) => {
         const value = field.value as string | undefined;
-        const isFilled = Boolean(value);
 
         return (
           <F.FormItem className={cn("min-w-0 space-y-2", className)}>
@@ -35,27 +32,12 @@ export const FloatingSelectField = <T extends FieldValues>({
               onValueChange={field.onChange}
             >
               <F.FormControl>
-                <div
-                  className={cn("group relative", isFilled && "is-filled")}
+                <S.SelectTrigger
+                  aria-label={label}
+                  className="h-14 w-full justify-between rounded-md border-input bg-background px-4 text-base"
                 >
-                  <S.SelectTrigger
-                    id={generatedId}
-                    className="h-14 w-full justify-between rounded-md border-input bg-background pt-6 pb-1.5 pl-4 pr-3 text-base"
-                  >
-                    <S.SelectValue placeholder="" />
-                  </S.SelectTrigger>
-
-                  <F.FormLabel
-                    htmlFor={generatedId}
-                    className={cn(
-                      "pointer-events-none absolute left-4 top-1/2 z-20 origin-left -translate-y-1/2 text-sm text-muted-foreground transition-all duration-200 ease-out",
-                      "group-focus-within:top-2 group-focus-within:translate-y-0 group-focus-within:scale-[0.85] group-focus-within:text-primary",
-                      isFilled && "top-2 translate-y-0 scale-[0.85]",
-                    )}
-                  >
-                    {label}
-                  </F.FormLabel>
-                </div>
+                  <S.SelectValue placeholder={placeholder ?? label} />
+                </S.SelectTrigger>
               </F.FormControl>
 
               <S.SelectContent
