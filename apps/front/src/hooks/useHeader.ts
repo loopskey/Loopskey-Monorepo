@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { isValidHref, normalizePath } from "@/utils/function-helper";
 import { useCurrentUserQuery } from "@lib/rtk/endpoints/auth.api";
 import { usePathname } from "next/navigation";
 import { siteLinks } from "@utils/constant";
 import { TNavItem } from "@/types/element.types";
 import { useI18n } from "@hooks/useI18n";
-import { isValidHref, normalizePath } from "@/utils/function-helper";
 
 export const useHeader = () => {
   const { t } = useI18n();
@@ -34,7 +34,20 @@ export const useHeader = () => {
   }, [t]);
 
   const currentPath = normalizePath(pathname ?? "/");
-  const isLandingPage = currentPath === "/";
+
+  const roleStripPaths = useMemo(
+    () =>
+      [
+        siteLinks.home,
+        siteLinks.content,
+        siteLinks.services,
+        siteLinks.about,
+        siteLinks.faq,
+        siteLinks.contact,
+      ].map(normalizePath),
+    [],
+  );
+  const showRoleStrip = roleStripPaths.includes(currentPath);
 
   const isActiveNavItem = (href: string) => {
     const targetPath = normalizePath(href);
@@ -76,7 +89,7 @@ export const useHeader = () => {
     t,
     navItems,
     isScrolled,
-    isLandingPage,
+    showRoleStrip,
     isMobileOpen,
     isUserFetching,
     openMobileMenu,
