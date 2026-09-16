@@ -12,7 +12,7 @@ export const RoleMenuSection = () => {
   return (
     <div className="border-t border-border/70 pt-4">
       <p className="px-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-        {t("common.iAmA")}
+        {t("common.continueAs")}
       </p>
       <div className="mt-2 grid grid-cols-2 gap-2">
         {solutionEntries.map((entry) => {
@@ -33,7 +33,7 @@ export const RoleMenuSection = () => {
               )}
             >
               <Icon className="h-4 w-4 shrink-0" />
-              <span className="truncate">{t(entry.labelKey)}</span>
+              <span className="truncate">{t(entry.roleLabelKey)}</span>
             </button>
           );
         })}

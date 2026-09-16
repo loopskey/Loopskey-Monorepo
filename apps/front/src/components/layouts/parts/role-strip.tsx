@@ -38,7 +38,7 @@ export const RoleStrip = ({ lockedHref }: TRoleStripProps) => {
                   "cursor-not-allowed opacity-40 hover:bg-transparent hover:text-muted-foreground",
               )}
             >
-              {t(entry.labelKey)}
+              {t(entry.roleLabelKey)}
             </button>
           );
         })}
