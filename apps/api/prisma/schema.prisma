@@ -246,27 +246,27 @@ model PendingRegistration {
 
 // ================= Profile =================
 enum ProfessionalIndustry {
-  TECHNOLOGY
-  HEALTHCARE
+  LEGAL
+  OTHER
   FINANCE
   EDUCATION
+  MARKETING
+  TECHNOLOGY
+  HEALTHCARE
+  NON_PROFIT
   ENGINEERING
   CONSTRUCTION
-  LEGAL
-  MARKETING
-  MANUFACTURING
   PUBLIC_SECTOR
-  NON_PROFIT
-  OTHER
+  MANUFACTURING
 }
 
 enum ExperienceRange {
-  LESS_THAN_ONE_YEAR
   ONE_TO_TWO_YEARS
-  THREE_TO_FIVE_YEARS
   SIX_TO_TEN_YEARS
-  ELEVEN_TO_FIFTEEN_YEARS
+  LESS_THAN_ONE_YEAR
   SIXTEEN_PLUS_YEARS
+  THREE_TO_FIVE_YEARS
+  ELEVEN_TO_FIFTEEN_YEARS
 }
 
 enum SkillLevel {
@@ -298,6 +298,13 @@ enum LearningBudgetPreference {
   FREE_ONLY
   EMPLOYER_SPONSORED
   MIXED_FREE_AND_PAID
+}
+
+enum DeliveryFormat {
+  ONLINE
+  IN_PERSON
+  SELF_PACED
+  LIVE_COHORT
 }
 
 enum ProfessionalGoal {
@@ -1781,6 +1788,7 @@ model RoadmapStep {
   contentId   String?
 
   estimatedMinutes Int?
+  credits          Float?
 
   progress RoadmapStepProgress[]
 
@@ -1865,9 +1873,10 @@ model RoadmapDraft {
   timeCommitment   LearningTimeCommitment?
   budgetPreference LearningBudgetPreference?
 
-  subjects              String[]         @default([])
-  preferredFormats      LearningFormat[] @default([])
-  preferredContentTypes ContentType[]    @default([])
+  subjects                 String[]         @default([])
+  preferredFormats         LearningFormat[] @default([])
+  preferredContentTypes    ContentType[]    @default([])
+  preferredDeliveryFormats DeliveryFormat[] @default([])
 
   cpdEnabled Boolean @default(false)
 

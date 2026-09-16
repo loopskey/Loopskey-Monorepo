@@ -1,43 +1,17 @@
-import {
-  ArrayMaxSize,
-  ArrayUnique,
-  IsArray,
-  IsBoolean,
-  IsDate,
-  IsEnum,
-  IsNumber,
-  IsOptional,
-  IsString,
-  Max,
-  MaxLength,
-  Min,
-} from "class-validator";
-import {
-  ContentType,
-  LearningBudgetPreference,
-  LearningFormat,
-  LearningTimeCommitment,
-  SkillLevel,
-} from "@prisma/client";
-import { SERVICE_AI_LIMITS } from "@infrastructure/service-ai/service-ai.port";
-import { ProfessionalGqlInputNames } from "@professional/enums/gql-names.enum";
+import { ContentType, DeliveryFormat, LearningFormat } from "@prisma/client";
+import { ArrayUnique, IsArray, IsBoolean, IsDate } from "class-validator";
+import { IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
+import { LearningTimeCommitment, SkillLevel } from "@prisma/client";
+import { ArrayMaxSize, Max, MaxLength, Min } from "class-validator";
 import { Field, Float, ID, InputType } from "@nestjs/graphql";
+import { ProfessionalGqlInputNames } from "@professional/enums/gql-names.enum";
+import { LearningBudgetPreference } from "@prisma/client";
+import { SERVICE_AI_LIMITS } from "@infrastructure/service-ai/service-ai.port";
 import { trimToNull } from "@utils/transform.util";
 import { Transform } from "class-transformer";
 
-/**
- * The largest credit figure the provider's decimal rule accepts. Checked here
- * so a manually entered requirement fails as a validation message rather than
- * at the edge of the AI call.
- */
 const MAX_CREDITS = 999_999.99;
 
-/**
- * Every collected field, all optional: the mutation carries exactly one of
- * them and the service rejects any other count. An explicit null clears the
- * field; leaving it out means the patch does not speak about it, which is the
- * same distinction the chat turn draws.
- */
 @InputType(ProfessionalGqlInputNames.PATCH_ROADMAP_DRAFT_INPUT)
 export class PatchRoadmapDraftInput {
   @Field(() => ID)
@@ -115,6 +89,14 @@ export class PatchRoadmapDraftInput {
   @ArrayMaxSize(SERVICE_AI_LIMITS.contentTypesMaxItems)
   @IsEnum(ContentType, { each: true })
   preferredContentTypes?: ContentType[] | null;
+
+  @Field(() => [DeliveryFormat], { nullable: true })
+  @IsOptional()
+  @IsArray()
+  @ArrayUnique()
+  @ArrayMaxSize(4)
+  @IsEnum(DeliveryFormat, { each: true })
+  preferredDeliveryFormats?: DeliveryFormat[] | null;
 
   @Field(() => Boolean, { nullable: true })
   @IsOptional()

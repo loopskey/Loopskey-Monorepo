@@ -6,6 +6,7 @@ import { ProfessionalGqlObjectNames } from "@professional/enums/gql-names.enum";
 import { LearningBudgetPreference } from "@prisma/client";
 import { RoadmapDraftFieldKey } from "@professional/enums/roadmap-draft.enum";
 import { RoadmapWidgetKind } from "@professional/enums/roadmap-draft.enum";
+import { DeliveryFormat } from "@prisma/client";
 import { PageInfoEntity } from "@professional/entities/page-info.entity";
 
 @ObjectType(ProfessionalGqlObjectNames.ROADMAP_WIDGET_OPTION)
@@ -68,6 +69,8 @@ export class ProfessionalRoadmapDraftEntity {
   @Field(() => [String]) subjects: string[];
   @Field(() => [LearningFormat]) preferredFormats: LearningFormat[];
   @Field(() => [ContentType]) preferredContentTypes: ContentType[];
+  @Field(() => [DeliveryFormat])
+  preferredDeliveryFormats: DeliveryFormat[];
 
   @Field(() => Boolean) cpdEnabled: boolean;
   @Field(() => ID, { nullable: true }) certificationId?: string | null;

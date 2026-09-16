@@ -47,7 +47,6 @@ import * as T from "@professional/types/professional-roadmap-chat.types";
 type DraftRow = Prisma.RoadmapDraftGetPayload<object>;
 type MessageRow = Prisma.RoadmapChatMessageGetPayload<object>;
 
-/** Every field the patch mutation may carry, in the order they are asked. */
 const PATCHABLE_FIELDS = [
   "goal",
   "targetRole",
@@ -60,6 +59,7 @@ const PATCHABLE_FIELDS = [
   "subjects",
   "preferredFormats",
   "preferredContentTypes",
+  "preferredDeliveryFormats",
   "cpdEnabled",
   "certificationId",
   "certificationName",
@@ -69,18 +69,12 @@ const PATCHABLE_FIELDS = [
 
 type PatchableField = (typeof PATCHABLE_FIELDS)[number];
 
-/** A patch is never applied to a draft the generator is already reading. */
 const PATCHABLE_STATUS: RoadmapDraftStatus[] = [
   RoadmapDraftStatus.COLLECTING,
   RoadmapDraftStatus.READY,
   RoadmapDraftStatus.FAILED,
 ];
 
-/**
- * Which collected field a patch actually answers, in the provider's own
- * vocabulary. The three credit and identifier columns have no counterpart
- * there because the provider never extracts them.
- */
 const PATCH_ANSWERS: Partial<Record<PatchableField, RoadmapDraftField>> = {
   goal: "goal",
   targetRole: "targetRole",
@@ -97,10 +91,6 @@ const PATCH_ANSWERS: Partial<Record<PatchableField, RoadmapDraftField>> = {
   certificationName: "certificationName",
 };
 
-/**
- * Generation is reading the draft; changing it underneath would produce a plan
- * for a state that never existed.
- */
 class RoadmapDraftLockedException extends HttpException {
   constructor() {
     super(
@@ -116,14 +106,6 @@ class RoadmapDraftLockedException extends HttpException {
 @Injectable()
 export class ProfessionalRoadmapChatService {
   private readonly logger = new Logger(ProfessionalRoadmapChatService.name);
-
-  /**
-   * Per-draft serialization. Two turns for the same draft would otherwise both
-   * read the pre-turn step and the second would overwrite the first's answer.
-   * This holds within one process; a multi-instance deployment needs the same
-   * guarantee in the database, which is noted as a known gap rather than
-   * pretended away.
-   */
   private readonly inFlight = new Map<string, Promise<unknown>>();
 
   constructor(
@@ -157,10 +139,6 @@ export class ProfessionalRoadmapChatService {
 
   private async ownedDraft(user: TUser, draftId: string) {
     const draft = await this.drafts.findDraft(user.id, draftId);
-    /**
-     * Not-found rather than forbidden: a professional who guesses another
-     * draft's identifier must not learn that it exists.
-     */
     if (!draft)
       throw new NotFoundException(
         ProfessionalMessageCode.ROADMAP_DRAFT_NOT_FOUND,
@@ -198,6 +176,7 @@ export class ProfessionalRoadmapChatService {
       subjects: draft.subjects,
       preferredFormats: draft.preferredFormats,
       preferredContentTypes: draft.preferredContentTypes,
+      preferredDeliveryFormats: draft.preferredDeliveryFormats,
       cpdEnabled: draft.cpdEnabled,
       certificationId: draft.certificationId,
       certificationName: draft.certificationName,
@@ -206,11 +185,6 @@ export class ProfessionalRoadmapChatService {
     };
   }
 
-  /**
-   * What the provider is told about the draft. The accumulated state goes out
-   * on every turn — sending an empty draft is documented as leaving the
-   * interview unable to finish.
-   */
   private toProviderDraft(fields: T.RoadmapDraftFields): RoadmapDraftState {
     return {
       goal: fields.goal,
@@ -229,11 +203,6 @@ export class ProfessionalRoadmapChatService {
     };
   }
 
-  /**
-   * The window the provider sees. System messages never leave: they carry
-   * platform message codes rather than prose, and feeding those back as
-   * conversation would teach the model to answer in codes.
-   */
   private toHistory(messages: MessageRow[]): RoadmapChatEntry[] {
     return messages
       .filter((message) => message.role !== RoadmapChatRole.SYSTEM)
@@ -295,10 +264,6 @@ export class ProfessionalRoadmapChatService {
     };
   }
 
-  /**
-   * The AI service is stateless, so the whole conversation travels with every
-   * call. Everything the provider needs is assembled here.
-   */
   private async turnInput(
     user: TUser,
     draft: DraftRow,
@@ -338,11 +303,6 @@ export class ProfessionalRoadmapChatService {
     });
   }
 
-  /**
-   * A retried turn must not leave a second copy of the same answer behind. The
-   * previous attempt persisted the message before calling the provider, so the
-   * duplicate is always the message immediately preceding.
-   */
   private async recordProfessionalMessage(
     user: TUser,
     draft: DraftRow,
@@ -359,11 +319,6 @@ export class ProfessionalRoadmapChatService {
     });
   }
 
-  /**
-   * Everything a completed turn changes about the draft, in one write: the
-   * merged answers, the step the machine chose, and the two outcome flags a
-   * reload restores the conversation from.
-   */
   private async applyTurn(
     user: TUser,
     draft: DraftRow,
@@ -381,11 +336,6 @@ export class ProfessionalRoadmapChatService {
     const credits = await this.creditsFor(user, current, merged);
     Object.assign(merged, credits);
 
-    /**
-     * A turn the provider could not understand asks the same question again.
-     * Whatever it did manage to extract is still merged, so the professional
-     * never has to repeat something they already said.
-     */
     const step = data.needsClarification
       ? draft.currentStep
       : nextStep({ draft: merged, currentStep: draft.currentStep, answered });
@@ -410,11 +360,6 @@ export class ProfessionalRoadmapChatService {
     return updated ?? draft;
   }
 
-  /**
-   * A certification the professional named by hand carries no credits; one
-   * that resolves to the catalogue brings its requirement and whatever they
-   * have already banked against it.
-   */
   private async creditsFor(
     user: TUser,
     before: T.RoadmapDraftFields,
@@ -448,18 +393,9 @@ export class ProfessionalRoadmapChatService {
     return this.view(user, draft, pagination);
   }
 
-  /**
-   * The introduction costs no model call on the provider's side because it
-   * carries no professional message, which is why the wizard can open with a
-   * real question rather than fixed copy.
-   */
   async startDraft(user: TUser, pagination?: ProfessionalPaginationInput) {
     this.assertProfessional(user);
     const existing = await this.drafts.findEditableDraft(user.id);
-    /**
-     * A draft with no messages is a start whose introduction never arrived.
-     * Reusing it stops a provider outage from leaving a trail of empty drafts.
-     */
     const reusable =
       existing && (await this.drafts.messageCount(user.id, existing.id)) === 0
         ? existing
@@ -523,11 +459,6 @@ export class ProfessionalRoadmapChatService {
 
       if (!result.ok) {
         this.log(draft, result.kind, started);
-        /**
-         * An off-topic message is a normal thing to say, not a fault. The step
-         * stands, the refusal is recorded, and the mutation succeeds so the
-         * browser can show the rephrase prompt inside the conversation.
-         */
         if (result.kind === "refused")
           return this.applyRefusal(user, draft, result.messageCode);
         this.raise(result);
@@ -553,12 +484,6 @@ export class ProfessionalRoadmapChatService {
       wasRefused: true,
       needsClarification: false,
     });
-    /**
-     * The provider returns no text for a refusal, so the rephrase prompt is
-     * ours. It is stored as the stable code rather than rendered prose, so the
-     * browser translates it like any other copy and it never travels back to
-     * the provider as conversation.
-     */
     await this.drafts.appendMessage(user.id, draft.id, {
       content: code,
       role: RoadmapChatRole.SYSTEM,
@@ -673,25 +598,18 @@ export class ProfessionalRoadmapChatService {
       };
     }
 
-    /**
-     * Array columns are not nullable, so clearing one means emptying it. Every
-     * other field takes the supplied value, null included.
-     */
     if (field === "preferredFormats")
       return { preferredFormats: input.preferredFormats ?? [] };
     if (field === "preferredContentTypes")
       return { preferredContentTypes: input.preferredContentTypes ?? [] };
+    if (field === "preferredDeliveryFormats")
+      return {
+        preferredDeliveryFormats: input.preferredDeliveryFormats ?? [],
+      };
     if (field === "cpdEnabled") return { cpdEnabled: value === true };
     return { [field]: value };
   }
 
-  /**
-   * One line per turn. The correlation identifier comes from the ambient
-   * request rather than back through the port, which is the same value the AI
-   * client stamps on its own line and sends as `x-correlation-id`: one turn is
-   * joinable across this log, the client's, and the provider's. Message
-   * content never appears here.
-   */
   private log(draft: DraftRow, outcome: string, started: number) {
     this.logger.log({
       outcome,
