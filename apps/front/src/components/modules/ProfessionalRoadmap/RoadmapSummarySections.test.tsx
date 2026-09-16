@@ -85,20 +85,18 @@ describe("RoadmapSummarySections", () => {
     ).toBeInTheDocument();
   });
 
-  it("omits the credit bar for a roadmap that tracks no credits", () => {
+  it("omits the CPD donut for a roadmap that tracks no credits", () => {
     renderSummary({ earnedCredits: 0, requiredCredits: 0 });
 
     expect(
-      screen.queryByText("professionalDashboard.roadmap.creditsProgress"),
+      screen.queryByText("professionalDashboard.roadmap.cpdTarget"),
     ).not.toBeInTheDocument();
   });
 
   it("never reports more than full credit", () => {
     renderSummary({ earnedCredits: 20, requiredCredits: 12 });
 
-    expect(
-      screen.getByLabelText("professionalDashboard.roadmap.creditsProgress"),
-    ).toHaveAttribute("aria-valuenow", "100");
+    expect(screen.getByText("100%")).toBeInTheDocument();
   });
 
   it("lists recommended content with its type", () => {

@@ -67,7 +67,7 @@ export type TRoadmapPhaseProps = {
   t: (key: string, values?: Record<string, string | number>) => string;
 };
 
-type Recommendation = {
+export type Recommendation = {
   title: string;
   isFree: boolean;
   contentId: string;

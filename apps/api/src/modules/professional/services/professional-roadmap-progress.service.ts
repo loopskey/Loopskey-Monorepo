@@ -1,6 +1,8 @@
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { ProfessionalRoadmapCandidateService } from "@professional/services/professional-roadmap-candidate.service";
+import { ProfessionalRoadmapDraftService } from "@professional/services/professional-roadmap-draft.service";
 import { RoadmapStepProgressStatus, Role } from "@prisma/client";
+import type { RoadmapDraft } from "@prisma/client";
 import { PROFESSIONAL_ENGAGEMENT_API } from "@contentAction/public/professional-engagement-api";
 import { ForbiddenException, Inject } from "@nestjs/common";
 import { PROFESSIONAL_CATALOG_API } from "@course/public/professional-catalog-api";
@@ -25,6 +27,7 @@ export class ProfessionalRoadmapProgressService {
     @Inject(PROFESSIONAL_CATALOG_API)
     private readonly catalog: ProfessionalCatalogApi,
     private readonly candidates: ProfessionalRoadmapCandidateService,
+    private readonly drafts: ProfessionalRoadmapDraftService,
     private readonly prisma: PrismaService,
   ) {}
 
@@ -157,43 +160,57 @@ export class ProfessionalRoadmapProgressService {
     };
   }
 
-  async recommendations(user: TUser, enrollmentId: string, take = 6) {
+  async recommendations(user: TUser, enrollmentId?: string, take = 6) {
     this.assertProfessional(user);
 
-    const enrollment = await this.engagement.roadmapEnrollmentById({
-      userId: user.id,
-      enrollmentId,
-    });
-    if (!enrollment)
-      throw new NotFoundException(
-        ProfessionalMessageCode.ROADMAP_ENROLLMENT_NOT_FOUND,
+    let alreadyInRoadmap = new Set<string>();
+    let draft: Pick<
+      RoadmapDraft,
+      "subjects" | "skillLevel" | "budgetPreference" | "preferredContentTypes"
+    > | null;
+
+    if (enrollmentId) {
+      const enrollment = await this.engagement.roadmapEnrollmentById({
+        userId: user.id,
+        enrollmentId,
+      });
+      if (!enrollment)
+        throw new NotFoundException(
+          ProfessionalMessageCode.ROADMAP_ENROLLMENT_NOT_FOUND,
+        );
+
+      const [roadmap] = (await this.catalog.roadmaps([
+        enrollment.roadmapId,
+      ])) as unknown as {
+        phases: { steps: { contentId: string | null }[] }[];
+      }[];
+
+      alreadyInRoadmap = new Set(
+        (roadmap?.phases ?? []).flatMap((phase) =>
+          phase.steps
+            .map((step) => step.contentId)
+            .filter((id): id is string => Boolean(id)),
+        ),
       );
 
-    const [roadmap] = (await this.catalog.roadmaps([
-      enrollment.roadmapId,
-    ])) as unknown as {
-      phases: { steps: { contentId: string | null }[] }[];
-    }[];
+      draft = enrollment.draftId
+        ? await this.prisma.roadmapDraft.findUnique({
+            where: { id: enrollment.draftId },
+            select: {
+              subjects: true,
+              skillLevel: true,
+              budgetPreference: true,
+              preferredContentTypes: true,
+            },
+          })
+        : null;
+    } else {
+      // No enrollment yet: source recommendations from the professional's
+      // current in-progress roadmap draft (goal/subjects/preferences) instead.
+      draft = await this.drafts.findEditableDraft(user.id);
+    }
 
-    const draft = enrollment.draftId
-      ? await this.prisma.roadmapDraft.findUnique({
-          where: { id: enrollment.draftId },
-          select: {
-            subjects: true,
-            skillLevel: true,
-            budgetPreference: true,
-            preferredContentTypes: true,
-          },
-        })
-      : null;
     if (!draft) return [];
-    const alreadyInRoadmap = new Set(
-      (roadmap?.phases ?? []).flatMap((phase) =>
-        phase.steps
-          .map((step) => step.contentId)
-          .filter((id): id is string => Boolean(id)),
-      ),
-    );
 
     const pool = await this.candidates.build({
       cap: take + alreadyInRoadmap.size,

@@ -55,8 +55,11 @@ const ALLOWED_INTERNAL_EDGES: Readonly<Record<string, readonly string[]>> = {
   ],
   // Recommendations reuse the ranking that chose the roadmap's own content,
   // because the draft behind it is what says what this professional wants.
+  // Without an enrollment yet, it falls back to the professional's current
+  // in-progress draft, the same lookup the chat service uses.
   "professional-roadmap-progress.service.ts": [
     "professional-roadmap-candidate.service.ts",
+    "professional-roadmap-draft.service.ts",
   ],
 };
 

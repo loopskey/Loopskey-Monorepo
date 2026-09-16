@@ -324,13 +324,20 @@ export type CompleteRoadmapStepMutationVariables = Types.Exact<{
 
 export type CompleteRoadmapStepMutation = { __typename?: 'Mutation', completeRoadmapStep: { __typename?: 'RoadmapStepProgress', stepId: string, status: Types.RoadmapStepProgressStatus, phaseId?: string | null, progress: number, totalSteps: number, completedAt?: string | null, phaseProgress: number, completedSteps: number, enrollmentId: string, phaseCompleted: boolean } };
 
+export type UnenrollRoadmapMutationVariables = Types.Exact<{
+  enrollmentId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type UnenrollRoadmapMutation = { __typename?: 'Mutation', unenrollRoadmap: boolean };
+
 export type ProfessionalRoadmapDraftStatusQueryVariables = Types.Exact<{ [key: string]: never; }>;
 
 
 export type ProfessionalRoadmapDraftStatusQuery = { __typename?: 'Query', professionalRoadmapDraft?: { __typename?: 'ProfessionalRoadmapDraft', id: string, status: Types.RoadmapDraftStatus, failureReason?: string | null } | null };
 
 export type ProfessionalRoadmapRecommendationsQueryVariables = Types.Exact<{
-  enrollmentId: Types.Scalars['ID']['input'];
+  enrollmentId?: Types.InputMaybe<Types.Scalars['ID']['input']>;
 }>;
 
 
@@ -2675,6 +2682,11 @@ export const CompleteRoadmapStepDocument = /*#__PURE__*/ new TypedDocumentString
   enrollmentId
   phaseCompleted
 }`) as unknown as TypedDocumentString<CompleteRoadmapStepMutation, CompleteRoadmapStepMutationVariables>;
+export const UnenrollRoadmapDocument = /*#__PURE__*/ new TypedDocumentString(`
+    mutation UnenrollRoadmap($enrollmentId: ID!) {
+  unenrollRoadmap(enrollmentId: $enrollmentId)
+}
+    `) as unknown as TypedDocumentString<UnenrollRoadmapMutation, UnenrollRoadmapMutationVariables>;
 export const ProfessionalRoadmapDraftStatusDocument = /*#__PURE__*/ new TypedDocumentString(`
     query ProfessionalRoadmapDraftStatus {
   professionalRoadmapDraft {
@@ -2685,7 +2697,7 @@ export const ProfessionalRoadmapDraftStatusDocument = /*#__PURE__*/ new TypedDoc
 }
     `) as unknown as TypedDocumentString<ProfessionalRoadmapDraftStatusQuery, ProfessionalRoadmapDraftStatusQueryVariables>;
 export const ProfessionalRoadmapRecommendationsDocument = /*#__PURE__*/ new TypedDocumentString(`
-    query ProfessionalRoadmapRecommendations($enrollmentId: ID!) {
+    query ProfessionalRoadmapRecommendations($enrollmentId: ID) {
   professionalRoadmapRecommendations(enrollmentId: $enrollmentId) {
     title
     isFree

@@ -3,6 +3,7 @@
 import { RoadmapGenerationStatus } from "@modules/ProfessionalRoadmap/RoadmapGenerationStatus";
 import { useProfessionalRoadmaps } from "@/hooks/useProfessionalRoadmap";
 import { RoadmapSummarySections } from "@modules/ProfessionalRoadmap/RoadmapSummarySections";
+import { RoadmapRecommendationsCard } from "@modules/ProfessionalRoadmap/RoadmapRecommendationsCard";
 import { ContentPagination } from "@elements/pagination";
 import { RoadmapPhaseList } from "@modules/ProfessionalRoadmap/RoadmapPhaseList";
 import { GlassCard } from "@elements/glass-card";
@@ -28,6 +29,7 @@ const ProfessionalRoadmapTab = () => {
     locale,
     myPageInfo,
     myRoadmaps,
+    otherRoadmaps,
     handleNext,
     explorePage,
     formatWeeks,
@@ -48,6 +50,8 @@ const ProfessionalRoadmapTab = () => {
     getProgressValue,
     generatedRoadmap,
     handleExploreNext,
+    handleUnenroll,
+    unenrollingId,
     exploreRoadmapsData,
     isMyRoadmapsLoading,
     isMyRoadmapsFetching,
@@ -82,12 +86,25 @@ const ProfessionalRoadmapTab = () => {
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <Button asChild radius="xl">
+          <Button
+            asChild
+            radius="xl"
+            variant={generatedRoadmap ? "outline" : "default"}
+          >
             <Link href={ROADMAP_CHAT_HREF}>
               <L.Plus className="h-4 w-4" />
-              {t("professionalDashboard.roadmap.createCustomPath")}
+              {t("professionalDashboard.roadmap.newRoadmap")}
             </Link>
           </Button>
+
+          {generatedRoadmap ? (
+            <Button asChild radius="xl">
+              <a href="#your-learning-path">
+                <L.ArrowRight className="h-4 w-4" />
+                {t("professionalDashboard.roadmap.continueRoadmap")}
+              </a>
+            </Button>
+          ) : null}
         </div>
       </div>
 
@@ -177,8 +194,12 @@ const ProfessionalRoadmapTab = () => {
         />
       ) : null}
 
+      {!generatedRoadmap ? (
+        <RoadmapRecommendationsCard t={t} recommendations={recommendations} />
+      ) : null}
+
       {generatedRoadmap ? (
-        <>
+        <div id="your-learning-path" className="space-y-6">
           {generatedRoadmap.coverageNote ? (
             <GlassCard className="p-5">
               <div className="flex items-start gap-3">
@@ -220,7 +241,7 @@ const ProfessionalRoadmapTab = () => {
             onStart={stepProgress.start}
             onComplete={stepProgress.complete}
           />
-        </>
+        </div>
       ) : null}
 
       <div className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
@@ -378,7 +399,7 @@ const ProfessionalRoadmapTab = () => {
           <div className="flex min-h-72 items-center justify-center">
             <L.Loader2 className="h-7 w-7 animate-spin text-primary" />
           </div>
-        ) : myRoadmaps.length === 0 ? (
+        ) : otherRoadmaps.length === 0 ? (
           <div className="rounded-lg border border-dashed border-border p-10 text-center">
             <L.Route className="mx-auto h-10 w-10 text-muted-foreground" />
             <p className="mt-4 font-medium">
@@ -390,7 +411,7 @@ const ProfessionalRoadmapTab = () => {
           </div>
         ) : (
           <div className="grid gap-4 lg:grid-cols-3">
-            {myRoadmaps.map((roadmap) => (
+            {otherRoadmaps.map((roadmap) => (
               <div
                 key={roadmap.id}
                 className="overflow-hidden rounded-lg border transition-all duration-300 hover:-translate-y-1 hover:border-primary/30"
@@ -463,7 +484,16 @@ const ProfessionalRoadmapTab = () => {
                       </Link>
                     </Button>
 
-                    <Button radius="xl" variant="outline" size="sm">
+                    <Button
+                      radius="xl"
+                      variant="outline"
+                      size="sm"
+                      disabled={unenrollingId === roadmap.id}
+                      onClick={() => handleUnenroll(roadmap.id)}
+                    >
+                      {unenrollingId === roadmap.id ? (
+                        <L.Loader2 className="h-4 w-4 animate-spin" />
+                      ) : null}
                       {t("professionalDashboard.roadmap.unenroll")}
                     </Button>
                   </div>

@@ -1,11 +1,10 @@
 "use client";
 
 import { ProfessionalExploreRoadmapsQueryVariables } from "@/lib/graphql/operations/professional";
-import { ChangeEvent, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { ProfessionalMyRoadmapsQueryVariables } from "@/lib/graphql/operations/professional";
 import { RoadmapDraftStatus, RoadmapSource } from "@/lib/graphql/base";
 import { useRoadmapStepProgress } from "@/hooks/useRoadmapStepProgress";
-import { skipToken } from "@reduxjs/toolkit/query";
 import { PAGE_SIZE } from "@/utils/constant";
 import { useI18n } from "@/hooks/useI18n";
 
@@ -137,10 +136,36 @@ export const useProfessionalRoadmaps = () => {
 
   const { data: recommendations } =
     API.useProfessionalRoadmapRecommendationsQuery(
-      generatedRoadmap ? { enrollmentId: generatedRoadmap.id } : skipToken,
+      generatedRoadmap ? { enrollmentId: generatedRoadmap.id } : undefined,
     );
 
   const stepProgress = useRoadmapStepProgress(myRoadmapsVariables);
+
+  const [unenrollRoadmap] = API.useUnenrollRoadmapMutation();
+  const [unenrollingId, setUnenrollingId] = useState<string | null>(null);
+
+  const handleUnenroll = useCallback(
+    async (enrollmentId: string) => {
+      setUnenrollingId(enrollmentId);
+      try {
+        await unenrollRoadmap({ enrollmentId }).unwrap();
+      } catch {
+        // The tag invalidation still runs on rejection because RTK Query
+        // only skips it for aborted requests; nothing further to do here.
+      } finally {
+        setUnenrollingId(null);
+      }
+    },
+    [unenrollRoadmap],
+  );
+
+  // The active generated roadmap already has its own dedicated section
+  // above; keep it out of the general "My roadmaps" grid so it is reachable
+  // exactly one way, through Continue.
+  const otherRoadmaps = useMemo(
+    () => myRoadmaps.filter((roadmap) => roadmap.id !== generatedRoadmap?.id),
+    [myRoadmaps, generatedRoadmap],
+  );
 
   const featuredRoadmap = myRoadmaps[0];
   const isLoading = isMyRoadmapsLoading || isExploreRoadmapsLoading;
@@ -217,6 +242,7 @@ export const useProfessionalRoadmaps = () => {
     search,
     isLoading,
     myRoadmaps,
+    otherRoadmaps,
     myPageInfo,
     handleNext,
     formatWeeks,
@@ -239,6 +265,8 @@ export const useProfessionalRoadmaps = () => {
     generatedRoadmap,
     handleExploreNext,
     handleSearchChange,
+    handleUnenroll,
+    unenrollingId,
     exploreRoadmapsData,
     isMyRoadmapsLoading,
     isMyRoadmapsFetching,

@@ -318,6 +318,16 @@ export class ProfessionalRoadmapGenerationService {
         tx,
       );
 
+      /**
+       * Only one generated roadmap is ever "current" for a user — starting a
+       * new one automatically archives the previously-active one instead of
+       * leaving multiple ambiguous "generated" enrollments around.
+       */
+      await this.engagement.archiveGeneratedRoadmapEnrollments(
+        { userId: draft.userId },
+        tx,
+      );
+
       await this.engagement.createRoadmapEnrollment(
         {
           draftId: draft.id,

@@ -229,6 +229,28 @@ describe("earnedCredits", () => {
 
     expect(total).toBe(0);
   });
+
+  it("falls back to the step's persisted credit value when no live lookup exists", () => {
+    // Only EVENT-type steps are populated in creditsByContentId; course/
+    // podcast/YouTube steps rely on the value snapshotted at generation time.
+    const total = earnedCredits({
+      steps: [{ id: "s1", contentId: "course-1", credits: 2.5 }],
+      progress: progressOf({ s1: RoadmapStepProgressStatus.COMPLETED }),
+      creditsByContentId: {},
+    });
+
+    expect(total).toBe(2.5);
+  });
+
+  it("prefers the live credit lookup over the step's persisted snapshot", () => {
+    const total = earnedCredits({
+      steps: [{ id: "s1", contentId: "event-1", credits: 2 }],
+      progress: progressOf({ s1: RoadmapStepProgressStatus.COMPLETED }),
+      creditsByContentId: { "event-1": 5 },
+    });
+
+    expect(total).toBe(5);
+  });
 });
 
 describe("computeRoadmapNextMilestone", () => {

@@ -2477,6 +2477,7 @@ type Mutation {
   submitPromotionRequest(input: SubmitPromotionRequestInput!): PromotionRequest!
   toggleWishlist(input: ContentActionInput!): ContentActionPayload!
   trackExternalLearningClick(input: CreateExternalLearningClickInput!): ExternalLearningActivity!
+  unenrollRoadmap(enrollmentId: ID!): Boolean!
   updateAdminOrganizationMember(input: UpdateAdminOrgMember!): AdminOrgMember!
   updateAdminOrganizationSettings(input: UpdateAdminOrgSettings!): OrganizationSettings!
   updateAdminProfile(input: UpdateAdminProfile!): AdminProfile!
@@ -4228,7 +4229,7 @@ type Query {
   professionalPduReport(year: Int): ProfessionalPduReport!
   professionalProfileTaxonomy(kind: ProfileTaxonomyKind): [ProfessionalTaxonomyGroup!]!
   professionalRoadmapDraft(draftId: ID, transcript: ProfessionalPaginationInput): ProfessionalRoadmapDraft
-  professionalRoadmapRecommendations(enrollmentId: ID!): [RoadmapRecommendation!]!
+  professionalRoadmapRecommendations(enrollmentId: ID): [RoadmapRecommendation!]!
   professionalRoadmapStats: ProfessionalRoadmapStats!
   professionalSettings: ProfessionalSettings!
   providerAnalytics(input: ProviderDashboardRangeInput): ProviderAnalytics!

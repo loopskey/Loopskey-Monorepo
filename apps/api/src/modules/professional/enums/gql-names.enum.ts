@@ -156,4 +156,5 @@ export enum ProfessionalGqlMutationNames {
   REQUEST_ROADMAP_GENERATION = "requestRoadmapGeneration",
   START_ROADMAP_STEP = "startRoadmapStep",
   COMPLETE_ROADMAP_STEP = "completeRoadmapStep",
+  UNENROLL_ROADMAP = "unenrollRoadmap",
 }
