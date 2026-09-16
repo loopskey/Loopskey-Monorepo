@@ -7203,6 +7203,29 @@
       "briefProgress": "Brief completion",
       "briefProgressValue": "{{completed}} of {{required}} fields complete"
     },
+    "sections": {
+      "goal": "Goal",
+      "preferences": "Preferences",
+      "cpdSetup": "CPD Setup"
+    },
+    "cpdSetup": {
+      "pickTitle": "Pick a certification to track, or search for another one.",
+      "searchPlaceholder": "Search certifications...",
+      "manualPlaceholder": "Don't see yours? Enter it manually",
+      "useManual": "Use this",
+      "certification": "Certification",
+      "organization": "Organization",
+      "requirement": "Requirement (credits)",
+      "deadline": "Deadline",
+      "evidence": "Evidence",
+      "reportTo": "Report to",
+      "categories": "Categories",
+      "categoryName": "Category name",
+      "categoryTarget": "Target credits",
+      "removeCategory": "Remove",
+      "addCategory": "Add category",
+      "saveSetup": "Save CPD Setup"
+    },
     "field": {
       "goal": "Goal",
       "targetRole": "Target role",

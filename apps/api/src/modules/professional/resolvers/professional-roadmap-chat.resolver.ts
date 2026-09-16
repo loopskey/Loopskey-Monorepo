@@ -5,6 +5,7 @@ import { ProfessionalRoadmapDraftEntity } from "@professional/entities/professio
 import { ProfessionalGqlMutationNames } from "@professional/enums/gql-names.enum";
 import { ProfessionalPaginationInput } from "@professional/dtos/professional-pagination.input";
 import { ProfessionalGqlQueryNames } from "@professional/enums/gql-names.enum";
+import { PatchRoadmapCpdSetupInput } from "@professional/dtos/patch-roadmap-cpd-setup.input";
 import { PatchRoadmapDraftInput } from "@professional/dtos/patch-roadmap-draft.input";
 import { RoadmapChatTurnInput } from "@professional/dtos/roadmap-chat-turn.input";
 import { TResolverUser } from "@professional/types/professional-service.types";
@@ -62,6 +63,16 @@ export class ProfessionalRoadmapChatResolver {
     @Args("input") input: PatchRoadmapDraftInput,
   ) {
     return this.chatService.patchDraft(this.getUser(user), input);
+  }
+
+  @Mutation(() => ProfessionalRoadmapDraftEntity, {
+    name: ProfessionalGqlMutationNames.PATCH_ROADMAP_CPD_SETUP,
+  })
+  patchRoadmapCpdSetup(
+    @CurrentUser() user: TResolverUser,
+    @Args("input") input: PatchRoadmapCpdSetupInput,
+  ) {
+    return this.chatService.patchCpdSetup(this.getUser(user), input);
   }
 
   @Mutation(() => ProfessionalRoadmapDraftEntity, {

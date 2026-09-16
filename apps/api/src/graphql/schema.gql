@@ -2430,6 +2430,7 @@ type Mutation {
   issueIngestionApiKey(input: IssueIngestionApiKey!): IssuedIngestionApiKey!
   login(input: LoginInput!): AuthPayload!
   logout: AuthPayload!
+  patchRoadmapCpdSetup(input: PatchRoadmapCpdSetupInput!): ProfessionalRoadmapDraft!
   patchRoadmapDraft(input: PatchRoadmapDraftInput!): ProfessionalRoadmapDraft!
   publishAssociationLearningContent(input: PublishAssociationLearningContentInput!): AssociationLearningContent!
   publishAssociationRequirement(input: AssociationRequirementIdInput!): AssociationRequirement!
@@ -3243,6 +3244,21 @@ type PaginatedYouTubeChannels {
   totalCount: Int!
 }
 
+input PatchRoadmapCpdSetupInput {
+  categories: [CpdPlanCategoryInput!]
+  certificationId: ID
+  certificationName: String
+  draftId: ID!
+  evidenceOtherNote: String
+  evidenceTypes: [CPDEvidenceType!]
+  organization: String
+  reportRecipientLabel: String
+  reportRecipientType: CPDReportRecipientType
+  reportingEnd: String
+  reportingStart: String
+  totalRequiredCredits: Float
+}
+
 input PatchRoadmapDraftInput {
   budgetPreference: LearningBudgetPreference
   certificationId: ID
@@ -3797,6 +3813,7 @@ type ProfessionalRoadmapDraft {
   completedFieldCount: Int!
   context: String
   cpdEnabled: Boolean!
+  cpdPlan: CpdPlan
   currentStep: RoadmapDraftStep!
   failureReason: String
   goal: String

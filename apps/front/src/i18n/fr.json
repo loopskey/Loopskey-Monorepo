@@ -7205,6 +7205,29 @@
       "briefProgress": "Progression du résumé",
       "briefProgressValue": "{{completed}} champs sur {{required}} complétés"
     },
+    "sections": {
+      "goal": "Objectif",
+      "preferences": "Préférences",
+      "cpdSetup": "Configuration DPC"
+    },
+    "cpdSetup": {
+      "pickTitle": "Choisissez une certification à suivre, ou recherchez-en une autre.",
+      "searchPlaceholder": "Rechercher une certification...",
+      "manualPlaceholder": "Vous ne trouvez pas la vôtre ? Saisissez-la manuellement",
+      "useManual": "Utiliser celle-ci",
+      "certification": "Certification",
+      "organization": "Organisme",
+      "requirement": "Exigence (crédits)",
+      "deadline": "Échéance",
+      "evidence": "Justificatifs",
+      "reportTo": "Destinataire du rapport",
+      "categories": "Catégories",
+      "categoryName": "Nom de la catégorie",
+      "categoryTarget": "Crédits cibles",
+      "removeCategory": "Retirer",
+      "addCategory": "Ajouter une catégorie",
+      "saveSetup": "Enregistrer la configuration DPC"
+    },
     "field": {
       "goal": "Objectif",
       "targetRole": "Poste visé",

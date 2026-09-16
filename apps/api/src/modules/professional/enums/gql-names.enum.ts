@@ -88,6 +88,7 @@ export enum ProfessionalGqlInputNames {
   COMPLETE_PROFESSIONAL_ONBOARDING_INPUT = "CompleteProfessionalOnboardingInput",
   ROADMAP_CHAT_TURN_INPUT = "RoadmapChatTurnInput",
   PATCH_ROADMAP_DRAFT_INPUT = "PatchRoadmapDraftInput",
+  PATCH_ROADMAP_CPD_SETUP_INPUT = "PatchRoadmapCpdSetupInput",
 }
 
 export enum ProfessionalGqlQueryNames {
@@ -153,6 +154,7 @@ export enum ProfessionalGqlMutationNames {
   START_ROADMAP_DRAFT = "startRoadmapDraft",
   SEND_ROADMAP_CHAT_TURN = "sendRoadmapChatTurn",
   PATCH_ROADMAP_DRAFT = "patchRoadmapDraft",
+  PATCH_ROADMAP_CPD_SETUP = "patchRoadmapCpdSetup",
   REQUEST_ROADMAP_GENERATION = "requestRoadmapGeneration",
   START_ROADMAP_STEP = "startRoadmapStep",
   COMPLETE_ROADMAP_STEP = "completeRoadmapStep",

@@ -39,7 +39,7 @@ export class ProfessionalRoadmapDraftService {
   async updateDraft(
     userId: string,
     draftId: string,
-    data: Prisma.RoadmapDraftUpdateInput,
+    data: Prisma.RoadmapDraftUncheckedUpdateManyInput,
   ) {
     const updated = await this.prismaService.roadmapDraft.updateMany({
       where: { id: draftId, userId },
@@ -76,11 +76,6 @@ export class ProfessionalRoadmapDraftService {
     return this.prismaService.roadmapChatMessage.count({ where: { draftId } });
   }
 
-  /**
-   * The widget the wizard is still waiting on. It rides with the assistant
-   * message that offered it rather than a column of its own, so a reload and a
-   * transcript replay can never disagree about which control is pending.
-   */
   async lastAssistantMessage(userId: string, draftId: string) {
     const draft = await this.findDraft(userId, draftId);
     if (!draft) return null;
@@ -90,11 +85,6 @@ export class ProfessionalRoadmapDraftService {
     });
   }
 
-  /**
-   * The transcript the owner reads. Bounded and forward-paginated in the same
-   * shape as the module's other listings; the window sent to the AI service is
-   * a separate, provider-dictated cap and is taken from `transcript`.
-   */
   async transcriptPage(
     userId: string,
     draftId: string,
@@ -125,11 +115,6 @@ export class ProfessionalRoadmapDraftService {
     };
   }
 
-  /**
-   * The provider returns a certification by name only, so resolving it back to
-   * the catalogue is a name match. Case-insensitive and exact: a fuzzy match
-   * here would silently attach the wrong credit requirement.
-   */
   async findCertificationByName(name: string) {
     return this.prismaService.certification.findFirst({
       where: { name: { equals: name.trim(), mode: "insensitive" } },

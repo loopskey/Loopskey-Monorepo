@@ -2535,6 +2535,7 @@ export type Mutation = {
   issueIngestionApiKey: IssuedIngestionApiKey;
   login: AuthPayload;
   logout: AuthPayload;
+  patchRoadmapCpdSetup: ProfessionalRoadmapDraft;
   patchRoadmapDraft: ProfessionalRoadmapDraft;
   publishAssociationLearningContent: AssociationLearningContent;
   publishAssociationRequirement: AssociationRequirement;
@@ -2960,6 +2961,11 @@ export type MutationIssueIngestionApiKeyArgs = {
 
 export type MutationLoginArgs = {
   input: LoginInput;
+};
+
+
+export type MutationPatchRoadmapCpdSetupArgs = {
+  input: PatchRoadmapCpdSetupInput;
 };
 
 
@@ -4200,6 +4206,21 @@ export type PaginatedYouTubeChannels = {
   totalCount: Scalars['Int']['output'];
 };
 
+export type PatchRoadmapCpdSetupInput = {
+  categories?: InputMaybe<Array<CpdPlanCategoryInput>>;
+  certificationId?: InputMaybe<Scalars['ID']['input']>;
+  certificationName?: InputMaybe<Scalars['String']['input']>;
+  draftId: Scalars['ID']['input'];
+  evidenceOtherNote?: InputMaybe<Scalars['String']['input']>;
+  evidenceTypes?: InputMaybe<Array<CpdEvidenceType>>;
+  organization?: InputMaybe<Scalars['String']['input']>;
+  reportRecipientLabel?: InputMaybe<Scalars['String']['input']>;
+  reportRecipientType?: InputMaybe<CpdReportRecipientType>;
+  reportingEnd?: InputMaybe<Scalars['String']['input']>;
+  reportingStart?: InputMaybe<Scalars['String']['input']>;
+  totalRequiredCredits?: InputMaybe<Scalars['Float']['input']>;
+};
+
 export type PatchRoadmapDraftInput = {
   budgetPreference?: InputMaybe<LearningBudgetPreference>;
   certificationId?: InputMaybe<Scalars['ID']['input']>;
@@ -4786,6 +4807,7 @@ export type ProfessionalRoadmapDraft = {
   completedFieldCount: Scalars['Int']['output'];
   context?: Maybe<Scalars['String']['output']>;
   cpdEnabled: Scalars['Boolean']['output'];
+  cpdPlan?: Maybe<CpdPlan>;
   currentStep: RoadmapDraftStep;
   failureReason?: Maybe<Scalars['String']['output']>;
   goal?: Maybe<Scalars['String']['output']>;

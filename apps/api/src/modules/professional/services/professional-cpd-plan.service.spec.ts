@@ -40,6 +40,7 @@ const createPrismaMock = () => ({
   cPDPlan: {
     findFirst: jest.fn().mockResolvedValue(basePlan),
     create: jest.fn().mockResolvedValue(basePlan),
+    update: jest.fn().mockResolvedValue(basePlan),
   },
   pDUActivity: {
     aggregate: jest.fn(),
@@ -217,5 +218,100 @@ describe("ProfessionalCpdPlanService.createPlanFromSuggestion", () => {
         certificationId: "missing",
       }),
     ).rejects.toBeInstanceOf(NotFoundException);
+  });
+});
+
+describe("ProfessionalCpdPlanService.upsertDraftPlan", () => {
+  it("creates a fresh plan with safe defaults when nothing is known yet", async () => {
+    const prisma = createPrismaMock();
+    const { service } = createService(prisma);
+
+    await service.upsertDraftPlan(professional, { planId: null });
+
+    const data = prisma.cPDPlan.create.mock.calls[0][0].data;
+    expect(data).toMatchObject({
+      userId: "user-1",
+      certificationId: null,
+      certificationName: "",
+      organization: "",
+      totalRequiredCredits: 0,
+      evidenceTypes: [],
+      reportRecipientType: CPDReportRecipientType.SELF,
+    });
+  });
+
+  it("autofills organization, credits, and categories from the certification catalogue", async () => {
+    const prisma = createPrismaMock();
+    const { service } = createService(prisma, {
+      findById: jest.fn().mockResolvedValue({
+        ...cert,
+        categories: [{ name: "Technical", requiredCredits: 35 }],
+      }),
+    });
+
+    await service.upsertDraftPlan(professional, {
+      planId: null,
+      certificationId: "cert-1",
+    });
+
+    const data = prisma.cPDPlan.create.mock.calls[0][0].data;
+    expect(data).toMatchObject({
+      certificationId: "cert-1",
+      certificationName: "PMP (Project Management Professional)",
+      organization: "Project Management Institute (PMI)",
+      totalRequiredCredits: 60,
+    });
+    expect(data.categories.create).toEqual([
+      { name: "Technical", targetCredits: 35, completedCredits: 0, order: 0 },
+    ]);
+  });
+
+  it("rejects an unknown certification id", async () => {
+    const { service } = createService(createPrismaMock(), {
+      findById: jest.fn().mockResolvedValue(null),
+    });
+
+    await expect(
+      service.upsertDraftPlan(professional, {
+        planId: null,
+        certificationId: "missing",
+      }),
+    ).rejects.toBeInstanceOf(NotFoundException);
+  });
+
+  it("patches only the given field on an existing plan, leaving the rest untouched", async () => {
+    const prisma = createPrismaMock();
+    prisma.cPDPlan.findFirst.mockResolvedValue(basePlan);
+    const { service } = createService(prisma);
+
+    await service.upsertDraftPlan(professional, {
+      planId: "plan-1",
+      organization: "New employer",
+    });
+
+    const data = prisma.cPDPlan.update.mock.calls[0][0].data;
+    expect(data.organization).toBe("New employer");
+    expect(data.totalRequiredCredits).toBe(basePlan.totalRequiredCredits);
+    expect(data.certificationName).toBe(basePlan.certificationName);
+    expect(data.categories).toBeUndefined();
+  });
+
+  it("replaces categories wholesale only when the patch supplies them", async () => {
+    const prisma = createPrismaMock();
+    prisma.cPDPlan.findFirst.mockResolvedValue(basePlan);
+    const { service } = createService(prisma);
+
+    await service.upsertDraftPlan(professional, {
+      planId: "plan-1",
+      categories: [{ name: "Ethics", target: 6 }],
+    });
+
+    const data = prisma.cPDPlan.update.mock.calls[0][0].data;
+    expect(data.categories).toEqual({
+      deleteMany: {},
+      create: [
+        { name: "Ethics", targetCredits: 6, completedCredits: 0, order: 0 },
+      ],
+    });
   });
 });

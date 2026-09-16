@@ -62,6 +62,8 @@ export const ProfessionalRoadmapChatPage = () => {
       isGenerating={chat.isGenerating}
       onGenerate={chat.generate}
       onPatch={chat.patch}
+      onPatchCpdSetup={chat.patchCpdSetup}
+      isPatchingCpdSetup={chat.isPatchingCpdSetup}
     />
   ) : null;
 

@@ -52,8 +52,8 @@ export const RoadmapWidgetControl = ({
           value={date}
           className="w-auto"
           disabled={disabled}
-          aria-label={t("professionalRoadmapChat.widget.chooseDate")}
           onChange={(event) => setDate(event.target.value)}
+          aria-label={t("professionalRoadmapChat.widget.chooseDate")}
         />
         <Button
           radius="xl"

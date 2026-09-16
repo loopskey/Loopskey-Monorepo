@@ -26,20 +26,19 @@ import {
   type ServiceAiPort,
   SERVICE_AI_LIMITS,
 } from "@infrastructure/service-ai/service-ai.port";
-import {
-  draftCompletionSummary,
-  isDraftComplete,
-  nextStep,
-} from "@professional/utils/roadmap-step-machine.util";
-import { mergeExtractedFields } from "@professional/utils/roadmap-draft-merge.util";
 import { ProfessionalRoadmapDraftService } from "@professional/services/professional-roadmap-draft.service";
+import { ProfessionalPaginationInput } from "@professional/dtos/professional-pagination.input";
 import { ProfessionalCpdPlanService } from "@professional/services/professional-cpd-plan.service";
 import { ProfessionalProfileService } from "@professional/services/professional-profile.service";
-import { PatchRoadmapDraftInput } from "@professional/dtos/patch-roadmap-draft.input";
-import { ProfessionalPaginationInput } from "@professional/dtos/professional-pagination.input";
+import { PatchRoadmapCpdSetupInput } from "@professional/dtos/patch-roadmap-cpd-setup.input";
 import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
+import { draftCompletionSummary } from "@professional/utils/roadmap-step-machine.util";
+import { PatchRoadmapDraftInput } from "@professional/dtos/patch-roadmap-draft.input";
+import { mergeExtractedFields } from "@professional/utils/roadmap-draft-merge.util";
 import { RoadmapChatTurnInput } from "@professional/dtos/roadmap-chat-turn.input";
+import { isDraftComplete } from "@professional/utils/roadmap-step-machine.util";
 import { requestContext } from "@infrastructure/observability/request-context";
+import { nextStep } from "@professional/utils/roadmap-step-machine.util";
 import { TUser } from "@common/types/user.types";
 
 import * as T from "@professional/types/professional-roadmap-chat.types";
@@ -233,9 +232,10 @@ export class ProfessionalRoadmapChatService {
     pagination?: ProfessionalPaginationInput,
   ) {
     const fields = this.fields(draft);
-    const [transcript, subjectOptions] = await Promise.all([
+    const [transcript, subjectOptions, cpdPlan] = await Promise.all([
       this.drafts.transcriptPage(user.id, draft.id, pagination),
       this.subjectOptions(user),
+      draft.cpdPlanId ? this.cpdPlans.plan(user, draft.cpdPlanId) : null,
     ]);
     const pending = await this.drafts.lastAssistantMessage(user.id, draft.id);
     const completion = draftCompletionSummary({
@@ -256,6 +256,7 @@ export class ProfessionalRoadmapChatService {
       remainingFields: completion.remainingFields,
       widget: pending ? this.toWidget(pending.widget) : null,
       subjectOptions,
+      cpdPlan,
       transcript: transcript ?? {
         items: [],
         totalCount: 0,
@@ -539,6 +540,64 @@ export class ProfessionalRoadmapChatService {
         content: [
           ProfessionalMessageCode.ROADMAP_DRAFT_FIELD_UPDATED,
           field,
+        ].join(":"),
+      });
+      return this.view(user, updated ?? draft);
+    });
+  }
+
+  async patchCpdSetup(user: TUser, input: PatchRoadmapCpdSetupInput) {
+    this.assertProfessional(user);
+    await this.ownedDraft(user, input.draftId);
+
+    return this.serialize(input.draftId, async () => {
+      const draft = await this.ownedDraft(user, input.draftId);
+      if (!PATCHABLE_STATUS.includes(draft.status))
+        throw new RoadmapDraftLockedException();
+
+      const { draftId: _draftId, ...changes } = input;
+      const plan = await this.cpdPlans.upsertDraftPlan(user, {
+        planId: draft.cpdPlanId,
+        ...changes,
+      });
+
+      const current = this.fields(draft);
+      const merged: T.RoadmapDraftFields = {
+        ...current,
+        certificationId: plan.certificationId ?? null,
+        certificationName: plan.certificationName || null,
+        // `upsertDraftPlan` defaults an unset requirement to 0 on first
+        // create; a real CPD requirement is always positive (matching
+        // CreateCpdPlanInput's @IsPositive()), so 0 still reads as
+        // "not answered yet" to the step machine, exactly like the
+        // certificationName default above.
+        requiredCredits:
+          plan.totalRequiredCredits > 0 ? plan.totalRequiredCredits : null,
+      };
+
+      const updated = await this.drafts.updateDraft(user.id, draft.id, {
+        cpdPlanId: plan.id,
+        certificationId: merged.certificationId,
+        certificationName: merged.certificationName,
+        requiredCredits: merged.requiredCredits,
+        wasRefused: false,
+        needsClarification: false,
+        currentStep: nextStep({
+          draft: merged,
+          currentStep: draft.currentStep,
+          answered: new Set<RoadmapDraftField>(),
+        }),
+        status: isDraftComplete(merged)
+          ? RoadmapDraftStatus.READY
+          : RoadmapDraftStatus.COLLECTING,
+      });
+
+      await this.drafts.appendMessage(user.id, draft.id, {
+        role: RoadmapChatRole.SYSTEM,
+        stepKey: updated?.currentStep ?? draft.currentStep,
+        content: [
+          ProfessionalMessageCode.ROADMAP_DRAFT_FIELD_UPDATED,
+          "cpdSetup",
         ].join(":"),
       });
       return this.view(user, updated ?? draft);
