@@ -1,9 +1,9 @@
 "use client";
 
+import { RoadmapRecommendationsCard } from "@modules/ProfessionalRoadmap/RoadmapRecommendationsCard";
 import { RoadmapGenerationStatus } from "@modules/ProfessionalRoadmap/RoadmapGenerationStatus";
 import { useProfessionalRoadmaps } from "@/hooks/useProfessionalRoadmap";
 import { RoadmapSummarySections } from "@modules/ProfessionalRoadmap/RoadmapSummarySections";
-import { RoadmapRecommendationsCard } from "@modules/ProfessionalRoadmap/RoadmapRecommendationsCard";
 import { ContentPagination } from "@elements/pagination";
 import { RoadmapPhaseList } from "@modules/ProfessionalRoadmap/RoadmapPhaseList";
 import { GlassCard } from "@elements/glass-card";
@@ -36,7 +36,6 @@ const ProfessionalRoadmapTab = () => {
     isGenerating,
     stepProgress,
     isStatsError,
-    learningSteps,
     exploreSearch,
     isStatsLoading,
     myRoadmapsData,
@@ -44,7 +43,6 @@ const ProfessionalRoadmapTab = () => {
     hasFailedDraft,
     handlePrevious,
     recommendations,
-    featuredRoadmap,
     exploreRoadmaps,
     explorePageInfo,
     getProgressValue,
@@ -244,133 +242,51 @@ const ProfessionalRoadmapTab = () => {
         </div>
       ) : null}
 
-      <div className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
-        <GlassCard>
-          <div className="mb-6 flex items-start justify-between gap-4">
-            <div>
-              <h2 className="text-xl font-medium">
-                {t("professionalDashboard.roadmap.yourLearningPath")}
-              </h2>
+      <GlassCard>
+        <div className="mb-6">
+          <h2 className="text-xl font-medium">
+            {t("professionalDashboard.roadmap.overallProgress")}
+          </h2>
 
-              <p className="mt-1 text-sm text-muted-foreground">
-                {featuredRoadmap
-                  ? featuredRoadmap.title
-                  : t("professionalDashboard.roadmap.learningPathDescription")}
-              </p>
-            </div>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {t("professionalDashboard.roadmap.overallProgressDescription", {
+              count: stats.enrolled,
+            })}
+          </p>
+        </div>
 
-            <L.Layers3 className="h-5 w-5 text-primary" />
+        <div className="flex flex-col items-center justify-center rounded-lg border p-8 text-center">
+          <div className="flex h-32 w-32 items-center justify-center rounded-full border-[10px] border-primary/20">
+            <span className="text-3xl font-medium text-primary">
+              {isStatsError || isStatsLoading
+                ? statValue(stats.averageProgress)
+                : `${stats.averageProgress}%`}
+            </span>
           </div>
 
-          {isMyRoadmapsLoading ? (
-            <div className="flex min-h-72 items-center justify-center">
-              <L.Loader2 className="h-7 w-7 animate-spin text-primary" />
-            </div>
-          ) : learningSteps.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-border p-10 text-center">
-              <L.BookOpenCheck className="mx-auto h-10 w-10 text-muted-foreground" />
-              <p className="mt-4 font-medium">
-                {t("professionalDashboard.roadmap.noLearningPath")}
-              </p>
-              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
-                {t("professionalDashboard.roadmap.noLearningPathDescription")}
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {learningSteps.map((step, index) => (
-                <div key={step.id} className="rounded-lg border p-4">
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary/10 text-sm font-medium text-primary">
-                      {index + 1}
-                    </div>
+          <p className="mt-5 text-sm leading-6 text-muted-foreground">
+            {t("professionalDashboard.roadmap.averageProgressText")}
+          </p>
+        </div>
 
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center justify-between gap-3">
-                        <h3 className="font-medium">{step.title}</h3>
-                        <Badge
-                          variant={step.completed ? "default" : "secondary"}
-                        >
-                          {step.completed
-                            ? t("professionalDashboard.common.completed")
-                            : t("professionalDashboard.common.inProgress")}
-                        </Badge>
-                      </div>
+        <div className="mt-5 space-y-4">
+          {myRoadmaps.map((roadmap) => (
+            <div key={roadmap.id}>
+              <div className="mb-2 flex justify-between gap-3 text-sm">
+                <span className="line-clamp-1 font-medium">
+                  {roadmap.title}
+                </span>
 
-                      <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                        {step.description ??
-                          t(
-                            "professionalDashboard.roadmap.phaseDescriptionFallback",
-                          )}
-                      </p>
-
-                      <div className="mt-4">
-                        <div className="mb-2 flex justify-between text-xs font-medium text-muted-foreground">
-                          <span>
-                            {t("professionalDashboard.common.progress")}
-                          </span>
-                          <span>{getProgressValue(step.progress)}%</span>
-                        </div>
-                        <Progress value={getProgressValue(step.progress)} />
-                      </div>
-                      <div className="mt-3 text-xs text-muted-foreground">
-                        {step.stepsCount}{" "}
-                        {t("professionalDashboard.roadmap.steps")}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </GlassCard>
-
-        <GlassCard>
-          <div className="mb-6">
-            <h2 className="text-xl font-medium">
-              {t("professionalDashboard.roadmap.overallProgress")}
-            </h2>
-
-            <p className="mt-1 text-sm text-muted-foreground">
-              {t("professionalDashboard.roadmap.overallProgressDescription", {
-                count: stats.enrolled,
-              })}
-            </p>
-          </div>
-
-          <div className="flex flex-col items-center justify-center rounded-lg border p-8 text-center">
-            <div className="flex h-32 w-32 items-center justify-center rounded-full border-[10px] border-primary/20">
-              <span className="text-3xl font-medium text-primary">
-                {isStatsError || isStatsLoading
-                  ? statValue(stats.averageProgress)
-                  : `${stats.averageProgress}%`}
-              </span>
-            </div>
-
-            <p className="mt-5 text-sm leading-6 text-muted-foreground">
-              {t("professionalDashboard.roadmap.averageProgressText")}
-            </p>
-          </div>
-
-          <div className="mt-5 space-y-4">
-            {myRoadmaps.map((roadmap) => (
-              <div key={roadmap.id}>
-                <div className="mb-2 flex justify-between gap-3 text-sm">
-                  <span className="line-clamp-1 font-medium">
-                    {roadmap.title}
-                  </span>
-
-                  <span className="text-muted-foreground">
-                    {getProgressValue(roadmap.progress)}%
-                  </span>
-                </div>
-
-                <Progress value={getProgressValue(roadmap.progress)} />
+                <span className="text-muted-foreground">
+                  {getProgressValue(roadmap.progress)}%
+                </span>
               </div>
-            ))}
-          </div>
-        </GlassCard>
-      </div>
+
+              <Progress value={getProgressValue(roadmap.progress)} />
+            </div>
+          ))}
+        </div>
+      </GlassCard>
 
       <GlassCard>
         <div className="mb-6 flex flex-col justify-between gap-4 md:flex-row md:items-center">

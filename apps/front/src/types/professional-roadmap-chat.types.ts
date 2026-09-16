@@ -41,6 +41,7 @@ type Step = {
   description?: string | null;
   contentType?: string | null;
   estimatedMinutes?: number | null;
+  credits?: number | null;
   status?: RoadmapStepProgressStatus | null;
 };
 

@@ -104,11 +104,6 @@ export const useProfessionalRoadmaps = () => {
     [statsData],
   );
 
-  const learningSteps = useMemo(() => {
-    const selectedRoadmap = myRoadmaps[0];
-    return selectedRoadmap?.phases ?? [];
-  }, [myRoadmaps]);
-
   const generatedRoadmap = useMemo(
     () =>
       myRoadmaps.find((roadmap) => roadmap.source === RoadmapSource.Generated),
@@ -167,7 +162,6 @@ export const useProfessionalRoadmaps = () => {
     [myRoadmaps, generatedRoadmap],
   );
 
-  const featuredRoadmap = myRoadmaps[0];
   const isLoading = isMyRoadmapsLoading || isExploreRoadmapsLoading;
 
   const handleSearchChange = (value: string) => {
@@ -249,14 +243,12 @@ export const useProfessionalRoadmaps = () => {
     explorePage,
     isGenerating,
     stepProgress,
-    learningSteps,
     isStatsError,
     exploreSearch,
     myRoadmapsData,
     getRoadmapHref,
     handlePrevious,
     hasFailedDraft,
-    featuredRoadmap,
     isStatsLoading,
     exploreRoadmaps,
     explorePageInfo,

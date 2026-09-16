@@ -599,6 +599,7 @@ fragment ProfessionalRoadmapStepFields on ProfessionalRoadmapStep {
   order
   title
   status
+  credits
   contentId
   description
   contentType
