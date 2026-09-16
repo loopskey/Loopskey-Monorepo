@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { Loader2 } from "lucide-react";
+import { Skeleton } from "@ui/skeleton";
 
 import AssociationActivationCard from "@modules/Auth/AssociationActivationCard";
 import AuthPageShell from "@modules/Auth/parts/AuthPageSell";
@@ -13,8 +13,11 @@ const AssociationActivatePage = () => {
     <AuthPageShell>
       <Suspense
         fallback={
-          <div className="flex min-h-56 items-center justify-center">
-            <Loader2 className="h-7 w-7 animate-spin text-primary" />
+          <div className="mx-auto w-full max-w-md space-y-5 p-6 sm:p-8">
+            <Skeleton className="mx-auto h-14 w-14 rounded-md" />
+            <Skeleton className="mx-auto h-6 w-56 rounded-md" />
+            <Skeleton className="h-14 w-full rounded-md" />
+            <Skeleton className="h-14 w-full rounded-md" />
           </div>
         }
       >

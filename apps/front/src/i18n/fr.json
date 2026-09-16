@@ -255,7 +255,7 @@
     "login": "Connexion",
     "start": "Commencer",
     "joinForFree": "Rejoindre gratuitement",
-    "iAmA": "Je suis",
+    "continueAs": "Continuer en tant que",
     "english": "Anglais",
     "french": "Français",
     "save": "Enregistrer",
@@ -266,6 +266,12 @@
     "reset": "Réinitialiser",
     "loading": "Chargement...",
     "continueToProvider": "Suivre et continuer",
+    "roles": {
+      "professional": "Professionnel",
+      "association": "Association",
+      "organization": "Organisation",
+      "contentProvider": "Fournisseur de contenu"
+    },
     "contentTypes": {
       "COURSE": "Cours",
       "EVENT": "Événement",
@@ -938,9 +944,7 @@
       {
         "id": "how-we-use-information",
         "title": "Comment nous utilisons les informations",
-        "paragraphs": [
-          "Nous utilisons vos informations pour :"
-        ],
+        "paragraphs": ["Nous utilisons vos informations pour :"],
         "bullets": [
           "Créer et gérer les comptes utilisateurs.",
           "Personnaliser les recommandations de formation et les feuilles de route générées par l’IA.",
@@ -1173,9 +1177,7 @@
       {
         "id": "acceptable-use",
         "title": "Utilisation acceptable",
-        "paragraphs": [
-          "Vous acceptez de ne pas :"
-        ],
+        "paragraphs": ["Vous acceptez de ne pas :"],
         "bullets": [
           "Utiliser la plateforme à des fins illégales, nuisibles ou frauduleuses.",
           "Téléverser des logiciels malveillants, extraire des données ou tenter de contourner les mesures de sécurité.",
