@@ -22,7 +22,8 @@ RUN npm ci
 COPY --from=pruner /app/out/full/ .
 RUN npx prisma generate --schema apps/api/prisma/schema.prisma \
     && npm run build --workspace @loopskey/api-contracts \
-    && npm run build --workspace api
+    && npm run build --workspace api \
+    && npm run build:seed --workspace api
 
 FROM node:22-bookworm-slim AS runner
 WORKDIR /app
