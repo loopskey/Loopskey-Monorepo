@@ -50,6 +50,7 @@ export const useAssociationMembersTab = () => {
   const [importResult, setImportResult] =
     useState<T.TAssociationImportResult | null>(null);
   const [isParsing, setParsing] = useState(false);
+  const [bulkRequirementIds, setBulkRequirementIds] = useState<string[]>([]);
 
   const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
 
@@ -277,7 +278,16 @@ export const useAssociationMembersTab = () => {
 
   const openUpload = () => {
     clearImport();
+    setBulkRequirementIds([]);
     setUploadOpen(true);
+  };
+
+  const toggleBulkRequirement = (requirementId: string) => {
+    setBulkRequirementIds((previous) =>
+      previous.includes(requirementId)
+        ? previous.filter((id) => id !== requirementId)
+        : [...previous, requirementId],
+    );
   };
 
   const closeUpload = () => setUploadOpen(false);
@@ -329,7 +339,12 @@ export const useAssociationMembersTab = () => {
     if (!rows.length) return;
 
     try {
-      const result = await bulkInvite({ rows }).unwrap();
+      const result = await bulkInvite({
+        rows,
+        requirementIds: bulkRequirementIds.length
+          ? bulkRequirementIds
+          : undefined,
+      }).unwrap();
       setImportResult(result);
       setImportPreview(null);
       notify.success(
@@ -480,6 +495,8 @@ export const useAssociationMembersTab = () => {
     confirmImport,
     importPreview,
     importFileName,
+    bulkRequirementIds,
+    toggleBulkRequirement,
     editingGroupId,
     startGroupEdit,
     assignMemberId,
