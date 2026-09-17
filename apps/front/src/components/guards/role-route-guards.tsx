@@ -2,10 +2,10 @@
 
 import { TRoleRouteGuardProps } from "@/types/guards.types";
 import { useCurrentUserQuery } from "@/lib/rtk/endpoints/auth.api";
+import { DashboardContentSkeleton } from "@layouts/parts/DashboardSkeleton";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { siteLinks } from "@/utils/constant";
-import { Loader2 } from "lucide-react";
 
 import PasswordChangeRequired from "@modules/Auth/PasswordChangeRequired";
 
@@ -41,12 +41,7 @@ export const RoleRouteGuard = ({
     redirectUnauthenticatedTo,
   ]);
 
-  if (isChecking || !user || !isAllowed)
-    return (
-      <div className="flex min-h-[70vh] items-center justify-center">
-        <Loader2 className="h-7 w-7 animate-spin text-primary" />
-      </div>
-    );
+  if (isChecking || !user || !isAllowed) return <DashboardContentSkeleton />;
   if (user.forcePasswordChange) return <PasswordChangeRequired />;
   return <>{children}</>;
 };
