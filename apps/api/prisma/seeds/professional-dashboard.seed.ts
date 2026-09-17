@@ -411,6 +411,37 @@ const seedProfessionalSettings = async (
   });
 };
 
+const seedProfessionalCredential = async (
+  prisma: P.PrismaClient,
+  userId: string,
+  index: number,
+  certifications: Array<{ id: string; creditType: P.CreditType }>,
+) => {
+  if (!certifications.length) return;
+  const certification = certifications[index % certifications.length];
+  const issueDate = randomDateBetween(
+    new Date(Date.UTC(new Date().getFullYear() - 3, 0, 1)),
+    new Date(),
+  );
+  await prisma.professionalCredential.upsert({
+    where: { userId_certificationId: { userId, certificationId: certification.id } },
+    create: {
+      userId,
+      certificationId: certification.id,
+      name: `Professional credential ${index + 1}`,
+      issuingOrganization: "LoopsKey Academy",
+      licenceNumber: `LK-CRED-${userId.slice(-6).toUpperCase()}`,
+      issueDate,
+      expiryDate: new Date(issueDate.getFullYear() + 2, issueDate.getMonth(), issueDate.getDate()),
+      annualCpdHours: randomFloat(10, 40),
+    },
+    update: {
+      issuingOrganization: "LoopsKey Academy",
+      annualCpdHours: randomFloat(10, 40),
+    },
+  });
+};
+
 const seedProfessionalPduTargets = async (
   prisma: P.PrismaClient,
   userId: string,
@@ -851,13 +882,13 @@ const seedProfessionalCpdPlans = async (
 const seedProfessionalRoadmaps = async (
   prisma: P.PrismaClient,
   userId: string,
-  roadmaps: Array<{ id: string }>,
+  roadmaps: Array<{ id: string; stepIds: string[] }>,
 ) => {
   const selectedRoadmaps = roadmaps.slice(0, 4);
   for (let i = 0; i < selectedRoadmaps.length; i++) {
     const roadmap = selectedRoadmaps[i];
     const isCompleted = i === 0;
-    await prisma.roadmapEnrollment.upsert({
+    const enrollment = await prisma.roadmapEnrollment.upsert({
       where: {
         userId_roadmapId: {
           userId,
@@ -880,7 +911,29 @@ const seedProfessionalRoadmaps = async (
           : P.RoadmapEnrollmentStatus.ACTIVE,
         completedAt: isCompleted ? new Date() : null,
       },
+      select: { id: true },
     });
+
+    for (const [stepIndex, stepId] of roadmap.stepIds.entries()) {
+      const stepStatus =
+        isCompleted || stepIndex === 0
+          ? P.RoadmapStepProgressStatus.COMPLETED
+          : P.RoadmapStepProgressStatus.IN_PROGRESS;
+      await prisma.roadmapStepProgress.upsert({
+        where: { enrollmentId_stepId: { enrollmentId: enrollment.id, stepId } },
+        create: {
+          enrollmentId: enrollment.id,
+          stepId,
+          status: stepStatus,
+          completedAt: stepStatus === P.RoadmapStepProgressStatus.COMPLETED ? new Date() : null,
+        },
+        update: {
+          status: stepStatus,
+          completedAt: stepStatus === P.RoadmapStepProgressStatus.COMPLETED ? new Date() : null,
+        },
+      });
+      if (!isCompleted && stepIndex >= 1) break;
+    }
   }
 };
 
@@ -971,18 +1024,33 @@ export const seedProfessionalDashboard = async (
     },
     take: 30,
   });
-  const roadmaps = await prisma.roadmap.findMany({
+  const rawRoadmaps = await prisma.roadmap.findMany({
     where: {
       deletedAt: null,
       status: "PUBLISHED",
     },
     select: {
       id: true,
+      phases: {
+        orderBy: { order: "asc" },
+        select: { steps: { orderBy: { order: "asc" }, select: { id: true } } },
+      },
     },
     orderBy: {
       createdAt: "desc",
     },
     take: 12,
+  });
+
+  const roadmaps = rawRoadmaps.map((roadmap) => ({
+    id: roadmap.id,
+    stepIds: roadmap.phases.flatMap((phase) => phase.steps.map((step) => step.id)),
+  }));
+
+  const certifications = await prisma.certification.findMany({
+    where: { isActive: true },
+    select: { id: true, creditType: true },
+    take: 10,
   });
 
   const courses: SeedCourseItem[] = rawCourses.map((course) => ({
@@ -1011,6 +1079,7 @@ export const seedProfessionalDashboard = async (
     await deleteOldProfessionalFakeDashboardData(prisma, professional.id);
     await seedProfessionalProfile(prisma, professional, index);
     await seedProfessionalSettings(prisma, professional.id, index);
+    await seedProfessionalCredential(prisma, professional.id, index, certifications);
     await seedProfessionalPduTargets(prisma, professional.id, currentYear);
     await seedProfessionalPduActivities(
       prisma,
