@@ -434,4 +434,41 @@ describe("AssociationMemberService roster", () => {
       some: { requirementId: "req-1" },
     });
   });
+
+  // Regression: `AssociationAccessService.requireReadable` rejects an
+  // explicit `associationId` from an ASSOCIATION-role caller (it must
+  // resolve its own association implicitly). `attachComplianceSummaries`
+  // used to forward the already-resolved `associationId` straight into
+  // `complianceRead.memberComplianceList`, which re-runs that same check
+  // and always rejected it for association owners — breaking the roster
+  // query in production ("We could not load your roster") the moment a
+  // member row existed, since the mocked `access` service here never
+  // exercised the real rejection. Asserting the forwarded argument instead
+  // of just the mocked return value is what would have caught this.
+  it("does not forward an explicit associationId for an association-role caller", async () => {
+    const { service, prisma, complianceRead } = setup();
+    prisma.associationMember.findMany.mockResolvedValueOnce([memberRow()]);
+
+    await service.list(owner, {});
+
+    expect(complianceRead.memberComplianceList).toHaveBeenCalledWith(
+      owner,
+      { memberIds: ["member-1"] },
+      undefined,
+    );
+  });
+
+  it("forwards the explicit associationId for an admin caller", async () => {
+    const { service, prisma, complianceRead } = setup();
+    prisma.associationMember.findMany.mockResolvedValueOnce([memberRow()]);
+    const admin = { id: "admin-1", role: Role.ADMIN };
+
+    await service.list(admin, {}, undefined, "assoc-1");
+
+    expect(complianceRead.memberComplianceList).toHaveBeenCalledWith(
+      admin,
+      { memberIds: ["member-1"] },
+      "assoc-1",
+    );
+  });
 });

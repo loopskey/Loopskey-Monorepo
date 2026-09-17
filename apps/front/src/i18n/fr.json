@@ -5721,10 +5721,14 @@
         "backToList": "Retour aux exigences"
       },
       "stats": {
-        "total": "Exigences",
+        "total": "Total des exigences",
+        "totalHint": "Définies par cette association",
         "published": "Publiées",
+        "publishedHint": "En vigueur pour les membres",
         "draft": "Brouillons",
-        "covered": "Membres couverts"
+        "draftHint": "Pas encore appliquées à quiconque",
+        "covered": "Membres couverts",
+        "coveredHint": "Soumis à au moins une exigence publiée"
       },
       "filters": {
         "search": "Rechercher",
@@ -5776,10 +5780,10 @@
         "90": "90 jours après l'échéance"
       },
       "creditType": {
-        "CPD": "CPD",
+        "CPD": "Heures CPD",
         "CEU": "CEU",
         "CPE": "CPE",
-        "PDU": "PDU",
+        "PDU": "Heures PDU",
         "TRAINING_HOUR": "Heures de formation"
       },
       "reminderTiming": {
@@ -5803,15 +5807,15 @@
         "TECHNICAL": "Technique"
       },
       "table": {
-        "caption": "Exigences, avec leur total de crédits, leur échéance, leur audience et leur couverture.",
+        "caption": "Exigences, avec leur cycle de déclaration, leur couverture, leur échéance et leur statut.",
         "name": "Exigence",
-        "credits": "Crédits",
+        "cycle": "Cycle de déclaration",
         "deadline": "Échéance",
-        "audience": "Audience",
         "status": "Statut",
         "covered": "Membres couverts",
         "actions": "Actions",
-        "actionsFor": "Actions pour {{name}}"
+        "viewFor": "Voir {{name}}",
+        "editFor": "Modifier {{name}}"
       },
       "fields": {
         "name": "Nom",
@@ -5822,6 +5826,7 @@
         "deadlineHint": "Une exigence doit avoir une échéance avant d'être publiée.",
         "reportingCycle": "Cycle de déclaration",
         "cycleLengthYears": "Durée du cycle en années",
+        "cycleLengthOption": "{{count}} ans",
         "cycleLengthHint": "Un cycle pluriannuel doit avoir une durée.",
         "evidencePolicy": "Justificatif",
         "audience": "À qui cela s'applique",
@@ -5838,20 +5843,21 @@
         "title": "Nouvelle exigence",
         "stepsLabel": "Étapes de l'exigence",
         "steps": {
-          "details": "Détails",
+          "details": "Configuration de base",
           "rules": "Règles",
           "review": "Vérifier et publier"
         },
         "hints": {
           "details": "Nom, crédits, échéance et audience",
-          "rules": "Catégories, justificatifs et déclaration",
+          "rules": "Catégories de crédits, justificatifs et renouvellement et soumission",
           "review": "Tout vérifier, puis publier"
         },
         "detailsBody": "Enregistrée comme brouillon dès que vous continuez, rien n'est perdu si vous quittez.",
         "rulesBody": "Chaque règle ci-dessous est facultative. Configurez celles dont votre exigence a besoin.",
         "reviewBody": "Voici ce que verront les membres. La publication l'affecte à votre audience.",
-        "saveAndContinue": "Enregistrer et continuer",
-        "continue": "Continuer",
+        "saveAsDraft": "Enregistrer comme brouillon",
+        "continueToRules": "Continuer vers les règles",
+        "reviewRequirement": "Vérifier l'exigence",
         "back": "Retour"
       },
       "rules": {
@@ -5861,7 +5867,7 @@
         "close": "Fermer",
         "save": "Enregistrer la règle",
         "categories": {
-          "title": "Catégories",
+          "title": "Catégories de crédits",
           "description": "Répartissez le total de crédits entre les catégories d'apprentissage déjà utilisées par les membres.",
           "name": "Nom affiché",
           "mapped": "Catégorie d'apprentissage",
@@ -5870,8 +5876,12 @@
           "add": "Ajouter une catégorie",
           "remove": "Retirer {{name}}",
           "remainder": "Non catégorisé",
-          "running": "{{assigned}} crédits sur {{total}} attribués, {{remainder}} restants.",
-          "overflow": "{{assigned}} crédits attribués, soit {{overflow}} de plus que les {{total}} de l'exigence."
+          "overflow": "{{assigned}} crédits attribués, soit {{overflow}} de plus que les {{total}} de l'exigence.",
+          "summary": {
+            "total": "Total des crédits requis",
+            "categoryMinimum": "Minimum par catégorie",
+            "flexible": "Crédit flexible"
+          }
         },
         "evidence": {
           "title": "Justificatifs",
@@ -5884,7 +5894,7 @@
           "needsReviewWarning": "Chaque activité correspondante attend l'approbation de votre association avant d'être comptée."
         },
         "reporting": {
-          "title": "Déclaration",
+          "title": "Renouvellement et soumission",
           "description": "Définissez la période de déclaration, la fenêtre de soumission et les rappels.",
           "periodStart": "Début de la déclaration",
           "periodEnd": "Fin de la déclaration",
@@ -5903,7 +5913,7 @@
         "deadline": "Échéance",
         "cycle": "Cycle de déclaration",
         "audience": "Audience",
-        "categories": "Catégories",
+        "categories": "Catégories de crédits",
         "evidence": "Justificatif",
         "covered": "Membres couverts",
         "noCategories": "Aucune catégorie, le total de crédits se suffit à lui-même."
@@ -5917,7 +5927,7 @@
         "lockedDraftBody": "Ces champs restent modifiables tant que l'exigence est un brouillon et se figent une fois publiée.",
         "rulesTitle": "Règles",
         "saveChanges": "Enregistrer",
-        "categories": "Catégories",
+        "categories": "Catégories de crédits",
         "reportingPeriod": "Période de déclaration",
         "submissionWindow": "Fenêtre de soumission",
         "submissionOpens": "Ouverture des soumissions",
@@ -5959,6 +5969,7 @@
       },
       "messages": {
         "saved": "Exigence enregistrée.",
+        "savedDraft": "Enregistrée comme brouillon.",
         "rulesSaved": "Règle enregistrée.",
         "published": "Exigence publiée.",
         "archived": "Exigence archivée.",

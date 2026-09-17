@@ -2492,6 +2492,10 @@ model AssociationRequirement {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  // Unmanaged: a `pg_trgm` GIN index on `name` backs the requirements-tab
+  // search (`ILIKE`-style `contains`/insensitive`), added via raw SQL in
+  // migration 20260917103747_association_requirement_name_search_index
+  // because Prisma cannot express a GIN index declaratively.
 
   @@index([associationId])
   @@index([associationId, status])

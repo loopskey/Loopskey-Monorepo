@@ -1,34 +1,16 @@
 "use client";
 
 import { TAssociationRequirementRulesStep } from "@/types/association-dashboard.types";
-import { useChartPalette } from "@hooks/useChartPalette";
+import { FloatingSelectField } from "@elements/floating-select";
+import { FloatingInputField } from "@elements/floating-input";
 import { PduCategory } from "@/lib/graphql/base";
-import { Skeleton } from "@ui/skeleton";
 import { Button } from "@ui/button";
-import { Input } from "@ui/input";
-import { Label } from "@ui/label";
 
-import dynamic from "next/dynamic";
-
-import * as S from "@ui/select";
 import * as L from "lucide-react";
-
-const AllocationChart = dynamic(
-  () =>
-    import(
-      "@modules/AssociationDashboard/parts/association-requirement-allocation-chart"
-    ),
-  {
-    ssr: false,
-    loading: () => <Skeleton className="h-16 w-full rounded-md" />,
-  },
-);
 
 export const AssociationRequirementCategoriesCard = ({
   hook,
 }: TAssociationRequirementRulesStep) => {
-  const palette = useChartPalette();
-
   const {
     t,
     locale,
@@ -42,6 +24,28 @@ export const AssociationRequirementCategoriesCard = ({
 
   const categories = categoriesForm.watch("categories") ?? [];
 
+  const mappedCategoryOptions = (ownMapping: PduCategory | undefined) =>
+    Object.values(PduCategory).map((value) => ({
+      value,
+      label: t(`associationDashboard.requirements.pduCategory.${value}`),
+      disabled: usedMappings.has(value) && value !== ownMapping,
+    }));
+
+  const summaryStats = [
+    {
+      id: "total",
+      value: allocation.total,
+    },
+    {
+      id: "categoryMinimum",
+      value: allocation.assigned,
+    },
+    {
+      id: "flexible",
+      value: allocation.remainder,
+    },
+  ];
+
   return (
     <form noValidate onSubmit={submitCategories} className="space-y-5">
       <div className="space-y-3">
@@ -51,89 +55,42 @@ export const AssociationRequirementCategoriesCard = ({
           return (
             <div
               key={row.id}
-              className="grid gap-3 rounded-md border p-3 lg:grid-cols-[1fr_220px_140px_auto]"
+              className="grid gap-3 lg:grid-cols-[1fr_220px_140px_auto] lg:items-start rounded-md border p-3"
             >
-              <div className="space-y-1.5">
-                <Label htmlFor={`category-name-${index}`}>
-                  {t("associationDashboard.requirements.rules.categories.name")}
-                </Label>
+              <FloatingInputField
+                name={`categories.${index}.name`}
+                control={categoriesForm.control}
+                label={t(
+                  "associationDashboard.requirements.rules.categories.name",
+                )}
+              />
 
-                <Input
-                  id={`category-name-${index}`}
-                  className="h-11 rounded-md"
-                  {...categoriesForm.register(`categories.${index}.name`)}
-                />
-              </div>
+              <FloatingSelectField
+                name={`categories.${index}.mappedCategory`}
+                control={categoriesForm.control}
+                options={mappedCategoryOptions(ownMapping)}
+                label={t(
+                  "associationDashboard.requirements.rules.categories.mapped",
+                )}
+                placeholder={t(
+                  "associationDashboard.requirements.rules.categories.mappedPlaceholder",
+                )}
+              />
 
-              <div className="space-y-1.5">
-                <Label htmlFor={`category-mapped-${index}`}>
-                  {t(
-                    "associationDashboard.requirements.rules.categories.mapped",
-                  )}
-                </Label>
+              <FloatingInputField
+                type="number"
+                name={`categories.${index}.requiredCredits`}
+                control={categoriesForm.control}
+                label={t(
+                  "associationDashboard.requirements.rules.categories.credits",
+                )}
+              />
 
-                <S.Select
-                  value={ownMapping ?? ""}
-                  onValueChange={(value) =>
-                    categoriesForm.setValue(
-                      `categories.${index}.mappedCategory`,
-                      value as PduCategory,
-                      { shouldValidate: true },
-                    )
-                  }
-                >
-                  <S.SelectTrigger
-                    id={`category-mapped-${index}`}
-                    className="h-11 rounded-md"
-                  >
-                    <S.SelectValue
-                      placeholder={t(
-                        "associationDashboard.requirements.rules.categories.mappedPlaceholder",
-                      )}
-                    />
-                  </S.SelectTrigger>
-
-                  <S.SelectContent className="z-[9999] rounded-md">
-                    {Object.values(PduCategory).map((value) => (
-                      <S.SelectItem
-                        key={value}
-                        value={value}
-                        disabled={
-                          usedMappings.has(value) && value !== ownMapping
-                        }
-                      >
-                        {t(
-                          `associationDashboard.requirements.pduCategory.${value}`,
-                        )}
-                      </S.SelectItem>
-                    ))}
-                  </S.SelectContent>
-                </S.Select>
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor={`category-credits-${index}`}>
-                  {t(
-                    "associationDashboard.requirements.rules.categories.credits",
-                  )}
-                </Label>
-
-                <Input
-                  type="number"
-                  className="h-11 rounded-md"
-                  id={`category-credits-${index}`}
-                  {...categoriesForm.register(
-                    `categories.${index}.requiredCredits`,
-                  )}
-                />
-              </div>
-
-              <div className="flex items-end">
+              <div className="flex items-center lg:h-14">
                 <Button
                   radius="xl"
                   type="button"
                   variant="outline"
-                  className="h-11"
                   onClick={() => categoryRows.remove(index)}
                   aria-label={t(
                     "associationDashboard.requirements.rules.categories.remove",
@@ -165,45 +122,33 @@ export const AssociationRequirementCategoriesCard = ({
       </Button>
 
       {categoryRows.fields.length > 0 && (
-        <div className="space-y-2">
-          <AllocationChart
-            palette={palette}
-            allocation={allocation}
-            chartLabel={t(
-              "associationDashboard.requirements.chart.allocationLabel",
-            )}
-            segmentHeader={t(
-              "associationDashboard.requirements.chart.segmentHeader",
-            )}
-            creditsHeader={t(
-              "associationDashboard.requirements.chart.creditsHeader",
-            )}
-            chartDescription={t(
-              "associationDashboard.requirements.chart.allocationDescription",
-              { assigned: allocation.assigned, total: allocation.total },
-            )}
-          />
+        <div className="grid gap-3 sm:grid-cols-3">
+          {summaryStats.map((stat) => (
+            <div key={stat.id} className="rounded-md border p-3">
+              <p className="text-xs uppercase text-muted-foreground">
+                {t(
+                  `associationDashboard.requirements.rules.categories.summary.${stat.id}`,
+                )}
+              </p>
 
-          <p
-            className={
-              allocation.isOverflowing
-                ? "text-sm font-medium text-destructive"
-                : "text-sm text-muted-foreground"
-            }
-            role={allocation.isOverflowing ? "alert" : undefined}
-          >
-            {t(
-              allocation.isOverflowing
-                ? "associationDashboard.requirements.rules.categories.overflow"
-                : "associationDashboard.requirements.rules.categories.running",
-              {
+              <p className="mt-1 text-lg font-medium tabular-nums">
+                {stat.value.toLocaleString(locale)}
+              </p>
+            </div>
+          ))}
+
+          {allocation.isOverflowing && (
+            <p
+              role="alert"
+              className="text-sm font-medium text-destructive sm:col-span-3"
+            >
+              {t("associationDashboard.requirements.rules.categories.overflow", {
                 total: allocation.total.toLocaleString(locale),
                 assigned: allocation.assigned.toLocaleString(locale),
                 overflow: allocation.overflow.toLocaleString(locale),
-                remainder: allocation.remainder.toLocaleString(locale),
-              },
-            )}
-          </p>
+              })}
+            </p>
+          )}
         </div>
       )}
 

@@ -263,36 +263,15 @@ export const useAssociationRequirementsTab = () => {
         : undefined,
   });
 
-  const submitDetails = detailsForm.handleSubmit(async (values) => {
-    setProblems([]);
-
-    try {
-      const saved = requirementId
-        ? await saveDetails({
-            requirementId,
-            name: values.name.trim(),
-            description: values.description?.trim() || undefined,
-            creditType: values.creditType,
-            totalRequiredCredits: values.totalRequiredCredits,
-            deadline: REQ.fromDateInputValue(values.deadline),
-            reportingCycle: values.reportingCycle,
-            cycleLengthYears:
-              values.reportingCycle === AssociationReportingCycle.MultiYear &&
-              typeof values.cycleLengthYears === "number"
-                ? values.cycleLengthYears
-                : undefined,
-          }).unwrap()
-        : await createDraft({
-            name: values.name.trim(),
-            creditType: values.creditType,
-          }).unwrap();
-
-      const savedId = saved.id;
-
-      if (!requirementId)
-        await saveDetails({
-          requirementId: savedId,
+  const persistDetails = async (
+    values: SC.TAssociationRequirementDetailsValues,
+  ) => {
+    const saved = requirementId
+      ? await saveDetails({
+          requirementId,
+          name: values.name.trim(),
           description: values.description?.trim() || undefined,
+          creditType: values.creditType,
           totalRequiredCredits: values.totalRequiredCredits,
           deadline: REQ.fromDateInputValue(values.deadline),
           reportingCycle: values.reportingCycle,
@@ -301,14 +280,56 @@ export const useAssociationRequirementsTab = () => {
             typeof values.cycleLengthYears === "number"
               ? values.cycleLengthYears
               : undefined,
+        }).unwrap()
+      : await createDraft({
+          name: values.name.trim(),
+          creditType: values.creditType,
         }).unwrap();
 
-      await saveAudience({
+    const savedId = saved.id;
+
+    if (!requirementId)
+      await saveDetails({
         requirementId: savedId,
-        ...audienceInput(values),
+        description: values.description?.trim() || undefined,
+        totalRequiredCredits: values.totalRequiredCredits,
+        deadline: REQ.fromDateInputValue(values.deadline),
+        reportingCycle: values.reportingCycle,
+        cycleLengthYears:
+          values.reportingCycle === AssociationReportingCycle.MultiYear &&
+          typeof values.cycleLengthYears === "number"
+            ? values.cycleLengthYears
+            : undefined,
       }).unwrap();
 
+    await saveAudience({
+      requirementId: savedId,
+      ...audienceInput(values),
+    }).unwrap();
+
+    return savedId;
+  };
+
+  const submitDetails = detailsForm.handleSubmit(async (values) => {
+    setProblems([]);
+
+    try {
+      const savedId = await persistDetails(values);
       goTo(savedId, "rules");
+    } catch (error) {
+      failWith(error);
+    }
+  });
+
+  const saveDetailsAsDraft = detailsForm.handleSubmit(async (values) => {
+    setProblems([]);
+
+    try {
+      await persistDetails(values);
+      notify.success(
+        t("associationDashboard.requirements.messages.savedDraft"),
+      );
+      goTo(null);
     } catch (error) {
       failWith(error);
     }
@@ -524,6 +545,8 @@ export const useAssociationRequirementsTab = () => {
     submitReporting,
     submitCategories,
     submitPublishedEdits,
+    saveDetailsAsDraft,
+    exitToList: () => goTo(null),
     archiveRequirement,
     publishRequirement,
     applyStatCard,
