@@ -686,14 +686,18 @@ export type AssociationMember = {
   __typename?: 'AssociationMember';
   activatedAt?: Maybe<Scalars['DateTime']['output']>;
   avatarUrl?: Maybe<Scalars['String']['output']>;
+  complianceSummary?: Maybe<AssociationComplianceSummary>;
   deactivatedAt?: Maybe<Scalars['DateTime']['output']>;
   email?: Maybe<Scalars['String']['output']>;
   fullName?: Maybe<Scalars['String']['output']>;
   group?: Maybe<AssociationMemberGroup>;
   id: Scalars['ID']['output'];
   invitedAt: Scalars['DateTime']['output'];
+  joinedVia: AssociationMemberJoinedVia;
+  lastLoginAt?: Maybe<Scalars['DateTime']['output']>;
   memberNumber?: Maybe<Scalars['String']['output']>;
   notes?: Maybe<Scalars['String']['output']>;
+  requirementNames: Array<Scalars['String']['output']>;
   status: AssociationMemberStatus;
   userId: Scalars['ID']['output'];
 };
@@ -730,6 +734,7 @@ export type AssociationMemberCertificate = {
   id: Scalars['ID']['output'];
   issuedAt: Scalars['DateTime']['output'];
   issuer?: Maybe<Scalars['String']['output']>;
+  linkedTo?: Maybe<Scalars['String']['output']>;
   memberId: Scalars['ID']['output'];
   status: CertificateStatus;
   title: Scalars['String']['output'];
@@ -756,6 +761,11 @@ export type AssociationMemberDistribution = {
   totalMembers: Scalars['Int']['output'];
 };
 
+export type AssociationMemberEmailLookup = {
+  __typename?: 'AssociationMemberEmailLookup';
+  exists: Scalars['Boolean']['output'];
+};
+
 export type AssociationMemberFilterInput = {
   groupId?: InputMaybe<Scalars['ID']['input']>;
   requirementId?: InputMaybe<Scalars['ID']['input']>;
@@ -770,12 +780,20 @@ export type AssociationMemberGroup = {
   title: Scalars['String']['output'];
 };
 
+/** How a member came to join the association's roster */
+export enum AssociationMemberJoinedVia {
+  BulkImported = 'BULK_IMPORTED',
+  Invited = 'INVITED',
+  LinkedExistingAccount = 'LINKED_EXISTING_ACCOUNT'
+}
+
 export type AssociationMemberProfile = {
   __typename?: 'AssociationMemberProfile';
   assignments: Array<AssociationAssignmentProgress>;
   certificates: Array<AssociationMemberCertificate>;
   cumulative: Array<AssociationCumulativePoint>;
   isMissingEvidence: Scalars['Boolean']['output'];
+  lastNotifiedAt?: Maybe<Scalars['DateTime']['output']>;
   member: AssociationMember;
   summary: AssociationMemberSummary;
 };
@@ -1296,6 +1314,7 @@ export type BulkInviteAssociationMemberRowInput = {
 };
 
 export type BulkInviteAssociationMembersInput = {
+  requirementIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   rows: Array<BulkInviteAssociationMemberRowInput>;
 };
 
@@ -2412,6 +2431,7 @@ export type InviteAssociationMemberInput = {
   fullName: Scalars['String']['input'];
   groupId?: InputMaybe<Scalars['ID']['input']>;
   memberNumber?: InputMaybe<Scalars['String']['input']>;
+  requirementIds?: InputMaybe<Array<Scalars['ID']['input']>>;
 };
 
 export type IssueIngestionApiKey = {
@@ -5164,6 +5184,7 @@ export type Query = {
   associationMemberCompliance: AssociationMemberCompliance;
   associationMemberComplianceList: Array<AssociationComplianceSummary>;
   associationMemberDistribution: AssociationMemberDistribution;
+  associationMemberEmailLookup: AssociationMemberEmailLookup;
   associationMemberProfile: AssociationMemberProfile;
   associationMemberProgressReport: PaginatedAssociationMemberProgress;
   associationMemberRequirementOptions: Array<AssociationMemberRequirementOption>;
@@ -5445,6 +5466,12 @@ export type QueryAssociationMemberComplianceListArgs = {
 export type QueryAssociationMemberDistributionArgs = {
   associationId?: InputMaybe<Scalars['ID']['input']>;
   filter?: InputMaybe<AssociationReportFilterInput>;
+};
+
+
+export type QueryAssociationMemberEmailLookupArgs = {
+  associationId?: InputMaybe<Scalars['ID']['input']>;
+  email: Scalars['String']['input'];
 };
 
 

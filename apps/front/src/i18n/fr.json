@@ -5278,13 +5278,13 @@
       "description": "Toutes les personnes qui appartiennent à votre association, les groupes auxquels elles sont rattachées et les invitations encore en attente.",
       "actions": {
         "viewDetail": "Voir le membre",
-        "invite": "Inviter un membre",
+        "invite": "Ajouter et inviter un membre",
         "manageGroups": "Gérer les groupes",
         "backToRoster": "Retour à la liste",
         "resend": "Renvoyer l'invitation",
         "reactivate": "Réactiver",
         "deactivate": "Désactiver",
-        "upload": "Importer des membres",
+        "upload": "Importer la liste des membres",
         "assignRequirement": "Assigner une exigence",
         "more": "Plus d'actions",
         "edit": "Modifier le membre"
@@ -5316,8 +5316,16 @@
         "memberNumber": "Numéro de membre",
         "group": "Groupe",
         "status": "Statut",
+        "requirementAssigned": "Exigence assignée",
+        "progress": "Progression",
+        "evidence": "Preuves",
+        "noRequirement": "Aucune assignée",
+        "evidenceMissing": "Manquantes",
+        "evidenceOk": "À jour",
         "actions": "Actions",
-        "actionsFor": "Actions pour {{name}}"
+        "actionsFor": "Actions pour {{name}}",
+        "viewFor": "Voir {{name}}",
+        "editFor": "Modifier {{name}}"
       },
       "confirm": {
         "cancel": "Annuler",

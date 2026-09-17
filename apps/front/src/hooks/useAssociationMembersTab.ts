@@ -102,10 +102,6 @@ export const useAssociationMembersTab = () => {
   const [inviteMember, inviteState] = API.useInviteAssociationMemberMutation();
   const [bulkInvite, bulkInviteState] =
     API.useBulkInviteAssociationMembersMutation();
-  const [setMemberStatus, setMemberStatusState] =
-    API.useSetAssociationMemberStatusMutation();
-  const [resendInvitation, resendInvitationState] =
-    API.useResendAssociationMemberInvitationMutation();
   const [createGroup, createGroupState] =
     API.useCreateAssociationGroupMutation();
   const [updateGroup, updateGroupState] =
@@ -247,35 +243,6 @@ export const useAssociationMembersTab = () => {
     goToMember(assignMemberId, "assign");
   };
 
-  const resendMemberInvitation = async (memberId: string) => {
-    try {
-      await resendInvitation({ memberId }).unwrap();
-      notify.success(
-        t("associationDashboard.members.messages.invitationResent"),
-      );
-    } catch (error) {
-      failWith(error);
-    }
-  };
-
-  const changeMemberStatus = async (
-    memberId: string,
-    nextStatus: AssociationMemberStatus,
-  ) => {
-    try {
-      await setMemberStatus({ memberId, status: nextStatus }).unwrap();
-      notify.success(
-        t(
-          nextStatus === AssociationMemberStatus.Inactive
-            ? "associationDashboard.members.messages.memberDeactivated"
-            : "associationDashboard.members.messages.memberReactivated",
-        ),
-      );
-    } catch (error) {
-      failWith(error);
-    }
-  };
-
   const previewImportFile = async (file?: File | null) => {
     if (!file) return;
     setImportResult(null);
@@ -404,9 +371,7 @@ export const useAssociationMembersTab = () => {
     bulkInviteState.isLoading ||
     createGroupState.isLoading ||
     updateGroupState.isLoading ||
-    setGroupActiveState.isLoading ||
-    setMemberStatusState.isLoading ||
-    resendInvitationState.isLoading;
+    setGroupActiveState.isLoading;
 
   return {
     t,
@@ -432,7 +397,6 @@ export const useAssociationMembersTab = () => {
     setInviteOpen,
     inviteOutcome,
     goToMember,
-    resendMemberInvitation,
     stats: statsQuery.data,
     page: cursorStack.length + 1,
     setSearch: changeFilter(setSearch),
@@ -444,7 +408,6 @@ export const useAssociationMembersTab = () => {
     hasNoMembers: (statsQuery.data?.totalMembers ?? 0) === 0,
     hasNextPage: Boolean(membersQuery.data?.pageInfo?.hasNextPage),
     isInviting: inviteState.isLoading,
-    changeMemberStatus,
     isUploadOpen,
     openUpload,
     closeUpload,

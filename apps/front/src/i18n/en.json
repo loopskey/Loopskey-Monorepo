@@ -5275,13 +5275,13 @@
       "description": "Everyone who belongs to your association, the groups they sit in, and the invitations still waiting to be accepted.",
       "actions": {
         "viewDetail": "View member",
-        "invite": "Invite member",
+        "invite": "Add & invite member",
         "manageGroups": "Manage groups",
         "backToRoster": "Back to roster",
         "resend": "Resend invitation",
         "reactivate": "Reactivate",
         "deactivate": "Deactivate",
-        "upload": "Import members",
+        "upload": "Upload member list",
         "assignRequirement": "Assign requirement",
         "more": "More actions",
         "edit": "Edit member"
@@ -5313,8 +5313,16 @@
         "memberNumber": "Member number",
         "group": "Group",
         "status": "Status",
+        "requirementAssigned": "Requirement assigned",
+        "progress": "Progress",
+        "evidence": "Evidence",
+        "noRequirement": "None assigned",
+        "evidenceMissing": "Missing",
+        "evidenceOk": "Up to date",
         "actions": "Actions",
-        "actionsFor": "Actions for {{name}}"
+        "actionsFor": "Actions for {{name}}",
+        "viewFor": "View {{name}}",
+        "editFor": "Edit {{name}}"
       },
       "confirm": {
         "cancel": "Cancel",

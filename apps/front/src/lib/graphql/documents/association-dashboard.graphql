@@ -108,9 +108,19 @@ fragment AssociationMemberFields on AssociationMember {
   memberNumber
   notes
   status
+  joinedVia
+  lastLoginAt
   invitedAt
   activatedAt
   deactivatedAt
+  requirementNames
+  complianceSummary {
+    memberId
+    percent
+    band
+    isMissingEvidence
+    awaitingReviewCount
+  }
   group {
     ...AssociationMemberGroupFields
   }

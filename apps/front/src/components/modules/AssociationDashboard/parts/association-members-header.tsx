@@ -20,6 +20,11 @@ export const AssociationMembersHeader = ({
   } = hook;
 
   const isGroupsView = view === "groups";
+  const groupsToggleLabel = t(
+    isGroupsView
+      ? "associationDashboard.members.actions.backToRoster"
+      : "associationDashboard.members.actions.manageGroups",
+  );
 
   const secondaryActions = [
     {
@@ -33,16 +38,6 @@ export const AssociationMembersHeader = ({
       icon: L.ListChecks,
       onClick: openAssignPicker,
       label: t("associationDashboard.members.actions.assignRequirement"),
-    },
-    {
-      id: "groups",
-      icon: L.FolderTree,
-      onClick: () => setView(isGroupsView ? "roster" : "groups"),
-      label: t(
-        isGroupsView
-          ? "associationDashboard.members.actions.backToRoster"
-          : "associationDashboard.members.actions.manageGroups",
-      ),
     },
   ];
 
@@ -63,6 +58,20 @@ export const AssociationMembersHeader = ({
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
+        <Button
+          size="icon"
+          radius="xl"
+          type="button"
+          variant="outline"
+          disabled={isLoading}
+          aria-pressed={isGroupsView}
+          aria-label={groupsToggleLabel}
+          title={groupsToggleLabel}
+          onClick={() => setView(isGroupsView ? "roster" : "groups")}
+        >
+          <L.FolderTree className="h-4 w-4" />
+        </Button>
+
         <div className="hidden flex-wrap items-center gap-3 sm:flex">
           {secondaryActions.map((action) => (
             <Button
@@ -71,7 +80,6 @@ export const AssociationMembersHeader = ({
               key={action.id}
               variant="outline"
               disabled={isLoading}
-              aria-pressed={action.id === "groups" ? isGroupsView : undefined}
               onClick={action.onClick}
             >
               <action.icon className="h-4 w-4" />
