@@ -5,13 +5,15 @@ import { useActiveRole } from "@/providers/active-role-provider";
 import { useI18n } from "@/hooks/useI18n";
 import { cn } from "@/lib/utils";
 
+import Link from "next/link";
+
 type TRoleStripProps = {
   lockedHref?: string;
 };
 
 export const RoleStrip = ({ lockedHref }: TRoleStripProps) => {
   const { t } = useI18n();
-  const { activeRoleHref, setActiveRoleHref } = useActiveRole();
+  const { activeRoleHref } = useActiveRole();
   const isLocked = Boolean(lockedHref);
   const currentActiveHref = lockedHref ?? activeRoleHref;
 
@@ -21,25 +23,31 @@ export const RoleStrip = ({ lockedHref }: TRoleStripProps) => {
         {solutionEntries.map((entry) => {
           const isActive = entry.href === currentActiveHref;
           const isDisabled = isLocked && !isActive;
+          const className = cn(
+            "shrink-0 whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold transition-colors duration-200",
+            isActive
+              ? "bg-primary text-primary-foreground shadow-sm"
+              : "text-muted-foreground hover:bg-primary/10 hover:text-primary",
+            isDisabled &&
+              "cursor-not-allowed opacity-40 hover:bg-transparent hover:text-muted-foreground",
+          );
+
+          if (isDisabled)
+            return (
+              <span key={entry.href} aria-disabled className={className}>
+                {t(entry.roleLabelKey)}
+              </span>
+            );
 
           return (
-            <button
+            <Link
               key={entry.href}
-              type="button"
-              aria-pressed={isActive}
-              disabled={isDisabled}
-              onClick={() => !isLocked && setActiveRoleHref(entry.href)}
-              className={cn(
-                "shrink-0 whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold transition-colors duration-200",
-                isActive
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:bg-primary/10 hover:text-primary",
-                isDisabled &&
-                  "cursor-not-allowed opacity-40 hover:bg-transparent hover:text-muted-foreground",
-              )}
+              href={entry.href}
+              aria-current={isActive ? "page" : undefined}
+              className={className}
             >
               {t(entry.roleLabelKey)}
-            </button>
+            </Link>
           );
         })}
       </div>
