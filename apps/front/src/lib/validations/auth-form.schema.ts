@@ -1,5 +1,6 @@
 import { PASSWORD_STRENGTH_MESSAGE } from "@/utils/constant";
 import { FULL_NAME_LIMITS } from "@loopskey/api-contracts/validation";
+import { ASSOCIATION_LIMITS } from "@loopskey/api-contracts/validation";
 import { OrganizationType } from "@/lib/graphql/base";
 import { z } from "zod";
 
@@ -46,6 +47,27 @@ export const orgAccessRequestSchema = z.object({
 
 export type TOrgAccessInput = z.input<typeof orgAccessRequestSchema>;
 export type TOrgAccessValues = z.output<typeof orgAccessRequestSchema>;
+
+export const associationAccessRequestSchema = z.object({
+  goals: z.string().trim().min(5).max(2000),
+  country: z.string().trim().min(2).max(120),
+  workEmail: z.string().trim().toLowerCase().email().max(255),
+  associationName: z
+    .string()
+    .trim()
+    .min(ASSOCIATION_LIMITS.nameMin)
+    .max(ASSOCIATION_LIMITS.nameMax),
+  representativeJobRole: z.string().trim().min(2).max(160),
+  representativeFullName: z.string().trim().min(2).max(160),
+  expectedMembers: z.coerce.number().int().min(1),
+});
+
+export type TAssociationAccessInput = z.input<
+  typeof associationAccessRequestSchema
+>;
+export type TAssociationAccessValues = z.output<
+  typeof associationAccessRequestSchema
+>;
 
 export const otpVerificationSchema = z.object({
   code: z

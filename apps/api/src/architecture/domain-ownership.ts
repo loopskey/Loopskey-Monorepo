@@ -178,6 +178,7 @@ export const DOMAIN_DEPENDENCIES = {
   "platform-administration": [
     "identity-access",
     "organization-management",
+    "association-management",
     "communications",
     "platform-shared",
   ],

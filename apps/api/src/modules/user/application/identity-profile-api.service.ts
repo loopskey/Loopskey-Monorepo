@@ -145,15 +145,43 @@ export class IdentityProfileApiService implements IdentityProfileApi {
     return { id: created.id, linkedExisting: false };
   }
 
-  async createPendingAssociationOwner(command: {
+  async resolveAssociationOwner(command: {
     email: string;
     fullName: string;
     atomicContext: object;
   }) {
     const db = command.atomicContext as Prisma.TransactionClient;
+    const email = command.email.trim().toLowerCase();
+    const existing = await db.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        role: true,
+        deletedAt: true,
+        ownedAssociation: { select: { id: true } },
+      },
+    });
+    if (existing?.deletedAt)
+      throw new ConflictException({
+        code: "UserAlreadyExists",
+        message:
+          "A deleted account already uses this work email. Restore or replace it before approving.",
+      });
+    if (existing && existing.role !== Role.ASSOCIATION)
+      throw new ConflictException({
+        code: "UserRoleConflict",
+        message:
+          "An account with this work email already exists under a different role. Resolve the account before approving.",
+      });
+    if (existing?.ownedAssociation)
+      throw new ConflictException({
+        code: "AssociationAlreadyExists",
+        message: "This work email already owns an association.",
+      });
+    if (existing) return { id: existing.id, linkedExisting: true };
     const created = await db.user.create({
       data: {
-        email: command.email.trim().toLowerCase(),
+        email,
         passwordHash: null,
         role: Role.ASSOCIATION,
         status: UserStatus.PENDING,
@@ -163,7 +191,7 @@ export class IdentityProfileApiService implements IdentityProfileApi {
       },
       select: { id: true },
     });
-    return { id: created.id };
+    return { id: created.id, linkedExisting: false };
   }
 
   async resolveAssociationMemberUser(command: {

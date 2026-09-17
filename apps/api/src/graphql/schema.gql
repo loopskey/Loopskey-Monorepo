@@ -93,6 +93,7 @@ type AdminOrgAccessRequest {
   reviewedById: ID
   reviewedByName: String
   status: OrganizationAccessRequestStatus!
+  targetRole: Role!
   updatedAt: DateTime!
   workEmail: String!
 }
@@ -2492,6 +2493,7 @@ type Mutation {
   startProfessionalOnboarding: ProfessionalDashboardProfile!
   startRoadmapDraft: ProfessionalRoadmapDraft!
   startRoadmapStep(enrollmentId: ID!, stepId: ID!): RoadmapStepProgress!
+  submitAssociationAccessRequest(input: SubmitAssociationAccessRequestInput!): AssociationActionResponse!
   submitContactInquiry(input: SubmitContactInquiryInput!): SubmitContactInquiryPayload!
   submitContentReview(input: SubmitContentReviewInput!): ContentReview!
   submitOrganizationAccessRequest(input: SubmitOrganizationAccessRequestInput!): OrganizationAccessRequest!
@@ -2581,6 +2583,7 @@ type OrganizationAccessRequest {
   reviewedAt: DateTime
   reviewedById: String
   status: OrganizationAccessRequestStatus!
+  targetRole: Role!
   updatedAt: DateTime!
   workEmail: String!
 }
@@ -4519,6 +4522,16 @@ enum SkillLevel {
 enum SortDirection {
   ASC
   DESC
+}
+
+input SubmitAssociationAccessRequestInput {
+  associationName: String!
+  country: String!
+  expectedMembers: Int!
+  goals: String!
+  representativeFullName: String!
+  representativeJobRole: String!
+  workEmail: String!
 }
 
 input SubmitContactInquiryInput {

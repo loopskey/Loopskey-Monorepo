@@ -37,11 +37,11 @@ export interface IdentityProfileApi {
     readonly atomicContext: object;
   }): Promise<{ readonly id: string; readonly linkedExisting: boolean }>;
 
-  createPendingAssociationOwner(command: {
+  resolveAssociationOwner(command: {
     readonly email: string;
     readonly fullName: string;
     readonly atomicContext: object;
-  }): Promise<{ readonly id: string }>;
+  }): Promise<{ readonly id: string; readonly linkedExisting: boolean }>;
 
   resolveAssociationMemberUser(command: {
     readonly email: string;

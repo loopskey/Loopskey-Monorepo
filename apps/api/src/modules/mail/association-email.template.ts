@@ -1,4 +1,5 @@
 import { TAssociationMemberInvitationEmail } from "@mail/mail-service.type";
+import { TAssociationRejectionEmail } from "@mail/mail-service.type";
 import { TAssociationActivationEmail } from "@mail/mail-service.type";
 import { TAssociationEmailBase } from "@mail/mail-service.type";
 
@@ -15,6 +16,30 @@ const frame = (input: TAssociationEmailBase, title: string, body: string) => {
   const supportEmail = escapeHtml(input.supportEmail);
   return `<!doctype html><html><body style="font-family:Arial,sans-serif;color:#111827;background:#f6f8fb;padding:32px"><main style="max-width:600px;margin:auto;background:white;padding:32px;border-radius:16px"><strong style="color:#2563eb">${appName}</strong><h1>${escapeHtml(title)}</h1>${body}<p>Need help? Contact <a href="mailto:${supportEmail}">${supportEmail}</a>.</p><p style="color:#6b7280">${appName} Team</p></main></body></html>`;
 };
+
+export const buildAssociationSubmittedEmail = (
+  input: TAssociationEmailBase,
+) => ({
+  subject: `${input.appName}: application received`,
+  text: `We received the application for ${input.associationName}. It is waiting for Admin review. Support: ${input.supportEmail}`,
+  html: frame(
+    input,
+    "Application received",
+    `<p>We received the application for <strong>${escapeHtml(input.associationName)}</strong>.</p><p>It is waiting for Admin review.</p>`,
+  ),
+});
+
+export const buildAssociationRejectionEmail = (
+  input: TAssociationRejectionEmail,
+) => ({
+  subject: `${input.appName}: application update`,
+  text: `The application for ${input.associationName} was not approved. Reason: ${input.reason}. Support: ${input.supportEmail}`,
+  html: frame(
+    input,
+    "Application reviewed",
+    `<p>The application for <strong>${escapeHtml(input.associationName)}</strong> was not approved.</p><p><strong>Reason:</strong> ${escapeHtml(input.reason)}</p><p>You may contact support for next steps.</p>`,
+  ),
+});
 
 export const buildAssociationActivationEmail = (
   input: TAssociationActivationEmail,

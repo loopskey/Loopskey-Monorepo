@@ -503,6 +503,7 @@ enum OrganizationType {
 model OrganizationAccessRequest {
   id String @id @default(cuid())
 
+  targetRole                    Role             @default(ORGANIZATION)
   representativeFullName        String
   organizationName              String
   workEmail                     String
@@ -538,6 +539,7 @@ model OrganizationAccessRequest {
   @@index([workEmail])
   @@index([status])
   @@index([organizationType])
+  @@index([targetRole])
   @@index([createdAt])
   @@index([notificationStatus])
   @@index([submissionNotificationStatus])

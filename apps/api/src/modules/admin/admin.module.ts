@@ -1,7 +1,9 @@
 import { OrganizationReviewNotificationService } from "@admin/services/organization-review-notification.service";
+import { AssociationReviewNotificationService } from "@admin/services/association-review-notification.service";
 import { AdminDashboardResolver } from "@admin/resolvers/admin.resolver";
 import { AdminDashboardService } from "@admin/services/admin.service";
 import { OrganizationModule } from "@org/org.module";
+import { AssociationModule } from "@association/association.module";
 import { AdminOrgResolver } from "@admin/resolvers/admin-org.resolver";
 import { AdminOrgService } from "@admin/services/admin-org.service";
 import { PrismaModule } from "@prisma/prisma.module";
@@ -19,6 +21,7 @@ import "@admin/enums/admin-register.enum";
     UserModule,
     PrismaModule,
     OrganizationModule,
+    AssociationModule,
   ],
   providers: [
     AdminOrgService,
@@ -26,6 +29,7 @@ import "@admin/enums/admin-register.enum";
     AdminDashboardService,
     AdminDashboardResolver,
     OrganizationReviewNotificationService,
+    AssociationReviewNotificationService,
   ],
   exports: [AdminDashboardService, AdminOrgService],
 })
