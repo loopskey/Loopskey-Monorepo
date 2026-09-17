@@ -6,6 +6,7 @@ import { FloatingTextareaField } from "@elements/floating-textarea";
 import { FloatingInputField } from "@elements/floating-input";
 import { submissionOpensAt } from "@utils/association-requirement";
 import { useChartPalette } from "@hooks/useChartPalette";
+import { ConfirmDialog } from "@elements/confirm-dialog";
 import { GlassCard } from "@elements/glass-card";
 import { Skeleton } from "@ui/skeleton";
 import { Button } from "@ui/button";
@@ -43,6 +44,7 @@ export const AssociationRequirementDetail = ({
     requirement,
     detailsForm,
     setAssignOpen,
+    archiveRequirement,
     submitPublishedEdits,
   } = hook;
 
@@ -207,6 +209,33 @@ export const AssociationRequirementDetail = ({
               <L.UserPlus className="h-4 w-4" />
               {t("associationDashboard.requirements.actions.assign")}
             </Button>
+
+            {requirement.status !== AssociationRequirementStatus.Archived && (
+              <ConfirmDialog
+                isLoading={isSaving}
+                confirmVariant="destructive"
+                title={t(
+                  "associationDashboard.requirements.confirm.archiveTitle",
+                )}
+                cancelText={t(
+                  "associationDashboard.requirements.confirm.cancel",
+                )}
+                confirmText={t(
+                  "associationDashboard.requirements.confirm.archiveConfirm",
+                )}
+                description={t(
+                  "associationDashboard.requirements.confirm.archiveBody",
+                  { name: requirement.name },
+                )}
+                onConfirm={() => archiveRequirement(requirement.id)}
+                trigger={
+                  <Button radius="xl" type="button" variant="outline">
+                    <L.Archive className="h-4 w-4" />
+                    {t("associationDashboard.requirements.actions.archive")}
+                  </Button>
+                }
+              />
+            )}
           </div>
         </div>
       </GlassCard>

@@ -4,7 +4,6 @@ import { TAssociationRequirementsFilters } from "@/types/association-dashboard.t
 import { AssociationRequirementStatus } from "@/lib/graphql/base";
 import { Button } from "@ui/button";
 import { Input } from "@ui/input";
-import { Label } from "@ui/label";
 
 import * as S from "@ui/select";
 import * as L from "lucide-react";
@@ -25,11 +24,7 @@ export const AssociationRequirementsFilters = ({
 
   return (
     <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
-      <div className="flex-1 space-y-2">
-        <Label htmlFor="association-requirement-search">
-          {t("associationDashboard.requirements.filters.search")}
-        </Label>
-
+      <div className="flex-1">
         <div className="relative">
           <L.Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 
@@ -38,6 +33,7 @@ export const AssociationRequirementsFilters = ({
             id="association-requirement-search"
             className="h-11 rounded-md pl-9"
             onChange={(event) => setSearch(event.target.value)}
+            aria-label={t("associationDashboard.requirements.filters.search")}
             placeholder={t(
               "associationDashboard.requirements.filters.searchPlaceholder",
             )}
@@ -45,15 +41,12 @@ export const AssociationRequirementsFilters = ({
         </div>
       </div>
 
-      <div className="space-y-2 lg:w-56">
-        <Label htmlFor="association-requirement-status">
-          {t("associationDashboard.requirements.filters.status")}
-        </Label>
-
+      <div className="lg:w-56">
         <S.Select value={status} onValueChange={setStatus}>
           <S.SelectTrigger
             id="association-requirement-status"
             className="h-11 rounded-md"
+            aria-label={t("associationDashboard.requirements.filters.status")}
           >
             <S.SelectValue />
           </S.SelectTrigger>

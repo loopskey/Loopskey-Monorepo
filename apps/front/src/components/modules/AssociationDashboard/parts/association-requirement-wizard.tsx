@@ -1,25 +1,32 @@
 "use client";
 
-import { TAssociationRequirementWizard } from "@/types/association-dashboard.types";
 import { AssociationRequirementDetailsStep } from "@modules/AssociationDashboard/parts/association-requirement-details-step";
 import { AssociationRequirementReviewStep } from "@modules/AssociationDashboard/parts/association-requirement-review-step";
 import { AssociationRequirementRulesStep } from "@modules/AssociationDashboard/parts/association-requirement-rules-step";
-import {
-  REQUIREMENT_WIZARD_STEPS,
-  problemStep,
-} from "@utils/association-requirement";
-import type { TRequirementWizardStep } from "@utils/association-requirement";
+import { TAssociationRequirementWizard } from "@/types/association-dashboard.types";
+import { REQUIREMENT_WIZARD_STEPS } from "@utils/association-requirement";
+import { problemStep } from "@utils/association-requirement";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
 import { cn } from "@/lib/utils";
 
+import type { TRequirementWizardStep } from "@utils/association-requirement";
 import * as L from "lucide-react";
 
 export const AssociationRequirementWizard = ({
   hook,
 }: TAssociationRequirementWizard) => {
-  const { t, step, goTo, problems, isSaving, requirementId, submitDetails } =
-    hook;
+  const {
+    t,
+    step,
+    goTo,
+    problems,
+    isSaving,
+    exitToList,
+    requirementId,
+    submitDetails,
+    saveDetailsAsDraft,
+  } = hook;
 
   const activeIndex = REQUIREMENT_WIZARD_STEPS.indexOf(step);
 
@@ -31,7 +38,7 @@ export const AssociationRequirementWizard = ({
     <div className="space-y-6">
       <nav
         aria-label={t("associationDashboard.requirements.wizard.stepsLabel")}
-        className="sticky top-16 z-30 rounded-lg border p-2"
+        className="sticky top-16 z-30 rounded-lg border bg-card p-2 shadow-sm"
       >
         <ol className="flex flex-col gap-1 sm:flex-row sm:gap-2">
           {REQUIREMENT_WIZARD_STEPS.map((wizardStep, index) => {
@@ -92,10 +99,7 @@ export const AssociationRequirementWizard = ({
       {step === "review" && <AssociationRequirementReviewStep hook={hook} />}
 
       {step !== "review" && (
-        <GlassCard
-          glow={false}
-          className="sticky bottom-4 z-30 lg:static"
-        >
+        <GlassCard glow={false} className="sticky bottom-4 z-30 lg:static">
           <div className="relative z-10 flex flex-col gap-3 sm:flex-row sm:justify-end">
             {step === "rules" && (
               <Button
@@ -113,6 +117,19 @@ export const AssociationRequirementWizard = ({
             <Button
               radius="xl"
               type="button"
+              variant="outline"
+              disabled={isSaving}
+              onClick={() =>
+                step === "details" ? void saveDetailsAsDraft() : exitToList()
+              }
+            >
+              {isSaving && <L.Loader2 className="h-4 w-4 animate-spin" />}
+              {t("associationDashboard.requirements.wizard.saveAsDraft")}
+            </Button>
+
+            <Button
+              radius="xl"
+              type="button"
               disabled={isSaving}
               onClick={() =>
                 step === "details"
@@ -123,8 +140,8 @@ export const AssociationRequirementWizard = ({
               {isSaving && <L.Loader2 className="h-4 w-4 animate-spin" />}
               {t(
                 step === "details"
-                  ? "associationDashboard.requirements.wizard.saveAndContinue"
-                  : "associationDashboard.requirements.wizard.continue",
+                  ? "associationDashboard.requirements.wizard.continueToRules"
+                  : "associationDashboard.requirements.wizard.reviewRequirement",
               )}
               <L.ArrowRight className="h-4 w-4" />
             </Button>
