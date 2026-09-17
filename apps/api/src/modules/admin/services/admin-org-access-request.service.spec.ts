@@ -14,6 +14,7 @@ import type { PrismaService } from "@prisma/prisma.service";
 
 import { AdminDashboardService } from "./admin.service";
 import { OrganizationReviewNotificationService } from "./organization-review-notification.service";
+import { AssociationReviewNotificationService } from "./association-review-notification.service";
 import { OrganizationReviewApiService } from "@org/application/organization-review-api.service";
 import { IdentityProfileApiService } from "@user/application/identity-profile-api.service";
 
@@ -84,11 +85,15 @@ const createService = (prisma: unknown) =>
     {
       deliver: jest.fn().mockResolvedValue("SENT"),
     } as unknown as OrganizationReviewNotificationService,
+    {
+      deliver: jest.fn().mockResolvedValue("SENT"),
+    } as unknown as AssociationReviewNotificationService,
     {} as never,
     new OrganizationReviewApiService(
       prisma as PrismaService,
       new IdentityProfileApiService(prisma as PrismaService),
     ),
+    {} as never,
   );
 
 describe("AdminDashboardService organization requests", () => {

@@ -1,14 +1,12 @@
 "use client";
 
-import { GlassCard } from "@elements/glass-card";
 import { siteLinks } from "@/utils/constant";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
-import { Role } from "@/lib/graphql/base";
 
+import AssociationAuthCard from "@modules/Auth/AssociationAuthCard";
 import AuthFeaturePanel from "@modules/Auth/parts/AuthFeaturePanel";
 import AuthPageShell from "@modules/Auth/parts/AuthPageSell";
-import RoleLoginForm from "@modules/Auth/RoleLoginForm";
 import Link from "next/link";
 
 import * as L from "lucide-react";
@@ -39,35 +37,7 @@ const AssociationAuthPage = () => {
     <AuthPageShell>
       <section className="mx-auto grid max-w-7xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
         <div className="flex justify-center lg:justify-start">
-          <GlassCard className="h-fit w-full max-w-md self-start">
-            <div className="relative z-10 space-y-6">
-              <div className="text-center">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-md bg-primary/10 text-primary">
-                  <L.Users className="h-7 w-7" />
-                </div>
-
-                <h1 className="mt-4 text-2xl font-black tracking-tight">
-                  {t("authPages.association.loginTitle")}
-                </h1>
-
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {t("authPages.association.loginDescription")}
-                </p>
-              </div>
-
-              <RoleLoginForm role={Role.Association} />
-
-              <p className="text-center text-sm text-muted-foreground">
-                {t("authPages.association.partnerPrompt")}{" "}
-                <Link
-                  href={siteLinks.contact}
-                  className="font-semibold text-primary underline-offset-4 hover:underline"
-                >
-                  {t("authPages.association.partnerLink")}
-                </Link>
-              </p>
-            </div>
-          </GlassCard>
+          <AssociationAuthCard />
         </div>
 
         <div className="order-1 lg:order-2">

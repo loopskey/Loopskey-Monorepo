@@ -67,9 +67,9 @@ export type UpdateAdminOrganizationSettingsMutationVariables = Types.Exact<{
 
 export type UpdateAdminOrganizationSettingsMutation = { __typename?: 'Mutation', updateAdminOrganizationSettings: { __typename?: 'OrganizationSettings', id: string, createdAt: string, updatedAt: string, minimumPdu: number, organizationId: string, complianceCycle: Types.ComplianceCycle, strictCompliance: boolean, complianceAlerts: boolean, weeklySummaryReport: boolean, assignmentNotifications: boolean } };
 
-export type AdminDashboardOrgAccessRequestFieldsFragment = { __typename?: 'AdminOrgAccessRequest', id: string, goals: string, status: Types.OrganizationAccessRequestStatus, country: string, workEmail: string, createdAt: string, updatedAt: string, reviewedAt?: string | null, rejectReason?: string | null, reviewedByName?: string | null, organizationName: string, organizationType: Types.OrganizationType, representativeJobRole: string, representativeFullName: string, expectedLicensedProfessionals: number, notificationStatus: Types.NotificationDeliveryStatus, notificationSentAt?: string | null, notificationLastAttemptAt?: string | null, notificationFailureCode?: string | null };
+export type AdminDashboardOrgAccessRequestFieldsFragment = { __typename?: 'AdminOrgAccessRequest', id: string, goals: string, status: Types.OrganizationAccessRequestStatus, country: string, workEmail: string, createdAt: string, updatedAt: string, reviewedAt?: string | null, rejectReason?: string | null, reviewedByName?: string | null, targetRole: Types.Role, organizationName: string, organizationType: Types.OrganizationType, representativeJobRole: string, representativeFullName: string, expectedLicensedProfessionals: number, notificationStatus: Types.NotificationDeliveryStatus, notificationSentAt?: string | null, notificationLastAttemptAt?: string | null, notificationFailureCode?: string | null };
 
-export type AdminDashboardPaginatedOrgAccessRequestsFieldsFragment = { __typename?: 'PaginatedAdminOrgAccessRequests', totalCount: number, pageInfo: { __typename?: 'AdminPageInfo', nextCursor?: string | null, hasNextPage: boolean }, items: Array<{ __typename?: 'AdminOrgAccessRequest', id: string, goals: string, status: Types.OrganizationAccessRequestStatus, country: string, workEmail: string, createdAt: string, updatedAt: string, reviewedAt?: string | null, rejectReason?: string | null, reviewedByName?: string | null, organizationName: string, organizationType: Types.OrganizationType, representativeJobRole: string, representativeFullName: string, expectedLicensedProfessionals: number, notificationStatus: Types.NotificationDeliveryStatus, notificationSentAt?: string | null, notificationLastAttemptAt?: string | null, notificationFailureCode?: string | null }> };
+export type AdminDashboardPaginatedOrgAccessRequestsFieldsFragment = { __typename?: 'PaginatedAdminOrgAccessRequests', totalCount: number, pageInfo: { __typename?: 'AdminPageInfo', nextCursor?: string | null, hasNextPage: boolean }, items: Array<{ __typename?: 'AdminOrgAccessRequest', id: string, goals: string, status: Types.OrganizationAccessRequestStatus, country: string, workEmail: string, createdAt: string, updatedAt: string, reviewedAt?: string | null, rejectReason?: string | null, reviewedByName?: string | null, targetRole: Types.Role, organizationName: string, organizationType: Types.OrganizationType, representativeJobRole: string, representativeFullName: string, expectedLicensedProfessionals: number, notificationStatus: Types.NotificationDeliveryStatus, notificationSentAt?: string | null, notificationLastAttemptAt?: string | null, notificationFailureCode?: string | null }> };
 
 export type AdminOrgAccessRequestsQueryVariables = Types.Exact<{
   filter?: Types.InputMaybe<Types.AdminOrgAccessRequestFilter>;
@@ -77,35 +77,35 @@ export type AdminOrgAccessRequestsQueryVariables = Types.Exact<{
 }>;
 
 
-export type AdminOrgAccessRequestsQuery = { __typename?: 'Query', adminOrgAccessRequests: { __typename?: 'PaginatedAdminOrgAccessRequests', totalCount: number, pageInfo: { __typename?: 'AdminPageInfo', nextCursor?: string | null, hasNextPage: boolean }, items: Array<{ __typename?: 'AdminOrgAccessRequest', id: string, goals: string, status: Types.OrganizationAccessRequestStatus, country: string, workEmail: string, createdAt: string, updatedAt: string, reviewedAt?: string | null, rejectReason?: string | null, reviewedByName?: string | null, organizationName: string, organizationType: Types.OrganizationType, representativeJobRole: string, representativeFullName: string, expectedLicensedProfessionals: number, notificationStatus: Types.NotificationDeliveryStatus, notificationSentAt?: string | null, notificationLastAttemptAt?: string | null, notificationFailureCode?: string | null }> } };
+export type AdminOrgAccessRequestsQuery = { __typename?: 'Query', adminOrgAccessRequests: { __typename?: 'PaginatedAdminOrgAccessRequests', totalCount: number, pageInfo: { __typename?: 'AdminPageInfo', nextCursor?: string | null, hasNextPage: boolean }, items: Array<{ __typename?: 'AdminOrgAccessRequest', id: string, goals: string, status: Types.OrganizationAccessRequestStatus, country: string, workEmail: string, createdAt: string, updatedAt: string, reviewedAt?: string | null, rejectReason?: string | null, reviewedByName?: string | null, targetRole: Types.Role, organizationName: string, organizationType: Types.OrganizationType, representativeJobRole: string, representativeFullName: string, expectedLicensedProfessionals: number, notificationStatus: Types.NotificationDeliveryStatus, notificationSentAt?: string | null, notificationLastAttemptAt?: string | null, notificationFailureCode?: string | null }> } };
 
 export type AdminOrgAccessRequestDetailQueryVariables = Types.Exact<{
   requestId: Types.Scalars['String']['input'];
 }>;
 
 
-export type AdminOrgAccessRequestDetailQuery = { __typename?: 'Query', adminOrgAccessRequestDetail: { __typename?: 'AdminOrgAccessRequest', id: string, goals: string, status: Types.OrganizationAccessRequestStatus, country: string, workEmail: string, createdAt: string, updatedAt: string, reviewedAt?: string | null, rejectReason?: string | null, reviewedByName?: string | null, organizationName: string, organizationType: Types.OrganizationType, representativeJobRole: string, representativeFullName: string, expectedLicensedProfessionals: number, notificationStatus: Types.NotificationDeliveryStatus, notificationSentAt?: string | null, notificationLastAttemptAt?: string | null, notificationFailureCode?: string | null } };
+export type AdminOrgAccessRequestDetailQuery = { __typename?: 'Query', adminOrgAccessRequestDetail: { __typename?: 'AdminOrgAccessRequest', id: string, goals: string, status: Types.OrganizationAccessRequestStatus, country: string, workEmail: string, createdAt: string, updatedAt: string, reviewedAt?: string | null, rejectReason?: string | null, reviewedByName?: string | null, targetRole: Types.Role, organizationName: string, organizationType: Types.OrganizationType, representativeJobRole: string, representativeFullName: string, expectedLicensedProfessionals: number, notificationStatus: Types.NotificationDeliveryStatus, notificationSentAt?: string | null, notificationLastAttemptAt?: string | null, notificationFailureCode?: string | null } };
 
 export type ApproveAdminOrgAccessRequestMutationVariables = Types.Exact<{
   requestId: Types.Scalars['String']['input'];
 }>;
 
 
-export type ApproveAdminOrgAccessRequestMutation = { __typename?: 'Mutation', approveAdminOrgAccessRequest: { __typename?: 'AdminOrgAccessRequest', id: string, goals: string, status: Types.OrganizationAccessRequestStatus, country: string, workEmail: string, createdAt: string, updatedAt: string, reviewedAt?: string | null, rejectReason?: string | null, reviewedByName?: string | null, organizationName: string, organizationType: Types.OrganizationType, representativeJobRole: string, representativeFullName: string, expectedLicensedProfessionals: number, notificationStatus: Types.NotificationDeliveryStatus, notificationSentAt?: string | null, notificationLastAttemptAt?: string | null, notificationFailureCode?: string | null } };
+export type ApproveAdminOrgAccessRequestMutation = { __typename?: 'Mutation', approveAdminOrgAccessRequest: { __typename?: 'AdminOrgAccessRequest', id: string, goals: string, status: Types.OrganizationAccessRequestStatus, country: string, workEmail: string, createdAt: string, updatedAt: string, reviewedAt?: string | null, rejectReason?: string | null, reviewedByName?: string | null, targetRole: Types.Role, organizationName: string, organizationType: Types.OrganizationType, representativeJobRole: string, representativeFullName: string, expectedLicensedProfessionals: number, notificationStatus: Types.NotificationDeliveryStatus, notificationSentAt?: string | null, notificationLastAttemptAt?: string | null, notificationFailureCode?: string | null } };
 
 export type RejectAdminOrgAccessRequestMutationVariables = Types.Exact<{
   input: Types.RejectAdminOrgAccessRequestInput;
 }>;
 
 
-export type RejectAdminOrgAccessRequestMutation = { __typename?: 'Mutation', rejectAdminOrgAccessRequest: { __typename?: 'AdminOrgAccessRequest', id: string, goals: string, status: Types.OrganizationAccessRequestStatus, country: string, workEmail: string, createdAt: string, updatedAt: string, reviewedAt?: string | null, rejectReason?: string | null, reviewedByName?: string | null, organizationName: string, organizationType: Types.OrganizationType, representativeJobRole: string, representativeFullName: string, expectedLicensedProfessionals: number, notificationStatus: Types.NotificationDeliveryStatus, notificationSentAt?: string | null, notificationLastAttemptAt?: string | null, notificationFailureCode?: string | null } };
+export type RejectAdminOrgAccessRequestMutation = { __typename?: 'Mutation', rejectAdminOrgAccessRequest: { __typename?: 'AdminOrgAccessRequest', id: string, goals: string, status: Types.OrganizationAccessRequestStatus, country: string, workEmail: string, createdAt: string, updatedAt: string, reviewedAt?: string | null, rejectReason?: string | null, reviewedByName?: string | null, targetRole: Types.Role, organizationName: string, organizationType: Types.OrganizationType, representativeJobRole: string, representativeFullName: string, expectedLicensedProfessionals: number, notificationStatus: Types.NotificationDeliveryStatus, notificationSentAt?: string | null, notificationLastAttemptAt?: string | null, notificationFailureCode?: string | null } };
 
 export type ResendAdminOrgAccessRequestNotificationMutationVariables = Types.Exact<{
   requestId: Types.Scalars['String']['input'];
 }>;
 
 
-export type ResendAdminOrgAccessRequestNotificationMutation = { __typename?: 'Mutation', resendAdminOrgAccessRequestNotification: { __typename?: 'AdminOrgAccessRequest', id: string, goals: string, status: Types.OrganizationAccessRequestStatus, country: string, workEmail: string, createdAt: string, updatedAt: string, reviewedAt?: string | null, rejectReason?: string | null, reviewedByName?: string | null, organizationName: string, organizationType: Types.OrganizationType, representativeJobRole: string, representativeFullName: string, expectedLicensedProfessionals: number, notificationStatus: Types.NotificationDeliveryStatus, notificationSentAt?: string | null, notificationLastAttemptAt?: string | null, notificationFailureCode?: string | null } };
+export type ResendAdminOrgAccessRequestNotificationMutation = { __typename?: 'Mutation', resendAdminOrgAccessRequestNotification: { __typename?: 'AdminOrgAccessRequest', id: string, goals: string, status: Types.OrganizationAccessRequestStatus, country: string, workEmail: string, createdAt: string, updatedAt: string, reviewedAt?: string | null, rejectReason?: string | null, reviewedByName?: string | null, targetRole: Types.Role, organizationName: string, organizationType: Types.OrganizationType, representativeJobRole: string, representativeFullName: string, expectedLicensedProfessionals: number, notificationStatus: Types.NotificationDeliveryStatus, notificationSentAt?: string | null, notificationLastAttemptAt?: string | null, notificationFailureCode?: string | null } };
 
 export type AdminDashboardUserFieldsFragment = { __typename?: 'AdminUser', id: string, role: Types.Role, email?: string | null, status: Types.UserStatus, fullName?: string | null, location?: string | null, avatarUrl?: string | null, isPremium: boolean, createdAt: string, updatedAt: string, lastLoginAt?: string | null };
 
@@ -442,6 +442,7 @@ export const AdminDashboardOrgAccessRequestFieldsFragmentDoc = /*#__PURE__*/ new
   reviewedAt
   rejectReason
   reviewedByName
+  targetRole
   organizationName
   organizationType
   representativeJobRole
@@ -478,6 +479,7 @@ fragment AdminDashboardOrgAccessRequestFields on AdminOrgAccessRequest {
   reviewedAt
   rejectReason
   reviewedByName
+  targetRole
   organizationName
   organizationType
   representativeJobRole
@@ -970,6 +972,7 @@ fragment AdminDashboardOrgAccessRequestFields on AdminOrgAccessRequest {
   reviewedAt
   rejectReason
   reviewedByName
+  targetRole
   organizationName
   organizationType
   representativeJobRole
@@ -1006,6 +1009,7 @@ export const AdminOrgAccessRequestDetailDocument = /*#__PURE__*/ new TypedDocume
   reviewedAt
   rejectReason
   reviewedByName
+  targetRole
   organizationName
   organizationType
   representativeJobRole
@@ -1033,6 +1037,7 @@ export const ApproveAdminOrgAccessRequestDocument = /*#__PURE__*/ new TypedDocum
   reviewedAt
   rejectReason
   reviewedByName
+  targetRole
   organizationName
   organizationType
   representativeJobRole
@@ -1060,6 +1065,7 @@ export const RejectAdminOrgAccessRequestDocument = /*#__PURE__*/ new TypedDocume
   reviewedAt
   rejectReason
   reviewedByName
+  targetRole
   organizationName
   organizationType
   representativeJobRole
@@ -1087,6 +1093,7 @@ export const ResendAdminOrgAccessRequestNotificationDocument = /*#__PURE__*/ new
   reviewedAt
   rejectReason
   reviewedByName
+  targetRole
   organizationName
   organizationType
   representativeJobRole

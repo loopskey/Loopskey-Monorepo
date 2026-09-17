@@ -1,15 +1,18 @@
 import { OrganizationReviewNotificationService } from "@admin/services/organization-review-notification.service";
+import { AssociationReviewNotificationService } from "@admin/services/association-review-notification.service";
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { AdminOrgAccessRequestFilterInput } from "@admin/dtos/admin-org-access-request-filter.input";
 import { type IdentityAdministrationApi } from "@user/public/identity-administration-api";
 import { IDENTITY_ADMINISTRATION_API } from "@user/public/identity-administration-api";
 import { UpdateAdminUserStatusInput } from "@admin/dtos/update-admin-user-status.input";
 import { type OrganizationReviewApi } from "@org/public/organization-review-api";
+import { type AssociationReviewApi } from "@association/public/association-review-api";
 import { AuditAction, Prisma, Role } from "@prisma/client";
 import { AdminDashboardMessageCode } from "@admin/enums/message-code.enum";
 import { AdminAuditLogFilterInput } from "@admin/dtos/admin-audit-log-filter.input";
 import { UpdateAdminProfileInput } from "@admin/dtos/update-admin-profile.input";
 import { ORGANIZATION_REVIEW_API } from "@org/public/organization-review-api";
+import { ASSOCIATION_REVIEW_API } from "@association/public/association-review-api";
 import { AdminUserFilterInput } from "@admin/dtos/admin-user-filter.input";
 import { AdminPaginationInput } from "@admin/dtos/admin-pagination.input";
 import { BadRequestException } from "@nestjs/common";
@@ -22,11 +25,29 @@ export class AdminDashboardService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly reviewNotification: OrganizationReviewNotificationService,
+    private readonly associationReviewNotification: AssociationReviewNotificationService,
     @Inject(IDENTITY_ADMINISTRATION_API)
     private readonly identityAdmin: IdentityAdministrationApi,
     @Inject(ORGANIZATION_REVIEW_API)
     private readonly organizationReview: OrganizationReviewApi,
+    @Inject(ASSOCIATION_REVIEW_API)
+    private readonly associationReview: AssociationReviewApi,
   ) {}
+
+  private async requestTargetRole(
+    db: Prisma.TransactionClient | PrismaService,
+    requestId: string,
+  ) {
+    const request = await db.organizationAccessRequest.findUnique({
+      where: { id: requestId },
+      select: { targetRole: true },
+    });
+    if (!request)
+      throw new NotFoundException(
+        AdminDashboardMessageCode.ORG_ACCESS_REQUEST_NOT_FOUND,
+      );
+    return request.targetRole;
+  }
 
   private assertAdmin(user: TAdminDashboardUser) {
     if (user.role !== Role.ADMIN)
@@ -124,43 +145,86 @@ export class AdminDashboardService {
 
   async approveOrgAccessRequest(user: TAdminDashboardUser, requestId: string) {
     this.assertAdmin(user);
-    const result = await this.prismaService.$transaction(async (tx) => {
-      const approval = await this.organizationReview.approve(
-        requestId,
-        user.id,
-        tx,
-      );
-      if (!approval.linkedExistingUser)
+    const { targetRole, ...result } = await this.prismaService.$transaction(
+      async (tx) => {
+        const targetRole = await this.requestTargetRole(tx, requestId);
+        if (targetRole === Role.ASSOCIATION) {
+          const approval = await this.associationReview.approve(
+            requestId,
+            user.id,
+            tx,
+          );
+          if (!approval.linkedExistingUser)
+            await tx.auditLog.create({
+              data: {
+                actorId: user.id,
+                action: AuditAction.ASSOCIATION_ACCOUNT_CREATED,
+                entityType: "User",
+                entityId: approval.approvedUserId,
+                metadata: { email: approval.workEmail, requestId },
+              },
+            });
+          await tx.auditLog.create({
+            data: {
+              actorId: user.id,
+              action: AuditAction.ORG_ACCESS_REQUEST_APPROVED,
+              entityType: "OrganizationAccessRequest",
+              entityId: requestId,
+              metadata: {
+                workEmail: approval.workEmail,
+                associationId: approval.associationId,
+                approvedUserId: approval.approvedUserId,
+                linkedExistingUser: approval.linkedExistingUser,
+                notificationIntent: {
+                  type: "ASSOCIATION_REQUEST_APPROVED",
+                  deliveryStatus: "PENDING",
+                },
+              },
+            },
+          });
+          return { targetRole, ...approval.result };
+        }
+
+        const approval = await this.organizationReview.approve(
+          requestId,
+          user.id,
+          tx,
+        );
+        if (!approval.linkedExistingUser)
+          await tx.auditLog.create({
+            data: {
+              actorId: user.id,
+              action: AuditAction.ORGANIZATION_ACCOUNT_CREATED,
+              entityType: "User",
+              entityId: approval.approvedUserId,
+              metadata: { email: approval.workEmail, requestId },
+            },
+          });
         await tx.auditLog.create({
           data: {
             actorId: user.id,
-            action: AuditAction.ORGANIZATION_ACCOUNT_CREATED,
-            entityType: "User",
-            entityId: approval.approvedUserId,
-            metadata: { email: approval.workEmail, requestId },
-          },
-        });
-      await tx.auditLog.create({
-        data: {
-          actorId: user.id,
-          action: AuditAction.ORG_ACCESS_REQUEST_APPROVED,
-          entityType: "OrganizationAccessRequest",
-          entityId: requestId,
-          metadata: {
-            workEmail: approval.workEmail,
-            organizationId: approval.organizationId,
-            approvedUserId: approval.approvedUserId,
-            linkedExistingUser: approval.linkedExistingUser,
-            notificationIntent: {
-              type: "ORGANIZATION_REQUEST_APPROVED",
-              deliveryStatus: "PENDING",
+            action: AuditAction.ORG_ACCESS_REQUEST_APPROVED,
+            entityType: "OrganizationAccessRequest",
+            entityId: requestId,
+            metadata: {
+              workEmail: approval.workEmail,
+              organizationId: approval.organizationId,
+              approvedUserId: approval.approvedUserId,
+              linkedExistingUser: approval.linkedExistingUser,
+              notificationIntent: {
+                type: "ORGANIZATION_REQUEST_APPROVED",
+                deliveryStatus: "PENDING",
+              },
             },
           },
-        },
-      });
-      return approval.result;
-    });
-    const notificationStatus = await this.reviewNotification.deliver(requestId);
+        });
+        return { targetRole, ...approval.result };
+      },
+    );
+    const notificationStatus =
+      targetRole === Role.ASSOCIATION
+        ? await this.associationReviewNotification.deliver(requestId)
+        : await this.reviewNotification.deliver(requestId);
     return { ...result, notificationStatus };
   }
 
@@ -178,32 +242,62 @@ export class AdminDashboardService {
           "A rejection reason between 3 and 1000 characters is required.",
       });
 
-    const result = await this.prismaService.$transaction(async (tx) => {
-      const rejection = await this.organizationReview.reject(
-        requestId,
-        user.id,
-        rejectReason,
-        tx,
-      );
+    const { targetRole, ...result } = await this.prismaService.$transaction(
+      async (tx) => {
+        const targetRole = await this.requestTargetRole(tx, requestId);
+        if (targetRole === Role.ASSOCIATION) {
+          const rejection = await this.associationReview.reject(
+            requestId,
+            user.id,
+            rejectReason,
+            tx,
+          );
+          await tx.auditLog.create({
+            data: {
+              actorId: user.id,
+              action: AuditAction.ORG_ACCESS_REQUEST_REJECTED,
+              entityType: "OrganizationAccessRequest",
+              entityId: requestId,
+              metadata: {
+                reason: rejectReason,
+                notificationIntent: {
+                  type: "ASSOCIATION_REQUEST_REJECTED",
+                  deliveryStatus: "PENDING",
+                },
+              },
+            },
+          });
+          return { targetRole, ...rejection.result };
+        }
 
-      await tx.auditLog.create({
-        data: {
-          actorId: user.id,
-          action: AuditAction.ORG_ACCESS_REQUEST_REJECTED,
-          entityType: "OrganizationAccessRequest",
-          entityId: requestId,
-          metadata: {
-            reason: rejectReason,
-            notificationIntent: {
-              type: "ORGANIZATION_REQUEST_REJECTED",
-              deliveryStatus: "PENDING",
+        const rejection = await this.organizationReview.reject(
+          requestId,
+          user.id,
+          rejectReason,
+          tx,
+        );
+        await tx.auditLog.create({
+          data: {
+            actorId: user.id,
+            action: AuditAction.ORG_ACCESS_REQUEST_REJECTED,
+            entityType: "OrganizationAccessRequest",
+            entityId: requestId,
+            metadata: {
+              reason: rejectReason,
+              notificationIntent: {
+                type: "ORGANIZATION_REQUEST_REJECTED",
+                deliveryStatus: "PENDING",
+              },
             },
           },
-        },
-      });
-      return rejection.result;
-    });
-    const notificationStatus = await this.reviewNotification.deliver(requestId);
+        });
+        return { targetRole, ...rejection.result };
+      },
+    );
+    const notificationStatus =
+      targetRole === Role.ASSOCIATION
+        ? await this.associationReviewNotification.deliver(requestId)
+        : await this.reviewNotification.deliver(requestId);
     return { ...result, notificationStatus };
   }
 
@@ -212,10 +306,14 @@ export class AdminDashboardService {
     requestId: string,
   ) {
     this.assertAdmin(user);
-    const notificationStatus = await this.reviewNotification.deliver(
+    const targetRole = await this.requestTargetRole(
+      this.prismaService,
       requestId,
-      true,
     );
+    const notificationStatus =
+      targetRole === Role.ASSOCIATION
+        ? await this.associationReviewNotification.deliver(requestId, true)
+        : await this.reviewNotification.deliver(requestId, true);
     const request = await this.orgAccessRequestDetail(user, requestId);
     return { ...request, notificationStatus };
   }

@@ -1,7 +1,7 @@
 import { OrganizationAccessRequestGqlObjectNames } from "@org/enums/org-access-request-gql-names.enum";
 import { OrganizationAccessRequestStatus } from "@prisma/client";
 import { Field, ID, Int, ObjectType } from "@nestjs/graphql";
-import { OrganizationType } from "@prisma/client";
+import { OrganizationType, Role } from "@prisma/client";
 
 @ObjectType(OrganizationAccessRequestGqlObjectNames.ORGANIZATION_ACCESS_REQUEST)
 export class OrganizationAccessRequestEntity {
@@ -10,6 +10,7 @@ export class OrganizationAccessRequestEntity {
   @Field(() => Date) createdAt!: Date;
   @Field(() => Date) updatedAt!: Date;
   @Field(() => String) country!: string;
+  @Field(() => Role) targetRole!: Role;
   @Field(() => String) workEmail!: string;
   @Field(() => String) organizationName!: string;
   @Field(() => String) representativeJobRole!: string;

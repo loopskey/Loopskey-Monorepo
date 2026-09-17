@@ -1,6 +1,6 @@
 "use client";
 
-import { OrganizationAccessRequestStatus } from "@/lib/graphql/base";
+import { OrganizationAccessRequestStatus, Role } from "@/lib/graphql/base";
 import { useAdminAccessRequestsTab } from "@/hooks/useAdminAccessRequestsTab";
 import { StatusBadge } from "@modules/AdminDashboard/parts/admin-status-badge";
 import { formatDate } from "@/utils/function-helper";
@@ -67,6 +67,7 @@ export const AdminAccessRequestReviewView = ({ hook }: Props) => {
 
   const isPending =
     selectedRequest.status === OrganizationAccessRequestStatus.Pending;
+  const isAssociationRequest = selectedRequest.targetRole === Role.Association;
 
   return (
     <div className="space-y-6">
@@ -111,12 +112,20 @@ export const AdminAccessRequestReviewView = ({ hook }: Props) => {
           <GlassCard>
             <div className="flex items-start gap-3">
               <div className="rounded-md bg-primary/10 p-3 text-primary">
-                <L.Building2 className="h-5 w-5" />
+                {isAssociationRequest ? (
+                  <L.Users className="h-5 w-5" />
+                ) : (
+                  <L.Building2 className="h-5 w-5" />
+                )}
               </div>
 
               <div>
                 <h2 className="text-xl font-medium">
-                  {t("adminDashboard.accessRequests.dialog.organization")}
+                  {t(
+                    isAssociationRequest
+                      ? "adminDashboard.accessRequests.dialog.association"
+                      : "adminDashboard.accessRequests.dialog.organization",
+                  )}
                 </h2>
 
                 <p className="mt-1 text-sm text-muted-foreground">
@@ -128,7 +137,11 @@ export const AdminAccessRequestReviewView = ({ hook }: Props) => {
             <div className="mt-6 grid gap-3 rounded-lg bg-muted p-4 text-sm">
               <InfoRow
                 value={selectedRequest.organizationName}
-                label={t("adminDashboard.accessRequests.dialog.organization")}
+                label={t(
+                  isAssociationRequest
+                    ? "adminDashboard.accessRequests.dialog.association"
+                    : "adminDashboard.accessRequests.dialog.organization",
+                )}
               />
 
               <InfoRow
@@ -143,7 +156,11 @@ export const AdminAccessRequestReviewView = ({ hook }: Props) => {
 
               <InfoRow
                 value={selectedRequest.expectedLicensedProfessionals}
-                label={t("adminDashboard.accessRequests.dialog.expectedUsers")}
+                label={t(
+                  isAssociationRequest
+                    ? "adminDashboard.accessRequests.dialog.expectedMembers"
+                    : "adminDashboard.accessRequests.dialog.expectedUsers",
+                )}
               />
             </div>
           </GlassCard>

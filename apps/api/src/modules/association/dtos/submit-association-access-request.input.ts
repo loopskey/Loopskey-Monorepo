@@ -1,15 +1,13 @@
-import { OrganizationAccessRequestGqlInputNames } from "@org/enums/org-access-request-gql-names.enum";
-import { IsEmail, IsEnum, Min, MinLength } from "class-validator";
-import { IsInt, IsString, MaxLength } from "class-validator";
+import { AssociationGqlInputNames } from "@association/enums/association-gql-names.enum";
+import { IsEmail, IsInt, IsString, MaxLength } from "class-validator";
+import { Min, MinLength } from "class-validator";
 import { Field, InputType, Int } from "@nestjs/graphql";
-import { OrganizationType } from "@prisma/client";
+import { ASSOCIATION_LIMITS } from "@loopskey/api-contracts/validation";
 import { trimString } from "@common/utils/function-helper";
 import { Transform } from "class-transformer";
 
-@InputType(
-  OrganizationAccessRequestGqlInputNames.SUBMIT_ORGANIZATION_ACCESS_REQUEST,
-)
-export class SubmitOrganizationAccessRequestInput {
+@InputType(AssociationGqlInputNames.SUBMIT_ASSOCIATION_ACCESS_REQUEST)
+export class SubmitAssociationAccessRequestInput {
   @Field(() => String)
   @Transform(trimString)
   @IsString()
@@ -20,21 +18,17 @@ export class SubmitOrganizationAccessRequestInput {
   @Field(() => String)
   @Transform(trimString)
   @IsString()
-  @MinLength(2)
-  @MaxLength(200)
-  organizationName!: string;
+  @MinLength(ASSOCIATION_LIMITS.nameMin)
+  @MaxLength(ASSOCIATION_LIMITS.nameMax)
+  associationName!: string;
 
   @Field(() => String)
   @Transform(({ value }: { value: unknown }) =>
     typeof value === "string" ? value.trim().toLowerCase() : value,
   )
   @IsEmail()
-  @MaxLength(255)
+  @MaxLength(ASSOCIATION_LIMITS.emailMax)
   workEmail!: string;
-
-  @Field(() => OrganizationType)
-  @IsEnum(OrganizationType)
-  organizationType!: OrganizationType;
 
   @Field(() => String)
   @Transform(trimString)
@@ -46,7 +40,7 @@ export class SubmitOrganizationAccessRequestInput {
   @Field(() => Int)
   @IsInt()
   @Min(1)
-  expectedLicensedProfessionals!: number;
+  expectedMembers!: number;
 
   @Field(() => String)
   @Transform(trimString)

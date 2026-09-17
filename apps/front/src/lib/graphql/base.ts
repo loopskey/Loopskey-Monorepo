@@ -115,6 +115,7 @@ export type AdminOrgAccessRequest = {
   reviewedById?: Maybe<Scalars['ID']['output']>;
   reviewedByName?: Maybe<Scalars['String']['output']>;
   status: OrganizationAccessRequestStatus;
+  targetRole: Role;
   updatedAt: Scalars['DateTime']['output'];
   workEmail: Scalars['String']['output'];
 };
@@ -2598,6 +2599,7 @@ export type Mutation = {
   startProfessionalOnboarding: ProfessionalDashboardProfile;
   startRoadmapDraft: ProfessionalRoadmapDraft;
   startRoadmapStep: RoadmapStepProgress;
+  submitAssociationAccessRequest: AssociationActionResponse;
   submitContactInquiry: SubmitContactInquiryPayload;
   submitContentReview: ContentReview;
   submitOrganizationAccessRequest: OrganizationAccessRequest;
@@ -3176,6 +3178,11 @@ export type MutationStartRoadmapStepArgs = {
 };
 
 
+export type MutationSubmitAssociationAccessRequestArgs = {
+  input: SubmitAssociationAccessRequestInput;
+};
+
+
 export type MutationSubmitContactInquiryArgs = {
   input: SubmitContactInquiryInput;
 };
@@ -3475,6 +3482,7 @@ export type OrganizationAccessRequest = {
   reviewedAt?: Maybe<Scalars['DateTime']['output']>;
   reviewedById?: Maybe<Scalars['String']['output']>;
   status: OrganizationAccessRequestStatus;
+  targetRole: Role;
   updatedAt: Scalars['DateTime']['output'];
   workEmail: Scalars['String']['output'];
 };
@@ -6236,6 +6244,16 @@ export enum SortDirection {
   Asc = 'ASC',
   Desc = 'DESC'
 }
+
+export type SubmitAssociationAccessRequestInput = {
+  associationName: Scalars['String']['input'];
+  country: Scalars['String']['input'];
+  expectedMembers: Scalars['Int']['input'];
+  goals: Scalars['String']['input'];
+  representativeFullName: Scalars['String']['input'];
+  representativeJobRole: Scalars['String']['input'];
+  workEmail: Scalars['String']['input'];
+};
 
 export type SubmitContactInquiryInput = {
   email: Scalars['String']['input'];

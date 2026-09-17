@@ -75,8 +75,9 @@ const setup = (
   const mail = { sendEmail: jest.fn().mockResolvedValue({ id: "event-1" }) };
   const outbox = { append: jest.fn().mockResolvedValue({ id: "event-2" }) };
   const identity = {
-    createPendingAssociationOwner:
-      overrides.createOwner ?? jest.fn().mockResolvedValue({ id: "user-1" }),
+    resolveAssociationOwner:
+      overrides.createOwner ??
+      jest.fn().mockResolvedValue({ id: "user-1", linkedExisting: false }),
   };
   const activation = {
     issueActivationLink: jest.fn().mockResolvedValue({
@@ -119,7 +120,7 @@ describe("AssociationAccountService account creation", () => {
       }),
     );
 
-    expect(identity.createPendingAssociationOwner).toHaveBeenCalledWith(
+    expect(identity.resolveAssociationOwner).toHaveBeenCalledWith(
       expect.objectContaining({ email: "chair@example.org" }),
     );
     expect(tx.association.create).toHaveBeenCalledWith(

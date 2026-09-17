@@ -31,6 +31,7 @@ export class OrgAccessRequestService {
     goals: true,
     status: true,
     country: true,
+    targetRole: true,
     workEmail: true,
     createdAt: true,
     updatedAt: true,

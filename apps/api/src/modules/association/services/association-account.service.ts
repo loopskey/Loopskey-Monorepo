@@ -178,7 +178,7 @@ export class AssociationAccountService {
     input: CreateAssociationAccountInput & { workEmail: string },
   ) {
     return this.prisma.$transaction(async (tx) => {
-      const owner = await this.identity.createPendingAssociationOwner({
+      const owner = await this.identity.resolveAssociationOwner({
         email: input.workEmail,
         fullName: input.representativeFullName,
         atomicContext: tx,

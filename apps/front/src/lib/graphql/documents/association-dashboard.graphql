@@ -1140,3 +1140,14 @@ mutation ArchiveAssociationRequirement($input: AssociationRequirementIdInput!) {
     ...AssociationRequirementFields
   }
 }
+
+# =============== Submit Access Request =============
+mutation SubmitAssociationAccessRequest(
+  $input: SubmitAssociationAccessRequestInput!
+) {
+  submitAssociationAccessRequest(input: $input) {
+    code
+    success
+    message
+  }
+}

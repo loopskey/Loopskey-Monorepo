@@ -903,6 +903,16 @@ export const associationApi = baseApi.injectEndpoints({
         "AssociationRequirementStats",
       ],
     }),
+
+    submitAssociationAccessRequest: builder.mutation<
+      TAPI.SubmitAssociationAccessRequestMutation["submitAssociationAccessRequest"],
+      TAPI.SubmitAssociationAccessRequestMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.SubmitAssociationAccessRequestDocument,
+        variables: { input },
+      }),
+    }),
   }),
 });
 
@@ -972,4 +982,5 @@ export const {
   useUpdateAssociationRequirementAudienceMutation,
   usePublishAssociationRequirementMutation,
   useArchiveAssociationRequirementMutation,
+  useSubmitAssociationAccessRequestMutation,
 } = associationApi;

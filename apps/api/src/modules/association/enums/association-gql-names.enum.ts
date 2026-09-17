@@ -118,6 +118,7 @@ export enum AssociationGqlInputNames {
   REQUEST_ASSOCIATION_REPORT_EXPORT = "RequestAssociationReportExportInput",
   ASSOCIATION_MESSAGE_AUDIENCE = "AssociationMessageAudienceInput",
   SEND_ASSOCIATION_MESSAGE = "SendAssociationMessageInput",
+  SUBMIT_ASSOCIATION_ACCESS_REQUEST = "SubmitAssociationAccessRequestInput",
 }
 
 export enum AssociationGqlQueryNames {
@@ -195,4 +196,5 @@ export enum AssociationGqlMutationNames {
   REQUEST_REPORT_EXPORT = "requestAssociationReportExport",
   RETRY_REPORT_EXPORT = "retryAssociationReportExport",
   SEND_MESSAGE = "sendAssociationMessage",
+  SUBMIT_ACCESS_REQUEST = "submitAssociationAccessRequest",
 }
