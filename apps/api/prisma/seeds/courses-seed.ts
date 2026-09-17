@@ -1,8 +1,19 @@
 import { CourseCategory, CourseLevel, CourseStatus } from "@prisma/client";
 import { PrismaClient, Role, User, UserStatus } from "@prisma/client";
 import { CurriculumLessonType, Prisma } from "@prisma/client";
-import { slugify } from "@utils/seed-helpers";
 import { faker } from "@faker-js/faker";
+
+// Duplicated from src/common/utils/slug.util.ts (rather than imported via the
+// @utils alias) so the compiled seed under dist/prisma stays self-contained —
+// see tsconfig.seed.json / package.json's build:seed script, which never
+// compiles apps/api/src and has no runtime path-alias resolver.
+const slugify = (value: string): string =>
+  value
+    .toLowerCase()
+    .trim()
+    .replace(/['"]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 
 type CourseTemplate = {
   title: string;
