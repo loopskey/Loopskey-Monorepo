@@ -6,12 +6,10 @@ import { ReactNode } from "react";
 const ProfessionalOnboardingLayout = ({ children }: { children: ReactNode }) => {
   return (
     <ProfessionalRouteGuard>
-      <ProfessionalOnboardingEntryGuard>
-        <FocusedTopBar />
-        <div className="min-h-[calc(100dvh-4rem)] bg-background px-4 py-6 md:px-6">
-          {children}
-        </div>
-      </ProfessionalOnboardingEntryGuard>
+      <FocusedTopBar />
+      <div className="min-h-[calc(100dvh-4rem)] bg-background px-4 py-6 md:px-6">
+        <ProfessionalOnboardingEntryGuard>{children}</ProfessionalOnboardingEntryGuard>
+      </div>
     </ProfessionalRouteGuard>
   );
 };

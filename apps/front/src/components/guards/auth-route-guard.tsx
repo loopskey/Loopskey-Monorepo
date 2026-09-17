@@ -4,7 +4,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { ReactNode, useEffect } from "react";
 import { useCurrentUserQuery } from "@/lib/rtk/endpoints/auth.api";
 import { getDashboardPath } from "@/utils/constant";
-import { Loader2 } from "lucide-react";
+
+import AuthPageSkeleton from "@modules/Auth/parts/AuthPageSkeleton";
 
 const AUTH_GUARD_EXCLUDED_PATHS = [
   "/auth/oauth",
@@ -32,13 +33,7 @@ export const AuthRouteGuard = ({ children }: { children: ReactNode }) => {
 
   if (isExcludedPath) return <>{children}</>;
 
-  if (isChecking || user?.role) {
-    return (
-      <div className="flex min-h-[70vh] items-center justify-center">
-        <Loader2 className="h-7 w-7 animate-spin text-primary" />
-      </div>
-    );
-  }
+  if (isChecking || user?.role) return <AuthPageSkeleton />;
 
   return <>{children}</>;
 };
