@@ -2477,7 +2477,12 @@
     "closeMenu": "Close menu"
   },
   "dashboardShell": {
-    "navLabel": "Dashboard navigation"
+    "navLabel": "Dashboard navigation",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "menu": "Menu",
+    "tapToOpenMenu": "Tap to open menu",
+    "helpSupport": "Help & Support"
   },
   "footer": {
     "brandDescription": "Your one-stop platform for all educational needs. Discover, learn, and grow with us.",
