@@ -8,7 +8,7 @@ import { BulkInviteAssociationMembersInput } from "@association/dtos/bulk-invite
 import { AssociationComplianceReadService } from "@association/services/association-compliance-read.service";
 import { type ProfessionalProvisioningApi } from "@professional/public/professional-provisioning-api";
 import { SetAssociationMemberStatusInput } from "@association/dtos/set-association-member-status.input";
-import { AssociationMemberStatus, Prisma } from "@prisma/client";
+import { AssociationMemberStatus, Prisma, Role } from "@prisma/client";
 import { PROFESSIONAL_PROVISIONING_API } from "@professional/public/professional-provisioning-api";
 import { AssociationRequirementService } from "@association/services/association-requirement.service";
 import { AssociationRequirementStatus } from "@prisma/client";
@@ -169,11 +169,19 @@ export class AssociationMemberService {
     if (!items.length) return items;
     const memberIds = items.map((item) => item.id);
 
+    // `memberComplianceList` re-derives the association via
+    // `AssociationAccessService.requireReadable`, which rejects an explicit
+    // `associationId` from an ASSOCIATION-role caller (it must resolve its
+    // own association implicitly, never name one). `list()` above already
+    // resolved and authorized `associationId` for this exact user, so an
+    // ASSOCIATION-role caller must not re-pass it here — only an ADMIN
+    // caller needs it, since their own `requireReadable` branch requires an
+    // explicit id.
     const [summaries, assignments] = await Promise.all([
       this.complianceRead.memberComplianceList(
         user,
         { memberIds },
-        associationId,
+        user.role === Role.ASSOCIATION ? undefined : associationId,
       ),
       this.prisma.associationRequirementAssignment.findMany({
         where: {
