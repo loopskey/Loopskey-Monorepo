@@ -5,9 +5,11 @@ import { useActiveRole } from "@/providers/active-role-provider";
 import { useI18n } from "@/hooks/useI18n";
 import { cn } from "@/lib/utils";
 
+import Link from "next/link";
+
 export const RoleMenuSection = () => {
   const { t } = useI18n();
-  const { activeRoleHref, setActiveRoleHref } = useActiveRole();
+  const { activeRoleHref } = useActiveRole();
 
   return (
     <div className="border-t border-border/70 pt-4">
@@ -20,11 +22,10 @@ export const RoleMenuSection = () => {
           const Icon = entry.icon;
 
           return (
-            <button
+            <Link
               key={entry.href}
-              type="button"
-              aria-pressed={isActive}
-              onClick={() => setActiveRoleHref(entry.href)}
+              href={entry.href}
+              aria-current={isActive ? "page" : undefined}
               className={cn(
                 "flex items-center gap-2 rounded-md border px-3 py-2.5 text-left text-sm font-semibold transition-colors duration-200",
                 isActive
@@ -34,7 +35,7 @@ export const RoleMenuSection = () => {
             >
               <Icon className="h-4 w-4 shrink-0" />
               <span className="truncate">{t(entry.roleLabelKey)}</span>
-            </button>
+            </Link>
           );
         })}
       </div>

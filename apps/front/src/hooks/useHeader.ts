@@ -35,19 +35,10 @@ export const useHeader = () => {
 
   const currentPath = normalizePath(pathname ?? "/");
 
-  const roleStripPaths = useMemo(
-    () =>
-      [
-        siteLinks.home,
-        siteLinks.content,
-        siteLinks.services,
-        siteLinks.about,
-        siteLinks.faq,
-        siteLinks.contact,
-      ].map(normalizePath),
-    [],
-  );
-  const showRoleStrip = roleStripPaths.includes(currentPath);
+  // Header only ever mounts on public marketing pages (the dashboard route
+  // group has its own layout and never renders it), so the strip can show
+  // unconditionally instead of an allowlist that silently excluded most pages.
+  const showRoleStrip = true;
 
   const isActiveNavItem = (href: string) => {
     const targetPath = normalizePath(href);

@@ -1,24 +1,28 @@
 "use client";
 
-import { createContext, ReactNode, useContext, useMemo, useState } from "react";
+import { createContext, ReactNode, useContext, useMemo } from "react";
+import { normalizePath } from "@/utils/function-helper";
 import { solutionEntries } from "@utils/constant";
+import { usePathname } from "next/navigation";
 
 type TActiveRoleContext = {
   activeRoleHref: string;
-  setActiveRoleHref: (href: string) => void;
 };
 
 const ActiveRoleContext = createContext<TActiveRoleContext | null>(null);
 
 export const ActiveRoleProvider = ({ children }: { children: ReactNode }) => {
-  const [activeRoleHref, setActiveRoleHref] = useState<string>(
-    solutionEntries[0].href,
-  );
+  const pathname = usePathname();
+  const currentPath = normalizePath(pathname ?? "/");
 
-  const value = useMemo(
-    () => ({ activeRoleHref, setActiveRoleHref }),
-    [activeRoleHref],
-  );
+  const activeRoleHref = useMemo(() => {
+    const matched = solutionEntries.find(
+      (entry) => normalizePath(entry.href) === currentPath,
+    );
+    return matched?.href ?? solutionEntries[0].href;
+  }, [currentPath]);
+
+  const value = useMemo(() => ({ activeRoleHref }), [activeRoleHref]);
 
   return (
     <ActiveRoleContext.Provider value={value}>
