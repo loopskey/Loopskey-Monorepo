@@ -3,6 +3,7 @@
 import { getAssociationErrorTranslationKey } from "@utils/association-error";
 import { useCallback, useMemo, useState } from "react";
 import { AssociationRequirementStatus } from "@/lib/graphql/base";
+import { AssociationAudienceKind } from "@/lib/graphql/base";
 import { AssociationMemberStatus } from "@/lib/graphql/base";
 import { SEARCH_DEBOUNCE_MS } from "@utils/constant";
 import { useDebouncedValue } from "@hooks/useDebounced";
@@ -35,6 +36,10 @@ export const useAssociationMembersTab = () => {
   const [view, setView] = useState<T.TAssociationMembersView>("roster");
 
   const [isInviteOpen, setInviteOpen] = useState(false);
+  const [inviteStep, setInviteStep] = useState<"form" | "preview">("form");
+  const [inviteLookup, setInviteLookup] = useState<{
+    exists: boolean;
+  } | null>(null);
   const [inviteOutcome, setInviteOutcome] =
     useState<T.TAssociationInviteOutcomeView | null>(null);
 
@@ -61,7 +66,14 @@ export const useAssociationMembersTab = () => {
 
   const inviteForm = useForm<SC.TInviteAssociationMemberForm>({
     resolver: zodResolver(SC.inviteAssociationMemberSchema),
-    defaultValues: { email: "", fullName: "", groupId: "", memberNumber: "" },
+    defaultValues: {
+      email: "",
+      firstName: "",
+      lastName: "",
+      groupId: "",
+      memberNumber: "",
+      requirementIds: [],
+    },
   });
 
   const groupForm = useForm<SC.TAssociationGroupForm>({
@@ -100,6 +112,8 @@ export const useAssociationMembersTab = () => {
   );
 
   const [inviteMember, inviteState] = API.useInviteAssociationMemberMutation();
+  const [lookupEmail, lookupState] =
+    API.useLazyAssociationMemberEmailLookupQuery();
   const [bulkInvite, bulkInviteState] =
     API.useBulkInviteAssociationMembersMutation();
   const [createGroup, createGroupState] =
@@ -129,6 +143,17 @@ export const useAssociationMembersTab = () => {
       (requirementsQuery.data?.items ?? []).map((requirement) => ({
         value: requirement.id,
         label: requirement.name,
+      })),
+    [requirementsQuery.data?.items],
+  );
+
+  const inviteRequirementOptions = useMemo(
+    () =>
+      (requirementsQuery.data?.items ?? []).map((requirement) => ({
+        id: requirement.id,
+        name: requirement.name,
+        isMemberManaged:
+          requirement.audienceKind === AssociationAudienceKind.SpecificMembers,
       })),
     [requirementsQuery.data?.items],
   );
@@ -188,23 +213,49 @@ export const useAssociationMembersTab = () => {
 
   const openInvite = () => {
     setInviteOutcome(null);
+    setInviteStep("form");
+    setInviteLookup(null);
     inviteForm.reset();
     setInviteOpen(true);
   };
 
-  const submitInvite = inviteForm.handleSubmit(async (values) => {
+  const continueInvite = inviteForm.handleSubmit(async (values) => {
     try {
+      const result = await lookupEmail(
+        values.email.trim().toLowerCase(),
+      ).unwrap();
+      setInviteLookup(result);
+      setInviteStep("preview");
+    } catch (error) {
+      failWith(error);
+    }
+  });
+
+  const backToInviteForm = () => {
+    setInviteStep("form");
+    setInviteLookup(null);
+  };
+
+  const confirmInvite = inviteForm.handleSubmit(async (values) => {
+    try {
+      const fullName =
+        `${values.firstName.trim()} ${values.lastName.trim()}`.trim();
       const result = await inviteMember({
         email: values.email.trim().toLowerCase(),
-        fullName: values.fullName.trim(),
+        fullName,
         groupId: values.groupId || undefined,
         memberNumber: values.memberNumber?.trim() || undefined,
+        requirementIds: values.requirementIds?.length
+          ? values.requirementIds
+          : undefined,
       }).unwrap();
       setInviteOutcome({
         outcome: result.outcome,
-        memberName: result.member.fullName ?? values.fullName.trim(),
+        memberName: result.member.fullName ?? fullName,
         memberEmail: result.member.email ?? values.email.trim().toLowerCase(),
       });
+      setInviteStep("form");
+      setInviteLookup(null);
       inviteForm.reset();
     } catch (error) {
       failWith(error);
@@ -214,6 +265,8 @@ export const useAssociationMembersTab = () => {
   const closeInvite = () => {
     setInviteOpen(false);
     setInviteOutcome(null);
+    setInviteStep("form");
+    setInviteLookup(null);
   };
 
   const goToMember = (memberId: string, action?: "edit" | "assign") => {
@@ -386,11 +439,17 @@ export const useAssociationMembersTab = () => {
     openInvite,
     inviteForm,
     closeInvite,
-    submitInvite,
+    inviteStep,
+    inviteLookup,
+    continueInvite,
+    backToInviteForm,
+    confirmInvite,
+    isCheckingEmail: lookupState.isFetching,
     isInviteOpen,
     groupOptions,
     requirementId,
     requirementOptions,
+    inviteRequirementOptions,
     setRequirementId: changeFilter(setRequirementId),
     previousPage,
     resetFilters,
@@ -412,36 +471,36 @@ export const useAssociationMembersTab = () => {
     openUpload,
     closeUpload,
     isParsing,
+    groups,
+    groupForm,
+    isMutating,
     clearImport,
+    submitGroup,
     importResult,
     confirmImport,
     importPreview,
     importFileName,
-    downloadTemplate,
-    importFailureMessage,
-    previewImportFile,
-    isImporting: bulkInviteState.isLoading,
-    groups,
-    groupForm,
-    submitGroup,
     editingGroupId,
     startGroupEdit,
-    cancelGroupEdit,
-    toggleGroupActive,
-    isGroupSaving: createGroupState.isLoading || updateGroupState.isLoading,
-    isMutating,
-    isAssignPickerOpen,
-    openAssignPicker,
-    closeAssignPicker,
-    confirmAssignPicker,
     assignMemberId,
+    cancelGroupEdit,
+    openAssignPicker,
+    downloadTemplate,
+    previewImportFile,
+    toggleGroupActive,
+    closeAssignPicker,
     setAssignMemberId,
+    isAssignPickerOpen,
     assignPickerSearch,
-    setAssignPickerSearch,
+    confirmAssignPicker,
     assignPickerOptions,
+    importFailureMessage,
+    setAssignPickerSearch,
+    isImporting: bulkInviteState.isLoading,
     isAssignPickerLoading: assignPickerQuery.isFetching,
-    isRefetching: membersQuery.isFetching && !membersQuery.isLoading,
     isError: membersQuery.isError || statsQuery.isError,
+    isRefetching: membersQuery.isFetching && !membersQuery.isLoading,
+    isGroupSaving: createGroupState.isLoading || updateGroupState.isLoading,
     isLoading:
       membersQuery.isLoading ||
       statsQuery.isLoading ||

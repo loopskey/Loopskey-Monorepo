@@ -64,6 +64,13 @@ export type AssociationGroupsQueryVariables = Types.Exact<{ [key: string]: never
 
 export type AssociationGroupsQuery = { __typename?: 'Query', associationGroups: Array<{ __typename?: 'AssociationGroup', id: string, title: string, description?: string | null, isActive: boolean, memberCount: number, createdAt: string, updatedAt: string }> };
 
+export type AssociationMemberEmailLookupQueryVariables = Types.Exact<{
+  email: Types.Scalars['String']['input'];
+}>;
+
+
+export type AssociationMemberEmailLookupQuery = { __typename?: 'Query', associationMemberEmailLookup: { __typename?: 'AssociationMemberEmailLookup', exists: boolean } };
+
 export type InviteAssociationMemberMutationVariables = Types.Exact<{
   input: Types.InviteAssociationMemberInput;
 }>;
@@ -1104,6 +1111,13 @@ export const AssociationGroupsDocument = /*#__PURE__*/ new TypedDocumentString(`
   createdAt
   updatedAt
 }`) as unknown as TypedDocumentString<AssociationGroupsQuery, AssociationGroupsQueryVariables>;
+export const AssociationMemberEmailLookupDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query AssociationMemberEmailLookup($email: String!) {
+  associationMemberEmailLookup(email: $email) {
+    exists
+  }
+}
+    `) as unknown as TypedDocumentString<AssociationMemberEmailLookupQuery, AssociationMemberEmailLookupQueryVariables>;
 export const InviteAssociationMemberDocument = /*#__PURE__*/ new TypedDocumentString(`
     mutation InviteAssociationMember($input: InviteAssociationMemberInput!) {
   inviteAssociationMember(input: $input) {

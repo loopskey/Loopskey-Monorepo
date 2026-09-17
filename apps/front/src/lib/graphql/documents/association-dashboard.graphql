@@ -166,6 +166,12 @@ query AssociationGroups {
   }
 }
 
+query AssociationMemberEmailLookup($email: String!) {
+  associationMemberEmailLookup(email: $email) {
+    exists
+  }
+}
+
 mutation InviteAssociationMember($input: InviteAssociationMemberInput!) {
   inviteAssociationMember(input: $input) {
     outcome

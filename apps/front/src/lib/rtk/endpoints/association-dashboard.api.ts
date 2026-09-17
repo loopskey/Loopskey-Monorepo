@@ -105,6 +105,18 @@ export const associationApi = baseApi.injectEndpoints({
       providesTags: ["AssociationGroups"],
     }),
 
+    associationMemberEmailLookup: builder.query<
+      TAPI.AssociationMemberEmailLookupQuery["associationMemberEmailLookup"],
+      TAPI.AssociationMemberEmailLookupQueryVariables["email"]
+    >({
+      query: (email) => ({
+        document: API.AssociationMemberEmailLookupDocument,
+        variables: { email },
+      }),
+      transformResponse: (response: TAPI.AssociationMemberEmailLookupQuery) =>
+        response.associationMemberEmailLookup,
+    }),
+
     inviteAssociationMember: builder.mutation<
       TAPI.InviteAssociationMemberMutation["inviteAssociationMember"],
       TAPI.InviteAssociationMemberMutationVariables["input"]
@@ -916,6 +928,7 @@ export const {
   useAssociationAccountsQuery,
   useCreateAssociationAccountMutation,
   useResendAssociationActivationMutation,
+  useLazyAssociationMemberEmailLookupQuery,
   useInviteAssociationMemberMutation,
   useBulkInviteAssociationMembersMutation,
   useUpdateAssociationMemberMutation,
