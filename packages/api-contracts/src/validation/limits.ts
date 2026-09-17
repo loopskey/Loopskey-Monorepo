@@ -9,10 +9,11 @@ export const ASSOCIATION_MEMBER_LIMITS = {
   fullNameMin: 2,
   fullNameMax: 160,
   groupTitleMin: 2,
-  bulkRowsMax: 1000,
+  bulkRowsMax: 5000,
   memberNumberMax: 64,
   groupTitleMax: 120,
   groupDescriptionMax: 1000,
+  requirementsPerMemberMax: 200,
 } as const;
 
 export const ASSOCIATION_REQUIREMENT_LIMITS = {

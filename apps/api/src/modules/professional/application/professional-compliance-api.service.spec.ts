@@ -16,6 +16,7 @@ const activityRow = (overrides: Record<string, unknown> = {}) => ({
   date: new Date("2026-06-01T00:00:00.000Z"),
   status: PDUStatus.PENDING,
   evidenceUrl: null,
+  providerOrganizer: null,
   _count: { evidenceFiles: 0 },
   ...overrides,
 });

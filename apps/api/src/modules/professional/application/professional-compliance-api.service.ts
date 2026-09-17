@@ -46,6 +46,7 @@ const FILE_SELECT = {
 const ACTIVITY_DETAIL_SELECT = {
   ...ACTIVITY_SELECT,
   source: true,
+  providerOrganizer: true,
   evidenceNote: true,
   reviewNote: true,
   evidenceFiles: { select: FILE_SELECT, orderBy: { createdAt: "asc" } },
@@ -60,6 +61,7 @@ const CERTIFICATE_SELECT = {
   issuedAt: true,
   validUntil: true,
   pduEarned: true,
+  cpdPlan: { select: { certificationName: true } },
   evidenceFiles: { select: FILE_SELECT, orderBy: { createdAt: "asc" } },
 } satisfies Prisma.CertificateSelect;
 
@@ -141,6 +143,7 @@ export class ProfessionalComplianceApiService
     return activities.map((activity) => ({
       ...project(activity),
       source: activity.source,
+      provider: activity.providerOrganizer,
       evidenceNote: activity.evidenceNote,
       evidenceUrl: activity.evidenceUrl,
       reviewNote: activity.reviewNote,
@@ -184,6 +187,7 @@ export class ProfessionalComplianceApiService
       issuedAt: certificate.issuedAt,
       validUntil: certificate.validUntil,
       creditsEarned: certificate.pduEarned,
+      linkedTo: certificate.cpdPlan?.certificationName ?? null,
       files: certificate.evidenceFiles,
     }));
   }

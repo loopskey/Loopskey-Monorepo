@@ -6,11 +6,14 @@ export const PROFILE_MEMBER_SELECT = {
   userId: true,
   memberNumber: true,
   status: true,
+  joinedVia: true,
   invitedAt: true,
   activatedAt: true,
   deactivatedAt: true,
   group: { select: { id: true, title: true, isActive: true } },
-  user: { select: { email: true, fullName: true, avatarUrl: true } },
+  user: {
+    select: { email: true, fullName: true, avatarUrl: true, lastLoginAt: true },
+  },
 } satisfies Prisma.AssociationMemberSelect;
 
 export type ProfileMemberRecord = Prisma.AssociationMemberGetPayload<{

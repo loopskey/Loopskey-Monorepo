@@ -1,6 +1,7 @@
 "use client";
 
 import { TAssociationEvidenceViewer } from "@/types/association-dashboard.types";
+import { humanizeEnumValue } from "@utils/function-helper";
 import { formatFileSize } from "@utils/pdu.constant";
 import { Button } from "@ui/button";
 
@@ -12,6 +13,7 @@ export const AssociationEvidenceViewer = ({
 }: TAssociationEvidenceViewer) => {
   const {
     t,
+    locale,
     download,
     isMutating,
     openActivity,
@@ -19,6 +21,43 @@ export const AssociationEvidenceViewer = ({
     closeEvidence,
     downloadingFileId,
   } = hook;
+
+  const date = (value: string) => new Date(value).toLocaleDateString(locale);
+
+  const primaryFile = openActivity?.files[0] ?? null;
+
+  const attachedEvidence = primaryFile
+    ? primaryFile.fileName
+    : openActivity?.evidenceUrl
+      ? t("associationDashboard.memberDetail.evidence.link")
+      : t("associationDashboard.memberDetail.evidence.noAttachment");
+
+  const summaryRows = openActivity
+    ? [
+        {
+          label: t("associationDashboard.memberDetail.evidence.attachedEvidence"),
+          value: attachedEvidence,
+        },
+        {
+          label: t("associationDashboard.memberDetail.evidence.activity"),
+          value: openActivity.title,
+        },
+        {
+          label: t("associationDashboard.memberDetail.evidence.completed"),
+          value: date(openActivity.date as string),
+        },
+        {
+          label: t("associationDashboard.memberDetail.evidence.type"),
+          value: humanizeEnumValue(openActivity.category),
+        },
+        {
+          label: t("associationDashboard.memberDetail.evidence.provider"),
+          value:
+            openActivity.provider ??
+            t("associationDashboard.memberDetail.evidence.noProvider"),
+        },
+      ]
+    : [];
 
   return (
     <SH.Sheet
@@ -44,6 +83,17 @@ export const AssociationEvidenceViewer = ({
 
         {openActivity && (
           <div className="space-y-5 px-4 pb-6">
+            <dl className="grid grid-cols-2 gap-4 rounded-md border p-4">
+              {summaryRows.map((row) => (
+                <div key={row.label}>
+                  <dt className="text-xs uppercase text-muted-foreground">
+                    {row.label}
+                  </dt>
+                  <dd className="mt-1 text-sm">{row.value}</dd>
+                </div>
+              ))}
+            </dl>
+
             <div>
               <h3 className="text-xs uppercase text-muted-foreground">
                 {t("associationDashboard.memberDetail.evidence.note")}
@@ -127,30 +177,57 @@ export const AssociationEvidenceViewer = ({
               )}
             </div>
 
-            {openActivity.canReview && (
-              <SH.SheetFooter className="px-0">
-                <Button
-                  radius="xl"
-                  type="button"
-                  variant="destructive"
-                  disabled={isMutating}
-                  onClick={() => openDecision(openActivity.id, false)}
-                >
-                  <L.X className="h-4 w-4" />
-                  {t("associationDashboard.memberDetail.activities.reject")}
-                </Button>
+            <SH.SheetFooter className="px-0">
+              {openActivity.canReview && (
+                <>
+                  <Button
+                    radius="xl"
+                    type="button"
+                    variant="destructive"
+                    disabled={isMutating}
+                    onClick={() => openDecision(openActivity.id, false)}
+                  >
+                    <L.X className="h-4 w-4" />
+                    {t("associationDashboard.memberDetail.activities.reject")}
+                  </Button>
 
-                <Button
-                  radius="xl"
-                  type="button"
-                  disabled={isMutating}
-                  onClick={() => openDecision(openActivity.id, true)}
-                >
-                  <L.Check className="h-4 w-4" />
-                  {t("associationDashboard.memberDetail.activities.approve")}
-                </Button>
-              </SH.SheetFooter>
-            )}
+                  <Button
+                    radius="xl"
+                    type="button"
+                    disabled={isMutating}
+                    onClick={() => openDecision(openActivity.id, true)}
+                  >
+                    <L.Check className="h-4 w-4" />
+                    {t("associationDashboard.memberDetail.activities.approve")}
+                  </Button>
+                </>
+              )}
+
+              <Button
+                radius="xl"
+                type="button"
+                variant="outline"
+                onClick={closeEvidence}
+              >
+                {t("associationDashboard.memberDetail.evidence.close")}
+              </Button>
+
+              <Button
+                radius="xl"
+                type="button"
+                disabled={!primaryFile || downloadingFileId === primaryFile.id}
+                onClick={() =>
+                  primaryFile && void download("evidence", primaryFile)
+                }
+              >
+                {primaryFile && downloadingFileId === primaryFile.id ? (
+                  <L.Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <L.Download className="h-4 w-4" />
+                )}
+                {t("associationDashboard.memberDetail.evidence.download")}
+              </Button>
+            </SH.SheetFooter>
           </div>
         )}
       </SH.SheetContent>

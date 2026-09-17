@@ -9,6 +9,11 @@ export class AssociationInviteResultEntity {
   @Field(() => AssociationInviteOutcome) outcome: AssociationInviteOutcome;
 }
 
+@ObjectType(AssociationGqlObjectNames.ASSOCIATION_MEMBER_EMAIL_LOOKUP)
+export class AssociationMemberEmailLookupEntity {
+  @Field() exists: boolean;
+}
+
 @ObjectType(AssociationGqlObjectNames.ASSOCIATION_BULK_INVITE_FAILURE)
 export class AssociationBulkInviteFailureEntity {
   @Field() code: string;

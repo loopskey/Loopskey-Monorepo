@@ -37,119 +37,88 @@ export const AssociationMemberActivitiesSection = ({
     counts,
     nextPage,
     activities,
+    isMutating,
     stateFilter,
     openEvidence,
     openDecision,
-    isMutating,
     previousPage,
     changeStateFilter,
   } = hook;
 
   const date = (value: string) => new Date(value).toLocaleDateString(locale);
 
-  const credits = (value: number) =>
-    new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(value);
-
   const filterLabel = (value: string) =>
     value === ALL
       ? t("associationDashboard.memberDetail.activities.filterAll")
       : t(`associationDashboard.memberDetail.state.${value}`);
 
-  const row = (activity: TAssociationMemberActivityRow) => (
-    <li
-      key={activity.id}
-      className="rounded-lg border p-4"
-    >
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="font-medium">{activity.title}</p>
+  const activityMeta = (activity: TAssociationMemberActivityRow) => (
+    <div className="flex flex-wrap items-center gap-2">
+      <Badge variant={STATE_VARIANTS[activity.state]}>
+        {t(`associationDashboard.memberDetail.state.${activity.state}`)}
+      </Badge>
 
-          <p className="mt-1 text-xs text-muted-foreground">
-            {t("associationDashboard.memberDetail.activities.meta", {
-              source: humanizeEnumValue(activity.source),
-              category: humanizeEnumValue(activity.category),
-              credits: credits(activity.credits),
-              date: date(activity.date as string),
-            })}
-          </p>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant={STATE_VARIANTS[activity.state]}>
-            {t(`associationDashboard.memberDetail.state.${activity.state}`)}
-          </Badge>
-
-          {activity.isLate && (
-            <Badge variant="secondary">
-              {t("associationDashboard.memberDetail.activities.late")}
-            </Badge>
-          )}
-
-          {!activity.hasEvidence && (
-            <Badge variant="secondary">
-              {t("associationDashboard.memberDetail.activities.noEvidence")}
-            </Badge>
-          )}
-        </div>
-      </div>
-
-      <p className="mt-3 text-xs text-muted-foreground">
-        {t("associationDashboard.memberDetail.activities.counting", {
-          requirements: activity.requirements
-            .map((requirement) => requirement.name)
-            .join(", "),
-        })}
-      </p>
-
-      {activity.reviewNote && (
-        <p className="mt-2 text-xs text-muted-foreground">
-          {t("associationDashboard.memberDetail.activities.reason", {
-            reason: activity.reviewNote,
-          })}
-        </p>
+      {activity.isLate && (
+        <Badge variant="secondary">
+          {t("associationDashboard.memberDetail.activities.late")}
+        </Badge>
       )}
 
-      <div className="mt-4 flex flex-wrap gap-2">
-        <Button
-          size="sm"
-          radius="xl"
-          type="button"
-          variant="outline"
-          disabled={!activity.hasEvidence}
-          onClick={() => openEvidence(activity.id)}
-        >
-          <L.FileSearch className="h-4 w-4" />
-          {t("associationDashboard.memberDetail.activities.viewEvidence")}
-        </Button>
+      {!activity.hasEvidence && (
+        <Badge variant="secondary">
+          {t("associationDashboard.memberDetail.activities.noEvidence")}
+        </Badge>
+      )}
+    </div>
+  );
 
-        {activity.canReview && (
-          <>
-            <Button
-              size="sm"
-              radius="xl"
-              type="button"
-              disabled={isMutating}
-              onClick={() => openDecision(activity.id, true)}
-            >
-              <L.Check className="h-4 w-4" />
-              {t("associationDashboard.memberDetail.activities.approve")}
-            </Button>
-
-            <Button
-              size="sm"
-              radius="xl"
-              type="button"
-              variant="destructive"
-              disabled={isMutating}
-              onClick={() => openDecision(activity.id, false)}
-            >
-              <L.X className="h-4 w-4" />
-              {t("associationDashboard.memberDetail.activities.reject")}
-            </Button>
-          </>
+  const rowActions = (activity: TAssociationMemberActivityRow) => (
+    <div className="flex flex-wrap items-center justify-end gap-2">
+      <Button
+        size="icon"
+        radius="xl"
+        type="button"
+        variant="outline"
+        disabled={!activity.hasEvidence}
+        onClick={() => openEvidence(activity.id)}
+        aria-label={t(
+          "associationDashboard.memberDetail.activities.viewEvidence",
         )}
-      </div>
-    </li>
+      >
+        <L.FileSearch className="h-4 w-4" />
+      </Button>
+
+      {activity.canReview && (
+        <>
+          <Button
+            size="icon"
+            radius="xl"
+            type="button"
+            disabled={isMutating}
+            onClick={() => openDecision(activity.id, true)}
+            aria-label={t(
+              "associationDashboard.memberDetail.activities.approve",
+            )}
+          >
+            <L.Check className="h-4 w-4" />
+          </Button>
+
+          <Button
+            size="icon"
+            radius="xl"
+            type="button"
+            variant="destructive"
+            disabled={isMutating}
+            onClick={() => openDecision(activity.id, false)}
+            aria-label={t(
+              "associationDashboard.memberDetail.activities.reject",
+            )}
+          >
+            <L.X className="h-4 w-4" />
+          </Button>
+        </>
+      )}
+    </div>
   );
 
   return (
@@ -206,7 +175,7 @@ export const AssociationMemberActivitiesSection = ({
         {hook.isActivitiesLoading || hook.isActivitiesRefetching ? (
           <div className="mt-6 space-y-3" aria-busy="true">
             {Array.from({ length: 3 }, (_, index) => (
-              <Skeleton key={index} className="h-32 w-full rounded-lg" />
+              <Skeleton key={index} className="h-16 w-full rounded-md" />
             ))}
           </div>
         ) : hook.isActivitiesError ? (
@@ -246,7 +215,131 @@ export const AssociationMemberActivitiesSection = ({
           </div>
         ) : (
           <>
-            <ul className="mt-6 space-y-3">{activities.map(row)}</ul>
+            <div className="mt-6 hidden overflow-x-auto md:block">
+              <table className="w-full min-w-[760px] text-left text-sm">
+                <caption className="sr-only">
+                  {t("associationDashboard.memberDetail.activities.title")}
+                </caption>
+
+                <thead className="text-xs uppercase text-muted-foreground">
+                  <tr className="border-b border-border">
+                    <th scope="col" className="py-3">
+                      {t(
+                        "associationDashboard.memberDetail.activities.columns.activity",
+                      )}
+                    </th>
+                    <th scope="col" className="py-3">
+                      {t(
+                        "associationDashboard.memberDetail.activities.columns.type",
+                      )}
+                    </th>
+                    <th scope="col" className="py-3">
+                      {t(
+                        "associationDashboard.memberDetail.activities.columns.completed",
+                      )}
+                    </th>
+                    <th scope="col" className="py-3 text-right">
+                      {t(
+                        "associationDashboard.memberDetail.activities.columns.actions",
+                      )}
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {activities.map((activity) => (
+                    <tr
+                      key={activity.id}
+                      className="border-b border-border/70 align-top"
+                    >
+                      <td className="py-4 pr-4">
+                        <p className="font-medium">{activity.title}</p>
+                        <div className="mt-1">{activityMeta(activity)}</div>
+
+                        {activity.requirements.length > 0 && (
+                          <p className="mt-2 text-xs text-muted-foreground">
+                            {t(
+                              "associationDashboard.memberDetail.activities.counting",
+                              {
+                                requirements: activity.requirements
+                                  .map((requirement) => requirement.name)
+                                  .join(", "),
+                              },
+                            )}
+                          </p>
+                        )}
+
+                        {activity.reviewNote && (
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            {t(
+                              "associationDashboard.memberDetail.activities.reason",
+                              { reason: activity.reviewNote },
+                            )}
+                          </p>
+                        )}
+                      </td>
+
+                      <td className="py-4 pr-4">
+                        {humanizeEnumValue(activity.category)}
+                      </td>
+
+                      <td className="py-4 pr-4">
+                        {date(activity.date as string)}
+                      </td>
+
+                      <td className="py-4 text-right">
+                        {rowActions(activity)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <ul className="mt-6 space-y-3 md:hidden">
+              {activities.map((activity) => (
+                <li key={activity.id} className="rounded-lg border p-4">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="font-medium">{activity.title}</p>
+
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {humanizeEnumValue(activity.category)} ·{" "}
+                        {date(activity.date as string)}
+                      </p>
+                    </div>
+
+                    {activityMeta(activity)}
+                  </div>
+
+                  {activity.requirements.length > 0 && (
+                    <p className="mt-3 text-xs text-muted-foreground">
+                      {t(
+                        "associationDashboard.memberDetail.activities.counting",
+                        {
+                          requirements: activity.requirements
+                            .map((requirement) => requirement.name)
+                            .join(", "),
+                        },
+                      )}
+                    </p>
+                  )}
+
+                  {activity.reviewNote && (
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      {t(
+                        "associationDashboard.memberDetail.activities.reason",
+                        {
+                          reason: activity.reviewNote,
+                        },
+                      )}
+                    </p>
+                  )}
+
+                  <div className="mt-4">{rowActions(activity)}</div>
+                </li>
+              ))}
+            </ul>
 
             <ContentPagination
               className="mt-6"
