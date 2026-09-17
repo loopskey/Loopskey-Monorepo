@@ -47,6 +47,7 @@ export const seedUsers = async (prisma: PrismaClient): Promise<User[]> => {
   const professionalCount = Number(process.env.SEED_PROFESSIONAL_USERS);
   const providerCount = Number(process.env.SEED_PROVIDER_USERS);
   const organizationUserCount = Number(process.env.SEED_ORG_USERS);
+  const associationUserCount = Number(process.env.SEED_ASSOCIATION_USERS ?? 0);
 
   const providerUsers = Array.from({ length: providerCount }).map(
     (_, index) => {
@@ -116,8 +117,34 @@ export const seedUsers = async (prisma: PrismaClient): Promise<User[]> => {
       };
     },
   );
+
+  const associationUsers = Array.from({ length: associationUserCount }).map(
+    (_, index) => {
+      const assocName = `${faker.company.name()} Association`;
+      return {
+        email: `association.${index + 1}@loopskey.dev`,
+        fullName: assocName,
+        passwordHash,
+        role: Role.ASSOCIATION,
+        status: UserStatus.ACTIVE,
+        emailVerifiedAt: faker.date.past({ years: 1 }),
+        forcePasswordChange: false,
+        firstName: assocName,
+        lastName: "",
+        phone: faker.phone.number(),
+        avatarUrl: faker.image.avatar(),
+        bio: faker.lorem.sentence(),
+        phoneVerifiedAt: faker.date.past({ years: 1 }),
+      };
+    },
+  );
   await prisma.user.createMany({
-    data: [...providerUsers, ...professionalUsers, ...organizationUsers],
+    data: [
+      ...providerUsers,
+      ...professionalUsers,
+      ...organizationUsers,
+      ...associationUsers,
+    ],
     skipDuplicates: true,
   });
   const users = await prisma.user.findMany({
