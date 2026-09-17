@@ -2479,7 +2479,12 @@
     "closeMenu": "Fermer le menu"
   },
   "dashboardShell": {
-    "navLabel": "Navigation du tableau de bord"
+    "navLabel": "Navigation du tableau de bord",
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu",
+    "menu": "Menu",
+    "tapToOpenMenu": "Touchez pour ouvrir le menu",
+    "helpSupport": "Aide et support"
   },
   "footer": {
     "brandDescription": "Votre plateforme tout-en-un pour tous vos besoins éducatifs. Découvrez, apprenez et progressez avec nous.",
@@ -2709,6 +2714,18 @@
       "professionalLink": "Vous voulez apprendre ? Connectez-vous comme professionnel",
       "partnerPrompt": "Nouvelle association ?",
       "partnerLink": "Contactez notre équipe",
+      "requestTab": "Demande d’accès",
+      "loginTab": "Connexion",
+      "representativeFullName": "Nom complet du représentant",
+      "associationName": "Nom de l'association",
+      "workEmail": "E-mail professionnel",
+      "representativeJobRole": "Fonction du représentant",
+      "expectedMembers": "Membres attendus",
+      "country": "Pays",
+      "goals": "Objectifs",
+      "submitRequest": "Soumettre la demande",
+      "submitting": "Soumission...",
+      "requestSubmitted": "Demande envoyée. Elle est maintenant en attente de l’examen d’un administrateur.",
       "joined": "Accès sécurisé pour les administrateurs d’association et leurs équipes.",
       "complianceTitle": "La conformité en un coup d’œil",
       "complianceText": "Voyez qui est sur la bonne voie, à risque ou en retard, selon les seuils que vous définissez.",
@@ -7039,11 +7056,13 @@
         "title": "Examiner la demande d’accès",
         "description": "Vérifiez les détails de l’organisation avant d’approuver ou de rejeter cette demande.",
         "organization": "Organisation",
+        "association": "Association",
         "email": "E-mail professionnel",
         "representative": "Représentant",
         "role": "Poste",
         "country": "Pays",
         "expectedUsers": "Professionnels licenciés prévus",
+        "expectedMembers": "Membres attendus",
         "goals": "Objectifs",
         "rejectReason": "Rédigez la raison du rejet. Elle pourra être envoyée par e-mail plus tard.",
         "rejectReasonRequired": "Veuillez saisir une raison de rejet."

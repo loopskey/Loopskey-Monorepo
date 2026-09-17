@@ -192,6 +192,7 @@ fragment AdminDashboardOrgAccessRequestFields on AdminOrgAccessRequest {
   reviewedAt
   rejectReason
   reviewedByName
+  targetRole
   organizationName
   organizationType
   representativeJobRole

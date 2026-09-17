@@ -82,3 +82,4 @@ into this index and do not rewrite previous records.
 - [`association-seed-deploy-portability`](feature-runs/active/association-seed-deploy-portability.md)
 - [`roadmap-catalog-and-credential-seed`](feature-runs/active/roadmap-catalog-and-credential-seed.md)
 - [`production-runnable-seed`](feature-runs/active/production-runnable-seed.md)
+- [`association-access-request`](feature-runs/active/association-access-request.md)

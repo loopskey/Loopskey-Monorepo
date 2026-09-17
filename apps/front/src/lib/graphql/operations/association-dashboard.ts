@@ -496,6 +496,13 @@ export type ArchiveAssociationRequirementMutationVariables = Types.Exact<{
 
 export type ArchiveAssociationRequirementMutation = { __typename?: 'Mutation', archiveAssociationRequirement: { __typename?: 'AssociationRequirement', id: string, name: string, description?: string | null, creditType: Types.CreditType, totalRequiredCredits: number, deadline?: string | null, reportingCycle: Types.AssociationReportingCycle, cycleLengthYears?: number | null, evidencePolicy: Types.AssociationEvidencePolicy, reportingStart?: string | null, reportingEnd?: string | null, submissionWindow: Types.AssociationSubmissionWindow, gracePeriodDays: number, lateSubmissionPolicy: Types.AssociationLateSubmissionPolicy, renewalCondition: Types.AssociationRenewalCondition, remindersEnabled: boolean, reminderTiming?: Types.CpdReminderTiming | null, audienceKind: Types.AssociationAudienceKind, status: Types.AssociationRequirementStatus, publishedAt?: string | null, archivedAt?: string | null, assignedMemberCount: number, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'AssociationRequirementCategory', id: string, name: string, order: number, mappedCategory: Types.PduCategory, requiredCredits: number }>, targets: Array<{ __typename?: 'AssociationRequirementTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> } };
 
+export type SubmitAssociationAccessRequestMutationVariables = Types.Exact<{
+  input: Types.SubmitAssociationAccessRequestInput;
+}>;
+
+
+export type SubmitAssociationAccessRequestMutation = { __typename?: 'Mutation', submitAssociationAccessRequest: { __typename?: 'AssociationActionResponse', code: string, success: boolean, message: string } };
+
 export const AssociationSettingsFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
     fragment AssociationSettingsFields on AssociationSettings {
   id
@@ -2927,3 +2934,12 @@ fragment AssociationRequirementFields on AssociationRequirement {
     ...AssociationRequirementTargetFields
   }
 }`) as unknown as TypedDocumentString<ArchiveAssociationRequirementMutation, ArchiveAssociationRequirementMutationVariables>;
+export const SubmitAssociationAccessRequestDocument = /*#__PURE__*/ new TypedDocumentString(`
+    mutation SubmitAssociationAccessRequest($input: SubmitAssociationAccessRequestInput!) {
+  submitAssociationAccessRequest(input: $input) {
+    code
+    success
+    message
+  }
+}
+    `) as unknown as TypedDocumentString<SubmitAssociationAccessRequestMutation, SubmitAssociationAccessRequestMutationVariables>;

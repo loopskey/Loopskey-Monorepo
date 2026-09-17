@@ -1,14 +1,14 @@
 import { AppLanguage, AssociationMessageType } from "@prisma/client";
 
-import { type AttentionRow } from "@association/types/association-attention.types";
 import { type TAssociationMessageInput } from "@mail/mail-service.type";
+import { type AttentionRow } from "@association/types/association-attention.types";
 
 export type MessageContext = {
+  detail: string;
   percent: number;
   requiredCredits: number;
-  completedCredits: number;
   deadline: string | null;
-  detail: string;
+  completedCredits: number;
   detailDate: string | null;
 };
 
