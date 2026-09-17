@@ -116,13 +116,14 @@ export const AssociationMemberDetailHeader = ({
               </div>
             </dl>
 
-            <div className="mt-6 flex flex-wrap gap-3">
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Button
                 radius="xl"
                 type="button"
                 variant="outline"
                 onClick={openEdit}
                 disabled={isMutating}
+                className="w-full justify-center sm:w-auto"
               >
                 <L.PenLine className="h-4 w-4" />
                 {t("associationDashboard.memberDetail.actions.edit")}
@@ -134,6 +135,7 @@ export const AssociationMemberDetailHeader = ({
                 variant="outline"
                 disabled={isMutating}
                 onClick={openRequirements}
+                className="w-full justify-center sm:w-auto"
               >
                 <L.ListChecks className="h-4 w-4" />
                 {t("associationDashboard.memberDetail.actions.requirements")}
@@ -144,6 +146,7 @@ export const AssociationMemberDetailHeader = ({
                   radius="xl"
                   type="button"
                   disabled={isMutating}
+                  className="w-full justify-center sm:w-auto"
                   onClick={() =>
                     void changeStatus(AssociationMemberStatus.Active)
                   }
@@ -175,6 +178,7 @@ export const AssociationMemberDetailHeader = ({
                       type="button"
                       variant="outline"
                       disabled={isMutating}
+                      className="w-full justify-center sm:w-auto"
                     >
                       <L.UserMinus className="h-4 w-4" />
                       {t("associationDashboard.members.actions.deactivate")}

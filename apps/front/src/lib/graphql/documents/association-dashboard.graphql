@@ -279,6 +279,7 @@ fragment AssociationMemberActivityFields on AssociationMemberActivity {
   memberId
   title
   source
+  provider
   category
   creditType
   credits
@@ -304,6 +305,7 @@ fragment AssociationMemberActivityFields on AssociationMemberActivity {
 query AssociationMemberProfile($memberId: ID!) {
   associationMemberProfile(memberId: $memberId) {
     isMissingEvidence
+    lastNotifiedAt
     member {
       ...AssociationMemberFields
     }
@@ -337,6 +339,7 @@ query AssociationMemberProfile($memberId: ID!) {
       validUntil
       status
       creditsEarned
+      linkedTo
       files {
         ...AssociationEvidenceFileFields
       }

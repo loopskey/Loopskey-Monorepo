@@ -5481,9 +5481,41 @@
       }
     },
     "memberDetail": {
-      "backToRoster": "Retour à la liste",
+      "backToRoster": "Retour aux membres",
       "email": "E-mail",
       "noGroup": "Aucun groupe",
+      "tabs": {
+        "overview": "Aperçu",
+        "activities": "Activités de formation",
+        "certificates": "Certificats"
+      },
+      "membership": {
+        "title": "Adhésion",
+        "group": "Groupe",
+        "memberSince": "Membre depuis",
+        "lastLogin": "Dernière connexion",
+        "joinedVia": "Rejoint via",
+        "lastNotification": "Dernière notification",
+        "never": "Jamais",
+        "noGroup": "Aucun groupe",
+        "joinedViaValues": {
+          "INVITED": "Invité",
+          "BULK_IMPORTED": "Importé en masse",
+          "LINKED_EXISTING_ACCOUNT": "Rattaché depuis un compte existant"
+        }
+      },
+      "overview": {
+        "activitiesTitle": "Activités de formation",
+        "activitiesCount": "{{count}} enregistrées",
+        "activitiesEmpty": "Aucune activité enregistrée",
+        "certificatesTitle": "Certificats",
+        "certificatesCount": "{{count}} au dossier",
+        "certificatesEmpty": "Aucun certificat au dossier",
+        "missingEvidenceTitle": "Preuves manquantes",
+        "missingEvidenceBad": "Action requise",
+        "missingEvidenceOk": "Rien en attente",
+        "viewAll": "Tout voir"
+      },
       "band": {
         "NOT_STARTED": "Non commencé",
         "AT_RISK": "À risque",
@@ -5501,8 +5533,8 @@
         "REQUIRED_NEEDS_REVIEW": "Preuve exigée et examinée par vous"
       },
       "actions": {
-        "edit": "Modifier les informations",
-        "requirements": "Modifier les exigences"
+        "edit": "Modifier",
+        "requirements": "Assigner une exigence"
       },
       "confirm": {
         "deactivateBody": "{{name}} sort de vos effectifs actifs et ne reçoit plus les e-mails de l'association. Son historique reste sur cette page et vous pouvez la réactiver à tout moment."
@@ -5540,7 +5572,7 @@
         "chartEmptyTitle": "Aucune catégorie à représenter",
         "chartEmptyBody": "Aucune exigence assignée à ce membre ne répartit son total par catégorie.",
         "emptyTitle": "Rien n'est encore assigné",
-        "emptyBody": "Ce membre ne fait partie de l'audience d'aucune exigence publiée. Utilisez Modifier les exigences pour lui en assigner une."
+        "emptyBody": "Ce membre ne fait partie de l'audience d'aucune exigence publiée. Utilisez Assigner une exigence pour lui en assigner une."
       },
       "activities": {
         "title": "Activités de formation",
@@ -5550,6 +5582,13 @@
         "counts": "{{counted}} approuvées, {{awaiting}} en cours d'examen, {{rejected}} refusées",
         "meta": "{{source}} · {{category}} · {{credits}} crédits · {{date}}",
         "counting": "Compte pour : {{requirements}}",
+        "columns": {
+          "activity": "Activité",
+          "type": "Type",
+          "completed": "Terminée",
+          "evidence": "Preuve",
+          "actions": "Actions"
+        },
         "reason": "Motif indiqué : {{reason}}",
         "late": "En retard",
         "noEvidence": "Sans preuve",
@@ -5564,6 +5603,13 @@
       "evidence": {
         "title": "Preuve",
         "description": "Ce que le membre a joint à cette soumission.",
+        "attachedEvidence": "Preuve jointe",
+        "noAttachment": "Aucun fichier joint",
+        "activity": "Activité",
+        "completed": "Terminée",
+        "type": "Type",
+        "provider": "Fournisseur",
+        "noProvider": "-",
         "note": "Note du membre",
         "noNote": "Le membre n'a laissé aucune note.",
         "link": "Lien de preuve",
@@ -5571,7 +5617,8 @@
         "files": "Fichiers joints",
         "noFiles": "Aucun fichier n'a été joint.",
         "download": "Télécharger",
-        "downloadFile": "Télécharger {{name}}"
+        "downloadFile": "Télécharger {{name}}",
+        "close": "Fermer"
       },
       "decision": {
         "approveTitle": "Approuver cette soumission ?",
@@ -5624,8 +5671,24 @@
         "description": "Les certificats détenus par ce membre, avec les fichiers joints.",
         "meta": "{{issuer}} · délivré le {{issued}} · expire le {{expires}} · {{credits}} crédits",
         "noIssuer": "Émetteur non précisé",
+        "noLinkedTo": "-",
         "emptyTitle": "Aucun certificat",
-        "emptyBody": "Ce membre n'a pas encore enregistré de certificat."
+        "emptyBody": "Ce membre n'a pas encore enregistré de certificat.",
+        "columns": {
+          "certificate": "Certificat / licence",
+          "issuer": "Émetteur",
+          "issueDate": "Date de délivrance",
+          "expiryDate": "Date d'expiration",
+          "status": "Statut",
+          "linkedTo": "Lié à",
+          "files": "Fichiers"
+        },
+        "statuses": {
+          "ACTIVE": "Actif",
+          "EXPIRING_SOON": "Expire bientôt",
+          "EXPIRED": "Expiré",
+          "REVOKED": "Révoqué"
+        }
       },
       "error": {
         "title": "Ce membre n'a pas pu être chargé.",

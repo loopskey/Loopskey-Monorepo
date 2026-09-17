@@ -716,6 +716,7 @@ export type AssociationMemberActivity = {
   id: Scalars['ID']['output'];
   isLate: Scalars['Boolean']['output'];
   memberId: Scalars['ID']['output'];
+  provider?: Maybe<Scalars['String']['output']>;
   requirements: Array<AssociationActivityRequirement>;
   reviewNote?: Maybe<Scalars['String']['output']>;
   source: PduSource;

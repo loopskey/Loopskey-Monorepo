@@ -5478,9 +5478,41 @@
       }
     },
     "memberDetail": {
-      "backToRoster": "Back to the roster",
+      "backToRoster": "Back to Members",
       "email": "Email",
       "noGroup": "No group",
+      "tabs": {
+        "overview": "Overview",
+        "activities": "Learning Activities",
+        "certificates": "Certificates"
+      },
+      "membership": {
+        "title": "Membership",
+        "group": "Group",
+        "memberSince": "Member since",
+        "lastLogin": "Last login",
+        "joinedVia": "Joined via",
+        "lastNotification": "Last notification",
+        "never": "Never",
+        "noGroup": "No group",
+        "joinedViaValues": {
+          "INVITED": "Invited",
+          "BULK_IMPORTED": "Bulk imported",
+          "LINKED_EXISTING_ACCOUNT": "Linked from an existing account"
+        }
+      },
+      "overview": {
+        "activitiesTitle": "Learning activities",
+        "activitiesCount": "{{count}} recorded",
+        "activitiesEmpty": "No activity recorded yet",
+        "certificatesTitle": "Certificates",
+        "certificatesCount": "{{count}} on file",
+        "certificatesEmpty": "No certificates on file",
+        "missingEvidenceTitle": "Missing evidence",
+        "missingEvidenceBad": "Action needed",
+        "missingEvidenceOk": "Nothing outstanding",
+        "viewAll": "View all"
+      },
       "band": {
         "NOT_STARTED": "Not started",
         "AT_RISK": "At risk",
@@ -5498,8 +5530,8 @@
         "REQUIRED_NEEDS_REVIEW": "Evidence required and reviewed by you"
       },
       "actions": {
-        "edit": "Edit details",
-        "requirements": "Change requirements"
+        "edit": "Edit",
+        "requirements": "Assign Requirement"
       },
       "confirm": {
         "deactivateBody": "{{name}} leaves your active counts and stops receiving association email. Their history stays on this page and you can reactivate them at any time."
@@ -5537,7 +5569,7 @@
         "chartEmptyTitle": "No categories to chart",
         "chartEmptyBody": "None of the requirements assigned to this member splits its total by category.",
         "emptyTitle": "Nothing is assigned yet",
-        "emptyBody": "This member is not in the audience of any published requirement. Use Change requirements to assign one."
+        "emptyBody": "This member is not in the audience of any published requirement. Use Assign Requirement to assign one."
       },
       "activities": {
         "title": "Learning activities",
@@ -5547,6 +5579,13 @@
         "counts": "{{counted}} approved, {{awaiting}} under review, {{rejected}} rejected",
         "meta": "{{source}} · {{category}} · {{credits}} credits · {{date}}",
         "counting": "Counts toward: {{requirements}}",
+        "columns": {
+          "activity": "Activity",
+          "type": "Type",
+          "completed": "Completed",
+          "evidence": "Evidence",
+          "actions": "Actions"
+        },
         "reason": "Reason given: {{reason}}",
         "late": "Late",
         "noEvidence": "No evidence",
@@ -5561,6 +5600,13 @@
       "evidence": {
         "title": "Evidence",
         "description": "What the member attached to this submission.",
+        "attachedEvidence": "Attached evidence",
+        "noAttachment": "No file was attached",
+        "activity": "Activity",
+        "completed": "Completed",
+        "type": "Type",
+        "provider": "Provider",
+        "noProvider": "-",
         "note": "Note from the member",
         "noNote": "The member left no note.",
         "link": "Evidence link",
@@ -5568,7 +5614,8 @@
         "files": "Attached files",
         "noFiles": "No file was attached.",
         "download": "Download",
-        "downloadFile": "Download {{name}}"
+        "downloadFile": "Download {{name}}",
+        "close": "Close"
       },
       "decision": {
         "approveTitle": "Approve this submission?",
@@ -5621,8 +5668,24 @@
         "description": "Certificates this member holds, with the files they attached.",
         "meta": "{{issuer}} · issued {{issued}} · expires {{expires}} · {{credits}} credits",
         "noIssuer": "No issuer given",
+        "noLinkedTo": "-",
         "emptyTitle": "No certificates",
-        "emptyBody": "This member has not recorded a certificate yet."
+        "emptyBody": "This member has not recorded a certificate yet.",
+        "columns": {
+          "certificate": "Certificate / Licence",
+          "issuer": "Issuer",
+          "issueDate": "Issue date",
+          "expiryDate": "Expiry date",
+          "status": "Status",
+          "linkedTo": "Linked to",
+          "files": "Files"
+        },
+        "statuses": {
+          "ACTIVE": "Active",
+          "EXPIRING_SOON": "Expiring soon",
+          "EXPIRED": "Expired",
+          "REVOKED": "Revoked"
+        }
       },
       "error": {
         "title": "This member could not be loaded.",

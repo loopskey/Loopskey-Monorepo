@@ -46,6 +46,7 @@ const FILE_SELECT = {
 const ACTIVITY_DETAIL_SELECT = {
   ...ACTIVITY_SELECT,
   source: true,
+  providerOrganizer: true,
   evidenceNote: true,
   reviewNote: true,
   evidenceFiles: { select: FILE_SELECT, orderBy: { createdAt: "asc" } },
@@ -142,6 +143,7 @@ export class ProfessionalComplianceApiService
     return activities.map((activity) => ({
       ...project(activity),
       source: activity.source,
+      provider: activity.providerOrganizer,
       evidenceNote: activity.evidenceNote,
       evidenceUrl: activity.evidenceUrl,
       reviewNote: activity.reviewNote,

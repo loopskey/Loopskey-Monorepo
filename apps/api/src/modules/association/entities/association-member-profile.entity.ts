@@ -91,6 +91,7 @@ export class AssociationMemberActivityEntity {
   @Field(() => PDUSource) source: PDUSource;
   @Field(() => CreditType) creditType: CreditType;
   @Field(() => PDUCategory) category: PDUCategory;
+  @Field(() => String, { nullable: true }) provider: string | null;
   @Field(() => String, { nullable: true }) reviewNote: string | null;
   @Field(() => String, { nullable: true }) evidenceUrl: string | null;
   @Field(() => String, { nullable: true }) evidenceNote: string | null;
@@ -111,9 +112,9 @@ export class AssociationActivityCountsEntity {
 @ObjectType(AssociationGqlObjectNames.PAGINATED_ASSOCIATION_MEMBER_ACTIVITIES)
 export class PaginatedAssociationMemberActivitiesEntity {
   @Field(() => Int) totalCount: number;
+  @Field(() => AssociationPageInfoEntity) pageInfo: AssociationPageInfoEntity;
   @Field(() => AssociationActivityCountsEntity)
   counts: AssociationActivityCountsEntity;
-  @Field(() => AssociationPageInfoEntity) pageInfo: AssociationPageInfoEntity;
   @Field(() => [AssociationMemberActivityEntity])
   items: AssociationMemberActivityEntity[];
 }

@@ -29,29 +29,30 @@ export type ComplianceFileDescriptor = {
 
 export type ComplianceActivityDetail = ComplianceActivity & {
   source: string;
-  evidenceNote: string | null;
-  evidenceUrl: string | null;
+  provider: string | null;
   reviewNote: string | null;
+  evidenceUrl: string | null;
+  evidenceNote: string | null;
   files: ComplianceFileDescriptor[];
 };
 
 export type ComplianceCertificate = {
   id: string;
-  userId: string;
   title: string;
+  userId: string;
   status: string;
-  issuer: string | null;
   issuedAt: Date;
-  validUntil: Date | null;
+  issuer: string | null;
   creditsEarned: number;
+  validUntil: Date | null;
   linkedTo: string | null;
   files: ComplianceFileDescriptor[];
 };
 
 export type ComplianceStoredFile = {
-  file: ComplianceFileDescriptor;
   filePath: string;
   sourceId: string;
+  file: ComplianceFileDescriptor;
 };
 
 export type ContentEngagementQuery = {

@@ -71,6 +71,7 @@ const detailRow = (overrides: Record<string, unknown> = {}) => ({
   userId: "user-1",
   title: "A course",
   source: "COURSE",
+  provider: null,
   category: PDUCategory.TECHNICAL,
   creditType: CreditType.CPD,
   credits: 10,

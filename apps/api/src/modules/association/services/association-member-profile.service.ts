@@ -236,6 +236,7 @@ export class AssociationMemberProfileService {
           memberId: member.id,
           title: detail.title,
           source: detail.source,
+          provider: detail.provider,
           category: detail.category,
           creditType: detail.creditType,
           credits: detail.credits,

@@ -4,10 +4,13 @@ import { AssociationMemberCertificatesSection } from "@modules/AssociationDashbo
 import { AssociationMemberRequirementsSection } from "@modules/AssociationDashboard/parts/association-member-requirements-section";
 import { AssociationMemberRequirementsDialog } from "@modules/AssociationDashboard/parts/association-member-requirements-dialog";
 import { AssociationMemberActivitiesSection } from "@modules/AssociationDashboard/parts/association-member-activities-section";
+import { AssociationMemberMembershipPanel } from "@modules/AssociationDashboard/parts/association-member-membership-panel";
+import { AssociationMemberOverviewPreview } from "@modules/AssociationDashboard/parts/association-member-overview-preview";
 import { AssociationMemberProgressCard } from "@modules/AssociationDashboard/parts/association-member-progress-card";
 import { AssociationMemberDetailHeader } from "@modules/AssociationDashboard/parts/association-member-detail-header";
 import { AssociationMemberDetailCards } from "@modules/AssociationDashboard/parts/association-member-detail-cards";
 import { AssociationMemberEditDialog } from "@modules/AssociationDashboard/parts/association-member-edit-dialog";
+import { TAssociationMemberDetailTab } from "@hooks/useAssociationMemberDetail";
 import { useAssociationMemberDetail } from "@hooks/useAssociationMemberDetail";
 import { AssociationDecisionDialog } from "@modules/AssociationDashboard/parts/association-decision-dialog";
 import { AssociationEvidenceViewer } from "@modules/AssociationDashboard/parts/association-evidence-viewer";
@@ -16,6 +19,7 @@ import { GlassCard } from "@elements/glass-card";
 import { Skeleton } from "@ui/skeleton";
 import { Button } from "@ui/button";
 
+import * as T from "@ui/tabs";
 import * as L from "lucide-react";
 
 type TAssociationMemberDetailViewProps = { memberId: string };
@@ -25,7 +29,7 @@ export const AssociationMemberDetailView = ({
 }: TAssociationMemberDetailViewProps) => {
   const hook = useAssociationMemberDetail(memberId);
 
-  const { t, isError, isLoading } = hook;
+  const { t, isError, isLoading, activeTab, setActiveTab } = hook;
 
   if (isLoading) {
     return (
@@ -84,11 +88,44 @@ export const AssociationMemberDetailView = ({
   return (
     <div className="space-y-6">
       <AssociationMemberDetailHeader hook={hook} />
-      <AssociationMemberDetailCards hook={hook} />
-      <AssociationMemberProgressCard hook={hook} />
-      <AssociationMemberRequirementsSection hook={hook} />
-      <AssociationMemberActivitiesSection hook={hook} />
-      <AssociationMemberCertificatesSection hook={hook} />
+
+      <T.Tabs
+        value={activeTab}
+        onValueChange={(value) =>
+          setActiveTab(value as TAssociationMemberDetailTab)
+        }
+        className="space-y-6"
+      >
+        <T.TabsList className="grid w-full grid-cols-3 rounded-md sm:w-auto">
+          <T.TabsTrigger value="overview">
+            {t("associationDashboard.memberDetail.tabs.overview")}
+          </T.TabsTrigger>
+
+          <T.TabsTrigger value="activities">
+            {t("associationDashboard.memberDetail.tabs.activities")}
+          </T.TabsTrigger>
+
+          <T.TabsTrigger value="certificates">
+            {t("associationDashboard.memberDetail.tabs.certificates")}
+          </T.TabsTrigger>
+        </T.TabsList>
+
+        <T.TabsContent value="overview" className="space-y-6">
+          <AssociationMemberDetailCards hook={hook} />
+          <AssociationMemberProgressCard hook={hook} />
+          <AssociationMemberRequirementsSection hook={hook} />
+          <AssociationMemberMembershipPanel hook={hook} />
+          <AssociationMemberOverviewPreview hook={hook} />
+        </T.TabsContent>
+
+        <T.TabsContent value="activities">
+          <AssociationMemberActivitiesSection hook={hook} />
+        </T.TabsContent>
+
+        <T.TabsContent value="certificates">
+          <AssociationMemberCertificatesSection hook={hook} />
+        </T.TabsContent>
+      </T.Tabs>
 
       <AssociationEvidenceViewer hook={hook} />
       <AssociationDecisionDialog hook={hook} />
