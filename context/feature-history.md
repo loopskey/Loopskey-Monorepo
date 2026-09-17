@@ -80,3 +80,4 @@ into this index and do not rewrite previous records.
 - [`association-members-header-layout`](feature-runs/active/association-members-header-layout.md)
 - [`association-professional-demo-seed`](feature-runs/active/association-professional-demo-seed.md)
 - [`association-seed-deploy-portability`](feature-runs/active/association-seed-deploy-portability.md)
+- [`roadmap-catalog-and-credential-seed`](feature-runs/active/roadmap-catalog-and-credential-seed.md)
