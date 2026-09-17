@@ -150,12 +150,6 @@ export const AssociationRequirementReportingCard = ({
 
           {remindersEnabled && (
             <div className="space-y-1.5">
-              <Label htmlFor="reminder-timing">
-                {t(
-                  "associationDashboard.requirements.rules.reporting.reminderTiming",
-                )}
-              </Label>
-
               <S.Select
                 value={reminderTiming}
                 onValueChange={(value) =>
@@ -164,7 +158,10 @@ export const AssociationRequirementReportingCard = ({
               >
                 <S.SelectTrigger
                   id="reminder-timing"
-                  className="h-11 rounded-md"
+                  className="h-14 rounded-md"
+                  aria-label={t(
+                    "associationDashboard.requirements.rules.reporting.reminderTiming",
+                  )}
                 >
                   <S.SelectValue />
                 </S.SelectTrigger>

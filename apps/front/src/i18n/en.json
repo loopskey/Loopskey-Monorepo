@@ -5718,10 +5718,14 @@
         "backToList": "Back to requirements"
       },
       "stats": {
-        "total": "Requirements",
+        "total": "Total Requirements",
+        "totalHint": "Defined by this association",
         "published": "Published",
+        "publishedHint": "In force for members",
         "draft": "Drafts",
-        "covered": "Members covered"
+        "draftHint": "Not yet applied to anyone",
+        "covered": "Members covered",
+        "coveredHint": "Held to at least one published requirement"
       },
       "filters": {
         "search": "Search",
@@ -5773,10 +5777,10 @@
         "90": "90 days after deadline"
       },
       "creditType": {
-        "CPD": "CPD",
+        "CPD": "CPD hrs",
         "CEU": "CEU",
         "CPE": "CPE",
-        "PDU": "PDU",
+        "PDU": "PDU hrs",
         "TRAINING_HOUR": "Training hours"
       },
       "reminderTiming": {
@@ -5800,15 +5804,15 @@
         "TECHNICAL": "Technical"
       },
       "table": {
-        "caption": "Requirements, with their credit total, deadline, audience and coverage.",
+        "caption": "Requirements, with their reporting cycle, coverage, deadline and status.",
         "name": "Requirement",
-        "credits": "Credits",
+        "cycle": "Reporting cycle",
         "deadline": "Deadline",
-        "audience": "Audience",
         "status": "Status",
         "covered": "Members covered",
         "actions": "Actions",
-        "actionsFor": "Actions for {{name}}"
+        "viewFor": "View {{name}}",
+        "editFor": "Edit {{name}}"
       },
       "fields": {
         "name": "Name",
@@ -5819,6 +5823,7 @@
         "deadlineHint": "A requirement needs a deadline before it can be published.",
         "reportingCycle": "Reporting cycle",
         "cycleLengthYears": "Cycle length in years",
+        "cycleLengthOption": "{{count}} years",
         "cycleLengthHint": "A multi-year cycle needs a length.",
         "evidencePolicy": "Evidence",
         "audience": "Who it applies to",
@@ -5835,20 +5840,21 @@
         "title": "New requirement",
         "stepsLabel": "Requirement steps",
         "steps": {
-          "details": "Details",
+          "details": "Basic Setup",
           "rules": "Rules",
           "review": "Review and publish"
         },
         "hints": {
           "details": "Name, credits, deadline and audience",
-          "rules": "Categories, evidence and reporting",
+          "rules": "Credit categories, evidence and renewal & submission",
           "review": "Check everything, then publish"
         },
         "detailsBody": "Saved as a draft as soon as you continue, so nothing is lost if you leave.",
         "rulesBody": "Every rule below is optional. Configure the ones your requirement needs.",
         "reviewBody": "This is what members will see. Publishing assigns it to your audience.",
-        "saveAndContinue": "Save and continue",
-        "continue": "Continue",
+        "saveAsDraft": "Save as Draft",
+        "continueToRules": "Continue to Rules",
+        "reviewRequirement": "Review Requirement",
         "back": "Back"
       },
       "rules": {
@@ -5858,7 +5864,7 @@
         "close": "Close",
         "save": "Save rule",
         "categories": {
-          "title": "Categories",
+          "title": "Credit Categories",
           "description": "Split the credit total across learning categories members already record against.",
           "name": "Display name",
           "mapped": "Learning category",
@@ -5867,8 +5873,12 @@
           "add": "Add category",
           "remove": "Remove {{name}}",
           "remainder": "Uncategorised",
-          "running": "{{assigned}} of {{total}} credits allocated, {{remainder}} left.",
-          "overflow": "{{assigned}} credits allocated, {{overflow}} above the requirement's {{total}}."
+          "overflow": "{{assigned}} credits allocated, {{overflow}} above the requirement's {{total}}.",
+          "summary": {
+            "total": "Total required Credits",
+            "categoryMinimum": "Category minimum",
+            "flexible": "Flexible credit"
+          }
         },
         "evidence": {
           "title": "Evidence",
@@ -5881,7 +5891,7 @@
           "needsReviewWarning": "Every matching learning activity waits for your association's approval before it counts."
         },
         "reporting": {
-          "title": "Reporting",
+          "title": "Renewal & Submission",
           "description": "Set the reporting period, the submission window and reminders.",
           "periodStart": "Reporting starts",
           "periodEnd": "Reporting ends",
@@ -5900,7 +5910,7 @@
         "deadline": "Deadline",
         "cycle": "Reporting cycle",
         "audience": "Audience",
-        "categories": "Categories",
+        "categories": "Credit Categories",
         "evidence": "Evidence",
         "covered": "Members covered",
         "noCategories": "No categories, the credit total stands on its own."
@@ -5914,7 +5924,7 @@
         "lockedDraftBody": "These are editable while the requirement is a draft and become fixed once it is published.",
         "rulesTitle": "Rules",
         "saveChanges": "Save changes",
-        "categories": "Categories",
+        "categories": "Credit Categories",
         "reportingPeriod": "Reporting period",
         "submissionWindow": "Submission window",
         "submissionOpens": "Submission opens",
@@ -5956,6 +5966,7 @@
       },
       "messages": {
         "saved": "Requirement saved.",
+        "savedDraft": "Saved as a draft.",
         "rulesSaved": "Rule saved.",
         "published": "Requirement published.",
         "archived": "Requirement archived.",

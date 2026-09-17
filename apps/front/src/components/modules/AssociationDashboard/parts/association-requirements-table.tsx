@@ -1,33 +1,15 @@
 "use client";
 
 import { TAssociationRequirementsTable } from "@/types/association-dashboard.types";
-import { TAssociationRequirementRow } from "@/types/association-dashboard.types";
 import { AssociationRequirementStatus } from "@/lib/graphql/base";
-import { useChartPalette } from "@hooks/useChartPalette";
-import { ConfirmDialog } from "@elements/confirm-dialog";
+import { TAssociationRequirementRow } from "@/types/association-dashboard.types";
 import { Skeleton } from "@ui/skeleton";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
 
-import dynamic from "next/dynamic";
-
-import * as D from "@ui/dropdown-menu";
 import * as L from "lucide-react";
 
 import type { ReactNode } from "react";
-
-const DONUT_SIZE = 44;
-
-const CoverageChart = dynamic(
-  () =>
-    import(
-      "@modules/AssociationDashboard/parts/association-requirement-coverage-chart"
-    ),
-  {
-    ssr: false,
-    loading: () => <Skeleton className="h-11 w-11 rounded-full" />,
-  },
-);
 
 type TRequirementColumn = {
   id: string;
@@ -45,18 +27,7 @@ const statusVariant = (status: AssociationRequirementStatus) => {
 export const AssociationRequirementsTable = ({
   hook,
 }: TAssociationRequirementsTable) => {
-  const palette = useChartPalette();
-
-  const {
-    t,
-    goTo,
-    locale,
-    isSaving,
-    rosterSize,
-    isRefetching,
-    requirements,
-    archiveRequirement,
-  } = hook;
+  const { t, goTo, locale, isSaving, isRefetching, requirements } = hook;
 
   const formatDate = (value: string | null | undefined) =>
     value ? new Date(value).toLocaleDateString(locale) : "-";
@@ -81,28 +52,33 @@ export const AssociationRequirementsTable = ({
           <p className="font-medium">{requirement.name}</p>
 
           <p className="text-xs text-muted-foreground">
-            {t(
-              `associationDashboard.requirements.cycle.${requirement.reportingCycle}`,
-            )}
+            {`${requirement.totalRequiredCredits.toLocaleString(locale)} ${requirement.creditType}`}{" "}
+            · {audienceLabel(requirement)}
           </p>
         </div>
       ),
     },
     {
-      id: "credits",
-      header: t("associationDashboard.requirements.table.credits"),
+      id: "cycle",
+      header: t("associationDashboard.requirements.table.cycle"),
       cell: (requirement) =>
-        `${requirement.totalRequiredCredits.toLocaleString(locale)} ${requirement.creditType}`,
+        t(
+          `associationDashboard.requirements.cycle.${requirement.reportingCycle}`,
+        ),
+    },
+    {
+      id: "covered",
+      header: t("associationDashboard.requirements.table.covered"),
+      cell: (requirement) => (
+        <span className="tabular-nums">
+          {requirement.assignedMemberCount.toLocaleString(locale)}
+        </span>
+      ),
     },
     {
       id: "deadline",
       header: t("associationDashboard.requirements.table.deadline"),
       cell: (requirement) => formatDate(requirement.deadline),
-    },
-    {
-      id: "audience",
-      header: t("associationDashboard.requirements.table.audience"),
-      cell: audienceLabel,
     },
     {
       id: "status",
@@ -113,99 +89,43 @@ export const AssociationRequirementsTable = ({
         </Badge>
       ),
     },
-    {
-      id: "covered",
-      header: t("associationDashboard.requirements.table.covered"),
-      cell: (requirement) => (
-        <div className="flex items-center gap-3">
-          <CoverageChart
-            palette={palette}
-            size={DONUT_SIZE}
-            covered={requirement.assignedMemberCount}
-            total={Math.max(rosterSize, requirement.assignedMemberCount)}
-            chartLabel={t(
-              "associationDashboard.requirements.chart.rowCoverageLabel",
-              { name: requirement.name },
-            )}
-            coveredLabel={t("associationDashboard.requirements.chart.covered")}
-            uncoveredLabel={t(
-              "associationDashboard.requirements.chart.uncovered",
-            )}
-            chartDescription={t(
-              "associationDashboard.requirements.chart.coverageDescription",
-              {
-                covered: requirement.assignedMemberCount,
-                total: Math.max(rosterSize, requirement.assignedMemberCount),
-              },
-            )}
-          />
-
-          <span className="tabular-nums">
-            {requirement.assignedMemberCount.toLocaleString(locale)}
-          </span>
-        </div>
-      ),
-    },
   ];
 
-  const rowActions = (requirement: TAssociationRequirementRow) => (
-    <D.DropdownMenu>
-      <D.DropdownMenuTrigger asChild>
+  const rowActions = (requirement: TAssociationRequirementRow) => {
+    const isDraft = requirement.status === AssociationRequirementStatus.Draft;
+
+    return (
+      <div className="flex items-center justify-end gap-2">
         <Button
-          size="sm"
+          size="icon"
           radius="xl"
           type="button"
           variant="outline"
           disabled={isSaving}
-          aria-label={t("associationDashboard.requirements.table.actionsFor", {
+          onClick={() => goTo(requirement.id)}
+          aria-label={t("associationDashboard.requirements.table.viewFor", {
             name: requirement.name,
           })}
         >
-          <L.MoreHorizontal className="h-4 w-4" />
-        </Button>
-      </D.DropdownMenuTrigger>
-
-      <D.DropdownMenuContent align="end" className="z-[9999] rounded-md">
-        <D.DropdownMenuItem onSelect={() => goTo(requirement.id)}>
           <L.Eye className="h-4 w-4" />
-          {t("associationDashboard.requirements.actions.open")}
-        </D.DropdownMenuItem>
+        </Button>
 
-        {requirement.status === AssociationRequirementStatus.Draft && (
-          <D.DropdownMenuItem onSelect={() => goTo(requirement.id, "details")}>
-            <L.PencilLine className="h-4 w-4" />
-            {t("associationDashboard.requirements.actions.continueDraft")}
-          </D.DropdownMenuItem>
-        )}
-
-        {requirement.status !== AssociationRequirementStatus.Archived && (
-          <ConfirmDialog
-            isLoading={isSaving}
-            confirmVariant="destructive"
-            title={t("associationDashboard.requirements.confirm.archiveTitle")}
-            cancelText={t("associationDashboard.requirements.confirm.cancel")}
-            confirmText={t(
-              "associationDashboard.requirements.confirm.archiveConfirm",
-            )}
-            description={t(
-              "associationDashboard.requirements.confirm.archiveBody",
-              { name: requirement.name },
-            )}
-            onConfirm={() => archiveRequirement(requirement.id)}
-            trigger={
-              <D.DropdownMenuItem
-                variant="destructive"
-                onSelect={(event) => event.preventDefault()}
-              >
-                <L.Archive className="h-4 w-4" />
-                {t("associationDashboard.requirements.actions.archive")}
-              </D.DropdownMenuItem>
-            }
-          />
-        )}
-      </D.DropdownMenuContent>
-    </D.DropdownMenu>
-  );
+        <Button
+          size="icon"
+          radius="xl"
+          type="button"
+          variant="outline"
+          disabled={isSaving}
+          onClick={() => goTo(requirement.id, isDraft ? "details" : undefined)}
+          aria-label={t("associationDashboard.requirements.table.editFor", {
+            name: requirement.name,
+          })}
+        >
+          <L.PencilLine className="h-4 w-4" />
+        </Button>
+      </div>
+    );
+  };
 
   if (isRefetching) {
     return (
@@ -260,18 +180,14 @@ export const AssociationRequirementsTable = ({
 
       <ul className="mt-6 space-y-3 lg:hidden">
         {requirements.map((requirement) => (
-          <li
-            key={requirement.id}
-            className="rounded-lg border p-4"
-          >
+          <li key={requirement.id} className="rounded-lg border p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="font-medium">{requirement.name}</p>
 
                 <p className="text-xs text-muted-foreground">
-                  {t(
-                    `associationDashboard.requirements.cycle.${requirement.reportingCycle}`,
-                  )}
+                  {`${requirement.totalRequiredCredits.toLocaleString(locale)} ${requirement.creditType}`}{" "}
+                  · {audienceLabel(requirement)}
                 </p>
               </div>
 

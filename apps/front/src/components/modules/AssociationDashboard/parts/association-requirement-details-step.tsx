@@ -4,7 +4,6 @@ import { TAssociationRequirementDetailsStep } from "@/types/association-dashboar
 import { AssociationRequirementMemberPicker } from "@modules/AssociationDashboard/parts/association-requirement-member-picker";
 import { AssociationReportingCycle } from "@/lib/graphql/base";
 import { AssociationAudienceKind } from "@/lib/graphql/base";
-import { FloatingTextareaField } from "@elements/floating-textarea";
 import { FloatingSelectField } from "@elements/floating-select";
 import { FloatingInputField } from "@elements/floating-input";
 import { useMemo, useState } from "react";
@@ -14,6 +13,8 @@ import { Label } from "@ui/label";
 
 import * as RG from "@ui/radio-group";
 import * as F from "@ui/form";
+
+const CYCLE_LENGTH_YEAR_OPTIONS = [2, 3, 4, 5];
 
 export const AssociationRequirementDetailsStep = ({
   hook,
@@ -39,9 +40,16 @@ export const AssociationRequirementDetailsStep = ({
 
   const isMultiYear = cycle === AssociationReportingCycle.MultiYear;
 
-  const creditTypeOptions = Object.values(CreditType).map((value) => ({
+  const creditTypeOptions = [CreditType.Cpd, CreditType.Pdu].map((value) => ({
     value,
     label: t(`associationDashboard.requirements.creditType.${value}`),
+  }));
+
+  const cycleLengthOptions = CYCLE_LENGTH_YEAR_OPTIONS.map((years) => ({
+    value: String(years),
+    label: t("associationDashboard.requirements.fields.cycleLengthOption", {
+      count: years,
+    }),
   }));
 
   const cycleOptions = Object.values(AssociationReportingCycle)
@@ -94,13 +102,6 @@ export const AssociationRequirementDetailsStep = ({
             name="name"
             control={detailsForm.control}
             label={t("associationDashboard.requirements.fields.name")}
-          />
-
-          <FloatingTextareaField
-            rows={3}
-            name="description"
-            control={detailsForm.control}
-            label={t("associationDashboard.requirements.fields.description")}
           />
 
           <div className="grid gap-4 sm:grid-cols-2">
@@ -175,9 +176,9 @@ export const AssociationRequirementDetailsStep = ({
           </div>
 
           {isMultiYear && (
-            <FloatingInputField
-              type="number"
+            <FloatingSelectField
               name="cycleLengthYears"
+              options={cycleLengthOptions}
               control={detailsForm.control}
               label={t(
                 "associationDashboard.requirements.fields.cycleLengthYears",
