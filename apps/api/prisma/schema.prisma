@@ -2194,6 +2194,12 @@ enum AssociationMemberStatus {
   PENDING_ACTIVATION
 }
 
+enum AssociationMemberJoinedVia {
+  INVITED
+  BULK_IMPORTED
+  LINKED_EXISTING_ACCOUNT
+}
+
 model AssociationGroup {
   id String @id @default(cuid())
 
@@ -2230,6 +2236,8 @@ model AssociationMember {
   memberNumber String?
 
   status AssociationMemberStatus @default(PENDING_ACTIVATION)
+
+  joinedVia AssociationMemberJoinedVia @default(INVITED)
 
   notes String?
 

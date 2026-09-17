@@ -3,13 +3,12 @@
 import { TAssociationMembersTable } from "@/types/association-dashboard.types";
 import { AssociationMemberStatus } from "@/lib/graphql/base";
 import { TAssociationMemberRow } from "@/types/association-dashboard.types";
-import { ConfirmDialog } from "@elements/confirm-dialog";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@ui/skeleton";
+import { Progress } from "@ui/progress";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
 
-import * as D from "@ui/dropdown-menu";
 import * as L from "lucide-react";
 
 import type { ReactNode } from "react";
@@ -33,15 +32,7 @@ export const AssociationMembersTable = ({ hook }: TAssociationMembersTable) => {
   const openMember = (memberId: string) =>
     router.push(`/dashboard/association?tab=members&memberId=${memberId}`);
 
-  const {
-    t,
-    members,
-    isMutating,
-    goToMember,
-    isRefetching,
-    changeMemberStatus,
-    resendMemberInvitation,
-  } = hook;
+  const { t, members, isMutating, goToMember, isRefetching } = hook;
 
   const statusBadge = (member: TAssociationMemberRow) => (
     <Badge variant={statusVariant(member.status)}>
@@ -81,100 +72,82 @@ export const AssociationMembersTable = ({ hook }: TAssociationMembersTable) => {
       header: t("associationDashboard.members.table.status"),
       cell: statusBadge,
     },
+    {
+      id: "requirementAssigned",
+      header: t("associationDashboard.members.table.requirementAssigned"),
+      cell: (member) =>
+        member.requirementNames.length > 0
+          ? member.requirementNames.join(", ")
+          : t("associationDashboard.members.table.noRequirement"),
+    },
+    {
+      id: "progress",
+      header: t("associationDashboard.members.table.progress"),
+      cell: (member) =>
+        member.complianceSummary ? (
+          <div className="flex items-center gap-2">
+            <Progress
+              className="h-2 w-20"
+              value={Math.round(member.complianceSummary.percent)}
+            />
+            <span className="text-xs text-muted-foreground">
+              {Math.round(member.complianceSummary.percent)}%
+            </span>
+          </div>
+        ) : (
+          "-"
+        ),
+    },
+    {
+      id: "evidence",
+      header: t("associationDashboard.members.table.evidence"),
+      cell: (member) =>
+        member.complianceSummary ? (
+          member.complianceSummary.isMissingEvidence ? (
+            <Badge variant="destructive">
+              {t("associationDashboard.members.table.evidenceMissing")}
+            </Badge>
+          ) : (
+            <Badge variant="secondary">
+              {t("associationDashboard.members.table.evidenceOk")}
+            </Badge>
+          )
+        ) : (
+          "-"
+        ),
+    },
   ];
 
-  const rowActions = (member: TAssociationMemberRow) => {
-    const isInactive = member.status === AssociationMemberStatus.Inactive;
+  const rowActions = (member: TAssociationMemberRow) => (
+    <div className="flex items-center justify-end gap-2">
+      <Button
+        size="icon"
+        radius="xl"
+        type="button"
+        variant="outline"
+        disabled={isMutating}
+        onClick={() => goToMember(member.id, "edit")}
+        aria-label={t("associationDashboard.members.table.editFor", {
+          name: member.fullName ?? member.email ?? "",
+        })}
+      >
+        <L.Pencil className="h-4 w-4" />
+      </Button>
 
-    return (
-      <D.DropdownMenu>
-        <D.DropdownMenuTrigger asChild>
-          <Button
-            size="sm"
-            radius="xl"
-            type="button"
-            variant="outline"
-            disabled={isMutating}
-            aria-label={t("associationDashboard.members.table.actionsFor", {
-              name: member.fullName ?? member.email ?? "",
-            })}
-          >
-            <L.MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </D.DropdownMenuTrigger>
-
-        <D.DropdownMenuContent align="end" className="z-[9999] rounded-md">
-          <D.DropdownMenuItem onSelect={() => openMember(member.id)}>
-            <L.UserSearch className="h-4 w-4" />
-            {t("associationDashboard.members.actions.viewDetail")}
-          </D.DropdownMenuItem>
-
-          <D.DropdownMenuItem onSelect={() => goToMember(member.id, "edit")}>
-            <L.Pencil className="h-4 w-4" />
-            {t("associationDashboard.members.actions.edit")}
-          </D.DropdownMenuItem>
-
-          {!isInactive && (
-            <D.DropdownMenuItem
-              onSelect={() => goToMember(member.id, "assign")}
-            >
-              <L.ListChecks className="h-4 w-4" />
-              {t("associationDashboard.members.actions.assignRequirement")}
-            </D.DropdownMenuItem>
-          )}
-
-          {member.status === AssociationMemberStatus.PendingActivation && (
-            <D.DropdownMenuItem
-              onSelect={() => void resendMemberInvitation(member.id)}
-            >
-              <L.Send className="h-4 w-4" />
-              {t("associationDashboard.members.actions.resend")}
-            </D.DropdownMenuItem>
-          )}
-
-          {isInactive ? (
-            <D.DropdownMenuItem
-              onSelect={() =>
-                void changeMemberStatus(
-                  member.id,
-                  AssociationMemberStatus.Active,
-                )
-              }
-            >
-              <L.UserCheck className="h-4 w-4" />
-              {t("associationDashboard.members.actions.reactivate")}
-            </D.DropdownMenuItem>
-          ) : (
-            <ConfirmDialog
-              isLoading={isMutating}
-              title={t("associationDashboard.members.confirm.deactivateTitle")}
-              cancelText={t("associationDashboard.members.confirm.cancel")}
-              confirmVariant="destructive"
-              confirmText={t(
-                "associationDashboard.members.confirm.deactivateConfirm",
-              )}
-              description={t(
-                "associationDashboard.members.confirm.deactivateBody",
-                { name: member.fullName ?? member.email ?? "" },
-              )}
-              onConfirm={() =>
-                changeMemberStatus(member.id, AssociationMemberStatus.Inactive)
-              }
-              trigger={
-                <D.DropdownMenuItem
-                  variant="destructive"
-                  onSelect={(event) => event.preventDefault()}
-                >
-                  <L.UserMinus className="h-4 w-4" />
-                  {t("associationDashboard.members.actions.deactivate")}
-                </D.DropdownMenuItem>
-              }
-            />
-          )}
-        </D.DropdownMenuContent>
-      </D.DropdownMenu>
-    );
-  };
+      <Button
+        size="icon"
+        radius="xl"
+        type="button"
+        variant="outline"
+        onClick={() => openMember(member.id)}
+        aria-label={t("associationDashboard.members.table.viewFor", {
+          name: member.fullName ?? member.email ?? "",
+        })}
+      >
+        <L.Eye className="h-4 w-4" />
+      </Button>
+    </div>
+  );
 
   if (isRefetching) {
     return (
@@ -189,7 +162,7 @@ export const AssociationMembersTable = ({ hook }: TAssociationMembersTable) => {
   return (
     <>
       <div className="mt-6 hidden overflow-x-auto md:block">
-        <table className="w-full min-w-[720px] text-left text-sm">
+        <table className="w-full min-w-[1080px] text-left text-sm">
           <caption className="sr-only">
             {t("associationDashboard.members.table.caption")}
           </caption>

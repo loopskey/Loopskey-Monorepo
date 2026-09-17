@@ -12,10 +12,15 @@ import { CreditType, PduCategory } from "@/lib/graphql/base";
 import { z } from "zod";
 
 export const inviteAssociationMemberSchema = z.object({
+  firstName: z.string().trim().min(1).max(LIMITS.fullNameMax),
+  lastName: z.string().trim().min(1).max(LIMITS.fullNameMax),
   email: z.string().email().max(LIMITS.emailMax),
-  fullName: z.string().min(LIMITS.fullNameMin).max(LIMITS.fullNameMax),
   groupId: z.string().optional(),
   memberNumber: z.string().max(LIMITS.memberNumberMax).optional(),
+  requirementIds: z
+    .array(z.string())
+    .max(LIMITS.requirementsPerMemberMax)
+    .optional(),
 });
 
 export const associationGroupSchema = z.object({

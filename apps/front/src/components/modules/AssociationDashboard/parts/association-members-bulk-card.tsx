@@ -2,8 +2,10 @@
 
 import { TAssociationMembersBulkCard } from "@/types/association-dashboard.types";
 import { GlassCard } from "@elements/glass-card";
+import { Checkbox } from "@ui/checkbox";
 import { Button } from "@ui/button";
 import { Input } from "@ui/input";
+import { Badge } from "@ui/badge";
 import { Label } from "@ui/label";
 
 import * as L from "lucide-react";
@@ -23,6 +25,9 @@ export const AssociationMembersBulkCard = ({
     downloadTemplate,
     previewImportFile,
     importFailureMessage,
+    bulkRequirementIds,
+    toggleBulkRequirement,
+    inviteRequirementOptions,
   } = hook;
 
   const canSubmit = Boolean(
@@ -71,6 +76,40 @@ export const AssociationMembersBulkCard = ({
             {t("associationDashboard.members.bulk.downloadTemplate")}
           </Button>
         </div>
+
+        {inviteRequirementOptions.length > 0 && (
+          <div className="mt-5 space-y-2">
+            <p className="text-sm font-medium">
+              {t("associationDashboard.members.bulk.requirements")}
+            </p>
+
+            <ul className="max-h-48 space-y-2 overflow-y-auto pr-1">
+              {inviteRequirementOptions.map((option) => (
+                <li key={option.id} className="rounded-md border p-3">
+                  <label className="flex cursor-pointer items-center gap-3">
+                    <Checkbox
+                      disabled={!option.isMemberManaged || isImporting}
+                      checked={bulkRequirementIds.includes(option.id)}
+                      onCheckedChange={() => toggleBulkRequirement(option.id)}
+                    />
+
+                    <span className="flex flex-wrap items-center gap-2">
+                      <span className="font-medium">{option.name}</span>
+
+                      {!option.isMemberManaged && (
+                        <Badge variant="secondary">
+                          {t(
+                            "associationDashboard.memberDetail.assign.audienceManaged",
+                          )}
+                        </Badge>
+                      )}
+                    </span>
+                  </label>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <div className="mt-5 space-y-2">
           <Label htmlFor="association-import-file">

@@ -16,6 +16,7 @@ const memberRow = {
   userId: "user-1",
   memberNumber: "M-1",
   status: "ACTIVE",
+  joinedVia: "INVITED",
   invitedAt: new Date("2026-01-01T00:00:00.000Z"),
   activatedAt: new Date("2026-01-02T00:00:00.000Z"),
   deactivatedAt: null,
@@ -24,6 +25,7 @@ const memberRow = {
     email: "member@example.test",
     fullName: "A Member",
     avatarUrl: null,
+    lastLoginAt: null,
   },
 };
 
@@ -69,6 +71,7 @@ const detailRow = (overrides: Record<string, unknown> = {}) => ({
   userId: "user-1",
   title: "A course",
   source: "COURSE",
+  provider: null,
   category: PDUCategory.TECHNICAL,
   creditType: CreditType.CPD,
   credits: 10,
@@ -108,6 +111,9 @@ const setup = ({
   const prisma = {
     associationMember: { findFirst: jest.fn().mockResolvedValue(member) },
     associationCreditAttribution: { findMany: attributionFindMany },
+    associationMessageDelivery: {
+      findFirst: jest.fn().mockResolvedValue(null),
+    },
   };
 
   const access = {

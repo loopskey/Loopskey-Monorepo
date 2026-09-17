@@ -1,6 +1,7 @@
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { AssociationAttributionState, Prisma } from "@prisma/client";
 import { AssociationComplianceReadService } from "@association/services/association-compliance-read.service";
+import { AssociationMessageDeliveryState } from "@prisma/client";
 import { type ProfessionalComplianceApi } from "@professional/public/professional-compliance-api";
 import { AssociationRequirementStatus } from "@prisma/client";
 import { PROFESSIONAL_COMPLIANCE_API } from "@professional/public/professional-compliance-api";
@@ -31,6 +32,9 @@ const projectMember = ({ user, ...member }: ProfileMemberRecord) => ({
   email: user.email,
   fullName: user.fullName,
   avatarUrl: user.avatarUrl,
+  lastLoginAt: user.lastLoginAt,
+  requirementNames: [] as string[],
+  complianceSummary: null,
 });
 
 @Injectable()
@@ -97,10 +101,18 @@ export class AssociationMemberProfileService {
       member.userId,
     ]);
 
+    const lastNotification =
+      await this.prisma.associationMessageDelivery.findFirst({
+        where: { memberId, state: AssociationMessageDeliveryState.SENT },
+        orderBy: { sentAt: "desc" },
+        select: { sentAt: true },
+      });
+
     return {
       member: projectMember(member),
       assignments: compliance.assignments,
       isMissingEvidence: compliance.isMissingEvidence,
+      lastNotifiedAt: lastNotification?.sentAt ?? null,
       summary: {
         percent: overall.percent,
         band: overall.band,
@@ -224,6 +236,7 @@ export class AssociationMemberProfileService {
           memberId: member.id,
           title: detail.title,
           source: detail.source,
+          provider: detail.provider,
           category: detail.category,
           creditType: detail.creditType,
           credits: detail.credits,

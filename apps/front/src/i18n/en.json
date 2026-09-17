@@ -5275,13 +5275,13 @@
       "description": "Everyone who belongs to your association, the groups they sit in, and the invitations still waiting to be accepted.",
       "actions": {
         "viewDetail": "View member",
-        "invite": "Invite member",
+        "invite": "Add & invite member",
         "manageGroups": "Manage groups",
         "backToRoster": "Back to roster",
         "resend": "Resend invitation",
         "reactivate": "Reactivate",
         "deactivate": "Deactivate",
-        "upload": "Import members",
+        "upload": "Upload member list",
         "assignRequirement": "Assign requirement",
         "more": "More actions",
         "edit": "Edit member"
@@ -5313,8 +5313,16 @@
         "memberNumber": "Member number",
         "group": "Group",
         "status": "Status",
+        "requirementAssigned": "Requirement assigned",
+        "progress": "Progress",
+        "evidence": "Evidence",
+        "noRequirement": "None assigned",
+        "evidenceMissing": "Missing",
+        "evidenceOk": "Up to date",
         "actions": "Actions",
-        "actionsFor": "Actions for {{name}}"
+        "actionsFor": "Actions for {{name}}",
+        "viewFor": "View {{name}}",
+        "editFor": "Edit {{name}}"
       },
       "confirm": {
         "cancel": "Cancel",
@@ -5331,13 +5339,24 @@
         "noResultsBody": "Nobody on your roster matches the search and filters you have applied."
       },
       "invite": {
-        "title": "Invite a member",
-        "description": "If the email already belongs to a Loopskey account, that person joins straight away. If it does not, they receive an invitation to activate one.",
+        "title": "Add & invite member",
+        "description": "Add a new member to your roster. If they don't have a Loopskey account yet, we'll send them an invitation to activate one.",
         "email": "Email",
         "fullName": "Full name",
+        "firstName": "First name",
+        "lastName": "Last name",
         "group": "Group",
         "groupPlaceholder": "No group",
-        "memberNumber": "Member number",
+        "memberNumber": "Member ID / licence number",
+        "requirements": "CPD/PDU requirement (select all that apply)",
+        "requirementsEmpty": "No requirements published yet.",
+        "continue": "Continue",
+        "back": "Back",
+        "noAccountTitle": "No existing account found",
+        "noAccountBody": "An invitation will be sent to this email address.",
+        "existingAccountTitle": "Existing Loopskey user found",
+        "existingAccountBody": "This professional already has a Loopskey account and can be linked to this association.",
+        "linkMember": "Link member",
         "submit": "Send invitation",
         "linkedTitle": "Existing user found and linked",
         "linkedBody": "{{name}} already had a Loopskey account, so they joined your association immediately. No invitation email was needed.",
@@ -5347,18 +5366,20 @@
         "done": "Done"
       },
       "bulk": {
-        "title": "Import members",
-        "description": "Upload a CSV or Excel file to add many members at once. Nothing is sent until you have seen what the file contains.",
+        "title": "Upload member list",
+        "description": "Import members from a CSV or Excel file, review the matches, then send invitations.",
         "templateTitle": "Expected columns",
         "templateColumns": "First name, last name, email, member number, group",
         "downloadTemplate": "Download template",
-        "fileLabel": "Choose a file",
+        "fileLabel": "Select file",
+        "requirements": "CPD/PDU requirement (select all that apply)",
+        "requirementsEmpty": "No requirements published yet.",
         "parsing": "Reading the file…",
         "parseFailed": "That file could not be read. Check that it is a CSV or Excel file and try again.",
         "previewTitle": "Preview of {{file}}",
         "previewCaption": "Rows found in the uploaded file, with any problem that blocks them.",
         "previewCounts": "{{valid}} ready, {{invalid}} with problems",
-        "truncated": "The file holds more rows than one import can carry. Only the first 1000 are shown.",
+        "truncated": "The file holds more rows than one import can carry. Only the first {{limit}} are shown.",
         "problem": "Problem",
         "confirm": "Import {{count}} members",
         "blocked": "Fix or remove the flagged rows before importing. Nothing has been sent yet.",
@@ -5390,14 +5411,13 @@
         }
       },
       "assignPicker": {
-        "title": "Assign a requirement",
-        "description": "Choose a member to open their requirements list and assign one to them.",
-        "selectLabel": "Member",
-        "placeholder": "Search by name, email or member number",
-        "empty": "No members match your search.",
-        "results": "{{count}} members",
+        "title": "Assign requirement",
+        "description": "Apply a CPD/PDU requirement to members.",
+        "requirementLabel": "Requirement",
+        "requirementPlaceholder": "Select a requirement",
+        "audienceLabel": "Who gets it?",
         "cancel": "Cancel",
-        "continue": "Continue"
+        "submit": "Assign requirement"
       },
       "groups": {
         "createTitle": "Create a group",
@@ -5424,7 +5444,8 @@
         "groupCreated": "Group created.",
         "groupUpdated": "Group updated.",
         "groupDeactivated": "Group deactivated and its members released.",
-        "groupReactivated": "Group reactivated."
+        "groupReactivated": "Group reactivated.",
+        "requirementAssigned": "Requirement assigned."
       },
       "error": {
         "title": "We could not load your roster",
@@ -5457,9 +5478,41 @@
       }
     },
     "memberDetail": {
-      "backToRoster": "Back to the roster",
+      "backToRoster": "Back to Members",
       "email": "Email",
       "noGroup": "No group",
+      "tabs": {
+        "overview": "Overview",
+        "activities": "Learning Activities",
+        "certificates": "Certificates"
+      },
+      "membership": {
+        "title": "Membership",
+        "group": "Group",
+        "memberSince": "Member since",
+        "lastLogin": "Last login",
+        "joinedVia": "Joined via",
+        "lastNotification": "Last notification",
+        "never": "Never",
+        "noGroup": "No group",
+        "joinedViaValues": {
+          "INVITED": "Invited",
+          "BULK_IMPORTED": "Bulk imported",
+          "LINKED_EXISTING_ACCOUNT": "Linked from an existing account"
+        }
+      },
+      "overview": {
+        "activitiesTitle": "Learning activities",
+        "activitiesCount": "{{count}} recorded",
+        "activitiesEmpty": "No activity recorded yet",
+        "certificatesTitle": "Certificates",
+        "certificatesCount": "{{count}} on file",
+        "certificatesEmpty": "No certificates on file",
+        "missingEvidenceTitle": "Missing evidence",
+        "missingEvidenceBad": "Action needed",
+        "missingEvidenceOk": "Nothing outstanding",
+        "viewAll": "View all"
+      },
       "band": {
         "NOT_STARTED": "Not started",
         "AT_RISK": "At risk",
@@ -5477,8 +5530,8 @@
         "REQUIRED_NEEDS_REVIEW": "Evidence required and reviewed by you"
       },
       "actions": {
-        "edit": "Edit details",
-        "requirements": "Change requirements"
+        "edit": "Edit",
+        "requirements": "Assign Requirement"
       },
       "confirm": {
         "deactivateBody": "{{name}} leaves your active counts and stops receiving association email. Their history stays on this page and you can reactivate them at any time."
@@ -5516,7 +5569,7 @@
         "chartEmptyTitle": "No categories to chart",
         "chartEmptyBody": "None of the requirements assigned to this member splits its total by category.",
         "emptyTitle": "Nothing is assigned yet",
-        "emptyBody": "This member is not in the audience of any published requirement. Use Change requirements to assign one."
+        "emptyBody": "This member is not in the audience of any published requirement. Use Assign Requirement to assign one."
       },
       "activities": {
         "title": "Learning activities",
@@ -5526,6 +5579,13 @@
         "counts": "{{counted}} approved, {{awaiting}} under review, {{rejected}} rejected",
         "meta": "{{source}} · {{category}} · {{credits}} credits · {{date}}",
         "counting": "Counts toward: {{requirements}}",
+        "columns": {
+          "activity": "Activity",
+          "type": "Type",
+          "completed": "Completed",
+          "evidence": "Evidence",
+          "actions": "Actions"
+        },
         "reason": "Reason given: {{reason}}",
         "late": "Late",
         "noEvidence": "No evidence",
@@ -5540,6 +5600,13 @@
       "evidence": {
         "title": "Evidence",
         "description": "What the member attached to this submission.",
+        "attachedEvidence": "Attached evidence",
+        "noAttachment": "No file was attached",
+        "activity": "Activity",
+        "completed": "Completed",
+        "type": "Type",
+        "provider": "Provider",
+        "noProvider": "-",
         "note": "Note from the member",
         "noNote": "The member left no note.",
         "link": "Evidence link",
@@ -5547,7 +5614,8 @@
         "files": "Attached files",
         "noFiles": "No file was attached.",
         "download": "Download",
-        "downloadFile": "Download {{name}}"
+        "downloadFile": "Download {{name}}",
+        "close": "Close"
       },
       "decision": {
         "approveTitle": "Approve this submission?",
@@ -5600,8 +5668,24 @@
         "description": "Certificates this member holds, with the files they attached.",
         "meta": "{{issuer}} · issued {{issued}} · expires {{expires}} · {{credits}} credits",
         "noIssuer": "No issuer given",
+        "noLinkedTo": "-",
         "emptyTitle": "No certificates",
-        "emptyBody": "This member has not recorded a certificate yet."
+        "emptyBody": "This member has not recorded a certificate yet.",
+        "columns": {
+          "certificate": "Certificate / Licence",
+          "issuer": "Issuer",
+          "issueDate": "Issue date",
+          "expiryDate": "Expiry date",
+          "status": "Status",
+          "linkedTo": "Linked to",
+          "files": "Files"
+        },
+        "statuses": {
+          "ACTIVE": "Active",
+          "EXPIRING_SOON": "Expiring soon",
+          "EXPIRED": "Expired",
+          "REVOKED": "Revoked"
+        }
       },
       "error": {
         "title": "This member could not be loaded.",

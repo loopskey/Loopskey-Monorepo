@@ -18,11 +18,17 @@ const memberRow = (over: Partial<Record<string, unknown>> = {}) => ({
   memberNumber: null,
   notes: null,
   status: AssociationMemberStatus.PENDING_ACTIVATION,
+  joinedVia: "INVITED",
   invitedAt: new Date(),
   activatedAt: null,
   deactivatedAt: null,
   group: null,
-  user: { fullName: "Ada Member", email: "ada@example.org", avatarUrl: null },
+  user: {
+    fullName: "Ada Member",
+    email: "ada@example.org",
+    avatarUrl: null,
+    lastLoginAt: null,
+  },
   ...over,
 });
 
@@ -55,6 +61,12 @@ const setup = (
       count: jest.fn().mockResolvedValue(0),
       update: jest.fn().mockResolvedValue(memberRow()),
       updateMany: jest.fn().mockResolvedValue({ count: 1 }),
+    },
+    associationRequirementAssignment: {
+      findMany: jest.fn().mockResolvedValue([]),
+    },
+    associationRequirement: {
+      findMany: jest.fn().mockResolvedValue([]),
     },
     $transaction: jest.fn((argument: unknown) =>
       (argument as (client: typeof tx) => unknown)(tx),
@@ -95,6 +107,17 @@ const setup = (
     materialiseForMember: jest.fn().mockResolvedValue(undefined),
     materialiseForAssociation: jest.fn().mockResolvedValue(undefined),
   };
+  const complianceRead = {
+    memberComplianceList: jest.fn().mockResolvedValue([]),
+  };
+  const memberRequirements = {
+    setRequirements: jest
+      .fn()
+      .mockResolvedValue({ memberId: "member-1", added: 0, removed: 0 }),
+  };
+  const requirements = {
+    updateAudience: jest.fn().mockResolvedValue(undefined),
+  };
   return {
     tx,
     prisma,
@@ -104,6 +127,9 @@ const setup = (
     identity,
     activation,
     professional,
+    complianceRead,
+    memberRequirements,
+    requirements,
     service: new AssociationMemberService(
       prisma as unknown as PrismaService,
       config as unknown as ConfigService,
@@ -114,6 +140,9 @@ const setup = (
       professional as never,
       activation as never,
       assignments as never,
+      complianceRead as never,
+      memberRequirements as never,
+      requirements as never,
     ),
   };
 };

@@ -22,12 +22,19 @@ const ALL = "ALL";
 
 const NO_GROUP = "NONE";
 
+export type TAssociationMemberDetailTab =
+  | "overview"
+  | "activities"
+  | "certificates";
+
 export const useAssociationMemberDetail = (memberId: string) => {
   const { t, language } = useI18n();
   const router = useRouter();
   const searchParams = useSearchParams();
   const handledActionRef = useRef(false);
 
+  const [activeTab, setActiveTab] =
+    useState<TAssociationMemberDetailTab>("overview");
   const [stateFilter, setStateFilter] = useState<string>(ALL);
   const [cursorStack, setCursorStack] = useState<string[]>([]);
   const [openActivityId, setOpenActivityId] = useState<string | null>(null);
@@ -83,6 +90,9 @@ export const useAssociationMemberDetail = (memberId: string) => {
   const profile = profileQuery.data;
   const member = profile?.member;
   const summary = profile?.summary;
+  const lastNotifiedAt = profile?.lastNotifiedAt ?? null;
+  const memberSince = member?.activatedAt ?? member?.invitedAt ?? null;
+  const isMissingEvidence = profile?.isMissingEvidence ?? false;
 
   const assignments = useMemo(
     () => profile?.assignments ?? [],
@@ -373,6 +383,11 @@ export const useAssociationMemberDetail = (memberId: string) => {
     download,
     nextPage,
     memberId,
+    activeTab,
+    setActiveTab,
+    lastNotifiedAt,
+    memberSince,
+    isMissingEvidence,
     openEdit,
     selection,
     isMutating,

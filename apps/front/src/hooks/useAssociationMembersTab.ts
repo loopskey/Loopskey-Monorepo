@@ -3,6 +3,7 @@
 import { getAssociationErrorTranslationKey } from "@utils/association-error";
 import { useCallback, useMemo, useState } from "react";
 import { AssociationRequirementStatus } from "@/lib/graphql/base";
+import { AssociationAudienceKind } from "@/lib/graphql/base";
 import { AssociationMemberStatus } from "@/lib/graphql/base";
 import { SEARCH_DEBOUNCE_MS } from "@utils/constant";
 import { useDebouncedValue } from "@hooks/useDebounced";
@@ -35,6 +36,10 @@ export const useAssociationMembersTab = () => {
   const [view, setView] = useState<T.TAssociationMembersView>("roster");
 
   const [isInviteOpen, setInviteOpen] = useState(false);
+  const [inviteStep, setInviteStep] = useState<"form" | "preview">("form");
+  const [inviteLookup, setInviteLookup] = useState<{
+    exists: boolean;
+  } | null>(null);
   const [inviteOutcome, setInviteOutcome] =
     useState<T.TAssociationInviteOutcomeView | null>(null);
 
@@ -45,12 +50,19 @@ export const useAssociationMembersTab = () => {
   const [importResult, setImportResult] =
     useState<T.TAssociationImportResult | null>(null);
   const [isParsing, setParsing] = useState(false);
+  const [bulkRequirementIds, setBulkRequirementIds] = useState<string[]>([]);
 
   const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
 
   const [isAssignPickerOpen, setAssignPickerOpen] = useState(false);
   const [assignPickerSearch, setAssignPickerSearch] = useState("");
-  const [assignMemberId, setAssignMemberId] = useState<string | null>(null);
+  const [assignRequirementId, setAssignRequirementId] = useState<
+    string | null
+  >(null);
+  const [assignAudienceKind, setAssignAudienceKind] =
+    useState<AssociationAudienceKind>(AssociationAudienceKind.AllMembers);
+  const [assignGroupIds, setAssignGroupIds] = useState<string[]>([]);
+  const [assignMemberIds, setAssignMemberIds] = useState<string[]>([]);
 
   const debouncedSearch = useDebouncedValue(search, SEARCH_DEBOUNCE_MS);
   const debouncedAssignPickerSearch = useDebouncedValue(
@@ -61,7 +73,14 @@ export const useAssociationMembersTab = () => {
 
   const inviteForm = useForm<SC.TInviteAssociationMemberForm>({
     resolver: zodResolver(SC.inviteAssociationMemberSchema),
-    defaultValues: { email: "", fullName: "", groupId: "", memberNumber: "" },
+    defaultValues: {
+      email: "",
+      firstName: "",
+      lastName: "",
+      groupId: "",
+      memberNumber: "",
+      requirementIds: [],
+    },
   });
 
   const groupForm = useForm<SC.TAssociationGroupForm>({
@@ -100,18 +119,18 @@ export const useAssociationMembersTab = () => {
   );
 
   const [inviteMember, inviteState] = API.useInviteAssociationMemberMutation();
+  const [lookupEmail, lookupState] =
+    API.useLazyAssociationMemberEmailLookupQuery();
   const [bulkInvite, bulkInviteState] =
     API.useBulkInviteAssociationMembersMutation();
-  const [setMemberStatus, setMemberStatusState] =
-    API.useSetAssociationMemberStatusMutation();
-  const [resendInvitation, resendInvitationState] =
-    API.useResendAssociationMemberInvitationMutation();
   const [createGroup, createGroupState] =
     API.useCreateAssociationGroupMutation();
   const [updateGroup, updateGroupState] =
     API.useUpdateAssociationGroupMutation();
   const [setGroupActive, setGroupActiveState] =
     API.useSetAssociationGroupActiveMutation();
+  const [saveRequirementAudience, saveRequirementAudienceState] =
+    API.useUpdateAssociationRequirementAudienceMutation();
 
   const members = useMemo(
     () => membersQuery.data?.items ?? [],
@@ -133,6 +152,17 @@ export const useAssociationMembersTab = () => {
       (requirementsQuery.data?.items ?? []).map((requirement) => ({
         value: requirement.id,
         label: requirement.name,
+      })),
+    [requirementsQuery.data?.items],
+  );
+
+  const inviteRequirementOptions = useMemo(
+    () =>
+      (requirementsQuery.data?.items ?? []).map((requirement) => ({
+        id: requirement.id,
+        name: requirement.name,
+        isMemberManaged:
+          requirement.audienceKind === AssociationAudienceKind.SpecificMembers,
       })),
     [requirementsQuery.data?.items],
   );
@@ -192,23 +222,49 @@ export const useAssociationMembersTab = () => {
 
   const openInvite = () => {
     setInviteOutcome(null);
+    setInviteStep("form");
+    setInviteLookup(null);
     inviteForm.reset();
     setInviteOpen(true);
   };
 
-  const submitInvite = inviteForm.handleSubmit(async (values) => {
+  const continueInvite = inviteForm.handleSubmit(async (values) => {
     try {
+      const result = await lookupEmail(
+        values.email.trim().toLowerCase(),
+      ).unwrap();
+      setInviteLookup(result);
+      setInviteStep("preview");
+    } catch (error) {
+      failWith(error);
+    }
+  });
+
+  const backToInviteForm = () => {
+    setInviteStep("form");
+    setInviteLookup(null);
+  };
+
+  const confirmInvite = inviteForm.handleSubmit(async (values) => {
+    try {
+      const fullName =
+        `${values.firstName.trim()} ${values.lastName.trim()}`.trim();
       const result = await inviteMember({
         email: values.email.trim().toLowerCase(),
-        fullName: values.fullName.trim(),
+        fullName,
         groupId: values.groupId || undefined,
         memberNumber: values.memberNumber?.trim() || undefined,
+        requirementIds: values.requirementIds?.length
+          ? values.requirementIds
+          : undefined,
       }).unwrap();
       setInviteOutcome({
         outcome: result.outcome,
-        memberName: result.member.fullName ?? values.fullName.trim(),
+        memberName: result.member.fullName ?? fullName,
         memberEmail: result.member.email ?? values.email.trim().toLowerCase(),
       });
+      setInviteStep("form");
+      setInviteLookup(null);
       inviteForm.reset();
     } catch (error) {
       failWith(error);
@@ -218,6 +274,8 @@ export const useAssociationMembersTab = () => {
   const closeInvite = () => {
     setInviteOpen(false);
     setInviteOutcome(null);
+    setInviteStep("form");
+    setInviteLookup(null);
   };
 
   const goToMember = (memberId: string, action?: "edit" | "assign") => {
@@ -228,49 +286,50 @@ export const useAssociationMembersTab = () => {
 
   const openUpload = () => {
     clearImport();
+    setBulkRequirementIds([]);
     setUploadOpen(true);
+  };
+
+  const toggleBulkRequirement = (requirementId: string) => {
+    setBulkRequirementIds((previous) =>
+      previous.includes(requirementId)
+        ? previous.filter((id) => id !== requirementId)
+        : [...previous, requirementId],
+    );
   };
 
   const closeUpload = () => setUploadOpen(false);
 
   const openAssignPicker = () => {
-    setAssignMemberId(null);
+    setAssignRequirementId(null);
+    setAssignAudienceKind(AssociationAudienceKind.AllMembers);
+    setAssignGroupIds([]);
+    setAssignMemberIds([]);
     setAssignPickerSearch("");
     setAssignPickerOpen(true);
   };
 
   const closeAssignPicker = () => setAssignPickerOpen(false);
 
-  const confirmAssignPicker = () => {
-    if (!assignMemberId) return;
-    setAssignPickerOpen(false);
-    goToMember(assignMemberId, "assign");
-  };
-
-  const resendMemberInvitation = async (memberId: string) => {
+  const submitAssignRequirement = async () => {
+    if (!assignRequirementId) return;
     try {
-      await resendInvitation({ memberId }).unwrap();
+      await saveRequirementAudience({
+        requirementId: assignRequirementId,
+        audienceKind: assignAudienceKind,
+        groupIds:
+          assignAudienceKind === AssociationAudienceKind.Group
+            ? assignGroupIds
+            : undefined,
+        memberIds:
+          assignAudienceKind === AssociationAudienceKind.SpecificMembers
+            ? assignMemberIds
+            : undefined,
+      }).unwrap();
       notify.success(
-        t("associationDashboard.members.messages.invitationResent"),
+        t("associationDashboard.members.messages.requirementAssigned"),
       );
-    } catch (error) {
-      failWith(error);
-    }
-  };
-
-  const changeMemberStatus = async (
-    memberId: string,
-    nextStatus: AssociationMemberStatus,
-  ) => {
-    try {
-      await setMemberStatus({ memberId, status: nextStatus }).unwrap();
-      notify.success(
-        t(
-          nextStatus === AssociationMemberStatus.Inactive
-            ? "associationDashboard.members.messages.memberDeactivated"
-            : "associationDashboard.members.messages.memberReactivated",
-        ),
-      );
+      setAssignPickerOpen(false);
     } catch (error) {
       failWith(error);
     }
@@ -309,7 +368,12 @@ export const useAssociationMembersTab = () => {
     if (!rows.length) return;
 
     try {
-      const result = await bulkInvite({ rows }).unwrap();
+      const result = await bulkInvite({
+        rows,
+        requirementIds: bulkRequirementIds.length
+          ? bulkRequirementIds
+          : undefined,
+      }).unwrap();
       setImportResult(result);
       setImportPreview(null);
       notify.success(
@@ -404,9 +468,7 @@ export const useAssociationMembersTab = () => {
     bulkInviteState.isLoading ||
     createGroupState.isLoading ||
     updateGroupState.isLoading ||
-    setGroupActiveState.isLoading ||
-    setMemberStatusState.isLoading ||
-    resendInvitationState.isLoading;
+    setGroupActiveState.isLoading;
 
   return {
     t,
@@ -421,18 +483,23 @@ export const useAssociationMembersTab = () => {
     openInvite,
     inviteForm,
     closeInvite,
-    submitInvite,
+    inviteStep,
+    inviteLookup,
+    continueInvite,
+    backToInviteForm,
+    confirmInvite,
+    isCheckingEmail: lookupState.isFetching,
     isInviteOpen,
     groupOptions,
     requirementId,
     requirementOptions,
+    inviteRequirementOptions,
     setRequirementId: changeFilter(setRequirementId),
     previousPage,
     resetFilters,
     setInviteOpen,
     inviteOutcome,
     goToMember,
-    resendMemberInvitation,
     stats: statsQuery.data,
     page: cursorStack.length + 1,
     setSearch: changeFilter(setSearch),
@@ -444,41 +511,49 @@ export const useAssociationMembersTab = () => {
     hasNoMembers: (statsQuery.data?.totalMembers ?? 0) === 0,
     hasNextPage: Boolean(membersQuery.data?.pageInfo?.hasNextPage),
     isInviting: inviteState.isLoading,
-    changeMemberStatus,
     isUploadOpen,
     openUpload,
     closeUpload,
     isParsing,
+    groups,
+    groupForm,
+    isMutating,
     clearImport,
+    submitGroup,
     importResult,
     confirmImport,
     importPreview,
     importFileName,
-    downloadTemplate,
-    importFailureMessage,
-    previewImportFile,
-    isImporting: bulkInviteState.isLoading,
-    groups,
-    groupForm,
-    submitGroup,
+    bulkRequirementIds,
+    toggleBulkRequirement,
     editingGroupId,
     startGroupEdit,
     cancelGroupEdit,
-    toggleGroupActive,
-    isGroupSaving: createGroupState.isLoading || updateGroupState.isLoading,
-    isMutating,
-    isAssignPickerOpen,
     openAssignPicker,
+    downloadTemplate,
+    previewImportFile,
+    toggleGroupActive,
     closeAssignPicker,
-    confirmAssignPicker,
-    assignMemberId,
-    setAssignMemberId,
+    isAssignPickerOpen,
     assignPickerSearch,
-    setAssignPickerSearch,
     assignPickerOptions,
+    assignRequirementId,
+    setAssignRequirementId,
+    assignAudienceKind,
+    setAssignAudienceKind,
+    assignGroupIds,
+    setAssignGroupIds,
+    assignMemberIds,
+    setAssignMemberIds,
+    submitAssignRequirement,
+    isAssigningRequirement: saveRequirementAudienceState.isLoading,
+    importFailureMessage,
+    setAssignPickerSearch,
+    isImporting: bulkInviteState.isLoading,
     isAssignPickerLoading: assignPickerQuery.isFetching,
-    isRefetching: membersQuery.isFetching && !membersQuery.isLoading,
     isError: membersQuery.isError || statsQuery.isError,
+    isRefetching: membersQuery.isFetching && !membersQuery.isLoading,
+    isGroupSaving: createGroupState.isLoading || updateGroupState.isLoading,
     isLoading:
       membersQuery.isLoading ||
       statsQuery.isLoading ||

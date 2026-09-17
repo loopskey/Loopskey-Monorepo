@@ -2,21 +2,27 @@ import { AssociationRequirementAssignmentService } from "@association/services/a
 import { ResendAssociationMemberInvitationInput } from "@association/dtos/resend-association-member-invitation.input";
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { buildAssociationMemberInvitationEmail } from "@mail/association-email.template";
+import { AssociationMemberRequirementsService } from "@association/services/association-member-requirements.service";
 import { BulkInviteAssociationMemberRowInput } from "@association/dtos/bulk-invite-association-members.input";
 import { BulkInviteAssociationMembersInput } from "@association/dtos/bulk-invite-association-members.input";
+import { AssociationComplianceReadService } from "@association/services/association-compliance-read.service";
 import { type ProfessionalProvisioningApi } from "@professional/public/professional-provisioning-api";
 import { SetAssociationMemberStatusInput } from "@association/dtos/set-association-member-status.input";
 import { AssociationMemberStatus, Prisma } from "@prisma/client";
 import { PROFESSIONAL_PROVISIONING_API } from "@professional/public/professional-provisioning-api";
+import { AssociationRequirementService } from "@association/services/association-requirement.service";
+import { AssociationRequirementStatus } from "@prisma/client";
 import { AssociationMemberFilterInput } from "@association/dtos/association-member-filter.input";
 import { UpdateAssociationMemberInput } from "@association/dtos/update-association-member.input";
 import { InviteAssociationMemberInput } from "@association/dtos/invite-association-member.input";
 import { AssociationPaginationInput } from "@association/dtos/association-pagination.input";
+import { AssociationMemberJoinedVia } from "@prisma/client";
 import { type AccountActivationApi } from "@auth/public/account-activation-api";
 import { ConflictException, Inject } from "@nestjs/common";
 import { AssociationAccessService } from "@association/services/association-access.service";
 import { AssociationInviteOutcome } from "@association/enums/association-register.enum";
 import { AssociationGroupService } from "@association/services/association-group.service";
+import { AssociationAudienceKind } from "@prisma/client";
 import { type IdentityProfileApi } from "@user/public/identity-profile-api";
 import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
 import { ACCOUNT_ACTIVATION_API } from "@auth/public/account-activation-api";
@@ -37,11 +43,14 @@ const MEMBER_SELECT = {
   memberNumber: true,
   notes: true,
   status: true,
+  joinedVia: true,
   invitedAt: true,
   activatedAt: true,
   deactivatedAt: true,
   group: { select: { id: true, title: true, isActive: true } },
-  user: { select: { fullName: true, email: true, avatarUrl: true } },
+  user: {
+    select: { fullName: true, email: true, avatarUrl: true, lastLoginAt: true },
+  },
 } satisfies Prisma.AssociationMemberSelect;
 
 type MemberRecord = Prisma.AssociationMemberGetPayload<{
@@ -53,6 +62,9 @@ const project = ({ user, ...member }: MemberRecord) => ({
   fullName: user.fullName,
   email: user.email,
   avatarUrl: user.avatarUrl,
+  lastLoginAt: user.lastLoginAt,
+  requirementNames: [] as string[],
+  complianceSummary: null,
 });
 
 type InviteCommand = {
@@ -79,6 +91,9 @@ export class AssociationMemberService {
     @Inject(ACCOUNT_ACTIVATION_API)
     private readonly activation: AccountActivationApi,
     private readonly assignments: AssociationRequirementAssignmentService,
+    private readonly complianceRead: AssociationComplianceReadService,
+    private readonly memberRequirements: AssociationMemberRequirementsService,
+    private readonly requirements: AssociationRequirementService,
   ) {}
 
   async list(
@@ -120,7 +135,11 @@ export class AssociationMemberService {
       orderBy: [{ invitedAt: "desc" }, { id: "desc" }],
       select: MEMBER_SELECT,
     });
-    const items = rows.slice(0, take).map(project);
+    const items = await this.attachComplianceSummaries(
+      user,
+      association.id,
+      rows.slice(0, take).map(project),
+    );
     return {
       items,
       totalCount: await this.prisma.associationMember.count({ where }),
@@ -129,6 +148,58 @@ export class AssociationMemberService {
         nextCursor: rows.length > take ? (items.at(-1)?.id ?? null) : null,
       },
     };
+  }
+
+  async emailLookup(
+    user: TAssociationUser,
+    email: string,
+    associationId?: string,
+  ) {
+    await this.access.requireReadable(user, associationId);
+    return { exists: await this.identity.existsByEmail(email) };
+  }
+
+  private async attachComplianceSummaries<
+    T extends {
+      id: string;
+      requirementNames: string[];
+      complianceSummary: unknown;
+    },
+  >(user: TAssociationUser, associationId: string, items: T[]) {
+    if (!items.length) return items;
+    const memberIds = items.map((item) => item.id);
+
+    const [summaries, assignments] = await Promise.all([
+      this.complianceRead.memberComplianceList(
+        user,
+        { memberIds },
+        associationId,
+      ),
+      this.prisma.associationRequirementAssignment.findMany({
+        where: {
+          memberId: { in: memberIds },
+          isTargeted: true,
+          requirement: { status: AssociationRequirementStatus.PUBLISHED },
+        },
+        select: { memberId: true, requirement: { select: { name: true } } },
+      }),
+    ]);
+
+    const summaryByMember = new Map(
+      summaries.map((summary) => [summary.memberId, summary]),
+    );
+    const namesByMember = new Map<string, string[]>();
+    for (const assignment of assignments) {
+      const names = namesByMember.get(assignment.memberId) ?? [];
+      names.push(assignment.requirement.name);
+      namesByMember.set(assignment.memberId, names);
+    }
+
+    return items.map((item) => ({
+      ...item,
+      requirementNames: namesByMember.get(item.id) ?? [],
+      complianceSummary: summaryByMember.get(item.id) ?? null,
+    }));
   }
 
   async stats(user: TAssociationUser, associationId?: string) {
@@ -157,13 +228,23 @@ export class AssociationMemberService {
     const association = await this.access.requireOwned(user);
     if (input.groupId)
       await this.groups.requireGroup(association.id, input.groupId);
-    const result = await this.inviteOne(association.id, association.name, {
-      email: input.email,
-      fullName: input.fullName,
-      groupId: input.groupId ?? null,
-      memberNumber: input.memberNumber ?? null,
-    });
+    const result = await this.inviteOne(
+      association.id,
+      association.name,
+      {
+        email: input.email,
+        fullName: input.fullName,
+        groupId: input.groupId ?? null,
+        memberNumber: input.memberNumber ?? null,
+      },
+      AssociationMemberJoinedVia.INVITED,
+    );
     await this.assignments.materialiseForMember(result.member.id);
+    if (input.requirementIds?.length)
+      await this.memberRequirements.setRequirements(user, {
+        memberId: result.member.id,
+        requirementIds: input.requirementIds,
+      });
     return result;
   }
 
@@ -178,6 +259,7 @@ export class AssociationMemberService {
       code: string;
       reason: string;
     }[] = [];
+    const createdMemberIds: string[] = [];
     let invited = 0;
     let linked = 0;
 
@@ -190,7 +272,9 @@ export class AssociationMemberService {
           association.id,
           association.name,
           command,
+          AssociationMemberJoinedVia.BULK_IMPORTED,
         );
+        createdMemberIds.push(result.member.id);
         if (result.outcome === AssociationInviteOutcome.LINKED_EXISTING_USER)
           linked += 1;
         else invited += 1;
@@ -202,6 +286,14 @@ export class AssociationMemberService {
         });
       }
     }
+
+    if (input.requirementIds?.length)
+      await this.applyBulkRequirements(
+        user,
+        association.id,
+        input.requirementIds,
+        createdMemberIds,
+      );
 
     this.logger.log("Association bulk import finished", {
       associationId: association.id,
@@ -218,6 +310,59 @@ export class AssociationMemberService {
       failed: failures.length,
       failures,
     };
+  }
+
+  private async applyBulkRequirements(
+    user: TAssociationUser,
+    associationId: string,
+    requirementIds: string[],
+    memberIds: string[],
+  ) {
+    if (!memberIds.length) return;
+
+    const requirements = await this.prisma.associationRequirement.findMany({
+      where: {
+        id: { in: requirementIds },
+        associationId,
+        status: AssociationRequirementStatus.PUBLISHED,
+      },
+      select: {
+        id: true,
+        audienceKind: true,
+        targets: { select: { memberId: true } },
+      },
+    });
+
+    for (const requirement of requirements) {
+      if (
+        requirement.audienceKind !== AssociationAudienceKind.SPECIFIC_MEMBERS
+      ) {
+        this.logger.warn(
+          "Skipped bulk requirement assignment: audience is not member-managed",
+          { associationId, requirementId: requirement.id },
+        );
+        continue;
+      }
+
+      const current = requirement.targets
+        .map((target) => target.memberId)
+        .filter((id): id is string => Boolean(id));
+      const next = [...new Set([...current, ...memberIds])];
+
+      try {
+        await this.requirements.updateAudience(user, {
+          requirementId: requirement.id,
+          audienceKind: AssociationAudienceKind.SPECIFIC_MEMBERS,
+          memberIds: next,
+        });
+      } catch (error) {
+        this.logger.warn("Bulk requirement assignment failed", {
+          associationId,
+          requirementId: requirement.id,
+          reason: error instanceof Error ? error.message : "Unknown error",
+        });
+      }
+    }
   }
 
   async resendInvitation(
@@ -365,6 +510,7 @@ export class AssociationMemberService {
     associationId: string,
     associationName: string,
     command: InviteCommand,
+    channel: AssociationMemberJoinedVia,
   ) {
     const email = command.email.trim().toLowerCase();
     if (!EMAIL_PATTERN.test(email))
@@ -419,6 +565,9 @@ export class AssociationMemberService {
               ? AssociationMemberStatus.ACTIVE
               : AssociationMemberStatus.PENDING_ACTIVATION,
             activatedAt: person.linkedExisting ? new Date() : null,
+            joinedVia: person.linkedExisting
+              ? AssociationMemberJoinedVia.LINKED_EXISTING_ACCOUNT
+              : channel,
           },
           select: MEMBER_SELECT,
         });

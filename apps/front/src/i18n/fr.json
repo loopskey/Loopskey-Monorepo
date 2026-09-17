@@ -5278,13 +5278,13 @@
       "description": "Toutes les personnes qui appartiennent à votre association, les groupes auxquels elles sont rattachées et les invitations encore en attente.",
       "actions": {
         "viewDetail": "Voir le membre",
-        "invite": "Inviter un membre",
+        "invite": "Ajouter et inviter un membre",
         "manageGroups": "Gérer les groupes",
         "backToRoster": "Retour à la liste",
         "resend": "Renvoyer l'invitation",
         "reactivate": "Réactiver",
         "deactivate": "Désactiver",
-        "upload": "Importer des membres",
+        "upload": "Importer la liste des membres",
         "assignRequirement": "Assigner une exigence",
         "more": "Plus d'actions",
         "edit": "Modifier le membre"
@@ -5316,8 +5316,16 @@
         "memberNumber": "Numéro de membre",
         "group": "Groupe",
         "status": "Statut",
+        "requirementAssigned": "Exigence assignée",
+        "progress": "Progression",
+        "evidence": "Preuves",
+        "noRequirement": "Aucune assignée",
+        "evidenceMissing": "Manquantes",
+        "evidenceOk": "À jour",
         "actions": "Actions",
-        "actionsFor": "Actions pour {{name}}"
+        "actionsFor": "Actions pour {{name}}",
+        "viewFor": "Voir {{name}}",
+        "editFor": "Modifier {{name}}"
       },
       "confirm": {
         "cancel": "Annuler",
@@ -5334,13 +5342,24 @@
         "noResultsBody": "Personne dans votre liste ne correspond à la recherche et aux filtres appliqués."
       },
       "invite": {
-        "title": "Inviter un membre",
-        "description": "Si l'e-mail correspond déjà à un compte Loopskey, la personne rejoint immédiatement votre association. Sinon, elle reçoit une invitation à en créer un.",
+        "title": "Ajouter et inviter un membre",
+        "description": "Ajoutez un nouveau membre à votre liste. S'il n'a pas encore de compte Loopskey, nous lui enverrons une invitation pour en activer un.",
         "email": "E-mail",
         "fullName": "Nom complet",
+        "firstName": "Prénom",
+        "lastName": "Nom",
         "group": "Groupe",
         "groupPlaceholder": "Aucun groupe",
-        "memberNumber": "Numéro de membre",
+        "memberNumber": "Numéro de membre / licence",
+        "requirements": "Exigence CPD/PDU (sélectionnez tout ce qui s'applique)",
+        "requirementsEmpty": "Aucune exigence publiée pour le moment.",
+        "continue": "Continuer",
+        "back": "Retour",
+        "noAccountTitle": "Aucun compte existant trouvé",
+        "noAccountBody": "Une invitation sera envoyée à cette adresse e-mail.",
+        "existingAccountTitle": "Utilisateur Loopskey existant trouvé",
+        "existingAccountBody": "Ce professionnel possède déjà un compte Loopskey et peut être rattaché à cette association.",
+        "linkMember": "Rattacher le membre",
         "submit": "Envoyer l'invitation",
         "linkedTitle": "Compte existant trouvé et rattaché",
         "linkedBody": "{{name}} possédait déjà un compte Loopskey : la personne a rejoint votre association immédiatement, sans e-mail d'invitation.",
@@ -5350,18 +5369,20 @@
         "done": "Terminé"
       },
       "bulk": {
-        "title": "Importer des membres",
-        "description": "Importez un fichier CSV ou Excel pour ajouter plusieurs membres d'un coup. Rien n'est envoyé avant que vous ayez vu le contenu du fichier.",
+        "title": "Importer la liste des membres",
+        "description": "Importez les membres depuis un fichier CSV ou Excel, vérifiez les correspondances, puis envoyez les invitations.",
         "templateTitle": "Colonnes attendues",
         "templateColumns": "Prénom, nom, e-mail, numéro de membre, groupe",
         "downloadTemplate": "Télécharger le modèle",
-        "fileLabel": "Choisir un fichier",
+        "fileLabel": "Sélectionner un fichier",
+        "requirements": "Exigence CPD/PDU (sélectionnez tout ce qui s'applique)",
+        "requirementsEmpty": "Aucune exigence publiée pour le moment.",
         "parsing": "Lecture du fichier…",
         "parseFailed": "Ce fichier n'a pas pu être lu. Vérifiez qu'il s'agit bien d'un fichier CSV ou Excel, puis réessayez.",
         "previewTitle": "Aperçu de {{file}}",
         "previewCaption": "Lignes trouvées dans le fichier importé, avec le problème qui les bloque le cas échéant.",
         "previewCounts": "{{valid}} prêtes, {{invalid}} en erreur",
-        "truncated": "Le fichier contient plus de lignes qu'un import ne peut en traiter. Seules les 1000 premières sont affichées.",
+        "truncated": "Le fichier contient plus de lignes qu'un import ne peut en traiter. Seules les {{limit}} premières sont affichées.",
         "problem": "Problème",
         "confirm": "Importer {{count}} membres",
         "blocked": "Corrigez ou retirez les lignes signalées avant d'importer. Rien n'a encore été envoyé.",
@@ -5394,13 +5415,12 @@
       },
       "assignPicker": {
         "title": "Assigner une exigence",
-        "description": "Choisissez un membre pour ouvrir sa liste d'exigences et lui en assigner une.",
-        "selectLabel": "Membre",
-        "placeholder": "Rechercher par nom, e-mail ou numéro de membre",
-        "empty": "Aucun membre ne correspond à votre recherche.",
-        "results": "{{count}} membres",
+        "description": "Appliquez une exigence CPD/PDU à des membres.",
+        "requirementLabel": "Exigence",
+        "requirementPlaceholder": "Sélectionner une exigence",
+        "audienceLabel": "Qui la reçoit ?",
         "cancel": "Annuler",
-        "continue": "Continuer"
+        "submit": "Assigner l'exigence"
       },
       "groups": {
         "createTitle": "Créer un groupe",
@@ -5427,7 +5447,8 @@
         "groupCreated": "Groupe créé.",
         "groupUpdated": "Groupe mis à jour.",
         "groupDeactivated": "Groupe désactivé et ses membres libérés.",
-        "groupReactivated": "Groupe réactivé."
+        "groupReactivated": "Groupe réactivé.",
+        "requirementAssigned": "Exigence assignée."
       },
       "error": {
         "title": "Impossible de charger votre liste",
@@ -5460,9 +5481,41 @@
       }
     },
     "memberDetail": {
-      "backToRoster": "Retour à la liste",
+      "backToRoster": "Retour aux membres",
       "email": "E-mail",
       "noGroup": "Aucun groupe",
+      "tabs": {
+        "overview": "Aperçu",
+        "activities": "Activités de formation",
+        "certificates": "Certificats"
+      },
+      "membership": {
+        "title": "Adhésion",
+        "group": "Groupe",
+        "memberSince": "Membre depuis",
+        "lastLogin": "Dernière connexion",
+        "joinedVia": "Rejoint via",
+        "lastNotification": "Dernière notification",
+        "never": "Jamais",
+        "noGroup": "Aucun groupe",
+        "joinedViaValues": {
+          "INVITED": "Invité",
+          "BULK_IMPORTED": "Importé en masse",
+          "LINKED_EXISTING_ACCOUNT": "Rattaché depuis un compte existant"
+        }
+      },
+      "overview": {
+        "activitiesTitle": "Activités de formation",
+        "activitiesCount": "{{count}} enregistrées",
+        "activitiesEmpty": "Aucune activité enregistrée",
+        "certificatesTitle": "Certificats",
+        "certificatesCount": "{{count}} au dossier",
+        "certificatesEmpty": "Aucun certificat au dossier",
+        "missingEvidenceTitle": "Preuves manquantes",
+        "missingEvidenceBad": "Action requise",
+        "missingEvidenceOk": "Rien en attente",
+        "viewAll": "Tout voir"
+      },
       "band": {
         "NOT_STARTED": "Non commencé",
         "AT_RISK": "À risque",
@@ -5480,8 +5533,8 @@
         "REQUIRED_NEEDS_REVIEW": "Preuve exigée et examinée par vous"
       },
       "actions": {
-        "edit": "Modifier les informations",
-        "requirements": "Modifier les exigences"
+        "edit": "Modifier",
+        "requirements": "Assigner une exigence"
       },
       "confirm": {
         "deactivateBody": "{{name}} sort de vos effectifs actifs et ne reçoit plus les e-mails de l'association. Son historique reste sur cette page et vous pouvez la réactiver à tout moment."
@@ -5519,7 +5572,7 @@
         "chartEmptyTitle": "Aucune catégorie à représenter",
         "chartEmptyBody": "Aucune exigence assignée à ce membre ne répartit son total par catégorie.",
         "emptyTitle": "Rien n'est encore assigné",
-        "emptyBody": "Ce membre ne fait partie de l'audience d'aucune exigence publiée. Utilisez Modifier les exigences pour lui en assigner une."
+        "emptyBody": "Ce membre ne fait partie de l'audience d'aucune exigence publiée. Utilisez Assigner une exigence pour lui en assigner une."
       },
       "activities": {
         "title": "Activités de formation",
@@ -5529,6 +5582,13 @@
         "counts": "{{counted}} approuvées, {{awaiting}} en cours d'examen, {{rejected}} refusées",
         "meta": "{{source}} · {{category}} · {{credits}} crédits · {{date}}",
         "counting": "Compte pour : {{requirements}}",
+        "columns": {
+          "activity": "Activité",
+          "type": "Type",
+          "completed": "Terminée",
+          "evidence": "Preuve",
+          "actions": "Actions"
+        },
         "reason": "Motif indiqué : {{reason}}",
         "late": "En retard",
         "noEvidence": "Sans preuve",
@@ -5543,6 +5603,13 @@
       "evidence": {
         "title": "Preuve",
         "description": "Ce que le membre a joint à cette soumission.",
+        "attachedEvidence": "Preuve jointe",
+        "noAttachment": "Aucun fichier joint",
+        "activity": "Activité",
+        "completed": "Terminée",
+        "type": "Type",
+        "provider": "Fournisseur",
+        "noProvider": "-",
         "note": "Note du membre",
         "noNote": "Le membre n'a laissé aucune note.",
         "link": "Lien de preuve",
@@ -5550,7 +5617,8 @@
         "files": "Fichiers joints",
         "noFiles": "Aucun fichier n'a été joint.",
         "download": "Télécharger",
-        "downloadFile": "Télécharger {{name}}"
+        "downloadFile": "Télécharger {{name}}",
+        "close": "Fermer"
       },
       "decision": {
         "approveTitle": "Approuver cette soumission ?",
@@ -5603,8 +5671,24 @@
         "description": "Les certificats détenus par ce membre, avec les fichiers joints.",
         "meta": "{{issuer}} · délivré le {{issued}} · expire le {{expires}} · {{credits}} crédits",
         "noIssuer": "Émetteur non précisé",
+        "noLinkedTo": "-",
         "emptyTitle": "Aucun certificat",
-        "emptyBody": "Ce membre n'a pas encore enregistré de certificat."
+        "emptyBody": "Ce membre n'a pas encore enregistré de certificat.",
+        "columns": {
+          "certificate": "Certificat / licence",
+          "issuer": "Émetteur",
+          "issueDate": "Date de délivrance",
+          "expiryDate": "Date d'expiration",
+          "status": "Statut",
+          "linkedTo": "Lié à",
+          "files": "Fichiers"
+        },
+        "statuses": {
+          "ACTIVE": "Actif",
+          "EXPIRING_SOON": "Expire bientôt",
+          "EXPIRED": "Expiré",
+          "REVOKED": "Révoqué"
+        }
       },
       "error": {
         "title": "Ce membre n'a pas pu être chargé.",
