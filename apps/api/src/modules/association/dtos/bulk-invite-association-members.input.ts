@@ -52,4 +52,11 @@ export class BulkInviteAssociationMembersInput {
   @ValidateNested({ each: true })
   @Type(() => BulkInviteAssociationMemberRowInput)
   rows!: BulkInviteAssociationMemberRowInput[];
+
+  @Field(() => [ID], { nullable: true })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(ASSOCIATION_MEMBER_LIMITS.requirementsPerMemberMax)
+  @IsString({ each: true })
+  requirementIds?: string[];
 }

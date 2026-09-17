@@ -8,6 +8,7 @@ import { AssociationAttributionState } from "@prisma/client";
 import { AssociationSubmissionWindow } from "@prisma/client";
 import { AssociationRenewalCondition } from "@prisma/client";
 import { AssociationAttentionSection } from "@association/enums/association-attention.enum";
+import { AssociationMemberJoinedVia } from "@prisma/client";
 import { AssociationReportingCycle } from "@prisma/client";
 import { AssociationComplianceBand } from "@prisma/client";
 import { AssociationEvidencePolicy } from "@prisma/client";
@@ -27,6 +28,11 @@ export enum AssociationInviteOutcome {
 registerEnumType(AssociationMemberStatus, {
   name: "AssociationMemberStatus",
   description: "Where a member stands between invitation and membership",
+});
+
+registerEnumType(AssociationMemberJoinedVia, {
+  name: "AssociationMemberJoinedVia",
+  description: "How a member came to join the association's roster",
 });
 
 registerEnumType(AssociationInviteOutcome, {

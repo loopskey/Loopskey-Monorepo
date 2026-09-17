@@ -60,6 +60,7 @@ const CERTIFICATE_SELECT = {
   issuedAt: true,
   validUntil: true,
   pduEarned: true,
+  cpdPlan: { select: { certificationName: true } },
   evidenceFiles: { select: FILE_SELECT, orderBy: { createdAt: "asc" } },
 } satisfies Prisma.CertificateSelect;
 
@@ -184,6 +185,7 @@ export class ProfessionalComplianceApiService
       issuedAt: certificate.issuedAt,
       validUntil: certificate.validUntil,
       creditsEarned: certificate.pduEarned,
+      linkedTo: certificate.cpdPlan?.certificationName ?? null,
       files: certificate.evidenceFiles,
     }));
   }

@@ -634,14 +634,18 @@ type AssociationLearningEngagement {
 type AssociationMember {
   activatedAt: DateTime
   avatarUrl: String
+  complianceSummary: AssociationComplianceSummary
   deactivatedAt: DateTime
   email: String
   fullName: String
   group: AssociationMemberGroup
   id: ID!
   invitedAt: DateTime!
+  joinedVia: AssociationMemberJoinedVia!
+  lastLoginAt: DateTime
   memberNumber: String
   notes: String
+  requirementNames: [String!]!
   status: AssociationMemberStatus!
   userId: ID!
 }
@@ -676,6 +680,7 @@ type AssociationMemberCertificate {
   id: ID!
   issuedAt: DateTime!
   issuer: String
+  linkedTo: String
   memberId: ID!
   status: CertificateStatus!
   title: String!
@@ -700,6 +705,10 @@ type AssociationMemberDistribution {
   totalMembers: Int!
 }
 
+type AssociationMemberEmailLookup {
+  exists: Boolean!
+}
+
 input AssociationMemberFilterInput {
   groupId: ID
   requirementId: ID
@@ -713,11 +722,19 @@ type AssociationMemberGroup {
   title: String!
 }
 
+"""How a member came to join the association's roster"""
+enum AssociationMemberJoinedVia {
+  BULK_IMPORTED
+  INVITED
+  LINKED_EXISTING_ACCOUNT
+}
+
 type AssociationMemberProfile {
   assignments: [AssociationAssignmentProgress!]!
   certificates: [AssociationMemberCertificate!]!
   cumulative: [AssociationCumulativePoint!]!
   isMissingEvidence: Boolean!
+  lastNotifiedAt: DateTime
   member: AssociationMember!
   summary: AssociationMemberSummary!
 }
@@ -1212,6 +1229,7 @@ input BulkInviteAssociationMemberRowInput {
 }
 
 input BulkInviteAssociationMembersInput {
+  requirementIds: [ID!]
   rows: [BulkInviteAssociationMemberRowInput!]!
 }
 
@@ -2301,6 +2319,7 @@ input InviteAssociationMemberInput {
   fullName: String!
   groupId: ID
   memberNumber: String
+  requirementIds: [ID!]
 }
 
 input IssueIngestionApiKey {
@@ -4148,6 +4167,7 @@ type Query {
   associationMemberCompliance(associationId: ID, memberId: ID!): AssociationMemberCompliance!
   associationMemberComplianceList(associationId: ID, filter: AssociationComplianceFilterInput): [AssociationComplianceSummary!]!
   associationMemberDistribution(associationId: ID, filter: AssociationReportFilterInput): AssociationMemberDistribution!
+  associationMemberEmailLookup(associationId: ID, email: String!): AssociationMemberEmailLookup!
   associationMemberProfile(associationId: ID, memberId: ID!): AssociationMemberProfile!
   associationMemberProgressReport(associationId: ID, filter: AssociationReportFilterInput, pagination: AssociationReportPaginationInput): PaginatedAssociationMemberProgress!
   associationMemberRequirementOptions(associationId: ID, memberId: ID!): [AssociationMemberRequirementOption!]!

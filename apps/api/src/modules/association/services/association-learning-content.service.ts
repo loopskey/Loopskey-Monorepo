@@ -198,11 +198,19 @@ export class AssociationLearningContentService {
         memberNumber: true,
         notes: true,
         status: true,
+        joinedVia: true,
         invitedAt: true,
         activatedAt: true,
         deactivatedAt: true,
         group: { select: { id: true, title: true, isActive: true } },
-        user: { select: { fullName: true, email: true, avatarUrl: true } },
+        user: {
+          select: {
+            fullName: true,
+            email: true,
+            avatarUrl: true,
+            lastLoginAt: true,
+          },
+        },
       },
     });
 
@@ -211,6 +219,9 @@ export class AssociationLearningContentService {
       fullName: memberUser.fullName,
       email: memberUser.email,
       avatarUrl: memberUser.avatarUrl,
+      lastLoginAt: memberUser.lastLoginAt,
+      requirementNames: [] as string[],
+      complianceSummary: null,
     }));
   }
 

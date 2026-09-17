@@ -50,6 +50,7 @@ export class AssociationMemberCertificateEntity {
   @Field(() => CertificateStatus) status: CertificateStatus;
   @Field(() => String, { nullable: true }) issuer: string | null;
   @Field(() => Date, { nullable: true }) validUntil: Date | null;
+  @Field(() => String, { nullable: true }) linkedTo: string | null;
   @Field(() => [AssociationEvidenceFileEntity])
   files: AssociationEvidenceFileEntity[];
 }
@@ -57,6 +58,7 @@ export class AssociationMemberCertificateEntity {
 @ObjectType(AssociationGqlObjectNames.ASSOCIATION_MEMBER_PROFILE)
 export class AssociationMemberProfileEntity {
   @Field() isMissingEvidence: boolean;
+  @Field(() => Date, { nullable: true }) lastNotifiedAt: Date | null;
   @Field(() => AssociationMemberEntity) member: AssociationMemberEntity;
   @Field(() => AssociationMemberSummaryEntity)
   summary: AssociationMemberSummaryEntity;

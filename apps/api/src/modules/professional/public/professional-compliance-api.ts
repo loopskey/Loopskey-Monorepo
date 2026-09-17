@@ -44,6 +44,7 @@ export type ComplianceCertificate = {
   issuedAt: Date;
   validUntil: Date | null;
   creditsEarned: number;
+  linkedTo: string | null;
   files: ComplianceFileDescriptor[];
 };
 

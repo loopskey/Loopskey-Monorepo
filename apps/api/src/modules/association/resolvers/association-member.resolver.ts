@@ -1,6 +1,7 @@
 import { ResendAssociationMemberInvitationInput } from "@association/dtos/resend-association-member-invitation.input";
 import { Args, ID, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { AssociationBulkInviteResultEntity } from "@association/entities/association-invite-result.entity";
+import { AssociationMemberEmailLookupEntity } from "@association/entities/association-invite-result.entity";
 import { PaginatedAssociationMembersEntity } from "@association/entities/association-page-info.entity";
 import { BulkInviteAssociationMembersInput } from "@association/dtos/bulk-invite-association-members.input";
 import { SetAssociationMemberStatusInput } from "@association/dtos/set-association-member-status.input";
@@ -56,6 +57,18 @@ export class AssociationMemberResolver {
     associationId?: string,
   ) {
     return this.members.stats(this.getUser(user), associationId);
+  }
+
+  @Query(() => AssociationMemberEmailLookupEntity, {
+    name: AssociationGqlQueryNames.MEMBER_EMAIL_LOOKUP,
+  })
+  associationMemberEmailLookup(
+    @CurrentUser() user: TResolverUser,
+    @Args("email") email: string,
+    @Args("associationId", { type: () => ID, nullable: true })
+    associationId?: string,
+  ) {
+    return this.members.emailLookup(this.getUser(user), email, associationId);
   }
 
   @Mutation(() => AssociationInviteResultEntity, {
