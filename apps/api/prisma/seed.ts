@@ -2,6 +2,7 @@
 
 import { seedProfessionalDashboard } from "./seeds/professional-dashboard.seed";
 import { seedCertificationCatalogue } from "./seeds/certification-catalogue.seed";
+import { seedAssociationDashboard } from "./seeds/association-dashboard.seed";
 import { seedOrganizationDashboard } from "./seeds/organization-dashboard.seed";
 import { seedProfileTaxonomy } from "./seeds/profile-taxonomy.seed";
 import { seedProviderDashboard } from "./seeds/provider-dashboard.seed";
@@ -36,6 +37,7 @@ const main = async () => {
   await seedProviderDashboard(prisma);
   await seedOrganizationDashboard(prisma);
   await seedCertificationCatalogue(prisma);
+  await seedAssociationDashboard(prisma);
 
   console.log("✅ LoopsKey seed completed successfully.");
 };

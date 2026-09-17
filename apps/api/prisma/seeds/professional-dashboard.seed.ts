@@ -276,6 +276,26 @@ const deleteOldProfessionalFakeDashboardData = async (
       },
     },
   });
+  await prisma.calendarEvent.deleteMany({
+    where: {
+      userId,
+      notes: {
+        contains: PROFESSIONAL_FAKE_PREFIX,
+      },
+    },
+  });
+  const oldPlans = await prisma.cPDPlan.findMany({
+    where: { userId, organization: { contains: PROFESSIONAL_FAKE_PREFIX } },
+    select: { id: true },
+  });
+  if (oldPlans.length) {
+    await prisma.cPDPlanCategory.deleteMany({
+      where: { planId: { in: oldPlans.map((plan) => plan.id) } },
+    });
+    await prisma.cPDPlan.deleteMany({
+      where: { id: { in: oldPlans.map((plan) => plan.id) } },
+    });
+  }
 };
 
 const seedProfessionalProfile = async (
@@ -432,12 +452,21 @@ const seedProfessionalPduActivities = async (
     P.PDUStatus.APPROVED,
     P.PDUStatus.REJECTED,
   ];
+  const usedContentIds = new Set<string>();
   for (let i = 0; i < 18; i++) {
     const status = randomItem(statuses);
     const source = randomItem(pduSources);
     const category = randomItem(pduCategories);
     const fallbackContentType = mapSourceToContentType(source);
-    const linkedContent = pickContentBySource(source, courses, events);
+    const rawLinkedContent = pickContentBySource(source, courses, events);
+    // PDUActivity has a partial unique index on (userId, contentType, contentId)
+    // (migration 20260828140000_concurrency_safety) — never reuse a contentId
+    // for the same user within this loop or the create() below fails P2002.
+    const linkedContent =
+      rawLinkedContent && !usedContentIds.has(rawLinkedContent.id)
+        ? rawLinkedContent
+        : null;
+    if (linkedContent) usedContentIds.add(linkedContent.id);
     const date = randomDateInYear(currentYear);
     await prisma.pDUActivity.create({
       data: {
@@ -600,6 +629,22 @@ const seedProfessionalEvents = async (
   }
 };
 
+const certificateStateFor = (
+  index: number,
+): { status: P.CertificateStatus; validUntil: Date | null } => {
+  const now = new Date();
+  const remainder = index % 5;
+  if (remainder === 0)
+    return { status: P.CertificateStatus.EXPIRING_SOON, validUntil: randomDateBetween(now, new Date(now.getTime() + 60 * 24 * 60 * 60 * 1000)) };
+  if (remainder === 1)
+    return { status: P.CertificateStatus.EXPIRED, validUntil: randomDateBetween(new Date(now.getTime() - 120 * 24 * 60 * 60 * 1000), new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000)) };
+  if (remainder === 2) return { status: P.CertificateStatus.REVOKED, validUntil: null };
+  return {
+    status: P.CertificateStatus.ACTIVE,
+    validUntil: chance(70) ? new Date(now.getFullYear() + 2, 11, 31) : null,
+  };
+};
+
 const seedProfessionalCertificates = async (
   prisma: P.PrismaClient,
   userId: string,
@@ -609,6 +654,7 @@ const seedProfessionalCertificates = async (
   const certificateCount = 5;
   for (let i = 0; i < certificateCount; i++) {
     const linkedContent = contents.length ? randomItem(contents) : null;
+    const { status, validUntil } = certificateStateFor(i);
     await prisma.certificate.upsert({
       where: {
         verificationCode: buildVerificationCode(userId, i),
@@ -623,10 +669,8 @@ const seedProfessionalCertificates = async (
         contentId: linkedContent?.id ?? null,
         pduEarned: randomFloat(2, 12),
         issuedAt: randomDateInYear(currentYear),
-        validUntil: chance(50)
-          ? new Date(Date.UTC(currentYear + 2, 11, 31))
-          : null,
-        status: P.CertificateStatus.ACTIVE,
+        validUntil,
+        status,
       },
       update: {
         title: certificateTitles[i % certificateTitles.length],
@@ -636,10 +680,8 @@ const seedProfessionalCertificates = async (
         contentId: linkedContent?.id ?? null,
         pduEarned: randomFloat(2, 12),
         issuedAt: randomDateInYear(currentYear),
-        validUntil: chance(50)
-          ? new Date(Date.UTC(currentYear + 2, 11, 31))
-          : null,
-        status: P.CertificateStatus.ACTIVE,
+        validUntil,
+        status,
       },
     });
   }
@@ -685,6 +727,124 @@ const seedProfessionalPayments = async (
         paidAt: null,
       },
     });
+  }
+};
+
+const calendarEventTypes: P.CalendarEventType[] = [
+  P.CalendarEventType.EVENT,
+  P.CalendarEventType.COURSE,
+  P.CalendarEventType.WEBINAR,
+  P.CalendarEventType.MEETING,
+  P.CalendarEventType.TRAINING,
+  P.CalendarEventType.OTHER,
+];
+
+const seedProfessionalCalendarEvents = async (
+  prisma: P.PrismaClient,
+  userId: string,
+  courses: SeedCourseItem[],
+  events: SeedEventItem[],
+) => {
+  const now = new Date();
+  const eventCount = 8;
+  for (let i = 0; i < eventCount; i++) {
+    const type = calendarEventTypes[i % calendarEventTypes.length];
+    const offsetDays = randomInt(-30, 45) + i * 3;
+    const startDate = new Date(now.getTime() + offsetDays * 24 * 60 * 60 * 1000);
+    const durationMinutes = randomItem([30, 60, 90, 120]);
+    const linkedContent =
+      type === P.CalendarEventType.COURSE && courses.length
+        ? randomItem(courses)
+        : type === P.CalendarEventType.EVENT && events.length
+          ? randomItem(events)
+          : null;
+
+    await prisma.calendarEvent.create({
+      data: {
+        userId,
+        title: linkedContent?.title ?? `${type.toLowerCase()} session ${i + 1}`,
+        type,
+        startDate,
+        endDate: new Date(startDate.getTime() + durationMinutes * 60 * 1000),
+        durationMinutes,
+        notes: `${PROFESSIONAL_FAKE_PREFIX}: Auto-generated calendar entry for dashboard testing.`,
+        contentType: linkedContent?.type ?? null,
+        contentId: linkedContent?.id ?? null,
+      },
+    });
+  }
+};
+
+const cpdPlanCategoryTemplates = [
+  { name: "Technical Skills", share: 0.5 },
+  { name: "Leadership", share: 0.3 },
+  { name: "Ethics", share: 0.2 },
+];
+
+const seedProfessionalCpdPlans = async (
+  prisma: P.PrismaClient,
+  userId: string,
+  currentYear: number,
+) => {
+  const plans: Array<{
+    certificationName: string;
+    status: P.CPDPlanStatus;
+    totalRequiredCredits: number;
+    initialCompletedCredits: number;
+  }> = [
+    {
+      certificationName: "Certified Professional Development Practitioner",
+      status: P.CPDPlanStatus.ACTIVE,
+      totalRequiredCredits: 40,
+      initialCompletedCredits: randomFloat(10, 28),
+    },
+    {
+      certificationName: "Foundational CPD Renewal",
+      status: P.CPDPlanStatus.COMPLETED,
+      totalRequiredCredits: 20,
+      initialCompletedCredits: 20,
+    },
+  ];
+
+  for (const plan of plans) {
+    const reportingStart = new Date(Date.UTC(currentYear, 0, 1));
+    const reportingEnd = new Date(Date.UTC(currentYear, 11, 31));
+    const created = await prisma.cPDPlan.create({
+      data: {
+        userId,
+        certificationName: plan.certificationName,
+        organization: `${PROFESSIONAL_FAKE_PREFIX} Institute`,
+        reportingStart,
+        reportingEnd,
+        creditType: P.CreditType.CPD,
+        totalRequiredCredits: plan.totalRequiredCredits,
+        initialCompletedCredits: plan.initialCompletedCredits,
+        timeAvailable: P.LearningTimeCommitment.FOUR_TO_SIX_HOURS,
+        preferredFormats: [P.LearningFormat.COURSE, P.LearningFormat.WEBINAR],
+        evidenceTypes: [P.CPDEvidenceType.CERTIFICATE, P.CPDEvidenceType.SELF_DECLARATION],
+        reportRecipientType: P.CPDReportRecipientType.SELF,
+        remindersEnabled: true,
+        reminderTiming: P.CPDReminderTiming.DAYS_30,
+        status: plan.status,
+      },
+      select: { id: true },
+    });
+
+    for (const [order, category] of cpdPlanCategoryTemplates.entries()) {
+      const targetCredits = Number((plan.totalRequiredCredits * category.share).toFixed(1));
+      await prisma.cPDPlanCategory.create({
+        data: {
+          planId: created.id,
+          name: category.name,
+          targetCredits,
+          completedCredits:
+            plan.status === P.CPDPlanStatus.COMPLETED
+              ? targetCredits
+              : Number((targetCredits * randomFloat(0.3, 0.8)).toFixed(1)),
+          order,
+        },
+      });
+    }
   }
 };
 
@@ -863,6 +1023,8 @@ export const seedProfessionalDashboard = async (
       await seedProfessionalCourses(prisma, professional.id, courses);
     if (events.length)
       await seedProfessionalEvents(prisma, professional.id, events);
+    await seedProfessionalCalendarEvents(prisma, professional.id, courses, events);
+    await seedProfessionalCpdPlans(prisma, professional.id, currentYear);
 
     if (contents.length)
       await seedProfessionalCertificates(
