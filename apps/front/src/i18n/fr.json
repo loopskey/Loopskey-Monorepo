@@ -2479,7 +2479,12 @@
     "closeMenu": "Fermer le menu"
   },
   "dashboardShell": {
-    "navLabel": "Navigation du tableau de bord"
+    "navLabel": "Navigation du tableau de bord",
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu",
+    "menu": "Menu",
+    "tapToOpenMenu": "Touchez pour ouvrir le menu",
+    "helpSupport": "Aide et support"
   },
   "footer": {
     "brandDescription": "Votre plateforme tout-en-un pour tous vos besoins éducatifs. Découvrez, apprenez et progressez avec nous.",
