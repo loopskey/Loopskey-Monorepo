@@ -2,17 +2,224 @@ import * as P from "@prisma/client";
 import { faker } from "@faker-js/faker";
 import PDFDocument from "pdfkit";
 import ExcelJS from "exceljs";
-
-import {
-  attributionFor,
-  totalsFor,
-  bandFor,
-  type AttributionActivity,
-  type AttributionRequirement,
-  type Attribution,
-} from "../../src/modules/association/utils/compliance-attribution.util";
+import { mkdir, writeFile } from "fs/promises";
+import { join, resolve } from "path";
 
 const ASSOCIATION_FAKE_PREFIX = "association-dashboard-seed";
+
+// The lines below to the "compliance attribution (inlined)" marker are a
+// verbatim copy of the pure functions in
+// src/modules/association/utils/compliance-attribution.util.ts, duplicated
+// rather than imported so this seed script stays runnable from the deployed
+// API image, which ships apps/api/prisma and apps/api/dist but not
+// apps/api/src (see Dockerfile.api). Keep this in sync if that file changes.
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+type AttributionActivity = {
+  id: string;
+  date: Date;
+  status: string;
+  credits: number;
+  category: string;
+  creditType: string;
+  hasEvidence: boolean;
+};
+
+type AttributionRequirement = {
+  deadline: Date | null;
+  creditType: P.CreditType;
+  gracePeriodDays: number;
+  reportingEnd: Date | null;
+  reportingStart: Date | null;
+  evidencePolicy: P.AssociationEvidencePolicy;
+  lateSubmissionPolicy: P.AssociationLateSubmissionPolicy;
+  categories: { id: string; mappedCategory: P.PDUCategory }[];
+};
+
+type AttributionAssignment = {
+  cycleStart: Date;
+  cycleEnd: Date | null;
+};
+
+type EffectiveWindow = {
+  to: Date | null;
+  from: Date | null;
+  lateFrom: Date | null;
+};
+
+type Attribution = {
+  isLate: boolean;
+  activityDate: Date;
+  activityId: string;
+  creditedAmount: number;
+  categoryId: string | null;
+  state: P.AssociationAttributionState;
+};
+
+const latest = (left: Date | null, right: Date | null) => {
+  if (!left) return right;
+  if (!right) return left;
+  return left.getTime() >= right.getTime() ? left : right;
+};
+
+const earliest = (left: Date | null, right: Date | null) => {
+  if (!left) return right;
+  if (!right) return left;
+  return left.getTime() <= right.getTime() ? left : right;
+};
+
+const effectiveWindow = (
+  requirement: AttributionRequirement,
+  assignment: AttributionAssignment,
+): EffectiveWindow => {
+  const from = latest(assignment.cycleStart, requirement.reportingStart);
+  const hardEnd = earliest(assignment.cycleEnd, requirement.reportingEnd);
+  const to = earliest(hardEnd, requirement.deadline);
+  if (
+    requirement.lateSubmissionPolicy ===
+      P.AssociationLateSubmissionPolicy.NOT_ACCEPTED ||
+    !to
+  )
+    return { from, to, lateFrom: null };
+  return {
+    from,
+    to,
+    lateFrom: new Date(to.getTime() + requirement.gracePeriodDays * DAY_MS),
+  };
+};
+
+const withinWindow = (
+  date: Date,
+  window: EffectiveWindow,
+  lateSubmissionPolicy: P.AssociationLateSubmissionPolicy,
+) => {
+  const at = date.getTime();
+  if (window.from && at < window.from.getTime()) return null;
+  if (!window.to || at <= window.to.getTime()) return { isLate: false };
+  if (window.lateFrom && at <= window.lateFrom.getTime())
+    return {
+      isLate:
+        lateSubmissionPolicy ===
+        P.AssociationLateSubmissionPolicy.ACCEPTED_FLAGGED_LATE,
+    };
+  return null;
+};
+
+const stateFor = (
+  activity: AttributionActivity,
+  policy: P.AssociationEvidencePolicy,
+): P.AssociationAttributionState | null => {
+  if (activity.status === P.PDUStatus.REJECTED)
+    return P.AssociationAttributionState.REJECTED;
+  if (policy === P.AssociationEvidencePolicy.NOT_REQUIRED)
+    return P.AssociationAttributionState.COUNTED;
+  if (!activity.hasEvidence) return null;
+  if (policy === P.AssociationEvidencePolicy.REQUIRED_NO_REVIEW)
+    return P.AssociationAttributionState.COUNTED;
+  return activity.status === P.PDUStatus.APPROVED
+    ? P.AssociationAttributionState.COUNTED
+    : P.AssociationAttributionState.AWAITING_REVIEW;
+};
+
+const attributionFor = (
+  activity: AttributionActivity,
+  requirement: AttributionRequirement,
+  assignment: AttributionAssignment,
+): Attribution | null => {
+  if (activity.creditType !== requirement.creditType) return null;
+  const placement = withinWindow(
+    activity.date,
+    effectiveWindow(requirement, assignment),
+    requirement.lateSubmissionPolicy,
+  );
+  if (!placement) return null;
+  const state = stateFor(activity, requirement.evidencePolicy);
+  if (!state) return null;
+  const category = requirement.categories.find(
+    (candidate) => candidate.mappedCategory === activity.category,
+  );
+  return {
+    activityId: activity.id,
+    categoryId: category?.id ?? null,
+    creditedAmount:
+      state === P.AssociationAttributionState.COUNTED
+        ? Math.max(0, activity.credits)
+        : 0,
+    activityDate: activity.date,
+    isLate: placement.isLate,
+    state,
+  };
+};
+
+type AssignmentTotals = {
+  percent: number;
+  completedCredits: number;
+  isMissingEvidence: boolean;
+  awaitingReviewCount: number;
+  uncategorisedCredits: number;
+  byCategory: Map<string, number>;
+};
+
+const totalsFor = (
+  attributions: Attribution[],
+  requiredCredits: number,
+): AssignmentTotals => {
+  const byCategory = new Map<string, number>();
+  let completedCredits = 0;
+  let uncategorisedCredits = 0;
+  let awaitingReviewCount = 0;
+
+  for (const attribution of attributions) {
+    if (attribution.state === P.AssociationAttributionState.AWAITING_REVIEW) {
+      awaitingReviewCount += 1;
+      continue;
+    }
+    if (attribution.state !== P.AssociationAttributionState.COUNTED) continue;
+    completedCredits += attribution.creditedAmount;
+    if (!attribution.categoryId) {
+      uncategorisedCredits += attribution.creditedAmount;
+      continue;
+    }
+    byCategory.set(
+      attribution.categoryId,
+      (byCategory.get(attribution.categoryId) ?? 0) +
+        attribution.creditedAmount,
+    );
+  }
+
+  return {
+    completedCredits,
+    byCategory,
+    uncategorisedCredits,
+    awaitingReviewCount,
+    isMissingEvidence: awaitingReviewCount > 0,
+    percent:
+      requiredCredits > 0
+        ? (completedCredits / requiredCredits) * 100
+        : completedCredits > 0
+          ? 100
+          : 0,
+  };
+};
+
+type BandInput = {
+  percent: number;
+  awaitingReviewCount: number;
+  onTrackThreshold: number;
+};
+
+const bandFor = ({
+  percent,
+  awaitingReviewCount,
+  onTrackThreshold,
+}: BandInput): P.AssociationComplianceBand => {
+  if (percent >= 100 && awaitingReviewCount === 0)
+    return P.AssociationComplianceBand.RENEWAL_READY;
+  if (percent >= onTrackThreshold) return P.AssociationComplianceBand.ON_TRACK;
+  if (percent <= 0) return P.AssociationComplianceBand.NOT_STARTED;
+  return P.AssociationComplianceBand.AT_RISK;
+};
+// -------------------- end compliance attribution (inlined) -----------------
 
 type AssociationOwnerSeedUser = {
   id: string;
@@ -437,7 +644,13 @@ const seedAssociationMembers = async (
         associationId,
         userId: professional.id,
         groupId: index % 5 === 0 ? null : (group?.id ?? null),
-        memberNumber: `AM-${String(index + 1).padStart(4, "0")}`,
+        // Identity-derived, not loop-position-derived: `professionals` is
+        // ordered by createdAt, which ties for every user bulk-created in the
+        // same createMany statement (Postgres evaluates now() once per
+        // statement), so Postgres doesn't guarantee the same relative order
+        // across separate seed runs. A position-based number collided with
+        // an existing row's memberNumber on re-run; this can't.
+        memberNumber: `AM-${professional.id.slice(-6).toUpperCase()}`,
         status,
         joinedVia,
         invitedAt,
@@ -458,9 +671,27 @@ const seedAssociationMembers = async (
     });
   }
 
+  // Ordered by id (unique, unlike createdAt) so the "first 5 members" and
+  // "eligible[i % length]" picks made from this list downstream are stable
+  // across re-runs of the seed against an already-populated database.
+  // Reconcile rather than only ever add: if this run's random member count or
+  // window differs even slightly from a prior run's, drop membership for
+  // whoever fell out of `selected` so re-running doesn't accumulate stale
+  // members forever. AssociationMember cascades to
+  // AssociationRequirementAssignment/AssociationCreditAttribution/
+  // AssociationRequirementTarget/AssociationMessageDelivery, so this cleans
+  // up the whole downstream chain too.
+  await prisma.associationMember.deleteMany({
+    where: {
+      associationId,
+      userId: { notIn: selected.map((professional) => professional.id) },
+    },
+  });
+
   return prisma.associationMember.findMany({
     where: { associationId },
     select: { id: true, userId: true, groupId: true, status: true },
+    orderBy: { id: "asc" },
   });
 };
 
@@ -1078,13 +1309,21 @@ const reportTemplates: Array<{
   },
 ];
 
+// Mirrors LocalObjectStorageAdapter's "report" namespace root, duplicated
+// (rather than imported from src/infrastructure/storage) for the same
+// deploy-portability reason as the compliance attribution functions above.
+const storeReportFile = async (key: string, data: Buffer) => {
+  const root = resolve(
+    process.env.REPORT_STORAGE_DIR ?? join(process.cwd(), "uploads", "reports"),
+  );
+  await mkdir(root, { recursive: true });
+  await writeFile(resolve(join(root, key)), data);
+};
+
 const seedAssociationReports = async (
   prisma: P.PrismaClient,
   associationId: string,
   ownerId: string,
-  storage: {
-    store: (namespace: "report", key: string, data: Buffer) => Promise<void>;
-  },
 ) => {
   for (const template of reportTemplates) {
     const existing = await prisma.associationGeneratedReport.findFirst({
@@ -1140,7 +1379,7 @@ const seedAssociationReports = async (
       const buffer = isPdf
         ? await buildPlaceholderPdf(`${template.reportType.replace(/_/g, " ")} Report`)
         : await buildPlaceholderExcel(`${template.reportType.replace(/_/g, " ")} Report`);
-      await storage.store("report", storageKey, buffer);
+      await storeReportFile(storageKey, buffer);
     }
   }
 };
@@ -1231,10 +1470,15 @@ export const seedAssociationDashboard = async (
 ): Promise<void> => {
   const currentYear = new Date().getFullYear();
 
+  // Ordered by id, not createdAt: every user bulk-created in the same
+  // users-seed.ts createMany() call shares one createdAt (Postgres evaluates
+  // now() once per statement), so createdAt ties make Postgres's tie-break
+  // order unstable across separate seed runs — which round-robin position
+  // (and downstream memberNumber/status/group assignment) depended on.
   const owners = await prisma.user.findMany({
     where: { role: P.Role.ASSOCIATION, status: P.UserStatus.ACTIVE, deletedAt: null },
     select: { id: true, email: true, fullName: true },
-    orderBy: { createdAt: "asc" },
+    orderBy: { id: "asc" },
   });
 
   if (!owners.length) {
@@ -1245,18 +1489,13 @@ export const seedAssociationDashboard = async (
   const professionals = await prisma.user.findMany({
     where: { role: P.Role.PROFESSIONAL, status: P.UserStatus.ACTIVE, deletedAt: null },
     select: { id: true, email: true, fullName: true },
-    orderBy: { createdAt: "asc" },
+    orderBy: { id: "asc" },
   });
 
   if (!professionals.length) {
     console.log("⚠️ No PROFESSIONAL users found. Association members skipped.");
     return;
   }
-
-  const { LocalObjectStorageAdapter } = await import(
-    "../../src/infrastructure/storage/local-object-storage.adapter"
-  );
-  const storage = new LocalObjectStorageAdapter();
 
   for (let index = 0; index < owners.length; index++) {
     const owner = owners[index];
@@ -1283,7 +1522,7 @@ export const seedAssociationDashboard = async (
       currentYear,
     );
     await seedAssociationLearningContent(prisma, association.id, owner.id, groups);
-    await seedAssociationReports(prisma, association.id, owner.id, storage);
+    await seedAssociationReports(prisma, association.id, owner.id);
     await seedAssociationMessages(prisma, association.id, members);
   }
 };
