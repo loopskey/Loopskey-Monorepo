@@ -56,7 +56,13 @@ export const useAssociationMembersTab = () => {
 
   const [isAssignPickerOpen, setAssignPickerOpen] = useState(false);
   const [assignPickerSearch, setAssignPickerSearch] = useState("");
-  const [assignMemberId, setAssignMemberId] = useState<string | null>(null);
+  const [assignRequirementId, setAssignRequirementId] = useState<
+    string | null
+  >(null);
+  const [assignAudienceKind, setAssignAudienceKind] =
+    useState<AssociationAudienceKind>(AssociationAudienceKind.AllMembers);
+  const [assignGroupIds, setAssignGroupIds] = useState<string[]>([]);
+  const [assignMemberIds, setAssignMemberIds] = useState<string[]>([]);
 
   const debouncedSearch = useDebouncedValue(search, SEARCH_DEBOUNCE_MS);
   const debouncedAssignPickerSearch = useDebouncedValue(
@@ -123,6 +129,8 @@ export const useAssociationMembersTab = () => {
     API.useUpdateAssociationGroupMutation();
   const [setGroupActive, setGroupActiveState] =
     API.useSetAssociationGroupActiveMutation();
+  const [saveRequirementAudience, saveRequirementAudienceState] =
+    API.useUpdateAssociationRequirementAudienceMutation();
 
   const members = useMemo(
     () => membersQuery.data?.items ?? [],
@@ -293,17 +301,38 @@ export const useAssociationMembersTab = () => {
   const closeUpload = () => setUploadOpen(false);
 
   const openAssignPicker = () => {
-    setAssignMemberId(null);
+    setAssignRequirementId(null);
+    setAssignAudienceKind(AssociationAudienceKind.AllMembers);
+    setAssignGroupIds([]);
+    setAssignMemberIds([]);
     setAssignPickerSearch("");
     setAssignPickerOpen(true);
   };
 
   const closeAssignPicker = () => setAssignPickerOpen(false);
 
-  const confirmAssignPicker = () => {
-    if (!assignMemberId) return;
-    setAssignPickerOpen(false);
-    goToMember(assignMemberId, "assign");
+  const submitAssignRequirement = async () => {
+    if (!assignRequirementId) return;
+    try {
+      await saveRequirementAudience({
+        requirementId: assignRequirementId,
+        audienceKind: assignAudienceKind,
+        groupIds:
+          assignAudienceKind === AssociationAudienceKind.Group
+            ? assignGroupIds
+            : undefined,
+        memberIds:
+          assignAudienceKind === AssociationAudienceKind.SpecificMembers
+            ? assignMemberIds
+            : undefined,
+      }).unwrap();
+      notify.success(
+        t("associationDashboard.members.messages.requirementAssigned"),
+      );
+      setAssignPickerOpen(false);
+    } catch (error) {
+      failWith(error);
+    }
   };
 
   const previewImportFile = async (file?: File | null) => {
@@ -499,18 +528,25 @@ export const useAssociationMembersTab = () => {
     toggleBulkRequirement,
     editingGroupId,
     startGroupEdit,
-    assignMemberId,
     cancelGroupEdit,
     openAssignPicker,
     downloadTemplate,
     previewImportFile,
     toggleGroupActive,
     closeAssignPicker,
-    setAssignMemberId,
     isAssignPickerOpen,
     assignPickerSearch,
-    confirmAssignPicker,
     assignPickerOptions,
+    assignRequirementId,
+    setAssignRequirementId,
+    assignAudienceKind,
+    setAssignAudienceKind,
+    assignGroupIds,
+    setAssignGroupIds,
+    assignMemberIds,
+    setAssignMemberIds,
+    submitAssignRequirement,
+    isAssigningRequirement: saveRequirementAudienceState.isLoading,
     importFailureMessage,
     setAssignPickerSearch,
     isImporting: bulkInviteState.isLoading,

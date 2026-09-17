@@ -5411,14 +5411,13 @@
         }
       },
       "assignPicker": {
-        "title": "Assign a requirement",
-        "description": "Choose a member to open their requirements list and assign one to them.",
-        "selectLabel": "Member",
-        "placeholder": "Search by name, email or member number",
-        "empty": "No members match your search.",
-        "results": "{{count}} members",
+        "title": "Assign requirement",
+        "description": "Apply a CPD/PDU requirement to members.",
+        "requirementLabel": "Requirement",
+        "requirementPlaceholder": "Select a requirement",
+        "audienceLabel": "Who gets it?",
         "cancel": "Cancel",
-        "continue": "Continue"
+        "submit": "Assign requirement"
       },
       "groups": {
         "createTitle": "Create a group",
@@ -5445,7 +5444,8 @@
         "groupCreated": "Group created.",
         "groupUpdated": "Group updated.",
         "groupDeactivated": "Group deactivated and its members released.",
-        "groupReactivated": "Group reactivated."
+        "groupReactivated": "Group reactivated.",
+        "requirementAssigned": "Requirement assigned."
       },
       "error": {
         "title": "We could not load your roster",

@@ -5415,13 +5415,12 @@
       },
       "assignPicker": {
         "title": "Assigner une exigence",
-        "description": "Choisissez un membre pour ouvrir sa liste d'exigences et lui en assigner une.",
-        "selectLabel": "Membre",
-        "placeholder": "Rechercher par nom, e-mail ou numéro de membre",
-        "empty": "Aucun membre ne correspond à votre recherche.",
-        "results": "{{count}} membres",
+        "description": "Appliquez une exigence CPD/PDU à des membres.",
+        "requirementLabel": "Exigence",
+        "requirementPlaceholder": "Sélectionner une exigence",
+        "audienceLabel": "Qui la reçoit ?",
         "cancel": "Annuler",
-        "continue": "Continuer"
+        "submit": "Assigner l'exigence"
       },
       "groups": {
         "createTitle": "Créer un groupe",
@@ -5448,7 +5447,8 @@
         "groupCreated": "Groupe créé.",
         "groupUpdated": "Groupe mis à jour.",
         "groupDeactivated": "Groupe désactivé et ses membres libérés.",
-        "groupReactivated": "Groupe réactivé."
+        "groupReactivated": "Groupe réactivé.",
+        "requirementAssigned": "Exigence assignée."
       },
       "error": {
         "title": "Impossible de charger votre liste",

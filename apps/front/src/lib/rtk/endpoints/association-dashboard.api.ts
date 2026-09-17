@@ -865,6 +865,8 @@ export const associationApi = baseApi.injectEndpoints({
       invalidatesTags: [
         "AssociationRequirements",
         "AssociationRequirementStats",
+        "AssociationMembers",
+        "AssociationMemberStats",
       ],
     }),
 
