@@ -331,13 +331,13 @@ const AdminUsersTab = () => {
                       )}
                       confirmText={t("common.confirm")}
                       cancelText={t("common.cancel")}
-                      confirmVariant="cancel"
+                      confirmVariant="destructive"
                       onConfirm={() => deleteUser(user.id)}
                       trigger={
                         <Button
                           size="iconSm"
                           radius="xl"
-                          variant="cancel"
+                          variant="destructive"
                           disabled={isLoading}
                           title={t("adminDashboard.users.actions.delete")}
                           aria-label={t("adminDashboard.users.actions.delete")}

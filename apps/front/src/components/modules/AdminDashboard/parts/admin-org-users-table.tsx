@@ -101,14 +101,14 @@ export const AdminOrganizationUsersTable = ({ hook }: Props) => {
                         )}
                         confirmText={t("common.confirm")}
                         cancelText={t("common.cancel")}
-                        confirmVariant="cancel"
+                        confirmVariant="destructive"
                         onConfirm={() => deleteOrganization(org.ownerId)}
                         trigger={
                           <Button
                             size="iconSm"
                             radius="xl"
                             type="button"
-                            variant="cancel"
+                            variant="destructive"
                             disabled={isLoading}
                             title={t(
                               "adminDashboard.organizationUsers.actions.delete",

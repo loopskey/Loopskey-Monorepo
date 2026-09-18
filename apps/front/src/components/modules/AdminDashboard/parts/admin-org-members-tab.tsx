@@ -158,14 +158,14 @@ export const AdminOrganizationMembersTab = ({ hook }: Props) => {
                           )}
                           confirmText={t("common.confirm")}
                           cancelText={t("common.cancel")}
-                          confirmVariant="cancel"
+                          confirmVariant="destructive"
                           onConfirm={() => deactivateMember(member.id)}
                           trigger={
                             <Button
                               size="sm"
                               radius="xl"
                               type="button"
-                              variant="cancel"
+                              variant="destructive"
                             >
                               <L.Trash2 className="h-4 w-4" />
                             </Button>

@@ -2,7 +2,7 @@
 
 import { TConfirmDialogProps } from "@/types/element.types";
 import { Loader2 } from "lucide-react";
-import { Button } from "@ui/button";
+import { buttonVariants } from "@ui/button";
 
 import * as A from "@ui/alert-dialog";
 
@@ -32,25 +32,23 @@ export const ConfirmDialog = ({
         </A.AlertDialogHeader>
 
         <A.AlertDialogFooter>
-          <A.AlertDialogCancel asChild>
-            <Button variant="cancel" radius="xl" disabled={isLoading}>
-              {cancelText}
-            </Button>
+          <A.AlertDialogCancel
+            disabled={isLoading}
+            className={buttonVariants({ variant: "cancel", radius: "xl" })}
+          >
+            {cancelText}
           </A.AlertDialogCancel>
 
-          <A.AlertDialogAction asChild>
-            <Button
-              radius="xl"
-              disabled={isLoading}
-              variant={confirmVariant}
-              onClick={(event) => {
-                event.preventDefault();
-                void onConfirm();
-              }}
-            >
-              {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-              {confirmText}
-            </Button>
+          <A.AlertDialogAction
+            disabled={isLoading}
+            className={buttonVariants({ variant: confirmVariant, radius: "xl" })}
+            onClick={(event) => {
+              event.preventDefault();
+              void onConfirm();
+            }}
+          >
+            {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+            {confirmText}
           </A.AlertDialogAction>
         </A.AlertDialogFooter>
       </A.AlertDialogContent>
