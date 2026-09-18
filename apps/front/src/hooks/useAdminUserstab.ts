@@ -62,6 +62,8 @@ export const useAdminUsersTab = () => {
 
   const [updateUserStatus, updateStatusState] =
     API.useUpdateAdminUserStatusMutation();
+  const [deleteUserMutation, deleteUserState] =
+    API.useDeleteAdminUserMutation();
 
   const users = useMemo(() => usersQuery.data?.items ?? [], [usersQuery.data]);
   const auditLogs = useMemo(
@@ -86,6 +88,15 @@ export const useAdminUsersTab = () => {
     try {
       await updateUserStatus({ userId, status }).unwrap();
       notify.success(t("adminDashboard.users.messages.statusUpdated"));
+    } catch {
+      notify.error(t("authPages.common.genericError"));
+    }
+  };
+
+  const deleteUser = async (userId: string) => {
+    try {
+      await deleteUserMutation(userId).unwrap();
+      notify.success(t("adminDashboard.users.messages.userDeleted"));
     } catch {
       notify.error(t("authPages.common.genericError"));
     }
@@ -152,6 +163,7 @@ export const useAdminUsersTab = () => {
     setPremiumOnly,
     exportGrowthPng,
     changeUserStatus,
+    deleteUser,
     previousUsersPage,
     previousAuditPage,
     usersPage: userCursorStack.length + 1,
@@ -166,6 +178,7 @@ export const useAdminUsersTab = () => {
       usersQuery.isFetching ||
       growthQuery.isFetching ||
       auditQuery.isFetching ||
-      updateStatusState.isLoading,
+      updateStatusState.isLoading ||
+      deleteUserState.isLoading,
   };
 };

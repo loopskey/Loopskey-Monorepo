@@ -78,6 +78,19 @@ export const adminApi = baseApi.injectEndpoints({
       invalidatesTags: ["Users", "AdminAuditLogs"],
     }),
 
+    deleteAdminUser: builder.mutation<
+      TAPI.DeleteAdminUserMutation["deleteAdminUser"],
+      TAPI.DeleteAdminUserMutationVariables["userId"]
+    >({
+      query: (userId) => ({
+        document: API.DeleteAdminUserDocument,
+        variables: { userId },
+      }),
+      transformResponse: (response: TAPI.DeleteAdminUserMutation) =>
+        response.deleteAdminUser,
+      invalidatesTags: ["Users", "AdminAuditLogs"],
+    }),
+
     adminOrganizations: builder.query<
       TAPI.AdminOrganizationsQuery["adminOrganizations"],
       TAPI.AdminOrganizationsQueryVariables | void
@@ -336,6 +349,7 @@ export const {
   useAdminOrgAccessRequestsQuery,
   useLazyAdminOrganizationsQuery,
   useAdminOrganizationDetailQuery,
+  useDeleteAdminUserMutation,
   useUpdateAdminUserStatusMutation,
   useAdminOrganizationMembersQuery,
   useLazyAdminDashboardOverviewQuery,

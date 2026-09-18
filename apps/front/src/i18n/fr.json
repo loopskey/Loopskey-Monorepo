@@ -6928,7 +6928,8 @@
       "title": "Fournisseurs et professionnels",
       "description": "Gérez les comptes fournisseurs et professionnels, suivez la croissance des utilisateurs et consultez les journaux d’audit.",
       "messages": {
-        "statusUpdated": "Statut utilisateur mis à jour avec succès."
+        "statusUpdated": "Statut utilisateur mis à jour avec succès.",
+        "userDeleted": "Compte utilisateur supprimé définitivement."
       },
       "cards": {
         "total": "Utilisateurs totaux",
@@ -6975,7 +6976,12 @@
       },
       "actions": {
         "activate": "Activer",
-        "disable": "Désactiver"
+        "disable": "Désactiver",
+        "delete": "Supprimer"
+      },
+      "confirmDelete": {
+        "title": "Supprimer définitivement ce compte ?",
+        "description": "Cette action supprime définitivement le compte et tout ce qui lui est lié — profil, inscriptions, certificats, entrées du journal d’audit qu’il a créées, et tout autre enregistrement associé. Cette action est irréversible."
       },
       "audit": {
         "title": "Journaux d’audit",

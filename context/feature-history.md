@@ -84,3 +84,4 @@ into this index and do not rewrite previous records.
 - [`production-runnable-seed`](feature-runs/active/production-runnable-seed.md)
 - [`association-access-request`](feature-runs/active/association-access-request.md)
 - [`mobile-dashboard-drawer-corrections`](feature-runs/active/mobile-dashboard-drawer-corrections.md)
+- [`admin-user-hard-delete`](feature-runs/active/admin-user-hard-delete.md)

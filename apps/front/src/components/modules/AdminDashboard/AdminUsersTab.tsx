@@ -1,11 +1,11 @@
 "use client";
 
-import { useChartPalette } from "@hooks/useChartPalette";
-
 import { DashboardStatCard } from "@modules/ProfessionalDashboard/parts/dashboard-stat-card";
 import { ContentPagination } from "@elements/pagination";
 import { Role, UserStatus } from "@/lib/graphql/base";
 import { useAdminUsersTab } from "@/hooks/useAdminUserstab";
+import { useChartPalette } from "@hooks/useChartPalette";
+import { ConfirmDialog } from "@elements/confirm-dialog";
 import { formatDate } from "@/utils/function-helper";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
@@ -44,6 +44,7 @@ const AdminUsersTab = () => {
     userStatus,
     auditSearch,
     premiumOnly,
+    deleteUser,
     setUserRole,
     setUserSearch,
     nextUsersPage,
@@ -318,6 +319,28 @@ const AdminUsersTab = () => {
                     >
                       {t("adminDashboard.users.actions.disable")}
                     </Button>
+                    <ConfirmDialog
+                      isLoading={isLoading}
+                      title={t("adminDashboard.users.confirmDelete.title")}
+                      description={t(
+                        "adminDashboard.users.confirmDelete.description",
+                      )}
+                      confirmText={t("common.confirm")}
+                      cancelText={t("common.cancel")}
+                      confirmVariant="cancel"
+                      onConfirm={() => deleteUser(user.id)}
+                      trigger={
+                        <Button
+                          size="sm"
+                          radius="xl"
+                          variant="cancel"
+                          disabled={isLoading}
+                        >
+                          <L.Trash2 className="h-4 w-4" />
+                          {t("adminDashboard.users.actions.delete")}
+                        </Button>
+                      }
+                    />
                   </div>
                 </div>
               ))

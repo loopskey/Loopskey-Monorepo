@@ -2264,6 +2264,7 @@ model AssociationMember {
 
 // ============== Admin =================
 enum AuditAction {
+  USER_DELETED
   USER_EXPORTED
   USER_STATUS_UPDATED
   ORGANIZATION_VIEWED
