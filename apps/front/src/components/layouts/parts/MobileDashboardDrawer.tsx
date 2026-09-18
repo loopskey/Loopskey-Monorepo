@@ -2,11 +2,10 @@
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@ui/tooltip";
 import { isDashboardTabActive } from "@/utils/dashboard-nav.config";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDashboardNav } from "@/hooks/useDashboardNav";
 import { siteLinks } from "@utils/constant";
 import { useI18n } from "@/hooks/useI18n";
-import { Logo } from "@layouts/parts/logo";
 import { cn } from "@/lib/utils";
 
 import Link from "next/link";
@@ -14,49 +13,35 @@ import * as L from "lucide-react";
 
 const HINT_STORAGE_KEY = "loopskey:dashboard-nav-hint-seen";
 const HINT_AUTO_DISMISS_MS = 6000;
+const ACTIVE_TAB_PEEK_MS = 2000;
 
 type TTabHandleProps = {
-  variant: "open" | "close";
+  Chevron: typeof L.ChevronRight;
 };
 
-const TabHandle = ({ variant }: TTabHandleProps) => {
-  const isOpenVariant = variant === "open";
-  const Chevron = isOpenVariant ? L.ChevronRight : L.ChevronLeft;
-
-  return (
-    <span
-      className={cn(
-        "relative flex h-24 w-7 flex-col items-center justify-between bg-primary py-3 shadow-lg transition-transform duration-200 group-hover:scale-105 group-active:scale-95",
-        isOpenVariant ? "rounded-r-2xl" : "rounded-l-2xl",
-      )}
-    >
-      <span className="flex flex-col items-center gap-1">
-        <span className="size-1 rounded-full bg-primary-foreground/50" />
-        <span className="size-1 rounded-full bg-primary-foreground/50" />
-      </span>
-      <span className="flex flex-col items-center gap-1">
-        <span className="size-1 rounded-full bg-primary-foreground/50" />
-        <span className="size-1 rounded-full bg-primary-foreground/50" />
-      </span>
-      <span
-        className={cn(
-          "absolute top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full bg-background text-primary shadow-md",
-          isOpenVariant
-            ? "left-full -translate-x-1/2"
-            : "right-full translate-x-1/2",
-        )}
-      >
-        <Chevron className="size-4" aria-hidden />
-      </span>
+const TabHandle = ({ Chevron }: TTabHandleProps) => (
+  <span className="relative flex h-24 w-7 flex-col items-center justify-between rounded-r-2xl bg-primary py-3 shadow-lg transition-transform duration-200 group-hover:scale-105 group-active:scale-95">
+    <span className="flex flex-col items-center gap-1">
+      <span className="size-1 rounded-full bg-primary-foreground/50" />
+      <span className="size-1 rounded-full bg-primary-foreground/50" />
     </span>
-  );
-};
+    <span className="flex flex-col items-center gap-1">
+      <span className="size-1 rounded-full bg-primary-foreground/50" />
+      <span className="size-1 rounded-full bg-primary-foreground/50" />
+    </span>
+    <span className="absolute left-full top-1/2 flex size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-background text-primary shadow-md">
+      <Chevron className="size-4" aria-hidden />
+    </span>
+  </span>
+);
 
 export const MobileDashboardDrawer = () => {
   const { t } = useI18n();
   const { role, tabs, activeTab, isReady } = useDashboardNav();
   const [isOpen, setIsOpen] = useState(false);
   const [showHint, setShowHint] = useState(false);
+  const [peekedTab, setPeekedTab] = useState<string | null>(null);
+  const peekTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     try {
@@ -108,6 +93,15 @@ export const MobileDashboardDrawer = () => {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [isOpen]);
 
+  useEffect(() => {
+    setPeekedTab(activeTab);
+    if (peekTimeoutRef.current) clearTimeout(peekTimeoutRef.current);
+    peekTimeoutRef.current = setTimeout(() => setPeekedTab(null), ACTIVE_TAB_PEEK_MS);
+    return () => {
+      if (peekTimeoutRef.current) clearTimeout(peekTimeoutRef.current);
+    };
+  }, [activeTab]);
+
   if (!isReady || !role) return null;
 
   return (
@@ -131,7 +125,7 @@ export const MobileDashboardDrawer = () => {
               aria-expanded={isOpen}
               className="group fixed left-0 top-[38%] z-50 -translate-y-1/2 outline-none"
             >
-              <TabHandle variant="open" />
+              <TabHandle Chevron={L.ChevronRight} />
             </button>
           </TooltipTrigger>
           <TooltipContent side="right" className="flex items-center gap-2">
@@ -150,37 +144,42 @@ export const MobileDashboardDrawer = () => {
       <aside
         aria-label={t("dashboardShell.navLabel")}
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-[78vw] max-w-[280px] flex-col bg-primary text-primary-foreground shadow-2xl transition-transform duration-300 ease-out motion-reduce:transition-none",
+          "fixed inset-y-0 left-0 z-50 flex w-[72px] flex-col bg-primary text-primary-foreground shadow-2xl transition-transform duration-300 ease-out motion-reduce:transition-none",
           isOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <div className="flex h-16 shrink-0 items-center border-b border-primary-foreground/15 px-4">
-          <Logo variant="onPrimary" />
-        </div>
-
-        <nav className="min-h-0 flex-1 overflow-y-auto px-3 py-3">
-          <ul className="flex flex-col gap-1">
+        <nav className="min-h-0 flex-1 overflow-y-auto py-3 pl-3">
+          <ul>
             {tabs.map((item) => {
               const Icon = item.icon;
               const isActive = isDashboardTabActive(item.value, activeTab);
               const label = t(item.labelKey);
 
               return (
-                <li key={item.value}>
-                  <Link
-                    href={item.href}
-                    aria-current={isActive ? "page" : undefined}
-                    className={cn(
-                      "flex items-center gap-3 rounded-full px-4 py-3 text-sm font-semibold outline-none transition-colors duration-200",
-                      isActive
-                        ? "bg-background text-primary"
-                        : "text-primary-foreground/90 hover:bg-primary-hover",
-                      "focus-visible:ring-2 focus-visible:ring-ring-on-primary focus-visible:ring-offset-2 focus-visible:ring-offset-primary",
-                    )}
+                <li key={item.value} className="sidebar-item" data-active={isActive}>
+                  <Tooltip
+                    open={peekedTab !== null && isDashboardTabActive(item.value, peekedTab)}
+                    onOpenChange={(open) => setPeekedTab(open ? item.value : null)}
                   >
-                    <Icon className="size-5 shrink-0" aria-hidden />
-                    <span className="truncate">{label}</span>
-                  </Link>
+                    <TooltipTrigger asChild>
+                      <Link
+                        href={item.href}
+                        title={label}
+                        aria-label={label}
+                        aria-current={isActive ? "page" : undefined}
+                        className={cn(
+                          "relative z-10 flex h-[60px] w-full items-center justify-center rounded-l-[30px] outline-none transition-colors duration-200",
+                          "text-primary-foreground",
+                          "hover:bg-background hover:text-primary",
+                          "focus-visible:ring-2 focus-visible:ring-ring-on-primary focus-visible:ring-offset-2 focus-visible:ring-offset-primary",
+                          isActive && "bg-background text-primary",
+                        )}
+                      >
+                        <Icon className="size-5 shrink-0" aria-hidden />
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent side="right">{label}</TooltipContent>
+                  </Tooltip>
                 </li>
               );
             })}
@@ -188,14 +187,19 @@ export const MobileDashboardDrawer = () => {
         </nav>
 
         <div className="shrink-0 border-t border-primary-foreground/15 p-3">
-          <Link
-            href={siteLinks.faq}
-            onClick={closeDrawer}
-            className="flex items-center gap-3 rounded-full px-4 py-3 text-sm font-semibold text-primary-foreground/90 outline-none transition-colors duration-200 hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-ring-on-primary focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
-          >
-            <L.HelpCircle className="size-5 shrink-0" aria-hidden />
-            <span>{t("dashboardShell.helpSupport")}</span>
-          </Link>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link
+                href={siteLinks.faq}
+                onClick={closeDrawer}
+                aria-label={t("dashboardShell.helpSupport")}
+                className="flex h-12 w-full items-center justify-center rounded-full text-primary-foreground/90 outline-none transition-colors duration-200 hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-ring-on-primary focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
+              >
+                <L.HelpCircle className="size-5 shrink-0" aria-hidden />
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent side="right">{t("dashboardShell.helpSupport")}</TooltipContent>
+          </Tooltip>
         </div>
 
         {isOpen && (
@@ -206,7 +210,7 @@ export const MobileDashboardDrawer = () => {
             aria-expanded={isOpen}
             className="group absolute left-full top-[38%] -translate-y-1/2 outline-none"
           >
-            <TabHandle variant="close" />
+            <TabHandle Chevron={L.ChevronLeft} />
           </button>
         )}
       </aside>
