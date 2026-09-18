@@ -88,3 +88,4 @@ into this index and do not rewrite previous records.
 - [`admin-dashboard-visual-polish`](feature-runs/active/admin-dashboard-visual-polish.md)
 - [`admin-users-icon-only-actions`](feature-runs/active/admin-users-icon-only-actions.md)
 - [`admin-org-association-delete-and-icons`](feature-runs/active/admin-org-association-delete-and-icons.md)
+- [`professional-dashboard-mobile-ux`](feature-runs/active/professional-dashboard-mobile-ux.md)
