@@ -298,28 +298,30 @@ const AdminUsersTab = () => {
                   </span>
                   <div className="flex flex-wrap gap-2">
                     <Button
-                      size="sm"
+                      size="iconSm"
                       radius="xl"
                       variant="outline"
                       disabled={isLoading}
+                      title={t("adminDashboard.users.actions.activate")}
+                      aria-label={t("adminDashboard.users.actions.activate")}
                       onClick={() =>
                         changeUserStatus(user.id, UserStatus.Active)
                       }
                     >
                       <L.CheckCircle2 className="h-4 w-4" />
-                      {t("adminDashboard.users.actions.activate")}
                     </Button>
                     <Button
-                      size="sm"
+                      size="iconSm"
                       radius="xl"
                       variant="cancel"
                       disabled={isLoading}
+                      title={t("adminDashboard.users.actions.disable")}
+                      aria-label={t("adminDashboard.users.actions.disable")}
                       onClick={() =>
                         changeUserStatus(user.id, UserStatus.Disabled)
                       }
                     >
                       <L.PowerOff className="h-4 w-4" />
-                      {t("adminDashboard.users.actions.disable")}
                     </Button>
                     <ConfirmDialog
                       isLoading={isLoading}
@@ -333,13 +335,14 @@ const AdminUsersTab = () => {
                       onConfirm={() => deleteUser(user.id)}
                       trigger={
                         <Button
-                          size="sm"
+                          size="iconSm"
                           radius="xl"
                           variant="cancel"
                           disabled={isLoading}
+                          title={t("adminDashboard.users.actions.delete")}
+                          aria-label={t("adminDashboard.users.actions.delete")}
                         >
                           <L.Trash2 className="h-4 w-4" />
-                          {t("adminDashboard.users.actions.delete")}
                         </Button>
                       }
                     />
