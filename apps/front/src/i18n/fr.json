@@ -6639,7 +6639,12 @@
       "actions": {
         "create": "Nouvelle association",
         "resend": "Renvoyer l'activation",
-        "noneNeeded": "Activé"
+        "noneNeeded": "Activé",
+        "delete": "Supprimer"
+      },
+      "confirmDelete": {
+        "title": "Supprimer définitivement ce compte d'association ?",
+        "description": "Cette action supprime définitivement le compte du responsable et tout ce qui lui est lié — l'association, ses membres, groupes, exigences et rapports. Cette action est irréversible."
       },
       "filters": {
         "search": "Rechercher par nom d'association ou e-mail de contact",
@@ -6685,7 +6690,8 @@
         "confirm": "Renvoyer"
       },
       "messages": {
-        "activationResent": "Un nouvel e-mail d'activation a été mis en file pour {name}."
+        "activationResent": "Un nouvel e-mail d'activation a été mis en file pour {name}.",
+        "accountDeleted": "Le compte de {{name}} a été supprimé définitivement."
       },
       "errors": {
         "emailAlreadyInUse": "Un compte utilise déjà cet e-mail professionnel.",
@@ -7095,7 +7101,12 @@
         "actions": "Actions"
       },
       "actions": {
-        "details": "Détails"
+        "details": "Détails",
+        "delete": "Supprimer"
+      },
+      "confirmDelete": {
+        "title": "Supprimer définitivement ce compte d'organisation ?",
+        "description": "Cette action supprime définitivement le compte du propriétaire et tout ce qui lui est lié — l'organisation, ses membres, départements, affectations et paramètres. Cette action est irréversible."
       },
       "dialog": {
         "description": "Consultez les KPIs, les membres, les paramètres et les journaux d’audit."
@@ -7156,7 +7167,8 @@
       "messages": {
         "memberUpdated": "Membre mis à jour avec succès.",
         "memberRemoved": "Membre supprimé avec succès.",
-        "settingsUpdated": "Paramètres de l’organisation mis à jour avec succès."
+        "settingsUpdated": "Paramètres de l’organisation mis à jour avec succès.",
+        "organizationDeleted": "Compte d'organisation supprimé définitivement."
       }
     }
   },

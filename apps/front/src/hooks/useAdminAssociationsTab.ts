@@ -5,13 +5,14 @@ import { AssociationMessageCode } from "@loopskey/api-contracts/error-codes";
 import { TAdminAssociationItem } from "@/types/admin-dashboard.types";
 import { SEARCH_DEBOUNCE_MS } from "@utils/constant";
 import { useDebouncedValue } from "@hooks/useDebounced";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { UserStatus } from "@/lib/graphql/base";
+import { useForm } from "react-hook-form";
 import { useI18n } from "@hooks/useI18n";
 import { notify } from "@hooks/notify";
 
+import * as ADMIN_API from "@lib/rtk/endpoints/admin-dashboard.api";
 import * as API from "@lib/rtk/endpoints/association-dashboard.api";
 import * as SC from "@lib/validations/association-dashboard.schema";
 
@@ -75,6 +76,8 @@ export const useAdminAssociationsTab = () => {
     API.useCreateAssociationAccountMutation();
   const [resendActivation, resendState] =
     API.useResendAssociationActivationMutation();
+  const [deleteOwner, deleteOwnerState] =
+    ADMIN_API.useDeleteAdminUserMutation();
 
   const items = query.data?.items ?? [];
 
@@ -159,6 +162,19 @@ export const useAdminAssociationsTab = () => {
     }
   };
 
+  const deleteAssociation = async (item: TAdminAssociationItem) => {
+    try {
+      await deleteOwner(item.ownerId).unwrap();
+      notify.success(
+        t("adminDashboard.associations.messages.accountDeleted", {
+          name: item.name,
+        }),
+      );
+    } catch {
+      notify.error(t("authPages.common.genericError"));
+    }
+  };
+
   const refresh = async () => {
     await query.refetch();
   };
@@ -170,6 +186,7 @@ export const useAdminAssociationsTab = () => {
     search,
     resend,
     refresh,
+    deleteAssociation,
     nextPage,
     setSearch,
     createForm,
@@ -186,6 +203,7 @@ export const useAdminAssociationsTab = () => {
     ownerStatusOptions,
     isCreating: createState.isLoading,
     isResending: resendState.isLoading,
+    isDeleting: deleteOwnerState.isLoading,
     isLoading: query.isFetching,
     page: cursorStack.length + 1,
     canPrevious: cursorStack.length > 0,

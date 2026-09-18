@@ -88,6 +88,7 @@ export type AdminOrg = {
   logoUrl?: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
   ownerEmail?: Maybe<Scalars['String']['output']>;
+  ownerId: Scalars['ID']['output'];
   ownerName?: Maybe<Scalars['String']['output']>;
   totalMembers: Scalars['Int']['output'];
   totalPdus: Scalars['Float']['output'];
@@ -272,6 +273,7 @@ export type Association = {
   name: Scalars['String']['output'];
   ownerEmail?: Maybe<Scalars['String']['output']>;
   ownerFullName?: Maybe<Scalars['String']['output']>;
+  ownerId: Scalars['ID']['output'];
   ownerStatus: UserStatus;
   settings?: Maybe<AssociationSettings>;
   updatedAt: Scalars['DateTime']['output'];

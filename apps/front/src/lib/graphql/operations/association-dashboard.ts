@@ -30,7 +30,7 @@ export type ResendAssociationActivationMutationVariables = Types.Exact<{
 
 export type ResendAssociationActivationMutation = { __typename?: 'Mutation', resendAssociationActivation: { __typename?: 'AssociationActionResponse', code: string, success: boolean, message: string } };
 
-export type AssociationAccountRowFieldsFragment = { __typename?: 'Association', id: string, name: string, country?: string | null, website?: string | null, logoUrl?: string | null, contactEmail?: string | null, ownerEmail?: string | null, ownerFullName?: string | null, ownerStatus: Types.UserStatus, createdAt: string };
+export type AssociationAccountRowFieldsFragment = { __typename?: 'Association', id: string, ownerId: string, name: string, country?: string | null, website?: string | null, logoUrl?: string | null, contactEmail?: string | null, ownerEmail?: string | null, ownerFullName?: string | null, ownerStatus: Types.UserStatus, createdAt: string };
 
 export type AssociationAccountsQueryVariables = Types.Exact<{
   filter?: Types.InputMaybe<Types.AssociationAccountFilterInput>;
@@ -38,7 +38,7 @@ export type AssociationAccountsQueryVariables = Types.Exact<{
 }>;
 
 
-export type AssociationAccountsQuery = { __typename?: 'Query', associationAccounts: { __typename?: 'PaginatedAssociationAccounts', totalCount: number, pageInfo: { __typename?: 'AssociationPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'Association', id: string, name: string, country?: string | null, website?: string | null, logoUrl?: string | null, contactEmail?: string | null, ownerEmail?: string | null, ownerFullName?: string | null, ownerStatus: Types.UserStatus, createdAt: string }> } };
+export type AssociationAccountsQuery = { __typename?: 'Query', associationAccounts: { __typename?: 'PaginatedAssociationAccounts', totalCount: number, pageInfo: { __typename?: 'AssociationPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'Association', id: string, ownerId: string, name: string, country?: string | null, website?: string | null, logoUrl?: string | null, contactEmail?: string | null, ownerEmail?: string | null, ownerFullName?: string | null, ownerStatus: Types.UserStatus, createdAt: string }> } };
 
 export type AssociationMemberGroupFieldsFragment = { __typename?: 'AssociationMemberGroup', id: string, title: string, isActive: boolean };
 
@@ -546,6 +546,7 @@ export const AssociationFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentStrin
 export const AssociationAccountRowFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
     fragment AssociationAccountRowFields on Association {
   id
+  ownerId
   name
   country
   website
@@ -1041,6 +1042,7 @@ export const AssociationAccountsDocument = /*#__PURE__*/ new TypedDocumentString
 }
     fragment AssociationAccountRowFields on Association {
   id
+  ownerId
   name
   country
   website

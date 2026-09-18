@@ -6,6 +6,7 @@ export type TAssociationUser = { id: string; role: Role };
 
 export const ASSOCIATION_SELECT = {
   id: true,
+  ownerId: true,
   name: true,
   logoUrl: true,
   description: true,

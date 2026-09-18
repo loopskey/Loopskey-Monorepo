@@ -67,6 +67,7 @@ type AdminOrg {
   logoUrl: String
   name: String!
   ownerEmail: String
+  ownerId: ID!
   ownerName: String
   totalMembers: Int!
   totalPdus: Float!
@@ -243,6 +244,7 @@ type Association {
   name: String!
   ownerEmail: String
   ownerFullName: String
+  ownerId: ID!
   ownerStatus: UserStatus!
   settings: AssociationSettings
   updatedAt: DateTime!
