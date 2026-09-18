@@ -121,6 +121,18 @@ export class AdminDashboardService {
     return updated;
   }
 
+  async deleteUser(user: TAdminDashboardUser, userId: string) {
+    this.assertAdmin(user);
+    const deleted = await this.identityAdmin.deleteUser(userId);
+    if (!deleted)
+      throw new NotFoundException(AdminDashboardMessageCode.USER_NOT_FOUND);
+    await this.createAudit(user.id, AuditAction.USER_DELETED, "User", userId, {
+      role: deleted.role,
+      email: deleted.email,
+    });
+    return true;
+  }
+
   async userGrowth(
     user: TAdminDashboardUser,
     mode: "DAILY" | "MONTHLY" = "DAILY",

@@ -97,6 +97,16 @@ export class AdminDashboardResolver {
     );
   }
 
+  @Mutation(() => Boolean, {
+    name: AdminDashboardGqlMutationNames.DELETE_ADMIN_USER,
+  })
+  deleteAdminUser(
+    @CurrentUser() user: TResolverUser,
+    @Args("userId") userId: string,
+  ) {
+    return this.adminDashboardService.deleteUser(this.getUser(user), userId);
+  }
+
   @Query(() => PaginatedAdminOrgAccessRequestsEntity, {
     name: AdminDashboardGqlQueryNames.ADMIN_ORG_ACCESS_REQUESTS,
   })

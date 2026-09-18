@@ -298,6 +298,10 @@ mutation UpdateAdminUserStatus($input: UpdateAdminUserStatus!) {
   }
 }
 
+mutation DeleteAdminUser($userId: String!) {
+  deleteAdminUser(userId: $userId)
+}
+
 # ================= Audit Logs =================
 fragment AdminDashboardAuditLogFields on AdminAuditLog {
   id

@@ -1258,6 +1258,7 @@ export enum AuditAction {
   OrgAccessRequestApproved = 'ORG_ACCESS_REQUEST_APPROVED',
   OrgAccessRequestRejected = 'ORG_ACCESS_REQUEST_REJECTED',
   OrgAccessRequestSubmitted = 'ORG_ACCESS_REQUEST_SUBMITTED',
+  UserDeleted = 'USER_DELETED',
   UserExported = 'USER_EXPORTED',
   UserStatusUpdated = 'USER_STATUS_UPDATED'
 }
@@ -2532,6 +2533,7 @@ export type Mutation = {
   createYouTubeChannel: YouTubeChannel;
   createYouTubeVideo: YouTubeVideo;
   deactivateIngestionSource: IngestionSource;
+  deleteAdminUser: Scalars['Boolean']['output'];
   deleteAssociationLearningContent: AssociationActionResponse;
   deleteCalendarEvent: ProfessionalActionResponse;
   deleteContentReview: ContentActionPayload;
@@ -2869,6 +2871,11 @@ export type MutationCreateYouTubeVideoArgs = {
 
 export type MutationDeactivateIngestionSourceArgs = {
   sourceId: Scalars['String']['input'];
+};
+
+
+export type MutationDeleteAdminUserArgs = {
+  userId: Scalars['String']['input'];
 };
 
 

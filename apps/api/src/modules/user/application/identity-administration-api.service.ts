@@ -1,9 +1,9 @@
+import { Injectable, ForbiddenException } from "@nestjs/common";
 import { IdentityAdministrationApi } from "@user/public/identity-administration-api";
 import { IdentityDirectoryQuery } from "@user/public/identity-administration-api";
 import { RoleProfileRegistry } from "@prisma/role-profile-registry.service";
 import { Role, UserStatus } from "@prisma/client";
 import { PrismaService } from "@prisma/prisma.service";
-import { Injectable } from "@nestjs/common";
 
 @Injectable()
 export class IdentityAdministrationApiService
@@ -113,6 +113,21 @@ export class IdentityAdministrationApiService
         deletedAt: status === UserStatus.DELETED ? new Date() : null,
       },
     });
+  }
+
+  async deleteUser(userId: string) {
+    const target = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, role: true, email: true },
+    });
+    if (!target) return null;
+    if (target.role === Role.ADMIN)
+      throw new ForbiddenException({
+        code: "CannotDeleteAdmin",
+        message: "Admin accounts cannot be deleted from this panel.",
+      });
+    await this.prisma.user.delete({ where: { id: userId } });
+    return target;
   }
 
   async growth(mode: "DAILY" | "MONTHLY") {
