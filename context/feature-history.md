@@ -86,3 +86,4 @@ into this index and do not rewrite previous records.
 - [`mobile-dashboard-drawer-corrections`](feature-runs/active/mobile-dashboard-drawer-corrections.md)
 - [`admin-user-hard-delete`](feature-runs/active/admin-user-hard-delete.md)
 - [`admin-dashboard-visual-polish`](feature-runs/active/admin-dashboard-visual-polish.md)
+- [`admin-users-icon-only-actions`](feature-runs/active/admin-users-icon-only-actions.md)
