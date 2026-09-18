@@ -306,6 +306,7 @@ const AdminUsersTab = () => {
                         changeUserStatus(user.id, UserStatus.Active)
                       }
                     >
+                      <L.CheckCircle2 className="h-4 w-4" />
                       {t("adminDashboard.users.actions.activate")}
                     </Button>
                     <Button
@@ -317,6 +318,7 @@ const AdminUsersTab = () => {
                         changeUserStatus(user.id, UserStatus.Disabled)
                       }
                     >
+                      <L.PowerOff className="h-4 w-4" />
                       {t("adminDashboard.users.actions.disable")}
                     </Button>
                     <ConfirmDialog
