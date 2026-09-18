@@ -139,7 +139,7 @@ export const AdminAssociationsTable = ({ hook }: TAdminAssociationsTable) => {
                         isLoading={isDeleting}
                         onConfirm={() => deleteAssociation(item)}
                         cancelText={t("common.cancel")}
-                        confirmVariant="cancel"
+                        confirmVariant="destructive"
                         title={t(
                           "adminDashboard.associations.confirmDelete.title",
                         )}
@@ -152,7 +152,7 @@ export const AdminAssociationsTable = ({ hook }: TAdminAssociationsTable) => {
                           <Button
                             radius="xl"
                             size="iconSm"
-                            variant="cancel"
+                            variant="destructive"
                             title={t(
                               "adminDashboard.associations.actions.delete",
                             )}
