@@ -55,14 +55,14 @@ const Section = ({ title, description, children }: SectionProps) => (
 );
 
 const categoricalSeries = [
-  { token: "--chart-1", reference: "#1F1F8E", className: "bg-chart-1" },
-  { token: "--chart-2", reference: "#2563EB", className: "bg-chart-2" },
-  { token: "--chart-3", reference: "#0F766E", className: "bg-chart-3" },
-  { token: "--chart-4", reference: "#7C3AED", className: "bg-chart-4" },
-  { token: "--chart-5", reference: "#C65F00", className: "bg-chart-5" },
-  { token: "--chart-6", reference: "#BE185D", className: "bg-chart-6" },
-  { token: "--chart-7", reference: "#0369A1", className: "bg-chart-7" },
-  { token: "--chart-8", reference: "#475569", className: "bg-chart-8" },
+  { token: "--chart-1", reference: "#010080", className: "bg-chart-1" },
+  { token: "--chart-2", reference: "#31C2F9", className: "bg-chart-2" },
+  { token: "--chart-3", reference: "#F17815", className: "bg-chart-3" },
+  { token: "--chart-4", reference: "#15803D", className: "bg-chart-4" },
+  { token: "--chart-5", reference: "#3A5EB2", className: "bg-chart-5" },
+  { token: "--chart-6", reference: "#007EB2", className: "bg-chart-6" },
+  { token: "--chart-7", reference: "#A63E00", className: "bg-chart-7" },
+  { token: "--chart-8", reference: "#69BA7C", className: "bg-chart-8" },
 ];
 
 const semanticSlots = [
@@ -76,7 +76,7 @@ const semanticSlots = [
     key: "onTrack",
     label: "On track",
     className: "bg-chart-semantic-on-track",
-    reference: "#1F1F8E",
+    reference: "#010080",
   },
   {
     key: "atRisk",
