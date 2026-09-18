@@ -68,6 +68,7 @@ export const ProfessionalGeneralSettingsPanel = ({
         type="button"
         disabled={isLoading}
         onClick={saveGeneralSettings}
+        className="w-full justify-center sm:w-auto"
       >
         {t("professionalDashboard.settings.general.save")}
       </Button>

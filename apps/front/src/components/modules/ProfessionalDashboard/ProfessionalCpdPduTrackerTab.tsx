@@ -66,7 +66,12 @@ const ProfessionalCpdPduTrackerTab = () => {
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <Button radius="xl" type="button" onClick={handleAddActivity}>
+          <Button
+            radius="xl"
+            type="button"
+            onClick={handleAddActivity}
+            className="w-full justify-center sm:w-auto"
+          >
             <L.FilePlus2 className="h-4 w-4" />
             {t(`${TRACKER}.quickActions.addActivity`)}
           </Button>

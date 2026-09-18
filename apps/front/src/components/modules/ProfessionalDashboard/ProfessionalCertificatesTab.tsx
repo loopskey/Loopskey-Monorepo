@@ -36,7 +36,6 @@ const ProfessionalCertificatesTab = () => {
     handleViewAll,
     issuerOptions,
     handleDownload,
-    handleRetryAfterError,
     isPlansLoading,
     handlePrevious,
     isSummaryError,
@@ -49,6 +48,7 @@ const ProfessionalCertificatesTab = () => {
     handleResetFilters,
     wasSelectionDeleted,
     selectedCertificate,
+    handleRetryAfterError,
     deletingCertificateId,
     isDeleting,
   } = useProfessionalCertificates();
@@ -72,7 +72,12 @@ const ProfessionalCertificatesTab = () => {
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <Button radius="xl" type="button" onClick={handleUpload}>
+          <Button
+            radius="xl"
+            type="button"
+            onClick={handleUpload}
+            className="w-full justify-center sm:w-auto"
+          >
             <L.UploadCloud className="h-4 w-4" aria-hidden />
             {t(`${CERTIFICATES}.uploadCertificate`)}
           </Button>

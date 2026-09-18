@@ -2,7 +2,9 @@
 
 import { CalendarEventDetailsDialog } from "@modules/ProfessionalDashboard/parts/CalendarEventDetailsDialog";
 import { useProfessionalCalendar } from "@/hooks/useProfessionalCalendar";
+import { EventRegistrationStatus } from "@/lib/graphql/base";
 import { AddCalendarEventDialog } from "@modules/ProfessionalDashboard/parts/AddCalendarEventDialog";
+import { TCalendarStatusFilter } from "@/hooks/useProfessionalCalendar";
 import { getContentTypeStyle } from "@/utils/content-type-style";
 import { ContentPagination } from "@/components/elements/pagination";
 import { useRef, useState } from "react";
@@ -21,7 +23,9 @@ import listPlugin from "@fullcalendar/list";
 import Link from "next/link";
 
 import * as L from "lucide-react";
-import * as P from "@ui/popover";
+import * as S from "@ui/select";
+
+const CALENDAR_STATUS_OPTIONS = Object.values(EventRegistrationStatus);
 
 const MOBILE_CALENDAR_QUERY = "(max-width: 1023px)";
 
@@ -31,6 +35,7 @@ const ProfessionalCalendarTab = () => {
     data,
     page,
     search,
+    status,
     events,
     pageInfo,
     isAddOpen,
@@ -41,7 +46,6 @@ const ProfessionalCalendarTab = () => {
     resetFilters,
     selectedEvent,
     openAddDialog,
-    selectedRange,
     calendarEvents,
     upcomingEvents,
     formatDateTime,
@@ -49,15 +53,13 @@ const ProfessionalCalendarTab = () => {
     handlePrevious,
     isDeletingManual,
     closeEventDetails,
+    handleStatusChange,
     selectedManualEvent,
     handleAddOpenChange,
-    handleEndDateChange,
     filteredManualEvents,
-    handleStartDateChange,
     handleDeleteManualEvent,
     handleSearchInputChange,
     handleCalendarEventClick,
-    handleCalendarRangeSelect,
   } = useProfessionalCalendar();
 
   const eventStyle = getContentTypeStyle("EVENT");
@@ -68,9 +70,7 @@ const ProfessionalCalendarTab = () => {
   const [mobileViewType, setMobileViewType] = useState<
     "listWeek" | "dayGridMonth"
   >("listWeek");
-  const hasActiveFilters = Boolean(
-    search.trim() || selectedRange.start || selectedRange.end,
-  );
+  const hasActiveFilters = Boolean(search.trim() || status !== "ALL");
 
   const setCalendarView = (view: "listWeek" | "dayGridMonth") => {
     calendarRef.current?.getApi().changeView(view);
@@ -118,89 +118,6 @@ const ProfessionalCalendarTab = () => {
                 {t("professionalDashboard.calendar.calendarChart.description")}
               </p>
             </div>
-
-            <P.Popover>
-              <P.PopoverTrigger asChild>
-                <Button
-                  radius="xl"
-                  type="button"
-                  variant="outline"
-                  className="w-full lg:w-auto"
-                >
-                  <L.SlidersHorizontal className="h-4 w-4" />
-                  {t("professionalDashboard.calendar.filters.trigger")}
-                  {hasActiveFilters && (
-                    <span
-                      aria-label={t(
-                        "professionalDashboard.calendar.filters.active",
-                      )}
-                      className="ml-1 h-2 w-2 shrink-0 rounded-full bg-primary"
-                    />
-                  )}
-                </Button>
-              </P.PopoverTrigger>
-              <P.PopoverContent align="end" className="w-80 space-y-4">
-                <div>
-                  <h3 className="text-sm font-medium">
-                    {t("professionalDashboard.calendar.filters.title")}
-                  </h3>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {t("professionalDashboard.calendar.filters.description")}
-                  </p>
-                </div>
-
-                <div>
-                  <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    {t("professionalDashboard.calendar.filters.searchLabel")}
-                  </p>
-                  <div className="relative">
-                    <L.Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      value={search}
-                      className="h-11 pl-9"
-                      onChange={handleSearchInputChange}
-                      placeholder={t("professionalDashboard.calendar.search")}
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                      {t("professionalDashboard.calendar.filters.from")}
-                    </p>
-                    <Input
-                      type="date"
-                      className="h-11"
-                      value={selectedRange.start}
-                      onChange={handleStartDateChange}
-                    />
-                  </div>
-                  <div>
-                    <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                      {t("professionalDashboard.calendar.filters.to")}
-                    </p>
-                    <Input
-                      type="date"
-                      className="h-11"
-                      value={selectedRange.end}
-                      onChange={handleEndDateChange}
-                    />
-                  </div>
-                </div>
-
-                <Button
-                  radius="xl"
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                  onClick={resetFilters}
-                >
-                  <L.RotateCcw className="h-4 w-4" />
-                  {t("professionalDashboard.calendar.filters.reset")}
-                </Button>
-              </P.PopoverContent>
-            </P.Popover>
           </div>
 
           {isMobileCalendar && (
@@ -266,15 +183,27 @@ const ProfessionalCalendarTab = () => {
                   )
                     setMobileViewType(arg.view.type);
                 }}
-                selectable
-                selectMirror
                 eventDisplay="block"
                 events={calendarEvents}
-                select={handleCalendarRangeSelect}
                 eventClick={handleCalendarEventClick}
                 eventDidMount={(arg) => {
                   arg.el.setAttribute("title", arg.event.title);
                 }}
+                eventContent={
+                  isMobileCalendar
+                    ? (arg) =>
+                        arg.view.type === "dayGridMonth" ? (
+                          <span
+                            className="fc-event-dot block rounded-full"
+                            style={{
+                              backgroundColor:
+                                arg.event.backgroundColor || "var(--primary)",
+                            }}
+                          />
+                        ) : undefined
+                    : undefined
+                }
+                dayMaxEvents={isMobileCalendar ? 3 : undefined}
                 height="auto"
               />
             )}
@@ -375,6 +304,57 @@ const ProfessionalCalendarTab = () => {
           </div>
         </div>
 
+        <div className="mb-5 grid gap-3 sm:grid-cols-[1fr_200px]">
+          <div className="relative">
+            <L.Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={search}
+              className="h-11 pl-9"
+              onChange={handleSearchInputChange}
+              placeholder={t("professionalDashboard.calendar.search")}
+            />
+          </div>
+
+          <S.Select
+            value={status}
+            onValueChange={(value) =>
+              handleStatusChange(value as TCalendarStatusFilter)
+            }
+          >
+            <S.SelectTrigger className="h-11 rounded-md">
+              <S.SelectValue
+                placeholder={t(
+                  "professionalDashboard.calendar.filters.trigger",
+                )}
+              />
+            </S.SelectTrigger>
+            <S.SelectContent>
+              <S.SelectItem value="ALL">
+                {t("professionalDashboard.calendar.filters.allStatuses")}
+              </S.SelectItem>
+              {CALENDAR_STATUS_OPTIONS.map((option) => (
+                <S.SelectItem key={option} value={option}>
+                  {t(`professionalDashboard.calendar.statuses.${option}`)}
+                </S.SelectItem>
+              ))}
+            </S.SelectContent>
+          </S.Select>
+        </div>
+
+        {hasActiveFilters && (
+          <div className="mb-5 flex justify-end">
+            <Button
+              radius="xl"
+              type="button"
+              variant="outline"
+              onClick={resetFilters}
+            >
+              <L.RotateCcw className="h-4 w-4" />
+              {t("professionalDashboard.calendar.filters.reset")}
+            </Button>
+          </div>
+        )}
+
         <div className="overflow-hidden rounded-lg border">
           <div className="hidden grid-cols-[1.4fr_0.8fr_0.8fr_0.8fr_0.7fr] bg-primary/5 px-5 py-4 text-sm font-medium text-muted-foreground lg:grid">
             <span>{t("professionalDashboard.calendar.table.event")}</span>
@@ -399,9 +379,9 @@ const ProfessionalCalendarTab = () => {
                   return (
                     <div
                       key={`manual-row:${manual.id}`}
-                      className="grid gap-4 px-5 py-5 text-sm transition-colors hover:bg-primary/5 lg:grid-cols-[1.4fr_0.8fr_0.8fr_0.8fr_0.7fr] lg:items-center"
+                      className="p-5 text-sm transition-colors hover:bg-primary/5 lg:grid lg:grid-cols-[1.4fr_0.8fr_0.8fr_0.8fr_0.7fr] lg:items-center lg:gap-4"
                     >
-                      <div>
+                      <div className="min-w-0">
                         <Badge
                           variant="outline"
                           className={cn(style.badgeClass, "mb-2 gap-1")}
@@ -417,19 +397,42 @@ const ProfessionalCalendarTab = () => {
                         ) : null}
                       </div>
 
-                      <div>
-                        <p className="text-xs font-medium lg:hidden">
-                          {t("professionalDashboard.calendar.table.date")}
-                        </p>
-                        <p className="text-muted-foreground">
-                          {formatDateTime(manual.startDate)}
-                        </p>
+                      <div className="mt-4 grid grid-cols-2 gap-3 lg:hidden">
+                        <div>
+                          <p className="text-xs font-medium text-muted-foreground">
+                            {t("professionalDashboard.calendar.table.date")}
+                          </p>
+                          <p className="mt-1">
+                            {formatDateTime(manual.startDate)}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium text-muted-foreground">
+                            {t("professionalDashboard.calendar.table.mode")}
+                          </p>
+                          <Badge variant="outline" className="mt-1">
+                            {t(
+                              `professionalDashboard.calendar.types.${manual.type}`,
+                            )}
+                          </Badge>
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium text-muted-foreground">
+                            {t("professionalDashboard.calendar.table.status")}
+                          </p>
+                          <Badge variant="default" className="mt-1">
+                            {t(
+                              "professionalDashboard.calendar.upcoming.manual",
+                            )}
+                          </Badge>
+                        </div>
                       </div>
 
-                      <div>
-                        <p className="text-xs font-medium lg:hidden">
-                          {t("professionalDashboard.calendar.table.mode")}
-                        </p>
+                      <p className="hidden text-muted-foreground lg:block">
+                        {formatDateTime(manual.startDate)}
+                      </p>
+
+                      <div className="hidden lg:block">
                         <Badge variant="outline">
                           {t(
                             `professionalDashboard.calendar.types.${manual.type}`,
@@ -437,27 +440,27 @@ const ProfessionalCalendarTab = () => {
                         </Badge>
                       </div>
 
-                      <div>
-                        <p className="text-xs font-medium lg:hidden">
-                          {t("professionalDashboard.calendar.table.status")}
-                        </p>
+                      <div className="hidden lg:block">
                         <Badge variant="default">
                           {t("professionalDashboard.calendar.upcoming.manual")}
                         </Badge>
                       </div>
 
-                      <div className="flex justify-start gap-2 lg:justify-end">
+                      <div className="mt-4 flex justify-center gap-2 lg:mt-0 lg:justify-end">
                         <Button
+                          size="iconSm"
                           radius="xl"
-                          size="sm"
-                          variant="outline"
+                          variant="destructive"
                           disabled={isDeletingManual}
+                          title={t("professionalDashboard.calendar.delete")}
+                          aria-label={t(
+                            "professionalDashboard.calendar.delete",
+                          )}
                           onClick={() =>
                             void handleDeleteManualEvent(manual.id)
                           }
                         >
                           <L.Trash2 className="h-4 w-4" />
-                          {t("professionalDashboard.calendar.delete")}
                         </Button>
                       </div>
                     </div>
@@ -467,9 +470,9 @@ const ProfessionalCalendarTab = () => {
                 {events.map((registration) => (
                   <div
                     key={registration.id}
-                    className="grid gap-4 px-5 py-5 text-sm transition-colors hover:bg-primary/5 lg:grid-cols-[1.4fr_0.8fr_0.8fr_0.8fr_0.7fr] lg:items-center"
+                    className="p-5 text-sm transition-colors hover:bg-primary/5 lg:grid lg:grid-cols-[1.4fr_0.8fr_0.8fr_0.8fr_0.7fr] lg:items-center lg:gap-4"
                   >
-                    <div>
+                    <div className="min-w-0">
                       <Badge
                         variant="outline"
                         className={cn(eventStyle.badgeClass, "mb-2 gap-1")}
@@ -493,28 +496,51 @@ const ProfessionalCalendarTab = () => {
                       </div>
                     </div>
 
-                    <div>
-                      <p className="text-xs font-medium lg:hidden">
-                        {t("professionalDashboard.calendar.table.date")}
-                      </p>
-                      <p className="text-muted-foreground">
-                        {formatDateTime(registration.event?.startDate)}
-                      </p>
+                    <div className="mt-4 grid grid-cols-2 gap-3 lg:hidden">
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground">
+                          {t("professionalDashboard.calendar.table.date")}
+                        </p>
+                        <p className="mt-1">
+                          {formatDateTime(registration.event?.startDate)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground">
+                          {t("professionalDashboard.calendar.table.mode")}
+                        </p>
+                        <Badge variant="secondary" className="mt-1">
+                          {registration.event?.deliveryMode ?? "—"}
+                        </Badge>
+                      </div>
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground">
+                          {t("professionalDashboard.calendar.table.status")}
+                        </p>
+                        <Badge
+                          className="mt-1"
+                          variant={
+                            registration.isLive ? "default" : "secondary"
+                          }
+                        >
+                          {registration.isLive
+                            ? t("professionalDashboard.calendar.liveNow")
+                            : registration.status}
+                        </Badge>
+                      </div>
                     </div>
 
-                    <div>
-                      <p className="text-xs font-medium lg:hidden">
-                        {t("professionalDashboard.calendar.table.mode")}
-                      </p>
+                    <p className="hidden text-muted-foreground lg:block">
+                      {formatDateTime(registration.event?.startDate)}
+                    </p>
+
+                    <div className="hidden lg:block">
                       <Badge variant="secondary">
                         {registration.event?.deliveryMode ?? "—"}
                       </Badge>
                     </div>
 
-                    <div>
-                      <p className="text-xs font-medium lg:hidden">
-                        {t("professionalDashboard.calendar.table.status")}
-                      </p>
+                    <div className="hidden lg:block">
                       <Badge
                         variant={registration.isLive ? "default" : "secondary"}
                       >
@@ -524,23 +550,36 @@ const ProfessionalCalendarTab = () => {
                       </Badge>
                     </div>
 
-                    <div className="flex justify-start gap-2 lg:justify-end">
+                    <div className="mt-4 flex justify-center gap-2 lg:mt-0 lg:justify-end">
                       {registration.event?.onlineUrl ? (
-                        <Button radius="xl" size="sm" asChild>
+                        <Button
+                          size="iconSm"
+                          radius="xl"
+                          variant="outline"
+                          asChild
+                          title={t("professionalDashboard.calendar.join")}
+                          aria-label={t("professionalDashboard.calendar.join")}
+                        >
                           <Link
                             href={registration.event.onlineUrl}
                             target="_blank"
                             rel="noreferrer"
                           >
                             <L.Video className="h-4 w-4" />
-                            {t("professionalDashboard.calendar.join")}
                           </Link>
                         </Button>
                       ) : null}
 
-                      <Button radius="xl" variant="outline" size="sm" asChild>
+                      <Button
+                        asChild
+                        size="iconSm"
+                        radius="xl"
+                        variant="outline"
+                        title={t("professionalDashboard.common.details")}
+                        aria-label={t("professionalDashboard.common.details")}
+                      >
                         <Link href={getEventHref(registration)}>
-                          {t("professionalDashboard.common.details")}
+                          <L.Eye className="h-4 w-4" />
                         </Link>
                       </Button>
                     </div>

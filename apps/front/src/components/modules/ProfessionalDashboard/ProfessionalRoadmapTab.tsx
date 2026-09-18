@@ -4,7 +4,9 @@ import { RoadmapRecommendationsCard } from "@modules/ProfessionalRoadmap/Roadmap
 import { RoadmapGenerationStatus } from "@modules/ProfessionalRoadmap/RoadmapGenerationStatus";
 import { useProfessionalRoadmaps } from "@/hooks/useProfessionalRoadmap";
 import { RoadmapSummarySections } from "@modules/ProfessionalRoadmap/RoadmapSummarySections";
+import { ProgressDonutChart } from "@elements/dashboard-charts";
 import { ContentPagination } from "@elements/pagination";
+import { useChartSemantics } from "@hooks/useChartPalette";
 import { RoadmapPhaseList } from "@modules/ProfessionalRoadmap/RoadmapPhaseList";
 import { GlassCard } from "@elements/glass-card";
 import { Progress } from "@ui/progress";
@@ -29,18 +31,20 @@ const ProfessionalRoadmapTab = () => {
     locale,
     myPageInfo,
     myRoadmaps,
-    otherRoadmaps,
     handleNext,
     explorePage,
     formatWeeks,
     isGenerating,
     stepProgress,
     isStatsError,
+    otherRoadmaps,
     exploreSearch,
+    unenrollingId,
     isStatsLoading,
     myRoadmapsData,
     getRoadmapHref,
     hasFailedDraft,
+    handleUnenroll,
     handlePrevious,
     recommendations,
     exploreRoadmaps,
@@ -48,8 +52,6 @@ const ProfessionalRoadmapTab = () => {
     getProgressValue,
     generatedRoadmap,
     handleExploreNext,
-    handleUnenroll,
-    unenrollingId,
     exploreRoadmapsData,
     isMyRoadmapsLoading,
     isMyRoadmapsFetching,
@@ -60,11 +62,30 @@ const ProfessionalRoadmapTab = () => {
     handleExploreSearchInputChange,
   } = useProfessionalRoadmaps();
 
+  const semantics = useChartSemantics();
+
   const statValue = (value: number | string) => {
     if (isStatsError) return "—";
     if (isStatsLoading) return "…";
     return value;
   };
+
+  const progressPercent =
+    isStatsError || isStatsLoading ? 0 : stats.averageProgress;
+  const progressChartData = [
+    {
+      name: "completed",
+      label: t("professionalDashboard.roadmap.averageProgressText"),
+      value: progressPercent,
+      fill: semantics.renewalReady,
+    },
+    {
+      name: "remaining",
+      label: t("professionalDashboard.roadmap.remaining"),
+      value: Math.max(0, 100 - progressPercent),
+      fill: semantics.track,
+    },
+  ];
 
   return (
     <div className="space-y-6">
@@ -87,6 +108,7 @@ const ProfessionalRoadmapTab = () => {
           <Button
             asChild
             radius="xl"
+            className="w-full justify-center sm:w-auto"
             variant={generatedRoadmap ? "outline" : "default"}
           >
             <Link href={ROADMAP_CHAT_HREF}>
@@ -96,7 +118,11 @@ const ProfessionalRoadmapTab = () => {
           </Button>
 
           {generatedRoadmap ? (
-            <Button asChild radius="xl">
+            <Button
+              asChild
+              radius="xl"
+              className="w-full justify-center sm:w-auto"
+            >
               <a href="#your-learning-path">
                 <L.ArrowRight className="h-4 w-4" />
                 {t("professionalDashboard.roadmap.continueRoadmap")}
@@ -225,19 +251,19 @@ const ProfessionalRoadmapTab = () => {
             progress={generatedRoadmap.progress}
             totalSteps={generatedRoadmap.totalSteps}
             targetDate={generatedRoadmap.targetDate}
-            completedSteps={generatedRoadmap.completedSteps}
             earnedCredits={generatedRoadmap.earnedCredits}
+            completedSteps={generatedRoadmap.completedSteps}
             requiredCredits={generatedRoadmap.requiredCredits}
           />
 
           <RoadmapPhaseList
             t={t}
-            phases={generatedRoadmap.phases}
-            enrollmentId={generatedRoadmap.id}
-            pending={stepProgress.pending}
-            failedStepId={stepProgress.failedStepId}
             onStart={stepProgress.start}
+            pending={stepProgress.pending}
+            phases={generatedRoadmap.phases}
             onComplete={stepProgress.complete}
+            enrollmentId={generatedRoadmap.id}
+            failedStepId={stepProgress.failedStepId}
           />
         </div>
       ) : null}
@@ -256,15 +282,22 @@ const ProfessionalRoadmapTab = () => {
         </div>
 
         <div className="flex flex-col items-center justify-center rounded-lg border p-8 text-center">
-          <div className="flex h-32 w-32 items-center justify-center rounded-full border-[10px] border-primary/20">
-            <span className="text-3xl font-medium text-primary">
-              {isStatsError || isStatsLoading
-                ? statValue(stats.averageProgress)
-                : `${stats.averageProgress}%`}
-            </span>
+          <div className="w-full max-w-[220px]">
+            <ProgressDonutChart
+              data={progressChartData}
+              valueSuffix="%"
+              ariaLabel={t("professionalDashboard.roadmap.averageProgressText")}
+              centerLabel={
+                <span className="text-3xl font-medium text-primary">
+                  {isStatsError || isStatsLoading
+                    ? statValue(stats.averageProgress)
+                    : `${stats.averageProgress}%`}
+                </span>
+              }
+            />
           </div>
 
-          <p className="mt-5 text-sm leading-6 text-muted-foreground">
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
             {t("professionalDashboard.roadmap.averageProgressText")}
           </p>
         </div>

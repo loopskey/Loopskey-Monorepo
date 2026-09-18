@@ -25,7 +25,6 @@ const ProfessionalProfileTab = () => {
     hasError,
     isLoading,
     activeTab,
-    isFetching,
     basicForm,
     skillsForm,
     detailsForm,
@@ -51,19 +50,6 @@ const ProfessionalProfileTab = () => {
             {t("professionalDashboard.profile.description")}
           </p>
         </div>
-
-        <Button
-          radius="xl"
-          type="button"
-          variant="outline"
-          disabled={isFetching}
-          onClick={() => void refreshProfile()}
-        >
-          <L.RefreshCcw
-            className={isFetching ? "h-4 w-4 animate-spin" : "h-4 w-4"}
-          />
-          {t("common.refresh")}
-        </Button>
       </section>
 
       {hasError ? (
@@ -81,9 +67,6 @@ const ProfessionalProfileTab = () => {
           </Button>
         </GlassCard>
       ) : (
-        // The tabs lead, with the summary cards in a side rail, so the editing
-        // panels are reachable without scrolling past them. Below xl the rail
-        // drops underneath and the tabs still come first.
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_24rem] xl:items-start">
           <div className="min-w-0 space-y-6">
             <AnimatedTabs

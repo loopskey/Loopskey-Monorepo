@@ -1,58 +1,51 @@
 "use client";
 
-import { DateSelectArg, EventClickArg, EventInput } from "@fullcalendar/core";
+import { EventClickArg, EventInput } from "@fullcalendar/core";
 import { ProfessionalCalendarEventsQueryVariables } from "@/lib/graphql/operations/professional";
 import { ChangeEvent, useMemo, useState } from "react";
-import { PAGE_SIZE, toDateInputValue } from "@/utils/constant";
+import { PAGE_SIZE, SEARCH_DEBOUNCE_MS } from "@/utils/constant";
 import { TProfessionalCalendarEvent } from "@/types/professional-dashboard.types";
 import { TUpcomingCalendarItem } from "@/types/professional-dashboard.types";
 import { TManualCalendarEvent } from "@/types/professional-dashboard.types";
 import { getContentTypeStyle } from "@/utils/content-type-style";
-import { TSelectedRange } from "@/types/professional-dashboard.types";
+import { EventRegistrationStatus } from "@/lib/graphql/base";
+import { useDebouncedValue } from "@/hooks/useDebounced";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
 
 import * as API from "@/lib/rtk/endpoints/professional.api";
 
-const EMPTY_RANGE: TSelectedRange = { start: "", end: "" };
+export type TCalendarStatusFilter = EventRegistrationStatus | "ALL";
 
 export const useProfessionalCalendar = () => {
   const { t } = useI18n();
 
   const [search, setSearch] = useState<string>("");
+  const [status, setStatus] = useState<TCalendarStatusFilter>("ALL");
   const [page, setPage] = useState<number>(1);
   const [cursorStack, setCursorStack] = useState<string[]>([]);
-  const [selectedRange, setSelectedRange] =
-    useState<TSelectedRange>(EMPTY_RANGE);
   const [selectedEvent, setSelectedEvent] =
     useState<TProfessionalCalendarEvent | null>(null);
   const [selectedManualEvent, setSelectedManualEvent] =
     useState<TManualCalendarEvent | null>(null);
   const [isAddOpen, setIsAddOpen] = useState<boolean>(false);
 
+  const debouncedSearch = useDebouncedValue(search.trim(), SEARCH_DEBOUNCE_MS);
+
   const currentCursor = cursorStack.at(-1);
 
   const variables = useMemo<ProfessionalCalendarEventsQueryVariables>(
     () => ({
       filter: {
-        search: search.trim() || undefined,
-        from: selectedRange.start
-          ? new Date(selectedRange.start).toISOString()
-          : undefined,
-        to: selectedRange.end
-          ? (() => {
-              const end = new Date(selectedRange.end);
-              end.setHours(23, 59, 59, 999);
-              return end.toISOString();
-            })()
-          : undefined,
+        search: debouncedSearch || undefined,
+        status: status === "ALL" ? undefined : status,
       },
       pagination: {
         take: PAGE_SIZE,
         cursor: currentCursor,
       },
     }),
-    [search, selectedRange.start, selectedRange.end, currentCursor],
+    [debouncedSearch, status, currentCursor],
   );
 
   const { data, isLoading, isFetching, refetch } =
@@ -73,31 +66,19 @@ export const useProfessionalCalendar = () => {
   }, [manualData]);
 
   const filteredManualEvents = useMemo<TManualCalendarEvent[]>(() => {
-    const query = search.trim().toLowerCase();
-    const fromTime = selectedRange.start
-      ? new Date(selectedRange.start).setHours(0, 0, 0, 0)
-      : null;
-    const toTime = selectedRange.end
-      ? new Date(selectedRange.end).setHours(23, 59, 59, 999)
-      : null;
+    const query = debouncedSearch.toLowerCase();
+    if (!query) return manualEvents;
 
     return manualEvents.filter((item) => {
-      if (query) {
-        const typeLabel = t(
-          `professionalDashboard.calendar.types.${item.type}`,
-        ).toLowerCase();
-        const haystack = [item.title, item.type, typeLabel, item.notes ?? ""]
-          .join(" ")
-          .toLowerCase();
-        if (!haystack.includes(query)) return false;
-      }
-
-      const start = new Date(item.startDate).getTime();
-      if (fromTime !== null && start < fromTime) return false;
-      if (toTime !== null && start > toTime) return false;
-      return true;
+      const typeLabel = t(
+        `professionalDashboard.calendar.types.${item.type}`,
+      ).toLowerCase();
+      const haystack = [item.title, item.type, typeLabel, item.notes ?? ""]
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(query);
     });
-  }, [manualEvents, search, selectedRange.start, selectedRange.end, t]);
+  }, [manualEvents, debouncedSearch, t]);
 
   const pageInfo = data?.pageInfo;
 
@@ -189,29 +170,8 @@ export const useProfessionalCalendar = () => {
     handleSearchChange(event.target.value);
   };
 
-  const handleStartDateChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setSelectedRange((previousRange) => ({
-      ...previousRange,
-      start: event.target.value,
-    }));
-    setPage(1);
-    setCursorStack([]);
-  };
-
-  const handleEndDateChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setSelectedRange((previousRange) => ({
-      ...previousRange,
-      end: event.target.value,
-    }));
-    setPage(1);
-    setCursorStack([]);
-  };
-
-  const handleCalendarRangeSelect = (selection: DateSelectArg) => {
-    setSelectedRange({
-      start: toDateInputValue(selection.start),
-      end: toDateInputValue(selection.end),
-    });
+  const handleStatusChange = (value: TCalendarStatusFilter) => {
+    setStatus(value);
     setPage(1);
     setCursorStack([]);
   };
@@ -261,7 +221,7 @@ export const useProfessionalCalendar = () => {
 
   const resetFilters = () => {
     setSearch("");
-    setSelectedRange(EMPTY_RANGE);
+    setStatus("ALL");
     setPage(1);
     setCursorStack([]);
   };
@@ -310,6 +270,7 @@ export const useProfessionalCalendar = () => {
     data,
     page,
     search,
+    status,
     events,
     refetch,
     pageInfo,
@@ -323,7 +284,6 @@ export const useProfessionalCalendar = () => {
     getEventHref,
     resetFilters,
     selectedEvent,
-    selectedRange,
     calendarEvents,
     upcomingEvents,
     formatDuration,
@@ -333,16 +293,14 @@ export const useProfessionalCalendar = () => {
     closeEventDetails,
     closeSelectedEvent,
     handleSearchChange,
+    handleStatusChange,
     selectedManualEvent,
     handleAddOpenChange,
-    handleEndDateChange,
     filteredManualEvents,
-    handleStartDateChange,
     handleSearchInputChange,
     handleDeleteManualEvent,
     closeSelectedManualEvent,
     handleCalendarEventClick,
-    handleCalendarRangeSelect,
     isDeletingManual: deleteState.isLoading,
   };
 };

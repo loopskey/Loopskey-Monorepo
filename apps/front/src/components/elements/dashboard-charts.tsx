@@ -115,32 +115,3 @@ export const ProgressDonutChart = ({
     </div>
   );
 };
-
-export const GoalHalfPieChart = ({ data, progress }: T.TGoalHaphPie) => {
-  return (
-    <div className="relative h-56">
-      <R.ResponsiveContainer width="100%" height="100%">
-        <R.PieChart>
-          <R.Pie
-            cx="50%"
-            cy="82%"
-            data={data}
-            endAngle={0}
-            dataKey="value"
-            startAngle={180}
-            innerRadius={70}
-            outerRadius={98}
-            paddingAngle={3}
-          >
-            {data.map((entry) => (
-              <R.Cell key={entry.name} fill={entry.fill} />
-            ))}
-          </R.Pie>
-        </R.PieChart>
-      </R.ResponsiveContainer>
-      <div className="absolute inset-x-0 bottom-2 text-center">
-        <p className="text-4xl font-medium text-primary">{progress}%</p>
-      </div>
-    </div>
-  );
-};

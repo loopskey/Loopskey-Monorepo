@@ -8,6 +8,7 @@ import { formatDateTime } from "@/utils/function-helper";
 import { PasswordField } from "@elements/password-field";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
+import { cn } from "@/lib/utils";
 
 import * as F from "@ui/form";
 
@@ -91,6 +92,7 @@ export const ProfessionalSecuritySettingsPanel = ({
                 radius="xl"
                 type="submit"
                 disabled={isPasswordSubmitDisabled}
+                className="w-full justify-center sm:w-auto"
               >
                 {t("professionalDashboard.settings.security.updatePassword")}
               </Button>
@@ -129,13 +131,21 @@ export const ProfessionalSecuritySettingsPanel = ({
                 )}
               </div>
 
-              <div className="flex flex-wrap gap-2">
+              <div
+                className={cn(
+                  "gap-2",
+                  emailForm.otpSent
+                    ? "grid grid-cols-2 sm:flex sm:flex-wrap"
+                    : "grid grid-cols-1 sm:flex sm:flex-wrap",
+                )}
+              >
                 <Button
                   radius="xl"
                   type="button"
                   variant="outline"
                   onClick={handleSendEmailOtp}
                   disabled={isSendOtpDisabled}
+                  className="w-full justify-center sm:w-auto"
                 >
                   {t("professionalDashboard.settings.security.sendOtp")}
                 </Button>
@@ -146,6 +156,7 @@ export const ProfessionalSecuritySettingsPanel = ({
                     type="button"
                     onClick={handleVerifyEmail}
                     disabled={isVerifyEmailDisabled}
+                    className="w-full justify-center sm:w-auto"
                   >
                     {t("professionalDashboard.settings.security.verifyEmail")}
                   </Button>
