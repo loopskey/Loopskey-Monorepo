@@ -65,6 +65,7 @@ mutation ResendAssociationActivation(
 
 fragment AssociationAccountRowFields on Association {
   id
+  ownerId
   name
   country
   website

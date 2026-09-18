@@ -25,9 +25,9 @@ export type AdminDashboardOverviewQueryVariables = Types.Exact<{ [key: string]: 
 
 export type AdminDashboardOverviewQuery = { __typename?: 'Query', adminDashboardOverview: { __typename?: 'AdminDashboardOverview', totalRequests: number, pendingRequests: number, approvedRequests: number, rejectedRequests: number, requestTrend: Array<{ __typename?: 'AdminRequestTrendPoint', date: string, count: number }> } };
 
-export type AdminDashboardOrgFieldsFragment = { __typename?: 'AdminOrg', id: string, name: string, logoUrl?: string | null, ownerName?: string | null, totalPdus: number, updatedAt: string, createdAt: string, ownerEmail?: string | null, totalMembers: number, activeMembers: number, averageCompliance: number };
+export type AdminDashboardOrgFieldsFragment = { __typename?: 'AdminOrg', id: string, ownerId: string, name: string, logoUrl?: string | null, ownerName?: string | null, totalPdus: number, updatedAt: string, createdAt: string, ownerEmail?: string | null, totalMembers: number, activeMembers: number, averageCompliance: number };
 
-export type AdminDashboardPaginatedOrganizationsFieldsFragment = { __typename?: 'PaginatedAdminOrg', totalCount: number, pageInfo: { __typename?: 'AdminPageInfo', nextCursor?: string | null, hasNextPage: boolean }, items: Array<{ __typename?: 'AdminOrg', id: string, name: string, logoUrl?: string | null, ownerName?: string | null, totalPdus: number, updatedAt: string, createdAt: string, ownerEmail?: string | null, totalMembers: number, activeMembers: number, averageCompliance: number }> };
+export type AdminDashboardPaginatedOrganizationsFieldsFragment = { __typename?: 'PaginatedAdminOrg', totalCount: number, pageInfo: { __typename?: 'AdminPageInfo', nextCursor?: string | null, hasNextPage: boolean }, items: Array<{ __typename?: 'AdminOrg', id: string, ownerId: string, name: string, logoUrl?: string | null, ownerName?: string | null, totalPdus: number, updatedAt: string, createdAt: string, ownerEmail?: string | null, totalMembers: number, activeMembers: number, averageCompliance: number }> };
 
 export type AdminDashboardOrgMemberFieldsFragment = { __typename?: 'AdminOrgMember', id: string, pdus: number, email?: string | null, status: Types.OrganizationMemberStatus, userId: string, jobRole?: string | null, joinedAt: string, fullName?: string | null, avatarUrl?: string | null, createdAt: string, updatedAt: string, compliance: number, departmentId?: string | null, organizationId: string, departmentTitle?: string | null, completedLearning: number };
 
@@ -43,7 +43,7 @@ export type AdminOrganizationsQueryVariables = Types.Exact<{
 }>;
 
 
-export type AdminOrganizationsQuery = { __typename?: 'Query', adminOrganizations: { __typename?: 'PaginatedAdminOrg', totalCount: number, pageInfo: { __typename?: 'AdminPageInfo', nextCursor?: string | null, hasNextPage: boolean }, items: Array<{ __typename?: 'AdminOrg', id: string, name: string, logoUrl?: string | null, ownerName?: string | null, totalPdus: number, updatedAt: string, createdAt: string, ownerEmail?: string | null, totalMembers: number, activeMembers: number, averageCompliance: number }> } };
+export type AdminOrganizationsQuery = { __typename?: 'Query', adminOrganizations: { __typename?: 'PaginatedAdminOrg', totalCount: number, pageInfo: { __typename?: 'AdminPageInfo', nextCursor?: string | null, hasNextPage: boolean }, items: Array<{ __typename?: 'AdminOrg', id: string, ownerId: string, name: string, logoUrl?: string | null, ownerName?: string | null, totalPdus: number, updatedAt: string, createdAt: string, ownerEmail?: string | null, totalMembers: number, activeMembers: number, averageCompliance: number }> } };
 
 export type AdminOrganizationMembersQueryVariables = Types.Exact<{
   filter: Types.AdminOrgMemberFilter;
@@ -306,6 +306,7 @@ export const AdminDashboardPageInfoFieldsFragmentDoc = /*#__PURE__*/ new TypedDo
 export const AdminDashboardOrgFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
     fragment AdminDashboardOrgFields on AdminOrg {
   id
+  ownerId
   name
   logoUrl
   ownerName
@@ -334,6 +335,7 @@ export const AdminDashboardPaginatedOrganizationsFieldsFragmentDoc = /*#__PURE__
 }
 fragment AdminDashboardOrgFields on AdminOrg {
   id
+  ownerId
   name
   logoUrl
   ownerName
@@ -834,6 +836,7 @@ export const AdminOrganizationsDocument = /*#__PURE__*/ new TypedDocumentString(
 }
 fragment AdminDashboardOrgFields on AdminOrg {
   id
+  ownerId
   name
   logoUrl
   ownerName

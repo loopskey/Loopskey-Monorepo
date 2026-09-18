@@ -7,6 +7,7 @@ export class AdminOrganizationEntity {
   @Field() createdAt: Date;
   @Field() updatedAt: Date;
   @Field(() => ID) id: string;
+  @Field(() => ID) ownerId: string;
   @Field(() => Float) totalPdus: number;
   @Field(() => Int) totalMembers: number;
   @Field(() => Int) activeMembers: number;

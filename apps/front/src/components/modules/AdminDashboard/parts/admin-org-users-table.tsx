@@ -1,6 +1,7 @@
 "use client";
 
 import { useAdminOrganizationUsersTab } from "@/hooks/useAdminOrgUsersTab";
+import { ConfirmDialog } from "@elements/confirm-dialog";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
 
@@ -11,7 +12,13 @@ type Props = {
 };
 
 export const AdminOrganizationUsersTable = ({ hook }: Props) => {
-  const { t, organizations, openOrganizationDetail } = hook;
+  const {
+    t,
+    isLoading,
+    organizations,
+    deleteOrganization,
+    openOrganizationDetail,
+  } = hook;
 
   return (
     <GlassCard className="overflow-hidden p-0">
@@ -68,16 +75,53 @@ export const AdminOrganizationUsersTable = ({ hook }: Props) => {
                   </td>
 
                   <td className="px-5 py-4">
-                    <Button
-                      size="sm"
-                      radius="xl"
-                      type="button"
-                      variant="outline"
-                      onClick={() => openOrganizationDetail(org.id)}
-                    >
-                      <L.Eye className="h-4 w-4" />
-                      {t("adminDashboard.organizationUsers.actions.details")}
-                    </Button>
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        size="iconSm"
+                        radius="xl"
+                        type="button"
+                        variant="outline"
+                        title={t(
+                          "adminDashboard.organizationUsers.actions.details",
+                        )}
+                        aria-label={t(
+                          "adminDashboard.organizationUsers.actions.details",
+                        )}
+                        onClick={() => openOrganizationDetail(org.id)}
+                      >
+                        <L.Eye className="h-4 w-4" />
+                      </Button>
+                      <ConfirmDialog
+                        isLoading={isLoading}
+                        title={t(
+                          "adminDashboard.organizationUsers.confirmDelete.title",
+                        )}
+                        description={t(
+                          "adminDashboard.organizationUsers.confirmDelete.description",
+                        )}
+                        confirmText={t("common.confirm")}
+                        cancelText={t("common.cancel")}
+                        confirmVariant="cancel"
+                        onConfirm={() => deleteOrganization(org.ownerId)}
+                        trigger={
+                          <Button
+                            size="iconSm"
+                            radius="xl"
+                            type="button"
+                            variant="cancel"
+                            disabled={isLoading}
+                            title={t(
+                              "adminDashboard.organizationUsers.actions.delete",
+                            )}
+                            aria-label={t(
+                              "adminDashboard.organizationUsers.actions.delete",
+                            )}
+                          >
+                            <L.Trash2 className="h-4 w-4" />
+                          </Button>
+                        }
+                      />
+                    </div>
                   </td>
                 </tr>
               ))

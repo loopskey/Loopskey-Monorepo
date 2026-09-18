@@ -88,7 +88,12 @@ export const adminApi = baseApi.injectEndpoints({
       }),
       transformResponse: (response: TAPI.DeleteAdminUserMutation) =>
         response.deleteAdminUser,
-      invalidatesTags: ["Users", "AdminAuditLogs"],
+      invalidatesTags: [
+        "Users",
+        "AdminAuditLogs",
+        "AdminOrganizations",
+        "Association",
+      ],
     }),
 
     adminOrganizations: builder.query<

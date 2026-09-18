@@ -6,48 +6,18 @@ import type {
   OrganizationAdministrationSettingsUpdate,
   OrganizationAdministrator,
 } from "@org/public/organization-administration-api";
-import {
-  ComplianceCycle,
-  OrganizationMemberStatus,
-  Role,
-} from "@prisma/client";
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { Prisma } from "@prisma/client";
+import { OrganizationMemberStatus } from "@prisma/client";
+import { ComplianceCycle, Role } from "@prisma/client";
 import { ForbiddenException } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
+import { Prisma } from "@prisma/client";
+import {
+  TCountRow,
+  TMemberRow,
+  TOrganizationRow,
+} from "@org/types/org-dashboard-service.types";
 
-type OrganizationRow = {
-  id: string;
-  name: string;
-  createdAt: Date;
-  updatedAt: Date;
-  logoUrl: string | null;
-  ownerName: string | null;
-  ownerEmail: string | null;
-  totalMembers: bigint | number;
-  activeMembers: bigint | number;
-  totalPdus: number | Prisma.Decimal | null;
-  averageCompliance: number | Prisma.Decimal | null;
-};
-type CountRow = { totalCount: bigint | number };
-type MemberRow = {
-  id: string;
-  pdus: number;
-  joinedAt: Date;
-  userId: string;
-  createdAt: Date;
-  updatedAt: Date;
-  compliance: number;
-  email: string | null;
-  organizationId: string;
-  jobRole: string | null;
-  fullName: string | null;
-  avatarUrl: string | null;
-  completedLearning: number;
-  departmentId: string | null;
-  departmentTitle: string | null;
-  status: OrganizationMemberStatus;
-};
 const message = {
   ADMIN_ONLY: "AdminOnly",
   ORGANIZATION_NOT_FOUND: "OrganizationNotFound",
@@ -83,9 +53,10 @@ export class OrganizationAdministrationService {
     return Number.isFinite(parsed) ? parsed : 0;
   }
 
-  private mapAdminOrganizationRow(row: OrganizationRow) {
+  private mapAdminOrganizationRow(row: TOrganizationRow) {
     return {
       id: row.id,
+      ownerId: row.ownerId,
       name: row.name,
       logoUrl: row.logoUrl,
       createdAt: row.createdAt,
@@ -101,7 +72,7 @@ export class OrganizationAdministrationService {
     };
   }
 
-  private mapAdminOrganizationMemberRow(row: MemberRow) {
+  private mapAdminOrganizationMemberRow(row: TMemberRow) {
     return {
       id: row.id,
       pdus: row.pdus,
@@ -204,9 +175,10 @@ export class OrganizationAdministrationService {
       ORDER BY o."createdAt" DESC, o."id" DESC
     `;
 
-    const rows = await this.prismaService.$queryRaw<OrganizationRow[]>`
+    const rows = await this.prismaService.$queryRaw<TOrganizationRow[]>`
         SELECT
             o."id",
+            o."ownerId",
             o."name",
             o."logoUrl",
             o."createdAt",
@@ -235,6 +207,7 @@ export class OrganizationAdministrationService {
         WHERE ${listWhereSql}
         GROUP BY
             o."id",
+            o."ownerId",
             o."name",
             o."logoUrl",
             o."createdAt",
@@ -245,7 +218,7 @@ export class OrganizationAdministrationService {
         LIMIT ${take + 1}
     `;
 
-    const countRows = await this.prismaService.$queryRaw<CountRow[]>`
+    const countRows = await this.prismaService.$queryRaw<TCountRow[]>`
         SELECT COUNT(DISTINCT o."id")::int AS "totalCount"
         FROM "Organization" o
         INNER JOIN "User" u ON u."id" = o."ownerId"
@@ -407,7 +380,7 @@ export class OrganizationAdministrationService {
       : Prisma.sql`
         ORDER BY m."createdAt" DESC, m."id" DESC
       `;
-    const rows = await this.prismaService.$queryRaw<MemberRow[]>`
+    const rows = await this.prismaService.$queryRaw<TMemberRow[]>`
     SELECT
       m."id",
       m."userId",
@@ -433,7 +406,7 @@ export class OrganizationAdministrationService {
     LIMIT ${take + 1}
   `;
 
-    const countRows = await this.prismaService.$queryRaw<CountRow[]>`
+    const countRows = await this.prismaService.$queryRaw<TCountRow[]>`
       SELECT COUNT(*)::int AS "totalCount"
       FROM "OrganizationMember" m
       INNER JOIN "User" u ON u."id" = m."userId"
