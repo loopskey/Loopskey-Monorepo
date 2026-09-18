@@ -25,7 +25,7 @@ export type TChartSemantics = Record<TChartSemantic, string>;
 
 export const CHART_SEMANTIC_FALLBACKS: TChartSemantics = {
   renewalReady: "#15803D",
-  onTrack: "#1F1F8E",
+  onTrack: "#010080",
   atRisk: "#B45309",
   critical: "#DC2626",
   notStarted: "#64748B",

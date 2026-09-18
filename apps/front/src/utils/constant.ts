@@ -305,15 +305,17 @@ export const fallbackFeatures = [
 ];
 
 // ============= Charts =================
+// Brand-based categorical series (navy, cyan, orange, green), each with one
+// tonal variant for an 8-way cycle — keep in sync with globals.css --chart-*.
 export const CHART_COLORS = [
-  "#1F1F8E",
-  "#2563EB",
-  "#0F766E",
-  "#7C3AED",
-  "#C65F00",
-  "#BE185D",
-  "#0369A1",
-  "#475569",
+  "#010080",
+  "#31C2F9",
+  "#F17815",
+  "#15803D",
+  "#3A5EB2",
+  "#007EB2",
+  "#A63E00",
+  "#69BA7C",
 ];
 
 export const PAGE_SIZE = 10;
