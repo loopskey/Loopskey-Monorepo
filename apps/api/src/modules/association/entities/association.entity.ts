@@ -9,6 +9,7 @@ export class AssociationEntity {
   @Field() updatedAt: Date;
   @Field() createdAt: Date;
   @Field(() => ID) id: string;
+  @Field(() => ID) ownerId: string;
   @Field(() => UserStatus) ownerStatus: UserStatus;
   @Field(() => String, { nullable: true }) logoUrl: string | null;
   @Field(() => String, { nullable: true }) country: string | null;

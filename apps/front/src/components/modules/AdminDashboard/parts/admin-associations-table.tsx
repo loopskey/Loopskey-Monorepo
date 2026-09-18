@@ -14,7 +14,16 @@ import * as L from "lucide-react";
 const COLUMN_COUNT = 6;
 
 export const AdminAssociationsTable = ({ hook }: TAdminAssociationsTable) => {
-  const { t, query, items, resend, isResending, isFiltered } = hook;
+  const {
+    t,
+    query,
+    items,
+    resend,
+    isFiltered,
+    isDeleting,
+    isResending,
+    deleteAssociation,
+  } = hook;
 
   return (
     <GlassCard className="overflow-hidden p-0">
@@ -95,31 +104,67 @@ export const AdminAssociationsTable = ({ hook }: TAdminAssociationsTable) => {
                   <Td>{formatDate(item.createdAt) ?? "—"}</Td>
 
                   <Td>
-                    {item.ownerStatus === UserStatus.Pending ? (
+                    <div className="flex flex-wrap gap-2">
+                      {item.ownerStatus === UserStatus.Pending && (
+                        <ConfirmDialog
+                          isLoading={isResending}
+                          onConfirm={() => resend(item)}
+                          cancelText={t("common.cancel")}
+                          title={t("adminDashboard.associations.resend.title")}
+                          confirmText={t(
+                            "adminDashboard.associations.resend.confirm",
+                          )}
+                          description={t(
+                            "adminDashboard.associations.resend.description",
+                            { name: item.name },
+                          )}
+                          trigger={
+                            <Button
+                              radius="xl"
+                              size="iconSm"
+                              variant="outline"
+                              title={t(
+                                "adminDashboard.associations.actions.resend",
+                              )}
+                              aria-label={t(
+                                "adminDashboard.associations.actions.resend",
+                              )}
+                            >
+                              <L.Send className="h-4 w-4" />
+                            </Button>
+                          }
+                        />
+                      )}
                       <ConfirmDialog
-                        isLoading={isResending}
-                        onConfirm={() => resend(item)}
+                        isLoading={isDeleting}
+                        onConfirm={() => deleteAssociation(item)}
                         cancelText={t("common.cancel")}
-                        title={t("adminDashboard.associations.resend.title")}
-                        confirmText={t(
-                          "adminDashboard.associations.resend.confirm",
+                        confirmVariant="cancel"
+                        title={t(
+                          "adminDashboard.associations.confirmDelete.title",
                         )}
+                        confirmText={t("common.confirm")}
                         description={t(
-                          "adminDashboard.associations.resend.description",
+                          "adminDashboard.associations.confirmDelete.description",
                           { name: item.name },
                         )}
                         trigger={
-                          <Button radius="xl" size="sm" variant="outline">
-                            <L.Send className="h-4 w-4" />
-                            {t("adminDashboard.associations.actions.resend")}
+                          <Button
+                            radius="xl"
+                            size="iconSm"
+                            variant="cancel"
+                            title={t(
+                              "adminDashboard.associations.actions.delete",
+                            )}
+                            aria-label={t(
+                              "adminDashboard.associations.actions.delete",
+                            )}
+                          >
+                            <L.Trash2 className="h-4 w-4" />
                           </Button>
                         }
                       />
-                    ) : (
-                      <span className="text-xs text-muted-foreground">
-                        {t("adminDashboard.associations.actions.noneNeeded")}
-                      </span>
-                    )}
+                    </div>
                   </Td>
                 </tr>
               ))

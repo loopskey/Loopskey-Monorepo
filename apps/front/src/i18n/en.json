@@ -6636,7 +6636,12 @@
       "actions": {
         "create": "New association",
         "resend": "Resend activation",
-        "noneNeeded": "Activated"
+        "noneNeeded": "Activated",
+        "delete": "Delete"
+      },
+      "confirmDelete": {
+        "title": "Delete this association account permanently?",
+        "description": "This permanently removes the association's owner account and everything tied to it — the association, its members, groups, requirements, and reports. This cannot be undone."
       },
       "filters": {
         "search": "Search by association name or contact email",
@@ -6682,7 +6687,8 @@
         "confirm": "Resend"
       },
       "messages": {
-        "activationResent": "A new activation email was queued for {name}."
+        "activationResent": "A new activation email was queued for {name}.",
+        "accountDeleted": "{{name}}'s account was deleted permanently."
       },
       "errors": {
         "emailAlreadyInUse": "An account already uses this work email.",
@@ -7099,7 +7105,12 @@
         "actions": "Actions"
       },
       "actions": {
-        "details": "Details"
+        "details": "Details",
+        "delete": "Delete"
+      },
+      "confirmDelete": {
+        "title": "Delete this organization account permanently?",
+        "description": "This permanently removes the organization's owner account and everything tied to it — the organization, its members, departments, assignments, and settings. This cannot be undone."
       },
       "dialog": {
         "description": "Review organization KPIs, members, settings, and audit logs."
@@ -7154,7 +7165,8 @@
       "messages": {
         "memberUpdated": "Member updated successfully.",
         "memberRemoved": "Member removed successfully.",
-        "settingsUpdated": "Organization settings updated successfully."
+        "settingsUpdated": "Organization settings updated successfully.",
+        "organizationDeleted": "Organization account deleted permanently."
       }
     }
   },

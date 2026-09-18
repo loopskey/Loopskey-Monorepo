@@ -162,6 +162,8 @@ export const useAdminOrganizationUsersTab = () => {
   const [updateSettings, updateSettingsState] =
     API.useUpdateAdminOrganizationSettingsMutation();
 
+  const [deleteOwner, deleteOwnerState] = API.useDeleteAdminUserMutation();
+
   const organizations = useMemo(
     () => organizationsQuery.data?.items ?? [],
     [organizationsQuery.data?.items],
@@ -320,6 +322,18 @@ export const useAdminOrganizationUsersTab = () => {
     }
   };
 
+  const deleteOrganization = async (ownerId: string) => {
+    try {
+      await deleteOwner(ownerId).unwrap();
+      notify.success(
+        t("adminDashboard.organizationUsers.messages.organizationDeleted"),
+      );
+      void organizationsQuery.refetch();
+    } catch {
+      notify.error(t("authPages.common.genericError"));
+    }
+  };
+
   const saveSettings = async (input: T.TSaveAdminOrganizationSettingsInput) => {
     try {
       await updateSettings(input).unwrap();
@@ -340,7 +354,8 @@ export const useAdminOrganizationUsersTab = () => {
     updateMemberState.isLoading ||
     removeMemberState.isLoading ||
     organizationsQuery.isFetching ||
-    updateSettingsState.isLoading;
+    updateSettingsState.isLoading ||
+    deleteOwnerState.isLoading;
 
   return {
     t,
@@ -365,6 +380,7 @@ export const useAdminOrganizationUsersTab = () => {
     resetOrgFilters,
     selectedOrgStats,
     deactivateMember,
+    deleteOrganization,
     previousMemberPage,
     setEditingMemberId,
     organizationsQuery,

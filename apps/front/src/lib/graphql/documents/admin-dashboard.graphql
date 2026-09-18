@@ -54,6 +54,7 @@ query AdminDashboardOverview {
 # ================= Organizations =================
 fragment AdminDashboardOrgFields on AdminOrg {
   id
+  ownerId
   name
   logoUrl
   ownerName
