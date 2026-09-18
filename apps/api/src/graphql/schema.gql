@@ -1177,6 +1177,7 @@ enum AuditAction {
   ORG_ACCESS_REQUEST_APPROVED
   ORG_ACCESS_REQUEST_REJECTED
   ORG_ACCESS_REQUEST_SUBMITTED
+  USER_DELETED
   USER_EXPORTED
   USER_STATUS_UPDATED
 }
@@ -2426,6 +2427,7 @@ type Mutation {
   createYouTubeChannel(input: CreateYouTubeChannelInput!): YouTubeChannel!
   createYouTubeVideo(input: CreateYouTubeVideoInput!): YouTubeVideo!
   deactivateIngestionSource(sourceId: String!): IngestionSource!
+  deleteAdminUser(userId: String!): Boolean!
   deleteAssociationLearningContent(input: AssociationLearningContentIdInput!): AssociationActionResponse!
   deleteCalendarEvent(id: ID!): ProfessionalActionResponse!
   deleteContentReview(input: ContentActionInput!): ContentActionPayload!

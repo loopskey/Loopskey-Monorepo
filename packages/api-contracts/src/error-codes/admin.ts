@@ -15,4 +15,6 @@ export enum AdminDashboardMessageCode {
   ORGANIZATION_MEMBER_NOT_FOUND = "OrganizationMemberNotFound",
   ORGANIZATION_SETTINGS_UPDATED = "OrganizationSettingsUpdated",
   ORG_ACCESS_REQUEST_ALREADY_REVIEWED = "OrgAccessRequestAlreadyReviewed",
+  USER_DELETED = "UserDeleted",
+  CANNOT_DELETE_ADMIN = "CannotDeleteAdmin",
 }

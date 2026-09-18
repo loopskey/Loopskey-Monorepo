@@ -135,6 +135,13 @@ export type UpdateAdminUserStatusMutationVariables = Types.Exact<{
 
 export type UpdateAdminUserStatusMutation = { __typename?: 'Mutation', updateAdminUserStatus: { __typename?: 'AdminUser', id: string, role: Types.Role, email?: string | null, status: Types.UserStatus, fullName?: string | null, location?: string | null, avatarUrl?: string | null, isPremium: boolean, createdAt: string, updatedAt: string, lastLoginAt?: string | null } };
 
+export type DeleteAdminUserMutationVariables = Types.Exact<{
+  userId: Types.Scalars['String']['input'];
+}>;
+
+
+export type DeleteAdminUserMutation = { __typename?: 'Mutation', deleteAdminUser: boolean };
+
 export type AdminDashboardAuditLogFieldsFragment = { __typename?: 'AdminAuditLog', id: string, action: Types.AuditAction, actorId?: string | null, entityId?: string | null, metadata?: any | null, createdAt: string, actorEmail?: string | null, entityType?: string | null };
 
 export type AdminDashboardPaginatedAuditLogsFieldsFragment = { __typename?: 'PaginatedAdminAuditLogs', totalCount: number, pageInfo: { __typename?: 'AdminPageInfo', nextCursor?: string | null, hasNextPage: boolean }, items: Array<{ __typename?: 'AdminAuditLog', id: string, action: Types.AuditAction, actorId?: string | null, entityId?: string | null, metadata?: any | null, createdAt: string, actorEmail?: string | null, entityType?: string | null }> };
@@ -1168,6 +1175,11 @@ export const UpdateAdminUserStatusDocument = /*#__PURE__*/ new TypedDocumentStri
   updatedAt
   lastLoginAt
 }`) as unknown as TypedDocumentString<UpdateAdminUserStatusMutation, UpdateAdminUserStatusMutationVariables>;
+export const DeleteAdminUserDocument = /*#__PURE__*/ new TypedDocumentString(`
+    mutation DeleteAdminUser($userId: String!) {
+  deleteAdminUser(userId: $userId)
+}
+    `) as unknown as TypedDocumentString<DeleteAdminUserMutation, DeleteAdminUserMutationVariables>;
 export const AdminAuditLogsDocument = /*#__PURE__*/ new TypedDocumentString(`
     query AdminAuditLogs($filter: AdminAuditLogFilter, $pagination: AdminPagination) {
   adminAuditLogs(filter: $filter, pagination: $pagination) {

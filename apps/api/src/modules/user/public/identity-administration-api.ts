@@ -3,12 +3,12 @@ export const IDENTITY_ADMINISTRATION_API = Symbol(
 );
 
 export type IdentityDirectoryQuery = {
+  readonly take: number;
   readonly role?: string;
   readonly status?: string;
+  readonly cursor?: string;
   readonly search?: string;
   readonly premiumOnly?: boolean;
-  readonly cursor?: string;
-  readonly take: number;
 };
 
 export interface IdentityAdministrationApi {
@@ -16,13 +16,18 @@ export interface IdentityAdministrationApi {
   updateProfile(
     userId: string,
     input: {
-      readonly fullName?: string;
-      readonly email?: string;
-      readonly avatarUrl?: string;
       readonly bio?: string;
+      readonly email?: string;
+      readonly fullName?: string;
+      readonly avatarUrl?: string;
     },
   ): Promise<object>;
   directory(query: IdentityDirectoryQuery): Promise<object>;
   updateStatus(userId: string, status: string): Promise<object | null>;
+  deleteUser(userId: string): Promise<{
+    readonly id: string;
+    readonly role: string;
+    readonly email: string | null;
+  } | null>;
   growth(mode: "DAILY" | "MONTHLY"): Promise<readonly object[]>;
 }

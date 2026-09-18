@@ -6925,7 +6925,8 @@
       "title": "Providers & Professionals",
       "description": "Manage all provider and professional accounts, monitor user growth and review audit logs.",
       "messages": {
-        "statusUpdated": "User status updated successfully."
+        "statusUpdated": "User status updated successfully.",
+        "userDeleted": "User account deleted permanently."
       },
       "cards": {
         "total": "Total Users",
@@ -6973,7 +6974,12 @@
       },
       "actions": {
         "activate": "Activate",
-        "disable": "Disable"
+        "disable": "Disable",
+        "delete": "Delete"
+      },
+      "confirmDelete": {
+        "title": "Delete this account permanently?",
+        "description": "This permanently removes the account and everything tied to it — profile, enrollments, certificates, audit trail entries created by them, and any other related records. This cannot be undone."
       },
       "audit": {
         "title": "Audit Logs",
