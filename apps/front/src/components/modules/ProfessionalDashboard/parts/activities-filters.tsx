@@ -5,14 +5,11 @@ import { TPduActivityFiltersProps } from "@/types/professional-dashboard.types";
 import { TPduActivityType } from "@/types/professional-dashboard.types";
 import { Button } from "@ui/button";
 import { Input } from "@ui/input";
-import { Label } from "@ui/label";
 
 import * as L from "lucide-react";
+import * as S from "@ui/select";
 
 const PREFIX = "professionalDashboard.cpdPduTracker.filters";
-
-const SELECT_CLASS =
-  "h-11 w-full rounded-md border border-input bg-muted px-3 text-sm outline-none transition-colors focus:border-primary/55 focus:ring-2 focus:ring-primary/20";
 
 const CERTIFICATE_VALUES: TPduActivityCertificateFilter[] = [
   "ALL",
@@ -32,103 +29,76 @@ export const ActivitiesFilters = ({
 }: TPduActivityFiltersProps) => {
   return (
     <div className="rounded-lg border p-5">
-      <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
-        <div className="space-y-2">
-          <Label
-            htmlFor="activity-search"
-            className="text-xs font-medium text-muted-foreground"
-          >
-            {t(`${PREFIX}.search`)}
-          </Label>
-          <div className="relative">
-            <L.Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              id="activity-search"
-              value={filters.search}
-              placeholder={t(`${PREFIX}.searchPlaceholder`)}
-              className="h-11 rounded-md bg-muted pl-9"
-              onChange={(event) => onChange("search", event.target.value)}
-            />
-          </div>
+      <div className="grid gap-3 lg:grid-cols-2 xl:grid-cols-4">
+        <div className="relative">
+          <L.Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={filters.search}
+            placeholder={t(`${PREFIX}.searchPlaceholder`)}
+            className="h-11 rounded-md bg-muted pl-9"
+            onChange={(event) => onChange("search", event.target.value)}
+          />
         </div>
 
-        <div className="space-y-2">
-          <Label
-            htmlFor="activity-year"
-            className="text-xs font-medium text-muted-foreground"
-          >
-            {t(`${PREFIX}.reportingYear`)}
-          </Label>
-          <select
-            id="activity-year"
-            className={SELECT_CLASS}
-            value={String(filters.year)}
-            onChange={(event) => onChange("year", Number(event.target.value))}
-          >
+        <S.Select
+          value={String(filters.year)}
+          onValueChange={(value) => onChange("year", Number(value))}
+        >
+          <S.SelectTrigger className="h-11 w-full rounded-md bg-muted">
+            <S.SelectValue placeholder={t(`${PREFIX}.reportingYear`)} />
+          </S.SelectTrigger>
+          <S.SelectContent>
             {yearOptions.map((year) => (
-              <option key={year} value={year}>
+              <S.SelectItem key={year} value={String(year)}>
                 {year}
-              </option>
+              </S.SelectItem>
             ))}
-          </select>
-        </div>
+          </S.SelectContent>
+        </S.Select>
 
-        <div className="space-y-2">
-          <Label
-            htmlFor="activity-type"
-            className="text-xs font-medium text-muted-foreground"
-          >
-            {t(`${PREFIX}.activityType`)}
-          </Label>
-          <select
-            id="activity-type"
-            className={SELECT_CLASS}
-            value={filters.activityType}
-            disabled={isLoading || activityTypeOptions.length === 0}
-            onChange={(event) =>
-              onChange("activityType", event.target.value as TPduActivityType)
-            }
-          >
-            <option value="ALL">{t(`${PREFIX}.any`)}</option>
+        <S.Select
+          value={filters.activityType}
+          disabled={isLoading || activityTypeOptions.length === 0}
+          onValueChange={(value) =>
+            onChange("activityType", value as TPduActivityType)
+          }
+        >
+          <S.SelectTrigger className="h-11 w-full rounded-md bg-muted">
+            <S.SelectValue placeholder={t(`${PREFIX}.activityType`)} />
+          </S.SelectTrigger>
+          <S.SelectContent>
+            <S.SelectItem value="ALL">{t(`${PREFIX}.any`)}</S.SelectItem>
             {activityTypeOptions.map((option) => (
-              <option key={option} value={option}>
+              <S.SelectItem key={option} value={option}>
                 {t(
                   `professionalDashboard.cpdPduTracker.activityTypes.${option}`,
                 )}
-              </option>
+              </S.SelectItem>
             ))}
-          </select>
-        </div>
+          </S.SelectContent>
+        </S.Select>
 
-        <div className="space-y-2">
-          <Label
-            htmlFor="activity-certificate"
-            className="text-xs font-medium text-muted-foreground"
-          >
-            {t(`${PREFIX}.certificate`)}
-          </Label>
-          <select
-            id="activity-certificate"
-            className={SELECT_CLASS}
-            value={filters.certificate}
-            onChange={(event) =>
-              onChange(
-                "certificate",
-                event.target.value as TPduActivityCertificateFilter,
-              )
-            }
-          >
+        <S.Select
+          value={filters.certificate}
+          onValueChange={(value) =>
+            onChange("certificate", value as TPduActivityCertificateFilter)
+          }
+        >
+          <S.SelectTrigger className="h-11 w-full rounded-md bg-muted">
+            <S.SelectValue placeholder={t(`${PREFIX}.certificate`)} />
+          </S.SelectTrigger>
+          <S.SelectContent>
             {CERTIFICATE_VALUES.map((value) => (
-              <option key={value} value={value}>
+              <S.SelectItem key={value} value={value}>
                 {value === "ALL"
                   ? t(`${PREFIX}.any`)
                   : value === "WITH"
                     ? t(`${PREFIX}.hasCertificate`)
                     : t(`${PREFIX}.noCertificate`)}
-              </option>
+              </S.SelectItem>
             ))}
-          </select>
-        </div>
+          </S.SelectContent>
+        </S.Select>
       </div>
 
       {isFiltered && (

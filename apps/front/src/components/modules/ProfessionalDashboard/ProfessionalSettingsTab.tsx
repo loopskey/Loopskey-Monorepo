@@ -1,18 +1,17 @@
 "use client";
 
-import { Palette, RefreshCcw, Shield } from "lucide-react";
 import { ProfessionalSecuritySettingsPanel } from "@modules/ProfessionalDashboard/parts/professional-security-setting-panel";
 import { ProfessionalGeneralSettingsPanel } from "@modules/ProfessionalDashboard/parts/professional-general-settings-panel";
 import { useProfessionalSettingsTab } from "@/hooks/useProfessionalSettingstab";
+import { Palette, Shield } from "lucide-react";
 import { TSettingsTab } from "@/types/professional-dashboard.types";
 import { AnimatedTabs } from "@elements/animated-tabs";
 import { GlassCard } from "@elements/glass-card";
 import { useState } from "react";
-import { Button } from "@ui/button";
 
 const ProfessionalSettingsTab = () => {
   const hook = useProfessionalSettingsTab();
-  const { t, isLoading, refreshAll } = hook;
+  const { t } = hook;
 
   const [activeTab, setActiveTab] = useState<TSettingsTab>("general");
 
@@ -43,20 +42,14 @@ const ProfessionalSettingsTab = () => {
             {t("professionalDashboard.settings.description")}
           </p>
         </div>
-
-        <Button
-          radius="xl"
-          type="button"
-          variant="outline"
-          disabled={isLoading}
-          onClick={refreshAll}
-        >
-          <RefreshCcw className="h-4 w-4" />
-          {t("common.refresh")}
-        </Button>
       </section>
 
-      <AnimatedTabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
+      <AnimatedTabs
+        tabs={tabs}
+        fullWidthMobile
+        activeTab={activeTab}
+        onChange={setActiveTab}
+      />
 
       <GlassCard>
         {activeTab === "general" && (

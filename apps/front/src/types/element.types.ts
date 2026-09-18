@@ -213,6 +213,7 @@ export type TAnimatedTabsProps<T extends string = string> = {
   activeTab: T;
   className?: string;
   showDescription?: boolean;
+  fullWidthMobile?: boolean;
   tabs: TAnimatedTabItem<T>[];
   onChange: (value: T) => void;
 };
@@ -227,17 +228,6 @@ export type TPduCategoryPoint = {
   pdus: number;
   fill: string;
   category: string;
-};
-
-export type TGoalPoint = {
-  name: string;
-  fill: string;
-  value: number;
-};
-
-export type TGoalHaphPie = {
-  progress: number;
-  data: TGoalPoint[];
 };
 
 export type TDonutSlice = {

@@ -5,15 +5,12 @@ import { TCertificateStatusFilter } from "@/types/professional-dashboard.types";
 import { CertificateSort } from "@/lib/graphql/base";
 import { Button } from "@ui/button";
 import { Input } from "@ui/input";
-import { Label } from "@ui/label";
 
 import * as H from "@/utils/certificates.helper";
 import * as L from "lucide-react";
+import * as S from "@ui/select";
 
 const PREFIX = "professionalDashboard.certificates.filters";
-
-const SELECT_CLASS =
-  "h-11 w-full rounded-md border border-input bg-muted px-3 text-sm outline-none transition-colors focus:border-primary/55 focus:ring-2 focus:ring-primary/20 disabled:opacity-60";
 
 export const CertificatesFilters = ({
   t,
@@ -28,138 +25,118 @@ export const CertificatesFilters = ({
 }: TCertificatesFiltersProps) => {
   return (
     <div className="rounded-lg border p-5">
-      <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
-        <div className="space-y-2 xl:col-span-2">
-          <Label
-            htmlFor="certificate-search"
-            className="text-xs font-medium text-muted-foreground"
-          >
-            {t(`${PREFIX}.search`)}
-          </Label>
-          <div className="relative">
-            <L.Search
-              aria-hidden
-              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-            />
-            <Input
-              id="certificate-search"
-              value={filters.search}
-              className="h-11 rounded-md bg-muted pl-9"
-              placeholder={t(`${PREFIX}.searchPlaceholder`)}
-              onChange={(event) => onChange("search", event.target.value)}
-            />
-          </div>
+      <div className="grid gap-3 lg:grid-cols-2 xl:grid-cols-5">
+        <div className="relative xl:col-span-1">
+          <L.Search
+            aria-hidden
+            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+          />
+          <Input
+            value={filters.search}
+            className="h-11 rounded-md pl-9"
+            placeholder={t(`${PREFIX}.searchPlaceholder`)}
+            onChange={(event) => onChange("search", event.target.value)}
+          />
         </div>
 
-        <div className="space-y-2">
-          <Label
-            htmlFor="certificate-status"
-            className="text-xs font-medium text-muted-foreground"
-          >
-            {t(`${PREFIX}.status`)}
-          </Label>
-          <select
-            id="certificate-status"
-            className={SELECT_CLASS}
-            value={filters.status}
-            onChange={(event) =>
-              onChange("status", event.target.value as TCertificateStatusFilter)
-            }
-          >
-            <option value={H.CERTIFICATE_ANY}>{t(`${PREFIX}.anyStatus`)}</option>
+        <S.Select
+          value={filters.status}
+          onValueChange={(value) =>
+            onChange("status", value as TCertificateStatusFilter)
+          }
+        >
+          <S.SelectTrigger className="h-11 w-full rounded-md">
+            <S.SelectValue placeholder={t(`${PREFIX}.status`)} />
+          </S.SelectTrigger>
+          <S.SelectContent>
+            <S.SelectItem value={H.CERTIFICATE_ANY}>
+              {t(`${PREFIX}.anyStatus`)}
+            </S.SelectItem>
             {H.CERTIFICATE_STATUS_OPTIONS.map((status) => (
-              <option key={status} value={status}>
+              <S.SelectItem key={status} value={status}>
                 {t(`professionalDashboard.certificates.statuses.${status}`)}
-              </option>
+              </S.SelectItem>
             ))}
-          </select>
-        </div>
+          </S.SelectContent>
+        </S.Select>
 
-        <div className="space-y-2">
-          <Label
-            htmlFor="certificate-issuer"
-            className="text-xs font-medium text-muted-foreground"
-          >
-            {t(`${PREFIX}.issuer`)}
-          </Label>
-          <select
-            id="certificate-issuer"
-            className={SELECT_CLASS}
-            value={filters.issuer}
-            disabled={isIssuersLoading}
-            onChange={(event) => onChange("issuer", event.target.value)}
-          >
-            <option value={H.CERTIFICATE_ANY}>
-              {isIssuersLoading
-                ? t(`${PREFIX}.loadingOptions`)
-                : t(`${PREFIX}.anyIssuer`)}
-            </option>
+        <S.Select
+          value={filters.issuer}
+          disabled={isIssuersLoading}
+          onValueChange={(value) => onChange("issuer", value)}
+        >
+          <S.SelectTrigger className="h-11 w-full rounded-md">
+            <S.SelectValue
+              placeholder={
+                isIssuersLoading
+                  ? t(`${PREFIX}.loadingOptions`)
+                  : t(`${PREFIX}.issuer`)
+              }
+            />
+          </S.SelectTrigger>
+          <S.SelectContent>
+            <S.SelectItem value={H.CERTIFICATE_ANY}>
+              {t(`${PREFIX}.anyIssuer`)}
+            </S.SelectItem>
             {issuerOptions.map((issuer) => (
-              <option key={issuer} value={issuer}>
+              <S.SelectItem key={issuer} value={issuer}>
                 {issuer}
-              </option>
+              </S.SelectItem>
             ))}
-          </select>
-        </div>
+          </S.SelectContent>
+        </S.Select>
 
-        <div className="space-y-2">
-          <Label
-            htmlFor="certificate-plan"
-            className="text-xs font-medium text-muted-foreground"
-          >
-            {t(`${PREFIX}.cpdPlan`)}
-          </Label>
-          <select
-            id="certificate-plan"
-            className={SELECT_CLASS}
-            value={filters.cpdPlan}
-            disabled={isPlansLoading}
-            onChange={(event) => onChange("cpdPlan", event.target.value)}
-          >
-            <option value={H.CERTIFICATE_ANY}>
-              {isPlansLoading
-                ? t(`${PREFIX}.loadingOptions`)
-                : t(`${PREFIX}.anyPlan`)}
-            </option>
-            <option value={H.CERTIFICATE_PLAN_NONE}>
+        <S.Select
+          value={filters.cpdPlan}
+          disabled={isPlansLoading}
+          onValueChange={(value) => onChange("cpdPlan", value)}
+        >
+          <S.SelectTrigger className="h-11 w-full rounded-md">
+            <S.SelectValue
+              placeholder={
+                isPlansLoading
+                  ? t(`${PREFIX}.loadingOptions`)
+                  : t(`${PREFIX}.cpdPlan`)
+              }
+            />
+          </S.SelectTrigger>
+          <S.SelectContent>
+            <S.SelectItem value={H.CERTIFICATE_ANY}>
+              {t(`${PREFIX}.anyPlan`)}
+            </S.SelectItem>
+            <S.SelectItem value={H.CERTIFICATE_PLAN_NONE}>
               {t(`${PREFIX}.noPlan`)}
-            </option>
+            </S.SelectItem>
             {planOptions.map((plan) => (
-              <option key={plan.id} value={plan.id}>
+              <S.SelectItem key={plan.id} value={plan.id}>
                 {plan.name}
-              </option>
+              </S.SelectItem>
             ))}
-          </select>
-          {!isPlansLoading && planOptions.length === 0 && (
-            <p className="text-xs text-muted-foreground">
-              {t(`${PREFIX}.noPlansAvailable`)}
-            </p>
-          )}
-        </div>
+          </S.SelectContent>
+        </S.Select>
 
-        <div className="space-y-2">
-          <Label
-            htmlFor="certificate-sort"
-            className="text-xs font-medium text-muted-foreground"
-          >
-            {t(`${PREFIX}.sort`)}
-          </Label>
-          <select
-            id="certificate-sort"
-            className={SELECT_CLASS}
-            value={filters.sort}
-            onChange={(event) =>
-              onChange("sort", event.target.value as CertificateSort)
-            }
-          >
+        <S.Select
+          value={filters.sort}
+          onValueChange={(value) => onChange("sort", value as CertificateSort)}
+        >
+          <S.SelectTrigger className="h-11 w-full rounded-md">
+            <S.SelectValue placeholder={t(`${PREFIX}.sort`)} />
+          </S.SelectTrigger>
+          <S.SelectContent>
             {H.CERTIFICATE_SORT_OPTIONS.map((sort) => (
-              <option key={sort} value={sort}>
+              <S.SelectItem key={sort} value={sort}>
                 {t(`${PREFIX}.sorts.${sort}`)}
-              </option>
+              </S.SelectItem>
             ))}
-          </select>
-        </div>
+          </S.SelectContent>
+        </S.Select>
       </div>
+
+      {!isPlansLoading && planOptions.length === 0 && (
+        <p className="mt-2 text-xs text-muted-foreground">
+          {t(`${PREFIX}.noPlansAvailable`)}
+        </p>
+      )}
 
       {isFiltered && (
         <div className="mt-4 flex justify-end">

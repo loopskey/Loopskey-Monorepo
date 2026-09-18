@@ -4249,6 +4249,7 @@
       "overallProgress": "Overall progress",
       "overallProgressDescription": "Based on {count} enrolled roadmap(s).",
       "averageProgressText": "This shows your average progress across all active and completed professional roadmaps.",
+      "remaining": "Remaining",
       "myRoadmaps": "My roadmaps",
       "myRoadmapsDescription": "Continue, review, and track the roadmaps you are currently enrolled in.",
       "searchMyRoadmaps": "Search your roadmaps...",
@@ -4359,8 +4360,17 @@
         "from": "From",
         "to": "To",
         "reset": "Reset filters",
-        "trigger": "Filters",
+        "trigger": "Status",
+        "allStatuses": "All statuses",
         "active": "Filters active"
+      },
+      "statuses": {
+        "ATTENDED": "Attended",
+        "CANCELED": "Canceled",
+        "CANCELLED": "Cancelled",
+        "COMPLETED": "Completed",
+        "NOT_ATTENDED": "Not attended",
+        "REGISTERED": "Registered"
       },
       "calendarChart": {
         "title": "Interactive calendar",

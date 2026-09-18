@@ -237,7 +237,7 @@ export const CertificatesTable = ({
               <div
                 onClick={() => onSelect(certificate.id)}
                 className={cn(
-                  "w-full cursor-pointer rounded-lg border p-5 text-left transition-colors",
+                  "w-full cursor-pointer rounded-lg border bg-muted p-5 text-left transition-colors",
                   isSelected && "border-primary/50 bg-primary/10",
                 )}
               >

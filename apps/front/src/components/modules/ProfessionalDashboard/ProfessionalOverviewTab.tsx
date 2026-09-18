@@ -37,14 +37,14 @@ const ProfessionalOverviewTab = () => {
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          <Button asChild variant="outline" radius="xl">
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+          <Button asChild variant="outline" radius="xl" className="w-full sm:w-auto">
             <Link href={PROFESSIONAL_OVERVIEW_LINKS.calendar}>
               {t("professionalDashboard.overview.viewCalendar")}
             </Link>
           </Button>
 
-          <Button asChild  radius="xl">
+          <Button asChild radius="xl" className="w-full sm:w-auto">
             <Link href="/content">
               {t("professionalDashboard.overview.browseCourses")}
             </Link>

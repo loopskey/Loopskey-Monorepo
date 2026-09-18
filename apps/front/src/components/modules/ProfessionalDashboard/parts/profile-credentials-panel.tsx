@@ -260,12 +260,18 @@ export const ProfileCredentialsPanel = ({
               radius="xl"
               type="submit"
               disabled={isSaveDisabled}
+              className="w-full justify-center sm:w-auto"
             >
               {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               {t("professionalDashboard.profile.save")}
             </Button>
 
-            <Button radius="xl" variant="outline" asChild>
+            <Button
+              radius="xl"
+              variant="outline"
+              asChild
+              className="w-full justify-center sm:w-auto"
+            >
               <Link href={CERTIFICATES_TAB_HREF}>
                 <R.FolderOpen className="h-4 w-4" />
                 {t("professionalDashboard.profile.certifications.manageFiles")}

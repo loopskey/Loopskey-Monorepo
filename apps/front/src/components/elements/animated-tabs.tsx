@@ -9,10 +9,18 @@ export const AnimatedTabs = <T extends string>({
   onChange,
   className,
   showDescription = false,
+  fullWidthMobile = false,
 }: TAnimatedTabsProps<T>) => {
   return (
     <div className={cn("w-full overflow-x-auto", className)}>
-      <div className="inline-flex min-w-max gap-1 rounded-md border bg-card p-1">
+      <div
+        className={cn(
+          "gap-1 rounded-md border bg-card p-1",
+          fullWidthMobile
+            ? "grid grid-cols-2 sm:inline-flex sm:min-w-max"
+            : "inline-flex min-w-max",
+        )}
+      >
         {tabs.map((tab) => {
           const isActive = activeTab === tab.value;
           return (
