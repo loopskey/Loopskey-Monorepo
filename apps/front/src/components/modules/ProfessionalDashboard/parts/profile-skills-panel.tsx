@@ -1,7 +1,7 @@
 "use client";
 
-import { TSkillsPanelProps } from "@/types/professional-profile.types";
 import { FloatingSelectField } from "@elements/floating-select";
+import { TSkillsPanelProps } from "@/types/professional-profile.types";
 import { MultiSelectField } from "@elements/multi-select-field";
 import { Loader2 } from "lucide-react";
 import { Button } from "@ui/button";
@@ -88,7 +88,9 @@ export const ProfileSkillsPanel = ({
               control={rhf.control}
               options={skillLevelOptions}
               label={t("professionalDashboard.profile.skills.currentLevel")}
-              placeholder={t("professionalDashboard.profile.basic.selectOption")}
+              placeholder={t(
+                "professionalDashboard.profile.basic.selectOption",
+              )}
             />
 
             <FloatingSelectField
@@ -97,7 +99,9 @@ export const ProfileSkillsPanel = ({
               control={rhf.control}
               options={skillLevelOptions}
               label={t("professionalDashboard.profile.skills.targetLevel")}
-              placeholder={t("professionalDashboard.profile.basic.selectOption")}
+              placeholder={t(
+                "professionalDashboard.profile.basic.selectOption",
+              )}
             />
 
             <MultiSelectField
@@ -120,6 +124,7 @@ export const ProfileSkillsPanel = ({
             radius="xl"
             type="submit"
             disabled={isSaveDisabled}
+            className="w-full justify-center sm:w-auto"
           >
             {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             {t("professionalDashboard.profile.save")}

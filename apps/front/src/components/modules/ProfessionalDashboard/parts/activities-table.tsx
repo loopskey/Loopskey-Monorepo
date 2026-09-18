@@ -262,10 +262,7 @@ export const ActivitiesTable = ({
 
       <div className="space-y-4 lg:hidden">
         {activities.map((activity) => (
-          <div
-            key={activity.id}
-            className="rounded-lg border p-5"
-          >
+          <div key={activity.id} className="rounded-lg border bg-muted p-5">
             <div className="flex items-start justify-between gap-3">
               <p className="font-medium">{activity.title}</p>
               <StatusBadge t={t} status={activity.completionStatus} />

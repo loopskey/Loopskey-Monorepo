@@ -4252,6 +4252,7 @@
       "overallProgress": "Progression globale",
       "overallProgressDescription": "Basée sur {count} feuille(s) de route suivie(s).",
       "averageProgressText": "Cette valeur représente votre progression moyenne sur l’ensemble de vos feuilles de route professionnelles actives et terminées.",
+      "remaining": "Restant",
       "myRoadmaps": "Mes feuilles de route",
       "myRoadmapsDescription": "Continuez, consultez et suivez les feuilles de route auxquelles vous êtes inscrit.",
       "searchMyRoadmaps": "Rechercher dans vos feuilles de route...",
@@ -4362,8 +4363,17 @@
         "from": "Du",
         "to": "Au",
         "reset": "Réinitialiser",
-        "trigger": "Filtres",
+        "trigger": "Statut",
+        "allStatuses": "Tous les statuts",
         "active": "Filtres actifs"
+      },
+      "statuses": {
+        "ATTENDED": "Participé",
+        "CANCELED": "Annulé",
+        "CANCELLED": "Annulé",
+        "COMPLETED": "Terminé",
+        "NOT_ATTENDED": "Non assisté",
+        "REGISTERED": "Inscrit"
       },
       "calendarChart": {
         "title": "Calendrier interactif",

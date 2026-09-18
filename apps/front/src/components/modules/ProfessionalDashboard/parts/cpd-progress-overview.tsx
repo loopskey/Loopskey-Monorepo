@@ -3,7 +3,7 @@
 import { CpdProgressOverviewProps } from "@/types/cpd-plan.types";
 import { CPD_COMPLIANCE_META } from "@/utils/cpd-plan.constant";
 import { useChartSemantics } from "@hooks/useChartPalette";
-import { GoalHalfPieChart } from "@elements/dashboard-charts";
+import { ProgressDonutChart } from "@elements/dashboard-charts";
 import { MetricCard } from "@modules/ProfessionalDashboard/parts/metric-card";
 import { GlassCard } from "@elements/glass-card";
 import { cn } from "@/lib/utils";
@@ -47,9 +47,15 @@ export const CpdProgressOverview = ({
     progress.totalRequiredCredits,
   );
   const chartData = [
-    { name: "earned", value: earnedForArc, fill: semantics.onTrack },
+    {
+      name: "earned",
+      label: t("cpdProgress.progress.cards.earned"),
+      value: earnedForArc,
+      fill: semantics.onTrack,
+    },
     {
       name: "remaining",
+      label: t("cpdProgress.progress.cards.remaining"),
       value: Math.max(
         progress.totalRequiredCredits - progress.earnedCredits,
         0,
@@ -102,7 +108,7 @@ export const CpdProgressOverview = ({
       )}
 
       <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-        <GlassCard>
+        <GlassCard className="flex flex-col items-center text-center">
           <h2 className="text-xl font-medium">
             {t("cpdProgress.progress.overallTitle")}
           </h2>
@@ -110,10 +116,17 @@ export const CpdProgressOverview = ({
             {t("cpdProgress.progress.overallSubtitle")}
           </p>
 
-          <GoalHalfPieChart
-            data={chartData}
-            progress={Math.round(progress.progressPercent)}
-          />
+          <div className="mx-auto mt-2 w-full max-w-[220px]">
+            <ProgressDonutChart
+              data={chartData}
+              ariaLabel={t("cpdProgress.progress.overallTitle")}
+              centerLabel={
+                <span className="text-3xl font-medium text-primary">
+                  {Math.round(progress.progressPercent)}%
+                </span>
+              }
+            />
+          </div>
 
           <p className="mt-2 text-center text-sm text-muted-foreground">
             {t("cpdProgress.progress.accessibleSummary", {
@@ -138,14 +151,14 @@ export const CpdProgressOverview = ({
           )}
         </GlassCard>
 
-        <GlassCard className="flex flex-col justify-center gap-4">
+        <GlassCard className="flex flex-col items-center justify-center gap-4 text-center">
           <h2 className="text-xl font-medium">
             {t("cpdProgress.progress.complianceTitle")}
           </h2>
 
           <div
             className={cn(
-              "flex items-center gap-4 rounded-md p-5",
+              "flex w-full flex-col items-center gap-3 rounded-md p-5",
               TONE_CLASSES[meta.tone],
             )}
           >

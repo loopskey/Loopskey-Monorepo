@@ -37,13 +37,14 @@ export const CpdPlanSelector = ({
         </S.Select>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="grid grid-cols-2 gap-2 sm:flex sm:w-auto sm:items-center">
         <Button
           size="sm"
           radius="xl"
           type="button"
           variant="outline"
           onClick={() => onEdit(selectedPlanId)}
+          className="w-full justify-center sm:w-auto"
         >
           <L.Pencil className="h-4 w-4" />
           {t("cpdProgress.progress.editPlan")}
@@ -56,7 +57,7 @@ export const CpdPlanSelector = ({
           variant="ghost"
           disabled={isDeleting}
           onClick={() => onDelete(selectedPlanId)}
-          className="text-destructive hover:bg-destructive/10"
+          className="w-full justify-center text-destructive hover:bg-destructive/10 sm:w-auto"
         >
           <L.Trash2 className="h-4 w-4" />
           {t("cpdProgress.progress.deletePlan")}

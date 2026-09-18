@@ -116,7 +116,7 @@ export const MultiSelectField = <T extends FieldValues>({
                     aria-expanded={open}
                     disabled={isDisabled}
                     aria-invalid={Boolean(fieldState.error)}
-                    className="h-12 w-full justify-between rounded-md border-input bg-background"
+                    className="h-14 w-full justify-between rounded-md border-input bg-background"
                   >
                     <span
                       className={cn(

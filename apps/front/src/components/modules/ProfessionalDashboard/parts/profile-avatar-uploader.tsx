@@ -101,7 +101,7 @@ export const ProfileAvatarUploader = ({
         ) : null}
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
         <input
           type="file"
           ref={inputRef}
@@ -119,6 +119,7 @@ export const ProfileAvatarUploader = ({
           variant="outline"
           disabled={isBusy}
           onClick={() => inputRef.current?.click()}
+          className="w-full justify-center sm:w-auto"
         >
           {isUploading ? (
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -144,6 +145,7 @@ export const ProfileAvatarUploader = ({
               type="button"
               variant="outline"
               disabled={isBusy || !profile?.avatarUrl}
+              className="w-full justify-center sm:w-auto"
             >
               {isRemoving ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
