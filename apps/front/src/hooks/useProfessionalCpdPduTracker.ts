@@ -3,11 +3,13 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { usePduEvidenceUpload } from "@/hooks/usePduEvidenceUpload";
 import { useDebouncedValue } from "@/hooks/useDebounced";
+import { useChartSemantics } from "@hooks/useChartPalette";
 import { useMemo, useState } from "react";
 import { PAGE_SIZE } from "@/utils/constant";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
 
+import * as CpdAPI from "@/lib/rtk/endpoints/cpd-plan.api";
 import * as API from "@/lib/rtk/endpoints/professional.api";
 import * as H from "@/utils/learning-activities.helper";
 import * as T from "@/types/professional-dashboard.types";
@@ -66,6 +68,48 @@ export const useProfessionalCpdPduTracker = () => {
     isLoading: isSummaryLoading,
     isError: isSummaryError,
   } = API.useProfessionalPduActivitySummaryQuery();
+
+  const semantics = useChartSemantics();
+  const { data: cpdPlans = [] } = CpdAPI.useMyCpdPlansQuery();
+  const cyclePlan = cpdPlans[0];
+
+  const {
+    data: cycleProgress,
+    isFetching: isCycleFetching,
+    isLoading: isCycleQueryLoading,
+  } = CpdAPI.useCpdPlanProgressQuery(
+    { planId: cyclePlan?.id ?? "" },
+    { skip: !cyclePlan },
+  );
+
+  const isCycleLoading =
+    Boolean(cyclePlan) &&
+    (isCycleQueryLoading || (isCycleFetching && !cycleProgress));
+
+  const cycleChartData = useMemo(() => {
+    if (!cycleProgress) return [];
+    const earnedForArc = Math.min(
+      cycleProgress.earnedCredits,
+      cycleProgress.totalRequiredCredits,
+    );
+    return [
+      {
+        name: "earned",
+        label: t("cpdProgress.progress.cards.earned"),
+        value: earnedForArc,
+        fill: semantics.onTrack,
+      },
+      {
+        name: "remaining",
+        label: t("cpdProgress.progress.cards.remaining"),
+        value: Math.max(
+          cycleProgress.totalRequiredCredits - cycleProgress.earnedCredits,
+          0,
+        ),
+        fill: semantics.track,
+      },
+    ];
+  }, [cycleProgress, semantics, t]);
 
   const [deleteActivity] = API.useDeleteProfessionalPduActivityMutation();
   const { downloadEvidence } = usePduEvidenceUpload();
@@ -156,12 +200,16 @@ export const useProfessionalCpdPduTracker = () => {
     filters,
     summary,
     pageInfo,
+    cyclePlan,
     isFiltered,
     activities,
     handleNext,
     yearOptions,
+    cycleProgress,
     activitiesData,
     handlePrevious,
+    cycleChartData,
+    isCycleLoading,
     isSummaryError,
     isSummaryLoading,
     handleAddActivity,

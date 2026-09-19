@@ -34,6 +34,7 @@ export const CREDIT_TYPES = [
   CreditType.Cpd,
   CreditType.Pdu,
   CreditType.Ceu,
+  CreditType.Cpe,
   CreditType.TrainingHour,
 ] as const;
 
