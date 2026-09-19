@@ -43,8 +43,8 @@ export const ActivityStepper = ({
             </div>
 
             <div className="min-w-0">
-              <p className="truncate font-medium">{step.title}</p>
-              <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">
+              <p className="font-medium leading-snug">{step.title}</p>
+              <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
                 {step.description}
               </p>
             </div>

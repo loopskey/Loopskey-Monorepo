@@ -1,6 +1,7 @@
 "use client";
 
 import { useProfessionalCpdPduTracker } from "@/hooks/useProfessionalCpdPduTracker";
+import { ProgressDonutChart } from "@elements/dashboard-charts";
 import { ActivitiesFilters } from "@modules/ProfessionalDashboard/parts/activities-filters";
 import { ContentPagination } from "@elements/pagination";
 import { ActivitiesTable } from "@modules/ProfessionalDashboard/parts/activities-table";
@@ -40,6 +41,10 @@ const ProfessionalCpdPduTrackerTab = () => {
     activityTypeOptions,
     isActivitiesFetching,
     handleDownloadEvidence,
+    cyclePlan,
+    cycleProgress,
+    cycleChartData,
+    isCycleLoading,
   } = useProfessionalCpdPduTracker();
 
   const summaryValue = (value: number | undefined) => {
@@ -79,7 +84,7 @@ const ProfessionalCpdPduTrackerTab = () => {
       </div>
 
       {/* 2. Summary cards */}
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2">
         {isSummaryLoading ? (
           <>
             <Skeleton className="h-40 w-full rounded-lg" />
@@ -88,6 +93,7 @@ const ProfessionalCpdPduTrackerTab = () => {
         ) : (
           <>
             <MetricCard
+              tone="success"
               icon={L.CircleCheckBig}
               label={t(`${TRACKER}.summary.completedTitle`)}
               helper={t(`${TRACKER}.summary.completedHelper`)}
@@ -95,6 +101,7 @@ const ProfessionalCpdPduTrackerTab = () => {
             />
 
             <MetricCard
+              tone="primary"
               icon={L.Paperclip}
               label={t(`${TRACKER}.summary.evidenceTitle`)}
               value={summaryValue(summary?.activitiesWithEvidence)}
@@ -107,6 +114,45 @@ const ProfessionalCpdPduTrackerTab = () => {
           </>
         )}
       </div>
+
+      {/* 3. Cycle progress */}
+      {cyclePlan && (isCycleLoading || cycleProgress) ? (
+        <GlassCard className="flex flex-col items-center text-center">
+          <h2 className="text-xl font-medium">
+            {t(`${TRACKER}.cycleProgress.title`)}
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {t(`${TRACKER}.cycleProgress.subtitle`)}
+          </p>
+
+          {isCycleLoading || !cycleProgress ? (
+            <Skeleton className="mx-auto mt-4 h-52 w-52 rounded-full" />
+          ) : (
+            <>
+              <div className="mx-auto mt-2 w-full max-w-[220px]">
+                <ProgressDonutChart
+                  data={cycleChartData}
+                  ariaLabel={t(`${TRACKER}.cycleProgress.title`)}
+                  centerLabel={
+                    <span className="text-3xl font-medium text-primary">
+                      {Math.round(cycleProgress.progressPercent)}%
+                    </span>
+                  }
+                />
+              </div>
+
+              <p className="mt-2 text-center text-sm text-muted-foreground">
+                {t(`${TRACKER}.cycleProgress.summary`, {
+                  earned: cycleProgress.earnedCredits,
+                  total: cycleProgress.totalRequiredCredits,
+                  credit: t(`cpdProgress.creditTypes.${cyclePlan.creditType}`),
+                  percent: cycleProgress.progressPercent.toFixed(0),
+                })}
+              </p>
+            </>
+          )}
+        </GlassCard>
+      ) : null}
 
       {/* 3. Search and filter toolbar + 4. Activities table */}
       <GlassCard>

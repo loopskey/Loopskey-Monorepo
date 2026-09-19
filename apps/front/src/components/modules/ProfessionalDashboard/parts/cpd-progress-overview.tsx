@@ -66,8 +66,9 @@ export const CpdProgressOverview = ({
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard
+          tone="success"
           icon={L.Award}
           label={t("cpdProgress.progress.cards.earned")}
           value={`${progress.earnedCredits} ${creditLabel}`}
@@ -76,6 +77,7 @@ export const CpdProgressOverview = ({
           })}
         />
         <MetricCard
+          tone="warning"
           icon={L.Hourglass}
           label={t("cpdProgress.progress.cards.remaining")}
           value={`${progress.remainingCredits} ${creditLabel}`}
@@ -84,12 +86,14 @@ export const CpdProgressOverview = ({
           })}
         />
         <MetricCard
+          tone="primary"
           icon={L.Layers}
           value={String(progress.categoriesMissing)}
           label={t("cpdProgress.progress.cards.categoriesMissing")}
           helper={t("cpdProgress.progress.cards.categoriesMissingHelper")}
         />
         <MetricCard
+          tone="danger"
           icon={L.FileWarning}
           value={String(progress.evidenceMissing)}
           label={t("cpdProgress.progress.cards.evidenceMissing")}

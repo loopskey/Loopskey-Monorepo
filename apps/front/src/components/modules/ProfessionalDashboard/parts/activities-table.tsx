@@ -1,12 +1,12 @@
 "use client";
 
-import { Tooltip, TooltipContent, TooltipTrigger } from "@ui/tooltip";
 import { TPduActivitiesTableProps } from "@/types/professional-dashboard.types";
 import { PduCompletionStatus } from "@/lib/graphql/base";
 import { I18nContextValue } from "@/types/providers.types";
 import { ConfirmDialog } from "@elements/confirm-dialog";
 import { TPduActivity } from "@/types/professional-dashboard.types";
 import { formatDate } from "@/utils/function-helper";
+import { IconAction } from "@elements/icon-action";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
 
@@ -28,15 +28,13 @@ const StatusBadge = ({
   </Badge>
 );
 
-const CertificateCell = ({
-  activity,
-  onDownload,
-  t,
-}: {
+export type TCertificateCall = {
   activity: TPduActivity;
   t: I18nContextValue["t"];
   onDownload: TPduActivitiesTableProps["onDownload"];
-}) => {
+};
+
+const CertificateCell = ({ activity, onDownload, t }: TCertificateCall) => {
   const [firstFile] = activity.evidenceFiles;
 
   if (!firstFile)
@@ -52,8 +50,8 @@ const CertificateCell = ({
       radius="xl"
       type="button"
       variant="outline"
-      onClick={() => onDownload(firstFile)}
       title={firstFile.fileName}
+      onClick={() => onDownload(firstFile)}
     >
       <L.Paperclip className="h-3.5 w-3.5" />
       {activity.evidenceFiles.length > 1
@@ -63,55 +61,25 @@ const CertificateCell = ({
   );
 };
 
-const IconAction = ({
-  icon: Icon,
-  label,
-  onClick,
-  disabled,
-  variant = "outline",
-}: {
-  icon: typeof L.Eye;
-  label: string;
-  disabled?: boolean;
-  onClick?: () => void;
-  variant?: "outline" | "cancel";
-}) => (
-  <Tooltip>
-    <TooltipTrigger asChild>
-      <Button
-        radius="full"
-        size="iconSm"
-        type="button"
-        variant={variant}
-        onClick={onClick}
-        aria-label={label}
-        disabled={disabled}
-        className="focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2"
-      >
-        <Icon className="h-4 w-4" aria-hidden />
-      </Button>
-    </TooltipTrigger>
-    <TooltipContent>{label}</TooltipContent>
-  </Tooltip>
-);
-
-const RowActions = ({
-  activity,
-  onView,
-  onEdit,
-  onDelete,
-  isDeleting,
-  deletingActivityId,
-  t,
-}: {
-  activity: TPduActivity;
+export type TRowActions = {
   isDeleting: boolean;
-  deletingActivityId: string | null;
+  activity: TPduActivity;
   t: I18nContextValue["t"];
+  deletingActivityId: string | null;
   onView: TPduActivitiesTableProps["onView"];
   onEdit: TPduActivitiesTableProps["onEdit"];
   onDelete: TPduActivitiesTableProps["onDelete"];
-}) => {
+};
+
+const RowActions = ({
+  t,
+  onView,
+  onEdit,
+  activity,
+  onDelete,
+  isDeleting,
+  deletingActivityId,
+}: TRowActions) => {
   const isDeletingRow = deletingActivityId === activity.id;
 
   return (

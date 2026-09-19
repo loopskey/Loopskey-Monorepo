@@ -3798,6 +3798,11 @@
         "evidenceTitle": "Activities With Evidence",
         "evidenceHelper": "{{files}} evidence file(s) uploaded in total."
       },
+      "cycleProgress": {
+        "title": "Cycle Progress",
+        "subtitle": "Earned versus required credits for your current plan",
+        "summary": "Earned {{earned}} of {{total}} {{credit}} ({{percent}}%)."
+      },
       "actions": {
         "view": "View activity details",
         "edit": "Edit activity",
@@ -3855,7 +3860,7 @@
       "filters": {
         "any": "Any",
         "search": "Search",
-        "searchPlaceholder": "Search title, provider, organization or notes...",
+        "searchPlaceholder": "Search title or provider...",
         "activityType": "Activity type",
         "creditType": "Credit type",
         "category": "Category",
@@ -3908,6 +3913,7 @@
         "CPD": "CPD",
         "PDU": "PDU",
         "CEU": "CEU",
+        "CPE": "CPE",
         "TRAINING_HOUR": "Training Hour"
       },
       "categories": {
@@ -4312,7 +4318,7 @@
       "title": "Calendar & registered events",
       "description": "Track your registered events, sessions, webinars, and PDU activities in one professional calendar view.",
       "googleConnected": "Google connected",
-      "addEvent": "Add event",
+      "addEvent": "Add to Calendar",
       "delete": "Delete",
       "deleteSuccess": "Event removed from your calendar.",
       "eventFallback": "Professional event",
