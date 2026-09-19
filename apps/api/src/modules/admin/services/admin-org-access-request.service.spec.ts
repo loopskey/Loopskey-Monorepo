@@ -26,6 +26,7 @@ const request = {
   workEmail: "contact@example.org",
   organizationName: "Example Association",
   organizationType: OrganizationType.ASSOCIATION,
+  targetRole: Role.ORGANIZATION,
   representativeFullName: "Alex Morgan",
   representativeJobRole: "Program Director",
   expectedLicensedProfessionals: 12,
@@ -195,7 +196,12 @@ describe("AdminDashboardService organization requests", () => {
       $transaction: (callback: TransactionCallback) => callback(tx),
     });
 
-    await service.approveOrgAccessRequest(admin, request.id);
+    const result = await service.approveOrgAccessRequest(admin, request.id);
+
+    // targetRole must be re-attached to the response: it's a non-nullable
+    // GraphQL field, so dropping it makes the resolver serialize null and
+    // error out even though the transaction and email already succeeded.
+    expect(result.targetRole).toBe(Role.ORGANIZATION);
 
     expect(tx.user.create).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -352,10 +358,11 @@ describe("AdminDashboardService organization requests", () => {
       },
       auditLog: { create: jest.fn() },
     };
-    await createService({
+    const result = await createService({
       $transaction: (callback: TransactionCallback) => callback(tx),
     }).rejectOrgAccessRequest(admin, request.id, "Not eligible");
 
+    expect(result.targetRole).toBe(Role.ORGANIZATION);
     expect(tx.organizationAccessRequest.updateMany).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ rejectReason: "Not eligible" }),

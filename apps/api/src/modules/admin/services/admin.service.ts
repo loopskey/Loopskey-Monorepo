@@ -237,7 +237,7 @@ export class AdminDashboardService {
       targetRole === Role.ASSOCIATION
         ? await this.associationReviewNotification.deliver(requestId)
         : await this.reviewNotification.deliver(requestId);
-    return { ...result, notificationStatus };
+    return { ...result, targetRole, notificationStatus };
   }
 
   async rejectOrgAccessRequest(
@@ -310,7 +310,7 @@ export class AdminDashboardService {
       targetRole === Role.ASSOCIATION
         ? await this.associationReviewNotification.deliver(requestId)
         : await this.reviewNotification.deliver(requestId);
-    return { ...result, notificationStatus };
+    return { ...result, targetRole, notificationStatus };
   }
 
   async resendOrgAccessRequestNotification(
