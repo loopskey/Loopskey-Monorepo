@@ -27,10 +27,7 @@ export const UserMenu = ({
 }: TUserMenuProps = {}) => {
   const { t } = useI18n();
   const router = useRouter();
-
-  const { data, isLoading } = useCurrentUserQuery(undefined, {
-    refetchOnMountOrArgChange: true,
-  });
+  const { data, isLoading } = useCurrentUserQuery();
 
   const [logout, { isLoading: isLoggingOut }] = useLogoutMutation();
 
