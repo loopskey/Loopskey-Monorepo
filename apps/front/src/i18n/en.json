@@ -7068,9 +7068,9 @@
       "confirm": {
         "approveTitle": "Approve organization request?",
         "rejectTitle": "Reject organization request?",
-        "description": "This will record a final decision for {organization}. This action cannot be repeated.",
+        "description": "This will record a final decision for {{organization}}. This action cannot be repeated.",
         "resendTitle": "Resend organization notification?",
-        "resendDescription": "Send the current decision email to {organization} again? For approvals, any previous unused activation link will become invalid."
+        "resendDescription": "Send the current decision email to {{organization}} again? For approvals, any previous unused activation link will become invalid."
       },
       "dialog": {
         "title": "Review access request",

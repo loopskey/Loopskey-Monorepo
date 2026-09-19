@@ -7070,9 +7070,9 @@
       "confirm": {
         "approveTitle": "Approuver la demande de l’organisation ?",
         "rejectTitle": "Rejeter la demande de l’organisation ?",
-        "description": "Cette action enregistrera une décision finale pour {organization}. Elle ne pourra pas être répétée.",
+        "description": "Cette action enregistrera une décision finale pour {{organization}}. Elle ne pourra pas être répétée.",
         "resendTitle": "Renvoyer la notification de l’organisation ?",
-        "resendDescription": "Renvoyer l’e-mail de décision actuel à {organization} ? Pour une approbation, tout ancien lien d’activation inutilisé sera invalidé."
+        "resendDescription": "Renvoyer l’e-mail de décision actuel à {{organization}} ? Pour une approbation, tout ancien lien d’activation inutilisé sera invalidé."
       },
       "dialog": {
         "title": "Examiner la demande d’accès",
