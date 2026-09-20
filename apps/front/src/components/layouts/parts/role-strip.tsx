@@ -13,7 +13,7 @@ type TRoleStripProps = {
 
 export const RoleStrip = ({ lockedHref }: TRoleStripProps) => {
   const { t } = useI18n();
-  const { activeRoleHref } = useActiveRole();
+  const { activeRoleHref, selectRole } = useActiveRole();
   const isLocked = Boolean(lockedHref);
   const currentActiveHref = lockedHref ?? activeRoleHref;
 
@@ -43,6 +43,7 @@ export const RoleStrip = ({ lockedHref }: TRoleStripProps) => {
             <Link
               key={entry.href}
               href={entry.href}
+              onClick={() => selectRole(entry.href)}
               aria-current={isActive ? "page" : undefined}
               className={className}
             >
