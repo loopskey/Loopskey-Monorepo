@@ -18,11 +18,10 @@ export const CPD_LEARNING_FORMATS = [
 ] as const;
 
 export const CPD_TIME_COMMITMENTS = [
-  API.LearningTimeCommitment.LessThanOneHour,
-  API.LearningTimeCommitment.OneToThreeHours,
-  API.LearningTimeCommitment.FourToSixHours,
-  API.LearningTimeCommitment.SevenToTenHours,
-  API.LearningTimeCommitment.MoreThanTenHours,
+  API.LearningTimeCommitment.OneToTwoHours,
+  API.LearningTimeCommitment.TwoToThreeHours,
+  API.LearningTimeCommitment.ThreeToFiveHours,
+  API.LearningTimeCommitment.MoreThanFiveHours,
 ] as const;
 
 export const CPD_EVIDENCE_TYPES = [

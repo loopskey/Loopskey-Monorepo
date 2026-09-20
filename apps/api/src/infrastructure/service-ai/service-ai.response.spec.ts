@@ -50,9 +50,8 @@ describe("chat turn responses", () => {
     );
 
     /**
-     * Every enum here is one 1.0.0 either could not express or read back
-     * differently. EXPERT and WORKSHOP did not exist provider-side at all, and
-     * FOUR_TO_SIX_HOURS arrived as the wider FOUR_TO_SEVEN_HOURS band.
+     * EXPERT and WORKSHOP arrive unchanged; the provider's time band and
+     * budget are read into the platform's own buckets.
      */
     expect(data).toMatchObject({
       suggestedNextSection: "CPD_SETUP",
@@ -60,8 +59,8 @@ describe("chat turn responses", () => {
       extracted: {
         goal: "Renew my PMP",
         skillLevel: "EXPERT",
-        timeCommitment: "FOUR_TO_SIX_HOURS",
-        budgetPreference: "MIXED_FREE_AND_PAID",
+        timeCommitment: "THREE_TO_FIVE_HOURS",
+        budgetPreference: "UNDER_100",
         preferredFormats: ["VIDEO", "WORKSHOP"],
         preferredContentTypes: ["COURSE"],
       },

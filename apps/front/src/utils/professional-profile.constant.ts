@@ -79,18 +79,24 @@ export const LEARNING_FORMATS = [
 ] as const;
 
 export const LEARNING_TIME_COMMITMENTS = [
-  API.LearningTimeCommitment.LessThanOneHour,
-  API.LearningTimeCommitment.OneToThreeHours,
-  API.LearningTimeCommitment.FourToSixHours,
-  API.LearningTimeCommitment.SevenToTenHours,
-  API.LearningTimeCommitment.MoreThanTenHours,
+  API.LearningTimeCommitment.OneToTwoHours,
+  API.LearningTimeCommitment.TwoToThreeHours,
+  API.LearningTimeCommitment.ThreeToFiveHours,
+  API.LearningTimeCommitment.MoreThanFiveHours,
 ] as const;
 
 export const LEARNING_BUDGET_PREFERENCES = [
   API.LearningBudgetPreference.FreeOnly,
-  API.LearningBudgetPreference.MixedFreeAndPaid,
-  API.LearningBudgetPreference.Premium,
-  API.LearningBudgetPreference.EmployerSponsored,
+  API.LearningBudgetPreference.Under_100,
+  API.LearningBudgetPreference.HundredTo_500,
+  API.LearningBudgetPreference.FiveHundredPlus,
+] as const;
+
+export const DELIVERY_FORMATS = [
+  API.DeliveryFormat.Online,
+  API.DeliveryFormat.InPerson,
+  API.DeliveryFormat.SelfPaced,
+  API.DeliveryFormat.LiveCohort,
 ] as const;
 
 export const PROFILE_LANGUAGES = [

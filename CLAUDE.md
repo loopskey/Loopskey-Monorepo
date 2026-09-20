@@ -17,3 +17,11 @@ Before feature implementation or review, select the model tier using
 request; it cannot change the active Claude model by itself.
 
 Use `.claude/skills/feature/SKILL.md` for feature work.
+
+## Prisma migrations
+
+Use `prisma migrate deploy` to apply migrations, or `prisma migrate dev
+--create-only` to author one. Never run bare `prisma migrate dev`: the GIN
+trigram search indexes are hand-written SQL that Prisma cannot see, so it
+auto-generates a migration that drops them. Read any generated migration for
+stray `DROP INDEX` before applying it.

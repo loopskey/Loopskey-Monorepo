@@ -7,6 +7,7 @@ import { translateTransportFailure } from "./service-ai.failure";
 import { parseGenerateResponse } from "./service-ai.response";
 import { parseChatTurnResponse } from "./service-ai.response";
 import { buildChatTurnRequest } from "./service-ai.request";
+import { withoutEchoedBands } from "./service-ai.translation";
 import { CORRELATION_HEADER } from "@infrastructure/observability/correlation-id.middleware";
 import { parseErrorEnvelope } from "./service-ai.response";
 import { requestContext } from "@infrastructure/observability/request-context";
@@ -60,7 +61,13 @@ export class ServiceAiClient implements ServiceAiPort {
 
     const data = parseChatTurnResponse(delivered.body);
     if (!data) return this.rejectResponse(CHAT_TURN_PATH, delivered.status);
-    return { ok: true, data };
+    return {
+      ok: true,
+      data: {
+        ...data,
+        extracted: withoutEchoedBands(input.draft, data.extracted),
+      },
+    };
   }
 
   async generate(input: GenerateInput): Promise<ServiceAiResult<GenerateData>> {

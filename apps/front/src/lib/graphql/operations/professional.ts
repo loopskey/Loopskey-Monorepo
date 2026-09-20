@@ -362,7 +362,7 @@ export type ProfessionalExploreRoadmapsQuery = { __typename?: 'Query', professio
 export type ProfessionalRoadmapStatsQueryVariables = Types.Exact<{ [key: string]: never; }>;
 
 
-export type ProfessionalRoadmapStatsQuery = { __typename?: 'Query', professionalRoadmapStats: { __typename?: 'ProfessionalRoadmapStats', enrolledCount: number, averageProgress: number, completedPhaseCount: number, totalPhaseCount: number, nextMilestone?: number | null } };
+export type ProfessionalRoadmapStatsQuery = { __typename?: 'Query', professionalRoadmapStats: { __typename?: 'ProfessionalRoadmapStats', enrolledCount: number, averageProgress: number, completedPhaseCount: number, totalPhaseCount: number, nextMilestone?: number | null, totalEarnedCredits: number, totalRequiredCredits?: number | null } };
 
 export type ProfessionalCalendarEventFieldsFragment = { __typename?: 'ProfessionalCalendarEvent', id: string, status: Types.EventRegistrationStatus, isLive: boolean, isPast: boolean, userId: string, eventId: string, createdAt: string, updatedAt: string, attendedAt?: string | null, isUpcoming: boolean, completedAt?: string | null, durationMinutes: number, startsInMinutes?: number | null, event?: { __typename?: 'ProfessionalCalendarEventInfo', id: string, pdu: number, slug: string, type: Types.EventType, title: string, endDate?: string | null, timezone: string, location?: string | null, onlineUrl?: string | null, startDate: string, deliveryMode: Types.EventDeliveryMode } | null };
 
@@ -2831,6 +2831,8 @@ export const ProfessionalRoadmapStatsDocument = /*#__PURE__*/ new TypedDocumentS
     completedPhaseCount
     totalPhaseCount
     nextMilestone
+    totalEarnedCredits
+    totalRequiredCredits
   }
 }
     `) as unknown as TypedDocumentString<ProfessionalRoadmapStatsQuery, ProfessionalRoadmapStatsQueryVariables>;

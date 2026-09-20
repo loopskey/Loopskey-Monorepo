@@ -68,6 +68,7 @@ fragment ProfessionalRoadmapDraftFields on ProfessionalRoadmapDraft {
   subjects
   preferredFormats
   preferredContentTypes
+  preferredDeliveryFormats
   cpdEnabled
   certificationId
   certificationName
@@ -106,6 +107,12 @@ query ProfessionalRoadmapDraft(
 
 mutation StartRoadmapDraft {
   startRoadmapDraft {
+    ...ProfessionalRoadmapDraftFields
+  }
+}
+
+mutation ResetRoadmapDraft {
+  resetRoadmapDraft {
     ...ProfessionalRoadmapDraftFields
   }
 }

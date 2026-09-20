@@ -3,6 +3,7 @@ import { ProfessionalRoadmapCandidateService } from "@professional/services/prof
 import { PROFESSIONAL_ENGAGEMENT_API } from "@contentAction/public/professional-engagement-api";
 import { ForbiddenException, Inject } from "@nestjs/common";
 import { RoadmapGenerationViolation } from "@professional/utils/roadmap-generation-verify.util";
+import { LearningBudgetPreference } from "@prisma/client";
 import { RoadmapDraftStatus, Role } from "@prisma/client";
 import { PROFESSIONAL_CATALOG_API } from "@course/public/professional-catalog-api";
 import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
@@ -228,7 +229,7 @@ export class ProfessionalRoadmapGenerationService {
 
     const verdict = verifyGeneratedRoadmap({
       data,
-      freeOnly: draft.budgetPreference === "FREE_ONLY",
+      freeOnly: draft.budgetPreference === LearningBudgetPreference.FREE_ONLY,
       candidates: selected.map(toCandidateKey),
     });
 

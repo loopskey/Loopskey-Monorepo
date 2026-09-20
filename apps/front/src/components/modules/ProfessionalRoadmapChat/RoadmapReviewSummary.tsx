@@ -1,12 +1,16 @@
 "use client";
 
-import { ContentType, LearningFormat, SkillLevel } from "@/lib/graphql/base";
-import { LearningBudgetPreference } from "@/lib/graphql/base";
-import { Loader2, MoreHorizontal } from "lucide-react";
-import { LearningTimeCommitment } from "@/lib/graphql/base";
+import {
+  DELIVERY_FORMATS,
+  LEARNING_BUDGET_PREFERENCES,
+  LEARNING_FORMATS,
+  LEARNING_TIME_COMMITMENTS,
+  SKILL_LEVELS,
+} from "@/utils/professional-profile.constant";
 import { isRoadmapStepReached } from "@/utils/roadmap-chat-step.util";
 import { RoadmapCpdSetupPanel } from "./RoadmapCpdSetupPanel";
-import { RoadmapDraftStep } from "@/lib/graphql/base";
+import { ContentType, RoadmapDraftStep } from "@/lib/graphql/base";
+import { Loader2, Pencil } from "lucide-react";
 import { GlassCard } from "@/components/elements/glass-card";
 import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
@@ -33,6 +37,7 @@ const FIELD_STEP: Partial<Record<keyof T.Patch, RoadmapDraftStep>> = {
   subjects: RoadmapDraftStep.Preferences,
   preferredFormats: RoadmapDraftStep.Preferences,
   preferredContentTypes: RoadmapDraftStep.Preferences,
+  preferredDeliveryFormats: RoadmapDraftStep.Preferences,
   cpdEnabled: RoadmapDraftStep.CpdTracking,
   certificationName: RoadmapDraftStep.Certification,
   requiredCredits: RoadmapDraftStep.CpdRequirements,
@@ -52,6 +57,7 @@ const PREFERENCE_FIELDS: (keyof T.Patch)[] = [
   "subjects",
   "preferredFormats",
   "preferredContentTypes",
+  "preferredDeliveryFormats",
 ];
 
 export const RoadmapReviewSummary = ({
@@ -94,7 +100,7 @@ export const RoadmapReviewSummary = ({
       field: "skillLevel",
       editor: {
         kind: "single",
-        values: Object.values(SkillLevel),
+        values: SKILL_LEVELS,
         labelNs: `${OPTION_NS}.skillLevel`,
       },
       value: draft.skillLevel,
@@ -103,7 +109,7 @@ export const RoadmapReviewSummary = ({
       field: "timeCommitment",
       editor: {
         kind: "single",
-        values: Object.values(LearningTimeCommitment),
+        values: LEARNING_TIME_COMMITMENTS,
         labelNs: `${OPTION_NS}.learningTime`,
       },
       value: draft.timeCommitment,
@@ -112,7 +118,7 @@ export const RoadmapReviewSummary = ({
       field: "budgetPreference",
       editor: {
         kind: "single",
-        values: Object.values(LearningBudgetPreference),
+        values: LEARNING_BUDGET_PREFERENCES,
         labelNs: `${OPTION_NS}.budget`,
       },
       value: draft.budgetPreference,
@@ -122,7 +128,7 @@ export const RoadmapReviewSummary = ({
       field: "preferredFormats",
       editor: {
         kind: "multi",
-        values: Object.values(LearningFormat),
+        values: LEARNING_FORMATS,
         labelNs: `${OPTION_NS}.learningFormat`,
       },
       value: draft.preferredFormats,
@@ -135,6 +141,15 @@ export const RoadmapReviewSummary = ({
         labelNs: "professionalRoadmapChat.enum.contentType",
       },
       value: draft.preferredContentTypes,
+    },
+    {
+      field: "preferredDeliveryFormats",
+      editor: {
+        kind: "multi",
+        values: DELIVERY_FORMATS,
+        labelNs: `${OPTION_NS}.deliveryFormat`,
+      },
+      value: draft.preferredDeliveryFormats,
     },
     {
       field: "cpdEnabled",
@@ -335,7 +350,7 @@ const SectionCard = ({
           aria-pressed={isEditing}
           aria-label={t("professionalRoadmapChat.review.edit")}
         >
-          <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
+          <Pencil className="h-4 w-4" aria-hidden="true" />
         </Button>
       </div>
       {children}

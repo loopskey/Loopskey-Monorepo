@@ -133,5 +133,7 @@ export class ProfessionalRoadmapStatsEntity {
   @Field(() => Int) averageProgress: number;
   @Field(() => Int) totalPhaseCount: number;
   @Field(() => Int) completedPhaseCount: number;
+  @Field(() => Float) totalEarnedCredits: number;
   @Field(() => Int, { nullable: true }) nextMilestone?: number | null;
+  @Field(() => Float, { nullable: true }) totalRequiredCredits?: number | null;
 }

@@ -45,6 +45,22 @@ export const roadmapChatApi = baseApi.injectEndpoints({
     }),
 
     /**
+     * "Start over": discards the current editable draft (and its transcript)
+     * and returns a brand-new one, already carrying the coach's introduction.
+     */
+    resetRoadmapDraft: builder.mutation<
+      TAPI.ResetRoadmapDraftMutation["resetRoadmapDraft"],
+      void
+    >({
+      query: () => ({
+        document: API.ResetRoadmapDraftDocument,
+      }),
+      transformResponse: (response: TAPI.ResetRoadmapDraftMutation) =>
+        response.resetRoadmapDraft,
+      invalidatesTags: ["ProfessionalRoadmapDraft", "Professional"],
+    }),
+
+    /**
      * Every mutation returns the whole draft, so the cache is written from the
      * response rather than invalidated and refetched. That is what keeps the
      * transcript from flickering between the answer and the next question.
@@ -115,6 +131,7 @@ export const {
   usePatchRoadmapDraftMutation,
   usePatchRoadmapCpdSetupMutation,
   useStartRoadmapDraftMutation,
+  useResetRoadmapDraftMutation,
   useSendRoadmapChatTurnMutation,
   useProfessionalRoadmapDraftQuery,
   useLazyProfessionalRoadmapDraftQuery,

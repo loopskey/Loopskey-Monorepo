@@ -26,6 +26,26 @@ export class ProfessionalRoadmapDraftService {
     });
   }
 
+  async deleteDraft(userId: string, draftId: string) {
+    const result = await this.prismaService.roadmapDraft.deleteMany({
+      where: {
+        id: draftId,
+        userId,
+        status: { in: ProfessionalRoadmapDraftService.EDITABLE },
+      },
+    });
+    return result.count > 0;
+  }
+
+  async findRequiredCreditsByIds(draftIds: string[]) {
+    if (!draftIds.length) return new Map<string, number | null>();
+    const rows = await this.prismaService.roadmapDraft.findMany({
+      where: { id: { in: draftIds } },
+      select: { id: true, requiredCredits: true },
+    });
+    return new Map(rows.map((row) => [row.id, row.requiredCredits]));
+  }
+
   async findEditableDraft(userId: string) {
     return this.prismaService.roadmapDraft.findFirst({
       where: {

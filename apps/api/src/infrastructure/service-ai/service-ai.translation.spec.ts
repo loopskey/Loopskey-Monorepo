@@ -27,6 +27,7 @@ import {
   fromProviderDate,
   inbound,
   toProviderDate,
+  withoutEchoedBands,
 } from "./service-ai.translation";
 
 /**
@@ -77,12 +78,9 @@ describe("inbound tables only ever produce values Prisma accepts", () => {
 });
 
 /**
- * Contract 1.1.0 aligned the provider's vocabulary with this platform's, so all
- * four of these enums now round-trip without loss. Before it they did not:
- * EXPERT collapsed onto ADVANCED, LESS_THAN_ONE_HOUR and ONE_TO_THREE_HOURS
- * merged, PREMIUM and EMPLOYER_SPONSORED both became NO_PREFERENCE, and
- * WORKSHOP and ARTICLE were dropped outright. These assertions are what fails
- * if a later contract narrows one of them again.
+ * Contract 1.1.0 aligned the provider's skill-level and learning-format
+ * vocabularies with this platform's, so those two round-trip without loss.
+ * These assertions are what fails if a later contract narrows one again.
  */
 describe("enum vocabularies aligned in contract 1.1.0", () => {
   it.each([
@@ -92,18 +90,6 @@ describe("enum vocabularies aligned in contract 1.1.0", () => {
       LEARNING_FORMAT_OUTBOUND,
       LEARNING_FORMAT_INBOUND,
       LearningFormat,
-    ],
-    [
-      "LearningTimeCommitment",
-      TIME_COMMITMENT_OUTBOUND,
-      TIME_COMMITMENT_INBOUND,
-      LearningTimeCommitment,
-    ],
-    [
-      "LearningBudgetPreference",
-      BUDGET_PREFERENCE_OUTBOUND,
-      BUDGET_PREFERENCE_INBOUND,
-      LearningBudgetPreference,
     ],
   ])("round-trips every %s value unchanged", (_name, out, back, prismaEnum) => {
     const sent = out as Record<string, string>;
@@ -115,13 +101,8 @@ describe("enum vocabularies aligned in contract 1.1.0", () => {
     }
   });
 
-  it("carries the two values 1.0.0 had to collapse", () => {
-    // Both were unreachable before: the provider published no fourth level and
-    // no band above eight hours.
+  it("carries the fourth skill level 1.0.0 had to collapse", () => {
     expect(SKILL_LEVEL_OUTBOUND.EXPERT).toBe("EXPERT");
-    expect(TIME_COMMITMENT_OUTBOUND.MORE_THAN_TEN_HOURS).toBe(
-      "MORE_THAN_TEN_HOURS",
-    );
   });
 
   it("reads EXPERT back, which the provider can now infer on its own", () => {
@@ -134,14 +115,47 @@ describe("enum vocabularies aligned in contract 1.1.0", () => {
     expect(LEARNING_FORMAT_OUTBOUND.WORKSHOP).toBe("WORKSHOP");
     expect(LEARNING_FORMAT_OUTBOUND.ARTICLE).toBe("ARTICLE");
   });
+});
 
-  it("still distinguishes the budgets the provider does not filter on", () => {
-    // Only FREE_ONLY selects content; the other three reach the planner as
-    // context. They stay distinct so the draft records what was actually said.
-    expect(BUDGET_PREFERENCE_OUTBOUND.EMPLOYER_SPONSORED).not.toBe("FREE_ONLY");
-    expect(BUDGET_PREFERENCE_OUTBOUND.PREMIUM).not.toBe(
-      BUDGET_PREFERENCE_OUTBOUND.EMPLOYER_SPONSORED,
+describe("time commitment and budget translate between vocabularies", () => {
+  it("reads each provider time band into the bucket a stored row migrates to", () => {
+    expect(TIME_COMMITMENT_INBOUND).toEqual({
+      LESS_THAN_ONE_HOUR: "ONE_TO_TWO_HOURS",
+      ONE_TO_THREE_HOURS: "TWO_TO_THREE_HOURS",
+      FOUR_TO_SIX_HOURS: "THREE_TO_FIVE_HOURS",
+      SEVEN_TO_TEN_HOURS: "MORE_THAN_FIVE_HOURS",
+      MORE_THAN_TEN_HOURS: "MORE_THAN_FIVE_HOURS",
+    });
+  });
+
+  it("reads each provider budget into the bucket a stored row migrates to", () => {
+    expect(BUDGET_PREFERENCE_INBOUND).toEqual({
+      FREE_ONLY: "FREE_ONLY",
+      MIXED_FREE_AND_PAID: "UNDER_100",
+      PREMIUM: "HUNDRED_TO_500",
+      EMPLOYER_SPONSORED: "FIVE_HUNDRED_PLUS",
+    });
+  });
+
+  it("sends FREE_ONLY to the provider only for the free-only budget", () => {
+    // Only FREE_ONLY selects content provider-side; every other budget reaches
+    // the planner as context, so none of them may be mistaken for it.
+    for (const [platform, provider] of Object.entries(
+      BUDGET_PREFERENCE_OUTBOUND,
+    ))
+      expect(provider === "FREE_ONLY").toBe(platform === "FREE_ONLY");
+  });
+
+  it("never tells the provider a professional is employer-sponsored", () => {
+    expect(Object.values(BUDGET_PREFERENCE_OUTBOUND)).not.toContain(
+      "EMPLOYER_SPONSORED",
     );
+  });
+
+  it("keeps the free-only budget intact in both directions", () => {
+    expect(
+      BUDGET_PREFERENCE_INBOUND[BUDGET_PREFERENCE_OUTBOUND.FREE_ONLY],
+    ).toBe("FREE_ONLY");
   });
 });
 
@@ -238,4 +252,82 @@ describe("dates", () => {
       expect(fromProviderDate(value)).toBeUndefined();
     },
   );
+});
+
+describe("withoutEchoedBands", () => {
+  it.each([
+    ["ONE_TO_TWO_HOURS", "TWO_TO_THREE_HOURS"],
+    ["TWO_TO_THREE_HOURS", "TWO_TO_THREE_HOURS"],
+    ["THREE_TO_FIVE_HOURS", "THREE_TO_FIVE_HOURS"],
+    ["MORE_THAN_FIVE_HOURS", "MORE_THAN_FIVE_HOURS"],
+  ] as const)(
+    "keeps the stored %s when the provider repeats its band",
+    (stored, echoed) => {
+      expect(
+        withoutEchoedBands(
+          { timeCommitment: stored },
+          { timeCommitment: echoed },
+        ).timeCommitment,
+      ).toBeNull();
+    },
+  );
+
+  it.each([
+    ["UNDER_100", "UNDER_100"],
+    ["HUNDRED_TO_500", "HUNDRED_TO_500"],
+    ["FIVE_HUNDRED_PLUS", "HUNDRED_TO_500"],
+    ["FREE_ONLY", "FREE_ONLY"],
+  ] as const)(
+    "keeps the stored %s when the provider repeats its band",
+    (stored, echoed) => {
+      const sentAsProvider =
+        BUDGET_PREFERENCE_INBOUND[BUDGET_PREFERENCE_OUTBOUND[stored]];
+      expect(sentAsProvider).toBe(echoed);
+      expect(
+        withoutEchoedBands(
+          { budgetPreference: stored },
+          { budgetPreference: echoed },
+        ).budgetPreference,
+      ).toBeNull();
+    },
+  );
+
+  it("passes a band that differs from the stored one through as a correction", () => {
+    expect(
+      withoutEchoedBands(
+        { timeCommitment: "ONE_TO_TWO_HOURS", budgetPreference: "FREE_ONLY" },
+        {
+          timeCommitment: "MORE_THAN_FIVE_HOURS",
+          budgetPreference: "UNDER_100",
+        },
+      ),
+    ).toEqual({
+      timeCommitment: "MORE_THAN_FIVE_HOURS",
+      budgetPreference: "UNDER_100",
+    });
+  });
+
+  it("accepts a value when nothing is stored yet", () => {
+    expect(
+      withoutEchoedBands(
+        { timeCommitment: null, budgetPreference: undefined },
+        {
+          timeCommitment: "THREE_TO_FIVE_HOURS",
+          budgetPreference: "UNDER_100",
+        },
+      ),
+    ).toEqual({
+      timeCommitment: "THREE_TO_FIVE_HOURS",
+      budgetPreference: "UNDER_100",
+    });
+  });
+
+  it("leaves every other extracted field alone", () => {
+    expect(
+      withoutEchoedBands(
+        { timeCommitment: "THREE_TO_FIVE_HOURS" },
+        { goal: "Pass the PMP", timeCommitment: "THREE_TO_FIVE_HOURS" },
+      ),
+    ).toEqual({ goal: "Pass the PMP", timeCommitment: null });
+  });
 });

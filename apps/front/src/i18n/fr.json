@@ -124,11 +124,10 @@
       "TRAINING_HOUR": "Heure de formation"
     },
     "time": {
-      "LESS_THAN_ONE_HOUR": "Moins d’1 h/semaine",
-      "ONE_TO_THREE_HOURS": "1 à 3 h/semaine",
-      "FOUR_TO_SIX_HOURS": "4 à 6 h/semaine",
-      "SEVEN_TO_TEN_HOURS": "7 à 10 h/semaine",
-      "MORE_THAN_TEN_HOURS": "Plus de 10 h/semaine"
+      "ONE_TO_TWO_HOURS": "1 à 2 h/semaine",
+      "TWO_TO_THREE_HOURS": "2 à 3 h/semaine",
+      "THREE_TO_FIVE_HOURS": "3 à 5 h/semaine",
+      "MORE_THAN_FIVE_HOURS": "Plus de 5 h/semaine"
     },
     "formats": {
       "COURSE": "Cours",
@@ -3544,17 +3543,22 @@
           "ARTICLE": "Article"
         },
         "learningTime": {
-          "LESS_THAN_ONE_HOUR": "Moins d'1 heure par semaine",
-          "ONE_TO_THREE_HOURS": "1–3 heures par semaine",
-          "FOUR_TO_SIX_HOURS": "4–6 heures par semaine",
-          "SEVEN_TO_TEN_HOURS": "7–10 heures par semaine",
-          "MORE_THAN_TEN_HOURS": "Plus de 10 heures par semaine"
+          "ONE_TO_TWO_HOURS": "1–2 heures par semaine",
+          "TWO_TO_THREE_HOURS": "2–3 heures par semaine",
+          "THREE_TO_FIVE_HOURS": "3–5 heures par semaine",
+          "MORE_THAN_FIVE_HOURS": "Plus de 5 heures par semaine"
         },
         "budget": {
-          "FREE_ONLY": "Ressources gratuites uniquement",
-          "MIXED_FREE_AND_PAID": "Gratuit et payant",
-          "PREMIUM": "Apprentissage premium",
-          "EMPLOYER_SPONSORED": "Financé par l'employeur"
+          "FREE_ONLY": "Gratuit uniquement",
+          "UNDER_100": "Moins de 100 $",
+          "HUNDRED_TO_500": "100–500 $",
+          "FIVE_HUNDRED_PLUS": "Plus de 500 $"
+        },
+        "deliveryFormat": {
+          "ONLINE": "En ligne",
+          "IN_PERSON": "En personne",
+          "SELF_PACED": "À votre rythme",
+          "LIVE_COHORT": "Cohorte en direct"
         },
         "language": {
           "EN": "Anglais",
@@ -4258,6 +4262,8 @@
       "overallProgress": "Progression globale",
       "overallProgressDescription": "Basée sur {count} feuille(s) de route suivie(s).",
       "averageProgressText": "Cette valeur représente votre progression moyenne sur l’ensemble de vos feuilles de route professionnelles actives et terminées.",
+      "activitiesDone": "Activités terminées",
+      "noCpdTargetTracked": "Aucune feuille de route ne suit encore de crédits CPD.",
       "remaining": "Restant",
       "myRoadmaps": "Mes feuilles de route",
       "myRoadmapsDescription": "Continuez, consultez et suivez les feuilles de route auxquelles vous êtes inscrit.",
@@ -4289,7 +4295,7 @@
       "cpdTargetComplete": "atteint",
       "creditsEarnedLabel": "Obtenus",
       "creditsRemainingLabel": "Restants",
-      "recommended": "Recommandé ensuite",
+      "recommended": "Vous pourriez aussi aimer",
       "recommendedDescription": "Des contenus adaptés à votre objectif qui ne sont pas déjà dans votre parcours.",
       "phasedContent": "Votre parcours d’apprentissage",
       "phasedContentDescription": "Avancez dans l'ordre : chaque étape terminée fait progresser votre parcours.",
@@ -7304,6 +7310,24 @@
     "title": "Coach de parcours",
     "subtitle": "Répondez à quelques questions et le coach construit un parcours adapté à votre situation.",
     "backToRoadmaps": "Retour aux parcours",
+    "startOver": "Recommencer",
+    "startOverConfirmTitle": "Recommencer ?",
+    "startOverConfirmDescription": "Cela supprime tout ce que vous avez répondu jusqu'ici et démarre une nouvelle conversation avec le coach.",
+    "startOverFailed": "Impossible de recommencer. Veuillez réessayer.",
+    "preferencesWizard": {
+      "stepOf": "Étape {{current}} sur {{total}}",
+      "back": "Retour",
+      "confirm": "Confirmer",
+      "maxSelected": "Jusqu'à {{max}} sélectionnés",
+      "questions": {
+        "skillLevel": "Quel est votre niveau d'expérience actuel ?",
+        "subjects": "Sur quels sujets le parcours doit-il se concentrer ? Choisissez-en jusqu'à 3.",
+        "preferredFormats": "Avec quel type de contenu apprenez-vous le mieux ?",
+        "timeCommitment": "Combien de temps pouvez-vous y consacrer chaque semaine ?",
+        "preferredDeliveryFormats": "Comment préférez-vous suivre ce parcours ?",
+        "budgetPreference": "Quel est votre budget d'apprentissage ?"
+      }
+    },
     "transcriptLabel": "Conversation avec le coach de parcours",
     "thinking": "Le coach réfléchit…",
     "stepper": {
@@ -7312,19 +7336,39 @@
       "cpdSetup": "Configuration DPC",
       "review": "Vérification et génération"
     },
+    "coach": {
+      "intro": "Bonjour, je suis votre Coach de parcours Loopskey. Je vais vous poser quelques questions courtes pour construire un parcours adapté. Cela prend environ deux minutes, et vous pourrez modifier chaque réponse ensuite.",
+      "question": {
+        "GOAL": "Que souhaitez-vous accomplir ? Une certification, un nouveau poste ou une compétence : dites-le avec vos propres mots.",
+        "GOAL_REASON": "Pourquoi maintenant ? Qu'est-ce qui en fait une priorité pour vous en ce moment ?",
+        "CONTEXT": "Parlez-moi un peu de votre situation : votre poste actuel, votre expérience et tout ce qui façonnera votre plan.",
+        "TARGET_DATE": "Quand souhaitez-vous avoir terminé ? Choisissez une option rapide ou une date.",
+        "PREFERENCES": "Quelques questions rapides sur votre façon d'apprendre, une à la fois. Vous pouvez revenir en arrière à tout moment.",
+        "CPD_TRACKING": "Devez-vous suivre des crédits CPD ou PDU pour une certification ?",
+        "CERTIFICATION": "Quelle certification maintenez-vous ? Choisissez-en une ci-dessous ou saisissez son nom.",
+        "CPD_REQUIREMENTS": "Combien de crédits exige-t-elle à chaque cycle ? Indiquez-le dans la configuration CPD de votre dossier et j'en tiendrai compte.",
+        "REVIEW": "J'ai tout ce qu'il me faut. Relisez votre dossier, corrigez ce qui ne va pas, puis générez votre parcours."
+      }
+    },
     "composer": {
       "label": "Votre réponse",
       "placeholder": "Répondez avec vos propres mots…",
       "send": "Envoyer",
       "hint": "Entrée pour envoyer, Maj + Entrée pour une nouvelle ligne.",
+      "correctionHint": "Envie de modifier une réponse ? Écrivez-le simplement, par exemple « change mon budget à moins de 100 $ ».",
       "remaining": "{remaining} caractères restants",
       "overLimit": "{over} caractères de trop"
     },
     "widget": {
+      "yes": "Oui",
+      "no": "Non",
       "chooseDate": "Choisir une date",
       "useDate": "Utiliser cette date",
       "confirmSelection": "Confirmer",
-      "selectedOfMax": "{selected} sur {max} sélectionnés"
+      "selectedOfMax": "{selected} sur {max} sélectionnés",
+      "quickInThreeMonths": "Dans 3 mois",
+      "quickInSixMonths": "Dans 6 mois",
+      "quickEndOfYear": "Fin d'année"
     },
     "system": {
       "ROADMAP_AI_REFUSED": "Cela semble sans rapport avec la création d'un parcours. Pouvez-vous reformuler ?",
@@ -7388,6 +7432,7 @@
       "subjects": "Sujets",
       "preferredFormats": "Formats préférés",
       "preferredContentTypes": "Contenus préférés",
+      "preferredDeliveryFormats": "Mode de suivi préféré",
       "cpdEnabled": "Suivre les crédits de certification",
       "certificationId": "Certification",
       "certificationName": "Certification",

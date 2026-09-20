@@ -2,6 +2,7 @@ import { Role } from "@prisma/client";
 
 import type { ProfessionalCatalogApi } from "@course/public/professional-catalog-api";
 import type { ProfessionalEngagementApi } from "@contentAction/public/professional-engagement-api";
+import type { ProfessionalRoadmapDraftService } from "./professional-roadmap-draft.service";
 
 import { ProfessionalRoadmapService } from "./professional-roadmap.service";
 
@@ -57,12 +58,23 @@ const createCatalogMock = () =>
 const createEventsMock = () =>
   ({ eventCredits: jest.fn().mockResolvedValue({}) }) as never;
 
+const createDraftServiceMock = () =>
+  ({
+    findRequiredCreditsByIds: jest.fn().mockResolvedValue(new Map()),
+  }) as unknown as jest.Mocked<ProfessionalRoadmapDraftService>;
+
 const createService = () => {
   const engagement = createEngagementMock();
   const catalog = createCatalogMock();
   const events = createEventsMock();
-  const service = new ProfessionalRoadmapService(engagement, catalog, events);
-  return { service, engagement, catalog, events };
+  const draftService = createDraftServiceMock();
+  const service = new ProfessionalRoadmapService(
+    engagement,
+    catalog,
+    events,
+    draftService,
+  );
+  return { service, engagement, catalog, events, draftService };
 };
 
 describe("ProfessionalRoadmapService.myRoadmaps", () => {
@@ -189,6 +201,8 @@ describe("ProfessionalRoadmapService.roadmapStats", () => {
       completedPhaseCount: 0,
       totalPhaseCount: 0,
       nextMilestone: null,
+      totalEarnedCredits: 0,
+      totalRequiredCredits: null,
     });
   });
 
@@ -214,6 +228,56 @@ describe("ProfessionalRoadmapService.roadmapStats", () => {
     expect(stats.averageProgress).toBe(40);
     expect(stats.totalPhaseCount).toBe(4);
     expect(stats.nextMilestone).toBe(50);
+    // Neither enrollment has a linked draft, so no roadmap tracks credits.
+    expect(stats.totalEarnedCredits).toBe(0);
+    expect(stats.totalRequiredCredits).toBeNull();
+  });
+
+  it("sums earned credits from completed steps and required credits from linked drafts", async () => {
+    const { service, engagement, catalog, draftService } = createService();
+    const creditedRoadmap = {
+      ...roadmap,
+      id: "roadmap-1",
+      phases: [
+        {
+          id: "a",
+          order: 0,
+          title: "phase a",
+          description: null,
+          steps: [
+            { id: "a-step-0", contentId: null, credits: 5, contentType: null },
+            { id: "a-step-1", contentId: null, credits: 3, contentType: null },
+          ],
+        },
+      ],
+    };
+    catalog.roadmaps.mockResolvedValue([creditedRoadmap]);
+    engagement.roadmapEnrollments.mockResolvedValue({
+      rows: [
+        { ...enrollment("enrollment-1", "roadmap-1", 0), draftId: "draft-1" },
+      ],
+      totalCount: 1,
+    });
+    engagement.roadmapStepProgress.mockResolvedValue([
+      {
+        stepId: "a-step-0",
+        enrollmentId: "enrollment-1",
+        status: "COMPLETED",
+        completedAt: new Date(),
+      },
+    ]);
+    draftService.findRequiredCreditsByIds.mockResolvedValue(
+      new Map([["draft-1", 20]]),
+    );
+
+    const stats = await service.roadmapStats(professional);
+
+    expect(draftService.findRequiredCreditsByIds).toHaveBeenCalledWith([
+      "draft-1",
+    ]);
+    // Only a-step-0 is completed, worth 5 credits; a-step-1 is not counted.
+    expect(stats.totalEarnedCredits).toBe(5);
+    expect(stats.totalRequiredCredits).toBe(20);
   });
 
   it("pages through every enrollment when there is more than one page's worth", async () => {

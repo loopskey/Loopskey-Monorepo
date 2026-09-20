@@ -1,4 +1,5 @@
 import { ForbiddenException, Inject, Injectable } from "@nestjs/common";
+import { ProfessionalRoadmapDraftService } from "@professional/services/professional-roadmap-draft.service";
 import { ProfessionalPaginationInput } from "@professional/dtos/professional-pagination.input";
 import { PROFESSIONAL_ENGAGEMENT_API } from "@contentAction/public/professional-engagement-api";
 import { computeRoadmapNextMilestone } from "@professional/utils/roadmap-progress.util";
@@ -26,6 +27,7 @@ export class ProfessionalRoadmapService {
     @Inject(PROFESSIONAL_CATALOG_API)
     private readonly catalog: ProfessionalCatalogApi,
     @Inject(EVENTS_API) private readonly events: EventsApi,
+    private readonly draftService: ProfessionalRoadmapDraftService,
   ) {}
 
   private assertProfessional(user: TUser) {
@@ -290,6 +292,8 @@ export class ProfessionalRoadmapService {
         completedPhaseCount: 0,
         totalPhaseCount: 0,
         nextMilestone: null,
+        totalEarnedCredits: 0,
+        totalRequiredCredits: null,
       };
 
     const roadmapIds = [...new Set(enrollments.map((item) => item.roadmapId))];
@@ -311,9 +315,39 @@ export class ProfessionalRoadmapService {
       recordsByEnrollment.set(record.enrollmentId, list);
     }
 
+    const eventIds = [
+      ...new Set(
+        enrollments.flatMap((enrollment) =>
+          (roadmapMap.get(enrollment.roadmapId)?.phases ?? []).flatMap(
+            (phase) =>
+              phase.steps
+                .filter((step) => step.contentType === ContentType.EVENT)
+                .map((step) => step.contentId)
+                .filter((id): id is string => Boolean(id)),
+          ),
+        ),
+      ),
+    ];
+    const creditsByContentId = eventIds.length
+      ? await this.events.eventCredits(eventIds)
+      : {};
+
+    const draftIds = [
+      ...new Set(
+        enrollments
+          .map((enrollment) => enrollment.draftId)
+          .filter((id): id is string => Boolean(id)),
+      ),
+    ];
+    const requiredCreditsByDraftId =
+      await this.draftService.findRequiredCreditsByIds(draftIds);
+
     let progressTotal = 0;
     let completedPhaseCount = 0;
     let totalPhaseCount = 0;
+    let totalEarnedCredits = 0;
+    let totalRequiredCredits = 0;
+    let tracksCredits = false;
     for (const enrollment of enrollments) {
       const phases = roadmapMap.get(enrollment.roadmapId)?.phases ?? [];
       const derived = deriveRoadmapProgress({
@@ -326,6 +360,20 @@ export class ProfessionalRoadmapService {
         (phase) => phase.completed,
       ).length;
       totalPhaseCount += phases.length;
+
+      totalEarnedCredits += earnedCredits({
+        steps: phases.flatMap((phase) => phase.steps),
+        progress: derived.steps,
+        creditsByContentId,
+      });
+
+      const required = enrollment.draftId
+        ? (requiredCreditsByDraftId.get(enrollment.draftId) ?? null)
+        : null;
+      if (typeof required === "number" && required > 0) {
+        tracksCredits = true;
+        totalRequiredCredits += required;
+      }
     }
 
     const averageProgressRaw = progressTotal / enrollments.length;
@@ -338,6 +386,8 @@ export class ProfessionalRoadmapService {
         averageProgressRaw,
         enrollments.length,
       ),
+      totalEarnedCredits: Math.round(totalEarnedCredits * 100) / 100,
+      totalRequiredCredits: tracksCredits ? totalRequiredCredits : null,
     };
   }
 }

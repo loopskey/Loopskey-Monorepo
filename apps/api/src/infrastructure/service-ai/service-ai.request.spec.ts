@@ -55,8 +55,8 @@ describe("chat turn requests", () => {
         draft: {
           goal: "Renew my licence",
           skillLevel: "EXPERT",
-          timeCommitment: "SEVEN_TO_TEN_HOURS",
-          budgetPreference: "EMPLOYER_SPONSORED",
+          timeCommitment: "MORE_THAN_FIVE_HOURS",
+          budgetPreference: "FIVE_HUNDRED_PLUS",
           preferredContentTypes: ["COURSE", "PODCAST"],
           targetDate: new Date("2027-01-31T00:00:00.000Z"),
         },
@@ -64,16 +64,14 @@ describe("chat turn requests", () => {
     );
 
     /**
-     * All three enums travel under their own name since contract 1.1.0. Under
-     * 1.0.0 this same draft went out as ADVANCED / EIGHT_PLUS_HOURS /
-     * NO_PREFERENCE, and the professional's actual answer never reached the
-     * planner.
+     * Skill level travels under its own name since contract 1.1.0. Time and
+     * budget are translated from the platform's buckets into the provider's.
      */
     expect(body.draft).toMatchObject({
       goal: "Renew my licence",
       skill_level: "EXPERT",
       target_date: "2027-01-31",
-      budget: "EMPLOYER_SPONSORED",
+      budget: "PREMIUM",
       available_time: "SEVEN_TO_TEN_HOURS",
       content_types: ["COURSE", "PODCAST"],
     });

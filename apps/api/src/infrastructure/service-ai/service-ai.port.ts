@@ -23,17 +23,16 @@ export type PlatformSkillLevel =
   | "EXPERT";
 
 export type PlatformTimeCommitment =
-  | "LESS_THAN_ONE_HOUR"
-  | "ONE_TO_THREE_HOURS"
-  | "FOUR_TO_SIX_HOURS"
-  | "SEVEN_TO_TEN_HOURS"
-  | "MORE_THAN_TEN_HOURS";
+  | "ONE_TO_TWO_HOURS"
+  | "TWO_TO_THREE_HOURS"
+  | "THREE_TO_FIVE_HOURS"
+  | "MORE_THAN_FIVE_HOURS";
 
 export type PlatformBudgetPreference =
   | "FREE_ONLY"
-  | "MIXED_FREE_AND_PAID"
-  | "PREMIUM"
-  | "EMPLOYER_SPONSORED";
+  | "UNDER_100"
+  | "HUNDRED_TO_500"
+  | "FIVE_HUNDRED_PLUS";
 
 export type PlatformLearningFormat =
   | "COURSE"
