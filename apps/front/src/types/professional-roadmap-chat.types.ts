@@ -108,8 +108,8 @@ type EditorKind =
   | { kind: "text"; multiline: boolean }
   | { kind: "date" }
   | { kind: "number" }
-  | { kind: "single"; values: string[]; labelNs: string }
-  | { kind: "multi"; values: string[]; labelNs: string }
+  | { kind: "single"; values: readonly string[]; labelNs: string }
+  | { kind: "multi"; values: readonly string[]; labelNs: string }
   | { kind: "subjects" }
   | { kind: "boolean" };
 

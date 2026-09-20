@@ -61,6 +61,9 @@ const ALLOWED_INTERNAL_EDGES: Readonly<Record<string, readonly string[]>> = {
     "professional-roadmap-candidate.service.ts",
     "professional-roadmap-draft.service.ts",
   ],
+  // The roadmap list reports each roadmap's required credits, which live on the
+  // draft it was generated from. The draft service owns every RoadmapDraft read.
+  "professional-roadmap.service.ts": ["professional-roadmap-draft.service.ts"],
 };
 
 const serviceFiles = () =>

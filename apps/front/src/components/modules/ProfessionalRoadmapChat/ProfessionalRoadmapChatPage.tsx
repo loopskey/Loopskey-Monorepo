@@ -1,12 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { RoadmapPreferencesWizard } from "./RoadmapPreferencesWizard";
+import { ChevronDown, RotateCcw } from "lucide-react";
 import { RoadmapChatTranscript } from "./RoadmapChatTranscript";
 import { RoadmapReviewSummary } from "./RoadmapReviewSummary";
-import { RoadmapChatStepper } from "./RoadmapChatStepper";
 import { RoadmapChatComposer } from "./RoadmapChatComposer";
+import { RoadmapChatStepper } from "./RoadmapChatStepper";
+import { RoadmapDraftStep } from "@/lib/graphql/base";
 import { useRoadmapChat } from "@/hooks/useRoadmapChat";
-import { ChevronDown } from "lucide-react";
+import { ConfirmDialog } from "@/components/elements/confirm-dialog";
 import { GlassCard } from "@/components/elements/glass-card";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@/components/ui/button";
@@ -21,6 +24,12 @@ export const ProfessionalRoadmapChatPage = () => {
   const { t } = useI18n();
   const chat = useRoadmapChat();
   const [briefOpen, setBriefOpen] = useState<boolean>(true);
+  const [startOverOpen, setStartOverOpen] = useState<boolean>(false);
+
+  const confirmStartOver = async () => {
+    const succeeded = await chat.startOver();
+    if (succeeded) setStartOverOpen(false);
+  };
 
   useEffect(() => {
     const stored = window.sessionStorage.getItem(BRIEF_OPEN_STORAGE_KEY);
@@ -58,10 +67,10 @@ export const ProfessionalRoadmapChatPage = () => {
   const brief = chat.draft ? (
     <RoadmapReviewSummary
       draft={chat.draft}
+      onPatch={chat.patch}
+      onGenerate={chat.generate}
       isPatching={chat.isPatching}
       isGenerating={chat.isGenerating}
-      onGenerate={chat.generate}
-      onPatch={chat.patch}
       onPatchCpdSetup={chat.patchCpdSetup}
       isPatchingCpdSetup={chat.isPatchingCpdSetup}
     />
@@ -79,11 +88,35 @@ export const ProfessionalRoadmapChatPage = () => {
           </p>
         </div>
 
-        <Button asChild radius="xl" variant="outline">
-          <Link href={ROADMAP_TAB_HREF}>
-            {t("professionalRoadmapChat.backToRoadmaps")}
-          </Link>
-        </Button>
+        <div className="flex flex-wrap gap-3">
+          {chat.draft ? (
+            <ConfirmDialog
+              open={startOverOpen}
+              confirmVariant="destructive"
+              isLoading={chat.isResetting}
+              onConfirm={confirmStartOver}
+              cancelText={t("common.cancel")}
+              onOpenChange={setStartOverOpen}
+              confirmText={t("professionalRoadmapChat.startOver")}
+              title={t("professionalRoadmapChat.startOverConfirmTitle")}
+              description={t(
+                "professionalRoadmapChat.startOverConfirmDescription",
+              )}
+              trigger={
+                <Button radius="xl" variant="outline">
+                  <RotateCcw className="h-4 w-4" />
+                  {t("professionalRoadmapChat.startOver")}
+                </Button>
+              }
+            />
+          ) : null}
+
+          <Button asChild radius="xl" variant="outline">
+            <Link href={ROADMAP_TAB_HREF}>
+              {t("professionalRoadmapChat.backToRoadmaps")}
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {chat.draft ? (
@@ -119,30 +152,40 @@ export const ProfessionalRoadmapChatPage = () => {
           </div>
         ) : null}
 
-        <GlassCard className="order-2 flex flex-col gap-4 p-5 lg:order-1">
-          <div className="max-h-[55vh] overflow-y-auto pr-1">
-            <RoadmapChatTranscript
-              onRetry={chat.retry}
-              pending={chat.pending}
-              messages={chat.messages}
-              isSending={chat.isSending}
-              isLoading={chat.isLoading}
-              retryAfter={chat.retryAfter}
+        {chat.draft?.currentStep === RoadmapDraftStep.Preferences ? (
+          <div className="order-2 lg:order-1">
+            <RoadmapPreferencesWizard
+              draft={chat.draft}
+              onPatch={chat.patch}
+              isPatching={chat.isPatching}
             />
           </div>
+        ) : (
+          <GlassCard className="order-2 flex flex-col gap-4 p-5 lg:order-1">
+            <div className="max-h-[55vh] overflow-y-auto pr-1">
+              <RoadmapChatTranscript
+                onRetry={chat.retry}
+                pending={chat.pending}
+                messages={chat.messages}
+                isSending={chat.isSending}
+                isLoading={chat.isLoading}
+                retryAfter={chat.retryAfter}
+              />
+            </div>
 
-          <RoadmapChatComposer
-            onSend={chat.send}
-            widget={chat.widget}
-            canSend={chat.canSend}
-            onChange={chat.setInput}
-            composer={chat.composer}
-            questionKey={questionKey}
-            onAnswer={chat.answerWith}
-            isSending={chat.isSending}
-            retryAfter={chat.retryAfter}
-          />
-        </GlassCard>
+            <RoadmapChatComposer
+              onSend={chat.send}
+              widget={chat.widget}
+              canSend={chat.canSend}
+              onChange={chat.setInput}
+              composer={chat.composer}
+              questionKey={questionKey}
+              onAnswer={chat.answerWidget}
+              isSending={chat.isSending || chat.isPatching}
+              retryAfter={chat.retryAfter}
+            />
+          </GlassCard>
+        )}
       </div>
     </div>
   );

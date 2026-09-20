@@ -116,15 +116,15 @@ export const RoadmapChatComposer = ({
               </span>
             ) : null}
 
-            <Button
-              radius="xl"
-              disabled={!canSend}
-              onClick={onSend}
-            >
+            <Button radius="xl" disabled={!canSend} onClick={onSend}>
               {t("professionalRoadmapChat.composer.send")}
             </Button>
           </div>
         </div>
+
+        <p className="text-xs text-muted-foreground">
+          {t("professionalRoadmapChat.composer.correctionHint")}
+        </p>
 
         <p className="text-xs text-muted-foreground">
           {t("professionalRoadmapChat.composer.hint")}

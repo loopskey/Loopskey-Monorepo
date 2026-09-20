@@ -124,11 +124,10 @@
       "TRAINING_HOUR": "Training Hour"
     },
     "time": {
-      "LESS_THAN_ONE_HOUR": "Less than 1 hour/week",
-      "ONE_TO_THREE_HOURS": "1–3 hours/week",
-      "FOUR_TO_SIX_HOURS": "4–6 hours/week",
-      "SEVEN_TO_TEN_HOURS": "7–10 hours/week",
-      "MORE_THAN_TEN_HOURS": "More than 10 hours/week"
+      "ONE_TO_TWO_HOURS": "1–2 hours/week",
+      "TWO_TO_THREE_HOURS": "2–3 hours/week",
+      "THREE_TO_FIVE_HOURS": "3–5 hours/week",
+      "MORE_THAN_FIVE_HOURS": "5+ hours/week"
     },
     "formats": {
       "COURSE": "Course",
@@ -3551,17 +3550,22 @@
           "ARTICLE": "Article"
         },
         "learningTime": {
-          "LESS_THAN_ONE_HOUR": "Less than 1 hour per week",
-          "ONE_TO_THREE_HOURS": "1–3 hours per week",
-          "FOUR_TO_SIX_HOURS": "4–6 hours per week",
-          "SEVEN_TO_TEN_HOURS": "7–10 hours per week",
-          "MORE_THAN_TEN_HOURS": "More than 10 hours per week"
+          "ONE_TO_TWO_HOURS": "1–2 hours per week",
+          "TWO_TO_THREE_HOURS": "2–3 hours per week",
+          "THREE_TO_FIVE_HOURS": "3–5 hours per week",
+          "MORE_THAN_FIVE_HOURS": "5+ hours per week"
         },
         "budget": {
-          "FREE_ONLY": "Free resources only",
-          "MIXED_FREE_AND_PAID": "Mixed free & paid",
-          "PREMIUM": "Premium learning",
-          "EMPLOYER_SPONSORED": "Employer sponsored"
+          "FREE_ONLY": "Free only",
+          "UNDER_100": "Under $100",
+          "HUNDRED_TO_500": "$100–$500",
+          "FIVE_HUNDRED_PLUS": "$500+"
+        },
+        "deliveryFormat": {
+          "ONLINE": "Online",
+          "IN_PERSON": "In-person",
+          "SELF_PACED": "Self-paced",
+          "LIVE_COHORT": "Live cohort"
         },
         "language": {
           "EN": "English",
@@ -4255,6 +4259,8 @@
       "overallProgress": "Overall progress",
       "overallProgressDescription": "Based on {count} enrolled roadmap(s).",
       "averageProgressText": "This shows your average progress across all active and completed professional roadmaps.",
+      "activitiesDone": "Activities done",
+      "noCpdTargetTracked": "No roadmap is tracking CPD credits yet.",
       "remaining": "Remaining",
       "myRoadmaps": "My roadmaps",
       "myRoadmapsDescription": "Continue, review, and track the roadmaps you are currently enrolled in.",
@@ -4286,7 +4292,7 @@
       "cpdTargetComplete": "complete",
       "creditsEarnedLabel": "Earned",
       "creditsRemainingLabel": "Remaining",
-      "recommended": "Recommended next",
+      "recommended": "You might also like",
       "recommendedDescription": "Content that fits your goal and is not already in your roadmap.",
       "phasedContent": "Your Learning Path",
       "phasedContentDescription": "Work through it in order, each item you finish moves your progress.",
@@ -7302,6 +7308,24 @@
     "title": "Roadmap coach",
     "subtitle": "Answer a few questions and the coach builds a roadmap around your situation.",
     "backToRoadmaps": "Back to roadmaps",
+    "startOver": "Start over",
+    "startOverConfirmTitle": "Start over?",
+    "startOverConfirmDescription": "This discards everything you have answered so far and begins a new conversation with the coach.",
+    "startOverFailed": "We could not start over. Please try again.",
+    "preferencesWizard": {
+      "stepOf": "Step {{current}} of {{total}}",
+      "back": "Back",
+      "confirm": "Confirm",
+      "maxSelected": "Up to {{max}} selected",
+      "questions": {
+        "skillLevel": "What's your current experience level?",
+        "subjects": "Which subjects should the roadmap focus on? Choose up to 3.",
+        "preferredFormats": "What kind of content do you learn best from?",
+        "timeCommitment": "How much time can you dedicate each week?",
+        "preferredDeliveryFormats": "How do you prefer to attend?",
+        "budgetPreference": "What's your learning budget?"
+      }
+    },
     "transcriptLabel": "Conversation with the roadmap coach",
     "thinking": "The coach is thinking…",
     "stepper": {
@@ -7310,19 +7334,39 @@
       "cpdSetup": "CPD Setup",
       "review": "Review & Generate"
     },
+    "coach": {
+      "intro": "Hi, I'm your Loopskey Roadmap Coach. I'll ask a few short questions to build a learning path that fits you. It takes about two minutes, and you can change any answer later.",
+      "question": {
+        "GOAL": "What would you like to achieve? A certification, a new role, or a skill: tell me in your own words.",
+        "GOAL_REASON": "Why now? What is making this a priority for you at the moment?",
+        "CONTEXT": "Tell me a bit about your situation: your current role, your experience, and anything that will shape your plan.",
+        "TARGET_DATE": "When would you like to be finished? Pick a quick option or choose a date.",
+        "PREFERENCES": "Now a few quick questions about how you like to learn, one at a time. You can go back at any point.",
+        "CPD_TRACKING": "Do you need to track CPD or PDU credits for a certification?",
+        "CERTIFICATION": "Which certification are you keeping up? Choose one below, or type its name.",
+        "CPD_REQUIREMENTS": "How many credits does it require each cycle? Add this under CPD setup in your brief and I'll plan around it.",
+        "REVIEW": "That's everything I need. Review your brief, change anything that's off, then generate your roadmap."
+      }
+    },
     "composer": {
       "label": "Your answer",
       "placeholder": "Answer in your own words…",
       "send": "Send",
       "hint": "Press Enter to send, Shift + Enter for a new line.",
+      "correctionHint": "Want to change something you already told me? Just type it, for example “change my budget to under $100”.",
       "remaining": "{remaining} characters left",
       "overLimit": "{over} characters over the limit"
     },
     "widget": {
+      "yes": "Yes",
+      "no": "No",
       "chooseDate": "Choose a date",
       "useDate": "Use this date",
       "confirmSelection": "Confirm",
-      "selectedOfMax": "{selected} of {max} selected"
+      "selectedOfMax": "{selected} of {max} selected",
+      "quickInThreeMonths": "In 3 months",
+      "quickInSixMonths": "In 6 months",
+      "quickEndOfYear": "End of year"
     },
     "system": {
       "ROADMAP_AI_REFUSED": "That looks unrelated to building a roadmap. Could you rephrase it?",
@@ -7386,6 +7430,7 @@
       "subjects": "Subjects",
       "preferredFormats": "Preferred formats",
       "preferredContentTypes": "Preferred content",
+      "preferredDeliveryFormats": "Preferred delivery",
       "cpdEnabled": "Track certification credits",
       "certificationId": "Certification",
       "certificationName": "Certification",

@@ -68,7 +68,9 @@ export const isStepSatisfied = (
         draft.skillLevel !== null &&
         draft.timeCommitment !== null &&
         draft.budgetPreference !== null &&
-        draft.subjects.length > 0
+        draft.subjects.length > 0 &&
+        draft.preferredFormats.length > 0 &&
+        draft.preferredDeliveryFormats.length > 0
       );
     case RoadmapDraftStep.CPD_TRACKING:
       return (
@@ -112,7 +114,9 @@ export const isDraftComplete = (draft: RoadmapDraftFields): boolean => {
     draft.skillLevel !== null &&
     draft.timeCommitment !== null &&
     draft.budgetPreference !== null &&
-    draft.subjects.length > 0;
+    draft.subjects.length > 0 &&
+    draft.preferredFormats.length > 0 &&
+    draft.preferredDeliveryFormats.length > 0;
   if (!base) return false;
   if (!draft.cpdEnabled) return true;
   return (

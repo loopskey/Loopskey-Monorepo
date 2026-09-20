@@ -21,3 +21,23 @@ export const ROADMAP_TRANSCRIPT_PAGE_SIZE = 30;
  */
 export const ROADMAP_BUSY_CODE = "ROADMAP_AI_BUSY";
 export const ROADMAP_DRAFT_LOCKED_CODE = "ROADMAP_DRAFT_LOCKED";
+
+/**
+ * The coach's own lines arrive as these codes rather than prose, so the
+ * wording and its translation stay in the browser.
+ */
+export const ROADMAP_COACH_INTRO_CODE = "ROADMAP_COACH_INTRO";
+export const ROADMAP_COACH_QUESTION_CODE = "ROADMAP_COACH_QUESTION";
+
+/** Offered as one-tap answers; anything else is typed in the composer. */
+export const ROADMAP_CERTIFICATION_CHOICES = [
+  "PMP",
+  "PMP-ACP",
+  "CFA",
+  "CPA",
+  "CISSP",
+  "SHRM-CP",
+] as const;
+
+export const ROADMAP_YES_VALUE = "true";
+export const ROADMAP_NO_VALUE = "false";

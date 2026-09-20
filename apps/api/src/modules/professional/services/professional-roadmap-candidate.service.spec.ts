@@ -90,7 +90,7 @@ const input = {
   cap: SERVICE_AI_LIMITS.candidatesMaxItems,
   subjects: ["kubernetes"],
   skillLevel: SkillLevel.BEGINNER,
-  budgetPreference: LearningBudgetPreference.MIXED_FREE_AND_PAID,
+  budgetPreference: LearningBudgetPreference.UNDER_100,
   preferredContentTypes: [] as never[],
   creditsNeeded: false,
 };

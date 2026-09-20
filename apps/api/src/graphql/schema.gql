@@ -2355,10 +2355,10 @@ The `JSONObject` scalar type represents JSON objects as specified by [ECMA-404](
 scalar JSONObject
 
 enum LearningBudgetPreference {
-  EMPLOYER_SPONSORED
+  FIVE_HUNDRED_PLUS
   FREE_ONLY
-  MIXED_FREE_AND_PAID
-  PREMIUM
+  HUNDRED_TO_500
+  UNDER_100
 }
 
 enum LearningFormat {
@@ -2371,11 +2371,10 @@ enum LearningFormat {
 }
 
 enum LearningTimeCommitment {
-  FOUR_TO_SIX_HOURS
-  LESS_THAN_ONE_HOUR
-  MORE_THAN_TEN_HOURS
-  ONE_TO_THREE_HOURS
-  SEVEN_TO_TEN_HOURS
+  MORE_THAN_FIVE_HOURS
+  ONE_TO_TWO_HOURS
+  THREE_TO_FIVE_HOURS
+  TWO_TO_THREE_HOURS
 }
 
 input LoginInput {
@@ -2480,6 +2479,7 @@ type Mutation {
   resendEmailOtp(input: ResendEmailOtpInput!): AuthPayload!
   resendOrganizationActivation(input: ResendOrganizationActivationInput!): AuthPayload!
   resetPassword(input: ResetPasswordInput!): AuthPayload!
+  resetRoadmapDraft: ProfessionalRoadmapDraft!
   restoreCourse(courseId: String!): Course!
   restoreEvent(eventId: String!): Event!
   restorePodcast(podcastId: String!): Podcast!
@@ -3885,7 +3885,9 @@ type ProfessionalRoadmapStats {
   completedPhaseCount: Int!
   enrolledCount: Int!
   nextMilestone: Int
+  totalEarnedCredits: Float!
   totalPhaseCount: Int!
+  totalRequiredCredits: Float
 }
 
 type ProfessionalRoadmapStep {
