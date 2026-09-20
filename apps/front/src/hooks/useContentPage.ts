@@ -338,6 +338,7 @@ export const useContentPage = () => {
   };
 
   const resetFilters = () => {
+    setSearch("");
     if (activeTab === "courses") setCourseFilters({});
     if (activeTab === "events") setEventFilters({});
     if (activeTab === "podcasts") setPodcastFilters({});
@@ -348,8 +349,9 @@ export const useContentPage = () => {
     if (activeTab === "courses") {
       return {
         title: t("content.filters.courseTitle"),
-        totalCount: activeData?.totalCount,
+        search,
         onReset: resetFilters,
+        onSearchChange: setSearch,
         filters: [
           {
             key: "category",
@@ -399,8 +401,9 @@ export const useContentPage = () => {
     if (activeTab === "events") {
       return {
         title: t("content.filters.eventTitle"),
-        totalCount: activeData?.totalCount,
+        search,
         onReset: resetFilters,
+        onSearchChange: setSearch,
         filters: [
           {
             key: "category",
@@ -433,8 +436,9 @@ export const useContentPage = () => {
     if (activeTab === "podcasts") {
       return {
         title: t("content.filters.podcastTitle"),
-        totalCount: activeData?.totalCount,
+        search,
         onReset: resetFilters,
+        onSearchChange: setSearch,
         filters: [
           {
             key: "category",
@@ -454,8 +458,9 @@ export const useContentPage = () => {
 
     return {
       title: t("content.filters.youtubeTitle"),
-      totalCount: activeData?.totalCount,
+      search,
       onReset: resetFilters,
+      onSearchChange: setSearch,
       filters: [
         {
           key: "category",

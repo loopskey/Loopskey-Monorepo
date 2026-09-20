@@ -61,14 +61,9 @@ export type TContentCardProps = {
   item: TContentCardItem;
 };
 
-export type TContentSearchHeroProps = {
-  value: string;
-  onChange: (value: string) => void;
-};
-
 export type TFilterPanelProps = {
   title: string;
-  totalCount?: number;
+  search: string;
   filters: Array<{
     key: string;
     label: string;
@@ -78,6 +73,7 @@ export type TFilterPanelProps = {
     onChange: (value: string) => void;
   }>;
   onReset: () => void;
+  onSearchChange: (value: string) => void;
 };
 
 // ============== Details ================

@@ -2768,10 +2768,7 @@
   },
   "content": {
     "hero": {
-      "badge": "Explore learning content",
-      "title": "Discover courses, events, podcasts, and YouTube learning channels",
-      "description": "Search across professional learning resources, filter by category, and find the right content for your CPD and career goals.",
-      "searchPlaceholder": "Search courses, events, podcasts, and YouTube..."
+      "title": "Discover courses, events, podcasts, and YouTube learning channels"
     },
     "tabs": {
       "course": "Courses",
@@ -2791,9 +2788,9 @@
       "level": "Level",
       "rating": "Rating",
       "eventType": "Event type",
+      "searchPlaceholder": "Search courses, events, podcasts, and YouTube...",
       "reset": "Reset filters",
-      "all": "All",
-      "totalResults": "{{total}} results found"
+      "all": "All"
     },
     "pagination": {
       "page": "Page {{page}}",

@@ -2772,10 +2772,7 @@
   },
   "content": {
     "hero": {
-      "badge": "Explorer le contenu d’apprentissage",
-      "title": "Découvrez des cours, événements, podcasts et chaînes YouTube",
-      "description": "Recherchez des ressources de développement professionnel, filtrez par catégorie et trouvez le contenu adapté à vos objectifs de CPD et de carrière.",
-      "searchPlaceholder": "Rechercher des cours, événements, podcasts et YouTube..."
+      "title": "Découvrez des cours, événements, podcasts et chaînes YouTube"
     },
     "tabs": {
       "course": "Cours",
@@ -2795,9 +2792,9 @@
       "level": "Niveau",
       "rating": "Note",
       "eventType": "Type d’événement",
+      "searchPlaceholder": "Rechercher des cours, événements, podcasts et YouTube...",
       "reset": "Réinitialiser",
-      "all": "Tous",
-      "totalResults": "{{total}} résultats trouvés"
+      "all": "Tous"
     },
     "pagination": {
       "page": "Page {{page}}",
