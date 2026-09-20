@@ -15,10 +15,8 @@ const ContentPage = () => {
     TAKE,
     tabs,
     items,
-    search,
     goNext,
     activeTab,
-    setSearch,
     isLoading,
     goPrevious,
     activeData,
@@ -29,10 +27,10 @@ const ContentPage = () => {
 
   return (
     <main className="px-4 py-10 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-7xl space-y-8">
-        <ContentSearchHero value={search} onChange={setSearch} />
+      <div className="mx-auto max-w-7xl space-y-6">
+        <ContentSearchHero />
 
-        <div className="sticky top-28 z-30 -mx-4 flex flex-col gap-4 border-y border-border/70 bg-background/95 px-4 py-4 backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+        <div className="flex flex-col gap-4">
           <AnimatedTabs
             tabs={tabs}
             activeTab={activeTab}

@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { useDashboardNav } from "@/hooks/useDashboardNav";
 import { siteLinks } from "@utils/constant";
 import { useI18n } from "@/hooks/useI18n";
+import { Button } from "@ui/button";
 import { cn } from "@/lib/utils";
 
 import Link from "next/link";
@@ -15,26 +16,6 @@ const HINT_STORAGE_KEY = "loopskey:dashboard-nav-hint-seen";
 const HINT_AUTO_DISMISS_MS = 6000;
 const ACTIVE_TAB_PEEK_MS = 2000;
 
-type TTabHandleProps = {
-  Chevron: typeof L.ChevronRight;
-};
-
-const TabHandle = ({ Chevron }: TTabHandleProps) => (
-  <span className="relative flex h-24 w-7 flex-col items-center justify-between rounded-r-2xl bg-primary py-3 shadow-lg transition-transform duration-200 group-hover:scale-105 group-active:scale-95">
-    <span className="flex flex-col items-center gap-1">
-      <span className="size-1 rounded-full bg-primary-foreground/50" />
-      <span className="size-1 rounded-full bg-primary-foreground/50" />
-    </span>
-    <span className="flex flex-col items-center gap-1">
-      <span className="size-1 rounded-full bg-primary-foreground/50" />
-      <span className="size-1 rounded-full bg-primary-foreground/50" />
-    </span>
-    <span className="absolute left-full top-1/2 flex size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-background text-primary shadow-md">
-      <Chevron className="size-4" aria-hidden />
-    </span>
-  </span>
-);
-
 export const MobileDashboardDrawer = () => {
   const { t } = useI18n();
   const { role, tabs, activeTab, isReady } = useDashboardNav();
@@ -42,6 +23,9 @@ export const MobileDashboardDrawer = () => {
   const [showHint, setShowHint] = useState(false);
   const [peekedTab, setPeekedTab] = useState<string | null>(null);
   const peekTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const activeTabLabel =
+    tabs.find((tab) => isDashboardTabActive(tab.value, activeTab))?.labelKey ??
+    "dashboardShell.menu";
 
   useEffect(() => {
     try {
@@ -96,7 +80,10 @@ export const MobileDashboardDrawer = () => {
   useEffect(() => {
     setPeekedTab(activeTab);
     if (peekTimeoutRef.current) clearTimeout(peekTimeoutRef.current);
-    peekTimeoutRef.current = setTimeout(() => setPeekedTab(null), ACTIVE_TAB_PEEK_MS);
+    peekTimeoutRef.current = setTimeout(
+      () => setPeekedTab(null),
+      ACTIVE_TAB_PEEK_MS,
+    );
     return () => {
       if (peekTimeoutRef.current) clearTimeout(peekTimeoutRef.current);
     };
@@ -115,31 +102,31 @@ export const MobileDashboardDrawer = () => {
         )}
       />
 
-      {!isOpen && (
+      <div className="relative flex h-11 items-center justify-center rounded-lg border bg-card px-12 shadow-sm">
         <Tooltip open={showHint || undefined}>
           <TooltipTrigger asChild>
-            <button
+            <Button
               type="button"
+              size="icon"
+              radius="full"
+              variant="outline"
               onClick={openDrawer}
               aria-label={t("dashboardShell.openMenu")}
               aria-expanded={isOpen}
-              className="group fixed left-0 top-[38%] z-50 -translate-y-1/2 outline-none"
+              className="absolute left-1 size-9"
             >
-              <TabHandle Chevron={L.ChevronRight} />
-            </button>
+              <L.Menu aria-hidden />
+            </Button>
           </TooltipTrigger>
-          <TooltipContent side="right" className="flex items-center gap-2">
-            {showHint ? (
-              <>
-                <L.MousePointerClick className="size-4 shrink-0" aria-hidden />
-                {t("dashboardShell.tapToOpenMenu")}
-              </>
-            ) : (
-              t("dashboardShell.menu")
-            )}
+          <TooltipContent side="bottom">
+            {t("dashboardShell.tapToOpenMenu")}
           </TooltipContent>
         </Tooltip>
-      )}
+
+        <p className="truncate text-center text-sm font-semibold">
+          {t(activeTabLabel)}
+        </p>
+      </div>
 
       <aside
         aria-label={t("dashboardShell.navLabel")}
@@ -148,6 +135,20 @@ export const MobileDashboardDrawer = () => {
           isOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
+        <div className="flex h-16 shrink-0 items-center justify-center border-b border-primary-foreground/15">
+          <Button
+            type="button"
+            size="icon"
+            radius="full"
+            variant="ghost"
+            onClick={closeDrawer}
+            aria-label={t("dashboardShell.closeMenu")}
+            className="size-10 text-primary-foreground hover:bg-primary-hover hover:text-primary-foreground"
+          >
+            <L.X aria-hidden />
+          </Button>
+        </div>
+
         <nav className="min-h-0 flex-1 overflow-y-auto py-3 pl-3">
           <ul>
             {tabs.map((item) => {
@@ -156,10 +157,19 @@ export const MobileDashboardDrawer = () => {
               const label = t(item.labelKey);
 
               return (
-                <li key={item.value} className="sidebar-item" data-active={isActive}>
+                <li
+                  key={item.value}
+                  className="sidebar-item"
+                  data-active={isActive}
+                >
                   <Tooltip
-                    open={peekedTab !== null && isDashboardTabActive(item.value, peekedTab)}
-                    onOpenChange={(open) => setPeekedTab(open ? item.value : null)}
+                    open={
+                      peekedTab !== null &&
+                      isDashboardTabActive(item.value, peekedTab)
+                    }
+                    onOpenChange={(open) =>
+                      setPeekedTab(open ? item.value : null)
+                    }
                   >
                     <TooltipTrigger asChild>
                       <Link
@@ -198,21 +208,11 @@ export const MobileDashboardDrawer = () => {
                 <L.HelpCircle className="size-5 shrink-0" aria-hidden />
               </Link>
             </TooltipTrigger>
-            <TooltipContent side="right">{t("dashboardShell.helpSupport")}</TooltipContent>
+            <TooltipContent side="right">
+              {t("dashboardShell.helpSupport")}
+            </TooltipContent>
           </Tooltip>
         </div>
-
-        {isOpen && (
-          <button
-            type="button"
-            onClick={closeDrawer}
-            aria-label={t("dashboardShell.closeMenu")}
-            aria-expanded={isOpen}
-            className="group absolute left-full top-[38%] -translate-y-1/2 outline-none"
-          >
-            <TabHandle Chevron={L.ChevronLeft} />
-          </button>
-        )}
       </aside>
     </div>
   );
