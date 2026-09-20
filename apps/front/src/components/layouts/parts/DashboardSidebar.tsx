@@ -1,7 +1,6 @@
 "use client";
 
 import { DashboardSidebarSkeleton } from "@layouts/parts/DashboardSkeleton";
-import { MobileDashboardDrawer } from "@layouts/parts/MobileDashboardDrawer";
 import { isDashboardTabActive } from "@/utils/dashboard-nav.config";
 import { getDashboardPath } from "@/utils/constant";
 import { useDashboardNav } from "@/hooks/useDashboardNav";
@@ -17,62 +16,59 @@ export const DashboardSidebar = () => {
   if (!isReady || !role) return <DashboardSidebarSkeleton />;
 
   return (
-    <>
-      <MobileDashboardDrawer />
-      <aside className="sticky top-16 z-30 hidden h-[calc(100dvh-4rem)] w-64 shrink-0 flex-col bg-primary text-primary-foreground lg:flex">
-        <nav
-          aria-label={t("dashboardShell.navLabel")}
-          className="min-h-0 flex-1 overflow-y-auto py-2 pl-3"
-        >
-          <ul>
-            {tabs.map((item) => {
-              const Icon = item.icon;
-              const isActive = isDashboardTabActive(item.value, activeTab);
-              const label = t(item.labelKey);
+    <aside className="sticky top-16 z-30 hidden h-[calc(100dvh-4rem)] w-64 shrink-0 flex-col bg-primary text-primary-foreground lg:flex">
+      <nav
+        aria-label={t("dashboardShell.navLabel")}
+        className="min-h-0 flex-1 overflow-y-auto py-2 pl-3"
+      >
+        <ul>
+          {tabs.map((item) => {
+            const Icon = item.icon;
+            const isActive = isDashboardTabActive(item.value, activeTab);
+            const label = t(item.labelKey);
 
-              return (
-                <li
-                  key={item.value}
-                  className="sidebar-item"
-                  data-active={isActive}
+            return (
+              <li
+                key={item.value}
+                className="sidebar-item"
+                data-active={isActive}
+              >
+                <Link
+                  href={item.href}
+                  title={label}
+                  aria-label={label}
+                  aria-current={isActive ? "page" : undefined}
+                  className={cn(
+                    "relative z-10 flex h-[60px] items-center rounded-l-[30px] outline-none transition-colors duration-200",
+                    "text-sm font-semibold text-primary-foreground",
+                    "hover:bg-background hover:text-primary",
+                    "focus-visible:ring-2 focus-visible:ring-ring-on-primary focus-visible:ring-offset-2 focus-visible:ring-offset-primary",
+                    isActive && "bg-background text-primary",
+                  )}
                 >
-                  <Link
-                    href={item.href}
-                    title={label}
-                    aria-label={label}
-                    aria-current={isActive ? "page" : undefined}
-                    className={cn(
-                      "relative z-10 flex h-[60px] items-center rounded-l-[30px] outline-none transition-colors duration-200",
-                      "text-sm font-semibold text-primary-foreground",
-                      "hover:bg-background hover:text-primary",
-                      "focus-visible:ring-2 focus-visible:ring-ring-on-primary focus-visible:ring-offset-2 focus-visible:ring-offset-primary",
-                      isActive && "bg-background text-primary",
-                    )}
-                  >
-                    <span className="flex w-[60px] shrink-0 items-center justify-center">
-                      <Icon className="size-5 shrink-0" aria-hidden />
-                    </span>
-                    <span className="truncate pr-4">{label}</span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
+                  <span className="flex w-[60px] shrink-0 items-center justify-center">
+                    <Icon className="size-5 shrink-0" aria-hidden />
+                  </span>
+                  <span className="truncate pr-4">{label}</span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
 
-        <div className="shrink-0 border-t border-primary-foreground/20 p-3">
-          <Link
-            href={getDashboardPath(role)}
-            className={cn(
-              "flex h-12 items-center justify-start rounded-md px-3 text-xs font-bold uppercase tracking-wide outline-none transition-colors",
-              "text-primary-foreground/80 hover:bg-primary-hover hover:text-primary-foreground",
-              "focus-visible:ring-2 focus-visible:ring-ring-on-primary focus-visible:ring-offset-2 focus-visible:ring-offset-primary",
-            )}
-          >
-            {role}
-          </Link>
-        </div>
-      </aside>
-    </>
+      <div className="shrink-0 border-t border-primary-foreground/20 p-3">
+        <Link
+          href={getDashboardPath(role)}
+          className={cn(
+            "flex h-12 items-center justify-start rounded-md px-3 text-xs font-bold uppercase tracking-wide outline-none transition-colors",
+            "text-primary-foreground/80 hover:bg-primary-hover hover:text-primary-foreground",
+            "focus-visible:ring-2 focus-visible:ring-ring-on-primary focus-visible:ring-offset-2 focus-visible:ring-offset-primary",
+          )}
+        >
+          {role}
+        </Link>
+      </div>
+    </aside>
   );
 };
