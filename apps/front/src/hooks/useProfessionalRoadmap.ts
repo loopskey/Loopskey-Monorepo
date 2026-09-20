@@ -1,7 +1,7 @@
 "use client";
 
-import { ProfessionalExploreRoadmapsQueryVariables } from "@/lib/graphql/operations/professional";
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { ProfessionalExploreRoadmapsQueryVariables } from "@/lib/graphql/operations/professional";
 import { ProfessionalMyRoadmapsQueryVariables } from "@/lib/graphql/operations/professional";
 import { RoadmapDraftStatus, RoadmapSource } from "@/lib/graphql/base";
 import { useRoadmapStepProgress } from "@/hooks/useRoadmapStepProgress";
@@ -100,6 +100,8 @@ export const useProfessionalRoadmaps = () => {
       completedPhases: statsData?.completedPhaseCount ?? 0,
       totalPhases: statsData?.totalPhaseCount ?? 0,
       nextMilestone: statsData?.nextMilestone ?? null,
+      totalEarnedCredits: statsData?.totalEarnedCredits ?? 0,
+      totalRequiredCredits: statsData?.totalRequiredCredits ?? null,
     }),
     [statsData],
   );

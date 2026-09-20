@@ -4,15 +4,18 @@ import { RoadmapRecommendationsCard } from "@modules/ProfessionalRoadmap/Roadmap
 import { RoadmapGenerationStatus } from "@modules/ProfessionalRoadmap/RoadmapGenerationStatus";
 import { useProfessionalRoadmaps } from "@/hooks/useProfessionalRoadmap";
 import { RoadmapSummarySections } from "@modules/ProfessionalRoadmap/RoadmapSummarySections";
+import { buildCpdProgressView } from "@/utils/professional-overview.helper";
 import { ProgressDonutChart } from "@elements/dashboard-charts";
 import { ContentPagination } from "@elements/pagination";
 import { useChartSemantics } from "@hooks/useChartPalette";
 import { RoadmapPhaseList } from "@modules/ProfessionalRoadmap/RoadmapPhaseList";
+import { daysUntil } from "@modules/ProfessionalRoadmap/RoadmapSummarySections";
 import { GlassCard } from "@elements/glass-card";
 import { Progress } from "@ui/progress";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
 import { Input } from "@ui/input";
+import { cn } from "@/lib/utils";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -75,7 +78,7 @@ const ProfessionalRoadmapTab = () => {
   const progressChartData = [
     {
       name: "completed",
-      label: t("professionalDashboard.roadmap.averageProgressText"),
+      label: t("professionalDashboard.roadmap.activitiesDone"),
       value: progressPercent,
       fill: semantics.renewalReady,
     },
@@ -86,6 +89,24 @@ const ProfessionalRoadmapTab = () => {
       fill: semantics.track,
     },
   ];
+
+  const tracksCpdTarget =
+    !isStatsError &&
+    !isStatsLoading &&
+    typeof stats.totalRequiredCredits === "number" &&
+    stats.totalRequiredCredits > 0;
+  const cpdProgressView = buildCpdProgressView(
+    {
+      earnedCredits: stats.totalEarnedCredits,
+      totalRequiredCredits: stats.totalRequiredCredits,
+      progressPercent: 0,
+    },
+    {
+      earned: t("professionalDashboard.roadmap.creditsEarnedLabel"),
+      remaining: t("professionalDashboard.roadmap.creditsRemainingLabel"),
+    },
+    { progress: semantics.onTrack, remainder: semantics.track },
+  );
 
   return (
     <div className="space-y-6">
@@ -281,25 +302,64 @@ const ProfessionalRoadmapTab = () => {
           </p>
         </div>
 
-        <div className="flex flex-col items-center justify-center rounded-lg border p-8 text-center">
-          <div className="w-full max-w-[220px]">
-            <ProgressDonutChart
-              data={progressChartData}
-              valueSuffix="%"
-              ariaLabel={t("professionalDashboard.roadmap.averageProgressText")}
-              centerLabel={
-                <span className="text-3xl font-medium text-primary">
-                  {isStatsError || isStatsLoading
-                    ? statValue(stats.averageProgress)
-                    : `${stats.averageProgress}%`}
-                </span>
-              }
-            />
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="flex flex-col items-center justify-center rounded-lg border p-8 text-center">
+            <div className="w-full max-w-[200px]">
+              <ProgressDonutChart
+                data={progressChartData}
+                valueSuffix="%"
+                ariaLabel={t("professionalDashboard.roadmap.activitiesDone")}
+                centerLabel={
+                  <span className="text-3xl font-medium text-primary">
+                    {isStatsError || isStatsLoading
+                      ? statValue(stats.averageProgress)
+                      : `${stats.averageProgress}%`}
+                  </span>
+                }
+              />
+            </div>
+
+            <p className="mt-2 text-sm font-medium">
+              {t("professionalDashboard.roadmap.activitiesDone")}
+            </p>
+            <p className="mt-1 text-xs leading-6 text-muted-foreground">
+              {t("professionalDashboard.roadmap.averageProgressText")}
+            </p>
           </div>
 
-          <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            {t("professionalDashboard.roadmap.averageProgressText")}
-          </p>
+          <div className="flex flex-col items-center justify-center rounded-lg border p-8 text-center">
+            {tracksCpdTarget ? (
+              <>
+                <div className="w-full max-w-[200px]">
+                  <ProgressDonutChart
+                    data={cpdProgressView.chartData}
+                    ariaLabel={t("professionalDashboard.roadmap.cpdTarget")}
+                    centerLabel={
+                      <span className="text-3xl font-medium text-primary">
+                        {cpdProgressView.chartPercent}%
+                      </span>
+                    }
+                  />
+                </div>
+
+                <p className="mt-2 text-sm font-medium">
+                  {t("professionalDashboard.roadmap.cpdTarget")}
+                </p>
+                <p className="mt-1 text-xs leading-6 text-muted-foreground">
+                  {t("professionalDashboard.roadmap.creditsOf", {
+                    earned: stats.totalEarnedCredits,
+                    required: stats.totalRequiredCredits ?? 0,
+                  })}
+                </p>
+              </>
+            ) : (
+              <p className="text-sm leading-6 text-muted-foreground">
+                {isStatsError
+                  ? statValue(0)
+                  : t("professionalDashboard.roadmap.noCpdTargetTracked")}
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="mt-5 space-y-4">
@@ -406,6 +466,21 @@ const ProfessionalRoadmapTab = () => {
                       {roadmap.completedSteps}/{roadmap.totalSteps}{" "}
                       {t("professionalDashboard.roadmap.steps")}
                     </Badge>
+                    {roadmap.targetDate ? (
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          "gap-1",
+                          daysUntil(new Date(roadmap.targetDate)) < 0 &&
+                            "border-destructive/40 text-destructive",
+                        )}
+                      >
+                        <L.CalendarDays className="h-3 w-3" />
+                        {new Intl.DateTimeFormat(locale, {
+                          dateStyle: "medium",
+                        }).format(new Date(roadmap.targetDate))}
+                      </Badge>
+                    ) : null}
                   </div>
                   <div className="mt-5">
                     <div className="mb-2 flex justify-between text-xs font-medium text-muted-foreground">

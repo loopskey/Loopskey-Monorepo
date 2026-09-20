@@ -13,6 +13,7 @@ import {
   ProfileTaxonomyKind,
   RoadmapChatRole,
   RoadmapDraftStatus,
+  RoadmapDraftStep,
   Role,
 } from "@prisma/client";
 import {
@@ -35,6 +36,11 @@ import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
 import { draftCompletionSummary } from "@professional/utils/roadmap-step-machine.util";
 import { PatchRoadmapDraftInput } from "@professional/dtos/patch-roadmap-draft.input";
 import { mergeExtractedFields } from "@professional/utils/roadmap-draft-merge.util";
+import { COACH_INTRO_CODE } from "@professional/utils/roadmap-coach.util";
+import { COACH_QUESTION_CODE } from "@professional/utils/roadmap-coach.util";
+import { coachWidgetFor } from "@professional/utils/roadmap-coach.util";
+import { isCoachMessage } from "@professional/utils/roadmap-coach.util";
+import { hadValue } from "@professional/utils/roadmap-coach.util";
 import { RoadmapChatTurnInput } from "@professional/dtos/roadmap-chat-turn.input";
 import { isDraftComplete } from "@professional/utils/roadmap-step-machine.util";
 import { requestContext } from "@infrastructure/observability/request-context";
@@ -205,6 +211,7 @@ export class ProfessionalRoadmapChatService {
   private toHistory(messages: MessageRow[]): RoadmapChatEntry[] {
     return messages
       .filter((message) => message.role !== RoadmapChatRole.SYSTEM)
+      .filter((message) => !isCoachMessage(message.content))
       .filter((message) => message.content.trim().length > 0)
       .slice(-SERVICE_AI_LIMITS.historyMaxItems)
       .map((message) => ({
@@ -327,6 +334,7 @@ export class ProfessionalRoadmapChatService {
     subjectOptions: T.RoadmapSubjectOption[],
   ) {
     const current = this.fields(draft);
+    const previousStep = draft.currentStep;
     const { changes, answered } = mergeExtractedFields({
       current,
       subjectOptions,
@@ -352,13 +360,43 @@ export class ProfessionalRoadmapChatService {
         : RoadmapDraftStatus.COLLECTING,
     });
 
-    await this.drafts.appendMessage(user.id, draft.id, {
-      stepKey: step,
-      content: data.assistantMessage,
-      role: RoadmapChatRole.ASSISTANT,
-      widget: this.toWidgetJson(data.widget),
-    });
+    const stepChanged = step !== previousStep;
+    const isCorrection = (
+      Object.keys(changes) as (keyof T.RoadmapDraftFields)[]
+    ).some((key) => hadValue(current[key]));
+
+    // The provider's wording is kept only where it says something the coach's
+    // fixed script cannot: a clarification, the confirmation of a correction,
+    // or the reply to a turn that moved nowhere. A plain answer that advances
+    // the wizard is followed by the coach's own next question instead.
+    if (
+      data.assistantMessage.trim() &&
+      (data.needsClarification || isCorrection || !stepChanged)
+    )
+      await this.drafts.appendMessage(user.id, draft.id, {
+        stepKey: step,
+        content: data.assistantMessage,
+        role: RoadmapChatRole.ASSISTANT,
+        widget: this.toWidgetJson(data.widget),
+      });
+
+    if (stepChanged && !data.needsClarification)
+      await this.askCoachQuestion(user, draft.id, step);
     return updated ?? draft;
+  }
+
+  private async askCoachQuestion(
+    user: TUser,
+    draftId: string,
+    step: RoadmapDraftStep,
+    code: string = COACH_QUESTION_CODE,
+  ) {
+    await this.drafts.appendMessage(user.id, draftId, {
+      content: code,
+      stepKey: step,
+      role: RoadmapChatRole.ASSISTANT,
+      widget: this.toWidgetJson(coachWidgetFor(step)),
+    });
   }
 
   private async creditsFor(
@@ -403,22 +441,24 @@ export class ProfessionalRoadmapChatService {
         : null;
     const draft = reusable ?? (await this.createSeededDraft(user));
     return this.serialize(draft.id, async () => {
-      const started = Date.now();
-      const input = await this.turnInput(user, draft, null);
-      const result = await this.serviceAi.chatTurn(input);
-      if (!result.ok) {
-        this.log(draft, result.kind, started);
-        this.raise(result);
+      if ((await this.drafts.messageCount(user.id, draft.id)) === 0) {
+        await this.askCoachQuestion(
+          user,
+          draft.id,
+          draft.currentStep,
+          COACH_INTRO_CODE,
+        );
+        await this.askCoachQuestion(user, draft.id, draft.currentStep);
       }
-      this.log(draft, "ok", started);
-      const updated = await this.applyTurn(
-        user,
-        draft,
-        result.data,
-        input.subjectOptions,
-      );
-      return this.view(user, updated, pagination);
+      return this.view(user, draft, pagination);
     });
+  }
+
+  async resetDraft(user: TUser, pagination?: ProfessionalPaginationInput) {
+    this.assertProfessional(user);
+    const existing = await this.drafts.findEditableDraft(user.id);
+    if (existing) await this.drafts.deleteDraft(user.id, existing.id);
+    return this.startDraft(user, pagination);
   }
 
   private async createSeededDraft(user: TUser) {
@@ -515,6 +555,7 @@ export class ProfessionalRoadmapChatService {
         throw new RoadmapDraftLockedException();
 
       const current = this.fields(draft);
+      const previousStep = draft.currentStep;
       const changes = await this.patchChanges(user, field, input, current);
       const merged = { ...current, ...changes };
 
@@ -542,6 +583,8 @@ export class ProfessionalRoadmapChatService {
           field,
         ].join(":"),
       });
+      if (updated && updated.currentStep !== previousStep)
+        await this.askCoachQuestion(user, draft.id, updated.currentStep);
       return this.view(user, updated ?? draft);
     });
   }
@@ -562,6 +605,7 @@ export class ProfessionalRoadmapChatService {
       });
 
       const current = this.fields(draft);
+      const previousStep = draft.currentStep;
       const merged: T.RoadmapDraftFields = {
         ...current,
         certificationId: plan.certificationId ?? null,
@@ -600,6 +644,8 @@ export class ProfessionalRoadmapChatService {
           "cpdSetup",
         ].join(":"),
       });
+      if (updated && updated.currentStep !== previousStep)
+        await this.askCoachQuestion(user, draft.id, updated.currentStep);
       return this.view(user, updated ?? draft);
     });
   }

@@ -153,10 +153,12 @@ export type TMultiSelectFieldProps<T extends FieldValues> = {
 export type TConfirmDialogProps = {
   title: string;
   trigger: ReactNode;
+  open?: boolean;
   cancelText?: string;
   isLoading?: boolean;
   description?: string;
   confirmText?: string;
+  onOpenChange?: (open: boolean) => void;
   onConfirm: () => void | Promise<void>;
   confirmVariant?: VariantProps<typeof buttonVariants>["variant"];
 };

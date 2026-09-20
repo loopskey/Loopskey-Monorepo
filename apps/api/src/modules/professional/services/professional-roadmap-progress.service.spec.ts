@@ -185,7 +185,7 @@ describe("ProfessionalRoadmapProgressService", () => {
       prisma.roadmapDraft.findUnique.mockResolvedValue({
         subjects: ["term-data"],
         skillLevel: "INTERMEDIATE",
-        budgetPreference: "MIXED_FREE_AND_PAID",
+        budgetPreference: "UNDER_100",
         preferredContentTypes: ["COURSE"],
       });
 

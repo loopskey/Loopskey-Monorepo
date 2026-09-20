@@ -1,4 +1,8 @@
-import { RoadmapChatRole, RoadmapDraftStep } from "@prisma/client";
+import {
+  RoadmapChatRole,
+  RoadmapDraftStatus,
+  RoadmapDraftStep,
+} from "@prisma/client";
 
 import type { PrismaService } from "@prisma/prisma.service";
 
@@ -9,6 +13,8 @@ const createPrismaMock = () => ({
     create: jest.fn().mockResolvedValue({ id: "draft-1" }),
     findFirst: jest.fn().mockResolvedValue({ id: "draft-1" }),
     updateMany: jest.fn().mockResolvedValue({ count: 1 }),
+    deleteMany: jest.fn().mockResolvedValue({ count: 1 }),
+    findMany: jest.fn().mockResolvedValue([]),
   },
   roadmapChatMessage: {
     create: jest.fn().mockResolvedValue({ id: "message-1" }),
@@ -106,6 +112,63 @@ describe("ProfessionalRoadmapDraftService ownership", () => {
     expect(prisma.roadmapChatMessage.findMany.mock.calls[0][0]).toEqual({
       where: { draftId: "draft-1" },
       orderBy: { createdAt: "asc" },
+    });
+  });
+});
+
+describe("ProfessionalRoadmapDraftService.deleteDraft", () => {
+  it("only deletes the owner's draft while it is still editable", async () => {
+    const { service, prisma } = createService();
+
+    const deleted = await service.deleteDraft("user-1", "draft-1");
+
+    expect(deleted).toBe(true);
+    expect(prisma.roadmapDraft.deleteMany).toHaveBeenCalledWith({
+      where: {
+        id: "draft-1",
+        userId: "user-1",
+        status: {
+          in: [RoadmapDraftStatus.COLLECTING, RoadmapDraftStatus.READY],
+        },
+      },
+    });
+  });
+
+  it("reports false rather than throwing when nothing matched", async () => {
+    const { service, prisma } = createService();
+    prisma.roadmapDraft.deleteMany.mockResolvedValue({ count: 0 });
+
+    expect(await service.deleteDraft("user-2", "draft-1")).toBe(false);
+  });
+});
+
+describe("ProfessionalRoadmapDraftService.findRequiredCreditsByIds", () => {
+  it("returns an empty map without querying when there are no ids", async () => {
+    const { service, prisma } = createService();
+
+    const result = await service.findRequiredCreditsByIds([]);
+
+    expect(result.size).toBe(0);
+    expect(prisma.roadmapDraft.findMany).not.toHaveBeenCalled();
+  });
+
+  it("maps each draft id to its required-credits value", async () => {
+    const { service, prisma } = createService();
+    prisma.roadmapDraft.findMany.mockResolvedValue([
+      { id: "draft-1", requiredCredits: 20 },
+      { id: "draft-2", requiredCredits: null },
+    ]);
+
+    const result = await service.findRequiredCreditsByIds([
+      "draft-1",
+      "draft-2",
+    ]);
+
+    expect(result.get("draft-1")).toBe(20);
+    expect(result.get("draft-2")).toBeNull();
+    expect(prisma.roadmapDraft.findMany.mock.calls[0][0]).toEqual({
+      where: { id: { in: ["draft-1", "draft-2"] } },
+      select: { id: true, requiredCredits: true },
     });
   });
 });

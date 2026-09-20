@@ -7,6 +7,7 @@ import {
   type PlatformSkillLevel,
   type PlatformTimeCommitment,
   type RoadmapDraftField,
+  type RoadmapDraftState,
   type RoadmapSection,
   type RoadmapWidget,
 } from "./service-ai.port";
@@ -22,11 +23,9 @@ import {
 } from "./generated/service-ai.types";
 
 /**
- * Contract 1.1.0 adopted this platform's own enum values, so these four tables
- * are now identity. They stay because they are the seam: platform and provider
- * vocabularies remain separate type universes that merely coincide today, and a
- * `Record<Platform…, Provider…>` stops compiling the day the provider drops a
- * value again — instead of silently sending something the service will reject.
+ * Skill level and the learning-format tables are identity; the time-commitment
+ * and budget tables translate, because the platform's weekly-hour and price
+ * buckets no longer match the provider's contract 1.1.0 vocabulary.
  */
 export const SKILL_LEVEL_OUTBOUND: Record<
   PlatformSkillLevel,
@@ -52,22 +51,21 @@ export const TIME_COMMITMENT_OUTBOUND: Record<
   PlatformTimeCommitment,
   ProviderTimeCommitment
 > = {
-  LESS_THAN_ONE_HOUR: "LESS_THAN_ONE_HOUR",
-  ONE_TO_THREE_HOURS: "ONE_TO_THREE_HOURS",
-  FOUR_TO_SIX_HOURS: "FOUR_TO_SIX_HOURS",
-  SEVEN_TO_TEN_HOURS: "SEVEN_TO_TEN_HOURS",
-  MORE_THAN_TEN_HOURS: "MORE_THAN_TEN_HOURS",
+  ONE_TO_TWO_HOURS: "ONE_TO_THREE_HOURS",
+  TWO_TO_THREE_HOURS: "ONE_TO_THREE_HOURS",
+  THREE_TO_FIVE_HOURS: "FOUR_TO_SIX_HOURS",
+  MORE_THAN_FIVE_HOURS: "SEVEN_TO_TEN_HOURS",
 };
 
 export const TIME_COMMITMENT_INBOUND: Record<
   ProviderTimeCommitment,
   PlatformTimeCommitment
 > = {
-  LESS_THAN_ONE_HOUR: "LESS_THAN_ONE_HOUR",
-  ONE_TO_THREE_HOURS: "ONE_TO_THREE_HOURS",
-  FOUR_TO_SIX_HOURS: "FOUR_TO_SIX_HOURS",
-  SEVEN_TO_TEN_HOURS: "SEVEN_TO_TEN_HOURS",
-  MORE_THAN_TEN_HOURS: "MORE_THAN_TEN_HOURS",
+  LESS_THAN_ONE_HOUR: "ONE_TO_TWO_HOURS",
+  ONE_TO_THREE_HOURS: "TWO_TO_THREE_HOURS",
+  FOUR_TO_SIX_HOURS: "THREE_TO_FIVE_HOURS",
+  SEVEN_TO_TEN_HOURS: "MORE_THAN_FIVE_HOURS",
+  MORE_THAN_TEN_HOURS: "MORE_THAN_FIVE_HOURS",
 };
 
 export const BUDGET_PREFERENCE_OUTBOUND: Record<
@@ -75,9 +73,9 @@ export const BUDGET_PREFERENCE_OUTBOUND: Record<
   ProviderBudgetPreference
 > = {
   FREE_ONLY: "FREE_ONLY",
-  MIXED_FREE_AND_PAID: "MIXED_FREE_AND_PAID",
-  PREMIUM: "PREMIUM",
-  EMPLOYER_SPONSORED: "EMPLOYER_SPONSORED",
+  UNDER_100: "MIXED_FREE_AND_PAID",
+  HUNDRED_TO_500: "PREMIUM",
+  FIVE_HUNDRED_PLUS: "PREMIUM",
 };
 
 export const BUDGET_PREFERENCE_INBOUND: Record<
@@ -85,9 +83,9 @@ export const BUDGET_PREFERENCE_INBOUND: Record<
   PlatformBudgetPreference
 > = {
   FREE_ONLY: "FREE_ONLY",
-  MIXED_FREE_AND_PAID: "MIXED_FREE_AND_PAID",
-  PREMIUM: "PREMIUM",
-  EMPLOYER_SPONSORED: "EMPLOYER_SPONSORED",
+  MIXED_FREE_AND_PAID: "UNDER_100",
+  PREMIUM: "HUNDRED_TO_500",
+  EMPLOYER_SPONSORED: "FIVE_HUNDRED_PLUS",
 };
 
 /**
@@ -205,6 +203,37 @@ export const inbound = <TKey extends string, TValue>(
   return Object.prototype.hasOwnProperty.call(table, value)
     ? table[value as TKey]
     : undefined;
+};
+
+/**
+ * The provider's time and budget bands are coarser than the platform's, so a
+ * value it hands back is only ever a band. When that band is the one the stored
+ * value was sent as, the provider is repeating what it was told, not hearing a
+ * correction, and reading it back would silently narrow the professional's own
+ * choice to the band's canonical bucket. Such an echo is dropped; a band that
+ * differs from the stored value's is a real correction and passes through.
+ */
+export const withoutEchoedBands = (
+  sent: RoadmapDraftState,
+  extracted: RoadmapDraftState,
+): RoadmapDraftState => {
+  const echoesTime =
+    !!sent.timeCommitment &&
+    inbound(
+      TIME_COMMITMENT_INBOUND,
+      TIME_COMMITMENT_OUTBOUND[sent.timeCommitment],
+    ) === extracted.timeCommitment;
+  const echoesBudget =
+    !!sent.budgetPreference &&
+    inbound(
+      BUDGET_PREFERENCE_INBOUND,
+      BUDGET_PREFERENCE_OUTBOUND[sent.budgetPreference],
+    ) === extracted.budgetPreference;
+  return {
+    ...extracted,
+    ...(echoesTime ? { timeCommitment: null } : {}),
+    ...(echoesBudget ? { budgetPreference: null } : {}),
+  };
 };
 
 export const toProviderDate = (value: Date): string =>

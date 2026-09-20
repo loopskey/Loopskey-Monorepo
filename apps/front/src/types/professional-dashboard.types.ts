@@ -287,6 +287,8 @@ export type TRoadmapStats = {
   averageProgress: number;
   completedPhases: number;
   totalPhases: number;
+  totalEarnedCredits: number;
+  totalRequiredCredits: number | null;
 };
 
 export type TCalendarEventsData = NonNullable<

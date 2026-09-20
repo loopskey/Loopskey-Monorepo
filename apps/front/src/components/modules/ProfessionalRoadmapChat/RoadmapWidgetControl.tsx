@@ -5,6 +5,10 @@ import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { RoadmapDraftFieldKey } from "@/lib/graphql/base";
+import { ROADMAP_CERTIFICATION_CHOICES } from "@/utils/roadmap-chat.constant";
+import { ROADMAP_NO_VALUE } from "@/utils/roadmap-chat.constant";
+import { ROADMAP_YES_VALUE } from "@/utils/roadmap-chat.constant";
 
 import type * as T from "@/types/professional-roadmap-chat.types";
 
@@ -22,7 +26,30 @@ export const RoadmapWidgetControl = ({
     setDate("");
   }, [widget.field, widget.type]);
 
-  const limit = widget.maxSelections ?? widget.options.length;
+  // The coach sends a control without options, because option labels are
+  // copy and the browser owns copy. A provider widget brings its own.
+  const options: T.TRoadmapWidgetOption[] = useMemo(() => {
+    if (widget.options.length) return widget.options;
+    if (widget.field === RoadmapDraftFieldKey.CpdEnabled)
+      return [
+        {
+          value: ROADMAP_YES_VALUE,
+          label: t("professionalRoadmapChat.widget.yes"),
+        },
+        {
+          value: ROADMAP_NO_VALUE,
+          label: t("professionalRoadmapChat.widget.no"),
+        },
+      ];
+    if (widget.field === RoadmapDraftFieldKey.CertificationName)
+      return ROADMAP_CERTIFICATION_CHOICES.map((value) => ({
+        value,
+        label: value,
+      }));
+    return [];
+  }, [t, widget.field, widget.options]);
+
+  const limit = widget.maxSelections ?? options.length;
   const atLimit = selected.length >= limit;
 
   const toggle = (value: string) => {
@@ -44,31 +71,72 @@ export const RoadmapWidgetControl = ({
 
   if (widget.type === "TEXT") return null;
 
-  if (widget.type === "DATE")
+  if (widget.type === "DATE") {
+    const toIsoDate = (value: Date) => value.toISOString().slice(0, 10);
+    const quickPicks = [
+      {
+        label: t("professionalRoadmapChat.widget.quickInThreeMonths"),
+        date: () => {
+          const value = new Date();
+          value.setMonth(value.getMonth() + 3);
+          return value;
+        },
+      },
+      {
+        label: t("professionalRoadmapChat.widget.quickInSixMonths"),
+        date: () => {
+          const value = new Date();
+          value.setMonth(value.getMonth() + 6);
+          return value;
+        },
+      },
+      {
+        label: t("professionalRoadmapChat.widget.quickEndOfYear"),
+        date: () => new Date(new Date().getFullYear(), 11, 31),
+      },
+    ];
+
     return (
-      <div className="flex flex-wrap items-center gap-2">
-        <Input
-          type="date"
-          value={date}
-          className="w-auto"
-          disabled={disabled}
-          onChange={(event) => setDate(event.target.value)}
-          aria-label={t("professionalRoadmapChat.widget.chooseDate")}
-        />
-        <Button
-          radius="xl"
-          disabled={disabled || !date}
-          onClick={() => onAnswer(date)}
-        >
-          {t("professionalRoadmapChat.widget.useDate")}
-        </Button>
+      <div className="flex flex-col gap-2">
+        <div className="flex flex-wrap gap-2" role="group">
+          {quickPicks.map((pick) => (
+            <Button
+              radius="xl"
+              key={pick.label}
+              variant="outline"
+              disabled={disabled}
+              onClick={() => onAnswer(toIsoDate(pick.date()))}
+            >
+              {pick.label}
+            </Button>
+          ))}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <Input
+            type="date"
+            value={date}
+            className="w-auto"
+            disabled={disabled}
+            onChange={(event) => setDate(event.target.value)}
+            aria-label={t("professionalRoadmapChat.widget.chooseDate")}
+          />
+          <Button
+            radius="xl"
+            disabled={disabled || !date}
+            onClick={() => onAnswer(date)}
+          >
+            {t("professionalRoadmapChat.widget.useDate")}
+          </Button>
+        </div>
       </div>
     );
+  }
 
   if (widget.type === "YES_NO")
     return (
       <div className="flex flex-wrap gap-2">
-        {widget.options.map((option) => (
+        {options.map((option) => (
           <Button
             radius="xl"
             variant="outline"
@@ -85,7 +153,7 @@ export const RoadmapWidgetControl = ({
   if (widget.type === "SINGLE_SELECT")
     return (
       <div className="flex flex-wrap gap-2" role="group">
-        {widget.options.map((option) => (
+        {options.map((option) => (
           <Button
             radius="xl"
             variant="outline"
@@ -102,7 +170,7 @@ export const RoadmapWidgetControl = ({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap gap-2" role="group">
-        {widget.options.map((option) => {
+        {options.map((option) => {
           const isSelected = selected.includes(option.value);
 
           return (

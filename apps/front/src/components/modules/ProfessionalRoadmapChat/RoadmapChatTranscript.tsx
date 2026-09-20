@@ -7,6 +7,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/hooks/useI18n";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import { ROADMAP_COACH_INTRO_CODE } from "@/utils/roadmap-chat.constant";
+import { ROADMAP_COACH_QUESTION_CODE } from "@/utils/roadmap-chat.constant";
 
 import type * as T from "@/types/professional-roadmap-chat.types";
 
@@ -60,6 +62,15 @@ export const RoadmapChatTranscript = ({
   const endRef = useRef<HTMLDivElement>(null);
   const reducedMotion = usePrefersReducedMotion();
 
+  const coachLine = (message: T.TRoadmapChatMessage): string | null => {
+    if (message.role !== "ASSISTANT") return null;
+    if (message.content === ROADMAP_COACH_INTRO_CODE)
+      return t("professionalRoadmapChat.coach.intro");
+    if (message.content === ROADMAP_COACH_QUESTION_CODE)
+      return t(`professionalRoadmapChat.coach.question.${message.stepKey}`);
+    return null;
+  };
+
   useEffect(() => {
     endRef.current?.scrollIntoView({
       block: "end",
@@ -101,7 +112,7 @@ export const RoadmapChatTranscript = ({
                 : "mr-auto bg-muted text-foreground",
             )}
           >
-            {message.content}
+            {coachLine(message) ?? message.content}
           </div>
         );
       })}

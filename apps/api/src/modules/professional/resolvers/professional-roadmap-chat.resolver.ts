@@ -46,6 +46,13 @@ export class ProfessionalRoadmapChatResolver {
   }
 
   @Mutation(() => ProfessionalRoadmapDraftEntity, {
+    name: ProfessionalGqlMutationNames.RESET_ROADMAP_DRAFT,
+  })
+  resetRoadmapDraft(@CurrentUser() user: TResolverUser) {
+    return this.chatService.resetDraft(this.getUser(user));
+  }
+
+  @Mutation(() => ProfessionalRoadmapDraftEntity, {
     name: ProfessionalGqlMutationNames.SEND_ROADMAP_CHAT_TURN,
   })
   sendRoadmapChatTurn(

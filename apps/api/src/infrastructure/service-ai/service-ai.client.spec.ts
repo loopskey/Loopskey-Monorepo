@@ -116,6 +116,35 @@ describe("ServiceAiClient", () => {
     jest.restoreAllMocks();
   });
 
+  describe("a provider that repeats the stored band", () => {
+    it("does not hand the narrowed band back as an extraction", async () => {
+      global.fetch = respondWith({
+        body: {
+          ...chatTurnBody,
+          extracted: {
+            available_time: "ONE_TO_THREE_HOURS",
+            budget: "PREMIUM",
+          },
+        },
+      }) as unknown as typeof fetch;
+
+      const result = await new ServiceAiClient(config).chatTurn({
+        ...chatTurnInput,
+        draft: {
+          timeCommitment: "ONE_TO_TWO_HOURS",
+          budgetPreference: "FIVE_HUNDRED_PLUS",
+        },
+      });
+
+      expect(result.ok && result.data.extracted).toEqual(
+        expect.objectContaining({
+          timeCommitment: null,
+          budgetPreference: null,
+        }),
+      );
+    });
+  });
+
   describe("a successful turn", () => {
     it("returns typed platform data with no HTTP detail in it", async () => {
       const result = await new ServiceAiClient(config).chatTurn(chatTurnInput);

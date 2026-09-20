@@ -2460,10 +2460,10 @@ export type IssuedIngestionApiKey = {
 };
 
 export enum LearningBudgetPreference {
-  EmployerSponsored = 'EMPLOYER_SPONSORED',
+  FiveHundredPlus = 'FIVE_HUNDRED_PLUS',
   FreeOnly = 'FREE_ONLY',
-  MixedFreeAndPaid = 'MIXED_FREE_AND_PAID',
-  Premium = 'PREMIUM'
+  HundredTo_500 = 'HUNDRED_TO_500',
+  Under_100 = 'UNDER_100'
 }
 
 export enum LearningFormat {
@@ -2476,11 +2476,10 @@ export enum LearningFormat {
 }
 
 export enum LearningTimeCommitment {
-  FourToSixHours = 'FOUR_TO_SIX_HOURS',
-  LessThanOneHour = 'LESS_THAN_ONE_HOUR',
-  MoreThanTenHours = 'MORE_THAN_TEN_HOURS',
-  OneToThreeHours = 'ONE_TO_THREE_HOURS',
-  SevenToTenHours = 'SEVEN_TO_TEN_HOURS'
+  MoreThanFiveHours = 'MORE_THAN_FIVE_HOURS',
+  OneToTwoHours = 'ONE_TO_TWO_HOURS',
+  ThreeToFiveHours = 'THREE_TO_FIVE_HOURS',
+  TwoToThreeHours = 'TWO_TO_THREE_HOURS'
 }
 
 export type LoginInput = {
@@ -2586,6 +2585,7 @@ export type Mutation = {
   resendEmailOtp: AuthPayload;
   resendOrganizationActivation: AuthPayload;
   resetPassword: AuthPayload;
+  resetRoadmapDraft: ProfessionalRoadmapDraft;
   restoreCourse: Course;
   restoreEvent: Event;
   restorePodcast: Podcast;
@@ -4892,7 +4892,9 @@ export type ProfessionalRoadmapStats = {
   completedPhaseCount: Scalars['Int']['output'];
   enrolledCount: Scalars['Int']['output'];
   nextMilestone?: Maybe<Scalars['Int']['output']>;
+  totalEarnedCredits: Scalars['Float']['output'];
   totalPhaseCount: Scalars['Int']['output'];
+  totalRequiredCredits?: Maybe<Scalars['Float']['output']>;
 };
 
 export type ProfessionalRoadmapStep = {

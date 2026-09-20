@@ -1,5 +1,7 @@
 import {
+  DeliveryFormat,
   LearningBudgetPreference,
+  LearningFormat,
   LearningTimeCommitment,
   RoadmapDraftStep,
   SkillLevel,
@@ -41,9 +43,11 @@ const draft = (
 
 const PREFERENCES_ANSWERED = {
   skillLevel: SkillLevel.INTERMEDIATE,
-  timeCommitment: LearningTimeCommitment.FOUR_TO_SIX_HOURS,
-  budgetPreference: LearningBudgetPreference.MIXED_FREE_AND_PAID,
+  timeCommitment: LearningTimeCommitment.THREE_TO_FIVE_HOURS,
+  budgetPreference: LearningBudgetPreference.UNDER_100,
   subjects: ["term-data"],
+  preferredFormats: [LearningFormat.COURSE],
+  preferredDeliveryFormats: [DeliveryFormat.ONLINE],
 };
 
 const READY_TO_REVIEW = {
@@ -139,6 +143,24 @@ describe("roadmap step machine", () => {
     ).toBe(RoadmapDraftStep.PREFERENCES);
   });
 
+  it("holds the preferences step until a content format is chosen", () => {
+    expect(
+      step(
+        { ...READY_TO_REVIEW, preferredFormats: [] },
+        RoadmapDraftStep.PREFERENCES,
+      ),
+    ).toBe(RoadmapDraftStep.PREFERENCES);
+  });
+
+  it("holds the preferences step until a delivery format is chosen", () => {
+    expect(
+      step(
+        { ...READY_TO_REVIEW, preferredDeliveryFormats: [] },
+        RoadmapDraftStep.PREFERENCES,
+      ),
+    ).toBe(RoadmapDraftStep.PREFERENCES);
+  });
+
   it("goes straight to review when certification tracking is declined", () => {
     expect(
       step(READY_TO_REVIEW, RoadmapDraftStep.CPD_TRACKING, ["cpdEnabled"]),
@@ -206,6 +228,14 @@ describe("roadmap draft completeness", () => {
     expect(isDraftComplete(draft({ ...READY_TO_REVIEW, subjects: [] }))).toBe(
       false,
     );
+    expect(
+      isDraftComplete(draft({ ...READY_TO_REVIEW, preferredFormats: [] })),
+    ).toBe(false);
+    expect(
+      isDraftComplete(
+        draft({ ...READY_TO_REVIEW, preferredDeliveryFormats: [] }),
+      ),
+    ).toBe(false);
   });
 
   it("is complete without the prose steps, which colour the plan rather than gate it", () => {

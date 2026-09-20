@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ROADMAP_MESSAGE_MAX_LENGTH } from "@/utils/roadmap-chat.constant";
 import { ROADMAP_COUNTER_THRESHOLD } from "@/utils/roadmap-chat.constant";
-import { RoadmapDraftStatus } from "@/lib/graphql/base";
+import { RoadmapDraftFieldKey, RoadmapDraftStatus } from "@/lib/graphql/base";
 import { ROADMAP_BUSY_CODE } from "@/utils/roadmap-chat.constant";
 import { roadmapChatApi } from "@/lib/rtk/endpoints/roadmap-chat.api";
 import { useDispatch } from "react-redux";
@@ -58,6 +58,8 @@ export const useRoadmapChat = () => {
 
   const [startDraft, { isLoading: isStarting }] =
     API.useStartRoadmapDraftMutation();
+  const [resetDraft, { isLoading: isResetting }] =
+    API.useResetRoadmapDraftMutation();
   const [sendTurn, { isLoading: isSending }] =
     API.useSendRoadmapChatTurnMutation();
   const [patchDraft, { isLoading: isPatching }] =
@@ -201,6 +203,35 @@ export const useRoadmapChat = () => {
     [draft, patchDraft, writeDraft],
   );
 
+  // A tap on a control is a structured answer, so it is saved directly. Only
+  // what the professional types goes to the AI service for extraction.
+  const answerWidget = useCallback(
+    (value: string) => {
+      const field = draft?.widget?.field;
+      if (isSending || isPatching || retryAfter > 0) return;
+
+      if (field === RoadmapDraftFieldKey.TargetDate)
+        return void patch({
+          targetDate: new Date(`${value}T00:00:00.000Z`).toISOString(),
+        });
+      if (field === RoadmapDraftFieldKey.CpdEnabled)
+        return void patch({
+          cpdEnabled: ["true", "yes"].includes(value.trim().toLowerCase()),
+        });
+      if (field === RoadmapDraftFieldKey.CertificationName)
+        return void patch({ certificationName: value });
+      answerWith(value);
+    },
+    [
+      answerWith,
+      draft?.widget?.field,
+      isPatching,
+      isSending,
+      patch,
+      retryAfter,
+    ],
+  );
+
   const patchCpdSetup = useCallback(
     async (changes: Omit<PatchRoadmapCpdSetupInput, "draftId">) => {
       if (!draft) return;
@@ -218,6 +249,23 @@ export const useRoadmapChat = () => {
     },
     [draft, patchCpdSetupMutation, writeDraft],
   );
+
+  const startOver = useCallback(async () => {
+    setTurnError(null);
+    setPending(null);
+    setRetryAfter(0);
+    setInput("");
+
+    try {
+      const next = await resetDraft().unwrap();
+      writeDraft(next);
+      return true;
+    } catch (error: unknown) {
+      setTurnError(readChatError(error));
+      notify.error(t("professionalRoadmapChat.startOverFailed"));
+      return false;
+    }
+  }, [resetDraft, t, writeDraft]);
 
   const generate = useCallback(async () => {
     if (!draft || draft.status === RoadmapDraftStatus.Generating) return;
@@ -240,11 +288,13 @@ export const useRoadmapChat = () => {
     setInput,
     composer,
     generate,
+    startOver,
     isSending,
     turnError,
-    answerWith,
+    answerWidget,
     isPatching,
     retryAfter,
+    isResetting,
     refetchDraft,
     isDraftError,
     isGenerating,

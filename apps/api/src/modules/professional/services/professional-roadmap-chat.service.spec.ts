@@ -1,5 +1,6 @@
 import {
   ContentType,
+  DeliveryFormat,
   LearningBudgetPreference,
   LearningFormat,
   LearningTimeCommitment,
@@ -68,6 +69,7 @@ const emptyDraft = (overrides: Partial<StoredDraft> = {}): StoredDraft => ({
   subjects: [],
   preferredFormats: [],
   preferredContentTypes: [],
+  preferredDeliveryFormats: [],
   cpdEnabled: false,
   certificationId: null,
   certificationName: null,
@@ -191,6 +193,26 @@ class FakeDraftStore {
       this.transcriptOf(draftId).length,
   );
 
+  deleteDraft = jest.fn(async (userId: string, draftId: string) => {
+    const index = this.drafts.findIndex(
+      (draft) =>
+        draft.id === draftId &&
+        draft.userId === userId &&
+        (
+          [
+            RoadmapDraftStatus.COLLECTING,
+            RoadmapDraftStatus.READY,
+          ] as RoadmapDraftStatus[]
+        ).includes(draft.status),
+    );
+    if (index === -1) return false;
+    const [removed] = this.drafts.splice(index, 1);
+    this.messages = this.messages.filter(
+      (message) => message.draftId !== removed.id,
+    );
+    return true;
+  });
+
   findCertificationByName = jest.fn(async (name: string) => {
     const wanted = name.trim().toLowerCase();
     return (
@@ -230,8 +252,8 @@ const setup = (
     profile: jest.fn(async () => ({
       currentRole: "Analyst",
       currentSkillLevel: SkillLevel.INTERMEDIATE,
-      learningTimeCommitment: LearningTimeCommitment.FOUR_TO_SIX_HOURS,
-      learningBudgetPreference: LearningBudgetPreference.MIXED_FREE_AND_PAID,
+      learningTimeCommitment: LearningTimeCommitment.THREE_TO_FIVE_HOURS,
+      learningBudgetPreference: LearningBudgetPreference.UNDER_100,
       preferredLearningFormats: [LearningFormat.COURSE],
       favoriteSubjects: [SUBJECT_TERMS[1]],
     })),
@@ -316,24 +338,47 @@ const collected = {
   context: "eight years in analytics",
   targetDate: new Date("2027-06-01T00:00:00.000Z"),
   skillLevel: SkillLevel.INTERMEDIATE,
-  timeCommitment: LearningTimeCommitment.FOUR_TO_SIX_HOURS,
-  budgetPreference: LearningBudgetPreference.MIXED_FREE_AND_PAID,
+  timeCommitment: LearningTimeCommitment.THREE_TO_FIVE_HOURS,
+  budgetPreference: LearningBudgetPreference.UNDER_100,
   subjects: ["term-data"],
+  preferredFormats: [LearningFormat.COURSE],
+  preferredDeliveryFormats: [DeliveryFormat.ONLINE],
 };
 
 describe("starting the wizard", () => {
-  it("creates a collecting draft and returns the introduction", async () => {
-    const { service, store, calls } = setup();
+  it("creates a collecting draft and opens with the coach's fixed lines", async () => {
+    const { service, store } = setup();
 
     const view = await service.startDraft(OWNER);
 
     expect(store.drafts).toHaveLength(1);
     expect(view.status).toBe(RoadmapDraftStatus.COLLECTING);
-    expect(view.transcript.items.at(-1)).toMatchObject({
-      role: RoadmapChatRole.ASSISTANT,
-      content: "What are you aiming for?",
-    });
-    expect(calls[0].userMessage).toBeNull();
+    expect(
+      view.transcript.items.map(({ role, content, stepKey }) => ({
+        role,
+        content,
+        stepKey,
+      })),
+    ).toEqual([
+      {
+        role: RoadmapChatRole.ASSISTANT,
+        content: "ROADMAP_COACH_INTRO",
+        stepKey: RoadmapDraftStep.GOAL,
+      },
+      {
+        role: RoadmapChatRole.ASSISTANT,
+        content: "ROADMAP_COACH_QUESTION",
+        stepKey: RoadmapDraftStep.GOAL,
+      },
+    ]);
+  });
+
+  it("never calls the AI service to open the conversation", async () => {
+    const { service, chatTurn } = setup();
+
+    await service.startDraft(OWNER);
+
+    expect(chatTurn).not.toHaveBeenCalled();
   });
 
   it("exposes the brief's completion counts, consistent with its remaining fields", async () => {
@@ -380,6 +425,43 @@ describe("starting the wizard", () => {
     await service.startDraft(OWNER);
 
     expect(store.drafts).toHaveLength(1);
+  });
+});
+
+describe("resetting the wizard", () => {
+  it("deletes the existing editable draft and starts a fresh one", async () => {
+    const { service, store } = setup();
+    store.seed(emptyDraft({ ...collected, id: "draft-old" }));
+
+    const view = await service.resetDraft(OWNER);
+
+    expect(store.deleteDraft).toHaveBeenCalledWith(OWNER.id, "draft-old");
+    expect(store.drafts).toHaveLength(1);
+    expect(store.drafts[0].id).not.toBe("draft-old");
+    expect(view.goal).toBeNull();
+    expect(view.status).toBe(RoadmapDraftStatus.COLLECTING);
+  });
+
+  it("clears the previous draft's transcript along with it", async () => {
+    const { service, store } = setup();
+    store.seed(emptyDraft({ id: "draft-1" }));
+    store.addMessage({ draftId: "draft-1", content: "old answer" });
+
+    await service.resetDraft(OWNER);
+
+    expect(
+      store.messages.some((message) => message.draftId === "draft-1"),
+    ).toBe(false);
+  });
+
+  it("starts a new draft when there was nothing to discard", async () => {
+    const { service, store } = setup();
+
+    const view = await service.resetDraft(OWNER);
+
+    expect(store.deleteDraft).not.toHaveBeenCalled();
+    expect(store.drafts).toHaveLength(1);
+    expect(view.status).toBe(RoadmapDraftStatus.COLLECTING);
   });
 });
 
@@ -798,7 +880,9 @@ describe("ownership", () => {
 describe("patching a draft", () => {
   it("applies the change, records it, and makes no AI call", async () => {
     const { service, store, chatTurn } = setup();
-    store.seed(emptyDraft({ ...collected }));
+    store.seed(
+      emptyDraft({ ...collected, currentStep: RoadmapDraftStep.REVIEW }),
+    );
 
     const view = await service.patchDraft(OWNER, {
       draftId: "draft-1",
@@ -934,7 +1018,13 @@ describe("patching CPD Setup", () => {
 
   it("records a system message so the transcript reflects the edit", async () => {
     const { service, store } = setup();
-    store.seed(emptyDraft({ ...collected, cpdEnabled: true }));
+    store.seed(
+      emptyDraft({
+        ...collected,
+        cpdEnabled: true,
+        currentStep: RoadmapDraftStep.CERTIFICATION,
+      }),
+    );
 
     await service.patchCpdSetup(OWNER, {
       draftId: "draft-1",
@@ -1088,5 +1178,175 @@ describe("observability", () => {
     });
 
     expect(JSON.stringify(logEntries)).not.toContain("confidential");
+  });
+});
+
+describe("the coach's fixed script", () => {
+  const lastAssistant = (store: FakeDraftStore) =>
+    store.messages.filter((m) => m.role === RoadmapChatRole.ASSISTANT).at(-1);
+
+  it("answers a plain advancing turn with the next fixed question, not the provider's wording", async () => {
+    const { service, store } = setup([
+      {
+        ok: true,
+        data: turnData({
+          extracted: { goal: "become a data lead" },
+          assistantMessage: "Great! Why now?",
+        }),
+      },
+    ]);
+    store.seed(emptyDraft());
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "a lead" });
+
+    expect(store.messages.map((m) => m.content)).not.toContain(
+      "Great! Why now?",
+    );
+    expect(lastAssistant(store)).toMatchObject({
+      content: "ROADMAP_COACH_QUESTION",
+      stepKey: RoadmapDraftStep.GOAL_REASON,
+    });
+  });
+
+  it("keeps the provider's clarification and asks nothing new", async () => {
+    const { service, store } = setup([
+      {
+        ok: true,
+        data: turnData({
+          needsClarification: true,
+          assistantMessage: "Did you mean PMP or PgMP?",
+        }),
+      },
+    ]);
+    store.seed(emptyDraft());
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "pm" });
+
+    expect(store.messages.filter((m) => m.role === "ASSISTANT")).toEqual([
+      expect.objectContaining({ content: "Did you mean PMP or PgMP?" }),
+    ]);
+  });
+
+  it("keeps the provider's reply to a turn that moved nowhere", async () => {
+    const { service, store } = setup([
+      {
+        ok: true,
+        data: turnData({ assistantMessage: "Could you say more?" }),
+      },
+    ]);
+    store.seed(emptyDraft());
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "hmm" });
+
+    expect(lastAssistant(store)?.content).toBe("Could you say more?");
+  });
+
+  it("keeps the provider's confirmation of a correction, then asks the next question", async () => {
+    const { service, store } = setup([
+      {
+        ok: true,
+        data: turnData({
+          assistantMessage: "Updated your budget.",
+          extracted: {
+            goal: "become a data lead",
+            budgetPreference: LearningBudgetPreference.FREE_ONLY,
+          },
+        }),
+      },
+    ]);
+    store.seed(
+      emptyDraft({
+        budgetPreference: LearningBudgetPreference.UNDER_100,
+      }),
+    );
+
+    await service.chatTurn(OWNER, {
+      draftId: "draft-1",
+      message: "goal is a lead, and make my budget free",
+    });
+
+    const assistant = store.messages.filter((m) => m.role === "ASSISTANT");
+    expect(assistant.map((m) => m.content)).toEqual([
+      "Updated your budget.",
+      "ROADMAP_COACH_QUESTION",
+    ]);
+    expect(store.drafts[0].budgetPreference).toBe(
+      LearningBudgetPreference.FREE_ONLY,
+    );
+  });
+
+  it("asks the next question with the control that answers it", async () => {
+    const { service, store } = setup([
+      { ok: true, data: turnData({ extracted: { goal: "g" } }) },
+    ]);
+    store.seed(
+      emptyDraft({
+        goalReason: "promotion",
+        context: "eight years",
+        currentStep: RoadmapDraftStep.GOAL,
+      }),
+    );
+
+    const view = await service.chatTurn(OWNER, {
+      draftId: "draft-1",
+      message: "a lead",
+    });
+
+    expect(view.currentStep).toBe(RoadmapDraftStep.TARGET_DATE);
+    expect(view.widget).toMatchObject({ type: "DATE", field: "targetDate" });
+  });
+
+  it("keeps the coach's own lines out of the provider's history", async () => {
+    const { service, calls } = setup([{ ok: true, data: turnData() }]);
+    await service.startDraft(OWNER);
+    const draftId = "draft-1";
+
+    await service.chatTurn(OWNER, { draftId, message: "a lead" });
+
+    expect(
+      calls[0].history?.some((entry) =>
+        entry.content.startsWith("ROADMAP_COACH"),
+      ),
+    ).toBe(false);
+  });
+
+  it("asks the next question after an edit that moves the step, without the provider", async () => {
+    const { service, store, chatTurn } = setup();
+    store.seed(
+      emptyDraft({
+        ...collected,
+        targetDate: null,
+        currentStep: RoadmapDraftStep.TARGET_DATE,
+      }),
+    );
+
+    const view = await service.patchDraft(OWNER, {
+      draftId: "draft-1",
+      targetDate: new Date("2027-01-01T00:00:00.000Z"),
+    });
+
+    expect(chatTurn).not.toHaveBeenCalled();
+    expect(view.currentStep).toBe(RoadmapDraftStep.CPD_TRACKING);
+    expect(lastAssistant(store)).toMatchObject({
+      content: "ROADMAP_COACH_QUESTION",
+      stepKey: RoadmapDraftStep.CPD_TRACKING,
+    });
+    expect(view.widget).toMatchObject({ type: "YES_NO", field: "cpdEnabled" });
+  });
+
+  it("does not ask again when an edit leaves the step where it was", async () => {
+    const { service, store } = setup();
+    store.seed(
+      emptyDraft({ ...collected, currentStep: RoadmapDraftStep.REVIEW }),
+    );
+
+    await service.patchDraft(OWNER, {
+      draftId: "draft-1",
+      goal: "become a principal analyst",
+    });
+
+    expect(store.messages.filter((m) => m.role === "ASSISTANT")).toHaveLength(
+      0,
+    );
   });
 });

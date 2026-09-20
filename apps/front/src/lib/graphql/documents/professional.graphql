@@ -767,6 +767,8 @@ query ProfessionalRoadmapStats {
     completedPhaseCount
     totalPhaseCount
     nextMilestone
+    totalEarnedCredits
+    totalRequiredCredits
   }
 }
 
