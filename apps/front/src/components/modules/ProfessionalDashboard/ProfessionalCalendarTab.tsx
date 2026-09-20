@@ -9,6 +9,7 @@ import { getContentTypeStyle } from "@/utils/content-type-style";
 import { ContentPagination } from "@/components/elements/pagination";
 import { useRef, useState } from "react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { IconAction } from "@elements/icon-action";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
@@ -20,7 +21,6 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import FullCalendar from "@fullcalendar/react";
 import listPlugin from "@fullcalendar/list";
-import Link from "next/link";
 
 import * as L from "lucide-react";
 import * as S from "@ui/select";
@@ -356,7 +356,7 @@ const ProfessionalCalendarTab = () => {
         )}
 
         <div className="overflow-hidden rounded-lg border">
-          <div className="hidden grid-cols-[1.4fr_0.8fr_0.8fr_0.8fr_0.7fr] bg-primary/5 px-5 py-4 text-sm font-medium text-muted-foreground lg:grid">
+          <div className="hidden grid-cols-[1.4fr_0.8fr_0.8fr_0.8fr_0.7fr] border-b border-border bg-primary/5 px-4 py-4 text-xs font-black uppercase tracking-wider text-muted-foreground lg:grid">
             <span>{t("professionalDashboard.calendar.table.event")}</span>
             <span>{t("professionalDashboard.calendar.table.date")}</span>
             <span>{t("professionalDashboard.calendar.table.mode")}</span>
@@ -366,7 +366,7 @@ const ProfessionalCalendarTab = () => {
             </span>
           </div>
 
-          <div className="divide-y divide-border/70">
+          <div className="divide-y divide-border">
             {isLoading ? (
               <div className="flex min-h-72 items-center justify-center">
                 <L.Loader2 className="h-7 w-7 animate-spin text-primary" />
@@ -379,7 +379,7 @@ const ProfessionalCalendarTab = () => {
                   return (
                     <div
                       key={`manual-row:${manual.id}`}
-                      className="p-5 text-sm transition-colors hover:bg-primary/5 lg:grid lg:grid-cols-[1.4fr_0.8fr_0.8fr_0.8fr_0.7fr] lg:items-center lg:gap-4"
+                      className="bg-muted p-5 text-sm transition-colors hover:bg-primary/5 lg:grid lg:grid-cols-[1.4fr_0.8fr_0.8fr_0.8fr_0.7fr] lg:items-center lg:gap-4"
                     >
                       <div className="min-w-0">
                         <Badge
@@ -447,21 +447,15 @@ const ProfessionalCalendarTab = () => {
                       </div>
 
                       <div className="mt-4 flex justify-center gap-2 lg:mt-0 lg:justify-end">
-                        <Button
-                          size="iconSm"
-                          radius="xl"
-                          variant="destructive"
+                        <IconAction
+                          icon={L.Trash2}
+                          variant="cancel"
                           disabled={isDeletingManual}
-                          title={t("professionalDashboard.calendar.delete")}
-                          aria-label={t(
-                            "professionalDashboard.calendar.delete",
-                          )}
+                          label={t("professionalDashboard.calendar.delete")}
                           onClick={() =>
                             void handleDeleteManualEvent(manual.id)
                           }
-                        >
-                          <L.Trash2 className="h-4 w-4" />
-                        </Button>
+                        />
                       </div>
                     </div>
                   );
@@ -470,7 +464,7 @@ const ProfessionalCalendarTab = () => {
                 {events.map((registration) => (
                   <div
                     key={registration.id}
-                    className="p-5 text-sm transition-colors hover:bg-primary/5 lg:grid lg:grid-cols-[1.4fr_0.8fr_0.8fr_0.8fr_0.7fr] lg:items-center lg:gap-4"
+                    className="bg-muted p-5 text-sm transition-colors hover:bg-primary/5 lg:grid lg:grid-cols-[1.4fr_0.8fr_0.8fr_0.8fr_0.7fr] lg:items-center lg:gap-4"
                   >
                     <div className="min-w-0">
                       <Badge
@@ -552,36 +546,22 @@ const ProfessionalCalendarTab = () => {
 
                     <div className="mt-4 flex justify-center gap-2 lg:mt-0 lg:justify-end">
                       {registration.event?.onlineUrl ? (
-                        <Button
-                          size="iconSm"
-                          radius="xl"
+                        <IconAction
+                          icon={L.Video}
                           variant="outline"
-                          asChild
-                          title={t("professionalDashboard.calendar.join")}
-                          aria-label={t("professionalDashboard.calendar.join")}
-                        >
-                          <Link
-                            href={registration.event.onlineUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            <L.Video className="h-4 w-4" />
-                          </Link>
-                        </Button>
+                          href={registration.event.onlineUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          label={t("professionalDashboard.calendar.join")}
+                        />
                       ) : null}
 
-                      <Button
-                        asChild
-                        size="iconSm"
-                        radius="xl"
+                      <IconAction
+                        icon={L.Eye}
                         variant="outline"
-                        title={t("professionalDashboard.common.details")}
-                        aria-label={t("professionalDashboard.common.details")}
-                      >
-                        <Link href={getEventHref(registration)}>
-                          <L.Eye className="h-4 w-4" />
-                        </Link>
-                      </Button>
+                        href={getEventHref(registration)}
+                        label={t("professionalDashboard.common.details")}
+                      />
                     </div>
                   </div>
                 ))}

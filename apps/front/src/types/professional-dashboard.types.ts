@@ -50,11 +50,14 @@ export type TFieldProps = {
   onChange: (value: string) => void;
 };
 
+export type TMetricCardTone = "primary" | "success" | "warning" | "danger";
+
 export type TMetricCard = {
   label: string;
   value: string;
   helper: string;
   icon: typeof BarChart3;
+  tone?: TMetricCardTone;
 };
 
 export type TUseProfessionalTargetForm = {

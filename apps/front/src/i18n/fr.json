@@ -3801,6 +3801,11 @@
         "evidenceTitle": "Activités avec preuve",
         "evidenceHelper": "{{files}} fichier(s) de preuve téléversé(s) au total."
       },
+      "cycleProgress": {
+        "title": "Progression du cycle",
+        "subtitle": "Crédits obtenus par rapport aux crédits requis pour votre plan actuel",
+        "summary": "{{earned}} sur {{total}} {{credit}} obtenus ({{percent}} %)."
+      },
       "actions": {
         "view": "Voir les détails de l’activité",
         "edit": "Modifier l’activité",
@@ -3858,7 +3863,7 @@
       "filters": {
         "any": "Tous",
         "search": "Rechercher",
-        "searchPlaceholder": "Rechercher un titre, un organisme ou des notes...",
+        "searchPlaceholder": "Rechercher un titre ou un fournisseur...",
         "activityType": "Type d’activité",
         "creditType": "Type de crédit",
         "category": "Catégorie",
@@ -3911,6 +3916,7 @@
         "CPD": "CPD",
         "PDU": "PDU",
         "CEU": "CEU",
+        "CPE": "CPE",
         "TRAINING_HOUR": "Heure de formation"
       },
       "categories": {
@@ -4315,7 +4321,7 @@
       "title": "Calendrier et événements inscrits",
       "description": "Suivez vos événements, sessions, webinaires et activités PDU dans une vue calendrier professionnelle.",
       "googleConnected": "Google connecté",
-      "addEvent": "Ajouter un événement",
+      "addEvent": "Ajouter au calendrier",
       "delete": "Supprimer",
       "deleteSuccess": "Événement retiré de votre calendrier.",
       "eventFallback": "Événement professionnel",

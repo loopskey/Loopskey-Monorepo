@@ -7,6 +7,8 @@ import type { buttonVariants } from "@ui/button";
 import type { VariantProps } from "class-variance-authority";
 import type { AvatarImage } from "@ui/avatar";
 
+import { Eye } from "lucide-react";
+
 // ================ User Avatar ==============
 export type TUserAvatarProps = {
   alt?: string;
@@ -267,4 +269,15 @@ export type TContentThumbnailProps = {
   category?: string | null;
   kind: TContentThumbnailKind;
   sourceLabel?: string | null;
+};
+
+export type TIconActionProps = {
+  rel?: string;
+  label: string;
+  href?: string;
+  target?: string;
+  icon: typeof Eye;
+  disabled?: boolean;
+  onClick?: () => void;
+  variant?: "outline" | "cancel" | "destructive";
 };
