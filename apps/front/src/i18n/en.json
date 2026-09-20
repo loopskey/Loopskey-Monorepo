@@ -254,6 +254,12 @@
     "login": "Login",
     "start": "Start",
     "joinForFree": "Join for Free",
+    "joinAs": {
+      "professional": "Join as a Professional",
+      "provider": "Join as a Provider",
+      "organization": "Join as an Organization",
+      "association": "Join as an Association"
+    },
     "continueAs": "Continue as",
     "delete": "Delete",
     "french": "French",
@@ -2654,14 +2660,12 @@
       "teamsTitle": "Built for teams too",
       "teamsText": "Providers and organizations can manage learning at scale.",
       "joined": "Join 10,000+ professionals leveling up on LoopsKey",
-      "providerLink": "Want to teach? Become a provider",
       "organizationPrompt": "Looking for organization access?",
       "organizationText": "If you’re an admin for an association/company, use the Organization Access flow.",
       "organizationAccess": "Organization Access"
     },
     "provider": {
       "backToHome": "Back to Home",
-      "professionalLink": "Looking to learn? Sign in as a professional",
       "eyebrow": "Share your expertise with the world",
       "titlePrefix": "Become a",
       "titleBrand": "LoopsKey Provider",

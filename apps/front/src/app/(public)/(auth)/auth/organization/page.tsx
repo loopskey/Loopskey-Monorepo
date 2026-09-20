@@ -34,8 +34,12 @@ const OrgAuthPage = () => {
 
   return (
     <AuthPageShell>
-      <section className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[0.9fr_1.1fr]">
-        <div>
+      <section className="mx-auto grid max-w-7xl items-center gap-6 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
+        <div className="flex justify-center lg:justify-start">
+          <OrgAuthCard />
+        </div>
+
+        <div className="order-1 lg:order-2">
           <p className="text-sm font-bold uppercase tracking-[0.22em] text-primary">
             LoopsKey for organizations
           </p>
@@ -75,7 +79,6 @@ const OrgAuthPage = () => {
             </Link>
           </Button>
         </div>
-        <OrgAuthCard />
       </section>
     </AuthPageShell>
   );

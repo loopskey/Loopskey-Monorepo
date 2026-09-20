@@ -254,6 +254,12 @@
     "login": "Connexion",
     "start": "Commencer",
     "joinForFree": "Rejoindre gratuitement",
+    "joinAs": {
+      "professional": "Rejoindre en tant que professionnel",
+      "provider": "Rejoindre en tant que fournisseur",
+      "organization": "Rejoindre en tant qu’organisation",
+      "association": "Rejoindre en tant qu’association"
+    },
     "continueAs": "Continuer en tant que",
     "english": "Anglais",
     "french": "Français",
@@ -2658,14 +2664,12 @@
       "teamsTitle": "Conçu aussi pour les équipes",
       "teamsText": "Les fournisseurs et organisations peuvent gérer l’apprentissage à grande échelle.",
       "joined": "Rejoignez plus de 10 000 professionnels qui progressent avec LoopsKey",
-      "providerLink": "Vous voulez enseigner ? Devenez fournisseur",
       "organizationPrompt": "Vous cherchez un accès organisation ?",
       "organizationText": "Si vous administrez une association ou une entreprise, utilisez le flux d’accès organisation.",
       "organizationAccess": "Accès organisation"
     },
     "provider": {
       "backToHome": "Retour à l'accueil",
-      "professionalLink": "Vous voulez apprendre ? Connectez-vous comme professionnel",
       "eyebrow": "Partagez votre expertise avec le monde",
       "titlePrefix": "Devenez",
       "titleBrand": "fournisseur LoopsKey",

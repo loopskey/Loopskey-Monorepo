@@ -1,12 +1,12 @@
 "use client";
 
 import { createContext, ReactNode, useContext, useMemo } from "react";
-import { normalizePath } from "@/utils/function-helper";
 import { solutionEntries } from "@utils/constant";
+import { normalizePath } from "@/utils/function-helper";
 import { usePathname } from "next/navigation";
 
 type TActiveRoleContext = {
-  activeRoleHref: string;
+  activeRoleHref?: string;
 };
 
 const ActiveRoleContext = createContext<TActiveRoleContext | null>(null);
@@ -17,9 +17,12 @@ export const ActiveRoleProvider = ({ children }: { children: ReactNode }) => {
 
   const activeRoleHref = useMemo(() => {
     const matched = solutionEntries.find(
-      (entry) => normalizePath(entry.href) === currentPath,
+      (entry) =>
+        normalizePath(entry.href) === currentPath ||
+        currentPath === normalizePath(entry.authHref) ||
+        currentPath.startsWith(`${normalizePath(entry.authHref)}/`),
     );
-    return matched?.href ?? solutionEntries[0].href;
+    return matched?.href;
   }, [currentPath]);
 
   const value = useMemo(() => ({ activeRoleHref }), [activeRoleHref]);

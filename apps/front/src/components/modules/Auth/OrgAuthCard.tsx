@@ -15,8 +15,8 @@ const OrgAuthCard = () => {
   const [active, setActive] = useState<"request" | "login">("request");
 
   return (
-    <GlassCard className="w-full max-w-xl">
-      <div className="relative z-10 space-y-6">
+    <GlassCard className="w-full max-w-xl p-4 md:p-4">
+      <div className="relative z-10 space-y-4">
         <div className="grid grid-cols-2 gap-2 rounded-md border border-border/70 bg-muted p-1">
           <Button
             radius="xl"
