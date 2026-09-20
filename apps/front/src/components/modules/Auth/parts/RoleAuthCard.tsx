@@ -14,8 +14,8 @@ const RoleAuthCard = ({ loginRole, registerRole }: TRoleAuthCardProps) => {
   const [active, setActive] = useState<"register" | "login">("register");
 
   return (
-    <GlassCard className="w-full max-w-md">
-      <div className="relative z-10 space-y-6">
+    <GlassCard className="w-full max-w-md p-4 md:p-4">
+      <div className="relative z-10 space-y-4">
         <AuthTabs active={active} onChange={(value) => setActive(value)} />
 
         <AuthFlipCard
