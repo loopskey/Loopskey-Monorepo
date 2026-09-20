@@ -49,7 +49,8 @@ export const siteLinks = {
 
 export const solutionEntries = [
   {
-    href: siteLinks.professionals,
+    href: siteLinks.home,
+    footerHref: siteLinks.professionals,
     authHref: siteLinks.login,
     labelKey: "footer.links.professionals",
     roleLabelKey: "common.roles.professional",
@@ -58,6 +59,7 @@ export const solutionEntries = [
   },
   {
     href: siteLinks.associations,
+    footerHref: siteLinks.associations,
     authHref: siteLinks.associationAuth,
     labelKey: "footer.links.associations",
     roleLabelKey: "common.roles.association",
@@ -66,6 +68,7 @@ export const solutionEntries = [
   },
   {
     href: siteLinks.organizations,
+    footerHref: siteLinks.organizations,
     authHref: siteLinks.organizationAuth,
     labelKey: "footer.links.organizations",
     roleLabelKey: "common.roles.organization",
@@ -74,6 +77,7 @@ export const solutionEntries = [
   },
   {
     href: siteLinks.solutionContentProviders,
+    footerHref: siteLinks.solutionContentProviders,
     authHref: siteLinks.providerAuth,
     labelKey: "footer.links.solutionContentProviders",
     roleLabelKey: "common.roles.contentProvider",

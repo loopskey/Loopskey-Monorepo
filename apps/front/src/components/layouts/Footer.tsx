@@ -15,7 +15,7 @@ const Footer = () => {
   const { t } = useI18n();
 
   const solutionLinks: TFooterLink[] = solutionEntries.map(
-    ({ href, labelKey }) => ({ href, label: t(labelKey) }),
+    ({ footerHref, labelKey }) => ({ href: footerHref, label: t(labelKey) }),
   );
 
   const supportLinks: TFooterLink[] = [
@@ -100,7 +100,6 @@ const Footer = () => {
 
   return (
     <footer className="relative mt-24 overflow-hidden border-t border-border">
-
       <div className="relative mx-auto max-w-7xl py-14 lg:py-18 px-4 sm:px-6 lg:px-8">
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-5">
           <div>
