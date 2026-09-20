@@ -17,13 +17,14 @@ const RegisterDetailsForm = ({
 
   return (
     <Form {...form}>
-      <form className="space-y-5" onSubmit={form.handleSubmit(onSubmit)}>
+      <form className="space-y-3" onSubmit={form.handleSubmit(onSubmit)}>
         <FloatingInputField
           name="fullName"
           autoComplete="name"
           control={form.control}
           label={t("authPages.common.fullName")}
           leftIcon={<UserRound className="h-4 w-4" />}
+          inputClassName="h-12 pt-5 pb-1 text-sm"
         />
 
         <FloatingInputField
@@ -33,25 +34,28 @@ const RegisterDetailsForm = ({
           control={form.control}
           label={t("authPages.common.email")}
           leftIcon={<Mail className="h-4 w-4" />}
+          inputClassName="h-12 pt-5 pb-1 text-sm"
         />
 
         <PasswordField
           name="password"
           control={form.control}
           label={t("authPages.common.password")}
+          inputClassName="h-12 pt-5 pb-1 text-sm"
         />
 
         <PasswordField
           name="confirmPassword"
           control={form.control}
           label={t("authPages.common.confirmPassword")}
+          inputClassName="h-12 pt-5 pb-1 text-sm"
         />
 
         <Button
           size="lg"
           radius="xl"
           type="submit"
-          className="w-full"
+          className="h-11 w-full"
           disabled={isLoading}
         >
           {isLoading ? (

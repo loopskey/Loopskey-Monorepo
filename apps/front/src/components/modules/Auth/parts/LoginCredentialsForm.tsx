@@ -21,7 +21,7 @@ const LoginCredentialsForm = ({
 
   return (
     <Form {...form}>
-      <form className="space-y-5" onSubmit={form.handleSubmit(onSubmit)}>
+      <form className="space-y-3" onSubmit={form.handleSubmit(onSubmit)}>
         <FloatingInputField
           name="email"
           type="email"
@@ -29,6 +29,7 @@ const LoginCredentialsForm = ({
           control={form.control}
           label={t("authPages.common.email")}
           leftIcon={<Mail className="h-4 w-4" />}
+          inputClassName="h-12 pt-5 pb-1 text-sm"
         />
 
         <PasswordField
@@ -36,6 +37,7 @@ const LoginCredentialsForm = ({
           control={form.control}
           autoComplete="current-password"
           label={t("authPages.common.password")}
+          inputClassName="h-12 pt-5 pb-1 text-sm"
         />
 
         <div className="flex justify-end">
@@ -52,7 +54,7 @@ const LoginCredentialsForm = ({
           size="lg"
           radius="xl"
           type="submit"
-          className="w-full"
+          className="h-11 w-full"
           disabled={isLoading}
         >
           {isLoading ? (

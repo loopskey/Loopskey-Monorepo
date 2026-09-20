@@ -64,7 +64,7 @@ const AssociationAccessRequestForm = () => {
     <Form {...form}>
       <form
         noValidate
-        className="space-y-5"
+        className="grid gap-3 sm:grid-cols-2"
         onSubmit={form.handleSubmit(onSubmit)}
       >
         <FloatingInputField
@@ -72,6 +72,7 @@ const AssociationAccessRequestForm = () => {
           name="representativeFullName"
           label={`${t("authPages.association.representativeFullName")} *`}
           leftIcon={<L.UserRound className="h-4 w-4" />}
+          inputClassName="h-12 pt-5 pb-1 text-sm"
           required
         />
 
@@ -80,6 +81,7 @@ const AssociationAccessRequestForm = () => {
           name="associationName"
           label={`${t("authPages.association.associationName")} *`}
           leftIcon={<L.Users className="h-4 w-4" />}
+          inputClassName="h-12 pt-5 pb-1 text-sm"
           required
         />
 
@@ -89,12 +91,14 @@ const AssociationAccessRequestForm = () => {
           control={form.control}
           leftIcon={<L.Mail className="h-4 w-4" />}
           label={`${t("authPages.association.workEmail")} *`}
+          inputClassName="h-12 pt-5 pb-1 text-sm"
           required
         />
 
         <FloatingInputField
           control={form.control}
           name="representativeJobRole"
+          inputClassName="h-12 pt-5 pb-1 text-sm"
           leftIcon={<L.Briefcase className="h-4 w-4" />}
           label={`${t("authPages.association.representativeJobRole")} *`}
           required
@@ -107,6 +111,7 @@ const AssociationAccessRequestForm = () => {
           name="expectedMembers"
           leftIcon={<L.UsersRound className="h-4 w-4" />}
           label={`${t("authPages.association.expectedMembers")} *`}
+          inputClassName="h-12 pt-5 pb-1 text-sm"
           required
         />
 
@@ -115,6 +120,7 @@ const AssociationAccessRequestForm = () => {
           control={form.control}
           label={`${t("authPages.association.country")} *`}
           leftIcon={<L.Globe2 className="h-4 w-4" />}
+          inputClassName="h-12 pt-5 pb-1 text-sm"
           required
         />
 
@@ -123,6 +129,8 @@ const AssociationAccessRequestForm = () => {
           control={form.control}
           label={`${t("authPages.association.goals")} *`}
           leftIcon={<L.Target className="h-4 w-4" />}
+          className="sm:col-span-2"
+          textareaClassName="min-h-20 pt-7 text-sm"
           required
         />
 
@@ -130,7 +138,7 @@ const AssociationAccessRequestForm = () => {
           size="lg"
           radius="xl"
           type="submit"
-          className="w-full"
+          className="h-11 w-full sm:col-span-2"
           disabled={isLoading}
         >
           {isLoading ? (

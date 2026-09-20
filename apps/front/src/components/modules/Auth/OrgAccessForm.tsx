@@ -72,7 +72,7 @@ const OrgAccessRequestForm = () => {
     <Form {...form}>
       <form
         noValidate
-        className="space-y-5"
+        className="grid gap-3 sm:grid-cols-2"
         onSubmit={form.handleSubmit(onSubmit)}
       >
         <FloatingInputField
@@ -80,6 +80,7 @@ const OrgAccessRequestForm = () => {
           name="representativeFullName"
           label={`${t("authPages.organization.representativeFullName")} *`}
           leftIcon={<L.UserRound className="h-4 w-4" />}
+          inputClassName="h-12 pt-5 pb-1 text-sm"
           required
         />
 
@@ -88,6 +89,7 @@ const OrgAccessRequestForm = () => {
           name="organizationName"
           label={`${t("authPages.organization.organizationName")} *`}
           leftIcon={<L.Building2 className="h-4 w-4" />}
+          inputClassName="h-12 pt-5 pb-1 text-sm"
           required
         />
 
@@ -97,6 +99,7 @@ const OrgAccessRequestForm = () => {
           control={form.control}
           leftIcon={<L.Mail className="h-4 w-4" />}
           label={`${t("authPages.organization.workEmail")} *`}
+          inputClassName="h-12 pt-5 pb-1 text-sm"
           required
         />
 
@@ -110,6 +113,7 @@ const OrgAccessRequestForm = () => {
         <FloatingInputField
           control={form.control}
           name="representativeJobRole"
+          inputClassName="h-12 pt-5 pb-1 text-sm"
           leftIcon={<L.Briefcase className="h-4 w-4" />}
           label={`${t("authPages.organization.representativeJobRole")} *`}
           required
@@ -122,6 +126,7 @@ const OrgAccessRequestForm = () => {
           name="expectedLicensedProfessionals"
           leftIcon={<L.UsersRound className="h-4 w-4" />}
           label={`${t("authPages.organization.expectedLicensedProfessionals")} *`}
+          inputClassName="h-12 pt-5 pb-1 text-sm"
           required
         />
 
@@ -130,6 +135,7 @@ const OrgAccessRequestForm = () => {
           control={form.control}
           label={`${t("authPages.organization.country")} *`}
           leftIcon={<L.Globe2 className="h-4 w-4" />}
+          inputClassName="h-12 pt-5 pb-1 text-sm"
           required
         />
 
@@ -138,6 +144,8 @@ const OrgAccessRequestForm = () => {
           control={form.control}
           label={`${t("authPages.organization.goals")} *`}
           leftIcon={<L.Target className="h-4 w-4" />}
+          className="sm:col-span-2"
+          textareaClassName="min-h-20 pt-7 text-sm"
           required
         />
 
@@ -145,7 +153,7 @@ const OrgAccessRequestForm = () => {
           size="lg"
           radius="xl"
           type="submit"
-          className="w-full"
+          className="h-11 w-full sm:col-span-2"
           disabled={isLoading}
         >
           {isLoading ? (

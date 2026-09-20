@@ -1,15 +1,11 @@
 "use client";
 
 import { AuthRegisterRole, Role } from "@/lib/graphql/base";
-import { ArrowRight } from "lucide-react";
-import { siteLinks } from "@/utils/constant";
 import { useI18n } from "@/hooks/useI18n";
-import { Button } from "@ui/button";
 
 import AuthFeaturePanel from "@modules/Auth/parts/AuthFeaturePanel";
 import AuthPageShell from "@modules/Auth/parts/AuthPageSell";
 import RoleAuthCard from "@modules/Auth/parts/RoleAuthCard";
-import Link from "next/link";
 
 const ProfessionalAuthPage = () => {
   const { t } = useI18n();
@@ -35,7 +31,7 @@ const ProfessionalAuthPage = () => {
 
   return (
     <AuthPageShell>
-      <section className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-2 px-4 sm:px-6 lg:px-8">
+      <section className="mx-auto grid max-w-7xl items-center gap-6 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
         <div className="flex justify-center lg:justify-start">
           <RoleAuthCard
             loginRole={Role.Professional}
@@ -44,14 +40,6 @@ const ProfessionalAuthPage = () => {
         </div>
 
         <div className="order-1 lg:order-2">
-          <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-            <Button asChild variant="outline" radius="xl" className="flex-1">
-              <Link href={siteLinks.providerAuth}>
-                {t("authPages.professional.providerLink")}
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
           <AuthFeaturePanel
             features={features}
             subtitle={t("authPages.professional.subtitle")}

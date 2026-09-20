@@ -1,7 +1,7 @@
 "use client";
 
-import { getAuthHrefForSolutionHref } from "@utils/constant";
-import { getSolutionHrefForRole } from "@utils/constant";
+import { getAuthHrefForSolutionHref, solutionEntries } from "@utils/constant";
+import { getSolutionHrefForRole, siteLinks } from "@utils/constant";
 import { LanguageToggleBtn } from "@elements/language-switcher";
 import { RoleMenuSection } from "@layouts/parts/role-menu-section";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
@@ -32,7 +32,15 @@ const Header = () => {
     toggleMobileMenu,
   } = useHeader();
   const { activeRoleHref } = useActiveRole();
-  const joinHref = getAuthHrefForSolutionHref(activeRoleHref);
+  const activeRole = solutionEntries.find(
+    (entry) => entry.href === activeRoleHref,
+  );
+  const joinHref = getAuthHrefForSolutionHref(
+    activeRoleHref ?? siteLinks.professionals,
+  );
+  const joinLabel = activeRole
+    ? t(`common.joinAs.${activeRole.role.toLowerCase()}`)
+    : t("common.joinForFree");
   const authenticatedRoleHref =
     isAuthenticated && currentUserRole
       ? getSolutionHrefForRole(currentUserRole)
@@ -86,7 +94,7 @@ const Header = () => {
             <UserMenu />
           ) : (
             <Button asChild size="lg" radius="full">
-              <Link href={joinHref}>{t("common.joinForFree")}</Link>
+              <Link href={joinHref}>{joinLabel}</Link>
             </Button>
           )}
         </div>
@@ -201,7 +209,7 @@ const Header = () => {
                   className="w-full"
                   onClick={closeMobileMenu}
                 >
-                  <Link href={joinHref}>{t("common.joinForFree")}</Link>
+                  <Link href={joinHref}>{joinLabel}</Link>
                 </Button>
               )}
             </div>
