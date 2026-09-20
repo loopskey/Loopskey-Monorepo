@@ -9,7 +9,7 @@ import Link from "next/link";
 
 export const RoleMenuSection = () => {
   const { t } = useI18n();
-  const { activeRoleHref } = useActiveRole();
+  const { activeRoleHref, selectRole } = useActiveRole();
 
   return (
     <div className="border-t border-border/70 pt-4">
@@ -25,6 +25,7 @@ export const RoleMenuSection = () => {
             <Link
               key={entry.href}
               href={entry.href}
+              onClick={() => selectRole(entry.href)}
               aria-current={isActive ? "page" : undefined}
               className={cn(
                 "flex items-center gap-2 rounded-md border px-3 py-2.5 text-left text-sm font-semibold transition-colors duration-200",

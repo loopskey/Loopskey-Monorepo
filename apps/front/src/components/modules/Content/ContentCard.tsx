@@ -102,16 +102,8 @@ const ContentCard = ({ item, className }: TContentCardProps) => {
             )}
           </div>
 
-          <div className="flex items-center justify-between gap-3 pt-2">
-            <div className="text-sm font-medium">
-              {item.isFree
-                ? t("content.card.free")
-                : typeof item.price === "number"
-                  ? `$${item.price}`
-                  : ""}
-            </div>
-
-            <Button asChild variant="outline" radius="xl">
+          <div className="pt-2">
+            <Button asChild variant="outline" radius="xl" className="w-full">
               <Link href={item.href}>
                 {t("content.card.viewDetails")}
                 <L.ArrowRight className="h-4 w-4" />

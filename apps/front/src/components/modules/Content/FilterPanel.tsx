@@ -17,42 +17,27 @@ const FilterPanel = ({
   const { t } = useI18n();
 
   return (
-    <GlassCard className="p-5" glow={false}>
-      <div className="relative z-10">
-        <div className="mb-5 space-y-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary">
-                <SlidersHorizontal className="h-4 w-4" />
-              </div>
-
-              <div>
-                <h2 className="font-extrabold">{title}</h2>
-
-                {typeof totalCount === "number" && (
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {t("content.filters.totalResults", { total: totalCount })}
-                  </p>
-                )}
-              </div>
-            </div>
+    <GlassCard className="p-4" glow={false}>
+      <div className="relative z-10 flex flex-col gap-4 xl:flex-row xl:items-end">
+        <div className="flex shrink-0 items-center gap-2">
+          <div className="flex size-10 items-center justify-center rounded-md bg-primary/10 text-primary">
+            <SlidersHorizontal className="h-4 w-4" />
           </div>
 
-          <Button
-            type="button"
-            variant="outline"
-            radius="xl"
-            className="w-full justify-center"
-            onClick={onReset}
-          >
-            <RotateCcw className="h-4 w-4" />
-            {t("content.filters.reset")}
-          </Button>
+          <div>
+            <h2 className="font-extrabold">{title}</h2>
+
+            {typeof totalCount === "number" && (
+              <p className="mt-1 text-sm text-muted-foreground">
+                {t("content.filters.totalResults", { total: totalCount })}
+              </p>
+            )}
+          </div>
         </div>
 
-        <div className="grid gap-4">
+        <div className="grid flex-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {filters.map((filter) => (
-            <div key={filter.key} className="space-y-2">
+            <div key={filter.key} className="flex flex-col gap-2">
               <label className="text-sm font-bold text-foreground/90">
                 {filter.label}
               </label>
@@ -68,20 +53,33 @@ const FilterPanel = ({
                 </S.SelectTrigger>
 
                 <S.SelectContent className="rounded-md">
-                  <S.SelectItem value="ALL">
-                    {t("content.filters.all")}
-                  </S.SelectItem>
-
-                  {filter.options.map((option) => (
-                    <S.SelectItem key={option.value} value={option.value}>
-                      {option.label}
+                  <S.SelectGroup>
+                    <S.SelectItem value="ALL">
+                      {t("content.filters.all")}
                     </S.SelectItem>
-                  ))}
+
+                    {filter.options.map((option) => (
+                      <S.SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </S.SelectItem>
+                    ))}
+                  </S.SelectGroup>
                 </S.SelectContent>
               </S.Select>
             </div>
           ))}
         </div>
+
+        <Button
+          type="button"
+          variant="outline"
+          radius="xl"
+          className="w-full justify-center xl:w-auto"
+          onClick={onReset}
+        >
+          <RotateCcw className="h-4 w-4" />
+          {t("content.filters.reset")}
+        </Button>
       </div>
     </GlassCard>
   );
