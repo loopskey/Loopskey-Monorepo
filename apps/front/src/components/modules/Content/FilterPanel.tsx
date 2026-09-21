@@ -1,13 +1,57 @@
 "use client";
 
-import { RotateCcw, SlidersHorizontal } from "lucide-react";
+import { RotateCcw, Search, SlidersHorizontal } from "lucide-react";
 import { TFilterPanelProps } from "@/types/content-module.types";
-import { GlassCard } from "@elements/glass-card";
+import { useState } from "react";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
 import { Input } from "@ui/input";
+import { cn } from "@/lib/utils";
 
 import * as S from "@ui/select";
+import * as Sh from "@ui/sheet";
+
+type TFilter = TFilterPanelProps["filters"][number];
+
+type TFilterSelectProps = {
+  filter: TFilter;
+  className?: string;
+};
+
+const FilterSelect = ({ filter, className }: TFilterSelectProps) => {
+  const { t } = useI18n();
+
+  return (
+    <S.Select
+      value={filter.value ?? ""}
+      onValueChange={(value) => filter.onChange(value === "ALL" ? "" : value)}
+    >
+      <S.SelectTrigger
+        aria-label={filter.label}
+        className={cn(
+          "h-12 w-full rounded-lg border-border/70 bg-background shadow-none",
+          filter.value &&
+            "border-primary bg-primary/5 font-semibold text-primary",
+          className,
+        )}
+      >
+        <S.SelectValue placeholder={filter.placeholder} />
+      </S.SelectTrigger>
+
+      <S.SelectContent className="rounded-md">
+        <S.SelectGroup>
+          <S.SelectItem value="ALL">{t("content.filters.all")}</S.SelectItem>
+
+          {filter.options.map((option) => (
+            <S.SelectItem key={option.value} value={option.value}>
+              {option.label}
+            </S.SelectItem>
+          ))}
+        </S.SelectGroup>
+      </S.SelectContent>
+    </S.Select>
+  );
+};
 
 const FilterPanel = ({
   title,
@@ -17,71 +61,98 @@ const FilterPanel = ({
   onSearchChange,
 }: TFilterPanelProps) => {
   const { t } = useI18n();
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+  const activeFilterCount = filters.filter((filter) => filter.value).length;
+  const hasActiveFilters = activeFilterCount > 0 || search.trim().length > 0;
 
   return (
-    <GlassCard className="p-4" glow={false}>
-      <div className="relative z-10 flex flex-col gap-4 xl:flex-row xl:items-center">
-        <div className="flex shrink-0 items-center gap-2">
-          <div className="flex size-10 items-center justify-center rounded-md bg-primary/10 text-primary">
-            <SlidersHorizontal className="h-4 w-4" />
+    <div role="search" aria-label={title} className="flex items-center gap-3">
+      <div className="relative min-w-0 flex-1">
+        <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+
+        <Input
+          type="search"
+          value={search}
+          onChange={(event) => onSearchChange(event.target.value)}
+          placeholder={t("content.filters.searchPlaceholder")}
+          aria-label={t("content.filters.searchPlaceholder")}
+          className="h-11 rounded-lg border-border/70 bg-background pl-10 shadow-none lg:h-12"
+        />
+      </div>
+
+      <div className="hidden items-center gap-3 lg:flex">
+        {filters.map((filter) => (
+          <FilterSelect
+            key={filter.key}
+            filter={filter}
+            className="w-44 xl:w-52"
+          />
+        ))}
+
+        {hasActiveFilters && (
+          <Button
+            type="button"
+            variant="ghost"
+            className="text-primary"
+            onClick={onReset}
+          >
+            <RotateCcw />
+            {t("content.filters.reset")}
+          </Button>
+        )}
+      </div>
+
+      <Sh.Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+        <Sh.SheetTrigger asChild>
+          <Button
+            type="button"
+            variant="outline"
+            radius="lg"
+            className="h-11 lg:hidden"
+          >
+            <SlidersHorizontal />
+            {t("content.filters.open")}
+            {activeFilterCount > 0 && (
+              <span className="flex size-5 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
+                {activeFilterCount}
+              </span>
+            )}
+          </Button>
+        </Sh.SheetTrigger>
+
+        <Sh.SheetContent side="bottom" className="rounded-t-2xl">
+          <Sh.SheetHeader>
+            <Sh.SheetTitle>{title}</Sh.SheetTitle>
+            <Sh.SheetDescription className="sr-only">
+              {t("content.filters.sheetDescription")}
+            </Sh.SheetDescription>
+          </Sh.SheetHeader>
+
+          <div className="grid gap-3 px-4">
+            {filters.map((filter) => (
+              <FilterSelect key={filter.key} filter={filter} />
+            ))}
           </div>
 
-          <h2 className="font-extrabold">{title}</h2>
-        </div>
-
-        <div className="grid flex-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <Input
-            value={search}
-            onChange={(event) => onSearchChange(event.target.value)}
-            placeholder={t("content.filters.searchPlaceholder")}
-            aria-label={t("content.filters.searchPlaceholder")}
-            className="h-12 rounded-md border-border/70 bg-muted shadow-sm"
-          />
-
-          {filters.map((filter) => (
-            <S.Select
-              key={filter.key}
-              value={filter.value || undefined}
-              onValueChange={(value) =>
-                filter.onChange(value === "ALL" ? "" : value)
-              }
+          <Sh.SheetFooter className="grid grid-cols-2 gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={!hasActiveFilters}
+              onClick={onReset}
             >
-              <S.SelectTrigger
-                aria-label={filter.label}
-                className="h-12 w-full rounded-md border-border/70 bg-muted shadow-sm"
-              >
-                <S.SelectValue placeholder={filter.placeholder} />
-              </S.SelectTrigger>
+              <RotateCcw />
+              {t("content.filters.reset")}
+            </Button>
 
-              <S.SelectContent className="rounded-md">
-                <S.SelectGroup>
-                  <S.SelectItem value="ALL">
-                    {t("content.filters.all")}
-                  </S.SelectItem>
-
-                  {filter.options.map((option) => (
-                    <S.SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </S.SelectItem>
-                  ))}
-                </S.SelectGroup>
-              </S.SelectContent>
-            </S.Select>
-          ))}
-        </div>
-
-        <Button
-          type="button"
-          variant="outline"
-          radius="xl"
-          className="w-full justify-center xl:w-auto"
-          onClick={onReset}
-        >
-          <RotateCcw className="h-4 w-4" />
-          {t("content.filters.reset")}
-        </Button>
-      </div>
-    </GlassCard>
+            <Button type="button" onClick={() => setIsSheetOpen(false)}>
+              {t("content.filters.showResults")}
+            </Button>
+          </Sh.SheetFooter>
+        </Sh.SheetContent>
+      </Sh.Sheet>
+    </div>
   );
 };
 

@@ -21,6 +21,7 @@ export type TContentCardItem = {
   isFree?: boolean | null;
   imageUrl?: string | null;
   category?: string | null;
+  categoryCode?: string | null;
   description?: string | null;
   metaPrimary?: string | null;
   metaSecondary?: string | null;
@@ -59,6 +60,23 @@ export type TYouTubeFilters = {
 export type TContentCardProps = {
   className?: string;
   item: TContentCardItem;
+};
+
+export type TContentTabOption = {
+  value: TContentTab;
+  label: string;
+};
+
+export type TContentTabsProps = {
+  label: string;
+  activeTab: TContentTab;
+  tabs: TContentTabOption[];
+  onChange: (tab: TContentTab) => void;
+};
+
+export type TContentSearchHeroProps = {
+  totalCount?: number;
+  activeTab: TContentTab;
 };
 
 export type TFilterPanelProps = {

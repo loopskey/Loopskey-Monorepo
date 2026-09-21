@@ -2768,9 +2768,16 @@
   },
   "content": {
     "hero": {
-      "title": "Discover courses, events, podcasts, and YouTube learning channels"
+      "title": "Explore learning content",
+      "count": {
+        "courses": "{{count}} courses",
+        "events": "{{count}} events",
+        "podcasts": "{{count}} podcasts",
+        "youtube": "{{count}} channels"
+      }
     },
     "tabs": {
+      "label": "Content type",
       "course": "Courses",
       "courses": "Courses",
       "event": "Events",
@@ -2788,9 +2795,12 @@
       "level": "Level",
       "rating": "Rating",
       "eventType": "Event type",
-      "searchPlaceholder": "Search courses, events, podcasts, and YouTube...",
+      "searchPlaceholder": "Search learning content...",
       "reset": "Reset filters",
-      "all": "All"
+      "all": "All",
+      "open": "Filters",
+      "sheetDescription": "Refine the list using the options below.",
+      "showResults": "Show results"
     },
     "pagination": {
       "page": "Page {{page}}",

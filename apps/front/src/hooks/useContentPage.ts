@@ -18,6 +18,10 @@ import {
 } from "@/lib/graphql/base";
 import { enumOptions, initialCursor, TAKE } from "@utils/constant";
 import { useEffect, useMemo, useState } from "react";
+import {
+  humanizeEnumValue,
+  translateWithFallback,
+} from "@utils/function-helper";
 import { SEARCH_DEBOUNCE_MS } from "@utils/constant";
 import { useDebouncedValue } from "@hooks/useDebounced";
 import { useI18n } from "@hooks/useI18n";
@@ -195,6 +199,18 @@ export const useContentPage = () => {
   }[activeTab];
 
   const items = useMemo<T.TContentCardItem[]>(() => {
+    const enumLabel = (prefix: string, value?: string | null) =>
+      value
+        ? translateWithFallback(
+            t,
+            `content.enums.${prefix}.${value}`,
+            humanizeEnumValue(value),
+          )
+        : null;
+
+    const countLabel = (key: string, count?: number | null) =>
+      count ? t(key, { count }) : null;
+
     if (activeTab === "courses") {
       return (
         coursesQuery.data?.items.map((course) => ({
@@ -204,17 +220,20 @@ export const useContentPage = () => {
           title: course.title,
           description: course.description,
           imageUrl: course.imageUrl,
-          category: course.category,
-          status: course.level,
+          category: enumLabel("courseCategory", course.category),
+          categoryCode: course.category,
+          status: enumLabel("courseLevel", course.level),
           rating: course.rating,
           price: course.price ?? null,
           isFree: course.isFree,
-          metaPrimary: t("content.card.professionals", {
-            count: course.professionals ?? 0,
-          }),
-          metaSecondary: course.durationMinutes
-            ? t("content.card.minutes", { count: course.durationMinutes })
-            : null,
+          metaPrimary: countLabel(
+            "content.card.professionals",
+            course.professionals,
+          ),
+          metaSecondary: countLabel(
+            "content.card.minutes",
+            course.durationMinutes,
+          ),
           href: `/courses/${course.slug}`,
         })) ?? []
       );
@@ -229,14 +248,13 @@ export const useContentPage = () => {
           title: event.title,
           description: event.description,
           imageUrl: event.imageUrl,
-          category: event.category,
-          status: event.type,
+          category: enumLabel("eventCategory", event.category),
+          categoryCode: event.category,
+          status: enumLabel("eventType", event.type),
           rating: event.averageRating,
           price: event.price ?? null,
           isFree: event.isFree,
-          metaPrimary: t("content.card.attendees", {
-            count: event.attendees ?? 0,
-          }),
+          metaPrimary: countLabel("content.card.attendees", event.attendees),
           metaSecondary: event.startDate
             ? new Date(event.startDate).toLocaleDateString()
             : null,
@@ -254,15 +272,14 @@ export const useContentPage = () => {
           title: podcast.title,
           description: podcast.description,
           imageUrl: podcast.imageUrl,
-          category: podcast.category,
-          status: podcast.status,
+          category: enumLabel("podcastCategory", podcast.category),
+          categoryCode: podcast.category,
           rating: podcast.rating,
-          metaPrimary: t("content.card.listeners", {
-            count: podcast.listeners ?? 0,
-          }),
-          metaSecondary: t("content.card.episodes", {
-            count: podcast.episodeCount ?? 0,
-          }),
+          metaPrimary: countLabel("content.card.listeners", podcast.listeners),
+          metaSecondary: countLabel(
+            "content.card.episodes",
+            podcast.episodeCount,
+          ),
           href: `/podcasts/${podcast.slug}`,
         })) ?? []
       );
@@ -276,15 +293,14 @@ export const useContentPage = () => {
         title: channel.title,
         description: channel.description,
         imageUrl: channel.imageUrl,
-        category: channel.category,
-        status: channel.status,
+        category: enumLabel("youtubeCategory", channel.category),
+        categoryCode: channel.category,
         rating: channel.rating,
-        metaPrimary: t("content.card.subscribers", {
-          count: channel.subscribers ?? 0,
-        }),
-        metaSecondary: t("content.card.videos", {
-          count: channel.videoCount ?? 0,
-        }),
+        metaPrimary: countLabel(
+          "content.card.subscribers",
+          channel.subscribers,
+        ),
+        metaSecondary: countLabel("content.card.videos", channel.videoCount),
         href: `/youtube/${channel.slug}`,
       })) ?? []
     );

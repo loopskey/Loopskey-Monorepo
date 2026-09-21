@@ -1,8 +1,8 @@
 "use client";
 
+import { TContentCardKind } from "@/types/content-module.types";
 import { TContentCardProps } from "@/types/content-module.types";
 import { ContentThumbnail } from "@elements/content-thumbnail";
-import { GlassCard } from "@elements/glass-card";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
 import { cn } from "@/lib/utils";
@@ -11,108 +11,129 @@ import Link from "next/link";
 
 import * as L from "lucide-react";
 
-const kindIcon = {
-  course: L.Clock3,
-  event: L.CalendarDays,
-  podcast: L.Headphones,
-  youtube: L.PlayCircle,
+const KIND_DOT_CLASS_NAME: Record<TContentCardKind, string> = {
+  course: "bg-ct-course",
+  event: "bg-ct-event",
+  podcast: "bg-ct-podcast",
+  youtube: "bg-ct-youtube",
 };
+
+const KIND_META_ICONS = {
+  course: { primary: L.Users, secondary: L.Clock3 },
+  event: { primary: L.Users, secondary: L.CalendarDays },
+  podcast: { primary: L.Headphones, secondary: L.ListMusic },
+  youtube: { primary: L.Users, secondary: L.Video },
+} as const;
 
 const ContentCard = ({ item, className }: TContentCardProps) => {
   const { t } = useI18n();
 
-  const Icon = kindIcon[item.kind] ?? L.BookOpen;
+  const { primary: PrimaryIcon, secondary: SecondaryIcon } =
+    KIND_META_ICONS[item.kind];
+  const hasRating = typeof item.rating === "number" && item.rating > 0;
 
   return (
-    <GlassCard
-      glow
+    <article
       className={cn(
-        "group overflow-hidden p-0",
-        "transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_30px_90px_rgba(37,99,235,0.18)]",
+        "group relative flex flex-col overflow-hidden rounded-xl border bg-card text-card-foreground shadow-sm",
+        "transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg",
+        "motion-reduce:transition-none motion-reduce:hover:translate-y-0",
+        "has-[a:focus-visible]:ring-2 has-[a:focus-visible]:ring-ring",
         className,
       )}
     >
-      <div className="relative z-10">
-        <div className="relative h-48 overflow-hidden rounded-t-lg bg-muted">
+      <div className="flex flex-1 gap-3 p-3 sm:flex-col sm:gap-0 sm:p-0">
+        <div className="relative size-24 shrink-0 overflow-hidden rounded-lg bg-muted sm:aspect-video sm:size-auto sm:rounded-none">
           <ContentThumbnail
             id={item.id}
             kind={item.kind}
             title={item.title}
             imageUrl={item.imageUrl}
-            category={item.category}
-            sizes="(max-width: 768px) 100vw, 33vw"
-            className="transition-transform duration-700 group-hover:scale-110"
+            category={item.categoryCode}
+            sizes="(max-width: 640px) 96px, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+            className="transition-transform duration-500 group-hover:scale-105 motion-reduce:transition-none"
           />
 
-          <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/10 to-transparent" />
-
-          <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full border border-white/30 bg-muted px-3 py-1 text-xs font-bold">
-            <Icon className="h-3.5 w-3.5 text-primary" />
-            {t(`content.tabs.${item.kind}`)}
-          </div>
-
-          {typeof item.rating === "number" && (
-            <div className="absolute right-4 top-4 flex items-center gap-1 rounded-full border border-white/30 bg-muted px-3 py-1 text-xs font-bold">
-              <L.Star className="h-3.5 w-3.5 fill-yellow-400 text-warning-soft-foreground" />
-              {item.rating.toFixed(1)}
+          {hasRating && (
+            <div className="absolute right-2.5 top-2.5 hidden items-center gap-1 rounded-full bg-background/85 px-2.5 py-0.5 text-xs font-bold backdrop-blur sm:flex">
+              <L.Star className="size-3 fill-yellow-400 text-yellow-500" />
+              {item.rating?.toFixed(1)}
             </div>
           )}
         </div>
 
-        <div className="space-y-4 py-5">
-          <div className="flex flex-wrap items-center justify-between">
+        <div className="flex min-w-0 flex-1 flex-col gap-1.5 sm:p-4">
+          <div className="flex items-center justify-between gap-2 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
             {item.category && (
-              <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-                {item.category}
+              <span className="flex min-w-0 items-center gap-1.5">
+                <span
+                  className={cn(
+                    "size-2 shrink-0 rounded-full",
+                    KIND_DOT_CLASS_NAME[item.kind],
+                  )}
+                />
+                <span className="truncate">{item.category}</span>
               </span>
             )}
 
             {item.status && (
-              <span className="rounded-full bg-muted/70 px-3 py-1 text-xs font-semibold text-muted-foreground">
+              <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold normal-case tracking-normal">
                 {item.status}
               </span>
             )}
           </div>
 
-          <div>
-            <h3 className="line-clamp-2 text-lg font-medium tracking-tight">
-              {item.title}
-            </h3>
+          <h3 className="line-clamp-2 text-base font-semibold leading-snug tracking-tight sm:min-h-11">
+            {item.title}
+          </h3>
 
-            {item.description && (
-              <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">
-                {item.description}
-              </p>
+          <p className="hidden min-h-5 text-[13px] leading-5 text-muted-foreground sm:line-clamp-1">
+            {item.description}
+          </p>
+
+          <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 pt-1 text-xs text-muted-foreground">
+            {hasRating && (
+              <span className="flex items-center gap-1 font-bold text-foreground sm:hidden">
+                <L.Star className="size-3 fill-yellow-400 text-yellow-500" />
+                {item.rating?.toFixed(1)}
+              </span>
             )}
-          </div>
 
-          <div className="grid grid-cols-2 gap-3 text-xs text-muted-foreground">
             {item.metaPrimary && (
-              <div className="flex items-center gap-2 rounded-md bg-muted px-3 py-2">
-                <L.Users className="h-4 w-4 text-primary" />
+              <span className="flex min-w-0 items-center gap-1.5">
+                <PrimaryIcon className="size-3.5 shrink-0 text-primary" />
                 <span className="truncate">{item.metaPrimary}</span>
-              </div>
+              </span>
             )}
 
             {item.metaSecondary && (
-              <div className="flex items-center gap-2 rounded-md bg-muted px-3 py-2">
-                <L.Clock3 className="h-4 w-4 text-primary" />
+              <span className="flex min-w-0 items-center gap-1.5">
+                <SecondaryIcon className="size-3.5 shrink-0 text-primary" />
                 <span className="truncate">{item.metaSecondary}</span>
-              </div>
+              </span>
             )}
-          </div>
-
-          <div className="pt-2">
-            <Button asChild variant="outline" radius="xl" className="w-full">
-              <Link href={item.href}>
-                {t("content.card.viewDetails")}
-                <L.ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
           </div>
         </div>
       </div>
-    </GlassCard>
+
+      <div className="px-3 pb-3 sm:mt-auto sm:border-t sm:px-4 sm:py-3">
+        <Button
+          asChild
+          size="sm"
+          radius="lg"
+          variant="outline"
+          className="w-full text-sm hover:border-primary hover:bg-primary hover:text-primary-foreground group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground"
+        >
+          <Link
+            href={item.href}
+            className="after:absolute after:inset-0 after:content-['']"
+          >
+            {t("content.card.viewDetails")}
+            <L.ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5 motion-reduce:transform-none" />
+          </Link>
+        </Button>
+      </div>
+    </article>
   );
 };
 

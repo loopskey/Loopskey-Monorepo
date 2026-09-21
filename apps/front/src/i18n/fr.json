@@ -2772,9 +2772,16 @@
   },
   "content": {
     "hero": {
-      "title": "Découvrez des cours, événements, podcasts et chaînes YouTube"
+      "title": "Explorer les contenus d’apprentissage",
+      "count": {
+        "courses": "{{count}} cours",
+        "events": "{{count}} événements",
+        "podcasts": "{{count}} podcasts",
+        "youtube": "{{count}} chaînes"
+      }
     },
     "tabs": {
+      "label": "Type de contenu",
       "course": "Cours",
       "courses": "Cours",
       "event": "Événements",
@@ -2792,9 +2799,12 @@
       "level": "Niveau",
       "rating": "Note",
       "eventType": "Type d’événement",
-      "searchPlaceholder": "Rechercher des cours, événements, podcasts et YouTube...",
+      "searchPlaceholder": "Rechercher un contenu...",
       "reset": "Réinitialiser",
-      "all": "Tous"
+      "all": "Tous",
+      "open": "Filtres",
+      "sheetDescription": "Affinez la liste avec les options ci-dessous.",
+      "showResults": "Afficher les résultats"
     },
     "pagination": {
       "page": "Page {{page}}",
