@@ -1371,6 +1371,9 @@ model PDUActivity {
   cpdPlanId String?
   cpdPlan   CPDPlan? @relation(fields: [cpdPlanId], references: [id], onDelete: SetNull)
 
+  associationRequirementId     String?
+  associationLearningContentId String?
+
   title       String
   description String?
   source      PDUSource   @default(OTHER)
@@ -1410,6 +1413,8 @@ model PDUActivity {
   @@index([completionStatus])
   @@index([contentType, contentId])
   @@index([cpdPlanId])
+  @@index([associationRequirementId])
+  @@index([associationLearningContentId])
 }
 
 model PDUActivityFile {

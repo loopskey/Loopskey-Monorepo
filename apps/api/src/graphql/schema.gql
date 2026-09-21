@@ -892,6 +892,84 @@ type AssociationMissingEvidenceRow {
   requirementName: String!
 }
 
+type AssociationMyRequirement {
+  assignmentId: ID!
+  associationId: ID!
+  associationName: String!
+  awaitingReviewCount: Int!
+  band: AssociationComplianceBand!
+  completedCredits: Float!
+  creditType: CreditType!
+  cycleEnd: DateTime
+  cycleStart: DateTime!
+  daysRemaining: Int
+  description: String
+  dueDate: DateTime
+  evidencePolicy: AssociationEvidencePolicy!
+  isMissingEvidence: Boolean!
+  name: String!
+  percent: Float!
+  remainingCredits: Float!
+  requiredCredits: Float!
+  requirementId: ID!
+}
+
+type AssociationMyRequirementActivity {
+  activityId: ID!
+  category: String!
+  categoryName: String
+  creditedAmount: Float!
+  credits: Float!
+  date: DateTime!
+  hasEvidence: Boolean!
+  isLate: Boolean!
+  reviewNote: String
+  state: AssociationAttributionState!
+  title: String!
+}
+
+type AssociationMyRequirementContent {
+  category: PDUCategory
+  contentId: ID
+  contentType: ContentType
+  description: String
+  externalUrl: String
+  id: ID!
+  imageUrl: String
+  indicativeCredits: Float
+  isAvailable: Boolean!
+  isCompleted: Boolean!
+  isExternal: Boolean!
+  provider: String
+  slug: String
+  title: String!
+}
+
+type AssociationMyRequirementDetail {
+  activities: [AssociationMyRequirementActivity!]!
+  assignmentId: ID!
+  associationId: ID!
+  associationName: String!
+  awaitingReviewCount: Int!
+  band: AssociationComplianceBand!
+  categories: [AssociationCategoryProgress!]!
+  completedCredits: Float!
+  creditType: CreditType!
+  cycleEnd: DateTime
+  cycleStart: DateTime!
+  daysRemaining: Int
+  description: String
+  dueDate: DateTime
+  evidencePolicy: AssociationEvidencePolicy!
+  isMissingEvidence: Boolean!
+  learningContents: [AssociationMyRequirementContent!]!
+  name: String!
+  percent: Float!
+  remainingCredits: Float!
+  requiredCredits: Float!
+  requirementId: ID!
+}
+
 type AssociationPageInfo {
   hasNextPage: Boolean!
   nextCursor: String
@@ -1796,6 +1874,8 @@ input CreateOrganizationDepartmentInput {
 }
 
 input CreatePduActivityInput {
+  associationLearningContentId: ID
+  associationRequirementId: ID
   category: PDUCategory!
   contentId: String
   contentType: ContentType
@@ -3694,6 +3774,8 @@ type ProfessionalPayment {
 }
 
 type ProfessionalPduActivity {
+  associationLearningContentId: ID
+  associationRequirementId: ID
   category: PDUCategory!
   completionStatus: PDUCompletionStatus!
   contentId: String
@@ -4203,6 +4285,7 @@ type Query {
   courseBySlug(slug: String!): Course!
   courses(filter: CourseFilterInput, pagination: CoursePaginationInput, sort: CourseSortInput): PaginatedCourses!
   cpdPlan(planId: ID!): CpdPlan!
+  cpdPlanActivities(planId: ID!): [ProfessionalPduActivity!]!
   cpdPlanProgress(planId: ID!): CpdPlanProgress!
   cpdReportRecipients: [CpdReportRecipientOption!]!
   currentUser: AuthPayload!
@@ -4222,6 +4305,8 @@ type Query {
   ingestionSources(filter: IngestionSourceFilter, pagination: IngestionPagination): PaginatedIngestionSources!
   linkedinOAuthUrl(role: Role!): AuthUrl!
   me: User!
+  myAssociationRequirement(requirementId: ID!): AssociationMyRequirementDetail!
+  myAssociationRequirements: [AssociationMyRequirement!]!
   myCalendarEntries: [ProfessionalManualCalendarEvent!]!
   myCart: Cart
   myCpdPlans: [CpdPlan!]!
@@ -4861,6 +4946,8 @@ input UpdateOrganizationSettingsInput {
 
 input UpdatePduActivityInput {
   activityId: ID!
+  associationLearningContentId: ID
+  associationRequirementId: ID
   category: PDUCategory
   completionStatus: PDUCompletionStatus
   contentId: String

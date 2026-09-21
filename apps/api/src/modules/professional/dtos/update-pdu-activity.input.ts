@@ -111,4 +111,18 @@ export class UpdatePduActivityInput {
   @IsOptional()
   @IsString()
   cpdPlanId?: string | null;
+
+  @Field(() => ID, { nullable: true })
+  @Transform(trimToNull)
+  @IsOptional()
+  @IsString()
+  @MaxLength(64)
+  associationRequirementId?: string | null;
+
+  @Field(() => ID, { nullable: true })
+  @Transform(trimToNull)
+  @IsOptional()
+  @IsString()
+  @MaxLength(64)
+  associationLearningContentId?: string | null;
 }

@@ -14,6 +14,7 @@ const DEADLINE = day("2026-06-30");
 const requirement = (
   overrides: Partial<AttributionRequirement> = {},
 ): AttributionRequirement => ({
+  id: "req-1",
   creditType: CreditType.CPD,
   evidencePolicy: AssociationEvidencePolicy.NOT_REQUIRED,
   reportingStart: null,
@@ -107,5 +108,34 @@ describe("attributionFor late submission policy", () => {
       );
       expect(result).toBeNull();
     }
+  });
+});
+
+describe("attributionFor explicit requirement link", () => {
+  it("counts an activity linked to this requirement", () => {
+    const result = attributionFor(
+      activity({ associationRequirementId: "req-1" }),
+      requirement(),
+      assignment,
+    );
+    expect(result?.creditedAmount).toBe(10);
+  });
+
+  it("skips an activity linked to another requirement", () => {
+    const result = attributionFor(
+      activity({ associationRequirementId: "req-2" }),
+      requirement(),
+      assignment,
+    );
+    expect(result).toBeNull();
+  });
+
+  it("still auto-matches an activity with no link", () => {
+    const result = attributionFor(
+      activity({ associationRequirementId: null }),
+      requirement(),
+      assignment,
+    );
+    expect(result?.creditedAmount).toBe(10);
   });
 });

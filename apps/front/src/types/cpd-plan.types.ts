@@ -57,16 +57,6 @@ export type CpdMissingRequirementsProps = {
   t: (key: string, params?: Record<string, string | number>) => string;
 };
 
-export type CpdPlanSelectorProps = {
-  plans: TCpdPlan[];
-  isDeleting: boolean;
-  t: (key: string) => string;
-  selectedPlanId: string | null;
-  onSelect: (planId: string) => void;
-  onDelete: (planId: string) => void;
-  onEdit: (planId: string) => void;
-};
-
 export type CpdProgressOverviewProps = {
   plan: TCpdPlan;
   progress: TCpdPlanProgress;

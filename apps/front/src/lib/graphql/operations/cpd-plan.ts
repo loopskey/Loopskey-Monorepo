@@ -16,6 +16,12 @@ export type CpdPlanProgressFieldsFragment = { __typename?: 'CpdPlanProgress', pl
 
 export type CpdReportRecipientOptionFieldsFragment = { __typename?: 'CpdReportRecipientOption', type: Types.CpdReportRecipientType, label: string, description?: string | null };
 
+export type CpdPlanActivityFieldsFragment = { __typename?: 'ProfessionalPduActivity', id: string, title: string, date: string, pdus: number, status: Types.PduStatus, source: Types.PduSource, category: Types.PduCategory, creditType: Types.CreditType, evidenceFiles: Array<{ __typename?: 'ProfessionalPduActivityFile', id: string }> };
+
+export type AssociationMyRequirementFieldsFragment = { __typename?: 'AssociationMyRequirement', requirementId: string, assignmentId: string, name: string, description?: string | null, associationId: string, associationName: string, creditType: Types.CreditType, evidencePolicy: Types.AssociationEvidencePolicy, requiredCredits: number, completedCredits: number, remainingCredits: number, percent: number, band: Types.AssociationComplianceBand, dueDate?: string | null, daysRemaining?: number | null, awaitingReviewCount: number, isMissingEvidence: boolean, cycleStart: string, cycleEnd?: string | null };
+
+export type AssociationMyRequirementDetailFieldsFragment = { __typename?: 'AssociationMyRequirementDetail', requirementId: string, assignmentId: string, name: string, description?: string | null, associationId: string, associationName: string, creditType: Types.CreditType, evidencePolicy: Types.AssociationEvidencePolicy, requiredCredits: number, completedCredits: number, remainingCredits: number, percent: number, band: Types.AssociationComplianceBand, dueDate?: string | null, daysRemaining?: number | null, awaitingReviewCount: number, isMissingEvidence: boolean, cycleStart: string, cycleEnd?: string | null, categories: Array<{ __typename?: 'AssociationCategoryProgress', id: string, name: string, requiredCredits: number, completedCredits: number, percent: number }>, activities: Array<{ __typename?: 'AssociationMyRequirementActivity', activityId: string, title: string, date: string, category: string, credits: number, creditedAmount: number, state: Types.AssociationAttributionState, isLate: boolean, hasEvidence: boolean, categoryName?: string | null, reviewNote?: string | null }>, learningContents: Array<{ __typename?: 'AssociationMyRequirementContent', id: string, title: string, provider?: string | null, imageUrl?: string | null, isExternal: boolean, isAvailable: boolean, isCompleted: boolean, contentType?: Types.ContentType | null, contentId?: string | null, slug?: string | null, externalUrl?: string | null, description?: string | null, category?: Types.PduCategory | null, indicativeCredits?: number | null }> };
+
 export type CertificationSearchQueryVariables = Types.Exact<{
   input: Types.CertificationSearchInput;
 }>;
@@ -46,6 +52,25 @@ export type CpdReportRecipientsQueryVariables = Types.Exact<{ [key: string]: nev
 
 
 export type CpdReportRecipientsQuery = { __typename?: 'Query', cpdReportRecipients: Array<{ __typename?: 'CpdReportRecipientOption', type: Types.CpdReportRecipientType, label: string, description?: string | null }> };
+
+export type CpdPlanActivitiesQueryVariables = Types.Exact<{
+  planId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type CpdPlanActivitiesQuery = { __typename?: 'Query', cpdPlanActivities: Array<{ __typename?: 'ProfessionalPduActivity', id: string, title: string, date: string, pdus: number, status: Types.PduStatus, source: Types.PduSource, category: Types.PduCategory, creditType: Types.CreditType, evidenceFiles: Array<{ __typename?: 'ProfessionalPduActivityFile', id: string }> }> };
+
+export type MyAssociationRequirementsQueryVariables = Types.Exact<{ [key: string]: never; }>;
+
+
+export type MyAssociationRequirementsQuery = { __typename?: 'Query', myAssociationRequirements: Array<{ __typename?: 'AssociationMyRequirement', requirementId: string, assignmentId: string, name: string, description?: string | null, associationId: string, associationName: string, creditType: Types.CreditType, evidencePolicy: Types.AssociationEvidencePolicy, requiredCredits: number, completedCredits: number, remainingCredits: number, percent: number, band: Types.AssociationComplianceBand, dueDate?: string | null, daysRemaining?: number | null, awaitingReviewCount: number, isMissingEvidence: boolean, cycleStart: string, cycleEnd?: string | null }> };
+
+export type MyAssociationRequirementQueryVariables = Types.Exact<{
+  requirementId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type MyAssociationRequirementQuery = { __typename?: 'Query', myAssociationRequirement: { __typename?: 'AssociationMyRequirementDetail', requirementId: string, assignmentId: string, name: string, description?: string | null, associationId: string, associationName: string, creditType: Types.CreditType, evidencePolicy: Types.AssociationEvidencePolicy, requiredCredits: number, completedCredits: number, remainingCredits: number, percent: number, band: Types.AssociationComplianceBand, dueDate?: string | null, daysRemaining?: number | null, awaitingReviewCount: number, isMissingEvidence: boolean, cycleStart: string, cycleEnd?: string | null, categories: Array<{ __typename?: 'AssociationCategoryProgress', id: string, name: string, requiredCredits: number, completedCredits: number, percent: number }>, activities: Array<{ __typename?: 'AssociationMyRequirementActivity', activityId: string, title: string, date: string, category: string, credits: number, creditedAmount: number, state: Types.AssociationAttributionState, isLate: boolean, hasEvidence: boolean, categoryName?: string | null, reviewNote?: string | null }>, learningContents: Array<{ __typename?: 'AssociationMyRequirementContent', id: string, title: string, provider?: string | null, imageUrl?: string | null, isExternal: boolean, isAvailable: boolean, isCompleted: boolean, contentType?: Types.ContentType | null, contentId?: string | null, slug?: string | null, externalUrl?: string | null, description?: string | null, category?: Types.PduCategory | null, indicativeCredits?: number | null }> } };
 
 export type CreateCpdPlanMutationVariables = Types.Exact<{
   input: Types.CreateCpdPlanInput;
@@ -208,6 +233,103 @@ export const CpdReportRecipientOptionFieldsFragmentDoc = /*#__PURE__*/ new Typed
   description
 }
     `, {"fragmentName":"CpdReportRecipientOptionFields"}) as unknown as TypedDocumentString<CpdReportRecipientOptionFieldsFragment, unknown>;
+export const CpdPlanActivityFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
+    fragment CpdPlanActivityFields on ProfessionalPduActivity {
+  id
+  title
+  date
+  pdus
+  status
+  source
+  category
+  creditType
+  evidenceFiles {
+    id
+  }
+}
+    `, {"fragmentName":"CpdPlanActivityFields"}) as unknown as TypedDocumentString<CpdPlanActivityFieldsFragment, unknown>;
+export const AssociationMyRequirementFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
+    fragment AssociationMyRequirementFields on AssociationMyRequirement {
+  requirementId
+  assignmentId
+  name
+  description
+  associationId
+  associationName
+  creditType
+  evidencePolicy
+  requiredCredits
+  completedCredits
+  remainingCredits
+  percent
+  band
+  dueDate
+  daysRemaining
+  awaitingReviewCount
+  isMissingEvidence
+  cycleStart
+  cycleEnd
+}
+    `, {"fragmentName":"AssociationMyRequirementFields"}) as unknown as TypedDocumentString<AssociationMyRequirementFieldsFragment, unknown>;
+export const AssociationMyRequirementDetailFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
+    fragment AssociationMyRequirementDetailFields on AssociationMyRequirementDetail {
+  requirementId
+  assignmentId
+  name
+  description
+  associationId
+  associationName
+  creditType
+  evidencePolicy
+  requiredCredits
+  completedCredits
+  remainingCredits
+  percent
+  band
+  dueDate
+  daysRemaining
+  awaitingReviewCount
+  isMissingEvidence
+  cycleStart
+  cycleEnd
+  categories {
+    id
+    name
+    requiredCredits
+    completedCredits
+    percent
+  }
+  activities {
+    activityId
+    title
+    date
+    category
+    credits
+    creditedAmount
+    state
+    isLate
+    hasEvidence
+    categoryName
+    reviewNote
+  }
+  learningContents {
+    id
+    title
+    provider
+    imageUrl
+    isExternal
+    isAvailable
+    isCompleted
+    contentType
+    contentId
+    slug
+    externalUrl
+    description
+    category
+    indicativeCredits
+  }
+}
+    `, {"fragmentName":"AssociationMyRequirementDetailFields"}) as unknown as TypedDocumentString<AssociationMyRequirementDetailFieldsFragment, unknown>;
 export const CertificationSearchDocument = /*#__PURE__*/ new TypedDocumentString(`
     query CertificationSearch($input: CertificationSearchInput!) {
   certificationSearch(input: $input) {
@@ -364,6 +486,115 @@ export const CpdReportRecipientsDocument = /*#__PURE__*/ new TypedDocumentString
   label
   description
 }`) as unknown as TypedDocumentString<CpdReportRecipientsQuery, CpdReportRecipientsQueryVariables>;
+export const CpdPlanActivitiesDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query CpdPlanActivities($planId: ID!) {
+  cpdPlanActivities(planId: $planId) {
+    ...CpdPlanActivityFields
+  }
+}
+    fragment CpdPlanActivityFields on ProfessionalPduActivity {
+  id
+  title
+  date
+  pdus
+  status
+  source
+  category
+  creditType
+  evidenceFiles {
+    id
+  }
+}`) as unknown as TypedDocumentString<CpdPlanActivitiesQuery, CpdPlanActivitiesQueryVariables>;
+export const MyAssociationRequirementsDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query MyAssociationRequirements {
+  myAssociationRequirements {
+    ...AssociationMyRequirementFields
+  }
+}
+    fragment AssociationMyRequirementFields on AssociationMyRequirement {
+  requirementId
+  assignmentId
+  name
+  description
+  associationId
+  associationName
+  creditType
+  evidencePolicy
+  requiredCredits
+  completedCredits
+  remainingCredits
+  percent
+  band
+  dueDate
+  daysRemaining
+  awaitingReviewCount
+  isMissingEvidence
+  cycleStart
+  cycleEnd
+}`) as unknown as TypedDocumentString<MyAssociationRequirementsQuery, MyAssociationRequirementsQueryVariables>;
+export const MyAssociationRequirementDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query MyAssociationRequirement($requirementId: ID!) {
+  myAssociationRequirement(requirementId: $requirementId) {
+    ...AssociationMyRequirementDetailFields
+  }
+}
+    fragment AssociationMyRequirementDetailFields on AssociationMyRequirementDetail {
+  requirementId
+  assignmentId
+  name
+  description
+  associationId
+  associationName
+  creditType
+  evidencePolicy
+  requiredCredits
+  completedCredits
+  remainingCredits
+  percent
+  band
+  dueDate
+  daysRemaining
+  awaitingReviewCount
+  isMissingEvidence
+  cycleStart
+  cycleEnd
+  categories {
+    id
+    name
+    requiredCredits
+    completedCredits
+    percent
+  }
+  activities {
+    activityId
+    title
+    date
+    category
+    credits
+    creditedAmount
+    state
+    isLate
+    hasEvidence
+    categoryName
+    reviewNote
+  }
+  learningContents {
+    id
+    title
+    provider
+    imageUrl
+    isExternal
+    isAvailable
+    isCompleted
+    contentType
+    contentId
+    slug
+    externalUrl
+    description
+    category
+    indicativeCredits
+  }
+}`) as unknown as TypedDocumentString<MyAssociationRequirementQuery, MyAssociationRequirementQueryVariables>;
 export const CreateCpdPlanDocument = /*#__PURE__*/ new TypedDocumentString(`
     mutation CreateCpdPlan($input: CreateCpdPlanInput!) {
   createCpdPlan(input: $input) {

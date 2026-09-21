@@ -174,6 +174,7 @@ export class CatalogEndorsementApiService implements CatalogEndorsementApi {
       select: {
         id: true,
         title: true,
+        slug: true,
         status: true,
         imageUrl: true,
         deletedAt: true,
@@ -185,6 +186,7 @@ export class CatalogEndorsementApiService implements CatalogEndorsementApi {
       contentType: ContentType.COURSE as string,
       contentId: row.id,
       title: row.title,
+      slug: row.slug,
       imageUrl: row.imageUrl,
       provider: row.provider?.fullName ?? null,
       isAvailable: !row.deletedAt && row.status === CourseStatus.PUBLISHED,
@@ -199,6 +201,7 @@ export class CatalogEndorsementApiService implements CatalogEndorsementApi {
       select: {
         id: true,
         title: true,
+        slug: true,
         status: true,
         imageUrl: true,
         speaker: true,
@@ -211,6 +214,7 @@ export class CatalogEndorsementApiService implements CatalogEndorsementApi {
       contentType: ContentType.EVENT as string,
       contentId: row.id,
       title: row.title,
+      slug: row.slug,
       imageUrl: row.imageUrl,
       provider: row.organizer ?? row.speaker,
       isAvailable: !row.deletedAt && row.status === EventStatus.PUBLISHED,
@@ -225,6 +229,7 @@ export class CatalogEndorsementApiService implements CatalogEndorsementApi {
       select: {
         id: true,
         title: true,
+        slug: true,
         status: true,
         imageUrl: true,
         deletedAt: true,
@@ -236,6 +241,7 @@ export class CatalogEndorsementApiService implements CatalogEndorsementApi {
       contentType: ContentType.PODCAST as string,
       contentId: row.id,
       title: row.title,
+      slug: row.slug,
       imageUrl: row.imageUrl,
       provider: row.provider?.fullName ?? null,
       isAvailable: !row.deletedAt && row.status === PodcastStatus.PUBLISHED,
@@ -252,7 +258,7 @@ export class CatalogEndorsementApiService implements CatalogEndorsementApi {
         title: true,
         status: true,
         thumbnailUrl: true,
-        channel: { select: { title: true } },
+        channel: { select: { title: true, slug: true } },
       },
     });
 
@@ -260,6 +266,7 @@ export class CatalogEndorsementApiService implements CatalogEndorsementApi {
       contentType: ContentType.YOUTUBE as string,
       contentId: row.id,
       title: row.title,
+      slug: row.channel?.slug ?? null,
       imageUrl: row.thumbnailUrl,
       provider: row.channel?.title ?? null,
       isAvailable: row.status === YouTubeVideoStatus.PUBLISHED,

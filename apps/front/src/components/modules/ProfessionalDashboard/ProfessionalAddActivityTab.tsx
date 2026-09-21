@@ -35,15 +35,15 @@ const ProfessionalAddActivityTab = () => {
     retryUpload,
     goToTracker,
     existingFiles,
-    handleAddAnother,
     hasUploadFailed,
-    handleFilesChange,
-    activityTypeOptions,
-    subCategoryOptions,
-    planOptions,
+    handleAddAnother,
     isLoadingActivity,
-    markReportingYearTouched,
+    handleFilesChange,
+    subCategoryOptions,
+    requirementOptions,
+    activityTypeOptions,
     handleRemoveExistingFile,
+    markReportingYearTouched,
     handleDownloadExistingFile,
   } = useProfessionalAddActivity();
 
@@ -107,7 +107,7 @@ const ProfessionalAddActivityTab = () => {
               <ActivityStepCredits
                 t={t}
                 control={form.control}
-                planOptions={planOptions}
+                requirementOptions={requirementOptions}
                 subCategoryOptions={subCategoryOptions}
                 onReportingYearTouched={markReportingYearTouched}
               />
@@ -209,11 +209,7 @@ const ProfessionalAddActivityTab = () => {
                       : t(`${TRACKER}.addActivity.addActivity`)}
                   </Button>
                 ) : (
-                  <Button
-                    radius="xl"
-                    type="button"
-                    onClick={goNext}
-                  >
+                  <Button radius="xl" type="button" onClick={goNext}>
                     {t(`${TRACKER}.addActivity.next`)}
                     <L.ArrowRight className="h-4 w-4" />
                   </Button>

@@ -5,7 +5,11 @@ import {
   PDUStatus,
   Role,
 } from "@prisma/client";
-import { ForbiddenException, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+} from "@nestjs/common";
 import { LearningActivityChangeKind } from "@professional/public/professional-compliance-api.events";
 import { CreditType, PDUCategory } from "@prisma/client";
 
@@ -345,5 +349,86 @@ describe("ProfessionalPduService write-then-announce atomicity", () => {
       }),
       prisma,
     );
+  });
+});
+
+describe("ProfessionalPduService association requirement linking", () => {
+  it("links a created activity to an association requirement and clears any plan link", async () => {
+    const { service, prisma } = createService();
+    prisma.pDUActivity.create.mockResolvedValue({
+      id: "activity-1",
+      userId: "user-1",
+    });
+
+    await service.createPduActivity(
+      professional,
+      createInput({
+        associationRequirementId: "req-1",
+        associationLearningContentId: "content-1",
+      }),
+    );
+
+    const data = prisma.pDUActivity.create.mock.calls[0][0].data;
+    expect(data.associationRequirementId).toBe("req-1");
+    expect(data.associationLearningContentId).toBe("content-1");
+    expect(data.cpdPlanId).toBeNull();
+    expect(prisma.cPDPlan.findFirst).not.toHaveBeenCalled();
+  });
+
+  it("refuses an activity linked to both a plan and an association requirement", async () => {
+    const { service, prisma } = createService();
+    prisma.cPDPlan.findFirst.mockResolvedValue({ id: "plan-1" });
+
+    await expect(
+      service.createPduActivity(
+        professional,
+        createInput({ cpdPlanId: "plan-1", associationRequirementId: "req-1" }),
+      ),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(prisma.pDUActivity.create).not.toHaveBeenCalled();
+  });
+
+  it("switches an existing activity from a requirement to a plan", async () => {
+    const { service, prisma } = createService();
+    prisma.pDUActivity.findFirst.mockResolvedValue({
+      id: "activity-1",
+      userId: "user-1",
+      evidenceFiles: [],
+    });
+    prisma.cPDPlan.findFirst.mockResolvedValue({ id: "plan-1" });
+    prisma.pDUActivity.update.mockResolvedValue({
+      id: "activity-1",
+      userId: "user-1",
+    });
+
+    await service.updatePduActivity(professional, {
+      activityId: "activity-1",
+      cpdPlanId: "plan-1",
+    } as never);
+
+    const data = prisma.pDUActivity.update.mock.calls[0][0].data;
+    expect(data.cpdPlanId).toBe("plan-1");
+    expect(data.associationRequirementId).toBeNull();
+  });
+
+  it("clears the requirement link when the professional unlinks it", async () => {
+    const { service, prisma } = createService();
+    prisma.pDUActivity.findFirst.mockResolvedValue({
+      id: "activity-1",
+      userId: "user-1",
+      evidenceFiles: [],
+    });
+    prisma.pDUActivity.update.mockResolvedValue({
+      id: "activity-1",
+      userId: "user-1",
+    });
+
+    await service.updatePduActivity(professional, {
+      activityId: "activity-1",
+      associationRequirementId: null,
+    } as never);
+
+    const data = prisma.pDUActivity.update.mock.calls[0][0].data;
+    expect(data.associationRequirementId).toBeNull();
   });
 });

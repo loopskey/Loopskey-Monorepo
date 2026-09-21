@@ -119,6 +119,7 @@ export enum ProfessionalGqlQueryNames {
   MY_CPD_PLANS = "myCpdPlans",
   CPD_PLAN = "cpdPlan",
   CPD_PLAN_PROGRESS = "cpdPlanProgress",
+  CPD_PLAN_ACTIVITIES = "cpdPlanActivities",
   CPD_REPORT_RECIPIENTS = "cpdReportRecipients",
   PROFESSIONAL_ROADMAP_DRAFT = "professionalRoadmapDraft",
   PROFESSIONAL_ROADMAP_RECOMMENDATIONS = "professionalRoadmapRecommendations",

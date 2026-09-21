@@ -12,6 +12,11 @@ export type ComplianceActivity = {
   category: string;
   creditType: string;
   hasEvidence: boolean;
+  cpdPlanId: string | null;
+  contentType: string | null;
+  contentId: string | null;
+  associationRequirementId: string | null;
+  associationLearningContentId: string | null;
 };
 
 export type ComplianceActivityQuery = {

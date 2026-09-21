@@ -1,11 +1,11 @@
 {
   "cpdProgress": {
     "eyebrow": "CPD / PDU",
-    "title": "Progression CPD/PDU",
-    "subtitle": "Suivez votre progression, gérez vos exigences et restez conforme.",
+    "title": "Exigences",
+    "subtitle": "Suivez les exigences que vos associations vous attribuent et les plans que vous vous fixez.",
     "actions": {
       "generateSummary": "Générer le résumé CPD",
-      "createNew": "Créer un nouveau CPD/PDU"
+      "createNew": "Ajouter mon propre plan"
     },
     "common": {
       "cancel": "Annuler",
@@ -15,9 +15,9 @@
       "remove": "Retirer"
     },
     "empty": {
-      "title": "Aucun plan CPD/PDU pour l’instant",
-      "description": "Créez un plan CPD/PDU pour commencer à suivre vos crédits, catégories, preuves et conformité. La progression ne peut être suivie qu’une fois un plan créé.",
-      "cta": "Créer un nouveau CPD/PDU"
+      "title": "Aucune exigence pour l’instant",
+      "description": "Aucune association ne vous a attribué d’exigence et vous n’avez pas créé de plan personnel. Créez une exigence pour commencer à suivre vos crédits, catégories et preuves.",
+      "cta": "Créer une exigence"
     },
     "search": {
       "title": "Configurer le suivi CPD / PDU",
@@ -240,6 +240,86 @@
       "title": "Supprimer ce plan ?",
       "description": "Ceci supprime définitivement le plan et ses catégories. Vos activités d’apprentissage ne sont pas affectées.",
       "confirm": "Supprimer le plan"
+    },
+    "requirements": {
+      "selectorLabel": "Exigence",
+      "selectorPlaceholder": "Choisir une exigence",
+      "source": {
+        "ASSOCIATION": "Association",
+        "PLAN": "Plan personnel"
+      },
+      "assignedBy": "Attribuée par {{association}}",
+      "managedBy": "Gérée par votre association",
+      "readOnly": "Définie par votre association. Vous pouvez y enregistrer des activités, mais vous ne pouvez ni la modifier ni la supprimer.",
+      "summaryProgress": "{{earned}}/{{total}} {{credit}}",
+      "band": {
+        "AT_RISK": "À risque",
+        "ON_TRACK": "En bonne voie",
+        "NOT_STARTED": "Non commencé",
+        "RENEWAL_READY": "Prêt au renouvellement"
+      },
+      "logActivity": "Enregistrer une activité",
+      "toGo": "{{amount}} {{credit}} restants",
+      "chartAria": "{{earned}} sur {{total}} {{credit}} acceptés, {{percent}} pour cent réalisés.",
+      "totalRequired": "Total requis",
+      "completed": "Réalisés",
+      "remaining": "Restants",
+      "deadline": "Échéance",
+      "noDeadline": "Aucune échéance",
+      "daysLeft": "{{count}} jours restants",
+      "overdue": "{{count}} jours de retard",
+      "dueToday": "Échéance aujourd’hui",
+      "evidence": "Preuves",
+      "evidencePolicy": {
+        "NOT_REQUIRED": "Non requises",
+        "REQUIRED_NO_REVIEW": "Requises",
+        "REQUIRED_NEEDS_REVIEW": "Requises et examinées par votre association"
+      },
+      "awaitingReview": "{{count}} en attente d’examen",
+      "evidenceOk": "Aucune preuve en attente",
+      "categoriesTitle": "Catégories de crédits",
+      "categoriesSubtitle": "Crédits acceptés dans chaque catégorie.",
+      "categoriesEmpty": "Cette exigence ne répartit pas les crédits par catégorie.",
+      "categoryProgress": "{{completed}} / {{required}} {{credit}}",
+      "learning": {
+        "title": "Contenu d’apprentissage",
+        "subtitle": "Attribué par votre association pour cette exigence.",
+        "empty": "Votre association n’a encore attribué aucun contenu d’apprentissage à cette exigence.",
+        "view": "Voir",
+        "openLink": "Ouvrir le lien",
+        "markComplete": "Marquer comme terminé",
+        "completed": "Terminé",
+        "external": "Externe",
+        "loopskey": "Loopskey",
+        "credits": "{{credits}} crédits",
+        "unavailable": "N’est plus disponible"
+      },
+      "activities": {
+        "title": "Activités enregistrées",
+        "subtitle": "Activités comptabilisées pour cette exigence et leur état.",
+        "empty": "Aucune activité n’a encore été enregistrée pour cette exigence.",
+        "columns": {
+          "activity": "Activité",
+          "date": "Date",
+          "category": "Catégorie",
+          "credits": "Crédits",
+          "status": "Statut"
+        },
+        "state": {
+          "COUNTED": "Acceptée",
+          "AWAITING_REVIEW": "En attente d’examen",
+          "REJECTED": "Refusée"
+        },
+        "status": {
+          "APPROVED": "Approuvée",
+          "PENDING": "En attente",
+          "REJECTED": "Refusée"
+        },
+        "late": "En retard",
+        "reason": "Motif : {{note}}"
+      },
+      "loadError": "Nous n’avons pas pu charger vos exigences.",
+      "retry": "Réessayer"
     }
   },
   "common": {
@@ -3397,7 +3477,7 @@
       "payments": "Paiements",
       "settings": "Paramètres",
       "cpdPduTracker": "Mes activités d’apprentissage",
-      "cpdPduProgress": "Progression CPD/PDU",
+      "cpdPduProgress": "Exigences",
       "overview": "Vue d’ensemble",
       "calendar": "Mon calendrier",
       "certificates": "Certificats",
@@ -3655,18 +3735,21 @@
         "errorDescription": "Impossible de charger cette section. Veuillez réessayer sous peu."
       },
       "cpdCard": {
-        "title": "Progression CPD/PDU",
-        "link": "Voir la progression CPD/PDU",
-        "emptyTitle": "Aucun plan CPD/PDU",
-        "emptyDescription": "Créez un plan pour commencer à suivre vos crédits et votre conformité.",
-        "emptyAction": "Créer un plan",
+        "title": "Progression des exigences",
+        "link": "Voir les exigences",
+        "emptyTitle": "Aucune exigence pour l’instant",
+        "emptyDescription": "Créez une exigence pour commencer à suivre vos crédits et votre conformité.",
+        "emptyAction": "Créer une exigence",
         "earned": "Obtenus",
         "remaining": "Restants",
         "complete": "atteint",
         "chartAria": "Vous avez obtenu {{earned}} sur {{total}} crédits {{credit}}, soit {{percent}} pour cent.",
         "summary": "{{earned}} sur {{total}} {{credit}} obtenus",
         "exceeded": "Exigence dépassée de {{amount}} {{credit}}.",
-        "deadline": "Échéance de déclaration : {{date}}"
+        "deadline": "Échéance de déclaration : {{date}}",
+        "switchLabel": "Choisir une exigence",
+        "switchButton": "Changer d’exigence",
+        "deadlineNone": "Aucune échéance"
       },
       "roadmapCard": {
         "title": "Progression du parcours",
@@ -3974,16 +4057,16 @@
         "reportingYearHint": "Par défaut, l’année de la date de fin.",
         "issuingOrganization": "Organisme émetteur",
         "relatedCertification": "Certification / licence associée",
-        "cpdPlan": "Plan CPD/PDU",
-        "cpdPlanHint": "Attribuez les crédits de cette activité à l’un de vos plans. Laissez vide pour la compter dans votre progression globale comme d’habitude.",
-        "cpdPlanPlaceholder": "Aucun plan sélectionné",
         "description": "Description / notes de l’activité",
         "descriptionPlaceholder": "Décrivez brièvement l’activité.",
         "evidenceNote": "Notes sur les fichiers",
         "evidenceNotePlaceholder": "Notes sur le certificat, la preuve de présence ou les pièces justificatives.",
         "learningOutcome": "Acquis d’apprentissage",
         "learningOutcomeHint": "Qu’avez-vous appris et comment l’appliquerez-vous dans votre travail ?",
-        "learningOutcomePlaceholder": "Décrivez ce que vous avez appris et comment vous l’appliquerez."
+        "learningOutcomePlaceholder": "Décrivez ce que vous avez appris et comment vous l’appliquerez.",
+        "requirement": "Exigence",
+        "requirementHint": "Choisissez l’exigence à laquelle cette activité est rattachée. Laissez vide pour la comptabiliser selon le type de crédit et la date, comme d’habitude.",
+        "requirementPlaceholder": "Aucune exigence précise"
       },
       "evidence": {
         "dropTitle": "Téléverser un certificat ou une preuve",
