@@ -23,6 +23,7 @@ export class ProfessionalCourseEntity {
   @Field(() => ContentEnrollmentStatus) status: ContentEnrollmentStatus;
   @Field(() => String, { nullable: true }) providerName?: string | null;
   @Field(() => String, { nullable: true }) courseImageUrl?: string | null;
+  @Field(() => String, { nullable: true }) courseSourceUrl?: string | null;
   @Field(() => String, { nullable: true }) courseCurrency?: string | null;
   @Field(() => Int, { nullable: true }) courseRatingCount?: number | null;
   @Field(() => Boolean, { nullable: true }) courseIsFree?: boolean | null;

@@ -20,9 +20,9 @@ export type ProfessionalDashboardProfileFieldsFragment = { __typename?: 'Profess
 
 export type ProfessionalSessionFieldsFragment = { __typename?: 'ProfessionalSession', id: string, userId: string, status: Types.SessionStatus, ipAddress?: string | null, userAgent?: string | null, expiresAt: string, revokedAt?: string | null, createdAt: string, updatedAt: string };
 
-export type ProfessionalCourseFieldsFragment = { __typename?: 'ProfessionalCourse', id: string, userId: string, status: Types.ContentEnrollmentStatus, progress: number, contentId: string, startedAt: string, createdAt: string, updatedAt: string, canceledAt?: string | null, courseSlug?: string | null, contentType: Types.ContentType, completedAt?: string | null, courseTitle?: string | null, courseLevel?: Types.CourseLevel | null, coursePrice?: number | null, courseRating?: number | null, courseIsFree?: boolean | null, providerName?: string | null, courseCurrency?: string | null, courseImageUrl?: string | null, courseCategory?: Types.CourseCategory | null, courseDescription?: string | null, courseRatingCount?: number | null, courseDurationMinutes?: number | null };
+export type ProfessionalCourseFieldsFragment = { __typename?: 'ProfessionalCourse', id: string, userId: string, status: Types.ContentEnrollmentStatus, progress: number, contentId: string, startedAt: string, createdAt: string, updatedAt: string, canceledAt?: string | null, courseSlug?: string | null, contentType: Types.ContentType, completedAt?: string | null, courseTitle?: string | null, courseLevel?: Types.CourseLevel | null, coursePrice?: number | null, courseRating?: number | null, courseIsFree?: boolean | null, providerName?: string | null, courseCurrency?: string | null, courseImageUrl?: string | null, courseSourceUrl?: string | null, courseCategory?: Types.CourseCategory | null, courseDescription?: string | null, courseRatingCount?: number | null, courseDurationMinutes?: number | null };
 
-export type PaginatedProfessionalCoursesFieldsFragment = { __typename?: 'PaginatedProfessionalCourses', totalCount: number, pageInfo: { __typename?: 'ProfessionalPageInfo', nextCursor?: string | null, hasNextPage: boolean }, items: Array<{ __typename?: 'ProfessionalCourse', id: string, userId: string, status: Types.ContentEnrollmentStatus, progress: number, contentId: string, startedAt: string, createdAt: string, updatedAt: string, canceledAt?: string | null, courseSlug?: string | null, contentType: Types.ContentType, completedAt?: string | null, courseTitle?: string | null, courseLevel?: Types.CourseLevel | null, coursePrice?: number | null, courseRating?: number | null, courseIsFree?: boolean | null, providerName?: string | null, courseCurrency?: string | null, courseImageUrl?: string | null, courseCategory?: Types.CourseCategory | null, courseDescription?: string | null, courseRatingCount?: number | null, courseDurationMinutes?: number | null }> };
+export type PaginatedProfessionalCoursesFieldsFragment = { __typename?: 'PaginatedProfessionalCourses', totalCount: number, pageInfo: { __typename?: 'ProfessionalPageInfo', nextCursor?: string | null, hasNextPage: boolean }, items: Array<{ __typename?: 'ProfessionalCourse', id: string, userId: string, status: Types.ContentEnrollmentStatus, progress: number, contentId: string, startedAt: string, createdAt: string, updatedAt: string, canceledAt?: string | null, courseSlug?: string | null, contentType: Types.ContentType, completedAt?: string | null, courseTitle?: string | null, courseLevel?: Types.CourseLevel | null, coursePrice?: number | null, courseRating?: number | null, courseIsFree?: boolean | null, providerName?: string | null, courseCurrency?: string | null, courseImageUrl?: string | null, courseSourceUrl?: string | null, courseCategory?: Types.CourseCategory | null, courseDescription?: string | null, courseRatingCount?: number | null, courseDurationMinutes?: number | null }> };
 
 export type ProfessionalPduTargetFieldsFragment = { __typename?: 'ProfessionalPduTarget', id: string, year: number, target: number, category: Types.PduCategory };
 
@@ -88,7 +88,7 @@ export type ProfessionalMyCoursesQueryVariables = Types.Exact<{
 }>;
 
 
-export type ProfessionalMyCoursesQuery = { __typename?: 'Query', professionalMyCourses: { __typename?: 'PaginatedProfessionalCourses', totalCount: number, pageInfo: { __typename?: 'ProfessionalPageInfo', nextCursor?: string | null, hasNextPage: boolean }, items: Array<{ __typename?: 'ProfessionalCourse', id: string, userId: string, status: Types.ContentEnrollmentStatus, progress: number, contentId: string, startedAt: string, createdAt: string, updatedAt: string, canceledAt?: string | null, courseSlug?: string | null, contentType: Types.ContentType, completedAt?: string | null, courseTitle?: string | null, courseLevel?: Types.CourseLevel | null, coursePrice?: number | null, courseRating?: number | null, courseIsFree?: boolean | null, providerName?: string | null, courseCurrency?: string | null, courseImageUrl?: string | null, courseCategory?: Types.CourseCategory | null, courseDescription?: string | null, courseRatingCount?: number | null, courseDurationMinutes?: number | null }> } };
+export type ProfessionalMyCoursesQuery = { __typename?: 'Query', professionalMyCourses: { __typename?: 'PaginatedProfessionalCourses', totalCount: number, pageInfo: { __typename?: 'ProfessionalPageInfo', nextCursor?: string | null, hasNextPage: boolean }, items: Array<{ __typename?: 'ProfessionalCourse', id: string, userId: string, status: Types.ContentEnrollmentStatus, progress: number, contentId: string, startedAt: string, createdAt: string, updatedAt: string, canceledAt?: string | null, courseSlug?: string | null, contentType: Types.ContentType, completedAt?: string | null, courseTitle?: string | null, courseLevel?: Types.CourseLevel | null, coursePrice?: number | null, courseRating?: number | null, courseIsFree?: boolean | null, providerName?: string | null, courseCurrency?: string | null, courseImageUrl?: string | null, courseSourceUrl?: string | null, courseCategory?: Types.CourseCategory | null, courseDescription?: string | null, courseRatingCount?: number | null, courseDurationMinutes?: number | null }> } };
 
 export type ProfessionalPduReportQueryVariables = Types.Exact<{
   year?: Types.InputMaybe<Types.Scalars['Int']['input']>;
@@ -599,6 +599,7 @@ export const ProfessionalCourseFieldsFragmentDoc = /*#__PURE__*/ new TypedDocume
   providerName
   courseCurrency
   courseImageUrl
+  courseSourceUrl
   courseCategory
   courseDescription
   courseRatingCount
@@ -640,6 +641,7 @@ fragment ProfessionalCourseFields on ProfessionalCourse {
   providerName
   courseCurrency
   courseImageUrl
+  courseSourceUrl
   courseCategory
   courseDescription
   courseRatingCount
@@ -1460,6 +1462,7 @@ fragment ProfessionalCourseFields on ProfessionalCourse {
   providerName
   courseCurrency
   courseImageUrl
+  courseSourceUrl
   courseCategory
   courseDescription
   courseRatingCount

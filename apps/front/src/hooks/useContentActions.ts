@@ -1,6 +1,6 @@
 "use client";
 
-import { CartItemStatus, ContentEnrollmentStatus } from "@/lib/graphql/base";
+import { ContentEnrollmentStatus } from "@/lib/graphql/base";
 import { MyWishlistInput, WishlistSortBy } from "@/lib/graphql/base";
 import { TUseContentActionsArgs } from "@/types/hooks.types";
 import { useCurrentUserQuery } from "@/lib/rtk/endpoints/auth.api";
@@ -49,6 +49,8 @@ const isUnauthorizedError = (error: unknown) => {
 export const useContentActions = ({
   contentId,
   contentType,
+  skipReviews,
+  skipEnrollment,
 }: TUseContentActionsArgs) => {
   const { t } = useI18n();
   const router = useRouter();
@@ -79,13 +81,9 @@ export const useContentActions = ({
   const { data: enrollments = [] } = ContentApi.useMyEnrollmentsQuery(
     undefined,
     {
-      skip: skipAuthQueries,
+      skip: skipAuthQueries || skipEnrollment,
     },
   );
-
-  const { data: cart } = ContentApi.useMyCartQuery(undefined, {
-    skip: skipAuthQueries,
-  });
 
   const { data: reviews = [], isLoading: isReviewsLoading } =
     ContentApi.useContentReviewsQuery(
@@ -94,7 +92,7 @@ export const useContentActions = ({
         contentId: contentId ?? "",
       },
       {
-        skip,
+        skip: skip || skipReviews,
       },
     );
 
@@ -104,14 +102,13 @@ export const useContentActions = ({
       contentId: contentId ?? "",
     },
     {
-      skip: skipAuthQueries,
+      skip: skipAuthQueries || skipReviews,
     },
   );
 
   const [toggleWishlist, wishlistState] =
     ContentApi.useToggleWishlistMutation();
   const [enrollContent, enrollState] = ContentApi.useEnrollContentMutation();
-  const [addToCart, cartState] = ContentApi.useAddToCartMutation();
   const [submitContentReview, reviewState] =
     ContentApi.useSubmitContentReviewMutation();
 
@@ -132,19 +129,6 @@ export const useContentActions = ({
           item.status !== ContentEnrollmentStatus.Canceled,
       ),
     [enrollments, contentType, contentId],
-  );
-
-  const isInCart = useMemo(
-    () =>
-      Boolean(
-        cart?.items?.some(
-          (item) =>
-            item.contentType === contentType &&
-            item.contentId === contentId &&
-            item.status === CartItemStatus.Active,
-        ),
-      ),
-    [cart, contentType, contentId],
   );
 
   const input = useMemo(
@@ -204,18 +188,6 @@ export const useContentActions = ({
     }
   };
 
-  const onAddToCart = async () => {
-    if (!contentId) return;
-    if (!requireAuth()) return;
-    try {
-      const res = await addToCart(input).unwrap();
-      notify.success(res.message);
-    } catch (error) {
-      if (handleAuthError(error)) return;
-      notify.error(t("contentDetails.messages.cartFailed"));
-    }
-  };
-
   const onSubmitReview = async (rating: number, comment: string) => {
     if (!contentId) return;
     if (!requireAuth()) return;
@@ -236,16 +208,13 @@ export const useContentActions = ({
   return {
     reviews,
     myReview,
-    isInCart,
     onEnroll,
     isEnrolled,
-    onAddToCart,
     isWishlisted,
     onSubmitReview,
     isAuthenticated,
     onToggleWishlist,
     isReviewsLoading,
-    isCartLoading: cartState.isLoading,
     isReviewLoading: reviewState.isLoading,
     isEnrollLoading: enrollState.isLoading,
     isWishlistLoading: wishlistState.isLoading,

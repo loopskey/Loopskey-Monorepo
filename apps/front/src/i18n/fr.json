@@ -2997,15 +2997,12 @@
       "notFound": "Contenu introuvable",
       "free": "Gratuit",
       "price": "Prix",
-      "minutes": "{{count}} min",
-      "authHint": "La liste de souhaits, l’inscription, le panier et les avis nécessitent une connexion."
+      "minutes": "{{count}} min"
     },
     "actions": {
       "addWishlist": "Ajouter aux favoris",
       "saved": "Enregistré",
       "enrolled": "Inscrit",
-      "addCart": "Ajouter au panier",
-      "inCart": "Dans le panier",
       "addToCalendar": "Ajouter au calendrier",
       "viewSource": "Voir la source originale"
     },
@@ -3037,8 +3034,6 @@
       }
     },
     "tabs": {
-      "overview": "Aperçu",
-      "curriculum": "Programme",
       "reviews": "Avis",
       "schedule": "Agenda",
       "episodes": "Épisodes",
@@ -3049,8 +3044,7 @@
       "reviewFailed": "Impossible d’envoyer votre avis.",
       "actionFailed": "L’action a échoué. Veuillez réessayer.",
       "loginRequired": "Veuillez vous connecter pour continuer",
-      "cartFailed": "Impossible d’ajouter cet élément au panier.",
-      "loginRequiredDescription": "Vous devez vous connecter avant d’utiliser les favoris, l’inscription, le panier ou les avis."
+      "loginRequiredDescription": "Vous devez vous connecter avant d’utiliser les favoris, l’inscription ou les avis."
     },
     "course": {
       "badge": "Cours",
@@ -3060,7 +3054,8 @@
       "instructor": "Formateur",
       "whatYouWillLearn": "Ce que vous apprendrez",
       "requirements": "Prérequis",
-      "enrollNow": "S’inscrire"
+      "about": "À propos de ce cours",
+      "byInstructor": "Par {{name}}"
     },
     "event": {
       "badge": "Événement",
@@ -3068,7 +3063,13 @@
       "delivery": "Format",
       "location": "Lieu",
       "attendees": "Participants",
-      "registerNow": "S’inscrire maintenant"
+      "registerNow": "S’inscrire maintenant",
+      "about": "À propos de cet événement",
+      "byOrganizer": "Organisé par {{name}}",
+      "endsAt": "Se termine le {{date}}",
+      "speaker": "Intervenant",
+      "pdu": "PDU",
+      "pduValue": "{{count}} PDU"
     },
     "podcast": {
       "badge": "Podcast",
@@ -3088,13 +3089,8 @@
       "followChannel": "Suivre la chaîne",
       "watchLatest": "Regarder la dernière"
     },
-    "curriculum": {
-      "section": "Section",
-      "empty": "Aucun programme n’a encore été ajouté."
-    },
     "schedule": {
-      "day": "Jour",
-      "empty": "Aucun agenda n’a encore été ajouté."
+      "day": "Jour"
     },
     "episodes": {
       "episode": "Épisode",
@@ -3115,6 +3111,10 @@
       "noReviews": "Aucun avis pour le moment",
       "noReviewsDescription": "Soyez la première personne à donner un avis.",
       "noComment": "Aucun commentaire fourni."
+    },
+    "goToContent": {
+      "button": "Accéder au contenu",
+      "opensAt": "S’ouvre sur {{host}} dans un nouvel onglet"
     }
   },
   "landing": {

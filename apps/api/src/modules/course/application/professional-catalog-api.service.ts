@@ -1,14 +1,13 @@
 import { EventDeliveryMode, EventRegistrationStatus } from "@prisma/client";
-import {
-  ProfessionalCatalogApi,
-  RoadmapCandidateQuery,
-  type GeneratedRoadmapInput,
-  type UnitOfWork,
-} from "@course/public/professional-catalog-api";
 import { CourseStatus, RoadmapStatus } from "@prisma/client";
+import { ProfessionalCatalogApi } from "@course/public/professional-catalog-api";
+import { RoadmapCandidateQuery } from "@course/public/professional-catalog-api";
 import { Prisma, RoadmapSource } from "@prisma/client";
 import { PrismaService } from "@prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
+
+import { type GeneratedRoadmapInput } from "@course/public/professional-catalog-api";
+import { type UnitOfWork } from "@course/public/professional-catalog-api";
 
 const ROADMAP_INCLUDE = {
   phases: { orderBy: { order: "asc" as const }, include: { steps: true } },
@@ -48,10 +47,11 @@ export class ProfessionalCatalogApiService implements ProfessionalCatalogApi {
         imageUrl: true,
         category: true,
         currency: true,
+        sourceUrl: true,
+        providerId: true,
         description: true,
         ratingCount: true,
         durationMinutes: true,
-        providerId: true,
       },
     });
   }

@@ -32,32 +32,6 @@ fragment CoursePageInfoFields on CoursePageInfo {
   hasNextPage
 }
 
-fragment CurriculumLessonFields on CurriculumLesson {
-  id
-  type
-  title
-  order
-  isPreview
-  createdAt
-  updatedAt
-  sectionId
-  description
-  durationMinutes
-}
-
-fragment CurriculumSectionFields on CurriculumSection {
-  id
-  title
-  order
-  courseId
-  description
-  lessons {
-    ...CurriculumLessonFields
-  }
-  createdAt
-  updatedAt
-}
-
 # ============= Queries ================
 query Courses(
   $filter: CourseFilterInput
@@ -84,9 +58,6 @@ query CourseById($courseId: String!) {
 query CourseBySlug($slug: String!) {
   courseBySlug(slug: $slug) {
     ...CourseFields
-    curriculumSections {
-      ...CurriculumSectionFields
-    }
   }
 }
 
