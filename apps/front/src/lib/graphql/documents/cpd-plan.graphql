@@ -100,6 +100,100 @@ fragment CpdReportRecipientOptionFields on CpdReportRecipientOption {
   description
 }
 
+fragment CpdPlanActivityFields on ProfessionalPduActivity {
+  id
+  title
+  date
+  pdus
+  status
+  source
+  category
+  creditType
+  evidenceFiles {
+    id
+  }
+}
+
+fragment AssociationMyRequirementFields on AssociationMyRequirement {
+  requirementId
+  assignmentId
+  name
+  description
+  associationId
+  associationName
+  creditType
+  evidencePolicy
+  requiredCredits
+  completedCredits
+  remainingCredits
+  percent
+  band
+  dueDate
+  daysRemaining
+  awaitingReviewCount
+  isMissingEvidence
+  cycleStart
+  cycleEnd
+}
+
+fragment AssociationMyRequirementDetailFields on AssociationMyRequirementDetail {
+  requirementId
+  assignmentId
+  name
+  description
+  associationId
+  associationName
+  creditType
+  evidencePolicy
+  requiredCredits
+  completedCredits
+  remainingCredits
+  percent
+  band
+  dueDate
+  daysRemaining
+  awaitingReviewCount
+  isMissingEvidence
+  cycleStart
+  cycleEnd
+  categories {
+    id
+    name
+    requiredCredits
+    completedCredits
+    percent
+  }
+  activities {
+    activityId
+    title
+    date
+    category
+    credits
+    creditedAmount
+    state
+    isLate
+    hasEvidence
+    categoryName
+    reviewNote
+  }
+  learningContents {
+    id
+    title
+    provider
+    imageUrl
+    isExternal
+    isAvailable
+    isCompleted
+    contentType
+    contentId
+    slug
+    externalUrl
+    description
+    category
+    indicativeCredits
+  }
+}
+
 query CertificationSearch($input: CertificationSearchInput!) {
   certificationSearch(input: $input) {
     ...CertificationFields
@@ -127,6 +221,24 @@ query CpdPlanProgress($planId: ID!) {
 query CpdReportRecipients {
   cpdReportRecipients {
     ...CpdReportRecipientOptionFields
+  }
+}
+
+query CpdPlanActivities($planId: ID!) {
+  cpdPlanActivities(planId: $planId) {
+    ...CpdPlanActivityFields
+  }
+}
+
+query MyAssociationRequirements {
+  myAssociationRequirements {
+    ...AssociationMyRequirementFields
+  }
+}
+
+query MyAssociationRequirement($requirementId: ID!) {
+  myAssociationRequirement(requirementId: $requirementId) {
+    ...AssociationMyRequirementDetailFields
   }
 }
 

@@ -32,11 +32,11 @@ export type ProfessionalPduMonthlyPointFieldsFragment = { __typename?: 'Professi
 
 export type ProfessionalPduActivityFileFieldsFragment = { __typename?: 'ProfessionalPduActivityFile', id: string, fileName: string, mimeType: string, sizeBytes: number, createdAt: string };
 
-export type ProfessionalPduActivityFieldsFragment = { __typename?: 'ProfessionalPduActivity', id: string, pdus: number, date: string, title: string, status: Types.PduStatus, source: Types.PduSource, category: Types.PduCategory, creditType: Types.CreditType, completionStatus: Types.PduCompletionStatus, reportingYear?: number | null, providerOrganizer?: string | null, subCategory?: string | null, issuingOrganization?: string | null, relatedCertification?: string | null, learningOutcome?: string | null, evidenceNote?: string | null, updatedAt: string, contentId?: string | null, createdAt: string, description?: string | null, evidenceUrl?: string | null, contentType?: Types.ContentType | null, cpdPlanId?: string | null, evidenceFiles: Array<{ __typename?: 'ProfessionalPduActivityFile', id: string, fileName: string, mimeType: string, sizeBytes: number, createdAt: string }> };
+export type ProfessionalPduActivityFieldsFragment = { __typename?: 'ProfessionalPduActivity', id: string, pdus: number, date: string, title: string, status: Types.PduStatus, source: Types.PduSource, category: Types.PduCategory, creditType: Types.CreditType, completionStatus: Types.PduCompletionStatus, reportingYear?: number | null, providerOrganizer?: string | null, subCategory?: string | null, issuingOrganization?: string | null, relatedCertification?: string | null, learningOutcome?: string | null, evidenceNote?: string | null, updatedAt: string, contentId?: string | null, createdAt: string, description?: string | null, evidenceUrl?: string | null, contentType?: Types.ContentType | null, cpdPlanId?: string | null, associationRequirementId?: string | null, associationLearningContentId?: string | null, evidenceFiles: Array<{ __typename?: 'ProfessionalPduActivityFile', id: string, fileName: string, mimeType: string, sizeBytes: number, createdAt: string }> };
 
 export type ProfessionalPduReportFieldsFragment = { __typename?: 'ProfessionalPduReport', year: number, totalPdus: number, activities: number, progressToGoal: number, averagePerMonth: number, targets: Array<{ __typename?: 'ProfessionalPduTarget', id: string, year: number, target: number, category: Types.PduCategory }>, byCategory: Array<{ __typename?: 'ProfessionalPduCategorySummary', pdus: number, category: Types.PduCategory }>, byMonth: Array<{ __typename?: 'ProfessionalPduMonthlyPoint', month: number, pdus: number }> };
 
-export type PaginatedProfessionalPduActivitiesFieldsFragment = { __typename?: 'PaginatedProfessionalPduActivities', totalCount: number, pageInfo: { __typename?: 'ProfessionalPageInfo', nextCursor?: string | null, hasNextPage: boolean }, items: Array<{ __typename?: 'ProfessionalPduActivity', id: string, pdus: number, date: string, title: string, status: Types.PduStatus, source: Types.PduSource, category: Types.PduCategory, creditType: Types.CreditType, completionStatus: Types.PduCompletionStatus, reportingYear?: number | null, providerOrganizer?: string | null, subCategory?: string | null, issuingOrganization?: string | null, relatedCertification?: string | null, learningOutcome?: string | null, evidenceNote?: string | null, updatedAt: string, contentId?: string | null, createdAt: string, description?: string | null, evidenceUrl?: string | null, contentType?: Types.ContentType | null, cpdPlanId?: string | null, evidenceFiles: Array<{ __typename?: 'ProfessionalPduActivityFile', id: string, fileName: string, mimeType: string, sizeBytes: number, createdAt: string }> }> };
+export type PaginatedProfessionalPduActivitiesFieldsFragment = { __typename?: 'PaginatedProfessionalPduActivities', totalCount: number, pageInfo: { __typename?: 'ProfessionalPageInfo', nextCursor?: string | null, hasNextPage: boolean }, items: Array<{ __typename?: 'ProfessionalPduActivity', id: string, pdus: number, date: string, title: string, status: Types.PduStatus, source: Types.PduSource, category: Types.PduCategory, creditType: Types.CreditType, completionStatus: Types.PduCompletionStatus, reportingYear?: number | null, providerOrganizer?: string | null, subCategory?: string | null, issuingOrganization?: string | null, relatedCertification?: string | null, learningOutcome?: string | null, evidenceNote?: string | null, updatedAt: string, contentId?: string | null, createdAt: string, description?: string | null, evidenceUrl?: string | null, contentType?: Types.ContentType | null, cpdPlanId?: string | null, associationRequirementId?: string | null, associationLearningContentId?: string | null, evidenceFiles: Array<{ __typename?: 'ProfessionalPduActivityFile', id: string, fileName: string, mimeType: string, sizeBytes: number, createdAt: string }> }> };
 
 export type ProfessionalPaymentFieldsFragment = { __typename?: 'ProfessionalPayment', id: string, title: string, amount: number, userId: string, status: Types.PaymentStatus, paidAt?: string | null, currency: string, contentId?: string | null, createdAt: string, updatedAt: string, receiptUrl?: string | null, contentType?: Types.ContentType | null, providerPaymentId?: string | null };
 
@@ -103,14 +103,14 @@ export type ProfessionalPduActivitiesQueryVariables = Types.Exact<{
 }>;
 
 
-export type ProfessionalPduActivitiesQuery = { __typename?: 'Query', professionalPduActivities: { __typename?: 'PaginatedProfessionalPduActivities', totalCount: number, pageInfo: { __typename?: 'ProfessionalPageInfo', nextCursor?: string | null, hasNextPage: boolean }, items: Array<{ __typename?: 'ProfessionalPduActivity', id: string, pdus: number, date: string, title: string, status: Types.PduStatus, source: Types.PduSource, category: Types.PduCategory, creditType: Types.CreditType, completionStatus: Types.PduCompletionStatus, reportingYear?: number | null, providerOrganizer?: string | null, subCategory?: string | null, issuingOrganization?: string | null, relatedCertification?: string | null, learningOutcome?: string | null, evidenceNote?: string | null, updatedAt: string, contentId?: string | null, createdAt: string, description?: string | null, evidenceUrl?: string | null, contentType?: Types.ContentType | null, cpdPlanId?: string | null, evidenceFiles: Array<{ __typename?: 'ProfessionalPduActivityFile', id: string, fileName: string, mimeType: string, sizeBytes: number, createdAt: string }> }> } };
+export type ProfessionalPduActivitiesQuery = { __typename?: 'Query', professionalPduActivities: { __typename?: 'PaginatedProfessionalPduActivities', totalCount: number, pageInfo: { __typename?: 'ProfessionalPageInfo', nextCursor?: string | null, hasNextPage: boolean }, items: Array<{ __typename?: 'ProfessionalPduActivity', id: string, pdus: number, date: string, title: string, status: Types.PduStatus, source: Types.PduSource, category: Types.PduCategory, creditType: Types.CreditType, completionStatus: Types.PduCompletionStatus, reportingYear?: number | null, providerOrganizer?: string | null, subCategory?: string | null, issuingOrganization?: string | null, relatedCertification?: string | null, learningOutcome?: string | null, evidenceNote?: string | null, updatedAt: string, contentId?: string | null, createdAt: string, description?: string | null, evidenceUrl?: string | null, contentType?: Types.ContentType | null, cpdPlanId?: string | null, associationRequirementId?: string | null, associationLearningContentId?: string | null, evidenceFiles: Array<{ __typename?: 'ProfessionalPduActivityFile', id: string, fileName: string, mimeType: string, sizeBytes: number, createdAt: string }> }> } };
 
 export type ProfessionalPduActivityQueryVariables = Types.Exact<{
   activityId: Types.Scalars['ID']['input'];
 }>;
 
 
-export type ProfessionalPduActivityQuery = { __typename?: 'Query', professionalPduActivity: { __typename?: 'ProfessionalPduActivity', id: string, pdus: number, date: string, title: string, status: Types.PduStatus, source: Types.PduSource, category: Types.PduCategory, creditType: Types.CreditType, completionStatus: Types.PduCompletionStatus, reportingYear?: number | null, providerOrganizer?: string | null, subCategory?: string | null, issuingOrganization?: string | null, relatedCertification?: string | null, learningOutcome?: string | null, evidenceNote?: string | null, updatedAt: string, contentId?: string | null, createdAt: string, description?: string | null, evidenceUrl?: string | null, contentType?: Types.ContentType | null, cpdPlanId?: string | null, evidenceFiles: Array<{ __typename?: 'ProfessionalPduActivityFile', id: string, fileName: string, mimeType: string, sizeBytes: number, createdAt: string }> } };
+export type ProfessionalPduActivityQuery = { __typename?: 'Query', professionalPduActivity: { __typename?: 'ProfessionalPduActivity', id: string, pdus: number, date: string, title: string, status: Types.PduStatus, source: Types.PduSource, category: Types.PduCategory, creditType: Types.CreditType, completionStatus: Types.PduCompletionStatus, reportingYear?: number | null, providerOrganizer?: string | null, subCategory?: string | null, issuingOrganization?: string | null, relatedCertification?: string | null, learningOutcome?: string | null, evidenceNote?: string | null, updatedAt: string, contentId?: string | null, createdAt: string, description?: string | null, evidenceUrl?: string | null, contentType?: Types.ContentType | null, cpdPlanId?: string | null, associationRequirementId?: string | null, associationLearningContentId?: string | null, evidenceFiles: Array<{ __typename?: 'ProfessionalPduActivityFile', id: string, fileName: string, mimeType: string, sizeBytes: number, createdAt: string }> } };
 
 export type ProfessionalPduActivitySummaryFieldsFragment = { __typename?: 'ProfessionalPduActivitySummary', completedActivities: number, activitiesWithEvidence: number, evidenceFilesCount: number };
 
@@ -125,7 +125,7 @@ export type ProfessionalContentCompletionQueryVariables = Types.Exact<{
 }>;
 
 
-export type ProfessionalContentCompletionQuery = { __typename?: 'Query', professionalContentCompletion?: { __typename?: 'ProfessionalPduActivity', id: string, pdus: number, date: string, title: string, status: Types.PduStatus, source: Types.PduSource, category: Types.PduCategory, creditType: Types.CreditType, completionStatus: Types.PduCompletionStatus, reportingYear?: number | null, providerOrganizer?: string | null, subCategory?: string | null, issuingOrganization?: string | null, relatedCertification?: string | null, learningOutcome?: string | null, evidenceNote?: string | null, updatedAt: string, contentId?: string | null, createdAt: string, description?: string | null, evidenceUrl?: string | null, contentType?: Types.ContentType | null, cpdPlanId?: string | null, evidenceFiles: Array<{ __typename?: 'ProfessionalPduActivityFile', id: string, fileName: string, mimeType: string, sizeBytes: number, createdAt: string }> } | null };
+export type ProfessionalContentCompletionQuery = { __typename?: 'Query', professionalContentCompletion?: { __typename?: 'ProfessionalPduActivity', id: string, pdus: number, date: string, title: string, status: Types.PduStatus, source: Types.PduSource, category: Types.PduCategory, creditType: Types.CreditType, completionStatus: Types.PduCompletionStatus, reportingYear?: number | null, providerOrganizer?: string | null, subCategory?: string | null, issuingOrganization?: string | null, relatedCertification?: string | null, learningOutcome?: string | null, evidenceNote?: string | null, updatedAt: string, contentId?: string | null, createdAt: string, description?: string | null, evidenceUrl?: string | null, contentType?: Types.ContentType | null, cpdPlanId?: string | null, associationRequirementId?: string | null, associationLearningContentId?: string | null, evidenceFiles: Array<{ __typename?: 'ProfessionalPduActivityFile', id: string, fileName: string, mimeType: string, sizeBytes: number, createdAt: string }> } | null };
 
 export type ProfessionalPaymentsQueryVariables = Types.Exact<{
   filter?: Types.InputMaybe<Types.ProfessionalSearchInput>;
@@ -271,14 +271,14 @@ export type CreateProfessionalPduActivityMutationVariables = Types.Exact<{
 }>;
 
 
-export type CreateProfessionalPduActivityMutation = { __typename?: 'Mutation', createProfessionalPduActivity: { __typename?: 'ProfessionalPduActivity', id: string, pdus: number, date: string, title: string, status: Types.PduStatus, source: Types.PduSource, category: Types.PduCategory, creditType: Types.CreditType, completionStatus: Types.PduCompletionStatus, reportingYear?: number | null, providerOrganizer?: string | null, subCategory?: string | null, issuingOrganization?: string | null, relatedCertification?: string | null, learningOutcome?: string | null, evidenceNote?: string | null, updatedAt: string, contentId?: string | null, createdAt: string, description?: string | null, evidenceUrl?: string | null, contentType?: Types.ContentType | null, cpdPlanId?: string | null, evidenceFiles: Array<{ __typename?: 'ProfessionalPduActivityFile', id: string, fileName: string, mimeType: string, sizeBytes: number, createdAt: string }> } };
+export type CreateProfessionalPduActivityMutation = { __typename?: 'Mutation', createProfessionalPduActivity: { __typename?: 'ProfessionalPduActivity', id: string, pdus: number, date: string, title: string, status: Types.PduStatus, source: Types.PduSource, category: Types.PduCategory, creditType: Types.CreditType, completionStatus: Types.PduCompletionStatus, reportingYear?: number | null, providerOrganizer?: string | null, subCategory?: string | null, issuingOrganization?: string | null, relatedCertification?: string | null, learningOutcome?: string | null, evidenceNote?: string | null, updatedAt: string, contentId?: string | null, createdAt: string, description?: string | null, evidenceUrl?: string | null, contentType?: Types.ContentType | null, cpdPlanId?: string | null, associationRequirementId?: string | null, associationLearningContentId?: string | null, evidenceFiles: Array<{ __typename?: 'ProfessionalPduActivityFile', id: string, fileName: string, mimeType: string, sizeBytes: number, createdAt: string }> } };
 
 export type UpdateProfessionalPduActivityMutationVariables = Types.Exact<{
   input: Types.UpdatePduActivityInput;
 }>;
 
 
-export type UpdateProfessionalPduActivityMutation = { __typename?: 'Mutation', updateProfessionalPduActivity: { __typename?: 'ProfessionalPduActivity', id: string, pdus: number, date: string, title: string, status: Types.PduStatus, source: Types.PduSource, category: Types.PduCategory, creditType: Types.CreditType, completionStatus: Types.PduCompletionStatus, reportingYear?: number | null, providerOrganizer?: string | null, subCategory?: string | null, issuingOrganization?: string | null, relatedCertification?: string | null, learningOutcome?: string | null, evidenceNote?: string | null, updatedAt: string, contentId?: string | null, createdAt: string, description?: string | null, evidenceUrl?: string | null, contentType?: Types.ContentType | null, cpdPlanId?: string | null, evidenceFiles: Array<{ __typename?: 'ProfessionalPduActivityFile', id: string, fileName: string, mimeType: string, sizeBytes: number, createdAt: string }> } };
+export type UpdateProfessionalPduActivityMutation = { __typename?: 'Mutation', updateProfessionalPduActivity: { __typename?: 'ProfessionalPduActivity', id: string, pdus: number, date: string, title: string, status: Types.PduStatus, source: Types.PduSource, category: Types.PduCategory, creditType: Types.CreditType, completionStatus: Types.PduCompletionStatus, reportingYear?: number | null, providerOrganizer?: string | null, subCategory?: string | null, issuingOrganization?: string | null, relatedCertification?: string | null, learningOutcome?: string | null, evidenceNote?: string | null, updatedAt: string, contentId?: string | null, createdAt: string, description?: string | null, evidenceUrl?: string | null, contentType?: Types.ContentType | null, cpdPlanId?: string | null, associationRequirementId?: string | null, associationLearningContentId?: string | null, evidenceFiles: Array<{ __typename?: 'ProfessionalPduActivityFile', id: string, fileName: string, mimeType: string, sizeBytes: number, createdAt: string }> } };
 
 export type DeleteProfessionalPduActivityMutationVariables = Types.Exact<{
   activityId: Types.Scalars['ID']['input'];
@@ -730,6 +730,8 @@ export const ProfessionalPduActivityFieldsFragmentDoc = /*#__PURE__*/ new TypedD
   evidenceUrl
   contentType
   cpdPlanId
+  associationRequirementId
+  associationLearningContentId
   evidenceFiles {
     ...ProfessionalPduActivityFileFields
   }
@@ -786,6 +788,8 @@ fragment ProfessionalPduActivityFields on ProfessionalPduActivity {
   evidenceUrl
   contentType
   cpdPlanId
+  associationRequirementId
+  associationLearningContentId
   evidenceFiles {
     ...ProfessionalPduActivityFileFields
   }
@@ -1547,6 +1551,8 @@ fragment ProfessionalPduActivityFields on ProfessionalPduActivity {
   evidenceUrl
   contentType
   cpdPlanId
+  associationRequirementId
+  associationLearningContentId
   evidenceFiles {
     ...ProfessionalPduActivityFileFields
   }
@@ -1597,6 +1603,8 @@ fragment ProfessionalPduActivityFields on ProfessionalPduActivity {
   evidenceUrl
   contentType
   cpdPlanId
+  associationRequirementId
+  associationLearningContentId
   evidenceFiles {
     ...ProfessionalPduActivityFileFields
   }
@@ -1649,6 +1657,8 @@ fragment ProfessionalPduActivityFields on ProfessionalPduActivity {
   evidenceUrl
   contentType
   cpdPlanId
+  associationRequirementId
+  associationLearningContentId
   evidenceFiles {
     ...ProfessionalPduActivityFileFields
   }
@@ -2586,6 +2596,8 @@ fragment ProfessionalPduActivityFields on ProfessionalPduActivity {
   evidenceUrl
   contentType
   cpdPlanId
+  associationRequirementId
+  associationLearningContentId
   evidenceFiles {
     ...ProfessionalPduActivityFileFields
   }
@@ -2627,6 +2639,8 @@ fragment ProfessionalPduActivityFields on ProfessionalPduActivity {
   evidenceUrl
   contentType
   cpdPlanId
+  associationRequirementId
+  associationLearningContentId
   evidenceFiles {
     ...ProfessionalPduActivityFileFields
   }

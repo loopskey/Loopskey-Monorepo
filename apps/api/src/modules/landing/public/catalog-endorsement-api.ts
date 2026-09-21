@@ -7,6 +7,7 @@ export type CatalogReference = {
 
 export type CatalogItemProjection = {
   readonly title: string;
+  readonly slug?: string | null;
   readonly contentId: string;
   readonly contentType: string;
   readonly isAvailable: boolean;

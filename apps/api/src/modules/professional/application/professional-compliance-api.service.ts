@@ -29,6 +29,11 @@ const ACTIVITY_SELECT = {
   date: true,
   status: true,
   evidenceUrl: true,
+  cpdPlanId: true,
+  contentType: true,
+  contentId: true,
+  associationRequirementId: true,
+  associationLearningContentId: true,
   _count: { select: { evidenceFiles: true } },
 } satisfies Prisma.PDUActivitySelect;
 
@@ -76,6 +81,11 @@ const project = (activity: ActivityRow): ComplianceActivity => ({
   status: activity.status,
   hasEvidence:
     Boolean(activity.evidenceUrl?.trim()) || activity._count.evidenceFiles > 0,
+  cpdPlanId: activity.cpdPlanId,
+  contentType: activity.contentType,
+  contentId: activity.contentId,
+  associationRequirementId: activity.associationRequirementId,
+  associationLearningContentId: activity.associationLearningContentId,
 });
 
 @Injectable()

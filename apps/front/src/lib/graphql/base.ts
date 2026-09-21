@@ -961,6 +961,88 @@ export type AssociationMissingEvidenceRow = {
   requirementName: Scalars['String']['output'];
 };
 
+export type AssociationMyRequirement = {
+  __typename?: 'AssociationMyRequirement';
+  assignmentId: Scalars['ID']['output'];
+  associationId: Scalars['ID']['output'];
+  associationName: Scalars['String']['output'];
+  awaitingReviewCount: Scalars['Int']['output'];
+  band: AssociationComplianceBand;
+  completedCredits: Scalars['Float']['output'];
+  creditType: CreditType;
+  cycleEnd?: Maybe<Scalars['DateTime']['output']>;
+  cycleStart: Scalars['DateTime']['output'];
+  daysRemaining?: Maybe<Scalars['Int']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  dueDate?: Maybe<Scalars['DateTime']['output']>;
+  evidencePolicy: AssociationEvidencePolicy;
+  isMissingEvidence: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  percent: Scalars['Float']['output'];
+  remainingCredits: Scalars['Float']['output'];
+  requiredCredits: Scalars['Float']['output'];
+  requirementId: Scalars['ID']['output'];
+};
+
+export type AssociationMyRequirementActivity = {
+  __typename?: 'AssociationMyRequirementActivity';
+  activityId: Scalars['ID']['output'];
+  category: Scalars['String']['output'];
+  categoryName?: Maybe<Scalars['String']['output']>;
+  creditedAmount: Scalars['Float']['output'];
+  credits: Scalars['Float']['output'];
+  date: Scalars['DateTime']['output'];
+  hasEvidence: Scalars['Boolean']['output'];
+  isLate: Scalars['Boolean']['output'];
+  reviewNote?: Maybe<Scalars['String']['output']>;
+  state: AssociationAttributionState;
+  title: Scalars['String']['output'];
+};
+
+export type AssociationMyRequirementContent = {
+  __typename?: 'AssociationMyRequirementContent';
+  category?: Maybe<PduCategory>;
+  contentId?: Maybe<Scalars['ID']['output']>;
+  contentType?: Maybe<ContentType>;
+  description?: Maybe<Scalars['String']['output']>;
+  externalUrl?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  imageUrl?: Maybe<Scalars['String']['output']>;
+  indicativeCredits?: Maybe<Scalars['Float']['output']>;
+  isAvailable: Scalars['Boolean']['output'];
+  isCompleted: Scalars['Boolean']['output'];
+  isExternal: Scalars['Boolean']['output'];
+  provider?: Maybe<Scalars['String']['output']>;
+  slug?: Maybe<Scalars['String']['output']>;
+  title: Scalars['String']['output'];
+};
+
+export type AssociationMyRequirementDetail = {
+  __typename?: 'AssociationMyRequirementDetail';
+  activities: Array<AssociationMyRequirementActivity>;
+  assignmentId: Scalars['ID']['output'];
+  associationId: Scalars['ID']['output'];
+  associationName: Scalars['String']['output'];
+  awaitingReviewCount: Scalars['Int']['output'];
+  band: AssociationComplianceBand;
+  categories: Array<AssociationCategoryProgress>;
+  completedCredits: Scalars['Float']['output'];
+  creditType: CreditType;
+  cycleEnd?: Maybe<Scalars['DateTime']['output']>;
+  cycleStart: Scalars['DateTime']['output'];
+  daysRemaining?: Maybe<Scalars['Int']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  dueDate?: Maybe<Scalars['DateTime']['output']>;
+  evidencePolicy: AssociationEvidencePolicy;
+  isMissingEvidence: Scalars['Boolean']['output'];
+  learningContents: Array<AssociationMyRequirementContent>;
+  name: Scalars['String']['output'];
+  percent: Scalars['Float']['output'];
+  remainingCredits: Scalars['Float']['output'];
+  requiredCredits: Scalars['Float']['output'];
+  requirementId: Scalars['ID']['output'];
+};
+
 export type AssociationPageInfo = {
   __typename?: 'AssociationPageInfo';
   hasNextPage: Scalars['Boolean']['output'];
@@ -1896,6 +1978,8 @@ export type CreateOrganizationDepartmentInput = {
 };
 
 export type CreatePduActivityInput = {
+  associationLearningContentId?: InputMaybe<Scalars['ID']['input']>;
+  associationRequirementId?: InputMaybe<Scalars['ID']['input']>;
   category: PduCategory;
   contentId?: InputMaybe<Scalars['String']['input']>;
   contentType?: InputMaybe<ContentType>;
@@ -4688,6 +4772,8 @@ export type ProfessionalPayment = {
 
 export type ProfessionalPduActivity = {
   __typename?: 'ProfessionalPduActivity';
+  associationLearningContentId?: Maybe<Scalars['ID']['output']>;
+  associationRequirementId?: Maybe<Scalars['ID']['output']>;
   category: PduCategory;
   completionStatus: PduCompletionStatus;
   contentId?: Maybe<Scalars['String']['output']>;
@@ -5230,6 +5316,7 @@ export type Query = {
   courseBySlug: Course;
   courses: PaginatedCourses;
   cpdPlan: CpdPlan;
+  cpdPlanActivities: Array<ProfessionalPduActivity>;
   cpdPlanProgress: CpdPlanProgress;
   cpdReportRecipients: Array<CpdReportRecipientOption>;
   currentUser: AuthPayload;
@@ -5249,6 +5336,8 @@ export type Query = {
   ingestionSources: PaginatedIngestionSources;
   linkedinOAuthUrl: AuthUrl;
   me: User;
+  myAssociationRequirement: AssociationMyRequirementDetail;
+  myAssociationRequirements: Array<AssociationMyRequirement>;
   myCalendarEntries: Array<ProfessionalManualCalendarEvent>;
   myCart?: Maybe<Cart>;
   myCpdPlans: Array<CpdPlan>;
@@ -5643,6 +5732,11 @@ export type QueryCpdPlanArgs = {
 };
 
 
+export type QueryCpdPlanActivitiesArgs = {
+  planId: Scalars['ID']['input'];
+};
+
+
 export type QueryCpdPlanProgressArgs = {
   planId: Scalars['ID']['input'];
 };
@@ -5725,6 +5819,11 @@ export type QueryIngestionSourcesArgs = {
 
 export type QueryLinkedinOAuthUrlArgs = {
   role: Role;
+};
+
+
+export type QueryMyAssociationRequirementArgs = {
+  requirementId: Scalars['ID']['input'];
 };
 
 
@@ -6588,6 +6687,8 @@ export type UpdateOrganizationSettingsInput = {
 
 export type UpdatePduActivityInput = {
   activityId: Scalars['ID']['input'];
+  associationLearningContentId?: InputMaybe<Scalars['ID']['input']>;
+  associationRequirementId?: InputMaybe<Scalars['ID']['input']>;
   category?: InputMaybe<PduCategory>;
   completionStatus?: InputMaybe<PduCompletionStatus>;
   contentId?: InputMaybe<Scalars['String']['input']>;

@@ -224,6 +224,8 @@ fragment ProfessionalPduActivityFields on ProfessionalPduActivity {
   evidenceUrl
   contentType
   cpdPlanId
+  associationRequirementId
+  associationLearningContentId
   evidenceFiles {
     ...ProfessionalPduActivityFileFields
   }

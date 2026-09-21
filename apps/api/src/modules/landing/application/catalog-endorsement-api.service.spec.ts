@@ -224,6 +224,55 @@ describe("CatalogEndorsementApiService", () => {
       expect(item.provider).toBe("A Speaker");
     });
 
+    it("carries the slug each content type's public page is addressed by", async () => {
+      const { service } = setup({
+        courses: [
+          {
+            id: "course-1",
+            slug: "advanced-risk",
+            title: "Advanced Risk",
+            status: CourseStatus.PUBLISHED,
+            imageUrl: null,
+            deletedAt: null,
+            provider: null,
+          },
+        ],
+        events: [
+          {
+            id: "event-1",
+            slug: "a-conference",
+            title: "A conference",
+            status: EventStatus.PUBLISHED,
+            imageUrl: null,
+            speaker: null,
+            organizer: null,
+            deletedAt: null,
+          },
+        ],
+        videos: [
+          {
+            id: "video-1",
+            title: "A talk",
+            status: YouTubeVideoStatus.PUBLISHED,
+            thumbnailUrl: null,
+            channel: { title: "A Channel", slug: "a-channel" },
+          },
+        ],
+      });
+
+      const items = await service.resolveCatalogItems([
+        { contentType: ContentType.COURSE, contentId: "course-1" },
+        { contentType: ContentType.EVENT, contentId: "event-1" },
+        { contentType: ContentType.YOUTUBE, contentId: "video-1" },
+      ]);
+
+      expect(items.map((item) => [item.contentType, item.slug])).toEqual([
+        ["COURSE", "advanced-risk"],
+        ["EVENT", "a-conference"],
+        ["YOUTUBE", "a-channel"],
+      ]);
+    });
+
     it("treats an archived video as unavailable", async () => {
       const { service } = setup({
         videos: [

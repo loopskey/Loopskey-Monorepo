@@ -71,4 +71,16 @@ export class CreatePduActivityInput {
   @IsOptional()
   @IsString()
   cpdPlanId?: string;
+
+  @Field(() => ID, { nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(64)
+  associationRequirementId?: string;
+
+  @Field(() => ID, { nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(64)
+  associationLearningContentId?: string;
 }

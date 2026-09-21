@@ -46,6 +46,10 @@ export class ProfessionalPduActivityEntity {
   @Field(() => PDUCategory) category: PDUCategory;
   @Field(() => CreditType) creditType: CreditType;
   @Field(() => ID, { nullable: true }) cpdPlanId?: string | null;
+  @Field(() => ID, { nullable: true })
+  associationRequirementId?: string | null;
+  @Field(() => ID, { nullable: true })
+  associationLearningContentId?: string | null;
   @Field(() => String, { nullable: true }) contentId?: string | null;
   @Field(() => Int, { nullable: true }) reportingYear?: number | null;
   @Field(() => String, { nullable: true }) subCategory?: string | null;

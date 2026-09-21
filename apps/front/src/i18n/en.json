@@ -1,11 +1,11 @@
 {
   "cpdProgress": {
     "eyebrow": "CPD / PDU",
-    "title": "CPD/PDU Progress",
-    "subtitle": "Track your progress, manage requirements, and stay compliant.",
+    "title": "Requirements",
+    "subtitle": "Track the requirements your associations assign to you and the plans you set for yourself.",
     "actions": {
       "generateSummary": "Generate CPD Summary",
-      "createNew": "Create New CPD/PDU"
+      "createNew": "Add my own plan"
     },
     "common": {
       "cancel": "Cancel",
@@ -15,9 +15,9 @@
       "remove": "Remove"
     },
     "empty": {
-      "title": "No CPD/PDU plan yet",
-      "description": "Create a CPD/PDU plan to start tracking your credits, categories, evidence and compliance. Progress can only be tracked once a plan exists.",
-      "cta": "Create New CPD/PDU"
+      "title": "No requirements yet",
+      "description": "No association has assigned you a requirement and you have not created a plan of your own. Create a requirement to start tracking your credits, categories and evidence.",
+      "cta": "Create a requirement"
     },
     "search": {
       "title": "Set Up CPD / PDU Tracking",
@@ -240,6 +240,86 @@
       "title": "Delete this plan?",
       "description": "This permanently removes the plan and its categories. Your learning activities are not affected.",
       "confirm": "Delete plan"
+    },
+    "requirements": {
+      "selectorLabel": "Requirement",
+      "selectorPlaceholder": "Choose a requirement",
+      "source": {
+        "ASSOCIATION": "Association",
+        "PLAN": "Personal plan"
+      },
+      "assignedBy": "Assigned by {{association}}",
+      "managedBy": "Managed by your association",
+      "readOnly": "Set by your association. You can log activity against it, but you cannot edit or delete it.",
+      "summaryProgress": "{{earned}}/{{total}} {{credit}}",
+      "band": {
+        "AT_RISK": "At risk",
+        "ON_TRACK": "On track",
+        "NOT_STARTED": "Not started",
+        "RENEWAL_READY": "Renewal ready"
+      },
+      "logActivity": "Log activity",
+      "toGo": "{{amount}} {{credit}} to go",
+      "chartAria": "{{earned}} of {{total}} {{credit}} accepted, {{percent}} percent complete.",
+      "totalRequired": "Total required",
+      "completed": "Completed",
+      "remaining": "To go",
+      "deadline": "Deadline",
+      "noDeadline": "No deadline",
+      "daysLeft": "{{count}} days left",
+      "overdue": "{{count}} days overdue",
+      "dueToday": "Due today",
+      "evidence": "Evidence",
+      "evidencePolicy": {
+        "NOT_REQUIRED": "Not required",
+        "REQUIRED_NO_REVIEW": "Required",
+        "REQUIRED_NEEDS_REVIEW": "Required and reviewed by your association"
+      },
+      "awaitingReview": "{{count}} awaiting review",
+      "evidenceOk": "Nothing waiting on evidence",
+      "categoriesTitle": "Credit categories",
+      "categoriesSubtitle": "Accepted credits in each category.",
+      "categoriesEmpty": "This requirement does not split credits into categories.",
+      "categoryProgress": "{{completed}} / {{required}} {{credit}}",
+      "learning": {
+        "title": "Learning content",
+        "subtitle": "Assigned by your association for this requirement.",
+        "empty": "Your association has not assigned any learning content to this requirement yet.",
+        "view": "View",
+        "openLink": "Open link",
+        "markComplete": "Mark as complete",
+        "completed": "Completed",
+        "external": "External",
+        "loopskey": "Loopskey",
+        "credits": "{{credits}} credits",
+        "unavailable": "No longer available"
+      },
+      "activities": {
+        "title": "Logged activities",
+        "subtitle": "Activities counted toward this requirement and where each one stands.",
+        "empty": "No activity has been logged for this requirement yet.",
+        "columns": {
+          "activity": "Activity",
+          "date": "Date",
+          "category": "Category",
+          "credits": "Credits",
+          "status": "Status"
+        },
+        "state": {
+          "COUNTED": "Accepted",
+          "AWAITING_REVIEW": "Pending review",
+          "REJECTED": "Rejected"
+        },
+        "status": {
+          "APPROVED": "Approved",
+          "PENDING": "Pending",
+          "REJECTED": "Rejected"
+        },
+        "late": "Late",
+        "reason": "Reason: {{note}}"
+      },
+      "loadError": "We could not load your requirements.",
+      "retry": "Try again"
     }
   },
   "common": {
@@ -3396,7 +3476,7 @@
       "settings": "Settings",
       "courses": "My Courses",
       "cpdPduTracker": "My Learning Activities",
-      "cpdPduProgress": "CPD/PDU Progress",
+      "cpdPduProgress": "Requirements",
       "calendar": "My Calendar",
       "certificates": "Certificates",
       "externalLearning": "External Learning"
@@ -3653,18 +3733,21 @@
         "errorDescription": "We couldn’t load this section. Please try again shortly."
       },
       "cpdCard": {
-        "title": "CPD/PDU Progress",
-        "link": "View CPD/PDU Progress",
-        "emptyTitle": "No CPD/PDU plan yet",
-        "emptyDescription": "Create a plan to start tracking your credits and compliance.",
-        "emptyAction": "Create a plan",
+        "title": "Requirement Progress",
+        "link": "View Requirements",
+        "emptyTitle": "No requirements yet",
+        "emptyDescription": "Create a requirement to start tracking your credits and compliance.",
+        "emptyAction": "Create a requirement",
         "earned": "Earned",
         "remaining": "Remaining",
         "complete": "complete",
         "chartAria": "You have earned {{earned}} of {{total}} {{credit}} credits, which is {{percent}} percent complete.",
         "summary": "{{earned}} of {{total}} {{credit}} earned",
         "exceeded": "Exceeded requirement by {{amount}} {{credit}}.",
-        "deadline": "Reporting deadline: {{date}}"
+        "deadline": "Reporting deadline: {{date}}",
+        "switchLabel": "Choose a requirement",
+        "switchButton": "Switch requirement",
+        "deadlineNone": "No deadline"
       },
       "roadmapCard": {
         "title": "Learning Roadmap Progress",
@@ -3971,16 +4054,16 @@
         "reportingYearHint": "Defaults to the year of the completion date.",
         "issuingOrganization": "Issuing organization",
         "relatedCertification": "Related certification / licence",
-        "cpdPlan": "CPD/PDU plan",
-        "cpdPlanHint": "Attribute this activity's credits to one of your plans. Leave unselected to count it toward your overall progress as usual.",
-        "cpdPlanPlaceholder": "No plan selected",
         "description": "Activity description / notes",
         "descriptionPlaceholder": "Briefly describe the activity.",
         "evidenceNote": "File notes",
         "evidenceNotePlaceholder": "Notes about the certificate of completion, attendance proof or related evidence.",
         "learningOutcome": "Learning outcome",
         "learningOutcomeHint": "What did you learn, and how will you apply it in your work?",
-        "learningOutcomePlaceholder": "Describe what you learned and how you will apply it."
+        "learningOutcomePlaceholder": "Describe what you learned and how you will apply it.",
+        "requirement": "Requirement",
+        "requirementHint": "Choose the requirement this activity counts toward. Leave it empty to count it by credit type and date as usual.",
+        "requirementPlaceholder": "No specific requirement"
       },
       "evidence": {
         "dropTitle": "Upload certificate or proof",

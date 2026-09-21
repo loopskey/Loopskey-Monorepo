@@ -73,6 +73,10 @@ export enum AssociationGqlObjectNames {
   ASSOCIATION_MESSAGE_BATCH = "AssociationMessageBatch",
   ASSOCIATION_MESSAGE_HISTORY_ROW = "AssociationMessageHistoryRow",
   PAGINATED_ASSOCIATION_MESSAGE_HISTORY = "PaginatedAssociationMessageHistory",
+  ASSOCIATION_MY_REQUIREMENT = "AssociationMyRequirement",
+  ASSOCIATION_MY_REQUIREMENT_DETAIL = "AssociationMyRequirementDetail",
+  ASSOCIATION_MY_REQUIREMENT_ACTIVITY = "AssociationMyRequirementActivity",
+  ASSOCIATION_MY_REQUIREMENT_CONTENT = "AssociationMyRequirementContent",
 }
 
 export enum AssociationGqlInputNames {
@@ -161,6 +165,8 @@ export enum AssociationGqlQueryNames {
   CATEGORY_ATTENTION_GROUPS = "associationCategoryAttentionGroups",
   MESSAGE_PREVIEW = "associationMessagePreview",
   MESSAGE_HISTORY = "associationMessageHistory",
+  MY_REQUIREMENTS = "myAssociationRequirements",
+  MY_REQUIREMENT = "myAssociationRequirement",
 }
 
 export enum AssociationGqlMutationNames {

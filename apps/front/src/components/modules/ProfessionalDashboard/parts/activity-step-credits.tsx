@@ -13,7 +13,7 @@ const TRACKER = "professionalDashboard.cpdPduTracker";
 export const ActivityStepCredits = ({
   t,
   control,
-  planOptions,
+  requirementOptions,
   subCategoryOptions,
   onReportingYearTouched,
 }: TActivityStepCreditsProps) => (
@@ -95,14 +95,14 @@ export const ActivityStepCredits = ({
       label={t(`${TRACKER}.fields.description`)}
     />
 
-    {planOptions.length > 0 && (
+    {requirementOptions.length > 1 && (
       <FloatingSelectField
-        name="cpdPlanId"
+        name="requirement"
         control={control}
-        options={planOptions}
-        label={t(`${TRACKER}.fields.cpdPlan`)}
-        description={t(`${TRACKER}.fields.cpdPlanHint`)}
-        placeholder={t(`${TRACKER}.fields.cpdPlanPlaceholder`)}
+        options={requirementOptions}
+        label={t(`${TRACKER}.fields.requirement`)}
+        description={t(`${TRACKER}.fields.requirementHint`)}
+        placeholder={t(`${TRACKER}.fields.requirementPlaceholder`)}
       />
     )}
   </div>

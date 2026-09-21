@@ -11,6 +11,7 @@ import { CpdPlanProgressEntity } from "@professional/entities/cpd-plan.entity";
 import { CertificationEntity } from "@professional/entities/certification.entity";
 import { CreateCpdPlanInput } from "@professional/dtos/create-cpd-plan.input";
 import { UpdateCpdPlanInput } from "@professional/dtos/update-cpd-plan.input";
+import { ProfessionalPduActivityEntity } from "@professional/entities/professinal-pdu-report.entity";
 import { CpdPlanEntity } from "@professional/entities/cpd-plan.entity";
 import { TResolverUser } from "@professional/types/professional-service.types";
 import { CurrentUser } from "@auth/decorators/current-user.decorator";
@@ -62,6 +63,16 @@ export class ProfessionalCpdPlanResolver {
     @Args("planId", { type: () => ID }) planId: string,
   ) {
     return this.cpdPlanService.progress(this.getUser(user), planId);
+  }
+
+  @Query(() => [ProfessionalPduActivityEntity], {
+    name: ProfessionalGqlQueryNames.CPD_PLAN_ACTIVITIES,
+  })
+  cpdPlanActivities(
+    @CurrentUser() user: TResolverUser,
+    @Args("planId", { type: () => ID }) planId: string,
+  ) {
+    return this.cpdPlanService.planActivities(this.getUser(user), planId);
   }
 
   @Query(() => [CpdReportRecipientOptionEntity], {
