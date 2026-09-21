@@ -14,9 +14,11 @@ export type AttributionActivity = {
   category: string;
   creditType: string;
   hasEvidence: boolean;
+  associationRequirementId?: string | null;
 };
 
 export type AttributionRequirement = {
+  id: string;
   deadline: Date | null;
   creditType: CreditType;
   gracePeriodDays: number;
@@ -118,6 +120,11 @@ export const attributionFor = (
   assignment: AttributionAssignment,
 ): Attribution | null => {
   if (activity.creditType !== requirement.creditType) return null;
+  if (
+    activity.associationRequirementId &&
+    activity.associationRequirementId !== requirement.id
+  )
+    return null;
   const placement = withinWindow(
     activity.date,
     effectiveWindow(requirement, assignment),

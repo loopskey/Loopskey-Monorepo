@@ -1,0 +1,354 @@
+import {
+  AssociationAttributionState,
+  AssociationMemberStatus,
+} from "@prisma/client";
+import {
+  AssociationAudienceKind,
+  AssociationLearningContentStatus,
+} from "@prisma/client";
+import { type ProfessionalComplianceApi } from "@professional/public/professional-compliance-api";
+import { PROFESSIONAL_COMPLIANCE_API } from "@professional/public/professional-compliance-api";
+import { type CatalogEndorsementApi } from "@landing/public/catalog-endorsement-api";
+import {
+  AssociationRequirementStatus,
+  ContentType,
+  Prisma,
+} from "@prisma/client";
+import { Inject, Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { CATALOG_ENDORSEMENT_API } from "@landing/public/catalog-endorsement-api";
+import { type CatalogItemProjection } from "@landing/public/catalog-endorsement-api";
+import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
+import {
+  daysRemaining,
+  round2,
+} from "@association/utils/compliance-attribution.util";
+import { PrismaService } from "@prisma/prisma.service";
+
+const ACTIVITY_LIMIT = 100;
+const LEARNING_CONTENT_LIMIT = 100;
+
+const ASSIGNMENT_SELECT = {
+  id: true,
+  cycleStart: true,
+  cycleEnd: true,
+  dueDate: true,
+  percent: true,
+  band: true,
+  completedCredits: true,
+  awaitingReviewCount: true,
+  isMissingEvidence: true,
+  member: { select: { id: true, groupId: true } },
+  requirement: {
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      creditType: true,
+      evidencePolicy: true,
+      totalRequiredCredits: true,
+      association: { select: { id: true, name: true } },
+      categories: {
+        orderBy: { order: "asc" },
+        select: { id: true, name: true, requiredCredits: true },
+      },
+    },
+  },
+} satisfies Prisma.AssociationRequirementAssignmentSelect;
+
+type AssignmentRow = Prisma.AssociationRequirementAssignmentGetPayload<{
+  select: typeof ASSIGNMENT_SELECT;
+}>;
+
+const CONTENT_SELECT = {
+  id: true,
+  contentType: true,
+  contentId: true,
+  externalTitle: true,
+  externalProvider: true,
+  externalUrl: true,
+  description: true,
+  category: true,
+  indicativeCredits: true,
+} satisfies Prisma.AssociationLearningContentSelect;
+
+type ContentRow = Prisma.AssociationLearningContentGetPayload<{
+  select: typeof CONTENT_SELECT;
+}>;
+
+type CatalogRef = { contentType: ContentType; contentId: string };
+
+const catalogRefOf = (row: ContentRow): CatalogRef | null =>
+  row.contentType && row.contentId
+    ? { contentType: row.contentType, contentId: row.contentId }
+    : null;
+
+const catalogKey = (reference: { contentType: string; contentId: string }) =>
+  `${reference.contentType}:${reference.contentId}`;
+
+const percentOf = (completed: number, required: number) => {
+  if (required > 0) return (completed / required) * 100;
+  return completed > 0 ? 100 : 0;
+};
+
+const project = (row: AssignmentRow, now: Date) => ({
+  assignmentId: row.id,
+  requirementId: row.requirement.id,
+  name: row.requirement.name,
+  description: row.requirement.description,
+  associationId: row.requirement.association.id,
+  associationName: row.requirement.association.name,
+  creditType: row.requirement.creditType,
+  evidencePolicy: row.requirement.evidencePolicy,
+  requiredCredits: row.requirement.totalRequiredCredits,
+  completedCredits: row.completedCredits,
+  remainingCredits: round2(
+    Math.max(row.requirement.totalRequiredCredits - row.completedCredits, 0),
+  ),
+  percent: row.percent,
+  band: row.band,
+  dueDate: row.dueDate,
+  daysRemaining: daysRemaining(row.dueDate, now),
+  awaitingReviewCount: row.awaitingReviewCount,
+  isMissingEvidence: row.isMissingEvidence,
+  cycleStart: row.cycleStart,
+  cycleEnd: row.cycleEnd,
+});
+
+const byDeadline = (
+  left: { dueDate: Date | null; name: string },
+  right: { dueDate: Date | null; name: string },
+) => {
+  if (left.dueDate && right.dueDate)
+    return left.dueDate.getTime() - right.dueDate.getTime();
+  if (left.dueDate) return -1;
+  if (right.dueDate) return 1;
+  return left.name.localeCompare(right.name);
+};
+
+@Injectable()
+export class AssociationMyRequirementsService {
+  private readonly logger = new Logger(AssociationMyRequirementsService.name);
+
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(CATALOG_ENDORSEMENT_API)
+    private readonly catalog: CatalogEndorsementApi,
+    @Inject(PROFESSIONAL_COMPLIANCE_API)
+    private readonly activities: ProfessionalComplianceApi,
+  ) {}
+
+  async list(userId: string) {
+    const assignments = await this.currentAssignments(userId);
+    const now = new Date();
+
+    return assignments.map((row) => project(row, now)).sort(byDeadline);
+  }
+
+  async one(userId: string, requirementId: string) {
+    const [assignment] = await this.currentAssignments(userId, requirementId);
+
+    if (!assignment)
+      throw new NotFoundException({
+        code: AssociationMessageCode.REQUIREMENT_NOT_FOUND,
+        message: "That requirement is not assigned to you.",
+      });
+
+    const [categories, activities, learningContents] = await Promise.all([
+      this.categories(assignment),
+      this.loggedActivities(userId, assignment.id),
+      this.learningContents(userId, assignment),
+    ]);
+
+    return {
+      ...project(assignment, new Date()),
+      categories,
+      activities,
+      learningContents,
+    };
+  }
+
+  private async currentAssignments(userId: string, requirementId?: string) {
+    const rows = await this.prisma.associationRequirementAssignment.findMany({
+      where: {
+        isTargeted: true,
+        member: {
+          userId,
+          status: { not: AssociationMemberStatus.INACTIVE },
+        },
+        requirement: {
+          status: AssociationRequirementStatus.PUBLISHED,
+          association: { deletedAt: null },
+          ...(requirementId ? { id: requirementId } : {}),
+        },
+      },
+      orderBy: [{ cycleStart: "desc" }, { id: "asc" }],
+      select: ASSIGNMENT_SELECT,
+    });
+
+    const latest = new Map<string, AssignmentRow>();
+    for (const row of rows)
+      if (!latest.has(row.requirement.id)) latest.set(row.requirement.id, row);
+
+    return [...latest.values()];
+  }
+
+  private async categories(assignment: AssignmentRow) {
+    const credits = await this.prisma.associationCreditAttribution.groupBy({
+      by: ["categoryId"],
+      where: {
+        assignmentId: assignment.id,
+        state: AssociationAttributionState.COUNTED,
+        categoryId: { not: null },
+      },
+      _sum: { creditedAmount: true },
+    });
+
+    const completedBy = new Map(
+      credits.map((row) => [row.categoryId, row._sum.creditedAmount ?? 0]),
+    );
+
+    return assignment.requirement.categories.map((category) => {
+      const completedCredits = completedBy.get(category.id) ?? 0;
+
+      return {
+        id: category.id,
+        name: category.name,
+        requiredCredits: category.requiredCredits,
+        completedCredits,
+        percent: percentOf(completedCredits, category.requiredCredits),
+      };
+    });
+  }
+
+  private async loggedActivities(userId: string, assignmentId: string) {
+    const attributions =
+      await this.prisma.associationCreditAttribution.findMany({
+        where: { assignmentId },
+        orderBy: [{ activityDate: "desc" }, { id: "desc" }],
+        take: ACTIVITY_LIMIT,
+        select: {
+          activityId: true,
+          creditedAmount: true,
+          isLate: true,
+          state: true,
+          category: { select: { name: true } },
+        },
+      });
+
+    const details = await this.activities.activityDetailsForOwners(
+      attributions.map((attribution) => attribution.activityId),
+      [userId],
+    );
+    const detailById = new Map(details.map((detail) => [detail.id, detail]));
+
+    return attributions.flatMap((attribution) => {
+      const detail = detailById.get(attribution.activityId);
+      if (!detail) return [];
+
+      return [
+        {
+          activityId: detail.id,
+          title: detail.title,
+          date: detail.date,
+          category: detail.category,
+          credits: detail.credits,
+          creditedAmount: attribution.creditedAmount,
+          state: attribution.state,
+          isLate: attribution.isLate,
+          hasEvidence: detail.hasEvidence,
+          categoryName: attribution.category?.name ?? null,
+          reviewNote: detail.reviewNote,
+        },
+      ];
+    });
+  }
+
+  private async learningContents(userId: string, assignment: AssignmentRow) {
+    const { member } = assignment;
+
+    const rows = await this.prisma.associationLearningContent.findMany({
+      where: {
+        requirementId: assignment.requirement.id,
+        status: AssociationLearningContentStatus.PUBLISHED,
+        OR: [
+          { audienceKind: AssociationAudienceKind.ALL_MEMBERS },
+          ...(member.groupId
+            ? [
+                {
+                  audienceKind: AssociationAudienceKind.GROUP,
+                  targets: { some: { groupId: member.groupId } },
+                },
+              ]
+            : []),
+          {
+            audienceKind: AssociationAudienceKind.SPECIFIC_MEMBERS,
+            targets: { some: { memberId: member.id } },
+          },
+        ],
+      },
+      orderBy: [{ publishedAt: "desc" }, { id: "desc" }],
+      take: LEARNING_CONTENT_LIMIT,
+      select: CONTENT_SELECT,
+    });
+
+    if (!rows.length) return [];
+
+    const [resolved, logged] = await Promise.all([
+      this.resolveCatalog(rows),
+      this.activities.activitiesForMembers({ userIds: [userId] }),
+    ]);
+
+    return rows.map((row) => {
+      const reference = catalogRefOf(row);
+      const catalog = reference
+        ? (resolved?.get(catalogKey(reference)) ?? null)
+        : null;
+
+      const isCompleted = logged.some(
+        (activity) =>
+          activity.associationLearningContentId === row.id ||
+          (reference !== null &&
+            activity.contentType === reference.contentType &&
+            activity.contentId === reference.contentId),
+      );
+
+      return {
+        id: row.id,
+        isExternal: reference === null,
+        isCompleted,
+        title: catalog?.title ?? row.externalTitle ?? "",
+        provider: catalog?.provider ?? row.externalProvider,
+        slug: catalog?.slug ?? null,
+        imageUrl: catalog?.imageUrl ?? null,
+        isAvailable: reference
+          ? (catalog?.isAvailable ?? resolved === null)
+          : true,
+        contentType: row.contentType,
+        contentId: row.contentId,
+        externalUrl: row.externalUrl,
+        description: row.description,
+        category: row.category,
+        indicativeCredits: row.indicativeCredits,
+      };
+    });
+  }
+
+  private async resolveCatalog(rows: ContentRow[]) {
+    const references = rows
+      .map(catalogRefOf)
+      .filter((reference): reference is CatalogRef => reference !== null);
+
+    if (!references.length) return new Map<string, CatalogItemProjection>();
+
+    try {
+      const items = await this.catalog.resolveCatalogItems(references);
+      return new Map(items.map((item) => [catalogKey(item), item]));
+    } catch (error) {
+      this.logger.warn("The learning catalogue could not be resolved", {
+        references: references.length,
+        reason: error instanceof Error ? error.message : "unknown",
+      });
+      return null;
+    }
+  }
+}

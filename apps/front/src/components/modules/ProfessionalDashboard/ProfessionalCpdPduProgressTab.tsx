@@ -1,10 +1,13 @@
 "use client";
 
+import { RequirementAssociationView } from "@modules/ProfessionalDashboard/parts/requirement-association-view";
+import { RequirementActivitiesTable } from "@modules/ProfessionalDashboard/parts/requirement-activities-table";
 import { CpdMissingRequirements } from "@modules/ProfessionalDashboard/parts/cpd-missing-requirements";
 import { CpdCategoryCompletion } from "@modules/ProfessionalDashboard/parts/cpd-category-completion";
 import { CpdProgressOverview } from "@modules/ProfessionalDashboard/parts/cpd-progress-overview";
+import { RequirementSelector } from "@modules/ProfessionalDashboard/parts/requirement-selector";
 import { useCpdPduProgress } from "@/hooks/useCpdPduProgress";
-import { CpdPlanSelector } from "@modules/ProfessionalDashboard/parts/cpd-plan-selector";
+import { planActivityRows } from "@/utils/professional-requirement.helper";
 import { CpdSearchModal } from "@modules/ProfessionalDashboard/parts/cpd-search-modal";
 import { CpdEmptyState } from "@modules/ProfessionalDashboard/parts/cpd-empty-state";
 import { CpdSetupFlow } from "@modules/ProfessionalDashboard/parts/cpd-setup-flow";
@@ -27,6 +30,21 @@ const ProfessionalCpdPduProgressTab = () => {
         onSubmit={cpd.submitSetup}
       />
     );
+
+  const loadError = cpd.isAssociationsError ? (
+    <div className="flex flex-wrap items-center gap-3 rounded-md border border-destructive/30 bg-destructive/5 p-4 text-sm">
+      <span>{t("cpdProgress.requirements.loadError")}</span>
+      <Button
+        size="sm"
+        radius="xl"
+        type="button"
+        variant="outline"
+        onClick={() => cpd.refetchAssociations()}
+      >
+        {t("cpdProgress.requirements.retry")}
+      </Button>
+    </div>
+  ) : null;
 
   return (
     <div className="space-y-6">
@@ -72,28 +90,43 @@ const ProfessionalCpdPduProgressTab = () => {
         </div>
       </div>
 
-      {cpd.isPlansLoading ? (
+      {cpd.isRequirementsLoading ? (
         <div className="flex min-h-96 items-center justify-center">
           <L.Loader2 className="h-7 w-7 animate-spin text-primary" />
         </div>
-      ) : !cpd.hasPlans ? (
-        <CpdEmptyState t={t} onCreate={cpd.openSearch} />
+      ) : !cpd.hasRequirements ? (
+        <div className="space-y-4">
+          {loadError}
+          <CpdEmptyState t={t} onCreate={cpd.openSearch} />
+        </div>
       ) : (
         <div className="space-y-6">
-          <CpdPlanSelector
+          {loadError}
+
+          <RequirementSelector
             t={t}
-            plans={cpd.plans}
+            options={cpd.options}
             isDeleting={cpd.isDeleting}
+            selectedKey={cpd.activeKey}
             onDelete={cpd.requestDelete}
-            onSelect={cpd.setSelectedPlanId}
-            selectedPlanId={cpd.selectedPlanId}
+            onSelect={cpd.setSelectedKey}
+            onLogActivity={cpd.goToAddActivity}
             onEdit={(planId) => {
               const plan = cpd.plans.find((item) => item.id === planId);
               if (plan) cpd.editPlan(plan);
             }}
           />
 
-          {cpd.isProgressLoading || !cpd.progress || !cpd.selectedPlan ? (
+          {cpd.selectedAssociation ? (
+            <RequirementAssociationView
+              t={t}
+              detail={cpd.associationDetail}
+              summary={cpd.selectedAssociation}
+              onMarkComplete={cpd.markComplete}
+              onLogActivity={cpd.goToAddActivity}
+              isLoading={cpd.isAssociationDetailLoading}
+            />
+          ) : cpd.isProgressLoading || !cpd.progress || !cpd.selectedPlan ? (
             <div className="flex min-h-72 items-center justify-center">
               <L.Loader2 className="h-7 w-7 animate-spin text-primary" />
             </div>
@@ -117,6 +150,11 @@ const ProfessionalCpdPduProgressTab = () => {
                   onAddActivity={cpd.goToAddActivity}
                 />
               </div>
+              <RequirementActivitiesTable
+                t={t}
+                isLoading={cpd.isPlanActivitiesLoading}
+                rows={planActivityRows(t, cpd.planActivities)}
+              />
             </>
           )}
         </div>

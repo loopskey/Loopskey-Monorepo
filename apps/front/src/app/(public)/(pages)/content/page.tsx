@@ -2,16 +2,20 @@
 
 import { ContentPagination } from "@elements/pagination";
 import { useContentPage } from "@/hooks/useContentPage";
-import { AnimatedTabs } from "@elements/animated-tabs";
 
 import ContentCardSkeleton from "@modules/Content/ContentCardSkeleton";
 import ContentSearchHero from "@modules/Content/ContentSearchHero";
+import ContentTabs from "@modules/Content/ContentTabs";
 import FilterPanel from "@modules/Content/FilterPanel";
 import ContentCard from "@modules/Content/ContentCard";
 import EmptyState from "@modules/Content/EmptyState";
 
+const CARD_GRID_CLASS_NAME =
+  "grid gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4";
+
 const ContentPage = () => {
   const {
+    t,
     TAKE,
     tabs,
     items,
@@ -26,29 +30,36 @@ const ContentPage = () => {
   } = useContentPage();
 
   return (
-    <main className="px-4 py-10 sm:px-6 lg:px-8">
+    <main className="px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-6">
-        <ContentSearchHero />
+        <div className="space-y-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <ContentSearchHero
+              activeTab={activeTab}
+              totalCount={activeData?.totalCount}
+            />
 
-        <div className="flex flex-col gap-4">
-          <AnimatedTabs
-            tabs={tabs}
-            activeTab={activeTab}
-            onChange={setActiveTab}
-          />
+            <ContentTabs
+              tabs={tabs}
+              activeTab={activeTab}
+              onChange={setActiveTab}
+              label={t("content.tabs.label")}
+            />
+          </div>
+
           <FilterPanel {...filterPanelProps} />
         </div>
 
         <section className="min-w-0 space-y-6">
           {isLoading ? (
-            <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+            <div className={CARD_GRID_CLASS_NAME}>
               {Array.from({ length: TAKE }).map((_, index) => (
                 <ContentCardSkeleton key={index} />
               ))}
             </div>
           ) : items.length > 0 ? (
             <>
-              <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+              <div className={CARD_GRID_CLASS_NAME}>
                 {items.map((item) => (
                   <ContentCard key={`${item.kind}-${item.id}`} item={item} />
                 ))}

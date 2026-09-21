@@ -45,6 +45,7 @@ const createPrismaMock = () => ({
   pDUActivity: {
     aggregate: jest.fn(),
     count: jest.fn().mockResolvedValue(0),
+    findMany: jest.fn().mockResolvedValue([]),
   },
 });
 
@@ -93,6 +94,7 @@ describe("ProfessionalCpdPlanService.progress", () => {
       { cpdPlanId: "plan-1" },
       {
         cpdPlanId: null,
+        associationRequirementId: null,
         creditType: CreditType.PDU,
         date: {
           gte: basePlan.reportingStart,
@@ -100,6 +102,20 @@ describe("ProfessionalCpdPlanService.progress", () => {
         },
       },
     ]);
+  });
+
+  it("leaves activities assigned to an association requirement out of the plan's auto-match", async () => {
+    const { service, prisma } = createService();
+    prisma.pDUActivity.aggregate.mockResolvedValue({
+      _sum: { pdus: 0 },
+      _count: 0,
+    });
+
+    await service.progress(professional, "plan-1");
+
+    const [, autoMatch] =
+      prisma.pDUActivity.aggregate.mock.calls[0][0].where.OR;
+    expect(autoMatch.associationRequirementId).toBeNull();
   });
 
   it("does not let starting credits inflate earned, remaining, or the donut", async () => {
@@ -313,5 +329,31 @@ describe("ProfessionalCpdPlanService.upsertDraftPlan", () => {
         { name: "Ethics", targetCredits: 6, completedCredits: 0, order: 0 },
       ],
     });
+  });
+});
+
+describe("ProfessionalCpdPlanService.planActivities", () => {
+  it("lists linked and auto-matched activities, rejected ones included, scoped to the owner", async () => {
+    const { service, prisma } = createService();
+    prisma.pDUActivity.findMany.mockResolvedValue([{ id: "activity-1" }]);
+
+    const activities = await service.planActivities(professional, "plan-1");
+
+    expect(activities).toEqual([{ id: "activity-1" }]);
+    const args = prisma.pDUActivity.findMany.mock.calls[0][0];
+    expect(args.where.userId).toBe("user-1");
+    expect(args.where.status).toBeUndefined();
+    expect(args.where.OR).toHaveLength(2);
+    expect(args.orderBy).toEqual({ date: "desc" });
+  });
+
+  it("refuses a plan owned by someone else", async () => {
+    const { service, prisma } = createService();
+    prisma.cPDPlan.findFirst.mockResolvedValue(null);
+
+    await expect(
+      service.planActivities(professional, "foreign-plan"),
+    ).rejects.toBeInstanceOf(NotFoundException);
+    expect(prisma.pDUActivity.findMany).not.toHaveBeenCalled();
   });
 });

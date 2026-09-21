@@ -1,26 +1,31 @@
-import { GlassCard } from "@elements/glass-card";
+import { Skeleton } from "@ui/skeleton";
 import { cn } from "@/lib/utils";
 
 const ContentCardSkeleton = ({ className }: { className?: string }) => {
   return (
-    <GlassCard
-      glow={false}
-      className={cn("overflow-hidden p-0", "animate-pulse", className)}
+    <div
+      aria-hidden
+      className={cn(
+        "flex flex-col overflow-hidden rounded-xl border bg-card shadow-sm",
+        className,
+      )}
     >
-      <div className="relative z-10">
-        <div className="h-48 w-full rounded-t-lg bg-muted/70" />
-        <div className="space-y-4 p-5">
-          <div className="h-4 w-24 rounded-full bg-muted" />
-          <div className="h-6 w-4/5 rounded-full bg-muted" />
-          <div className="h-4 w-full rounded-full bg-muted" />
-          <div className="h-4 w-3/4 rounded-full bg-muted" />
-          <div className="flex items-center justify-between pt-4">
-            <div className="h-9 w-24 rounded-full bg-muted" />
-            <div className="h-9 w-28 rounded-full bg-muted" />
-          </div>
+      <div className="flex flex-1 gap-3 p-3 sm:flex-col sm:gap-0 sm:p-0">
+        <Skeleton className="size-24 shrink-0 rounded-lg sm:aspect-video sm:size-auto sm:rounded-none" />
+
+        <div className="flex flex-1 flex-col gap-2 sm:p-4">
+          <Skeleton className="h-3 w-24 rounded-full" />
+          <Skeleton className="h-4 w-4/5 rounded-full" />
+          <Skeleton className="h-4 w-3/5 rounded-full" />
+          <Skeleton className="hidden h-3.5 w-full rounded-full sm:block" />
+          <Skeleton className="mt-auto h-3 w-32 rounded-full" />
         </div>
       </div>
-    </GlassCard>
+
+      <div className="px-3 pb-3 sm:mt-auto sm:border-t sm:px-4 sm:py-3">
+        <Skeleton className="h-9 w-full rounded-lg max-md:h-11" />
+      </div>
+    </div>
   );
 };
 

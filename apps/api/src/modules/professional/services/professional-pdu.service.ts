@@ -12,6 +12,7 @@ import { CreatePduActivityInput } from "@professional/dtos/create-pdu-activity.i
 import { UpdatePduActivityInput } from "@professional/dtos/update-pdu-activity.input";
 import { UpsertPduTargetInput } from "@professional/dtos/upsert-pdu-target.input";
 import { EVIDENCE_STORAGE } from "@professional/storage/evidence-storage.port";
+import { exclusiveRequirementLink } from "@professional/utils/pdu-requirement-link.util";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { PrismaService } from "@prisma/prisma.service";
 import { TUser } from "@common/types/user.types";
@@ -350,6 +351,7 @@ export class ProfessionalPduService {
     const { date, contentId, contentType, ...rest } = input;
     const data = {
       ...rest,
+      ...exclusiveRequirementLink(input),
       contentId,
       contentType,
       date: new Date(date),
@@ -428,6 +430,7 @@ export class ProfessionalPduService {
         where: { id: activityId },
         data: {
           ...rest,
+          ...exclusiveRequirementLink(input),
           ...(date ? { date: new Date(date) } : {}),
         },
         include: { evidenceFiles: { orderBy: { createdAt: "asc" } } },

@@ -52,6 +52,42 @@ export const cpdPlanApi = baseApi.injectEndpoints({
       providesTags: ["ProfessionalCpdPlan", "ProfessionalPdu", "Professional"],
     }),
 
+    cpdPlanActivities: builder.query<
+      TAPI.CpdPlanActivitiesQuery["cpdPlanActivities"],
+      TAPI.CpdPlanActivitiesQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.CpdPlanActivitiesDocument,
+        variables,
+      }),
+      transformResponse: (response: TAPI.CpdPlanActivitiesQuery) =>
+        response.cpdPlanActivities,
+      providesTags: ["ProfessionalCpdPlan", "ProfessionalPdu", "Professional"],
+    }),
+
+    myAssociationRequirements: builder.query<
+      TAPI.MyAssociationRequirementsQuery["myAssociationRequirements"],
+      void
+    >({
+      query: () => ({ document: API.MyAssociationRequirementsDocument }),
+      transformResponse: (response: TAPI.MyAssociationRequirementsQuery) =>
+        response.myAssociationRequirements,
+      providesTags: ["ProfessionalCpdPlan", "ProfessionalPdu", "Professional"],
+    }),
+
+    myAssociationRequirement: builder.query<
+      TAPI.MyAssociationRequirementQuery["myAssociationRequirement"],
+      TAPI.MyAssociationRequirementQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.MyAssociationRequirementDocument,
+        variables,
+      }),
+      transformResponse: (response: TAPI.MyAssociationRequirementQuery) =>
+        response.myAssociationRequirement,
+      providesTags: ["ProfessionalCpdPlan", "ProfessionalPdu", "Professional"],
+    }),
+
     cpdReportRecipients: builder.query<
       TAPI.CpdReportRecipientsQuery["cpdReportRecipients"],
       void
@@ -120,6 +156,9 @@ export const {
   useCpdPlanQuery,
   useMyCpdPlansQuery,
   useCpdPlanProgressQuery,
+  useCpdPlanActivitiesQuery,
+  useMyAssociationRequirementQuery,
+  useMyAssociationRequirementsQuery,
   useCreateCpdPlanMutation,
   useUpdateCpdPlanMutation,
   useDeleteCpdPlanMutation,

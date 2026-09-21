@@ -15,6 +15,7 @@ import * as API from "@/lib/rtk/endpoints/professional.api";
 import * as CpdAPI from "@/lib/rtk/endpoints/cpd-plan.api";
 import * as SC from "@/lib/validations/pdu-activity.schema";
 import * as C from "@/utils/pdu.constant";
+import * as R from "@/utils/professional-requirement.helper";
 import * as T from "@/types/professional-dashboard.types";
 
 const TRACKER = "professionalDashboard.cpdPduTracker";
@@ -32,7 +33,7 @@ const defaultValues: SC.TPduActivityFormInput = {
   files: [],
   creditValue: 1,
   subCategory: "",
-  cpdPlanId: "",
+  requirement: "",
   description: "",
   evidenceNote: "",
   dateCompleted: "",
@@ -79,13 +80,37 @@ export const useProfessionalAddActivity = () => {
 
   const { data: cpdPlans = [] } = CpdAPI.useMyCpdPlansQuery();
 
-  const planOptions = useMemo(
-    () =>
-      cpdPlans.map((plan) => ({
-        value: plan.id,
-        label: plan.certificationName,
-      })),
-    [cpdPlans],
+  const { data: associationRequirements = [] } =
+    CpdAPI.useMyAssociationRequirementsQuery();
+
+  const requirementOptions = useMemo(
+    () => [
+      {
+        value: R.REQUIREMENT_NONE,
+        label: t(`${TRACKER}.fields.requirementPlaceholder`),
+      },
+      ...R.buildRequirementOptions(associationRequirements, cpdPlans).map(
+        (option) => ({
+          value: option.key,
+          label: `${option.label} (${t(`cpdProgress.requirements.source.${option.source}`)})`,
+        }),
+      ),
+    ],
+    [associationRequirements, cpdPlans, t],
+  );
+
+  const requirementParam = searchParams?.get(R.REQUIREMENT_PARAM) ?? null;
+  const learningContentParam =
+    searchParams?.get(R.LEARNING_CONTENT_PARAM) ?? null;
+  const requestedRequirement = R.parseRequirementKey(requirementParam);
+  const requestedAssociationId =
+    !isEditing && requestedRequirement?.source === "ASSOCIATION"
+      ? requestedRequirement.id
+      : null;
+
+  const { data: requestedDetail } = CpdAPI.useMyAssociationRequirementQuery(
+    { requirementId: requestedAssociationId ?? "" },
+    { skip: !requestedAssociationId || !learningContentParam },
   );
 
   const [createActivity, { isLoading: isCreating }] =
@@ -119,7 +144,11 @@ export const useProfessionalAddActivity = () => {
       creditType: activity.creditType,
       description: activity.description ?? "",
       subCategory: activity.subCategory ?? "",
-      cpdPlanId: activity.cpdPlanId ?? "",
+      requirement: activity.cpdPlanId
+        ? R.requirementKey("PLAN", activity.cpdPlanId)
+        : activity.associationRequirementId
+          ? R.requirementKey("ASSOCIATION", activity.associationRequirementId)
+          : "",
       evidenceNote: activity.evidenceNote ?? "",
       dateCompleted: toDateInput(activity.date),
       learningOutcome: activity.learningOutcome ?? "",
@@ -129,6 +158,42 @@ export const useProfessionalAddActivity = () => {
       relatedCertification: activity.relatedCertification ?? "",
     });
   }, [activity, form]);
+
+  const requirementPrefilled = useRef<boolean>(false);
+  const learningContentPrefilled = useRef<boolean>(false);
+
+  useEffect(() => {
+    if (isEditing || requirementPrefilled.current || !requirementParam) return;
+    if (!requirementOptions.some((option) => option.value === requirementParam))
+      return;
+    requirementPrefilled.current = true;
+    form.setValue("requirement", requirementParam);
+  }, [form, isEditing, requirementOptions, requirementParam]);
+
+  const requestedContent = useMemo(
+    () =>
+      requestedDetail?.learningContents.find(
+        (item) => item.id === learningContentParam,
+      ) ?? null,
+    [requestedDetail, learningContentParam],
+  );
+
+  useEffect(() => {
+    if (learningContentPrefilled.current || !requestedDetail) return;
+    const content = requestedContent;
+    if (!content) return;
+    learningContentPrefilled.current = true;
+    if (content.title) form.setValue("title", content.title);
+    form.setValue(
+      "providerOrganizer",
+      content.provider ?? requestedDetail.associationName,
+    );
+    form.setValue("creditType", requestedDetail.creditType);
+    if (content.description) form.setValue("description", content.description);
+    if (content.indicativeCredits)
+      form.setValue("creditValue", content.indicativeCredits);
+    if (content.category) form.setValue("category", content.category);
+  }, [form, requestedContent, requestedDetail]);
 
   const dateCompleted = form.watch("dateCompleted");
   const category = form.watch("category");
@@ -220,6 +285,15 @@ export const useProfessionalAddActivity = () => {
 
   const onSubmit = form.handleSubmit(async (values) => {
     setStage("saving");
+    const link = R.parseRequirementKey(values.requirement);
+    const planId = link?.source === "PLAN" ? link.id : null;
+    const associationRequirementId =
+      link?.source === "ASSOCIATION" ? link.id : null;
+    const contentLink =
+      associationRequirementId &&
+      associationRequirementId === requestedAssociationId
+        ? requestedContent
+        : null;
     try {
       let targetId: string;
       if (isEditing && activityId) {
@@ -234,7 +308,11 @@ export const useProfessionalAddActivity = () => {
           learningOutcome: values.learningOutcome,
           providerOrganizer: values.providerOrganizer,
           subCategory: orUndefined(values.subCategory),
-          cpdPlanId: orUndefined(values.cpdPlanId),
+          cpdPlanId: planId,
+          associationRequirementId,
+          associationLearningContentId: associationRequirementId
+            ? undefined
+            : null,
           description: orUndefined(values.description),
           evidenceNote: orUndefined(values.evidenceNote),
           date: new Date(values.dateCompleted).toISOString(),
@@ -255,7 +333,11 @@ export const useProfessionalAddActivity = () => {
           providerOrganizer: values.providerOrganizer,
           learningOutcome: values.learningOutcome,
           subCategory: orUndefined(values.subCategory),
-          cpdPlanId: orUndefined(values.cpdPlanId),
+          cpdPlanId: orUndefined(planId),
+          associationRequirementId: orUndefined(associationRequirementId),
+          associationLearningContentId: contentLink?.id,
+          contentType: contentLink?.contentType ?? undefined,
+          contentId: contentLink?.contentId ?? undefined,
           issuingOrganization: orUndefined(values.issuingOrganization),
           relatedCertification: orUndefined(values.relatedCertification),
           description: orUndefined(values.description),
@@ -328,7 +410,7 @@ export const useProfessionalAddActivity = () => {
     handleFilesChange,
     activityTypeOptions,
     subCategoryOptions,
-    planOptions,
+    requirementOptions,
     markReportingYearTouched,
     handleRemoveExistingFile,
     handleDownloadExistingFile,

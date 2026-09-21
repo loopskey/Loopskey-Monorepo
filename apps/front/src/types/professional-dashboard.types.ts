@@ -425,7 +425,7 @@ export type TActivityStepBasicProps = {
 export type TActivityStepCreditsProps = {
   t: I18nContextValue["t"];
   subCategoryOptions: string[];
-  planOptions: { value: string; label: string }[];
+  requirementOptions: { value: string; label: string }[];
   onReportingYearTouched: () => void;
   control: Control<TPduActivityFormInput>;
 };

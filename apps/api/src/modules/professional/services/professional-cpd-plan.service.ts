@@ -25,6 +25,8 @@ import {
 
 const COUNTED_STATUS: Prisma.EnumPDUStatusFilter = { not: PDUStatus.REJECTED };
 
+const PLAN_ACTIVITY_LIMIT = 50;
+
 const planWithCategories = Prisma.validator<Prisma.CPDPlanDefaultArgs>()({
   include: { categories: { orderBy: { order: "asc" } } },
 });
@@ -420,22 +422,40 @@ export class ProfessionalCpdPlanService {
     return this.computeProgress(user, plan);
   }
 
-  private eligibleActivityWhere(
+  private linkedActivityWhere(
     user: TUser,
     plan: PlanWithCategories,
   ): Prisma.PDUActivityWhereInput {
     return {
       userId: user.id,
-      status: COUNTED_STATUS,
       OR: [
         { cpdPlanId: plan.id },
         {
           cpdPlanId: null,
+          associationRequirementId: null,
           creditType: plan.creditType,
           date: { gte: plan.reportingStart, lte: plan.reportingEnd },
         },
       ],
     };
+  }
+
+  private eligibleActivityWhere(
+    user: TUser,
+    plan: PlanWithCategories,
+  ): Prisma.PDUActivityWhereInput {
+    return { ...this.linkedActivityWhere(user, plan), status: COUNTED_STATUS };
+  }
+
+  async planActivities(user: TUser, planId: string) {
+    this.assertProfessional(user);
+    const plan = await this.findOwnedPlan(user, planId);
+    return this.prismaService.pDUActivity.findMany({
+      where: this.linkedActivityWhere(user, plan),
+      orderBy: { date: "desc" },
+      take: PLAN_ACTIVITY_LIMIT,
+      include: { evidenceFiles: { orderBy: { createdAt: "asc" } } },
+    });
   }
 
   private async computeProgress(user: TUser, plan: PlanWithCategories) {

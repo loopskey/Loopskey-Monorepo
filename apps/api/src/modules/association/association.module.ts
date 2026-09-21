@@ -9,6 +9,8 @@ import { AssociationLearningContentResolver } from "@association/resolvers/assoc
 import { AssociationLearningActivityHandler } from "@association/application/association-learning-activity.handler";
 import { AssociationReportRetentionService } from "@association/services/association-report-retention.service";
 import { AssociationLearningContentService } from "@association/services/association-learning-content.service";
+import { AssociationMyRequirementsResolver } from "@association/resolvers/association-my-requirements.resolver";
+import { AssociationMyRequirementsService } from "@association/services/association-my-requirements.service";
 import { AssociationMemberProfileResolver } from "@association/resolvers/association-member-profile.resolver";
 import { AssociationComplianceReadService } from "@association/services/association-compliance-read.service";
 import { AssociationAccessRequestResolver } from "@association/resolvers/association-access-request.resolver";
@@ -108,6 +110,8 @@ import "@association/enums/association-register.enum";
     AssociationReportExportResolver,
     AssociationReportDatasetService,
     AssociationMemberProfileService,
+    AssociationMyRequirementsService,
+    AssociationMyRequirementsResolver,
     AssociationAccessRequestService,
     AssociationComplianceReadService,
     AssociationMemberProfileResolver,
