@@ -159,6 +159,7 @@ fragment ProfessionalCourseFields on ProfessionalCourse {
   providerName
   courseCurrency
   courseImageUrl
+  courseSourceUrl
   courseCategory
   courseDescription
   courseRatingCount

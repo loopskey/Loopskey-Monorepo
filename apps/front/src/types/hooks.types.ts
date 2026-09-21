@@ -4,6 +4,8 @@ import type * as API from "@/lib/graphql/base";
 
 export type TUseContentActionsArgs = {
   contentId?: string;
+  skipReviews?: boolean;
+  skipEnrollment?: boolean;
   contentType: API.ContentType;
 };
 

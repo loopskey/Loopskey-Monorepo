@@ -2993,15 +2993,12 @@
       "notFound": "Content not found",
       "free": "Free",
       "price": "Price",
-      "minutes": "{{count}} min",
-      "authHint": "Wishlist, enrollment, cart, and reviews require sign in."
+      "minutes": "{{count}} min"
     },
     "actions": {
       "addWishlist": "Add to wishlist",
       "saved": "Saved",
       "enrolled": "Enrolled",
-      "addCart": "Add to cart",
-      "inCart": "In cart",
       "addToCalendar": "Add to calendar",
       "viewSource": "View original source"
     },
@@ -3033,8 +3030,6 @@
       }
     },
     "tabs": {
-      "overview": "Overview",
-      "curriculum": "Curriculum",
       "reviews": "Reviews",
       "schedule": "Schedule",
       "episodes": "Episodes",
@@ -3043,10 +3038,9 @@
     "messages": {
       "loginRequired": "Please sign in to continue",
       "reviewFailed": "Could not submit your review.",
-      "cartFailed": "Could not add this item to cart.",
       "actionFailed": "Action failed. Please try again.",
       "reviewSubmitted": "Your review has been submitted.",
-      "loginRequiredDescription": "You need to log in before using wishlist, enrollment, cart, or reviews."
+      "loginRequiredDescription": "You need to log in before using wishlist, enrollment, or reviews."
     },
     "course": {
       "badge": "Course",
@@ -3056,7 +3050,8 @@
       "instructor": "Instructor",
       "whatYouWillLearn": "What you will learn",
       "requirements": "Requirements",
-      "enrollNow": "Enroll now"
+      "about": "About this course",
+      "byInstructor": "By {{name}}"
     },
     "event": {
       "badge": "Event",
@@ -3064,7 +3059,13 @@
       "delivery": "Delivery",
       "location": "Location",
       "attendees": "Attendees",
-      "registerNow": "Register now"
+      "registerNow": "Register now",
+      "about": "About this event",
+      "byOrganizer": "Hosted by {{name}}",
+      "endsAt": "Ends {{date}}",
+      "speaker": "Speaker",
+      "pdu": "PDU",
+      "pduValue": "{{count}} PDU"
     },
     "podcast": {
       "badge": "Podcast",
@@ -3084,13 +3085,8 @@
       "followChannel": "Follow channel",
       "watchLatest": "Watch latest"
     },
-    "curriculum": {
-      "section": "Section",
-      "empty": "No curriculum has been added yet."
-    },
     "schedule": {
-      "day": "Day",
-      "empty": "No schedule has been added yet."
+      "day": "Day"
     },
     "episodes": {
       "episode": "Episode",
@@ -3111,6 +3107,10 @@
       "noReviews": "No reviews yet",
       "noReviewsDescription": "Be the first person to review this content.",
       "noComment": "No comment provided."
+    },
+    "goToContent": {
+      "button": "Go to content",
+      "opensAt": "Opens {{host}} in a new tab"
     }
   },
   "landing": {
