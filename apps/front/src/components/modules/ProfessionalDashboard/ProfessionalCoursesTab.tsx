@@ -3,6 +3,7 @@
 import { ExternalLearningProvider } from "@/lib/graphql/base";
 import { ExternalLearningButton } from "@elements/external-learning-btn";
 import { useProfessionalCourses } from "@/hooks/useProfessionalCourses";
+import { resolveExternalUrl } from "@/utils/content-source.helper";
 import { ContentPagination } from "@elements/pagination";
 import { GlassCard } from "@elements/glass-card";
 import { Progress } from "@ui/progress";
@@ -184,6 +185,7 @@ const ProfessionalCoursesTab = () => {
             {courses.map((course) => {
               const progress = getProgressValue(course.progress);
               const courseHref = getCourseHref(course);
+              const sourceUrl = resolveExternalUrl(course.courseSourceUrl);
               const title = getCourseTitle(course);
               return (
                 <div
@@ -322,11 +324,11 @@ const ProfessionalCoursesTab = () => {
                               )}
                             </p>
                           </div>
-                          {course.courseImageUrl ? (
+                          {sourceUrl ? (
                             <ExternalLearningButton
                               title={title}
-                              courseId={course.id ?? course.contentId}
-                              externalUrl={course.courseImageUrl}
+                              courseId={course.contentId}
+                              externalUrl={sourceUrl}
                               provider={ExternalLearningProvider.Other}
                               label={getCourseActionLabel(course)}
                             />

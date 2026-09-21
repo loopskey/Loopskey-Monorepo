@@ -125,7 +125,83 @@ export type TDetailMetaPillProps = {
   label: string;
   icon?: ReactNode;
   className?: string;
+  multiline?: boolean;
   value?: string | number | null;
+};
+
+export type TDetailFact = {
+  key: string;
+  label: string;
+  icon: ReactNode;
+  value?: string | number | null;
+};
+
+export type TDetailSummaryItem = {
+  key: string;
+  label: string;
+  value: string;
+  hint?: string | null;
+};
+
+export type TDetailSummaryProps = {
+  items: TDetailSummaryItem[];
+};
+
+export type TDetailLayoutProps = {
+  header: ReactNode;
+  sidebar: ReactNode;
+  children?: ReactNode;
+};
+
+export type TDetailPageHeaderProps = {
+  title: string;
+  badge: string;
+  byline?: string | null;
+  rating?: number | null;
+  category?: string | null;
+  ratingCount?: number | null;
+  chips?: Array<string | null | undefined>;
+};
+
+export type TDetailSidebarProps = {
+  id: string;
+  title: string;
+  kind: TDetailKind;
+  actions: ReactNode;
+  facts: TDetailFact[];
+  summary?: ReactNode;
+  imageUrl?: string | null;
+  category?: string | null;
+};
+
+export type TDetailSectionProps = {
+  title: string;
+  children: ReactNode;
+};
+
+export type TDetailGoToContentProps = {
+  url: string;
+  contentType: ContentType;
+};
+
+export type TDetailSidebarActionsProps = {
+  contentType: ContentType;
+  contentUrl: string | null;
+  wishlist: TDetailHeroWishlist;
+  prefill: TAddCalendarEventPrefill;
+  completed: TMarkCompletedPrefill;
+  register?: TDetailHeroPrimary | null;
+};
+
+export type TDetailPrimaryActionProps = {
+  className?: string;
+  contentType: ContentType;
+  primary: TDetailHeroPrimary;
+};
+
+export type TDetailWishlistButtonProps = {
+  className?: string;
+  wishlist: TDetailHeroWishlist;
 };
 
 export type TDetailHeroWishlist = {
@@ -158,15 +234,6 @@ export type TDetailHeroProps = {
   ratingCount?: number | null;
 };
 
-export type TDetailActionPanelProps = {
-  isInCart?: boolean;
-  cartLoading?: boolean;
-  isFree?: boolean | null;
-  onAddToCart?: () => void;
-  currency?: string | null;
-  price?: number | string | null;
-};
-
 export type TReviewFormProps = {
   isLoading?: boolean;
   defaultRating?: number | null;
@@ -186,27 +253,6 @@ export type TReviewsListProps = {
   reviews: TReviewItem[];
 };
 
-export type TLesson = {
-  id: string;
-  type: string;
-  title: string;
-  isPreview?: boolean | null;
-  description?: string | null;
-  durationMinutes?: number | null;
-};
-
-export type TSection = {
-  id: string;
-  title: string;
-  order: number;
-  lessons?: TLesson[] | null;
-  description?: string | null;
-};
-
-export type TCourseCurriculumProps = {
-  sections?: TSection[] | null;
-};
-
 export type TScheduleItem = {
   id: string;
   title: string;
@@ -218,6 +264,7 @@ export type TScheduleItem = {
 };
 
 export type TEventScheduleProps = {
+  timeZone?: string | null;
   items?: TScheduleItem[] | null;
 };
 

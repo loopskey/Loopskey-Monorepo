@@ -4600,6 +4600,7 @@ export type ProfessionalCourse = {
   courseRating?: Maybe<Scalars['Float']['output']>;
   courseRatingCount?: Maybe<Scalars['Int']['output']>;
   courseSlug?: Maybe<Scalars['String']['output']>;
+  courseSourceUrl?: Maybe<Scalars['String']['output']>;
   courseTitle?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   id: Scalars['ID']['output'];

@@ -6,6 +6,7 @@ const DetailMetaPill = ({
   label,
   value,
   className,
+  multiline,
 }: TDetailMetaPillProps) => {
   if (value === undefined || value === null || value === "") return null;
   return (
@@ -19,7 +20,14 @@ const DetailMetaPill = ({
         <p className="text-[0.7rem] font-medium uppercase tracking-wide text-muted-foreground">
           {label}
         </p>
-        <p className="truncate font-medium text-foreground">{value}</p>
+        <p
+          className={cn(
+            "font-medium text-foreground",
+            multiline ? "break-words" : "truncate",
+          )}
+        >
+          {value}
+        </p>
       </div>
     </div>
   );

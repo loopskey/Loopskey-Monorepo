@@ -61,6 +61,7 @@ export class ProfessionalCoursesService {
         courseIsFree: course?.isFree ?? null,
         courseCurrency: course?.currency ?? null,
         courseImageUrl: course?.imageUrl ?? null,
+        courseSourceUrl: course?.sourceUrl ?? null,
         courseCategory: course?.category ?? null,
         courseRatingCount: course?.ratingCount ?? null,
         courseDescription: course?.description ?? null,

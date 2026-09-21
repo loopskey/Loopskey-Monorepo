@@ -1,25 +1,28 @@
 "use client";
 
-import { MapPin, MonitorPlay, UserPlus, Users } from "lucide-react";
+import { Award, MapPin, MonitorPlay, Users } from "lucide-react";
 import { ContentType, EventType, PduSource } from "@/lib/graphql/base";
-import { useContentActions } from "@/hooks/useContentActions";
+import { formatEventDateTime } from "@/utils/content-source.helper";
+import { resolveExternalUrl } from "@/utils/content-source.helper";
 import { CalendarEventType } from "@/lib/graphql/base";
-import { CalendarDays } from "lucide-react";
-import { formatDate } from "@/utils/function-helper";
+import { humanizeEnumValue } from "@/utils/function-helper";
+import { useContentActions } from "@/hooks/useContentActions";
+import { formatPriceLabel } from "@/utils/content-source.helper";
 import { GlassCard } from "@elements/glass-card";
+import { UserPlus } from "lucide-react";
 import { useI18n } from "@/hooks/useI18n";
+import { Mic2 } from "lucide-react";
 
-import DetailHeroActions from "@modules/ContentDetail/parts/DetailHeroActions";
-import DetailActionPanel from "@modules/ContentDetail/parts/DetailActionPanel";
+import DetailSidebarActions from "@modules/ContentDetail/parts/DetailSidebarActions";
+import DetailPageHeader from "@modules/ContentDetail/parts/DetailPageHeader";
 import DetailSkeleton from "@modules/ContentDetail/parts/DetailSkeleton";
-import DetailMetaPill from "@modules/ContentDetail/parts/DetailMetaPill";
 import EventSchedule from "@modules/ContentDetail/parts/EventSchedule";
-import ReviewForm from "@modules/ContentDetail/parts/ReviewForm";
-import ReviewsList from "@modules/ContentDetail/parts/ReviewList";
-import DetailHero from "@modules/ContentDetail/parts/DetailHero";
+import DetailSidebar from "@modules/ContentDetail/parts/DetailSidebar";
+import DetailSummary from "@modules/ContentDetail/parts/DetailSummary";
+import DetailSection from "@modules/ContentDetail/parts/DetailSection";
+import DetailLayout from "@modules/ContentDetail/parts/DetailLayout";
 
 import * as EventApi from "@/lib/rtk/endpoints/event.api";
-import * as Tabs from "@ui/tabs";
 
 const EventDetailPage = ({ slug }: { slug: string }) => {
   const { t } = useI18n();
@@ -27,8 +30,10 @@ const EventDetailPage = ({ slug }: { slug: string }) => {
   const { data: event, isLoading } = EventApi.useEventBySlugQuery({ slug });
 
   const actions = useContentActions({
-    contentType: ContentType.Event,
+    skipReviews: true,
     contentId: event?.id,
+    contentType: ContentType.Event,
+    skipEnrollment: !event?.registrationEnabled,
   });
 
   if (isLoading) return <DetailSkeleton />;
@@ -47,142 +52,170 @@ const EventDetailPage = ({ slug }: { slug: string }) => {
     );
   }
 
-  const calendarPrefill = {
-    title: event.title,
-    type:
-      event.type === EventType.Webinar
-        ? CalendarEventType.Webinar
-        : event.type === EventType.Training
-          ? CalendarEventType.Training
-          : CalendarEventType.Event,
-    startDate: event.startDate,
-    endDate: event.endDate,
-    contentId: event.id,
-    contentType: ContentType.Event,
-  };
+  const endsAt = formatEventDateTime(event.endDate, event.timezone);
 
-  const isPaid = !event.isFree && Number(event.price ?? 0) > 0;
+  const register = event.registrationEnabled
+    ? {
+        icon: <UserPlus className="h-4 w-4" />,
+        label: t("contentDetails.event.registerNow"),
+        doneLabel: t("contentDetails.actions.enrolled"),
+        loading: actions.isEnrollLoading,
+        onClick: actions.onEnroll,
+        done: actions.isEnrolled,
+      }
+    : null;
 
   return (
-    <main className="px-4 py-10 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-7xl space-y-8">
-        <DetailHero
-          kind="event"
+    <DetailLayout
+      header={
+        <DetailPageHeader
+          title={event.title}
+          badge={t("contentDetails.event.badge")}
+          rating={event.averageRating ?? event.rating}
+          ratingCount={event.ratingCount}
+          byline={
+            event.organizer
+              ? t("contentDetails.event.byOrganizer", {
+                  name: event.organizer,
+                })
+              : null
+          }
+          chips={[
+            t(
+              `content.enums.eventType.${event.type}`,
+              {},
+              humanizeEnumValue(event.type),
+            ),
+            t(
+              `content.enums.eventCategory.${event.category}`,
+              {},
+              humanizeEnumValue(event.category),
+            ),
+          ]}
+        />
+      }
+      sidebar={
+        <DetailSidebar
           id={event.id}
+          kind="event"
           title={event.title}
           imageUrl={event.imageUrl}
           category={event.category}
-          ratingCount={event.ratingCount}
-          description={event.description}
-          badge={t("contentDetails.event.badge")}
-          rating={event.averageRating ?? event.rating}
+          summary={
+            <DetailSummary
+              items={[
+                {
+                  key: "starts",
+                  label: t("contentDetails.event.date"),
+                  value:
+                    formatEventDateTime(event.startDate, event.timezone) ?? "",
+                  hint: endsAt
+                    ? t("contentDetails.event.endsAt", { date: endsAt })
+                    : null,
+                },
+                {
+                  key: "price",
+                  label: t("contentDetails.common.price"),
+                  value: formatPriceLabel(
+                    t("contentDetails.common.free"),
+                    event.price,
+                    event.currency,
+                    event.isFree,
+                  ),
+                },
+              ]}
+            />
+          }
           actions={
-            <DetailHeroActions
+            <DetailSidebarActions
+              register={register}
               contentType={ContentType.Event}
-              sourceUrl={event.sourceUrl}
-              prefill={calendarPrefill}
+              contentUrl={resolveExternalUrl(event.sourceUrl)}
+              wishlist={{
+                isWishlisted: actions.isWishlisted,
+                loading: actions.isWishlistLoading,
+                onToggle: actions.onToggleWishlist,
+              }}
+              prefill={{
+                title: event.title,
+                type:
+                  event.type === EventType.Webinar
+                    ? CalendarEventType.Webinar
+                    : event.type === EventType.Training
+                      ? CalendarEventType.Training
+                      : CalendarEventType.Event,
+                startDate: event.startDate,
+                endDate: event.endDate,
+                contentId: event.id,
+                contentType: ContentType.Event,
+              }}
               completed={{
                 title: event.title,
                 contentId: event.id,
                 contentType: ContentType.Event,
                 activityType: PduSource.Event,
               }}
-              wishlist={{
-                isWishlisted: actions.isWishlisted,
-                loading: actions.isWishlistLoading,
-                onToggle: actions.onToggleWishlist,
-              }}
-              primary={{
-                label: t("contentDetails.event.registerNow"),
-                doneLabel: t("contentDetails.actions.enrolled"),
-                done: actions.isEnrolled,
-                loading: actions.isEnrollLoading,
-                onClick: actions.onEnroll,
-                icon: <UserPlus className="h-4 w-4" />,
-              }}
             />
           }
-        >
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <DetailMetaPill
-              value={formatDate(event.startDate)}
-              label={t("contentDetails.event.date")}
-              icon={<CalendarDays className="h-4 w-4" />}
-            />
-            <DetailMetaPill
-              value={event.deliveryMode}
-              icon={<MonitorPlay className="h-4 w-4" />}
-              label={t("contentDetails.event.delivery")}
-            />
-            <DetailMetaPill
-              icon={<MapPin className="h-4 w-4" />}
-              label={t("contentDetails.event.location")}
-              value={event.location ?? event.onlineUrl}
-            />
-            <DetailMetaPill
-              value={event.attendees}
-              icon={<Users className="h-4 w-4" />}
-              label={t("contentDetails.event.attendees")}
-            />
-          </div>
-        </DetailHero>
+          facts={[
+            {
+              key: "delivery",
+              label: t("contentDetails.event.delivery"),
+              icon: <MonitorPlay className="h-4 w-4" />,
+              value: t(
+                `providerDashboard.createEvent.enums.deliveryMode.${event.deliveryMode}`,
+                {},
+                humanizeEnumValue(event.deliveryMode),
+              ),
+            },
+            {
+              key: "location",
+              value: event.location,
+              label: t("contentDetails.event.location"),
+              icon: <MapPin className="h-4 w-4" />,
+            },
+            {
+              key: "speaker",
+              value: event.speaker,
+              label: t("contentDetails.event.speaker"),
+              icon: <Mic2 className="h-4 w-4" />,
+            },
+            {
+              key: "pdu",
+              label: t("contentDetails.event.pdu"),
+              icon: <Award className="h-4 w-4" />,
+              value:
+                event.pdu > 0
+                  ? t("contentDetails.event.pduValue", { count: event.pdu })
+                  : null,
+            },
+            {
+              key: "attendees",
+              value: event.attendees || null,
+              label: t("contentDetails.event.attendees"),
+              icon: <Users className="h-4 w-4" />,
+            },
+          ]}
+        />
+      }
+    >
+      {event.description && (
+        <DetailSection title={t("contentDetails.event.about")}>
+          <p className="whitespace-pre-line text-sm leading-7 text-muted-foreground sm:text-base">
+            {event.description}
+          </p>
+        </DetailSection>
+      )}
 
-        <div
-          className={`grid gap-6 ${
-            isPaid ? "lg:grid-cols-[minmax(0,1fr)_360px]" : ""
-          }`}
-        >
-          <section className="min-w-0">
-            <Tabs.Tabs defaultValue="schedule" className="space-y-6">
-              <Tabs.TabsList className="grid h-auto grid-cols-2 rounded-lg border p-2">
-                <Tabs.TabsTrigger
-                  value="schedule"
-                  className="rounded-md py-3 font-bold"
-                >
-                  {t("contentDetails.tabs.schedule")}
-                </Tabs.TabsTrigger>
-                <Tabs.TabsTrigger
-                  value="reviews"
-                  className="rounded-md py-3 font-bold"
-                >
-                  {t("contentDetails.tabs.reviews")}
-                </Tabs.TabsTrigger>
-              </Tabs.TabsList>
-
-              <Tabs.TabsContent value="schedule">
-                <EventSchedule items={event.scheduleItems} />
-              </Tabs.TabsContent>
-
-              <Tabs.TabsContent value="reviews" className="space-y-6">
-                <ReviewForm
-                  onSubmit={actions.onSubmitReview}
-                  isLoading={actions.isReviewLoading}
-                  defaultRating={actions.myReview?.rating}
-                  defaultComment={actions.myReview?.comment}
-                />
-                <ReviewsList
-                  reviews={actions.reviews}
-                  isLoading={actions.isReviewsLoading}
-                />
-              </Tabs.TabsContent>
-            </Tabs.Tabs>
-          </section>
-
-          {isPaid && (
-            <aside>
-              <DetailActionPanel
-                price={event.price}
-                isFree={event.isFree}
-                currency={event.currency}
-                isInCart={actions.isInCart}
-                onAddToCart={actions.onAddToCart}
-                cartLoading={actions.isCartLoading}
-              />
-            </aside>
-          )}
-        </div>
-      </div>
-    </main>
+      {event.scheduleItems && event.scheduleItems.length > 0 && (
+        <DetailSection title={t("contentDetails.tabs.schedule")}>
+          <EventSchedule
+            timeZone={event.timezone}
+            items={event.scheduleItems}
+          />
+        </DetailSection>
+      )}
+    </DetailLayout>
   );
 };
 

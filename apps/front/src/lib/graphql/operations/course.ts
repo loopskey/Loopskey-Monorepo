@@ -4,10 +4,6 @@ export type CourseFieldsFragment = { __typename?: 'Course', id: string, slug: st
 
 export type CoursePageInfoFieldsFragment = { __typename?: 'CoursePageInfo', nextCursor?: string | null, hasNextPage: boolean };
 
-export type CurriculumLessonFieldsFragment = { __typename?: 'CurriculumLesson', id: string, type: Types.CurriculumLessonType, title: string, order: number, isPreview: boolean, createdAt: string, updatedAt: string, sectionId: string, description?: string | null, durationMinutes?: number | null };
-
-export type CurriculumSectionFieldsFragment = { __typename?: 'CurriculumSection', id: string, title: string, order: number, courseId: string, description?: string | null, createdAt: string, updatedAt: string, lessons: Array<{ __typename?: 'CurriculumLesson', id: string, type: Types.CurriculumLessonType, title: string, order: number, isPreview: boolean, createdAt: string, updatedAt: string, sectionId: string, description?: string | null, durationMinutes?: number | null }> };
-
 export type CoursesQueryVariables = Types.Exact<{
   filter?: Types.InputMaybe<Types.CourseFilterInput>;
   pagination?: Types.InputMaybe<Types.CoursePaginationInput>;
@@ -29,7 +25,7 @@ export type CourseBySlugQueryVariables = Types.Exact<{
 }>;
 
 
-export type CourseBySlugQuery = { __typename?: 'Query', courseBySlug: { __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, sourceUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null, curriculumSections?: Array<{ __typename?: 'CurriculumSection', id: string, title: string, order: number, courseId: string, description?: string | null, createdAt: string, updatedAt: string, lessons: Array<{ __typename?: 'CurriculumLesson', id: string, type: Types.CurriculumLessonType, title: string, order: number, isPreview: boolean, createdAt: string, updatedAt: string, sectionId: string, description?: string | null, durationMinutes?: number | null }> }> | null } };
+export type CourseBySlugQuery = { __typename?: 'Query', courseBySlug: { __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, sourceUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null } };
 
 export type FeaturedCoursesQueryVariables = Types.Exact<{
   take?: Types.InputMaybe<Types.Scalars['Int']['input']>;
@@ -124,45 +120,6 @@ export const CoursePageInfoFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentSt
   hasNextPage
 }
     `, {"fragmentName":"CoursePageInfoFields"}) as unknown as TypedDocumentString<CoursePageInfoFieldsFragment, unknown>;
-export const CurriculumLessonFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
-    fragment CurriculumLessonFields on CurriculumLesson {
-  id
-  type
-  title
-  order
-  isPreview
-  createdAt
-  updatedAt
-  sectionId
-  description
-  durationMinutes
-}
-    `, {"fragmentName":"CurriculumLessonFields"}) as unknown as TypedDocumentString<CurriculumLessonFieldsFragment, unknown>;
-export const CurriculumSectionFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
-    fragment CurriculumSectionFields on CurriculumSection {
-  id
-  title
-  order
-  courseId
-  description
-  lessons {
-    ...CurriculumLessonFields
-  }
-  createdAt
-  updatedAt
-}
-    fragment CurriculumLessonFields on CurriculumLesson {
-  id
-  type
-  title
-  order
-  isPreview
-  createdAt
-  updatedAt
-  sectionId
-  description
-  durationMinutes
-}`, {"fragmentName":"CurriculumSectionFields"}) as unknown as TypedDocumentString<CurriculumSectionFieldsFragment, unknown>;
 export const CoursesDocument = /*#__PURE__*/ new TypedDocumentString(`
     query Courses($filter: CourseFilterInput, $pagination: CoursePaginationInput, $sort: CourseSortInput) {
   courses(filter: $filter, pagination: $pagination, sort: $sort) {
@@ -243,9 +200,6 @@ export const CourseBySlugDocument = /*#__PURE__*/ new TypedDocumentString(`
     query CourseBySlug($slug: String!) {
   courseBySlug(slug: $slug) {
     ...CourseFields
-    curriculumSections {
-      ...CurriculumSectionFields
-    }
   }
 }
     fragment CourseFields on Course {
@@ -274,30 +228,6 @@ export const CourseBySlugDocument = /*#__PURE__*/ new TypedDocumentString(`
   createdAt
   updatedAt
   deletedAt
-}
-fragment CurriculumLessonFields on CurriculumLesson {
-  id
-  type
-  title
-  order
-  isPreview
-  createdAt
-  updatedAt
-  sectionId
-  description
-  durationMinutes
-}
-fragment CurriculumSectionFields on CurriculumSection {
-  id
-  title
-  order
-  courseId
-  description
-  lessons {
-    ...CurriculumLessonFields
-  }
-  createdAt
-  updatedAt
 }`) as unknown as TypedDocumentString<CourseBySlugQuery, CourseBySlugQueryVariables>;
 export const FeaturedCoursesDocument = /*#__PURE__*/ new TypedDocumentString(`
     query FeaturedCourses($take: Int) {

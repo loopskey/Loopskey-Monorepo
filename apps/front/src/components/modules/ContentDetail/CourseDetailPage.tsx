@@ -1,23 +1,24 @@
 "use client";
 
-import { BookOpen, Clock3, GraduationCap, UserPlus, Users } from "lucide-react";
+import { CheckCircle2, Clock3, GraduationCap, Users } from "lucide-react";
 import { CalendarEventType, ContentType, PduSource } from "@/lib/graphql/base";
 import { TCourseDetailPageProps } from "@/types/content-module.types";
+import { formatDurationMinutes } from "@/utils/content-source.helper";
+import { resolveExternalUrl } from "@/utils/content-source.helper";
 import { useContentActions } from "@/hooks/useContentActions";
+import { formatPriceLabel } from "@/utils/content-source.helper";
 import { GlassCard } from "@elements/glass-card";
 import { useI18n } from "@/hooks/useI18n";
 
-import DetailHeroActions from "@modules/ContentDetail/parts/DetailHeroActions";
-import DetailActionPanel from "@modules/ContentDetail/parts/DetailActionPanel";
-import CourseCurriculum from "@modules/ContentDetail/parts/CourseCurriculum";
+import DetailSidebarActions from "@modules/ContentDetail/parts/DetailSidebarActions";
+import DetailPageHeader from "@modules/ContentDetail/parts/DetailPageHeader";
 import DetailSkeleton from "@modules/ContentDetail/parts/DetailSkeleton";
-import DetailMetaPill from "@modules/ContentDetail/parts/DetailMetaPill";
-import ReviewsList from "@modules/ContentDetail/parts/ReviewList";
-import ReviewForm from "@modules/ContentDetail/parts/ReviewForm";
-import DetailHero from "@modules/ContentDetail/parts/DetailHero";
+import DetailSidebar from "@modules/ContentDetail/parts/DetailSidebar";
+import DetailSummary from "@modules/ContentDetail/parts/DetailSummary";
+import DetailSection from "@modules/ContentDetail/parts/DetailSection";
+import DetailLayout from "@modules/ContentDetail/parts/DetailLayout";
 
 import * as CourseApi from "@/lib/rtk/endpoints/course.api";
-import * as Tabs from "@ui/tabs";
 
 const CourseDetailPage = ({ slug }: TCourseDetailPageProps) => {
   const { t } = useI18n();
@@ -27,8 +28,10 @@ const CourseDetailPage = ({ slug }: TCourseDetailPageProps) => {
   });
 
   const actions = useContentActions({
-    contentType: ContentType.Course,
+    skipReviews: true,
+    skipEnrollment: true,
     contentId: course?.id,
+    contentType: ContentType.Course,
   });
 
   if (isLoading) return <DetailSkeleton />;
@@ -47,33 +50,65 @@ const CourseDetailPage = ({ slug }: TCourseDetailPageProps) => {
     );
   }
 
-  const calendarPrefill = {
-    title: course.title,
-    type: CalendarEventType.Course,
-    contentId: course.id,
-    contentType: ContentType.Course,
-  };
-
-  const isPaid = !course.isFree && Number(course.price ?? 0) > 0;
+  const learnings = course.learnings ?? [];
+  const requirements = course.requirements ?? [];
 
   return (
-    <main className="px-4 py-10 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-7xl space-y-8">
-        <DetailHero
-          kind="course"
-          id={course.id}
+    <DetailLayout
+      header={
+        <DetailPageHeader
           title={course.title}
           rating={course.rating}
-          imageUrl={course.imageUrl}
           category={course.category}
           ratingCount={course.ratingCount}
-          description={course.description}
           badge={t("contentDetails.course.badge")}
+          byline={
+            course.instructor
+              ? t("contentDetails.course.byInstructor", {
+                  name: course.instructor,
+                })
+              : null
+          }
+        />
+      }
+      sidebar={
+        <DetailSidebar
+          id={course.id}
+          kind="course"
+          title={course.title}
+          imageUrl={course.imageUrl}
+          category={course.category}
+          summary={
+            <DetailSummary
+              items={[
+                {
+                  key: "price",
+                  label: t("contentDetails.common.price"),
+                  value: formatPriceLabel(
+                    t("contentDetails.common.free"),
+                    course.price,
+                    course.currency,
+                    course.isFree,
+                  ),
+                },
+              ]}
+            />
+          }
           actions={
-            <DetailHeroActions
+            <DetailSidebarActions
               contentType={ContentType.Course}
-              sourceUrl={course.sourceUrl}
-              prefill={calendarPrefill}
+              contentUrl={resolveExternalUrl(course.sourceUrl)}
+              wishlist={{
+                isWishlisted: actions.isWishlisted,
+                loading: actions.isWishlistLoading,
+                onToggle: actions.onToggleWishlist,
+              }}
+              prefill={{
+                title: course.title,
+                type: CalendarEventType.Course,
+                contentId: course.id,
+                contentType: ContentType.Course,
+              }}
               completed={{
                 title: course.title,
                 contentId: course.id,
@@ -83,152 +118,65 @@ const CourseDetailPage = ({ slug }: TCourseDetailPageProps) => {
                 durationMinutes: course.durationMinutes,
                 level: course.level,
               }}
-              wishlist={{
-                isWishlisted: actions.isWishlisted,
-                loading: actions.isWishlistLoading,
-                onToggle: actions.onToggleWishlist,
-              }}
-              primary={{
-                label: t("contentDetails.course.enrollNow"),
-                doneLabel: t("contentDetails.actions.enrolled"),
-                done: actions.isEnrolled,
-                loading: actions.isEnrollLoading,
-                onClick: actions.onEnroll,
-                icon: <UserPlus className="h-4 w-4" />,
-              }}
             />
           }
-        >
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <DetailMetaPill
-              value={course.professionals}
-              icon={<Users className="h-4 w-4" />}
-              label={t("contentDetails.course.professionals")}
-            />
-            <DetailMetaPill
-              icon={<Clock3 className="h-4 w-4" />}
-              label={t("contentDetails.course.duration")}
-              value={
-                course.durationMinutes
-                  ? t("contentDetails.common.minutes", {
-                      count: course.durationMinutes,
-                    })
-                  : null
-              }
-            />
-            <DetailMetaPill
-              value={course.level}
-              label={t("contentDetails.course.level")}
-              icon={<GraduationCap className="h-4 w-4" />}
-            />
-            <DetailMetaPill
-              value={course.instructor}
-              icon={<BookOpen className="h-4 w-4" />}
-              label={t("contentDetails.course.instructor")}
-            />
-          </div>
-        </DetailHero>
+          facts={[
+            {
+              key: "level",
+              value: course.level,
+              label: t("contentDetails.course.level"),
+              icon: <GraduationCap className="h-4 w-4" />,
+            },
+            {
+              key: "duration",
+              label: t("contentDetails.course.duration"),
+              value: formatDurationMinutes(course.durationMinutes),
+              icon: <Clock3 className="h-4 w-4" />,
+            },
+            {
+              key: "professionals",
+              value: course.professionals || null,
+              label: t("contentDetails.course.professionals"),
+              icon: <Users className="h-4 w-4" />,
+            },
+          ]}
+        />
+      }
+    >
+      {course.description && (
+        <DetailSection title={t("contentDetails.course.about")}>
+          <p className="whitespace-pre-line text-sm leading-7 text-muted-foreground sm:text-base">
+            {course.description}
+          </p>
+        </DetailSection>
+      )}
 
-        <div
-          className={`grid gap-6 ${
-            isPaid ? "lg:grid-cols-[minmax(0,1fr)_360px]" : ""
-          }`}
-        >
-          <section className="min-w-0">
-            <Tabs.Tabs defaultValue="overview" className="space-y-6">
-              <Tabs.TabsList className="grid h-auto grid-cols-3 rounded-lg border p-2">
-                <Tabs.TabsTrigger
-                  value="overview"
-                  className="rounded-md py-3 font-bold"
-                >
-                  {t("contentDetails.tabs.overview")}
-                </Tabs.TabsTrigger>
-                <Tabs.TabsTrigger
-                  value="curriculum"
-                  className="rounded-md py-3 font-bold"
-                >
-                  {t("contentDetails.tabs.curriculum")}
-                </Tabs.TabsTrigger>
-                <Tabs.TabsTrigger
-                  value="reviews"
-                  className="rounded-md py-3 font-bold"
-                >
-                  {t("contentDetails.tabs.reviews")}
-                </Tabs.TabsTrigger>
-              </Tabs.TabsList>
-
-              <Tabs.TabsContent value="overview" className="space-y-6">
-                <GlassCard className="p-6" glow={false}>
-                  <div className="relative z-10">
-                    <h2 className="text-2xl font-medium">
-                      {t("contentDetails.course.whatYouWillLearn")}
-                    </h2>
-                    <div className="mt-5 grid gap-3 md:grid-cols-2">
-                      {(course.learnings ?? []).map((item) => (
-                        <div
-                          key={item}
-                          className="rounded-md bg-primary/10 px-4 py-3 text-sm font-semibold text-primary"
-                        >
-                          {item}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </GlassCard>
-
-                <GlassCard className="p-6" glow={false}>
-                  <div className="relative z-10">
-                    <h2 className="text-2xl font-medium">
-                      {t("contentDetails.course.requirements")}
-                    </h2>
-                    <ul className="mt-5 space-y-3">
-                      {(course.requirements ?? []).map((item) => (
-                        <li
-                          key={item}
-                          className="rounded-md border px-4 py-3 text-sm text-muted-foreground"
-                        >
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </GlassCard>
-              </Tabs.TabsContent>
-
-              <Tabs.TabsContent value="curriculum">
-                <CourseCurriculum sections={course.curriculumSections} />
-              </Tabs.TabsContent>
-
-              <Tabs.TabsContent value="reviews" className="space-y-6">
-                <ReviewForm
-                  onSubmit={actions.onSubmitReview}
-                  isLoading={actions.isReviewLoading}
-                  defaultRating={actions.myReview?.rating}
-                  defaultComment={actions.myReview?.comment}
+      {learnings.length > 0 && (
+        <DetailSection title={t("contentDetails.course.whatYouWillLearn")}>
+          <ul className="grid gap-3 sm:grid-cols-2">
+            {learnings.map((item) => (
+              <li key={item} className="flex items-start gap-3 text-sm">
+                <CheckCircle2
+                  aria-hidden
+                  className="mt-0.5 h-4 w-4 shrink-0 text-primary"
                 />
-                <ReviewsList
-                  reviews={actions.reviews}
-                  isLoading={actions.isReviewsLoading}
-                />
-              </Tabs.TabsContent>
-            </Tabs.Tabs>
-          </section>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </DetailSection>
+      )}
 
-          {isPaid && (
-            <aside>
-              <DetailActionPanel
-                price={course.price}
-                isFree={course.isFree}
-                currency={course.currency}
-                isInCart={actions.isInCart}
-                onAddToCart={actions.onAddToCart}
-                cartLoading={actions.isCartLoading}
-              />
-            </aside>
-          )}
-        </div>
-      </div>
-    </main>
+      {requirements.length > 0 && (
+        <DetailSection title={t("contentDetails.course.requirements")}>
+          <ul className="list-disc space-y-2 pl-5 text-sm text-muted-foreground marker:text-primary">
+            {requirements.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </DetailSection>
+      )}
+    </DetailLayout>
   );
 };
 
