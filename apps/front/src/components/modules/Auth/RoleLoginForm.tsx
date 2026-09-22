@@ -6,7 +6,7 @@ import { useRoleLoginForm } from "@/hooks/useLoginForm";
 import ForgotPasswordRequestForm from "@modules/Auth/parts/ForegetPasswordRequestForm";
 import LoginCredentialsForm from "@modules/Auth/parts/LoginCredentialsForm";
 import ResetPasswordForm from "@modules/Auth/parts/ResetPasswordForm";
-import AuthFlipCard from "@modules/Auth/parts/AuthFlipCard";
+import AuthStepPanel from "@modules/Auth/parts/AuthStepPanel";
 
 const RoleLoginForm = ({ role }: TRoleLoginFormProps) => {
   const {
@@ -26,9 +26,23 @@ const RoleLoginForm = ({ role }: TRoleLoginFormProps) => {
   } = useRoleLoginForm({ role });
 
   return (
-    <AuthFlipCard
-      flipped={step !== "login"}
-      front={
+    <AuthStepPanel stepKey={step}>
+      {step === "forgot" ? (
+        <ForgotPasswordRequestForm
+          form={forgotForm}
+          onSubmit={onForgotPassword}
+          onBackToLogin={backToLogin}
+          isLoading={isSendingResetCode}
+        />
+      ) : step === "reset" ? (
+        <ResetPasswordForm
+          form={resetForm}
+          onSubmit={onResetPassword}
+          onBackToLogin={backToLogin}
+          email={normalizedResetEmail}
+          isLoading={isResettingPassword}
+        />
+      ) : (
         <LoginCredentialsForm
           role={role}
           form={loginForm}
@@ -36,26 +50,8 @@ const RoleLoginForm = ({ role }: TRoleLoginFormProps) => {
           isLoading={isLoggingIn}
           onForgotPassword={goToForgot}
         />
-      }
-      back={
-        step === "forgot" ? (
-          <ForgotPasswordRequestForm
-            form={forgotForm}
-            onSubmit={onForgotPassword}
-            onBackToLogin={backToLogin}
-            isLoading={isSendingResetCode}
-          />
-        ) : (
-          <ResetPasswordForm
-            form={resetForm}
-            onSubmit={onResetPassword}
-            onBackToLogin={backToLogin}
-            email={normalizedResetEmail}
-            isLoading={isResettingPassword}
-          />
-        )
-      }
-    />
+      )}
+    </AuthStepPanel>
   );
 };
 

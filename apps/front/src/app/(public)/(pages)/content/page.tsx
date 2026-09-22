@@ -30,8 +30,8 @@ const ContentPage = () => {
   } = useContentPage();
 
   return (
-    <main className="px-4 py-6 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-7xl space-y-6">
+    <main className="py-6">
+      <div className="mx-auto max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
         <div className="space-y-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <ContentSearchHero
