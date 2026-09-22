@@ -94,3 +94,4 @@ into this index and do not rewrite previous records.
 - [`content-page-and-auth-card-ux`](feature-runs/active/content-page-and-auth-card-ux.md)
 - [`podcast-youtube-redesign-and-go-to-content`](feature-runs/active/podcast-youtube-redesign-and-go-to-content.md)
 - [`roadmap-chat-brief-default-collapsed`](feature-runs/active/roadmap-chat-brief-default-collapsed.md)
+- [`roadmap-generation-response-mapping`](feature-runs/active/roadmap-generation-response-mapping.md)
