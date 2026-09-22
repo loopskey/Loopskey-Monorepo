@@ -1,6 +1,7 @@
 import { EventStatus, IngestionContentKind, Prisma } from "@prisma/client";
 import { AbstractKindIngestionService } from "@ingestion/services/abstract-kind-ingestion.service";
 import { validateCanonicalFieldMap } from "@ingestion/utils/canonical-field-map.util";
+import { crawlTimestamps } from "@ingestion/utils/canonical-coerce.util";
 import { EVENT_CANONICAL_FIELDS } from "@ingestion/enums/event-ingestion.constant";
 import { EventIngestionPipeline } from "@ingestion/services/event-ingestion-pipeline.service";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
@@ -92,6 +93,12 @@ export class EventIngestionService extends AbstractKindIngestionService<EventCan
       isFree: core.isFree,
       pdu: core.pdu ?? 0,
       topic: core.topic ?? null,
+      sourcePlatform: core.sourcePlatform ?? null,
+      sourceLanguage: core.language ?? null,
+      rawType: core.rawType ?? null,
+      rawDeliveryMode: core.rawDeliveryMode ?? null,
+      rawCategory: core.rawCategory ?? null,
+      ...crawlTimestamps(core),
       // A crawled event is browse-only: it cannot service the registration
       // workflow, so registration ships disabled regardless of the source.
       registrationEnabled: false,

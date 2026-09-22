@@ -607,6 +607,19 @@ model Course {
   requirements String[] @default([])
   learnings    String[] @default([])
 
+  sourcePlatform String?
+  sourceLanguage String?
+  rawCategory    String?
+  rawLevel       String?
+  rawDuration    String?
+  crawledAt      DateTime?
+
+  internalCategory  String?
+  offersCertificate Boolean?
+  creditValue       Float?
+  creditSource      String?
+  creditConfidence  Float?
+
   rating        Float @default(0)
   ratingCount   Int   @default(0)
   professionals Int   @default(0)
@@ -791,6 +804,14 @@ model Event {
   earlyBirdDiscountPercent Float?
   earlyBirdEndsAt          DateTime?
 
+  sourcePlatform  String?
+  sourceLanguage  String?
+  rawType         String?
+  rawDeliveryMode String?
+  rawCategory     String?
+  lastUpdatedAt   DateTime?
+  crawledAt       DateTime?
+
   promotionRequests          EventPromotionRequest[]
   organizationAssignments    OrganizationAssignment[]
   externalLearningActivities ExternalLearningActivity[]
@@ -929,6 +950,12 @@ model Podcast {
 
   isFeatured Boolean @default(false)
 
+  sourcePlatform String?
+  sourceLanguage String?
+  rawCategory    String?
+  lastUpdatedAt  DateTime?
+  crawledAt      DateTime?
+
   providerId String?
   provider   User?   @relation("ProviderPodcasts", fields: [providerId], references: [id], onDelete: SetNull)
 
@@ -1002,6 +1029,7 @@ model YouTubeChannel {
   id          String  @id @default(cuid())
   slug        String  @unique
   externalRef String? @unique
+  sourceUrl   String?
 
   title       String
   description String?
@@ -1017,6 +1045,12 @@ model YouTubeChannel {
   status   YouTubeChannelStatus @default(DRAFT)
 
   isFeatured Boolean @default(false)
+
+  sourcePlatform String?
+  sourceLanguage String?
+  rawCategory    String?
+  lastUpdatedAt  DateTime?
+  crawledAt      DateTime?
 
   providerId   String?
   providerUser User?   @relation("ProviderYouTubeChannels", fields: [providerId], references: [id], onDelete: SetNull)

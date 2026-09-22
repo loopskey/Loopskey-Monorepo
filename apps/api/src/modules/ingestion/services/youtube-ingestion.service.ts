@@ -7,6 +7,7 @@ import { YOUTUBE_CANONICAL_FIELDS } from "@ingestion/enums/youtube-ingestion.con
 import { validateCanonicalFieldMap } from "@ingestion/utils/canonical-field-map.util";
 import { AbstractKindIngestionService } from "@ingestion/services/abstract-kind-ingestion.service";
 import { YouTubeIngestionPipeline } from "@ingestion/services/youtube-ingestion-pipeline.service";
+import { crawlTimestamps } from "@ingestion/utils/canonical-coerce.util";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { PrismaService } from "@prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
@@ -78,8 +79,13 @@ export class YouTubeIngestionService extends AbstractKindIngestionService<YouTub
     const data = {
       title: core.title,
       description: core.description ?? null,
+      sourceUrl: core.canonicalUrl,
       channelUrl: core.channelUrl,
       category: core.category,
+      sourcePlatform: core.sourcePlatform ?? null,
+      sourceLanguage: core.language ?? null,
+      rawCategory: core.rawCategory ?? null,
+      ...crawlTimestamps(core),
       status: this.publishedStatus(source) as YouTubeChannelStatus,
       // For a channel these are the source's own public figures, not platform
       // state, so a crawl may set them.

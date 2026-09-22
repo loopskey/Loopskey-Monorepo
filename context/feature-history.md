@@ -96,3 +96,4 @@ into this index and do not rewrite previous records.
 - [`roadmap-chat-brief-default-collapsed`](feature-runs/active/roadmap-chat-brief-default-collapsed.md)
 - [`roadmap-generation-response-mapping`](feature-runs/active/roadmap-generation-response-mapping.md)
 - [`roadmap-subject-taxonomy-labels`](feature-runs/active/roadmap-subject-taxonomy-labels.md)
+- [`ingest-provenance-persistence`](feature-runs/active/ingest-provenance-persistence.md)
