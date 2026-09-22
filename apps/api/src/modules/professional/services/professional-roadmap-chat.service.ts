@@ -36,6 +36,7 @@ import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
 import { draftCompletionSummary } from "@professional/utils/roadmap-step-machine.util";
 import { PatchRoadmapDraftInput } from "@professional/dtos/patch-roadmap-draft.input";
 import { mergeExtractedFields } from "@professional/utils/roadmap-draft-merge.util";
+import { subjectLabelsOf } from "@professional/utils/roadmap-draft-merge.util";
 import { COACH_INTRO_CODE } from "@professional/utils/roadmap-coach.util";
 import { COACH_QUESTION_CODE } from "@professional/utils/roadmap-coach.util";
 import { coachWidgetFor } from "@professional/utils/roadmap-coach.util";
@@ -190,11 +191,16 @@ export class ProfessionalRoadmapChatService {
     };
   }
 
-  private toProviderDraft(fields: T.RoadmapDraftFields): RoadmapDraftState {
+  private toProviderDraft(
+    fields: T.RoadmapDraftFields,
+    subjectOptions: T.RoadmapSubjectOption[],
+  ): RoadmapDraftState {
     return {
       goal: fields.goal,
       context: fields.context,
-      subjects: fields.subjects,
+      // `fields.subjects` holds taxonomy term ids; the provider's DraftState
+      // expects the text those terms name, same as the catalogue search does.
+      subjects: subjectLabelsOf(fields.subjects, subjectOptions),
       goalReason: fields.goalReason,
       targetRole: fields.targetRole,
       targetDate: fields.targetDate,
@@ -285,7 +291,7 @@ export class ProfessionalRoadmapChatService {
       subjectOptions,
       today: new Date(),
       currentStep: draft.currentStep,
-      draft: this.toProviderDraft(this.fields(draft)),
+      draft: this.toProviderDraft(this.fields(draft), subjectOptions),
       history: this.toHistory(messages ?? []),
       userMessage,
     };
