@@ -50,3 +50,18 @@ export const toStringList = (value: unknown): string[] => {
     return value.map(toText).filter((entry): entry is string => entry !== null);
   return normalizeCourseStringList(toText(value));
 };
+
+type CrawlTimestampSource = {
+  lastUpdatedAt?: string | null;
+  updatedAt?: string | null;
+  crawledAt?: string | null;
+};
+
+export const crawlTimestamps = (source: CrawlTimestampSource) => {
+  const lastUpdatedAt =
+    source.lastUpdatedAt ?? source.updatedAt ?? source.crawledAt;
+  return {
+    lastUpdatedAt: lastUpdatedAt ? new Date(lastUpdatedAt) : null,
+    crawledAt: source.crawledAt ? new Date(source.crawledAt) : null,
+  };
+};
