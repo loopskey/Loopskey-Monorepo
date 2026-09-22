@@ -1,65 +1,70 @@
 "use client";
 
-import { Headphones, PlayCircle } from "lucide-react";
 import { TPodcastEpisodesProps } from "@/types/content-module.types";
-import { GlassCard } from "@elements/glass-card";
+import { formatDurationMinutes } from "@/utils/content-source.helper";
+import { Clock3, PlayCircle } from "lucide-react";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
 
 const PodcastEpisodes = ({ episodes }: TPodcastEpisodesProps) => {
   const { t } = useI18n();
 
-  if (!episodes?.length) {
-    return (
-      <GlassCard className="p-8 text-center" glow={false}>
-        <div className="relative z-10">
-          <Headphones className="mx-auto mb-3 h-8 w-8 text-primary" />
-          <h3 className="font-medium">{t("contentDetails.episodes.empty")}</h3>
-        </div>
-      </GlassCard>
-    );
-  }
+  if (!episodes?.length) return null;
 
   return (
-    <div className="space-y-4">
+    <ol className="divide-y rounded-md border">
       {episodes.map((episode) => (
-        <GlassCard key={episode.id} className="p-5" glow={false}>
-          <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-xs font-bold text-primary">
-                {t("contentDetails.episodes.episode")} {episode.episodeNumber}
-              </p>
-              <h3 className="mt-1 text-lg font-medium">{episode.title}</h3>
-              {episode.description && (
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  {episode.description}
-                </p>
-              )}
-            </div>
+        <li
+          key={episode.id}
+          className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div className="min-w-0">
+            <p className="text-xs font-semibold text-primary">
+              {t("contentDetails.episodes.episode")} {episode.episodeNumber}
+            </p>
+            <h4 className="mt-0.5 font-medium">{episode.title}</h4>
 
-            <Button
-              radius="xl"
-              type="button"
-              variant="outline"
-              disabled={!episode.audioUrl}
-              asChild={Boolean(episode.audioUrl)}
-            >
-              {episode.audioUrl ? (
-                <a href={episode.audioUrl} target="_blank">
-                  <PlayCircle className="h-4 w-4" />
-                  {t("contentDetails.episodes.play")}
-                </a>
-              ) : (
-                <>
-                  <PlayCircle className="h-4 w-4" />
-                  {t("contentDetails.episodes.unavailable")}
-                </>
-              )}
-            </Button>
+            {episode.description && (
+              <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                {episode.description}
+              </p>
+            )}
+
+            {episode.durationMinutes ? (
+              <p className="mt-2 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Clock3 className="h-3.5 w-3.5" aria-hidden />
+                {formatDurationMinutes(episode.durationMinutes)}
+              </p>
+            ) : null}
           </div>
-        </GlassCard>
+
+          <Button
+            radius="xl"
+            type="button"
+            variant="outline"
+            className="shrink-0"
+            disabled={!episode.audioUrl}
+            asChild={Boolean(episode.audioUrl)}
+          >
+            {episode.audioUrl ? (
+              <a
+                href={episode.audioUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <PlayCircle className="h-4 w-4" />
+                {t("contentDetails.episodes.play")}
+              </a>
+            ) : (
+              <>
+                <PlayCircle className="h-4 w-4" />
+                {t("contentDetails.episodes.unavailable")}
+              </>
+            )}
+          </Button>
+        </li>
       ))}
-    </div>
+    </ol>
   );
 };
 

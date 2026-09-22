@@ -116,11 +116,6 @@ export type TContentActionInput = {
   contentType: API.ContentType;
 };
 
-export type TReviewValues = {
-  rating: number;
-  comment: string;
-};
-
 export type TDetailMetaPillProps = {
   label: string;
   icon?: ReactNode;
@@ -180,7 +175,7 @@ export type TDetailSectionProps = {
 };
 
 export type TDetailGoToContentProps = {
-  url: string;
+  url?: string | null;
   contentType: ContentType;
 };
 
@@ -218,39 +213,6 @@ export type TDetailHeroPrimary = {
   loading?: boolean;
   doneLabel?: string;
   onClick?: () => void;
-};
-
-export type TDetailHeroProps = {
-  id: string;
-  title: string;
-  badge: string;
-  kind: TDetailKind;
-  actions?: ReactNode;
-  rating?: number | null;
-  category?: string | null;
-  imageUrl?: string | null;
-  children?: React.ReactNode;
-  description?: string | null;
-  ratingCount?: number | null;
-};
-
-export type TReviewFormProps = {
-  isLoading?: boolean;
-  defaultRating?: number | null;
-  defaultComment?: string | null;
-  onSubmit: (rating: number, comment: string) => void;
-};
-
-export type TReviewItem = {
-  id: string;
-  rating: number;
-  createdAt?: string;
-  comment?: string | null;
-};
-
-export type TReviewsListProps = {
-  isLoading?: boolean;
-  reviews: TReviewItem[];
 };
 
 export type TScheduleItem = {
@@ -315,15 +277,6 @@ export type TMarkCompletedPrefill = {
   durationMinutes?: number | null;
   providerOrganizer?: string | null;
   category?: API.PduCategory | null;
-};
-
-export type TDetailHeroActionsProps = {
-  contentType: ContentType;
-  primary: TDetailHeroPrimary;
-  wishlist: TDetailHeroWishlist;
-  prefill: TAddCalendarEventPrefill;
-  completed: TMarkCompletedPrefill;
-  sourceUrl?: string | null;
 };
 
 export type TMarkAsCompletedButtonProps = {
