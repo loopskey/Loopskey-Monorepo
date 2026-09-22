@@ -178,6 +178,9 @@ docker exec "$DB_CONTAINER" psql -U "$PGUSER_VALUE" -d "$PGDB_VALUE" -c \
           count(*) filter (where finished_at is null and rolled_back_at is null) as unresolved
    from _prisma_migrations;"
 
+log "Cleaning up superseded images"
+docker image prune -f
+
 log "Deployed"
 "${DC[@]}" ps
 echo
