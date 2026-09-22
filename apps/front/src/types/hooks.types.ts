@@ -170,7 +170,7 @@ export type TTermsSection = {
   contactItems?: TTermsContactItem[];
 };
 
-export type TUseAuthFlipCardOptions = {
+export type TUseAuthStepHeightOptions = {
+  stepKey: string;
   minHeight?: number;
-  dependencies?: unknown[];
 };

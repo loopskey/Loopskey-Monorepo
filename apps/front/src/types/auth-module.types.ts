@@ -4,11 +4,10 @@ import type { ReactNode } from "react";
 
 import type * as S from "@/lib/validations/auth-form.schema";
 
-// ============== Flip Card =============
-export type TAuthFlipCard = {
-  front: ReactNode;
-  back: ReactNode;
-  flipped: boolean;
+// ============== Step Panel =============
+export type TAuthStepPanel = {
+  stepKey: string;
+  children: ReactNode;
   className?: string;
   minHeight?: number;
 };

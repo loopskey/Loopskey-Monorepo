@@ -8,7 +8,7 @@ import { Role } from "@/lib/graphql/base";
 
 import AssociationAccessRequestForm from "@modules/Auth/AssociationAccessForm";
 import RoleLoginForm from "@modules/Auth/RoleLoginForm";
-import AuthFlipCard from "@modules/Auth/parts/AuthFlipCard";
+import AuthStepPanel from "@modules/Auth/parts/AuthStepPanel";
 
 const AssociationAuthCard = () => {
   const { t } = useI18n();
@@ -37,11 +37,13 @@ const AssociationAuthCard = () => {
           </Button>
         </div>
 
-        <AuthFlipCard
-          flipped={active === "login"}
-          front={<AssociationAccessRequestForm />}
-          back={<RoleLoginForm role={Role.Association} />}
-        />
+        <AuthStepPanel stepKey={active}>
+          {active === "login" ? (
+            <RoleLoginForm role={Role.Association} />
+          ) : (
+            <AssociationAccessRequestForm />
+          )}
+        </AuthStepPanel>
       </div>
     </GlassCard>
   );

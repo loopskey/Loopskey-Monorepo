@@ -7,7 +7,7 @@ import { useState } from "react";
 import SocialAuthButtons from "@modules/Auth/parts/SocialAuthBtns";
 import RoleRegisterForm from "@modules/Auth/RoleRegisterForm";
 import RoleLoginForm from "@modules/Auth/RoleLoginForm";
-import AuthFlipCard from "@modules/Auth/parts/AuthFlipCard";
+import AuthStepPanel from "@modules/Auth/parts/AuthStepPanel";
 import AuthTabs from "@modules/Auth/parts/AuthTabs";
 
 const RoleAuthCard = ({ loginRole, registerRole }: TRoleAuthCardProps) => {
@@ -18,9 +18,10 @@ const RoleAuthCard = ({ loginRole, registerRole }: TRoleAuthCardProps) => {
       <div className="relative z-10 space-y-4">
         <AuthTabs active={active} onChange={(value) => setActive(value)} />
 
-        <AuthFlipCard
-          flipped={active === "login"}
-          front={
+        <AuthStepPanel stepKey={active}>
+          {active === "login" ? (
+            <RoleLoginForm role={loginRole} />
+          ) : (
             <div className="space-y-5">
               <RoleRegisterForm
                 role={registerRole}
@@ -29,9 +30,8 @@ const RoleAuthCard = ({ loginRole, registerRole }: TRoleAuthCardProps) => {
 
               <SocialAuthButtons role={loginRole} />
             </div>
-          }
-          back={<RoleLoginForm role={loginRole} />}
-        />
+          )}
+        </AuthStepPanel>
       </div>
     </GlassCard>
   );
