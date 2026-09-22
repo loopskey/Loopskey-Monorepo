@@ -26,6 +26,8 @@ export const ProfessionalRoadmapChatPage = () => {
   const [briefOpen, setBriefOpen] = useState<boolean>(false);
   const [startOverOpen, setStartOverOpen] = useState<boolean>(false);
   const briefDefaultAppliedRef = useRef<boolean>(false);
+  const briefAutoCollapseAppliedRef = useRef<boolean>(false);
+  const briefHasUserPreferenceRef = useRef<boolean>(false);
 
   const confirmStartOver = async () => {
     const succeeded = await chat.startOver();
@@ -37,6 +39,7 @@ export const ProfessionalRoadmapChatPage = () => {
     if (stored !== null) {
       setBriefOpen(stored === "true");
       briefDefaultAppliedRef.current = true;
+      briefHasUserPreferenceRef.current = true;
       return;
     }
     if (briefDefaultAppliedRef.current || !chat.draft) return;
@@ -45,7 +48,16 @@ export const ProfessionalRoadmapChatPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chat.draft?.completedFieldCount]);
 
+  useEffect(() => {
+    if (briefHasUserPreferenceRef.current) return;
+    if (briefAutoCollapseAppliedRef.current) return;
+    if (!chat.draft?.isComplete) return;
+    briefAutoCollapseAppliedRef.current = true;
+    setBriefOpen(false);
+  }, [chat.draft?.isComplete]);
+
   const toggleBrief = () => {
+    briefHasUserPreferenceRef.current = true;
     setBriefOpen((previous) => {
       const next = !previous;
       window.sessionStorage.setItem(BRIEF_OPEN_STORAGE_KEY, String(next));
@@ -140,13 +152,27 @@ export const ProfessionalRoadmapChatPage = () => {
               onClick={toggleBrief}
               aria-expanded={briefOpen}
               aria-controls="roadmap-brief-panel"
-              className="mb-2 flex w-full items-center justify-between rounded-md border p-3 text-sm font-medium lg:hidden"
+              aria-label={t(
+                briefOpen
+                  ? "professionalRoadmapChat.review.collapseBrief"
+                  : "professionalRoadmapChat.review.expandBrief",
+              )}
+              className="mb-2 flex w-full items-center justify-between gap-3 rounded-md border bg-card p-3 text-sm font-medium shadow-sm transition-colors hover:bg-accent/50"
             >
-              {t("professionalRoadmapChat.review.title")}
+              <span className="flex items-center gap-2">
+                {t("professionalRoadmapChat.review.title")}
+                <span
+                  aria-hidden
+                  className="rounded-full bg-muted px-2 py-0.5 text-xs font-normal text-muted-foreground"
+                >
+                  {chat.draft?.completedFieldCount}/
+                  {chat.draft?.requiredFieldCount}
+                </span>
+              </span>
               <ChevronDown
                 aria-hidden
                 className={cn(
-                  "h-4 w-4 transition-transform",
+                  "h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200",
                   briefOpen && "rotate-180",
                 )}
               />
@@ -154,9 +180,12 @@ export const ProfessionalRoadmapChatPage = () => {
 
             <div
               id="roadmap-brief-panel"
-              className={cn(!briefOpen && "hidden lg:block")}
+              className={cn(
+                "grid transition-[grid-template-rows] duration-300 ease-in-out",
+                briefOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
+              )}
             >
-              {brief}
+              <div className="overflow-hidden">{brief}</div>
             </div>
           </div>
         ) : null}

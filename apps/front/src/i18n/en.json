@@ -7479,7 +7479,9 @@
       "generateFailed": "We could not start generating your roadmap. Please try again.",
       "generateUnavailable": "Answer the remaining required fields to generate your roadmap.",
       "briefProgress": "Brief completion",
-      "briefProgressValue": "{{completed}} of {{required}} fields complete"
+      "briefProgressValue": "{{completed}} of {{required}} fields complete",
+      "expandBrief": "Expand your brief",
+      "collapseBrief": "Collapse your brief"
     },
     "sections": {
       "goal": "Goal",
