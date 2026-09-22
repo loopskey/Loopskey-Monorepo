@@ -105,6 +105,7 @@ const buildHarness = (options: {
   candidates?: RankableCandidate[];
   generate?: jest.Mock;
   activitySum?: number | null;
+  subjectTerms?: { id: string; label: string }[];
 }) => {
   const tx = {
     roadmapDraft: {
@@ -145,6 +146,9 @@ const buildHarness = (options: {
       aggregate: jest
         .fn()
         .mockResolvedValue({ _sum: { pdus: options.activitySum ?? null } }),
+    },
+    profileTaxonomyTerm: {
+      findMany: jest.fn().mockResolvedValue(options.subjectTerms ?? []),
     },
   };
 
@@ -504,6 +508,38 @@ describe("ProfessionalRoadmapGenerationService", () => {
 
       expect(harness.ai.generate).not.toHaveBeenCalled();
       expect(failureReasonOf(harness)).toBe("NO_CANDIDATES");
+    });
+
+    it("resolves the draft's subject ids to their labels before searching and generating", async () => {
+      const harness = buildHarness({
+        draft: draftRow({ subjects: ["term-kubernetes"] }),
+        subjectTerms: [{ id: "term-kubernetes", label: "Kubernetes" }],
+      });
+
+      await harness.service.runGeneration("draft-1");
+
+      // The catalogue search and the AI planner both match against subject
+      // text, so the taxonomy id the draft stores must not reach either of
+      // them verbatim.
+      expect(harness.candidates.build).toHaveBeenCalledWith(
+        expect.objectContaining({ subjects: ["Kubernetes"] }),
+      );
+      expect(harness.ai.generate.mock.calls[0][0].draft).toMatchObject({
+        subjects: ["Kubernetes"],
+      });
+    });
+
+    it("falls back to the stored id for a subject whose term no longer resolves", async () => {
+      const harness = buildHarness({
+        draft: draftRow({ subjects: ["term-deleted"] }),
+        subjectTerms: [],
+      });
+
+      await harness.service.runGeneration("draft-1");
+
+      expect(harness.candidates.build).toHaveBeenCalledWith(
+        expect.objectContaining({ subjects: ["term-deleted"] }),
+      );
     });
 
     it("derives credits from recorded activity and floors the remainder", async () => {

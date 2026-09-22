@@ -94,6 +94,25 @@ const toSubjectId = (
   return matched ? matched.id : wanted;
 };
 
+/**
+ * The inverse of `toSubjectId`: the draft only ever stores taxonomy term
+ * identifiers, but the AI service's `DraftState.subjects` and the catalogue's
+ * candidate search both match against subject *text* (an id never appears in
+ * a course title, a chat transcript, or means anything to the model). Every
+ * outbound use of `draft.subjects` has to resolve ids back to labels through
+ * this before it leaves the process. A term that no longer resolves — deleted
+ * or deactivated since it was picked — falls back to its stored id, which
+ * degrades to "matches nothing downstream" rather than silently dropping the
+ * subject from the request.
+ */
+export const subjectLabelsOf = (
+  ids: readonly string[],
+  options: readonly RoadmapSubjectOption[],
+): string[] => {
+  const labelById = new Map(options.map((option) => [option.id, option.label]));
+  return ids.map((id) => labelById.get(id) ?? id);
+};
+
 const equalToCurrent = (
   current: RoadmapDraftFields,
   key: keyof RoadmapDraftFields,
