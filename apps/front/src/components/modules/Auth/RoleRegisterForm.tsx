@@ -5,7 +5,7 @@ import { useRoleRegisterForm } from "@/hooks/useRegisterForm";
 
 import EmailOtpVerificationForm from "@modules/Auth/parts/EmailOtpVerification";
 import RegisterDetailsForm from "@modules/Auth/parts/RegisterDetailsForm";
-import AuthFlipCard from "@modules/Auth/parts/AuthFlipCard";
+import AuthStepPanel from "@modules/Auth/parts/AuthStepPanel";
 
 const RoleRegisterForm = (props: TRoleRegisterFormProps) => {
   const {
@@ -23,28 +23,26 @@ const RoleRegisterForm = (props: TRoleRegisterFormProps) => {
   } = useRoleRegisterForm(props);
 
   return (
-    <AuthFlipCard
-      flipped={step === "otp"}
-      front={
-        <RegisterDetailsForm
-          form={registerForm}
-          onSubmit={sendOtp}
-          isLoading={isRegistering}
-        />
-      }
-      back={
+    <AuthStepPanel stepKey={step}>
+      {step === "otp" ? (
         <EmailOtpVerificationForm
           form={otpForm}
           onVerify={verifyOtp}
           onResend={resendOtp}
           email={normalizedEmail}
+          onBack={goBackToDetails}
           isVerifying={isVerifying}
           isResending={isResending}
-          onBack={goBackToDetails}
           resendCooldownSeconds={60}
         />
-      }
-    />
+      ) : (
+        <RegisterDetailsForm
+          form={registerForm}
+          onSubmit={sendOtp}
+          isLoading={isRegistering}
+        />
+      )}
+    </AuthStepPanel>
   );
 };
 
