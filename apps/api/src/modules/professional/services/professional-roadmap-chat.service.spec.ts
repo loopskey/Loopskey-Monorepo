@@ -474,9 +474,12 @@ describe("sending a chat turn", () => {
 
     await service.chatTurn(OWNER, { draftId: "draft-1", message: "hello" });
 
+    // `draft.subjects` is stored as taxonomy ids, but the provider's
+    // DraftState carries subject text — same as the catalogue search does —
+    // so the outbound draft resolves the id through the fetched options.
     expect(calls[0].draft).toMatchObject({
       goal: "become a data lead",
-      subjects: ["term-data"],
+      subjects: ["Data Analysis"],
       skillLevel: SkillLevel.INTERMEDIATE,
     });
   });

@@ -8,6 +8,7 @@ import { RoadmapDraftStatus, Role } from "@prisma/client";
 import { PROFESSIONAL_CATALOG_API } from "@course/public/professional-catalog-api";
 import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
 import { verifyGeneratedRoadmap } from "@professional/utils/roadmap-generation-verify.util";
+import { subjectLabelsOf } from "@professional/utils/roadmap-draft-merge.util";
 import { BadRequestException } from "@nestjs/common";
 import { isDraftComplete } from "@professional/utils/roadmap-step-machine.util";
 import { requestContext } from "@infrastructure/observability/request-context";
@@ -157,6 +158,7 @@ export class ProfessionalRoadmapGenerationService {
     }
 
     const cpd = await this.buildCpdContext(draft);
+    const subjects = await this.resolveSubjectLabels(draft.subjects);
     const started = Date.now();
 
     let cap: number = SERVICE_AI_LIMITS.candidatesMaxItems;
@@ -167,7 +169,7 @@ export class ProfessionalRoadmapGenerationService {
       attempted += 1;
       selected = await this.candidates.build({
         cap,
-        subjects: draft.subjects,
+        subjects,
         skillLevel: draft.skillLevel,
         budgetPreference: draft.budgetPreference,
         preferredContentTypes: draft.preferredContentTypes,
@@ -182,7 +184,7 @@ export class ProfessionalRoadmapGenerationService {
       const result = await this.ai.generate({
         cpd,
         today: new Date(),
-        draft: this.toDraftState(draft),
+        draft: this.toDraftState(draft, subjects),
         maxPhases: SERVICE_AI_LIMITS.maxPhasesDefault,
         candidates: selected.map(toContentCandidate),
       });
@@ -353,11 +355,30 @@ export class ProfessionalRoadmapGenerationService {
     });
   }
 
-  private toDraftState(draft: DraftRow) {
+  /**
+   * `draft.subjects` holds taxonomy term ids (see roadmap-draft-merge.util.ts),
+   * not the text those terms name. The catalogue search matches subject text
+   * against titles, descriptions and tags, and the AI planner reasons over
+   * subject text too, so an id has to become its term's label before either
+   * one can use it — a cuid never appears in a course description or means
+   * anything to the model. A term that no longer resolves (deleted or
+   * deactivated since it was picked) falls back to its stored id, which
+   * degrades to "matches nothing" instead of silently dropping the subject.
+   */
+  private async resolveSubjectLabels(subjectIds: string[]): Promise<string[]> {
+    if (subjectIds.length === 0) return [];
+    const options = await this.prisma.profileTaxonomyTerm.findMany({
+      where: { id: { in: subjectIds } },
+      select: { id: true, label: true },
+    });
+    return subjectLabelsOf(subjectIds, options);
+  }
+
+  private toDraftState(draft: DraftRow, subjects: string[]) {
     return {
       goal: draft.goal,
       context: draft.context,
-      subjects: draft.subjects,
+      subjects,
       goalReason: draft.goalReason,
       targetRole: draft.targetRole,
       targetDate: draft.targetDate,
