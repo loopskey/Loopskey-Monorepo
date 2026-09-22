@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { RoadmapPreferencesWizard } from "./RoadmapPreferencesWizard";
 import { ChevronDown, RotateCcw } from "lucide-react";
 import { RoadmapChatTranscript } from "./RoadmapChatTranscript";
@@ -23,8 +23,9 @@ const BRIEF_OPEN_STORAGE_KEY = "roadmapChat.briefOpen";
 export const ProfessionalRoadmapChatPage = () => {
   const { t } = useI18n();
   const chat = useRoadmapChat();
-  const [briefOpen, setBriefOpen] = useState<boolean>(true);
+  const [briefOpen, setBriefOpen] = useState<boolean>(false);
   const [startOverOpen, setStartOverOpen] = useState<boolean>(false);
+  const briefDefaultAppliedRef = useRef<boolean>(false);
 
   const confirmStartOver = async () => {
     const succeeded = await chat.startOver();
@@ -33,8 +34,16 @@ export const ProfessionalRoadmapChatPage = () => {
 
   useEffect(() => {
     const stored = window.sessionStorage.getItem(BRIEF_OPEN_STORAGE_KEY);
-    if (stored !== null) setBriefOpen(stored === "true");
-  }, []);
+    if (stored !== null) {
+      setBriefOpen(stored === "true");
+      briefDefaultAppliedRef.current = true;
+      return;
+    }
+    if (briefDefaultAppliedRef.current || !chat.draft) return;
+    briefDefaultAppliedRef.current = true;
+    if (chat.draft.completedFieldCount > 0) setBriefOpen(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chat.draft?.completedFieldCount]);
 
   const toggleBrief = () => {
     setBriefOpen((previous) => {
