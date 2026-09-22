@@ -85,13 +85,12 @@ export class ProfessionalRoadmapChatResolver {
   @Mutation(() => ProfessionalRoadmapDraftEntity, {
     name: ProfessionalGqlMutationNames.REQUEST_ROADMAP_GENERATION,
   })
-  requestRoadmapGeneration(
+  async requestRoadmapGeneration(
     @CurrentUser() user: TResolverUser,
     @Args("draftId", { type: () => ID }) draftId: string,
   ) {
-    return this.generationService.requestGeneration(
-      this.getUser(user),
-      draftId,
-    );
+    const resolverUser = this.getUser(user);
+    await this.generationService.requestGeneration(resolverUser, draftId);
+    return this.chatService.draft(resolverUser, draftId);
   }
 }
