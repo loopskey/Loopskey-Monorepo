@@ -1,21 +1,23 @@
 "use client";
 
-import { CalendarEventType, ContentType, PduSource } from "@/lib/graphql/base";
 import { Eye, PlayCircle, Radio, Users } from "lucide-react";
+import { ContentType, PduSource } from "@/lib/graphql/base";
+import { resolveExternalUrl } from "@/utils/content-source.helper";
+import { humanizeEnumValue } from "@/utils/function-helper";
+import { CalendarEventType } from "@/lib/graphql/base";
 import { useContentActions } from "@/hooks/useContentActions";
 import { GlassCard } from "@elements/glass-card";
 import { useI18n } from "@/hooks/useI18n";
 
 import * as YouTubeApi from "@/lib/rtk/endpoints/youtube.api";
-import * as Tabs from "@ui/tabs";
 
-import DetailHeroActions from "@modules/ContentDetail/parts/DetailHeroActions";
+import DetailSidebarActions from "@modules/ContentDetail/parts/DetailSidebarActions";
+import DetailPageHeader from "@modules/ContentDetail/parts/DetailPageHeader";
 import DetailSkeleton from "@modules/ContentDetail/parts/DetailSkeleton";
-import DetailMetaPill from "@modules/ContentDetail/parts/DetailMetaPill";
 import YouTubeVideos from "@modules/ContentDetail/parts/YoutubeVideos";
-import ReviewsList from "@modules/ContentDetail/parts/ReviewList";
-import DetailHero from "@modules/ContentDetail/parts/DetailHero";
-import ReviewForm from "@modules/ContentDetail/parts/ReviewForm";
+import DetailSidebar from "@modules/ContentDetail/parts/DetailSidebar";
+import DetailSection from "@modules/ContentDetail/parts/DetailSection";
+import DetailLayout from "@modules/ContentDetail/parts/DetailLayout";
 
 const YouTubeDetailPage = ({ slug }: { slug: string }) => {
   const { t } = useI18n();
@@ -25,17 +27,14 @@ const YouTubeDetailPage = ({ slug }: { slug: string }) => {
   });
 
   const { data: videos = [] } = YouTubeApi.useYoutubeVideosQuery(
-    {
-      channelId: channel?.id ?? "",
-    },
-    {
-      skip: !channel?.id,
-    },
+    { channelId: channel?.id ?? "" },
+    { skip: !channel?.id },
   );
 
   const actions = useContentActions({
-    contentType: ContentType.Youtube,
+    skipEnrollment: true,
     contentId: channel?.id,
+    contentType: ContentType.Youtube,
   });
 
   if (isLoading) return <DetailSkeleton />;
@@ -54,47 +53,50 @@ const YouTubeDetailPage = ({ slug }: { slug: string }) => {
     );
   }
 
-  const calendarPrefill = {
-    title: channel.title,
-    type: CalendarEventType.Other,
-    contentId: channel.id,
-    contentType: ContentType.Youtube,
-  };
-
-  const watchHref = videos[0]?.videoUrl ?? channel.channelUrl ?? undefined;
-
-  const primary = watchHref
-    ? {
-        label: t("contentDetails.youtube.watchLatest"),
-        href: watchHref,
-        icon: <PlayCircle className="h-4 w-4" />,
-      }
-    : {
-        label: t("contentDetails.youtube.followChannel"),
-        doneLabel: t("contentDetails.actions.enrolled"),
-        done: actions.isEnrolled,
-        loading: actions.isEnrollLoading,
-        onClick: actions.onEnroll,
-        icon: <PlayCircle className="h-4 w-4" />,
-      };
-
   return (
-    <main className="px-4 py-10 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-7xl space-y-8">
-        <DetailHero
-          kind="youtube"
-          id={channel.id}
+    <DetailLayout
+      header={
+        <DetailPageHeader
           title={channel.title}
           rating={channel.rating}
-          category={channel.category}
-          imageUrl={channel.imageUrl}
-          description={channel.description}
           ratingCount={channel.ratingCount}
           badge={t("contentDetails.youtube.badge")}
+          category={t(
+            `content.enums.youtubeCategory.${channel.category}`,
+            {},
+            humanizeEnumValue(channel.category),
+          )}
+          byline={
+            channel.provider
+              ? t("contentDetails.youtube.byProvider", {
+                  name: channel.provider,
+                })
+              : null
+          }
+        />
+      }
+      sidebar={
+        <DetailSidebar
+          id={channel.id}
+          kind="youtube"
+          title={channel.title}
+          imageUrl={channel.imageUrl}
+          category={channel.category}
           actions={
-            <DetailHeroActions
+            <DetailSidebarActions
               contentType={ContentType.Youtube}
-              prefill={calendarPrefill}
+              contentUrl={resolveExternalUrl(channel.channelUrl)}
+              wishlist={{
+                isWishlisted: actions.isWishlisted,
+                loading: actions.isWishlistLoading,
+                onToggle: actions.onToggleWishlist,
+              }}
+              prefill={{
+                title: channel.title,
+                type: CalendarEventType.Other,
+                contentId: channel.id,
+                contentType: ContentType.Youtube,
+              }}
               completed={{
                 title: channel.title,
                 contentId: channel.id,
@@ -102,76 +104,51 @@ const YouTubeDetailPage = ({ slug }: { slug: string }) => {
                 activityType: PduSource.VideoLecture,
                 providerOrganizer: channel.provider,
               }}
-              wishlist={{
-                isWishlisted: actions.isWishlisted,
-                loading: actions.isWishlistLoading,
-                onToggle: actions.onToggleWishlist,
-              }}
-              primary={primary}
             />
           }
-        >
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <DetailMetaPill
-              value={channel.provider}
-              icon={<Radio className="h-4 w-4" />}
-              label={t("contentDetails.youtube.provider")}
-            />
-            <DetailMetaPill
-              value={channel.subscribers}
-              icon={<Users className="h-4 w-4" />}
-              label={t("contentDetails.youtube.subscribers")}
-            />
-            <DetailMetaPill
-              value={channel.videoCount}
-              icon={<PlayCircle className="h-4 w-4" />}
-              label={t("contentDetails.youtube.videos")}
-            />
-            <DetailMetaPill
-              value={channel.views}
-              icon={<Eye className="h-4 w-4" />}
-              label={t("contentDetails.youtube.views")}
-            />
-          </div>
-        </DetailHero>
+          facts={[
+            {
+              key: "provider",
+              value: channel.provider,
+              label: t("contentDetails.youtube.provider"),
+              icon: <Radio className="h-4 w-4" />,
+            },
+            {
+              key: "subscribers",
+              value: channel.subscribers || null,
+              label: t("contentDetails.youtube.subscribers"),
+              icon: <Users className="h-4 w-4" />,
+            },
+            {
+              key: "videos",
+              value: channel.videoCount || null,
+              label: t("contentDetails.youtube.videos"),
+              icon: <PlayCircle className="h-4 w-4" />,
+            },
+            {
+              key: "views",
+              value: channel.views || null,
+              label: t("contentDetails.youtube.views"),
+              icon: <Eye className="h-4 w-4" />,
+            },
+          ]}
+        />
+      }
+    >
+      {channel.description && (
+        <DetailSection title={t("contentDetails.youtube.about")}>
+          <p className="whitespace-pre-line text-sm leading-7 text-muted-foreground sm:text-base">
+            {channel.description}
+          </p>
+        </DetailSection>
+      )}
 
-        <section className="min-w-0">
-          <Tabs.Tabs defaultValue="videos" className="space-y-6">
-            <Tabs.TabsList className="grid h-auto grid-cols-2 rounded-lg border p-2">
-              <Tabs.TabsTrigger
-                value="videos"
-                className="rounded-md py-3 font-bold"
-              >
-                {t("contentDetails.tabs.videos")}
-              </Tabs.TabsTrigger>
-              <Tabs.TabsTrigger
-                value="reviews"
-                className="rounded-md py-3 font-bold"
-              >
-                {t("contentDetails.tabs.reviews")}
-              </Tabs.TabsTrigger>
-            </Tabs.TabsList>
-
-            <Tabs.TabsContent value="videos">
-              <YouTubeVideos videos={videos} />
-            </Tabs.TabsContent>
-
-            <Tabs.TabsContent value="reviews" className="space-y-6">
-              <ReviewForm
-                onSubmit={actions.onSubmitReview}
-                isLoading={actions.isReviewLoading}
-                defaultRating={actions.myReview?.rating}
-                defaultComment={actions.myReview?.comment}
-              />
-              <ReviewsList
-                reviews={actions.reviews}
-                isLoading={actions.isReviewsLoading}
-              />
-            </Tabs.TabsContent>
-          </Tabs.Tabs>
-        </section>
-      </div>
-    </main>
+      {videos.length > 0 && (
+        <DetailSection title={t("contentDetails.youtube.videos")}>
+          <YouTubeVideos videos={videos} />
+        </DetailSection>
+      )}
+    </DetailLayout>
   );
 };
 

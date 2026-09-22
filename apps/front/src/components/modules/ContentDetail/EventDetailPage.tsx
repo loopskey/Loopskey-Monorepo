@@ -30,7 +30,6 @@ const EventDetailPage = ({ slug }: { slug: string }) => {
   const { data: event, isLoading } = EventApi.useEventBySlugQuery({ slug });
 
   const actions = useContentActions({
-    skipReviews: true,
     contentId: event?.id,
     contentType: ContentType.Event,
     skipEnrollment: !event?.registrationEnabled,
