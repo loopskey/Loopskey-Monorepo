@@ -7481,7 +7481,9 @@
       "generateFailed": "Impossible de démarrer la génération de votre parcours. Veuillez réessayer.",
       "generateUnavailable": "Répondez aux champs obligatoires restants pour générer votre parcours.",
       "briefProgress": "Progression du résumé",
-      "briefProgressValue": "{{completed}} champs sur {{required}} complétés"
+      "briefProgressValue": "{{completed}} champs sur {{required}} complétés",
+      "expandBrief": "Déplier votre résumé",
+      "collapseBrief": "Réduire votre résumé"
     },
     "sections": {
       "goal": "Objectif",
