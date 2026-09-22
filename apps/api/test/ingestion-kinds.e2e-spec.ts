@@ -18,6 +18,30 @@ const unique = () =>
 
 const CONTRACT_VERSION = "1.0";
 
+const PROVENANCE_MAP = {
+  platform: "sourcePlatform",
+  lang: "language",
+  raw_cat: "rawCategory",
+  crawled: "crawledAt",
+  updated: "lastUpdatedAt",
+};
+
+const PROVENANCE_ITEM = {
+  platform: "COURSERA",
+  lang: "pt",
+  raw_cat: "Ciência de Dados",
+  crawled: "2026-09-01T10:00:00.000Z",
+  updated: "2026-08-20T08:30:00.000Z",
+};
+
+const PERSISTED_PROVENANCE = {
+  sourcePlatform: "COURSERA",
+  sourceLanguage: "pt",
+  rawCategory: "Ciência de Dados",
+  crawledAt: new Date("2026-09-01T10:00:00.000Z"),
+  lastUpdatedAt: new Date("2026-08-20T08:30:00.000Z"),
+};
+
 const EVENT_MAP = {
   external_id: "externalId",
   url: "canonicalUrl",
@@ -25,6 +49,9 @@ const EVENT_MAP = {
   summary: "description",
   starts_at: "startDate",
   tz: "timezone",
+  raw_type: "rawType",
+  raw_mode: "rawDeliveryMode",
+  ...PROVENANCE_MAP,
 };
 const PODCAST_MAP = {
   external_id: "externalId",
@@ -32,12 +59,14 @@ const PODCAST_MAP = {
   name: "title",
   summary: "description",
   presenter: "host",
+  ...PROVENANCE_MAP,
 };
 const YOUTUBE_MAP = {
   external_id: "externalId",
   url: "canonicalUrl",
   name: "title",
   channel_url: "channelUrl",
+  ...PROVENANCE_MAP,
 };
 const COURSE_MAP = {
   external_id: "externalId",
@@ -48,6 +77,14 @@ const COURSE_MAP = {
   cat: "category",
   lvl: "level",
   image: "imageCandidateUrl",
+  raw_lvl: "rawLevel",
+  raw_dur: "rawDuration",
+  internal_cat: "internalCategory",
+  certificate: "offersCertificate",
+  credit: "creditValue",
+  credit_src: "creditSource",
+  credit_conf: "creditConfidence",
+  ...PROVENANCE_MAP,
 };
 
 const signAccessToken = (id: string, email: string) =>
@@ -190,6 +227,9 @@ describe("Additional content kinds ingestion HTTP (e2e)", () => {
             summary: "About data.",
             starts_at: "2026-05-01T09:00:00.000Z",
             tz: "UTC",
+            raw_type: "Konferenz",
+            raw_mode: "Vor Ort",
+            ...PROVENANCE_ITEM,
           },
         ],
       },
@@ -197,6 +237,16 @@ describe("Additional content kinds ingestion HTTP (e2e)", () => {
     );
     expect(response.status).toBe(201);
     expect(response.body.createdCount).toBe(1);
+
+    const event = await prisma.event.findUniqueOrThrow({
+      where: { id: response.body.items[0].catalogId as string },
+    });
+    expect(event).toMatchObject({
+      ...PERSISTED_PROVENANCE,
+      sourceUrl: "https://example.com/e",
+      rawType: "Konferenz",
+      rawDeliveryMode: "Vor Ort",
+    });
   }, 120000);
 
   it("accepts a podcast batch on the podcast route", async () => {
@@ -217,6 +267,7 @@ describe("Additional content kinds ingestion HTTP (e2e)", () => {
             name: "The Show",
             summary: "Weekly.",
             presenter: "Ada",
+            ...PROVENANCE_ITEM,
           },
         ],
       },
@@ -224,6 +275,14 @@ describe("Additional content kinds ingestion HTTP (e2e)", () => {
     );
     expect(response.status).toBe(201);
     expect(response.body.createdCount).toBe(1);
+
+    const podcast = await prisma.podcast.findUniqueOrThrow({
+      where: { id: response.body.items[0].catalogId as string },
+    });
+    expect(podcast).toMatchObject({
+      ...PERSISTED_PROVENANCE,
+      sourceUrl: "https://example.com/p",
+    });
   }, 120000);
 
   it("accepts a YouTube batch on the youtube route", async () => {
@@ -243,6 +302,7 @@ describe("Additional content kinds ingestion HTTP (e2e)", () => {
             url: "https://example.com/c",
             name: "Channel",
             channel_url: "https://youtube.com/@c",
+            ...PROVENANCE_ITEM,
           },
         ],
       },
@@ -250,6 +310,67 @@ describe("Additional content kinds ingestion HTTP (e2e)", () => {
     );
     expect(response.status).toBe(201);
     expect(response.body.createdCount).toBe(1);
+
+    const channel = await prisma.youTubeChannel.findUniqueOrThrow({
+      where: { id: response.body.items[0].catalogId as string },
+    });
+    expect(channel).toMatchObject({
+      ...PERSISTED_PROVENANCE,
+      sourceUrl: "https://example.com/c",
+      channelUrl: "https://youtube.com/@c",
+    });
+  }, 120000);
+
+  it("persists crawl provenance and the analytical fields on a course", async () => {
+    const { credential } = await makeSource(
+      IngestionContentKind.COURSE,
+      COURSE_MAP,
+    );
+    const response = await post(
+      "/v1/ingest/course/batches",
+      {
+        contractVersion: CONTRACT_VERSION,
+        kind: "COURSE",
+        mode: "INCREMENTAL",
+        items: [
+          {
+            external_id: `crs-${unique()}`,
+            url: "https://example.com/c/provenance",
+            name: "Data Science",
+            summary: "Crawled with provenance.",
+            teacher: "Ada",
+            cat: "TECHNOLOGY",
+            lvl: "BEGINNER",
+            raw_lvl: "Iniciante",
+            raw_dur: "12 horas",
+            internal_cat: "DIGITAL_AI",
+            certificate: true,
+            credit: 12.5,
+            credit_src: "duration_derived",
+            credit_conf: 0.4,
+            ...PROVENANCE_ITEM,
+          },
+        ],
+      },
+      credential,
+    );
+    expect(response.status).toBe(201);
+    expect(response.body.createdCount).toBe(1);
+
+    const course = await prisma.course.findUniqueOrThrow({
+      where: { id: response.body.items[0].catalogId as string },
+    });
+    expect(course).toMatchObject({
+      ...PERSISTED_PROVENANCE,
+      sourceUrl: "https://example.com/c/provenance",
+      rawLevel: "Iniciante",
+      rawDuration: "12 horas",
+      internalCategory: "DIGITAL_AI",
+      offersCertificate: true,
+      creditValue: 12.5,
+      creditSource: "duration_derived",
+      creditConfidence: 0.4,
+    });
   }, 120000);
 
   it("rejects a podcast key used on the event route", async () => {

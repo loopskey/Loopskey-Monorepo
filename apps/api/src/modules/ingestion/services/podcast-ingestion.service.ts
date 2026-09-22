@@ -3,6 +3,7 @@ import { AbstractKindIngestionService } from "@ingestion/services/abstract-kind-
 import { validateCanonicalFieldMap } from "@ingestion/utils/canonical-field-map.util";
 import { PODCAST_CANONICAL_FIELDS } from "@ingestion/enums/podcast-ingestion.constant";
 import { PodcastIngestionPipeline } from "@ingestion/services/podcast-ingestion-pipeline.service";
+import { crawlTimestamps } from "@ingestion/utils/canonical-coerce.util";
 import { IngestionMessageCode } from "@ingestion/enums/message-code.enum";
 import { requestContext } from "@infrastructure/observability/request-context";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
@@ -89,6 +90,10 @@ export class PodcastIngestionService extends AbstractKindIngestionService<Podcas
       category: core.category,
       status: this.publishedStatus(source) as PodcastStatus,
       durationMinutes: core.durationMinutes ?? null,
+      sourcePlatform: core.sourcePlatform ?? null,
+      sourceLanguage: core.language ?? null,
+      rawCategory: core.rawCategory ?? null,
+      ...crawlTimestamps(core),
       deletedAt: null,
     };
 

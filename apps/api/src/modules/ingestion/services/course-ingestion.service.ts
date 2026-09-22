@@ -618,6 +618,17 @@ export class CourseIngestionService {
       ...(lastUpdatedAt ? { lastUpdatedAt: new Date(lastUpdatedAt) } : {}),
       requirements: canonical.requirements,
       learnings: canonical.learnings,
+      sourcePlatform: canonical.sourcePlatform ?? null,
+      sourceLanguage: canonical.language ?? null,
+      rawCategory: canonical.rawCategory ?? null,
+      rawLevel: canonical.rawLevel ?? null,
+      rawDuration: canonical.rawDuration ?? null,
+      crawledAt: canonical.crawledAt ? new Date(canonical.crawledAt) : null,
+      internalCategory: canonical.internalCategory ?? null,
+      offersCertificate: canonical.offersCertificate ?? null,
+      creditValue: canonical.creditValue ?? null,
+      creditSource: canonical.creditSource ?? null,
+      creditConfidence: canonical.creditConfidence ?? null,
       deletedAt: null,
     };
   }

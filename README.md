@@ -117,9 +117,12 @@ scripts/deploy.sh
 `deploy.sh` dumps the database, refuses to continue when a previous migration
 was left unresolved, fast-forwards the checkout to `origin/main`, pulls or
 builds the images, restarts the stack, waits for both health checks, and
-restores the previous images if either one fails. It pulls when `API_IMAGE` is
-set and builds otherwise; `--build` and `--pull` force one or the other, and
-`--no-git` deploys the checkout as it is.
+restores the previous images if either one fails. On success it also prunes
+dangling images (`docker image prune -f`) so each deploy's superseded layers
+don't accumulate on the host; this never touches the `:previous` rollback
+tags or named volumes, only untagged images nothing references. It pulls when
+`API_IMAGE` is set and builds otherwise; `--build` and `--pull` force one or
+the other, and `--no-git` deploys the checkout as it is.
 
 Prisma migrations run automatically before each API start. Database data and
 uploaded files live in named Docker volumes and survive container replacement.
