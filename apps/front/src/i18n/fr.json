@@ -3003,8 +3003,7 @@
       "addWishlist": "Ajouter aux favoris",
       "saved": "Enregistré",
       "enrolled": "Inscrit",
-      "addToCalendar": "Ajouter au calendrier",
-      "viewSource": "Voir la source originale"
+      "addToCalendar": "Ajouter au calendrier"
     },
     "markCompleted": {
       "button": "Marquer comme terminé",
@@ -3033,15 +3032,7 @@
         "certificateLinkPlaceholder": "https://..."
       }
     },
-    "tabs": {
-      "reviews": "Avis",
-      "schedule": "Agenda",
-      "episodes": "Épisodes",
-      "videos": "Vidéos"
-    },
     "messages": {
-      "reviewSubmitted": "Votre avis a été envoyé.",
-      "reviewFailed": "Impossible d’envoyer votre avis.",
       "actionFailed": "L’action a échoué. Veuillez réessayer.",
       "loginRequired": "Veuillez vous connecter pour continuer",
       "loginRequiredDescription": "Vous devez vous connecter avant d’utiliser les favoris, l’inscription ou les avis."
@@ -3077,8 +3068,8 @@
       "listeners": "Auditeurs",
       "episodes": "Épisodes",
       "duration": "Durée",
-      "followPodcast": "Suivre le podcast",
-      "playLatest": "Lire le dernier épisode"
+      "about": "À propos de ce podcast",
+      "byHost": "Animé par {{name}}"
     },
     "youtube": {
       "badge": "Chaîne YouTube",
@@ -3086,8 +3077,8 @@
       "subscribers": "Abonnés",
       "videos": "Vidéos",
       "views": "Vues",
-      "followChannel": "Suivre la chaîne",
-      "watchLatest": "Regarder la dernière"
+      "about": "À propos de cette chaîne",
+      "byProvider": "Par {{name}}"
     },
     "schedule": {
       "day": "Jour"
@@ -3095,13 +3086,11 @@
     "episodes": {
       "episode": "Épisode",
       "play": "Lire",
-      "unavailable": "Indisponible",
-      "empty": "Aucun épisode n’a encore été ajouté."
+      "unavailable": "Indisponible"
     },
     "videos": {
       "watch": "Regarder",
-      "unavailable": "Indisponible",
-      "empty": "Aucune vidéo n’a encore été ajoutée."
+      "unavailable": "Indisponible"
     },
     "reviews": {
       "writeReview": "Écrire un avis",
@@ -3114,7 +3103,10 @@
     },
     "goToContent": {
       "button": "Accéder au contenu",
-      "opensAt": "S’ouvre sur {{host}} dans un nouvel onglet"
+      "opensAt": "S’ouvre sur {{host}} dans un nouvel onglet",
+      "unavailableTitle": "Lien indisponible pour le moment",
+      "unavailableDescription": "Nous n'avons pas encore le lien d'origine de ce contenu. Merci de réessayer plus tard.",
+      "unavailableHint": "Le lien d'origine n'est pas encore disponible."
     }
   },
   "landing": {

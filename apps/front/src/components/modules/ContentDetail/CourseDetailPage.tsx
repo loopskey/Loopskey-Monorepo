@@ -5,6 +5,7 @@ import { CalendarEventType, ContentType, PduSource } from "@/lib/graphql/base";
 import { TCourseDetailPageProps } from "@/types/content-module.types";
 import { formatDurationMinutes } from "@/utils/content-source.helper";
 import { resolveExternalUrl } from "@/utils/content-source.helper";
+import { humanizeEnumValue } from "@/utils/function-helper";
 import { useContentActions } from "@/hooks/useContentActions";
 import { formatPriceLabel } from "@/utils/content-source.helper";
 import { GlassCard } from "@elements/glass-card";
@@ -28,7 +29,6 @@ const CourseDetailPage = ({ slug }: TCourseDetailPageProps) => {
   });
 
   const actions = useContentActions({
-    skipReviews: true,
     skipEnrollment: true,
     contentId: course?.id,
     contentType: ContentType.Course,
@@ -59,8 +59,12 @@ const CourseDetailPage = ({ slug }: TCourseDetailPageProps) => {
         <DetailPageHeader
           title={course.title}
           rating={course.rating}
-          category={course.category}
           ratingCount={course.ratingCount}
+          category={t(
+            `content.enums.courseCategory.${course.category}`,
+            {},
+            humanizeEnumValue(course.category),
+          )}
           badge={t("contentDetails.course.badge")}
           byline={
             course.instructor

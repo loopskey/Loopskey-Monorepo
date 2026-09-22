@@ -2999,8 +2999,7 @@
       "addWishlist": "Add to wishlist",
       "saved": "Saved",
       "enrolled": "Enrolled",
-      "addToCalendar": "Add to calendar",
-      "viewSource": "View original source"
+      "addToCalendar": "Add to calendar"
     },
     "markCompleted": {
       "button": "Mark as Completed",
@@ -3029,17 +3028,9 @@
         "certificateLinkPlaceholder": "https://..."
       }
     },
-    "tabs": {
-      "reviews": "Reviews",
-      "schedule": "Schedule",
-      "episodes": "Episodes",
-      "videos": "Videos"
-    },
     "messages": {
       "loginRequired": "Please sign in to continue",
-      "reviewFailed": "Could not submit your review.",
       "actionFailed": "Action failed. Please try again.",
-      "reviewSubmitted": "Your review has been submitted.",
       "loginRequiredDescription": "You need to log in before using wishlist, enrollment, or reviews."
     },
     "course": {
@@ -3073,8 +3064,8 @@
       "listeners": "Listeners",
       "episodes": "Episodes",
       "duration": "Duration",
-      "followPodcast": "Follow podcast",
-      "playLatest": "Play latest episode"
+      "about": "About this podcast",
+      "byHost": "Hosted by {{name}}"
     },
     "youtube": {
       "badge": "YouTube Channel",
@@ -3082,8 +3073,8 @@
       "subscribers": "Subscribers",
       "videos": "Videos",
       "views": "Views",
-      "followChannel": "Follow channel",
-      "watchLatest": "Watch latest"
+      "about": "About this channel",
+      "byProvider": "By {{name}}"
     },
     "schedule": {
       "day": "Day"
@@ -3091,13 +3082,11 @@
     "episodes": {
       "episode": "Episode",
       "play": "Play",
-      "unavailable": "Unavailable",
-      "empty": "No episodes have been added yet."
+      "unavailable": "Unavailable"
     },
     "videos": {
       "watch": "Watch",
-      "unavailable": "Unavailable",
-      "empty": "No videos have been added yet."
+      "unavailable": "Unavailable"
     },
     "reviews": {
       "writeReview": "Write a review",
@@ -3110,7 +3099,10 @@
     },
     "goToContent": {
       "button": "Go to content",
-      "opensAt": "Opens {{host}} in a new tab"
+      "opensAt": "Opens {{host}} in a new tab",
+      "unavailableTitle": "Link not available yet",
+      "unavailableDescription": "We don't have the original link for this content yet. Please check back later.",
+      "unavailableHint": "The original link isn't available yet."
     }
   },
   "landing": {

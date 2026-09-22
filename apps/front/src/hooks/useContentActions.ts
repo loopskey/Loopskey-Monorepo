@@ -49,7 +49,6 @@ const isUnauthorizedError = (error: unknown) => {
 export const useContentActions = ({
   contentId,
   contentType,
-  skipReviews,
   skipEnrollment,
 }: TUseContentActionsArgs) => {
   const { t } = useI18n();
@@ -85,32 +84,9 @@ export const useContentActions = ({
     },
   );
 
-  const { data: reviews = [], isLoading: isReviewsLoading } =
-    ContentApi.useContentReviewsQuery(
-      {
-        contentType,
-        contentId: contentId ?? "",
-      },
-      {
-        skip: skip || skipReviews,
-      },
-    );
-
-  const { data: myReview } = ContentApi.useMyReviewForContentQuery(
-    {
-      contentType,
-      contentId: contentId ?? "",
-    },
-    {
-      skip: skipAuthQueries || skipReviews,
-    },
-  );
-
   const [toggleWishlist, wishlistState] =
     ContentApi.useToggleWishlistMutation();
   const [enrollContent, enrollState] = ContentApi.useEnrollContentMutation();
-  const [submitContentReview, reviewState] =
-    ContentApi.useSubmitContentReviewMutation();
 
   const isWishlisted = useMemo(() => {
     if (!contentId) return false;
@@ -188,34 +164,12 @@ export const useContentActions = ({
     }
   };
 
-  const onSubmitReview = async (rating: number, comment: string) => {
-    if (!contentId) return;
-    if (!requireAuth()) return;
-    try {
-      await submitContentReview({
-        contentType,
-        contentId,
-        rating,
-        comment: comment.trim() || undefined,
-      }).unwrap();
-      notify.success(t("contentDetails.messages.reviewSubmitted"));
-    } catch (error) {
-      if (handleAuthError(error)) return;
-      notify.error(t("contentDetails.messages.reviewFailed"));
-    }
-  };
-
   return {
-    reviews,
-    myReview,
     onEnroll,
     isEnrolled,
     isWishlisted,
-    onSubmitReview,
     isAuthenticated,
     onToggleWishlist,
-    isReviewsLoading,
-    isReviewLoading: reviewState.isLoading,
     isEnrollLoading: enrollState.isLoading,
     isWishlistLoading: wishlistState.isLoading,
   };

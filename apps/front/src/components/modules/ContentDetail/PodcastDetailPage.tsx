@@ -1,22 +1,24 @@
 "use client";
 
-import { CalendarEventType, ContentType, PduSource } from "@/lib/graphql/base";
-import { Clock3, PlayCircle, UserRound } from "lucide-react";
-import { Headphones, ListMusic } from "lucide-react";
+import { Clock3, Headphones, ListMusic, UserRound } from "lucide-react";
+import { ContentType, PduSource } from "@/lib/graphql/base";
+import { formatDurationMinutes } from "@/utils/content-source.helper";
+import { resolveExternalUrl } from "@/utils/content-source.helper";
+import { CalendarEventType } from "@/lib/graphql/base";
+import { humanizeEnumValue } from "@/utils/function-helper";
 import { useContentActions } from "@/hooks/useContentActions";
 import { GlassCard } from "@elements/glass-card";
 import { useI18n } from "@/hooks/useI18n";
 
 import * as PodcastApi from "@/lib/rtk/endpoints/podcast.api";
-import * as Tabs from "@ui/tabs";
 
-import DetailHeroActions from "@modules/ContentDetail/parts/DetailHeroActions";
+import DetailSidebarActions from "@modules/ContentDetail/parts/DetailSidebarActions";
+import DetailPageHeader from "@modules/ContentDetail/parts/DetailPageHeader";
 import PodcastEpisodes from "@modules/ContentDetail/parts/PodcastEpisodes";
 import DetailSkeleton from "@modules/ContentDetail/parts/DetailSkeleton";
-import DetailMetaPill from "@modules/ContentDetail/parts/DetailMetaPill";
-import ReviewsList from "@modules/ContentDetail/parts/ReviewList";
-import DetailHero from "@modules/ContentDetail/parts/DetailHero";
-import ReviewForm from "@modules/ContentDetail/parts/ReviewForm";
+import DetailSidebar from "@modules/ContentDetail/parts/DetailSidebar";
+import DetailSection from "@modules/ContentDetail/parts/DetailSection";
+import DetailLayout from "@modules/ContentDetail/parts/DetailLayout";
 
 const PodcastDetailPage = ({ slug }: { slug: string }) => {
   const { t } = useI18n();
@@ -26,20 +28,15 @@ const PodcastDetailPage = ({ slug }: { slug: string }) => {
   });
 
   const { data: episodes = [] } = PodcastApi.usePodcastEpisodesQuery(
-    {
-      podcastId: podcast?.id ?? "",
-    },
-    {
-      skip: !podcast?.id,
-    },
+    { podcastId: podcast?.id ?? "" },
+    { skip: !podcast?.id },
   );
 
   const actions = useContentActions({
-    contentType: ContentType.Podcast,
+    skipEnrollment: true,
     contentId: podcast?.id,
+    contentType: ContentType.Podcast,
   });
-
-  const latestEpisode = episodes[0];
 
   if (isLoading) return <DetailSkeleton />;
 
@@ -57,46 +54,48 @@ const PodcastDetailPage = ({ slug }: { slug: string }) => {
     );
   }
 
-  const calendarPrefill = {
-    title: podcast.title,
-    type: CalendarEventType.Other,
-    contentId: podcast.id,
-    contentType: ContentType.Podcast,
-  };
-
-  const primary = latestEpisode?.audioUrl
-    ? {
-        label: t("contentDetails.podcast.playLatest"),
-        href: latestEpisode.audioUrl,
-        icon: <PlayCircle className="h-4 w-4" />,
-      }
-    : {
-        label: t("contentDetails.podcast.followPodcast"),
-        doneLabel: t("contentDetails.actions.enrolled"),
-        done: actions.isEnrolled,
-        loading: actions.isEnrollLoading,
-        onClick: actions.onEnroll,
-        icon: <PlayCircle className="h-4 w-4" />,
-      };
-
   return (
-    <main className="px-4 py-10 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-7xl space-y-8">
-        <DetailHero
-          kind="podcast"
-          id={podcast.id}
+    <DetailLayout
+      header={
+        <DetailPageHeader
           title={podcast.title}
           rating={podcast.rating}
-          imageUrl={podcast.imageUrl}
-          category={podcast.category}
-          description={podcast.description}
           ratingCount={podcast.ratingCount}
           badge={t("contentDetails.podcast.badge")}
+          category={t(
+            `content.enums.podcastCategory.${podcast.category}`,
+            {},
+            humanizeEnumValue(podcast.category),
+          )}
+          byline={
+            podcast.host
+              ? t("contentDetails.podcast.byHost", { name: podcast.host })
+              : null
+          }
+        />
+      }
+      sidebar={
+        <DetailSidebar
+          id={podcast.id}
+          kind="podcast"
+          title={podcast.title}
+          imageUrl={podcast.imageUrl}
+          category={podcast.category}
           actions={
-            <DetailHeroActions
+            <DetailSidebarActions
               contentType={ContentType.Podcast}
-              sourceUrl={podcast.sourceUrl}
-              prefill={calendarPrefill}
+              contentUrl={resolveExternalUrl(podcast.sourceUrl)}
+              wishlist={{
+                isWishlisted: actions.isWishlisted,
+                loading: actions.isWishlistLoading,
+                onToggle: actions.onToggleWishlist,
+              }}
+              prefill={{
+                title: podcast.title,
+                type: CalendarEventType.Other,
+                contentId: podcast.id,
+                contentType: ContentType.Podcast,
+              }}
               completed={{
                 title: podcast.title,
                 contentId: podcast.id,
@@ -105,82 +104,51 @@ const PodcastDetailPage = ({ slug }: { slug: string }) => {
                 providerOrganizer: podcast.host,
                 durationMinutes: podcast.durationMinutes,
               }}
-              wishlist={{
-                isWishlisted: actions.isWishlisted,
-                loading: actions.isWishlistLoading,
-                onToggle: actions.onToggleWishlist,
-              }}
-              primary={primary}
             />
           }
-        >
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <DetailMetaPill
-              value={podcast.host}
-              icon={<UserRound className="h-4 w-4" />}
-              label={t("contentDetails.podcast.host")}
-            />
-            <DetailMetaPill
-              value={podcast.listeners}
-              icon={<Headphones className="h-4 w-4" />}
-              label={t("contentDetails.podcast.listeners")}
-            />
-            <DetailMetaPill
-              value={podcast.episodeCount}
-              icon={<ListMusic className="h-4 w-4" />}
-              label={t("contentDetails.podcast.episodes")}
-            />
-            <DetailMetaPill
-              icon={<Clock3 className="h-4 w-4" />}
-              label={t("contentDetails.podcast.duration")}
-              value={
-                podcast.durationMinutes
-                  ? t("contentDetails.common.minutes", {
-                      count: podcast.durationMinutes,
-                    })
-                  : null
-              }
-            />
-          </div>
-        </DetailHero>
+          facts={[
+            {
+              key: "host",
+              value: podcast.host,
+              label: t("contentDetails.podcast.host"),
+              icon: <UserRound className="h-4 w-4" />,
+            },
+            {
+              key: "listeners",
+              value: podcast.listeners || null,
+              label: t("contentDetails.podcast.listeners"),
+              icon: <Headphones className="h-4 w-4" />,
+            },
+            {
+              key: "episodes",
+              value: podcast.episodeCount || null,
+              label: t("contentDetails.podcast.episodes"),
+              icon: <ListMusic className="h-4 w-4" />,
+            },
+            {
+              key: "duration",
+              label: t("contentDetails.podcast.duration"),
+              value: formatDurationMinutes(podcast.durationMinutes),
+              icon: <Clock3 className="h-4 w-4" />,
+            },
+          ]}
+        />
+      }
+    >
+      {podcast.description && (
+        <DetailSection title={t("contentDetails.podcast.about")}>
+          <p className="whitespace-pre-line text-sm leading-7 text-muted-foreground sm:text-base">
+            {podcast.description}
+          </p>
+        </DetailSection>
+      )}
 
-        <section className="min-w-0">
-          <Tabs.Tabs defaultValue="episodes" className="space-y-6">
-            <Tabs.TabsList className="grid h-auto grid-cols-2 rounded-lg border p-2">
-              <Tabs.TabsTrigger
-                value="episodes"
-                className="rounded-md py-3 font-bold"
-              >
-                {t("contentDetails.tabs.episodes")}
-              </Tabs.TabsTrigger>
-              <Tabs.TabsTrigger
-                value="reviews"
-                className="rounded-md py-3 font-bold"
-              >
-                {t("contentDetails.tabs.reviews")}
-              </Tabs.TabsTrigger>
-            </Tabs.TabsList>
-
-            <Tabs.TabsContent value="episodes">
-              <PodcastEpisodes episodes={episodes} />
-            </Tabs.TabsContent>
-
-            <Tabs.TabsContent value="reviews" className="space-y-6">
-              <ReviewForm
-                onSubmit={actions.onSubmitReview}
-                isLoading={actions.isReviewLoading}
-                defaultRating={actions.myReview?.rating}
-                defaultComment={actions.myReview?.comment}
-              />
-              <ReviewsList
-                reviews={actions.reviews}
-                isLoading={actions.isReviewsLoading}
-              />
-            </Tabs.TabsContent>
-          </Tabs.Tabs>
-        </section>
-      </div>
-    </main>
+      {episodes.length > 0 && (
+        <DetailSection title={t("contentDetails.podcast.episodes")}>
+          <PodcastEpisodes episodes={episodes} />
+        </DetailSection>
+      )}
+    </DetailLayout>
   );
 };
 
