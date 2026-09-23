@@ -1,20 +1,31 @@
 "use client";
 
-import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
+import {
+  ChangeEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { ProfessionalExploreRoadmapsQueryVariables } from "@/lib/graphql/operations/professional";
 import { ProfessionalMyRoadmapsQueryVariables } from "@/lib/graphql/operations/professional";
 import { RoadmapDraftStatus, RoadmapSource } from "@/lib/graphql/base";
 import { useRoadmapStepProgress } from "@/hooks/useRoadmapStepProgress";
 import { PAGE_SIZE } from "@/utils/constant";
 import { useI18n } from "@/hooks/useI18n";
+import { useDispatch } from "react-redux";
 
 import * as API from "@/lib/rtk/endpoints/professional.api";
 import * as T from "@/types/professional-dashboard.types";
+
+import type { TAppDispatch } from "@/lib/rtk/store";
 
 const DRAFT_POLL_INTERVAL_MS = 5000;
 
 export const useProfessionalRoadmaps = () => {
   const { t, language } = useI18n();
+  const dispatch = useDispatch<TAppDispatch>();
 
   // ============= States ===============
   const [search, setSearch] = useState<string>("");
@@ -125,6 +136,28 @@ export const useProfessionalRoadmaps = () => {
       !generatedRoadmap && draft?.status === RoadmapDraftStatus.Generating;
     setDraftPollMs(generating ? DRAFT_POLL_INTERVAL_MS : 0);
   }, [draft?.status, generatedRoadmap]);
+
+  // The draft-status poll is the only thing that learns a generation finished;
+  // "my roadmaps" and the stats tile are separate queries that nothing else
+  // ever invalidates, so without this they keep showing the pre-generation
+  // state (no roadmap, stale stats) until an unrelated refetch happens to fire.
+  const previousDraftStatusRef = useRef(draft?.status);
+  useEffect(() => {
+    const previousStatus = previousDraftStatusRef.current;
+    previousDraftStatusRef.current = draft?.status;
+    if (
+      previousStatus === RoadmapDraftStatus.Generating &&
+      (draft?.status === RoadmapDraftStatus.Completed ||
+        draft?.status === RoadmapDraftStatus.Failed)
+    ) {
+      dispatch(
+        API.professionalApi.util.invalidateTags([
+          "ProfessionalRoadmaps",
+          "ProfessionalRoadmapStats",
+        ]),
+      );
+    }
+  }, [draft?.status, dispatch]);
 
   const isGenerating =
     !generatedRoadmap && draft?.status === RoadmapDraftStatus.Generating;
