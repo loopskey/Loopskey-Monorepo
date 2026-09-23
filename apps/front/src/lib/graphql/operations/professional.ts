@@ -331,7 +331,9 @@ export type UnenrollRoadmapMutationVariables = Types.Exact<{
 
 export type UnenrollRoadmapMutation = { __typename?: 'Mutation', unenrollRoadmap: boolean };
 
-export type ProfessionalRoadmapDraftStatusQueryVariables = Types.Exact<{ [key: string]: never; }>;
+export type ProfessionalRoadmapDraftStatusQueryVariables = Types.Exact<{
+  draftId?: Types.InputMaybe<Types.Scalars['ID']['input']>;
+}>;
 
 
 export type ProfessionalRoadmapDraftStatusQuery = { __typename?: 'Query', professionalRoadmapDraft?: { __typename?: 'ProfessionalRoadmapDraft', id: string, status: Types.RoadmapDraftStatus, failureReason?: string | null } | null };
@@ -2709,8 +2711,8 @@ export const UnenrollRoadmapDocument = /*#__PURE__*/ new TypedDocumentString(`
 }
     `) as unknown as TypedDocumentString<UnenrollRoadmapMutation, UnenrollRoadmapMutationVariables>;
 export const ProfessionalRoadmapDraftStatusDocument = /*#__PURE__*/ new TypedDocumentString(`
-    query ProfessionalRoadmapDraftStatus {
-  professionalRoadmapDraft {
+    query ProfessionalRoadmapDraftStatus($draftId: ID) {
+  professionalRoadmapDraft(draftId: $draftId) {
     id
     status
     failureReason

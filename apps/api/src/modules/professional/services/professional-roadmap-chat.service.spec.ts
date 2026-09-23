@@ -75,6 +75,7 @@ const emptyDraft = (overrides: Partial<StoredDraft> = {}): StoredDraft => ({
   certificationName: null,
   requiredCredits: null,
   completedCredits: null,
+  failureReason: null,
   needsClarification: false,
   wasRefused: false,
   updatedAt: new Date("2026-08-23T00:00:00.000Z"),
@@ -877,6 +878,32 @@ describe("ownership", () => {
     await expect(
       service.patchDraft(STRANGER, { draftId: "draft-1", goal: "mine now" }),
     ).rejects.toBeInstanceOf(NotFoundException);
+  });
+});
+
+describe("reading a generation's outcome", () => {
+  it("surfaces the failure reason on a failed draft", async () => {
+    const { service, store } = setup();
+    store.seed(
+      emptyDraft({
+        status: RoadmapDraftStatus.FAILED,
+        failureReason: "NO_CANDIDATES",
+      }),
+    );
+
+    const view = await service.draft(OWNER, "draft-1");
+
+    expect(view?.status).toBe(RoadmapDraftStatus.FAILED);
+    expect(view?.failureReason).toBe("NO_CANDIDATES");
+  });
+
+  it("reports no failure reason on a draft that never failed", async () => {
+    const { service, store } = setup();
+    store.seed(emptyDraft());
+
+    const view = await service.draft(OWNER, "draft-1");
+
+    expect(view?.failureReason).toBeNull();
   });
 });
 
