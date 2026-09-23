@@ -7482,13 +7482,7 @@
       "generateUnavailable": "Répondez aux champs obligatoires restants pour générer votre parcours.",
       "briefProgress": "Progression du résumé",
       "briefProgressValue": "{{completed}} champs sur {{required}} complétés",
-      "expandBrief": "Déplier votre résumé",
-      "collapseBrief": "Réduire votre résumé"
-    },
-    "sections": {
-      "goal": "Objectif",
-      "preferences": "Préférences",
-      "cpdSetup": "Configuration DPC"
+      "notReachedYet": "Vous configurerez ceci après les préférences."
     },
     "cpdSetup": {
       "pickTitle": "Choisissez une certification à suivre, ou recherchez-en une autre.",

@@ -7,12 +7,16 @@ import {
   LEARNING_TIME_COMMITMENTS,
   SKILL_LEVELS,
 } from "@/utils/professional-profile.constant";
-import { isRoadmapStepReached } from "@/utils/roadmap-chat-step.util";
+import {
+  ROADMAP_STAGE_ORDER,
+  isRoadmapStepReached,
+  roadmapStageOf,
+} from "@/utils/roadmap-chat-step.util";
 import { RoadmapCpdSetupPanel } from "./RoadmapCpdSetupPanel";
 import { ContentType, RoadmapDraftStep } from "@/lib/graphql/base";
-import { Loader2, Pencil } from "lucide-react";
+import { CheckCircle2, ChevronDown, Loader2, Pencil } from "lucide-react";
 import { GlassCard } from "@/components/elements/glass-card";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { useI18n } from "@/hooks/useI18n";
@@ -21,9 +25,11 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 import type { ReactNode } from "react";
+import type { RoadmapChatStage } from "@/utils/roadmap-chat-step.util";
 import type * as T from "@/types/professional-roadmap-chat.types";
 
 const OPTION_NS = "professionalDashboard.profile.options";
+const STAGE_LABEL_KEY = "professionalRoadmapChat.stepper";
 
 const FIELD_STEP: Partial<Record<keyof T.Patch, RoadmapDraftStep>> = {
   goal: RoadmapDraftStep.Goal,
@@ -73,6 +79,18 @@ export const RoadmapReviewSummary = ({
   const [editingCard, setEditingCard] = useState<
     "goal" | "preferences" | "cpd" | null
   >(null);
+
+  // Only the stage the professional is actively filling in opens by default.
+  // Progressing to a new stage reopens to it; a manual click can still peek
+  // at an earlier one, or close everything.
+  const currentStage = roadmapStageOf(draft.currentStep);
+  const [openStage, setOpenStage] = useState<RoadmapChatStage | null>(
+    () => currentStage,
+  );
+  useEffect(() => setOpenStage(currentStage), [currentStage]);
+
+  const toggleStage = (stage: RoadmapChatStage) =>
+    setOpenStage((current) => (current === stage ? null : stage));
 
   const allRows: T.Row[] = [
     {
@@ -179,184 +197,291 @@ export const RoadmapReviewSummary = ({
     RoadmapDraftStep.CpdTracking,
   );
 
+  const stageIndex = ROADMAP_STAGE_ORDER.indexOf(currentStage);
+  const stageStatus = (stage: RoadmapChatStage) => {
+    const index = ROADMAP_STAGE_ORDER.indexOf(stage);
+    if (index < stageIndex) return "complete" as const;
+    if (index === stageIndex) return "current" as const;
+    return "upcoming" as const;
+  };
+
   return (
-    <div className="flex flex-col gap-4">
-      <GlassCard className="flex flex-col gap-3 p-5">
-        <div>
-          <h2 className="text-lg font-medium">
-            {t("professionalRoadmapChat.review.title")}
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
+    <div className="flex flex-col gap-3">
+      <StageAccordion
+        stage="goal"
+        status={stageStatus("goal")}
+        isOpen={openStage === "goal"}
+        onToggle={() => toggleStage("goal")}
+        t={t}
+      >
+        <SectionBody
+          isEditing={editingCard === "goal"}
+          isPatching={isPatching}
+          onToggleEdit={() =>
+            setEditingCard((current) => (current === "goal" ? null : "goal"))
+          }
+          t={t}
+        >
+          <dl className="flex flex-col divide-y divide-border/60">
+            {visible(GOAL_FIELDS).map((row) => (
+              <SectionRow
+                row={row}
+                draft={draft}
+                onCommit={commit}
+                key={String(row.field)}
+                isEditing={editingCard === "goal"}
+              />
+            ))}
+          </dl>
+        </SectionBody>
+      </StageAccordion>
+
+      <StageAccordion
+        stage="preferences"
+        status={stageStatus("preferences")}
+        isOpen={openStage === "preferences"}
+        onToggle={() => toggleStage("preferences")}
+        t={t}
+      >
+        <SectionBody
+          isEditing={editingCard === "preferences"}
+          isPatching={isPatching}
+          onToggleEdit={() =>
+            setEditingCard((current) =>
+              current === "preferences" ? null : "preferences",
+            )
+          }
+          t={t}
+        >
+          <dl className="flex flex-col divide-y divide-border/60">
+            {visible(PREFERENCE_FIELDS).map((row) => (
+              <SectionRow
+                row={row}
+                draft={draft}
+                onCommit={commit}
+                key={String(row.field)}
+                isEditing={editingCard === "preferences"}
+              />
+            ))}
+          </dl>
+        </SectionBody>
+      </StageAccordion>
+
+      <StageAccordion
+        stage="cpdSetup"
+        status={stageStatus("cpdSetup")}
+        isOpen={openStage === "cpdSetup"}
+        onToggle={() => toggleStage("cpdSetup")}
+        t={t}
+      >
+        {cpdEnabledReached ? (
+          <SectionBody
+            isEditing={editingCard === "cpd"}
+            isPatching={isPatching || Boolean(isPatchingCpdSetup)}
+            onToggleEdit={() =>
+              setEditingCard((current) => (current === "cpd" ? null : "cpd"))
+            }
+            t={t}
+          >
+            <SectionRow
+              row={{
+                field: "cpdEnabled",
+                editor: { kind: "boolean" },
+                value: draft.cpdEnabled,
+              }}
+              draft={draft}
+              onCommit={commit}
+              isEditing={editingCard === "cpd"}
+            />
+
+            {draft.cpdEnabled && onPatchCpdSetup ? (
+              <RoadmapCpdSetupPanel
+                draft={draft}
+                onPatch={onPatchCpdSetup}
+                isEditing={editingCard === "cpd"}
+                isPatching={Boolean(isPatchingCpdSetup)}
+              />
+            ) : null}
+          </SectionBody>
+        ) : (
+          <p className="px-1 pb-1 text-sm text-muted-foreground">
+            {t("professionalRoadmapChat.review.notReachedYet")}
+          </p>
+        )}
+      </StageAccordion>
+
+      <StageAccordion
+        stage="review"
+        status={stageStatus("review")}
+        isOpen={openStage === "review"}
+        onToggle={() => toggleStage("review")}
+        t={t}
+      >
+        <div className="flex flex-col gap-4 px-1 pb-1">
+          <p className="text-sm text-muted-foreground">
             {t("professionalRoadmapChat.review.description")}
           </p>
-        </div>
 
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>{t("professionalRoadmapChat.review.briefProgress")}</span>
-            <span aria-hidden>
-              {draft.completedFieldCount}/{draft.requiredFieldCount}
-            </span>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span>{t("professionalRoadmapChat.review.briefProgress")}</span>
+              <span aria-hidden>
+                {draft.completedFieldCount}/{draft.requiredFieldCount}
+              </span>
+            </div>
+            <Progress
+              value={fieldProgress}
+              aria-label={t("professionalRoadmapChat.review.briefProgress")}
+              aria-valuetext={t(
+                "professionalRoadmapChat.review.briefProgressValue",
+                {
+                  completed: draft.completedFieldCount,
+                  required: draft.requiredFieldCount,
+                },
+              )}
+            />
           </div>
-          <Progress
-            value={fieldProgress}
-            aria-label={t("professionalRoadmapChat.review.briefProgress")}
-            aria-valuetext={t(
-              "professionalRoadmapChat.review.briefProgressValue",
-              {
-                completed: draft.completedFieldCount,
-                required: draft.requiredFieldCount,
-              },
-            )}
-          />
-        </div>
-      </GlassCard>
 
-      <SectionCard
-        title={t("professionalRoadmapChat.sections.goal")}
-        isEditing={editingCard === "goal"}
-        isPatching={isPatching}
-        onToggleEdit={() =>
-          setEditingCard((current) => (current === "goal" ? null : "goal"))
-        }
-      >
-        <dl className="flex flex-col divide-y divide-border/60">
-          {visible(GOAL_FIELDS).map((row) => (
-            <SectionRow
-              row={row}
-              draft={draft}
-              onCommit={commit}
-              key={String(row.field)}
-              isEditing={editingCard === "goal"}
-            />
-          ))}
-        </dl>
-      </SectionCard>
+          <div className="flex flex-col gap-2">
+            <div className="flex flex-wrap gap-3">
+              <Button
+                radius="xl"
+                aria-describedby={
+                  onGenerate ? undefined : "roadmap-generate-unavailable"
+                }
+                disabled={
+                  !draft.isComplete || isPatching || isGenerating || !onGenerate
+                }
+                onClick={onGenerate}
+              >
+                {isGenerating ? (
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                ) : null}
+                {isGenerating
+                  ? t("professionalRoadmapChat.review.generating")
+                  : t("professionalRoadmapChat.review.generate")}
+              </Button>
+            </div>
 
-      <SectionCard
-        title={t("professionalRoadmapChat.sections.preferences")}
-        isEditing={editingCard === "preferences"}
-        isPatching={isPatching}
-        onToggleEdit={() =>
-          setEditingCard((current) =>
-            current === "preferences" ? null : "preferences",
-          )
-        }
-      >
-        <dl className="flex flex-col divide-y divide-border/60">
-          {visible(PREFERENCE_FIELDS).map((row) => (
-            <SectionRow
-              row={row}
-              draft={draft}
-              onCommit={commit}
-              key={String(row.field)}
-              isEditing={editingCard === "preferences"}
-            />
-          ))}
-        </dl>
-      </SectionCard>
-
-      {cpdEnabledReached ? (
-        <SectionCard
-          title={t("professionalRoadmapChat.sections.cpdSetup")}
-          isEditing={editingCard === "cpd"}
-          isPatching={isPatching || Boolean(isPatchingCpdSetup)}
-          onToggleEdit={() =>
-            setEditingCard((current) => (current === "cpd" ? null : "cpd"))
-          }
-        >
-          <SectionRow
-            row={{
-              field: "cpdEnabled",
-              editor: { kind: "boolean" },
-              value: draft.cpdEnabled,
-            }}
-            draft={draft}
-            onCommit={commit}
-            isEditing={editingCard === "cpd"}
-          />
-
-          {draft.cpdEnabled && onPatchCpdSetup ? (
-            <RoadmapCpdSetupPanel
-              draft={draft}
-              onPatch={onPatchCpdSetup}
-              isEditing={editingCard === "cpd"}
-              isPatching={Boolean(isPatchingCpdSetup)}
-            />
-          ) : null}
-        </SectionCard>
-      ) : null}
-
-      <div className="flex flex-col gap-2">
-        <div className="flex flex-wrap gap-3">
-          <Button
-            radius="xl"
-            aria-describedby={
-              onGenerate ? undefined : "roadmap-generate-unavailable"
-            }
-            disabled={
-              !draft.isComplete || isPatching || isGenerating || !onGenerate
-            }
-            onClick={onGenerate}
-          >
-            {isGenerating ? (
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+            {!draft.isComplete ? (
+              <p
+                id="roadmap-generate-unavailable"
+                className="text-xs text-muted-foreground"
+              >
+                {t("professionalRoadmapChat.review.generateUnavailable")}
+              </p>
             ) : null}
-            {isGenerating
-              ? t("professionalRoadmapChat.review.generating")
-              : t("professionalRoadmapChat.review.generate")}
-          </Button>
+          </div>
         </div>
-
-        {!draft.isComplete ? (
-          <p
-            id="roadmap-generate-unavailable"
-            className="text-xs text-muted-foreground"
-          >
-            {t("professionalRoadmapChat.review.generateUnavailable")}
-          </p>
-        ) : null}
-      </div>
+      </StageAccordion>
     </div>
   );
 };
 
-export type TSectionCard = {
-  title: string;
-  isEditing: boolean;
+type TStageAccordion = {
+  stage: RoadmapChatStage;
+  status: "complete" | "current" | "upcoming";
+  isOpen: boolean;
+  onToggle: () => void;
   children: ReactNode;
-  isPatching: boolean;
-  onToggleEdit: () => void;
+  t: (key: string, values?: Record<string, string | number>) => string;
 };
 
-const SectionCard = ({
-  title,
-  isEditing,
+const StageAccordion = ({
+  stage,
+  status,
+  isOpen,
+  onToggle,
   children,
-  isPatching,
-  onToggleEdit,
-}: TSectionCard) => {
-  const { t } = useI18n();
+  t,
+}: TStageAccordion) => {
+  const panelId = `roadmap-stage-panel-${stage}`;
+
   return (
-    <GlassCard className="flex flex-col gap-4 p-5">
-      <div className="flex items-start justify-between gap-3">
-        <h3 className="text-base font-medium">{title}</h3>
-        <Button
-          size="sm"
-          radius="xl"
-          variant="ghost"
-          disabled={isPatching}
-          onClick={onToggleEdit}
-          aria-pressed={isEditing}
-          aria-label={t("professionalRoadmapChat.review.edit")}
-        >
-          <Pencil className="h-4 w-4" aria-hidden="true" />
-        </Button>
+    <GlassCard className="flex flex-col gap-0 overflow-hidden p-0">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={isOpen}
+        aria-controls={panelId}
+        className="flex w-full items-center justify-between gap-3 p-4 text-left transition-colors hover:bg-accent/50"
+      >
+        <span className="flex items-center gap-2 text-sm font-medium">
+          {status === "complete" ? (
+            <CheckCircle2
+              className="h-4 w-4 shrink-0 text-primary"
+              aria-hidden="true"
+            />
+          ) : (
+            <span
+              aria-hidden="true"
+              className={cn(
+                "flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px]",
+                status === "current"
+                  ? "bg-primary text-primary-foreground"
+                  : "border text-muted-foreground",
+              )}
+            />
+          )}
+          {t(`${STAGE_LABEL_KEY}.${stage}`)}
+        </span>
+
+        <ChevronDown
+          aria-hidden="true"
+          className={cn(
+            "h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200",
+            isOpen && "rotate-180",
+          )}
+        />
+      </button>
+
+      <div
+        id={panelId}
+        className={cn(
+          "grid transition-[grid-template-rows] duration-300 ease-in-out",
+          isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
+        )}
+      >
+        <div className="overflow-hidden">
+          <div className="p-4 pt-0">{children}</div>
+        </div>
       </div>
-      {children}
     </GlassCard>
   );
 };
+
+type TSectionBody = {
+  isEditing: boolean;
+  isPatching: boolean;
+  onToggleEdit: () => void;
+  children: ReactNode;
+  t: (key: string, values?: Record<string, string | number>) => string;
+};
+
+const SectionBody = ({
+  isEditing,
+  isPatching,
+  onToggleEdit,
+  children,
+  t,
+}: TSectionBody) => (
+  <div className="flex flex-col gap-2">
+    <div className="flex justify-end">
+      <Button
+        size="sm"
+        radius="xl"
+        variant="ghost"
+        disabled={isPatching}
+        onClick={onToggleEdit}
+        aria-pressed={isEditing}
+        aria-label={t("professionalRoadmapChat.review.edit")}
+      >
+        <Pencil className="h-4 w-4" aria-hidden="true" />
+      </Button>
+    </div>
+    {children}
+  </div>
+);
 
 export type TSectionRow = {
   row: T.Row;

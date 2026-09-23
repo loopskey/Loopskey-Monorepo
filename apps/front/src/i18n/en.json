@@ -7480,13 +7480,7 @@
       "generateUnavailable": "Answer the remaining required fields to generate your roadmap.",
       "briefProgress": "Brief completion",
       "briefProgressValue": "{{completed}} of {{required}} fields complete",
-      "expandBrief": "Expand your brief",
-      "collapseBrief": "Collapse your brief"
-    },
-    "sections": {
-      "goal": "Goal",
-      "preferences": "Preferences",
-      "cpdSetup": "CPD Setup"
+      "notReachedYet": "You'll set this up after preferences."
     },
     "cpdSetup": {
       "pickTitle": "Pick a certification to track, or search for another one.",
