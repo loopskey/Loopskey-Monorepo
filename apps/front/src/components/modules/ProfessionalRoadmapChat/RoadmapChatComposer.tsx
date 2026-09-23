@@ -9,6 +9,7 @@ import { useI18n } from "@/hooks/useI18n";
 
 import { RoadmapWidgetControl } from "./RoadmapWidgetControl";
 
+import type { ReactNode } from "react";
 import type * as T from "@/types/professional-roadmap-chat.types";
 
 type Props = {
@@ -22,6 +23,12 @@ type Props = {
   onChange: (value: string) => void;
   onSend: () => void;
   onAnswer: (value: string) => void;
+  /**
+   * Replaces the widget and the free-text input entirely — used for
+   * questions this app asks locally (never a server widget), where typing
+   * free text would not do anything.
+   */
+  preferencesControl?: ReactNode;
 };
 
 export const RoadmapChatComposer = ({
@@ -34,6 +41,7 @@ export const RoadmapChatComposer = ({
   onChange,
   onSend,
   onAnswer,
+  preferencesControl,
 }: Props) => {
   const { t } = useI18n();
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -52,6 +60,9 @@ export const RoadmapChatComposer = ({
   };
 
   const disabled = isSending || retryAfter > 0;
+
+  if (preferencesControl)
+    return <div className="flex flex-col gap-3">{preferencesControl}</div>;
 
   return (
     <div className="flex flex-col gap-3">
