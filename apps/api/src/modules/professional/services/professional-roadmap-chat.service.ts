@@ -259,6 +259,7 @@ export class ProfessionalRoadmapChatService {
       ...fields,
       id: draft.id,
       status: draft.status,
+      failureReason: draft.failureReason,
       updatedAt: draft.updatedAt,
       currentStep: draft.currentStep,
       needsClarification: draft.needsClarification,

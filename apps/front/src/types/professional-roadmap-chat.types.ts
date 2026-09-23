@@ -30,6 +30,7 @@ export type TRoadmapChatError = {
 };
 
 export type TRoadmapStatusProps = {
+  draftId: string;
   status: RoadmapDraftStatus;
   failureReason?: string | null;
   t: (key: string, values?: Record<string, string | number>) => string;

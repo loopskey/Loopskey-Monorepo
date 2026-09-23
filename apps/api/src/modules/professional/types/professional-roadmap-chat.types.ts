@@ -32,6 +32,7 @@ export type RoadmapSubjectOption = { id: string; label: string };
 
 export type RoadmapDraftView = RoadmapDraftFields & {
   id: string;
+  failureReason: string | null;
   wasRefused: boolean;
   isComplete: boolean;
   needsClarification: boolean;
