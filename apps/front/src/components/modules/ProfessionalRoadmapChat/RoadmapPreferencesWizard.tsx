@@ -8,7 +8,6 @@ import {
   SKILL_LEVELS,
 } from "@/utils/professional-profile.constant";
 import { useEffect, useMemo, useState } from "react";
-import { GlassCard } from "@elements/glass-card";
 import { Progress } from "@ui/progress";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
@@ -159,7 +158,7 @@ export const RoadmapPreferencesWizard = ({
   };
 
   return (
-    <GlassCard className="flex flex-col gap-5 p-5">
+    <div className="flex flex-col gap-4">
       <div className="space-y-2">
         <p className="text-xs font-medium text-muted-foreground">
           {t(`${WIZARD_NS}.stepOf`, {
@@ -226,6 +225,6 @@ export const RoadmapPreferencesWizard = ({
           {t(`${WIZARD_NS}.confirm`)}
         </Button>
       </div>
-    </GlassCard>
+    </div>
   );
 };
