@@ -234,6 +234,7 @@ const ProfessionalRoadmapTab = () => {
       {isGenerating || hasFailedDraft ? (
         <RoadmapGenerationStatus
           t={t}
+          draftId={draft!.id}
           status={draft!.status}
           failureReason={draft?.failureReason}
         />

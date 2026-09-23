@@ -562,9 +562,12 @@ export const professionalApi = baseApi.injectEndpoints({
 
     professionalRoadmapDraftStatus: builder.query<
       TAPI.ProfessionalRoadmapDraftStatusQuery["professionalRoadmapDraft"],
-      void
+      TAPI.ProfessionalRoadmapDraftStatusQueryVariables | void
     >({
-      query: () => ({ document: API.ProfessionalRoadmapDraftStatusDocument }),
+      query: (variables) => ({
+        document: API.ProfessionalRoadmapDraftStatusDocument,
+        variables: variables ?? {},
+      }),
       transformResponse: (response: TAPI.ProfessionalRoadmapDraftStatusQuery) =>
         response.professionalRoadmapDraft,
       providesTags: ["ProfessionalRoadmaps", "Professional"],

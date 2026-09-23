@@ -725,8 +725,8 @@ mutation UnenrollRoadmap($enrollmentId: ID!) {
 # The chat page owns the full draft document. This is the same server query
 # with a three-field selection, declared here so the dashboard never imports the
 # roadmap-chat operations module into the shared bundle.
-query ProfessionalRoadmapDraftStatus {
-  professionalRoadmapDraft {
+query ProfessionalRoadmapDraftStatus($draftId: ID) {
+  professionalRoadmapDraft(draftId: $draftId) {
     id
     status
     failureReason

@@ -13,6 +13,7 @@ const ROADMAP_CHAT_HREF = "/dashboard/professional/roadmap-chat";
 
 export const RoadmapGenerationStatus = ({
   t,
+  draftId,
   status,
   failureReason,
 }: TRoadmapStatusProps) => {
@@ -41,7 +42,11 @@ export const RoadmapGenerationStatus = ({
           ) : null}
 
           <Button asChild radius="xl" className="mt-6">
-            <Link href={ROADMAP_CHAT_HREF}>{t(`${key}.failed.action`)}</Link>
+            <Link
+              href={`${ROADMAP_CHAT_HREF}?draftId=${encodeURIComponent(draftId)}`}
+            >
+              {t(`${key}.failed.action`)}
+            </Link>
           </Button>
         </div>
       </GlassCard>

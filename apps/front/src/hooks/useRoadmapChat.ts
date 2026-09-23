@@ -7,7 +7,7 @@ import { RoadmapDraftFieldKey, RoadmapDraftStatus } from "@/lib/graphql/base";
 import { ROADMAP_BUSY_CODE } from "@/utils/roadmap-chat.constant";
 import { roadmapChatApi } from "@/lib/rtk/endpoints/roadmap-chat.api";
 import { useDispatch } from "react-redux";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
 
@@ -20,6 +20,9 @@ import type { PatchRoadmapDraftInput } from "@/lib/graphql/base";
 import type { TAppDispatch } from "@/lib/rtk/store";
 
 const ROADMAP_TAB_HREF = "/dashboard/professional?tab=roadmap";
+
+const roadmapTabHref = (draftId: string) =>
+  `${ROADMAP_TAB_HREF}&generationDraftId=${encodeURIComponent(draftId)}`;
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
@@ -40,7 +43,9 @@ export const readChatError = (error: unknown): T.TRoadmapChatError => {
 export const useRoadmapChat = () => {
   const { t } = useI18n();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const dispatch = useDispatch<TAppDispatch>();
+  const requestedDraftId = searchParams.get("draftId")?.trim() || undefined;
 
   // ============= States ===============
   const [input, setInput] = useState<string>("");
@@ -54,7 +59,9 @@ export const useRoadmapChat = () => {
     isLoading: isDraftLoading,
     isError: isDraftError,
     refetch: refetchDraft,
-  } = API.useProfessionalRoadmapDraftQuery();
+  } = API.useProfessionalRoadmapDraftQuery(
+    requestedDraftId ? { draftId: requestedDraftId } : undefined,
+  );
 
   const [startDraft, { isLoading: isStarting }] =
     API.useStartRoadmapDraftMutation();
@@ -272,7 +279,7 @@ export const useRoadmapChat = () => {
     try {
       const next = await requestGeneration(draft.id).unwrap();
       writeDraft(next);
-      router.push(ROADMAP_TAB_HREF);
+      router.push(roadmapTabHref(next.id));
     } catch {
       notify.error(t("professionalRoadmapChat.review.generateFailed"));
     }
