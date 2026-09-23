@@ -36,15 +36,16 @@ import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
 import { draftCompletionSummary } from "@professional/utils/roadmap-step-machine.util";
 import { PatchRoadmapDraftInput } from "@professional/dtos/patch-roadmap-draft.input";
 import { mergeExtractedFields } from "@professional/utils/roadmap-draft-merge.util";
-import { subjectLabelsOf } from "@professional/utils/roadmap-draft-merge.util";
-import { COACH_INTRO_CODE } from "@professional/utils/roadmap-coach.util";
+import { RoadmapChatTurnInput } from "@professional/dtos/roadmap-chat-turn.input";
+import { mapGenerationFailure } from "@professional/utils/roadmap-generation-failure.util";
 import { COACH_QUESTION_CODE } from "@professional/utils/roadmap-coach.util";
+import { COACH_INTRO_CODE } from "@professional/utils/roadmap-coach.util";
+import { subjectLabelsOf } from "@professional/utils/roadmap-draft-merge.util";
+import { isDraftComplete } from "@professional/utils/roadmap-step-machine.util";
+import { requestContext } from "@infrastructure/observability/request-context";
 import { coachWidgetFor } from "@professional/utils/roadmap-coach.util";
 import { isCoachMessage } from "@professional/utils/roadmap-coach.util";
 import { hadValue } from "@professional/utils/roadmap-coach.util";
-import { RoadmapChatTurnInput } from "@professional/dtos/roadmap-chat-turn.input";
-import { isDraftComplete } from "@professional/utils/roadmap-step-machine.util";
-import { requestContext } from "@infrastructure/observability/request-context";
 import { nextStep } from "@professional/utils/roadmap-step-machine.util";
 import { TUser } from "@common/types/user.types";
 
@@ -260,6 +261,7 @@ export class ProfessionalRoadmapChatService {
       id: draft.id,
       status: draft.status,
       failureReason: draft.failureReason,
+      failure: mapGenerationFailure(draft.failureReason),
       updatedAt: draft.updatedAt,
       currentStep: draft.currentStep,
       needsClarification: draft.needsClarification,
@@ -461,16 +463,51 @@ export class ProfessionalRoadmapChatService {
     });
   }
 
-  async resetDraft(user: TUser, pagination?: ProfessionalPaginationInput) {
+  /**
+   * `draftId` is optional only for backward compatibility: an omitted id
+   * keeps resolving the professional's current editable (`COLLECTING`/
+   * `READY`) draft, same as before this reset became in-place. The updated
+   * frontend always sends the draft id actually on screen, which is what
+   * makes resetting a `FAILED` draft reachable at all.
+   */
+  async resetDraft(
+    user: TUser,
+    draftId?: string,
+    pagination?: ProfessionalPaginationInput,
+  ) {
     this.assertProfessional(user);
-    const existing = await this.drafts.findEditableDraft(user.id);
-    if (existing) await this.drafts.deleteDraft(user.id, existing.id);
-    return this.startDraft(user, pagination);
+    const trimmed = draftId?.trim() || undefined;
+
+    if (!trimmed) {
+      const existing = await this.drafts.findEditableDraft(user.id);
+      if (!existing) return this.startDraft(user, pagination);
+      return this.resetOwnedDraft(user, existing.id, pagination);
+    }
+
+    await this.ownedDraft(user, trimmed);
+    return this.resetOwnedDraft(user, trimmed, pagination);
   }
 
-  private async createSeededDraft(user: TUser) {
+  private async resetOwnedDraft(
+    user: TUser,
+    draftId: string,
+    pagination?: ProfessionalPaginationInput,
+  ) {
+    return this.serialize(draftId, async () => {
+      const seeded = await this.seedFieldsFromProfile(user);
+      const result = await this.drafts.resetInPlace(user.id, draftId, seeded);
+      if (result.outcome === "not_found")
+        throw new NotFoundException(
+          ProfessionalMessageCode.ROADMAP_DRAFT_NOT_FOUND,
+        );
+      if (result.outcome === "locked") throw new RoadmapDraftLockedException();
+      return this.view(user, result.draft, pagination);
+    });
+  }
+
+  private async seedFieldsFromProfile(user: TUser) {
     const profile = await this.profiles.profile(user);
-    return this.drafts.createDraft(user.id, {
+    return {
       targetRole: profile.currentRole,
       skillLevel: profile.currentSkillLevel,
       timeCommitment: profile.learningTimeCommitment,
@@ -479,7 +516,15 @@ export class ProfessionalRoadmapChatService {
       subjects: profile.favoriteSubjects
         .map((term) => term.id)
         .slice(0, SERVICE_AI_LIMITS.subjectsMaxItems),
-    } as Prisma.RoadmapDraftCreateInput);
+    };
+  }
+
+  private async createSeededDraft(user: TUser) {
+    const seeded = await this.seedFieldsFromProfile(user);
+    return this.drafts.createDraft(
+      user.id,
+      seeded as Prisma.RoadmapDraftCreateInput,
+    );
   }
 
   async chatTurn(user: TUser, input: RoadmapChatTurnInput) {

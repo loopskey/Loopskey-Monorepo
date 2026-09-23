@@ -1,13 +1,11 @@
 "use client";
 
-import {
-  DELIVERY_FORMATS,
-  LEARNING_BUDGET_PREFERENCES,
-  LEARNING_FORMATS,
-  LEARNING_TIME_COMMITMENTS,
-  SKILL_LEVELS,
-} from "@/utils/professional-profile.constant";
 import { useEffect, useMemo, useState } from "react";
+import { LEARNING_BUDGET_PREFERENCES } from "@/utils/professional-profile.constant";
+import { LEARNING_TIME_COMMITMENTS } from "@/utils/professional-profile.constant";
+import { LEARNING_FORMATS } from "@/utils/professional-profile.constant";
+import { DELIVERY_FORMATS } from "@/utils/professional-profile.constant";
+import { SKILL_LEVELS } from "@/utils/professional-profile.constant";
 import { Progress } from "@ui/progress";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
@@ -84,7 +82,7 @@ const isAnswered = (draft: TRoadmapDraft, step: TStepConfig): boolean =>
 type TProps = {
   draft: TRoadmapDraft;
   isPatching: boolean;
-  onPatch: (changes: Patch) => void;
+  onPatch: (changes: Patch) => Promise<boolean>;
 };
 
 export const RoadmapPreferencesWizard = ({
@@ -93,6 +91,7 @@ export const RoadmapPreferencesWizard = ({
   onPatch,
 }: TProps) => {
   const { t } = useI18n();
+  const [failed, setFailed] = useState<boolean>(false);
 
   const firstUnanswered = useMemo(() => {
     const index = STEPS.findIndex((step) => !isAnswered(draft, step));
@@ -107,6 +106,7 @@ export const RoadmapPreferencesWizard = ({
 
   useEffect(() => {
     setSelected(currentValue(draft, STEPS[stepIndex]));
+    setFailed(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stepIndex]);
 
@@ -145,10 +145,15 @@ export const RoadmapPreferencesWizard = ({
 
   const canConfirm = selected.length > 0 && !isPatching;
 
-  const confirm = () => {
+  const confirm = async () => {
     if (!canConfirm) return;
+    setFailed(false);
     const value = step.selectType === "single" ? selected[0] : selected;
-    onPatch({ [step.key]: value } as Patch);
+    const succeeded = await onPatch({ [step.key]: value } as Patch);
+    if (!succeeded) {
+      setFailed(true);
+      return;
+    }
     if (stepIndex < STEPS.length - 1) setStepIndex(stepIndex + 1);
   };
 
@@ -175,9 +180,14 @@ export const RoadmapPreferencesWizard = ({
         />
       </div>
 
-      <h2 className="text-lg font-medium">
-        {t(`${WIZARD_NS}.questions.${step.key}`)}
-      </h2>
+      <div>
+        <p className="text-xs font-medium text-muted-foreground">
+          {t(`${WIZARD_NS}.quickAnswerLabel`)}
+        </p>
+        <h2 className="text-base font-medium">
+          {t(`professionalRoadmapChat.field.${step.key}`)}
+        </h2>
+      </div>
 
       <div className="flex flex-wrap gap-2" role="group">
         {options.map((value) => {
@@ -205,6 +215,16 @@ export const RoadmapPreferencesWizard = ({
         </p>
       ) : null}
 
+      {failed ? (
+        <p
+          role="alert"
+          aria-live="assertive"
+          className="text-xs text-destructive"
+        >
+          {t(`${WIZARD_NS}.saveFailed`)}
+        </p>
+      ) : null}
+
       <div className="flex justify-between gap-3">
         <Button
           radius="xl"
@@ -219,8 +239,8 @@ export const RoadmapPreferencesWizard = ({
         <Button
           radius="xl"
           type="button"
-          onClick={confirm}
           disabled={!canConfirm}
+          onClick={() => void confirm()}
         >
           {t(`${WIZARD_NS}.confirm`)}
         </Button>

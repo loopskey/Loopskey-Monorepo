@@ -221,6 +221,52 @@ class FakeDraftStore {
       null
     );
   });
+
+  resetInPlace = jest.fn(
+    async (
+      userId: string,
+      draftId: string,
+      seeded: Partial<StoredDraft>,
+    ): Promise<
+      | { outcome: "reset"; draft: StoredDraft }
+      | { outcome: "not_found" }
+      | { outcome: "locked" }
+    > => {
+      const draft = this.owned(userId, draftId);
+      if (!draft) return { outcome: "not_found" };
+      if (
+        !(
+          [
+            RoadmapDraftStatus.COLLECTING,
+            RoadmapDraftStatus.READY,
+            RoadmapDraftStatus.FAILED,
+          ] as RoadmapDraftStatus[]
+        ).includes(draft.status)
+      )
+        return { outcome: "locked" };
+
+      Object.assign(draft, emptyDraft({ id: draftId, userId }), seeded, {
+        status: RoadmapDraftStatus.COLLECTING,
+        currentStep: RoadmapDraftStep.GOAL,
+      });
+      this.messages = this.messages.filter(
+        (message) => message.draftId !== draftId,
+      );
+      this.addMessage({
+        draftId,
+        content: "ROADMAP_COACH_INTRO",
+        role: RoadmapChatRole.ASSISTANT,
+        stepKey: RoadmapDraftStep.GOAL,
+      });
+      this.addMessage({
+        draftId,
+        content: "ROADMAP_COACH_QUESTION",
+        role: RoadmapChatRole.ASSISTANT,
+        stepKey: RoadmapDraftStep.GOAL,
+      });
+      return { outcome: "reset", draft };
+    },
+  );
 }
 
 const turnData = (overrides: Partial<ChatTurnData> = {}): ChatTurnData => ({
@@ -430,17 +476,38 @@ describe("starting the wizard", () => {
 });
 
 describe("resetting the wizard", () => {
-  it("deletes the existing editable draft and starts a fresh one", async () => {
+  it("resets the same draft in place rather than replacing it", async () => {
     const { service, store } = setup();
     store.seed(emptyDraft({ ...collected, id: "draft-old" }));
 
-    const view = await service.resetDraft(OWNER);
+    const view = await service.resetDraft(OWNER, "draft-old");
 
-    expect(store.deleteDraft).toHaveBeenCalledWith(OWNER.id, "draft-old");
+    expect(store.resetInPlace).toHaveBeenCalledWith(
+      OWNER.id,
+      "draft-old",
+      expect.any(Object),
+    );
     expect(store.drafts).toHaveLength(1);
-    expect(store.drafts[0].id).not.toBe("draft-old");
+    expect(view.id).toBe("draft-old");
     expect(view.goal).toBeNull();
     expect(view.status).toBe(RoadmapDraftStatus.COLLECTING);
+  });
+
+  it("resets a failed draft when it is the one on screen", async () => {
+    const { service, store } = setup();
+    store.seed(
+      emptyDraft({
+        ...collected,
+        id: "draft-failed",
+        status: RoadmapDraftStatus.FAILED,
+        failureReason: "NO_CANDIDATES",
+      }),
+    );
+
+    const view = await service.resetDraft(OWNER, "draft-failed");
+
+    expect(view.status).toBe(RoadmapDraftStatus.COLLECTING);
+    expect(view.failure).toBeNull();
   });
 
   it("clears the previous draft's transcript along with it", async () => {
@@ -448,21 +515,68 @@ describe("resetting the wizard", () => {
     store.seed(emptyDraft({ id: "draft-1" }));
     store.addMessage({ draftId: "draft-1", content: "old answer" });
 
-    await service.resetDraft(OWNER);
+    await service.resetDraft(OWNER, "draft-1");
 
     expect(
-      store.messages.some((message) => message.draftId === "draft-1"),
+      store.messages.some((message) => message.content === "old answer"),
     ).toBe(false);
   });
 
-  it("starts a new draft when there was nothing to discard", async () => {
+  it("re-seeds profile-derived fields rather than leaving them blank", async () => {
+    const { service, store } = setup();
+    store.seed(emptyDraft({ ...collected, id: "draft-1" }));
+
+    const view = await service.resetDraft(OWNER, "draft-1");
+
+    expect(view.subjects).toEqual(["term-data"]);
+    expect(view.skillLevel).toBe(SkillLevel.INTERMEDIATE);
+  });
+
+  it("starts a new draft when there was nothing to discard and no id was given", async () => {
     const { service, store } = setup();
 
     const view = await service.resetDraft(OWNER);
 
-    expect(store.deleteDraft).not.toHaveBeenCalled();
+    expect(store.resetInPlace).not.toHaveBeenCalled();
     expect(store.drafts).toHaveLength(1);
     expect(view.status).toBe(RoadmapDraftStatus.COLLECTING);
+  });
+
+  it("falls back to the current editable draft when no id is given", async () => {
+    const { service, store } = setup();
+    store.seed(emptyDraft({ ...collected, id: "draft-editable" }));
+
+    await service.resetDraft(OWNER);
+
+    expect(store.resetInPlace).toHaveBeenCalledWith(
+      OWNER.id,
+      "draft-editable",
+      expect.any(Object),
+    );
+  });
+
+  it("rejects an id belonging to another professional as not found", async () => {
+    const { service, store } = setup();
+    store.seed(emptyDraft({ ...collected, id: "draft-1", userId: OWNER.id }));
+
+    await expect(
+      service.resetDraft(STRANGER, "draft-1"),
+    ).rejects.toBeInstanceOf(NotFoundException);
+    expect(store.resetInPlace).not.toHaveBeenCalled();
+  });
+
+  it("rejects resetting a draft that is generating", async () => {
+    const { service, store } = setup();
+    store.seed(
+      emptyDraft({
+        id: "draft-1",
+        status: RoadmapDraftStatus.GENERATING,
+      }),
+    );
+
+    await expect(service.resetDraft(OWNER, "draft-1")).rejects.toBeInstanceOf(
+      HttpException,
+    );
   });
 });
 

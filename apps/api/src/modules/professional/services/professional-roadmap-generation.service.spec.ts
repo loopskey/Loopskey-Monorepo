@@ -627,4 +627,77 @@ describe("ProfessionalRoadmapGenerationService", () => {
       );
     });
   });
+
+  describe("generationStatus", () => {
+    it("returns the owned draft by id in any status", async () => {
+      const harness = buildHarness({
+        draft: draftRow({ status: RoadmapDraftStatus.COMPLETED }),
+      });
+
+      const result = await harness.service.generationStatus(USER, "draft-1");
+
+      expect(harness.prisma.roadmapDraft.findFirst).toHaveBeenCalledWith({
+        where: { id: "draft-1", userId: USER.id },
+      });
+      expect(result?.status).toBe(RoadmapDraftStatus.COMPLETED);
+    });
+
+    it("resolves the latest active generation when no id is given", async () => {
+      const harness = buildHarness({
+        draft: draftRow({ status: RoadmapDraftStatus.FAILED }),
+      });
+
+      await harness.service.generationStatus(USER);
+
+      expect(harness.prisma.roadmapDraft.findFirst).toHaveBeenCalledWith({
+        where: {
+          userId: USER.id,
+          status: {
+            in: [RoadmapDraftStatus.GENERATING, RoadmapDraftStatus.FAILED],
+          },
+        },
+        orderBy: { updatedAt: "desc" },
+      });
+    });
+
+    it("returns null rather than another professional's draft", async () => {
+      const harness = buildHarness({ draft: null });
+
+      expect(
+        await harness.service.generationStatus(USER, "draft-1"),
+      ).toBeNull();
+    });
+
+    it("maps a no-candidates failure to the public no-content category", async () => {
+      const harness = buildHarness({
+        draft: draftRow({
+          status: RoadmapDraftStatus.FAILED,
+          failureReason: "NO_CANDIDATES",
+        }),
+      });
+
+      const result = await harness.service.generationStatus(USER, "draft-1");
+
+      expect(result?.failure).toEqual({
+        code: "NO_MATCHING_CONTENT",
+        recoveryActions: ["REVIEW_SUBJECTS", "REVIEW_FORMATS", "REVIEW_BUDGET"],
+      });
+    });
+
+    it("never exposes the raw failure reason", async () => {
+      const harness = buildHarness({
+        draft: draftRow({
+          status: RoadmapDraftStatus.FAILED,
+          failureReason: "some-internal-provider-detail",
+        }),
+      });
+
+      const result = await harness.service.generationStatus(USER, "draft-1");
+
+      expect(result?.failure?.code).toBe("UNKNOWN");
+      expect(JSON.stringify(result)).not.toContain(
+        "some-internal-provider-detail",
+      );
+    });
+  });
 });

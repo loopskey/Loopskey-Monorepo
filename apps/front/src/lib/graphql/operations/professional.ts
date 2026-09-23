@@ -331,12 +331,19 @@ export type UnenrollRoadmapMutationVariables = Types.Exact<{
 
 export type UnenrollRoadmapMutation = { __typename?: 'Mutation', unenrollRoadmap: boolean };
 
-export type ProfessionalRoadmapDraftStatusQueryVariables = Types.Exact<{
+export type RetryRoadmapGenerationMutationVariables = Types.Exact<{
+  draftId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type RetryRoadmapGenerationMutation = { __typename?: 'Mutation', requestRoadmapGeneration: { __typename?: 'ProfessionalRoadmapDraft', id: string, status: Types.RoadmapDraftStatus } };
+
+export type ProfessionalRoadmapGenerationStatusQueryVariables = Types.Exact<{
   draftId?: Types.InputMaybe<Types.Scalars['ID']['input']>;
 }>;
 
 
-export type ProfessionalRoadmapDraftStatusQuery = { __typename?: 'Query', professionalRoadmapDraft?: { __typename?: 'ProfessionalRoadmapDraft', id: string, status: Types.RoadmapDraftStatus, failureReason?: string | null } | null };
+export type ProfessionalRoadmapGenerationStatusQuery = { __typename?: 'Query', professionalRoadmapGeneration?: { __typename?: 'ProfessionalRoadmapGeneration', id: string, goal?: string | null, status: Types.RoadmapDraftStatus, updatedAt: string, failure?: { __typename?: 'RoadmapGenerationFailure', code: Types.RoadmapGenerationFailureCode, recoveryActions: Array<Types.RoadmapGenerationRecoveryAction> } | null } | null };
 
 export type ProfessionalRoadmapRecommendationsQueryVariables = Types.Exact<{
   enrollmentId?: Types.InputMaybe<Types.Scalars['ID']['input']>;
@@ -2710,15 +2717,28 @@ export const UnenrollRoadmapDocument = /*#__PURE__*/ new TypedDocumentString(`
   unenrollRoadmap(enrollmentId: $enrollmentId)
 }
     `) as unknown as TypedDocumentString<UnenrollRoadmapMutation, UnenrollRoadmapMutationVariables>;
-export const ProfessionalRoadmapDraftStatusDocument = /*#__PURE__*/ new TypedDocumentString(`
-    query ProfessionalRoadmapDraftStatus($draftId: ID) {
-  professionalRoadmapDraft(draftId: $draftId) {
+export const RetryRoadmapGenerationDocument = /*#__PURE__*/ new TypedDocumentString(`
+    mutation RetryRoadmapGeneration($draftId: ID!) {
+  requestRoadmapGeneration(draftId: $draftId) {
     id
     status
-    failureReason
   }
 }
-    `) as unknown as TypedDocumentString<ProfessionalRoadmapDraftStatusQuery, ProfessionalRoadmapDraftStatusQueryVariables>;
+    `) as unknown as TypedDocumentString<RetryRoadmapGenerationMutation, RetryRoadmapGenerationMutationVariables>;
+export const ProfessionalRoadmapGenerationStatusDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query ProfessionalRoadmapGenerationStatus($draftId: ID) {
+  professionalRoadmapGeneration(draftId: $draftId) {
+    id
+    goal
+    status
+    updatedAt
+    failure {
+      code
+      recoveryActions
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<ProfessionalRoadmapGenerationStatusQuery, ProfessionalRoadmapGenerationStatusQueryVariables>;
 export const ProfessionalRoadmapRecommendationsDocument = /*#__PURE__*/ new TypedDocumentString(`
     query ProfessionalRoadmapRecommendations($enrollmentId: ID) {
   professionalRoadmapRecommendations(enrollmentId: $enrollmentId) {

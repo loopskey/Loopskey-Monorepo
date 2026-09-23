@@ -1,13 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { RoadmapDraftFieldKey, RoadmapDraftStatus } from "@/lib/graphql/base";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ROADMAP_MESSAGE_MAX_LENGTH } from "@/utils/roadmap-chat.constant";
 import { ROADMAP_COUNTER_THRESHOLD } from "@/utils/roadmap-chat.constant";
-import { RoadmapDraftFieldKey, RoadmapDraftStatus } from "@/lib/graphql/base";
 import { ROADMAP_BUSY_CODE } from "@/utils/roadmap-chat.constant";
 import { roadmapChatApi } from "@/lib/rtk/endpoints/roadmap-chat.api";
 import { useDispatch } from "react-redux";
-import { useRouter, useSearchParams } from "next/navigation";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
 
@@ -20,6 +20,7 @@ import type { PatchRoadmapDraftInput } from "@/lib/graphql/base";
 import type { TAppDispatch } from "@/lib/rtk/store";
 
 const ROADMAP_TAB_HREF = "/dashboard/professional?tab=roadmap";
+const ROADMAP_CHAT_HREF = "/dashboard/professional/roadmap-chat";
 
 const roadmapTabHref = (draftId: string) =>
   `${ROADMAP_TAB_HREF}&generationDraftId=${encodeURIComponent(draftId)}`;
@@ -52,16 +53,20 @@ export const useRoadmapChat = () => {
   const [pending, setPending] = useState<T.TPendingMessage | null>(null);
   const [turnError, setTurnError] = useState<T.TRoadmapChatError | null>(null);
   const [retryAfter, setRetryAfter] = useState<number>(0);
+  const [resetCount, setResetCount] = useState<number>(0);
   const startedRef = useRef<boolean>(false);
+
+  const draftQueryArgs = useMemo(
+    () => (requestedDraftId ? { draftId: requestedDraftId } : undefined),
+    [requestedDraftId],
+  );
 
   const {
     data: draft,
     isLoading: isDraftLoading,
     isError: isDraftError,
     refetch: refetchDraft,
-  } = API.useProfessionalRoadmapDraftQuery(
-    requestedDraftId ? { draftId: requestedDraftId } : undefined,
-  );
+  } = API.useProfessionalRoadmapDraftQuery(draftQueryArgs);
 
   const [startDraft, { isLoading: isStarting }] =
     API.useStartRoadmapDraftMutation();
@@ -81,12 +86,27 @@ export const useRoadmapChat = () => {
       dispatch(
         roadmapChatApi.util.updateQueryData(
           "professionalRoadmapDraft",
-          undefined,
+          draftQueryArgs,
           () => next,
         ),
       );
     },
-    [dispatch],
+    [dispatch, draftQueryArgs],
+  );
+
+  const writeDraftEverywhere = useCallback(
+    (next: T.TRoadmapDraft) => {
+      writeDraft(next);
+      if (draftQueryArgs)
+        dispatch(
+          roadmapChatApi.util.updateQueryData(
+            "professionalRoadmapDraft",
+            undefined,
+            () => next,
+          ),
+        );
+    },
+    [dispatch, draftQueryArgs, writeDraft],
   );
 
   // ============= Opening the wizard ===============
@@ -194,7 +214,7 @@ export const useRoadmapChat = () => {
 
   const patch = useCallback(
     async (changes: Omit<PatchRoadmapDraftInput, "draftId">) => {
-      if (!draft) return;
+      if (!draft) return false;
       setTurnError(null);
 
       try {
@@ -203,15 +223,15 @@ export const useRoadmapChat = () => {
           ...changes,
         }).unwrap();
         writeDraft(next);
+        return true;
       } catch (error: unknown) {
         setTurnError(readChatError(error));
+        return false;
       }
     },
     [draft, patchDraft, writeDraft],
   );
 
-  // A tap on a control is a structured answer, so it is saved directly. Only
-  // what the professional types goes to the AI service for extraction.
   const answerWidget = useCallback(
     (value: string) => {
       const field = draft?.widget?.field;
@@ -264,15 +284,24 @@ export const useRoadmapChat = () => {
     setInput("");
 
     try {
-      const next = await resetDraft().unwrap();
-      writeDraft(next);
+      const next = await resetDraft(draft?.id).unwrap();
+      writeDraftEverywhere(next);
+      setResetCount((count) => count + 1);
+      if (requestedDraftId) router.replace(ROADMAP_CHAT_HREF);
       return true;
     } catch (error: unknown) {
       setTurnError(readChatError(error));
       notify.error(t("professionalRoadmapChat.startOverFailed"));
       return false;
     }
-  }, [resetDraft, t, writeDraft]);
+  }, [
+    draft?.id,
+    requestedDraftId,
+    resetDraft,
+    router,
+    t,
+    writeDraftEverywhere,
+  ]);
 
   const generate = useCallback(async () => {
     if (!draft || draft.status === RoadmapDraftStatus.Generating) return;
@@ -298,13 +327,14 @@ export const useRoadmapChat = () => {
     startOver,
     isSending,
     turnError,
-    answerWidget,
     isPatching,
     retryAfter,
+    resetCount,
     isResetting,
     refetchDraft,
     isDraftError,
     isGenerating,
+    answerWidget,
     patchCpdSetup,
     dismissPending,
     isPatchingCpdSetup,

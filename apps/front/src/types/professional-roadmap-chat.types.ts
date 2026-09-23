@@ -3,6 +3,9 @@ import { PatchRoadmapDraftInput } from "@/lib/graphql/base";
 import { RoadmapDraftStatus } from "@/lib/graphql/base";
 import { PatchRoadmapCpdSetupInput } from "@/lib/graphql/base";
 import { StepPending } from "@/hooks/useRoadmapStepProgress";
+import type { RoadmapChatStage } from "@/utils/roadmap-chat-step.util";
+import type { RoadmapGenerationFailureCode } from "@/lib/graphql/base";
+import type { RoadmapGenerationRecoveryAction } from "@/lib/graphql/base";
 
 import type * as G from "@/lib/graphql/operations/roadmap-chat";
 
@@ -29,12 +32,26 @@ export type TRoadmapChatError = {
   retryAfterSeconds: number | null;
 };
 
+export type TRoadmapGenerationFailure = {
+  code: RoadmapGenerationFailureCode;
+  recoveryActions: RoadmapGenerationRecoveryAction[];
+};
+
 export type TRoadmapStatusProps = {
   draftId: string;
   status: RoadmapDraftStatus;
-  failureReason?: string | null;
+  goal?: string | null;
+  failure?: TRoadmapGenerationFailure | null;
+  onRetry: () => void;
+  isRetrying: boolean;
   t: (key: string, values?: Record<string, string | number>) => string;
 };
+
+export type TBriefFieldStatus =
+  | "confirmed"
+  | "suggested"
+  | "needsAnswer"
+  | "notNeeded";
 
 type Step = {
   id: string;
@@ -99,9 +116,10 @@ export type TRoadmapReviewSummary = {
   isPatching: boolean;
   draft: TRoadmapDraft;
   isGenerating?: boolean;
+  focusStage?: RoadmapChatStage;
   isPatchingCpdSetup?: boolean;
   onGenerate?: () => void;
-  onPatch: (changes: Patch) => void;
+  onPatch: (changes: Patch) => Promise<boolean>;
   onPatchCpdSetup?: (changes: CpdSetupPatch) => void;
 };
 

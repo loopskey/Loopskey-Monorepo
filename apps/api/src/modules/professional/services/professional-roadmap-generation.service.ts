@@ -8,9 +8,13 @@ import { RoadmapDraftStatus, Role } from "@prisma/client";
 import { PROFESSIONAL_CATALOG_API } from "@course/public/professional-catalog-api";
 import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
 import { verifyGeneratedRoadmap } from "@professional/utils/roadmap-generation-verify.util";
-import { subjectLabelsOf } from "@professional/utils/roadmap-draft-merge.util";
+import { mapGenerationFailure } from "@professional/utils/roadmap-generation-failure.util";
+import { NO_CANDIDATES_REASON } from "@professional/utils/roadmap-generation-failure.util";
 import { BadRequestException } from "@nestjs/common";
+import { SERVICE_AI_LIMITS } from "@infrastructure/service-ai/service-ai.port";
+import { SERVICE_AI_PORT } from "@infrastructure/service-ai/service-ai.port";
 import { isDraftComplete } from "@professional/utils/roadmap-step-machine.util";
+import { subjectLabelsOf } from "@professional/utils/roadmap-draft-merge.util";
 import { requestContext } from "@infrastructure/observability/request-context";
 import { OutboxDeferral } from "@infrastructure/outbox/outbox-handler.port";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
@@ -26,8 +30,6 @@ import { type ProfessionalCatalogApi } from "@course/public/professional-catalog
 import { type CandidateKey } from "@professional/utils/roadmap-generation-verify.util";
 
 import {
-  SERVICE_AI_LIMITS,
-  SERVICE_AI_PORT,
   type GenerateData,
   type PlatformContentType,
   type RoadmapContentCandidate,
@@ -126,6 +128,41 @@ export class ProfessionalRoadmapGenerationService {
     });
   }
 
+  /**
+   * With `draftId`, returns that owned draft in any status so a direct link
+   * (from the generated-hero's history, or a bookmark) always resolves. With
+   * no id, returns only a `GENERATING`/`FAILED` draft, since a completed or
+   * still-collecting draft is not an "active generation" the Roadmap tab
+   * needs to surface without the professional asking for it by id.
+   */
+  async generationStatus(user: TUser, draftId?: string) {
+    this.assertProfessional(user);
+    const trimmed = draftId?.trim() || undefined;
+
+    const draft = trimmed
+      ? await this.prisma.roadmapDraft.findFirst({
+          where: { id: trimmed, userId: user.id },
+        })
+      : await this.prisma.roadmapDraft.findFirst({
+          where: {
+            userId: user.id,
+            status: {
+              in: [RoadmapDraftStatus.GENERATING, RoadmapDraftStatus.FAILED],
+            },
+          },
+          orderBy: { updatedAt: "desc" },
+        });
+    if (!draft) return null;
+
+    return {
+      id: draft.id,
+      goal: draft.goal,
+      status: draft.status,
+      updatedAt: draft.updatedAt,
+      failure: mapGenerationFailure(draft.failureReason),
+    };
+  }
+
   async runGeneration(draftId: string) {
     if (this.inFlight >= MAX_CONCURRENT_GENERATIONS)
       throw new OutboxDeferral(
@@ -177,7 +214,7 @@ export class ProfessionalRoadmapGenerationService {
       });
 
       if (selected.length === 0) {
-        await this.fail(draftId, "NO_CANDIDATES");
+        await this.fail(draftId, NO_CANDIDATES_REASON);
         return;
       }
 

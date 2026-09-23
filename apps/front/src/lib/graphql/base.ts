@@ -3195,6 +3195,11 @@ export type MutationResetPasswordArgs = {
 };
 
 
+export type MutationResetRoadmapDraftArgs = {
+  draftId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
 export type MutationRestoreCourseArgs = {
   courseId: Scalars['String']['input'];
 };
@@ -4934,6 +4939,7 @@ export type ProfessionalRoadmapDraft = {
   cpdEnabled: Scalars['Boolean']['output'];
   cpdPlan?: Maybe<CpdPlan>;
   currentStep: RoadmapDraftStep;
+  failure?: Maybe<RoadmapGenerationFailure>;
   failureReason?: Maybe<Scalars['String']['output']>;
   goal?: Maybe<Scalars['String']['output']>;
   goalReason?: Maybe<Scalars['String']['output']>;
@@ -4957,6 +4963,15 @@ export type ProfessionalRoadmapDraft = {
   updatedAt: Scalars['DateTime']['output'];
   wasRefused: Scalars['Boolean']['output'];
   widget?: Maybe<RoadmapWidget>;
+};
+
+export type ProfessionalRoadmapGeneration = {
+  __typename?: 'ProfessionalRoadmapGeneration';
+  failure?: Maybe<RoadmapGenerationFailure>;
+  goal?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  status: RoadmapDraftStatus;
+  updatedAt: Scalars['DateTime']['output'];
 };
 
 export type ProfessionalRoadmapPhase = {
@@ -5393,6 +5408,7 @@ export type Query = {
   professionalPduReport: ProfessionalPduReport;
   professionalProfileTaxonomy: Array<ProfessionalTaxonomyGroup>;
   professionalRoadmapDraft?: Maybe<ProfessionalRoadmapDraft>;
+  professionalRoadmapGeneration?: Maybe<ProfessionalRoadmapGeneration>;
   professionalRoadmapRecommendations: Array<RoadmapRecommendation>;
   professionalRoadmapStats: ProfessionalRoadmapStats;
   professionalSettings: ProfessionalSettings;
@@ -6040,6 +6056,11 @@ export type QueryProfessionalRoadmapDraftArgs = {
 };
 
 
+export type QueryProfessionalRoadmapGenerationArgs = {
+  draftId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
 export type QueryProfessionalRoadmapRecommendationsArgs = {
   enrollmentId?: InputMaybe<Scalars['ID']['input']>;
 };
@@ -6234,6 +6255,27 @@ export enum RoadmapEnrollmentStatus {
   Active = 'ACTIVE',
   Completed = 'COMPLETED',
   Unenrolled = 'UNENROLLED'
+}
+
+export type RoadmapGenerationFailure = {
+  __typename?: 'RoadmapGenerationFailure';
+  code: RoadmapGenerationFailureCode;
+  recoveryActions: Array<RoadmapGenerationRecoveryAction>;
+};
+
+export enum RoadmapGenerationFailureCode {
+  InvalidGeneratedRoadmap = 'INVALID_GENERATED_ROADMAP',
+  NoMatchingContent = 'NO_MATCHING_CONTENT',
+  TemporaryServiceFailure = 'TEMPORARY_SERVICE_FAILURE',
+  Unknown = 'UNKNOWN'
+}
+
+export enum RoadmapGenerationRecoveryAction {
+  Retry = 'RETRY',
+  ReviewBudget = 'REVIEW_BUDGET',
+  ReviewFormats = 'REVIEW_FORMATS',
+  ReviewSubjects = 'REVIEW_SUBJECTS',
+  StartOver = 'START_OVER'
 }
 
 export type RoadmapRecommendation = {

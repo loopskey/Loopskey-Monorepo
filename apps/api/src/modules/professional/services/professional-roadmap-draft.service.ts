@@ -1,8 +1,47 @@
-import { Prisma, RoadmapChatRole, RoadmapDraftStatus } from "@prisma/client";
+import { RoadmapDraftStatus, RoadmapDraftStep } from "@prisma/client";
+import { Prisma, RoadmapChatRole } from "@prisma/client";
+import { COACH_QUESTION_CODE } from "@professional/utils/roadmap-coach.util";
+import { COACH_INTRO_CODE } from "@professional/utils/roadmap-coach.util";
+import { coachWidgetFor } from "@professional/utils/roadmap-coach.util";
 import { PrismaService } from "@prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
 
 const DEFAULT_TRANSCRIPT_PAGE = 30;
+
+const RESETTABLE_STATUSES: RoadmapDraftStatus[] = [
+  RoadmapDraftStatus.COLLECTING,
+  RoadmapDraftStatus.READY,
+  RoadmapDraftStatus.FAILED,
+];
+
+const RESET_FIELDS: Prisma.RoadmapDraftUncheckedUpdateInput = {
+  goal: null,
+  targetRole: null,
+  goalReason: null,
+  context: null,
+  targetDate: null,
+  skillLevel: null,
+  timeCommitment: null,
+  budgetPreference: null,
+  subjects: [],
+  preferredFormats: [],
+  preferredContentTypes: [],
+  preferredDeliveryFormats: [],
+  cpdEnabled: false,
+  certificationId: null,
+  certificationName: null,
+  cpdPlanId: null,
+  requiredCredits: null,
+  completedCredits: null,
+  needsClarification: false,
+  wasRefused: false,
+  failureReason: null,
+};
+
+export type ResetInPlaceResult =
+  | { outcome: "reset"; draft: Prisma.RoadmapDraftGetPayload<object> }
+  | { outcome: "not_found" }
+  | { outcome: "locked" };
 
 @Injectable()
 export class ProfessionalRoadmapDraftService {
@@ -53,6 +92,69 @@ export class ProfessionalRoadmapDraftService {
         status: { in: ProfessionalRoadmapDraftService.EDITABLE },
       },
       orderBy: { updatedAt: "desc" },
+    });
+  }
+
+  async findActiveGeneration(userId: string) {
+    return this.prismaService.roadmapDraft.findFirst({
+      where: {
+        userId,
+        status: {
+          in: [RoadmapDraftStatus.GENERATING, RoadmapDraftStatus.FAILED],
+        },
+      },
+      orderBy: { updatedAt: "desc" },
+    });
+  }
+
+  async resetInPlace(
+    userId: string,
+    draftId: string,
+    seeded: Partial<Prisma.RoadmapDraftUncheckedUpdateInput>,
+  ): Promise<ResetInPlaceResult> {
+    return this.prismaService.$transaction(async (tx) => {
+      const rows = await tx.$queryRaw<
+        { id: string; status: RoadmapDraftStatus }[]
+      >`SELECT id, status FROM "RoadmapDraft" WHERE id = ${draftId} AND "userId" = ${userId} FOR UPDATE`;
+      const row = rows[0];
+      if (!row) return { outcome: "not_found" };
+      if (!RESETTABLE_STATUSES.includes(row.status))
+        return { outcome: "locked" };
+
+      const firstStep = RoadmapDraftStep.GOAL;
+      await tx.roadmapDraft.update({
+        where: { id: draftId },
+        data: {
+          ...RESET_FIELDS,
+          ...seeded,
+          status: RoadmapDraftStatus.COLLECTING,
+          currentStep: firstStep,
+        },
+      });
+      await tx.roadmapChatMessage.deleteMany({ where: { draftId } });
+      await tx.roadmapChatMessage.createMany({
+        data: [
+          {
+            draftId,
+            stepKey: firstStep,
+            content: COACH_INTRO_CODE,
+            role: RoadmapChatRole.ASSISTANT,
+          },
+          {
+            draftId,
+            stepKey: firstStep,
+            content: COACH_QUESTION_CODE,
+            role: RoadmapChatRole.ASSISTANT,
+            widget: (coachWidgetFor(firstStep) ??
+              Prisma.JsonNull) as unknown as Prisma.InputJsonValue,
+          },
+        ],
+      });
+
+      const draft = await tx.roadmapDraft.findUniqueOrThrow({
+        where: { id: draftId },
+      });
+      return { outcome: "reset", draft };
     });
   }
 

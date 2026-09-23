@@ -45,6 +45,11 @@ fragment RoadmapCpdPlanFields on CpdPlan {
   }
 }
 
+fragment RoadmapGenerationFailureFields on RoadmapGenerationFailure {
+  code
+  recoveryActions
+}
+
 fragment ProfessionalRoadmapDraftFields on ProfessionalRoadmapDraft {
   id
   status
@@ -52,7 +57,9 @@ fragment ProfessionalRoadmapDraftFields on ProfessionalRoadmapDraft {
   isComplete
   needsClarification
   wasRefused
-  failureReason
+  failure {
+    ...RoadmapGenerationFailureFields
+  }
   completedFieldCount
   requiredFieldCount
   remainingFields
@@ -111,9 +118,21 @@ mutation StartRoadmapDraft {
   }
 }
 
-mutation ResetRoadmapDraft {
-  resetRoadmapDraft {
+mutation ResetRoadmapDraft($draftId: ID) {
+  resetRoadmapDraft(draftId: $draftId) {
     ...ProfessionalRoadmapDraftFields
+  }
+}
+
+query ProfessionalRoadmapGeneration($draftId: ID) {
+  professionalRoadmapGeneration(draftId: $draftId) {
+    id
+    goal
+    status
+    updatedAt
+    failure {
+      ...RoadmapGenerationFailureFields
+    }
   }
 }
 

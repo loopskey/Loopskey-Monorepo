@@ -1,6 +1,8 @@
 "use client";
 
+import { useRef, useState, ViewTransition } from "react";
 import { RoadmapRecommendationsCard } from "@modules/ProfessionalRoadmap/RoadmapRecommendationsCard";
+import { startTransition, useEffect } from "react";
 import { RoadmapGenerationStatus } from "@modules/ProfessionalRoadmap/RoadmapGenerationStatus";
 import { useProfessionalRoadmaps } from "@/hooks/useProfessionalRoadmap";
 import { RoadmapSummarySections } from "@modules/ProfessionalRoadmap/RoadmapSummarySections";
@@ -41,6 +43,7 @@ const ProfessionalRoadmapTab = () => {
     stepProgress,
     isStatsError,
     otherRoadmaps,
+    justCompleted,
     exploreSearch,
     unenrollingId,
     isStatsLoading,
@@ -58,7 +61,10 @@ const ProfessionalRoadmapTab = () => {
     exploreRoadmapsData,
     isMyRoadmapsLoading,
     isMyRoadmapsFetching,
+    isRetryingGeneration,
     handleExplorePrevious,
+    handleRetryGeneration,
+    acknowledgeCompletion,
     handleSearchInputChange,
     isExploreRoadmapsLoading,
     isExploreRoadmapsFetching,
@@ -66,6 +72,26 @@ const ProfessionalRoadmapTab = () => {
   } = useProfessionalRoadmaps();
 
   const semantics = useChartSemantics();
+
+  type TCurrentRoadmapView = "statusCard" | "hero" | "none";
+  const currentView: TCurrentRoadmapView = generatedRoadmap
+    ? "hero"
+    : isGenerating || hasFailedDraft
+      ? "statusCard"
+      : "none";
+  const [displayView, setDisplayView] =
+    useState<TCurrentRoadmapView>(currentView);
+  useEffect(() => {
+    if (displayView === currentView) return;
+    startTransition(() => setDisplayView(currentView));
+  }, [currentView, displayView]);
+
+  const heroHeadingRef = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    if (!justCompleted) return;
+    heroHeadingRef.current?.focus();
+    acknowledgeCompletion();
+  }, [justCompleted, acknowledgeCompletion]);
 
   const statValue = (value: number | string) => {
     if (isStatsError) return "—";
@@ -153,6 +179,102 @@ const ProfessionalRoadmapTab = () => {
         </div>
       </div>
 
+      <ViewTransition>
+        {displayView === "statusCard" && draft ? (
+          <RoadmapGenerationStatus
+            t={t}
+            draftId={draft.id}
+            status={draft.status}
+            goal={draft.goal}
+            failure={draft.failure}
+            onRetry={handleRetryGeneration}
+            isRetrying={isRetryingGeneration}
+          />
+        ) : null}
+
+        {displayView === "hero" && generatedRoadmap ? (
+          <div id="your-learning-path" className="space-y-6">
+            <GlassCard className="p-6">
+              <p className="text-sm font-medium text-primary">
+                {t("professionalDashboard.roadmap.heroEyebrow")}
+              </p>
+              <h2
+                ref={heroHeadingRef}
+                tabIndex={-1}
+                className="mt-1 text-2xl font-medium tracking-tight outline-none"
+              >
+                {generatedRoadmap.title}
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+                {generatedRoadmap.description}
+              </p>
+
+              <div className="mt-4 flex flex-wrap gap-3">
+                <Button asChild radius="xl">
+                  <a href="#your-learning-path-phases">
+                    {t("professionalDashboard.roadmap.continueRoadmap")}
+                    <L.ArrowRight className="h-4 w-4" />
+                  </a>
+                </Button>
+                <Button asChild radius="xl" variant="outline">
+                  <Link href={getRoadmapHref(generatedRoadmap)}>
+                    {t("professionalDashboard.roadmap.viewFullRoadmap")}
+                  </Link>
+                </Button>
+                <Button asChild radius="xl" variant="outline">
+                  <Link href={ROADMAP_CHAT_HREF}>
+                    {t("professionalDashboard.roadmap.newRoadmap")}
+                  </Link>
+                </Button>
+              </div>
+            </GlassCard>
+
+            {generatedRoadmap.coverageNote ? (
+              <GlassCard className="p-5">
+                <div className="flex items-start gap-3">
+                  <L.Info
+                    className="mt-0.5 h-5 w-5 shrink-0 text-primary"
+                    aria-hidden="true"
+                  />
+                  <div>
+                    <h3 className="text-sm font-medium">
+                      {t("professionalDashboard.roadmap.coverageNote")}
+                    </h3>
+                    <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                      {generatedRoadmap.coverageNote}
+                    </p>
+                  </div>
+                </div>
+              </GlassCard>
+            ) : null}
+
+            <RoadmapSummarySections
+              t={t}
+              locale={locale}
+              recommendations={recommendations}
+              progress={generatedRoadmap.progress}
+              totalSteps={generatedRoadmap.totalSteps}
+              targetDate={generatedRoadmap.targetDate}
+              earnedCredits={generatedRoadmap.earnedCredits}
+              completedSteps={generatedRoadmap.completedSteps}
+              requiredCredits={generatedRoadmap.requiredCredits}
+            />
+
+            <div id="your-learning-path-phases">
+              <RoadmapPhaseList
+                t={t}
+                onStart={stepProgress.start}
+                pending={stepProgress.pending}
+                phases={generatedRoadmap.phases}
+                onComplete={stepProgress.complete}
+                enrollmentId={generatedRoadmap.id}
+                failedStepId={stepProgress.failedStepId}
+              />
+            </div>
+          </div>
+        ) : null}
+      </ViewTransition>
+
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <GlassCard className="p-5">
           <div className="flex items-center justify-between">
@@ -231,63 +353,8 @@ const ProfessionalRoadmapTab = () => {
         </GlassCard>
       </div>
 
-      {isGenerating || hasFailedDraft ? (
-        <RoadmapGenerationStatus
-          t={t}
-          draftId={draft!.id}
-          status={draft!.status}
-          failureReason={draft?.failureReason}
-        />
-      ) : null}
-
       {!generatedRoadmap ? (
         <RoadmapRecommendationsCard t={t} recommendations={recommendations} />
-      ) : null}
-
-      {generatedRoadmap ? (
-        <div id="your-learning-path" className="space-y-6">
-          {generatedRoadmap.coverageNote ? (
-            <GlassCard className="p-5">
-              <div className="flex items-start gap-3">
-                <L.Info
-                  className="mt-0.5 h-5 w-5 shrink-0 text-primary"
-                  aria-hidden="true"
-                />
-                <div>
-                  <h3 className="text-sm font-medium">
-                    {t("professionalDashboard.roadmap.coverageNote")}
-                  </h3>
-                  {/* Shown in full: it is how the roadmap explains its gaps. */}
-                  <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                    {generatedRoadmap.coverageNote}
-                  </p>
-                </div>
-              </div>
-            </GlassCard>
-          ) : null}
-
-          <RoadmapSummarySections
-            t={t}
-            locale={locale}
-            recommendations={recommendations}
-            progress={generatedRoadmap.progress}
-            totalSteps={generatedRoadmap.totalSteps}
-            targetDate={generatedRoadmap.targetDate}
-            earnedCredits={generatedRoadmap.earnedCredits}
-            completedSteps={generatedRoadmap.completedSteps}
-            requiredCredits={generatedRoadmap.requiredCredits}
-          />
-
-          <RoadmapPhaseList
-            t={t}
-            onStart={stepProgress.start}
-            pending={stepProgress.pending}
-            phases={generatedRoadmap.phases}
-            onComplete={stepProgress.complete}
-            enrollmentId={generatedRoadmap.id}
-            failedStepId={stepProgress.failedStepId}
-          />
-        </div>
       ) : null}
 
       <GlassCard>

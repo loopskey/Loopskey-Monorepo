@@ -17,12 +17,16 @@ export const ConfirmDialog = ({
   cancelText = "Cancel",
   confirmText = "Confirm",
   confirmVariant = "default",
+  onCloseAutoFocus,
 }: TConfirmDialogProps) => {
   return (
     <A.AlertDialog open={open} onOpenChange={onOpenChange}>
       <A.AlertDialogTrigger asChild>{trigger}</A.AlertDialogTrigger>
 
-      <A.AlertDialogContent className="z-[9999] rounded-lg">
+      <A.AlertDialogContent
+        className="z-[9999] rounded-lg"
+        onCloseAutoFocus={onCloseAutoFocus}
+      >
         <A.AlertDialogHeader>
           <A.AlertDialogTitle className="text-xl">{title}</A.AlertDialogTitle>
 

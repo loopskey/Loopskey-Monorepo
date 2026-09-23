@@ -560,16 +560,17 @@ export const professionalApi = baseApi.injectEndpoints({
       providesTags: ["ProfessionalRoadmaps", "Professional"],
     }),
 
-    professionalRoadmapDraftStatus: builder.query<
-      TAPI.ProfessionalRoadmapDraftStatusQuery["professionalRoadmapDraft"],
-      TAPI.ProfessionalRoadmapDraftStatusQueryVariables | void
+    professionalRoadmapGenerationStatus: builder.query<
+      TAPI.ProfessionalRoadmapGenerationStatusQuery["professionalRoadmapGeneration"],
+      TAPI.ProfessionalRoadmapGenerationStatusQueryVariables | void
     >({
       query: (variables) => ({
-        document: API.ProfessionalRoadmapDraftStatusDocument,
+        document: API.ProfessionalRoadmapGenerationStatusDocument,
         variables: variables ?? {},
       }),
-      transformResponse: (response: TAPI.ProfessionalRoadmapDraftStatusQuery) =>
-        response.professionalRoadmapDraft,
+      transformResponse: (
+        response: TAPI.ProfessionalRoadmapGenerationStatusQuery,
+      ) => response.professionalRoadmapGeneration,
       providesTags: ["ProfessionalRoadmaps", "Professional"],
     }),
 
@@ -653,6 +654,22 @@ export const professionalApi = baseApi.injectEndpoints({
       invalidatesTags: ["ProfessionalRoadmaps", "ProfessionalRoadmapStats"],
     }),
 
+    retryRoadmapGeneration: builder.mutation<
+      TAPI.RetryRoadmapGenerationMutation["requestRoadmapGeneration"],
+      TAPI.RetryRoadmapGenerationMutationVariables["draftId"]
+    >({
+      query: (draftId) => ({
+        document: API.RetryRoadmapGenerationDocument,
+        variables: { draftId },
+      }),
+      transformResponse: (response: TAPI.RetryRoadmapGenerationMutation) =>
+        response.requestRoadmapGeneration,
+      invalidatesTags: [
+        "ProfessionalRoadmaps",
+        "ProfessionalRoadmapStats",
+        "Professional",
+      ],
+    }),
   }),
 });
 
@@ -717,6 +734,7 @@ export const {
   useCompleteRoadmapStepMutation,
   useUnenrollRoadmapMutation,
   useProfessionalRoadmapStatsQuery,
+  useRetryRoadmapGenerationMutation,
   useProfessionalRoadmapRecommendationsQuery,
-  useProfessionalRoadmapDraftStatusQuery,
+  useProfessionalRoadmapGenerationStatusQuery,
 } = professionalApi;
