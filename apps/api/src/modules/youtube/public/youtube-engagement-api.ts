@@ -37,11 +37,17 @@ export type RoadmapCandidateChannelProjection = {
   readonly subscribers: number;
   readonly isFeatured: boolean;
   readonly description: string | null;
+  readonly matchScore: number;
 };
+
+export type RoadmapMatchTier = "EXACT" | "SIMILAR" | "RELATED" | "BROAD";
 
 export type RoadmapCandidateQuery = {
   readonly take: number;
   readonly subjects: readonly string[];
+  readonly tier: RoadmapMatchTier;
+  readonly keywords: readonly string[];
+  readonly groupKeys: readonly string[];
 };
 
 export interface YouTubeEngagementApi {

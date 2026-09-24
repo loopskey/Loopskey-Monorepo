@@ -607,6 +607,7 @@ fragment ProfessionalRoadmapStepFields on ProfessionalRoadmapStep {
   description
   contentType
   completedAt
+  isCloseMatch
   estimatedMinutes
 }
 
@@ -653,6 +654,8 @@ fragment ProfessionalRoadmapFields on ProfessionalRoadmap {
   earnedCredits
   estimatedWeeks
   requiredCredits
+  draftId
+  matchTier
   phases {
     ...ProfessionalRoadmapPhaseFields
   }

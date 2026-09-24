@@ -1769,6 +1769,13 @@ enum RoadmapStepProgressStatus {
   IN_PROGRESS
 }
 
+enum RoadmapMatchTier {
+  EXACT
+  SIMILAR
+  RELATED
+  BROAD
+}
+
 model Roadmap {
   id   String @id @default(cuid())
   slug String @unique
@@ -1788,6 +1795,7 @@ model Roadmap {
 
   estimatedWeeks Int?
   coverageNote   String?
+  matchTier      RoadmapMatchTier?
 
   phases      RoadmapPhase[]
   enrollments RoadmapEnrollment[]
@@ -1834,8 +1842,9 @@ model RoadmapStep {
   description String?
   order       Int
 
-  contentType ContentType?
-  contentId   String?
+  contentType  ContentType?
+  contentId    String?
+  isCloseMatch Boolean      @default(false)
 
   estimatedMinutes Int?
   credits          Float?

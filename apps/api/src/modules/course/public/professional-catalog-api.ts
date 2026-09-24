@@ -38,6 +38,7 @@ export type GeneratedRoadmapStepInput = {
   readonly order: number;
   readonly title: string;
   readonly description: string;
+  readonly isCloseMatch: boolean;
   readonly credits: number | null;
   readonly contentId: string | null;
   readonly estimatedMinutes: number | null;
@@ -57,9 +58,10 @@ export type GeneratedRoadmapInput = {
   readonly title: string;
   readonly ownerId: string;
   readonly description: string;
-  readonly coverageNote: string | null;
   readonly estimatedWeeks: number;
+  readonly coverageNote: string | null;
   readonly phases: readonly GeneratedRoadmapPhaseInput[];
+  readonly matchTier: RoadmapMatchTier | null;
 };
 
 export type RoadmapCandidateCourseProjection = {
@@ -69,6 +71,7 @@ export type RoadmapCandidateCourseProjection = {
   readonly rating: number;
   readonly isFree: boolean;
   readonly category: string;
+  readonly matchScore: number;
   readonly description: string;
   readonly ratingCount: number;
   readonly isFeatured: boolean;
@@ -76,8 +79,13 @@ export type RoadmapCandidateCourseProjection = {
   readonly durationMinutes: number | null;
 };
 
+export type RoadmapMatchTier = "EXACT" | "SIMILAR" | "RELATED" | "BROAD";
+
 export type RoadmapCandidateQuery = {
   readonly take: number;
   readonly freeOnly: boolean;
+  readonly tier: RoadmapMatchTier;
   readonly subjects: readonly string[];
+  readonly keywords: readonly string[];
+  readonly groupKeys: readonly string[];
 };

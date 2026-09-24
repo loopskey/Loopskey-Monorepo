@@ -45,6 +45,8 @@ export type AnsweredFields = ReadonlySet<RoadmapDraftField>;
 export type CandidateBuildInput = {
   cap: number;
   subjects: string[];
+  keywords: string[];
+  groupKeys: string[];
   creditsNeeded: boolean;
   skillLevel: SkillLevel | null;
   preferredContentTypes: PlatformContentType[];

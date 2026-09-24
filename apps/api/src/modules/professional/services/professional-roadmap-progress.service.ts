@@ -215,6 +215,8 @@ export class ProfessionalRoadmapProgressService {
     const pool = await this.candidates.build({
       cap: take + alreadyInRoadmap.size,
       subjects: draft.subjects,
+      keywords: [],
+      groupKeys: [],
       skillLevel: draft.skillLevel,
       budgetPreference: draft.budgetPreference,
       preferredContentTypes: draft.preferredContentTypes,

@@ -4421,6 +4421,12 @@
       "weekRange": "Semaines {{start}} à {{end}}",
       "pduValue": "{{count}} UDP",
       "coverageNote": "À propos de ce parcours",
+      "closeMatchDisclosure": {
+        "title": "Ce parcours utilise des correspondances proches",
+        "description": "Nous n'avons pas trouvé de contenu correspondant exactement à vos sujets, ce parcours utilise donc le contenu le plus proche disponible. Affinez vos sujets pour l'améliorer.",
+        "action": "Revoir mes préférences"
+      },
+      "closeMatchTag": "Correspondance proche",
       "review": "Consulter",
       "start": "Commencer",
       "markComplete": "Marquer comme terminé",

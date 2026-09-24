@@ -3945,12 +3945,14 @@ type ProfessionalRoadmap {
   completedSteps: Int!
   coverageNote: String
   description: String!
+  draftId: ID
   earnedCredits: Float!
   enrolledAt: DateTime!
   estimatedWeeks: Int
   id: ID!
   imageUrl: String
   level: CourseLevel!
+  matchTier: RoadmapMatchTier
   nextMilestoneProgress: Int!
   nextPhaseTitle: String
   phases: [ProfessionalRoadmapPhase!]!
@@ -4044,6 +4046,7 @@ type ProfessionalRoadmapStep {
   description: String
   estimatedMinutes: Int
   id: ID!
+  isCloseMatch: Boolean!
   order: Int!
   status: RoadmapStepProgressStatus
   title: String!
@@ -4589,6 +4592,13 @@ enum RoadmapGenerationRecoveryAction {
   REVIEW_FORMATS
   REVIEW_SUBJECTS
   START_OVER
+}
+
+enum RoadmapMatchTier {
+  BROAD
+  EXACT
+  RELATED
+  SIMILAR
 }
 
 type RoadmapRecommendation {

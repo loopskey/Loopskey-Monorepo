@@ -9,14 +9,28 @@ import { YouTubeChannelSortInput } from "@youtube/dtos/youtube-channel-sort.inpu
 import { CreateYouTubeVideoInput } from "@youtube/dtos/create-youtube-video.input";
 import { YouTubeChannelSortField } from "@youtube/enums/youtube.enum";
 import { UpdateYouTubeVideoInput } from "@youtube/dtos/update-youtube-video.input";
+import { TChannelCandidateRow } from "@youtube/types/youtube-service.types";
+import { YouTubeRatingWriter } from "@youtube/public/youtube-engagement-api";
 import { ForbiddenException } from "@nestjs/common";
 import { YouTubeMessageCode } from "@youtube/enums/message-code.enum";
 import { YouTubeRequester } from "@youtube/enums/youtube.enum";
-import { YouTubeRatingWriter } from "@youtube/public/youtube-engagement-api";
+import { YouTubeCategory } from "@prisma/client";
 import { PrismaService } from "@prisma/prisma.service";
 import { slugify } from "@utils/slug.util";
 
 import type { RoadmapCandidateQuery } from "@youtube/public/youtube-engagement-api";
+
+const WORD_SIMILARITY_THRESHOLD = 0.3;
+const VALID_YOUTUBE_CATEGORIES = new Set<string>(
+  Object.values(YouTubeCategory),
+);
+
+const trimmedTerms = (terms: readonly string[]) => [
+  ...new Set(terms.map((term) => term.trim()).filter(Boolean)),
+];
+
+const lowerTerms = (terms: readonly string[]) =>
+  trimmedTerms(terms).map((term) => term.toLowerCase());
 
 @Injectable()
 export class YouTubeService {
@@ -472,42 +486,108 @@ export class YouTubeService {
   }
 
   roadmapCandidates(query: RoadmapCandidateQuery) {
-    const subjects = query.subjects.filter((subject) => subject.trim());
-    return this.prismaService.youTubeChannel.findMany({
-      where: {
-        deletedAt: null,
-        status: YouTubeChannelStatus.PUBLISHED,
-        ...(subjects.length
-          ? {
-              OR: subjects.flatMap((subject) => [
-                { title: { contains: subject, mode: "insensitive" as const } },
-                {
-                  description: {
-                    contains: subject,
-                    mode: "insensitive" as const,
-                  },
-                },
-              ]),
-            }
-          : {}),
-      },
-      select: {
-        id: true,
-        title: true,
-        rating: true,
-        category: true,
-        isFeatured: true,
-        subscribers: true,
-        description: true,
-        ratingCount: true,
-      },
-      orderBy: [
-        { isFeatured: "desc" },
-        { rating: "desc" },
-        { subscribers: "desc" },
-        { id: "asc" },
-      ],
-      take: query.take,
+    const subjects = trimmedTerms(query.subjects);
+    switch (query.tier) {
+      case "EXACT":
+        return this.exactTierChannels(subjects, query.take);
+      case "SIMILAR":
+        return this.similarTierChannels(
+          lowerTerms([...query.subjects, ...query.keywords]),
+          query.take,
+        );
+      case "RELATED":
+        return this.relatedTierChannels(query.groupKeys, query.take);
+      case "BROAD":
+        return this.broadTierChannels(query.take);
+    }
+  }
+
+  private exactTierChannels(subjects: readonly string[], take: number) {
+    return this.prismaService.$queryRaw<TChannelCandidateRow[]>`
+      SELECT
+        y."id", y."title", y."rating", y."category", y."isFeatured",
+        y."subscribers", y."description", y."ratingCount",
+        1.0::float AS "matchScore"
+      FROM "YouTubeChannel" y
+      WHERE y."deletedAt" IS NULL
+        AND y."status" = ${YouTubeChannelStatus.PUBLISHED}::"YouTubeChannelStatus"
+        AND (
+          ${subjects.length === 0}
+          OR ${Prisma.join(
+            subjects.flatMap((subject) => [
+              Prisma.sql`y."title" ILIKE ${"%" + subject + "%"}`,
+              Prisma.sql`y."description" ILIKE ${"%" + subject + "%"}`,
+              Prisma.sql`roadmap_enum_text(y."category") ILIKE ${"%" + subject + "%"}`,
+            ]),
+            " OR ",
+          )}
+        )
+      ORDER BY y."isFeatured" DESC, y."rating" DESC, y."subscribers" DESC, y."id" ASC
+      LIMIT ${take};
+    `;
+  }
+
+  private async similarTierChannels(terms: readonly string[], take: number) {
+    if (terms.length === 0) return this.exactTierChannels([], take);
+    return this.prismaService.$transaction(async (tx) => {
+      await tx.$executeRaw`SET LOCAL pg_trgm.word_similarity_threshold = ${WORD_SIMILARITY_THRESHOLD}`;
+      return tx.$queryRaw<TChannelCandidateRow[]>`
+        SELECT
+          y."id", y."title", y."rating", y."category", y."isFeatured",
+          y."subscribers", y."description", y."ratingCount",
+          GREATEST(${Prisma.join(
+            terms.map(
+              (term) =>
+                Prisma.sql`word_similarity(${term}, lower(y."title" || ' ' || roadmap_enum_text(y."category")))`,
+            ),
+            ", ",
+          )}) AS "matchScore"
+        FROM "YouTubeChannel" y
+        WHERE y."deletedAt" IS NULL
+          AND y."status" = ${YouTubeChannelStatus.PUBLISHED}::"YouTubeChannelStatus"
+          AND (${Prisma.join(
+            terms.map(
+              (term) =>
+                Prisma.sql`lower(y."title" || ' ' || roadmap_enum_text(y."category")) %> ${term}`,
+            ),
+            " OR ",
+          )})
+        ORDER BY "matchScore" DESC, y."isFeatured" DESC, y."rating" DESC, y."subscribers" DESC, y."id" ASC
+        LIMIT ${take};
+      `;
     });
+  }
+
+  private relatedTierChannels(groupKeys: readonly string[], take: number) {
+    const categories = groupKeys.filter((key) =>
+      VALID_YOUTUBE_CATEGORIES.has(key),
+    );
+    if (categories.length === 0) return Promise.resolve([]);
+    return this.prismaService.$queryRaw<TChannelCandidateRow[]>`
+      SELECT
+        y."id", y."title", y."rating", y."category", y."isFeatured",
+        y."subscribers", y."description", y."ratingCount",
+        0.4::float AS "matchScore"
+      FROM "YouTubeChannel" y
+      WHERE y."deletedAt" IS NULL
+        AND y."status" = ${YouTubeChannelStatus.PUBLISHED}::"YouTubeChannelStatus"
+        AND y."category" = ANY(${categories}::"YouTubeCategory"[])
+      ORDER BY y."isFeatured" DESC, y."rating" DESC, y."subscribers" DESC, y."id" ASC
+      LIMIT ${take};
+    `;
+  }
+
+  private broadTierChannels(take: number) {
+    return this.prismaService.$queryRaw<TChannelCandidateRow[]>`
+      SELECT
+        y."id", y."title", y."rating", y."category", y."isFeatured",
+        y."subscribers", y."description", y."ratingCount",
+        0.2::float AS "matchScore"
+      FROM "YouTubeChannel" y
+      WHERE y."deletedAt" IS NULL
+        AND y."status" = ${YouTubeChannelStatus.PUBLISHED}::"YouTubeChannelStatus"
+      ORDER BY y."isFeatured" DESC, y."rating" DESC, y."subscribers" DESC, y."id" ASC
+      LIMIT ${take};
+    `;
   }
 }

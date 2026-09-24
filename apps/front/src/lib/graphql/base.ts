@@ -4964,12 +4964,14 @@ export type ProfessionalRoadmap = {
   completedSteps: Scalars['Int']['output'];
   coverageNote?: Maybe<Scalars['String']['output']>;
   description: Scalars['String']['output'];
+  draftId?: Maybe<Scalars['ID']['output']>;
   earnedCredits: Scalars['Float']['output'];
   enrolledAt: Scalars['DateTime']['output'];
   estimatedWeeks?: Maybe<Scalars['Int']['output']>;
   id: Scalars['ID']['output'];
   imageUrl?: Maybe<Scalars['String']['output']>;
   level: CourseLevel;
+  matchTier?: Maybe<RoadmapMatchTier>;
   nextMilestoneProgress: Scalars['Int']['output'];
   nextPhaseTitle?: Maybe<Scalars['String']['output']>;
   phases: Array<ProfessionalRoadmapPhase>;
@@ -5068,6 +5070,7 @@ export type ProfessionalRoadmapStep = {
   description?: Maybe<Scalars['String']['output']>;
   estimatedMinutes?: Maybe<Scalars['Int']['output']>;
   id: Scalars['ID']['output'];
+  isCloseMatch: Scalars['Boolean']['output'];
   order: Scalars['Int']['output'];
   status?: Maybe<RoadmapStepProgressStatus>;
   title: Scalars['String']['output'];
@@ -6361,6 +6364,13 @@ export enum RoadmapGenerationRecoveryAction {
   ReviewFormats = 'REVIEW_FORMATS',
   ReviewSubjects = 'REVIEW_SUBJECTS',
   StartOver = 'START_OVER'
+}
+
+export enum RoadmapMatchTier {
+  Broad = 'BROAD',
+  Exact = 'EXACT',
+  Related = 'RELATED',
+  Similar = 'SIMILAR'
 }
 
 export type RoadmapRecommendation = {

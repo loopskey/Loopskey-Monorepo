@@ -1,9 +1,11 @@
+import { PodcastCategory, PodcastStatus, Prisma, Role } from "@prisma/client";
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { PodcastStatus, Prisma, Role } from "@prisma/client";
 import { CreatePodcastEpisodeInput } from "@podcast/dtos/create-podcast-episode.input";
 import { UpdatePodcastEpisodeInput } from "@podcast/dtos/update-podcast-episode.input";
 import { PodcastPaginationInput } from "@podcast/dtos/podcast-pagination";
+import { TPodcastCandidateRow } from "@podcast/types/podcast-service.types";
 import { PodcastSortDirection } from "@podcast/enums/gql-names.enum";
+import { PodcastRatingWriter } from "@podcast/public/podcast-engagement-api";
 import { ForbiddenException } from "@nestjs/common";
 import { CreatePodcastInput } from "@podcast/dtos/create-podcast.input";
 import { UpdatePodcastInput } from "@podcast/dtos/update-podcast.input";
@@ -12,11 +14,22 @@ import { PodcastMessageCode } from "@podcast/enums/message-code.enum";
 import { PodcastSortInput } from "@podcast/dtos/podcast-sort.input";
 import { PodcastRequester } from "@podcast/types/podcast-service.types";
 import { PodcastSortField } from "@podcast/enums/gql-names.enum";
-import { PodcastRatingWriter } from "@podcast/public/podcast-engagement-api";
 import { PrismaService } from "@prisma/prisma.service";
 import { slugify } from "@utils/slug.util";
 
 import type { RoadmapCandidateQuery } from "@podcast/public/podcast-engagement-api";
+
+const WORD_SIMILARITY_THRESHOLD = 0.3;
+const VALID_PODCAST_CATEGORIES = new Set<string>(
+  Object.values(PodcastCategory),
+);
+
+const trimmedTerms = (terms: readonly string[]) => [
+  ...new Set(terms.map((term) => term.trim()).filter(Boolean)),
+];
+
+const lowerTerms = (terms: readonly string[]) =>
+  trimmedTerms(terms).map((term) => term.toLowerCase());
 
 @Injectable()
 export class PodcastService {
@@ -454,43 +467,108 @@ export class PodcastService {
   }
 
   roadmapCandidates(query: RoadmapCandidateQuery) {
-    const subjects = query.subjects.filter((subject) => subject.trim());
-    return this.prismaService.podcast.findMany({
-      where: {
-        deletedAt: null,
-        status: PodcastStatus.PUBLISHED,
-        ...(subjects.length
-          ? {
-              OR: subjects.flatMap((subject) => [
-                { title: { contains: subject, mode: "insensitive" as const } },
-                {
-                  description: {
-                    contains: subject,
-                    mode: "insensitive" as const,
-                  },
-                },
-              ]),
-            }
-          : {}),
-      },
-      select: {
-        id: true,
-        title: true,
-        rating: true,
-        category: true,
-        listeners: true,
-        isFeatured: true,
-        description: true,
-        ratingCount: true,
-        durationMinutes: true,
-      },
-      orderBy: [
-        { isFeatured: "desc" },
-        { rating: "desc" },
-        { listeners: "desc" },
-        { id: "asc" },
-      ],
-      take: query.take,
+    const subjects = trimmedTerms(query.subjects);
+    switch (query.tier) {
+      case "EXACT":
+        return this.exactTierPodcasts(subjects, query.take);
+      case "SIMILAR":
+        return this.similarTierPodcasts(
+          lowerTerms([...query.subjects, ...query.keywords]),
+          query.take,
+        );
+      case "RELATED":
+        return this.relatedTierPodcasts(query.groupKeys, query.take);
+      case "BROAD":
+        return this.broadTierPodcasts(query.take);
+    }
+  }
+
+  private exactTierPodcasts(subjects: readonly string[], take: number) {
+    return this.prismaService.$queryRaw<TPodcastCandidateRow[]>`
+      SELECT
+        p."id", p."title", p."rating", p."category", p."listeners",
+        p."description", p."ratingCount", p."isFeatured", p."durationMinutes",
+        1.0::float AS "matchScore"
+      FROM "Podcast" p
+      WHERE p."deletedAt" IS NULL
+        AND p."status" = ${PodcastStatus.PUBLISHED}::"PodcastStatus"
+        AND (
+          ${subjects.length === 0}
+          OR ${Prisma.join(
+            subjects.flatMap((subject) => [
+              Prisma.sql`p."title" ILIKE ${"%" + subject + "%"}`,
+              Prisma.sql`p."description" ILIKE ${"%" + subject + "%"}`,
+              Prisma.sql`roadmap_enum_text(p."category") ILIKE ${"%" + subject + "%"}`,
+            ]),
+            " OR ",
+          )}
+        )
+      ORDER BY p."isFeatured" DESC, p."rating" DESC, p."listeners" DESC, p."id" ASC
+      LIMIT ${take};
+    `;
+  }
+
+  private async similarTierPodcasts(terms: readonly string[], take: number) {
+    if (terms.length === 0) return this.exactTierPodcasts([], take);
+    return this.prismaService.$transaction(async (tx) => {
+      await tx.$executeRaw`SET LOCAL pg_trgm.word_similarity_threshold = ${WORD_SIMILARITY_THRESHOLD}`;
+      return tx.$queryRaw<TPodcastCandidateRow[]>`
+        SELECT
+          p."id", p."title", p."rating", p."category", p."listeners",
+          p."description", p."ratingCount", p."isFeatured", p."durationMinutes",
+          GREATEST(${Prisma.join(
+            terms.map(
+              (term) =>
+                Prisma.sql`word_similarity(${term}, lower(p."title" || ' ' || roadmap_enum_text(p."category")))`,
+            ),
+            ", ",
+          )}) AS "matchScore"
+        FROM "Podcast" p
+        WHERE p."deletedAt" IS NULL
+          AND p."status" = ${PodcastStatus.PUBLISHED}::"PodcastStatus"
+          AND (${Prisma.join(
+            terms.map(
+              (term) =>
+                Prisma.sql`lower(p."title" || ' ' || roadmap_enum_text(p."category")) %> ${term}`,
+            ),
+            " OR ",
+          )})
+        ORDER BY "matchScore" DESC, p."isFeatured" DESC, p."rating" DESC, p."listeners" DESC, p."id" ASC
+        LIMIT ${take};
+      `;
     });
+  }
+
+  private relatedTierPodcasts(groupKeys: readonly string[], take: number) {
+    const categories = groupKeys.filter((key) =>
+      VALID_PODCAST_CATEGORIES.has(key),
+    );
+    if (categories.length === 0) return Promise.resolve([]);
+    return this.prismaService.$queryRaw<TPodcastCandidateRow[]>`
+      SELECT
+        p."id", p."title", p."rating", p."category", p."listeners",
+        p."description", p."ratingCount", p."isFeatured", p."durationMinutes",
+        0.4::float AS "matchScore"
+      FROM "Podcast" p
+      WHERE p."deletedAt" IS NULL
+        AND p."status" = ${PodcastStatus.PUBLISHED}::"PodcastStatus"
+        AND p."category" = ANY(${categories}::"PodcastCategory"[])
+      ORDER BY p."isFeatured" DESC, p."rating" DESC, p."listeners" DESC, p."id" ASC
+      LIMIT ${take};
+    `;
+  }
+
+  private broadTierPodcasts(take: number) {
+    return this.prismaService.$queryRaw<TPodcastCandidateRow[]>`
+      SELECT
+        p."id", p."title", p."rating", p."category", p."listeners",
+        p."description", p."ratingCount", p."isFeatured", p."durationMinutes",
+        0.2::float AS "matchScore"
+      FROM "Podcast" p
+      WHERE p."deletedAt" IS NULL
+        AND p."status" = ${PodcastStatus.PUBLISHED}::"PodcastStatus"
+      ORDER BY p."isFeatured" DESC, p."rating" DESC, p."listeners" DESC, p."id" ASC
+      LIMIT ${take};
+    `;
   }
 }

@@ -158,6 +158,11 @@ export const RoadmapPhaseList = ({
                               >
                                 {statusLabel(step.status, t)}
                               </Badge>
+                              {step.isCloseMatch ? (
+                                <Badge variant="outline">
+                                  {t(`${KEY}.closeMatchTag`)}
+                                </Badge>
+                              ) : null}
                             </div>
 
                             <div className="mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground">

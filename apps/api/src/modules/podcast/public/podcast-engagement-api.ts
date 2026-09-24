@@ -38,11 +38,17 @@ export type RoadmapCandidatePodcastProjection = {
   readonly ratingCount: number;
   readonly isFeatured: boolean;
   readonly durationMinutes: number | null;
+  readonly matchScore: number;
 };
+
+export type RoadmapMatchTier = "EXACT" | "SIMILAR" | "RELATED" | "BROAD";
 
 export type RoadmapCandidateQuery = {
   readonly take: number;
   readonly subjects: readonly string[];
+  readonly tier: RoadmapMatchTier;
+  readonly keywords: readonly string[];
+  readonly groupKeys: readonly string[];
 };
 
 export interface PodcastEngagementApi {

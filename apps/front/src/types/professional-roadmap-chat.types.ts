@@ -62,6 +62,7 @@ type Step = {
   estimatedMinutes?: number | null;
   credits?: number | null;
   status?: RoadmapStepProgressStatus | null;
+  isCloseMatch?: boolean;
 };
 
 type Phase = {

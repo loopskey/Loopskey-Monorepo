@@ -82,3 +82,7 @@ registerEnumType(Prisma.RoadmapStatus, {
 registerEnumType(Prisma.RoadmapEnrollmentStatus, {
   name: "RoadmapEnrollmentStatus",
 });
+
+registerEnumType(Prisma.RoadmapMatchTier, {
+  name: "RoadmapMatchTier",
+});
