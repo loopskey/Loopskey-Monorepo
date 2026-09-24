@@ -7,17 +7,16 @@ import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-import type { ReactNode } from "react";
 import type * as T from "@/types/professional-roadmap-chat.types";
 
 type Props = {
+  draftId: string;
   canSend: boolean;
   isSending: boolean;
   retryAfter: number;
   onSend: () => void;
   questionKey: string;
   composer: T.TComposerState;
-  preferencesControl?: ReactNode;
   widget: T.TRoadmapWidget | null;
   onChange: (value: string) => void;
   onAnswer: (value: string) => void;
@@ -25,6 +24,7 @@ type Props = {
 
 export const RoadmapChatComposer = ({
   widget,
+  draftId,
   onSend,
   canSend,
   composer,
@@ -33,7 +33,6 @@ export const RoadmapChatComposer = ({
   isSending,
   retryAfter,
   questionKey,
-  preferencesControl,
 }: Props) => {
   const { t } = useI18n();
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -50,14 +49,14 @@ export const RoadmapChatComposer = ({
   };
 
   const disabled = isSending || retryAfter > 0;
-  const hasQuickAnswers = Boolean(preferencesControl) || Boolean(widget);
+  const hasQuickAnswers = Boolean(widget);
 
   return (
     <div className="flex flex-col gap-3">
-      {preferencesControl ?? null}
-      {!preferencesControl && widget ? (
+      {widget ? (
         <RoadmapWidgetControl
           widget={widget}
+          draftId={draftId}
           disabled={disabled}
           onAnswer={onAnswer}
         />

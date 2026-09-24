@@ -23,6 +23,7 @@ export class RoadmapGenerationFailureEntity {
 export class RoadmapWidgetOptionEntity {
   @Field() value: string;
   @Field() label: string;
+  @Field(() => String, { nullable: true }) groupLabel?: string | null;
 }
 
 @ObjectType(ProfessionalGqlObjectNames.ROADMAP_WIDGET)

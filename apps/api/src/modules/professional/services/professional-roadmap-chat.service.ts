@@ -9,8 +9,10 @@ import {
   ServiceUnavailableException,
 } from "@nestjs/common";
 import {
+  AppLanguage,
   Prisma,
   ProfileTaxonomyKind,
+  ProfileTermUsage,
   RoadmapChatRole,
   RoadmapDraftStatus,
   RoadmapDraftStep,
@@ -24,32 +26,50 @@ import {
   type RoadmapDraftField,
   type RoadmapDraftState,
   type RoadmapWidget,
+  type RoadmapWidgetField,
   type ServiceAiPort,
   SERVICE_AI_LIMITS,
 } from "@infrastructure/service-ai/service-ai.port";
 import { ProfessionalRoadmapDraftService } from "@professional/services/professional-roadmap-draft.service";
+import { RoadmapSuggestionOptionsInput } from "@professional/dtos/roadmap-suggestion-options.input";
 import { ProfessionalPaginationInput } from "@professional/dtos/professional-pagination.input";
+import { firstMissingPreferenceField } from "@professional/utils/roadmap-preference-fields.util";
 import { ProfessionalCpdPlanService } from "@professional/services/professional-cpd-plan.service";
 import { ProfessionalProfileService } from "@professional/services/professional-profile.service";
+import { CertificationSearchService } from "@professional/services/certification-search.service";
+import { isPreferenceFieldAnswered } from "@professional/utils/roadmap-preference-fields.util";
 import { PatchRoadmapCpdSetupInput } from "@professional/dtos/patch-roadmap-cpd-setup.input";
 import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
 import { draftCompletionSummary } from "@professional/utils/roadmap-step-machine.util";
 import { PatchRoadmapDraftInput } from "@professional/dtos/patch-roadmap-draft.input";
+import { RoadmapDraftFieldKey } from "@professional/enums/roadmap-draft.enum";
 import { mergeExtractedFields } from "@professional/utils/roadmap-draft-merge.util";
 import { RoadmapChatTurnInput } from "@professional/dtos/roadmap-chat-turn.input";
 import { mapGenerationFailure } from "@professional/utils/roadmap-generation-failure.util";
 import { COACH_QUESTION_CODE } from "@professional/utils/roadmap-coach.util";
+import { PREFERENCE_FIELDS } from "@professional/utils/roadmap-preference-fields.util";
+import { groupKeysMatching } from "@professional/utils/roadmap-relevance.util";
 import { COACH_INTRO_CODE } from "@professional/utils/roadmap-coach.util";
+import { defaultWidgetFor } from "@professional/utils/roadmap-coach.util";
 import { subjectLabelsOf } from "@professional/utils/roadmap-draft-merge.util";
 import { isDraftComplete } from "@professional/utils/roadmap-step-machine.util";
 import { requestContext } from "@infrastructure/observability/request-context";
-import { coachWidgetFor } from "@professional/utils/roadmap-coach.util";
+import { validateWidget } from "@professional/utils/roadmap-widget-validation.util";
 import { isCoachMessage } from "@professional/utils/roadmap-coach.util";
+import { PrismaService } from "@prisma/prisma.service";
+import { fieldForStep } from "@professional/utils/roadmap-coach.util";
+import { rankTerms } from "@professional/utils/roadmap-relevance.util";
 import { hadValue } from "@professional/utils/roadmap-coach.util";
 import { nextStep } from "@professional/utils/roadmap-step-machine.util";
 import { TUser } from "@common/types/user.types";
 
+import { type RankableTerm } from "@professional/utils/roadmap-relevance.util";
+import { type CertificationOption } from "@professional/utils/roadmap-widget-validation.util";
+
 import * as T from "@professional/types/professional-roadmap-chat.types";
+
+const CHIP_LIMIT = 8;
+const CERTIFICATION_SEARCH_LIMIT = 8;
 
 type DraftRow = Prisma.RoadmapDraftGetPayload<object>;
 type MessageRow = Prisma.RoadmapChatMessageGetPayload<object>;
@@ -120,6 +140,8 @@ export class ProfessionalRoadmapChatService {
     private readonly drafts: ProfessionalRoadmapDraftService,
     private readonly profiles: ProfessionalProfileService,
     private readonly cpdPlans: ProfessionalCpdPlanService,
+    private readonly certifications: CertificationSearchService,
+    private readonly prisma: PrismaService,
   ) {}
 
   private assertProfessional(user: TUser) {
@@ -170,6 +192,116 @@ export class ProfessionalRoadmapChatService {
       .slice(0, SERVICE_AI_LIMITS.subjectOptionsMaxItems);
   }
 
+  private toRankableTerms(
+    groups: Awaited<ReturnType<ProfessionalProfileService["taxonomy"]>>,
+  ): RankableTerm[] {
+    return groups.flatMap((group) =>
+      group.terms.map((term) => ({
+        id: term.id,
+        label: term.label,
+        groupKey: group.groupKey,
+        groupLabel: group.groupLabel,
+      })),
+    );
+  }
+
+  private async favoredGroupKeys(
+    user: TUser,
+    targetRole: string | null,
+    candidateTerms: readonly RankableTerm[],
+  ): Promise<string[]> {
+    const owned = await this.prisma.professionalProfileTerm.findMany({
+      where: {
+        profile: { userId: user.id },
+        usage: {
+          in: [ProfileTermUsage.MAIN_SKILL, ProfileTermUsage.FAVORITE_SUBJECT],
+        },
+      },
+      select: { term: { select: { groupKey: true } } },
+    });
+    const direct = owned.map((row) => row.term.groupKey);
+    const inferred = groupKeysMatching(targetRole, candidateTerms);
+    return [...new Set([...direct, ...inferred])];
+  }
+
+  private async relevanceContext(user: TUser, draft: T.RoadmapDraftFields) {
+    const [subjectGroups, roleGroups] = await Promise.all([
+      this.profiles.taxonomy(user, ProfileTaxonomyKind.SUBJECT),
+      this.profiles.taxonomy(user, ProfileTaxonomyKind.ROLE),
+    ]);
+    const subjectTerms = this.toRankableTerms(subjectGroups);
+    const roleTerms = this.toRankableTerms(roleGroups);
+    const favored = await this.favoredGroupKeys(user, draft.targetRole, [
+      ...subjectTerms,
+      ...roleTerms,
+    ]);
+    const text = [draft.goal, draft.targetRole, draft.context];
+
+    return {
+      rankedSubjects: rankTerms(subjectTerms, {
+        text,
+        favoredGroupKeys: favored,
+        selectedIds: draft.subjects,
+      }),
+      rankedRoles: rankTerms(roleTerms, {
+        text,
+        favoredGroupKeys: favored,
+        selectedIds: [],
+      }),
+    };
+  }
+
+  private async rankedCertifications(
+    user: TUser,
+    draft: T.RoadmapDraftFields,
+    subjectOptions: T.RoadmapSubjectOption[],
+  ): Promise<CertificationOption[]> {
+    const seed = [
+      draft.goal,
+      draft.targetRole,
+      ...subjectLabelsOf(draft.subjects, subjectOptions),
+    ]
+      .filter((value): value is string => Boolean(value?.trim()))
+      .join(" ");
+    if (!seed.trim()) return [];
+
+    const results = await this.certifications.search(user, {
+      query: seed.slice(0, 120),
+      limit: CERTIFICATION_SEARCH_LIMIT,
+    });
+    return results.map((certification) => ({
+      value: certification.name,
+      label: certification.abbreviation
+        ? `${certification.abbreviation} — ${certification.name}`
+        : certification.name,
+    }));
+  }
+
+  private async widgetContext(
+    user: TUser,
+    draft: T.RoadmapDraftFields,
+    subjectOptions: T.RoadmapSubjectOption[],
+  ) {
+    const { rankedSubjects, rankedRoles } = await this.relevanceContext(
+      user,
+      draft,
+    );
+    const rankedCertifications = await this.rankedCertifications(
+      user,
+      draft,
+      subjectOptions,
+    );
+    return { rankedSubjects, rankedRoles, rankedCertifications };
+  }
+
+  private async userLocale(user: TUser): Promise<AppLanguage> {
+    const settings = await this.prisma.professionalSettings.findUnique({
+      where: { userId: user.id },
+      select: { interfaceLanguage: true },
+    });
+    return settings?.interfaceLanguage ?? AppLanguage.EN;
+  }
+
   private fields(draft: DraftRow): T.RoadmapDraftFields {
     return {
       goal: draft.goal,
@@ -199,8 +331,6 @@ export class ProfessionalRoadmapChatService {
     return {
       goal: fields.goal,
       context: fields.context,
-      // `fields.subjects` holds taxonomy term ids; the provider's DraftState
-      // expects the text those terms name, same as the catalogue search does.
       subjects: subjectLabelsOf(fields.subjects, subjectOptions),
       goalReason: fields.goalReason,
       targetRole: fields.targetRole,
@@ -286,17 +416,31 @@ export class ProfessionalRoadmapChatService {
     draft: DraftRow,
     userMessage: string | null,
   ) {
-    const [messages, subjectOptions] = await Promise.all([
+    const fields = this.fields(draft);
+    const [messages, fullSubjectOptions] = await Promise.all([
       this.drafts.transcript(user.id, draft.id),
       this.subjectOptions(user),
     ]);
+    const widgetContext = await this.widgetContext(
+      user,
+      fields,
+      fullSubjectOptions,
+    );
+
+    const rankedSubjectOptions = widgetContext.rankedSubjects
+      .slice(0, CHIP_LIMIT)
+      .map((term) => ({ id: term.id, label: term.label }));
+
     return {
-      subjectOptions,
       today: new Date(),
       currentStep: draft.currentStep,
-      draft: this.toProviderDraft(this.fields(draft), subjectOptions),
+      draft: this.toProviderDraft(fields, fullSubjectOptions),
       history: this.toHistory(messages ?? []),
+      locale: "en" as const,
+      subjectOptions: rankedSubjectOptions,
       userMessage,
+      fullSubjectOptions,
+      widgetContext,
     };
   }
 
@@ -340,13 +484,14 @@ export class ProfessionalRoadmapChatService {
     user: TUser,
     draft: DraftRow,
     data: ChatTurnData,
-    subjectOptions: T.RoadmapSubjectOption[],
+    turn: Awaited<ReturnType<ProfessionalRoadmapChatService["turnInput"]>>,
   ) {
+    const { fullSubjectOptions, widgetContext } = turn;
     const current = this.fields(draft);
     const previousStep = draft.currentStep;
     const { changes, answered } = mergeExtractedFields({
       current,
-      subjectOptions,
+      subjectOptions: fullSubjectOptions,
       extracted: data.extracted,
       cleared: data.clearedFields,
     });
@@ -373,38 +518,152 @@ export class ProfessionalRoadmapChatService {
     const isCorrection = (
       Object.keys(changes) as (keyof T.RoadmapDraftFields)[]
     ).some((key) => hadValue(current[key]));
+    const touchedPreference =
+      step === RoadmapDraftStep.PREFERENCES &&
+      [...answered].some((field) => PREFERENCE_FIELDS.has(field));
+    const madeProgress = stepChanged || touchedPreference;
 
-    // The provider's wording is kept only where it says something the coach's
-    // fixed script cannot: a clarification, the confirmation of a correction,
-    // or the reply to a turn that moved nowhere. A plain answer that advances
-    // the wizard is followed by the coach's own next question instead.
+    const validatedWidget = validateWidget(data.widget, widgetContext);
+    const locale = data.assistantMessage.trim()
+      ? await this.userLocale(user)
+      : AppLanguage.EN;
+    const providerText =
+      locale === AppLanguage.EN ? data.assistantMessage : null;
+
     if (
       data.assistantMessage.trim() &&
-      (data.needsClarification || isCorrection || !stepChanged)
+      (data.needsClarification || isCorrection || !madeProgress)
     )
-      await this.drafts.appendMessage(user.id, draft.id, {
-        stepKey: step,
-        content: data.assistantMessage,
-        role: RoadmapChatRole.ASSISTANT,
-        widget: this.toWidgetJson(data.widget),
-      });
+      await this.appendAssistantIfNew(
+        user,
+        draft.id,
+        step,
+        providerText ?? COACH_QUESTION_CODE,
+        validatedWidget,
+      );
 
-    if (stepChanged && !data.needsClarification)
-      await this.askCoachQuestion(user, draft.id, step);
+    if (!data.needsClarification && madeProgress)
+      await this.askProviderAwareQuestion(
+        user,
+        draft.id,
+        step,
+        merged,
+        widgetContext,
+        validatedWidget,
+        providerText,
+      );
+
     return updated ?? draft;
+  }
+
+  private resolveField(
+    step: RoadmapDraftStep,
+    merged: T.RoadmapDraftFields,
+    providerField: RoadmapWidgetField | null,
+  ): RoadmapWidgetField | null {
+    if (step === RoadmapDraftStep.PREFERENCES) {
+      if (
+        providerField &&
+        PREFERENCE_FIELDS.has(providerField) &&
+        !isPreferenceFieldAnswered(merged, providerField)
+      )
+        return providerField;
+      return firstMissingPreferenceField(merged);
+    }
+    return fieldForStep(step);
+  }
+
+  private async askProviderAwareQuestion(
+    user: TUser,
+    draftId: string,
+    step: RoadmapDraftStep,
+    merged: T.RoadmapDraftFields,
+    widgetContext: {
+      rankedSubjects: readonly RankableTerm[];
+      rankedCertifications: readonly CertificationOption[];
+    },
+    providerWidget: RoadmapWidget | null,
+    providerText: string | null,
+  ) {
+    const field = this.resolveField(
+      step,
+      merged,
+      providerWidget?.field ?? null,
+    );
+    if (!field) {
+      await this.appendAssistantIfNew(
+        user,
+        draftId,
+        step,
+        COACH_QUESTION_CODE,
+        null,
+      );
+      return;
+    }
+
+    const usesProviderWidget = providerWidget?.field === field;
+    const widget: RoadmapWidget | null = usesProviderWidget
+      ? providerWidget
+      : defaultWidgetFor(field, {
+          rankedSubjects: widgetContext.rankedSubjects.slice(0, CHIP_LIMIT),
+          rankedCertifications: widgetContext.rankedCertifications,
+        });
+    const content =
+      usesProviderWidget && providerText ? providerText : COACH_QUESTION_CODE;
+    await this.appendAssistantIfNew(user, draftId, step, content, widget);
   }
 
   private async askCoachQuestion(
     user: TUser,
     draftId: string,
     step: RoadmapDraftStep,
+    merged: T.RoadmapDraftFields,
     code: string = COACH_QUESTION_CODE,
   ) {
+    if (code !== COACH_QUESTION_CODE) {
+      await this.appendAssistantIfNew(user, draftId, step, code, null);
+      return;
+    }
+    const field = this.resolveField(step, merged, null);
+    const needsRankedContext =
+      field === "subjects" || field === "certificationName";
+    const fullSubjectOptions = needsRankedContext
+      ? await this.subjectOptions(user)
+      : [];
+    const widgetContext = needsRankedContext
+      ? await this.widgetContext(user, merged, fullSubjectOptions)
+      : { rankedSubjects: [], rankedCertifications: [] };
+    await this.askProviderAwareQuestion(
+      user,
+      draftId,
+      step,
+      merged,
+      widgetContext,
+      null,
+      null,
+    );
+  }
+
+  private async appendAssistantIfNew(
+    user: TUser,
+    draftId: string,
+    step: RoadmapDraftStep,
+    content: string,
+    widget: RoadmapWidget | null,
+  ) {
+    const last = await this.drafts.lastAssistantMessage(user.id, draftId);
+    const widgetJson = this.toWidgetJson(widget);
+    if (
+      last &&
+      last.content === content &&
+      JSON.stringify(last.widget) === JSON.stringify(widgetJson)
+    )
+      return;
     await this.drafts.appendMessage(user.id, draftId, {
-      content: code,
+      content,
       stepKey: step,
       role: RoadmapChatRole.ASSISTANT,
-      widget: this.toWidgetJson(coachWidgetFor(step)),
+      widget: widgetJson,
     });
   }
 
@@ -441,6 +700,29 @@ export class ProfessionalRoadmapChatService {
     return this.view(user, draft, pagination);
   }
 
+  async suggestionOptions(user: TUser, input: RoadmapSuggestionOptionsInput) {
+    this.assertProfessional(user);
+    const draft = await this.ownedDraft(user, input.draftId);
+    const fields = this.fields(draft);
+    const { rankedSubjects, rankedRoles } = await this.relevanceContext(
+      user,
+      fields,
+    );
+    const terms =
+      input.field === RoadmapDraftFieldKey.SUBJECTS
+        ? rankedSubjects
+        : rankedRoles;
+    const search = input.search?.trim().toLowerCase();
+    const filtered = search
+      ? terms.filter((term) => term.label.toLowerCase().includes(search))
+      : terms;
+    return filtered.map((term) => ({
+      value: term.id,
+      label: term.label,
+      groupLabel: term.groupLabel,
+    }));
+  }
+
   async startDraft(user: TUser, pagination?: ProfessionalPaginationInput) {
     this.assertProfessional(user);
     const existing = await this.drafts.findEditableDraft(user.id);
@@ -451,25 +733,20 @@ export class ProfessionalRoadmapChatService {
     const draft = reusable ?? (await this.createSeededDraft(user));
     return this.serialize(draft.id, async () => {
       if ((await this.drafts.messageCount(user.id, draft.id)) === 0) {
+        const fields = this.fields(draft);
         await this.askCoachQuestion(
           user,
           draft.id,
           draft.currentStep,
+          fields,
           COACH_INTRO_CODE,
         );
-        await this.askCoachQuestion(user, draft.id, draft.currentStep);
+        await this.askCoachQuestion(user, draft.id, draft.currentStep, fields);
       }
       return this.view(user, draft, pagination);
     });
   }
 
-  /**
-   * `draftId` is optional only for backward compatibility: an omitted id
-   * keeps resolving the professional's current editable (`COLLECTING`/
-   * `READY`) draft, same as before this reset became in-place. The updated
-   * frontend always sends the draft id actually on screen, which is what
-   * makes resetting a `FAILED` draft reachable at all.
-   */
   async resetDraft(
     user: TUser,
     draftId?: string,
@@ -558,12 +835,7 @@ export class ProfessionalRoadmapChatService {
       }
 
       this.log(draft, "ok", started);
-      const updated = await this.applyTurn(
-        user,
-        draft,
-        result.data,
-        turn.subjectOptions,
-      );
+      const updated = await this.applyTurn(user, draft, result.data, turn);
       return this.view(user, updated);
     });
   }
@@ -635,8 +907,19 @@ export class ProfessionalRoadmapChatService {
           field,
         ].join(":"),
       });
-      if (updated && updated.currentStep !== previousStep)
-        await this.askCoachQuestion(user, draft.id, updated.currentStep);
+      const stillOnPreferences =
+        updated?.currentStep === RoadmapDraftStep.PREFERENCES &&
+        PREFERENCE_FIELDS.has(field as RoadmapWidgetField);
+      if (
+        updated &&
+        (updated.currentStep !== previousStep || stillOnPreferences)
+      )
+        await this.askCoachQuestion(
+          user,
+          draft.id,
+          updated.currentStep,
+          merged,
+        );
       return this.view(user, updated ?? draft);
     });
   }
@@ -662,11 +945,6 @@ export class ProfessionalRoadmapChatService {
         ...current,
         certificationId: plan.certificationId ?? null,
         certificationName: plan.certificationName || null,
-        // `upsertDraftPlan` defaults an unset requirement to 0 on first
-        // create; a real CPD requirement is always positive (matching
-        // CreateCpdPlanInput's @IsPositive()), so 0 still reads as
-        // "not answered yet" to the step machine, exactly like the
-        // certificationName default above.
         requiredCredits:
           plan.totalRequiredCredits > 0 ? plan.totalRequiredCredits : null,
       };
@@ -697,7 +975,12 @@ export class ProfessionalRoadmapChatService {
         ].join(":"),
       });
       if (updated && updated.currentStep !== previousStep)
-        await this.askCoachQuestion(user, draft.id, updated.currentStep);
+        await this.askCoachQuestion(
+          user,
+          draft.id,
+          updated.currentStep,
+          merged,
+        );
       return this.view(user, updated ?? draft);
     });
   }

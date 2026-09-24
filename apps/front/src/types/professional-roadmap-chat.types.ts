@@ -156,7 +156,17 @@ export type TEditorProps = {
 };
 
 export type TRoadmapWidgetControl = {
+  draftId: string;
   disabled: boolean;
   widget: TRoadmapWidget;
   onAnswer: (value: string) => void;
+};
+
+export type TRoadmapSuggestionOption = TRoadmapWidgetOption;
+
+export type TRoadmapSuggestionExpansion = {
+  draftId: string;
+  field: TRoadmapWidget["field"];
+  disabled?: boolean;
+  onPick: (option: TRoadmapSuggestionOption) => void;
 };

@@ -3,8 +3,10 @@ import { Args, ID, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { ProfessionalRoadmapGenerationEntity } from "@professional/entities/professional-roadmap-draft.entity";
 import { ProfessionalRoadmapChatService } from "@professional/services/professional-roadmap-chat.service";
 import { ProfessionalRoadmapDraftEntity } from "@professional/entities/professional-roadmap-draft.entity";
+import { RoadmapSuggestionOptionsInput } from "@professional/dtos/roadmap-suggestion-options.input";
 import { ProfessionalGqlMutationNames } from "@professional/enums/gql-names.enum";
 import { ProfessionalPaginationInput } from "@professional/dtos/professional-pagination.input";
+import { RoadmapWidgetOptionEntity } from "@professional/entities/professional-roadmap-draft.entity";
 import { ProfessionalGqlQueryNames } from "@professional/enums/gql-names.enum";
 import { PatchRoadmapCpdSetupInput } from "@professional/dtos/patch-roadmap-cpd-setup.input";
 import { PatchRoadmapDraftInput } from "@professional/dtos/patch-roadmap-draft.input";
@@ -37,6 +39,16 @@ export class ProfessionalRoadmapChatResolver {
     transcript?: ProfessionalPaginationInput,
   ) {
     return this.chatService.draft(this.getUser(user), draftId, transcript);
+  }
+
+  @Query(() => [RoadmapWidgetOptionEntity], {
+    name: ProfessionalGqlQueryNames.ROADMAP_SUGGESTION_OPTIONS,
+  })
+  roadmapSuggestionOptions(
+    @CurrentUser() user: TResolverUser,
+    @Args("input") input: RoadmapSuggestionOptionsInput,
+  ) {
+    return this.chatService.suggestionOptions(this.getUser(user), input);
   }
 
   @Mutation(() => ProfessionalRoadmapDraftEntity, {

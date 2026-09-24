@@ -126,6 +126,21 @@ export const roadmapChatApi = baseApi.injectEndpoints({
         "Professional",
       ],
     }),
+
+    /** The `Show more` list behind a taxonomy-backed widget (subjects,
+     *  target role): the full ranked/search-filtered set, not just the
+     *  widget's own top-8 chips. */
+    roadmapSuggestionOptions: builder.query<
+      TAPI.RoadmapSuggestionOptionsQuery["roadmapSuggestionOptions"],
+      TAPI.RoadmapSuggestionOptionsQueryVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.RoadmapSuggestionOptionsDocument,
+        variables: { input },
+      }),
+      transformResponse: (response: TAPI.RoadmapSuggestionOptionsQuery) =>
+        response.roadmapSuggestionOptions,
+    }),
   }),
 });
 
@@ -138,4 +153,5 @@ export const {
   useProfessionalRoadmapDraftQuery,
   useLazyProfessionalRoadmapDraftQuery,
   useRequestRoadmapGenerationMutation,
+  useLazyRoadmapSuggestionOptionsQuery,
 } = roadmapChatApi;

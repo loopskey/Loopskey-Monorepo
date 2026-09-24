@@ -43,7 +43,11 @@ const ALLOWED_INTERNAL_EDGES: Readonly<Record<string, readonly string[]>> = {
   "professional-profile.service.ts": [
     "professional-profile-completion.service.ts",
   ],
+  // FR6 (roadmap-coach-dynamic-suggestions): ranked certification suggestions
+  // reuse the existing trigram-indexed certification search rather than a
+  // second implementation of it.
   "professional-roadmap-chat.service.ts": [
+    "certification-search.service.ts",
     "professional-cpd-plan.service.ts",
     "professional-profile.service.ts",
     "professional-roadmap-draft.service.ts",

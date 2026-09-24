@@ -29,15 +29,5 @@ export const ROADMAP_DRAFT_LOCKED_CODE = "ROADMAP_DRAFT_LOCKED";
 export const ROADMAP_COACH_INTRO_CODE = "ROADMAP_COACH_INTRO";
 export const ROADMAP_COACH_QUESTION_CODE = "ROADMAP_COACH_QUESTION";
 
-/** Offered as one-tap answers; anything else is typed in the composer. */
-export const ROADMAP_CERTIFICATION_CHOICES = [
-  "PMP",
-  "PMP-ACP",
-  "CFA",
-  "CPA",
-  "CISSP",
-  "SHRM-CP",
-] as const;
-
 export const ROADMAP_YES_VALUE = "true";
 export const ROADMAP_NO_VALUE = "false";
