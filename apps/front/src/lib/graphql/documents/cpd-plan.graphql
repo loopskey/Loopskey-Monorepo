@@ -206,6 +206,12 @@ query MyCpdPlans {
   }
 }
 
+query MyDraftCpdPlans {
+  myDraftCpdPlans {
+    ...CpdPlanFields
+  }
+}
+
 query CpdPlan($planId: ID!) {
   cpdPlan(planId: $planId) {
     ...CpdPlanFields
@@ -252,6 +258,12 @@ mutation CreateCpdPlanFromSuggestion(
   $input: CreateCpdPlanFromSuggestionInput!
 ) {
   createCpdPlanFromSuggestion(input: $input) {
+    ...CpdPlanFields
+  }
+}
+
+mutation ActivateCpdPlan($planId: ID!) {
+  activateCpdPlan(planId: $planId) {
     ...CpdPlanFields
   }
 }

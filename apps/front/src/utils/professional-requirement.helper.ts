@@ -32,6 +32,27 @@ export const REQUIREMENT_PARAM = "requirement";
 export const REQUIREMENT_NONE = "none";
 export const LEARNING_CONTENT_PARAM = "learningContent";
 
+export const RETURN_TO_PARAM = "returnTo";
+export const RETURN_TO_TRACKER = "cpd-pdu-tracker";
+export const RETURN_TO_REQUIREMENTS = "cpd-pdu-progress";
+const KNOWN_RETURN_TARGETS = [RETURN_TO_TRACKER, RETURN_TO_REQUIREMENTS];
+
+export const resolveReturnTo = (value: string | null | undefined) =>
+  value && KNOWN_RETURN_TARGETS.includes(value) ? value : RETURN_TO_TRACKER;
+
+export const returnTargetHref = (
+  returnTo: string | null | undefined,
+  requirementKeyValue?: string | null,
+) => {
+  const target = resolveReturnTo(returnTo);
+  if (target === RETURN_TO_REQUIREMENTS) {
+    const params = new URLSearchParams({ tab: target });
+    if (requirementKeyValue) params.set(REQUIREMENT_PARAM, requirementKeyValue);
+    return `/dashboard/professional?${params.toString()}`;
+  }
+  return `/dashboard/professional?tab=${target}`;
+};
+
 export const REQUIREMENT_TONE_CLASSES: Record<TRequirementTone, string> = {
   success: "text-success-soft-foreground bg-success-soft",
   info: "text-primary bg-primary/10",
@@ -79,20 +100,28 @@ export const parseRequirementKey = (
 export const buildRequirementOptions = (
   associations: TAssociationRequirement[],
   plans: TCpdPlan[],
-): TRequirementOption[] => [
-  ...associations.map((requirement) => ({
-    id: requirement.requirementId,
-    key: requirementKey("ASSOCIATION", requirement.requirementId),
-    label: requirement.name,
-    source: "ASSOCIATION" as const,
-  })),
-  ...plans.map((plan) => ({
-    id: plan.id,
-    key: requirementKey("PLAN", plan.id),
-    label: plan.certificationName,
-    source: "PLAN" as const,
-  })),
-];
+): TRequirementOption[] => {
+  const options = [
+    ...associations.map((requirement) => ({
+      id: requirement.requirementId,
+      key: requirementKey("ASSOCIATION", requirement.requirementId),
+      label: requirement.name,
+      source: "ASSOCIATION" as const,
+    })),
+    ...plans.map((plan) => ({
+      id: plan.id,
+      key: requirementKey("PLAN", plan.id),
+      label: plan.certificationName,
+      source: "PLAN" as const,
+    })),
+  ];
+  const seen = new Set<string>();
+  return options.filter((option) => {
+    if (seen.has(option.key)) return false;
+    seen.add(option.key);
+    return true;
+  });
+};
 
 export const resolveActiveKey = (
   options: TRequirementOption[],
@@ -114,7 +143,10 @@ export const logActivityHref = (
   key: string,
   learningContentId?: string | null,
 ) => {
-  const params = new URLSearchParams({ [REQUIREMENT_PARAM]: key });
+  const params = new URLSearchParams({
+    [REQUIREMENT_PARAM]: key,
+    [RETURN_TO_PARAM]: RETURN_TO_REQUIREMENTS,
+  });
   if (learningContentId) params.set(LEARNING_CONTENT_PARAM, learningContentId);
   return `${ADD_ACTIVITY_HREF}&${params.toString()}`;
 };

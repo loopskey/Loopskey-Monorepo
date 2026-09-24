@@ -99,3 +99,4 @@ into this index and do not rewrite previous records.
 - [`ingest-provenance-persistence`](feature-runs/active/ingest-provenance-persistence.md)
 - [`professional-roadmap-agentic-experience`](feature-runs/active/professional-roadmap-agentic-experience.md) — PR [#218](https://github.com/loopskey/Loopskey-Monorepo/pull/218)
 - [`i18n-placeholder-interpolation-fix`](feature-runs/active/i18n-placeholder-interpolation-fix.md) — PR [#219](https://github.com/loopskey/Loopskey-Monorepo/pull/219)
+- [`professional-requirements-flow-fixes`](feature-runs/active/professional-requirements-flow-fixes.md) — PR [#220](https://github.com/loopskey/Loopskey-Monorepo/pull/220)

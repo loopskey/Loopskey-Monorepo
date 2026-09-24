@@ -261,6 +261,8 @@ export const adminDashboardTabs: TDashboardTab<TAdminDashboardTab>[] = [
 
 export const DASHBOARD_TAB_PARENTS: Record<string, string> = {
   "certificate-form": "certificates",
+  "add-activity": "cpd-pdu-tracker",
+  "activity-detail": "cpd-pdu-tracker",
 };
 
 export const isDashboardTabActive = (tabValue: string, activeTab: string) =>

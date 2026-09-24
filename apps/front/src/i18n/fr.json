@@ -19,6 +19,10 @@
       "description": "Aucune association ne vous a attribué d’exigence et vous n’avez pas créé de plan personnel. Créez une exigence pour commencer à suivre vos crédits, catégories et preuves.",
       "cta": "Créer une exigence"
     },
+    "draftPlan": {
+      "prompt": "Vous avez configuré le suivi CPD pour {{certification}} dans le coach de parcours. Le suivre ici comme exigence ?",
+      "track": "Suivre dans les exigences"
+    },
     "search": {
       "title": "Configurer le suivi CPD / PDU",
       "description": "Recherchez votre certification pour que LoopsKey suggère vos exigences.",
@@ -4094,6 +4098,7 @@
         "updateSuccess": "Activité mise à jour avec succès.",
         "successDescription": "Vos totaux et graphiques CPD/PDU ont été mis à jour.",
         "viewActivities": "Voir mes activités",
+        "backToRequirements": "Retour aux exigences",
         "addAnother": "Ajouter une autre activité",
         "cancelTitle": "Abandonner cette activité ?",
         "cancelDescription": "Vous avez des modifications non enregistrées. Quitter maintenant les supprimera.",
@@ -5492,6 +5497,7 @@
         "memberNumber": "Numéro de membre / licence",
         "requirements": "Exigence CPD/PDU (sélectionnez tout ce qui s'applique)",
         "requirementsEmpty": "Aucune exigence publiée pour le moment.",
+        "autoAppliedNote": "{{count}} exigences s'appliquent automatiquement selon leur audience et ne sont pas listées ici.",
         "continue": "Continuer",
         "back": "Retour",
         "noAccountTitle": "Aucun compte existant trouvé",

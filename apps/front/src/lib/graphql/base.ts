@@ -2575,6 +2575,7 @@ export type LoginInput = {
 export type Mutation = {
   __typename?: 'Mutation';
   activateAssociationAccount: AuthPayload;
+  activateCpdPlan: CpdPlan;
   activateIngestionSource: IngestionSource;
   activateOrganizationAccount: AuthPayload;
   addOrganizationMember: OrganizationMember;
@@ -2746,6 +2747,11 @@ export type Mutation = {
 
 export type MutationActivateAssociationAccountArgs = {
   input: ActivateAssociationAccountInput;
+};
+
+
+export type MutationActivateCpdPlanArgs = {
+  planId: Scalars['ID']['input'];
 };
 
 
@@ -5357,6 +5363,7 @@ export type Query = {
   myCalendarEntries: Array<ProfessionalManualCalendarEvent>;
   myCart?: Maybe<Cart>;
   myCpdPlans: Array<CpdPlan>;
+  myDraftCpdPlans: Array<CpdPlan>;
   myEnrollments: Array<ContentEnrollment>;
   myExternalLearningActivities: PaginatedExternalLearning;
   myProviderCourses: PaginatedCourses;

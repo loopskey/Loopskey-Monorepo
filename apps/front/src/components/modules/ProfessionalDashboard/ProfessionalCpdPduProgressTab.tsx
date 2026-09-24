@@ -90,6 +90,37 @@ const ProfessionalCpdPduProgressTab = () => {
         </div>
       </div>
 
+      {cpd.draftPlans.length > 0 && (
+        <div className="space-y-2">
+          {cpd.draftPlans.map((draft) => (
+            <div
+              key={draft.id}
+              className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-primary/30 bg-primary/5 p-4"
+            >
+              <p className="text-sm">
+                {t("cpdProgress.draftPlan.prompt", {
+                  certification: draft.certificationName,
+                })}
+              </p>
+              <Button
+                size="sm"
+                radius="xl"
+                type="button"
+                disabled={cpd.isActivatingPlan}
+                onClick={() => cpd.trackDraftPlan(draft.id)}
+              >
+                {cpd.isActivatingPlan ? (
+                  <L.Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <L.Target className="h-4 w-4" />
+                )}
+                {t("cpdProgress.draftPlan.track")}
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
+
       {cpd.isRequirementsLoading ? (
         <div className="flex min-h-96 items-center justify-center">
           <L.Loader2 className="h-7 w-7 animate-spin text-primary" />

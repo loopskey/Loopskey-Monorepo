@@ -158,12 +158,24 @@ export const useAssociationMembersTab = () => {
 
   const inviteRequirementOptions = useMemo(
     () =>
-      (requirementsQuery.data?.items ?? []).map((requirement) => ({
-        id: requirement.id,
-        name: requirement.name,
-        isMemberManaged:
-          requirement.audienceKind === AssociationAudienceKind.SpecificMembers,
-      })),
+      (requirementsQuery.data?.items ?? [])
+        .filter(
+          (requirement) =>
+            requirement.audienceKind === AssociationAudienceKind.SpecificMembers,
+        )
+        .map((requirement) => ({
+          id: requirement.id,
+          name: requirement.name,
+        })),
+    [requirementsQuery.data?.items],
+  );
+
+  const autoAppliedRequirementCount = useMemo(
+    () =>
+      (requirementsQuery.data?.items ?? []).filter(
+        (requirement) =>
+          requirement.audienceKind !== AssociationAudienceKind.SpecificMembers,
+      ).length,
     [requirementsQuery.data?.items],
   );
 
@@ -494,6 +506,7 @@ export const useAssociationMembersTab = () => {
     requirementId,
     requirementOptions,
     inviteRequirementOptions,
+    autoAppliedRequirementCount,
     setRequirementId: changeFilter(setRequirementId),
     previousPage,
     resetFilters,

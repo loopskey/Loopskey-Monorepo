@@ -78,10 +78,16 @@ export const useProfessionalAddActivity = () => {
       { skip: !activityId },
     );
 
-  const { data: cpdPlans = [] } = CpdAPI.useMyCpdPlansQuery();
+  const { data: cpdPlans = [] } = CpdAPI.useMyCpdPlansQuery(
+    undefined,
+    CpdAPI.REQUIREMENT_QUERY_SUBSCRIPTION_OPTIONS,
+  );
 
   const { data: associationRequirements = [] } =
-    CpdAPI.useMyAssociationRequirementsQuery();
+    CpdAPI.useMyAssociationRequirementsQuery(
+      undefined,
+      CpdAPI.REQUIREMENT_QUERY_SUBSCRIPTION_OPTIONS,
+    );
 
   const requirementOptions = useMemo(
     () => [
@@ -102,6 +108,7 @@ export const useProfessionalAddActivity = () => {
   const requirementParam = searchParams?.get(R.REQUIREMENT_PARAM) ?? null;
   const learningContentParam =
     searchParams?.get(R.LEARNING_CONTENT_PARAM) ?? null;
+  const returnToParam = searchParams?.get(R.RETURN_TO_PARAM) ?? null;
   const requestedRequirement = R.parseRequirementKey(requirementParam);
   const requestedAssociationId =
     !isEditing && requestedRequirement?.source === "ASSOCIATION"
@@ -110,7 +117,10 @@ export const useProfessionalAddActivity = () => {
 
   const { data: requestedDetail } = CpdAPI.useMyAssociationRequirementQuery(
     { requirementId: requestedAssociationId ?? "" },
-    { skip: !requestedAssociationId || !learningContentParam },
+    {
+      skip: !requestedAssociationId || !learningContentParam,
+      ...CpdAPI.REQUIREMENT_QUERY_SUBSCRIPTION_OPTIONS,
+    },
   );
 
   const [createActivity, { isLoading: isCreating }] =
@@ -161,6 +171,24 @@ export const useProfessionalAddActivity = () => {
 
   const requirementPrefilled = useRef<boolean>(false);
   const learningContentPrefilled = useRef<boolean>(false);
+
+  const navigationIdentity = `${requirementParam ?? ""}|${learningContentParam ?? ""}|${activityId ?? ""}`;
+  const navigationIdentityRef = useRef(navigationIdentity);
+
+  useEffect(() => {
+    if (navigationIdentityRef.current === navigationIdentity) return;
+    navigationIdentityRef.current = navigationIdentity;
+    form.reset(defaultValues);
+    setFiles([]);
+    setStep(1);
+    setIsSubmitted(false);
+    setStage("idle");
+    setPendingActivityId(null);
+    requirementPrefilled.current = false;
+    learningContentPrefilled.current = false;
+    reportingYearTouched.current = false;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigationIdentity]);
 
   useEffect(() => {
     if (isEditing || requirementPrefilled.current || !requirementParam) return;
@@ -374,10 +402,22 @@ export const useProfessionalAddActivity = () => {
     setIsSubmitted(false);
     setStage("idle");
     setPendingActivityId(null);
-    if (isEditing) router.push("/dashboard/professional?tab=add-activity");
+    if (isEditing) {
+      const params = new URLSearchParams({ tab: "add-activity" });
+      if (returnToParam) params.set(R.RETURN_TO_PARAM, returnToParam);
+      router.push(`/dashboard/professional?${params.toString()}`);
+    }
   };
 
   const goToTracker = () => router.push(TRACKER_HREF);
+
+  const goToReturnTarget = () => {
+    const submittedKey = form.getValues("requirement");
+    router.push(R.returnTargetHref(returnToParam, submittedKey || null));
+  };
+
+  const returnTargetIsRequirements =
+    R.resolveReturnTo(returnToParam) === R.RETURN_TO_REQUIREMENTS;
 
   const steps: T.TPduWizardStep[] = useMemo(
     () =>
@@ -405,6 +445,8 @@ export const useProfessionalAddActivity = () => {
     isSubmitted,
     retryUpload,
     goToTracker,
+    goToReturnTarget,
+    returnTargetIsRequirements,
     existingFiles,
     handleAddAnother,
     handleFilesChange,

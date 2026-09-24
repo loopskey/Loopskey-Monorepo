@@ -47,6 +47,13 @@ export class ProfessionalCpdPlanResolver {
     return this.cpdPlanService.myPlans(this.getUser(user));
   }
 
+  @Query(() => [CpdPlanEntity], {
+    name: ProfessionalGqlQueryNames.MY_DRAFT_CPD_PLANS,
+  })
+  myDraftCpdPlans(@CurrentUser() user: TResolverUser) {
+    return this.cpdPlanService.myDraftPlans(this.getUser(user));
+  }
+
   @Query(() => CpdPlanEntity, { name: ProfessionalGqlQueryNames.CPD_PLAN })
   cpdPlan(
     @CurrentUser() user: TResolverUser,
@@ -103,6 +110,16 @@ export class ProfessionalCpdPlanResolver {
       this.getUser(user),
       input,
     );
+  }
+
+  @Mutation(() => CpdPlanEntity, {
+    name: ProfessionalGqlMutationNames.ACTIVATE_CPD_PLAN,
+  })
+  activateCpdPlan(
+    @CurrentUser() user: TResolverUser,
+    @Args("planId", { type: () => ID }) planId: string,
+  ) {
+    return this.cpdPlanService.activateDraftPlan(this.getUser(user), planId);
   }
 
   @Mutation(() => CpdPlanEntity, {

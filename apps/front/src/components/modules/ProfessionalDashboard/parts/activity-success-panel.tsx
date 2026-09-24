@@ -13,6 +13,7 @@ export const ActivitySuccessPanel = ({
   isEditing,
   onAddAnother,
   onViewActivities,
+  onReturn,
 }: TActivitySuccessPanelProps) => (
   <GlassCard>
     <div className="flex flex-col items-center py-10 text-center">
@@ -31,14 +32,29 @@ export const ActivitySuccessPanel = ({
       </p>
 
       <div className="mt-7 flex flex-wrap justify-center gap-3">
-        <Button
-          radius="xl"
-          type="button"
-          onClick={onViewActivities}
-        >
-          <L.ListChecks className="h-4 w-4" />
-          {t(`${TRACKER}.addActivity.viewActivities`)}
-        </Button>
+        {onReturn ? (
+          <Button radius="xl" type="button" onClick={onReturn.onClick}>
+            <L.ArrowLeft className="h-4 w-4" />
+            {onReturn.label}
+          </Button>
+        ) : (
+          <Button radius="xl" type="button" onClick={onViewActivities}>
+            <L.ListChecks className="h-4 w-4" />
+            {t(`${TRACKER}.addActivity.viewActivities`)}
+          </Button>
+        )}
+
+        {onReturn && (
+          <Button
+            radius="xl"
+            type="button"
+            variant="outline"
+            onClick={onViewActivities}
+          >
+            <L.ListChecks className="h-4 w-4" />
+            {t(`${TRACKER}.addActivity.viewActivities`)}
+          </Button>
+        )}
 
         <Button
           radius="xl"

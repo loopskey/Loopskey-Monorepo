@@ -1,3 +1,4 @@
+import { ProfessionalRequirementDirectoryApiService } from "@professional/application/professional-requirement-directory-api.service";
 import { ForbiddenException, NotFoundException } from "@nestjs/common";
 import { ProfessionalPduActivityFilterInput } from "@professional/dtos/professional-pdu-activity-filter.input";
 import { LEARNING_ACTIVITY_CHANGED_EVENT } from "@professional/public/professional-compliance-api.events";
@@ -7,12 +8,12 @@ import { LearningActivityChangeKind } from "@professional/public/professional-co
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { ContentType, Prisma, Role } from "@prisma/client";
 import { type EvidenceStoragePort } from "@professional/storage/evidence-storage.port";
+import { exclusiveRequirementLink } from "@professional/utils/pdu-requirement-link.util";
 import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
 import { CreatePduActivityInput } from "@professional/dtos/create-pdu-activity.input";
 import { UpdatePduActivityInput } from "@professional/dtos/update-pdu-activity.input";
 import { UpsertPduTargetInput } from "@professional/dtos/upsert-pdu-target.input";
 import { EVIDENCE_STORAGE } from "@professional/storage/evidence-storage.port";
-import { exclusiveRequirementLink } from "@professional/utils/pdu-requirement-link.util";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { PrismaService } from "@prisma/prisma.service";
 import { TUser } from "@common/types/user.types";
@@ -32,6 +33,7 @@ export class ProfessionalPduService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly outbox: OutboxService,
+    private readonly requirementDirectory: ProfessionalRequirementDirectoryApiService,
     @Inject(EVIDENCE_STORAGE) private readonly storage: EvidenceStoragePort,
   ) {}
 
@@ -118,6 +120,20 @@ export class ProfessionalPduService {
     });
     if (!plan)
       throw new NotFoundException(ProfessionalMessageCode.CPD_PLAN_NOT_FOUND);
+  }
+
+  private async assertAssignedAssociationRequirement(
+    user: TUser,
+    associationRequirementId: string,
+  ) {
+    const isAssigned = await this.requirementDirectory.isAssigned(
+      user.id,
+      associationRequirementId,
+    );
+    if (!isAssigned)
+      throw new NotFoundException(
+        ProfessionalMessageCode.PDU_ACTIVITY_ASSOCIATION_REQUIREMENT_NOT_ASSIGNED,
+      );
   }
 
   async pduReport(user: TUser, year = new Date().getFullYear()) {
@@ -348,6 +364,11 @@ export class ProfessionalPduService {
   async createPduActivity(user: TUser, input: CreatePduActivityInput) {
     this.assertProfessional(user);
     if (input.cpdPlanId) await this.assertOwnedPlan(user, input.cpdPlanId);
+    if (input.associationRequirementId)
+      await this.assertAssignedAssociationRequirement(
+        user,
+        input.associationRequirementId,
+      );
     const { date, contentId, contentType, ...rest } = input;
     const data = {
       ...rest,
@@ -425,6 +446,11 @@ export class ProfessionalPduService {
     const { activityId, date, ...rest } = input;
     await this.findOwnedActivity(user, activityId);
     if (input.cpdPlanId) await this.assertOwnedPlan(user, input.cpdPlanId);
+    if (input.associationRequirementId)
+      await this.assertAssignedAssociationRequirement(
+        user,
+        input.associationRequirementId,
+      );
     return this.prismaService.$transaction(async (tx) => {
       const updated = await tx.pDUActivity.update({
         where: { id: activityId },
