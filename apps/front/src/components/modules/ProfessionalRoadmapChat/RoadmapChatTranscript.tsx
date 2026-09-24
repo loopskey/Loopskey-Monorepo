@@ -37,10 +37,9 @@ const SystemMessage = ({ content }: { content: string }) => {
 
   const text =
     code === "ROADMAP_DRAFT_FIELD_UPDATED" && field
-      ? t("professionalRoadmapChat.system.fieldUpdated").replace(
-          "{field}",
-          t(`professionalRoadmapChat.field.${field}`),
-        )
+      ? t("professionalRoadmapChat.system.fieldUpdated", {
+          field: t(`professionalRoadmapChat.field.${field}`),
+        })
       : t(`professionalRoadmapChat.system.${code}`);
 
   return (

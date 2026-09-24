@@ -3691,7 +3691,7 @@
     },
     "overview": {
       "eyebrow": "Tableau de bord professionnel",
-      "title": "Bon retour, {name} ! 👋",
+      "title": "Bon retour, {{name}} ! 👋",
       "description": "Voici ce qui se passe aujourd’hui dans votre parcours d’apprentissage.",
       "viewCalendar": "Voir le calendrier",
       "browseCourses": "Explorer les cours",
@@ -4327,7 +4327,7 @@
       },
       "progressTitle": "Progression des cours",
       "progressDescription": "Reprenez là où vous vous êtes arrêté et suivez votre parcours.",
-      "courseFallback": "Cours #{id}",
+      "courseFallback": "Cours #{{id}}",
       "progress": "Progression",
       "continue": "Continuer",
       "review": "Revoir",
@@ -4348,7 +4348,7 @@
       "nextMilestone": "Prochain jalon",
       "notAvailable": "Non disponible",
       "overallProgress": "Progression globale",
-      "overallProgressDescription": "Basée sur {count} feuille(s) de route suivie(s).",
+      "overallProgressDescription": "Basée sur {{count}} feuille(s) de route suivie(s).",
       "averageProgressText": "Cette valeur représente votre progression moyenne sur l’ensemble de vos feuilles de route professionnelles actives et terminées.",
       "activitiesDone": "Activités terminées",
       "noCpdTargetTracked": "Aucune feuille de route ne suit encore de crédits CPD.",
@@ -4367,18 +4367,18 @@
       "steps": "étapes",
       "next": "Suivant",
       "duration": "Durée",
-      "weeks": "{count} semaines",
+      "weeks": "{{count}} semaines",
       "enroll": "S’inscrire",
       "unenroll": "Se désinscrire",
       "progressSection": "Votre progression",
       "completedActivities": "Activités terminées",
-      "ofSteps": "{completed} sur {total} étapes",
+      "ofSteps": "{{completed}} sur {{total}} étapes",
       "targetDate": "Date cible",
-      "targetDateRemaining": "{days} jours restants",
+      "targetDateRemaining": "{{days}} jours restants",
       "targetDateToday": "À terminer aujourd'hui",
       "targetDatePassed": "Date cible dépassée",
       "noTargetDate": "Aucune date cible définie",
-      "creditsOf": "{earned} sur {required} crédits",
+      "creditsOf": "{{earned}} sur {{required}} crédits",
       "cpdTarget": "Objectif DPC",
       "cpdTargetComplete": "atteint",
       "creditsEarnedLabel": "Obtenus",
@@ -4387,8 +4387,8 @@
       "recommendedDescription": "Des contenus adaptés à votre objectif qui ne sont pas déjà dans votre parcours.",
       "phasedContent": "Votre parcours d’apprentissage",
       "phasedContentDescription": "Avancez dans l'ordre : chaque étape terminée fait progresser votre parcours.",
-      "weekRange": "Semaines {start} à {end}",
-      "pduValue": "{count} UDP",
+      "weekRange": "Semaines {{start}} à {{end}}",
+      "pduValue": "{{count}} UDP",
       "coverageNote": "À propos de ce parcours",
       "review": "Consulter",
       "start": "Commencer",
@@ -4397,7 +4397,7 @@
       "inProgress": "En cours",
       "notStarted": "Non commencé",
       "stepFailed": "Cette modification n'a pas été enregistrée. Veuillez réessayer.",
-      "minutes": "{count} min",
+      "minutes": "{{count}} min",
       "free": "Gratuit",
       "generating": {
         "title": "Création de votre parcours",
@@ -4565,7 +4565,7 @@
       "eyebrow": "Paramètres du fournisseur",
       "title": "Paramètres du fournisseur",
       "description": "Gérez le profil de votre organisation, vos préférences de notification et la sécurité de votre compte.",
-      "stepLabel": "Étape {step}",
+      "stepLabel": "Étape {{step}}",
       "steps": {
         "profile": {
           "title": "Profil de l’organisation",
@@ -5294,7 +5294,7 @@
         "live": "Nombre actuel de l’organisation",
         "average": "Taux moyen de conformité",
         "needAttention": "Membres nécessitant une attention",
-        "engagement": "{value}% d’engagement"
+        "engagement": "{{value}}% d’engagement"
       },
       "compliance": {
         "title": "Aperçu de la conformité",
@@ -6800,19 +6800,19 @@
         "activationNote": "Le lien d'activation expire ; vous pouvez le renvoyer depuis ce tableau tant que le compte est en attente.",
         "submit": "Créer le compte",
         "sentTitle": "Compte créé",
-        "sentBody": "{name} a été créée et l'e-mail d'activation part vers le représentant.",
+        "sentBody": "{{name}} a été créée et l'e-mail d'activation part vers le représentant.",
         "notSentTitle": "Compte créé, e-mail non envoyé",
-        "notSentBody": "{name} a été créée, mais l'e-mail d'activation n'a pas pu être mis en file. Renvoyez-le depuis le tableau.",
+        "notSentBody": "{{name}} a été créée, mais l'e-mail d'activation n'a pas pu être mis en file. Renvoyez-le depuis le tableau.",
         "createAnother": "Créer une autre",
         "done": "Terminé"
       },
       "resend": {
         "title": "Renvoyer l'e-mail d'activation ?",
-        "description": "Un nouveau lien d'activation est envoyé au représentant de {name}, et le lien précédent cesse de fonctionner.",
+        "description": "Un nouveau lien d'activation est envoyé au représentant de {{name}}, et le lien précédent cesse de fonctionner.",
         "confirm": "Renvoyer"
       },
       "messages": {
-        "activationResent": "Un nouvel e-mail d'activation a été mis en file pour {name}.",
+        "activationResent": "Un nouvel e-mail d'activation a été mis en file pour {{name}}.",
         "accountDeleted": "Le compte de {{name}} a été supprimé définitivement."
       },
       "errors": {
@@ -7456,8 +7456,8 @@
       "send": "Envoyer",
       "hint": "Entrée pour envoyer, Maj + Entrée pour une nouvelle ligne.",
       "correctionHint": "Envie de modifier une réponse ? Écrivez-le simplement, par exemple « change mon budget à moins de 100 $ ».",
-      "remaining": "{remaining} caractères restants",
-      "overLimit": "{over} caractères de trop",
+      "remaining": "{{remaining}} caractères restants",
+      "overLimit": "{{over}} caractères de trop",
       "orOwnWords": "Ou répondez au coach avec vos propres mots"
     },
     "widget": {
@@ -7466,19 +7466,19 @@
       "chooseDate": "Choisir une date",
       "useDate": "Utiliser cette date",
       "confirmSelection": "Confirmer",
-      "selectedOfMax": "{selected} sur {max} sélectionnés",
+      "selectedOfMax": "{{selected}} sur {{max}} sélectionnés",
       "quickInThreeMonths": "Dans 3 mois",
       "quickInSixMonths": "Dans 6 mois",
       "quickEndOfYear": "Fin d'année"
     },
     "system": {
       "ROADMAP_AI_REFUSED": "Cela semble sans rapport avec la création d'un parcours. Pouvez-vous reformuler ?",
-      "fieldUpdated": "{field} mis à jour."
+      "fieldUpdated": "{{field}} mis à jour."
     },
     "error": {
       "retry": "Réessayer",
       "sendFailed": "L'envoi a échoué.",
-      "retryIn": "Vous pourrez réessayer dans {seconds} s.",
+      "retryIn": "Vous pourrez réessayer dans {{seconds}} s.",
       "loadTitle": "La conversation n'a pas pu être chargée",
       "loadDescription": "Il s'agit d'un problème temporaire de notre côté, pas d'un problème avec vos réponses."
     },

@@ -99,23 +99,20 @@ export const RoadmapChatComposer = ({
             )}
           >
             {composer.isOverLimit
-              ? t("professionalRoadmapChat.composer.overLimit").replace(
-                  "{over}",
-                  String(Math.abs(composer.remaining)),
-                )
-              : t("professionalRoadmapChat.composer.remaining").replace(
-                  "{remaining}",
-                  String(composer.remaining),
-                )}
+              ? t("professionalRoadmapChat.composer.overLimit", {
+                  over: Math.abs(composer.remaining),
+                })
+              : t("professionalRoadmapChat.composer.remaining", {
+                  remaining: composer.remaining,
+                })}
           </span>
 
           <div className="flex items-center gap-2">
             {retryAfter > 0 ? (
               <span className="text-xs text-muted-foreground">
-                {t("professionalRoadmapChat.error.retryIn").replace(
-                  "{seconds}",
-                  String(retryAfter),
-                )}
+                {t("professionalRoadmapChat.error.retryIn", {
+                  seconds: retryAfter,
+                })}
               </span>
             ) : null}
 
