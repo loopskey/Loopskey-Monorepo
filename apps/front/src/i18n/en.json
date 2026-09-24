@@ -3689,7 +3689,7 @@
     },
     "overview": {
       "eyebrow": "Professional Dashboard",
-      "title": "Welcome back, {name}! 👋",
+      "title": "Welcome back, {{name}}! 👋",
       "description": "Here’s what’s happening with your learning journey today.",
       "viewCalendar": "View Calendar",
       "browseCourses": "Browse Courses",
@@ -4324,7 +4324,7 @@
       },
       "progressTitle": "Course Progress",
       "progressDescription": "Continue where you left off and monitor your learning journey.",
-      "courseFallback": "Course #{id}",
+      "courseFallback": "Course #{{id}}",
       "progress": "Progress",
       "continue": "Continue",
       "review": "Review",
@@ -4345,7 +4345,7 @@
       "nextMilestone": "Next milestone",
       "notAvailable": "Not available",
       "overallProgress": "Overall progress",
-      "overallProgressDescription": "Based on {count} enrolled roadmap(s).",
+      "overallProgressDescription": "Based on {{count}} enrolled roadmap(s).",
       "averageProgressText": "This shows your average progress across all active and completed professional roadmaps.",
       "activitiesDone": "Activities done",
       "noCpdTargetTracked": "No roadmap is tracking CPD credits yet.",
@@ -4364,18 +4364,18 @@
       "steps": "steps",
       "next": "Next",
       "duration": "Duration",
-      "weeks": "{count} weeks",
+      "weeks": "{{count}} weeks",
       "enroll": "Enroll",
       "unenroll": "Unenroll",
       "progressSection": "Your progress",
       "completedActivities": "Completed activities",
-      "ofSteps": "{completed} of {total} steps",
+      "ofSteps": "{{completed}} of {{total}} steps",
       "targetDate": "Target date",
-      "targetDateRemaining": "{days} days left",
+      "targetDateRemaining": "{{days}} days left",
       "targetDateToday": "Due today",
       "targetDatePassed": "Target date passed",
       "noTargetDate": "No target date set",
-      "creditsOf": "{earned} of {required} credits",
+      "creditsOf": "{{earned}} of {{required}} credits",
       "cpdTarget": "CPD target",
       "cpdTargetComplete": "complete",
       "creditsEarnedLabel": "Earned",
@@ -4384,8 +4384,8 @@
       "recommendedDescription": "Content that fits your goal and is not already in your roadmap.",
       "phasedContent": "Your Learning Path",
       "phasedContentDescription": "Work through it in order, each item you finish moves your progress.",
-      "weekRange": "Weeks {start}-{end}",
-      "pduValue": "{count} PDU",
+      "weekRange": "Weeks {{start}}-{{end}}",
+      "pduValue": "{{count}} PDU",
       "coverageNote": "About this roadmap",
       "review": "Review",
       "start": "Start",
@@ -4394,7 +4394,7 @@
       "inProgress": "In progress",
       "notStarted": "Not started",
       "stepFailed": "That change was not saved. Please try again.",
-      "minutes": "{count} min",
+      "minutes": "{{count}} min",
       "free": "Free",
       "generating": {
         "title": "Building your roadmap",
@@ -5291,7 +5291,7 @@
         "live": "Live organization count",
         "average": "Average compliance rate",
         "needAttention": "Members needing attention",
-        "engagement": "{value}% engagement"
+        "engagement": "{{value}}% engagement"
       },
       "compliance": {
         "title": "Compliance Overview",
@@ -6797,19 +6797,19 @@
         "activationNote": "The activation link expires, and you can resend it from this table while the account is still pending.",
         "submit": "Create account",
         "sentTitle": "Account created",
-        "sentBody": "{name} was created and the activation email is on its way to the representative.",
+        "sentBody": "{{name}} was created and the activation email is on its way to the representative.",
         "notSentTitle": "Account created, email not sent",
-        "notSentBody": "{name} was created, but the activation email could not be queued. Resend it from the table.",
+        "notSentBody": "{{name}} was created, but the activation email could not be queued. Resend it from the table.",
         "createAnother": "Create another",
         "done": "Done"
       },
       "resend": {
         "title": "Resend the activation email?",
-        "description": "A new activation link is sent to the representative of {name}, and the previous link stops working.",
+        "description": "A new activation link is sent to the representative of {{name}}, and the previous link stops working.",
         "confirm": "Resend"
       },
       "messages": {
-        "activationResent": "A new activation email was queued for {name}.",
+        "activationResent": "A new activation email was queued for {{name}}.",
         "accountDeleted": "{{name}}'s account was deleted permanently."
       },
       "errors": {
@@ -7454,8 +7454,8 @@
       "send": "Send",
       "hint": "Press Enter to send, Shift + Enter for a new line.",
       "correctionHint": "Want to change something you already told me? Just type it, for example “change my budget to under $100”.",
-      "remaining": "{remaining} characters left",
-      "overLimit": "{over} characters over the limit",
+      "remaining": "{{remaining}} characters left",
+      "overLimit": "{{over}} characters over the limit",
       "orOwnWords": "Or tell the coach in your own words"
     },
     "widget": {
@@ -7464,19 +7464,19 @@
       "chooseDate": "Choose a date",
       "useDate": "Use this date",
       "confirmSelection": "Confirm",
-      "selectedOfMax": "{selected} of {max} selected",
+      "selectedOfMax": "{{selected}} of {{max}} selected",
       "quickInThreeMonths": "In 3 months",
       "quickInSixMonths": "In 6 months",
       "quickEndOfYear": "End of year"
     },
     "system": {
       "ROADMAP_AI_REFUSED": "That looks unrelated to building a roadmap. Could you rephrase it?",
-      "fieldUpdated": "{field} updated."
+      "fieldUpdated": "{{field}} updated."
     },
     "error": {
       "retry": "Try again",
       "sendFailed": "That did not send.",
-      "retryIn": "You can try again in {seconds}s.",
+      "retryIn": "You can try again in {{seconds}}s.",
       "loadTitle": "The conversation could not be loaded",
       "loadDescription": "This is a temporary problem on our side, not a problem with your answers."
     },

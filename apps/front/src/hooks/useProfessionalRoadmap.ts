@@ -257,7 +257,9 @@ export const useProfessionalRoadmaps = () => {
   };
 
   const formatWeeks = (weeks?: number | null) => {
-    return `${Number(weeks ?? 0)} ${t("professionalDashboard.roadmap.weeks")}`;
+    return t("professionalDashboard.roadmap.weeks", {
+      count: Number(weeks ?? 0),
+    });
   };
 
   const getRoadmapHref = (roadmap: { slug?: string | null; id: string }) => {

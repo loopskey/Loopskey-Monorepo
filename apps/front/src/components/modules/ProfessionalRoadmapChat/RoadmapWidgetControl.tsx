@@ -63,9 +63,10 @@ export const RoadmapWidgetControl = ({
 
   const selectionLabel = useMemo(
     () =>
-      t("professionalRoadmapChat.widget.selectedOfMax")
-        .replace("{selected}", String(selected.length))
-        .replace("{max}", String(limit)),
+      t("professionalRoadmapChat.widget.selectedOfMax", {
+        selected: selected.length,
+        max: limit,
+      }),
     [limit, selected.length, t],
   );
 
