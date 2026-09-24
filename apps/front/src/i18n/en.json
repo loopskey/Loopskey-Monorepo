@@ -296,12 +296,14 @@
         "external": "External",
         "loopskey": "Loopskey",
         "credits": "{{credits}} credits",
-        "unavailable": "No longer available"
+        "unavailable": "No longer available",
+        "showAll": "Show all ({{count}} more)"
       },
       "activities": {
         "title": "Logged activities",
         "subtitle": "Activities counted toward this requirement and where each one stands.",
         "empty": "No activity has been logged for this requirement yet.",
+        "viewAll": "View all ({{count}})",
         "columns": {
           "activity": "Activity",
           "date": "Date",

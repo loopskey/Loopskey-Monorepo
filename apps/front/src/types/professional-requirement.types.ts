@@ -41,23 +41,11 @@ export type TRequirementActivityRow = {
 };
 
 export type TRequirementSelectorProps = {
-  isDeleting: boolean;
   t: I18nContextValue["t"];
   selectedKey: string | null;
-  onEdit: (planId: string) => void;
-  onDelete: (planId: string) => void;
   onSelect: (key: string) => void;
   options: TRequirementOption[];
   onLogActivity: () => void;
-};
-
-export type TAssociationRequirementViewProps = {
-  isLoading: boolean;
-  t: I18nContextValue["t"];
-  onLogActivity: () => void;
-  summary: TAssociationRequirement;
-  detail: TAssociationRequirementDetail | undefined;
-  onMarkComplete: (content: TAssociationRequirementContent) => void;
 };
 
 export type TRequirementActivitiesTableProps = {
@@ -80,9 +68,67 @@ export type TRequirementSwitcherProps = {
   onSelect: (key: string) => void;
 };
 
+export type TRequirementCategoryRow = {
+  id: string;
+  name: string;
+  completed: number;
+  required: number;
+  percent: number;
+};
+
 export type TRequirementCategoryProgressProps = {
   isLoading: boolean;
   creditLabel: string;
   t: I18nContextValue["t"];
-  categories: TAssociationRequirementDetail["categories"];
+  categories: TRequirementCategoryRow[];
+};
+
+export type TRequirementViewModel = {
+  key: string;
+  title: string;
+  creditType: string;
+  earnedCredits: number;
+  dueDate: string | null;
+  requiredCredits: number;
+  remainingCredits: number;
+  source: TRequirementSource;
+  statusTone: TRequirementTone;
+  statusLabelKey: string;
+  daysRemaining: number | null;
+  associationName: string | null;
+  percent: number;
+  evidence: {
+    labelKey: string;
+    awaitingReviewCount: number;
+    isMissingEvidence: boolean;
+  } | null;
+};
+
+export type TRequirementProgressRingProps = {
+  percent: number;
+  ariaLabel: string;
+  size?: number;
+};
+
+export type TRequirementSummaryStripProps = {
+  t: I18nContextValue["t"];
+  model: TRequirementViewModel;
+  onEdit?: () => void;
+  onDelete?: () => void;
+  isDeleting?: boolean;
+};
+
+export type TRequirementDetailViewProps = {
+  t: I18nContextValue["t"];
+  isLoading: boolean;
+  model: TRequirementViewModel;
+  categories: TRequirementCategoryRow[];
+  content: TAssociationRequirementContent[];
+  activities: TRequirementActivityRow[];
+  isDetailLoading: boolean;
+  isActivitiesLoading: boolean;
+  onMarkComplete?: (content: TAssociationRequirementContent) => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
+  isDeleting?: boolean;
 };

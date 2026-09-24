@@ -84,12 +84,3 @@ export const CPD_COMPLIANCE_META: Record<
   REPORTING_PERIOD_EXPIRED: { tone: "danger", icon: "CalendarX" },
 };
 
-export const CPD_MISSING_ACTION: Record<string, string | undefined> = {
-  REMAINING_CREDITS: "add-activity",
-  CATEGORY_BELOW_TARGET: "add-activity",
-  MISSING_EVIDENCE: "cpd-pdu-tracker",
-  MISSING_REPORT_RECIPIENT: undefined,
-  DEADLINE_APPROACHING: "add-activity",
-  REPORTING_PERIOD_EXPIRED: undefined,
-  REPORTING_NOT_STARTED: undefined,
-};

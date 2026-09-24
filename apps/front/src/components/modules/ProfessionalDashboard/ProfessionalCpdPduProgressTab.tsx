@@ -1,18 +1,16 @@
 "use client";
 
-import { RequirementAssociationView } from "@modules/ProfessionalDashboard/parts/requirement-association-view";
-import { RequirementActivitiesTable } from "@modules/ProfessionalDashboard/parts/requirement-activities-table";
-import { CpdMissingRequirements } from "@modules/ProfessionalDashboard/parts/cpd-missing-requirements";
-import { CpdCategoryCompletion } from "@modules/ProfessionalDashboard/parts/cpd-category-completion";
-import { CpdProgressOverview } from "@modules/ProfessionalDashboard/parts/cpd-progress-overview";
+import { RequirementDetailView } from "@modules/ProfessionalDashboard/parts/requirement-detail-view";
 import { RequirementSelector } from "@modules/ProfessionalDashboard/parts/requirement-selector";
 import { useCpdPduProgress } from "@/hooks/useCpdPduProgress";
-import { planActivityRows } from "@/utils/professional-requirement.helper";
 import { CpdSearchModal } from "@modules/ProfessionalDashboard/parts/cpd-search-modal";
 import { CpdEmptyState } from "@modules/ProfessionalDashboard/parts/cpd-empty-state";
 import { CpdSetupFlow } from "@modules/ProfessionalDashboard/parts/cpd-setup-flow";
 import { Button } from "@ui/button";
 
+import type { TRequirementViewModel } from "@/types/professional-requirement.types";
+
+import * as R from "@/utils/professional-requirement.helper";
 import * as L from "lucide-react";
 import * as A from "@ui/alert-dialog";
 
@@ -137,57 +135,65 @@ const ProfessionalCpdPduProgressTab = () => {
           <RequirementSelector
             t={t}
             options={cpd.options}
-            isDeleting={cpd.isDeleting}
             selectedKey={cpd.activeKey}
-            onDelete={cpd.requestDelete}
             onSelect={cpd.setSelectedKey}
             onLogActivity={cpd.goToAddActivity}
-            onEdit={(planId) => {
-              const plan = cpd.plans.find((item) => item.id === planId);
-              if (plan) cpd.editPlan(plan);
-            }}
           />
 
-          {cpd.selectedAssociation ? (
-            <RequirementAssociationView
-              t={t}
-              detail={cpd.associationDetail}
-              summary={cpd.selectedAssociation}
-              onMarkComplete={cpd.markComplete}
-              onLogActivity={cpd.goToAddActivity}
-              isLoading={cpd.isAssociationDetailLoading}
-            />
-          ) : cpd.isProgressLoading || !cpd.progress || !cpd.selectedPlan ? (
-            <div className="flex min-h-72 items-center justify-center">
-              <L.Loader2 className="h-7 w-7 animate-spin text-primary" />
-            </div>
-          ) : (
-            <>
-              <CpdProgressOverview
-                t={t}
-                plan={cpd.selectedPlan}
-                progress={cpd.progress}
-              />
-              <div className="grid gap-6 xl:grid-cols-2">
-                <CpdCategoryCompletion
+          {(() => {
+            if (cpd.selectedAssociation) {
+              const model: TRequirementViewModel = R.associationToViewModel(
+                cpd.selectedAssociation,
+              );
+              return (
+                <RequirementDetailView
                   t={t}
-                  plan={cpd.selectedPlan}
-                  progress={cpd.progress}
+                  model={model}
+                  isLoading={false}
+                  isDetailLoading={cpd.isAssociationDetailLoading}
+                  isActivitiesLoading={cpd.isAssociationDetailLoading}
+                  categories={R.associationCategoryRows(cpd.associationDetail)}
+                  content={cpd.associationDetail?.learningContents ?? []}
+                  activities={R.associationActivityRows(
+                    t,
+                    cpd.associationDetail?.activities ?? [],
+                  )}
+                  onMarkComplete={cpd.markComplete}
                 />
-                <CpdMissingRequirements
+              );
+            }
+
+            if (!cpd.selectedPlan || cpd.isProgressLoading || !cpd.progress)
+              return (
+                <RequirementDetailView
                   t={t}
-                  progress={cpd.progress}
-                  onEditPlan={cpd.goToAddActivity}
-                  onAddActivity={cpd.goToAddActivity}
+                  isLoading
+                  isDetailLoading
+                  isActivitiesLoading
+                  model={{} as TRequirementViewModel}
+                  categories={[]}
+                  content={[]}
+                  activities={[]}
                 />
-              </div>
-              <RequirementActivitiesTable
+              );
+
+            const model = R.planToViewModel(cpd.selectedPlan, cpd.progress);
+            return (
+              <RequirementDetailView
                 t={t}
-                isLoading={cpd.isPlanActivitiesLoading}
-                rows={planActivityRows(t, cpd.planActivities)}
+                model={model}
+                isLoading={false}
+                isDetailLoading={false}
+                isActivitiesLoading={cpd.isPlanActivitiesLoading}
+                categories={R.planCategoryRows(cpd.progress)}
+                content={[]}
+                activities={R.planActivityRows(t, cpd.planActivities)}
+                isDeleting={cpd.isDeleting}
+                onDelete={() => cpd.requestDelete(cpd.selectedPlan!.id)}
+                onEdit={() => cpd.editPlan(cpd.selectedPlan!)}
               />
-            </>
-          )}
+            );
+          })()}
         </div>
       )}
 

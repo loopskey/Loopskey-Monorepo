@@ -296,12 +296,14 @@
         "external": "Externe",
         "loopskey": "Loopskey",
         "credits": "{{credits}} crédits",
-        "unavailable": "N’est plus disponible"
+        "unavailable": "N’est plus disponible",
+        "showAll": "Tout afficher ({{count}} de plus)"
       },
       "activities": {
         "title": "Activités enregistrées",
         "subtitle": "Activités comptabilisées pour cette exigence et leur état.",
         "empty": "Aucune activité n’a encore été enregistrée pour cette exigence.",
+        "viewAll": "Tout afficher ({{count}})",
         "columns": {
           "activity": "Activité",
           "date": "Date",
