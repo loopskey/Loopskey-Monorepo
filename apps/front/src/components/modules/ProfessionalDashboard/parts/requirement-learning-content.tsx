@@ -1,6 +1,6 @@
 "use client";
 
-import { contentHref } from "@/utils/professional-requirement.helper";
+import { contentDetailHref } from "@/utils/professional-requirement.helper";
 import { GlassCard } from "@elements/glass-card";
 import { Skeleton } from "@ui/skeleton";
 import { Button } from "@ui/button";
@@ -34,11 +34,18 @@ const detailLine = (
 const ViewAction = ({
   t,
   content,
+  requirementKeyValue,
 }: {
   t: I18nContextValue["t"];
   content: TAssociationRequirementContent;
+  requirementKeyValue: string;
 }) => {
-  const internal = contentHref(content.contentType, content.slug);
+  const internal = contentDetailHref(
+    content.contentType,
+    content.slug,
+    requirementKeyValue,
+    content.id,
+  );
 
   if (content.isExternal && content.externalUrl)
     return (
@@ -67,6 +74,7 @@ export const RequirementLearningContent = ({
   contents,
   isLoading,
   onMarkComplete,
+  requirementKeyValue,
 }: TRequirementLearningContentProps) => (
   <GlassCard>
     <div className="mb-5">
@@ -125,7 +133,11 @@ export const RequirementLearningContent = ({
             </div>
 
             <div className="flex flex-wrap gap-2">
-              <ViewAction t={t} content={content} />
+              <ViewAction
+                t={t}
+                content={content}
+                requirementKeyValue={requirementKeyValue}
+              />
               <Button
                 size="sm"
                 radius="xl"

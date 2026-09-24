@@ -3011,7 +3011,20 @@
       "title": "Mark as completed",
       "description": "Review the details and save this as a completed learning activity.",
       "alreadyCompleted": "You have already marked this content as completed. Saving will update the existing activity.",
-      "success": "Activity marked as completed successfully.",
+      "success": {
+        "saved": "Saved to your activities.",
+        "counted": "Counted toward {{name}}.",
+        "review": "Sent to {{association}} for review."
+      },
+      "evidenceRequired": "Attach a certificate file or link before saving — this requirement needs evidence.",
+      "requirementHint": {
+        "suggested": "Suggested because {{association}} recommends this content.",
+        "default": "{{association}} recommends this content. We picked your first requirement with them — you can change it."
+      },
+      "noRequirements": {
+        "hint": "You don't have any requirements yet.",
+        "link": "Add a requirement"
+      },
       "save": "Save as Completed",
       "fields": {
         "title": "Activity title",
@@ -3029,7 +3042,10 @@
         "certificate": "Certificate / Proof",
         "certificateHelp": "Upload certificate file up to 20 MB (PDF, JPG, PNG, DOC, DOCX).",
         "certificateLink": "Certificate link",
-        "certificateLinkPlaceholder": "https://..."
+        "certificateLinkPlaceholder": "https://...",
+        "requirement": "Counts toward",
+        "requirementNone": "None",
+        "evidencePolicy": "Evidence: {{policy}}"
       }
     },
     "messages": {

@@ -1,6 +1,6 @@
 import { Field, Float, ID, Int, ObjectType } from "@nestjs/graphql";
-import { AssociationGqlObjectNames } from "@association/enums/association-gql-names.enum";
 import { AssociationAttributionState } from "@prisma/client";
+import { AssociationGqlObjectNames } from "@association/enums/association-gql-names.enum";
 import { AssociationComplianceBand } from "@prisma/client";
 import { AssociationEvidencePolicy } from "@prisma/client";
 import { CreditType, PDUCategory } from "@prisma/client";
@@ -12,6 +12,7 @@ export class AssociationCategoryProgressEntity {
   @Field(() => Float) percent: number;
   @Field(() => Float) requiredCredits: number;
   @Field(() => Float) completedCredits: number;
+  @Field(() => PDUCategory) mappedCategory: PDUCategory;
 }
 
 @ObjectType(AssociationGqlObjectNames.ASSOCIATION_ASSIGNMENT_PROGRESS)
@@ -26,13 +27,13 @@ export class AssociationAssignmentProgressEntity {
   @Field(() => Float) completedCredits: number;
   @Field(() => Int) awaitingReviewCount: number;
   @Field(() => CreditType) creditType: CreditType;
-  @Field(() => Date, { nullable: true }) cycleEnd: Date | null;
-  @Field(() => AssociationEvidencePolicy)
-  evidencePolicy: AssociationEvidencePolicy;
   @Field(() => Date, { nullable: true }) dueDate: Date | null;
+  @Field(() => Date, { nullable: true }) cycleEnd: Date | null;
   @Field(() => Date, { nullable: true }) computedAt: Date | null;
   @Field(() => Int, { nullable: true }) daysRemaining: number | null;
   @Field(() => AssociationComplianceBand) band: AssociationComplianceBand;
+  @Field(() => AssociationEvidencePolicy)
+  evidencePolicy: AssociationEvidencePolicy;
   @Field(() => [AssociationCategoryProgressEntity])
   categories: AssociationCategoryProgressEntity[];
 }
@@ -71,16 +72,16 @@ export class AssociationPendingReviewEntity {
 
 @ObjectType(AssociationGqlObjectNames.ASSOCIATION_RECENT_ACTIVITY)
 export class AssociationRecentActivityEntity {
-  @Field(() => ID) id: string;
   @Field() recordedAt: Date;
+  @Field(() => ID) id: string;
   @Field() activityDate: Date;
   @Field() activityTitle: string;
   @Field() requirementName: string;
   @Field(() => ID) memberId: string;
   @Field(() => Float) credits: number;
-  @Field(() => Float) creditedAmount: number;
   @Field(() => ID) activityId: string;
   @Field(() => ID) requirementId: string;
+  @Field(() => Float) creditedAmount: number;
   @Field(() => PDUCategory) category: PDUCategory;
   @Field(() => String, { nullable: true }) memberName: string | null;
   @Field(() => AssociationAttributionState)

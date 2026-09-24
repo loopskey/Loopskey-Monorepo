@@ -206,6 +206,10 @@ export const RequirementAssociationView = ({
           isLoading={isLoading}
           onMarkComplete={onMarkComplete}
           contents={detail?.learningContents ?? []}
+          requirementKeyValue={R.requirementKey(
+            "ASSOCIATION",
+            summary.requirementId,
+          )}
         />
       </div>
 

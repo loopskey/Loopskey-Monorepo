@@ -139,6 +139,21 @@ export const contentHref = (
   return path && slug ? `/${path}/${slug}` : null;
 };
 
+export const contentDetailHref = (
+  contentType: string | null | undefined,
+  slug: string | null | undefined,
+  requirementKeyValue: string,
+  learningContentId?: string | null,
+) => {
+  const base = contentHref(contentType, slug);
+  if (!base) return null;
+  const params = new URLSearchParams({
+    [REQUIREMENT_PARAM]: requirementKeyValue,
+  });
+  if (learningContentId) params.set(LEARNING_CONTENT_PARAM, learningContentId);
+  return `${base}?${params.toString()}`;
+};
+
 export const logActivityHref = (
   key: string,
   learningContentId?: string | null,

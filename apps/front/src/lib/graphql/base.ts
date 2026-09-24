@@ -444,6 +444,7 @@ export type AssociationCategoryProgress = {
   __typename?: 'AssociationCategoryProgress';
   completedCredits: Scalars['Float']['output'];
   id: Scalars['ID']['output'];
+  mappedCategory: PduCategory;
   name: Scalars['String']['output'];
   percent: Scalars['Float']['output'];
   requiredCredits: Scalars['Float']['output'];
@@ -510,6 +511,14 @@ export type AssociationComplianceTrendPoint = {
   renewalReady: Scalars['Int']['output'];
   renewalReadyShare: Scalars['Float']['output'];
   totalMembers: Scalars['Int']['output'];
+};
+
+export type AssociationContentEndorsement = {
+  __typename?: 'AssociationContentEndorsement';
+  associationName: Scalars['String']['output'];
+  isDefaultRequirement: Scalars['Boolean']['output'];
+  learningContentId: Scalars['ID']['output'];
+  requirementId: Scalars['ID']['output'];
 };
 
 export type AssociationCumulativePoint = {
@@ -5362,6 +5371,7 @@ export type Query = {
   myAssociationRequirements: Array<AssociationMyRequirement>;
   myCalendarEntries: Array<ProfessionalManualCalendarEvent>;
   myCart?: Maybe<Cart>;
+  myContentEndorsement?: Maybe<AssociationContentEndorsement>;
   myCpdPlans: Array<CpdPlan>;
   myDraftCpdPlans: Array<CpdPlan>;
   myEnrollments: Array<ContentEnrollment>;
@@ -5848,6 +5858,12 @@ export type QueryLinkedinOAuthUrlArgs = {
 
 export type QueryMyAssociationRequirementArgs = {
   requirementId: Scalars['ID']['input'];
+};
+
+
+export type QueryMyContentEndorsementArgs = {
+  contentId: Scalars['ID']['input'];
+  contentType: ContentType;
 };
 
 
