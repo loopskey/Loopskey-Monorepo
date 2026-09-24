@@ -1,11 +1,13 @@
+import { PatchRoadmapCpdSetupInput } from "@/lib/graphql/base";
 import { RoadmapStepProgressStatus } from "@/lib/graphql/base";
 import { PatchRoadmapDraftInput } from "@/lib/graphql/base";
 import { RoadmapDraftStatus } from "@/lib/graphql/base";
-import { PatchRoadmapCpdSetupInput } from "@/lib/graphql/base";
 import { StepPending } from "@/hooks/useRoadmapStepProgress";
-import type { RoadmapChatStage } from "@/utils/roadmap-chat-step.util";
-import type { RoadmapGenerationFailureCode } from "@/lib/graphql/base";
+import { RefObject } from "react";
+
 import type { RoadmapGenerationRecoveryAction } from "@/lib/graphql/base";
+import type { RoadmapGenerationFailureCode } from "@/lib/graphql/base";
+import type { RoadmapChatStage } from "@/utils/roadmap-chat-step.util";
 
 import type * as G from "@/lib/graphql/operations/roadmap-chat";
 
@@ -98,18 +100,6 @@ export type Recommendation = {
   durationMinutes?: number | null;
 };
 
-export type TRoadmapSummaryProps = {
-  locale: string;
-  progress: number;
-  totalSteps: number;
-  earnedCredits: number;
-  completedSteps: number;
-  targetDate?: string | null;
-  requiredCredits?: number | null;
-  recommendations: Recommendation[];
-  t: (key: string, values?: Record<string, string | number>) => string;
-};
-
 export type Patch = Omit<PatchRoadmapDraftInput, "draftId">;
 export type CpdSetupPatch = Omit<PatchRoadmapCpdSetupInput, "draftId">;
 
@@ -170,4 +160,36 @@ export type TRoadmapSuggestionExpansion = {
   field: TRoadmapWidget["field"];
   disabled?: boolean;
   onPick: (option: TRoadmapSuggestionOption) => void;
+};
+
+export type TRoadmapHeroProps = {
+  title: string;
+  locale: string;
+  progress: number;
+  description: string;
+  totalSteps: number;
+  phasesCount: number;
+  continueHref: string;
+  viewFullHref: string;
+  completedSteps: number;
+  newRoadmapHref: string;
+  targetDate?: string | null;
+  nextStepTitle?: string | null;
+  estimatedWeeks?: number | null;
+  headingRef: RefObject<HTMLHeadingElement | null>;
+  t: (key: string, values?: Record<string, string | number>) => string;
+};
+
+type TTimelinePhase = {
+  id: string;
+  title: string;
+  completed: boolean;
+  stepsCount: number;
+  completedSteps: number;
+};
+
+export type TRoadmapJourneyTimelineProps = {
+  phases: TTimelinePhase[];
+  currentPhaseId: string | null;
+  t: (key: string, values?: Record<string, string | number>) => string;
 };
