@@ -427,6 +427,7 @@ fragment AssociationLearningContentFields on AssociationLearningContent {
   provider
   imageUrl
   externalUrl
+  externalContentType
   description
   category
   indicativeCredits
@@ -480,9 +481,13 @@ query AssociationCatalogSearch($input: AssociationCatalogSearchInput!) {
     contentType
     contentId
     title
+    slug
+    level
     provider
     imageUrl
     isAvailable
+    durationMinutes
+    indicativeCredits
   }
 }
 

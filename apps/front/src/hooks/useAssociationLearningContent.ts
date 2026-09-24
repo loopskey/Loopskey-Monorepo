@@ -2,10 +2,12 @@
 
 import { getAssociationErrorTranslationKey } from "@utils/association-error";
 import { AssociationLearningContentStatus } from "@/lib/graphql/base";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ContentType, PduCategory } from "@/lib/graphql/base";
+import { AssociationLearningExternalType } from "@/lib/graphql/base";
 import { AssociationAudienceKind } from "@/lib/graphql/base";
 import { AssociationMemberStatus } from "@/lib/graphql/base";
+import { useRouter, useSearchParams } from "next/navigation";
 import { SEARCH_DEBOUNCE_MS } from "@utils/constant";
 import { useDebouncedValue } from "@hooks/useDebounced";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,24 +27,16 @@ const CATALOG_TAKE = 20;
 
 const MEMBER_PICKER_SIZE = 25;
 
-export const LEARNING_CONTENT_WIZARD_LAST_STEP = 4;
+const ASSIGNABLE_TAKE = 100;
 
-const LEARNING_CONTENT_STEP_FIELDS: Record<
-  number,
-  (keyof SC.TAssociationLearningContentForm)[]
-> = {
-  1: [
-    "contentType",
-    "contentId",
-    "externalTitle",
-    "externalProvider",
-    "externalUrl",
-    "description",
-  ],
-  2: ["indicativeCredits"],
-  3: ["audienceKind", "groupIds", "memberIds"],
-  4: [],
-};
+export const LEARNING_CONTENT_STEPS = [
+  "content",
+  "cpd",
+  "assignment",
+  "review",
+] as const;
+
+export type TLearningContentStep = (typeof LEARNING_CONTENT_STEPS)[number];
 
 const emptyForm: SC.TAssociationLearningContentForm = {
   isExternal: false,
@@ -51,15 +45,39 @@ const emptyForm: SC.TAssociationLearningContentForm = {
   externalTitle: "",
   externalProvider: "",
   externalUrl: "",
+  externalContentType: undefined,
   description: "",
   indicativeCredits: "",
+  category: undefined,
+  requirementId: undefined,
   audienceKind: AssociationAudienceKind.AllMembers,
   groupIds: [],
   memberIds: [],
 };
 
+const contentStepValid = (values: SC.TAssociationLearningContentForm) =>
+  values.isExternal
+    ? Boolean(
+        values.externalTitle?.trim() &&
+          values.externalContentType &&
+          values.externalUrl?.trim() &&
+          /^https:\/\//i.test(values.externalUrl.trim()),
+      )
+    : Boolean(values.contentType && values.contentId);
+
 export const useAssociationLearningContent = () => {
   const { t, language } = useI18n();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const contentParam = searchParams?.get("content") ?? null;
+  const stepParam = searchParams?.get("step");
+  const step: TLearningContentStep =
+    LEARNING_CONTENT_STEPS.find((known) => known === stepParam) ?? "content";
+  const isWizard = Boolean(contentParam);
+  const isAssign = searchParams?.get("assign") === "1";
+  const editorId =
+    contentParam && contentParam !== "new" ? contentParam : null;
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<string>(ALL);
@@ -68,15 +86,18 @@ export const useAssociationLearningContent = () => {
   const [requirementId, setRequirementId] = useState<string>(ALL);
   const [cursorStack, setCursorStack] = useState<string[]>([]);
 
-  const [editorId, setEditorId] = useState<string | null>(null);
-  const [isEditorOpen, setEditorOpen] = useState(false);
-  const [step, setStep] = useState(1);
   const [detailId, setDetailId] = useState<string | null>(null);
+  const [confirmExit, setConfirmExit] = useState(false);
+  const [detailsSheetItem, setDetailsSheetItem] =
+    useState<T.TAssociationCatalogItem | null>(null);
+  const [justPublishedId, setJustPublishedId] = useState<string | null>(null);
 
   const [catalogSearch, setCatalogSearch] = useState("");
   const [catalogType, setCatalogType] = useState<string>(ALL);
   const [assignSearch, setAssignSearch] = useState("");
   const [pickedTitle, setPickedTitle] = useState("");
+
+  const [assignSelectedIds, setAssignSelectedIds] = useState<string[]>([]);
 
   const [membersItem, setMembersItem] =
     useState<T.TAssociationLearningContentRow | null>(null);
@@ -124,6 +145,11 @@ export const useAssociationLearningContent = () => {
     { skip: !detailId },
   );
 
+  const editorQuery = API.useAssociationLearningContentQuery(
+    { learningContentId: editorId ?? "" },
+    { skip: !editorId },
+  );
+
   const membersQuery = API.useAssociationLearningContentMembersQuery(
     { learningContentId: membersItem?.id ?? "" },
     { skip: !membersItem },
@@ -146,7 +172,7 @@ export const useAssociationLearningContent = () => {
   });
 
   const groupsQuery = API.useAssociationGroupsQuery(undefined, {
-    skip: !isEditorOpen,
+    skip: !isWizard && !isAssign,
   });
 
   const catalogQuery = API.useAssociationCatalogSearchQuery(
@@ -156,7 +182,7 @@ export const useAssociationLearningContent = () => {
         catalogType === ALL ? undefined : (catalogType as ContentType),
       take: CATALOG_TAKE,
     },
-    { skip: !isEditorOpen || isExternal },
+    { skip: !isWizard || isExternal },
   );
 
   const assignMemberQuery = API.useAssociationMembersQuery(
@@ -164,7 +190,12 @@ export const useAssociationLearningContent = () => {
       filter: { search: debouncedAssignSearch.trim() || undefined },
       pagination: { take: MEMBER_PICKER_SIZE },
     },
-    { skip: !isEditorOpen },
+    { skip: !isWizard && !isAssign },
+  );
+
+  const assignableQuery = API.useAssociationLearningContentsQuery(
+    { filter: {}, pagination: { take: ASSIGNABLE_TAKE } },
+    { skip: !isAssign },
   );
 
   const [createItem, createState] =
@@ -179,6 +210,11 @@ export const useAssociationLearningContent = () => {
     API.useDeleteAssociationLearningContentMutation();
 
   const items = useMemo(() => listQuery.data?.items ?? [], [listQuery.data]);
+
+  const assignableItems = useMemo(
+    () => assignableQuery.data?.items ?? [],
+    [assignableQuery.data],
+  );
 
   const requirementOptions = useMemo(
     () =>
@@ -263,16 +299,64 @@ export const useAssociationLearningContent = () => {
   const previousPage = () =>
     setCursorStack((previous) => previous.slice(0, -1));
 
-  const openCreate = (external: boolean) => {
-    setEditorId(null);
+  const goTo = useCallback(
+    (nextContentId: string | null, nextStep?: TLearningContentStep) => {
+      const wasInWizard = Boolean(searchParams?.get("content"));
+      const params = new URLSearchParams(searchParams?.toString() ?? "");
+      params.set("tab", "learning-content");
+      if (nextContentId) params.set("content", nextContentId);
+      else params.delete("content");
+      if (nextStep) params.set("step", nextStep);
+      else params.delete("step");
+      params.delete("assign");
+      const url = `?${params.toString()}`;
+      if (!wasInWizard && nextContentId) router.push(url, { scroll: false });
+      else router.replace(url, { scroll: false });
+    },
+    [router, searchParams],
+  );
+
+  const goToAssign = useCallback(
+    (open: boolean) => {
+      const wasOpen = searchParams?.get("assign") === "1";
+      const params = new URLSearchParams(searchParams?.toString() ?? "");
+      params.set("tab", "learning-content");
+      if (open) params.set("assign", "1");
+      else params.delete("assign");
+      params.delete("content");
+      params.delete("step");
+      const url = `?${params.toString()}`;
+      if (!wasOpen && open) router.push(url, { scroll: false });
+      else router.replace(url, { scroll: false });
+    },
+    [router, searchParams],
+  );
+
+  const openCreate = () => {
     setCatalogSearch("");
     setCatalogType(ALL);
     setAssignSearch("");
     setPickedTitle("");
-    setStep(1);
-    form.reset({ ...emptyForm, isExternal: external });
-    setEditorOpen(true);
+    hydratedForRef.current = null;
+    form.reset(emptyForm);
+    goTo("new", "content");
   };
+
+  const openAssign = () => {
+    setAssignSearch("");
+    setAssignSelectedIds([]);
+    form.reset(emptyForm);
+    goToAssign(true);
+  };
+
+  const closeAssign = () => goToAssign(false);
+
+  const toggleAssignSelect = (id: string) =>
+    setAssignSelectedIds((current) =>
+      current.includes(id)
+        ? current.filter((existing) => existing !== id)
+        : [...current, id],
+    );
 
   const targetsToAudience = (item: T.TAssociationLearningContentRow) => ({
     groupIds: item.targets
@@ -283,61 +367,146 @@ export const useAssociationLearningContent = () => {
       .map((target) => target.memberId as string),
   });
 
-  const openEditAtStep = (
-    item: T.TAssociationLearningContentRow,
-    initialStep: number,
-  ) => {
-    setEditorId(item.id);
-    setAssignSearch("");
-    setPickedTitle(item.isExternal ? "" : item.title);
-    const { groupIds, memberIds } = targetsToAudience(item);
+  const hydratedForRef = useRef<string | null>(null);
+
+  // Hydrates the form from the URL's `content` param: a fresh reset for
+  // `new`, or the fetched item once it loads. Runs once per distinct id so a
+  // reload restores the step without clobbering in-progress edits on rerender.
+  useEffect(() => {
+    if (!isWizard) return;
+    const target = contentParam ?? "";
+    if (hydratedForRef.current === target) return;
+
+    if (!editorId) {
+      hydratedForRef.current = target;
+      setPickedTitle("");
+      form.reset(emptyForm);
+      return;
+    }
+
+    const row = editorQuery.data;
+    if (!row) return;
+    hydratedForRef.current = target;
+    setPickedTitle(row.isExternal ? "" : row.title);
+    const { groupIds, memberIds } = targetsToAudience(row);
     form.reset({
-      isExternal: item.isExternal,
-      contentType: item.contentType ?? undefined,
-      contentId: item.contentId ?? undefined,
-      externalTitle: item.isExternal ? item.title : "",
-      externalProvider: item.provider ?? "",
-      externalUrl: item.externalUrl ?? "",
-      description: item.description ?? "",
+      isExternal: row.isExternal,
+      contentType: row.contentType ?? undefined,
+      contentId: row.contentId ?? undefined,
+      externalTitle: row.isExternal ? row.title : "",
+      externalProvider: row.provider ?? "",
+      externalUrl: row.externalUrl ?? "",
+      externalContentType: row.externalContentType ?? undefined,
+      description: row.description ?? "",
       indicativeCredits:
-        item.indicativeCredits === null ? "" : String(item.indicativeCredits),
-      audienceKind: item.audienceKind,
+        row.indicativeCredits === null ? "" : String(row.indicativeCredits),
+      category: row.category ?? undefined,
+      requirementId: row.requirementId ?? undefined,
+      audienceKind: row.audienceKind,
       groupIds,
       memberIds,
     });
-    setStep(initialStep);
-    setEditorOpen(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isWizard, contentParam, editorId, editorQuery.data]);
+
+  // FR7: a step that is not reachable yet (its content is not valid)
+  // redirects to the first incomplete step, rather than showing a half-built
+  // page after a direct reload or a typed URL.
+  useEffect(() => {
+    if (!isWizard || step === "content") return;
+    if (hydratedForRef.current !== (contentParam ?? "")) return;
+    if (!contentStepValid(form.getValues())) goTo(contentParam, "content");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isWizard, step, contentParam, editorQuery.data]);
+
+  useEffect(() => {
+    if (!isWizard) return;
+    if (typeof window === "undefined") return;
+    const handler = (event: BeforeUnloadEvent) => {
+      if (!form.formState.isDirty) return;
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [isWizard, form.formState.isDirty]);
+
+  const requestExitWizard = () => {
+    if (form.formState.isDirty) setConfirmExit(true);
+    else goTo(null);
   };
 
-  const openEdit = (item: T.TAssociationLearningContentRow) =>
-    openEditAtStep(item, 1);
-
-  const openPublish = (item: T.TAssociationLearningContentRow) =>
-    openEditAtStep(item, 3);
-
-  const closeEditor = () => {
-    setEditorOpen(false);
-    setEditorId(null);
+  const confirmExitWizard = () => {
+    setConfirmExit(false);
+    goTo(null);
   };
+
+  const cancelExitWizard = () => setConfirmExit(false);
 
   const pickCatalogItem = (item: T.TAssociationCatalogItem) => {
-    form.setValue("contentType", item.contentType);
-    form.setValue("contentId", item.contentId);
+    form.setValue("contentType", item.contentType, { shouldDirty: true });
+    form.setValue("contentId", item.contentId, { shouldDirty: true });
     form.clearErrors("contentId");
+    if (item.indicativeCredits)
+      form.setValue("indicativeCredits", String(item.indicativeCredits));
     setPickedTitle(item.title);
   };
 
-  const goToStep = (target: number) => {
-    if (target <= step) setStep(target);
+  const clearCatalogItem = () => {
+    form.setValue("contentType", undefined, { shouldDirty: true });
+    form.setValue("contentId", undefined, { shouldDirty: true });
+    setPickedTitle("");
+  };
+
+  const switchToManual = () => {
+    form.setValue("isExternal", true, { shouldDirty: true });
+    clearCatalogItem();
+  };
+
+  const switchToLibrary = () => {
+    form.setValue("isExternal", false, { shouldDirty: true });
+    form.setValue("externalTitle", "");
+    form.setValue("externalUrl", "");
+    form.setValue("externalContentType", undefined);
+  };
+
+  const openDetailsSheet = (item: T.TAssociationCatalogItem) =>
+    setDetailsSheetItem(item);
+  const closeDetailsSheet = () => setDetailsSheetItem(null);
+
+  const goToStep = (target: TLearningContentStep) => {
+    const currentIndex = LEARNING_CONTENT_STEPS.indexOf(step);
+    const targetIndex = LEARNING_CONTENT_STEPS.indexOf(target);
+    if (targetIndex <= currentIndex) goTo(contentParam ?? "new", target);
+  };
+
+  const STEP_FIELDS: Record<
+    TLearningContentStep,
+    (keyof SC.TAssociationLearningContentForm)[]
+  > = {
+    content: isExternal
+      ? ["externalTitle", "externalContentType", "externalUrl"]
+      : ["contentId"],
+    cpd: [],
+    assignment: ["audienceKind", "groupIds", "memberIds"],
+    review: [],
   };
 
   const next = async () => {
-    const fields = LEARNING_CONTENT_STEP_FIELDS[step] ?? [];
-    const valid = await form.trigger(fields, { shouldFocus: true });
-    if (valid && step < LEARNING_CONTENT_WIZARD_LAST_STEP) setStep(step + 1);
+    const valid = await form.trigger(STEP_FIELDS[step], { shouldFocus: true });
+    if (!valid) return;
+    const targetId = await ensureDraft();
+    if (!targetId) return;
+    const currentIndex = LEARNING_CONTENT_STEPS.indexOf(step);
+    const nextStep = LEARNING_CONTENT_STEPS[currentIndex + 1];
+    if (nextStep) goTo(targetId, nextStep);
   };
 
-  const back = () => setStep((current) => Math.max(1, current - 1));
+  const back = () => {
+    const currentIndex = LEARNING_CONTENT_STEPS.indexOf(step);
+    const previous = LEARNING_CONTENT_STEPS[Math.max(0, currentIndex - 1)];
+    goTo(contentParam, previous);
+  };
 
   const buildContentInput = (values: SC.TAssociationLearningContentForm) => {
     const credits = values.indicativeCredits?.trim();
@@ -345,11 +514,16 @@ export const useAssociationLearningContent = () => {
     return {
       description: values.description?.trim() || undefined,
       indicativeCredits: credits ? Number(credits) : undefined,
+      category: (values.category as PduCategory) || undefined,
+      requirementId: values.requirementId || null,
       ...(values.isExternal
         ? {
             externalTitle: values.externalTitle?.trim(),
             externalProvider: values.externalProvider?.trim() || undefined,
             externalUrl: values.externalUrl?.trim(),
+            externalContentType:
+              (values.externalContentType as AssociationLearningExternalType) ||
+              undefined,
           }
         : {
             contentType: values.contentType as ContentType,
@@ -370,13 +544,31 @@ export const useAssociationLearningContent = () => {
     }
 
     const created = await createItem(input).unwrap();
-    setEditorId(created.id);
     return created.id;
+  };
+
+  // Used by `next()` so a draft exists (and the URL points at its real id)
+  // before moving past step 1, matching `Save draft`'s persistence. Marks the
+  // id as already hydrated so switching the URL from `new` to the real id
+  // does not trigger a redundant re-fetch-and-reset of the form we just saved.
+  const ensureDraft = async () => {
+    try {
+      const id = await persistContent(form.getValues());
+      hydratedForRef.current = id;
+      form.reset(form.getValues(), { keepValues: true });
+      return id;
+    } catch (error) {
+      failWith(error);
+      return null;
+    }
   };
 
   const saveDraft = form.handleSubmit(async (values) => {
     try {
-      await persistContent(values);
+      const id = await persistContent(values);
+      hydratedForRef.current = id;
+      form.reset(values, { keepValues: true });
+      if (contentParam !== id) goTo(id, step);
       notify.success(
         t(
           editorId
@@ -384,7 +576,6 @@ export const useAssociationLearningContent = () => {
             : "associationDashboard.learningContent.messages.added",
         ),
       );
-      closeEditor();
     } catch (error) {
       failWith(error);
     }
@@ -410,11 +601,55 @@ export const useAssociationLearningContent = () => {
       notify.success(
         t("associationDashboard.learningContent.messages.published"),
       );
-      closeEditor();
+      setJustPublishedId(learningContentId);
+      goTo(null);
     } catch (error) {
       failWith(error);
     }
   });
+
+  // Bypasses `form.handleSubmit`, which would also run the content-step
+  // validation this page never shows; only the audience fields matter here.
+  const applyAssignment = async () => {
+    if (!assignSelectedIds.length) return;
+    const valid = await form.trigger(["audienceKind", "groupIds", "memberIds"]);
+    if (!valid) return;
+    const values = form.getValues();
+
+    try {
+      await Promise.all(
+        assignSelectedIds.map(async (id) => {
+          if (values.requirementId)
+            await updateItem({
+              learningContentId: id,
+              requirementId: values.requirementId,
+            }).unwrap();
+
+          await publishItem({
+            learningContentId: id,
+            audienceKind: values.audienceKind,
+            groupIds:
+              values.audienceKind === AssociationAudienceKind.Group
+                ? values.groupIds
+                : undefined,
+            memberIds:
+              values.audienceKind === AssociationAudienceKind.SpecificMembers
+                ? values.memberIds
+                : undefined,
+          }).unwrap();
+        }),
+      );
+      notify.success(
+        t("associationDashboard.learningContent.messages.assigned", {
+          count: assignSelectedIds.length,
+        }),
+      );
+      setAssignSelectedIds([]);
+      closeAssign();
+    } catch (error) {
+      failWith(error);
+    }
+  };
 
   const withdraw = async (learningContentId: string) => {
     try {
@@ -496,6 +731,12 @@ export const useAssociationLearningContent = () => {
     source !== ALL ||
     requirementId !== ALL;
 
+  const openEdit = (item: T.TAssociationLearningContentRow) =>
+    goTo(item.id, "content");
+
+  const openPublish = (item: T.TAssociationLearningContentRow) =>
+    goTo(item.id, "assignment");
+
   return {
     t,
     form,
@@ -516,7 +757,6 @@ export const useAssociationLearningContent = () => {
     isFiltered,
     openCreate,
     setDetailId,
-    closeEditor,
     isMutating,
     openPublish,
     openMembers,
@@ -534,7 +774,8 @@ export const useAssociationLearningContent = () => {
     resetFilters,
     saveDraft,
     publish,
-    isEditorOpen,
+    isWizard,
+    isAssign,
     catalogType,
     catalogSearch,
     catalogResults,
@@ -547,10 +788,17 @@ export const useAssociationLearningContent = () => {
     assignMemberOptions,
     isAssignPickerLoading: assignMemberQuery.isFetching,
     pickCatalogItem,
+    clearCatalogItem,
+    switchToManual,
+    switchToLibrary,
+    detailsSheetItem,
+    openDetailsSheet,
+    closeDetailsSheet,
     selectedContentId,
     pickedTitle,
     requirementId,
     isEditing: Boolean(editorId),
+    isEditorLoading: Boolean(editorId) && editorQuery.isLoading,
     detail: detailQuery.data,
     detailId,
     isDetailLoading: detailQuery.isLoading,
@@ -573,6 +821,19 @@ export const useAssociationLearningContent = () => {
     retry: () => {
       void listQuery.refetch();
     },
+    requestExitWizard,
+    confirmExitWizard,
+    cancelExitWizard,
+    confirmExit,
+    justPublishedId,
+    openAssign,
+    closeAssign,
+    assignableItems,
+    isAssignableLoading: assignableQuery.isLoading,
+    assignSelectedIds,
+    toggleAssignSelect,
+    applyAssignment,
+    isAssigning: publishState.isLoading || updateState.isLoading,
   };
 };
 

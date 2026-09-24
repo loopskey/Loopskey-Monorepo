@@ -1,5 +1,6 @@
 import { Field, Float, ID, Int, ObjectType } from "@nestjs/graphql";
 import { AssociationLearningContentStatus } from "@prisma/client";
+import { AssociationLearningExternalType } from "@prisma/client";
 import { AssociationGqlObjectNames } from "@association/enums/association-gql-names.enum";
 import { AssociationPageInfoEntity } from "@association/entities/association-page-info.entity";
 import { ContentType, PDUCategory } from "@prisma/client";
@@ -11,8 +12,12 @@ export class AssociationCatalogItemEntity {
   @Field() isAvailable: boolean;
   @Field(() => ID) contentId: string;
   @Field(() => ContentType) contentType: ContentType;
+  @Field(() => String, { nullable: true }) slug: string | null;
+  @Field(() => String, { nullable: true }) level: string | null;
   @Field(() => String, { nullable: true }) provider: string | null;
   @Field(() => String, { nullable: true }) imageUrl: string | null;
+  @Field(() => Int, { nullable: true }) durationMinutes: number | null;
+  @Field(() => Float, { nullable: true }) indicativeCredits: number | null;
 }
 
 @ObjectType(AssociationGqlObjectNames.ASSOCIATION_LEARNING_ENGAGEMENT)
@@ -24,10 +29,10 @@ export class AssociationLearningEngagementEntity {
 @ObjectType(AssociationGqlObjectNames.ASSOCIATION_LEARNING_CONTENT_TARGET)
 export class AssociationLearningContentTargetEntity {
   @Field(() => ID) id: string;
-  @Field(() => AssociationAudienceKind) kind: AssociationAudienceKind;
   @Field(() => ID, { nullable: true }) groupId: string | null;
   @Field(() => ID, { nullable: true }) memberId: string | null;
   @Field(() => String, { nullable: true }) label: string | null;
+  @Field(() => AssociationAudienceKind) kind: AssociationAudienceKind;
 }
 
 @ObjectType(AssociationGqlObjectNames.ASSOCIATION_LEARNING_CONTENT)
@@ -36,8 +41,8 @@ export class AssociationLearningContentEntity {
   @Field() updatedAt: Date;
   @Field() createdAt: Date;
   @Field(() => ID) id: string;
-  @Field() isAvailable: boolean;
   @Field() isExternal: boolean;
+  @Field() isAvailable: boolean;
   @Field(() => PDUCategory, { nullable: true }) category: PDUCategory | null;
   @Field(() => AssociationAudienceKind) audienceKind: AssociationAudienceKind;
   @Field(() => AssociationLearningContentStatus)
@@ -47,6 +52,8 @@ export class AssociationLearningContentEntity {
   @Field(() => String, { nullable: true }) provider: string | null;
   @Field(() => String, { nullable: true }) imageUrl: string | null;
   @Field(() => String, { nullable: true }) externalUrl: string | null;
+  @Field(() => AssociationLearningExternalType, { nullable: true })
+  externalContentType: AssociationLearningExternalType | null;
   @Field(() => String, { nullable: true }) description: string | null;
   @Field(() => Float, { nullable: true }) indicativeCredits: number | null;
   @Field(() => ID, { nullable: true }) requirementId: string | null;

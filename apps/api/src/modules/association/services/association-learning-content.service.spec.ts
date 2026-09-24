@@ -7,6 +7,7 @@ import { AssociationLearningContentStatus } from "@prisma/client";
 import { AssociationMemberStatus } from "@prisma/client";
 import { AssociationAudienceKind } from "@prisma/client";
 import { ContentType, PDUCategory, Prisma, Role } from "@prisma/client";
+import { AssociationLearningExternalType } from "@prisma/client";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { PrismaService } from "@prisma/prisma.service";
 
@@ -69,6 +70,7 @@ const setup = ({
   deleteManyCount = 1,
   groups = [{ id: "g-1" }],
   members = [{ id: "m-1", status: AssociationMemberStatus.ACTIVE }],
+  requirements = [{ id: "req-1" }],
 }: {
   rows?: ReturnType<typeof contentRow>[];
   resolved?: ReturnType<typeof catalogItem>[];
@@ -81,6 +83,7 @@ const setup = ({
   deleteManyCount?: number;
   groups?: { id: string }[];
   members?: { id: string; status: AssociationMemberStatus }[];
+  requirements?: { id: string }[] | null;
 } = {}) => {
   const create = createError
     ? jest.fn().mockRejectedValue(createError)
@@ -113,6 +116,10 @@ const setup = ({
 
   const groupFindMany = jest.fn().mockResolvedValue(groups);
 
+  const requirementFindFirst = jest
+    .fn()
+    .mockResolvedValue(requirements?.[0] ?? null);
+
   const outboxAppend = jest.fn().mockResolvedValue(undefined);
 
   const prisma = {
@@ -131,6 +138,7 @@ const setup = ({
     },
     associationGroup: { findMany: groupFindMany },
     associationMember: { findMany: memberFindMany },
+    associationRequirement: { findFirst: requirementFindFirst },
   };
   (prisma as Record<string, unknown>).$transaction = jest.fn(
     async (callback: (tx: unknown) => Promise<unknown>) => callback(prisma),
@@ -165,6 +173,7 @@ const setup = ({
     targetCreateMany,
     targetDeleteMany,
     resolveCatalogItems,
+    requirementFindFirst,
     service: new AssociationLearningContentService(
       prisma as unknown as PrismaService,
       outbox as unknown as OutboxService,
@@ -308,6 +317,63 @@ describe("AssociationLearningContentService", () => {
       expect(item.isExternal).toBe(true);
       expect(item.isAvailable).toBe(true);
       expect(item.title).toBe("A useful webinar");
+    });
+  });
+
+  describe("CPD setup", () => {
+    it("links content to a requirement that belongs to the association", async () => {
+      const { service, create, requirementFindFirst } = setup();
+
+      await service.create(owner, {
+        contentType: ContentType.COURSE,
+        contentId: "course-1",
+        category: PDUCategory.TECHNICAL,
+        requirementId: "req-1",
+      });
+
+      expect(requirementFindFirst).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: "req-1", associationId: "assoc-1" },
+        }),
+      );
+      const written = create.mock.calls[0][0].data;
+      expect(written).toEqual(
+        expect.objectContaining({
+          category: PDUCategory.TECHNICAL,
+          requirementId: "req-1",
+        }),
+      );
+    });
+
+    it("refuses a requirement that does not belong to the association", async () => {
+      const { service } = setup({ requirements: [] });
+
+      await expect(
+        service.create(owner, {
+          contentType: ContentType.COURSE,
+          contentId: "course-1",
+          requirementId: "someone-elses-req",
+        }),
+      ).rejects.toMatchObject({
+        response: { code: AssociationMessageCode.REQUIREMENT_NOT_FOUND },
+      });
+    });
+
+    it("stores the chosen type for an external item with no catalogue reference", async () => {
+      const { service, create } = setup();
+
+      await service.create(owner, {
+        externalTitle: "A useful webinar",
+        externalUrl: "https://example.test/webinar",
+        externalContentType: AssociationLearningExternalType.WEBINAR,
+      });
+
+      const written = create.mock.calls[0][0].data;
+      expect(written).toEqual(
+        expect.objectContaining({
+          externalContentType: AssociationLearningExternalType.WEBINAR,
+        }),
+      );
     });
   });
 

@@ -2680,9 +2680,10 @@ model AssociationLearningContent {
   contentType ContentType?
   contentId   String?
 
-  externalTitle    String?
-  externalProvider String?
-  externalUrl      String?
+  externalTitle       String?
+  externalProvider    String?
+  externalUrl         String?
+  externalContentType AssociationLearningExternalType?
 
   description String?
 
@@ -2734,6 +2735,16 @@ enum AssociationLearningContentStatus {
   DRAFT
   PUBLISHED
   WITHDRAWN
+}
+
+enum AssociationLearningExternalType {
+  COURSE
+  EVENT
+  PODCAST
+  VIDEO
+  ARTICLE
+  WEBINAR
+  OTHER
 }
 
 enum AssociationReportType {

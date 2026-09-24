@@ -1,12 +1,13 @@
 "use client";
 
 import { AssociationLearningMembersDialog } from "@modules/AssociationDashboard/parts/association-learning-members-dialog";
+import { AssociationLearningAssignPage } from "@modules/AssociationDashboard/parts/association-learning-assign-page";
 import { useAssociationLearningContent } from "@hooks/useAssociationLearningContent";
 import { AssociationLearningFilters } from "@modules/AssociationDashboard/parts/association-learning-filters";
-import { AssociationLearningEditor } from "@modules/AssociationDashboard/parts/association-learning-editor";
 import { AssociationLearningDetail } from "@modules/AssociationDashboard/parts/association-learning-detail";
 import { DashboardContentSkeleton } from "@layouts/parts/DashboardSkeleton";
 import { AssociationLearningList } from "@modules/AssociationDashboard/parts/association-learning-list";
+import { AssociationLearningPage } from "@modules/AssociationDashboard/parts/association-learning-page";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
 
@@ -15,7 +16,8 @@ import * as L from "lucide-react";
 const AssociationLearningContentTab = () => {
   const hook = useAssociationLearningContent();
 
-  const { t, isError, isLoading, openCreate } = hook;
+  const { t, isError, isLoading, isWizard, isAssign, openCreate, openAssign } =
+    hook;
 
   const header = (
     <div className="flex flex-wrap items-end justify-between gap-4">
@@ -30,31 +32,34 @@ const AssociationLearningContentTab = () => {
       </div>
 
       <div className="flex flex-wrap gap-3">
-        <Button radius="xl" type="button" onClick={() => openCreate(false)}>
-          <L.LibraryBig className="h-4 w-4" />
-          {t("associationDashboard.learningContent.actions.addCatalogue")}
+        <Button radius="xl" type="button" onClick={openCreate}>
+          <L.Plus className="h-4 w-4" />
+          {t("associationDashboard.learningContent.actions.addContent")}
         </Button>
 
         <Button
           radius="xl"
           type="button"
           variant="outline"
-          onClick={() => openCreate(true)}
+          onClick={openAssign}
         >
-          <L.Link className="h-4 w-4" />
-          {t("associationDashboard.learningContent.actions.addExternal")}
+          <L.Users className="h-4 w-4" />
+          {t("associationDashboard.learningContent.actions.assignContent")}
         </Button>
       </div>
     </div>
   );
 
-  if (isLoading)
+  if (isLoading && !isWizard && !isAssign)
     return (
       <div className="space-y-6">
         {header}
         <DashboardContentSkeleton />
       </div>
     );
+
+  if (isWizard) return <AssociationLearningPage hook={hook} />;
+  if (isAssign) return <AssociationLearningAssignPage hook={hook} />;
 
   return (
     <div className="space-y-6">
@@ -94,7 +99,6 @@ const AssociationLearningContentTab = () => {
         </GlassCard>
       )}
 
-      <AssociationLearningEditor hook={hook} />
       <AssociationLearningDetail hook={hook} />
       <AssociationLearningMembersDialog hook={hook} />
     </div>

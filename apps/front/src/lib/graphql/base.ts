@@ -417,9 +417,13 @@ export type AssociationCatalogItem = {
   __typename?: 'AssociationCatalogItem';
   contentId: Scalars['ID']['output'];
   contentType: ContentType;
+  durationMinutes?: Maybe<Scalars['Int']['output']>;
   imageUrl?: Maybe<Scalars['String']['output']>;
+  indicativeCredits?: Maybe<Scalars['Float']['output']>;
   isAvailable: Scalars['Boolean']['output'];
+  level?: Maybe<Scalars['String']['output']>;
   provider?: Maybe<Scalars['String']['output']>;
+  slug?: Maybe<Scalars['String']['output']>;
   title: Scalars['String']['output'];
 };
 
@@ -642,6 +646,7 @@ export type AssociationLearningContent = {
   createdAt: Scalars['DateTime']['output'];
   description?: Maybe<Scalars['String']['output']>;
   engagement?: Maybe<AssociationLearningEngagement>;
+  externalContentType?: Maybe<AssociationLearningExternalType>;
   externalUrl?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   imageUrl?: Maybe<Scalars['String']['output']>;
@@ -693,6 +698,17 @@ export type AssociationLearningEngagement = {
   credits: Scalars['Float']['output'];
   memberCount: Scalars['Int']['output'];
 };
+
+/** The kind of content an external (non-catalogue) library item is, chosen by the association */
+export enum AssociationLearningExternalType {
+  Article = 'ARTICLE',
+  Course = 'COURSE',
+  Event = 'EVENT',
+  Other = 'OTHER',
+  Podcast = 'PODCAST',
+  Video = 'VIDEO',
+  Webinar = 'WEBINAR'
+}
 
 export type AssociationMember = {
   __typename?: 'AssociationMember';
@@ -1837,13 +1853,16 @@ export type CreateAssociationGroupInput = {
 };
 
 export type CreateAssociationLearningContentInput = {
+  category?: InputMaybe<PduCategory>;
   contentId?: InputMaybe<Scalars['ID']['input']>;
   contentType?: InputMaybe<ContentType>;
   description?: InputMaybe<Scalars['String']['input']>;
+  externalContentType?: InputMaybe<AssociationLearningExternalType>;
   externalProvider?: InputMaybe<Scalars['String']['input']>;
   externalTitle?: InputMaybe<Scalars['String']['input']>;
   externalUrl?: InputMaybe<Scalars['String']['input']>;
   indicativeCredits?: InputMaybe<Scalars['Float']['input']>;
+  requirementId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 export type CreateAssociationRequirementDraftInput = {
@@ -6524,14 +6543,17 @@ export type UpdateAssociationGroupInput = {
 };
 
 export type UpdateAssociationLearningContentInput = {
+  category?: InputMaybe<PduCategory>;
   contentId?: InputMaybe<Scalars['ID']['input']>;
   contentType?: InputMaybe<ContentType>;
   description?: InputMaybe<Scalars['String']['input']>;
+  externalContentType?: InputMaybe<AssociationLearningExternalType>;
   externalProvider?: InputMaybe<Scalars['String']['input']>;
   externalTitle?: InputMaybe<Scalars['String']['input']>;
   externalUrl?: InputMaybe<Scalars['String']['input']>;
   indicativeCredits?: InputMaybe<Scalars['Float']['input']>;
   learningContentId: Scalars['ID']['input'];
+  requirementId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 export type UpdateAssociationMemberInput = {

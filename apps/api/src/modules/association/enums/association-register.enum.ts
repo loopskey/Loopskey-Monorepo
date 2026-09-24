@@ -1,4 +1,5 @@
 import { AssociationLearningContentStatus } from "@prisma/client";
+import { AssociationLearningExternalType } from "@prisma/client";
 import { AssociationMessageDeliveryState } from "@prisma/client";
 import { AssociationGeneratedReportState } from "@prisma/client";
 import { AssociationLateSubmissionPolicy } from "@prisma/client";
@@ -93,6 +94,12 @@ registerEnumType(AssociationAttributionState, {
 registerEnumType(AssociationLearningContentStatus, {
   name: "AssociationLearningContentStatus",
   description: "Whether a library item is a draft, published, or withdrawn",
+});
+
+registerEnumType(AssociationLearningExternalType, {
+  name: "AssociationLearningExternalType",
+  description:
+    "The kind of content an external (non-catalogue) library item is, chosen by the association",
 });
 
 registerEnumType(AssociationReportPeriod, {
