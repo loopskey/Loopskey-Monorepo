@@ -1,28 +1,19 @@
-import {
-  AssociationAttributionState,
-  AssociationMemberStatus,
-} from "@prisma/client";
-import {
-  AssociationAudienceKind,
-  AssociationLearningContentStatus,
-} from "@prisma/client";
-import { type ProfessionalComplianceApi } from "@professional/public/professional-compliance-api";
-import { PROFESSIONAL_COMPLIANCE_API } from "@professional/public/professional-compliance-api";
-import { type CatalogEndorsementApi } from "@landing/public/catalog-endorsement-api";
-import {
-  AssociationRequirementStatus,
-  ContentType,
-  Prisma,
-} from "@prisma/client";
 import { Inject, Injectable, Logger, NotFoundException } from "@nestjs/common";
-import { CATALOG_ENDORSEMENT_API } from "@landing/public/catalog-endorsement-api";
+import { AssociationLearningContentStatus } from "@prisma/client";
+import { type ProfessionalComplianceApi } from "@professional/public/professional-compliance-api";
+import { AssociationRequirementStatus } from "@prisma/client";
+import { PROFESSIONAL_COMPLIANCE_API } from "@professional/public/professional-compliance-api";
+import { AssociationAttributionState } from "@prisma/client";
+import { type CatalogEndorsementApi } from "@landing/public/catalog-endorsement-api";
 import { type CatalogItemProjection } from "@landing/public/catalog-endorsement-api";
+import { AssociationMemberStatus } from "@prisma/client";
+import { AssociationAudienceKind } from "@prisma/client";
+import { CATALOG_ENDORSEMENT_API } from "@landing/public/catalog-endorsement-api";
 import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
-import {
-  daysRemaining,
-  round2,
-} from "@association/utils/compliance-attribution.util";
+import { ContentType, Prisma } from "@prisma/client";
+import { daysRemaining } from "@association/utils/compliance-attribution.util";
 import { PrismaService } from "@prisma/prisma.service";
+import { round2 } from "@association/utils/compliance-attribution.util";
 
 const ACTIVITY_LIMIT = 100;
 const LEARNING_CONTENT_LIMIT = 100;
@@ -49,7 +40,12 @@ const ASSIGNMENT_SELECT = {
       association: { select: { id: true, name: true } },
       categories: {
         orderBy: { order: "asc" },
-        select: { id: true, name: true, requiredCredits: true },
+        select: {
+          id: true,
+          name: true,
+          requiredCredits: true,
+          mappedCategory: true,
+        },
       },
     },
   },
@@ -145,7 +141,9 @@ export class AssociationMyRequirementsService {
   }
 
   async one(userId: string, requirementId: string) {
-    const [assignment] = await this.currentAssignments(userId, requirementId);
+    const [assignment] = await this.currentAssignments(userId, {
+      requirementId,
+    });
 
     if (!assignment)
       throw new NotFoundException({
@@ -167,7 +165,115 @@ export class AssociationMyRequirementsService {
     };
   }
 
-  private async currentAssignments(userId: string, requirementId?: string) {
+  async contentEndorsement(
+    userId: string,
+    contentType: ContentType,
+    contentId: string,
+  ) {
+    const memberships = await this.prisma.associationMember.findMany({
+      where: { userId, status: { not: AssociationMemberStatus.INACTIVE } },
+      select: { id: true, groupId: true, associationId: true },
+    });
+    if (!memberships.length) return null;
+
+    const contents = await this.prisma.associationLearningContent.findMany({
+      where: {
+        contentType,
+        contentId,
+        status: AssociationLearningContentStatus.PUBLISHED,
+        associationId: {
+          in: memberships.map((member) => member.associationId),
+        },
+      },
+      orderBy: [{ publishedAt: "desc" }, { id: "desc" }],
+      select: {
+        id: true,
+        associationId: true,
+        requirementId: true,
+        audienceKind: true,
+        association: { select: { name: true } },
+        targets: { select: { groupId: true, memberId: true } },
+      },
+    });
+
+    for (const content of contents) {
+      const member = memberships.find(
+        (candidate) => candidate.associationId === content.associationId,
+      );
+      if (!member || !this.isTargetedContent(content, member)) continue;
+
+      const resolved = await this.resolveEndorsedRequirement(
+        userId,
+        member,
+        content,
+      );
+      if (resolved) return resolved;
+    }
+
+    return null;
+  }
+
+  private isTargetedContent(
+    content: {
+      audienceKind: AssociationAudienceKind;
+      targets: { groupId: string | null; memberId: string | null }[];
+    },
+    member: { id: string; groupId: string | null },
+  ) {
+    switch (content.audienceKind) {
+      case AssociationAudienceKind.ALL_MEMBERS:
+        return true;
+      case AssociationAudienceKind.GROUP:
+        return (
+          member.groupId !== null &&
+          content.targets.some((target) => target.groupId === member.groupId)
+        );
+      case AssociationAudienceKind.SPECIFIC_MEMBERS:
+        return content.targets.some((target) => target.memberId === member.id);
+      default:
+        return false;
+    }
+  }
+
+  private async resolveEndorsedRequirement(
+    userId: string,
+    member: { id: string; associationId: string },
+    content: {
+      id: string;
+      requirementId: string | null;
+      association: { name: string };
+    },
+  ) {
+    if (content.requirementId) {
+      const [direct] = await this.currentAssignments(userId, {
+        requirementId: content.requirementId,
+      });
+      if (direct)
+        return {
+          requirementId: content.requirementId,
+          associationName: content.association.name,
+          learningContentId: content.id,
+          isDefaultRequirement: false,
+        };
+    }
+
+    const [fallback] = await this.currentAssignments(userId, {
+      associationId: member.associationId,
+    });
+    if (!fallback) return null;
+
+    return {
+      requirementId: fallback.requirement.id,
+      associationName: content.association.name,
+      learningContentId: content.id,
+      isDefaultRequirement: true,
+    };
+  }
+
+  private async currentAssignments(
+    userId: string,
+    filter?: { requirementId?: string; associationId?: string },
+  ) {
     const rows = await this.prisma.associationRequirementAssignment.findMany({
       where: {
         isTargeted: true,
@@ -178,7 +284,10 @@ export class AssociationMyRequirementsService {
         requirement: {
           status: AssociationRequirementStatus.PUBLISHED,
           association: { deletedAt: null },
-          ...(requirementId ? { id: requirementId } : {}),
+          ...(filter?.requirementId ? { id: filter.requirementId } : {}),
+          ...(filter?.associationId
+            ? { associationId: filter.associationId }
+            : {}),
         },
       },
       orderBy: [{ cycleStart: "desc" }, { id: "asc" }],
@@ -215,6 +324,7 @@ export class AssociationMyRequirementsService {
         name: category.name,
         requiredCredits: category.requiredCredits,
         completedCredits,
+        mappedCategory: category.mappedCategory,
         percent: percentOf(completedCredits, category.requiredCredits),
       };
     });

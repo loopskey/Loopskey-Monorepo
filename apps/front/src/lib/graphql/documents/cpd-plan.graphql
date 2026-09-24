@@ -161,6 +161,7 @@ fragment AssociationMyRequirementDetailFields on AssociationMyRequirementDetail 
     name
     requiredCredits
     completedCredits
+    mappedCategory
     percent
   }
   activities {
@@ -245,6 +246,19 @@ query MyAssociationRequirements {
 query MyAssociationRequirement($requirementId: ID!) {
   myAssociationRequirement(requirementId: $requirementId) {
     ...AssociationMyRequirementDetailFields
+  }
+}
+
+fragment AssociationContentEndorsementFields on AssociationContentEndorsement {
+  requirementId
+  associationName
+  learningContentId
+  isDefaultRequirement
+}
+
+query MyContentEndorsement($contentType: ContentType!, $contentId: ID!) {
+  myContentEndorsement(contentType: $contentType, contentId: $contentId) {
+    ...AssociationContentEndorsementFields
   }
 }
 

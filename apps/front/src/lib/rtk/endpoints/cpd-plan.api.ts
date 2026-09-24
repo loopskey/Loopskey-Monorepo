@@ -110,6 +110,19 @@ export const cpdPlanApi = baseApi.injectEndpoints({
       providesTags: ["ProfessionalCpdPlan", "ProfessionalPdu", "Professional"],
     }),
 
+    myContentEndorsement: builder.query<
+      TAPI.MyContentEndorsementQuery["myContentEndorsement"],
+      TAPI.MyContentEndorsementQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.MyContentEndorsementDocument,
+        variables,
+      }),
+      transformResponse: (response: TAPI.MyContentEndorsementQuery) =>
+        response.myContentEndorsement,
+      providesTags: ["ProfessionalCpdPlan", "ProfessionalPdu", "Professional"],
+    }),
+
     cpdReportRecipients: builder.query<
       TAPI.CpdReportRecipientsQuery["cpdReportRecipients"],
       void
@@ -195,6 +208,7 @@ export const {
   useCpdPlanActivitiesQuery,
   useMyAssociationRequirementQuery,
   useMyAssociationRequirementsQuery,
+  useMyContentEndorsementQuery,
   useCreateCpdPlanMutation,
   useActivateCpdPlanMutation,
   useUpdateCpdPlanMutation,

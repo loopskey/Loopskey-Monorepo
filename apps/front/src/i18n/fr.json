@@ -3015,7 +3015,20 @@
       "title": "Marquer comme terminé",
       "description": "Vérifiez les détails et enregistrez cette activité d'apprentissage comme terminée.",
       "alreadyCompleted": "Vous avez déjà marqué ce contenu comme terminé. L'enregistrement mettra à jour l'activité existante.",
-      "success": "Activité marquée comme terminée avec succès.",
+      "success": {
+        "saved": "Enregistré dans vos activités.",
+        "counted": "Comptabilisé pour {{name}}.",
+        "review": "Envoyé à {{association}} pour révision."
+      },
+      "evidenceRequired": "Joignez un fichier de certificat ou un lien avant d'enregistrer — cette exigence nécessite une preuve.",
+      "requirementHint": {
+        "suggested": "Suggéré car {{association}} recommande ce contenu.",
+        "default": "{{association}} recommande ce contenu. Nous avons choisi votre première exigence avec elle — vous pouvez la changer."
+      },
+      "noRequirements": {
+        "hint": "Vous n'avez pas encore d'exigence.",
+        "link": "Ajouter une exigence"
+      },
       "save": "Enregistrer comme terminé",
       "fields": {
         "title": "Titre de l'activité",
@@ -3033,7 +3046,10 @@
         "certificate": "Certificat / Preuve",
         "certificateHelp": "Téléversez un fichier de certificat jusqu'à 20 Mo (PDF, JPG, PNG, DOC, DOCX).",
         "certificateLink": "Lien du certificat",
-        "certificateLinkPlaceholder": "https://..."
+        "certificateLinkPlaceholder": "https://...",
+        "requirement": "Compte pour",
+        "requirementNone": "Aucune",
+        "evidencePolicy": "Preuve : {{policy}}"
       }
     },
     "messages": {

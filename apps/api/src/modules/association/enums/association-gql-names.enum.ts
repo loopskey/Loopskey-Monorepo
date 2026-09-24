@@ -77,6 +77,7 @@ export enum AssociationGqlObjectNames {
   ASSOCIATION_MY_REQUIREMENT_DETAIL = "AssociationMyRequirementDetail",
   ASSOCIATION_MY_REQUIREMENT_ACTIVITY = "AssociationMyRequirementActivity",
   ASSOCIATION_MY_REQUIREMENT_CONTENT = "AssociationMyRequirementContent",
+  ASSOCIATION_CONTENT_ENDORSEMENT = "AssociationContentEndorsement",
 }
 
 export enum AssociationGqlInputNames {
@@ -167,6 +168,7 @@ export enum AssociationGqlQueryNames {
   MESSAGE_HISTORY = "associationMessageHistory",
   MY_REQUIREMENTS = "myAssociationRequirements",
   MY_REQUIREMENT = "myAssociationRequirement",
+  MY_CONTENT_ENDORSEMENT = "myContentEndorsement",
 }
 
 export enum AssociationGqlMutationNames {

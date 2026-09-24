@@ -69,6 +69,7 @@ export type TRequirementActivitiesTableProps = {
 export type TRequirementLearningContentProps = {
   isLoading: boolean;
   t: I18nContextValue["t"];
+  requirementKeyValue: string;
   contents: TAssociationRequirementContent[];
   onMarkComplete: (content: TAssociationRequirementContent) => void;
 };
