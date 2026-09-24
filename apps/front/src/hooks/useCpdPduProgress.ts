@@ -84,6 +84,14 @@ export const useCpdPduProgress = () => {
     [associationRequirements, plans],
   );
 
+  const hasRequirements = options.length > 0;
+
+  const { data: myLearningContent = [], isLoading: isMyLearningContentLoading } =
+    API.useMyAssociationLearningContentQuery(undefined, {
+      skip: isPlansLoading || isAssociationsLoading || hasRequirements,
+      ...API.REQUIREMENT_QUERY_SUBSCRIPTION_OPTIONS,
+    });
+
   const activeKey = R.resolveActiveKey(options, selectedKey);
   const active = R.parseRequirementKey(activeKey);
   const selectedPlanId = active?.source === "PLAN" ? active.id : null;
@@ -144,7 +152,6 @@ export const useCpdPduProgress = () => {
     API.useDeleteCpdPlanMutation();
   const [fetchActivities] = useLazyProfessionalPduActivitiesQuery();
 
-  const hasRequirements = options.length > 0;
   const isRequirementsLoading = isPlansLoading || isAssociationsLoading;
   const canGenerateSummary = Boolean(selectedPlan) && Boolean(progress);
 
@@ -281,6 +288,9 @@ export const useCpdPduProgress = () => {
     router.push(R.logActivityHref(activeKey, content.id));
   };
 
+  const markUnlinkedComplete = (content: { id: string }) =>
+    router.push(R.logContentActivityHref(content.id));
+
   const generateSummary = async () => {
     if (!selectedPlan || !progress || isGenerating) return;
     setIsGenerating(true);
@@ -328,6 +338,9 @@ export const useCpdPduProgress = () => {
     markComplete,
     selectedPlanId,
     hasRequirements,
+    myLearningContent,
+    isMyLearningContentLoading,
+    markUnlinkedComplete,
     associationDetail,
     setSelectedKey,
     isPlansLoading,

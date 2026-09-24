@@ -252,6 +252,20 @@ export const associationApi = baseApi.injectEndpoints({
       providesTags: ["AssociationMemberActivities"],
     }),
 
+    associationMemberRequirementEvidence: builder.query<
+      TAPI.AssociationMemberRequirementEvidenceQuery["associationMemberRequirementEvidence"],
+      TAPI.AssociationMemberRequirementEvidenceQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.AssociationMemberRequirementEvidenceDocument,
+        variables,
+      }),
+      transformResponse: (
+        response: TAPI.AssociationMemberRequirementEvidenceQuery,
+      ) => response.associationMemberRequirementEvidence,
+      providesTags: ["AssociationMemberActivities"],
+    }),
+
     associationMemberRequirementOptions: builder.query<
       TAPI.AssociationMemberRequirementOptionsQuery["associationMemberRequirementOptions"],
       TAPI.AssociationMemberRequirementOptionsQueryVariables
@@ -923,6 +937,7 @@ export const {
   useAssociationMemberStatsQuery,
   useAssociationMemberProfileQuery,
   useAssociationMemberActivitiesQuery,
+  useAssociationMemberRequirementEvidenceQuery,
   useAssociationMemberRequirementOptionsQuery,
   useReviewAssociationLearningActivityMutation,
   useSetAssociationMemberRequirementsMutation,

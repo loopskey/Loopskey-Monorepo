@@ -297,7 +297,9 @@
         "loopskey": "Loopskey",
         "credits": "{{credits}} crédits",
         "unavailable": "N’est plus disponible",
-        "showAll": "Tout afficher ({{count}} de plus)"
+        "showAll": "Tout afficher ({{count}} de plus)",
+        "recommendedBy": "Recommandé par {{association}}",
+        "countsToward": "Compte pour cette exigence"
       },
       "activities": {
         "title": "Activités enregistrées",
@@ -326,6 +328,12 @@
       },
       "loadError": "Nous n’avons pas pu charger vos exigences.",
       "retry": "Réessayer"
+    },
+    "fromAssociation": {
+      "title": "De votre association",
+      "subtitle": "Contenu attribué par votre association, avant que vous n’ayez une exigence à laquelle le rattacher.",
+      "markComplete": "Enregistrer une activité",
+      "completed": "Terminé"
     }
   },
   "common": {
@@ -5735,12 +5743,28 @@
         "chartEmptyTitle": "Aucune catégorie à représenter",
         "chartEmptyBody": "Aucune exigence assignée à ce membre ne répartit son total par catégorie.",
         "emptyTitle": "Rien n'est encore assigné",
-        "emptyBody": "Ce membre ne fait partie de l'audience d'aucune exigence publiée. Utilisez Assigner une exigence pour lui en assigner une."
+        "emptyBody": "Ce membre ne fait partie de l'audience d'aucune exigence publiée. Utilisez Assigner une exigence pour lui en assigner une.",
+        "evidence": {
+          "activitiesTitle": "Activités comptées pour cette exigence",
+          "emptyActivities": "Aucune activité n'a encore été enregistrée pour cette exigence.",
+          "contentTitle": "Contenu terminé pour cette exigence",
+          "emptyContent": "Ce membre n'a pas terminé de contenu lié à cette exigence.",
+          "credits": "{{credits}} crédits",
+          "certificateTitle": "Preuves de certification",
+          "emptyCertificates": "Aucun fichier de preuve ni activité de type certification n'est attribué à cette exigence."
+        },
+        "unlinked": {
+          "title": "Non lié à une exigence",
+          "subtitle": "Contenu attribué par cette association que ce membre a terminé, sans exigence à laquelle le rattacher.",
+          "notLinked": "Non lié à une exigence"
+        }
       },
       "activities": {
         "title": "Activités de formation",
         "description": "Ce que ce membre a enregistré et qui compte pour vos exigences. Rien d'autre de ce qu'il a consigné n'apparaît ici.",
         "filterLabel": "État d'examen",
+        "requirementFilterLabel": "Exigence",
+        "filterAllRequirements": "Toutes les exigences",
         "filterAll": "Tous les états",
         "counts": "{{counted}} approuvées, {{awaiting}} en cours d'examen, {{rejected}} refusées",
         "meta": "{{source}} · {{category}} · {{credits}} crédits · {{date}}",

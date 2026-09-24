@@ -255,9 +255,13 @@ describe("AssociationMyRequirementsService.one", () => {
 
     const where =
       prisma.associationLearningContent.findMany.mock.calls[0][0].where;
-    expect(where.requirementId).toBe("req-1");
+    expect(where.associationId).toBe("assoc-1");
     expect(where.status).toBe("PUBLISHED");
-    expect(where.OR).toEqual([
+    expect(where.AND[0].OR).toEqual([
+      { requirementId: "req-1" },
+      { requirementId: null },
+    ]);
+    expect(where.AND[1].OR).toEqual([
       { audienceKind: AssociationAudienceKind.ALL_MEMBERS },
       {
         audienceKind: AssociationAudienceKind.GROUP,
@@ -280,9 +284,10 @@ describe("AssociationMyRequirementsService.one", () => {
 
     const where =
       prisma.associationLearningContent.findMany.mock.calls[0][0].where;
-    expect(where.OR).toHaveLength(2);
+    const audienceOR = where.AND[1].OR;
+    expect(audienceOR).toHaveLength(2);
     expect(
-      where.OR.some(
+      audienceOR.some(
         (branch: { audienceKind: string }) => branch.audienceKind === "GROUP",
       ),
     ).toBe(false);
@@ -533,5 +538,69 @@ describe("AssociationMyRequirementsService.contentEndorsement", () => {
     );
 
     expect(result).toBeNull();
+  });
+});
+
+describe("AssociationMyRequirementsService.myLearningContent", () => {
+  const membership = (overrides: Record<string, unknown> = {}) => ({
+    id: "member-1",
+    groupId: null,
+    associationId: "assoc-1",
+    association: { name: "Engineers Association" },
+    ...overrides,
+  });
+
+  const unlinkedContent = (overrides: Record<string, unknown> = {}) => ({
+    id: "content-1",
+    contentType: null,
+    contentId: null,
+    externalTitle: "Free Webinar",
+    externalProvider: "Provider Co",
+    externalUrl: "https://example.com/webinar",
+    description: null,
+    category: null,
+    indicativeCredits: null,
+    requirementId: null,
+    ...overrides,
+  });
+
+  it("returns nothing for a caller with no active membership", async () => {
+    const { service, prisma } = createService();
+    prisma.associationMember.findMany.mockResolvedValue([]);
+
+    await expect(service.myLearningContent("user-1")).resolves.toEqual([]);
+    expect(prisma.associationLearningContent.findMany).not.toHaveBeenCalled();
+  });
+
+  it("only queries content that has no requirement link", async () => {
+    const { service, prisma } = createService();
+    prisma.associationMember.findMany.mockResolvedValue([membership()]);
+
+    await service.myLearningContent("user-1");
+
+    const where =
+      prisma.associationLearningContent.findMany.mock.calls[0][0].where;
+    expect(where.requirementId).toBeNull();
+    expect(where.associationId).toBe("assoc-1");
+    expect(where.status).toBe("PUBLISHED");
+  });
+
+  it("marks each item as recommended by its own association", async () => {
+    const { service, prisma } = createService();
+    prisma.associationMember.findMany.mockResolvedValue([membership()]);
+    prisma.associationLearningContent.findMany.mockResolvedValue([
+      unlinkedContent(),
+    ]);
+
+    const rows = await service.myLearningContent("user-1");
+
+    expect(rows).toEqual([
+      expect.objectContaining({
+        id: "content-1",
+        isLinkedToRequirement: false,
+        associationId: "assoc-1",
+        associationName: "Engineers Association",
+      }),
+    ]);
   });
 });

@@ -345,6 +345,51 @@ query AssociationMemberProfile($memberId: ID!) {
         ...AssociationEvidenceFileFields
       }
     }
+    unlinkedLearningContent {
+      ...AssociationMemberContentCompletionFields
+    }
+  }
+}
+
+fragment AssociationMemberContentCompletionFields on AssociationMemberContentCompletion {
+  id
+  title
+  isExternal
+  contentType
+  provider
+  activityId
+  activityDate
+  credits
+  indicativeCredits
+}
+
+query AssociationMemberRequirementEvidence(
+  $memberId: ID!
+  $requirementId: ID!
+  $pagination: AssociationPaginationInput
+) {
+  associationMemberRequirementEvidence(
+    memberId: $memberId
+    requirementId: $requirementId
+    pagination: $pagination
+  ) {
+    requirementId
+    activities {
+      totalCount
+      pageInfo {
+        hasNextPage
+        nextCursor
+      }
+      items {
+        ...AssociationMemberActivityFields
+      }
+    }
+    contentCompletions {
+      ...AssociationMemberContentCompletionFields
+    }
+    certificateEvidence {
+      ...AssociationMemberActivityFields
+    }
   }
 }
 

@@ -89,6 +89,7 @@ export const RequirementDetailView = ({
           contents={content}
           isLoading={isDetailLoading}
           requirementKeyValue={requirementKeyValue}
+          associationName={model.associationName}
           onMarkComplete={onMarkComplete ?? (() => {})}
         />
       </div>

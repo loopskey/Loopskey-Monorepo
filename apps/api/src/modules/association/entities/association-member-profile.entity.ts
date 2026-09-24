@@ -1,13 +1,13 @@
 import { AssociationAssignmentProgressEntity } from "@association/entities/association-compliance.entity";
 import { CreditType, PDUCategory, PDUSource } from "@prisma/client";
 import { Field, Float, ID, Int, ObjectType } from "@nestjs/graphql";
+import { CertificateStatus, ContentType } from "@prisma/client";
 import { AssociationAttributionState } from "@prisma/client";
 import { AssociationGqlObjectNames } from "@association/enums/association-gql-names.enum";
 import { AssociationPageInfoEntity } from "@association/entities/association-page-info.entity";
 import { AssociationComplianceBand } from "@prisma/client";
 import { AssociationMemberEntity } from "@association/entities/association-member.entity";
 import { AssociationAudienceKind } from "@prisma/client";
-import { CertificateStatus } from "@prisma/client";
 
 @ObjectType(AssociationGqlObjectNames.ASSOCIATION_EVIDENCE_FILE)
 export class AssociationEvidenceFileEntity {
@@ -55,6 +55,19 @@ export class AssociationMemberCertificateEntity {
   files: AssociationEvidenceFileEntity[];
 }
 
+@ObjectType(AssociationGqlObjectNames.ASSOCIATION_MEMBER_CONTENT_COMPLETION)
+export class AssociationMemberContentCompletionEntity {
+  @Field() title: string;
+  @Field(() => ID) id: string;
+  @Field() activityDate: Date;
+  @Field() isExternal: boolean;
+  @Field(() => Float) credits: number;
+  @Field(() => ID) activityId: string;
+  @Field(() => String, { nullable: true }) provider: string | null;
+  @Field(() => Float, { nullable: true }) indicativeCredits: number | null;
+  @Field(() => ContentType, { nullable: true }) contentType: ContentType | null;
+}
+
 @ObjectType(AssociationGqlObjectNames.ASSOCIATION_MEMBER_PROFILE)
 export class AssociationMemberProfileEntity {
   @Field() isMissingEvidence: boolean;
@@ -68,6 +81,8 @@ export class AssociationMemberProfileEntity {
   cumulative: AssociationCumulativePointEntity[];
   @Field(() => [AssociationMemberCertificateEntity])
   certificates: AssociationMemberCertificateEntity[];
+  @Field(() => [AssociationMemberContentCompletionEntity])
+  unlinkedLearningContent: AssociationMemberContentCompletionEntity[];
 }
 
 @ObjectType(AssociationGqlObjectNames.ASSOCIATION_ACTIVITY_REQUIREMENT)
@@ -136,4 +151,15 @@ export class AssociationMemberRequirementsResultEntity {
   @Field(() => Int) added: number;
   @Field(() => Int) removed: number;
   @Field(() => ID) memberId: string;
+}
+
+@ObjectType(AssociationGqlObjectNames.ASSOCIATION_MEMBER_REQUIREMENT_EVIDENCE)
+export class AssociationMemberRequirementEvidenceEntity {
+  @Field(() => ID) requirementId: string;
+  @Field(() => PaginatedAssociationMemberActivitiesEntity)
+  activities: PaginatedAssociationMemberActivitiesEntity;
+  @Field(() => [AssociationMemberContentCompletionEntity])
+  contentCompletions: AssociationMemberContentCompletionEntity[];
+  @Field(() => [AssociationMemberActivityEntity])
+  certificateEvidence: AssociationMemberActivityEntity[];
 }

@@ -35,4 +35,5 @@ export type MemberActivityScope = {
 
 export type MemberActivityFilter = {
   state?: AssociationAttributionState;
+  requirementId?: string;
 };

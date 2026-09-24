@@ -1,5 +1,6 @@
 "use client";
 
+import { AssociationContentSection } from "@modules/ProfessionalDashboard/parts/association-content-section";
 import { RequirementDetailView } from "@modules/ProfessionalDashboard/parts/requirement-detail-view";
 import { RequirementSelector } from "@modules/ProfessionalDashboard/parts/requirement-selector";
 import { useCpdPduProgress } from "@/hooks/useCpdPduProgress";
@@ -126,7 +127,16 @@ const ProfessionalCpdPduProgressTab = () => {
       ) : !cpd.hasRequirements ? (
         <div className="space-y-4">
           {loadError}
-          <CpdEmptyState t={t} onCreate={cpd.openSearch} />
+          <AssociationContentSection
+            t={t}
+            contents={cpd.myLearningContent}
+            isLoading={cpd.isMyLearningContentLoading}
+            onMarkComplete={cpd.markUnlinkedComplete}
+          />
+          {!cpd.isMyLearningContentLoading &&
+            cpd.myLearningContent.length === 0 && (
+              <CpdEmptyState t={t} onCreate={cpd.openSearch} />
+            )}
         </div>
       ) : (
         <div className="space-y-6">

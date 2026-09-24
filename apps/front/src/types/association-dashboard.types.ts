@@ -64,6 +64,12 @@ export type TAssociationAssignmentRow =
 export type TAssociationCertificateRow =
   TAPI.AssociationMemberProfileQuery["associationMemberProfile"]["certificates"][number];
 
+export type TAssociationContentCompletionRow =
+  TAPI.AssociationMemberProfileQuery["associationMemberProfile"]["unlinkedLearningContent"][number];
+
+export type TAssociationRequirementEvidence =
+  TAPI.AssociationMemberRequirementEvidenceQuery["associationMemberRequirementEvidence"];
+
 type TWithDetail = { hook: TUseAssociationMemberDetail };
 
 export type TAssociationMemberDetail = TWithDetail;
@@ -72,6 +78,9 @@ export type TAssociationMemberCards = TWithDetail;
 export type TAssociationMemberMembershipPanel = TWithDetail;
 export type TAssociationMemberOverviewPreview = TWithDetail;
 export type TAssociationMemberRequirementsSection = TWithDetail;
+export type TAssociationMemberRequirementEvidencePanel = TWithDetail & {
+  requirementId: string;
+};
 export type TAssociationMemberActivitiesSection = TWithDetail;
 export type TAssociationMemberCertificatesSection = TWithDetail;
 export type TAssociationEvidenceViewer = TWithDetail;

@@ -297,7 +297,9 @@
         "loopskey": "Loopskey",
         "credits": "{{credits}} credits",
         "unavailable": "No longer available",
-        "showAll": "Show all ({{count}} more)"
+        "showAll": "Show all ({{count}} more)",
+        "recommendedBy": "Recommended by {{association}}",
+        "countsToward": "Counts toward this requirement"
       },
       "activities": {
         "title": "Logged activities",
@@ -326,6 +328,12 @@
       },
       "loadError": "We could not load your requirements.",
       "retry": "Try again"
+    },
+    "fromAssociation": {
+      "title": "From your association",
+      "subtitle": "Content your association assigned you, before you have a requirement to track it against.",
+      "markComplete": "Log activity",
+      "completed": "Completed"
     }
   },
   "common": {
@@ -5732,12 +5740,28 @@
         "chartEmptyTitle": "No categories to chart",
         "chartEmptyBody": "None of the requirements assigned to this member splits its total by category.",
         "emptyTitle": "Nothing is assigned yet",
-        "emptyBody": "This member is not in the audience of any published requirement. Use Assign Requirement to assign one."
+        "emptyBody": "This member is not in the audience of any published requirement. Use Assign Requirement to assign one.",
+        "evidence": {
+          "activitiesTitle": "Activities counted toward this requirement",
+          "emptyActivities": "No activity has been logged against this requirement yet.",
+          "contentTitle": "Content completed for this requirement",
+          "emptyContent": "This member has not completed content linked to this requirement.",
+          "credits": "{{credits}} credits",
+          "certificateTitle": "Certificate evidence",
+          "emptyCertificates": "No evidence files or certification-type activities are attributed to this requirement."
+        },
+        "unlinked": {
+          "title": "Not linked to a requirement",
+          "subtitle": "Content this association assigned that this member completed, with no requirement to attribute it to.",
+          "notLinked": "Not linked to a requirement"
+        }
       },
       "activities": {
         "title": "Learning activities",
         "description": "What this member recorded that counts toward your requirements. Nothing else they logged is shown here.",
         "filterLabel": "Review state",
+        "requirementFilterLabel": "Requirement",
+        "filterAllRequirements": "All requirements",
         "filterAll": "All states",
         "counts": "{{counted}} approved, {{awaiting}} under review, {{rejected}} rejected",
         "meta": "{{source}} · {{category}} · {{credits}} credits · {{date}}",

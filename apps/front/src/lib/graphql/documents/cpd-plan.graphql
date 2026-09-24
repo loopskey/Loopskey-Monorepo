@@ -185,6 +185,7 @@ fragment AssociationMyRequirementDetailFields on AssociationMyRequirementDetail 
     isExternal
     isAvailable
     isCompleted
+    isLinkedToRequirement
     contentType
     contentId
     slug
@@ -193,6 +194,26 @@ fragment AssociationMyRequirementDetailFields on AssociationMyRequirementDetail 
     category
     indicativeCredits
   }
+}
+
+fragment AssociationMyLearningContentFields on AssociationMyRequirementContent {
+  id
+  title
+  provider
+  imageUrl
+  isExternal
+  isAvailable
+  isCompleted
+  isLinkedToRequirement
+  associationId
+  associationName
+  contentType
+  contentId
+  slug
+  externalUrl
+  description
+  category
+  indicativeCredits
 }
 
 query CertificationSearch($input: CertificationSearchInput!) {
@@ -246,6 +267,12 @@ query MyAssociationRequirements {
 query MyAssociationRequirement($requirementId: ID!) {
   myAssociationRequirement(requirementId: $requirementId) {
     ...AssociationMyRequirementDetailFields
+  }
+}
+
+query MyAssociationLearningContent {
+  myAssociationLearningContent {
+    ...AssociationMyLearningContentFields
   }
 }
 
