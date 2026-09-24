@@ -34,6 +34,11 @@ export type MyCpdPlansQueryVariables = Types.Exact<{ [key: string]: never; }>;
 
 export type MyCpdPlansQuery = { __typename?: 'Query', myCpdPlans: Array<{ __typename?: 'CpdPlan', id: string, certificationId?: string | null, certificationName: string, organization: string, reportingStart: string, reportingEnd: string, creditType: Types.CreditType, totalRequiredCredits: number, initialCompletedCredits: number, timeAvailable?: Types.LearningTimeCommitment | null, preferredFormats: Array<Types.LearningFormat>, evidenceTypes: Array<Types.CpdEvidenceType>, evidenceOtherNote?: string | null, reportRecipientType: Types.CpdReportRecipientType, reportRecipientLabel?: string | null, remindersEnabled: boolean, reminderTiming?: Types.CpdReminderTiming | null, status: Types.CpdPlanStatus, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'CpdPlanCategory', id: string, name: string, targetCredits: number, completedCredits: number, order: number }> }> };
 
+export type MyDraftCpdPlansQueryVariables = Types.Exact<{ [key: string]: never; }>;
+
+
+export type MyDraftCpdPlansQuery = { __typename?: 'Query', myDraftCpdPlans: Array<{ __typename?: 'CpdPlan', id: string, certificationId?: string | null, certificationName: string, organization: string, reportingStart: string, reportingEnd: string, creditType: Types.CreditType, totalRequiredCredits: number, initialCompletedCredits: number, timeAvailable?: Types.LearningTimeCommitment | null, preferredFormats: Array<Types.LearningFormat>, evidenceTypes: Array<Types.CpdEvidenceType>, evidenceOtherNote?: string | null, reportRecipientType: Types.CpdReportRecipientType, reportRecipientLabel?: string | null, remindersEnabled: boolean, reminderTiming?: Types.CpdReminderTiming | null, status: Types.CpdPlanStatus, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'CpdPlanCategory', id: string, name: string, targetCredits: number, completedCredits: number, order: number }> }> };
+
 export type CpdPlanQueryVariables = Types.Exact<{
   planId: Types.Scalars['ID']['input'];
 }>;
@@ -85,6 +90,13 @@ export type CreateCpdPlanFromSuggestionMutationVariables = Types.Exact<{
 
 
 export type CreateCpdPlanFromSuggestionMutation = { __typename?: 'Mutation', createCpdPlanFromSuggestion: { __typename?: 'CpdPlan', id: string, certificationId?: string | null, certificationName: string, organization: string, reportingStart: string, reportingEnd: string, creditType: Types.CreditType, totalRequiredCredits: number, initialCompletedCredits: number, timeAvailable?: Types.LearningTimeCommitment | null, preferredFormats: Array<Types.LearningFormat>, evidenceTypes: Array<Types.CpdEvidenceType>, evidenceOtherNote?: string | null, reportRecipientType: Types.CpdReportRecipientType, reportRecipientLabel?: string | null, remindersEnabled: boolean, reminderTiming?: Types.CpdReminderTiming | null, status: Types.CpdPlanStatus, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'CpdPlanCategory', id: string, name: string, targetCredits: number, completedCredits: number, order: number }> } };
+
+export type ActivateCpdPlanMutationVariables = Types.Exact<{
+  planId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type ActivateCpdPlanMutation = { __typename?: 'Mutation', activateCpdPlan: { __typename?: 'CpdPlan', id: string, certificationId?: string | null, certificationName: string, organization: string, reportingStart: string, reportingEnd: string, creditType: Types.CreditType, totalRequiredCredits: number, initialCompletedCredits: number, timeAvailable?: Types.LearningTimeCommitment | null, preferredFormats: Array<Types.LearningFormat>, evidenceTypes: Array<Types.CpdEvidenceType>, evidenceOtherNote?: string | null, reportRecipientType: Types.CpdReportRecipientType, reportRecipientLabel?: string | null, remindersEnabled: boolean, reminderTiming?: Types.CpdReminderTiming | null, status: Types.CpdPlanStatus, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'CpdPlanCategory', id: string, name: string, targetCredits: number, completedCredits: number, order: number }> } };
 
 export type UpdateCpdPlanMutationVariables = Types.Exact<{
   input: Types.UpdateCpdPlanInput;
@@ -396,6 +408,44 @@ fragment CpdPlanFields on CpdPlan {
   createdAt
   updatedAt
 }`) as unknown as TypedDocumentString<MyCpdPlansQuery, MyCpdPlansQueryVariables>;
+export const MyDraftCpdPlansDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query MyDraftCpdPlans {
+  myDraftCpdPlans {
+    ...CpdPlanFields
+  }
+}
+    fragment CpdPlanCategoryFields on CpdPlanCategory {
+  id
+  name
+  targetCredits
+  completedCredits
+  order
+}
+fragment CpdPlanFields on CpdPlan {
+  id
+  certificationId
+  certificationName
+  organization
+  reportingStart
+  reportingEnd
+  creditType
+  totalRequiredCredits
+  initialCompletedCredits
+  timeAvailable
+  preferredFormats
+  evidenceTypes
+  evidenceOtherNote
+  reportRecipientType
+  reportRecipientLabel
+  remindersEnabled
+  reminderTiming
+  status
+  categories {
+    ...CpdPlanCategoryFields
+  }
+  createdAt
+  updatedAt
+}`) as unknown as TypedDocumentString<MyDraftCpdPlansQuery, MyDraftCpdPlansQueryVariables>;
 export const CpdPlanDocument = /*#__PURE__*/ new TypedDocumentString(`
     query CpdPlan($planId: ID!) {
   cpdPlan(planId: $planId) {
@@ -671,6 +721,44 @@ fragment CpdPlanFields on CpdPlan {
   createdAt
   updatedAt
 }`) as unknown as TypedDocumentString<CreateCpdPlanFromSuggestionMutation, CreateCpdPlanFromSuggestionMutationVariables>;
+export const ActivateCpdPlanDocument = /*#__PURE__*/ new TypedDocumentString(`
+    mutation ActivateCpdPlan($planId: ID!) {
+  activateCpdPlan(planId: $planId) {
+    ...CpdPlanFields
+  }
+}
+    fragment CpdPlanCategoryFields on CpdPlanCategory {
+  id
+  name
+  targetCredits
+  completedCredits
+  order
+}
+fragment CpdPlanFields on CpdPlan {
+  id
+  certificationId
+  certificationName
+  organization
+  reportingStart
+  reportingEnd
+  creditType
+  totalRequiredCredits
+  initialCompletedCredits
+  timeAvailable
+  preferredFormats
+  evidenceTypes
+  evidenceOtherNote
+  reportRecipientType
+  reportRecipientLabel
+  remindersEnabled
+  reminderTiming
+  status
+  categories {
+    ...CpdPlanCategoryFields
+  }
+  createdAt
+  updatedAt
+}`) as unknown as TypedDocumentString<ActivateCpdPlanMutation, ActivateCpdPlanMutationVariables>;
 export const UpdateCpdPlanDocument = /*#__PURE__*/ new TypedDocumentString(`
     mutation UpdateCpdPlan($input: UpdateCpdPlanInput!) {
   updateCpdPlan(input: $input) {

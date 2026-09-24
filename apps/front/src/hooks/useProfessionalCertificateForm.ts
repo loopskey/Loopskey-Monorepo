@@ -1,9 +1,11 @@
 "use client";
 
-import { useCertificateEvidence, CertificateFileError } from "@/hooks/useCertificateEvidence";
-import { useMyCpdPlansQuery } from "@/lib/rtk/endpoints/cpd-plan.api";
-import { useRouter, useSearchParams } from "next/navigation";
+import { REQUIREMENT_QUERY_SUBSCRIPTION_OPTIONS } from "@/lib/rtk/endpoints/cpd-plan.api";
 import { useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCertificateEvidence } from "@/hooks/useCertificateEvidence";
+import { CertificateFileError } from "@/hooks/useCertificateEvidence";
+import { useMyCpdPlansQuery } from "@/lib/rtk/endpoints/cpd-plan.api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toDateInput } from "@/utils/function-helper";
 import { useForm } from "react-hook-form";
@@ -28,7 +30,6 @@ const defaultValues: SC.TCertificateFormInput = {
   existingFileCount: 0,
 };
 
-/** The select carries a sentinel for "no plan"; the API takes null. */
 const toPlanId = (value?: string) => {
   const trimmed = value?.trim();
   if (!trimmed || trimmed === H.CERTIFICATE_PLAN_NONE) return null;
@@ -65,7 +66,10 @@ export const useProfessionalCertificateForm = () => {
     { skip: !certificateId },
   );
 
-  const { data: plans, isLoading: isPlansLoading } = useMyCpdPlansQuery();
+  const { data: plans, isLoading: isPlansLoading } = useMyCpdPlansQuery(
+    undefined,
+    REQUIREMENT_QUERY_SUBSCRIPTION_OPTIONS,
+  );
 
   const [createCertificate] = API.useCreateProfessionalCertificateMutation();
   const [updateCertificate] = API.useUpdateProfessionalCertificateMutation();
@@ -117,7 +121,10 @@ export const useProfessionalCertificateForm = () => {
 
   const handleFilesChange = (nextFiles: File[]) => {
     setFiles(nextFiles);
-    form.setValue("files", nextFiles, { shouldValidate: true, shouldDirty: true });
+    form.setValue("files", nextFiles, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
   };
 
   const handleRemoveExistingFile = async (fileId: string) => {

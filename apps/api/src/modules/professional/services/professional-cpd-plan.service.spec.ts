@@ -2,7 +2,7 @@ import { ProfessionalCpdPlanService } from "./professional-cpd-plan.service";
 import type { PrismaService } from "@prisma/prisma.service";
 import type { CertificationSearchService } from "./certification-search.service";
 import type { ProfessionalIdentityApi } from "@user/public/professional-identity-api";
-import { NotFoundException } from "@nestjs/common";
+import { BadRequestException, NotFoundException } from "@nestjs/common";
 import {
   CPDEvidenceType,
   CPDPlanStatus,
@@ -39,6 +39,7 @@ const basePlan = {
 const createPrismaMock = () => ({
   cPDPlan: {
     findFirst: jest.fn().mockResolvedValue(basePlan),
+    findMany: jest.fn().mockResolvedValue([basePlan]),
     create: jest.fn().mockResolvedValue(basePlan),
     update: jest.fn().mockResolvedValue(basePlan),
   },
@@ -235,6 +236,77 @@ describe("ProfessionalCpdPlanService.createPlanFromSuggestion", () => {
       }),
     ).rejects.toBeInstanceOf(NotFoundException);
   });
+
+  it("promotes a matching DRAFT plan to ACTIVE instead of returning it hidden", async () => {
+    const prisma = createPrismaMock();
+    prisma.cPDPlan.findFirst.mockResolvedValue({
+      ...basePlan,
+      status: CPDPlanStatus.DRAFT,
+    });
+    const { service } = createService(prisma, {
+      findById: jest.fn().mockResolvedValue(cert),
+    });
+
+    await service.createPlanFromSuggestion(professional, {
+      certificationId: "cert-1",
+    });
+
+    expect(prisma.cPDPlan.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: basePlan.id },
+        data: { status: CPDPlanStatus.ACTIVE },
+      }),
+    );
+    expect(prisma.cPDPlan.create).not.toHaveBeenCalled();
+  });
+});
+
+describe("ProfessionalCpdPlanService.activateDraftPlan", () => {
+  it("activates an owned DRAFT plan", async () => {
+    const prisma = createPrismaMock();
+    prisma.cPDPlan.findFirst.mockResolvedValue({
+      ...basePlan,
+      status: CPDPlanStatus.DRAFT,
+    });
+    const { service } = createService(prisma);
+
+    await service.activateDraftPlan(professional, "plan-1");
+
+    expect(prisma.cPDPlan.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: "plan-1" },
+        data: { status: CPDPlanStatus.ACTIVE },
+      }),
+    );
+  });
+
+  it("rejects a plan that is not a draft", async () => {
+    const prisma = createPrismaMock();
+    prisma.cPDPlan.findFirst.mockResolvedValue({
+      ...basePlan,
+      status: CPDPlanStatus.ACTIVE,
+    });
+    const { service } = createService(prisma);
+
+    await expect(
+      service.activateDraftPlan(professional, "plan-1"),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(prisma.cPDPlan.update).not.toHaveBeenCalled();
+  });
+});
+
+describe("ProfessionalCpdPlanService.myPlans", () => {
+  it("only returns ACTIVE plans, so a roadmap draft's CPD setup stays hidden until confirmed", async () => {
+    const prisma = createPrismaMock();
+    const { service } = createService(prisma);
+
+    await service.myPlans(professional);
+
+    expect(prisma.cPDPlan.findMany.mock.calls[0][0].where).toEqual({
+      userId: "user-1",
+      status: CPDPlanStatus.ACTIVE,
+    });
+  });
 });
 
 describe("ProfessionalCpdPlanService.upsertDraftPlan", () => {
@@ -247,6 +319,7 @@ describe("ProfessionalCpdPlanService.upsertDraftPlan", () => {
     const data = prisma.cPDPlan.create.mock.calls[0][0].data;
     expect(data).toMatchObject({
       userId: "user-1",
+      status: CPDPlanStatus.DRAFT,
       certificationId: null,
       certificationName: "",
       organization: "",

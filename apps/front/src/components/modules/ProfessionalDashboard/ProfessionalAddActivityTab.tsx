@@ -37,6 +37,7 @@ const ProfessionalAddActivityTab = () => {
     existingFiles,
     hasUploadFailed,
     handleAddAnother,
+    goToReturnTarget,
     isLoadingActivity,
     handleFilesChange,
     subCategoryOptions,
@@ -44,6 +45,7 @@ const ProfessionalAddActivityTab = () => {
     activityTypeOptions,
     handleRemoveExistingFile,
     markReportingYearTouched,
+    returnTargetIsRequirements,
     handleDownloadExistingFile,
   } = useProfessionalAddActivity();
 
@@ -54,6 +56,14 @@ const ProfessionalAddActivityTab = () => {
         isEditing={isEditing}
         onAddAnother={handleAddAnother}
         onViewActivities={goToTracker}
+        onReturn={
+          returnTargetIsRequirements
+            ? {
+                label: t(`${TRACKER}.addActivity.backToRequirements`),
+                onClick: goToReturnTarget,
+              }
+            : undefined
+        }
       />
     );
 
@@ -165,7 +175,7 @@ const ProfessionalAddActivityTab = () => {
               {form.formState.isDirty || files.length > 0 ? (
                 <ConfirmDialog
                   trigger={cancelButton}
-                  onConfirm={goToTracker}
+                  onConfirm={goToReturnTarget}
                   confirmVariant="destructive"
                   title={t(`${TRACKER}.addActivity.cancelTitle`)}
                   cancelText={t(`${TRACKER}.addActivity.keepEditing`)}
@@ -177,7 +187,7 @@ const ProfessionalAddActivityTab = () => {
                   radius="xl"
                   type="button"
                   variant="cancel"
-                  onClick={goToTracker}
+                  onClick={goToReturnTarget}
                 >
                   {t("common.cancel")}
                 </Button>

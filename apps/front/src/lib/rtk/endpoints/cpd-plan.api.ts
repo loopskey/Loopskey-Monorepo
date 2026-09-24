@@ -3,6 +3,18 @@ import { baseApi } from "@/lib/rtk/baseApi";
 import type * as TAPI from "@/lib/graphql/generated";
 import * as API from "@/lib/graphql/operations/cpd-plan";
 
+/**
+ * The requirement and plan queries drive `Log activity` prefill and the
+ * Requirements tab, and the dashboard shell keeps its components mounted
+ * across tab-only navigations. Without this, an association assigning a
+ * requirement, or the professional switching tabs, leaves these endpoints
+ * serving a stale option list until a full reload.
+ */
+export const REQUIREMENT_QUERY_SUBSCRIPTION_OPTIONS = {
+  refetchOnMountOrArgChange: true,
+  refetchOnFocus: true,
+} as const;
+
 const CPD_PLAN_TAGS = [
   "ProfessionalCpdPlan",
   "ProfessionalOverview",
@@ -27,6 +39,16 @@ export const cpdPlanApi = baseApi.injectEndpoints({
       query: () => ({ document: API.MyCpdPlansDocument }),
       transformResponse: (response: TAPI.MyCpdPlansQuery) =>
         response.myCpdPlans,
+      providesTags: ["ProfessionalCpdPlan", "Professional"],
+    }),
+
+    myDraftCpdPlans: builder.query<
+      TAPI.MyDraftCpdPlansQuery["myDraftCpdPlans"],
+      void
+    >({
+      query: () => ({ document: API.MyDraftCpdPlansDocument }),
+      transformResponse: (response: TAPI.MyDraftCpdPlansQuery) =>
+        response.myDraftCpdPlans,
       providesTags: ["ProfessionalCpdPlan", "Professional"],
     }),
 
@@ -124,6 +146,19 @@ export const cpdPlanApi = baseApi.injectEndpoints({
       invalidatesTags: CPD_PLAN_TAGS,
     }),
 
+    activateCpdPlan: builder.mutation<
+      TAPI.ActivateCpdPlanMutation["activateCpdPlan"],
+      TAPI.ActivateCpdPlanMutationVariables["planId"]
+    >({
+      query: (planId) => ({
+        document: API.ActivateCpdPlanDocument,
+        variables: { planId },
+      }),
+      transformResponse: (response: TAPI.ActivateCpdPlanMutation) =>
+        response.activateCpdPlan,
+      invalidatesTags: CPD_PLAN_TAGS,
+    }),
+
     updateCpdPlan: builder.mutation<
       TAPI.UpdateCpdPlanMutation["updateCpdPlan"],
       TAPI.UpdateCpdPlanMutationVariables["input"]
@@ -155,11 +190,13 @@ export const cpdPlanApi = baseApi.injectEndpoints({
 export const {
   useCpdPlanQuery,
   useMyCpdPlansQuery,
+  useMyDraftCpdPlansQuery,
   useCpdPlanProgressQuery,
   useCpdPlanActivitiesQuery,
   useMyAssociationRequirementQuery,
   useMyAssociationRequirementsQuery,
   useCreateCpdPlanMutation,
+  useActivateCpdPlanMutation,
   useUpdateCpdPlanMutation,
   useDeleteCpdPlanMutation,
   useCertificationSearchQuery,

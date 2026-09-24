@@ -19,6 +19,10 @@
       "description": "No association has assigned you a requirement and you have not created a plan of your own. Create a requirement to start tracking your credits, categories and evidence.",
       "cta": "Create a requirement"
     },
+    "draftPlan": {
+      "prompt": "You set up CPD tracking for {{certification}} in the roadmap coach. Track it here as a requirement?",
+      "track": "Track in Requirements"
+    },
     "search": {
       "title": "Set Up CPD / PDU Tracking",
       "description": "Search for your certification so LoopsKey can suggest your requirements.",
@@ -4091,6 +4095,7 @@
         "updateSuccess": "Activity updated successfully.",
         "successDescription": "Your CPD/PDU totals and charts have been updated.",
         "viewActivities": "View My Activities",
+        "backToRequirements": "Back to Requirements",
         "addAnother": "Add Another Activity",
         "cancelTitle": "Discard this activity?",
         "cancelDescription": "You have unsaved changes. Leaving now will discard everything you entered.",
@@ -5489,6 +5494,7 @@
         "memberNumber": "Member ID / licence number",
         "requirements": "CPD/PDU requirement (select all that apply)",
         "requirementsEmpty": "No requirements published yet.",
+        "autoAppliedNote": "{{count}} requirements apply automatically based on their audience and are not listed here.",
         "continue": "Continue",
         "back": "Back",
         "noAccountTitle": "No existing account found",

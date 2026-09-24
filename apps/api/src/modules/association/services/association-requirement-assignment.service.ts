@@ -1,7 +1,9 @@
+import { type ProfessionalRequirementDirectoryApi } from "@professional/public/professional-requirement-directory-api";
+import { PROFESSIONAL_REQUIREMENT_DIRECTORY_API } from "@professional/public/professional-requirement-directory-api";
 import { AssociationRequirementStatus, Prisma } from "@prisma/client";
+import { Inject, Injectable, Logger } from "@nestjs/common";
 import { AssociationAudienceKind } from "@prisma/client";
 import { AssociationMemberStatus } from "@prisma/client";
-import { Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 
 const BATCH_SIZE = 200;
@@ -40,7 +42,48 @@ export class AssociationRequirementAssignmentService {
     AssociationRequirementAssignmentService.name,
   );
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(PROFESSIONAL_REQUIREMENT_DIRECTORY_API)
+    private readonly requirementDirectory: ProfessionalRequirementDirectoryApi,
+  ) {}
+
+  private async syncDirectoryForMembers(memberIds: string[]): Promise<void> {
+    const uniqueIds = [...new Set(memberIds)];
+    if (!uniqueIds.length) return;
+
+    const members = await this.prisma.associationMember.findMany({
+      where: { id: { in: uniqueIds } },
+      select: { id: true, userId: true },
+    });
+    if (!members.length) return;
+
+    const assignments =
+      await this.prisma.associationRequirementAssignment.findMany({
+        where: {
+          isTargeted: true,
+          memberId: { in: uniqueIds },
+          requirement: { status: AssociationRequirementStatus.PUBLISHED },
+        },
+        select: { requirementId: true, memberId: true },
+      });
+
+    const requirementIdsByMember = new Map<string, string[]>();
+    for (const assignment of assignments) {
+      const list = requirementIdsByMember.get(assignment.memberId) ?? [];
+      list.push(assignment.requirementId);
+      requirementIdsByMember.set(assignment.memberId, list);
+    }
+
+    await Promise.all(
+      members.map((member) =>
+        this.requirementDirectory.syncAssignedRequirements(
+          member.userId,
+          requirementIdsByMember.get(member.id) ?? [],
+        ),
+      ),
+    );
+  }
 
   cycleStartFor(requirement: {
     reportingStart: Date | null;
@@ -188,6 +231,11 @@ export class AssociationRequirementAssignmentService {
       removed: outcome.removed,
     });
 
+    await this.syncDirectoryForMembers([
+      ...covered,
+      ...orphaned.map((assignment) => assignment.memberId),
+    ]);
+
     return outcome;
   }
 
@@ -263,6 +311,8 @@ export class AssociationRequirementAssignmentService {
           data: { isTargeted: false },
         });
     }
+
+    await this.syncDirectoryForMembers([member.id]);
   }
 
   private covers(

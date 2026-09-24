@@ -455,6 +455,7 @@ export type TActivitySuccessPanelProps = {
   t: I18nContextValue["t"];
   onAddAnother: () => void;
   onViewActivities: () => void;
+  onReturn?: { label: string; onClick: () => void };
 };
 
 export type TOverviewCardProps = {

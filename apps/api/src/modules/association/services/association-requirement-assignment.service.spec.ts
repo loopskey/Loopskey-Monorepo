@@ -61,11 +61,17 @@ const setup = (
     ),
   };
 
+  const requirementDirectory = {
+    syncAssignedRequirements: jest.fn().mockResolvedValue(undefined),
+  };
+
   return {
     tx,
     prisma,
+    requirementDirectory,
     service: new AssociationRequirementAssignmentService(
       prisma as unknown as PrismaService,
+      requirementDirectory,
     ),
   };
 };

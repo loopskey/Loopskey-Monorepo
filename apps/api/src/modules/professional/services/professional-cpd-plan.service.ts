@@ -62,7 +62,7 @@ export class ProfessionalCpdPlanService {
   async myPlans(user: TUser) {
     this.assertProfessional(user);
     return this.prismaService.cPDPlan.findMany({
-      where: { userId: user.id },
+      where: { userId: user.id, status: CPDPlanStatus.ACTIVE },
       orderBy: { createdAt: "desc" },
       ...planWithCategories,
     });
@@ -71,6 +71,15 @@ export class ProfessionalCpdPlanService {
   async plan(user: TUser, planId: string) {
     this.assertProfessional(user);
     return this.findOwnedPlan(user, planId);
+  }
+
+  async myDraftPlans(user: TUser) {
+    this.assertProfessional(user);
+    return this.prismaService.cPDPlan.findMany({
+      where: { userId: user.id, status: CPDPlanStatus.DRAFT },
+      orderBy: { createdAt: "desc" },
+      ...planWithCategories,
+    });
   }
 
   private validateAndBuild(input: CreateCpdPlanInput) {
@@ -214,7 +223,14 @@ export class ProfessionalCpdPlanService {
       },
       ...planWithCategories,
     });
-    if (existing) return existing;
+    if (existing)
+      return existing.status === CPDPlanStatus.DRAFT
+        ? this.prismaService.cPDPlan.update({
+            where: { id: existing.id },
+            data: { status: CPDPlanStatus.ACTIVE },
+            ...planWithCategories,
+          })
+        : existing;
     return this.prismaService.cPDPlan.create({
       data: {
         userId: user.id,
@@ -379,10 +395,22 @@ export class ProfessionalCpdPlanService {
     return this.prismaService.cPDPlan.create({
       data: {
         userId: user.id,
-        status: CPDPlanStatus.ACTIVE,
+        status: CPDPlanStatus.DRAFT,
         ...data,
         categories: { create: categories ?? [] },
       },
+      ...planWithCategories,
+    });
+  }
+
+  async activateDraftPlan(user: TUser, planId: string) {
+    this.assertProfessional(user);
+    const plan = await this.findOwnedPlan(user, planId);
+    if (plan.status !== CPDPlanStatus.DRAFT)
+      throw new BadRequestException(ProfessionalMessageCode.CPD_PLAN_NOT_DRAFT);
+    return this.prismaService.cPDPlan.update({
+      where: { id: plan.id },
+      data: { status: CPDPlanStatus.ACTIVE },
       ...planWithCategories,
     });
   }
@@ -475,10 +503,6 @@ export class ProfessionalCpdPlanService {
 
     const activityCredits = round2(Number(aggregate._sum.pdus ?? 0));
     const activitiesCounted = aggregate._count;
-    // earnedCredits is activity-based only: startingCredits (the historical
-    // initialCompletedCredits) is reported separately and never folds into
-    // earned, remaining, the donut, or compliance so every progress surface
-    // agrees on one activity-based definition.
     const earned = activityCredits;
     const startingCredits = round2(plan.initialCompletedCredits);
     const total = plan.totalRequiredCredits;

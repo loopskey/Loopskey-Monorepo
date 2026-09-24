@@ -2465,6 +2465,7 @@ input LoginInput {
 
 type Mutation {
   activateAssociationAccount(input: ActivateAssociationAccountInput!): AuthPayload!
+  activateCpdPlan(planId: ID!): CpdPlan!
   activateIngestionSource(sourceId: String!): IngestionSource!
   activateOrganizationAccount(input: ActivateOrganizationAccountInput!): AuthPayload!
   addOrganizationMember(input: AddOrganizationMemberInput!): OrganizationMember!
@@ -4320,6 +4321,7 @@ type Query {
   myCalendarEntries: [ProfessionalManualCalendarEvent!]!
   myCart: Cart
   myCpdPlans: [CpdPlan!]!
+  myDraftCpdPlans: [CpdPlan!]!
   myEnrollments: [ContentEnrollment!]!
   myExternalLearningActivities(filter: ExternalLearningFilterInput, pagination: OrganizationPaginationInput): PaginatedExternalLearning!
   myProviderCourses(filter: CourseFilterInput, pagination: CoursePaginationInput, sort: CourseSortInput): PaginatedCourses!
