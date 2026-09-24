@@ -1,5 +1,6 @@
 import { AssociationComplianceReadService } from "@association/services/association-compliance-read.service";
 import { type ProfessionalComplianceApi } from "@professional/public/professional-compliance-api";
+import { type CatalogEndorsementApi } from "@landing/public/catalog-endorsement-api";
 import { AssociationMemberProfileService } from "@association/services/association-member-profile.service";
 import { AssociationAccessService } from "@association/services/association-access.service";
 import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
@@ -92,6 +93,9 @@ const setup = ({
   details = [detailRow()],
   certificates = [],
   cumulative = [],
+  content = [] as Record<string, unknown>[],
+  loggedActivities = [] as Record<string, unknown>[],
+  requirement = { id: "req-1" } as { id: string } | null,
 }: {
   member?: typeof memberRow | null;
   assignments?: ReturnType<typeof assignmentRow>[];
@@ -99,6 +103,9 @@ const setup = ({
   details?: ReturnType<typeof detailRow>[];
   certificates?: Record<string, unknown>[];
   cumulative?: { activityDate: Date; creditedAmount: number }[];
+  content?: Record<string, unknown>[];
+  loggedActivities?: Record<string, unknown>[];
+  requirement?: { id: string } | null;
 } = {}) => {
   const attributionFindMany = jest
     .fn()
@@ -113,6 +120,12 @@ const setup = ({
     associationCreditAttribution: { findMany: attributionFindMany },
     associationMessageDelivery: {
       findFirst: jest.fn().mockResolvedValue(null),
+    },
+    associationLearningContent: {
+      findMany: jest.fn().mockResolvedValue(content),
+    },
+    associationRequirement: {
+      findFirst: jest.fn().mockResolvedValue(requirement),
     },
   };
 
@@ -132,12 +145,18 @@ const setup = ({
   const port = {
     certificatesForOwners: jest.fn().mockResolvedValue(certificates),
     activityDetailsForOwners: jest.fn().mockResolvedValue(details),
+    activitiesForMembers: jest.fn().mockResolvedValue(loggedActivities),
+  };
+
+  const catalog = {
+    resolveCatalogItems: jest.fn().mockResolvedValue([]),
   };
 
   return {
     port,
     prisma,
     access,
+    catalog,
     compliance,
     attributionFindMany,
     service: new AssociationMemberProfileService(
@@ -145,6 +164,7 @@ const setup = ({
       access as unknown as AssociationAccessService,
       compliance as unknown as AssociationComplianceReadService,
       port as unknown as ProfessionalComplianceApi,
+      catalog as unknown as CatalogEndorsementApi,
     ),
   };
 };
@@ -457,6 +477,167 @@ describe("AssociationMemberProfileService", () => {
         ["user-1"],
       );
       expect(page.pageInfo.hasNextPage).toBe(false);
+    });
+
+    it("filters to activities counting toward one requirement", async () => {
+      const { service } = setup({
+        attributions: [
+          attributionRow(),
+          attributionRow({
+            activityId: "act-2",
+            assignment: {
+              requirement: {
+                id: "req-2",
+                name: "Ethics",
+                evidencePolicy: AssociationEvidencePolicy.REQUIRED_NEEDS_REVIEW,
+              },
+            },
+          }),
+        ],
+        details: [detailRow(), detailRow({ id: "act-2" })],
+      });
+
+      const page = await service.activities(owner, "member-1", {
+        requirementId: "req-2",
+      });
+
+      expect(page.items.map((item) => item.id)).toEqual(["act-2"]);
+    });
+  });
+
+  describe("requirement evidence", () => {
+    it("refuses a requirement that does not belong to this association", async () => {
+      const { service } = setup({ requirement: null });
+
+      await expect(
+        service.requirementEvidence(owner, "member-1", "req-other"),
+      ).rejects.toMatchObject({
+        response: expect.objectContaining({
+          code: AssociationMessageCode.REQUIREMENT_NOT_FOUND,
+        }),
+      });
+    });
+
+    it("scopes activities and content completions to the one requirement", async () => {
+      const { service } = setup({
+        content: [
+          {
+            id: "content-1",
+            contentType: null,
+            contentId: null,
+            externalTitle: "Ethics Webinar",
+            externalProvider: "Provider Co",
+            indicativeCredits: 2,
+          },
+        ],
+        loggedActivities: [
+          {
+            id: "act-1",
+            associationLearningContentId: "content-1",
+            date: new Date("2026-05-01T00:00:00.000Z"),
+            credits: 2,
+            contentType: null,
+            contentId: null,
+          },
+        ],
+      });
+
+      const result = await service.requirementEvidence(
+        owner,
+        "member-1",
+        "req-1",
+      );
+
+      expect(result.requirementId).toBe("req-1");
+      expect(result.activities.items.map((item) => item.id)).toEqual(["act-1"]);
+      expect(result.contentCompletions).toEqual([
+        expect.objectContaining({
+          id: "content-1",
+          title: "Ethics Webinar",
+          activityId: "act-1",
+        }),
+      ]);
+    });
+
+    it("treats evidence files or a certification source as certificate evidence", async () => {
+      const { service } = setup({
+        details: [
+          detailRow({ hasEvidence: true }),
+          detailRow({
+            id: "act-2",
+            hasEvidence: false,
+            source: "CERTIFICATION_PROGRAM",
+          }),
+        ],
+        attributions: [
+          attributionRow(),
+          attributionRow({ activityId: "act-2" }),
+        ],
+      });
+
+      const result = await service.requirementEvidence(
+        owner,
+        "member-1",
+        "req-1",
+      );
+
+      expect(result.certificateEvidence.map((item) => item.id)).toEqual([
+        "act-1",
+        "act-2",
+      ]);
+    });
+  });
+
+  describe("unlinked learning content", () => {
+    it("surfaces this association's completed content that has no requirement", async () => {
+      const { service } = setup({
+        content: [
+          {
+            id: "content-1",
+            contentType: null,
+            contentId: null,
+            externalTitle: "Free Webinar",
+            externalProvider: "Provider Co",
+            indicativeCredits: 1,
+          },
+        ],
+        loggedActivities: [
+          {
+            id: "act-9",
+            associationLearningContentId: "content-1",
+            date: new Date("2026-04-01T00:00:00.000Z"),
+            credits: 1,
+            contentType: null,
+            contentId: null,
+          },
+        ],
+      });
+
+      const profile = await service.profile(owner, "member-1");
+
+      expect(profile.unlinkedLearningContent).toEqual([
+        expect.objectContaining({ id: "content-1", activityId: "act-9" }),
+      ]);
+    });
+
+    it("leaves content out when the member never completed it", async () => {
+      const { service } = setup({
+        content: [
+          {
+            id: "content-1",
+            contentType: null,
+            contentId: null,
+            externalTitle: "Free Webinar",
+            externalProvider: "Provider Co",
+            indicativeCredits: 1,
+          },
+        ],
+        loggedActivities: [],
+      });
+
+      const profile = await service.profile(owner, "member-1");
+
+      expect(profile.unlinkedLearningContent).toEqual([]);
     });
   });
 });

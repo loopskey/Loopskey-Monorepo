@@ -1,11 +1,8 @@
 import { Inject, Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { AssociationLearningContentStatus } from "@prisma/client";
-import { type ProfessionalComplianceApi } from "@professional/public/professional-compliance-api";
 import { AssociationRequirementStatus } from "@prisma/client";
 import { PROFESSIONAL_COMPLIANCE_API } from "@professional/public/professional-compliance-api";
 import { AssociationAttributionState } from "@prisma/client";
-import { type CatalogEndorsementApi } from "@landing/public/catalog-endorsement-api";
-import { type CatalogItemProjection } from "@landing/public/catalog-endorsement-api";
 import { AssociationMemberStatus } from "@prisma/client";
 import { AssociationAudienceKind } from "@prisma/client";
 import { CATALOG_ENDORSEMENT_API } from "@landing/public/catalog-endorsement-api";
@@ -14,6 +11,10 @@ import { ContentType, Prisma } from "@prisma/client";
 import { daysRemaining } from "@association/utils/compliance-attribution.util";
 import { PrismaService } from "@prisma/prisma.service";
 import { round2 } from "@association/utils/compliance-attribution.util";
+
+import { type ProfessionalComplianceApi } from "@professional/public/professional-compliance-api";
+import { type CatalogEndorsementApi } from "@landing/public/catalog-endorsement-api";
+import { type CatalogItemProjection } from "@landing/public/catalog-endorsement-api";
 
 const ACTIVITY_LIMIT = 100;
 const LEARNING_CONTENT_LIMIT = 100;
@@ -65,6 +66,7 @@ const CONTENT_SELECT = {
   description: true,
   category: true,
   indicativeCredits: true,
+  requirementId: true,
 } satisfies Prisma.AssociationLearningContentSelect;
 
 type ContentRow = Prisma.AssociationLearningContentGetPayload<{
@@ -378,22 +380,16 @@ export class AssociationMyRequirementsService {
 
     const rows = await this.prisma.associationLearningContent.findMany({
       where: {
-        requirementId: assignment.requirement.id,
+        associationId: assignment.requirement.association.id,
         status: AssociationLearningContentStatus.PUBLISHED,
-        OR: [
-          { audienceKind: AssociationAudienceKind.ALL_MEMBERS },
-          ...(member.groupId
-            ? [
-                {
-                  audienceKind: AssociationAudienceKind.GROUP,
-                  targets: { some: { groupId: member.groupId } },
-                },
-              ]
-            : []),
+        AND: [
           {
-            audienceKind: AssociationAudienceKind.SPECIFIC_MEMBERS,
-            targets: { some: { memberId: member.id } },
+            OR: [
+              { requirementId: assignment.requirement.id },
+              { requirementId: null },
+            ],
           },
+          { OR: this.audienceMatch(member) },
         ],
       },
       orderBy: [{ publishedAt: "desc" }, { id: "desc" }],
@@ -401,6 +397,81 @@ export class AssociationMyRequirementsService {
       select: CONTENT_SELECT,
     });
 
+    return this.projectContent(userId, rows, {
+      requirementId: assignment.requirement.id,
+      associationId: assignment.requirement.association.id,
+      associationName: assignment.requirement.association.name,
+    });
+  }
+
+  async myLearningContent(userId: string) {
+    const memberships = await this.prisma.associationMember.findMany({
+      where: { userId, status: { not: AssociationMemberStatus.INACTIVE } },
+      select: {
+        id: true,
+        groupId: true,
+        associationId: true,
+        association: { select: { name: true } },
+      },
+    });
+    if (!memberships.length) return [];
+
+    const perAssociation = await Promise.all(
+      memberships.map((member) =>
+        this.prisma.associationLearningContent.findMany({
+          where: {
+            associationId: member.associationId,
+            requirementId: null,
+            status: AssociationLearningContentStatus.PUBLISHED,
+            OR: this.audienceMatch(member),
+          },
+          orderBy: [{ publishedAt: "desc" }, { id: "desc" }],
+          take: LEARNING_CONTENT_LIMIT,
+          select: CONTENT_SELECT,
+        }),
+      ),
+    );
+
+    const projected = await Promise.all(
+      memberships.map((member, index) =>
+        this.projectContent(userId, perAssociation[index], {
+          requirementId: null,
+          associationId: member.associationId,
+          associationName: member.association.name,
+        }),
+      ),
+    );
+
+    return projected.flat().slice(0, LEARNING_CONTENT_LIMIT);
+  }
+
+  private audienceMatch(member: { id: string; groupId: string | null }) {
+    return [
+      { audienceKind: AssociationAudienceKind.ALL_MEMBERS },
+      ...(member.groupId
+        ? [
+            {
+              audienceKind: AssociationAudienceKind.GROUP,
+              targets: { some: { groupId: member.groupId } },
+            },
+          ]
+        : []),
+      {
+        audienceKind: AssociationAudienceKind.SPECIFIC_MEMBERS,
+        targets: { some: { memberId: member.id } },
+      },
+    ];
+  }
+
+  private async projectContent(
+    userId: string,
+    rows: ContentRow[],
+    context: {
+      requirementId: string | null;
+      associationId: string;
+      associationName: string;
+    },
+  ) {
     if (!rows.length) return [];
 
     const [resolved, logged] = await Promise.all([
@@ -439,6 +510,11 @@ export class AssociationMyRequirementsService {
         description: row.description,
         category: row.category,
         indicativeCredits: row.indicativeCredits,
+        isLinkedToRequirement:
+          row.requirementId !== null &&
+          row.requirementId === context.requirementId,
+        associationId: context.associationId,
+        associationName: context.associationName,
       };
     });
   }

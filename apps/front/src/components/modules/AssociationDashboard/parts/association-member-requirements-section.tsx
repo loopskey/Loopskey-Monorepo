@@ -1,6 +1,7 @@
 "use client";
 
 import { TAssociationMemberRequirementsSection } from "@/types/association-dashboard.types";
+import { AssociationMemberRequirementEvidence } from "@modules/AssociationDashboard/parts/association-member-requirement-evidence";
 import { AssociationComplianceBand } from "@/lib/graphql/base";
 import { useChartPalette } from "@hooks/useChartPalette";
 import { GlassCard } from "@elements/glass-card";
@@ -38,7 +39,15 @@ export const AssociationMemberRequirementsSection = ({
 }: TAssociationMemberRequirementsSection) => {
   const palette = useChartPalette();
 
-  const { t, locale, assignments, categoryRows } = hook;
+  const {
+    t,
+    locale,
+    assignments,
+    categoryRows,
+    openRequirementId,
+    changeOpenRequirement,
+    unlinkedLearningContent,
+  } = hook;
 
   const label = (key: string) =>
     t(`associationDashboard.memberDetail.chart.${key}`);
@@ -74,9 +83,18 @@ export const AssociationMemberRequirementsSection = ({
           </div>
         ) : (
           <>
-            <A.Accordion type="multiple" className="mt-6">
+            <A.Accordion
+              type="single"
+              collapsible
+              className="mt-6"
+              value={openRequirementId ?? ""}
+              onValueChange={changeOpenRequirement}
+            >
               {assignments.map((assignment) => (
-                <A.AccordionItem key={assignment.id} value={assignment.id}>
+                <A.AccordionItem
+                  key={assignment.id}
+                  value={assignment.requirementId}
+                >
                   <A.AccordionTrigger className="text-left">
                     <div className="flex w-full flex-wrap items-center gap-3 pr-3">
                       <span className="font-medium">
@@ -177,10 +195,57 @@ export const AssociationMemberRequirementsSection = ({
                         ))}
                       </ul>
                     )}
+
+                    {openRequirementId === assignment.requirementId && (
+                      <AssociationMemberRequirementEvidence
+                        hook={hook}
+                        requirementId={assignment.requirementId}
+                      />
+                    )}
                   </A.AccordionContent>
                 </A.AccordionItem>
               ))}
             </A.Accordion>
+
+            {unlinkedLearningContent.length > 0 && (
+              <div className="mt-8">
+                <h3 className="text-lg font-medium">
+                  {t(
+                    "associationDashboard.memberDetail.requirements.unlinked.title",
+                  )}
+                </h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {t(
+                    "associationDashboard.memberDetail.requirements.unlinked.subtitle",
+                  )}
+                </p>
+
+                <ul className="mt-4 space-y-2">
+                  {unlinkedLearningContent.map((item) => (
+                    <li
+                      key={item.id}
+                      className="flex flex-wrap items-center justify-between gap-3 rounded-md border p-3"
+                    >
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium">
+                          {item.title}
+                        </p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {[item.provider, date(item.activityDate as string)]
+                            .filter(Boolean)
+                            .join(" · ")}
+                        </p>
+                      </div>
+                      <Badge variant="secondary">
+                        {t(
+                          "associationDashboard.memberDetail.requirements.unlinked.notLinked",
+                        )}
+                      </Badge>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             <div className="mt-8">
               <h3 className="text-lg font-medium">

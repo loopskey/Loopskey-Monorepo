@@ -170,6 +170,14 @@ export const logActivityHref = (
   return `${ADD_ACTIVITY_HREF}&${params.toString()}`;
 };
 
+export const logContentActivityHref = (learningContentId: string) => {
+  const params = new URLSearchParams({
+    [LEARNING_CONTENT_PARAM]: learningContentId,
+    [RETURN_TO_PARAM]: RETURN_TO_REQUIREMENTS,
+  });
+  return `${ADD_ACTIVITY_HREF}&${params.toString()}`;
+};
+
 type RequirementT = (
   key: string,
   params?: Record<string, string | number>,

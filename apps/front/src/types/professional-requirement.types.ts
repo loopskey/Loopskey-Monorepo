@@ -8,6 +8,8 @@ export type TAssociationRequirementDetail =
   API.AssociationMyRequirementDetailFieldsFragment;
 export type TAssociationRequirementContent =
   TAssociationRequirementDetail["learningContents"][number];
+export type TAssociationLearningContentItem =
+  API.AssociationMyLearningContentFieldsFragment;
 export type TAssociationRequirementActivity =
   TAssociationRequirementDetail["activities"][number];
 export type TPlanActivity = API.CpdPlanActivityFieldsFragment;
@@ -58,8 +60,16 @@ export type TRequirementLearningContentProps = {
   isLoading: boolean;
   t: I18nContextValue["t"];
   requirementKeyValue: string;
+  associationName: string | null;
   contents: TAssociationRequirementContent[];
   onMarkComplete: (content: TAssociationRequirementContent) => void;
+};
+
+export type TAssociationContentSectionProps = {
+  isLoading: boolean;
+  t: I18nContextValue["t"];
+  contents: TAssociationLearningContentItem[];
+  onMarkComplete: (content: TAssociationLearningContentItem) => void;
 };
 
 export type TRequirementSwitcherProps = {

@@ -52,6 +52,9 @@ export class AssociationMyRequirementContentEntity {
   @Field() isExternal: boolean;
   @Field() isAvailable: boolean;
   @Field() isCompleted: boolean;
+  @Field() associationName: string;
+  @Field(() => ID) associationId: string;
+  @Field() isLinkedToRequirement: boolean;
   @Field(() => String, { nullable: true }) slug: string | null;
   @Field(() => ID, { nullable: true }) contentId: string | null;
   @Field(() => String, { nullable: true }) provider: string | null;

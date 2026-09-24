@@ -43,6 +43,9 @@ export const AssociationMemberActivitiesSection = ({
     openDecision,
     previousPage,
     changeStateFilter,
+    requirementFilter,
+    changeRequirementFilter,
+    requirementFilterOptions,
   } = hook;
 
   const date = (value: string) => new Date(value).toLocaleDateString(locale);
@@ -155,6 +158,42 @@ export const AssociationMemberActivitiesSection = ({
                 {STATE_FILTERS.map((value) => (
                   <S.SelectItem key={value} value={value}>
                     {filterLabel(value)}
+                  </S.SelectItem>
+                ))}
+              </S.SelectContent>
+            </S.Select>
+          </div>
+
+          <div className="w-full sm:w-64">
+            <label
+              htmlFor="association-activity-requirement"
+              className="text-xs uppercase text-muted-foreground"
+            >
+              {t(
+                "associationDashboard.memberDetail.activities.requirementFilterLabel",
+              )}
+            </label>
+
+            <S.Select
+              value={requirementFilter}
+              onValueChange={changeRequirementFilter}
+            >
+              <S.SelectTrigger
+                id="association-activity-requirement"
+                className="mt-1 rounded-md"
+              >
+                <S.SelectValue />
+              </S.SelectTrigger>
+
+              <S.SelectContent className="z-[9999] rounded-md">
+                <S.SelectItem value={ALL}>
+                  {t(
+                    "associationDashboard.memberDetail.activities.filterAllRequirements",
+                  )}
+                </S.SelectItem>
+                {requirementFilterOptions.map((option) => (
+                  <S.SelectItem key={option.id} value={option.id}>
+                    {option.name}
                   </S.SelectItem>
                 ))}
               </S.SelectContent>

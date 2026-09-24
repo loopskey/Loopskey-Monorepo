@@ -1,12 +1,12 @@
 "use client";
 
-import { contentDetailHref } from "@/utils/professional-requirement.helper";
 import { getContentTypeStyle } from "@/utils/content-type-style";
+import { contentDetailHref } from "@/utils/professional-requirement.helper";
 import { GlassCard } from "@elements/glass-card";
+import { useState } from "react";
 import { Skeleton } from "@ui/skeleton";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
-import { useState } from "react";
 
 import type { TRequirementLearningContentProps } from "@/types/professional-requirement.types";
 import type { TAssociationRequirementContent } from "@/types/professional-requirement.types";
@@ -76,15 +76,23 @@ const ContentRow = ({
   t,
   content,
   onMarkComplete,
+  associationName,
   requirementKeyValue,
 }: {
   t: I18nContextValue["t"];
   content: TAssociationRequirementContent;
   requirementKeyValue: string;
+  associationName: string | null;
   onMarkComplete: (content: TAssociationRequirementContent) => void;
 }) => {
   const style = getContentTypeStyle(content.contentType);
   const TypeIcon = style.icon;
+
+  const linkLabel = content.isLinkedToRequirement
+    ? t(`${KEY}.countsToward`)
+    : associationName
+      ? t(`${KEY}.recommendedBy`, { association: associationName })
+      : null;
 
   return (
     <li className="flex flex-col gap-2 rounded-md border p-3 sm:flex-row sm:items-center sm:justify-between">
@@ -110,6 +118,9 @@ const ContentRow = ({
               </Badge>
             )}
           </div>
+          {linkLabel ? (
+            <p className="truncate text-xs text-primary">{linkLabel}</p>
+          ) : null}
           {detailLine(t, content) ? (
             <p className="truncate text-xs text-muted-foreground">
               {detailLine(t, content)}
@@ -119,7 +130,11 @@ const ContentRow = ({
       </div>
 
       <div className="flex shrink-0 flex-wrap gap-2">
-        <ViewAction t={t} content={content} requirementKeyValue={requirementKeyValue} />
+        <ViewAction
+          t={t}
+          content={content}
+          requirementKeyValue={requirementKeyValue}
+        />
         <Button
           size="sm"
           radius="xl"
@@ -140,6 +155,7 @@ export const RequirementLearningContent = ({
   contents,
   isLoading,
   onMarkComplete,
+  associationName,
   requirementKeyValue,
 }: TRequirementLearningContentProps) => {
   const [showAll, setShowAll] = useState(false);
@@ -168,6 +184,7 @@ export const RequirementLearningContent = ({
                 key={content.id}
                 content={content}
                 onMarkComplete={onMarkComplete}
+                associationName={associationName}
                 requirementKeyValue={requirementKeyValue}
               />
             ))}

@@ -753,6 +753,7 @@ export type AssociationMemberActivity = {
 };
 
 export type AssociationMemberActivityFilterInput = {
+  requirementId?: InputMaybe<Scalars['ID']['input']>;
   state?: InputMaybe<AssociationAttributionState>;
 };
 
@@ -775,6 +776,19 @@ export type AssociationMemberCompliance = {
   assignments: Array<AssociationAssignmentProgress>;
   isMissingEvidence: Scalars['Boolean']['output'];
   memberId: Scalars['ID']['output'];
+};
+
+export type AssociationMemberContentCompletion = {
+  __typename?: 'AssociationMemberContentCompletion';
+  activityDate: Scalars['DateTime']['output'];
+  activityId: Scalars['ID']['output'];
+  contentType?: Maybe<ContentType>;
+  credits: Scalars['Float']['output'];
+  id: Scalars['ID']['output'];
+  indicativeCredits?: Maybe<Scalars['Float']['output']>;
+  isExternal: Scalars['Boolean']['output'];
+  provider?: Maybe<Scalars['String']['output']>;
+  title: Scalars['String']['output'];
 };
 
 export type AssociationMemberDistribution = {
@@ -825,6 +839,7 @@ export type AssociationMemberProfile = {
   lastNotifiedAt?: Maybe<Scalars['DateTime']['output']>;
   member: AssociationMember;
   summary: AssociationMemberSummary;
+  unlinkedLearningContent: Array<AssociationMemberContentCompletion>;
 };
 
 export type AssociationMemberProgressRow = {
@@ -843,6 +858,14 @@ export type AssociationMemberProgressRow = {
   memberNumber?: Maybe<Scalars['String']['output']>;
   percent: Scalars['Float']['output'];
   requiredCredits: Scalars['Float']['output'];
+};
+
+export type AssociationMemberRequirementEvidence = {
+  __typename?: 'AssociationMemberRequirementEvidence';
+  activities: PaginatedAssociationMemberActivities;
+  certificateEvidence: Array<AssociationMemberActivity>;
+  contentCompletions: Array<AssociationMemberContentCompletion>;
+  requirementId: Scalars['ID']['output'];
 };
 
 export type AssociationMemberRequirementOption = {
@@ -1026,6 +1049,8 @@ export type AssociationMyRequirementActivity = {
 
 export type AssociationMyRequirementContent = {
   __typename?: 'AssociationMyRequirementContent';
+  associationId: Scalars['ID']['output'];
+  associationName: Scalars['String']['output'];
   category?: Maybe<PduCategory>;
   contentId?: Maybe<Scalars['ID']['output']>;
   contentType?: Maybe<ContentType>;
@@ -1037,6 +1062,7 @@ export type AssociationMyRequirementContent = {
   isAvailable: Scalars['Boolean']['output'];
   isCompleted: Scalars['Boolean']['output'];
   isExternal: Scalars['Boolean']['output'];
+  isLinkedToRequirement: Scalars['Boolean']['output'];
   provider?: Maybe<Scalars['String']['output']>;
   slug?: Maybe<Scalars['String']['output']>;
   title: Scalars['String']['output'];
@@ -5343,6 +5369,7 @@ export type Query = {
   associationMemberEmailLookup: AssociationMemberEmailLookup;
   associationMemberProfile: AssociationMemberProfile;
   associationMemberProgressReport: PaginatedAssociationMemberProgress;
+  associationMemberRequirementEvidence: AssociationMemberRequirementEvidence;
   associationMemberRequirementOptions: Array<AssociationMemberRequirementOption>;
   associationMemberStats: AssociationMemberStats;
   associationMembers: PaginatedAssociationMembers;
@@ -5386,6 +5413,7 @@ export type Query = {
   ingestionSources: PaginatedIngestionSources;
   linkedinOAuthUrl: AuthUrl;
   me: User;
+  myAssociationLearningContent: Array<AssociationMyRequirementContent>;
   myAssociationRequirement: AssociationMyRequirementDetail;
   myAssociationRequirements: Array<AssociationMyRequirement>;
   myCalendarEntries: Array<ProfessionalManualCalendarEvent>;
@@ -5647,6 +5675,14 @@ export type QueryAssociationMemberProgressReportArgs = {
   associationId?: InputMaybe<Scalars['ID']['input']>;
   filter?: InputMaybe<AssociationReportFilterInput>;
   pagination?: InputMaybe<AssociationReportPaginationInput>;
+};
+
+
+export type QueryAssociationMemberRequirementEvidenceArgs = {
+  associationId?: InputMaybe<Scalars['ID']['input']>;
+  memberId: Scalars['ID']['input'];
+  pagination?: InputMaybe<AssociationPaginationInput>;
+  requirementId: Scalars['ID']['input'];
 };
 
 

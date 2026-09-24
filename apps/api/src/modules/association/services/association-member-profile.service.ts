@@ -1,13 +1,15 @@
+import { AssociationLearningContentStatus, PDUSource } from "@prisma/client";
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { AssociationAudienceKind, ContentType } from "@prisma/client";
 import { AssociationAttributionState, Prisma } from "@prisma/client";
 import { AssociationComplianceReadService } from "@association/services/association-compliance-read.service";
 import { AssociationMessageDeliveryState } from "@prisma/client";
-import { type ProfessionalComplianceApi } from "@professional/public/professional-compliance-api";
 import { AssociationRequirementStatus } from "@prisma/client";
 import { PROFESSIONAL_COMPLIANCE_API } from "@professional/public/professional-compliance-api";
 import { AssociationPaginationInput } from "@association/dtos/association-pagination.input";
 import { AssociationEvidencePolicy } from "@prisma/client";
 import { AssociationAccessService } from "@association/services/association-access.service";
+import { CATALOG_ENDORSEMENT_API } from "@landing/public/catalog-endorsement-api";
 import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
 import { MemberActivityFilter } from "@association/types/association-member-profile.types";
 import { PROFILE_MEMBER_SELECT } from "@association/types/association-member-profile.types";
@@ -19,7 +21,35 @@ import { PrismaService } from "@prisma/prisma.service";
 import { overallFor } from "@association/utils/compliance-attribution.util";
 import { paceFor } from "@association/utils/compliance-attribution.util";
 
+import { type ProfessionalComplianceApi } from "@professional/public/professional-compliance-api";
+import { type CatalogEndorsementApi } from "@landing/public/catalog-endorsement-api";
+import { type CatalogItemProjection } from "@landing/public/catalog-endorsement-api";
+
 const ATTRIBUTION_SCAN_LIMIT = 2000;
+const CONTENT_LIMIT = 50;
+
+const MEMBER_CONTENT_SELECT = {
+  id: true,
+  contentType: true,
+  contentId: true,
+  externalTitle: true,
+  externalProvider: true,
+  indicativeCredits: true,
+} satisfies Prisma.AssociationLearningContentSelect;
+
+type MemberContentRow = Prisma.AssociationLearningContentGetPayload<{
+  select: typeof MEMBER_CONTENT_SELECT;
+}>;
+
+type CatalogRef = { contentType: ContentType; contentId: string };
+
+const catalogRefOf = (row: MemberContentRow): CatalogRef | null =>
+  row.contentType && row.contentId
+    ? { contentType: row.contentType, contentId: row.contentId }
+    : null;
+
+const catalogKey = (reference: { contentType: string; contentId: string }) =>
+  `${reference.contentType}:${reference.contentId}`;
 
 const STATE_PRECEDENCE = [
   AssociationAttributionState.AWAITING_REVIEW,
@@ -45,6 +75,8 @@ export class AssociationMemberProfileService {
     private readonly compliance: AssociationComplianceReadService,
     @Inject(PROFESSIONAL_COMPLIANCE_API)
     private readonly professional: ProfessionalComplianceApi,
+    @Inject(CATALOG_ENDORSEMENT_API)
+    private readonly catalog: CatalogEndorsementApi,
   ) {}
 
   async requireMember(
@@ -101,6 +133,12 @@ export class AssociationMemberProfileService {
       member.userId,
     ]);
 
+    const unlinkedLearningContent = await this.contentCompletionsFor(
+      association,
+      member,
+      { requirementId: null },
+    );
+
     const lastNotification =
       await this.prisma.associationMessageDelivery.findFirst({
         where: { memberId, state: AssociationMessageDeliveryState.SENT },
@@ -141,6 +179,7 @@ export class AssociationMemberProfileService {
         ...certificate,
         memberId: member.id,
       })),
+      unlinkedLearningContent,
     };
   }
 
@@ -204,11 +243,67 @@ export class AssociationMemberProfileService {
       associationId,
     );
 
+    return this.activitiesFor(association, member, filter, pagination);
+  }
+
+  async requirementEvidence(
+    user: TAssociationUser,
+    memberId: string,
+    requirementId: string,
+    pagination?: AssociationPaginationInput,
+    associationId?: string,
+  ) {
+    const { association, member } = await this.requireMember(
+      user,
+      memberId,
+      associationId,
+    );
+
+    const requirement = await this.prisma.associationRequirement.findFirst({
+      where: { id: requirementId, associationId: association.id },
+      select: { id: true },
+    });
+
+    if (!requirement)
+      throw new NotFoundException({
+        code: AssociationMessageCode.REQUIREMENT_NOT_FOUND,
+        message: "That requirement does not belong to this association.",
+      });
+
+    const [activitiesPage, contentCompletions] = await Promise.all([
+      this.activitiesFor(association, member, { requirementId }, pagination),
+      this.contentCompletionsFor(association, member, { requirementId }),
+    ]);
+
+    const certificateEvidence = activitiesPage.items.filter(
+      (item) =>
+        item.hasEvidence || item.source === PDUSource.CERTIFICATION_PROGRAM,
+    );
+
+    return {
+      requirementId,
+      activities: activitiesPage,
+      contentCompletions,
+      certificateEvidence,
+    };
+  }
+
+  private async activitiesFor(
+    association: { id: string },
+    member: { id: string; userId: string },
+    filter: MemberActivityFilter = {},
+    pagination?: AssociationPaginationInput,
+  ) {
     const scope = await this.scopedActivities(association.id, member.id);
 
-    const matching = filter.state
-      ? scope.filter((activity) => activity.state === filter.state)
-      : scope;
+    const matching = scope.filter(
+      (activity) =>
+        (!filter.state || activity.state === filter.state) &&
+        (!filter.requirementId ||
+          activity.requirements.some(
+            (requirement) => requirement.id === filter.requirementId,
+          )),
+    );
 
     const take = pagination?.take ?? 20;
     const cursorIndex = pagination?.cursor
@@ -361,5 +456,89 @@ export class AssociationMemberProfileService {
     return STATE_PRECEDENCE.indexOf(left) <= STATE_PRECEDENCE.indexOf(right)
       ? left
       : right;
+  }
+
+  private async contentCompletionsFor(
+    association: { id: string },
+    member: { id: string; userId: string; group: { id: string } | null },
+    filter: { requirementId: string | null },
+  ) {
+    const rows = await this.prisma.associationLearningContent.findMany({
+      where: {
+        associationId: association.id,
+        requirementId: filter.requirementId,
+        status: AssociationLearningContentStatus.PUBLISHED,
+        OR: [
+          { audienceKind: AssociationAudienceKind.ALL_MEMBERS },
+          ...(member.group
+            ? [
+                {
+                  audienceKind: AssociationAudienceKind.GROUP,
+                  targets: { some: { groupId: member.group.id } },
+                },
+              ]
+            : []),
+          {
+            audienceKind: AssociationAudienceKind.SPECIFIC_MEMBERS,
+            targets: { some: { memberId: member.id } },
+          },
+        ],
+      },
+      orderBy: [{ publishedAt: "desc" }, { id: "desc" }],
+      take: CONTENT_LIMIT,
+      select: MEMBER_CONTENT_SELECT,
+    });
+
+    if (!rows.length) return [];
+
+    const [resolved, logged] = await Promise.all([
+      this.resolveCatalog(rows),
+      this.professional.activitiesForMembers({ userIds: [member.userId] }),
+    ]);
+
+    return rows.flatMap((row) => {
+      const reference = catalogRefOf(row);
+      const match = logged.find(
+        (activity) =>
+          activity.associationLearningContentId === row.id ||
+          (reference !== null &&
+            activity.contentType === reference.contentType &&
+            activity.contentId === reference.contentId),
+      );
+      if (!match) return [];
+
+      const catalog = reference
+        ? (resolved?.get(catalogKey(reference)) ?? null)
+        : null;
+
+      return [
+        {
+          id: row.id,
+          title: catalog?.title ?? row.externalTitle ?? "",
+          isExternal: reference === null,
+          provider: catalog?.provider ?? row.externalProvider,
+          contentType: row.contentType,
+          activityId: match.id,
+          activityDate: match.date,
+          credits: match.credits,
+          indicativeCredits: row.indicativeCredits,
+        },
+      ];
+    });
+  }
+
+  private async resolveCatalog(rows: MemberContentRow[]) {
+    const references = rows
+      .map(catalogRefOf)
+      .filter((reference): reference is CatalogRef => reference !== null);
+
+    if (!references.length) return new Map<string, CatalogItemProjection>();
+
+    try {
+      const items = await this.catalog.resolveCatalogItems(references);
+      return new Map(items.map((item) => [catalogKey(item), item]));
+    } catch {
+      return null;
+    }
   }
 }

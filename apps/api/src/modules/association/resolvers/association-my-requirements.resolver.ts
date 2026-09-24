@@ -1,13 +1,14 @@
+import { AssociationMyRequirementContentEntity } from "@association/entities/association-my-requirement.entity";
 import { AssociationMyRequirementDetailEntity } from "@association/entities/association-my-requirement.entity";
 import { AssociationContentEndorsementEntity } from "@association/entities/association-my-requirement.entity";
 import { AssociationMyRequirementsService } from "@association/services/association-my-requirements.service";
 import { AssociationMyRequirementEntity } from "@association/entities/association-my-requirement.entity";
 import { Args, ID, Query, Resolver } from "@nestjs/graphql";
 import { AssociationGqlQueryNames } from "@association/enums/association-gql-names.enum";
+import { ContentType, Role } from "@prisma/client";
 import { TResolverUser } from "@association/types/association-service.types";
 import { CurrentUser } from "@common/decorators/current-user.decorator";
 import { Roles } from "@common/decorators/roles.decorator";
-import { ContentType, Role } from "@prisma/client";
 
 @Resolver()
 @Roles(Role.PROFESSIONAL)
@@ -47,5 +48,12 @@ export class AssociationMyRequirementsResolver {
       contentType,
       contentId,
     );
+  }
+
+  @Query(() => [AssociationMyRequirementContentEntity], {
+    name: AssociationGqlQueryNames.MY_LEARNING_CONTENT,
+  })
+  myAssociationLearningContent(@CurrentUser() user: TResolverUser) {
+    return this.myRequirements.myLearningContent(user.id ?? user.sub!);
   }
 }

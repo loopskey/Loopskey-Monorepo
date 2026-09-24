@@ -701,6 +701,7 @@ type AssociationMemberActivity {
 }
 
 input AssociationMemberActivityFilterInput {
+  requirementId: ID
   state: AssociationAttributionState
 }
 
@@ -721,6 +722,18 @@ type AssociationMemberCompliance {
   assignments: [AssociationAssignmentProgress!]!
   isMissingEvidence: Boolean!
   memberId: ID!
+}
+
+type AssociationMemberContentCompletion {
+  activityDate: DateTime!
+  activityId: ID!
+  contentType: ContentType
+  credits: Float!
+  id: ID!
+  indicativeCredits: Float
+  isExternal: Boolean!
+  provider: String
+  title: String!
 }
 
 type AssociationMemberDistribution {
@@ -767,6 +780,7 @@ type AssociationMemberProfile {
   lastNotifiedAt: DateTime
   member: AssociationMember!
   summary: AssociationMemberSummary!
+  unlinkedLearningContent: [AssociationMemberContentCompletion!]!
 }
 
 type AssociationMemberProgressRow {
@@ -784,6 +798,13 @@ type AssociationMemberProgressRow {
   memberNumber: String
   percent: Float!
   requiredCredits: Float!
+}
+
+type AssociationMemberRequirementEvidence {
+  activities: PaginatedAssociationMemberActivities!
+  certificateEvidence: [AssociationMemberActivity!]!
+  contentCompletions: [AssociationMemberContentCompletion!]!
+  requirementId: ID!
 }
 
 type AssociationMemberRequirementOption {
@@ -955,6 +976,8 @@ type AssociationMyRequirementActivity {
 }
 
 type AssociationMyRequirementContent {
+  associationId: ID!
+  associationName: String!
   category: PDUCategory
   contentId: ID
   contentType: ContentType
@@ -966,6 +989,7 @@ type AssociationMyRequirementContent {
   isAvailable: Boolean!
   isCompleted: Boolean!
   isExternal: Boolean!
+  isLinkedToRequirement: Boolean!
   provider: String
   slug: String
   title: String!
@@ -4302,6 +4326,7 @@ type Query {
   associationMemberEmailLookup(associationId: ID, email: String!): AssociationMemberEmailLookup!
   associationMemberProfile(associationId: ID, memberId: ID!): AssociationMemberProfile!
   associationMemberProgressReport(associationId: ID, filter: AssociationReportFilterInput, pagination: AssociationReportPaginationInput): PaginatedAssociationMemberProgress!
+  associationMemberRequirementEvidence(associationId: ID, memberId: ID!, pagination: AssociationPaginationInput, requirementId: ID!): AssociationMemberRequirementEvidence!
   associationMemberRequirementOptions(associationId: ID, memberId: ID!): [AssociationMemberRequirementOption!]!
   associationMemberStats(associationId: ID): AssociationMemberStats!
   associationMembers(associationId: ID, filter: AssociationMemberFilterInput, pagination: AssociationPaginationInput): PaginatedAssociationMembers!
@@ -4345,6 +4370,7 @@ type Query {
   ingestionSources(filter: IngestionSourceFilter, pagination: IngestionPagination): PaginatedIngestionSources!
   linkedinOAuthUrl(role: Role!): AuthUrl!
   me: User!
+  myAssociationLearningContent: [AssociationMyRequirementContent!]!
   myAssociationRequirement(requirementId: ID!): AssociationMyRequirementDetail!
   myAssociationRequirements: [AssociationMyRequirement!]!
   myCalendarEntries: [ProfessionalManualCalendarEvent!]!
