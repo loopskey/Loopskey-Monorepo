@@ -2,6 +2,8 @@ import { ContentType, RoadmapDraftStep, SkillLevel } from "@prisma/client";
 import { LearningTimeCommitment, LearningFormat } from "@prisma/client";
 import { RoadmapChatRole, RoadmapDraftStatus } from "@prisma/client";
 import { Field, Float, ID, Int, ObjectType } from "@nestjs/graphql";
+import { RoadmapGenerationRecoveryAction } from "@professional/enums/roadmap-generation-failure.enum";
+import { RoadmapGenerationFailureCode } from "@professional/enums/roadmap-generation-failure.enum";
 import { ProfessionalGqlObjectNames } from "@professional/enums/gql-names.enum";
 import { LearningBudgetPreference } from "@prisma/client";
 import { RoadmapDraftFieldKey } from "@professional/enums/roadmap-draft.enum";
@@ -9,6 +11,13 @@ import { RoadmapWidgetKind } from "@professional/enums/roadmap-draft.enum";
 import { DeliveryFormat } from "@prisma/client";
 import { PageInfoEntity } from "@professional/entities/page-info.entity";
 import { CpdPlanEntity } from "@professional/entities/cpd-plan.entity";
+
+@ObjectType(ProfessionalGqlObjectNames.ROADMAP_GENERATION_FAILURE)
+export class RoadmapGenerationFailureEntity {
+  @Field(() => RoadmapGenerationFailureCode) code: RoadmapGenerationFailureCode;
+  @Field(() => [RoadmapGenerationRecoveryAction])
+  recoveryActions: RoadmapGenerationRecoveryAction[];
+}
 
 @ObjectType(ProfessionalGqlObjectNames.ROADMAP_WIDGET_OPTION)
 export class RoadmapWidgetOptionEntity {
@@ -64,7 +73,10 @@ export class ProfessionalRoadmapDraftEntity {
   @Field(() => [LearningFormat]) preferredFormats: LearningFormat[];
   @Field(() => String, { nullable: true }) targetRole?: string | null;
   @Field(() => String, { nullable: true }) goalReason?: string | null;
+  /** @deprecated Internal diagnostic value. Use `failure` instead. */
   @Field(() => String, { nullable: true }) failureReason: string | null;
+  @Field(() => RoadmapGenerationFailureEntity, { nullable: true })
+  failure?: RoadmapGenerationFailureEntity | null;
   @Field(() => SkillLevel, { nullable: true }) skillLevel?: SkillLevel | null;
   @Field(() => LearningTimeCommitment, { nullable: true })
   timeCommitment?: LearningTimeCommitment | null;
@@ -97,4 +109,14 @@ export class ProfessionalRoadmapDraftEntity {
 
   @Field(() => PaginatedRoadmapChatMessagesEntity)
   transcript: PaginatedRoadmapChatMessagesEntity;
+}
+
+@ObjectType(ProfessionalGqlObjectNames.PROFESSIONAL_ROADMAP_GENERATION)
+export class ProfessionalRoadmapGenerationEntity {
+  @Field(() => ID) id: string;
+  @Field() updatedAt: Date;
+  @Field(() => RoadmapDraftStatus) status: RoadmapDraftStatus;
+  @Field(() => String, { nullable: true }) goal?: string | null;
+  @Field(() => RoadmapGenerationFailureEntity, { nullable: true })
+  failure?: RoadmapGenerationFailureEntity | null;
 }

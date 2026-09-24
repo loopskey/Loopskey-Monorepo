@@ -536,4 +536,10 @@ input[type="date"]::-webkit-datetime-edit-fields-wrapper {
   .sidebar-item * {
     transition: none;
   }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
 }

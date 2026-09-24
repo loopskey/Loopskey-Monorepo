@@ -2559,7 +2559,7 @@ type Mutation {
   resendEmailOtp(input: ResendEmailOtpInput!): AuthPayload!
   resendOrganizationActivation(input: ResendOrganizationActivationInput!): AuthPayload!
   resetPassword(input: ResetPasswordInput!): AuthPayload!
-  resetRoadmapDraft: ProfessionalRoadmapDraft!
+  resetRoadmapDraft(draftId: ID): ProfessionalRoadmapDraft!
   restoreCourse(courseId: String!): Course!
   restoreEvent(eventId: String!): Event!
   restorePodcast(podcastId: String!): Podcast!
@@ -3925,6 +3925,7 @@ type ProfessionalRoadmapDraft {
   cpdEnabled: Boolean!
   cpdPlan: CpdPlan
   currentStep: RoadmapDraftStep!
+  failure: RoadmapGenerationFailure
   failureReason: String
   goal: String
   goalReason: String
@@ -3948,6 +3949,14 @@ type ProfessionalRoadmapDraft {
   updatedAt: DateTime!
   wasRefused: Boolean!
   widget: RoadmapWidget
+}
+
+type ProfessionalRoadmapGeneration {
+  failure: RoadmapGenerationFailure
+  goal: String
+  id: ID!
+  status: RoadmapDraftStatus!
+  updatedAt: DateTime!
 }
 
 type ProfessionalRoadmapPhase {
@@ -4362,6 +4371,7 @@ type Query {
   professionalPduReport(year: Int): ProfessionalPduReport!
   professionalProfileTaxonomy(kind: ProfileTaxonomyKind): [ProfessionalTaxonomyGroup!]!
   professionalRoadmapDraft(draftId: ID, transcript: ProfessionalPaginationInput): ProfessionalRoadmapDraft
+  professionalRoadmapGeneration(draftId: ID): ProfessionalRoadmapGeneration
   professionalRoadmapRecommendations(enrollmentId: ID): [RoadmapRecommendation!]!
   professionalRoadmapStats: ProfessionalRoadmapStats!
   professionalSettings: ProfessionalSettings!
@@ -4499,6 +4509,26 @@ enum RoadmapEnrollmentStatus {
   ACTIVE
   COMPLETED
   UNENROLLED
+}
+
+type RoadmapGenerationFailure {
+  code: RoadmapGenerationFailureCode!
+  recoveryActions: [RoadmapGenerationRecoveryAction!]!
+}
+
+enum RoadmapGenerationFailureCode {
+  INVALID_GENERATED_ROADMAP
+  NO_MATCHING_CONTENT
+  TEMPORARY_SERVICE_FAILURE
+  UNKNOWN
+}
+
+enum RoadmapGenerationRecoveryAction {
+  RETRY
+  REVIEW_BUDGET
+  REVIEW_FORMATS
+  REVIEW_SUBJECTS
+  START_OVER
 }
 
 type RoadmapRecommendation {

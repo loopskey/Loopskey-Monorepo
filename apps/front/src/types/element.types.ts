@@ -161,6 +161,7 @@ export type TConfirmDialogProps = {
   onOpenChange?: (open: boolean) => void;
   onConfirm: () => void | Promise<void>;
   confirmVariant?: VariantProps<typeof buttonVariants>["variant"];
+  onCloseAutoFocus?: (event: Event) => void;
 };
 
 // ============== Header ================

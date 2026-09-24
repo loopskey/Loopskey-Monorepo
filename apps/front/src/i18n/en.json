@@ -4337,6 +4337,8 @@
       "subtitle": "Track your structured learning paths, monitor phase progress, and explore new professional development journeys.",
       "newRoadmap": "New roadmap",
       "continueRoadmap": "Continue",
+      "viewFullRoadmap": "View full roadmap",
+      "heroEyebrow": "Your current AI roadmap",
       "enrolled": "Enrolled roadmaps",
       "averageCompletion": "Average completion",
       "completedPhases": "Completed phases",
@@ -4403,6 +4405,18 @@
         "title": "We could not finish your roadmap",
         "description": "Nothing was saved. You can edit your answers and try again.",
         "action": "Back to the coach"
+      },
+      "noContent": {
+        "title": "We couldn't find enough matching learning content.",
+        "description": "Your answers are saved. Review your subjects, formats, or budget and try again. We won't broaden them without your approval.",
+        "action": "Review preferences",
+        "startOver": "Start over"
+      },
+      "genericFailure": {
+        "title": "Your roadmap couldn't be generated.",
+        "description": "Your answers are saved. Try again now or review the brief before generating.",
+        "action": "Try generation again",
+        "reviewBrief": "Review brief"
       }
     },
     "calendar": {
@@ -7398,19 +7412,19 @@
     "startOverConfirmTitle": "Start over?",
     "startOverConfirmDescription": "This discards everything you have answered so far and begins a new conversation with the coach.",
     "startOverFailed": "We could not start over. Please try again.",
+    "briefButtonMobile": "Brief · {{completed}}/{{required}}",
+    "saveState": {
+      "saving": "Saving…",
+      "saved": "Saved",
+      "error": "Could not save"
+    },
     "preferencesWizard": {
       "stepOf": "Step {{current}} of {{total}}",
       "back": "Back",
       "confirm": "Confirm",
+      "saveFailed": "That didn't save. Try again.",
       "maxSelected": "Up to {{max}} selected",
-      "questions": {
-        "skillLevel": "What's your current experience level?",
-        "subjects": "Which subjects should the roadmap focus on? Choose up to 3.",
-        "preferredFormats": "What kind of content do you learn best from?",
-        "timeCommitment": "How much time can you dedicate each week?",
-        "preferredDeliveryFormats": "How do you prefer to attend?",
-        "budgetPreference": "What's your learning budget?"
-      }
+      "quickAnswerLabel": "Quick answer"
     },
     "transcriptLabel": "Conversation with the roadmap coach",
     "thinking": "The coach is thinking…",
@@ -7441,7 +7455,8 @@
       "hint": "Press Enter to send, Shift + Enter for a new line.",
       "correctionHint": "Want to change something you already told me? Just type it, for example “change my budget to under $100”.",
       "remaining": "{remaining} characters left",
-      "overLimit": "{over} characters over the limit"
+      "overLimit": "{over} characters over the limit",
+      "orOwnWords": "Or tell the coach in your own words"
     },
     "widget": {
       "yes": "Yes",
@@ -7478,9 +7493,16 @@
       "generating": "Starting generation...",
       "generateFailed": "We could not start generating your roadmap. Please try again.",
       "generateUnavailable": "Answer the remaining required fields to generate your roadmap.",
+      "generateUnavailableNext": "Next: answer {{field}} to generate your roadmap.",
       "briefProgress": "Brief completion",
       "briefProgressValue": "{{completed}} of {{required}} fields complete",
-      "notReachedYet": "You'll set this up after preferences."
+      "notReachedYet": "You'll set this up after preferences.",
+      "status": {
+        "confirmed": "Confirmed",
+        "suggested": "Suggested from profile",
+        "needsAnswer": "Needs answer",
+        "notNeeded": "Not needed"
+      }
     },
     "cpdSetup": {
       "pickTitle": "Pick a certification to track, or search for another one.",

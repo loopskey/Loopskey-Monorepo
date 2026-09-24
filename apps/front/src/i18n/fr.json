@@ -4340,6 +4340,8 @@
       "subtitle": "Suivez vos parcours structurés, mesurez la progression par phase et explorez de nouveaux axes de développement professionnel.",
       "newRoadmap": "Nouveau parcours",
       "continueRoadmap": "Continuer",
+      "viewFullRoadmap": "Voir le parcours complet",
+      "heroEyebrow": "Votre parcours IA actuel",
       "enrolled": "Parcours suivis",
       "averageCompletion": "Progression moyenne",
       "completedPhases": "Phases terminées",
@@ -4406,6 +4408,18 @@
         "title": "Nous n'avons pas pu terminer votre parcours",
         "description": "Rien n'a été enregistré. Vous pouvez modifier vos réponses et réessayer.",
         "action": "Retour au coach"
+      },
+      "noContent": {
+        "title": "Nous n'avons pas trouvé assez de contenus correspondants.",
+        "description": "Vos réponses sont enregistrées. Passez en revue vos sujets, formats ou budget et réessayez. Nous ne les élargirons pas sans votre accord.",
+        "action": "Revoir les préférences",
+        "startOver": "Recommencer"
+      },
+      "genericFailure": {
+        "title": "Votre parcours n'a pas pu être généré.",
+        "description": "Vos réponses sont enregistrées. Réessayez maintenant ou revoyez votre synthèse avant de générer.",
+        "action": "Réessayer la génération",
+        "reviewBrief": "Revoir la synthèse"
       }
     },
     "calendar": {
@@ -7400,19 +7414,19 @@
     "startOverConfirmTitle": "Recommencer ?",
     "startOverConfirmDescription": "Cela supprime tout ce que vous avez répondu jusqu'ici et démarre une nouvelle conversation avec le coach.",
     "startOverFailed": "Impossible de recommencer. Veuillez réessayer.",
+    "briefButtonMobile": "Résumé · {{completed}}/{{required}}",
+    "saveState": {
+      "saving": "Enregistrement…",
+      "saved": "Enregistré",
+      "error": "Échec de l'enregistrement"
+    },
     "preferencesWizard": {
       "stepOf": "Étape {{current}} sur {{total}}",
       "back": "Retour",
       "confirm": "Confirmer",
+      "saveFailed": "Cela n'a pas été enregistré. Réessayez.",
       "maxSelected": "Jusqu'à {{max}} sélectionnés",
-      "questions": {
-        "skillLevel": "Quel est votre niveau d'expérience actuel ?",
-        "subjects": "Sur quels sujets le parcours doit-il se concentrer ? Choisissez-en jusqu'à 3.",
-        "preferredFormats": "Avec quel type de contenu apprenez-vous le mieux ?",
-        "timeCommitment": "Combien de temps pouvez-vous y consacrer chaque semaine ?",
-        "preferredDeliveryFormats": "Comment préférez-vous suivre ce parcours ?",
-        "budgetPreference": "Quel est votre budget d'apprentissage ?"
-      }
+      "quickAnswerLabel": "Réponse rapide"
     },
     "transcriptLabel": "Conversation avec le coach de parcours",
     "thinking": "Le coach réfléchit…",
@@ -7443,7 +7457,8 @@
       "hint": "Entrée pour envoyer, Maj + Entrée pour une nouvelle ligne.",
       "correctionHint": "Envie de modifier une réponse ? Écrivez-le simplement, par exemple « change mon budget à moins de 100 $ ».",
       "remaining": "{remaining} caractères restants",
-      "overLimit": "{over} caractères de trop"
+      "overLimit": "{over} caractères de trop",
+      "orOwnWords": "Ou répondez au coach avec vos propres mots"
     },
     "widget": {
       "yes": "Oui",
@@ -7480,9 +7495,16 @@
       "generating": "Démarrage de la génération...",
       "generateFailed": "Impossible de démarrer la génération de votre parcours. Veuillez réessayer.",
       "generateUnavailable": "Répondez aux champs obligatoires restants pour générer votre parcours.",
+      "generateUnavailableNext": "Ensuite : répondez à {{field}} pour générer votre parcours.",
       "briefProgress": "Progression du résumé",
       "briefProgressValue": "{{completed}} champs sur {{required}} complétés",
-      "notReachedYet": "Vous configurerez ceci après les préférences."
+      "notReachedYet": "Vous configurerez ceci après les préférences.",
+      "status": {
+        "confirmed": "Confirmé",
+        "suggested": "Suggéré depuis le profil",
+        "needsAnswer": "Réponse requise",
+        "notNeeded": "Non nécessaire"
+      }
     },
     "cpdSetup": {
       "pickTitle": "Choisissez une certification à suivre, ou recherchez-en une autre.",

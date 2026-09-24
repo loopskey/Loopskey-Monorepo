@@ -45,15 +45,17 @@ export const roadmapChatApi = baseApi.injectEndpoints({
     }),
 
     /**
-     * "Start over": discards the current editable draft (and its transcript)
-     * and returns a brand-new one, already carrying the coach's introduction.
+     * "Start over": resets the draft shown on screen back to a fresh seeded
+     * state in place (same id, transcript replaced), so the route and any
+     * cached view stay valid rather than pointing at a discarded draft.
      */
     resetRoadmapDraft: builder.mutation<
       TAPI.ResetRoadmapDraftMutation["resetRoadmapDraft"],
-      void
+      string | void
     >({
-      query: () => ({
+      query: (draftId) => ({
         document: API.ResetRoadmapDraftDocument,
+        variables: { draftId: draftId ?? undefined },
       }),
       transformResponse: (response: TAPI.ResetRoadmapDraftMutation) =>
         response.resetRoadmapDraft,

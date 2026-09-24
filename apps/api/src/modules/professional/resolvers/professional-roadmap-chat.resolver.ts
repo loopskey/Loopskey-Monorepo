@@ -1,5 +1,6 @@
 import { ProfessionalRoadmapGenerationService } from "@professional/services/professional-roadmap-generation.service";
 import { Args, ID, Mutation, Query, Resolver } from "@nestjs/graphql";
+import { ProfessionalRoadmapGenerationEntity } from "@professional/entities/professional-roadmap-draft.entity";
 import { ProfessionalRoadmapChatService } from "@professional/services/professional-roadmap-chat.service";
 import { ProfessionalRoadmapDraftEntity } from "@professional/entities/professional-roadmap-draft.entity";
 import { ProfessionalGqlMutationNames } from "@professional/enums/gql-names.enum";
@@ -48,8 +49,22 @@ export class ProfessionalRoadmapChatResolver {
   @Mutation(() => ProfessionalRoadmapDraftEntity, {
     name: ProfessionalGqlMutationNames.RESET_ROADMAP_DRAFT,
   })
-  resetRoadmapDraft(@CurrentUser() user: TResolverUser) {
-    return this.chatService.resetDraft(this.getUser(user));
+  resetRoadmapDraft(
+    @CurrentUser() user: TResolverUser,
+    @Args("draftId", { type: () => ID, nullable: true }) draftId?: string,
+  ) {
+    return this.chatService.resetDraft(this.getUser(user), draftId);
+  }
+
+  @Query(() => ProfessionalRoadmapGenerationEntity, {
+    nullable: true,
+    name: ProfessionalGqlQueryNames.PROFESSIONAL_ROADMAP_GENERATION,
+  })
+  professionalRoadmapGeneration(
+    @CurrentUser() user: TResolverUser,
+    @Args("draftId", { type: () => ID, nullable: true }) draftId?: string,
+  ) {
+    return this.generationService.generationStatus(this.getUser(user), draftId);
   }
 
   @Mutation(() => ProfessionalRoadmapDraftEntity, {

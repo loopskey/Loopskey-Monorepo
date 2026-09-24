@@ -58,6 +58,8 @@ export enum ProfessionalGqlObjectNames {
   ROADMAP_SUBJECT_OPTION = "RoadmapSubjectOption",
   PROFESSIONAL_ROADMAP_DRAFT = "ProfessionalRoadmapDraft",
   PAGINATED_ROADMAP_CHAT_MESSAGES = "PaginatedRoadmapChatMessages",
+  ROADMAP_GENERATION_FAILURE = "RoadmapGenerationFailure",
+  PROFESSIONAL_ROADMAP_GENERATION = "ProfessionalRoadmapGeneration",
 }
 
 export enum ProfessionalGqlInputNames {
@@ -124,6 +126,7 @@ export enum ProfessionalGqlQueryNames {
   PROFESSIONAL_ROADMAP_DRAFT = "professionalRoadmapDraft",
   PROFESSIONAL_ROADMAP_RECOMMENDATIONS = "professionalRoadmapRecommendations",
   PROFESSIONAL_ROADMAP_STATS = "professionalRoadmapStats",
+  PROFESSIONAL_ROADMAP_GENERATION = "professionalRoadmapGeneration",
 }
 
 export enum ProfessionalGqlMutationNames {

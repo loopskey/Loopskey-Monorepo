@@ -97,3 +97,4 @@ into this index and do not rewrite previous records.
 - [`roadmap-generation-response-mapping`](feature-runs/active/roadmap-generation-response-mapping.md)
 - [`roadmap-subject-taxonomy-labels`](feature-runs/active/roadmap-subject-taxonomy-labels.md)
 - [`ingest-provenance-persistence`](feature-runs/active/ingest-provenance-persistence.md)
+- [`professional-roadmap-agentic-experience`](feature-runs/active/professional-roadmap-agentic-experience.md) — PR [#218](https://github.com/loopskey/Loopskey-Monorepo/pull/218)

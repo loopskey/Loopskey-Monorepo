@@ -1,21 +1,15 @@
 "use client";
 
-import {
-  ChangeEvent,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
 import { ProfessionalExploreRoadmapsQueryVariables } from "@/lib/graphql/operations/professional";
 import { ProfessionalMyRoadmapsQueryVariables } from "@/lib/graphql/operations/professional";
+import { ChangeEvent, useCallback, useEffect } from "react";
 import { RoadmapDraftStatus, RoadmapSource } from "@/lib/graphql/base";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useMemo, useRef, useState } from "react";
 import { useRoadmapStepProgress } from "@/hooks/useRoadmapStepProgress";
+import { useDispatch } from "react-redux";
 import { PAGE_SIZE } from "@/utils/constant";
 import { useI18n } from "@/hooks/useI18n";
-import { useDispatch } from "react-redux";
-import { useSearchParams } from "next/navigation";
 
 import * as API from "@/lib/rtk/endpoints/professional.api";
 import * as T from "@/types/professional-dashboard.types";
@@ -24,14 +18,18 @@ import type { TAppDispatch } from "@/lib/rtk/store";
 
 const DRAFT_POLL_INTERVAL_MS = 5000;
 
+const ROADMAP_TAB_PATH = "/dashboard/professional";
+
 export const useProfessionalRoadmaps = () => {
   const { t, language } = useI18n();
   const dispatch = useDispatch<TAppDispatch>();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const generationDraftId =
     searchParams.get("generationDraftId")?.trim() || undefined;
 
   // ============= States ===============
+  const [justCompleted, setJustCompleted] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
   const [exploreSearch, setExploreSearch] = useState<string>("");
   const [page, setPage] = useState<number>(1);
@@ -128,7 +126,7 @@ export const useProfessionalRoadmaps = () => {
   );
 
   const [draftPollMs, setDraftPollMs] = useState(0);
-  const { data: draft } = API.useProfessionalRoadmapDraftStatusQuery(
+  const { data: draft } = API.useProfessionalRoadmapGenerationStatusQuery(
     generationDraftId ? { draftId: generationDraftId } : undefined,
     {
       pollingInterval: draftPollMs,
@@ -140,16 +138,11 @@ export const useProfessionalRoadmaps = () => {
     setDraftPollMs(generating ? DRAFT_POLL_INTERVAL_MS : 0);
   }, [draft?.status]);
 
-  // The draft-status poll is the only thing that learns a generation finished;
-  // "my roadmaps" and the stats tile are separate queries that nothing else
-  // ever invalidates, so without this they keep showing the pre-generation
-  // state (no roadmap, stale stats) until an unrelated refetch happens to fire.
   const handledTerminalDraftIdRef = useRef<string | null>(null);
   useEffect(() => {
     if (!draft) return;
-    const terminal =
-      draft.status === RoadmapDraftStatus.Completed ||
-      draft.status === RoadmapDraftStatus.Failed;
+    const completed = draft.status === RoadmapDraftStatus.Completed;
+    const terminal = completed || draft.status === RoadmapDraftStatus.Failed;
     if (!terminal || handledTerminalDraftIdRef.current === draft.id) return;
 
     handledTerminalDraftIdRef.current = draft.id;
@@ -159,7 +152,12 @@ export const useProfessionalRoadmaps = () => {
         "ProfessionalRoadmapStats",
       ]),
     );
-  }, [draft, dispatch]);
+
+    if (completed) {
+      setJustCompleted(true);
+      router.replace(`${ROADMAP_TAB_PATH}?tab=roadmap`);
+    }
+  }, [draft, dispatch, router]);
 
   const isGenerating = draft?.status === RoadmapDraftStatus.Generating;
   const hasFailedDraft = draft?.status === RoadmapDraftStatus.Failed;
@@ -173,6 +171,18 @@ export const useProfessionalRoadmaps = () => {
 
   const [unenrollRoadmap] = API.useUnenrollRoadmapMutation();
   const [unenrollingId, setUnenrollingId] = useState<string | null>(null);
+
+  const [retryGeneration, { isLoading: isRetryingGeneration }] =
+    API.useRetryRoadmapGenerationMutation();
+  const handleRetryGeneration = useCallback(async () => {
+    if (!draft) return;
+    try {
+      await retryGeneration(draft.id).unwrap();
+    } catch {
+      // The generation card surfaces `status`/`failure` from the poll, so a
+      // rejected retry just leaves the failed card in place to try again.
+    }
+  }, [draft, retryGeneration]);
 
   const handleUnenroll = useCallback(
     async (enrollmentId: string) => {
@@ -189,9 +199,6 @@ export const useProfessionalRoadmaps = () => {
     [unenrollRoadmap],
   );
 
-  // The active generated roadmap already has its own dedicated section
-  // above; keep it out of the general "My roadmaps" grid so it is reachable
-  // exactly one way, through Continue.
   const otherRoadmaps = useMemo(
     () => myRoadmaps.filter((roadmap) => roadmap.id !== generatedRoadmap?.id),
     [myRoadmaps, generatedRoadmap],
@@ -263,6 +270,8 @@ export const useProfessionalRoadmaps = () => {
     return Math.min(Math.max(Number(progress ?? 0), 0), 100);
   };
 
+  const acknowledgeCompletion = useCallback(() => setJustCompleted(false), []);
+
   return {
     t,
     page,
@@ -271,7 +280,6 @@ export const useProfessionalRoadmaps = () => {
     search,
     isLoading,
     myRoadmaps,
-    otherRoadmaps,
     myPageInfo,
     handleNext,
     formatWeeks,
@@ -279,6 +287,10 @@ export const useProfessionalRoadmaps = () => {
     isGenerating,
     stepProgress,
     isStatsError,
+    otherRoadmaps,
+    unenrollingId,
+    justCompleted,
+    handleUnenroll,
     exploreSearch,
     myRoadmapsData,
     getRoadmapHref,
@@ -292,12 +304,13 @@ export const useProfessionalRoadmaps = () => {
     generatedRoadmap,
     handleExploreNext,
     handleSearchChange,
-    handleUnenroll,
-    unenrollingId,
     exploreRoadmapsData,
     isMyRoadmapsLoading,
     isMyRoadmapsFetching,
+    isRetryingGeneration,
+    handleRetryGeneration,
     handleExplorePrevious,
+    acknowledgeCompletion,
     handleSearchInputChange,
     isExploreRoadmapsLoading,
     isExploreRoadmapsFetching,

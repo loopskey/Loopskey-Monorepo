@@ -8,7 +8,9 @@ export type RoadmapCpdPlanCategoryFieldsFragment = { __typename?: 'CpdPlanCatego
 
 export type RoadmapCpdPlanFieldsFragment = { __typename?: 'CpdPlan', id: string, certificationId?: string | null, certificationName: string, organization: string, reportingStart: string, reportingEnd: string, totalRequiredCredits: number, evidenceTypes: Array<Types.CpdEvidenceType>, evidenceOtherNote?: string | null, reportRecipientType: Types.CpdReportRecipientType, reportRecipientLabel?: string | null, categories: Array<{ __typename?: 'CpdPlanCategory', id: string, name: string, targetCredits: number, completedCredits: number, order: number }> };
 
-export type ProfessionalRoadmapDraftFieldsFragment = { __typename?: 'ProfessionalRoadmapDraft', id: string, status: Types.RoadmapDraftStatus, currentStep: Types.RoadmapDraftStep, isComplete: boolean, needsClarification: boolean, wasRefused: boolean, failureReason?: string | null, completedFieldCount: number, requiredFieldCount: number, remainingFields: Array<Types.RoadmapDraftStep>, updatedAt: string, goal?: string | null, targetRole?: string | null, goalReason?: string | null, context?: string | null, targetDate?: string | null, skillLevel?: Types.SkillLevel | null, timeCommitment?: Types.LearningTimeCommitment | null, budgetPreference?: Types.LearningBudgetPreference | null, subjects: Array<string>, preferredFormats: Array<Types.LearningFormat>, preferredContentTypes: Array<Types.ContentType>, preferredDeliveryFormats: Array<Types.DeliveryFormat>, cpdEnabled: boolean, certificationId?: string | null, certificationName?: string | null, requiredCredits?: number | null, completedCredits?: number | null, cpdPlan?: { __typename?: 'CpdPlan', id: string, certificationId?: string | null, certificationName: string, organization: string, reportingStart: string, reportingEnd: string, totalRequiredCredits: number, evidenceTypes: Array<Types.CpdEvidenceType>, evidenceOtherNote?: string | null, reportRecipientType: Types.CpdReportRecipientType, reportRecipientLabel?: string | null, categories: Array<{ __typename?: 'CpdPlanCategory', id: string, name: string, targetCredits: number, completedCredits: number, order: number }> } | null, subjectOptions: Array<{ __typename?: 'RoadmapSubjectOption', id: string, label: string }>, widget?: { __typename?: 'RoadmapWidget', type: Types.RoadmapWidgetKind, field: Types.RoadmapDraftFieldKey, maxSelections?: number | null, options: Array<{ __typename?: 'RoadmapWidgetOption', value: string, label: string }> } | null, transcript: { __typename?: 'PaginatedRoadmapChatMessages', totalCount: number, pageInfo: { __typename?: 'ProfessionalPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'RoadmapChatMessage', id: string, role: Types.RoadmapChatRole, content: string, stepKey: Types.RoadmapDraftStep, createdAt: string, widget?: { __typename?: 'RoadmapWidget', type: Types.RoadmapWidgetKind, field: Types.RoadmapDraftFieldKey, maxSelections?: number | null, options: Array<{ __typename?: 'RoadmapWidgetOption', value: string, label: string }> } | null }> } };
+export type RoadmapGenerationFailureFieldsFragment = { __typename?: 'RoadmapGenerationFailure', code: Types.RoadmapGenerationFailureCode, recoveryActions: Array<Types.RoadmapGenerationRecoveryAction> };
+
+export type ProfessionalRoadmapDraftFieldsFragment = { __typename?: 'ProfessionalRoadmapDraft', id: string, status: Types.RoadmapDraftStatus, currentStep: Types.RoadmapDraftStep, isComplete: boolean, needsClarification: boolean, wasRefused: boolean, completedFieldCount: number, requiredFieldCount: number, remainingFields: Array<Types.RoadmapDraftStep>, updatedAt: string, goal?: string | null, targetRole?: string | null, goalReason?: string | null, context?: string | null, targetDate?: string | null, skillLevel?: Types.SkillLevel | null, timeCommitment?: Types.LearningTimeCommitment | null, budgetPreference?: Types.LearningBudgetPreference | null, subjects: Array<string>, preferredFormats: Array<Types.LearningFormat>, preferredContentTypes: Array<Types.ContentType>, preferredDeliveryFormats: Array<Types.DeliveryFormat>, cpdEnabled: boolean, certificationId?: string | null, certificationName?: string | null, requiredCredits?: number | null, completedCredits?: number | null, failure?: { __typename?: 'RoadmapGenerationFailure', code: Types.RoadmapGenerationFailureCode, recoveryActions: Array<Types.RoadmapGenerationRecoveryAction> } | null, cpdPlan?: { __typename?: 'CpdPlan', id: string, certificationId?: string | null, certificationName: string, organization: string, reportingStart: string, reportingEnd: string, totalRequiredCredits: number, evidenceTypes: Array<Types.CpdEvidenceType>, evidenceOtherNote?: string | null, reportRecipientType: Types.CpdReportRecipientType, reportRecipientLabel?: string | null, categories: Array<{ __typename?: 'CpdPlanCategory', id: string, name: string, targetCredits: number, completedCredits: number, order: number }> } | null, subjectOptions: Array<{ __typename?: 'RoadmapSubjectOption', id: string, label: string }>, widget?: { __typename?: 'RoadmapWidget', type: Types.RoadmapWidgetKind, field: Types.RoadmapDraftFieldKey, maxSelections?: number | null, options: Array<{ __typename?: 'RoadmapWidgetOption', value: string, label: string }> } | null, transcript: { __typename?: 'PaginatedRoadmapChatMessages', totalCount: number, pageInfo: { __typename?: 'ProfessionalPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'RoadmapChatMessage', id: string, role: Types.RoadmapChatRole, content: string, stepKey: Types.RoadmapDraftStep, createdAt: string, widget?: { __typename?: 'RoadmapWidget', type: Types.RoadmapWidgetKind, field: Types.RoadmapDraftFieldKey, maxSelections?: number | null, options: Array<{ __typename?: 'RoadmapWidgetOption', value: string, label: string }> } | null }> } };
 
 export type ProfessionalRoadmapDraftQueryVariables = Types.Exact<{
   draftId?: Types.InputMaybe<Types.Scalars['ID']['input']>;
@@ -16,46 +18,61 @@ export type ProfessionalRoadmapDraftQueryVariables = Types.Exact<{
 }>;
 
 
-export type ProfessionalRoadmapDraftQuery = { __typename?: 'Query', professionalRoadmapDraft?: { __typename?: 'ProfessionalRoadmapDraft', id: string, status: Types.RoadmapDraftStatus, currentStep: Types.RoadmapDraftStep, isComplete: boolean, needsClarification: boolean, wasRefused: boolean, failureReason?: string | null, completedFieldCount: number, requiredFieldCount: number, remainingFields: Array<Types.RoadmapDraftStep>, updatedAt: string, goal?: string | null, targetRole?: string | null, goalReason?: string | null, context?: string | null, targetDate?: string | null, skillLevel?: Types.SkillLevel | null, timeCommitment?: Types.LearningTimeCommitment | null, budgetPreference?: Types.LearningBudgetPreference | null, subjects: Array<string>, preferredFormats: Array<Types.LearningFormat>, preferredContentTypes: Array<Types.ContentType>, preferredDeliveryFormats: Array<Types.DeliveryFormat>, cpdEnabled: boolean, certificationId?: string | null, certificationName?: string | null, requiredCredits?: number | null, completedCredits?: number | null, cpdPlan?: { __typename?: 'CpdPlan', id: string, certificationId?: string | null, certificationName: string, organization: string, reportingStart: string, reportingEnd: string, totalRequiredCredits: number, evidenceTypes: Array<Types.CpdEvidenceType>, evidenceOtherNote?: string | null, reportRecipientType: Types.CpdReportRecipientType, reportRecipientLabel?: string | null, categories: Array<{ __typename?: 'CpdPlanCategory', id: string, name: string, targetCredits: number, completedCredits: number, order: number }> } | null, subjectOptions: Array<{ __typename?: 'RoadmapSubjectOption', id: string, label: string }>, widget?: { __typename?: 'RoadmapWidget', type: Types.RoadmapWidgetKind, field: Types.RoadmapDraftFieldKey, maxSelections?: number | null, options: Array<{ __typename?: 'RoadmapWidgetOption', value: string, label: string }> } | null, transcript: { __typename?: 'PaginatedRoadmapChatMessages', totalCount: number, pageInfo: { __typename?: 'ProfessionalPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'RoadmapChatMessage', id: string, role: Types.RoadmapChatRole, content: string, stepKey: Types.RoadmapDraftStep, createdAt: string, widget?: { __typename?: 'RoadmapWidget', type: Types.RoadmapWidgetKind, field: Types.RoadmapDraftFieldKey, maxSelections?: number | null, options: Array<{ __typename?: 'RoadmapWidgetOption', value: string, label: string }> } | null }> } } | null };
+export type ProfessionalRoadmapDraftQuery = { __typename?: 'Query', professionalRoadmapDraft?: { __typename?: 'ProfessionalRoadmapDraft', id: string, status: Types.RoadmapDraftStatus, currentStep: Types.RoadmapDraftStep, isComplete: boolean, needsClarification: boolean, wasRefused: boolean, completedFieldCount: number, requiredFieldCount: number, remainingFields: Array<Types.RoadmapDraftStep>, updatedAt: string, goal?: string | null, targetRole?: string | null, goalReason?: string | null, context?: string | null, targetDate?: string | null, skillLevel?: Types.SkillLevel | null, timeCommitment?: Types.LearningTimeCommitment | null, budgetPreference?: Types.LearningBudgetPreference | null, subjects: Array<string>, preferredFormats: Array<Types.LearningFormat>, preferredContentTypes: Array<Types.ContentType>, preferredDeliveryFormats: Array<Types.DeliveryFormat>, cpdEnabled: boolean, certificationId?: string | null, certificationName?: string | null, requiredCredits?: number | null, completedCredits?: number | null, failure?: { __typename?: 'RoadmapGenerationFailure', code: Types.RoadmapGenerationFailureCode, recoveryActions: Array<Types.RoadmapGenerationRecoveryAction> } | null, cpdPlan?: { __typename?: 'CpdPlan', id: string, certificationId?: string | null, certificationName: string, organization: string, reportingStart: string, reportingEnd: string, totalRequiredCredits: number, evidenceTypes: Array<Types.CpdEvidenceType>, evidenceOtherNote?: string | null, reportRecipientType: Types.CpdReportRecipientType, reportRecipientLabel?: string | null, categories: Array<{ __typename?: 'CpdPlanCategory', id: string, name: string, targetCredits: number, completedCredits: number, order: number }> } | null, subjectOptions: Array<{ __typename?: 'RoadmapSubjectOption', id: string, label: string }>, widget?: { __typename?: 'RoadmapWidget', type: Types.RoadmapWidgetKind, field: Types.RoadmapDraftFieldKey, maxSelections?: number | null, options: Array<{ __typename?: 'RoadmapWidgetOption', value: string, label: string }> } | null, transcript: { __typename?: 'PaginatedRoadmapChatMessages', totalCount: number, pageInfo: { __typename?: 'ProfessionalPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'RoadmapChatMessage', id: string, role: Types.RoadmapChatRole, content: string, stepKey: Types.RoadmapDraftStep, createdAt: string, widget?: { __typename?: 'RoadmapWidget', type: Types.RoadmapWidgetKind, field: Types.RoadmapDraftFieldKey, maxSelections?: number | null, options: Array<{ __typename?: 'RoadmapWidgetOption', value: string, label: string }> } | null }> } } | null };
 
 export type StartRoadmapDraftMutationVariables = Types.Exact<{ [key: string]: never; }>;
 
 
-export type StartRoadmapDraftMutation = { __typename?: 'Mutation', startRoadmapDraft: { __typename?: 'ProfessionalRoadmapDraft', id: string, status: Types.RoadmapDraftStatus, currentStep: Types.RoadmapDraftStep, isComplete: boolean, needsClarification: boolean, wasRefused: boolean, failureReason?: string | null, completedFieldCount: number, requiredFieldCount: number, remainingFields: Array<Types.RoadmapDraftStep>, updatedAt: string, goal?: string | null, targetRole?: string | null, goalReason?: string | null, context?: string | null, targetDate?: string | null, skillLevel?: Types.SkillLevel | null, timeCommitment?: Types.LearningTimeCommitment | null, budgetPreference?: Types.LearningBudgetPreference | null, subjects: Array<string>, preferredFormats: Array<Types.LearningFormat>, preferredContentTypes: Array<Types.ContentType>, preferredDeliveryFormats: Array<Types.DeliveryFormat>, cpdEnabled: boolean, certificationId?: string | null, certificationName?: string | null, requiredCredits?: number | null, completedCredits?: number | null, cpdPlan?: { __typename?: 'CpdPlan', id: string, certificationId?: string | null, certificationName: string, organization: string, reportingStart: string, reportingEnd: string, totalRequiredCredits: number, evidenceTypes: Array<Types.CpdEvidenceType>, evidenceOtherNote?: string | null, reportRecipientType: Types.CpdReportRecipientType, reportRecipientLabel?: string | null, categories: Array<{ __typename?: 'CpdPlanCategory', id: string, name: string, targetCredits: number, completedCredits: number, order: number }> } | null, subjectOptions: Array<{ __typename?: 'RoadmapSubjectOption', id: string, label: string }>, widget?: { __typename?: 'RoadmapWidget', type: Types.RoadmapWidgetKind, field: Types.RoadmapDraftFieldKey, maxSelections?: number | null, options: Array<{ __typename?: 'RoadmapWidgetOption', value: string, label: string }> } | null, transcript: { __typename?: 'PaginatedRoadmapChatMessages', totalCount: number, pageInfo: { __typename?: 'ProfessionalPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'RoadmapChatMessage', id: string, role: Types.RoadmapChatRole, content: string, stepKey: Types.RoadmapDraftStep, createdAt: string, widget?: { __typename?: 'RoadmapWidget', type: Types.RoadmapWidgetKind, field: Types.RoadmapDraftFieldKey, maxSelections?: number | null, options: Array<{ __typename?: 'RoadmapWidgetOption', value: string, label: string }> } | null }> } } };
+export type StartRoadmapDraftMutation = { __typename?: 'Mutation', startRoadmapDraft: { __typename?: 'ProfessionalRoadmapDraft', id: string, status: Types.RoadmapDraftStatus, currentStep: Types.RoadmapDraftStep, isComplete: boolean, needsClarification: boolean, wasRefused: boolean, completedFieldCount: number, requiredFieldCount: number, remainingFields: Array<Types.RoadmapDraftStep>, updatedAt: string, goal?: string | null, targetRole?: string | null, goalReason?: string | null, context?: string | null, targetDate?: string | null, skillLevel?: Types.SkillLevel | null, timeCommitment?: Types.LearningTimeCommitment | null, budgetPreference?: Types.LearningBudgetPreference | null, subjects: Array<string>, preferredFormats: Array<Types.LearningFormat>, preferredContentTypes: Array<Types.ContentType>, preferredDeliveryFormats: Array<Types.DeliveryFormat>, cpdEnabled: boolean, certificationId?: string | null, certificationName?: string | null, requiredCredits?: number | null, completedCredits?: number | null, failure?: { __typename?: 'RoadmapGenerationFailure', code: Types.RoadmapGenerationFailureCode, recoveryActions: Array<Types.RoadmapGenerationRecoveryAction> } | null, cpdPlan?: { __typename?: 'CpdPlan', id: string, certificationId?: string | null, certificationName: string, organization: string, reportingStart: string, reportingEnd: string, totalRequiredCredits: number, evidenceTypes: Array<Types.CpdEvidenceType>, evidenceOtherNote?: string | null, reportRecipientType: Types.CpdReportRecipientType, reportRecipientLabel?: string | null, categories: Array<{ __typename?: 'CpdPlanCategory', id: string, name: string, targetCredits: number, completedCredits: number, order: number }> } | null, subjectOptions: Array<{ __typename?: 'RoadmapSubjectOption', id: string, label: string }>, widget?: { __typename?: 'RoadmapWidget', type: Types.RoadmapWidgetKind, field: Types.RoadmapDraftFieldKey, maxSelections?: number | null, options: Array<{ __typename?: 'RoadmapWidgetOption', value: string, label: string }> } | null, transcript: { __typename?: 'PaginatedRoadmapChatMessages', totalCount: number, pageInfo: { __typename?: 'ProfessionalPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'RoadmapChatMessage', id: string, role: Types.RoadmapChatRole, content: string, stepKey: Types.RoadmapDraftStep, createdAt: string, widget?: { __typename?: 'RoadmapWidget', type: Types.RoadmapWidgetKind, field: Types.RoadmapDraftFieldKey, maxSelections?: number | null, options: Array<{ __typename?: 'RoadmapWidgetOption', value: string, label: string }> } | null }> } } };
 
-export type ResetRoadmapDraftMutationVariables = Types.Exact<{ [key: string]: never; }>;
+export type ResetRoadmapDraftMutationVariables = Types.Exact<{
+  draftId?: Types.InputMaybe<Types.Scalars['ID']['input']>;
+}>;
 
 
-export type ResetRoadmapDraftMutation = { __typename?: 'Mutation', resetRoadmapDraft: { __typename?: 'ProfessionalRoadmapDraft', id: string, status: Types.RoadmapDraftStatus, currentStep: Types.RoadmapDraftStep, isComplete: boolean, needsClarification: boolean, wasRefused: boolean, failureReason?: string | null, completedFieldCount: number, requiredFieldCount: number, remainingFields: Array<Types.RoadmapDraftStep>, updatedAt: string, goal?: string | null, targetRole?: string | null, goalReason?: string | null, context?: string | null, targetDate?: string | null, skillLevel?: Types.SkillLevel | null, timeCommitment?: Types.LearningTimeCommitment | null, budgetPreference?: Types.LearningBudgetPreference | null, subjects: Array<string>, preferredFormats: Array<Types.LearningFormat>, preferredContentTypes: Array<Types.ContentType>, preferredDeliveryFormats: Array<Types.DeliveryFormat>, cpdEnabled: boolean, certificationId?: string | null, certificationName?: string | null, requiredCredits?: number | null, completedCredits?: number | null, cpdPlan?: { __typename?: 'CpdPlan', id: string, certificationId?: string | null, certificationName: string, organization: string, reportingStart: string, reportingEnd: string, totalRequiredCredits: number, evidenceTypes: Array<Types.CpdEvidenceType>, evidenceOtherNote?: string | null, reportRecipientType: Types.CpdReportRecipientType, reportRecipientLabel?: string | null, categories: Array<{ __typename?: 'CpdPlanCategory', id: string, name: string, targetCredits: number, completedCredits: number, order: number }> } | null, subjectOptions: Array<{ __typename?: 'RoadmapSubjectOption', id: string, label: string }>, widget?: { __typename?: 'RoadmapWidget', type: Types.RoadmapWidgetKind, field: Types.RoadmapDraftFieldKey, maxSelections?: number | null, options: Array<{ __typename?: 'RoadmapWidgetOption', value: string, label: string }> } | null, transcript: { __typename?: 'PaginatedRoadmapChatMessages', totalCount: number, pageInfo: { __typename?: 'ProfessionalPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'RoadmapChatMessage', id: string, role: Types.RoadmapChatRole, content: string, stepKey: Types.RoadmapDraftStep, createdAt: string, widget?: { __typename?: 'RoadmapWidget', type: Types.RoadmapWidgetKind, field: Types.RoadmapDraftFieldKey, maxSelections?: number | null, options: Array<{ __typename?: 'RoadmapWidgetOption', value: string, label: string }> } | null }> } } };
+export type ResetRoadmapDraftMutation = { __typename?: 'Mutation', resetRoadmapDraft: { __typename?: 'ProfessionalRoadmapDraft', id: string, status: Types.RoadmapDraftStatus, currentStep: Types.RoadmapDraftStep, isComplete: boolean, needsClarification: boolean, wasRefused: boolean, completedFieldCount: number, requiredFieldCount: number, remainingFields: Array<Types.RoadmapDraftStep>, updatedAt: string, goal?: string | null, targetRole?: string | null, goalReason?: string | null, context?: string | null, targetDate?: string | null, skillLevel?: Types.SkillLevel | null, timeCommitment?: Types.LearningTimeCommitment | null, budgetPreference?: Types.LearningBudgetPreference | null, subjects: Array<string>, preferredFormats: Array<Types.LearningFormat>, preferredContentTypes: Array<Types.ContentType>, preferredDeliveryFormats: Array<Types.DeliveryFormat>, cpdEnabled: boolean, certificationId?: string | null, certificationName?: string | null, requiredCredits?: number | null, completedCredits?: number | null, failure?: { __typename?: 'RoadmapGenerationFailure', code: Types.RoadmapGenerationFailureCode, recoveryActions: Array<Types.RoadmapGenerationRecoveryAction> } | null, cpdPlan?: { __typename?: 'CpdPlan', id: string, certificationId?: string | null, certificationName: string, organization: string, reportingStart: string, reportingEnd: string, totalRequiredCredits: number, evidenceTypes: Array<Types.CpdEvidenceType>, evidenceOtherNote?: string | null, reportRecipientType: Types.CpdReportRecipientType, reportRecipientLabel?: string | null, categories: Array<{ __typename?: 'CpdPlanCategory', id: string, name: string, targetCredits: number, completedCredits: number, order: number }> } | null, subjectOptions: Array<{ __typename?: 'RoadmapSubjectOption', id: string, label: string }>, widget?: { __typename?: 'RoadmapWidget', type: Types.RoadmapWidgetKind, field: Types.RoadmapDraftFieldKey, maxSelections?: number | null, options: Array<{ __typename?: 'RoadmapWidgetOption', value: string, label: string }> } | null, transcript: { __typename?: 'PaginatedRoadmapChatMessages', totalCount: number, pageInfo: { __typename?: 'ProfessionalPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'RoadmapChatMessage', id: string, role: Types.RoadmapChatRole, content: string, stepKey: Types.RoadmapDraftStep, createdAt: string, widget?: { __typename?: 'RoadmapWidget', type: Types.RoadmapWidgetKind, field: Types.RoadmapDraftFieldKey, maxSelections?: number | null, options: Array<{ __typename?: 'RoadmapWidgetOption', value: string, label: string }> } | null }> } } };
+
+export type ProfessionalRoadmapGenerationQueryVariables = Types.Exact<{
+  draftId?: Types.InputMaybe<Types.Scalars['ID']['input']>;
+}>;
+
+
+export type ProfessionalRoadmapGenerationQuery = { __typename?: 'Query', professionalRoadmapGeneration?: { __typename?: 'ProfessionalRoadmapGeneration', id: string, goal?: string | null, status: Types.RoadmapDraftStatus, updatedAt: string, failure?: { __typename?: 'RoadmapGenerationFailure', code: Types.RoadmapGenerationFailureCode, recoveryActions: Array<Types.RoadmapGenerationRecoveryAction> } | null } | null };
 
 export type SendRoadmapChatTurnMutationVariables = Types.Exact<{
   input: Types.RoadmapChatTurnInput;
 }>;
 
 
-export type SendRoadmapChatTurnMutation = { __typename?: 'Mutation', sendRoadmapChatTurn: { __typename?: 'ProfessionalRoadmapDraft', id: string, status: Types.RoadmapDraftStatus, currentStep: Types.RoadmapDraftStep, isComplete: boolean, needsClarification: boolean, wasRefused: boolean, failureReason?: string | null, completedFieldCount: number, requiredFieldCount: number, remainingFields: Array<Types.RoadmapDraftStep>, updatedAt: string, goal?: string | null, targetRole?: string | null, goalReason?: string | null, context?: string | null, targetDate?: string | null, skillLevel?: Types.SkillLevel | null, timeCommitment?: Types.LearningTimeCommitment | null, budgetPreference?: Types.LearningBudgetPreference | null, subjects: Array<string>, preferredFormats: Array<Types.LearningFormat>, preferredContentTypes: Array<Types.ContentType>, preferredDeliveryFormats: Array<Types.DeliveryFormat>, cpdEnabled: boolean, certificationId?: string | null, certificationName?: string | null, requiredCredits?: number | null, completedCredits?: number | null, cpdPlan?: { __typename?: 'CpdPlan', id: string, certificationId?: string | null, certificationName: string, organization: string, reportingStart: string, reportingEnd: string, totalRequiredCredits: number, evidenceTypes: Array<Types.CpdEvidenceType>, evidenceOtherNote?: string | null, reportRecipientType: Types.CpdReportRecipientType, reportRecipientLabel?: string | null, categories: Array<{ __typename?: 'CpdPlanCategory', id: string, name: string, targetCredits: number, completedCredits: number, order: number }> } | null, subjectOptions: Array<{ __typename?: 'RoadmapSubjectOption', id: string, label: string }>, widget?: { __typename?: 'RoadmapWidget', type: Types.RoadmapWidgetKind, field: Types.RoadmapDraftFieldKey, maxSelections?: number | null, options: Array<{ __typename?: 'RoadmapWidgetOption', value: string, label: string }> } | null, transcript: { __typename?: 'PaginatedRoadmapChatMessages', totalCount: number, pageInfo: { __typename?: 'ProfessionalPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'RoadmapChatMessage', id: string, role: Types.RoadmapChatRole, content: string, stepKey: Types.RoadmapDraftStep, createdAt: string, widget?: { __typename?: 'RoadmapWidget', type: Types.RoadmapWidgetKind, field: Types.RoadmapDraftFieldKey, maxSelections?: number | null, options: Array<{ __typename?: 'RoadmapWidgetOption', value: string, label: string }> } | null }> } } };
+export type SendRoadmapChatTurnMutation = { __typename?: 'Mutation', sendRoadmapChatTurn: { __typename?: 'ProfessionalRoadmapDraft', id: string, status: Types.RoadmapDraftStatus, currentStep: Types.RoadmapDraftStep, isComplete: boolean, needsClarification: boolean, wasRefused: boolean, completedFieldCount: number, requiredFieldCount: number, remainingFields: Array<Types.RoadmapDraftStep>, updatedAt: string, goal?: string | null, targetRole?: string | null, goalReason?: string | null, context?: string | null, targetDate?: string | null, skillLevel?: Types.SkillLevel | null, timeCommitment?: Types.LearningTimeCommitment | null, budgetPreference?: Types.LearningBudgetPreference | null, subjects: Array<string>, preferredFormats: Array<Types.LearningFormat>, preferredContentTypes: Array<Types.ContentType>, preferredDeliveryFormats: Array<Types.DeliveryFormat>, cpdEnabled: boolean, certificationId?: string | null, certificationName?: string | null, requiredCredits?: number | null, completedCredits?: number | null, failure?: { __typename?: 'RoadmapGenerationFailure', code: Types.RoadmapGenerationFailureCode, recoveryActions: Array<Types.RoadmapGenerationRecoveryAction> } | null, cpdPlan?: { __typename?: 'CpdPlan', id: string, certificationId?: string | null, certificationName: string, organization: string, reportingStart: string, reportingEnd: string, totalRequiredCredits: number, evidenceTypes: Array<Types.CpdEvidenceType>, evidenceOtherNote?: string | null, reportRecipientType: Types.CpdReportRecipientType, reportRecipientLabel?: string | null, categories: Array<{ __typename?: 'CpdPlanCategory', id: string, name: string, targetCredits: number, completedCredits: number, order: number }> } | null, subjectOptions: Array<{ __typename?: 'RoadmapSubjectOption', id: string, label: string }>, widget?: { __typename?: 'RoadmapWidget', type: Types.RoadmapWidgetKind, field: Types.RoadmapDraftFieldKey, maxSelections?: number | null, options: Array<{ __typename?: 'RoadmapWidgetOption', value: string, label: string }> } | null, transcript: { __typename?: 'PaginatedRoadmapChatMessages', totalCount: number, pageInfo: { __typename?: 'ProfessionalPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'RoadmapChatMessage', id: string, role: Types.RoadmapChatRole, content: string, stepKey: Types.RoadmapDraftStep, createdAt: string, widget?: { __typename?: 'RoadmapWidget', type: Types.RoadmapWidgetKind, field: Types.RoadmapDraftFieldKey, maxSelections?: number | null, options: Array<{ __typename?: 'RoadmapWidgetOption', value: string, label: string }> } | null }> } } };
 
 export type PatchRoadmapDraftMutationVariables = Types.Exact<{
   input: Types.PatchRoadmapDraftInput;
 }>;
 
 
-export type PatchRoadmapDraftMutation = { __typename?: 'Mutation', patchRoadmapDraft: { __typename?: 'ProfessionalRoadmapDraft', id: string, status: Types.RoadmapDraftStatus, currentStep: Types.RoadmapDraftStep, isComplete: boolean, needsClarification: boolean, wasRefused: boolean, failureReason?: string | null, completedFieldCount: number, requiredFieldCount: number, remainingFields: Array<Types.RoadmapDraftStep>, updatedAt: string, goal?: string | null, targetRole?: string | null, goalReason?: string | null, context?: string | null, targetDate?: string | null, skillLevel?: Types.SkillLevel | null, timeCommitment?: Types.LearningTimeCommitment | null, budgetPreference?: Types.LearningBudgetPreference | null, subjects: Array<string>, preferredFormats: Array<Types.LearningFormat>, preferredContentTypes: Array<Types.ContentType>, preferredDeliveryFormats: Array<Types.DeliveryFormat>, cpdEnabled: boolean, certificationId?: string | null, certificationName?: string | null, requiredCredits?: number | null, completedCredits?: number | null, cpdPlan?: { __typename?: 'CpdPlan', id: string, certificationId?: string | null, certificationName: string, organization: string, reportingStart: string, reportingEnd: string, totalRequiredCredits: number, evidenceTypes: Array<Types.CpdEvidenceType>, evidenceOtherNote?: string | null, reportRecipientType: Types.CpdReportRecipientType, reportRecipientLabel?: string | null, categories: Array<{ __typename?: 'CpdPlanCategory', id: string, name: string, targetCredits: number, completedCredits: number, order: number }> } | null, subjectOptions: Array<{ __typename?: 'RoadmapSubjectOption', id: string, label: string }>, widget?: { __typename?: 'RoadmapWidget', type: Types.RoadmapWidgetKind, field: Types.RoadmapDraftFieldKey, maxSelections?: number | null, options: Array<{ __typename?: 'RoadmapWidgetOption', value: string, label: string }> } | null, transcript: { __typename?: 'PaginatedRoadmapChatMessages', totalCount: number, pageInfo: { __typename?: 'ProfessionalPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'RoadmapChatMessage', id: string, role: Types.RoadmapChatRole, content: string, stepKey: Types.RoadmapDraftStep, createdAt: string, widget?: { __typename?: 'RoadmapWidget', type: Types.RoadmapWidgetKind, field: Types.RoadmapDraftFieldKey, maxSelections?: number | null, options: Array<{ __typename?: 'RoadmapWidgetOption', value: string, label: string }> } | null }> } } };
+export type PatchRoadmapDraftMutation = { __typename?: 'Mutation', patchRoadmapDraft: { __typename?: 'ProfessionalRoadmapDraft', id: string, status: Types.RoadmapDraftStatus, currentStep: Types.RoadmapDraftStep, isComplete: boolean, needsClarification: boolean, wasRefused: boolean, completedFieldCount: number, requiredFieldCount: number, remainingFields: Array<Types.RoadmapDraftStep>, updatedAt: string, goal?: string | null, targetRole?: string | null, goalReason?: string | null, context?: string | null, targetDate?: string | null, skillLevel?: Types.SkillLevel | null, timeCommitment?: Types.LearningTimeCommitment | null, budgetPreference?: Types.LearningBudgetPreference | null, subjects: Array<string>, preferredFormats: Array<Types.LearningFormat>, preferredContentTypes: Array<Types.ContentType>, preferredDeliveryFormats: Array<Types.DeliveryFormat>, cpdEnabled: boolean, certificationId?: string | null, certificationName?: string | null, requiredCredits?: number | null, completedCredits?: number | null, failure?: { __typename?: 'RoadmapGenerationFailure', code: Types.RoadmapGenerationFailureCode, recoveryActions: Array<Types.RoadmapGenerationRecoveryAction> } | null, cpdPlan?: { __typename?: 'CpdPlan', id: string, certificationId?: string | null, certificationName: string, organization: string, reportingStart: string, reportingEnd: string, totalRequiredCredits: number, evidenceTypes: Array<Types.CpdEvidenceType>, evidenceOtherNote?: string | null, reportRecipientType: Types.CpdReportRecipientType, reportRecipientLabel?: string | null, categories: Array<{ __typename?: 'CpdPlanCategory', id: string, name: string, targetCredits: number, completedCredits: number, order: number }> } | null, subjectOptions: Array<{ __typename?: 'RoadmapSubjectOption', id: string, label: string }>, widget?: { __typename?: 'RoadmapWidget', type: Types.RoadmapWidgetKind, field: Types.RoadmapDraftFieldKey, maxSelections?: number | null, options: Array<{ __typename?: 'RoadmapWidgetOption', value: string, label: string }> } | null, transcript: { __typename?: 'PaginatedRoadmapChatMessages', totalCount: number, pageInfo: { __typename?: 'ProfessionalPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'RoadmapChatMessage', id: string, role: Types.RoadmapChatRole, content: string, stepKey: Types.RoadmapDraftStep, createdAt: string, widget?: { __typename?: 'RoadmapWidget', type: Types.RoadmapWidgetKind, field: Types.RoadmapDraftFieldKey, maxSelections?: number | null, options: Array<{ __typename?: 'RoadmapWidgetOption', value: string, label: string }> } | null }> } } };
 
 export type PatchRoadmapCpdSetupMutationVariables = Types.Exact<{
   input: Types.PatchRoadmapCpdSetupInput;
 }>;
 
 
-export type PatchRoadmapCpdSetupMutation = { __typename?: 'Mutation', patchRoadmapCpdSetup: { __typename?: 'ProfessionalRoadmapDraft', id: string, status: Types.RoadmapDraftStatus, currentStep: Types.RoadmapDraftStep, isComplete: boolean, needsClarification: boolean, wasRefused: boolean, failureReason?: string | null, completedFieldCount: number, requiredFieldCount: number, remainingFields: Array<Types.RoadmapDraftStep>, updatedAt: string, goal?: string | null, targetRole?: string | null, goalReason?: string | null, context?: string | null, targetDate?: string | null, skillLevel?: Types.SkillLevel | null, timeCommitment?: Types.LearningTimeCommitment | null, budgetPreference?: Types.LearningBudgetPreference | null, subjects: Array<string>, preferredFormats: Array<Types.LearningFormat>, preferredContentTypes: Array<Types.ContentType>, preferredDeliveryFormats: Array<Types.DeliveryFormat>, cpdEnabled: boolean, certificationId?: string | null, certificationName?: string | null, requiredCredits?: number | null, completedCredits?: number | null, cpdPlan?: { __typename?: 'CpdPlan', id: string, certificationId?: string | null, certificationName: string, organization: string, reportingStart: string, reportingEnd: string, totalRequiredCredits: number, evidenceTypes: Array<Types.CpdEvidenceType>, evidenceOtherNote?: string | null, reportRecipientType: Types.CpdReportRecipientType, reportRecipientLabel?: string | null, categories: Array<{ __typename?: 'CpdPlanCategory', id: string, name: string, targetCredits: number, completedCredits: number, order: number }> } | null, subjectOptions: Array<{ __typename?: 'RoadmapSubjectOption', id: string, label: string }>, widget?: { __typename?: 'RoadmapWidget', type: Types.RoadmapWidgetKind, field: Types.RoadmapDraftFieldKey, maxSelections?: number | null, options: Array<{ __typename?: 'RoadmapWidgetOption', value: string, label: string }> } | null, transcript: { __typename?: 'PaginatedRoadmapChatMessages', totalCount: number, pageInfo: { __typename?: 'ProfessionalPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'RoadmapChatMessage', id: string, role: Types.RoadmapChatRole, content: string, stepKey: Types.RoadmapDraftStep, createdAt: string, widget?: { __typename?: 'RoadmapWidget', type: Types.RoadmapWidgetKind, field: Types.RoadmapDraftFieldKey, maxSelections?: number | null, options: Array<{ __typename?: 'RoadmapWidgetOption', value: string, label: string }> } | null }> } } };
+export type PatchRoadmapCpdSetupMutation = { __typename?: 'Mutation', patchRoadmapCpdSetup: { __typename?: 'ProfessionalRoadmapDraft', id: string, status: Types.RoadmapDraftStatus, currentStep: Types.RoadmapDraftStep, isComplete: boolean, needsClarification: boolean, wasRefused: boolean, completedFieldCount: number, requiredFieldCount: number, remainingFields: Array<Types.RoadmapDraftStep>, updatedAt: string, goal?: string | null, targetRole?: string | null, goalReason?: string | null, context?: string | null, targetDate?: string | null, skillLevel?: Types.SkillLevel | null, timeCommitment?: Types.LearningTimeCommitment | null, budgetPreference?: Types.LearningBudgetPreference | null, subjects: Array<string>, preferredFormats: Array<Types.LearningFormat>, preferredContentTypes: Array<Types.ContentType>, preferredDeliveryFormats: Array<Types.DeliveryFormat>, cpdEnabled: boolean, certificationId?: string | null, certificationName?: string | null, requiredCredits?: number | null, completedCredits?: number | null, failure?: { __typename?: 'RoadmapGenerationFailure', code: Types.RoadmapGenerationFailureCode, recoveryActions: Array<Types.RoadmapGenerationRecoveryAction> } | null, cpdPlan?: { __typename?: 'CpdPlan', id: string, certificationId?: string | null, certificationName: string, organization: string, reportingStart: string, reportingEnd: string, totalRequiredCredits: number, evidenceTypes: Array<Types.CpdEvidenceType>, evidenceOtherNote?: string | null, reportRecipientType: Types.CpdReportRecipientType, reportRecipientLabel?: string | null, categories: Array<{ __typename?: 'CpdPlanCategory', id: string, name: string, targetCredits: number, completedCredits: number, order: number }> } | null, subjectOptions: Array<{ __typename?: 'RoadmapSubjectOption', id: string, label: string }>, widget?: { __typename?: 'RoadmapWidget', type: Types.RoadmapWidgetKind, field: Types.RoadmapDraftFieldKey, maxSelections?: number | null, options: Array<{ __typename?: 'RoadmapWidgetOption', value: string, label: string }> } | null, transcript: { __typename?: 'PaginatedRoadmapChatMessages', totalCount: number, pageInfo: { __typename?: 'ProfessionalPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'RoadmapChatMessage', id: string, role: Types.RoadmapChatRole, content: string, stepKey: Types.RoadmapDraftStep, createdAt: string, widget?: { __typename?: 'RoadmapWidget', type: Types.RoadmapWidgetKind, field: Types.RoadmapDraftFieldKey, maxSelections?: number | null, options: Array<{ __typename?: 'RoadmapWidgetOption', value: string, label: string }> } | null }> } } };
 
 export type RequestRoadmapGenerationMutationVariables = Types.Exact<{
   draftId: Types.Scalars['ID']['input'];
 }>;
 
 
-export type RequestRoadmapGenerationMutation = { __typename?: 'Mutation', requestRoadmapGeneration: { __typename?: 'ProfessionalRoadmapDraft', id: string, status: Types.RoadmapDraftStatus, currentStep: Types.RoadmapDraftStep, isComplete: boolean, needsClarification: boolean, wasRefused: boolean, failureReason?: string | null, completedFieldCount: number, requiredFieldCount: number, remainingFields: Array<Types.RoadmapDraftStep>, updatedAt: string, goal?: string | null, targetRole?: string | null, goalReason?: string | null, context?: string | null, targetDate?: string | null, skillLevel?: Types.SkillLevel | null, timeCommitment?: Types.LearningTimeCommitment | null, budgetPreference?: Types.LearningBudgetPreference | null, subjects: Array<string>, preferredFormats: Array<Types.LearningFormat>, preferredContentTypes: Array<Types.ContentType>, preferredDeliveryFormats: Array<Types.DeliveryFormat>, cpdEnabled: boolean, certificationId?: string | null, certificationName?: string | null, requiredCredits?: number | null, completedCredits?: number | null, cpdPlan?: { __typename?: 'CpdPlan', id: string, certificationId?: string | null, certificationName: string, organization: string, reportingStart: string, reportingEnd: string, totalRequiredCredits: number, evidenceTypes: Array<Types.CpdEvidenceType>, evidenceOtherNote?: string | null, reportRecipientType: Types.CpdReportRecipientType, reportRecipientLabel?: string | null, categories: Array<{ __typename?: 'CpdPlanCategory', id: string, name: string, targetCredits: number, completedCredits: number, order: number }> } | null, subjectOptions: Array<{ __typename?: 'RoadmapSubjectOption', id: string, label: string }>, widget?: { __typename?: 'RoadmapWidget', type: Types.RoadmapWidgetKind, field: Types.RoadmapDraftFieldKey, maxSelections?: number | null, options: Array<{ __typename?: 'RoadmapWidgetOption', value: string, label: string }> } | null, transcript: { __typename?: 'PaginatedRoadmapChatMessages', totalCount: number, pageInfo: { __typename?: 'ProfessionalPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'RoadmapChatMessage', id: string, role: Types.RoadmapChatRole, content: string, stepKey: Types.RoadmapDraftStep, createdAt: string, widget?: { __typename?: 'RoadmapWidget', type: Types.RoadmapWidgetKind, field: Types.RoadmapDraftFieldKey, maxSelections?: number | null, options: Array<{ __typename?: 'RoadmapWidgetOption', value: string, label: string }> } | null }> } } };
+export type RequestRoadmapGenerationMutation = { __typename?: 'Mutation', requestRoadmapGeneration: { __typename?: 'ProfessionalRoadmapDraft', id: string, status: Types.RoadmapDraftStatus, currentStep: Types.RoadmapDraftStep, isComplete: boolean, needsClarification: boolean, wasRefused: boolean, completedFieldCount: number, requiredFieldCount: number, remainingFields: Array<Types.RoadmapDraftStep>, updatedAt: string, goal?: string | null, targetRole?: string | null, goalReason?: string | null, context?: string | null, targetDate?: string | null, skillLevel?: Types.SkillLevel | null, timeCommitment?: Types.LearningTimeCommitment | null, budgetPreference?: Types.LearningBudgetPreference | null, subjects: Array<string>, preferredFormats: Array<Types.LearningFormat>, preferredContentTypes: Array<Types.ContentType>, preferredDeliveryFormats: Array<Types.DeliveryFormat>, cpdEnabled: boolean, certificationId?: string | null, certificationName?: string | null, requiredCredits?: number | null, completedCredits?: number | null, failure?: { __typename?: 'RoadmapGenerationFailure', code: Types.RoadmapGenerationFailureCode, recoveryActions: Array<Types.RoadmapGenerationRecoveryAction> } | null, cpdPlan?: { __typename?: 'CpdPlan', id: string, certificationId?: string | null, certificationName: string, organization: string, reportingStart: string, reportingEnd: string, totalRequiredCredits: number, evidenceTypes: Array<Types.CpdEvidenceType>, evidenceOtherNote?: string | null, reportRecipientType: Types.CpdReportRecipientType, reportRecipientLabel?: string | null, categories: Array<{ __typename?: 'CpdPlanCategory', id: string, name: string, targetCredits: number, completedCredits: number, order: number }> } | null, subjectOptions: Array<{ __typename?: 'RoadmapSubjectOption', id: string, label: string }>, widget?: { __typename?: 'RoadmapWidget', type: Types.RoadmapWidgetKind, field: Types.RoadmapDraftFieldKey, maxSelections?: number | null, options: Array<{ __typename?: 'RoadmapWidgetOption', value: string, label: string }> } | null, transcript: { __typename?: 'PaginatedRoadmapChatMessages', totalCount: number, pageInfo: { __typename?: 'ProfessionalPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'RoadmapChatMessage', id: string, role: Types.RoadmapChatRole, content: string, stepKey: Types.RoadmapDraftStep, createdAt: string, widget?: { __typename?: 'RoadmapWidget', type: Types.RoadmapWidgetKind, field: Types.RoadmapDraftFieldKey, maxSelections?: number | null, options: Array<{ __typename?: 'RoadmapWidgetOption', value: string, label: string }> } | null }> } } };
 
+export const RoadmapGenerationFailureFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
+    fragment RoadmapGenerationFailureFields on RoadmapGenerationFailure {
+  code
+  recoveryActions
+}
+    `, {"fragmentName":"RoadmapGenerationFailureFields"}) as unknown as TypedDocumentString<RoadmapGenerationFailureFieldsFragment, unknown>;
 export const RoadmapCpdPlanCategoryFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
     fragment RoadmapCpdPlanCategoryFields on CpdPlanCategory {
   id
@@ -128,7 +145,9 @@ export const ProfessionalRoadmapDraftFieldsFragmentDoc = /*#__PURE__*/ new Typed
   isComplete
   needsClarification
   wasRefused
-  failureReason
+  failure {
+    ...RoadmapGenerationFailureFields
+  }
   completedFieldCount
   requiredFieldCount
   remainingFields
@@ -212,6 +231,10 @@ fragment RoadmapCpdPlanFields on CpdPlan {
   categories {
     ...RoadmapCpdPlanCategoryFields
   }
+}
+fragment RoadmapGenerationFailureFields on RoadmapGenerationFailure {
+  code
+  recoveryActions
 }`, {"fragmentName":"ProfessionalRoadmapDraftFields"}) as unknown as TypedDocumentString<ProfessionalRoadmapDraftFieldsFragment, unknown>;
 export const ProfessionalRoadmapDraftDocument = /*#__PURE__*/ new TypedDocumentString(`
     query ProfessionalRoadmapDraft($draftId: ID, $transcript: ProfessionalPaginationInput) {
@@ -261,6 +284,10 @@ fragment RoadmapCpdPlanFields on CpdPlan {
     ...RoadmapCpdPlanCategoryFields
   }
 }
+fragment RoadmapGenerationFailureFields on RoadmapGenerationFailure {
+  code
+  recoveryActions
+}
 fragment ProfessionalRoadmapDraftFields on ProfessionalRoadmapDraft {
   id
   status
@@ -268,7 +295,9 @@ fragment ProfessionalRoadmapDraftFields on ProfessionalRoadmapDraft {
   isComplete
   needsClarification
   wasRefused
-  failureReason
+  failure {
+    ...RoadmapGenerationFailureFields
+  }
   completedFieldCount
   requiredFieldCount
   remainingFields
@@ -359,6 +388,10 @@ fragment RoadmapCpdPlanFields on CpdPlan {
     ...RoadmapCpdPlanCategoryFields
   }
 }
+fragment RoadmapGenerationFailureFields on RoadmapGenerationFailure {
+  code
+  recoveryActions
+}
 fragment ProfessionalRoadmapDraftFields on ProfessionalRoadmapDraft {
   id
   status
@@ -366,7 +399,9 @@ fragment ProfessionalRoadmapDraftFields on ProfessionalRoadmapDraft {
   isComplete
   needsClarification
   wasRefused
-  failureReason
+  failure {
+    ...RoadmapGenerationFailureFields
+  }
   completedFieldCount
   requiredFieldCount
   remainingFields
@@ -410,8 +445,8 @@ fragment ProfessionalRoadmapDraftFields on ProfessionalRoadmapDraft {
   }
 }`) as unknown as TypedDocumentString<StartRoadmapDraftMutation, StartRoadmapDraftMutationVariables>;
 export const ResetRoadmapDraftDocument = /*#__PURE__*/ new TypedDocumentString(`
-    mutation ResetRoadmapDraft {
-  resetRoadmapDraft {
+    mutation ResetRoadmapDraft($draftId: ID) {
+  resetRoadmapDraft(draftId: $draftId) {
     ...ProfessionalRoadmapDraftFields
   }
 }
@@ -457,6 +492,10 @@ fragment RoadmapCpdPlanFields on CpdPlan {
     ...RoadmapCpdPlanCategoryFields
   }
 }
+fragment RoadmapGenerationFailureFields on RoadmapGenerationFailure {
+  code
+  recoveryActions
+}
 fragment ProfessionalRoadmapDraftFields on ProfessionalRoadmapDraft {
   id
   status
@@ -464,7 +503,9 @@ fragment ProfessionalRoadmapDraftFields on ProfessionalRoadmapDraft {
   isComplete
   needsClarification
   wasRefused
-  failureReason
+  failure {
+    ...RoadmapGenerationFailureFields
+  }
   completedFieldCount
   requiredFieldCount
   remainingFields
@@ -507,6 +548,22 @@ fragment ProfessionalRoadmapDraftFields on ProfessionalRoadmapDraft {
     }
   }
 }`) as unknown as TypedDocumentString<ResetRoadmapDraftMutation, ResetRoadmapDraftMutationVariables>;
+export const ProfessionalRoadmapGenerationDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query ProfessionalRoadmapGeneration($draftId: ID) {
+  professionalRoadmapGeneration(draftId: $draftId) {
+    id
+    goal
+    status
+    updatedAt
+    failure {
+      ...RoadmapGenerationFailureFields
+    }
+  }
+}
+    fragment RoadmapGenerationFailureFields on RoadmapGenerationFailure {
+  code
+  recoveryActions
+}`) as unknown as TypedDocumentString<ProfessionalRoadmapGenerationQuery, ProfessionalRoadmapGenerationQueryVariables>;
 export const SendRoadmapChatTurnDocument = /*#__PURE__*/ new TypedDocumentString(`
     mutation SendRoadmapChatTurn($input: RoadmapChatTurnInput!) {
   sendRoadmapChatTurn(input: $input) {
@@ -555,6 +612,10 @@ fragment RoadmapCpdPlanFields on CpdPlan {
     ...RoadmapCpdPlanCategoryFields
   }
 }
+fragment RoadmapGenerationFailureFields on RoadmapGenerationFailure {
+  code
+  recoveryActions
+}
 fragment ProfessionalRoadmapDraftFields on ProfessionalRoadmapDraft {
   id
   status
@@ -562,7 +623,9 @@ fragment ProfessionalRoadmapDraftFields on ProfessionalRoadmapDraft {
   isComplete
   needsClarification
   wasRefused
-  failureReason
+  failure {
+    ...RoadmapGenerationFailureFields
+  }
   completedFieldCount
   requiredFieldCount
   remainingFields
@@ -653,6 +716,10 @@ fragment RoadmapCpdPlanFields on CpdPlan {
     ...RoadmapCpdPlanCategoryFields
   }
 }
+fragment RoadmapGenerationFailureFields on RoadmapGenerationFailure {
+  code
+  recoveryActions
+}
 fragment ProfessionalRoadmapDraftFields on ProfessionalRoadmapDraft {
   id
   status
@@ -660,7 +727,9 @@ fragment ProfessionalRoadmapDraftFields on ProfessionalRoadmapDraft {
   isComplete
   needsClarification
   wasRefused
-  failureReason
+  failure {
+    ...RoadmapGenerationFailureFields
+  }
   completedFieldCount
   requiredFieldCount
   remainingFields
@@ -751,6 +820,10 @@ fragment RoadmapCpdPlanFields on CpdPlan {
     ...RoadmapCpdPlanCategoryFields
   }
 }
+fragment RoadmapGenerationFailureFields on RoadmapGenerationFailure {
+  code
+  recoveryActions
+}
 fragment ProfessionalRoadmapDraftFields on ProfessionalRoadmapDraft {
   id
   status
@@ -758,7 +831,9 @@ fragment ProfessionalRoadmapDraftFields on ProfessionalRoadmapDraft {
   isComplete
   needsClarification
   wasRefused
-  failureReason
+  failure {
+    ...RoadmapGenerationFailureFields
+  }
   completedFieldCount
   requiredFieldCount
   remainingFields
@@ -849,6 +924,10 @@ fragment RoadmapCpdPlanFields on CpdPlan {
     ...RoadmapCpdPlanCategoryFields
   }
 }
+fragment RoadmapGenerationFailureFields on RoadmapGenerationFailure {
+  code
+  recoveryActions
+}
 fragment ProfessionalRoadmapDraftFields on ProfessionalRoadmapDraft {
   id
   status
@@ -856,7 +935,9 @@ fragment ProfessionalRoadmapDraftFields on ProfessionalRoadmapDraft {
   isComplete
   needsClarification
   wasRefused
-  failureReason
+  failure {
+    ...RoadmapGenerationFailureFields
+  }
   completedFieldCount
   requiredFieldCount
   remainingFields
