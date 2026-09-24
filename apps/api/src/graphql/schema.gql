@@ -404,6 +404,7 @@ type AssociationCategoryAttentionGroup {
 type AssociationCategoryProgress {
   completedCredits: Float!
   id: ID!
+  mappedCategory: PDUCategory!
   name: String!
   percent: Float!
   requiredCredits: Float!
@@ -466,6 +467,13 @@ type AssociationComplianceTrendPoint {
   renewalReady: Int!
   renewalReadyShare: Float!
   totalMembers: Int!
+}
+
+type AssociationContentEndorsement {
+  associationName: String!
+  isDefaultRequirement: Boolean!
+  learningContentId: ID!
+  requirementId: ID!
 }
 
 type AssociationCumulativePoint {
@@ -4320,6 +4328,7 @@ type Query {
   myAssociationRequirements: [AssociationMyRequirement!]!
   myCalendarEntries: [ProfessionalManualCalendarEvent!]!
   myCart: Cart
+  myContentEndorsement(contentId: ID!, contentType: ContentType!): AssociationContentEndorsement
   myCpdPlans: [CpdPlan!]!
   myDraftCpdPlans: [CpdPlan!]!
   myEnrollments: [ContentEnrollment!]!

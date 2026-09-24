@@ -57,6 +57,7 @@ export type TRequirementActivitiesTableProps = {
 export type TRequirementLearningContentProps = {
   isLoading: boolean;
   t: I18nContextValue["t"];
+  requirementKeyValue: string;
   contents: TAssociationRequirementContent[];
   onMarkComplete: (content: TAssociationRequirementContent) => void;
 };
@@ -122,6 +123,7 @@ export type TRequirementDetailViewProps = {
   t: I18nContextValue["t"];
   isLoading: boolean;
   model: TRequirementViewModel;
+  requirementKeyValue: string;
   categories: TRequirementCategoryRow[];
   content: TAssociationRequirementContent[];
   activities: TRequirementActivityRow[];

@@ -150,6 +150,7 @@ const ProfessionalCpdPduProgressTab = () => {
                   t={t}
                   model={model}
                   isLoading={false}
+                  requirementKeyValue={model.key}
                   isDetailLoading={cpd.isAssociationDetailLoading}
                   isActivitiesLoading={cpd.isAssociationDetailLoading}
                   categories={R.associationCategoryRows(cpd.associationDetail)}
@@ -170,6 +171,7 @@ const ProfessionalCpdPduProgressTab = () => {
                   isLoading
                   isDetailLoading
                   isActivitiesLoading
+                  requirementKeyValue=""
                   model={{} as TRequirementViewModel}
                   categories={[]}
                   content={[]}
@@ -184,6 +186,7 @@ const ProfessionalCpdPduProgressTab = () => {
                 model={model}
                 isLoading={false}
                 isDetailLoading={false}
+                requirementKeyValue={model.key}
                 isActivitiesLoading={cpd.isPlanActivitiesLoading}
                 categories={R.planCategoryRows(cpd.progress)}
                 content={[]}

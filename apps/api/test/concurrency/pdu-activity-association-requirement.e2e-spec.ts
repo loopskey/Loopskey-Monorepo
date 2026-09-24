@@ -3,6 +3,7 @@ import { AssociationRequirementStatus } from "@prisma/client";
 import { AssociationAudienceKind } from "@prisma/client";
 import { AssociationMemberStatus } from "@prisma/client";
 import { CreditType, PDUCategory, PDUSource, Role } from "@prisma/client";
+import { ContentType } from "@prisma/client";
 import { ProfessionalPduService } from "@professional/services/professional-pdu.service";
 import { NotFoundException } from "@nestjs/common";
 import { INestApplication } from "@nestjs/common";
@@ -35,8 +36,10 @@ describe("PDU activity association-requirement ownership (e2e)", () => {
   let outsiderUserId: string;
   let requirementId: string;
 
-  const assignedUser = () => ({ id: assignedUserId, role: Role.PROFESSIONAL }) as TUser;
-  const outsiderUser = () => ({ id: outsiderUserId, role: Role.PROFESSIONAL }) as TUser;
+  const assignedUser = () =>
+    ({ id: assignedUserId, role: Role.PROFESSIONAL }) as TUser;
+  const outsiderUser = () =>
+    ({ id: outsiderUserId, role: Role.PROFESSIONAL }) as TUser;
 
   const activityInput = (overrides: Record<string, unknown> = {}) => ({
     title: "Ownership e2e activity",
@@ -114,7 +117,12 @@ describe("PDU activity association-requirement ownership (e2e)", () => {
         status: AssociationRequirementStatus.PUBLISHED,
         publishedAt: new Date(),
         targets: {
-          create: [{ kind: AssociationAudienceKind.SPECIFIC_MEMBERS, memberId: member.id }],
+          create: [
+            {
+              kind: AssociationAudienceKind.SPECIFIC_MEMBERS,
+              memberId: member.id,
+            },
+          ],
         },
       },
     });
@@ -146,19 +154,24 @@ describe("PDU activity association-requirement ownership (e2e)", () => {
   }, 60_000);
 
   it("pushed the assignment into the professional-owned directory when materialised", async () => {
-    const link = await prisma.professionalAssociationRequirementLink.findUnique({
-      where: {
-        userId_associationRequirementId: {
-          userId: assignedUserId,
-          associationRequirementId: requirementId,
+    const link = await prisma.professionalAssociationRequirementLink.findUnique(
+      {
+        where: {
+          userId_associationRequirementId: {
+            userId: assignedUserId,
+            associationRequirementId: requirementId,
+          },
         },
       },
-    });
+    );
     expect(link).not.toBeNull();
   });
 
   it("accepts an activity from the member the requirement is actually assigned to", async () => {
-    const created = await pdu.createPduActivity(assignedUser(), activityInput());
+    const created = await pdu.createPduActivity(
+      assignedUser(),
+      activityInput(),
+    );
     expect(created.associationRequirementId).toBe(requirementId);
   });
 
@@ -182,6 +195,30 @@ describe("PDU activity association-requirement ownership (e2e)", () => {
         activityId: own.id,
         associationRequirementId: requirementId,
       } as never),
+    ).rejects.toBeInstanceOf(NotFoundException);
+  });
+
+  it("accepts a content-linked activity from the member the requirement is assigned to", async () => {
+    const created = await pdu.createPduActivity(
+      assignedUser(),
+      activityInput({
+        contentType: ContentType.COURSE,
+        contentId: `course-${scope.email("content-linked")}`,
+      }),
+    );
+    expect(created.associationRequirementId).toBe(requirementId);
+    expect(created.contentType).toBe(ContentType.COURSE);
+  });
+
+  it("rejects a content-linked activity from a professional the requirement is not assigned to", async () => {
+    await expect(
+      pdu.createPduActivity(
+        outsiderUser(),
+        activityInput({
+          contentType: ContentType.COURSE,
+          contentId: `course-${scope.email("content-linked-outsider")}`,
+        }),
+      ),
     ).rejects.toBeInstanceOf(NotFoundException);
   });
 });

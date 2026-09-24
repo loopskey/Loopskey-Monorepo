@@ -1,6 +1,6 @@
 "use client";
 
-import { contentHref } from "@/utils/professional-requirement.helper";
+import { contentDetailHref } from "@/utils/professional-requirement.helper";
 import { getContentTypeStyle } from "@/utils/content-type-style";
 import { GlassCard } from "@elements/glass-card";
 import { Skeleton } from "@ui/skeleton";
@@ -37,11 +37,18 @@ const detailLine = (
 const ViewAction = ({
   t,
   content,
+  requirementKeyValue,
 }: {
   t: I18nContextValue["t"];
   content: TAssociationRequirementContent;
+  requirementKeyValue: string;
 }) => {
-  const internal = contentHref(content.contentType, content.slug);
+  const internal = contentDetailHref(
+    content.contentType,
+    content.slug,
+    requirementKeyValue,
+    content.id,
+  );
 
   if (content.isExternal && content.externalUrl)
     return (
@@ -69,9 +76,11 @@ const ContentRow = ({
   t,
   content,
   onMarkComplete,
+  requirementKeyValue,
 }: {
   t: I18nContextValue["t"];
   content: TAssociationRequirementContent;
+  requirementKeyValue: string;
   onMarkComplete: (content: TAssociationRequirementContent) => void;
 }) => {
   const style = getContentTypeStyle(content.contentType);
@@ -110,7 +119,7 @@ const ContentRow = ({
       </div>
 
       <div className="flex shrink-0 flex-wrap gap-2">
-        <ViewAction t={t} content={content} />
+        <ViewAction t={t} content={content} requirementKeyValue={requirementKeyValue} />
         <Button
           size="sm"
           radius="xl"
@@ -131,6 +140,7 @@ export const RequirementLearningContent = ({
   contents,
   isLoading,
   onMarkComplete,
+  requirementKeyValue,
 }: TRequirementLearningContentProps) => {
   const [showAll, setShowAll] = useState(false);
   const visible = showAll ? contents : contents.slice(0, PREVIEW_COUNT);
@@ -158,6 +168,7 @@ export const RequirementLearningContent = ({
                 key={content.id}
                 content={content}
                 onMarkComplete={onMarkComplete}
+                requirementKeyValue={requirementKeyValue}
               />
             ))}
           </ul>

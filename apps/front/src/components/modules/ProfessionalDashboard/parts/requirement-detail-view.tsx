@@ -33,6 +33,7 @@ export const RequirementDetailView = ({
   isDeleting,
   onMarkComplete,
   isDetailLoading,
+  requirementKeyValue,
   isActivitiesLoading,
 }: TRequirementDetailViewProps) => {
   if (isLoading) {
@@ -87,6 +88,7 @@ export const RequirementDetailView = ({
           t={t}
           contents={content}
           isLoading={isDetailLoading}
+          requirementKeyValue={requirementKeyValue}
           onMarkComplete={onMarkComplete ?? (() => {})}
         />
       </div>
