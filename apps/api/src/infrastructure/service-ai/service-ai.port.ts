@@ -1,10 +1,3 @@
-/**
- * The provider's documented input bounds, republished here so a caller that
- * must validate before spending a call does not have to reach into the
- * generated types. The port is the only surface a domain module may import,
- * and these numbers are derived from the vendored contract, so a bound the
- * provider tightens arrives here in the same regenerated diff.
- */
 export { SERVICE_AI_LIMITS } from "@infrastructure/service-ai/generated/service-ai.types";
 
 export const SERVICE_AI_PORT = Symbol("SERVICE_AI_PORT");
@@ -17,10 +10,10 @@ export enum RoadmapAiMessageCode {
 }
 
 export type PlatformSkillLevel =
+  | "EXPERT"
   | "BEGINNER"
-  | "INTERMEDIATE"
   | "ADVANCED"
-  | "EXPERT";
+  | "INTERMEDIATE";
 
 export type PlatformTimeCommitment =
   | "ONE_TO_TWO_HOURS"
@@ -36,10 +29,10 @@ export type PlatformBudgetPreference =
 
 export type PlatformLearningFormat =
   | "COURSE"
-  | "WEBINAR"
-  | "WORKSHOP"
   | "VIDEO"
+  | "WEBINAR"
   | "PODCAST"
+  | "WORKSHOP"
   | "ARTICLE";
 
 export type PlatformContentType = "EVENT" | "COURSE" | "PODCAST" | "YOUTUBE";
@@ -63,26 +56,26 @@ export type RoadmapSection = "GOAL" | "PREFERENCES" | "CPD_SETUP" | "REVIEW";
 
 export type RoadmapDraftField =
   | "goal"
+  | "context"
+  | "subjects"
   | "targetRole"
   | "goalReason"
-  | "context"
   | "targetDate"
+  | "cpdEnabled"
   | "skillLevel"
   | "timeCommitment"
   | "budgetPreference"
-  | "subjects"
   | "preferredFormats"
   | "preferredContentTypes"
-  | "cpdEnabled"
   | "certificationName";
 
 export type RoadmapDraftState = {
   goal?: string | null;
   context?: string | null;
+  targetDate?: Date | null;
   subjects?: string[] | null;
   goalReason?: string | null;
   targetRole?: string | null;
-  targetDate?: Date | null;
   cpdEnabled?: boolean | null;
   certificationName?: string | null;
   skillLevel?: PlatformSkillLevel | null;
@@ -96,20 +89,22 @@ export type RoadmapChatEntry = { role: PlatformChatRole; content: string };
 
 export type RoadmapSubjectOption = { id: string; label: string };
 
+export type RoadmapWidgetField = RoadmapDraftField | "preferredDeliveryFormats";
+
 export type RoadmapWidget = {
-  field: RoadmapDraftField;
+  field: RoadmapWidgetField;
   maxSelections: number | null;
-  options: { value: string; label: string }[];
+  options: { value: string; label: string; groupLabel?: string | null }[];
   type: "TEXT" | "SINGLE_SELECT" | "MULTI_SELECT" | "DATE" | "YES_NO";
 };
 
 export type ChatTurnInput = {
   today: Date;
-  draft: RoadmapDraftState;
   locale?: PlatformLocale;
-  currentStep: PlatformDraftStep;
+  draft: RoadmapDraftState;
   userMessage?: string | null;
   history?: RoadmapChatEntry[];
+  currentStep: PlatformDraftStep;
   subjectOptions?: RoadmapSubjectOption[];
 };
 
@@ -126,8 +121,8 @@ export type ChatTurnData = {
 export type RoadmapContentCandidate = {
   title: string;
   isFree: boolean;
-  contentId: string;
   tags?: string[];
+  contentId: string;
   summary?: string | null;
   credits?: number | null;
   durationMinutes?: number | null;
@@ -137,10 +132,10 @@ export type RoadmapContentCandidate = {
 
 export type RoadmapCpdContext = {
   organization: string;
-  certificationName: string;
-  reportingEnd?: Date | null;
   completedCredits: number;
   remainingCredits: number;
+  certificationName: string;
+  reportingEnd?: Date | null;
   totalRequiredCredits: number;
 };
 

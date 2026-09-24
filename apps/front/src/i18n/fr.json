@@ -7500,14 +7500,6 @@
       "saved": "Enregistré",
       "error": "Échec de l'enregistrement"
     },
-    "preferencesWizard": {
-      "stepOf": "Étape {{current}} sur {{total}}",
-      "back": "Retour",
-      "confirm": "Confirmer",
-      "saveFailed": "Cela n'a pas été enregistré. Réessayez.",
-      "maxSelected": "Jusqu'à {{max}} sélectionnés",
-      "quickAnswerLabel": "Réponse rapide"
-    },
     "transcriptLabel": "Conversation avec le coach de parcours",
     "thinking": "Le coach réfléchit…",
     "stepper": {
@@ -7549,7 +7541,15 @@
       "selectedOfMax": "{{selected}} sur {{max}} sélectionnés",
       "quickInThreeMonths": "Dans 3 mois",
       "quickInSixMonths": "Dans 6 mois",
-      "quickEndOfYear": "Fin d'année"
+      "quickEndOfYear": "Fin d'année",
+      "suggestions": {
+        "showMore": "Voir plus…",
+        "title": "Plus d'options",
+        "description": "La liste complète classée par pertinence, y compris les groupes non affichés en aperçu rapide.",
+        "searchPlaceholder": "Rechercher…",
+        "loading": "Chargement…",
+        "empty": "Aucun résultat."
+      }
     },
     "system": {
       "ROADMAP_AI_REFUSED": "Cela semble sans rapport avec la création d'un parcours. Pouvez-vous reformuler ?",

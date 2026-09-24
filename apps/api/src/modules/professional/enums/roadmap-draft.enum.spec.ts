@@ -34,10 +34,19 @@ const WIDGET_KINDS: Record<RoadmapWidget["type"], RoadmapWidgetKind> = {
   MULTI_SELECT: RoadmapWidgetKind.MULTI_SELECT,
 };
 
+/**
+ * `preferredDeliveryFormats` is the one deliberate exception: the provider
+ * cannot name it (it is outside `RoadmapDraftField`), but the server's own
+ * PREFERENCES widgets must be able to, as a sixth preference sub-field the
+ * old static wizard used to ask about locally. See `RoadmapWidgetField` in
+ * `service-ai.port.ts`.
+ */
+const WIDGET_ONLY_FIELDS = [RoadmapDraftFieldKey.PREFERRED_DELIVERY_FORMATS];
+
 describe("exposed roadmap draft enums", () => {
-  it("exposes exactly the draft fields the port names", () => {
+  it("exposes exactly the port's draft fields, plus the documented widget-only exception", () => {
     expect(Object.values(RoadmapDraftFieldKey).sort()).toEqual(
-      Object.keys(FIELD_KEYS).sort(),
+      [...Object.keys(FIELD_KEYS), ...WIDGET_ONLY_FIELDS].sort(),
     );
   });
 

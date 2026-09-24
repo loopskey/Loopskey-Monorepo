@@ -7498,14 +7498,6 @@
       "saved": "Saved",
       "error": "Could not save"
     },
-    "preferencesWizard": {
-      "stepOf": "Step {{current}} of {{total}}",
-      "back": "Back",
-      "confirm": "Confirm",
-      "saveFailed": "That didn't save. Try again.",
-      "maxSelected": "Up to {{max}} selected",
-      "quickAnswerLabel": "Quick answer"
-    },
     "transcriptLabel": "Conversation with the roadmap coach",
     "thinking": "The coach is thinking…",
     "stepper": {
@@ -7547,7 +7539,15 @@
       "selectedOfMax": "{{selected}} of {{max}} selected",
       "quickInThreeMonths": "In 3 months",
       "quickInSixMonths": "In 6 months",
-      "quickEndOfYear": "End of year"
+      "quickEndOfYear": "End of year",
+      "suggestions": {
+        "showMore": "Show more…",
+        "title": "More options",
+        "description": "The full ranked list, including groups not shown as quick chips.",
+        "searchPlaceholder": "Search…",
+        "loading": "Loading…",
+        "empty": "No matches."
+      }
     },
     "system": {
       "ROADMAP_AI_REFUSED": "That looks unrelated to building a roadmap. Could you rephrase it?",

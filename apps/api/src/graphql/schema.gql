@@ -4440,6 +4440,7 @@ type Query {
   providerOverview(input: ProviderDashboardRangeInput): ProviderOverview!
   providerPromotionRequests(filter: ProviderPromotionFilterInput, pagination: ProviderDashboardPaginationInput): PaginatedPromotionRequests!
   providerSettings: ProviderSettings!
+  roadmapSuggestionOptions(input: RoadmapSuggestionOptionsInput!): [RoadmapWidgetOption!]!
   upcomingEvents(take: Int = 12): [Event!]!
   userById(userId: String!): User!
   users(filter: UserFilterInput, pagination: UserPaginationInput): PaginatedUsers!
@@ -4535,6 +4536,7 @@ enum RoadmapDraftFieldKey {
   GOAL
   GOAL_REASON
   PREFERRED_CONTENT_TYPES
+  PREFERRED_DELIVERY_FORMATS
   PREFERRED_FORMATS
   SKILL_LEVEL
   SUBJECTS
@@ -4633,6 +4635,12 @@ type RoadmapSubjectOption {
   label: String!
 }
 
+input RoadmapSuggestionOptionsInput {
+  draftId: ID!
+  field: RoadmapDraftFieldKey!
+  search: String
+}
+
 type RoadmapWidget {
   field: RoadmapDraftFieldKey!
   maxSelections: Int
@@ -4649,6 +4657,7 @@ enum RoadmapWidgetKind {
 }
 
 type RoadmapWidgetOption {
+  groupLabel: String
   label: String!
   value: String!
 }

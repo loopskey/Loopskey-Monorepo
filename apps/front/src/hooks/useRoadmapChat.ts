@@ -232,6 +232,12 @@ export const useRoadmapChat = () => {
     [draft, patchDraft, writeDraft],
   );
 
+  const splitMulti = (value: string) =>
+    value
+      .split(",")
+      .map((entry) => entry.trim())
+      .filter(Boolean);
+
   const answerWidget = useCallback(
     (value: string) => {
       const field = draft?.widget?.field;
@@ -247,6 +253,22 @@ export const useRoadmapChat = () => {
         });
       if (field === RoadmapDraftFieldKey.CertificationName)
         return void patch({ certificationName: value });
+      if (field === RoadmapDraftFieldKey.SkillLevel)
+        return void patch({ skillLevel: value } as T.Patch);
+      if (field === RoadmapDraftFieldKey.TimeCommitment)
+        return void patch({ timeCommitment: value } as T.Patch);
+      if (field === RoadmapDraftFieldKey.BudgetPreference)
+        return void patch({ budgetPreference: value } as T.Patch);
+      if (field === RoadmapDraftFieldKey.Subjects)
+        return void patch({ subjects: splitMulti(value) } as T.Patch);
+      if (field === RoadmapDraftFieldKey.PreferredFormats)
+        return void patch({
+          preferredFormats: splitMulti(value),
+        } as T.Patch);
+      if (field === RoadmapDraftFieldKey.PreferredDeliveryFormats)
+        return void patch({
+          preferredDeliveryFormats: splitMulti(value),
+        } as T.Patch);
       answerWith(value);
     },
     [

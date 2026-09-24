@@ -1,11 +1,16 @@
 # ============== Roadmap chat wizard ================
+fragment RoadmapWidgetOptionFields on RoadmapWidgetOption {
+  value
+  label
+  groupLabel
+}
+
 fragment RoadmapWidgetFields on RoadmapWidget {
   type
   field
   maxSelections
   options {
-    value
-    label
+    ...RoadmapWidgetOptionFields
   }
 }
 
@@ -157,5 +162,11 @@ mutation PatchRoadmapCpdSetup($input: PatchRoadmapCpdSetupInput!) {
 mutation RequestRoadmapGeneration($draftId: ID!) {
   requestRoadmapGeneration(draftId: $draftId) {
     ...ProfessionalRoadmapDraftFields
+  }
+}
+
+query RoadmapSuggestionOptions($input: RoadmapSuggestionOptionsInput!) {
+  roadmapSuggestionOptions(input: $input) {
+    ...RoadmapWidgetOptionFields
   }
 }

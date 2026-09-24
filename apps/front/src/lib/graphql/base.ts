@@ -5483,6 +5483,7 @@ export type Query = {
   providerOverview: ProviderOverview;
   providerPromotionRequests: PaginatedPromotionRequests;
   providerSettings: ProviderSettings;
+  roadmapSuggestionOptions: Array<RoadmapWidgetOption>;
   upcomingEvents: Array<Event>;
   userById: User;
   users: PaginatedUsers;
@@ -6177,6 +6178,11 @@ export type QueryProviderPromotionRequestsArgs = {
 };
 
 
+export type QueryRoadmapSuggestionOptionsArgs = {
+  input: RoadmapSuggestionOptionsInput;
+};
+
+
 export type QueryUpcomingEventsArgs = {
   take?: InputMaybe<Scalars['Int']['input']>;
 };
@@ -6301,6 +6307,7 @@ export enum RoadmapDraftFieldKey {
   Goal = 'GOAL',
   GoalReason = 'GOAL_REASON',
   PreferredContentTypes = 'PREFERRED_CONTENT_TYPES',
+  PreferredDeliveryFormats = 'PREFERRED_DELIVERY_FORMATS',
   PreferredFormats = 'PREFERRED_FORMATS',
   SkillLevel = 'SKILL_LEVEL',
   Subjects = 'SUBJECTS',
@@ -6403,6 +6410,12 @@ export type RoadmapSubjectOption = {
   label: Scalars['String']['output'];
 };
 
+export type RoadmapSuggestionOptionsInput = {
+  draftId: Scalars['ID']['input'];
+  field: RoadmapDraftFieldKey;
+  search?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type RoadmapWidget = {
   __typename?: 'RoadmapWidget';
   field: RoadmapDraftFieldKey;
@@ -6421,6 +6434,7 @@ export enum RoadmapWidgetKind {
 
 export type RoadmapWidgetOption = {
   __typename?: 'RoadmapWidgetOption';
+  groupLabel?: Maybe<Scalars['String']['output']>;
   label: Scalars['String']['output'];
   value: Scalars['String']['output'];
 };

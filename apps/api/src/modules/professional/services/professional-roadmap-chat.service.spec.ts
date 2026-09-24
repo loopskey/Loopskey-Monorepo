@@ -1,9 +1,11 @@
 import {
+  AppLanguage,
   ContentType,
   DeliveryFormat,
   LearningBudgetPreference,
   LearningFormat,
   LearningTimeCommitment,
+  ProfileTaxonomyKind,
   RoadmapChatRole,
   RoadmapDraftStatus,
   RoadmapDraftStep,
@@ -21,10 +23,13 @@ import {
 import { HttpException, Logger, NotFoundException } from "@nestjs/common";
 import { requestContext } from "@infrastructure/observability/request-context";
 import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
+import { RoadmapDraftFieldKey } from "@professional/enums/roadmap-draft.enum";
 
+import type { CertificationSearchService } from "./certification-search.service";
 import type { ProfessionalCpdPlanService } from "./professional-cpd-plan.service";
 import type { ProfessionalProfileService } from "./professional-profile.service";
 import type { ProfessionalRoadmapDraftService } from "./professional-roadmap-draft.service";
+import type { PrismaService } from "@prisma/prisma.service";
 
 import { ProfessionalRoadmapChatService } from "./professional-roadmap-chat.service";
 
@@ -304,10 +309,30 @@ const setup = (
       preferredLearningFormats: [LearningFormat.COURSE],
       favoriteSubjects: [SUBJECT_TERMS[1]],
     })),
-    taxonomy: jest.fn(async () => [
-      { groupKey: "g", groupLabel: "G", kind: "SUBJECT", terms: SUBJECT_TERMS },
-    ]),
+    taxonomy: jest.fn(async (_user: unknown, kind?: ProfileTaxonomyKind) =>
+      kind === ProfileTaxonomyKind.ROLE
+        ? []
+        : [
+            {
+              groupKey: "g",
+              groupLabel: "G",
+              kind: "SUBJECT",
+              terms: SUBJECT_TERMS,
+            },
+          ],
+    ),
   } as unknown as ProfessionalProfileService;
+
+  const certifications = {
+    search: jest.fn(async () => []),
+  } as unknown as CertificationSearchService;
+
+  const prisma = {
+    professionalProfileTerm: { findMany: jest.fn(async () => []) },
+    professionalSettings: {
+      findUnique: jest.fn(async () => ({ interfaceLanguage: AppLanguage.EN })),
+    },
+  } as unknown as PrismaService;
 
   const cpdPlans = {
     certificationCredits: jest.fn(async () => ({
@@ -354,9 +379,20 @@ const setup = (
     store as unknown as ProfessionalRoadmapDraftService,
     profiles,
     cpdPlans,
+    certifications,
+    prisma,
   );
 
-  return { service, store, chatTurn, calls, profiles, cpdPlans };
+  return {
+    service,
+    store,
+    chatTurn,
+    calls,
+    profiles,
+    cpdPlans,
+    certifications,
+    prisma,
+  };
 };
 
 /**
@@ -1492,5 +1528,279 @@ describe("the coach's fixed script", () => {
     expect(store.messages.filter((m) => m.role === "ASSISTANT")).toHaveLength(
       0,
     );
+  });
+});
+
+describe("the provider's own widget", () => {
+  it("uses the provider's validated, relabelled widget for the next question", async () => {
+    const { service, store } = setup([
+      {
+        ok: true,
+        data: turnData({
+          assistantMessage: "Great — which subjects should we focus on?",
+          extracted: { skillLevel: SkillLevel.INTERMEDIATE },
+          widget: {
+            type: "MULTI_SELECT",
+            field: "subjects",
+            maxSelections: 2,
+            options: [
+              { value: "term-data", label: "provider's own wording" },
+              { value: "term-not-real", label: "unknown to the platform" },
+            ],
+          },
+        }),
+      },
+    ]);
+    store.seed(
+      emptyDraft({
+        ...collected,
+        skillLevel: null,
+        subjects: [],
+        currentStep: RoadmapDraftStep.PREFERENCES,
+      }),
+    );
+
+    await service.chatTurn(OWNER, {
+      draftId: "draft-1",
+      message: "intermediate",
+    });
+
+    const assistant = store.messages.filter(
+      (m) => m.role === RoadmapChatRole.ASSISTANT,
+    );
+    expect(assistant).toHaveLength(1);
+    expect(assistant[0]).toMatchObject({
+      content: "Great — which subjects should we focus on?",
+      widget: {
+        type: "MULTI_SELECT",
+        field: "subjects",
+        maxSelections: 2,
+        options: [
+          { value: "term-data", label: "Data Analysis", groupLabel: "G" },
+        ],
+      },
+    });
+  });
+
+  it("falls back to the server's own ranked default once every suggested option is invalid", async () => {
+    const { service, store } = setup([
+      {
+        ok: true,
+        data: turnData({
+          extracted: { skillLevel: SkillLevel.INTERMEDIATE },
+          widget: {
+            type: "MULTI_SELECT",
+            field: "subjects",
+            maxSelections: 2,
+            options: [{ value: "not-real", label: "Not real" }],
+          },
+        }),
+      },
+    ]);
+    store.seed(
+      emptyDraft({
+        ...collected,
+        skillLevel: null,
+        subjects: [],
+        currentStep: RoadmapDraftStep.PREFERENCES,
+      }),
+    );
+
+    await service.chatTurn(OWNER, {
+      draftId: "draft-1",
+      message: "intermediate",
+    });
+
+    const last = store.messages
+      .filter((m) => m.role === RoadmapChatRole.ASSISTANT)
+      .at(-1);
+    expect(last?.content).toBe("ROADMAP_COACH_QUESTION");
+    // "become a data lead" (the seeded goal) overlaps "Data Analysis" more
+    // than "Leadership", so relevance ranking correctly puts it first — the
+    // point of this assertion is that both known options survive the drop of
+    // the unknown one, in ranked order, not a specific ranking outcome.
+    expect(last?.widget).toMatchObject({
+      field: "subjects",
+      maxSelections: 3,
+      options: [
+        { value: "term-data", label: "Data Analysis" },
+        { value: "term-leadership", label: "Leadership" },
+      ],
+    });
+  });
+});
+
+describe("the PREFERENCES step, one sub-field at a time", () => {
+  it("answers two sub-fields in one turn and asks about the next one still missing", async () => {
+    const { service, store } = setup([
+      {
+        ok: true,
+        data: turnData({
+          extracted: {
+            skillLevel: SkillLevel.INTERMEDIATE,
+            subjects: ["term-data"],
+          },
+        }),
+      },
+    ]);
+    store.seed(
+      emptyDraft({
+        ...collected,
+        skillLevel: null,
+        subjects: [],
+        preferredFormats: [],
+        currentStep: RoadmapDraftStep.PREFERENCES,
+      }),
+    );
+
+    const view = await service.chatTurn(OWNER, {
+      draftId: "draft-1",
+      message: "intermediate, and I like data topics",
+    });
+
+    expect(view.skillLevel).toBe(SkillLevel.INTERMEDIATE);
+    expect(view.subjects).toEqual(["term-data"]);
+    expect(view.currentStep).toBe(RoadmapDraftStep.PREFERENCES);
+    expect(view.widget).toMatchObject({ field: "preferredFormats" });
+    expect(
+      store.messages.filter((m) => m.role === RoadmapChatRole.ASSISTANT),
+    ).toHaveLength(1);
+  });
+
+  it("walks through all six sub-fields via patchDraft alone, never calling the AI", async () => {
+    const { service, store, chatTurn } = setup();
+    store.seed(
+      emptyDraft({
+        ...collected,
+        skillLevel: null,
+        subjects: [],
+        preferredFormats: [],
+        timeCommitment: null,
+        preferredDeliveryFormats: [],
+        budgetPreference: null,
+        currentStep: RoadmapDraftStep.PREFERENCES,
+      }),
+    );
+
+    let view = await service.patchDraft(OWNER, {
+      draftId: "draft-1",
+      skillLevel: SkillLevel.INTERMEDIATE,
+    });
+    expect(view.widget).toMatchObject({ field: "subjects" });
+
+    view = await service.patchDraft(OWNER, {
+      draftId: "draft-1",
+      subjects: ["term-data"],
+    });
+    expect(view.widget).toMatchObject({ field: "preferredFormats" });
+
+    view = await service.patchDraft(OWNER, {
+      draftId: "draft-1",
+      preferredFormats: [LearningFormat.COURSE],
+    });
+    expect(view.widget).toMatchObject({ field: "timeCommitment" });
+
+    view = await service.patchDraft(OWNER, {
+      draftId: "draft-1",
+      timeCommitment: LearningTimeCommitment.THREE_TO_FIVE_HOURS,
+    });
+    expect(view.widget).toMatchObject({ field: "preferredDeliveryFormats" });
+
+    view = await service.patchDraft(OWNER, {
+      draftId: "draft-1",
+      preferredDeliveryFormats: [DeliveryFormat.ONLINE],
+    });
+    expect(view.widget).toMatchObject({ field: "budgetPreference" });
+
+    view = await service.patchDraft(OWNER, {
+      draftId: "draft-1",
+      budgetPreference: LearningBudgetPreference.UNDER_100,
+    });
+    expect(view.currentStep).toBe(RoadmapDraftStep.CPD_TRACKING);
+
+    expect(chatTurn).not.toHaveBeenCalled();
+  });
+});
+
+describe("locale-gated question text", () => {
+  it("uses the coded question instead of the provider's prose for a French professional", async () => {
+    const { service, store, prisma } = setup([
+      { ok: true, data: turnData({ assistantMessage: "Could you say more?" }) },
+    ]);
+    (prisma.professionalSettings.findUnique as jest.Mock).mockResolvedValue({
+      interfaceLanguage: AppLanguage.FR,
+    });
+    store.seed(emptyDraft());
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "hmm" });
+
+    const last = store.messages
+      .filter((m) => m.role === RoadmapChatRole.ASSISTANT)
+      .at(-1);
+    expect(last?.content).toBe("ROADMAP_COACH_QUESTION");
+  });
+});
+
+describe("a retried turn", () => {
+  it("does not duplicate a clarification message when the same turn is sent twice", async () => {
+    const data = turnData({
+      needsClarification: true,
+      assistantMessage: "Did you mean PMP or PgMP?",
+    });
+    const { service, store } = setup([
+      { ok: true, data },
+      { ok: true, data },
+    ]);
+    store.seed(emptyDraft());
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "pm" });
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "pm" });
+
+    expect(
+      store.messages.filter((m) => m.role === RoadmapChatRole.ASSISTANT),
+    ).toHaveLength(1);
+  });
+});
+
+describe("roadmap suggestion options", () => {
+  it("returns the full ranked list for a taxonomy field, not just the chip-sized top N", async () => {
+    const { service, store } = setup();
+    store.seed(emptyDraft({ goal: "become a data lead" }));
+
+    const options = await service.suggestionOptions(OWNER, {
+      draftId: "draft-1",
+      field: RoadmapDraftFieldKey.SUBJECTS,
+    });
+
+    expect(options.map((option) => option.value).sort()).toEqual(
+      ["term-data", "term-leadership"].sort(),
+    );
+  });
+
+  it("filters by the search text", async () => {
+    const { service, store } = setup();
+    store.seed(emptyDraft());
+
+    const options = await service.suggestionOptions(OWNER, {
+      draftId: "draft-1",
+      field: RoadmapDraftFieldKey.SUBJECTS,
+      search: "leader",
+    });
+
+    expect(options).toEqual([
+      { value: "term-leadership", label: "Leadership", groupLabel: "G" },
+    ]);
+  });
+
+  it("refuses a draft belonging to another professional", async () => {
+    const { service, store } = setup();
+    store.seed(emptyDraft());
+
+    await expect(
+      service.suggestionOptions(STRANGER, {
+        draftId: "draft-1",
+        field: RoadmapDraftFieldKey.SUBJECTS,
+      }),
+    ).rejects.toBeInstanceOf(NotFoundException);
   });
 });

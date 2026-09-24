@@ -1,11 +1,9 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import { RoadmapPreferencesWizard } from "./RoadmapPreferencesWizard";
 import { RoadmapChatTranscript } from "./RoadmapChatTranscript";
 import { RoadmapReviewSummary } from "./RoadmapReviewSummary";
 import { RoadmapChatComposer } from "./RoadmapChatComposer";
-import { RoadmapDraftStep } from "@/lib/graphql/base";
 import { useSearchParams } from "next/navigation";
 import { useRoadmapChat } from "@/hooks/useRoadmapChat";
 import { ConfirmDialog } from "@/components/elements/confirm-dialog";
@@ -200,21 +198,13 @@ export const ProfessionalRoadmapChatPage = () => {
             onSend={chat.send}
             widget={chat.widget}
             canSend={chat.canSend}
+            draftId={chat.draft?.id ?? ""}
             onChange={chat.setInput}
             composer={chat.composer}
             questionKey={questionKey}
             onAnswer={chat.answerWidget}
             isSending={chat.isSending || chat.isPatching}
             retryAfter={chat.retryAfter}
-            preferencesControl={
-              chat.draft?.currentStep === RoadmapDraftStep.Preferences ? (
-                <RoadmapPreferencesWizard
-                  draft={chat.draft}
-                  onPatch={chat.patch}
-                  isPatching={chat.isPatching}
-                />
-              ) : undefined
-            }
           />
         </GlassCard>
 
