@@ -98,3 +98,4 @@ into this index and do not rewrite previous records.
 - [`roadmap-subject-taxonomy-labels`](feature-runs/active/roadmap-subject-taxonomy-labels.md)
 - [`ingest-provenance-persistence`](feature-runs/active/ingest-provenance-persistence.md)
 - [`professional-roadmap-agentic-experience`](feature-runs/active/professional-roadmap-agentic-experience.md) — PR [#218](https://github.com/loopskey/Loopskey-Monorepo/pull/218)
+- [`i18n-placeholder-interpolation-fix`](feature-runs/active/i18n-placeholder-interpolation-fix.md) — PR [#219](https://github.com/loopskey/Loopskey-Monorepo/pull/219)
