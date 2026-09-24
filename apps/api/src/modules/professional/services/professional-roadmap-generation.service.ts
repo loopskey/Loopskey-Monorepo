@@ -15,6 +15,7 @@ import { SERVICE_AI_LIMITS } from "@infrastructure/service-ai/service-ai.port";
 import { SERVICE_AI_PORT } from "@infrastructure/service-ai/service-ai.port";
 import { isDraftComplete } from "@professional/utils/roadmap-step-machine.util";
 import { subjectLabelsOf } from "@professional/utils/roadmap-draft-merge.util";
+import { worstTier } from "@professional/utils/roadmap-relaxation.util";
 import { requestContext } from "@infrastructure/observability/request-context";
 import { OutboxDeferral } from "@infrastructure/outbox/outbox-handler.port";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
@@ -195,7 +196,12 @@ export class ProfessionalRoadmapGenerationService {
     }
 
     const cpd = await this.buildCpdContext(draft);
-    const subjects = await this.resolveSubjectLabels(draft.subjects);
+    const { labels: subjects, groupKeys } = await this.resolveSubjectContext(
+      draft.subjects,
+    );
+    const keywords = [draft.goal, draft.targetRole].filter(
+      (value): value is string => Boolean(value?.trim()),
+    );
     const started = Date.now();
 
     let cap: number = SERVICE_AI_LIMITS.candidatesMaxItems;
@@ -207,6 +213,8 @@ export class ProfessionalRoadmapGenerationService {
       selected = await this.candidates.build({
         cap,
         subjects,
+        keywords,
+        groupKeys,
         skillLevel: draft.skillLevel,
         budgetPreference: draft.budgetPreference,
         preferredContentTypes: draft.preferredContentTypes,
@@ -322,6 +330,34 @@ export class ProfessionalRoadmapGenerationService {
       contentId && contentType
         ? (creditsByKey.get(`${contentType}:${contentId}`) ?? null)
         : null;
+    const closeMatchByKey = new Map(
+      candidates.map((candidate) => [
+        `${candidate.contentType}:${candidate.contentId}`,
+        candidate.isCloseMatch,
+      ]),
+    );
+    const isCloseMatchFor = (
+      contentId: string | null,
+      contentType: string | null,
+    ) =>
+      contentId && contentType
+        ? (closeMatchByKey.get(`${contentType}:${contentId}`) ?? false)
+        : false;
+    const tierByKey = new Map(
+      candidates.map((candidate) => [
+        `${candidate.contentType}:${candidate.contentId}`,
+        candidate.matchTier,
+      ]),
+    );
+    const tierFor = (contentId: string | null, contentType: string | null) =>
+      contentId && contentType
+        ? tierByKey.get(`${contentType}:${contentId}`)
+        : undefined;
+    const usedTiers = verdict.phases
+      .flatMap((phase) => phase.steps)
+      .map((step) => tierFor(step.contentId, step.contentType))
+      .filter((tier): tier is RankableCandidate["matchTier"] => Boolean(tier));
+    const matchTier = worstTier(usedTiers);
     const coverage = verdict.droppedContentIds.length
       ? [
           data.coverageNote,
@@ -338,6 +374,7 @@ export class ProfessionalRoadmapGenerationService {
           description: data.description,
           coverageNote: coverage,
           estimatedWeeks: data.estimatedWeeks,
+          matchTier,
           slug: `${slugify(data.title).slice(0, 60)}-${draft.id.slice(-8)}`,
           phases: verdict.phases.map((phase) => ({
             order: phase.order,
@@ -352,6 +389,7 @@ export class ProfessionalRoadmapGenerationService {
               contentType: step.contentType,
               estimatedMinutes: step.estimatedMinutes,
               credits: creditsFor(step.contentId, step.contentType),
+              isCloseMatch: isCloseMatchFor(step.contentId, step.contentType),
             })),
           })),
         },
@@ -402,13 +440,18 @@ export class ProfessionalRoadmapGenerationService {
    * deactivated since it was picked) falls back to its stored id, which
    * degrades to "matches nothing" instead of silently dropping the subject.
    */
-  private async resolveSubjectLabels(subjectIds: string[]): Promise<string[]> {
-    if (subjectIds.length === 0) return [];
+  private async resolveSubjectContext(
+    subjectIds: string[],
+  ): Promise<{ labels: string[]; groupKeys: string[] }> {
+    if (subjectIds.length === 0) return { labels: [], groupKeys: [] };
     const options = await this.prisma.profileTaxonomyTerm.findMany({
       where: { id: { in: subjectIds } },
-      select: { id: true, label: true },
+      select: { id: true, label: true, groupKey: true },
     });
-    return subjectLabelsOf(subjectIds, options);
+    return {
+      labels: subjectLabelsOf(subjectIds, options),
+      groupKeys: [...new Set(options.map((option) => option.groupKey))],
+    };
   }
 
   private toDraftState(draft: DraftRow, subjects: string[]) {

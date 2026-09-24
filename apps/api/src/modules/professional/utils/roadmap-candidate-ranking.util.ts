@@ -1,6 +1,8 @@
 import type { PlatformContentType } from "@infrastructure/service-ai/service-ai.port";
 import type { PlatformSkillLevel } from "@infrastructure/service-ai/service-ai.port";
 
+export type RoadmapMatchTier = "EXACT" | "SIMILAR" | "RELATED" | "BROAD";
+
 export type RankableCandidate = {
   title: string;
   tags: string[];
@@ -12,6 +14,9 @@ export type RankableCandidate = {
   isFeatured: boolean;
   summary: string | null;
   credits: number | null;
+  matchScore: number;
+  matchTier: RoadmapMatchTier;
+  isCloseMatch: boolean;
   durationMinutes: number | null;
   contentType: PlatformContentType;
   level: PlatformSkillLevel | null;
@@ -20,7 +25,6 @@ export type RankableCandidate = {
 export type CandidateSelectionInput = {
   cap: number;
   freeOnly: boolean;
-  subjects: string[];
   creditsNeeded: boolean;
   pool: RankableCandidate[];
   level: PlatformSkillLevel | null;
@@ -50,23 +54,6 @@ const LEVEL_FIT_BY_DISTANCE = [1, 0.55, 0.2, 0] as const;
 
 const UNKNOWN_LEVEL_FIT = 0.6;
 
-const normalise = (value: string) => value.toLowerCase().trim();
-
-const scoreSubjects = (
-  candidate: RankableCandidate,
-  subjects: string[],
-): number => {
-  if (subjects.length === 0) return 0.5;
-  const haystack = normalise(
-    [candidate.title, candidate.summary ?? "", ...candidate.tags].join(" "),
-  );
-  const matched = subjects.filter((subject) => {
-    const needle = normalise(subject);
-    return needle.length > 0 && haystack.includes(needle);
-  });
-  return matched.length / subjects.length;
-};
-
 const scoreLevel = (
   candidate: RankableCandidate,
   level: PlatformSkillLevel | null,
@@ -89,9 +76,9 @@ const scorePopularity = (candidate: RankableCandidate): number =>
 
 export const scoreCandidate = (
   candidate: RankableCandidate,
-  input: Pick<CandidateSelectionInput, "subjects" | "level">,
+  input: Pick<CandidateSelectionInput, "level">,
 ): number =>
-  scoreSubjects(candidate, input.subjects) * WEIGHTS.subject +
+  candidate.matchScore * WEIGHTS.subject +
   scoreLevel(candidate, input.level) * WEIGHTS.level +
   scoreQuality(candidate) * WEIGHTS.quality +
   scorePopularity(candidate) * WEIGHTS.popularity +

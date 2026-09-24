@@ -105,3 +105,4 @@ into this index and do not rewrite previous records.
 - [`association-learning-content-pages`](feature-runs/active/association-learning-content-pages.md) — PR [#223](https://github.com/loopskey/Loopskey-Monorepo/pull/223)
 - [`association-requirement-evidence-loop`](feature-runs/active/association-requirement-evidence-loop.md) — PR [#224](https://github.com/loopskey/Loopskey-Monorepo/pull/224)
 - [`roadmap-coach-dynamic-suggestions`](feature-runs/active/roadmap-coach-dynamic-suggestions.md) — PR [#225](https://github.com/loopskey/Loopskey-Monorepo/pull/225)
+- [`roadmap-content-similarity-fallback`](feature-runs/active/roadmap-content-similarity-fallback.md) — PR [#226](https://github.com/loopskey/Loopskey-Monorepo/pull/226)

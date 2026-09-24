@@ -40,6 +40,9 @@ const candidate = (
   ratingCount: 0,
   audience: 0,
   isFeatured: false,
+  matchScore: 1,
+  matchTier: "EXACT",
+  isCloseMatch: false,
   ...overrides,
 });
 
@@ -105,7 +108,7 @@ const buildHarness = (options: {
   candidates?: RankableCandidate[];
   generate?: jest.Mock;
   activitySum?: number | null;
-  subjectTerms?: { id: string; label: string }[];
+  subjectTerms?: { id: string; label: string; groupKey?: string }[];
 }) => {
   const tx = {
     roadmapDraft: {
@@ -513,7 +516,13 @@ describe("ProfessionalRoadmapGenerationService", () => {
     it("resolves the draft's subject ids to their labels before searching and generating", async () => {
       const harness = buildHarness({
         draft: draftRow({ subjects: ["term-kubernetes"] }),
-        subjectTerms: [{ id: "term-kubernetes", label: "Kubernetes" }],
+        subjectTerms: [
+          {
+            id: "term-kubernetes",
+            label: "Kubernetes",
+            groupKey: "TECHNOLOGY",
+          },
+        ],
       });
 
       await harness.service.runGeneration("draft-1");
@@ -527,6 +536,42 @@ describe("ProfessionalRoadmapGenerationService", () => {
       expect(harness.ai.generate.mock.calls[0][0].draft).toMatchObject({
         subjects: ["Kubernetes"],
       });
+    });
+
+    it("resolves the chosen subjects' taxonomy groups for the RELATED tier", async () => {
+      const harness = buildHarness({
+        draft: draftRow({ subjects: ["term-kubernetes"] }),
+        subjectTerms: [
+          {
+            id: "term-kubernetes",
+            label: "Kubernetes",
+            groupKey: "TECHNOLOGY",
+          },
+        ],
+      });
+
+      await harness.service.runGeneration("draft-1");
+
+      expect(harness.candidates.build).toHaveBeenCalledWith(
+        expect.objectContaining({ groupKeys: ["TECHNOLOGY"] }),
+      );
+    });
+
+    it("sends the goal and target role as SIMILAR-tier keywords", async () => {
+      const harness = buildHarness({
+        draft: draftRow({
+          goal: "Become a platform engineer",
+          targetRole: "Platform Engineer",
+        }),
+      });
+
+      await harness.service.runGeneration("draft-1");
+
+      expect(harness.candidates.build).toHaveBeenCalledWith(
+        expect.objectContaining({
+          keywords: ["Become a platform engineer", "Platform Engineer"],
+        }),
+      );
     });
 
     it("falls back to the stored id for a subject whose term no longer resolves", async () => {
@@ -595,6 +640,50 @@ describe("ProfessionalRoadmapGenerationService", () => {
 
       expect(harness.candidates.build).toHaveBeenCalledWith(
         expect.objectContaining({ creditsNeeded: true }),
+      );
+    });
+
+    it("records the roadmap-level match tier and per-step close-match flag", async () => {
+      const harness = buildHarness({
+        draft: draftRow(),
+        candidates: [
+          candidate("course-1", { matchTier: "SIMILAR", isCloseMatch: true }),
+        ],
+      });
+
+      await harness.service.runGeneration("draft-1");
+
+      expect(harness.catalog.createGeneratedRoadmap).toHaveBeenCalledWith(
+        expect.objectContaining({
+          matchTier: "SIMILAR",
+          phases: [
+            expect.objectContaining({
+              steps: [expect.objectContaining({ isCloseMatch: true })],
+            }),
+          ],
+        }),
+        expect.anything(),
+      );
+    });
+
+    it("records an EXACT match tier and no close-match tags when nothing was relaxed", async () => {
+      const harness = buildHarness({
+        draft: draftRow(),
+        candidates: [candidate("course-1")],
+      });
+
+      await harness.service.runGeneration("draft-1");
+
+      expect(harness.catalog.createGeneratedRoadmap).toHaveBeenCalledWith(
+        expect.objectContaining({
+          matchTier: "EXACT",
+          phases: [
+            expect.objectContaining({
+              steps: [expect.objectContaining({ isCloseMatch: false })],
+            }),
+          ],
+        }),
+        expect.anything(),
       );
     });
 

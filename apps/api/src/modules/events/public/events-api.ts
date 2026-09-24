@@ -1,14 +1,3 @@
-/**
- * Just enough of an open transaction for this module to write its own row.
- *
- * Declared structurally rather than as a Prisma type: a public contract that
- * named the ORM would leak persistence across a module boundary. The caller
- * hands over the transaction it is already inside, the owning module writes its
- * table within it, and neither side learns anything about the other's schema.
- *
- * Passing one is what lets a rating be recomputed and published atomically, so
- * a slower recomputation cannot commit after a newer one.
- */
 export type EventRatingWriter = {
   readonly event: {
     update(args: {
@@ -89,56 +78,56 @@ export type ProviderAnalyticsEventProjection = {
 };
 
 export type ProviderOverviewProjection = {
-  readonly totalEvents: number;
-  readonly totalRegistrations: number;
-  readonly totalViews: number;
-  readonly published: number;
   readonly draft: number;
   readonly archived: number;
+  readonly published: number;
   readonly cancelled: number;
+  readonly totalViews: number;
+  readonly totalEvents: number;
   readonly upcomingSessions: number;
+  readonly totalRegistrations: number;
 };
 
 export type ProviderAttendeesQuery = {
-  readonly providerId: string;
-  readonly eventId?: string;
+  readonly take: number;
   readonly status?: string;
   readonly search?: string;
   readonly cursor?: string;
-  readonly take: number;
+  readonly eventId?: string;
+  readonly providerId: string;
 };
 
 export type ProviderEventsQuery = {
-  readonly providerId: string;
+  readonly take: number;
   readonly status?: string;
   readonly search?: string;
   readonly cursor?: string;
-  readonly take: number;
+  readonly providerId: string;
 };
 
-/**
- * What the roadmap generator needs to rank an event. `pdu` matters more here
- * than anywhere else it appears: events are the only catalogue content that
- * carries a credit value, so this field is what lets a roadmap close a
- * professional's certification gap rather than merely look relevant to it.
- */
 export type RoadmapCandidateEventProjection = {
   readonly id: string;
-  readonly title: string;
-  readonly description: string;
-  readonly isFree: boolean;
   readonly pdu: number;
-  readonly category: string;
-  readonly topic: string | null;
-  readonly specificTopic: string | null;
-  readonly averageRating: number;
-  readonly ratingCount: number;
-  readonly attendees: number;
+  readonly title: string;
   readonly startDate: Date;
+  readonly isFree: boolean;
+  readonly category: string;
+  readonly attendees: number;
+  readonly matchScore: number;
+  readonly description: string;
+  readonly ratingCount: number;
+  readonly topic: string | null;
+  readonly averageRating: number;
+  readonly specificTopic: string | null;
 };
 
+export type RoadmapMatchTier = "EXACT" | "SIMILAR" | "RELATED" | "BROAD";
+
 export type RoadmapCandidateQuery = {
-  readonly subjects: readonly string[];
-  readonly freeOnly: boolean;
   readonly take: number;
+  readonly freeOnly: boolean;
+  readonly tier: RoadmapMatchTier;
+  readonly subjects: readonly string[];
+  readonly keywords: readonly string[];
+  readonly groupKeys: readonly string[];
 };

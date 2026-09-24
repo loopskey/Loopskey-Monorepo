@@ -4418,6 +4418,12 @@
       "weekRange": "Weeks {{start}}-{{end}}",
       "pduValue": "{{count}} PDU",
       "coverageNote": "About this roadmap",
+      "closeMatchDisclosure": {
+        "title": "This roadmap uses close matches",
+        "description": "We didn't find content that matches your subjects exactly, so this roadmap uses the closest available content instead. Refine your subjects to improve it.",
+        "action": "Review preferences"
+      },
+      "closeMatchTag": "Close match",
       "review": "Review",
       "start": "Start",
       "markComplete": "Mark complete",

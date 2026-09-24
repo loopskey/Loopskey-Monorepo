@@ -10,6 +10,7 @@ import { buildCpdProgressView } from "@/utils/professional-overview.helper";
 import { ProgressDonutChart } from "@elements/dashboard-charts";
 import { ContentPagination } from "@elements/pagination";
 import { useChartSemantics } from "@hooks/useChartPalette";
+import { RoadmapMatchTier } from "@/lib/graphql/base";
 import { RoadmapPhaseList } from "@modules/ProfessionalRoadmap/RoadmapPhaseList";
 import { daysUntil } from "@modules/ProfessionalRoadmap/RoadmapSummarySections";
 import { GlassCard } from "@elements/glass-card";
@@ -243,6 +244,43 @@ const ProfessionalRoadmapTab = () => {
                     <p className="mt-1 text-sm leading-6 text-muted-foreground">
                       {generatedRoadmap.coverageNote}
                     </p>
+                  </div>
+                </div>
+              </GlassCard>
+            ) : null}
+
+            {generatedRoadmap.matchTier &&
+            generatedRoadmap.matchTier !== RoadmapMatchTier.Exact ? (
+              <GlassCard className="p-5">
+                <div className="flex items-start gap-3">
+                  <L.AlertTriangle
+                    className="mt-0.5 h-5 w-5 shrink-0 text-primary"
+                    aria-hidden="true"
+                  />
+                  <div>
+                    <h3 className="text-sm font-medium">
+                      {t(
+                        "professionalDashboard.roadmap.closeMatchDisclosure.title",
+                      )}
+                    </h3>
+                    <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                      {t(
+                        "professionalDashboard.roadmap.closeMatchDisclosure.description",
+                      )}
+                    </p>
+                    {generatedRoadmap.draftId ? (
+                      <Button asChild radius="xl" size="sm" className="mt-3">
+                        <Link
+                          href={`${ROADMAP_CHAT_HREF}?draftId=${encodeURIComponent(
+                            generatedRoadmap.draftId,
+                          )}&focus=preferences`}
+                        >
+                          {t(
+                            "professionalDashboard.roadmap.closeMatchDisclosure.action",
+                          )}
+                        </Link>
+                      </Button>
+                    ) : null}
                   </div>
                 </div>
               </GlassCard>
