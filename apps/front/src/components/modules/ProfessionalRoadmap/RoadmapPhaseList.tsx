@@ -2,11 +2,13 @@
 
 import { RoadmapStepProgressStatus } from "@/lib/graphql/base";
 import { TRoadmapPhaseProps } from "@/types/professional-roadmap-chat.types";
+import { contentTypeIcon } from "@/utils/constant";
 import { GlassCard } from "@elements/glass-card";
 import { useState } from "react";
 import { Progress } from "@ui/progress";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
+import { cn } from "@/lib/utils";
 
 import * as L from "lucide-react";
 
@@ -40,6 +42,10 @@ const weekRanges = (
   return ranges;
 };
 
+type TRoadmapPhaseListProps = TRoadmapPhaseProps & {
+  nextStepId?: string | null;
+};
+
 export const RoadmapPhaseList = ({
   t,
   phases,
@@ -48,9 +54,12 @@ export const RoadmapPhaseList = ({
   onComplete,
   enrollmentId,
   failedStepId,
-}: TRoadmapPhaseProps) => {
+  nextStepId,
+}: TRoadmapPhaseListProps) => {
+  const currentPhaseId =
+    phases.find((phase) => !phase.completed)?.id ?? phases.at(-1)?.id;
   const [expandedPhases, setExpandedPhases] = useState<Set<string>>(
-    new Set(),
+    () => new Set(currentPhaseId ? [currentPhaseId] : []),
   );
   const [reviewedSteps, setReviewedSteps] = useState<Set<string>>(new Set());
   const ranges = weekRanges(phases);
@@ -144,61 +153,85 @@ export const RoadmapPhaseList = ({
                       step.status === RoadmapStepProgressStatus.Completed;
                     const busy = pending?.stepId === step.id;
                     const isReviewed = reviewedSteps.has(step.id);
+                    const isNext = step.id === nextStepId;
+                    const Icon = step.contentType
+                      ? (contentTypeIcon[
+                          step.contentType as keyof typeof contentTypeIcon
+                        ] ?? L.BookOpen)
+                      : null;
                     return (
-                      <li key={step.id} className="rounded-md border p-3">
+                      <li
+                        key={step.id}
+                        className={cn(
+                          "rounded-md border p-3",
+                          isNext && "border-primary/50 bg-primary/5",
+                          isComplete && "opacity-70",
+                        )}
+                      >
                         <div className="flex flex-wrap items-start justify-between gap-3">
-                          <div className="min-w-0 flex-1">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <p className="text-sm font-medium">
-                                {step.title}
-                              </p>
-                              {/* Status as text, never colour alone. */}
-                              <Badge
-                                variant={isComplete ? "default" : "secondary"}
-                              >
-                                {statusLabel(step.status, t)}
-                              </Badge>
-                              {step.isCloseMatch ? (
-                                <Badge variant="outline">
-                                  {t(`${KEY}.closeMatchTag`)}
+                          <div className="flex min-w-0 flex-1 gap-3">
+                            {Icon ? (
+                              <Icon
+                                className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground"
+                                aria-hidden="true"
+                              />
+                            ) : null}
+                            <div className="min-w-0 flex-1">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <p className="text-sm font-medium">
+                                  {step.title}
+                                </p>
+                                {/* Status as text, never colour alone. */}
+                                <Badge
+                                  variant={isComplete ? "default" : "secondary"}
+                                >
+                                  {statusLabel(step.status, t)}
                                 </Badge>
+                                {isNext ? (
+                                  <Badge>{t(`${KEY}.nextStepTag`)}</Badge>
+                                ) : null}
+                                {step.isCloseMatch ? (
+                                  <Badge variant="outline">
+                                    {t(`${KEY}.closeMatchTag`)}
+                                  </Badge>
+                                ) : null}
+                              </div>
+
+                              <div className="mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground">
+                                {step.contentType ? (
+                                  <span>{step.contentType}</span>
+                                ) : null}
+                                {step.estimatedMinutes ? (
+                                  <span>
+                                    {t(`${KEY}.minutes`, {
+                                      count: step.estimatedMinutes,
+                                    })}
+                                  </span>
+                                ) : null}
+                                {typeof step.credits === "number" ? (
+                                  <span>
+                                    {t(`${KEY}.pduValue`, {
+                                      count: step.credits,
+                                    })}
+                                  </span>
+                                ) : null}
+                              </div>
+
+                              {isReviewed && step.description ? (
+                                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                                  {step.description}
+                                </p>
+                              ) : null}
+
+                              {failedStepId === step.id ? (
+                                <p
+                                  role="alert"
+                                  className="mt-2 text-xs font-medium text-destructive"
+                                >
+                                  {t(`${KEY}.stepFailed`)}
+                                </p>
                               ) : null}
                             </div>
-
-                            <div className="mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground">
-                              {step.contentType ? (
-                                <span>{step.contentType}</span>
-                              ) : null}
-                              {step.estimatedMinutes ? (
-                                <span>
-                                  {t(`${KEY}.minutes`, {
-                                    count: step.estimatedMinutes,
-                                  })}
-                                </span>
-                              ) : null}
-                              {typeof step.credits === "number" ? (
-                                <span>
-                                  {t(`${KEY}.pduValue`, {
-                                    count: step.credits,
-                                  })}
-                                </span>
-                              ) : null}
-                            </div>
-
-                            {isReviewed && step.description ? (
-                              <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                                {step.description}
-                              </p>
-                            ) : null}
-
-                            {failedStepId === step.id ? (
-                              <p
-                                role="alert"
-                                className="mt-2 text-xs font-medium text-destructive"
-                              >
-                                {t(`${KEY}.stepFailed`)}
-                              </p>
-                            ) : null}
                           </div>
 
                           <div className="flex shrink-0 gap-2">
