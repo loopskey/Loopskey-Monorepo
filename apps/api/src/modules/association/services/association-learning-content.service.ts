@@ -30,6 +30,7 @@ const CONTENT_SELECT = {
   externalTitle: true,
   externalProvider: true,
   externalUrl: true,
+  externalContentType: true,
   description: true,
   category: true,
   indicativeCredits: true,
@@ -287,6 +288,7 @@ export class AssociationLearningContentService {
       contentType: row.contentType,
       contentId: row.contentId,
       externalUrl: row.externalUrl,
+      externalContentType: row.externalContentType,
       description: row.description,
       category: row.category,
       indicativeCredits: row.indicativeCredits,
@@ -314,7 +316,7 @@ export class AssociationLearningContentService {
     input: DTO.CreateAssociationLearningContentInput,
   ) {
     const association = await this.access.requireOwned(user);
-    const shape = await this.validateShape(input);
+    const shape = await this.validateShape(association.id, input);
 
     try {
       const created = await this.prisma.associationLearningContent.create({
@@ -377,7 +379,7 @@ export class AssociationLearningContentService {
     input: DTO.CreateAssociationLearningContentInput,
   ) {
     await this.require(associationId, learningContentId);
-    const shape = await this.validateShape(input);
+    const shape = await this.validateShape(associationId, input);
 
     const updated = await this.prisma.associationLearningContent.update({
       where: { id: learningContentId },
@@ -389,6 +391,7 @@ export class AssociationLearningContentService {
   }
 
   private async validateShape(
+    associationId: string,
     input: DTO.CreateAssociationLearningContentInput,
   ) {
     const reference = catalogRefOf({
@@ -411,6 +414,8 @@ export class AssociationLearningContentService {
     }
 
     if (reference) await this.assertCatalogPublished(reference);
+    if (input.requirementId)
+      await this.verifyRequirement(associationId, input.requirementId);
 
     return {
       contentType: reference?.contentType ?? null,
@@ -420,9 +425,30 @@ export class AssociationLearningContentService {
         ? null
         : input.externalProvider?.trim() || null,
       externalUrl: reference ? null : (input.externalUrl?.trim() ?? null),
+      externalContentType: reference
+        ? null
+        : (input.externalContentType ?? null),
       description: input.description?.trim() || null,
       indicativeCredits: input.indicativeCredits ?? null,
+      category: input.category ?? null,
+      requirementId: input.requirementId ?? null,
     };
+  }
+
+  private async verifyRequirement(
+    associationId: string,
+    requirementId: string,
+  ) {
+    const requirement = await this.prisma.associationRequirement.findFirst({
+      where: { id: requirementId, associationId },
+      select: { id: true },
+    });
+
+    if (!requirement)
+      throw new NotFoundException({
+        code: AssociationMessageCode.REQUIREMENT_NOT_FOUND,
+        message: "That requirement does not belong to this association.",
+      });
   }
 
   private async assertCatalogPublished(reference: CatalogRef) {

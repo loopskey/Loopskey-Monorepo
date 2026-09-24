@@ -1,13 +1,16 @@
 import { ASSOCIATION_LEARNING_CONTENT_LIMITS as AUDIENCE_LIMITS } from "@loopskey/api-contracts/validation";
 import { ASSOCIATION_REQUIREMENT_LIMITS as LIMITS } from "@loopskey/api-contracts/validation";
 import { IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsUrl, Matches, Max, MaxLength, Min } from "class-validator";
 import { AssociationLearningContentStatus } from "@prisma/client";
 import { Field, Float, ID, InputType, Int } from "@nestjs/graphql";
-import { IsUrl, Max, MaxLength, Min } from "class-validator";
+import { AssociationLearningExternalType } from "@prisma/client";
 import { AssociationGqlInputNames } from "@association/enums/association-gql-names.enum";
 import { ContentType, PDUCategory } from "@prisma/client";
 import { AssociationAudienceKind } from "@prisma/client";
 import { ArrayMaxSize, IsArray } from "class-validator";
+import { trimToNull } from "@utils/transform.util";
+import { Transform } from "class-transformer";
 
 const TITLE_MAX = 200;
 const PROVIDER_MAX = 200;
@@ -96,8 +99,16 @@ export class CreateAssociationLearningContentInput {
   @Field({ nullable: true })
   @IsOptional()
   @IsUrl({ require_protocol: true })
+  @Matches(/^https:\/\//, {
+    message: "The content link must start with https://",
+  })
   @MaxLength(URL_MAX)
   externalUrl?: string;
+
+  @Field(() => AssociationLearningExternalType, { nullable: true })
+  @IsOptional()
+  @IsEnum(AssociationLearningExternalType)
+  externalContentType?: AssociationLearningExternalType;
 
   @Field({ nullable: true })
   @IsOptional()
@@ -111,6 +122,17 @@ export class CreateAssociationLearningContentInput {
   @Min(0)
   @Max(LIMITS.creditsMax)
   indicativeCredits?: number;
+
+  @Field(() => PDUCategory, { nullable: true })
+  @IsOptional()
+  @IsEnum(PDUCategory)
+  category?: PDUCategory;
+
+  @Field(() => ID, { nullable: true })
+  @Transform(trimToNull)
+  @IsOptional()
+  @IsString()
+  requirementId?: string | null;
 }
 
 @InputType(AssociationGqlInputNames.UPDATE_ASSOCIATION_LEARNING_CONTENT)

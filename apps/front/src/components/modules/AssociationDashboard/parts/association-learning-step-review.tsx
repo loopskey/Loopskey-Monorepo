@@ -2,6 +2,7 @@
 
 import { TAssociationLearningStepReview } from "@/types/association-dashboard.types";
 import { AssociationAudienceKind } from "@/lib/graphql/base";
+import { humanizeEnumValue } from "@utils/function-helper";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
 
@@ -21,6 +22,7 @@ export const AssociationLearningStepReview = ({
     pickedTitle,
     isPublishing,
     groupOptions,
+    requirementOptions,
   } = hook;
 
   const label = (key: string) =>
@@ -47,6 +49,14 @@ export const AssociationLearningStepReview = ({
     });
   };
 
+  const requirementLabel = () => {
+    if (!values.requirementId) return label("noRequirement");
+    return (
+      requirementOptions.find((option) => option.value === values.requirementId)
+        ?.label ?? label("noRequirement")
+    );
+  };
+
   const rows = [
     {
       id: "title",
@@ -55,6 +65,13 @@ export const AssociationLearningStepReview = ({
         : pickedTitle || label("contentPending"),
     },
     { id: "credits", value: values.indicativeCredits || label("noCredits") },
+    {
+      id: "category",
+      value: values.category
+        ? humanizeEnumValue(values.category)
+        : label("noCategory"),
+    },
+    { id: "requirement", value: requirementLabel() },
     { id: "audience", value: audienceLabel() },
   ];
 

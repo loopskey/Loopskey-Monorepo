@@ -7,12 +7,15 @@ export type CatalogReference = {
 
 export type CatalogItemProjection = {
   readonly title: string;
-  readonly slug?: string | null;
   readonly contentId: string;
   readonly contentType: string;
   readonly isAvailable: boolean;
+  readonly slug?: string | null;
+  readonly level?: string | null;
   readonly provider: string | null;
   readonly imageUrl: string | null;
+  readonly durationMinutes?: number | null;
+  readonly indicativeCredits?: number | null;
 };
 
 export type CatalogSearchQuery = {

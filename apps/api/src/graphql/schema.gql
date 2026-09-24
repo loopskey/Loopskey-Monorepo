@@ -379,9 +379,13 @@ type AssociationBulkInviteResult {
 type AssociationCatalogItem {
   contentId: ID!
   contentType: ContentType!
+  durationMinutes: Int
   imageUrl: String
+  indicativeCredits: Float
   isAvailable: Boolean!
+  level: String
   provider: String
+  slug: String
   title: String!
 }
 
@@ -592,6 +596,7 @@ type AssociationLearningContent {
   createdAt: DateTime!
   description: String
   engagement: AssociationLearningEngagement
+  externalContentType: AssociationLearningExternalType
   externalUrl: String
   id: ID!
   imageUrl: String
@@ -640,6 +645,19 @@ type AssociationLearningContentTarget {
 type AssociationLearningEngagement {
   credits: Float!
   memberCount: Int!
+}
+
+"""
+The kind of content an external (non-catalogue) library item is, chosen by the association
+"""
+enum AssociationLearningExternalType {
+  ARTICLE
+  COURSE
+  EVENT
+  OTHER
+  PODCAST
+  VIDEO
+  WEBINAR
 }
 
 type AssociationMember {
@@ -1732,13 +1750,16 @@ input CreateAssociationGroupInput {
 }
 
 input CreateAssociationLearningContentInput {
+  category: PDUCategory
   contentId: ID
   contentType: ContentType
   description: String
+  externalContentType: AssociationLearningExternalType
   externalProvider: String
   externalTitle: String
   externalUrl: String
   indicativeCredits: Float
+  requirementId: ID
 }
 
 input CreateAssociationRequirementDraftInput {
@@ -4759,14 +4780,17 @@ input UpdateAssociationGroupInput {
 }
 
 input UpdateAssociationLearningContentInput {
+  category: PDUCategory
   contentId: ID
   contentType: ContentType
   description: String
+  externalContentType: AssociationLearningExternalType
   externalProvider: String
   externalTitle: String
   externalUrl: String
   indicativeCredits: Float
   learningContentId: ID!
+  requirementId: ID
 }
 
 input UpdateAssociationMemberInput {

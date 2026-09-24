@@ -1,5 +1,5 @@
 import { CatalogEndorsementApiService } from "@landing/application/catalog-endorsement-api.service";
-import { CourseStatus, EventStatus } from "@prisma/client";
+import { CourseLevel, CourseStatus, EventStatus } from "@prisma/client";
 import { YouTubeVideoStatus } from "@prisma/client";
 import { PrismaService } from "@prisma/prisma.service";
 import { ContentType } from "@prisma/client";
@@ -91,11 +91,65 @@ describe("CatalogEndorsementApiService", () => {
           contentType: ContentType.YOUTUBE,
           contentId: "video-1",
           title: "A talk",
+          slug: null,
+          level: null,
           imageUrl: "https://example.test/thumb.jpg",
           provider: "A Channel",
           isAvailable: true,
+          durationMinutes: undefined,
+          indicativeCredits: null,
         },
       ]);
+    });
+    it("carries a course's level, duration, and indicative credits", async () => {
+      const { service } = setup({
+        courses: [
+          {
+            id: "course-1",
+            title: "Advanced Risk",
+            level: CourseLevel.ADVANCED,
+            durationMinutes: 360,
+            creditValue: 6,
+            imageUrl: null,
+            provider: { fullName: "A Provider" },
+          },
+        ],
+      });
+
+      const [item] = await service.searchCatalog({
+        contentType: ContentType.COURSE,
+        take: 10,
+      });
+
+      expect(item).toMatchObject({
+        level: CourseLevel.ADVANCED,
+        durationMinutes: 360,
+        indicativeCredits: 6,
+      });
+    });
+
+    it("treats a zero-pdu event as having no indicative credits", async () => {
+      const { service } = setup({
+        events: [
+          {
+            id: "event-1",
+            title: "A conference",
+            imageUrl: null,
+            speaker: null,
+            organizer: "An Organizer",
+            pdu: 0,
+          },
+        ],
+      });
+
+      const [item] = await service.searchCatalog({
+        contentType: ContentType.EVENT,
+        take: 10,
+      });
+
+      expect(item.indicativeCredits).toBeNull();
+      expect(item.level).toBeNull();
+      expect(item.durationMinutes).toBeNull();
     });
   });
 
