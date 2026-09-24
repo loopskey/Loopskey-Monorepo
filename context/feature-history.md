@@ -101,3 +101,4 @@ into this index and do not rewrite previous records.
 - [`i18n-placeholder-interpolation-fix`](feature-runs/active/i18n-placeholder-interpolation-fix.md) — PR [#219](https://github.com/loopskey/Loopskey-Monorepo/pull/219)
 - [`professional-requirements-flow-fixes`](feature-runs/active/professional-requirements-flow-fixes.md) — PR [#220](https://github.com/loopskey/Loopskey-Monorepo/pull/220)
 - [`activity-requirement-linking`](feature-runs/active/activity-requirement-linking.md) — PR [#221](https://github.com/loopskey/Loopskey-Monorepo/pull/221)
+- [`professional-requirements-unified-view`](feature-runs/active/professional-requirements-unified-view.md) — PR [#222](https://github.com/loopskey/Loopskey-Monorepo/pull/222)

@@ -33,12 +33,6 @@ export type TCpdSetupStep = {
   description: string;
 };
 
-export type CpdCategoryCompletionProps = {
-  t: (key: string) => string;
-  plan: TCpdPlan;
-  progress: TCpdPlanProgress;
-};
-
 export type CpdCertificationResultCardProps = {
   t: (key: string) => string;
   certification: TCertification;
@@ -48,19 +42,6 @@ export type CpdCertificationResultCardProps = {
 export type CpdEmptyStateProps = {
   t: (key: string) => string;
   onCreate: () => void;
-};
-
-export type CpdMissingRequirementsProps = {
-  onEditPlan: () => void;
-  onAddActivity: () => void;
-  progress: TCpdPlanProgress;
-  t: (key: string, params?: Record<string, string | number>) => string;
-};
-
-export type CpdProgressOverviewProps = {
-  plan: TCpdPlan;
-  progress: TCpdPlanProgress;
-  t: (key: string, params?: Record<string, string | number>) => string;
 };
 
 export type CpdSearchModalProps = {

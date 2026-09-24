@@ -1,13 +1,17 @@
 import type {
   TAssociationRequirement,
   TAssociationRequirementActivity,
+  TAssociationRequirementDetail,
   TPlanActivity,
   TRequirementActivityRow,
+  TRequirementCategoryRow,
   TRequirementOption,
   TRequirementSource,
   TRequirementTone,
+  TRequirementViewModel,
 } from "@/types/professional-requirement.types";
-import type { TCpdPlan } from "@/types/cpd-plan.types";
+import type { TCpdPlan, TCpdPlanProgress } from "@/types/cpd-plan.types";
+import { CPD_COMPLIANCE_META } from "@/utils/cpd-plan.constant";
 
 const KEY_PREFIX: Record<TRequirementSource, string> = {
   ASSOCIATION: "association",
@@ -226,4 +230,91 @@ export const deadlineText = (
   return t("cpdProgress.requirements.overdue", {
     count: Math.abs(daysRemaining),
   });
+};
+
+const MS_PER_DAY = 86_400_000;
+
+export const daysUntil = (
+  value: string | null | undefined,
+): number | null => {
+  if (!value) return null;
+  return Math.ceil((new Date(value).getTime() - Date.now()) / MS_PER_DAY);
+};
+
+export const planCategoryRows = (
+  progress: TCpdPlanProgress | undefined,
+): TRequirementCategoryRow[] =>
+  (progress?.categories ?? []).map((category) => ({
+    id: category.id,
+    name: category.name,
+    completed: category.completed,
+    required: category.target,
+    percent: category.progress,
+  }));
+
+export const associationCategoryRows = (
+  detail: TAssociationRequirementDetail | undefined,
+): TRequirementCategoryRow[] =>
+  (detail?.categories ?? []).map((category) => ({
+    id: category.id,
+    name: category.name,
+    completed: category.completedCredits,
+    required: category.requiredCredits,
+    percent: category.percent,
+  }));
+
+export const planToViewModel = (
+  plan: TCpdPlan,
+  progress: TCpdPlanProgress | undefined,
+): TRequirementViewModel => {
+  const meta = CPD_COMPLIANCE_META[progress?.complianceStatus ?? ""] ?? {
+    tone: "neutral" as TRequirementTone,
+  };
+  const dueDate = plan.reportingEnd ?? null;
+
+  return {
+    key: requirementKey("PLAN", plan.id),
+    title: plan.certificationName,
+    creditType: plan.creditType,
+    source: "PLAN",
+    associationName: null,
+    earnedCredits: progress?.earnedCredits ?? 0,
+    requiredCredits: progress?.totalRequiredCredits ?? plan.totalRequiredCredits,
+    remainingCredits: progress?.remainingCredits ?? 0,
+    percent: progress?.progressPercent ?? 0,
+    dueDate,
+    daysRemaining: daysUntil(dueDate),
+    statusTone: meta.tone as TRequirementTone,
+    statusLabelKey: progress
+      ? `cpdProgress.compliance.${progress.complianceStatus}`
+      : "cpdProgress.compliance.NOT_STARTED",
+    evidence: null,
+  };
+};
+
+export const associationToViewModel = (
+  summary: TAssociationRequirement,
+): TRequirementViewModel => {
+  const meta = BAND_META[summary.band] ?? BAND_META.NOT_STARTED;
+
+  return {
+    key: requirementKey("ASSOCIATION", summary.requirementId),
+    title: summary.name,
+    creditType: summary.creditType,
+    source: "ASSOCIATION",
+    associationName: summary.associationName,
+    earnedCredits: summary.completedCredits,
+    requiredCredits: summary.requiredCredits,
+    remainingCredits: summary.remainingCredits,
+    percent: summary.percent,
+    dueDate: summary.dueDate ?? null,
+    daysRemaining: summary.daysRemaining ?? null,
+    statusTone: meta.tone,
+    statusLabelKey: `cpdProgress.requirements.band.${summary.band}`,
+    evidence: {
+      labelKey: `cpdProgress.requirements.evidencePolicy.${summary.evidencePolicy}`,
+      awaitingReviewCount: summary.awaitingReviewCount,
+      isMissingEvidence: summary.isMissingEvidence,
+    },
+  };
 };
