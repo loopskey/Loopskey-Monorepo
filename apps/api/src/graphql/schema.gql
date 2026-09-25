@@ -3434,6 +3434,7 @@ input PatchRoadmapDraftInput {
   preferredDeliveryFormats: [DeliveryFormat!]
   preferredFormats: [LearningFormat!]
   requiredCredits: Float
+  selectionLabel: String
   skillLevel: SkillLevel
   subjects: [ID!]
   targetDate: DateTime

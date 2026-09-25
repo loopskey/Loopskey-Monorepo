@@ -129,4 +129,11 @@ export class PatchRoadmapDraftInput {
   @Min(0)
   @Max(MAX_CREDITS)
   completedCredits?: number | null;
+
+  @Field(() => String, { nullable: true })
+  @Transform(trimToNull)
+  @IsOptional()
+  @IsString()
+  @MaxLength(300)
+  selectionLabel?: string | null;
 }

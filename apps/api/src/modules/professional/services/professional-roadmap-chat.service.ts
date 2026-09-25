@@ -900,12 +900,15 @@ export class ProfessionalRoadmapChatService {
       });
 
       await this.drafts.appendMessage(user.id, draft.id, {
-        role: RoadmapChatRole.SYSTEM,
         stepKey: updated?.currentStep ?? draft.currentStep,
-        content: [
-          ProfessionalMessageCode.ROADMAP_DRAFT_FIELD_UPDATED,
-          field,
-        ].join(":"),
+        role: input.selectionLabel
+          ? RoadmapChatRole.PROFESSIONAL
+          : RoadmapChatRole.SYSTEM,
+        content:
+          input.selectionLabel ??
+          [ProfessionalMessageCode.ROADMAP_DRAFT_FIELD_UPDATED, field].join(
+            ":",
+          ),
       });
       const stillOnPreferences =
         updated?.currentStep === RoadmapDraftStep.PREFERENCES &&

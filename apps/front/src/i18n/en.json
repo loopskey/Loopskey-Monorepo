@@ -4442,6 +4442,7 @@
       "generating": {
         "title": "Building your roadmap",
         "description": "This usually takes a minute or two. You can leave this page and come back — we will keep going.",
+        "descriptionLongWait": "This is taking longer than usual. We're still working on it and will keep retrying — you can leave this page and come back.",
         "step": "Choosing content from the catalogue and arranging it into phases."
       },
       "failed": {

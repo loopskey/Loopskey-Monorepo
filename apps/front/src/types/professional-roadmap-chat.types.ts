@@ -43,6 +43,7 @@ export type TRoadmapStatusProps = {
   draftId: string;
   status: RoadmapDraftStatus;
   goal?: string | null;
+  updatedAt?: string | null;
   failure?: TRoadmapGenerationFailure | null;
   onRetry: () => void;
   isRetrying: boolean;
@@ -150,7 +151,7 @@ export type TRoadmapWidgetControl = {
   draftId: string;
   disabled: boolean;
   widget: TRoadmapWidget;
-  onAnswer: (value: string) => void;
+  onAnswer: (value: string, label?: string) => void;
 };
 
 export type TRoadmapSuggestionOption = TRoadmapWidgetOption;
@@ -192,4 +193,17 @@ export type TRoadmapJourneyTimelineProps = {
   phases: TTimelinePhase[];
   currentPhaseId: string | null;
   t: (key: string, values?: Record<string, string | number>) => string;
+};
+
+export type TRoadmapChatComposer = {
+  draftId: string;
+  canSend: boolean;
+  isSending: boolean;
+  retryAfter: number;
+  onSend: () => void;
+  questionKey: string;
+  composer: TComposerState;
+  widget: TRoadmapWidget | null;
+  onChange: (value: string) => void;
+  onAnswer: (value: string, label?: string) => void;
 };

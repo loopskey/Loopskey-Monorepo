@@ -108,3 +108,4 @@ into this index and do not rewrite previous records.
 - [`roadmap-content-similarity-fallback`](feature-runs/active/roadmap-content-similarity-fallback.md) — PR [#226](https://github.com/loopskey/Loopskey-Monorepo/pull/226)
 - [`roadmap-result-experience-redesign`](feature-runs/active/roadmap-result-experience-redesign.md) — PR [#227](https://github.com/loopskey/Loopskey-Monorepo/pull/227)
 - [`professional-certificates-summary-compact`](feature-runs/active/professional-certificates-summary-compact.md) — PR [#228](https://github.com/loopskey/Loopskey-Monorepo/pull/228)
+- [`roadmap-chat-generation-reliability`](feature-runs/active/roadmap-chat-generation-reliability.md) — PR [#231](https://github.com/loopskey/Loopskey-Monorepo/pull/231)

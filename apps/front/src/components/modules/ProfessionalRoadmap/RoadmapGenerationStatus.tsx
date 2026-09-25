@@ -2,6 +2,7 @@
 
 import { RoadmapGenerationFailureCode } from "@/lib/graphql/base";
 import { TRoadmapStatusProps } from "@/types/professional-roadmap-chat.types";
+import { useEffect, useState } from "react";
 import { RoadmapDraftStatus } from "@/lib/graphql/base";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
@@ -12,6 +13,9 @@ import * as L from "lucide-react";
 
 const ROADMAP_CHAT_HREF = "/dashboard/professional/roadmap-chat";
 
+const LONG_WAIT_MS = 90_000;
+const ELAPSED_POLL_MS = 15_000;
+
 export const RoadmapGenerationStatus = ({
   t,
   goal,
@@ -19,8 +23,22 @@ export const RoadmapGenerationStatus = ({
   failure,
   draftId,
   onRetry,
+  updatedAt,
   isRetrying,
 }: TRoadmapStatusProps) => {
+  const [isLongWait, setIsLongWait] = useState(false);
+
+  useEffect(() => {
+    if (status !== RoadmapDraftStatus.Generating || !updatedAt) {
+      setIsLongWait(false);
+      return;
+    }
+    const startedAt = new Date(updatedAt).getTime();
+    const check = () => setIsLongWait(Date.now() - startedAt > LONG_WAIT_MS);
+    check();
+    const timer = window.setInterval(check, ELAPSED_POLL_MS);
+    return () => window.clearInterval(timer);
+  }, [status, updatedAt]);
   const key = "professionalDashboard.roadmap";
   const reviewHref = `${ROADMAP_CHAT_HREF}?draftId=${encodeURIComponent(draftId)}`;
   const reviewPreferencesHref = `${reviewHref}&focus=preferences`;
@@ -97,7 +115,11 @@ export const RoadmapGenerationStatus = ({
         ) : null}
 
         <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
-          {t(`${key}.generating.description`)}
+          {t(
+            isLongWait
+              ? `${key}.generating.descriptionLongWait`
+              : `${key}.generating.description`,
+          )}
         </p>
 
         <p className="mt-4 text-xs text-muted-foreground">
