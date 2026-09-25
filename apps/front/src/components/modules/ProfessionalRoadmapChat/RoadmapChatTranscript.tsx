@@ -65,8 +65,15 @@ export const RoadmapChatTranscript = ({
     if (message.role !== "ASSISTANT") return null;
     if (message.content === ROADMAP_COACH_INTRO_CODE)
       return t("professionalRoadmapChat.coach.intro");
-    if (message.content === ROADMAP_COACH_QUESTION_CODE)
-      return t(`professionalRoadmapChat.coach.question.${message.stepKey}`);
+    if (message.content === ROADMAP_COACH_QUESTION_CODE) {
+      const field = message.widget?.field;
+      const fieldLine = field
+        ? t(`professionalRoadmapChat.coach.question.field.${field}`, {}, "")
+        : "";
+      return (
+        fieldLine || t(`professionalRoadmapChat.coach.question.${message.stepKey}`)
+      );
+    }
     return null;
   };
 
