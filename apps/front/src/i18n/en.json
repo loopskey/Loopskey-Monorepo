@@ -7530,7 +7530,15 @@
         "CPD_TRACKING": "Do you need to track CPD or PDU credits for a certification?",
         "CERTIFICATION": "Which certification are you keeping up? Choose one below, or type its name.",
         "CPD_REQUIREMENTS": "How many credits does it require each cycle? Add this under CPD setup in your brief and I'll plan around it.",
-        "REVIEW": "That's everything I need. Review your brief, change anything that's off, then generate your roadmap."
+        "REVIEW": "That's everything I need. Review your brief, change anything that's off, then generate your roadmap.",
+        "field": {
+          "SKILL_LEVEL": "How would you rate your current skill level: complete beginner, some basics, or already comfortable applying it?",
+          "TIME_COMMITMENT": "How much time can you commit to learning each week?",
+          "PREFERRED_FORMATS": "Which formats do you enjoy learning with?",
+          "PREFERRED_DELIVERY_FORMATS": "How do you prefer to learn: online, in-person, self-paced, or as part of a live cohort?",
+          "BUDGET_PREFERENCE": "What is your budget for learning resources?",
+          "SUBJECTS": "Which specific subjects should the roadmap focus on?"
+        }
       }
     },
     "composer": {
