@@ -1,5 +1,6 @@
 "use client";
 
+import { REQUIREMENT_QUERY_SUBSCRIPTION_OPTIONS } from "@/lib/rtk/endpoints/cpd-plan.api";
 import { useMyAssociationRequirementsQuery } from "@/lib/rtk/endpoints/cpd-plan.api";
 import { PROFESSIONAL_OVERVIEW_LINKS } from "@/utils/professional-overview.helper";
 import { useCpdPlanProgressQuery } from "@/lib/rtk/endpoints/cpd-plan.api";
@@ -37,8 +38,14 @@ export const OverviewCpdProgressCard = () => {
   const semantics = useChartSemantics();
   const { t } = useI18n();
 
-  const plansQuery = useMyCpdPlansQuery();
-  const associationsQuery = useMyAssociationRequirementsQuery();
+  const plansQuery = useMyCpdPlansQuery(
+    undefined,
+    REQUIREMENT_QUERY_SUBSCRIPTION_OPTIONS,
+  );
+  const associationsQuery = useMyAssociationRequirementsQuery(
+    undefined,
+    REQUIREMENT_QUERY_SUBSCRIPTION_OPTIONS,
+  );
   const plans = useMemo(() => plansQuery.data ?? [], [plansQuery.data]);
   const associations = useMemo(
     () => associationsQuery.data ?? [],
@@ -66,7 +73,7 @@ export const OverviewCpdProgressCard = () => {
 
   const progressQuery = useCpdPlanProgressQuery(
     { planId: activePlan?.id ?? "" },
-    { skip: !activePlan },
+    { skip: !activePlan, ...REQUIREMENT_QUERY_SUBSCRIPTION_OPTIONS },
   );
 
   const isListLoading = plansQuery.isLoading || associationsQuery.isLoading;

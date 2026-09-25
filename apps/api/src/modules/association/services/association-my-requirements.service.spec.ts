@@ -4,8 +4,10 @@ import {
   AssociationAudienceKind,
   AssociationComplianceBand,
   AssociationEvidencePolicy,
+  AssociationLearningContentStatus,
   ContentType,
   CreditType,
+  PDUCategory,
 } from "@prisma/client";
 
 import type { CatalogEndorsementApi } from "@landing/public/catalog-endorsement-api";
@@ -40,8 +42,18 @@ const assignment = (
     totalRequiredCredits: 40,
     association: { id: "assoc-1", name: "Engineers Association" },
     categories: [
-      { id: "cat-1", name: "Technical", requiredCredits: 20 },
-      { id: "cat-2", name: "Ethics", requiredCredits: 0 },
+      {
+        id: "cat-1",
+        name: "Technical",
+        requiredCredits: 20,
+        mappedCategory: PDUCategory.TECHNICAL,
+      },
+      {
+        id: "cat-2",
+        name: "Ethics",
+        requiredCredits: 0,
+        mappedCategory: PDUCategory.ETHICS,
+      },
     ],
   },
   ...overrides,
@@ -55,6 +67,7 @@ const createService = () => {
       findMany: jest.fn().mockResolvedValue([]),
     },
     associationLearningContent: { findMany: jest.fn().mockResolvedValue([]) },
+    associationMember: { findMany: jest.fn().mockResolvedValue([]) },
   };
   const catalog = { resolveCatalogItems: jest.fn().mockResolvedValue([]) };
   const activities = {
@@ -162,6 +175,7 @@ describe("AssociationMyRequirementsService.one", () => {
         name: "Technical",
         requiredCredits: 20,
         completedCredits: 10,
+        mappedCategory: PDUCategory.TECHNICAL,
         percent: 50,
       },
       {
@@ -169,6 +183,7 @@ describe("AssociationMyRequirementsService.one", () => {
         name: "Ethics",
         requiredCredits: 0,
         completedCredits: 0,
+        mappedCategory: PDUCategory.ETHICS,
         percent: 0,
       },
     ]);
@@ -240,9 +255,13 @@ describe("AssociationMyRequirementsService.one", () => {
 
     const where =
       prisma.associationLearningContent.findMany.mock.calls[0][0].where;
-    expect(where.requirementId).toBe("req-1");
+    expect(where.associationId).toBe("assoc-1");
     expect(where.status).toBe("PUBLISHED");
-    expect(where.OR).toEqual([
+    expect(where.AND[0].OR).toEqual([
+      { requirementId: "req-1" },
+      { requirementId: null },
+    ]);
+    expect(where.AND[1].OR).toEqual([
       { audienceKind: AssociationAudienceKind.ALL_MEMBERS },
       {
         audienceKind: AssociationAudienceKind.GROUP,
@@ -265,9 +284,10 @@ describe("AssociationMyRequirementsService.one", () => {
 
     const where =
       prisma.associationLearningContent.findMany.mock.calls[0][0].where;
-    expect(where.OR).toHaveLength(2);
+    const audienceOR = where.AND[1].OR;
+    expect(audienceOR).toHaveLength(2);
     expect(
-      where.OR.some(
+      audienceOR.some(
         (branch: { audienceKind: string }) => branch.audienceKind === "GROUP",
       ),
     ).toBe(false);
@@ -376,5 +396,211 @@ describe("AssociationMyRequirementsService.one", () => {
 
     expect(learningContents).toHaveLength(1);
     expect(learningContents[0].isAvailable).toBe(true);
+  });
+});
+
+describe("AssociationMyRequirementsService.contentEndorsement", () => {
+  const membership = (overrides: Record<string, unknown> = {}) => ({
+    id: "member-1",
+    groupId: null,
+    associationId: "assoc-1",
+    ...overrides,
+  });
+
+  const content = (overrides: Record<string, unknown> = {}) => ({
+    id: "content-1",
+    associationId: "assoc-1",
+    requirementId: "req-1",
+    audienceKind: AssociationAudienceKind.ALL_MEMBERS,
+    association: { name: "Engineers Association" },
+    targets: [],
+    ...overrides,
+  });
+
+  it("returns null when the caller has no active association membership", async () => {
+    const { service, prisma } = createService();
+    prisma.associationMember.findMany.mockResolvedValue([]);
+
+    const result = await service.contentEndorsement(
+      "user-1",
+      ContentType.COURSE,
+      "course-1",
+    );
+
+    expect(result).toBeNull();
+    expect(prisma.associationLearningContent.findMany).not.toHaveBeenCalled();
+  });
+
+  it("preselects the requirement the endorsed content is linked to", async () => {
+    const { service, prisma } = createService();
+    prisma.associationMember.findMany.mockResolvedValue([membership()]);
+    prisma.associationLearningContent.findMany.mockResolvedValue([content()]);
+    prisma.associationRequirementAssignment.findMany.mockResolvedValue([
+      assignment("a-1", "req-1"),
+    ]);
+
+    const result = await service.contentEndorsement(
+      "user-1",
+      ContentType.COURSE,
+      "course-1",
+    );
+
+    expect(result).toEqual({
+      requirementId: "req-1",
+      associationName: "Engineers Association",
+      learningContentId: "content-1",
+      isDefaultRequirement: false,
+    });
+
+    const contentWhere =
+      prisma.associationLearningContent.findMany.mock.calls[0][0].where;
+    expect(contentWhere.status).toBe(
+      AssociationLearningContentStatus.PUBLISHED,
+    );
+    expect(contentWhere.associationId).toEqual({ in: ["assoc-1"] });
+  });
+
+  it("falls back to the association's first assigned requirement when the content has none", async () => {
+    const { service, prisma } = createService();
+    prisma.associationMember.findMany.mockResolvedValue([membership()]);
+    prisma.associationLearningContent.findMany.mockResolvedValue([
+      content({ requirementId: null }),
+    ]);
+    prisma.associationRequirementAssignment.findMany.mockResolvedValue([
+      assignment("a-1", "req-fallback"),
+    ]);
+
+    const result = await service.contentEndorsement(
+      "user-1",
+      ContentType.COURSE,
+      "course-1",
+    );
+
+    expect(result).toEqual({
+      requirementId: "req-fallback",
+      associationName: "Engineers Association",
+      learningContentId: "content-1",
+      isDefaultRequirement: true,
+    });
+  });
+
+  it("falls back when the content's own requirement is not assigned to the caller", async () => {
+    const { service, prisma } = createService();
+    prisma.associationMember.findMany.mockResolvedValue([membership()]);
+    prisma.associationLearningContent.findMany.mockResolvedValue([content()]);
+    prisma.associationRequirementAssignment.findMany
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([assignment("a-2", "req-other")]);
+
+    const result = await service.contentEndorsement(
+      "user-1",
+      ContentType.COURSE,
+      "course-1",
+    );
+
+    expect(result).toMatchObject({
+      requirementId: "req-other",
+      isDefaultRequirement: true,
+    });
+  });
+
+  it("returns null when the content's audience does not cover the member", async () => {
+    const { service, prisma } = createService();
+    prisma.associationMember.findMany.mockResolvedValue([membership()]);
+    prisma.associationLearningContent.findMany.mockResolvedValue([
+      content({ audienceKind: AssociationAudienceKind.SPECIFIC_MEMBERS }),
+    ]);
+
+    const result = await service.contentEndorsement(
+      "user-1",
+      ContentType.COURSE,
+      "course-1",
+    );
+
+    expect(result).toBeNull();
+    expect(
+      prisma.associationRequirementAssignment.findMany,
+    ).not.toHaveBeenCalled();
+  });
+
+  it("returns null when no assigned requirement exists to fall back to", async () => {
+    const { service, prisma } = createService();
+    prisma.associationMember.findMany.mockResolvedValue([membership()]);
+    prisma.associationLearningContent.findMany.mockResolvedValue([
+      content({ requirementId: null }),
+    ]);
+    prisma.associationRequirementAssignment.findMany.mockResolvedValue([]);
+
+    const result = await service.contentEndorsement(
+      "user-1",
+      ContentType.COURSE,
+      "course-1",
+    );
+
+    expect(result).toBeNull();
+  });
+});
+
+describe("AssociationMyRequirementsService.myLearningContent", () => {
+  const membership = (overrides: Record<string, unknown> = {}) => ({
+    id: "member-1",
+    groupId: null,
+    associationId: "assoc-1",
+    association: { name: "Engineers Association" },
+    ...overrides,
+  });
+
+  const unlinkedContent = (overrides: Record<string, unknown> = {}) => ({
+    id: "content-1",
+    contentType: null,
+    contentId: null,
+    externalTitle: "Free Webinar",
+    externalProvider: "Provider Co",
+    externalUrl: "https://example.com/webinar",
+    description: null,
+    category: null,
+    indicativeCredits: null,
+    requirementId: null,
+    ...overrides,
+  });
+
+  it("returns nothing for a caller with no active membership", async () => {
+    const { service, prisma } = createService();
+    prisma.associationMember.findMany.mockResolvedValue([]);
+
+    await expect(service.myLearningContent("user-1")).resolves.toEqual([]);
+    expect(prisma.associationLearningContent.findMany).not.toHaveBeenCalled();
+  });
+
+  it("only queries content that has no requirement link", async () => {
+    const { service, prisma } = createService();
+    prisma.associationMember.findMany.mockResolvedValue([membership()]);
+
+    await service.myLearningContent("user-1");
+
+    const where =
+      prisma.associationLearningContent.findMany.mock.calls[0][0].where;
+    expect(where.requirementId).toBeNull();
+    expect(where.associationId).toBe("assoc-1");
+    expect(where.status).toBe("PUBLISHED");
+  });
+
+  it("marks each item as recommended by its own association", async () => {
+    const { service, prisma } = createService();
+    prisma.associationMember.findMany.mockResolvedValue([membership()]);
+    prisma.associationLearningContent.findMany.mockResolvedValue([
+      unlinkedContent(),
+    ]);
+
+    const rows = await service.myLearningContent("user-1");
+
+    expect(rows).toEqual([
+      expect.objectContaining({
+        id: "content-1",
+        isLinkedToRequirement: false,
+        associationId: "assoc-1",
+        associationName: "Engineers Association",
+      }),
+    ]);
   });
 });

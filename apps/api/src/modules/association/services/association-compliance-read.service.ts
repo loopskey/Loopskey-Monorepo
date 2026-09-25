@@ -5,10 +5,10 @@ import { AssociationRequirementStatus } from "@prisma/client";
 import { PROFESSIONAL_COMPLIANCE_API } from "@professional/public/professional-compliance-api";
 import { AssociationAccessService } from "@association/services/association-access.service";
 import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
+import { OverallAssignment } from "@association/utils/compliance-attribution.util";
 import { TAssociationUser } from "@association/types/association-service.types";
 import { daysRemaining } from "@association/utils/compliance-attribution.util";
 import { PrismaService } from "@prisma/prisma.service";
-import { OverallAssignment } from "@association/utils/compliance-attribution.util";
 import { overallFor } from "@association/utils/compliance-attribution.util";
 
 const PENDING_REVIEW_LIMIT = 200;
@@ -79,6 +79,7 @@ export class AssociationComplianceReadService {
                   id: true,
                   name: true,
                   requiredCredits: true,
+                  mappedCategory: true,
                   order: true,
                 },
                 orderBy: { order: "asc" },
@@ -125,6 +126,7 @@ export class AssociationComplianceReadService {
             name: category.name,
             requiredCredits: category.requiredCredits,
             completedCredits: completed,
+            mappedCategory: category.mappedCategory,
             percent:
               category.requiredCredits > 0
                 ? (completed / category.requiredCredits) * 100

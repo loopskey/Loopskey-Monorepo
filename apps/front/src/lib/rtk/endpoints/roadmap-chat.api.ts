@@ -45,15 +45,17 @@ export const roadmapChatApi = baseApi.injectEndpoints({
     }),
 
     /**
-     * "Start over": discards the current editable draft (and its transcript)
-     * and returns a brand-new one, already carrying the coach's introduction.
+     * "Start over": resets the draft shown on screen back to a fresh seeded
+     * state in place (same id, transcript replaced), so the route and any
+     * cached view stay valid rather than pointing at a discarded draft.
      */
     resetRoadmapDraft: builder.mutation<
       TAPI.ResetRoadmapDraftMutation["resetRoadmapDraft"],
-      void
+      string | void
     >({
-      query: () => ({
+      query: (draftId) => ({
         document: API.ResetRoadmapDraftDocument,
+        variables: { draftId: draftId ?? undefined },
       }),
       transformResponse: (response: TAPI.ResetRoadmapDraftMutation) =>
         response.resetRoadmapDraft,
@@ -124,6 +126,21 @@ export const roadmapChatApi = baseApi.injectEndpoints({
         "Professional",
       ],
     }),
+
+    /** The `Show more` list behind a taxonomy-backed widget (subjects,
+     *  target role): the full ranked/search-filtered set, not just the
+     *  widget's own top-8 chips. */
+    roadmapSuggestionOptions: builder.query<
+      TAPI.RoadmapSuggestionOptionsQuery["roadmapSuggestionOptions"],
+      TAPI.RoadmapSuggestionOptionsQueryVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.RoadmapSuggestionOptionsDocument,
+        variables: { input },
+      }),
+      transformResponse: (response: TAPI.RoadmapSuggestionOptionsQuery) =>
+        response.roadmapSuggestionOptions,
+    }),
   }),
 });
 
@@ -136,4 +153,5 @@ export const {
   useProfessionalRoadmapDraftQuery,
   useLazyProfessionalRoadmapDraftQuery,
   useRequestRoadmapGenerationMutation,
+  useLazyRoadmapSuggestionOptionsQuery,
 } = roadmapChatApi;

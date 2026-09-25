@@ -1473,6 +1473,16 @@ model PDUActivityFile {
   @@index([userId])
 }
 
+model ProfessionalAssociationRequirementLink {
+  userId                   String
+  associationRequirementId String
+
+  createdAt DateTime @default(now())
+
+  @@id([userId, associationRequirementId])
+  @@index([userId])
+}
+
 // ================ CPD / PDU Plans ==================
 enum CPDPlanStatus {
   DRAFT
@@ -1759,6 +1769,13 @@ enum RoadmapStepProgressStatus {
   IN_PROGRESS
 }
 
+enum RoadmapMatchTier {
+  EXACT
+  SIMILAR
+  RELATED
+  BROAD
+}
+
 model Roadmap {
   id   String @id @default(cuid())
   slug String @unique
@@ -1778,6 +1795,7 @@ model Roadmap {
 
   estimatedWeeks Int?
   coverageNote   String?
+  matchTier      RoadmapMatchTier?
 
   phases      RoadmapPhase[]
   enrollments RoadmapEnrollment[]
@@ -1824,8 +1842,9 @@ model RoadmapStep {
   description String?
   order       Int
 
-  contentType ContentType?
-  contentId   String?
+  contentType  ContentType?
+  contentId    String?
+  isCloseMatch Boolean      @default(false)
 
   estimatedMinutes Int?
   credits          Float?
@@ -2670,9 +2689,10 @@ model AssociationLearningContent {
   contentType ContentType?
   contentId   String?
 
-  externalTitle    String?
-  externalProvider String?
-  externalUrl      String?
+  externalTitle       String?
+  externalProvider    String?
+  externalUrl         String?
+  externalContentType AssociationLearningExternalType?
 
   description String?
 
@@ -2724,6 +2744,16 @@ enum AssociationLearningContentStatus {
   DRAFT
   PUBLISHED
   WITHDRAWN
+}
+
+enum AssociationLearningExternalType {
+  COURSE
+  EVENT
+  PODCAST
+  VIDEO
+  ARTICLE
+  WEBINAR
+  OTHER
 }
 
 enum AssociationReportType {

@@ -21,6 +21,9 @@ const candidate = (
   ratingCount: 0,
   audience: 0,
   isFeatured: false,
+  matchScore: 0,
+  matchTier: "EXACT",
+  isCloseMatch: false,
   ...overrides,
 });
 
@@ -34,7 +37,6 @@ const many = (
 
 const base = {
   cap: 50,
-  subjects: [] as string[],
   freeOnly: false,
   level: null,
   requestedTypes: [] as PlatformContentType[],
@@ -59,14 +61,11 @@ describe("selectCandidates", () => {
         ratingCount: 500,
         audience: 10_000,
         isFeatured: true,
+        matchScore: 1,
       }),
     ];
 
-    const selected = selectCandidates({
-      ...base,
-      pool,
-      subjects: ["kubernetes"],
-    });
+    const selected = selectCandidates({ ...base, pool });
 
     expect(selected[0]?.contentId).toBe("strong");
   });
@@ -251,45 +250,22 @@ describe("selectCandidates", () => {
 });
 
 describe("scoreCandidate", () => {
-  it("rewards a subject match", () => {
-    const input = { subjects: ["docker"], level: null };
+  it("rewards a higher matchScore, the pre-computed subject fit", () => {
+    const input = { level: null };
     const hit = scoreCandidate(
-      candidate({ contentId: "a", title: "Learning Docker" }),
+      candidate({ contentId: "a", matchScore: 1 }),
       input,
     );
     const miss = scoreCandidate(
-      candidate({ contentId: "b", title: "Learning Excel" }),
+      candidate({ contentId: "b", matchScore: 0 }),
       input,
     );
 
     expect(hit).toBeGreaterThan(miss);
   });
 
-  it("matches subjects against tags and summary, not only the title", () => {
-    const input = { subjects: ["kubernetes"], level: null };
-    const tagged = scoreCandidate(
-      candidate({ contentId: "a", title: "Ops", tags: ["Kubernetes"] }),
-      input,
-    );
-    const summarised = scoreCandidate(
-      candidate({
-        contentId: "b",
-        title: "Ops",
-        summary: "Covers Kubernetes.",
-      }),
-      input,
-    );
-    const neither = scoreCandidate(
-      candidate({ contentId: "c", title: "Ops" }),
-      input,
-    );
-
-    expect(tagged).toBeGreaterThan(neither);
-    expect(summarised).toBeGreaterThan(neither);
-  });
-
   it("prefers the level the draft stated over a distant one", () => {
-    const input = { subjects: [], level: "BEGINNER" as const };
+    const input = { level: "BEGINNER" as const };
     const exact = scoreCandidate(
       candidate({ contentId: "a", level: "BEGINNER" }),
       input,
@@ -308,7 +284,7 @@ describe("scoreCandidate", () => {
   });
 
   it("discounts a perfect rating that almost nobody voted on", () => {
-    const input = { subjects: [], level: null };
+    const input = { level: null };
     const trusted = scoreCandidate(
       candidate({ contentId: "a", rating: 4.5, ratingCount: 200 }),
       input,

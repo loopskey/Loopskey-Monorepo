@@ -2,26 +2,21 @@ import { registerEnumType } from "@nestjs/graphql";
 
 import * as Prisma from "@prisma/client";
 
-/**
- * The draft field a widget collects. The provider types this as a closed set
- * rather than a free string, so the browser gets an enum it can handle
- * exhaustively. Kept in step with the port's `RoadmapDraftField` by
- * `roadmap-draft.enum.spec.ts`.
- */
 export enum RoadmapDraftFieldKey {
   GOAL = "goal",
-  TARGET_ROLE = "targetRole",
-  GOAL_REASON = "goalReason",
   CONTEXT = "context",
+  SUBJECTS = "subjects",
+  CPD_ENABLED = "cpdEnabled",
+  GOAL_REASON = "goalReason",
   TARGET_DATE = "targetDate",
+  TARGET_ROLE = "targetRole",
   SKILL_LEVEL = "skillLevel",
   TIME_COMMITMENT = "timeCommitment",
   BUDGET_PREFERENCE = "budgetPreference",
-  SUBJECTS = "subjects",
   PREFERRED_FORMATS = "preferredFormats",
-  PREFERRED_CONTENT_TYPES = "preferredContentTypes",
-  CPD_ENABLED = "cpdEnabled",
   CERTIFICATION_NAME = "certificationName",
+  PREFERRED_CONTENT_TYPES = "preferredContentTypes",
+  PREFERRED_DELIVERY_FORMATS = "preferredDeliveryFormats",
 }
 
 export enum RoadmapWidgetKind {

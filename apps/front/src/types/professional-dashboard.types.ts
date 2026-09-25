@@ -1,7 +1,7 @@
 import type { useCreateProfessionalPduActivityMutation } from "@/lib/rtk/endpoints/professional.api";
 import type { useUpsertProfessionalPduTargetMutation } from "@/lib/rtk/endpoints/professional.api";
 import type { ContentType, UpsertPduTargetInput } from "@/lib/graphql/base";
-import type { BarChart3, LucideIcon, Pencil } from "lucide-react";
+import type { LucideIcon, Pencil } from "lucide-react";
 import type { ElementType, ReactNode } from "react";
 import type { TCertificateFormInput } from "@/lib/validations/certificate.schema";
 import type { TPduActivityFormInput } from "@/lib/validations/pdu-activity.schema";
@@ -50,14 +50,13 @@ export type TFieldProps = {
   onChange: (value: string) => void;
 };
 
-export type TMetricCardTone = "primary" | "success" | "warning" | "danger";
-
-export type TMetricCard = {
-  label: string;
-  value: string;
-  helper: string;
-  icon: typeof BarChart3;
-  tone?: TMetricCardTone;
+export type TLearningActivitiesSummaryStripProps = {
+  isError: boolean;
+  isLoading: boolean;
+  t: I18nContextValue["t"];
+  summary:
+    | API.ProfessionalPduActivitySummaryQuery["professionalPduActivitySummary"]
+    | undefined;
 };
 
 export type TUseProfessionalTargetForm = {
@@ -246,7 +245,7 @@ export type TCertificateDetailCardProps = {
   onDownload: (file: TCertificateEvidenceFile) => void;
 };
 
-export type TCertificateSummaryCardsProps = {
+export type TCertificateSummaryStripProps = {
   isError: boolean;
   isLoading: boolean;
   onViewAll: () => void;
@@ -254,6 +253,7 @@ export type TCertificateSummaryCardsProps = {
   onViewActive: () => void;
   onViewExpiring: () => void;
   nearestExpiry: string | null;
+  statusFilter: TCertificateStatusFilter;
   summary: TCertificateSummary | undefined;
 };
 
@@ -455,6 +455,7 @@ export type TActivitySuccessPanelProps = {
   t: I18nContextValue["t"];
   onAddAnother: () => void;
   onViewActivities: () => void;
+  onReturn?: { label: string; onClick: () => void };
 };
 
 export type TOverviewCardProps = {

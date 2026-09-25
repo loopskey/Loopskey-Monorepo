@@ -1,18 +1,17 @@
 "use client";
 
-import { RequirementAssociationView } from "@modules/ProfessionalDashboard/parts/requirement-association-view";
-import { RequirementActivitiesTable } from "@modules/ProfessionalDashboard/parts/requirement-activities-table";
-import { CpdMissingRequirements } from "@modules/ProfessionalDashboard/parts/cpd-missing-requirements";
-import { CpdCategoryCompletion } from "@modules/ProfessionalDashboard/parts/cpd-category-completion";
-import { CpdProgressOverview } from "@modules/ProfessionalDashboard/parts/cpd-progress-overview";
+import { AssociationContentSection } from "@modules/ProfessionalDashboard/parts/association-content-section";
+import { RequirementDetailView } from "@modules/ProfessionalDashboard/parts/requirement-detail-view";
 import { RequirementSelector } from "@modules/ProfessionalDashboard/parts/requirement-selector";
 import { useCpdPduProgress } from "@/hooks/useCpdPduProgress";
-import { planActivityRows } from "@/utils/professional-requirement.helper";
 import { CpdSearchModal } from "@modules/ProfessionalDashboard/parts/cpd-search-modal";
 import { CpdEmptyState } from "@modules/ProfessionalDashboard/parts/cpd-empty-state";
 import { CpdSetupFlow } from "@modules/ProfessionalDashboard/parts/cpd-setup-flow";
 import { Button } from "@ui/button";
 
+import type { TRequirementViewModel } from "@/types/professional-requirement.types";
+
+import * as R from "@/utils/professional-requirement.helper";
 import * as L from "lucide-react";
 import * as A from "@ui/alert-dialog";
 
@@ -90,6 +89,37 @@ const ProfessionalCpdPduProgressTab = () => {
         </div>
       </div>
 
+      {cpd.draftPlans.length > 0 && (
+        <div className="space-y-2">
+          {cpd.draftPlans.map((draft) => (
+            <div
+              key={draft.id}
+              className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-primary/30 bg-primary/5 p-4"
+            >
+              <p className="text-sm">
+                {t("cpdProgress.draftPlan.prompt", {
+                  certification: draft.certificationName,
+                })}
+              </p>
+              <Button
+                size="sm"
+                radius="xl"
+                type="button"
+                disabled={cpd.isActivatingPlan}
+                onClick={() => cpd.trackDraftPlan(draft.id)}
+              >
+                {cpd.isActivatingPlan ? (
+                  <L.Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <L.Target className="h-4 w-4" />
+                )}
+                {t("cpdProgress.draftPlan.track")}
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
+
       {cpd.isRequirementsLoading ? (
         <div className="flex min-h-96 items-center justify-center">
           <L.Loader2 className="h-7 w-7 animate-spin text-primary" />
@@ -97,7 +127,16 @@ const ProfessionalCpdPduProgressTab = () => {
       ) : !cpd.hasRequirements ? (
         <div className="space-y-4">
           {loadError}
-          <CpdEmptyState t={t} onCreate={cpd.openSearch} />
+          <AssociationContentSection
+            t={t}
+            contents={cpd.myLearningContent}
+            isLoading={cpd.isMyLearningContentLoading}
+            onMarkComplete={cpd.markUnlinkedComplete}
+          />
+          {!cpd.isMyLearningContentLoading &&
+            cpd.myLearningContent.length === 0 && (
+              <CpdEmptyState t={t} onCreate={cpd.openSearch} />
+            )}
         </div>
       ) : (
         <div className="space-y-6">
@@ -106,57 +145,68 @@ const ProfessionalCpdPduProgressTab = () => {
           <RequirementSelector
             t={t}
             options={cpd.options}
-            isDeleting={cpd.isDeleting}
             selectedKey={cpd.activeKey}
-            onDelete={cpd.requestDelete}
             onSelect={cpd.setSelectedKey}
             onLogActivity={cpd.goToAddActivity}
-            onEdit={(planId) => {
-              const plan = cpd.plans.find((item) => item.id === planId);
-              if (plan) cpd.editPlan(plan);
-            }}
           />
 
-          {cpd.selectedAssociation ? (
-            <RequirementAssociationView
-              t={t}
-              detail={cpd.associationDetail}
-              summary={cpd.selectedAssociation}
-              onMarkComplete={cpd.markComplete}
-              onLogActivity={cpd.goToAddActivity}
-              isLoading={cpd.isAssociationDetailLoading}
-            />
-          ) : cpd.isProgressLoading || !cpd.progress || !cpd.selectedPlan ? (
-            <div className="flex min-h-72 items-center justify-center">
-              <L.Loader2 className="h-7 w-7 animate-spin text-primary" />
-            </div>
-          ) : (
-            <>
-              <CpdProgressOverview
-                t={t}
-                plan={cpd.selectedPlan}
-                progress={cpd.progress}
-              />
-              <div className="grid gap-6 xl:grid-cols-2">
-                <CpdCategoryCompletion
+          {(() => {
+            if (cpd.selectedAssociation) {
+              const model: TRequirementViewModel = R.associationToViewModel(
+                cpd.selectedAssociation,
+              );
+              return (
+                <RequirementDetailView
                   t={t}
-                  plan={cpd.selectedPlan}
-                  progress={cpd.progress}
+                  model={model}
+                  isLoading={false}
+                  requirementKeyValue={model.key}
+                  isDetailLoading={cpd.isAssociationDetailLoading}
+                  isActivitiesLoading={cpd.isAssociationDetailLoading}
+                  categories={R.associationCategoryRows(cpd.associationDetail)}
+                  content={cpd.associationDetail?.learningContents ?? []}
+                  activities={R.associationActivityRows(
+                    t,
+                    cpd.associationDetail?.activities ?? [],
+                  )}
+                  onMarkComplete={cpd.markComplete}
                 />
-                <CpdMissingRequirements
+              );
+            }
+
+            if (!cpd.selectedPlan || cpd.isProgressLoading || !cpd.progress)
+              return (
+                <RequirementDetailView
                   t={t}
-                  progress={cpd.progress}
-                  onEditPlan={cpd.goToAddActivity}
-                  onAddActivity={cpd.goToAddActivity}
+                  isLoading
+                  isDetailLoading
+                  isActivitiesLoading
+                  requirementKeyValue=""
+                  model={{} as TRequirementViewModel}
+                  categories={[]}
+                  content={[]}
+                  activities={[]}
                 />
-              </div>
-              <RequirementActivitiesTable
+              );
+
+            const model = R.planToViewModel(cpd.selectedPlan, cpd.progress);
+            return (
+              <RequirementDetailView
                 t={t}
-                isLoading={cpd.isPlanActivitiesLoading}
-                rows={planActivityRows(t, cpd.planActivities)}
+                model={model}
+                isLoading={false}
+                isDetailLoading={false}
+                requirementKeyValue={model.key}
+                isActivitiesLoading={cpd.isPlanActivitiesLoading}
+                categories={R.planCategoryRows(cpd.progress)}
+                content={[]}
+                activities={R.planActivityRows(t, cpd.planActivities)}
+                isDeleting={cpd.isDeleting}
+                onDelete={() => cpd.requestDelete(cpd.selectedPlan!.id)}
+                onEdit={() => cpd.editPlan(cpd.selectedPlan!)}
               />
-            </>
-          )}
+            );
+          })()}
         </div>
       )}
 

@@ -27,10 +27,9 @@ const ProfessionalOverviewTab = () => {
             {t("professionalDashboard.overview.eyebrow")}
           </p>
           <h1 className="mt-2 text-3xl font-medium tracking-tight md:text-3xl">
-            {t("professionalDashboard.overview.title").replace(
-              "{name}",
-              professionalName,
-            )}
+            {t("professionalDashboard.overview.title", {
+              name: professionalName,
+            })}
           </h1>
           <p className="mt-2 max-w-2xl text-muted-foreground">
             {t("professionalDashboard.overview.description")}

@@ -5,7 +5,6 @@ import { GlassCard } from "@elements/glass-card";
 import { Checkbox } from "@ui/checkbox";
 import { Button } from "@ui/button";
 import { Input } from "@ui/input";
-import { Badge } from "@ui/badge";
 import { Label } from "@ui/label";
 
 import * as L from "lucide-react";
@@ -28,6 +27,7 @@ export const AssociationMembersBulkCard = ({
     bulkRequirementIds,
     toggleBulkRequirement,
     inviteRequirementOptions,
+    autoAppliedRequirementCount,
   } = hook;
 
   const canSubmit = Boolean(
@@ -88,27 +88,25 @@ export const AssociationMembersBulkCard = ({
                 <li key={option.id} className="rounded-md border p-3">
                   <label className="flex cursor-pointer items-center gap-3">
                     <Checkbox
-                      disabled={!option.isMemberManaged || isImporting}
+                      disabled={isImporting}
                       checked={bulkRequirementIds.includes(option.id)}
                       onCheckedChange={() => toggleBulkRequirement(option.id)}
                     />
 
-                    <span className="flex flex-wrap items-center gap-2">
-                      <span className="font-medium">{option.name}</span>
-
-                      {!option.isMemberManaged && (
-                        <Badge variant="secondary">
-                          {t(
-                            "associationDashboard.memberDetail.assign.audienceManaged",
-                          )}
-                        </Badge>
-                      )}
-                    </span>
+                    <span className="font-medium">{option.name}</span>
                   </label>
                 </li>
               ))}
             </ul>
           </div>
+        )}
+
+        {autoAppliedRequirementCount > 0 && (
+          <p className="mt-2 text-xs text-muted-foreground">
+            {t("associationDashboard.members.invite.autoAppliedNote", {
+              count: autoAppliedRequirementCount,
+            })}
+          </p>
         )}
 
         <div className="mt-5 space-y-2">

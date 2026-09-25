@@ -1,3 +1,5 @@
+import { ProfessionalRequirementDirectoryApiService } from "@professional/application/professional-requirement-directory-api.service";
+import { PROFESSIONAL_REQUIREMENT_DIRECTORY_API } from "@professional/public/professional-requirement-directory-api";
 import { ProfessionalCertificateFileController } from "@professional/controllers/professional-certificate-file.controller";
 import { ProfessionalRoadmapGenerationService } from "@professional/services/professional-roadmap-generation.service";
 import { ProfessionalProfileCompletionService } from "@professional/services/professional-profile-completion.service";
@@ -6,6 +8,7 @@ import { ProfessionalCertificateFileService } from "@professional/services/profe
 import { ProfessionalProvisioningApiService } from "@professional/application/professional-provisioning-api.service";
 import { ProfessionalRoadmapProgressService } from "@professional/services/professional-roadmap-progress.service";
 import { ProfessionalCertificatesResolver } from "@professional/resolvers/professional-certificate.resolver";
+import { ProfessionalComplianceApiService } from "@professional/application/professional-compliance-api.service";
 import { ProfessionalCertificatesService } from "@professional/services/professional-certificate.service";
 import { ProfessionalRoadmapDraftService } from "@professional/services/professional-roadmap-draft.service";
 import { ProfessionalRoadmapChatResolver } from "@professional/resolvers/professional-roadmap-chat.resolver";
@@ -15,8 +18,6 @@ import { ProfessionalRoleProfileHandler } from "@professional/application/profes
 import { ProfessionalOnboardingResolver } from "@professional/resolvers/professional-onboarding.resolver";
 import { ProfessionalCredentialService } from "@professional/services/professional-credential.service";
 import { ProfessionalPduFileController } from "@professional/controllers/professional-pdu-file.controller";
-import { ProfessionalComplianceApiService } from "@professional/application/professional-compliance-api.service";
-import { PROFESSIONAL_COMPLIANCE_API } from "@professional/public/professional-compliance-api";
 import { PROFESSIONAL_PROVISIONING_API } from "@professional/public/professional-provisioning-api";
 import { ProfessionalOnboardingService } from "@professional/services/professional-onboarding.service";
 import { ProfessionalCalendarResolver } from "@professional/resolvers/professional-calendar.resolver";
@@ -24,6 +25,7 @@ import { ProfessionalOverviewResolver } from "@professional/resolvers/profession
 import { ProfessionalPaymentsResolver } from "@professional/resolvers/professional-payments.resolver";
 import { ProfessionalSettingsResolver } from "@professional/resolvers/professional-settings.resolver";
 import { ProfessionalAvatarController } from "@professional/controllers/professional-avatar.controller";
+import { PROFESSIONAL_COMPLIANCE_API } from "@professional/public/professional-compliance-api";
 import { ProfessionalCalendarService } from "@professional/services/professional-calendar.service";
 import { ProfessionalCoursesResolver } from "@professional/resolvers/professional-courses.resolver";
 import { ProfessionalPaymentsService } from "@professional/services/professional-payments.service";
@@ -110,6 +112,7 @@ import "@professional/enums/professional-register.enum";
     ProfessionalCertificateFileService,
     ProfessionalProvisioningApiService,
     ProfessionalComplianceApiService,
+    ProfessionalRequirementDirectoryApiService,
     ProfessionalRoadmapCandidateService,
     ProfessionalRoadmapGenerationService,
     ProfessionalProfileCompletionService,
@@ -122,6 +125,10 @@ import "@professional/enums/professional-register.enum";
     {
       provide: PROFESSIONAL_COMPLIANCE_API,
       useExisting: ProfessionalComplianceApiService,
+    },
+    {
+      provide: PROFESSIONAL_REQUIREMENT_DIRECTORY_API,
+      useExisting: ProfessionalRequirementDirectoryApiService,
     },
   ],
   exports: [
@@ -140,6 +147,8 @@ import "@professional/enums/professional-register.enum";
     ProfessionalCredentialService,
     PROFESSIONAL_PROVISIONING_API,
     PROFESSIONAL_COMPLIANCE_API,
+    ProfessionalRequirementDirectoryApiService,
+    PROFESSIONAL_REQUIREMENT_DIRECTORY_API,
     ProfessionalRoadmapChatService,
     ProfessionalRoadmapDraftService,
     ProfessionalCertificatesService,

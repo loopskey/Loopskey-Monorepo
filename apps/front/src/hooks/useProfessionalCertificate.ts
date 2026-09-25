@@ -1,12 +1,11 @@
 "use client";
 
-import {
-  useCertificateEvidence,
-  CertificateFileError,
-} from "@/hooks/useCertificateEvidence";
+import { REQUIREMENT_QUERY_SUBSCRIPTION_OPTIONS } from "@/lib/rtk/endpoints/cpd-plan.api";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CertificateStatusFilter } from "@/lib/graphql/base";
+import { useCertificateEvidence } from "@/hooks/useCertificateEvidence";
+import { CertificateFileError } from "@/hooks/useCertificateEvidence";
 import { useMyCpdPlansQuery } from "@/lib/rtk/endpoints/cpd-plan.api";
 import { useDebouncedValue } from "@/hooks/useDebounced";
 import { PAGE_SIZE } from "@/utils/constant";
@@ -85,7 +84,10 @@ export const useProfessionalCertificates = () => {
   const { data: issuers, isLoading: isIssuersLoading } =
     API.useProfessionalCertificateIssuersQuery();
 
-  const { data: plans, isLoading: isPlansLoading } = useMyCpdPlansQuery();
+  const { data: plans, isLoading: isPlansLoading } = useMyCpdPlansQuery(
+    undefined,
+    REQUIREMENT_QUERY_SUBSCRIPTION_OPTIONS,
+  );
 
   const [deleteCertificate] = API.useDeleteProfessionalCertificateMutation();
   const { downloadEvidence } = useCertificateEvidence();

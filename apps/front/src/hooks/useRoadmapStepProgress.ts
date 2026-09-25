@@ -65,15 +65,19 @@ export const applyStepProgress = (
   item.completedSteps = result.completedSteps;
 
   for (const phase of item.phases) {
-    if (phase.id === result.phaseId) {
-      phase.progress = result.phaseProgress;
-      phase.completed = result.phaseCompleted;
-    }
     for (const step of phase.steps)
       if (step.id === result.stepId) {
         step.status = result.status;
         step.completedAt = result.completedAt ?? null;
       }
+
+    if (phase.id === result.phaseId) {
+      phase.progress = result.phaseProgress;
+      phase.completed = result.phaseCompleted;
+      phase.completedSteps = phase.steps.filter(
+        (step) => step.status === RoadmapStepProgressStatus.Completed,
+      ).length;
+    }
   }
 
   item.completedPhases = item.phases.filter((phase) => phase.completed).length;

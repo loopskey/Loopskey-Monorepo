@@ -1,4 +1,5 @@
 import { PaginatedAssociationMemberActivitiesEntity } from "@association/entities/association-member-profile.entity";
+import { AssociationMemberRequirementEvidenceEntity } from "@association/entities/association-member-profile.entity";
 import { AssociationMemberRequirementsResultEntity } from "@association/entities/association-member-profile.entity";
 import { AssociationMemberRequirementOptionEntity } from "@association/entities/association-member-profile.entity";
 import { AssociationMemberRequirementsService } from "@association/services/association-member-requirements.service";
@@ -56,6 +57,27 @@ export class AssociationMemberProfileResolver {
       this.getUser(user),
       memberId,
       filter ?? {},
+      pagination,
+      associationId,
+    );
+  }
+
+  @Query(() => AssociationMemberRequirementEvidenceEntity, {
+    name: AssociationGqlQueryNames.MEMBER_REQUIREMENT_EVIDENCE,
+  })
+  associationMemberRequirementEvidence(
+    @CurrentUser() user: TResolverUser,
+    @Args("memberId", { type: () => ID }) memberId: string,
+    @Args("requirementId", { type: () => ID }) requirementId: string,
+    @Args("pagination", { nullable: true })
+    pagination?: AssociationPaginationInput,
+    @Args("associationId", { type: () => ID, nullable: true })
+    associationId?: string,
+  ) {
+    return this.profiles.requirementEvidence(
+      this.getUser(user),
+      memberId,
+      requirementId,
       pagination,
       associationId,
     );

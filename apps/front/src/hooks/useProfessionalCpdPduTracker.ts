@@ -12,6 +12,7 @@ import { notify } from "@/hooks/notify";
 import * as CpdAPI from "@/lib/rtk/endpoints/cpd-plan.api";
 import * as API from "@/lib/rtk/endpoints/professional.api";
 import * as H from "@/utils/learning-activities.helper";
+import * as R from "@/utils/professional-requirement.helper";
 import * as T from "@/types/professional-dashboard.types";
 
 const SEARCH_DEBOUNCE_MS = 350;
@@ -70,7 +71,10 @@ export const useProfessionalCpdPduTracker = () => {
   } = API.useProfessionalPduActivitySummaryQuery();
 
   const semantics = useChartSemantics();
-  const { data: cpdPlans = [] } = CpdAPI.useMyCpdPlansQuery();
+  const { data: cpdPlans = [] } = CpdAPI.useMyCpdPlansQuery(
+    undefined,
+    CpdAPI.REQUIREMENT_QUERY_SUBSCRIPTION_OPTIONS,
+  );
   const cyclePlan = cpdPlans[0];
 
   const {
@@ -79,7 +83,7 @@ export const useProfessionalCpdPduTracker = () => {
     isLoading: isCycleQueryLoading,
   } = CpdAPI.useCpdPlanProgressQuery(
     { planId: cyclePlan?.id ?? "" },
-    { skip: !cyclePlan },
+    { skip: !cyclePlan, ...CpdAPI.REQUIREMENT_QUERY_SUBSCRIPTION_OPTIONS },
   );
 
   const isCycleLoading =
@@ -152,11 +156,15 @@ export const useProfessionalCpdPduTracker = () => {
   };
 
   const handleAddActivity = () => {
-    router.push("/dashboard/professional?tab=add-activity");
+    router.push(
+      `/dashboard/professional?tab=add-activity&${R.RETURN_TO_PARAM}=${R.RETURN_TO_TRACKER}`,
+    );
   };
 
   const handleEditActivity = (activityId: string) => {
-    router.push(`/dashboard/professional?tab=add-activity&id=${activityId}`);
+    router.push(
+      `/dashboard/professional?tab=add-activity&id=${activityId}&${R.RETURN_TO_PARAM}=${R.RETURN_TO_TRACKER}`,
+    );
   };
 
   const handleViewActivity = (activityId: string) => {

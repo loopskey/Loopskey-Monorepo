@@ -8,9 +8,14 @@ import { RoadmapDraftStatus, Role } from "@prisma/client";
 import { PROFESSIONAL_CATALOG_API } from "@course/public/professional-catalog-api";
 import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
 import { verifyGeneratedRoadmap } from "@professional/utils/roadmap-generation-verify.util";
-import { subjectLabelsOf } from "@professional/utils/roadmap-draft-merge.util";
+import { mapGenerationFailure } from "@professional/utils/roadmap-generation-failure.util";
+import { NO_CANDIDATES_REASON } from "@professional/utils/roadmap-generation-failure.util";
 import { BadRequestException } from "@nestjs/common";
+import { SERVICE_AI_LIMITS } from "@infrastructure/service-ai/service-ai.port";
+import { SERVICE_AI_PORT } from "@infrastructure/service-ai/service-ai.port";
 import { isDraftComplete } from "@professional/utils/roadmap-step-machine.util";
+import { subjectLabelsOf } from "@professional/utils/roadmap-draft-merge.util";
+import { worstTier } from "@professional/utils/roadmap-relaxation.util";
 import { requestContext } from "@infrastructure/observability/request-context";
 import { OutboxDeferral } from "@infrastructure/outbox/outbox-handler.port";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
@@ -26,8 +31,6 @@ import { type ProfessionalCatalogApi } from "@course/public/professional-catalog
 import { type CandidateKey } from "@professional/utils/roadmap-generation-verify.util";
 
 import {
-  SERVICE_AI_LIMITS,
-  SERVICE_AI_PORT,
   type GenerateData,
   type PlatformContentType,
   type RoadmapContentCandidate,
@@ -126,6 +129,41 @@ export class ProfessionalRoadmapGenerationService {
     });
   }
 
+  /**
+   * With `draftId`, returns that owned draft in any status so a direct link
+   * (from the generated-hero's history, or a bookmark) always resolves. With
+   * no id, returns only a `GENERATING`/`FAILED` draft, since a completed or
+   * still-collecting draft is not an "active generation" the Roadmap tab
+   * needs to surface without the professional asking for it by id.
+   */
+  async generationStatus(user: TUser, draftId?: string) {
+    this.assertProfessional(user);
+    const trimmed = draftId?.trim() || undefined;
+
+    const draft = trimmed
+      ? await this.prisma.roadmapDraft.findFirst({
+          where: { id: trimmed, userId: user.id },
+        })
+      : await this.prisma.roadmapDraft.findFirst({
+          where: {
+            userId: user.id,
+            status: {
+              in: [RoadmapDraftStatus.GENERATING, RoadmapDraftStatus.FAILED],
+            },
+          },
+          orderBy: { updatedAt: "desc" },
+        });
+    if (!draft) return null;
+
+    return {
+      id: draft.id,
+      goal: draft.goal,
+      status: draft.status,
+      updatedAt: draft.updatedAt,
+      failure: mapGenerationFailure(draft.failureReason),
+    };
+  }
+
   async runGeneration(draftId: string) {
     if (this.inFlight >= MAX_CONCURRENT_GENERATIONS)
       throw new OutboxDeferral(
@@ -158,7 +196,12 @@ export class ProfessionalRoadmapGenerationService {
     }
 
     const cpd = await this.buildCpdContext(draft);
-    const subjects = await this.resolveSubjectLabels(draft.subjects);
+    const { labels: subjects, groupKeys } = await this.resolveSubjectContext(
+      draft.subjects,
+    );
+    const keywords = [draft.goal, draft.targetRole].filter(
+      (value): value is string => Boolean(value?.trim()),
+    );
     const started = Date.now();
 
     let cap: number = SERVICE_AI_LIMITS.candidatesMaxItems;
@@ -170,6 +213,8 @@ export class ProfessionalRoadmapGenerationService {
       selected = await this.candidates.build({
         cap,
         subjects,
+        keywords,
+        groupKeys,
         skillLevel: draft.skillLevel,
         budgetPreference: draft.budgetPreference,
         preferredContentTypes: draft.preferredContentTypes,
@@ -177,7 +222,7 @@ export class ProfessionalRoadmapGenerationService {
       });
 
       if (selected.length === 0) {
-        await this.fail(draftId, "NO_CANDIDATES");
+        await this.fail(draftId, NO_CANDIDATES_REASON);
         return;
       }
 
@@ -285,6 +330,34 @@ export class ProfessionalRoadmapGenerationService {
       contentId && contentType
         ? (creditsByKey.get(`${contentType}:${contentId}`) ?? null)
         : null;
+    const closeMatchByKey = new Map(
+      candidates.map((candidate) => [
+        `${candidate.contentType}:${candidate.contentId}`,
+        candidate.isCloseMatch,
+      ]),
+    );
+    const isCloseMatchFor = (
+      contentId: string | null,
+      contentType: string | null,
+    ) =>
+      contentId && contentType
+        ? (closeMatchByKey.get(`${contentType}:${contentId}`) ?? false)
+        : false;
+    const tierByKey = new Map(
+      candidates.map((candidate) => [
+        `${candidate.contentType}:${candidate.contentId}`,
+        candidate.matchTier,
+      ]),
+    );
+    const tierFor = (contentId: string | null, contentType: string | null) =>
+      contentId && contentType
+        ? tierByKey.get(`${contentType}:${contentId}`)
+        : undefined;
+    const usedTiers = verdict.phases
+      .flatMap((phase) => phase.steps)
+      .map((step) => tierFor(step.contentId, step.contentType))
+      .filter((tier): tier is RankableCandidate["matchTier"] => Boolean(tier));
+    const matchTier = worstTier(usedTiers);
     const coverage = verdict.droppedContentIds.length
       ? [
           data.coverageNote,
@@ -301,6 +374,7 @@ export class ProfessionalRoadmapGenerationService {
           description: data.description,
           coverageNote: coverage,
           estimatedWeeks: data.estimatedWeeks,
+          matchTier,
           slug: `${slugify(data.title).slice(0, 60)}-${draft.id.slice(-8)}`,
           phases: verdict.phases.map((phase) => ({
             order: phase.order,
@@ -315,6 +389,7 @@ export class ProfessionalRoadmapGenerationService {
               contentType: step.contentType,
               estimatedMinutes: step.estimatedMinutes,
               credits: creditsFor(step.contentId, step.contentType),
+              isCloseMatch: isCloseMatchFor(step.contentId, step.contentType),
             })),
           })),
         },
@@ -365,13 +440,18 @@ export class ProfessionalRoadmapGenerationService {
    * deactivated since it was picked) falls back to its stored id, which
    * degrades to "matches nothing" instead of silently dropping the subject.
    */
-  private async resolveSubjectLabels(subjectIds: string[]): Promise<string[]> {
-    if (subjectIds.length === 0) return [];
+  private async resolveSubjectContext(
+    subjectIds: string[],
+  ): Promise<{ labels: string[]; groupKeys: string[] }> {
+    if (subjectIds.length === 0) return { labels: [], groupKeys: [] };
     const options = await this.prisma.profileTaxonomyTerm.findMany({
       where: { id: { in: subjectIds } },
-      select: { id: true, label: true },
+      select: { id: true, label: true, groupKey: true },
     });
-    return subjectLabelsOf(subjectIds, options);
+    return {
+      labels: subjectLabelsOf(subjectIds, options),
+      groupKeys: [...new Set(options.map((option) => option.groupKey))],
+    };
   }
 
   private toDraftState(draft: DraftRow, subjects: string[]) {

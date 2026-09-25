@@ -3,17 +3,22 @@
 import { CREDIT_TYPES, PDU_CATEGORIES } from "@/utils/pdu.constant";
 import { TMarkAsCompletedDialogProps } from "@/types/content-module.types";
 import { ActivityEvidenceUpload } from "@modules/ProfessionalDashboard/parts/activity-evidence-upload";
+import { RequirementSelectField } from "@modules/ContentDetail/parts/requirement-select-field";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { FloatingSelectField } from "@elements/floating-select";
 import { FloatingInputField } from "@elements/floating-input";
 import { useMarkAsCompleted } from "@/hooks/useMarkAsCompleted";
+import { REQUIREMENT_NONE } from "@/utils/professional-requirement.helper";
 import { Button } from "@ui/button";
 import { Form } from "@ui/form";
+
+import Link from "next/link";
 
 import * as D from "@ui/dialog";
 
 const MODAL = "contentDetails.markCompleted";
 const TRACKER = "professionalDashboard.cpdPduTracker";
+const REQUIREMENTS_HREF = "/dashboard/professional?tab=cpd-pdu-progress";
 
 export const MarkAsCompletedDialog = ({
   open,
@@ -30,6 +35,16 @@ export const MarkAsCompletedDialog = ({
     handleFilesChange,
     activityTypeOptions,
     isAlreadyCompleted,
+    requirementOptions,
+    hasRequirementOptions,
+    isRequirementOptionsLoading,
+    selectedAssociation,
+    allowedCategories,
+    evidencePolicy,
+    evidenceRequired,
+    evidenceError,
+    handleRequirementChange,
+    inferredRequirement,
   } = useMarkAsCompleted(prefill, existing, () => onOpenChange(false));
 
   const durationLabel = prefill.durationMinutes
@@ -50,10 +65,16 @@ export const MarkAsCompletedDialog = ({
     label: t(`${TRACKER}.creditTypes.${type}`),
   }));
 
-  const categoryOptions = PDU_CATEGORIES.map((category) => ({
-    value: category,
-    label: t(`${TRACKER}.categories.${category}`),
-  }));
+  const categoryOptions = (allowedCategories ?? PDU_CATEGORIES).map(
+    (category) => ({
+      value: category,
+      label: t(`${TRACKER}.categories.${category}`),
+    }),
+  );
+
+  const requirementValue = form.watch("requirement");
+  const showInferredHint =
+    Boolean(inferredRequirement) && inferredRequirement?.key === requirementValue;
 
   return (
     <D.Dialog open={open} onOpenChange={onOpenChange}>
@@ -72,6 +93,50 @@ export const MarkAsCompletedDialog = ({
 
         <Form {...form}>
           <form className="space-y-5" onSubmit={onSubmit} noValidate>
+            {hasRequirementOptions ? (
+              <div className="space-y-2">
+                <RequirementSelectField
+                  t={t}
+                  name="requirement"
+                  control={form.control}
+                  options={requirementOptions}
+                  noneValue={REQUIREMENT_NONE}
+                  disabled={isRequirementOptionsLoading}
+                  label={t(`${MODAL}.fields.requirement`)}
+                  noneLabel={t(`${MODAL}.fields.requirementNone`)}
+                  onValueChange={handleRequirementChange}
+                />
+
+                {showInferredHint && (
+                  <p className="text-xs text-muted-foreground">
+                    {t(
+                      inferredRequirement?.isDefault
+                        ? `${MODAL}.requirementHint.default`
+                        : `${MODAL}.requirementHint.suggested`,
+                      { association: inferredRequirement?.associationName ?? "" },
+                    )}
+                  </p>
+                )}
+
+                {selectedAssociation && (
+                  <p className="text-xs text-muted-foreground">
+                    {t(`${MODAL}.fields.evidencePolicy`, {
+                      policy: t(
+                        `cpdProgress.requirements.evidencePolicy.${evidencePolicy}`,
+                      ),
+                    })}
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div className="rounded-md border border-dashed border-border p-4 text-sm text-muted-foreground">
+                {t(`${MODAL}.noRequirements.hint`)}{" "}
+                <Link href={REQUIREMENTS_HREF} className="font-medium text-primary underline">
+                  {t(`${MODAL}.noRequirements.link`)}
+                </Link>
+              </div>
+            )}
+
             <div className="grid gap-4 sm:grid-cols-2">
               <FloatingInputField
                 name="title"
@@ -152,6 +217,7 @@ export const MarkAsCompletedDialog = ({
             <div className="space-y-2">
               <p className="text-sm font-medium">
                 {t(`${MODAL}.fields.certificate`)}
+                {evidenceRequired ? " *" : ""}
               </p>
               <p className="text-xs text-muted-foreground">
                 {t(`${MODAL}.fields.certificateHelp`)}
@@ -171,6 +237,12 @@ export const MarkAsCompletedDialog = ({
               label={t(`${MODAL}.fields.certificateLink`)}
               placeholder={t(`${MODAL}.fields.certificateLinkPlaceholder`)}
             />
+
+            {evidenceError && (
+              <p className="text-sm font-medium text-destructive">
+                {evidenceError}
+              </p>
+            )}
 
             <D.DialogFooter>
               <Button

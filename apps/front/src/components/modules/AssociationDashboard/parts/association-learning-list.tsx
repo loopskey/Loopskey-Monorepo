@@ -10,6 +10,7 @@ import { ConfirmDialog } from "@elements/confirm-dialog";
 import { Skeleton } from "@ui/skeleton";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
+import { cn } from "@/lib/utils";
 
 import * as D from "@ui/dropdown-menu";
 import * as L from "lucide-react";
@@ -34,7 +35,9 @@ export const AssociationLearningList = ({ hook }: TAssociationLearningList) => {
     openPublish,
     isFiltered,
     openCreate,
+    openAssign,
     openMembers,
+    justPublishedId,
     previousPage,
     isRefetching,
   } = hook;
@@ -44,7 +47,10 @@ export const AssociationLearningList = ({ hook }: TAssociationLearningList) => {
   const row = (item: TAssociationLearningContentRow) => (
     <li
       key={item.id}
-      className="rounded-lg border p-4"
+      className={cn(
+        "rounded-lg border p-4",
+        item.id === justPublishedId && "border-primary bg-primary/5",
+      )}
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
@@ -233,23 +239,19 @@ export const AssociationLearningList = ({ hook }: TAssociationLearningList) => {
 
         {!isFiltered && (
           <div className="mt-5 flex flex-wrap justify-center gap-3">
-            <Button
-              radius="xl"
-              type="button"
-              onClick={() => openCreate(false)}
-            >
-              <L.LibraryBig className="h-4 w-4" />
-              {t("associationDashboard.learningContent.actions.addCatalogue")}
+            <Button radius="xl" type="button" onClick={openCreate}>
+              <L.Plus className="h-4 w-4" />
+              {t("associationDashboard.learningContent.actions.addContent")}
             </Button>
 
             <Button
               radius="xl"
               type="button"
               variant="outline"
-              onClick={() => openCreate(true)}
+              onClick={openAssign}
             >
-              <L.Link className="h-4 w-4" />
-              {t("associationDashboard.learningContent.actions.addExternal")}
+              <L.Users className="h-4 w-4" />
+              {t("associationDashboard.learningContent.actions.assignContent")}
             </Button>
           </div>
         )}

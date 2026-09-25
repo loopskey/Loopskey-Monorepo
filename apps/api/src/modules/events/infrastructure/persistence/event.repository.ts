@@ -2,17 +2,15 @@ import { EventRegistrationStatus, EventStatus, Prisma } from "@prisma/client";
 import { EventRegistrationConflict } from "@events/domain/errors/event-registration-conflict.error";
 import { EventPaginationInput } from "@events/dtos/event-pagination.input";
 import { EventSortDirection } from "@events/enums/event-register.enum";
+import { ATTENDING_STATUSES } from "@events/domain/policies/registration-attendance.policy";
+import { EventRatingWriter } from "@events/public/events-api";
 import { EventFilterInput } from "@events/dtos/event-filter.input";
+import { VACATED_STATUSES } from "@events/domain/policies/registration-attendance.policy";
 import { EventSortInput } from "@events/dtos/event-sort.input";
 import { EventSortField } from "@events/enums/event-register.enum";
-import { EventRatingWriter } from "@events/public/events-api";
+import { EventCategory } from "@prisma/client";
 import { PrismaService } from "@prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
-
-import {
-  ATTENDING_STATUSES,
-  VACATED_STATUSES,
-} from "@events/domain/policies/registration-attendance.policy";
 
 import type { ProviderAttendeesQuery } from "@events/public/events-api";
 import type { RoadmapCandidateQuery } from "@events/public/events-api";
@@ -22,10 +20,35 @@ const isUniqueViolation = (error: unknown) =>
   error instanceof Prisma.PrismaClientKnownRequestError &&
   error.code === "P2002";
 
+const WORD_SIMILARITY_THRESHOLD = 0.3;
+const VALID_EVENT_CATEGORIES = new Set<string>(Object.values(EventCategory));
+
+const trimmedTerms = (terms: readonly string[]) => [
+  ...new Set(terms.map((term) => term.trim()).filter(Boolean)),
+];
+
+const lowerTerms = (terms: readonly string[]) =>
+  trimmedTerms(terms).map((term) => term.toLowerCase());
+
+type EventCandidateRow = {
+  id: string;
+  pdu: number;
+  title: string;
+  isFree: boolean;
+  category: string;
+  startDate: Date;
+  attendees: number;
+  matchScore: number;
+  description: string;
+  ratingCount: number;
+  topic: string | null;
+  averageRating: number;
+  specificTopic: string | null;
+};
+
 type RegistrationOutcome = {
-  readonly registration: Prisma.EventRegistrationGetPayload<object>;
-  /** Whether this request is the one that moved the seat counter. */
   readonly activated: boolean;
+  readonly registration: Prisma.EventRegistrationGetPayload<object>;
 };
 
 @Injectable()
@@ -40,11 +63,6 @@ export class EventRepository {
     return this.prisma.event.update({ where: { id: eventId }, data });
   }
 
-  /**
-   * `writer` lets the review module publish an aggregate inside the same
-   * transaction it computed it in, so a slower recomputation cannot commit
-   * after a newer one and leave a stale rating behind.
-   */
   async updateRating(
     eventId: string,
     average: number,
@@ -218,15 +236,6 @@ export class EventRepository {
     });
   }
 
-  /**
-   * Take a seat, whether the user has never registered or is coming back from a
-   * cancellation. Both paths are the same act as far as capacity is concerned,
-   * so both run inside one transaction that ends with a conditional counter
-   * claim; if no seat is left, the state change rolls back with it.
-   *
-   * `activated` is false when the registration was already occupying a seat,
-   * which makes a repeated enrollment a no-op rather than a second increment.
-   */
   activateRegistration(
     eventId: string,
     userId: string,
@@ -241,9 +250,6 @@ export class EventRepository {
           where: { eventId_userId: { eventId, userId } },
         });
         if (attending) return { registration: attending, activated: false };
-        // A unique violation here means a concurrent request won the race for
-        // this user's one allowed registration. Postgres has already aborted
-        // the transaction, so the only move left is to fail out of it.
         await tx.eventRegistration
           .create({
             data: {
@@ -268,10 +274,6 @@ export class EventRepository {
     });
   }
 
-  /**
-   * Release a seat exactly once. A second cancellation matches no attending row
-   * and reports `activated: false` rather than decrementing again.
-   */
   cancelRegistration(
     eventId: string,
     userId: string,
@@ -286,8 +288,6 @@ export class EventRepository {
       });
       if (!registration) return null;
       if (released.count === 0) return { registration, activated: false };
-      // The floor is not defensive decoration: it is what keeps a counter that
-      // drifted below its registration rows from going negative.
       await tx.$executeRaw`
         UPDATE "Event"
         SET "attendees" = GREATEST("attendees" - 1, 0)
@@ -296,11 +296,6 @@ export class EventRepository {
     });
   }
 
-  /**
-   * The capacity boundary. Postgres re-evaluates the predicate after taking the
-   * row lock, so concurrent claims queue behind each other and the one that
-   * finds the room full simply matches no row.
-   */
   private async claimSeat(tx: Prisma.TransactionClient, eventId: string) {
     const claimed = await tx.$executeRaw`
       UPDATE "Event"
@@ -311,8 +306,6 @@ export class EventRepository {
         AND "registrationEnabled" = true
         AND ("capacity" IS NULL OR "attendees" < "capacity")`;
     if (claimed === 1) return;
-    // Only the losing request pays for this read, and it buys the difference
-    // between "the room is full" and "the doors closed while you queued".
     const event = await tx.event.findUnique({
       where: { id: eventId },
       select: { status: true, registrationEnabled: true, deletedAt: true },
@@ -327,11 +320,6 @@ export class EventRepository {
     );
   }
 
-  /**
-   * Recompute `attendees` from the registration rows. Operators reach for this
-   * after a restore or an incident: the counter is a cache of the rows beneath
-   * it, and this is how it is made true again.
-   */
   async reconcileAttendeeCount(eventId: string) {
     const attending = await this.prisma.eventRegistration.count({
       where: { eventId, status: { in: [...ATTENDING_STATUSES] } },
@@ -634,50 +622,133 @@ export class EventRepository {
   }
 
   findRoadmapCandidates(query: RoadmapCandidateQuery) {
-    const subjects = query.subjects.filter((subject) => subject.trim());
-    return this.prisma.event.findMany({
-      where: {
-        deletedAt: null,
-        status: EventStatus.PUBLISHED,
-        startDate: { gte: new Date() },
-        ...(query.freeOnly ? { isFree: true } : {}),
-        ...(subjects.length
-          ? {
-              OR: subjects.flatMap((subject) => [
-                { title: { contains: subject, mode: "insensitive" as const } },
-                {
-                  description: {
-                    contains: subject,
-                    mode: "insensitive" as const,
-                  },
-                },
-                { topic: { contains: subject, mode: "insensitive" as const } },
-              ]),
-            }
-          : {}),
-      },
-      select: {
-        id: true,
-        pdu: true,
-        title: true,
-        topic: true,
-        isFree: true,
-        category: true,
-        startDate: true,
-        attendees: true,
-        description: true,
-        ratingCount: true,
-        specificTopic: true,
-        averageRating: true,
-      },
-      orderBy: [
-        { pdu: "desc" },
-        { averageRating: "desc" },
-        { attendees: "desc" },
-        { id: "asc" },
-      ],
-      take: query.take,
+    const subjects = trimmedTerms(query.subjects);
+    const freeOnly = query.freeOnly;
+    switch (query.tier) {
+      case "EXACT":
+        return this.exactTierEvents(subjects, freeOnly, query.take);
+      case "SIMILAR":
+        return this.similarTierEvents(
+          lowerTerms([...query.subjects, ...query.keywords]),
+          freeOnly,
+          query.take,
+        );
+      case "RELATED":
+        return this.relatedTierEvents(query.groupKeys, freeOnly, query.take);
+      case "BROAD":
+        return this.broadTierEvents(freeOnly, query.take);
+    }
+  }
+
+  private exactTierEvents(
+    subjects: readonly string[],
+    freeOnly: boolean,
+    take: number,
+  ) {
+    return this.prisma.$queryRaw<EventCandidateRow[]>`
+      SELECT
+        e."id", e."pdu", e."title", e."topic", e."isFree", e."category",
+        e."startDate", e."attendees", e."description", e."ratingCount",
+        e."specificTopic", e."averageRating", 1.0::float AS "matchScore"
+      FROM "Event" e
+      WHERE e."deletedAt" IS NULL
+        AND e."status" = ${EventStatus.PUBLISHED}::"EventStatus"
+        AND e."startDate" >= ${new Date()}
+        AND (${freeOnly} = false OR e."isFree" = true)
+        AND (
+          ${subjects.length === 0}
+          OR ${Prisma.join(
+            subjects.flatMap((subject) => [
+              Prisma.sql`e."title" ILIKE ${"%" + subject + "%"}`,
+              Prisma.sql`e."description" ILIKE ${"%" + subject + "%"}`,
+              Prisma.sql`e."topic" ILIKE ${"%" + subject + "%"}`,
+              Prisma.sql`roadmap_enum_text(e."category") ILIKE ${"%" + subject + "%"}`,
+            ]),
+            " OR ",
+          )}
+        )
+      ORDER BY e."pdu" DESC, e."averageRating" DESC, e."attendees" DESC, e."id" ASC
+      LIMIT ${take};
+    `;
+  }
+
+  private async similarTierEvents(
+    terms: readonly string[],
+    freeOnly: boolean,
+    take: number,
+  ) {
+    if (terms.length === 0) return this.exactTierEvents([], freeOnly, take);
+    return this.prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SET LOCAL pg_trgm.word_similarity_threshold = ${WORD_SIMILARITY_THRESHOLD}`;
+      return tx.$queryRaw<EventCandidateRow[]>`
+        SELECT
+          e."id", e."pdu", e."title", e."topic", e."isFree", e."category",
+          e."startDate", e."attendees", e."description", e."ratingCount",
+          e."specificTopic", e."averageRating",
+          GREATEST(${Prisma.join(
+            terms.map(
+              (term) =>
+                Prisma.sql`word_similarity(${term}, lower(e."title" || ' ' || roadmap_enum_text(e."category")))`,
+            ),
+            ", ",
+          )}) AS "matchScore"
+        FROM "Event" e
+        WHERE e."deletedAt" IS NULL
+          AND e."status" = ${EventStatus.PUBLISHED}::"EventStatus"
+          AND e."startDate" >= ${new Date()}
+          AND (${freeOnly} = false OR e."isFree" = true)
+          AND (${Prisma.join(
+            terms.map(
+              (term) =>
+                Prisma.sql`lower(e."title" || ' ' || roadmap_enum_text(e."category")) %> ${term}`,
+            ),
+            " OR ",
+          )})
+        ORDER BY "matchScore" DESC, e."pdu" DESC, e."averageRating" DESC, e."attendees" DESC, e."id" ASC
+        LIMIT ${take};
+      `;
     });
+  }
+
+  private relatedTierEvents(
+    groupKeys: readonly string[],
+    freeOnly: boolean,
+    take: number,
+  ) {
+    const categories = groupKeys.filter((key) =>
+      VALID_EVENT_CATEGORIES.has(key),
+    );
+    if (categories.length === 0) return Promise.resolve([]);
+    return this.prisma.$queryRaw<EventCandidateRow[]>`
+      SELECT
+        e."id", e."pdu", e."title", e."topic", e."isFree", e."category",
+        e."startDate", e."attendees", e."description", e."ratingCount",
+        e."specificTopic", e."averageRating", 0.4::float AS "matchScore"
+      FROM "Event" e
+      WHERE e."deletedAt" IS NULL
+        AND e."status" = ${EventStatus.PUBLISHED}::"EventStatus"
+        AND e."startDate" >= ${new Date()}
+        AND (${freeOnly} = false OR e."isFree" = true)
+        AND e."category" = ANY(${categories}::"EventCategory"[])
+      ORDER BY e."pdu" DESC, e."averageRating" DESC, e."attendees" DESC, e."id" ASC
+      LIMIT ${take};
+    `;
+  }
+
+  private broadTierEvents(freeOnly: boolean, take: number) {
+    return this.prisma.$queryRaw<EventCandidateRow[]>`
+      SELECT
+        e."id", e."pdu", e."title", e."topic", e."isFree", e."category",
+        e."startDate", e."attendees", e."description", e."ratingCount",
+        e."specificTopic", e."averageRating", 0.2::float AS "matchScore"
+      FROM "Event" e
+      WHERE e."deletedAt" IS NULL
+        AND e."status" = ${EventStatus.PUBLISHED}::"EventStatus"
+        AND e."startDate" >= ${new Date()}
+        AND (${freeOnly} = false OR e."isFree" = true)
+      ORDER BY e."pdu" DESC, e."averageRating" DESC, e."attendees" DESC, e."id" ASC
+      LIMIT ${take};
+    `;
   }
 }
 

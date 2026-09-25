@@ -161,6 +161,7 @@ fragment AssociationMyRequirementDetailFields on AssociationMyRequirementDetail 
     name
     requiredCredits
     completedCredits
+    mappedCategory
     percent
   }
   activities {
@@ -184,6 +185,7 @@ fragment AssociationMyRequirementDetailFields on AssociationMyRequirementDetail 
     isExternal
     isAvailable
     isCompleted
+    isLinkedToRequirement
     contentType
     contentId
     slug
@@ -194,6 +196,26 @@ fragment AssociationMyRequirementDetailFields on AssociationMyRequirementDetail 
   }
 }
 
+fragment AssociationMyLearningContentFields on AssociationMyRequirementContent {
+  id
+  title
+  provider
+  imageUrl
+  isExternal
+  isAvailable
+  isCompleted
+  isLinkedToRequirement
+  associationId
+  associationName
+  contentType
+  contentId
+  slug
+  externalUrl
+  description
+  category
+  indicativeCredits
+}
+
 query CertificationSearch($input: CertificationSearchInput!) {
   certificationSearch(input: $input) {
     ...CertificationFields
@@ -202,6 +224,12 @@ query CertificationSearch($input: CertificationSearchInput!) {
 
 query MyCpdPlans {
   myCpdPlans {
+    ...CpdPlanFields
+  }
+}
+
+query MyDraftCpdPlans {
+  myDraftCpdPlans {
     ...CpdPlanFields
   }
 }
@@ -242,6 +270,25 @@ query MyAssociationRequirement($requirementId: ID!) {
   }
 }
 
+query MyAssociationLearningContent {
+  myAssociationLearningContent {
+    ...AssociationMyLearningContentFields
+  }
+}
+
+fragment AssociationContentEndorsementFields on AssociationContentEndorsement {
+  requirementId
+  associationName
+  learningContentId
+  isDefaultRequirement
+}
+
+query MyContentEndorsement($contentType: ContentType!, $contentId: ID!) {
+  myContentEndorsement(contentType: $contentType, contentId: $contentId) {
+    ...AssociationContentEndorsementFields
+  }
+}
+
 mutation CreateCpdPlan($input: CreateCpdPlanInput!) {
   createCpdPlan(input: $input) {
     ...CpdPlanFields
@@ -252,6 +299,12 @@ mutation CreateCpdPlanFromSuggestion(
   $input: CreateCpdPlanFromSuggestionInput!
 ) {
   createCpdPlanFromSuggestion(input: $input) {
+    ...CpdPlanFields
+  }
+}
+
+mutation ActivateCpdPlan($planId: ID!) {
+  activateCpdPlan(planId: $planId) {
     ...CpdPlanFields
   }
 }

@@ -8,6 +8,7 @@ const optionalText = (max: number) =>
 export const markCompletedSchema = z.object({
   title: z.string().trim().min(3, "Activity title is required").max(200),
   activityType: z.nativeEnum(PduSource),
+  requirement: optionalText(140),
   providerOrganizer: z
     .string()
     .trim()

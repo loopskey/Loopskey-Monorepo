@@ -417,9 +417,13 @@ export type AssociationCatalogItem = {
   __typename?: 'AssociationCatalogItem';
   contentId: Scalars['ID']['output'];
   contentType: ContentType;
+  durationMinutes?: Maybe<Scalars['Int']['output']>;
   imageUrl?: Maybe<Scalars['String']['output']>;
+  indicativeCredits?: Maybe<Scalars['Float']['output']>;
   isAvailable: Scalars['Boolean']['output'];
+  level?: Maybe<Scalars['String']['output']>;
   provider?: Maybe<Scalars['String']['output']>;
+  slug?: Maybe<Scalars['String']['output']>;
   title: Scalars['String']['output'];
 };
 
@@ -444,6 +448,7 @@ export type AssociationCategoryProgress = {
   __typename?: 'AssociationCategoryProgress';
   completedCredits: Scalars['Float']['output'];
   id: Scalars['ID']['output'];
+  mappedCategory: PduCategory;
   name: Scalars['String']['output'];
   percent: Scalars['Float']['output'];
   requiredCredits: Scalars['Float']['output'];
@@ -510,6 +515,14 @@ export type AssociationComplianceTrendPoint = {
   renewalReady: Scalars['Int']['output'];
   renewalReadyShare: Scalars['Float']['output'];
   totalMembers: Scalars['Int']['output'];
+};
+
+export type AssociationContentEndorsement = {
+  __typename?: 'AssociationContentEndorsement';
+  associationName: Scalars['String']['output'];
+  isDefaultRequirement: Scalars['Boolean']['output'];
+  learningContentId: Scalars['ID']['output'];
+  requirementId: Scalars['ID']['output'];
 };
 
 export type AssociationCumulativePoint = {
@@ -633,6 +646,7 @@ export type AssociationLearningContent = {
   createdAt: Scalars['DateTime']['output'];
   description?: Maybe<Scalars['String']['output']>;
   engagement?: Maybe<AssociationLearningEngagement>;
+  externalContentType?: Maybe<AssociationLearningExternalType>;
   externalUrl?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   imageUrl?: Maybe<Scalars['String']['output']>;
@@ -685,6 +699,17 @@ export type AssociationLearningEngagement = {
   memberCount: Scalars['Int']['output'];
 };
 
+/** The kind of content an external (non-catalogue) library item is, chosen by the association */
+export enum AssociationLearningExternalType {
+  Article = 'ARTICLE',
+  Course = 'COURSE',
+  Event = 'EVENT',
+  Other = 'OTHER',
+  Podcast = 'PODCAST',
+  Video = 'VIDEO',
+  Webinar = 'WEBINAR'
+}
+
 export type AssociationMember = {
   __typename?: 'AssociationMember';
   activatedAt?: Maybe<Scalars['DateTime']['output']>;
@@ -728,6 +753,7 @@ export type AssociationMemberActivity = {
 };
 
 export type AssociationMemberActivityFilterInput = {
+  requirementId?: InputMaybe<Scalars['ID']['input']>;
   state?: InputMaybe<AssociationAttributionState>;
 };
 
@@ -750,6 +776,19 @@ export type AssociationMemberCompliance = {
   assignments: Array<AssociationAssignmentProgress>;
   isMissingEvidence: Scalars['Boolean']['output'];
   memberId: Scalars['ID']['output'];
+};
+
+export type AssociationMemberContentCompletion = {
+  __typename?: 'AssociationMemberContentCompletion';
+  activityDate: Scalars['DateTime']['output'];
+  activityId: Scalars['ID']['output'];
+  contentType?: Maybe<ContentType>;
+  credits: Scalars['Float']['output'];
+  id: Scalars['ID']['output'];
+  indicativeCredits?: Maybe<Scalars['Float']['output']>;
+  isExternal: Scalars['Boolean']['output'];
+  provider?: Maybe<Scalars['String']['output']>;
+  title: Scalars['String']['output'];
 };
 
 export type AssociationMemberDistribution = {
@@ -800,6 +839,7 @@ export type AssociationMemberProfile = {
   lastNotifiedAt?: Maybe<Scalars['DateTime']['output']>;
   member: AssociationMember;
   summary: AssociationMemberSummary;
+  unlinkedLearningContent: Array<AssociationMemberContentCompletion>;
 };
 
 export type AssociationMemberProgressRow = {
@@ -818,6 +858,14 @@ export type AssociationMemberProgressRow = {
   memberNumber?: Maybe<Scalars['String']['output']>;
   percent: Scalars['Float']['output'];
   requiredCredits: Scalars['Float']['output'];
+};
+
+export type AssociationMemberRequirementEvidence = {
+  __typename?: 'AssociationMemberRequirementEvidence';
+  activities: PaginatedAssociationMemberActivities;
+  certificateEvidence: Array<AssociationMemberActivity>;
+  contentCompletions: Array<AssociationMemberContentCompletion>;
+  requirementId: Scalars['ID']['output'];
 };
 
 export type AssociationMemberRequirementOption = {
@@ -1001,6 +1049,8 @@ export type AssociationMyRequirementActivity = {
 
 export type AssociationMyRequirementContent = {
   __typename?: 'AssociationMyRequirementContent';
+  associationId: Scalars['ID']['output'];
+  associationName: Scalars['String']['output'];
   category?: Maybe<PduCategory>;
   contentId?: Maybe<Scalars['ID']['output']>;
   contentType?: Maybe<ContentType>;
@@ -1012,6 +1062,7 @@ export type AssociationMyRequirementContent = {
   isAvailable: Scalars['Boolean']['output'];
   isCompleted: Scalars['Boolean']['output'];
   isExternal: Scalars['Boolean']['output'];
+  isLinkedToRequirement: Scalars['Boolean']['output'];
   provider?: Maybe<Scalars['String']['output']>;
   slug?: Maybe<Scalars['String']['output']>;
   title: Scalars['String']['output'];
@@ -1828,13 +1879,16 @@ export type CreateAssociationGroupInput = {
 };
 
 export type CreateAssociationLearningContentInput = {
+  category?: InputMaybe<PduCategory>;
   contentId?: InputMaybe<Scalars['ID']['input']>;
   contentType?: InputMaybe<ContentType>;
   description?: InputMaybe<Scalars['String']['input']>;
+  externalContentType?: InputMaybe<AssociationLearningExternalType>;
   externalProvider?: InputMaybe<Scalars['String']['input']>;
   externalTitle?: InputMaybe<Scalars['String']['input']>;
   externalUrl?: InputMaybe<Scalars['String']['input']>;
   indicativeCredits?: InputMaybe<Scalars['Float']['input']>;
+  requirementId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 export type CreateAssociationRequirementDraftInput = {
@@ -2575,6 +2629,7 @@ export type LoginInput = {
 export type Mutation = {
   __typename?: 'Mutation';
   activateAssociationAccount: AuthPayload;
+  activateCpdPlan: CpdPlan;
   activateIngestionSource: IngestionSource;
   activateOrganizationAccount: AuthPayload;
   addOrganizationMember: OrganizationMember;
@@ -2746,6 +2801,11 @@ export type Mutation = {
 
 export type MutationActivateAssociationAccountArgs = {
   input: ActivateAssociationAccountInput;
+};
+
+
+export type MutationActivateCpdPlanArgs = {
+  planId: Scalars['ID']['input'];
 };
 
 
@@ -3192,6 +3252,11 @@ export type MutationResendOrganizationActivationArgs = {
 
 export type MutationResetPasswordArgs = {
   input: ResetPasswordInput;
+};
+
+
+export type MutationResetRoadmapDraftArgs = {
+  draftId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 
@@ -4899,12 +4964,14 @@ export type ProfessionalRoadmap = {
   completedSteps: Scalars['Int']['output'];
   coverageNote?: Maybe<Scalars['String']['output']>;
   description: Scalars['String']['output'];
+  draftId?: Maybe<Scalars['ID']['output']>;
   earnedCredits: Scalars['Float']['output'];
   enrolledAt: Scalars['DateTime']['output'];
   estimatedWeeks?: Maybe<Scalars['Int']['output']>;
   id: Scalars['ID']['output'];
   imageUrl?: Maybe<Scalars['String']['output']>;
   level: CourseLevel;
+  matchTier?: Maybe<RoadmapMatchTier>;
   nextMilestoneProgress: Scalars['Int']['output'];
   nextPhaseTitle?: Maybe<Scalars['String']['output']>;
   phases: Array<ProfessionalRoadmapPhase>;
@@ -4934,6 +5001,7 @@ export type ProfessionalRoadmapDraft = {
   cpdEnabled: Scalars['Boolean']['output'];
   cpdPlan?: Maybe<CpdPlan>;
   currentStep: RoadmapDraftStep;
+  failure?: Maybe<RoadmapGenerationFailure>;
   failureReason?: Maybe<Scalars['String']['output']>;
   goal?: Maybe<Scalars['String']['output']>;
   goalReason?: Maybe<Scalars['String']['output']>;
@@ -4957,6 +5025,15 @@ export type ProfessionalRoadmapDraft = {
   updatedAt: Scalars['DateTime']['output'];
   wasRefused: Scalars['Boolean']['output'];
   widget?: Maybe<RoadmapWidget>;
+};
+
+export type ProfessionalRoadmapGeneration = {
+  __typename?: 'ProfessionalRoadmapGeneration';
+  failure?: Maybe<RoadmapGenerationFailure>;
+  goal?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  status: RoadmapDraftStatus;
+  updatedAt: Scalars['DateTime']['output'];
 };
 
 export type ProfessionalRoadmapPhase = {
@@ -4993,6 +5070,7 @@ export type ProfessionalRoadmapStep = {
   description?: Maybe<Scalars['String']['output']>;
   estimatedMinutes?: Maybe<Scalars['Int']['output']>;
   id: Scalars['ID']['output'];
+  isCloseMatch: Scalars['Boolean']['output'];
   order: Scalars['Int']['output'];
   status?: Maybe<RoadmapStepProgressStatus>;
   title: Scalars['String']['output'];
@@ -5294,6 +5372,7 @@ export type Query = {
   associationMemberEmailLookup: AssociationMemberEmailLookup;
   associationMemberProfile: AssociationMemberProfile;
   associationMemberProgressReport: PaginatedAssociationMemberProgress;
+  associationMemberRequirementEvidence: AssociationMemberRequirementEvidence;
   associationMemberRequirementOptions: Array<AssociationMemberRequirementOption>;
   associationMemberStats: AssociationMemberStats;
   associationMembers: PaginatedAssociationMembers;
@@ -5337,11 +5416,14 @@ export type Query = {
   ingestionSources: PaginatedIngestionSources;
   linkedinOAuthUrl: AuthUrl;
   me: User;
+  myAssociationLearningContent: Array<AssociationMyRequirementContent>;
   myAssociationRequirement: AssociationMyRequirementDetail;
   myAssociationRequirements: Array<AssociationMyRequirement>;
   myCalendarEntries: Array<ProfessionalManualCalendarEvent>;
   myCart?: Maybe<Cart>;
+  myContentEndorsement?: Maybe<AssociationContentEndorsement>;
   myCpdPlans: Array<CpdPlan>;
+  myDraftCpdPlans: Array<CpdPlan>;
   myEnrollments: Array<ContentEnrollment>;
   myExternalLearningActivities: PaginatedExternalLearning;
   myProviderCourses: PaginatedCourses;
@@ -5393,6 +5475,7 @@ export type Query = {
   professionalPduReport: ProfessionalPduReport;
   professionalProfileTaxonomy: Array<ProfessionalTaxonomyGroup>;
   professionalRoadmapDraft?: Maybe<ProfessionalRoadmapDraft>;
+  professionalRoadmapGeneration?: Maybe<ProfessionalRoadmapGeneration>;
   professionalRoadmapRecommendations: Array<RoadmapRecommendation>;
   professionalRoadmapStats: ProfessionalRoadmapStats;
   professionalSettings: ProfessionalSettings;
@@ -5403,6 +5486,7 @@ export type Query = {
   providerOverview: ProviderOverview;
   providerPromotionRequests: PaginatedPromotionRequests;
   providerSettings: ProviderSettings;
+  roadmapSuggestionOptions: Array<RoadmapWidgetOption>;
   upcomingEvents: Array<Event>;
   userById: User;
   users: PaginatedUsers;
@@ -5595,6 +5679,14 @@ export type QueryAssociationMemberProgressReportArgs = {
   associationId?: InputMaybe<Scalars['ID']['input']>;
   filter?: InputMaybe<AssociationReportFilterInput>;
   pagination?: InputMaybe<AssociationReportPaginationInput>;
+};
+
+
+export type QueryAssociationMemberRequirementEvidenceArgs = {
+  associationId?: InputMaybe<Scalars['ID']['input']>;
+  memberId: Scalars['ID']['input'];
+  pagination?: InputMaybe<AssociationPaginationInput>;
+  requirementId: Scalars['ID']['input'];
 };
 
 
@@ -5828,6 +5920,12 @@ export type QueryMyAssociationRequirementArgs = {
 };
 
 
+export type QueryMyContentEndorsementArgs = {
+  contentId: Scalars['ID']['input'];
+  contentType: ContentType;
+};
+
+
 export type QueryMyExternalLearningActivitiesArgs = {
   filter?: InputMaybe<ExternalLearningFilterInput>;
   pagination?: InputMaybe<OrganizationPaginationInput>;
@@ -6040,6 +6138,11 @@ export type QueryProfessionalRoadmapDraftArgs = {
 };
 
 
+export type QueryProfessionalRoadmapGenerationArgs = {
+  draftId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
 export type QueryProfessionalRoadmapRecommendationsArgs = {
   enrollmentId?: InputMaybe<Scalars['ID']['input']>;
 };
@@ -6075,6 +6178,11 @@ export type QueryProviderOverviewArgs = {
 export type QueryProviderPromotionRequestsArgs = {
   filter?: InputMaybe<ProviderPromotionFilterInput>;
   pagination?: InputMaybe<ProviderDashboardPaginationInput>;
+};
+
+
+export type QueryRoadmapSuggestionOptionsArgs = {
+  input: RoadmapSuggestionOptionsInput;
 };
 
 
@@ -6202,6 +6310,7 @@ export enum RoadmapDraftFieldKey {
   Goal = 'GOAL',
   GoalReason = 'GOAL_REASON',
   PreferredContentTypes = 'PREFERRED_CONTENT_TYPES',
+  PreferredDeliveryFormats = 'PREFERRED_DELIVERY_FORMATS',
   PreferredFormats = 'PREFERRED_FORMATS',
   SkillLevel = 'SKILL_LEVEL',
   Subjects = 'SUBJECTS',
@@ -6234,6 +6343,34 @@ export enum RoadmapEnrollmentStatus {
   Active = 'ACTIVE',
   Completed = 'COMPLETED',
   Unenrolled = 'UNENROLLED'
+}
+
+export type RoadmapGenerationFailure = {
+  __typename?: 'RoadmapGenerationFailure';
+  code: RoadmapGenerationFailureCode;
+  recoveryActions: Array<RoadmapGenerationRecoveryAction>;
+};
+
+export enum RoadmapGenerationFailureCode {
+  InvalidGeneratedRoadmap = 'INVALID_GENERATED_ROADMAP',
+  NoMatchingContent = 'NO_MATCHING_CONTENT',
+  TemporaryServiceFailure = 'TEMPORARY_SERVICE_FAILURE',
+  Unknown = 'UNKNOWN'
+}
+
+export enum RoadmapGenerationRecoveryAction {
+  Retry = 'RETRY',
+  ReviewBudget = 'REVIEW_BUDGET',
+  ReviewFormats = 'REVIEW_FORMATS',
+  ReviewSubjects = 'REVIEW_SUBJECTS',
+  StartOver = 'START_OVER'
+}
+
+export enum RoadmapMatchTier {
+  Broad = 'BROAD',
+  Exact = 'EXACT',
+  Related = 'RELATED',
+  Similar = 'SIMILAR'
 }
 
 export type RoadmapRecommendation = {
@@ -6283,6 +6420,12 @@ export type RoadmapSubjectOption = {
   label: Scalars['String']['output'];
 };
 
+export type RoadmapSuggestionOptionsInput = {
+  draftId: Scalars['ID']['input'];
+  field: RoadmapDraftFieldKey;
+  search?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type RoadmapWidget = {
   __typename?: 'RoadmapWidget';
   field: RoadmapDraftFieldKey;
@@ -6301,6 +6444,7 @@ export enum RoadmapWidgetKind {
 
 export type RoadmapWidgetOption = {
   __typename?: 'RoadmapWidgetOption';
+  groupLabel?: Maybe<Scalars['String']['output']>;
   label: Scalars['String']['output'];
   value: Scalars['String']['output'];
 };
@@ -6459,14 +6603,17 @@ export type UpdateAssociationGroupInput = {
 };
 
 export type UpdateAssociationLearningContentInput = {
+  category?: InputMaybe<PduCategory>;
   contentId?: InputMaybe<Scalars['ID']['input']>;
   contentType?: InputMaybe<ContentType>;
   description?: InputMaybe<Scalars['String']['input']>;
+  externalContentType?: InputMaybe<AssociationLearningExternalType>;
   externalProvider?: InputMaybe<Scalars['String']['input']>;
   externalTitle?: InputMaybe<Scalars['String']['input']>;
   externalUrl?: InputMaybe<Scalars['String']['input']>;
   indicativeCredits?: InputMaybe<Scalars['Float']['input']>;
   learningContentId: Scalars['ID']['input'];
+  requirementId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 export type UpdateAssociationMemberInput = {

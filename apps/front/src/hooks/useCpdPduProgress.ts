@@ -1,12 +1,12 @@
 "use client";
 
 import { useLazyProfessionalPduActivitiesQuery } from "@/lib/rtk/endpoints/professional.api";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { buildCpdSummaryCsv, downloadCsv } from "@/utils/cpd-summary";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CpdSetupState, TCpdPlan } from "@/types/cpd-plan.types";
 import { ProfessionalMessageCode } from "@loopskey/api-contracts/error-codes";
 import { CpdPlanFormValues } from "@/lib/validations/cpd-plan.schema";
-import { useMemo, useState } from "react";
 import { TCertification } from "@/types/cpd-plan.types";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
@@ -34,18 +34,43 @@ export const useCpdPduProgress = () => {
     isLoading: isPlansLoading,
     isFetching: isPlansFetching,
     refetch: refetchPlans,
-  } = API.useMyCpdPlansQuery();
+  } = API.useMyCpdPlansQuery(
+    undefined,
+    API.REQUIREMENT_QUERY_SUBSCRIPTION_OPTIONS,
+  );
 
   const {
     data: associationRequirements = [],
     isLoading: isAssociationsLoading,
     isError: isAssociationsError,
     refetch: refetchAssociations,
-  } = API.useMyAssociationRequirementsQuery();
-
-  const [selectedKey, setSelectedKey] = useState<string | null>(
-    searchParams?.get(R.REQUIREMENT_PARAM) ?? null,
+  } = API.useMyAssociationRequirementsQuery(
+    undefined,
+    API.REQUIREMENT_QUERY_SUBSCRIPTION_OPTIONS,
   );
+
+  const requirementUrlParam = searchParams?.get(R.REQUIREMENT_PARAM) ?? null;
+  const [selectedKey, setSelectedKeyState] = useState<string | null>(
+    requirementUrlParam,
+  );
+  const lastUrlParamRef = useRef(requirementUrlParam);
+
+  useEffect(() => {
+    if (lastUrlParamRef.current === requirementUrlParam) return;
+    lastUrlParamRef.current = requirementUrlParam;
+    setSelectedKeyState(requirementUrlParam);
+  }, [requirementUrlParam]);
+
+  const setSelectedKey = (key: string | null) => {
+    lastUrlParamRef.current = key;
+    setSelectedKeyState(key);
+    const params = new URLSearchParams(searchParams?.toString());
+    if (key) params.set(R.REQUIREMENT_PARAM, key);
+    else params.delete(R.REQUIREMENT_PARAM);
+    router.replace(`/dashboard/professional?${params.toString()}`, {
+      scroll: false,
+    });
+  };
   const [searchOpen, setSearchOpen] = useState(false);
   const [setup, setSetup] = useState<CpdSetupState | null>(null);
   const [pendingDuplicate, setPendingDuplicate] =
@@ -58,6 +83,14 @@ export const useCpdPduProgress = () => {
     () => R.buildRequirementOptions(associationRequirements, plans),
     [associationRequirements, plans],
   );
+
+  const hasRequirements = options.length > 0;
+
+  const { data: myLearningContent = [], isLoading: isMyLearningContentLoading } =
+    API.useMyAssociationLearningContentQuery(undefined, {
+      skip: isPlansLoading || isAssociationsLoading || hasRequirements,
+      ...API.REQUIREMENT_QUERY_SUBSCRIPTION_OPTIONS,
+    });
 
   const activeKey = R.resolveActiveKey(options, selectedKey);
   const active = R.parseRequirementKey(activeKey);
@@ -84,20 +117,30 @@ export const useCpdPduProgress = () => {
     isLoading: isProgressLoading,
   } = API.useCpdPlanProgressQuery(
     { planId: selectedPlanId ?? "" },
-    { skip: !selectedPlanId },
+    { skip: !selectedPlanId, ...API.REQUIREMENT_QUERY_SUBSCRIPTION_OPTIONS },
   );
 
   const { data: planActivities = [], isLoading: isPlanActivitiesLoading } =
     API.useCpdPlanActivitiesQuery(
       { planId: selectedPlanId ?? "" },
-      { skip: !selectedPlanId },
+      { skip: !selectedPlanId, ...API.REQUIREMENT_QUERY_SUBSCRIPTION_OPTIONS },
     );
 
   const { data: associationDetail, isLoading: isAssociationDetailLoading } =
     API.useMyAssociationRequirementQuery(
       { requirementId: selectedAssociationId ?? "" },
-      { skip: !selectedAssociationId },
+      {
+        skip: !selectedAssociationId,
+        ...API.REQUIREMENT_QUERY_SUBSCRIPTION_OPTIONS,
+      },
     );
+
+  const { data: draftPlans = [] } = API.useMyDraftCpdPlansQuery(
+    undefined,
+    API.REQUIREMENT_QUERY_SUBSCRIPTION_OPTIONS,
+  );
+  const [activatePlan, { isLoading: isActivatingPlan }] =
+    API.useActivateCpdPlanMutation();
 
   const [createFromSuggestion, { isLoading: isCreatingSuggestion }] =
     API.useCreateCpdPlanFromSuggestionMutation();
@@ -109,7 +152,6 @@ export const useCpdPduProgress = () => {
     API.useDeleteCpdPlanMutation();
   const [fetchActivities] = useLazyProfessionalPduActivitiesQuery();
 
-  const hasRequirements = options.length > 0;
   const isRequirementsLoading = isPlansLoading || isAssociationsLoading;
   const canGenerateSummary = Boolean(selectedPlan) && Boolean(progress);
 
@@ -148,6 +190,16 @@ export const useCpdPduProgress = () => {
   const addManually = (query: string) => {
     setSearchOpen(false);
     setSetup({ mode: "manual", initial: H.emptyCpdPlanForm(query.trim()) });
+  };
+
+  const trackDraftPlan = async (planId: string) => {
+    try {
+      const plan = await activatePlan(planId).unwrap();
+      selectPlan(plan.id);
+      notify.success(t("cpdProgress.toast.planCreated"));
+    } catch {
+      notify.error(t("cpdProgress.toast.createError"));
+    }
   };
 
   const editPlan = (plan: TCpdPlan) => {
@@ -236,6 +288,9 @@ export const useCpdPduProgress = () => {
     router.push(R.logActivityHref(activeKey, content.id));
   };
 
+  const markUnlinkedComplete = (content: { id: string }) =>
+    router.push(R.logContentActivityHref(content.id));
+
   const generateSummary = async () => {
     if (!selectedPlan || !progress || isGenerating) return;
     setIsGenerating(true);
@@ -271,6 +326,9 @@ export const useCpdPduProgress = () => {
     options,
     progress,
     activeKey,
+    draftPlans,
+    trackDraftPlan,
+    isActivatingPlan,
     openSearch,
     searchOpen,
     closeSearch,
@@ -280,6 +338,9 @@ export const useCpdPduProgress = () => {
     markComplete,
     selectedPlanId,
     hasRequirements,
+    myLearningContent,
+    isMyLearningContentLoading,
+    markUnlinkedComplete,
     associationDetail,
     setSelectedKey,
     isPlansLoading,

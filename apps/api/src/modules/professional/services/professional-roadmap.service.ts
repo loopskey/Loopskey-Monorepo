@@ -129,6 +129,8 @@ export class ProfessionalRoadmapService {
       estimatedWeeks: roadmap.estimatedWeeks,
       earnedCredits: earned,
       requiredCredits: context.requiredCredits,
+      draftId: item.draftId,
+      matchTier: roadmap.matchTier,
     };
   }
 

@@ -19,6 +19,10 @@
       "description": "Aucune association ne vous a attribué d’exigence et vous n’avez pas créé de plan personnel. Créez une exigence pour commencer à suivre vos crédits, catégories et preuves.",
       "cta": "Créer une exigence"
     },
+    "draftPlan": {
+      "prompt": "Vous avez configuré le suivi CPD pour {{certification}} dans le coach de parcours. Le suivre ici comme exigence ?",
+      "track": "Suivre dans les exigences"
+    },
     "search": {
       "title": "Configurer le suivi CPD / PDU",
       "description": "Recherchez votre certification pour que LoopsKey suggère vos exigences.",
@@ -292,12 +296,16 @@
         "external": "Externe",
         "loopskey": "Loopskey",
         "credits": "{{credits}} crédits",
-        "unavailable": "N’est plus disponible"
+        "unavailable": "N’est plus disponible",
+        "showAll": "Tout afficher ({{count}} de plus)",
+        "recommendedBy": "Recommandé par {{association}}",
+        "countsToward": "Compte pour cette exigence"
       },
       "activities": {
         "title": "Activités enregistrées",
         "subtitle": "Activités comptabilisées pour cette exigence et leur état.",
         "empty": "Aucune activité n’a encore été enregistrée pour cette exigence.",
+        "viewAll": "Tout afficher ({{count}})",
         "columns": {
           "activity": "Activité",
           "date": "Date",
@@ -320,6 +328,12 @@
       },
       "loadError": "Nous n’avons pas pu charger vos exigences.",
       "retry": "Réessayer"
+    },
+    "fromAssociation": {
+      "title": "De votre association",
+      "subtitle": "Contenu attribué par votre association, avant que vous n’ayez une exigence à laquelle le rattacher.",
+      "markComplete": "Enregistrer une activité",
+      "completed": "Terminé"
     }
   },
   "common": {
@@ -3011,7 +3025,20 @@
       "title": "Marquer comme terminé",
       "description": "Vérifiez les détails et enregistrez cette activité d'apprentissage comme terminée.",
       "alreadyCompleted": "Vous avez déjà marqué ce contenu comme terminé. L'enregistrement mettra à jour l'activité existante.",
-      "success": "Activité marquée comme terminée avec succès.",
+      "success": {
+        "saved": "Enregistré dans vos activités.",
+        "counted": "Comptabilisé pour {{name}}.",
+        "review": "Envoyé à {{association}} pour révision."
+      },
+      "evidenceRequired": "Joignez un fichier de certificat ou un lien avant d'enregistrer — cette exigence nécessite une preuve.",
+      "requirementHint": {
+        "suggested": "Suggéré car {{association}} recommande ce contenu.",
+        "default": "{{association}} recommande ce contenu. Nous avons choisi votre première exigence avec elle — vous pouvez la changer."
+      },
+      "noRequirements": {
+        "hint": "Vous n'avez pas encore d'exigence.",
+        "link": "Ajouter une exigence"
+      },
       "save": "Enregistrer comme terminé",
       "fields": {
         "title": "Titre de l'activité",
@@ -3029,7 +3056,10 @@
         "certificate": "Certificat / Preuve",
         "certificateHelp": "Téléversez un fichier de certificat jusqu'à 20 Mo (PDF, JPG, PNG, DOC, DOCX).",
         "certificateLink": "Lien du certificat",
-        "certificateLinkPlaceholder": "https://..."
+        "certificateLinkPlaceholder": "https://...",
+        "requirement": "Compte pour",
+        "requirementNone": "Aucune",
+        "evidencePolicy": "Preuve : {{policy}}"
       }
     },
     "messages": {
@@ -3691,7 +3721,7 @@
     },
     "overview": {
       "eyebrow": "Tableau de bord professionnel",
-      "title": "Bon retour, {name} ! 👋",
+      "title": "Bon retour, {{name}} ! 👋",
       "description": "Voici ce qui se passe aujourd’hui dans votre parcours d’apprentissage.",
       "viewCalendar": "Voir le calendrier",
       "browseCourses": "Explorer les cours",
@@ -3887,9 +3917,8 @@
       },
       "summary": {
         "completedTitle": "Activités terminées et enregistrées",
-        "completedHelper": "Activités terminées enregistrées dans LoopsKey (activités rejetées exclues).",
         "evidenceTitle": "Activités avec preuve",
-        "evidenceHelper": "{{files}} fichier(s) de preuve téléversé(s) au total."
+        "evidenceHelper": "{{files}} fichier(s)"
       },
       "cycleProgress": {
         "title": "Progression du cycle",
@@ -4094,6 +4123,7 @@
         "updateSuccess": "Activité mise à jour avec succès.",
         "successDescription": "Vos totaux et graphiques CPD/PDU ont été mis à jour.",
         "viewActivities": "Voir mes activités",
+        "backToRequirements": "Retour aux exigences",
         "addAnother": "Ajouter une autre activité",
         "cancelTitle": "Abandonner cette activité ?",
         "cancelDescription": "Vous avez des modifications non enregistrées. Quitter maintenant les supprimera.",
@@ -4214,15 +4244,11 @@
       },
       "summary": {
         "activeTitle": "Certificats actifs",
-        "activeHelper": "Valides pour plus de 90 jours.",
-        "viewActive": "Voir tous les actifs",
         "expiringTitle": "Expirent bientôt",
-        "expiringHelper": "Expirent dans les 90 prochains jours.",
-        "viewExpiring": "Voir ceux qui expirent",
-        "nearestExpiry": "Expiration la plus proche : {{date}}",
-        "noUpcomingExpiry": "Rien n'expire dans les 90 prochains jours.",
+        "nearestExpiry": "Prochaine {{date}}",
         "statusTitle": "Statut des certificats",
-        "viewAll": "Voir tous les certificats",
+        "showAll": "Tout afficher",
+        "statusLegendAria": "{{active}} actifs, {{expiringSoon}} expirent bientôt, {{expired}} expirés",
         "total": "Total"
       },
       "filters": {
@@ -4327,7 +4353,7 @@
       },
       "progressTitle": "Progression des cours",
       "progressDescription": "Reprenez là où vous vous êtes arrêté et suivez votre parcours.",
-      "courseFallback": "Cours #{id}",
+      "courseFallback": "Cours #{{id}}",
       "progress": "Progression",
       "continue": "Continuer",
       "review": "Revoir",
@@ -4340,13 +4366,27 @@
       "subtitle": "Suivez vos parcours structurés, mesurez la progression par phase et explorez de nouveaux axes de développement professionnel.",
       "newRoadmap": "Nouveau parcours",
       "continueRoadmap": "Continuer",
+      "viewFullRoadmap": "Voir le parcours complet",
+      "heroEyebrow": "Votre parcours IA actuel",
+      "journeyTimeline": "Chronologie du parcours",
+      "nextStepTag": "Suivant",
+      "hero": {
+        "phasesCount": "{{count}} phases",
+        "targetDateWithCount": "Objectif {{date}} ({{days}} jours restants)",
+        "continueStep": "Continuer : « {{step}} »",
+        "moreActions": "Plus d'actions",
+        "progressRingLabel": "{{progress}} % terminé",
+        "cpdStrip": "Objectif UDP {{earned}}/{{required}} UDP",
+        "thisWeek": "Cette semaine : {{count}} étapes terminées",
+        "streak": "Série de {{count}} jours"
+      },
       "enrolled": "Parcours suivis",
       "averageCompletion": "Progression moyenne",
       "completedPhases": "Phases terminées",
       "nextMilestone": "Prochain jalon",
       "notAvailable": "Non disponible",
       "overallProgress": "Progression globale",
-      "overallProgressDescription": "Basée sur {count} feuille(s) de route suivie(s).",
+      "overallProgressDescription": "Basée sur {{count}} feuille(s) de route suivie(s).",
       "averageProgressText": "Cette valeur représente votre progression moyenne sur l’ensemble de vos feuilles de route professionnelles actives et terminées.",
       "activitiesDone": "Activités terminées",
       "noCpdTargetTracked": "Aucune feuille de route ne suit encore de crédits CPD.",
@@ -4363,20 +4403,19 @@
       "emptyExploreDescription": "Aucune feuille de route publiée n’est disponible pour le moment, ou aucune ne correspond à votre recherche.",
       "phases": "phases",
       "steps": "étapes",
-      "next": "Suivant",
       "duration": "Durée",
-      "weeks": "{count} semaines",
+      "weeks": "{{count}} semaines",
       "enroll": "S’inscrire",
       "unenroll": "Se désinscrire",
       "progressSection": "Votre progression",
       "completedActivities": "Activités terminées",
-      "ofSteps": "{completed} sur {total} étapes",
+      "ofSteps": "{{completed}} sur {{total}} étapes",
       "targetDate": "Date cible",
-      "targetDateRemaining": "{days} jours restants",
+      "targetDateRemaining": "{{days}} jours restants",
       "targetDateToday": "À terminer aujourd'hui",
       "targetDatePassed": "Date cible dépassée",
       "noTargetDate": "Aucune date cible définie",
-      "creditsOf": "{earned} sur {required} crédits",
+      "creditsOf": "{{earned}} sur {{required}} crédits",
       "cpdTarget": "Objectif DPC",
       "cpdTargetComplete": "atteint",
       "creditsEarnedLabel": "Obtenus",
@@ -4385,9 +4424,15 @@
       "recommendedDescription": "Des contenus adaptés à votre objectif qui ne sont pas déjà dans votre parcours.",
       "phasedContent": "Votre parcours d’apprentissage",
       "phasedContentDescription": "Avancez dans l'ordre : chaque étape terminée fait progresser votre parcours.",
-      "weekRange": "Semaines {start} à {end}",
-      "pduValue": "{count} UDP",
+      "weekRange": "Semaines {{start}} à {{end}}",
+      "pduValue": "{{count}} UDP",
       "coverageNote": "À propos de ce parcours",
+      "closeMatchDisclosure": {
+        "title": "Ce parcours utilise des correspondances proches",
+        "description": "Nous n'avons pas trouvé de contenu correspondant exactement à vos sujets, ce parcours utilise donc le contenu le plus proche disponible. Affinez vos sujets pour l'améliorer.",
+        "action": "Revoir mes préférences"
+      },
+      "closeMatchTag": "Correspondance proche",
       "review": "Consulter",
       "start": "Commencer",
       "markComplete": "Marquer comme terminé",
@@ -4395,7 +4440,7 @@
       "inProgress": "En cours",
       "notStarted": "Non commencé",
       "stepFailed": "Cette modification n'a pas été enregistrée. Veuillez réessayer.",
-      "minutes": "{count} min",
+      "minutes": "{{count}} min",
       "free": "Gratuit",
       "generating": {
         "title": "Création de votre parcours",
@@ -4406,6 +4451,18 @@
         "title": "Nous n'avons pas pu terminer votre parcours",
         "description": "Rien n'a été enregistré. Vous pouvez modifier vos réponses et réessayer.",
         "action": "Retour au coach"
+      },
+      "noContent": {
+        "title": "Nous n'avons pas trouvé assez de contenus correspondants.",
+        "description": "Vos réponses sont enregistrées. Passez en revue vos sujets, formats ou budget et réessayez. Nous ne les élargirons pas sans votre accord.",
+        "action": "Revoir les préférences",
+        "startOver": "Recommencer"
+      },
+      "genericFailure": {
+        "title": "Votre parcours n'a pas pu être généré.",
+        "description": "Vos réponses sont enregistrées. Réessayez maintenant ou revoyez votre synthèse avant de générer.",
+        "action": "Réessayer la génération",
+        "reviewBrief": "Revoir la synthèse"
       }
     },
     "calendar": {
@@ -4551,7 +4608,7 @@
       "eyebrow": "Paramètres du fournisseur",
       "title": "Paramètres du fournisseur",
       "description": "Gérez le profil de votre organisation, vos préférences de notification et la sécurité de votre compte.",
-      "stepLabel": "Étape {step}",
+      "stepLabel": "Étape {{step}}",
       "steps": {
         "profile": {
           "title": "Profil de l’organisation",
@@ -5280,7 +5337,7 @@
         "live": "Nombre actuel de l’organisation",
         "average": "Taux moyen de conformité",
         "needAttention": "Membres nécessitant une attention",
-        "engagement": "{value}% d’engagement"
+        "engagement": "{{value}}% d’engagement"
       },
       "compliance": {
         "title": "Aperçu de la conformité",
@@ -5478,6 +5535,7 @@
         "memberNumber": "Numéro de membre / licence",
         "requirements": "Exigence CPD/PDU (sélectionnez tout ce qui s'applique)",
         "requirementsEmpty": "Aucune exigence publiée pour le moment.",
+        "autoAppliedNote": "{{count}} exigences s'appliquent automatiquement selon leur audience et ne sont pas listées ici.",
         "continue": "Continuer",
         "back": "Retour",
         "noAccountTitle": "Aucun compte existant trouvé",
@@ -5697,12 +5755,28 @@
         "chartEmptyTitle": "Aucune catégorie à représenter",
         "chartEmptyBody": "Aucune exigence assignée à ce membre ne répartit son total par catégorie.",
         "emptyTitle": "Rien n'est encore assigné",
-        "emptyBody": "Ce membre ne fait partie de l'audience d'aucune exigence publiée. Utilisez Assigner une exigence pour lui en assigner une."
+        "emptyBody": "Ce membre ne fait partie de l'audience d'aucune exigence publiée. Utilisez Assigner une exigence pour lui en assigner une.",
+        "evidence": {
+          "activitiesTitle": "Activités comptées pour cette exigence",
+          "emptyActivities": "Aucune activité n'a encore été enregistrée pour cette exigence.",
+          "contentTitle": "Contenu terminé pour cette exigence",
+          "emptyContent": "Ce membre n'a pas terminé de contenu lié à cette exigence.",
+          "credits": "{{credits}} crédits",
+          "certificateTitle": "Preuves de certification",
+          "emptyCertificates": "Aucun fichier de preuve ni activité de type certification n'est attribué à cette exigence."
+        },
+        "unlinked": {
+          "title": "Non lié à une exigence",
+          "subtitle": "Contenu attribué par cette association que ce membre a terminé, sans exigence à laquelle le rattacher.",
+          "notLinked": "Non lié à une exigence"
+        }
       },
       "activities": {
         "title": "Activités de formation",
         "description": "Ce que ce membre a enregistré et qui compte pour vos exigences. Rien d'autre de ce qu'il a consigné n'apparaît ici.",
         "filterLabel": "État d'examen",
+        "requirementFilterLabel": "Exigence",
+        "filterAllRequirements": "Toutes les exigences",
         "filterAll": "Tous les états",
         "counts": "{{counted}} approuvées, {{awaiting}} en cours d'examen, {{rejected}} refusées",
         "meta": "{{source}} · {{category}} · {{credits}} crédits · {{date}}",
@@ -6114,8 +6188,8 @@
       "title": "Contenu de formation",
       "description": "Les formations que vous recommandez à vos membres. Une exigence dit combien de crédits ils doivent ; ceci dit où les obtenir.",
       "actions": {
-        "addCatalogue": "Recommander depuis le catalogue",
-        "addExternal": "Ajouter une ressource externe",
+        "addContent": "Ajouter du contenu",
+        "assignContent": "Affecter du contenu",
         "view": "Voir le détail",
         "edit": "Modifier",
         "publish": "Publier",
@@ -6161,23 +6235,42 @@
         "noResultsBody": "Effacez les filtres pour voir toute la bibliothèque."
       },
       "editor": {
-        "addCatalogueTitle": "Recommander depuis le catalogue",
-        "addExternalTitle": "Ajouter une ressource externe",
+        "addTitle": "Ajouter du contenu",
         "editTitle": "Modifier l'élément",
-        "catalogueDescription": "Choisissez un contenu publié sur la plateforme. Son titre, son image et son fournisseur restent alignés sur le catalogue plutôt que d'être recopiés ici.",
-        "externalDescription": "N'importe quoi sur le web ouvert. Les membres l'ouvrent dans un nouvel onglet ; le lien n'est jamais appelé par la plateforme.",
-        "pickContent": "Contenu",
-        "searchPlaceholder": "Rechercher dans le catalogue",
+        "step1Title": "Quel est le contenu ?",
+        "step1Subtitle": "Trouvez-le dans la bibliothèque Loopskey, ou saisissez le vôtre.",
+        "libraryTitle": "Trouvez-le dans la bibliothèque Loopskey",
+        "librarySubtitle": "Recherchez dans le catalogue partagé et nous remplirons les détails pour vous.",
+        "notInLibraryTitle": "Pas dans la bibliothèque ?",
+        "notInLibraryBody": "Saisissez vous-même le titre, le type et le fournisseur. Cela prend environ une minute.",
+        "enterManually": "Saisir les détails manuellement",
+        "searchInstead": "Rechercher dans la bibliothèque à la place",
+        "change": "Changer",
+        "details": "Détails",
+        "useThis": "Utiliser celui-ci",
+        "manualTitle": "Saisir les détails manuellement",
+        "searchPlaceholder": "Rechercher des cours, événements, podcasts, vidéos…",
         "contentType": "Type de contenu",
         "allTypes": "Tous les types",
-        "noResults": "Aucun contenu du catalogue ne correspond à cette recherche.",
+        "noResults": "Aucun résultat. Saisissez les détails manuellement.",
         "pickOne": "Choisissez un contenu à recommander.",
+        "pickType": "Choisissez un type de contenu.",
         "title": "Titre",
         "provider": "Fournisseur",
         "url": "Lien",
+        "urlInvalid": "Saisissez un lien commençant par https://",
         "credits": "Crédits indicatifs",
+        "creditsShort": "{{credits}} h CPD",
+        "category": "Catégorie CPD",
+        "countsToward": "Compte pour l'exigence",
+        "countsTowardHint": "Facultatif. Un membre enregistrant une activité liée à ce contenu voit cette exigence présélectionnée.",
+        "noRequirementOption": "Aucune",
         "description": "Pourquoi vous le recommandez",
         "cpdAdvisory": "Cette valeur de crédit est purement indicative. Un membre ne gagne un crédit qu'en enregistrant une activité correspondante et, si nécessaire, après validation des preuves.",
+        "detailsSheet": {
+          "credits": "{{credits}} h CPD",
+          "viewPublic": "Voir la page publique"
+        },
         "unsavedTitle": "Abandonner vos modifications ?",
         "unsavedBody": "Vous avez saisi des informations qui n'ont pas été enregistrées. Fermer maintenant les abandonnera.",
         "unsavedKeep": "Continuer la modification",
@@ -6218,9 +6311,21 @@
         "contentPending": "Aucun contenu sélectionné pour le moment",
         "credits": "Crédits indicatifs",
         "noCredits": "Non précisé",
+        "category": "Catégorie CPD",
+        "noCategory": "Sans catégorie",
+        "requirement": "Compte pour",
+        "noRequirement": "Aucune exigence",
         "audience": "Audience",
         "saveDraft": "Enregistrer comme brouillon",
         "publish": "Publier"
+      },
+      "assignPage": {
+        "title": "Affecter du contenu",
+        "subtitle": "Affectez du contenu que vous avez déjà ajouté à des membres, ou à une exigence.",
+        "selectTitle": "Sélectionner le contenu ({{count}} sélectionné(s))",
+        "empty": "Vous n'avez pas encore ajouté de contenu.",
+        "audienceTitle": "Qui le voit",
+        "apply": "Affecter ({{count}})"
       },
       "detail": {
         "title": "Élément de la bibliothèque",
@@ -6265,7 +6370,8 @@
         "saved": "Élément enregistré.",
         "published": "Publié auprès de vos membres.",
         "withdrawn": "Retiré. L'élément reste dans votre bibliothèque.",
-        "deleted": "Brouillon supprimé."
+        "deleted": "Brouillon supprimé.",
+        "assigned": "{{count}} éléments affectés."
       },
       "error": {
         "title": "La bibliothèque n'a pas pu être chargée.",
@@ -6786,19 +6892,19 @@
         "activationNote": "Le lien d'activation expire ; vous pouvez le renvoyer depuis ce tableau tant que le compte est en attente.",
         "submit": "Créer le compte",
         "sentTitle": "Compte créé",
-        "sentBody": "{name} a été créée et l'e-mail d'activation part vers le représentant.",
+        "sentBody": "{{name}} a été créée et l'e-mail d'activation part vers le représentant.",
         "notSentTitle": "Compte créé, e-mail non envoyé",
-        "notSentBody": "{name} a été créée, mais l'e-mail d'activation n'a pas pu être mis en file. Renvoyez-le depuis le tableau.",
+        "notSentBody": "{{name}} a été créée, mais l'e-mail d'activation n'a pas pu être mis en file. Renvoyez-le depuis le tableau.",
         "createAnother": "Créer une autre",
         "done": "Terminé"
       },
       "resend": {
         "title": "Renvoyer l'e-mail d'activation ?",
-        "description": "Un nouveau lien d'activation est envoyé au représentant de {name}, et le lien précédent cesse de fonctionner.",
+        "description": "Un nouveau lien d'activation est envoyé au représentant de {{name}}, et le lien précédent cesse de fonctionner.",
         "confirm": "Renvoyer"
       },
       "messages": {
-        "activationResent": "Un nouvel e-mail d'activation a été mis en file pour {name}.",
+        "activationResent": "Un nouvel e-mail d'activation a été mis en file pour {{name}}.",
         "accountDeleted": "Le compte de {{name}} a été supprimé définitivement."
       },
       "errors": {
@@ -7400,19 +7506,11 @@
     "startOverConfirmTitle": "Recommencer ?",
     "startOverConfirmDescription": "Cela supprime tout ce que vous avez répondu jusqu'ici et démarre une nouvelle conversation avec le coach.",
     "startOverFailed": "Impossible de recommencer. Veuillez réessayer.",
-    "preferencesWizard": {
-      "stepOf": "Étape {{current}} sur {{total}}",
-      "back": "Retour",
-      "confirm": "Confirmer",
-      "maxSelected": "Jusqu'à {{max}} sélectionnés",
-      "questions": {
-        "skillLevel": "Quel est votre niveau d'expérience actuel ?",
-        "subjects": "Sur quels sujets le parcours doit-il se concentrer ? Choisissez-en jusqu'à 3.",
-        "preferredFormats": "Avec quel type de contenu apprenez-vous le mieux ?",
-        "timeCommitment": "Combien de temps pouvez-vous y consacrer chaque semaine ?",
-        "preferredDeliveryFormats": "Comment préférez-vous suivre ce parcours ?",
-        "budgetPreference": "Quel est votre budget d'apprentissage ?"
-      }
+    "briefButtonMobile": "Résumé · {{completed}}/{{required}}",
+    "saveState": {
+      "saving": "Enregistrement…",
+      "saved": "Enregistré",
+      "error": "Échec de l'enregistrement"
     },
     "transcriptLabel": "Conversation avec le coach de parcours",
     "thinking": "Le coach réfléchit…",
@@ -7442,8 +7540,9 @@
       "send": "Envoyer",
       "hint": "Entrée pour envoyer, Maj + Entrée pour une nouvelle ligne.",
       "correctionHint": "Envie de modifier une réponse ? Écrivez-le simplement, par exemple « change mon budget à moins de 100 $ ».",
-      "remaining": "{remaining} caractères restants",
-      "overLimit": "{over} caractères de trop"
+      "remaining": "{{remaining}} caractères restants",
+      "overLimit": "{{over}} caractères de trop",
+      "orOwnWords": "Ou répondez au coach avec vos propres mots"
     },
     "widget": {
       "yes": "Oui",
@@ -7451,19 +7550,27 @@
       "chooseDate": "Choisir une date",
       "useDate": "Utiliser cette date",
       "confirmSelection": "Confirmer",
-      "selectedOfMax": "{selected} sur {max} sélectionnés",
+      "selectedOfMax": "{{selected}} sur {{max}} sélectionnés",
       "quickInThreeMonths": "Dans 3 mois",
       "quickInSixMonths": "Dans 6 mois",
-      "quickEndOfYear": "Fin d'année"
+      "quickEndOfYear": "Fin d'année",
+      "suggestions": {
+        "showMore": "Voir plus…",
+        "title": "Plus d'options",
+        "description": "La liste complète classée par pertinence, y compris les groupes non affichés en aperçu rapide.",
+        "searchPlaceholder": "Rechercher…",
+        "loading": "Chargement…",
+        "empty": "Aucun résultat."
+      }
     },
     "system": {
       "ROADMAP_AI_REFUSED": "Cela semble sans rapport avec la création d'un parcours. Pouvez-vous reformuler ?",
-      "fieldUpdated": "{field} mis à jour."
+      "fieldUpdated": "{{field}} mis à jour."
     },
     "error": {
       "retry": "Réessayer",
       "sendFailed": "L'envoi a échoué.",
-      "retryIn": "Vous pourrez réessayer dans {seconds} s.",
+      "retryIn": "Vous pourrez réessayer dans {{seconds}} s.",
       "loadTitle": "La conversation n'a pas pu être chargée",
       "loadDescription": "Il s'agit d'un problème temporaire de notre côté, pas d'un problème avec vos réponses."
     },
@@ -7480,9 +7587,16 @@
       "generating": "Démarrage de la génération...",
       "generateFailed": "Impossible de démarrer la génération de votre parcours. Veuillez réessayer.",
       "generateUnavailable": "Répondez aux champs obligatoires restants pour générer votre parcours.",
+      "generateUnavailableNext": "Ensuite : répondez à {{field}} pour générer votre parcours.",
       "briefProgress": "Progression du résumé",
       "briefProgressValue": "{{completed}} champs sur {{required}} complétés",
-      "notReachedYet": "Vous configurerez ceci après les préférences."
+      "notReachedYet": "Vous configurerez ceci après les préférences.",
+      "status": {
+        "confirmed": "Confirmé",
+        "suggested": "Suggéré depuis le profil",
+        "needsAnswer": "Réponse requise",
+        "notNeeded": "Non nécessaire"
+      }
     },
     "cpdSetup": {
       "pickTitle": "Choisissez une certification à suivre, ou recherchez-en une autre.",

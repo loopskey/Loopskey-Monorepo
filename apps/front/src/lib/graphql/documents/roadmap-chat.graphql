@@ -1,11 +1,16 @@
 # ============== Roadmap chat wizard ================
+fragment RoadmapWidgetOptionFields on RoadmapWidgetOption {
+  value
+  label
+  groupLabel
+}
+
 fragment RoadmapWidgetFields on RoadmapWidget {
   type
   field
   maxSelections
   options {
-    value
-    label
+    ...RoadmapWidgetOptionFields
   }
 }
 
@@ -45,6 +50,11 @@ fragment RoadmapCpdPlanFields on CpdPlan {
   }
 }
 
+fragment RoadmapGenerationFailureFields on RoadmapGenerationFailure {
+  code
+  recoveryActions
+}
+
 fragment ProfessionalRoadmapDraftFields on ProfessionalRoadmapDraft {
   id
   status
@@ -52,7 +62,9 @@ fragment ProfessionalRoadmapDraftFields on ProfessionalRoadmapDraft {
   isComplete
   needsClarification
   wasRefused
-  failureReason
+  failure {
+    ...RoadmapGenerationFailureFields
+  }
   completedFieldCount
   requiredFieldCount
   remainingFields
@@ -111,9 +123,21 @@ mutation StartRoadmapDraft {
   }
 }
 
-mutation ResetRoadmapDraft {
-  resetRoadmapDraft {
+mutation ResetRoadmapDraft($draftId: ID) {
+  resetRoadmapDraft(draftId: $draftId) {
     ...ProfessionalRoadmapDraftFields
+  }
+}
+
+query ProfessionalRoadmapGeneration($draftId: ID) {
+  professionalRoadmapGeneration(draftId: $draftId) {
+    id
+    goal
+    status
+    updatedAt
+    failure {
+      ...RoadmapGenerationFailureFields
+    }
   }
 }
 
@@ -138,5 +162,11 @@ mutation PatchRoadmapCpdSetup($input: PatchRoadmapCpdSetupInput!) {
 mutation RequestRoadmapGeneration($draftId: ID!) {
   requestRoadmapGeneration(draftId: $draftId) {
     ...ProfessionalRoadmapDraftFields
+  }
+}
+
+query RoadmapSuggestionOptions($input: RoadmapSuggestionOptionsInput!) {
+  roadmapSuggestionOptions(input: $input) {
+    ...RoadmapWidgetOptionFields
   }
 }

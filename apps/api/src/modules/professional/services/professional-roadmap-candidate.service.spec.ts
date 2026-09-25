@@ -15,6 +15,7 @@ const course = (id: string, overrides: Record<string, unknown> = {}) => ({
   ratingCount: 50,
   professionals: 100,
   isFeatured: false,
+  matchScore: 1,
   ...overrides,
 });
 
@@ -31,6 +32,7 @@ const event = (id: string, overrides: Record<string, unknown> = {}) => ({
   ratingCount: 10,
   attendees: 40,
   startDate: new Date("2027-01-01"),
+  matchScore: 1,
   ...overrides,
 });
 
@@ -44,6 +46,7 @@ const podcast = (id: string, overrides: Record<string, unknown> = {}) => ({
   listeners: 500,
   durationMinutes: 45,
   isFeatured: false,
+  matchScore: 1,
   ...overrides,
 });
 
@@ -56,6 +59,7 @@ const channel = (id: string, overrides: Record<string, unknown> = {}) => ({
   ratingCount: 10,
   subscribers: 900,
   isFeatured: false,
+  matchScore: 1,
   ...overrides,
 });
 
@@ -89,6 +93,8 @@ const buildHarness = (rows: {
 const input = {
   cap: SERVICE_AI_LIMITS.candidatesMaxItems,
   subjects: ["kubernetes"],
+  keywords: [] as string[],
+  groupKeys: [] as string[],
   skillLevel: SkillLevel.BEGINNER,
   budgetPreference: LearningBudgetPreference.UNDER_100,
   preferredContentTypes: [] as never[],
@@ -117,9 +123,9 @@ describe("ProfessionalRoadmapCandidateService", () => {
       preferredContentTypes: ["COURSE"],
     });
 
-    expect(harness.catalog.roadmapCandidateCourses).toHaveBeenCalledTimes(1);
+    expect(harness.catalog.roadmapCandidateCourses).toHaveBeenCalled();
     // A type the professional ruled out should cost nothing, not be fetched
-    // and then discarded.
+    // and then discarded, at any relaxation tier.
     expect(harness.events.roadmapCandidateEvents).not.toHaveBeenCalled();
     expect(harness.podcasts.roadmapCandidatePodcasts).not.toHaveBeenCalled();
     expect(harness.channels.roadmapCandidateChannels).not.toHaveBeenCalled();
@@ -235,5 +241,105 @@ describe("ProfessionalRoadmapCandidateService", () => {
 
     expect(selected).toHaveLength(2);
     expect(selected.every((item) => item.isFree)).toBe(true);
+  });
+
+  describe("relaxation tiers", () => {
+    it("stops at EXACT when it alone reaches the minimum pool", async () => {
+      const harness = buildHarness({});
+      harness.catalog.roadmapCandidateCourses.mockImplementation(
+        async ({ tier }: { tier: string }) =>
+          tier === "EXACT"
+            ? Array.from({ length: 6 }, (_, index) => course(`c-${index}`))
+            : [],
+      );
+
+      const selected = await harness.service.build(input);
+
+      expect(selected).toHaveLength(6);
+      expect(selected.every((item) => item.matchTier === "EXACT")).toBe(true);
+      expect(harness.catalog.roadmapCandidateCourses).toHaveBeenCalledTimes(1);
+    });
+
+    it("escalates to SIMILAR when EXACT alone is not enough", async () => {
+      const harness = buildHarness({});
+      harness.catalog.roadmapCandidateCourses.mockImplementation(
+        async ({ tier }: { tier: string }) => {
+          if (tier === "EXACT") return [course("exact-1")];
+          if (tier === "SIMILAR")
+            return Array.from({ length: 6 }, (_, index) =>
+              course(`similar-${index}`),
+            );
+          return [];
+        },
+      );
+
+      const selected = await harness.service.build(input);
+
+      expect(selected).toHaveLength(6);
+      expect(selected.every((item) => item.matchTier === "SIMILAR")).toBe(true);
+      expect(harness.catalog.roadmapCandidateCourses).toHaveBeenCalledWith(
+        expect.objectContaining({ tier: "EXACT" }),
+      );
+      expect(harness.catalog.roadmapCandidateCourses).toHaveBeenCalledWith(
+        expect.objectContaining({ tier: "SIMILAR" }),
+      );
+    });
+
+    it("uses BROAD's own pool even when it stays below the minimum", async () => {
+      const harness = buildHarness({});
+      harness.catalog.roadmapCandidateCourses.mockImplementation(
+        async ({ tier }: { tier: string }) =>
+          tier === "BROAD" ? [course("broad-1")] : [],
+      );
+
+      const selected = await harness.service.build(input);
+
+      expect(selected).toHaveLength(1);
+      expect(selected[0]?.matchTier).toBe("BROAD");
+    });
+
+    it("marks a non-exact match close, unless its own text still contains the subject", async () => {
+      const harness = buildHarness({});
+      harness.catalog.roadmapCandidateCourses.mockImplementation(
+        async ({ tier }: { tier: string }) =>
+          tier === "EXACT"
+            ? []
+            : [
+                course("literal", { title: "Learning Kubernetes" }),
+                course("fuzzy", {
+                  title: "Container Orchestration 101",
+                  description: "A deep dive into container schedulers.",
+                }),
+              ],
+      );
+
+      const selected = await harness.service.build(input);
+
+      expect(
+        selected.find((item) => item.contentId === "literal")?.isCloseMatch,
+      ).toBe(false);
+      expect(
+        selected.find((item) => item.contentId === "fuzzy")?.isCloseMatch,
+      ).toBe(true);
+    });
+
+    it("passes the draft's keywords and taxonomy group keys to the catalogue", async () => {
+      const harness = buildHarness({
+        courses: Array.from({ length: 6 }, (_, index) => course(`c-${index}`)),
+      });
+
+      await harness.service.build({
+        ...input,
+        keywords: ["become a platform engineer"],
+        groupKeys: ["TECHNOLOGY"],
+      });
+
+      expect(harness.catalog.roadmapCandidateCourses).toHaveBeenCalledWith(
+        expect.objectContaining({
+          keywords: ["become a platform engineer"],
+          groupKeys: ["TECHNOLOGY"],
+        }),
+      );
+    });
   });
 });

@@ -11,6 +11,11 @@ export class AssociationMemberActivityFilterInput {
   @IsOptional()
   @IsEnum(AssociationAttributionState)
   state?: AssociationAttributionState;
+
+  @Field(() => ID, { nullable: true })
+  @IsOptional()
+  @IsString()
+  requirementId?: string;
 }
 
 @InputType(AssociationGqlInputNames.SET_ASSOCIATION_MEMBER_REQUIREMENTS)

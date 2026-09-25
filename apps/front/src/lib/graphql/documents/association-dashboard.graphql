@@ -345,6 +345,51 @@ query AssociationMemberProfile($memberId: ID!) {
         ...AssociationEvidenceFileFields
       }
     }
+    unlinkedLearningContent {
+      ...AssociationMemberContentCompletionFields
+    }
+  }
+}
+
+fragment AssociationMemberContentCompletionFields on AssociationMemberContentCompletion {
+  id
+  title
+  isExternal
+  contentType
+  provider
+  activityId
+  activityDate
+  credits
+  indicativeCredits
+}
+
+query AssociationMemberRequirementEvidence(
+  $memberId: ID!
+  $requirementId: ID!
+  $pagination: AssociationPaginationInput
+) {
+  associationMemberRequirementEvidence(
+    memberId: $memberId
+    requirementId: $requirementId
+    pagination: $pagination
+  ) {
+    requirementId
+    activities {
+      totalCount
+      pageInfo {
+        hasNextPage
+        nextCursor
+      }
+      items {
+        ...AssociationMemberActivityFields
+      }
+    }
+    contentCompletions {
+      ...AssociationMemberContentCompletionFields
+    }
+    certificateEvidence {
+      ...AssociationMemberActivityFields
+    }
   }
 }
 
@@ -427,6 +472,7 @@ fragment AssociationLearningContentFields on AssociationLearningContent {
   provider
   imageUrl
   externalUrl
+  externalContentType
   description
   category
   indicativeCredits
@@ -480,9 +526,13 @@ query AssociationCatalogSearch($input: AssociationCatalogSearchInput!) {
     contentType
     contentId
     title
+    slug
+    level
     provider
     imageUrl
     isAvailable
+    durationMinutes
+    indicativeCredits
   }
 }
 

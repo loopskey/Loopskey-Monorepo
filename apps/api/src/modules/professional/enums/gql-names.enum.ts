@@ -58,6 +58,8 @@ export enum ProfessionalGqlObjectNames {
   ROADMAP_SUBJECT_OPTION = "RoadmapSubjectOption",
   PROFESSIONAL_ROADMAP_DRAFT = "ProfessionalRoadmapDraft",
   PAGINATED_ROADMAP_CHAT_MESSAGES = "PaginatedRoadmapChatMessages",
+  ROADMAP_GENERATION_FAILURE = "RoadmapGenerationFailure",
+  PROFESSIONAL_ROADMAP_GENERATION = "ProfessionalRoadmapGeneration",
 }
 
 export enum ProfessionalGqlInputNames {
@@ -89,6 +91,7 @@ export enum ProfessionalGqlInputNames {
   ROADMAP_CHAT_TURN_INPUT = "RoadmapChatTurnInput",
   PATCH_ROADMAP_DRAFT_INPUT = "PatchRoadmapDraftInput",
   PATCH_ROADMAP_CPD_SETUP_INPUT = "PatchRoadmapCpdSetupInput",
+  ROADMAP_SUGGESTION_OPTIONS_INPUT = "RoadmapSuggestionOptionsInput",
 }
 
 export enum ProfessionalGqlQueryNames {
@@ -117,13 +120,16 @@ export enum ProfessionalGqlQueryNames {
   PROFESSIONAL_PROFILE_TAXONOMY = "professionalProfileTaxonomy",
   CERTIFICATION_SEARCH = "certificationSearch",
   MY_CPD_PLANS = "myCpdPlans",
+  MY_DRAFT_CPD_PLANS = "myDraftCpdPlans",
   CPD_PLAN = "cpdPlan",
   CPD_PLAN_PROGRESS = "cpdPlanProgress",
   CPD_PLAN_ACTIVITIES = "cpdPlanActivities",
   CPD_REPORT_RECIPIENTS = "cpdReportRecipients",
   PROFESSIONAL_ROADMAP_DRAFT = "professionalRoadmapDraft",
+  ROADMAP_SUGGESTION_OPTIONS = "roadmapSuggestionOptions",
   PROFESSIONAL_ROADMAP_RECOMMENDATIONS = "professionalRoadmapRecommendations",
   PROFESSIONAL_ROADMAP_STATS = "professionalRoadmapStats",
+  PROFESSIONAL_ROADMAP_GENERATION = "professionalRoadmapGeneration",
 }
 
 export enum ProfessionalGqlMutationNames {
@@ -143,6 +149,7 @@ export enum ProfessionalGqlMutationNames {
   DELETE_PROFESSIONAL_CREDENTIAL = "deleteProfessionalCredential",
   CREATE_CPD_PLAN = "createCpdPlan",
   CREATE_CPD_PLAN_FROM_SUGGESTION = "createCpdPlanFromSuggestion",
+  ACTIVATE_CPD_PLAN = "activateCpdPlan",
   UPDATE_CPD_PLAN = "updateCpdPlan",
   DELETE_CPD_PLAN = "deleteCpdPlan",
   CREATE_PROFESSIONAL_CERTIFICATE = "createProfessionalCertificate",

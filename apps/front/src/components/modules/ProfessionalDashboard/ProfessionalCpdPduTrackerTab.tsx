@@ -1,11 +1,11 @@
 "use client";
 
+import { LearningActivitiesSummaryStrip } from "@modules/ProfessionalDashboard/parts/learning-activities-summary-strip";
 import { useProfessionalCpdPduTracker } from "@/hooks/useProfessionalCpdPduTracker";
 import { ProgressDonutChart } from "@elements/dashboard-charts";
 import { ActivitiesFilters } from "@modules/ProfessionalDashboard/parts/activities-filters";
 import { ContentPagination } from "@elements/pagination";
 import { ActivitiesTable } from "@modules/ProfessionalDashboard/parts/activities-table";
-import { MetricCard } from "@modules/ProfessionalDashboard/parts/metric-card";
 import { GlassCard } from "@elements/glass-card";
 import { Skeleton } from "@ui/skeleton";
 import { Button } from "@ui/button";
@@ -21,11 +21,15 @@ const ProfessionalCpdPduTrackerTab = () => {
     filters,
     summary,
     pageInfo,
+    cyclePlan,
     isFiltered,
     activities,
     handleNext,
     yearOptions,
+    cycleProgress,
     activitiesData,
+    cycleChartData,
+    isCycleLoading,
     handlePrevious,
     isSummaryError,
     isSummaryLoading,
@@ -41,16 +45,7 @@ const ProfessionalCpdPduTrackerTab = () => {
     activityTypeOptions,
     isActivitiesFetching,
     handleDownloadEvidence,
-    cyclePlan,
-    cycleProgress,
-    cycleChartData,
-    isCycleLoading,
   } = useProfessionalCpdPduTracker();
-
-  const summaryValue = (value: number | undefined) => {
-    if (isSummaryError) return "—";
-    return String(value ?? 0);
-  };
 
   return (
     <div className="space-y-6">
@@ -83,37 +78,13 @@ const ProfessionalCpdPduTrackerTab = () => {
         </div>
       </div>
 
-      {/* 2. Summary cards */}
-      <div className="grid gap-4 sm:grid-cols-2">
-        {isSummaryLoading ? (
-          <>
-            <Skeleton className="h-40 w-full rounded-lg" />
-            <Skeleton className="h-40 w-full rounded-lg" />
-          </>
-        ) : (
-          <>
-            <MetricCard
-              tone="success"
-              icon={L.CircleCheckBig}
-              label={t(`${TRACKER}.summary.completedTitle`)}
-              helper={t(`${TRACKER}.summary.completedHelper`)}
-              value={summaryValue(summary?.completedActivities)}
-            />
-
-            <MetricCard
-              tone="primary"
-              icon={L.Paperclip}
-              label={t(`${TRACKER}.summary.evidenceTitle`)}
-              value={summaryValue(summary?.activitiesWithEvidence)}
-              helper={t(`${TRACKER}.summary.evidenceHelper`, {
-                files: isSummaryError
-                  ? "—"
-                  : (summary?.evidenceFilesCount ?? 0),
-              })}
-            />
-          </>
-        )}
-      </div>
+      {/* 2. Summary strip */}
+      <LearningActivitiesSummaryStrip
+        t={t}
+        summary={summary}
+        isError={isSummaryError}
+        isLoading={isSummaryLoading}
+      />
 
       {/* 3. Cycle progress */}
       {cyclePlan && (isCycleLoading || cycleProgress) ? (

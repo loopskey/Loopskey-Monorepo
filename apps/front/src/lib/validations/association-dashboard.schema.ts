@@ -53,8 +53,11 @@ export const associationLearningContentSchema = z
     externalTitle: z.string().max(200).optional(),
     externalProvider: z.string().max(200).optional(),
     externalUrl: z.string().max(2000).optional(),
+    externalContentType: z.string().optional(),
     description: z.string().max(REQUIREMENT_LIMITS.descriptionMax).optional(),
     indicativeCredits: z.string().optional(),
+    category: z.string().optional(),
+    requirementId: z.string().optional(),
     audienceKind: z.nativeEnum(AssociationAudienceKind),
     groupIds: z.array(z.string()).max(CONTENT_LIMITS.groupsMax),
     memberIds: z.array(z.string()).max(CONTENT_LIMITS.specificMembersMax),
@@ -67,13 +70,19 @@ export const associationLearningContentSchema = z
           path: ["externalTitle"],
           message: "required",
         });
+      if (!values.externalContentType)
+        context.addIssue({
+          code: "custom",
+          path: ["externalContentType"],
+          message: "required",
+        });
       if (!values.externalUrl?.trim())
         context.addIssue({
           code: "custom",
           path: ["externalUrl"],
           message: "required",
         });
-      else if (!/^https?:\/\//i.test(values.externalUrl.trim()))
+      else if (!/^https:\/\//i.test(values.externalUrl.trim()))
         context.addIssue({
           code: "custom",
           path: ["externalUrl"],

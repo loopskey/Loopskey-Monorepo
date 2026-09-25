@@ -607,6 +607,7 @@ fragment ProfessionalRoadmapStepFields on ProfessionalRoadmapStep {
   description
   contentType
   completedAt
+  isCloseMatch
   estimatedMinutes
 }
 
@@ -653,6 +654,8 @@ fragment ProfessionalRoadmapFields on ProfessionalRoadmap {
   earnedCredits
   estimatedWeeks
   requiredCredits
+  draftId
+  matchTier
   phases {
     ...ProfessionalRoadmapPhaseFields
   }
@@ -722,14 +725,29 @@ mutation UnenrollRoadmap($enrollmentId: ID!) {
   unenrollRoadmap(enrollmentId: $enrollmentId)
 }
 
-# The chat page owns the full draft document. This is the same server query
-# with a three-field selection, declared here so the dashboard never imports the
-# roadmap-chat operations module into the shared bundle.
-query ProfessionalRoadmapDraftStatus($draftId: ID) {
-  professionalRoadmapDraft(draftId: $draftId) {
+# A lean retry of the same generation, declared here for the same bundling
+# reason as the status query below: the dashboard's generic-failure card
+# retries in place without importing the chat page's operations module.
+mutation RetryRoadmapGeneration($draftId: ID!) {
+  requestRoadmapGeneration(draftId: $draftId) {
     id
     status
-    failureReason
+  }
+}
+
+# The chat page owns the full draft document. This is a lean selection of the
+# dedicated generation-status query, declared here so the dashboard never
+# imports the roadmap-chat operations module into the shared bundle.
+query ProfessionalRoadmapGenerationStatus($draftId: ID) {
+  professionalRoadmapGeneration(draftId: $draftId) {
+    id
+    goal
+    status
+    updatedAt
+    failure {
+      code
+      recoveryActions
+    }
   }
 }
 

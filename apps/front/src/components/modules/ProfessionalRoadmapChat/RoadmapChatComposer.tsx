@@ -1,53 +1,42 @@
 "use client";
 
 import { KeyboardEvent, useEffect, useRef } from "react";
-
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
-import { useI18n } from "@/hooks/useI18n";
-
 import { RoadmapWidgetControl } from "./RoadmapWidgetControl";
+import { Textarea } from "@/components/ui/textarea";
+import { useI18n } from "@/hooks/useI18n";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-import type { ReactNode } from "react";
 import type * as T from "@/types/professional-roadmap-chat.types";
 
 type Props = {
-  widget: T.TRoadmapWidget | null;
-  composer: T.TComposerState;
+  draftId: string;
   canSend: boolean;
   isSending: boolean;
   retryAfter: number;
-  /** Changes whenever the server asks something new, so focus can follow. */
-  questionKey: string;
-  onChange: (value: string) => void;
   onSend: () => void;
+  questionKey: string;
+  composer: T.TComposerState;
+  widget: T.TRoadmapWidget | null;
+  onChange: (value: string) => void;
   onAnswer: (value: string) => void;
-  /**
-   * Replaces the widget and the free-text input entirely — used for
-   * questions this app asks locally (never a server widget), where typing
-   * free text would not do anything.
-   */
-  preferencesControl?: ReactNode;
 };
 
 export const RoadmapChatComposer = ({
   widget,
-  composer,
+  draftId,
+  onSend,
   canSend,
+  composer,
+  onChange,
+  onAnswer,
   isSending,
   retryAfter,
   questionKey,
-  onChange,
-  onSend,
-  onAnswer,
-  preferencesControl,
 }: Props) => {
   const { t } = useI18n();
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  // Focus follows the conversation: every new question puts the caret back in
-  // the composer, so answering three in a row never needs the mouse.
   useEffect(() => {
     if (isSending) return;
     inputRef.current?.focus();
@@ -60,38 +49,40 @@ export const RoadmapChatComposer = ({
   };
 
   const disabled = isSending || retryAfter > 0;
-
-  if (preferencesControl)
-    return <div className="flex flex-col gap-3">{preferencesControl}</div>;
+  const hasQuickAnswers = Boolean(widget);
 
   return (
     <div className="flex flex-col gap-3">
-      {/*
-        The widget and the free-text input are siblings on purpose. The widget
-        is the server's suggestion for the fastest answer, not a restriction —
-        a professional may answer any question in their own words, and one
-        sentence can satisfy several fields at once.
-      */}
       {widget ? (
         <RoadmapWidgetControl
           widget={widget}
+          draftId={draftId}
           disabled={disabled}
           onAnswer={onAnswer}
         />
       ) : null}
 
+      {hasQuickAnswers ? (
+        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+          <span className="h-px flex-1 bg-border" aria-hidden="true" />
+          {t("professionalRoadmapChat.composer.orOwnWords")}
+          <span className="h-px flex-1 bg-border" aria-hidden="true" />
+        </div>
+      ) : null}
+
       <div className="flex flex-col gap-2">
         <Textarea
-          ref={inputRef}
           rows={3}
-          value={composer.value}
+          ref={inputRef}
           disabled={disabled}
           onKeyDown={onKeyDown}
-          aria-label={t("professionalRoadmapChat.composer.label")}
+          value={composer.value}
+          id="roadmap-chat-composer-input"
           aria-describedby="roadmap-chat-counter"
-          placeholder={t("professionalRoadmapChat.composer.placeholder")}
           onChange={(event) => onChange(event.target.value)}
+          aria-label={t("professionalRoadmapChat.composer.label")}
           className={cn(composer.isOverLimit && "border-destructive")}
+          placeholder={t("professionalRoadmapChat.composer.placeholder")}
         />
 
         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -107,23 +98,20 @@ export const RoadmapChatComposer = ({
             )}
           >
             {composer.isOverLimit
-              ? t("professionalRoadmapChat.composer.overLimit").replace(
-                  "{over}",
-                  String(Math.abs(composer.remaining)),
-                )
-              : t("professionalRoadmapChat.composer.remaining").replace(
-                  "{remaining}",
-                  String(composer.remaining),
-                )}
+              ? t("professionalRoadmapChat.composer.overLimit", {
+                  over: Math.abs(composer.remaining),
+                })
+              : t("professionalRoadmapChat.composer.remaining", {
+                  remaining: composer.remaining,
+                })}
           </span>
 
           <div className="flex items-center gap-2">
             {retryAfter > 0 ? (
               <span className="text-xs text-muted-foreground">
-                {t("professionalRoadmapChat.error.retryIn").replace(
-                  "{seconds}",
-                  String(retryAfter),
-                )}
+                {t("professionalRoadmapChat.error.retryIn", {
+                  seconds: retryAfter,
+                })}
               </span>
             ) : null}
 

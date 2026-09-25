@@ -54,11 +54,21 @@ const createPrismaMock = () => {
   };
 };
 
-const createService = (prisma = createPrismaMock()) => {
+const createService = (
+  prisma = createPrismaMock(),
+  requirementDirectoryOverrides: { isAssigned?: jest.Mock } = {},
+) => {
   const append = jest.fn().mockResolvedValue(undefined);
+  const requirementDirectory = {
+    isAssigned:
+      requirementDirectoryOverrides.isAssigned ??
+      jest.fn().mockResolvedValue(true),
+    syncAssignedRequirements: jest.fn().mockResolvedValue(undefined),
+  };
   const service = new ProfessionalPduService(
     prisma as unknown as PrismaService,
     { append } as unknown as OutboxService,
+    requirementDirectory as never,
     {
       store: jest.fn(),
       remove: jest.fn().mockResolvedValue(undefined),
@@ -67,7 +77,7 @@ const createService = (prisma = createPrismaMock()) => {
       read: jest.fn(),
     },
   );
-  return { service, prisma, append };
+  return { service, prisma, append, requirementDirectory };
 };
 
 const createInput = (overrides: Record<string, unknown> = {}) => ({
@@ -373,6 +383,43 @@ describe("ProfessionalPduService association requirement linking", () => {
     expect(data.associationLearningContentId).toBe("content-1");
     expect(data.cpdPlanId).toBeNull();
     expect(prisma.cPDPlan.findFirst).not.toHaveBeenCalled();
+  });
+
+  it("rejects a created activity linked to a requirement not assigned to the caller", async () => {
+    const isAssigned = jest.fn().mockResolvedValue(false);
+    const { service, prisma } = createService(createPrismaMock(), {
+      isAssigned,
+    });
+
+    await expect(
+      service.createPduActivity(
+        professional,
+        createInput({ associationRequirementId: "req-not-mine" }),
+      ),
+    ).rejects.toBeInstanceOf(NotFoundException);
+    expect(isAssigned).toHaveBeenCalledWith("user-1", "req-not-mine");
+    expect(prisma.pDUActivity.create).not.toHaveBeenCalled();
+  });
+
+  it("rejects an updated activity linked to a requirement not assigned to the caller", async () => {
+    const isAssigned = jest.fn().mockResolvedValue(false);
+    const { service, prisma } = createService(createPrismaMock(), {
+      isAssigned,
+    });
+    prisma.pDUActivity.findFirst.mockResolvedValue({
+      id: "activity-1",
+      userId: "user-1",
+      evidenceFiles: [],
+    });
+
+    await expect(
+      service.updatePduActivity(professional, {
+        activityId: "activity-1",
+        associationRequirementId: "req-not-mine",
+      } as never),
+    ).rejects.toBeInstanceOf(NotFoundException);
+    expect(isAssigned).toHaveBeenCalledWith("user-1", "req-not-mine");
+    expect(prisma.pDUActivity.update).not.toHaveBeenCalled();
   });
 
   it("refuses an activity linked to both a plan and an association requirement", async () => {

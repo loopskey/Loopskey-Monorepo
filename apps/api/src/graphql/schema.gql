@@ -379,9 +379,13 @@ type AssociationBulkInviteResult {
 type AssociationCatalogItem {
   contentId: ID!
   contentType: ContentType!
+  durationMinutes: Int
   imageUrl: String
+  indicativeCredits: Float
   isAvailable: Boolean!
+  level: String
   provider: String
+  slug: String
   title: String!
 }
 
@@ -404,6 +408,7 @@ type AssociationCategoryAttentionGroup {
 type AssociationCategoryProgress {
   completedCredits: Float!
   id: ID!
+  mappedCategory: PDUCategory!
   name: String!
   percent: Float!
   requiredCredits: Float!
@@ -466,6 +471,13 @@ type AssociationComplianceTrendPoint {
   renewalReady: Int!
   renewalReadyShare: Float!
   totalMembers: Int!
+}
+
+type AssociationContentEndorsement {
+  associationName: String!
+  isDefaultRequirement: Boolean!
+  learningContentId: ID!
+  requirementId: ID!
 }
 
 type AssociationCumulativePoint {
@@ -584,6 +596,7 @@ type AssociationLearningContent {
   createdAt: DateTime!
   description: String
   engagement: AssociationLearningEngagement
+  externalContentType: AssociationLearningExternalType
   externalUrl: String
   id: ID!
   imageUrl: String
@@ -634,6 +647,19 @@ type AssociationLearningEngagement {
   memberCount: Int!
 }
 
+"""
+The kind of content an external (non-catalogue) library item is, chosen by the association
+"""
+enum AssociationLearningExternalType {
+  ARTICLE
+  COURSE
+  EVENT
+  OTHER
+  PODCAST
+  VIDEO
+  WEBINAR
+}
+
 type AssociationMember {
   activatedAt: DateTime
   avatarUrl: String
@@ -675,6 +701,7 @@ type AssociationMemberActivity {
 }
 
 input AssociationMemberActivityFilterInput {
+  requirementId: ID
   state: AssociationAttributionState
 }
 
@@ -695,6 +722,18 @@ type AssociationMemberCompliance {
   assignments: [AssociationAssignmentProgress!]!
   isMissingEvidence: Boolean!
   memberId: ID!
+}
+
+type AssociationMemberContentCompletion {
+  activityDate: DateTime!
+  activityId: ID!
+  contentType: ContentType
+  credits: Float!
+  id: ID!
+  indicativeCredits: Float
+  isExternal: Boolean!
+  provider: String
+  title: String!
 }
 
 type AssociationMemberDistribution {
@@ -741,6 +780,7 @@ type AssociationMemberProfile {
   lastNotifiedAt: DateTime
   member: AssociationMember!
   summary: AssociationMemberSummary!
+  unlinkedLearningContent: [AssociationMemberContentCompletion!]!
 }
 
 type AssociationMemberProgressRow {
@@ -758,6 +798,13 @@ type AssociationMemberProgressRow {
   memberNumber: String
   percent: Float!
   requiredCredits: Float!
+}
+
+type AssociationMemberRequirementEvidence {
+  activities: PaginatedAssociationMemberActivities!
+  certificateEvidence: [AssociationMemberActivity!]!
+  contentCompletions: [AssociationMemberContentCompletion!]!
+  requirementId: ID!
 }
 
 type AssociationMemberRequirementOption {
@@ -929,6 +976,8 @@ type AssociationMyRequirementActivity {
 }
 
 type AssociationMyRequirementContent {
+  associationId: ID!
+  associationName: String!
   category: PDUCategory
   contentId: ID
   contentType: ContentType
@@ -940,6 +989,7 @@ type AssociationMyRequirementContent {
   isAvailable: Boolean!
   isCompleted: Boolean!
   isExternal: Boolean!
+  isLinkedToRequirement: Boolean!
   provider: String
   slug: String
   title: String!
@@ -1724,13 +1774,16 @@ input CreateAssociationGroupInput {
 }
 
 input CreateAssociationLearningContentInput {
+  category: PDUCategory
   contentId: ID
   contentType: ContentType
   description: String
+  externalContentType: AssociationLearningExternalType
   externalProvider: String
   externalTitle: String
   externalUrl: String
   indicativeCredits: Float
+  requirementId: ID
 }
 
 input CreateAssociationRequirementDraftInput {
@@ -2465,6 +2518,7 @@ input LoginInput {
 
 type Mutation {
   activateAssociationAccount(input: ActivateAssociationAccountInput!): AuthPayload!
+  activateCpdPlan(planId: ID!): CpdPlan!
   activateIngestionSource(sourceId: String!): IngestionSource!
   activateOrganizationAccount(input: ActivateOrganizationAccountInput!): AuthPayload!
   addOrganizationMember(input: AddOrganizationMemberInput!): OrganizationMember!
@@ -2559,7 +2613,7 @@ type Mutation {
   resendEmailOtp(input: ResendEmailOtpInput!): AuthPayload!
   resendOrganizationActivation(input: ResendOrganizationActivationInput!): AuthPayload!
   resetPassword(input: ResetPasswordInput!): AuthPayload!
-  resetRoadmapDraft: ProfessionalRoadmapDraft!
+  resetRoadmapDraft(draftId: ID): ProfessionalRoadmapDraft!
   restoreCourse(courseId: String!): Course!
   restoreEvent(eventId: String!): Event!
   restorePodcast(podcastId: String!): Podcast!
@@ -3891,12 +3945,14 @@ type ProfessionalRoadmap {
   completedSteps: Int!
   coverageNote: String
   description: String!
+  draftId: ID
   earnedCredits: Float!
   enrolledAt: DateTime!
   estimatedWeeks: Int
   id: ID!
   imageUrl: String
   level: CourseLevel!
+  matchTier: RoadmapMatchTier
   nextMilestoneProgress: Int!
   nextPhaseTitle: String
   phases: [ProfessionalRoadmapPhase!]!
@@ -3925,6 +3981,7 @@ type ProfessionalRoadmapDraft {
   cpdEnabled: Boolean!
   cpdPlan: CpdPlan
   currentStep: RoadmapDraftStep!
+  failure: RoadmapGenerationFailure
   failureReason: String
   goal: String
   goalReason: String
@@ -3948,6 +4005,14 @@ type ProfessionalRoadmapDraft {
   updatedAt: DateTime!
   wasRefused: Boolean!
   widget: RoadmapWidget
+}
+
+type ProfessionalRoadmapGeneration {
+  failure: RoadmapGenerationFailure
+  goal: String
+  id: ID!
+  status: RoadmapDraftStatus!
+  updatedAt: DateTime!
 }
 
 type ProfessionalRoadmapPhase {
@@ -3981,6 +4046,7 @@ type ProfessionalRoadmapStep {
   description: String
   estimatedMinutes: Int
   id: ID!
+  isCloseMatch: Boolean!
   order: Int!
   status: RoadmapStepProgressStatus
   title: String!
@@ -4263,6 +4329,7 @@ type Query {
   associationMemberEmailLookup(associationId: ID, email: String!): AssociationMemberEmailLookup!
   associationMemberProfile(associationId: ID, memberId: ID!): AssociationMemberProfile!
   associationMemberProgressReport(associationId: ID, filter: AssociationReportFilterInput, pagination: AssociationReportPaginationInput): PaginatedAssociationMemberProgress!
+  associationMemberRequirementEvidence(associationId: ID, memberId: ID!, pagination: AssociationPaginationInput, requirementId: ID!): AssociationMemberRequirementEvidence!
   associationMemberRequirementOptions(associationId: ID, memberId: ID!): [AssociationMemberRequirementOption!]!
   associationMemberStats(associationId: ID): AssociationMemberStats!
   associationMembers(associationId: ID, filter: AssociationMemberFilterInput, pagination: AssociationPaginationInput): PaginatedAssociationMembers!
@@ -4306,11 +4373,14 @@ type Query {
   ingestionSources(filter: IngestionSourceFilter, pagination: IngestionPagination): PaginatedIngestionSources!
   linkedinOAuthUrl(role: Role!): AuthUrl!
   me: User!
+  myAssociationLearningContent: [AssociationMyRequirementContent!]!
   myAssociationRequirement(requirementId: ID!): AssociationMyRequirementDetail!
   myAssociationRequirements: [AssociationMyRequirement!]!
   myCalendarEntries: [ProfessionalManualCalendarEvent!]!
   myCart: Cart
+  myContentEndorsement(contentId: ID!, contentType: ContentType!): AssociationContentEndorsement
   myCpdPlans: [CpdPlan!]!
+  myDraftCpdPlans: [CpdPlan!]!
   myEnrollments: [ContentEnrollment!]!
   myExternalLearningActivities(filter: ExternalLearningFilterInput, pagination: OrganizationPaginationInput): PaginatedExternalLearning!
   myProviderCourses(filter: CourseFilterInput, pagination: CoursePaginationInput, sort: CourseSortInput): PaginatedCourses!
@@ -4362,6 +4432,7 @@ type Query {
   professionalPduReport(year: Int): ProfessionalPduReport!
   professionalProfileTaxonomy(kind: ProfileTaxonomyKind): [ProfessionalTaxonomyGroup!]!
   professionalRoadmapDraft(draftId: ID, transcript: ProfessionalPaginationInput): ProfessionalRoadmapDraft
+  professionalRoadmapGeneration(draftId: ID): ProfessionalRoadmapGeneration
   professionalRoadmapRecommendations(enrollmentId: ID): [RoadmapRecommendation!]!
   professionalRoadmapStats: ProfessionalRoadmapStats!
   professionalSettings: ProfessionalSettings!
@@ -4372,6 +4443,7 @@ type Query {
   providerOverview(input: ProviderDashboardRangeInput): ProviderOverview!
   providerPromotionRequests(filter: ProviderPromotionFilterInput, pagination: ProviderDashboardPaginationInput): PaginatedPromotionRequests!
   providerSettings: ProviderSettings!
+  roadmapSuggestionOptions(input: RoadmapSuggestionOptionsInput!): [RoadmapWidgetOption!]!
   upcomingEvents(take: Int = 12): [Event!]!
   userById(userId: String!): User!
   users(filter: UserFilterInput, pagination: UserPaginationInput): PaginatedUsers!
@@ -4467,6 +4539,7 @@ enum RoadmapDraftFieldKey {
   GOAL
   GOAL_REASON
   PREFERRED_CONTENT_TYPES
+  PREFERRED_DELIVERY_FORMATS
   PREFERRED_FORMATS
   SKILL_LEVEL
   SUBJECTS
@@ -4499,6 +4572,33 @@ enum RoadmapEnrollmentStatus {
   ACTIVE
   COMPLETED
   UNENROLLED
+}
+
+type RoadmapGenerationFailure {
+  code: RoadmapGenerationFailureCode!
+  recoveryActions: [RoadmapGenerationRecoveryAction!]!
+}
+
+enum RoadmapGenerationFailureCode {
+  INVALID_GENERATED_ROADMAP
+  NO_MATCHING_CONTENT
+  TEMPORARY_SERVICE_FAILURE
+  UNKNOWN
+}
+
+enum RoadmapGenerationRecoveryAction {
+  RETRY
+  REVIEW_BUDGET
+  REVIEW_FORMATS
+  REVIEW_SUBJECTS
+  START_OVER
+}
+
+enum RoadmapMatchTier {
+  BROAD
+  EXACT
+  RELATED
+  SIMILAR
 }
 
 type RoadmapRecommendation {
@@ -4545,6 +4645,12 @@ type RoadmapSubjectOption {
   label: String!
 }
 
+input RoadmapSuggestionOptionsInput {
+  draftId: ID!
+  field: RoadmapDraftFieldKey!
+  search: String
+}
+
 type RoadmapWidget {
   field: RoadmapDraftFieldKey!
   maxSelections: Int
@@ -4561,6 +4667,7 @@ enum RoadmapWidgetKind {
 }
 
 type RoadmapWidgetOption {
+  groupLabel: String
   label: String!
   value: String!
 }
@@ -4718,14 +4825,17 @@ input UpdateAssociationGroupInput {
 }
 
 input UpdateAssociationLearningContentInput {
+  category: PDUCategory
   contentId: ID
   contentType: ContentType
   description: String
+  externalContentType: AssociationLearningExternalType
   externalProvider: String
   externalTitle: String
   externalUrl: String
   indicativeCredits: Float
   learningContentId: ID!
+  requirementId: ID
 }
 
 input UpdateAssociationMemberInput {

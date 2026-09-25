@@ -77,6 +77,9 @@ export enum AssociationGqlObjectNames {
   ASSOCIATION_MY_REQUIREMENT_DETAIL = "AssociationMyRequirementDetail",
   ASSOCIATION_MY_REQUIREMENT_ACTIVITY = "AssociationMyRequirementActivity",
   ASSOCIATION_MY_REQUIREMENT_CONTENT = "AssociationMyRequirementContent",
+  ASSOCIATION_CONTENT_ENDORSEMENT = "AssociationContentEndorsement",
+  ASSOCIATION_MEMBER_CONTENT_COMPLETION = "AssociationMemberContentCompletion",
+  ASSOCIATION_MEMBER_REQUIREMENT_EVIDENCE = "AssociationMemberRequirementEvidence",
 }
 
 export enum AssociationGqlInputNames {
@@ -167,6 +170,9 @@ export enum AssociationGqlQueryNames {
   MESSAGE_HISTORY = "associationMessageHistory",
   MY_REQUIREMENTS = "myAssociationRequirements",
   MY_REQUIREMENT = "myAssociationRequirement",
+  MY_CONTENT_ENDORSEMENT = "myContentEndorsement",
+  MY_LEARNING_CONTENT = "myAssociationLearningContent",
+  MEMBER_REQUIREMENT_EVIDENCE = "associationMemberRequirementEvidence",
 }
 
 export enum AssociationGqlMutationNames {

@@ -19,6 +19,10 @@
       "description": "No association has assigned you a requirement and you have not created a plan of your own. Create a requirement to start tracking your credits, categories and evidence.",
       "cta": "Create a requirement"
     },
+    "draftPlan": {
+      "prompt": "You set up CPD tracking for {{certification}} in the roadmap coach. Track it here as a requirement?",
+      "track": "Track in Requirements"
+    },
     "search": {
       "title": "Set Up CPD / PDU Tracking",
       "description": "Search for your certification so LoopsKey can suggest your requirements.",
@@ -292,12 +296,16 @@
         "external": "External",
         "loopskey": "Loopskey",
         "credits": "{{credits}} credits",
-        "unavailable": "No longer available"
+        "unavailable": "No longer available",
+        "showAll": "Show all ({{count}} more)",
+        "recommendedBy": "Recommended by {{association}}",
+        "countsToward": "Counts toward this requirement"
       },
       "activities": {
         "title": "Logged activities",
         "subtitle": "Activities counted toward this requirement and where each one stands.",
         "empty": "No activity has been logged for this requirement yet.",
+        "viewAll": "View all ({{count}})",
         "columns": {
           "activity": "Activity",
           "date": "Date",
@@ -320,6 +328,12 @@
       },
       "loadError": "We could not load your requirements.",
       "retry": "Try again"
+    },
+    "fromAssociation": {
+      "title": "From your association",
+      "subtitle": "Content your association assigned you, before you have a requirement to track it against.",
+      "markComplete": "Log activity",
+      "completed": "Completed"
     }
   },
   "common": {
@@ -3007,7 +3021,20 @@
       "title": "Mark as completed",
       "description": "Review the details and save this as a completed learning activity.",
       "alreadyCompleted": "You have already marked this content as completed. Saving will update the existing activity.",
-      "success": "Activity marked as completed successfully.",
+      "success": {
+        "saved": "Saved to your activities.",
+        "counted": "Counted toward {{name}}.",
+        "review": "Sent to {{association}} for review."
+      },
+      "evidenceRequired": "Attach a certificate file or link before saving — this requirement needs evidence.",
+      "requirementHint": {
+        "suggested": "Suggested because {{association}} recommends this content.",
+        "default": "{{association}} recommends this content. We picked your first requirement with them — you can change it."
+      },
+      "noRequirements": {
+        "hint": "You don't have any requirements yet.",
+        "link": "Add a requirement"
+      },
       "save": "Save as Completed",
       "fields": {
         "title": "Activity title",
@@ -3025,7 +3052,10 @@
         "certificate": "Certificate / Proof",
         "certificateHelp": "Upload certificate file up to 20 MB (PDF, JPG, PNG, DOC, DOCX).",
         "certificateLink": "Certificate link",
-        "certificateLinkPlaceholder": "https://..."
+        "certificateLinkPlaceholder": "https://...",
+        "requirement": "Counts toward",
+        "requirementNone": "None",
+        "evidencePolicy": "Evidence: {{policy}}"
       }
     },
     "messages": {
@@ -3689,7 +3719,7 @@
     },
     "overview": {
       "eyebrow": "Professional Dashboard",
-      "title": "Welcome back, {name}! 👋",
+      "title": "Welcome back, {{name}}! 👋",
       "description": "Here’s what’s happening with your learning journey today.",
       "viewCalendar": "View Calendar",
       "browseCourses": "Browse Courses",
@@ -3884,9 +3914,8 @@
       },
       "summary": {
         "completedTitle": "Activities Completed & Logged",
-        "completedHelper": "Completed activities recorded in LoopsKey (rejected activities excluded).",
         "evidenceTitle": "Activities With Evidence",
-        "evidenceHelper": "{{files}} evidence file(s) uploaded in total."
+        "evidenceHelper": "{{files}} file(s)"
       },
       "cycleProgress": {
         "title": "Cycle Progress",
@@ -4091,6 +4120,7 @@
         "updateSuccess": "Activity updated successfully.",
         "successDescription": "Your CPD/PDU totals and charts have been updated.",
         "viewActivities": "View My Activities",
+        "backToRequirements": "Back to Requirements",
         "addAnother": "Add Another Activity",
         "cancelTitle": "Discard this activity?",
         "cancelDescription": "You have unsaved changes. Leaving now will discard everything you entered.",
@@ -4211,15 +4241,11 @@
       },
       "summary": {
         "activeTitle": "Active certificates",
-        "activeHelper": "Valid for more than 90 days.",
-        "viewActive": "View All Active",
         "expiringTitle": "Expiring soon",
-        "expiringHelper": "Expiring within the next 90 days.",
-        "viewExpiring": "View Expiring",
-        "nearestExpiry": "Nearest expiry: {{date}}",
-        "noUpcomingExpiry": "Nothing is expiring in the next 90 days.",
+        "nearestExpiry": "Next {{date}}",
         "statusTitle": "Certificate status",
-        "viewAll": "View All Certificates",
+        "showAll": "Show all",
+        "statusLegendAria": "{{active}} active, {{expiringSoon}} expiring soon, {{expired}} expired",
         "total": "Total"
       },
       "filters": {
@@ -4324,7 +4350,7 @@
       },
       "progressTitle": "Course Progress",
       "progressDescription": "Continue where you left off and monitor your learning journey.",
-      "courseFallback": "Course #{id}",
+      "courseFallback": "Course #{{id}}",
       "progress": "Progress",
       "continue": "Continue",
       "review": "Review",
@@ -4337,13 +4363,27 @@
       "subtitle": "Track your structured learning paths, monitor phase progress, and explore new professional development journeys.",
       "newRoadmap": "New roadmap",
       "continueRoadmap": "Continue",
+      "viewFullRoadmap": "View full roadmap",
+      "heroEyebrow": "Your current AI roadmap",
+      "journeyTimeline": "Journey timeline",
+      "nextStepTag": "Next",
+      "hero": {
+        "phasesCount": "{{count}} phases",
+        "targetDateWithCount": "Target {{date}} ({{days}} days left)",
+        "continueStep": "Continue: \"{{step}}\"",
+        "moreActions": "More actions",
+        "progressRingLabel": "{{progress}}% complete",
+        "cpdStrip": "CPD target {{earned}}/{{required}} PDU",
+        "thisWeek": "This week: {{count}} steps done",
+        "streak": "{{count}}-day streak"
+      },
       "enrolled": "Enrolled roadmaps",
       "averageCompletion": "Average completion",
       "completedPhases": "Completed phases",
       "nextMilestone": "Next milestone",
       "notAvailable": "Not available",
       "overallProgress": "Overall progress",
-      "overallProgressDescription": "Based on {count} enrolled roadmap(s).",
+      "overallProgressDescription": "Based on {{count}} enrolled roadmap(s).",
       "averageProgressText": "This shows your average progress across all active and completed professional roadmaps.",
       "activitiesDone": "Activities done",
       "noCpdTargetTracked": "No roadmap is tracking CPD credits yet.",
@@ -4360,20 +4400,19 @@
       "emptyExploreDescription": "There are no published roadmaps available right now, or no roadmap matches your search.",
       "phases": "phases",
       "steps": "steps",
-      "next": "Next",
       "duration": "Duration",
-      "weeks": "{count} weeks",
+      "weeks": "{{count}} weeks",
       "enroll": "Enroll",
       "unenroll": "Unenroll",
       "progressSection": "Your progress",
       "completedActivities": "Completed activities",
-      "ofSteps": "{completed} of {total} steps",
+      "ofSteps": "{{completed}} of {{total}} steps",
       "targetDate": "Target date",
-      "targetDateRemaining": "{days} days left",
+      "targetDateRemaining": "{{days}} days left",
       "targetDateToday": "Due today",
       "targetDatePassed": "Target date passed",
       "noTargetDate": "No target date set",
-      "creditsOf": "{earned} of {required} credits",
+      "creditsOf": "{{earned}} of {{required}} credits",
       "cpdTarget": "CPD target",
       "cpdTargetComplete": "complete",
       "creditsEarnedLabel": "Earned",
@@ -4382,9 +4421,15 @@
       "recommendedDescription": "Content that fits your goal and is not already in your roadmap.",
       "phasedContent": "Your Learning Path",
       "phasedContentDescription": "Work through it in order, each item you finish moves your progress.",
-      "weekRange": "Weeks {start}-{end}",
-      "pduValue": "{count} PDU",
+      "weekRange": "Weeks {{start}}-{{end}}",
+      "pduValue": "{{count}} PDU",
       "coverageNote": "About this roadmap",
+      "closeMatchDisclosure": {
+        "title": "This roadmap uses close matches",
+        "description": "We didn't find content that matches your subjects exactly, so this roadmap uses the closest available content instead. Refine your subjects to improve it.",
+        "action": "Review preferences"
+      },
+      "closeMatchTag": "Close match",
       "review": "Review",
       "start": "Start",
       "markComplete": "Mark complete",
@@ -4392,7 +4437,7 @@
       "inProgress": "In progress",
       "notStarted": "Not started",
       "stepFailed": "That change was not saved. Please try again.",
-      "minutes": "{count} min",
+      "minutes": "{{count}} min",
       "free": "Free",
       "generating": {
         "title": "Building your roadmap",
@@ -4403,6 +4448,18 @@
         "title": "We could not finish your roadmap",
         "description": "Nothing was saved. You can edit your answers and try again.",
         "action": "Back to the coach"
+      },
+      "noContent": {
+        "title": "We couldn't find enough matching learning content.",
+        "description": "Your answers are saved. Review your subjects, formats, or budget and try again. We won't broaden them without your approval.",
+        "action": "Review preferences",
+        "startOver": "Start over"
+      },
+      "genericFailure": {
+        "title": "Your roadmap couldn't be generated.",
+        "description": "Your answers are saved. Try again now or review the brief before generating.",
+        "action": "Try generation again",
+        "reviewBrief": "Review brief"
       }
     },
     "calendar": {
@@ -5277,7 +5334,7 @@
         "live": "Live organization count",
         "average": "Average compliance rate",
         "needAttention": "Members needing attention",
-        "engagement": "{value}% engagement"
+        "engagement": "{{value}}% engagement"
       },
       "compliance": {
         "title": "Compliance Overview",
@@ -5475,6 +5532,7 @@
         "memberNumber": "Member ID / licence number",
         "requirements": "CPD/PDU requirement (select all that apply)",
         "requirementsEmpty": "No requirements published yet.",
+        "autoAppliedNote": "{{count}} requirements apply automatically based on their audience and are not listed here.",
         "continue": "Continue",
         "back": "Back",
         "noAccountTitle": "No existing account found",
@@ -5694,12 +5752,28 @@
         "chartEmptyTitle": "No categories to chart",
         "chartEmptyBody": "None of the requirements assigned to this member splits its total by category.",
         "emptyTitle": "Nothing is assigned yet",
-        "emptyBody": "This member is not in the audience of any published requirement. Use Assign Requirement to assign one."
+        "emptyBody": "This member is not in the audience of any published requirement. Use Assign Requirement to assign one.",
+        "evidence": {
+          "activitiesTitle": "Activities counted toward this requirement",
+          "emptyActivities": "No activity has been logged against this requirement yet.",
+          "contentTitle": "Content completed for this requirement",
+          "emptyContent": "This member has not completed content linked to this requirement.",
+          "credits": "{{credits}} credits",
+          "certificateTitle": "Certificate evidence",
+          "emptyCertificates": "No evidence files or certification-type activities are attributed to this requirement."
+        },
+        "unlinked": {
+          "title": "Not linked to a requirement",
+          "subtitle": "Content this association assigned that this member completed, with no requirement to attribute it to.",
+          "notLinked": "Not linked to a requirement"
+        }
       },
       "activities": {
         "title": "Learning activities",
         "description": "What this member recorded that counts toward your requirements. Nothing else they logged is shown here.",
         "filterLabel": "Review state",
+        "requirementFilterLabel": "Requirement",
+        "filterAllRequirements": "All requirements",
         "filterAll": "All states",
         "counts": "{{counted}} approved, {{awaiting}} under review, {{rejected}} rejected",
         "meta": "{{source}} · {{category}} · {{credits}} credits · {{date}}",
@@ -6111,8 +6185,8 @@
       "title": "Learning Content",
       "description": "The learning you endorse for your members. A requirement says how many credits they owe; this says where to earn them.",
       "actions": {
-        "addCatalogue": "Endorse from the catalogue",
-        "addExternal": "Add an external resource",
+        "addContent": "Add content",
+        "assignContent": "Assign content",
         "view": "View details",
         "edit": "Edit",
         "publish": "Publish",
@@ -6158,23 +6232,42 @@
         "noResultsBody": "Clear the filters to see the whole library."
       },
       "editor": {
-        "addCatalogueTitle": "Endorse from the catalogue",
-        "addExternalTitle": "Add an external resource",
+        "addTitle": "Add content",
         "editTitle": "Edit library item",
-        "catalogueDescription": "Pick published content from the platform. Its title, image and provider stay in step with the catalogue rather than being copied here.",
-        "externalDescription": "Anything on the open web. Members open it in a new tab; the link is never fetched by the platform.",
-        "pickContent": "Content",
-        "searchPlaceholder": "Search the catalogue",
+        "step1Title": "What is the content?",
+        "step1Subtitle": "Find it in the Loopskey library, or enter your own.",
+        "libraryTitle": "Find it in the Loopskey library",
+        "librarySubtitle": "Search the shared catalogue and we'll fill in the details for you.",
+        "notInLibraryTitle": "Not in the library?",
+        "notInLibraryBody": "Enter the title, type, and provider yourself. It takes about a minute.",
+        "enterManually": "Enter details manually",
+        "searchInstead": "Search the library instead",
+        "change": "Change",
+        "details": "Details",
+        "useThis": "Use this",
+        "manualTitle": "Enter details manually",
+        "searchPlaceholder": "Search courses, events, podcasts, videos…",
         "contentType": "Content type",
         "allTypes": "All types",
-        "noResults": "Nothing in the catalogue matches that search.",
+        "noResults": "No results. Enter the details manually.",
         "pickOne": "Choose a piece of content to endorse.",
+        "pickType": "Choose a content type.",
         "title": "Title",
         "provider": "Provider",
         "url": "Link",
+        "urlInvalid": "Enter a link that starts with https://",
         "credits": "Indicative credits",
+        "creditsShort": "{{credits}} CPD hrs",
+        "category": "CPD category",
+        "countsToward": "Counts toward requirement",
+        "countsTowardHint": "Optional. A member logging an activity against this content sees this requirement preselected.",
+        "noRequirementOption": "None",
         "description": "Why you are recommending it",
         "cpdAdvisory": "This credit value is informational only. A member only earns credit once they record a matching activity and, if required, it passes evidence review.",
+        "detailsSheet": {
+          "credits": "{{credits}} CPD hrs",
+          "viewPublic": "View public page"
+        },
         "unsavedTitle": "Discard your changes?",
         "unsavedBody": "You have entered details that have not been saved. Closing now discards them.",
         "unsavedKeep": "Keep editing",
@@ -6215,9 +6308,21 @@
         "contentPending": "No content selected yet",
         "credits": "Indicative credits",
         "noCredits": "Not stated",
+        "category": "CPD category",
+        "noCategory": "Uncategorised",
+        "requirement": "Counts toward",
+        "noRequirement": "No requirement",
         "audience": "Audience",
         "saveDraft": "Save as draft",
         "publish": "Publish"
+      },
+      "assignPage": {
+        "title": "Assign content",
+        "subtitle": "Assign content you have already added to members, or to a requirement.",
+        "selectTitle": "Select content ({{count}} selected)",
+        "empty": "You have not added any content yet.",
+        "audienceTitle": "Who sees it",
+        "apply": "Assign ({{count}})"
       },
       "detail": {
         "title": "Library item",
@@ -6262,7 +6367,8 @@
         "saved": "Library item saved.",
         "published": "Published to your members.",
         "withdrawn": "Withdrawn. The item is kept in your library.",
-        "deleted": "Draft deleted."
+        "deleted": "Draft deleted.",
+        "assigned": "Assigned {{count}} items."
       },
       "error": {
         "title": "The library could not be loaded.",
@@ -6783,19 +6889,19 @@
         "activationNote": "The activation link expires, and you can resend it from this table while the account is still pending.",
         "submit": "Create account",
         "sentTitle": "Account created",
-        "sentBody": "{name} was created and the activation email is on its way to the representative.",
+        "sentBody": "{{name}} was created and the activation email is on its way to the representative.",
         "notSentTitle": "Account created, email not sent",
-        "notSentBody": "{name} was created, but the activation email could not be queued. Resend it from the table.",
+        "notSentBody": "{{name}} was created, but the activation email could not be queued. Resend it from the table.",
         "createAnother": "Create another",
         "done": "Done"
       },
       "resend": {
         "title": "Resend the activation email?",
-        "description": "A new activation link is sent to the representative of {name}, and the previous link stops working.",
+        "description": "A new activation link is sent to the representative of {{name}}, and the previous link stops working.",
         "confirm": "Resend"
       },
       "messages": {
-        "activationResent": "A new activation email was queued for {name}.",
+        "activationResent": "A new activation email was queued for {{name}}.",
         "accountDeleted": "{{name}}'s account was deleted permanently."
       },
       "errors": {
@@ -7398,19 +7504,11 @@
     "startOverConfirmTitle": "Start over?",
     "startOverConfirmDescription": "This discards everything you have answered so far and begins a new conversation with the coach.",
     "startOverFailed": "We could not start over. Please try again.",
-    "preferencesWizard": {
-      "stepOf": "Step {{current}} of {{total}}",
-      "back": "Back",
-      "confirm": "Confirm",
-      "maxSelected": "Up to {{max}} selected",
-      "questions": {
-        "skillLevel": "What's your current experience level?",
-        "subjects": "Which subjects should the roadmap focus on? Choose up to 3.",
-        "preferredFormats": "What kind of content do you learn best from?",
-        "timeCommitment": "How much time can you dedicate each week?",
-        "preferredDeliveryFormats": "How do you prefer to attend?",
-        "budgetPreference": "What's your learning budget?"
-      }
+    "briefButtonMobile": "Brief · {{completed}}/{{required}}",
+    "saveState": {
+      "saving": "Saving…",
+      "saved": "Saved",
+      "error": "Could not save"
     },
     "transcriptLabel": "Conversation with the roadmap coach",
     "thinking": "The coach is thinking…",
@@ -7440,8 +7538,9 @@
       "send": "Send",
       "hint": "Press Enter to send, Shift + Enter for a new line.",
       "correctionHint": "Want to change something you already told me? Just type it, for example “change my budget to under $100”.",
-      "remaining": "{remaining} characters left",
-      "overLimit": "{over} characters over the limit"
+      "remaining": "{{remaining}} characters left",
+      "overLimit": "{{over}} characters over the limit",
+      "orOwnWords": "Or tell the coach in your own words"
     },
     "widget": {
       "yes": "Yes",
@@ -7449,19 +7548,27 @@
       "chooseDate": "Choose a date",
       "useDate": "Use this date",
       "confirmSelection": "Confirm",
-      "selectedOfMax": "{selected} of {max} selected",
+      "selectedOfMax": "{{selected}} of {{max}} selected",
       "quickInThreeMonths": "In 3 months",
       "quickInSixMonths": "In 6 months",
-      "quickEndOfYear": "End of year"
+      "quickEndOfYear": "End of year",
+      "suggestions": {
+        "showMore": "Show more…",
+        "title": "More options",
+        "description": "The full ranked list, including groups not shown as quick chips.",
+        "searchPlaceholder": "Search…",
+        "loading": "Loading…",
+        "empty": "No matches."
+      }
     },
     "system": {
       "ROADMAP_AI_REFUSED": "That looks unrelated to building a roadmap. Could you rephrase it?",
-      "fieldUpdated": "{field} updated."
+      "fieldUpdated": "{{field}} updated."
     },
     "error": {
       "retry": "Try again",
       "sendFailed": "That did not send.",
-      "retryIn": "You can try again in {seconds}s.",
+      "retryIn": "You can try again in {{seconds}}s.",
       "loadTitle": "The conversation could not be loaded",
       "loadDescription": "This is a temporary problem on our side, not a problem with your answers."
     },
@@ -7478,9 +7585,16 @@
       "generating": "Starting generation...",
       "generateFailed": "We could not start generating your roadmap. Please try again.",
       "generateUnavailable": "Answer the remaining required fields to generate your roadmap.",
+      "generateUnavailableNext": "Next: answer {{field}} to generate your roadmap.",
       "briefProgress": "Brief completion",
       "briefProgressValue": "{{completed}} of {{required}} fields complete",
-      "notReachedYet": "You'll set this up after preferences."
+      "notReachedYet": "You'll set this up after preferences.",
+      "status": {
+        "confirmed": "Confirmed",
+        "suggested": "Suggested from profile",
+        "needsAnswer": "Needs answer",
+        "notNeeded": "Not needed"
+      }
     },
     "cpdSetup": {
       "pickTitle": "Pick a certification to track, or search for another one.",

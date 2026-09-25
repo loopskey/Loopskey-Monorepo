@@ -3,6 +3,7 @@ import { RoadmapSource, RoadmapStepProgressStatus } from "@prisma/client";
 import { RoadmapEnrollmentStatus, RoadmapStatus } from "@prisma/client";
 import { Field, Float, ID, Int, ObjectType } from "@nestjs/graphql";
 import { ProfessionalGqlObjectNames } from "@professional/enums/gql-names.enum";
+import { RoadmapMatchTier } from "@prisma/client";
 import { PageInfoEntity } from "@professional/entities/page-info.entity";
 
 @ObjectType(ProfessionalGqlObjectNames.PROFESSIONAL_ROADMAP_STEP)
@@ -10,6 +11,7 @@ export class ProfessionalRoadmapStepEntity {
   @Field() title: string;
   @Field(() => ID) id: string;
   @Field(() => Int) order: number;
+  @Field(() => Boolean) isCloseMatch: boolean;
   @Field(() => Date, { nullable: true }) completedAt?: Date | null;
   @Field(() => String, { nullable: true }) contentId?: string | null;
   @Field(() => String, { nullable: true }) description?: string | null;
@@ -66,6 +68,9 @@ export class ProfessionalRoadmapEntity {
   @Field(() => Float, { nullable: true }) requiredCredits?: number | null;
   @Field(() => CourseCategory, { nullable: true })
   category?: CourseCategory | null;
+  @Field(() => ID, { nullable: true }) draftId?: string | null;
+  @Field(() => RoadmapMatchTier, { nullable: true })
+  matchTier?: RoadmapMatchTier | null;
   @Field(() => [ProfessionalRoadmapPhaseEntity])
   phases: ProfessionalRoadmapPhaseEntity[];
 }

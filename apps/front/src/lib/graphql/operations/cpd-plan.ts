@@ -20,7 +20,9 @@ export type CpdPlanActivityFieldsFragment = { __typename?: 'ProfessionalPduActiv
 
 export type AssociationMyRequirementFieldsFragment = { __typename?: 'AssociationMyRequirement', requirementId: string, assignmentId: string, name: string, description?: string | null, associationId: string, associationName: string, creditType: Types.CreditType, evidencePolicy: Types.AssociationEvidencePolicy, requiredCredits: number, completedCredits: number, remainingCredits: number, percent: number, band: Types.AssociationComplianceBand, dueDate?: string | null, daysRemaining?: number | null, awaitingReviewCount: number, isMissingEvidence: boolean, cycleStart: string, cycleEnd?: string | null };
 
-export type AssociationMyRequirementDetailFieldsFragment = { __typename?: 'AssociationMyRequirementDetail', requirementId: string, assignmentId: string, name: string, description?: string | null, associationId: string, associationName: string, creditType: Types.CreditType, evidencePolicy: Types.AssociationEvidencePolicy, requiredCredits: number, completedCredits: number, remainingCredits: number, percent: number, band: Types.AssociationComplianceBand, dueDate?: string | null, daysRemaining?: number | null, awaitingReviewCount: number, isMissingEvidence: boolean, cycleStart: string, cycleEnd?: string | null, categories: Array<{ __typename?: 'AssociationCategoryProgress', id: string, name: string, requiredCredits: number, completedCredits: number, percent: number }>, activities: Array<{ __typename?: 'AssociationMyRequirementActivity', activityId: string, title: string, date: string, category: string, credits: number, creditedAmount: number, state: Types.AssociationAttributionState, isLate: boolean, hasEvidence: boolean, categoryName?: string | null, reviewNote?: string | null }>, learningContents: Array<{ __typename?: 'AssociationMyRequirementContent', id: string, title: string, provider?: string | null, imageUrl?: string | null, isExternal: boolean, isAvailable: boolean, isCompleted: boolean, contentType?: Types.ContentType | null, contentId?: string | null, slug?: string | null, externalUrl?: string | null, description?: string | null, category?: Types.PduCategory | null, indicativeCredits?: number | null }> };
+export type AssociationMyRequirementDetailFieldsFragment = { __typename?: 'AssociationMyRequirementDetail', requirementId: string, assignmentId: string, name: string, description?: string | null, associationId: string, associationName: string, creditType: Types.CreditType, evidencePolicy: Types.AssociationEvidencePolicy, requiredCredits: number, completedCredits: number, remainingCredits: number, percent: number, band: Types.AssociationComplianceBand, dueDate?: string | null, daysRemaining?: number | null, awaitingReviewCount: number, isMissingEvidence: boolean, cycleStart: string, cycleEnd?: string | null, categories: Array<{ __typename?: 'AssociationCategoryProgress', id: string, name: string, requiredCredits: number, completedCredits: number, mappedCategory: Types.PduCategory, percent: number }>, activities: Array<{ __typename?: 'AssociationMyRequirementActivity', activityId: string, title: string, date: string, category: string, credits: number, creditedAmount: number, state: Types.AssociationAttributionState, isLate: boolean, hasEvidence: boolean, categoryName?: string | null, reviewNote?: string | null }>, learningContents: Array<{ __typename?: 'AssociationMyRequirementContent', id: string, title: string, provider?: string | null, imageUrl?: string | null, isExternal: boolean, isAvailable: boolean, isCompleted: boolean, isLinkedToRequirement: boolean, contentType?: Types.ContentType | null, contentId?: string | null, slug?: string | null, externalUrl?: string | null, description?: string | null, category?: Types.PduCategory | null, indicativeCredits?: number | null }> };
+
+export type AssociationMyLearningContentFieldsFragment = { __typename?: 'AssociationMyRequirementContent', id: string, title: string, provider?: string | null, imageUrl?: string | null, isExternal: boolean, isAvailable: boolean, isCompleted: boolean, isLinkedToRequirement: boolean, associationId: string, associationName: string, contentType?: Types.ContentType | null, contentId?: string | null, slug?: string | null, externalUrl?: string | null, description?: string | null, category?: Types.PduCategory | null, indicativeCredits?: number | null };
 
 export type CertificationSearchQueryVariables = Types.Exact<{
   input: Types.CertificationSearchInput;
@@ -33,6 +35,11 @@ export type MyCpdPlansQueryVariables = Types.Exact<{ [key: string]: never; }>;
 
 
 export type MyCpdPlansQuery = { __typename?: 'Query', myCpdPlans: Array<{ __typename?: 'CpdPlan', id: string, certificationId?: string | null, certificationName: string, organization: string, reportingStart: string, reportingEnd: string, creditType: Types.CreditType, totalRequiredCredits: number, initialCompletedCredits: number, timeAvailable?: Types.LearningTimeCommitment | null, preferredFormats: Array<Types.LearningFormat>, evidenceTypes: Array<Types.CpdEvidenceType>, evidenceOtherNote?: string | null, reportRecipientType: Types.CpdReportRecipientType, reportRecipientLabel?: string | null, remindersEnabled: boolean, reminderTiming?: Types.CpdReminderTiming | null, status: Types.CpdPlanStatus, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'CpdPlanCategory', id: string, name: string, targetCredits: number, completedCredits: number, order: number }> }> };
+
+export type MyDraftCpdPlansQueryVariables = Types.Exact<{ [key: string]: never; }>;
+
+
+export type MyDraftCpdPlansQuery = { __typename?: 'Query', myDraftCpdPlans: Array<{ __typename?: 'CpdPlan', id: string, certificationId?: string | null, certificationName: string, organization: string, reportingStart: string, reportingEnd: string, creditType: Types.CreditType, totalRequiredCredits: number, initialCompletedCredits: number, timeAvailable?: Types.LearningTimeCommitment | null, preferredFormats: Array<Types.LearningFormat>, evidenceTypes: Array<Types.CpdEvidenceType>, evidenceOtherNote?: string | null, reportRecipientType: Types.CpdReportRecipientType, reportRecipientLabel?: string | null, remindersEnabled: boolean, reminderTiming?: Types.CpdReminderTiming | null, status: Types.CpdPlanStatus, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'CpdPlanCategory', id: string, name: string, targetCredits: number, completedCredits: number, order: number }> }> };
 
 export type CpdPlanQueryVariables = Types.Exact<{
   planId: Types.Scalars['ID']['input'];
@@ -70,7 +77,22 @@ export type MyAssociationRequirementQueryVariables = Types.Exact<{
 }>;
 
 
-export type MyAssociationRequirementQuery = { __typename?: 'Query', myAssociationRequirement: { __typename?: 'AssociationMyRequirementDetail', requirementId: string, assignmentId: string, name: string, description?: string | null, associationId: string, associationName: string, creditType: Types.CreditType, evidencePolicy: Types.AssociationEvidencePolicy, requiredCredits: number, completedCredits: number, remainingCredits: number, percent: number, band: Types.AssociationComplianceBand, dueDate?: string | null, daysRemaining?: number | null, awaitingReviewCount: number, isMissingEvidence: boolean, cycleStart: string, cycleEnd?: string | null, categories: Array<{ __typename?: 'AssociationCategoryProgress', id: string, name: string, requiredCredits: number, completedCredits: number, percent: number }>, activities: Array<{ __typename?: 'AssociationMyRequirementActivity', activityId: string, title: string, date: string, category: string, credits: number, creditedAmount: number, state: Types.AssociationAttributionState, isLate: boolean, hasEvidence: boolean, categoryName?: string | null, reviewNote?: string | null }>, learningContents: Array<{ __typename?: 'AssociationMyRequirementContent', id: string, title: string, provider?: string | null, imageUrl?: string | null, isExternal: boolean, isAvailable: boolean, isCompleted: boolean, contentType?: Types.ContentType | null, contentId?: string | null, slug?: string | null, externalUrl?: string | null, description?: string | null, category?: Types.PduCategory | null, indicativeCredits?: number | null }> } };
+export type MyAssociationRequirementQuery = { __typename?: 'Query', myAssociationRequirement: { __typename?: 'AssociationMyRequirementDetail', requirementId: string, assignmentId: string, name: string, description?: string | null, associationId: string, associationName: string, creditType: Types.CreditType, evidencePolicy: Types.AssociationEvidencePolicy, requiredCredits: number, completedCredits: number, remainingCredits: number, percent: number, band: Types.AssociationComplianceBand, dueDate?: string | null, daysRemaining?: number | null, awaitingReviewCount: number, isMissingEvidence: boolean, cycleStart: string, cycleEnd?: string | null, categories: Array<{ __typename?: 'AssociationCategoryProgress', id: string, name: string, requiredCredits: number, completedCredits: number, mappedCategory: Types.PduCategory, percent: number }>, activities: Array<{ __typename?: 'AssociationMyRequirementActivity', activityId: string, title: string, date: string, category: string, credits: number, creditedAmount: number, state: Types.AssociationAttributionState, isLate: boolean, hasEvidence: boolean, categoryName?: string | null, reviewNote?: string | null }>, learningContents: Array<{ __typename?: 'AssociationMyRequirementContent', id: string, title: string, provider?: string | null, imageUrl?: string | null, isExternal: boolean, isAvailable: boolean, isCompleted: boolean, isLinkedToRequirement: boolean, contentType?: Types.ContentType | null, contentId?: string | null, slug?: string | null, externalUrl?: string | null, description?: string | null, category?: Types.PduCategory | null, indicativeCredits?: number | null }> } };
+
+export type MyAssociationLearningContentQueryVariables = Types.Exact<{ [key: string]: never; }>;
+
+
+export type MyAssociationLearningContentQuery = { __typename?: 'Query', myAssociationLearningContent: Array<{ __typename?: 'AssociationMyRequirementContent', id: string, title: string, provider?: string | null, imageUrl?: string | null, isExternal: boolean, isAvailable: boolean, isCompleted: boolean, isLinkedToRequirement: boolean, associationId: string, associationName: string, contentType?: Types.ContentType | null, contentId?: string | null, slug?: string | null, externalUrl?: string | null, description?: string | null, category?: Types.PduCategory | null, indicativeCredits?: number | null }> };
+
+export type AssociationContentEndorsementFieldsFragment = { __typename?: 'AssociationContentEndorsement', requirementId: string, associationName: string, learningContentId: string, isDefaultRequirement: boolean };
+
+export type MyContentEndorsementQueryVariables = Types.Exact<{
+  contentType: Types.ContentType;
+  contentId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type MyContentEndorsementQuery = { __typename?: 'Query', myContentEndorsement?: { __typename?: 'AssociationContentEndorsement', requirementId: string, associationName: string, learningContentId: string, isDefaultRequirement: boolean } | null };
 
 export type CreateCpdPlanMutationVariables = Types.Exact<{
   input: Types.CreateCpdPlanInput;
@@ -85,6 +107,13 @@ export type CreateCpdPlanFromSuggestionMutationVariables = Types.Exact<{
 
 
 export type CreateCpdPlanFromSuggestionMutation = { __typename?: 'Mutation', createCpdPlanFromSuggestion: { __typename?: 'CpdPlan', id: string, certificationId?: string | null, certificationName: string, organization: string, reportingStart: string, reportingEnd: string, creditType: Types.CreditType, totalRequiredCredits: number, initialCompletedCredits: number, timeAvailable?: Types.LearningTimeCommitment | null, preferredFormats: Array<Types.LearningFormat>, evidenceTypes: Array<Types.CpdEvidenceType>, evidenceOtherNote?: string | null, reportRecipientType: Types.CpdReportRecipientType, reportRecipientLabel?: string | null, remindersEnabled: boolean, reminderTiming?: Types.CpdReminderTiming | null, status: Types.CpdPlanStatus, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'CpdPlanCategory', id: string, name: string, targetCredits: number, completedCredits: number, order: number }> } };
+
+export type ActivateCpdPlanMutationVariables = Types.Exact<{
+  planId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type ActivateCpdPlanMutation = { __typename?: 'Mutation', activateCpdPlan: { __typename?: 'CpdPlan', id: string, certificationId?: string | null, certificationName: string, organization: string, reportingStart: string, reportingEnd: string, creditType: Types.CreditType, totalRequiredCredits: number, initialCompletedCredits: number, timeAvailable?: Types.LearningTimeCommitment | null, preferredFormats: Array<Types.LearningFormat>, evidenceTypes: Array<Types.CpdEvidenceType>, evidenceOtherNote?: string | null, reportRecipientType: Types.CpdReportRecipientType, reportRecipientLabel?: string | null, remindersEnabled: boolean, reminderTiming?: Types.CpdReminderTiming | null, status: Types.CpdPlanStatus, createdAt: string, updatedAt: string, categories: Array<{ __typename?: 'CpdPlanCategory', id: string, name: string, targetCredits: number, completedCredits: number, order: number }> } };
 
 export type UpdateCpdPlanMutationVariables = Types.Exact<{
   input: Types.UpdateCpdPlanInput;
@@ -297,6 +326,7 @@ export const AssociationMyRequirementDetailFieldsFragmentDoc = /*#__PURE__*/ new
     name
     requiredCredits
     completedCredits
+    mappedCategory
     percent
   }
   activities {
@@ -320,6 +350,7 @@ export const AssociationMyRequirementDetailFieldsFragmentDoc = /*#__PURE__*/ new
     isExternal
     isAvailable
     isCompleted
+    isLinkedToRequirement
     contentType
     contentId
     slug
@@ -330,6 +361,35 @@ export const AssociationMyRequirementDetailFieldsFragmentDoc = /*#__PURE__*/ new
   }
 }
     `, {"fragmentName":"AssociationMyRequirementDetailFields"}) as unknown as TypedDocumentString<AssociationMyRequirementDetailFieldsFragment, unknown>;
+export const AssociationMyLearningContentFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
+    fragment AssociationMyLearningContentFields on AssociationMyRequirementContent {
+  id
+  title
+  provider
+  imageUrl
+  isExternal
+  isAvailable
+  isCompleted
+  isLinkedToRequirement
+  associationId
+  associationName
+  contentType
+  contentId
+  slug
+  externalUrl
+  description
+  category
+  indicativeCredits
+}
+    `, {"fragmentName":"AssociationMyLearningContentFields"}) as unknown as TypedDocumentString<AssociationMyLearningContentFieldsFragment, unknown>;
+export const AssociationContentEndorsementFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
+    fragment AssociationContentEndorsementFields on AssociationContentEndorsement {
+  requirementId
+  associationName
+  learningContentId
+  isDefaultRequirement
+}
+    `, {"fragmentName":"AssociationContentEndorsementFields"}) as unknown as TypedDocumentString<AssociationContentEndorsementFieldsFragment, unknown>;
 export const CertificationSearchDocument = /*#__PURE__*/ new TypedDocumentString(`
     query CertificationSearch($input: CertificationSearchInput!) {
   certificationSearch(input: $input) {
@@ -396,6 +456,44 @@ fragment CpdPlanFields on CpdPlan {
   createdAt
   updatedAt
 }`) as unknown as TypedDocumentString<MyCpdPlansQuery, MyCpdPlansQueryVariables>;
+export const MyDraftCpdPlansDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query MyDraftCpdPlans {
+  myDraftCpdPlans {
+    ...CpdPlanFields
+  }
+}
+    fragment CpdPlanCategoryFields on CpdPlanCategory {
+  id
+  name
+  targetCredits
+  completedCredits
+  order
+}
+fragment CpdPlanFields on CpdPlan {
+  id
+  certificationId
+  certificationName
+  organization
+  reportingStart
+  reportingEnd
+  creditType
+  totalRequiredCredits
+  initialCompletedCredits
+  timeAvailable
+  preferredFormats
+  evidenceTypes
+  evidenceOtherNote
+  reportRecipientType
+  reportRecipientLabel
+  remindersEnabled
+  reminderTiming
+  status
+  categories {
+    ...CpdPlanCategoryFields
+  }
+  createdAt
+  updatedAt
+}`) as unknown as TypedDocumentString<MyDraftCpdPlansQuery, MyDraftCpdPlansQueryVariables>;
 export const CpdPlanDocument = /*#__PURE__*/ new TypedDocumentString(`
     query CpdPlan($planId: ID!) {
   cpdPlan(planId: $planId) {
@@ -563,6 +661,7 @@ export const MyAssociationRequirementDocument = /*#__PURE__*/ new TypedDocumentS
     name
     requiredCredits
     completedCredits
+    mappedCategory
     percent
   }
   activities {
@@ -586,6 +685,7 @@ export const MyAssociationRequirementDocument = /*#__PURE__*/ new TypedDocumentS
     isExternal
     isAvailable
     isCompleted
+    isLinkedToRequirement
     contentType
     contentId
     slug
@@ -595,6 +695,43 @@ export const MyAssociationRequirementDocument = /*#__PURE__*/ new TypedDocumentS
     indicativeCredits
   }
 }`) as unknown as TypedDocumentString<MyAssociationRequirementQuery, MyAssociationRequirementQueryVariables>;
+export const MyAssociationLearningContentDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query MyAssociationLearningContent {
+  myAssociationLearningContent {
+    ...AssociationMyLearningContentFields
+  }
+}
+    fragment AssociationMyLearningContentFields on AssociationMyRequirementContent {
+  id
+  title
+  provider
+  imageUrl
+  isExternal
+  isAvailable
+  isCompleted
+  isLinkedToRequirement
+  associationId
+  associationName
+  contentType
+  contentId
+  slug
+  externalUrl
+  description
+  category
+  indicativeCredits
+}`) as unknown as TypedDocumentString<MyAssociationLearningContentQuery, MyAssociationLearningContentQueryVariables>;
+export const MyContentEndorsementDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query MyContentEndorsement($contentType: ContentType!, $contentId: ID!) {
+  myContentEndorsement(contentType: $contentType, contentId: $contentId) {
+    ...AssociationContentEndorsementFields
+  }
+}
+    fragment AssociationContentEndorsementFields on AssociationContentEndorsement {
+  requirementId
+  associationName
+  learningContentId
+  isDefaultRequirement
+}`) as unknown as TypedDocumentString<MyContentEndorsementQuery, MyContentEndorsementQueryVariables>;
 export const CreateCpdPlanDocument = /*#__PURE__*/ new TypedDocumentString(`
     mutation CreateCpdPlan($input: CreateCpdPlanInput!) {
   createCpdPlan(input: $input) {
@@ -671,6 +808,44 @@ fragment CpdPlanFields on CpdPlan {
   createdAt
   updatedAt
 }`) as unknown as TypedDocumentString<CreateCpdPlanFromSuggestionMutation, CreateCpdPlanFromSuggestionMutationVariables>;
+export const ActivateCpdPlanDocument = /*#__PURE__*/ new TypedDocumentString(`
+    mutation ActivateCpdPlan($planId: ID!) {
+  activateCpdPlan(planId: $planId) {
+    ...CpdPlanFields
+  }
+}
+    fragment CpdPlanCategoryFields on CpdPlanCategory {
+  id
+  name
+  targetCredits
+  completedCredits
+  order
+}
+fragment CpdPlanFields on CpdPlan {
+  id
+  certificationId
+  certificationName
+  organization
+  reportingStart
+  reportingEnd
+  creditType
+  totalRequiredCredits
+  initialCompletedCredits
+  timeAvailable
+  preferredFormats
+  evidenceTypes
+  evidenceOtherNote
+  reportRecipientType
+  reportRecipientLabel
+  remindersEnabled
+  reminderTiming
+  status
+  categories {
+    ...CpdPlanCategoryFields
+  }
+  createdAt
+  updatedAt
+}`) as unknown as TypedDocumentString<ActivateCpdPlanMutation, ActivateCpdPlanMutationVariables>;
 export const UpdateCpdPlanDocument = /*#__PURE__*/ new TypedDocumentString(`
     mutation UpdateCpdPlan($input: UpdateCpdPlanInput!) {
   updateCpdPlan(input: $input) {

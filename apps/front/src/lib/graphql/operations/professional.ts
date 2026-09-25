@@ -294,15 +294,15 @@ export type UpsertProfessionalPduTargetMutationVariables = Types.Exact<{
 
 export type UpsertProfessionalPduTargetMutation = { __typename?: 'Mutation', upsertProfessionalPduTarget: { __typename?: 'ProfessionalPduTarget', id: string, year: number, target: number, category: Types.PduCategory } };
 
-export type ProfessionalRoadmapStepFieldsFragment = { __typename?: 'ProfessionalRoadmapStep', id: string, order: number, title: string, status?: Types.RoadmapStepProgressStatus | null, credits?: number | null, contentId?: string | null, description?: string | null, contentType?: Types.ContentType | null, completedAt?: string | null, estimatedMinutes?: number | null };
+export type ProfessionalRoadmapStepFieldsFragment = { __typename?: 'ProfessionalRoadmapStep', id: string, order: number, title: string, status?: Types.RoadmapStepProgressStatus | null, credits?: number | null, contentId?: string | null, description?: string | null, contentType?: Types.ContentType | null, completedAt?: string | null, isCloseMatch: boolean, estimatedMinutes?: number | null };
 
-export type ProfessionalRoadmapPhaseFieldsFragment = { __typename?: 'ProfessionalRoadmapPhase', id: string, order: number, title: string, progress: number, completed: boolean, stepsCount: number, description?: string | null, completedSteps: number, estimatedWeeks?: number | null, steps: Array<{ __typename?: 'ProfessionalRoadmapStep', id: string, order: number, title: string, status?: Types.RoadmapStepProgressStatus | null, credits?: number | null, contentId?: string | null, description?: string | null, contentType?: Types.ContentType | null, completedAt?: string | null, estimatedMinutes?: number | null }> };
+export type ProfessionalRoadmapPhaseFieldsFragment = { __typename?: 'ProfessionalRoadmapPhase', id: string, order: number, title: string, progress: number, completed: boolean, stepsCount: number, description?: string | null, completedSteps: number, estimatedWeeks?: number | null, steps: Array<{ __typename?: 'ProfessionalRoadmapStep', id: string, order: number, title: string, status?: Types.RoadmapStepProgressStatus | null, credits?: number | null, contentId?: string | null, description?: string | null, contentType?: Types.ContentType | null, completedAt?: string | null, isCloseMatch: boolean, estimatedMinutes?: number | null }> };
 
-export type ProfessionalRoadmapFieldsFragment = { __typename?: 'ProfessionalRoadmap', id: string, slug: string, level: Types.CourseLevel, title: string, userId: string, status: Types.RoadmapEnrollmentStatus, imageUrl?: string | null, progress: number, category?: Types.CourseCategory | null, updatedAt: string, roadmapId: string, enrolledAt: string, totalSteps: number, completedAt?: string | null, description: string, phasesCount: number, roadmapStatus: Types.RoadmapStatus, completedSteps: number, nextPhaseTitle?: string | null, completedPhases: number, nextMilestoneProgress: number, source: Types.RoadmapSource, targetDate?: string | null, coverageNote?: string | null, earnedCredits: number, estimatedWeeks?: number | null, requiredCredits?: number | null, phases: Array<{ __typename?: 'ProfessionalRoadmapPhase', id: string, order: number, title: string, progress: number, completed: boolean, stepsCount: number, description?: string | null, completedSteps: number, estimatedWeeks?: number | null, steps: Array<{ __typename?: 'ProfessionalRoadmapStep', id: string, order: number, title: string, status?: Types.RoadmapStepProgressStatus | null, credits?: number | null, contentId?: string | null, description?: string | null, contentType?: Types.ContentType | null, completedAt?: string | null, estimatedMinutes?: number | null }> }> };
+export type ProfessionalRoadmapFieldsFragment = { __typename?: 'ProfessionalRoadmap', id: string, slug: string, level: Types.CourseLevel, title: string, userId: string, status: Types.RoadmapEnrollmentStatus, imageUrl?: string | null, progress: number, category?: Types.CourseCategory | null, updatedAt: string, roadmapId: string, enrolledAt: string, totalSteps: number, completedAt?: string | null, description: string, phasesCount: number, roadmapStatus: Types.RoadmapStatus, completedSteps: number, nextPhaseTitle?: string | null, completedPhases: number, nextMilestoneProgress: number, source: Types.RoadmapSource, targetDate?: string | null, coverageNote?: string | null, earnedCredits: number, estimatedWeeks?: number | null, requiredCredits?: number | null, draftId?: string | null, matchTier?: Types.RoadmapMatchTier | null, phases: Array<{ __typename?: 'ProfessionalRoadmapPhase', id: string, order: number, title: string, progress: number, completed: boolean, stepsCount: number, description?: string | null, completedSteps: number, estimatedWeeks?: number | null, steps: Array<{ __typename?: 'ProfessionalRoadmapStep', id: string, order: number, title: string, status?: Types.RoadmapStepProgressStatus | null, credits?: number | null, contentId?: string | null, description?: string | null, contentType?: Types.ContentType | null, completedAt?: string | null, isCloseMatch: boolean, estimatedMinutes?: number | null }> }> };
 
 export type ProfessionalExploreRoadmapFieldsFragment = { __typename?: 'ProfessionalExploreRoadmap', id: string, slug: string, title: string, level: Types.CourseLevel, status: Types.RoadmapStatus, imageUrl?: string | null, category?: Types.CourseCategory | null, totalSteps: number, isEnrolled: boolean, description: string, phasesCount: number, estimatedWeeks: number };
 
-export type PaginatedProfessionalRoadmapsFieldsFragment = { __typename?: 'PaginatedProfessionalRoadmaps', totalCount: number, pageInfo: { __typename?: 'ProfessionalPageInfo', nextCursor?: string | null, hasNextPage: boolean }, items: Array<{ __typename?: 'ProfessionalRoadmap', id: string, slug: string, level: Types.CourseLevel, title: string, userId: string, status: Types.RoadmapEnrollmentStatus, imageUrl?: string | null, progress: number, category?: Types.CourseCategory | null, updatedAt: string, roadmapId: string, enrolledAt: string, totalSteps: number, completedAt?: string | null, description: string, phasesCount: number, roadmapStatus: Types.RoadmapStatus, completedSteps: number, nextPhaseTitle?: string | null, completedPhases: number, nextMilestoneProgress: number, source: Types.RoadmapSource, targetDate?: string | null, coverageNote?: string | null, earnedCredits: number, estimatedWeeks?: number | null, requiredCredits?: number | null, phases: Array<{ __typename?: 'ProfessionalRoadmapPhase', id: string, order: number, title: string, progress: number, completed: boolean, stepsCount: number, description?: string | null, completedSteps: number, estimatedWeeks?: number | null, steps: Array<{ __typename?: 'ProfessionalRoadmapStep', id: string, order: number, title: string, status?: Types.RoadmapStepProgressStatus | null, credits?: number | null, contentId?: string | null, description?: string | null, contentType?: Types.ContentType | null, completedAt?: string | null, estimatedMinutes?: number | null }> }> }> };
+export type PaginatedProfessionalRoadmapsFieldsFragment = { __typename?: 'PaginatedProfessionalRoadmaps', totalCount: number, pageInfo: { __typename?: 'ProfessionalPageInfo', nextCursor?: string | null, hasNextPage: boolean }, items: Array<{ __typename?: 'ProfessionalRoadmap', id: string, slug: string, level: Types.CourseLevel, title: string, userId: string, status: Types.RoadmapEnrollmentStatus, imageUrl?: string | null, progress: number, category?: Types.CourseCategory | null, updatedAt: string, roadmapId: string, enrolledAt: string, totalSteps: number, completedAt?: string | null, description: string, phasesCount: number, roadmapStatus: Types.RoadmapStatus, completedSteps: number, nextPhaseTitle?: string | null, completedPhases: number, nextMilestoneProgress: number, source: Types.RoadmapSource, targetDate?: string | null, coverageNote?: string | null, earnedCredits: number, estimatedWeeks?: number | null, requiredCredits?: number | null, draftId?: string | null, matchTier?: Types.RoadmapMatchTier | null, phases: Array<{ __typename?: 'ProfessionalRoadmapPhase', id: string, order: number, title: string, progress: number, completed: boolean, stepsCount: number, description?: string | null, completedSteps: number, estimatedWeeks?: number | null, steps: Array<{ __typename?: 'ProfessionalRoadmapStep', id: string, order: number, title: string, status?: Types.RoadmapStepProgressStatus | null, credits?: number | null, contentId?: string | null, description?: string | null, contentType?: Types.ContentType | null, completedAt?: string | null, isCloseMatch: boolean, estimatedMinutes?: number | null }> }> }> };
 
 export type PaginatedProfessionalExploreRoadmapsFieldsFragment = { __typename?: 'PaginatedProfessionalExploreRoadmaps', totalCount: number, pageInfo: { __typename?: 'ProfessionalPageInfo', nextCursor?: string | null, hasNextPage: boolean }, items: Array<{ __typename?: 'ProfessionalExploreRoadmap', id: string, slug: string, title: string, level: Types.CourseLevel, status: Types.RoadmapStatus, imageUrl?: string | null, category?: Types.CourseCategory | null, totalSteps: number, isEnrolled: boolean, description: string, phasesCount: number, estimatedWeeks: number }> };
 
@@ -331,12 +331,19 @@ export type UnenrollRoadmapMutationVariables = Types.Exact<{
 
 export type UnenrollRoadmapMutation = { __typename?: 'Mutation', unenrollRoadmap: boolean };
 
-export type ProfessionalRoadmapDraftStatusQueryVariables = Types.Exact<{
+export type RetryRoadmapGenerationMutationVariables = Types.Exact<{
+  draftId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type RetryRoadmapGenerationMutation = { __typename?: 'Mutation', requestRoadmapGeneration: { __typename?: 'ProfessionalRoadmapDraft', id: string, status: Types.RoadmapDraftStatus } };
+
+export type ProfessionalRoadmapGenerationStatusQueryVariables = Types.Exact<{
   draftId?: Types.InputMaybe<Types.Scalars['ID']['input']>;
 }>;
 
 
-export type ProfessionalRoadmapDraftStatusQuery = { __typename?: 'Query', professionalRoadmapDraft?: { __typename?: 'ProfessionalRoadmapDraft', id: string, status: Types.RoadmapDraftStatus, failureReason?: string | null } | null };
+export type ProfessionalRoadmapGenerationStatusQuery = { __typename?: 'Query', professionalRoadmapGeneration?: { __typename?: 'ProfessionalRoadmapGeneration', id: string, goal?: string | null, status: Types.RoadmapDraftStatus, updatedAt: string, failure?: { __typename?: 'RoadmapGenerationFailure', code: Types.RoadmapGenerationFailureCode, recoveryActions: Array<Types.RoadmapGenerationRecoveryAction> } | null } | null };
 
 export type ProfessionalRoadmapRecommendationsQueryVariables = Types.Exact<{
   enrollmentId?: Types.InputMaybe<Types.Scalars['ID']['input']>;
@@ -351,7 +358,7 @@ export type ProfessionalMyRoadmapsQueryVariables = Types.Exact<{
 }>;
 
 
-export type ProfessionalMyRoadmapsQuery = { __typename?: 'Query', professionalMyRoadmaps: { __typename?: 'PaginatedProfessionalRoadmaps', totalCount: number, pageInfo: { __typename?: 'ProfessionalPageInfo', nextCursor?: string | null, hasNextPage: boolean }, items: Array<{ __typename?: 'ProfessionalRoadmap', id: string, slug: string, level: Types.CourseLevel, title: string, userId: string, status: Types.RoadmapEnrollmentStatus, imageUrl?: string | null, progress: number, category?: Types.CourseCategory | null, updatedAt: string, roadmapId: string, enrolledAt: string, totalSteps: number, completedAt?: string | null, description: string, phasesCount: number, roadmapStatus: Types.RoadmapStatus, completedSteps: number, nextPhaseTitle?: string | null, completedPhases: number, nextMilestoneProgress: number, source: Types.RoadmapSource, targetDate?: string | null, coverageNote?: string | null, earnedCredits: number, estimatedWeeks?: number | null, requiredCredits?: number | null, phases: Array<{ __typename?: 'ProfessionalRoadmapPhase', id: string, order: number, title: string, progress: number, completed: boolean, stepsCount: number, description?: string | null, completedSteps: number, estimatedWeeks?: number | null, steps: Array<{ __typename?: 'ProfessionalRoadmapStep', id: string, order: number, title: string, status?: Types.RoadmapStepProgressStatus | null, credits?: number | null, contentId?: string | null, description?: string | null, contentType?: Types.ContentType | null, completedAt?: string | null, estimatedMinutes?: number | null }> }> }> } };
+export type ProfessionalMyRoadmapsQuery = { __typename?: 'Query', professionalMyRoadmaps: { __typename?: 'PaginatedProfessionalRoadmaps', totalCount: number, pageInfo: { __typename?: 'ProfessionalPageInfo', nextCursor?: string | null, hasNextPage: boolean }, items: Array<{ __typename?: 'ProfessionalRoadmap', id: string, slug: string, level: Types.CourseLevel, title: string, userId: string, status: Types.RoadmapEnrollmentStatus, imageUrl?: string | null, progress: number, category?: Types.CourseCategory | null, updatedAt: string, roadmapId: string, enrolledAt: string, totalSteps: number, completedAt?: string | null, description: string, phasesCount: number, roadmapStatus: Types.RoadmapStatus, completedSteps: number, nextPhaseTitle?: string | null, completedPhases: number, nextMilestoneProgress: number, source: Types.RoadmapSource, targetDate?: string | null, coverageNote?: string | null, earnedCredits: number, estimatedWeeks?: number | null, requiredCredits?: number | null, draftId?: string | null, matchTier?: Types.RoadmapMatchTier | null, phases: Array<{ __typename?: 'ProfessionalRoadmapPhase', id: string, order: number, title: string, progress: number, completed: boolean, stepsCount: number, description?: string | null, completedSteps: number, estimatedWeeks?: number | null, steps: Array<{ __typename?: 'ProfessionalRoadmapStep', id: string, order: number, title: string, status?: Types.RoadmapStepProgressStatus | null, credits?: number | null, contentId?: string | null, description?: string | null, contentType?: Types.ContentType | null, completedAt?: string | null, isCloseMatch: boolean, estimatedMinutes?: number | null }> }> }> } };
 
 export type ProfessionalExploreRoadmapsQueryVariables = Types.Exact<{
   filter?: Types.InputMaybe<Types.ProfessionalSearchInput>;
@@ -958,6 +965,7 @@ export const ProfessionalRoadmapStepFieldsFragmentDoc = /*#__PURE__*/ new TypedD
   description
   contentType
   completedAt
+  isCloseMatch
   estimatedMinutes
 }
     `, {"fragmentName":"ProfessionalRoadmapStepFields"}) as unknown as TypedDocumentString<ProfessionalRoadmapStepFieldsFragment, unknown>;
@@ -986,6 +994,7 @@ export const ProfessionalRoadmapPhaseFieldsFragmentDoc = /*#__PURE__*/ new Typed
   description
   contentType
   completedAt
+  isCloseMatch
   estimatedMinutes
 }`, {"fragmentName":"ProfessionalRoadmapPhaseFields"}) as unknown as TypedDocumentString<ProfessionalRoadmapPhaseFieldsFragment, unknown>;
 export const ProfessionalRoadmapFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
@@ -1017,6 +1026,8 @@ export const ProfessionalRoadmapFieldsFragmentDoc = /*#__PURE__*/ new TypedDocum
   earnedCredits
   estimatedWeeks
   requiredCredits
+  draftId
+  matchTier
   phases {
     ...ProfessionalRoadmapPhaseFields
   }
@@ -1031,6 +1042,7 @@ export const ProfessionalRoadmapFieldsFragmentDoc = /*#__PURE__*/ new TypedDocum
   description
   contentType
   completedAt
+  isCloseMatch
   estimatedMinutes
 }
 fragment ProfessionalRoadmapPhaseFields on ProfessionalRoadmapPhase {
@@ -1071,6 +1083,7 @@ fragment ProfessionalRoadmapStepFields on ProfessionalRoadmapStep {
   description
   contentType
   completedAt
+  isCloseMatch
   estimatedMinutes
 }
 fragment ProfessionalRoadmapPhaseFields on ProfessionalRoadmapPhase {
@@ -1115,6 +1128,8 @@ fragment ProfessionalRoadmapFields on ProfessionalRoadmap {
   earnedCredits
   estimatedWeeks
   requiredCredits
+  draftId
+  matchTier
   phases {
     ...ProfessionalRoadmapPhaseFields
   }
@@ -2710,15 +2725,28 @@ export const UnenrollRoadmapDocument = /*#__PURE__*/ new TypedDocumentString(`
   unenrollRoadmap(enrollmentId: $enrollmentId)
 }
     `) as unknown as TypedDocumentString<UnenrollRoadmapMutation, UnenrollRoadmapMutationVariables>;
-export const ProfessionalRoadmapDraftStatusDocument = /*#__PURE__*/ new TypedDocumentString(`
-    query ProfessionalRoadmapDraftStatus($draftId: ID) {
-  professionalRoadmapDraft(draftId: $draftId) {
+export const RetryRoadmapGenerationDocument = /*#__PURE__*/ new TypedDocumentString(`
+    mutation RetryRoadmapGeneration($draftId: ID!) {
+  requestRoadmapGeneration(draftId: $draftId) {
     id
     status
-    failureReason
   }
 }
-    `) as unknown as TypedDocumentString<ProfessionalRoadmapDraftStatusQuery, ProfessionalRoadmapDraftStatusQueryVariables>;
+    `) as unknown as TypedDocumentString<RetryRoadmapGenerationMutation, RetryRoadmapGenerationMutationVariables>;
+export const ProfessionalRoadmapGenerationStatusDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query ProfessionalRoadmapGenerationStatus($draftId: ID) {
+  professionalRoadmapGeneration(draftId: $draftId) {
+    id
+    goal
+    status
+    updatedAt
+    failure {
+      code
+      recoveryActions
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<ProfessionalRoadmapGenerationStatusQuery, ProfessionalRoadmapGenerationStatusQueryVariables>;
 export const ProfessionalRoadmapRecommendationsDocument = /*#__PURE__*/ new TypedDocumentString(`
     query ProfessionalRoadmapRecommendations($enrollmentId: ID) {
   professionalRoadmapRecommendations(enrollmentId: $enrollmentId) {
@@ -2752,6 +2780,7 @@ fragment ProfessionalRoadmapStepFields on ProfessionalRoadmapStep {
   description
   contentType
   completedAt
+  isCloseMatch
   estimatedMinutes
 }
 fragment ProfessionalRoadmapPhaseFields on ProfessionalRoadmapPhase {
@@ -2796,6 +2825,8 @@ fragment ProfessionalRoadmapFields on ProfessionalRoadmap {
   earnedCredits
   estimatedWeeks
   requiredCredits
+  draftId
+  matchTier
   phases {
     ...ProfessionalRoadmapPhaseFields
   }

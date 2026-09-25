@@ -1,33 +1,73 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { LEARNING_BUDGET_PREFERENCES } from "@/utils/professional-profile.constant";
+import { RoadmapSuggestionExpansion } from "./RoadmapSuggestionExpansion";
+import { LEARNING_TIME_COMMITMENTS } from "@/utils/professional-profile.constant";
+import { RoadmapDraftFieldKey } from "@/lib/graphql/base";
+import { ROADMAP_YES_VALUE } from "@/utils/roadmap-chat.constant";
+import { LEARNING_FORMATS } from "@/utils/professional-profile.constant";
+import { DELIVERY_FORMATS } from "@/utils/professional-profile.constant";
+import { ROADMAP_NO_VALUE } from "@/utils/roadmap-chat.constant";
+import { SKILL_LEVELS } from "@/utils/professional-profile.constant";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { RoadmapDraftFieldKey } from "@/lib/graphql/base";
-import { ROADMAP_CERTIFICATION_CHOICES } from "@/utils/roadmap-chat.constant";
-import { ROADMAP_NO_VALUE } from "@/utils/roadmap-chat.constant";
-import { ROADMAP_YES_VALUE } from "@/utils/roadmap-chat.constant";
 
 import type * as T from "@/types/professional-roadmap-chat.types";
 
+const OPTION_NS = "professionalDashboard.profile.options";
+
+const ENUM_FIELD_OPTIONS: Partial<
+  Record<RoadmapDraftFieldKey, { values: readonly string[]; ns: string }>
+> = {
+  [RoadmapDraftFieldKey.SkillLevel]: {
+    values: SKILL_LEVELS,
+    ns: `${OPTION_NS}.skillLevel`,
+  },
+  [RoadmapDraftFieldKey.TimeCommitment]: {
+    values: LEARNING_TIME_COMMITMENTS,
+    ns: `${OPTION_NS}.learningTime`,
+  },
+  [RoadmapDraftFieldKey.BudgetPreference]: {
+    values: LEARNING_BUDGET_PREFERENCES,
+    ns: `${OPTION_NS}.budget`,
+  },
+  [RoadmapDraftFieldKey.PreferredFormats]: {
+    values: LEARNING_FORMATS,
+    ns: `${OPTION_NS}.learningFormat`,
+  },
+  [RoadmapDraftFieldKey.PreferredDeliveryFormats]: {
+    values: DELIVERY_FORMATS,
+    ns: `${OPTION_NS}.deliveryFormat`,
+  },
+};
+
+const SUGGESTABLE_FIELDS: ReadonlySet<RoadmapDraftFieldKey> = new Set([
+  RoadmapDraftFieldKey.Subjects,
+  RoadmapDraftFieldKey.TargetRole,
+]);
+
 export const RoadmapWidgetControl = ({
   widget,
+  draftId,
   disabled,
   onAnswer,
 }: T.TRoadmapWidgetControl) => {
   const { t } = useI18n();
   const [selected, setSelected] = useState<string[]>([]);
   const [date, setDate] = useState<string>("");
+  const [extraOptions, setExtraOptions] = useState<T.TRoadmapWidgetOption[]>(
+    [],
+  );
 
   useEffect(() => {
     setSelected([]);
     setDate("");
+    setExtraOptions([]);
   }, [widget.field, widget.type]);
 
-  // The coach sends a control without options, because option labels are
-  // copy and the browser owns copy. A provider widget brings its own.
   const options: T.TRoadmapWidgetOption[] = useMemo(() => {
     if (widget.options.length) return widget.options;
     if (widget.field === RoadmapDraftFieldKey.CpdEnabled)
@@ -41,15 +81,26 @@ export const RoadmapWidgetControl = ({
           label: t("professionalRoadmapChat.widget.no"),
         },
       ];
-    if (widget.field === RoadmapDraftFieldKey.CertificationName)
-      return ROADMAP_CERTIFICATION_CHOICES.map((value) => ({
+    const enumOptions = ENUM_FIELD_OPTIONS[widget.field];
+    if (enumOptions)
+      return enumOptions.values.map((value) => ({
         value,
-        label: value,
+        label: t(`${enumOptions.ns}.${value}`),
       }));
     return [];
   }, [t, widget.field, widget.options]);
 
-  const limit = widget.maxSelections ?? options.length;
+  const allOptions = useMemo(() => {
+    const known = new Set(options.map((option) => option.value));
+    return [
+      ...options,
+      ...extraOptions.filter((option) => !known.has(option.value)),
+    ];
+  }, [options, extraOptions]);
+
+  const isSuggestable = SUGGESTABLE_FIELDS.has(widget.field);
+
+  const limit = widget.maxSelections ?? allOptions.length;
   const atLimit = selected.length >= limit;
 
   const toggle = (value: string) => {
@@ -61,11 +112,22 @@ export const RoadmapWidgetControl = ({
     });
   };
 
+  const pickSuggestion = (option: T.TRoadmapSuggestionOption) => {
+    setExtraOptions((current) =>
+      current.some((entry) => entry.value === option.value)
+        ? current
+        : [...current, option],
+    );
+    if (widget.type === "MULTI_SELECT") toggle(option.value);
+    else onAnswer(option.value);
+  };
+
   const selectionLabel = useMemo(
     () =>
-      t("professionalRoadmapChat.widget.selectedOfMax")
-        .replace("{selected}", String(selected.length))
-        .replace("{max}", String(limit)),
+      t("professionalRoadmapChat.widget.selectedOfMax", {
+        selected: selected.length,
+        max: limit,
+      }),
     [limit, selected.length, t],
   );
 
@@ -152,8 +214,8 @@ export const RoadmapWidgetControl = ({
 
   if (widget.type === "SINGLE_SELECT")
     return (
-      <div className="flex flex-wrap gap-2" role="group">
-        {options.map((option) => (
+      <div className="flex flex-wrap items-center gap-2" role="group">
+        {allOptions.map((option) => (
           <Button
             radius="xl"
             variant="outline"
@@ -164,13 +226,21 @@ export const RoadmapWidgetControl = ({
             {option.label}
           </Button>
         ))}
+        {isSuggestable ? (
+          <RoadmapSuggestionExpansion
+            draftId={draftId}
+            field={widget.field}
+            disabled={disabled}
+            onPick={pickSuggestion}
+          />
+        ) : null}
       </div>
     );
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex flex-wrap gap-2" role="group">
-        {options.map((option) => {
+      <div className="flex flex-wrap items-center gap-2" role="group">
+        {allOptions.map((option) => {
           const isSelected = selected.includes(option.value);
 
           return (
@@ -187,6 +257,14 @@ export const RoadmapWidgetControl = ({
             </Button>
           );
         })}
+        {isSuggestable ? (
+          <RoadmapSuggestionExpansion
+            draftId={draftId}
+            field={widget.field}
+            disabled={disabled}
+            onPick={pickSuggestion}
+          />
+        ) : null}
       </div>
 
       <div className="flex flex-wrap items-center gap-3">

@@ -36,6 +36,10 @@ export const useAssociationMemberDetail = (memberId: string) => {
   const [activeTab, setActiveTab] =
     useState<TAssociationMemberDetailTab>("overview");
   const [stateFilter, setStateFilter] = useState<string>(ALL);
+  const [requirementFilter, setRequirementFilter] = useState<string>(ALL);
+  const [openRequirementId, setOpenRequirementId] = useState<string | null>(
+    null,
+  );
   const [cursorStack, setCursorStack] = useState<string[]>([]);
   const [openActivityId, setOpenActivityId] = useState<string | null>(null);
   const [decision, setDecision] = useState<T.TAssociationDecision | null>(null);
@@ -53,15 +57,27 @@ export const useAssociationMemberDetail = (memberId: string) => {
   const activitiesQuery = API.useAssociationMemberActivitiesQuery({
     memberId,
     filter:
-      stateFilter === ALL
+      stateFilter === ALL && requirementFilter === ALL
         ? undefined
-        : { state: stateFilter as AssociationAttributionState },
+        : {
+            ...(stateFilter === ALL
+              ? {}
+              : { state: stateFilter as AssociationAttributionState }),
+            ...(requirementFilter === ALL
+              ? {}
+              : { requirementId: requirementFilter }),
+          },
     pagination: { take: PAGE_SIZE, cursor: cursorStack.at(-1) },
   });
 
   const optionsQuery = API.useAssociationMemberRequirementOptionsQuery(
     { memberId },
     { skip: !isRequirementsOpen },
+  );
+
+  const evidenceQuery = API.useAssociationMemberRequirementEvidenceQuery(
+    { memberId, requirementId: openRequirementId ?? "" },
+    { skip: !openRequirementId },
   );
 
   const groupsQuery = API.useAssociationGroupsQuery(undefined, {
@@ -99,15 +115,38 @@ export const useAssociationMemberDetail = (memberId: string) => {
     [profile?.assignments],
   );
 
+  const unlinkedLearningContent = useMemo(
+    () => profile?.unlinkedLearningContent ?? [],
+    [profile?.unlinkedLearningContent],
+  );
+
+  const requirementFilterOptions = useMemo(
+    () =>
+      assignments.map((assignment) => ({
+        id: assignment.requirementId,
+        name: assignment.requirementName,
+      })),
+    [assignments],
+  );
+
   const activities = useMemo(
     () => activitiesQuery.data?.items ?? [],
     [activitiesQuery.data?.items],
   );
 
-  const openActivity = useMemo(
-    () => activities.find((activity) => activity.id === openActivityId) ?? null,
-    [activities, openActivityId],
-  );
+  const requirementEvidence = evidenceQuery.data ?? null;
+
+  const openActivity = useMemo(() => {
+    const fromActivities = activities.find(
+      (activity) => activity.id === openActivityId,
+    );
+    if (fromActivities) return fromActivities;
+    return (
+      requirementEvidence?.activities.items.find(
+        (activity) => activity.id === openActivityId,
+      ) ?? null
+    );
+  }, [activities, openActivityId, requirementEvidence]);
 
   const categoryRows = useMemo(
     () =>
@@ -198,6 +237,14 @@ export const useAssociationMemberDetail = (memberId: string) => {
     setCursorStack([]);
     setStateFilter(value);
   };
+
+  const changeRequirementFilter = (value: string) => {
+    setCursorStack([]);
+    setRequirementFilter(value);
+  };
+
+  const changeOpenRequirement = (value: string) =>
+    setOpenRequirementId(value || null);
 
   const nextPage = () => {
     const nextCursor = activitiesQuery.data?.pageInfo?.nextCursor;
@@ -422,6 +469,15 @@ export const useAssociationMemberDetail = (memberId: string) => {
     submitRequirements,
     downloadingFileId,
     changeStateFilter,
+    requirementFilter,
+    changeRequirementFilter,
+    requirementFilterOptions,
+    openRequirementId,
+    changeOpenRequirement,
+    requirementEvidence,
+    isRequirementEvidenceLoading: evidenceQuery.isLoading,
+    isRequirementEvidenceFetching: evidenceQuery.isFetching,
+    unlinkedLearningContent,
     certificates: profile?.certificates ?? [],
     counts: activitiesQuery.data?.counts,
     page: cursorStack.length + 1,

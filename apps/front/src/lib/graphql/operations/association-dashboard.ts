@@ -140,7 +140,18 @@ export type AssociationMemberProfileQueryVariables = Types.Exact<{
 }>;
 
 
-export type AssociationMemberProfileQuery = { __typename?: 'Query', associationMemberProfile: { __typename?: 'AssociationMemberProfile', isMissingEvidence: boolean, lastNotifiedAt?: string | null, member: { __typename?: 'AssociationMember', id: string, userId: string, fullName?: string | null, email?: string | null, avatarUrl?: string | null, memberNumber?: string | null, notes?: string | null, status: Types.AssociationMemberStatus, joinedVia: Types.AssociationMemberJoinedVia, lastLoginAt?: string | null, invitedAt: string, activatedAt?: string | null, deactivatedAt?: string | null, requirementNames: Array<string>, complianceSummary?: { __typename?: 'AssociationComplianceSummary', memberId: string, percent: number, band: Types.AssociationComplianceBand, isMissingEvidence: boolean, awaitingReviewCount: number } | null, group?: { __typename?: 'AssociationMemberGroup', id: string, title: string, isActive: boolean } | null }, summary: { __typename?: 'AssociationMemberSummary', percent: number, band: Types.AssociationComplianceBand, creditsRequired: number, creditsCompleted: number, creditsRemaining: number, awaitingReviewCount: number, nearestDueDate?: string | null, nearestDueDays?: number | null, nearestRequirementId?: string | null, nearestRequirementName?: string | null, pacePercent?: number | null }, assignments: Array<{ __typename?: 'AssociationAssignmentProgress', id: string, requirementId: string, requirementName: string, creditType: Types.CreditType, evidencePolicy: Types.AssociationEvidencePolicy, requiredCredits: number, completedCredits: number, percent: number, band: Types.AssociationComplianceBand, cycleStart: string, cycleEnd?: string | null, dueDate?: string | null, daysRemaining?: number | null, awaitingReviewCount: number, isMissingEvidence: boolean, computedAt?: string | null, categories: Array<{ __typename?: 'AssociationCategoryProgress', id: string, name: string, percent: number, requiredCredits: number, completedCredits: number }> }>, cumulative: Array<{ __typename?: 'AssociationCumulativePoint', date: string, credits: number, requiredCredits: number }>, certificates: Array<{ __typename?: 'AssociationMemberCertificate', id: string, memberId: string, title: string, issuer?: string | null, issuedAt: string, validUntil?: string | null, status: Types.CertificateStatus, creditsEarned: number, linkedTo?: string | null, files: Array<{ __typename?: 'AssociationEvidenceFile', id: string, fileName: string, mimeType: string, sizeBytes: number }> }> } };
+export type AssociationMemberProfileQuery = { __typename?: 'Query', associationMemberProfile: { __typename?: 'AssociationMemberProfile', isMissingEvidence: boolean, lastNotifiedAt?: string | null, member: { __typename?: 'AssociationMember', id: string, userId: string, fullName?: string | null, email?: string | null, avatarUrl?: string | null, memberNumber?: string | null, notes?: string | null, status: Types.AssociationMemberStatus, joinedVia: Types.AssociationMemberJoinedVia, lastLoginAt?: string | null, invitedAt: string, activatedAt?: string | null, deactivatedAt?: string | null, requirementNames: Array<string>, complianceSummary?: { __typename?: 'AssociationComplianceSummary', memberId: string, percent: number, band: Types.AssociationComplianceBand, isMissingEvidence: boolean, awaitingReviewCount: number } | null, group?: { __typename?: 'AssociationMemberGroup', id: string, title: string, isActive: boolean } | null }, summary: { __typename?: 'AssociationMemberSummary', percent: number, band: Types.AssociationComplianceBand, creditsRequired: number, creditsCompleted: number, creditsRemaining: number, awaitingReviewCount: number, nearestDueDate?: string | null, nearestDueDays?: number | null, nearestRequirementId?: string | null, nearestRequirementName?: string | null, pacePercent?: number | null }, assignments: Array<{ __typename?: 'AssociationAssignmentProgress', id: string, requirementId: string, requirementName: string, creditType: Types.CreditType, evidencePolicy: Types.AssociationEvidencePolicy, requiredCredits: number, completedCredits: number, percent: number, band: Types.AssociationComplianceBand, cycleStart: string, cycleEnd?: string | null, dueDate?: string | null, daysRemaining?: number | null, awaitingReviewCount: number, isMissingEvidence: boolean, computedAt?: string | null, categories: Array<{ __typename?: 'AssociationCategoryProgress', id: string, name: string, percent: number, requiredCredits: number, completedCredits: number }> }>, cumulative: Array<{ __typename?: 'AssociationCumulativePoint', date: string, credits: number, requiredCredits: number }>, certificates: Array<{ __typename?: 'AssociationMemberCertificate', id: string, memberId: string, title: string, issuer?: string | null, issuedAt: string, validUntil?: string | null, status: Types.CertificateStatus, creditsEarned: number, linkedTo?: string | null, files: Array<{ __typename?: 'AssociationEvidenceFile', id: string, fileName: string, mimeType: string, sizeBytes: number }> }>, unlinkedLearningContent: Array<{ __typename?: 'AssociationMemberContentCompletion', id: string, title: string, isExternal: boolean, contentType?: Types.ContentType | null, provider?: string | null, activityId: string, activityDate: string, credits: number, indicativeCredits?: number | null }> } };
+
+export type AssociationMemberContentCompletionFieldsFragment = { __typename?: 'AssociationMemberContentCompletion', id: string, title: string, isExternal: boolean, contentType?: Types.ContentType | null, provider?: string | null, activityId: string, activityDate: string, credits: number, indicativeCredits?: number | null };
+
+export type AssociationMemberRequirementEvidenceQueryVariables = Types.Exact<{
+  memberId: Types.Scalars['ID']['input'];
+  requirementId: Types.Scalars['ID']['input'];
+  pagination?: Types.InputMaybe<Types.AssociationPaginationInput>;
+}>;
+
+
+export type AssociationMemberRequirementEvidenceQuery = { __typename?: 'Query', associationMemberRequirementEvidence: { __typename?: 'AssociationMemberRequirementEvidence', requirementId: string, activities: { __typename?: 'PaginatedAssociationMemberActivities', totalCount: number, pageInfo: { __typename?: 'AssociationPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'AssociationMemberActivity', id: string, memberId: string, title: string, source: Types.PduSource, provider?: string | null, category: Types.PduCategory, creditType: Types.CreditType, credits: number, date: string, state: Types.AssociationAttributionState, isLate: boolean, canReview: boolean, hasEvidence: boolean, evidenceNote?: string | null, evidenceUrl?: string | null, reviewNote?: string | null, files: Array<{ __typename?: 'AssociationEvidenceFile', id: string, fileName: string, mimeType: string, sizeBytes: number }>, requirements: Array<{ __typename?: 'AssociationActivityRequirement', id: string, name: string, canReview: boolean, creditedAmount: number }> }> }, contentCompletions: Array<{ __typename?: 'AssociationMemberContentCompletion', id: string, title: string, isExternal: boolean, contentType?: Types.ContentType | null, provider?: string | null, activityId: string, activityDate: string, credits: number, indicativeCredits?: number | null }>, certificateEvidence: Array<{ __typename?: 'AssociationMemberActivity', id: string, memberId: string, title: string, source: Types.PduSource, provider?: string | null, category: Types.PduCategory, creditType: Types.CreditType, credits: number, date: string, state: Types.AssociationAttributionState, isLate: boolean, canReview: boolean, hasEvidence: boolean, evidenceNote?: string | null, evidenceUrl?: string | null, reviewNote?: string | null, files: Array<{ __typename?: 'AssociationEvidenceFile', id: string, fileName: string, mimeType: string, sizeBytes: number }>, requirements: Array<{ __typename?: 'AssociationActivityRequirement', id: string, name: string, canReview: boolean, creditedAmount: number }> }> } };
 
 export type AssociationMemberActivitiesQueryVariables = Types.Exact<{
   memberId: Types.Scalars['ID']['input'];
@@ -174,7 +185,7 @@ export type SetAssociationMemberRequirementsMutation = { __typename?: 'Mutation'
 
 export type AssociationLearningContentTargetFieldsFragment = { __typename?: 'AssociationLearningContentTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null };
 
-export type AssociationLearningContentFieldsFragment = { __typename?: 'AssociationLearningContent', id: string, title: string, isExternal: boolean, isAvailable: boolean, contentType?: Types.ContentType | null, contentId?: string | null, provider?: string | null, imageUrl?: string | null, externalUrl?: string | null, description?: string | null, category?: Types.PduCategory | null, indicativeCredits?: number | null, requirementId?: string | null, requirementName?: string | null, status: Types.AssociationLearningContentStatus, audienceKind: Types.AssociationAudienceKind, publishedAt?: string | null, withdrawnAt?: string | null, createdAt: string, updatedAt: string, targets: Array<{ __typename?: 'AssociationLearningContentTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> };
+export type AssociationLearningContentFieldsFragment = { __typename?: 'AssociationLearningContent', id: string, title: string, isExternal: boolean, isAvailable: boolean, contentType?: Types.ContentType | null, contentId?: string | null, provider?: string | null, imageUrl?: string | null, externalUrl?: string | null, externalContentType?: Types.AssociationLearningExternalType | null, description?: string | null, category?: Types.PduCategory | null, indicativeCredits?: number | null, requirementId?: string | null, requirementName?: string | null, status: Types.AssociationLearningContentStatus, audienceKind: Types.AssociationAudienceKind, publishedAt?: string | null, withdrawnAt?: string | null, createdAt: string, updatedAt: string, targets: Array<{ __typename?: 'AssociationLearningContentTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> };
 
 export type AssociationLearningContentsQueryVariables = Types.Exact<{
   filter?: Types.InputMaybe<Types.AssociationLearningContentFilterInput>;
@@ -182,14 +193,14 @@ export type AssociationLearningContentsQueryVariables = Types.Exact<{
 }>;
 
 
-export type AssociationLearningContentsQuery = { __typename?: 'Query', associationLearningContents: { __typename?: 'PaginatedAssociationLearningContents', totalCount: number, pageInfo: { __typename?: 'AssociationPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'AssociationLearningContent', id: string, title: string, isExternal: boolean, isAvailable: boolean, contentType?: Types.ContentType | null, contentId?: string | null, provider?: string | null, imageUrl?: string | null, externalUrl?: string | null, description?: string | null, category?: Types.PduCategory | null, indicativeCredits?: number | null, requirementId?: string | null, requirementName?: string | null, status: Types.AssociationLearningContentStatus, audienceKind: Types.AssociationAudienceKind, publishedAt?: string | null, withdrawnAt?: string | null, createdAt: string, updatedAt: string, targets: Array<{ __typename?: 'AssociationLearningContentTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> }> } };
+export type AssociationLearningContentsQuery = { __typename?: 'Query', associationLearningContents: { __typename?: 'PaginatedAssociationLearningContents', totalCount: number, pageInfo: { __typename?: 'AssociationPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'AssociationLearningContent', id: string, title: string, isExternal: boolean, isAvailable: boolean, contentType?: Types.ContentType | null, contentId?: string | null, provider?: string | null, imageUrl?: string | null, externalUrl?: string | null, externalContentType?: Types.AssociationLearningExternalType | null, description?: string | null, category?: Types.PduCategory | null, indicativeCredits?: number | null, requirementId?: string | null, requirementName?: string | null, status: Types.AssociationLearningContentStatus, audienceKind: Types.AssociationAudienceKind, publishedAt?: string | null, withdrawnAt?: string | null, createdAt: string, updatedAt: string, targets: Array<{ __typename?: 'AssociationLearningContentTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> }> } };
 
 export type AssociationLearningContentQueryVariables = Types.Exact<{
   learningContentId: Types.Scalars['ID']['input'];
 }>;
 
 
-export type AssociationLearningContentQuery = { __typename?: 'Query', associationLearningContent: { __typename?: 'AssociationLearningContent', id: string, title: string, isExternal: boolean, isAvailable: boolean, contentType?: Types.ContentType | null, contentId?: string | null, provider?: string | null, imageUrl?: string | null, externalUrl?: string | null, description?: string | null, category?: Types.PduCategory | null, indicativeCredits?: number | null, requirementId?: string | null, requirementName?: string | null, status: Types.AssociationLearningContentStatus, audienceKind: Types.AssociationAudienceKind, publishedAt?: string | null, withdrawnAt?: string | null, createdAt: string, updatedAt: string, engagement?: { __typename?: 'AssociationLearningEngagement', memberCount: number, credits: number } | null, targets: Array<{ __typename?: 'AssociationLearningContentTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> } };
+export type AssociationLearningContentQuery = { __typename?: 'Query', associationLearningContent: { __typename?: 'AssociationLearningContent', id: string, title: string, isExternal: boolean, isAvailable: boolean, contentType?: Types.ContentType | null, contentId?: string | null, provider?: string | null, imageUrl?: string | null, externalUrl?: string | null, externalContentType?: Types.AssociationLearningExternalType | null, description?: string | null, category?: Types.PduCategory | null, indicativeCredits?: number | null, requirementId?: string | null, requirementName?: string | null, status: Types.AssociationLearningContentStatus, audienceKind: Types.AssociationAudienceKind, publishedAt?: string | null, withdrawnAt?: string | null, createdAt: string, updatedAt: string, engagement?: { __typename?: 'AssociationLearningEngagement', memberCount: number, credits: number } | null, targets: Array<{ __typename?: 'AssociationLearningContentTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> } };
 
 export type AssociationLearningContentMembersQueryVariables = Types.Exact<{
   learningContentId: Types.Scalars['ID']['input'];
@@ -203,35 +214,35 @@ export type AssociationCatalogSearchQueryVariables = Types.Exact<{
 }>;
 
 
-export type AssociationCatalogSearchQuery = { __typename?: 'Query', associationCatalogSearch: Array<{ __typename?: 'AssociationCatalogItem', contentType: Types.ContentType, contentId: string, title: string, provider?: string | null, imageUrl?: string | null, isAvailable: boolean }> };
+export type AssociationCatalogSearchQuery = { __typename?: 'Query', associationCatalogSearch: Array<{ __typename?: 'AssociationCatalogItem', contentType: Types.ContentType, contentId: string, title: string, slug?: string | null, level?: string | null, provider?: string | null, imageUrl?: string | null, isAvailable: boolean, durationMinutes?: number | null, indicativeCredits?: number | null }> };
 
 export type CreateAssociationLearningContentMutationVariables = Types.Exact<{
   input: Types.CreateAssociationLearningContentInput;
 }>;
 
 
-export type CreateAssociationLearningContentMutation = { __typename?: 'Mutation', createAssociationLearningContent: { __typename?: 'AssociationLearningContent', id: string, title: string, isExternal: boolean, isAvailable: boolean, contentType?: Types.ContentType | null, contentId?: string | null, provider?: string | null, imageUrl?: string | null, externalUrl?: string | null, description?: string | null, category?: Types.PduCategory | null, indicativeCredits?: number | null, requirementId?: string | null, requirementName?: string | null, status: Types.AssociationLearningContentStatus, audienceKind: Types.AssociationAudienceKind, publishedAt?: string | null, withdrawnAt?: string | null, createdAt: string, updatedAt: string, targets: Array<{ __typename?: 'AssociationLearningContentTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> } };
+export type CreateAssociationLearningContentMutation = { __typename?: 'Mutation', createAssociationLearningContent: { __typename?: 'AssociationLearningContent', id: string, title: string, isExternal: boolean, isAvailable: boolean, contentType?: Types.ContentType | null, contentId?: string | null, provider?: string | null, imageUrl?: string | null, externalUrl?: string | null, externalContentType?: Types.AssociationLearningExternalType | null, description?: string | null, category?: Types.PduCategory | null, indicativeCredits?: number | null, requirementId?: string | null, requirementName?: string | null, status: Types.AssociationLearningContentStatus, audienceKind: Types.AssociationAudienceKind, publishedAt?: string | null, withdrawnAt?: string | null, createdAt: string, updatedAt: string, targets: Array<{ __typename?: 'AssociationLearningContentTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> } };
 
 export type UpdateAssociationLearningContentMutationVariables = Types.Exact<{
   input: Types.UpdateAssociationLearningContentInput;
 }>;
 
 
-export type UpdateAssociationLearningContentMutation = { __typename?: 'Mutation', updateAssociationLearningContent: { __typename?: 'AssociationLearningContent', id: string, title: string, isExternal: boolean, isAvailable: boolean, contentType?: Types.ContentType | null, contentId?: string | null, provider?: string | null, imageUrl?: string | null, externalUrl?: string | null, description?: string | null, category?: Types.PduCategory | null, indicativeCredits?: number | null, requirementId?: string | null, requirementName?: string | null, status: Types.AssociationLearningContentStatus, audienceKind: Types.AssociationAudienceKind, publishedAt?: string | null, withdrawnAt?: string | null, createdAt: string, updatedAt: string, targets: Array<{ __typename?: 'AssociationLearningContentTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> } };
+export type UpdateAssociationLearningContentMutation = { __typename?: 'Mutation', updateAssociationLearningContent: { __typename?: 'AssociationLearningContent', id: string, title: string, isExternal: boolean, isAvailable: boolean, contentType?: Types.ContentType | null, contentId?: string | null, provider?: string | null, imageUrl?: string | null, externalUrl?: string | null, externalContentType?: Types.AssociationLearningExternalType | null, description?: string | null, category?: Types.PduCategory | null, indicativeCredits?: number | null, requirementId?: string | null, requirementName?: string | null, status: Types.AssociationLearningContentStatus, audienceKind: Types.AssociationAudienceKind, publishedAt?: string | null, withdrawnAt?: string | null, createdAt: string, updatedAt: string, targets: Array<{ __typename?: 'AssociationLearningContentTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> } };
 
 export type PublishAssociationLearningContentMutationVariables = Types.Exact<{
   input: Types.PublishAssociationLearningContentInput;
 }>;
 
 
-export type PublishAssociationLearningContentMutation = { __typename?: 'Mutation', publishAssociationLearningContent: { __typename?: 'AssociationLearningContent', id: string, title: string, isExternal: boolean, isAvailable: boolean, contentType?: Types.ContentType | null, contentId?: string | null, provider?: string | null, imageUrl?: string | null, externalUrl?: string | null, description?: string | null, category?: Types.PduCategory | null, indicativeCredits?: number | null, requirementId?: string | null, requirementName?: string | null, status: Types.AssociationLearningContentStatus, audienceKind: Types.AssociationAudienceKind, publishedAt?: string | null, withdrawnAt?: string | null, createdAt: string, updatedAt: string, targets: Array<{ __typename?: 'AssociationLearningContentTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> } };
+export type PublishAssociationLearningContentMutation = { __typename?: 'Mutation', publishAssociationLearningContent: { __typename?: 'AssociationLearningContent', id: string, title: string, isExternal: boolean, isAvailable: boolean, contentType?: Types.ContentType | null, contentId?: string | null, provider?: string | null, imageUrl?: string | null, externalUrl?: string | null, externalContentType?: Types.AssociationLearningExternalType | null, description?: string | null, category?: Types.PduCategory | null, indicativeCredits?: number | null, requirementId?: string | null, requirementName?: string | null, status: Types.AssociationLearningContentStatus, audienceKind: Types.AssociationAudienceKind, publishedAt?: string | null, withdrawnAt?: string | null, createdAt: string, updatedAt: string, targets: Array<{ __typename?: 'AssociationLearningContentTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> } };
 
 export type WithdrawAssociationLearningContentMutationVariables = Types.Exact<{
   input: Types.AssociationLearningContentIdInput;
 }>;
 
 
-export type WithdrawAssociationLearningContentMutation = { __typename?: 'Mutation', withdrawAssociationLearningContent: { __typename?: 'AssociationLearningContent', id: string, title: string, isExternal: boolean, isAvailable: boolean, contentType?: Types.ContentType | null, contentId?: string | null, provider?: string | null, imageUrl?: string | null, externalUrl?: string | null, description?: string | null, category?: Types.PduCategory | null, indicativeCredits?: number | null, requirementId?: string | null, requirementName?: string | null, status: Types.AssociationLearningContentStatus, audienceKind: Types.AssociationAudienceKind, publishedAt?: string | null, withdrawnAt?: string | null, createdAt: string, updatedAt: string, targets: Array<{ __typename?: 'AssociationLearningContentTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> } };
+export type WithdrawAssociationLearningContentMutation = { __typename?: 'Mutation', withdrawAssociationLearningContent: { __typename?: 'AssociationLearningContent', id: string, title: string, isExternal: boolean, isAvailable: boolean, contentType?: Types.ContentType | null, contentId?: string | null, provider?: string | null, imageUrl?: string | null, externalUrl?: string | null, externalContentType?: Types.AssociationLearningExternalType | null, description?: string | null, category?: Types.PduCategory | null, indicativeCredits?: number | null, requirementId?: string | null, requirementName?: string | null, status: Types.AssociationLearningContentStatus, audienceKind: Types.AssociationAudienceKind, publishedAt?: string | null, withdrawnAt?: string | null, createdAt: string, updatedAt: string, targets: Array<{ __typename?: 'AssociationLearningContentTarget', id: string, kind: Types.AssociationAudienceKind, label?: string | null, groupId?: string | null, memberId?: string | null }> } };
 
 export type DeleteAssociationLearningContentMutationVariables = Types.Exact<{
   input: Types.AssociationLearningContentIdInput;
@@ -688,6 +699,19 @@ export const AssociationMemberActivityFieldsFragmentDoc = /*#__PURE__*/ new Type
   mimeType
   sizeBytes
 }`, {"fragmentName":"AssociationMemberActivityFields"}) as unknown as TypedDocumentString<AssociationMemberActivityFieldsFragment, unknown>;
+export const AssociationMemberContentCompletionFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
+    fragment AssociationMemberContentCompletionFields on AssociationMemberContentCompletion {
+  id
+  title
+  isExternal
+  contentType
+  provider
+  activityId
+  activityDate
+  credits
+  indicativeCredits
+}
+    `, {"fragmentName":"AssociationMemberContentCompletionFields"}) as unknown as TypedDocumentString<AssociationMemberContentCompletionFieldsFragment, unknown>;
 export const AssociationLearningContentTargetFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
     fragment AssociationLearningContentTargetFields on AssociationLearningContentTarget {
   id
@@ -708,6 +732,7 @@ export const AssociationLearningContentFieldsFragmentDoc = /*#__PURE__*/ new Typ
   provider
   imageUrl
   externalUrl
+  externalContentType
   description
   category
   indicativeCredits
@@ -1383,6 +1408,9 @@ export const AssociationMemberProfileDocument = /*#__PURE__*/ new TypedDocumentS
         ...AssociationEvidenceFileFields
       }
     }
+    unlinkedLearningContent {
+      ...AssociationMemberContentCompletionFields
+    }
   }
 }
     fragment AssociationMemberGroupFields on AssociationMemberGroup {
@@ -1449,7 +1477,88 @@ fragment AssociationEvidenceFileFields on AssociationEvidenceFile {
   fileName
   mimeType
   sizeBytes
+}
+fragment AssociationMemberContentCompletionFields on AssociationMemberContentCompletion {
+  id
+  title
+  isExternal
+  contentType
+  provider
+  activityId
+  activityDate
+  credits
+  indicativeCredits
 }`) as unknown as TypedDocumentString<AssociationMemberProfileQuery, AssociationMemberProfileQueryVariables>;
+export const AssociationMemberRequirementEvidenceDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query AssociationMemberRequirementEvidence($memberId: ID!, $requirementId: ID!, $pagination: AssociationPaginationInput) {
+  associationMemberRequirementEvidence(
+    memberId: $memberId
+    requirementId: $requirementId
+    pagination: $pagination
+  ) {
+    requirementId
+    activities {
+      totalCount
+      pageInfo {
+        hasNextPage
+        nextCursor
+      }
+      items {
+        ...AssociationMemberActivityFields
+      }
+    }
+    contentCompletions {
+      ...AssociationMemberContentCompletionFields
+    }
+    certificateEvidence {
+      ...AssociationMemberActivityFields
+    }
+  }
+}
+    fragment AssociationEvidenceFileFields on AssociationEvidenceFile {
+  id
+  fileName
+  mimeType
+  sizeBytes
+}
+fragment AssociationMemberActivityFields on AssociationMemberActivity {
+  id
+  memberId
+  title
+  source
+  provider
+  category
+  creditType
+  credits
+  date
+  state
+  isLate
+  canReview
+  hasEvidence
+  evidenceNote
+  evidenceUrl
+  reviewNote
+  files {
+    ...AssociationEvidenceFileFields
+  }
+  requirements {
+    id
+    name
+    canReview
+    creditedAmount
+  }
+}
+fragment AssociationMemberContentCompletionFields on AssociationMemberContentCompletion {
+  id
+  title
+  isExternal
+  contentType
+  provider
+  activityId
+  activityDate
+  credits
+  indicativeCredits
+}`) as unknown as TypedDocumentString<AssociationMemberRequirementEvidenceQuery, AssociationMemberRequirementEvidenceQueryVariables>;
 export const AssociationMemberActivitiesDocument = /*#__PURE__*/ new TypedDocumentString(`
     query AssociationMemberActivities($memberId: ID!, $filter: AssociationMemberActivityFilterInput, $pagination: AssociationPaginationInput) {
   associationMemberActivities(
@@ -1568,6 +1677,7 @@ fragment AssociationLearningContentFields on AssociationLearningContent {
   provider
   imageUrl
   externalUrl
+  externalContentType
   description
   category
   indicativeCredits
@@ -1610,6 +1720,7 @@ fragment AssociationLearningContentFields on AssociationLearningContent {
   provider
   imageUrl
   externalUrl
+  externalContentType
   description
   category
   indicativeCredits
@@ -1668,9 +1779,13 @@ export const AssociationCatalogSearchDocument = /*#__PURE__*/ new TypedDocumentS
     contentType
     contentId
     title
+    slug
+    level
     provider
     imageUrl
     isAvailable
+    durationMinutes
+    indicativeCredits
   }
 }
     `) as unknown as TypedDocumentString<AssociationCatalogSearchQuery, AssociationCatalogSearchQueryVariables>;
@@ -1697,6 +1812,7 @@ fragment AssociationLearningContentFields on AssociationLearningContent {
   provider
   imageUrl
   externalUrl
+  externalContentType
   description
   category
   indicativeCredits
@@ -1735,6 +1851,7 @@ fragment AssociationLearningContentFields on AssociationLearningContent {
   provider
   imageUrl
   externalUrl
+  externalContentType
   description
   category
   indicativeCredits
@@ -1773,6 +1890,7 @@ fragment AssociationLearningContentFields on AssociationLearningContent {
   provider
   imageUrl
   externalUrl
+  externalContentType
   description
   category
   indicativeCredits
@@ -1811,6 +1929,7 @@ fragment AssociationLearningContentFields on AssociationLearningContent {
   provider
   imageUrl
   externalUrl
+  externalContentType
   description
   category
   indicativeCredits
