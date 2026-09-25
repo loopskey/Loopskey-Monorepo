@@ -119,7 +119,7 @@ export const RoadmapWidgetControl = ({
         : [...current, option],
     );
     if (widget.type === "MULTI_SELECT") toggle(option.value);
-    else onAnswer(option.value);
+    else onAnswer(option.value, option.label);
   };
 
   const selectionLabel = useMemo(
@@ -167,7 +167,7 @@ export const RoadmapWidgetControl = ({
               key={pick.label}
               variant="outline"
               disabled={disabled}
-              onClick={() => onAnswer(toIsoDate(pick.date()))}
+              onClick={() => onAnswer(toIsoDate(pick.date()), pick.label)}
             >
               {pick.label}
             </Button>
@@ -186,7 +186,9 @@ export const RoadmapWidgetControl = ({
           <Button
             radius="xl"
             disabled={disabled || !date}
-            onClick={() => onAnswer(date)}
+            onClick={() =>
+              onAnswer(date, new Date(`${date}T00:00:00.000Z`).toLocaleDateString())
+            }
           >
             {t("professionalRoadmapChat.widget.useDate")}
           </Button>
@@ -204,7 +206,7 @@ export const RoadmapWidgetControl = ({
             variant="outline"
             key={option.value}
             disabled={disabled}
-            onClick={() => onAnswer(option.value)}
+            onClick={() => onAnswer(option.value, option.label)}
           >
             {option.label}
           </Button>
@@ -221,7 +223,7 @@ export const RoadmapWidgetControl = ({
             variant="outline"
             key={option.value}
             disabled={disabled}
-            onClick={() => onAnswer(option.value)}
+            onClick={() => onAnswer(option.value, option.label)}
           >
             {option.label}
           </Button>
@@ -275,7 +277,12 @@ export const RoadmapWidgetControl = ({
         <Button
           radius="xl"
           disabled={disabled || selected.length === 0}
-          onClick={() => onAnswer(selected.join(", "))}
+          onClick={() => {
+            const labels = allOptions
+              .filter((option) => selected.includes(option.value))
+              .map((option) => option.label);
+            onAnswer(selected.join(", "), labels.join(", "));
+          }}
         >
           {t("professionalRoadmapChat.widget.confirmSelection")}
         </Button>

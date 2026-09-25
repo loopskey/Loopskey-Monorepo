@@ -2,11 +2,14 @@
 
 import { startTransition, useEffect, useMemo } from "react";
 import { useRef, useState, ViewTransition } from "react";
+import { findCurrentPhaseId, dayStreak } from "@/utils/roadmap-journey.util";
 import { RoadmapRecommendationsCard } from "@modules/ProfessionalRoadmap/RoadmapRecommendationsCard";
 import { RoadmapGenerationStatus } from "@modules/ProfessionalRoadmap/RoadmapGenerationStatus";
 import { useProfessionalRoadmaps } from "@/hooks/useProfessionalRoadmap";
+import { daysUntil, findNextStep } from "@/utils/roadmap-journey.util";
 import { RoadmapJourneyTimeline } from "@modules/ProfessionalRoadmap/RoadmapJourneyTimeline";
 import { buildCpdProgressView } from "@/utils/professional-overview.helper";
+import { completionsThisWeek } from "@/utils/roadmap-journey.util";
 import { ProgressDonutChart } from "@elements/dashboard-charts";
 import { ContentPagination } from "@elements/pagination";
 import { useChartSemantics } from "@hooks/useChartPalette";
@@ -18,14 +21,6 @@ import { Progress } from "@ui/progress";
 import { Button } from "@ui/button";
 import { Input } from "@ui/input";
 import { cn } from "@/lib/utils";
-
-import {
-  completionsThisWeek,
-  findCurrentPhaseId,
-  dayStreak,
-  daysUntil,
-  findNextStep,
-} from "@/utils/roadmap-journey.util";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -211,10 +206,11 @@ const ProfessionalRoadmapTab = () => {
         {displayView === "statusCard" && draft ? (
           <RoadmapGenerationStatus
             t={t}
+            goal={draft.goal}
             draftId={draft.id}
             status={draft.status}
-            goal={draft.goal}
             failure={draft.failure}
+            updatedAt={draft.updatedAt}
             onRetry={handleRetryGeneration}
             isRetrying={isRetryingGeneration}
           />
@@ -227,17 +223,17 @@ const ProfessionalRoadmapTab = () => {
               locale={locale}
               headingRef={heroHeadingRef}
               title={generatedRoadmap.title}
-              description={generatedRoadmap.description}
+              nextStepTitle={nextStep?.title}
+              newRoadmapHref={ROADMAP_CHAT_HREF}
               progress={generatedRoadmap.progress}
               totalSteps={generatedRoadmap.totalSteps}
-              completedSteps={generatedRoadmap.completedSteps}
-              phasesCount={generatedRoadmap.phasesCount}
-              estimatedWeeks={generatedRoadmap.estimatedWeeks}
               targetDate={generatedRoadmap.targetDate}
-              nextStepTitle={nextStep?.title}
+              description={generatedRoadmap.description}
+              phasesCount={generatedRoadmap.phasesCount}
               continueHref={getRoadmapHref(generatedRoadmap)}
               viewFullHref={getRoadmapHref(generatedRoadmap)}
-              newRoadmapHref={ROADMAP_CHAT_HREF}
+              completedSteps={generatedRoadmap.completedSteps}
+              estimatedWeeks={generatedRoadmap.estimatedWeeks}
             />
 
             {generatedRoadmap.coverageNote ? (
@@ -306,12 +302,12 @@ const ProfessionalRoadmapTab = () => {
               <RoadmapPhaseList
                 t={t}
                 onStart={stepProgress.start}
+                nextStepId={nextStep?.stepId}
                 pending={stepProgress.pending}
                 phases={generatedRoadmap.phases}
                 onComplete={stepProgress.complete}
                 enrollmentId={generatedRoadmap.id}
                 failedStepId={stepProgress.failedStepId}
-                nextStepId={nextStep?.stepId}
               />
             </div>
 

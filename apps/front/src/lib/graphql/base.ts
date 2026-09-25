@@ -4422,6 +4422,7 @@ export type PatchRoadmapDraftInput = {
   preferredDeliveryFormats?: InputMaybe<Array<DeliveryFormat>>;
   preferredFormats?: InputMaybe<Array<LearningFormat>>;
   requiredCredits?: InputMaybe<Scalars['Float']['input']>;
+  selectionLabel?: InputMaybe<Scalars['String']['input']>;
   skillLevel?: InputMaybe<SkillLevel>;
   subjects?: InputMaybe<Array<Scalars['ID']['input']>>;
   targetDate?: InputMaybe<Scalars['DateTime']['input']>;

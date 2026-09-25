@@ -1077,6 +1077,26 @@ describe("patching a draft", () => {
     expect(chatTurn).not.toHaveBeenCalled();
   });
 
+  it("records a widget answer's label as a professional message", async () => {
+    const { service, store, chatTurn } = setup();
+    store.seed(
+      emptyDraft({ ...collected, currentStep: RoadmapDraftStep.REVIEW }),
+    );
+
+    const view = await service.patchDraft(OWNER, {
+      draftId: "draft-1",
+      budgetPreference: LearningBudgetPreference.UNDER_100,
+      selectionLabel: "Under $100",
+    });
+
+    expect(view.budgetPreference).toBe(LearningBudgetPreference.UNDER_100);
+    expect(store.messages.at(-1)).toMatchObject({
+      role: RoadmapChatRole.PROFESSIONAL,
+      content: "Under $100",
+    });
+    expect(chatTurn).not.toHaveBeenCalled();
+  });
+
   it("requires exactly one field", async () => {
     const { service, store } = setup();
     store.seed(emptyDraft());

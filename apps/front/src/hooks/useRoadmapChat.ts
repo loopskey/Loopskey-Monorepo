@@ -213,7 +213,10 @@ export const useRoadmapChat = () => {
   }, []);
 
   const patch = useCallback(
-    async (changes: Omit<PatchRoadmapDraftInput, "draftId">) => {
+    async (
+      changes: Omit<PatchRoadmapDraftInput, "draftId">,
+      selectionLabel?: string,
+    ) => {
       if (!draft) return false;
       setTurnError(null);
 
@@ -221,6 +224,7 @@ export const useRoadmapChat = () => {
         const next = await patchDraft({
           draftId: draft.id,
           ...changes,
+          selectionLabel: selectionLabel ?? undefined,
         }).unwrap();
         writeDraft(next);
         return true;
@@ -239,36 +243,43 @@ export const useRoadmapChat = () => {
       .filter(Boolean);
 
   const answerWidget = useCallback(
-    (value: string) => {
+    (value: string, label?: string) => {
       const field = draft?.widget?.field;
       if (isSending || isPatching || retryAfter > 0) return;
 
       if (field === RoadmapDraftFieldKey.TargetDate)
-        return void patch({
-          targetDate: new Date(`${value}T00:00:00.000Z`).toISOString(),
-        });
+        return void patch(
+          { targetDate: new Date(`${value}T00:00:00.000Z`).toISOString() },
+          label,
+        );
       if (field === RoadmapDraftFieldKey.CpdEnabled)
-        return void patch({
-          cpdEnabled: ["true", "yes"].includes(value.trim().toLowerCase()),
-        });
+        return void patch(
+          { cpdEnabled: ["true", "yes"].includes(value.trim().toLowerCase()) },
+          label,
+        );
       if (field === RoadmapDraftFieldKey.CertificationName)
-        return void patch({ certificationName: value });
+        return void patch({ certificationName: value }, label);
       if (field === RoadmapDraftFieldKey.SkillLevel)
-        return void patch({ skillLevel: value } as T.Patch);
+        return void patch({ skillLevel: value } as T.Patch, label);
       if (field === RoadmapDraftFieldKey.TimeCommitment)
-        return void patch({ timeCommitment: value } as T.Patch);
+        return void patch({ timeCommitment: value } as T.Patch, label);
       if (field === RoadmapDraftFieldKey.BudgetPreference)
-        return void patch({ budgetPreference: value } as T.Patch);
+        return void patch({ budgetPreference: value } as T.Patch, label);
       if (field === RoadmapDraftFieldKey.Subjects)
-        return void patch({ subjects: splitMulti(value) } as T.Patch);
+        return void patch(
+          { subjects: splitMulti(value) } as T.Patch,
+          label,
+        );
       if (field === RoadmapDraftFieldKey.PreferredFormats)
-        return void patch({
-          preferredFormats: splitMulti(value),
-        } as T.Patch);
+        return void patch(
+          { preferredFormats: splitMulti(value) } as T.Patch,
+          label,
+        );
       if (field === RoadmapDraftFieldKey.PreferredDeliveryFormats)
-        return void patch({
-          preferredDeliveryFormats: splitMulti(value),
-        } as T.Patch);
+        return void patch(
+          { preferredDeliveryFormats: splitMulti(value) } as T.Patch,
+          label,
+        );
       answerWith(value);
     },
     [

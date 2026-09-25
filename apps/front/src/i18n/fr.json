@@ -4445,6 +4445,7 @@
       "generating": {
         "title": "Création de votre parcours",
         "description": "Cela prend généralement une à deux minutes. Vous pouvez quitter cette page et revenir — nous continuons.",
+        "descriptionLongWait": "Cela prend plus de temps que d'habitude. Nous continuons d'essayer — vous pouvez quitter cette page et revenir.",
         "step": "Sélection des contenus du catalogue et organisation en phases."
       },
       "failed": {

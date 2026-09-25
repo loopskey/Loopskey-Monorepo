@@ -2,25 +2,11 @@
 
 import { KeyboardEvent, useEffect, useRef } from "react";
 import { RoadmapWidgetControl } from "./RoadmapWidgetControl";
+import { TRoadmapChatComposer } from "@/types/professional-roadmap-chat.types";
 import { Textarea } from "@/components/ui/textarea";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-
-import type * as T from "@/types/professional-roadmap-chat.types";
-
-type Props = {
-  draftId: string;
-  canSend: boolean;
-  isSending: boolean;
-  retryAfter: number;
-  onSend: () => void;
-  questionKey: string;
-  composer: T.TComposerState;
-  widget: T.TRoadmapWidget | null;
-  onChange: (value: string) => void;
-  onAnswer: (value: string) => void;
-};
 
 export const RoadmapChatComposer = ({
   widget,
@@ -33,7 +19,7 @@ export const RoadmapChatComposer = ({
   isSending,
   retryAfter,
   questionKey,
-}: Props) => {
+}: TRoadmapChatComposer) => {
   const { t } = useI18n();
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
