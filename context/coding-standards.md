@@ -146,6 +146,8 @@ suites, and the rest of "Testing and Verification" applies to it in full.
   initiative.
 - Preserve an immutable completed run record under
   `context/feature-runs/completed/`.
+- Do not add a `Co-Authored-By: Claude ...` line, or any other AI-attribution
+  line, to commit messages or pull request descriptions.
 
 ## Shared Packages
 
