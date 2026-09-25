@@ -7532,7 +7532,15 @@
         "CPD_TRACKING": "Devez-vous suivre des crédits CPD ou PDU pour une certification ?",
         "CERTIFICATION": "Quelle certification maintenez-vous ? Choisissez-en une ci-dessous ou saisissez son nom.",
         "CPD_REQUIREMENTS": "Combien de crédits exige-t-elle à chaque cycle ? Indiquez-le dans la configuration CPD de votre dossier et j'en tiendrai compte.",
-        "REVIEW": "J'ai tout ce qu'il me faut. Relisez votre dossier, corrigez ce qui ne va pas, puis générez votre parcours."
+        "REVIEW": "J'ai tout ce qu'il me faut. Relisez votre dossier, corrigez ce qui ne va pas, puis générez votre parcours.",
+        "field": {
+          "SKILL_LEVEL": "Comment évalueriez-vous votre niveau actuel : débutant complet, quelques bases, ou déjà à l'aise pour l'appliquer ?",
+          "TIME_COMMITMENT": "Combien de temps pouvez-vous consacrer à l'apprentissage chaque semaine ?",
+          "PREFERRED_FORMATS": "Quels formats préférez-vous pour apprendre ?",
+          "PREFERRED_DELIVERY_FORMATS": "Comment préférez-vous apprendre : en ligne, en présentiel, à votre rythme, ou en cohorte en direct ?",
+          "BUDGET_PREFERENCE": "Quel est votre budget pour les ressources d'apprentissage ?",
+          "SUBJECTS": "Sur quels sujets précis le parcours doit-il se concentrer ?"
+        }
       }
     },
     "composer": {
