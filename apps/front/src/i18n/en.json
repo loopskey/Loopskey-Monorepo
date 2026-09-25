@@ -3914,9 +3914,8 @@
       },
       "summary": {
         "completedTitle": "Activities Completed & Logged",
-        "completedHelper": "Completed activities recorded in LoopsKey (rejected activities excluded).",
         "evidenceTitle": "Activities With Evidence",
-        "evidenceHelper": "{{files}} evidence file(s) uploaded in total."
+        "evidenceHelper": "{{files}} file(s)"
       },
       "cycleProgress": {
         "title": "Cycle Progress",
@@ -4242,15 +4241,11 @@
       },
       "summary": {
         "activeTitle": "Active certificates",
-        "activeHelper": "Valid for more than 90 days.",
-        "viewActive": "View All Active",
         "expiringTitle": "Expiring soon",
-        "expiringHelper": "Expiring within the next 90 days.",
-        "viewExpiring": "View Expiring",
-        "nearestExpiry": "Nearest expiry: {{date}}",
-        "noUpcomingExpiry": "Nothing is expiring in the next 90 days.",
+        "nearestExpiry": "Next {{date}}",
         "statusTitle": "Certificate status",
-        "viewAll": "View All Certificates",
+        "showAll": "Show all",
+        "statusLegendAria": "{{active}} active, {{expiringSoon}} expiring soon, {{expired}} expired",
         "total": "Total"
       },
       "filters": {

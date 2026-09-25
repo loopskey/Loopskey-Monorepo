@@ -1,7 +1,7 @@
 "use client";
 
 import { useProfessionalCertificates } from "@/hooks/useProfessionalCertificate";
-import { CertificateSummaryCards } from "@modules/ProfessionalDashboard/parts/certificate-summary-cards";
+import { CertificateSummaryStrip } from "@modules/ProfessionalDashboard/parts/certificate-summary-strip";
 import { CertificateDetailCard } from "@modules/ProfessionalDashboard/parts/certificate-detail-card";
 import { CertificatesFilters } from "@modules/ProfessionalDashboard/parts/certificates-filters";
 import { CertificatesTable } from "@modules/ProfessionalDashboard/parts/certificates-table";
@@ -84,13 +84,14 @@ const ProfessionalCertificatesTab = () => {
         </div>
       </div>
 
-      {/* 2. Summary cards */}
-      <CertificateSummaryCards
+      {/* 2. Summary strip */}
+      <CertificateSummaryStrip
         t={t}
         summary={summary}
         isError={isSummaryError}
         isLoading={isSummaryLoading}
         onViewAll={handleViewAll}
+        statusFilter={filters.status}
         nearestExpiry={summary?.nearestExpiry ?? null}
         onViewActive={handleViewActive}
         onViewExpiring={handleViewExpiring}
