@@ -11,6 +11,7 @@ export class AssociationLearningActivityHandler
 {
   readonly eventName = LEARNING_ACTIVITY_CHANGED_EVENT;
   readonly handlerName = "association-learning-activity-v2";
+  readonly lane = "realtime" as const;
 
   private readonly logger = new Logger(AssociationLearningActivityHandler.name);
 

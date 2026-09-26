@@ -1,16 +1,17 @@
-import { AssociationMessageDeliveryState } from "@prisma/client";
 import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
+import { AssociationMessageDeliveryState } from "@prisma/client";
+import { buildAssociationMessageEmail } from "@mail/association-message.template";
 import { ASSOCIATION_MESSAGE_EVENT } from "@association/services/association-message.service";
 import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
-import { buildAssociationMessageEmail } from "@mail/association-message.template";
+import { OutboxHandlerRegistry } from "@infrastructure/outbox/outbox-handler.port";
 import { messageTemplateInput } from "@association/utils/association-message-context.util";
 import { readMessageContext } from "@association/utils/association-message-context.util";
-import { type OutboxEventContext } from "@infrastructure/outbox/outbox-handler.port";
-import { OutboxHandlerRegistry } from "@infrastructure/outbox/outbox-handler.port";
-import { type OutboxHandler } from "@infrastructure/outbox/outbox-handler.port";
+import { PrismaService } from "@prisma/prisma.service";
 import { ConfigService } from "@nestjs/config";
 import { MailService } from "@mail/mail.service";
-import { PrismaService } from "@prisma/prisma.service";
+
+import { type OutboxEventContext } from "@infrastructure/outbox/outbox-handler.port";
+import { type OutboxHandler } from "@infrastructure/outbox/outbox-handler.port";
 
 type MessageDeliveryPayload = { deliveryId: string };
 
@@ -18,6 +19,7 @@ type MessageDeliveryPayload = { deliveryId: string };
 export class AssociationMessageHandler implements OutboxHandler, OnModuleInit {
   readonly eventName = ASSOCIATION_MESSAGE_EVENT;
   readonly handlerName = "association-message-v1";
+  readonly lane = "realtime" as const;
 
   private readonly logger = new Logger(AssociationMessageHandler.name);
 
