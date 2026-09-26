@@ -1,7 +1,13 @@
-import { AssociationMemberStatus, OtpPurpose, Role, UserStatus } from "@prisma/client";
+import {
+  AssociationMemberStatus,
+  OtpPurpose,
+  Role,
+  UserStatus,
+} from "@prisma/client";
 import { AssociationMemberInvitationService } from "@association/services/association-member-invitation.service";
 import { AuthAccountActivationService } from "@auth/services/auth-account-activation.service";
 import { AuthMessageCode } from "@auth/enums/message-code.enum";
+import { HttpException } from "@nestjs/common";
 import {
   bootApp,
   fulfilled,
@@ -16,6 +22,13 @@ import { createHash, randomBytes } from "crypto";
 const scope = suiteScope("member-invite");
 const hashToken = (token: string) =>
   createHash("sha256").update(token).digest("hex");
+const codeOf = (reason: unknown) => {
+  const body =
+    reason instanceof HttpException ? reason.getResponse() : undefined;
+  return typeof body === "object" && body !== null && "code" in body
+    ? (body as { code: string }).code
+    : undefined;
+};
 
 /**
  * Member invitation acceptance: the conditional-consume race, and the
@@ -119,7 +132,7 @@ describe("Member invitation acceptance (concurrency e2e)", () => {
 
     expect(fulfilled(results)).toHaveLength(1);
     for (const failure of rejected(results))
-      expect((failure.reason as { response?: { code?: string } }).response?.code).toBe(
+      expect(codeOf(failure.reason)).toBe(
         AuthMessageCode.ACTIVATION_TOKEN_USED,
       );
 
@@ -144,9 +157,13 @@ describe("Member invitation acceptance (concurrency e2e)", () => {
     // Same underlying (still-pending) person, invited separately by a second
     // association — this is exactly the scenario the associationMemberId
     // scope exists for.
-    const { member: memberB } = await seedMember(associationB.id, "cross-member-b", {
-      userId,
-    });
+    const { member: memberB } = await seedMember(
+      associationB.id,
+      "cross-member-b",
+      {
+        userId,
+      },
+    );
     const tokenA = await seedToken(userId, memberA.id);
     await seedToken(userId, memberB.id);
 
@@ -176,9 +193,13 @@ describe("Member invitation acceptance (concurrency e2e)", () => {
       associationA.id,
       "scope-member",
     );
-    const { member: memberB } = await seedMember(associationB.id, "scope-member-b", {
-      userId,
-    });
+    const { member: memberB } = await seedMember(
+      associationB.id,
+      "scope-member-b",
+      {
+        userId,
+      },
+    );
     const tokenA = await seedToken(userId, memberA.id);
 
     // Association B issuing its own invitation to the same (still-pending)
