@@ -1,6 +1,6 @@
 import { ConflictException, Injectable } from "@nestjs/common";
-import { IdentityDisplayProjection } from "@user/public/identity-profile-api";
 import { IdentityRecipientProjection } from "@user/public/identity-profile-api";
+import { IdentityDisplayProjection } from "@user/public/identity-profile-api";
 import { Prisma, Role, UserStatus } from "@prisma/client";
 import { IdentityProfileApi } from "@user/public/identity-profile-api";
 import { PrismaService } from "@prisma/prisma.service";
@@ -203,7 +203,7 @@ export class IdentityProfileApiService implements IdentityProfileApi {
     const email = command.email.trim().toLowerCase();
     const existing = await db.user.findUnique({
       where: { email },
-      select: { id: true, deletedAt: true },
+      select: { id: true, status: true, deletedAt: true },
     });
     if (existing?.deletedAt)
       throw new ConflictException({
@@ -211,9 +211,11 @@ export class IdentityProfileApiService implements IdentityProfileApi {
         message:
           "A deleted account uses this email. Restore it before inviting.",
       });
-    // An existing account is linked exactly as it stands. Rewriting its name or
-    // role here would let any association edit a person it merely invited.
-    if (existing) return { id: existing.id, linkedExisting: true };
+    if (existing)
+      return {
+        id: existing.id,
+        linkedExisting: existing.status === UserStatus.ACTIVE,
+      };
     const created = await db.user.create({
       data: {
         email,

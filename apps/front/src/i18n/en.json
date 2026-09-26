@@ -2852,6 +2852,21 @@
       "description": "Your association account is ready. Create a secure password to activate it.",
       "descriptionNamed": "The account for {{associationName}} is ready. Create a secure password to activate it.",
       "requestNewLink": "Association activation links are issued by a platform administrator. Contact your administrator to have a new link sent."
+    },
+    "memberInvitation": {
+      "title": "Set your password",
+      "description": "You have been invited to join an association. Create a secure password to accept.",
+      "descriptionNamed": "{{associationName}} invited you to join them. Create a secure password to accept.",
+      "submit": "Accept invitation",
+      "accepting": "Accepting invitation...",
+      "successTitle": "Invitation accepted. Sign in to continue.",
+      "acceptFailed": "This invitation could not be accepted.",
+      "confirmTitle": "Join this association?",
+      "confirmTitleNamed": "Join {{associationName}}?",
+      "confirmDescription": "Your Loopskey account is already active. Accept to add this membership to your account.",
+      "confirmSubmit": "Accept invitation",
+      "usedDescription": "This invitation may already be accepted. Sign in to see your memberships.",
+      "requestNewLink": "This invitation link is no longer usable. Contact the association to have a new one sent."
     }
   },
   "userMenu": {

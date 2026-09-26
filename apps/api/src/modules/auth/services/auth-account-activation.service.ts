@@ -3,8 +3,10 @@ import { ResendOrganizationActivationInput } from "@auth/dtos/resend-organizatio
 import { OrganizationActivationTokenStatus } from "@auth/enums/organization-activation-token-status.enum";
 import { AssociationActivationTokenStatus } from "@auth/enums/association-activation-token-status.enum";
 import { ActivateOrganizationAccountInput } from "@auth/dtos/activate-organization-account.input";
+import { AssociationMemberStatus, Prisma } from "@prisma/client";
 import { ActivateAssociationAccountInput } from "@auth/dtos/activate-association-account.input";
 import { buildAssociationActivationEmail } from "@mail/association-email.template";
+import { MEMBER_INVITATION_RECORD_SELECT } from "@auth/types/auth-service.types";
 import { buildOrganizationApprovalEmail } from "@mail/organization-email.template";
 import { AuditAction, OtpPurpose, Role } from "@prisma/client";
 import { SessionStatus, UserStatus } from "@prisma/client";
@@ -18,7 +20,12 @@ import { AuthMessageCode } from "@auth/enums/message-code.enum";
 import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "@prisma/prisma.service";
 import { MailService } from "@mail/mail.service";
-import { Prisma } from "@prisma/client";
+
+import { type AcceptMemberInvitationTokenCommand } from "@auth/public/account-activation-api";
+import { type MemberInvitationTokenAccepted } from "@auth/public/account-activation-api";
+import { type MemberInvitationTokenStatus } from "@auth/public/account-activation-api";
+import { type MemberInvitationRecord } from "@auth/types/auth-service.types";
+import { type MemberInvitationCheck } from "@auth/types/auth-service.types";
 
 import * as T from "@auth/types/auth-service.types";
 import * as argon2 from "argon2";
@@ -76,11 +83,6 @@ const ASSOCIATION_PROFILE: ActivationProfile = {
   auditResent: AuditAction.ASSOCIATION_ACTIVATION_RESENT,
 };
 
-/**
- * An association member is invited, not provisioned as an account owner: the
- * user is an ordinary professional, so this profile carries only what issuing a
- * link needs and none of the account-activation vocabulary.
- */
 const MEMBER_INVITE_PROFILE: ActivationLinkProfile = {
   purpose: OtpPurpose.ASSOCIATION_MEMBER_INVITE,
   lockKeyPrefix: "association-member-invite",
@@ -141,32 +143,42 @@ export class AuthAccountActivationService {
     });
   }
 
-  /**
-   * Written inside the caller's transaction on purpose: the invitation token
-   * and the member row it invites someone to commit together, so a crash can
-   * never leave a live link pointing at nothing.
-   */
   async issueMemberInvitation({
     userId,
     destination,
+    associationMemberId,
     atomicContext,
   }: {
     userId: string;
     destination: string;
+    associationMemberId: string;
     atomicContext: object;
   }) {
     const tx = atomicContext as Prisma.TransactionClient;
-    if (!(await this.canResend(userId, MEMBER_INVITE_PROFILE, tx))) return null;
+    if (
+      !(await this.canResend(
+        userId,
+        MEMBER_INVITE_PROFILE,
+        tx,
+        associationMemberId,
+      ))
+    )
+      return null;
     return this.createActivationLink(tx, MEMBER_INVITE_PROFILE, {
       userId,
       destination,
+      associationMemberId,
     });
   }
 
   private async createActivationLink(
     tx: Prisma.TransactionClient,
     profile: ActivationLinkProfile,
-    { userId, destination }: { userId: string; destination: string },
+    {
+      userId,
+      destination,
+      associationMemberId,
+    }: { userId: string; destination: string; associationMemberId?: string },
   ) {
     const rawToken = randomBytes(ACTIVATION_TOKEN_BYTES).toString("base64url");
     const expiresInMinutes = this.activationExpiryMinutes();
@@ -176,12 +188,10 @@ export class AuthAccountActivationService {
         userId,
         purpose: profile.purpose,
         consumedAt: null,
+        associationMemberId: associationMemberId ?? null,
       },
       data: { consumedAt: new Date() },
     });
-    // The id is chosen here rather than read back, so callers that need to
-    // name this token — an invitation email's idempotency key — can do so
-    // without the write having to return anything.
     const tokenId = randomBytes(TOKEN_ID_BYTES).toString("hex");
     await tx.otpCode.create({
       data: {
@@ -190,6 +200,7 @@ export class AuthAccountActivationService {
         destination,
         codeHash: this.hashToken(rawToken),
         purpose: profile.purpose,
+        associationMemberId: associationMemberId ?? null,
         expiresAt,
         maxAttempts: 1,
         resendAfter: new Date(Date.now() + this.resendCooldownSeconds() * 1000),
@@ -199,6 +210,136 @@ export class AuthAccountActivationService {
       activationUrl: this.buildActivationUrl(profile, rawToken),
       expiresInMinutes,
       tokenId,
+    };
+  }
+
+  async describeMemberInvitation(token: string) {
+    const check = this.classifyMemberInvitation(
+      await this.findMemberInvitation(token),
+    );
+    return {
+      status: MEMBER_INVITATION_STATUS_MAP[check.status],
+      associationName:
+        check.status === ActivationTokenStatus.VALID
+          ? check.subject.associationName
+          : null,
+      requiresPassword:
+        check.status === ActivationTokenStatus.VALID
+          ? check.subject.requiresPassword
+          : false,
+    };
+  }
+
+  async acceptMemberInvitationToken({
+    token,
+    password,
+    confirmPassword,
+    atomicContext,
+  }: AcceptMemberInvitationTokenCommand): Promise<MemberInvitationTokenAccepted> {
+    const check = this.classifyMemberInvitation(
+      await this.findMemberInvitation(token),
+    );
+    if (check.status !== ActivationTokenStatus.VALID)
+      throw this.activationTokenError(check.status);
+    const { subject } = check;
+
+    if (subject.requiresPassword) {
+      if (!password || !confirmPassword)
+        throw new BadRequestException({
+          code: AuthMessageCode.INVALID_CREDENTIALS,
+          message: "A password is required to accept this invitation.",
+        });
+      if (password !== confirmPassword)
+        throw new BadRequestException({
+          code: AuthMessageCode.INVALID_CREDENTIALS,
+          message: "Password and confirm password do not match.",
+        });
+      this.assertPasswordIsNotObvious({
+        password,
+        email: subject.email,
+        accountName: subject.associationName,
+      });
+    }
+
+    const tx = atomicContext as Prisma.TransactionClient;
+    const activatedAt = new Date();
+    const consumed = await tx.otpCode.updateMany({
+      where: { id: check.otpCodeId, consumedAt: null },
+      data: { consumedAt: activatedAt },
+    });
+    if (consumed.count !== 1)
+      throw new BadRequestException({
+        code: AuthMessageCode.ACTIVATION_TOKEN_USED,
+        message: "This invitation has already been used.",
+      });
+
+    if (subject.requiresPassword) {
+      const passwordHash = await argon2.hash(password!);
+      await tx.authSession.updateMany({
+        where: { userId: subject.userId, status: SessionStatus.ACTIVE },
+        data: { status: SessionStatus.REVOKED, revokedAt: activatedAt },
+      });
+      await tx.user.update({
+        where: { id: subject.userId },
+        data: {
+          passwordHash,
+          status: UserStatus.ACTIVE,
+          emailVerifiedAt: subject.emailVerifiedAt ?? activatedAt,
+          forcePasswordChange: false,
+          passwordChangedAt: activatedAt,
+        },
+      });
+    }
+
+    return {
+      associationMemberId: subject.associationMemberId,
+      userId: subject.userId,
+    };
+  }
+
+  private async findMemberInvitation(token: string) {
+    if (token.length < MIN_ACTIVATION_TOKEN_LENGTH) return null;
+    if (token.length > MAX_ACTIVATION_TOKEN_LENGTH) return null;
+    return this.prisma.otpCode.findFirst({
+      where: {
+        codeHash: this.hashToken(token),
+        purpose: MEMBER_INVITE_PROFILE.purpose,
+      },
+      orderBy: { createdAt: "desc" },
+      select: MEMBER_INVITATION_RECORD_SELECT,
+    });
+  }
+
+  private classifyMemberInvitation(
+    record: MemberInvitationRecord | null,
+  ): MemberInvitationCheck {
+    const rejected = (
+      status: Exclude<ActivationTokenStatus, ActivationTokenStatus.VALID>,
+    ) => ({ status, otpCodeId: null, subject: null }) as const;
+    if (!record) return rejected(ActivationTokenStatus.INVALID);
+    const { user, associationMember } = record;
+    if (!user || user.deletedAt) return rejected(ActivationTokenStatus.INVALID);
+    if (!associationMember) return rejected(ActivationTokenStatus.INVALID);
+    if (record.consumedAt) return rejected(ActivationTokenStatus.USED);
+    // The membership having moved on — activated by this same token racing a
+    // concurrent accept, or deactivated by the association in the meantime —
+    // is exactly as terminal as the token itself being consumed: either way
+    // this link no longer does anything.
+    if (associationMember.status !== AssociationMemberStatus.PENDING_ACTIVATION)
+      return rejected(ActivationTokenStatus.USED);
+    if (record.expiresAt <= new Date())
+      return rejected(ActivationTokenStatus.EXPIRED);
+    return {
+      status: ActivationTokenStatus.VALID,
+      otpCodeId: record.id,
+      subject: {
+        userId: user.id,
+        email: user.email,
+        emailVerifiedAt: user.emailVerifiedAt,
+        requiresPassword: user.status !== UserStatus.ACTIVE,
+        associationMemberId: associationMember.id,
+        associationName: associationMember.association.name,
+      },
     };
   }
 
@@ -555,10 +696,12 @@ export class AuthAccountActivationService {
     userId: string,
     profile: ActivationLinkProfile,
     tx: Prisma.TransactionClient,
+    associationMemberId?: string,
   ) {
+    const scope = { associationMemberId: associationMemberId ?? null };
     const [latest, issuedToday] = await Promise.all([
       tx.otpCode.findFirst({
-        where: { userId, purpose: profile.purpose },
+        where: { userId, purpose: profile.purpose, ...scope },
         orderBy: { createdAt: "desc" },
         select: { resendAfter: true },
       }),
@@ -566,6 +709,7 @@ export class AuthAccountActivationService {
         where: {
           userId,
           purpose: profile.purpose,
+          ...scope,
           createdAt: { gte: new Date(Date.now() - 24 * 60 * 60_000) },
         },
       }),
@@ -635,4 +779,14 @@ const ASSOCIATION_STATUS: Record<
   [ActivationTokenStatus.USED]: AssociationActivationTokenStatus.USED,
   [ActivationTokenStatus.EXPIRED]: AssociationActivationTokenStatus.EXPIRED,
   [ActivationTokenStatus.INVALID]: AssociationActivationTokenStatus.INVALID,
+};
+
+const MEMBER_INVITATION_STATUS_MAP: Record<
+  ActivationTokenStatus,
+  MemberInvitationTokenStatus
+> = {
+  [ActivationTokenStatus.VALID]: "VALID",
+  [ActivationTokenStatus.USED]: "USED",
+  [ActivationTokenStatus.EXPIRED]: "EXPIRED",
+  [ActivationTokenStatus.INVALID]: "INVALID",
 };

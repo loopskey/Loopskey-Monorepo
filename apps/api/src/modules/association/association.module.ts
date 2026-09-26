@@ -3,7 +3,9 @@ import { AssociationComplianceReconciliationService } from "@association/service
 import { AssociationRequirementAssignmentService } from "@association/services/association-requirement-assignment.service";
 import { AssociationRequirementPublishedHandler } from "@association/application/association-requirement-published.handler";
 import { AssociationMemberRequirementsService } from "@association/services/association-member-requirements.service";
+import { AssociationMemberInvitationResolver } from "@association/resolvers/association-member-invitation.resolver";
 import { AssociationSettingsRecomputeHandler } from "@association/application/association-settings-recompute.handler";
+import { AssociationMemberInvitationService } from "@association/services/association-member-invitation.service";
 import { AssociationReportGenerationService } from "@association/services/association-report-generation.service";
 import { AssociationLearningContentResolver } from "@association/resolvers/association-learning-content.resolver";
 import { AssociationLearningActivityHandler } from "@association/application/association-learning-activity.handler";
@@ -89,6 +91,8 @@ import "@association/enums/association-register.enum";
     AssociationReportService,
     AssociationReportResolver,
     AssociationMemberResolver,
+    AssociationMemberInvitationService,
+    AssociationMemberInvitationResolver,
     AssociationAccountService,
     AssociationMessageService,
     AssociationMessageHandler,

@@ -87,6 +87,20 @@ export type ActivateAssociationAccountMutationVariables = Types.Exact<{
 
 export type ActivateAssociationAccountMutation = { __typename?: 'Mutation', activateAssociationAccount: { __typename?: 'AuthPayload', code: string, success: boolean, message: string } };
 
+export type MemberInvitationStatusQueryVariables = Types.Exact<{
+  token: Types.Scalars['String']['input'];
+}>;
+
+
+export type MemberInvitationStatusQuery = { __typename?: 'Query', memberInvitationStatus: { __typename?: 'MemberInvitationStatus', status: Types.MemberInvitationTokenStatus, associationName?: string | null, requiresPassword: boolean } };
+
+export type AcceptMemberInvitationMutationVariables = Types.Exact<{
+  input: Types.AcceptMemberInvitationInput;
+}>;
+
+
+export type AcceptMemberInvitationMutation = { __typename?: 'Mutation', acceptMemberInvitation: { __typename?: 'MemberInvitationAcceptResult', code: string, success: boolean, message: string } };
+
 export type ChangePasswordMutationVariables = Types.Exact<{
   input: Types.ChangePasswordInput;
 }>;
@@ -289,6 +303,24 @@ export const ActivateAssociationAccountDocument = /*#__PURE__*/ new TypedDocumen
   }
 }
     `) as unknown as TypedDocumentString<ActivateAssociationAccountMutation, ActivateAssociationAccountMutationVariables>;
+export const MemberInvitationStatusDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query MemberInvitationStatus($token: String!) {
+  memberInvitationStatus(token: $token) {
+    status
+    associationName
+    requiresPassword
+  }
+}
+    `) as unknown as TypedDocumentString<MemberInvitationStatusQuery, MemberInvitationStatusQueryVariables>;
+export const AcceptMemberInvitationDocument = /*#__PURE__*/ new TypedDocumentString(`
+    mutation AcceptMemberInvitation($input: AcceptMemberInvitationInput!) {
+  acceptMemberInvitation(input: $input) {
+    code
+    success
+    message
+  }
+}
+    `) as unknown as TypedDocumentString<AcceptMemberInvitationMutation, AcceptMemberInvitationMutationVariables>;
 export const ChangePasswordDocument = /*#__PURE__*/ new TypedDocumentString(`
     mutation ChangePassword($input: ChangePasswordInput!) {
   changePassword(input: $input) {

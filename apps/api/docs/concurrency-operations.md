@@ -38,6 +38,8 @@ exist only so a user gets a readable message instead of a constraint violation.
 | Two administrators cannot silently overwrite each other's settings | `updateMany` on `AssociationSettings` naming the `updatedAt` the client last read, `count === 1`; the loser receives the settings-stale code and re-reads rather than losing its edit |
 | A threshold pair is never stored out of order | Both thresholds arrive together and are validated as a unit before the conditional write, so there is no read-modify-write window in which one could be saved against a stale partner |
 | A reclassification follows every threshold change | The recompute event is appended to the outbox inside the same transaction as the settings write, so a settings change that commits always has a reclassification queued behind it |
+| A member invitation cannot suppress or be consumed by another association's invitation to the same email | `OtpCode.associationMemberId` scopes the invalidate-on-reissue, cooldown, and daily-limit queries per membership, not per user |
+| A member invitation activates once, and only its own membership | `updateMany` on `AssociationMember` naming `PENDING_ACTIVATION`, `count === 1`, in the same transaction as the conditional `OtpCode` consume — either losing rolls both back |
 
 ## Decisions
 
@@ -231,6 +233,31 @@ UPDATE "OutboxEvent"
 SET "attemptCount" = 0, "availableAt" = NOW(), "lastError" = NULL
 WHERE "id" = '<event-id>';
 ```
+
+## Member invitation acceptance
+
+`association-management` owns `AssociationMember`; `identity-access` owns
+`OtpCode`/`User`. `apps/api/src/architecture/prisma-ownership.spec.ts` enforces
+that neither domain reaches directly into the other's Prisma models, so the
+accept flow is split across a port instead of one service:
+
+- `AuthAccountActivationService.acceptMemberInvitationToken` (identity-access)
+  classifies the token, conditionally consumes it, and — only if the account
+  is not yet claimed — sets its password. It never touches `AssociationMember`.
+- `AssociationMemberInvitationService.acceptInvitation` (association-management)
+  opens the transaction, calls the above through the `AccountActivationApi`
+  port with that transaction as `atomicContext`, then conditionally activates
+  the membership and writes the audit entry inside the same transaction.
+
+Because both writes share one transaction, either one losing its conditional
+update (`consumedAt IS NULL`, `status = PENDING_ACTIVATION`) rolls the other
+back too — there is no window where the token is spent but the membership
+never activated, or vice versa.
+
+The same `OtpCode.associationMemberId` scoping used above for invalidation and
+cooldown also makes each membership's invitation independent of any other
+membership the same person holds or is being invited to: accepting one
+membership's token can only ever activate that membership.
 
 ## What the logs will say
 

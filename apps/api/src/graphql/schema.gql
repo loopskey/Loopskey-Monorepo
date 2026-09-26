@@ -2,6 +2,12 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+input AcceptMemberInvitationInput {
+  confirmPassword: String
+  password: String
+  token: String!
+}
+
 input ActivateAssociationAccountInput {
   confirmPassword: String!
   password: String!
@@ -572,6 +578,7 @@ type AssociationGroupProgressRow {
 Whether an invitation linked an account that already existed or sent a new one
 """
 enum AssociationInviteOutcome {
+  INVITATION_COOLDOWN
   INVITATION_SENT
   LINKED_EXISTING_USER
 }
@@ -1295,6 +1302,7 @@ enum AuditAction {
   ASSOCIATION_ACTIVATION_RESENT
   ASSOCIATION_ACTIVITY_APPROVED
   ASSOCIATION_ACTIVITY_REJECTED
+  ASSOCIATION_MEMBER_INVITATION_ACCEPTED
   ASSOCIATION_SETTINGS_UPDATED
   ORGANIZATION_ACCOUNT_ACTIVATED
   ORGANIZATION_ACCOUNT_CREATED
@@ -2516,7 +2524,27 @@ input LoginInput {
   role: Role
 }
 
+type MemberInvitationAcceptResult {
+  code: String!
+  message: String!
+  success: Boolean!
+}
+
+type MemberInvitationStatus {
+  associationName: String
+  requiresPassword: Boolean!
+  status: MemberInvitationTokenStatus!
+}
+
+enum MemberInvitationTokenStatus {
+  EXPIRED
+  INVALID
+  USED
+  VALID
+}
+
 type Mutation {
+  acceptMemberInvitation(input: AcceptMemberInvitationInput!): MemberInvitationAcceptResult!
   activateAssociationAccount(input: ActivateAssociationAccountInput!): AuthPayload!
   activateCpdPlan(planId: ID!): CpdPlan!
   activateIngestionSource(sourceId: String!): IngestionSource!
@@ -4374,6 +4402,7 @@ type Query {
   ingestionSources(filter: IngestionSourceFilter, pagination: IngestionPagination): PaginatedIngestionSources!
   linkedinOAuthUrl(role: Role!): AuthUrl!
   me: User!
+  memberInvitationStatus(token: String!): MemberInvitationStatus!
   myAssociationLearningContent: [AssociationMyRequirementContent!]!
   myAssociationRequirement(requirementId: ID!): AssociationMyRequirementDetail!
   myAssociationRequirements: [AssociationMyRequirement!]!

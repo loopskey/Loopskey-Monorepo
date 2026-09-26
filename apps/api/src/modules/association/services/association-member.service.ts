@@ -2,13 +2,12 @@ import { AssociationRequirementAssignmentService } from "@association/services/a
 import { ResendAssociationMemberInvitationInput } from "@association/dtos/resend-association-member-invitation.input";
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { buildAssociationMemberInvitationEmail } from "@mail/association-email.template";
+import { AssociationMemberStatus, Prisma, Role } from "@prisma/client";
 import { AssociationMemberRequirementsService } from "@association/services/association-member-requirements.service";
 import { BulkInviteAssociationMemberRowInput } from "@association/dtos/bulk-invite-association-members.input";
 import { BulkInviteAssociationMembersInput } from "@association/dtos/bulk-invite-association-members.input";
 import { AssociationComplianceReadService } from "@association/services/association-compliance-read.service";
-import { type ProfessionalProvisioningApi } from "@professional/public/professional-provisioning-api";
 import { SetAssociationMemberStatusInput } from "@association/dtos/set-association-member-status.input";
-import { AssociationMemberStatus, Prisma, Role } from "@prisma/client";
 import { PROFESSIONAL_PROVISIONING_API } from "@professional/public/professional-provisioning-api";
 import { AssociationRequirementService } from "@association/services/association-requirement.service";
 import { AssociationRequirementStatus } from "@prisma/client";
@@ -17,21 +16,23 @@ import { UpdateAssociationMemberInput } from "@association/dtos/update-associati
 import { InviteAssociationMemberInput } from "@association/dtos/invite-association-member.input";
 import { AssociationPaginationInput } from "@association/dtos/association-pagination.input";
 import { AssociationMemberJoinedVia } from "@prisma/client";
-import { type AccountActivationApi } from "@auth/public/account-activation-api";
 import { ConflictException, Inject } from "@nestjs/common";
 import { AssociationAccessService } from "@association/services/association-access.service";
 import { AssociationInviteOutcome } from "@association/enums/association-register.enum";
 import { AssociationGroupService } from "@association/services/association-group.service";
 import { AssociationAudienceKind } from "@prisma/client";
-import { type IdentityProfileApi } from "@user/public/identity-profile-api";
 import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
 import { ACCOUNT_ACTIVATION_API } from "@auth/public/account-activation-api";
-import { type MemberInvitation } from "@auth/public/account-activation-api";
 import { IDENTITY_PROFILE_API } from "@user/public/identity-profile-api";
 import { TAssociationUser } from "@association/types/association-service.types";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { PrismaService } from "@prisma/prisma.service";
 import { ConfigService } from "@nestjs/config";
+
+import { type ProfessionalProvisioningApi } from "@professional/public/professional-provisioning-api";
+import { type AccountActivationApi } from "@auth/public/account-activation-api";
+import { type IdentityProfileApi } from "@user/public/identity-profile-api";
+import { type MemberInvitation } from "@auth/public/account-activation-api";
 
 const UNIQUE_VIOLATION = "P2002";
 const MEMBER_NUMBER_INDEX = "member_number";
@@ -169,14 +170,6 @@ export class AssociationMemberService {
     if (!items.length) return items;
     const memberIds = items.map((item) => item.id);
 
-    // `memberComplianceList` re-derives the association via
-    // `AssociationAccessService.requireReadable`, which rejects an explicit
-    // `associationId` from an ASSOCIATION-role caller (it must resolve its
-    // own association implicitly, never name one). `list()` above already
-    // resolved and authorized `associationId` for this exact user, so an
-    // ASSOCIATION-role caller must not re-pass it here — only an ADMIN
-    // caller needs it, since their own `requireReadable` branch requires an
-    // explicit id.
     const [summaries, assignments] = await Promise.all([
       this.complianceRead.memberComplianceList(
         user,
@@ -554,12 +547,23 @@ export class AssociationMemberService {
             },
             select: MEMBER_SELECT,
           });
+          if (updated.status === AssociationMemberStatus.ACTIVE)
+            return {
+              member: updated,
+              outcome: AssociationInviteOutcome.LINKED_EXISTING_USER,
+            };
+          const queued = await this.queueInvitation(tx, {
+            memberId: updated.id,
+            userId: updated.userId,
+            email: updated.user.email!,
+            fullName: updated.user.fullName ?? updated.user.email!,
+            associationName,
+          });
           return {
             member: updated,
-            outcome:
-              updated.status === AssociationMemberStatus.ACTIVE
-                ? AssociationInviteOutcome.LINKED_EXISTING_USER
-                : AssociationInviteOutcome.INVITATION_SENT,
+            outcome: queued
+              ? AssociationInviteOutcome.INVITATION_SENT
+              : AssociationInviteOutcome.INVITATION_COOLDOWN,
           };
         }
 
@@ -580,20 +584,25 @@ export class AssociationMemberService {
           select: MEMBER_SELECT,
         });
 
-        if (!person.linkedExisting)
-          await this.queueInvitation(tx, {
-            memberId: created.id,
-            userId: person.id,
-            email,
-            fullName,
-            associationName,
-          });
+        if (person.linkedExisting)
+          return {
+            member: created,
+            outcome: AssociationInviteOutcome.LINKED_EXISTING_USER,
+          };
+
+        const queued = await this.queueInvitation(tx, {
+          memberId: created.id,
+          userId: person.id,
+          email,
+          fullName,
+          associationName,
+        });
 
         return {
           member: created,
-          outcome: person.linkedExisting
-            ? AssociationInviteOutcome.LINKED_EXISTING_USER
-            : AssociationInviteOutcome.INVITATION_SENT,
+          outcome: queued
+            ? AssociationInviteOutcome.INVITATION_SENT
+            : AssociationInviteOutcome.INVITATION_COOLDOWN,
         };
       });
 
@@ -631,6 +640,7 @@ export class AssociationMemberService {
     const invitation = await this.activation.issueMemberInvitation({
       userId: invite.userId,
       destination: invite.email,
+      associationMemberId: invite.memberId,
       atomicContext: tx,
     });
     if (!invitation) return null;

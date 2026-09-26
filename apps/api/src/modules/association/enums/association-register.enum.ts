@@ -24,6 +24,7 @@ import { registerEnumType } from "@nestjs/graphql";
 export enum AssociationInviteOutcome {
   LINKED_EXISTING_USER = "LINKED_EXISTING_USER",
   INVITATION_SENT = "INVITATION_SENT",
+  INVITATION_COOLDOWN = "INVITATION_COOLDOWN",
 }
 
 registerEnumType(AssociationMemberStatus, {
