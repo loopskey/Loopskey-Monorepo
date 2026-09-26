@@ -56,6 +56,7 @@ const buildHarness = (event: unknown): Harness => {
   registry.register({
     eventName: "mail.delivery.requested",
     handlerName: "mail-v1",
+    lane: "realtime",
     handle: (payload: unknown) => mail.deliver(payload),
     abandon,
   });
@@ -249,6 +250,93 @@ describe("OutboxProcessor", () => {
 
       processor["tick"]();
       expect(prisma.$transaction).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe("lanes", () => {
+    const buildConfig = () =>
+      ({ get: (_k: string, d?: string) => d }) as unknown as ConfigService;
+
+    it("assigns registered handlers to disjoint lanes", () => {
+      const registry = new OutboxHandlerRegistry();
+      registry.register({
+        eventName: "mail.delivery.requested",
+        handlerName: "mail-v1",
+        lane: "realtime",
+        handle: jest.fn(),
+      });
+      registry.register({
+        eventName: "ingestion.item.published",
+        handlerName: "ingestion-v1",
+        lane: "bulk",
+        handle: jest.fn(),
+      });
+
+      const realtime = registry.eventNamesForLane("realtime");
+      const bulk = registry.eventNamesForLane("bulk");
+
+      expect(realtime).toEqual(["mail.delivery.requested"]);
+      expect(bulk).toEqual(["ingestion.item.published"]);
+      expect(realtime.some((name) => bulk.includes(name))).toBe(false);
+    });
+
+    /**
+     * Proves lane scoping happens before the claim query, not as a filter
+     * after it: a lane with nothing registered must never touch the
+     * database, which is also what keeps a bulk backlog structurally unable
+     * to compete with an empty realtime lane for the same row.
+     */
+    it("skips the claim query entirely when its lane has no registered handlers", async () => {
+      const prisma = { $transaction: jest.fn() };
+      const registry = new OutboxHandlerRegistry();
+
+      const processor = new OutboxProcessor(
+        prisma as unknown as PrismaService,
+        registry,
+        buildConfig(),
+        { lane: "bulk" },
+      );
+
+      await expect(processor.processNext()).resolves.toBe(false);
+      expect(prisma.$transaction).not.toHaveBeenCalled();
+    });
+
+    it("asks the registry for its own lane's event names before claiming", async () => {
+      const registry = new OutboxHandlerRegistry();
+      registry.register({
+        eventName: "mail.delivery.requested",
+        handlerName: "mail-v1",
+        lane: "realtime",
+        handle: jest.fn(),
+      });
+      registry.register({
+        eventName: "ingestion.item.published",
+        handlerName: "ingestion-v1",
+        lane: "bulk",
+        handle: jest.fn(),
+      });
+      const spy = jest.spyOn(registry, "eventNamesForLane");
+      const prisma = { $transaction: jest.fn().mockResolvedValue(null) };
+
+      const processor = new OutboxProcessor(
+        prisma as unknown as PrismaService,
+        registry,
+        buildConfig(),
+        { lane: "realtime" },
+      );
+
+      await processor.processNext();
+
+      expect(spy).toHaveBeenCalledWith("realtime");
+      expect(spy).not.toHaveBeenCalledWith("bulk");
+    });
+
+    it("claims across every event name when no lane is configured", async () => {
+      const { processor, mail } = buildHarness(buildEvent());
+
+      await processor.processNext();
+
+      expect(mail.deliver).toHaveBeenCalledTimes(1);
     });
   });
 });

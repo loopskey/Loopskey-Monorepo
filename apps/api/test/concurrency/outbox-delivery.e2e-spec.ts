@@ -40,6 +40,7 @@ describe("Outbox delivery (concurrency e2e)", () => {
     const handler: OutboxHandler = {
       eventName: EVENT_NAME,
       handlerName: HANDLER_NAME,
+      lane: "realtime",
       handle: async (_payload, context) => {
         handled.push(context);
         await behaviour(context);

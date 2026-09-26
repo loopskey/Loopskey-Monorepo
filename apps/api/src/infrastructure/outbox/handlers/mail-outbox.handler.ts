@@ -9,6 +9,7 @@ import { MailService } from "@mail/mail.service";
 export class MailOutboxHandler implements OutboxHandler, OnModuleInit {
   readonly eventName = "mail.delivery.requested";
   readonly handlerName = "mail-v1";
+  readonly lane = "realtime" as const;
 
   constructor(
     private readonly mail: MailService,

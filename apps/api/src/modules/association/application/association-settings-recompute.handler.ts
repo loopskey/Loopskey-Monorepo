@@ -12,6 +12,7 @@ export class AssociationSettingsRecomputeHandler
 {
   readonly eventName = SETTINGS_RECOMPUTE_EVENT;
   readonly handlerName = "association-settings-recompute-v1";
+  readonly lane = "realtime" as const;
 
   private readonly logger = new Logger(
     AssociationSettingsRecomputeHandler.name,

@@ -203,6 +203,9 @@ model OtpCode {
 
   purpose OtpPurpose
 
+  associationMemberId String?
+  associationMember   AssociationMember? @relation(fields: [associationMemberId], references: [id], onDelete: SetNull)
+
   expiresAt  DateTime
   consumedAt DateTime?
 
@@ -218,6 +221,7 @@ model OtpCode {
   @@index([purpose])
   @@index([expiresAt])
   @@index([codeHash, purpose])
+  @@index([associationMemberId])
 }
 
 model PendingRegistration {
@@ -2308,6 +2312,7 @@ model AssociationMember {
   requirementAssignments AssociationRequirementAssignment[]
   learningContentTargets AssociationLearningContentTarget[]
   messageDeliveries      AssociationMessageDelivery[]
+  invitationTokens       OtpCode[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -2342,6 +2347,7 @@ enum AuditAction {
   ORGANIZATION_NOTIFICATION_FAILED
   ASSOCIATION_ACTIVITY_APPROVED
   ASSOCIATION_ACTIVITY_REJECTED
+  ASSOCIATION_MEMBER_INVITATION_ACCEPTED
 }
 
 model AuditLog {

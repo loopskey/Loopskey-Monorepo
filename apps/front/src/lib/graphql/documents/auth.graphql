@@ -148,6 +148,22 @@ mutation ActivateAssociationAccount($input: ActivateAssociationAccountInput!) {
   }
 }
 
+query MemberInvitationStatus($token: String!) {
+  memberInvitationStatus(token: $token) {
+    status
+    associationName
+    requiresPassword
+  }
+}
+
+mutation AcceptMemberInvitation($input: AcceptMemberInvitationInput!) {
+  acceptMemberInvitation(input: $input) {
+    code
+    success
+    message
+  }
+}
+
 mutation ChangePassword($input: ChangePasswordInput!) {
   changePassword(input: $input) {
     code

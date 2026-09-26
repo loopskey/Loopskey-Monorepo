@@ -38,6 +38,8 @@ exist only so a user gets a readable message instead of a constraint violation.
 | Two administrators cannot silently overwrite each other's settings | `updateMany` on `AssociationSettings` naming the `updatedAt` the client last read, `count === 1`; the loser receives the settings-stale code and re-reads rather than losing its edit |
 | A threshold pair is never stored out of order | Both thresholds arrive together and are validated as a unit before the conditional write, so there is no read-modify-write window in which one could be saved against a stale partner |
 | A reclassification follows every threshold change | The recompute event is appended to the outbox inside the same transaction as the settings write, so a settings change that commits always has a reclassification queued behind it |
+| A member invitation cannot suppress or be consumed by another association's invitation to the same email | `OtpCode.associationMemberId` scopes the invalidate-on-reissue, cooldown, and daily-limit queries per membership, not per user |
+| A member invitation activates once, and only its own membership | `updateMany` on `AssociationMember` naming `PENDING_ACTIVATION`, `count === 1`, in the same transaction as the conditional `OtpCode` consume — either losing rolls both back |
 
 ## Decisions
 
@@ -171,6 +173,27 @@ what makes the unavoidable window between an external side effect and the
 `OutboxDelivery` row harmless: a process killed in that window retries, and the
 provider collapses the two requests into one.
 
+**Two lanes, not one shared queue.** `OutboxProcessor` claims strictly by
+`occurredAt`, so a single instance draining every event type let a sustained
+burst from a high-volume producer (ingestion, driven by a crawler sync) starve
+low-volume, time-critical events — an OTP email queued behind ten thousand
+`ingestion.item.published` rows waited as long as the burst took to drain
+(confirmed in production, 2026-09-25/26). `MailModule` now runs two standing
+`OutboxProcessor` instances instead: a realtime lane (mail, audit, roadmap
+generation, association notifications) and a bulk lane (ingestion). Each
+instance is constructed with a `lane` option and claims only
+`handlers.eventNamesForLane(lane)` — every `OutboxHandler` declares its own
+`lane: "realtime" | "bulk"`, a required interface field, so an event name can
+never end up unassigned or claimable by both lanes at once. Poll interval and
+lease are configured per lane (`OUTBOX_POLL_INTERVAL_MS`/`OUTBOX_LEASE_MS` for
+realtime, `OUTBOX_BULK_POLL_INTERVAL_MS`/`OUTBOX_BULK_LEASE_MS` for bulk), so
+a lane's cadence can be tuned without affecting the other. To find which lane
+owns a given handler, check its `lane` field in
+`apps/api/src/infrastructure/outbox/handlers/` or the handler's own module;
+each lane's log lines carry a `OutboxProcessor:realtime` /
+`OutboxProcessor:bulk` logger context so production logs can be filtered by
+lane directly.
+
 Two association handlers now consume their own events rather than the shared
 `mail.delivery.requested`. The templated-message handler renders each recipient's
 copy at delivery time from the figures captured when the send was accepted, so
@@ -210,6 +233,31 @@ UPDATE "OutboxEvent"
 SET "attemptCount" = 0, "availableAt" = NOW(), "lastError" = NULL
 WHERE "id" = '<event-id>';
 ```
+
+## Member invitation acceptance
+
+`association-management` owns `AssociationMember`; `identity-access` owns
+`OtpCode`/`User`. `apps/api/src/architecture/prisma-ownership.spec.ts` enforces
+that neither domain reaches directly into the other's Prisma models, so the
+accept flow is split across a port instead of one service:
+
+- `AuthAccountActivationService.acceptMemberInvitationToken` (identity-access)
+  classifies the token, conditionally consumes it, and — only if the account
+  is not yet claimed — sets its password. It never touches `AssociationMember`.
+- `AssociationMemberInvitationService.acceptInvitation` (association-management)
+  opens the transaction, calls the above through the `AccountActivationApi`
+  port with that transaction as `atomicContext`, then conditionally activates
+  the membership and writes the audit entry inside the same transaction.
+
+Because both writes share one transaction, either one losing its conditional
+update (`consumedAt IS NULL`, `status = PENDING_ACTIVATION`) rolls the other
+back too — there is no window where the token is spent but the membership
+never activated, or vice versa.
+
+The same `OtpCode.associationMemberId` scoping used above for invalidation and
+cooldown also makes each membership's invitation independent of any other
+membership the same person holds or is being invited to: accepting one
+membership's token can only ever activate that membership.
 
 ## What the logs will say
 
