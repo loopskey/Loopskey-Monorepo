@@ -23,6 +23,7 @@ const defaults: Record<string, string> = {
   LINKEDIN_CALLBACK_URL: "http://localhost/e2e/linkedin",
   OAUTH_STATE_SECRET: "e2e-oauth-state-secret-at-least-32-characters",
   FRONTEND_URL: "http://localhost:3000",
+  APPLICATION_BASE_URL: "http://localhost:3000",
   GRAPHQL_SCHEMA_PATH: "src/graphql/schema.gql",
   CONTACT_RECIPIENT_EMAIL: "loopskey.dev@gmail.com",
 };

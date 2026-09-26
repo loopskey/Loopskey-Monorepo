@@ -2856,6 +2856,21 @@
       "description": "Votre compte d'association est prêt. Créez un mot de passe sécurisé pour l'activer.",
       "descriptionNamed": "Le compte de {{associationName}} est prêt. Créez un mot de passe sécurisé pour l'activer.",
       "requestNewLink": "Les liens d'activation d'association sont émis par un administrateur de la plateforme. Contactez votre administrateur pour recevoir un nouveau lien."
+    },
+    "memberInvitation": {
+      "title": "Définissez votre mot de passe",
+      "description": "Vous avez été invité à rejoindre une association. Créez un mot de passe sécurisé pour accepter.",
+      "descriptionNamed": "{{associationName}} vous a invité à les rejoindre. Créez un mot de passe sécurisé pour accepter.",
+      "submit": "Accepter l'invitation",
+      "accepting": "Acceptation de l'invitation...",
+      "successTitle": "Invitation acceptée. Connectez-vous pour continuer.",
+      "acceptFailed": "Cette invitation n'a pas pu être acceptée.",
+      "confirmTitle": "Rejoindre cette association ?",
+      "confirmTitleNamed": "Rejoindre {{associationName}} ?",
+      "confirmDescription": "Votre compte Loopskey est déjà actif. Acceptez pour ajouter cette adhésion à votre compte.",
+      "confirmSubmit": "Accepter l'invitation",
+      "usedDescription": "Cette invitation est peut-être déjà acceptée. Connectez-vous pour voir vos adhésions.",
+      "requestNewLink": "Ce lien d'invitation n'est plus utilisable. Contactez l'association pour en recevoir un nouveau."
     }
   },
   "userMenu": {

@@ -168,6 +168,31 @@ export const authApi = baseApi.injectEndpoints({
       invalidatesTags: (result) => (result?.success ? ["CurrentUser"] : []),
     }),
 
+    memberInvitationStatus: builder.query<
+      TAPI.MemberInvitationStatusQuery["memberInvitationStatus"],
+      TAPI.MemberInvitationStatusQueryVariables["token"]
+    >({
+      query: (token) => ({
+        document: API.MemberInvitationStatusDocument,
+        variables: { token },
+      }),
+      transformResponse: (response: TAPI.MemberInvitationStatusQuery) =>
+        response.memberInvitationStatus,
+    }),
+
+    acceptMemberInvitation: builder.mutation<
+      TAPI.AcceptMemberInvitationMutation["acceptMemberInvitation"],
+      TAPI.AcceptMemberInvitationMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.AcceptMemberInvitationDocument,
+        variables: { input },
+      }),
+      transformResponse: (response: TAPI.AcceptMemberInvitationMutation) =>
+        response.acceptMemberInvitation,
+      invalidatesTags: (result) => (result?.success ? ["CurrentUser"] : []),
+    }),
+
     resendOrganizationActivation: builder.mutation<
       TAPI.ResendOrganizationActivationMutation["resendOrganizationActivation"],
       TAPI.ResendOrganizationActivationMutationVariables["input"]
@@ -259,7 +284,9 @@ export const {
   useRequestEmailChangeMutation,
   useOrganizationActivationStatusQuery,
   useAssociationActivationStatusQuery,
+  useMemberInvitationStatusQuery,
   useActivateOrganizationAccountMutation,
   useActivateAssociationAccountMutation,
+  useAcceptMemberInvitationMutation,
   useResendOrganizationActivationMutation,
 } = authApi;

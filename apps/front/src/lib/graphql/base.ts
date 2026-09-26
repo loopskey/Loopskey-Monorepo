@@ -19,6 +19,12 @@ export type Scalars = {
   JSONObject: { input: any; output: any; }
 };
 
+export type AcceptMemberInvitationInput = {
+  confirmPassword?: InputMaybe<Scalars['String']['input']>;
+  password?: InputMaybe<Scalars['String']['input']>;
+  token: Scalars['String']['input'];
+};
+
 export type ActivateAssociationAccountInput = {
   confirmPassword: Scalars['String']['input'];
   password: Scalars['String']['input'];
@@ -620,6 +626,7 @@ export type AssociationGroupProgressRow = {
 
 /** Whether an invitation linked an account that already existed or sent a new one */
 export enum AssociationInviteOutcome {
+  InvitationCooldown = 'INVITATION_COOLDOWN',
   InvitationSent = 'INVITATION_SENT',
   LinkedExistingUser = 'LINKED_EXISTING_USER'
 }
@@ -1381,6 +1388,7 @@ export enum AuditAction {
   AssociationActivationResent = 'ASSOCIATION_ACTIVATION_RESENT',
   AssociationActivityApproved = 'ASSOCIATION_ACTIVITY_APPROVED',
   AssociationActivityRejected = 'ASSOCIATION_ACTIVITY_REJECTED',
+  AssociationMemberInvitationAccepted = 'ASSOCIATION_MEMBER_INVITATION_ACCEPTED',
   AssociationSettingsUpdated = 'ASSOCIATION_SETTINGS_UPDATED',
   OrganizationAccountActivated = 'ORGANIZATION_ACCOUNT_ACTIVATED',
   OrganizationAccountCreated = 'ORGANIZATION_ACCOUNT_CREATED',
@@ -2626,8 +2634,30 @@ export type LoginInput = {
   role?: InputMaybe<Role>;
 };
 
+export type MemberInvitationAcceptResult = {
+  __typename?: 'MemberInvitationAcceptResult';
+  code: Scalars['String']['output'];
+  message: Scalars['String']['output'];
+  success: Scalars['Boolean']['output'];
+};
+
+export type MemberInvitationStatus = {
+  __typename?: 'MemberInvitationStatus';
+  associationName?: Maybe<Scalars['String']['output']>;
+  requiresPassword: Scalars['Boolean']['output'];
+  status: MemberInvitationTokenStatus;
+};
+
+export enum MemberInvitationTokenStatus {
+  Expired = 'EXPIRED',
+  Invalid = 'INVALID',
+  Used = 'USED',
+  Valid = 'VALID'
+}
+
 export type Mutation = {
   __typename?: 'Mutation';
+  acceptMemberInvitation: MemberInvitationAcceptResult;
   activateAssociationAccount: AuthPayload;
   activateCpdPlan: CpdPlan;
   activateIngestionSource: IngestionSource;
@@ -2796,6 +2826,11 @@ export type Mutation = {
   verifyEmailChange: AuthPayload;
   verifyEmailOtp: AuthPayload;
   withdrawAssociationLearningContent: AssociationLearningContent;
+};
+
+
+export type MutationAcceptMemberInvitationArgs = {
+  input: AcceptMemberInvitationInput;
 };
 
 
@@ -5417,6 +5452,7 @@ export type Query = {
   ingestionSources: PaginatedIngestionSources;
   linkedinOAuthUrl: AuthUrl;
   me: User;
+  memberInvitationStatus: MemberInvitationStatus;
   myAssociationLearningContent: Array<AssociationMyRequirementContent>;
   myAssociationRequirement: AssociationMyRequirementDetail;
   myAssociationRequirements: Array<AssociationMyRequirement>;
@@ -5913,6 +5949,11 @@ export type QueryIngestionSourcesArgs = {
 
 export type QueryLinkedinOAuthUrlArgs = {
   role: Role;
+};
+
+
+export type QueryMemberInvitationStatusArgs = {
+  token: Scalars['String']['input'];
 };
 
 

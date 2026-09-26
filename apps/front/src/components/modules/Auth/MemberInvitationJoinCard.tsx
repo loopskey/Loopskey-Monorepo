@@ -1,0 +1,205 @@
+"use client";
+
+import { Loader2, LogIn, MailWarning, UserCheck } from "lucide-react";
+import { KeyRound, ShieldAlert, ShieldCheck } from "lucide-react";
+import { useMemberInvitationJoin } from "@hooks/useMemberInvitationJoin";
+import { PasswordField } from "@elements/password-field";
+import { GlassCard } from "@elements/glass-card";
+import { Skeleton } from "@ui/skeleton";
+import { Button } from "@ui/button";
+import { Form } from "@ui/form";
+
+import Link from "next/link";
+
+const MemberInvitationJoinCard = () => {
+  const {
+    t,
+    screen,
+    onConfirm,
+    loginHref,
+    passwordForm,
+    isAccepting,
+    onSetPassword,
+    associationName,
+  } = useMemberInvitationJoin();
+
+  const needsNewLink =
+    screen === "expired" || screen === "invalid" || screen === "missingToken";
+
+  return (
+    <GlassCard className="mx-auto w-full max-w-md p-6 sm:p-8" glow={false}>
+      <div className="relative z-10">
+        {screen === "checking" && (
+          <div role="status" aria-live="polite" className="space-y-5">
+            <span className="sr-only">
+              {t("authPages.activation.checking")}
+            </span>
+            <div className="text-center">
+              <Skeleton className="mx-auto mb-4 h-14 w-14 rounded-md" />
+              <Skeleton className="mx-auto h-6 w-56 rounded-md" />
+              <Skeleton className="mx-auto mt-3 h-4 w-full max-w-sm rounded-full" />
+            </div>
+            <Skeleton className="h-14 w-full rounded-md" />
+            <Skeleton className="h-14 w-full rounded-md" />
+            <Skeleton className="h-11 w-full rounded-xl" />
+          </div>
+        )}
+
+        {screen === "form" && (
+          <Form {...passwordForm}>
+            <form
+              className="space-y-5"
+              onSubmit={passwordForm.handleSubmit(onSetPassword)}
+            >
+              <div className="text-center">
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-md bg-primary/10 text-primary shadow-inner">
+                  <ShieldCheck className="h-6 w-6" />
+                </div>
+
+                <h1 className="text-xl font-extrabold tracking-tight">
+                  {t("authPages.memberInvitation.title")}
+                </h1>
+
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  {associationName
+                    ? t(
+                        "authPages.memberInvitation.descriptionNamed",
+                        { associationName },
+                        `${associationName} invited you to join them. Create a secure password to accept.`,
+                      )
+                    : t("authPages.memberInvitation.description")}
+                </p>
+              </div>
+
+              <PasswordField
+                name="password"
+                autoComplete="new-password"
+                control={passwordForm.control}
+                label={t("authPages.common.newPassword")}
+              />
+
+              <PasswordField
+                name="confirmPassword"
+                autoComplete="new-password"
+                control={passwordForm.control}
+                label={t("authPages.common.confirmNewPassword")}
+              />
+
+              <Button
+                size="lg"
+                radius="xl"
+                type="submit"
+                className="w-full"
+                disabled={isAccepting}
+              >
+                {isAccepting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    {t("authPages.memberInvitation.accepting")}
+                  </>
+                ) : (
+                  <>
+                    <KeyRound className="h-4 w-4" />
+                    {t("authPages.memberInvitation.submit")}
+                  </>
+                )}
+              </Button>
+            </form>
+          </Form>
+        )}
+
+        {screen === "confirm" && (
+          <div className="space-y-5 text-center">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-md bg-primary/10 text-primary shadow-inner">
+              <UserCheck className="h-6 w-6" />
+            </div>
+
+            <h1 className="text-xl font-extrabold tracking-tight">
+              {associationName
+                ? t(
+                    "authPages.memberInvitation.confirmTitleNamed",
+                    { associationName },
+                    `Join ${associationName}?`,
+                  )
+                : t("authPages.memberInvitation.confirmTitle")}
+            </h1>
+
+            <p className="text-sm leading-6 text-muted-foreground">
+              {t("authPages.memberInvitation.confirmDescription")}
+            </p>
+
+            <Button
+              size="lg"
+              radius="xl"
+              className="w-full"
+              disabled={isAccepting}
+              onClick={onConfirm}
+            >
+              {isAccepting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  {t("authPages.memberInvitation.accepting")}
+                </>
+              ) : (
+                t("authPages.memberInvitation.confirmSubmit")
+              )}
+            </Button>
+          </div>
+        )}
+
+        {screen === "used" && (
+          <div className="space-y-5 text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-md bg-primary/10 text-primary shadow-inner">
+              <ShieldCheck className="h-6 w-6" />
+            </div>
+            <h1 className="text-xl font-extrabold tracking-tight">
+              {t("authPages.activation.usedTitle")}
+            </h1>
+            <p className="text-sm leading-6 text-muted-foreground">
+              {t("authPages.memberInvitation.usedDescription")}
+            </p>
+            <Button asChild size="lg" radius="xl" className="w-full">
+              <Link href={loginHref}>
+                <LogIn className="h-4 w-4" />
+                {t("authPages.common.backToLogin")}
+              </Link>
+            </Button>
+          </div>
+        )}
+
+        {needsNewLink && (
+          <div className="space-y-5">
+            <div className="text-center">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-md bg-destructive/10 text-destructive shadow-inner">
+                {screen === "expired" ? (
+                  <MailWarning className="h-6 w-6" />
+                ) : (
+                  <ShieldAlert className="h-6 w-6" />
+                )}
+              </div>
+
+              <h1 className="text-xl font-extrabold tracking-tight">
+                {screen === "expired"
+                  ? t("authPages.activation.expiredTitle")
+                  : t("authPages.activation.invalidTitle")}
+              </h1>
+
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                {t("authPages.memberInvitation.requestNewLink")}
+              </p>
+            </div>
+
+            <Button asChild radius="xl" variant="outline" className="w-full">
+              <Link href={loginHref}>
+                <LogIn className="h-4 w-4" />
+                {t("authPages.common.backToLogin")}
+              </Link>
+            </Button>
+          </div>
+        )}
+      </div>
+    </GlassCard>
+  );
+};
+
+export default MemberInvitationJoinCard;

@@ -80,6 +80,8 @@ export enum AssociationGqlObjectNames {
   ASSOCIATION_CONTENT_ENDORSEMENT = "AssociationContentEndorsement",
   ASSOCIATION_MEMBER_CONTENT_COMPLETION = "AssociationMemberContentCompletion",
   ASSOCIATION_MEMBER_REQUIREMENT_EVIDENCE = "AssociationMemberRequirementEvidence",
+  MEMBER_INVITATION_STATUS = "MemberInvitationStatus",
+  MEMBER_INVITATION_ACCEPT_RESULT = "MemberInvitationAcceptResult",
 }
 
 export enum AssociationGqlInputNames {
@@ -126,6 +128,7 @@ export enum AssociationGqlInputNames {
   ASSOCIATION_MESSAGE_AUDIENCE = "AssociationMessageAudienceInput",
   SEND_ASSOCIATION_MESSAGE = "SendAssociationMessageInput",
   SUBMIT_ASSOCIATION_ACCESS_REQUEST = "SubmitAssociationAccessRequestInput",
+  ACCEPT_MEMBER_INVITATION = "AcceptMemberInvitationInput",
 }
 
 export enum AssociationGqlQueryNames {
@@ -173,6 +176,7 @@ export enum AssociationGqlQueryNames {
   MY_CONTENT_ENDORSEMENT = "myContentEndorsement",
   MY_LEARNING_CONTENT = "myAssociationLearningContent",
   MEMBER_REQUIREMENT_EVIDENCE = "associationMemberRequirementEvidence",
+  MEMBER_INVITATION_STATUS = "memberInvitationStatus",
 }
 
 export enum AssociationGqlMutationNames {
@@ -209,4 +213,5 @@ export enum AssociationGqlMutationNames {
   RETRY_REPORT_EXPORT = "retryAssociationReportExport",
   SEND_MESSAGE = "sendAssociationMessage",
   SUBMIT_ACCESS_REQUEST = "submitAssociationAccessRequest",
+  ACCEPT_MEMBER_INVITATION = "acceptMemberInvitation",
 }

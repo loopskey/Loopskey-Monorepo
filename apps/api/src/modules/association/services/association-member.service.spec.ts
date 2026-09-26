@@ -254,7 +254,7 @@ describe("AssociationMemberService invitations", () => {
   });
 
   it("converges on one row when the same person is invited twice", async () => {
-    const { service, tx, activation } = setup({
+    const { service, tx } = setup({
       memberFindUnique: jest.fn().mockResolvedValue({ id: "member-1" }),
     });
 
@@ -267,6 +267,56 @@ describe("AssociationMemberService invitations", () => {
         data: expect.objectContaining({ memberNumber: "M-9" }),
       }),
     );
+  });
+
+  it("re-adding an already-pending member queues a fresh invitation, truthfully", async () => {
+    const { service, activation, outbox } = setup({
+      memberFindUnique: jest.fn().mockResolvedValue({ id: "member-1" }),
+    });
+
+    const result = await service.invite(owner, invite);
+
+    expect(result.outcome).toBe(AssociationInviteOutcome.INVITATION_SENT);
+    expect(activation.issueMemberInvitation).toHaveBeenCalledWith(
+      expect.objectContaining({ associationMemberId: "member-1" }),
+    );
+    expect(outbox.append).toHaveBeenCalledTimes(1);
+  });
+
+  it("never claims INVITATION_SENT when the invitation was actually cooldown-blocked", async () => {
+    const { service, outbox } = setup({
+      memberFindUnique: jest.fn().mockResolvedValue({ id: "member-1" }),
+      invitation: jest.fn().mockResolvedValue(null),
+    });
+
+    const result = await service.invite(owner, invite);
+
+    expect(result.outcome).toBe(AssociationInviteOutcome.INVITATION_COOLDOWN);
+    expect(outbox.append).not.toHaveBeenCalled();
+  });
+
+  it("never claims INVITATION_SENT for a brand-new member when issuance is cooldown-blocked", async () => {
+    const { service, outbox } = setup({
+      invitation: jest.fn().mockResolvedValue(null),
+    });
+
+    const result = await service.invite(owner, invite);
+
+    expect(result.outcome).toBe(AssociationInviteOutcome.INVITATION_COOLDOWN);
+    expect(outbox.append).not.toHaveBeenCalled();
+  });
+
+  it("does not re-invite an existing member who is already active", async () => {
+    const { service, tx, activation } = setup({
+      memberFindUnique: jest.fn().mockResolvedValue({ id: "member-1" }),
+    });
+    tx.associationMember.update.mockResolvedValue(
+      memberRow({ status: AssociationMemberStatus.ACTIVE }),
+    );
+
+    const result = await service.invite(owner, invite);
+
+    expect(result.outcome).toBe(AssociationInviteOutcome.LINKED_EXISTING_USER);
     expect(activation.issueMemberInvitation).not.toHaveBeenCalled();
   });
 });

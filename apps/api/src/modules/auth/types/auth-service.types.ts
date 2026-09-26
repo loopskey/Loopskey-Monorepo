@@ -45,6 +45,53 @@ export type AccountActivationCheck =
       subject: null;
     };
 
+export const MEMBER_INVITATION_RECORD_SELECT = {
+  id: true,
+  expiresAt: true,
+  consumedAt: true,
+  user: {
+    select: {
+      id: true,
+      email: true,
+      status: true,
+      deletedAt: true,
+      emailVerifiedAt: true,
+    },
+  },
+  associationMember: {
+    select: {
+      id: true,
+      status: true,
+      association: { select: { name: true } },
+    },
+  },
+} satisfies Prisma.OtpCodeSelect;
+
+export type MemberInvitationRecord = Prisma.OtpCodeGetPayload<{
+  select: typeof MEMBER_INVITATION_RECORD_SELECT;
+}>;
+
+export type MemberInvitationSubject = {
+  userId: string;
+  email: string | null;
+  emailVerifiedAt: Date | null;
+  requiresPassword: boolean;
+  associationMemberId: string;
+  associationName: string;
+};
+
+export type MemberInvitationCheck =
+  | {
+      status: ActivationTokenStatus.VALID;
+      otpCodeId: string;
+      subject: MemberInvitationSubject;
+    }
+  | {
+      status: Exclude<ActivationTokenStatus, ActivationTokenStatus.VALID>;
+      otpCodeId: null;
+      subject: null;
+    };
+
 export type AuthCookieTokens = {
   accessToken: string;
   refreshToken: string;
