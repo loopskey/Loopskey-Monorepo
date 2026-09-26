@@ -16,6 +16,7 @@ type AuditPayload = {
 export class AuditOutboxHandler implements OutboxHandler, OnModuleInit {
   readonly eventName = "audit.record.requested";
   readonly handlerName = "audit-v1";
+  readonly lane = "realtime" as const;
 
   constructor(
     private readonly prisma: PrismaService,

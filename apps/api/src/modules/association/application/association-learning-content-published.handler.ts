@@ -15,6 +15,7 @@ export class AssociationLearningContentPublishedHandler
 {
   readonly eventName = LEARNING_CONTENT_PUBLISHED_EVENT;
   readonly handlerName = "association-learning-content-published-v1";
+  readonly lane = "realtime" as const;
 
   private readonly logger = new Logger(
     AssociationLearningContentPublishedHandler.name,

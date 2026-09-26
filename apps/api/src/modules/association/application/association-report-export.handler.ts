@@ -1,9 +1,10 @@
-import { Injectable, OnModuleInit } from "@nestjs/common";
 import { AssociationReportGenerationService } from "@association/services/association-report-generation.service";
-import { REPORT_EXPORT_EVENT } from "@association/services/association-report-export.service";
+import { Injectable, OnModuleInit } from "@nestjs/common";
 import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
-import { type ReportExportPayload } from "@association/types/association-report-export.types";
 import { OutboxHandlerRegistry } from "@infrastructure/outbox/outbox-handler.port";
+import { REPORT_EXPORT_EVENT } from "@association/services/association-report-export.service";
+
+import { type ReportExportPayload } from "@association/types/association-report-export.types";
 import { type OutboxHandler } from "@infrastructure/outbox/outbox-handler.port";
 
 @Injectable()
@@ -12,6 +13,7 @@ export class AssociationReportExportHandler
 {
   readonly eventName = REPORT_EXPORT_EVENT;
   readonly handlerName = "association-report-export-v1";
+  readonly lane = "realtime" as const;
 
   constructor(
     private readonly registry: OutboxHandlerRegistry,

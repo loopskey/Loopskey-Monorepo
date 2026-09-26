@@ -171,6 +171,27 @@ what makes the unavoidable window between an external side effect and the
 `OutboxDelivery` row harmless: a process killed in that window retries, and the
 provider collapses the two requests into one.
 
+**Two lanes, not one shared queue.** `OutboxProcessor` claims strictly by
+`occurredAt`, so a single instance draining every event type let a sustained
+burst from a high-volume producer (ingestion, driven by a crawler sync) starve
+low-volume, time-critical events — an OTP email queued behind ten thousand
+`ingestion.item.published` rows waited as long as the burst took to drain
+(confirmed in production, 2026-09-25/26). `MailModule` now runs two standing
+`OutboxProcessor` instances instead: a realtime lane (mail, audit, roadmap
+generation, association notifications) and a bulk lane (ingestion). Each
+instance is constructed with a `lane` option and claims only
+`handlers.eventNamesForLane(lane)` — every `OutboxHandler` declares its own
+`lane: "realtime" | "bulk"`, a required interface field, so an event name can
+never end up unassigned or claimable by both lanes at once. Poll interval and
+lease are configured per lane (`OUTBOX_POLL_INTERVAL_MS`/`OUTBOX_LEASE_MS` for
+realtime, `OUTBOX_BULK_POLL_INTERVAL_MS`/`OUTBOX_BULK_LEASE_MS` for bulk), so
+a lane's cadence can be tuned without affecting the other. To find which lane
+owns a given handler, check its `lane` field in
+`apps/api/src/infrastructure/outbox/handlers/` or the handler's own module;
+each lane's log lines carry a `OutboxProcessor:realtime` /
+`OutboxProcessor:bulk` logger context so production logs can be filtered by
+lane directly.
+
 Two association handlers now consume their own events rather than the shared
 `mail.delivery.requested`. The templated-message handler renders each recipient's
 copy at delivery time from the figures captured when the send was accepted, so

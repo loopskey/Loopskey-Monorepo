@@ -14,6 +14,7 @@ export class AssociationRequirementPublishedHandler
 {
   readonly eventName = REQUIREMENT_PUBLISHED_EVENT;
   readonly handlerName = "association-requirement-published-v1";
+  readonly lane = "realtime" as const;
 
   private readonly logger = new Logger(
     AssociationRequirementPublishedHandler.name,
