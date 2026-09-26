@@ -110,3 +110,4 @@ into this index and do not rewrite previous records.
 - [`professional-certificates-summary-compact`](feature-runs/active/professional-certificates-summary-compact.md) — PR [#228](https://github.com/loopskey/Loopskey-Monorepo/pull/228)
 - [`roadmap-chat-generation-reliability`](feature-runs/active/roadmap-chat-generation-reliability.md) — PR [#231](https://github.com/loopskey/Loopskey-Monorepo/pull/231)
 - [`outbox-priority-lanes`](feature-runs/active/outbox-priority-lanes.md) — PR [#236](https://github.com/loopskey/Loopskey-Monorepo/pull/236)
+- [`member-invitation-delivery-and-acceptance`](feature-runs/active/member-invitation-delivery-and-acceptance.md) — PR [#237](https://github.com/loopskey/Loopskey-Monorepo/pull/237)
