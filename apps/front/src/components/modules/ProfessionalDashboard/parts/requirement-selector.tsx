@@ -25,7 +25,7 @@ export const RequirementSelector = ({
           placeholder={t("cpdProgress.requirements.selectorPlaceholder")}
         />
       </S.SelectTrigger>
-      <S.SelectContent className="z-[9999] rounded-md">
+      <S.SelectContent className="rounded-md">
         {options.map((option) => (
           <S.SelectItem key={option.key} value={option.key}>
             <span className="flex items-center gap-2">

@@ -26,7 +26,7 @@ export const AdminIngestionRejectDialog = ({
       open={rejectTargetId !== null}
       onOpenChange={(open) => !open && closeReject()}
     >
-      <D.DialogContent className="glass-dialog z-[9999] max-w-lg rounded-lg border-border">
+      <D.DialogContent className="glass-dialog max-w-lg rounded-lg border-border">
         <D.DialogHeader>
           <D.DialogTitle className="text-xl">
             {t("adminDashboard.ingestion.review.rejectDialog.title")}

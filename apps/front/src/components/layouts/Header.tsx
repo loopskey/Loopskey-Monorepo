@@ -123,6 +123,8 @@ const Header = () => {
       </div>
 
       <div
+        inert={!isMobileOpen}
+        aria-hidden={!isMobileOpen}
         className={cn(
           "lg:hidden",
           isMobileOpen

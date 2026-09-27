@@ -19,7 +19,7 @@ export const AdminIngestionBatchDetailDialog = ({
       open={selectedBatchId !== null}
       onOpenChange={(open) => !open && closeBatchDetail()}
     >
-      <D.DialogContent className="glass-dialog z-[9999] max-h-[85vh] max-w-3xl overflow-y-auto rounded-lg border-border">
+      <D.DialogContent className="glass-dialog max-h-[85vh] max-w-3xl overflow-y-auto rounded-lg border-border">
         <D.DialogHeader>
           <D.DialogTitle className="text-xl">
             {t("adminDashboard.ingestion.batches.detailDialog.title")}

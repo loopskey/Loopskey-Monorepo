@@ -154,7 +154,7 @@ export const AssociationMemberActivitiesSection = ({
                 <S.SelectValue />
               </S.SelectTrigger>
 
-              <S.SelectContent className="z-[9999] rounded-md">
+              <S.SelectContent className="rounded-md">
                 {STATE_FILTERS.map((value) => (
                   <S.SelectItem key={value} value={value}>
                     {filterLabel(value)}
@@ -185,7 +185,7 @@ export const AssociationMemberActivitiesSection = ({
                 <S.SelectValue />
               </S.SelectTrigger>
 
-              <S.SelectContent className="z-[9999] rounded-md">
+              <S.SelectContent className="rounded-md">
                 <S.SelectItem value={ALL}>
                   {t(
                     "associationDashboard.memberDetail.activities.filterAllRequirements",

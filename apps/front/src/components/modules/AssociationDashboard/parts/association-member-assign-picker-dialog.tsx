@@ -18,23 +18,23 @@ export const AssociationMemberAssignPickerDialog = ({
   const {
     t,
     groupOptions,
+    assignGroupIds,
+    assignMemberIds,
+    setAssignGroupIds,
     closeAssignPicker,
     assignPickerSearch,
     isAssignPickerOpen,
-    assignPickerOptions,
     requirementOptions,
-    setAssignPickerSearch,
-    isAssignPickerLoading,
-    assignRequirementId,
-    setAssignRequirementId,
     assignAudienceKind,
-    setAssignAudienceKind,
-    assignGroupIds,
-    setAssignGroupIds,
-    assignMemberIds,
     setAssignMemberIds,
-    submitAssignRequirement,
+    assignPickerOptions,
+    assignRequirementId,
+    setAssignPickerSearch,
+    setAssignAudienceKind,
+    isAssignPickerLoading,
+    setAssignRequirementId,
     isAssigningRequirement,
+    submitAssignRequirement,
   } = hook;
 
   const [groupSearch, setGroupSearch] = useState("");
@@ -60,7 +60,7 @@ export const AssociationMemberAssignPickerDialog = ({
       open={isAssignPickerOpen}
       onOpenChange={(open) => (open ? undefined : closeAssignPicker())}
     >
-      <D.DialogContent className="glass-dialog z-[9999] max-w-lg rounded-lg border-border">
+      <D.DialogContent className="glass-dialog max-w-lg rounded-lg border-border">
         <D.DialogHeader>
           <D.DialogTitle className="text-xl">
             {t("associationDashboard.members.assignPicker.title")}
@@ -92,7 +92,7 @@ export const AssociationMemberAssignPickerDialog = ({
                 />
               </S.SelectTrigger>
 
-              <S.SelectContent className="z-[9999] rounded-md">
+              <S.SelectContent className="rounded-md">
                 {requirementOptions.map((option) => (
                   <S.SelectItem key={option.value} value={option.value}>
                     {option.label}
@@ -182,8 +182,8 @@ export const AssociationMemberAssignPickerDialog = ({
             radius="xl"
             type="button"
             variant="cancel"
-            disabled={isAssigningRequirement}
             onClick={closeAssignPicker}
+            disabled={isAssigningRequirement}
           >
             {t("associationDashboard.members.assignPicker.cancel")}
           </Button>

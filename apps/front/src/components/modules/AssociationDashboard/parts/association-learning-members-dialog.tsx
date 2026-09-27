@@ -33,7 +33,7 @@ export const AssociationLearningMembersDialog = ({
 
   return (
     <D.Dialog open={isOpen} onOpenChange={(open) => !open && closeMembers()}>
-      <D.DialogContent className="glass-dialog z-[9999] max-w-lg rounded-lg border-border">
+      <D.DialogContent className="glass-dialog max-w-lg rounded-lg border-border">
         <D.DialogHeader>
           <D.DialogTitle className="text-xl">
             {t("associationDashboard.learningContent.members.title")}

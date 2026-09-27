@@ -44,7 +44,7 @@ export const AssociationLearningStepCpd = ({
           <S.SelectTrigger className="h-14 w-full rounded-md" aria-label={label("category")}>
             <S.SelectValue placeholder={label("category")} />
           </S.SelectTrigger>
-          <S.SelectContent className="z-[9999] rounded-md">
+          <S.SelectContent className="rounded-md">
             {CATEGORIES.map((value) => (
               <S.SelectItem key={value} value={value}>
                 {humanizeEnumValue(value)}
@@ -71,7 +71,7 @@ export const AssociationLearningStepCpd = ({
           >
             <S.SelectValue placeholder={label("countsToward")} />
           </S.SelectTrigger>
-          <S.SelectContent className="z-[9999] rounded-md">
+          <S.SelectContent className="rounded-md">
             <S.SelectItem value="NONE">{label("noRequirementOption")}</S.SelectItem>
             {requirementOptions.map((option) => (
               <S.SelectItem key={option.value} value={option.value}>

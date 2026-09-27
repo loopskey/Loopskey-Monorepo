@@ -40,7 +40,7 @@ export const AdminIngestionKeyIssueDialog = ({
       onOpenChange={(open) => !open && !issuedCredential && closeIssue()}
     >
       <D.DialogContent
-        className="glass-dialog z-[9999] max-w-lg rounded-lg border-border"
+        className="glass-dialog max-w-lg rounded-lg border-border"
         onInteractOutside={(event) => {
           if (issuedCredential) event.preventDefault();
         }}

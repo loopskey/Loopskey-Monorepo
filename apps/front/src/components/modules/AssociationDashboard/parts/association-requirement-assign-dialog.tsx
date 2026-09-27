@@ -45,7 +45,7 @@ export const AssociationRequirementAssignDialog = ({
 
   return (
     <D.Dialog open={isAssignOpen} onOpenChange={setAssignOpen}>
-      <D.DialogContent className="glass-dialog z-[9999] max-w-lg rounded-lg border-border">
+      <D.DialogContent className="glass-dialog max-w-lg rounded-lg border-border">
         <D.DialogHeader>
           <D.DialogTitle className="text-xl">
             {t("associationDashboard.requirements.assign.title")}

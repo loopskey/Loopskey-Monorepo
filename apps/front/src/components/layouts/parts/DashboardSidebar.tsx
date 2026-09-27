@@ -35,6 +35,9 @@ export const DashboardSidebar = () => {
               >
                 <Link
                   href={item.href}
+                  onClick={(event) => {
+                    if (isActive) event.preventDefault();
+                  }}
                   title={label}
                   aria-label={label}
                   aria-current={isActive ? "page" : undefined}

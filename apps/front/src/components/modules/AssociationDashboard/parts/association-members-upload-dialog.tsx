@@ -15,7 +15,7 @@ export const AssociationMembersUploadDialog = ({
       open={isUploadOpen}
       onOpenChange={(open) => (open ? undefined : closeUpload())}
     >
-      <D.DialogContent className="glass-dialog z-[9999] max-h-[90vh] max-w-2xl overflow-y-auto rounded-lg border-border">
+      <D.DialogContent className="glass-dialog max-h-[90vh] max-w-2xl overflow-y-auto rounded-lg border-border">
         <D.DialogTitle className="sr-only">
           {t("associationDashboard.members.bulk.title")}
         </D.DialogTitle>
