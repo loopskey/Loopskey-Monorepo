@@ -4,7 +4,7 @@
 - Model: `High reasoning — global cross-browser hit-testing, portal layering, and same-route navigation require difficult debugging across shared frontend boundaries.`
 - Branch: `feature/cross-browser-interaction-reliability`
 - Base: `93704d2`
-- Status: `Ready`
+- Status: `Submitted`
 
 ## Acceptance
 
@@ -30,6 +30,6 @@
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: `c2ddb54`
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/239
+- CI: Pending final metadata commit.
