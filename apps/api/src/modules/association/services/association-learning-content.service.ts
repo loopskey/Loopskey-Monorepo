@@ -13,6 +13,7 @@ import { AssociationMessageCode } from "@association/enums/association-message-c
 import { CatalogItemProjection } from "@landing/public/catalog-endorsement-api";
 import { NotFoundException } from "@nestjs/common";
 import { TAssociationUser } from "@association/types/association-service.types";
+import { LEARNING_CONTENT_AUDIENCE_CHANGED_EVENT } from "@association/services/association-learning-content-recipient.service";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { PrismaService } from "@prisma/prisma.service";
 
@@ -599,6 +600,19 @@ export class AssociationLearningContentService {
           },
           tx,
         );
+
+      await this.outbox.append(
+        {
+          eventName: LEARNING_CONTENT_AUDIENCE_CHANGED_EVENT,
+          aggregateType: "AssociationLearningContent",
+          aggregateId: input.learningContentId,
+          payload: {
+            learningContentId: input.learningContentId,
+            associationId: association.id,
+          },
+        },
+        tx,
+      );
     });
 
     this.logger.log("Association published or retargeted a library item", {

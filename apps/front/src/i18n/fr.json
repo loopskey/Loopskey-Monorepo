@@ -6730,7 +6730,11 @@
         "BEHIND_THRESHOLD": "Rappel de progression",
         "WELCOME": "Bienvenue",
         "CATEGORY_BEHIND": "Rappel par catégorie",
-        "CERTIFICATE_EXPIRING": "Expiration de certificat"
+        "CERTIFICATE_EXPIRING": "Expiration de certificat",
+        "INVITATION": "Invitation",
+        "GROUP_ADDED": "Ajout à un groupe",
+        "REQUIREMENT_ASSIGNED": "Exigence attribuée",
+        "LEARNING_CONTENT_ASSIGNED": "Formation attribuée"
       },
       "states": {
         "QUEUED": "Envoi en cours",
@@ -6743,7 +6747,8 @@
         "NOT_IN_LIST": "Ne figure plus dans cette liste",
         "NO_VERIFIED_EMAIL": "Aucune adresse e-mail vérifiée",
         "INACTIVE_ACCOUNT": "Le compte n'est pas actif",
-        "EMAIL_SUPPRESSED": "Les courriels de l'association sont suspendus"
+        "EMAIL_SUPPRESSED": "Les courriels de l'association sont suspendus",
+        "NO_LONGER_APPLICABLE": "Ne s'applique plus"
       },
       "errors": {
         "typeUnknown": "Ce message n'appartient pas à cette liste.",
@@ -6754,13 +6759,13 @@
       },
       "history": {
         "title": "Historique des envois",
-        "description": "Chaque copie envoyée par Loopskey en votre nom, de la plus récente à la plus ancienne.",
+        "description": "Chaque copie envoyée par Loopskey en votre nom, de la plus récente à la plus ancienne, y compris les invitations, messages de bienvenue et avis d'attribution envoyés automatiquement.",
         "total": "{{count}} au total",
         "error": "L'historique n'a pas pu être chargé.",
         "unknownReason": "Aucune raison enregistrée.",
         "empty": {
           "title": "Rien n'a encore été envoyé",
-          "body": "Dès que vous enverrez un rappel ou un message de bienvenue, la copie de chaque destinataire sera listée ici avec son état."
+          "body": "Dès qu'un membre est invité, accueilli, ajouté à un groupe ou reçoit une attribution, ou que vous envoyez un rappel, la copie de chaque destinataire est listée ici avec son état."
         }
       },
       "suppressed": "Tous les courriels de l'association sont suspendus dans vos paramètres : un envoi ici enregistre chaque destinataire comme ignoré.",

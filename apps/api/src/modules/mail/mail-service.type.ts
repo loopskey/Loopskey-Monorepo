@@ -85,3 +85,30 @@ export type TAssociationMessageInput = TAssociationMessageBase &
         certificateTitle: string;
       }
   );
+
+export type TAssociationLifecycleBase = {
+  appName: string;
+  memberName: string;
+  actionUrl: string;
+  supportEmail: string;
+  language: AppLanguage;
+  associationName: string;
+};
+
+export type TAssociationLifecycleInput = TAssociationLifecycleBase &
+  (
+    | {
+        messageType: typeof AssociationMessageType.GROUP_ADDED;
+        groupTitle: string;
+      }
+    | {
+        messageType: typeof AssociationMessageType.REQUIREMENT_ASSIGNED;
+        requirementName: string;
+        deadline: Date | null;
+      }
+    | {
+        messageType: typeof AssociationMessageType.LEARNING_CONTENT_ASSIGNED;
+        contentTitle: string;
+        requirementName: string | null;
+      }
+  );

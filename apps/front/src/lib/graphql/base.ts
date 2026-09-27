@@ -987,6 +987,7 @@ export enum AssociationMessageSkipReason {
   EmailSuppressed = 'EMAIL_SUPPRESSED',
   InactiveAccount = 'INACTIVE_ACCOUNT',
   NotInList = 'NOT_IN_LIST',
+  NoLongerApplicable = 'NO_LONGER_APPLICABLE',
   NoVerifiedEmail = 'NO_VERIFIED_EMAIL'
 }
 
@@ -995,6 +996,10 @@ export enum AssociationMessageType {
   BehindThreshold = 'BEHIND_THRESHOLD',
   CategoryBehind = 'CATEGORY_BEHIND',
   CertificateExpiring = 'CERTIFICATE_EXPIRING',
+  GroupAdded = 'GROUP_ADDED',
+  Invitation = 'INVITATION',
+  LearningContentAssigned = 'LEARNING_CONTENT_ASSIGNED',
+  RequirementAssigned = 'REQUIREMENT_ASSIGNED',
   Welcome = 'WELCOME'
 }
 

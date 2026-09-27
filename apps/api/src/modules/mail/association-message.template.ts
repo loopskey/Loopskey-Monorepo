@@ -5,7 +5,7 @@ import { type TAssociationMessageInput } from "@mail/mail-service.type";
 
 export const ASSOCIATION_MESSAGE_TEMPLATE_VERSION = 1;
 
-type Copy = {
+export type AssociationEmailCopy = {
   subject: string;
   heading: string;
   lines: string[];
@@ -14,10 +14,12 @@ type Copy = {
   help: string;
 };
 
+type Copy = AssociationEmailCopy;
+
 const number = (value: number, language: AppLanguage) =>
   value.toLocaleString(language === AppLanguage.FR ? "fr-FR" : "en-GB");
 
-const date = (value: Date | null, language: AppLanguage) =>
+export const formatMessageDate = (value: Date | null, language: AppLanguage) =>
   value
     ? value.toLocaleDateString(
         language === AppLanguage.FR ? "fr-FR" : "en-GB",
@@ -63,7 +65,7 @@ const englishCopy = (input: TAssociationMessageInput): Copy => {
     };
 
   if (input.messageType === AssociationMessageType.CERTIFICATE_EXPIRING) {
-    const expires = date(input.expiresOn, input.language);
+    const expires = formatMessageDate(input.expiresOn, input.language);
 
     return {
       help,
@@ -81,7 +83,7 @@ const englishCopy = (input: TAssociationMessageInput): Copy => {
     };
   }
 
-  const deadline = date(input.deadline, input.language);
+  const deadline = formatMessageDate(input.deadline, input.language);
 
   return {
     help,
@@ -133,7 +135,7 @@ const frenchCopy = (input: TAssociationMessageInput): Copy => {
     };
 
   if (input.messageType === AssociationMessageType.CERTIFICATE_EXPIRING) {
-    const expires = date(input.expiresOn, input.language);
+    const expires = formatMessageDate(input.expiresOn, input.language);
 
     return {
       help,
@@ -151,7 +153,7 @@ const frenchCopy = (input: TAssociationMessageInput): Copy => {
     };
   }
 
-  const deadline = date(input.deadline, input.language);
+  const deadline = formatMessageDate(input.deadline, input.language);
 
   return {
     help,
@@ -172,11 +174,17 @@ const frenchCopy = (input: TAssociationMessageInput): Copy => {
 const copyFor = (input: TAssociationMessageInput) =>
   input.language === AppLanguage.FR ? frenchCopy(input) : englishCopy(input);
 
-export const buildAssociationMessageEmail = (
-  input: TAssociationMessageInput,
-) => {
-  const copy = copyFor(input);
-  const appName = escapeHtml(input.appName);
+export const renderAssociationEmail = ({
+  copy,
+  appName,
+  actionUrl,
+  associationName,
+}: {
+  copy: AssociationEmailCopy;
+  appName: string;
+  actionUrl: string;
+  associationName: string;
+}) => {
   const paragraphs = copy.lines
     .map((line) => `<p>${escapeHtml(line)}</p>`)
     .join("");
@@ -185,10 +193,18 @@ export const buildAssociationMessageEmail = (
     subject: copy.subject,
     text: [
       ...copy.lines,
-      `${copy.action}: ${input.dashboardUrl}`,
+      `${copy.action}: ${actionUrl}`,
       copy.closing,
       copy.help,
     ].join(" "),
-    html: `<!doctype html><html><body style="font-family:Arial,sans-serif;color:#111827;background:#f6f8fb;padding:32px"><main style="max-width:600px;margin:auto;background:white;padding:32px;border-radius:16px"><strong style="color:#2563eb">${escapeHtml(input.associationName)}</strong><h1>${escapeHtml(copy.heading)}</h1>${paragraphs}<p><a href="${escapeHtml(input.dashboardUrl)}" style="display:inline-block;padding:12px 20px;background:#2563eb;color:white;text-decoration:none;border-radius:10px">${escapeHtml(copy.action)}</a></p><p style="color:#6b7280">${escapeHtml(copy.closing)}</p><p style="color:#6b7280">${escapeHtml(copy.help)}</p><p style="color:#9ca3af;font-size:12px">${appName}</p></main></body></html>`,
+    html: `<!doctype html><html><body style="font-family:Arial,sans-serif;color:#111827;background:#f6f8fb;padding:32px"><main style="max-width:600px;margin:auto;background:white;padding:32px;border-radius:16px"><strong style="color:#2563eb">${escapeHtml(associationName)}</strong><h1>${escapeHtml(copy.heading)}</h1>${paragraphs}<p><a href="${escapeHtml(actionUrl)}" style="display:inline-block;padding:12px 20px;background:#2563eb;color:white;text-decoration:none;border-radius:10px">${escapeHtml(copy.action)}</a></p><p style="color:#6b7280">${escapeHtml(copy.closing)}</p><p style="color:#6b7280">${escapeHtml(copy.help)}</p><p style="color:#9ca3af;font-size:12px">${escapeHtml(appName)}</p></main></body></html>`,
   };
 };
+
+export const buildAssociationMessageEmail = (input: TAssociationMessageInput) =>
+  renderAssociationEmail({
+    copy: copyFor(input),
+    appName: input.appName,
+    actionUrl: input.dashboardUrl,
+    associationName: input.associationName,
+  });

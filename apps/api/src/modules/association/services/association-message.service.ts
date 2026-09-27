@@ -12,6 +12,8 @@ import { AssociationSettingsService } from "@association/services/association-se
 import { AssociationAccessService } from "@association/services/association-access.service";
 import { type IdentityProfileApi } from "@user/public/identity-profile-api";
 import { SECTION_BY_MESSAGE_TYPE } from "@association/enums/association-attention.enum";
+import { isManualMessageType } from "@association/enums/association-attention.enum";
+import { type ManualMessageType } from "@association/enums/association-attention.enum";
 import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
 import { type TAssociationUser } from "@association/types/association-service.types";
 import { messageTemplateInput } from "@association/utils/association-message-context.util";
@@ -84,7 +86,11 @@ export class AssociationMessageService {
 
     const rendered = representative
       ? buildAssociationMessageEmail(
-          this.templateInput(association.name, representative, messageType),
+          this.templateInput(
+            association.name,
+            representative,
+            resolved.messageType,
+          ),
         )
       : null;
 
@@ -243,7 +249,7 @@ export class AssociationMessageService {
   templateInput(
     associationName: string,
     recipient: Recipient,
-    messageType: AssociationMessageType,
+    messageType: ManualMessageType,
   ): TAssociationMessageInput {
     return messageTemplateInput({
       messageType,
@@ -265,13 +271,16 @@ export class AssociationMessageService {
     messageType: AssociationMessageType,
     audience: MessageAudience,
   ) {
-    const section = SECTION_BY_MESSAGE_TYPE[messageType];
-
-    if (!section || section !== audience.section)
+    if (
+      !isManualMessageType(messageType) ||
+      SECTION_BY_MESSAGE_TYPE[messageType] !== audience.section
+    )
       throw new BadRequestException({
         code: AssociationMessageCode.MESSAGE_TYPE_UNKNOWN,
         message: "That message does not belong to this list.",
       });
+
+    const section = SECTION_BY_MESSAGE_TYPE[messageType];
 
     const association = await this.access.requireOwned(user);
     const rows = await this.attention.rowsFor(user, section);
@@ -312,6 +321,7 @@ export class AssociationMessageService {
 
     if (await this.settings.suppressesMessageType(association.id, messageType))
       return {
+        messageType,
         eligible: [],
         skipped: [
           ...skipped,
@@ -387,7 +397,7 @@ export class AssociationMessageService {
       });
     }
 
-    return { eligible, skipped };
+    return { messageType, eligible, skipped };
   }
 
   private async writeBatch({

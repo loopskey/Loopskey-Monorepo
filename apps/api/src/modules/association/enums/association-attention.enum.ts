@@ -18,6 +18,22 @@ export const MESSAGE_TYPE_BY_SECTION = {
     AssociationMessageType.CERTIFICATE_EXPIRING,
 } as const;
 
+export const MANUAL_MESSAGE_TYPES = [
+  AssociationMessageType.WELCOME,
+  AssociationMessageType.CATEGORY_BEHIND,
+  AssociationMessageType.BEHIND_THRESHOLD,
+  AssociationMessageType.CERTIFICATE_EXPIRING,
+] as const;
+
+export type ManualMessageType = (typeof MANUAL_MESSAGE_TYPES)[number];
+
+export const isManualMessageType = (
+  messageType: AssociationMessageType,
+): messageType is ManualMessageType =>
+  (MANUAL_MESSAGE_TYPES as readonly AssociationMessageType[]).includes(
+    messageType,
+  );
+
 export const SECTION_BY_MESSAGE_TYPE = {
   [AssociationMessageType.BEHIND_THRESHOLD]:
     AssociationAttentionSection.BELOW_THRESHOLD,
@@ -26,7 +42,7 @@ export const SECTION_BY_MESSAGE_TYPE = {
     AssociationAttentionSection.CATEGORY_BEHIND,
   [AssociationMessageType.CERTIFICATE_EXPIRING]:
     AssociationAttentionSection.EXPIRING_CERTIFICATES,
-} as const;
+} as const satisfies Record<ManualMessageType, AssociationAttentionSection>;
 
 export enum AssociationMessageSkipReason {
   COOLDOWN = "COOLDOWN",
@@ -34,4 +50,5 @@ export enum AssociationMessageSkipReason {
   NO_VERIFIED_EMAIL = "NO_VERIFIED_EMAIL",
   INACTIVE_ACCOUNT = "INACTIVE_ACCOUNT",
   EMAIL_SUPPRESSED = "EMAIL_SUPPRESSED",
+  NO_LONGER_APPLICABLE = "NO_LONGER_APPLICABLE",
 }
