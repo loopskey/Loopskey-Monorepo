@@ -77,7 +77,7 @@ export const AssociationMembersFilters = ({
             <S.SelectValue />
           </S.SelectTrigger>
 
-          <S.SelectContent className="z-[9999] rounded-md">
+          <S.SelectContent className="rounded-md">
             <S.SelectItem value={ALL}>
               {t("associationDashboard.members.filters.allGroups")}
             </S.SelectItem>
@@ -105,7 +105,7 @@ export const AssociationMembersFilters = ({
               <S.SelectValue />
             </S.SelectTrigger>
 
-            <S.SelectContent className="z-[9999] rounded-md">
+            <S.SelectContent className="rounded-md">
               <S.SelectItem value={ALL}>
                 {t("associationDashboard.members.filters.allRequirements")}
               </S.SelectItem>
@@ -133,7 +133,7 @@ export const AssociationMembersFilters = ({
             <S.SelectValue />
           </S.SelectTrigger>
 
-          <S.SelectContent className="z-[9999] rounded-md">
+          <S.SelectContent className="rounded-md">
             <S.SelectItem value={ALL}>
               {t("associationDashboard.members.filters.allStatuses")}
             </S.SelectItem>

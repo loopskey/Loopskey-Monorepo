@@ -43,7 +43,7 @@ export const FloatingSelectField = <T extends FieldValues>({
               <S.SelectContent
                 position="popper"
                 sideOffset={8}
-                className="z-[9999] max-h-72 rounded-md border bg-popover text-popover-foreground shadow-md"
+                className="max-h-72 rounded-md border bg-popover text-popover-foreground shadow-md"
               >
                 {options
                   .filter((option) => option.value !== "")

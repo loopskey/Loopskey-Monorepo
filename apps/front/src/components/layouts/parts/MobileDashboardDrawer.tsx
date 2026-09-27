@@ -1,8 +1,9 @@
 "use client";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@ui/tooltip";
-import { isDashboardTabActive } from "@/utils/dashboard-nav.config";
 import { useEffect, useRef, useState } from "react";
+import { isDashboardTabActive } from "@/utils/dashboard-nav.config";
+import { OVERLAY_LAYER_CLASS } from "@ui/overlay-layer";
 import { useDashboardNav } from "@/hooks/useDashboardNav";
 import { siteLinks } from "@utils/constant";
 import { useI18n } from "@/hooks/useI18n";
@@ -22,6 +23,8 @@ export const MobileDashboardDrawer = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [peekedTab, setPeekedTab] = useState<string | null>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const wasOpenRef = useRef(false);
   const peekTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const activeTabLabel =
     tabs.find((tab) => isDashboardTabActive(tab.value, activeTab))?.labelKey ??
@@ -62,6 +65,11 @@ export const MobileDashboardDrawer = () => {
   }, [activeTab]);
 
   useEffect(() => {
+    if (!isOpen && wasOpenRef.current) triggerRef.current?.focus();
+    wasOpenRef.current = isOpen;
+  }, [isOpen]);
+
+  useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
@@ -97,7 +105,8 @@ export const MobileDashboardDrawer = () => {
         aria-hidden
         onClick={closeDrawer}
         className={cn(
-          "fixed inset-0 z-[45] bg-foreground/40 transition-opacity duration-300 motion-reduce:transition-none",
+          "fixed inset-0 bg-foreground/40 transition-opacity duration-300 motion-reduce:transition-none",
+          OVERLAY_LAYER_CLASS.navigationBackdrop,
           isOpen ? "opacity-100" : "pointer-events-none opacity-0",
         )}
       />
@@ -106,6 +115,7 @@ export const MobileDashboardDrawer = () => {
         <Tooltip open={showHint || undefined}>
           <TooltipTrigger asChild>
             <Button
+              ref={triggerRef}
               type="button"
               size="icon"
               radius="full"
@@ -129,10 +139,15 @@ export const MobileDashboardDrawer = () => {
       </div>
 
       <aside
+        inert={!isOpen}
+        aria-hidden={!isOpen}
         aria-label={t("dashboardShell.navLabel")}
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-[72px] flex-col bg-primary text-primary-foreground shadow-2xl transition-transform duration-300 ease-out motion-reduce:transition-none",
-          isOpen ? "translate-x-0" : "-translate-x-full",
+          "fixed inset-y-0 left-0 flex w-[72px] flex-col bg-primary text-primary-foreground shadow-2xl transition-transform duration-300 ease-out motion-reduce:transition-none",
+          OVERLAY_LAYER_CLASS.navigation,
+          isOpen
+            ? "translate-x-0"
+            : "pointer-events-none -translate-x-full select-none",
         )}
       >
         <div className="flex h-16 shrink-0 items-center justify-center border-b border-primary-foreground/15">
@@ -174,6 +189,10 @@ export const MobileDashboardDrawer = () => {
                     <TooltipTrigger asChild>
                       <Link
                         href={item.href}
+                        onClick={(event) => {
+                          if (isActive) event.preventDefault();
+                          closeDrawer();
+                        }}
                         title={label}
                         aria-label={label}
                         aria-current={isActive ? "page" : undefined}

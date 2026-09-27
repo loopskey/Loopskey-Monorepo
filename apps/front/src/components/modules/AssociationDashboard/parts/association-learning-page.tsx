@@ -178,7 +178,7 @@ export const AssociationLearningPage = ({
         open={confirmExit}
         onOpenChange={(open) => !open && cancelExitWizard()}
       >
-        <A.AlertDialogContent className="glass-dialog z-[9999] rounded-lg border-border">
+        <A.AlertDialogContent className="glass-dialog rounded-lg border-border">
           <A.AlertDialogHeader>
             <A.AlertDialogTitle>
               {t(`${KEY}.editor.unsavedTitle`)}

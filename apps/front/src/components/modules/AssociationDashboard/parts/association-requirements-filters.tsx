@@ -51,7 +51,7 @@ export const AssociationRequirementsFilters = ({
             <S.SelectValue />
           </S.SelectTrigger>
 
-          <S.SelectContent className="z-[9999] rounded-md">
+          <S.SelectContent className="rounded-md">
             <S.SelectItem value={ALL}>
               {t("associationDashboard.requirements.filters.allStatuses")}
             </S.SelectItem>

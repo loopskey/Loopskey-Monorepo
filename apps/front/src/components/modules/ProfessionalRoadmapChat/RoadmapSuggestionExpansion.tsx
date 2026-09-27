@@ -60,7 +60,7 @@ export const RoadmapSuggestionExpansion = ({
 
       <SH.SheetContent
         side="right"
-        className="glass-dialog z-[9999] w-full gap-0 overflow-y-auto border-border sm:max-w-md"
+        className="glass-dialog w-full gap-0 overflow-y-auto border-border sm:max-w-md"
       >
         <SH.SheetHeader>
           <SH.SheetTitle>{t(`${KEY}.title`)}</SH.SheetTitle>

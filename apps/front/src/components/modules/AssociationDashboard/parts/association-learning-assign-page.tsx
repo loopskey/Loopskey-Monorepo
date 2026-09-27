@@ -140,7 +140,7 @@ export const AssociationLearningAssignPage = ({
                         )}
                       />
                     </S.SelectTrigger>
-                    <S.SelectContent className="z-[9999] rounded-md">
+                    <S.SelectContent className="rounded-md">
                       <S.SelectItem value="NONE">
                         {t(
                           "associationDashboard.learningContent.editor.noRequirementOption",

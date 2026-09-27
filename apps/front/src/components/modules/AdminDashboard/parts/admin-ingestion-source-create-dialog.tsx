@@ -22,7 +22,7 @@ export const AdminIngestionSourceCreateDialog = ({
       open={isCreateOpen}
       onOpenChange={(open) => !open && closeCreate()}
     >
-      <D.DialogContent className="glass-dialog z-[9999] max-h-[85vh] max-w-xl overflow-y-auto rounded-lg border-border">
+      <D.DialogContent className="glass-dialog max-h-[85vh] max-w-xl overflow-y-auto rounded-lg border-border">
         <D.DialogHeader>
           <D.DialogTitle className="text-xl">
             {t("adminDashboard.ingestion.sources.create.title")}

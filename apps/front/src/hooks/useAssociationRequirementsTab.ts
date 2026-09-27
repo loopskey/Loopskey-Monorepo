@@ -1,13 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getAssociationErrorTranslationKey } from "@utils/association-error";
 import { AssociationLateSubmissionPolicy } from "@/lib/graphql/base";
 import { CpdReminderTiming, CreditType } from "@/lib/graphql/base";
 import { AssociationRequirementStatus } from "@/lib/graphql/base";
 import { AssociationSubmissionWindow } from "@/lib/graphql/base";
 import { AssociationRenewalCondition } from "@/lib/graphql/base";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AssociationReportingCycle } from "@/lib/graphql/base";
 import { AssociationEvidencePolicy } from "@/lib/graphql/base";
 import { AssociationAudienceKind } from "@/lib/graphql/base";
@@ -45,7 +45,9 @@ const detailsDefaults: SC.TAssociationRequirementDetailsForm = {
 export const useAssociationRequirementsTab = () => {
   const { t, language } = useI18n();
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
+  const pendingNavigationRef = useRef<string | null>(null);
 
   const requirementId = searchParams?.get("requirement") ?? null;
   const stepParam = searchParams?.get("step");
@@ -189,6 +191,10 @@ export const useAssociationRequirementsTab = () => {
   const { reset: resetReporting } = reportingForm;
 
   useEffect(() => {
+    pendingNavigationRef.current = null;
+  }, [searchParams]);
+
+  useEffect(() => {
     if (!requirement) return;
 
     resetDetails({
@@ -237,9 +243,14 @@ export const useAssociationRequirementsTab = () => {
       else params.delete("requirement");
       if (nextStep) params.set("step", nextStep);
       else params.delete("step");
-      router.replace(`?${params.toString()}`, { scroll: false });
+      const nextHref = `${pathname}?${params.toString()}`;
+      const currentHref = `${pathname}?${searchParams?.toString() ?? ""}`;
+      if (nextHref === currentHref || pendingNavigationRef.current === nextHref)
+        return;
+      pendingNavigationRef.current = nextHref;
+      router.replace(nextHref, { scroll: false });
     },
-    [router, searchParams],
+    [pathname, router, searchParams],
   );
 
   const failWith = useCallback(

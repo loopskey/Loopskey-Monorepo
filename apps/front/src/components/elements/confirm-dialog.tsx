@@ -24,7 +24,7 @@ export const ConfirmDialog = ({
       <A.AlertDialogTrigger asChild>{trigger}</A.AlertDialogTrigger>
 
       <A.AlertDialogContent
-        className="z-[9999] rounded-lg"
+        className="rounded-lg"
         onCloseAutoFocus={onCloseAutoFocus}
       >
         <A.AlertDialogHeader>

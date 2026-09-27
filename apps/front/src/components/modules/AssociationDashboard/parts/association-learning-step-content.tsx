@@ -135,7 +135,7 @@ export const AssociationLearningStepContent = ({
                       <S.SelectValue />
                     </S.SelectTrigger>
 
-                    <S.SelectContent className="z-[9999] rounded-md">
+                    <S.SelectContent className="rounded-md">
                       {CONTENT_TYPES.map((value) => (
                         <S.SelectItem key={value} value={value}>
                           {value === ALL
@@ -295,7 +295,7 @@ export const AssociationLearningStepContent = ({
                 >
                   <S.SelectValue placeholder={label("contentType")} />
                 </S.SelectTrigger>
-                <S.SelectContent className="z-[9999] rounded-md">
+                <S.SelectContent className="rounded-md">
                   {EXTERNAL_TYPES.map((value) => (
                     <S.SelectItem key={value} value={value}>
                       {humanizeEnumValue(value)}
