@@ -45,7 +45,7 @@ export const AssociationReportsFilters = ({
           <S.SelectValue />
         </S.SelectTrigger>
 
-        <S.SelectContent className="z-[9999] rounded-md">
+        <S.SelectContent className="rounded-md">
           {options.map((option) => (
             <S.SelectItem key={option.value} value={option.value}>
               {option.label}

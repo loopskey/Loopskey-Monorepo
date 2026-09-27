@@ -142,7 +142,7 @@ export const MultiSelectField = <T extends FieldValues>({
               <PopoverContent
                 align="start"
                 onKeyDown={onKeyDown}
-                className="z-[9999] w-[--radix-popover-trigger-width] p-2"
+                className="w-[--radix-popover-trigger-width] p-2"
               >
                 <div className="space-y-2">
                   <Input

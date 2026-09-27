@@ -107,7 +107,7 @@ export const AssociationLearningList = ({ hook }: TAssociationLearningList) => {
               </Button>
             </D.DropdownMenuTrigger>
 
-            <D.DropdownMenuContent align="end" className="z-[9999] rounded-md">
+            <D.DropdownMenuContent align="end" className="rounded-md">
               <D.DropdownMenuItem onSelect={() => setDetailId(item.id)}>
                 <L.Eye className="h-4 w-4" />
                 {t("associationDashboard.learningContent.actions.view")}

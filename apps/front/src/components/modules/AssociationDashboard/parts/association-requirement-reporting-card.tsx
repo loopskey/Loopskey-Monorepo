@@ -166,7 +166,7 @@ export const AssociationRequirementReportingCard = ({
                   <S.SelectValue />
                 </S.SelectTrigger>
 
-                <S.SelectContent className="z-[9999] rounded-md">
+                <S.SelectContent className="rounded-md">
                   {Object.values(CpdReminderTiming).map((value) => (
                     <S.SelectItem key={value} value={value}>
                       {t(

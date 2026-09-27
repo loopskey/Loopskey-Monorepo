@@ -36,7 +36,7 @@ export const AssociationLearningDetail = ({
     >
       <SH.SheetContent
         side="right"
-        className="glass-dialog z-[9999] w-full gap-0 overflow-y-auto border-border sm:max-w-lg"
+        className="glass-dialog w-full gap-0 overflow-y-auto border-border sm:max-w-lg"
       >
         <SH.SheetHeader>
           <SH.SheetTitle>{detail?.title ?? label("title")}</SH.SheetTitle>

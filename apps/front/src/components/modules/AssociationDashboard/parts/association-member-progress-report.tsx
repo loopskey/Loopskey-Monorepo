@@ -128,7 +128,7 @@ export const AssociationMemberProgressReport = ({
             <S.SelectValue />
           </S.SelectTrigger>
 
-          <S.SelectContent className="z-[9999] rounded-md">
+          <S.SelectContent className="rounded-md">
             <S.SelectItem value={ALL_FILTER_VALUE}>
               {label("view.allBands")}
             </S.SelectItem>

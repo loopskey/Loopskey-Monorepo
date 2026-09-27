@@ -50,7 +50,7 @@ export const AssociationMemberInviteDialog = ({
       open={isInviteOpen}
       onOpenChange={(open) => (open ? openInvite() : closeInvite())}
     >
-      <D.DialogContent className="glass-dialog z-[9999] max-w-lg rounded-lg border-border">
+      <D.DialogContent className="glass-dialog max-w-lg rounded-lg border-border">
         <D.DialogHeader>
           <D.DialogTitle className="text-xl">
             {t("associationDashboard.members.invite.title")}

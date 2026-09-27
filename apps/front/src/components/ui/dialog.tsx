@@ -4,6 +4,7 @@ import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { XIcon } from "lucide-react";
 
+import { ModalLayerProvider, OVERLAY_LAYER_CLASS } from "@ui/overlay-layer";
 import { cn } from "@/lib/utils";
 
 function Dialog({
@@ -38,7 +39,8 @@ function DialogOverlay({
     <DialogPrimitive.Overlay
       data-slot="dialog-overlay"
       className={cn(
-        "fixed inset-0 z-[9998] bg-black/50",
+        "fixed inset-0 bg-black/50",
+        OVERLAY_LAYER_CLASS.modalBackdrop,
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         className,
@@ -63,7 +65,8 @@ function DialogContent({
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
-          "fixed left-1/2 top-1/2 z-[9999] grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4",
+          "fixed left-1/2 top-1/2 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4",
+          OVERLAY_LAYER_CLASS.modal,
           "rounded-lg border bg-background p-6 shadow-md duration-200 sm:max-w-lg",
           "data-[state=open]:animate-in data-[state=closed]:animate-out",
           "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
@@ -72,17 +75,19 @@ function DialogContent({
         )}
         {...props}
       >
-        <div className="relative z-10">{children}</div>
+        <ModalLayerProvider>
+          <div className="relative z-10">{children}</div>
 
-        {showCloseButton && (
-          <DialogPrimitive.Close
-            data-slot="dialog-close"
-            className="absolute right-4 top-4 z-20 rounded-full p-1 opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring"
-          >
-            <XIcon className="h-4 w-4" />
-            <span className="sr-only">Close</span>
-          </DialogPrimitive.Close>
-        )}
+          {showCloseButton && (
+            <DialogPrimitive.Close
+              data-slot="dialog-close"
+              className="absolute right-4 top-4 z-20 rounded-full p-1 opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring"
+            >
+              <XIcon className="h-4 w-4" />
+              <span className="sr-only">Close</span>
+            </DialogPrimitive.Close>
+          )}
+        </ModalLayerProvider>
       </DialogPrimitive.Content>
     </DialogPortal>
   );

@@ -29,7 +29,7 @@ export const AssociationLearningDetailsSheet = ({
     >
       <SH.SheetContent
         side="right"
-        className="glass-dialog z-[9999] w-full gap-0 overflow-y-auto border-border sm:max-w-lg"
+        className="glass-dialog w-full gap-0 overflow-y-auto border-border sm:max-w-lg"
       >
         {item ? (
           <>

@@ -29,7 +29,7 @@ export const AdminAssociationCreateDialog = ({
       open={isCreateOpen}
       onOpenChange={(open) => (open ? openCreate() : closeCreate())}
     >
-      <D.DialogContent className="glass-dialog z-[9999] max-h-[85vh] max-w-2xl overflow-y-auto rounded-lg border-border">
+      <D.DialogContent className="glass-dialog max-h-[85vh] max-w-2xl overflow-y-auto rounded-lg border-border">
         <D.DialogHeader>
           <D.DialogTitle className="text-xl">
             {t("adminDashboard.associations.create.title")}
