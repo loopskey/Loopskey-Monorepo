@@ -2308,11 +2308,12 @@ model AssociationMember {
   activatedAt   DateTime?
   deactivatedAt DateTime?
 
-  requirementTargets     AssociationRequirementTarget[]
-  requirementAssignments AssociationRequirementAssignment[]
-  learningContentTargets AssociationLearningContentTarget[]
-  messageDeliveries      AssociationMessageDelivery[]
-  invitationTokens       OtpCode[]
+  requirementTargets        AssociationRequirementTarget[]
+  requirementAssignments    AssociationRequirementAssignment[]
+  learningContentTargets    AssociationLearningContentTarget[]
+  messageDeliveries         AssociationMessageDelivery[]
+  invitationTokens          OtpCode[]
+  learningContentRecipients AssociationLearningContentRecipient[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -2623,6 +2624,8 @@ model AssociationRequirementAssignment {
 
   isTargeted Boolean @default(true)
 
+  announcedAt DateTime?
+
   recordedCredits     Float                     @default(0)
   completedCredits    Float                     @default(0)
   percent             Float                     @default(0)
@@ -2712,8 +2715,9 @@ model AssociationLearningContent {
   publishedAt DateTime?
   withdrawnAt DateTime?
 
-  audienceKind AssociationAudienceKind            @default(ALL_MEMBERS)
+  audienceKind AssociationAudienceKind               @default(ALL_MEMBERS)
   targets      AssociationLearningContentTarget[]
+  recipients   AssociationLearningContentRecipient[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -2744,6 +2748,26 @@ model AssociationLearningContentTarget {
   @@unique([learningContentId, groupId])
   @@unique([learningContentId, memberId])
   @@index([learningContentId])
+}
+
+model AssociationLearningContentRecipient {
+  id String @id @default(cuid())
+
+  learningContentId String
+  learningContent   AssociationLearningContent @relation(fields: [learningContentId], references: [id], onDelete: Cascade)
+
+  memberId String
+  member   AssociationMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  isTargeted Boolean @default(true)
+
+  announcedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([learningContentId, memberId])
+  @@index([memberId])
 }
 
 enum AssociationLearningContentStatus {
@@ -2827,6 +2851,10 @@ enum AssociationMessageType {
   CATEGORY_BEHIND
   BEHIND_THRESHOLD
   CERTIFICATE_EXPIRING
+  INVITATION
+  GROUP_ADDED
+  REQUIREMENT_ASSIGNED
+  LEARNING_CONTENT_ASSIGNED
 }
 
 enum AssociationMessageDeliveryState {
@@ -2857,7 +2885,9 @@ model AssociationMessageDelivery {
 
   language AppLanguage @default(EN)
 
-  cooldownBucket Int
+  cooldownBucket Int?
+
+  occurrenceKey String? @unique
 
   state AssociationMessageDeliveryState @default(QUEUED)
 

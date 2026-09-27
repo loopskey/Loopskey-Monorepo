@@ -6727,7 +6727,11 @@
         "BEHIND_THRESHOLD": "Progress reminder",
         "WELCOME": "Welcome",
         "CATEGORY_BEHIND": "Category reminder",
-        "CERTIFICATE_EXPIRING": "Certificate expiry"
+        "CERTIFICATE_EXPIRING": "Certificate expiry",
+        "INVITATION": "Invitation",
+        "GROUP_ADDED": "Added to a group",
+        "REQUIREMENT_ASSIGNED": "Requirement assigned",
+        "LEARNING_CONTENT_ASSIGNED": "Learning assigned"
       },
       "states": {
         "QUEUED": "Sending",
@@ -6740,7 +6744,8 @@
         "NOT_IN_LIST": "No longer in this list",
         "NO_VERIFIED_EMAIL": "No verified email address",
         "INACTIVE_ACCOUNT": "Account is not active",
-        "EMAIL_SUPPRESSED": "Association email is suppressed"
+        "EMAIL_SUPPRESSED": "Association email is suppressed",
+        "NO_LONGER_APPLICABLE": "No longer applicable"
       },
       "errors": {
         "typeUnknown": "That message does not belong to this list.",
@@ -6751,13 +6756,13 @@
       },
       "history": {
         "title": "Outreach history",
-        "description": "Every copy Loopskey sent on your behalf, newest first.",
+        "description": "Every copy Loopskey sent on your behalf, newest first, including invitations, welcomes and assignment notices sent automatically.",
         "total": "{{count}} in total",
         "error": "The history could not be loaded.",
         "unknownReason": "No reason recorded.",
         "empty": {
           "title": "Nothing sent yet",
-          "body": "Once you send a reminder or a welcome, every recipient's copy is listed here with its state."
+          "body": "Once a member is invited, welcomed, added to a group or assigned work, or you send a reminder, every recipient's copy is listed here with its state."
         }
       },
       "suppressed": "All association email is suppressed in your settings, so a send here records every recipient as skipped.",

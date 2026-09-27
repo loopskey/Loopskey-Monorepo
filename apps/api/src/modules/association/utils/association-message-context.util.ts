@@ -1,6 +1,7 @@
 import { AppLanguage, AssociationMessageType } from "@prisma/client";
 
 import { type TAssociationMessageInput } from "@mail/mail-service.type";
+import { type ManualMessageType } from "@association/enums/association-attention.enum";
 import { type AttentionRow } from "@association/types/association-attention.types";
 
 export type MessageContext = {
@@ -60,7 +61,7 @@ export const messageTemplateInput = ({
   appName: string;
   language: AppLanguage;
   memberName: string;
-  messageType: AssociationMessageType;
+  messageType: ManualMessageType;
   supportEmail: string;
   dashboardUrl: string;
   associationName: string;

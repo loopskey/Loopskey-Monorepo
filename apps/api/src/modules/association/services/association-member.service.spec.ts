@@ -1,6 +1,5 @@
 import { AssociationMemberStatus, Prisma, Role } from "@prisma/client";
 import type { ConfigService } from "@nestjs/config";
-import type { OutboxService } from "@infrastructure/outbox/outbox.service";
 import type { PrismaService } from "@prisma/prisma.service";
 
 import { AssociationInviteOutcome } from "@association/enums/association-register.enum";
@@ -72,7 +71,16 @@ const setup = (
       (argument as (client: typeof tx) => unknown)(tx),
     ),
   };
-  const outbox = { append: jest.fn().mockResolvedValue({ id: "event-1" }) };
+  const notifications = {
+    recordInvitation: jest.fn().mockResolvedValue("delivery-1"),
+  };
+  const lifecycle = {
+    announceActivation: jest.fn().mockResolvedValue(undefined),
+    moveToGroup: jest.fn().mockResolvedValue(true),
+  };
+  const learningRecipients = {
+    syncMember: jest.fn().mockResolvedValue(0),
+  };
   const config = {
     get: jest.fn((_name: string, fallback?: string) => fallback ?? "x"),
   };
@@ -122,7 +130,9 @@ const setup = (
     tx,
     prisma,
     assignments,
-    outbox,
+    notifications,
+    lifecycle,
+    learningRecipients,
     groups,
     identity,
     activation,
@@ -133,7 +143,9 @@ const setup = (
     service: new AssociationMemberService(
       prisma as unknown as PrismaService,
       config as unknown as ConfigService,
-      outbox as unknown as OutboxService,
+      notifications as never,
+      lifecycle as never,
+      learningRecipients as never,
       access as unknown as AssociationAccessService,
       groups as unknown as AssociationGroupService,
       identity as never,
@@ -153,8 +165,8 @@ const invite = {
 };
 
 describe("AssociationMemberService invitations", () => {
-  it("links an email that already belongs to someone, active and unmailed", async () => {
-    const { service, tx, outbox, activation } = setup({
+  it("links an email that already belongs to someone and welcomes them once", async () => {
+    const { service, tx, notifications, lifecycle, activation } = setup({
       resolveUser: jest
         .fn()
         .mockResolvedValue({ id: "user-1", linkedExisting: true }),
@@ -177,11 +189,18 @@ describe("AssociationMemberService invitations", () => {
       }),
     );
     expect(activation.issueMemberInvitation).not.toHaveBeenCalled();
-    expect(outbox.append).not.toHaveBeenCalled();
+    expect(notifications.recordInvitation).not.toHaveBeenCalled();
+    expect(lifecycle.announceActivation).toHaveBeenCalledTimes(1);
+    expect(lifecycle.announceActivation).toHaveBeenCalledWith(tx, {
+      id: "member-1",
+      associationId: "assoc-1",
+      userId: "user-1",
+      groupId: null,
+    });
   });
 
   it("provisions an unknown email as pending and queues exactly one invitation", async () => {
-    const { service, tx, outbox, activation } = setup();
+    const { service, tx, notifications, lifecycle, activation } = setup();
 
     const result = await service.invite(owner, invite);
 
@@ -195,11 +214,17 @@ describe("AssociationMemberService invitations", () => {
       }),
     );
     expect(activation.issueMemberInvitation).toHaveBeenCalledTimes(1);
-    expect(outbox.append).toHaveBeenCalledTimes(1);
-    expect(outbox.append).toHaveBeenCalledWith(
-      expect.objectContaining({ eventName: "mail.delivery.requested" }),
+    expect(notifications.recordInvitation).toHaveBeenCalledTimes(1);
+    expect(notifications.recordInvitation).toHaveBeenCalledWith(
       tx,
+      expect.objectContaining({
+        associationId: "assoc-1",
+        memberId: "member-1",
+        recipientUserId: "user-1",
+        mail: expect.objectContaining({ to: "ada@example.org" }),
+      }),
     );
+    expect(lifecycle.announceActivation).not.toHaveBeenCalled();
   });
 
   it("normalises the email before it is looked up or written", async () => {
@@ -210,13 +235,25 @@ describe("AssociationMemberService invitations", () => {
     );
   });
 
-  it("ties the invitation mail to the token, so a retry is the same email", async () => {
-    const { service, outbox } = setup();
+  it("ties the invitation delivery to the token, so a retry is the same email", async () => {
+    const { service, notifications } = setup();
     await service.invite(owner, invite);
-    const payload = outbox.append.mock.calls[0][0].payload as {
-      idempotencyKey: string;
-    };
-    expect(payload.idempotencyKey).toBe("association-invite:member-1:otp-1");
+    expect(notifications.recordInvitation).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ tokenId: "otp-1" }),
+    );
+  });
+
+  it("keeps the raw activation link out of everything but the mail body", async () => {
+    const { service, notifications } = setup();
+    await service.invite(owner, invite);
+    const [, recorded] = notifications.recordInvitation.mock.calls[0] as [
+      unknown,
+      Record<string, unknown> & { mail: { text: string } },
+    ];
+    const { mail, ...rest } = recorded;
+    expect(mail.text).toContain("token=x");
+    expect(JSON.stringify(rest)).not.toContain("token=x");
   });
 
   it("answers a lost race with the winning row rather than a Prisma error", async () => {
@@ -224,7 +261,7 @@ describe("AssociationMemberService invitations", () => {
       id: "member-winner",
       status: AssociationMemberStatus.PENDING_ACTIVATION,
     });
-    const { service, prisma, outbox } = setup({
+    const { service, prisma, notifications } = setup({
       memberCreate: jest
         .fn()
         .mockRejectedValue(uniqueViolation(["associationId", "userId"])),
@@ -234,7 +271,7 @@ describe("AssociationMemberService invitations", () => {
     const result = await service.invite(owner, invite);
 
     expect(result.member.id).toBe("member-winner");
-    expect(outbox.append).not.toHaveBeenCalled();
+    expect(notifications.recordInvitation).not.toHaveBeenCalled();
   });
 
   it("refuses a member number another member already holds", async () => {
@@ -270,7 +307,7 @@ describe("AssociationMemberService invitations", () => {
   });
 
   it("re-adding an already-pending member queues a fresh invitation, truthfully", async () => {
-    const { service, activation, outbox } = setup({
+    const { service, activation, notifications } = setup({
       memberFindUnique: jest.fn().mockResolvedValue({ id: "member-1" }),
     });
 
@@ -280,11 +317,11 @@ describe("AssociationMemberService invitations", () => {
     expect(activation.issueMemberInvitation).toHaveBeenCalledWith(
       expect.objectContaining({ associationMemberId: "member-1" }),
     );
-    expect(outbox.append).toHaveBeenCalledTimes(1);
+    expect(notifications.recordInvitation).toHaveBeenCalledTimes(1);
   });
 
   it("never claims INVITATION_SENT when the invitation was actually cooldown-blocked", async () => {
-    const { service, outbox } = setup({
+    const { service, notifications } = setup({
       memberFindUnique: jest.fn().mockResolvedValue({ id: "member-1" }),
       invitation: jest.fn().mockResolvedValue(null),
     });
@@ -292,18 +329,18 @@ describe("AssociationMemberService invitations", () => {
     const result = await service.invite(owner, invite);
 
     expect(result.outcome).toBe(AssociationInviteOutcome.INVITATION_COOLDOWN);
-    expect(outbox.append).not.toHaveBeenCalled();
+    expect(notifications.recordInvitation).not.toHaveBeenCalled();
   });
 
   it("never claims INVITATION_SENT for a brand-new member when issuance is cooldown-blocked", async () => {
-    const { service, outbox } = setup({
+    const { service, notifications } = setup({
       invitation: jest.fn().mockResolvedValue(null),
     });
 
     const result = await service.invite(owner, invite);
 
     expect(result.outcome).toBe(AssociationInviteOutcome.INVITATION_COOLDOWN);
-    expect(outbox.append).not.toHaveBeenCalled();
+    expect(notifications.recordInvitation).not.toHaveBeenCalled();
   });
 
   it("does not re-invite an existing member who is already active", async () => {
@@ -318,6 +355,72 @@ describe("AssociationMemberService invitations", () => {
 
     expect(result.outcome).toBe(AssociationInviteOutcome.LINKED_EXISTING_USER);
     expect(activation.issueMemberInvitation).not.toHaveBeenCalled();
+  });
+
+  it("moves a re-invited member into the named group through the transition guard", async () => {
+    const { service, tx, lifecycle } = setup({
+      memberFindUnique: jest.fn().mockResolvedValue({ id: "member-1" }),
+    });
+
+    await service.invite(owner, { ...invite, groupId: "group-1" });
+
+    expect(lifecycle.moveToGroup).toHaveBeenCalledWith(
+      tx,
+      { id: "member-1", associationId: "assoc-1" },
+      "group-1",
+    );
+    expect(tx.associationMember.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: {} }),
+    );
+  });
+
+  it("refreshes requirement and learning targeting for the invited member", async () => {
+    const { service, assignments, learningRecipients } = setup();
+
+    await service.invite(owner, invite);
+
+    expect(assignments.materialiseForMember).toHaveBeenCalledWith("member-1");
+    expect(learningRecipients.syncMember).toHaveBeenCalledWith("member-1");
+  });
+});
+
+describe("AssociationMemberService group changes", () => {
+  it("moves the member through the transition guard inside the update transaction", async () => {
+    const { service, tx, lifecycle, assignments, learningRecipients } = setup();
+
+    await service.update(owner, { memberId: "member-1", groupId: "group-2" });
+
+    expect(lifecycle.moveToGroup).toHaveBeenCalledWith(
+      tx,
+      { id: "member-1", associationId: "assoc-1" },
+      "group-2",
+    );
+    expect(tx.associationMember.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: {} }),
+    );
+    expect(assignments.materialiseForMember).toHaveBeenCalledWith("member-1");
+    expect(learningRecipients.syncMember).toHaveBeenCalledWith("member-1");
+  });
+
+  it("clears a group without announcing anything", async () => {
+    const { service, tx, lifecycle } = setup();
+
+    await service.update(owner, { memberId: "member-1", groupId: "" });
+
+    expect(lifecycle.moveToGroup).not.toHaveBeenCalled();
+    expect(tx.associationMember.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { groupId: null } }),
+    );
+  });
+
+  it("leaves targeting alone when the group is not part of the edit", async () => {
+    const { service, lifecycle, assignments, learningRecipients } = setup();
+
+    await service.update(owner, { memberId: "member-1", notes: "Hello" });
+
+    expect(lifecycle.moveToGroup).not.toHaveBeenCalled();
+    expect(assignments.materialiseForMember).not.toHaveBeenCalled();
+    expect(learningRecipients.syncMember).not.toHaveBeenCalled();
   });
 });
 
@@ -361,6 +464,15 @@ describe("AssociationMemberService bulk import", () => {
     );
   });
 
+  it("refreshes targeting for every imported member once the rows are in", async () => {
+    const { service, assignments, learningRecipients } = setup();
+
+    await service.bulkInvite(owner, { rows: rows(3, [2]) });
+
+    expect(assignments.materialiseForMember).toHaveBeenCalledTimes(2);
+    expect(learningRecipients.syncMember).toHaveBeenCalledTimes(2);
+  });
+
   it("requires a name on every row", async () => {
     const { service } = setup();
     const result = await service.bulkInvite(owner, {
@@ -394,6 +506,18 @@ describe("AssociationMemberService status changes", () => {
         }),
       }),
     );
+  });
+
+  it("refreshes learning targeting alongside requirements after a status change", async () => {
+    const { service, assignments, learningRecipients } = setup();
+
+    await service.setStatus(owner, {
+      memberId: "member-1",
+      status: AssociationMemberStatus.INACTIVE,
+    });
+
+    expect(assignments.materialiseForMember).toHaveBeenCalledWith("member-1");
+    expect(learningRecipients.syncMember).toHaveBeenCalledWith("member-1");
   });
 
   it("reports a lost race rather than repeating the move", async () => {
