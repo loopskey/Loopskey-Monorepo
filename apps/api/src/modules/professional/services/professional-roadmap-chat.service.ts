@@ -754,19 +754,10 @@ export class ProfessionalRoadmapChatService {
     content: string,
     widget: RoadmapWidget | null,
   ) {
-    const last = await this.drafts.lastAssistantMessage(user.id, draftId);
-    const widgetJson = this.toWidgetJson(widget);
-    if (
-      last &&
-      last.content === content &&
-      JSON.stringify(last.widget) === JSON.stringify(widgetJson)
-    )
-      return;
-    await this.drafts.appendMessage(user.id, draftId, {
+    await this.drafts.appendAssistantMessageIfNew(user.id, draftId, {
       content,
       stepKey: step,
-      role: RoadmapChatRole.ASSISTANT,
-      widget: widgetJson,
+      widget: this.toWidgetJson(widget),
     });
   }
 
@@ -897,6 +888,18 @@ export class ProfessionalRoadmapChatService {
     });
   }
 
+  /**
+   * Deliberately excludes `subjects`. Every other field here is a stable
+   * personal attribute reasonable to default across any roadmap (skill
+   * level, time budget, format taste). Subjects are roadmap-specific — they
+   * name what THIS goal is about — and `isPreferenceFieldAnswered` treats a
+   * non-empty `subjects` array as already answered, so seeding it here would
+   * make the PREFERENCES step silently skip asking about subjects even when
+   * the professional's stated goal has nothing to do with their profile's
+   * favourite subjects from a previous, unrelated roadmap. Leaving it empty
+   * lets the goal-aware ranking in `relevanceContext`/`rankTerms` choose
+   * subjects once the goal is actually known.
+   */
   private async seedFieldsFromProfile(user: TUser) {
     const profile = await this.profiles.profile(user);
     return {
@@ -905,9 +908,6 @@ export class ProfessionalRoadmapChatService {
       timeCommitment: profile.learningTimeCommitment,
       budgetPreference: profile.learningBudgetPreference,
       preferredFormats: profile.preferredLearningFormats,
-      subjects: profile.favoriteSubjects
-        .map((term) => term.id)
-        .slice(0, SERVICE_AI_LIMITS.subjectsMaxItems),
     };
   }
 

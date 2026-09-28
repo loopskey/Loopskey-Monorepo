@@ -5,6 +5,7 @@ import {
   LearningBudgetPreference,
   LearningFormat,
   LearningTimeCommitment,
+  Prisma,
   ProfileTaxonomyKind,
   RoadmapChatRole,
   RoadmapDraftStatus,
@@ -182,6 +183,34 @@ class FakeDraftStore {
     ) => {
       if (!this.owned(userId, draftId)) return null;
       return this.addMessage({ ...message, draftId });
+    },
+  );
+
+  appendAssistantMessageIfNew = jest.fn(
+    async (
+      userId: string,
+      draftId: string,
+      message: Omit<StoredMessage, "id" | "draftId" | "createdAt" | "role">,
+    ) => {
+      if (!this.owned(userId, draftId)) return null;
+      const normalizeWidget = (value: unknown) =>
+        value === Prisma.JsonNull || value === undefined ? null : value;
+      const last = [...this.transcriptOf(draftId)]
+        .reverse()
+        .find((item) => item.role === RoadmapChatRole.ASSISTANT);
+      if (
+        last &&
+        last.content === message.content &&
+        last.stepKey === message.stepKey &&
+        JSON.stringify(normalizeWidget(last.widget)) ===
+          JSON.stringify(normalizeWidget(message.widget))
+      )
+        return last;
+      return this.addMessage({
+        ...message,
+        draftId,
+        role: RoadmapChatRole.ASSISTANT,
+      });
     },
   );
 
@@ -522,7 +551,7 @@ describe("starting the wizard", () => {
     ).toHaveLength(0);
   });
 
-  it("seeds the draft from what onboarding already collected", async () => {
+  it("seeds the draft from what onboarding already collected, except subjects", async () => {
     const { service, store } = setup();
 
     await service.startDraft(OWNER);
@@ -530,9 +559,13 @@ describe("starting the wizard", () => {
     expect(store.drafts[0]).toMatchObject({
       targetRole: "Analyst",
       skillLevel: SkillLevel.INTERMEDIATE,
-      subjects: ["term-data"],
       preferredFormats: [LearningFormat.COURSE],
     });
+    // Subjects are roadmap-specific, not a stable personal attribute: seeding
+    // them from a previous, possibly unrelated roadmap's favourites would
+    // make the PREFERENCES step silently skip asking about subjects for a
+    // brand new, differently-themed goal.
+    expect(store.drafts[0].subjects).toEqual([]);
   });
 
   it("reuses a draft whose introduction never arrived instead of stacking a new one", async () => {
@@ -592,13 +625,13 @@ describe("resetting the wizard", () => {
     ).toBe(false);
   });
 
-  it("re-seeds profile-derived fields rather than leaving them blank", async () => {
+  it("re-seeds profile-derived fields, but leaves subjects for the new goal to decide", async () => {
     const { service, store } = setup();
     store.seed(emptyDraft({ ...collected, id: "draft-1" }));
 
     const view = await service.resetDraft(OWNER, "draft-1");
 
-    expect(view.subjects).toEqual(["term-data"]);
+    expect(view.subjects).toEqual([]);
     expect(view.skillLevel).toBe(SkillLevel.INTERMEDIATE);
   });
 

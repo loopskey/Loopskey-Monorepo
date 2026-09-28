@@ -183,6 +183,64 @@ export class ProfessionalRoadmapDraftService {
     });
   }
 
+  /**
+   * The chat service's in-process `serialize()` only orders calls within one
+   * API instance; with more than one instance, two near-simultaneous turns
+   * for the same draft can each read the same "last message" and both decide
+   * to append it, producing a visible duplicate question. Locking the draft
+   * row for the duration of the read-then-insert makes that check-then-act
+   * atomic across every instance, the way `resetInPlace` already locks it
+   * for a reset.
+   *
+   * `Prisma.JsonNull` is the write-side sentinel for a literal JSON null; a
+   * value read back out of the column is the plain JS `null` instead. Without
+   * normalising, `JSON.stringify(Prisma.JsonNull)` ("{}") never equals
+   * `JSON.stringify(null)` ("null"), so every widget-less message compared
+   * itself as "different" and the guard below never caught a real repeat.
+   *
+   * `content` is frequently just the generic `ROADMAP_COACH_QUESTION` code —
+   * the frontend resolves the actual question text from `stepKey`, not from
+   * `content` — so `stepKey` must be part of the comparison too. Without it,
+   * two different widget-less questions in a row (same code, different step)
+   * would compare equal and the second would be silently dropped instead of
+   * appended.
+   */
+  async appendAssistantMessageIfNew(
+    userId: string,
+    draftId: string,
+    message: Omit<
+      Prisma.RoadmapChatMessageUncheckedCreateInput,
+      "draftId" | "role"
+    >,
+  ) {
+    const normalizeWidget = (value: unknown) =>
+      value === Prisma.JsonNull || value === undefined ? null : value;
+    const nextWidget = normalizeWidget(message.widget);
+
+    return this.prismaService.$transaction(async (tx) => {
+      const rows = await tx.$queryRaw<{ id: string }[]>`
+        SELECT id FROM "RoadmapDraft" WHERE id = ${draftId} AND "userId" = ${userId} FOR UPDATE`;
+      if (!rows[0]) return null;
+
+      const last = await tx.roadmapChatMessage.findFirst({
+        where: { draftId, role: RoadmapChatRole.ASSISTANT },
+        orderBy: { createdAt: "desc" },
+      });
+      if (
+        last &&
+        last.content === message.content &&
+        last.stepKey === message.stepKey &&
+        JSON.stringify(normalizeWidget(last.widget)) ===
+          JSON.stringify(nextWidget)
+      )
+        return last;
+
+      return tx.roadmapChatMessage.create({
+        data: { ...message, draftId, role: RoadmapChatRole.ASSISTANT },
+      });
+    });
+  }
+
   async transcript(userId: string, draftId: string) {
     const draft = await this.findDraft(userId, draftId);
     if (!draft) return null;
