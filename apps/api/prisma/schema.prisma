@@ -330,6 +330,8 @@ model ProfessionalProfile {
   profession          String?
   industry            ProfessionalIndustry?
   currentRole         String?
+  currentRoleTermId   String?
+  currentRoleTerm     ProfileTaxonomyTerm?  @relation("ProfessionalCurrentRole", fields: [currentRoleTermId], references: [id], onDelete: SetNull)
   experienceRange     ExperienceRange?
   workLocation        String?
   professionalSummary String?
@@ -359,6 +361,7 @@ model ProfessionalProfile {
 
   @@index([industry])
   @@index([countryCode])
+  @@index([currentRoleTermId])
 }
 
 // ========== Professional profile taxonomy ==========
@@ -374,27 +377,75 @@ enum ProfileTermUsage {
   SKILL_TO_IMPROVE
 }
 
+model ProfileTaxonomyGroup {
+  id String @id @default(cuid())
+
+  kind ProfileTaxonomyKind
+  key  String
+
+  label String
+
+  sortOrder Int     @default(0)
+  isActive  Boolean @default(true)
+
+  terms         ProfileTaxonomyTerm[]
+  skillMappings ProfileTaxonomyGroupMapping[] @relation("RoleGroupSkillMappings")
+  roleMappings  ProfileTaxonomyGroupMapping[] @relation("SkillGroupRoleMappings")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([kind, key])
+  @@index([kind, isActive, sortOrder])
+}
+
+model ProfileTaxonomyGroupMapping {
+  id String @id @default(cuid())
+
+  roleGroupId String
+  roleGroup   ProfileTaxonomyGroup @relation("RoleGroupSkillMappings", fields: [roleGroupId], references: [id], onDelete: Cascade)
+
+  skillGroupId String
+  skillGroup   ProfileTaxonomyGroup @relation("SkillGroupRoleMappings", fields: [skillGroupId], references: [id], onDelete: Cascade)
+
+  priority Int
+  version  Int
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([roleGroupId, skillGroupId])
+  @@index([roleGroupId, isActive, priority])
+}
+
 model ProfileTaxonomyTerm {
   id String @id @default(cuid())
 
   kind ProfileTaxonomyKind
   key  String
 
-  label      String
-  groupKey   String
-  groupLabel String
+  label String
+
+  groupId String
+  group   ProfileTaxonomyGroup @relation(fields: [groupId], references: [id], onDelete: Restrict)
 
   sortOrder Int     @default(0)
   isActive  Boolean @default(true)
 
-  profileTerms ProfessionalProfileTerm[]
+  profileTerms        ProfessionalProfileTerm[]
+  currentRoleProfiles ProfessionalProfile[]     @relation("ProfessionalCurrentRole")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  // Unmanaged: a `pg_trgm` GIN index on `label` (ProfileTaxonomyTerm_label_trgm_idx)
+  // backs the taxonomy term search (`contains`/insensitive), added via raw SQL
+  // in migration 20260927120000_profile_taxonomy_catalogue because Prisma
+  // cannot express a GIN index declaratively.
 
   @@unique([kind, key])
-  @@index([kind, isActive])
-  @@index([groupKey])
+  @@index([kind, isActive, sortOrder])
+  @@index([groupId, isActive, sortOrder])
 }
 
 model ProfessionalProfileTerm {

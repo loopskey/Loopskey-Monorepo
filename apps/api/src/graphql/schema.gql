@@ -1515,7 +1515,8 @@ input CompleteProfessionalOnboardingInput {
   certificationId: ID
   certificationIssuer: String
   certificationName: String
-  currentRole: String!
+  currentRole: String
+  currentRoleTermId: ID
   professionalGoal: ProfessionalGoal!
   skillsToImproveIds: [ID!]! = []
   suggestSkills: Boolean! = false
@@ -3391,6 +3392,12 @@ type PaginatedProfessionalRoadmaps {
   totalCount: Int!
 }
 
+type PaginatedProfessionalTaxonomyTerms {
+  items: [ProfessionalTaxonomyTerm!]!
+  pageInfo: ProfessionalPageInfo!
+  totalCount: Int!
+}
+
 type PaginatedPromotionRequests {
   items: [PromotionRequest!]!
   pageInfo: ProviderPageInfo!
@@ -3741,6 +3748,7 @@ type ProfessionalDashboardProfile {
   coursesEnrolled: Int!
   credentials: [ProfessionalCredential!]!
   currentRole: String
+  currentRoleTermId: ID
   currentSkillLevel: SkillLevel
   email: String
   experienceRange: ExperienceRange
@@ -4111,6 +4119,20 @@ type ProfessionalSettings {
   userId: ID!
 }
 
+type ProfessionalSkillSuggestions {
+  isFallback: Boolean!
+  items: [ProfessionalTaxonomyTerm!]!
+}
+
+type ProfessionalTaxonomyCategory {
+  id: ID!
+  key: String!
+  kind: ProfileTaxonomyKind!
+  label: String!
+  sortOrder: Int!
+  termCount: Int!
+}
+
 type ProfessionalTaxonomyGroup {
   groupKey: String!
   groupLabel: String!
@@ -4122,10 +4144,19 @@ type ProfessionalTaxonomyTerm {
   groupKey: String!
   groupLabel: String!
   id: ID!
+  isActive: Boolean!
   key: String!
   kind: ProfileTaxonomyKind!
   label: String!
   sortOrder: Int!
+}
+
+input ProfessionalTaxonomyTermsInput {
+  cursor: ID
+  groupKey: String
+  kind: ProfileTaxonomyKind!
+  search: String
+  take: Int
 }
 
 enum ProfileSectionKey {
@@ -4465,12 +4496,16 @@ type Query {
   professionalPduActivity(activityId: ID!): ProfessionalPduActivity!
   professionalPduActivitySummary: ProfessionalPduActivitySummary!
   professionalPduReport(year: Int): ProfessionalPduReport!
-  professionalProfileTaxonomy(kind: ProfileTaxonomyKind): [ProfessionalTaxonomyGroup!]!
+  professionalProfileTaxonomy(kind: ProfileTaxonomyKind!): [ProfessionalTaxonomyGroup!]!
   professionalRoadmapDraft(draftId: ID, transcript: ProfessionalPaginationInput): ProfessionalRoadmapDraft
   professionalRoadmapGeneration(draftId: ID): ProfessionalRoadmapGeneration
   professionalRoadmapRecommendations(enrollmentId: ID): [RoadmapRecommendation!]!
   professionalRoadmapStats: ProfessionalRoadmapStats!
   professionalSettings: ProfessionalSettings!
+  professionalSkillSuggestions(roleTermId: ID): ProfessionalSkillSuggestions!
+  professionalTaxonomyCategories(kind: ProfileTaxonomyKind!): [ProfessionalTaxonomyCategory!]!
+  professionalTaxonomyTerms(input: ProfessionalTaxonomyTermsInput!): PaginatedProfessionalTaxonomyTerms!
+  professionalTaxonomyTermsByIds(ids: [ID!]!): [ProfessionalTaxonomyTerm!]!
   providerAnalytics(input: ProviderDashboardRangeInput): ProviderAnalytics!
   providerAnalyticsCsv(input: ProviderDashboardRangeInput): CsvExport!
   providerAttendees(filter: ProviderAttendeesFilterInput, pagination: ProviderDashboardPaginationInput): PaginatedProviderAttendees!
@@ -5161,6 +5196,7 @@ input UpdateProfessionalCredentialInput {
 
 input UpdateProfessionalDetailsInput {
   currentRole: String
+  currentRoleTermId: ID
   experienceRange: ExperienceRange
   industry: ProfessionalIndustry
   profession: String

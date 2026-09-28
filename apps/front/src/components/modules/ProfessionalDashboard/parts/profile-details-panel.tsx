@@ -4,6 +4,7 @@ import { FloatingTextareaField } from "@elements/floating-textarea";
 import { FloatingSelectField } from "@elements/floating-select";
 import { TDetailsPanelProps } from "@/types/professional-profile.types";
 import { FloatingInputField } from "@elements/floating-input";
+import { RoleSelector } from "@modules/ProfessionalTaxonomy/role-selector";
 import { Loader2 } from "lucide-react";
 import { Button } from "@ui/button";
 
@@ -22,6 +23,8 @@ export const ProfileDetailsPanel = ({
     hasError,
     handleSubmit,
     goalOptions,
+    roleChoice,
+    changeRole,
     summaryLength,
     industryOptions,
     isSaveDisabled,
@@ -68,14 +71,25 @@ export const ProfileDetailsPanel = ({
               )}
             />
 
-            <FloatingInputField
-              name="currentRole"
-              disabled={isDisabled}
-              control={rhf.control}
-              autoComplete="organization-title"
-              leftIcon={<R.IdCard className="h-4 w-4" />}
-              label={t("professionalDashboard.profile.details.currentRole")}
-            />
+            <section
+              aria-labelledby="profile-current-role-heading"
+              className="space-y-2 md:col-span-2"
+            >
+              <h3
+                id="profile-current-role-heading"
+                className="text-sm font-medium"
+              >
+                {t("professionalDashboard.profile.details.currentRole")}
+              </h3>
+              <RoleSelector
+                t={t}
+                isCollapsible
+                value={roleChoice}
+                onChange={changeRole}
+                isDisabled={isDisabled}
+                idPrefix="profile-current-role"
+              />
+            </section>
 
             <FloatingSelectField
               name="experienceRange"
@@ -94,7 +108,9 @@ export const ProfileDetailsPanel = ({
               control={rhf.control}
               options={goalOptions}
               className="md:col-span-2"
-              label={t("professionalDashboard.profile.details.professionalGoal")}
+              label={t(
+                "professionalDashboard.profile.details.professionalGoal",
+              )}
               placeholder={t(
                 "professionalDashboard.profile.basic.selectOption",
               )}

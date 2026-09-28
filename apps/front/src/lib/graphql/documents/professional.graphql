@@ -30,6 +30,7 @@ fragment ProfessionalTaxonomyTermFields on ProfessionalTaxonomyTerm {
   groupKey
   groupLabel
   sortOrder
+  isActive
 }
 
 fragment ProfessionalTaxonomyGroupFields on ProfessionalTaxonomyGroup {
@@ -90,6 +91,7 @@ fragment ProfessionalDashboardProfileFields on ProfessionalDashboardProfile {
   industry
   profession
   currentRole
+  currentRoleTermId
   workLocation
   experienceRange
   professionalSummary
@@ -357,9 +359,48 @@ query ProfessionalDashboardProfile {
   }
 }
 
-query ProfessionalProfileTaxonomy($kind: ProfileTaxonomyKind) {
+query ProfessionalProfileTaxonomy($kind: ProfileTaxonomyKind!) {
   professionalProfileTaxonomy(kind: $kind) {
     ...ProfessionalTaxonomyGroupFields
+  }
+}
+
+query ProfessionalTaxonomyCategories($kind: ProfileTaxonomyKind!) {
+  professionalTaxonomyCategories(kind: $kind) {
+    id
+    kind
+    key
+    label
+    sortOrder
+    termCount
+  }
+}
+
+query ProfessionalTaxonomyTerms($input: ProfessionalTaxonomyTermsInput!) {
+  professionalTaxonomyTerms(input: $input) {
+    items {
+      ...ProfessionalTaxonomyTermFields
+    }
+    totalCount
+    pageInfo {
+      hasNextPage
+      nextCursor
+    }
+  }
+}
+
+query ProfessionalTaxonomyTermsByIds($ids: [ID!]!) {
+  professionalTaxonomyTermsByIds(ids: $ids) {
+    ...ProfessionalTaxonomyTermFields
+  }
+}
+
+query ProfessionalSkillSuggestions($roleTermId: ID) {
+  professionalSkillSuggestions(roleTermId: $roleTermId) {
+    isFallback
+    items {
+      ...ProfessionalTaxonomyTermFields
+    }
   }
 }
 

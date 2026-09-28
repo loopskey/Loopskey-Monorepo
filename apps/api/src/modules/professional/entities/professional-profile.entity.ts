@@ -48,6 +48,7 @@ export class ProfessionalDashboardProfileEntity {
   // Professional details
   @Field(() => String, { nullable: true }) profession?: string | null;
   @Field(() => String, { nullable: true }) currentRole?: string | null;
+  @Field(() => ID, { nullable: true }) currentRoleTermId?: string | null;
   @Field(() => String, { nullable: true }) workLocation?: string | null;
   @Field(() => String, { nullable: true }) professionalSummary?: string | null;
   @Field(() => P.ProfessionalIndustry, { nullable: true })

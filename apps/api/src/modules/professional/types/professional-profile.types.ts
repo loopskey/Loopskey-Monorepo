@@ -1,12 +1,14 @@
 import { ProfileSectionKey } from "@professional/enums/profile-section.enum";
 import { ProfileTaxonomyKind, ProfileTermUsage } from "@prisma/client";
-import { Prisma, ProfileTaxonomyTerm } from "@prisma/client";
+import { TAXONOMY_TERM_SELECT } from "@professional/utils/profile-taxonomy.util";
+import { type TaxonomyTerm } from "@professional/utils/profile-taxonomy.util";
+import { Prisma } from "@prisma/client";
 
 export const professionalProfileArgs =
   Prisma.validator<Prisma.ProfessionalProfileDefaultArgs>()({
     include: {
       terms: {
-        include: { term: true },
+        include: { term: { select: TAXONOMY_TERM_SELECT } },
         orderBy: { term: { sortOrder: "asc" } },
       },
     },
@@ -39,7 +41,7 @@ export type TTaxonomyGroup = {
   kind: ProfileTaxonomyKind;
   groupKey: string;
   groupLabel: string;
-  terms: ProfileTaxonomyTerm[];
+  terms: TaxonomyTerm[];
 };
 
 export type TTermSelection = {

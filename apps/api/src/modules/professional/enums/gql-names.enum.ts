@@ -25,6 +25,9 @@ export enum ProfessionalGqlObjectNames {
   PROFESSIONAL_TAXONOMY_TERM = "ProfessionalTaxonomyTerm",
   CPD_REPORT_RECIPIENT_OPTION = "CpdReportRecipientOption",
   PROFESSIONAL_TAXONOMY_GROUP = "ProfessionalTaxonomyGroup",
+  PROFESSIONAL_TAXONOMY_CATEGORY = "ProfessionalTaxonomyCategory",
+  PAGINATED_PROFESSIONAL_TAXONOMY_TERMS = "PaginatedProfessionalTaxonomyTerms",
+  PROFESSIONAL_SKILL_SUGGESTIONS = "ProfessionalSkillSuggestions",
   PROFESSIONAL_CALENDAR_EVENT = "ProfessionalCalendarEvent",
   PROFESSIONAL_ACTION_RESPONSE = "ProfessionalActionResponse",
   PROFESSIONAL_PROFILE_SECTION = "ProfessionalProfileSection",
@@ -63,6 +66,7 @@ export enum ProfessionalGqlObjectNames {
 }
 
 export enum ProfessionalGqlInputNames {
+  PROFESSIONAL_TAXONOMY_TERMS_INPUT = "ProfessionalTaxonomyTermsInput",
   CREATE_CPD_PLAN_INPUT = "CreateCpdPlanInput",
   UPDATE_CPD_PLAN_INPUT = "UpdateCpdPlanInput",
   CPD_PLAN_CATEGORY_INPUT = "CpdPlanCategoryInput",
@@ -118,6 +122,10 @@ export enum ProfessionalGqlQueryNames {
   PROFESSIONAL_DASHBOARD_PROFILE = "professionalDashboardProfile",
   PROFESSIONAL_CPD_PLANS = "professionalCpdPlans",
   PROFESSIONAL_PROFILE_TAXONOMY = "professionalProfileTaxonomy",
+  PROFESSIONAL_TAXONOMY_CATEGORIES = "professionalTaxonomyCategories",
+  PROFESSIONAL_TAXONOMY_TERMS = "professionalTaxonomyTerms",
+  PROFESSIONAL_TAXONOMY_TERMS_BY_IDS = "professionalTaxonomyTermsByIds",
+  PROFESSIONAL_SKILL_SUGGESTIONS = "professionalSkillSuggestions",
   CERTIFICATION_SEARCH = "certificationSearch",
   MY_CPD_PLANS = "myCpdPlans",
   MY_DRAFT_CPD_PLANS = "myDraftCpdPlans",

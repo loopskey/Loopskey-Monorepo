@@ -63,11 +63,30 @@ const createService = () => {
   const profileService = {
     profile: jest.fn().mockResolvedValue({ id: "user-1" }),
   };
+  const taxonomy = {
+    resolveCurrentRole: jest.fn(
+      async (choice: {
+        currentRoleTermId?: string | null;
+        currentRole?: string | null;
+      }) =>
+        choice.currentRoleTermId
+          ? { currentRole: "Project Manager", currentRoleTermId: "role-pm" }
+          : {
+              currentRole: choice.currentRole?.trim() || null,
+              currentRoleTermId: null,
+            },
+    ),
+    suggestSkills: jest.fn().mockResolvedValue({
+      isFallback: false,
+      items: [{ id: "term-9" }],
+    }),
+  };
   const service = new ProfessionalOnboardingService(
     prisma as unknown as PrismaService,
     profileService as unknown as ProfessionalProfileService,
+    taxonomy as never,
   );
-  return { service, prisma, tx, profileService };
+  return { service, prisma, tx, profileService, taxonomy };
 };
 
 describe("ProfessionalOnboardingService.complete", () => {
@@ -90,6 +109,7 @@ describe("ProfessionalOnboardingService.complete", () => {
     const upsert = tx.professionalProfile.upsert.mock.calls[0][0];
     expect(upsert.where).toEqual({ userId: "user-1" });
     expect(upsert.update.currentRole).toBe("Project Manager");
+    expect(upsert.update.currentRoleTermId).toBeNull();
     expect(upsert.update.professionalGoal).toBe(
       ProfessionalGoal.PREPARE_FOR_NEXT_ROLE,
     );
@@ -156,16 +176,56 @@ describe("ProfessionalOnboardingService.complete", () => {
     ).rejects.toBeInstanceOf(BadRequestException);
   });
 
-  it("fills skills from the taxonomy when the professional asks for suggestions", async () => {
-    const { service, prisma, tx } = createService();
-    prisma.profileTaxonomyTerm.findFirst.mockResolvedValueOnce({
-      groupKey: "BUSINESS",
-    });
-    prisma.profileTaxonomyTerm.findMany.mockResolvedValueOnce([
-      { id: "term-9" },
-    ]);
+  it("stores a canonical role as its term id and label snapshot", async () => {
+    const { service, tx, taxonomy } = createService();
 
-    await service.complete(professional, buildInput({ suggestSkills: true }));
+    await service.complete(
+      professional,
+      buildInput({ currentRole: null, currentRoleTermId: "role-pm" }),
+    );
+
+    expect(taxonomy.resolveCurrentRole).toHaveBeenCalledWith(
+      expect.objectContaining({ currentRoleTermId: "role-pm" }),
+    );
+    const upsert = tx.professionalProfile.upsert.mock.calls[0][0];
+    expect(upsert.update).toMatchObject({
+      currentRole: "Project Manager",
+      currentRoleTermId: "role-pm",
+    });
+    expect(upsert.create).toMatchObject({
+      currentRole: "Project Manager",
+      currentRoleTermId: "role-pm",
+    });
+  });
+
+  it("writes nothing when the role cannot be resolved", async () => {
+    const { service, tx, taxonomy } = createService();
+    taxonomy.resolveCurrentRole.mockRejectedValueOnce(
+      new BadRequestException("PROFILE_TAXONOMY_TERM_INVALID"),
+    );
+
+    await expect(
+      service.complete(
+        professional,
+        buildInput({ currentRole: null, currentRoleTermId: "skill-1" }),
+      ),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(tx.professionalProfile.upsert).not.toHaveBeenCalled();
+  });
+
+  it("fills skills from the role's mapped categories when the professional asks for suggestions", async () => {
+    const { service, tx, taxonomy } = createService();
+
+    await service.complete(
+      professional,
+      buildInput({
+        currentRole: null,
+        currentRoleTermId: "role-pm",
+        suggestSkills: true,
+      }),
+    );
+
+    expect(taxonomy.suggestSkills).toHaveBeenCalledWith("role-pm", 3);
 
     expect(tx.professionalProfileTerm.createMany).toHaveBeenCalledWith({
       data: [

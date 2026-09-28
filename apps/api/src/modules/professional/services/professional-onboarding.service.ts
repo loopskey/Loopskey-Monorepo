@@ -2,6 +2,7 @@ import { BadRequestException, ForbiddenException } from "@nestjs/common";
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { CompleteProfessionalOnboardingInput } from "@professional/dtos/complete-professional-onboarding.input";
 import { ProfessionalProfileService } from "@professional/services/professional-profile.service";
+import { ProfessionalTaxonomyService } from "@professional/services/professional-taxonomy.service";
 import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
 import { ONBOARDING_MAX_SKILLS } from "@professional/enums/profile-section.enum";
 import { requestContext } from "@infrastructure/observability/request-context";
@@ -22,6 +23,7 @@ export class ProfessionalOnboardingService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly profileService: ProfessionalProfileService,
+    private readonly taxonomyService: ProfessionalTaxonomyService,
   ) {}
 
   private assertProfessional(user: TUser) {
@@ -122,40 +124,11 @@ export class ProfessionalOnboardingService {
     }
 
     if (!input.suggestSkills) return [];
-    const suggested = await this.suggestSkillIds(input.currentRole);
-    return suggested;
-  }
-
-  private async suggestSkillIds(currentRole: string) {
-    const roleTerm = await this.prismaService.profileTaxonomyTerm.findFirst({
-      where: {
-        isActive: true,
-        kind: P.ProfileTaxonomyKind.ROLE,
-        label: { equals: currentRole, mode: "insensitive" },
-      },
-      select: { groupKey: true },
-    });
-
-    const terms = await this.prismaService.profileTaxonomyTerm.findMany({
-      where: {
-        isActive: true,
-        kind: P.ProfileTaxonomyKind.SKILL_AREA,
-        ...(roleTerm ? { groupKey: roleTerm.groupKey } : {}),
-      },
-      orderBy: [{ sortOrder: "asc" }, { label: "asc" }],
-      take: ONBOARDING_MAX_SKILLS,
-      select: { id: true },
-    });
-
-    if (terms.length) return terms.map((term) => term.id);
-
-    const fallback = await this.prismaService.profileTaxonomyTerm.findMany({
-      where: { isActive: true, kind: P.ProfileTaxonomyKind.SKILL_AREA },
-      orderBy: [{ sortOrder: "asc" }, { label: "asc" }],
-      take: ONBOARDING_MAX_SKILLS,
-      select: { id: true },
-    });
-    return fallback.map((term) => term.id);
+    const suggested = await this.taxonomyService.suggestSkills(
+      input.currentRoleTermId,
+      ONBOARDING_MAX_SKILLS,
+    );
+    return suggested.items.map((term) => term.id);
   }
 
   private async resolveCertification(
@@ -246,7 +219,8 @@ export class ProfessionalOnboardingService {
 
   async complete(user: TUser, input: CompleteProfessionalOnboardingInput) {
     this.assertProfessional(user);
-    if (!input.currentRole.length)
+    const role = await this.taxonomyService.resolveCurrentRole(input);
+    if (!role.currentRole)
       throw new BadRequestException(
         ProfessionalMessageCode.ONBOARDING_ROLE_REQUIRED,
       );
@@ -262,13 +236,13 @@ export class ProfessionalOnboardingService {
             userId: user.id,
             skills: [],
             interests: [],
-            currentRole: input.currentRole,
+            ...role,
             professionalGoal: input.professionalGoal,
             onboardingStartedAt: new Date(),
             onboardingCompletedAt: new Date(),
           },
           update: {
-            currentRole: input.currentRole,
+            ...role,
             professionalGoal: input.professionalGoal,
             onboardingCompletedAt: new Date(),
           },
@@ -301,6 +275,7 @@ export class ProfessionalOnboardingService {
 
     this.log("professional.onboarding.completed", user.id, {
       goal: input.professionalGoal,
+      role: role.currentRoleTermId ? "canonical" : "custom",
       skillCount: skillIds.length,
       certification: certification.kind,
     });

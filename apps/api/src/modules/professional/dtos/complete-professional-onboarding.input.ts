@@ -2,6 +2,7 @@ import { ArrayMaxSize, ArrayUnique, IsArray, IsBoolean } from "class-validator";
 import { IsEnum, IsOptional, IsString, MaxLength } from "class-validator";
 import { ProfessionalGqlInputNames } from "@professional/enums/gql-names.enum";
 import { ONBOARDING_MAX_SKILLS } from "@professional/enums/profile-section.enum";
+import { CURRENT_ROLE_MAX_LENGTH } from "@professional/enums/profile-section.enum";
 import { Field, ID, InputType } from "@nestjs/graphql";
 import { ProfessionalGoal } from "@prisma/client";
 import { trimToNull } from "@utils/transform.util";
@@ -13,13 +14,18 @@ export class CompleteProfessionalOnboardingInput {
   @IsEnum(ProfessionalGoal)
   professionalGoal: ProfessionalGoal;
 
-  @Field(() => String)
-  @Transform(({ value }: { value: unknown }) =>
-    typeof value === "string" ? value.trim() : value,
-  )
+  @Field(() => ID, { nullable: true })
+  @Transform(trimToNull)
+  @IsOptional()
   @IsString()
-  @MaxLength(120)
-  currentRole: string;
+  currentRoleTermId?: string | null;
+
+  @Field(() => String, { nullable: true })
+  @Transform(trimToNull)
+  @IsOptional()
+  @IsString()
+  @MaxLength(CURRENT_ROLE_MAX_LENGTH)
+  currentRole?: string | null;
 
   @Field(() => [ID], { defaultValue: [] })
   @IsArray()
