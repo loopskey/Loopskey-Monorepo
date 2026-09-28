@@ -5,9 +5,17 @@ import * as L from "lucide-react";
 
 export const ONBOARDING_MAX_SKILLS = 3;
 
-export const ONBOARDING_SUGGESTION_LIMIT = 8;
-
 export const CERTIFICATION_MIN_QUERY_LENGTH = 2;
+
+export const TAXONOMY_SEARCH_MIN_LENGTH = 2;
+
+export const TAXONOMY_SEARCH_DEBOUNCE_MS = 300;
+
+export const TAXONOMY_PAGE_SIZE = 20;
+
+export const CUSTOM_ROLE_MIN_LENGTH = 2;
+
+export const CUSTOM_ROLE_MAX_LENGTH = 120;
 
 export const ONBOARDING_GOALS = [
   ProfessionalGoal.MaintainCertification,

@@ -1609,7 +1609,8 @@ export type CompleteProfessionalOnboardingInput = {
   certificationId?: InputMaybe<Scalars['ID']['input']>;
   certificationIssuer?: InputMaybe<Scalars['String']['input']>;
   certificationName?: InputMaybe<Scalars['String']['input']>;
-  currentRole: Scalars['String']['input'];
+  currentRole?: InputMaybe<Scalars['String']['input']>;
+  currentRoleTermId?: InputMaybe<Scalars['ID']['input']>;
   professionalGoal: ProfessionalGoal;
   skillsToImproveIds?: Array<Scalars['ID']['input']>;
   suggestSkills?: Scalars['Boolean']['input'];
@@ -4379,6 +4380,13 @@ export type PaginatedProfessionalRoadmaps = {
   totalCount: Scalars['Int']['output'];
 };
 
+export type PaginatedProfessionalTaxonomyTerms = {
+  __typename?: 'PaginatedProfessionalTaxonomyTerms';
+  items: Array<ProfessionalTaxonomyTerm>;
+  pageInfo: ProfessionalPageInfo;
+  totalCount: Scalars['Int']['output'];
+};
+
 export type PaginatedPromotionRequests = {
   __typename?: 'PaginatedPromotionRequests';
   items: Array<PromotionRequest>;
@@ -4751,6 +4759,7 @@ export type ProfessionalDashboardProfile = {
   coursesEnrolled: Scalars['Int']['output'];
   credentials: Array<ProfessionalCredential>;
   currentRole?: Maybe<Scalars['String']['output']>;
+  currentRoleTermId?: Maybe<Scalars['ID']['output']>;
   currentSkillLevel?: Maybe<SkillLevel>;
   email?: Maybe<Scalars['String']['output']>;
   experienceRange?: Maybe<ExperienceRange>;
@@ -5144,6 +5153,22 @@ export type ProfessionalSettings = {
   userId: Scalars['ID']['output'];
 };
 
+export type ProfessionalSkillSuggestions = {
+  __typename?: 'ProfessionalSkillSuggestions';
+  isFallback: Scalars['Boolean']['output'];
+  items: Array<ProfessionalTaxonomyTerm>;
+};
+
+export type ProfessionalTaxonomyCategory = {
+  __typename?: 'ProfessionalTaxonomyCategory';
+  id: Scalars['ID']['output'];
+  key: Scalars['String']['output'];
+  kind: ProfileTaxonomyKind;
+  label: Scalars['String']['output'];
+  sortOrder: Scalars['Int']['output'];
+  termCount: Scalars['Int']['output'];
+};
+
 export type ProfessionalTaxonomyGroup = {
   __typename?: 'ProfessionalTaxonomyGroup';
   groupKey: Scalars['String']['output'];
@@ -5157,10 +5182,19 @@ export type ProfessionalTaxonomyTerm = {
   groupKey: Scalars['String']['output'];
   groupLabel: Scalars['String']['output'];
   id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
   key: Scalars['String']['output'];
   kind: ProfileTaxonomyKind;
   label: Scalars['String']['output'];
   sortOrder: Scalars['Int']['output'];
+};
+
+export type ProfessionalTaxonomyTermsInput = {
+  cursor?: InputMaybe<Scalars['ID']['input']>;
+  groupKey?: InputMaybe<Scalars['String']['input']>;
+  kind: ProfileTaxonomyKind;
+  search?: InputMaybe<Scalars['String']['input']>;
+  take?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export enum ProfileSectionKey {
@@ -5521,6 +5555,10 @@ export type Query = {
   professionalRoadmapRecommendations: Array<RoadmapRecommendation>;
   professionalRoadmapStats: ProfessionalRoadmapStats;
   professionalSettings: ProfessionalSettings;
+  professionalSkillSuggestions: ProfessionalSkillSuggestions;
+  professionalTaxonomyCategories: Array<ProfessionalTaxonomyCategory>;
+  professionalTaxonomyTerms: PaginatedProfessionalTaxonomyTerms;
+  professionalTaxonomyTermsByIds: Array<ProfessionalTaxonomyTerm>;
   providerAnalytics: ProviderAnalytics;
   providerAnalyticsCsv: CsvExport;
   providerAttendees: PaginatedProviderAttendees;
@@ -6175,7 +6213,7 @@ export type QueryProfessionalPduReportArgs = {
 
 
 export type QueryProfessionalProfileTaxonomyArgs = {
-  kind?: InputMaybe<ProfileTaxonomyKind>;
+  kind: ProfileTaxonomyKind;
 };
 
 
@@ -6192,6 +6230,26 @@ export type QueryProfessionalRoadmapGenerationArgs = {
 
 export type QueryProfessionalRoadmapRecommendationsArgs = {
   enrollmentId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type QueryProfessionalSkillSuggestionsArgs = {
+  roleTermId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type QueryProfessionalTaxonomyCategoriesArgs = {
+  kind: ProfileTaxonomyKind;
+};
+
+
+export type QueryProfessionalTaxonomyTermsArgs = {
+  input: ProfessionalTaxonomyTermsInput;
+};
+
+
+export type QueryProfessionalTaxonomyTermsByIdsArgs = {
+  ids: Array<Scalars['ID']['input']>;
 };
 
 
@@ -6951,6 +7009,7 @@ export type UpdateProfessionalCredentialInput = {
 
 export type UpdateProfessionalDetailsInput = {
   currentRole?: InputMaybe<Scalars['String']['input']>;
+  currentRoleTermId?: InputMaybe<Scalars['ID']['input']>;
   experienceRange?: InputMaybe<ExperienceRange>;
   industry?: InputMaybe<ProfessionalIndustry>;
   profession?: InputMaybe<Scalars['String']['input']>;

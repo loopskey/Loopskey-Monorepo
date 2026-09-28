@@ -446,11 +446,11 @@ export class ProfessionalRoadmapGenerationService {
     if (subjectIds.length === 0) return { labels: [], groupKeys: [] };
     const options = await this.prisma.profileTaxonomyTerm.findMany({
       where: { id: { in: subjectIds } },
-      select: { id: true, label: true, groupKey: true },
+      select: { id: true, label: true, group: { select: { key: true } } },
     });
     return {
       labels: subjectLabelsOf(subjectIds, options),
-      groupKeys: [...new Set(options.map((option) => option.groupKey))],
+      groupKeys: [...new Set(options.map((option) => option.group.key))],
     };
   }
 

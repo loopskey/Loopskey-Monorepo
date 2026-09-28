@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ProfessionalGoal, ProfileTaxonomyKind } from "@/lib/graphql/base";
+import { ProfessionalGoal } from "@/lib/graphql/base";
 import { useCertificationSearchQuery } from "@/lib/rtk/endpoints/cpd-plan.api";
 import { useDebouncedValue } from "@/hooks/useDebounced";
 import { useRouter } from "next/navigation";
@@ -11,6 +11,7 @@ import { notify } from "@/hooks/notify";
 import * as PAPI from "@/lib/rtk/endpoints/professional.api";
 import * as C from "@/utils/professional-onboarding.constant";
 import * as T from "@/types/professional-onboarding.types";
+import * as TX from "@/types/professional-taxonomy.types";
 
 const CERTIFICATION_SEARCH_LIMIT = 8;
 
@@ -21,11 +22,9 @@ export const useProfessionalOnboarding = () => {
   const [goal, setGoal] = useState<ProfessionalGoal | null>(null);
   const [stepIndex, setStepIndex] = useState(0);
 
-  const [role, setRole] = useState("");
-  const [roleQuery, setRoleQuery] = useState("");
+  const [roleChoice, setRoleChoice] = useState<TX.TRoleChoice | null>(null);
 
-  const [skillIds, setSkillIds] = useState<string[]>([]);
-  const [skillQuery, setSkillQuery] = useState("");
+  const [selectedSkills, setSelectedSkills] = useState<TX.TTaxonomyTerm[]>([]);
   const [wantsSuggestedSkills, setWantsSuggestedSkills] = useState(false);
 
   const [certification, setCertification] =
@@ -44,8 +43,6 @@ export const useProfessionalOnboarding = () => {
   const [isSkipConfirmOpen, setIsSkipConfirmOpen] = useState(false);
   const openSkipConfirm = useCallback(() => setIsSkipConfirmOpen(true), []);
   const closeSkipConfirm = useCallback(() => setIsSkipConfirmOpen(false), []);
-
-  const taxonomyQuery = PAPI.useProfessionalProfileTaxonomyQuery();
 
   const hasStarted = useRef(false);
   useEffect(() => {
@@ -84,84 +81,43 @@ export const useProfessionalOnboarding = () => {
   );
 
   // ================= Roles =================
-  const roleOptions: T.TOnboardingRoleOption[] = useMemo(
-    () =>
-      (taxonomyQuery.data ?? [])
-        .filter((group) => group.kind === ProfileTaxonomyKind.Role)
-        .flatMap((group) =>
-          group.terms.map((term) => ({ id: term.id, label: term.label })),
-        ),
-    [taxonomyQuery.data],
-  );
-
-  const filteredRoles = useMemo(() => {
-    const query = roleQuery.trim().toLowerCase();
-    if (!query) return roleOptions;
-    return roleOptions.filter((option) =>
-      option.label.toLowerCase().includes(query),
-    );
-  }, [roleOptions, roleQuery]);
-
-  const typedRole = roleQuery.trim();
-  const canUseTypedRole =
-    typedRole.length > 0 &&
-    !roleOptions.some(
-      (option) => option.label.toLowerCase() === typedRole.toLowerCase(),
-    );
-
-  const selectRole = useCallback((label: string) => {
-    setRole(label);
-    setRoleQuery(label);
-  }, []);
+  const roleTermId =
+    roleChoice?.kind === "canonical" ? roleChoice.term.id : null;
 
   // ================= Skills =================
-  const skillOptions: T.TOnboardingSkillOption[] = useMemo(
-    () =>
-      (taxonomyQuery.data ?? [])
-        .filter((group) => group.kind === ProfileTaxonomyKind.SkillArea)
-        .flatMap((group) =>
-          group.terms.map((term) => ({
-            id: term.id,
-            label: term.label,
-            groupLabel: group.groupLabel,
-          })),
-        ),
-    [taxonomyQuery.data],
+  const suggestionsQuery = PAPI.useProfessionalSkillSuggestionsQuery(
+    { roleTermId },
+    { skip: currentStep !== "skills" },
   );
 
-  const filteredSkills = useMemo(() => {
-    const query = skillQuery.trim().toLowerCase();
-    const matches = query
-      ? skillOptions.filter((option) =>
-          option.label.toLowerCase().includes(query),
-        )
-      : skillOptions;
-    return matches.slice(0, C.ONBOARDING_SUGGESTION_LIMIT);
-  }, [skillOptions, skillQuery]);
-
-  const selectedSkills = useMemo(
-    () =>
-      skillIds
-        .map((id) => skillOptions.find((option) => option.id === id))
-        .filter((option): option is T.TOnboardingSkillOption =>
-          Boolean(option),
-        ),
-    [skillIds, skillOptions],
+  const skillSuggestions: TX.TSkillSuggestionState = useMemo(
+    () => ({
+      items: (suggestionsQuery.data?.items ?? []).map((term) => ({
+        id: term.id,
+        label: term.label,
+        groupKey: term.groupKey,
+        groupLabel: term.groupLabel,
+      })),
+      isFallback: Boolean(suggestionsQuery.data?.isFallback),
+      isLoading: suggestionsQuery.isFetching,
+      hasError: Boolean(suggestionsQuery.error),
+      onRetry: () => void suggestionsQuery.refetch(),
+    }),
+    [suggestionsQuery],
   );
 
-  const isSkillLimitReached = skillIds.length >= C.ONBOARDING_MAX_SKILLS;
-
-  const toggleSkill = useCallback((id: string) => {
-    setSkillIds((current) => {
-      if (current.includes(id)) return current.filter((item) => item !== id);
+  const toggleSkill = useCallback((term: TX.TTaxonomyTerm) => {
+    setSelectedSkills((current) => {
+      if (current.some((item) => item.id === term.id))
+        return current.filter((item) => item.id !== term.id);
       if (current.length >= C.ONBOARDING_MAX_SKILLS) return current;
-      return [...current, id];
+      return [...current, term];
     });
     setWantsSuggestedSkills(false);
   }, []);
 
   const requestSuggestedSkills = useCallback(() => {
-    setSkillIds([]);
+    setSelectedSkills([]);
     setWantsSuggestedSkills(true);
   }, []);
 
@@ -238,16 +194,16 @@ export const useProfessionalOnboarding = () => {
   // ================= Navigation =================
   const isStepValid = useMemo(() => {
     if (currentStep === "goal") return Boolean(goal);
-    if (currentStep === "role") return role.trim().length > 0;
+    if (currentStep === "role") return Boolean(roleChoice);
     if (currentStep === "skills")
-      return wantsSuggestedSkills || skillIds.length > 0;
+      return wantsSuggestedSkills || selectedSkills.length > 0;
     if (currentStep === "certification")
       return Boolean(certification) || isManualCertification;
     return false;
   }, [
     goal,
-    role,
-    skillIds,
+    roleChoice,
+    selectedSkills,
     currentStep,
     certification,
     isManualCertification,
@@ -285,8 +241,9 @@ export const useProfessionalOnboarding = () => {
     try {
       await completeOnboarding({
         professionalGoal: goal,
-        currentRole: role.trim(),
-        skillsToImproveIds: skillIds,
+        currentRoleTermId: roleTermId,
+        currentRole: roleChoice?.kind === "custom" ? roleChoice.label : null,
+        skillsToImproveIds: selectedSkills.map((term) => term.id),
         suggestSkills: wantsSuggestedSkills,
         certificationId:
           finalCertification?.kind === "catalogue"
@@ -310,9 +267,10 @@ export const useProfessionalOnboarding = () => {
   }, [
     t,
     goal,
-    role,
+    roleChoice,
+    roleTermId,
     router,
-    skillIds,
+    selectedSkills,
     manualName,
     manualIssuer,
     certification,
@@ -345,40 +303,31 @@ export const useProfessionalOnboarding = () => {
   return {
     t,
     goal,
-    role,
+    roleChoice,
+    setRoleChoice,
     steps,
     goNext,
     goBack,
     submit,
-    skillIds,
-    roleQuery,
     stepIndex,
-    typedRole,
     isLastStep,
     chooseGoal,
-    skillQuery,
     goalOptions,
-    selectRole,
     currentStep,
-    toggleSkill,
     isStepValid,
     manualName,
     manualError,
-    setRoleQuery,
-    setSkillQuery,
     manualIssuer,
     setManualName,
-    filteredRoles,
     certification,
     selectedSkills,
-    filteredSkills,
+    toggleSkill,
+    skillSuggestions,
     setManualIssuer,
     stepDescriptors,
-    canUseTypedRole,
     certificationQuery,
     selectCertification,
     clearCertification,
-    isSkillLimitReached,
     wantsSuggestedSkills,
     certificationOptions,
     cancelSuggestedSkills,
@@ -397,11 +346,6 @@ export const useProfessionalOnboarding = () => {
     isSkipping: dismissState.isLoading,
     isSaving: completeState.isLoading,
     maxSkills: C.ONBOARDING_MAX_SKILLS,
-    refetchTaxonomy: taxonomyQuery.refetch,
-    isRolesLoading: taxonomyQuery.isLoading,
-    isSkillsLoading: taxonomyQuery.isLoading,
-    hasRolesError: Boolean(taxonomyQuery.error),
-    hasSkillsError: Boolean(taxonomyQuery.error),
     refetchCertifications: certificationSearch.refetch,
     isCertificationLoading: certificationSearch.isFetching,
     hasCertificationError: Boolean(certificationSearch.error),

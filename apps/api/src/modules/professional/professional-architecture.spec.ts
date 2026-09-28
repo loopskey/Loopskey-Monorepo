@@ -11,6 +11,7 @@ const CAPABILITIES = {
     "professional-profile-completion.service.ts",
     "professional-profile.service.ts",
     "professional-settings.service.ts",
+    "professional-taxonomy.service.ts",
   ],
   pdu: ["professional-pdu-file.service.ts", "professional-pdu.service.ts"],
   "cpd-plan": ["professional-cpd-plan.service.ts"],
@@ -38,10 +39,14 @@ const ALLOWED_INTERNAL_EDGES: Readonly<Record<string, readonly string[]>> = {
     "professional-certificate.service.ts",
   ],
   "professional-cpd-plan.service.ts": ["certification-search.service.ts"],
-  "professional-onboarding.service.ts": ["professional-profile.service.ts"],
+  "professional-onboarding.service.ts": [
+    "professional-profile.service.ts",
+    "professional-taxonomy.service.ts",
+  ],
   "professional-pdu-file.service.ts": ["professional-pdu.service.ts"],
   "professional-profile.service.ts": [
     "professional-profile-completion.service.ts",
+    "professional-taxonomy.service.ts",
   ],
   // FR6 (roadmap-coach-dynamic-suggestions): ranked certification suggestions
   // reuse the existing trigram-indexed certification search rather than a
@@ -51,6 +56,7 @@ const ALLOWED_INTERNAL_EDGES: Readonly<Record<string, readonly string[]>> = {
     "professional-cpd-plan.service.ts",
     "professional-profile.service.ts",
     "professional-roadmap-draft.service.ts",
+    "professional-taxonomy.service.ts",
   ],
   // Generation assembles its candidate set through the candidate service and
   // owns nothing else inside the module.

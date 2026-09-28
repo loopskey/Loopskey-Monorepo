@@ -1,7 +1,8 @@
 "use client";
 
 import { TProfessionalProfile } from "@/types/professional-profile.types";
-import { useEffect, useMemo } from "react";
+import { TRoleChoice } from "@/types/professional-taxonomy.types";
+import { useCallback, useEffect, useMemo } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useI18n } from "@/hooks/useI18n";
@@ -15,6 +16,7 @@ import * as V from "@/lib/validations/professional-profile.schema";
 const toDefaults = (profile?: TProfessionalProfile): V.TDetailsFormInput => ({
   profession: profile?.profession ?? "",
   currentRole: profile?.currentRole ?? "",
+  currentRoleTermId: profile?.currentRoleTermId ?? undefined,
   industry: profile?.industry ?? undefined,
   workLocation: profile?.workLocation ?? "",
   professionalSummary: profile?.professionalSummary ?? "",
@@ -33,7 +35,7 @@ export const useProfessionalDetailsForm = (profile?: TProfessionalProfile) => {
     defaultValues: toDefaults(profile),
   });
 
-  const { reset, formState, control } = rhf;
+  const { reset, formState, control, setValue } = rhf;
   const { isDirty } = formState;
 
   useEffect(() => {
@@ -43,6 +45,49 @@ export const useProfessionalDetailsForm = (profile?: TProfessionalProfile) => {
 
   const summary = useWatch({ control, name: "professionalSummary" });
   const summaryLength = (summary ?? "").length;
+
+  const currentRole = useWatch({ control, name: "currentRole" });
+  const currentRoleTermId = useWatch({ control, name: "currentRoleTermId" });
+
+  const roleTerm = PAPI.useProfessionalTaxonomyTermsByIdsQuery(
+    { ids: currentRoleTermId ? [currentRoleTermId] : [] },
+    { skip: !currentRoleTermId },
+  );
+
+  const roleChoice: TRoleChoice | null = useMemo(() => {
+    const label = currentRole?.trim();
+    if (!label) return null;
+    if (!currentRoleTermId) return { kind: "custom", label };
+    const term = roleTerm.data?.find((one) => one.id === currentRoleTermId);
+    return {
+      kind: "canonical",
+      term: {
+        id: currentRoleTermId,
+        label,
+        groupKey: term?.groupKey ?? "",
+        groupLabel: term?.groupLabel ?? "",
+      },
+    };
+  }, [currentRole, currentRoleTermId, roleTerm.data]);
+
+  const changeRole = useCallback(
+    (choice: TRoleChoice | null) => {
+      const options = { shouldDirty: true, shouldValidate: true };
+      setValue(
+        "currentRole",
+        choice?.kind === "canonical"
+          ? choice.term.label
+          : (choice?.label ?? ""),
+        options,
+      );
+      setValue(
+        "currentRoleTermId",
+        choice?.kind === "canonical" ? choice.term.id : undefined,
+        options,
+      );
+    },
+    [setValue],
+  );
 
   const industryOptions = useMemo(
     () =>
@@ -76,7 +121,10 @@ export const useProfessionalDetailsForm = (profile?: TProfessionalProfile) => {
       const saved = await updateDetails({
         profession: values.profession ?? null,
         industry: values.industry ?? null,
-        currentRole: values.currentRole ?? null,
+        currentRoleTermId: values.currentRoleTermId ?? null,
+        currentRole: values.currentRoleTermId
+          ? null
+          : (values.currentRole ?? null),
         experienceRange: values.experienceRange ?? null,
         professionalGoal: values.professionalGoal ?? null,
         workLocation: values.workLocation ?? null,
@@ -93,6 +141,8 @@ export const useProfessionalDetailsForm = (profile?: TProfessionalProfile) => {
     t,
     rhf,
     goalOptions,
+    roleChoice,
+    changeRole,
     handleSubmit,
     summaryLength,
     industryOptions,

@@ -17,17 +17,6 @@ export type TOnboardingGoalOption = {
   value: ProfessionalGoal;
 };
 
-export type TOnboardingRoleOption = {
-  id: string;
-  label: string;
-};
-
-export type TOnboardingSkillOption = {
-  id: string;
-  label: string;
-  groupLabel: string;
-};
-
 export type TOnboardingCertificationOption = {
   id: string;
   name: string;

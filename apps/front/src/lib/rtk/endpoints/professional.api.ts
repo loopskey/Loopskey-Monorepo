@@ -63,15 +63,67 @@ export const professionalApi = baseApi.injectEndpoints({
 
     professionalProfileTaxonomy: builder.query<
       TAPI.ProfessionalProfileTaxonomyQuery["professionalProfileTaxonomy"],
-      TAPI.ProfessionalProfileTaxonomyQueryVariables | void
+      TAPI.ProfessionalProfileTaxonomyQueryVariables
     >({
       query: (variables) => ({
         document: API.ProfessionalProfileTaxonomyDocument,
-        variables: variables ?? {},
+        variables,
       }),
       transformResponse: (response: TAPI.ProfessionalProfileTaxonomyQuery) =>
         response.professionalProfileTaxonomy,
-      providesTags: ["ProfessionalProfileTaxonomy", "Professional"],
+      providesTags: ["ProfessionalProfileTaxonomy"],
+    }),
+
+    professionalTaxonomyCategories: builder.query<
+      TAPI.ProfessionalTaxonomyCategoriesQuery["professionalTaxonomyCategories"],
+      TAPI.ProfessionalTaxonomyCategoriesQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.ProfessionalTaxonomyCategoriesDocument,
+        variables,
+      }),
+      transformResponse: (response: TAPI.ProfessionalTaxonomyCategoriesQuery) =>
+        response.professionalTaxonomyCategories,
+      providesTags: ["ProfessionalProfileTaxonomy"],
+    }),
+
+    professionalTaxonomyTerms: builder.query<
+      TAPI.ProfessionalTaxonomyTermsQuery["professionalTaxonomyTerms"],
+      TAPI.ProfessionalTaxonomyTermsQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.ProfessionalTaxonomyTermsDocument,
+        variables,
+      }),
+      transformResponse: (response: TAPI.ProfessionalTaxonomyTermsQuery) =>
+        response.professionalTaxonomyTerms,
+      providesTags: ["ProfessionalProfileTaxonomy"],
+    }),
+
+    professionalTaxonomyTermsByIds: builder.query<
+      TAPI.ProfessionalTaxonomyTermsByIdsQuery["professionalTaxonomyTermsByIds"],
+      TAPI.ProfessionalTaxonomyTermsByIdsQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.ProfessionalTaxonomyTermsByIdsDocument,
+        variables,
+      }),
+      transformResponse: (response: TAPI.ProfessionalTaxonomyTermsByIdsQuery) =>
+        response.professionalTaxonomyTermsByIds,
+      providesTags: ["ProfessionalProfileTaxonomy"],
+    }),
+
+    professionalSkillSuggestions: builder.query<
+      TAPI.ProfessionalSkillSuggestionsQuery["professionalSkillSuggestions"],
+      TAPI.ProfessionalSkillSuggestionsQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.ProfessionalSkillSuggestionsDocument,
+        variables,
+      }),
+      transformResponse: (response: TAPI.ProfessionalSkillSuggestionsQuery) =>
+        response.professionalSkillSuggestions,
+      providesTags: ["ProfessionalProfileTaxonomy"],
     }),
 
     professionalCpdPlans: builder.query<
@@ -718,6 +770,10 @@ export const {
 
   useProfessionalCpdPlansQuery,
   useProfessionalProfileTaxonomyQuery,
+  useProfessionalTaxonomyCategoriesQuery,
+  useLazyProfessionalTaxonomyTermsQuery,
+  useProfessionalTaxonomyTermsByIdsQuery,
+  useProfessionalSkillSuggestionsQuery,
   useUpdateProfessionalSkillsMutation,
   useUpdateProfessionalDetailsMutation,
   useUpdateProfessionalBasicProfileMutation,

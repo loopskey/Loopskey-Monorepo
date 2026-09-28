@@ -1,23 +1,19 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  HttpException,
-  Inject,
-  Injectable,
-  Logger,
-  NotFoundException,
-  ServiceUnavailableException,
-} from "@nestjs/common";
-import {
-  AppLanguage,
-  Prisma,
-  ProfileTaxonomyKind,
-  ProfileTermUsage,
-  RoadmapChatRole,
-  RoadmapDraftStatus,
-  RoadmapDraftStep,
-  Role,
-} from "@prisma/client";
+import { BadRequestException } from "@nestjs/common";
+import { ForbiddenException } from "@nestjs/common";
+import { HttpException } from "@nestjs/common";
+import { Inject } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
+import { Logger } from "@nestjs/common";
+import { NotFoundException } from "@nestjs/common";
+import { ServiceUnavailableException } from "@nestjs/common";
+import { AppLanguage } from "@prisma/client";
+import { Prisma } from "@prisma/client";
+import { ProfileTaxonomyKind } from "@prisma/client";
+import { ProfileTermUsage } from "@prisma/client";
+import { RoadmapChatRole } from "@prisma/client";
+import { RoadmapDraftStatus } from "@prisma/client";
+import { RoadmapDraftStep } from "@prisma/client";
+import { Role } from "@prisma/client";
 import {
   RoadmapAiMessageCode,
   SERVICE_AI_PORT,
@@ -36,6 +32,7 @@ import { ProfessionalPaginationInput } from "@professional/dtos/professional-pag
 import { firstMissingPreferenceField } from "@professional/utils/roadmap-preference-fields.util";
 import { ProfessionalCpdPlanService } from "@professional/services/professional-cpd-plan.service";
 import { ProfessionalProfileService } from "@professional/services/professional-profile.service";
+import { ProfessionalTaxonomyService } from "@professional/services/professional-taxonomy.service";
 import { CertificationSearchService } from "@professional/services/certification-search.service";
 import { isPreferenceFieldAnswered } from "@professional/utils/roadmap-preference-fields.util";
 import { PatchRoadmapCpdSetupInput } from "@professional/dtos/patch-roadmap-cpd-setup.input";
@@ -61,9 +58,12 @@ import { fieldForStep } from "@professional/utils/roadmap-coach.util";
 import { rankTerms } from "@professional/utils/roadmap-relevance.util";
 import { hadValue } from "@professional/utils/roadmap-coach.util";
 import { nextStep } from "@professional/utils/roadmap-step-machine.util";
+import { TAXONOMY_PAGE_MAX } from "@professional/enums/profile-section.enum";
 import { TUser } from "@common/types/user.types";
 
 import { type RankableTerm } from "@professional/utils/roadmap-relevance.util";
+import { type TaxonomyTerm } from "@professional/utils/profile-taxonomy.util";
+import { type WidgetValidationContext } from "@professional/utils/roadmap-widget-validation.util";
 import { type CertificationOption } from "@professional/utils/roadmap-widget-validation.util";
 
 import * as T from "@professional/types/professional-roadmap-chat.types";
@@ -139,6 +139,7 @@ export class ProfessionalRoadmapChatService {
     @Inject(SERVICE_AI_PORT) private readonly serviceAi: ServiceAiPort,
     private readonly drafts: ProfessionalRoadmapDraftService,
     private readonly profiles: ProfessionalProfileService,
+    private readonly taxonomy: ProfessionalTaxonomyService,
     private readonly cpdPlans: ProfessionalCpdPlanService,
     private readonly certifications: CertificationSearchService,
     private readonly prisma: PrismaService,
@@ -192,17 +193,49 @@ export class ProfessionalRoadmapChatService {
       .slice(0, SERVICE_AI_LIMITS.subjectOptionsMaxItems);
   }
 
-  private toRankableTerms(
-    groups: Awaited<ReturnType<ProfessionalProfileService["taxonomy"]>>,
-  ): RankableTerm[] {
-    return groups.flatMap((group) =>
-      group.terms.map((term) => ({
-        id: term.id,
-        label: term.label,
-        groupKey: group.groupKey,
-        groupLabel: group.groupLabel,
-      })),
+  private toRankableTerms(terms: readonly TaxonomyTerm[]): RankableTerm[] {
+    return terms.map((term) => ({
+      id: term.id,
+      label: term.label,
+      groupKey: term.groupKey,
+      groupLabel: term.groupLabel,
+    }));
+  }
+
+  private async roleRankables(
+    user: TUser,
+    targetRole: string | null,
+    includeIds: readonly string[] = [],
+  ) {
+    const favoredGroupIds = await this.taxonomy.favoredRoleGroupIds(user.id);
+    return this.toRankableTerms(
+      await this.taxonomy.roleCandidates({
+        text: targetRole,
+        favoredGroupIds,
+        includeIds,
+      }),
     );
+  }
+
+  private async withProposedRoles(
+    widget: RoadmapWidget | null,
+    context: WidgetValidationContext,
+  ): Promise<WidgetValidationContext> {
+    if (widget?.field !== "targetRole" || !widget.options.length)
+      return context;
+    const known = new Set(context.rankedRoles.map((term) => term.id));
+    const missing = widget.options
+      .map((option) => option.value)
+      .filter((value) => !known.has(value));
+    if (!missing.length) return context;
+    const proposed = this.toRankableTerms(
+      await this.taxonomy.roleCandidates({
+        text: null,
+        favoredGroupIds: [],
+        includeIds: missing,
+      }),
+    );
+    return { ...context, rankedRoles: [...context.rankedRoles, ...proposed] };
   }
 
   private async favoredGroupKeys(
@@ -217,20 +250,21 @@ export class ProfessionalRoadmapChatService {
           in: [ProfileTermUsage.MAIN_SKILL, ProfileTermUsage.FAVORITE_SUBJECT],
         },
       },
-      select: { term: { select: { groupKey: true } } },
+      select: { term: { select: { group: { select: { key: true } } } } },
     });
-    const direct = owned.map((row) => row.term.groupKey);
+    const direct = owned.map((row) => row.term.group.key);
     const inferred = groupKeysMatching(targetRole, candidateTerms);
     return [...new Set([...direct, ...inferred])];
   }
 
   private async relevanceContext(user: TUser, draft: T.RoadmapDraftFields) {
-    const [subjectGroups, roleGroups] = await Promise.all([
+    const [subjectGroups, roleTerms] = await Promise.all([
       this.profiles.taxonomy(user, ProfileTaxonomyKind.SUBJECT),
-      this.profiles.taxonomy(user, ProfileTaxonomyKind.ROLE),
+      this.roleRankables(user, draft.targetRole),
     ]);
-    const subjectTerms = this.toRankableTerms(subjectGroups);
-    const roleTerms = this.toRankableTerms(roleGroups);
+    const subjectTerms = this.toRankableTerms(
+      subjectGroups.flatMap((group) => group.terms),
+    );
     const favored = await this.favoredGroupKeys(user, draft.targetRole, [
       ...subjectTerms,
       ...roleTerms,
@@ -523,7 +557,10 @@ export class ProfessionalRoadmapChatService {
       [...answered].some((field) => PREFERENCE_FIELDS.has(field));
     const madeProgress = stepChanged || touchedPreference;
 
-    const validatedWidget = validateWidget(data.widget, widgetContext);
+    const validatedWidget = validateWidget(
+      data.widget,
+      await this.withProposedRoles(data.widget, widgetContext),
+    );
     const locale = data.assistantMessage.trim()
       ? await this.userLocale(user)
       : AppLanguage.EN;
@@ -708,11 +745,23 @@ export class ProfessionalRoadmapChatService {
       user,
       fields,
     );
+    const search = input.search?.trim().toLowerCase();
+    if (input.field !== RoadmapDraftFieldKey.SUBJECTS && search) {
+      const page = await this.taxonomy.terms(user, {
+        kind: ProfileTaxonomyKind.ROLE,
+        search,
+        take: TAXONOMY_PAGE_MAX,
+      });
+      return page.items.map((term) => ({
+        value: term.id,
+        label: term.label,
+        groupLabel: term.groupLabel,
+      }));
+    }
     const terms =
       input.field === RoadmapDraftFieldKey.SUBJECTS
         ? rankedSubjects
         : rankedRoles;
-    const search = input.search?.trim().toLowerCase();
     const filtered = search
       ? terms.filter((term) => term.label.toLowerCase().includes(search))
       : terms;

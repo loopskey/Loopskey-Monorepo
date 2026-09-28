@@ -9,12 +9,14 @@ import { UpdateProfessionalSkillsInput } from "@professional/dtos/update-profess
 import { type ProfessionalIdentityApi } from "@user/public/professional-identity-api";
 import { PROFESSIONAL_ENGAGEMENT_API } from "@contentAction/public/professional-engagement-api";
 import { PROFESSIONAL_IDENTITY_API } from "@user/public/professional-identity-api";
+import { ProfessionalTaxonomyService } from "@professional/services/professional-taxonomy.service";
 import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
 import { PrismaService } from "@prisma/prisma.service";
 import { TUser } from "@common/types/user.types";
 
 import * as P from "@prisma/client";
 import * as T from "@professional/types/professional-profile.types";
+import * as U from "@professional/utils/profile-taxonomy.util";
 
 const USAGE_KIND: Record<P.ProfileTermUsage, P.ProfileTaxonomyKind> = {
   [P.ProfileTermUsage.MAIN_SKILL]: P.ProfileTaxonomyKind.SKILL_AREA,
@@ -22,20 +24,14 @@ const USAGE_KIND: Record<P.ProfileTermUsage, P.ProfileTaxonomyKind> = {
   [P.ProfileTermUsage.FAVORITE_SUBJECT]: P.ProfileTaxonomyKind.SUBJECT,
 };
 
-const PROFILE_INCLUDE = {
-  include: {
-    terms: {
-      include: { term: true },
-      orderBy: { term: { sortOrder: "asc" } },
-    },
-  },
-} satisfies P.Prisma.User$professionalProfileArgs;
+const PROFILE_INCLUDE = T.professionalProfileArgs;
 
 @Injectable()
 export class ProfessionalProfileService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly completionService: ProfessionalProfileCompletionService,
+    private readonly taxonomyService: ProfessionalTaxonomyService,
     @Inject(PROFESSIONAL_IDENTITY_API)
     private readonly identity: ProfessionalIdentityApi,
     @Inject(PROFESSIONAL_ENGAGEMENT_API)
@@ -65,7 +61,7 @@ export class ProfessionalProfileService {
     if (!profile) return [];
     return profile.terms
       .filter((item) => item.usage === usage)
-      .map((item) => item.term);
+      .map((item) => U.toTaxonomyTerm(item.term));
   }
 
   async profile(user: TUser) {
@@ -117,6 +113,7 @@ export class ProfessionalProfileService {
       profession: profile?.profession ?? null,
       industry: profile?.industry ?? null,
       currentRole: profile?.currentRole ?? null,
+      currentRoleTermId: profile?.currentRoleTermId ?? null,
       experienceRange: profile?.experienceRange ?? null,
       workLocation: profile?.workLocation ?? null,
       professionalSummary: profile?.professionalSummary ?? null,
@@ -158,21 +155,25 @@ export class ProfessionalProfileService {
     };
   }
 
-  async taxonomy(user: TUser, kind?: P.ProfileTaxonomyKind) {
+  async taxonomy(user: TUser, kind: P.ProfileTaxonomyKind) {
     this.assertProfessional(user);
-    const terms = await this.prismaService.profileTaxonomyTerm.findMany({
-      where: { isActive: true, ...(kind ? { kind } : {}) },
-      orderBy: [{ kind: "asc" }, { sortOrder: "asc" }, { label: "asc" }],
+    if (kind !== P.ProfileTaxonomyKind.SUBJECT)
+      throw new BadRequestException(
+        ProfessionalMessageCode.PROFILE_TAXONOMY_KIND_UNSUPPORTED,
+      );
+    const rows = await this.prismaService.profileTaxonomyTerm.findMany({
+      where: { isActive: true, kind },
+      orderBy: U.TAXONOMY_TERM_ORDER,
+      select: U.TAXONOMY_TERM_SELECT,
     });
     const groups = new Map<string, T.TTaxonomyGroup>();
-    for (const term of terms) {
-      const mapKey = `${term.kind}:${term.groupKey}`;
-      const group = groups.get(mapKey);
+    for (const term of rows.map(U.toTaxonomyTerm)) {
+      const group = groups.get(term.groupId);
       if (group) {
         group.terms.push(term);
         continue;
       }
-      groups.set(mapKey, {
+      groups.set(term.groupId, {
         kind: term.kind,
         groupKey: term.groupKey,
         groupLabel: term.groupLabel,
@@ -210,10 +211,19 @@ export class ProfessionalProfileService {
 
   async updateDetails(user: TUser, input: UpdateProfessionalDetailsInput) {
     this.assertProfessional(user);
+    const { currentRole, currentRoleTermId, ...details } = input;
+    const role =
+      currentRole === undefined && currentRoleTermId === undefined
+        ? {}
+        : await this.taxonomyService.resolveCurrentRole({
+            currentRole,
+            currentRoleTermId,
+          });
+    const data = { ...details, ...role };
     await this.prismaService.professionalProfile.upsert({
       where: { userId: user.id },
-      create: { userId: user.id, skills: [], interests: [], ...input },
-      update: input,
+      create: { userId: user.id, skills: [], interests: [], ...data },
+      update: data,
     });
     return this.profile(user);
   }
