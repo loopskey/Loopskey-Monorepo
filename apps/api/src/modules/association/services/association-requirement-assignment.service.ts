@@ -437,6 +437,24 @@ export class AssociationRequirementAssignmentService {
       await this.materialise(requirement.id);
   }
 
+  hasRecordedActivity(
+    tx: Prisma.TransactionClient,
+    requirementId: string,
+  ): Promise<boolean> {
+    return this.requirementDirectory.hasRecordedActivity(requirementId, tx);
+  }
+
+  async retire(
+    tx: Prisma.TransactionClient,
+    requirementId: string,
+  ): Promise<void> {
+    await tx.associationRequirementAssignment.updateMany({
+      where: { requirementId, isTargeted: true },
+      data: { isTargeted: false, announcedAt: null },
+    });
+    await this.requirementDirectory.removeRequirementLinks(requirementId, tx);
+  }
+
   async membersCovered(associationId: string): Promise<number> {
     const rows = await this.prisma.associationRequirementAssignment.findMany({
       where: {

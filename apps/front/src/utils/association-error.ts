@@ -104,6 +104,10 @@ const ASSOCIATION_ERROR_TRANSLATION_KEYS: Partial<
     "associationDashboard.members.errors.requirementImmutableField",
   [AssociationMessageCode.REQUIREMENT_ARCHIVED]:
     "associationDashboard.members.errors.requirementArchived",
+  [AssociationMessageCode.REQUIREMENT_NOT_DELETABLE]:
+    "associationDashboard.requirements.errors.notDeletable",
+  [AssociationMessageCode.REQUIREMENT_STATUS_CONFLICT]:
+    "associationDashboard.requirements.errors.statusConflict",
   [AssociationMessageCode.CATEGORY_CREDITS_EXCEED_TOTAL]:
     "associationDashboard.members.errors.categoryCreditsExceedTotal",
   [AssociationMessageCode.CATEGORY_NAME_DUPLICATE]:

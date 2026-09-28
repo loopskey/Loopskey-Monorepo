@@ -71,6 +71,11 @@ type RequirementRecord = Prisma.AssociationRequirementGetPayload<{
   select: typeof REQUIREMENT_SELECT;
 }>;
 
+type LockedRequirement = {
+  id: string;
+  status: AssociationRequirementStatus;
+};
+
 const project = ({ targets, _count, ...requirement }: RequirementRecord) => ({
   ...requirement,
   assignedMemberCount: _count.assignments,
@@ -443,6 +448,7 @@ export class AssociationRequirementService {
       const transition = await tx.associationRequirement.updateMany({
         where: {
           id: requirementId,
+          associationId: association.id,
           status: AssociationRequirementStatus.DRAFT,
         },
         data: { status: AssociationRequirementStatus.PUBLISHED, publishedAt },
@@ -487,16 +493,24 @@ export class AssociationRequirementService {
     const association = await this.access.requireOwned(user);
     await this.require(association.id, requirementId);
 
-    const moved = await this.prisma.associationRequirement.updateMany({
-      where: {
-        id: requirementId,
-        status: { not: AssociationRequirementStatus.ARCHIVED },
-      },
-      data: {
-        status: AssociationRequirementStatus.ARCHIVED,
-        archivedAt: new Date(),
-        remindersEnabled: false,
-      },
+    const moved = await this.prisma.$transaction(async (tx) => {
+      const transition = await tx.associationRequirement.updateMany({
+        where: {
+          id: requirementId,
+          associationId: association.id,
+          status: { not: AssociationRequirementStatus.ARCHIVED },
+        },
+        data: {
+          status: AssociationRequirementStatus.ARCHIVED,
+          archivedAt: new Date(),
+          remindersEnabled: false,
+        },
+      });
+
+      if (transition.count === 1)
+        await this.assignments.retire(tx, requirementId);
+
+      return transition;
     });
 
     if (moved.count !== 1)
@@ -506,6 +520,65 @@ export class AssociationRequirementService {
       });
 
     return project(await this.require(association.id, requirementId));
+  }
+
+  async remove(user: TAssociationUser, requirementId: string): Promise<void> {
+    const association = await this.access.requireOwned(user);
+
+    await this.prisma.$transaction(async (tx) => {
+      const locked = await tx.$queryRaw<LockedRequirement[]>`
+        SELECT "id", "status"
+        FROM "AssociationRequirement"
+        WHERE "id" = ${requirementId}
+          AND "associationId" = ${association.id}
+        FOR UPDATE
+      `;
+      const current = locked[0];
+
+      if (!current)
+        throw new NotFoundException({
+          code: AssociationMessageCode.REQUIREMENT_NOT_FOUND,
+          message: "Requirement not found.",
+        });
+
+      if (current.status !== AssociationRequirementStatus.DRAFT)
+        throw new ConflictException({
+          code: AssociationMessageCode.REQUIREMENT_STATUS_CONFLICT,
+          message: "Only a draft requirement can be permanently deleted.",
+        });
+
+      const [assignments, learningContents, hasRecordedActivity] =
+        await Promise.all([
+          tx.associationRequirementAssignment.count({
+            where: { requirementId },
+          }),
+          tx.associationLearningContent.count({ where: { requirementId } }),
+          this.assignments.hasRecordedActivity(tx, requirementId),
+        ]);
+
+      if (assignments > 0 || learningContents > 0 || hasRecordedActivity)
+        throw new ConflictException({
+          code: AssociationMessageCode.REQUIREMENT_NOT_DELETABLE,
+          message:
+            "This draft has assignment or compliance history and cannot be deleted.",
+        });
+
+      await this.assignments.retire(tx, requirementId);
+
+      const deleted = await tx.associationRequirement.deleteMany({
+        where: {
+          id: requirementId,
+          associationId: association.id,
+          status: AssociationRequirementStatus.DRAFT,
+        },
+      });
+
+      if (deleted.count !== 1)
+        throw new ConflictException({
+          code: AssociationMessageCode.REQUIREMENT_STATUS_CONFLICT,
+          message: "The requirement changed before it could be deleted.",
+        });
+    });
   }
 
   private async require(associationId: string, requirementId: string) {

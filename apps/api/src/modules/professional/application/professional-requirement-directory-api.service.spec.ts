@@ -8,6 +8,9 @@ const setup = () => {
       deleteMany: jest.fn().mockReturnValue("delete"),
       createMany: jest.fn().mockReturnValue("create"),
     },
+    pDUActivity: {
+      count: jest.fn().mockResolvedValue(0),
+    },
     $transaction: jest.fn().mockResolvedValue([]),
   };
 
@@ -53,6 +56,32 @@ describe("ProfessionalRequirementDirectoryApiService", () => {
         userId: "user-1",
         associationRequirementId: { notIn: ["req-2"] },
       },
+    });
+  });
+
+  it("detects professional activity through the caller's transaction", async () => {
+    const { service } = setup();
+    const tx = { pDUActivity: { count: jest.fn().mockResolvedValue(1) } };
+
+    await expect(service.hasRecordedActivity("req-1", tx)).resolves.toBe(true);
+    expect(tx.pDUActivity.count).toHaveBeenCalledWith({
+      where: { associationRequirementId: "req-1" },
+    });
+  });
+
+  it("removes projections through the caller's transaction", async () => {
+    const { service } = setup();
+    const tx = {
+      professionalAssociationRequirementLink: {
+        deleteMany: jest.fn().mockResolvedValue({ count: 2 }),
+      },
+    };
+
+    await expect(service.removeRequirementLinks("req-1", tx)).resolves.toBe(2);
+    expect(
+      tx.professionalAssociationRequirementLink.deleteMany,
+    ).toHaveBeenCalledWith({
+      where: { associationRequirementId: "req-1" },
     });
   });
 });

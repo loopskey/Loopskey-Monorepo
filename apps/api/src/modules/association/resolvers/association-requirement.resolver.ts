@@ -10,6 +10,8 @@ import { TResolverUser } from "@association/types/association-service.types";
 import { CurrentUser } from "@common/decorators/current-user.decorator";
 import { Roles } from "@common/decorators/roles.decorator";
 import { Role } from "@prisma/client";
+import { AssociationActionResponseEntity } from "@association/entities/association-action-response.entity";
+import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
 
 import * as DTO from "@association/dtos/association-requirement.input";
 
@@ -155,5 +157,23 @@ export class AssociationRequirementResolver {
     @Args("input") input: DTO.AssociationRequirementIdInput,
   ) {
     return this.requirements.archive(this.getUser(user), input.requirementId);
+  }
+
+  @Roles(Role.ASSOCIATION)
+  @Mutation(() => AssociationActionResponseEntity, {
+    name: AssociationGqlMutationNames.DELETE_REQUIREMENT,
+  })
+  async deleteAssociationRequirement(
+    @CurrentUser() user: TResolverUser,
+    @Args("input") input: DTO.AssociationRequirementIdInput,
+  ) {
+    await this.requirements.remove(this.getUser(user), input.requirementId);
+
+    return {
+      success: true,
+      association: null,
+      code: AssociationMessageCode.REQUIREMENT_DELETED,
+      message: "The draft requirement was deleted.",
+    };
   }
 }

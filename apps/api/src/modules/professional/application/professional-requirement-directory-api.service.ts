@@ -1,6 +1,7 @@
 import { ProfessionalRequirementDirectoryApi } from "@professional/public/professional-requirement-directory-api";
 import { PrismaService } from "@prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 
 @Injectable()
 export class ProfessionalRequirementDirectoryApiService
@@ -44,5 +45,27 @@ export class ProfessionalRequirementDirectoryApiService
         },
       );
     return link !== null;
+  }
+
+  async hasRecordedActivity(
+    associationRequirementId: string,
+    atomicContext: object,
+  ): Promise<boolean> {
+    const tx = atomicContext as Prisma.TransactionClient;
+    const count = await tx.pDUActivity.count({
+      where: { associationRequirementId },
+    });
+    return count > 0;
+  }
+
+  async removeRequirementLinks(
+    associationRequirementId: string,
+    atomicContext: object,
+  ): Promise<number> {
+    const tx = atomicContext as Prisma.TransactionClient;
+    const removed = await tx.professionalAssociationRequirementLink.deleteMany({
+      where: { associationRequirementId },
+    });
+    return removed.count;
   }
 }

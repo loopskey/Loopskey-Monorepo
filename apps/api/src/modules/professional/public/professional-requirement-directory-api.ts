@@ -7,4 +7,12 @@ export interface ProfessionalRequirementDirectoryApi {
     userId: string,
     associationRequirementIds: string[],
   ): Promise<void>;
+  hasRecordedActivity(
+    associationRequirementId: string,
+    atomicContext: object,
+  ): Promise<boolean>;
+  removeRequirementLinks(
+    associationRequirementId: string,
+    atomicContext: object,
+  ): Promise<number>;
 }

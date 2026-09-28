@@ -5930,6 +5930,7 @@
         "create": "Nouvelle exigence",
         "open": "Ouvrir",
         "continueDraft": "Reprendre le brouillon",
+        "delete": "Supprimer le brouillon",
         "archive": "Archiver",
         "publish": "Publier l'exigence",
         "assign": "Affecter des membres",
@@ -6030,7 +6031,9 @@
         "covered": "Membres couverts",
         "actions": "Actions",
         "viewFor": "Voir {{name}}",
-        "editFor": "Modifier {{name}}"
+        "editFor": "Modifier {{name}}",
+        "deleteFor": "Supprimer le brouillon {{name}}",
+        "archiveFor": "Archiver {{name}}"
       },
       "fields": {
         "name": "Nom",
@@ -6178,6 +6181,9 @@
       },
       "confirm": {
         "cancel": "Annuler",
+        "deleteTitle": "Supprimer définitivement ce brouillon ?",
+        "deleteBody": "{{name}} sera supprimée définitivement. Cette action est irréversible.",
+        "deleteConfirm": "Supprimer le brouillon",
         "archiveTitle": "Archiver cette exigence ?",
         "archiveBody": "{{name}} cesse de s'appliquer aux membres. La progression enregistrée est conservée.",
         "archiveConfirm": "Archiver"
@@ -6187,12 +6193,15 @@
         "savedDraft": "Enregistrée comme brouillon.",
         "rulesSaved": "Règle enregistrée.",
         "published": "Exigence publiée.",
+        "deleted": "Brouillon d'exigence supprimé.",
         "archived": "Exigence archivée.",
         "assigned": "{{added}} membres ajoutés."
       },
       "errors": {
         "membersRequired": "Choisissez au moins un membre.",
-        "groupsRequired": "Choisissez au moins un groupe."
+        "groupsRequired": "Choisissez au moins un groupe.",
+        "notDeletable": "Ce brouillon contient un historique d'affectation ou de conformité et ne peut pas être supprimé. Archivez-le à la place.",
+        "statusConflict": "Cette exigence a changé avant sa suppression. Actualisez la page et réessayez."
       },
       "error": {
         "title": "Impossible de charger vos exigences",
