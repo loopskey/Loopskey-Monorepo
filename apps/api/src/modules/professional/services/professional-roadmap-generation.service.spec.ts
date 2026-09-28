@@ -3,6 +3,7 @@ import {
   LearningBudgetPreference,
   LearningFormat,
   RoadmapDraftStatus,
+  RoadmapDraftStep,
   Role,
   SkillLevel,
 } from "@prisma/client";
@@ -50,6 +51,7 @@ const draftRow = (overrides: Record<string, unknown> = {}) => ({
   id: "draft-1",
   userId: "user-1",
   status: RoadmapDraftStatus.READY,
+  currentStep: RoadmapDraftStep.REVIEW,
   goal: "Become a platform engineer",
   targetRole: null,
   goalReason: null,
@@ -233,6 +235,21 @@ describe("ProfessionalRoadmapGenerationService", () => {
     it("refuses a draft that is missing a field the provider requires", async () => {
       const harness = buildHarness({
         draft: draftRow({ enrollment: null, goal: null }),
+      });
+
+      await expect(
+        harness.service.requestGeneration(USER, "draft-1"),
+      ).rejects.toThrow("ROADMAP_DRAFT_NOT_READY");
+      expect(harness.outbox.append).not.toHaveBeenCalled();
+    });
+
+    it("refuses a stale READY draft whose interview never reached review", async () => {
+      const harness = buildHarness({
+        draft: draftRow({
+          enrollment: null,
+          status: RoadmapDraftStatus.READY,
+          currentStep: RoadmapDraftStep.CPD_TRACKING,
+        }),
       });
 
       await expect(

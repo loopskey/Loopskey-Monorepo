@@ -928,6 +928,49 @@ describe("the transcript sent to the provider", () => {
   });
 });
 
+describe("the CPD answer sent to the provider", () => {
+  it("represents an unanswered CPD question as null rather than the persisted default false", async () => {
+    const { service, store, calls } = setup();
+    store.seed(
+      emptyDraft({ ...collected, currentStep: RoadmapDraftStep.PREFERENCES }),
+    );
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "ok" });
+
+    expect(calls[0].draft.cpdEnabled).toBeNull();
+  });
+
+  it("sends an explicit false once CPD tracking has already been declined", async () => {
+    const { service, store, calls } = setup();
+    store.seed(
+      emptyDraft({
+        ...collected,
+        cpdEnabled: false,
+        currentStep: RoadmapDraftStep.REVIEW,
+      }),
+    );
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "ok" });
+
+    expect(calls[0].draft.cpdEnabled).toBe(false);
+  });
+
+  it("sends an explicit true once CPD tracking has been accepted", async () => {
+    const { service, store, calls } = setup();
+    store.seed(
+      emptyDraft({
+        ...collected,
+        cpdEnabled: true,
+        currentStep: RoadmapDraftStep.CERTIFICATION,
+      }),
+    );
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "ok" });
+
+    expect(calls[0].draft.cpdEnabled).toBe(true);
+  });
+});
+
 describe("when the AI service fails", () => {
   const unavailable: ServiceAiResult<ChatTurnData> = {
     ok: false,
@@ -1131,6 +1174,28 @@ describe("patching a draft", () => {
     expect(chatTurn).not.toHaveBeenCalled();
   });
 
+  it("converges a duplicate structured submission without appending a duplicate selection message", async () => {
+    const { service, store } = setup();
+    store.seed(
+      emptyDraft({ ...collected, currentStep: RoadmapDraftStep.REVIEW }),
+    );
+
+    const input = {
+      draftId: "draft-1",
+      budgetPreference: LearningBudgetPreference.UNDER_100,
+      selectionLabel: "Under $100",
+    };
+    await service.patchDraft(OWNER, input);
+    const countAfterFirst = store.messages.length;
+    const view = await service.patchDraft(OWNER, input);
+
+    expect(view.budgetPreference).toBe(LearningBudgetPreference.UNDER_100);
+    expect(store.messages).toHaveLength(countAfterFirst);
+    expect(
+      store.messages.filter((m) => m.content === "Under $100"),
+    ).toHaveLength(1);
+  });
+
   it("requires exactly one field", async () => {
     const { service, store } = setup();
     store.seed(emptyDraft());
@@ -1317,6 +1382,122 @@ describe("completeness", () => {
 
     expect(view.isComplete).toBe(true);
     expect(store.drafts[0].status).toBe(RoadmapDraftStatus.READY);
+  });
+});
+
+describe("when the provider and Course readiness disagree", () => {
+  it("replaces a false completion claim with the canonical local question", async () => {
+    const { service, store } = setup([
+      {
+        ok: true,
+        data: turnData({
+          isComplete: true,
+          assistantMessage: "You're all set — go ahead and generate your plan!",
+          extracted: {},
+        }),
+      },
+    ]);
+    store.seed(
+      emptyDraft({ ...collected, currentStep: RoadmapDraftStep.CPD_TRACKING }),
+    );
+
+    const view = await service.chatTurn(OWNER, {
+      draftId: "draft-1",
+      message: "anyway, thanks for the help",
+    });
+
+    expect(view.isComplete).toBe(false);
+    expect(store.drafts[0].status).toBe(RoadmapDraftStatus.COLLECTING);
+    const assistant = store.messages.filter(
+      (m) => m.role === RoadmapChatRole.ASSISTANT,
+    );
+    expect(assistant).toHaveLength(1);
+    expect(assistant[0].content).toBe("ROADMAP_COACH_QUESTION");
+    expect(assistant[0].content).not.toContain("all set");
+    expect(logEntries).toContainEqual(
+      expect.objectContaining({
+        draftId: "draft-1",
+        localReady: false,
+        providerIsComplete: true,
+        localExpectedField: "cpdEnabled",
+      }),
+    );
+  });
+
+  it("ignores a provider widget offered for a field other than the locally expected one", async () => {
+    const { service, store } = setup([
+      {
+        ok: true,
+        data: turnData({
+          isComplete: false,
+          assistantMessage: "Here are some subjects you might like.",
+          extracted: {},
+          widget: {
+            type: "MULTI_SELECT",
+            field: "subjects",
+            maxSelections: 2,
+            options: [{ value: "term-data", label: "Data Analysis" }],
+          },
+        }),
+      },
+    ]);
+    store.seed(
+      emptyDraft({
+        ...collected,
+        cpdEnabled: true,
+        currentStep: RoadmapDraftStep.CERTIFICATION,
+      }),
+    );
+
+    await service.chatTurn(OWNER, {
+      draftId: "draft-1",
+      message: "anything else I should know?",
+    });
+
+    const assistant = store.messages.filter(
+      (m) => m.role === RoadmapChatRole.ASSISTANT,
+    );
+    expect(assistant).toHaveLength(1);
+    expect(assistant[0].content).toBe("ROADMAP_COACH_QUESTION");
+    expect(assistant[0].widget).toMatchObject({ field: "certificationName" });
+    expect(logEntries).toContainEqual(
+      expect.objectContaining({
+        draftId: "draft-1",
+        providerWidgetField: "subjects",
+        localExpectedField: "certificationName",
+      }),
+    );
+  });
+
+  it("keeps the provider's own coaching text when it agrees with local readiness", async () => {
+    const { service, store } = setup([
+      {
+        ok: true,
+        data: turnData({
+          isComplete: false,
+          assistantMessage:
+            "Have you thought about a CPD-tracked certification?",
+          extracted: {},
+          widget: null,
+        }),
+      },
+    ]);
+    store.seed(
+      emptyDraft({ ...collected, currentStep: RoadmapDraftStep.CPD_TRACKING }),
+    );
+
+    await service.chatTurn(OWNER, {
+      draftId: "draft-1",
+      message: "anyway, thanks for the help",
+    });
+
+    const assistant = store.messages.filter(
+      (m) => m.role === RoadmapChatRole.ASSISTANT,
+    );
+    expect(assistant).toHaveLength(1);
+    expect(assistant[0].content).toBe(
+      "Have you thought about a CPD-tracked certification?",
+    );
   });
 });
 
