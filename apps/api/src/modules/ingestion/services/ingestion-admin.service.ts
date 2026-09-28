@@ -1,6 +1,8 @@
 import { BadRequestException, ConflictException } from "@nestjs/common";
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { CATALOG_CONTENT_CHANGED_EVENT_VERSION } from "@ingestion/enums/course-ingestion.constant";
 import { COURSE_INGESTION_EVENT_VERSION } from "@ingestion/enums/course-ingestion.constant";
+import { CATALOG_CONTENT_CHANGED_EVENT } from "@ingestion/enums/course-ingestion.constant";
 import { COURSE_INGESTION_EVENT_NAME } from "@ingestion/enums/course-ingestion.constant";
 import { IngestionItemState, Prisma } from "@prisma/client";
 import { validateCanonicalFieldMap } from "@ingestion/utils/canonical-field-map.util";
@@ -416,6 +418,17 @@ export class IngestionAdminService {
             sourceId: item.sourceId,
             catalogId: item.catalogId,
           },
+        },
+        tx,
+      );
+      await this.outbox.append(
+        {
+          eventName: CATALOG_CONTENT_CHANGED_EVENT,
+          eventVersion: CATALOG_CONTENT_CHANGED_EVENT_VERSION,
+          aggregateType: "IngestionItem",
+          aggregateId: item.id,
+          correlationId: requestContext.correlationId(),
+          payload: { catalogId: item.catalogId, kind: source.kind },
         },
         tx,
       );
