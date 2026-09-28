@@ -53,14 +53,19 @@ const setup = (over: { create?: jest.Mock } = {}) => {
   const assignments = {
     materialiseForAssociation: jest.fn().mockResolvedValue(undefined),
   };
+  const learningRecipients = {
+    syncAssociation: jest.fn().mockResolvedValue(undefined),
+  };
   return {
     tx,
     prisma,
     assignments,
+    learningRecipients,
     service: new AssociationGroupService(
       prisma as unknown as PrismaService,
       access as unknown as AssociationAccessService,
       assignments as never,
+      learningRecipients as never,
     ),
   };
 };
@@ -98,10 +103,22 @@ describe("AssociationGroupService", () => {
     );
   });
 
+  it("re-derives requirement and learning targeting after releasing members", async () => {
+    const { service, assignments, learningRecipients } = setup();
+
+    await service.setActive(owner, { groupId: "group-1", isActive: false });
+
+    expect(assignments.materialiseForAssociation).toHaveBeenCalledWith(
+      "assoc-1",
+    );
+    expect(learningRecipients.syncAssociation).toHaveBeenCalledWith("assoc-1");
+  });
+
   it("leaves members alone when a group is reactivated", async () => {
-    const { service, tx } = setup();
+    const { service, tx, learningRecipients } = setup();
     await service.setActive(owner, { groupId: "group-1", isActive: true });
     expect(tx.associationMember.updateMany).not.toHaveBeenCalled();
+    expect(learningRecipients.syncAssociation).not.toHaveBeenCalled();
   });
 
   it("refuses a group that belongs to another association", async () => {

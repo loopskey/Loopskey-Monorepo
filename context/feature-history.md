@@ -112,3 +112,4 @@ into this index and do not rewrite previous records.
 - [`outbox-priority-lanes`](feature-runs/active/outbox-priority-lanes.md) — PR [#236](https://github.com/loopskey/Loopskey-Monorepo/pull/236)
 - [`member-invitation-delivery-and-acceptance`](feature-runs/active/member-invitation-delivery-and-acceptance.md) — PR [#237](https://github.com/loopskey/Loopskey-Monorepo/pull/237)
 - [`cross-browser-interaction-reliability`](feature-runs/active/cross-browser-interaction-reliability.md) — PR [#239](https://github.com/loopskey/Loopskey-Monorepo/pull/239)
+- [`professional-role-skill-taxonomy`](feature-runs/active/professional-role-skill-taxonomy.md) — PR [#242](https://github.com/loopskey/Loopskey-Monorepo/pull/242)

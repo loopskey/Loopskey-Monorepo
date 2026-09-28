@@ -1,6 +1,7 @@
 import { AssociationAttentionSection } from "@/lib/graphql/base";
 import { AssociationMessageDeliveryState } from "@/lib/graphql/base";
 import { AssociationMessageType } from "@/lib/graphql/base";
+import { AssociationMessageSkipReason } from "@/lib/graphql/base";
 
 export const ATTENTION_SECTIONS = [
   AssociationAttentionSection.BelowThreshold,
@@ -46,12 +47,9 @@ export const STATE_VARIANT_OF = {
 
 export const ATTENTION_PAGE_SIZE = 25;
 
-const SKIP_REASONS = new Set<string>([
-  "COOLDOWN",
-  "NOT_IN_LIST",
-  "NO_VERIFIED_EMAIL",
-  "INACTIVE_ACCOUNT",
-]);
+const SKIP_REASONS = new Set<string>(
+  Object.values(AssociationMessageSkipReason),
+);
 
 export const isSkipReason = (value: string | null | undefined) =>
   Boolean(value && SKIP_REASONS.has(value));

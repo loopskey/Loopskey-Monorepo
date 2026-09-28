@@ -16,8 +16,14 @@ export const basicProfileSchema = z.object({
   fullName: z
     .string()
     .trim()
-    .min(FULL_NAME_LIMITS.min, "professionalDashboard.profile.errors.fullNameMin")
-    .max(FULL_NAME_LIMITS.max, "professionalDashboard.profile.errors.fullNameMax"),
+    .min(
+      FULL_NAME_LIMITS.min,
+      "professionalDashboard.profile.errors.fullNameMin",
+    )
+    .max(
+      FULL_NAME_LIMITS.max,
+      "professionalDashboard.profile.errors.fullNameMax",
+    ),
   linkedInUrl: z
     .string()
     .trim()
@@ -59,6 +65,7 @@ export const professionalDetailsSchema = z.object({
   profession: optionalText,
   industry: z.nativeEnum(API.ProfessionalIndustry).optional(),
   currentRole: optionalText,
+  currentRoleTermId: z.string().optional(),
   professionalGoal: z.nativeEnum(API.ProfessionalGoal).optional(),
   experienceRange: z.nativeEnum(API.ExperienceRange).optional(),
   workLocation: optionalText,

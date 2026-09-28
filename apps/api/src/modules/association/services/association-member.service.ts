@@ -1,4 +1,7 @@
 import { AssociationRequirementAssignmentService } from "@association/services/association-requirement-assignment.service";
+import { AssociationLearningContentRecipientService } from "@association/services/association-learning-content-recipient.service";
+import { AssociationMemberLifecycleService } from "@association/services/association-member-lifecycle.service";
+import { AssociationNotificationService } from "@association/services/association-notification.service";
 import { ResendAssociationMemberInvitationInput } from "@association/dtos/resend-association-member-invitation.input";
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { buildAssociationMemberInvitationEmail } from "@mail/association-email.template";
@@ -25,7 +28,6 @@ import { AssociationMessageCode } from "@association/enums/association-message-c
 import { ACCOUNT_ACTIVATION_API } from "@auth/public/account-activation-api";
 import { IDENTITY_PROFILE_API } from "@user/public/identity-profile-api";
 import { TAssociationUser } from "@association/types/association-service.types";
-import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { PrismaService } from "@prisma/prisma.service";
 import { ConfigService } from "@nestjs/config";
 
@@ -82,7 +84,9 @@ export class AssociationMemberService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
-    private readonly outbox: OutboxService,
+    private readonly notifications: AssociationNotificationService,
+    private readonly lifecycle: AssociationMemberLifecycleService,
+    private readonly learningRecipients: AssociationLearningContentRecipientService,
     private readonly access: AssociationAccessService,
     private readonly groups: AssociationGroupService,
     @Inject(IDENTITY_PROFILE_API)
@@ -240,7 +244,7 @@ export class AssociationMemberService {
       },
       AssociationMemberJoinedVia.INVITED,
     );
-    await this.assignments.materialiseForMember(result.member.id);
+    await this.refreshTargeting(result.member.id);
     if (input.requirementIds?.length)
       await this.memberRequirements.setRequirements(user, {
         memberId: result.member.id,
@@ -287,6 +291,9 @@ export class AssociationMemberService {
         });
       }
     }
+
+    for (const memberId of createdMemberIds)
+      await this.refreshTargeting(memberId);
 
     if (input.requirementIds?.length)
       await this.applyBulkRequirements(
@@ -385,6 +392,7 @@ export class AssociationMemberService {
 
     const queued = await this.prisma.$transaction((tx) =>
       this.queueInvitation(tx, {
+        associationId: association.id,
         memberId: member.id,
         userId: member.userId,
         email: member.email!,
@@ -408,25 +416,32 @@ export class AssociationMemberService {
       await this.rename(current.userId, input.fullName);
     if (input.groupId)
       await this.groups.requireGroup(association.id, input.groupId);
+    const groupId = input.groupId;
     const member = await this.recoverMemberNumberClash(
-      this.prisma.associationMember.update({
-        where: { id: input.memberId },
-        data: {
-          ...(input.groupId === undefined
-            ? {}
-            : { groupId: input.groupId || null }),
-          ...(input.memberNumber === undefined
-            ? {}
-            : { memberNumber: input.memberNumber.trim() || null }),
-          ...(input.notes === undefined
-            ? {}
-            : { notes: input.notes.trim() || null }),
-        },
-        select: MEMBER_SELECT,
+      this.prisma.$transaction(async (tx) => {
+        if (groupId)
+          await this.lifecycle.moveToGroup(
+            tx,
+            { id: input.memberId, associationId: association.id },
+            groupId,
+          );
+        return tx.associationMember.update({
+          where: { id: input.memberId },
+          data: {
+            ...(groupId === undefined || groupId ? {} : { groupId: null }),
+            ...(input.memberNumber === undefined
+              ? {}
+              : { memberNumber: input.memberNumber.trim() || null }),
+            ...(input.notes === undefined
+              ? {}
+              : { notes: input.notes.trim() || null }),
+          },
+          select: MEMBER_SELECT,
+        });
       }),
     );
     if (input.groupId !== undefined)
-      await this.assignments.materialiseForMember(input.memberId);
+      await this.refreshTargeting(input.memberId);
     return project(member);
   }
 
@@ -467,7 +482,7 @@ export class AssociationMemberService {
         },
       });
       if (claimed.count !== 1) throw this.statusConflict();
-      await this.assignments.materialiseForMember(input.memberId);
+      await this.refreshTargeting(input.memberId);
       return project(await this.readMember(association.id, input.memberId));
     }
 
@@ -487,7 +502,7 @@ export class AssociationMemberService {
       data: { status: AssociationMemberStatus.ACTIVE, deactivatedAt: null },
     });
     if (reactivated.count === 1) {
-      await this.assignments.materialiseForMember(input.memberId);
+      await this.refreshTargeting(input.memberId);
       return project(await this.readMember(association.id, input.memberId));
     }
 
@@ -503,7 +518,7 @@ export class AssociationMemberService {
       },
     });
     if (returnedToPending.count !== 1) throw this.statusConflict();
-    await this.assignments.materialiseForMember(input.memberId);
+    await this.refreshTargeting(input.memberId);
     return project(await this.readMember(association.id, input.memberId));
   }
 
@@ -539,12 +554,15 @@ export class AssociationMemberService {
         });
 
         if (existing) {
+          if (command.groupId)
+            await this.lifecycle.moveToGroup(
+              tx,
+              { id: existing.id, associationId },
+              command.groupId,
+            );
           const updated = await tx.associationMember.update({
             where: { id: existing.id },
-            data: {
-              groupId: command.groupId ?? undefined,
-              ...(memberNumber === null ? {} : { memberNumber }),
-            },
+            data: memberNumber === null ? {} : { memberNumber },
             select: MEMBER_SELECT,
           });
           if (updated.status === AssociationMemberStatus.ACTIVE)
@@ -553,6 +571,7 @@ export class AssociationMemberService {
               outcome: AssociationInviteOutcome.LINKED_EXISTING_USER,
             };
           const queued = await this.queueInvitation(tx, {
+            associationId,
             memberId: updated.id,
             userId: updated.userId,
             email: updated.user.email!,
@@ -584,13 +603,21 @@ export class AssociationMemberService {
           select: MEMBER_SELECT,
         });
 
-        if (person.linkedExisting)
+        if (person.linkedExisting) {
+          await this.lifecycle.announceActivation(tx, {
+            id: created.id,
+            associationId,
+            userId: person.id,
+            groupId: command.groupId ?? null,
+          });
           return {
             member: created,
             outcome: AssociationInviteOutcome.LINKED_EXISTING_USER,
           };
+        }
 
         const queued = await this.queueInvitation(tx, {
+          associationId,
           memberId: created.id,
           userId: person.id,
           email,
@@ -630,6 +657,7 @@ export class AssociationMemberService {
   private async queueInvitation(
     tx: Prisma.TransactionClient,
     invite: {
+      associationId: string;
       memberId: string;
       userId: string;
       email: string;
@@ -651,7 +679,9 @@ export class AssociationMemberService {
   private appendInvitationMail(
     tx: Prisma.TransactionClient,
     invite: {
+      associationId: string;
       memberId: string;
+      userId: string;
       email: string;
       fullName: string;
       associationName: string;
@@ -669,20 +699,18 @@ export class AssociationMemberService {
       invitationUrl: invitation.activationUrl,
       expiresInMinutes: invitation.expiresInMinutes,
     });
-    return this.outbox.append(
-      {
-        eventName: "mail.delivery.requested",
-        eventVersion: 1,
-        aggregateType: "AssociationMember",
-        aggregateId: invite.memberId,
-        payload: {
-          to: invite.email,
-          ...template,
-          idempotencyKey: `association-invite:${invite.memberId}:${invitation.tokenId}`,
-        },
-      },
-      tx,
-    );
+    return this.notifications.recordInvitation(tx, {
+      associationId: invite.associationId,
+      memberId: invite.memberId,
+      recipientUserId: invite.userId,
+      tokenId: invitation.tokenId,
+      mail: { to: invite.email, ...template },
+    });
+  }
+
+  private async refreshTargeting(memberId: string) {
+    await this.assignments.materialiseForMember(memberId);
+    await this.learningRecipients.syncMember(memberId);
   }
 
   private async readRow(

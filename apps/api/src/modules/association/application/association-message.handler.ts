@@ -3,6 +3,7 @@ import { AssociationMessageDeliveryState } from "@prisma/client";
 import { buildAssociationMessageEmail } from "@mail/association-message.template";
 import { ASSOCIATION_MESSAGE_EVENT } from "@association/services/association-message.service";
 import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
+import { isManualMessageType } from "@association/enums/association-attention.enum";
 import { OutboxHandlerRegistry } from "@infrastructure/outbox/outbox-handler.port";
 import { messageTemplateInput } from "@association/utils/association-message-context.util";
 import { readMessageContext } from "@association/utils/association-message-context.util";
@@ -63,16 +64,22 @@ export class AssociationMessageHandler implements OutboxHandler, OnModuleInit {
     }
 
     const email = delivery.member.user.email;
+    const messageType = delivery.messageType;
 
     if (!email) {
       await this.skip(deliveryId, AssociationMessageCode.MESSAGE_NO_RECIPIENTS);
       return;
     }
 
+    if (!isManualMessageType(messageType)) {
+      await this.skip(deliveryId, AssociationMessageCode.MESSAGE_TYPE_UNKNOWN);
+      return;
+    }
+
     const template = buildAssociationMessageEmail(
       messageTemplateInput({
+        messageType,
         language: delivery.language,
-        messageType: delivery.messageType,
         associationName: delivery.association.name,
         context: readMessageContext(delivery.context),
         dashboardUrl: this.dashboardUrl(),

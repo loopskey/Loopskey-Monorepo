@@ -14,6 +14,12 @@ const setup = () => {
   const tx = {
     associationMember: {
       updateMany: jest.fn().mockResolvedValue({ count: 1 }),
+      findUniqueOrThrow: jest.fn().mockResolvedValue({
+        id: "member-9",
+        associationId: "assoc-1",
+        userId: "user-9",
+        groupId: "group-1",
+      }),
     },
     auditLog: { create: jest.fn().mockResolvedValue({ id: "audit-9" }) },
   };
@@ -33,13 +39,18 @@ const setup = () => {
       userId: "user-9",
     }),
   };
+  const lifecycle = {
+    announceActivation: jest.fn().mockResolvedValue(undefined),
+  };
   return {
     tx,
     prisma,
     activation,
+    lifecycle,
     service: new AssociationMemberInvitationService(
       prisma as unknown as PrismaService,
       activation as never,
+      lifecycle as never,
     ),
   };
 };
@@ -96,6 +107,24 @@ describe("AssociationMemberInvitationService", () => {
     });
   });
 
+  it("announces the activation inside the acceptance transaction", async () => {
+    const { service, tx, lifecycle } = setup();
+
+    await service.acceptInvitation(input);
+
+    expect(lifecycle.announceActivation).toHaveBeenCalledTimes(1);
+    expect(lifecycle.announceActivation).toHaveBeenCalledWith(
+      tx,
+      {
+        id: "member-9",
+        associationId: "assoc-1",
+        userId: "user-9",
+        groupId: "group-1",
+      },
+      expect.any(Date),
+    );
+  });
+
   /**
    * The token consume already happened (inside `acceptMemberInvitationToken`,
    * which ran first) by the time this membership-activation guard can fail —
@@ -104,13 +133,14 @@ describe("AssociationMemberInvitationService", () => {
    * the token consume back with it rather than leaving it spent for nothing.
    */
   it("reports a used-token conflict, not a crash, when the membership already moved on", async () => {
-    const { service, tx } = setup();
+    const { service, tx, lifecycle } = setup();
     tx.associationMember.updateMany.mockResolvedValue({ count: 0 });
 
     await expect(service.acceptInvitation(input)).rejects.toMatchObject({
       response: { code: AuthMessageCode.ACTIVATION_TOKEN_USED },
     });
     expect(tx.auditLog.create).not.toHaveBeenCalled();
+    expect(lifecycle.announceActivation).not.toHaveBeenCalled();
   });
 
   it("propagates a rejection from the auth port (invalid/expired/used/password) unchanged", async () => {

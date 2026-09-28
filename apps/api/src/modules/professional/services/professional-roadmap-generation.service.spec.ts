@@ -108,7 +108,7 @@ const buildHarness = (options: {
   candidates?: RankableCandidate[];
   generate?: jest.Mock;
   activitySum?: number | null;
-  subjectTerms?: { id: string; label: string; groupKey?: string }[];
+  subjectTerms?: { id: string; label: string; group?: { key: string } }[];
 }) => {
   const tx = {
     roadmapDraft: {
@@ -520,7 +520,7 @@ describe("ProfessionalRoadmapGenerationService", () => {
           {
             id: "term-kubernetes",
             label: "Kubernetes",
-            groupKey: "TECHNOLOGY",
+            group: { key: "TECHNOLOGY" },
           },
         ],
       });
@@ -545,7 +545,7 @@ describe("ProfessionalRoadmapGenerationService", () => {
           {
             id: "term-kubernetes",
             label: "Kubernetes",
-            groupKey: "TECHNOLOGY",
+            group: { key: "TECHNOLOGY" },
           },
         ],
       });

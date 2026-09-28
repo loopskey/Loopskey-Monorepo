@@ -32,6 +32,7 @@ import { ProfessionalPaymentsService } from "@professional/services/professional
 import { ProfessionalOverviewService } from "@professional/services/professional-overview.service";
 import { ProfessionalCpdPlanResolver } from "@professional/resolvers/professional-cpd-plan.resolver";
 import { ProfessionalProfileResolver } from "@professional/resolvers/professional-profile.resolver";
+import { ProfessionalTaxonomyService } from "@professional/services/professional-taxonomy.service";
 import { ProfessionalSettingsService } from "@professional/services/professional-settings.service";
 import { ProfessionalRoadmapResolver } from "@professional/resolvers/professional-roadmap.resolver";
 import { LocalEvidenceStorageAdapter } from "@professional/storage/local-evidence-storage.adapter";
@@ -84,6 +85,7 @@ import "@professional/enums/professional-register.enum";
     ProfessionalRoadmapService,
     ProfessionalCoursesService,
     ProfessionalProfileService,
+    ProfessionalTaxonomyService,
     CertificationSearchService,
     ProfessionalCpdPlanService,
     ProfessionalCoursesResolver,

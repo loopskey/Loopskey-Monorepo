@@ -6,6 +6,12 @@ import { CreateProfessionalCredentialInput } from "@professional/dtos/create-pro
 import { UpdateProfessionalCredentialInput } from "@professional/dtos/update-professional-credential.input";
 import { ProfessionalActionResponseEntity } from "@professional/entities/professional-calendar-event.entity";
 import { ProfessionalTaxonomyGroupEntity } from "@professional/entities/professional-profile-taxonomy.entity";
+import { PaginatedProfessionalTaxonomyTermsEntity } from "@professional/entities/professional-profile-taxonomy.entity";
+import { ProfessionalTaxonomyCategoryEntity } from "@professional/entities/professional-profile-taxonomy.entity";
+import { ProfessionalSkillSuggestionsEntity } from "@professional/entities/professional-profile-taxonomy.entity";
+import { ProfessionalTaxonomyTermEntity } from "@professional/entities/professional-profile-taxonomy.entity";
+import { ProfessionalTaxonomyTermsInput } from "@professional/dtos/professional-taxonomy-terms.input";
+import { ProfessionalTaxonomyService } from "@professional/services/professional-taxonomy.service";
 import { UpdateProfessionalDetailsInput } from "@professional/dtos/update-professional-details.input";
 import { ProfessionalCredentialService } from "@professional/services/professional-credential.service";
 import { UpdateProfessionalSkillsInput } from "@professional/dtos/update-professional-skills.input";
@@ -25,6 +31,7 @@ export class ProfessionalProfileResolver {
   constructor(
     private readonly professionalProfileService: ProfessionalProfileService,
     private readonly professionalCredentialService: ProfessionalCredentialService,
+    private readonly taxonomyService: ProfessionalTaxonomyService,
   ) {}
 
   private getUser(user: TResolverUser) {
@@ -46,10 +53,55 @@ export class ProfessionalProfileResolver {
   })
   professionalProfileTaxonomy(
     @CurrentUser() user: TResolverUser,
-    @Args("kind", { type: () => ProfileTaxonomyKind, nullable: true })
-    kind?: ProfileTaxonomyKind,
+    @Args("kind", { type: () => ProfileTaxonomyKind })
+    kind: ProfileTaxonomyKind,
   ) {
     return this.professionalProfileService.taxonomy(this.getUser(user), kind);
+  }
+
+  @Query(() => [ProfessionalTaxonomyCategoryEntity], {
+    name: ProfessionalGqlQueryNames.PROFESSIONAL_TAXONOMY_CATEGORIES,
+  })
+  professionalTaxonomyCategories(
+    @CurrentUser() user: TResolverUser,
+    @Args("kind", { type: () => ProfileTaxonomyKind })
+    kind: ProfileTaxonomyKind,
+  ) {
+    return this.taxonomyService.groups(this.getUser(user), kind);
+  }
+
+  @Query(() => PaginatedProfessionalTaxonomyTermsEntity, {
+    name: ProfessionalGqlQueryNames.PROFESSIONAL_TAXONOMY_TERMS,
+  })
+  professionalTaxonomyTerms(
+    @CurrentUser() user: TResolverUser,
+    @Args("input") input: ProfessionalTaxonomyTermsInput,
+  ) {
+    return this.taxonomyService.terms(this.getUser(user), input);
+  }
+
+  @Query(() => [ProfessionalTaxonomyTermEntity], {
+    name: ProfessionalGqlQueryNames.PROFESSIONAL_TAXONOMY_TERMS_BY_IDS,
+  })
+  professionalTaxonomyTermsByIds(
+    @CurrentUser() user: TResolverUser,
+    @Args("ids", { type: () => [ID] }) ids: string[],
+  ) {
+    return this.taxonomyService.termsByIds(this.getUser(user), ids);
+  }
+
+  @Query(() => ProfessionalSkillSuggestionsEntity, {
+    name: ProfessionalGqlQueryNames.PROFESSIONAL_SKILL_SUGGESTIONS,
+  })
+  professionalSkillSuggestions(
+    @CurrentUser() user: TResolverUser,
+    @Args("roleTermId", { type: () => ID, nullable: true })
+    roleTermId?: string | null,
+  ) {
+    return this.taxonomyService.skillSuggestions(
+      this.getUser(user),
+      roleTermId,
+    );
   }
 
   @Query(() => [E.ProfessionalCpdPlanEntity], {

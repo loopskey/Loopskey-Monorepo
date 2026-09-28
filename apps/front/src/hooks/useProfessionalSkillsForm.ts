@@ -2,20 +2,30 @@
 
 import { TProfileTaxonomyGroup } from "@/types/professional-profile.types";
 import { TProfessionalProfile } from "@/types/professional-profile.types";
-import { ProfileTaxonomyKind } from "@/lib/graphql/base";
 import { TMultiSelectOption } from "@/types/professional-profile.types";
-import { useEffect, useMemo } from "react";
+import { TTaxonomyTerm } from "@/types/professional-taxonomy.types";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { ProfileTaxonomyKind } from "@/lib/graphql/base";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useI18n } from "@/hooks/useI18n";
-import { useForm } from "react-hook-form";
 import { notify } from "@/hooks/notify";
 
 import * as PAPI from "@/lib/rtk/endpoints/professional.api";
 import * as C from "@/utils/professional-profile.constant";
 import * as V from "@/lib/validations/professional-profile.schema";
 
+export type TSkillTermField = "mainSkillAreaIds" | "skillsToImproveIds";
+
 const toIds = (terms?: { id: string }[]) =>
   (terms ?? []).map((term) => term.id);
+
+const toTerm = (term: TTaxonomyTerm): TTaxonomyTerm => ({
+  id: term.id,
+  label: term.label,
+  groupKey: term.groupKey,
+  groupLabel: term.groupLabel,
+});
 
 const toDefaults = (profile?: TProfessionalProfile): V.TSkillsFormInput => ({
   mainSkillAreaIds: toIds(profile?.mainSkillAreas),
@@ -27,21 +37,20 @@ const toDefaults = (profile?: TProfessionalProfile): V.TSkillsFormInput => ({
 
 const toOptions = (
   groups: TProfileTaxonomyGroup[] | undefined,
-  kind: ProfileTaxonomyKind,
 ): TMultiSelectOption[] =>
-  (groups ?? [])
-    .filter((group) => group.kind === kind)
-    .flatMap((group) =>
-      group.terms.map((term) => ({
-        value: term.id,
-        label: term.label,
-        groupLabel: group.groupLabel,
-      })),
-    );
+  (groups ?? []).flatMap((group) =>
+    group.terms.map((term) => ({
+      value: term.id,
+      label: term.label,
+      groupLabel: group.groupLabel,
+    })),
+  );
 
 export const useProfessionalSkillsForm = (profile?: TProfessionalProfile) => {
   const { t } = useI18n();
-  const taxonomyQuery = PAPI.useProfessionalProfileTaxonomyQuery();
+  const subjectsQuery = PAPI.useProfessionalProfileTaxonomyQuery({
+    kind: ProfileTaxonomyKind.Subject,
+  });
   const [updateSkills, updateState] =
     PAPI.useUpdateProfessionalSkillsMutation();
 
@@ -51,7 +60,7 @@ export const useProfessionalSkillsForm = (profile?: TProfessionalProfile) => {
     defaultValues: toDefaults(profile),
   });
 
-  const { reset, formState } = rhf;
+  const { reset, formState, control, setValue, getValues } = rhf;
   const { isDirty } = formState;
 
   useEffect(() => {
@@ -59,14 +68,65 @@ export const useProfessionalSkillsForm = (profile?: TProfessionalProfile) => {
     reset(toDefaults(profile), { keepDirty: false, keepTouched: false });
   }, [profile, isDirty, reset]);
 
-  const skillOptions = useMemo(
-    () => toOptions(taxonomyQuery.data, ProfileTaxonomyKind.SkillArea),
-    [taxonomyQuery.data],
+  const [picked, setPicked] = useState<Record<string, TTaxonomyTerm>>({});
+
+  const mainSkillAreaIds = useWatch({ control, name: "mainSkillAreaIds" });
+  const skillsToImproveIds = useWatch({ control, name: "skillsToImproveIds" });
+
+  const known = useMemo(() => {
+    const terms = new Map<string, TTaxonomyTerm>();
+    for (const term of [
+      ...(profile?.mainSkillAreas ?? []),
+      ...(profile?.skillsToImprove ?? []),
+    ])
+      terms.set(term.id, toTerm(term));
+    for (const term of Object.values(picked)) terms.set(term.id, term);
+    return terms;
+  }, [profile, picked]);
+
+  const missingIds = useMemo(
+    () =>
+      [...new Set([...(mainSkillAreaIds ?? []), ...(skillsToImproveIds ?? [])])]
+        .filter((id) => !known.has(id))
+        .sort(),
+    [mainSkillAreaIds, skillsToImproveIds, known],
+  );
+
+  const hydration = PAPI.useProfessionalTaxonomyTermsByIdsQuery(
+    { ids: missingIds },
+    { skip: !missingIds.length },
+  );
+
+  const termsFor = useCallback(
+    (ids: string[] | undefined) => {
+      const hydrated = new Map(
+        (hydration.data ?? []).map((term) => [term.id, toTerm(term)]),
+      );
+      return (ids ?? []).flatMap((id) => {
+        const term = known.get(id) ?? hydrated.get(id);
+        return term ? [term] : [];
+      });
+    },
+    [known, hydration.data],
+  );
+
+  const toggleSkillTerm = useCallback(
+    (field: TSkillTermField, term: TTaxonomyTerm) => {
+      const ids = getValues(field) ?? [];
+      const next = ids.includes(term.id)
+        ? ids.filter((id) => id !== term.id)
+        : ids.length >= C.MAX_SELECTED_TERMS
+          ? ids
+          : [...ids, term.id];
+      setPicked((current) => ({ ...current, [term.id]: term }));
+      setValue(field, next, { shouldDirty: true, shouldValidate: true });
+    },
+    [getValues, setValue],
   );
 
   const subjectOptions = useMemo(
-    () => toOptions(taxonomyQuery.data, ProfileTaxonomyKind.Subject),
-    [taxonomyQuery.data],
+    () => toOptions(subjectsQuery.data),
+    [subjectsQuery.data],
   );
 
   const skillLevelOptions = useMemo(
@@ -98,14 +158,17 @@ export const useProfessionalSkillsForm = (profile?: TProfessionalProfile) => {
     t,
     rhf,
     handleSubmit,
-    skillOptions,
     subjectOptions,
     skillLevelOptions,
+    toggleSkillTerm,
+    mainSkillTerms: termsFor(mainSkillAreaIds),
+    skillsToImproveTerms: termsFor(skillsToImproveIds),
+    maxSelectedTerms: C.MAX_SELECTED_TERMS,
     isSaving: updateState.isLoading,
     hasError: Boolean(updateState.error),
-    isTaxonomyLoading: taxonomyQuery.isLoading,
-    hasTaxonomyError: Boolean(taxonomyQuery.error),
-    refetchTaxonomy: taxonomyQuery.refetch,
+    isTaxonomyLoading: subjectsQuery.isLoading,
+    hasTaxonomyError: Boolean(subjectsQuery.error),
+    refetchTaxonomy: subjectsQuery.refetch,
     isSaveDisabled: updateState.isLoading || !isDirty,
   };
 };

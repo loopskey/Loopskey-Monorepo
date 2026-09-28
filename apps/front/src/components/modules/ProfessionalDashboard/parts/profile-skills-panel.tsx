@@ -3,6 +3,7 @@
 import { FloatingSelectField } from "@elements/floating-select";
 import { TSkillsPanelProps } from "@/types/professional-profile.types";
 import { MultiSelectField } from "@elements/multi-select-field";
+import { SkillSelector } from "@modules/ProfessionalTaxonomy/skill-selector";
 import { Loader2 } from "lucide-react";
 import { Button } from "@ui/button";
 
@@ -19,8 +20,11 @@ export const ProfileSkillsPanel = ({
     isSaving,
     hasError,
     handleSubmit,
-    skillOptions,
+    toggleSkillTerm,
+    mainSkillTerms,
     subjectOptions,
+    maxSelectedTerms,
+    skillsToImproveTerms,
     isSaveDisabled,
     refetchTaxonomy,
     skillLevelOptions,
@@ -61,14 +65,17 @@ export const ProfileSkillsPanel = ({
       <F.Form {...rhf}>
         <form onSubmit={handleSubmit} noValidate className="space-y-6">
           <div className="grid gap-5 md:grid-cols-2">
-            <MultiSelectField
-              {...multiSelectText}
-              items={skillOptions}
-              name="mainSkillAreaIds"
-              control={rhf.control}
-              className="md:col-span-2"
-              label={t("professionalDashboard.profile.skills.mainSkillAreas")}
-            />
+            <div className="md:col-span-2">
+              <SkillSelector
+                t={t}
+                isDisabled={isDisabled}
+                max={maxSelectedTerms}
+                selected={mainSkillTerms}
+                idPrefix="profile-main-skills"
+                onToggle={(term) => toggleSkillTerm("mainSkillAreaIds", term)}
+                label={t("professionalDashboard.profile.skills.mainSkillAreas")}
+              />
+            </div>
 
             <MultiSelectField
               {...multiSelectText}
@@ -104,14 +111,19 @@ export const ProfileSkillsPanel = ({
               )}
             />
 
-            <MultiSelectField
-              {...multiSelectText}
-              items={skillOptions}
-              control={rhf.control}
-              name="skillsToImproveIds"
-              className="md:col-span-2"
-              label={t("professionalDashboard.profile.skills.skillsToImprove")}
-            />
+            <div className="md:col-span-2">
+              <SkillSelector
+                t={t}
+                isDisabled={isDisabled}
+                max={maxSelectedTerms}
+                selected={skillsToImproveTerms}
+                idPrefix="profile-skills-to-improve"
+                onToggle={(term) => toggleSkillTerm("skillsToImproveIds", term)}
+                label={t(
+                  "professionalDashboard.profile.skills.skillsToImprove",
+                )}
+              />
+            </div>
           </div>
 
           {hasError ? (

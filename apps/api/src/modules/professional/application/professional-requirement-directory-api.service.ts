@@ -17,18 +17,13 @@ export class ProfessionalRequirementDirectoryApiService
       this.prismaService.professionalAssociationRequirementLink.deleteMany({
         where: { userId, associationRequirementId: { notIn: nextIds } },
       }),
-      ...nextIds.map((associationRequirementId) =>
-        this.prismaService.professionalAssociationRequirementLink.upsert({
-          where: {
-            userId_associationRequirementId: {
-              userId,
-              associationRequirementId,
-            },
-          },
-          create: { userId, associationRequirementId },
-          update: {},
-        }),
-      ),
+      this.prismaService.professionalAssociationRequirementLink.createMany({
+        data: nextIds.map((associationRequirementId) => ({
+          userId,
+          associationRequirementId,
+        })),
+        skipDuplicates: true,
+      }),
     ]);
   }
 

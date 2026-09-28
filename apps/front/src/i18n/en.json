@@ -6727,7 +6727,11 @@
         "BEHIND_THRESHOLD": "Progress reminder",
         "WELCOME": "Welcome",
         "CATEGORY_BEHIND": "Category reminder",
-        "CERTIFICATE_EXPIRING": "Certificate expiry"
+        "CERTIFICATE_EXPIRING": "Certificate expiry",
+        "INVITATION": "Invitation",
+        "GROUP_ADDED": "Added to a group",
+        "REQUIREMENT_ASSIGNED": "Requirement assigned",
+        "LEARNING_CONTENT_ASSIGNED": "Learning assigned"
       },
       "states": {
         "QUEUED": "Sending",
@@ -6740,7 +6744,8 @@
         "NOT_IN_LIST": "No longer in this list",
         "NO_VERIFIED_EMAIL": "No verified email address",
         "INACTIVE_ACCOUNT": "Account is not active",
-        "EMAIL_SUPPRESSED": "Association email is suppressed"
+        "EMAIL_SUPPRESSED": "Association email is suppressed",
+        "NO_LONGER_APPLICABLE": "No longer applicable"
       },
       "errors": {
         "typeUnknown": "That message does not belong to this list.",
@@ -6751,13 +6756,13 @@
       },
       "history": {
         "title": "Outreach history",
-        "description": "Every copy Loopskey sent on your behalf, newest first.",
+        "description": "Every copy Loopskey sent on your behalf, newest first, including invitations, welcomes and assignment notices sent automatically.",
         "total": "{{count}} in total",
         "error": "The history could not be loaded.",
         "unknownReason": "No reason recorded.",
         "empty": {
           "title": "Nothing sent yet",
-          "body": "Once you send a reminder or a welcome, every recipient's copy is listed here with its state."
+          "body": "Once a member is invited, welcomed, added to a group or assigned work, or you send a reminder, every recipient's copy is listed here with its state."
         }
       },
       "suppressed": "All association email is suppressed in your settings, so a send here records every recipient as skipped.",
@@ -7403,6 +7408,43 @@
   "totalAvailable": "{{count}} items available in this category",
   "carouselCount": "{{count}} featured picks",
   "carouselHint": "Hover a card to preview it in the spotlight.",
+  "professionalTaxonomy": {
+    "categories": "Browse by category",
+    "searchHint": "Search the whole list, or open a category below.",
+    "tooShort": "Type at least 2 characters to search.",
+    "searchResults": "Search results",
+    "showing": "Showing {{shown}} of {{total}}",
+    "loadMore": "Show more",
+    "termCount": "{{count}} options",
+    "loading": "Loading…",
+    "categoriesError": "We could not load the categories.",
+    "termsError": "We could not load this list.",
+    "retry": "Try again",
+    "role": {
+      "search": "Search roles",
+      "noResults": "No matching roles. Use “My role is not listed” to enter your own title.",
+      "selected": "Your current role",
+      "customBadge": "Your own title",
+      "change": "Change",
+      "clear": "Clear role",
+      "notListed": "My role is not listed",
+      "customLabel": "Your job title",
+      "useCustom": "Use this title",
+      "cancel": "Cancel",
+      "customTooShort": "Enter at least 2 characters.",
+      "customTooLong": "Use at most {{max}} characters."
+    },
+    "skills": {
+      "search": "Search skills",
+      "noResults": "No matching skills. Adding your own skills is not available yet.",
+      "counter": "{{count}} of {{max}} selected",
+      "limitReached": "You have selected the maximum of {{max}}.",
+      "remove": "Remove {{skill}}",
+      "suggestionsTitle": "Suggested for your role",
+      "fallbackTitle": "Popular with other professionals",
+      "suggestionsError": "We could not load suggestions."
+    }
+  },
   "professionalOnboarding": {
     "eyebrow": "Welcome to Loopskey",
     "title": "Set up your profile",
@@ -7438,29 +7480,12 @@
     },
     "role": {
       "title": "What is your current role?",
-      "description": "Search, pick a suggestion, or type your own title",
-      "searchLabel": "Search roles",
-      "searchPlaceholder": "Search roles",
-      "suggestions": "Suggested roles",
-      "useTyped": "Use “{{role}}”",
-      "loading": "Loading roles…",
-      "empty": "No matching roles. You can keep the title you typed.",
-      "error": "We could not load role suggestions.",
-      "retry": "Try again"
+      "description": "Browse a category, search the full list, or enter your own title"
     },
     "skills": {
       "title": "Which skills would you like to develop?",
       "description": "Pick up to 3 skills you want to grow - not ones you already have.",
-      "searchLabel": "Find or add a skill",
-      "searchPlaceholder": "Find or add a skill",
       "selectedLabel": "Selected skills",
-      "counter": "{{count}} of {{max}} selected",
-      "limitReached": "You have selected the maximum of {{max}} skills.",
-      "remove": "Remove {{skill}}",
-      "loading": "Loading skills…",
-      "empty": "No matching skills.",
-      "error": "We could not load skills.",
-      "retry": "Try again",
       "notSure": "I'm not sure - suggest skills for me",
       "suggested": "We will suggest skills for you. You can change them later.",
       "clearSuggestion": "Choose my own skills instead"

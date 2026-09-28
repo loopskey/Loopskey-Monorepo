@@ -1,5 +1,6 @@
 import { BadRequestException, Inject, Injectable } from "@nestjs/common";
 import { AssociationMemberStatus, AuditAction } from "@prisma/client";
+import { AssociationMemberLifecycleService } from "@association/services/association-member-lifecycle.service";
 import { ACCOUNT_ACTIVATION_API } from "@auth/public/account-activation-api";
 import { AccountActivationApi } from "@auth/public/account-activation-api";
 import { AuthMessageCode } from "@loopskey/api-contracts/error-codes";
@@ -11,6 +12,7 @@ export class AssociationMemberInvitationService {
     private readonly prisma: PrismaService,
     @Inject(ACCOUNT_ACTIVATION_API)
     private readonly activation: AccountActivationApi,
+    private readonly lifecycle: AssociationMemberLifecycleService,
   ) {}
 
   describeInvitation(token: string) {
@@ -53,6 +55,12 @@ export class AssociationMemberInvitationService {
           entityId: associationMemberId,
         },
       });
+
+      const member = await tx.associationMember.findUniqueOrThrow({
+        where: { id: associationMemberId },
+        select: { id: true, associationId: true, userId: true, groupId: true },
+      });
+      await this.lifecycle.announceActivation(tx, member, activatedAt);
     });
 
     return {

@@ -37,8 +37,22 @@ const OWNER = { id: "user-1", role: Role.PROFESSIONAL };
 const STRANGER = { id: "user-2", role: Role.PROFESSIONAL };
 
 const SUBJECT_TERMS = [
-  { id: "term-leadership", label: "Leadership" },
-  { id: "term-data", label: "Data Analysis" },
+  {
+    id: "term-leadership",
+    label: "Leadership",
+    groupKey: "g",
+    groupLabel: "G",
+  },
+  { id: "term-data", label: "Data Analysis", groupKey: "g", groupLabel: "G" },
+];
+
+const ROLE_TERMS = [
+  {
+    id: "role-data-lead",
+    label: "Data Lead",
+    groupKey: "DATA_ANALYTICS",
+    groupLabel: "Data & Analytics",
+  },
 ];
 
 type StoredMessage = {
@@ -309,19 +323,37 @@ const setup = (
       preferredLearningFormats: [LearningFormat.COURSE],
       favoriteSubjects: [SUBJECT_TERMS[1]],
     })),
-    taxonomy: jest.fn(async (_user: unknown, kind?: ProfileTaxonomyKind) =>
-      kind === ProfileTaxonomyKind.ROLE
-        ? []
-        : [
-            {
-              groupKey: "g",
-              groupLabel: "G",
-              kind: "SUBJECT",
-              terms: SUBJECT_TERMS,
-            },
-          ],
-    ),
+    taxonomy: jest.fn(async () => [
+      {
+        groupKey: "g",
+        groupLabel: "G",
+        kind: ProfileTaxonomyKind.SUBJECT,
+        terms: SUBJECT_TERMS,
+      },
+    ]),
   } as unknown as ProfessionalProfileService;
+
+  const taxonomy = {
+    favoredRoleGroupIds: jest.fn(async () => ["ptg_role_data_analytics"]),
+    roleCandidates: jest.fn(
+      async ({ includeIds = [] }: { includeIds?: readonly string[] }) => [
+        ...ROLE_TERMS,
+        ...includeIds
+          .filter((id) => id === "role-proposed")
+          .map((id) => ({
+            id,
+            label: "Proposed Role",
+            groupKey: "DATA_ANALYTICS",
+            groupLabel: "Data & Analytics",
+          })),
+      ],
+    ),
+    terms: jest.fn(async () => ({
+      items: ROLE_TERMS,
+      totalCount: 1,
+      pageInfo: { hasNextPage: false, nextCursor: null },
+    })),
+  };
 
   const certifications = {
     search: jest.fn(async () => []),
@@ -378,6 +410,7 @@ const setup = (
     serviceAi,
     store as unknown as ProfessionalRoadmapDraftService,
     profiles,
+    taxonomy as never,
     cpdPlans,
     certifications,
     prisma,
@@ -389,6 +422,7 @@ const setup = (
     chatTurn,
     calls,
     profiles,
+    taxonomy,
     cpdPlans,
     certifications,
     prisma,
@@ -1810,6 +1844,49 @@ describe("roadmap suggestion options", () => {
     expect(options).toEqual([
       { value: "term-leadership", label: "Leadership", groupLabel: "G" },
     ]);
+  });
+
+  it("ranks roles from a bounded candidate set instead of the whole catalogue", async () => {
+    const { service, store, taxonomy } = setup();
+    store.seed(emptyDraft({ targetRole: "Data Lead" }));
+
+    const options = await service.suggestionOptions(OWNER, {
+      draftId: "draft-1",
+      field: RoadmapDraftFieldKey.TARGET_ROLE,
+    });
+
+    expect(taxonomy.roleCandidates).toHaveBeenCalledWith(
+      expect.objectContaining({
+        text: "Data Lead",
+        favoredGroupIds: ["ptg_role_data_analytics"],
+      }),
+    );
+    expect(options).toEqual([
+      {
+        value: "role-data-lead",
+        label: "Data Lead",
+        groupLabel: "Data & Analytics",
+      },
+    ]);
+  });
+
+  it("searches roles on the server when the professional types", async () => {
+    const { service, store, taxonomy } = setup();
+    store.seed(emptyDraft());
+
+    await service.suggestionOptions(OWNER, {
+      draftId: "draft-1",
+      field: RoadmapDraftFieldKey.TARGET_ROLE,
+      search: "Data",
+    });
+
+    expect(taxonomy.terms).toHaveBeenCalledWith(
+      OWNER,
+      expect.objectContaining({
+        kind: ProfileTaxonomyKind.ROLE,
+        search: "data",
+      }),
+    );
   });
 
   it("refuses a draft belonging to another professional", async () => {

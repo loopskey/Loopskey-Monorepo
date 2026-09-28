@@ -1,4 +1,6 @@
 import { AssociationLearningContentService } from "@association/services/association-learning-content.service";
+import { LEARNING_CONTENT_PUBLISHED_EVENT } from "@association/services/association-learning-content.service";
+import { LEARNING_CONTENT_AUDIENCE_CHANGED_EVENT } from "@association/services/association-learning-content-recipient.service";
 import { type ProfessionalComplianceApi } from "@professional/public/professional-compliance-api";
 import { type CatalogEndorsementApi } from "@landing/public/catalog-endorsement-api";
 import { AssociationAccessService } from "@association/services/association-access.service";
@@ -12,6 +14,11 @@ import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { PrismaService } from "@prisma/prisma.service";
 
 const owner = { id: "owner-1", role: Role.ASSOCIATION };
+
+const eventNames = (append: jest.Mock) =>
+  append.mock.calls.map(
+    ([event]) => (event as { eventName: string }).eventName,
+  );
 
 const contentRow = (overrides: Record<string, unknown> = {}) => ({
   id: "item-1",
@@ -425,10 +432,13 @@ describe("AssociationLearningContentService", () => {
           }),
         }),
       );
-      expect(outboxAppend).toHaveBeenCalledTimes(1);
+      expect(eventNames(outboxAppend)).toEqual([
+        LEARNING_CONTENT_PUBLISHED_EVENT,
+        LEARNING_CONTENT_AUDIENCE_CHANGED_EVENT,
+      ]);
     });
 
-    it("re-targets an already-published item instead of failing, without a second notification", async () => {
+    it("re-targets an already-published item without a second publication event", async () => {
       const { service, outboxAppend } = setup({ updateManyCount: 0 });
 
       await expect(
@@ -437,7 +447,26 @@ describe("AssociationLearningContentService", () => {
           audienceKind: AssociationAudienceKind.ALL_MEMBERS,
         }),
       ).resolves.toMatchObject({ id: "item-1" });
-      expect(outboxAppend).not.toHaveBeenCalled();
+      expect(eventNames(outboxAppend)).toEqual([
+        LEARNING_CONTENT_AUDIENCE_CHANGED_EVENT,
+      ]);
+    });
+
+    it("queues the recipient resync in the same transaction as the audience write", async () => {
+      const { service, outboxAppend } = setup({ updateManyCount: 0 });
+
+      await service.publish(owner, {
+        learningContentId: "item-1",
+        audienceKind: AssociationAudienceKind.ALL_MEMBERS,
+      });
+
+      expect(outboxAppend).toHaveBeenCalledWith(
+        expect.objectContaining({
+          aggregateId: "item-1",
+          payload: { learningContentId: "item-1", associationId: "assoc-1" },
+        }),
+        expect.anything(),
+      );
     });
 
     it("refuses a group audience with no group", async () => {

@@ -40,6 +40,11 @@ exist only so a user gets a readable message instead of a constraint violation.
 | A reclassification follows every threshold change | The recompute event is appended to the outbox inside the same transaction as the settings write, so a settings change that commits always has a reclassification queued behind it |
 | A member invitation cannot suppress or be consumed by another association's invitation to the same email | `OtpCode.associationMemberId` scopes the invalidate-on-reissue, cooldown, and daily-limit queries per membership, not per user |
 | A member invitation activates once, and only its own membership | `updateMany` on `AssociationMember` naming `PENDING_ACTIVATION`, `count === 1`, in the same transaction as the conditional `OtpCode` consume — either losing rolls both back |
+| One lifecycle or assignment email per logical occurrence | Unique `AssociationMessageDelivery.occurrenceKey`, written with `ON CONFLICT DO NOTHING` so a duplicate is a no-op rather than an aborted transaction |
+| A requirement assignment or learning-content recipient is announced once | `announcedAt IS NULL → now` claim taken under `FOR UPDATE … ORDER BY id`, in the same transaction as the delivery row and its outbox event; untargeting clears `announcedAt`, so only a genuine unassign/reassign announces again |
+| A member is told about a group only when they actually move into it | `updateMany` on `AssociationMember` where the group differs, `count === 1`, in the same transaction as the group-added delivery |
+| An automatic welcome and a manual welcome never both go out | The automatic welcome takes the current weekly `cooldownBucket`, so it and a concurrent manual welcome collide on the cooldown constraint; afterwards any `WELCOME` row removes the member from the new-joiners list |
+| Concurrent directory syncs for one professional converge | `ProfessionalAssociationRequirementLink` is written with `createMany … skipDuplicates`, not a find-then-create upsert |
 
 ## Decisions
 
@@ -201,6 +206,24 @@ neither the rendered body nor the member's name and progress ever sit in an
 outbox payload. It hands the provider `context.idempotencyKey`, which is what
 makes a redelivery the same email rather than a second one.
 
+Automatic lifecycle mail uses the same delivery ledger. The business write
+that causes it — an accepted invitation, a direct link of an active account, a
+real group move, or a positive assignment delta — records the
+`AssociationMessageDelivery` row and appends one versioned event in the same
+transaction: `association.member.invited.v1`,
+`association.membership.activated.v1`, `association.member.group-added.v1`,
+`association.requirement.assigned.v1` or
+`association.learning-content.assigned.v1`. One realtime handler,
+`AssociationLifecycleMessageHandler`, claims all five. It re-reads the member,
+group, requirement or content at send time and settles anything no longer true
+as `SKIPPED` with `NO_LONGER_APPLICABLE` instead of mailing it. A notification
+suppressed by the association's settings is written as `SKIPPED` with
+`EMAIL_SUPPRESSED` and never queued; the invitation is essential account-access
+mail and is never suppressed. Learning-content audiences resolve through
+`association.learning-content.audience-changed.v1`, whose handler synchronises
+the `AssociationLearningContentRecipient` ledger in bounded batches and renews
+its lease after each one.
+
 A handler whose failure will not improve on retry should not throw. The report
 export handler marks its record `FAILED` and returns for anything the domain
 refused — a deleted group, a filter the period rules reject — and throws only
@@ -275,6 +298,9 @@ correlation ID and non-sensitive identifiers only.
 | `Outbox delivery already recorded` | A redelivery found its delivery row already present |
 | `Association compliance settings updated` | A settings write committed; the line carries the new thresholds and whether a reclassification was queued |
 | `Association reclassified after a threshold change` | The queued recompute finished, with the assignment count it touched |
+| `Association lifecycle notifications recorded` | Lifecycle deliveries were written, with how many were queued, suppressed, or already existed |
+| `Association lifecycle delivery skipped at send time` | A queued lifecycle email was no longer applicable, or its recipient had no active verified address |
+| `Association learning content recipients synchronised` | A learning-content audience resync finished, with targeted, untargeted and announced counts |
 
 Expected conflicts are logged at `warn` and answered with domain error codes.
 None of them are internal server failures, and none should be alerted on

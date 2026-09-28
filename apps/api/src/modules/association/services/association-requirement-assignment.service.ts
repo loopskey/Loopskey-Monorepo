@@ -1,12 +1,29 @@
 import { type ProfessionalRequirementDirectoryApi } from "@professional/public/professional-requirement-directory-api";
 import { PROFESSIONAL_REQUIREMENT_DIRECTORY_API } from "@professional/public/professional-requirement-directory-api";
-import { AssociationRequirementStatus, Prisma } from "@prisma/client";
+import { AssociationMessageType } from "@prisma/client";
+import { AssociationRequirementStatus } from "@prisma/client";
+import { Prisma } from "@prisma/client";
+import { AssociationNotificationService } from "@association/services/association-notification.service";
+import { occurrenceKeys } from "@association/enums/association-notification.enum";
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { AssociationAudienceKind } from "@prisma/client";
 import { AssociationMemberStatus } from "@prisma/client";
 import { PrismaService } from "@prisma/prisma.service";
 
 const BATCH_SIZE = 200;
+
+export type AnnouncementScope = {
+  requirementId?: string;
+  memberIds?: string[];
+};
+
+type ClaimedAssignment = {
+  id: string;
+  requirementId: string;
+  memberId: string;
+  userId: string;
+  associationId: string;
+};
 
 type RequirementForMaterialisation = {
   id: string;
@@ -27,6 +44,7 @@ export type MaterialisationOutcome = {
   retained: number;
   removed: number;
   retargeted: number;
+  announced: number;
 };
 
 const EMPTY: MaterialisationOutcome = {
@@ -34,6 +52,7 @@ const EMPTY: MaterialisationOutcome = {
   retained: 0,
   removed: 0,
   retargeted: 0,
+  announced: 0,
 };
 
 @Injectable()
@@ -46,7 +65,68 @@ export class AssociationRequirementAssignmentService {
     private readonly prisma: PrismaService,
     @Inject(PROFESSIONAL_REQUIREMENT_DIRECTORY_API)
     private readonly requirementDirectory: ProfessionalRequirementDirectoryApi,
+    private readonly notifications: AssociationNotificationService,
   ) {}
+
+  async announce(
+    tx: Prisma.TransactionClient,
+    scope: AnnouncementScope,
+    now = new Date(),
+  ) {
+    if (scope.memberIds && !scope.memberIds.length) return 0;
+
+    const conditions = [
+      Prisma.sql`assignment."isTargeted" = true`,
+      Prisma.sql`assignment."announcedAt" IS NULL`,
+      Prisma.sql`requirement."status" = ${AssociationRequirementStatus.PUBLISHED}::"AssociationRequirementStatus"`,
+      Prisma.sql`member."status" = ${AssociationMemberStatus.ACTIVE}::"AssociationMemberStatus"`,
+      Prisma.sql`requirement."associationId" = member."associationId"`,
+    ];
+    if (scope.requirementId)
+      conditions.push(
+        Prisma.sql`assignment."requirementId" = ${scope.requirementId}`,
+      );
+    if (scope.memberIds)
+      conditions.push(
+        Prisma.sql`assignment."memberId" IN (${Prisma.join(scope.memberIds)})`,
+      );
+
+    const claimed = await tx.$queryRaw<ClaimedAssignment[]>`
+      WITH candidate AS (
+        SELECT assignment."id", member."userId", member."associationId"
+        FROM "AssociationRequirementAssignment" AS assignment
+        JOIN "AssociationRequirement" AS requirement
+          ON requirement."id" = assignment."requirementId"
+        JOIN "AssociationMember" AS member
+          ON member."id" = assignment."memberId"
+        WHERE ${Prisma.join(conditions, " AND ")}
+        ORDER BY assignment."id"
+        FOR UPDATE OF assignment
+      )
+      UPDATE "AssociationRequirementAssignment" AS assignment
+      SET "announcedAt" = ${now}, "updatedAt" = ${now}
+      FROM candidate
+      WHERE assignment."id" = candidate."id"
+        AND assignment."announcedAt" IS NULL
+      RETURNING assignment."id", assignment."requirementId", assignment."memberId",
+        candidate."userId", candidate."associationId"`;
+
+    return this.notifications.record(
+      tx,
+      claimed.map((assignment) => ({
+        associationId: assignment.associationId,
+        memberId: assignment.memberId,
+        recipientUserId: assignment.userId,
+        messageType: AssociationMessageType.REQUIREMENT_ASSIGNED,
+        occurrenceKey: occurrenceKeys.requirementAssigned(assignment.id, now),
+        subject: {
+          requirementId: assignment.requirementId,
+          assignmentId: assignment.id,
+        },
+      })),
+      now,
+    );
+  }
 
   private async syncDirectoryForMembers(memberIds: string[]): Promise<void> {
     const uniqueIds = [...new Set(memberIds)];
@@ -108,6 +188,7 @@ export class AssociationRequirementAssignmentService {
       const members = await this.prisma.associationMember.findMany({
         where: base,
         select: { id: true },
+        orderBy: { id: "asc" },
       });
       return members.map((member) => member.id);
     }
@@ -120,6 +201,7 @@ export class AssociationRequirementAssignmentService {
       const members = await this.prisma.associationMember.findMany({
         where: { ...base, groupId: { in: groupIds } },
         select: { id: true },
+        orderBy: { id: "asc" },
       });
       return members.map((member) => member.id);
     }
@@ -132,6 +214,7 @@ export class AssociationRequirementAssignmentService {
     const members = await this.prisma.associationMember.findMany({
       where: { ...base, id: { in: memberIds } },
       select: { id: true },
+      orderBy: { id: "asc" },
     });
     return members.map((member) => member.id);
   }
@@ -183,6 +266,11 @@ export class AssociationRequirementAssignmentService {
             update: { isTargeted: true, dueDate: requirement.deadline },
           });
         }
+        if (requirement.status === AssociationRequirementStatus.PUBLISHED)
+          outcome.announced += await this.announce(tx, {
+            requirementId: requirement.id,
+            memberIds: batch,
+          });
       });
       outcome.created += batch.length;
     }
@@ -217,7 +305,7 @@ export class AssociationRequirementAssignmentService {
       const retained =
         await this.prisma.associationRequirementAssignment.updateMany({
           where: { id: { in: historic } },
-          data: { isTargeted: false },
+          data: { isTargeted: false, announcedAt: null },
         });
       outcome.retained = retained.count;
       outcome.retargeted = retained.count;
@@ -229,6 +317,7 @@ export class AssociationRequirementAssignmentService {
       created: outcome.created,
       retained: outcome.retained,
       removed: outcome.removed,
+      announced: outcome.announced,
     });
 
     await this.syncDirectoryForMembers([
@@ -307,10 +396,16 @@ export class AssociationRequirementAssignmentService {
             requirementId: requirement.id,
             memberId: member.id,
             cycleStart,
+            isTargeted: true,
           },
-          data: { isTargeted: false },
+          data: { isTargeted: false, announcedAt: null },
         });
     }
+
+    if (isActive)
+      await this.prisma.$transaction((tx) =>
+        this.announce(tx, { memberIds: [member.id] }),
+      );
 
     await this.syncDirectoryForMembers([member.id]);
   }

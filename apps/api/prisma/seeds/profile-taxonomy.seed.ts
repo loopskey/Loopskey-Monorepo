@@ -1,77 +1,42 @@
 import { PrismaClient, ProfileTaxonomyKind } from "@prisma/client";
 
-export type TProfileTaxonomySeedTerm = {
+import { ROLE_SKILL_GROUP_MAPPING } from "./profile-taxonomy-mapping";
+import { ROLE_SKILL_MAPPING_VERSION } from "./profile-taxonomy-mapping";
+import { toTaxonomyKey } from "./profile-taxonomy-import";
+import { type TCatalogGroup } from "./profile-taxonomy-import";
+import { type TProfileTaxonomyCatalog } from "./profile-taxonomy-import";
+
+import catalogue from "./data/profile-taxonomy.catalog.json";
+
+export type TProfileTaxonomySeedGroup = {
   id: string;
+  kind: ProfileTaxonomyKind;
   key: string;
   label: string;
-  groupKey: string;
   sortOrder: number;
-  groupLabel: string;
-  kind: ProfileTaxonomyKind;
 };
 
-const skillAreas: [string, string, string[]][] = [
-  [
-    "TECHNOLOGY",
-    "Technology",
-    [
-      "Software Engineering",
-      "Data & Analytics",
-      "Cloud & Infrastructure",
-      "Cybersecurity",
-      "Artificial Intelligence",
-      "Quality & Testing",
-    ],
-  ],
-  [
-    "LEADERSHIP",
-    "Leadership",
-    [
-      "Leadership",
-      "Team Leadership",
-      "Coaching & Mentoring",
-      "Change Management",
-      "Conflict Resolution",
-    ],
-  ],
-  [
-    "BUSINESS",
-    "Business",
-    [
-      "Project Management",
-      "Risk Management",
-      "Product Management",
-      "Business Strategy",
-      "Finance & Accounting",
-      "Operations",
-      "Agile Delivery",
-      "Budgeting & Cost Control",
-      "Scheduling",
-    ],
-  ],
-  [
-    "COMMUNICATION",
-    "Communication",
-    [
-      "Presentation Skills",
-      "Technical Writing",
-      "Negotiation",
-      "Facilitation",
-      "Stakeholder Communication",
-    ],
-  ],
-  [
-    "COMPLIANCE",
-    "Compliance & Ethics",
-    [
-      "Regulatory Compliance",
-      "Health & Safety",
-      "Privacy & Data Protection",
-      "Professional Ethics",
-    ],
-  ],
-  ["DESIGN", "Design", ["UX Research", "UI Design", "Design Thinking"]],
-];
+export type TProfileTaxonomySeedTerm = {
+  id: string;
+  kind: ProfileTaxonomyKind;
+  key: string;
+  label: string;
+  groupId: string;
+  sortOrder: number;
+};
+
+export type TProfileTaxonomySeedMapping = {
+  id: string;
+  roleGroupId: string;
+  skillGroupId: string;
+  priority: number;
+  version: number;
+};
+
+export const PROFILE_TAXONOMY_CATALOG =
+  catalogue as unknown as TProfileTaxonomyCatalog;
+
+const LEGACY_GROUP_STRIDE = 100;
 
 const subjects: [string, string, string[]][] = [
   [
@@ -117,89 +82,198 @@ const subjects: [string, string, string[]][] = [
   ["EDUCATION", "Education", ["Instructional Design", "Adult Learning"]],
 ];
 
-// Role suggestions for the professional onboarding wizard. Roles live in the
-// same taxonomy as skills and subjects rather than in a catalogue of their own;
-// `ProfessionalProfile.currentRole` remains the stored value, so a professional
-// can still type a title that is not listed here.
-const roles: [string, string, string[]][] = [
-  [
-    "COMMON",
-    "Common roles",
-    [
-      "Project Manager",
-      "Product Manager",
-      "Software Engineer",
-      "Data Analyst",
-      "Business Analyst",
-      "Accountant",
-      "Financial Analyst",
-      "HR Manager",
-      "Marketing Manager",
-      "UX Designer",
-      "Nurse",
-      "Civil Engineer",
-      "Consultant",
-      "Teacher",
-      "IT Security Analyst",
-      "Operations Manager",
-    ],
-  ],
-];
-
-const toKey = (label: string) =>
-  label
-    .toUpperCase()
-    .replace(/[^A-Z0-9]+/g, "_")
-    .replace(/^_+|_+$/g, "");
-
-const TERM_ID_PREFIX: Record<ProfileTaxonomyKind, string> = {
+const ID_PREFIX: Record<ProfileTaxonomyKind, string> = {
   [ProfileTaxonomyKind.SKILL_AREA]: "skill",
   [ProfileTaxonomyKind.SUBJECT]: "subject",
   [ProfileTaxonomyKind.ROLE]: "role",
 };
 
-const buildTerms = (
+export const taxonomyGroupId = (kind: ProfileTaxonomyKind, key: string) =>
+  `ptg_${ID_PREFIX[kind]}_${key.toLowerCase()}`;
+
+export const taxonomyTermId = (kind: ProfileTaxonomyKind, key: string) =>
+  `pt_${ID_PREFIX[kind]}_${key.toLowerCase()}`;
+
+const fromCatalogue = (
+  kind: ProfileTaxonomyKind,
+  groups: readonly TCatalogGroup[],
+) => ({
+  groups: groups.map((group) => ({
+    id: taxonomyGroupId(kind, group.key),
+    kind,
+    key: group.key,
+    label: group.label,
+    sortOrder: group.sortOrder,
+  })),
+  terms: groups.flatMap((group) =>
+    group.terms.map((term) => ({
+      id: taxonomyTermId(kind, term.key),
+      kind,
+      key: term.key,
+      label: term.label,
+      groupId: taxonomyGroupId(kind, group.key),
+      sortOrder: term.sortOrder,
+    })),
+  ),
+});
+
+const fromLegacyLists = (
   kind: ProfileTaxonomyKind,
   groups: [string, string, string[]][],
-): TProfileTaxonomySeedTerm[] => {
-  const prefix = TERM_ID_PREFIX[kind];
-  const terms: TProfileTaxonomySeedTerm[] = [];
-  groups.forEach(([groupKey, groupLabel, labels], groupIndex) => {
-    labels.forEach((label, index) => {
-      const key = toKey(label);
-      terms.push({
-        id: `pt_${prefix}_${key.toLowerCase()}`,
+) => ({
+  groups: groups.map(([key, label], index) => ({
+    id: taxonomyGroupId(kind, key),
+    kind,
+    key,
+    label,
+    sortOrder: index,
+  })),
+  terms: groups.flatMap(([groupKey, , labels], groupIndex) =>
+    labels.map((label, index) => {
+      const key = toTaxonomyKey(label);
+      return {
+        id: taxonomyTermId(kind, key),
         kind,
         key,
         label,
-        groupKey,
-        groupLabel,
-        sortOrder: groupIndex * 100 + index,
-      });
-    });
-  });
-  return terms;
+        groupId: taxonomyGroupId(kind, groupKey),
+        sortOrder: groupIndex * LEGACY_GROUP_STRIDE + index,
+      };
+    }),
+  ),
+});
+
+export const buildRoleSkillMappings = (): TProfileTaxonomySeedMapping[] =>
+  Object.entries(ROLE_SKILL_GROUP_MAPPING).flatMap(([roleKey, skillKeys]) =>
+    skillKeys.map((skillKey, priority) => ({
+      id: `ptm_${roleKey.toLowerCase()}__${skillKey.toLowerCase()}`,
+      roleGroupId: taxonomyGroupId(ProfileTaxonomyKind.ROLE, roleKey),
+      skillGroupId: taxonomyGroupId(ProfileTaxonomyKind.SKILL_AREA, skillKey),
+      priority,
+      version: ROLE_SKILL_MAPPING_VERSION,
+    })),
+  );
+
+export const buildProfileTaxonomySeed = () => {
+  const parts = [
+    fromCatalogue(ProfileTaxonomyKind.ROLE, PROFILE_TAXONOMY_CATALOG.roles),
+    fromCatalogue(
+      ProfileTaxonomyKind.SKILL_AREA,
+      PROFILE_TAXONOMY_CATALOG.skills,
+    ),
+    fromLegacyLists(ProfileTaxonomyKind.SUBJECT, subjects),
+  ];
+  return {
+    groups: parts.flatMap((part) => part.groups),
+    terms: parts.flatMap((part) => part.terms),
+    mappings: buildRoleSkillMappings(),
+  };
 };
 
-export const PROFILE_TAXONOMY_TERMS: TProfileTaxonomySeedTerm[] = [
-  ...buildTerms(ProfileTaxonomyKind.SKILL_AREA, skillAreas),
-  ...buildTerms(ProfileTaxonomyKind.SUBJECT, subjects),
-  ...buildTerms(ProfileTaxonomyKind.ROLE, roles),
+const CATALOGUE_KINDS = [
+  ProfileTaxonomyKind.ROLE,
+  ProfileTaxonomyKind.SKILL_AREA,
 ];
 
 export const seedProfileTaxonomy = async (prisma: PrismaClient) => {
-  for (const term of PROFILE_TAXONOMY_TERMS) {
+  const { groups, terms, mappings } = buildProfileTaxonomySeed();
+
+  for (const group of groups)
+    await prisma.profileTaxonomyGroup.upsert({
+      where: { kind_key: { kind: group.kind, key: group.key } },
+      create: group,
+      update: {
+        label: group.label,
+        sortOrder: group.sortOrder,
+        isActive: true,
+      },
+    });
+
+  const groupIds = new Map(
+    (
+      await prisma.profileTaxonomyGroup.findMany({
+        select: { id: true, kind: true, key: true },
+      })
+    ).map((group) => [`${group.kind}:${group.key}`, group.id]),
+  );
+  const groupIdOf = (seedGroupId: string) => {
+    const group = groups.find((one) => one.id === seedGroupId);
+    const id = group ? groupIds.get(`${group.kind}:${group.key}`) : undefined;
+    if (!id) throw new Error(`Taxonomy group ${seedGroupId} was not seeded.`);
+    return id;
+  };
+
+  for (const term of terms) {
+    const groupId = groupIdOf(term.groupId);
     await prisma.profileTaxonomyTerm.upsert({
       where: { kind_key: { kind: term.kind, key: term.key } },
-      create: term,
+      create: { ...term, groupId },
       update: {
         label: term.label,
-        groupKey: term.groupKey,
-        groupLabel: term.groupLabel,
+        groupId,
         sortOrder: term.sortOrder,
         isActive: true,
       },
     });
   }
-  return PROFILE_TAXONOMY_TERMS.length;
+
+  for (const kind of CATALOGUE_KINDS) {
+    await prisma.profileTaxonomyTerm.updateMany({
+      where: {
+        kind,
+        isActive: true,
+        key: {
+          notIn: terms
+            .filter((term) => term.kind === kind)
+            .map((term) => term.key),
+        },
+      },
+      data: { isActive: false },
+    });
+    await prisma.profileTaxonomyGroup.updateMany({
+      where: {
+        kind,
+        isActive: true,
+        key: {
+          notIn: groups
+            .filter((group) => group.kind === kind)
+            .map((group) => group.key),
+        },
+      },
+      data: { isActive: false },
+    });
+  }
+
+  const seededMappings = new Set<string>();
+  for (const mapping of mappings) {
+    const roleGroupId = groupIdOf(mapping.roleGroupId);
+    const skillGroupId = groupIdOf(mapping.skillGroupId);
+    seededMappings.add(`${roleGroupId}:${skillGroupId}`);
+    await prisma.profileTaxonomyGroupMapping.upsert({
+      where: { roleGroupId_skillGroupId: { roleGroupId, skillGroupId } },
+      create: { ...mapping, roleGroupId, skillGroupId },
+      update: {
+        priority: mapping.priority,
+        version: mapping.version,
+        isActive: true,
+      },
+    });
+  }
+
+  const staleMappings = (
+    await prisma.profileTaxonomyGroupMapping.findMany({
+      where: { isActive: true },
+      select: { id: true, roleGroupId: true, skillGroupId: true },
+    })
+  ).filter(
+    (mapping) =>
+      !seededMappings.has(`${mapping.roleGroupId}:${mapping.skillGroupId}`),
+  );
+  if (staleMappings.length)
+    await prisma.profileTaxonomyGroupMapping.updateMany({
+      where: { id: { in: staleMappings.map((mapping) => mapping.id) } },
+      data: { isActive: false },
+    });
+
+  return terms.length;
 };
