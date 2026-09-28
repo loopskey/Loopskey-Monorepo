@@ -5927,6 +5927,7 @@
         "create": "New requirement",
         "open": "Open",
         "continueDraft": "Continue draft",
+        "delete": "Delete draft",
         "archive": "Archive",
         "publish": "Publish requirement",
         "assign": "Assign members",
@@ -6027,7 +6028,9 @@
         "covered": "Members covered",
         "actions": "Actions",
         "viewFor": "View {{name}}",
-        "editFor": "Edit {{name}}"
+        "editFor": "Edit {{name}}",
+        "deleteFor": "Delete draft {{name}}",
+        "archiveFor": "Archive {{name}}"
       },
       "fields": {
         "name": "Name",
@@ -6175,6 +6178,9 @@
       },
       "confirm": {
         "cancel": "Cancel",
+        "deleteTitle": "Permanently delete this draft?",
+        "deleteBody": "{{name}} will be permanently deleted. This cannot be undone.",
+        "deleteConfirm": "Delete draft",
         "archiveTitle": "Archive this requirement?",
         "archiveBody": "{{name}} stops applying to members. Recorded progress is kept.",
         "archiveConfirm": "Archive"
@@ -6184,12 +6190,15 @@
         "savedDraft": "Saved as a draft.",
         "rulesSaved": "Rule saved.",
         "published": "Requirement published.",
+        "deleted": "Draft requirement deleted.",
         "archived": "Requirement archived.",
         "assigned": "{{added}} members added."
       },
       "errors": {
         "membersRequired": "Choose at least one member.",
-        "groupsRequired": "Choose at least one group."
+        "groupsRequired": "Choose at least one group.",
+        "notDeletable": "This draft has assignment or compliance history and cannot be deleted. Archive it instead.",
+        "statusConflict": "This requirement changed before it could be deleted. Refresh and try again."
       },
       "error": {
         "title": "We could not load your requirements",

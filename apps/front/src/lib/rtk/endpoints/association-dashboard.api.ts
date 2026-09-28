@@ -915,6 +915,35 @@ export const associationApi = baseApi.injectEndpoints({
       invalidatesTags: [
         "AssociationRequirements",
         "AssociationRequirementStats",
+        "AssociationMembers",
+        "AssociationMemberStats",
+        "AssociationMemberProfile",
+        "AssociationReports",
+        "AssociationAttention",
+        "AssociationLearningContent",
+      ],
+    }),
+
+    deleteAssociationRequirement: builder.mutation<
+      TAPI.DeleteAssociationRequirementMutation["deleteAssociationRequirement"],
+      TAPI.DeleteAssociationRequirementMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.DeleteAssociationRequirementDocument,
+        variables: { input },
+      }),
+      transformResponse: (
+        response: TAPI.DeleteAssociationRequirementMutation,
+      ) => response.deleteAssociationRequirement,
+      invalidatesTags: [
+        "AssociationRequirements",
+        "AssociationRequirementStats",
+        "AssociationMembers",
+        "AssociationMemberStats",
+        "AssociationMemberProfile",
+        "AssociationReports",
+        "AssociationAttention",
+        "AssociationLearningContent",
       ],
     }),
 
@@ -997,5 +1026,6 @@ export const {
   useUpdateAssociationRequirementAudienceMutation,
   usePublishAssociationRequirementMutation,
   useArchiveAssociationRequirementMutation,
+  useDeleteAssociationRequirementMutation,
   useSubmitAssociationAccessRequestMutation,
 } = associationApi;
