@@ -15,6 +15,8 @@ import type { ConcurrencyApp } from "../setup/concurrency";
 
 const scope = suiteScope("professional-taxonomy");
 
+const RETIRED_KEY_PREFIX = "E2E_TAXONOMY_RETIRED_";
+
 jest.setTimeout(60_000);
 
 describe("Professional role and skill taxonomy (e2e)", () => {
@@ -23,6 +25,7 @@ describe("Professional role and skill taxonomy (e2e)", () => {
   let onboarding: ProfessionalOnboardingService;
   let profiles: ProfessionalProfileService;
   let user: { id: string; role: Role };
+  let retiredSkillId: string;
 
   const professionalUser = async (label: string) => {
     const created = await ctx.prisma.user.create({
@@ -35,6 +38,11 @@ describe("Professional role and skill taxonomy (e2e)", () => {
     });
     return { id: created.id, role: Role.PROFESSIONAL };
   };
+
+  const removeRetiredFixtures = () =>
+    ctx.prisma.profileTaxonomyTerm.deleteMany({
+      where: { key: { startsWith: RETIRED_KEY_PREFIX } },
+    });
 
   const termId = async (kind: ProfileTaxonomyKind, label: string) =>
     (
@@ -50,11 +58,34 @@ describe("Professional role and skill taxonomy (e2e)", () => {
     onboarding = ctx.app.get(ProfessionalOnboardingService);
     profiles = ctx.app.get(ProfessionalProfileService);
     await scope.cleanup(ctx.prisma);
+    await removeRetiredFixtures();
     user = await professionalUser("owner");
+
+    const group = await ctx.prisma.profileTaxonomyGroup.findFirstOrThrow({
+      where: { kind: ProfileTaxonomyKind.SKILL_AREA, isActive: true },
+      orderBy: { sortOrder: "asc" },
+      select: { id: true },
+    });
+    const suffix = Date.now().toString(36).toUpperCase();
+    retiredSkillId = (
+      await ctx.prisma.profileTaxonomyTerm.create({
+        data: {
+          id: `pt_skill_e2e_retired_${suffix.toLowerCase()}`,
+          kind: ProfileTaxonomyKind.SKILL_AREA,
+          key: `${RETIRED_KEY_PREFIX}${suffix}`,
+          label: `Retired E2E Skill ${suffix}`,
+          groupId: group.id,
+          isActive: false,
+        },
+      })
+    ).id;
   }, 120_000);
 
   afterAll(async () => {
-    if (ctx?.prisma) await scope.cleanup(ctx.prisma);
+    if (ctx?.prisma) {
+      await scope.cleanup(ctx.prisma);
+      await removeRetiredFixtures();
+    }
     await ctx?.app?.close();
   }, 60_000);
 
@@ -140,10 +171,10 @@ describe("Professional role and skill taxonomy (e2e)", () => {
 
       const retired = await taxonomy.terms(user, {
         kind: ProfileTaxonomyKind.SKILL_AREA,
-        search: "Agile Delivery",
+        search: "Retired E2E Skill",
       });
       expect(retired.items.map((item) => item.id)).not.toContain(
-        "pt_skill_agile_delivery",
+        retiredSkillId,
       );
     });
 
@@ -154,13 +185,8 @@ describe("Professional role and skill taxonomy (e2e)", () => {
     });
 
     it("still hydrates a saved term that has since been retired", async () => {
-      const [hydrated] = await taxonomy.termsByIds(user, [
-        "pt_skill_agile_delivery",
-      ]);
-      expect(hydrated).toMatchObject({
-        id: "pt_skill_agile_delivery",
-        isActive: false,
-      });
+      const [hydrated] = await taxonomy.termsByIds(user, [retiredSkillId]);
+      expect(hydrated).toMatchObject({ id: retiredSkillId, isActive: false });
     });
   });
 
@@ -323,7 +349,7 @@ describe("Professional role and skill taxonomy (e2e)", () => {
       for (const skillsToImproveIds of [
         skills.map((skill) => skill.id),
         [skills[0].id, roleId],
-        [skills[0].id, "pt_skill_agile_delivery"],
+        [skills[0].id, retiredSkillId],
       ])
         await expect(
           onboarding.complete(member, { ...base, skillsToImproveIds }),
