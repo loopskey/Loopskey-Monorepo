@@ -5,7 +5,7 @@
 - Model: `High reasoning — taxonomy data migration with backfill, indexed search, new GraphQL contract and three consumers (onboarding, profile, roadmap).`
 - Branch: `feature/professional-role-skill-taxonomy`
 - Base: `295bcb8ebaafd7031cab8654f8845369d7bd82e7`
-- Status: `Ready`
+- Status: `Submitted`
 
 ## Acceptance
 
@@ -49,6 +49,6 @@
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: `62205b5` feature, `b355913` e2e fixture fix (the first CI run failed: the suite depended on a legacy skill that fresh databases do not have)
+- PR: [#242](https://github.com/loopskey/Loopskey-Monorepo/pull/242)
+- CI: pending on the metadata commit
