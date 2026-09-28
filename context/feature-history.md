@@ -115,3 +115,4 @@ into this index and do not rewrite previous records.
 - [`professional-role-skill-taxonomy`](feature-runs/active/professional-role-skill-taxonomy.md) — PR [#242](https://github.com/loopskey/Loopskey-Monorepo/pull/242)
 - [`roadmap-coach-readiness-alignment`](feature-runs/active/roadmap-coach-readiness-alignment.md) — PR [#245](https://github.com/loopskey/Loopskey-Monorepo/pull/245)
 - [`requirement-delete-lifecycle`](feature-runs/active/requirement-delete-lifecycle.md) — PR [#246](https://github.com/loopskey/Loopskey-Monorepo/pull/246)
+- [`roadmap-generation-status-visibility`](feature-runs/active/roadmap-generation-status-visibility.md) — PR [#248](https://github.com/loopskey/Loopskey-Monorepo/pull/248)
