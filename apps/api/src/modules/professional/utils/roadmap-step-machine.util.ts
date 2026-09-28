@@ -107,20 +107,5 @@ export const draftCompletionSummary = (context: StepContext) => {
   };
 };
 
-export const isDraftComplete = (draft: RoadmapDraftFields): boolean => {
-  const base =
-    filled(draft.goal) &&
-    draft.targetDate !== null &&
-    draft.skillLevel !== null &&
-    draft.timeCommitment !== null &&
-    draft.budgetPreference !== null &&
-    draft.subjects.length > 0 &&
-    draft.preferredFormats.length > 0 &&
-    draft.preferredDeliveryFormats.length > 0;
-  if (!base) return false;
-  if (!draft.cpdEnabled) return true;
-  return (
-    (draft.certificationId !== null || filled(draft.certificationName)) &&
-    draft.requiredCredits !== null
-  );
-};
+export const isDraftReady = (context: StepContext): boolean =>
+  nextStep(context) === RoadmapDraftStep.REVIEW;
