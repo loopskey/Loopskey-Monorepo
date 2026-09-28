@@ -2598,6 +2598,7 @@ type Mutation {
   deactivateIngestionSource(sourceId: String!): IngestionSource!
   deleteAdminUser(userId: String!): Boolean!
   deleteAssociationLearningContent(input: AssociationLearningContentIdInput!): AssociationActionResponse!
+  deleteAssociationRequirement(input: AssociationRequirementIdInput!): AssociationActionResponse!
   deleteCalendarEvent(id: ID!): ProfessionalActionResponse!
   deleteContentReview(input: ContentActionInput!): ContentActionPayload!
   deleteCourse(courseId: String!): Course!

@@ -44,6 +44,7 @@ export const AssociationRequirementDetail = ({
     requirement,
     detailsForm,
     setAssignOpen,
+    deleteRequirement,
     archiveRequirement,
     submitPublishedEdits,
   } = hook;
@@ -210,7 +211,34 @@ export const AssociationRequirementDetail = ({
               {t("associationDashboard.requirements.actions.assign")}
             </Button>
 
-            {requirement.status !== AssociationRequirementStatus.Archived && (
+            {requirement.status === AssociationRequirementStatus.Draft && (
+              <ConfirmDialog
+                isLoading={isSaving}
+                confirmVariant="destructive"
+                title={t(
+                  "associationDashboard.requirements.confirm.deleteTitle",
+                )}
+                cancelText={t(
+                  "associationDashboard.requirements.confirm.cancel",
+                )}
+                confirmText={t(
+                  "associationDashboard.requirements.confirm.deleteConfirm",
+                )}
+                description={t(
+                  "associationDashboard.requirements.confirm.deleteBody",
+                  { name: requirement.name },
+                )}
+                onConfirm={() => deleteRequirement(requirement.id)}
+                trigger={
+                  <Button radius="xl" type="button" variant="outline">
+                    <L.Trash2 className="h-4 w-4" />
+                    {t("associationDashboard.requirements.actions.delete")}
+                  </Button>
+                }
+              />
+            )}
+
+            {requirement.status === AssociationRequirementStatus.Published && (
               <ConfirmDialog
                 isLoading={isSaving}
                 confirmVariant="destructive"

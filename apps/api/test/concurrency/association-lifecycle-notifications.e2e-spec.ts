@@ -1,5 +1,6 @@
 import { AssociationLearningContentRecipientService } from "@association/services/association-learning-content-recipient.service";
 import { AssociationRequirementAssignmentService } from "@association/services/association-requirement-assignment.service";
+import { AssociationRequirementService } from "@association/services/association-requirement.service";
 import { AssociationLifecycleMessageHandler } from "@association/application/association-lifecycle-message.handler";
 import { AssociationMemberInvitationService } from "@association/services/association-member-invitation.service";
 import { AssociationLearningContentService } from "@association/services/association-learning-content.service";
@@ -48,6 +49,7 @@ describe("Association lifecycle notifications (concurrency e2e)", () => {
   let members: AssociationMemberService;
   let invitations: AssociationMemberInvitationService;
   let assignments: AssociationRequirementAssignmentService;
+  let requirements: AssociationRequirementService;
   let learning: AssociationLearningContentService;
   let learningRecipients: AssociationLearningContentRecipientService;
   let messages: AssociationMessageService;
@@ -200,6 +202,7 @@ describe("Association lifecycle notifications (concurrency e2e)", () => {
     members = app.get(AssociationMemberService);
     invitations = app.get(AssociationMemberInvitationService);
     assignments = app.get(AssociationRequirementAssignmentService);
+    requirements = app.get(AssociationRequirementService);
     learning = app.get(AssociationLearningContentService);
     learningRecipients = app.get(AssociationLearningContentRecipientService);
     messages = app.get(AssociationMessageService);
@@ -539,6 +542,32 @@ describe("Association lifecycle notifications (concurrency e2e)", () => {
   });
 
   describe("requirement targeting", () => {
+    it("allows only publish or delete to win for the same draft", async () => {
+      const requirementId = await addRequirement(
+        "requirement-publish-delete-race",
+        AssociationAudienceKind.ALL_MEMBERS,
+        undefined,
+        AssociationRequirementStatus.DRAFT,
+      );
+
+      const results = await runTogether<void>(2, (index) =>
+        index === 0
+          ? requirements.publish(owner(), requirementId).then(() => undefined)
+          : requirements.remove(owner(), requirementId),
+      );
+
+      expect(fulfilled(results)).toHaveLength(1);
+
+      const final = await prisma.associationRequirement.findUnique({
+        where: { id: requirementId },
+        select: { status: true },
+      });
+      expect(
+        final === null ||
+          final.status === AssociationRequirementStatus.PUBLISHED,
+      ).toBe(true);
+    });
+
     it("announces each member once when the same requirement is materialised simultaneously", async () => {
       const first = await linkActive("materialise-one");
       const second = await linkActive("materialise-two");

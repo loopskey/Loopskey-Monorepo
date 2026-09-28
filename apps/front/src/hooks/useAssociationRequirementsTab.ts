@@ -120,6 +120,7 @@ export const useAssociationRequirementsTab = () => {
     API.usePublishAssociationRequirementMutation();
   const [archive, archiveState] =
     API.useArchiveAssociationRequirementMutation();
+  const [remove, removeState] = API.useDeleteAssociationRequirementMutation();
 
   const requirement = requirementQuery.data ?? null;
   const requirements = useMemo(
@@ -459,6 +460,19 @@ export const useAssociationRequirementsTab = () => {
     }
   };
 
+  const deleteRequirement = async (targetId: string) => {
+    try {
+      await remove({ requirementId: targetId }).unwrap();
+      notify.success(t("associationDashboard.requirements.messages.deleted"));
+
+      if (requirementId === targetId) goTo(null);
+      else if (requirements.length === 1 && cursorStack.length > 0)
+        setCursorStack((previous) => previous.slice(0, -1));
+    } catch (error) {
+      failWith(error);
+    }
+  };
+
   const submitAudience = detailsForm.handleSubmit(async (values) => {
     if (!requirementId) return;
 
@@ -519,7 +533,8 @@ export const useAssociationRequirementsTab = () => {
     saveEvidenceState.isLoading ||
     saveReportingState.isLoading ||
     publishState.isLoading ||
-    archiveState.isLoading;
+    archiveState.isLoading ||
+    removeState.isLoading;
 
   return {
     t,
@@ -559,6 +574,7 @@ export const useAssociationRequirementsTab = () => {
     saveDetailsAsDraft,
     exitToList: () => goTo(null),
     archiveRequirement,
+    deleteRequirement,
     publishRequirement,
     applyStatCard,
     requirementId,

@@ -6,6 +6,7 @@ import { TAssociationRequirementRow } from "@/types/association-dashboard.types"
 import { Skeleton } from "@ui/skeleton";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
+import { ConfirmDialog } from "@elements/confirm-dialog";
 
 import * as L from "lucide-react";
 
@@ -27,7 +28,16 @@ const statusVariant = (status: AssociationRequirementStatus) => {
 export const AssociationRequirementsTable = ({
   hook,
 }: TAssociationRequirementsTable) => {
-  const { t, goTo, locale, isSaving, isRefetching, requirements } = hook;
+  const {
+    t,
+    goTo,
+    locale,
+    isSaving,
+    isRefetching,
+    requirements,
+    deleteRequirement,
+    archiveRequirement,
+  } = hook;
 
   const formatDate = (value: string | null | undefined) =>
     value ? new Date(value).toLocaleDateString(locale) : "-";
@@ -123,6 +133,70 @@ export const AssociationRequirementsTable = ({
         >
           <L.PencilLine className="h-4 w-4" />
         </Button>
+
+        {isDraft && (
+          <ConfirmDialog
+            isLoading={isSaving}
+            confirmVariant="destructive"
+            title={t("associationDashboard.requirements.confirm.deleteTitle")}
+            cancelText={t("associationDashboard.requirements.confirm.cancel")}
+            confirmText={t(
+              "associationDashboard.requirements.confirm.deleteConfirm",
+            )}
+            description={t(
+              "associationDashboard.requirements.confirm.deleteBody",
+              { name: requirement.name },
+            )}
+            onConfirm={() => deleteRequirement(requirement.id)}
+            trigger={
+              <Button
+                size="icon"
+                radius="xl"
+                type="button"
+                variant="outline"
+                disabled={isSaving}
+                aria-label={t(
+                  "associationDashboard.requirements.table.deleteFor",
+                  { name: requirement.name },
+                )}
+              >
+                <L.Trash2 className="h-4 w-4" />
+              </Button>
+            }
+          />
+        )}
+
+        {requirement.status === AssociationRequirementStatus.Published && (
+          <ConfirmDialog
+            isLoading={isSaving}
+            confirmVariant="destructive"
+            title={t("associationDashboard.requirements.confirm.archiveTitle")}
+            cancelText={t("associationDashboard.requirements.confirm.cancel")}
+            confirmText={t(
+              "associationDashboard.requirements.confirm.archiveConfirm",
+            )}
+            description={t(
+              "associationDashboard.requirements.confirm.archiveBody",
+              { name: requirement.name },
+            )}
+            onConfirm={() => archiveRequirement(requirement.id)}
+            trigger={
+              <Button
+                size="icon"
+                radius="xl"
+                type="button"
+                variant="outline"
+                disabled={isSaving}
+                aria-label={t(
+                  "associationDashboard.requirements.table.archiveFor",
+                  { name: requirement.name },
+                )}
+              >
+                <L.Archive className="h-4 w-4" />
+              </Button>
+            }
+          />
+        )}
       </div>
     );
   };
