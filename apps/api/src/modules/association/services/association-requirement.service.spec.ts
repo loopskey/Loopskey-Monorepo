@@ -48,7 +48,15 @@ const requirementRow = (over: Record<string, unknown> = {}) => ({
 });
 
 const setup = (
-  over: { current?: Record<string, unknown>; publishCount?: number } = {},
+  over: {
+    current?: Record<string, unknown>;
+    publishCount?: number;
+    assignmentCount?: number;
+    learningContentCount?: number;
+    hasRecordedActivity?: boolean;
+    locked?: { id: string; status: AssociationRequirementStatus }[];
+    deleteCount?: number;
+  } = {},
 ) => {
   const row = requirementRow(over.current);
 
@@ -59,6 +67,13 @@ const setup = (
         .mockResolvedValue({ count: over.publishCount ?? 1 }),
       update: jest.fn().mockResolvedValue(row),
       findUniqueOrThrow: jest.fn().mockResolvedValue(row),
+      deleteMany: jest.fn().mockResolvedValue({ count: over.deleteCount ?? 1 }),
+    },
+    associationRequirementAssignment: {
+      count: jest.fn().mockResolvedValue(over.assignmentCount ?? 0),
+    },
+    associationLearningContent: {
+      count: jest.fn().mockResolvedValue(over.learningContentCount ?? 0),
     },
     associationRequirementCategory: {
       deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
@@ -69,6 +84,13 @@ const setup = (
       createMany: jest.fn().mockResolvedValue({ count: 0 }),
     },
     outboxEvent: { create: jest.fn().mockResolvedValue({ id: "event-1" }) },
+    $queryRaw: jest
+      .fn()
+      .mockResolvedValue(
+        over.locked ?? [
+          { id: "req-1", status: AssociationRequirementStatus.DRAFT },
+        ],
+      ),
   };
 
   const prisma = {
@@ -98,6 +120,10 @@ const setup = (
       retargeted: 0,
     }),
     membersCovered: jest.fn().mockResolvedValue(0),
+    hasRecordedActivity: jest
+      .fn()
+      .mockResolvedValue(over.hasRecordedActivity ?? false),
+    retire: jest.fn().mockResolvedValue(undefined),
   };
 
   const compliance = {
@@ -363,19 +389,76 @@ describe("AssociationRequirementService audience", () => {
 
 describe("AssociationRequirementService archive", () => {
   it("stops reminders and refuses a second archive", async () => {
-    const { service, prisma } = setup();
+    const { service, tx, assignments } = setup();
 
     await service.archive(owner, "req-1");
 
-    expect(prisma.associationRequirement.updateMany).toHaveBeenCalledWith(
+    expect(tx.associationRequirement.updateMany).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ remindersEnabled: false }),
       }),
     );
+    expect(assignments.retire).toHaveBeenCalledWith(tx, "req-1");
 
-    prisma.associationRequirement.updateMany.mockResolvedValue({ count: 0 });
+    tx.associationRequirement.updateMany.mockResolvedValue({ count: 0 });
     await expect(service.archive(owner, "req-1")).rejects.toMatchObject({
       response: { code: AssociationMessageCode.REQUIREMENT_ARCHIVED },
+    });
+  });
+});
+
+describe("AssociationRequirementService remove", () => {
+  it("permanently deletes an owned draft with no protected history", async () => {
+    const { service, tx, assignments } = setup();
+
+    await service.remove(owner, "req-1");
+
+    expect(tx.associationRequirement.deleteMany).toHaveBeenCalledWith({
+      where: {
+        id: "req-1",
+        associationId: association.id,
+        status: AssociationRequirementStatus.DRAFT,
+      },
+    });
+    expect(assignments.retire).toHaveBeenCalledWith(tx, "req-1");
+  });
+
+  it("does not reveal a requirement owned by another association", async () => {
+    const { service } = setup({ locked: [] });
+
+    await expect(service.remove(owner, "req-1")).rejects.toMatchObject({
+      response: { code: AssociationMessageCode.REQUIREMENT_NOT_FOUND },
+    });
+  });
+
+  it("requires published and archived requirements to use their lifecycle action", async () => {
+    const { service } = setup({
+      locked: [{ id: "req-1", status: AssociationRequirementStatus.PUBLISHED }],
+    });
+
+    await expect(service.remove(owner, "req-1")).rejects.toMatchObject({
+      response: { code: AssociationMessageCode.REQUIREMENT_STATUS_CONFLICT },
+    });
+  });
+
+  it.each([
+    { over: { assignmentCount: 1 }, label: "assignment" },
+    { over: { learningContentCount: 1 }, label: "learning content" },
+    { over: { hasRecordedActivity: true }, label: "professional activity" },
+  ])("preserves a draft with protected $label history", async ({ over }) => {
+    const { service, tx } = setup(over);
+
+    await expect(service.remove(owner, "req-1")).rejects.toMatchObject({
+      response: { code: AssociationMessageCode.REQUIREMENT_NOT_DELETABLE },
+    });
+    expect(tx.associationRequirement.deleteMany).not.toHaveBeenCalled();
+  });
+
+  it("rejects a stale conditional delete", async () => {
+    const { service } = setup({ deleteCount: 0 });
+
+    await expect(service.remove(owner, "req-1")).rejects.toMatchObject({
+      response: { code: AssociationMessageCode.REQUIREMENT_STATUS_CONFLICT },
     });
   });
 });

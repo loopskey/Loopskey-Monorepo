@@ -5,6 +5,8 @@ import { RoadmapDraftFieldKey, RoadmapDraftStatus } from "@/lib/graphql/base";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ROADMAP_MESSAGE_MAX_LENGTH } from "@/utils/roadmap-chat.constant";
 import { ROADMAP_COUNTER_THRESHOLD } from "@/utils/roadmap-chat.constant";
+import { matchTypedWidgetAnswer } from "@/utils/roadmap-widget-match.util";
+import { resolveWidgetOptions } from "@/utils/roadmap-widget-options.util";
 import { ROADMAP_BUSY_CODE } from "@/utils/roadmap-chat.constant";
 import { roadmapChatApi } from "@/lib/rtk/endpoints/roadmap-chat.api";
 import { useDispatch } from "react-redux";
@@ -189,11 +191,6 @@ export const useRoadmapChat = () => {
     [draft, sendTurn, writeDraft],
   );
 
-  const send = useCallback(() => {
-    if (!canSend) return;
-    void submit(input);
-  }, [canSend, input, submit]);
-
   const answerWith = useCallback(
     (value: string) => {
       if (!draft || isSending || retryAfter > 0) return;
@@ -266,10 +263,7 @@ export const useRoadmapChat = () => {
       if (field === RoadmapDraftFieldKey.BudgetPreference)
         return void patch({ budgetPreference: value } as T.Patch, label);
       if (field === RoadmapDraftFieldKey.Subjects)
-        return void patch(
-          { subjects: splitMulti(value) } as T.Patch,
-          label,
-        );
+        return void patch({ subjects: splitMulti(value) } as T.Patch, label);
       if (field === RoadmapDraftFieldKey.PreferredFormats)
         return void patch(
           { preferredFormats: splitMulti(value) } as T.Patch,
@@ -291,6 +285,21 @@ export const useRoadmapChat = () => {
       retryAfter,
     ],
   );
+
+  const send = useCallback(() => {
+    if (!canSend) return;
+    const widget = draft?.widget;
+    if (widget) {
+      const options = resolveWidgetOptions(widget, t);
+      const match = matchTypedWidgetAnswer(input, widget, options);
+      if (match) {
+        setInput("");
+        answerWidget(match.value, match.label);
+        return;
+      }
+    }
+    void submit(input);
+  }, [answerWidget, canSend, draft?.widget, input, submit, t]);
 
   const patchCpdSetup = useCallback(
     async (changes: Omit<PatchRoadmapCpdSetupInput, "draftId">) => {

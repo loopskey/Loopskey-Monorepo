@@ -14,7 +14,7 @@ import {
   STEP_ORDER,
   applicableSteps,
   draftCompletionSummary,
-  isDraftComplete,
+  isDraftReady,
   nextStep,
 } from "./roadmap-step-machine.util";
 
@@ -217,50 +217,77 @@ describe("roadmap step machine", () => {
   });
 });
 
-describe("roadmap draft completeness", () => {
-  it("is incomplete while a generation field is missing", () => {
-    expect(isDraftComplete(draft({ ...READY_TO_REVIEW, goal: null }))).toBe(
-      false,
-    );
-    expect(
-      isDraftComplete(draft({ ...READY_TO_REVIEW, targetDate: null })),
-    ).toBe(false);
-    expect(isDraftComplete(draft({ ...READY_TO_REVIEW, subjects: [] }))).toBe(
-      false,
-    );
-    expect(
-      isDraftComplete(draft({ ...READY_TO_REVIEW, preferredFormats: [] })),
-    ).toBe(false);
-    expect(
-      isDraftComplete(
-        draft({ ...READY_TO_REVIEW, preferredDeliveryFormats: [] }),
-      ),
-    ).toBe(false);
+describe("roadmap draft readiness", () => {
+  const ready = (
+    fields: Partial<RoadmapDraftFields>,
+    currentStep: RoadmapDraftStep,
+  ) => isDraftReady({ draft: draft(fields), currentStep });
+
+  it("is not ready on a fresh draft even before any question has been asked", () => {
+    expect(ready({}, RoadmapDraftStep.GOAL)).toBe(false);
   });
 
-  it("is complete without the prose steps, which colour the plan rather than gate it", () => {
-    expect(
-      isDraftComplete(
-        draft({ ...READY_TO_REVIEW, goalReason: null, context: null }),
-      ),
-    ).toBe(true);
+  it("is not ready on a profile-seeded draft whose base fields are already filled, until the interview itself reaches review", () => {
+    expect(ready(READY_TO_REVIEW, RoadmapDraftStep.GOAL)).toBe(false);
+    expect(ready(READY_TO_REVIEW, RoadmapDraftStep.PREFERENCES)).toBe(false);
   });
 
-  it("needs the certification requirements only when tracking is on", () => {
-    expect(isDraftComplete(draft(READY_TO_REVIEW))).toBe(true);
+  it("does not treat the persisted default cpdEnabled: false as an explicit answer before CPD tracking has been reached", () => {
+    expect(ready(READY_TO_REVIEW, RoadmapDraftStep.CPD_TRACKING)).toBe(false);
+  });
+
+  it("is ready once an explicit CPD No has advanced the interview past CPD tracking to review", () => {
+    expect(ready(READY_TO_REVIEW, RoadmapDraftStep.REVIEW)).toBe(true);
+  });
+
+  it("needs certification and credit collection before readiness once CPD tracking is explicitly on", () => {
     expect(
-      isDraftComplete(draft({ ...READY_TO_REVIEW, cpdEnabled: true })),
+      ready({ ...READY_TO_REVIEW, cpdEnabled: true }, RoadmapDraftStep.REVIEW),
     ).toBe(false);
     expect(
-      isDraftComplete(
-        draft({
+      ready(
+        {
           ...READY_TO_REVIEW,
           cpdEnabled: true,
           certificationName: "PMP",
           requiredCredits: 60,
-        }),
+        },
+        RoadmapDraftStep.REVIEW,
       ),
     ).toBe(true);
+  });
+
+  it("is ready without the prose steps, which colour the plan rather than gate it, once they have been passed", () => {
+    expect(
+      ready(
+        { ...READY_TO_REVIEW, goalReason: null, context: null },
+        RoadmapDraftStep.REVIEW,
+      ),
+    ).toBe(true);
+  });
+
+  it("regresses a stale review status when a required answer is cleared or invalidated afterward", () => {
+    expect(
+      ready({ ...READY_TO_REVIEW, goal: null }, RoadmapDraftStep.REVIEW),
+    ).toBe(false);
+    expect(
+      ready({ ...READY_TO_REVIEW, subjects: [] }, RoadmapDraftStep.REVIEW),
+    ).toBe(false);
+    expect(
+      ready(
+        { ...READY_TO_REVIEW, cpdEnabled: true, certificationName: null },
+        RoadmapDraftStep.REVIEW,
+      ),
+    ).toBe(false);
+  });
+
+  it("treats a legacy draft whose stored status predates this policy as not ready when its requirements are unmet", () => {
+    expect(
+      ready(
+        { ...READY_TO_REVIEW, preferredDeliveryFormats: [] },
+        RoadmapDraftStep.REVIEW,
+      ),
+    ).toBe(false);
   });
 });
 

@@ -201,6 +201,7 @@ export enum AssociationGqlMutationNames {
   UPDATE_REQUIREMENT_AUDIENCE = "updateAssociationRequirementAudience",
   PUBLISH_REQUIREMENT = "publishAssociationRequirement",
   ARCHIVE_REQUIREMENT = "archiveAssociationRequirement",
+  DELETE_REQUIREMENT = "deleteAssociationRequirement",
   REVIEW_LEARNING_ACTIVITY = "reviewAssociationLearningActivity",
   RECOMPUTE_COMPLIANCE = "recomputeAssociationCompliance",
   SET_MEMBER_REQUIREMENTS = "setAssociationMemberRequirements",

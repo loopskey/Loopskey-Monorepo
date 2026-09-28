@@ -2711,6 +2711,7 @@ export type Mutation = {
   deactivateIngestionSource: IngestionSource;
   deleteAdminUser: Scalars['Boolean']['output'];
   deleteAssociationLearningContent: AssociationActionResponse;
+  deleteAssociationRequirement: AssociationActionResponse;
   deleteCalendarEvent: ProfessionalActionResponse;
   deleteContentReview: ContentActionPayload;
   deleteCourse: Course;
@@ -3068,6 +3069,11 @@ export type MutationDeleteAdminUserArgs = {
 
 export type MutationDeleteAssociationLearningContentArgs = {
   input: AssociationLearningContentIdInput;
+};
+
+
+export type MutationDeleteAssociationRequirementArgs = {
+  input: AssociationRequirementIdInput;
 };
 
 

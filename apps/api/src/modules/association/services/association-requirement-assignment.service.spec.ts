@@ -34,6 +34,7 @@ const setup = (
   const tx = {
     associationRequirementAssignment: {
       upsert: jest.fn().mockResolvedValue({}),
+      updateMany: jest.fn().mockResolvedValue({ count: 2 }),
     },
     $queryRaw: jest.fn().mockResolvedValue([]),
   };
@@ -65,6 +66,8 @@ const setup = (
 
   const requirementDirectory = {
     syncAssignedRequirements: jest.fn().mockResolvedValue(undefined),
+    hasRecordedActivity: jest.fn().mockResolvedValue(false),
+    removeRequirementLinks: jest.fn().mockResolvedValue(2),
   };
 
   const notifications = {
@@ -373,5 +376,24 @@ describe("AssociationRequirementAssignmentService membersCovered", () => {
     expect(
       prisma.associationRequirementAssignment.findMany,
     ).toHaveBeenCalledWith(expect.objectContaining({ distinct: ["memberId"] }));
+  });
+});
+
+describe("AssociationRequirementAssignmentService retire", () => {
+  it("deactivates targeting and removes the professional projection atomically", async () => {
+    const { service, tx, requirementDirectory } = setup();
+
+    await service.retire(tx as never, "req-1");
+
+    expect(tx.associationRequirementAssignment.updateMany).toHaveBeenCalledWith(
+      {
+        where: { requirementId: "req-1", isTargeted: true },
+        data: { isTargeted: false, announcedAt: null },
+      },
+    );
+    expect(requirementDirectory.removeRequirementLinks).toHaveBeenCalledWith(
+      "req-1",
+      tx,
+    );
   });
 });

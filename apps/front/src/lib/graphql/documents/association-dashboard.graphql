@@ -817,7 +817,9 @@ fragment AssociationGeneratedReportFields on AssociationGeneratedReport {
   }
 }
 
-query AssociationGeneratedReports($pagination: AssociationReportPaginationInput) {
+query AssociationGeneratedReports(
+  $pagination: AssociationReportPaginationInput
+) {
   associationGeneratedReports(pagination: $pagination) {
     totalCount
     pageInfo {
@@ -1189,6 +1191,14 @@ mutation PublishAssociationRequirement($input: AssociationRequirementIdInput!) {
 mutation ArchiveAssociationRequirement($input: AssociationRequirementIdInput!) {
   archiveAssociationRequirement(input: $input) {
     ...AssociationRequirementFields
+  }
+}
+
+mutation DeleteAssociationRequirement($input: AssociationRequirementIdInput!) {
+  deleteAssociationRequirement(input: $input) {
+    code
+    success
+    message
   }
 }
 

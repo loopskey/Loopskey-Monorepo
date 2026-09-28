@@ -13,13 +13,13 @@ import { NO_CANDIDATES_REASON } from "@professional/utils/roadmap-generation-fai
 import { BadRequestException } from "@nestjs/common";
 import { SERVICE_AI_LIMITS } from "@infrastructure/service-ai/service-ai.port";
 import { SERVICE_AI_PORT } from "@infrastructure/service-ai/service-ai.port";
-import { isDraftComplete } from "@professional/utils/roadmap-step-machine.util";
 import { subjectLabelsOf } from "@professional/utils/roadmap-draft-merge.util";
-import { worstTier } from "@professional/utils/roadmap-relaxation.util";
 import { requestContext } from "@infrastructure/observability/request-context";
 import { OutboxDeferral } from "@infrastructure/outbox/outbox-handler.port";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { PrismaService } from "@prisma/prisma.service";
+import { isDraftReady } from "@professional/utils/roadmap-step-machine.util";
+import { worstTier } from "@professional/utils/roadmap-relaxation.util";
 import { DraftRow } from "../types/professional-roadmap-chat.types";
 import { slugify } from "@utils/slug.util";
 import { TUser } from "@common/types/user.types";
@@ -27,23 +27,20 @@ import { TUser } from "@common/types/user.types";
 import type { RankableCandidate } from "@professional/utils/roadmap-candidate-ranking.util";
 
 import { type ProfessionalEngagementApi } from "@contentAction/public/professional-engagement-api";
+import { type RoadmapContentCandidate } from "@infrastructure/service-ai/service-ai.port";
 import { type ProfessionalCatalogApi } from "@course/public/professional-catalog-api";
+import { type PlatformContentType } from "@infrastructure/service-ai/service-ai.port";
+import { type RoadmapCpdContext } from "@infrastructure/service-ai/service-ai.port";
+import { type ServiceAiPort } from "@infrastructure/service-ai/service-ai.port";
 import { type CandidateKey } from "@professional/utils/roadmap-generation-verify.util";
-
-import {
-  type GenerateData,
-  type PlatformContentType,
-  type RoadmapContentCandidate,
-  type RoadmapCpdContext,
-  type ServiceAiPort,
-} from "@infrastructure/service-ai/service-ai.port";
+import { type GenerateData } from "@infrastructure/service-ai/service-ai.port";
 
 import {
   LOCAL_CAPACITY_WAIT_SECONDS,
   MAX_CONCURRENT_GENERATIONS,
-  REDUCED_CANDIDATE_CAP,
   ROADMAP_GENERATION_EVENT,
   RoadmapGenerationPayload,
+  REDUCED_CANDIDATE_CAP,
   round2,
 } from "@professional/utils/professional.helper";
 
@@ -89,7 +86,7 @@ export class ProfessionalRoadmapGenerationService {
         ProfessionalMessageCode.ROADMAP_DRAFT_NOT_READY,
       );
 
-    if (!isDraftComplete(draft))
+    if (!isDraftReady({ draft, currentStep: draft.currentStep }))
       throw new BadRequestException(
         ProfessionalMessageCode.ROADMAP_DRAFT_NOT_READY,
       );
