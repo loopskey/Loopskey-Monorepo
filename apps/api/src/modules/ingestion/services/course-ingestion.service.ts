@@ -4,8 +4,10 @@ import { IngestionBatchMode, IngestionBatchStatus } from "@prisma/client";
 import { IngestionContentKind, IngestionItemState } from "@prisma/client";
 import { BadRequestException, Injectable, Logger } from "@nestjs/common";
 import { COURSE_INGESTION_IDEMPOTENCY_KEY_LIMIT } from "@ingestion/enums/course-ingestion.constant";
+import { CATALOG_CONTENT_CHANGED_EVENT_VERSION } from "@ingestion/enums/course-ingestion.constant";
 import { COURSE_INGESTION_CONTRACT_VERSION } from "@ingestion/enums/course-ingestion.constant";
 import { COURSE_INGESTION_EVENT_VERSION } from "@ingestion/enums/course-ingestion.constant";
+import { CATALOG_CONTENT_CHANGED_EVENT } from "@ingestion/enums/course-ingestion.constant";
 import { COURSE_INGESTION_ITEM_LIMIT } from "@ingestion/enums/course-ingestion.constant";
 import { COURSE_INGESTION_EVENT_NAME } from "@ingestion/enums/course-ingestion.constant";
 import { CourseIngestionPipeline } from "@ingestion/services/course-ingestion-pipeline.service";
@@ -477,6 +479,17 @@ export class CourseIngestionService {
                 sourceId: input.source.sourceId,
                 catalogId: course.id,
               },
+            },
+            transaction,
+          );
+          await this.outbox.append(
+            {
+              eventName: CATALOG_CONTENT_CHANGED_EVENT,
+              eventVersion: CATALOG_CONTENT_CHANGED_EVENT_VERSION,
+              aggregateType: "IngestionItem",
+              aggregateId: ingestionItem.id,
+              correlationId: requestContext.correlationId(),
+              payload: { catalogId: course.id, kind: "COURSE" },
             },
             transaction,
           );
