@@ -77,11 +77,12 @@ const ProfessionalRoadmapTab = () => {
   const semantics = useChartSemantics();
 
   type TCurrentRoadmapView = "statusCard" | "hero" | "none";
-  const currentView: TCurrentRoadmapView = generatedRoadmap
-    ? "hero"
-    : isGenerating || hasFailedDraft
+  const currentView: TCurrentRoadmapView =
+    isGenerating || hasFailedDraft
       ? "statusCard"
-      : "none";
+      : generatedRoadmap
+        ? "hero"
+        : "none";
   const [displayView, setDisplayView] =
     useState<TCurrentRoadmapView>(currentView);
   useEffect(() => {
