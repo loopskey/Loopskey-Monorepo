@@ -117,3 +117,4 @@ into this index and do not rewrite previous records.
 - [`requirement-delete-lifecycle`](feature-runs/active/requirement-delete-lifecycle.md) — PR [#246](https://github.com/loopskey/Loopskey-Monorepo/pull/246)
 - [`roadmap-generation-status-visibility`](feature-runs/active/roadmap-generation-status-visibility.md) — PR [#248](https://github.com/loopskey/Loopskey-Monorepo/pull/248)
 - [`roadmap-coach-chat-correctness`](feature-runs/active/roadmap-coach-chat-correctness.md) — PR [#249](https://github.com/loopskey/Loopskey-Monorepo/pull/249)
+- [`roadmap-generation-status-stale-failure`](feature-runs/active/roadmap-generation-status-stale-failure.md) — PR [#251](https://github.com/loopskey/Loopskey-Monorepo/pull/251)
