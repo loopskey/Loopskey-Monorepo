@@ -14,3 +14,23 @@ query PopularCategories($input: PopularCategoriesInput) {
     ...PopularCategoryFields
   }
 }
+
+fragment LandingCatalogSearchItemFields on LandingCatalogSearchItem {
+  id
+  contentType
+  slug
+  title
+  imageUrl
+  category
+  rating
+  durationMinutes
+  startDate
+  episodeCount
+  videoCount
+}
+
+query LandingCatalogSearch($input: LandingCatalogSearchInput!) {
+  landingCatalogSearch(input: $input) {
+    ...LandingCatalogSearchItemFields
+  }
+}

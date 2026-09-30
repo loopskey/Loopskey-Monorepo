@@ -197,7 +197,9 @@ export const enumOptions = <T extends Record<string, string>>(
 // =============== Landing ================
 export const LANDING_HUB_TAKE = 20;
 
-export const HERO_SEARCH_TAKE = 4;
+export const HERO_SEARCH_TAKE = 12;
+
+export const HERO_SEARCH_MIN_LENGTH = 3;
 
 export const HERO_CATEGORY_TAKE = 8;
 

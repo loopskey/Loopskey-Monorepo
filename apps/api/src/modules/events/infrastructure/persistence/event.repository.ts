@@ -15,6 +15,7 @@ import { Injectable } from "@nestjs/common";
 import type { ProviderAttendeesQuery } from "@events/public/events-api";
 import type { RoadmapCandidateQuery } from "@events/public/events-api";
 import type { ProviderEventsQuery } from "@events/public/events-api";
+import type { EventCatalogSearchRow } from "@events/types/event-service.types";
 
 const isUniqueViolation = (error: unknown) =>
   error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -748,6 +749,79 @@ export class EventRepository {
         AND (${freeOnly} = false OR e."isFree" = true)
       ORDER BY e."pdu" DESC, e."averageRating" DESC, e."attendees" DESC, e."id" ASC
       LIMIT ${take};
+    `;
+  }
+
+  async searchCatalog(query: {
+    search: string;
+    take: number;
+    category: string | null;
+  }): Promise<EventCatalogSearchRow[]> {
+    const category = VALID_EVENT_CATEGORIES.has(query.category ?? "")
+      ? (query.category as EventCategory)
+      : null;
+
+    return this.prisma.$queryRaw<EventCatalogSearchRow[]>`
+      WITH exact_matches AS (
+        SELECT
+          e."id", e."slug", e."title", e."imageUrl",
+          e."category"::text AS category, e."averageRating" AS rating,
+          e."startDate", e."createdAt",
+          CASE
+            WHEN e."title" ILIKE '%' || ${query.search} || '%' THEN 3
+            WHEN COALESCE(e."speaker", '') ILIKE '%' || ${query.search} || '%' THEN 2
+            WHEN COALESCE(e."organizer", '') ILIKE '%' || ${query.search} || '%' THEN 2
+            WHEN COALESCE(e."location", '') ILIKE '%' || ${query.search} || '%' THEN 2
+            ELSE 1
+          END AS band
+        FROM "Event" e
+        WHERE e."deletedAt" IS NULL
+          AND e."status" = 'PUBLISHED'::"EventStatus"
+          AND (${category}::"EventCategory" IS NULL OR e."category" = ${category}::"EventCategory")
+          AND (
+            e."title" ILIKE '%' || ${query.search} || '%'
+            OR COALESCE(e."speaker", '') ILIKE '%' || ${query.search} || '%'
+            OR COALESCE(e."organizer", '') ILIKE '%' || ${query.search} || '%'
+            OR COALESCE(e."location", '') ILIKE '%' || ${query.search} || '%'
+            OR e."description" ILIKE '%' || ${query.search} || '%'
+          )
+        ORDER BY band DESC, e."createdAt" DESC, e."id" ASC
+        LIMIT ${query.take}
+      ),
+      fuzzy_matches AS (
+        SELECT
+          e."id", e."slug", e."title", e."imageUrl",
+          e."category"::text AS category, e."averageRating" AS rating,
+          e."startDate", e."createdAt",
+          GREATEST(
+            similarity(e."title", ${query.search}),
+            similarity(COALESCE(e."speaker", ''), ${query.search}),
+            similarity(COALESCE(e."organizer", ''), ${query.search}),
+            similarity(COALESCE(e."location", ''), ${query.search})
+          ) AS "fuzzyScore"
+        FROM "Event" e
+        WHERE e."deletedAt" IS NULL
+          AND e."status" = 'PUBLISHED'::"EventStatus"
+          AND (${category}::"EventCategory" IS NULL OR e."category" = ${category}::"EventCategory")
+          AND e."id" NOT IN (SELECT "id" FROM exact_matches)
+          AND (
+            e."title" % ${query.search}
+            OR COALESCE(e."speaker", '') % ${query.search}
+            OR COALESCE(e."organizer", '') % ${query.search}
+            OR COALESCE(e."location", '') % ${query.search}
+          )
+        ORDER BY "fuzzyScore" DESC, e."createdAt" DESC, e."id" ASC
+        LIMIT GREATEST(${query.take} - (SELECT COUNT(*)::int FROM exact_matches), 0)
+      )
+      SELECT
+        "id", "slug", "title", "imageUrl", category, "rating",
+        "startDate", "createdAt", band::float AS score
+      FROM exact_matches
+      UNION ALL
+      SELECT
+        "id", "slug", "title", "imageUrl", category, "rating",
+        "startDate", "createdAt", LEAST("fuzzyScore", 0.99)::float AS score
+      FROM fuzzy_matches;
     `;
   }
 }

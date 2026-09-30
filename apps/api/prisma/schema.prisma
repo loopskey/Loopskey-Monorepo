@@ -438,10 +438,6 @@ model ProfileTaxonomyTerm {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  // Unmanaged: a `pg_trgm` GIN index on `label` (ProfileTaxonomyTerm_label_trgm_idx)
-  // backs the taxonomy term search (`contains`/insensitive), added via raw SQL
-  // in migration 20260927120000_profile_taxonomy_catalogue because Prisma
-  // cannot express a GIN index declaratively.
 
   @@unique([kind, key])
   @@index([kind, isActive, sortOrder])
@@ -1119,6 +1115,11 @@ model YouTubeChannel {
   userId      String?
   rating      Float     @default(0)
   ratingCount Int       @default(0)
+
+  // Unmanaged: a `pg_trgm` GIN index on `provider` (YouTubeChannel_provider_trgm_idx)
+  // backs the landing catalogue search's exact and fuzzy attribution matching,
+  // added via raw SQL in migration 20260929090000_landing_catalog_search_indexes
+  // because Prisma cannot express a GIN index declaratively.
 
   @@index([status, category])
   @@index([providerId])
@@ -2610,10 +2611,6 @@ model AssociationRequirement {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  // Unmanaged: a `pg_trgm` GIN index on `name` backs the requirements-tab
-  // search (`ILIKE`-style `contains`/insensitive`), added via raw SQL in
-  // migration 20260917103747_association_requirement_name_search_index
-  // because Prisma cannot express a GIN index declaratively.
 
   @@index([associationId])
   @@index([associationId, status])

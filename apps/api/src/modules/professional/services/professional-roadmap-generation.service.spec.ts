@@ -106,6 +106,7 @@ type Harness = ReturnType<typeof buildHarness>;
 
 const buildHarness = (options: {
   draft?: Record<string, unknown> | null;
+  completedDraft?: Record<string, unknown> | null;
   enrollment?: { id: string } | null;
   candidates?: RankableCandidate[];
   generate?: jest.Mock;
@@ -138,7 +139,17 @@ const buildHarness = (options: {
       Promise.resolve(callback(tx)),
     ),
     roadmapDraft: {
-      findFirst: jest.fn().mockResolvedValue(options.draft ?? null),
+      // `generationStatus` with no id issues two distinct `findFirst` calls
+      // (the latest completed draft, then the latest active one); the two
+      // queries are told apart by their `status` filter shape so each test's
+      // `draft`/`completedDraft` option reaches the right one.
+      findFirst: jest.fn((args: { where?: { status?: unknown } } = {}) =>
+        Promise.resolve(
+          args.where?.status === RoadmapDraftStatus.COMPLETED
+            ? (options.completedDraft ?? null)
+            : (options.draft ?? null),
+        ),
+      ),
       findUnique: jest.fn().mockResolvedValue(options.draft ?? null),
       findUniqueOrThrow: jest.fn().mockResolvedValue(options.draft ?? {}),
       updateMany: jest.fn().mockResolvedValue({ count: 1 }),
@@ -761,6 +772,35 @@ describe("ProfessionalRoadmapGenerationService", () => {
           status: {
             in: [RoadmapDraftStatus.GENERATING, RoadmapDraftStatus.FAILED],
           },
+        },
+        orderBy: { updatedAt: "desc" },
+      });
+    });
+
+    it("only looks for an active generation newer than the latest completed draft", async () => {
+      // The mock resolver returns `options.draft` for any non-COMPLETED-shaped
+      // query regardless of an `updatedAt` filter, so a real Postgres query
+      // engine's filtering can't be exercised here — this asserts the query
+      // itself carries the cutoff, which is what makes an abandoned FAILED
+      // draft stop being findable once a later generation completes.
+      const completedAt = new Date("2026-06-01");
+      const harness = buildHarness({
+        draft: draftRow({ status: RoadmapDraftStatus.FAILED }),
+        completedDraft: draftRow({
+          status: RoadmapDraftStatus.COMPLETED,
+          updatedAt: completedAt,
+        }),
+      });
+
+      await harness.service.generationStatus(USER);
+
+      expect(harness.prisma.roadmapDraft.findFirst).toHaveBeenCalledWith({
+        where: {
+          userId: USER.id,
+          status: {
+            in: [RoadmapDraftStatus.GENERATING, RoadmapDraftStatus.FAILED],
+          },
+          updatedAt: { gt: completedAt },
         },
         orderBy: { updatedAt: "desc" },
       });

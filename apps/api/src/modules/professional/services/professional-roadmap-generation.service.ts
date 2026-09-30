@@ -132,26 +132,54 @@ export class ProfessionalRoadmapGenerationService {
    * no id, returns only a `GENERATING`/`FAILED` draft, since a completed or
    * still-collecting draft is not an "active generation" the Roadmap tab
    * needs to surface without the professional asking for it by id.
+   *
+   * An abandoned `FAILED` draft that the professional never retried, and
+   * instead superseded by starting and completing a brand new generation,
+   * must stop being "the" active generation once that newer one succeeds —
+   * otherwise the Roadmap tab would resurrect an old failure card over the
+   * current roadmap's hero forever. Restricting the fallback to drafts newer
+   * than the professional's latest `COMPLETED` draft lets a genuinely new
+   * failure (one that happens after that success) still surface normally.
    */
   async generationStatus(user: TUser, draftId?: string) {
     this.assertProfessional(user);
     const trimmed = draftId?.trim() || undefined;
 
-    const draft = trimmed
-      ? await this.prisma.roadmapDraft.findFirst({
-          where: { id: trimmed, userId: user.id },
-        })
-      : await this.prisma.roadmapDraft.findFirst({
-          where: {
-            userId: user.id,
-            status: {
-              in: [RoadmapDraftStatus.GENERATING, RoadmapDraftStatus.FAILED],
-            },
-          },
-          orderBy: { updatedAt: "desc" },
-        });
-    if (!draft) return null;
+    if (trimmed) {
+      const draft = await this.prisma.roadmapDraft.findFirst({
+        where: { id: trimmed, userId: user.id },
+      });
+      return draft ? this.toGenerationStatus(draft) : null;
+    }
 
+    const latestCompleted = await this.prisma.roadmapDraft.findFirst({
+      where: { userId: user.id, status: RoadmapDraftStatus.COMPLETED },
+      orderBy: { updatedAt: "desc" },
+      select: { updatedAt: true },
+    });
+
+    const draft = await this.prisma.roadmapDraft.findFirst({
+      where: {
+        userId: user.id,
+        status: {
+          in: [RoadmapDraftStatus.GENERATING, RoadmapDraftStatus.FAILED],
+        },
+        ...(latestCompleted
+          ? { updatedAt: { gt: latestCompleted.updatedAt } }
+          : {}),
+      },
+      orderBy: { updatedAt: "desc" },
+    });
+    return draft ? this.toGenerationStatus(draft) : null;
+  }
+
+  private toGenerationStatus(draft: {
+    id: string;
+    goal: string | null;
+    status: RoadmapDraftStatus;
+    updatedAt: Date;
+    failureReason: string | null;
+  }) {
     return {
       id: draft.id,
       goal: draft.goal,
