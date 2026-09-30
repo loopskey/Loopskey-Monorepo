@@ -6201,8 +6201,9 @@ export type QueryProfessionalCertificatesArgs = {
 
 
 export type QueryProfessionalContentCompletionArgs = {
-  contentId: Scalars['ID']['input'];
-  contentType: ContentType;
+  associationLearningContentId?: InputMaybe<Scalars['ID']['input']>;
+  contentId?: InputMaybe<Scalars['ID']['input']>;
+  contentType?: InputMaybe<ContentType>;
 };
 
 

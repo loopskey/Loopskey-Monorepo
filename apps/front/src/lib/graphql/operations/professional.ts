@@ -148,8 +148,9 @@ export type ProfessionalPduActivitySummaryQueryVariables = Types.Exact<{ [key: s
 export type ProfessionalPduActivitySummaryQuery = { __typename?: 'Query', professionalPduActivitySummary: { __typename?: 'ProfessionalPduActivitySummary', completedActivities: number, activitiesWithEvidence: number, evidenceFilesCount: number } };
 
 export type ProfessionalContentCompletionQueryVariables = Types.Exact<{
-  contentType: Types.ContentType;
-  contentId: Types.Scalars['ID']['input'];
+  contentType?: Types.InputMaybe<Types.ContentType>;
+  contentId?: Types.InputMaybe<Types.Scalars['ID']['input']>;
+  associationLearningContentId?: Types.InputMaybe<Types.Scalars['ID']['input']>;
 }>;
 
 
@@ -1746,8 +1747,12 @@ export const ProfessionalPduActivitySummaryDocument = /*#__PURE__*/ new TypedDoc
   evidenceFilesCount
 }`) as unknown as TypedDocumentString<ProfessionalPduActivitySummaryQuery, ProfessionalPduActivitySummaryQueryVariables>;
 export const ProfessionalContentCompletionDocument = /*#__PURE__*/ new TypedDocumentString(`
-    query ProfessionalContentCompletion($contentType: ContentType!, $contentId: ID!) {
-  professionalContentCompletion(contentType: $contentType, contentId: $contentId) {
+    query ProfessionalContentCompletion($contentType: ContentType, $contentId: ID, $associationLearningContentId: ID) {
+  professionalContentCompletion(
+    contentType: $contentType
+    contentId: $contentId
+    associationLearningContentId: $associationLearningContentId
+  ) {
     ...ProfessionalPduActivityFields
   }
 }

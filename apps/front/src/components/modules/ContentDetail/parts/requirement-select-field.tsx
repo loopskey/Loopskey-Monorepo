@@ -1,11 +1,9 @@
 "use client";
 
-import { Control, FieldValues, Path } from "react-hook-form";
-import { TRequirementOption } from "@/types/professional-requirement.types";
+import { TRequirementSelectFieldProps } from "@/types/content-module.types";
+import { FieldValues } from "react-hook-form";
 import { Badge } from "@ui/badge";
 import { cn } from "@/lib/utils";
-
-import type { I18nContextValue } from "@/types/providers.types";
 
 import * as F from "@ui/form";
 import * as S from "@ui/select";
@@ -24,19 +22,7 @@ export const RequirementSelectField = <T extends FieldValues>({
   className,
   description,
   onValueChange,
-}: {
-  t: I18nContextValue["t"];
-  name: Path<T>;
-  label: string;
-  control: Control<T>;
-  options: TRequirementOption[];
-  noneValue: string;
-  noneLabel: string;
-  disabled?: boolean;
-  className?: string;
-  description?: string | null;
-  onValueChange?: (value: string) => void;
-}) => {
+}: TRequirementSelectFieldProps<T>) => {
   const associationOptions = options.filter(
     (option) => option.source === "ASSOCIATION",
   );
@@ -51,6 +37,7 @@ export const RequirementSelectField = <T extends FieldValues>({
 
         return (
           <F.FormItem className={cn("min-w-0 space-y-2", className)}>
+            <F.FormLabel className="text-sm font-medium">{label}</F.FormLabel>
             <S.Select
               disabled={disabled}
               value={value ?? noneValue}

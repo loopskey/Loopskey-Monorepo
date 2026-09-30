@@ -4507,7 +4507,7 @@ type Query {
   professionalCertificateOptions: [ProfessionalCertificateOption!]!
   professionalCertificateSummary: ProfessionalCertificateSummary!
   professionalCertificates(cpdPlanId: ID, filter: ProfessionalSearchInput, issuer: String, pagination: ProfessionalPaginationInput, sort: CertificateSort, status: CertificateStatusFilter, unlinkedOnly: Boolean): PaginatedProfessionalCertificates!
-  professionalContentCompletion(contentId: ID!, contentType: ContentType!): ProfessionalPduActivity
+  professionalContentCompletion(associationLearningContentId: ID, contentId: ID, contentType: ContentType): ProfessionalPduActivity
   professionalCpdPlans: [ProfessionalCpdPlan!]!
   professionalDashboardProfile: ProfessionalDashboardProfile!
   professionalExploreRoadmaps(filter: ProfessionalSearchInput, pagination: ProfessionalPaginationInput): PaginatedProfessionalExploreRoadmaps!
