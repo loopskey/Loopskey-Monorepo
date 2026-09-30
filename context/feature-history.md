@@ -120,3 +120,4 @@ into this index and do not rewrite previous records.
 - [`roadmap-generation-status-stale-failure`](feature-runs/active/roadmap-generation-status-stale-failure.md) — PR [#251](https://github.com/loopskey/Loopskey-Monorepo/pull/251)
 - [`landing-catalog-search-optimization`](feature-runs/active/landing-catalog-search-optimization.md) — PR [#252](https://github.com/loopskey/Loopskey-Monorepo/pull/252)
 - [`assigned-content-detail-and-completion`](feature-runs/active/assigned-content-detail-and-completion.md) — PR [#254](https://github.com/loopskey/Loopskey-Monorepo/pull/254)
+- [`content-search-trgm-optimization`](feature-runs/active/content-search-trgm-optimization.md) — PR [#256](https://github.com/loopskey/Loopskey-Monorepo/pull/256)
