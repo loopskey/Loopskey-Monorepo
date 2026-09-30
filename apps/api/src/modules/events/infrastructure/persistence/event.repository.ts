@@ -14,8 +14,8 @@ import { Injectable } from "@nestjs/common";
 
 import type { ProviderAttendeesQuery } from "@events/public/events-api";
 import type { RoadmapCandidateQuery } from "@events/public/events-api";
-import type { ProviderEventsQuery } from "@events/public/events-api";
 import type { EventCatalogSearchRow } from "@events/types/event-service.types";
+import type { ProviderEventsQuery } from "@events/public/events-api";
 
 const isUniqueViolation = (error: unknown) =>
   error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -23,6 +23,7 @@ const isUniqueViolation = (error: unknown) =>
 
 const WORD_SIMILARITY_THRESHOLD = 0.3;
 const VALID_EVENT_CATEGORIES = new Set<string>(Object.values(EventCategory));
+const CANDIDATE_CAP = 500;
 
 const trimmedTerms = (terms: readonly string[]) => [
   ...new Set(terms.map((term) => term.trim()).filter(Boolean)),
@@ -174,56 +175,129 @@ export class EventRepository {
     const status = filter?.status ?? EventStatus.PUBLISHED;
     const fromDate = filter?.fromDate ? new Date(filter.fromDate) : null;
     const toDate = filter?.toDate ? new Date(filter.toDate) : null;
-    const rows = await this.prisma.$queryRaw<Array<EventSearchRow>>`
-      WITH ranked_events AS (
-        SELECT
-          e.*,
-          GREATEST(
-            similarity(e."title", ${search}),
-            similarity(COALESCE(e."speaker", ''), ${search}),
-            similarity(COALESCE(e."organizer", ''), ${search}),
-            similarity(e."description", ${search}),
-            similarity(COALESCE(e."location", ''), ${search})
+    const type = filter?.type ?? null;
+    const deliveryMode = filter?.deliveryMode ?? null;
+    const category = filter?.category ?? null;
+    const isFree = filter?.isFree ?? null;
+    const providerId = filter?.providerId ?? null;
+
+    const EVENT_COLUMNS = `
+      e."id", e."slug", e."title", e."type", e."deliveryMode",
+      e."category", e."status", e."imageUrl", e."speaker", e."organizer",
+      e."description", e."startDate", e."endDate", e."timezone",
+      e."location", e."onlineUrl", e."price", e."currency", e."isFree",
+      e."pdu", e."capacity", e."attendees", e."views", e."rating",
+      e."averageRating", e."ratingCount", e."registrationEnabled",
+      e."providerId", e."createdAt", e."updatedAt", e."deletedAt"`;
+
+    const rowsPromise = this.prisma.$queryRaw<Array<EventSearchRow>>`
+      WITH exact_matches AS (
+        SELECT ${Prisma.raw(EVENT_COLUMNS)},
+          (CASE
+            WHEN e."title" ILIKE '%' || ${search} || '%' THEN 3
+            WHEN e."speaker" ILIKE '%' || ${search} || '%' THEN 2
+            WHEN e."organizer" ILIKE '%' || ${search} || '%' THEN 2
+            WHEN e."location" ILIKE '%' || ${search} || '%' THEN 2
+            ELSE 1
+          END)::float AS "searchRank"
+        FROM "Event" e
+        WHERE e."deletedAt" IS NULL
+          AND e."status" = ${status}::"EventStatus"
+          AND (${type}::"EventType" IS NULL OR e."type" = ${type}::"EventType")
+          AND (${deliveryMode}::"EventDeliveryMode" IS NULL OR e."deliveryMode" = ${deliveryMode}::"EventDeliveryMode")
+          AND (${category}::"EventCategory" IS NULL OR e."category" = ${category}::"EventCategory")
+          AND (${isFree}::boolean IS NULL OR e."isFree" = ${isFree}::boolean)
+          AND (${providerId}::text IS NULL OR e."providerId" = ${providerId}::text)
+          AND (${fromDate}::timestamp IS NULL OR e."startDate" >= ${fromDate}::timestamp)
+          AND (${toDate}::timestamp IS NULL OR e."startDate" <= ${toDate}::timestamp)
+          AND (${cursor}::text IS NULL OR e."id" > ${cursor}::text)
+          AND (
+            e."title" ILIKE '%' || ${search} || '%'
+            OR e."speaker" ILIKE '%' || ${search} || '%'
+            OR e."organizer" ILIKE '%' || ${search} || '%'
+            OR e."location" ILIKE '%' || ${search} || '%'
+            OR e."description" ILIKE '%' || ${search} || '%'
+          )
+        ORDER BY "searchRank" DESC, e."startDate" ASC, e."id" DESC
+        LIMIT ${CANDIDATE_CAP}
+      ),
+      fuzzy_matches AS (
+        SELECT ${Prisma.raw(EVENT_COLUMNS)},
+          LEAST(
+            GREATEST(
+              similarity(e."title", ${search}),
+              similarity(e."speaker", ${search}),
+              similarity(e."organizer", ${search}),
+              similarity(e."location", ${search})
+            ),
+            0.99
           ) AS "searchRank"
         FROM "Event" e
         WHERE e."deletedAt" IS NULL
           AND e."status" = ${status}::"EventStatus"
-          AND (${filter?.type ?? null}::"EventType" IS NULL OR e."type" = ${filter?.type ?? null}::"EventType")
-          AND (${filter?.deliveryMode ?? null}::"EventDeliveryMode" IS NULL OR e."deliveryMode" = ${filter?.deliveryMode ?? null}::"EventDeliveryMode")
-          AND (${filter?.category ?? null}::"EventCategory" IS NULL OR e."category" = ${filter?.category ?? null}::"EventCategory")
-          AND (${filter?.isFree ?? null}::boolean IS NULL OR e."isFree" = ${filter?.isFree ?? null}::boolean)
-          AND (${filter?.providerId ?? null}::text IS NULL OR e."providerId" = ${filter?.providerId ?? null}::text)
+          AND (${type}::"EventType" IS NULL OR e."type" = ${type}::"EventType")
+          AND (${deliveryMode}::"EventDeliveryMode" IS NULL OR e."deliveryMode" = ${deliveryMode}::"EventDeliveryMode")
+          AND (${category}::"EventCategory" IS NULL OR e."category" = ${category}::"EventCategory")
+          AND (${isFree}::boolean IS NULL OR e."isFree" = ${isFree}::boolean)
+          AND (${providerId}::text IS NULL OR e."providerId" = ${providerId}::text)
           AND (${fromDate}::timestamp IS NULL OR e."startDate" >= ${fromDate}::timestamp)
           AND (${toDate}::timestamp IS NULL OR e."startDate" <= ${toDate}::timestamp)
-          AND (
-            e."title" ILIKE '%' || ${search} || '%'
-            OR COALESCE(e."speaker", '') ILIKE '%' || ${search} || '%'
-            OR COALESCE(e."organizer", '') ILIKE '%' || ${search} || '%'
-            OR e."description" ILIKE '%' || ${search} || '%'
-            OR COALESCE(e."location", '') ILIKE '%' || ${search} || '%'
-            OR e."title" % ${search}
-            OR COALESCE(e."speaker", '') % ${search}
-            OR COALESCE(e."organizer", '') % ${search}
-            OR e."description" % ${search}
-            OR COALESCE(e."location", '') % ${search}
-          )
           AND (${cursor}::text IS NULL OR e."id" > ${cursor}::text)
+          AND e."id" NOT IN (SELECT "id" FROM exact_matches)
+          AND (
+            e."title" % ${search}
+            OR e."speaker" % ${search}
+            OR e."organizer" % ${search}
+            OR e."location" % ${search}
+          )
+        ORDER BY "searchRank" DESC, e."startDate" ASC, e."id" DESC
+        LIMIT GREATEST(${CANDIDATE_CAP} - (SELECT COUNT(*)::int FROM exact_matches), 0)
       )
-      SELECT ranked_events.*, COUNT(*) OVER() AS "totalCount"
-      FROM ranked_events
+      SELECT * FROM exact_matches
+      UNION ALL
+      SELECT * FROM fuzzy_matches
       ORDER BY "searchRank" DESC, "startDate" ASC, "id" DESC
       LIMIT ${take + 1};
     `;
+
+    const countPromise = this.prisma.$queryRaw<Array<{ count: bigint }>>`
+      SELECT COUNT(*)::bigint AS count
+      FROM "Event" e
+      WHERE e."deletedAt" IS NULL
+        AND e."status" = ${status}::"EventStatus"
+        AND (${type}::"EventType" IS NULL OR e."type" = ${type}::"EventType")
+        AND (${deliveryMode}::"EventDeliveryMode" IS NULL OR e."deliveryMode" = ${deliveryMode}::"EventDeliveryMode")
+        AND (${category}::"EventCategory" IS NULL OR e."category" = ${category}::"EventCategory")
+        AND (${isFree}::boolean IS NULL OR e."isFree" = ${isFree}::boolean)
+        AND (${providerId}::text IS NULL OR e."providerId" = ${providerId}::text)
+        AND (${fromDate}::timestamp IS NULL OR e."startDate" >= ${fromDate}::timestamp)
+        AND (${toDate}::timestamp IS NULL OR e."startDate" <= ${toDate}::timestamp)
+        AND (${cursor}::text IS NULL OR e."id" > ${cursor}::text)
+        AND (
+          e."title" ILIKE '%' || ${search} || '%'
+          OR e."speaker" ILIKE '%' || ${search} || '%'
+          OR e."organizer" ILIKE '%' || ${search} || '%'
+          OR e."location" ILIKE '%' || ${search} || '%'
+          OR e."description" ILIKE '%' || ${search} || '%'
+          OR e."title" % ${search}
+          OR e."speaker" % ${search}
+          OR e."organizer" % ${search}
+          OR e."location" % ${search}
+        )
+    `;
+
+    const [rows, countRows] = await this.prisma.$transaction([
+      rowsPromise,
+      countPromise,
+    ]);
     const hasNextPage = rows.length > take;
     const slicedRows = hasNextPage ? rows.slice(0, take) : rows;
     return {
-      items: slicedRows.map(
-        ({ searchRank: _rank, totalCount: _total, ...event }) => ({
-          ...event,
-          price: event.price ? Number(event.price) : null,
-        }),
-      ),
-      totalCount: rows[0]?.totalCount ? Number(rows[0].totalCount) : 0,
+      items: slicedRows.map(({ searchRank: _rank, ...event }) => ({
+        ...event,
+        price: event.price ? Number(event.price) : null,
+      })),
+      totalCount: Number(countRows[0]?.count ?? 0n),
       pageInfo: {
         hasNextPage,
         nextCursor: hasNextPage ? slicedRows[slicedRows.length - 1]?.id : null,
@@ -769,9 +843,9 @@ export class EventRepository {
           e."startDate", e."createdAt",
           CASE
             WHEN e."title" ILIKE '%' || ${query.search} || '%' THEN 3
-            WHEN COALESCE(e."speaker", '') ILIKE '%' || ${query.search} || '%' THEN 2
-            WHEN COALESCE(e."organizer", '') ILIKE '%' || ${query.search} || '%' THEN 2
-            WHEN COALESCE(e."location", '') ILIKE '%' || ${query.search} || '%' THEN 2
+            WHEN e."speaker" ILIKE '%' || ${query.search} || '%' THEN 2
+            WHEN e."organizer" ILIKE '%' || ${query.search} || '%' THEN 2
+            WHEN e."location" ILIKE '%' || ${query.search} || '%' THEN 2
             ELSE 1
           END AS band
         FROM "Event" e
@@ -780,9 +854,9 @@ export class EventRepository {
           AND (${category}::"EventCategory" IS NULL OR e."category" = ${category}::"EventCategory")
           AND (
             e."title" ILIKE '%' || ${query.search} || '%'
-            OR COALESCE(e."speaker", '') ILIKE '%' || ${query.search} || '%'
-            OR COALESCE(e."organizer", '') ILIKE '%' || ${query.search} || '%'
-            OR COALESCE(e."location", '') ILIKE '%' || ${query.search} || '%'
+            OR e."speaker" ILIKE '%' || ${query.search} || '%'
+            OR e."organizer" ILIKE '%' || ${query.search} || '%'
+            OR e."location" ILIKE '%' || ${query.search} || '%'
             OR e."description" ILIKE '%' || ${query.search} || '%'
           )
         ORDER BY band DESC, e."createdAt" DESC, e."id" ASC
@@ -795,9 +869,9 @@ export class EventRepository {
           e."startDate", e."createdAt",
           GREATEST(
             similarity(e."title", ${query.search}),
-            similarity(COALESCE(e."speaker", ''), ${query.search}),
-            similarity(COALESCE(e."organizer", ''), ${query.search}),
-            similarity(COALESCE(e."location", ''), ${query.search})
+            similarity(e."speaker", ${query.search}),
+            similarity(e."organizer", ${query.search}),
+            similarity(e."location", ${query.search})
           ) AS "fuzzyScore"
         FROM "Event" e
         WHERE e."deletedAt" IS NULL
@@ -806,9 +880,9 @@ export class EventRepository {
           AND e."id" NOT IN (SELECT "id" FROM exact_matches)
           AND (
             e."title" % ${query.search}
-            OR COALESCE(e."speaker", '') % ${query.search}
-            OR COALESCE(e."organizer", '') % ${query.search}
-            OR COALESCE(e."location", '') % ${query.search}
+            OR e."speaker" % ${query.search}
+            OR e."organizer" % ${query.search}
+            OR e."location" % ${query.search}
           )
         ORDER BY "fuzzyScore" DESC, e."createdAt" DESC, e."id" ASC
         LIMIT GREATEST(${query.take} - (SELECT COUNT(*)::int FROM exact_matches), 0)
@@ -859,5 +933,4 @@ type EventSearchRow = {
   updatedAt: Date;
   deletedAt: Date | null;
   searchRank: number;
-  totalCount: bigint;
 };

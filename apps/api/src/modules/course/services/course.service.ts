@@ -3,15 +3,17 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { CourseStatus, Prisma, Role } from "@prisma/client";
 import { CoursePaginationInput } from "@course/dtos/course-pagination.input";
 import { ForbiddenException } from "@nestjs/common";
+import { CourseRatingWriter } from "@course/public/course-engagement-api";
 import { CreateCourseInput } from "@course/dtos/create-course.input";
 import { UpdateCourseInput } from "@course/dtos/update-course.input";
 import { CourseFilterInput } from "@course/dtos/course-filter.input";
 import { CourseMessageCode } from "@course/enums/message-code.enum";
 import { TCourseRequester } from "@course/types/course-service.type";
 import { CourseSortInput } from "@course/dtos/course-sort.input";
-import { CourseRatingWriter } from "@course/public/course-engagement-api";
 import { PrismaService } from "@prisma/prisma.service";
 import { slugify } from "@utils/slug.util";
+
+const CANDIDATE_CAP = 500;
 
 @Injectable()
 export class CourseService {
@@ -296,77 +298,139 @@ export class CourseService {
     const search = filter?.search?.trim() ?? "";
     const cursor = pagination?.cursor ?? null;
     const status = filter?.status ?? CourseStatus.PUBLISHED;
-    const rows = await this.prismaService.$queryRaw<
-      Array<{
-        id: string;
-        slug: string;
-        title: string;
-        instructor: string;
-        imageUrl: string | null;
-        description: string;
-        category: string;
-        level: string;
-        status: string;
-        price: Prisma.Decimal | null;
-        currency: string;
-        isFree: boolean;
-        durationMinutes: number | null;
-        lastUpdatedAt: Date;
-        requirements: string[];
-        learnings: string[];
-        rating: number;
-        ratingCount: number;
-        professionals: number;
-        isFeatured: boolean;
-        providerId: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-        deletedAt: Date | null;
-        searchRank: number;
-        totalCount: bigint;
-      }>
-    >`
-    WITH ranked_courses AS (
-      SELECT
-        c.*,
-        GREATEST(
-          similarity(c."title", ${search}),
-          similarity(c."instructor", ${search}),
-          similarity(c."description", ${search})
-        ) AS "searchRank"
+    const category = filter?.category ?? null;
+    const level = filter?.level ?? null;
+    const isFree = filter?.isFree ?? null;
+    const isFeatured = filter?.isFeatured ?? null;
+    const providerId = filter?.providerId ?? null;
+
+    type CourseSearchRow = {
+      id: string;
+      slug: string;
+      title: string;
+      instructor: string;
+      imageUrl: string | null;
+      description: string;
+      category: string;
+      level: string;
+      status: string;
+      price: Prisma.Decimal | null;
+      currency: string;
+      isFree: boolean;
+      durationMinutes: number | null;
+      lastUpdatedAt: Date;
+      requirements: string[];
+      learnings: string[];
+      rating: number;
+      ratingCount: number;
+      professionals: number;
+      isFeatured: boolean;
+      providerId: string | null;
+      createdAt: Date;
+      updatedAt: Date;
+      deletedAt: Date | null;
+      searchRank: number;
+    };
+
+    const rowsPromise = this.prismaService.$queryRaw<CourseSearchRow[]>`
+      WITH exact_matches AS (
+        SELECT
+          c."id", c."slug", c."title", c."instructor", c."imageUrl",
+          c."description", c."category", c."level", c."status", c."price",
+          c."currency", c."isFree", c."durationMinutes", c."lastUpdatedAt",
+          c."requirements", c."learnings", c."rating", c."ratingCount",
+          c."professionals", c."isFeatured", c."providerId", c."createdAt",
+          c."updatedAt", c."deletedAt",
+          (CASE
+            WHEN c."title" ILIKE '%' || ${search} || '%' THEN 3
+            WHEN c."instructor" ILIKE '%' || ${search} || '%' THEN 2
+            ELSE 1
+          END)::float AS "searchRank"
+        FROM "Course" c
+        WHERE c."deletedAt" IS NULL
+          AND c."status" = ${status}::"CourseStatus"
+          AND (${category}::"CourseCategory" IS NULL OR c."category" = ${category}::"CourseCategory")
+          AND (${level}::"CourseLevel" IS NULL OR c."level" = ${level}::"CourseLevel")
+          AND (${isFree}::boolean IS NULL OR c."isFree" = ${isFree}::boolean)
+          AND (${isFeatured}::boolean IS NULL OR c."isFeatured" = ${isFeatured}::boolean)
+          AND (${providerId}::text IS NULL OR c."providerId" = ${providerId}::text)
+          AND (${cursor}::text IS NULL OR c."id" > ${cursor}::text)
+          AND (
+            c."title" ILIKE '%' || ${search} || '%'
+            OR c."instructor" ILIKE '%' || ${search} || '%'
+            OR c."description" ILIKE '%' || ${search} || '%'
+          )
+        ORDER BY "searchRank" DESC, c."createdAt" DESC, c."id" DESC
+        LIMIT ${CANDIDATE_CAP}
+      ),
+      fuzzy_matches AS (
+        SELECT
+          c."id", c."slug", c."title", c."instructor", c."imageUrl",
+          c."description", c."category", c."level", c."status", c."price",
+          c."currency", c."isFree", c."durationMinutes", c."lastUpdatedAt",
+          c."requirements", c."learnings", c."rating", c."ratingCount",
+          c."professionals", c."isFeatured", c."providerId", c."createdAt",
+          c."updatedAt", c."deletedAt",
+          LEAST(
+            GREATEST(
+              similarity(c."title", ${search}),
+              similarity(c."instructor", ${search})
+            ),
+            0.99
+          ) AS "searchRank"
+        FROM "Course" c
+        WHERE c."deletedAt" IS NULL
+          AND c."status" = ${status}::"CourseStatus"
+          AND (${category}::"CourseCategory" IS NULL OR c."category" = ${category}::"CourseCategory")
+          AND (${level}::"CourseLevel" IS NULL OR c."level" = ${level}::"CourseLevel")
+          AND (${isFree}::boolean IS NULL OR c."isFree" = ${isFree}::boolean)
+          AND (${isFeatured}::boolean IS NULL OR c."isFeatured" = ${isFeatured}::boolean)
+          AND (${providerId}::text IS NULL OR c."providerId" = ${providerId}::text)
+          AND (${cursor}::text IS NULL OR c."id" > ${cursor}::text)
+          AND c."id" NOT IN (SELECT "id" FROM exact_matches)
+          AND (c."title" % ${search} OR c."instructor" % ${search})
+        ORDER BY "searchRank" DESC, c."createdAt" DESC, c."id" DESC
+        LIMIT GREATEST(${CANDIDATE_CAP} - (SELECT COUNT(*)::int FROM exact_matches), 0)
+      )
+      SELECT * FROM exact_matches
+      UNION ALL
+      SELECT * FROM fuzzy_matches
+      ORDER BY "searchRank" DESC, "createdAt" DESC, "id" DESC
+      LIMIT ${take + 1};
+    `;
+
+    const countPromise = this.prismaService.$queryRaw<Array<{ count: bigint }>>`
+      SELECT COUNT(*)::bigint AS count
       FROM "Course" c
       WHERE c."deletedAt" IS NULL
         AND c."status" = ${status}::"CourseStatus"
-        AND (${filter?.category ?? null}::"CourseCategory" IS NULL OR c."category" = ${filter?.category ?? null}::"CourseCategory")
-        AND (${filter?.level ?? null}::"CourseLevel" IS NULL OR c."level" = ${filter?.level ?? null}::"CourseLevel")
-        AND (${filter?.isFree ?? null}::boolean IS NULL OR c."isFree" = ${filter?.isFree ?? null}::boolean)
-        AND (${filter?.isFeatured ?? null}::boolean IS NULL OR c."isFeatured" = ${filter?.isFeatured ?? null}::boolean)
-        AND (${filter?.providerId ?? null}::text IS NULL OR c."providerId" = ${filter?.providerId ?? null}::text)
+        AND (${category}::"CourseCategory" IS NULL OR c."category" = ${category}::"CourseCategory")
+        AND (${level}::"CourseLevel" IS NULL OR c."level" = ${level}::"CourseLevel")
+        AND (${isFree}::boolean IS NULL OR c."isFree" = ${isFree}::boolean)
+        AND (${isFeatured}::boolean IS NULL OR c."isFeatured" = ${isFeatured}::boolean)
+        AND (${providerId}::text IS NULL OR c."providerId" = ${providerId}::text)
+        AND (${cursor}::text IS NULL OR c."id" > ${cursor}::text)
         AND (
           c."title" ILIKE '%' || ${search} || '%'
           OR c."instructor" ILIKE '%' || ${search} || '%'
           OR c."description" ILIKE '%' || ${search} || '%'
           OR c."title" % ${search}
           OR c."instructor" % ${search}
-          OR c."description" % ${search}
         )
-        AND (${cursor}::text IS NULL OR c."id" > ${cursor}::text)
-    )
-    SELECT
-      ranked_courses.*,
-      COUNT(*) OVER() AS "totalCount"
-    FROM ranked_courses
-    ORDER BY "searchRank" DESC, "createdAt" DESC, "id" DESC
-    LIMIT ${take + 1};
-  `;
+    `;
+
+    const [rows, countRows] = await this.prismaService.$transaction([
+      rowsPromise,
+      countPromise,
+    ]);
     const hasNextPage = rows.length > take;
     const slicedRows = hasNextPage ? rows.slice(0, take) : rows;
     return {
-      items: slicedRows.map(({ searchRank, totalCount, ...course }) => ({
+      items: slicedRows.map(({ searchRank: _searchRank, ...course }) => ({
         ...course,
         price: course.price ? Number(course.price) : null,
       })),
-      totalCount: rows[0]?.totalCount ? Number(rows[0].totalCount) : 0,
+      totalCount: Number(countRows[0]?.count ?? 0n),
       pageInfo: {
         hasNextPage,
         nextCursor: hasNextPage ? slicedRows[slicedRows.length - 1]?.id : null,
