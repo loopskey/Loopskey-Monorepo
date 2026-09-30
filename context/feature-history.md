@@ -121,3 +121,4 @@ into this index and do not rewrite previous records.
 - [`landing-catalog-search-optimization`](feature-runs/active/landing-catalog-search-optimization.md) — PR [#252](https://github.com/loopskey/Loopskey-Monorepo/pull/252)
 - [`assigned-content-detail-and-completion`](feature-runs/active/assigned-content-detail-and-completion.md) — PR [#254](https://github.com/loopskey/Loopskey-Monorepo/pull/254)
 - [`content-search-trgm-optimization`](feature-runs/active/content-search-trgm-optimization.md) — PR [#256](https://github.com/loopskey/Loopskey-Monorepo/pull/256)
+- [`dynamic-content-filter-facets`](feature-runs/active/dynamic-content-filter-facets.md) — PR [#258](https://github.com/loopskey/Loopskey-Monorepo/pull/258)

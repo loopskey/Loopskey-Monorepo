@@ -5,7 +5,7 @@
 - Model: `High reasoning — four public GraphQL domains, rating semantics, generated contracts, RTK cache reconciliation and query-plan evidence.`
 - Branch: `feature/dynamic-content-filter-facets`
 - Base: `33c93842b7742c61ef7582a82ed3c35f5c462a80`
-- Status: `Ready`
+- Status: `Submitted`
 
 ## Acceptance
 
@@ -47,6 +47,6 @@
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: `dc32e57`
+- PR: [#258](https://github.com/loopskey/Loopskey-Monorepo/pull/258)
+- CI: pending on the metadata commit
