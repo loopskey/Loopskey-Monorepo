@@ -33,7 +33,8 @@
     "bench:memory": "node --expose-gc benchmark/bench-report-memory.js",
     "bench:search": "node benchmark/bench-search-index.js",
     "bench:search-rewrite": "node benchmark/bench-search-rewrite.js",
-    "bench:ingestion": "node benchmark/bench-ingestion-review-queue.js"
+    "bench:ingestion": "node benchmark/bench-ingestion-review-queue.js",
+    "bench:landing-search": "node benchmark/bench-landing-catalog-search.js"
   },
   "dependencies": {
     "@apollo/server": "^4.12.2",

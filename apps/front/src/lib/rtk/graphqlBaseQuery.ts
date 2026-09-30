@@ -23,6 +23,7 @@ const getGraphQLErrorStatus = (
 
 const executeGraphqlRequest = async (
   args: T.TGraphQLBaseQueryArgs,
+  signal?: AbortSignal,
 ): Promise<
   | { data: unknown }
   | {
@@ -50,6 +51,7 @@ const executeGraphqlRequest = async (
         query: documentToString(args.document),
         variables: args.variables,
       }),
+      signal,
     });
     const result = (await response.json()) as T.TGraphQLResponse<unknown>;
     if (!response.ok || result.errors?.length) {
@@ -94,8 +96,8 @@ export const refreshAccessToken = async () => {
 
 export const graphqlBaseQuery =
   (): BaseQueryFn<T.TGraphQLBaseQueryArgs, unknown, T.TGraphQLBaseQueryError> =>
-  async (args) => {
-    let result = await executeGraphqlRequest(args);
+  async (args, api) => {
+    let result = await executeGraphqlRequest(args, api.signal);
     if (!("error" in result)) return result;
     if (result.error.status !== 401) return result;
     const isRefreshRequest =
@@ -104,6 +106,6 @@ export const graphqlBaseQuery =
     if (isRefreshRequest) return result;
     const refreshed = await refreshAccessToken();
     if (!refreshed) return result;
-    result = await executeGraphqlRequest(args);
+    result = await executeGraphqlRequest(args, api.signal);
     return result;
   };

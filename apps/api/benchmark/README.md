@@ -17,6 +17,7 @@ npm run bench:pool        --workspace api   # connection_limit sweep
 npm run bench:report      --workspace api   # replays the reports overview page load
 npm run bench:memory      --workspace api   # heap cost of one report projection
 npm run bench:ingestion   --workspace api   # ingestion review queue at 200,000+ rows
+npm run bench:landing-search --workspace api # landing catalogue search at 32,500+ courses
 ```
 
 `bench:setup` shells out to `docker exec` against the container named by
@@ -107,3 +108,52 @@ missing or unreachable index — the join still completes in 117 ms (page) and
 interactive admin request. A term with a broader real-world match rate should
 be re-measured once the real crawled catalog exists; nothing about this
 finding requires a code change.
+
+## Landing catalogue search at 32,500 courses / 60,000 rows per other kind
+
+`bench-landing-catalog-search.js` seeds 32,500 published `Course` rows —
+matching the 32,283-row production dataset from the 2026-09-26/27
+investigation — and 60,000 published rows each of `Event`, `Podcast`, and
+`YouTubeChannel`, with varied attribution values (`speaker`/`organizer`/
+`host`/`provider`) plus one rare needle row for index-reachability checks.
+
+### Measured on Postgres 17 in Docker, 32,500 Course rows, term "React"
+
+| Query                                                              | Plan               | Execution Time |
+| ------------------------------------------------------------------- | ------------------- | -------------- |
+| Baseline (`/content`-style: title+instructor+description ILIKE and `similarity()`, ranked) | `BitmapOr` across 6 conditions incl. `Course_description_trgm_idx`, `Rows Removed by Index Recheck: 31557` | 421.0–587.7 ms |
+| Landing catalogue search (exact-first, bounded fuzzy on title/instructor only) | `BitmapOr` across 3 exact conditions, no description in the fuzzy fallback | 3.4–5.4 ms |
+
+The production baseline recorded `Execution Time: 7644.802 ms` with
+`shared hit=19170` against 32,283 real rows; this synthetic reproduction uses
+much shorter descriptions so its absolute numbers are smaller, but the
+mechanism removed is the same one production hit: computing
+`similarity(..., "description")` and re-checking every trigram-matched row
+(31,557 discarded here, 23,128 discarded in production) before ranking and
+windowing the whole matched set. The new query never evaluates
+`similarity()` against `description` (confirmed `descriptionSimilarity=false`
+for exact/broad/typo/no-result terms) and reaches the target of completing
+Course database work in well under 500 ms.
+
+### New migration indexes, reachability at 60,000 rows (rare-needle fuzzy match)
+
+| Column               | Index                              | Reached |
+| -------------------- | ----------------------------------- | ------- |
+| `Event.speaker`       | `Event_speaker_trgm_idx`            | yes (Bitmap Index Scan) |
+| `Event.organizer`     | `Event_organizer_trgm_idx`          | yes (Bitmap Index Scan) |
+| `Podcast.host`        | `Podcast_host_trgm_idx`             | yes (Bitmap Index Scan) |
+| `YouTubeChannel.provider` | `YouTubeChannel_provider_trgm_idx` | yes (Bitmap Index Scan) |
+
+### Unified per-domain latency (max of the four domain queries, approximating the concurrent orchestrated call)
+
+| Term                        | Course | Event   | Podcast | YouTube | Unified (max) |
+| --------------------------- | ------ | ------- | ------- | ------- | -------------- |
+| exact (`React`)              | 5.4 ms | 137.9 ms | 95.5 ms | 95.8 ms | 137.9 ms |
+| broad (`Fundamentals`)        | 61.5 ms | 1.6 ms | 1.1 ms | 1.1 ms | 61.5 ms |
+| typo (`Reakt`)                | 6.5 ms | 140.2 ms | 3.3 ms | 94.1 ms | 140.2 ms |
+| no-result (`zzyzxquilibrium`) | 1.3 ms | 143.0 ms | 104.1 ms | 111.7 ms | 143.0 ms |
+
+Every term keeps the unified database work well under the 800 ms p95 target;
+the 350 ms UI debounce is separate and not counted here. Re-run with
+`BENCH_LANDING_COURSES` / `BENCH_LANDING_OTHER_KIND` to model a larger future
+scale.

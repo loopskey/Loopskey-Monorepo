@@ -5,3 +5,15 @@ export type TCurrentUserPayload = {
   id?: string;
   sub?: string;
 };
+
+export type EventCatalogSearchRow = {
+  id: string;
+  slug: string;
+  title: string;
+  imageUrl: string | null;
+  category: string;
+  rating: number;
+  startDate: Date;
+  createdAt: Date;
+  score: number;
+};

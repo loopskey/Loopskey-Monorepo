@@ -2611,6 +2611,28 @@ export type IssuedIngestionApiKey = {
   sourceId: Scalars['String']['output'];
 };
 
+export type LandingCatalogSearchInput = {
+  category?: InputMaybe<Scalars['String']['input']>;
+  contentType?: InputMaybe<ContentType>;
+  search: Scalars['String']['input'];
+  take?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type LandingCatalogSearchItem = {
+  __typename?: 'LandingCatalogSearchItem';
+  category: Scalars['String']['output'];
+  contentType: ContentType;
+  durationMinutes?: Maybe<Scalars['Int']['output']>;
+  episodeCount?: Maybe<Scalars['Int']['output']>;
+  id: Scalars['String']['output'];
+  imageUrl?: Maybe<Scalars['String']['output']>;
+  rating: Scalars['Float']['output'];
+  slug: Scalars['String']['output'];
+  startDate?: Maybe<Scalars['DateTime']['output']>;
+  title: Scalars['String']['output'];
+  videoCount?: Maybe<Scalars['Int']['output']>;
+};
+
 export enum LearningBudgetPreference {
   FiveHundredPlus = 'FIVE_HUNDRED_PLUS',
   FreeOnly = 'FREE_ONLY',
@@ -5495,6 +5517,7 @@ export type Query = {
   ingestionItems: PaginatedIngestionItems;
   ingestionSource: IngestionSource;
   ingestionSources: PaginatedIngestionSources;
+  landingCatalogSearch: Array<LandingCatalogSearchItem>;
   linkedinOAuthUrl: AuthUrl;
   me: User;
   memberInvitationStatus: MemberInvitationStatus;
@@ -5993,6 +6016,11 @@ export type QueryIngestionSourceArgs = {
 export type QueryIngestionSourcesArgs = {
   filter?: InputMaybe<IngestionSourceFilter>;
   pagination?: InputMaybe<IngestionPagination>;
+};
+
+
+export type QueryLandingCatalogSearchArgs = {
+  input: LandingCatalogSearchInput;
 };
 
 

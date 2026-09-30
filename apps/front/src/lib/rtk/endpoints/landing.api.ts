@@ -1,3 +1,4 @@
+import { LandingCatalogSearchDocument } from "@/lib/graphql/operations/landing";
 import { PopularCategoriesDocument } from "@/lib/graphql/operations/landing";
 import { baseApi } from "@/lib/rtk/baseApi";
 
@@ -17,8 +18,25 @@ export const landingApi = baseApi.injectEndpoints({
         response.popularCategories,
       providesTags: ["PopularCategories"],
     }),
+
+    landingCatalogSearch: builder.query<
+      TAPI.LandingCatalogSearchQuery["landingCatalogSearch"],
+      TAPI.LandingCatalogSearchQueryVariables["input"]
+    >({
+      query: (input) => ({
+        document: LandingCatalogSearchDocument,
+        variables: { input },
+      }),
+      transformResponse: (response: TAPI.LandingCatalogSearchQuery) =>
+        response.landingCatalogSearch,
+      providesTags: ["LandingCatalogSearch"],
+    }),
   }),
 });
 
-export const { usePopularCategoriesQuery, useLazyPopularCategoriesQuery } =
-  landingApi;
+export const {
+  usePopularCategoriesQuery,
+  useLazyPopularCategoriesQuery,
+  useLandingCatalogSearchQuery,
+  useLazyLandingCatalogSearchQuery,
+} = landingApi;
