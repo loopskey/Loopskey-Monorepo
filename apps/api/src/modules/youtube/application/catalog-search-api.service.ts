@@ -31,7 +31,7 @@ export class CatalogSearchApiService implements YouTubeCatalogSearchApi {
           yc."createdAt",
           CASE
             WHEN yc."title" ILIKE '%' || ${search} || '%' THEN 3
-            WHEN COALESCE(yc."provider", '') ILIKE '%' || ${search} || '%' THEN 2
+            WHEN yc."provider" ILIKE '%' || ${search} || '%' THEN 2
             ELSE 1
           END AS band
         FROM "YouTubeChannel" yc
@@ -40,8 +40,8 @@ export class CatalogSearchApiService implements YouTubeCatalogSearchApi {
           AND (${category}::"YouTubeCategory" IS NULL OR yc."category" = ${category}::"YouTubeCategory")
           AND (
             yc."title" ILIKE '%' || ${search} || '%'
-            OR COALESCE(yc."provider", '') ILIKE '%' || ${search} || '%'
-            OR COALESCE(yc."description", '') ILIKE '%' || ${search} || '%'
+            OR yc."provider" ILIKE '%' || ${search} || '%'
+            OR yc."description" ILIKE '%' || ${search} || '%'
           )
         ORDER BY band DESC, yc."createdAt" DESC, yc."id" ASC
         LIMIT ${take}
@@ -53,14 +53,14 @@ export class CatalogSearchApiService implements YouTubeCatalogSearchApi {
           yc."createdAt",
           GREATEST(
             similarity(yc."title", ${search}),
-            similarity(COALESCE(yc."provider", ''), ${search})
+            similarity(yc."provider", ${search})
           ) AS "fuzzyScore"
         FROM "YouTubeChannel" yc
         WHERE yc."deletedAt" IS NULL
           AND yc."status" = 'PUBLISHED'::"YouTubeChannelStatus"
           AND (${category}::"YouTubeCategory" IS NULL OR yc."category" = ${category}::"YouTubeCategory")
           AND yc."id" NOT IN (SELECT "id" FROM exact_matches)
-          AND (yc."title" % ${search} OR COALESCE(yc."provider", '') % ${search})
+          AND (yc."title" % ${search} OR yc."provider" % ${search})
         ORDER BY "fuzzyScore" DESC, yc."createdAt" DESC, yc."id" ASC
         LIMIT GREATEST(${take} - (SELECT COUNT(*)::int FROM exact_matches), 0)
       )
