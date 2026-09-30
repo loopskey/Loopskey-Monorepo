@@ -334,6 +334,14 @@
       "subtitle": "Contenu attribué par votre association, avant que vous n’ayez une exigence à laquelle le rattacher.",
       "markComplete": "Enregistrer une activité",
       "completed": "Terminé"
+    },
+    "assignedContentDetail": {
+      "description": "Consultez ce contenu attribué avant de continuer.",
+      "provider": "Fournisseur",
+      "type": "Type",
+      "requirement": "Compte pour {{requirement}}",
+      "opensExternally": "Ceci ouvre un site externe en dehors de Loopskey.",
+      "openLink": "Ouvrir le lien"
     }
   },
   "common": {

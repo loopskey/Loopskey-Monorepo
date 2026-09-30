@@ -1,5 +1,9 @@
 "use client";
 
+import { useProfessionalContentCompletionQuery } from "@/lib/rtk/endpoints/professional.api";
+import { AssignedContentDetailDialog } from "@modules/ProfessionalDashboard/parts/assigned-content-detail-dialog";
+import { activityTypeForContentType } from "@/utils/professional-requirement.helper";
+import { MarkAsCompletedDialog } from "@modules/ContentDetail/parts/MarkAsCompletedDialog";
 import { getContentTypeStyle } from "@/utils/content-type-style";
 import { contentDetailHref } from "@/utils/professional-requirement.helper";
 import { GlassCard } from "@elements/glass-card";
@@ -38,10 +42,12 @@ const ViewAction = ({
   t,
   content,
   requirementKeyValue,
+  onViewExternal,
 }: {
   t: I18nContextValue["t"];
   content: TAssociationRequirementContent;
   requirementKeyValue: string;
+  onViewExternal: (content: TAssociationRequirementContent) => void;
 }) => {
   const internal = contentDetailHref(
     content.contentType,
@@ -52,11 +58,15 @@ const ViewAction = ({
 
   if (content.isExternal && content.externalUrl)
     return (
-      <Button asChild size="sm" radius="xl" variant="outline">
-        <a href={content.externalUrl} target="_blank" rel="noopener noreferrer">
-          <L.ExternalLink className="h-4 w-4" />
-          {t(`${KEY}.openLink`)}
-        </a>
+      <Button
+        size="sm"
+        radius="xl"
+        type="button"
+        variant="outline"
+        onClick={() => onViewExternal(content)}
+      >
+        <L.ExternalLink className="h-4 w-4" />
+        {t(`${KEY}.view`)}
       </Button>
     );
 
@@ -75,15 +85,17 @@ const ViewAction = ({
 const ContentRow = ({
   t,
   content,
-  onMarkComplete,
   associationName,
   requirementKeyValue,
+  onMarkComplete,
+  onViewExternal,
 }: {
   t: I18nContextValue["t"];
   content: TAssociationRequirementContent;
   requirementKeyValue: string;
   associationName: string | null;
   onMarkComplete: (content: TAssociationRequirementContent) => void;
+  onViewExternal: (content: TAssociationRequirementContent) => void;
 }) => {
   const style = getContentTypeStyle(content.contentType);
   const TypeIcon = style.icon;
@@ -134,16 +146,16 @@ const ContentRow = ({
           t={t}
           content={content}
           requirementKeyValue={requirementKeyValue}
+          onViewExternal={onViewExternal}
         />
         <Button
           size="sm"
           radius="xl"
           type="button"
-          disabled={content.isCompleted}
           onClick={() => onMarkComplete(content)}
         >
           <L.CheckCheck className="h-4 w-4" />
-          {t(`${KEY}.markComplete`)}
+          {content.isCompleted ? t("common.edit") : t(`${KEY}.markComplete`)}
         </Button>
       </div>
     </li>
@@ -154,13 +166,25 @@ export const RequirementLearningContent = ({
   t,
   contents,
   isLoading,
-  onMarkComplete,
   associationName,
   requirementKeyValue,
 }: TRequirementLearningContentProps) => {
   const [showAll, setShowAll] = useState(false);
+  const [completing, setCompleting] =
+    useState<TAssociationRequirementContent | null>(null);
+  const [viewingExternal, setViewingExternal] =
+    useState<TAssociationRequirementContent | null>(null);
   const visible = showAll ? contents : contents.slice(0, PREVIEW_COUNT);
   const hiddenCount = contents.length - PREVIEW_COUNT;
+
+  const { data: existing } = useProfessionalContentCompletionQuery(
+    {
+      contentType: completing?.contentType ?? undefined,
+      contentId: completing?.contentId ?? undefined,
+      associationLearningContentId: completing?.id,
+    },
+    { skip: !completing },
+  );
 
   return (
     <GlassCard>
@@ -183,9 +207,10 @@ export const RequirementLearningContent = ({
                 t={t}
                 key={content.id}
                 content={content}
-                onMarkComplete={onMarkComplete}
                 associationName={associationName}
                 requirementKeyValue={requirementKeyValue}
+                onMarkComplete={setCompleting}
+                onViewExternal={setViewingExternal}
               />
             ))}
           </ul>
@@ -204,6 +229,44 @@ export const RequirementLearningContent = ({
           ) : null}
         </div>
       )}
+
+      {completing && (
+        <MarkAsCompletedDialog
+          open={Boolean(completing)}
+          existing={existing}
+          onOpenChange={(open) => !open && setCompleting(null)}
+          prefill={{
+            title: completing.title,
+            contentId: completing.contentId,
+            contentType: completing.contentType,
+            activityType: activityTypeForContentType(completing.contentType),
+            providerOrganizer: completing.provider,
+            category: completing.category,
+            associationLearningContentId: completing.id,
+            requirementLink: { key: requirementKeyValue },
+          }}
+        />
+      )}
+
+      <AssignedContentDetailDialog
+        open={Boolean(viewingExternal)}
+        onOpenChange={(open) => !open && setViewingExternal(null)}
+        item={
+          viewingExternal && {
+            title: viewingExternal.title,
+            provider: viewingExternal.provider,
+            description: viewingExternal.description,
+            category: viewingExternal.category,
+            indicativeCredits: viewingExternal.indicativeCredits,
+            associationName,
+            externalUrl: viewingExternal.externalUrl,
+            contentType: viewingExternal.contentType,
+            requirementLabel: viewingExternal.isLinkedToRequirement
+              ? t(`${KEY}.countsToward`)
+              : null,
+          }
+        }
+      />
     </GlassCard>
   );
 };

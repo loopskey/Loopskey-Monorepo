@@ -25,7 +25,11 @@ export const MarkAsCompletedButton = ({
   const isProfessional = data?.user?.role === Role.Professional;
 
   const { data: existing } = useProfessionalContentCompletionQuery(
-    { contentType: prefill.contentType, contentId: prefill.contentId },
+    {
+      contentType: prefill.contentType,
+      contentId: prefill.contentId,
+      associationLearningContentId: prefill.associationLearningContentId,
+    },
     { skip: !isProfessional || !prefill.contentId },
   );
 

@@ -62,14 +62,12 @@ export type TRequirementLearningContentProps = {
   requirementKeyValue: string;
   associationName: string | null;
   contents: TAssociationRequirementContent[];
-  onMarkComplete: (content: TAssociationRequirementContent) => void;
 };
 
 export type TAssociationContentSectionProps = {
   isLoading: boolean;
   t: I18nContextValue["t"];
   contents: TAssociationLearningContentItem[];
-  onMarkComplete: (content: TAssociationLearningContentItem) => void;
 };
 
 export type TRequirementSwitcherProps = {
@@ -139,7 +137,6 @@ export type TRequirementDetailViewProps = {
   activities: TRequirementActivityRow[];
   isDetailLoading: boolean;
   isActivitiesLoading: boolean;
-  onMarkComplete?: (content: TAssociationRequirementContent) => void;
   onEdit?: () => void;
   onDelete?: () => void;
   isDeleting?: boolean;

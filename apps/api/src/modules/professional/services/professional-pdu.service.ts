@@ -349,14 +349,33 @@ export class ProfessionalPduService {
     return { completedActivities, activitiesWithEvidence, evidenceFilesCount };
   }
 
+  private contentDedupWhere(
+    contentType?: ContentType | null,
+    contentId?: string | null,
+    associationLearningContentId?: string | null,
+  ): Prisma.PDUActivityWhereInput | null {
+    if (contentId && contentType) return { contentType, contentId };
+    if (associationLearningContentId) return { associationLearningContentId };
+    return null;
+  }
+
   async contentCompletion(
     user: TUser,
-    contentType: ContentType,
-    contentId: string,
+    args: {
+      contentType?: ContentType | null;
+      contentId?: string | null;
+      associationLearningContentId?: string | null;
+    },
   ) {
     this.assertProfessional(user);
+    const where = this.contentDedupWhere(
+      args.contentType,
+      args.contentId,
+      args.associationLearningContentId,
+    );
+    if (!where) return null;
     return this.prismaService.pDUActivity.findFirst({
-      where: { userId: user.id, contentType, contentId },
+      where: { userId: user.id, ...where },
       include: { evidenceFiles: { orderBy: { createdAt: "asc" } } },
     });
   }
@@ -378,7 +397,13 @@ export class ProfessionalPduService {
       date: new Date(date),
     };
 
-    if (!contentId || !contentType)
+    const dedupWhere = this.contentDedupWhere(
+      contentType,
+      contentId,
+      input.associationLearningContentId,
+    );
+
+    if (!dedupWhere)
       return this.prismaService.$transaction(async (tx) => {
         const created = await tx.pDUActivity.create({
           data: { userId: user.id, ...data },
@@ -392,7 +417,7 @@ export class ProfessionalPduService {
       });
 
     const existing = await this.prismaService.pDUActivity.findFirst({
-      where: { userId: user.id, contentType, contentId },
+      where: { userId: user.id, ...dedupWhere },
       select: { id: true },
     });
     if (existing) return this.updateContentActivity(existing.id, data);
@@ -414,9 +439,10 @@ export class ProfessionalPduService {
         userId: user.id,
         contentType,
         contentId,
+        associationLearningContentId: input.associationLearningContentId,
       });
       const winner = await this.prismaService.pDUActivity.findFirstOrThrow({
-        where: { userId: user.id, contentType, contentId },
+        where: { userId: user.id, ...dedupWhere },
         select: { id: true },
       });
       return this.updateContentActivity(winner.id, data);

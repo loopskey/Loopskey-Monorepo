@@ -31,7 +31,6 @@ export const RequirementDetailView = ({
   categories,
   activities,
   isDeleting,
-  onMarkComplete,
   isDetailLoading,
   requirementKeyValue,
   isActivitiesLoading,
@@ -90,7 +89,6 @@ export const RequirementDetailView = ({
           isLoading={isDetailLoading}
           requirementKeyValue={requirementKeyValue}
           associationName={model.associationName}
-          onMarkComplete={onMarkComplete ?? (() => {})}
         />
       </div>
 

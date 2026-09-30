@@ -131,7 +131,6 @@ const ProfessionalCpdPduProgressTab = () => {
             t={t}
             contents={cpd.myLearningContent}
             isLoading={cpd.isMyLearningContentLoading}
-            onMarkComplete={cpd.markUnlinkedComplete}
           />
           {!cpd.isMyLearningContentLoading &&
             cpd.myLearningContent.length === 0 && (
@@ -169,7 +168,6 @@ const ProfessionalCpdPduProgressTab = () => {
                     t,
                     cpd.associationDetail?.activities ?? [],
                   )}
-                  onMarkComplete={cpd.markComplete}
                 />
               );
             }

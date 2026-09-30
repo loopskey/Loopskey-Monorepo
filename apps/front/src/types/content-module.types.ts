@@ -1,5 +1,8 @@
 import type { TAddCalendarEventPrefill } from "@/types/professional-dashboard.types";
+import type { TRequirementOption } from "@/types/professional-requirement.types";
 import type { TPduActivity } from "@/types/professional-dashboard.types";
+import type { I18nContextValue } from "@/types/providers.types";
+import type { Control, FieldValues, Path } from "react-hook-form";
 import type { ContentType } from "@/lib/graphql/base";
 import type { ReactNode } from "react";
 
@@ -267,16 +270,27 @@ export type TAddToCalendarButtonProps = {
   contentType?: API.ContentType | null;
 };
 
+export type TMarkCompletedRequirementLink = {
+  key: string;
+};
+
 export type TMarkCompletedPrefill = {
   title: string;
-  contentId: string;
-  contentType: API.ContentType;
+  contentId?: string | null;
+  contentType?: API.ContentType | null;
   activityType: API.PduSource;
   level?: string | null;
   roadmapArea?: string | null;
   durationMinutes?: number | null;
   providerOrganizer?: string | null;
   category?: API.PduCategory | null;
+  /** Identity of the assigned association-content row, independent of contentId/contentType
+   * (which are null for external content). Sent as-is so the backend can match/dedupe this
+   * specific assignment's completion regardless of which requirement ends up selected. */
+  associationLearningContentId?: string | null;
+  /** Preselects a requirement without going through the endorsement/URL inference — used when
+   * the launching row already knows exactly which requirement this content counts toward. */
+  requirementLink?: TMarkCompletedRequirementLink | null;
 };
 
 export type TMarkAsCompletedButtonProps = {
@@ -289,4 +303,37 @@ export type TMarkAsCompletedDialogProps = {
   prefill: TMarkCompletedPrefill;
   existing?: TPduActivity | null;
   onOpenChange: (open: boolean) => void;
+};
+
+// ============ Assigned content detail interstitial ============
+export type TAssignedContentDetailItem = {
+  title: string;
+  provider?: string | null;
+  description?: string | null;
+  category?: string | null;
+  indicativeCredits?: number | null;
+  associationName?: string | null;
+  externalUrl?: string | null;
+  contentType?: ContentType | null;
+  requirementLabel?: string | null;
+};
+
+export type TAssignedContentDetailDialogProps = {
+  open: boolean;
+  item: TAssignedContentDetailItem | null;
+  onOpenChange: (open: boolean) => void;
+};
+
+export type TRequirementSelectFieldProps<T extends FieldValues> = {
+  t: I18nContextValue["t"];
+  name: Path<T>;
+  label: string;
+  control: Control<T>;
+  options: TRequirementOption[];
+  noneValue: string;
+  noneLabel: string;
+  disabled?: boolean;
+  className?: string;
+  description?: string | null;
+  onValueChange?: (value: string) => void;
 };

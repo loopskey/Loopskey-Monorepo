@@ -1,8 +1,13 @@
 "use client";
 
+import { useProfessionalContentCompletionQuery } from "@/lib/rtk/endpoints/professional.api";
+import { AssignedContentDetailDialog } from "@modules/ProfessionalDashboard/parts/assigned-content-detail-dialog";
+import { activityTypeForContentType } from "@/utils/professional-requirement.helper";
+import { MarkAsCompletedDialog } from "@modules/ContentDetail/parts/MarkAsCompletedDialog";
 import { getContentTypeStyle } from "@/utils/content-type-style";
 import { contentHref } from "@/utils/professional-requirement.helper";
 import { GlassCard } from "@elements/glass-card";
+import { useState } from "react";
 import { Skeleton } from "@ui/skeleton";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
@@ -39,10 +44,12 @@ const ContentRow = ({
   t,
   content,
   onMarkComplete,
+  onViewExternal,
 }: {
   t: I18nContextValue["t"];
   content: TAssociationLearningContentItem;
   onMarkComplete: (content: TAssociationLearningContentItem) => void;
+  onViewExternal: (content: TAssociationLearningContentItem) => void;
 }) => {
   const style = getContentTypeStyle(content.contentType);
   const TypeIcon = style.icon;
@@ -75,15 +82,15 @@ const ContentRow = ({
 
       <div className="flex shrink-0 flex-wrap gap-2">
         {content.isExternal && content.externalUrl ? (
-          <Button asChild size="sm" radius="xl" variant="outline">
-            <a
-              href={content.externalUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <L.ExternalLink className="h-4 w-4" />
-              {t("cpdProgress.requirements.learning.openLink")}
-            </a>
+          <Button
+            size="sm"
+            radius="xl"
+            type="button"
+            variant="outline"
+            onClick={() => onViewExternal(content)}
+          >
+            <L.ExternalLink className="h-4 w-4" />
+            {t("cpdProgress.requirements.learning.view")}
           </Button>
         ) : internal && content.isAvailable ? (
           <Button asChild size="sm" radius="xl" variant="outline">
@@ -98,11 +105,10 @@ const ContentRow = ({
           size="sm"
           radius="xl"
           type="button"
-          disabled={content.isCompleted}
           onClick={() => onMarkComplete(content)}
         >
           <L.CheckCheck className="h-4 w-4" />
-          {t(`${KEY}.markComplete`)}
+          {content.isCompleted ? t("common.edit") : t(`${KEY}.markComplete`)}
         </Button>
       </div>
     </li>
@@ -113,8 +119,21 @@ export const AssociationContentSection = ({
   t,
   contents,
   isLoading,
-  onMarkComplete,
 }: TAssociationContentSectionProps) => {
+  const [completing, setCompleting] =
+    useState<TAssociationLearningContentItem | null>(null);
+  const [viewingExternal, setViewingExternal] =
+    useState<TAssociationLearningContentItem | null>(null);
+
+  const { data: existing } = useProfessionalContentCompletionQuery(
+    {
+      contentType: completing?.contentType ?? undefined,
+      contentId: completing?.contentId ?? undefined,
+      associationLearningContentId: completing?.id,
+    },
+    { skip: !completing },
+  );
+
   if (isLoading)
     return (
       <GlassCard>
@@ -141,10 +160,45 @@ export const AssociationContentSection = ({
             t={t}
             key={content.id}
             content={content}
-            onMarkComplete={onMarkComplete}
+            onMarkComplete={setCompleting}
+            onViewExternal={setViewingExternal}
           />
         ))}
       </ul>
+
+      {completing && (
+        <MarkAsCompletedDialog
+          open={Boolean(completing)}
+          existing={existing}
+          onOpenChange={(open) => !open && setCompleting(null)}
+          prefill={{
+            title: completing.title,
+            contentId: completing.contentId,
+            contentType: completing.contentType,
+            activityType: activityTypeForContentType(completing.contentType),
+            providerOrganizer: completing.provider,
+            category: completing.category,
+            associationLearningContentId: completing.id,
+          }}
+        />
+      )}
+
+      <AssignedContentDetailDialog
+        open={Boolean(viewingExternal)}
+        onOpenChange={(open) => !open && setViewingExternal(null)}
+        item={
+          viewingExternal && {
+            title: viewingExternal.title,
+            provider: viewingExternal.provider,
+            description: viewingExternal.description,
+            category: viewingExternal.category,
+            indicativeCredits: viewingExternal.indicativeCredits,
+            associationName: viewingExternal.associationName,
+            externalUrl: viewingExternal.externalUrl,
+            contentType: viewingExternal.contentType,
+          }
+        }
+      />
     </GlassCard>
   );
 };
