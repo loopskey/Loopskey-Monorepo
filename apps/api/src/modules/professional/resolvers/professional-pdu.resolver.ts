@@ -82,14 +82,17 @@ export class ProfessionalPduResolver {
   })
   professionalContentCompletion(
     @CurrentUser() user: TResolverUser,
-    @Args("contentType", { type: () => ContentType }) contentType: ContentType,
-    @Args("contentId", { type: () => ID }) contentId: string,
+    @Args("contentType", { type: () => ContentType, nullable: true })
+    contentType?: ContentType,
+    @Args("contentId", { type: () => ID, nullable: true }) contentId?: string,
+    @Args("associationLearningContentId", { type: () => ID, nullable: true })
+    associationLearningContentId?: string,
   ) {
-    return this.professionalPduService.contentCompletion(
-      this.getUser(user),
+    return this.professionalPduService.contentCompletion(this.getUser(user), {
       contentType,
       contentId,
-    );
+      associationLearningContentId,
+    });
   }
 
   @Mutation(() => EN.ProfessionalPduActivityEntity, {

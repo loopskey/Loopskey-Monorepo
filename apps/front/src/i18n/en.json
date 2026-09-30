@@ -334,6 +334,14 @@
       "subtitle": "Content your association assigned you, before you have a requirement to track it against.",
       "markComplete": "Log activity",
       "completed": "Completed"
+    },
+    "assignedContentDetail": {
+      "description": "Review this assigned content before you continue.",
+      "provider": "Provider",
+      "type": "Type",
+      "requirement": "Counts toward {{requirement}}",
+      "opensExternally": "This opens on an external website outside Loopskey.",
+      "openLink": "Open link"
     }
   },
   "common": {

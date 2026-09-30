@@ -479,3 +479,107 @@ describe("ProfessionalPduService association requirement linking", () => {
     expect(data.associationRequirementId).toBeNull();
   });
 });
+
+describe("ProfessionalPduService external assigned-content dedup", () => {
+  it("updates the existing activity instead of duplicating it when associationLearningContentId matches, even without contentId/contentType", async () => {
+    const { service, prisma } = createService();
+    prisma.pDUActivity.findFirst.mockResolvedValue({ id: "activity-1" });
+    prisma.pDUActivity.update.mockResolvedValue({
+      id: "activity-1",
+      userId: "user-1",
+    });
+
+    await service.createPduActivity(
+      professional,
+      createInput({ associationLearningContentId: "learning-content-1" }),
+    );
+
+    expect(prisma.pDUActivity.findFirst).toHaveBeenCalledWith({
+      where: {
+        userId: "user-1",
+        associationLearningContentId: "learning-content-1",
+      },
+      select: { id: true },
+    });
+    expect(prisma.pDUActivity.create).not.toHaveBeenCalled();
+    expect(prisma.pDUActivity.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: "activity-1" } }),
+    );
+  });
+
+  it("creates a new activity when no existing activity matches the associationLearningContentId", async () => {
+    const { service, prisma } = createService();
+    prisma.pDUActivity.findFirst.mockResolvedValue(null);
+    prisma.pDUActivity.create.mockResolvedValue({
+      id: "activity-2",
+      userId: "user-1",
+    });
+
+    await service.createPduActivity(
+      professional,
+      createInput({ associationLearningContentId: "learning-content-2" }),
+    );
+
+    expect(prisma.pDUActivity.create).toHaveBeenCalledTimes(1);
+    const data = prisma.pDUActivity.create.mock.calls[0][0].data;
+    expect(data.associationLearningContentId).toBe("learning-content-2");
+  });
+
+  it("creates without a dedup lookup when neither contentId/contentType nor associationLearningContentId are given", async () => {
+    const { service, prisma } = createService();
+    prisma.pDUActivity.create.mockResolvedValue({
+      id: "activity-3",
+      userId: "user-1",
+    });
+
+    await service.createPduActivity(professional, createInput());
+
+    expect(prisma.pDUActivity.findFirst).not.toHaveBeenCalled();
+    expect(prisma.pDUActivity.create).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("ProfessionalPduService.contentCompletion", () => {
+  it("returns null without a lookup when no content identity is given", async () => {
+    const { service, prisma } = createService();
+
+    const result = await service.contentCompletion(professional, {});
+
+    expect(result).toBeNull();
+    expect(prisma.pDUActivity.findFirst).not.toHaveBeenCalled();
+  });
+
+  it("looks up by contentType/contentId when both are given", async () => {
+    const { service, prisma } = createService();
+    const activity = { id: "activity-1" };
+    prisma.pDUActivity.findFirst.mockResolvedValue(activity);
+
+    const result = await service.contentCompletion(professional, {
+      contentType: "COURSE" as never,
+      contentId: "course-1",
+    });
+
+    expect(result).toBe(activity);
+    expect(prisma.pDUActivity.findFirst.mock.calls[0][0].where).toEqual({
+      userId: "user-1",
+      contentType: "COURSE",
+      contentId: "course-1",
+    });
+  });
+
+  it("falls back to associationLearningContentId when contentId/contentType are absent", async () => {
+    const { service, prisma } = createService();
+    const activity = { id: "activity-1" };
+    prisma.pDUActivity.findFirst.mockResolvedValue(activity);
+
+    const result = await service.contentCompletion(professional, {
+      associationLearningContentId: "learning-content-1",
+    });
+
+    expect(result).toBe(activity);
+    expect(prisma.pDUActivity.findFirst.mock.calls[0][0].where).toEqual({
+      userId: "user-1",
+      associationLearningContentId: "learning-content-1",
+    });
+  });
+});

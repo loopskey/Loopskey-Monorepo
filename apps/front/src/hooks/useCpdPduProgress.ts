@@ -11,8 +11,6 @@ import { TCertification } from "@/types/cpd-plan.types";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
 
-import type { TAssociationRequirementContent } from "@/types/professional-requirement.types";
-
 import * as API from "@/lib/rtk/endpoints/cpd-plan.api";
 import * as H from "@/utils/cpd-plan.helper";
 import * as R from "@/utils/professional-requirement.helper";
@@ -283,14 +281,6 @@ export const useCpdPduProgress = () => {
   const goToAddActivity = () =>
     router.push(activeKey ? R.logActivityHref(activeKey) : R.ADD_ACTIVITY_HREF);
 
-  const markComplete = (content: TAssociationRequirementContent) => {
-    if (!activeKey) return;
-    router.push(R.logActivityHref(activeKey, content.id));
-  };
-
-  const markUnlinkedComplete = (content: { id: string }) =>
-    router.push(R.logContentActivityHref(content.id));
-
   const generateSummary = async () => {
     if (!selectedPlan || !progress || isGenerating) return;
     setIsGenerating(true);
@@ -335,12 +325,10 @@ export const useCpdPduProgress = () => {
     selectedPlan,
     refetchPlans,
     planActivities,
-    markComplete,
     selectedPlanId,
     hasRequirements,
     myLearningContent,
     isMyLearningContentLoading,
-    markUnlinkedComplete,
     associationDetail,
     setSelectedKey,
     isPlansLoading,

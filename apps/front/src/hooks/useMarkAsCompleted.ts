@@ -62,9 +62,12 @@ export const useMarkAsCompleted = (
     searchParams?.get(R.LEARNING_CONTENT_PARAM) ?? null;
 
   const { data: endorsement } = CpdAPI.useMyContentEndorsementQuery(
-    { contentType: prefill.contentType, contentId: prefill.contentId },
+    { contentType: prefill.contentType!, contentId: prefill.contentId! },
     {
-      skip: !prefill.contentId || Boolean(existing),
+      skip:
+        !prefill.contentId ||
+        Boolean(existing) ||
+        Boolean(prefill.requirementLink),
       ...CpdAPI.REQUIREMENT_QUERY_SUBSCRIPTION_OPTIONS,
     },
   );
@@ -86,7 +89,7 @@ export const useMarkAsCompleted = (
         ? R.requirementKey("PLAN", existing.cpdPlanId)
         : existing?.associationRequirementId
           ? R.requirementKey("ASSOCIATION", existing.associationRequirementId)
-          : R.REQUIREMENT_NONE,
+          : (prefill.requirementLink?.key ?? R.REQUIREMENT_NONE),
       files: [],
     }),
     [existing, prefill],
@@ -263,6 +266,10 @@ export const useMarkAsCompleted = (
     const associationRequirementId =
       link?.source === "ASSOCIATION" ? link.id : null;
 
+    const resolvedAssociationLearningContentId =
+      prefill.associationLearningContentId ??
+      (associationRequirementId ? associationLearningContentId : null);
+
     try {
       const created = await createActivity({
         title: values.title,
@@ -276,12 +283,12 @@ export const useMarkAsCompleted = (
         subCategory: orUndefined(values.subCategory),
         issuingOrganization: orUndefined(values.issuingOrganization),
         evidenceUrl: orUndefined(values.certificateLink),
-        contentId: prefill.contentId,
-        contentType: prefill.contentType,
+        contentId: prefill.contentId ?? undefined,
+        contentType: prefill.contentType ?? undefined,
         cpdPlanId: orUndefined(planId),
         associationRequirementId: orUndefined(associationRequirementId),
         associationLearningContentId: orUndefined(
-          associationRequirementId ? associationLearningContentId : null,
+          resolvedAssociationLearningContentId,
         ),
       }).unwrap();
       if (files.length) await uploadEvidence(created.id, files);
@@ -306,19 +313,19 @@ export const useMarkAsCompleted = (
     form,
     files,
     onSubmit,
-    isSaving: isCreating || isUploading,
-    handleFilesChange,
-    activityTypeOptions,
-    isAlreadyCompleted: Boolean(existing),
-    requirementOptions,
-    hasRequirementOptions,
-    isRequirementOptionsLoading: isPlansLoading || isAssociationsLoading,
-    selectedAssociation,
-    allowedCategories,
+    evidenceError,
     evidencePolicy,
     evidenceRequired,
-    evidenceError,
-    handleRequirementChange,
+    allowedCategories,
+    handleFilesChange,
+    requirementOptions,
     inferredRequirement,
+    activityTypeOptions,
+    selectedAssociation,
+    hasRequirementOptions,
+    handleRequirementChange,
+    isSaving: isCreating || isUploading,
+    isAlreadyCompleted: Boolean(existing),
+    isRequirementOptionsLoading: isPlansLoading || isAssociationsLoading,
   };
 };

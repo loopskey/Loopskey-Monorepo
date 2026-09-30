@@ -12,6 +12,7 @@ import type {
 } from "@/types/professional-requirement.types";
 import type { TCpdPlan, TCpdPlanProgress } from "@/types/cpd-plan.types";
 import { CPD_COMPLIANCE_META } from "@/utils/cpd-plan.constant";
+import { ContentType, PduSource } from "@/lib/graphql/base";
 
 const KEY_PREFIX: Record<TRequirementSource, string> = {
   ASSOCIATION: "association",
@@ -135,6 +136,19 @@ export const resolveActiveKey = (
     ? preferred
     : (options[0]?.key ?? null);
 
+const ACTIVITY_TYPE_BY_CONTENT_TYPE: Record<string, PduSource> = {
+  [ContentType.Course]: PduSource.Course,
+  [ContentType.Event]: PduSource.Event,
+  [ContentType.Podcast]: PduSource.Podcast,
+  [ContentType.Youtube]: PduSource.VideoLecture,
+};
+
+export const activityTypeForContentType = (
+  contentType: string | null | undefined,
+) =>
+  (contentType && ACTIVITY_TYPE_BY_CONTENT_TYPE[contentType]) ||
+  PduSource.Other;
+
 export const contentHref = (
   contentType: string | null | undefined,
   slug: string | null | undefined,
@@ -167,14 +181,6 @@ export const logActivityHref = (
     [RETURN_TO_PARAM]: RETURN_TO_REQUIREMENTS,
   });
   if (learningContentId) params.set(LEARNING_CONTENT_PARAM, learningContentId);
-  return `${ADD_ACTIVITY_HREF}&${params.toString()}`;
-};
-
-export const logContentActivityHref = (learningContentId: string) => {
-  const params = new URLSearchParams({
-    [LEARNING_CONTENT_PARAM]: learningContentId,
-    [RETURN_TO_PARAM]: RETURN_TO_REQUIREMENTS,
-  });
   return `${ADD_ACTIVITY_HREF}&${params.toString()}`;
 };
 

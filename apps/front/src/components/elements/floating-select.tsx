@@ -26,6 +26,7 @@ export const FloatingSelectField = <T extends FieldValues>({
 
         return (
           <F.FormItem className={cn("min-w-0 space-y-2", className)}>
+            <F.FormLabel className="text-sm font-medium">{label}</F.FormLabel>
             <S.Select
               disabled={disabled}
               value={value ?? undefined}

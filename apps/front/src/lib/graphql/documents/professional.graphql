@@ -458,8 +458,16 @@ query ProfessionalPduActivitySummary {
   }
 }
 
-query ProfessionalContentCompletion($contentType: ContentType!, $contentId: ID!) {
-  professionalContentCompletion(contentType: $contentType, contentId: $contentId) {
+query ProfessionalContentCompletion(
+  $contentType: ContentType
+  $contentId: ID
+  $associationLearningContentId: ID
+) {
+  professionalContentCompletion(
+    contentType: $contentType
+    contentId: $contentId
+    associationLearningContentId: $associationLearningContentId
+  ) {
     ...ProfessionalPduActivityFields
   }
 }
