@@ -25,6 +25,8 @@ const VALID_YOUTUBE_CATEGORIES = new Set<string>(
   Object.values(YouTubeCategory),
 );
 
+const CANDIDATE_CAP = 500;
+
 const trimmedTerms = (terms: readonly string[]) => [
   ...new Set(terms.map((term) => term.trim()).filter(Boolean)),
 ];
@@ -218,67 +220,128 @@ export class YouTubeService {
     const search = filter?.search?.trim() ?? "";
     const cursor = pagination?.cursor ?? null;
     const status = filter?.status ?? YouTubeChannelStatus.PUBLISHED;
-    const rows = await this.prismaService.$queryRaw<
-      Array<{
-        id: string;
-        slug: string;
-        title: string;
-        description: string | null;
-        provider: string | null;
-        imageUrl: string | null;
-        channelUrl: string | null;
-        subscribers: number;
-        views: number;
-        videoCount: number;
-        category: string;
-        status: string;
-        isFeatured: boolean;
-        providerId: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-        deletedAt: Date | null;
-        searchRank: number;
-        totalCount: bigint;
-      }>
-    >`
-      WITH ranked_channels AS (
+    const category = filter?.category ?? null;
+    const isFeatured = filter?.isFeatured ?? null;
+    const providerId = filter?.providerId ?? null;
+
+    type ChannelSearchRow = {
+      id: string;
+      slug: string;
+      title: string;
+      description: string | null;
+      provider: string | null;
+      imageUrl: string | null;
+      channelUrl: string | null;
+      subscribers: number;
+      views: number;
+      videoCount: number;
+      category: string;
+      status: string;
+      isFeatured: boolean;
+      providerId: string | null;
+      createdAt: Date;
+      updatedAt: Date;
+      deletedAt: Date | null;
+      searchRank: number;
+    };
+
+    // Bounded exact-first + fuzzy-fallback shape (same architecture as the
+    // landing catalogue search / CourseService#findCoursesWithTrgmSearch).
+    // The prior shape also used `similarity(col, term) > threshold` as a raw
+    // function-call comparison in the fuzzy branch, which gin_trgm_ops
+    // cannot accelerate at all (only `%`, `<->`, `<%>`, and ILIKE are
+    // index-eligible) — replaced here with the `%` operator, which is.
+    const rowsPromise = this.prismaService.$queryRaw<ChannelSearchRow[]>`
+      WITH exact_matches AS (
         SELECT
-          yc.*,
-          GREATEST(
-            similarity(yc."title", ${search}),
-            similarity(COALESCE(yc."provider", ''), ${search}),
-            similarity(COALESCE(yc."description", ''), ${search})
+          yc."id", yc."slug", yc."title", yc."description", yc."provider",
+          yc."imageUrl", yc."channelUrl", yc."subscribers", yc."views",
+          yc."videoCount", yc."category", yc."status", yc."isFeatured",
+          yc."providerId", yc."createdAt", yc."updatedAt", yc."deletedAt",
+          (CASE
+            WHEN yc."title" ILIKE '%' || ${search} || '%' THEN 3
+            WHEN yc."provider" ILIKE '%' || ${search} || '%' THEN 2
+            ELSE 1
+          END)::float AS "searchRank"
+        FROM "YouTubeChannel" yc
+        WHERE yc."deletedAt" IS NULL
+          AND yc."status" = ${status}::"YouTubeChannelStatus"
+          AND (${category}::"YouTubeCategory" IS NULL OR yc."category" = ${category}::"YouTubeCategory")
+          AND (${isFeatured}::boolean IS NULL OR yc."isFeatured" = ${isFeatured}::boolean)
+          AND (${providerId}::text IS NULL OR yc."providerId" = ${providerId}::text)
+          AND (${cursor}::text IS NULL OR yc."id" > ${cursor}::text)
+          AND (
+            yc."title" ILIKE '%' || ${search} || '%'
+            OR yc."provider" ILIKE '%' || ${search} || '%'
+            OR yc."description" ILIKE '%' || ${search} || '%'
+          )
+        ORDER BY "searchRank" DESC, yc."subscribers" DESC, yc."createdAt" DESC, yc."id" DESC
+        LIMIT ${CANDIDATE_CAP}
+      ),
+      fuzzy_matches AS (
+        SELECT
+          yc."id", yc."slug", yc."title", yc."description", yc."provider",
+          yc."imageUrl", yc."channelUrl", yc."subscribers", yc."views",
+          yc."videoCount", yc."category", yc."status", yc."isFeatured",
+          yc."providerId", yc."createdAt", yc."updatedAt", yc."deletedAt",
+          LEAST(
+            GREATEST(
+              similarity(yc."title", ${search}),
+              similarity(yc."provider", ${search})
+            ),
+            0.99
           ) AS "searchRank"
         FROM "YouTubeChannel" yc
         WHERE yc."deletedAt" IS NULL
           AND yc."status" = ${status}::"YouTubeChannelStatus"
-          AND (${filter?.category ?? null}::"YouTubeCategory" IS NULL OR yc."category" = ${filter?.category ?? null}::"YouTubeCategory")
-          AND (${filter?.isFeatured ?? null}::boolean IS NULL OR yc."isFeatured" = ${filter?.isFeatured ?? null}::boolean)
-          AND (${filter?.providerId ?? null}::text IS NULL OR yc."providerId" = ${filter?.providerId ?? null}::text)
-          AND (
-            yc."title" ILIKE '%' || ${search} || '%'
-            OR COALESCE(yc."provider", '') ILIKE '%' || ${search} || '%'
-            OR COALESCE(yc."description", '') ILIKE '%' || ${search} || '%'
-            OR similarity(yc."title", ${search}) > 0.15
-            OR similarity(COALESCE(yc."provider", ''), ${search}) > 0.15
-            OR similarity(COALESCE(yc."description", ''), ${search}) > 0.10
-          )
+          AND (${category}::"YouTubeCategory" IS NULL OR yc."category" = ${category}::"YouTubeCategory")
+          AND (${isFeatured}::boolean IS NULL OR yc."isFeatured" = ${isFeatured}::boolean)
+          AND (${providerId}::text IS NULL OR yc."providerId" = ${providerId}::text)
           AND (${cursor}::text IS NULL OR yc."id" > ${cursor}::text)
+          AND yc."id" NOT IN (SELECT "id" FROM exact_matches)
+          AND (
+            yc."title" % ${search}
+            OR yc."provider" % ${search}
+          )
+        ORDER BY "searchRank" DESC, yc."subscribers" DESC, yc."createdAt" DESC, yc."id" DESC
+        LIMIT GREATEST(${CANDIDATE_CAP} - (SELECT COUNT(*)::int FROM exact_matches), 0)
       )
-      SELECT
-        ranked_channels.*,
-        COUNT(*) OVER() AS "totalCount"
-      FROM ranked_channels
+      SELECT * FROM exact_matches
+      UNION ALL
+      SELECT * FROM fuzzy_matches
       ORDER BY "searchRank" DESC, "subscribers" DESC, "createdAt" DESC, "id" DESC
       LIMIT ${take + 1};
     `;
+
+    const countPromise = this.prismaService.$queryRaw<Array<{ count: bigint }>>`
+      SELECT COUNT(*)::bigint AS count
+      FROM "YouTubeChannel" yc
+      WHERE yc."deletedAt" IS NULL
+        AND yc."status" = ${status}::"YouTubeChannelStatus"
+        AND (${category}::"YouTubeCategory" IS NULL OR yc."category" = ${category}::"YouTubeCategory")
+        AND (${isFeatured}::boolean IS NULL OR yc."isFeatured" = ${isFeatured}::boolean)
+        AND (${providerId}::text IS NULL OR yc."providerId" = ${providerId}::text)
+        AND (${cursor}::text IS NULL OR yc."id" > ${cursor}::text)
+        AND (
+          yc."title" ILIKE '%' || ${search} || '%'
+          OR yc."provider" ILIKE '%' || ${search} || '%'
+          OR yc."description" ILIKE '%' || ${search} || '%'
+          OR yc."title" % ${search}
+          OR yc."provider" % ${search}
+        )
+    `;
+
+    const [rows, countRows] = await this.prismaService.$transaction([
+      rowsPromise,
+      countPromise,
+    ]);
     const hasNextPage = rows.length > take;
     const slicedRows = hasNextPage ? rows.slice(0, take) : rows;
     return {
-      items: slicedRows.map(({ searchRank, totalCount, ...channel }) => ({
+      items: slicedRows.map(({ searchRank: _searchRank, ...channel }) => ({
         ...channel,
       })),
-      totalCount: rows[0]?.totalCount ? Number(rows[0].totalCount) : 0,
+      totalCount: Number(countRows[0]?.count ?? 0n),
       pageInfo: {
         hasNextPage,
         nextCursor: hasNextPage ? slicedRows[slicedRows.length - 1]?.id : null,

@@ -24,6 +24,8 @@ const VALID_PODCAST_CATEGORIES = new Set<string>(
   Object.values(PodcastCategory),
 );
 
+const CANDIDATE_CAP = 500;
+
 const trimmedTerms = (terms: readonly string[]) => [
   ...new Set(terms.map((term) => term.trim()).filter(Boolean)),
 ];
@@ -211,69 +213,122 @@ export class PodcastService {
     const search = filter?.search?.trim() ?? "";
     const cursor = pagination?.cursor ?? null;
     const status = filter?.status ?? PodcastStatus.PUBLISHED;
-    const rows = await this.prismaService.$queryRaw<
-      Array<{
-        id: string;
-        slug: string;
-        title: string;
-        host: string;
-        imageUrl: string | null;
-        description: string;
-        category: string;
-        status: string;
-        rating: number;
-        ratingCount: number;
-        listeners: number;
-        durationMinutes: number | null;
-        episodeCount: number;
-        isFeatured: boolean;
-        providerId: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-        deletedAt: Date | null;
-        searchRank: number;
-        totalCount: bigint;
-      }>
-    >`
-      WITH ranked_podcasts AS (
+    const category = filter?.category ?? null;
+    const isFeatured = filter?.isFeatured ?? null;
+    const providerId = filter?.providerId ?? null;
+
+    type PodcastSearchRow = {
+      id: string;
+      slug: string;
+      title: string;
+      host: string;
+      imageUrl: string | null;
+      description: string;
+      category: string;
+      status: string;
+      rating: number;
+      ratingCount: number;
+      listeners: number;
+      durationMinutes: number | null;
+      episodeCount: number;
+      isFeatured: boolean;
+      providerId: string | null;
+      createdAt: Date;
+      updatedAt: Date;
+      deletedAt: Date | null;
+      searchRank: number;
+    };
+
+    const rowsPromise = this.prismaService.$queryRaw<PodcastSearchRow[]>`
+      WITH exact_matches AS (
         SELECT
-          p.*,
-          GREATEST(
-            similarity(p."title", ${search}),
-            similarity(p."host", ${search}),
-            similarity(p."description", ${search})
-          ) AS "searchRank"
+          p."id", p."slug", p."title", p."host", p."imageUrl",
+          p."description", p."category", p."status", p."rating",
+          p."ratingCount", p."listeners", p."durationMinutes",
+          p."episodeCount", p."isFeatured", p."providerId", p."createdAt",
+          p."updatedAt", p."deletedAt",
+          (CASE
+            WHEN p."title" ILIKE '%' || ${search} || '%' THEN 3
+            WHEN p."host" ILIKE '%' || ${search} || '%' THEN 2
+            ELSE 1
+          END)::float AS "searchRank"
         FROM "Podcast" p
         WHERE p."deletedAt" IS NULL
           AND p."status" = ${status}::"PodcastStatus"
-          AND (${filter?.category ?? null}::"PodcastCategory" IS NULL OR p."category" = ${filter?.category ?? null}::"PodcastCategory")
-          AND (${filter?.isFeatured ?? null}::boolean IS NULL OR p."isFeatured" = ${filter?.isFeatured ?? null}::boolean)
-          AND (${filter?.providerId ?? null}::text IS NULL OR p."providerId" = ${filter?.providerId ?? null}::text)
+          AND (${category}::"PodcastCategory" IS NULL OR p."category" = ${category}::"PodcastCategory")
+          AND (${isFeatured}::boolean IS NULL OR p."isFeatured" = ${isFeatured}::boolean)
+          AND (${providerId}::text IS NULL OR p."providerId" = ${providerId}::text)
+          AND (${cursor}::text IS NULL OR p."id" > ${cursor}::text)
           AND (
             p."title" ILIKE '%' || ${search} || '%'
             OR p."host" ILIKE '%' || ${search} || '%'
             OR p."description" ILIKE '%' || ${search} || '%'
-            OR similarity(p."title", ${search}) > 0.15
-            OR similarity(p."host", ${search}) > 0.15
-            OR similarity(p."description", ${search}) > 0.10
           )
+        ORDER BY "searchRank" DESC, p."createdAt" DESC, p."id" DESC
+        LIMIT ${CANDIDATE_CAP}
+      ),
+      fuzzy_matches AS (
+        SELECT
+          p."id", p."slug", p."title", p."host", p."imageUrl",
+          p."description", p."category", p."status", p."rating",
+          p."ratingCount", p."listeners", p."durationMinutes",
+          p."episodeCount", p."isFeatured", p."providerId", p."createdAt",
+          p."updatedAt", p."deletedAt",
+          LEAST(
+            GREATEST(
+              similarity(p."title", ${search}),
+              similarity(p."host", ${search})
+            ),
+            0.99
+          ) AS "searchRank"
+        FROM "Podcast" p
+        WHERE p."deletedAt" IS NULL
+          AND p."status" = ${status}::"PodcastStatus"
+          AND (${category}::"PodcastCategory" IS NULL OR p."category" = ${category}::"PodcastCategory")
+          AND (${isFeatured}::boolean IS NULL OR p."isFeatured" = ${isFeatured}::boolean)
+          AND (${providerId}::text IS NULL OR p."providerId" = ${providerId}::text)
           AND (${cursor}::text IS NULL OR p."id" > ${cursor}::text)
+          AND p."id" NOT IN (SELECT "id" FROM exact_matches)
+          AND (p."title" % ${search} OR p."host" % ${search})
+        ORDER BY "searchRank" DESC, p."createdAt" DESC, p."id" DESC
+        LIMIT GREATEST(${CANDIDATE_CAP} - (SELECT COUNT(*)::int FROM exact_matches), 0)
       )
-      SELECT
-        ranked_podcasts.*,
-        COUNT(*) OVER() AS "totalCount"
-      FROM ranked_podcasts
+      SELECT * FROM exact_matches
+      UNION ALL
+      SELECT * FROM fuzzy_matches
       ORDER BY "searchRank" DESC, "createdAt" DESC, "id" DESC
       LIMIT ${take + 1};
     `;
 
+    const countPromise = this.prismaService.$queryRaw<Array<{ count: bigint }>>`
+      SELECT COUNT(*)::bigint AS count
+      FROM "Podcast" p
+      WHERE p."deletedAt" IS NULL
+        AND p."status" = ${status}::"PodcastStatus"
+        AND (${category}::"PodcastCategory" IS NULL OR p."category" = ${category}::"PodcastCategory")
+        AND (${isFeatured}::boolean IS NULL OR p."isFeatured" = ${isFeatured}::boolean)
+        AND (${providerId}::text IS NULL OR p."providerId" = ${providerId}::text)
+        AND (${cursor}::text IS NULL OR p."id" > ${cursor}::text)
+        AND (
+          p."title" ILIKE '%' || ${search} || '%'
+          OR p."host" ILIKE '%' || ${search} || '%'
+          OR p."description" ILIKE '%' || ${search} || '%'
+          OR p."title" % ${search}
+          OR p."host" % ${search}
+        )
+    `;
+
+    const [rows, countRows] = await this.prismaService.$transaction([
+      rowsPromise,
+      countPromise,
+    ]);
     const hasNextPage = rows.length > take;
     const slicedRows = hasNextPage ? rows.slice(0, take) : rows;
     return {
-      items: slicedRows.map(({ searchRank, totalCount, ...podcast }) => ({
+      items: slicedRows.map(({ searchRank: _searchRank, ...podcast }) => ({
         ...podcast,
       })),
-      totalCount: rows[0]?.totalCount ? Number(rows[0].totalCount) : 0,
+      totalCount: Number(countRows[0]?.count ?? 0n),
       pageInfo: {
         hasNextPage,
         nextCursor: hasNextPage ? slicedRows[slicedRows.length - 1]?.id : null,
