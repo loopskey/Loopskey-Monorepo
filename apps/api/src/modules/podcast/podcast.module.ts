@@ -1,4 +1,6 @@
 import { PodcastEngagementApiService } from "@podcast/application/podcast-engagement-api.service";
+import { PODCAST_CATALOG_SEARCH_API } from "@podcast/public/catalog-search-api";
+import { CatalogSearchApiService } from "@podcast/application/catalog-search-api.service";
 import { PODCAST_ENGAGEMENT_API } from "@podcast/public/podcast-engagement-api";
 import { PodcastResolver } from "@podcast/resolvers/podcast.resolver";
 import { PodcastService } from "@podcast/services/podcast.service";
@@ -17,7 +19,12 @@ import "@podcast/enums/podcast-register.enum";
       provide: PODCAST_ENGAGEMENT_API,
       useExisting: PodcastEngagementApiService,
     },
+    CatalogSearchApiService,
+    {
+      provide: PODCAST_CATALOG_SEARCH_API,
+      useExisting: CatalogSearchApiService,
+    },
   ],
-  exports: [PODCAST_ENGAGEMENT_API],
+  exports: [PODCAST_ENGAGEMENT_API, PODCAST_CATALOG_SEARCH_API],
 })
 export class PodcastModule {}

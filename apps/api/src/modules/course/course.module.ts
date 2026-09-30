@@ -1,6 +1,8 @@
 import { ProfessionalCatalogApiService } from "@course/application/professional-catalog-api.service";
 import { CourseEngagementApiService } from "@course/application/course-engagement-api.service";
+import { COURSE_CATALOG_SEARCH_API } from "@course/public/catalog-search-api";
 import { PROFESSIONAL_CATALOG_API } from "@course/public/professional-catalog-api";
+import { CatalogSearchApiService } from "@course/application/catalog-search-api.service";
 import { CourseImportController } from "@course/controllers/course-import.controller";
 import { COURSE_ENGAGEMENT_API } from "@course/public/course-engagement-api";
 import { CourseImportService } from "@course/services/course-import.service";
@@ -25,7 +27,16 @@ import "@course/enums/enum-register";
       provide: PROFESSIONAL_CATALOG_API,
       useExisting: ProfessionalCatalogApiService,
     },
+    CatalogSearchApiService,
+    {
+      provide: COURSE_CATALOG_SEARCH_API,
+      useExisting: CatalogSearchApiService,
+    },
   ],
-  exports: [COURSE_ENGAGEMENT_API, PROFESSIONAL_CATALOG_API],
+  exports: [
+    COURSE_ENGAGEMENT_API,
+    PROFESSIONAL_CATALOG_API,
+    COURSE_CATALOG_SEARCH_API,
+  ],
 })
 export class CourseModule {}

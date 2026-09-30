@@ -17,3 +17,15 @@ export type TChannelCandidateRow = {
   isFeatured: boolean;
   description: string | null;
 };
+
+export type ChannelCatalogSearchRow = {
+  id: string;
+  slug: string;
+  title: string;
+  imageUrl: string | null;
+  category: string;
+  rating: number;
+  videoCount: number;
+  createdAt: Date;
+  score: number;
+};

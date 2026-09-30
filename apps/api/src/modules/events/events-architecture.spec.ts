@@ -40,7 +40,9 @@ describe("Events vertical-slice boundaries", () => {
       join(eventsRoot, "events.module.ts"),
       "utf8",
     );
-    expect(moduleSource).toContain("exports: [EVENTS_API]");
+    expect(moduleSource).toContain(
+      "exports: [EVENTS_API, EVENT_CATALOG_SEARCH_API]",
+    );
     expect(moduleSource).not.toContain("exports: [EventService]");
   });
 });

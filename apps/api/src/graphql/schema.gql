@@ -2501,6 +2501,27 @@ The `JSONObject` scalar type represents JSON objects as specified by [ECMA-404](
 """
 scalar JSONObject
 
+input LandingCatalogSearchInput {
+  category: String
+  contentType: ContentType
+  search: String!
+  take: Int = 12
+}
+
+type LandingCatalogSearchItem {
+  category: String!
+  contentType: ContentType!
+  durationMinutes: Int
+  episodeCount: Int
+  id: String!
+  imageUrl: String
+  rating: Float!
+  slug: String!
+  startDate: DateTime
+  title: String!
+  videoCount: Int
+}
+
 enum LearningBudgetPreference {
   FIVE_HUNDRED_PLUS
   FREE_ONLY
@@ -4437,6 +4458,7 @@ type Query {
   ingestionItems(filter: IngestionItemFilter, pagination: IngestionPagination): PaginatedIngestionItems!
   ingestionSource(sourceId: String!): IngestionSource!
   ingestionSources(filter: IngestionSourceFilter, pagination: IngestionPagination): PaginatedIngestionSources!
+  landingCatalogSearch(input: LandingCatalogSearchInput!): [LandingCatalogSearchItem!]!
   linkedinOAuthUrl(role: Role!): AuthUrl!
   me: User!
   memberInvitationStatus(token: String!): MemberInvitationStatus!

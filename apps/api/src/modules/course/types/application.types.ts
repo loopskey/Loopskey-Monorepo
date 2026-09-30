@@ -12,3 +12,15 @@ export type TCourseCandidateRow = {
   professionals: number;
   durationMinutes: number | null;
 };
+
+export type CourseCatalogSearchRow = {
+  id: string;
+  slug: string;
+  title: string;
+  imageUrl: string | null;
+  category: string;
+  rating: number;
+  durationMinutes: number | null;
+  createdAt: Date;
+  score: number;
+};
