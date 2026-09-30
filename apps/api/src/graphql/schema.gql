@@ -1646,6 +1646,17 @@ enum CourseCategory {
   TECHNOLOGY
 }
 
+type CourseCategoryFacet {
+  count: Int!
+  value: CourseCategory!
+}
+
+type CourseFilterFacets {
+  categories: [CourseCategoryFacet!]!
+  levels: [CourseLevelFacet!]!
+  ratings: [CourseRatingFacet!]!
+}
+
 input CourseFilterInput {
   category: CourseCategory
   isFeatured: Boolean
@@ -1664,6 +1675,11 @@ enum CourseLevel {
   INTERMEDIATE
 }
 
+type CourseLevelFacet {
+  count: Int!
+  value: CourseLevel!
+}
+
 type CoursePageInfo {
   hasNextPage: Boolean!
   nextCursor: String
@@ -1672,6 +1688,11 @@ type CoursePageInfo {
 input CoursePaginationInput {
   cursor: String
   take: Int = 20
+}
+
+type CourseRatingFacet {
+  count: Int!
+  minimum: Float!
 }
 
 enum CourseSortField {
@@ -2154,11 +2175,21 @@ enum EventCategory {
   TECHNOLOGY
 }
 
+type EventCategoryFacet {
+  count: Int!
+  value: EventCategory!
+}
+
 enum EventDeliveryMode {
   HYBRID
   IN_PERSON
   LIVE_ONLINE
   RECORDED
+}
+
+type EventFilterFacets {
+  categories: [EventCategoryFacet!]!
+  types: [EventTypeFacet!]!
 }
 
 input EventFilterInput {
@@ -2253,6 +2284,11 @@ enum EventType {
   TRAINING
   WEBINAR
   WORKSHOP
+}
+
+type EventTypeFacet {
+  count: Int!
+  value: EventType!
 }
 
 enum ExperienceRange {
@@ -3552,6 +3588,11 @@ enum PodcastCategory {
   TECHNOLOGY
 }
 
+type PodcastCategoryFacet {
+  count: Int!
+  value: PodcastCategory!
+}
+
 type PodcastEpisode {
   audioUrl: String
   createdAt: DateTime!
@@ -3564,6 +3605,10 @@ type PodcastEpisode {
   sourceUrl: String
   title: String!
   updatedAt: DateTime!
+}
+
+type PodcastFilterFacets {
+  categories: [PodcastCategoryFacet!]!
 }
 
 input PodcastFilterInput {
@@ -4438,6 +4483,7 @@ type Query {
   contentReviews(contentId: String!, contentType: ContentType!): [ContentReview!]!
   courseById(courseId: String!): Course!
   courseBySlug(slug: String!): Course!
+  courseFilterFacets: CourseFilterFacets!
   courses(filter: CourseFilterInput, pagination: CoursePaginationInput, sort: CourseSortInput): PaginatedCourses!
   cpdPlan(planId: ID!): CpdPlan!
   cpdPlanActivities(planId: ID!): [ProfessionalPduActivity!]!
@@ -4446,6 +4492,7 @@ type Query {
   currentUser: AuthPayload!
   eventById(eventId: String!): Event!
   eventBySlug(slug: String!): Event!
+  eventFilterFacets: EventFilterFacets!
   events(filter: EventFilterInput, pagination: EventPaginationInput, sort: EventSortInput): PaginatedEvents!
   featuredCourses(take: Int = 12): [Course!]!
   featuredEvents(take: Int = 12): [Event!]!
@@ -4498,6 +4545,7 @@ type Query {
   podcastById(podcastId: String!): Podcast!
   podcastBySlug(slug: String!): Podcast!
   podcastEpisodes(podcastId: String!): [PodcastEpisode!]!
+  podcastFilterFacets: PodcastFilterFacets!
   podcasts(filter: PodcastFilterInput, pagination: PodcastPaginationInput, sort: PodcastSortInput): PaginatedPodcasts!
   popularCategories(input: PopularCategoriesInput): [PopularCategory!]!
   professionalActiveSessions: [ProfessionalSession!]!
@@ -4542,6 +4590,7 @@ type Query {
   users(filter: UserFilterInput, pagination: UserPaginationInput): PaginatedUsers!
   youtubeChannelById(channelId: String!): YouTubeChannel!
   youtubeChannelBySlug(slug: String!): YouTubeChannel!
+  youtubeChannelFilterFacets: YouTubeChannelFilterFacets!
   youtubeChannels(filter: YouTubeChannelFilterInput, pagination: YouTubeChannelPaginationInput, sort: YouTubeChannelSortInput): PaginatedYouTubeChannels!
   youtubeVideos(channelId: String!): [YouTubeVideo!]!
 }
@@ -5424,6 +5473,11 @@ enum YouTubeCategory {
   TECHNOLOGY
 }
 
+type YouTubeCategoryFacet {
+  count: Int!
+  value: YouTubeCategory!
+}
+
 type YouTubeChannel {
   category: YouTubeCategory!
   channelUrl: String
@@ -5444,6 +5498,10 @@ type YouTubeChannel {
   updatedAt: DateTime!
   videoCount: Int!
   views: Int!
+}
+
+type YouTubeChannelFilterFacets {
+  categories: [YouTubeCategoryFacet!]!
 }
 
 input YouTubeChannelFilterInput {

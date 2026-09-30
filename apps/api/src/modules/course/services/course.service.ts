@@ -1,5 +1,5 @@
 import { CourseSortField, SortDirection } from "@course/enums/sort.enum";
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { CourseStatus, Prisma, Role } from "@prisma/client";
 import { CoursePaginationInput } from "@course/dtos/course-pagination.input";
 import { ForbiddenException } from "@nestjs/common";
@@ -10,6 +10,9 @@ import { CourseFilterInput } from "@course/dtos/course-filter.input";
 import { CourseMessageCode } from "@course/enums/message-code.enum";
 import { TCourseRequester } from "@course/types/course-service.type";
 import { CourseSortInput } from "@course/dtos/course-sort.input";
+import { measureCatalogFacets } from "@utils/catalog-facet.util";
+import { toCourseRatingFacets } from "@course/utils/course-rating-facets.util";
+import { toEnumFacets } from "@utils/catalog-facet.util";
 import { PrismaService } from "@prisma/prisma.service";
 import { slugify } from "@utils/slug.util";
 
@@ -17,7 +20,75 @@ const CANDIDATE_CAP = 500;
 
 @Injectable()
 export class CourseService {
+  private readonly logger = new Logger(CourseService.name);
+
   constructor(private readonly prismaService: PrismaService) {}
+
+  /**
+   * Options for the public catalogue filters.
+   *
+   * The same visibility predicate as the public list (`buildCourseWhere` with
+   * no filter), so a value can never be offered for content a visitor cannot
+   * open. Star thresholds come from reviewed courses only: `ratingCount > 0`
+   * and a stored rating inside the 1-5 range the review aggregate writes.
+   */
+  async findCourseFilterFacets() {
+    return measureCatalogFacets(
+      this.logger,
+      "course",
+      async () => {
+        const where = this.publicCourseWhere();
+        const [categories, levels, ratingBuckets] = await Promise.all([
+          this.prismaService.course.groupBy({
+            by: ["category"],
+            where,
+            _count: { _all: true },
+          }),
+          this.prismaService.course.groupBy({
+            by: ["level"],
+            where,
+            _count: { _all: true },
+          }),
+          this.prismaService.$queryRaw<{ bucket: number; count: bigint }[]>`
+            SELECT floor("rating" * 2) / 2 AS bucket, count(*) AS count
+            FROM "Course"
+            WHERE "deletedAt" IS NULL
+              AND "status" = ${CourseStatus.PUBLISHED}::"CourseStatus"
+              AND "ratingCount" > 0
+              AND "rating" >= 1
+              AND "rating" <= 5
+            GROUP BY bucket`,
+        ]);
+
+        return {
+          categories: toEnumFacets(
+            categories.map((row) => ({
+              value: row.category,
+              count: row._count._all,
+            })),
+          ),
+          levels: toEnumFacets(
+            levels.map((row) => ({
+              value: row.level,
+              count: row._count._all,
+            })),
+          ),
+          ratings: toCourseRatingFacets(
+            ratingBuckets.map((row) => ({
+              bucket: Number(row.bucket),
+              count: Number(row.count),
+            })),
+          ),
+        };
+      },
+      (facets) =>
+        facets.categories.length + facets.levels.length + facets.ratings.length,
+    );
+  }
+
+  private publicCourseWhere(): Prisma.CourseWhereInput {
+    return this.buildCourseWhere();
+  }
 
   async createCourse(input: CreateCourseInput, requester: TCourseRequester) {
     this.ensureProviderOrAdmin(requester);

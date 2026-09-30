@@ -5,6 +5,16 @@ import * as API from "@/lib/graphql/operations/podcast";
 
 export const podcastApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
+    podcastFilterFacets: builder.query<
+      TAPI.PodcastFilterFacetsQuery["podcastFilterFacets"],
+      void
+    >({
+      query: () => ({ document: API.PodcastFilterFacetsDocument }),
+      transformResponse: (response: TAPI.PodcastFilterFacetsQuery) =>
+        response.podcastFilterFacets,
+      providesTags: ["Podcasts"],
+    }),
+
     podcasts: builder.query<
       TAPI.PodcastsQuery["podcasts"],
       TAPI.PodcastsQueryVariables | void
@@ -209,6 +219,7 @@ export const podcastApi = baseApi.injectEndpoints({
 
 export const {
   usePodcastsQuery,
+  usePodcastFilterFacetsQuery,
   usePodcastByIdQuery,
   useLazyPodcastsQuery,
   usePodcastBySlugQuery,

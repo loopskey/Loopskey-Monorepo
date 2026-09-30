@@ -115,6 +115,11 @@ export type DeletePodcastEpisodeMutationVariables = Types.Exact<{
 
 export type DeletePodcastEpisodeMutation = { __typename?: 'Mutation', deletePodcastEpisode: { __typename?: 'PodcastEpisode', id: string, title: string, audioUrl?: string | null, sourceUrl?: string | null, podcastId: string, updatedAt: string, createdAt: string, publishedAt?: string | null, description?: string | null, episodeNumber: number, durationMinutes?: number | null } };
 
+export type PodcastFilterFacetsQueryVariables = Types.Exact<{ [key: string]: never; }>;
+
+
+export type PodcastFilterFacetsQuery = { __typename?: 'Query', podcastFilterFacets: { __typename?: 'PodcastFilterFacets', categories: Array<{ __typename?: 'PodcastCategoryFacet', value: Types.PodcastCategory, count: number }> } };
+
 export const PodcastFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
     fragment PodcastFields on Podcast {
   id
@@ -552,3 +557,13 @@ export const DeletePodcastEpisodeDocument = /*#__PURE__*/ new TypedDocumentStrin
   episodeNumber
   durationMinutes
 }`) as unknown as TypedDocumentString<DeletePodcastEpisodeMutation, DeletePodcastEpisodeMutationVariables>;
+export const PodcastFilterFacetsDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query PodcastFilterFacets {
+  podcastFilterFacets {
+    categories {
+      value
+      count
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<PodcastFilterFacetsQuery, PodcastFilterFacetsQueryVariables>;

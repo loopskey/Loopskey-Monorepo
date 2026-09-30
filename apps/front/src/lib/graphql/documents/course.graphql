@@ -119,3 +119,20 @@ mutation RestoreCourse($courseId: String!) {
     ...CourseFields
   }
 }
+
+query CourseFilterFacets {
+  courseFilterFacets {
+    categories {
+      value
+      count
+    }
+    levels {
+      value
+      count
+    }
+    ratings {
+      minimum
+      count
+    }
+  }
+}

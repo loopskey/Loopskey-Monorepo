@@ -1744,6 +1744,19 @@ export enum CourseCategory {
   Technology = 'TECHNOLOGY'
 }
 
+export type CourseCategoryFacet = {
+  __typename?: 'CourseCategoryFacet';
+  count: Scalars['Int']['output'];
+  value: CourseCategory;
+};
+
+export type CourseFilterFacets = {
+  __typename?: 'CourseFilterFacets';
+  categories: Array<CourseCategoryFacet>;
+  levels: Array<CourseLevelFacet>;
+  ratings: Array<CourseRatingFacet>;
+};
+
 export type CourseFilterInput = {
   category?: InputMaybe<CourseCategory>;
   isFeatured?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1762,6 +1775,12 @@ export enum CourseLevel {
   Intermediate = 'INTERMEDIATE'
 }
 
+export type CourseLevelFacet = {
+  __typename?: 'CourseLevelFacet';
+  count: Scalars['Int']['output'];
+  value: CourseLevel;
+};
+
 export type CoursePageInfo = {
   __typename?: 'CoursePageInfo';
   hasNextPage: Scalars['Boolean']['output'];
@@ -1771,6 +1790,12 @@ export type CoursePageInfo = {
 export type CoursePaginationInput = {
   cursor?: InputMaybe<Scalars['String']['input']>;
   take?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type CourseRatingFacet = {
+  __typename?: 'CourseRatingFacet';
+  count: Scalars['Int']['output'];
+  minimum: Scalars['Float']['output'];
 };
 
 export enum CourseSortField {
@@ -2258,12 +2283,24 @@ export enum EventCategory {
   Technology = 'TECHNOLOGY'
 }
 
+export type EventCategoryFacet = {
+  __typename?: 'EventCategoryFacet';
+  count: Scalars['Int']['output'];
+  value: EventCategory;
+};
+
 export enum EventDeliveryMode {
   Hybrid = 'HYBRID',
   InPerson = 'IN_PERSON',
   LiveOnline = 'LIVE_ONLINE',
   Recorded = 'RECORDED'
 }
+
+export type EventFilterFacets = {
+  __typename?: 'EventFilterFacets';
+  categories: Array<EventCategoryFacet>;
+  types: Array<EventTypeFacet>;
+};
 
 export type EventFilterInput = {
   category?: InputMaybe<EventCategory>;
@@ -2361,6 +2398,12 @@ export enum EventType {
   Webinar = 'WEBINAR',
   Workshop = 'WORKSHOP'
 }
+
+export type EventTypeFacet = {
+  __typename?: 'EventTypeFacet';
+  count: Scalars['Int']['output'];
+  value: EventType;
+};
 
 export enum ExperienceRange {
   ElevenToFifteenYears = 'ELEVEN_TO_FIFTEEN_YEARS',
@@ -4555,6 +4598,12 @@ export enum PodcastCategory {
   Technology = 'TECHNOLOGY'
 }
 
+export type PodcastCategoryFacet = {
+  __typename?: 'PodcastCategoryFacet';
+  count: Scalars['Int']['output'];
+  value: PodcastCategory;
+};
+
 export type PodcastEpisode = {
   __typename?: 'PodcastEpisode';
   audioUrl?: Maybe<Scalars['String']['output']>;
@@ -4568,6 +4617,11 @@ export type PodcastEpisode = {
   sourceUrl?: Maybe<Scalars['String']['output']>;
   title: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
+};
+
+export type PodcastFilterFacets = {
+  __typename?: 'PodcastFilterFacets';
+  categories: Array<PodcastCategoryFacet>;
 };
 
 export type PodcastFilterInput = {
@@ -5497,6 +5551,7 @@ export type Query = {
   contentReviews: Array<ContentReview>;
   courseById: Course;
   courseBySlug: Course;
+  courseFilterFacets: CourseFilterFacets;
   courses: PaginatedCourses;
   cpdPlan: CpdPlan;
   cpdPlanActivities: Array<ProfessionalPduActivity>;
@@ -5505,6 +5560,7 @@ export type Query = {
   currentUser: AuthPayload;
   eventById: Event;
   eventBySlug: Event;
+  eventFilterFacets: EventFilterFacets;
   events: PaginatedEvents;
   featuredCourses: Array<Course>;
   featuredEvents: Array<Event>;
@@ -5557,6 +5613,7 @@ export type Query = {
   podcastById: Podcast;
   podcastBySlug: Podcast;
   podcastEpisodes: Array<PodcastEpisode>;
+  podcastFilterFacets: PodcastFilterFacets;
   podcasts: PaginatedPodcasts;
   popularCategories: Array<PopularCategory>;
   professionalActiveSessions: Array<ProfessionalSession>;
@@ -5601,6 +5658,7 @@ export type Query = {
   users: PaginatedUsers;
   youtubeChannelById: YouTubeChannel;
   youtubeChannelBySlug: YouTubeChannel;
+  youtubeChannelFilterFacets: YouTubeChannelFilterFacets;
   youtubeChannels: PaginatedYouTubeChannels;
   youtubeVideos: Array<YouTubeVideo>;
 };
@@ -7253,6 +7311,12 @@ export enum YouTubeCategory {
   Technology = 'TECHNOLOGY'
 }
 
+export type YouTubeCategoryFacet = {
+  __typename?: 'YouTubeCategoryFacet';
+  count: Scalars['Int']['output'];
+  value: YouTubeCategory;
+};
+
 export type YouTubeChannel = {
   __typename?: 'YouTubeChannel';
   category: YouTubeCategory;
@@ -7274,6 +7338,11 @@ export type YouTubeChannel = {
   updatedAt: Scalars['DateTime']['output'];
   videoCount: Scalars['Int']['output'];
   views: Scalars['Int']['output'];
+};
+
+export type YouTubeChannelFilterFacets = {
+  __typename?: 'YouTubeChannelFilterFacets';
+  categories: Array<YouTubeCategoryFacet>;
 };
 
 export type YouTubeChannelFilterInput = {

@@ -1,6 +1,8 @@
 import { Prisma, Role, YouTubeChannelStatus } from "@prisma/client";
 import { YouTubeChannelPaginationInput } from "@modules/youtube/dtos/youtube-channel-pagination.input";
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { measureCatalogFacets } from "@utils/catalog-facet.util";
+import { toEnumFacets } from "@utils/catalog-facet.util";
 import { YouTubeChannelSortDirection } from "@youtube/enums/youtube.enum";
 import { CreateYouTubeChannelInput } from "@youtube/dtos/create-youtube-channel.input";
 import { UpdateYouTubeChannelInput } from "@youtube/dtos/update-youtube-channel.input";
@@ -36,7 +38,39 @@ const lowerTerms = (terms: readonly string[]) =>
 
 @Injectable()
 export class YouTubeService {
+  private readonly logger = new Logger(YouTubeService.name);
+
   constructor(private readonly prismaService: PrismaService) {}
+
+  /**
+   * Options for the public catalogue filter, under the same visibility
+   * predicate as the public channel list.
+   */
+  findYouTubeChannelFilterFacets() {
+    return measureCatalogFacets(
+      this.logger,
+      "youtube",
+      async () => {
+        const categories = await this.prismaService.youTubeChannel.groupBy({
+          by: ["category"],
+          where: {
+            status: YouTubeChannelStatus.PUBLISHED,
+            deletedAt: null,
+          },
+          _count: { _all: true },
+        });
+        return {
+          categories: toEnumFacets(
+            categories.map((row) => ({
+              value: row.category,
+              count: row._count._all,
+            })),
+          ),
+        };
+      },
+      (facets) => facets.categories.length,
+    );
+  }
 
   async createChannel(
     input: CreateYouTubeChannelInput,

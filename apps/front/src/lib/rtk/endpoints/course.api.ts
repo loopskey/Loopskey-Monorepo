@@ -5,6 +5,16 @@ import * as API from "@/lib/graphql/operations/course";
 
 export const courseApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
+    courseFilterFacets: builder.query<
+      TAPI.CourseFilterFacetsQuery["courseFilterFacets"],
+      void
+    >({
+      query: () => ({ document: API.CourseFilterFacetsDocument }),
+      transformResponse: (response: TAPI.CourseFilterFacetsQuery) =>
+        response.courseFilterFacets,
+      providesTags: ["Courses"],
+    }),
+
     courses: builder.query<
       TAPI.CoursesQuery["courses"],
       TAPI.CoursesQueryVariables | void
@@ -155,6 +165,7 @@ export const courseApi = baseApi.injectEndpoints({
 
 export const {
   useCoursesQuery,
+  useCourseFilterFacetsQuery,
   useCourseByIdQuery,
   useLazyCoursesQuery,
   useCourseBySlugQuery,

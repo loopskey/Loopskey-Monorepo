@@ -1,4 +1,5 @@
 import { Args, Int, Mutation, Query, Resolver } from "@nestjs/graphql";
+import { CourseFilterFacetsEntity } from "@course/entities/course-filter-facets.entity";
 import { PaginatedCoursesEntity } from "@course/entities/paginated-courses.entity";
 import { CourseGqlMutationNames } from "@course/enums/gql-names.enum";
 import { CoursePaginationInput } from "@course/dtos/course-pagination.input";
@@ -29,6 +30,14 @@ export class CourseResolver {
     @Args("sort", { nullable: true }) sort?: CourseSortInput,
   ) {
     return this.courseService.findCourses(filter, pagination, sort);
+  }
+
+  @Public()
+  @Query(() => CourseFilterFacetsEntity, {
+    name: CourseGqlQueryNames.COURSE_FILTER_FACETS,
+  })
+  courseFilterFacets() {
+    return this.courseService.findCourseFilterFacets();
   }
 
   @Public()

@@ -1,5 +1,7 @@
 import { BadRequestException, ForbiddenException } from "@nestjs/common";
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { measureCatalogFacets } from "@utils/catalog-facet.util";
+import { toEnumFacets } from "@utils/catalog-facet.util";
 import { EventDomainEventDispatcher } from "@events/application/events/event-domain-event.dispatcher";
 import { EventStatus, Prisma, Role } from "@prisma/client";
 import { shouldEmitEventPublished } from "@events/domain/policies/event-publication.policy";
@@ -25,10 +27,42 @@ import type { ProviderEventsQuery } from "@events/public/events-api";
 
 @Injectable()
 export class EventService {
+  private readonly logger = new Logger(EventService.name);
+
   constructor(
     private readonly eventRepository: EventRepository,
     private readonly eventDispatcher: EventDomainEventDispatcher,
   ) {}
+
+  /**
+   * Options for the public catalogue filters, under the same visibility
+   * predicate as the public event list.
+   */
+  findEventFilterFacets() {
+    return measureCatalogFacets(
+      this.logger,
+      "event",
+      async () => {
+        const { categories, types } =
+          await this.eventRepository.groupPublicFacets();
+        return {
+          categories: toEnumFacets(
+            categories.map((row) => ({
+              value: row.category,
+              count: row._count._all,
+            })),
+          ),
+          types: toEnumFacets(
+            types.map((row) => ({
+              value: row.type,
+              count: row._count._all,
+            })),
+          ),
+        };
+      },
+      (facets) => facets.categories.length + facets.types.length,
+    );
+  }
 
   async createEvent(input: CreateEventInput, requester: EventRequester) {
     this.ensureProviderOrAdmin(requester);

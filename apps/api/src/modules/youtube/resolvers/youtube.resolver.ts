@@ -1,4 +1,5 @@
 import { Args, Int, Mutation, Query, Resolver } from "@nestjs/graphql";
+import { YouTubeChannelFilterFacetsEntity } from "@youtube/entities/youtube-channel-filter-facets.entity";
 import { PaginatedYouTubeChannelsEntity } from "@youtube/entities/paginated-youtube-channels.entity";
 import { YouTubeChannelPaginationInput } from "@modules/youtube/dtos/youtube-channel-pagination.input";
 import { CreateYouTubeChannelInput } from "@youtube/dtos/create-youtube-channel.input";
@@ -33,6 +34,14 @@ export class YouTubeResolver {
     @Args("sort", { nullable: true }) sort?: YouTubeChannelSortInput,
   ) {
     return this.youtubeService.findChannels(filter, pagination, sort);
+  }
+
+  @Public()
+  @Query(() => YouTubeChannelFilterFacetsEntity, {
+    name: YouTubeGqlQueryNames.YOUTUBE_CHANNEL_FILTER_FACETS,
+  })
+  youtubeChannelFilterFacets() {
+    return this.youtubeService.findYouTubeChannelFilterFacets();
   }
 
   @Public()
