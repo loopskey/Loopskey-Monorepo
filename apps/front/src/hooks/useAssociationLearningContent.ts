@@ -1,13 +1,13 @@
 "use client";
 
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getAssociationErrorTranslationKey } from "@utils/association-error";
 import { AssociationLearningContentStatus } from "@/lib/graphql/base";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ContentType, PduCategory } from "@/lib/graphql/base";
 import { AssociationLearningExternalType } from "@/lib/graphql/base";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ContentType, PduCategory } from "@/lib/graphql/base";
 import { AssociationAudienceKind } from "@/lib/graphql/base";
 import { AssociationMemberStatus } from "@/lib/graphql/base";
-import { useRouter, useSearchParams } from "next/navigation";
 import { SEARCH_DEBOUNCE_MS } from "@utils/constant";
 import { useDebouncedValue } from "@hooks/useDebounced";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -76,8 +76,7 @@ export const useAssociationLearningContent = () => {
     LEARNING_CONTENT_STEPS.find((known) => known === stepParam) ?? "content";
   const isWizard = Boolean(contentParam);
   const isAssign = searchParams?.get("assign") === "1";
-  const editorId =
-    contentParam && contentParam !== "new" ? contentParam : null;
+  const editorId = contentParam && contentParam !== "new" ? contentParam : null;
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<string>(ALL);
@@ -171,6 +170,12 @@ export const useAssociationLearningContent = () => {
     pagination: { take: 100 },
   });
 
+  const publishedRequirementsQuery =
+    API.useAssociationPublishedRequirementOptionsQuery(
+      { pagination: { take: 100 } },
+      { skip: !isWizard && !isAssign },
+    );
+
   const groupsQuery = API.useAssociationGroupsQuery(undefined, {
     skip: !isWizard && !isAssign,
   });
@@ -224,6 +229,32 @@ export const useAssociationLearningContent = () => {
       })),
     [requirementsQuery.data],
   );
+
+  const publishedRequirementOptions = useMemo(
+    () =>
+      (publishedRequirementsQuery.data?.items ?? []).map((requirement) => ({
+        value: requirement.id,
+        label: requirement.name,
+      })),
+    [publishedRequirementsQuery.data],
+  );
+
+  const publishedRequirementOptionIds = useMemo(
+    () => new Set(publishedRequirementOptions.map((option) => option.value)),
+    [publishedRequirementOptions],
+  );
+
+  const requirementIdValue = form.watch("requirementId");
+
+  const legacyRequirementLink =
+    requirementIdValue &&
+    !publishedRequirementsQuery.isFetching &&
+    !publishedRequirementOptionIds.has(requirementIdValue)
+      ? {
+          id: requirementIdValue,
+          name: editorQuery.data?.requirementName ?? "",
+        }
+      : null;
 
   const groupOptions = useMemo(
     () =>
@@ -466,6 +497,7 @@ export const useAssociationLearningContent = () => {
   const switchToLibrary = () => {
     form.setValue("isExternal", false, { shouldDirty: true });
     form.setValue("externalTitle", "");
+    form.setValue("externalProvider", "");
     form.setValue("externalUrl", "");
     form.setValue("externalContentType", undefined);
   };
@@ -783,6 +815,13 @@ export const useAssociationLearningContent = () => {
     setCatalogType,
     setCatalogSearch,
     requirementOptions,
+    publishedRequirementOptions,
+    legacyRequirementLink,
+    isRequirementOptionsLoading: publishedRequirementsQuery.isLoading,
+    isRequirementOptionsError: publishedRequirementsQuery.isError,
+    retryRequirementOptions: () => {
+      void publishedRequirementsQuery.refetch();
+    },
     assignSearch,
     setAssignSearch,
     assignMemberOptions,
