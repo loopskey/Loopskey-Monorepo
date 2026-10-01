@@ -7,9 +7,9 @@ import { AssociationLearningStepReview } from "@modules/AssociationDashboard/par
 import { AssociationLearningStepCpd } from "@modules/AssociationDashboard/parts/association-learning-step-cpd";
 import { TAssociationLearningEditor } from "@/types/association-dashboard.types";
 import { LEARNING_CONTENT_STEPS } from "@hooks/useAssociationLearningContent";
+import { WizardStepper } from "@elements/wizard-stepper";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
-import { cn } from "@/lib/utils";
 
 import type { TLearningContentStep } from "@hooks/useAssociationLearningContent";
 
@@ -56,48 +56,19 @@ export const AssociationLearningPage = ({
         {t(isEditing ? `${KEY}.editor.editTitle` : `${KEY}.editor.addTitle`)}
       </h1>
 
-      <nav
-        aria-label={t("associationDashboard.requirements.wizard.stepsLabel")}
-        className="sticky top-16 z-30 rounded-lg border bg-card p-2 shadow-sm"
-      >
-        <ol className="flex flex-col gap-1 sm:flex-row sm:gap-2">
-          {LEARNING_CONTENT_STEPS.map((wizardStep, index) => {
-            const isActive = wizardStep === step;
-
-            return (
-              <li key={wizardStep} className="flex-1">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  disabled={index > activeIndex}
-                  aria-current={isActive ? "step" : undefined}
-                  onClick={() => goToStep(wizardStep as TLearningContentStep)}
-                  className={cn(
-                    "h-auto w-full justify-start gap-3 rounded-md px-4 py-3 text-left",
-                    isActive && "bg-primary/10 text-primary",
-                  )}
-                >
-                  <span
-                    className={cn(
-                      "flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs tabular-nums",
-                      index < activeIndex &&
-                        "border-primary bg-primary text-primary-foreground",
-                    )}
-                  >
-                    {index + 1}
-                  </span>
-
-                  <span className="min-w-0">
-                    <span className="block truncate text-sm font-medium">
-                      {t(`${KEY}.wizard.step${index + 1}.title`)}
-                    </span>
-                  </span>
-                </Button>
-              </li>
-            );
-          })}
-        </ol>
-      </nav>
+      <WizardStepper
+        isSticky
+        activeKey={step}
+        label={t(`${KEY}.wizard.stepsLabel`)}
+        onSelect={(wizardStep) => goToStep(wizardStep)}
+        steps={LEARNING_CONTENT_STEPS.map((wizardStep, index) => ({
+          key: wizardStep as TLearningContentStep,
+          title: t(`${KEY}.wizard.step${index + 1}.title`),
+          description: t(`${KEY}.wizard.step${index + 1}.description`),
+          isComplete: index < activeIndex,
+          isReachable: index <= activeIndex,
+        }))}
+      />
 
       {isEditorLoading ? (
         <GlassCard>

@@ -69,6 +69,9 @@ export type TSplitTextProps = {
   tag?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "p" | "span";
 };
 
+// ============== Required Mark ================
+export type TRequiredMarkProps = { srText: string };
+
 // ================ Floating Input ==============
 export type TFloatingInputFieldProps<T extends FieldValues> =
   InputHTMLAttributes<HTMLInputElement> & {
@@ -80,6 +83,8 @@ export type TFloatingInputFieldProps<T extends FieldValues> =
     description?: string;
     rightSlot?: ReactNode;
     inputClassName?: string;
+    /** Marks the field required, and names the marker for a screen reader. */
+    requiredText?: string;
   };
 
 // ============== Password Input ================
@@ -104,6 +109,8 @@ export type TFloatingSelectFieldProps<T extends FieldValues> = {
   placeholder?: string;
   description?: string;
   options: TSelectOption[];
+  /** Marks the field required, and names the marker for a screen reader. */
+  requiredText?: string;
 };
 
 // ============== TextArea ===============

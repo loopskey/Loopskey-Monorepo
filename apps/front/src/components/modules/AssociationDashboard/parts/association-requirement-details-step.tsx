@@ -6,6 +6,7 @@ import { AssociationReportingCycle } from "@/lib/graphql/base";
 import { AssociationAudienceKind } from "@/lib/graphql/base";
 import { FloatingSelectField } from "@elements/floating-select";
 import { FloatingInputField } from "@elements/floating-input";
+import { RequiredMark } from "@elements/required-mark";
 import { useMemo, useState } from "react";
 import { CreditType } from "@/lib/graphql/base";
 import { GlassCard } from "@elements/glass-card";
@@ -15,6 +16,18 @@ import * as RG from "@ui/radio-group";
 import * as F from "@ui/form";
 
 const CYCLE_LENGTH_YEAR_OPTIONS = [2, 3, 4, 5];
+
+/**
+ * One labelled container whose choices share a row and wrap on narrow screens.
+ *
+ * `flex-wrap` rather than a fixed column count: the cycle list has five entries
+ * and the audience list three, and a wrapped choice stays a full hit target
+ * instead of being squeezed into an unreadable column.
+ */
+const CHOICE_ROW = "flex flex-wrap gap-2 rounded-md border p-3";
+
+const CHOICE_BOX =
+  "flex min-h-11 flex-1 basis-40 cursor-pointer items-center gap-2 rounded-md border bg-background px-3 py-2 font-normal transition-colors hover:border-primary/40 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/10 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary";
 
 export const AssociationRequirementDetailsStep = ({
   hook,
@@ -26,11 +39,18 @@ export const AssociationRequirementDetailsStep = ({
     memberSearch,
     memberOptions,
     submitDetails,
+    hasMoreMembers,
     setMemberSearch,
+    loadMoreMembers,
+    memberTotalCount,
+    retryMemberPicker,
+    isMemberPickerError,
     isMemberPickerLoading,
   } = hook;
 
   const [groupSearch, setGroupSearch] = useState("");
+
+  const required = t("common.required");
 
   const cycle = detailsForm.watch("reportingCycle");
   const audienceKind = detailsForm.watch("audienceKind");
@@ -100,32 +120,40 @@ export const AssociationRequirementDetailsStep = ({
 
           <FloatingInputField
             name="name"
+            requiredText={required}
             control={detailsForm.control}
             label={t("associationDashboard.requirements.fields.name")}
           />
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid items-start gap-4 sm:grid-cols-2">
             <FloatingSelectField
               name="creditType"
+              requiredText={required}
               options={creditTypeOptions}
               control={detailsForm.control}
               label={t("associationDashboard.requirements.fields.creditType")}
             />
 
             <FloatingInputField
+              min={1}
               type="number"
               name="totalRequiredCredits"
+              requiredText={required}
               control={detailsForm.control}
               label={t(
                 "associationDashboard.requirements.fields.totalRequiredCredits",
               )}
+              description={t(
+                "associationDashboard.requirements.fields.totalRequiredCreditsHint",
+              )}
             />
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid items-start gap-4 sm:grid-cols-2">
             <FloatingInputField
               type="date"
               name="deadline"
+              requiredText={required}
               control={detailsForm.control}
               label={t("associationDashboard.requirements.fields.deadline")}
               description={t(
@@ -133,61 +161,57 @@ export const AssociationRequirementDetailsStep = ({
               )}
             />
 
-            <F.FormField
-              name="reportingCycle"
-              control={detailsForm.control}
-              render={({ field }) => (
-                <F.FormItem>
-                  <F.FormLabel>
-                    {t(
-                      "associationDashboard.requirements.fields.reportingCycle",
-                    )}
-                  </F.FormLabel>
-
-                  <RG.RadioGroup
-                    value={field.value}
-                    onValueChange={changeCycle}
-                    className="gap-2 rounded-md border p-3"
-                  >
-                    {cycleOptions.map((option) => (
-                      <div
-                        key={option.value}
-                        className="flex items-center gap-3"
-                      >
-                        <RG.RadioGroupItem
-                          value={option.value}
-                          id={`cycle-${option.value}`}
-                        />
-
-                        <Label
-                          htmlFor={`cycle-${option.value}`}
-                          className="font-normal"
-                        >
-                          {option.label}
-                        </Label>
-                      </div>
-                    ))}
-                  </RG.RadioGroup>
-
-                  <F.FormMessage />
-                </F.FormItem>
-              )}
-            />
+            {isMultiYear && (
+              <FloatingSelectField
+                name="cycleLengthYears"
+                requiredText={required}
+                options={cycleLengthOptions}
+                control={detailsForm.control}
+                label={t(
+                  "associationDashboard.requirements.fields.cycleLengthYears",
+                )}
+                description={t(
+                  "associationDashboard.requirements.fields.cycleLengthHint",
+                )}
+              />
+            )}
           </div>
 
-          {isMultiYear && (
-            <FloatingSelectField
-              name="cycleLengthYears"
-              options={cycleLengthOptions}
-              control={detailsForm.control}
-              label={t(
-                "associationDashboard.requirements.fields.cycleLengthYears",
-              )}
-              description={t(
-                "associationDashboard.requirements.fields.cycleLengthHint",
-              )}
-            />
-          )}
+          <F.FormField
+            name="reportingCycle"
+            control={detailsForm.control}
+            render={({ field }) => (
+              <F.FormItem>
+                <F.FormLabel>
+                  {t("associationDashboard.requirements.fields.reportingCycle")}
+                  <RequiredMark srText={required} />
+                </F.FormLabel>
+
+                <RG.RadioGroup
+                  value={field.value}
+                  onValueChange={changeCycle}
+                  className={CHOICE_ROW}
+                >
+                  {cycleOptions.map((option) => (
+                    <Label
+                      key={option.value}
+                      htmlFor={`cycle-${option.value}`}
+                      className={CHOICE_BOX}
+                    >
+                      <RG.RadioGroupItem
+                        value={option.value}
+                        id={`cycle-${option.value}`}
+                      />
+
+                      {option.label}
+                    </Label>
+                  ))}
+                </RG.RadioGroup>
+
+                <F.FormMessage />
+              </F.FormItem>
+            )}
+          />
 
           <F.FormField
             name="audienceKind"
@@ -196,29 +220,27 @@ export const AssociationRequirementDetailsStep = ({
               <F.FormItem>
                 <F.FormLabel>
                   {t("associationDashboard.requirements.fields.audience")}
+                  <RequiredMark srText={required} />
                 </F.FormLabel>
 
                 <RG.RadioGroup
                   value={field.value}
                   onValueChange={field.onChange}
-                  className="gap-2 rounded-md border p-3"
+                  className={CHOICE_ROW}
                 >
                   {Object.values(AssociationAudienceKind).map((value) => (
-                    <div key={value} className="flex items-center gap-3">
+                    <Label
+                      key={value}
+                      htmlFor={`audience-${value}`}
+                      className={CHOICE_BOX}
+                    >
                       <RG.RadioGroupItem
                         value={value}
                         id={`audience-${value}`}
                       />
 
-                      <Label
-                        htmlFor={`audience-${value}`}
-                        className="font-normal"
-                      >
-                        {t(
-                          `associationDashboard.requirements.audience.${value}`,
-                        )}
-                      </Label>
-                    </div>
+                      {t(`associationDashboard.requirements.audience.${value}`)}
+                    </Label>
                   ))}
                 </RG.RadioGroup>
 
@@ -235,11 +257,24 @@ export const AssociationRequirementDetailsStep = ({
                 selectedIds={groupIds}
                 onSearch={setGroupSearch}
                 isLoading={false}
+                requiredText={required}
                 hasError={Boolean(errors.groupIds)}
                 describedById="requirement-group-picker-error"
                 label={t("associationDashboard.requirements.fields.group")}
-                emptyText={t(
+                selectedText={t(
+                  "associationDashboard.requirements.fields.groupsSelected",
+                  { count: groupIds.length },
+                )}
+                removeLabel={(name) =>
+                  t("associationDashboard.requirements.fields.removeGroup", {
+                    name,
+                  })
+                }
+                noResultText={t(
                   "associationDashboard.requirements.fields.groupsEmpty",
+                )}
+                emptyText={t(
+                  "associationDashboard.requirements.fields.groupsNoRoster",
                 )}
                 countLabel={t(
                   "associationDashboard.requirements.fields.groupsResults",
@@ -275,15 +310,42 @@ export const AssociationRequirementDetailsStep = ({
                 selectedIds={memberIds}
                 onSearch={setMemberSearch}
                 isLoading={isMemberPickerLoading}
+                requiredText={required}
                 hasError={Boolean(errors.memberIds)}
+                hasQueryError={isMemberPickerError}
+                onRetry={retryMemberPicker}
+                hasMore={hasMoreMembers}
+                onLoadMore={loadMoreMembers}
                 describedById="requirement-member-picker-error"
                 label={t("associationDashboard.requirements.fields.members")}
-                emptyText={t(
+                loadingText={t(
+                  "associationDashboard.requirements.fields.membersLoading",
+                )}
+                errorText={t(
+                  "associationDashboard.requirements.fields.membersError",
+                )}
+                retryText={t("common.refresh")}
+                noResultText={t(
                   "associationDashboard.requirements.fields.membersEmpty",
+                )}
+                loadMoreText={t(
+                  "associationDashboard.requirements.fields.membersLoadMore",
+                )}
+                selectedText={t(
+                  "associationDashboard.requirements.fields.membersSelected",
+                  { count: memberIds.length },
+                )}
+                removeLabel={(name) =>
+                  t("associationDashboard.requirements.fields.removeMember", {
+                    name,
+                  })
+                }
+                emptyText={t(
+                  "associationDashboard.requirements.fields.membersNoRoster",
                 )}
                 countLabel={t(
                   "associationDashboard.requirements.fields.membersResults",
-                  { count: memberOptions.length },
+                  { count: memberTotalCount },
                 )}
                 placeholder={t(
                   "associationDashboard.requirements.fields.membersPlaceholder",

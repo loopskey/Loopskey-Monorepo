@@ -40,6 +40,8 @@ const ASSOCIATION_ERROR_TRANSLATION_KEYS: Partial<
     "associationDashboard.memberDetail.errors.audienceNotMemberManaged",
   [AssociationMessageCode.AUDIENCE_EMPTY]:
     "associationDashboard.memberDetail.errors.audienceEmpty",
+  [AssociationMessageCode.REQUIREMENT_TARGET_INACTIVE]:
+    "associationDashboard.requirements.errors.targetInactive",
   [AssociationMessageCode.REVIEW_NOT_PERMITTED]:
     "associationDashboard.memberDetail.errors.reviewNotPermitted",
   [AssociationMessageCode.ACTIVITY_ALREADY_SETTLED]:
