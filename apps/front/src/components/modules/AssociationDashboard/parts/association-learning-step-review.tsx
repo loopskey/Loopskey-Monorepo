@@ -22,7 +22,8 @@ export const AssociationLearningStepReview = ({
     pickedTitle,
     isPublishing,
     groupOptions,
-    requirementOptions,
+    legacyRequirementLink,
+    publishedRequirementOptions,
   } = hook;
 
   const label = (key: string) =>
@@ -51,9 +52,17 @@ export const AssociationLearningStepReview = ({
 
   const requirementLabel = () => {
     if (!values.requirementId) return label("noRequirement");
+    if (legacyRequirementLink?.id === values.requirementId)
+      return (
+        legacyRequirementLink.name ||
+        t(
+          "associationDashboard.learningContent.editor.legacyRequirementUnknown",
+        )
+      );
     return (
-      requirementOptions.find((option) => option.value === values.requirementId)
-        ?.label ?? label("noRequirement")
+      publishedRequirementOptions.find(
+        (option) => option.value === values.requirementId,
+      )?.label ?? label("noRequirement")
     );
   };
 

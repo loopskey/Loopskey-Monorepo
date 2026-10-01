@@ -114,6 +114,8 @@ const ASSOCIATION_ERROR_TRANSLATION_KEYS: Partial<
     "associationDashboard.requirements.errors.notDeletable",
   [AssociationMessageCode.REQUIREMENT_STATUS_CONFLICT]:
     "associationDashboard.requirements.errors.statusConflict",
+  [AssociationMessageCode.REQUIREMENT_NOT_PUBLISHED]:
+    "associationDashboard.learningContent.errors.requirementNotPublished",
   [AssociationMessageCode.CATEGORY_CREDITS_EXCEED_TOTAL]:
     "associationDashboard.members.errors.categoryCreditsExceedTotal",
   [AssociationMessageCode.CATEGORY_NAME_DUPLICATE]:

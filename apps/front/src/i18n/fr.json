@@ -6287,8 +6287,6 @@
         "step1Subtitle": "Trouvez-le dans la bibliothèque Loopskey, ou saisissez le vôtre.",
         "libraryTitle": "Trouvez-le dans la bibliothèque Loopskey",
         "librarySubtitle": "Recherchez dans le catalogue partagé et nous remplirons les détails pour vous.",
-        "notInLibraryTitle": "Pas dans la bibliothèque ?",
-        "notInLibraryBody": "Saisissez vous-même le titre, le type et le fournisseur. Cela prend environ une minute.",
         "enterManually": "Saisir les détails manuellement",
         "searchInstead": "Rechercher dans la bibliothèque à la place",
         "change": "Changer",
@@ -6305,13 +6303,18 @@
         "provider": "Fournisseur",
         "url": "Lien",
         "urlInvalid": "Saisissez un lien commençant par https://",
-        "credits": "Crédits indicatifs",
+        "credits": "Crédits indicatifs (facultatif)",
         "creditsShort": "{{credits}} h CPD",
-        "category": "Catégorie CPD",
-        "countsToward": "Compte pour l'exigence",
+        "category": "Catégorie CPD (facultatif)",
+        "countsToward": "Compte pour l'exigence (facultatif)",
         "countsTowardHint": "Facultatif. Un membre enregistrant une activité liée à ce contenu voit cette exigence présélectionnée.",
+        "countsTowardEmpty": "Vous n'avez encore publié aucune exigence. Publiez-en une pour qu'une activité d'un membre puisse y compter.",
         "noRequirementOption": "Aucune",
-        "description": "Pourquoi vous le recommandez",
+        "requirementLoadError": "Les exigences n'ont pas pu être chargées.",
+        "retry": "Réessayer",
+        "legacyRequirementUnknown": "Exigence archivée",
+        "legacyRequirementHint": "Cette exigence a depuis été archivée. Choisissez une exigence publiée de remplacement, ou laissez ce contenu sans lien.",
+        "legacyRequirementReplace": "Choisir une autre exigence",
         "cpdAdvisory": "Cette valeur de crédit est purement indicative. Un membre ne gagne un crédit qu'en enregistrant une activité correspondante et, si nécessaire, après validation des preuves.",
         "detailsSheet": {
           "credits": "{{credits}} h CPD",
@@ -6430,7 +6433,8 @@
         "notDeletable": "Des membres ont peut-être déjà agi sur cet élément. Retirez-le plutôt.",
         "statusConflict": "Le statut de cet élément a changé pendant que vous travailliez. Actualisez pour voir son état.",
         "catalogNotFound": "Ce contenu n'est pas dans le catalogue.",
-        "catalogNotPublished": "Seul un contenu publié peut être recommandé."
+        "catalogNotPublished": "Seul un contenu publié peut être recommandé.",
+        "requirementNotPublished": "Seule une exigence publiée peut être liée. Actualisez et choisissez-en une autre."
       }
     },
     "reports": {

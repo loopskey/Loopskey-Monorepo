@@ -6,6 +6,7 @@ import { type CatalogEndorsementApi } from "@landing/public/catalog-endorsement-
 import { AssociationAccessService } from "@association/services/association-access.service";
 import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
 import { AssociationLearningContentStatus } from "@prisma/client";
+import { AssociationRequirementStatus } from "@prisma/client";
 import { AssociationMemberStatus } from "@prisma/client";
 import { AssociationAudienceKind } from "@prisma/client";
 import { ContentType, PDUCategory, Prisma, Role } from "@prisma/client";
@@ -77,7 +78,9 @@ const setup = ({
   deleteManyCount = 1,
   groups = [{ id: "g-1" }],
   members = [{ id: "m-1", status: AssociationMemberStatus.ACTIVE }],
-  requirements = [{ id: "req-1" }],
+  requirements = [
+    { id: "req-1", status: AssociationRequirementStatus.PUBLISHED },
+  ],
 }: {
   rows?: ReturnType<typeof contentRow>[];
   resolved?: ReturnType<typeof catalogItem>[];
@@ -90,7 +93,7 @@ const setup = ({
   deleteManyCount?: number;
   groups?: { id: string }[];
   members?: { id: string; status: AssociationMemberStatus }[];
-  requirements?: { id: string }[] | null;
+  requirements?: { id: string; status: AssociationRequirementStatus }[];
 } = {}) => {
   const create = createError
     ? jest.fn().mockRejectedValue(createError)
@@ -123,9 +126,9 @@ const setup = ({
 
   const groupFindMany = jest.fn().mockResolvedValue(groups);
 
-  const requirementFindFirst = jest
+  const queryRaw = jest
     .fn()
-    .mockResolvedValue(requirements?.[0] ?? null);
+    .mockImplementation(() => Promise.resolve(requirements));
 
   const outboxAppend = jest.fn().mockResolvedValue(undefined);
 
@@ -145,7 +148,7 @@ const setup = ({
     },
     associationGroup: { findMany: groupFindMany },
     associationMember: { findMany: memberFindMany },
-    associationRequirement: { findFirst: requirementFindFirst },
+    $queryRaw: queryRaw,
   };
   (prisma as Record<string, unknown>).$transaction = jest.fn(
     async (callback: (tx: unknown) => Promise<unknown>) => callback(prisma),
@@ -180,7 +183,7 @@ const setup = ({
     targetCreateMany,
     targetDeleteMany,
     resolveCatalogItems,
-    requirementFindFirst,
+    queryRaw,
     service: new AssociationLearningContentService(
       prisma as unknown as PrismaService,
       outbox as unknown as OutboxService,
@@ -328,8 +331,8 @@ describe("AssociationLearningContentService", () => {
   });
 
   describe("CPD setup", () => {
-    it("links content to a requirement that belongs to the association", async () => {
-      const { service, create, requirementFindFirst } = setup();
+    it("links content to a requirement that is published and belongs to the association", async () => {
+      const { service, create, queryRaw } = setup();
 
       await service.create(owner, {
         contentType: ContentType.COURSE,
@@ -338,11 +341,10 @@ describe("AssociationLearningContentService", () => {
         requirementId: "req-1",
       });
 
-      expect(requirementFindFirst).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: { id: "req-1", associationId: "assoc-1" },
-        }),
-      );
+      const [, requirementId, associationId] = queryRaw.mock.calls[0];
+      expect(requirementId).toBe("req-1");
+      expect(associationId).toBe("assoc-1");
+
       const written = create.mock.calls[0][0].data;
       expect(written).toEqual(
         expect.objectContaining({
@@ -353,7 +355,7 @@ describe("AssociationLearningContentService", () => {
     });
 
     it("refuses a requirement that does not belong to the association", async () => {
-      const { service } = setup({ requirements: [] });
+      const { service, create } = setup({ requirements: [] });
 
       await expect(
         service.create(owner, {
@@ -364,6 +366,128 @@ describe("AssociationLearningContentService", () => {
       ).rejects.toMatchObject({
         response: { code: AssociationMessageCode.REQUIREMENT_NOT_FOUND },
       });
+      expect(create).not.toHaveBeenCalled();
+    });
+
+    it("refuses a draft requirement, without creating the content", async () => {
+      const { service, create } = setup({
+        requirements: [
+          { id: "req-1", status: AssociationRequirementStatus.DRAFT },
+        ],
+      });
+
+      await expect(
+        service.create(owner, {
+          contentType: ContentType.COURSE,
+          contentId: "course-1",
+          requirementId: "req-1",
+        }),
+      ).rejects.toMatchObject({
+        response: { code: AssociationMessageCode.REQUIREMENT_NOT_PUBLISHED },
+      });
+      expect(create).not.toHaveBeenCalled();
+    });
+
+    it("refuses an archived requirement on create, modelling a status race with the option list", async () => {
+      const { service, create } = setup({
+        requirements: [
+          { id: "req-1", status: AssociationRequirementStatus.ARCHIVED },
+        ],
+      });
+
+      await expect(
+        service.create(owner, {
+          contentType: ContentType.COURSE,
+          contentId: "course-1",
+          requirementId: "req-1",
+        }),
+      ).rejects.toMatchObject({
+        response: { code: AssociationMessageCode.REQUIREMENT_NOT_PUBLISHED },
+      });
+      expect(create).not.toHaveBeenCalled();
+    });
+
+    it("clears a requirement link with null without checking its status", async () => {
+      const { service, update, queryRaw } = setup({
+        rows: [contentRow({ requirementId: "req-1" })],
+      });
+
+      await service.update(owner, {
+        learningContentId: "item-1",
+        contentType: ContentType.COURSE,
+        contentId: "course-1",
+        requirementId: null,
+      });
+
+      expect(queryRaw).not.toHaveBeenCalled();
+      expect(update.mock.calls[0][0].data).toEqual(
+        expect.objectContaining({ requirementId: null }),
+      );
+    });
+
+    it("does not re-validate an unchanged requirement link, so an archived legacy link survives an unrelated edit", async () => {
+      const { service, update, queryRaw } = setup({
+        rows: [contentRow({ requirementId: "req-1" })],
+      });
+
+      await service.update(owner, {
+        learningContentId: "item-1",
+        contentType: ContentType.COURSE,
+        contentId: "course-1",
+        requirementId: "req-1",
+        category: PDUCategory.ETHICS,
+      });
+
+      expect(queryRaw).not.toHaveBeenCalled();
+      expect(update.mock.calls[0][0].data).toEqual(
+        expect.objectContaining({
+          requirementId: "req-1",
+          category: PDUCategory.ETHICS,
+        }),
+      );
+    });
+
+    it("validates a new link that replaces a different existing one", async () => {
+      const { service, update, queryRaw } = setup({
+        rows: [contentRow({ requirementId: "req-old" })],
+        requirements: [
+          { id: "req-new", status: AssociationRequirementStatus.PUBLISHED },
+        ],
+      });
+
+      await service.update(owner, {
+        learningContentId: "item-1",
+        contentType: ContentType.COURSE,
+        contentId: "course-1",
+        requirementId: "req-new",
+      });
+
+      const [, requirementId] = queryRaw.mock.calls[0];
+      expect(requirementId).toBe("req-new");
+      expect(update.mock.calls[0][0].data).toEqual(
+        expect.objectContaining({ requirementId: "req-new" }),
+      );
+    });
+
+    it("refuses replacing a link with an archived requirement, leaving the stored link untouched", async () => {
+      const { service, update } = setup({
+        rows: [contentRow({ requirementId: "req-old" })],
+        requirements: [
+          { id: "req-new", status: AssociationRequirementStatus.ARCHIVED },
+        ],
+      });
+
+      await expect(
+        service.update(owner, {
+          learningContentId: "item-1",
+          contentType: ContentType.COURSE,
+          contentId: "course-1",
+          requirementId: "req-new",
+        }),
+      ).rejects.toMatchObject({
+        response: { code: AssociationMessageCode.REQUIREMENT_NOT_PUBLISHED },
+      });
+      expect(update).not.toHaveBeenCalled();
     });
 
     it("stores the chosen type for an external item with no catalogue reference", async () => {
