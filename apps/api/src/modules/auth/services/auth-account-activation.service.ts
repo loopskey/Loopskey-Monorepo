@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Logger } from "@nestjs/common";
+import { BadRequestException, ConflictException } from "@nestjs/common";
 import { ResendOrganizationActivationInput } from "@auth/dtos/resend-organization-activation.input";
 import { OrganizationActivationTokenStatus } from "@auth/enums/organization-activation-token-status.enum";
 import { AssociationActivationTokenStatus } from "@auth/enums/association-activation-token-status.enum";
@@ -14,6 +14,7 @@ import { ACTIVATION_RECORD_SELECT } from "@auth/types/auth-service.types";
 import { createHash, randomBytes } from "crypto";
 import { ActivationTokenStatus } from "@auth/enums/activation-token-status.enum";
 import { RoleProfileRegistry } from "@prisma/role-profile-registry.service";
+import { Injectable, Logger } from "@nestjs/common";
 import { AuthCommonService } from "@auth/services/auth-common.service";
 import { AUTH_USER_SELECT } from "@auth/types/auth-user-select.constant";
 import { AuthMessageCode } from "@auth/enums/message-code.enum";
@@ -21,10 +22,14 @@ import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "@prisma/prisma.service";
 import { MailService } from "@mail/mail.service";
 
-import { type AcceptMemberInvitationTokenCommand } from "@auth/public/account-activation-api";
-import { type MemberInvitationTokenAccepted } from "@auth/public/account-activation-api";
+import { type PrepareMemberInvitationAcceptanceCommand } from "@auth/public/account-activation-api";
+import { type PreparedMemberInvitationAcceptance } from "@auth/public/account-activation-api";
+import { type IssueMemberInvitationCommand } from "@auth/public/account-activation-api";
 import { type MemberInvitationTokenStatus } from "@auth/public/account-activation-api";
+import { type MemberInvitationRefusal } from "@auth/public/account-activation-api";
+import { type MemberInvitationSubject } from "@auth/types/auth-service.types";
 import { type MemberInvitationRecord } from "@auth/types/auth-service.types";
+import { type MemberInvitationIssue } from "@auth/public/account-activation-api";
 import { type MemberInvitationCheck } from "@auth/types/auth-service.types";
 
 import * as T from "@auth/types/auth-service.types";
@@ -148,27 +153,21 @@ export class AuthAccountActivationService {
     destination,
     associationMemberId,
     atomicContext,
-  }: {
-    userId: string;
-    destination: string;
-    associationMemberId: string;
-    atomicContext: object;
-  }) {
+  }: IssueMemberInvitationCommand): Promise<MemberInvitationIssue> {
     const tx = atomicContext as Prisma.TransactionClient;
-    if (
-      !(await this.canResend(
-        userId,
-        MEMBER_INVITE_PROFILE,
-        tx,
-        associationMemberId,
-      ))
-    )
-      return null;
-    return this.createActivationLink(tx, MEMBER_INVITE_PROFILE, {
+    const refusal = await this.resendRefusal(
       userId,
-      destination,
+      MEMBER_INVITE_PROFILE,
+      tx,
       associationMemberId,
-    });
+    );
+    if (refusal) return { issued: false, refusal };
+    const invitation = await this.createActivationLink(
+      tx,
+      MEMBER_INVITE_PROFILE,
+      { userId, destination, associationMemberId },
+    );
+    return { issued: true, invitation };
   }
 
   private async createActivationLink(
@@ -230,71 +229,118 @@ export class AuthAccountActivationService {
     };
   }
 
-  async acceptMemberInvitationToken({
+  async prepareMemberInvitationAcceptance({
     token,
     password,
     confirmPassword,
-    atomicContext,
-  }: AcceptMemberInvitationTokenCommand): Promise<MemberInvitationTokenAccepted> {
+  }: PrepareMemberInvitationAcceptanceCommand): Promise<PreparedMemberInvitationAcceptance> {
     const check = this.classifyMemberInvitation(
       await this.findMemberInvitation(token),
     );
     if (check.status !== ActivationTokenStatus.VALID)
       throw this.activationTokenError(check.status);
-    const { subject } = check;
-
-    if (subject.requiresPassword) {
-      if (!password || !confirmPassword)
-        throw new BadRequestException({
-          code: AuthMessageCode.INVALID_CREDENTIALS,
-          message: "A password is required to accept this invitation.",
-        });
-      if (password !== confirmPassword)
-        throw new BadRequestException({
-          code: AuthMessageCode.INVALID_CREDENTIALS,
-          message: "Password and confirm password do not match.",
-        });
-      this.assertPasswordIsNotObvious({
-        password,
-        email: subject.email,
-        accountName: subject.associationName,
-      });
-    }
-
-    const tx = atomicContext as Prisma.TransactionClient;
-    const activatedAt = new Date();
-    const consumed = await tx.otpCode.updateMany({
-      where: { id: check.otpCodeId, consumedAt: null },
-      data: { consumedAt: activatedAt },
-    });
-    if (consumed.count !== 1)
-      throw new BadRequestException({
-        code: AuthMessageCode.ACTIVATION_TOKEN_USED,
-        message: "This invitation has already been used.",
-      });
-
-    if (subject.requiresPassword) {
-      const passwordHash = await argon2.hash(password!);
-      await tx.authSession.updateMany({
-        where: { userId: subject.userId, status: SessionStatus.ACTIVE },
-        data: { status: SessionStatus.REVOKED, revokedAt: activatedAt },
-      });
-      await tx.user.update({
-        where: { id: subject.userId },
-        data: {
-          passwordHash,
-          status: UserStatus.ACTIVE,
-          emailVerifiedAt: subject.emailVerifiedAt ?? activatedAt,
-          forcePasswordChange: false,
-          passwordChangedAt: activatedAt,
-        },
-      });
-    }
+    const { subject, otpCodeId } = check;
+    const passwordHash = subject.requiresPassword
+      ? await this.invitationPasswordHash(subject, password, confirmPassword)
+      : null;
 
     return {
       associationMemberId: subject.associationMemberId,
       userId: subject.userId,
+      consume: (atomicContext) =>
+        this.consumeMemberInvitation(
+          atomicContext as Prisma.TransactionClient,
+          { otpCodeId, subject, passwordHash },
+        ),
     };
+  }
+
+  private async invitationPasswordHash(
+    subject: MemberInvitationSubject,
+    password?: string,
+    confirmPassword?: string,
+  ) {
+    if (!password || !confirmPassword)
+      throw new BadRequestException({
+        code: AuthMessageCode.INVALID_CREDENTIALS,
+        message: "A password is required to accept this invitation.",
+      });
+    if (password !== confirmPassword)
+      throw new BadRequestException({
+        code: AuthMessageCode.INVALID_CREDENTIALS,
+        message: "Password and confirm password do not match.",
+      });
+    this.assertPasswordIsNotObvious({
+      password,
+      email: subject.email,
+      accountName: subject.associationName,
+    });
+    return argon2.hash(password);
+  }
+
+  private async consumeMemberInvitation(
+    tx: Prisma.TransactionClient,
+    {
+      otpCodeId,
+      subject,
+      passwordHash,
+    }: {
+      otpCodeId: string;
+      subject: MemberInvitationSubject;
+      passwordHash: string | null;
+    },
+  ) {
+    const acceptedAt = new Date();
+    const consumed = await tx.otpCode.updateMany({
+      where: {
+        id: otpCodeId,
+        consumedAt: null,
+        expiresAt: { gt: acceptedAt },
+      },
+      data: { consumedAt: acceptedAt },
+    });
+    if (consumed.count !== 1) {
+      this.logger.warn("Member invitation consume lost a race", {
+        associationMemberId: subject.associationMemberId,
+        userId: subject.userId,
+      });
+      throw new BadRequestException({
+        code: AuthMessageCode.ACTIVATION_TOKEN_USED,
+        message: "This invitation has already been used.",
+      });
+    }
+
+    if (!passwordHash) return;
+
+    const claimed = await tx.user.updateMany({
+      where: {
+        id: subject.userId,
+        deletedAt: null,
+        status: { not: UserStatus.ACTIVE },
+      },
+      data: {
+        passwordHash,
+        status: UserStatus.ACTIVE,
+        emailVerifiedAt: subject.emailVerifiedAt ?? acceptedAt,
+        forcePasswordChange: false,
+        passwordChangedAt: acceptedAt,
+      },
+    });
+    if (claimed.count !== 1) {
+      this.logger.warn("Member invitation found the account already claimed", {
+        associationMemberId: subject.associationMemberId,
+        userId: subject.userId,
+      });
+      throw new ConflictException({
+        code: AuthMessageCode.ACCOUNT_ALREADY_CLAIMED,
+        message:
+          "This account was activated a moment ago. Reload the invitation to join with it.",
+      });
+    }
+    await tx.authSession.updateMany({
+      where: { userId: subject.userId, status: SessionStatus.ACTIVE },
+      data: { status: SessionStatus.REVOKED, revokedAt: acceptedAt },
+    });
   }
 
   private async findMemberInvitation(token: string) {
@@ -696,8 +742,16 @@ export class AuthAccountActivationService {
     userId: string,
     profile: ActivationLinkProfile,
     tx: Prisma.TransactionClient,
-    associationMemberId?: string,
   ) {
+    return (await this.resendRefusal(userId, profile, tx)) === null;
+  }
+
+  private async resendRefusal(
+    userId: string,
+    profile: ActivationLinkProfile,
+    tx: Prisma.TransactionClient,
+    associationMemberId?: string,
+  ): Promise<MemberInvitationRefusal | null> {
     const scope = { associationMemberId: associationMemberId ?? null };
     const [latest, issuedToday] = await Promise.all([
       tx.otpCode.findFirst({
@@ -714,8 +768,9 @@ export class AuthAccountActivationService {
         },
       }),
     ]);
-    if (latest?.resendAfter && latest.resendAfter > new Date()) return false;
-    return issuedToday < this.maxResendsPerDay();
+    if (latest?.resendAfter && latest.resendAfter > new Date())
+      return "COOLDOWN";
+    return issuedToday < this.maxResendsPerDay() ? null : "DAILY_LIMIT";
   }
 
   private hashToken(token: string) {

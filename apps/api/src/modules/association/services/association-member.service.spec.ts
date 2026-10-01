@@ -52,6 +52,7 @@ const setup = (
       create: over.memberCreate ?? jest.fn().mockResolvedValue(memberRow()),
       update: jest.fn().mockResolvedValue(memberRow()),
     },
+    $queryRaw: jest.fn().mockResolvedValue([{ id: "member-1" }]),
   };
   const prisma = {
     associationMember: {
@@ -106,9 +107,13 @@ const setup = (
     issueMemberInvitation:
       over.invitation ??
       jest.fn().mockResolvedValue({
-        activationUrl: "https://app.example.com/auth/association/join?token=x",
-        expiresInMinutes: 60,
-        tokenId: "otp-1",
+        issued: true,
+        invitation: {
+          activationUrl:
+            "https://app.example.com/auth/association/join?token=x",
+          expiresInMinutes: 60,
+          tokenId: "otp-1",
+        },
       }),
   };
   const assignments = {
@@ -323,7 +328,9 @@ describe("AssociationMemberService invitations", () => {
   it("never claims INVITATION_SENT when the invitation was actually cooldown-blocked", async () => {
     const { service, notifications } = setup({
       memberFindUnique: jest.fn().mockResolvedValue({ id: "member-1" }),
-      invitation: jest.fn().mockResolvedValue(null),
+      invitation: jest
+        .fn()
+        .mockResolvedValue({ issued: false, refusal: "COOLDOWN" }),
     });
 
     const result = await service.invite(owner, invite);
@@ -334,13 +341,117 @@ describe("AssociationMemberService invitations", () => {
 
   it("never claims INVITATION_SENT for a brand-new member when issuance is cooldown-blocked", async () => {
     const { service, notifications } = setup({
-      invitation: jest.fn().mockResolvedValue(null),
+      invitation: jest
+        .fn()
+        .mockResolvedValue({ issued: false, refusal: "COOLDOWN" }),
     });
 
     const result = await service.invite(owner, invite);
 
     expect(result.outcome).toBe(AssociationInviteOutcome.INVITATION_COOLDOWN);
     expect(notifications.recordInvitation).not.toHaveBeenCalled();
+  });
+
+  it("reports the daily limit distinctly from the cooldown", async () => {
+    const { service, notifications } = setup({
+      memberFindUnique: jest.fn().mockResolvedValue({ id: "member-1" }),
+      invitation: jest
+        .fn()
+        .mockResolvedValue({ issued: false, refusal: "DAILY_LIMIT" }),
+    });
+
+    const result = await service.invite(owner, invite);
+
+    expect(result.outcome).toBe(
+      AssociationInviteOutcome.INVITATION_LIMIT_REACHED,
+    );
+    expect(notifications.recordInvitation).not.toHaveBeenCalled();
+  });
+
+  it("locks the pending membership row before issuing its token", async () => {
+    const { service, tx, activation } = setup();
+
+    await service.invite(owner, invite);
+
+    expect(tx.$queryRaw).toHaveBeenCalledTimes(1);
+    expect(tx.$queryRaw.mock.invocationCallOrder[0]).toBeLessThan(
+      activation.issueMemberInvitation.mock.invocationCallOrder[0],
+    );
+  });
+
+  it("refuses to issue when the membership stopped being pending under the lock", async () => {
+    const { service, tx, activation, notifications } = setup({
+      memberFindUnique: jest.fn().mockResolvedValue({ id: "member-1" }),
+    });
+    tx.$queryRaw.mockResolvedValue([]);
+
+    await expect(service.invite(owner, invite)).rejects.toMatchObject({
+      response: { code: AssociationMessageCode.MEMBER_STATUS_CONFLICT },
+    });
+    expect(activation.issueMemberInvitation).not.toHaveBeenCalled();
+    expect(notifications.recordInvitation).not.toHaveBeenCalled();
+  });
+
+  it("does not email a deactivated member who is added again", async () => {
+    const { service, tx, activation } = setup({
+      memberFindUnique: jest.fn().mockResolvedValue({ id: "member-1" }),
+    });
+    tx.associationMember.update.mockResolvedValue(
+      memberRow({ status: AssociationMemberStatus.INACTIVE }),
+    );
+
+    await expect(service.invite(owner, invite)).rejects.toMatchObject({
+      response: { code: AssociationMessageCode.MEMBER_DEACTIVATED },
+    });
+    expect(activation.issueMemberInvitation).not.toHaveBeenCalled();
+  });
+
+  it("fails the whole transaction when the invitation email could not be recorded", async () => {
+    const { service, notifications, assignments } = setup();
+    notifications.recordInvitation.mockResolvedValue(null);
+
+    await expect(service.invite(owner, invite)).rejects.toThrow(
+      "could not be recorded",
+    );
+    expect(assignments.materialiseForMember).not.toHaveBeenCalled();
+  });
+
+  it("rolls the member and token back when appending the email fails", async () => {
+    const { service, notifications, assignments } = setup();
+    notifications.recordInvitation.mockRejectedValue(new Error("outbox down"));
+
+    await expect(service.invite(owner, invite)).rejects.toThrow("outbox down");
+    expect(assignments.materialiseForMember).not.toHaveBeenCalled();
+  });
+
+  it("answers a lost race for a still-pending winner as recently invited, not linked", async () => {
+    const { service, prisma } = setup({
+      memberCreate: jest
+        .fn()
+        .mockRejectedValue(uniqueViolation(["associationId", "userId"])),
+    });
+    prisma.associationMember.findFirst.mockResolvedValue(
+      memberRow({ id: "member-winner" }),
+    );
+
+    const result = await service.invite(owner, invite);
+
+    expect(result.outcome).toBe(AssociationInviteOutcome.INVITATION_COOLDOWN);
+  });
+
+  it("answers a lost race for an active winner as linked", async () => {
+    const { service, prisma } = setup({
+      memberCreate: jest
+        .fn()
+        .mockRejectedValue(uniqueViolation(["associationId", "userId"])),
+    });
+    prisma.associationMember.findFirst.mockResolvedValue(
+      memberRow({ status: AssociationMemberStatus.ACTIVE }),
+    );
+
+    const result = await service.invite(owner, invite);
+
+    expect(result.outcome).toBe(AssociationInviteOutcome.LINKED_EXISTING_USER);
   });
 
   it("does not re-invite an existing member who is already active", async () => {
@@ -473,6 +584,23 @@ describe("AssociationMemberService bulk import", () => {
     expect(learningRecipients.syncMember).toHaveBeenCalledTimes(2);
   });
 
+  it("does not count a row held back by the cooldown as invited", async () => {
+    const { service, activation } = setup();
+    activation.issueMemberInvitation
+      .mockResolvedValueOnce({ issued: false, refusal: "COOLDOWN" })
+      .mockResolvedValueOnce({ issued: false, refusal: "DAILY_LIMIT" });
+
+    const result = await service.bulkInvite(owner, { rows: rows(3, []) });
+
+    expect(result).toEqual(
+      expect.objectContaining({ invited: 1, linked: 0, failed: 2 }),
+    );
+    expect(result.failures.map((failure) => failure.code)).toEqual([
+      AssociationMessageCode.MEMBER_INVITATION_COOLDOWN,
+      AssociationMessageCode.MEMBER_INVITATION_LIMIT_REACHED,
+    ]);
+  });
+
   it("requires a name on every row", async () => {
     const { service } = setup();
     const result = await service.bulkInvite(owner, {
@@ -480,6 +608,73 @@ describe("AssociationMemberService bulk import", () => {
     });
     expect(result.failed).toBe(1);
     expect(result.failures[0].reason).toContain("name is required");
+  });
+});
+
+describe("AssociationMemberService resend", () => {
+  const resend = { memberId: "member-1" };
+
+  it("queues a fresh invitation for a pending member under the membership lock", async () => {
+    const { service, tx, activation, notifications } = setup();
+
+    await service.resendInvitation(owner, resend);
+
+    expect(tx.$queryRaw).toHaveBeenCalledTimes(1);
+    expect(activation.issueMemberInvitation).toHaveBeenCalledWith(
+      expect.objectContaining({ associationMemberId: "member-1" }),
+    );
+    expect(notifications.recordInvitation).toHaveBeenCalledTimes(1);
+  });
+
+  it("refuses a member who already accepted", async () => {
+    const { service, prisma, activation } = setup();
+    prisma.associationMember.findFirst.mockResolvedValue(
+      memberRow({ status: AssociationMemberStatus.ACTIVE }),
+    );
+
+    await expect(service.resendInvitation(owner, resend)).rejects.toMatchObject(
+      { response: { code: AssociationMessageCode.MEMBER_ALREADY_ACTIVE } },
+    );
+    expect(activation.issueMemberInvitation).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["COOLDOWN", AssociationMessageCode.MEMBER_INVITATION_COOLDOWN],
+    ["DAILY_LIMIT", AssociationMessageCode.MEMBER_INVITATION_LIMIT_REACHED],
+  ])("answers a %s refusal with its own code", async (refusal, code) => {
+    const { service, activation, notifications } = setup();
+    activation.issueMemberInvitation.mockResolvedValue({
+      issued: false,
+      refusal,
+    });
+
+    await expect(service.resendInvitation(owner, resend)).rejects.toMatchObject(
+      { response: { code } },
+    );
+    expect(notifications.recordInvitation).not.toHaveBeenCalled();
+  });
+
+  it("answers a concurrent resend that lost on the live-token index as a cooldown", async () => {
+    const { service, prisma } = setup();
+    prisma.$transaction.mockImplementationOnce(() =>
+      Promise.reject(uniqueViolation(["OtpCode_live_member_invite_key"])),
+    );
+
+    await expect(service.resendInvitation(owner, resend)).rejects.toMatchObject(
+      {
+        response: { code: AssociationMessageCode.MEMBER_INVITATION_COOLDOWN },
+      },
+    );
+  });
+
+  it("does not disguise an unrelated unique violation as a cooldown", async () => {
+    const { service, prisma } = setup();
+    const unrelated = uniqueViolation(["email"]);
+    prisma.$transaction.mockImplementationOnce(() => Promise.reject(unrelated));
+
+    await expect(service.resendInvitation(owner, resend)).rejects.toBe(
+      unrelated,
+    );
   });
 });
 

@@ -69,7 +69,7 @@ export const buildAssociationMemberInvitationEmail = (
   input: TAssociationMemberInvitationEmail,
 ) => ({
   subject: `${input.appName}: ${input.associationName} invited you`,
-  text: `${input.associationName} invited you to join them on ${input.appName}. Set your password to accept: ${input.invitationUrl}. This single-use link expires in ${input.expiresInMinutes} minutes. Do not share it. Support: ${input.supportEmail}`,
+  text: `${input.associationName} invited you to join them on ${input.appName}. Set your password to accept:\n\n${input.invitationUrl}\n\nThis single-use link expires in ${input.expiresInMinutes} minutes. Do not share it. Support: ${input.supportEmail}`,
   html: frame(
     input,
     "You have been invited",

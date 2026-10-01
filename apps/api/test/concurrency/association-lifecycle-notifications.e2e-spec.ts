@@ -135,6 +135,14 @@ describe("Association lifecycle notifications (concurrency e2e)", () => {
 
   const seedToken = async (userId: string, associationMemberId: string) => {
     const rawToken = randomBytes(16).toString("hex");
+    await prisma.otpCode.updateMany({
+      where: {
+        associationMemberId,
+        purpose: OtpPurpose.ASSOCIATION_MEMBER_INVITE,
+        consumedAt: null,
+      },
+      data: { consumedAt: new Date() },
+    });
     await prisma.otpCode.create({
       data: {
         userId,

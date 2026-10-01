@@ -11,6 +11,25 @@ import * as D from "@ui/dialog";
 import * as F from "@ui/form";
 import * as L from "lucide-react";
 
+const OUTCOME_VIEWS: Record<
+  AssociationInviteOutcome,
+  { key: string; icon: L.LucideIcon }
+> = {
+  [AssociationInviteOutcome.LinkedExistingUser]: {
+    key: "linked",
+    icon: L.UserCheck,
+  },
+  [AssociationInviteOutcome.InvitationSent]: { key: "sent", icon: L.MailCheck },
+  [AssociationInviteOutcome.InvitationCooldown]: {
+    key: "cooldown",
+    icon: L.Clock,
+  },
+  [AssociationInviteOutcome.InvitationLimitReached]: {
+    key: "limit",
+    icon: L.MailWarning,
+  },
+};
+
 export const AssociationMemberInviteDialog = ({
   hook,
 }: TAssociationMemberInviteDialog) => {
@@ -33,8 +52,10 @@ export const AssociationMemberInviteDialog = ({
     autoAppliedRequirementCount,
   } = hook;
 
-  const isLinked =
-    inviteOutcome?.outcome === AssociationInviteOutcome.LinkedExistingUser;
+  const outcomeView = inviteOutcome
+    ? OUTCOME_VIEWS[inviteOutcome.outcome]
+    : null;
+  const OutcomeIcon = outcomeView?.icon ?? L.MailCheck;
   const isExistingAccount = inviteLookup?.exists === true;
   const selectedRequirementIds = inviteForm.watch("requirementIds") ?? [];
 
@@ -61,34 +82,26 @@ export const AssociationMemberInviteDialog = ({
           </D.DialogDescription>
         </D.DialogHeader>
 
-        {inviteOutcome ? (
+        {inviteOutcome && outcomeView ? (
           <div className="space-y-4">
             <div
               role="status"
               className="flex items-start gap-3 rounded-lg border border-primary/25 bg-primary/5 p-4"
             >
               <div className="rounded-md bg-primary/10 p-2 text-primary">
-                {isLinked ? (
-                  <L.UserCheck className="h-5 w-5" />
-                ) : (
-                  <L.MailCheck className="h-5 w-5" />
-                )}
+                <OutcomeIcon className="h-5 w-5" />
               </div>
 
               <div>
                 <p className="font-medium">
                   {t(
-                    isLinked
-                      ? "associationDashboard.members.invite.linkedTitle"
-                      : "associationDashboard.members.invite.sentTitle",
+                    `associationDashboard.members.invite.${outcomeView.key}Title`,
                   )}
                 </p>
 
                 <p className="mt-1 text-sm text-muted-foreground">
                   {t(
-                    isLinked
-                      ? "associationDashboard.members.invite.linkedBody"
-                      : "associationDashboard.members.invite.sentBody",
+                    `associationDashboard.members.invite.${outcomeView.key}Body`,
                     {
                       name: inviteOutcome.memberName,
                       email: inviteOutcome.memberEmail,
