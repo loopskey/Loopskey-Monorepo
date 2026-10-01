@@ -2,6 +2,7 @@
 
 import { Loader2, LogIn, MailWarning, UserCheck } from "lucide-react";
 import { KeyRound, ShieldAlert, ShieldCheck } from "lucide-react";
+import { PartyPopper, RefreshCw, WifiOff } from "lucide-react";
 import { useMemberInvitationJoin } from "@hooks/useMemberInvitationJoin";
 import { PasswordField } from "@elements/password-field";
 import { GlassCard } from "@elements/glass-card";
@@ -19,6 +20,7 @@ const MemberInvitationJoinCard = () => {
     loginHref,
     passwordForm,
     isAccepting,
+    onRetryCheck,
     onSetPassword,
     associationName,
   } = useMemberInvitationJoin();
@@ -143,6 +145,50 @@ const MemberInvitationJoinCard = () => {
               ) : (
                 t("authPages.memberInvitation.confirmSubmit")
               )}
+            </Button>
+          </div>
+        )}
+
+        {screen === "success" && (
+          <div className="space-y-5 text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-md bg-primary/10 text-primary shadow-inner">
+              <PartyPopper className="h-6 w-6" />
+            </div>
+            <h1 className="text-xl font-extrabold tracking-tight">
+              {associationName
+                ? t(
+                    "authPages.memberInvitation.acceptedTitle",
+                    { associationName },
+                    `You have joined ${associationName}`,
+                  )
+                : t("authPages.memberInvitation.acceptedTitleGeneric")}
+            </h1>
+            <p className="text-sm leading-6 text-muted-foreground">
+              {t("authPages.memberInvitation.acceptedDescription")}
+            </p>
+            <Button asChild size="lg" radius="xl" className="w-full">
+              <Link href={loginHref}>
+                <LogIn className="h-4 w-4" />
+                {t("authPages.common.backToLogin")}
+              </Link>
+            </Button>
+          </div>
+        )}
+
+        {screen === "unavailable" && (
+          <div className="space-y-5 text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-md bg-destructive/10 text-destructive shadow-inner">
+              <WifiOff className="h-6 w-6" />
+            </div>
+            <h1 className="text-xl font-extrabold tracking-tight">
+              {t("authPages.memberInvitation.unavailableTitle")}
+            </h1>
+            <p className="text-sm leading-6 text-muted-foreground">
+              {t("authPages.memberInvitation.unavailableDescription")}
+            </p>
+            <Button radius="xl" className="w-full" onClick={onRetryCheck}>
+              <RefreshCw className="h-4 w-4" />
+              {t("authPages.memberInvitation.retry")}
             </Button>
           </div>
         )}

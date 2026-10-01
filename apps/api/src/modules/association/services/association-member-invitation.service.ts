@@ -5,9 +5,12 @@ import { ACCOUNT_ACTIVATION_API } from "@auth/public/account-activation-api";
 import { AccountActivationApi } from "@auth/public/account-activation-api";
 import { AuthMessageCode } from "@loopskey/api-contracts/error-codes";
 import { PrismaService } from "@prisma/prisma.service";
+import { Logger } from "@nestjs/common";
 
 @Injectable()
 export class AssociationMemberInvitationService {
+  private readonly logger = new Logger(AssociationMemberInvitationService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     @Inject(ACCOUNT_ACTIVATION_API)
@@ -24,16 +27,15 @@ export class AssociationMemberInvitationService {
     password?: string;
     confirmPassword?: string;
   }) {
+    const acceptance = await this.activation.prepareMemberInvitationAcceptance({
+      token: input.token,
+      password: input.password,
+      confirmPassword: input.confirmPassword,
+    });
+    const { associationMemberId, userId } = acceptance;
     const activatedAt = new Date();
-    await this.prisma.$transaction(async (tx) => {
-      const { associationMemberId, userId } =
-        await this.activation.acceptMemberInvitationToken({
-          token: input.token,
-          password: input.password,
-          confirmPassword: input.confirmPassword,
-          atomicContext: tx,
-        });
 
+    await this.prisma.$transaction(async (tx) => {
       const activated = await tx.associationMember.updateMany({
         where: {
           id: associationMemberId,
@@ -41,11 +43,17 @@ export class AssociationMemberInvitationService {
         },
         data: { status: AssociationMemberStatus.ACTIVE, activatedAt },
       });
-      if (activated.count !== 1)
+      if (activated.count !== 1) {
+        this.logger.warn("Member invitation acceptance lost a race", {
+          associationMemberId,
+        });
         throw new BadRequestException({
           code: AuthMessageCode.ACTIVATION_TOKEN_USED,
           message: "This invitation has already been used.",
         });
+      }
+
+      await acceptance.consume(tx);
 
       await tx.auditLog.create({
         data: {

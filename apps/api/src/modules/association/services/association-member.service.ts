@@ -1,16 +1,16 @@
-import { AssociationRequirementAssignmentService } from "@association/services/association-requirement-assignment.service";
 import { AssociationLearningContentRecipientService } from "@association/services/association-learning-content-recipient.service";
-import { AssociationMemberLifecycleService } from "@association/services/association-member-lifecycle.service";
-import { AssociationNotificationService } from "@association/services/association-notification.service";
+import { AssociationRequirementAssignmentService } from "@association/services/association-requirement-assignment.service";
 import { ResendAssociationMemberInvitationInput } from "@association/dtos/resend-association-member-invitation.input";
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { buildAssociationMemberInvitationEmail } from "@mail/association-email.template";
 import { AssociationMemberStatus, Prisma, Role } from "@prisma/client";
 import { AssociationMemberRequirementsService } from "@association/services/association-member-requirements.service";
 import { BulkInviteAssociationMemberRowInput } from "@association/dtos/bulk-invite-association-members.input";
+import { AssociationMemberLifecycleService } from "@association/services/association-member-lifecycle.service";
 import { BulkInviteAssociationMembersInput } from "@association/dtos/bulk-invite-association-members.input";
 import { AssociationComplianceReadService } from "@association/services/association-compliance-read.service";
 import { SetAssociationMemberStatusInput } from "@association/dtos/set-association-member-status.input";
+import { AssociationNotificationService } from "@association/services/association-notification.service";
 import { PROFESSIONAL_PROVISIONING_API } from "@professional/public/professional-provisioning-api";
 import { AssociationRequirementService } from "@association/services/association-requirement.service";
 import { AssociationRequirementStatus } from "@prisma/client";
@@ -32,13 +32,32 @@ import { PrismaService } from "@prisma/prisma.service";
 import { ConfigService } from "@nestjs/config";
 
 import { type ProfessionalProvisioningApi } from "@professional/public/professional-provisioning-api";
+import { type MemberInvitationRefusal } from "@auth/public/account-activation-api";
 import { type AccountActivationApi } from "@auth/public/account-activation-api";
 import { type IdentityProfileApi } from "@user/public/identity-profile-api";
 import { type MemberInvitation } from "@auth/public/account-activation-api";
 
 const UNIQUE_VIOLATION = "P2002";
 const MEMBER_NUMBER_INDEX = "member_number";
+const LIVE_INVITATION_INDEX = "OtpCode_live_member_invite_key";
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const OUTCOME_BY_REFUSAL: Record<
+  MemberInvitationRefusal,
+  AssociationInviteOutcome
+> = {
+  COOLDOWN: AssociationInviteOutcome.INVITATION_COOLDOWN,
+  DAILY_LIMIT: AssociationInviteOutcome.INVITATION_LIMIT_REACHED,
+};
+
+const HELD_BACK_CODE: Partial<
+  Record<AssociationInviteOutcome, AssociationMessageCode>
+> = {
+  [AssociationInviteOutcome.INVITATION_COOLDOWN]:
+    AssociationMessageCode.MEMBER_INVITATION_COOLDOWN,
+  [AssociationInviteOutcome.INVITATION_LIMIT_REACHED]:
+    AssociationMessageCode.MEMBER_INVITATION_LIMIT_REACHED,
+};
 
 const MEMBER_SELECT = {
   id: true,
@@ -280,9 +299,17 @@ export class AssociationMemberService {
           AssociationMemberJoinedVia.BULK_IMPORTED,
         );
         createdMemberIds.push(result.member.id);
+        const heldBack = HELD_BACK_CODE[result.outcome];
         if (result.outcome === AssociationInviteOutcome.LINKED_EXISTING_USER)
           linked += 1;
-        else invited += 1;
+        else if (!heldBack) invited += 1;
+        else
+          failures.push({
+            row: rowNumber,
+            email,
+            code: heldBack,
+            reason: "The member is on the roster, but no invitation was sent.",
+          });
       } catch (error) {
         failures.push({
           row: rowNumber,
@@ -390,22 +417,30 @@ export class AssociationMemberService {
         message: "This member has no email address.",
       });
 
-    const queued = await this.prisma.$transaction((tx) =>
-      this.queueInvitation(tx, {
-        associationId: association.id,
-        memberId: member.id,
-        userId: member.userId,
-        email: member.email!,
-        fullName: member.fullName ?? member.email!,
-        associationName: association.name,
-      }),
-    );
-    if (!queued)
-      throw new ConflictException({
-        code: AssociationMessageCode.MEMBER_INVITATION_COOLDOWN,
-        message:
-          "An invitation was sent recently. Try again after the cooldown.",
+    const email = member.email;
+    const outcome = await this.prisma
+      .$transaction((tx) =>
+        this.queueInvitation(tx, {
+          associationId: association.id,
+          memberId: member.id,
+          userId: member.userId,
+          email,
+          fullName: member.fullName ?? email,
+          associationName: association.name,
+        }),
+      )
+      .catch((error: unknown) => {
+        if (!this.isLiveInvitationClash(error)) throw error;
+        this.logger.warn("Concurrent invitation resend lost to another", {
+          associationId: association.id,
+          memberId: member.id,
+        });
+        return AssociationInviteOutcome.INVITATION_COOLDOWN;
       });
+    if (outcome === AssociationInviteOutcome.INVITATION_COOLDOWN)
+      throw this.invitationCooldown();
+    if (outcome === AssociationInviteOutcome.INVITATION_LIMIT_REACHED)
+      throw this.invitationLimitReached();
     return project(await this.readMember(association.id, member.id));
   }
 
@@ -570,20 +605,17 @@ export class AssociationMemberService {
               member: updated,
               outcome: AssociationInviteOutcome.LINKED_EXISTING_USER,
             };
-          const queued = await this.queueInvitation(tx, {
+          if (updated.status === AssociationMemberStatus.INACTIVE)
+            throw this.memberDeactivated();
+          const outcome = await this.queueInvitation(tx, {
             associationId,
             memberId: updated.id,
             userId: updated.userId,
-            email: updated.user.email!,
-            fullName: updated.user.fullName ?? updated.user.email!,
+            email,
+            fullName: updated.user.fullName ?? email,
             associationName,
           });
-          return {
-            member: updated,
-            outcome: queued
-              ? AssociationInviteOutcome.INVITATION_SENT
-              : AssociationInviteOutcome.INVITATION_COOLDOWN,
-          };
+          return { member: updated, outcome };
         }
 
         const created = await tx.associationMember.create({
@@ -616,7 +648,7 @@ export class AssociationMemberService {
           };
         }
 
-        const queued = await this.queueInvitation(tx, {
+        const outcome = await this.queueInvitation(tx, {
           associationId,
           memberId: created.id,
           userId: person.id,
@@ -625,12 +657,7 @@ export class AssociationMemberService {
           associationName,
         });
 
-        return {
-          member: created,
-          outcome: queued
-            ? AssociationInviteOutcome.INVITATION_SENT
-            : AssociationInviteOutcome.INVITATION_COOLDOWN,
-        };
+        return { member: created, outcome };
       });
 
       this.logger.log("Association member invited", {
@@ -647,8 +674,17 @@ export class AssociationMemberService {
         select: MEMBER_SELECT,
       });
       if (!winner) throw error;
+      if (winner.status === AssociationMemberStatus.INACTIVE)
+        throw this.memberDeactivated();
+      this.logger.warn("Association invite lost a race to a concurrent one", {
+        associationId,
+        memberId: winner.id,
+      });
       return {
-        outcome: AssociationInviteOutcome.LINKED_EXISTING_USER,
+        outcome:
+          winner.status === AssociationMemberStatus.ACTIVE
+            ? AssociationInviteOutcome.LINKED_EXISTING_USER
+            : AssociationInviteOutcome.INVITATION_COOLDOWN,
         member: project(winner),
       };
     }
@@ -664,16 +700,37 @@ export class AssociationMemberService {
       fullName: string;
       associationName: string;
     },
-  ) {
-    const invitation = await this.activation.issueMemberInvitation({
+  ): Promise<AssociationInviteOutcome> {
+    if (!(await this.lockPendingMember(tx, invite)))
+      throw this.statusConflict();
+    const issue = await this.activation.issueMemberInvitation({
       userId: invite.userId,
       destination: invite.email,
       associationMemberId: invite.memberId,
       atomicContext: tx,
     });
-    if (!invitation) return null;
-    await this.appendInvitationMail(tx, invite, invitation);
-    return invitation;
+    if (!issue.issued) return OUTCOME_BY_REFUSAL[issue.refusal];
+    const deliveryId = await this.appendInvitationMail(
+      tx,
+      invite,
+      issue.invitation,
+    );
+    if (!deliveryId)
+      throw new Error("The invitation delivery could not be recorded.");
+    return AssociationInviteOutcome.INVITATION_SENT;
+  }
+
+  private async lockPendingMember(
+    tx: Prisma.TransactionClient,
+    { associationId, memberId }: { associationId: string; memberId: string },
+  ) {
+    const rows = await tx.$queryRaw<{ id: string }[]>`
+      SELECT "id" FROM "AssociationMember"
+      WHERE "id" = ${memberId}
+        AND "associationId" = ${associationId}
+        AND "status" = ${AssociationMemberStatus.PENDING_ACTIVATION}::"AssociationMemberStatus"
+      FOR UPDATE`;
+    return rows.length === 1;
   }
 
   private appendInvitationMail(
@@ -802,6 +859,41 @@ export class AssociationMemberService {
     return new ConflictException({
       code: AssociationMessageCode.MEMBER_NUMBER_TAKEN,
       message: "Another member already uses this member number.",
+    });
+  }
+
+  private isLiveInvitationClash(error: unknown) {
+    if (!this.isUniqueViolation(error)) return false;
+    const target = (error as Prisma.PrismaClientKnownRequestError).meta?.target;
+    const named = Array.isArray(target)
+      ? target.join(",")
+      : String(target ?? "");
+    return (
+      named.includes(LIVE_INVITATION_INDEX) ||
+      named.includes("associationMemberId")
+    );
+  }
+
+  private invitationCooldown() {
+    return new ConflictException({
+      code: AssociationMessageCode.MEMBER_INVITATION_COOLDOWN,
+      message: "An invitation was sent recently. Try again after the cooldown.",
+    });
+  }
+
+  private invitationLimitReached() {
+    return new ConflictException({
+      code: AssociationMessageCode.MEMBER_INVITATION_LIMIT_REACHED,
+      message:
+        "This member has received the most invitations allowed in a day. Try again tomorrow.",
+    });
+  }
+
+  private memberDeactivated() {
+    return new ConflictException({
+      code: AssociationMessageCode.MEMBER_DEACTIVATED,
+      message:
+        "This member is deactivated. Reactivate them instead of inviting them again.",
     });
   }
 

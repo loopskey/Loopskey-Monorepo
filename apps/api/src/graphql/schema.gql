@@ -575,10 +575,11 @@ type AssociationGroupProgressRow {
 }
 
 """
-Whether an invitation linked an account that already existed or sent a new one
+Whether an invitation linked an existing account, queued a new email, or was held back by the resend cooldown or daily limit
 """
 enum AssociationInviteOutcome {
   INVITATION_COOLDOWN
+  INVITATION_LIMIT_REACHED
   INVITATION_SENT
   LINKED_EXISTING_USER
 }

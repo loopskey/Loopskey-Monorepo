@@ -39,6 +39,7 @@ const setup = () => {
   const prisma = {
     associationMessageDelivery: {
       findUnique: jest.fn().mockResolvedValue(delivery()),
+      findFirst: jest.fn().mockResolvedValue(null),
       updateMany: jest.fn().mockResolvedValue({ count: 1 }),
     },
     associationGroup: {
@@ -469,6 +470,44 @@ describe("AssociationLifecycleMessageHandler invitation", () => {
     );
   });
 
+  it("does not send an invitation that a later resend superseded", async () => {
+    const { handler, mail, prisma } = setup();
+    const createdAt = new Date("2026-09-30T10:00:00.000Z");
+    prisma.associationMessageDelivery.findUnique.mockResolvedValue(
+      delivery({
+        createdAt,
+        messageType: AssociationMessageType.INVITATION,
+        member: {
+          id: "member-1",
+          status: AssociationMemberStatus.PENDING_ACTIVATION,
+          groupId: null,
+          associationId: "assoc-1",
+        },
+      }),
+    );
+    prisma.associationMessageDelivery.findFirst.mockResolvedValue({
+      id: "delivery-2",
+    });
+
+    await handler.handle(
+      { deliveryId: "delivery-1", mail: mailPayload },
+      event,
+    );
+
+    expect(prisma.associationMessageDelivery.findFirst).toHaveBeenCalledWith({
+      where: {
+        memberId: "member-1",
+        messageType: AssociationMessageType.INVITATION,
+        createdAt: { gt: createdAt },
+      },
+      select: { id: true },
+    });
+    expect(mail.deliver).not.toHaveBeenCalled();
+    expect(settledState(prisma)?.data.skipReason).toBe(
+      AssociationMessageSkipReason.NO_LONGER_APPLICABLE,
+    );
+  });
+
   it("does not send a stale invitation once the member has accepted", async () => {
     const { handler, mail, prisma } = setup();
     prisma.associationMessageDelivery.findUnique.mockResolvedValue(
@@ -496,6 +535,54 @@ describe("AssociationLifecycleMessageHandler failure", () => {
       handler.handle({ deliveryId: "delivery-1" }, event),
     ).rejects.toThrow("provider down");
     expect(prisma.associationMessageDelivery.updateMany).not.toHaveBeenCalled();
+  });
+
+  it("marks a still-queued delivery as retrying and rethrows, so the outbox retries it", async () => {
+    const { handler, mail, prisma } = setup();
+    mail.deliver.mockRejectedValue(new Error("provider down"));
+
+    await expect(
+      handler.attempt({ deliveryId: "delivery-1" }, event),
+    ).rejects.toThrow("provider down");
+    expect(prisma.associationMessageDelivery.updateMany).toHaveBeenCalledWith({
+      where: {
+        id: "delivery-1",
+        state: AssociationMessageDeliveryState.QUEUED,
+      },
+      data: {
+        failureReason: AssociationMessageCode.MESSAGE_DELIVERY_RETRYING,
+      },
+    });
+  });
+
+  it("clears the retrying marker once a retry is delivered", async () => {
+    const { handler, prisma } = setup();
+
+    await handler.attempt({ deliveryId: "delivery-1" }, event);
+
+    expect(settledState(prisma)?.data).toEqual(
+      expect.objectContaining({
+        state: AssociationMessageDeliveryState.SENT,
+        failureReason: null,
+      }),
+    );
+  });
+
+  it("registers the retry-marking attempt, not the bare handler", async () => {
+    const { handler, registered, mail, prisma } = setup();
+    handler.onModuleInit();
+    mail.deliver.mockRejectedValue(new Error("provider down"));
+
+    await expect(
+      registered[0].handle({ deliveryId: "delivery-1" }, event),
+    ).rejects.toThrow("provider down");
+    expect(prisma.associationMessageDelivery.updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: {
+          failureReason: AssociationMessageCode.MESSAGE_DELIVERY_RETRYING,
+        },
+      }),
+    );
   });
 
   it("marks a queued delivery failed when the outbox gives up", async () => {
