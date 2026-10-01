@@ -25,7 +25,7 @@ export const AssociationLearningAssignPage = ({
     assignableItems,
     assignSelectedIds,
     toggleAssignSelect,
-    requirementOptions,
+    publishedRequirementOptions,
     isAssignableLoading,
   } = hook;
 
@@ -146,7 +146,7 @@ export const AssociationLearningAssignPage = ({
                           "associationDashboard.learningContent.editor.noRequirementOption",
                         )}
                       </S.SelectItem>
-                      {requirementOptions.map((option) => (
+                      {publishedRequirementOptions.map((option) => (
                         <S.SelectItem key={option.value} value={option.value}>
                           {option.label}
                         </S.SelectItem>

@@ -1,7 +1,9 @@
 import { AssociationLearningContentStatus, Prisma } from "@prisma/client";
+import { LEARNING_CONTENT_AUDIENCE_CHANGED_EVENT } from "@association/services/association-learning-content-recipient.service";
 import { BadRequestException, ConflictException } from "@nestjs/common";
 import { AssociationAudienceKind, ContentType } from "@prisma/client";
 import { type ProfessionalComplianceApi } from "@professional/public/professional-compliance-api";
+import { AssociationRequirementStatus } from "@prisma/client";
 import { PROFESSIONAL_COMPLIANCE_API } from "@professional/public/professional-compliance-api";
 import { type CatalogEndorsementApi } from "@landing/public/catalog-endorsement-api";
 import { AssociationPaginationInput } from "@association/dtos/association-pagination.input";
@@ -13,7 +15,6 @@ import { AssociationMessageCode } from "@association/enums/association-message-c
 import { CatalogItemProjection } from "@landing/public/catalog-endorsement-api";
 import { NotFoundException } from "@nestjs/common";
 import { TAssociationUser } from "@association/types/association-service.types";
-import { LEARNING_CONTENT_AUDIENCE_CHANGED_EVENT } from "@association/services/association-learning-content-recipient.service";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { PrismaService } from "@prisma/prisma.service";
 
@@ -62,6 +63,11 @@ type ContentRecord = Prisma.AssociationLearningContentGetPayload<{
 export type LearningContentEngagement = {
   memberCount: number;
   credits: number;
+};
+
+type LockedRequirement = {
+  id: string;
+  status: AssociationRequirementStatus;
 };
 
 type CatalogRef = { contentType: ContentType; contentId: string };
@@ -320,13 +326,22 @@ export class AssociationLearningContentService {
     const shape = await this.validateShape(association.id, input);
 
     try {
-      const created = await this.prisma.associationLearningContent.create({
-        data: {
-          associationId: association.id,
-          createdById: user.id,
-          ...shape,
-        },
-        select: CONTENT_SELECT,
+      const created = await this.prisma.$transaction(async (tx) => {
+        if (shape.requirementId)
+          await this.lockPublishedRequirement(
+            tx,
+            association.id,
+            shape.requirementId,
+          );
+
+        return tx.associationLearningContent.create({
+          data: {
+            associationId: association.id,
+            createdById: user.id,
+            ...shape,
+          },
+          select: CONTENT_SELECT,
+        });
       });
 
       return this.project(created, await this.resolveCatalog([created]));
@@ -379,13 +394,23 @@ export class AssociationLearningContentService {
     learningContentId: string,
     input: DTO.CreateAssociationLearningContentInput,
   ) {
-    await this.require(associationId, learningContentId);
+    const current = await this.require(associationId, learningContentId);
     const shape = await this.validateShape(associationId, input);
+    const requirementChanged = shape.requirementId !== current.requirementId;
 
-    const updated = await this.prisma.associationLearningContent.update({
-      where: { id: learningContentId },
-      data: shape,
-      select: CONTENT_SELECT,
+    const updated = await this.prisma.$transaction(async (tx) => {
+      if (shape.requirementId && requirementChanged)
+        await this.lockPublishedRequirement(
+          tx,
+          associationId,
+          shape.requirementId,
+        );
+
+      return tx.associationLearningContent.update({
+        where: { id: learningContentId },
+        data: shape,
+        select: CONTENT_SELECT,
+      });
     });
 
     return this.project(updated, await this.resolveCatalog([updated]));
@@ -415,8 +440,6 @@ export class AssociationLearningContentService {
     }
 
     if (reference) await this.assertCatalogPublished(reference);
-    if (input.requirementId)
-      await this.verifyRequirement(associationId, input.requirementId);
 
     return {
       contentType: reference?.contentType ?? null,
@@ -436,19 +459,30 @@ export class AssociationLearningContentService {
     };
   }
 
-  private async verifyRequirement(
+  private async lockPublishedRequirement(
+    tx: Prisma.TransactionClient,
     associationId: string,
     requirementId: string,
   ) {
-    const requirement = await this.prisma.associationRequirement.findFirst({
-      where: { id: requirementId, associationId },
-      select: { id: true },
-    });
+    const locked = await tx.$queryRaw<LockedRequirement[]>`
+      SELECT "id", "status"
+      FROM "AssociationRequirement"
+      WHERE "id" = ${requirementId}
+        AND "associationId" = ${associationId}
+      FOR UPDATE
+    `;
+    const requirement = locked[0];
 
     if (!requirement)
       throw new NotFoundException({
         code: AssociationMessageCode.REQUIREMENT_NOT_FOUND,
         message: "That requirement does not belong to this association.",
+      });
+
+    if (requirement.status !== AssociationRequirementStatus.PUBLISHED)
+      throw new BadRequestException({
+        code: AssociationMessageCode.REQUIREMENT_NOT_PUBLISHED,
+        message: "Only a published requirement can receive content.",
       });
   }
 

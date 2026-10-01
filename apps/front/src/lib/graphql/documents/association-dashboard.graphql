@@ -588,6 +588,21 @@ query AssociationRequirementOptions($pagination: AssociationPaginationInput) {
   }
 }
 
+query AssociationPublishedRequirementOptions(
+  $pagination: AssociationPaginationInput
+) {
+  associationRequirements(
+    filter: { status: PUBLISHED }
+    pagination: $pagination
+  ) {
+    items {
+      id
+      name
+      status
+    }
+  }
+}
+
 # ================= Reports =================
 fragment AssociationReportSummaryFields on AssociationReportSummary {
   periodStart

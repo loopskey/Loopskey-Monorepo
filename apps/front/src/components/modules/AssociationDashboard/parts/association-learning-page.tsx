@@ -57,7 +57,6 @@ export const AssociationLearningPage = ({
       </h1>
 
       <WizardStepper
-        isSticky
         activeKey={step}
         label={t(`${KEY}.wizard.stepsLabel`)}
         onSelect={(wizardStep) => goToStep(wizardStep)}
