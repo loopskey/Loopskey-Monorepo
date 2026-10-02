@@ -385,7 +385,8 @@
       "PODCAST": "Podcast",
       "YOUTUBE": "YouTube",
       "GENERAL": "Général"
-    }
+    },
+    "required": "obligatoire"
   },
   "servicesPage": {
     "common": {
@@ -2928,7 +2929,9 @@
       "all": "Tous",
       "open": "Filtres",
       "sheetDescription": "Affinez la liste avec les options ci-dessous.",
-      "showResults": "Afficher les résultats"
+      "showResults": "Afficher les résultats",
+      "optionsLoading": "Chargement des options…",
+      "optionsError": "Options indisponibles. Réessayer"
     },
     "pagination": {
       "page": "Page {{page}}",
@@ -4143,6 +4146,7 @@
       },
       "addActivity": {
         "title": "Ajouter une activité d’apprentissage",
+        "stepsLabel": "Étapes de l'activité",
         "editTitle": "Modifier l’activité d’apprentissage",
         "subtitle": "Enregistrez une activité d’apprentissage et les crédits obtenus.",
         "back": "Retour",
@@ -6076,7 +6080,17 @@
         "members": "Membres",
         "membersPlaceholder": "Rechercher par nom ou courriel",
         "membersEmpty": "Aucun membre ne correspond à cette recherche.",
-        "membersResults": "{{count}} membres trouvés."
+        "membersResults": "{{count}} membres trouvés.",
+        "totalRequiredCreditsHint": "Une exigence doit avoir un total de crédits supérieur à zéro.",
+        "groupsNoRoster": "Cette association n'a encore aucun groupe actif.",
+        "groupsSelected": "{{count}} sélectionné(s)",
+        "removeGroup": "Retirer {{name}}",
+        "membersNoRoster": "Cette association n'a encore aucun membre actif.",
+        "membersLoading": "Chargement des membres actifs…",
+        "membersError": "Les membres actifs n'ont pas pu être chargés.",
+        "membersLoadMore": "Charger plus de membres",
+        "membersSelected": "{{count}} sélectionné(s)",
+        "removeMember": "Retirer {{name}}"
       },
       "wizard": {
         "title": "Nouvelle exigence",
@@ -6222,7 +6236,16 @@
         "membersRequired": "Choisissez au moins un membre.",
         "groupsRequired": "Choisissez au moins un groupe.",
         "notDeletable": "Ce brouillon contient un historique d'affectation ou de conformité et ne peut pas être supprimé. Archivez-le à la place.",
-        "statusConflict": "Cette exigence a changé avant sa suppression. Actualisez la page et réessayez."
+        "statusConflict": "Cette exigence a changé avant sa suppression. Actualisez la page et réessayez.",
+        "nameRequired": "Une exigence doit avoir un nom.",
+        "creditsPositive": "Saisissez un total de crédits supérieur à zéro.",
+        "deadlineRequired": "Choisissez une échéance.",
+        "cycleLengthRequired": "Un cycle pluriannuel doit avoir une durée en années.",
+        "cycleLengthNotAllowed": "Seul un cycle pluriannuel comporte une durée de cycle.",
+        "categoryNameRequired": "Une catégorie doit avoir un nom.",
+        "categoryNameDuplicate": "Deux catégories ne peuvent pas porter le même nom.",
+        "categoryMappingDuplicate": "Deux catégories ne peuvent pas pointer vers la même catégorie PDU.",
+        "targetInactive": "Un des membres sélectionnés n'est plus actif. Vérifiez la sélection et enregistrez à nouveau."
       },
       "error": {
         "title": "Impossible de charger vos exigences",
@@ -6326,6 +6349,7 @@
         "unsavedDiscard": "Abandonner"
       },
       "wizard": {
+        "stepsLabel": "Étapes du contenu",
         "step1": {
           "title": "Contenu",
           "description": "Ce que vous partagez"

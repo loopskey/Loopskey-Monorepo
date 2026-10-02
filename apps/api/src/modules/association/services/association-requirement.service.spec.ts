@@ -5,6 +5,7 @@ import {
   Role,
 } from "@prisma/client";
 import { AssociationReportingCycle, CreditType } from "@prisma/client";
+import { AssociationMemberStatus } from "@prisma/client";
 import type { OutboxService } from "@infrastructure/outbox/outbox.service";
 import type { PrismaService } from "@prisma/prisma.service";
 
@@ -56,9 +57,37 @@ const setup = (
     hasRecordedActivity?: boolean;
     locked?: { id: string; status: AssociationRequirementStatus }[];
     deleteCount?: number;
+    lockedMembers?: { id: string; status: AssociationMemberStatus }[];
+    lockedGroups?: { id: string }[];
   } = {},
 ) => {
   const row = requirementRow(over.current);
+
+  // One $queryRaw mock serves three locking reads. The requirement lock calls
+  // the tagged-template form, so it arrives as a strings array; the audience
+  // locks pass a Prisma.Sql whose own text names the table being locked.
+  const lockedRows = (query: unknown) => {
+    const sql = Array.isArray(query)
+      ? {}
+      : (query as { strings?: string[]; values?: unknown[] });
+    const text = sql.strings?.join("") ?? "";
+    const ids = (sql.values ?? []).slice(0, -1) as string[];
+
+    if (text.includes('"AssociationMember"'))
+      return (
+        over.lockedMembers ??
+        ids.map((id) => ({ id, status: AssociationMemberStatus.ACTIVE }))
+      );
+
+    if (text.includes('"AssociationGroup"'))
+      return over.lockedGroups ?? ids.map((id) => ({ id }));
+
+    return (
+      over.locked ?? [
+        { id: "req-1", status: AssociationRequirementStatus.DRAFT },
+      ]
+    );
+  };
 
   const tx = {
     associationRequirement: {
@@ -86,10 +115,8 @@ const setup = (
     outboxEvent: { create: jest.fn().mockResolvedValue({ id: "event-1" }) },
     $queryRaw: jest
       .fn()
-      .mockResolvedValue(
-        over.locked ?? [
-          { id: "req-1", status: AssociationRequirementStatus.DRAFT },
-        ],
+      .mockImplementation((query: unknown) =>
+        Promise.resolve(lockedRows(query)),
       ),
   };
 
@@ -384,6 +411,98 @@ describe("AssociationRequirementService audience", () => {
         ],
       }),
     );
+  });
+
+  it("locks the selected members for the owning association only", async () => {
+    const { service, tx } = setup();
+
+    await service.updateAudience(owner, {
+      requirementId: "req-1",
+      audienceKind: "SPECIFIC_MEMBERS" as never,
+      memberIds: ["member-1", "member-2"],
+    });
+
+    const locking = tx.$queryRaw.mock.calls
+      .map(([query]) => query as { strings?: string[]; values?: unknown[] })
+      .find((query) => query.strings?.join("").includes('"AssociationMember"'));
+
+    expect(locking?.strings?.join("")).toContain("FOR SHARE");
+    expect(locking?.values).toEqual(["member-1", "member-2", association.id]);
+  });
+
+  it("refuses a member id the association does not own, writing no target", async () => {
+    const { service, tx } = setup({ lockedGroups: [], lockedMembers: [] });
+
+    await expect(
+      service.updateAudience(owner, {
+        requirementId: "req-1",
+        audienceKind: "SPECIFIC_MEMBERS" as never,
+        memberIds: ["member-of-another-association"],
+      }),
+    ).rejects.toMatchObject({
+      response: { code: AssociationMessageCode.MEMBER_NOT_FOUND },
+    });
+
+    expect(tx.associationRequirementTarget.createMany).not.toHaveBeenCalled();
+  });
+
+  it("refuses a member deactivated before the save committed", async () => {
+    const { service, tx } = setup({
+      lockedMembers: [
+        { id: "member-1", status: AssociationMemberStatus.ACTIVE },
+        { id: "member-2", status: AssociationMemberStatus.INACTIVE },
+      ],
+    });
+
+    await expect(
+      service.updateAudience(owner, {
+        requirementId: "req-1",
+        audienceKind: "SPECIFIC_MEMBERS" as never,
+        memberIds: ["member-1", "member-2"],
+      }),
+    ).rejects.toMatchObject({
+      response: {
+        code: AssociationMessageCode.REQUIREMENT_TARGET_INACTIVE,
+      },
+    });
+
+    expect(tx.associationRequirementTarget.createMany).not.toHaveBeenCalled();
+  });
+
+  it("refuses a member still pending activation", async () => {
+    const { service } = setup({
+      lockedMembers: [
+        { id: "member-1", status: AssociationMemberStatus.PENDING_ACTIVATION },
+      ],
+    });
+
+    await expect(
+      service.updateAudience(owner, {
+        requirementId: "req-1",
+        audienceKind: "SPECIFIC_MEMBERS" as never,
+        memberIds: ["member-1"],
+      }),
+    ).rejects.toMatchObject({
+      response: {
+        code: AssociationMessageCode.REQUIREMENT_TARGET_INACTIVE,
+      },
+    });
+  });
+
+  it("refuses a group id the association does not own", async () => {
+    const { service, tx } = setup({ lockedGroups: [] });
+
+    await expect(
+      service.updateAudience(owner, {
+        requirementId: "req-1",
+        audienceKind: "GROUP" as never,
+        groupIds: ["group-of-another-association"],
+      }),
+    ).rejects.toMatchObject({
+      response: { code: AssociationMessageCode.GROUP_NOT_FOUND },
+    });
+
+    expect(tx.associationRequirementTarget.createMany).not.toHaveBeenCalled();
   });
 });
 

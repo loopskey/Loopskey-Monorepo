@@ -1,5 +1,7 @@
 import { PodcastCategory, PodcastStatus, Prisma, Role } from "@prisma/client";
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { measureCatalogFacets } from "@utils/catalog-facet.util";
+import { toEnumFacets } from "@utils/catalog-facet.util";
 import { CreatePodcastEpisodeInput } from "@podcast/dtos/create-podcast-episode.input";
 import { UpdatePodcastEpisodeInput } from "@podcast/dtos/update-podcast-episode.input";
 import { PodcastPaginationInput } from "@podcast/dtos/podcast-pagination";
@@ -35,7 +37,36 @@ const lowerTerms = (terms: readonly string[]) =>
 
 @Injectable()
 export class PodcastService {
+  private readonly logger = new Logger(PodcastService.name);
+
   constructor(private readonly prismaService: PrismaService) {}
+
+  /**
+   * Options for the public catalogue filter, under the same visibility
+   * predicate as the public podcast list.
+   */
+  findPodcastFilterFacets() {
+    return measureCatalogFacets(
+      this.logger,
+      "podcast",
+      async () => {
+        const categories = await this.prismaService.podcast.groupBy({
+          by: ["category"],
+          where: { status: PodcastStatus.PUBLISHED, deletedAt: null },
+          _count: { _all: true },
+        });
+        return {
+          categories: toEnumFacets(
+            categories.map((row) => ({
+              value: row.category,
+              count: row._count._all,
+            })),
+          ),
+        };
+      },
+      (facets) => facets.categories.length,
+    );
+  }
 
   async createPodcast(input: CreatePodcastInput, requester: PodcastRequester) {
     this.ensureProviderOrAdmin(requester);

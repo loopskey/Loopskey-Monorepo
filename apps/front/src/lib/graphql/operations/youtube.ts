@@ -115,6 +115,11 @@ export type DeleteYouTubeVideoMutationVariables = Types.Exact<{
 
 export type DeleteYouTubeVideoMutation = { __typename?: 'Mutation', deleteYouTubeVideo: { __typename?: 'YouTubeVideo', id: string, title: string, views: number, likes: number, status: Types.YouTubeVideoStatus, videoUrl?: string | null, channelId: string, createdAt: string, updatedAt: string, description?: string | null, publishedAt?: string | null, thumbnailUrl?: string | null, durationMinutes?: number | null } };
 
+export type YoutubeChannelFilterFacetsQueryVariables = Types.Exact<{ [key: string]: never; }>;
+
+
+export type YoutubeChannelFilterFacetsQuery = { __typename?: 'Query', youtubeChannelFilterFacets: { __typename?: 'YouTubeChannelFilterFacets', categories: Array<{ __typename?: 'YouTubeCategoryFacet', value: Types.YouTubeCategory, count: number }> } };
+
 export const YouTubeChannelFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
     fragment YouTubeChannelFields on YouTubeChannel {
   id
@@ -562,3 +567,13 @@ export const DeleteYouTubeVideoDocument = /*#__PURE__*/ new TypedDocumentString(
   thumbnailUrl
   durationMinutes
 }`) as unknown as TypedDocumentString<DeleteYouTubeVideoMutation, DeleteYouTubeVideoMutationVariables>;
+export const YoutubeChannelFilterFacetsDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query YoutubeChannelFilterFacets {
+  youtubeChannelFilterFacets {
+    categories {
+      value
+      count
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<YoutubeChannelFilterFacetsQuery, YoutubeChannelFilterFacetsQueryVariables>;

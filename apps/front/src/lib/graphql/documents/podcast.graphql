@@ -151,3 +151,12 @@ mutation DeletePodcastEpisode($episodeId: String!) {
     ...PodcastEpisodeFields
   }
 }
+
+query PodcastFilterFacets {
+  podcastFilterFacets {
+    categories {
+      value
+      count
+    }
+  }
+}

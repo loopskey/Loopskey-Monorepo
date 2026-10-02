@@ -85,6 +85,11 @@ export type RestoreCourseMutationVariables = Types.Exact<{
 
 export type RestoreCourseMutation = { __typename?: 'Mutation', restoreCourse: { __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, sourceUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null } };
 
+export type CourseFilterFacetsQueryVariables = Types.Exact<{ [key: string]: never; }>;
+
+
+export type CourseFilterFacetsQuery = { __typename?: 'Query', courseFilterFacets: { __typename?: 'CourseFilterFacets', categories: Array<{ __typename?: 'CourseCategoryFacet', value: Types.CourseCategory, count: number }>, levels: Array<{ __typename?: 'CourseLevelFacet', value: Types.CourseLevel, count: number }>, ratings: Array<{ __typename?: 'CourseRatingFacet', minimum: number, count: number }> } };
+
 export const CourseFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
     fragment CourseFields on Course {
   id
@@ -503,3 +508,21 @@ export const RestoreCourseDocument = /*#__PURE__*/ new TypedDocumentString(`
   updatedAt
   deletedAt
 }`) as unknown as TypedDocumentString<RestoreCourseMutation, RestoreCourseMutationVariables>;
+export const CourseFilterFacetsDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query CourseFilterFacets {
+  courseFilterFacets {
+    categories {
+      value
+      count
+    }
+    levels {
+      value
+      count
+    }
+    ratings {
+      minimum
+      count
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<CourseFilterFacetsQuery, CourseFilterFacetsQueryVariables>;

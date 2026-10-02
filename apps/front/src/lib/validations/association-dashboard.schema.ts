@@ -125,12 +125,17 @@ export type TInviteAssociationMemberForm = z.infer<
 >;
 export type TAssociationGroupForm = z.infer<typeof associationGroupSchema>;
 
+/** Prefix for messages a schema raises; `FormMessage` resolves them with `t`. */
+const REQUIREMENT_ERROR = "associationDashboard.requirements.errors";
+
 export const associationRequirementDetailsSchema = z
   .object({
     name: z
       .string()
       .trim()
-      .min(REQUIREMENT_LIMITS.nameMin)
+      .min(REQUIREMENT_LIMITS.nameMin, {
+        message: `${REQUIREMENT_ERROR}.nameRequired`,
+      })
       .max(REQUIREMENT_LIMITS.nameMax),
     description: z.string().max(REQUIREMENT_LIMITS.descriptionMax).optional(),
     creditType: z.nativeEnum(CreditType),
@@ -165,7 +170,16 @@ export const associationRequirementDetailsSchema = z
       context.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["cycleLengthYears"],
-        message: "cycleLengthRequired",
+        message: `${REQUIREMENT_ERROR}.cycleLengthRequired`,
+      });
+
+    // The API rejects a cycle length on any other cycle, so a stale value left
+    // behind by a cycle change has to surface here rather than at publish.
+    if (!isMultiYear && hasLength)
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["cycleLengthYears"],
+        message: `${REQUIREMENT_ERROR}.cycleLengthNotAllowed`,
       });
 
     if (
@@ -175,7 +189,7 @@ export const associationRequirementDetailsSchema = z
       context.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["groupIds"],
-        message: "groupsRequired",
+        message: `${REQUIREMENT_ERROR}.groupsRequired`,
       });
 
     if (
@@ -185,28 +199,85 @@ export const associationRequirementDetailsSchema = z
       context.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["memberIds"],
-        message: "membersRequired",
+        message: `${REQUIREMENT_ERROR}.membersRequired`,
       });
   });
 
-export const associationRequirementCategoriesSchema = z.object({
-  categories: z
-    .array(
-      z.object({
-        name: z
-          .string()
-          .trim()
-          .min(REQUIREMENT_LIMITS.categoryNameMin)
-          .max(REQUIREMENT_LIMITS.categoryNameMax),
-        mappedCategory: z.nativeEnum(PduCategory),
-        requiredCredits: z.coerce
-          .number()
-          .positive()
-          .max(REQUIREMENT_LIMITS.creditsMax),
-      }),
-    )
-    .max(REQUIREMENT_LIMITS.categoriesMax),
-});
+/**
+ * What `validateForPublish` on the API refuses, checked before a forward step.
+ *
+ * The form resolver stays lenient about these two so an unfinished requirement
+ * can still be parked with Save as draft; a step that moves the user on runs
+ * this as well, so publish never reports a missing field for the first time on
+ * Review.
+ */
+export const requirementPublishIssues = (values: {
+  deadline?: string;
+  totalRequiredCredits: number;
+}) => {
+  const issues: { field: "deadline" | "totalRequiredCredits"; message: string }[] =
+    [];
+
+  if (!(values.totalRequiredCredits > 0))
+    issues.push({
+      field: "totalRequiredCredits",
+      message: `${REQUIREMENT_ERROR}.creditsPositive`,
+    });
+
+  if (!values.deadline?.trim())
+    issues.push({
+      field: "deadline",
+      message: `${REQUIREMENT_ERROR}.deadlineRequired`,
+    });
+
+  return issues;
+};
+
+export const associationRequirementCategoriesSchema = z
+  .object({
+    categories: z
+      .array(
+        z.object({
+          name: z
+            .string()
+            .trim()
+            .min(REQUIREMENT_LIMITS.categoryNameMin, {
+              message: `${REQUIREMENT_ERROR}.categoryNameRequired`,
+            })
+            .max(REQUIREMENT_LIMITS.categoryNameMax),
+          mappedCategory: z.nativeEnum(PduCategory),
+          requiredCredits: z.coerce
+            .number()
+            .positive({ message: `${REQUIREMENT_ERROR}.creditsPositive` })
+            .max(REQUIREMENT_LIMITS.creditsMax),
+        }),
+      )
+      .max(REQUIREMENT_LIMITS.categoriesMax),
+  })
+  .superRefine((values, context) => {
+    const names = new Set<string>();
+    const mappings = new Set<PduCategory>();
+
+    values.categories.forEach((category, index) => {
+      const key = category.name.trim().toLowerCase();
+
+      if (key && names.has(key))
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["categories", index, "name"],
+          message: `${REQUIREMENT_ERROR}.categoryNameDuplicate`,
+        });
+      names.add(key);
+
+      if (mappings.has(category.mappedCategory))
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["categories", index, "mappedCategory"],
+          message: `${REQUIREMENT_ERROR}.categoryMappingDuplicate`,
+        });
+      mappings.add(category.mappedCategory);
+    });
+  });
 
 export const associationRequirementReportingSchema = z.object({
   reportingStart: z.string().optional(),

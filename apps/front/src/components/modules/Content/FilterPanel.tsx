@@ -1,6 +1,11 @@
 "use client";
 
-import { RotateCcw, Search, SlidersHorizontal } from "lucide-react";
+import {
+  RotateCcw,
+  Search,
+  SlidersHorizontal,
+  TriangleAlert,
+} from "lucide-react";
 import { TFilterPanelProps } from "@/types/content-module.types";
 import { useState } from "react";
 import { useI18n } from "@/hooks/useI18n";
@@ -21,13 +26,35 @@ type TFilterSelectProps = {
 const FilterSelect = ({ filter, className }: TFilterSelectProps) => {
   const { t } = useI18n();
 
+  // The options come from the published catalogue, so an unresolved facet has
+  // nothing truthful to offer. The trigger stays visible and labelled, and
+  // says why it cannot be opened yet.
+  if (filter.hasError)
+    return (
+      <Button
+        type="button"
+        variant="outline"
+        aria-label={filter.label}
+        onClick={filter.onRetry}
+        className={cn(
+          "h-12 w-full justify-start gap-2 rounded-lg border-destructive/40 bg-background font-normal text-muted-foreground shadow-none",
+          className,
+        )}
+      >
+        <TriangleAlert className="size-4 text-destructive" aria-hidden />
+        {t("content.filters.optionsError")}
+      </Button>
+    );
+
   return (
     <S.Select
       value={filter.value ?? ""}
+      disabled={filter.isLoading}
       onValueChange={(value) => filter.onChange(value === "ALL" ? "" : value)}
     >
       <S.SelectTrigger
         aria-label={filter.label}
+        aria-busy={filter.isLoading}
         className={cn(
           "h-12 w-full rounded-lg border-border/70 bg-background shadow-none",
           filter.value &&
@@ -35,7 +62,13 @@ const FilterSelect = ({ filter, className }: TFilterSelectProps) => {
           className,
         )}
       >
-        <S.SelectValue placeholder={filter.placeholder} />
+        <S.SelectValue
+          placeholder={
+            filter.isLoading
+              ? t("content.filters.optionsLoading")
+              : filter.placeholder
+          }
+        />
       </S.SelectTrigger>
 
       <S.SelectContent className="rounded-md">

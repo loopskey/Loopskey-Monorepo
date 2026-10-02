@@ -5,7 +5,8 @@ import { EventRegistrationConflict } from "@events/domain/errors/event-registrat
 import { EventRepository } from "@events/infrastructure/persistence/event.repository";
 import { BadRequestException, ForbiddenException } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
-import { EventStatus, Role } from "@prisma/client";
+import { EventCategory, EventStatus, EventType, Role } from "@prisma/client";
+import { Logger } from "@nestjs/common";
 import { EventService } from "./event.service";
 
 describe("EventService", () => {
@@ -14,6 +15,7 @@ describe("EventService", () => {
     findRegistration: jest.fn(),
     activateRegistration: jest.fn(),
     cancelRegistration: jest.fn(),
+    groupPublicFacets: jest.fn(),
     update: jest.fn(),
   };
   const dispatcher = { publish: jest.fn() };
@@ -175,5 +177,63 @@ describe("EventService", () => {
         providerId: "provider-1",
       }),
     );
+  });
+});
+
+describe("EventService filter facets", () => {
+  const repository = {
+    groupPublicFacets: jest.fn().mockResolvedValue({
+      categories: [],
+      types: [],
+    }),
+  };
+  let service: EventService;
+
+  beforeEach(async () => {
+    jest.clearAllMocks();
+    jest.spyOn(Logger.prototype, "log").mockImplementation();
+    jest.spyOn(Logger.prototype, "warn").mockImplementation();
+    repository.groupPublicFacets.mockResolvedValue({
+      categories: [],
+      types: [],
+    });
+    const moduleRef = await Test.createTestingModule({
+      providers: [
+        EventService,
+        { provide: EventRepository, useValue: repository },
+        {
+          provide: EventDomainEventDispatcher,
+          useValue: { publish: jest.fn() },
+        },
+      ],
+    }).compile();
+    service = moduleRef.get(EventService);
+  });
+
+  afterEach(() => jest.restoreAllMocks());
+
+  it("returns a category and type option for every value backed by a public event", async () => {
+    repository.groupPublicFacets.mockResolvedValue({
+      categories: [
+        { category: EventCategory.TECHNOLOGY, _count: { _all: 3 } },
+        { category: EventCategory.BUSINESS, _count: { _all: 1 } },
+      ],
+      types: [{ type: EventType.WEBINAR, _count: { _all: 4 } }],
+    });
+
+    await expect(service.findEventFilterFacets()).resolves.toEqual({
+      categories: [
+        { value: EventCategory.BUSINESS, count: 1 },
+        { value: EventCategory.TECHNOLOGY, count: 3 },
+      ],
+      types: [{ value: EventType.WEBINAR, count: 4 }],
+    });
+  });
+
+  it("offers nothing for an empty catalogue", async () => {
+    await expect(service.findEventFilterFacets()).resolves.toEqual({
+      categories: [],
+      types: [],
+    });
   });
 });

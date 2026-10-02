@@ -16,13 +16,14 @@ import {
   YouTubeChannelSortDirection,
   YouTubeChannelSortField,
 } from "@/lib/graphql/base";
-import { enumOptions, initialCursor, TAKE } from "@utils/constant";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { initialCursor, TAKE } from "@utils/constant";
 import {
   humanizeEnumValue,
   translateWithFallback,
 } from "@utils/function-helper";
 import { SEARCH_DEBOUNCE_MS } from "@utils/constant";
+import { useContentFacets } from "@hooks/useContentFacets";
 import { useDebouncedValue } from "@hooks/useDebounced";
 import { useI18n } from "@hooks/useI18n";
 
@@ -33,7 +34,7 @@ import * as EventApi from "@lib/rtk/endpoints/event.api";
 import * as T from "@/types/content-module.types";
 
 export const useContentPage = () => {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
 
   const [activeTab, setActiveTab] = useState<T.TContentTab>("courses");
   const [search, setSearch] = useState("");
@@ -73,35 +74,193 @@ export const useContentPage = () => {
 
   const currentCursor = cursorByTab[activeTab];
 
-  const courseCategoryOptions = useMemo(
-    () => enumOptions(CourseCategory, "content.enums.courseCategory", t),
+  /**
+   * A value can disappear when its last public record is archived or deleted.
+   * Dropping it here rather than leaving it on the Select keeps the control
+   * from holding a value its list would never return, and the cursor reset
+   * below turns the follow-up into a single page-one list request.
+   */
+  const keepSelected = useCallback(
+    (
+      selected: string | undefined,
+      options: readonly { value: string }[],
+      isResolved: boolean,
+    ) =>
+      !selected || !isResolved
+        ? selected
+        : options.some((option) => option.value === selected)
+          ? selected
+          : undefined,
+    [],
+  );
+
+  const facets = useContentFacets(activeTab);
+
+  const enumLabelOf = useCallback(
+    (prefix: string, value: string) =>
+      translateWithFallback(
+        t,
+        `content.enums.${prefix}.${value}`,
+        humanizeEnumValue(value),
+      ),
     [t],
+  );
+
+  /**
+   * Categorical options are sorted by their translated label in the active
+   * locale, so the order follows what a reader sees rather than the order the
+   * enum happens to declare.
+   */
+  const enumFacetOptions = useCallback(
+    (prefix: string, rows: readonly T.TEnumFacet[]) =>
+      rows
+        .map((row) => ({
+          value: row.value,
+          label: enumLabelOf(prefix, row.value),
+        }))
+        .sort((left, right) => left.label.localeCompare(right.label, language)),
+    [enumLabelOf, language],
+  );
+
+  const courseCategoryOptions = useMemo(
+    () => enumFacetOptions("courseCategory", facets.courses.categories),
+    [enumFacetOptions, facets.courses.categories],
   );
 
   const courseLevelOptions = useMemo(
-    () => enumOptions(CourseLevel, "content.enums.courseLevel", t),
-    [t],
+    () => enumFacetOptions("courseLevel", facets.courses.levels),
+    [enumFacetOptions, facets.courses.levels],
+  );
+
+  const courseRatingOptions = useMemo(
+    () =>
+      facets.courses.ratings.map((row) => ({
+        value: String(row.minimum),
+        label: `${row.minimum.toFixed(1)}+`,
+      })),
+    [facets.courses.ratings],
   );
 
   const eventCategoryOptions = useMemo(
-    () => enumOptions(EventCategory, "content.enums.eventCategory", t),
-    [t],
+    () => enumFacetOptions("eventCategory", facets.events.categories),
+    [enumFacetOptions, facets.events.categories],
   );
 
   const eventTypeOptions = useMemo(
-    () => enumOptions(EventType, "content.enums.eventType", t),
-    [t],
+    () => enumFacetOptions("eventType", facets.events.types),
+    [enumFacetOptions, facets.events.types],
   );
 
   const podcastCategoryOptions = useMemo(
-    () => enumOptions(PodcastCategory, "content.enums.podcastCategory", t),
-    [t],
+    () => enumFacetOptions("podcastCategory", facets.podcasts.categories),
+    [enumFacetOptions, facets.podcasts.categories],
   );
 
   const youtubeCategoryOptions = useMemo(
-    () => enumOptions(YouTubeCategory, "content.enums.youtubeCategory", t),
-    [t],
+    () => enumFacetOptions("youtubeCategory", facets.youtube.categories),
+    [enumFacetOptions, facets.youtube.categories],
   );
+
+  const isCourseFacetsResolved =
+    !facets.courses.state.isLoading && !facets.courses.state.hasError;
+  const isEventFacetsResolved =
+    !facets.events.state.isLoading && !facets.events.state.hasError;
+  const isPodcastFacetsResolved =
+    !facets.podcasts.state.isLoading && !facets.podcasts.state.hasError;
+  const isYoutubeFacetsResolved =
+    !facets.youtube.state.isLoading && !facets.youtube.state.hasError;
+
+  useEffect(() => {
+    if (activeTab !== "courses" || !isCourseFacetsResolved) return;
+    setCourseFilters((prev) => {
+      const next = {
+        category: keepSelected(
+          prev.category,
+          courseCategoryOptions,
+          true,
+        ) as T.TCourseFilters["category"],
+        level: keepSelected(
+          prev.level,
+          courseLevelOptions,
+          true,
+        ) as T.TCourseFilters["level"],
+        minRating: keepSelected(prev.minRating, courseRatingOptions, true),
+      };
+      const isUnchanged =
+        next.category === prev.category &&
+        next.level === prev.level &&
+        next.minRating === prev.minRating;
+      return isUnchanged ? prev : next;
+    });
+  }, [
+    activeTab,
+    keepSelected,
+    courseLevelOptions,
+    courseRatingOptions,
+    courseCategoryOptions,
+    isCourseFacetsResolved,
+  ]);
+
+  useEffect(() => {
+    if (activeTab !== "events" || !isEventFacetsResolved) return;
+    setEventFilters((prev) => {
+      const next = {
+        category: keepSelected(
+          prev.category,
+          eventCategoryOptions,
+          true,
+        ) as T.TEventFilters["category"],
+        type: keepSelected(
+          prev.type,
+          eventTypeOptions,
+          true,
+        ) as T.TEventFilters["type"],
+      };
+      return next.category === prev.category && next.type === prev.type
+        ? prev
+        : next;
+    });
+  }, [
+    activeTab,
+    keepSelected,
+    eventTypeOptions,
+    eventCategoryOptions,
+    isEventFacetsResolved,
+  ]);
+
+  useEffect(() => {
+    if (activeTab !== "podcasts" || !isPodcastFacetsResolved) return;
+    setPodcastFilters((prev) => {
+      const category = keepSelected(
+        prev.category,
+        podcastCategoryOptions,
+        true,
+      ) as T.TPodcastFilters["category"];
+      return category === prev.category ? prev : { category };
+    });
+  }, [
+    activeTab,
+    keepSelected,
+    podcastCategoryOptions,
+    isPodcastFacetsResolved,
+  ]);
+
+  useEffect(() => {
+    if (activeTab !== "youtube" || !isYoutubeFacetsResolved) return;
+    setYoutubeFilters((prev) => {
+      const category = keepSelected(
+        prev.category,
+        youtubeCategoryOptions,
+        true,
+      ) as T.TYouTubeFilters["category"];
+      return category === prev.category ? prev : { category };
+    });
+  }, [
+    activeTab,
+    keepSelected,
+    youtubeCategoryOptions,
+    isYoutubeFacetsResolved,
+  ]);
 
   const courseVariables = {
     filter: {
@@ -361,6 +520,25 @@ export const useContentPage = () => {
     if (activeTab === "youtube") setYoutubeFilters({});
   };
 
+  /**
+   * A selector with nothing behind it is dropped rather than shown empty. It
+   * stays while the facets are loading or failed, because those states carry
+   * the disabled/retry affordance the reader needs.
+   */
+  const withBackedOptions = <
+    TFilter extends {
+      options: unknown[];
+      isLoading: boolean;
+      hasError: boolean;
+    },
+  >(
+    filters: TFilter[],
+  ) =>
+    filters.filter(
+      (filter) =>
+        filter.options.length > 0 || filter.isLoading || filter.hasError,
+    );
+
   const getFilterPanelProps = () => {
     if (activeTab === "courses") {
       return {
@@ -368,13 +546,14 @@ export const useContentPage = () => {
         search,
         onReset: resetFilters,
         onSearchChange: setSearch,
-        filters: [
+        filters: withBackedOptions([
           {
             key: "category",
             label: t("content.filters.category"),
             value: courseFilters.category,
             placeholder: t("content.filters.category"),
             options: courseCategoryOptions,
+            ...facets.courses.state,
             onChange: (value: string) =>
               setCourseFilters((prev) => ({
                 ...prev,
@@ -387,6 +566,7 @@ export const useContentPage = () => {
             value: courseFilters.level,
             placeholder: t("content.filters.level"),
             options: courseLevelOptions,
+            ...facets.courses.state,
             onChange: (value: string) =>
               setCourseFilters((prev) => ({
                 ...prev,
@@ -398,19 +578,15 @@ export const useContentPage = () => {
             label: t("content.filters.rating"),
             value: courseFilters.minRating,
             placeholder: t("content.filters.rating"),
-            options: [
-              { value: "4.5", label: "4.5+" },
-              { value: "4", label: "4.0+" },
-              { value: "3.5", label: "3.5+" },
-              { value: "3", label: "3.0+" },
-            ],
+            options: courseRatingOptions,
+            ...facets.courses.state,
             onChange: (value: string) =>
               setCourseFilters((prev) => ({
                 ...prev,
                 minRating: value,
               })),
           },
-        ],
+        ]),
       };
     }
 
@@ -420,13 +596,14 @@ export const useContentPage = () => {
         search,
         onReset: resetFilters,
         onSearchChange: setSearch,
-        filters: [
+        filters: withBackedOptions([
           {
             key: "category",
             label: t("content.filters.category"),
             value: eventFilters.category,
             placeholder: t("content.filters.category"),
             options: eventCategoryOptions,
+            ...facets.events.state,
             onChange: (value: string) =>
               setEventFilters((prev) => ({
                 ...prev,
@@ -439,13 +616,14 @@ export const useContentPage = () => {
             value: eventFilters.type,
             placeholder: t("content.filters.eventType"),
             options: eventTypeOptions,
+            ...facets.events.state,
             onChange: (value: string) =>
               setEventFilters((prev) => ({
                 ...prev,
                 type: value as EventType | "",
               })),
           },
-        ],
+        ]),
       };
     }
 
@@ -455,20 +633,21 @@ export const useContentPage = () => {
         search,
         onReset: resetFilters,
         onSearchChange: setSearch,
-        filters: [
+        filters: withBackedOptions([
           {
             key: "category",
             label: t("content.filters.category"),
             value: podcastFilters.category,
             placeholder: t("content.filters.category"),
             options: podcastCategoryOptions,
+            ...facets.podcasts.state,
             onChange: (value: string) =>
               setPodcastFilters((prev) => ({
                 ...prev,
                 category: value as PodcastCategory | "",
               })),
           },
-        ],
+        ]),
       };
     }
 
@@ -477,20 +656,21 @@ export const useContentPage = () => {
       search,
       onReset: resetFilters,
       onSearchChange: setSearch,
-      filters: [
+      filters: withBackedOptions([
         {
           key: "category",
           label: t("content.filters.category"),
           value: youtubeFilters.category,
           placeholder: t("content.filters.category"),
           options: youtubeCategoryOptions,
+          ...facets.youtube.state,
           onChange: (value: string) =>
             setYoutubeFilters((prev) => ({
               ...prev,
               category: value as YouTubeCategory | "",
             })),
         },
-      ],
+      ]),
     };
   };
 

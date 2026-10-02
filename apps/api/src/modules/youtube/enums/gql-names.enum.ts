@@ -3,6 +3,8 @@ export enum YouTubeGqlObjectNames {
   YOUTUBE_CHANNEL = "YouTubeChannel",
   YOUTUBE_CHANNEL_PAGE_INFO = "YouTubeChannelPageInfo",
   PAGINATED_YOUTUBE_CHANNELS = "PaginatedYouTubeChannels",
+  YOUTUBE_CHANNEL_FILTER_FACETS = "YouTubeChannelFilterFacets",
+  YOUTUBE_CATEGORY_FACET = "YouTubeCategoryFacet",
 }
 
 export enum YouTubeGqlInputNames {
@@ -22,6 +24,7 @@ export enum YouTubeGqlQueryNames {
   YOUTUBE_CHANNEL_BY_SLUG = "youtubeChannelBySlug",
   FEATURED_YOUTUBE_CHANNELS = "featuredYouTubeChannels",
   MY_PROVIDER_YOUTUBE_CHANNELS = "myProviderYouTubeChannels",
+  YOUTUBE_CHANNEL_FILTER_FACETS = "youtubeChannelFilterFacets",
 }
 
 export enum YouTubeGqlMutationNames {
