@@ -123,3 +123,4 @@ into this index and do not rewrite previous records.
 - [`content-search-trgm-optimization`](feature-runs/active/content-search-trgm-optimization.md) — PR [#256](https://github.com/loopskey/Loopskey-Monorepo/pull/256)
 - [`member-invitation-delivery-and-acceptance`](feature-runs/active/member-invitation-delivery-and-acceptance.md) — PR [#259](https://github.com/loopskey/Loopskey-Monorepo/pull/259)
 - [`learning-content-wizard-corrections`](feature-runs/active/learning-content-wizard-corrections.md) — PR [#260](https://github.com/loopskey/Loopskey-Monorepo/pull/260)
+- [`requirement-wizard-corrections`](feature-runs/active/requirement-wizard-corrections.md) — PR [#261](https://github.com/loopskey/Loopskey-Monorepo/pull/261)

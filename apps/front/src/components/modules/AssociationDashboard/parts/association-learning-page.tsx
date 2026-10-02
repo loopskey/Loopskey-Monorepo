@@ -7,9 +7,9 @@ import { AssociationLearningStepReview } from "@modules/AssociationDashboard/par
 import { AssociationLearningStepCpd } from "@modules/AssociationDashboard/parts/association-learning-step-cpd";
 import { TAssociationLearningEditor } from "@/types/association-dashboard.types";
 import { LEARNING_CONTENT_STEPS } from "@hooks/useAssociationLearningContent";
+import { WizardStepper } from "@elements/wizard-stepper";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
-import { cn } from "@/lib/utils";
 
 import type { TLearningContentStep } from "@hooks/useAssociationLearningContent";
 
@@ -56,59 +56,18 @@ export const AssociationLearningPage = ({
         {t(isEditing ? `${KEY}.editor.editTitle` : `${KEY}.editor.addTitle`)}
       </h1>
 
-      <nav
-        aria-label={t("associationDashboard.requirements.wizard.stepsLabel")}
-      >
-        <div className="grid gap-3 md:grid-cols-4">
-          {LEARNING_CONTENT_STEPS.map((wizardStep, index) => {
-            const isActive = wizardStep === step;
-            const isDone = index < activeIndex;
-            const isReachable = isDone || isActive;
-
-            return (
-              <button
-                type="button"
-                key={wizardStep}
-                disabled={!isReachable}
-                aria-current={isActive ? "step" : undefined}
-                onClick={() => goToStep(wizardStep as TLearningContentStep)}
-                className={cn(
-                  "relative flex items-center gap-3 rounded-lg border p-4 text-left transition-all",
-                  isActive
-                    ? "border-primary bg-primary/10 shadow-lg shadow-primary/10"
-                    : "border-border bg-muted",
-                  isDone && "hover:border-primary/40",
-                  !isReachable && "cursor-not-allowed opacity-60",
-                )}
-              >
-                <div
-                  className={cn(
-                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-md text-sm font-medium",
-                    isReachable
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground",
-                  )}
-                >
-                  {isDone ? <L.Check className="h-4 w-4" /> : index + 1}
-                </div>
-
-                <div className="min-w-0">
-                  <p className="truncate font-medium leading-snug">
-                    {t(`${KEY}.wizard.step${index + 1}.title`)}
-                  </p>
-                  <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-                    {t(`${KEY}.wizard.step${index + 1}.description`)}
-                  </p>
-                </div>
-
-                {index < LEARNING_CONTENT_STEPS.length - 1 && (
-                  <span className="pointer-events-none absolute -right-2 top-1/2 hidden h-4 w-4 -translate-y-1/2 rotate-45 border-r border-t border-border bg-background md:block" />
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </nav>
+      <WizardStepper
+        activeKey={step}
+        label={t(`${KEY}.wizard.stepsLabel`)}
+        onSelect={(wizardStep) => goToStep(wizardStep)}
+        steps={LEARNING_CONTENT_STEPS.map((wizardStep, index) => ({
+          key: wizardStep as TLearningContentStep,
+          title: t(`${KEY}.wizard.step${index + 1}.title`),
+          description: t(`${KEY}.wizard.step${index + 1}.description`),
+          isComplete: index < activeIndex,
+          isReachable: index <= activeIndex,
+        }))}
+      />
 
       {isEditorLoading ? (
         <GlassCard>

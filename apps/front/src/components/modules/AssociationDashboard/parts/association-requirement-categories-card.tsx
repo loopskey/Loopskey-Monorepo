@@ -6,6 +6,7 @@ import { FloatingInputField } from "@elements/floating-input";
 import { PduCategory } from "@/lib/graphql/base";
 import { Button } from "@ui/button";
 
+import * as F from "@ui/form";
 import * as L from "lucide-react";
 
 export const AssociationRequirementCategoriesCard = ({
@@ -24,12 +25,21 @@ export const AssociationRequirementCategoriesCard = ({
 
   const categories = categoriesForm.watch("categories") ?? [];
 
+  const required = t("common.required");
+
   const mappedCategoryOptions = (ownMapping: PduCategory | undefined) =>
     Object.values(PduCategory).map((value) => ({
       value,
       label: t(`associationDashboard.requirements.pduCategory.${value}`),
       disabled: usedMappings.has(value) && value !== ownMapping,
     }));
+
+  // A new row takes the first mapping still free: the API refuses two
+  // categories on one PDU category, and the select disables a taken one, so a
+  // fixed default would append a row the user could not correct in place.
+  const nextFreeMapping = () =>
+    Object.values(PduCategory).find((value) => !usedMappings.has(value)) ??
+    PduCategory.Technical;
 
   const summaryStats = [
     {
@@ -47,121 +57,133 @@ export const AssociationRequirementCategoriesCard = ({
   ];
 
   return (
-    <form noValidate onSubmit={submitCategories} className="space-y-5">
-      <div className="space-y-3">
-        {categoryRows.fields.map((row, index) => {
-          const ownMapping = categories[index]?.mappedCategory;
+    // Without the provider the row fields render outside a form context and
+    // useFormField() throws, which is what made Add category break the page.
+    <F.Form {...categoriesForm}>
+      <form noValidate onSubmit={submitCategories} className="space-y-5">
+        <div className="space-y-3">
+          {categoryRows.fields.map((row, index) => {
+            const ownMapping = categories[index]?.mappedCategory;
 
-          return (
-            <div
-              key={row.id}
-              className="grid gap-3 lg:grid-cols-[1fr_220px_140px_auto] lg:items-start rounded-md border p-3"
-            >
-              <FloatingInputField
-                name={`categories.${index}.name`}
-                control={categoriesForm.control}
-                label={t(
-                  "associationDashboard.requirements.rules.categories.name",
-                )}
-              />
-
-              <FloatingSelectField
-                name={`categories.${index}.mappedCategory`}
-                control={categoriesForm.control}
-                options={mappedCategoryOptions(ownMapping)}
-                label={t(
-                  "associationDashboard.requirements.rules.categories.mapped",
-                )}
-                placeholder={t(
-                  "associationDashboard.requirements.rules.categories.mappedPlaceholder",
-                )}
-              />
-
-              <FloatingInputField
-                type="number"
-                name={`categories.${index}.requiredCredits`}
-                control={categoriesForm.control}
-                label={t(
-                  "associationDashboard.requirements.rules.categories.credits",
-                )}
-              />
-
-              <div className="flex items-center lg:h-14">
-                <Button
-                  radius="xl"
-                  type="button"
-                  variant="outline"
-                  onClick={() => categoryRows.remove(index)}
-                  aria-label={t(
-                    "associationDashboard.requirements.rules.categories.remove",
-                    { name: categories[index]?.name ?? "" },
+            return (
+              <div
+                key={row.id}
+                className="grid gap-3 lg:grid-cols-[1fr_220px_140px_auto] lg:items-start rounded-md border p-3"
+              >
+                <FloatingInputField
+                  name={`categories.${index}.name`}
+                  requiredText={required}
+                  control={categoriesForm.control}
+                  label={t(
+                    "associationDashboard.requirements.rules.categories.name",
                   )}
-                >
-                  <L.Trash2 className="h-4 w-4" />
-                </Button>
+                />
+
+                <FloatingSelectField
+                  name={`categories.${index}.mappedCategory`}
+                  requiredText={required}
+                  control={categoriesForm.control}
+                  options={mappedCategoryOptions(ownMapping)}
+                  label={t(
+                    "associationDashboard.requirements.rules.categories.mapped",
+                  )}
+                  placeholder={t(
+                    "associationDashboard.requirements.rules.categories.mappedPlaceholder",
+                  )}
+                />
+
+                <FloatingInputField
+                  min={1}
+                  type="number"
+                  name={`categories.${index}.requiredCredits`}
+                  requiredText={required}
+                  control={categoriesForm.control}
+                  label={t(
+                    "associationDashboard.requirements.rules.categories.credits",
+                  )}
+                />
+
+                <div className="flex items-center lg:h-14">
+                  <Button
+                    radius="xl"
+                    type="button"
+                    variant="outline"
+                    onClick={() => categoryRows.remove(index)}
+                    aria-label={t(
+                      "associationDashboard.requirements.rules.categories.remove",
+                      { name: categories[index]?.name ?? "" },
+                    )}
+                  >
+                    <L.Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
-
-      <Button
-        radius="xl"
-        type="button"
-        variant="outline"
-        onClick={() =>
-          categoryRows.append({
-            name: "",
-            requiredCredits: 0,
-            mappedCategory: PduCategory.Technical,
-          })
-        }
-      >
-        <L.Plus className="h-4 w-4" />
-        {t("associationDashboard.requirements.rules.categories.add")}
-      </Button>
-
-      {categoryRows.fields.length > 0 && (
-        <div className="grid gap-3 sm:grid-cols-3">
-          {summaryStats.map((stat) => (
-            <div key={stat.id} className="rounded-md border p-3">
-              <p className="text-xs uppercase text-muted-foreground">
-                {t(
-                  `associationDashboard.requirements.rules.categories.summary.${stat.id}`,
-                )}
-              </p>
-
-              <p className="mt-1 text-lg font-medium tabular-nums">
-                {stat.value.toLocaleString(locale)}
-              </p>
-            </div>
-          ))}
-
-          {allocation.isOverflowing && (
-            <p
-              role="alert"
-              className="text-sm font-medium text-destructive sm:col-span-3"
-            >
-              {t("associationDashboard.requirements.rules.categories.overflow", {
-                total: allocation.total.toLocaleString(locale),
-                assigned: allocation.assigned.toLocaleString(locale),
-                overflow: allocation.overflow.toLocaleString(locale),
-              })}
-            </p>
-          )}
+            );
+          })}
         </div>
-      )}
 
-      <div className="flex justify-end">
         <Button
           radius="xl"
-          type="submit"
-          disabled={isSaving || allocation.isOverflowing}
+          type="button"
+          variant="outline"
+          disabled={usedMappings.size >= Object.values(PduCategory).length}
+          onClick={() =>
+            categoryRows.append({
+              name: "",
+              requiredCredits: 0,
+              mappedCategory: nextFreeMapping(),
+            })
+          }
         >
-          {isSaving && <L.Loader2 className="h-4 w-4 animate-spin" />}
-          {t("associationDashboard.requirements.rules.save")}
+          <L.Plus className="h-4 w-4" />
+          {t("associationDashboard.requirements.rules.categories.add")}
         </Button>
-      </div>
-    </form>
+
+        {categoryRows.fields.length > 0 && (
+          <div className="grid gap-3 sm:grid-cols-3">
+            {summaryStats.map((stat) => (
+              <div key={stat.id} className="rounded-md border p-3">
+                <p className="text-xs uppercase text-muted-foreground">
+                  {t(
+                    `associationDashboard.requirements.rules.categories.summary.${stat.id}`,
+                  )}
+                </p>
+
+                <p className="mt-1 text-lg font-medium tabular-nums">
+                  {stat.value.toLocaleString(locale)}
+                </p>
+              </div>
+            ))}
+
+            {allocation.isOverflowing && (
+              <p
+                role="alert"
+                className="text-sm font-medium text-destructive sm:col-span-3"
+              >
+                {t(
+                  "associationDashboard.requirements.rules.categories.overflow",
+                  {
+                    total: allocation.total.toLocaleString(locale),
+                    assigned: allocation.assigned.toLocaleString(locale),
+                    overflow: allocation.overflow.toLocaleString(locale),
+                  },
+                )}
+              </p>
+            )}
+          </div>
+        )}
+
+        <div className="flex justify-end">
+          <Button
+            radius="xl"
+            type="submit"
+            disabled={isSaving || allocation.isOverflowing}
+          >
+            {isSaving && <L.Loader2 className="h-4 w-4 animate-spin" />}
+            {t("associationDashboard.requirements.rules.save")}
+          </Button>
+        </div>
+      </form>
+    </F.Form>
   );
 };

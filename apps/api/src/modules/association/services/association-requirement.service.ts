@@ -6,6 +6,7 @@ import { AssociationRequirementStatus } from "@prisma/client";
 import { AssociationPaginationInput } from "@association/dtos/association-pagination.input";
 import { AssociationAccessService } from "@association/services/association-access.service";
 import { AssociationAudienceKind } from "@prisma/client";
+import { AssociationMemberStatus } from "@prisma/client";
 import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
 import { TAssociationUser } from "@association/types/association-service.types";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
@@ -354,6 +355,72 @@ export class AssociationRequirementService {
     );
   }
 
+  /**
+   * Audience targets are written from client-supplied ids, so ownership and
+   * member status are the correctness boundary, not a preflight. `FOR SHARE`
+   * reads the newest committed row and holds it until this transaction commits,
+   * so a deactivation racing the save either loses the row to us and happens
+   * after our targets land, or wins and is seen here. Ordering by id keeps two
+   * concurrent saves over the same roster from deadlocking.
+   */
+  private async lockOwnedActiveMembers(
+    tx: Prisma.TransactionClient,
+    associationId: string,
+    memberIds: string[],
+  ) {
+    const unique = [...new Set(memberIds)];
+
+    const rows = await tx.$queryRaw<{ id: string; status: string }[]>(
+      Prisma.sql`SELECT "id", "status" FROM "AssociationMember"
+        WHERE "id" IN (${Prisma.join(unique)})
+          AND "associationId" = ${associationId}
+        ORDER BY "id"
+        FOR SHARE`,
+    );
+
+    if (rows.length !== unique.length)
+      throw new NotFoundException({
+        code: AssociationMessageCode.MEMBER_NOT_FOUND,
+        message: "One or more members do not belong to this association.",
+      });
+
+    const inactive = rows.filter(
+      (row) => row.status !== AssociationMemberStatus.ACTIVE,
+    );
+
+    if (inactive.length)
+      throw new BadRequestException({
+        code: AssociationMessageCode.REQUIREMENT_TARGET_INACTIVE,
+        message: `${inactive.length} selected member(s) are no longer active.`,
+      });
+
+    return unique;
+  }
+
+  private async lockOwnedGroups(
+    tx: Prisma.TransactionClient,
+    associationId: string,
+    groupIds: string[],
+  ) {
+    const unique = [...new Set(groupIds)];
+
+    const rows = await tx.$queryRaw<{ id: string }[]>(
+      Prisma.sql`SELECT "id" FROM "AssociationGroup"
+        WHERE "id" IN (${Prisma.join(unique)})
+          AND "associationId" = ${associationId}
+        ORDER BY "id"
+        FOR SHARE`,
+    );
+
+    if (rows.length !== unique.length)
+      throw new NotFoundException({
+        code: AssociationMessageCode.GROUP_NOT_FOUND,
+        message: "One or more groups do not belong to this association.",
+      });
+
+    return unique;
+  }
+
   async updateAudience(
     user: TAssociationUser,
     input: DTO.UpdateAssociationRequirementAudienceInput,
@@ -387,28 +454,42 @@ export class AssociationRequirementService {
       if (
         input.audienceKind === AssociationAudienceKind.GROUP &&
         input.groupIds?.length
-      )
+      ) {
+        const groupIds = await this.lockOwnedGroups(
+          tx,
+          association.id,
+          input.groupIds,
+        );
+
         await tx.associationRequirementTarget.createMany({
-          data: input.groupIds.map((groupId) => ({
+          data: groupIds.map((groupId) => ({
             requirementId: input.requirementId,
             kind: input.audienceKind,
             groupId,
           })),
           skipDuplicates: true,
         });
+      }
 
       if (
         input.audienceKind === AssociationAudienceKind.SPECIFIC_MEMBERS &&
         input.memberIds?.length
-      )
+      ) {
+        const memberIds = await this.lockOwnedActiveMembers(
+          tx,
+          association.id,
+          input.memberIds,
+        );
+
         await tx.associationRequirementTarget.createMany({
-          data: input.memberIds.map((memberId) => ({
+          data: memberIds.map((memberId) => ({
             requirementId: input.requirementId,
             kind: input.audienceKind,
             memberId,
           })),
           skipDuplicates: true,
         });
+      }
 
       await tx.associationRequirement.update({
         where: { id: input.requirementId },

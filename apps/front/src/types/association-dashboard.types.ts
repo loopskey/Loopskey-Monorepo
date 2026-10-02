@@ -327,6 +327,24 @@ export type TAssociationRequirementMemberPicker = {
   onSearch: (value: string) => void;
   onChange: (ids: string[]) => void;
   options: Array<{ value: string; label: string; hint?: string }>;
+  /** Marks the control required, and names the marker for a screen reader. */
+  requiredText?: string;
+  loadingText?: string;
+  /**
+   * A failed roster query. Kept apart from `emptyText` so an unreachable API
+   * never reads as "this association has no members".
+   */
+  hasQueryError?: boolean;
+  errorText?: string;
+  retryText?: string;
+  onRetry?: () => void;
+  /** Shown instead of `emptyText` while a search is narrowing the roster. */
+  noResultText?: string;
+  hasMore?: boolean;
+  loadMoreText?: string;
+  onLoadMore?: () => void;
+  selectedText?: string;
+  removeLabel?: (name: string) => string;
 };
 
 export type TAssociationCoverageChart = {

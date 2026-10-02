@@ -385,7 +385,8 @@
       "PODCAST": "Podcast",
       "YOUTUBE": "YouTube",
       "GENERAL": "General"
-    }
+    },
+    "required": "required"
   },
   "servicesPage": {
     "common": {
@@ -4140,6 +4141,7 @@
       },
       "addActivity": {
         "title": "Add Learning Activity",
+        "stepsLabel": "Activity steps",
         "editTitle": "Edit Learning Activity",
         "subtitle": "Record a learning activity and the credits it earned.",
         "back": "Back",
@@ -6073,7 +6075,17 @@
         "members": "Members",
         "membersPlaceholder": "Search members by name or email",
         "membersEmpty": "No members match that search.",
-        "membersResults": "{{count}} members found."
+        "membersResults": "{{count}} members found.",
+        "totalRequiredCreditsHint": "A requirement needs a credit total above zero.",
+        "groupsNoRoster": "This association has no active groups yet.",
+        "groupsSelected": "{{count}} selected",
+        "removeGroup": "Remove {{name}}",
+        "membersNoRoster": "This association has no active members yet.",
+        "membersLoading": "Loading active members…",
+        "membersError": "Active members could not be loaded.",
+        "membersLoadMore": "Load more members",
+        "membersSelected": "{{count}} selected",
+        "removeMember": "Remove {{name}}"
       },
       "wizard": {
         "title": "New requirement",
@@ -6219,7 +6231,16 @@
         "membersRequired": "Choose at least one member.",
         "groupsRequired": "Choose at least one group.",
         "notDeletable": "This draft has assignment or compliance history and cannot be deleted. Archive it instead.",
-        "statusConflict": "This requirement changed before it could be deleted. Refresh and try again."
+        "statusConflict": "This requirement changed before it could be deleted. Refresh and try again.",
+        "nameRequired": "A requirement needs a name.",
+        "creditsPositive": "Enter a credit total above zero.",
+        "deadlineRequired": "Choose a deadline.",
+        "cycleLengthRequired": "A multi-year cycle needs a length in years.",
+        "cycleLengthNotAllowed": "Only a multi-year cycle carries a cycle length.",
+        "categoryNameRequired": "A category needs a name.",
+        "categoryNameDuplicate": "Two categories cannot share a name.",
+        "categoryMappingDuplicate": "Two categories cannot map to the same PDU category.",
+        "targetInactive": "One of the selected members is no longer active. Review the selection and save again."
       },
       "error": {
         "title": "We could not load your requirements",
@@ -6323,6 +6344,7 @@
         "unsavedDiscard": "Discard"
       },
       "wizard": {
+        "stepsLabel": "Content steps",
         "step1": {
           "title": "Content",
           "description": "What you are sharing"
