@@ -385,7 +385,8 @@
       "PODCAST": "Podcast",
       "YOUTUBE": "YouTube",
       "GENERAL": "General"
-    }
+    },
+    "required": "required"
   },
   "servicesPage": {
     "common": {
@@ -2869,6 +2870,13 @@
       "accepting": "Accepting invitation...",
       "successTitle": "Invitation accepted. Sign in to continue.",
       "acceptFailed": "This invitation could not be accepted.",
+      "unavailableTitle": "We could not check this invitation",
+      "unavailableDescription": "Something went wrong on the way to the server. Your link is still fine, so try again.",
+      "retry": "Try again",
+      "acceptedTitle": "You have joined {{associationName}}",
+      "acceptedTitleGeneric": "Invitation accepted",
+      "acceptedDescription": "Your membership is active. Sign in to see it on your dashboard.",
+      "alreadyClaimed": "Your account was activated a moment ago. Accept again to join with it.",
       "confirmTitle": "Join this association?",
       "confirmTitleNamed": "Join {{associationName}}?",
       "confirmDescription": "Your Loopskey account is already active. Accept to add this membership to your account.",
@@ -4135,6 +4143,7 @@
       },
       "addActivity": {
         "title": "Add Learning Activity",
+        "stepsLabel": "Activity steps",
         "editTitle": "Edit Learning Activity",
         "subtitle": "Record a learning activity and the credits it earned.",
         "back": "Back",
@@ -5571,6 +5580,10 @@
         "linkedBody": "{{name}} already had a Loopskey account, so they joined your association immediately. No invitation email was needed.",
         "sentTitle": "Invitation sent",
         "sentBody": "An invitation is on its way to {{email}}. {{name}} becomes an active member once they activate their account.",
+        "cooldownTitle": "Invitation recently sent",
+        "cooldownBody": "{{name}} is on your roster. An invitation went to {{email}} a moment ago, so no new one was sent. Resend it from their profile later if it does not arrive.",
+        "limitTitle": "Daily invitation limit reached",
+        "limitBody": "{{name}} is on your roster, but {{email}} has received the most invitations allowed today. Resend it from their profile tomorrow.",
         "inviteAnother": "Invite another",
         "done": "Done"
       },
@@ -5673,6 +5686,8 @@
         "memberAlreadyActive": "That member is already active.",
         "memberStatusConflict": "That member's status changed while you were working. Refresh to see where it stands.",
         "invitationCooldown": "An invitation went out recently. Wait a moment before sending another.",
+        "invitationLimitReached": "This member has received the most invitations allowed today. Try again tomorrow.",
+        "memberDeactivated": "This member is deactivated. Reactivate them from their profile instead of inviting them again.",
         "activationEmailNotSent": "The invitation could not be sent. Try again in a moment.",
         "requirementAlreadyPublished": "This requirement was already published.",
         "requirementImmutableField": "A published requirement cannot change that field.",
@@ -6062,7 +6077,17 @@
         "members": "Members",
         "membersPlaceholder": "Search members by name or email",
         "membersEmpty": "No members match that search.",
-        "membersResults": "{{count}} members found."
+        "membersResults": "{{count}} members found.",
+        "totalRequiredCreditsHint": "A requirement needs a credit total above zero.",
+        "groupsNoRoster": "This association has no active groups yet.",
+        "groupsSelected": "{{count}} selected",
+        "removeGroup": "Remove {{name}}",
+        "membersNoRoster": "This association has no active members yet.",
+        "membersLoading": "Loading active members…",
+        "membersError": "Active members could not be loaded.",
+        "membersLoadMore": "Load more members",
+        "membersSelected": "{{count}} selected",
+        "removeMember": "Remove {{name}}"
       },
       "wizard": {
         "title": "New requirement",
@@ -6208,7 +6233,16 @@
         "membersRequired": "Choose at least one member.",
         "groupsRequired": "Choose at least one group.",
         "notDeletable": "This draft has assignment or compliance history and cannot be deleted. Archive it instead.",
-        "statusConflict": "This requirement changed before it could be deleted. Refresh and try again."
+        "statusConflict": "This requirement changed before it could be deleted. Refresh and try again.",
+        "nameRequired": "A requirement needs a name.",
+        "creditsPositive": "Enter a credit total above zero.",
+        "deadlineRequired": "Choose a deadline.",
+        "cycleLengthRequired": "A multi-year cycle needs a length in years.",
+        "cycleLengthNotAllowed": "Only a multi-year cycle carries a cycle length.",
+        "categoryNameRequired": "A category needs a name.",
+        "categoryNameDuplicate": "Two categories cannot share a name.",
+        "categoryMappingDuplicate": "Two categories cannot map to the same PDU category.",
+        "targetInactive": "One of the selected members is no longer active. Review the selection and save again."
       },
       "error": {
         "title": "We could not load your requirements",
@@ -6273,8 +6307,6 @@
         "step1Subtitle": "Find it in the Loopskey library, or enter your own.",
         "libraryTitle": "Find it in the Loopskey library",
         "librarySubtitle": "Search the shared catalogue and we'll fill in the details for you.",
-        "notInLibraryTitle": "Not in the library?",
-        "notInLibraryBody": "Enter the title, type, and provider yourself. It takes about a minute.",
         "enterManually": "Enter details manually",
         "searchInstead": "Search the library instead",
         "change": "Change",
@@ -6291,13 +6323,18 @@
         "provider": "Provider",
         "url": "Link",
         "urlInvalid": "Enter a link that starts with https://",
-        "credits": "Indicative credits",
+        "credits": "Indicative credits (optional)",
         "creditsShort": "{{credits}} CPD hrs",
-        "category": "CPD category",
-        "countsToward": "Counts toward requirement",
+        "category": "CPD category (optional)",
+        "countsToward": "Counts toward requirement (optional)",
         "countsTowardHint": "Optional. A member logging an activity against this content sees this requirement preselected.",
+        "countsTowardEmpty": "You have not published any requirement yet. Publish one so a member's activity can count toward it.",
         "noRequirementOption": "None",
-        "description": "Why you are recommending it",
+        "requirementLoadError": "Requirements could not be loaded.",
+        "retry": "Try again",
+        "legacyRequirementUnknown": "Archived requirement",
+        "legacyRequirementHint": "This requirement has since been archived. Choose a published replacement, or leave this content unlinked.",
+        "legacyRequirementReplace": "Choose a different requirement",
         "cpdAdvisory": "This credit value is informational only. A member only earns credit once they record a matching activity and, if required, it passes evidence review.",
         "detailsSheet": {
           "credits": "{{credits}} CPD hrs",
@@ -6309,6 +6346,7 @@
         "unsavedDiscard": "Discard"
       },
       "wizard": {
+        "stepsLabel": "Content steps",
         "step1": {
           "title": "Content",
           "description": "What you are sharing"
@@ -6416,7 +6454,8 @@
         "notDeletable": "Members may already have acted on this item. Withdraw it instead.",
         "statusConflict": "That item's status changed while you were working. Refresh to see where it stands.",
         "catalogNotFound": "That content is not in the catalogue.",
-        "catalogNotPublished": "Only published content can be endorsed."
+        "catalogNotPublished": "Only published content can be endorsed.",
+        "requirementNotPublished": "Only a published requirement can be linked. Refresh and choose another."
       }
     },
     "reports": {
@@ -6771,6 +6810,7 @@
         "noRecipients": "Nobody in this list can be messaged.",
         "notMember": "That person is not one of your members.",
         "batchTooLarge": "A single send covers at most five hundred members. Narrow to a group first.",
+        "deliveryRetrying": "Delivery failed once and is being retried automatically.",
         "deliveryFailed": "Delivery did not complete."
       },
       "history": {

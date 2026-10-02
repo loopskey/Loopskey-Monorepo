@@ -26,6 +26,10 @@ const ASSOCIATION_ERROR_TRANSLATION_KEYS: Partial<
     "associationDashboard.members.errors.memberStatusConflict",
   [AssociationMessageCode.MEMBER_INVITATION_COOLDOWN]:
     "associationDashboard.members.errors.invitationCooldown",
+  [AssociationMessageCode.MEMBER_INVITATION_LIMIT_REACHED]:
+    "associationDashboard.members.errors.invitationLimitReached",
+  [AssociationMessageCode.MEMBER_DEACTIVATED]:
+    "associationDashboard.members.errors.memberDeactivated",
   [AssociationMessageCode.ACTIVATION_EMAIL_NOT_SENT]:
     "associationDashboard.members.errors.activationEmailNotSent",
   [AssociationMessageCode.FILE_NOT_FOUND]:
@@ -36,6 +40,8 @@ const ASSOCIATION_ERROR_TRANSLATION_KEYS: Partial<
     "associationDashboard.memberDetail.errors.audienceNotMemberManaged",
   [AssociationMessageCode.AUDIENCE_EMPTY]:
     "associationDashboard.memberDetail.errors.audienceEmpty",
+  [AssociationMessageCode.REQUIREMENT_TARGET_INACTIVE]:
+    "associationDashboard.requirements.errors.targetInactive",
   [AssociationMessageCode.REVIEW_NOT_PERMITTED]:
     "associationDashboard.memberDetail.errors.reviewNotPermitted",
   [AssociationMessageCode.ACTIVITY_ALREADY_SETTLED]:
@@ -82,6 +88,8 @@ const ASSOCIATION_ERROR_TRANSLATION_KEYS: Partial<
     "associationDashboard.messages.skipReasons.COOLDOWN",
   [AssociationMessageCode.MESSAGE_DELIVERY_FAILED]:
     "associationDashboard.messages.errors.deliveryFailed",
+  [AssociationMessageCode.MESSAGE_DELIVERY_RETRYING]:
+    "associationDashboard.messages.errors.deliveryRetrying",
   [AssociationMessageCode.MESSAGE_EMAIL_SUPPRESSED]:
     "associationDashboard.messages.skipReasons.EMAIL_SUPPRESSED",
   [AssociationMessageCode.SETTINGS_NOT_FOUND]:
@@ -108,6 +116,8 @@ const ASSOCIATION_ERROR_TRANSLATION_KEYS: Partial<
     "associationDashboard.requirements.errors.notDeletable",
   [AssociationMessageCode.REQUIREMENT_STATUS_CONFLICT]:
     "associationDashboard.requirements.errors.statusConflict",
+  [AssociationMessageCode.REQUIREMENT_NOT_PUBLISHED]:
+    "associationDashboard.learningContent.errors.requirementNotPublished",
   [AssociationMessageCode.CATEGORY_CREDITS_EXCEED_TOTAL]:
     "associationDashboard.members.errors.categoryCreditsExceedTotal",
   [AssociationMessageCode.CATEGORY_NAME_DUPLICATE]:

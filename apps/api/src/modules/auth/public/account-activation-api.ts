@@ -24,6 +24,12 @@ export type MemberInvitation = AccountActivationLink & {
   readonly tokenId: string;
 };
 
+export type MemberInvitationRefusal = "COOLDOWN" | "DAILY_LIMIT";
+
+export type MemberInvitationIssue =
+  | { readonly issued: true; readonly invitation: MemberInvitation }
+  | { readonly issued: false; readonly refusal: MemberInvitationRefusal };
+
 export type MemberInvitationTokenStatus =
   | "VALID"
   | "USED"
@@ -36,16 +42,16 @@ export type MemberInvitationStatus = {
   readonly requiresPassword: boolean;
 };
 
-export type AcceptMemberInvitationTokenCommand = {
+export type PrepareMemberInvitationAcceptanceCommand = {
   readonly token: string;
   readonly password?: string;
-  readonly atomicContext: object;
   readonly confirmPassword?: string;
 };
 
-export type MemberInvitationTokenAccepted = {
+export type PreparedMemberInvitationAcceptance = {
   readonly associationMemberId: string;
   readonly userId: string;
+  consume(atomicContext: object): Promise<void>;
 };
 
 export interface AccountActivationApi {
@@ -59,11 +65,11 @@ export interface AccountActivationApi {
 
   issueMemberInvitation(
     command: IssueMemberInvitationCommand,
-  ): Promise<MemberInvitation | null>;
+  ): Promise<MemberInvitationIssue>;
 
   describeMemberInvitation(token: string): Promise<MemberInvitationStatus>;
 
-  acceptMemberInvitationToken(
-    command: AcceptMemberInvitationTokenCommand,
-  ): Promise<MemberInvitationTokenAccepted>;
+  prepareMemberInvitationAcceptance(
+    command: PrepareMemberInvitationAcceptanceCommand,
+  ): Promise<PreparedMemberInvitationAcceptance>;
 }

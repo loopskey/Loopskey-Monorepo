@@ -2,6 +2,7 @@
 
 import { TFloatingInputFieldProps } from "@/types/element.types";
 import { NATIVE_PICKER_TYPES } from "@utils/constant";
+import { RequiredMark } from "@elements/required-mark";
 import { FieldValues } from "react-hook-form";
 import { useId } from "react";
 import { Input } from "@ui/input";
@@ -18,6 +19,7 @@ export const FloatingInputField = <T extends FieldValues>({
   rightSlot,
   className,
   description,
+  requiredText,
   inputClassName,
   ...props
 }: TFloatingInputFieldProps<T>) => {
@@ -60,6 +62,7 @@ export const FloatingInputField = <T extends FieldValues>({
                   type={type}
                   name={field.name}
                   ref={field.ref}
+                  aria-required={requiredText ? true : undefined}
                   onBlur={field.onBlur}
                   onChange={field.onChange}
                   value={value ?? ""}
@@ -104,6 +107,7 @@ export const FloatingInputField = <T extends FieldValues>({
                   )}
                 >
                   {label}
+                  {requiredText && <RequiredMark srText={requiredText} />}
                 </F.FormLabel>
                 {rightSlot && (
                   <div className="absolute right-3 top-1/2 z-20 -translate-y-1/2">

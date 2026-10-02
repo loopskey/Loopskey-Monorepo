@@ -3,7 +3,6 @@
 import { TAssociationLearningStepContent } from "@/types/association-dashboard.types";
 import { AssociationLearningExternalType } from "@/lib/graphql/base";
 import { formatDurationMinutes } from "@utils/content-source.helper";
-import { FloatingTextareaField } from "@elements/floating-textarea";
 import { getContentTypeStyle } from "@/utils/content-type-style";
 import { FloatingInputField } from "@elements/floating-input";
 import { humanizeEnumValue } from "@utils/function-helper";
@@ -114,37 +113,51 @@ export const AssociationLearningStepContent = ({
               </div>
             ) : (
               <>
-                <div className="flex flex-wrap gap-3">
-                  <div className="relative min-w-0 flex-1">
-                    <L.Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+                  <div className="flex min-w-0 flex-1 flex-wrap gap-3">
+                    <div className="relative min-w-0 flex-1">
+                      <L.Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 
-                    <Input
-                      value={catalogSearch}
-                      className="rounded-md pl-9"
-                      placeholder={label("searchPlaceholder")}
-                      aria-label={label("searchPlaceholder")}
-                      onChange={(event) => setCatalogSearch(event.target.value)}
-                    />
+                      <Input
+                        value={catalogSearch}
+                        className="rounded-md pl-9"
+                        placeholder={label("searchPlaceholder")}
+                        aria-label={label("searchPlaceholder")}
+                        onChange={(event) =>
+                          setCatalogSearch(event.target.value)
+                        }
+                      />
+                    </div>
+
+                    <S.Select value={catalogType} onValueChange={setCatalogType}>
+                      <S.SelectTrigger
+                        className="w-40 rounded-md"
+                        aria-label={label("contentType")}
+                      >
+                        <S.SelectValue />
+                      </S.SelectTrigger>
+
+                      <S.SelectContent className="rounded-md">
+                        {CONTENT_TYPES.map((value) => (
+                          <S.SelectItem key={value} value={value}>
+                            {value === ALL
+                              ? label("allTypes")
+                              : humanizeEnumValue(value)}
+                          </S.SelectItem>
+                        ))}
+                      </S.SelectContent>
+                    </S.Select>
                   </div>
 
-                  <S.Select value={catalogType} onValueChange={setCatalogType}>
-                    <S.SelectTrigger
-                      className="w-40 rounded-md"
-                      aria-label={label("contentType")}
-                    >
-                      <S.SelectValue />
-                    </S.SelectTrigger>
-
-                    <S.SelectContent className="rounded-md">
-                      {CONTENT_TYPES.map((value) => (
-                        <S.SelectItem key={value} value={value}>
-                          {value === ALL
-                            ? label("allTypes")
-                            : humanizeEnumValue(value)}
-                        </S.SelectItem>
-                      ))}
-                    </S.SelectContent>
-                  </S.Select>
+                  <Button
+                    radius="xl"
+                    type="button"
+                    variant="outline"
+                    className="shrink-0"
+                    onClick={switchToManual}
+                  >
+                    {label("enterManually")}
+                  </Button>
                 </div>
 
                 {isCatalogLoading ? (
@@ -180,7 +193,7 @@ export const AssociationLearningStepContent = ({
                       return (
                         <li
                           key={`${item.contentType}:${item.contentId}`}
-                          className="flex items-start gap-3 rounded-md border p-3"
+                          className="flex flex-col gap-3 rounded-md border p-3 sm:flex-row sm:items-start"
                         >
                           <span
                             className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md ${style.softClass}`}
@@ -200,12 +213,13 @@ export const AssociationLearningStepContent = ({
                             ) : null}
                           </div>
 
-                          <div className="flex shrink-0 flex-col gap-2">
+                          <div className="flex items-center gap-2 sm:shrink-0">
                             <Button
                               size="sm"
                               radius="xl"
                               type="button"
                               variant="outline"
+                              className="flex-1 sm:flex-initial"
                               onClick={() => openDetailsSheet(item)}
                             >
                               {label("details")}
@@ -214,6 +228,7 @@ export const AssociationLearningStepContent = ({
                               size="sm"
                               radius="xl"
                               type="button"
+                              className="flex-1 sm:flex-initial"
                               onClick={() => pickCatalogItem(item)}
                             >
                               {label("useThis")}
@@ -230,27 +245,6 @@ export const AssociationLearningStepContent = ({
             {form.formState.errors.contentId && (
               <p className="text-sm text-destructive">{label("pickOne")}</p>
             )}
-          </div>
-        </GlassCard>
-      )}
-
-      {!isExternal && !hasSelection && (
-        <GlassCard glow={false}>
-          <div className="relative z-10 flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="font-medium">{label("notInLibraryTitle")}</p>
-              <p className="text-sm text-muted-foreground">
-                {label("notInLibraryBody")}
-              </p>
-            </div>
-            <Button
-              radius="xl"
-              type="button"
-              variant="outline"
-              onClick={switchToManual}
-            >
-              {label("enterManually")}
-            </Button>
           </div>
         </GlassCard>
       )}
@@ -327,12 +321,6 @@ export const AssociationLearningStepContent = ({
           </div>
         </GlassCard>
       )}
-
-      <FloatingTextareaField
-        name="description"
-        control={form.control}
-        label={label("description")}
-      />
     </div>
   );
 };

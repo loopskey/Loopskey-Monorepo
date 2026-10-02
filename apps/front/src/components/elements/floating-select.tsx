@@ -1,6 +1,7 @@
 "use client";
 
 import { TFloatingSelectFieldProps } from "@/types/element.types";
+import { RequiredMark } from "@elements/required-mark";
 import { FieldValues } from "react-hook-form";
 import { cn } from "@/lib/utils";
 
@@ -16,6 +17,7 @@ export const FloatingSelectField = <T extends FieldValues>({
   className,
   placeholder,
   description,
+  requiredText,
 }: TFloatingSelectFieldProps<T>) => {
   return (
     <F.FormField
@@ -26,7 +28,10 @@ export const FloatingSelectField = <T extends FieldValues>({
 
         return (
           <F.FormItem className={cn("min-w-0 space-y-2", className)}>
-            <F.FormLabel className="text-sm font-medium">{label}</F.FormLabel>
+            <F.FormLabel className="text-sm font-medium">
+              {label}
+              {requiredText && <RequiredMark srText={requiredText} />}
+            </F.FormLabel>
             <S.Select
               disabled={disabled}
               value={value ?? undefined}
@@ -35,6 +40,7 @@ export const FloatingSelectField = <T extends FieldValues>({
               <F.FormControl>
                 <S.SelectTrigger
                   aria-label={label}
+                  aria-required={requiredText ? true : undefined}
                   className="h-14 w-full justify-between rounded-md border-input bg-background px-4 text-base"
                 >
                   <S.SelectValue placeholder={placeholder ?? label} />

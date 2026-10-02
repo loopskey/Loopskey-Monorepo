@@ -624,9 +624,10 @@ export type AssociationGroupProgressRow = {
   renewalReady: Scalars['Int']['output'];
 };
 
-/** Whether an invitation linked an account that already existed or sent a new one */
+/** Whether an invitation linked an existing account, queued a new email, or was held back by the resend cooldown or daily limit */
 export enum AssociationInviteOutcome {
   InvitationCooldown = 'INVITATION_COOLDOWN',
+  InvitationLimitReached = 'INVITATION_LIMIT_REACHED',
   InvitationSent = 'INVITATION_SENT',
   LinkedExistingUser = 'LINKED_EXISTING_USER'
 }
