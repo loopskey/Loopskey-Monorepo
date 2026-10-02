@@ -771,7 +771,7 @@ export class EventRepository {
   ) {
     if (terms.length === 0) return this.exactTierEvents([], freeOnly, take);
     return this.prisma.$transaction(async (tx) => {
-      await tx.$executeRaw`SET LOCAL pg_trgm.word_similarity_threshold = ${WORD_SIMILARITY_THRESHOLD}`;
+      await tx.$executeRaw`SELECT set_config('pg_trgm.word_similarity_threshold', ${String(WORD_SIMILARITY_THRESHOLD)}, true)`;
       return tx.$queryRaw<EventCandidateRow[]>`
         SELECT
           e."id", e."pdu", e."title", e."topic", e."isFree", e."category",

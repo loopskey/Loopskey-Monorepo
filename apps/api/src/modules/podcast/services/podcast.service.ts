@@ -597,7 +597,7 @@ export class PodcastService {
   private async similarTierPodcasts(terms: readonly string[], take: number) {
     if (terms.length === 0) return this.exactTierPodcasts([], take);
     return this.prismaService.$transaction(async (tx) => {
-      await tx.$executeRaw`SET LOCAL pg_trgm.word_similarity_threshold = ${WORD_SIMILARITY_THRESHOLD}`;
+      await tx.$executeRaw`SELECT set_config('pg_trgm.word_similarity_threshold', ${String(WORD_SIMILARITY_THRESHOLD)}, true)`;
       return tx.$queryRaw<TPodcastCandidateRow[]>`
         SELECT
           p."id", p."title", p."rating", p."category", p."listeners",
