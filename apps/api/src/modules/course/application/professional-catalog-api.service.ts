@@ -17,6 +17,8 @@ const ROADMAP_INCLUDE = {
 const WORD_SIMILARITY_THRESHOLD = 0.3;
 const VALID_CATEGORIES = new Set<string>(Object.values(CourseCategory));
 
+const COURSE_IS_FREE = Prisma.sql`(c."isFree" OR c."price" IS NULL OR c."price" = 0)`;
+
 const trimmedTerms = (terms: readonly string[]) => [
   ...new Set(terms.map((term) => term.trim()).filter(Boolean)),
 ];
@@ -223,13 +225,13 @@ export class ProfessionalCatalogApiService implements ProfessionalCatalogApi {
   ) {
     return this.prisma.$queryRaw<TCourseCandidateRow[]>`
       SELECT
-        c."id", c."title", c."level", c."rating", c."isFree", c."category",
+        c."id", c."title", c."level", c."rating", ${COURSE_IS_FREE} AS "isFree", c."category",
         c."description", c."ratingCount", c."isFeatured", c."professionals",
         c."durationMinutes", 1.0::float AS "matchScore"
       FROM "Course" c
       WHERE c."deletedAt" IS NULL
         AND c."status" = ${CourseStatus.PUBLISHED}::"CourseStatus"
-        AND (${freeOnly} = false OR c."isFree" = true)
+        AND (${freeOnly} = false OR ${COURSE_IS_FREE})
         AND (
           ${subjects.length === 0}
           OR ${Prisma.join(
@@ -256,7 +258,7 @@ export class ProfessionalCatalogApiService implements ProfessionalCatalogApi {
       await tx.$executeRaw`SELECT set_config('pg_trgm.word_similarity_threshold', ${String(WORD_SIMILARITY_THRESHOLD)}, true)`;
       return tx.$queryRaw<TCourseCandidateRow[]>`
         SELECT
-          c."id", c."title", c."level", c."rating", c."isFree", c."category",
+          c."id", c."title", c."level", c."rating", ${COURSE_IS_FREE} AS "isFree", c."category",
           c."description", c."ratingCount", c."isFeatured", c."professionals",
           c."durationMinutes",
           GREATEST(${Prisma.join(
@@ -269,7 +271,7 @@ export class ProfessionalCatalogApiService implements ProfessionalCatalogApi {
         FROM "Course" c
         WHERE c."deletedAt" IS NULL
           AND c."status" = ${CourseStatus.PUBLISHED}::"CourseStatus"
-          AND (${freeOnly} = false OR c."isFree" = true)
+          AND (${freeOnly} = false OR ${COURSE_IS_FREE})
           AND (${Prisma.join(
             terms.map(
               (term) =>
@@ -292,13 +294,13 @@ export class ProfessionalCatalogApiService implements ProfessionalCatalogApi {
     if (categories.length === 0) return Promise.resolve([]);
     return this.prisma.$queryRaw<TCourseCandidateRow[]>`
       SELECT
-        c."id", c."title", c."level", c."rating", c."isFree", c."category",
+        c."id", c."title", c."level", c."rating", ${COURSE_IS_FREE} AS "isFree", c."category",
         c."description", c."ratingCount", c."isFeatured", c."professionals",
         c."durationMinutes", 0.4::float AS "matchScore"
       FROM "Course" c
       WHERE c."deletedAt" IS NULL
         AND c."status" = ${CourseStatus.PUBLISHED}::"CourseStatus"
-        AND (${freeOnly} = false OR c."isFree" = true)
+        AND (${freeOnly} = false OR ${COURSE_IS_FREE})
         AND c."category" = ANY(${categories}::"CourseCategory"[])
       ORDER BY c."isFeatured" DESC, c."rating" DESC, c."professionals" DESC, c."id" ASC
       LIMIT ${take};
@@ -308,13 +310,13 @@ export class ProfessionalCatalogApiService implements ProfessionalCatalogApi {
   private broadTierCourses(freeOnly: boolean, take: number) {
     return this.prisma.$queryRaw<TCourseCandidateRow[]>`
       SELECT
-        c."id", c."title", c."level", c."rating", c."isFree", c."category",
+        c."id", c."title", c."level", c."rating", ${COURSE_IS_FREE} AS "isFree", c."category",
         c."description", c."ratingCount", c."isFeatured", c."professionals",
         c."durationMinutes", 0.2::float AS "matchScore"
       FROM "Course" c
       WHERE c."deletedAt" IS NULL
         AND c."status" = ${CourseStatus.PUBLISHED}::"CourseStatus"
-        AND (${freeOnly} = false OR c."isFree" = true)
+        AND (${freeOnly} = false OR ${COURSE_IS_FREE})
       ORDER BY c."isFeatured" DESC, c."rating" DESC, c."professionals" DESC, c."id" ASC
       LIMIT ${take};
     `;
