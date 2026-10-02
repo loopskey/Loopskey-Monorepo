@@ -1,5 +1,5 @@
-import { EventDeliveryMode, EventRegistrationStatus } from "@prisma/client";
 import { CourseCategory, CourseStatus, RoadmapStatus } from "@prisma/client";
+import { EventDeliveryMode, EventRegistrationStatus } from "@prisma/client";
 import { ProfessionalCatalogApi } from "@course/public/professional-catalog-api";
 import { RoadmapCandidateQuery } from "@course/public/professional-catalog-api";
 import { Prisma, RoadmapSource } from "@prisma/client";
@@ -253,7 +253,7 @@ export class ProfessionalCatalogApiService implements ProfessionalCatalogApi {
   ) {
     if (terms.length === 0) return this.exactTierCourses([], freeOnly, take);
     return this.prisma.$transaction(async (tx) => {
-      await tx.$executeRaw`SET LOCAL pg_trgm.word_similarity_threshold = ${WORD_SIMILARITY_THRESHOLD}`;
+      await tx.$executeRaw`SELECT set_config('pg_trgm.word_similarity_threshold', ${String(WORD_SIMILARITY_THRESHOLD)}, true)`;
       return tx.$queryRaw<TCourseCandidateRow[]>`
         SELECT
           c."id", c."title", c."level", c."rating", c."isFree", c."category",
