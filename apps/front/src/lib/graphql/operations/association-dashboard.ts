@@ -258,6 +258,13 @@ export type AssociationRequirementOptionsQueryVariables = Types.Exact<{
 
 export type AssociationRequirementOptionsQuery = { __typename?: 'Query', associationRequirements: { __typename?: 'PaginatedAssociationRequirements', items: Array<{ __typename?: 'AssociationRequirement', id: string, name: string, status: Types.AssociationRequirementStatus }> } };
 
+export type AssociationPublishedRequirementOptionsQueryVariables = Types.Exact<{
+  pagination?: Types.InputMaybe<Types.AssociationPaginationInput>;
+}>;
+
+
+export type AssociationPublishedRequirementOptionsQuery = { __typename?: 'Query', associationRequirements: { __typename?: 'PaginatedAssociationRequirements', items: Array<{ __typename?: 'AssociationRequirement', id: string, name: string, status: Types.AssociationRequirementStatus }> } };
+
 export type AssociationReportSummaryFieldsFragment = { __typename?: 'AssociationReportSummary', periodStart: string, periodEnd: string, computedAt?: string | null, totalMembers: number, totalMembersChange: number, renewalReady: number, renewalReadyShare: number, renewalReadyChange: number, onTrack: number, onTrackShare: number, onTrackChange: number, atRisk: number, atRiskShare: number, atRiskChange: number, missingEvidence: number, missingEvidenceShare: number, missingEvidenceChange: number, averageCompletion: number };
 
 export type AssociationGroupComplianceFieldsFragment = { __typename?: 'AssociationGroupCompliance', groupId?: string | null, groupTitle?: string | null, memberCount: number, averageCompletion: number, renewalReady: number, onTrack: number, atRisk: number, notStarted: number };
@@ -1972,6 +1979,17 @@ export const AssociationRequirementOptionsDocument = /*#__PURE__*/ new TypedDocu
   }
 }
     `) as unknown as TypedDocumentString<AssociationRequirementOptionsQuery, AssociationRequirementOptionsQueryVariables>;
+export const AssociationPublishedRequirementOptionsDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query AssociationPublishedRequirementOptions($pagination: AssociationPaginationInput) {
+  associationRequirements(filter: {status: PUBLISHED}, pagination: $pagination) {
+    items {
+      id
+      name
+      status
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<AssociationPublishedRequirementOptionsQuery, AssociationPublishedRequirementOptionsQueryVariables>;
 export const AssociationReportsOverviewDocument = /*#__PURE__*/ new TypedDocumentString(`
     query AssociationReportsOverview($filter: AssociationReportFilterInput) {
   associationReportSummary(filter: $filter) {

@@ -1116,11 +1116,6 @@ model YouTubeChannel {
   rating      Float     @default(0)
   ratingCount Int       @default(0)
 
-  // Unmanaged: a `pg_trgm` GIN index on `provider` (YouTubeChannel_provider_trgm_idx)
-  // backs the landing catalogue search's exact and fuzzy attribution matching,
-  // added via raw SQL in migration 20260929090000_landing_catalog_search_indexes
-  // because Prisma cannot express a GIN index declaratively.
-
   @@index([status, category])
   @@index([providerId])
   @@index([createdAt])

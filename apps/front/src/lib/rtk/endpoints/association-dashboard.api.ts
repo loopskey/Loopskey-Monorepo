@@ -328,6 +328,20 @@ export const associationApi = baseApi.injectEndpoints({
       providesTags: ["AssociationLearningContent"],
     }),
 
+    associationPublishedRequirementOptions: builder.query<
+      TAPI.AssociationPublishedRequirementOptionsQuery["associationRequirements"],
+      TAPI.AssociationPublishedRequirementOptionsQueryVariables
+    >({
+      query: (variables) => ({
+        document: API.AssociationPublishedRequirementOptionsDocument,
+        variables,
+      }),
+      transformResponse: (
+        response: TAPI.AssociationPublishedRequirementOptionsQuery,
+      ) => response.associationRequirements,
+      providesTags: ["AssociationRequirements"],
+    }),
+
     associationLearningContents: builder.query<
       TAPI.AssociationLearningContentsQuery["associationLearningContents"],
       TAPI.AssociationLearningContentsQueryVariables
@@ -971,6 +985,7 @@ export const {
   useReviewAssociationLearningActivityMutation,
   useSetAssociationMemberRequirementsMutation,
   useAssociationRequirementOptionsQuery,
+  useAssociationPublishedRequirementOptionsQuery,
   useAssociationLearningContentsQuery,
   useAssociationLearningContentQuery,
   useAssociationLearningContentMembersQuery,

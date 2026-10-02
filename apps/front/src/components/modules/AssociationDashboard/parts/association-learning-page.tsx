@@ -58,45 +58,56 @@ export const AssociationLearningPage = ({
 
       <nav
         aria-label={t("associationDashboard.requirements.wizard.stepsLabel")}
-        className="sticky top-16 z-30 rounded-lg border bg-card p-2 shadow-sm"
       >
-        <ol className="flex flex-col gap-1 sm:flex-row sm:gap-2">
+        <div className="grid gap-3 md:grid-cols-4">
           {LEARNING_CONTENT_STEPS.map((wizardStep, index) => {
             const isActive = wizardStep === step;
+            const isDone = index < activeIndex;
+            const isReachable = isDone || isActive;
 
             return (
-              <li key={wizardStep} className="flex-1">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  disabled={index > activeIndex}
-                  aria-current={isActive ? "step" : undefined}
-                  onClick={() => goToStep(wizardStep as TLearningContentStep)}
+              <button
+                type="button"
+                key={wizardStep}
+                disabled={!isReachable}
+                aria-current={isActive ? "step" : undefined}
+                onClick={() => goToStep(wizardStep as TLearningContentStep)}
+                className={cn(
+                  "relative flex items-center gap-3 rounded-lg border p-4 text-left transition-all",
+                  isActive
+                    ? "border-primary bg-primary/10 shadow-lg shadow-primary/10"
+                    : "border-border bg-muted",
+                  isDone && "hover:border-primary/40",
+                  !isReachable && "cursor-not-allowed opacity-60",
+                )}
+              >
+                <div
                   className={cn(
-                    "h-auto w-full justify-start gap-3 rounded-md px-4 py-3 text-left",
-                    isActive && "bg-primary/10 text-primary",
+                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-md text-sm font-medium",
+                    isReachable
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground",
                   )}
                 >
-                  <span
-                    className={cn(
-                      "flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs tabular-nums",
-                      index < activeIndex &&
-                        "border-primary bg-primary text-primary-foreground",
-                    )}
-                  >
-                    {index + 1}
-                  </span>
+                  {isDone ? <L.Check className="h-4 w-4" /> : index + 1}
+                </div>
 
-                  <span className="min-w-0">
-                    <span className="block truncate text-sm font-medium">
-                      {t(`${KEY}.wizard.step${index + 1}.title`)}
-                    </span>
-                  </span>
-                </Button>
-              </li>
+                <div className="min-w-0">
+                  <p className="truncate font-medium leading-snug">
+                    {t(`${KEY}.wizard.step${index + 1}.title`)}
+                  </p>
+                  <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                    {t(`${KEY}.wizard.step${index + 1}.description`)}
+                  </p>
+                </div>
+
+                {index < LEARNING_CONTENT_STEPS.length - 1 && (
+                  <span className="pointer-events-none absolute -right-2 top-1/2 hidden h-4 w-4 -translate-y-1/2 rotate-45 border-r border-t border-border bg-background md:block" />
+                )}
+              </button>
             );
           })}
-        </ol>
+        </div>
       </nav>
 
       {isEditorLoading ? (

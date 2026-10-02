@@ -25,6 +25,7 @@ export enum AssociationInviteOutcome {
   LINKED_EXISTING_USER = "LINKED_EXISTING_USER",
   INVITATION_SENT = "INVITATION_SENT",
   INVITATION_COOLDOWN = "INVITATION_COOLDOWN",
+  INVITATION_LIMIT_REACHED = "INVITATION_LIMIT_REACHED",
 }
 
 registerEnumType(AssociationMemberStatus, {
@@ -40,7 +41,7 @@ registerEnumType(AssociationMemberJoinedVia, {
 registerEnumType(AssociationInviteOutcome, {
   name: "AssociationInviteOutcome",
   description:
-    "Whether an invitation linked an account that already existed or sent a new one",
+    "Whether an invitation linked an existing account, queued a new email, or was held back by the resend cooldown or daily limit",
 });
 
 registerEnumType(AssociationRequirementStatus, {

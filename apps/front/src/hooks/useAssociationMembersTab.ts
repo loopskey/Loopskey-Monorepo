@@ -233,6 +233,7 @@ export const useAssociationMembersTab = () => {
     setCursorStack((previous) => previous.slice(0, -1));
 
   const openInvite = () => {
+    if (inviteState.isLoading) return;
     setInviteOutcome(null);
     setInviteStep("form");
     setInviteLookup(null);
@@ -258,6 +259,7 @@ export const useAssociationMembersTab = () => {
   };
 
   const confirmInvite = inviteForm.handleSubmit(async (values) => {
+    if (inviteState.isLoading) return;
     try {
       const fullName =
         `${values.firstName.trim()} ${values.lastName.trim()}`.trim();
@@ -284,6 +286,7 @@ export const useAssociationMembersTab = () => {
   });
 
   const closeInvite = () => {
+    if (inviteState.isLoading) return;
     setInviteOpen(false);
     setInviteOutcome(null);
     setInviteStep("form");

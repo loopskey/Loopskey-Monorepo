@@ -11,9 +11,13 @@ const input = {
 };
 
 const setup = () => {
+  const order: string[] = [];
   const tx = {
     associationMember: {
-      updateMany: jest.fn().mockResolvedValue({ count: 1 }),
+      updateMany: jest.fn(() => {
+        order.push("activate-member");
+        return Promise.resolve({ count: 1 });
+      }),
       findUniqueOrThrow: jest.fn().mockResolvedValue({
         id: "member-9",
         associationId: "assoc-1",
@@ -24,19 +28,28 @@ const setup = () => {
     auditLog: { create: jest.fn().mockResolvedValue({ id: "audit-9" }) },
   };
   const prisma = {
-    $transaction: jest.fn((argument: unknown) =>
-      (argument as (client: typeof tx) => unknown)(tx),
-    ),
+    $transaction: jest.fn((argument: unknown) => {
+      order.push("begin");
+      return (argument as (client: typeof tx) => unknown)(tx);
+    }),
   };
+  const consume = jest.fn(() => {
+    order.push("consume-token");
+    return Promise.resolve();
+  });
   const activation = {
     describeMemberInvitation: jest.fn().mockResolvedValue({
       status: "VALID",
       associationName: "Example Association",
       requiresPassword: true,
     }),
-    acceptMemberInvitationToken: jest.fn().mockResolvedValue({
-      associationMemberId: "member-9",
-      userId: "user-9",
+    prepareMemberInvitationAcceptance: jest.fn(() => {
+      order.push("prepare");
+      return Promise.resolve({
+        associationMemberId: "member-9",
+        userId: "user-9",
+        consume,
+      });
     }),
   };
   const lifecycle = {
@@ -44,7 +57,9 @@ const setup = () => {
   };
   return {
     tx,
+    order,
     prisma,
+    consume,
     activation,
     lifecycle,
     service: new AssociationMemberInvitationService(
@@ -70,7 +85,7 @@ describe("AssociationMemberInvitationService", () => {
   });
 
   it("activates the membership and records who accepted it, in the same transaction as the token consume", async () => {
-    const { service, tx, activation } = setup();
+    const { service, tx, consume, activation } = setup();
 
     const result = await service.acceptInvitation(input);
 
@@ -80,14 +95,10 @@ describe("AssociationMemberInvitationService", () => {
         code: AuthMessageCode.MEMBER_INVITATION_ACCEPTED,
       }),
     );
-    expect(activation.acceptMemberInvitationToken).toHaveBeenCalledWith(
-      expect.objectContaining({
-        token: input.token,
-        password: input.password,
-        confirmPassword: input.confirmPassword,
-        atomicContext: tx,
-      }),
+    expect(activation.prepareMemberInvitationAcceptance).toHaveBeenCalledWith(
+      input,
     );
+    expect(consume).toHaveBeenCalledWith(tx);
     expect(tx.associationMember.updateMany).toHaveBeenCalledWith({
       where: {
         id: "member-9",
@@ -105,6 +116,19 @@ describe("AssociationMemberInvitationService", () => {
         entityId: "member-9",
       }),
     });
+  });
+
+  it("validates and hashes before the transaction, then locks the membership before the token", async () => {
+    const { service, order } = setup();
+
+    await service.acceptInvitation(input);
+
+    expect(order).toEqual([
+      "prepare",
+      "begin",
+      "activate-member",
+      "consume-token",
+    ]);
   });
 
   it("announces the activation inside the acceptance transaction", async () => {
@@ -125,33 +149,38 @@ describe("AssociationMemberInvitationService", () => {
     );
   });
 
-  /**
-   * The token consume already happened (inside `acceptMemberInvitationToken`,
-   * which ran first) by the time this membership-activation guard can fail —
-   * a concurrent accept, or the association deactivating the member in the
-   * same window. Both writes share one transaction, so this failure rolls
-   * the token consume back with it rather than leaving it spent for nothing.
-   */
-  it("reports a used-token conflict, not a crash, when the membership already moved on", async () => {
-    const { service, tx, lifecycle } = setup();
+  it("reports a used-token conflict and spends nothing when the membership already moved on", async () => {
+    const { service, tx, consume, lifecycle } = setup();
     tx.associationMember.updateMany.mockResolvedValue({ count: 0 });
 
     await expect(service.acceptInvitation(input)).rejects.toMatchObject({
       response: { code: AuthMessageCode.ACTIVATION_TOKEN_USED },
     });
+    expect(consume).not.toHaveBeenCalled();
     expect(tx.auditLog.create).not.toHaveBeenCalled();
     expect(lifecycle.announceActivation).not.toHaveBeenCalled();
   });
 
-  it("propagates a rejection from the auth port (invalid/expired/used/password) unchanged", async () => {
-    const { service, activation, tx } = setup();
-    activation.acceptMemberInvitationToken.mockRejectedValue(
+  it("writes nothing further when the token consume loses, so the activation rolls back with it", async () => {
+    const { service, tx, consume, lifecycle } = setup();
+    consume.mockRejectedValue(new Error("token already consumed"));
+
+    await expect(service.acceptInvitation(input)).rejects.toThrow(
+      "token already consumed",
+    );
+    expect(tx.auditLog.create).not.toHaveBeenCalled();
+    expect(lifecycle.announceActivation).not.toHaveBeenCalled();
+  });
+
+  it("opens no transaction when the auth port rejects the token or password", async () => {
+    const { service, activation, prisma } = setup();
+    activation.prepareMemberInvitationAcceptance.mockRejectedValue(
       new Error("token rejected upstream"),
     );
 
     await expect(service.acceptInvitation(input)).rejects.toThrow(
       "token rejected upstream",
     );
-    expect(tx.associationMember.updateMany).not.toHaveBeenCalled();
+    expect(prisma.$transaction).not.toHaveBeenCalled();
   });
 });

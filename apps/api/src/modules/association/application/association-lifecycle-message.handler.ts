@@ -40,6 +40,7 @@ type Addressee = {
 const DELIVERY_SELECT = {
   id: true,
   state: true,
+  createdAt: true,
   context: true,
   messageType: true,
   recipientUserId: true,
@@ -92,9 +93,27 @@ export class AssociationLifecycleMessageHandler implements OnModuleInit {
         lane: "realtime",
         eventName: LIFECYCLE_EVENT_BY_TYPE[messageType],
         handlerName: `association-lifecycle-${messageType.toLowerCase()}-v1`,
-        handle: (payload, event) => this.handle(payload, event),
+        handle: (payload, event) => this.attempt(payload, event),
         abandon: (payload) => this.abandon(payload),
       });
+  }
+
+  async attempt(payload: unknown, event: OutboxEventContext) {
+    try {
+      await this.handle(payload, event);
+    } catch (error) {
+      await this.markRetrying(payload);
+      throw error;
+    }
+  }
+
+  private async markRetrying(payload: unknown) {
+    const { deliveryId } = payload as LifecyclePayload;
+
+    await this.prisma.associationMessageDelivery.updateMany({
+      where: { id: deliveryId, state: AssociationMessageDeliveryState.QUEUED },
+      data: { failureReason: AssociationMessageCode.MESSAGE_DELIVERY_RETRYING },
+    });
   }
 
   async handle(payload: unknown, event: OutboxEventContext) {
@@ -184,7 +203,8 @@ export class AssociationLifecycleMessageHandler implements OnModuleInit {
   ) {
     if (
       !mail ||
-      delivery.member.status !== AssociationMemberStatus.PENDING_ACTIVATION
+      delivery.member.status !== AssociationMemberStatus.PENDING_ACTIVATION ||
+      (await this.isSupersededInvitation(delivery))
     ) {
       await this.skip(
         delivery,
@@ -195,6 +215,18 @@ export class AssociationLifecycleMessageHandler implements OnModuleInit {
 
     await this.mail.deliver(mail, event.idempotencyKey);
     await this.settle(delivery);
+  }
+
+  private async isSupersededInvitation(delivery: LifecycleDelivery) {
+    const newer = await this.prisma.associationMessageDelivery.findFirst({
+      where: {
+        memberId: delivery.member.id,
+        messageType: AssociationMessageType.INVITATION,
+        createdAt: { gt: delivery.createdAt },
+      },
+      select: { id: true },
+    });
+    return newer !== null;
   }
 
   private async render(
@@ -383,6 +415,7 @@ export class AssociationLifecycleMessageHandler implements OnModuleInit {
       },
       data: {
         sentAt: new Date(),
+        failureReason: null,
         state: AssociationMessageDeliveryState.SENT,
         ...(language ? { language } : {}),
       },
@@ -404,6 +437,7 @@ export class AssociationLifecycleMessageHandler implements OnModuleInit {
       data: {
         state: AssociationMessageDeliveryState.SKIPPED,
         skipReason: reason,
+        failureReason: null,
       },
     });
 
