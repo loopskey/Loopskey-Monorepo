@@ -279,12 +279,6 @@ export class YouTubeService {
       searchRank: number;
     };
 
-    // Bounded exact-first + fuzzy-fallback shape (same architecture as the
-    // landing catalogue search / CourseService#findCoursesWithTrgmSearch).
-    // The prior shape also used `similarity(col, term) > threshold` as a raw
-    // function-call comparison in the fuzzy branch, which gin_trgm_ops
-    // cannot accelerate at all (only `%`, `<->`, `<%>`, and ILIKE are
-    // index-eligible) — replaced here with the `%` operator, which is.
     const rowsPromise = this.prismaService.$queryRaw<ChannelSearchRow[]>`
       WITH exact_matches AS (
         SELECT
@@ -627,7 +621,7 @@ export class YouTubeService {
   private async similarTierChannels(terms: readonly string[], take: number) {
     if (terms.length === 0) return this.exactTierChannels([], take);
     return this.prismaService.$transaction(async (tx) => {
-      await tx.$executeRaw`SET LOCAL pg_trgm.word_similarity_threshold = ${WORD_SIMILARITY_THRESHOLD}`;
+      await tx.$executeRaw`SELECT set_config('pg_trgm.word_similarity_threshold', ${String(WORD_SIMILARITY_THRESHOLD)}, true)`;
       return tx.$queryRaw<TChannelCandidateRow[]>`
         SELECT
           y."id", y."title", y."rating", y."category", y."isFeatured",
