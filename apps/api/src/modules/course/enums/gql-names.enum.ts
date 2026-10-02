@@ -4,6 +4,10 @@ export enum CourseGqlObjectNames {
   CURRICULUM_LESSON = "CurriculumLesson",
   PAGINATED_COURSES = "PaginatedCourses",
   CURRICULUM_SECTION = "CurriculumSection",
+  COURSE_FILTER_FACETS = "CourseFilterFacets",
+  COURSE_CATEGORY_FACET = "CourseCategoryFacet",
+  COURSE_LEVEL_FACET = "CourseLevelFacet",
+  COURSE_RATING_FACET = "CourseRatingFacet",
 }
 
 export enum CourseGqlInputNames {
@@ -20,6 +24,7 @@ export enum CourseGqlQueryNames {
   COURSE_BY_SLUG = "courseBySlug",
   FEATURED_COURSES = "featuredCourses",
   MY_PROVIDER_COURSES = "myProviderCourses",
+  COURSE_FILTER_FACETS = "courseFilterFacets",
 }
 
 export enum CourseGqlMutationNames {

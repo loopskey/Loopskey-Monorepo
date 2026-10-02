@@ -5,6 +5,16 @@ import * as API from "@/lib/graphql/operations/event";
 
 export const eventApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
+    eventFilterFacets: builder.query<
+      TAPI.EventFilterFacetsQuery["eventFilterFacets"],
+      void
+    >({
+      query: () => ({ document: API.EventFilterFacetsDocument }),
+      transformResponse: (response: TAPI.EventFilterFacetsQuery) =>
+        response.eventFilterFacets,
+      providesTags: ["Events"],
+    }),
+
     events: builder.query<
       TAPI.EventsQuery["events"],
       TAPI.EventsQueryVariables | void
@@ -218,6 +228,7 @@ export const eventApi = baseApi.injectEndpoints({
 
 export const {
   useEventsQuery,
+  useEventFilterFacetsQuery,
   useEventByIdQuery,
   useLazyEventsQuery,
   useEventBySlugQuery,

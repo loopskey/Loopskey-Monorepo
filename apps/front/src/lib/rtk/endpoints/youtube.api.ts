@@ -5,6 +5,16 @@ import * as API from "@/lib/graphql/operations/youtube";
 
 export const youtubeApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
+    youtubeChannelFilterFacets: builder.query<
+      TAPI.YoutubeChannelFilterFacetsQuery["youtubeChannelFilterFacets"],
+      void
+    >({
+      query: () => ({ document: API.YoutubeChannelFilterFacetsDocument }),
+      transformResponse: (response: TAPI.YoutubeChannelFilterFacetsQuery) =>
+        response.youtubeChannelFilterFacets,
+      providesTags: ["YouTubeChannels"],
+    }),
+
     youtubeChannels: builder.query<
       TAPI.YouTubeChannelsQuery["youtubeChannels"],
       TAPI.YouTubeChannelsQueryVariables | void
@@ -211,6 +221,7 @@ export const youtubeApi = baseApi.injectEndpoints({
 export const {
   useYoutubeVideosQuery,
   useYoutubeChannelsQuery,
+  useYoutubeChannelFilterFacetsQuery,
   useLazyYoutubeVideosQuery,
   useYoutubeChannelByIdQuery,
   useLazyYoutubeChannelsQuery,

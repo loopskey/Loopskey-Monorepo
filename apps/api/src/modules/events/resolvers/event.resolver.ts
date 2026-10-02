@@ -1,5 +1,6 @@
 import { Args, Int, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { EventRegistrationEntity } from "@events/entities/event-registeration.entity";
+import { EventFilterFacetsEntity } from "@events/entities/event-filter-facets.entity";
 import { PaginatedEventsEntity } from "@events/entities/paginated-events.entity";
 import { EventGqlMutationNames } from "@events/enums/gql-names.enum";
 import { EventPaginationInput } from "@events/dtos/event-pagination.input";
@@ -28,6 +29,14 @@ export class EventResolver {
     @Args("sort", { nullable: true }) sort?: EventSortInput,
   ) {
     return this.eventService.findEvents(filter, pagination, sort);
+  }
+
+  @Public()
+  @Query(() => EventFilterFacetsEntity, {
+    name: EventGqlQueryNames.EVENT_FILTER_FACETS,
+  })
+  eventFilterFacets() {
+    return this.eventService.findEventFilterFacets();
   }
 
   @Public()

@@ -35,6 +35,22 @@ export type TSelectOption = {
   label: string;
 };
 
+export type TFacetState = {
+  isLoading: boolean;
+  hasError: boolean;
+  onRetry: () => void;
+};
+
+export type TEnumFacet = {
+  value: string;
+  count: number;
+};
+
+export type TRatingFacet = {
+  minimum: number;
+  count: number;
+};
+
 export type TCursorState = {
   page: number;
   cursor?: string;
@@ -91,6 +107,9 @@ export type TFilterPanelProps = {
     value?: string;
     placeholder: string;
     options: TSelectOption[];
+    isLoading: boolean;
+    hasError: boolean;
+    onRetry: () => void;
     onChange: (value: string) => void;
   }>;
   onReset: () => void;

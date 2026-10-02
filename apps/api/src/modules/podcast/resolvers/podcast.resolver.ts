@@ -2,6 +2,7 @@ import { Args, Int, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { CreatePodcastEpisodeInput } from "@podcast/dtos/create-podcast-episode.input";
 import { UpdatePodcastEpisodeInput } from "@podcast/dtos/update-podcast-episode.input";
 import { PodcastGqlMutationNames } from "@podcast/enums/gql-names.enum";
+import { PodcastFilterFacetsEntity } from "@podcast/entities/podcast-filter-facets.entity";
 import { PaginatedPodcastsEntity } from "@podcast/entities/paginated-podcasts.entity";
 import { PodcastPaginationInput } from "@podcast/dtos/podcast-pagination";
 import { PodcastEpisodeEntity } from "@podcast/entities/podcast-episode.entity";
@@ -33,6 +34,14 @@ export class PodcastResolver {
     @Args("sort", { nullable: true }) sort?: PodcastSortInput,
   ) {
     return this.podcastService.findPodcasts(filter, pagination, sort);
+  }
+
+  @Public()
+  @Query(() => PodcastFilterFacetsEntity, {
+    name: PodcastGqlQueryNames.PODCAST_FILTER_FACETS,
+  })
+  podcastFilterFacets() {
+    return this.podcastService.findPodcastFilterFacets();
   }
 
   @Public()

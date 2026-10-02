@@ -3,6 +3,8 @@ export enum PodcastGqlObjectNames {
   PODCAST_EPISODE = "PodcastEpisode",
   PODCAST_PAGE_INFO = "PodcastPageInfo",
   PAGINATED_PODCASTS = "PaginatedPodcasts",
+  PODCAST_FILTER_FACETS = "PodcastFilterFacets",
+  PODCAST_CATEGORY_FACET = "PodcastCategoryFacet",
 }
 
 export enum PodcastGqlInputNames {
@@ -22,6 +24,7 @@ export enum PodcastGqlQueryNames {
   PODCAST_EPISODES = "podcastEpisodes",
   FEATURED_PODCASTS = "featuredPodcasts",
   MY_PROVIDER_PODCASTS = "myProviderPodcasts",
+  PODCAST_FILTER_FACETS = "podcastFilterFacets",
 }
 
 export enum PodcastGqlMutationNames {

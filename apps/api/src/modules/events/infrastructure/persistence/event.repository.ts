@@ -113,6 +113,23 @@ export class EventRepository {
     return this.update(eventId, { views: { increment: 1 } });
   }
 
+  async groupPublicFacets() {
+    const where = { status: EventStatus.PUBLISHED, deletedAt: null };
+    const [categories, types] = await Promise.all([
+      this.prisma.event.groupBy({
+        by: ["category"],
+        where,
+        _count: { _all: true },
+      }),
+      this.prisma.event.groupBy({
+        by: ["type"],
+        where,
+        _count: { _all: true },
+      }),
+    ]);
+    return { categories, types };
+  }
+
   findUpcoming(take: number) {
     return this.prisma.event.findMany({
       where: {

@@ -194,3 +194,16 @@ mutation RestoreEvent($eventId: String!) {
     ...EventCardFields
   }
 }
+
+query EventFilterFacets {
+  eventFilterFacets {
+    categories {
+      value
+      count
+    }
+    types {
+      value
+      count
+    }
+  }
+}

@@ -4,6 +4,9 @@ export enum EventGqlObjectNames {
   PAGINATED_EVENTS = "PaginatedEvents",
   EVENT_REGISTRATION = "EventRegistration",
   EVENT_SCHEDULE_ITEM = "EventScheduleItem",
+  EVENT_FILTER_FACETS = "EventFilterFacets",
+  EVENT_CATEGORY_FACET = "EventCategoryFacet",
+  EVENT_TYPE_FACET = "EventTypeFacet",
 }
 
 export enum EventGqlInputNames {
@@ -23,6 +26,7 @@ export enum EventGqlQueryNames {
   UPCOMING_EVENTS = "upcomingEvents",
   MY_PROVIDER_EVENTS = "myProviderEvents",
   MY_REGISTERED_EVENTS = "myRegisteredEvents",
+  EVENT_FILTER_FACETS = "eventFilterFacets",
 }
 
 export enum EventGqlMutationNames {

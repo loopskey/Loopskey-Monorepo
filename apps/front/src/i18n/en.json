@@ -2925,7 +2925,9 @@
       "all": "All",
       "open": "Filters",
       "sheetDescription": "Refine the list using the options below.",
-      "showResults": "Show results"
+      "showResults": "Show results",
+      "optionsLoading": "Loading options…",
+      "optionsError": "Options unavailable. Retry"
     },
     "pagination": {
       "page": "Page {{page}}",

@@ -157,3 +157,12 @@ mutation DeleteYouTubeVideo($videoId: String!) {
     ...YouTubeVideoFields
   }
 }
+
+query YoutubeChannelFilterFacets {
+  youtubeChannelFilterFacets {
+    categories {
+      value
+      count
+    }
+  }
+}

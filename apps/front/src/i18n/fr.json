@@ -2929,7 +2929,9 @@
       "all": "Tous",
       "open": "Filtres",
       "sheetDescription": "Affinez la liste avec les options ci-dessous.",
-      "showResults": "Afficher les résultats"
+      "showResults": "Afficher les résultats",
+      "optionsLoading": "Chargement des options…",
+      "optionsError": "Options indisponibles. Réessayer"
     },
     "pagination": {
       "page": "Page {{page}}",

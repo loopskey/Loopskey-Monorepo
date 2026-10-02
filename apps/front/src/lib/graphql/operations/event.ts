@@ -124,6 +124,11 @@ export type RestoreEventMutationVariables = Types.Exact<{
 
 export type RestoreEventMutation = { __typename?: 'Mutation', restoreEvent: { __typename?: 'Event', id: string, pdu: number, slug: string, type: Types.EventType, title: string, views: number, price?: number | null, status: Types.EventStatus, isFree: boolean, rating: number, speaker?: string | null, endDate?: string | null, timezone: string, imageUrl?: string | null, sourceUrl?: string | null, category: Types.EventCategory, location?: string | null, currency: string, capacity?: number | null, language?: Types.AppLanguage | null, startDate: string, onlineUrl?: string | null, attendees: number, organizer?: string | null, updatedAt: string, deletedAt?: string | null, createdAt: string, providerId?: string | null, description: string, ratingCount: number, pduCategory?: Types.PduCategory | null, deliveryMode: Types.EventDeliveryMode, averageRating: number, specificTopic?: string | null, earlyBirdDiscount?: number | null, promotionVideoUrl?: string | null, registrationEnabled: boolean } };
 
+export type EventFilterFacetsQueryVariables = Types.Exact<{ [key: string]: never; }>;
+
+
+export type EventFilterFacetsQuery = { __typename?: 'Query', eventFilterFacets: { __typename?: 'EventFilterFacets', categories: Array<{ __typename?: 'EventCategoryFacet', value: Types.EventCategory, count: number }>, types: Array<{ __typename?: 'EventTypeFacet', value: Types.EventType, count: number }> } };
+
 export const EventCardFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
     fragment EventCardFields on Event {
   id
@@ -980,3 +985,17 @@ export const RestoreEventDocument = /*#__PURE__*/ new TypedDocumentString(`
   promotionVideoUrl
   registrationEnabled
 }`) as unknown as TypedDocumentString<RestoreEventMutation, RestoreEventMutationVariables>;
+export const EventFilterFacetsDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query EventFilterFacets {
+  eventFilterFacets {
+    categories {
+      value
+      count
+    }
+    types {
+      value
+      count
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<EventFilterFacetsQuery, EventFilterFacetsQueryVariables>;
