@@ -1,8 +1,8 @@
+import type { Control, FieldValues, Path } from "react-hook-form";
 import type { TAddCalendarEventPrefill } from "@/types/professional-dashboard.types";
 import type { TRequirementOption } from "@/types/professional-requirement.types";
-import type { TPduActivity } from "@/types/professional-dashboard.types";
 import type { I18nContextValue } from "@/types/providers.types";
-import type { Control, FieldValues, Path } from "react-hook-form";
+import type { TPduActivity } from "@/types/professional-dashboard.types";
 import type { ContentType } from "@/lib/graphql/base";
 import type { ReactNode } from "react";
 
@@ -77,8 +77,11 @@ export type TYouTubeFilters = {
 };
 
 export type TContentCardProps = {
+  action?: ReactNode;
   className?: string;
+  footerNote?: ReactNode;
   item: TContentCardItem;
+  overlay?: ReactNode;
 };
 
 export type TContentTabOption = {
