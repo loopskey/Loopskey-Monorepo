@@ -5,9 +5,9 @@ import { useContentPage } from "@/hooks/useContentPage";
 
 import ContentCardSkeleton from "@modules/Content/ContentCardSkeleton";
 import ContentSearchHero from "@modules/Content/ContentSearchHero";
+import ContentCard from "@elements/content-card";
 import ContentTabs from "@modules/Content/ContentTabs";
 import FilterPanel from "@modules/Content/FilterPanel";
-import ContentCard from "@modules/Content/ContentCard";
 import EmptyState from "@modules/Content/EmptyState";
 
 const CARD_GRID_CLASS_NAME =
