@@ -1,18 +1,18 @@
 "use client";
 
-import { contentTypeIcon, contentTypeOptions } from "@/utils/constant";
+import { contentTypeOptions, sortOptions } from "@/utils/constant";
 import { ContentType, WishlistSortBy } from "@/lib/graphql/base";
 import { useProfessionalWishlistTab } from "@/hooks/useProfessionalWishlistTab";
-import { TContentThumbnailKind } from "@/types/element.types";
 import { ContentPagination } from "@elements/pagination";
-import { ContentThumbnail } from "@elements/content-thumbnail";
-import { sortOptions } from "@/utils/constant";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
 import { Input } from "@ui/input";
 import { Label } from "@ui/label";
 
+import type { TContentThumbnailKind } from "@/types/element.types";
+
+import ContentCard from "@elements/content-card";
 import Link from "next/link";
 
 import * as L from "lucide-react";
@@ -64,7 +64,7 @@ const ProfessionalWishlistTab = () => {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          {hasActiveFilters && (
+          {hasActiveFilters ? (
             <Button
               radius="xl"
               type="button"
@@ -75,7 +75,7 @@ const ProfessionalWishlistTab = () => {
               <L.RotateCcw className="h-4 w-4" />
               {t("common.reset")}
             </Button>
-          )}
+          ) : null}
         </div>
       </div>
 
@@ -199,10 +199,6 @@ const ProfessionalWishlistTab = () => {
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {wishlistItems.map((item) => {
               const content = item.content;
-              const Icon =
-                contentTypeIcon[
-                  item.contentType as keyof typeof contentTypeIcon
-                ] ?? L.Heart;
               const href = content?.url ?? "#";
               const title =
                 content?.title ??
@@ -212,97 +208,55 @@ const ProfessionalWishlistTab = () => {
                 });
 
               return (
-                <GlassCard
-                  glow={false}
+                <ContentCard
                   key={item.id}
-                  className="overflow-hidden p-0"
-                >
-                  <div className="relative aspect-video rounded-t-lg bg-muted">
-                    <ContentThumbnail
-                      title={title}
-                      id={item.contentId}
-                      imageUrl={content?.imageUrl}
-                      category={content?.category}
-                      sourceLabel={content?.providerName}
-                      kind={THUMBNAIL_KIND[item.contentType]}
-                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                    />
-                    <Badge className="absolute left-4 top-4 rounded-full">
-                      {item.contentType}
-                    </Badge>
+                  item={{
+                    id: item.contentId,
+                    href,
+                    kind: THUMBNAIL_KIND[item.contentType],
+                    title,
+                    status: item.contentType,
+                    rating: content?.rating,
+                    imageUrl: content?.imageUrl,
+                    category: content?.category,
+                    categoryCode: content?.category,
+                    description: content?.description,
+                    metaPrimary:
+                      content?.providerName ??
+                      t("professionalDashboard.wishlist.unknownProvider"),
+                    metaSecondary: content?.isFree
+                      ? t("common.free")
+                      : `${content?.price ?? 0} ${content?.currency ?? "USD"}`,
+                  }}
+                  footerNote={
+                    <>
+                      {t("professionalDashboard.wishlist.savedAt")}{" "}
+                      {item.createdAt
+                        ? new Date(item.createdAt).toLocaleDateString()
+                        : "-"}
+                    </>
+                  }
+                  overlay={
                     <Button
                       radius="full"
                       size="iconSm"
                       type="button"
                       variant="outline"
+                      aria-label={t("common.remove")}
                       disabled={isRemoving}
                       onClick={() =>
                         handleRemove(item.contentType, item.contentId)
                       }
-                      className="absolute right-4 top-4"
+                      className="absolute right-2.5 top-2.5"
                     >
                       <L.Trash2 className="h-4 w-4" />
                     </Button>
-                  </div>
-
-                  <div className="space-y-4 p-5">
-                    <div>
-                      <div className="flex items-start justify-between gap-3">
-                        <h3 className="line-clamp-2 text-base font-medium">
-                          {title}
-                        </h3>
-                        <div className="rounded-md bg-primary/10 p-2 text-primary">
-                          <Icon className="h-4 w-4" />
-                        </div>
-                      </div>
-                      {content?.description ? (
-                        <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
-                          {content.description}
-                        </p>
-                      ) : null}
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-2">
-                      {content?.category ? (
-                        <Badge variant="secondary" className="rounded-full">
-                          {content.category}
-                        </Badge>
-                      ) : null}
-
-                      {typeof content?.rating === "number" ? (
-                        <Badge variant="secondary" className="rounded-full">
-                          <L.Star className="mr-1 h-3.5 w-3.5 fill-amber-400 text-warning-soft-foreground" />
-                          {content.rating}
-                        </Badge>
-                      ) : null}
-                    </div>
-
-                    <div className="flex items-center justify-between gap-3 text-sm">
-                      <span className="line-clamp-1 text-muted-foreground">
-                        {content?.providerName ??
-                          t("professionalDashboard.wishlist.unknownProvider")}
-                      </span>
-
-                      <span className="shrink-0 font-medium text-primary">
-                        {content?.isFree
-                          ? t("common.free")
-                          : `${content?.price ?? 0} ${
-                              content?.currency ?? "USD"
-                            }`}
-                      </span>
-                    </div>
-
-                    <p className="text-xs text-muted-foreground">
-                      {t("professionalDashboard.wishlist.savedAt")}{" "}
-                      {item.createdAt
-                        ? new Date(item.createdAt).toLocaleDateString()
-                        : "-"}
-                    </p>
-
-                    {content?.url ? (
+                  }
+                  action={
+                    content?.url ? (
                       <Button
                         asChild
-                        radius="xl"
+                        radius="lg"
                         type="button"
                         className="w-full"
                       >
@@ -312,7 +266,7 @@ const ProfessionalWishlistTab = () => {
                       </Button>
                     ) : (
                       <Button
-                        radius="xl"
+                        radius="lg"
                         type="button"
                         variant="outline"
                         className="w-full"
@@ -320,9 +274,9 @@ const ProfessionalWishlistTab = () => {
                       >
                         {t("professionalDashboard.wishlist.viewDetails")}
                       </Button>
-                    )}
-                  </div>
-                </GlassCard>
+                    )
+                  }
+                />
               );
             })}
           </div>
