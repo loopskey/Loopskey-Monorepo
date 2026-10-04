@@ -27,19 +27,12 @@ export const AssociationRequirementCategoriesCard = ({
 
   const required = t("common.required");
 
-  const mappedCategoryOptions = (ownMapping: PduCategory | undefined) =>
+  const mappedCategoryOptions = (ownMapping: PduCategory | "" | undefined) =>
     Object.values(PduCategory).map((value) => ({
       value,
       label: t(`associationDashboard.requirements.pduCategory.${value}`),
       disabled: usedMappings.has(value) && value !== ownMapping,
     }));
-
-  // A new row takes the first mapping still free: the API refuses two
-  // categories on one PDU category, and the select disables a taken one, so a
-  // fixed default would append a row the user could not correct in place.
-  const nextFreeMapping = () =>
-    Object.values(PduCategory).find((value) => !usedMappings.has(value)) ??
-    PduCategory.Technical;
 
   const summaryStats = [
     {
@@ -57,8 +50,6 @@ export const AssociationRequirementCategoriesCard = ({
   ];
 
   return (
-    // Without the provider the row fields render outside a form context and
-    // useFormField() throws, which is what made Add category break the page.
     <F.Form {...categoriesForm}>
       <form noValidate onSubmit={submitCategories} className="space-y-5">
         <div className="space-y-3">
@@ -126,12 +117,14 @@ export const AssociationRequirementCategoriesCard = ({
           radius="xl"
           type="button"
           variant="outline"
-          disabled={usedMappings.size >= Object.values(PduCategory).length}
+          disabled={
+            categoryRows.fields.length >= Object.values(PduCategory).length
+          }
           onClick={() =>
             categoryRows.append({
               name: "",
               requiredCredits: 0,
-              mappedCategory: nextFreeMapping(),
+              mappedCategory: "",
             })
           }
         >

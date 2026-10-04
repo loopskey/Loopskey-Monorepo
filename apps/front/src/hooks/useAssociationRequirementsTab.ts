@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getAssociationErrorTranslationKey } from "@utils/association-error";
 import { AssociationLateSubmissionPolicy } from "@/lib/graphql/base";
-import { CpdReminderTiming, CreditType } from "@/lib/graphql/base";
+import { CpdReminderTiming } from "@/lib/graphql/base";
 import { AssociationRequirementStatus } from "@/lib/graphql/base";
 import { AssociationSubmissionWindow } from "@/lib/graphql/base";
 import { AssociationRenewalCondition } from "@/lib/graphql/base";
@@ -37,7 +37,7 @@ const detailsDefaults: SC.TAssociationRequirementDetailsForm = {
   deadline: "",
   groupIds: [],
   cycleLengthYears: "",
-  creditType: CreditType.Cpd,
+  creditType: "",
   totalRequiredCredits: 0,
   reportingCycle: AssociationReportingCycle.Annual,
   audienceKind: AssociationAudienceKind.AllMembers,

@@ -38,7 +38,6 @@ const AssociationAuthPage = () => {
         <div className="order-1 lg:order-2">
           <AuthFeaturePanel
             features={features}
-            eyebrow={t("authPages.association.eyebrow")}
             subtitle={t("authPages.association.subtitle")}
             joinedText={t("authPages.association.joined")}
             titleBrand={t("authPages.association.titleBrand")}

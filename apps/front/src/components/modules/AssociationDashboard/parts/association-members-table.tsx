@@ -1,17 +1,19 @@
 "use client";
 
+import { memberDetailHref, memberEditHref } from "@utils/association-overview";
 import { TAssociationMembersTable } from "@/types/association-dashboard.types";
 import { AssociationMemberStatus } from "@/lib/graphql/base";
 import { TAssociationMemberRow } from "@/types/association-dashboard.types";
-import { useRouter } from "next/navigation";
 import { Skeleton } from "@ui/skeleton";
 import { Progress } from "@ui/progress";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
 
-import * as L from "lucide-react";
-
 import type { ReactNode } from "react";
+
+import Link from "next/link";
+
+import * as L from "lucide-react";
 
 type TMemberColumn = {
   id: string;
@@ -27,12 +29,7 @@ const statusVariant = (status: AssociationMemberStatus) => {
 };
 
 export const AssociationMembersTable = ({ hook }: TAssociationMembersTable) => {
-  const router = useRouter();
-
-  const openMember = (memberId: string) =>
-    router.push(`/dashboard/association?tab=members&memberId=${memberId}`);
-
-  const { t, members, isMutating, goToMember, isRefetching } = hook;
+  const { t, members, isRefetching } = hook;
 
   const statusBadge = (member: TAssociationMemberRow) => (
     <Badge variant={statusVariant(member.status)}>
@@ -45,16 +42,15 @@ export const AssociationMembersTable = ({ hook }: TAssociationMembersTable) => {
       id: "name",
       header: t("associationDashboard.members.table.name"),
       cell: (member) => (
-        <button
-          type="button"
+        <Link
+          href={memberDetailHref(member.id)}
           className="text-left underline-offset-4 hover:underline"
-          onClick={() => openMember(member.id)}
         >
           <span className="block font-medium">{member.fullName ?? "-"}</span>
           <span className="block text-xs text-muted-foreground">
             {member.email ?? "-"}
           </span>
-        </button>
+        </Link>
       ),
     },
     {
@@ -120,31 +116,26 @@ export const AssociationMembersTable = ({ hook }: TAssociationMembersTable) => {
 
   const rowActions = (member: TAssociationMemberRow) => (
     <div className="flex items-center justify-end gap-2">
-      <Button
-        size="icon"
-        radius="xl"
-        type="button"
-        variant="outline"
-        disabled={isMutating}
-        onClick={() => goToMember(member.id, "edit")}
-        aria-label={t("associationDashboard.members.table.editFor", {
-          name: member.fullName ?? member.email ?? "",
-        })}
-      >
-        <L.Pencil className="h-4 w-4" />
+      <Button asChild size="icon" radius="xl" variant="outline">
+        <Link
+          href={memberEditHref(member.id)}
+          aria-label={t("associationDashboard.members.table.editFor", {
+            name: member.fullName ?? member.email ?? "",
+          })}
+        >
+          <L.Pencil className="h-4 w-4" />
+        </Link>
       </Button>
 
-      <Button
-        size="icon"
-        radius="xl"
-        type="button"
-        variant="outline"
-        onClick={() => openMember(member.id)}
-        aria-label={t("associationDashboard.members.table.viewFor", {
-          name: member.fullName ?? member.email ?? "",
-        })}
-      >
-        <L.Eye className="h-4 w-4" />
+      <Button asChild size="icon" radius="xl" variant="outline">
+        <Link
+          href={memberDetailHref(member.id)}
+          aria-label={t("associationDashboard.members.table.viewFor", {
+            name: member.fullName ?? member.email ?? "",
+          })}
+        >
+          <L.Eye className="h-4 w-4" />
+        </Link>
       </Button>
     </div>
   );
@@ -202,10 +193,7 @@ export const AssociationMembersTable = ({ hook }: TAssociationMembersTable) => {
 
       <ul className="mt-6 space-y-3 md:hidden">
         {members.map((member) => (
-          <li
-            key={member.id}
-            className="rounded-lg border p-4"
-          >
+          <li key={member.id} className="rounded-lg border p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="font-medium">{member.fullName ?? "-"}</p>

@@ -49,6 +49,9 @@ export const associationTabHref = (tab: TAssociationDashboardTab) =>
 export const memberDetailHref = (memberId: string) =>
   `/dashboard/association?tab=members&memberId=${memberId}`;
 
+export const memberEditHref = (memberId: string) =>
+  `${memberDetailHref(memberId)}&action=edit`;
+
 export const overviewReportHref = (
   report: TAssociationReportKey,
   filter: TAssociationReportFilter,
