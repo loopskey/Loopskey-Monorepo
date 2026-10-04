@@ -138,7 +138,12 @@ export const associationRequirementDetailsSchema = z
       })
       .max(REQUIREMENT_LIMITS.nameMax),
     description: z.string().max(REQUIREMENT_LIMITS.descriptionMax).optional(),
-    creditType: z.nativeEnum(CreditType),
+    creditType: z
+      .union([z.nativeEnum(CreditType), z.literal("")])
+      .refine((value) => value !== "", {
+        message: `${REQUIREMENT_ERROR}.creditTypeRequired`,
+      })
+      .transform((value) => value as CreditType),
     totalRequiredCredits: z.coerce
       .number()
       .min(0)
@@ -245,7 +250,12 @@ export const associationRequirementCategoriesSchema = z
               message: `${REQUIREMENT_ERROR}.categoryNameRequired`,
             })
             .max(REQUIREMENT_LIMITS.categoryNameMax),
-          mappedCategory: z.nativeEnum(PduCategory),
+          mappedCategory: z
+            .union([z.nativeEnum(PduCategory), z.literal("")])
+            .refine((value) => value !== "", {
+              message: `${REQUIREMENT_ERROR}.categoryMappingRequired`,
+            })
+            .transform((value) => value as PduCategory),
           requiredCredits: z.coerce
             .number()
             .positive({ message: `${REQUIREMENT_ERROR}.creditsPositive` })

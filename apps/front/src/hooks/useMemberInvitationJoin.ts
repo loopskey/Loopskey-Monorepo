@@ -3,7 +3,7 @@
 import { getMemberInvitationScreen } from "@utils/member-invitation-state";
 import { getAuthErrorCode } from "@utils/auth-error";
 import { AuthMessageCode } from "@loopskey/api-contracts/error-codes";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { siteLinks } from "@utils/constant";
 import { useState } from "react";
@@ -22,6 +22,7 @@ const TOKEN_ERROR_CODES = [
 
 export const useMemberInvitationJoin = () => {
   const { t } = useI18n();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token")?.trim() ?? "";
   const [isAccepted, setIsAccepted] = useState(false);
@@ -56,6 +57,10 @@ export const useMemberInvitationJoin = () => {
     try {
       await accept({ token, ...input }).unwrap();
       notify.success(t("authPages.memberInvitation.successTitle"));
+      if (input.password) {
+        router.replace(siteLinks.login);
+        return;
+      }
       setIsAccepted(true);
     } catch (error) {
       const code = getAuthErrorCode(error);

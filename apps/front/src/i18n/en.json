@@ -2807,7 +2807,6 @@
       "requestDescription": "Admin will review your request. If approved, temporary credentials will be generated."
     },
     "association": {
-      "eyebrow": "Association Portal",
       "titlePrefix": "Welcome to",
       "titleBrand": "LoopsKey",
       "subtitle": "Sign in to manage your members, publish requirements and follow compliance across your association.",
@@ -6098,7 +6097,7 @@
         },
         "hints": {
           "details": "Name, credits, deadline and audience",
-          "rules": "Credit categories, evidence and renewal & submission",
+          "rules": "Categories, evidence and renewal",
           "review": "Check everything, then publish"
         },
         "detailsBody": "Saved as a draft as soon as you continue, so nothing is lost if you leave.",
@@ -6234,12 +6233,14 @@
         "notDeletable": "This draft has assignment or compliance history and cannot be deleted. Archive it instead.",
         "statusConflict": "This requirement changed before it could be deleted. Refresh and try again.",
         "nameRequired": "A requirement needs a name.",
+        "creditTypeRequired": "Choose a credit type.",
         "creditsPositive": "Enter a credit total above zero.",
         "deadlineRequired": "Choose a deadline.",
         "cycleLengthRequired": "A multi-year cycle needs a length in years.",
         "cycleLengthNotAllowed": "Only a multi-year cycle carries a cycle length.",
         "categoryNameRequired": "A category needs a name.",
         "categoryNameDuplicate": "Two categories cannot share a name.",
+        "categoryMappingRequired": "Choose a learning category.",
         "categoryMappingDuplicate": "Two categories cannot map to the same PDU category.",
         "targetInactive": "One of the selected members is no longer active. Review the selection and save again."
       },

@@ -1,6 +1,7 @@
 "use client";
 
 import { TAssociationLearningStepCpd } from "@/types/association-dashboard.types";
+import { FloatingSelectField } from "@elements/floating-select";
 import { FloatingInputField } from "@elements/floating-input";
 import { humanizeEnumValue } from "@utils/function-helper";
 import { PduCategory } from "@/lib/graphql/base";
@@ -19,11 +20,11 @@ export const AssociationLearningStepCpd = ({
   const {
     t,
     form,
-    publishedRequirementOptions,
     legacyRequirementLink,
-    isRequirementOptionsLoading,
-    isRequirementOptionsError,
     retryRequirementOptions,
+    isRequirementOptionsError,
+    publishedRequirementOptions,
+    isRequirementOptionsLoading,
   } = hook;
 
   const label = (key: string) =>
@@ -39,41 +40,19 @@ export const AssociationLearningStepCpd = ({
       <div className="grid gap-4 sm:grid-cols-2">
         <FloatingInputField
           type="number"
-          name="indicativeCredits"
           control={form.control}
+          name="indicativeCredits"
           label={label("credits")}
         />
 
-        <F.FormField
+        <FloatingSelectField
           name="category"
           control={form.control}
-          render={({ field }) => (
-            <F.FormItem>
-              <F.FormLabel>{label("category")}</F.FormLabel>
-              <S.Select
-                value={(field.value as string) ?? ""}
-                onValueChange={(value) =>
-                  form.setValue("category", value as PduCategory, {
-                    shouldDirty: true,
-                  })
-                }
-              >
-                <F.FormControl>
-                  <S.SelectTrigger className="h-14 w-full rounded-md">
-                    <S.SelectValue placeholder={label("category")} />
-                  </S.SelectTrigger>
-                </F.FormControl>
-                <S.SelectContent className="rounded-md">
-                  {CATEGORIES.map((value) => (
-                    <S.SelectItem key={value} value={value}>
-                      {humanizeEnumValue(value)}
-                    </S.SelectItem>
-                  ))}
-                </S.SelectContent>
-              </S.Select>
-              <F.FormMessage />
-            </F.FormItem>
-          )}
+          label={label("category")}
+          options={CATEGORIES.map((value) => ({
+            value,
+            label: humanizeEnumValue(value),
+          }))}
         />
       </div>
 

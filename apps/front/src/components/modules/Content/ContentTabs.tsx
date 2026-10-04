@@ -39,7 +39,7 @@ const ContentTabs = ({
     >
       <Tb.TabsList
         aria-label={label}
-        className="grid h-11 w-full grid-cols-4 gap-1 rounded-xl bg-muted/70 p-1 sm:inline-flex sm:h-11 sm:w-auto"
+        className="grid h-11 w-full grid-cols-4 gap-1 rounded-xl p-1 sm:inline-flex sm:h-11 sm:w-auto"
       >
         {tabs.map((tab) => {
           const Icon = TAB_ICON[tab.value];
