@@ -8,7 +8,6 @@ import { AssociationMemberStatus } from "@/lib/graphql/base";
 import { SEARCH_DEBOUNCE_MS } from "@utils/constant";
 import { useDebouncedValue } from "@hooks/useDebounced";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useI18n } from "@hooks/useI18n";
 import { notify } from "@hooks/notify";
@@ -26,7 +25,6 @@ const ALL = "ALL";
 
 export const useAssociationMembersTab = () => {
   const { t, language } = useI18n();
-  const router = useRouter();
 
   const [search, setSearch] = useState("");
   const [groupId, setGroupId] = useState<string>(ALL);
@@ -293,12 +291,6 @@ export const useAssociationMembersTab = () => {
     setInviteLookup(null);
   };
 
-  const goToMember = (memberId: string, action?: "edit" | "assign") => {
-    const params = new URLSearchParams({ tab: "members", memberId });
-    if (action) params.set("action", action);
-    router.push(`/dashboard/association?${params.toString()}`);
-  };
-
   const openUpload = () => {
     clearImport();
     setBulkRequirementIds([]);
@@ -515,7 +507,6 @@ export const useAssociationMembersTab = () => {
     resetFilters,
     setInviteOpen,
     inviteOutcome,
-    goToMember,
     stats: statsQuery.data,
     page: cursorStack.length + 1,
     setSearch: changeFilter(setSearch),

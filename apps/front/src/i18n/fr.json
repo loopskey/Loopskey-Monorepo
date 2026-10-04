@@ -2811,7 +2811,6 @@
       "requestDescription": "L’administrateur examinera votre demande. Si elle est approuvée, des identifiants temporaires seront générés."
     },
     "association": {
-      "eyebrow": "Portail association",
       "titlePrefix": "Bienvenue sur",
       "titleBrand": "LoopsKey",
       "subtitle": "Connectez-vous pour gérer vos membres, publier des exigences et suivre la conformité de votre association.",
@@ -6101,7 +6100,7 @@
         },
         "hints": {
           "details": "Nom, crédits, échéance et audience",
-          "rules": "Catégories de crédits, justificatifs et renouvellement et soumission",
+          "rules": "Catégories, justificatifs et renouvellement",
           "review": "Tout vérifier, puis publier"
         },
         "detailsBody": "Enregistrée comme brouillon dès que vous continuez, rien n'est perdu si vous quittez.",
@@ -6237,12 +6236,14 @@
         "notDeletable": "Ce brouillon contient un historique d'affectation ou de conformité et ne peut pas être supprimé. Archivez-le à la place.",
         "statusConflict": "Cette exigence a changé avant sa suppression. Actualisez la page et réessayez.",
         "nameRequired": "Une exigence doit avoir un nom.",
+        "creditTypeRequired": "Choisissez un type de crédit.",
         "creditsPositive": "Saisissez un total de crédits supérieur à zéro.",
         "deadlineRequired": "Choisissez une échéance.",
         "cycleLengthRequired": "Un cycle pluriannuel doit avoir une durée en années.",
         "cycleLengthNotAllowed": "Seul un cycle pluriannuel comporte une durée de cycle.",
         "categoryNameRequired": "Une catégorie doit avoir un nom.",
         "categoryNameDuplicate": "Deux catégories ne peuvent pas porter le même nom.",
+        "categoryMappingRequired": "Choisissez une catégorie d'apprentissage.",
         "categoryMappingDuplicate": "Deux catégories ne peuvent pas pointer vers la même catégorie PDU.",
         "targetInactive": "Un des membres sélectionnés n'est plus actif. Vérifiez la sélection et enregistrez à nouveau."
       },
