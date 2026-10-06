@@ -47,6 +47,15 @@ describe("mapGenerationFailure", () => {
     ).toBe(RoadmapGenerationFailureCode.UNKNOWN);
   });
 
+  it.each(Object.values(RoadmapGenerationViolation))(
+    "reports the %s violation as an invalid generated roadmap",
+    (violation) => {
+      expect(mapGenerationFailure(violation)?.code).toBe(
+        RoadmapGenerationFailureCode.INVALID_GENERATED_ROADMAP,
+      );
+    },
+  );
+
   it("never leaks the raw reason into the mapped result", () => {
     const result = mapGenerationFailure("internal-provider-stack-trace-ish");
     expect(JSON.stringify(result)).not.toContain(

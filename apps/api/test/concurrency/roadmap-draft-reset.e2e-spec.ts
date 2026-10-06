@@ -5,16 +5,35 @@ import { INestApplication, NotFoundException } from "@nestjs/common";
 import { HttpException } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { TUser } from "@common/types/user.types";
+import { SERVICE_AI_PORT } from "@infrastructure/service-ai/service-ai.port";
 import { bootApp, runTogether, suiteScope } from "../setup/concurrency";
+
+const FIRST_QUESTION = "What would you like to learn?";
+
+const fakeAi = {
+  generate: jest.fn(),
+  chatTurn: jest.fn(async () => ({
+    ok: true,
+    data: {
+      widget: null,
+      extracted: {},
+      isComplete: false,
+      clearedFields: [],
+      needsClarification: false,
+      suggestedNextSection: null,
+      assistantMessage: FIRST_QUESTION,
+    },
+  })),
+};
 
 const scope = suiteScope("roadmap-reset");
 
 /**
  * Reset targets the exact draft on screen and rewrites it in place — same id,
- * status forced back to `COLLECTING`, transcript replaced by the canonical
- * intro + first question. The row lock in `resetInPlace` is what has to hold
- * under concurrency: two callers racing the same draft must not leave a
- * duplicated transcript or more than one resolved state behind.
+ * status forced back to `COLLECTING`, transcript replaced by the AI's first
+ * question. The row lock in `resetInPlace` is what has to hold under
+ * concurrency: two callers racing the same draft must not leave a duplicated
+ * transcript or more than one resolved state behind.
  */
 describe("Roadmap draft reset (concurrency e2e)", () => {
   let app: INestApplication;
@@ -24,7 +43,9 @@ describe("Roadmap draft reset (concurrency e2e)", () => {
   let stranger: TUser;
 
   beforeAll(async () => {
-    ({ app, prisma } = await bootApp());
+    ({ app, prisma } = await bootApp((builder) =>
+      builder.overrideProvider(SERVICE_AI_PORT).useValue(fakeAi),
+    ));
     chatService = app.get(ProfessionalRoadmapChatService);
     await scope.cleanup(prisma);
 
@@ -73,7 +94,7 @@ describe("Roadmap draft reset (concurrency e2e)", () => {
     return draft;
   };
 
-  it("resets a failed draft in place: same id, fresh status, canonical transcript", async () => {
+  it("resets a failed draft in place: same id, fresh status, the AI's first question", async () => {
     const draft = await seedDraft();
 
     const view = await chatService.resetDraft(user, draft.id);
@@ -87,9 +108,11 @@ describe("Roadmap draft reset (concurrency e2e)", () => {
       where: { draftId: draft.id },
       orderBy: { createdAt: "asc" },
     });
-    expect(messages).toHaveLength(2);
-    expect(messages[0].content).toBe("ROADMAP_COACH_INTRO");
-    expect(messages[1].content).toBe("ROADMAP_COACH_QUESTION");
+    expect(messages).toHaveLength(1);
+    expect(messages[0]).toMatchObject({
+      role: RoadmapChatRole.ASSISTANT,
+      content: FIRST_QUESTION,
+    });
   }, 60_000);
 
   it("converges on one canonical transcript under concurrent resets", async () => {
@@ -109,15 +132,8 @@ describe("Roadmap draft reset (concurrency e2e)", () => {
     const messages = await prisma.roadmapChatMessage.findMany({
       where: { draftId: draft.id },
     });
-    expect(messages).toHaveLength(2);
-    expect(
-      messages.filter((message) => message.content === "ROADMAP_COACH_INTRO"),
-    ).toHaveLength(1);
-    expect(
-      messages.filter(
-        (message) => message.content === "ROADMAP_COACH_QUESTION",
-      ),
-    ).toHaveLength(1);
+    expect(messages).toHaveLength(1);
+    expect(messages[0].content).toBe(FIRST_QUESTION);
   }, 60_000);
 
   it("rejects resetting another professional's draft as not found", async () => {

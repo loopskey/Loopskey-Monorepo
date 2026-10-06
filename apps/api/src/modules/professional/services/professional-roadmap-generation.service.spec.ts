@@ -7,10 +7,14 @@ import {
   Role,
   SkillLevel,
 } from "@prisma/client";
+import { Logger } from "@nestjs/common";
 import { OutboxDeferral } from "@infrastructure/outbox/outbox-handler.port";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { PrismaService } from "@prisma/prisma.service";
-import { RoadmapAiMessageCode } from "@infrastructure/service-ai/service-ai.port";
+import {
+  RoadmapAiMessageCode,
+  SERVICE_AI_LIMITS,
+} from "@infrastructure/service-ai/service-ai.port";
 import type {
   GenerateData,
   ServiceAiPort,
@@ -74,6 +78,9 @@ const draftRow = (overrides: Record<string, unknown> = {}) => ({
   completedCredits: null,
   ...overrides,
 });
+
+const generatingDraft = (overrides: Record<string, unknown> = {}) =>
+  draftRow({ status: RoadmapDraftStatus.GENERATING, ...overrides });
 
 const generated = (overrides: Partial<GenerateData> = {}): GenerateData => ({
   title: "Platform engineering",
@@ -164,7 +171,15 @@ const buildHarness = (options: {
         .mockResolvedValue({ _sum: { pdus: options.activitySum ?? null } }),
     },
     profileTaxonomyTerm: {
-      findMany: jest.fn().mockResolvedValue(options.subjectTerms ?? []),
+      findMany: jest.fn(
+        async (args: { where: { id: { in: string[] } } }) =>
+          options.subjectTerms ??
+          args.where.id.in.map((id) => ({
+            id,
+            label: id,
+            group: { key: "g" },
+          })),
+      ),
     },
   };
 
@@ -243,6 +258,37 @@ describe("ProfessionalRoadmapGenerationService", () => {
       expect(harness.outbox.append).not.toHaveBeenCalled();
     });
 
+    it("answers with the winning generation when the status read was stale", async () => {
+      const harness = buildHarness({ draft: draftRow({ enrollment: null }) });
+      harness.tx.roadmapDraft.updateMany.mockResolvedValue({ count: 0 });
+      harness.prisma.roadmapDraft.findUniqueOrThrow.mockResolvedValue(
+        generatingDraft(),
+      );
+
+      const result = await harness.service.requestGeneration(USER, "draft-1");
+
+      expect(result.status).toBe(RoadmapDraftStatus.GENERATING);
+      expect(harness.outbox.append).not.toHaveBeenCalled();
+    });
+
+    it("refuses a lost claim when the draft is not generating", async () => {
+      const harness = buildHarness({
+        draft: draftRow({
+          enrollment: null,
+          status: RoadmapDraftStatus.COLLECTING,
+        }),
+      });
+      harness.tx.roadmapDraft.updateMany.mockResolvedValue({ count: 0 });
+      harness.prisma.roadmapDraft.findUniqueOrThrow.mockResolvedValue(
+        draftRow({ status: RoadmapDraftStatus.COLLECTING }),
+      );
+
+      await expect(
+        harness.service.requestGeneration(USER, "draft-1"),
+      ).rejects.toThrow("ROADMAP_DRAFT_NOT_READY");
+      expect(harness.outbox.append).not.toHaveBeenCalled();
+    });
+
     it("refuses a draft that is missing a field the provider requires", async () => {
       const harness = buildHarness({
         draft: draftRow({ enrollment: null, goal: null }),
@@ -254,13 +300,47 @@ describe("ProfessionalRoadmapGenerationService", () => {
       expect(harness.outbox.append).not.toHaveBeenCalled();
     });
 
-    it("refuses a stale READY draft whose interview never reached review", async () => {
+    it("accepts an AI-ready draft even when its legacy sub-step is not review", async () => {
       const harness = buildHarness({
         draft: draftRow({
           enrollment: null,
           status: RoadmapDraftStatus.READY,
           currentStep: RoadmapDraftStep.CPD_TRACKING,
         }),
+      });
+
+      await harness.service.requestGeneration(USER, "draft-1");
+
+      expect(harness.outbox.append).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not require optional interview fields from an AI-ready draft", async () => {
+      const harness = buildHarness({
+        draft: draftRow({
+          enrollment: null,
+          targetRole: null,
+          goalReason: null,
+          context: null,
+          targetDate: null,
+          budgetPreference: null,
+          preferredFormats: [],
+          preferredContentTypes: [],
+          preferredDeliveryFormats: [],
+        }),
+      });
+
+      await harness.service.requestGeneration(USER, "draft-1");
+
+      expect(harness.outbox.append).toHaveBeenCalledTimes(1);
+    });
+
+    it("refuses a legacy draft whose stored subjects are not in the taxonomy", async () => {
+      const harness = buildHarness({
+        draft: draftRow({
+          enrollment: null,
+          subjects: ["raw text from an old draft"],
+        }),
+        subjectTerms: [],
       });
 
       await expect(
@@ -303,7 +383,7 @@ describe("ProfessionalRoadmapGenerationService", () => {
 
   describe("runGeneration", () => {
     it("writes the roadmap, its enrollment and the draft transition together", async () => {
-      const harness = buildHarness({ draft: draftRow() });
+      const harness = buildHarness({ draft: generatingDraft() });
 
       await harness.service.runGeneration("draft-1");
 
@@ -316,17 +396,14 @@ describe("ProfessionalRoadmapGenerationService", () => {
         }),
         expect.anything(),
       );
-      expect(harness.tx.roadmapDraft.update).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({
-            status: RoadmapDraftStatus.COMPLETED,
-          }),
-        }),
-      );
+      expect(harness.tx.roadmapDraft.updateMany).toHaveBeenCalledWith({
+        where: { id: "draft-1", status: RoadmapDraftStatus.GENERATING },
+        data: { status: RoadmapDraftStatus.COMPLETED, failureReason: null },
+      });
     });
 
     it("archives any previously-active generated roadmap for the same user", async () => {
-      const harness = buildHarness({ draft: draftRow() });
+      const harness = buildHarness({ draft: generatingDraft() });
 
       await harness.service.runGeneration("draft-1");
 
@@ -336,7 +413,7 @@ describe("ProfessionalRoadmapGenerationService", () => {
     });
 
     it("owns the roadmap and marks it generated so explore never shows it", async () => {
-      const harness = buildHarness({ draft: draftRow() });
+      const harness = buildHarness({ draft: generatingDraft() });
 
       await harness.service.runGeneration("draft-1");
 
@@ -348,56 +425,421 @@ describe("ProfessionalRoadmapGenerationService", () => {
 
     it("writes nothing when a redelivered event finds an enrollment", async () => {
       const harness = buildHarness({
-        draft: draftRow(),
+        draft: generatingDraft(),
         enrollment: { id: "enrollment-1" },
       });
 
       await harness.service.runGeneration("draft-1");
 
       expect(harness.ai.generate).not.toHaveBeenCalled();
+      expect(harness.candidates.build).not.toHaveBeenCalled();
       expect(harness.catalog.createGeneratedRoadmap).not.toHaveBeenCalled();
+      expect(harness.prisma.roadmapDraft.updateMany).toHaveBeenCalledWith({
+        where: { id: "draft-1", status: RoadmapDraftStatus.GENERATING },
+        data: { status: RoadmapDraftStatus.COMPLETED },
+      });
     });
 
-    it("stores a step without content when the identifier is unknown", async () => {
+    it("does not call AI when a completed draft is redelivered", async () => {
       const harness = buildHarness({
-        draft: draftRow(),
-        candidates: [candidate("course-1")],
-        generate: jest.fn().mockResolvedValue({
-          ok: true,
-          data: generated({
-            phases: [
-              {
-                order: 1,
-                title: "Foundations",
-                description: "Start here.",
-                estimatedWeeks: 4,
-                steps: [
-                  {
-                    order: 1,
-                    title: "Read up",
-                    description: "Background reading.",
-                    contentId: "hallucinated",
-                    contentType: "COURSE",
-                    estimatedMinutes: null,
-                  },
-                ],
-              },
-            ],
-          }),
-        }),
+        draft: generatingDraft({ status: RoadmapDraftStatus.COMPLETED }),
       });
 
       await harness.service.runGeneration("draft-1");
 
-      const created = harness.catalog.createGeneratedRoadmap.mock.calls[0][0];
-      const step = created.phases[0].steps[0];
-      expect(step).toMatchObject({ title: "Read up", contentId: null });
-      expect(created.coverageNote).toContain("not in this catalogue");
+      expect(harness.ai.generate).not.toHaveBeenCalled();
+      expect(harness.candidates.build).not.toHaveBeenCalled();
+      expect(harness.catalog.createGeneratedRoadmap).not.toHaveBeenCalled();
+    });
+
+    it("does not call AI for a draft that is no longer generating", async () => {
+      for (const status of [
+        RoadmapDraftStatus.FAILED,
+        RoadmapDraftStatus.READY,
+        RoadmapDraftStatus.COLLECTING,
+      ]) {
+        const harness = buildHarness({ draft: draftRow({ status }) });
+
+        await harness.service.runGeneration("draft-1");
+
+        expect(harness.ai.generate).not.toHaveBeenCalled();
+        expect(harness.candidates.build).not.toHaveBeenCalled();
+      }
+    });
+
+    it("checks lease ownership before every AI call", async () => {
+      const order: string[] = [];
+      const assertLeaseHeld = jest.fn(async () => {
+        order.push("lease");
+      });
+      const generate = jest.fn(async () => {
+        order.push("ai");
+        return { ok: true, data: generated() };
+      });
+      const harness = buildHarness({ draft: generatingDraft(), generate });
+
+      await harness.service.runGeneration("draft-1", assertLeaseHeld);
+
+      expect(order).toEqual(["lease", "ai"]);
+    });
+
+    it("does not call AI when the lease was taken over", async () => {
+      const harness = buildHarness({ draft: generatingDraft() });
+      const assertLeaseHeld = jest
+        .fn()
+        .mockRejectedValue(new Error("Outbox lease is no longer held"));
+
+      await expect(
+        harness.service.runGeneration("draft-1", assertLeaseHeld),
+      ).rejects.toThrow("Outbox lease is no longer held");
+
+      expect(harness.ai.generate).not.toHaveBeenCalled();
+    });
+
+    it("discards a finished roadmap when another worker already completed the draft", async () => {
+      const harness = buildHarness({ draft: generatingDraft() });
+      harness.tx.roadmapDraft.updateMany.mockResolvedValue({ count: 0 });
+
+      await expect(
+        harness.service.runGeneration("draft-1"),
+      ).resolves.toBeUndefined();
+
+      expect(harness.catalog.createGeneratedRoadmap).not.toHaveBeenCalled();
+      expect(harness.engagement.createRoadmapEnrollment).not.toHaveBeenCalled();
+    });
+
+    it("allows a retry after a retryable failure when no enrollment exists", async () => {
+      const generate = jest
+        .fn()
+        .mockResolvedValueOnce({
+          ok: false,
+          kind: "unavailable",
+          retryable: true,
+          messageCode: RoadmapAiMessageCode.ROADMAP_AI_UNAVAILABLE,
+        })
+        .mockResolvedValueOnce({ ok: true, data: generated() });
+      const harness = buildHarness({ draft: generatingDraft(), generate });
+
+      await expect(harness.service.runGeneration("draft-1")).rejects.toThrow(
+        "ROADMAP_AI_UNAVAILABLE",
+      );
+      await harness.service.runGeneration("draft-1");
+
+      expect(generate).toHaveBeenCalledTimes(2);
+      expect(harness.catalog.createGeneratedRoadmap).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not run the same draft twice in one process", async () => {
+      let release: (() => void) | undefined;
+      const generate = jest.fn(
+        () =>
+          new Promise((resolve) => {
+            release = () => resolve({ ok: true, data: generated() });
+          }),
+      );
+      const harness = buildHarness({ draft: generatingDraft(), generate });
+
+      const first = harness.service.runGeneration("draft-1");
+      await new Promise((resolve) => setImmediate(resolve));
+      await new Promise((resolve) => setImmediate(resolve));
+      const duplicate = harness.service.runGeneration("draft-1");
+
+      await duplicate;
+      expect(generate).toHaveBeenCalledTimes(1);
+
+      release?.();
+      await first;
+    });
+
+    describe("the plan the AI returns", () => {
+      const aStep = (
+        order: number,
+        overrides: Record<string, unknown> = {},
+      ) => ({
+        order,
+        title: `Step ${order}`,
+        description: "Work through it.",
+        contentId: null,
+        contentType: null,
+        estimatedMinutes: null,
+        ...overrides,
+      });
+
+      const planOf = (
+        steps: ReturnType<typeof aStep>[],
+        overrides: Partial<GenerateData> = {},
+      ) =>
+        generated({
+          phases: [
+            {
+              order: 1,
+              title: "Foundations",
+              description: "Start here.",
+              estimatedWeeks: 4,
+              steps,
+            },
+          ],
+          ...overrides,
+        });
+
+      const runWith = async (
+        data: GenerateData,
+        options: Partial<Parameters<typeof buildHarness>[0]> = {},
+      ) => {
+        const harness = buildHarness({
+          draft: generatingDraft(),
+          candidates: [candidate("course-1")],
+          generate: jest.fn().mockResolvedValue({ ok: true, data }),
+          ...options,
+        });
+        await harness.service.runGeneration("draft-1");
+        return harness;
+      };
+
+      const expectRejected = (
+        harness: Harness,
+        violation: RoadmapGenerationViolation,
+      ) => {
+        expect(harness.catalog.createGeneratedRoadmap).not.toHaveBeenCalled();
+        expect(
+          harness.engagement.createRoadmapEnrollment,
+        ).not.toHaveBeenCalled();
+        expect(harness.prisma.$transaction).not.toHaveBeenCalled();
+        expect(harness.tx.roadmapDraft.updateMany).not.toHaveBeenCalledWith(
+          expect.objectContaining({
+            data: expect.objectContaining({
+              status: RoadmapDraftStatus.COMPLETED,
+            }),
+          }),
+        );
+        expect(failureReasonOf(harness)).toBe(violation);
+      };
+
+      it("persists a step that points at a candidate it was offered", async () => {
+        const harness = await runWith(
+          planOf([aStep(1, { contentId: "course-1", contentType: "COURSE" })]),
+        );
+
+        const created = harness.catalog.createGeneratedRoadmap.mock.calls[0][0];
+        expect(created.phases[0].steps[0]).toMatchObject({
+          contentId: "course-1",
+          contentType: "COURSE",
+        });
+      });
+
+      it("persists a deliberate no-content step without touching the coverage note", async () => {
+        const harness = await runWith(
+          planOf([aStep(1, { title: "Build a small project" })], {
+            coverageNote: "Limited catalogue for this topic.",
+          }),
+        );
+
+        const created = harness.catalog.createGeneratedRoadmap.mock.calls[0][0];
+        expect(created.phases[0].steps[0]).toMatchObject({
+          title: "Build a small project",
+          contentId: null,
+          contentType: null,
+        });
+        expect(created.coverageNote).toBe("Limited catalogue for this topic.");
+      });
+
+      it("rejects a whitespace-only roadmap title before anything is written", async () => {
+        const harness = await runWith(planOf([aStep(1)], { title: "   " }));
+
+        expectRejected(harness, RoadmapGenerationViolation.BLANK_TEXT);
+      });
+
+      it("rejects a whitespace-only phase title", async () => {
+        const harness = await runWith(
+          generated({
+            phases: [
+              {
+                order: 1,
+                title: "  ",
+                description: "Start here.",
+                estimatedWeeks: 4,
+                steps: [aStep(1)],
+              },
+            ],
+          }),
+        );
+
+        expectRejected(harness, RoadmapGenerationViolation.BLANK_TEXT);
+      });
+
+      it("rejects a whitespace-only step title", async () => {
+        const harness = await runWith(planOf([aStep(1, { title: "\t " })]));
+
+        expectRejected(harness, RoadmapGenerationViolation.BLANK_TEXT);
+      });
+
+      it("keeps a missing coverage note missing", async () => {
+        const harness = await runWith(planOf([aStep(1)]));
+
+        expect(
+          harness.catalog.createGeneratedRoadmap.mock.calls[0][0].coverageNote,
+        ).toBeNull();
+      });
+
+      it("fails without writing when an identifier is not among the candidates", async () => {
+        const harness = await runWith(
+          planOf([aStep(1, { contentId: "fake-99", contentType: "COURSE" })]),
+        );
+
+        expectRejected(harness, RoadmapGenerationViolation.UNKNOWN_CONTENT);
+      });
+
+      it("fails without writing when only the identifier is given", async () => {
+        const harness = await runWith(
+          planOf([aStep(1, { contentId: "course-1", contentType: null })]),
+        );
+
+        expectRejected(
+          harness,
+          RoadmapGenerationViolation.PARTIAL_CONTENT_REFERENCE,
+        );
+      });
+
+      it("fails without writing when only the content type is given", async () => {
+        const harness = await runWith(
+          planOf([aStep(1, { contentId: null, contentType: "COURSE" })]),
+        );
+
+        expectRejected(
+          harness,
+          RoadmapGenerationViolation.PARTIAL_CONTENT_REFERENCE,
+        );
+      });
+
+      it("fails without writing when a candidate comes back under another content type", async () => {
+        const harness = await runWith(
+          planOf([aStep(1, { contentId: "course-1", contentType: "EVENT" })]),
+        );
+
+        expectRejected(harness, RoadmapGenerationViolation.UNKNOWN_CONTENT);
+      });
+
+      it("fails without writing when a candidate is used twice in one phase", async () => {
+        const harness = await runWith(
+          planOf([
+            aStep(1, { contentId: "course-1", contentType: "COURSE" }),
+            aStep(2, { contentId: "course-1", contentType: "COURSE" }),
+          ]),
+        );
+
+        expectRejected(harness, RoadmapGenerationViolation.DUPLICATE_CONTENT);
+      });
+
+      it("fails without writing when two steps share an order", async () => {
+        const harness = await runWith(planOf([aStep(1), aStep(1)]));
+
+        expectRejected(
+          harness,
+          RoadmapGenerationViolation.DUPLICATE_STEP_ORDER,
+        );
+      });
+
+      it("fails without writing when two phases share an order", async () => {
+        const phase = (title: string) => ({
+          order: 1,
+          title,
+          description: "Same slot.",
+          estimatedWeeks: 2,
+          steps: [aStep(1)],
+        });
+        const harness = await runWith(
+          generated({
+            estimatedWeeks: 4,
+            phases: [phase("One"), phase("Two")],
+          }),
+        );
+
+        expectRejected(
+          harness,
+          RoadmapGenerationViolation.DUPLICATE_PHASE_ORDER,
+        );
+      });
+
+      it("fails without writing when more phases than requested come back", async () => {
+        const phases = Array.from({ length: 5 }, (_value, index) => ({
+          order: index + 1,
+          title: `Phase ${index + 1}`,
+          description: "One of too many.",
+          estimatedWeeks: 1,
+          steps: [aStep(1)],
+        }));
+        const harness = await runWith(generated({ estimatedWeeks: 5, phases }));
+
+        expectRejected(harness, RoadmapGenerationViolation.TOO_MANY_PHASES);
+      });
+
+      it("allows a paid candidate when the budget is not free only", async () => {
+        const harness = await runWith(
+          planOf([aStep(1, { contentId: "course-1", contentType: "COURSE" })]),
+          { candidates: [candidate("course-1", { isFree: false })] },
+        );
+
+        expect(harness.catalog.createGeneratedRoadmap).toHaveBeenCalledTimes(1);
+      });
+
+      it.each([
+        ["BEGINNER", "BEGINNER"],
+        ["INTERMEDIATE", "INTERMEDIATE"],
+        ["ADVANCED", "ADVANCED"],
+        ["EXPERT", "ADVANCED"],
+      ] as const)(
+        "stores the AI's %s level on the roadmap as %s",
+        async (level, stored) => {
+          const harness = await runWith(planOf([aStep(1)], { level }));
+
+          expect(
+            harness.catalog.createGeneratedRoadmap.mock.calls[0][0].level,
+          ).toBe(stored);
+        },
+      );
+
+      it("never offers the AI more candidates than it accepts", async () => {
+        const harness = await runWith(planOf([aStep(1)]));
+
+        expect(
+          harness.candidates.build.mock.calls[0][0].cap,
+        ).toBeLessThanOrEqual(SERVICE_AI_LIMITS.candidatesMaxItems);
+      });
+
+      it("does not call the AI at all when no candidate was found", async () => {
+        const harness = await runWith(planOf([aStep(1)]), { candidates: [] });
+
+        expect(harness.ai.generate).not.toHaveBeenCalled();
+        expect(failureReasonOf(harness)).toBe("NO_CANDIDATES");
+      });
+
+      it("logs the category and the offending reference but not the plan", async () => {
+        const entries: unknown[] = [];
+        const spy = jest
+          .spyOn(Logger.prototype, "error")
+          .mockImplementation((...args: unknown[]) => {
+            entries.push(...args);
+          });
+
+        await runWith(
+          planOf([aStep(1, { contentId: "fake-99", contentType: "COURSE" })]),
+        );
+
+        expect(entries).toContainEqual(
+          expect.objectContaining({
+            draftId: "draft-1",
+            violation: RoadmapGenerationViolation.UNKNOWN_CONTENT,
+            offending: "COURSE:fake-99",
+          }),
+        );
+        expect(JSON.stringify(entries)).not.toContain("Work through it.");
+        spy.mockRestore();
+      });
     });
 
     it("fails without writing when an identifier repeats", async () => {
       const harness = buildHarness({
-        draft: draftRow(),
+        draft: generatingDraft(),
         generate: jest.fn().mockResolvedValue({
           ok: true,
           data: generated({
@@ -432,7 +874,7 @@ describe("ProfessionalRoadmapGenerationService", () => {
 
     it("fails without writing when a paid item comes back under free only", async () => {
       const harness = buildHarness({
-        draft: draftRow({
+        draft: generatingDraft({
           budgetPreference: LearningBudgetPreference.FREE_ONLY,
         }),
         candidates: [candidate("course-1", { isFree: false })],
@@ -448,7 +890,7 @@ describe("ProfessionalRoadmapGenerationService", () => {
 
     it("fails without writing when phase durations do not sum", async () => {
       const harness = buildHarness({
-        draft: draftRow(),
+        draft: generatingDraft(),
         generate: jest.fn().mockResolvedValue({
           ok: true,
           data: generated({ estimatedWeeks: 9 }),
@@ -463,6 +905,138 @@ describe("ProfessionalRoadmapGenerationService", () => {
       );
     });
 
+    describe("deciding whether to try again", () => {
+      const failure = (overrides: Record<string, unknown>) => ({
+        ok: false,
+        kind: "unavailable",
+        retryable: true,
+        messageCode: RoadmapAiMessageCode.ROADMAP_AI_UNAVAILABLE,
+        ...overrides,
+      });
+
+      const run = (result: Record<string, unknown>) => {
+        const harness = buildHarness({
+          draft: generatingDraft(),
+          generate: jest.fn().mockResolvedValue(result),
+        });
+        return { harness, outcome: harness.service.runGeneration("draft-1") };
+      };
+
+      it("fails the draft for good when the provider says it is not retryable", async () => {
+        const { harness, outcome } = run(
+          failure({
+            kind: "failed",
+            retryable: false,
+            messageCode: RoadmapAiMessageCode.ROADMAP_AI_FAILED,
+          }),
+        );
+
+        await expect(outcome).resolves.toBeUndefined();
+        expect(failureReasonOf(harness)).toBe(
+          RoadmapAiMessageCode.ROADMAP_AI_FAILED,
+        );
+      });
+
+      it("does not defer a capacity outcome the provider marked not retryable", async () => {
+        const { harness, outcome } = run(
+          failure({
+            kind: "busy",
+            retryable: false,
+            retryAfterSeconds: 30,
+            messageCode: RoadmapAiMessageCode.ROADMAP_AI_BUSY,
+          }),
+        );
+
+        await expect(outcome).resolves.toBeUndefined();
+        expect(failureReasonOf(harness)).toBe(
+          RoadmapAiMessageCode.ROADMAP_AI_BUSY,
+        );
+      });
+
+      it("does not shrink the candidate set for a truncation marked not retryable", async () => {
+        const { harness, outcome } = run(
+          failure({
+            kind: "truncated",
+            retryable: false,
+            recovery: "REDUCE_CANDIDATES",
+            messageCode: RoadmapAiMessageCode.ROADMAP_AI_FAILED,
+          }),
+        );
+
+        await expect(outcome).resolves.toBeUndefined();
+        expect(harness.ai.generate).toHaveBeenCalledTimes(1);
+        expect(harness.candidates.build).toHaveBeenCalledTimes(1);
+      });
+
+      it("fails permanently when the service is not configured", async () => {
+        const { harness, outcome } = run(failure({ retryable: false }));
+
+        await expect(outcome).resolves.toBeUndefined();
+        expect(failureReasonOf(harness)).toBe(
+          RoadmapAiMessageCode.ROADMAP_AI_UNAVAILABLE,
+        );
+      });
+
+      it("waits exactly as long as a retryable capacity outcome asked", async () => {
+        const { outcome } = run(
+          failure({
+            kind: "busy",
+            retryAfterSeconds: 120,
+            messageCode: RoadmapAiMessageCode.ROADMAP_AI_BUSY,
+          }),
+        );
+
+        await expect(outcome).rejects.toMatchObject({ seconds: 120 });
+      });
+
+      it("waits for the advertised time on any other retryable outcome", async () => {
+        const { outcome } = run(failure({ retryAfterSeconds: 45 }));
+
+        await expect(outcome).rejects.toMatchObject({
+          name: "OutboxDeferral",
+          seconds: 45,
+        });
+      });
+
+      it("falls back to the outbox backoff when no wait was advertised", async () => {
+        const { outcome } = run(failure({ retryAfterSeconds: null }));
+
+        await expect(outcome).rejects.not.toBeInstanceOf(OutboxDeferral);
+        await expect(
+          run(failure({ retryAfterSeconds: null })).outcome,
+        ).rejects.toThrow("ROADMAP_AI_UNAVAILABLE");
+      });
+
+      it("logs the provider code and correlation identifier of a failed call", async () => {
+        const entries: unknown[] = [];
+        const spy = jest
+          .spyOn(Logger.prototype, "warn")
+          .mockImplementation((...args: unknown[]) => {
+            entries.push(...args);
+          });
+
+        await run(
+          failure({
+            kind: "failed",
+            retryable: false,
+            providerCode: "UPSTREAM_REJECTED",
+            providerCorrelationId: "provider-turn-77",
+            messageCode: RoadmapAiMessageCode.ROADMAP_AI_FAILED,
+          }),
+        ).outcome;
+
+        expect(entries).toContainEqual(
+          expect.objectContaining({
+            draftId: "draft-1",
+            retryable: false,
+            providerCode: "UPSTREAM_REJECTED",
+            providerCorrelationId: "provider-turn-77",
+          }),
+        );
+        spy.mockRestore();
+      });
+    });
+
     it("retries a truncated response with strictly fewer candidates", async () => {
       const generate = jest
         .fn()
@@ -475,7 +1049,7 @@ describe("ProfessionalRoadmapGenerationService", () => {
         })
         .mockResolvedValueOnce({ ok: true, data: generated() });
       const harness = buildHarness({
-        draft: draftRow(),
+        draft: generatingDraft(),
         candidates: Array.from({ length: 50 }, (_, index) =>
           candidate(`course-${index}`),
         ),
@@ -500,7 +1074,7 @@ describe("ProfessionalRoadmapGenerationService", () => {
 
     it("defers by the wait the provider advertised when it is at capacity", async () => {
       const harness = buildHarness({
-        draft: draftRow(),
+        draft: generatingDraft(),
         generate: jest.fn().mockResolvedValue({
           ok: false,
           kind: "busy",
@@ -518,7 +1092,7 @@ describe("ProfessionalRoadmapGenerationService", () => {
 
     it("rethrows a retryable provider failure so the outbox tries again", async () => {
       const harness = buildHarness({
-        draft: draftRow(),
+        draft: generatingDraft(),
         generate: jest.fn().mockResolvedValue({
           ok: false,
           kind: "unavailable",
@@ -533,7 +1107,10 @@ describe("ProfessionalRoadmapGenerationService", () => {
     });
 
     it("fails the draft when the catalogue offered nothing", async () => {
-      const harness = buildHarness({ draft: draftRow(), candidates: [] });
+      const harness = buildHarness({
+        draft: generatingDraft(),
+        candidates: [],
+      });
 
       await harness.service.runGeneration("draft-1");
 
@@ -543,7 +1120,7 @@ describe("ProfessionalRoadmapGenerationService", () => {
 
     it("resolves the draft's subject ids to their labels before searching and generating", async () => {
       const harness = buildHarness({
-        draft: draftRow({ subjects: ["term-kubernetes"] }),
+        draft: generatingDraft({ subjects: ["term-kubernetes"] }),
         subjectTerms: [
           {
             id: "term-kubernetes",
@@ -568,7 +1145,7 @@ describe("ProfessionalRoadmapGenerationService", () => {
 
     it("resolves the chosen subjects' taxonomy groups for the RELATED tier", async () => {
       const harness = buildHarness({
-        draft: draftRow({ subjects: ["term-kubernetes"] }),
+        draft: generatingDraft({ subjects: ["term-kubernetes"] }),
         subjectTerms: [
           {
             id: "term-kubernetes",
@@ -587,7 +1164,7 @@ describe("ProfessionalRoadmapGenerationService", () => {
 
     it("sends the goal and target role as SIMILAR-tier keywords", async () => {
       const harness = buildHarness({
-        draft: draftRow({
+        draft: generatingDraft({
           goal: "Become a platform engineer",
           targetRole: "Platform Engineer",
         }),
@@ -602,22 +1179,37 @@ describe("ProfessionalRoadmapGenerationService", () => {
       );
     });
 
-    it("falls back to the stored id for a subject whose term no longer resolves", async () => {
+    it("drops a stored subject whose term no longer resolves", async () => {
       const harness = buildHarness({
-        draft: draftRow({ subjects: ["term-deleted"] }),
-        subjectTerms: [],
+        draft: generatingDraft({ subjects: ["term-1", "term-deleted"] }),
+        subjectTerms: [
+          { id: "term-1", label: "Kubernetes", group: { key: "g" } },
+        ],
       });
 
       await harness.service.runGeneration("draft-1");
 
       expect(harness.candidates.build).toHaveBeenCalledWith(
-        expect.objectContaining({ subjects: ["term-deleted"] }),
+        expect.objectContaining({ subjects: ["Kubernetes"] }),
       );
+    });
+
+    it("fails a legacy draft none of whose stored subjects exist, without searching", async () => {
+      const harness = buildHarness({
+        draft: generatingDraft({ subjects: ["raw text from an old draft"] }),
+        subjectTerms: [],
+      });
+
+      await harness.service.runGeneration("draft-1");
+
+      expect(harness.candidates.build).not.toHaveBeenCalled();
+      expect(harness.ai.generate).not.toHaveBeenCalled();
+      expect(failureReasonOf(harness)).toBe("NO_CANDIDATES");
     });
 
     it("derives credits from recorded activity and floors the remainder", async () => {
       const harness = buildHarness({
-        draft: draftRow({
+        draft: generatingDraft({
           cpdEnabled: true,
           certificationName: "PMP",
           cpdPlan: {
@@ -648,7 +1240,7 @@ describe("ProfessionalRoadmapGenerationService", () => {
 
     it("asks for credit-bearing content only when credits are outstanding", async () => {
       const harness = buildHarness({
-        draft: draftRow({
+        draft: generatingDraft({
           cpdEnabled: true,
           certificationName: "PMP",
           cpdPlan: {
@@ -673,7 +1265,7 @@ describe("ProfessionalRoadmapGenerationService", () => {
 
     it("records the roadmap-level match tier and per-step close-match flag", async () => {
       const harness = buildHarness({
-        draft: draftRow(),
+        draft: generatingDraft(),
         candidates: [
           candidate("course-1", { matchTier: "SIMILAR", isCloseMatch: true }),
         ],
@@ -696,7 +1288,7 @@ describe("ProfessionalRoadmapGenerationService", () => {
 
     it("records an EXACT match tier and no close-match tags when nothing was relaxed", async () => {
       const harness = buildHarness({
-        draft: draftRow(),
+        draft: generatingDraft(),
         candidates: [candidate("course-1")],
       });
 
@@ -716,7 +1308,7 @@ describe("ProfessionalRoadmapGenerationService", () => {
     });
 
     it("leaves no partial roadmap when the write fails mid-transaction", async () => {
-      const harness = buildHarness({ draft: draftRow() });
+      const harness = buildHarness({ draft: generatingDraft() });
       harness.engagement.createRoadmapEnrollment.mockRejectedValue(
         new Error("enrollment write failed"),
       );
@@ -724,8 +1316,8 @@ describe("ProfessionalRoadmapGenerationService", () => {
       await expect(harness.service.runGeneration("draft-1")).rejects.toThrow(
         "enrollment write failed",
       );
-      // The draft is not moved to completed, so the retry still sees work to do.
-      expect(harness.tx.roadmapDraft.update).not.toHaveBeenCalled();
+      expect(harness.prisma.$transaction).toHaveBeenCalledTimes(1);
+      expect(harness.prisma.roadmapDraft.updateMany).not.toHaveBeenCalled();
     });
   });
 

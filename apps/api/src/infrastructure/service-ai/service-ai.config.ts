@@ -3,6 +3,11 @@ export const PROVIDER_BUDGET_MS = {
   generate: 70_000,
 } as const;
 
+export const PROVIDER_CUTOFF_MS = {
+  chatTurn: 30_000,
+  generate: 75_000,
+} as const;
+
 const DEFAULT_TIMEOUT_MS = {
   chatTurn: 35_000,
   generate: 80_000,
@@ -21,7 +26,7 @@ export const SERVICE_AI_CONFIG = Symbol("SERVICE_AI_CONFIG");
 const readTimeout = (
   config: ConfigReader,
   key: string,
-  operation: keyof typeof PROVIDER_BUDGET_MS,
+  operation: keyof typeof PROVIDER_CUTOFF_MS,
 ): number => {
   const raw = config.get<string | number>(key);
   if (raw === undefined || raw === null || `${raw}`.trim() === "")
@@ -31,12 +36,12 @@ const readTimeout = (
   if (!Number.isInteger(value) || value <= 0)
     throw new Error(`${key} must be a positive whole number of milliseconds.`);
 
-  const budget = PROVIDER_BUDGET_MS[operation];
-  if (value < budget)
+  const cutoff = PROVIDER_CUTOFF_MS[operation];
+  if (value <= cutoff)
     throw new Error(
-      `${key} is ${value}ms, below the provider's ${budget}ms budget for ` +
-        `${operation}. A timeout under the budget cancels a call the provider ` +
-        `would have completed.`,
+      `${key} is ${value}ms, which does not exceed the ${cutoff}ms the ` +
+        `provider needs for ${operation}. A timeout at or under that point ` +
+        `cancels a call the provider would have completed.`,
     );
 
   return value;
@@ -46,9 +51,32 @@ const readOptional = (config: ConfigReader, key: string): string | null => {
   const raw = config.get<string>(key)?.trim();
   return raw ? raw : null;
 };
+
+const readBaseUrl = (config: ConfigReader): string | null => {
+  const raw = readOptional(config, "ROADMAP_AI_BASE_URL");
+  if (!raw) return null;
+
+  let parsed: URL;
+  try {
+    parsed = new URL(raw);
+  } catch {
+    throw new Error("ROADMAP_AI_BASE_URL is not a valid URL.");
+  }
+  if (parsed.protocol !== "https:" && parsed.protocol !== "http:")
+    throw new Error("ROADMAP_AI_BASE_URL must use http or https.");
+  if (parsed.username || parsed.password)
+    throw new Error("ROADMAP_AI_BASE_URL must not carry credentials.");
+  if (
+    config.get<string>("NODE_ENV") === "production" &&
+    parsed.protocol !== "https:"
+  )
+    throw new Error("ROADMAP_AI_BASE_URL must use https in production.");
+
+  return raw.replace(/\/+$/, "");
+};
+
 export const loadServiceAiConfig = (config: ConfigReader): ServiceAiConfig => ({
-  baseUrl:
-    readOptional(config, "ROADMAP_AI_BASE_URL")?.replace(/\/+$/, "") ?? null,
+  baseUrl: readBaseUrl(config),
   serviceToken: readOptional(config, "ROADMAP_AI_SERVICE_TOKEN"),
   timeouts: {
     chatTurn: readTimeout(
@@ -59,3 +87,8 @@ export const loadServiceAiConfig = (config: ConfigReader): ServiceAiConfig => ({
     generate: readTimeout(config, "ROADMAP_AI_GENERATE_TIMEOUT_MS", "generate"),
   },
 });
+
+export const leaseShorterThanGenerate = (
+  leaseMs: number,
+  generateTimeoutMs: number,
+): boolean => leaseMs < generateTimeoutMs;

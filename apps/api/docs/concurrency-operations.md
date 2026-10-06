@@ -168,10 +168,23 @@ event from application code.
 ## Outbox
 
 Claims use `FOR UPDATE SKIP LOCKED` and push `availableAt` out by one lease. The
-lease is `OUTBOX_LEASE_MS` (default 60000). A handler that can legitimately run
-longer should either raise that value or call `context.renewLease()` while it
-works; without one of the two, a slow delivery becomes claimable by a second
-worker while the first is still running.
+lease is `OUTBOX_LEASE_MS` (default 90000, above the 80000ms roadmap generation
+call). While a handler runs, `OutboxProcessor` renews the lease every third of
+its length, so a slow delivery stays claimed by the worker that holds it.
+Renewal is a compare-and-set on `attemptCount`: a worker whose lease was taken
+over fails its renewal, its delivery throws, and its failure write matches no
+row, so it cannot disturb the new holder's lease. A handler may also call
+`context.renewLease()` to check ownership before an expensive side effect;
+roadmap generation does so before every AI call.
+
+Roadmap generation is idempotent on `RoadmapDraft.status`. The handler does
+nothing unless the draft is `GENERATING`, and does not call the AI service when
+a `RoadmapEnrollment` already exists for the draft (a redelivery after the
+roadmap was persisted but before the event was marked processed). Persistence
+first flips `GENERATING` to `COMPLETED` with `updateMany` inside the same
+transaction as the roadmap and enrollment, and rolls everything back when the
+count is not 1, so a second worker that finished late discards its result;
+`RoadmapEnrollment.draftId` stays unique as the backstop.
 
 Every handler receives `context.idempotencyKey`, which is `outbox-<eventId>` and
 is identical on every attempt at the same event. Hand it to any provider that

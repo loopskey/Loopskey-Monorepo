@@ -3,6 +3,7 @@ import { Logger, OnModuleDestroy } from "@nestjs/common";
 import { type OutboxEventContext } from "@infrastructure/outbox/outbox-handler.port";
 import { OutboxHandlerRegistry } from "@infrastructure/outbox/outbox-handler.port";
 import { type OutboxLane } from "@infrastructure/outbox/outbox-handler.port";
+import { requestContext } from "@infrastructure/observability/request-context";
 import { OutboxDeferral } from "@infrastructure/outbox/outbox-handler.port";
 import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "@prisma/prisma.service";
@@ -13,12 +14,16 @@ const isUniqueViolation = (error: unknown) =>
   error.code === "P2002";
 
 const MAX_ATTEMPTS = 10;
-const DEFAULT_LEASE_MS = 60_000;
+export const DEFAULT_LEASE_MS = 90_000;
+const MIN_LEASE_RENEWAL_INTERVAL_MS = 1_000;
 
 export const REALTIME_OUTBOX_PROCESSOR = "REALTIME_OUTBOX_PROCESSOR";
 export const BULK_OUTBOX_PROCESSOR = "BULK_OUTBOX_PROCESSOR";
 
 export const outboxIdempotencyKey = (eventId: string) => `outbox-${eventId}`;
+
+const withCorrelation = <T>(correlationId: string | null, run: () => T): T =>
+  correlationId ? requestContext.run(correlationId, run) : run();
 
 export type OutboxProcessorOptions = {
   readonly lane?: OutboxLane;
@@ -81,15 +86,49 @@ export class OutboxProcessor implements OnModuleInit, OnModuleDestroy {
       });
   }
 
-  private async renewLease(eventId: string) {
+  private leaseRenewalIntervalMs() {
+    return Math.max(
+      MIN_LEASE_RENEWAL_INTERVAL_MS,
+      Math.floor(this.leaseMs / 3),
+    );
+  }
+
+  private async renewLease(eventId: string, attemptCount: number) {
     const { count } = await this.prisma.outboxEvent.updateMany({
-      where: { id: eventId, processedAt: null },
+      where: { id: eventId, processedAt: null, attemptCount },
       data: { availableAt: new Date(Date.now() + this.leaseMs) },
     });
     if (count === 1) return;
-    this.logger.warn("Outbox lease renewal found no claimable event", {
-      eventId,
-    });
+    throw new Error(`Outbox lease is no longer held for ${eventId}.`);
+  }
+
+  private async deliverWithLease<T>(
+    event: { id: string; attemptCount: number },
+    deliver: () => Promise<T>,
+  ) {
+    let renewalFailure: unknown = null;
+    let renewing = false;
+    const renew = () => {
+      if (renewing || renewalFailure) return;
+      renewing = true;
+      void this.renewLease(event.id, event.attemptCount)
+        .catch((error: unknown) => {
+          renewalFailure = error;
+        })
+        .finally(() => {
+          renewing = false;
+        });
+    };
+    const timer = setInterval(renew, this.leaseRenewalIntervalMs());
+    timer.unref();
+
+    try {
+      const result = await deliver();
+      if (renewalFailure) throw renewalFailure;
+      return result;
+    } finally {
+      clearInterval(timer);
+    }
   }
 
   async processNext() {
@@ -128,7 +167,7 @@ export class OutboxProcessor implements OnModuleInit, OnModuleDestroy {
       attemptCount: event.attemptCount,
       correlationId: event.correlationId,
       idempotencyKey: outboxIdempotencyKey(event.id),
-      renewLease: () => this.renewLease(event.id),
+      renewLease: () => this.renewLease(event.id, event.attemptCount),
     };
 
     try {
@@ -146,7 +185,11 @@ export class OutboxProcessor implements OnModuleInit, OnModuleDestroy {
         },
       });
       if (!delivered) {
-        await handler.handle(event.payload, context);
+        await this.deliverWithLease(event, () =>
+          withCorrelation(event.correlationId, () =>
+            handler.handle(event.payload, context),
+          ),
+        );
         await this.prisma.outboxDelivery
           .create({
             data: { eventId: event.id, handlerName: handler.handlerName },
@@ -174,8 +217,12 @@ export class OutboxProcessor implements OnModuleInit, OnModuleDestroy {
         error instanceof OutboxDeferral
           ? error.seconds * 1000
           : Math.min(3_600_000, 2 ** event.attemptCount * 1000);
-      await this.prisma.outboxEvent.update({
-        where: { id: event.id },
+      const { count } = await this.prisma.outboxEvent.updateMany({
+        where: {
+          id: event.id,
+          processedAt: null,
+          attemptCount: event.attemptCount,
+        },
         data: {
           availableAt: new Date(Date.now() + delay),
           lastError:
@@ -184,6 +231,14 @@ export class OutboxProcessor implements OnModuleInit, OnModuleDestroy {
               : "Unknown error",
         },
       });
+      if (count === 0) {
+        this.logger.warn("Outbox attempt outcome ignored, lease taken over", {
+          eventId: event.id,
+          attempt: event.attemptCount,
+          correlationId: event.correlationId,
+        });
+        return true;
+      }
       if (error instanceof OutboxDeferral) {
         this.logger.warn("Outbox attempt deferred", {
           eventId: event.id,

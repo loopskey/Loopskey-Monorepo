@@ -1,5 +1,7 @@
 import {
   PROVIDER_BUDGET_MS,
+  PROVIDER_CUTOFF_MS,
+  leaseShorterThanGenerate,
   loadServiceAiConfig,
   type ConfigReader,
 } from "./service-ai.config";
@@ -33,47 +35,130 @@ describe("Roadmap AI configuration", () => {
     ).toBe("https://ai.example.com");
   });
 
+  it("keeps the explicit :8443 port of the provider address", () => {
+    expect(
+      loadServiceAiConfig(
+        reader({ ROADMAP_AI_BASE_URL: "https://api.sindexx.lol:8443" }),
+      ).baseUrl,
+    ).toBe("https://api.sindexx.lol:8443");
+  });
+
+  it("keeps the port when the address ends in a slash", () => {
+    expect(
+      loadServiceAiConfig(
+        reader({ ROADMAP_AI_BASE_URL: "https://api.sindexx.lol:8443/" }),
+      ).baseUrl,
+    ).toBe("https://api.sindexx.lol:8443");
+  });
+
+  it.each(["not a url", "api.sindexx.lol:8443", "ftp://ai.example.com"])(
+    "rejects %s as the base address",
+    (value) => {
+      expect(() =>
+        loadServiceAiConfig(reader({ ROADMAP_AI_BASE_URL: value })),
+      ).toThrow(/ROADMAP_AI_BASE_URL/);
+    },
+  );
+
+  it("rejects an address that embeds credentials", () => {
+    expect(() =>
+      loadServiceAiConfig(
+        reader({ ROADMAP_AI_BASE_URL: "https://user:pass@ai.example.com" }),
+      ),
+    ).toThrow(/credentials/);
+  });
+
+  it("requires https in production", () => {
+    expect(() =>
+      loadServiceAiConfig(
+        reader({
+          NODE_ENV: "production",
+          ROADMAP_AI_BASE_URL: "http://ai.example.com:8443",
+        }),
+      ),
+    ).toThrow(/https in production/);
+  });
+
+  it("allows http outside production", () => {
+    expect(
+      loadServiceAiConfig(
+        reader({ ROADMAP_AI_BASE_URL: "http://localhost:8000" }),
+      ).baseUrl,
+    ).toBe("http://localhost:8000");
+  });
+
+  it("never carries the service token anywhere but its own field", () => {
+    const config = loadServiceAiConfig(
+      reader({
+        ROADMAP_AI_BASE_URL: "https://ai.example.com:8443",
+        ROADMAP_AI_SERVICE_TOKEN: "secret-token",
+      }),
+    );
+
+    expect(config.baseUrl).not.toContain("secret-token");
+    expect(config.serviceToken).toBe("secret-token");
+  });
+
+  it("reports a lease shorter than the generate timeout", () => {
+    expect(leaseShorterThanGenerate(60_000, 80_000)).toBe(true);
+    expect(leaseShorterThanGenerate(90_000, 80_000)).toBe(false);
+    expect(leaseShorterThanGenerate(80_000, 80_000)).toBe(false);
+  });
+
   it("treats a blank value as unset rather than as an empty address", () => {
     expect(
       loadServiceAiConfig(reader({ ROADMAP_AI_BASE_URL: "   " })).baseUrl,
     ).toBeNull();
   });
 
-  it("accepts a configured timeout at or above the budget", () => {
+  it("accepts a configured timeout above the provider's cut-off", () => {
     const { timeouts } = loadServiceAiConfig(
       reader({
-        ROADMAP_AI_CHAT_TURN_TIMEOUT_MS: `${PROVIDER_BUDGET_MS.chatTurn}`,
-        ROADMAP_AI_GENERATE_TIMEOUT_MS: "90000",
+        ROADMAP_AI_CHAT_TURN_TIMEOUT_MS: `${PROVIDER_CUTOFF_MS.chatTurn + 1}`,
+        ROADMAP_AI_GENERATE_TIMEOUT_MS: `${PROVIDER_CUTOFF_MS.generate + 1}`,
       }),
     );
 
     expect(timeouts).toEqual({
-      chatTurn: PROVIDER_BUDGET_MS.chatTurn,
-      generate: 90000,
+      chatTurn: PROVIDER_CUTOFF_MS.chatTurn + 1,
+      generate: PROVIDER_CUTOFF_MS.generate + 1,
     });
   });
 
-  it("rejects a chat-turn timeout below the provider's budget", () => {
-    // A shorter timeout cancels a call the provider would have completed, so
-    // this has to stop the boot rather than surface inside a request.
+  it("keeps the default generate timeout above the provider's cut-off", () => {
+    expect(loadServiceAiConfig(reader({})).timeouts.generate).toBeGreaterThan(
+      PROVIDER_CUTOFF_MS.generate,
+    );
+  });
+
+  it("rejects a chat-turn timeout at the provider's cut-off", () => {
     expect(() =>
       loadServiceAiConfig(
         reader({
-          ROADMAP_AI_CHAT_TURN_TIMEOUT_MS: `${PROVIDER_BUDGET_MS.chatTurn - 1}`,
+          ROADMAP_AI_CHAT_TURN_TIMEOUT_MS: `${PROVIDER_CUTOFF_MS.chatTurn}`,
         }),
       ),
-    ).toThrow(/below the provider's 30000ms budget/);
+    ).toThrow(/does not exceed the 30000ms/);
   });
 
-  it("rejects a generation timeout below the provider's budget", () => {
-    expect(() =>
-      loadServiceAiConfig(reader({ ROADMAP_AI_GENERATE_TIMEOUT_MS: "60000" })),
-    ).toThrow(/below the provider's 70000ms budget/);
+  it.each(["70000", "75000"])(
+    "rejects a generation timeout of %sms",
+    (value) => {
+      expect(() =>
+        loadServiceAiConfig(reader({ ROADMAP_AI_GENERATE_TIMEOUT_MS: value })),
+      ).toThrow(/does not exceed the 75000ms/);
+    },
+  );
+
+  it("keeps the provider's own budget below the cut-off the client enforces", () => {
+    expect(PROVIDER_BUDGET_MS.generate).toBeLessThan(
+      PROVIDER_CUTOFF_MS.generate,
+    );
   });
 
   it.each(["0", "-1", "abc", "35000.5"])("rejects %s as a timeout", (value) => {
     expect(() =>
       loadServiceAiConfig(reader({ ROADMAP_AI_CHAT_TURN_TIMEOUT_MS: value })),
-    ).toThrow(/positive whole number|below the provider/);
+    ).toThrow(/positive whole number/);
   });
 });

@@ -28,6 +28,22 @@ export const toPlatformLevel = (level: string): PlatformSkillLevel | null =>
     ? level
     : null;
 
+export type RoadmapCourseLevel = "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
+
+const ROADMAP_LEVEL_BY_PROVIDER_LEVEL: Record<
+  PlatformSkillLevel,
+  RoadmapCourseLevel
+> = {
+  BEGINNER: "BEGINNER",
+  INTERMEDIATE: "INTERMEDIATE",
+  ADVANCED: "ADVANCED",
+  EXPERT: "ADVANCED",
+};
+
+export const toRoadmapCourseLevel = (
+  level: PlatformSkillLevel,
+): RoadmapCourseLevel => ROADMAP_LEVEL_BY_PROVIDER_LEVEL[level];
+
 export const ROADMAP_GENERATION_EVENT = "roadmap.generation.requested";
 export type RoadmapGenerationPayload = { draftId: string };
 export const REDUCED_CANDIDATE_CAP = 25;

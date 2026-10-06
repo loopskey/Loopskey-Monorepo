@@ -167,9 +167,19 @@ class FakeDraftStore {
   );
 
   updateDraft = jest.fn(
-    async (userId: string, draftId: string, data: object) => {
+    async (
+      userId: string,
+      draftId: string,
+      data: object,
+      expectedUpdatedAt?: Date,
+    ) => {
       const draft = this.owned(userId, draftId);
       if (!draft) return null;
+      if (
+        expectedUpdatedAt &&
+        (draft.updatedAt as Date).getTime() !== expectedUpdatedAt.getTime()
+      )
+        return null;
       Object.assign(draft, data);
       return draft;
     },
@@ -300,18 +310,6 @@ class FakeDraftStore {
       this.messages = this.messages.filter(
         (message) => message.draftId !== draftId,
       );
-      this.addMessage({
-        draftId,
-        content: "ROADMAP_COACH_INTRO",
-        role: RoadmapChatRole.ASSISTANT,
-        stepKey: RoadmapDraftStep.GOAL,
-      });
-      this.addMessage({
-        draftId,
-        content: "ROADMAP_COACH_QUESTION",
-        role: RoadmapChatRole.ASSISTANT,
-        stepKey: RoadmapDraftStep.GOAL,
-      });
       return { outcome: "reset", draft };
     },
   );
@@ -492,39 +490,32 @@ const collected = {
 };
 
 describe("starting the wizard", () => {
-  it("creates a collecting draft and opens with the coach's fixed lines", async () => {
-    const { service, store } = setup();
+  it("starts the interview with an empty AI turn and persists its assistant message", async () => {
+    const { service, store, calls } = setup([
+      {
+        ok: true,
+        data: turnData({ assistantMessage: "What would you like to learn?" }),
+      },
+    ]);
 
     const view = await service.startDraft(OWNER);
 
     expect(store.drafts).toHaveLength(1);
     expect(view.status).toBe(RoadmapDraftStatus.COLLECTING);
-    expect(
-      view.transcript.items.map(({ role, content, stepKey }) => ({
-        role,
-        content,
-        stepKey,
-      })),
-    ).toEqual([
-      {
+    expect(calls).toHaveLength(1);
+    expect(calls[0]).toMatchObject({
+      currentStep: RoadmapDraftStep.GOAL,
+      draft: {},
+      history: [],
+      userMessage: null,
+    });
+    expect(view.transcript.items).toEqual([
+      expect.objectContaining({
         role: RoadmapChatRole.ASSISTANT,
-        content: "ROADMAP_COACH_INTRO",
+        content: "What would you like to learn?",
         stepKey: RoadmapDraftStep.GOAL,
-      },
-      {
-        role: RoadmapChatRole.ASSISTANT,
-        content: "ROADMAP_COACH_QUESTION",
-        stepKey: RoadmapDraftStep.GOAL,
-      },
+      }),
     ]);
-  });
-
-  it("never calls the AI service to open the conversation", async () => {
-    const { service, chatTurn } = setup();
-
-    await service.startDraft(OWNER);
-
-    expect(chatTurn).not.toHaveBeenCalled();
   });
 
   it("exposes the brief's completion counts, consistent with its remaining fields", async () => {
@@ -532,11 +523,12 @@ describe("starting the wizard", () => {
 
     const view = await service.startDraft(OWNER);
 
-    expect(view.requiredFieldCount).toBeGreaterThan(0);
-    expect(view.completedFieldCount).toBe(
-      view.requiredFieldCount - view.remainingFields.length,
-    );
-    expect(view.remainingFields).not.toContain(RoadmapDraftStep.REVIEW);
+    expect(view.requiredFieldCount).toBe(4);
+    expect(view.completedFieldCount).toBe(0);
+    expect(view.remainingFields).toEqual([
+      RoadmapDraftStep.GOAL,
+      RoadmapDraftStep.PREFERENCES,
+    ]);
   });
 
   it("stores no professional message for the introduction", async () => {
@@ -551,20 +543,16 @@ describe("starting the wizard", () => {
     ).toHaveLength(0);
   });
 
-  it("seeds the draft from what onboarding already collected, except subjects", async () => {
+  it("does not seed the AI interview from the professional profile", async () => {
     const { service, store } = setup();
 
     await service.startDraft(OWNER);
 
     expect(store.drafts[0]).toMatchObject({
-      targetRole: "Analyst",
-      skillLevel: SkillLevel.INTERMEDIATE,
-      preferredFormats: [LearningFormat.COURSE],
+      targetRole: null,
+      skillLevel: null,
+      preferredFormats: [],
     });
-    // Subjects are roadmap-specific, not a stable personal attribute: seeding
-    // them from a previous, possibly unrelated roadmap's favourites would
-    // make the PREFERENCES step silently skip asking about subjects for a
-    // brand new, differently-themed goal.
     expect(store.drafts[0].subjects).toEqual([]);
   });
 
@@ -576,6 +564,39 @@ describe("starting the wizard", () => {
 
     expect(store.drafts).toHaveLength(1);
   });
+
+  it("resumes a draft with an initial assistant message without another AI call", async () => {
+    const { service, store, chatTurn } = setup();
+    store.seed(emptyDraft());
+    store.addMessage({
+      draftId: "draft-1",
+      role: RoadmapChatRole.ASSISTANT,
+      content: "What would you like to learn?",
+    });
+
+    await service.startDraft(OWNER);
+
+    expect(chatTurn).not.toHaveBeenCalled();
+    expect(store.drafts).toHaveLength(1);
+  });
+
+  it("leaves a new draft clean when the initial AI turn fails", async () => {
+    const { service, store } = setup([
+      {
+        ok: false,
+        kind: "unavailable",
+        retryable: true,
+        messageCode: RoadmapAiMessageCode.ROADMAP_AI_UNAVAILABLE,
+      },
+    ]);
+
+    await expect(service.startDraft(OWNER)).rejects.toMatchObject({
+      response: { code: RoadmapAiMessageCode.ROADMAP_AI_UNAVAILABLE },
+    });
+
+    expect(store.drafts).toHaveLength(1);
+    expect(store.messages).toHaveLength(0);
+  });
 });
 
 describe("resetting the wizard", () => {
@@ -585,11 +606,7 @@ describe("resetting the wizard", () => {
 
     const view = await service.resetDraft(OWNER, "draft-old");
 
-    expect(store.resetInPlace).toHaveBeenCalledWith(
-      OWNER.id,
-      "draft-old",
-      expect.any(Object),
-    );
+    expect(store.resetInPlace).toHaveBeenCalledWith(OWNER.id, "draft-old");
     expect(store.drafts).toHaveLength(1);
     expect(view.id).toBe("draft-old");
     expect(view.goal).toBeNull();
@@ -625,14 +642,37 @@ describe("resetting the wizard", () => {
     ).toBe(false);
   });
 
-  it("re-seeds profile-derived fields, but leaves subjects for the new goal to decide", async () => {
+  it("starts a fresh initial AI turn after reset", async () => {
+    const { service, store, calls } = setup([
+      {
+        ok: true,
+        data: turnData({ assistantMessage: "What would you like to learn?" }),
+      },
+    ]);
+    store.seed(emptyDraft({ ...collected, id: "draft-1" }));
+    store.addMessage({ draftId: "draft-1", content: "old answer" });
+
+    const view = await service.resetDraft(OWNER, "draft-1");
+
+    expect(calls).toHaveLength(1);
+    expect(calls[0]).toMatchObject({
+      draft: {},
+      history: [],
+      userMessage: null,
+    });
+    expect(view.transcript.items).toEqual([
+      expect.objectContaining({ content: "What would you like to learn?" }),
+    ]);
+  });
+
+  it("clears profile-derived fields before starting the fresh AI interview", async () => {
     const { service, store } = setup();
     store.seed(emptyDraft({ ...collected, id: "draft-1" }));
 
     const view = await service.resetDraft(OWNER, "draft-1");
 
     expect(view.subjects).toEqual([]);
-    expect(view.skillLevel).toBe(SkillLevel.INTERMEDIATE);
+    expect(view.skillLevel).toBeNull();
   });
 
   it("starts a new draft when there was nothing to discard and no id was given", async () => {
@@ -651,11 +691,7 @@ describe("resetting the wizard", () => {
 
     await service.resetDraft(OWNER);
 
-    expect(store.resetInPlace).toHaveBeenCalledWith(
-      OWNER.id,
-      "draft-editable",
-      expect.any(Object),
-    );
+    expect(store.resetInPlace).toHaveBeenCalledWith(OWNER.id, "draft-editable");
   });
 
   it("rejects an id belonging to another professional as not found", async () => {
@@ -711,15 +747,21 @@ describe("sending a chat turn", () => {
     expect(calls[0].today).toBeInstanceOf(Date);
   });
 
-  it("leaves a stored value alone when the turn returns it as null", async () => {
+  it("preserves null merge semantics while applying another extracted field", async () => {
     const { service, store } = setup([
-      { ok: true, data: turnData({ extracted: { goal: null } }) },
+      {
+        ok: true,
+        data: turnData({
+          extracted: { goal: null, skillLevel: SkillLevel.BEGINNER },
+        }),
+      },
     ]);
     store.seed(emptyDraft({ goal: "become a data lead" }));
 
     await service.chatTurn(OWNER, { draftId: "draft-1", message: "hello" });
 
     expect(store.drafts[0].goal).toBe("become a data lead");
+    expect(store.drafts[0].skillLevel).toBe(SkillLevel.BEGINNER);
   });
 
   it("removes a field the turn reports as retracted", async () => {
@@ -752,7 +794,116 @@ describe("sending a chat turn", () => {
     expect(store.drafts[0].subjects).toEqual(["term-leadership"]);
   });
 
-  it("skips every step a single turn satisfied", async () => {
+  describe("a widget answer sent as the user's message", () => {
+    it.each([
+      ["a single select", "Current level: Beginner"],
+      ["a time commitment", "Time each week: 4–7 hours per week"],
+      ["a multi select in click order", "Subjects: Python, Data Analysis"],
+      ["a format multi select", "Preferred formats: Video, Course"],
+      ["a yes/no answer", "Track certification credits: Yes"],
+      ["a date", "Target date: 2026-12-01"],
+    ])("takes %s through exactly one AI turn", async (_name, message) => {
+      const { service, store, calls } = setup([
+        { ok: true, data: turnData({ assistantMessage: "Noted." }) },
+      ]);
+      store.seed(emptyDraft());
+
+      await service.chatTurn(OWNER, { draftId: "draft-1", message });
+
+      expect(calls).toHaveLength(1);
+      expect(calls[0].userMessage).toBe(message);
+      expect(
+        store
+          .transcriptOf("draft-1")
+          .filter((entry) => entry.role === RoadmapChatRole.PROFESSIONAL)
+          .map((entry) => entry.content),
+      ).toEqual([message]);
+    });
+
+    it("leaves the draft untouched until the AI has extracted the answer", async () => {
+      const { service, store, chatTurn } = setup();
+      let release: (value: ServiceAiResult<ChatTurnData>) => void = () =>
+        undefined;
+      chatTurn.mockImplementationOnce(
+        () =>
+          new Promise<ServiceAiResult<ChatTurnData>>((resolve) => {
+            release = resolve;
+          }),
+      );
+      store.seed(emptyDraft());
+
+      const turn = service.chatTurn(OWNER, {
+        draftId: "draft-1",
+        message: "Current level: Beginner",
+      });
+      await new Promise((resolve) => setImmediate(resolve));
+      await new Promise((resolve) => setImmediate(resolve));
+
+      expect(store.drafts[0].skillLevel).toBeNull();
+
+      release({
+        ok: true,
+        data: turnData({ extracted: { skillLevel: SkillLevel.BEGINNER } }),
+      });
+      await turn;
+
+      expect(store.drafts[0].skillLevel).toBe(SkillLevel.BEGINNER);
+    });
+
+    it("keeps the AI's next question and section after a widget answer", async () => {
+      const { service, store } = setup([
+        {
+          ok: true,
+          data: turnData({
+            assistantMessage: "Which subjects should we focus on?",
+            suggestedNextSection: "PREFERENCES",
+            extracted: { skillLevel: SkillLevel.BEGINNER },
+          }),
+        },
+      ]);
+      store.seed(emptyDraft());
+
+      await service.chatTurn(OWNER, {
+        draftId: "draft-1",
+        message: "Current level: Beginner",
+      });
+
+      expect(store.drafts[0]).toMatchObject({
+        currentStep: RoadmapDraftStep.PREFERENCES,
+        status: RoadmapDraftStatus.COLLECTING,
+      });
+      expect(
+        store
+          .transcriptOf("draft-1")
+          .filter((entry) => entry.role === RoadmapChatRole.ASSISTANT)
+          .map((entry) => entry.content),
+      ).toEqual(["Which subjects should we focus on?"]);
+    });
+
+    it("marks the draft ready when the final widget answer completes the interview", async () => {
+      const { service, store } = setup([
+        { ok: true, data: turnData({ isComplete: true, widget: null }) },
+      ]);
+      store.seed(
+        emptyDraft({
+          goal: "become a data lead",
+          skillLevel: SkillLevel.INTERMEDIATE,
+          timeCommitment: LearningTimeCommitment.THREE_TO_FIVE_HOURS,
+          subjects: ["term-data"],
+        }),
+      );
+
+      const view = await service.chatTurn(OWNER, {
+        draftId: "draft-1",
+        message: "Time each week: 4–7 hours per week",
+      });
+
+      expect(view.isComplete).toBe(true);
+      expect(store.drafts[0].status).toBe(RoadmapDraftStatus.READY);
+    });
+  });
+
+  it("uses the AI suggested section instead of the local sub-step machine", async () => {
     const { service, store } = setup([
       {
         ok: true,
@@ -761,6 +912,7 @@ describe("sending a chat turn", () => {
             goal: "become a data lead",
             skillLevel: SkillLevel.INTERMEDIATE,
           },
+          suggestedNextSection: "PREFERENCES",
         }),
       },
     ]);
@@ -771,13 +923,37 @@ describe("sending a chat turn", () => {
     expect(store.drafts[0]).toMatchObject({
       goal: "become a data lead",
       skillLevel: SkillLevel.INTERMEDIATE,
-      currentStep: RoadmapDraftStep.GOAL_REASON,
+      currentStep: RoadmapDraftStep.PREFERENCES,
     });
   });
 
-  it("goes to review when certification tracking is declined", async () => {
+  it("maps the AI CPD section to the persisted CPD conversation step", async () => {
     const { service, store } = setup([
-      { ok: true, data: turnData({ extracted: { cpdEnabled: false } }) },
+      {
+        ok: true,
+        data: turnData({
+          suggestedNextSection: "CPD_SETUP",
+          extracted: { goal: "become a data lead" },
+        }),
+      },
+    ]);
+    store.seed(emptyDraft());
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "a lead" });
+
+    expect(store.drafts[0].currentStep).toBe(RoadmapDraftStep.CPD_TRACKING);
+  });
+
+  it("marks the draft ready when the AI completes the interview", async () => {
+    const { service, store } = setup([
+      {
+        ok: true,
+        data: turnData({
+          extracted: { cpdEnabled: false },
+          isComplete: true,
+          widget: null,
+        }),
+      },
     ]);
     store.seed(
       emptyDraft({ ...collected, currentStep: RoadmapDraftStep.CPD_TRACKING }),
@@ -785,7 +961,10 @@ describe("sending a chat turn", () => {
 
     await service.chatTurn(OWNER, { draftId: "draft-1", message: "no thanks" });
 
-    expect(store.drafts[0].currentStep).toBe(RoadmapDraftStep.REVIEW);
+    expect(store.drafts[0]).toMatchObject({
+      currentStep: RoadmapDraftStep.REVIEW,
+      status: RoadmapDraftStatus.READY,
+    });
   });
 
   it("writes the catalogue credits when a certification resolves", async () => {
@@ -957,7 +1136,8 @@ describe("the transcript sent to the provider", () => {
 
     await service.chatTurn(OWNER, { draftId: "draft-1", message: "next" });
 
-    expect(calls[0].history?.at(0)?.content).toBe("turn 9");
+    expect(calls[0].history?.at(0)?.content).toBe("turn 8");
+    expect(calls[0].history?.at(-1)?.content).toBe("turn 19");
   });
 });
 
@@ -1331,11 +1511,11 @@ describe("patching CPD Setup", () => {
 
     expect(view.requiredCredits).toBeNull();
     expect(view.certificationName).toBeNull();
-    expect(view.currentStep).toBe(RoadmapDraftStep.CERTIFICATION);
+    expect(view.currentStep).toBe(RoadmapDraftStep.GOAL);
   });
 
-  it("advances to review once certification and requirement are both known", async () => {
-    const { service, store } = setup();
+  it("does not advance the interview or ask anything after operational CPD data", async () => {
+    const { service, store, chatTurn } = setup();
     store.seed(emptyDraft({ ...collected, cpdEnabled: true }));
 
     const view = await service.patchCpdSetup(OWNER, {
@@ -1344,7 +1524,37 @@ describe("patching CPD Setup", () => {
       totalRequiredCredits: 60,
     });
 
-    expect(view.currentStep).toBe(RoadmapDraftStep.REVIEW);
+    expect(chatTurn).not.toHaveBeenCalled();
+    expect(view.currentStep).toBe(RoadmapDraftStep.GOAL);
+    expect(view.isComplete).toBe(false);
+    expect(store.drafts[0].status).toBe(RoadmapDraftStatus.COLLECTING);
+    expect(
+      store.messages.filter((m) => m.role === RoadmapChatRole.ASSISTANT),
+    ).toHaveLength(0);
+  });
+
+  it("leaves a ready draft ready when only operational CPD data changes", async () => {
+    const { service, store } = setup();
+    store.seed(
+      emptyDraft({
+        ...contractReady,
+        cpdEnabled: true,
+        certificationName: "PMP",
+        status: RoadmapDraftStatus.READY,
+        currentStep: RoadmapDraftStep.REVIEW,
+      }),
+    );
+
+    const view = await service.patchCpdSetup(OWNER, {
+      draftId: "draft-1",
+      organization: "Acme Corp",
+    });
+
+    expect(store.drafts[0]).toMatchObject({
+      status: RoadmapDraftStatus.READY,
+      currentStep: RoadmapDraftStep.REVIEW,
+      certificationName: "PMP",
+    });
     expect(view.isComplete).toBe(true);
   });
 
@@ -1385,24 +1595,66 @@ describe("patching CPD Setup", () => {
 });
 
 describe("completeness", () => {
-  it("is derived here rather than taken from the provider's flag", async () => {
+  it("takes completion from the provider even when optional fields are absent", async () => {
     const { service, store } = setup([
       { ok: true, data: turnData({ isComplete: true }) },
     ]);
-    store.seed(emptyDraft({ ...collected, targetDate: null }));
+    store.seed(
+      emptyDraft({
+        goal: "become a data lead",
+        skillLevel: SkillLevel.INTERMEDIATE,
+        timeCommitment: LearningTimeCommitment.THREE_TO_FIVE_HOURS,
+        subjects: ["term-data"],
+      }),
+    );
 
     const view = await service.chatTurn(OWNER, {
       draftId: "draft-1",
       message: "done",
     });
 
-    expect(view.isComplete).toBe(false);
-    expect(store.drafts[0].status).toBe(RoadmapDraftStatus.COLLECTING);
+    expect(view.isComplete).toBe(true);
+    expect(store.drafts[0].status).toBe(RoadmapDraftStatus.READY);
   });
 
-  it("marks a fully collected draft ready", async () => {
+  it("reports a provider-complete draft as fully answered while optional steps stay blank", async () => {
     const { service, store } = setup([
-      { ok: true, data: turnData({ extracted: { cpdEnabled: false } }) },
+      { ok: true, data: turnData({ isComplete: true, widget: null }) },
+    ]);
+    store.seed(
+      emptyDraft({
+        goal: "become a data lead",
+        skillLevel: SkillLevel.INTERMEDIATE,
+        timeCommitment: LearningTimeCommitment.THREE_TO_FIVE_HOURS,
+        subjects: ["term-data"],
+        goalReason: null,
+        context: null,
+        targetDate: null,
+        budgetPreference: null,
+        preferredFormats: [],
+      }),
+    );
+
+    const view = await service.chatTurn(OWNER, {
+      draftId: "draft-1",
+      message: "that is everything",
+    });
+
+    expect(store.drafts[0].status).toBe(RoadmapDraftStatus.READY);
+    expect(view.remainingFields).toEqual([]);
+    expect(view.completedFieldCount).toBe(view.requiredFieldCount);
+  });
+
+  it("keeps the draft collecting while the provider keeps interviewing", async () => {
+    const { service, store } = setup([
+      {
+        ok: true,
+        data: turnData({
+          extracted: { cpdEnabled: false },
+          isComplete: false,
+          suggestedNextSection: "PREFERENCES",
+        }),
+      },
     ]);
     store.seed(
       emptyDraft({ ...collected, currentStep: RoadmapDraftStep.CPD_TRACKING }),
@@ -1413,13 +1665,16 @@ describe("completeness", () => {
       message: "no thanks",
     });
 
-    expect(view.isComplete).toBe(true);
-    expect(store.drafts[0].status).toBe(RoadmapDraftStatus.READY);
+    expect(view.isComplete).toBe(false);
+    expect(store.drafts[0]).toMatchObject({
+      status: RoadmapDraftStatus.COLLECTING,
+      currentStep: RoadmapDraftStep.PREFERENCES,
+    });
   });
 });
 
 describe("when the provider and Course readiness disagree", () => {
-  it("replaces a false completion claim with the canonical local question", async () => {
+  it("keeps the provider completion claim and assistant message", async () => {
     const { service, store } = setup([
       {
         ok: true,
@@ -1439,25 +1694,16 @@ describe("when the provider and Course readiness disagree", () => {
       message: "anyway, thanks for the help",
     });
 
-    expect(view.isComplete).toBe(false);
-    expect(store.drafts[0].status).toBe(RoadmapDraftStatus.COLLECTING);
+    expect(view.isComplete).toBe(true);
+    expect(store.drafts[0].status).toBe(RoadmapDraftStatus.READY);
     const assistant = store.messages.filter(
       (m) => m.role === RoadmapChatRole.ASSISTANT,
     );
     expect(assistant).toHaveLength(1);
-    expect(assistant[0].content).toBe("ROADMAP_COACH_QUESTION");
-    expect(assistant[0].content).not.toContain("all set");
-    expect(logEntries).toContainEqual(
-      expect.objectContaining({
-        draftId: "draft-1",
-        localReady: false,
-        providerIsComplete: true,
-        localExpectedField: "cpdEnabled",
-      }),
-    );
+    expect(assistant[0].content).toContain("all set");
   });
 
-  it("ignores a provider widget offered for a field other than the locally expected one", async () => {
+  it("keeps a provider widget even when the local sub-step differs", async () => {
     const { service, store } = setup([
       {
         ok: true,
@@ -1491,15 +1737,8 @@ describe("when the provider and Course readiness disagree", () => {
       (m) => m.role === RoadmapChatRole.ASSISTANT,
     );
     expect(assistant).toHaveLength(1);
-    expect(assistant[0].content).toBe("ROADMAP_COACH_QUESTION");
-    expect(assistant[0].widget).toMatchObject({ field: "certificationName" });
-    expect(logEntries).toContainEqual(
-      expect.objectContaining({
-        draftId: "draft-1",
-        providerWidgetField: "subjects",
-        localExpectedField: "certificationName",
-      }),
-    );
+    expect(assistant[0].content).toBe("Here are some subjects you might like.");
+    expect(assistant[0].widget).toMatchObject({ field: "subjects" });
   });
 
   it("keeps the provider's own coaching text when it agrees with local readiness", async () => {
@@ -1547,7 +1786,7 @@ describe("concurrent turns", () => {
       service.chatTurn(OWNER, { draftId: "draft-1", message: "two" }),
     ]);
 
-    expect(calls[1].currentStep).toBe(RoadmapDraftStep.GOAL_REASON);
+    expect(calls[1].currentStep).toBe(RoadmapDraftStep.GOAL);
     expect(store.drafts[0]).toMatchObject({
       goal: "first",
       goalReason: "second",
@@ -1629,11 +1868,11 @@ describe("observability", () => {
   });
 });
 
-describe("the coach's fixed script", () => {
+describe("AI-owned assistant responses", () => {
   const lastAssistant = (store: FakeDraftStore) =>
     store.messages.filter((m) => m.role === RoadmapChatRole.ASSISTANT).at(-1);
 
-  it("answers a plain advancing turn with the next fixed question, not the provider's wording", async () => {
+  it("persists the provider wording for a normal advancing turn", async () => {
     const { service, store } = setup([
       {
         ok: true,
@@ -1647,12 +1886,10 @@ describe("the coach's fixed script", () => {
 
     await service.chatTurn(OWNER, { draftId: "draft-1", message: "a lead" });
 
-    expect(store.messages.map((m) => m.content)).not.toContain(
-      "Great! Why now?",
-    );
+    expect(store.messages.map((m) => m.content)).toContain("Great! Why now?");
     expect(lastAssistant(store)).toMatchObject({
-      content: "ROADMAP_COACH_QUESTION",
-      stepKey: RoadmapDraftStep.GOAL_REASON,
+      content: "Great! Why now?",
+      stepKey: RoadmapDraftStep.GOAL,
     });
   });
 
@@ -1689,7 +1926,7 @@ describe("the coach's fixed script", () => {
     expect(lastAssistant(store)?.content).toBe("Could you say more?");
   });
 
-  it("keeps the provider's confirmation of a correction, then asks the next question", async () => {
+  it("keeps the provider's confirmation of a correction without a coach replacement", async () => {
     const { service, store } = setup([
       {
         ok: true,
@@ -1714,16 +1951,13 @@ describe("the coach's fixed script", () => {
     });
 
     const assistant = store.messages.filter((m) => m.role === "ASSISTANT");
-    expect(assistant.map((m) => m.content)).toEqual([
-      "Updated your budget.",
-      "ROADMAP_COACH_QUESTION",
-    ]);
+    expect(assistant.map((m) => m.content)).toEqual(["Updated your budget."]);
     expect(store.drafts[0].budgetPreference).toBe(
       LearningBudgetPreference.FREE_ONLY,
     );
   });
 
-  it("asks the next question with the control that answers it", async () => {
+  it("does not synthesize a local next-question widget", async () => {
     const { service, store } = setup([
       { ok: true, data: turnData({ extracted: { goal: "g" } }) },
     ]);
@@ -1740,31 +1974,30 @@ describe("the coach's fixed script", () => {
       message: "a lead",
     });
 
-    expect(view.currentStep).toBe(RoadmapDraftStep.TARGET_DATE);
-    expect(view.widget).toMatchObject({ type: "DATE", field: "targetDate" });
+    expect(view.currentStep).toBe(RoadmapDraftStep.GOAL);
+    expect(lastAssistant(store)?.content).toBe("What are you aiming for?");
   });
 
-  it("keeps the coach's own lines out of the provider's history", async () => {
+  it("sends the initial AI assistant message in later provider history", async () => {
     const { service, calls } = setup([{ ok: true, data: turnData() }]);
     await service.startDraft(OWNER);
     const draftId = "draft-1";
 
     await service.chatTurn(OWNER, { draftId, message: "a lead" });
 
-    expect(
-      calls[0].history?.some((entry) =>
-        entry.content.startsWith("ROADMAP_COACH"),
-      ),
-    ).toBe(false);
+    expect(calls[1].history).toEqual([
+      { role: RoadmapChatRole.ASSISTANT, content: "What are you aiming for?" },
+    ]);
+    expect(calls[1].userMessage).toBe("a lead");
   });
 
-  it("asks the next question after an edit that moves the step, without the provider", async () => {
+  it("applies an edit that would have moved the old sub-step without asking anything", async () => {
     const { service, store, chatTurn } = setup();
     store.seed(
       emptyDraft({
         ...collected,
         targetDate: null,
-        currentStep: RoadmapDraftStep.TARGET_DATE,
+        currentStep: RoadmapDraftStep.PREFERENCES,
       }),
     );
 
@@ -1774,12 +2007,10 @@ describe("the coach's fixed script", () => {
     });
 
     expect(chatTurn).not.toHaveBeenCalled();
-    expect(view.currentStep).toBe(RoadmapDraftStep.CPD_TRACKING);
-    expect(lastAssistant(store)).toMatchObject({
-      content: "ROADMAP_COACH_QUESTION",
-      stepKey: RoadmapDraftStep.CPD_TRACKING,
-    });
-    expect(view.widget).toMatchObject({ type: "YES_NO", field: "cpdEnabled" });
+    expect(view.currentStep).toBe(RoadmapDraftStep.PREFERENCES);
+    expect(store.messages.filter((m) => m.role === "ASSISTANT")).toHaveLength(
+      0,
+    );
   });
 
   it("does not ask again when an edit leaves the step where it was", async () => {
@@ -1850,7 +2081,7 @@ describe("the provider's own widget", () => {
     });
   });
 
-  it("falls back to the server's own ranked default once every suggested option is invalid", async () => {
+  it("keeps the AI message when its widget has no valid options", async () => {
     const { service, store } = setup([
       {
         ok: true,
@@ -1882,24 +2113,17 @@ describe("the provider's own widget", () => {
     const last = store.messages
       .filter((m) => m.role === RoadmapChatRole.ASSISTANT)
       .at(-1);
-    expect(last?.content).toBe("ROADMAP_COACH_QUESTION");
+    expect(last?.content).toBe("What are you aiming for?");
     // "become a data lead" (the seeded goal) overlaps "Data Analysis" more
     // than "Leadership", so relevance ranking correctly puts it first — the
     // point of this assertion is that both known options survive the drop of
     // the unknown one, in ranked order, not a specific ranking outcome.
-    expect(last?.widget).toMatchObject({
-      field: "subjects",
-      maxSelections: 3,
-      options: [
-        { value: "term-data", label: "Data Analysis" },
-        { value: "term-leadership", label: "Leadership" },
-      ],
-    });
+    expect(last?.widget).toEqual(Prisma.JsonNull);
   });
 });
 
 describe("the PREFERENCES step, one sub-field at a time", () => {
-  it("answers two sub-fields in one turn and asks about the next one still missing", async () => {
+  it("answers two sub-fields in one turn without synthesizing the next widget", async () => {
     const { service, store } = setup([
       {
         ok: true,
@@ -1929,13 +2153,16 @@ describe("the PREFERENCES step, one sub-field at a time", () => {
     expect(view.skillLevel).toBe(SkillLevel.INTERMEDIATE);
     expect(view.subjects).toEqual(["term-data"]);
     expect(view.currentStep).toBe(RoadmapDraftStep.PREFERENCES);
-    expect(view.widget).toMatchObject({ field: "preferredFormats" });
+    expect(
+      store.messages.filter((m) => m.role === RoadmapChatRole.ASSISTANT)[0]
+        .content,
+    ).toBe("What are you aiming for?");
     expect(
       store.messages.filter((m) => m.role === RoadmapChatRole.ASSISTANT),
     ).toHaveLength(1);
   });
 
-  it("walks through all six sub-fields via patchDraft alone, never calling the AI", async () => {
+  it("applies sub-field edits one at a time without any local question or AI call", async () => {
     const { service, store, chatTurn } = setup();
     store.seed(
       emptyDraft({
@@ -1950,48 +2177,35 @@ describe("the PREFERENCES step, one sub-field at a time", () => {
       }),
     );
 
-    let view = await service.patchDraft(OWNER, {
+    await service.patchDraft(OWNER, {
       draftId: "draft-1",
       skillLevel: SkillLevel.INTERMEDIATE,
     });
-    expect(view.widget).toMatchObject({ field: "subjects" });
-
-    view = await service.patchDraft(OWNER, {
+    await service.patchDraft(OWNER, {
       draftId: "draft-1",
       subjects: ["term-data"],
     });
-    expect(view.widget).toMatchObject({ field: "preferredFormats" });
-
-    view = await service.patchDraft(OWNER, {
-      draftId: "draft-1",
-      preferredFormats: [LearningFormat.COURSE],
-    });
-    expect(view.widget).toMatchObject({ field: "timeCommitment" });
-
-    view = await service.patchDraft(OWNER, {
+    const view = await service.patchDraft(OWNER, {
       draftId: "draft-1",
       timeCommitment: LearningTimeCommitment.THREE_TO_FIVE_HOURS,
     });
-    expect(view.widget).toMatchObject({ field: "preferredDeliveryFormats" });
-
-    view = await service.patchDraft(OWNER, {
-      draftId: "draft-1",
-      preferredDeliveryFormats: [DeliveryFormat.ONLINE],
-    });
-    expect(view.widget).toMatchObject({ field: "budgetPreference" });
-
-    view = await service.patchDraft(OWNER, {
-      draftId: "draft-1",
-      budgetPreference: LearningBudgetPreference.UNDER_100,
-    });
-    expect(view.currentStep).toBe(RoadmapDraftStep.CPD_TRACKING);
 
     expect(chatTurn).not.toHaveBeenCalled();
+    expect(view.currentStep).toBe(RoadmapDraftStep.PREFERENCES);
+    expect(view.widget).toBeNull();
+    expect(store.messages.filter((m) => m.role === "ASSISTANT")).toHaveLength(
+      0,
+    );
+    expect(store.drafts[0]).toMatchObject({
+      skillLevel: SkillLevel.INTERMEDIATE,
+      subjects: ["term-data"],
+      timeCommitment: LearningTimeCommitment.THREE_TO_FIVE_HOURS,
+    });
   });
 });
 
-describe("locale-gated question text", () => {
-  it("uses the coded question instead of the provider's prose for a French professional", async () => {
+describe("assistant message authority", () => {
+  it("uses provider prose for a French professional", async () => {
     const { service, store, prisma } = setup([
       { ok: true, data: turnData({ assistantMessage: "Could you say more?" }) },
     ]);
@@ -2005,7 +2219,7 @@ describe("locale-gated question text", () => {
     const last = store.messages
       .filter((m) => m.role === RoadmapChatRole.ASSISTANT)
       .at(-1);
-    expect(last?.content).toBe("ROADMAP_COACH_QUESTION");
+    expect(last?.content).toBe("Could you say more?");
   });
 });
 
@@ -2113,5 +2327,614 @@ describe("roadmap suggestion options", () => {
         field: RoadmapDraftFieldKey.SUBJECTS,
       }),
     ).rejects.toBeInstanceOf(NotFoundException);
+  });
+});
+
+const contractReady = {
+  goal: "become a data lead",
+  skillLevel: SkillLevel.INTERMEDIATE,
+  timeCommitment: LearningTimeCommitment.THREE_TO_FIVE_HOURS,
+  subjects: ["term-data"],
+};
+
+const subjectTerms = (count: number) =>
+  Array.from({ length: count }, (_value, index) => ({
+    id: `term-${index}`,
+    label: `Subject ${index}`,
+    groupKey: "g",
+    groupLabel: "G",
+  }));
+
+describe("subjects the AI extracts", () => {
+  it("stores a valid identifier and resolves a label to its identifier", async () => {
+    const { service, store } = setup([
+      {
+        ok: true,
+        data: turnData({
+          extracted: { subjects: ["term-data", "Leadership"] },
+        }),
+      },
+    ]);
+    store.seed(emptyDraft());
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "both" });
+
+    expect(store.drafts[0].subjects).toEqual(["term-data", "term-leadership"]);
+  });
+
+  it("never persists a subject outside the options and keeps the earlier ones", async () => {
+    const { service, store } = setup([
+      {
+        ok: true,
+        data: turnData({ extracted: { subjects: ["Quantum Sociology"] } }),
+      },
+    ]);
+    store.seed(emptyDraft({ subjects: ["term-data"] }));
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "quantum" });
+
+    expect(store.drafts[0].subjects).toEqual(["term-data"]);
+  });
+
+  it("keeps only the valid entries of a mixed answer", async () => {
+    const { service, store } = setup([
+      {
+        ok: true,
+        data: turnData({
+          extracted: { subjects: ["Leadership", "Fake Subject"] },
+        }),
+      },
+    ]);
+    store.seed(emptyDraft());
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "mixed" });
+
+    expect(store.drafts[0].subjects).toEqual(["term-leadership"]);
+  });
+
+  it("still clears subjects when the turn retracts them", async () => {
+    const { service, store } = setup([
+      { ok: true, data: turnData({ clearedFields: ["subjects"] }) },
+    ]);
+    store.seed(emptyDraft({ subjects: ["term-data"] }));
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "none" });
+
+    expect(store.drafts[0].subjects).toEqual([]);
+  });
+});
+
+describe("the subject options sent to the AI", () => {
+  it("carries every subject a professional can pick, not only the top few", async () => {
+    const { service, store, profiles, calls } = setup();
+    (profiles.taxonomy as jest.Mock).mockResolvedValue([
+      {
+        groupKey: "g",
+        groupLabel: "G",
+        kind: ProfileTaxonomyKind.SUBJECT,
+        terms: subjectTerms(20),
+      },
+    ]);
+    store.seed(emptyDraft());
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "hello" });
+
+    expect(calls[0].subjectOptions).toHaveLength(20);
+  });
+
+  it("caps at the provider's limit and keeps the taxonomy order", async () => {
+    const { service, store, profiles, calls } = setup();
+    (profiles.taxonomy as jest.Mock).mockResolvedValue([
+      {
+        groupKey: "g",
+        groupLabel: "G",
+        kind: ProfileTaxonomyKind.SUBJECT,
+        terms: subjectTerms(130),
+      },
+    ]);
+    store.seed(emptyDraft());
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "hello" });
+
+    expect(calls[0].subjectOptions).toHaveLength(
+      SERVICE_AI_LIMITS.subjectOptionsMaxItems,
+    );
+    expect(calls[0].subjectOptions?.map((option) => option.id)).toEqual(
+      subjectTerms(SERVICE_AI_LIMITS.subjectOptionsMaxItems).map(
+        (term) => term.id,
+      ),
+    );
+  });
+
+  it("offers the same options to the view the professional edits", async () => {
+    const { service, store, calls } = setup();
+    store.seed(emptyDraft());
+
+    const view = await service.chatTurn(OWNER, {
+      draftId: "draft-1",
+      message: "hello",
+    });
+
+    expect(view.subjectOptions).toEqual(calls[0].subjectOptions);
+  });
+});
+
+describe("the history sent with a turn", () => {
+  it("leaves the current message out and sends it only as the user message", async () => {
+    const { service, store, calls } = setup();
+    store.seed(emptyDraft());
+    store.addMessage({
+      draftId: "draft-1",
+      role: RoadmapChatRole.ASSISTANT,
+      content: "What is your level?",
+    });
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "Beginner" });
+
+    expect(calls[0].userMessage).toBe("Beginner");
+    expect(calls[0].history).toEqual([
+      { role: RoadmapChatRole.ASSISTANT, content: "What is your level?" },
+    ]);
+  });
+
+  it("keeps an earlier message with the same wording", async () => {
+    const { service, store, calls } = setup();
+    store.seed(emptyDraft());
+    store.addMessage({ draftId: "draft-1", content: "Beginner" });
+    store.addMessage({
+      draftId: "draft-1",
+      role: RoadmapChatRole.ASSISTANT,
+      content: "And your goal?",
+    });
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "Beginner" });
+
+    expect(calls[0].history).toEqual([
+      { role: RoadmapChatRole.PROFESSIONAL, content: "Beginner" },
+      { role: RoadmapChatRole.ASSISTANT, content: "And your goal?" },
+    ]);
+  });
+
+  it("excludes the current message when a retry finds it already stored", async () => {
+    const { service, store, calls } = setup([
+      {
+        ok: false,
+        kind: "unavailable",
+        retryable: true,
+        messageCode: RoadmapAiMessageCode.ROADMAP_AI_UNAVAILABLE,
+      },
+      { ok: true, data: turnData() },
+    ]);
+    store.seed(emptyDraft());
+
+    await expect(
+      service.chatTurn(OWNER, { draftId: "draft-1", message: "hello" }),
+    ).rejects.toThrow();
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "hello" });
+
+    expect(calls[1].history).toEqual([]);
+    expect(calls[1].userMessage).toBe("hello");
+  });
+
+  it("sends at most twelve earlier messages in chronological order", async () => {
+    const { service, store, calls } = setup();
+    store.seed(emptyDraft());
+    for (let index = 0; index < 15; index += 1)
+      store.addMessage({
+        draftId: "draft-1",
+        content: `turn ${index}`,
+        role:
+          index % 2 === 0
+            ? RoadmapChatRole.PROFESSIONAL
+            : RoadmapChatRole.ASSISTANT,
+      });
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "next" });
+
+    expect(calls[0].history?.map((entry) => entry.content)).toEqual(
+      Array.from({ length: 12 }, (_value, index) => `turn ${index + 3}`),
+    );
+  });
+});
+
+describe("readiness when the AI says the interview is complete", () => {
+  const assistantMessages = (store: FakeDraftStore) =>
+    store.messages
+      .filter((message) => message.role === RoadmapChatRole.ASSISTANT)
+      .map((message) => message.content);
+
+  it("makes the draft ready when every contract field is valid", async () => {
+    const { service, store } = setup([
+      { ok: true, data: turnData({ isComplete: true }) },
+    ]);
+    store.seed(emptyDraft(contractReady));
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "done" });
+
+    expect(store.drafts[0]).toMatchObject({
+      status: RoadmapDraftStatus.READY,
+      currentStep: RoadmapDraftStep.REVIEW,
+    });
+  });
+
+  it("keeps collecting and keeps the AI's wording when the goal is missing", async () => {
+    const { service, store } = setup([
+      {
+        ok: true,
+        data: turnData({
+          isComplete: true,
+          assistantMessage: "You are all set.",
+        }),
+      },
+    ]);
+    store.seed(emptyDraft({ ...contractReady, goal: null }));
+
+    const view = await service.chatTurn(OWNER, {
+      draftId: "draft-1",
+      message: "done",
+    });
+
+    expect(store.drafts[0].status).toBe(RoadmapDraftStatus.COLLECTING);
+    expect(view.isComplete).toBe(false);
+    expect(assistantMessages(store)).toEqual(["You are all set."]);
+  });
+
+  it("keeps collecting when the only subject the AI named is not a valid option", async () => {
+    const { service, store } = setup([
+      {
+        ok: true,
+        data: turnData({
+          isComplete: true,
+          extracted: { subjects: ["Quantum Sociology"] },
+        }),
+      },
+    ]);
+    store.seed(emptyDraft({ ...contractReady, subjects: [] }));
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "done" });
+
+    expect(store.drafts[0].subjects).toEqual([]);
+    expect(store.drafts[0].status).toBe(RoadmapDraftStatus.COLLECTING);
+  });
+
+  it("keeps collecting when CPD tracking is on and the certification is missing", async () => {
+    const { service, store } = setup([
+      { ok: true, data: turnData({ isComplete: true }) },
+    ]);
+    store.seed(emptyDraft({ ...contractReady, cpdEnabled: true }));
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "done" });
+
+    expect(store.drafts[0].status).toBe(RoadmapDraftStatus.COLLECTING);
+  });
+
+  it("does not ask for a certification when CPD tracking is off", async () => {
+    const { service, store } = setup([
+      { ok: true, data: turnData({ isComplete: true }) },
+    ]);
+    store.seed(emptyDraft({ ...contractReady, cpdEnabled: false }));
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "done" });
+
+    expect(store.drafts[0].status).toBe(RoadmapDraftStatus.READY);
+  });
+
+  it("stays collecting while the AI also asks for clarification", async () => {
+    const { service, store } = setup([
+      {
+        ok: true,
+        data: turnData({ isComplete: true, needsClarification: true }),
+      },
+    ]);
+    store.seed(emptyDraft(contractReady));
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "done" });
+
+    expect(store.drafts[0].status).toBe(RoadmapDraftStatus.COLLECTING);
+  });
+
+  it("reports the mismatch with the missing contract fields and no draft content", async () => {
+    const { service, store } = setup([
+      { ok: true, data: turnData({ isComplete: true }) },
+    ]);
+    store.seed(emptyDraft({ ...contractReady, goal: null, subjects: [] }));
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "done" });
+
+    expect(logEntries).toContainEqual(
+      expect.objectContaining({
+        event: "roadmap-chat.completion-contract-mismatch",
+        draftId: "draft-1",
+        missingMandatoryFields: ["goal", "subjects"],
+      }),
+    );
+  });
+
+  it("does not log a mismatch for a valid completion", async () => {
+    const { service, store } = setup([
+      { ok: true, data: turnData({ isComplete: true }) },
+    ]);
+    store.seed(emptyDraft(contractReady));
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "done" });
+
+    expect(logEntries).not.toContainEqual(
+      expect.objectContaining({
+        event: "roadmap-chat.completion-contract-mismatch",
+      }),
+    );
+  });
+});
+
+describe("progress shown to the professional", () => {
+  it("is complete once the contract fields are filled, whatever the optional ones hold", async () => {
+    const { service, store } = setup();
+    store.seed(
+      emptyDraft({
+        ...contractReady,
+        goalReason: null,
+        context: null,
+        targetDate: null,
+        budgetPreference: null,
+      }),
+    );
+
+    const view = await service.draft(OWNER, "draft-1");
+
+    expect(view?.requiredFieldCount).toBe(4);
+    expect(view?.completedFieldCount).toBe(4);
+    expect(view?.remainingFields).toEqual([]);
+  });
+
+  it("lists only the missing contract fields while collecting", async () => {
+    const { service, store } = setup();
+    store.seed(
+      emptyDraft({ ...contractReady, skillLevel: null, subjects: [] }),
+    );
+
+    const view = await service.draft(OWNER, "draft-1");
+
+    expect(view?.completedFieldCount).toBe(2);
+    expect(view?.remainingFields).toEqual([RoadmapDraftStep.PREFERENCES]);
+  });
+
+  it("counts the certification only while CPD tracking is on", async () => {
+    const { service, store } = setup();
+    store.seed(emptyDraft({ ...contractReady, cpdEnabled: true }));
+
+    const view = await service.draft(OWNER, "draft-1");
+
+    expect(view?.requiredFieldCount).toBe(5);
+    expect(view?.completedFieldCount).toBe(4);
+    expect(view?.remainingFields).toEqual([RoadmapDraftStep.CERTIFICATION]);
+  });
+});
+
+describe("editing from the review panel", () => {
+  const assistantCount = (store: FakeDraftStore) =>
+    store.messages.filter((message) => message.role === "ASSISTANT").length;
+
+  it("keeps a ready draft ready and asks nothing when the edit leaves it valid", async () => {
+    const { service, store } = setup();
+    store.seed(
+      emptyDraft({
+        ...contractReady,
+        status: RoadmapDraftStatus.READY,
+        currentStep: RoadmapDraftStep.REVIEW,
+      }),
+    );
+
+    const view = await service.patchDraft(OWNER, {
+      draftId: "draft-1",
+      budgetPreference: LearningBudgetPreference.UNDER_100,
+    });
+
+    expect(store.drafts[0]).toMatchObject({
+      status: RoadmapDraftStatus.READY,
+      currentStep: RoadmapDraftStep.REVIEW,
+    });
+    expect(view.isComplete).toBe(true);
+    expect(assistantCount(store)).toBe(0);
+  });
+
+  it("returns a ready draft to collecting when a required field is cleared, without asking", async () => {
+    const { service, store } = setup();
+    store.seed(
+      emptyDraft({
+        ...contractReady,
+        status: RoadmapDraftStatus.READY,
+        currentStep: RoadmapDraftStep.REVIEW,
+      }),
+    );
+
+    const view = await service.patchDraft(OWNER, {
+      draftId: "draft-1",
+      goal: null,
+    });
+
+    expect(store.drafts[0]).toMatchObject({
+      goal: null,
+      status: RoadmapDraftStatus.COLLECTING,
+      currentStep: RoadmapDraftStep.GOAL,
+    });
+    expect(view.isComplete).toBe(false);
+    expect(assistantCount(store)).toBe(0);
+  });
+
+  it("lets the AI, not an edit, complete a draft that was still collecting", async () => {
+    const { service, store } = setup();
+    store.seed(emptyDraft({ ...contractReady, goal: null }));
+
+    await service.patchDraft(OWNER, {
+      draftId: "draft-1",
+      goal: "become a data lead",
+    });
+
+    expect(store.drafts[0].status).toBe(RoadmapDraftStatus.COLLECTING);
+  });
+
+  it("makes an edited failed draft ready again once its contract fields are valid", async () => {
+    const { service, store } = setup();
+    store.seed(
+      emptyDraft({
+        ...contractReady,
+        status: RoadmapDraftStatus.FAILED,
+        failureReason: "NO_CANDIDATES",
+      }),
+    );
+
+    await service.patchDraft(OWNER, {
+      draftId: "draft-1",
+      budgetPreference: LearningBudgetPreference.UNDER_100,
+    });
+
+    expect(store.drafts[0].status).toBe(RoadmapDraftStatus.READY);
+  });
+});
+
+describe("a turn that was overtaken", () => {
+  it("is not applied when the draft changed while the AI was answering", async () => {
+    const { service, store, chatTurn } = setup();
+    let release: (value: ServiceAiResult<ChatTurnData>) => void = () =>
+      undefined;
+    chatTurn.mockImplementationOnce(
+      () =>
+        new Promise<ServiceAiResult<ChatTurnData>>((resolve) => {
+          release = resolve;
+        }),
+    );
+    store.seed(emptyDraft({ goal: "keep me" }));
+
+    const turn = service.chatTurn(OWNER, {
+      draftId: "draft-1",
+      message: "something new",
+    });
+    const rejected = expect(turn).rejects.toMatchObject({
+      response: { code: ProfessionalMessageCode.ROADMAP_DRAFT_LOCKED },
+    });
+    await new Promise((resolve) => setImmediate(resolve));
+    await new Promise((resolve) => setImmediate(resolve));
+    store.drafts[0].updatedAt = new Date("2027-01-01T00:00:00.000Z");
+    release({
+      ok: true,
+      data: turnData({
+        extracted: { goal: "too late" },
+        assistantMessage: "Stale reply.",
+      }),
+    });
+    await rejected;
+
+    expect(store.drafts[0].goal).toBe("keep me");
+    expect(
+      store.messages.filter((m) => m.role === RoadmapChatRole.ASSISTANT),
+    ).toHaveLength(0);
+  });
+
+  it("applies the turn when nothing changed meanwhile", async () => {
+    const { service, store } = setup([
+      { ok: true, data: turnData({ extracted: { goal: "become a lead" } }) },
+    ]);
+    store.seed(emptyDraft());
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "a lead" });
+
+    expect(store.drafts[0].goal).toBe("become a lead");
+  });
+});
+
+describe("a draft written before subjects were validated", () => {
+  const legacy = emptyDraft({
+    ...contractReady,
+    subjects: ["raw text a previous version stored"],
+  });
+
+  it("is not made ready by an AI completion it cannot back up", async () => {
+    const { service, store } = setup([
+      { ok: true, data: turnData({ isComplete: true }) },
+    ]);
+    store.seed(legacy);
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "done" });
+
+    expect(store.drafts[0].status).toBe(RoadmapDraftStatus.COLLECTING);
+  });
+
+  it("shows the subject as still outstanding in the progress", async () => {
+    const { service, store } = setup();
+    store.seed(legacy);
+
+    const view = await service.draft(OWNER, "draft-1");
+
+    expect(view?.completedFieldCount).toBe(3);
+    expect(view?.remainingFields).toEqual([RoadmapDraftStep.PREFERENCES]);
+  });
+
+  it("is not kept ready by a review edit", async () => {
+    const { service, store } = setup();
+    store.seed({
+      ...legacy,
+      status: RoadmapDraftStatus.READY,
+      currentStep: RoadmapDraftStep.REVIEW,
+    });
+
+    await service.patchDraft(OWNER, {
+      draftId: "draft-1",
+      budgetPreference: LearningBudgetPreference.UNDER_100,
+    });
+
+    expect(store.drafts[0].status).toBe(RoadmapDraftStatus.COLLECTING);
+  });
+});
+
+describe("a failed turn in the log", () => {
+  it("carries the provider's code and correlation identifier", async () => {
+    const { service, store } = setup([
+      {
+        ok: false,
+        kind: "unavailable",
+        retryable: true,
+        providerCode: "UPSTREAM_TIMEOUT",
+        providerCorrelationId: "provider-turn-5",
+        messageCode: RoadmapAiMessageCode.ROADMAP_AI_UNAVAILABLE,
+      },
+    ]);
+    store.seed(emptyDraft());
+
+    await expect(
+      service.chatTurn(OWNER, { draftId: "draft-1", message: "hello" }),
+    ).rejects.toThrow();
+
+    expect(logEntries).toContainEqual(
+      expect.objectContaining({
+        event: "roadmap-chat.turn",
+        retryable: true,
+        providerCode: "UPSTREAM_TIMEOUT",
+        providerCorrelationId: "provider-turn-5",
+      }),
+    );
+  });
+
+  it("never exposes the provider's wording to the caller", async () => {
+    const { service, store } = setup([
+      {
+        ok: false,
+        kind: "failed",
+        retryable: false,
+        providerCode: "INTERNAL",
+        messageCode: RoadmapAiMessageCode.ROADMAP_AI_FAILED,
+      },
+    ]);
+    store.seed(emptyDraft());
+
+    const error = await service
+      .chatTurn(OWNER, { draftId: "draft-1", message: "hello" })
+      .catch((caught: unknown) => caught);
+
+    expect(JSON.stringify((error as { response?: unknown }).response)).toBe(
+      JSON.stringify({
+        code: RoadmapAiMessageCode.ROADMAP_AI_FAILED,
+        message: RoadmapAiMessageCode.ROADMAP_AI_FAILED,
+      }),
+    );
   });
 });
