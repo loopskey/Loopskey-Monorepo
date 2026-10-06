@@ -191,6 +191,19 @@ export const ingestionApi = baseApi.injectEndpoints({
       invalidatesTags: ["IngestionItems"],
     }),
 
+    approveIngestionItems: builder.mutation<
+      TAPI.ApproveIngestionItemsMutation["approveIngestionItems"],
+      TAPI.ApproveIngestionItemsMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.ApproveIngestionItemsDocument,
+        variables: { input },
+      }),
+      transformResponse: (response: TAPI.ApproveIngestionItemsMutation) =>
+        response.approveIngestionItems,
+      invalidatesTags: ["IngestionItems"],
+    }),
+
     rejectIngestionItem: builder.mutation<
       TAPI.RejectIngestionItemMutation["rejectIngestionItem"],
       TAPI.RejectIngestionItemMutationVariables["input"]
@@ -226,5 +239,6 @@ export const {
   useIngestionItemsQuery,
   useLazyIngestionItemsQuery,
   useApproveIngestionItemMutation,
+  useApproveIngestionItemsMutation,
   useRejectIngestionItemMutation,
 } = ingestionApi;

@@ -1,5 +1,7 @@
+import { INGESTION_BULK_APPROVE_TRANSACTION_TIMEOUT_MS } from "@ingestion/enums/ingestion-review.constant";
 import { BadRequestException, ConflictException } from "@nestjs/common";
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { INGESTION_BULK_APPROVE_CHUNK_SIZE } from "@ingestion/enums/ingestion-review.constant";
 import { COURSE_INGESTION_EVENT_VERSION } from "@ingestion/enums/course-ingestion.constant";
 import { COURSE_INGESTION_EVENT_NAME } from "@ingestion/enums/course-ingestion.constant";
 import { IngestionItemState, Prisma } from "@prisma/client";
@@ -11,15 +13,18 @@ import { CanonicalFieldMapError } from "@ingestion/utils/canonical-field-map.uti
 import { EVENT_CANONICAL_FIELDS } from "@ingestion/enums/event-ingestion.constant";
 import { CourseIngestionService } from "@ingestion/services/course-ingestion.service";
 import { IngestionApiKeyService } from "@ingestion/services/ingestion-api-key.service";
+import { TClaimedIngestionItem } from "@ingestion/types/ingestion-admin.types";
 import { IngestionContentKind } from "@prisma/client";
 import { IngestionMessageCode } from "@ingestion/enums/message-code.enum";
 import { CourseFieldMapError } from "@ingestion/utils/course-field-map.util";
+import { TBulkApprovalScope } from "@ingestion/types/ingestion-admin.types";
 import { TIngestionItemRow } from "@ingestion/types/ingestion-admin.types";
 import { requestContext } from "@infrastructure/observability/request-context";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { PrismaService } from "@prisma/prisma.service";
 import { Pagination } from "@ingestion/types/ingestion-admin.types";
 
+import type { ApproveIngestionItemsInput } from "@ingestion/dtos/approve-ingestion-items.input";
 import type { CreateIngestionSourceInput } from "@ingestion/dtos/create-ingestion-source.input";
 import type { UpdateIngestionSourceInput } from "@ingestion/dtos/update-ingestion-source.input";
 import type { IngestionSourceFilterInput } from "@ingestion/dtos/ingestion-source-filter.input";
@@ -431,6 +436,31 @@ export class IngestionAdminService {
     });
   }
 
+  async approveItems(actorId: string, input: ApproveIngestionItemsInput) {
+    const scope = this.bulkApprovalScope(input);
+    const claimed = await this.prisma.$transaction(
+      async (tx) => {
+        const rows = await this.claimItemsForApproval(tx, actorId, scope);
+        await this.publishClaimedCatalogRows(tx, rows);
+        await this.appendPublishedEvents(tx, rows);
+        return rows;
+      },
+      { timeout: INGESTION_BULK_APPROVE_TRANSACTION_TIMEOUT_MS },
+    );
+    const remainingCount = await this.countApprovable(scope);
+
+    this.logger.log("Approved ingestion items in bulk.", {
+      correlationId: requestContext.correlationId(),
+      actorId,
+      approvedCount: claimed.length,
+      remainingCount,
+      mode: scope.itemIds ? "selection" : "queue",
+      sourceId: scope.sourceId,
+    });
+
+    return { approvedCount: claimed.length, remainingCount };
+  }
+
   async rejectItem(actorId: string, itemId: string, reason: string) {
     return this.prisma.$transaction(async (tx) => {
       const item = await tx.ingestionItem.findUnique({
@@ -480,6 +510,113 @@ export class IngestionAdminService {
 
       return this.itemDetail(tx, itemId);
     });
+  }
+
+  private bulkApprovalScope(input: ApproveIngestionItemsInput) {
+    const search = input.search?.trim();
+    const scope: TBulkApprovalScope = {
+      itemIds: input.itemIds ?? null,
+      sourceId: input.sourceId ?? null,
+      search: search && search.length >= ITEM_SEARCH_MIN_LENGTH ? search : null,
+    };
+    return scope;
+  }
+
+  private approvableConditions(scope: TBulkApprovalScope) {
+    const conditions = [
+      Prisma.sql`c."catalogId" IS NOT NULL`,
+      Prisma.sql`c."state" <> 'ACCEPTED'::"IngestionItemState"`,
+    ];
+    if (scope.itemIds) {
+      conditions.push(Prisma.sql`c."id" = ANY(${scope.itemIds}::text[])`);
+      return Prisma.join(conditions, " AND ");
+    }
+    conditions.push(Prisma.sql`c."state" = 'PENDING'::"IngestionItemState"`);
+    if (scope.sourceId)
+      conditions.push(Prisma.sql`c."sourceId" = ${scope.sourceId}::text`);
+    if (scope.search)
+      conditions.push(
+        Prisma.sql`c."catalogId" IN (${this.matchingCatalogIdsFragment(scope.search)})`,
+      );
+    return Prisma.join(conditions, " AND ");
+  }
+
+  private claimItemsForApproval(
+    tx: Prisma.TransactionClient,
+    actorId: string,
+    scope: TBulkApprovalScope,
+  ) {
+    const now = new Date();
+    return tx.$queryRaw<TClaimedIngestionItem[]>(
+      Prisma.sql`
+        UPDATE "IngestionItem" ii
+        SET "state" = 'ACCEPTED'::"IngestionItemState",
+            "reviewedById" = ${actorId}::text,
+            "reviewedAt" = ${now}::timestamp(3),
+            "rejectionReason" = NULL,
+            "updatedAt" = ${now}::timestamp(3)
+        FROM "IngestionSource" s
+        WHERE s."id" = ii."sourceId"
+          AND ii."state" <> 'ACCEPTED'::"IngestionItemState"
+          AND ii."id" IN (
+            SELECT c."id"
+            FROM "IngestionItem" c
+            WHERE ${this.approvableConditions(scope)}
+            ORDER BY c."createdAt" ASC, c."id" ASC
+            LIMIT ${INGESTION_BULK_APPROVE_CHUNK_SIZE}
+            FOR UPDATE OF c SKIP LOCKED
+          )
+        RETURNING ii."id" AS "id", ii."sourceId" AS "sourceId", ii."catalogId" AS "catalogId", s."kind" AS "kind"
+      `,
+    );
+  }
+
+  private async publishClaimedCatalogRows(
+    tx: Prisma.TransactionClient,
+    rows: TClaimedIngestionItem[],
+  ) {
+    const byKind = new Map<IngestionContentKind, string[]>();
+    for (const row of rows) {
+      if (!row.catalogId) continue;
+      const ids = byKind.get(row.kind) ?? [];
+      ids.push(row.catalogId);
+      byKind.set(row.kind, ids);
+    }
+    for (const [kind, ids] of byKind)
+      await this.setCatalogStatusMany(tx, kind, ids, "PUBLISHED");
+  }
+
+  private async appendPublishedEvents(
+    tx: Prisma.TransactionClient,
+    rows: TClaimedIngestionItem[],
+  ) {
+    if (rows.length === 0) return;
+    await this.outbox.appendMany(
+      rows.map((row) => ({
+        eventName: COURSE_INGESTION_EVENT_NAME,
+        eventVersion: COURSE_INGESTION_EVENT_VERSION,
+        aggregateType: "IngestionItem",
+        aggregateId: row.id,
+        correlationId: requestContext.correlationId(),
+        payload: {
+          itemId: row.id,
+          sourceId: row.sourceId,
+          catalogId: row.catalogId,
+        },
+      })),
+      tx,
+    );
+  }
+
+  private async countApprovable(scope: TBulkApprovalScope) {
+    const rows = await this.prisma.$queryRaw<Array<{ count: bigint }>>(
+      Prisma.sql`
+        SELECT COUNT(*)::bigint AS count
+        FROM "IngestionItem" c
+        WHERE ${this.approvableConditions(scope)}
+      `,
+    );
+    return Number(rows[0]?.count ?? 0);
   }
 
   private async itemDetail(tx: Prisma.TransactionClient, itemId: string) {
@@ -590,6 +727,22 @@ export class IngestionAdminService {
         where: { id: catalogId },
         data: { status },
       });
+  }
+
+  private async setCatalogStatusMany(
+    tx: Prisma.TransactionClient,
+    kind: IngestionContentKind,
+    catalogIds: string[],
+    status: "PUBLISHED" | "DRAFT",
+  ) {
+    const where = { id: { in: catalogIds } };
+    if (kind === IngestionContentKind.COURSE)
+      await tx.course.updateMany({ where, data: { status } });
+    else if (kind === IngestionContentKind.EVENT)
+      await tx.event.updateMany({ where, data: { status } });
+    else if (kind === IngestionContentKind.PODCAST)
+      await tx.podcast.updateMany({ where, data: { status } });
+    else await tx.youTubeChannel.updateMany({ where, data: { status } });
   }
 
   private async requireSource(sourceId: string) {

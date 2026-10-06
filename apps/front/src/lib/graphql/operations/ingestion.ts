@@ -112,6 +112,13 @@ export type ApproveIngestionItemMutationVariables = Types.Exact<{
 
 export type ApproveIngestionItemMutation = { __typename?: 'Mutation', approveIngestionItem: { __typename?: 'IngestionItem', id: string, sourceId: string, sourceSlug?: string | null, batchId?: string | null, externalId: string, canonicalUrl?: string | null, imageCandidateUrl?: string | null, unmappedFields: Array<string>, state: Types.IngestionItemState, rejectionReason?: string | null, reviewedById?: string | null, reviewedByName?: string | null, reviewedAt?: string | null, catalogId?: string | null, firstSeenAt: string, lastSeenAt: string, catalog?: { __typename?: 'IngestionItemCatalog', id: string, title: string, slug?: string | null, status: Types.CourseStatus, imageUrl?: string | null } | null } };
 
+export type ApproveIngestionItemsMutationVariables = Types.Exact<{
+  input: Types.ApproveIngestionItems;
+}>;
+
+
+export type ApproveIngestionItemsMutation = { __typename?: 'Mutation', approveIngestionItems: { __typename?: 'ApproveIngestionItemsResult', approvedCount: number, remainingCount: number } };
+
 export type RejectIngestionItemMutationVariables = Types.Exact<{
   input: Types.RejectIngestionItem;
 }>;
@@ -612,6 +619,14 @@ fragment IngestionItemFields on IngestionItem {
     ...IngestionItemCatalogFields
   }
 }`) as unknown as TypedDocumentString<ApproveIngestionItemMutation, ApproveIngestionItemMutationVariables>;
+export const ApproveIngestionItemsDocument = /*#__PURE__*/ new TypedDocumentString(`
+    mutation ApproveIngestionItems($input: ApproveIngestionItems!) {
+  approveIngestionItems(input: $input) {
+    approvedCount
+    remainingCount
+  }
+}
+    `) as unknown as TypedDocumentString<ApproveIngestionItemsMutation, ApproveIngestionItemsMutationVariables>;
 export const RejectIngestionItemDocument = /*#__PURE__*/ new TypedDocumentString(`
     mutation RejectIngestionItem($input: RejectIngestionItem!) {
   rejectIngestionItem(input: $input) {

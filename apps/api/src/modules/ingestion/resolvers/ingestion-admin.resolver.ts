@@ -1,3 +1,4 @@
+import { ApproveIngestionItemsResultEntity } from "@ingestion/entities/ingestion-item.entity";
 import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { PaginatedIngestionSourcesEntity } from "@ingestion/entities/ingestion-source.entity";
 import { PaginatedIngestionBatchesEntity } from "@ingestion/entities/ingestion-batch.entity";
@@ -7,6 +8,7 @@ import { CreateIngestionSourceInput } from "@ingestion/dtos/create-ingestion-sou
 import { UpdateIngestionSourceInput } from "@ingestion/dtos/update-ingestion-source.input";
 import { IngestionSourceFilterInput } from "@ingestion/dtos/ingestion-source-filter.input";
 import { IngestionBatchDetailEntity } from "@ingestion/entities/ingestion-batch.entity";
+import { ApproveIngestionItemsInput } from "@ingestion/dtos/approve-ingestion-items.input";
 import { IngestionGqlMutationNames } from "@ingestion/enums/ingestion-gql-names.enum";
 import { IssueIngestionApiKeyInput } from "@ingestion/dtos/issue-ingestion-api-key.input";
 import { IngestionItemFilterInput } from "@ingestion/dtos/ingestion-item-filter.input";
@@ -162,6 +164,16 @@ export class IngestionAdminResolver {
     @Args("itemId") itemId: string,
   ) {
     return this.admin.approveItem(this.actorId(user), itemId);
+  }
+
+  @Mutation(() => ApproveIngestionItemsResultEntity, {
+    name: IngestionGqlMutationNames.APPROVE_INGESTION_ITEMS,
+  })
+  approveIngestionItems(
+    @CurrentUser() user: TResolverUser,
+    @Args("input") input: ApproveIngestionItemsInput,
+  ) {
+    return this.admin.approveItems(this.actorId(user), input);
   }
 
   @Mutation(() => IngestionItemEntity, {

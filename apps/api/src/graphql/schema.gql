@@ -219,6 +219,17 @@ enum AppLanguage {
   FR
 }
 
+input ApproveIngestionItems {
+  itemIds: [String!]
+  search: String
+  sourceId: String
+}
+
+type ApproveIngestionItemsResult {
+  approvedCount: Int!
+  remainingCount: Int!
+}
+
 """Assignment status"""
 enum AssignmentStatus {
   ACTIVE
@@ -2617,6 +2628,7 @@ type Mutation {
   addToCart(input: ContentActionInput!): ContentActionPayload!
   approveAdminOrgAccessRequest(requestId: String!): AdminOrgAccessRequest!
   approveIngestionItem(itemId: String!): IngestionItem!
+  approveIngestionItems(input: ApproveIngestionItems!): ApproveIngestionItemsResult!
   archiveAssociationRequirement(input: AssociationRequirementIdInput!): AssociationRequirement!
   archiveCourse(courseId: String!): Course!
   archiveEvent(eventId: String!): Event!

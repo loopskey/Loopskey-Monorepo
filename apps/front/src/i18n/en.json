@@ -7148,6 +7148,24 @@
           "description": "State why, so the crawler team knows what to fix. The catalog row stays unpublished.",
           "reason": "Reason",
           "confirm": "Reject item"
+        },
+        "bulk": {
+          "selectAll": "Select all items on this page",
+          "selectRow": "Select this item",
+          "approveSelected": "Approve selected ({{count}})",
+          "approveAll": "Approve all pending ({{count}})",
+          "approved": "{{count}} items approved and published.",
+          "partial": "{{count}} items were approved before the error. Run it again to continue.",
+          "dialog": {
+            "selectionTitle": "Approve the selected items?",
+            "selectionDescription": "{{count}} selected items will be published to the public catalog.",
+            "queueTitle": "Approve every pending item?",
+            "queueDescription": "Every pending item that matches the current source and search filters will be published to the public catalog. About {{count}} items are waiting. Items that never produced a catalog row are skipped.",
+            "confirm": "Approve and publish",
+            "running": "Approved {{approved}} of {{total}}",
+            "stop": "Stop after this batch",
+            "stopping": "Stopping after this batch"
+          }
         }
       }
     },
