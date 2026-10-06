@@ -1,11 +1,13 @@
 "use client";
 
+import { AdminIngestionBulkApproveDialog } from "@modules/AdminDashboard/parts/admin-ingestion-bulk-approve-dialog";
 import { AdminIngestionRejectDialog } from "@modules/AdminDashboard/parts/admin-ingestion-reject-dialog";
 import { DashboardContentSkeleton } from "@layouts/parts/DashboardSkeleton";
 import { TUseAdminIngestionTab } from "@hooks/useAdminIngestionTab";
 import { IngestionItemState } from "@/lib/graphql/base";
 import { ContentPagination } from "@elements/pagination";
 import { GlassCard } from "@elements/glass-card";
+import { Checkbox } from "@ui/checkbox";
 import { Button } from "@ui/button";
 import { Td, Th } from "@modules/AdminDashboard/parts/td-and-th-table";
 import { Badge } from "@ui/badge";
@@ -15,7 +17,7 @@ import Link from "next/link";
 
 import * as L from "lucide-react";
 
-const COLUMN_COUNT = 6;
+const COLUMN_COUNT = 7;
 
 export const AdminIngestionReviewQueue = ({
   hook,
@@ -24,25 +26,41 @@ export const AdminIngestionReviewQueue = ({
 }) => {
   const {
     t,
-    reviewQuery,
-    reviewSourceId,
-    setReviewSourceId,
-    reviewState,
-    setReviewState,
-    reviewSearch,
-    setReviewSearch,
-    reviewPage,
-    reviewNextPage,
-    reviewPreviousPage,
-    reviewCanPrevious,
     approve,
-    isApproving,
+    reviewPage,
     openReject,
+    reviewQuery,
+    reviewState,
+    isApproving,
     sourcesQuery,
+    bulkProgress,
+    reviewSearch,
+    setReviewState,
+    reviewNextPage,
+    reviewSourceId,
+    setReviewSearch,
+    selectedItemIds,
+    reviewCanPrevious,
+    setReviewSourceId,
+    reviewPreviousPage,
+    toggleItemSelection,
+    toggleAllSelectable,
+    openBulkApproveQueue,
+    openBulkApproveSelection,
   } = hook;
 
   const items = reviewQuery.data?.items ?? [];
   const sources = sourcesQuery.data?.items ?? [];
+  const selectableIds = items
+    .filter((item) => item.state !== IngestionItemState.Accepted)
+    .map((item) => item.id);
+  const allSelected =
+    selectableIds.length > 0 &&
+    selectableIds.every((id) => selectedItemIds.includes(id));
+  const pendingTotal = reviewQuery.data?.totalCount ?? 0;
+  const canApproveQueue =
+    reviewState === IngestionItemState.Pending && pendingTotal > 0;
+  const bulkBusy = isApproving || bulkProgress !== null;
 
   return (
     <div className="space-y-6">
@@ -90,6 +108,39 @@ export const AdminIngestionReviewQueue = ({
             <option value={IngestionItemState.Stale}>STALE</option>
           </select>
         </div>
+        {(canApproveQueue || selectedItemIds.length > 0) && (
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            {selectedItemIds.length > 0 && (
+              <Button
+                radius="xl"
+                size="sm"
+                type="button"
+                disabled={bulkBusy}
+                onClick={openBulkApproveSelection}
+              >
+                <L.CheckCheck className="h-4 w-4" />
+                {t("adminDashboard.ingestion.review.bulk.approveSelected", {
+                  count: selectedItemIds.length,
+                })}
+              </Button>
+            )}
+            {canApproveQueue && (
+              <Button
+                radius="xl"
+                size="sm"
+                type="button"
+                variant="outline"
+                disabled={bulkBusy}
+                onClick={openBulkApproveQueue}
+              >
+                <L.ListChecks className="h-4 w-4" />
+                {t("adminDashboard.ingestion.review.bulk.approveAll", {
+                  count: pendingTotal,
+                })}
+              </Button>
+            )}
+          </div>
+        )}
       </GlassCard>
 
       <GlassCard className="overflow-hidden p-0">
@@ -102,6 +153,16 @@ export const AdminIngestionReviewQueue = ({
             <table className="w-full min-w-[1000px] text-sm">
               <thead className="border-b border-border bg-muted/40 text-left">
                 <tr>
+                  <Th>
+                    <Checkbox
+                      checked={allSelected}
+                      disabled={selectableIds.length === 0 || bulkBusy}
+                      aria-label={t(
+                        "adminDashboard.ingestion.review.bulk.selectAll",
+                      )}
+                      onCheckedChange={() => toggleAllSelectable(selectableIds)}
+                    />
+                  </Th>
                   <Th>{t("adminDashboard.ingestion.review.table.title")}</Th>
                   <Th>{t("adminDashboard.ingestion.review.table.source")}</Th>
                   <Th>
@@ -130,6 +191,19 @@ export const AdminIngestionReviewQueue = ({
                       key={item.id}
                       className="border-b border-border/70 transition-colors hover:bg-primary/5"
                     >
+                      <Td>
+                        <Checkbox
+                          checked={selectedItemIds.includes(item.id)}
+                          disabled={
+                            bulkBusy ||
+                            item.state === IngestionItemState.Accepted
+                          }
+                          aria-label={t(
+                            "adminDashboard.ingestion.review.bulk.selectRow",
+                          )}
+                          onCheckedChange={() => toggleItemSelection(item.id)}
+                        />
+                      </Td>
                       <Td>
                         {item.catalog ? (
                           <Link
@@ -181,7 +255,7 @@ export const AdminIngestionReviewQueue = ({
                             size="sm"
                             type="button"
                             disabled={
-                              isApproving ||
+                              bulkBusy ||
                               item.state === IngestionItemState.Accepted
                             }
                             onClick={() => approve(item.id)}
@@ -235,6 +309,7 @@ export const AdminIngestionReviewQueue = ({
       )}
 
       <AdminIngestionRejectDialog hook={hook} />
+      <AdminIngestionBulkApproveDialog hook={hook} />
     </div>
   );
 };
