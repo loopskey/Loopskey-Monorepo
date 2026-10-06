@@ -120,6 +120,20 @@ describe("chat turn requests", () => {
       buildChatTurnRequest(chatTurn({ userMessage: "   " })).body.user_message,
     ).toBeNull();
   });
+
+  it("keeps an initial empty draft empty on the wire", () => {
+    const { body } = buildChatTurnRequest(
+      chatTurn({ history: [], userMessage: null }),
+    );
+
+    expect(body).toMatchObject({
+      current_step: "GOAL",
+      draft: {},
+      history: [],
+      locale: "en",
+      user_message: null,
+    });
+  });
 });
 
 describe("local limits", () => {
@@ -295,16 +309,16 @@ describe("credit values", () => {
     });
   });
 
-  it("sends a candidate's credits as a string and an absent one as null", () => {
+  it("sends a candidate's credits as a number and an absent one as null", () => {
     const { body } = buildGenerateRequest(
       generate({
         candidates: [
           {
             isFree: false,
-            credits: 1.25,
+            credits: 12.5,
             title: "Ethics",
-            contentId: "course-1",
-            contentType: "COURSE",
+            contentId: "event-1",
+            contentType: "EVENT",
           },
           {
             isFree: true,
@@ -316,7 +330,170 @@ describe("credit values", () => {
       }),
     );
 
-    expect(body.candidates[0].credits).toBe("1.25");
+    expect(body.candidates[0].credits).toBe(12.5);
     expect(body.candidates[1].credits).toBeNull();
+  });
+
+  it.each([0, -3, Number.NaN, Number.POSITIVE_INFINITY])(
+    "sends %s credits as null rather than a value the planner could misread",
+    (credits) => {
+      const { body } = buildGenerateRequest(
+        generate({
+          candidates: [
+            {
+              credits,
+              isFree: true,
+              title: "Intro",
+              contentId: "course-2",
+              contentType: "COURSE",
+            },
+          ],
+        }),
+      );
+
+      expect(body.candidates[0].credits).toBeNull();
+    },
+  );
+
+  it("rounds candidate credits to the two decimals the contract allows", () => {
+    const { body } = buildGenerateRequest(
+      generate({
+        candidates: [
+          {
+            credits: 0.1 + 0.2,
+            isFree: true,
+            title: "Intro",
+            contentId: "course-2",
+            contentType: "COURSE",
+          },
+        ],
+      }),
+    );
+
+    expect(body.candidates[0].credits).toBe(0.3);
+  });
+
+  it("refuses candidate credits beyond what the contract can hold", () => {
+    expect(() =>
+      buildGenerateRequest(
+        generate({
+          candidates: [
+            {
+              credits: 1_000_000,
+              isFree: true,
+              title: "Intro",
+              contentId: "course-2",
+              contentType: "COURSE",
+            },
+          ],
+        }),
+      ),
+    ).toThrow(ServiceAiRequestError);
+  });
+});
+
+describe("the candidates sent to generate", () => {
+  const internal = {
+    title: "Python for Everybody",
+    isFree: true,
+    contentId: "c1",
+    contentType: "COURSE" as const,
+    level: "BEGINNER" as const,
+    durationMinutes: 900,
+    credits: null,
+    summary: "A gentle start.",
+    tags: ["programming"],
+    rating: 4.8,
+    ratingCount: 120,
+    audience: 5000,
+    isFeatured: true,
+    matchScore: 0.9,
+    matchTier: "EXACT",
+    isCloseMatch: false,
+  };
+
+  it("carries only the fields the contract defines for a candidate", () => {
+    const { body } = buildGenerateRequest(
+      generate({ candidates: [internal as never] }),
+    );
+
+    expect(Object.keys(body.candidates[0]).sort()).toEqual(
+      [
+        "content_id",
+        "content_type",
+        "credits",
+        "duration_minutes",
+        "is_free",
+        "level",
+        "summary",
+        "tags",
+        "title",
+      ].sort(),
+    );
+    expect(JSON.stringify(body)).not.toMatch(
+      /rating|audience|matchScore|matchTier|isFeatured|isCloseMatch/,
+    );
+  });
+
+  it("sends the minimum fields in the contract's types", () => {
+    const { body } = buildGenerateRequest(
+      generate({ candidates: [internal as never] }),
+    );
+
+    expect(body.candidates[0]).toMatchObject({
+      content_id: "c1",
+      content_type: "COURSE",
+      title: "Python for Everybody",
+      is_free: true,
+      duration_minutes: 900,
+      level: "BEGINNER",
+      credits: null,
+    });
+  });
+
+  it.each([
+    [900.4, 900],
+    [0, 0],
+    [-5, null],
+    [Number.NaN, null],
+    [null, null],
+  ])("normalises a duration of %s to %s", (durationMinutes, expected) => {
+    const { body } = buildGenerateRequest(
+      generate({ candidates: [{ ...internal, durationMinutes } as never] }),
+    );
+
+    expect(body.candidates[0].duration_minutes).toBe(expected);
+  });
+
+  it("never sends a level the provider does not know", () => {
+    const { body } = buildGenerateRequest(
+      generate({ candidates: [{ ...internal, level: "MIXED" } as never] }),
+    );
+
+    expect(body.candidates[0].level).toBeNull();
+  });
+
+  it("sends each content identity once", () => {
+    const { body } = buildGenerateRequest(
+      generate({
+        candidates: [
+          internal as never,
+          { ...internal, title: "Same item again" } as never,
+          { ...internal, contentType: "EVENT" } as never,
+        ],
+      }),
+    );
+
+    expect(
+      body.candidates.map(
+        (entry) => `${entry.content_type}:${entry.content_id}`,
+      ),
+    ).toEqual(["COURSE:c1", "EVENT:c1"]);
+  });
+
+  it("refuses a request whose candidates collapse to nothing", () => {
+    expect(() => buildGenerateRequest(generate({ candidates: [] }))).toThrow(
+      /candidatesMinItems/,
+    );
   });
 });

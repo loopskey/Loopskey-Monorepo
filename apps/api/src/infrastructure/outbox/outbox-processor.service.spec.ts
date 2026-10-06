@@ -1,4 +1,5 @@
 import { OutboxProcessor } from "@infrastructure/outbox/outbox-processor.service";
+import { requestContext } from "@infrastructure/observability/request-context";
 import { PrismaService } from "@prisma/prisma.service";
 import { ConfigService } from "@nestjs/config";
 import { Prisma } from "@prisma/client";
@@ -29,7 +30,7 @@ type Harness = {
   prisma: {
     $transaction: jest.Mock;
     outboxDelivery: { findUnique: jest.Mock; create: jest.Mock };
-    outboxEvent: { update: jest.Mock };
+    outboxEvent: { update: jest.Mock; updateMany: jest.Mock };
     auditLog: { create: jest.Mock };
   };
   mail: { deliver: jest.Mock };
@@ -47,7 +48,10 @@ const buildHarness = (event: unknown): Harness => {
       findUnique: jest.fn().mockResolvedValue(null),
       create: jest.fn().mockResolvedValue({}),
     },
-    outboxEvent: { update: jest.fn().mockResolvedValue({}) },
+    outboxEvent: {
+      update: jest.fn().mockResolvedValue({}),
+      updateMany: jest.fn().mockResolvedValue({ count: 1 }),
+    },
     auditLog: { create: jest.fn().mockResolvedValue({}) },
   };
   const mail = { deliver: jest.fn().mockResolvedValue({ id: "sent" }) };
@@ -85,6 +89,34 @@ describe("OutboxProcessor", () => {
     );
   });
 
+  it("runs the handler inside the correlation of the request that queued the event", async () => {
+    const { processor, mail } = buildHarness(
+      buildEvent({ correlationId: "request-corr-1" }),
+    );
+    let seen: string | undefined;
+    mail.deliver.mockImplementation(async () => {
+      seen = requestContext.correlationId();
+    });
+
+    await processor.processNext();
+
+    expect(seen).toBe("request-corr-1");
+  });
+
+  it("runs the handler without a correlation when the event carries none", async () => {
+    const { processor, mail } = buildHarness(
+      buildEvent({ correlationId: null }),
+    );
+    let seen: string | undefined = "unset";
+    mail.deliver.mockImplementation(async () => {
+      seen = requestContext.correlationId();
+    });
+
+    await processor.processNext();
+
+    expect(seen).toBeUndefined();
+  });
+
   it("does not redeliver when the handler already recorded a delivery", async () => {
     const { processor, prisma, mail } = buildHarness(buildEvent());
     prisma.outboxDelivery.findUnique.mockResolvedValue({ eventId: "evt-1" });
@@ -92,6 +124,38 @@ describe("OutboxProcessor", () => {
     await processor.processNext();
 
     expect(mail.deliver).not.toHaveBeenCalled();
+  });
+
+  it("renews a slow handler's lease before the initial claim expires", async () => {
+    jest.useFakeTimers();
+    const { processor, prisma, mail } = buildHarness(buildEvent());
+    processor["leaseMs"] = 90_000;
+    let release: (() => void) | undefined;
+    mail.deliver.mockImplementation(
+      () => new Promise<void>((resolve) => (release = resolve)),
+    );
+
+    const processing = processor.processNext();
+    await Promise.resolve();
+    await jest.advanceTimersByTimeAsync(30_000);
+
+    expect(prisma.outboxEvent.updateMany).toHaveBeenCalledWith({
+      where: { id: "evt-1", processedAt: null, attemptCount: 1 },
+      data: { availableAt: expect.any(Date) },
+    });
+
+    release?.();
+    await processing;
+    jest.useRealTimers();
+  });
+
+  it("does not renew a lease claimed by another delivery attempt", async () => {
+    const { processor, prisma } = buildHarness(buildEvent());
+    prisma.outboxEvent.updateMany.mockResolvedValue({ count: 0 });
+
+    await expect(processor["renewLease"]("evt-1", 1)).rejects.toThrow(
+      "Outbox lease is no longer held",
+    );
   });
 
   /**
@@ -123,9 +187,62 @@ describe("OutboxProcessor", () => {
 
     await processor.processNext();
 
-    const data = prisma.outboxEvent.update.mock.calls[0][0].data;
+    const data = prisma.outboxEvent.updateMany.mock.calls[0][0].data;
     expect(data.lastError).toContain("provider down");
     expect(data.availableAt).toBeInstanceOf(Date);
+  });
+
+  it("records a failure only against the attempt that holds the lease", async () => {
+    const { processor, prisma, mail } = buildHarness(buildEvent());
+    mail.deliver.mockRejectedValue(new Error("provider down"));
+
+    await processor.processNext();
+
+    expect(prisma.outboxEvent.updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: "evt-1", processedAt: null, attemptCount: 1 },
+      }),
+    );
+  });
+
+  it("leaves a taken-over lease alone when the stale attempt fails", async () => {
+    const { processor, prisma, mail, abandon } = buildHarness(
+      buildEvent({ attemptCount: 10 }),
+    );
+    mail.deliver.mockRejectedValue(new Error("lease lost"));
+    prisma.outboxEvent.updateMany.mockResolvedValue({ count: 0 });
+
+    await expect(processor.processNext()).resolves.toBe(true);
+
+    expect(prisma.outboxEvent.update).not.toHaveBeenCalled();
+    expect(abandon).not.toHaveBeenCalled();
+  });
+
+  it("fails a delivery whose lease renewal was lost", async () => {
+    jest.useFakeTimers();
+    const { processor, prisma, mail } = buildHarness(buildEvent());
+    processor["leaseMs"] = 90_000;
+    prisma.outboxEvent.updateMany.mockImplementation(
+      (args: { data: { lastError?: string } }) =>
+        Promise.resolve({ count: args.data.lastError ? 1 : 0 }),
+    );
+    let release: (() => void) | undefined;
+    mail.deliver.mockImplementation(
+      () => new Promise<void>((resolve) => (release = resolve)),
+    );
+
+    const processing = processor.processNext();
+    await Promise.resolve();
+    await jest.advanceTimersByTimeAsync(30_000);
+    release?.();
+    await processing;
+    jest.useRealTimers();
+
+    expect(prisma.outboxDelivery.create).not.toHaveBeenCalled();
+    const failure = prisma.outboxEvent.updateMany.mock.calls.find(
+      (call) => call[0].data.lastError,
+    );
+    expect(failure?.[0].data.lastError).toContain("lease is no longer held");
   });
 
   it("logs an abandonment when the final attempt fails", async () => {
@@ -150,7 +267,7 @@ describe("OutboxProcessor", () => {
 
     await processor.processNext();
 
-    const data = prisma.outboxEvent.update.mock.calls[0][0].data;
+    const data = prisma.outboxEvent.updateMany.mock.calls[0][0].data;
     const waited = (data.availableAt as Date).getTime() - before;
     // Exponential backoff for attempt 1 would be ~2s, so this proves the
     // handler's own wait won rather than the processor's default.
@@ -184,7 +301,7 @@ describe("OutboxProcessor", () => {
 
     await processor.processNext();
 
-    const data = prisma.outboxEvent.update.mock.calls[0][0].data;
+    const data = prisma.outboxEvent.updateMany.mock.calls[0][0].data;
     expect(data.lastError).toContain("No handler for nobody.listens");
   });
 

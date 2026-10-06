@@ -72,6 +72,38 @@ export const toCreditString = (value: number, limit: string): string => {
 
 const unique = <T>(values: T[]) => [...new Set(values)];
 
+const MAX_CANDIDATE_CREDITS = 999999.99;
+
+const toCandidateCredits = (
+  value: number | null | undefined,
+  limit: string,
+): number | null => {
+  if (value === null || value === undefined || !Number.isFinite(value))
+    return null;
+  if (value <= 0) return null;
+  const rounded = Math.round(value * 100) / 100;
+  if (rounded > MAX_CANDIDATE_CREDITS)
+    throw new ServiceAiRequestError(limit, value, MAX_CANDIDATE_CREDITS);
+  return rounded;
+};
+
+const toDurationMinutes = (value: number | null | undefined): number | null =>
+  value === null || value === undefined || !Number.isFinite(value) || value < 0
+    ? null
+    : Math.round(value);
+
+const withUniqueIdentity = (
+  candidates: GenerateInput["candidates"],
+): GenerateInput["candidates"] => {
+  const seen = new Set<string>();
+  return candidates.filter((candidate) => {
+    const identity = `${candidate.contentType}:${candidate.contentId}`;
+    if (seen.has(identity)) return false;
+    seen.add(identity);
+    return true;
+  });
+};
+
 const buildDraft = (
   draft: RoadmapDraftState,
   drops: OutboundDrops,
@@ -166,6 +198,8 @@ export const buildChatTurnRequest = (
   input: ChatTurnInput,
 ): { body: ProviderChatTurnRequest; drops: OutboundDrops } => {
   const drops: OutboundDrops = { formats: 0, historyMessages: 0 };
+  const draft =
+    Object.keys(input.draft).length === 0 ? {} : buildDraft(input.draft, drops);
 
   const history: ProviderChatMessage[] = [];
   for (const entry of input.history ?? []) {
@@ -192,7 +226,7 @@ export const buildChatTurnRequest = (
       history,
       locale: input.locale ?? "en",
       today: toProviderDate(input.today),
-      draft: buildDraft(input.draft, drops),
+      draft,
       current_step: STEP_TO_SECTION[input.currentStep],
       subject_options: buildSubjectOptions(input.subjectOptions),
       user_message: text(
@@ -229,12 +263,11 @@ const buildCandidate = (
     "candidateContentId",
   ),
   content_type: CONTENT_TYPE_OUTBOUND[candidate.contentType],
-  level: candidate.level ? SKILL_LEVEL_OUTBOUND[candidate.level] : null,
-  duration_minutes: candidate.durationMinutes ?? null,
-  credits:
-    candidate.credits === null || candidate.credits === undefined
-      ? null
-      : toCreditString(candidate.credits, "candidateCredits"),
+  level: candidate.level
+    ? (SKILL_LEVEL_OUTBOUND[candidate.level] ?? null)
+    : null,
+  duration_minutes: toDurationMinutes(candidate.durationMinutes),
+  credits: toCandidateCredits(candidate.credits, "candidateCredits"),
 });
 
 const buildCpd = (cpd: RoadmapCpdContext): ProviderCpdContext => ({
@@ -254,17 +287,14 @@ export const buildGenerateRequest = (
 ): { body: ProviderGenerateRequest; drops: OutboundDrops } => {
   const drops: OutboundDrops = { formats: 0, historyMessages: 0 };
 
-  if (input.candidates.length < SERVICE_AI_LIMITS.candidatesMinItems)
+  const candidates = withUniqueIdentity(input.candidates);
+  if (candidates.length < SERVICE_AI_LIMITS.candidatesMinItems)
     throw new ServiceAiRequestError(
       "candidatesMinItems",
-      input.candidates.length,
+      candidates.length,
       SERVICE_AI_LIMITS.candidatesMinItems,
     );
-  withinCount(
-    input.candidates,
-    SERVICE_AI_LIMITS.candidatesMaxItems,
-    "candidates",
-  );
+  withinCount(candidates, SERVICE_AI_LIMITS.candidatesMaxItems, "candidates");
 
   const maxPhases = input.maxPhases ?? SERVICE_AI_LIMITS.maxPhasesDefault;
   if (
@@ -285,7 +315,7 @@ export const buildGenerateRequest = (
       today: toProviderDate(input.today),
       draft: buildDraft(input.draft, drops),
       cpd: input.cpd ? buildCpd(input.cpd) : null,
-      candidates: input.candidates.map(buildCandidate),
+      candidates: candidates.map(buildCandidate),
       subject_options: buildSubjectOptions(input.subjectOptions),
     },
   };

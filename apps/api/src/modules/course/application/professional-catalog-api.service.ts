@@ -334,6 +334,7 @@ export class ProfessionalCatalogApiService implements ProfessionalCatalogApi {
         ownerId: input.ownerId,
         source: RoadmapSource.GENERATED,
         description: input.description,
+        level: input.level,
         coverageNote: input.coverageNote,
         estimatedWeeks: input.estimatedWeeks,
         matchTier: input.matchTier,

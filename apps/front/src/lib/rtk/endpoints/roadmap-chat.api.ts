@@ -3,22 +3,8 @@ import { baseApi } from "@/lib/rtk/baseApi";
 import type * as TAPI from "@/lib/graphql/generated";
 import * as API from "@/lib/graphql/operations/roadmap-chat";
 
-/**
- * The wizard's operations live in their own domain module rather than with the
- * rest of the professional surface.
- *
- * `professional.api.ts` is loaded by every dashboard route, and it imports its
- * operations as a namespace — so a document added there is downloaded by the
- * overview, courses and settings tabs too. Keeping these four here means only
- * the chat route pays for them.
- */
 export const roadmapChatApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    /**
-     * The wizard's single read. `draftId` is optional: without one the server
-     * resolves the professional's own editable draft, which is what makes a
-     * reload restore the conversation without the client remembering an id.
-     */
     professionalRoadmapDraft: builder.query<
       TAPI.ProfessionalRoadmapDraftQuery["professionalRoadmapDraft"],
       TAPI.ProfessionalRoadmapDraftQueryVariables | void
@@ -44,11 +30,6 @@ export const roadmapChatApi = baseApi.injectEndpoints({
       invalidatesTags: ["ProfessionalRoadmapDraft", "Professional"],
     }),
 
-    /**
-     * "Start over": resets the draft shown on screen back to a fresh seeded
-     * state in place (same id, transcript replaced), so the route and any
-     * cached view stay valid rather than pointing at a discarded draft.
-     */
     resetRoadmapDraft: builder.mutation<
       TAPI.ResetRoadmapDraftMutation["resetRoadmapDraft"],
       string | void
@@ -62,11 +43,6 @@ export const roadmapChatApi = baseApi.injectEndpoints({
       invalidatesTags: ["ProfessionalRoadmapDraft", "Professional"],
     }),
 
-    /**
-     * Every mutation returns the whole draft, so the cache is written from the
-     * response rather than invalidated and refetched. That is what keeps the
-     * transcript from flickering between the answer and the next question.
-     */
     sendRoadmapChatTurn: builder.mutation<
       TAPI.SendRoadmapChatTurnMutation["sendRoadmapChatTurn"],
       TAPI.SendRoadmapChatTurnMutationVariables["input"]
@@ -103,12 +79,6 @@ export const roadmapChatApi = baseApi.injectEndpoints({
         response.patchRoadmapCpdSetup,
     }),
 
-    /**
-     * Accepting generation only flips the draft to GENERATING; the roadmap
-     * itself is built by the outbox worker. Invalidating both roadmap tags
-     * lets the My Roadmap tab's own bounded poll pick the new status up the
-     * moment it next queries, rather than waiting on a manual refresh.
-     */
     requestRoadmapGeneration: builder.mutation<
       TAPI.RequestRoadmapGenerationMutation["requestRoadmapGeneration"],
       TAPI.RequestRoadmapGenerationMutationVariables["draftId"]
@@ -127,9 +97,6 @@ export const roadmapChatApi = baseApi.injectEndpoints({
       ],
     }),
 
-    /** The `Show more` list behind a taxonomy-backed widget (subjects,
-     *  target role): the full ranked/search-filtered set, not just the
-     *  widget's own top-8 chips. */
     roadmapSuggestionOptions: builder.query<
       TAPI.RoadmapSuggestionOptionsQuery["roadmapSuggestionOptions"],
       TAPI.RoadmapSuggestionOptionsQueryVariables["input"]
@@ -146,12 +113,12 @@ export const roadmapChatApi = baseApi.injectEndpoints({
 
 export const {
   usePatchRoadmapDraftMutation,
-  usePatchRoadmapCpdSetupMutation,
   useStartRoadmapDraftMutation,
   useResetRoadmapDraftMutation,
   useSendRoadmapChatTurnMutation,
+  usePatchRoadmapCpdSetupMutation,
   useProfessionalRoadmapDraftQuery,
-  useLazyProfessionalRoadmapDraftQuery,
   useRequestRoadmapGenerationMutation,
+  useLazyProfessionalRoadmapDraftQuery,
   useLazyRoadmapSuggestionOptionsQuery,
 } = roadmapChatApi;

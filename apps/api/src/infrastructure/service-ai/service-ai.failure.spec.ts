@@ -1,15 +1,20 @@
 import {
+  notConfiguredFailure,
   parseRetryAfter,
   translateErrorEnvelope,
   translateTransportFailure,
 } from "./service-ai.failure";
 import { RoadmapAiMessageCode } from "./service-ai.port";
 
-const envelope = (code: string, retryable: boolean) => ({
+const envelope = (
+  code: string,
+  retryable: boolean,
+  correlationId: string | null = null,
+) => ({
   code,
   retryable,
   message: "Provider says so.",
-  correlation_id: null,
+  correlation_id: correlationId,
 });
 
 describe("the retryable flag decides retryability", () => {
@@ -25,6 +30,22 @@ describe("the retryable flag decides retryability", () => {
     },
   );
 
+  it.each([
+    "OVERLOADED",
+    "AT_CAPACITY",
+    "UPSTREAM_TIMEOUT",
+    "OUTPUT_TRUNCATED",
+    "MODEL_OUTPUT_TRUNCATED",
+  ])(
+    "never turns the known code %s into a retry when the provider said it is not retryable",
+    (code) => {
+      expect(translateErrorEnvelope(envelope(code, false), 30)).toMatchObject({
+        retryable: false,
+        kind: "failed",
+      });
+    },
+  );
+
   it("makes an unknown retryable code retryable and unavailable", () => {
     expect(
       translateErrorEnvelope(envelope("QUOTA_REFRESHING", true), null),
@@ -32,7 +53,10 @@ describe("the retryable flag decides retryability", () => {
       ok: false,
       retryable: true,
       kind: "unavailable",
+      retryAfterSeconds: null,
       messageCode: RoadmapAiMessageCode.ROADMAP_AI_UNAVAILABLE,
+      providerCode: "QUOTA_REFRESHING",
+      providerCorrelationId: null,
     });
   });
 
@@ -44,6 +68,8 @@ describe("the retryable flag decides retryability", () => {
       retryable: false,
       kind: "failed",
       messageCode: RoadmapAiMessageCode.ROADMAP_AI_FAILED,
+      providerCode: "SOMETHING_ENTIRELY_NEW",
+      providerCorrelationId: null,
     });
   });
 });
@@ -55,6 +81,8 @@ describe("the named outcomes", () => {
       retryable: false,
       kind: "refused",
       messageCode: RoadmapAiMessageCode.ROADMAP_AI_REFUSED,
+      providerCode: "OFF_TOPIC",
+      providerCorrelationId: null,
     });
   });
 
@@ -65,6 +93,8 @@ describe("the named outcomes", () => {
       retryable: true,
       retryAfterSeconds: 30,
       messageCode: RoadmapAiMessageCode.ROADMAP_AI_BUSY,
+      providerCode: "AT_CAPACITY",
+      providerCorrelationId: null,
     });
   });
 
@@ -74,15 +104,23 @@ describe("the named outcomes", () => {
     ).toMatchObject({ kind: "busy", retryAfterSeconds: null });
   });
 
+  it("carries the advertised wait on any other retryable outcome", () => {
+    expect(
+      translateErrorEnvelope(envelope("UPSTREAM_TIMEOUT", true), 45),
+    ).toMatchObject({ kind: "unavailable", retryAfterSeconds: 45 });
+  });
+
   it("names reducing the candidate set as the recovery for truncation", () => {
     expect(
-      translateErrorEnvelope(envelope("OUTPUT_TRUNCATED", false), null),
+      translateErrorEnvelope(envelope("OUTPUT_TRUNCATED", true), null),
     ).toEqual({
       ok: false,
-      retryable: false,
+      retryable: true,
       kind: "truncated",
       recovery: "REDUCE_CANDIDATES",
       messageCode: RoadmapAiMessageCode.ROADMAP_AI_FAILED,
+      providerCode: "OUTPUT_TRUNCATED",
+      providerCorrelationId: null,
     });
   });
 
@@ -90,6 +128,21 @@ describe("the named outcomes", () => {
     expect(
       translateErrorEnvelope(envelope("  at-capacity  ", true), null).kind,
     ).toBe("busy");
+  });
+
+  it("keeps the provider's own correlation identifier", () => {
+    expect(
+      translateErrorEnvelope(
+        envelope("UPSTREAM_ERROR", true, "provider-turn-123"),
+        null,
+      ),
+    ).toMatchObject({ providerCorrelationId: "provider-turn-123" });
+  });
+
+  it("never copies the provider's message into the failure", () => {
+    expect(
+      JSON.stringify(translateErrorEnvelope(envelope("INTERNAL", false), null)),
+    ).not.toContain("Provider says so.");
   });
 });
 
@@ -99,12 +152,20 @@ describe("failures with no usable envelope", () => {
       ok: false,
       retryable: true,
       kind: "unavailable",
+      retryAfterSeconds: null,
       messageCode: RoadmapAiMessageCode.ROADMAP_AI_UNAVAILABLE,
     });
   });
 
   it.each([500, 502, 503, 504])("treats %s as retryable", (status) => {
     expect(translateTransportFailure(status).retryable).toBe(true);
+  });
+
+  it("carries the wait a bare 503 advertised", () => {
+    expect(translateTransportFailure(503, 60)).toMatchObject({
+      kind: "unavailable",
+      retryAfterSeconds: 60,
+    });
   });
 
   it.each([400, 401, 422])(
@@ -116,6 +177,16 @@ describe("failures with no usable envelope", () => {
       });
     },
   );
+});
+
+describe("an unconfigured service", () => {
+  it("is a permanent failure, so no retry loop starts against a missing token", () => {
+    expect(notConfiguredFailure()).toMatchObject({
+      kind: "unavailable",
+      retryable: false,
+      messageCode: RoadmapAiMessageCode.ROADMAP_AI_UNAVAILABLE,
+    });
+  });
 });
 
 describe("the advertised wait", () => {
@@ -130,8 +201,11 @@ describe("the advertised wait", () => {
   });
 
   it("ignores a wait that has already passed", () => {
-    // A wait the caller cannot honour is worse than none at all.
     expect(parseRetryAfter("Sat, 22 Aug 2026 11:59:30 GMT", now)).toBeNull();
+  });
+
+  it("caps an absurd wait at an hour", () => {
+    expect(parseRetryAfter("86400", now)).toBe(3_600);
   });
 
   it.each([null, undefined, "", "soon", "-5"])("ignores %s", (value) => {

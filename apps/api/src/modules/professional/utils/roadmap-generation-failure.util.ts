@@ -29,6 +29,18 @@ const REASON_TO_CODE: Record<string, RoadmapGenerationFailureCode> = {
     RoadmapGenerationFailureCode.INVALID_GENERATED_ROADMAP,
   [RoadmapGenerationViolation.PHASE_DURATION_MISMATCH]:
     RoadmapGenerationFailureCode.INVALID_GENERATED_ROADMAP,
+  [RoadmapGenerationViolation.UNKNOWN_CONTENT]:
+    RoadmapGenerationFailureCode.INVALID_GENERATED_ROADMAP,
+  [RoadmapGenerationViolation.PARTIAL_CONTENT_REFERENCE]:
+    RoadmapGenerationFailureCode.INVALID_GENERATED_ROADMAP,
+  [RoadmapGenerationViolation.DUPLICATE_PHASE_ORDER]:
+    RoadmapGenerationFailureCode.INVALID_GENERATED_ROADMAP,
+  [RoadmapGenerationViolation.DUPLICATE_STEP_ORDER]:
+    RoadmapGenerationFailureCode.INVALID_GENERATED_ROADMAP,
+  [RoadmapGenerationViolation.TOO_MANY_PHASES]:
+    RoadmapGenerationFailureCode.INVALID_GENERATED_ROADMAP,
+  [RoadmapGenerationViolation.BLANK_TEXT]:
+    RoadmapGenerationFailureCode.INVALID_GENERATED_ROADMAP,
 };
 
 const CODE_TO_RECOVERY: Record<

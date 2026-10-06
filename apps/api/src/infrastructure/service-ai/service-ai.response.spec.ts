@@ -109,6 +109,7 @@ describe("chat turn responses", () => {
 
   it.each([
     ["a missing message", { assistant_message: undefined }],
+    ["a whitespace-only message", { assistant_message: "   " }],
     ["a non-boolean completion flag", { is_complete: "yes" }],
     ["a section the platform does not know", { suggested_next_step: "BUDGET" }],
     [

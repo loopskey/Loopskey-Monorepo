@@ -1,5 +1,6 @@
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { ProfessionalRoadmapCandidateService } from "@professional/services/professional-roadmap-candidate.service";
+import { Prisma, ProfileTaxonomyKind } from "@prisma/client";
 import { PROFESSIONAL_ENGAGEMENT_API } from "@contentAction/public/professional-engagement-api";
 import { ForbiddenException, Inject } from "@nestjs/common";
 import { RoadmapGenerationViolation } from "@professional/utils/roadmap-generation-verify.util";
@@ -18,7 +19,7 @@ import { requestContext } from "@infrastructure/observability/request-context";
 import { OutboxDeferral } from "@infrastructure/outbox/outbox-handler.port";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { PrismaService } from "@prisma/prisma.service";
-import { isDraftReady } from "@professional/utils/roadmap-step-machine.util";
+import { getRoadmapDraftContractReadiness } from "@professional/utils/roadmap-draft-readiness.util";
 import { worstTier } from "@professional/utils/roadmap-relaxation.util";
 import { DraftRow } from "../types/professional-roadmap-chat.types";
 import { slugify } from "@utils/slug.util";
@@ -42,7 +43,10 @@ import {
   RoadmapGenerationPayload,
   REDUCED_CANDIDATE_CAP,
   round2,
+  toRoadmapCourseLevel,
 } from "@professional/utils/professional.helper";
+
+class GenerationClaimLostError extends Error {}
 
 @Injectable()
 export class ProfessionalRoadmapGenerationService {
@@ -50,6 +54,7 @@ export class ProfessionalRoadmapGenerationService {
     ProfessionalRoadmapGenerationService.name,
   );
   private inFlight = 0;
+  private readonly inFlightDraftIds = new Set<string>();
 
   constructor(
     private readonly prisma: PrismaService,
@@ -86,7 +91,8 @@ export class ProfessionalRoadmapGenerationService {
         ProfessionalMessageCode.ROADMAP_DRAFT_NOT_READY,
       );
 
-    if (!isDraftReady({ draft, currentStep: draft.currentStep }))
+    const { knownIds } = await this.resolveSubjectContext(draft.subjects);
+    if (!getRoadmapDraftContractReadiness(draft, knownIds).isValid)
       throw new BadRequestException(
         ProfessionalMessageCode.ROADMAP_DRAFT_NOT_READY,
       );
@@ -116,31 +122,17 @@ export class ProfessionalRoadmapGenerationService {
       return true;
     });
 
-    if (!claimed && draft.status !== RoadmapDraftStatus.GENERATING)
+    const current = await this.prisma.roadmapDraft.findUniqueOrThrow({
+      where: { id: draftId },
+    });
+    if (!claimed && current.status !== RoadmapDraftStatus.GENERATING)
       throw new BadRequestException(
         ProfessionalMessageCode.ROADMAP_DRAFT_NOT_READY,
       );
 
-    return this.prisma.roadmapDraft.findUniqueOrThrow({
-      where: { id: draftId },
-    });
+    return current;
   }
 
-  /**
-   * With `draftId`, returns that owned draft in any status so a direct link
-   * (from the generated-hero's history, or a bookmark) always resolves. With
-   * no id, returns only a `GENERATING`/`FAILED` draft, since a completed or
-   * still-collecting draft is not an "active generation" the Roadmap tab
-   * needs to surface without the professional asking for it by id.
-   *
-   * An abandoned `FAILED` draft that the professional never retried, and
-   * instead superseded by starting and completing a brand new generation,
-   * must stop being "the" active generation once that newer one succeeds —
-   * otherwise the Roadmap tab would resurrect an old failure card over the
-   * current roadmap's hero forever. Restricting the fallback to drafts newer
-   * than the professional's latest `COMPLETED` draft lets a genuinely new
-   * failure (one that happens after that success) still surface normally.
-   */
   async generationStatus(user: TUser, draftId?: string) {
     this.assertProfessional(user);
     const trimmed = draftId?.trim() || undefined;
@@ -189,7 +181,8 @@ export class ProfessionalRoadmapGenerationService {
     };
   }
 
-  async runGeneration(draftId: string) {
+  async runGeneration(draftId: string, assertLeaseHeld?: () => Promise<void>) {
+    if (this.inFlightDraftIds.has(draftId)) return;
     if (this.inFlight >= MAX_CONCURRENT_GENERATIONS)
       throw new OutboxDeferral(
         LOCAL_CAPACITY_WAIT_SECONDS,
@@ -197,19 +190,25 @@ export class ProfessionalRoadmapGenerationService {
       );
 
     this.inFlight += 1;
+    this.inFlightDraftIds.add(draftId);
     try {
-      await this.generate(draftId);
+      await this.generate(draftId, assertLeaseHeld);
     } finally {
       this.inFlight -= 1;
+      this.inFlightDraftIds.delete(draftId);
     }
   }
 
-  private async generate(draftId: string) {
+  private async generate(
+    draftId: string,
+    assertLeaseHeld?: () => Promise<void>,
+  ) {
     const draft = await this.prisma.roadmapDraft.findUnique({
       where: { id: draftId },
       include: { cpdPlan: true, certification: true },
     });
     if (!draft) return;
+    if (draft.status !== RoadmapDraftStatus.GENERATING) return;
     const existing =
       await this.engagement.hasRoadmapEnrollmentForDraft(draftId);
     if (existing) {
@@ -221,13 +220,20 @@ export class ProfessionalRoadmapGenerationService {
     }
 
     const cpd = await this.buildCpdContext(draft);
-    const { labels: subjects, groupKeys } = await this.resolveSubjectContext(
-      draft.subjects,
-    );
+    const {
+      knownIds,
+      groupKeys,
+      labels: subjects,
+    } = await this.resolveSubjectContext(draft.subjects);
+    if (!getRoadmapDraftContractReadiness(draft, knownIds).isValid) {
+      await this.fail(draftId, NO_CANDIDATES_REASON);
+      return;
+    }
     const keywords = [draft.goal, draft.targetRole].filter(
       (value): value is string => Boolean(value?.trim()),
     );
     const started = Date.now();
+    const maxPhases = SERVICE_AI_LIMITS.maxPhasesDefault;
 
     let cap: number = SERVICE_AI_LIMITS.candidatesMaxItems;
     let attempted = 0;
@@ -251,17 +257,34 @@ export class ProfessionalRoadmapGenerationService {
         return;
       }
 
+      await assertLeaseHeld?.();
       const result = await this.ai.generate({
         cpd,
         today: new Date(),
         draft: this.toDraftState(draft, subjects),
-        maxPhases: SERVICE_AI_LIMITS.maxPhasesDefault,
+        maxPhases,
         candidates: selected.map(toContentCandidate),
       });
 
       if (result.ok) {
         data = result.data;
         break;
+      }
+
+      this.logger.warn({
+        draftId,
+        kind: result.kind,
+        attempt: attempted,
+        retryable: result.retryable,
+        providerCode: result.providerCode ?? null,
+        event: "roadmap-generation.provider-failure",
+        providerCorrelationId: result.providerCorrelationId ?? null,
+        correlationId: requestContext.correlationId() ?? null,
+      });
+
+      if (result.kind === "refused" || !result.retryable) {
+        await this.fail(draftId, result.messageCode);
+        return;
       }
 
       if (result.kind === "truncated" && attempted < 2) {
@@ -279,15 +302,12 @@ export class ProfessionalRoadmapGenerationService {
           "Roadmap AI service reported capacity limits.",
         );
 
-      if (result.kind === "refused") {
-        await this.fail(draftId, result.messageCode);
-        return;
-      }
+      if (result.kind === "unavailable" && result.retryAfterSeconds)
+        throw new OutboxDeferral(
+          result.retryAfterSeconds,
+          "Roadmap AI service asked callers to wait.",
+        );
 
-      if (!result.retryable) {
-        await this.fail(draftId, result.messageCode);
-        return;
-      }
       throw new Error(`Roadmap generation failed: ${result.messageCode}`);
     }
 
@@ -301,6 +321,7 @@ export class ProfessionalRoadmapGenerationService {
 
     const verdict = verifyGeneratedRoadmap({
       data,
+      maxPhases,
       freeOnly: draft.budgetPreference === LearningBudgetPreference.FREE_ONLY,
       candidates: selected.map(toCandidateKey),
     });
@@ -309,12 +330,20 @@ export class ProfessionalRoadmapGenerationService {
       this.logger.error("Generated roadmap violated a guarantee", {
         draftId,
         violation: verdict.violation,
+        offending: verdict.offending,
+        correlationId: requestContext.correlationId() ?? null,
       });
       await this.fail(draftId, verdict.violation);
       return;
     }
 
-    await this.persist({ draft, data, verdict, candidates: selected });
+    const persisted = await this.persist({
+      draft,
+      data,
+      verdict,
+      candidates: selected,
+    });
+    if (!persisted) return;
 
     this.logger.log("Roadmap generated", {
       draftId,
@@ -325,7 +354,6 @@ export class ProfessionalRoadmapGenerationService {
         (sum, phase) => sum + phase.steps.length,
         0,
       ),
-      droppedContentIds: verdict.droppedContentIds.length,
       durationMs: Date.now() - started,
     });
   }
@@ -337,11 +365,6 @@ export class ProfessionalRoadmapGenerationService {
     candidates: RankableCandidate[];
   }) {
     const { draft, data, verdict, candidates } = input;
-    /**
-     * The verified step only carries `contentId`/`contentType` — the credit
-     * value lived on the candidate offered to the provider, so it is looked
-     * up back out by the same key rather than round-tripped through the AI.
-     */
     const creditsByKey = new Map(
       candidates.map((candidate) => [
         `${candidate.contentType}:${candidate.contentId}`,
@@ -383,21 +406,14 @@ export class ProfessionalRoadmapGenerationService {
       .map((step) => tierFor(step.contentId, step.contentType))
       .filter((tier): tier is RankableCandidate["matchTier"] => Boolean(tier));
     const matchTier = worstTier(usedTiers);
-    const coverage = verdict.droppedContentIds.length
-      ? [
-          data.coverageNote,
-          `${verdict.droppedContentIds.length} suggested items were not in this catalogue and are shown as guidance without a link.`,
-        ]
-          .filter(Boolean)
-          .join(" ")
-      : data.coverageNote;
-    await this.prisma.$transaction(async (tx) => {
+    return this.commitGenerated(draft.id, async (tx) => {
       const roadmap = await this.catalog.createGeneratedRoadmap(
         {
           title: data.title,
           ownerId: draft.userId,
           description: data.description,
-          coverageNote: coverage,
+          coverageNote: data.coverageNote,
+          level: toRoadmapCourseLevel(data.level),
           estimatedWeeks: data.estimatedWeeks,
           matchTier,
           slug: `${slugify(data.title).slice(0, 60)}-${draft.id.slice(-8)}`,
@@ -421,11 +437,6 @@ export class ProfessionalRoadmapGenerationService {
         tx,
       );
 
-      /**
-       * Only one generated roadmap is ever "current" for a user — starting a
-       * new one automatically archives the previously-active one instead of
-       * leaving multiple ambiguous "generated" enrollments around.
-       */
       await this.engagement.archiveGeneratedRoadmapEnrollments(
         { userId: draft.userId },
         tx,
@@ -440,12 +451,30 @@ export class ProfessionalRoadmapGenerationService {
         },
         tx,
       );
-
-      await tx.roadmapDraft.update({
-        where: { id: draft.id },
-        data: { status: RoadmapDraftStatus.COMPLETED, failureReason: null },
-      });
     });
+  }
+
+  private async commitGenerated(
+    draftId: string,
+    write: (tx: Prisma.TransactionClient) => Promise<void>,
+  ) {
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        const completed = await tx.roadmapDraft.updateMany({
+          where: { id: draftId, status: RoadmapDraftStatus.GENERATING },
+          data: { status: RoadmapDraftStatus.COMPLETED, failureReason: null },
+        });
+        if (completed.count !== 1) throw new GenerationClaimLostError();
+        await write(tx);
+      });
+      return true;
+    } catch (error) {
+      if (!(error instanceof GenerationClaimLostError)) throw error;
+      this.logger.warn("Generated roadmap discarded, draft left generating", {
+        draftId,
+      });
+      return false;
+    }
   }
 
   async fail(draftId: string, reason: string) {
@@ -455,26 +484,28 @@ export class ProfessionalRoadmapGenerationService {
     });
   }
 
-  /**
-   * `draft.subjects` holds taxonomy term ids (see roadmap-draft-merge.util.ts),
-   * not the text those terms name. The catalogue search matches subject text
-   * against titles, descriptions and tags, and the AI planner reasons over
-   * subject text too, so an id has to become its term's label before either
-   * one can use it — a cuid never appears in a course description or means
-   * anything to the model. A term that no longer resolves (deleted or
-   * deactivated since it was picked) falls back to its stored id, which
-   * degrades to "matches nothing" instead of silently dropping the subject.
-   */
-  private async resolveSubjectContext(
-    subjectIds: string[],
-  ): Promise<{ labels: string[]; groupKeys: string[] }> {
-    if (subjectIds.length === 0) return { labels: [], groupKeys: [] };
+  private async resolveSubjectContext(subjectIds: string[]): Promise<{
+    labels: string[];
+    groupKeys: string[];
+    knownIds: Set<string>;
+  }> {
+    if (subjectIds.length === 0)
+      return { labels: [], groupKeys: [], knownIds: new Set() };
     const options = await this.prisma.profileTaxonomyTerm.findMany({
-      where: { id: { in: subjectIds } },
+      where: {
+        id: { in: subjectIds },
+        isActive: true,
+        kind: ProfileTaxonomyKind.SUBJECT,
+      },
       select: { id: true, label: true, group: { select: { key: true } } },
     });
+    const knownIds = new Set(options.map((option) => option.id));
     return {
-      labels: subjectLabelsOf(subjectIds, options),
+      knownIds,
+      labels: subjectLabelsOf(
+        subjectIds.filter((id) => knownIds.has(id)),
+        options,
+      ),
       groupKeys: [...new Set(options.map((option) => option.group.key))],
     };
   }

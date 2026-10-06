@@ -57,33 +57,31 @@ describe("Roadmap chat message append (concurrency e2e)", () => {
 
     const results = await runTogether(8, () =>
       draftService.appendAssistantMessageIfNew(userId, draft.id, {
-        content: "ROADMAP_COACH_QUESTION",
+        content: "Which subjects should we focus on?",
         stepKey: RoadmapDraftStep.GOAL_REASON,
         widget: Prisma.JsonNull,
       }),
     );
 
-    expect(results.every((result) => result.status === "fulfilled")).toBe(
-      true,
-    );
+    expect(results.every((result) => result.status === "fulfilled")).toBe(true);
 
     const messages = await prisma.roadmapChatMessage.findMany({
       where: { draftId: draft.id, role: RoadmapChatRole.ASSISTANT },
     });
     expect(messages).toHaveLength(1);
-    expect(messages[0].content).toBe("ROADMAP_COACH_QUESTION");
+    expect(messages[0].content).toBe("Which subjects should we focus on?");
   }, 60_000);
 
   it("still appends a genuinely different question after the first is recorded", async () => {
     const draft = await seedDraft();
 
     await draftService.appendAssistantMessageIfNew(userId, draft.id, {
-      content: "ROADMAP_COACH_QUESTION",
+      content: "Which subjects should we focus on?",
       stepKey: RoadmapDraftStep.GOAL_REASON,
       widget: Prisma.JsonNull,
     });
     await draftService.appendAssistantMessageIfNew(userId, draft.id, {
-      content: "ROADMAP_COACH_QUESTION",
+      content: "Which subjects should we focus on?",
       stepKey: RoadmapDraftStep.CONTEXT,
       widget: Prisma.JsonNull,
     });

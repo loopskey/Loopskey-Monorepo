@@ -247,6 +247,7 @@ describe("ServiceAiClient", () => {
           ok: false,
           retryable: true,
           kind: "unavailable",
+          retryAfterSeconds: null,
           messageCode: RoadmapAiMessageCode.ROADMAP_AI_UNAVAILABLE,
         },
       );
@@ -314,7 +315,7 @@ describe("ServiceAiClient", () => {
         body: {
           code: "OUTPUT_TRUNCATED",
           message: "Too big.",
-          retryable: false,
+          retryable: true,
         },
       }) as unknown as typeof fetch;
 
@@ -372,14 +373,88 @@ describe("ServiceAiClient", () => {
       ).toMatchObject({ ok: false });
     });
 
-    it("fails as unavailable, without calling out, when unconfigured", async () => {
+    it("fails as permanently unavailable, without calling out, when unconfigured", async () => {
       const client = new ServiceAiClient({ ...config, baseUrl: null });
 
       expect(await client.chatTurn(chatTurnInput)).toMatchObject({
         kind: "unavailable",
-        retryable: true,
+        retryable: false,
       });
       expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it("fails permanently, without calling out, when the token is missing", async () => {
+      const client = new ServiceAiClient({ ...config, serviceToken: null });
+
+      expect(await client.generate(generateInput)).toMatchObject({
+        retryable: false,
+      });
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it("never turns a known capacity code into a retry the provider refused", async () => {
+      global.fetch = respondWith({
+        status: 503,
+        headers: { "retry-after": "30" },
+        body: { code: "OVERLOADED", message: "Busy.", retryable: false },
+      }) as unknown as typeof fetch;
+
+      expect(
+        await new ServiceAiClient(config).generate(generateInput),
+      ).toMatchObject({ kind: "failed", retryable: false });
+    });
+
+    it("carries the wait a retryable overload advertised", async () => {
+      global.fetch = respondWith({
+        status: 503,
+        headers: { "retry-after": "45" },
+        body: { code: "OVERLOADED", message: "Busy.", retryable: true },
+      }) as unknown as typeof fetch;
+
+      expect(
+        await new ServiceAiClient(config).generate(generateInput),
+      ).toMatchObject({ kind: "busy", retryable: true, retryAfterSeconds: 45 });
+    });
+
+    it("carries the wait a bare 503 advertised", async () => {
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: false,
+        status: 503,
+        json: () => Promise.reject(new SyntaxError("not json")),
+        headers: new Headers({ "retry-after": "20" }),
+      }) as unknown as typeof fetch;
+
+      expect(
+        await new ServiceAiClient(config).generate(generateInput),
+      ).toMatchObject({ kind: "unavailable", retryAfterSeconds: 20 });
+    });
+
+    it("keeps the provider's correlation identifier from the error body", async () => {
+      global.fetch = respondWith({
+        status: 502,
+        body: {
+          code: "UPSTREAM_ERROR",
+          message: "Upstream failed.",
+          retryable: true,
+          correlation_id: "provider-turn-123",
+        },
+      }) as unknown as typeof fetch;
+
+      expect(
+        await new ServiceAiClient(config).chatTurn(chatTurnInput),
+      ).toMatchObject({ providerCorrelationId: "provider-turn-123" });
+    });
+
+    it("falls back to the correlation header when the body names none", async () => {
+      global.fetch = respondWith({
+        status: 502,
+        headers: { "x-correlation-id": "header-turn-9" },
+        body: { code: "UPSTREAM_ERROR", message: "Failed.", retryable: true },
+      }) as unknown as typeof fetch;
+
+      expect(
+        await new ServiceAiClient(config).chatTurn(chatTurnInput),
+      ).toMatchObject({ providerCorrelationId: "header-turn-9" });
     });
   });
 
@@ -425,6 +500,61 @@ describe("ServiceAiClient", () => {
         model: "roadmap-planner-1",
         completionTokens: 800,
       });
+    });
+
+    it("reads the token headers under their documented names too", async () => {
+      global.fetch = respondWith({
+        body: chatTurnBody,
+        headers: {
+          "x-tokens-input": "300",
+          "x-tokens-output": "100",
+          "x-tokens-total": "400",
+        },
+      }) as unknown as typeof fetch;
+
+      await new ServiceAiClient(config).chatTurn(chatTurnInput);
+
+      expect(entries[0]).toMatchObject({
+        totalTokens: 400,
+        promptTokens: 300,
+        completionTokens: 100,
+      });
+    });
+
+    it("names the operation and both correlation identifiers on one line", async () => {
+      global.fetch = respondWith({
+        body: chatTurnBody,
+        headers: { "x-correlation-id": "provider-side-id" },
+      }) as unknown as typeof fetch;
+
+      await requestContext.run("local-request-id", () =>
+        new ServiceAiClient(config).chatTurn(chatTurnInput),
+      );
+
+      expect(entries[0]).toMatchObject({
+        operation: "chat",
+        correlationId: "local-request-id",
+        providerCorrelationId: "provider-side-id",
+      });
+    });
+
+    it("names the generate operation", async () => {
+      global.fetch = respondWith({
+        body: generateBody,
+      }) as unknown as typeof fetch;
+
+      await new ServiceAiClient(config).generate(generateInput);
+
+      expect(entries[0]).toMatchObject({ operation: "generate" });
+    });
+
+    it("sends the local correlation identifier to the provider", async () => {
+      await requestContext.run("local-request-id", () =>
+        new ServiceAiClient(config).chatTurn(chatTurnInput),
+      );
+
+      const [, init] = fetchMock.mock.calls[0];
+      expect(init.headers["x-correlation-id"]).toBe("local-request-id");
     });
 
     it("still carries the token fields when the provider reports none", async () => {
@@ -506,6 +636,36 @@ describe("ServiceAiClient", () => {
             "roadmap-ai.contract-version-mismatch",
         ),
       ).toHaveLength(1);
+    });
+
+    it("treats a different major version as incompatible", async () => {
+      global.fetch = mismatched();
+
+      await new ServiceAiClient(config).chatTurn(chatTurnInput);
+
+      expect(entries).toContainEqual(
+        expect.objectContaining({
+          isIncompatible: true,
+          event: "roadmap-ai.contract-version-mismatch",
+        }),
+      );
+    });
+
+    it("treats a different minor version as compatible", async () => {
+      const [major] = SERVICE_AI_CONTRACT_VERSION.split(".");
+      global.fetch = respondWith({
+        body: chatTurnBody,
+        headers: { "x-contract-version": `${major}.99.0` },
+      }) as unknown as typeof fetch;
+
+      await new ServiceAiClient(config).chatTurn(chatTurnInput);
+
+      expect(entries).toContainEqual(
+        expect.objectContaining({
+          isIncompatible: false,
+          event: "roadmap-ai.contract-version-mismatch",
+        }),
+      );
     });
 
     it("says nothing when the deployed contract is the expected one", async () => {
