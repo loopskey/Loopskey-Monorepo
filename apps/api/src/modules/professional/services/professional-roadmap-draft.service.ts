@@ -1,8 +1,5 @@
 import { RoadmapDraftStatus, RoadmapDraftStep } from "@prisma/client";
 import { Prisma, RoadmapChatRole } from "@prisma/client";
-import { COACH_QUESTION_CODE } from "@professional/utils/roadmap-coach.util";
-import { COACH_INTRO_CODE } from "@professional/utils/roadmap-coach.util";
-import { coachWidgetFor } from "@professional/utils/roadmap-coach.util";
 import { PrismaService } from "@prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
 
@@ -110,7 +107,6 @@ export class ProfessionalRoadmapDraftService {
   async resetInPlace(
     userId: string,
     draftId: string,
-    seeded: Partial<Prisma.RoadmapDraftUncheckedUpdateInput>,
   ): Promise<ResetInPlaceResult> {
     return this.prismaService.$transaction(async (tx) => {
       const rows = await tx.$queryRaw<
@@ -126,30 +122,11 @@ export class ProfessionalRoadmapDraftService {
         where: { id: draftId },
         data: {
           ...RESET_FIELDS,
-          ...seeded,
           status: RoadmapDraftStatus.COLLECTING,
           currentStep: firstStep,
         },
       });
       await tx.roadmapChatMessage.deleteMany({ where: { draftId } });
-      await tx.roadmapChatMessage.createMany({
-        data: [
-          {
-            draftId,
-            stepKey: firstStep,
-            content: COACH_INTRO_CODE,
-            role: RoadmapChatRole.ASSISTANT,
-          },
-          {
-            draftId,
-            stepKey: firstStep,
-            content: COACH_QUESTION_CODE,
-            role: RoadmapChatRole.ASSISTANT,
-            widget: (coachWidgetFor(firstStep) ??
-              Prisma.JsonNull) as unknown as Prisma.InputJsonValue,
-          },
-        ],
-      });
 
       const draft = await tx.roadmapDraft.findUniqueOrThrow({
         where: { id: draftId },
@@ -162,9 +139,14 @@ export class ProfessionalRoadmapDraftService {
     userId: string,
     draftId: string,
     data: Prisma.RoadmapDraftUncheckedUpdateManyInput,
+    expectedUpdatedAt?: Date,
   ) {
     const updated = await this.prismaService.roadmapDraft.updateMany({
-      where: { id: draftId, userId },
+      where: {
+        id: draftId,
+        userId,
+        ...(expectedUpdatedAt ? { updatedAt: expectedUpdatedAt } : {}),
+      },
       data,
     });
     if (!updated.count) return null;
@@ -183,28 +165,6 @@ export class ProfessionalRoadmapDraftService {
     });
   }
 
-  /**
-   * The chat service's in-process `serialize()` only orders calls within one
-   * API instance; with more than one instance, two near-simultaneous turns
-   * for the same draft can each read the same "last message" and both decide
-   * to append it, producing a visible duplicate question. Locking the draft
-   * row for the duration of the read-then-insert makes that check-then-act
-   * atomic across every instance, the way `resetInPlace` already locks it
-   * for a reset.
-   *
-   * `Prisma.JsonNull` is the write-side sentinel for a literal JSON null; a
-   * value read back out of the column is the plain JS `null` instead. Without
-   * normalising, `JSON.stringify(Prisma.JsonNull)` ("{}") never equals
-   * `JSON.stringify(null)` ("null"), so every widget-less message compared
-   * itself as "different" and the guard below never caught a real repeat.
-   *
-   * `content` is frequently just the generic `ROADMAP_COACH_QUESTION` code —
-   * the frontend resolves the actual question text from `stepKey`, not from
-   * `content` — so `stepKey` must be part of the comparison too. Without it,
-   * two different widget-less questions in a row (same code, different step)
-   * would compare equal and the second would be silently dropped instead of
-   * appended.
-   */
   async appendAssistantMessageIfNew(
     userId: string,
     draftId: string,

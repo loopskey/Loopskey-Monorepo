@@ -5,6 +5,7 @@ import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
 import { OutboxHandlerRegistry } from "@infrastructure/outbox/outbox-handler.port";
 
 import { type RoadmapGenerationPayload } from "@professional/utils/professional.helper";
+import { type OutboxEventContext } from "@infrastructure/outbox/outbox-handler.port";
 import { type OutboxHandler } from "@infrastructure/outbox/outbox-handler.port";
 
 @Injectable()
@@ -24,9 +25,9 @@ export class RoadmapGenerationOutboxHandler
     this.registry.register(this);
   }
 
-  async handle(payload: unknown) {
+  async handle(payload: unknown, context: OutboxEventContext) {
     const { draftId } = payload as RoadmapGenerationPayload;
-    await this.generation.runGeneration(draftId);
+    await this.generation.runGeneration(draftId, context.renewLease);
   }
 
   async abandon(payload: unknown) {

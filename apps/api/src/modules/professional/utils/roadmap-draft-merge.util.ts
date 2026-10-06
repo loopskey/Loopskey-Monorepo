@@ -1,18 +1,8 @@
-import type {
-  RoadmapDraftField,
-  RoadmapDraftState,
-} from "@infrastructure/service-ai/service-ai.port";
-import type {
-  RoadmapDraftFields,
-  RoadmapSubjectOption,
-} from "@professional/types/professional-roadmap-chat.types";
+import type { RoadmapSubjectOption } from "@professional/types/professional-roadmap-chat.types";
+import type { RoadmapDraftFields } from "@professional/types/professional-roadmap-chat.types";
+import type { RoadmapDraftField } from "@infrastructure/service-ai/service-ai.port";
+import type { RoadmapDraftState } from "@infrastructure/service-ai/service-ai.port";
 
-/**
- * A field the provider can extract only counts as extractable while the value
- * it produces still fits the column it lands in. If the port and the schema
- * ever disagree — a new skill level on one side only — the field resolves to
- * `never` and listing it below stops compiling, which is the point.
- */
 type Extractable<TField extends RoadmapDraftField> =
   NonNullable<RoadmapDraftState[TField]> extends RoadmapDraftFields[TField]
     ? TField
@@ -24,25 +14,20 @@ type ExtractableField = {
 
 const EXTRACTABLE: readonly ExtractableField[] = [
   "goal",
-  "targetRole",
-  "goalReason",
   "context",
+  "subjects",
   "targetDate",
+  "targetRole",
   "skillLevel",
+  "goalReason",
+  "cpdEnabled",
   "timeCommitment",
   "budgetPreference",
-  "subjects",
   "preferredFormats",
-  "preferredContentTypes",
-  "cpdEnabled",
   "certificationName",
+  "preferredContentTypes",
 ] as const;
 
-/**
- * What clearing each field leaves behind. Arrays empty rather than becoming
- * null because the columns are not nullable, and `cpdEnabled` returns to false
- * because retracting the opt-in is the same as never having given it.
- */
 const CLEARED_VALUE: {
   [TField in RoadmapDraftField]: RoadmapDraftFields[TField];
 } = {
@@ -70,41 +55,26 @@ export type MergeInput = {
 
 export type MergeResult = {
   changes: Partial<RoadmapDraftFields>;
-  /** Every field the turn spoke about, extracted or retracted. */
   answered: Set<RoadmapDraftField>;
 };
 
-/**
- * The professional may name a subject by what they saw on screen. The draft
- * stores taxonomy identifiers, so a label is resolved back to its identifier;
- * anything matching neither is kept verbatim rather than dropped, because
- * silently discarding an answer is worse than storing one the next turn's
- * options will constrain anyway.
- */
-const toSubjectId = (
+const normalizeLabel = (value: string) =>
+  value.trim().replace(/\s+/g, " ").toLowerCase();
+
+const resolveSubjectId = (
   value: string,
   options: readonly RoadmapSubjectOption[],
-): string => {
+): string | null => {
   const wanted = value.trim();
-  if (!wanted) return wanted;
+  if (!wanted) return null;
   if (options.some((option) => option.id === wanted)) return wanted;
+  const normalized = normalizeLabel(wanted);
   const matched = options.find(
-    (option) => option.label.toLowerCase() === wanted.toLowerCase(),
+    (option) => normalizeLabel(option.label) === normalized,
   );
-  return matched ? matched.id : wanted;
+  return matched ? matched.id : null;
 };
 
-/**
- * The inverse of `toSubjectId`: the draft only ever stores taxonomy term
- * identifiers, but the AI service's `DraftState.subjects` and the catalogue's
- * candidate search both match against subject *text* (an id never appears in
- * a course title, a chat transcript, or means anything to the model). Every
- * outbound use of `draft.subjects` has to resolve ids back to labels through
- * this before it leaves the process. A term that no longer resolves — deleted
- * or deactivated since it was picked — falls back to its stored id, which
- * degrades to "matches nothing downstream" rather than silently dropping the
- * subject from the request.
- */
 export const subjectLabelsOf = (
   ids: readonly string[],
   options: readonly RoadmapSubjectOption[],
@@ -129,11 +99,6 @@ const equalToCurrent = (
   return existing === value;
 };
 
-/**
- * The `Extractable` guard above is what makes this assignment sound: the
- * signature refuses any value the column cannot hold, so the write itself only
- * has to sidestep TypeScript's inability to index a union key.
- */
 const write = <TField extends RoadmapDraftField>(
   changes: Partial<RoadmapDraftFields>,
   field: TField,
@@ -142,17 +107,6 @@ const write = <TField extends RoadmapDraftField>(
   (changes as Record<RoadmapDraftField, unknown>)[field] = value;
 };
 
-/**
- * The provider's documented merge rules, applied exactly:
- *
- * - a non-null value replaces what the draft held;
- * - a null or absent value means the turn said nothing about that field, and
- *   the draft keeps what it had — null is never a clear;
- * - a field named in the cleared list was retracted and returns to empty.
- *
- * Clears are applied after extractions so a field named in both ends up
- * cleared, which is the reading that cannot lose a retraction.
- */
 export const mergeExtractedFields = ({
   current,
   extracted,
@@ -172,9 +126,15 @@ export const mergeExtractedFields = ({
 
   if (extracted.subjects !== null && extracted.subjects !== undefined) {
     answered.add("subjects");
-    changes.subjects = extracted.subjects.map((subject) =>
-      toSubjectId(subject, subjectOptions),
-    );
+    const valid = [
+      ...new Set(
+        extracted.subjects
+          .map((subject) => resolveSubjectId(subject, subjectOptions))
+          .filter((id): id is string => id !== null),
+      ),
+    ];
+    if (valid.length > 0 || extracted.subjects.length === 0)
+      changes.subjects = valid;
   }
 
   for (const field of cleared) {
@@ -182,20 +142,12 @@ export const mergeExtractedFields = ({
     write(changes, field, CLEARED_VALUE[field]);
   }
 
-  /**
-   * The identifier is a resolved form of the name, so retracting the name must
-   * take the identifier and the credits it supplied with it. Leaving them
-   * behind would let the draft claim a catalogue certification the
-   * professional has withdrawn.
-   */
   if (cleared.includes("certificationName")) {
     changes.certificationId = null;
     changes.requiredCredits = null;
     changes.completedCredits = null;
   }
-
   for (const key of Object.keys(changes) as (keyof RoadmapDraftFields)[])
     if (equalToCurrent(current, key, changes[key])) delete changes[key];
-
   return { changes, answered };
 };

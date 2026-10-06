@@ -5,7 +5,6 @@ import { RoadmapDraftStep } from "@prisma/client";
 import { DeliveryFormat } from "@prisma/client";
 
 import type { PlatformContentType } from "@infrastructure/service-ai/service-ai.port";
-import type { RoadmapDraftField } from "@infrastructure/service-ai/service-ai.port";
 import type { RoadmapWidget } from "@infrastructure/service-ai/service-ai.port";
 
 export type RoadmapDraftFields = {
@@ -39,8 +38,6 @@ export type RoadmapDraftView = RoadmapDraftFields & {
   widget: RoadmapWidget | null;
   currentStep: RoadmapDraftStep;
 };
-
-export type AnsweredFields = ReadonlySet<RoadmapDraftField>;
 
 export type CandidateBuildInput = {
   cap: number;

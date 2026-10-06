@@ -137,7 +137,10 @@ export const RoadmapWidgetControl = ({
             radius="xl"
             disabled={disabled || !date}
             onClick={() =>
-              onAnswer(date, new Date(`${date}T00:00:00.000Z`).toLocaleDateString())
+              onAnswer(
+                date,
+                new Date(`${date}T00:00:00.000Z`).toLocaleDateString(),
+              )
             }
           >
             {t("professionalRoadmapChat.widget.useDate")}
@@ -228,9 +231,11 @@ export const RoadmapWidgetControl = ({
           radius="xl"
           disabled={disabled || selected.length === 0}
           onClick={() => {
-            const labels = allOptions
-              .filter((option) => selected.includes(option.value))
-              .map((option) => option.label);
+            const labels = selected.map(
+              (value) =>
+                allOptions.find((option) => option.value === value)?.label ??
+                value,
+            );
             onAnswer(selected.join(", "), labels.join(", "));
           }}
         >

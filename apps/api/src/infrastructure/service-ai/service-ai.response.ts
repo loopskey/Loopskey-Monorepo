@@ -38,6 +38,9 @@ const absent = (value: unknown) => value === undefined || value === null;
 const text = (value: unknown, path: string): string =>
   typeof value === "string" && value.length > 0 ? value : invalid(path);
 
+const filledText = (value: unknown, path: string): string =>
+  typeof value === "string" && value.trim().length > 0 ? value : invalid(path);
+
 const flag = (value: unknown, path: string): boolean =>
   typeof value === "boolean" ? value : invalid(path);
 
@@ -241,7 +244,10 @@ export const parseChatTurnResponse = (
       clearedFields: extracted.clearedFields,
       widget: parseWidget(response.widget, "widget"),
       isComplete: flag(response.is_complete, "is_complete"),
-      assistantMessage: text(response.assistant_message, "assistant_message"),
+      assistantMessage: filledText(
+        response.assistant_message,
+        "assistant_message",
+      ),
       needsClarification: flag(
         response.needs_clarification,
         "needs_clarification",

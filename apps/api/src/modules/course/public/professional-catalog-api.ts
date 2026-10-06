@@ -60,8 +60,9 @@ export type GeneratedRoadmapInput = {
   readonly description: string;
   readonly estimatedWeeks: number;
   readonly coverageNote: string | null;
-  readonly phases: readonly GeneratedRoadmapPhaseInput[];
   readonly matchTier: RoadmapMatchTier | null;
+  readonly phases: readonly GeneratedRoadmapPhaseInput[];
+  readonly level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
 };
 
 export type RoadmapCandidateCourseProjection = {

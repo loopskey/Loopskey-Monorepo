@@ -6,6 +6,7 @@ import { Inject, Injectable, Logger } from "@nestjs/common";
 import { translateTransportFailure } from "./service-ai.failure";
 import { parseGenerateResponse } from "./service-ai.response";
 import { parseChatTurnResponse } from "./service-ai.response";
+import { notConfiguredFailure } from "./service-ai.failure";
 import { buildChatTurnRequest } from "./service-ai.request";
 import { withoutEchoedBands } from "./service-ai.translation";
 import { CORRELATION_HEADER } from "@infrastructure/observability/correlation-id.middleware";
@@ -28,11 +29,20 @@ export const GENERATE_PATH = "/v1/roadmap/generate";
 const CONTRACT_VERSION_HEADER = "x-contract-version";
 
 const MODEL_HEADER = "x-model";
+const PROVIDER_CORRELATION_HEADER = "x-correlation-id";
+const RETRY_AFTER_HEADER = "retry-after";
 const TOKEN_HEADERS = {
-  promptTokens: "x-prompt-tokens",
-  completionTokens: "x-completion-tokens",
-  totalTokens: "x-total-tokens",
+  promptTokens: ["x-prompt-tokens", "x-tokens-input"],
+  completionTokens: ["x-completion-tokens", "x-tokens-output"],
+  totalTokens: ["x-total-tokens", "x-tokens-total"],
 } as const;
+
+const OPERATION_BY_PATH: Record<string, "chat" | "generate"> = {
+  [CHAT_TURN_PATH]: "chat",
+  [GENERATE_PATH]: "generate",
+};
+
+const majorOf = (version: string) => version.split(".")[0];
 
 const CORRELATION_PATTERN = /^[\w.-]{1,128}$/;
 
@@ -107,9 +117,13 @@ export class ServiceAiClient implements ServiceAiPort {
     if (!reported || reported === SERVICE_AI_CONTRACT_VERSION) return;
     if (this.reportedContractVersions.has(reported)) return;
     this.reportedContractVersions.add(reported);
-    this.logger.error({
+    const isIncompatible =
+      majorOf(reported) !== majorOf(SERVICE_AI_CONTRACT_VERSION);
+    const report = isIncompatible ? this.logger.error : this.logger.warn;
+    report.call(this.logger, {
       path,
       reported,
+      isIncompatible,
       expected: SERVICE_AI_CONTRACT_VERSION,
       event: "roadmap-ai.contract-version-mismatch",
       message:
@@ -119,10 +133,15 @@ export class ServiceAiClient implements ServiceAiPort {
     });
   }
 
-  private countHeader(headers: Headers, name: string): number | null {
-    const raw = headers.get(name);
-    if (!raw || !/^\d+$/.test(raw.trim())) return null;
-    return Number(raw.trim());
+  private countHeader(
+    headers: Headers,
+    names: readonly string[],
+  ): number | null {
+    for (const name of names) {
+      const raw = headers.get(name);
+      if (raw && /^\d+$/.test(raw.trim())) return Number(raw.trim());
+    }
+    return null;
   }
 
   private async send(
@@ -137,6 +156,8 @@ export class ServiceAiClient implements ServiceAiPort {
       drops,
       correlationId,
       method: "POST",
+      operation: OPERATION_BY_PATH[path] ?? null,
+      providerCorrelationId: null as string | null,
       model: null as string | null,
       totalTokens: null as number | null,
       promptTokens: null as number | null,
@@ -155,7 +176,7 @@ export class ServiceAiClient implements ServiceAiPort {
           "ROADMAP_AI_BASE_URL or ROADMAP_AI_SERVICE_TOKEN is unset; the " +
           "Roadmap AI Service was not called.",
       });
-      return { ok: false, failure: translateTransportFailure(null) };
+      return { ok: false, failure: notConfiguredFailure() };
     }
 
     const startedAt = Date.now();
@@ -174,6 +195,9 @@ export class ServiceAiClient implements ServiceAiPort {
 
       line.contractVersion = response.headers.get(CONTRACT_VERSION_HEADER);
       line.model = response.headers.get(MODEL_HEADER);
+      line.providerCorrelationId = response.headers.get(
+        PROVIDER_CORRELATION_HEADER,
+      );
       line.promptTokens = this.countHeader(
         response.headers,
         TOKEN_HEADERS.promptTokens,
@@ -185,6 +209,9 @@ export class ServiceAiClient implements ServiceAiPort {
       line.totalTokens = this.countHeader(
         response.headers,
         TOKEN_HEADERS.totalTokens,
+      );
+      const retryAfterSeconds = parseRetryAfter(
+        response.headers.get(RETRY_AFTER_HEADER),
       );
 
       const payload: unknown = await response.json().catch(() => undefined);
@@ -202,19 +229,24 @@ export class ServiceAiClient implements ServiceAiPort {
       }
 
       const envelope = parseErrorEnvelope(payload);
-      const failure = envelope
-        ? translateErrorEnvelope(
-            envelope,
-            parseRetryAfter(response.headers.get("retry-after")),
-          )
-        : translateTransportFailure(response.status);
+      const translated = envelope
+        ? translateErrorEnvelope(envelope, retryAfterSeconds)
+        : translateTransportFailure(response.status, retryAfterSeconds);
+      const providerCorrelationId =
+        translated.providerCorrelationId ?? line.providerCorrelationId;
+      const failure: ServiceAiFailure = {
+        ...translated,
+        providerCorrelationId,
+      };
 
       this.logger.warn({
         ...line,
         durationMs,
+        providerCorrelationId,
         status: response.status,
         outcome: failure.kind,
         retryable: failure.retryable,
+        retryAfterSeconds,
         providerCode: envelope?.code ?? null,
       });
       return { ok: false, failure };

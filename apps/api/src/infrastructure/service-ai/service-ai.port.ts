@@ -175,11 +175,17 @@ export type GenerateData = {
   phases: GeneratedRoadmapPhase[];
 };
 
-export type ServiceAiFailure =
+export type ServiceAiFailureTrace = {
+  providerCode?: string | null;
+  providerCorrelationId?: string | null;
+};
+
+export type ServiceAiFailure = (
   | {
       ok: false;
       kind: "unavailable";
       retryable: boolean;
+      retryAfterSeconds?: number | null;
       messageCode: RoadmapAiMessageCode.ROADMAP_AI_UNAVAILABLE;
     }
   | {
@@ -208,7 +214,9 @@ export type ServiceAiFailure =
       retryable: boolean;
       messageCode: RoadmapAiMessageCode.ROADMAP_AI_FAILED;
       recovery: "REDUCE_CANDIDATES";
-    };
+    }
+) &
+  ServiceAiFailureTrace;
 
 export type ServiceAiResult<TData> =
   | { ok: true; data: TData }

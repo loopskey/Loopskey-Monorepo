@@ -148,10 +148,42 @@ describe("roadmap draft merge rules", () => {
     expect(changes.subjects).toEqual(["term-data"]);
   });
 
-  it("keeps a subject it cannot resolve rather than dropping the answer", () => {
-    const { changes } = merge(draft(), { subjects: ["Underwater Basketry"] });
+  it("normalises case and spacing when matching a label", () => {
+    const { changes } = merge(draft(), { subjects: ["DATA   analysis"] });
 
-    expect(changes.subjects).toEqual(["Underwater Basketry"]);
+    expect(changes.subjects).toEqual(["term-data"]);
+  });
+
+  it("never stores a subject that is not one of the options", () => {
+    const { changes } = merge(draft(), { subjects: ["Quantum Sociology"] });
+
+    expect(changes).not.toHaveProperty("subjects");
+  });
+
+  it("keeps the earlier subjects when none of the extracted ones is valid", () => {
+    const { changes } = merge(draft({ subjects: ["term-leadership"] }), {
+      subjects: ["Quantum Sociology"],
+    });
+
+    expect(changes).not.toHaveProperty("subjects");
+  });
+
+  it("keeps only the valid subjects of a mixed answer, in the order given", () => {
+    const { changes } = merge(draft(), {
+      subjects: ["Data Analysis", "Fake Subject", "Leadership", "term-data"],
+    });
+
+    expect(changes.subjects).toEqual(["term-data", "term-leadership"]);
+  });
+
+  it("still clears subjects when the turn retracts them", () => {
+    const { changes } = merge(
+      draft({ subjects: ["term-data"] }),
+      { subjects: ["Fake Subject"] },
+      ["subjects"],
+    );
+
+    expect(changes.subjects).toEqual([]);
   });
 
   it("merges several fields from a single turn", () => {

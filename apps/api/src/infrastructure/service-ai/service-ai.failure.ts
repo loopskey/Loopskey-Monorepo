@@ -23,6 +23,8 @@ const TRUNCATION_CODES = new Set([
   "MAX_TOKENS",
 ]);
 
+const MAX_RETRY_AFTER_SECONDS = 3_600;
+
 const normalise = (code: string) =>
   code
     .trim()
@@ -35,11 +37,12 @@ export const parseRetryAfter = (
 ): number | null => {
   if (!value) return null;
   const trimmed = value.trim();
-  if (/^\d+$/.test(trimmed)) return Number(trimmed);
+  if (/^\d+$/.test(trimmed))
+    return Math.min(Number(trimmed), MAX_RETRY_AFTER_SECONDS);
   const at = Date.parse(trimmed);
   if (Number.isNaN(at)) return null;
   const seconds = Math.ceil((at - now.getTime()) / 1000);
-  return seconds > 0 ? seconds : null;
+  return seconds > 0 ? Math.min(seconds, MAX_RETRY_AFTER_SECONDS) : null;
 };
 
 export const translateErrorEnvelope = (
@@ -48,6 +51,28 @@ export const translateErrorEnvelope = (
 ): ServiceAiFailure => {
   const code = normalise(envelope.code);
   const retryable = envelope.retryable;
+  const trace = {
+    providerCode: envelope.code,
+    providerCorrelationId: envelope.correlation_id ?? null,
+  };
+
+  if (REFUSAL_CODES.has(code))
+    return {
+      ok: false,
+      retryable,
+      kind: "refused",
+      messageCode: RoadmapAiMessageCode.ROADMAP_AI_REFUSED,
+      ...trace,
+    };
+
+  if (!retryable)
+    return {
+      ok: false,
+      retryable,
+      kind: "failed",
+      messageCode: RoadmapAiMessageCode.ROADMAP_AI_FAILED,
+      ...trace,
+    };
 
   if (CAPACITY_CODES.has(code))
     return {
@@ -56,14 +81,7 @@ export const translateErrorEnvelope = (
       kind: "busy",
       retryAfterSeconds,
       messageCode: RoadmapAiMessageCode.ROADMAP_AI_BUSY,
-    };
-
-  if (REFUSAL_CODES.has(code))
-    return {
-      ok: false,
-      retryable,
-      kind: "refused",
-      messageCode: RoadmapAiMessageCode.ROADMAP_AI_REFUSED,
+      ...trace,
     };
 
   if (TRUNCATION_CODES.has(code))
@@ -73,31 +91,29 @@ export const translateErrorEnvelope = (
       kind: "truncated",
       recovery: "REDUCE_CANDIDATES",
       messageCode: RoadmapAiMessageCode.ROADMAP_AI_FAILED,
+      ...trace,
     };
 
-  return retryable
-    ? {
-        ok: false,
-        retryable,
-        kind: "unavailable",
-        messageCode: RoadmapAiMessageCode.ROADMAP_AI_UNAVAILABLE,
-      }
-    : {
-        ok: false,
-        retryable,
-        kind: "failed",
-        messageCode: RoadmapAiMessageCode.ROADMAP_AI_FAILED,
-      };
+  return {
+    ok: false,
+    retryable,
+    kind: "unavailable",
+    retryAfterSeconds,
+    messageCode: RoadmapAiMessageCode.ROADMAP_AI_UNAVAILABLE,
+    ...trace,
+  };
 };
 
 export const translateTransportFailure = (
   status: number | null,
+  retryAfterSeconds: number | null = null,
 ): ServiceAiFailure =>
   status === null || status >= 500
     ? {
         ok: false,
         retryable: true,
         kind: "unavailable",
+        retryAfterSeconds,
         messageCode: RoadmapAiMessageCode.ROADMAP_AI_UNAVAILABLE,
       }
     : {
@@ -106,3 +122,11 @@ export const translateTransportFailure = (
         kind: "failed",
         messageCode: RoadmapAiMessageCode.ROADMAP_AI_FAILED,
       };
+
+export const notConfiguredFailure = (): ServiceAiFailure => ({
+  ok: false,
+  retryable: false,
+  kind: "unavailable",
+  retryAfterSeconds: null,
+  messageCode: RoadmapAiMessageCode.ROADMAP_AI_UNAVAILABLE,
+});
