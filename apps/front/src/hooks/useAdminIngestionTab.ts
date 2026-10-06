@@ -1,11 +1,11 @@
 "use client";
 
 import { IngestionContentKind, IngestionItemState } from "@/lib/graphql/base";
+import { useMemo, useRef, useState } from "react";
 import { getIngestionErrorKey } from "@utils/ingestion-error";
 import { SEARCH_DEBOUNCE_MS } from "@utils/constant";
 import { useDebouncedValue } from "@hooks/useDebounced";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useI18n } from "@hooks/useI18n";
 import { notify } from "@hooks/notify";
@@ -35,6 +35,10 @@ export const reviewStateOptions = [
   IngestionItemState.Rejected,
   IngestionItemState.Stale,
 ] as const;
+
+type TBulkApprovalTarget =
+  | { kind: "selection"; itemIds: string[] }
+  | { kind: "queue"; sourceId?: string; search?: string; total: number };
 
 const emptyCreateForm: SC.TCreateIngestionSourceForm = {
   slug: "",
@@ -75,8 +79,7 @@ export const useAdminIngestionTab = () => {
             ? debouncedSourceSearch
             : undefined,
         kind: sourceKind === ALL ? undefined : sourceKind,
-        isActive:
-          sourceActive === ALL ? undefined : sourceActive === "ACTIVE",
+        isActive: sourceActive === ALL ? undefined : sourceActive === "ACTIVE",
       },
       pagination: { take: PAGE_SIZE, cursor: sourceCursorStack.at(-1) },
     }),
@@ -111,7 +114,9 @@ export const useAdminIngestionTab = () => {
     resetSourcePagination();
   };
   const sourceHasActiveFilters =
-    sourceSearch.trim().length > 0 || sourceKind !== ALL || sourceActive !== ALL;
+    sourceSearch.trim().length > 0 ||
+    sourceKind !== ALL ||
+    sourceActive !== ALL;
 
   const sourceNextPage = () => {
     const nextCursor = sourcesQuery.data?.pageInfo?.nextCursor;
@@ -160,9 +165,7 @@ export const useAdminIngestionTab = () => {
   });
 
   // ---------------- Selected source detail ----------------
-  const [selectedSourceId, setSelectedSourceId] = useState<string | null>(
-    null,
-  );
+  const [selectedSourceId, setSelectedSourceId] = useState<string | null>(null);
   const selectedSourceQuery = API.useIngestionSourceQuery(
     selectedSourceId ?? "",
     { skip: !selectedSourceId },
@@ -214,10 +217,7 @@ export const useAdminIngestionTab = () => {
     }
   });
 
-  const toggleSourceActive = async (
-    sourceId: string,
-    isActive: boolean,
-  ) => {
+  const toggleSourceActive = async (sourceId: string, isActive: boolean) => {
     try {
       if (isActive) await deactivateSource(sourceId).unwrap();
       else await activateSource(sourceId).unwrap();
@@ -241,9 +241,7 @@ export const useAdminIngestionTab = () => {
   const [revokeKey, revokeKeyState] = API.useRevokeIngestionApiKeyMutation();
 
   const [isIssueOpen, setIssueOpen] = useState(false);
-  const [issuedCredential, setIssuedCredential] = useState<string | null>(
-    null,
-  );
+  const [issuedCredential, setIssuedCredential] = useState<string | null>(null);
   const issueForm = useForm<SC.TIssueIngestionApiKeyForm>({
     resolver: zodResolver(SC.issueIngestionApiKeySchema),
     defaultValues: { name: "", expiresAt: "" },
@@ -355,8 +353,24 @@ export const useAdminIngestionTab = () => {
   const reviewQuery = API.useIngestionItemsQuery(reviewVariables);
   const [approveItem, approveItemState] = API.useApproveIngestionItemMutation();
   const [rejectItem, rejectItemState] = API.useRejectIngestionItemMutation();
+  const [bulkApproveItems] = API.useApproveIngestionItemsMutation();
 
-  const resetReviewPagination = () => setReviewCursorStack([]);
+  const [selectedItemIds, setSelectedItemIds] = useState<string[]>([]);
+  const [bulkTarget, setBulkTarget] = useState<TBulkApprovalTarget | null>(
+    null,
+  );
+  const [bulkProgress, setBulkProgress] = useState<{
+    approved: number;
+    total: number;
+  } | null>(null);
+  const [bulkStopRequested, setBulkStopRequested] = useState(false);
+  const bulkCancelled = useRef(false);
+
+  const clearSelection = () => setSelectedItemIds([]);
+  const resetReviewPagination = () => {
+    setReviewCursorStack([]);
+    clearSelection();
+  };
   const setReviewSourceId = (value: string) => {
     setReviewSourceIdState(value);
     resetReviewPagination();
@@ -375,9 +389,102 @@ export const useAdminIngestionTab = () => {
     setReviewCursorStack((previous) =>
       previous.at(-1) === nextCursor ? previous : [...previous, nextCursor],
     );
+    clearSelection();
   };
-  const reviewPreviousPage = () =>
+  const reviewPreviousPage = () => {
     setReviewCursorStack((previous) => previous.slice(0, -1));
+    clearSelection();
+  };
+
+  const toggleItemSelection = (itemId: string) =>
+    setSelectedItemIds((previous) =>
+      previous.includes(itemId)
+        ? previous.filter((id) => id !== itemId)
+        : [...previous, itemId],
+    );
+  const toggleAllSelectable = (selectableIds: string[]) =>
+    setSelectedItemIds((previous) =>
+      selectableIds.length > 0 &&
+      selectableIds.every((id) => previous.includes(id))
+        ? []
+        : selectableIds,
+    );
+
+  const openBulkApproveSelection = () => {
+    if (selectedItemIds.length === 0) return;
+    setBulkTarget({ kind: "selection", itemIds: selectedItemIds });
+  };
+  const openBulkApproveQueue = () =>
+    setBulkTarget({
+      kind: "queue",
+      sourceId: reviewSourceId === ALL ? undefined : reviewSourceId,
+      search:
+        debouncedReviewSearch.length >= SEARCH_MIN_LENGTH
+          ? debouncedReviewSearch
+          : undefined,
+      total: reviewQuery.data?.totalCount ?? 0,
+    });
+
+  const cancelBulkApprove = () => {
+    if (bulkProgress) {
+      bulkCancelled.current = true;
+      setBulkStopRequested(true);
+      return;
+    }
+    setBulkTarget(null);
+  };
+
+  const confirmBulkApprove = async () => {
+    if (!bulkTarget || bulkProgress) return;
+    bulkCancelled.current = false;
+    setBulkStopRequested(false);
+    const input =
+      bulkTarget.kind === "selection"
+        ? { itemIds: bulkTarget.itemIds }
+        : { sourceId: bulkTarget.sourceId, search: bulkTarget.search };
+    let approved = 0;
+    setBulkProgress({
+      approved,
+      total:
+        bulkTarget.kind === "selection"
+          ? bulkTarget.itemIds.length
+          : bulkTarget.total,
+    });
+    try {
+      for (;;) {
+        const result = await bulkApproveItems(input).unwrap();
+        approved += result.approvedCount;
+        setBulkProgress({
+          approved,
+          total: approved + result.remainingCount,
+        });
+        if (
+          result.approvedCount === 0 ||
+          result.remainingCount === 0 ||
+          bulkTarget.kind === "selection" ||
+          bulkCancelled.current
+        )
+          break;
+      }
+      notify.success(
+        t("adminDashboard.ingestion.review.bulk.approved", { count: approved }),
+      );
+    } catch (error) {
+      notify.error(
+        t(getIngestionErrorKey(error)),
+        approved > 0
+          ? t("adminDashboard.ingestion.review.bulk.partial", {
+              count: approved,
+            })
+          : undefined,
+      );
+    } finally {
+      setBulkProgress(null);
+      setBulkTarget(null);
+      setBulkStopRequested(false);
+      clearSelection();
+    }
+  };
 
   const approve = async (itemId: string) => {
     try {
@@ -492,6 +599,16 @@ export const useAdminIngestionTab = () => {
     reviewCanPrevious: reviewCursorStack.length > 0,
     approve,
     isApproving: approveItemState.isLoading,
+    selectedItemIds,
+    toggleItemSelection,
+    toggleAllSelectable,
+    bulkTarget,
+    bulkProgress,
+    bulkStopRequested,
+    openBulkApproveSelection,
+    openBulkApproveQueue,
+    confirmBulkApprove,
+    cancelBulkApprove,
     rejectTargetId,
     openReject,
     closeReject,

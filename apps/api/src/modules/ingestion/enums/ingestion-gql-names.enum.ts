@@ -6,6 +6,7 @@ export enum IngestionGqlInputNames {
   ISSUE_INGESTION_API_KEY = "IssueIngestionApiKey",
   INGESTION_ITEM_FILTER = "IngestionItemFilter",
   REJECT_INGESTION_ITEM = "RejectIngestionItem",
+  APPROVE_INGESTION_ITEMS = "ApproveIngestionItems",
 }
 
 export enum IngestionGqlObjectNames {
@@ -21,6 +22,7 @@ export enum IngestionGqlObjectNames {
   INGESTION_ITEM_CATALOG = "IngestionItemCatalog",
   INGESTION_ITEM = "IngestionItem",
   PAGINATED_INGESTION_ITEMS = "PaginatedIngestionItems",
+  APPROVE_INGESTION_ITEMS_RESULT = "ApproveIngestionItemsResult",
 }
 
 export enum IngestionGqlQueryNames {
@@ -40,5 +42,6 @@ export enum IngestionGqlMutationNames {
   ISSUE_INGESTION_API_KEY = "issueIngestionApiKey",
   REVOKE_INGESTION_API_KEY = "revokeIngestionApiKey",
   APPROVE_INGESTION_ITEM = "approveIngestionItem",
+  APPROVE_INGESTION_ITEMS = "approveIngestionItems",
   REJECT_INGESTION_ITEM = "rejectIngestionItem",
 }

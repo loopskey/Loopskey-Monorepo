@@ -212,6 +212,13 @@ mutation ApproveIngestionItem($itemId: String!) {
   }
 }
 
+mutation ApproveIngestionItems($input: ApproveIngestionItems!) {
+  approveIngestionItems(input: $input) {
+    approvedCount
+    remainingCount
+  }
+}
+
 mutation RejectIngestionItem($input: RejectIngestionItem!) {
   rejectIngestionItem(input: $input) {
     ...IngestionItemFields

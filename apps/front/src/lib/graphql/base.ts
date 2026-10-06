@@ -247,6 +247,18 @@ export enum AppLanguage {
   Fr = 'FR'
 }
 
+export type ApproveIngestionItems = {
+  itemIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  search?: InputMaybe<Scalars['String']['input']>;
+  sourceId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ApproveIngestionItemsResult = {
+  __typename?: 'ApproveIngestionItemsResult';
+  approvedCount: Scalars['Int']['output'];
+  remainingCount: Scalars['Int']['output'];
+};
+
 /** Assignment status */
 export enum AssignmentStatus {
   Active = 'ACTIVE',
@@ -2738,6 +2750,7 @@ export type Mutation = {
   addToCart: ContentActionPayload;
   approveAdminOrgAccessRequest: AdminOrgAccessRequest;
   approveIngestionItem: IngestionItem;
+  approveIngestionItems: ApproveIngestionItemsResult;
   archiveAssociationRequirement: AssociationRequirement;
   archiveCourse: Course;
   archiveEvent: Event;
@@ -2944,6 +2957,11 @@ export type MutationApproveAdminOrgAccessRequestArgs = {
 
 export type MutationApproveIngestionItemArgs = {
   itemId: Scalars['String']['input'];
+};
+
+
+export type MutationApproveIngestionItemsArgs = {
+  input: ApproveIngestionItems;
 };
 
 

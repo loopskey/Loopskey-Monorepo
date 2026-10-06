@@ -168,6 +168,76 @@ describe("Ingestion review (concurrency e2e)", () => {
     expect(eventsAfterApproval - eventsBeforeApproval).toBe(1);
   }, 120000);
 
+  it("splits a queue between two concurrent bulk approvals without approving or publishing anything twice", async () => {
+    const source = await createSource();
+    for (let index = 0; index < 20; index += 1)
+      await submitOne(source, rawItem());
+    const items = await prisma.ingestionItem.findMany({
+      where: { sourceId: source.sourceId },
+    });
+    const itemIds = items.map((item) => item.id);
+    const eventsBefore = await prisma.outboxEvent.count({
+      where: { aggregateType: "IngestionItem", aggregateId: { in: itemIds } },
+    });
+
+    const results = await runTogether(2, () =>
+      admin.approveItems(adminUserId, { sourceId: source.sourceId }),
+    );
+
+    expect(fulfilled(results)).toHaveLength(2);
+    const approved = fulfilled(results).reduce(
+      (total, { value }) => total + value.approvedCount,
+      0,
+    );
+    expect(approved).toBe(20);
+
+    const after = await prisma.ingestionItem.findMany({
+      where: { sourceId: source.sourceId },
+    });
+    expect(
+      after.every((item) => item.state === IngestionItemState.ACCEPTED),
+    ).toBe(true);
+    expect(after.every((item) => item.reviewedById === adminUserId)).toBe(true);
+
+    const courses = await prisma.course.findMany({
+      where: { id: { in: after.map((item) => item.catalogId!) } },
+    });
+    expect(
+      courses.every((course) => course.status === CourseStatus.PUBLISHED),
+    ).toBe(true);
+
+    const eventsAfter = await prisma.outboxEvent.count({
+      where: { aggregateType: "IngestionItem", aggregateId: { in: itemIds } },
+    });
+    expect(eventsAfter - eventsBefore).toBe(20);
+  }, 120000);
+
+  it("approves only the selected items and leaves the rest of the queue pending", async () => {
+    const source = await createSource();
+    for (let index = 0; index < 4; index += 1)
+      await submitOne(source, rawItem());
+    const items = await prisma.ingestionItem.findMany({
+      where: { sourceId: source.sourceId },
+      orderBy: { id: "asc" },
+    });
+    const selected = items.slice(0, 2).map((item) => item.id);
+
+    const result = await admin.approveItems(adminUserId, {
+      itemIds: selected,
+    });
+
+    expect(result.approvedCount).toBe(2);
+    const states = await prisma.ingestionItem.findMany({
+      where: { sourceId: source.sourceId },
+    });
+    expect(
+      states.filter((item) => item.state === IngestionItemState.ACCEPTED),
+    ).toHaveLength(2);
+    expect(
+      states.filter((item) => item.state === IngestionItemState.PENDING),
+    ).toHaveLength(2);
+  }, 120000);
+
   it("keeps a rejected item rejected on an unchanged re-crawl, and returns it to the queue when content changes", async () => {
     const source = await createSource();
     const item = rawItem();

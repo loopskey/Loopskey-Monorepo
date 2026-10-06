@@ -7151,6 +7151,24 @@
           "description": "Indiquez pourquoi, afin que l'équipe de collecte sache quoi corriger. La fiche catalogue reste non publiée.",
           "reason": "Raison",
           "confirm": "Rejeter l'élément"
+        },
+        "bulk": {
+          "selectAll": "Sélectionner tous les éléments de cette page",
+          "selectRow": "Sélectionner cet élément",
+          "approveSelected": "Approuver la sélection ({{count}})",
+          "approveAll": "Approuver tous les éléments en attente ({{count}})",
+          "approved": "{{count}} éléments approuvés et publiés.",
+          "partial": "{{count}} éléments ont été approuvés avant l'erreur. Relancez l'action pour continuer.",
+          "dialog": {
+            "selectionTitle": "Approuver les éléments sélectionnés ?",
+            "selectionDescription": "{{count}} éléments sélectionnés seront publiés dans le catalogue public.",
+            "queueTitle": "Approuver tous les éléments en attente ?",
+            "queueDescription": "Tous les éléments en attente correspondant à la source et à la recherche actuelles seront publiés dans le catalogue public. Environ {{count}} éléments attendent. Les éléments qui n'ont jamais produit de fiche catalogue sont ignorés.",
+            "confirm": "Approuver et publier",
+            "running": "{{approved}} approuvés sur {{total}}",
+            "stop": "Arrêter après ce lot",
+            "stopping": "Arrêt après ce lot"
+          }
         }
       }
     },

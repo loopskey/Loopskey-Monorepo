@@ -685,6 +685,11 @@ The operations referenced below:
 - `ingestionBatches`, `ingestionBatch` — batch history and one batch's detail
 - `ingestionItems` — the review queue, filterable by source and state
 - `approveIngestionItem`, `rejectIngestionItem` — review decisions
+- `approveIngestionItems` — approve many items at once: the selected items
+  (`itemIds`, at most 100) or the whole pending queue, optionally narrowed by
+  `sourceId` and `search`. One call approves at most 500 items and returns
+  `approvedCount` and `remainingCount`; the console repeats the call until
+  `remainingCount` is `0`. Items that never produced a catalogue row are skipped.
 
 ### Onboarding a crawler team
 

@@ -27,4 +27,14 @@ export class OutboxService {
       },
     });
   }
+
+  appendMany(events: AppendOutboxEvent[], writer: OutboxWriter = this.prisma) {
+    return writer.outboxEvent.createMany({
+      data: events.map((event) => ({
+        ...event,
+        eventVersion: event.eventVersion ?? 1,
+        correlationId: event.correlationId ?? null,
+      })),
+    });
+  }
 }

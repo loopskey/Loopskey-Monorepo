@@ -34,6 +34,12 @@ export class IngestionItemEntity {
   catalog: IngestionItemCatalogEntity | null;
 }
 
+@ObjectType(IngestionGqlObjectNames.APPROVE_INGESTION_ITEMS_RESULT)
+export class ApproveIngestionItemsResultEntity {
+  @Field(() => Int) approvedCount: number;
+  @Field(() => Int) remainingCount: number;
+}
+
 @ObjectType(IngestionGqlObjectNames.PAGINATED_INGESTION_ITEMS)
 export class PaginatedIngestionItemsEntity {
   @Field(() => Int) totalCount: number;

@@ -1,4 +1,17 @@
-import { Prisma, Role } from "@prisma/client";
+import { IngestionContentKind, Prisma, Role } from "@prisma/client";
+
+export type TBulkApprovalScope = {
+  itemIds: string[] | null;
+  sourceId: string | null;
+  search: string | null;
+};
+
+export type TClaimedIngestionItem = {
+  id: string;
+  sourceId: string;
+  catalogId: string | null;
+  kind: IngestionContentKind;
+};
 
 export type TResolverUser = { id?: string; sub?: string; role: Role };
 
