@@ -4396,6 +4396,7 @@
       "newRoadmap": "New roadmap",
       "continueRoadmap": "Continue",
       "viewFullRoadmap": "View full roadmap",
+      "viewContent": "View content",
       "heroEyebrow": "Your current AI roadmap",
       "journeyTimeline": "Journey timeline",
       "nextStepTag": "Next",
@@ -4403,6 +4404,8 @@
         "phasesCount": "{{count}} phases",
         "targetDateWithCount": "Target {{date}} ({{days}} days left)",
         "continueStep": "Continue: \"{{step}}\"",
+        "startStep": "Start: \"{{step}}\"",
+        "viewCompleted": "View completed roadmap",
         "moreActions": "More actions",
         "progressRingLabel": "{{progress}}% complete",
         "cpdStrip": "CPD target {{earned}}/{{required}} PDU",
@@ -4427,6 +4430,7 @@
       "emptyMyRoadmapsDescription": "You are not enrolled in any roadmap yet, or no roadmap matches your search.",
       "exploreRoadmaps": "Explore roadmaps",
       "exploreRoadmapsDescription": "Discover new professional learning paths tailored to your growth goals.",
+      "exploreUnavailable": "Previewing and enrolling in catalog roadmaps is not available yet.",
       "searchExploreRoadmaps": "Search available roadmaps...",
       "emptyExploreTitle": "No roadmaps available",
       "emptyExploreDescription": "There are no published roadmaps available right now, or no roadmap matches your search.",
@@ -7710,16 +7714,34 @@
       "generate": "Generate my roadmap",
       "generating": "Starting generation...",
       "generateFailed": "We could not start generating your roadmap. Please try again.",
-      "generateUnavailable": "Answer the remaining required fields to generate your roadmap.",
-      "generateUnavailableNext": "Next: answer {{field}} to generate your roadmap.",
+      "retryGenerate": "Try generating again",
+      "fixAction": {
+        "goal": "Add your goal",
+        "skillLevel": "Choose skill level",
+        "timeCommitment": "Choose weekly time",
+        "subjects": "Choose subjects",
+        "budgetPreference": "Choose budget",
+        "cpdAnswered": "Answer CPD question",
+        "certificationName": "Add certification"
+      },
+      "waitingForCoach": "Answer the coach's next question, or confirm an answer above, to unlock your roadmap.",
+      "missing": {
+        "goal": "Define your learning goal.",
+        "skillLevel": "Choose your current skill level.",
+        "timeCommitment": "Choose your weekly time commitment.",
+        "subjects": "Choose at least one subject.",
+        "budgetPreference": "Choose your budget preference.",
+        "cpdAnswered": "Tell us whether you need CPD credits.",
+        "certificationName": "Enter your certification name."
+      },
       "briefProgress": "Brief completion",
-      "briefProgressValue": "{{completed}} of {{required}} fields complete",
+      "briefProgressValue": "{{completed}} of {{required}} required fields complete",
       "notReachedYet": "You'll set this up after preferences.",
       "status": {
+        "ready": "Ready",
+        "readyToRetry": "Ready to retry",
         "confirmed": "Confirmed",
-        "suggested": "Suggested from profile",
-        "needsAnswer": "Needs answer",
-        "notNeeded": "Not needed"
+        "needsAnswer": "Needs answer"
       }
     },
     "cpdSetup": {

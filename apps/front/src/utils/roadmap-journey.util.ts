@@ -13,7 +13,12 @@ type TJourneyPhase = {
   steps: TJourneyStep[];
 };
 
-export type TNextStep = { phaseId: string; stepId: string; title: string };
+export type TNextStep = {
+  phaseId: string;
+  stepId: string;
+  title: string;
+  status: RoadmapStepProgressStatus | null;
+};
 
 export const findCurrentPhaseId = <P extends TJourneyPhase>(
   phases: P[],
@@ -22,15 +27,24 @@ export const findCurrentPhaseId = <P extends TJourneyPhase>(
   return current?.id ?? null;
 };
 
-export const findNextStep = (phases: TJourneyPhase[]): TNextStep | null => {
-  for (const phase of phases) {
-    const step = phase.steps.find(
-      (candidate) =>
-        candidate.status !== RoadmapStepProgressStatus.Completed,
-    );
-    if (step) return { phaseId: phase.id, stepId: step.id, title: step.title };
-  }
-  return null;
+export const findNextActionableStep = (
+  phases: TJourneyPhase[],
+): TNextStep | null => {
+  let firstOpen: TNextStep | null = null;
+  for (const phase of phases)
+    for (const step of phase.steps) {
+      if (step.status === RoadmapStepProgressStatus.Completed) continue;
+      const candidate: TNextStep = {
+        phaseId: phase.id,
+        stepId: step.id,
+        title: step.title,
+        status: step.status ?? null,
+      };
+      if (step.status === RoadmapStepProgressStatus.InProgress)
+        return candidate;
+      firstOpen ??= candidate;
+    }
+  return firstOpen;
 };
 
 const MS_PER_DAY = 86_400_000;

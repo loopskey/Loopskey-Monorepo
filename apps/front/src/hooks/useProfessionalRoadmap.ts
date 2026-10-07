@@ -27,6 +27,8 @@ export const useProfessionalRoadmaps = () => {
   const searchParams = useSearchParams();
   const generationDraftId =
     searchParams.get("generationDraftId")?.trim() || undefined;
+  const requestedRoadmapId = searchParams.get("roadmapId")?.trim() || undefined;
+  const requestedStepId = searchParams.get("stepId")?.trim() || undefined;
 
   // ============= States ===============
   const [justCompleted, setJustCompleted] = useState<boolean>(false);
@@ -119,10 +121,11 @@ export const useProfessionalRoadmaps = () => {
     [statsData],
   );
 
-  const generatedRoadmap = useMemo(
+  const activeRoadmap = useMemo(
     () =>
+      myRoadmaps.find((roadmap) => roadmap.id === requestedRoadmapId) ??
       myRoadmaps.find((roadmap) => roadmap.source === RoadmapSource.Generated),
-    [myRoadmaps],
+    [myRoadmaps, requestedRoadmapId],
   );
 
   const [draftPollMs, setDraftPollMs] = useState(0);
@@ -164,7 +167,7 @@ export const useProfessionalRoadmaps = () => {
 
   const { data: recommendations } =
     API.useProfessionalRoadmapRecommendationsQuery(
-      generatedRoadmap ? { enrollmentId: generatedRoadmap.id } : undefined,
+      activeRoadmap ? { enrollmentId: activeRoadmap.id } : undefined,
     );
 
   const stepProgress = useRoadmapStepProgress(myRoadmapsVariables);
@@ -200,8 +203,8 @@ export const useProfessionalRoadmaps = () => {
   );
 
   const otherRoadmaps = useMemo(
-    () => myRoadmaps.filter((roadmap) => roadmap.id !== generatedRoadmap?.id),
-    [myRoadmaps, generatedRoadmap],
+    () => myRoadmaps.filter((roadmap) => roadmap.id !== activeRoadmap?.id),
+    [myRoadmaps, activeRoadmap],
   );
 
   const isLoading = isMyRoadmapsLoading || isExploreRoadmapsLoading;
@@ -262,12 +265,6 @@ export const useProfessionalRoadmaps = () => {
     });
   };
 
-  const getRoadmapHref = (roadmap: { slug?: string | null; id: string }) => {
-    return roadmap.slug
-      ? `/roadmaps/${roadmap.slug}`
-      : `/roadmaps/${roadmap.id}`;
-  };
-
   const getProgressValue = (progress?: number | null) => {
     return Math.min(Math.max(Number(progress ?? 0), 0), 100);
   };
@@ -295,7 +292,6 @@ export const useProfessionalRoadmaps = () => {
     handleUnenroll,
     exploreSearch,
     myRoadmapsData,
-    getRoadmapHref,
     handlePrevious,
     hasFailedDraft,
     isStatsLoading,
@@ -303,7 +299,8 @@ export const useProfessionalRoadmaps = () => {
     explorePageInfo,
     locale: language,
     getProgressValue,
-    generatedRoadmap,
+    activeRoadmap,
+    requestedStepId,
     handleExploreNext,
     handleSearchChange,
     exploreRoadmapsData,

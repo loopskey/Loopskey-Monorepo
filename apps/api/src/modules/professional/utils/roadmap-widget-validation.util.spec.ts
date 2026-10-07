@@ -2,6 +2,7 @@ import type { RoadmapWidget } from "@infrastructure/service-ai/service-ai.port";
 import type { RankableTerm } from "@professional/utils/roadmap-relevance.util";
 
 import { validateWidget } from "./roadmap-widget-validation.util";
+import { widgetRejectionReason } from "./roadmap-widget-validation.util";
 
 const rankedSubjects: RankableTerm[] = [
   {
@@ -146,5 +147,72 @@ describe("validateWidget", () => {
     const validated = validateWidget(widget, context);
 
     expect(validated?.maxSelections).toBe(3);
+  });
+});
+
+describe("widgetRejectionReason", () => {
+  const context = {
+    rankedSubjects,
+    rankedRoles,
+    rankedCertifications,
+  };
+  const widget = (overrides: Partial<RoadmapWidget>): RoadmapWidget => ({
+    type: "YES_NO",
+    field: "cpdEnabled",
+    options: [],
+    maxSelections: null,
+    ...overrides,
+  });
+
+  it("accepts a widget the platform can render", () => {
+    expect(widgetRejectionReason(widget({}), context)).toBeNull();
+  });
+
+  it("names a widget type that does not fit its field", () => {
+    expect(
+      widgetRejectionReason(widget({ type: "MULTI_SELECT" }), context),
+    ).toBe("TYPE_NOT_ALLOWED_FOR_FIELD");
+  });
+
+  it("names a taxonomy widget whose options are all unknown", () => {
+    expect(
+      widgetRejectionReason(
+        widget({
+          type: "MULTI_SELECT",
+          field: "subjects",
+          options: [{ value: "not-real", label: "Not real" }],
+        }),
+        context,
+      ),
+    ).toBe("NO_KNOWN_OPTIONS");
+  });
+});
+
+describe("the CPD widget", () => {
+  const base = {
+    field: "cpdEnabled" as const,
+    maxSelections: null,
+    options: [
+      { value: "true", label: "Yes" },
+      { value: "false", label: "No" },
+    ],
+  };
+
+  it.each(["SINGLE_SELECT", "YES_NO"] as const)(
+    "turns a %s widget into a plain yes or no",
+    (type) => {
+      expect(validateWidget({ ...base, type }, context)).toEqual({
+        field: "cpdEnabled",
+        type: "YES_NO",
+        options: [],
+        maxSelections: null,
+      });
+    },
+  );
+
+  it("still rejects a multi-select for the CPD question", () => {
+    expect(
+      widgetRejectionReason({ ...base, type: "MULTI_SELECT" }, context),
+    ).toBe("TYPE_NOT_ALLOWED_FOR_FIELD");
   });
 });

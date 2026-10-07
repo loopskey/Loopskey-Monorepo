@@ -14,7 +14,7 @@ const isUniqueViolation = (error: unknown) =>
   error.code === "P2002";
 
 const MAX_ATTEMPTS = 10;
-export const DEFAULT_LEASE_MS = 90_000;
+export const DEFAULT_LEASE_MS = 180_000;
 const MIN_LEASE_RENEWAL_INTERVAL_MS = 1_000;
 
 export const REALTIME_OUTBOX_PROCESSOR = "REALTIME_OUTBOX_PROCESSOR";

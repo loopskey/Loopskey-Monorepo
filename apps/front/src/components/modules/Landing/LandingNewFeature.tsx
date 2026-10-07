@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowRight, Map, Milestone, Route, UsersRound } from "lucide-react";
+import { ROADMAP_TAB_HREF } from "@/utils/roadmap-navigation.util";
 import { RevealOnScroll } from "@elements/reveal-scroll";
 import { GlassCard } from "@elements/glass-card";
 import { useI18n } from "@/hooks/useI18n";
@@ -31,8 +32,7 @@ const LandingNewFeature = () => {
 
   return (
     <section className="relative overflow-x-clip px-4 py-10 sm:px-6 lg:px-8">
-      <div className="pointer-events-none absolute inset-0 -z-10">
-      </div>
+      <div className="pointer-events-none absolute inset-0 -z-10"></div>
 
       <div className="mx-auto grid max-w-7xl items-center gap-8 lg:grid-cols-[0.9fr_1.1fr] px-4 sm:px-6 lg:px-8">
         <RevealOnScroll direction="left">
@@ -59,13 +59,8 @@ const LandingNewFeature = () => {
                   {t("landing.newFeature.ctaText")}
                 </p>
 
-                <Button
-                  asChild
-                  className="mt-5"
-                  radius="xl"
-                  size="lg"
-                >
-                  <Link href="/roadmaps">
+                <Button asChild className="mt-5" radius="xl" size="lg">
+                  <Link href={ROADMAP_TAB_HREF}>
                     {t("landing.newFeature.ctaButton")}
                     <ArrowRight className="h-4 w-4" />
                   </Link>

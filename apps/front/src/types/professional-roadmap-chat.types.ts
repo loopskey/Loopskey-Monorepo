@@ -51,10 +51,10 @@ export type TRoadmapStatusProps = {
 };
 
 export type TBriefFieldStatus =
+  | "ready"
   | "confirmed"
-  | "suggested"
   | "needsAnswer"
-  | "notNeeded";
+  | "readyToRetry";
 
 type Step = {
   id: string;
@@ -62,6 +62,7 @@ type Step = {
   title: string;
   description?: string | null;
   contentType?: string | null;
+  contentSlug?: string | null;
   estimatedMinutes?: number | null;
   credits?: number | null;
   status?: RoadmapStepProgressStatus | null;
@@ -176,6 +177,8 @@ export type TRoadmapHeroProps = {
   newRoadmapHref: string;
   targetDate?: string | null;
   nextStepTitle?: string | null;
+  nextStepStatus?: RoadmapStepProgressStatus | null;
+  onContinue?: () => void;
   estimatedWeeks?: number | null;
   headingRef: RefObject<HTMLHeadingElement | null>;
   t: (key: string, values?: Record<string, string | number>) => string;

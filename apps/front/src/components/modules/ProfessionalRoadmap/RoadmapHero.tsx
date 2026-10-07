@@ -1,5 +1,6 @@
 "use client";
 
+import { RoadmapStepProgressStatus } from "@/lib/graphql/base";
 import { TRoadmapHeroProps } from "@/types/professional-roadmap-chat.types";
 import { daysUntil } from "@/utils/roadmap-journey.util";
 import { GlassCard } from "@elements/glass-card";
@@ -20,11 +21,13 @@ export const RoadmapHero = ({
   headingRef,
   totalSteps,
   targetDate,
+  onContinue,
   description,
   phasesCount,
   continueHref,
   viewFullHref,
   nextStepTitle,
+  nextStepStatus,
   estimatedWeeks,
   completedSteps,
   newRoadmapHref,
@@ -43,6 +46,16 @@ export const RoadmapHero = ({
       ),
       days: remaining ?? 0,
     });
+  };
+
+  const continueLabel = () => {
+    if (!nextStepTitle) return t(`${KEY}.hero.viewCompleted`);
+    return t(
+      nextStepStatus === RoadmapStepProgressStatus.InProgress
+        ? `${KEY}.hero.continueStep`
+        : `${KEY}.hero.startStep`,
+      { step: nextStepTitle },
+    );
   };
 
   const parts = [
@@ -84,10 +97,8 @@ export const RoadmapHero = ({
 
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <Button asChild radius="xl">
-              <Link href={continueHref}>
-                {nextStepTitle
-                  ? t(`${KEY}.hero.continueStep`, { step: nextStepTitle })
-                  : t(`${KEY}.continueRoadmap`)}
+              <Link href={continueHref} onClick={onContinue}>
+                {continueLabel()}
                 <L.ArrowRight className="h-4 w-4" />
               </Link>
             </Button>

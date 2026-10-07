@@ -5,6 +5,9 @@ export interface ProfessionalCatalogApi {
   courses(ids: string[]): Promise<Record<string, unknown>[]>;
   roadmaps(ids: string[]): Promise<Record<string, unknown>[]>;
   searchRoadmapIds(search: string): Promise<string[]>;
+  contentSlugs(
+    refs: readonly RoadmapContentRef[],
+  ): Promise<Record<string, string>>;
   exploreRoadmaps(input: {
     excludedIds: string[];
     search?: string;
@@ -31,6 +34,14 @@ export interface ProfessionalCatalogApi {
     unitOfWork: UnitOfWork,
   ): Promise<{ id: string }>;
 }
+
+export type RoadmapContentRef = {
+  readonly contentId: string;
+  readonly contentType: "EVENT" | "COURSE" | "PODCAST" | "YOUTUBE";
+};
+
+export const roadmapContentKey = (ref: RoadmapContentRef) =>
+  `${ref.contentType}:${ref.contentId}`;
 
 export type UnitOfWork = object;
 

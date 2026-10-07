@@ -1,9 +1,11 @@
 import { CourseCategory, CourseStatus, RoadmapStatus } from "@prisma/client";
 import { EventDeliveryMode, EventRegistrationStatus } from "@prisma/client";
 import { ProfessionalCatalogApi } from "@course/public/professional-catalog-api";
+import { type RoadmapContentRef } from "@course/public/professional-catalog-api";
 import { RoadmapCandidateQuery } from "@course/public/professional-catalog-api";
 import { Prisma, RoadmapSource } from "@prisma/client";
 import { TCourseCandidateRow } from "@course/types/application.types";
+import { roadmapContentKey } from "@course/public/professional-catalog-api";
 import { PrismaService } from "@prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
 
@@ -44,6 +46,47 @@ export class ProfessionalCatalogApiService implements ProfessionalCatalogApi {
       take: 100,
     });
     return rows.map((row) => row.id);
+  }
+
+  async contentSlugs(refs: readonly RoadmapContentRef[]) {
+    const idsOf = (type: RoadmapContentRef["contentType"]) => [
+      ...new Set(
+        refs
+          .filter((ref) => ref.contentType === type)
+          .map((ref) => ref.contentId),
+      ),
+    ];
+    const published = (ids: string[]) => ({
+      where: { id: { in: ids }, deletedAt: null, status: "PUBLISHED" as const },
+      select: { id: true, slug: true },
+    });
+    const courseIds = idsOf("COURSE");
+    const eventIds = idsOf("EVENT");
+    const podcastIds = idsOf("PODCAST");
+    const youtubeIds = idsOf("YOUTUBE");
+    const [courses, events, podcasts, channels] = await Promise.all([
+      courseIds.length ? this.prisma.course.findMany(published(courseIds)) : [],
+      eventIds.length ? this.prisma.event.findMany(published(eventIds)) : [],
+      podcastIds.length
+        ? this.prisma.podcast.findMany(published(podcastIds))
+        : [],
+      youtubeIds.length
+        ? this.prisma.youTubeChannel.findMany(published(youtubeIds))
+        : [],
+    ]);
+    const slugs: Record<string, string> = {};
+    const record = (
+      contentType: RoadmapContentRef["contentType"],
+      rows: { id: string; slug: string }[],
+    ) => {
+      for (const row of rows)
+        slugs[roadmapContentKey({ contentType, contentId: row.id })] = row.slug;
+    };
+    record("COURSE", courses);
+    record("EVENT", events);
+    record("PODCAST", podcasts);
+    record("YOUTUBE", channels);
+    return slugs;
   }
 
   courses(ids: string[]) {

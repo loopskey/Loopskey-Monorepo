@@ -48,6 +48,7 @@ const createCatalogMock = () =>
   ({
     roadmaps: jest.fn().mockResolvedValue([roadmap]),
     searchRoadmapIds: jest.fn(),
+    contentSlugs: jest.fn().mockResolvedValue({}),
     exploreRoadmaps: jest.fn(),
     searchCourseIds: jest.fn(),
     courses: jest.fn(),
@@ -171,6 +172,77 @@ describe("ProfessionalRoadmapService.myRoadmaps", () => {
 
     expect(steps[0]).toMatchObject({ status: "COMPLETED" });
     expect(steps[1]).toMatchObject({ status: null });
+  });
+});
+
+describe("ProfessionalRoadmapService.myRoadmaps content links", () => {
+  const enrollment = {
+    id: "enrollment-1",
+    userId: "user-1",
+    roadmapId: "roadmap-1",
+    progress: 0,
+    status: "ACTIVE",
+    enrolledAt: new Date(),
+    completedAt: null,
+    updatedAt: new Date(),
+  };
+  const withSteps = {
+    ...roadmap,
+    phases: [
+      {
+        id: "a",
+        order: 0,
+        title: "phase a",
+        description: null,
+        steps: [
+          { id: "s-course", contentId: "course-1", contentType: "COURSE" },
+          { id: "s-event", contentId: "event-1", contentType: "EVENT" },
+          { id: "s-practice", contentId: null, contentType: null },
+          { id: "s-gone", contentId: "podcast-9", contentType: "PODCAST" },
+        ],
+      },
+    ],
+  };
+
+  it("exposes the public slug of a published content step and none for a project step", async () => {
+    const { service, engagement, catalog } = createService();
+    catalog.roadmaps.mockResolvedValue([withSteps]);
+    catalog.contentSlugs.mockResolvedValue({
+      "COURSE:course-1": "intro-to-data",
+      "EVENT:event-1": "data-summit",
+    });
+    engagement.roadmapEnrollments.mockResolvedValue({
+      rows: [enrollment],
+      totalCount: 1,
+    });
+
+    const result = await service.myRoadmaps(professional);
+    const steps = result.items[0].phases[0].steps;
+
+    expect(catalog.contentSlugs).toHaveBeenCalledWith([
+      { contentId: "course-1", contentType: "COURSE" },
+      { contentId: "event-1", contentType: "EVENT" },
+      { contentId: "podcast-9", contentType: "PODCAST" },
+    ]);
+    expect(steps[0]).toMatchObject({ contentSlug: "intro-to-data" });
+    expect(steps[1]).toMatchObject({ contentSlug: "data-summit" });
+    expect(steps[2]).toMatchObject({ contentSlug: null });
+  });
+
+  it("exposes no link for content that is no longer public", async () => {
+    const { service, engagement, catalog } = createService();
+    catalog.roadmaps.mockResolvedValue([withSteps]);
+    catalog.contentSlugs.mockResolvedValue({});
+    engagement.roadmapEnrollments.mockResolvedValue({
+      rows: [enrollment],
+      totalCount: 1,
+    });
+
+    const result = await service.myRoadmaps(professional);
+
+    expect(result.items[0].phases[0].steps[3]).toMatchObject({
+      contentSlug: null,
+    });
   });
 });
 

@@ -142,6 +142,10 @@ export const mergeExtractedFields = ({
     write(changes, field, CLEARED_VALUE[field]);
   }
 
+  if (cleared.includes("cpdEnabled")) changes.cpdAnswered = false;
+  else if (extracted.cpdEnabled !== null && extracted.cpdEnabled !== undefined)
+    changes.cpdAnswered = true;
+
   if (cleared.includes("certificationName")) {
     changes.certificationId = null;
     changes.requiredCredits = null;

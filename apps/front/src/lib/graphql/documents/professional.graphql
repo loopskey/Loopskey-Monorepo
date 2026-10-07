@@ -653,6 +653,7 @@ fragment ProfessionalRoadmapStepFields on ProfessionalRoadmapStep {
   status
   credits
   contentId
+  contentSlug
   description
   contentType
   completedAt

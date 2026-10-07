@@ -87,6 +87,8 @@ export class ProfessionalRoadmapDraftEntity {
   preferredDeliveryFormats: DeliveryFormat[];
 
   @Field(() => Boolean) cpdEnabled: boolean;
+  @Field(() => Boolean) cpdAnswered: boolean;
+  @Field(() => [String]) missingFields: string[];
   @Field(() => ID, { nullable: true }) certificationId?: string | null;
   @Field(() => Float, { nullable: true }) requiredCredits?: number | null;
   @Field(() => Float, { nullable: true }) completedCredits?: number | null;
@@ -98,6 +100,7 @@ export class ProfessionalRoadmapDraftEntity {
   @Field(() => Boolean) isComplete: boolean;
   @Field(() => Boolean) needsClarification: boolean;
 
+  @Field(() => Boolean) canGenerate: boolean;
   @Field(() => Int) completedFieldCount: number;
   @Field(() => Int) requiredFieldCount: number;
   @Field(() => [RoadmapDraftStep]) remainingFields: RoadmapDraftStep[];

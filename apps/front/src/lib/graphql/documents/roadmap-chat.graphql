@@ -60,6 +60,7 @@ fragment ProfessionalRoadmapDraftFields on ProfessionalRoadmapDraft {
   status
   currentStep
   isComplete
+  canGenerate
   needsClarification
   wasRefused
   failure {
@@ -68,6 +69,7 @@ fragment ProfessionalRoadmapDraftFields on ProfessionalRoadmapDraft {
   completedFieldCount
   requiredFieldCount
   remainingFields
+  missingFields
   updatedAt
   goal
   targetRole
@@ -82,6 +84,7 @@ fragment ProfessionalRoadmapDraftFields on ProfessionalRoadmapDraft {
   preferredContentTypes
   preferredDeliveryFormats
   cpdEnabled
+  cpdAnswered
   certificationId
   certificationName
   requiredCredits
