@@ -1,11 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { RoadmapDraftFieldKey, RoadmapDraftStatus } from "@/lib/graphql/base";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ROADMAP_MESSAGE_MAX_LENGTH } from "@/utils/roadmap-chat.constant";
 import { ROADMAP_COUNTER_THRESHOLD } from "@/utils/roadmap-chat.constant";
 import { serializeWidgetAnswer } from "@/utils/roadmap-widget-answer.util";
-import { RoadmapDraftStatus } from "@/lib/graphql/base";
 import { ROADMAP_BUSY_CODE } from "@/utils/roadmap-chat.constant";
 import { roadmapChatApi } from "@/lib/rtk/endpoints/roadmap-chat.api";
 import { useDispatch } from "react-redux";
@@ -25,6 +25,13 @@ const ROADMAP_CHAT_HREF = "/dashboard/professional/roadmap-chat";
 
 const roadmapTabHref = (draftId: string) =>
   `${ROADMAP_TAB_HREF}&generationDraftId=${encodeURIComponent(draftId)}`;
+
+const CHOICE_FIELDS: ReadonlySet<RoadmapDraftFieldKey> = new Set([
+  RoadmapDraftFieldKey.SkillLevel,
+  RoadmapDraftFieldKey.TimeCommitment,
+  RoadmapDraftFieldKey.BudgetPreference,
+  RoadmapDraftFieldKey.CpdEnabled,
+]);
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
@@ -162,20 +169,24 @@ export const useRoadmapChat = () => {
 
   // ============= Handlers =============
   const submit = useCallback(
-    async (message: string, options?: { restoresInput?: boolean }) => {
+    async (
+      message: string,
+      options?: { restoresInput?: boolean; choice?: T.TWidgetChoice },
+    ) => {
       if (!draft || isSubmittingRef.current) return;
       const content = message.trim();
       if (!content) return;
 
       isSubmittingRef.current = true;
       setTurnError(null);
-      setPending({ content, failed: false });
+      setPending({ content, failed: false, choice: options?.choice });
       setInput("");
 
       try {
         const next = await sendTurn({
           draftId: draft.id,
           message: content,
+          ...options?.choice,
         }).unwrap();
 
         writeDraft(next);
@@ -183,7 +194,7 @@ export const useRoadmapChat = () => {
       } catch (error: unknown) {
         const parsed = readChatError(error);
         setTurnError(parsed);
-        setPending({ content, failed: true });
+        setPending({ content, failed: true, choice: options?.choice });
         if (options?.restoresInput !== false) setInput(content);
         if (parsed.code === ROADMAP_BUSY_CODE && parsed.retryAfterSeconds)
           setRetryAfter(parsed.retryAfterSeconds);
@@ -196,7 +207,10 @@ export const useRoadmapChat = () => {
 
   const retry = useCallback(() => {
     if (!pending?.failed || retryAfter > 0) return;
-    void submit(pending.content, { restoresInput: false });
+    void submit(pending.content, {
+      restoresInput: false,
+      choice: pending.choice,
+    });
   }, [pending, retryAfter, submit]);
 
   const dismissPending = useCallback(() => {
@@ -228,8 +242,14 @@ export const useRoadmapChat = () => {
     (value: string, label?: string) => {
       const widget = draft?.widget;
       if (!widget || isSending || isPatching || retryAfter > 0) return;
+      const isChoice =
+        CHOICE_FIELDS.has(widget.field) &&
+        (widget.type === "SINGLE_SELECT" || widget.type === "YES_NO");
       void submit(serializeWidgetAnswer(widget, { value, label }, t), {
         restoresInput: false,
+        choice: isChoice
+          ? { answerField: widget.field, answerValue: value }
+          : undefined,
       });
     },
     [draft?.widget, isPatching, isSending, retryAfter, submit, t],

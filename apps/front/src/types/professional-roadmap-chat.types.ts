@@ -6,6 +6,7 @@ import { StepPending } from "@/hooks/useRoadmapStepProgress";
 import { RefObject } from "react";
 
 import type { RoadmapGenerationRecoveryAction } from "@/lib/graphql/base";
+import type { RoadmapDraftFieldKey } from "@/lib/graphql/base";
 import type { RoadmapGenerationFailureCode } from "@/lib/graphql/base";
 import type { RoadmapChatStage } from "@/utils/roadmap-chat-step.util";
 
@@ -17,9 +18,15 @@ export type TRoadmapWidget = G.RoadmapWidgetFieldsFragment;
 export type TRoadmapWidgetOption = TRoadmapWidget["options"][number];
 export type TRoadmapSubjectOption = TRoadmapDraft["subjectOptions"][number];
 
+export type TWidgetChoice = {
+  answerField: RoadmapDraftFieldKey;
+  answerValue: string;
+};
+
 export type TPendingMessage = {
   content: string;
   failed: boolean;
+  choice?: TWidgetChoice;
 };
 
 export type TComposerState = {

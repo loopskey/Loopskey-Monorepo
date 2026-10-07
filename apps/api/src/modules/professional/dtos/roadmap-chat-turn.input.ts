@@ -1,9 +1,11 @@
-import { Field, ID, InputType } from "@nestjs/graphql";
-import { IsString, MaxLength, MinLength } from "class-validator";
-import { SERVICE_AI_LIMITS } from "@infrastructure/service-ai/service-ai.port";
+import { IsEnum, MaxLength, MinLength } from "class-validator";
 import { ProfessionalGqlInputNames } from "@professional/enums/gql-names.enum";
-import { trim } from "@utils/transform.util";
+import { Field, ID, InputType } from "@nestjs/graphql";
+import { IsOptional, IsString } from "class-validator";
+import { RoadmapDraftFieldKey } from "@professional/enums/roadmap-draft.enum";
+import { SERVICE_AI_LIMITS } from "@infrastructure/service-ai/service-ai.port";
 import { Transform } from "class-transformer";
+import { trim } from "@utils/transform.util";
 
 @InputType(ProfessionalGqlInputNames.ROADMAP_CHAT_TURN_INPUT)
 export class RoadmapChatTurnInput {
@@ -11,15 +13,21 @@ export class RoadmapChatTurnInput {
   @IsString()
   draftId: string;
 
-  /**
-   * Bounded by the provider's own limit rather than a number of our choosing,
-   * so an over-long answer is a friendly validation message here instead of a
-   * rejection from the other side of the network.
-   */
   @Field(() => String)
   @Transform(trim)
   @IsString()
   @MinLength(1)
   @MaxLength(SERVICE_AI_LIMITS.userMessageMaxLength)
   message: string;
+
+  @IsOptional()
+  @IsEnum(RoadmapDraftFieldKey)
+  @Field(() => RoadmapDraftFieldKey, { nullable: true })
+  answerField?: RoadmapDraftFieldKey | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(64)
+  @Field(() => String, { nullable: true })
+  answerValue?: string | null;
 }

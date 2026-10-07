@@ -18,6 +18,7 @@ import { mergeExtractedFields } from "@professional/utils/roadmap-draft-merge.ut
 import { RoadmapChatTurnInput } from "@professional/dtos/roadmap-chat-turn.input";
 import { mapGenerationFailure } from "@professional/utils/roadmap-generation-failure.util";
 import { RoadmapAiMessageCode } from "@infrastructure/service-ai/service-ai.port";
+import { resolveWidgetAnswer } from "@professional/utils/roadmap-widget-answer.util";
 import { BadRequestException } from "@nestjs/common";
 import { ProfileTaxonomyKind } from "@prisma/client";
 import { ForbiddenException } from "@nestjs/common";
@@ -535,6 +536,7 @@ export class ProfessionalRoadmapChatService {
     data: ChatTurnData,
     turn: Awaited<ReturnType<ProfessionalRoadmapChatService["turnInput"]>>,
     expectedUpdatedAt: Date,
+    chosen: Partial<T.RoadmapDraftFields> | null = null,
   ) {
     const { fullSubjectOptions, widgetContext } = turn;
     const current = this.fields(draft);
@@ -544,6 +546,12 @@ export class ProfessionalRoadmapChatService {
       extracted: data.extracted,
       cleared: data.clearedFields,
     });
+    for (const key of Object.keys(
+      chosen ?? {},
+    ) as (keyof T.RoadmapDraftFields)[]) {
+      if (chosen![key] === current[key]) delete changes[key];
+      else (changes as Record<string, unknown>)[key] = chosen![key];
+    }
     const merged = { ...current, ...changes };
     const credits = await this.creditsFor(user, current, merged);
     Object.assign(merged, credits);
@@ -795,6 +803,11 @@ export class ProfessionalRoadmapChatService {
       throw new BadRequestException(
         ProfessionalMessageCode.ROADMAP_MESSAGE_TOO_LONG,
       );
+    const chosen = resolveWidgetAnswer(input);
+    if (chosen === "invalid")
+      throw new BadRequestException(
+        ProfessionalMessageCode.ROADMAP_DRAFT_FIELD_INVALID,
+      );
     await this.ownedDraft(user, input.draftId);
 
     return this.serialize(input.draftId, async () => {
@@ -828,6 +841,7 @@ export class ProfessionalRoadmapChatService {
         result.data,
         turn,
         expectedUpdatedAt,
+        chosen,
       );
       return this.view(user, updated);
     });
