@@ -3403,3 +3403,152 @@ describe("whether generation is offered", () => {
     expect(edited.missingFields).toEqual(["cpdAnswered"]);
   });
 });
+
+describe("a widget answer the professional clicked", () => {
+  const ask = async (
+    extracted: ChatTurnData["extracted"],
+    seed: Partial<StoredDraft>,
+    answer: { answerField: RoadmapDraftFieldKey; answerValue: string },
+  ) => {
+    const { service, store } = setup([
+      { ok: true, data: turnData({ extracted }) },
+    ]);
+    store.seed(emptyDraft(seed));
+    await service.chatTurn(OWNER, {
+      draftId: "draft-1",
+      message: "Time each week: 5+ hours per week",
+      ...answer,
+    });
+    return store.drafts[0];
+  };
+
+  it("keeps the clicked time bucket when the provider reads it as a neighbouring one", async () => {
+    const draft = await ask(
+      { timeCommitment: LearningTimeCommitment.THREE_TO_FIVE_HOURS },
+      { ...contractReady },
+      {
+        answerField: RoadmapDraftFieldKey.TIME_COMMITMENT,
+        answerValue: LearningTimeCommitment.MORE_THAN_FIVE_HOURS,
+      },
+    );
+
+    expect(draft.timeCommitment).toBe(
+      LearningTimeCommitment.MORE_THAN_FIVE_HOURS,
+    );
+  });
+
+  it("keeps the clicked budget when the provider reads it as another one", async () => {
+    const draft = await ask(
+      { budgetPreference: LearningBudgetPreference.UNDER_100 },
+      { ...contractReady },
+      {
+        answerField: RoadmapDraftFieldKey.BUDGET_PREFERENCE,
+        answerValue: LearningBudgetPreference.HUNDRED_TO_500,
+      },
+    );
+
+    expect(draft.budgetPreference).toBe(
+      LearningBudgetPreference.HUNDRED_TO_500,
+    );
+  });
+
+  it("keeps the clicked value when it equals the stored one and the provider disagrees", async () => {
+    const draft = await ask(
+      { timeCommitment: LearningTimeCommitment.THREE_TO_FIVE_HOURS },
+      {
+        ...contractReady,
+        timeCommitment: LearningTimeCommitment.MORE_THAN_FIVE_HOURS,
+      },
+      {
+        answerField: RoadmapDraftFieldKey.TIME_COMMITMENT,
+        answerValue: LearningTimeCommitment.MORE_THAN_FIVE_HOURS,
+      },
+    );
+
+    expect(draft.timeCommitment).toBe(
+      LearningTimeCommitment.MORE_THAN_FIVE_HOURS,
+    );
+  });
+
+  it("keeps the clicked skill level", async () => {
+    const draft = await ask(
+      { skillLevel: SkillLevel.INTERMEDIATE },
+      { ...contractReady },
+      {
+        answerField: RoadmapDraftFieldKey.SKILL_LEVEL,
+        answerValue: SkillLevel.ADVANCED,
+      },
+    );
+
+    expect(draft.skillLevel).toBe(SkillLevel.ADVANCED);
+  });
+
+  it("records a clicked CPD no as an explicit answer even when the provider extracts nothing", async () => {
+    const draft = await ask(
+      {},
+      { ...contractReady, cpdAnswered: false },
+      { answerField: RoadmapDraftFieldKey.CPD_ENABLED, answerValue: "false" },
+    );
+
+    expect(draft).toMatchObject({ cpdEnabled: false, cpdAnswered: true });
+  });
+
+  it("still takes the other fields the provider extracts", async () => {
+    const draft = await ask(
+      {
+        timeCommitment: LearningTimeCommitment.THREE_TO_FIVE_HOURS,
+        goal: "lead a platform team",
+      },
+      { ...contractReady },
+      {
+        answerField: RoadmapDraftFieldKey.TIME_COMMITMENT,
+        answerValue: LearningTimeCommitment.MORE_THAN_FIVE_HOURS,
+      },
+    );
+
+    expect(draft.goal).toBe("lead a platform team");
+    expect(draft.timeCommitment).toBe(
+      LearningTimeCommitment.MORE_THAN_FIVE_HOURS,
+    );
+  });
+
+  it("follows the provider when the answer was typed instead of clicked", async () => {
+    const { service, store } = setup([
+      {
+        ok: true,
+        data: turnData({
+          extracted: {
+            timeCommitment: LearningTimeCommitment.THREE_TO_FIVE_HOURS,
+          },
+        }),
+      },
+    ]);
+    store.seed(emptyDraft({ ...contractReady }));
+
+    await service.chatTurn(OWNER, {
+      draftId: "draft-1",
+      message: "about four hours",
+    });
+
+    expect(store.drafts[0].timeCommitment).toBe(
+      LearningTimeCommitment.THREE_TO_FIVE_HOURS,
+    );
+  });
+
+  it("rejects a value that is not a platform option before calling the provider", async () => {
+    const { service, store, chatTurn } = setup();
+    store.seed(emptyDraft({ ...contractReady }));
+
+    await expect(
+      service.chatTurn(OWNER, {
+        draftId: "draft-1",
+        message: "x",
+        answerField: RoadmapDraftFieldKey.TIME_COMMITMENT,
+        answerValue: "FOUR_TO_SIX_HOURS",
+      }),
+    ).rejects.toMatchObject({
+      message: ProfessionalMessageCode.ROADMAP_DRAFT_FIELD_INVALID,
+    });
+    expect(chatTurn).not.toHaveBeenCalled();
+  });
+});

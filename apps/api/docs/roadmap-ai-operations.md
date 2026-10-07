@@ -150,3 +150,16 @@ The draft sent to the provider carries `subjects: null` while no subject is
 chosen (never `[]`) and `cpd_enabled: null` while the CPD question is
 unanswered. The provider's CPD widget may arrive as `single_select` with the
 options `"true"` and `"false"`; the platform shows it as a yes or no question.
+
+## Clicked answers
+
+The provider extracts weekly time and budget from the text of a message, in its
+own coarser vocabulary, so a clicked "5+ hours per week" can come back as a
+neighbouring band and be stored as "3-5 hours". When a professional clicks an
+option for skill level, weekly time, budget or the CPD question, the web app
+sends the chosen platform value with the message (`answerField`, `answerValue`).
+The API validates it against the platform enum, rejects anything else before the
+provider is called, and stores exactly that value over whatever the provider
+extracted for that field. Fields the provider extracts for other topics in the
+same message are still merged. A typed answer has no structured value and still
+follows the provider's reading.

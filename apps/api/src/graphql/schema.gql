@@ -4686,6 +4686,8 @@ enum RoadmapChatRole {
 }
 
 input RoadmapChatTurnInput {
+  answerField: RoadmapDraftFieldKey
+  answerValue: String
   draftId: ID!
   message: String!
 }
