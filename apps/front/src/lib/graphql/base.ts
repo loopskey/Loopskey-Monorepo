@@ -6519,6 +6519,8 @@ export enum RoadmapChatRole {
 }
 
 export type RoadmapChatTurnInput = {
+  answerField?: InputMaybe<RoadmapDraftFieldKey>;
+  answerValue?: InputMaybe<Scalars['String']['input']>;
   draftId: Scalars['ID']['input'];
   message: Scalars['String']['input'];
 };
