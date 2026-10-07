@@ -1,14 +1,18 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { RoadmapStepProgressStatus } from "@/lib/graphql/base";
+import { roadmapStepElementId } from "@/utils/roadmap-navigation.util";
 import { TRoadmapPhaseProps } from "@/types/professional-roadmap-chat.types";
+import { roadmapContentHref } from "@/utils/roadmap-navigation.util";
 import { contentTypeIcon } from "@/utils/constant";
 import { GlassCard } from "@elements/glass-card";
-import { useState } from "react";
 import { Progress } from "@ui/progress";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
 import { cn } from "@/lib/utils";
+
+import Link from "next/link";
 
 import * as L from "lucide-react";
 
@@ -44,7 +48,11 @@ const weekRanges = (
 
 type TRoadmapPhaseListProps = TRoadmapPhaseProps & {
   nextStepId?: string | null;
+  focusStepId?: string | null;
+  focusNonce?: number;
 };
+
+const HIGHLIGHT_MS = 2500;
 
 export const RoadmapPhaseList = ({
   t,
@@ -52,9 +60,11 @@ export const RoadmapPhaseList = ({
   pending,
   onStart,
   onComplete,
+  nextStepId,
+  focusStepId,
   enrollmentId,
   failedStepId,
-  nextStepId,
+  focusNonce = 0,
 }: TRoadmapPhaseListProps) => {
   const currentPhaseId =
     phases.find((phase) => !phase.completed)?.id ?? phases.at(-1)?.id;
@@ -62,7 +72,37 @@ export const RoadmapPhaseList = ({
     () => new Set(currentPhaseId ? [currentPhaseId] : []),
   );
   const [reviewedSteps, setReviewedSteps] = useState<Set<string>>(new Set());
+  const [highlightedStepId, setHighlightedStepId] = useState<string | null>(
+    null,
+  );
+  const handledFocusRef = useRef<string | null>(null);
   const ranges = weekRanges(phases);
+
+  useEffect(() => {
+    if (!focusStepId) return;
+    const focusKey = `${focusStepId}:${focusNonce}`;
+    if (handledFocusRef.current === focusKey) return;
+    const phase = phases.find((candidate) =>
+      candidate.steps.some((step) => step.id === focusStepId),
+    );
+    if (!phase) return;
+    if (!expandedPhases.has(phase.id)) {
+      setExpandedPhases((current) => new Set(current).add(phase.id));
+      return;
+    }
+    const element = document.getElementById(roadmapStepElementId(focusStepId));
+    if (!element) return;
+    handledFocusRef.current = focusKey;
+    element.scrollIntoView({ behavior: "smooth", block: "center" });
+    element.focus({ preventScroll: true });
+    setHighlightedStepId(focusStepId);
+  }, [focusStepId, focusNonce, phases, expandedPhases]);
+
+  useEffect(() => {
+    if (!highlightedStepId) return;
+    const timer = setTimeout(() => setHighlightedStepId(null), HIGHLIGHT_MS);
+    return () => clearTimeout(timer);
+  }, [highlightedStepId]);
 
   const togglePhase = (phaseId: string) => {
     setExpandedPhases((current) => {
@@ -154,6 +194,10 @@ export const RoadmapPhaseList = ({
                     const busy = pending?.stepId === step.id;
                     const isReviewed = reviewedSteps.has(step.id);
                     const isNext = step.id === nextStepId;
+                    const contentHref = roadmapContentHref(
+                      step.contentType,
+                      step.contentSlug,
+                    );
                     const Icon = step.contentType
                       ? (contentTypeIcon[
                           step.contentType as keyof typeof contentTypeIcon
@@ -162,10 +206,14 @@ export const RoadmapPhaseList = ({
                     return (
                       <li
                         key={step.id}
+                        tabIndex={-1}
+                        id={roadmapStepElementId(step.id)}
                         className={cn(
-                          "rounded-md border p-3",
+                          "scroll-mt-24 rounded-md border p-3 outline-none transition-shadow",
                           isNext && "border-primary/50 bg-primary/5",
                           isComplete && "opacity-70",
+                          highlightedStepId === step.id &&
+                            "ring-2 ring-primary ring-offset-2",
                         )}
                       >
                         <div className="flex flex-wrap items-start justify-between gap-3">
@@ -242,8 +290,25 @@ export const RoadmapPhaseList = ({
                               aria-pressed={isReviewed}
                               onClick={() => toggleStepReview(step.id)}
                             >
-                              {t(`${KEY}.review`)}
+                              {t("professionalDashboard.common.details")}
                             </Button>
+
+                            {contentHref ? (
+                              <Button
+                                asChild
+                                size="sm"
+                                radius="xl"
+                                variant="outline"
+                              >
+                                <Link
+                                  href={contentHref}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  {t(`${KEY}.viewContent`)}
+                                </Link>
+                              </Button>
+                            ) : null}
 
                             {!isComplete ? (
                               <>

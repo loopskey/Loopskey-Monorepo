@@ -91,6 +91,7 @@ const emptyDraft = (overrides: Partial<StoredDraft> = {}): StoredDraft => ({
   preferredContentTypes: [],
   preferredDeliveryFormats: [],
   cpdEnabled: false,
+  cpdAnswered: false,
   certificationId: null,
   certificationName: null,
   requiredCredits: null,
@@ -487,6 +488,7 @@ const collected = {
   subjects: ["term-data"],
   preferredFormats: [LearningFormat.COURSE],
   preferredDeliveryFormats: [DeliveryFormat.ONLINE],
+  cpdAnswered: true,
 };
 
 describe("starting the wizard", () => {
@@ -523,11 +525,12 @@ describe("starting the wizard", () => {
 
     const view = await service.startDraft(OWNER);
 
-    expect(view.requiredFieldCount).toBe(4);
+    expect(view.requiredFieldCount).toBe(6);
     expect(view.completedFieldCount).toBe(0);
     expect(view.remainingFields).toEqual([
       RoadmapDraftStep.GOAL,
       RoadmapDraftStep.PREFERENCES,
+      RoadmapDraftStep.CPD_TRACKING,
     ]);
   });
 
@@ -884,14 +887,7 @@ describe("sending a chat turn", () => {
       const { service, store } = setup([
         { ok: true, data: turnData({ isComplete: true, widget: null }) },
       ]);
-      store.seed(
-        emptyDraft({
-          goal: "become a data lead",
-          skillLevel: SkillLevel.INTERMEDIATE,
-          timeCommitment: LearningTimeCommitment.THREE_TO_FIVE_HOURS,
-          subjects: ["term-data"],
-        }),
-      );
+      store.seed(emptyDraft(contractReady));
 
       const view = await service.chatTurn(OWNER, {
         draftId: "draft-1",
@@ -1145,7 +1141,11 @@ describe("the CPD answer sent to the provider", () => {
   it("represents an unanswered CPD question as null rather than the persisted default false", async () => {
     const { service, store, calls } = setup();
     store.seed(
-      emptyDraft({ ...collected, currentStep: RoadmapDraftStep.PREFERENCES }),
+      emptyDraft({
+        ...collected,
+        cpdAnswered: false,
+        currentStep: RoadmapDraftStep.PREFERENCES,
+      }),
     );
 
     await service.chatTurn(OWNER, { draftId: "draft-1", message: "ok" });
@@ -1153,13 +1153,14 @@ describe("the CPD answer sent to the provider", () => {
     expect(calls[0].draft.cpdEnabled).toBeNull();
   });
 
-  it("sends an explicit false once CPD tracking has already been declined", async () => {
+  it("sends an explicit false once CPD tracking has been declined, at any step", async () => {
     const { service, store, calls } = setup();
     store.seed(
       emptyDraft({
         ...collected,
         cpdEnabled: false,
-        currentStep: RoadmapDraftStep.REVIEW,
+        cpdAnswered: true,
+        currentStep: RoadmapDraftStep.PREFERENCES,
       }),
     );
 
@@ -1174,6 +1175,7 @@ describe("the CPD answer sent to the provider", () => {
       emptyDraft({
         ...collected,
         cpdEnabled: true,
+        cpdAnswered: true,
         currentStep: RoadmapDraftStep.CERTIFICATION,
       }),
     );
@@ -1181,6 +1183,78 @@ describe("the CPD answer sent to the provider", () => {
     await service.chatTurn(OWNER, { draftId: "draft-1", message: "ok" });
 
     expect(calls[0].draft.cpdEnabled).toBe(true);
+  });
+
+  it("keeps an unanswered CPD question null even on the review step", async () => {
+    const { service, store, calls } = setup();
+    store.seed(
+      emptyDraft({
+        ...collected,
+        cpdEnabled: false,
+        cpdAnswered: false,
+        currentStep: RoadmapDraftStep.REVIEW,
+      }),
+    );
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "ok" });
+
+    expect(calls[0].draft.cpdEnabled).toBeNull();
+  });
+
+  it("records a declined CPD answer from the provider and keeps sending false afterwards", async () => {
+    const { service, store, calls } = setup([
+      { ok: true, data: turnData({ extracted: { cpdEnabled: false } }) },
+    ]);
+    store.seed(
+      emptyDraft({
+        ...collected,
+        cpdEnabled: false,
+        cpdAnswered: false,
+        currentStep: RoadmapDraftStep.CPD_TRACKING,
+      }),
+    );
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "no" });
+    expect(store.drafts[0]).toMatchObject({
+      cpdEnabled: false,
+      cpdAnswered: true,
+    });
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "ok" });
+    expect(calls.at(-1)?.draft.cpdEnabled).toBe(false);
+  });
+
+  it("forgets the answer when the provider retracts it", async () => {
+    const { service, store } = setup([
+      { ok: true, data: turnData({ clearedFields: ["cpdEnabled"] }) },
+    ]);
+    store.seed(
+      emptyDraft({ ...collected, cpdEnabled: true, cpdAnswered: true }),
+    );
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "undo" });
+
+    expect(store.drafts[0]).toMatchObject({
+      cpdEnabled: false,
+      cpdAnswered: false,
+    });
+  });
+
+  it("stores a review answer of No as answered and a cleared one as unanswered", async () => {
+    const { service, store } = setup();
+    store.seed(emptyDraft({ ...collected }));
+
+    await service.patchDraft(OWNER, { draftId: "draft-1", cpdEnabled: false });
+    expect(store.drafts[0]).toMatchObject({
+      cpdEnabled: false,
+      cpdAnswered: true,
+    });
+
+    await service.patchDraft(OWNER, { draftId: "draft-1", cpdEnabled: null });
+    expect(store.drafts[0]).toMatchObject({
+      cpdEnabled: false,
+      cpdAnswered: false,
+    });
   });
 });
 
@@ -1514,7 +1588,7 @@ describe("patching CPD Setup", () => {
     expect(view.currentStep).toBe(RoadmapDraftStep.GOAL);
   });
 
-  it("does not advance the interview or ask anything after operational CPD data", async () => {
+  it("does not move the step or ask anything after operational CPD data, and completes a valid draft", async () => {
     const { service, store, chatTurn } = setup();
     store.seed(emptyDraft({ ...collected, cpdEnabled: true }));
 
@@ -1526,8 +1600,8 @@ describe("patching CPD Setup", () => {
 
     expect(chatTurn).not.toHaveBeenCalled();
     expect(view.currentStep).toBe(RoadmapDraftStep.GOAL);
-    expect(view.isComplete).toBe(false);
-    expect(store.drafts[0].status).toBe(RoadmapDraftStatus.COLLECTING);
+    expect(view.isComplete).toBe(true);
+    expect(store.drafts[0].status).toBe(RoadmapDraftStatus.READY);
     expect(
       store.messages.filter((m) => m.role === RoadmapChatRole.ASSISTANT),
     ).toHaveLength(0);
@@ -1599,14 +1673,7 @@ describe("completeness", () => {
     const { service, store } = setup([
       { ok: true, data: turnData({ isComplete: true }) },
     ]);
-    store.seed(
-      emptyDraft({
-        goal: "become a data lead",
-        skillLevel: SkillLevel.INTERMEDIATE,
-        timeCommitment: LearningTimeCommitment.THREE_TO_FIVE_HOURS,
-        subjects: ["term-data"],
-      }),
-    );
+    store.seed(emptyDraft(contractReady));
 
     const view = await service.chatTurn(OWNER, {
       draftId: "draft-1",
@@ -1623,14 +1690,10 @@ describe("completeness", () => {
     ]);
     store.seed(
       emptyDraft({
-        goal: "become a data lead",
-        skillLevel: SkillLevel.INTERMEDIATE,
-        timeCommitment: LearningTimeCommitment.THREE_TO_FIVE_HOURS,
-        subjects: ["term-data"],
+        ...contractReady,
         goalReason: null,
         context: null,
         targetDate: null,
-        budgetPreference: null,
         preferredFormats: [],
       }),
     );
@@ -1804,14 +1867,103 @@ describe("observability", () => {
       message: "a lead role",
     });
 
-    expect(logEntries).toHaveLength(1);
-    expect(logEntries[0]).toMatchObject({
+    const turnEntries = logEntries.filter(
+      (entry) => (entry as { event?: string }).event === "roadmap-chat.turn",
+    );
+    expect(turnEntries).toHaveLength(1);
+    expect(turnEntries[0]).toMatchObject({
       outcome: "ok",
       draftId: "draft-1",
       event: "roadmap-chat.turn",
       step: RoadmapDraftStep.GOAL,
     });
-    expect(logEntries[0]).toHaveProperty("durationMs");
+    expect(turnEntries[0]).toHaveProperty("durationMs");
+  });
+
+  it("records the status change, readiness and CPD answer of a turn without any message text", async () => {
+    const { service, store } = setup();
+    store.seed(emptyDraft());
+
+    await service.chatTurn(OWNER, {
+      draftId: "draft-1",
+      message: "a private message",
+    });
+
+    const state = logEntries.find(
+      (entry) => (entry as { event?: string }).event === "roadmap-chat.state",
+    );
+    expect(state).toMatchObject({
+      trigger: "turn",
+      draftId: "draft-1",
+      statusBefore: RoadmapDraftStatus.COLLECTING,
+      statusAfter: RoadmapDraftStatus.COLLECTING,
+      readinessValid: false,
+      subjectsCount: 0,
+      cpdEnabled: false,
+      cpdAnswered: false,
+    });
+    expect(state).toHaveProperty("missingFields");
+    expect(JSON.stringify(state)).not.toContain("a private message");
+  });
+
+  it("records a structured edit's transition", async () => {
+    const { service, store } = setup();
+    store.seed(
+      emptyDraft({
+        ...contractReady,
+        subjects: [],
+        currentStep: RoadmapDraftStep.PREFERENCES,
+      }),
+    );
+
+    await service.patchDraft(OWNER, {
+      draftId: "draft-1",
+      subjects: ["term-data"],
+    });
+
+    expect(
+      logEntries.find(
+        (entry) => (entry as { event?: string }).event === "roadmap-chat.state",
+      ),
+    ).toMatchObject({
+      trigger: "patch",
+      statusAfter: RoadmapDraftStatus.READY,
+      readinessValid: true,
+      missingFields: [],
+      subjectsCount: 1,
+    });
+  });
+
+  it("names a widget the platform rejected, with its field, type and reason", async () => {
+    const { service, store } = setup([
+      {
+        ok: true,
+        data: turnData({
+          widget: {
+            type: "MULTI_SELECT",
+            field: "skillLevel",
+            maxSelections: null,
+            options: [{ value: "BEGINNER", label: "Beginner" }],
+          },
+        }),
+      },
+    ]);
+    store.seed(emptyDraft());
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "hello" });
+
+    expect(
+      logEntries.find(
+        (entry) =>
+          (entry as { event?: string }).event ===
+          "roadmap-chat.widget-rejected",
+      ),
+    ).toMatchObject({
+      draftId: "draft-1",
+      field: "skillLevel",
+      type: "MULTI_SELECT",
+      reason: "TYPE_NOT_ALLOWED_FOR_FIELD",
+    });
   });
 
   it("carries the request's correlation identifier, the one the AI client also stamps", async () => {
@@ -2335,6 +2487,9 @@ const contractReady = {
   skillLevel: SkillLevel.INTERMEDIATE,
   timeCommitment: LearningTimeCommitment.THREE_TO_FIVE_HOURS,
   subjects: ["term-data"],
+  budgetPreference: LearningBudgetPreference.UNDER_100,
+  cpdEnabled: false,
+  cpdAnswered: true,
 };
 
 const subjectTerms = (count: number) =>
@@ -2675,14 +2830,13 @@ describe("progress shown to the professional", () => {
         goalReason: null,
         context: null,
         targetDate: null,
-        budgetPreference: null,
       }),
     );
 
     const view = await service.draft(OWNER, "draft-1");
 
-    expect(view?.requiredFieldCount).toBe(4);
-    expect(view?.completedFieldCount).toBe(4);
+    expect(view?.requiredFieldCount).toBe(6);
+    expect(view?.completedFieldCount).toBe(6);
     expect(view?.remainingFields).toEqual([]);
   });
 
@@ -2694,7 +2848,8 @@ describe("progress shown to the professional", () => {
 
     const view = await service.draft(OWNER, "draft-1");
 
-    expect(view?.completedFieldCount).toBe(2);
+    expect(view?.completedFieldCount).toBe(4);
+    expect(view?.requiredFieldCount).toBe(6);
     expect(view?.remainingFields).toEqual([RoadmapDraftStep.PREFERENCES]);
   });
 
@@ -2704,8 +2859,8 @@ describe("progress shown to the professional", () => {
 
     const view = await service.draft(OWNER, "draft-1");
 
-    expect(view?.requiredFieldCount).toBe(5);
-    expect(view?.completedFieldCount).toBe(4);
+    expect(view?.requiredFieldCount).toBe(7);
+    expect(view?.completedFieldCount).toBe(6);
     expect(view?.remainingFields).toEqual([RoadmapDraftStep.CERTIFICATION]);
   });
 });
@@ -2761,16 +2916,95 @@ describe("editing from the review panel", () => {
     expect(assistantCount(store)).toBe(0);
   });
 
-  it("lets the AI, not an edit, complete a draft that was still collecting", async () => {
-    const { service, store } = setup();
-    store.seed(emptyDraft({ ...contractReady, goal: null }));
+  it("makes a collecting draft ready once an edit completes its contract fields", async () => {
+    const { service, store, chatTurn } = setup();
+    store.seed(
+      emptyDraft({
+        ...contractReady,
+        subjects: [],
+        currentStep: RoadmapDraftStep.PREFERENCES,
+      }),
+    );
 
-    await service.patchDraft(OWNER, {
+    const view = await service.patchDraft(OWNER, {
+      draftId: "draft-1",
+      subjects: ["term-data"],
+    });
+
+    expect(chatTurn).not.toHaveBeenCalled();
+    expect(store.drafts[0]).toMatchObject({
+      status: RoadmapDraftStatus.READY,
+      currentStep: RoadmapDraftStep.PREFERENCES,
+    });
+    expect(view.isComplete).toBe(true);
+    expect(view.missingFields).toEqual([]);
+    expect(assistantCount(store)).toBe(0);
+  });
+
+  it("keeps a collecting draft collecting while a contract field is still missing", async () => {
+    const { service, store } = setup();
+    store.seed(emptyDraft({ ...contractReady, goal: null, subjects: [] }));
+
+    const view = await service.patchDraft(OWNER, {
       draftId: "draft-1",
       goal: "become a data lead",
     });
 
     expect(store.drafts[0].status).toBe(RoadmapDraftStatus.COLLECTING);
+    expect(view.missingFields).toEqual(["subjects"]);
+  });
+
+  it("returns a ready draft to collecting when CPD is switched on without a certification", async () => {
+    const { service, store } = setup();
+    store.seed(
+      emptyDraft({
+        ...contractReady,
+        status: RoadmapDraftStatus.READY,
+        currentStep: RoadmapDraftStep.REVIEW,
+      }),
+    );
+
+    const view = await service.patchDraft(OWNER, {
+      draftId: "draft-1",
+      cpdEnabled: true,
+    });
+
+    expect(store.drafts[0].status).toBe(RoadmapDraftStatus.COLLECTING);
+    expect(view.missingFields).toEqual(["certificationName"]);
+    expect(view.isComplete).toBe(false);
+  });
+
+  it("reports a failed draft with valid fields as ready to generate again", async () => {
+    const { service, store } = setup();
+    store.seed(
+      emptyDraft({
+        ...contractReady,
+        status: RoadmapDraftStatus.FAILED,
+        failureReason: "NO_CANDIDATES",
+      }),
+    );
+
+    const view = await service.draft(OWNER, "draft-1");
+
+    expect(view?.isComplete).toBe(true);
+    expect(view?.missingFields).toEqual([]);
+  });
+
+  it("keeps a failed draft with a missing field out of reach of Generate and names the field", async () => {
+    const { service, store } = setup();
+    store.seed(
+      emptyDraft({
+        ...contractReady,
+        subjects: [],
+        status: RoadmapDraftStatus.FAILED,
+        failureReason: "NO_CANDIDATES",
+      }),
+    );
+
+    const view = await service.draft(OWNER, "draft-1");
+
+    expect(view?.isComplete).toBe(false);
+    expect(view?.missingFields).toEqual(["subjects"]);
   });
 
   it("makes an edited failed draft ready again once its contract fields are valid", async () => {
@@ -2865,7 +3099,7 @@ describe("a draft written before subjects were validated", () => {
 
     const view = await service.draft(OWNER, "draft-1");
 
-    expect(view?.completedFieldCount).toBe(3);
+    expect(view?.completedFieldCount).toBe(5);
     expect(view?.remainingFields).toEqual([RoadmapDraftStep.PREFERENCES]);
   });
 
@@ -2936,5 +3170,236 @@ describe("a failed turn in the log", () => {
         message: RoadmapAiMessageCode.ROADMAP_AI_FAILED,
       }),
     );
+  });
+});
+
+describe("the subjects sent to the provider", () => {
+  it("sends null while no subject has been chosen", async () => {
+    const { service, store, calls } = setup();
+    store.seed(emptyDraft({ ...contractReady, subjects: [] }));
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "ok" });
+
+    expect(calls[0].draft.subjects).toBeNull();
+  });
+
+  it("never sends an empty list for an unanswered subject", async () => {
+    const { service, store, calls } = setup();
+    store.seed(emptyDraft());
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "hello" });
+
+    expect(calls[0].draft.subjects).toBeNull();
+  });
+
+  it("sends the chosen subjects", async () => {
+    const { service, store, calls } = setup();
+    store.seed(emptyDraft({ ...contractReady, subjects: ["term-data"] }));
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "ok" });
+
+    expect(calls[0].draft.subjects).toEqual(["Data Analysis"]);
+  });
+
+  it("offers subject options on a turn that still lacks a subject", async () => {
+    const { service, store, calls } = setup();
+    store.seed(emptyDraft({ ...contractReady, subjects: [] }));
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "ok" });
+
+    expect(calls[0].subjectOptions?.length).toBeGreaterThan(0);
+  });
+});
+
+describe("the CPD widget the provider sends", () => {
+  const cpdWidget = {
+    type: "SINGLE_SELECT" as const,
+    field: "cpdEnabled" as const,
+    maxSelections: null,
+    options: [
+      { value: "true", label: "Yes" },
+      { value: "false", label: "No" },
+    ],
+  };
+
+  it("is kept as a yes or no widget instead of being rejected", async () => {
+    const { service, store } = setup([
+      { ok: true, data: turnData({ widget: cpdWidget }) },
+    ]);
+    store.seed(emptyDraft(contractReady));
+
+    const view = await service.chatTurn(OWNER, {
+      draftId: "draft-1",
+      message: "ok",
+    });
+
+    expect(view.widget).toMatchObject({
+      type: "YES_NO",
+      field: "cpdEnabled",
+      options: [],
+    });
+    expect(
+      logEntries.some(
+        (entry) =>
+          (entry as { event?: string }).event ===
+          "roadmap-chat.widget-rejected",
+      ),
+    ).toBe(false);
+  });
+
+  it("is also kept when the provider sends a yes_no widget", async () => {
+    const { service, store } = setup([
+      {
+        ok: true,
+        data: turnData({ widget: { ...cpdWidget, type: "YES_NO" } }),
+      },
+    ]);
+    store.seed(emptyDraft(contractReady));
+
+    const view = await service.chatTurn(OWNER, {
+      draftId: "draft-1",
+      message: "ok",
+    });
+
+    expect(view.widget).toMatchObject({ type: "YES_NO", field: "cpdEnabled" });
+  });
+
+  it("records a text-form true as an explicit yes", async () => {
+    const { service, store } = setup([
+      {
+        ok: true,
+        data: turnData({ extracted: { cpdEnabled: true }, widget: null }),
+      },
+    ]);
+    store.seed(emptyDraft({ ...contractReady, cpdAnswered: false }));
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "Yes" });
+
+    expect(store.drafts[0]).toMatchObject({
+      cpdEnabled: true,
+      cpdAnswered: true,
+    });
+  });
+
+  it("records a text-form false as an explicit no", async () => {
+    const { service, store } = setup([
+      {
+        ok: true,
+        data: turnData({ extracted: { cpdEnabled: false }, widget: null }),
+      },
+    ]);
+    store.seed(emptyDraft({ ...contractReady, cpdAnswered: false }));
+
+    await service.chatTurn(OWNER, { draftId: "draft-1", message: "No" });
+
+    expect(store.drafts[0]).toMatchObject({
+      cpdEnabled: false,
+      cpdAnswered: true,
+    });
+  });
+});
+
+describe("whether generation is offered", () => {
+  const view = async (draft: Partial<StoredDraft>) => {
+    const { service, store } = setup();
+    store.seed(emptyDraft({ ...contractReady, ...draft }));
+    return service.draft(OWNER, "draft-1");
+  };
+
+  it.each([
+    [RoadmapDraftStatus.READY, true],
+    [RoadmapDraftStatus.FAILED, true],
+    [RoadmapDraftStatus.COLLECTING, false],
+    [RoadmapDraftStatus.GENERATING, false],
+    [RoadmapDraftStatus.COMPLETED, false],
+  ])("for a valid %s draft is %s", async (status, expected) => {
+    expect((await view({ status }))?.canGenerate).toBe(expected);
+  });
+
+  it.each([RoadmapDraftStatus.READY, RoadmapDraftStatus.FAILED])(
+    "is withheld from a %s draft that lacks a budget preference",
+    async (status) => {
+      const result = await view({ status, budgetPreference: null });
+
+      expect(result?.canGenerate).toBe(false);
+      expect(result?.missingFields).toEqual(["budgetPreference"]);
+    },
+  );
+
+  it("is withheld from a ready draft whose CPD question was never answered", async () => {
+    const result = await view({
+      status: RoadmapDraftStatus.READY,
+      cpdAnswered: false,
+    });
+
+    expect(result?.canGenerate).toBe(false);
+    expect(result?.missingFields).toEqual(["cpdAnswered"]);
+  });
+
+  it("is withheld from a draft that tracks CPD without a certification", async () => {
+    const result = await view({
+      status: RoadmapDraftStatus.FAILED,
+      cpdEnabled: true,
+    });
+
+    expect(result?.canGenerate).toBe(false);
+    expect(result?.missingFields).toEqual(["certificationName"]);
+  });
+
+  it("is withheld from a legacy draft stored with an empty subject list", async () => {
+    const result = await view({
+      status: RoadmapDraftStatus.READY,
+      subjects: [],
+    });
+
+    expect(result?.canGenerate).toBe(false);
+    expect(result?.missingFields).toEqual(["subjects"]);
+  });
+
+  it("is offered again once a missing budget is chosen on a ready draft", async () => {
+    const { service, store } = setup();
+    store.seed(
+      emptyDraft({
+        ...contractReady,
+        budgetPreference: null,
+        status: RoadmapDraftStatus.READY,
+        currentStep: RoadmapDraftStep.REVIEW,
+      }),
+    );
+
+    const edited = await service.patchDraft(OWNER, {
+      draftId: "draft-1",
+      budgetPreference: LearningBudgetPreference.FREE_ONLY,
+    });
+
+    expect(edited.canGenerate).toBe(true);
+    expect(store.drafts[0].status).toBe(RoadmapDraftStatus.READY);
+  });
+
+  it("promotes a collecting draft to ready when the last mandatory field is chosen in the review", async () => {
+    const { service, store } = setup();
+    store.seed(emptyDraft({ ...contractReady, subjects: [] }));
+
+    const edited = await service.patchDraft(OWNER, {
+      draftId: "draft-1",
+      subjects: ["term-data"],
+    });
+
+    expect(store.drafts[0].status).toBe(RoadmapDraftStatus.READY);
+    expect(edited.canGenerate).toBe(true);
+  });
+
+  it("keeps a draft collecting when the CPD question is still open", async () => {
+    const { service, store } = setup();
+    store.seed(emptyDraft({ ...contractReady, cpdAnswered: false }));
+
+    const edited = await service.patchDraft(OWNER, {
+      draftId: "draft-1",
+      goal: "lead a data team",
+    });
+
+    expect(store.drafts[0].status).toBe(RoadmapDraftStatus.COLLECTING);
+    expect(edited.canGenerate).toBe(false);
+    expect(edited.missingFields).toEqual(["cpdAnswered"]);
   });
 });

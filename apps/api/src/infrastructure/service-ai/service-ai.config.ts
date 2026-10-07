@@ -5,13 +5,15 @@ export const PROVIDER_BUDGET_MS = {
 
 export const PROVIDER_CUTOFF_MS = {
   chatTurn: 30_000,
-  generate: 75_000,
+  generate: 142_000,
 } as const;
 
 const DEFAULT_TIMEOUT_MS = {
   chatTurn: 35_000,
-  generate: 80_000,
+  generate: 150_000,
 } as const;
+
+export const OUTBOX_LEASE_SAFETY_MARGIN_MS = 15_000;
 
 export type ServiceAiConfig = {
   baseUrl: string | null;
@@ -91,4 +93,4 @@ export const loadServiceAiConfig = (config: ConfigReader): ServiceAiConfig => ({
 export const leaseShorterThanGenerate = (
   leaseMs: number,
   generateTimeoutMs: number,
-): boolean => leaseMs < generateTimeoutMs;
+): boolean => leaseMs < generateTimeoutMs + OUTBOX_LEASE_SAFETY_MARGIN_MS;

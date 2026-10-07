@@ -8,6 +8,7 @@ import { LEARNING_TIME_COMMITMENTS } from "@/utils/professional-profile.constant
 import { RoadmapCpdSetupPanel } from "./RoadmapCpdSetupPanel";
 import { isRoadmapStepReached } from "@/utils/roadmap-chat-step.util";
 import { ROADMAP_STAGE_ORDER } from "@/utils/roadmap-chat-step.util";
+import { RoadmapDraftStatus } from "@/lib/graphql/base";
 import { DELIVERY_FORMATS } from "@/utils/professional-profile.constant";
 import { LEARNING_FORMATS } from "@/utils/professional-profile.constant";
 import { roadmapStageOf } from "@/utils/roadmap-chat-step.util";
@@ -54,11 +55,36 @@ const GOAL_FIELDS: (keyof T.Patch)[] = [
   "context",
   "targetDate",
 ];
+const PREFERENCE_REQUIRED = [
+  "skillLevel",
+  "timeCommitment",
+  "subjects",
+  "budgetPreference",
+];
+const CPD_REQUIRED = ["cpdAnswered", "certificationName"];
+const MISSING_ORDER = [
+  "goal",
+  "subjects",
+  "skillLevel",
+  "cpdAnswered",
+  "timeCommitment",
+  "budgetPreference",
+  "certificationName",
+];
+const FIX_STAGE: Record<string, "goal" | "preferences" | "cpd"> = {
+  goal: "goal",
+  skillLevel: "preferences",
+  timeCommitment: "preferences",
+  subjects: "preferences",
+  budgetPreference: "preferences",
+  cpdAnswered: "cpd",
+  certificationName: "cpd",
+};
 const PREFERENCE_FIELDS: (keyof T.Patch)[] = [
+  "subjects",
   "skillLevel",
   "timeCommitment",
   "budgetPreference",
-  "subjects",
   "preferredFormats",
   "preferredContentTypes",
   "preferredDeliveryFormats",
@@ -69,8 +95,8 @@ export const RoadmapReviewSummary = ({
   onPatch,
   isPatching,
   onGenerate,
-  isGenerating,
   focusStage,
+  isGenerating,
   onPatchCpdSetup,
   isPatchingCpdSetup,
 }: T.TRoadmapReviewSummary) => {
@@ -173,13 +199,14 @@ export const RoadmapReviewSummary = ({
     {
       field: "cpdEnabled",
       editor: { kind: "boolean" },
-      value: draft.cpdEnabled,
+      value: draft.cpdAnswered ? draft.cpdEnabled : null,
     },
   ];
 
   const visible = (fields: (keyof T.Patch)[]) =>
     allRows.filter((row) => {
       if (!fields.includes(row.field)) return false;
+      if (missing.has(String(row.field))) return true;
       const step = FIELD_STEP[row.field];
       return !step || isRoadmapStepReached(draft.currentStep, step);
     });
@@ -193,11 +220,6 @@ export const RoadmapReviewSummary = ({
       ? Math.round((draft.completedFieldCount / draft.requiredFieldCount) * 100)
       : 100;
 
-  const cpdEnabledReached = isRoadmapStepReached(
-    draft.currentStep,
-    RoadmapDraftStep.CpdTracking,
-  );
-
   const stageIndex = ROADMAP_STAGE_ORDER.indexOf(currentStage);
   const stageStatus = (stage: RoadmapChatStage) => {
     const index = ROADMAP_STAGE_ORDER.indexOf(stage);
@@ -206,23 +228,47 @@ export const RoadmapReviewSummary = ({
     return "upcoming" as const;
   };
 
-  const hasPreferenceValue =
-    draft.skillLevel !== null ||
-    draft.timeCommitment !== null ||
-    draft.budgetPreference !== null ||
-    draft.subjects.length > 0 ||
-    draft.preferredFormats.length > 0;
+  const missing = new Set(draft.missingFields);
+  const firstMissing = MISSING_ORDER.find((field) => missing.has(field));
+  const cpdEnabledReached =
+    draft.cpdAnswered ||
+    firstMissing === "cpdAnswered" ||
+    isRoadmapStepReached(draft.currentStep, RoadmapDraftStep.CpdTracking);
+  const isBusy =
+    draft.status === RoadmapDraftStatus.Generating ||
+    draft.status === RoadmapDraftStatus.Completed;
 
   const sectionBadge = (stage: RoadmapChatStage): T.TBriefFieldStatus => {
-    const index = ROADMAP_STAGE_ORDER.indexOf(stage);
-    if (stage === "cpdSetup") {
-      if (index < stageIndex)
-        return draft.cpdEnabled ? "confirmed" : "notNeeded";
-      return "needsAnswer";
-    }
-    if (index < stageIndex) return "confirmed";
-    if (stage === "preferences" && hasPreferenceValue) return "suggested";
-    return "needsAnswer";
+    if (stage === "goal")
+      return missing.has("goal") ? "needsAnswer" : "confirmed";
+    if (stage === "preferences")
+      return PREFERENCE_REQUIRED.some((field) => missing.has(field))
+        ? "needsAnswer"
+        : "confirmed";
+    if (stage === "cpdSetup")
+      return CPD_REQUIRED.some((field) => missing.has(field))
+        ? "needsAnswer"
+        : "confirmed";
+    if (!draft.canGenerate) return "needsAnswer";
+    return draft.status === RoadmapDraftStatus.Failed
+      ? "readyToRetry"
+      : "ready";
+  };
+
+  const generateHint = () =>
+    firstMissing
+      ? t(`professionalRoadmapChat.review.missing.${firstMissing}`)
+      : t("professionalRoadmapChat.review.waitingForCoach");
+
+  const fixMissing = () => {
+    if (!firstMissing) return;
+    const target = FIX_STAGE[firstMissing];
+    const stage = target === "cpd" ? "cpdSetup" : target;
+    setOpenStage(stage);
+    setEditingCard(target);
+    document
+      .getElementById(`roadmap-stage-panel-${stage}`)
+      ?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   };
 
   return (
@@ -330,7 +376,7 @@ export const RoadmapReviewSummary = ({
                 row={{
                   field: "cpdEnabled",
                   editor: { kind: "boolean" },
-                  value: draft.cpdEnabled,
+                  value: draft.cpdAnswered ? draft.cpdEnabled : null,
                 }}
                 draft={draft}
                 onCommit={commit}
@@ -360,7 +406,7 @@ export const RoadmapReviewSummary = ({
           status={stageStatus("review")}
           isOpen={openStage === "review"}
           onToggle={() => toggleStage("review")}
-          badge={draft.isComplete ? "confirmed" : "needsAnswer"}
+          badge={sectionBadge("review")}
         >
           <p className="text-sm text-muted-foreground">
             {t("professionalRoadmapChat.review.description")}
@@ -372,7 +418,7 @@ export const RoadmapReviewSummary = ({
         <div
           className={cn(
             "border-t px-4 py-3.5",
-            draft.isComplete &&
+            draft.canGenerate &&
               "sticky bottom-0 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80",
           )}
         >
@@ -381,9 +427,9 @@ export const RoadmapReviewSummary = ({
               radius="xl"
               className="w-full"
               aria-describedby={
-                draft.isComplete ? undefined : "roadmap-generate-unavailable"
+                draft.canGenerate ? undefined : "roadmap-generate-unavailable"
               }
-              disabled={!draft.isComplete || isPatching || isGenerating}
+              disabled={!draft.canGenerate || isPatching || isGenerating}
               onClick={onGenerate}
             >
               {isGenerating ? (
@@ -391,25 +437,31 @@ export const RoadmapReviewSummary = ({
               ) : null}
               {isGenerating
                 ? t("professionalRoadmapChat.review.generating")
-                : t("professionalRoadmapChat.review.generate")}
+                : draft.status === RoadmapDraftStatus.Failed
+                  ? t("professionalRoadmapChat.review.retryGenerate")
+                  : t("professionalRoadmapChat.review.generate")}
             </Button>
 
-            {!draft.isComplete ? (
+            {!draft.canGenerate && !isBusy ? (
               <p
                 id="roadmap-generate-unavailable"
                 className="text-xs text-muted-foreground"
               >
-                {draft.remainingFields.length
-                  ? t(
-                      "professionalRoadmapChat.review.generateUnavailableNext",
-                      {
-                        field: t(
-                          `${STAGE_LABEL_KEY}.${roadmapStageOf(draft.remainingFields[0])}`,
-                        ),
-                      },
-                    )
-                  : t("professionalRoadmapChat.review.generateUnavailable")}
+                {generateHint()}
               </p>
+            ) : null}
+
+            {!draft.canGenerate && !isBusy && firstMissing ? (
+              <Button
+                size="sm"
+                radius="xl"
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={fixMissing}
+              >
+                {t(`professionalRoadmapChat.review.fixAction.${firstMissing}`)}
+              </Button>
             ) : null}
           </div>
         </div>
@@ -436,10 +488,10 @@ const BADGE_VARIANT: Record<
   T.TBriefFieldStatus,
   "default" | "secondary" | "outline"
 > = {
+  ready: "default",
   confirmed: "default",
-  suggested: "secondary",
+  readyToRetry: "default",
   needsAnswer: "outline",
-  notNeeded: "outline",
 };
 
 const StageSection = ({
@@ -536,10 +588,13 @@ const SectionRow = ({ row, draft, onCommit, isEditing }: TSectionRow) => {
 
   const display = () => {
     const { value, editor } = row;
-    if (editor.kind === "boolean")
+    if (editor.kind === "boolean") {
+      if (value === null || value === undefined)
+        return t("professionalRoadmapChat.review.notSet");
       return value
         ? t("professionalRoadmapChat.review.yes")
         : t("professionalRoadmapChat.review.no");
+    }
 
     if (Array.isArray(value)) {
       if (!value.length) return t("professionalRoadmapChat.review.notSet");
@@ -613,7 +668,7 @@ const RowEditor = ({ row, draft, onCommit }: TRowEditor) => {
           size="sm"
           radius="xl"
           onClick={() => onCommit(field, true)}
-          variant={row.value ? "default" : "outline"}
+          variant={row.value === true ? "default" : "outline"}
         >
           {t("professionalRoadmapChat.review.yes")}
         </Button>
@@ -621,7 +676,7 @@ const RowEditor = ({ row, draft, onCommit }: TRowEditor) => {
           size="sm"
           radius="xl"
           onClick={() => onCommit(field, false)}
-          variant={row.value ? "outline" : "default"}
+          variant={row.value === false ? "default" : "outline"}
         >
           {t("professionalRoadmapChat.review.no")}
         </Button>

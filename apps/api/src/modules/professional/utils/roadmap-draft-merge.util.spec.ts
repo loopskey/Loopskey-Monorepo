@@ -25,11 +25,59 @@ const draft = (
   preferredContentTypes: [],
   preferredDeliveryFormats: [],
   cpdEnabled: false,
+  cpdAnswered: false,
   certificationId: null,
   certificationName: null,
   requiredCredits: null,
   completedCredits: null,
   ...overrides,
+});
+
+describe("the CPD answer", () => {
+  it("marks CPD answered when the provider reports No, even though false equals the stored default", () => {
+    const { changes } = mergeExtractedFields({
+      current: draft({ cpdEnabled: false, cpdAnswered: false }),
+      extracted: { cpdEnabled: false },
+      cleared: [],
+      subjectOptions: SUBJECT_OPTIONS,
+    });
+
+    expect(changes.cpdAnswered).toBe(true);
+    expect(changes).not.toHaveProperty("cpdEnabled");
+  });
+
+  it("marks CPD answered when the provider reports Yes", () => {
+    const { changes } = mergeExtractedFields({
+      current: draft(),
+      extracted: { cpdEnabled: true },
+      cleared: [],
+      subjectOptions: SUBJECT_OPTIONS,
+    });
+
+    expect(changes).toMatchObject({ cpdEnabled: true, cpdAnswered: true });
+  });
+
+  it("leaves the answer alone when the provider says nothing about CPD", () => {
+    const { changes } = mergeExtractedFields({
+      current: draft({ cpdAnswered: true }),
+      extracted: { goal: "become a lead" },
+      cleared: [],
+      subjectOptions: SUBJECT_OPTIONS,
+    });
+
+    expect(changes).not.toHaveProperty("cpdAnswered");
+  });
+
+  it("returns CPD to unanswered when the provider retracts it", () => {
+    const { changes } = mergeExtractedFields({
+      current: draft({ cpdEnabled: true, cpdAnswered: true }),
+      extracted: {},
+      cleared: ["cpdEnabled"],
+      subjectOptions: SUBJECT_OPTIONS,
+    });
+
+    expect(changes).toMatchObject({ cpdEnabled: false, cpdAnswered: false });
+  });
 });
 
 const merge = (
@@ -206,12 +254,12 @@ describe("roadmap draft merge rules", () => {
   });
 
   it("reports a field the turn spoke about even when the value is unchanged", () => {
-    const { changes, answered } = merge(draft({ cpdEnabled: false }), {
-      cpdEnabled: false,
+    const { changes, answered } = merge(draft({ goal: "keep" }), {
+      goal: "keep",
     });
 
     expect(changes).toEqual({});
-    expect(answered.has("cpdEnabled")).toBe(true);
+    expect(answered.has("goal")).toBe(true);
   });
 
   it("does not restate a date that already matches", () => {

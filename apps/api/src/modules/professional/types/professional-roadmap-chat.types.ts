@@ -11,6 +11,7 @@ export type RoadmapDraftFields = {
   subjects: string[];
   goal: string | null;
   cpdEnabled: boolean;
+  cpdAnswered: boolean;
   context: string | null;
   targetDate: Date | null;
   targetRole: string | null;

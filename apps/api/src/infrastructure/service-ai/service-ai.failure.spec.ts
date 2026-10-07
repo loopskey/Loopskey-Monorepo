@@ -74,6 +74,41 @@ describe("the retryable flag decides retryability", () => {
   });
 });
 
+describe("the provider's real error codes", () => {
+  it.each([
+    ["VALIDATION_ERROR", false, "failed"],
+    ["AUTH_FAILED", false, "failed"],
+    ["MODEL_OUTPUT_INVALID", false, "failed"],
+    ["MODEL_OUTPUT_TRUNCATED", false, "failed"],
+    ["UPSTREAM_REJECTED", false, "failed"],
+    ["INTERNAL", false, "failed"],
+    ["MODEL_REFUSED", false, "refused"],
+    ["OVERLOADED", true, "busy"],
+    ["UPSTREAM_ERROR", true, "unavailable"],
+    ["UPSTREAM_TIMEOUT", true, "unavailable"],
+    ["NOT_READY", true, "unavailable"],
+  ])("maps %s with retryable=%s to %s", (code, retryable, kind) => {
+    expect(translateErrorEnvelope(envelope(code, retryable), 10)).toMatchObject(
+      { retryable, kind, providerCode: code },
+    );
+  });
+
+  it("lets the provider's flag, not the code name, decide for a retryable truncation", () => {
+    expect(
+      translateErrorEnvelope(envelope("MODEL_OUTPUT_TRUNCATED", true), null),
+    ).toMatchObject({ retryable: true, kind: "truncated" });
+  });
+
+  it("tolerates a code the platform has never seen", () => {
+    expect(() =>
+      translateErrorEnvelope(envelope("FUTURE_CODE_2027", false), null),
+    ).not.toThrow();
+    expect(
+      translateErrorEnvelope(envelope("FUTURE_CODE_2027", true), null),
+    ).toMatchObject({ retryable: true, kind: "unavailable" });
+  });
+});
+
 describe("the named outcomes", () => {
   it("surfaces a refusal as its own outcome, not an error", () => {
     expect(translateErrorEnvelope(envelope("OFF_TOPIC", false), null)).toEqual({

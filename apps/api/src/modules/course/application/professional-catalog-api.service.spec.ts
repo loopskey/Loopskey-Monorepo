@@ -94,3 +94,68 @@ describe("ProfessionalCatalogApiService.createGeneratedRoadmap", () => {
     ]);
   });
 });
+
+describe("ProfessionalCatalogApiService.contentSlugs", () => {
+  const setupSlugs = () => {
+    const finder = (rows: { id: string; slug: string }[]) =>
+      jest.fn().mockResolvedValue(rows);
+    const course = { findMany: finder([{ id: "c1", slug: "intro-course" }]) };
+    const event = { findMany: finder([{ id: "e1", slug: "summit" }]) };
+    const podcast = { findMany: finder([]) };
+    const youTubeChannel = { findMany: finder([{ id: "y1", slug: "chan" }]) };
+    const service = new ProfessionalCatalogApiService({
+      course,
+      event,
+      podcast,
+      youTubeChannel,
+    } as unknown as PrismaService);
+    return { service, course, event, podcast, youTubeChannel };
+  };
+
+  it("maps every requested content type to the slug of its published, live row", async () => {
+    const { service } = setupSlugs();
+
+    const slugs = await service.contentSlugs([
+      { contentId: "c1", contentType: "COURSE" },
+      { contentId: "e1", contentType: "EVENT" },
+      { contentId: "y1", contentType: "YOUTUBE" },
+    ]);
+
+    expect(slugs).toEqual({
+      "COURSE:c1": "intro-course",
+      "EVENT:e1": "summit",
+      "YOUTUBE:y1": "chan",
+    });
+  });
+
+  it("only reads published rows that are not deleted", async () => {
+    const { service, course } = setupSlugs();
+
+    await service.contentSlugs([{ contentId: "c1", contentType: "COURSE" }]);
+
+    expect(course.findMany).toHaveBeenCalledWith({
+      where: { id: { in: ["c1"] }, deletedAt: null, status: "PUBLISHED" },
+      select: { id: true, slug: true },
+    });
+  });
+
+  it("does not query a table nothing was requested from", async () => {
+    const { service, event, podcast, youTubeChannel } = setupSlugs();
+
+    await service.contentSlugs([{ contentId: "c1", contentType: "COURSE" }]);
+
+    expect(event.findMany).not.toHaveBeenCalled();
+    expect(podcast.findMany).not.toHaveBeenCalled();
+    expect(youTubeChannel.findMany).not.toHaveBeenCalled();
+  });
+
+  it("returns nothing for content that is not published", async () => {
+    const { service } = setupSlugs();
+
+    const slugs = await service.contentSlugs([
+      { contentId: "p1", contentType: "PODCAST" },
+    ]);
+
+    expect(slugs).toEqual({});
+  });
+});

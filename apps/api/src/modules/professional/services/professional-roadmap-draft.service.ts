@@ -25,6 +25,7 @@ const RESET_FIELDS: Prisma.RoadmapDraftUncheckedUpdateInput = {
   preferredContentTypes: [],
   preferredDeliveryFormats: [],
   cpdEnabled: false,
+  cpdAnswered: false,
   certificationId: null,
   certificationName: null,
   cpdPlanId: null,

@@ -1,4 +1,6 @@
+import { DEFAULT_LEASE_MS } from "@infrastructure/outbox/outbox-processor.service";
 import {
+  OUTBOX_LEASE_SAFETY_MARGIN_MS,
   PROVIDER_BUDGET_MS,
   PROVIDER_CUTOFF_MS,
   leaseShorterThanGenerate,
@@ -99,10 +101,38 @@ describe("Roadmap AI configuration", () => {
     expect(config.serviceToken).toBe("secret-token");
   });
 
-  it("reports a lease shorter than the generate timeout", () => {
-    expect(leaseShorterThanGenerate(60_000, 80_000)).toBe(true);
-    expect(leaseShorterThanGenerate(90_000, 80_000)).toBe(false);
-    expect(leaseShorterThanGenerate(80_000, 80_000)).toBe(false);
+  it("reports a lease that does not cover the generate timeout and a safety margin", () => {
+    expect(leaseShorterThanGenerate(60_000, 150_000)).toBe(true);
+    expect(leaseShorterThanGenerate(150_000, 150_000)).toBe(true);
+    expect(
+      leaseShorterThanGenerate(
+        150_000 + OUTBOX_LEASE_SAFETY_MARGIN_MS,
+        150_000,
+      ),
+    ).toBe(false);
+    expect(leaseShorterThanGenerate(180_000, 150_000)).toBe(false);
+  });
+
+  it("keeps the default outbox lease above the default generate timeout", () => {
+    const { timeouts } = loadServiceAiConfig(reader({}));
+
+    expect(leaseShorterThanGenerate(DEFAULT_LEASE_MS, timeouts.generate)).toBe(
+      false,
+    );
+    expect(Math.floor(DEFAULT_LEASE_MS / 3)).toBeLessThan(timeouts.generate);
+  });
+
+  it("accepts the 150 second generation timeout", () => {
+    expect(
+      loadServiceAiConfig(reader({ ROADMAP_AI_GENERATE_TIMEOUT_MS: "150000" }))
+        .timeouts.generate,
+    ).toBe(150_000);
+  });
+
+  it("allows for the provider's repair call in the generation cut-off", () => {
+    expect(PROVIDER_CUTOFF_MS.generate).toBeGreaterThanOrEqual(
+      2 * PROVIDER_BUDGET_MS.generate,
+    );
   });
 
   it("treats a blank value as unset rather than as an empty address", () => {
@@ -141,12 +171,12 @@ describe("Roadmap AI configuration", () => {
     ).toThrow(/does not exceed the 30000ms/);
   });
 
-  it.each(["70000", "75000"])(
+  it.each(["70000", "75000", "142000"])(
     "rejects a generation timeout of %sms",
     (value) => {
       expect(() =>
         loadServiceAiConfig(reader({ ROADMAP_AI_GENERATE_TIMEOUT_MS: value })),
-      ).toThrow(/does not exceed the 75000ms/);
+      ).toThrow(/does not exceed the 142000ms/);
     },
   );
 

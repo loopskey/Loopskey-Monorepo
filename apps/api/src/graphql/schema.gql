@@ -4095,11 +4095,13 @@ type ProfessionalRoadmap {
 
 type ProfessionalRoadmapDraft {
   budgetPreference: LearningBudgetPreference
+  canGenerate: Boolean!
   certificationId: ID
   certificationName: String
   completedCredits: Float
   completedFieldCount: Int!
   context: String
+  cpdAnswered: Boolean!
   cpdEnabled: Boolean!
   cpdPlan: CpdPlan
   currentStep: RoadmapDraftStep!
@@ -4109,6 +4111,7 @@ type ProfessionalRoadmapDraft {
   goalReason: String
   id: ID!
   isComplete: Boolean!
+  missingFields: [String!]!
   needsClarification: Boolean!
   preferredContentTypes: [ContentType!]!
   preferredDeliveryFormats: [DeliveryFormat!]!
@@ -4163,6 +4166,7 @@ type ProfessionalRoadmapStats {
 type ProfessionalRoadmapStep {
   completedAt: DateTime
   contentId: String
+  contentSlug: String
   contentType: ContentType
   credits: Float
   description: String

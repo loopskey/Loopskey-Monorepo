@@ -4,28 +4,32 @@ import type { RoadmapDraftFields } from "@professional/types/professional-roadma
 
 export type RoadmapContractField =
   | "goal"
-  | "skillLevel"
-  | "timeCommitment"
   | "subjects"
+  | "skillLevel"
+  | "cpdAnswered"
+  | "timeCommitment"
+  | "budgetPreference"
   | "certificationName";
 
 export type RoadmapContractFieldsInput = Pick<
   RoadmapDraftFields,
   | "goal"
-  | "skillLevel"
-  | "timeCommitment"
   | "subjects"
+  | "skillLevel"
   | "cpdEnabled"
+  | "cpdAnswered"
+  | "timeCommitment"
+  | "budgetPreference"
   | "certificationName"
 >;
-
-const BASE_CONTRACT_FIELD_COUNT = 4;
 
 const STEP_OF_FIELD: Record<RoadmapContractField, RoadmapDraftStep> = {
   goal: RoadmapDraftStep.GOAL,
   skillLevel: RoadmapDraftStep.PREFERENCES,
   timeCommitment: RoadmapDraftStep.PREFERENCES,
   subjects: RoadmapDraftStep.PREFERENCES,
+  budgetPreference: RoadmapDraftStep.PREFERENCES,
+  cpdAnswered: RoadmapDraftStep.CPD_TRACKING,
   certificationName: RoadmapDraftStep.CERTIFICATION,
 };
 
@@ -39,22 +43,28 @@ export const getRoadmapDraftContractReadiness = (
   const subjects = knownSubjectIds
     ? draft.subjects.filter((id) => knownSubjectIds.has(id))
     : draft.subjects;
-  const missingFields: RoadmapContractField[] = [];
-  if (!isFilled(draft.goal)) missingFields.push("goal");
-  if (!draft.skillLevel) missingFields.push("skillLevel");
-  if (!draft.timeCommitment) missingFields.push("timeCommitment");
-  if (subjects.length === 0) missingFields.push("subjects");
-  if (draft.cpdEnabled && !isFilled(draft.certificationName))
-    missingFields.push("certificationName");
+  const needsCertification = draft.cpdAnswered && draft.cpdEnabled;
 
-  const requiredFieldCount =
-    BASE_CONTRACT_FIELD_COUNT + (draft.cpdEnabled ? 1 : 0);
+  const required: [RoadmapContractField, boolean][] = [
+    ["goal", isFilled(draft.goal)],
+    ["skillLevel", !!draft.skillLevel],
+    ["timeCommitment", !!draft.timeCommitment],
+    ["subjects", subjects.length > 0],
+    ["budgetPreference", !!draft.budgetPreference],
+    ["cpdAnswered", draft.cpdAnswered],
+  ];
+  if (needsCertification)
+    required.push(["certificationName", isFilled(draft.certificationName)]);
+
+  const missingFields = required
+    .filter(([, isComplete]) => !isComplete)
+    .map(([field]) => field);
 
   return {
     missingFields,
-    requiredFieldCount,
+    requiredFieldCount: required.length,
     isValid: missingFields.length === 0,
-    completedFieldCount: requiredFieldCount - missingFields.length,
+    completedFieldCount: required.length - missingFields.length,
   };
 };
 
@@ -65,6 +75,7 @@ export const roadmapContractProgress = (
   const { missingFields, requiredFieldCount, completedFieldCount } =
     getRoadmapDraftContractReadiness(draft, knownSubjectIds);
   return {
+    missingFields,
     requiredFieldCount,
     completedFieldCount,
     remainingFields: [
