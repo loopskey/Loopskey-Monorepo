@@ -69,6 +69,7 @@ const draftRow = (overrides: Record<string, unknown> = {}) => ({
   preferredContentTypes: [],
   preferredDeliveryFormats: [DeliveryFormat.ONLINE],
   cpdEnabled: false,
+  cpdAnswered: true,
   certificationId: null,
   certificationName: null,
   certification: null,
@@ -300,6 +301,49 @@ describe("ProfessionalRoadmapGenerationService", () => {
       expect(harness.outbox.append).not.toHaveBeenCalled();
     });
 
+    it("lets a failed draft whose fields are still valid be requested again", async () => {
+      const harness = buildHarness({
+        draft: draftRow({
+          enrollment: null,
+          status: RoadmapDraftStatus.FAILED,
+          failureReason: "NO_CANDIDATES",
+        }),
+      });
+
+      await harness.service.requestGeneration(USER, "draft-1");
+
+      expect(harness.tx.roadmapDraft.updateMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            status: {
+              in: [RoadmapDraftStatus.READY, RoadmapDraftStatus.FAILED],
+            },
+          }),
+          data: expect.objectContaining({
+            status: RoadmapDraftStatus.GENERATING,
+            failureReason: null,
+          }),
+        }),
+      );
+      expect(harness.outbox.append).toHaveBeenCalledTimes(1);
+    });
+
+    it("refuses a failed draft that has lost a required field", async () => {
+      const harness = buildHarness({
+        draft: draftRow({
+          enrollment: null,
+          goal: null,
+          status: RoadmapDraftStatus.FAILED,
+          failureReason: "NO_CANDIDATES",
+        }),
+      });
+
+      await expect(
+        harness.service.requestGeneration(USER, "draft-1"),
+      ).rejects.toThrow("ROADMAP_DRAFT_NOT_READY");
+      expect(harness.outbox.append).not.toHaveBeenCalled();
+    });
+
     it("accepts an AI-ready draft even when its legacy sub-step is not review", async () => {
       const harness = buildHarness({
         draft: draftRow({
@@ -322,7 +366,6 @@ describe("ProfessionalRoadmapGenerationService", () => {
           goalReason: null,
           context: null,
           targetDate: null,
-          budgetPreference: null,
           preferredFormats: [],
           preferredContentTypes: [],
           preferredDeliveryFormats: [],
@@ -332,6 +375,42 @@ describe("ProfessionalRoadmapGenerationService", () => {
       await harness.service.requestGeneration(USER, "draft-1");
 
       expect(harness.outbox.append).toHaveBeenCalledTimes(1);
+    });
+
+    it("refuses a draft without a budget preference", async () => {
+      const harness = buildHarness({
+        draft: draftRow({ enrollment: null, budgetPreference: null }),
+      });
+
+      await expect(
+        harness.service.requestGeneration(USER, "draft-1"),
+      ).rejects.toThrow("ROADMAP_DRAFT_NOT_READY");
+      expect(harness.outbox.append).not.toHaveBeenCalled();
+    });
+
+    it("refuses a draft whose CPD question was never answered", async () => {
+      const harness = buildHarness({
+        draft: draftRow({ enrollment: null, cpdAnswered: false }),
+      });
+
+      await expect(
+        harness.service.requestGeneration(USER, "draft-1"),
+      ).rejects.toThrow("ROADMAP_DRAFT_NOT_READY");
+      expect(harness.outbox.append).not.toHaveBeenCalled();
+    });
+
+    it("refuses a draft that tracks CPD without a certification", async () => {
+      const harness = buildHarness({
+        draft: draftRow({
+          enrollment: null,
+          cpdEnabled: true,
+          certificationName: null,
+        }),
+      });
+
+      await expect(
+        harness.service.requestGeneration(USER, "draft-1"),
+      ).rejects.toThrow("ROADMAP_DRAFT_NOT_READY");
     });
 
     it("refuses a legacy draft whose stored subjects are not in the taxonomy", async () => {

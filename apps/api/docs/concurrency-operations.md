@@ -169,8 +169,8 @@ event from application code.
 ## Outbox
 
 Claims use `FOR UPDATE SKIP LOCKED` and push `availableAt` out by one lease. The
-lease is `OUTBOX_LEASE_MS` (default 90000, above the 80000ms roadmap generation
-call). While a handler runs, `OutboxProcessor` renews the lease every third of
+lease is `OUTBOX_LEASE_MS` (default 180000, above the 150000ms roadmap generation
+call plus a safety margin). While a handler runs, `OutboxProcessor` renews the lease every third of
 its length, so a slow delivery stays claimed by the worker that holds it.
 Renewal is a compare-and-set on `attemptCount`: a worker whose lease was taken
 over fails its renewal, its delivery throws, and its failure write matches no

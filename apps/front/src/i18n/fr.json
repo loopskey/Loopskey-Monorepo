@@ -4399,6 +4399,7 @@
       "newRoadmap": "Nouveau parcours",
       "continueRoadmap": "Continuer",
       "viewFullRoadmap": "Voir le parcours complet",
+      "viewContent": "Voir le contenu",
       "heroEyebrow": "Votre parcours IA actuel",
       "journeyTimeline": "Chronologie du parcours",
       "nextStepTag": "Suivant",
@@ -4406,6 +4407,8 @@
         "phasesCount": "{{count}} phases",
         "targetDateWithCount": "Objectif {{date}} ({{days}} jours restants)",
         "continueStep": "Continuer : « {{step}} »",
+        "startStep": "Commencer : « {{step}} »",
+        "viewCompleted": "Voir le parcours terminé",
         "moreActions": "Plus d'actions",
         "progressRingLabel": "{{progress}} % terminé",
         "cpdStrip": "Objectif UDP {{earned}}/{{required}} UDP",
@@ -4430,6 +4433,7 @@
       "emptyMyRoadmapsDescription": "Vous n’êtes inscrit à aucune feuille de route, ou aucune feuille de route ne correspond à votre recherche.",
       "exploreRoadmaps": "Explorer les feuilles de route",
       "exploreRoadmapsDescription": "Découvrez de nouveaux parcours professionnels adaptés à vos objectifs de progression.",
+      "exploreUnavailable": "L'aperçu et l'inscription aux parcours du catalogue ne sont pas encore disponibles.",
       "searchExploreRoadmaps": "Rechercher des feuilles de route disponibles...",
       "emptyExploreTitle": "Aucune feuille de route disponible",
       "emptyExploreDescription": "Aucune feuille de route publiée n’est disponible pour le moment, ou aucune ne correspond à votre recherche.",
@@ -7712,16 +7716,34 @@
       "generate": "Générer mon parcours",
       "generating": "Démarrage de la génération...",
       "generateFailed": "Impossible de démarrer la génération de votre parcours. Veuillez réessayer.",
-      "generateUnavailable": "Répondez aux champs obligatoires restants pour générer votre parcours.",
-      "generateUnavailableNext": "Ensuite : répondez à {{field}} pour générer votre parcours.",
+      "retryGenerate": "Réessayer la génération",
+      "fixAction": {
+        "goal": "Ajouter votre objectif",
+        "skillLevel": "Choisir le niveau",
+        "timeCommitment": "Choisir le temps hebdomadaire",
+        "subjects": "Choisir des sujets",
+        "budgetPreference": "Choisir le budget",
+        "cpdAnswered": "Répondre à la question CPD",
+        "certificationName": "Ajouter la certification"
+      },
+      "waitingForCoach": "Répondez à la prochaine question du coach, ou confirmez une réponse ci-dessus, pour débloquer votre parcours.",
+      "missing": {
+        "goal": "Définissez votre objectif d'apprentissage.",
+        "skillLevel": "Choisissez votre niveau actuel.",
+        "timeCommitment": "Choisissez votre temps d'apprentissage hebdomadaire.",
+        "subjects": "Choisissez au moins un sujet.",
+        "budgetPreference": "Choisissez votre budget.",
+        "cpdAnswered": "Indiquez si vous avez besoin de crédits CPD.",
+        "certificationName": "Saisissez le nom de votre certification."
+      },
       "briefProgress": "Progression du résumé",
-      "briefProgressValue": "{{completed}} champs sur {{required}} complétés",
+      "briefProgressValue": "{{completed}} champs obligatoires sur {{required}} complétés",
       "notReachedYet": "Vous configurerez ceci après les préférences.",
       "status": {
+        "ready": "Prêt",
+        "readyToRetry": "Prêt à réessayer",
         "confirmed": "Confirmé",
-        "suggested": "Suggéré depuis le profil",
-        "needsAnswer": "Réponse requise",
-        "notNeeded": "Non nécessaire"
+        "needsAnswer": "Réponse requise"
       }
     },
     "cpdSetup": {

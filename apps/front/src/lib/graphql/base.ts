@@ -5144,11 +5144,13 @@ export type ProfessionalRoadmap = {
 export type ProfessionalRoadmapDraft = {
   __typename?: 'ProfessionalRoadmapDraft';
   budgetPreference?: Maybe<LearningBudgetPreference>;
+  canGenerate: Scalars['Boolean']['output'];
   certificationId?: Maybe<Scalars['ID']['output']>;
   certificationName?: Maybe<Scalars['String']['output']>;
   completedCredits?: Maybe<Scalars['Float']['output']>;
   completedFieldCount: Scalars['Int']['output'];
   context?: Maybe<Scalars['String']['output']>;
+  cpdAnswered: Scalars['Boolean']['output'];
   cpdEnabled: Scalars['Boolean']['output'];
   cpdPlan?: Maybe<CpdPlan>;
   currentStep: RoadmapDraftStep;
@@ -5158,6 +5160,7 @@ export type ProfessionalRoadmapDraft = {
   goalReason?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   isComplete: Scalars['Boolean']['output'];
+  missingFields: Array<Scalars['String']['output']>;
   needsClarification: Scalars['Boolean']['output'];
   preferredContentTypes: Array<ContentType>;
   preferredDeliveryFormats: Array<DeliveryFormat>;
@@ -5216,6 +5219,7 @@ export type ProfessionalRoadmapStep = {
   __typename?: 'ProfessionalRoadmapStep';
   completedAt?: Maybe<Scalars['DateTime']['output']>;
   contentId?: Maybe<Scalars['String']['output']>;
+  contentSlug?: Maybe<Scalars['String']['output']>;
   contentType?: Maybe<ContentType>;
   credits?: Maybe<Scalars['Float']['output']>;
   description?: Maybe<Scalars['String']['output']>;

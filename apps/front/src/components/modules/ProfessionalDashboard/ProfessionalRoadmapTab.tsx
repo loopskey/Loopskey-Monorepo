@@ -1,12 +1,16 @@
 "use client";
 
-import { startTransition, useEffect, useMemo } from "react";
+import { startTransition, useCallback, useEffect, useMemo } from "react";
 import { useRef, useState, ViewTransition } from "react";
 import { findCurrentPhaseId, dayStreak } from "@/utils/roadmap-journey.util";
 import { RoadmapRecommendationsCard } from "@modules/ProfessionalRoadmap/RoadmapRecommendationsCard";
 import { RoadmapGenerationStatus } from "@modules/ProfessionalRoadmap/RoadmapGenerationStatus";
 import { useProfessionalRoadmaps } from "@/hooks/useProfessionalRoadmap";
-import { daysUntil, findNextStep } from "@/utils/roadmap-journey.util";
+import {
+  daysUntil,
+  findNextActionableStep,
+} from "@/utils/roadmap-journey.util";
+import { buildRoadmapHref } from "@/utils/roadmap-navigation.util";
 import { RoadmapJourneyTimeline } from "@modules/ProfessionalRoadmap/RoadmapJourneyTimeline";
 import { buildCpdProgressView } from "@/utils/professional-overview.helper";
 import { completionsThisWeek } from "@/utils/roadmap-journey.util";
@@ -51,7 +55,7 @@ const ProfessionalRoadmapTab = () => {
     unenrollingId,
     isStatsLoading,
     myRoadmapsData,
-    getRoadmapHref,
+    requestedStepId,
     hasFailedDraft,
     handleUnenroll,
     handlePrevious,
@@ -59,7 +63,7 @@ const ProfessionalRoadmapTab = () => {
     exploreRoadmaps,
     explorePageInfo,
     getProgressValue,
-    generatedRoadmap,
+    activeRoadmap,
     handleExploreNext,
     exploreRoadmapsData,
     isMyRoadmapsLoading,
@@ -80,7 +84,7 @@ const ProfessionalRoadmapTab = () => {
   const currentView: TCurrentRoadmapView =
     isGenerating || hasFailedDraft
       ? "statusCard"
-      : generatedRoadmap
+      : activeRoadmap
         ? "hero"
         : "none";
   const [displayView, setDisplayView] =
@@ -139,24 +143,54 @@ const ProfessionalRoadmapTab = () => {
   );
 
   const currentPhaseId = useMemo(
-    () => findCurrentPhaseId(generatedRoadmap?.phases ?? []),
-    [generatedRoadmap],
+    () => findCurrentPhaseId(activeRoadmap?.phases ?? []),
+    [activeRoadmap],
   );
   const nextStep = useMemo(
-    () => findNextStep(generatedRoadmap?.phases ?? []),
-    [generatedRoadmap],
+    () => findNextActionableStep(activeRoadmap?.phases ?? []),
+    [activeRoadmap],
   );
+  const requestedStepExists = Boolean(
+    requestedStepId &&
+      activeRoadmap?.phases.some((phase) =>
+        phase.steps.some((step) => step.id === requestedStepId),
+      ),
+  );
+  const focusStepId = requestedStepId
+    ? requestedStepExists
+      ? requestedStepId
+      : (nextStep?.stepId ?? null)
+    : null;
+  const [focusNonce, setFocusNonce] = useState(0);
+  const handleContinue = useCallback(() => {
+    if (focusStepId && focusStepId === nextStep?.stepId)
+      setFocusNonce((current) => current + 1);
+  }, [focusStepId, nextStep?.stepId]);
+  const roadmapHref = (roadmap: {
+    id: string;
+    phases: Parameters<typeof findNextActionableStep>[0];
+  }) =>
+    buildRoadmapHref(
+      roadmap.id,
+      findNextActionableStep(roadmap.phases)?.stepId,
+    );
+  const continueHref = activeRoadmap
+    ? buildRoadmapHref(activeRoadmap.id, nextStep?.stepId)
+    : ROADMAP_CHAT_HREF;
+  const viewFullHref = activeRoadmap
+    ? buildRoadmapHref(activeRoadmap.id)
+    : ROADMAP_CHAT_HREF;
   const thisWeekCount = useMemo(
-    () => completionsThisWeek(generatedRoadmap?.phases ?? []),
-    [generatedRoadmap],
+    () => completionsThisWeek(activeRoadmap?.phases ?? []),
+    [activeRoadmap],
   );
   const streak = useMemo(
-    () => dayStreak(generatedRoadmap?.phases ?? []),
-    [generatedRoadmap],
+    () => dayStreak(activeRoadmap?.phases ?? []),
+    [activeRoadmap],
   );
   const roadmapTracksCpdTarget =
-    typeof generatedRoadmap?.requiredCredits === "number" &&
-    generatedRoadmap.requiredCredits > 0;
+    typeof activeRoadmap?.requiredCredits === "number" &&
+    activeRoadmap.requiredCredits > 0;
 
   return (
     <div className="space-y-6">
@@ -180,7 +214,7 @@ const ProfessionalRoadmapTab = () => {
             asChild
             radius="xl"
             className="w-full justify-center sm:w-auto"
-            variant={generatedRoadmap ? "outline" : "default"}
+            variant={activeRoadmap ? "outline" : "default"}
           >
             <Link href={ROADMAP_CHAT_HREF}>
               <L.Plus className="h-4 w-4" />
@@ -188,16 +222,20 @@ const ProfessionalRoadmapTab = () => {
             </Link>
           </Button>
 
-          {generatedRoadmap ? (
+          {activeRoadmap ? (
             <Button
               asChild
               radius="xl"
               className="w-full justify-center sm:w-auto"
             >
-              <a href="#your-learning-path">
+              <Link href={continueHref} onClick={handleContinue}>
                 <L.ArrowRight className="h-4 w-4" />
-                {t("professionalDashboard.roadmap.continueRoadmap")}
-              </a>
+                {t(
+                  nextStep
+                    ? "professionalDashboard.roadmap.continueRoadmap"
+                    : "professionalDashboard.roadmap.hero.viewCompleted",
+                )}
+              </Link>
             </Button>
           ) : null}
         </div>
@@ -217,27 +255,29 @@ const ProfessionalRoadmapTab = () => {
           />
         ) : null}
 
-        {displayView === "hero" && generatedRoadmap ? (
+        {displayView === "hero" && activeRoadmap ? (
           <div id="your-learning-path" className="space-y-6">
             <RoadmapHero
               t={t}
               locale={locale}
               headingRef={heroHeadingRef}
-              title={generatedRoadmap.title}
+              title={activeRoadmap.title}
               nextStepTitle={nextStep?.title}
+              nextStepStatus={nextStep?.status}
+              onContinue={handleContinue}
               newRoadmapHref={ROADMAP_CHAT_HREF}
-              progress={generatedRoadmap.progress}
-              totalSteps={generatedRoadmap.totalSteps}
-              targetDate={generatedRoadmap.targetDate}
-              description={generatedRoadmap.description}
-              phasesCount={generatedRoadmap.phasesCount}
-              continueHref={getRoadmapHref(generatedRoadmap)}
-              viewFullHref={getRoadmapHref(generatedRoadmap)}
-              completedSteps={generatedRoadmap.completedSteps}
-              estimatedWeeks={generatedRoadmap.estimatedWeeks}
+              progress={activeRoadmap.progress}
+              totalSteps={activeRoadmap.totalSteps}
+              targetDate={activeRoadmap.targetDate}
+              description={activeRoadmap.description}
+              phasesCount={activeRoadmap.phasesCount}
+              continueHref={continueHref}
+              viewFullHref={viewFullHref}
+              completedSteps={activeRoadmap.completedSteps}
+              estimatedWeeks={activeRoadmap.estimatedWeeks}
             />
 
-            {generatedRoadmap.coverageNote ? (
+            {activeRoadmap.coverageNote ? (
               <GlassCard className="p-5">
                 <div className="flex items-start gap-3">
                   <L.Info
@@ -249,15 +289,15 @@ const ProfessionalRoadmapTab = () => {
                       {t("professionalDashboard.roadmap.coverageNote")}
                     </h3>
                     <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                      {generatedRoadmap.coverageNote}
+                      {activeRoadmap.coverageNote}
                     </p>
                   </div>
                 </div>
               </GlassCard>
             ) : null}
 
-            {generatedRoadmap.matchTier &&
-            generatedRoadmap.matchTier !== RoadmapMatchTier.Exact ? (
+            {activeRoadmap.matchTier &&
+            activeRoadmap.matchTier !== RoadmapMatchTier.Exact ? (
               <GlassCard className="p-5">
                 <div className="flex items-start gap-3">
                   <L.AlertTriangle
@@ -275,11 +315,11 @@ const ProfessionalRoadmapTab = () => {
                         "professionalDashboard.roadmap.closeMatchDisclosure.description",
                       )}
                     </p>
-                    {generatedRoadmap.draftId ? (
+                    {activeRoadmap.draftId ? (
                       <Button asChild radius="xl" size="sm" className="mt-3">
                         <Link
                           href={`${ROADMAP_CHAT_HREF}?draftId=${encodeURIComponent(
-                            generatedRoadmap.draftId,
+                            activeRoadmap.draftId,
                           )}&focus=preferences`}
                         >
                           {t(
@@ -295,7 +335,7 @@ const ProfessionalRoadmapTab = () => {
 
             <RoadmapJourneyTimeline
               t={t}
-              phases={generatedRoadmap.phases}
+              phases={activeRoadmap.phases}
               currentPhaseId={currentPhaseId}
             />
 
@@ -304,10 +344,12 @@ const ProfessionalRoadmapTab = () => {
                 t={t}
                 onStart={stepProgress.start}
                 nextStepId={nextStep?.stepId}
+                focusStepId={focusStepId}
+                focusNonce={focusNonce}
                 pending={stepProgress.pending}
-                phases={generatedRoadmap.phases}
+                phases={activeRoadmap.phases}
                 onComplete={stepProgress.complete}
-                enrollmentId={generatedRoadmap.id}
+                enrollmentId={activeRoadmap.id}
                 failedStepId={stepProgress.failedStepId}
               />
             </div>
@@ -321,8 +363,8 @@ const ProfessionalRoadmapTab = () => {
                       aria-hidden="true"
                     />
                     {t("professionalDashboard.roadmap.hero.cpdStrip", {
-                      earned: generatedRoadmap.earnedCredits,
-                      required: generatedRoadmap.requiredCredits ?? 0,
+                      earned: activeRoadmap.earnedCredits,
+                      required: activeRoadmap.requiredCredits ?? 0,
                     })}
                   </span>
                 ) : null}
@@ -427,7 +469,7 @@ const ProfessionalRoadmapTab = () => {
         </div>
       </GlassCard>
 
-      {!generatedRoadmap ? (
+      {!activeRoadmap ? (
         <RoadmapRecommendationsCard t={t} recommendations={recommendations} />
       ) : null}
 
@@ -568,7 +610,7 @@ const ProfessionalRoadmapTab = () => {
                 className="flex flex-wrap items-center gap-4 py-3 first:pt-0 last:pb-0"
               >
                 <Link
-                  href={getRoadmapHref(roadmap)}
+                  href={roadmapHref(roadmap)}
                   className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md bg-muted"
                 >
                   {roadmap.imageUrl ? (
@@ -589,7 +631,7 @@ const ProfessionalRoadmapTab = () => {
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
                     <Link
-                      href={getRoadmapHref(roadmap)}
+                      href={roadmapHref(roadmap)}
                       className="truncate text-sm font-medium hover:underline"
                     >
                       {roadmap.title}
@@ -628,7 +670,7 @@ const ProfessionalRoadmapTab = () => {
 
                 <div className="flex shrink-0 gap-2">
                   <Button asChild size="sm" radius="xl" variant="outline">
-                    <Link href={getRoadmapHref(roadmap)}>
+                    <Link href={roadmapHref(roadmap)}>
                       {t("professionalDashboard.common.details")}
                     </Link>
                   </Button>
@@ -704,62 +746,61 @@ const ProfessionalRoadmapTab = () => {
             </p>
           </div>
         ) : (
-          <ul className="divide-y divide-border">
-            {exploreRoadmaps.map((roadmap) => (
-              <li
-                key={roadmap.id}
-                className="flex flex-wrap items-center gap-4 py-3 first:pt-0 last:pb-0"
-              >
-                <Link
-                  href={getRoadmapHref(roadmap)}
-                  className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md bg-muted"
+          <>
+            <p className="mb-3 text-sm text-muted-foreground">
+              {t("professionalDashboard.roadmap.exploreUnavailable")}
+            </p>
+            <ul className="divide-y divide-border">
+              {exploreRoadmaps.map((roadmap) => (
+                <li
+                  key={roadmap.id}
+                  className="flex flex-wrap items-center gap-4 py-3 first:pt-0 last:pb-0"
                 >
-                  {roadmap.imageUrl ? (
-                    <Image
-                      fill
-                      alt={roadmap.title}
-                      src={roadmap.imageUrl}
-                      sizes="56px"
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center bg-primary/10 text-primary">
-                      <L.Compass className="h-5 w-5" />
-                    </div>
-                  )}
-                </Link>
-
-                <div className="min-w-0 flex-1">
-                  <Link
-                    href={getRoadmapHref(roadmap)}
-                    className="truncate text-sm font-medium hover:underline"
-                  >
-                    {roadmap.title}
-                  </Link>
-                  <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                    {roadmap.category ? <span>{roadmap.category}</span> : null}
-                    <span>{roadmap.level}</span>
-                    <span>
-                      {roadmap.phasesCount}{" "}
-                      {t("professionalDashboard.roadmap.phases")}
-                    </span>
-                    <span>{formatWeeks(roadmap.estimatedWeeks)}</span>
+                  <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md bg-muted">
+                    {roadmap.imageUrl ? (
+                      <Image
+                        fill
+                        alt={roadmap.title}
+                        src={roadmap.imageUrl}
+                        sizes="56px"
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center bg-primary/10 text-primary">
+                        <L.Compass className="h-5 w-5" />
+                      </div>
+                    )}
                   </div>
-                </div>
 
-                <div className="flex shrink-0 gap-2">
-                  <Button size="sm" radius="xl">
-                    {t("professionalDashboard.roadmap.enroll")}
-                  </Button>
-                  <Button radius="xl" variant="outline" size="sm" asChild>
-                    <Link href={getRoadmapHref(roadmap)}>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">
+                      {roadmap.title}
+                    </p>
+                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                      {roadmap.category ? (
+                        <span>{roadmap.category}</span>
+                      ) : null}
+                      <span>{roadmap.level}</span>
+                      <span>
+                        {roadmap.phasesCount}{" "}
+                        {t("professionalDashboard.roadmap.phases")}
+                      </span>
+                      <span>{formatWeeks(roadmap.estimatedWeeks)}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex shrink-0 gap-2">
+                    <Button size="sm" radius="xl" disabled>
+                      {t("professionalDashboard.roadmap.enroll")}
+                    </Button>
+                    <Button radius="xl" variant="outline" size="sm" disabled>
                       {t("professionalDashboard.common.details")}
-                    </Link>
-                  </Button>
-                </div>
-              </li>
-            ))}
-          </ul>
+                    </Button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </>
         )}
 
         <ContentPagination

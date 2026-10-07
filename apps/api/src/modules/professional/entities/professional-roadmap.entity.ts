@@ -12,11 +12,12 @@ export class ProfessionalRoadmapStepEntity {
   @Field(() => ID) id: string;
   @Field(() => Int) order: number;
   @Field(() => Boolean) isCloseMatch: boolean;
+  @Field(() => Float, { nullable: true }) credits?: number | null;
   @Field(() => Date, { nullable: true }) completedAt?: Date | null;
   @Field(() => String, { nullable: true }) contentId?: string | null;
+  @Field(() => String, { nullable: true }) contentSlug?: string | null;
   @Field(() => String, { nullable: true }) description?: string | null;
   @Field(() => Int, { nullable: true }) estimatedMinutes?: number | null;
-  @Field(() => Float, { nullable: true }) credits?: number | null;
   @Field(() => ContentType, { nullable: true })
   contentType?: ContentType | null;
   @Field(() => RoadmapStepProgressStatus, { nullable: true })
@@ -58,6 +59,7 @@ export class ProfessionalRoadmapEntity {
   @Field(() => Int) nextMilestoneProgress: number;
   @Field(() => RoadmapSource) source: RoadmapSource;
   @Field(() => RoadmapStatus) roadmapStatus: RoadmapStatus;
+  @Field(() => ID, { nullable: true }) draftId?: string | null;
   @Field(() => Date, { nullable: true }) targetDate?: Date | null;
   @Field(() => Date, { nullable: true }) completedAt?: Date | null;
   @Field(() => String, { nullable: true }) imageUrl?: string | null;
@@ -68,7 +70,6 @@ export class ProfessionalRoadmapEntity {
   @Field(() => Float, { nullable: true }) requiredCredits?: number | null;
   @Field(() => CourseCategory, { nullable: true })
   category?: CourseCategory | null;
-  @Field(() => ID, { nullable: true }) draftId?: string | null;
   @Field(() => RoadmapMatchTier, { nullable: true })
   matchTier?: RoadmapMatchTier | null;
   @Field(() => [ProfessionalRoadmapPhaseEntity])

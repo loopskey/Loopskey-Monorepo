@@ -34,22 +34,56 @@ diff, so a provider change cannot land silently.
 
 ## Enum alignment, as of 1.1.0
 
-1.1.0 adopted this platform's own enum values. All five enums now match member
-for member, and `service-ai.translation.ts` maps each one to itself in both
-directions.
+1.1.0 first adopted this platform's own enum values, and for a while all five
+enums matched member for member. That is **no longer true**: the platform
+migration `enum migration` (commit `7ff0286`, 2026-09-20) replaced the weekly
+time and budget vocabularies with its own wizard buckets, and
+`service-ai.translation.ts` translates them again. Skill level, learning format
+and content type are still identity; time commitment and budget are not.
 
-| Enum | Members | Translation |
-| ---- | ------- | ----------- |
-| `SkillLevel` | 4 | identity |
-| `TimeCommitment` | 5 | identity |
-| `BudgetPreference` | 4 | identity |
-| `LearningFormat` | 6 | identity |
-| `ContentType` | 4 | identity |
+| Enum | Platform members | Provider members | Translation |
+| ---- | ---------------- | ---------------- | ----------- |
+| `SkillLevel` | 4 | 4 | identity |
+| `LearningFormat` | 6 | 6 | identity |
+| `ContentType` | 4 | 4 | identity |
+| time commitment | 4 | 5 | lossy, see below |
+| budget | 4 | 4 | lossy, see below |
 
-**The translation layer stays even though every table is identity.** The two
-vocabularies are separate type universes that currently coincide;
-`Record<Platform…, Provider…>` is what stops compiling if the provider narrows
-an enum again, which is a better failure than a runtime 422.
+Time commitment (`TIME_COMMITMENT_OUTBOUND` / `TIME_COMMITMENT_INBOUND`):
+
+| Platform | Sent as | Read back as |
+| -------- | ------- | ------------ |
+| `ONE_TO_TWO_HOURS` | `ONE_TO_THREE_HOURS` | `TWO_TO_THREE_HOURS` |
+| `TWO_TO_THREE_HOURS` | `ONE_TO_THREE_HOURS` | `TWO_TO_THREE_HOURS` |
+| `THREE_TO_FIVE_HOURS` | `FOUR_TO_SIX_HOURS` | `THREE_TO_FIVE_HOURS` |
+| `MORE_THAN_FIVE_HOURS` | `SEVEN_TO_TEN_HOURS` | `MORE_THAN_FIVE_HOURS` |
+
+A provider-only value is read back as the nearest platform bucket:
+`LESS_THAN_ONE_HOUR` becomes `ONE_TO_TWO_HOURS` and `MORE_THAN_TEN_HOURS`
+becomes `MORE_THAN_FIVE_HOURS`. Because the interview answer is extracted by the
+provider from free text, a professional's choice can land in a neighbouring
+platform bucket when it is first captured.
+
+Budget (`BUDGET_PREFERENCE_OUTBOUND` / `BUDGET_PREFERENCE_INBOUND`):
+
+| Platform | Sent as | Read back as |
+| -------- | ------- | ------------ |
+| `FREE_ONLY` | `FREE_ONLY` | `FREE_ONLY` |
+| `UNDER_100` | `MIXED_FREE_AND_PAID` | `UNDER_100` |
+| `HUNDRED_TO_500` | `PREMIUM` | `HUNDRED_TO_500` |
+| `FIVE_HUNDRED_PLUS` | `PREMIUM` | `HUNDRED_TO_500` |
+
+The provider's `EMPLOYER_SPONSORED` is read back as `FIVE_HUNDRED_PLUS`. Only
+`FREE_ONLY` changes which content is selected, on the provider side and on the
+platform side, so the price tiers are recorded but filter nothing.
+
+`withoutEchoedBands` drops a band the provider merely repeats, so a value the
+platform already stored is not narrowed by an echo. It does not help the first
+capture.
+
+**The translation layer is required, not defensive.**
+`Record<Platform…, Provider…>` is what stops compiling if either vocabulary
+changes.
 
 1.1.0 was breaking, not additive: it **removed** the 1.0.0 spellings
 `FOUR_TO_SEVEN_HOURS`, `EIGHT_PLUS_HOURS`, `LOW_COST` and `NO_PREFERENCE`. A

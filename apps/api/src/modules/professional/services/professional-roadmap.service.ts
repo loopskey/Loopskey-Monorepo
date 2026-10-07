@@ -7,6 +7,7 @@ import { PROFESSIONAL_CATALOG_API } from "@course/public/professional-catalog-ap
 import { ProfessionalSearchInput } from "@professional/dtos/professional-search.input";
 import { deriveRoadmapProgress } from "@professional/utils/roadmap-progress.util";
 import { ContentType, Role } from "@prisma/client";
+import { roadmapContentKey } from "@course/public/professional-catalog-api";
 import { earnedCredits } from "@professional/utils/roadmap-progress.util";
 import { EVENTS_API } from "@events/public/events-api.token";
 import { TUser } from "@common/types/user.types";
@@ -46,6 +47,7 @@ export class ProfessionalRoadmapService {
     context: {
       records: StepProgressRecord[];
       creditsByContentId: Record<string, number>;
+      slugsByContent: Record<string, string>;
       requiredCredits: number | null;
     },
   ) {
@@ -75,6 +77,15 @@ export class ProfessionalRoadmapService {
           const stepProgress = derived.steps.get(step.id);
           return {
             ...step,
+            contentSlug:
+              step.contentId && step.contentType
+                ? (context.slugsByContent[
+                    roadmapContentKey({
+                      contentId: step.contentId,
+                      contentType: step.contentType,
+                    })
+                  ] ?? null)
+                : null,
             status: stepProgress?.status ?? null,
             completedAt: stepProgress?.completedAt ?? null,
           };
@@ -189,12 +200,24 @@ export class ProfessionalRoadmapService {
     const creditsByContentId = eventIds.length
       ? await this.events.eventCredits(eventIds)
       : {};
+    const slugsByContent = await this.catalog.contentSlugs(
+      merged.flatMap((item) =>
+        item.roadmap.phases.flatMap((phase) =>
+          phase.steps.flatMap((step) =>
+            step.contentId && step.contentType
+              ? [{ contentId: step.contentId, contentType: step.contentType }]
+              : [],
+          ),
+        ),
+      ),
+    );
 
     return {
       totalCount: result.totalCount,
       items: merged.map((item) =>
         this.mapRoadmapEnrollment(item, {
           creditsByContentId,
+          slugsByContent,
           requiredCredits: null,
           records: recordsByEnrollment.get(item.id) ?? [],
         }),

@@ -19,7 +19,7 @@ const ALLOWED_TYPES: Partial<
   preferredFormats: ["MULTI_SELECT"],
   preferredDeliveryFormats: ["MULTI_SELECT"],
   preferredContentTypes: ["MULTI_SELECT"],
-  cpdEnabled: ["YES_NO"],
+  cpdEnabled: ["YES_NO", "SINGLE_SELECT"],
   certificationName: ["SINGLE_SELECT", "TEXT"],
 };
 
@@ -71,6 +71,21 @@ const certificationOptions = (
   });
 };
 
+export type WidgetRejectionReason =
+  | "FIELD_NOT_WIDGETABLE"
+  | "TYPE_NOT_ALLOWED_FOR_FIELD"
+  | "NO_KNOWN_OPTIONS";
+
+export const widgetRejectionReason = (
+  widget: RoadmapWidget,
+  context: WidgetValidationContext,
+): WidgetRejectionReason | null => {
+  const allowedTypes = ALLOWED_TYPES[widget.field];
+  if (!allowedTypes) return "FIELD_NOT_WIDGETABLE";
+  if (!allowedTypes.includes(widget.type)) return "TYPE_NOT_ALLOWED_FOR_FIELD";
+  return validateWidget(widget, context) ? null : "NO_KNOWN_OPTIONS";
+};
+
 export const validateWidget = (
   widget: RoadmapWidget | null,
   context: WidgetValidationContext,
@@ -80,6 +95,8 @@ export const validateWidget = (
   if (!allowedTypes || !allowedTypes.includes(widget.type)) return null;
   if (widget.type === "TEXT")
     return { ...widget, options: [], maxSelections: null };
+  if (widget.field === "cpdEnabled")
+    return { ...widget, type: "YES_NO", options: [], maxSelections: null };
   if (TAXONOMY_FIELDS.has(widget.field)) {
     const known =
       widget.field === "subjects"

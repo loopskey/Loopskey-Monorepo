@@ -47,10 +47,20 @@ or `ROADMAP_AI_REFUSED`. A contract-invalid roadmap fails the draft with a
 | Setting | Default | Must exceed | Provider budget |
 | --- | --- | --- | --- |
 | `ROADMAP_AI_CHAT_TURN_TIMEOUT_MS` | 35000 | 30000 | 30 s |
-| `ROADMAP_AI_GENERATE_TIMEOUT_MS` | 80000 | 75000 | 70 s |
-| `OUTBOX_LEASE_MS` | 90000 | the generate timeout (warning otherwise) | — |
+| `ROADMAP_AI_GENERATE_TIMEOUT_MS` | 150000 | 142000 | 70 s per call, one repair call possible (about 142 s worst case) |
+| `OUTBOX_LEASE_MS` | 180000 | the generate timeout plus 15000 ms (warning otherwise) | — |
+| outbox heartbeat | lease / 3 (60 s) | — | — |
 
-A timeout at or below the "must exceed" value stops the API booting. The outbox
+A timeout at or below the "must exceed" value stops the API booting, so an
+environment that still sets `ROADMAP_AI_GENERATE_TIMEOUT_MS` to the old 80000
+must be changed or blanked before this version is deployed.
+
+Any reverse proxy between the API and the provider, or between a browser and
+the API, must wait longer than the timeout of the call that passes through it:
+more than 150 s for the provider's generate path and more than 35 s for a chat
+turn. This repository ships no proxy configuration; the proxy is operated
+outside it (`compose.production.yaml` expects a TLS proxy in front).
+Generation itself runs from the outbox, so a browser never waits on it. The outbox
 processor renews a running claim every third of the lease, so a generation that
 outlives the initial lease keeps its claim; the lease should still cover a
 normal generation, and startup logs `roadmap-ai.lease-shorter-than-generate`
@@ -108,4 +118,35 @@ different major version, a warning otherwise.
 
 The contract accepts `en` and `fa`. The platform's interface languages are
 English and French, so every call is sent with `locale = "en"`; a French
-professional receives English interview wording.
+professional receives English interview wording. This is expected until the
+provider supports French; it is not a platform defect.
+
+## Readiness
+
+One helper, `getRoadmapDraftContractReadiness`, decides whether a draft can be
+generated. It follows what the provider's generate endpoint requires, plus the
+platform's own rule that at least one known subject is chosen.
+
+| Field | Required |
+| --- | --- |
+| goal, skill level, weekly time | always |
+| subjects | at least one subject the taxonomy knows; an empty list counts as missing |
+| budget preference | always |
+| CPD answer (`cpdAnswered`) | always; "no" is an answer, an unanswered question is not |
+| certification name | only when CPD tracking was answered "yes" |
+
+A draft needs 6 required fields, or 7 once CPD tracking is answered "yes".
+`requiredFieldCount`, `completedFieldCount` and `missingFields` all come from
+that helper. `canGenerate` is true for a `READY` or `FAILED` draft whose
+`missingFields` is empty. A normal chat turn promotes a draft to `READY` only when
+the provider says `is_complete`, does not ask for clarification, and the helper
+agrees. A structured edit in the review panel promotes a `COLLECTING` or `FAILED`
+draft to `READY` as soon as the helper agrees, and returns a `READY` or `FAILED`
+draft to `COLLECTING` when a required field is gone. Drafts saved before the
+budget and CPD fields were required stay in their status until the next turn or
+edit; `canGenerate` is false for them in the meantime.
+
+The draft sent to the provider carries `subjects: null` while no subject is
+chosen (never `[]`) and `cpd_enabled: null` while the CPD question is
+unanswered. The provider's CPD widget may arrive as `single_select` with the
+options `"true"` and `"false"`; the platform shows it as a yes or no question.

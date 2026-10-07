@@ -1988,7 +1988,8 @@ model RoadmapDraft {
   preferredContentTypes    ContentType[]    @default([])
   preferredDeliveryFormats DeliveryFormat[] @default([])
 
-  cpdEnabled Boolean @default(false)
+  cpdEnabled  Boolean @default(false)
+  cpdAnswered Boolean @default(false)
 
   certificationId   String?
   certification     Certification? @relation(fields: [certificationId], references: [id], onDelete: SetNull)

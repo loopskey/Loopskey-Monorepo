@@ -1,3 +1,4 @@
+import { getRoadmapDraftContractReadiness } from "@professional/utils/roadmap-draft-readiness.util";
 import { ProfessionalRoadmapDraftService } from "@professional/services/professional-roadmap-draft.service";
 import { RoadmapSuggestionOptionsInput } from "@professional/dtos/roadmap-suggestion-options.input";
 import { ServiceUnavailableException } from "@nestjs/common";
@@ -8,10 +9,10 @@ import { ProfessionalProfileService } from "@professional/services/professional-
 import { CertificationSearchService } from "@professional/services/certification-search.service";
 import { PatchRoadmapCpdSetupInput } from "@professional/dtos/patch-roadmap-cpd-setup.input";
 import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
-import { getRoadmapDraftContractReadiness } from "@professional/utils/roadmap-draft-readiness.util";
 import { roadmapContractProgress } from "@professional/utils/roadmap-draft-readiness.util";
 import { stepOfFirstMissingField } from "@professional/utils/roadmap-draft-readiness.util";
 import { PatchRoadmapDraftInput } from "@professional/dtos/patch-roadmap-draft.input";
+import { widgetRejectionReason } from "@professional/utils/roadmap-widget-validation.util";
 import { RoadmapDraftFieldKey } from "@professional/enums/roadmap-draft.enum";
 import { mergeExtractedFields } from "@professional/utils/roadmap-draft-merge.util";
 import { RoadmapChatTurnInput } from "@professional/dtos/roadmap-chat-turn.input";
@@ -60,12 +61,6 @@ import {
 import * as T from "@professional/types/professional-roadmap-chat.types";
 
 const CERTIFICATION_SEARCH_LIMIT = 8;
-
-const CPD_ANSWERED_STEPS: ReadonlySet<RoadmapDraftStep> = new Set([
-  RoadmapDraftStep.CERTIFICATION,
-  RoadmapDraftStep.CPD_REQUIREMENTS,
-  RoadmapDraftStep.REVIEW,
-]);
 
 type DraftRow = Prisma.RoadmapDraftGetPayload<object>;
 type MessageRow = Prisma.RoadmapChatMessageGetPayload<object>;
@@ -330,6 +325,7 @@ export class ProfessionalRoadmapChatService {
       preferredContentTypes: draft.preferredContentTypes,
       preferredDeliveryFormats: draft.preferredDeliveryFormats,
       cpdEnabled: draft.cpdEnabled,
+      cpdAnswered: draft.cpdAnswered,
       certificationId: draft.certificationId,
       certificationName: draft.certificationName,
       requiredCredits: draft.requiredCredits,
@@ -340,18 +336,17 @@ export class ProfessionalRoadmapChatService {
   private toProviderDraft(
     fields: T.RoadmapDraftFields,
     subjectOptions: T.RoadmapSubjectOption[],
-    currentStep: RoadmapDraftStep,
   ): RoadmapDraftState {
-    const cpdAnswered =
-      fields.cpdEnabled || CPD_ANSWERED_STEPS.has(currentStep);
     return {
       goal: fields.goal,
       context: fields.context,
-      subjects: subjectLabelsOf(fields.subjects, subjectOptions),
+      subjects: fields.subjects.length
+        ? subjectLabelsOf(fields.subjects, subjectOptions)
+        : null,
       goalReason: fields.goalReason,
       targetRole: fields.targetRole,
       targetDate: fields.targetDate,
-      cpdEnabled: cpdAnswered ? fields.cpdEnabled : null,
+      cpdEnabled: fields.cpdAnswered ? fields.cpdEnabled : null,
       certificationName: fields.certificationName,
       skillLevel: fields.skillLevel,
       timeCommitment: fields.timeCommitment,
@@ -404,8 +399,12 @@ export class ProfessionalRoadmapChatService {
     const subjectOptions = catalogue.options;
     const pending = await this.drafts.lastAssistantMessage(user.id, draft.id);
     const completion = roadmapContractProgress(fields, catalogue.knownIds);
+    const canGenerate =
+      (draft.status === RoadmapDraftStatus.READY ||
+        draft.status === RoadmapDraftStatus.FAILED) &&
+      completion.missingFields.length === 0;
     const isComplete =
-      draft.status === RoadmapDraftStatus.READY ||
+      canGenerate ||
       draft.status === RoadmapDraftStatus.GENERATING ||
       draft.status === RoadmapDraftStatus.COMPLETED;
     return {
@@ -419,9 +418,11 @@ export class ProfessionalRoadmapChatService {
       needsClarification: draft.needsClarification,
       wasRefused: draft.wasRefused,
       isComplete,
+      canGenerate,
       completedFieldCount: completion.completedFieldCount,
       requiredFieldCount: completion.requiredFieldCount,
       remainingFields: completion.remainingFields,
+      missingFields: completion.missingFields,
       widget: pending ? this.toWidget(pending.widget) : null,
       subjectOptions,
       cpdPlan,
@@ -457,7 +458,7 @@ export class ProfessionalRoadmapChatService {
       currentStep: draft.currentStep,
       draft: isInitialTurn
         ? {}
-        : this.toProviderDraft(fields, fullSubjectOptions, draft.currentStep),
+        : this.toProviderDraft(fields, fullSubjectOptions),
       history: isInitialTurn
         ? []
         : this.toHistory(messages ?? [], currentMessageId),
@@ -592,10 +593,21 @@ export class ProfessionalRoadmapChatService {
       throw new RoadmapDraftLockedException();
     }
 
-    const validatedWidget = validateWidget(
+    const proposedContext = await this.withProposedRoles(
       data.widget,
-      await this.withProposedRoles(data.widget, widgetContext),
+      widgetContext,
     );
+    const validatedWidget = validateWidget(data.widget, proposedContext);
+    if (data.widget && !validatedWidget)
+      this.logger.warn({
+        event: "roadmap-chat.widget-rejected",
+        draftId: draft.id,
+        field: data.widget.field,
+        type: data.widget.type,
+        reason: widgetRejectionReason(data.widget, proposedContext),
+        correlationId: requestContext.correlationId() ?? null,
+      });
+    this.logState("turn", draft, updated, merged, readiness);
     await this.appendAssistantIfNew(
       user,
       draft.id,
@@ -868,8 +880,16 @@ export class ProfessionalRoadmapChatService {
         ...changes,
         wasRefused: false,
         needsClarification: false,
-        ...this.statusAfterReviewEdit(draft, merged, knownSubjectIds),
+        ...this.statusAfterEdit(draft, merged, knownSubjectIds),
       });
+      if (updated)
+        this.logState(
+          "patch",
+          draft,
+          updated,
+          merged,
+          getRoadmapDraftContractReadiness(merged, knownSubjectIds),
+        );
 
       const patchMessage = {
         stepKey: updated?.currentStep ?? draft.currentStep,
@@ -919,8 +939,16 @@ export class ProfessionalRoadmapChatService {
         certificationId: merged.certificationId,
         certificationName: merged.certificationName,
         requiredCredits: merged.requiredCredits,
-        ...this.demotionAfterEdit(draft, merged, knownSubjectIds),
+        ...this.statusAfterEdit(draft, merged, knownSubjectIds),
       });
+      if (updated)
+        this.logState(
+          "cpd-setup",
+          draft,
+          updated,
+          merged,
+          getRoadmapDraftContractReadiness(merged, knownSubjectIds),
+        );
 
       await this.drafts.appendMessage(user.id, draft.id, {
         role: RoadmapChatRole.SYSTEM,
@@ -934,14 +962,18 @@ export class ProfessionalRoadmapChatService {
     });
   }
 
-  private demotionAfterEdit(
+  private statusAfterEdit(
     draft: DraftRow,
     merged: T.RoadmapDraftFields,
     knownSubjectIds: ReadonlySet<string>,
   ) {
     const readiness = getRoadmapDraftContractReadiness(merged, knownSubjectIds);
-    if (draft.status !== RoadmapDraftStatus.READY || readiness.isValid)
-      return {};
+    const isOpen =
+      draft.status === RoadmapDraftStatus.COLLECTING ||
+      draft.status === RoadmapDraftStatus.FAILED;
+    if (readiness.isValid)
+      return isOpen ? { status: RoadmapDraftStatus.READY } : {};
+    if (draft.status === RoadmapDraftStatus.COLLECTING) return {};
     return {
       status: RoadmapDraftStatus.COLLECTING,
       currentStep:
@@ -949,18 +981,27 @@ export class ProfessionalRoadmapChatService {
     };
   }
 
-  private statusAfterReviewEdit(
-    draft: DraftRow,
+  private logState(
+    trigger: "turn" | "patch" | "cpd-setup",
+    before: DraftRow,
+    after: DraftRow,
     merged: T.RoadmapDraftFields,
-    knownSubjectIds: ReadonlySet<string>,
+    readiness: ReturnType<typeof getRoadmapDraftContractReadiness>,
   ) {
-    if (draft.status !== RoadmapDraftStatus.FAILED)
-      return this.demotionAfterEdit(draft, merged, knownSubjectIds);
-    return {
-      status: getRoadmapDraftContractReadiness(merged, knownSubjectIds).isValid
-        ? RoadmapDraftStatus.READY
-        : RoadmapDraftStatus.COLLECTING,
-    };
+    this.logger.log({
+      event: "roadmap-chat.state",
+      trigger,
+      draftId: after.id,
+      statusBefore: before.status,
+      statusAfter: after.status,
+      readinessValid: readiness.isValid,
+      missingFields: readiness.missingFields,
+      subjectsCount: merged.subjects.length,
+      cpdEnabled: merged.cpdEnabled,
+      cpdAnswered: merged.cpdAnswered,
+      currentStep: after.currentStep,
+      correlationId: requestContext.correlationId() ?? null,
+    });
   }
 
   private async patchChanges(
@@ -1024,7 +1065,8 @@ export class ProfessionalRoadmapChatService {
       return {
         preferredDeliveryFormats: input.preferredDeliveryFormats ?? [],
       };
-    if (field === "cpdEnabled") return { cpdEnabled: value === true };
+    if (field === "cpdEnabled")
+      return { cpdEnabled: value === true, cpdAnswered: value !== null };
     return { [field]: value };
   }
 
