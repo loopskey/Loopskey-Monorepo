@@ -239,14 +239,15 @@ it and the frontend image has to be rebuilt, not merely restarted.
 `NODE_ENV`. Only `production` is indexable; `development`, `ci`, `preview` and
 `staging` emit `X-Robots-Tag: noindex, nofollow` on every route and a
 disallow-all `robots.txt`. It is read at build time, so a staging image is
-promoted to production by rebuilding it, never by relabelling it. Staging
+promoted to production by rebuilding it, never by relabelling it. When it is unset, the Docker build
+and `compose.production.yaml` default to `staging`, so a forgotten value fails
+safe rather than publishing an indexable site by accident. Staging
 access restrictions themselves belong at the ingress: `noindex` asks a crawler
 not to index a page, it does not keep anyone out.
 
 Authenticated and utility routes — `/auth`, `/dashboard`, `/onboarding` and
-`/dev` — always carry `X-Robots-Tag: noindex, nofollow`, including on the
-redirect responses the role-routing proxy returns, and their layouts also
-render a `robots` meta tag. Public assets stay crawlable: `robots.txt` blocks
+`/dev` — always carry `X-Robots-Tag: noindex, nofollow` from
+`next.config.ts`, and their layouts also render a `robots` meta tag. Public assets stay crawlable: `robots.txt` blocks
 nothing on a production deployment, so a crawler can still fetch the
 JavaScript, CSS and images a public page needs in order to read that `noindex`.
 
