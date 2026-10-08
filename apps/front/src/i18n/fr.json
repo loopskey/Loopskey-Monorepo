@@ -389,6 +389,10 @@
     "required": "obligatoire"
   },
   "servicesPage": {
+    "meta": {
+      "title": "Services | LoopsKey",
+      "description": "LoopsKey aide les professionnels, les organisations et les fournisseurs de contenu à découvrir les bonnes opportunités de formation, créer des parcours de développement personnalisés par IA, gérer la conformité CPD et transformer la progression professionnelle en un système mesurable."
+    },
     "common": {
       "bookConsultation": "Réserver une consultation"
     },
@@ -2894,6 +2898,10 @@
     "loggingOut": "Déconnexion..."
   },
   "content": {
+    "meta": {
+      "title": "Explorer les contenus d’apprentissage | LoopsKey",
+      "description": "Parcourez des cours, événements, podcasts et chaînes YouTube de fournisseurs vérifiés, et filtrez par catégorie, format et crédits CPD."
+    },
     "hero": {
       "title": "Explorer les contenus d’apprentissage",
       "count": {
@@ -3171,6 +3179,10 @@
     }
   },
   "landing": {
+    "meta": {
+      "title": "LoopsKey — apprentissage professionnel et suivi CPD propulsés par l’IA",
+      "description": "Découvrez des cours, événements, podcasts et chaînes YouTube, créez un parcours de développement propulsé par l’IA et suivez votre conformité CPD et PDU au même endroit."
+    },
     "learningHub": {
       "badge": "Espace d’apprentissage sélectionné",
       "title": "Découvrez des contenus qui font avancer votre carrière",

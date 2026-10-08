@@ -22,9 +22,10 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Require the public GraphQL origin
+      - name: Require the public origins
         env:
           NEXT_PUBLIC_GRAPHQL_URL: ${{ vars.NEXT_PUBLIC_GRAPHQL_URL }}
+          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
         run: |
           if [ -z "$NEXT_PUBLIC_GRAPHQL_URL" ]; then
             echo "::error::Repository variable NEXT_PUBLIC_GRAPHQL_URL is not set." \
@@ -32,7 +33,36 @@ jobs:
                  "value ships a frontend that calls nothing."
             exit 1
           fi
+          if [ -z "$NEXT_PUBLIC_SITE_URL" ]; then
+            echo "::error::Repository variable NEXT_PUBLIC_SITE_URL is not set." \
+                 "It is the canonical public origin every canonical, Open Graph" \
+                 "and social URL is built from, and the frontend build refuses" \
+                 "to produce public pages without it."
+            exit 1
+          fi
+          case "$NEXT_PUBLIC_SITE_URL" in
+            https://*) ;;
+            *)
+              echo "::error::NEXT_PUBLIC_SITE_URL must be an https origin."
+              exit 1
+              ;;
+          esac
+          case "$NEXT_PUBLIC_SITE_URL" in
+            *localhost*|*127.0.0.1*|*@*)
+              echo "::error::NEXT_PUBLIC_SITE_URL must be the public hostname and" \
+                   "must never carry credentials."
+              exit 1
+              ;;
+          esac
+          site_host="${NEXT_PUBLIC_SITE_URL#https://}"
+          case "${site_host%/}" in
+            */*)
+              echo "::error::NEXT_PUBLIC_SITE_URL must be a bare origin with no path."
+              exit 1
+              ;;
+          esac
           echo "building the frontend against $NEXT_PUBLIC_GRAPHQL_URL"
+          echo "canonical public origin $NEXT_PUBLIC_SITE_URL"
 
       - name: Resolve registry namespace
         id: ns
@@ -66,6 +96,10 @@ jobs:
           push: true
           build-args: |
             NEXT_PUBLIC_GRAPHQL_URL=${{ vars.NEXT_PUBLIC_GRAPHQL_URL }}
+            NEXT_PUBLIC_SITE_URL=${{ vars.NEXT_PUBLIC_SITE_URL }}
+            DEPLOYMENT_ENV=production
+            SITE_CANONICAL_HOST_ALIASES=${{ vars.SITE_CANONICAL_HOST_ALIASES }}
+            SITE_HTTPS_REDIRECT=${{ vars.SITE_HTTPS_REDIRECT }}
           tags: |
             ${{ steps.ns.outputs.prefix }}/front:latest
             ${{ steps.ns.outputs.prefix }}/front:${{ github.sha }}

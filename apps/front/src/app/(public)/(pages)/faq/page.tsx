@@ -2,7 +2,7 @@
 
 import HelpCenterPageClient from "@templates/HelpCenterPageClient";
 
-export const metadata = getBespokePageMetadata("faqPage");
+export const metadata = getBespokePageMetadata("faqPage", "/faq");
 
 const HelpCenterPage = () => <HelpCenterPageClient />;
 

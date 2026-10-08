@@ -389,6 +389,10 @@
     "required": "required"
   },
   "servicesPage": {
+    "meta": {
+      "title": "Services | LoopsKey",
+      "description": "LoopsKey helps professionals, organizations, and content providers discover the right learning opportunities, build AI-powered development roadmaps, manage CPD compliance, and turn professional growth into a measurable system."
+    },
     "common": {
       "bookConsultation": "Book consultation"
     },
@@ -2890,6 +2894,10 @@
     "loggingOut": "Logging out..."
   },
   "content": {
+    "meta": {
+      "title": "Explore learning content | LoopsKey",
+      "description": "Browse courses, events, podcasts and YouTube channels from verified providers, and filter by category, format and CPD credits."
+    },
     "hero": {
       "title": "Explore learning content",
       "count": {
@@ -3167,6 +3175,10 @@
     }
   },
   "landing": {
+    "meta": {
+      "title": "LoopsKey — AI-powered professional learning and CPD tracking",
+      "description": "Discover courses, events, podcasts and YouTube channels, build an AI-powered development roadmap, and track CPD and PDU compliance in one place."
+    },
     "learningHub": {
       "badge": "Featured learning hub",
       "title": "Suggested For you",

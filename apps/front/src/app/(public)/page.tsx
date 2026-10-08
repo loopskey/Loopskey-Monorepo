@@ -8,6 +8,10 @@ import LandingProvider from "@modules/Landing/LandingProviderSection";
 import LandingFeatured from "@modules/Landing/LandingFeatured";
 import LandingHero from "@modules/Landing/LandingHero";
 
+import { getBespokePageMetadata } from "@/utils/static-info-page.utils";
+
+export const metadata = getBespokePageMetadata("landing", "/");
+
 const HomePage = () => {
   return (
     <>

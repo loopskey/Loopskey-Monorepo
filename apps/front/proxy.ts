@@ -2,6 +2,7 @@ import {
   ACCESS_TOKEN_COOKIE_DEFAULT,
   PLATFORM_ROLES,
 } from "@loopskey/api-contracts/auth";
+import { NOINDEX_DIRECTIVE, ROBOTS_TAG_HEADER } from "@/lib/site/route-policy";
 import { NextRequest, NextResponse } from "next/server";
 import { TSessionPayload } from "@/types/guards.types";
 import { jwtVerify } from "jose";
@@ -73,6 +74,11 @@ const verifySession = async (
   }
 };
 
+const withNoindex = (response: NextResponse) => {
+  response.headers.set(ROBOTS_TAG_HEADER, NOINDEX_DIRECTIVE);
+  return response;
+};
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -89,30 +95,32 @@ export async function proxy(request: NextRequest) {
         ];
 
       if (dashboardPath) {
-        return NextResponse.redirect(new URL(dashboardPath, request.url));
+        return withNoindex(
+          NextResponse.redirect(new URL(dashboardPath, request.url)),
+        );
       }
     }
 
-    return NextResponse.next();
+    return withNoindex(NextResponse.next());
   }
 
   const matchedRoute = ROLE_ROUTES.find((route) => {
     return pathname.startsWith(route.prefix);
   });
 
-  if (!matchedRoute) return NextResponse.next();
+  if (!matchedRoute) return withNoindex(NextResponse.next());
 
   if (!session?.sub) {
     const loginUrl = new URL("/auth/professional", request.url);
     loginUrl.searchParams.set("redirectTo", pathname);
-    return NextResponse.redirect(loginUrl);
+    return withNoindex(NextResponse.redirect(loginUrl));
   }
 
   if (!session.role || !matchedRoute.roles.includes(session.role as never)) {
-    return NextResponse.redirect(new URL("/", request.url));
+    return withNoindex(NextResponse.redirect(new URL("/", request.url)));
   }
 
-  return NextResponse.next();
+  return withNoindex(NextResponse.next());
 }
 
 export const config = {

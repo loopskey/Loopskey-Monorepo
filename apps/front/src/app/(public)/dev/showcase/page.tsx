@@ -1,9 +1,12 @@
+import { noindexMetadata } from "@/lib/site/page-metadata";
 import { DesignShowcase } from "./design-showcase";
 import { notFound } from "next/navigation";
 
-export const metadata = {
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
   title: "Design foundation showcase",
-  robots: { index: false, follow: false },
+  ...noindexMetadata(),
 };
 
 const ShowcasePage = () => {

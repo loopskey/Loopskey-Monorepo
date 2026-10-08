@@ -1,5 +1,8 @@
+import { noindexMetadata } from "@/lib/site/page-metadata";
 import { SuspenseBoundary } from "@elements/suspense-boundry";
 import { ReactNode } from "react";
+
+export const metadata = noindexMetadata();
 
 import DashboardLayout from "@layouts/DashboardLayout";
 

@@ -2,7 +2,7 @@
 
 import AboutPageClient from "@templates/AboutPageClient";
 
-export const metadata = getBespokePageMetadata("aboutPage");
+export const metadata = getBespokePageMetadata("aboutPage", "/about");
 
 const AboutPage = () => <AboutPageClient />;
 

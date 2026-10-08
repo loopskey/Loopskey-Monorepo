@@ -38,6 +38,10 @@ jobs:
       DIRECT_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/loopskey_test_ci
       JWT_ACCESS_SECRET: ci-test-access-secret-at-least-32-characters
       JWT_REFRESH_SECRET: ci-test-refresh-secret-at-least-32-characters
+      # A reserved-TLD fixture origin: the frontend build requires a sanitized
+      # https origin, and CI must not need the production domain or its secrets.
+      NEXT_PUBLIC_SITE_URL: https://ci.loopskey.invalid
+      DEPLOYMENT_ENV: ci
       TURBO_SCM_BASE: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
       TURBO_SCM_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
 
