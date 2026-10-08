@@ -1,8 +1,6 @@
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { Prisma, Role, YouTubeChannelStatus } from "@prisma/client";
 import { YouTubeChannelPaginationInput } from "@modules/youtube/dtos/youtube-channel-pagination.input";
-import { Injectable, Logger, NotFoundException } from "@nestjs/common";
-import { measureCatalogFacets } from "@utils/catalog-facet.util";
-import { toEnumFacets } from "@utils/catalog-facet.util";
 import { YouTubeChannelSortDirection } from "@youtube/enums/youtube.enum";
 import { CreateYouTubeChannelInput } from "@youtube/dtos/create-youtube-channel.input";
 import { UpdateYouTubeChannelInput } from "@youtube/dtos/update-youtube-channel.input";
@@ -11,13 +9,16 @@ import { YouTubeChannelSortInput } from "@youtube/dtos/youtube-channel-sort.inpu
 import { CreateYouTubeVideoInput } from "@youtube/dtos/create-youtube-video.input";
 import { YouTubeChannelSortField } from "@youtube/enums/youtube.enum";
 import { UpdateYouTubeVideoInput } from "@youtube/dtos/update-youtube-video.input";
+import { measureCatalogFacets } from "@utils/catalog-facet.util";
 import { TChannelCandidateRow } from "@youtube/types/youtube-service.types";
 import { YouTubeRatingWriter } from "@youtube/public/youtube-engagement-api";
+import { YouTubeVideoStatus } from "@prisma/client";
 import { ForbiddenException } from "@nestjs/common";
 import { YouTubeMessageCode } from "@youtube/enums/message-code.enum";
 import { YouTubeRequester } from "@youtube/enums/youtube.enum";
 import { YouTubeCategory } from "@prisma/client";
 import { PrismaService } from "@prisma/prisma.service";
+import { toEnumFacets } from "@utils/catalog-facet.util";
 import { slugify } from "@utils/slug.util";
 
 import type { RoadmapCandidateQuery } from "@youtube/public/youtube-engagement-api";
@@ -163,6 +164,7 @@ export class YouTubeService {
     const channel = await this.prismaService.youTubeChannel.findFirst({
       where: {
         id: channelId,
+        status: YouTubeChannelStatus.PUBLISHED,
         deletedAt: null,
       },
     });
@@ -202,6 +204,7 @@ export class YouTubeService {
     const channel = await this.prismaService.youTubeChannel.findFirst({
       where: {
         slug,
+        status: YouTubeChannelStatus.PUBLISHED,
         deletedAt: null,
       },
     });
@@ -211,6 +214,22 @@ export class YouTubeService {
   }
 
   async findChannels(
+    filter?: YouTubeChannelFilterInput,
+    pagination?: YouTubeChannelPaginationInput,
+    sort?: YouTubeChannelSortInput,
+  ) {
+    this.assertPublicStatus(filter?.status);
+    return this.queryChannels(filter, pagination, sort);
+  }
+
+  private assertPublicStatus(status?: YouTubeChannelStatus) {
+    if (status && status !== YouTubeChannelStatus.PUBLISHED)
+      throw new ForbiddenException(
+        YouTubeMessageCode.YOUTUBE_CHANNEL_ACCESS_DENIED,
+      );
+  }
+
+  private async queryChannels(
     filter?: YouTubeChannelFilterInput,
     pagination?: YouTubeChannelPaginationInput,
     sort?: YouTubeChannelSortInput,
@@ -403,7 +422,7 @@ export class YouTubeService {
       throw new ForbiddenException(
         YouTubeMessageCode.YOUTUBE_CHANNEL_ACCESS_DENIED,
       );
-    return this.findChannels(
+    return this.queryChannels(
       {
         ...filter,
         providerId:
@@ -419,6 +438,7 @@ export class YouTubeService {
     return this.prismaService.youTubeVideo.findMany({
       where: {
         channelId,
+        status: YouTubeVideoStatus.PUBLISHED,
       },
       orderBy: {
         publishedAt: "desc",

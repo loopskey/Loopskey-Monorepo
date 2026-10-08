@@ -1,7 +1,9 @@
-import { CourseSortField, SortDirection } from "@course/enums/sort.enum";
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { CourseSortField, SortDirection } from "@course/enums/sort.enum";
 import { CourseStatus, Prisma, Role } from "@prisma/client";
 import { CoursePaginationInput } from "@course/dtos/course-pagination.input";
+import { measureCatalogFacets } from "@utils/catalog-facet.util";
+import { toCourseRatingFacets } from "@course/utils/course-rating-facets.util";
 import { ForbiddenException } from "@nestjs/common";
 import { CourseRatingWriter } from "@course/public/course-engagement-api";
 import { CreateCourseInput } from "@course/dtos/create-course.input";
@@ -10,10 +12,8 @@ import { CourseFilterInput } from "@course/dtos/course-filter.input";
 import { CourseMessageCode } from "@course/enums/message-code.enum";
 import { TCourseRequester } from "@course/types/course-service.type";
 import { CourseSortInput } from "@course/dtos/course-sort.input";
-import { measureCatalogFacets } from "@utils/catalog-facet.util";
-import { toCourseRatingFacets } from "@course/utils/course-rating-facets.util";
-import { toEnumFacets } from "@utils/catalog-facet.util";
 import { PrismaService } from "@prisma/prisma.service";
+import { toEnumFacets } from "@utils/catalog-facet.util";
 import { slugify } from "@utils/slug.util";
 
 const CANDIDATE_CAP = 500;
@@ -24,14 +24,6 @@ export class CourseService {
 
   constructor(private readonly prismaService: PrismaService) {}
 
-  /**
-   * Options for the public catalogue filters.
-   *
-   * The same visibility predicate as the public list (`buildCourseWhere` with
-   * no filter), so a value can never be offered for content a visitor cannot
-   * open. Star thresholds come from reviewed courses only: `ratingCount > 0`
-   * and a stored rating inside the 1-5 range the review aggregate writes.
-   */
   async findCourseFilterFacets() {
     return measureCatalogFacets(
       this.logger,
@@ -209,6 +201,7 @@ export class CourseService {
     const course = await this.prismaService.course.findFirst({
       where: {
         id: courseId,
+        status: CourseStatus.PUBLISHED,
         deletedAt: null,
       },
       include: {
@@ -235,6 +228,7 @@ export class CourseService {
     const course = await this.prismaService.course.findFirst({
       where: {
         slug,
+        status: CourseStatus.PUBLISHED,
         deletedAt: null,
       },
       include: {
@@ -294,6 +288,20 @@ export class CourseService {
     pagination?: CoursePaginationInput,
     sort?: CourseSortInput,
   ) {
+    this.assertPublicStatus(filter?.status);
+    return this.queryCourses(filter, pagination, sort);
+  }
+
+  private assertPublicStatus(status?: CourseStatus) {
+    if (status && status !== CourseStatus.PUBLISHED)
+      throw new ForbiddenException(CourseMessageCode.COURSE_ACCESS_DENIED);
+  }
+
+  private async queryCourses(
+    filter?: CourseFilterInput,
+    pagination?: CoursePaginationInput,
+    sort?: CourseSortInput,
+  ) {
     const search = filter?.search?.trim();
     if (search && search.length >= 2)
       return this.findCoursesWithTrgmSearch(filter, pagination, sort);
@@ -349,7 +357,7 @@ export class CourseService {
   ) {
     if (requester.role !== Role.PROVIDER && requester.role !== Role.ADMIN)
       throw new ForbiddenException(CourseMessageCode.COURSE_ACCESS_DENIED);
-    return this.findCourses(
+    return this.queryCourses(
       {
         ...filter,
         providerId:

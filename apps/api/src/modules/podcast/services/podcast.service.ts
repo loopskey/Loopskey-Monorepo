@@ -1,10 +1,9 @@
 import { PodcastCategory, PodcastStatus, Prisma, Role } from "@prisma/client";
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
-import { measureCatalogFacets } from "@utils/catalog-facet.util";
-import { toEnumFacets } from "@utils/catalog-facet.util";
 import { CreatePodcastEpisodeInput } from "@podcast/dtos/create-podcast-episode.input";
 import { UpdatePodcastEpisodeInput } from "@podcast/dtos/update-podcast-episode.input";
 import { PodcastPaginationInput } from "@podcast/dtos/podcast-pagination";
+import { measureCatalogFacets } from "@utils/catalog-facet.util";
 import { TPodcastCandidateRow } from "@podcast/types/podcast-service.types";
 import { PodcastSortDirection } from "@podcast/enums/gql-names.enum";
 import { PodcastRatingWriter } from "@podcast/public/podcast-engagement-api";
@@ -17,6 +16,7 @@ import { PodcastSortInput } from "@podcast/dtos/podcast-sort.input";
 import { PodcastRequester } from "@podcast/types/podcast-service.types";
 import { PodcastSortField } from "@podcast/enums/gql-names.enum";
 import { PrismaService } from "@prisma/prisma.service";
+import { toEnumFacets } from "@utils/catalog-facet.util";
 import { slugify } from "@utils/slug.util";
 
 import type { RoadmapCandidateQuery } from "@podcast/public/podcast-engagement-api";
@@ -41,10 +41,6 @@ export class PodcastService {
 
   constructor(private readonly prismaService: PrismaService) {}
 
-  /**
-   * Options for the public catalogue filter, under the same visibility
-   * predicate as the public podcast list.
-   */
   findPodcastFilterFacets() {
     return measureCatalogFacets(
       this.logger,
@@ -153,6 +149,7 @@ export class PodcastService {
     const podcast = await this.prismaService.podcast.findFirst({
       where: {
         id: podcastId,
+        status: PodcastStatus.PUBLISHED,
         deletedAt: null,
       },
     });
@@ -165,6 +162,7 @@ export class PodcastService {
     const podcast = await this.prismaService.podcast.findFirst({
       where: {
         slug,
+        status: PodcastStatus.PUBLISHED,
         deletedAt: null,
       },
     });
@@ -201,6 +199,20 @@ export class PodcastService {
   }
 
   async findPodcasts(
+    filter?: PodcastFilterInput,
+    pagination?: PodcastPaginationInput,
+    sort?: PodcastSortInput,
+  ) {
+    this.assertPublicStatus(filter?.status);
+    return this.queryPodcasts(filter, pagination, sort);
+  }
+
+  private assertPublicStatus(status?: PodcastStatus) {
+    if (status && status !== PodcastStatus.PUBLISHED)
+      throw new ForbiddenException(PodcastMessageCode.PODCAST_ACCESS_DENIED);
+  }
+
+  private async queryPodcasts(
     filter?: PodcastFilterInput,
     pagination?: PodcastPaginationInput,
     sort?: PodcastSortInput,
@@ -391,7 +403,7 @@ export class PodcastService {
   ) {
     if (requester.role !== Role.PROVIDER && requester.role !== Role.ADMIN)
       throw new ForbiddenException(PodcastMessageCode.PODCAST_ACCESS_DENIED);
-    return this.findPodcasts(
+    return this.queryPodcasts(
       {
         ...filter,
         providerId:
