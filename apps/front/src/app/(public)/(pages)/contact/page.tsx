@@ -2,7 +2,7 @@
 
 import ContactPageClient from "@templates/ContactPageClient";
 
-export const metadata = getBespokePageMetadata("contactPage");
+export const metadata = getBespokePageMetadata("contactPage", "/contact");
 
 const ContactPage = () => <ContactPageClient />;
 

@@ -1,4 +1,5 @@
 import { defaultDictionary, type Dictionary } from "@/i18n/dictionaries";
+import { publicPageMetadata } from "@/lib/site/page-metadata";
 import { Metadata } from "next";
 
 import type * as T from "@/types/pages.types";
@@ -10,7 +11,10 @@ export type BespokePageKey =
   | "contactPage"
   | "faqPage"
   | "termsPage"
-  | "privacyPage";
+  | "privacyPage"
+  | "landing"
+  | "servicesPage"
+  | "content";
 
 export const STATIC_INFO_EMAIL = "loopskey.dev@gmail.com";
 
@@ -78,18 +82,30 @@ export const buildStaticInfoOutline = (
   };
 };
 
-export const getStaticInfoMetadata = (pageKey: PageKey): Metadata => {
+export const getStaticInfoMetadata = (
+  pageKey: PageKey,
+  path: string,
+): Metadata => {
   const page = getStaticPageContent(pageKey);
   const descriptionBlock = page.blocks.find(
     (block) => block.type === "paragraph",
   );
-  return {
-    title: `${page.title} | LoopsKey`,
+  return publicPageMetadata({
+    title: page.title,
     description: descriptionBlock?.text,
-  };
+    path,
+  });
 };
 
-export const getBespokePageMetadata = (pageKey: BespokePageKey): Metadata => {
+export const getBespokePageMetadata = (
+  pageKey: BespokePageKey,
+  path: string,
+): Metadata => {
   const { title, description } = defaultDictionary[pageKey].meta;
-  return { title, description };
+  return publicPageMetadata({
+    title,
+    description,
+    path,
+    isTitleBranded: true,
+  });
 };

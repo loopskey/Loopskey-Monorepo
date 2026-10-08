@@ -95,6 +95,10 @@ services:
       dockerfile: Dockerfile.front
       args:
         NEXT_PUBLIC_GRAPHQL_URL: ${NEXT_PUBLIC_GRAPHQL_URL:?set NEXT_PUBLIC_GRAPHQL_URL in .env.docker}
+        NEXT_PUBLIC_SITE_URL: ${PUBLIC_FRONTEND_URL:?set PUBLIC_FRONTEND_URL in .env.docker}
+        DEPLOYMENT_ENV: ${DEPLOYMENT_ENV:-production}
+        SITE_CANONICAL_HOST_ALIASES: ${SITE_CANONICAL_HOST_ALIASES:-}
+        SITE_HTTPS_REDIRECT: ${SITE_HTTPS_REDIRECT:-false}
 
     restart: unless-stopped
 
@@ -103,6 +107,8 @@ services:
         condition: service_healthy
 
     environment:
+      NEXT_PUBLIC_SITE_URL: ${PUBLIC_FRONTEND_URL}
+      DEPLOYMENT_ENV: ${DEPLOYMENT_ENV:-production}
       SESSION_SECRET_KEY: ${SESSION_SECRET_KEY:?set SESSION_SECRET_KEY in .env.docker}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:?set JWT_ACCESS_SECRET in .env.docker}
       ACCESS_TOKEN_COOKIE_NAME: ${ACCESS_TOKEN_COOKIE_NAME:-}

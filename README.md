@@ -138,6 +138,22 @@ so the workflow reads it from the repository variable of the same name and fails
 when it is unset — an empty value ships a frontend that calls nothing. Changing
 the public API origin means changing that variable and re-running the workflow.
 
+`NEXT_PUBLIC_SITE_URL` is baked in the same way and is read from the repository
+variable of the same name. The workflow refuses to build without it, and
+refuses a value that is not a bare https origin on the public hostname, because
+every canonical and social URL is built from it.
+
+| Repository variable           | Required | Value                                                           |
+| ----------------------------- | -------- | --------------------------------------------------------------- |
+| `NEXT_PUBLIC_GRAPHQL_URL`     | yes      | Public GraphQL endpoint, for example `https://api.example.com/graphql` |
+| `NEXT_PUBLIC_SITE_URL`        | yes      | Canonical public origin, for example `https://www.example.com`   |
+| `SITE_CANONICAL_HOST_ALIASES` | no       | Comma-separated hosts redirected to the canonical origin         |
+| `SITE_HTTPS_REDIRECT`         | no       | `true` only when the ingress forwards `x-forwarded-proto`        |
+
+```bash
+gh variable set NEXT_PUBLIC_SITE_URL --body "https://www.example.com"
+```
+
 Deployment is a single concurrency group, so two merges in quick succession
 deploy one after the other rather than racing.
 
@@ -208,6 +224,74 @@ Every published port binds to `127.0.0.1`, so a TLS reverse proxy in front of
 the host is required. `CORS_ORIGIN` must list every hostname the frontend is
 reachable on — serving both the apex and the `www` host while allowing only
 `www` fails every request from the apex.
+
+### Canonical origin and indexing
+
+The frontend builds every canonical, Open Graph and social-card URL from
+`NEXT_PUBLIC_SITE_URL` alone. Nothing is derived from the incoming `Host` or
+`X-Forwarded-Host`, so a request arriving on an unexpected hostname can never
+place that hostname in an indexable URL. `compose.production.yaml` passes
+`PUBLIC_FRONTEND_URL` as that value, so the API's mail links and the
+frontend's public URLs cannot drift apart. It is baked in at build time: change
+it and the frontend image has to be rebuilt, not merely restarted.
+
+`DEPLOYMENT_ENV` is the indexing policy and is deliberately separate from
+`NODE_ENV`. Only `production` is indexable; `development`, `ci`, `preview` and
+`staging` emit `X-Robots-Tag: noindex, nofollow` on every route and a
+disallow-all `robots.txt`. It is read at build time, so a staging image is
+promoted to production by rebuilding it, never by relabelling it. Staging
+access restrictions themselves belong at the ingress: `noindex` asks a crawler
+not to index a page, it does not keep anyone out.
+
+Authenticated and utility routes — `/auth`, `/dashboard`, `/onboarding` and
+`/dev` — always carry `X-Robots-Tag: noindex, nofollow`, including on the
+redirect responses the role-routing proxy returns, and their layouts also
+render a `robots` meta tag. Public assets stay crawlable: `robots.txt` blocks
+nothing on a production deployment, so a crawler can still fetch the
+JavaScript, CSS and images a public page needs in order to read that `noindex`.
+
+#### Reverse proxy
+
+Next.js does not control the proxy in front of it, so the canonical host and
+HTTP redirects are configured there. A minimal nginx front end:
+
+```nginx
+server {
+  listen 80;
+  server_name www.example.com example.com;
+  return 308 https://www.example.com$request_uri;
+}
+
+server {
+  listen 443 ssl;
+  server_name example.com;
+  return 308 https://www.example.com$request_uri;
+}
+
+server {
+  listen 443 ssl;
+  server_name www.example.com;
+
+  location / {
+    proxy_pass http://127.0.0.1:3000;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+}
+```
+
+`SITE_CANONICAL_HOST_ALIASES` is the in-application equivalent, for a host the
+ingress hands through instead of redirecting: list the apex host there and the
+frontend answers it with a 308 to the canonical origin, preserving the path and
+query string. Only listed hosts are normalized, and listing the canonical host
+itself is rejected rather than allowed to redirect to itself.
+
+Leave `SITE_HTTPS_REDIRECT` at `false` whenever the ingress already redirects
+HTTP, as the configuration above does. Set it to `true` only where TLS
+terminates upstream, `X-Forwarded-Proto` is set on every request, and nothing
+in front redirects HTTP itself — a proxy that forwards the wrong scheme turns
+it into a redirect loop.
 
 ### Recovering a failed migration
 

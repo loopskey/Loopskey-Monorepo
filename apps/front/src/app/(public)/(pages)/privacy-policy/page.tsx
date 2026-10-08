@@ -2,7 +2,7 @@
 
 import PrivacyPageClient from "@templates/PrivacyPageClient";
 
-export const metadata = getBespokePageMetadata("privacyPage");
+export const metadata = getBespokePageMetadata("privacyPage", "/privacy-policy");
 
 const PrivacyPolicyPage = () => <PrivacyPageClient />;
 

@@ -1,7 +1,10 @@
 ﻿import { getStaticInfoMetadata } from "@/utils/static-info-page.utils";
 import { StaticInfoPage } from "@templates/StaticInfoPage";
 
-export const metadata = getStaticInfoMetadata("associations");
+export const metadata = getStaticInfoMetadata(
+  "associations",
+  "/solutions/associations",
+);
 
 const AssociationsPage = () => <StaticInfoPage pageKey="associations" />;
 

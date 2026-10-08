@@ -1,7 +1,10 @@
 import { ProfessionalOnboardingEntryGuard } from "@guards/professional-onboarding-entry-guard";
 import { ProfessionalRouteGuard } from "@guards/dashboard-route-guards";
+import { noindexMetadata } from "@/lib/site/page-metadata";
 import { FocusedTopBar } from "@layouts/parts/FocusedTopBar";
 import { ReactNode } from "react";
+
+export const metadata = noindexMetadata();
 
 const ProfessionalOnboardingLayout = ({ children }: { children: ReactNode }) => {
   return (
