@@ -87,9 +87,9 @@ export class EventRepository {
     return this.prisma.event.findUnique({ where: { id: eventId } });
   }
 
-  findActiveByIdWithSchedule(eventId: string) {
+  findPublishedByIdWithSchedule(eventId: string) {
     return this.prisma.event.findFirst({
-      where: { id: eventId, deletedAt: null },
+      where: { id: eventId, status: EventStatus.PUBLISHED, deletedAt: null },
       include: {
         scheduleItems: {
           orderBy: [{ dayNumber: "asc" }, { startTime: "asc" }],
@@ -98,9 +98,9 @@ export class EventRepository {
     });
   }
 
-  findActiveBySlugWithSchedule(slug: string) {
+  findPublishedBySlugWithSchedule(slug: string) {
     return this.prisma.event.findFirst({
-      where: { slug, deletedAt: null },
+      where: { slug, status: EventStatus.PUBLISHED, deletedAt: null },
       include: {
         scheduleItems: {
           orderBy: [{ dayNumber: "asc" }, { startTime: "asc" }],
