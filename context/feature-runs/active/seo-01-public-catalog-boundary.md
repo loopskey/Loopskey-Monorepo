@@ -4,7 +4,7 @@
 - Model: `High reasoning — publication authorization crosses four domains and can break authenticated workflows if applied indiscriminately (selected per context/model-selection.md; the active model is chosen by the client, not this record).`
 - Branch: `feature/seo-01-public-catalog-boundary`
 - Base: `553f084`
-- Status: `Ready`
+- Status: `Submitted`
 
 ## Acceptance
 
@@ -26,6 +26,6 @@
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: 564b611
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/281
+- CI: pending
