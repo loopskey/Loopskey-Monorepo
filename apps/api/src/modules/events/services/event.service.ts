@@ -1,21 +1,21 @@
 import { BadRequestException, ForbiddenException } from "@nestjs/common";
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
-import { measureCatalogFacets } from "@utils/catalog-facet.util";
-import { toEnumFacets } from "@utils/catalog-facet.util";
+import { isEventRegistrationConflict } from "@events/domain/errors/event-registration-conflict.error";
 import { EventDomainEventDispatcher } from "@events/application/events/event-domain-event.dispatcher";
 import { EventStatus, Prisma, Role } from "@prisma/client";
 import { shouldEmitEventPublished } from "@events/domain/policies/event-publication.policy";
+import { measureCatalogFacets } from "@utils/catalog-facet.util";
 import { EventPaginationInput } from "@events/dtos/event-pagination.input";
 import { EVENT_PUBLISHED_V1 } from "@events/domain/events/event-published-v1";
 import { CreateEventInput } from "@events/dtos/create-event.input";
 import { EventFilterInput } from "@events/dtos/event-filter.input";
 import { UpdateEventInput } from "@events/dtos/update-event.input";
 import { EventMessageCode } from "@events/enums/message-code.enum";
-import { EventRepository } from "@events/infrastructure/persistence/event.repository";
 import { EventRatingWriter } from "@events/public/events-api";
-import { isEventRegistrationConflict } from "@events/domain/errors/event-registration-conflict.error";
+import { EventRepository } from "@events/infrastructure/persistence/event.repository";
 import { EventSortInput } from "@events/dtos/event-sort.input";
 import { EventRequester } from "@events/enums/event-register.enum";
+import { toEnumFacets } from "@utils/catalog-facet.util";
 import { randomUUID } from "node:crypto";
 import { slugify } from "@utils/slug.util";
 
@@ -34,10 +34,6 @@ export class EventService {
     private readonly eventDispatcher: EventDomainEventDispatcher,
   ) {}
 
-  /**
-   * Options for the public catalogue filters, under the same visibility
-   * predicate as the public event list.
-   */
   findEventFilterFacets() {
     return measureCatalogFacets(
       this.logger,
@@ -147,6 +143,20 @@ export class EventService {
     pagination?: EventPaginationInput,
     sort?: EventSortInput,
   ) {
+    this.assertPublicStatus(filter?.status);
+    return this.queryEvents(filter, pagination, sort);
+  }
+
+  private assertPublicStatus(status?: EventStatus) {
+    if (status && status !== EventStatus.PUBLISHED)
+      throw new ForbiddenException(EventMessageCode.EVENT_ACCESS_DENIED);
+  }
+
+  private queryEvents(
+    filter?: EventFilterInput,
+    pagination?: EventPaginationInput,
+    sort?: EventSortInput,
+  ) {
     const search = filter?.search?.trim();
     return search && search.length >= 2
       ? this.eventRepository.search(filter, pagination)
@@ -155,14 +165,15 @@ export class EventService {
 
   async findEventById(eventId: string) {
     const event =
-      await this.eventRepository.findActiveByIdWithSchedule(eventId);
+      await this.eventRepository.findPublishedByIdWithSchedule(eventId);
     if (!event) throw new NotFoundException(EventMessageCode.EVENT_NOT_FOUND);
     await this.eventRepository.incrementViews(event.id);
     return event;
   }
 
   async findEventBySlug(slug: string) {
-    const event = await this.eventRepository.findActiveBySlugWithSchedule(slug);
+    const event =
+      await this.eventRepository.findPublishedBySlugWithSchedule(slug);
     if (!event) throw new NotFoundException(EventMessageCode.EVENT_NOT_FOUND);
     await this.eventRepository.incrementViews(event.id);
     return event;
@@ -227,7 +238,7 @@ export class EventService {
     sort?: EventSortInput,
   ) {
     this.ensureProviderOrAdmin(requester);
-    return this.findEvents(
+    return this.queryEvents(
       {
         ...filter,
         providerId:
@@ -238,13 +249,6 @@ export class EventService {
     );
   }
 
-  /**
-   * The explicit "register me" mutation, which still refuses a user who is
-   * already holding a seat. The preflight below only exists to give that user a
-   * readable message; capacity itself is settled by the atomic claim in the
-   * repository, which is the reason two people racing for one seat cannot both
-   * win.
-   */
   async registerEvent(eventId: string, requester: EventRequester) {
     this.assertOpenForRegistration(await this.findExistingEvent(eventId));
     const outcome = await this.activateRegistration(eventId, requester.id);
@@ -253,11 +257,6 @@ export class EventService {
     return outcome.registration;
   }
 
-  /**
-   * Enrollment from the Content Interaction side, which is idempotent by
-   * contract: a user who is already attending gets their existing registration
-   * back rather than an error.
-   */
   async enrollInEvent(eventId: string, participant: EventParticipant) {
     this.assertOpenForRegistration(await this.findExistingEvent(eventId));
     const outcome = await this.activateRegistration(eventId, participant.id);
@@ -276,11 +275,6 @@ export class EventService {
     return outcome.registration;
   }
 
-  /**
-   * Translate a lost race into the domain vocabulary clients already handle.
-   * `ALREADY_REGISTERED` means a concurrent request created this user's row
-   * between our attempt and its commit, so the honest answer is that row.
-   */
   private async activateRegistration(eventId: string, userId: string) {
     try {
       return await this.eventRepository.activateRegistration(eventId, userId);
