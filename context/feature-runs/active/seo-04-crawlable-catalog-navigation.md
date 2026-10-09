@@ -4,7 +4,7 @@
 - Model: `High reasoning — cursor contracts, search/sort plans and URL policy cross the API/frontend boundary and can create unbounded crawl or query work.`
 - Branch: `feature/seo-04-crawlable-catalog-navigation`
 - Base: `92ec74c`
-- Status: `Ready`
+- Status: `Submitted`
 
 ## Acceptance
 
@@ -59,6 +59,6 @@
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: 5d0e730
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/285
+- CI: pending
