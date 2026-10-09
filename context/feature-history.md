@@ -127,3 +127,4 @@ into this index and do not rewrite previous records.
 - [`requirement-wizard-corrections`](feature-runs/active/requirement-wizard-corrections.md) — PR [#261](https://github.com/loopskey/Loopskey-Monorepo/pull/261)
 - [`canonical-origin-and-indexing`](feature-runs/active/canonical-origin-and-indexing.md) — PR [#280](https://github.com/loopskey/Loopskey-Monorepo/pull/280)
 - [`seo-01-public-catalog-boundary`](feature-runs/active/seo-01-public-catalog-boundary.md) — PR [#281](https://github.com/loopskey/Loopskey-Monorepo/pull/281)
+- [`seo-03-server-rendered-content-and-metadata`](feature-runs/active/seo-03-server-rendered-content-and-metadata.md) — PR [#284](https://github.com/loopskey/Loopskey-Monorepo/pull/284)

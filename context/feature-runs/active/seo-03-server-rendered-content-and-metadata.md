@@ -4,7 +4,7 @@
 - Model: `High reasoning — server/client boundaries, API error classification, HTTP status behavior and a view-accounting change cross both applications.`
 - Branch: `feature/seo-03-server-rendered-content-and-metadata`
 - Base: `18ef6c1`
-- Status: `Ready`
+- Status: `Submitted`
 
 ## Acceptance
 
@@ -41,6 +41,6 @@
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: 34e7c62
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/284
+- CI: pending
