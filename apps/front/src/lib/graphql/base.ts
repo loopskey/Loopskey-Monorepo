@@ -2824,6 +2824,7 @@ export type Mutation = {
   publishPodcast: Podcast;
   publishYouTubeChannel: YouTubeChannel;
   recomputeAssociationCompliance: AssociationActionResponse;
+  recordEventView: Scalars['Boolean']['output'];
   refreshToken: AuthPayload;
   register: AuthPayload;
   registerEvent: EventRegistration;
@@ -3308,6 +3309,11 @@ export type MutationPublishPodcastArgs = {
 
 export type MutationPublishYouTubeChannelArgs = {
   channelId: Scalars['String']['input'];
+};
+
+
+export type MutationRecordEventViewArgs = {
+  eventId: Scalars['String']['input'];
 };
 
 

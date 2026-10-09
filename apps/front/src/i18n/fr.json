@@ -3048,6 +3048,9 @@
     "common": {
       "backToContent": "Retour au contenu",
       "notFound": "Contenu introuvable",
+      "unavailableTitle": "Cette page est temporairement indisponible",
+      "unavailableDescription": "Impossible de charger ce contenu pour le moment. Veuillez réessayer dans un instant.",
+      "retry": "Réessayer",
       "free": "Gratuit",
       "price": "Prix",
       "minutes": "{{count}} min"

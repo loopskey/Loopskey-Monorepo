@@ -198,6 +198,18 @@ export const eventApi = baseApi.injectEndpoints({
       invalidatesTags: ["Events"],
     }),
 
+    recordEventView: builder.mutation<
+      TAPI.RecordEventViewMutation["recordEventView"],
+      TAPI.RecordEventViewMutationVariables["eventId"]
+    >({
+      query: (eventId) => ({
+        document: API.RecordEventViewDocument,
+        variables: { eventId },
+      }),
+      transformResponse: (response: TAPI.RecordEventViewMutation) =>
+        response.recordEventView,
+    }),
+
     deleteEvent: builder.mutation<
       TAPI.DeleteEventMutation["deleteEvent"],
       TAPI.DeleteEventMutationVariables["eventId"]
@@ -239,6 +251,7 @@ export const {
   useUpdateEventMutation,
   useCancelEventMutation,
   useDeleteEventMutation,
+  useRecordEventViewMutation,
   usePublishEventMutation,
   useLazyEventBySlugQuery,
   useArchiveEventMutation,

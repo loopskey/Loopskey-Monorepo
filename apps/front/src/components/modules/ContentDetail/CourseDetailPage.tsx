@@ -8,47 +8,23 @@ import { resolveExternalUrl } from "@/utils/content-source.helper";
 import { humanizeEnumValue } from "@/utils/function-helper";
 import { useContentActions } from "@/hooks/useContentActions";
 import { formatPriceLabel } from "@/utils/content-source.helper";
-import { GlassCard } from "@elements/glass-card";
 import { useI18n } from "@/hooks/useI18n";
 
 import DetailSidebarActions from "@modules/ContentDetail/parts/DetailSidebarActions";
 import DetailPageHeader from "@modules/ContentDetail/parts/DetailPageHeader";
-import DetailSkeleton from "@modules/ContentDetail/parts/DetailSkeleton";
 import DetailSidebar from "@modules/ContentDetail/parts/DetailSidebar";
 import DetailSummary from "@modules/ContentDetail/parts/DetailSummary";
 import DetailSection from "@modules/ContentDetail/parts/DetailSection";
 import DetailLayout from "@modules/ContentDetail/parts/DetailLayout";
 
-import * as CourseApi from "@/lib/rtk/endpoints/course.api";
-
-const CourseDetailPage = ({ slug }: TCourseDetailPageProps) => {
+const CourseDetailPage = ({ course }: TCourseDetailPageProps) => {
   const { t } = useI18n();
-
-  const { data: course, isLoading } = CourseApi.useCourseBySlugQuery({
-    slug,
-  });
 
   const actions = useContentActions({
     skipEnrollment: true,
-    contentId: course?.id,
+    contentId: course.id,
     contentType: ContentType.Course,
   });
-
-  if (isLoading) return <DetailSkeleton />;
-
-  if (!course) {
-    return (
-      <main className="px-4 py-10 sm:px-6 lg:px-8">
-        <GlassCard className="mx-auto max-w-3xl p-10 text-center" glow={false}>
-          <div className="relative z-10">
-            <h1 className="text-2xl font-medium">
-              {t("contentDetails.common.notFound")}
-            </h1>
-          </div>
-        </GlassCard>
-      </main>
-    );
-  }
 
   const learnings = course.learnings ?? [];
   const requirements = course.requirements ?? [];

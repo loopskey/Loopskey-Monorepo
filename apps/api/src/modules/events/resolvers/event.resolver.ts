@@ -1,4 +1,4 @@
-import { Args, Int, Mutation, Query, Resolver } from "@nestjs/graphql";
+import { Args, Context, Int, Mutation, Query } from "@nestjs/graphql";
 import { EventRegistrationEntity } from "@events/entities/event-registeration.entity";
 import { EventFilterFacetsEntity } from "@events/entities/event-filter-facets.entity";
 import { PaginatedEventsEntity } from "@events/entities/paginated-events.entity";
@@ -13,9 +13,14 @@ import { EventSortInput } from "@events/dtos/event-sort.input";
 import { EventService } from "@events/services/event.service";
 import { EventEntity } from "@events/entities/event.entity";
 import { CurrentUser } from "@auth/decorators/current-user.decorator";
+import { Resolver } from "@nestjs/graphql";
 import { Public } from "@auth/decorators/public.decorator";
 import { Roles } from "@auth/decorators/roles.decorator";
 import { Role } from "@prisma/client";
+
+type GqlContext = { req?: { ip?: string; ips?: string[] } };
+
+const UNKNOWN_VIEWER = "unknown";
 
 @Resolver(() => EventEntity)
 export class EventResolver {
@@ -49,6 +54,17 @@ export class EventResolver {
   @Query(() => EventEntity, { name: EventGqlQueryNames.EVENT_BY_SLUG })
   eventBySlug(@Args("slug") slug: string) {
     return this.eventService.findEventBySlug(slug);
+  }
+
+  @Public()
+  @Mutation(() => Boolean, { name: EventGqlMutationNames.RECORD_EVENT_VIEW })
+  recordEventView(
+    @Args("eventId") eventId: string,
+    @Context() context: GqlContext,
+  ) {
+    const viewerKey =
+      context.req?.ips?.[0] ?? context.req?.ip ?? UNKNOWN_VIEWER;
+    return this.eventService.recordEventView(eventId, viewerKey);
   }
 
   @Public()

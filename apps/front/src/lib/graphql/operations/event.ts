@@ -33,6 +33,13 @@ export type EventBySlugQueryVariables = Types.Exact<{
 
 export type EventBySlugQuery = { __typename?: 'Query', eventBySlug: { __typename?: 'Event', id: string, pdu: number, slug: string, type: Types.EventType, title: string, views: number, price?: number | null, status: Types.EventStatus, isFree: boolean, rating: number, speaker?: string | null, endDate?: string | null, timezone: string, imageUrl?: string | null, sourceUrl?: string | null, category: Types.EventCategory, location?: string | null, currency: string, capacity?: number | null, language?: Types.AppLanguage | null, startDate: string, onlineUrl?: string | null, attendees: number, organizer?: string | null, updatedAt: string, deletedAt?: string | null, createdAt: string, providerId?: string | null, description: string, ratingCount: number, pduCategory?: Types.PduCategory | null, deliveryMode: Types.EventDeliveryMode, averageRating: number, specificTopic?: string | null, earlyBirdDiscount?: number | null, promotionVideoUrl?: string | null, registrationEnabled: boolean, scheduleItems?: Array<{ __typename?: 'EventScheduleItem', id: string, title: string, speaker?: string | null, eventId: string, endTime: string, updatedAt: string, createdAt: string, dayNumber: number, startTime: string, description?: string | null }> | null } };
 
+export type RecordEventViewMutationVariables = Types.Exact<{
+  eventId: Types.Scalars['String']['input'];
+}>;
+
+
+export type RecordEventViewMutation = { __typename?: 'Mutation', recordEventView: boolean };
+
 export type UpcomingEventsQueryVariables = Types.Exact<{
   take?: Types.InputMaybe<Types.Scalars['Int']['input']>;
 }>;
@@ -441,6 +448,11 @@ fragment EventDetailFields on Event {
     ...EventScheduleItemFields
   }
 }`) as unknown as TypedDocumentString<EventBySlugQuery, EventBySlugQueryVariables>;
+export const RecordEventViewDocument = /*#__PURE__*/ new TypedDocumentString(`
+    mutation RecordEventView($eventId: String!) {
+  recordEventView(eventId: $eventId)
+}
+    `) as unknown as TypedDocumentString<RecordEventViewMutation, RecordEventViewMutationVariables>;
 export const UpcomingEventsDocument = /*#__PURE__*/ new TypedDocumentString(`
     query UpcomingEvents($take: Int) {
   upcomingEvents(take: $take) {

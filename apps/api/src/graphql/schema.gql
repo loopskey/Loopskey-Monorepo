@@ -2702,6 +2702,7 @@ type Mutation {
   publishPodcast(podcastId: String!): Podcast!
   publishYouTubeChannel(channelId: String!): YouTubeChannel!
   recomputeAssociationCompliance: AssociationActionResponse!
+  recordEventView(eventId: String!): Boolean!
   refreshToken: AuthPayload!
   register(input: RegisterInput!): AuthPayload!
   registerEvent(eventId: String!): EventRegistration!
