@@ -4,7 +4,7 @@
 - Model: `High reasoning — sitemap scale, visibility revocation, a new public enumeration contract and an additive Prisma migration touch data integrity and public disclosure.`
 - Branch: `feature/seo-05-sitemaps-and-publication-lifecycle`
 - Base: `cf98feee9852b9b535a73dab9e57faa4611ed603`
-- Status: `Ready`
+- Status: `Submitted`
 
 ## Acceptance
 
@@ -117,6 +117,6 @@
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: `075462c`
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/286
+- CI: pending

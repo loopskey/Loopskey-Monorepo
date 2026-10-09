@@ -130,3 +130,4 @@ into this index and do not rewrite previous records.
 - [`seo-03-server-rendered-content-and-metadata`](feature-runs/active/seo-03-server-rendered-content-and-metadata.md) — PR [#284](https://github.com/loopskey/Loopskey-Monorepo/pull/284)
 
 - [`seo-04-crawlable-catalog-navigation`](feature-runs/active/seo-04-crawlable-catalog-navigation.md) — PR [#285](https://github.com/loopskey/Loopskey-Monorepo/pull/285)
+- [`seo-05-sitemaps-and-publication-lifecycle`](feature-runs/active/seo-05-sitemaps-and-publication-lifecycle.md) — PR [#286](https://github.com/loopskey/Loopskey-Monorepo/pull/286)
