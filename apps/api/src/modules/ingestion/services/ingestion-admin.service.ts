@@ -1,3 +1,4 @@
+import { publicContentChange } from "@utils/public-content-change.util";
 import { INGESTION_BULK_APPROVE_TRANSACTION_TIMEOUT_MS } from "@ingestion/enums/ingestion-review.constant";
 import { BadRequestException, ConflictException } from "@nestjs/common";
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
@@ -716,17 +717,15 @@ export class IngestionAdminService {
     catalogId: string,
     status: "PUBLISHED" | "DRAFT",
   ) {
+    const where = { id: catalogId };
+    const data = { status, ...publicContentChange() };
     if (kind === IngestionContentKind.COURSE)
-      await tx.course.update({ where: { id: catalogId }, data: { status } });
+      await tx.course.update({ where, data });
     else if (kind === IngestionContentKind.EVENT)
-      await tx.event.update({ where: { id: catalogId }, data: { status } });
+      await tx.event.update({ where, data });
     else if (kind === IngestionContentKind.PODCAST)
-      await tx.podcast.update({ where: { id: catalogId }, data: { status } });
-    else
-      await tx.youTubeChannel.update({
-        where: { id: catalogId },
-        data: { status },
-      });
+      await tx.podcast.update({ where, data });
+    else await tx.youTubeChannel.update({ where, data });
   }
 
   private async setCatalogStatusMany(
@@ -736,13 +735,14 @@ export class IngestionAdminService {
     status: "PUBLISHED" | "DRAFT",
   ) {
     const where = { id: { in: catalogIds } };
+    const data = { status, ...publicContentChange() };
     if (kind === IngestionContentKind.COURSE)
-      await tx.course.updateMany({ where, data: { status } });
+      await tx.course.updateMany({ where, data });
     else if (kind === IngestionContentKind.EVENT)
-      await tx.event.updateMany({ where, data: { status } });
+      await tx.event.updateMany({ where, data });
     else if (kind === IngestionContentKind.PODCAST)
-      await tx.podcast.updateMany({ where, data: { status } });
-    else await tx.youTubeChannel.updateMany({ where, data: { status } });
+      await tx.podcast.updateMany({ where, data });
+    else await tx.youTubeChannel.updateMany({ where, data });
   }
 
   private async requireSource(sourceId: string) {

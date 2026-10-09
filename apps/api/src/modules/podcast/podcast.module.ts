@@ -1,3 +1,5 @@
+import { PodcastPublicUrlApiService } from "@podcast/application/public-url-api.service";
+import { PODCAST_PUBLIC_URL_API } from "@podcast/public/public-url-api";
 import { PodcastEngagementApiService } from "@podcast/application/podcast-engagement-api.service";
 import { PODCAST_CATALOG_SEARCH_API } from "@podcast/public/catalog-search-api";
 import { CatalogSearchApiService } from "@podcast/application/catalog-search-api.service";
@@ -12,6 +14,11 @@ import "@podcast/enums/podcast-register.enum";
 @Module({
   imports: [PrismaModule],
   providers: [
+    PodcastPublicUrlApiService,
+    {
+      provide: PODCAST_PUBLIC_URL_API,
+      useExisting: PodcastPublicUrlApiService,
+    },
     PodcastResolver,
     PodcastService,
     PodcastEngagementApiService,
@@ -25,6 +32,10 @@ import "@podcast/enums/podcast-register.enum";
       useExisting: CatalogSearchApiService,
     },
   ],
-  exports: [PODCAST_ENGAGEMENT_API, PODCAST_CATALOG_SEARCH_API],
+  exports: [
+    PODCAST_ENGAGEMENT_API,
+    PODCAST_CATALOG_SEARCH_API,
+    PODCAST_PUBLIC_URL_API,
+  ],
 })
 export class PodcastModule {}

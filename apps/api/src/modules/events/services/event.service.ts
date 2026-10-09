@@ -1,3 +1,4 @@
+import { publicContentChange } from "@utils/public-content-change.util";
 import { BadRequestException, ForbiddenException } from "@nestjs/common";
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { isEventRegistrationConflict } from "@events/domain/errors/event-registration-conflict.error";
@@ -137,6 +138,7 @@ export class EventService {
           : input.price !== undefined
             ? new Prisma.Decimal(input.price)
             : undefined,
+      ...publicContentChange(),
     });
   }
 
@@ -324,6 +326,7 @@ export class EventService {
     this.ensureEventOwnerOrAdmin(event.providerId, requester);
     const published = await this.eventRepository.update(eventId, {
       status: EventStatus.PUBLISHED,
+      ...publicContentChange(),
     });
     if (shouldEmitEventPublished(event.status)) {
       const domainEvent: EventPublishedV1 = {
@@ -343,6 +346,7 @@ export class EventService {
     await this.assertOwner(eventId, requester);
     return this.eventRepository.update(eventId, {
       status: EventStatus.ARCHIVED,
+      ...publicContentChange(),
     });
   }
 
@@ -350,19 +354,26 @@ export class EventService {
     await this.assertOwner(eventId, requester);
     return this.eventRepository.update(eventId, {
       status: EventStatus.CANCELLED,
+      ...publicContentChange(),
     });
   }
 
   async softDeleteEvent(eventId: string, requester: EventRequester) {
     await this.assertOwner(eventId, requester);
-    return this.eventRepository.update(eventId, { deletedAt: new Date() });
+    return this.eventRepository.update(eventId, {
+      deletedAt: new Date(),
+      ...publicContentChange(),
+    });
   }
 
   async restoreEvent(eventId: string, requester: EventRequester) {
     const event = await this.eventRepository.findById(eventId);
     if (!event) throw new NotFoundException(EventMessageCode.EVENT_NOT_FOUND);
     this.ensureEventOwnerOrAdmin(event.providerId, requester);
-    return this.eventRepository.update(eventId, { deletedAt: null });
+    return this.eventRepository.update(eventId, {
+      deletedAt: null,
+      ...publicContentChange(),
+    });
   }
 
   private async assertOwner(eventId: string, requester: EventRequester) {

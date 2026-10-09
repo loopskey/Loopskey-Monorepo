@@ -61,6 +61,7 @@ export const BOUNDARY_EXCEPTIONS = [
     files: [
       "apps/api/src/modules/course/controllers/course-import.controller.ts",
       "apps/api/src/modules/course/resolvers/course.resolver.ts",
+      "apps/api/src/modules/discovery/resolvers/discovery.resolver.ts",
       "apps/api/src/modules/events/resolvers/event.resolver.ts",
       "apps/api/src/modules/landing/resolvers/landing.resolver.ts",
       "apps/api/src/modules/podcast/resolvers/podcast.resolver.ts",
@@ -199,6 +200,8 @@ export const IMPORT_EXCEPTION_FINGERPRINTS: Readonly<Record<string, string>> = {
     "6710421fcb0917e757c5a1d7af793564f3cb2b618246015a06e247aff90fb750",
   "EXC-033:apps/api/src/modules/course/resolvers/course.resolver.ts":
     "b468d6e3ced9e4183e8d29d88cb24768abe006a8afb30fecc669e778dd28dbbe",
+  "EXC-033:apps/api/src/modules/discovery/resolvers/discovery.resolver.ts":
+    "9a9c6fd1636266769b98a077784176e3f16e3c69d83ce9da0cd0f40a439e209a",
   "EXC-033:apps/api/src/modules/events/resolvers/event.resolver.ts":
     "b468d6e3ced9e4183e8d29d88cb24768abe006a8afb30fecc669e778dd28dbbe",
   "EXC-033:apps/api/src/modules/landing/resolvers/landing.resolver.ts":

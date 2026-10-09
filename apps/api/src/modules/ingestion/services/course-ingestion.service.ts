@@ -1,3 +1,4 @@
+import { publicContentChange } from "@utils/public-content-change.util";
 import { COURSE_INGESTION_COMPRESSED_BODY_LIMIT_BYTES } from "@ingestion/enums/course-ingestion.constant";
 import { NotFoundException, PayloadTooLargeException } from "@nestjs/common";
 import { IngestionBatchMode, IngestionBatchStatus } from "@prisma/client";
@@ -419,7 +420,7 @@ export class CourseIngestionService {
           const course = existingCourse
             ? await transaction.course.update({
                 where: { id: existingCourse.id },
-                data: courseData,
+                data: { ...courseData, ...publicContentChange() },
                 select: { id: true },
               })
             : await transaction.course.create({

@@ -1,0 +1,25 @@
+query PublicUrlShards {
+  publicUrlShards {
+    kind
+    shardSize
+    isComplete
+    shards {
+      index
+      urlCount
+      lastPublicChangeAt
+      startCursor
+      endCursor
+    }
+  }
+}
+
+query PublicUrlPage($input: PublicUrlPageInput!) {
+  publicUrlPage(input: $input) {
+    hasNextPage
+    nextCursor
+    items {
+      slug
+      publicChangeAt
+    }
+  }
+}

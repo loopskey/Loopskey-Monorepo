@@ -1,3 +1,5 @@
+import { EventPublicUrlApiService } from "@events/application/public-url-api.service";
+import { EVENT_PUBLIC_URL_API } from "@events/public/public-url-api";
 import { EventPublishedLoggingHandler } from "@events/infrastructure/handlers/event-published-logging.handler";
 import { EventDomainEventDispatcher } from "@events/application/events/event-domain-event.dispatcher";
 import { EVENT_PUBLISHED_HANDLERS } from "@events/application/events/event-domain-event.dispatcher";
@@ -17,6 +19,8 @@ import "@events/enums/event-register.enum";
 @Module({
   imports: [PrismaModule],
   providers: [
+    EventPublicUrlApiService,
+    { provide: EVENT_PUBLIC_URL_API, useExisting: EventPublicUrlApiService },
     EventService,
     EventResolver,
     EventRepository,
@@ -33,6 +37,6 @@ import "@events/enums/event-register.enum";
     CatalogSearchApiService,
     { provide: EVENT_CATALOG_SEARCH_API, useExisting: CatalogSearchApiService },
   ],
-  exports: [EVENTS_API, EVENT_CATALOG_SEARCH_API],
+  exports: [EVENTS_API, EVENT_CATALOG_SEARCH_API, EVENT_PUBLIC_URL_API],
 })
 export class EventModule {}

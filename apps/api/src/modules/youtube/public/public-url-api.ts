@@ -1,0 +1,1 @@
+export const YOUTUBE_PUBLIC_URL_API = Symbol("YOUTUBE_PUBLIC_URL_API");

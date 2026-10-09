@@ -683,9 +683,13 @@ model Course {
   curriculumSections      CurriculumSection[]
   organizationAssignments OrganizationAssignment[]
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
+  /// Last change to content a public visitor can see, or to publication
+  /// state. Metric writes (views, listeners, ratings, attendees) never move it;
+  /// it is the lastmod the public sitemap publishes.
+  publicContentUpdatedAt DateTime  @default(now())
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  deletedAt              DateTime?
 
   user                       User?                      @relation(fields: [userId], references: [id])
   userId                     String?
@@ -834,12 +838,16 @@ model Event {
 
   registrations EventRegistration[]
 
-  createdAt     DateTime            @default(now())
-  updatedAt     DateTime            @updatedAt
-  deletedAt     DateTime?
-  user          User?               @relation(fields: [userId], references: [id])
-  userId        String?
-  scheduleItems EventScheduleItem[]
+  /// Last change to content a public visitor can see, or to publication
+  /// state. Metric writes (views, listeners, ratings, attendees) never move it;
+  /// it is the lastmod the public sitemap publishes.
+  publicContentUpdatedAt DateTime            @default(now())
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
+  deletedAt              DateTime?
+  user                   User?               @relation(fields: [userId], references: [id])
+  userId                 String?
+  scheduleItems          EventScheduleItem[]
 
   specificTopic     String?
   pduCategory       PDUCategory?
@@ -1012,9 +1020,13 @@ model Podcast {
 
   episodes PodcastEpisode[]
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
+  /// Last change to content a public visitor can see, or to publication
+  /// state. Metric writes (views, listeners, ratings, attendees) never move it;
+  /// it is the lastmod the public sitemap publishes.
+  publicContentUpdatedAt DateTime  @default(now())
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  deletedAt              DateTime?
 
   @@index([status, category])
   @@index([providerId])
@@ -1108,13 +1120,17 @@ model YouTubeChannel {
 
   videos YouTubeVideo[]
 
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
-  user        User?     @relation(fields: [userId], references: [id])
-  userId      String?
-  rating      Float     @default(0)
-  ratingCount Int       @default(0)
+  /// Last change to content a public visitor can see, or to publication
+  /// state. Metric writes (views, listeners, ratings, attendees) never move it;
+  /// it is the lastmod the public sitemap publishes.
+  publicContentUpdatedAt DateTime  @default(now())
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  deletedAt              DateTime?
+  user                   User?     @relation(fields: [userId], references: [id])
+  userId                 String?
+  rating                 Float     @default(0)
+  ratingCount            Int       @default(0)
 
   @@index([status, category])
   @@index([providerId])

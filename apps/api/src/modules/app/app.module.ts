@@ -18,6 +18,7 @@ import { SupportModule } from "@support/support.module";
 import { GraphQLModule } from "@nestjs/graphql";
 import { PodcastModule } from "@podcast/podcast.module";
 import { YouTubeModule } from "@youtube/youtube.module";
+import { DiscoveryModule } from "@discovery/discovery.module";
 import { LandingModule } from "@landing/landing.module";
 import { PrismaModule } from "@prisma/prisma.module";
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
@@ -69,6 +70,7 @@ import { join } from "path";
     PodcastModule,
     YouTubeModule,
     LandingModule,
+    DiscoveryModule,
     SupportModule,
     ProviderModule,
     IngestionModule,

@@ -1,0 +1,1 @@
+export const EVENT_PUBLIC_URL_API = Symbol("EVENT_PUBLIC_URL_API");
