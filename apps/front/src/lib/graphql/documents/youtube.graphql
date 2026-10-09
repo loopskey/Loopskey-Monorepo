@@ -40,6 +40,8 @@ fragment YouTubeVideoFields on YouTubeVideo {
 fragment YouTubeChannelPageInfoFields on YouTubeChannelPageInfo {
   nextCursor
   hasNextPage
+  previousCursor
+  hasPreviousPage
 }
 
 # ================ Queries ================

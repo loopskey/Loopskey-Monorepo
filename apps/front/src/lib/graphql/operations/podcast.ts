@@ -4,7 +4,7 @@ export type PodcastFieldsFragment = { __typename?: 'Podcast', id: string, host: 
 
 export type PodcastEpisodeFieldsFragment = { __typename?: 'PodcastEpisode', id: string, title: string, audioUrl?: string | null, sourceUrl?: string | null, podcastId: string, updatedAt: string, createdAt: string, publishedAt?: string | null, description?: string | null, episodeNumber: number, durationMinutes?: number | null };
 
-export type PodcastPageInfoFieldsFragment = { __typename?: 'PodcastPageInfo', nextCursor?: string | null, hasNextPage: boolean };
+export type PodcastPageInfoFieldsFragment = { __typename?: 'PodcastPageInfo', nextCursor?: string | null, hasNextPage: boolean, previousCursor?: string | null, hasPreviousPage: boolean };
 
 export type PodcastsQueryVariables = Types.Exact<{
   filter?: Types.InputMaybe<Types.PodcastFilterInput>;
@@ -13,7 +13,7 @@ export type PodcastsQueryVariables = Types.Exact<{
 }>;
 
 
-export type PodcastsQuery = { __typename?: 'Query', podcasts: { __typename?: 'PaginatedPodcasts', totalCount: number, items: Array<{ __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, sourceUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null }>, pageInfo: { __typename?: 'PodcastPageInfo', nextCursor?: string | null, hasNextPage: boolean } } };
+export type PodcastsQuery = { __typename?: 'Query', podcasts: { __typename?: 'PaginatedPodcasts', totalCount: number, items: Array<{ __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, sourceUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null }>, pageInfo: { __typename?: 'PodcastPageInfo', nextCursor?: string | null, hasNextPage: boolean, previousCursor?: string | null, hasPreviousPage: boolean } } };
 
 export type PodcastByIdQueryVariables = Types.Exact<{
   podcastId: Types.Scalars['String']['input'];
@@ -50,7 +50,7 @@ export type MyProviderPodcastsQueryVariables = Types.Exact<{
 }>;
 
 
-export type MyProviderPodcastsQuery = { __typename?: 'Query', myProviderPodcasts: { __typename?: 'PaginatedPodcasts', totalCount: number, items: Array<{ __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, sourceUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null }>, pageInfo: { __typename?: 'PodcastPageInfo', nextCursor?: string | null, hasNextPage: boolean } } };
+export type MyProviderPodcastsQuery = { __typename?: 'Query', myProviderPodcasts: { __typename?: 'PaginatedPodcasts', totalCount: number, items: Array<{ __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, sourceUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null }>, pageInfo: { __typename?: 'PodcastPageInfo', nextCursor?: string | null, hasNextPage: boolean, previousCursor?: string | null, hasPreviousPage: boolean } } };
 
 export type CreatePodcastMutationVariables = Types.Exact<{
   input: Types.CreatePodcastInput;
@@ -162,6 +162,8 @@ export const PodcastPageInfoFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentS
     fragment PodcastPageInfoFields on PodcastPageInfo {
   nextCursor
   hasNextPage
+  previousCursor
+  hasPreviousPage
 }
     `, {"fragmentName":"PodcastPageInfoFields"}) as unknown as TypedDocumentString<PodcastPageInfoFieldsFragment, unknown>;
 export const PodcastsDocument = /*#__PURE__*/ new TypedDocumentString(`
@@ -200,6 +202,8 @@ export const PodcastsDocument = /*#__PURE__*/ new TypedDocumentString(`
 fragment PodcastPageInfoFields on PodcastPageInfo {
   nextCursor
   hasNextPage
+  previousCursor
+  hasPreviousPage
 }`) as unknown as TypedDocumentString<PodcastsQuery, PodcastsQueryVariables>;
 export const PodcastByIdDocument = /*#__PURE__*/ new TypedDocumentString(`
     query PodcastById($podcastId: String!) {
@@ -337,6 +341,8 @@ export const MyProviderPodcastsDocument = /*#__PURE__*/ new TypedDocumentString(
 fragment PodcastPageInfoFields on PodcastPageInfo {
   nextCursor
   hasNextPage
+  previousCursor
+  hasPreviousPage
 }`) as unknown as TypedDocumentString<MyProviderPodcastsQuery, MyProviderPodcastsQueryVariables>;
 export const CreatePodcastDocument = /*#__PURE__*/ new TypedDocumentString(`
     mutation CreatePodcast($input: CreatePodcastInput!) {

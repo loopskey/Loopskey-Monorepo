@@ -18,6 +18,17 @@ import { PodcastSortField } from "@podcast/enums/gql-names.enum";
 import { PrismaService } from "@prisma/prisma.service";
 import { toEnumFacets } from "@utils/catalog-facet.util";
 import { slugify } from "@utils/slug.util";
+import {
+  CATALOG_SEARCH_CANDIDATE_CAP,
+  CATALOG_SEARCH_ORDER,
+  catalogSearchWindow,
+  catalogSortOrder,
+  clampSearchCount,
+  readCatalogPage,
+  readPrismaWindowAfter,
+  readSearchWindowAfter,
+  withoutSearchColumns,
+} from "@utils/catalog-pagination.util";
 
 import type { RoadmapCandidateQuery } from "@podcast/public/podcast-engagement-api";
 
@@ -26,7 +37,7 @@ const VALID_PODCAST_CATEGORIES = new Set<string>(
   Object.values(PodcastCategory),
 );
 
-const CANDIDATE_CAP = 500;
+const PODCAST_SEARCH_ORDER = Prisma.sql`"searchRank" DESC, "createdAt" DESC, "id" DESC`;
 
 const trimmedTerms = (terms: readonly string[]) => [
   ...new Set(terms.map((term) => term.trim()).filter(Boolean)),
@@ -220,41 +231,48 @@ export class PodcastService {
     const search = filter?.search?.trim();
     if (search && search.length >= 2)
       return this.findPodcastsWithTrgmSearch(filter, pagination);
-    const take = Math.min(pagination?.take ?? 20, 100);
     const where = this.buildPodcastWhere(filter);
     const orderBy = this.buildOrderBy(sort);
-    const [items, totalCount] = await this.prismaService.$transaction([
-      this.prismaService.podcast.findMany({
-        where,
-        take: take + 1,
-        cursor: pagination?.cursor ? { id: pagination.cursor } : undefined,
-        skip: pagination?.cursor ? 1 : 0,
-        orderBy,
-      }),
-      this.prismaService.podcast.count({ where }),
-    ]);
-    const hasNextPage = items.length > take;
-    const slicedItems = hasNextPage ? items.slice(0, take) : items;
-    const nextCursor = hasNextPage
-      ? slicedItems[slicedItems.length - 1]?.id
-      : null;
-    return {
-      items: slicedItems,
-      totalCount,
-      pageInfo: {
-        hasNextPage,
-        nextCursor,
-      },
-    };
+    return readCatalogPage({
+      kind: "podcast",
+      order: catalogSortOrder(
+        sort?.field ?? PodcastSortField.CREATED_AT,
+        sort?.direction ?? PodcastSortDirection.DESC,
+      ),
+      take: pagination?.take,
+      cursor: pagination?.cursor,
+      count: () => this.prismaService.podcast.count({ where }),
+      readAfter: (anchorId, limit) =>
+        readPrismaWindowAfter(
+          anchorId,
+          async (id) =>
+            (await this.prismaService.podcast.findFirst({
+              where: { AND: [where, { id }] },
+              select: { id: true },
+            })) !== null,
+          (position) =>
+            this.prismaService.podcast.findMany({
+              where,
+              orderBy,
+              take: limit,
+              ...position,
+            }),
+        ),
+      readThrough: (anchorId, limit) =>
+        this.prismaService.podcast.findMany({
+          where,
+          orderBy,
+          cursor: { id: anchorId },
+          take: -limit,
+        }),
+    });
   }
 
   private async findPodcastsWithTrgmSearch(
     filter?: PodcastFilterInput,
     pagination?: PodcastPaginationInput,
   ) {
-    const take = Math.min(pagination?.take ?? 20, 100);
     const search = filter?.search?.trim() ?? "";
-    const cursor = pagination?.cursor ?? null;
     const status = filter?.status ?? PodcastStatus.PUBLISHED;
     const category = filter?.category ?? null;
     const isFeatured = filter?.isFeatured ?? null;
@@ -280,103 +298,104 @@ export class PodcastService {
       updatedAt: Date;
       deletedAt: Date | null;
       searchRank: number;
+      rowPosition: bigint;
     };
 
-    const rowsPromise = this.prismaService.$queryRaw<PodcastSearchRow[]>`
-      WITH exact_matches AS (
-        SELECT
-          p."id", p."slug", p."title", p."host", p."imageUrl",
-          p."description", p."category", p."status", p."rating",
-          p."ratingCount", p."listeners", p."durationMinutes",
-          p."episodeCount", p."isFeatured", p."providerId", p."createdAt",
-          p."updatedAt", p."deletedAt",
-          (CASE
-            WHEN p."title" ILIKE '%' || ${search} || '%' THEN 3
-            WHEN p."host" ILIKE '%' || ${search} || '%' THEN 2
-            ELSE 1
-          END)::float AS "searchRank"
-        FROM "Podcast" p
-        WHERE p."deletedAt" IS NULL
-          AND p."status" = ${status}::"PodcastStatus"
-          AND (${category}::"PodcastCategory" IS NULL OR p."category" = ${category}::"PodcastCategory")
-          AND (${isFeatured}::boolean IS NULL OR p."isFeatured" = ${isFeatured}::boolean)
-          AND (${providerId}::text IS NULL OR p."providerId" = ${providerId}::text)
-          AND (${cursor}::text IS NULL OR p."id" > ${cursor}::text)
-          AND (
-            p."title" ILIKE '%' || ${search} || '%'
-            OR p."host" ILIKE '%' || ${search} || '%'
-            OR p."description" ILIKE '%' || ${search} || '%'
-          )
-        ORDER BY "searchRank" DESC, p."createdAt" DESC, p."id" DESC
-        LIMIT ${CANDIDATE_CAP}
-      ),
-      fuzzy_matches AS (
-        SELECT
-          p."id", p."slug", p."title", p."host", p."imageUrl",
-          p."description", p."category", p."status", p."rating",
-          p."ratingCount", p."listeners", p."durationMinutes",
-          p."episodeCount", p."isFeatured", p."providerId", p."createdAt",
-          p."updatedAt", p."deletedAt",
-          LEAST(
-            GREATEST(
-              similarity(p."title", ${search}),
-              similarity(p."host", ${search})
-            ),
-            0.99
-          ) AS "searchRank"
-        FROM "Podcast" p
-        WHERE p."deletedAt" IS NULL
-          AND p."status" = ${status}::"PodcastStatus"
-          AND (${category}::"PodcastCategory" IS NULL OR p."category" = ${category}::"PodcastCategory")
-          AND (${isFeatured}::boolean IS NULL OR p."isFeatured" = ${isFeatured}::boolean)
-          AND (${providerId}::text IS NULL OR p."providerId" = ${providerId}::text)
-          AND (${cursor}::text IS NULL OR p."id" > ${cursor}::text)
-          AND p."id" NOT IN (SELECT "id" FROM exact_matches)
-          AND (p."title" % ${search} OR p."host" % ${search})
-        ORDER BY "searchRank" DESC, p."createdAt" DESC, p."id" DESC
-        LIMIT GREATEST(${CANDIDATE_CAP} - (SELECT COUNT(*)::int FROM exact_matches), 0)
-      )
-      SELECT * FROM exact_matches
-      UNION ALL
-      SELECT * FROM fuzzy_matches
-      ORDER BY "searchRank" DESC, "createdAt" DESC, "id" DESC
-      LIMIT ${take + 1};
-    `;
+    const readWindow = async (
+      anchorId: string | null,
+      limit: number,
+      direction: "after" | "through",
+    ) => {
+      const rows = await this.prismaService.$queryRaw<PodcastSearchRow[]>`
+        WITH exact_matches AS (
+          SELECT
+            p."id", p."slug", p."title", p."host", p."imageUrl",
+            p."description", p."category", p."status", p."rating",
+            p."ratingCount", p."listeners", p."durationMinutes",
+            p."episodeCount", p."isFeatured", p."providerId", p."createdAt",
+            p."updatedAt", p."deletedAt",
+            (CASE
+              WHEN p."title" ILIKE '%' || ${search} || '%' THEN 3
+              WHEN p."host" ILIKE '%' || ${search} || '%' THEN 2
+              ELSE 1
+            END)::float AS "searchRank"
+          FROM "Podcast" p
+          WHERE p."deletedAt" IS NULL
+            AND p."status" = ${status}::"PodcastStatus"
+            AND (${category}::"PodcastCategory" IS NULL OR p."category" = ${category}::"PodcastCategory")
+            AND (${isFeatured}::boolean IS NULL OR p."isFeatured" = ${isFeatured}::boolean)
+            AND (${providerId}::text IS NULL OR p."providerId" = ${providerId}::text)
+            AND (
+              p."title" ILIKE '%' || ${search} || '%'
+              OR p."host" ILIKE '%' || ${search} || '%'
+              OR p."description" ILIKE '%' || ${search} || '%'
+            )
+          ORDER BY "searchRank" DESC, p."createdAt" DESC, p."id" DESC
+          LIMIT ${CATALOG_SEARCH_CANDIDATE_CAP}
+        ),
+        fuzzy_matches AS (
+          SELECT
+            p."id", p."slug", p."title", p."host", p."imageUrl",
+            p."description", p."category", p."status", p."rating",
+            p."ratingCount", p."listeners", p."durationMinutes",
+            p."episodeCount", p."isFeatured", p."providerId", p."createdAt",
+            p."updatedAt", p."deletedAt",
+            LEAST(
+              GREATEST(
+                similarity(p."title", ${search}),
+                similarity(p."host", ${search})
+              ),
+              0.99
+            ) AS "searchRank"
+          FROM "Podcast" p
+          WHERE p."deletedAt" IS NULL
+            AND p."status" = ${status}::"PodcastStatus"
+            AND (${category}::"PodcastCategory" IS NULL OR p."category" = ${category}::"PodcastCategory")
+            AND (${isFeatured}::boolean IS NULL OR p."isFeatured" = ${isFeatured}::boolean)
+            AND (${providerId}::text IS NULL OR p."providerId" = ${providerId}::text)
+            AND p."id" NOT IN (SELECT "id" FROM exact_matches)
+            AND (p."title" % ${search} OR p."host" % ${search})
+          ORDER BY "searchRank" DESC, p."createdAt" DESC, p."id" DESC
+          LIMIT GREATEST(${CATALOG_SEARCH_CANDIDATE_CAP} - (SELECT COUNT(*)::int FROM exact_matches), 0)
+        ),
+        ${catalogSearchWindow(PODCAST_SEARCH_ORDER, anchorId, limit, direction)}
+      `;
+      return rows.map(withoutSearchColumns);
+    };
 
-    const countPromise = this.prismaService.$queryRaw<Array<{ count: bigint }>>`
-      SELECT COUNT(*)::bigint AS count
-      FROM "Podcast" p
-      WHERE p."deletedAt" IS NULL
-        AND p."status" = ${status}::"PodcastStatus"
-        AND (${category}::"PodcastCategory" IS NULL OR p."category" = ${category}::"PodcastCategory")
-        AND (${isFeatured}::boolean IS NULL OR p."isFeatured" = ${isFeatured}::boolean)
-        AND (${providerId}::text IS NULL OR p."providerId" = ${providerId}::text)
-        AND (${cursor}::text IS NULL OR p."id" > ${cursor}::text)
-        AND (
-          p."title" ILIKE '%' || ${search} || '%'
-          OR p."host" ILIKE '%' || ${search} || '%'
-          OR p."description" ILIKE '%' || ${search} || '%'
-          OR p."title" % ${search}
-          OR p."host" % ${search}
-        )
-    `;
-
-    const [rows, countRows] = await this.prismaService.$transaction([
-      rowsPromise,
-      countPromise,
-    ]);
-    const hasNextPage = rows.length > take;
-    const slicedRows = hasNextPage ? rows.slice(0, take) : rows;
-    return {
-      items: slicedRows.map(({ searchRank: _searchRank, ...podcast }) => ({
-        ...podcast,
-      })),
-      totalCount: Number(countRows[0]?.count ?? 0n),
-      pageInfo: {
-        hasNextPage,
-        nextCursor: hasNextPage ? slicedRows[slicedRows.length - 1]?.id : null,
+    return readCatalogPage({
+      kind: "podcast",
+      order: CATALOG_SEARCH_ORDER,
+      take: pagination?.take,
+      cursor: pagination?.cursor,
+      count: async () => {
+        const countRows = await this.prismaService.$queryRaw<
+          Array<{ count: bigint }>
+        >`
+          SELECT COUNT(*)::bigint AS count
+          FROM "Podcast" p
+          WHERE p."deletedAt" IS NULL
+            AND p."status" = ${status}::"PodcastStatus"
+            AND (${category}::"PodcastCategory" IS NULL OR p."category" = ${category}::"PodcastCategory")
+            AND (${isFeatured}::boolean IS NULL OR p."isFeatured" = ${isFeatured}::boolean)
+            AND (${providerId}::text IS NULL OR p."providerId" = ${providerId}::text)
+            AND (
+              p."title" ILIKE '%' || ${search} || '%'
+              OR p."host" ILIKE '%' || ${search} || '%'
+              OR p."description" ILIKE '%' || ${search} || '%'
+              OR p."title" % ${search}
+              OR p."host" % ${search}
+            )
+        `;
+        return clampSearchCount(countRows[0]?.count);
       },
-    };
+      readAfter: async (anchorId, limit) =>
+        readSearchWindowAfter(
+          await readWindow(anchorId, limit, "after"),
+          anchorId,
+        ),
+      readThrough: (anchorId, limit) => readWindow(anchorId, limit, "through"),
+    });
   }
 
   async findFeaturedPodcasts(take = 12) {

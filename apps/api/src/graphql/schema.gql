@@ -1694,7 +1694,9 @@ type CourseLevelFacet {
 
 type CoursePageInfo {
   hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
   nextCursor: String
+  previousCursor: String
 }
 
 input CoursePaginationInput {
@@ -2218,7 +2220,9 @@ input EventFilterInput {
 
 type EventPageInfo {
   hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
   nextCursor: String
+  previousCursor: String
 }
 
 input EventPaginationInput {
@@ -3635,7 +3639,9 @@ input PodcastFilterInput {
 
 type PodcastPageInfo {
   hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
   nextCursor: String
+  previousCursor: String
 }
 
 input PodcastPaginationInput {
@@ -5534,7 +5540,9 @@ input YouTubeChannelFilterInput {
 
 type YouTubeChannelPageInfo {
   hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
   nextCursor: String
+  previousCursor: String
 }
 
 input YouTubeChannelPaginationInput {

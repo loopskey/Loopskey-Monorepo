@@ -2,7 +2,7 @@ import * as Types from "@/lib/graphql/base";
 import { TypedDocumentString } from "@/lib/graphql/base";
 export type CourseFieldsFragment = { __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, sourceUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null };
 
-export type CoursePageInfoFieldsFragment = { __typename?: 'CoursePageInfo', nextCursor?: string | null, hasNextPage: boolean };
+export type CoursePageInfoFieldsFragment = { __typename?: 'CoursePageInfo', nextCursor?: string | null, hasNextPage: boolean, previousCursor?: string | null, hasPreviousPage: boolean };
 
 export type CoursesQueryVariables = Types.Exact<{
   filter?: Types.InputMaybe<Types.CourseFilterInput>;
@@ -11,7 +11,7 @@ export type CoursesQueryVariables = Types.Exact<{
 }>;
 
 
-export type CoursesQuery = { __typename?: 'Query', courses: { __typename?: 'PaginatedCourses', totalCount: number, items: Array<{ __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, sourceUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null }>, pageInfo: { __typename?: 'CoursePageInfo', nextCursor?: string | null, hasNextPage: boolean } } };
+export type CoursesQuery = { __typename?: 'Query', courses: { __typename?: 'PaginatedCourses', totalCount: number, items: Array<{ __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, sourceUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null }>, pageInfo: { __typename?: 'CoursePageInfo', nextCursor?: string | null, hasNextPage: boolean, previousCursor?: string | null, hasPreviousPage: boolean } } };
 
 export type CourseByIdQueryVariables = Types.Exact<{
   courseId: Types.Scalars['String']['input'];
@@ -41,7 +41,7 @@ export type MyProviderCoursesQueryVariables = Types.Exact<{
 }>;
 
 
-export type MyProviderCoursesQuery = { __typename?: 'Query', myProviderCourses: { __typename?: 'PaginatedCourses', totalCount: number, items: Array<{ __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, sourceUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null }>, pageInfo: { __typename?: 'CoursePageInfo', nextCursor?: string | null, hasNextPage: boolean } } };
+export type MyProviderCoursesQuery = { __typename?: 'Query', myProviderCourses: { __typename?: 'PaginatedCourses', totalCount: number, items: Array<{ __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, sourceUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null }>, pageInfo: { __typename?: 'CoursePageInfo', nextCursor?: string | null, hasNextPage: boolean, previousCursor?: string | null, hasPreviousPage: boolean } } };
 
 export type CreateCourseMutationVariables = Types.Exact<{
   input: Types.CreateCourseInput;
@@ -123,6 +123,8 @@ export const CoursePageInfoFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentSt
     fragment CoursePageInfoFields on CoursePageInfo {
   nextCursor
   hasNextPage
+  previousCursor
+  hasPreviousPage
 }
     `, {"fragmentName":"CoursePageInfoFields"}) as unknown as TypedDocumentString<CoursePageInfoFieldsFragment, unknown>;
 export const CoursesDocument = /*#__PURE__*/ new TypedDocumentString(`
@@ -167,6 +169,8 @@ export const CoursesDocument = /*#__PURE__*/ new TypedDocumentString(`
 fragment CoursePageInfoFields on CoursePageInfo {
   nextCursor
   hasNextPage
+  previousCursor
+  hasPreviousPage
 }`) as unknown as TypedDocumentString<CoursesQuery, CoursesQueryVariables>;
 export const CourseByIdDocument = /*#__PURE__*/ new TypedDocumentString(`
     query CourseById($courseId: String!) {
@@ -309,6 +313,8 @@ export const MyProviderCoursesDocument = /*#__PURE__*/ new TypedDocumentString(`
 fragment CoursePageInfoFields on CoursePageInfo {
   nextCursor
   hasNextPage
+  previousCursor
+  hasPreviousPage
 }`) as unknown as TypedDocumentString<MyProviderCoursesQuery, MyProviderCoursesQueryVariables>;
 export const CreateCourseDocument = /*#__PURE__*/ new TypedDocumentString(`
     mutation CreateCourse($input: CreateCourseInput!) {

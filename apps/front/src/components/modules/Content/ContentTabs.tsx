@@ -1,11 +1,17 @@
 "use client";
 
 import { TContentTabsProps } from "@/types/content-module.types";
+import { LinkPending } from "@elements/link-pending";
 import { TContentTab } from "@/types/content-module.types";
+import { useI18n } from "@/hooks/useI18n";
+import { tabHref } from "@/lib/content-catalog/catalog-href";
 import { cn } from "@/lib/utils";
 
-import * as Tb from "@ui/tabs";
+import Link from "next/link";
+
 import * as L from "lucide-react";
+
+const TAB_ORDER: TContentTab[] = ["courses", "events", "podcasts", "youtube"];
 
 const TAB_ICON: Record<TContentTab, L.LucideIcon> = {
   courses: L.BookOpen,
@@ -15,50 +21,49 @@ const TAB_ICON: Record<TContentTab, L.LucideIcon> = {
 };
 
 const TAB_ACTIVE_CLASS_NAME: Record<TContentTab, string> = {
-  courses:
-    "data-[state=active]:bg-ct-course data-[state=active]:text-ct-course-foreground",
-  events:
-    "data-[state=active]:bg-ct-event data-[state=active]:text-ct-event-foreground",
-  podcasts:
-    "data-[state=active]:bg-ct-podcast data-[state=active]:text-ct-podcast-foreground",
-  youtube:
-    "data-[state=active]:bg-ct-youtube data-[state=active]:text-ct-youtube-foreground",
+  courses: "bg-ct-course text-ct-course-foreground",
+  events: "bg-ct-event text-ct-event-foreground",
+  podcasts: "bg-ct-podcast text-ct-podcast-foreground",
+  youtube: "bg-ct-youtube text-ct-youtube-foreground",
 };
 
-const ContentTabs = ({
-  label,
-  tabs,
-  onChange,
-  activeTab,
-}: TContentTabsProps) => {
+const CONTENT_TABS = TAB_ORDER.map((value) => ({
+  value,
+  href: tabHref(value),
+}));
+
+const ContentTabs = ({ activeTab }: TContentTabsProps) => {
+  const { t } = useI18n();
+
   return (
-    <Tb.Tabs
-      value={activeTab}
-      className="w-full sm:w-auto"
-      onValueChange={(value) => onChange(value as TContentTab)}
+    <nav
+      aria-label={t("content.tabs.label")}
+      className="grid h-11 w-full grid-cols-4 gap-1 rounded-xl bg-muted p-1 sm:inline-flex sm:h-11 sm:w-auto"
     >
-      <Tb.TabsList
-        aria-label={label}
-        className="grid h-11 w-full grid-cols-4 gap-1 rounded-xl p-1 sm:inline-flex sm:h-11 sm:w-auto"
-      >
-        {tabs.map((tab) => {
-          const Icon = TAB_ICON[tab.value];
-          return (
-            <Tb.TabsTrigger
-              key={tab.value}
-              value={tab.value}
-              className={cn(
-                "gap-1.5 rounded-lg px-2 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground data-[state=active]:shadow-sm sm:px-4 sm:text-sm",
-                TAB_ACTIVE_CLASS_NAME[tab.value],
-              )}
-            >
-              <Icon className="hidden size-4 shrink-0 sm:block" aria-hidden />
-              <span className="truncate">{tab.label}</span>
-            </Tb.TabsTrigger>
-          );
-        })}
-      </Tb.TabsList>
-    </Tb.Tabs>
+      {CONTENT_TABS.map((tab) => {
+        const Icon = TAB_ICON[tab.value];
+        const isActive = tab.value === activeTab;
+        return (
+          <Link
+            key={tab.value}
+            href={tab.href}
+            aria-current={isActive ? "page" : undefined}
+            className={cn(
+              "inline-flex items-center justify-center gap-1.5 rounded-lg px-2 text-xs font-semibold text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring sm:px-4 sm:text-sm",
+              isActive &&
+                cn(
+                  "shadow-sm hover:text-inherit",
+                  TAB_ACTIVE_CLASS_NAME[tab.value],
+                ),
+            )}
+          >
+            <Icon className="hidden size-4 shrink-0 sm:block" aria-hidden />
+            <span className="truncate">{t(`content.tabs.${tab.value}`)}</span>
+            <LinkPending />
+          </Link>
+        );
+      })}
+    </nav>
   );
 };
 

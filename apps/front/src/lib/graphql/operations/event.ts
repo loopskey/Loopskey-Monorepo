@@ -8,7 +8,7 @@ export type EventDetailFieldsFragment = { __typename?: 'Event', id: string, pdu:
 
 export type EventRegistrationFieldsFragment = { __typename?: 'EventRegistration', id: string, userId: string, status: Types.EventRegistrationStatus, eventId: string, createdAt: string, updatedAt: string, attendedAt?: string | null, completedAt?: string | null };
 
-export type EventPageInfoFieldsFragment = { __typename?: 'EventPageInfo', nextCursor?: string | null, hasNextPage: boolean };
+export type EventPageInfoFieldsFragment = { __typename?: 'EventPageInfo', nextCursor?: string | null, hasNextPage: boolean, previousCursor?: string | null, hasPreviousPage: boolean };
 
 export type EventsQueryVariables = Types.Exact<{
   filter?: Types.InputMaybe<Types.EventFilterInput>;
@@ -17,7 +17,7 @@ export type EventsQueryVariables = Types.Exact<{
 }>;
 
 
-export type EventsQuery = { __typename?: 'Query', events: { __typename?: 'PaginatedEvents', totalCount: number, items: Array<{ __typename?: 'Event', id: string, pdu: number, slug: string, type: Types.EventType, title: string, views: number, price?: number | null, status: Types.EventStatus, isFree: boolean, rating: number, speaker?: string | null, endDate?: string | null, timezone: string, imageUrl?: string | null, sourceUrl?: string | null, category: Types.EventCategory, location?: string | null, currency: string, capacity?: number | null, language?: Types.AppLanguage | null, startDate: string, onlineUrl?: string | null, attendees: number, organizer?: string | null, updatedAt: string, deletedAt?: string | null, createdAt: string, providerId?: string | null, description: string, ratingCount: number, pduCategory?: Types.PduCategory | null, deliveryMode: Types.EventDeliveryMode, averageRating: number, specificTopic?: string | null, earlyBirdDiscount?: number | null, promotionVideoUrl?: string | null, registrationEnabled: boolean }>, pageInfo: { __typename?: 'EventPageInfo', nextCursor?: string | null, hasNextPage: boolean } } };
+export type EventsQuery = { __typename?: 'Query', events: { __typename?: 'PaginatedEvents', totalCount: number, items: Array<{ __typename?: 'Event', id: string, pdu: number, slug: string, type: Types.EventType, title: string, views: number, price?: number | null, status: Types.EventStatus, isFree: boolean, rating: number, speaker?: string | null, endDate?: string | null, timezone: string, imageUrl?: string | null, sourceUrl?: string | null, category: Types.EventCategory, location?: string | null, currency: string, capacity?: number | null, language?: Types.AppLanguage | null, startDate: string, onlineUrl?: string | null, attendees: number, organizer?: string | null, updatedAt: string, deletedAt?: string | null, createdAt: string, providerId?: string | null, description: string, ratingCount: number, pduCategory?: Types.PduCategory | null, deliveryMode: Types.EventDeliveryMode, averageRating: number, specificTopic?: string | null, earlyBirdDiscount?: number | null, promotionVideoUrl?: string | null, registrationEnabled: boolean }>, pageInfo: { __typename?: 'EventPageInfo', nextCursor?: string | null, hasNextPage: boolean, previousCursor?: string | null, hasPreviousPage: boolean } } };
 
 export type EventByIdQueryVariables = Types.Exact<{
   eventId: Types.Scalars['String']['input'];
@@ -61,7 +61,7 @@ export type MyProviderEventsQueryVariables = Types.Exact<{
 }>;
 
 
-export type MyProviderEventsQuery = { __typename?: 'Query', myProviderEvents: { __typename?: 'PaginatedEvents', totalCount: number, items: Array<{ __typename?: 'Event', id: string, pdu: number, slug: string, type: Types.EventType, title: string, views: number, price?: number | null, status: Types.EventStatus, isFree: boolean, rating: number, speaker?: string | null, endDate?: string | null, timezone: string, imageUrl?: string | null, sourceUrl?: string | null, category: Types.EventCategory, location?: string | null, currency: string, capacity?: number | null, language?: Types.AppLanguage | null, startDate: string, onlineUrl?: string | null, attendees: number, organizer?: string | null, updatedAt: string, deletedAt?: string | null, createdAt: string, providerId?: string | null, description: string, ratingCount: number, pduCategory?: Types.PduCategory | null, deliveryMode: Types.EventDeliveryMode, averageRating: number, specificTopic?: string | null, earlyBirdDiscount?: number | null, promotionVideoUrl?: string | null, registrationEnabled: boolean }>, pageInfo: { __typename?: 'EventPageInfo', nextCursor?: string | null, hasNextPage: boolean } } };
+export type MyProviderEventsQuery = { __typename?: 'Query', myProviderEvents: { __typename?: 'PaginatedEvents', totalCount: number, items: Array<{ __typename?: 'Event', id: string, pdu: number, slug: string, type: Types.EventType, title: string, views: number, price?: number | null, status: Types.EventStatus, isFree: boolean, rating: number, speaker?: string | null, endDate?: string | null, timezone: string, imageUrl?: string | null, sourceUrl?: string | null, category: Types.EventCategory, location?: string | null, currency: string, capacity?: number | null, language?: Types.AppLanguage | null, startDate: string, onlineUrl?: string | null, attendees: number, organizer?: string | null, updatedAt: string, deletedAt?: string | null, createdAt: string, providerId?: string | null, description: string, ratingCount: number, pduCategory?: Types.PduCategory | null, deliveryMode: Types.EventDeliveryMode, averageRating: number, specificTopic?: string | null, earlyBirdDiscount?: number | null, promotionVideoUrl?: string | null, registrationEnabled: boolean }>, pageInfo: { __typename?: 'EventPageInfo', nextCursor?: string | null, hasNextPage: boolean, previousCursor?: string | null, hasPreviousPage: boolean } } };
 
 export type MyRegisteredEventsQueryVariables = Types.Exact<{ [key: string]: never; }>;
 
@@ -265,6 +265,8 @@ export const EventPageInfoFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentStr
     fragment EventPageInfoFields on EventPageInfo {
   nextCursor
   hasNextPage
+  previousCursor
+  hasPreviousPage
 }
     `, {"fragmentName":"EventPageInfoFields"}) as unknown as TypedDocumentString<EventPageInfoFieldsFragment, unknown>;
 export const EventsDocument = /*#__PURE__*/ new TypedDocumentString(`
@@ -321,6 +323,8 @@ export const EventsDocument = /*#__PURE__*/ new TypedDocumentString(`
 fragment EventPageInfoFields on EventPageInfo {
   nextCursor
   hasNextPage
+  previousCursor
+  hasPreviousPage
 }`) as unknown as TypedDocumentString<EventsQuery, EventsQueryVariables>;
 export const EventByIdDocument = /*#__PURE__*/ new TypedDocumentString(`
     query EventById($eventId: String!) {
@@ -597,6 +601,8 @@ export const MyProviderEventsDocument = /*#__PURE__*/ new TypedDocumentString(`
 fragment EventPageInfoFields on EventPageInfo {
   nextCursor
   hasNextPage
+  previousCursor
+  hasPreviousPage
 }`) as unknown as TypedDocumentString<MyProviderEventsQuery, MyProviderEventsQueryVariables>;
 export const MyRegisteredEventsDocument = /*#__PURE__*/ new TypedDocumentString(`
     query MyRegisteredEvents {

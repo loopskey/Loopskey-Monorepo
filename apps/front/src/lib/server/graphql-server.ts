@@ -36,14 +36,16 @@ type GraphqlEnvelope = {
 
 export type ServerGraphqlRequest = {
   document: { toString(): string };
-  variables: Record<string, string>;
+  variables: Record<string, unknown>;
   field: string;
   operation: string;
+  rejectionCodes?: readonly string[];
 };
 
 export type ServerGraphqlResult =
   | { kind: "found"; value: Record<string, unknown> }
-  | { kind: "not-found" };
+  | { kind: "not-found" }
+  | { kind: "rejected"; code: string };
 
 const resolveEndpoint = (): string => {
   const configured =
@@ -65,6 +67,18 @@ const resolveEndpoint = (): string => {
 const isNotFoundError = (error: GraphqlError | undefined) =>
   error?.extensions?.originalError?.statusCode === NOT_FOUND_STATUS ||
   error?.extensions?.code === NOT_FOUND_CODE;
+
+const rejectionCodeOf = (
+  request: ServerGraphqlRequest,
+  errors: GraphqlError[],
+) => {
+  const codes = errors.map((error) => error.extensions?.code);
+  const [first] = codes;
+  if (typeof first !== "string") return null;
+  return codes.every((code) => request.rejectionCodes?.includes(String(code)))
+    ? first
+    : null;
+};
 
 const isTimeout = (error: unknown) =>
   error instanceof DOMException &&
@@ -133,6 +147,8 @@ export const executeServerGraphql = async (
 
   if (envelope.errors?.length) {
     if (envelope.errors.every(isNotFoundError)) return { kind: "not-found" };
+    const code = rejectionCodeOf(request, envelope.errors);
+    if (code) return { kind: "rejected", code };
     return fail("upstream");
   }
 

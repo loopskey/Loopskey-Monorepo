@@ -375,6 +375,31 @@ refresh-token sessions, account status, and role-based access.
   rows in a draft state; it does not own the catalogue models themselves. See
   the Communication Architecture section and `apps/api/docs/content-ingestion.md`.
 
+#### Public catalogue navigation
+
+`/content` renders on the server from the URL alone. Its parameters are
+`tab` (`events`, `podcasts`, `youtube`; courses is the bare path), `q`, `category`,
+`level` and `rating` (courses), `eventType` (events) and `after`. Anything else,
+repeated values, empty values, a one-character search and `tab=courses` are
+dropped by a permanent redirect to the normalized URL, so tracking parameters
+and parameter order never create a second URL.
+
+- Unfiltered pages, including every cursor page, are indexable and canonical to
+  themselves. A search or any filter is `noindex, follow` and still canonical to
+  itself. An unknown tab, value or malformed cursor shows an invalid-link notice
+  and an expired cursor shows a restart notice; both are `noindex`. An upstream
+  failure is a real 5xx, never an empty result.
+- The page size is fixed. `after` is an opaque, versioned token bound to the kind
+  and sort (or to the search order); it carries only a row id, so a cursor is
+  navigation and not authorization. The API answers `CATALOG_CURSOR_INVALID`
+  (bad request) or `CATALOG_CURSOR_EXPIRED` (gone) and every public list returns
+  `previousCursor`/`hasPreviousPage` alongside `nextCursor`/`hasNextPage`.
+- Listings order by the requested field with an `id` tiebreaker. A search pages
+  through the capped relevance candidate set (500 rows), ordered by rank, then
+  the kind's tiebreakers, and its `totalCount` is clamped to that set. A row
+  that changes while a visitor pages can shift later pages by that row; a row
+  that disappears expires only a cursor that points at it.
+
 ### Engagement and commerce
 
 Wishlists, enrollments, reviews, carts, cart items, certificates, and payments

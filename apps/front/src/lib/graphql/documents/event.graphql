@@ -73,6 +73,8 @@ fragment EventRegistrationFields on EventRegistration {
 fragment EventPageInfoFields on EventPageInfo {
   nextCursor
   hasNextPage
+  previousCursor
+  hasPreviousPage
 }
 
 # ================== Queries ================
