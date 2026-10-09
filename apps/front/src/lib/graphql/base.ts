@@ -1797,7 +1797,9 @@ export type CourseLevelFacet = {
 export type CoursePageInfo = {
   __typename?: 'CoursePageInfo';
   hasNextPage: Scalars['Boolean']['output'];
+  hasPreviousPage: Scalars['Boolean']['output'];
   nextCursor?: Maybe<Scalars['String']['output']>;
+  previousCursor?: Maybe<Scalars['String']['output']>;
 };
 
 export type CoursePaginationInput = {
@@ -2330,7 +2332,9 @@ export type EventFilterInput = {
 export type EventPageInfo = {
   __typename?: 'EventPageInfo';
   hasNextPage: Scalars['Boolean']['output'];
+  hasPreviousPage: Scalars['Boolean']['output'];
   nextCursor?: Maybe<Scalars['String']['output']>;
+  previousCursor?: Maybe<Scalars['String']['output']>;
 };
 
 export type EventPaginationInput = {
@@ -4660,7 +4664,9 @@ export type PodcastFilterInput = {
 export type PodcastPageInfo = {
   __typename?: 'PodcastPageInfo';
   hasNextPage: Scalars['Boolean']['output'];
+  hasPreviousPage: Scalars['Boolean']['output'];
   nextCursor?: Maybe<Scalars['String']['output']>;
+  previousCursor?: Maybe<Scalars['String']['output']>;
 };
 
 export type PodcastPaginationInput = {
@@ -7387,7 +7393,9 @@ export type YouTubeChannelFilterInput = {
 export type YouTubeChannelPageInfo = {
   __typename?: 'YouTubeChannelPageInfo';
   hasNextPage: Scalars['Boolean']['output'];
+  hasPreviousPage: Scalars['Boolean']['output'];
   nextCursor?: Maybe<Scalars['String']['output']>;
+  previousCursor?: Maybe<Scalars['String']['output']>;
 };
 
 export type YouTubeChannelPaginationInput = {

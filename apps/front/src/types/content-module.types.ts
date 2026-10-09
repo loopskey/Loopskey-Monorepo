@@ -15,6 +15,8 @@ import type {
   PublicYouTubeVideo,
 } from "@/lib/server/public-content";
 
+import type { CatalogFacets, CatalogPageData } from "@/lib/server/catalog-reader";
+
 import type * as API from "@/lib/graphql/generated";
 
 export type TContentTab = "courses" | "events" | "podcasts" | "youtube";
@@ -44,47 +46,6 @@ export type TSelectOption = {
   label: string;
 };
 
-export type TFacetState = {
-  isLoading: boolean;
-  hasError: boolean;
-  onRetry: () => void;
-};
-
-export type TEnumFacet = {
-  value: string;
-  count: number;
-};
-
-export type TRatingFacet = {
-  minimum: number;
-  count: number;
-};
-
-export type TCursorState = {
-  page: number;
-  cursor?: string;
-  history: string[];
-};
-
-export type TCourseFilters = {
-  minRating?: string;
-  level?: API.CourseLevel | "";
-  category?: API.CourseCategory | "";
-};
-
-export type TEventFilters = {
-  type?: API.EventType | "";
-  category?: API.EventCategory | "";
-};
-
-export type TPodcastFilters = {
-  category?: API.PodcastCategory | "";
-};
-
-export type TYouTubeFilters = {
-  category?: API.YouTubeCategory | "";
-};
-
 export type TContentCardProps = {
   action?: ReactNode;
   className?: string;
@@ -93,16 +54,8 @@ export type TContentCardProps = {
   overlay?: ReactNode;
 };
 
-export type TContentTabOption = {
-  value: TContentTab;
-  label: string;
-};
-
 export type TContentTabsProps = {
-  label: string;
   activeTab: TContentTab;
-  tabs: TContentTabOption[];
-  onChange: (tab: TContentTab) => void;
 };
 
 export type TContentSearchHeroProps = {
@@ -110,22 +63,52 @@ export type TContentSearchHeroProps = {
   activeTab: TContentTab;
 };
 
-export type TFilterPanelProps = {
-  title: string;
-  search: string;
-  filters: Array<{
-    key: string;
-    label: string;
-    value?: string;
-    placeholder: string;
-    options: TSelectOption[];
-    isLoading: boolean;
-    hasError: boolean;
-    onRetry: () => void;
-    onChange: (value: string) => void;
-  }>;
-  onReset: () => void;
-  onSearchChange: (value: string) => void;
+export type TFilterOption = {
+  value: string;
+  label: string;
+};
+
+export type TFilterField = {
+  name: string;
+  label: string;
+  value: string;
+  options: TFilterOption[];
+};
+
+export type TContentFilterValues = {
+  q: string;
+  category: string;
+  level: string;
+  rating: string;
+  eventType: string;
+};
+
+export type TContentFilterFormProps = {
+  tab: TContentTab;
+  resetHref: string;
+  retryHref: string;
+  hasActiveFilters: boolean;
+  values: TContentFilterValues;
+  facets: CatalogFacets | null;
+};
+
+export type TContentResultsProps = {
+  page: CatalogPageData;
+};
+
+export type TContentCatalogPaginationProps = {
+  totalCount: number;
+  nextHref: string | null;
+  previousHref: string | null;
+};
+
+export type TCatalogNoticeProps = {
+  restartHref: string;
+  variant: "invalid" | "expired";
+};
+
+export type TEmptyStateProps = {
+  resetHref?: string;
 };
 
 // ============== Details ================

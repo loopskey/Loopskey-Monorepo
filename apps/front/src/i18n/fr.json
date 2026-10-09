@@ -2900,7 +2900,21 @@
   "content": {
     "meta": {
       "title": "Explorer les contenus d’apprentissage | LoopsKey",
-      "description": "Parcourez des cours, événements, podcasts et chaînes YouTube de fournisseurs vérifiés, et filtrez par catégorie, format et crédits CPD."
+      "description": "Parcourez des cours, événements, podcasts et chaînes YouTube de fournisseurs vérifiés, et filtrez par catégorie, format et crédits CPD.",
+      "tabs": {
+        "events": {
+          "title": "Événements de développement professionnel | LoopsKey",
+          "description": "Parcourez des ateliers, conférences et webinaires de fournisseurs vérifiés, et filtrez par catégorie et format."
+        },
+        "podcasts": {
+          "title": "Podcasts d’apprentissage professionnel | LoopsKey",
+          "description": "Écoutez des podcasts d’apprentissage professionnel de fournisseurs vérifiés et filtrez par catégorie."
+        },
+        "youtube": {
+          "title": "Chaînes YouTube d’apprentissage professionnel | LoopsKey",
+          "description": "Découvrez des chaînes YouTube d’apprentissage professionnel de fournisseurs vérifiés et filtrez par catégorie."
+        }
+      }
     },
     "hero": {
       "title": "Explorer les contenus d’apprentissage",
@@ -2932,18 +2946,15 @@
       "eventType": "Type d’événement",
       "searchPlaceholder": "Rechercher un contenu...",
       "reset": "Réinitialiser",
-      "all": "Tous",
-      "open": "Filtres",
-      "sheetDescription": "Affinez la liste avec les options ci-dessous.",
-      "showResults": "Afficher les résultats",
-      "optionsLoading": "Chargement des options…",
+      "submit": "Rechercher",
       "optionsError": "Options indisponibles. Réessayer"
     },
     "pagination": {
       "page": "Page {{page}}",
       "total": "{{total}} au total",
       "previous": "Précédent",
-      "next": "Suivant"
+      "next": "Suivant",
+      "label": "Pagination"
     },
     "card": {
       "free": "Gratuit",
@@ -2959,6 +2970,23 @@
     "empty": {
       "title": "Aucun contenu trouvé",
       "description": "Essayez de modifier votre recherche ou de réinitialiser les filtres."
+    },
+    "navigation": {
+      "loading": "Chargement…"
+    },
+    "results": {
+      "heading": "Résultats"
+    },
+    "notice": {
+      "invalid": {
+        "title": "Ce lien n’est pas valide",
+        "description": "Certaines options de cette adresse ne sont pas reconnues. Recommencez depuis la liste complète."
+      },
+      "expired": {
+        "title": "Cette page n’est plus disponible",
+        "description": "La liste a changé depuis la création de ce lien, nous ne pouvons donc pas continuer à partir de ce point. Recommencez depuis le début."
+      },
+      "restart": "Recommencer"
     },
     "enums": {
       "courseCategory": {

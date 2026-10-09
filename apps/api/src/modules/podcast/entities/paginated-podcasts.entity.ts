@@ -5,7 +5,9 @@ import { PodcastEntity } from "@podcast/entities/podcast.entity";
 @ObjectType(PodcastGqlObjectNames.PODCAST_PAGE_INFO)
 export class PodcastPageInfoEntity {
   @Field() hasNextPage: boolean;
+  @Field() hasPreviousPage: boolean;
   @Field(() => String, { nullable: true }) nextCursor?: string | null;
+  @Field(() => String, { nullable: true }) previousCursor?: string | null;
 }
 
 @ObjectType(PodcastGqlObjectNames.PAGINATED_PODCASTS)

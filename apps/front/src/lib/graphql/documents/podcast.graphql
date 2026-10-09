@@ -38,6 +38,8 @@ fragment PodcastEpisodeFields on PodcastEpisode {
 fragment PodcastPageInfoFields on PodcastPageInfo {
   nextCursor
   hasNextPage
+  previousCursor
+  hasPreviousPage
 }
 
 # ============== Queries ================

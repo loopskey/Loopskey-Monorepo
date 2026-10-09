@@ -142,6 +142,7 @@ const ContentCard = ({
               className="after:absolute after:inset-0 after:content-['']"
             >
               {t("content.card.viewDetails")}
+              <span className="sr-only">: {item.title}</span>
               <L.ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5 motion-reduce:transform-none" />
             </Link>
           </Button>

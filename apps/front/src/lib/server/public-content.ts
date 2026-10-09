@@ -74,7 +74,7 @@ const readBySlug = async <T>({
     field,
     variables: { slug },
   });
-  if (result.kind === "not-found" || !isPublished(result.value)) return null;
+  if (result.kind !== "found" || !isPublished(result.value)) return null;
   return result.value as T;
 };
 
@@ -93,7 +93,7 @@ const readChildren = async <T>(
   return result.kind === "found" ? (result.value as unknown as T[]) : [];
 };
 
-const memoize = <T>(read: (key: string) => Promise<T>) => {
+export const memoize = <T>(read: (key: string) => Promise<T>) => {
   const settled = cache((key: string) => settle(() => read(key)));
   return async (key: string) => unwrap(await settled(key));
 };

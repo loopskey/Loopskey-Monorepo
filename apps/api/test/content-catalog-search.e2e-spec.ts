@@ -275,18 +275,20 @@ describe("Content catalogue list search (e2e)", () => {
     expect(page.pageInfo.hasNextPage).toBe(true);
     expect(page.pageInfo.nextCursor).toBeTruthy();
 
-    // NOTE: this endpoint's cursor is a plain `id > cursor` keyset filter,
-    // but result order is by rank, not id — a pre-existing mismatch (present
-    // in the code before this performance fix, unchanged by it) that can
-    // duplicate or skip rows once a search paginates past the first page.
-    // Not in scope here; flagged for a follow-up fix to pagination-during-
-    // search specifically.
     const secondPage = await query(COURSES_SEARCH, {
       filter: { search: token },
       pagination: { take: 20, cursor: page.pageInfo.nextCursor },
     });
     expect(secondPage.body.errors).toBeUndefined();
-    expect(Array.isArray(secondPage.body.data.courses.items)).toBe(true);
+    const firstSlugs: string[] = page.items.map(
+      (item: { slug: string }) => item.slug,
+    );
+    const secondSlugs: string[] = secondPage.body.data.courses.items.map(
+      (item: { slug: string }) => item.slug,
+    );
+    expect(secondSlugs.length).toBeGreaterThanOrEqual(1);
+    expect(secondSlugs.filter((slug) => firstSlugs.includes(slug))).toEqual([]);
+    expect(secondPage.body.data.courses.totalCount).toBe(page.totalCount);
   });
 
   it("falls back to the unsearched list path below the minimum term length", async () => {

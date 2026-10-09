@@ -2896,7 +2896,21 @@
   "content": {
     "meta": {
       "title": "Explore learning content | LoopsKey",
-      "description": "Browse courses, events, podcasts and YouTube channels from verified providers, and filter by category, format and CPD credits."
+      "description": "Browse courses, events, podcasts and YouTube channels from verified providers, and filter by category, format and CPD credits.",
+      "tabs": {
+        "events": {
+          "title": "Professional development events | LoopsKey",
+          "description": "Browse workshops, conferences and webinars from verified providers, and filter by category and format."
+        },
+        "podcasts": {
+          "title": "Professional learning podcasts | LoopsKey",
+          "description": "Listen to professional learning podcasts from verified providers and filter by category."
+        },
+        "youtube": {
+          "title": "Professional learning YouTube channels | LoopsKey",
+          "description": "Discover YouTube channels for professional learning from verified providers and filter by category."
+        }
+      }
     },
     "hero": {
       "title": "Explore learning content",
@@ -2928,18 +2942,15 @@
       "eventType": "Event type",
       "searchPlaceholder": "Search learning content...",
       "reset": "Reset filters",
-      "all": "All",
-      "open": "Filters",
-      "sheetDescription": "Refine the list using the options below.",
-      "showResults": "Show results",
-      "optionsLoading": "Loading options…",
+      "submit": "Search",
       "optionsError": "Options unavailable. Retry"
     },
     "pagination": {
       "page": "Page {{page}}",
       "total": "{{total}} total",
       "previous": "Previous",
-      "next": "Next"
+      "next": "Next",
+      "label": "Pagination"
     },
     "card": {
       "free": "Free",
@@ -2955,6 +2966,23 @@
     "empty": {
       "title": "No content found",
       "description": "Try changing your search term or resetting the filters."
+    },
+    "navigation": {
+      "loading": "Loading…"
+    },
+    "results": {
+      "heading": "Results"
+    },
+    "notice": {
+      "invalid": {
+        "title": "This link is not valid",
+        "description": "Some options in this address are not recognised. Start again from the full list."
+      },
+      "expired": {
+        "title": "This page is no longer available",
+        "description": "The list changed after this link was created, so we cannot continue from that point. Start again from the beginning."
+      },
+      "restart": "Start again"
     },
     "enums": {
       "courseCategory": {

@@ -37,7 +37,7 @@ export const fetchSocialCardContent = async (
     document: { toString: () => query },
     variables: { slug },
   });
-  if (result.kind === "not-found") return null;
+  if (result.kind !== "found") return null;
 
   const row = result.value;
   if (typeof row.title !== "string") return null;

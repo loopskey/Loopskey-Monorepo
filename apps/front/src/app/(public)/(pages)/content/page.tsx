@@ -1,86 +1,192 @@
-"use client";
+import { readCatalog, readCatalogFacets } from "@/lib/server/catalog-reader";
+import { tabHref, withCursor } from "@/lib/content-catalog/catalog-href";
+import { publicPageMetadata } from "@/lib/site/page-metadata";
+import { isCanonicalRequest } from "@/lib/content-catalog/query-state";
+import { permanentRedirect } from "next/navigation";
+import { defaultDictionary } from "@/i18n/dictionaries";
+import { parseCatalogQuery } from "@/lib/content-catalog/query-state";
+import { hasContentFilters } from "@/lib/content-catalog/catalog-href";
+import { noindexMetadata } from "@/lib/site/page-metadata";
+import { firstPageHref } from "@/lib/content-catalog/catalog-href";
 
-import { ContentPagination } from "@elements/pagination";
-import { useContentPage } from "@/hooks/useContentPage";
-
-import ContentCardSkeleton from "@modules/Content/ContentCardSkeleton";
+import ContentCatalogPagination from "@modules/Content/ContentCatalogPagination";
+import ContentResultsHeading from "@modules/Content/ContentResultsHeading";
+import ContentFilterForm from "@modules/Content/ContentFilterForm";
 import ContentSearchHero from "@modules/Content/ContentSearchHero";
-import ContentCard from "@elements/content-card";
+import ContentResults from "@modules/Content/ContentResults";
+import CatalogNotice from "@modules/Content/CatalogNotice";
 import ContentTabs from "@modules/Content/ContentTabs";
-import FilterPanel from "@modules/Content/FilterPanel";
 import EmptyState from "@modules/Content/EmptyState";
 
-const CARD_GRID_CLASS_NAME =
-  "grid gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4";
+import type { RawSearchParams } from "@/lib/content-catalog/query-state";
+import type { CatalogQuery } from "@/lib/content-catalog/catalog-href";
+import type { TContentTab } from "@/types/content-module.types";
+import type { ReactNode } from "react";
+import type { Metadata } from "next";
 
-const ContentPage = () => {
-  const {
-    t,
-    TAKE,
-    tabs,
-    items,
-    goNext,
-    activeTab,
-    isLoading,
-    goPrevious,
-    activeData,
-    setActiveTab,
-    currentCursor,
-    filterPanelProps,
-  } = useContentPage();
+export const dynamic = "force-dynamic";
+
+type TContentPageProps = {
+  searchParams: Promise<RawSearchParams>;
+};
+
+type TCatalogLayoutProps = {
+  tab: TContentTab;
+  children: ReactNode;
+  filters?: ReactNode;
+  totalCount?: number;
+};
+
+const tabMeta = (tab: TContentTab) => {
+  const { meta } = defaultDictionary.content;
+  return tab === "courses" ? meta : meta.tabs[tab];
+};
+
+const pageMetadata = (href: string, tab: TContentTab, isIndexable: boolean) => {
+  const { title, description } = tabMeta(tab);
+  const metadata = publicPageMetadata({
+    title,
+    description,
+    path: href,
+    isTitleBranded: true,
+  });
+  return isIndexable
+    ? metadata
+    : { ...metadata, robots: { index: false, follow: true } };
+};
+
+export const generateMetadata = async ({
+  searchParams,
+}: TContentPageProps): Promise<Metadata> => {
+  const parsed = parseCatalogQuery(await searchParams);
+  if (parsed.kind === "invalid")
+    return {
+      ...pageMetadata(tabHref(parsed.tab), parsed.tab, false),
+      ...noindexMetadata(),
+    };
+
+  const { query, canonicalHref } = parsed;
+  let isIndexable = !hasContentFilters(query);
+  if (isIndexable && query.after)
+    isIndexable = (await readCatalog(query)).kind === "page";
+  return pageMetadata(canonicalHref, query.tab, isIndexable);
+};
+
+const CatalogLayout = ({
+  tab,
+  filters,
+  children,
+  totalCount,
+}: TCatalogLayoutProps) => (
+  <main className="py-6">
+    <div className="mx-auto max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
+      <div className="space-y-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <ContentSearchHero activeTab={tab} totalCount={totalCount} />
+          <ContentTabs activeTab={tab} />
+        </div>
+        {filters}
+      </div>
+
+      <section
+        aria-labelledby="catalog-results-heading"
+        className="min-w-0 space-y-6"
+      >
+        <ContentResultsHeading />
+        {children}
+      </section>
+    </div>
+  </main>
+);
+
+const paginationLinks = (
+  query: CatalogQuery,
+  pageInfo: {
+    hasNextPage: boolean;
+    nextCursor?: string | null;
+    hasPreviousPage: boolean;
+    previousCursor?: string | null;
+  },
+) => ({
+  nextHref:
+    pageInfo.hasNextPage && pageInfo.nextCursor
+      ? withCursor(query, pageInfo.nextCursor)
+      : null,
+  previousHref: pageInfo.hasPreviousPage
+    ? withCursor(query, pageInfo.previousCursor ?? null)
+    : null,
+});
+
+const ContentPage = async ({ searchParams }: TContentPageProps) => {
+  const params = await searchParams;
+  const parsed = parseCatalogQuery(params);
+
+  if (parsed.kind === "invalid")
+    return (
+      <CatalogLayout tab={parsed.tab}>
+        <CatalogNotice variant="invalid" restartHref={tabHref(parsed.tab)} />
+      </CatalogLayout>
+    );
+
+  const { query, canonicalHref } = parsed;
+  if (!isCanonicalRequest(params, canonicalHref))
+    permanentRedirect(canonicalHref);
+
+  const [read, facets] = await Promise.all([
+    readCatalog(query),
+    readCatalogFacets(query.tab),
+  ]);
+
+  if (read.kind !== "page")
+    return (
+      <CatalogLayout tab={query.tab}>
+        <CatalogNotice
+          restartHref={firstPageHref(query)}
+          variant={read.kind === "expired-cursor" ? "expired" : "invalid"}
+        />
+      </CatalogLayout>
+    );
+
+  const { page } = read;
+  const hasFilters = hasContentFilters(query);
+  const { nextHref, previousHref } = paginationLinks(query, page.pageInfo);
 
   return (
-    <main className="py-6">
-      <div className="mx-auto max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
-        <div className="space-y-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <ContentSearchHero
-              activeTab={activeTab}
-              totalCount={activeData?.totalCount}
+    <CatalogLayout
+      tab={query.tab}
+      totalCount={page.totalCount}
+      filters={
+        <ContentFilterForm
+          tab={query.tab}
+          facets={facets}
+          retryHref={canonicalHref}
+          hasActiveFilters={hasFilters}
+          resetHref={tabHref(query.tab)}
+          values={{
+            q: query.search ?? "",
+            category: query.category ?? "",
+            level: query.level ?? "",
+            rating: query.rating ?? "",
+            eventType: query.eventType ?? "",
+          }}
+        />
+      }
+    >
+      {page.items.length > 0 ? (
+        <>
+          <ContentResults page={page} />
+          {(nextHref || previousHref) && (
+            <ContentCatalogPagination
+              nextHref={nextHref}
+              previousHref={previousHref}
+              totalCount={page.totalCount}
             />
-
-            <ContentTabs
-              tabs={tabs}
-              activeTab={activeTab}
-              onChange={setActiveTab}
-              label={t("content.tabs.label")}
-            />
-          </div>
-
-          <FilterPanel {...filterPanelProps} />
-        </div>
-
-        <section className="min-w-0 space-y-6">
-          {isLoading ? (
-            <div className={CARD_GRID_CLASS_NAME}>
-              {Array.from({ length: TAKE }).map((_, index) => (
-                <ContentCardSkeleton key={index} />
-              ))}
-            </div>
-          ) : items.length > 0 ? (
-            <>
-              <div className={CARD_GRID_CLASS_NAME}>
-                {items.map((item) => (
-                  <ContentCard key={`${item.kind}-${item.id}`} item={item} />
-                ))}
-              </div>
-
-              <ContentPagination
-                onNext={goNext}
-                isLoading={isLoading}
-                onPrevious={goPrevious}
-                page={currentCursor.page}
-                totalCount={activeData?.totalCount}
-                hasNextPage={activeData?.pageInfo.hasNextPage}
-                canPrevious={currentCursor.history.length > 0}
-              />
-            </>
-          ) : (
-            <EmptyState />
           )}
-        </section>
-      </div>
-    </main>
+        </>
+      ) : (
+        <EmptyState resetHref={hasFilters ? tabHref(query.tab) : undefined} />
+      )}
+    </CatalogLayout>
   );
 };
 

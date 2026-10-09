@@ -1,4 +1,4 @@
-import { TCursorState, TSelectOption } from "@/types/content-module.types";
+import { TSelectOption } from "@/types/content-module.types";
 import { ContactInquiryType, Role } from "@lib/graphql/base";
 import { TLandingHeroContentKind } from "@/types/landing-module.types";
 import { TSelectedRange } from "@/types/professional-dashboard.types";
@@ -171,14 +171,6 @@ export const PASSWORD_STRENGTH_MESSAGE =
   "Password must be at least 8 characters and include both letters and numbers.";
 
 // ============= Content ===============
-export const TAKE = 12;
-
-export const initialCursor: TCursorState = {
-  page: 1,
-  history: [],
-  cursor: undefined,
-};
-
 export const enumOptions = <T extends Record<string, string>>(
   enumObject: T,
   labelPrefix: string,

@@ -15,8 +15,19 @@ import { CourseSortInput } from "@course/dtos/course-sort.input";
 import { PrismaService } from "@prisma/prisma.service";
 import { toEnumFacets } from "@utils/catalog-facet.util";
 import { slugify } from "@utils/slug.util";
+import {
+  CATALOG_SEARCH_CANDIDATE_CAP,
+  CATALOG_SEARCH_ORDER,
+  catalogSearchWindow,
+  catalogSortOrder,
+  clampSearchCount,
+  readCatalogPage,
+  readPrismaWindowAfter,
+  readSearchWindowAfter,
+  withoutSearchColumns,
+} from "@utils/catalog-pagination.util";
 
-const CANDIDATE_CAP = 500;
+const COURSE_SEARCH_ORDER = Prisma.sql`"searchRank" DESC, "createdAt" DESC, "id" DESC`;
 
 @Injectable()
 export class CourseService {
@@ -304,33 +315,42 @@ export class CourseService {
   ) {
     const search = filter?.search?.trim();
     if (search && search.length >= 2)
-      return this.findCoursesWithTrgmSearch(filter, pagination, sort);
-    const take = Math.min(pagination?.take ?? 20, 100);
+      return this.findCoursesWithTrgmSearch(filter, pagination);
     const where = this.buildCourseWhere(filter, false);
     const orderBy = this.buildOrderBy(sort);
-    const [items, totalCount] = await this.prismaService.$transaction([
-      this.prismaService.course.findMany({
-        where,
-        take: take + 1,
-        cursor: pagination?.cursor ? { id: pagination.cursor } : undefined,
-        skip: pagination?.cursor ? 1 : 0,
-        orderBy,
-      }),
-      this.prismaService.course.count({ where }),
-    ]);
-    const hasNextPage = items.length > take;
-    const slicedItems = hasNextPage ? items.slice(0, take) : items;
-    const nextCursor = hasNextPage
-      ? slicedItems[slicedItems.length - 1]?.id
-      : null;
-    return {
-      items: slicedItems,
-      totalCount,
-      pageInfo: {
-        hasNextPage,
-        nextCursor,
-      },
-    };
+    return readCatalogPage({
+      kind: "course",
+      order: catalogSortOrder(
+        sort?.field ?? CourseSortField.CREATED_AT,
+        sort?.direction ?? SortDirection.DESC,
+      ),
+      take: pagination?.take,
+      cursor: pagination?.cursor,
+      count: () => this.prismaService.course.count({ where }),
+      readAfter: (anchorId, limit) =>
+        readPrismaWindowAfter(
+          anchorId,
+          async (id) =>
+            (await this.prismaService.course.findFirst({
+              where: { AND: [where, { id }] },
+              select: { id: true },
+            })) !== null,
+          (position) =>
+            this.prismaService.course.findMany({
+              where,
+              orderBy,
+              take: limit,
+              ...position,
+            }),
+        ),
+      readThrough: (anchorId, limit) =>
+        this.prismaService.course.findMany({
+          where,
+          orderBy,
+          cursor: { id: anchorId },
+          take: -limit,
+        }),
+    });
   }
 
   async findFeaturedCourses(take = 12) {
@@ -371,17 +391,15 @@ export class CourseService {
   private async findCoursesWithTrgmSearch(
     filter?: CourseFilterInput,
     pagination?: CoursePaginationInput,
-    _sort?: CourseSortInput,
   ) {
-    const take = Math.min(pagination?.take ?? 20, 100);
     const search = filter?.search?.trim() ?? "";
-    const cursor = pagination?.cursor ?? null;
     const status = filter?.status ?? CourseStatus.PUBLISHED;
     const category = filter?.category ?? null;
     const level = filter?.level ?? null;
     const isFree = filter?.isFree ?? null;
     const isFeatured = filter?.isFeatured ?? null;
     const providerId = filter?.providerId ?? null;
+    const minRating = filter?.minRating ?? null;
 
     type CourseSearchRow = {
       id: string;
@@ -409,112 +427,118 @@ export class CourseService {
       updatedAt: Date;
       deletedAt: Date | null;
       searchRank: number;
+      rowPosition: bigint;
     };
 
-    const rowsPromise = this.prismaService.$queryRaw<CourseSearchRow[]>`
-      WITH exact_matches AS (
-        SELECT
-          c."id", c."slug", c."title", c."instructor", c."imageUrl",
-          c."description", c."category", c."level", c."status", c."price",
-          c."currency", c."isFree", c."durationMinutes", c."lastUpdatedAt",
-          c."requirements", c."learnings", c."rating", c."ratingCount",
-          c."professionals", c."isFeatured", c."providerId", c."createdAt",
-          c."updatedAt", c."deletedAt",
-          (CASE
-            WHEN c."title" ILIKE '%' || ${search} || '%' THEN 3
-            WHEN c."instructor" ILIKE '%' || ${search} || '%' THEN 2
-            ELSE 1
-          END)::float AS "searchRank"
-        FROM "Course" c
-        WHERE c."deletedAt" IS NULL
-          AND c."status" = ${status}::"CourseStatus"
-          AND (${category}::"CourseCategory" IS NULL OR c."category" = ${category}::"CourseCategory")
-          AND (${level}::"CourseLevel" IS NULL OR c."level" = ${level}::"CourseLevel")
-          AND (${isFree}::boolean IS NULL OR c."isFree" = ${isFree}::boolean)
-          AND (${isFeatured}::boolean IS NULL OR c."isFeatured" = ${isFeatured}::boolean)
-          AND (${providerId}::text IS NULL OR c."providerId" = ${providerId}::text)
-          AND (${cursor}::text IS NULL OR c."id" > ${cursor}::text)
-          AND (
-            c."title" ILIKE '%' || ${search} || '%'
-            OR c."instructor" ILIKE '%' || ${search} || '%'
-            OR c."description" ILIKE '%' || ${search} || '%'
-          )
-        ORDER BY "searchRank" DESC, c."createdAt" DESC, c."id" DESC
-        LIMIT ${CANDIDATE_CAP}
-      ),
-      fuzzy_matches AS (
-        SELECT
-          c."id", c."slug", c."title", c."instructor", c."imageUrl",
-          c."description", c."category", c."level", c."status", c."price",
-          c."currency", c."isFree", c."durationMinutes", c."lastUpdatedAt",
-          c."requirements", c."learnings", c."rating", c."ratingCount",
-          c."professionals", c."isFeatured", c."providerId", c."createdAt",
-          c."updatedAt", c."deletedAt",
-          LEAST(
-            GREATEST(
-              similarity(c."title", ${search}),
-              similarity(c."instructor", ${search})
-            ),
-            0.99
-          ) AS "searchRank"
-        FROM "Course" c
-        WHERE c."deletedAt" IS NULL
-          AND c."status" = ${status}::"CourseStatus"
-          AND (${category}::"CourseCategory" IS NULL OR c."category" = ${category}::"CourseCategory")
-          AND (${level}::"CourseLevel" IS NULL OR c."level" = ${level}::"CourseLevel")
-          AND (${isFree}::boolean IS NULL OR c."isFree" = ${isFree}::boolean)
-          AND (${isFeatured}::boolean IS NULL OR c."isFeatured" = ${isFeatured}::boolean)
-          AND (${providerId}::text IS NULL OR c."providerId" = ${providerId}::text)
-          AND (${cursor}::text IS NULL OR c."id" > ${cursor}::text)
-          AND c."id" NOT IN (SELECT "id" FROM exact_matches)
-          AND (c."title" % ${search} OR c."instructor" % ${search})
-        ORDER BY "searchRank" DESC, c."createdAt" DESC, c."id" DESC
-        LIMIT GREATEST(${CANDIDATE_CAP} - (SELECT COUNT(*)::int FROM exact_matches), 0)
-      )
-      SELECT * FROM exact_matches
-      UNION ALL
-      SELECT * FROM fuzzy_matches
-      ORDER BY "searchRank" DESC, "createdAt" DESC, "id" DESC
-      LIMIT ${take + 1};
-    `;
+    const readWindow = async (
+      anchorId: string | null,
+      limit: number,
+      direction: "after" | "through",
+    ) => {
+      const rows = await this.prismaService.$queryRaw<CourseSearchRow[]>`
+        WITH exact_matches AS (
+          SELECT
+            c."id", c."slug", c."title", c."instructor", c."imageUrl",
+            c."description", c."category", c."level", c."status", c."price",
+            c."currency", c."isFree", c."durationMinutes", c."lastUpdatedAt",
+            c."requirements", c."learnings", c."rating", c."ratingCount",
+            c."professionals", c."isFeatured", c."providerId", c."createdAt",
+            c."updatedAt", c."deletedAt",
+            (CASE
+              WHEN c."title" ILIKE '%' || ${search} || '%' THEN 3
+              WHEN c."instructor" ILIKE '%' || ${search} || '%' THEN 2
+              ELSE 1
+            END)::float AS "searchRank"
+          FROM "Course" c
+          WHERE c."deletedAt" IS NULL
+            AND c."status" = ${status}::"CourseStatus"
+            AND (${category}::"CourseCategory" IS NULL OR c."category" = ${category}::"CourseCategory")
+            AND (${level}::"CourseLevel" IS NULL OR c."level" = ${level}::"CourseLevel")
+            AND (${isFree}::boolean IS NULL OR c."isFree" = ${isFree}::boolean)
+            AND (${isFeatured}::boolean IS NULL OR c."isFeatured" = ${isFeatured}::boolean)
+            AND (${providerId}::text IS NULL OR c."providerId" = ${providerId}::text)
+            AND (${minRating}::float IS NULL OR c."rating" >= ${minRating}::float)
+            AND (
+              c."title" ILIKE '%' || ${search} || '%'
+              OR c."instructor" ILIKE '%' || ${search} || '%'
+              OR c."description" ILIKE '%' || ${search} || '%'
+            )
+          ORDER BY "searchRank" DESC, c."createdAt" DESC, c."id" DESC
+          LIMIT ${CATALOG_SEARCH_CANDIDATE_CAP}
+        ),
+        fuzzy_matches AS (
+          SELECT
+            c."id", c."slug", c."title", c."instructor", c."imageUrl",
+            c."description", c."category", c."level", c."status", c."price",
+            c."currency", c."isFree", c."durationMinutes", c."lastUpdatedAt",
+            c."requirements", c."learnings", c."rating", c."ratingCount",
+            c."professionals", c."isFeatured", c."providerId", c."createdAt",
+            c."updatedAt", c."deletedAt",
+            LEAST(
+              GREATEST(
+                similarity(c."title", ${search}),
+                similarity(c."instructor", ${search})
+              ),
+              0.99
+            ) AS "searchRank"
+          FROM "Course" c
+          WHERE c."deletedAt" IS NULL
+            AND c."status" = ${status}::"CourseStatus"
+            AND (${category}::"CourseCategory" IS NULL OR c."category" = ${category}::"CourseCategory")
+            AND (${level}::"CourseLevel" IS NULL OR c."level" = ${level}::"CourseLevel")
+            AND (${isFree}::boolean IS NULL OR c."isFree" = ${isFree}::boolean)
+            AND (${isFeatured}::boolean IS NULL OR c."isFeatured" = ${isFeatured}::boolean)
+            AND (${providerId}::text IS NULL OR c."providerId" = ${providerId}::text)
+            AND (${minRating}::float IS NULL OR c."rating" >= ${minRating}::float)
+            AND c."id" NOT IN (SELECT "id" FROM exact_matches)
+            AND (c."title" % ${search} OR c."instructor" % ${search})
+          ORDER BY "searchRank" DESC, c."createdAt" DESC, c."id" DESC
+          LIMIT GREATEST(${CATALOG_SEARCH_CANDIDATE_CAP} - (SELECT COUNT(*)::int FROM exact_matches), 0)
+        ),
+        ${catalogSearchWindow(COURSE_SEARCH_ORDER, anchorId, limit, direction)}
+      `;
+      return rows.map((row) => {
+        const course = withoutSearchColumns(row);
+        return { ...course, price: course.price ? Number(course.price) : null };
+      });
+    };
 
-    const countPromise = this.prismaService.$queryRaw<Array<{ count: bigint }>>`
-      SELECT COUNT(*)::bigint AS count
-      FROM "Course" c
-      WHERE c."deletedAt" IS NULL
-        AND c."status" = ${status}::"CourseStatus"
-        AND (${category}::"CourseCategory" IS NULL OR c."category" = ${category}::"CourseCategory")
-        AND (${level}::"CourseLevel" IS NULL OR c."level" = ${level}::"CourseLevel")
-        AND (${isFree}::boolean IS NULL OR c."isFree" = ${isFree}::boolean)
-        AND (${isFeatured}::boolean IS NULL OR c."isFeatured" = ${isFeatured}::boolean)
-        AND (${providerId}::text IS NULL OR c."providerId" = ${providerId}::text)
-        AND (${cursor}::text IS NULL OR c."id" > ${cursor}::text)
-        AND (
-          c."title" ILIKE '%' || ${search} || '%'
-          OR c."instructor" ILIKE '%' || ${search} || '%'
-          OR c."description" ILIKE '%' || ${search} || '%'
-          OR c."title" % ${search}
-          OR c."instructor" % ${search}
-        )
-    `;
-
-    const [rows, countRows] = await this.prismaService.$transaction([
-      rowsPromise,
-      countPromise,
-    ]);
-    const hasNextPage = rows.length > take;
-    const slicedRows = hasNextPage ? rows.slice(0, take) : rows;
-    return {
-      items: slicedRows.map(({ searchRank: _searchRank, ...course }) => ({
-        ...course,
-        price: course.price ? Number(course.price) : null,
-      })),
-      totalCount: Number(countRows[0]?.count ?? 0n),
-      pageInfo: {
-        hasNextPage,
-        nextCursor: hasNextPage ? slicedRows[slicedRows.length - 1]?.id : null,
+    return readCatalogPage({
+      kind: "course",
+      order: CATALOG_SEARCH_ORDER,
+      take: pagination?.take,
+      cursor: pagination?.cursor,
+      count: async () => {
+        const countRows = await this.prismaService.$queryRaw<
+          Array<{ count: bigint }>
+        >`
+          SELECT COUNT(*)::bigint AS count
+          FROM "Course" c
+          WHERE c."deletedAt" IS NULL
+            AND c."status" = ${status}::"CourseStatus"
+            AND (${category}::"CourseCategory" IS NULL OR c."category" = ${category}::"CourseCategory")
+            AND (${level}::"CourseLevel" IS NULL OR c."level" = ${level}::"CourseLevel")
+            AND (${isFree}::boolean IS NULL OR c."isFree" = ${isFree}::boolean)
+            AND (${isFeatured}::boolean IS NULL OR c."isFeatured" = ${isFeatured}::boolean)
+            AND (${providerId}::text IS NULL OR c."providerId" = ${providerId}::text)
+            AND (${minRating}::float IS NULL OR c."rating" >= ${minRating}::float)
+            AND (
+              c."title" ILIKE '%' || ${search} || '%'
+              OR c."instructor" ILIKE '%' || ${search} || '%'
+              OR c."description" ILIKE '%' || ${search} || '%'
+              OR c."title" % ${search}
+              OR c."instructor" % ${search}
+            )
+        `;
+        return clampSearchCount(countRows[0]?.count);
       },
-    };
+      readAfter: async (anchorId, limit) =>
+        readSearchWindowAfter(
+          await readWindow(anchorId, limit, "after"),
+          anchorId,
+        ),
+      readThrough: (anchorId, limit) => readWindow(anchorId, limit, "through"),
+    });
   }
 
   private buildCourseWhere(
