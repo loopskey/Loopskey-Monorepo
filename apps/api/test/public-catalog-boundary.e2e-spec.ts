@@ -377,6 +377,54 @@ describe("Public catalog boundary (e2e)", () => {
     });
   });
 
+  describe("event views", () => {
+    const viewsOf = async (variant: Variant) =>
+      (
+        await prisma.event.findUniqueOrThrow({
+          where: { id: rowOf("event", variant).id },
+          select: { views: true },
+        })
+      ).views;
+
+    it("does not count views when a detail record is read", async () => {
+      const published = rowOf("event", "published");
+      const before = await viewsOf("published");
+
+      await post(KINDS[1].byId(published.id));
+      await post(KINDS[1].bySlug(published.slug));
+
+      expect(await viewsOf("published")).toBe(before);
+    });
+
+    it("counts an explicit view of a published event once per viewer", async () => {
+      const published = rowOf("event", "published");
+      const before = await viewsOf("published");
+      const mutation = `mutation { recordEventView(eventId: "${published.id}") }`;
+
+      const first = await post(mutation);
+      const repeat = await post(mutation);
+
+      expect(first.body.data.recordEventView).toBe(true);
+      expect(repeat.body.data.recordEventView).toBe(false);
+      expect(await viewsOf("published")).toBe(before + 1);
+    });
+
+    it.each(["draft", "deleted"] as const)(
+      "counts nothing for a %s event",
+      async (variant) => {
+        const hidden = rowOf("event", variant);
+        const before = await viewsOf(variant);
+
+        const response = await post(
+          `mutation { recordEventView(eventId: "${hidden.id}") }`,
+        );
+
+        expect(response.body.data.recordEventView).toBe(false);
+        expect(await viewsOf(variant)).toBe(before);
+      },
+    );
+  });
+
   describe("event lists", () => {
     it("rejects a cancelled status", async () => {
       const response = await post(KINDS[1].list("{ status: CANCELLED }"));

@@ -105,6 +105,10 @@ query EventBySlug($slug: String!) {
   }
 }
 
+mutation RecordEventView($eventId: String!) {
+  recordEventView(eventId: $eventId)
+}
+
 query UpcomingEvents($take: Int) {
   upcomingEvents(take: $take) {
     ...EventCardFields

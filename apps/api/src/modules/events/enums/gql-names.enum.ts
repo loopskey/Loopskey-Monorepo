@@ -38,5 +38,6 @@ export enum EventGqlMutationNames {
   PUBLISH_EVENT = "publishEvent",
   ARCHIVE_EVENT = "archiveEvent",
   REGISTER_EVENT = "registerEvent",
+  RECORD_EVENT_VIEW = "recordEventView",
   CANCEL_EVENT_REGISTRATION = "cancelEventRegistration",
 }

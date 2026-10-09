@@ -90,6 +90,7 @@ services:
     environment:
       NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
       DEPLOYMENT_ENV: ${DEPLOYMENT_ENV:-development}
+      GRAPHQL_SERVER_URL: ${GRAPHQL_SERVER_URL:-http://api:5700/graphql}
       SESSION_SECRET_KEY: ${SESSION_SECRET_KEY:?Set SESSION_SECRET_KEY in .env.docker}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:?Set JWT_ACCESS_SECRET in .env.docker}
       ACCESS_TOKEN_COOKIE_NAME: ${ACCESS_TOKEN_COOKIE_NAME:-}

@@ -59,13 +59,17 @@ type RenderInput = {
   title: string | null;
   category: string | null;
   published: boolean;
+  status?: number;
 };
+
+const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
 
 export const renderSocialCard = async ({
   kind,
   title,
   category,
   published,
+  status,
 }: RenderInput): Promise<ImageResponse> => {
   const ground = KIND_GROUND[kind];
   const headline = published && title ? title.trim() : KIND_LABEL[kind];
@@ -154,6 +158,8 @@ export const renderSocialCard = async ({
     {
       width: SOCIAL_CARD_WIDTH,
       height: SOCIAL_CARD_HEIGHT,
+      headers: NO_STORE_HEADERS,
+      ...(status ? { status } : {}),
       ...(fonts.length ? { fonts } : {}),
     },
   );

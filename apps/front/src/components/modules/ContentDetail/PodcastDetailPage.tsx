@@ -1,58 +1,30 @@
 "use client";
 
 import { Clock3, Headphones, ListMusic, UserRound } from "lucide-react";
+import { TPodcastDetailPageProps } from "@/types/content-module.types";
 import { ContentType, PduSource } from "@/lib/graphql/base";
 import { formatDurationMinutes } from "@/utils/content-source.helper";
 import { resolveExternalUrl } from "@/utils/content-source.helper";
 import { CalendarEventType } from "@/lib/graphql/base";
 import { humanizeEnumValue } from "@/utils/function-helper";
 import { useContentActions } from "@/hooks/useContentActions";
-import { GlassCard } from "@elements/glass-card";
 import { useI18n } from "@/hooks/useI18n";
-
-import * as PodcastApi from "@/lib/rtk/endpoints/podcast.api";
 
 import DetailSidebarActions from "@modules/ContentDetail/parts/DetailSidebarActions";
 import DetailPageHeader from "@modules/ContentDetail/parts/DetailPageHeader";
 import PodcastEpisodes from "@modules/ContentDetail/parts/PodcastEpisodes";
-import DetailSkeleton from "@modules/ContentDetail/parts/DetailSkeleton";
 import DetailSidebar from "@modules/ContentDetail/parts/DetailSidebar";
 import DetailSection from "@modules/ContentDetail/parts/DetailSection";
 import DetailLayout from "@modules/ContentDetail/parts/DetailLayout";
 
-const PodcastDetailPage = ({ slug }: { slug: string }) => {
+const PodcastDetailPage = ({ podcast, episodes }: TPodcastDetailPageProps) => {
   const { t } = useI18n();
-
-  const { data: podcast, isLoading } = PodcastApi.usePodcastBySlugQuery({
-    slug,
-  });
-
-  const { data: episodes = [] } = PodcastApi.usePodcastEpisodesQuery(
-    { podcastId: podcast?.id ?? "" },
-    { skip: !podcast?.id },
-  );
 
   const actions = useContentActions({
     skipEnrollment: true,
-    contentId: podcast?.id,
+    contentId: podcast.id,
     contentType: ContentType.Podcast,
   });
-
-  if (isLoading) return <DetailSkeleton />;
-
-  if (!podcast) {
-    return (
-      <main className="px-4 py-10 sm:px-6 lg:px-8">
-        <GlassCard className="mx-auto max-w-3xl p-10 text-center" glow={false}>
-          <div className="relative z-10">
-            <h1 className="text-2xl font-medium">
-              {t("contentDetails.common.notFound")}
-            </h1>
-          </div>
-        </GlassCard>
-      </main>
-    );
-  }
 
   return (
     <DetailLayout

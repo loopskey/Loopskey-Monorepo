@@ -3,6 +3,7 @@ import { EventDomainEventDispatcher } from "@events/application/events/event-dom
 import { EVENT_PUBLISHED_HANDLERS } from "@events/application/events/event-domain-event.dispatcher";
 import { EVENT_CATALOG_SEARCH_API } from "@events/public/catalog-search-api";
 import { CatalogSearchApiService } from "@events/application/catalog-search-api.service";
+import { EventViewSignalLimiter } from "@events/services/event-view-signal.limiter";
 import { EventsApiService } from "@events/application/events-api.service";
 import { EventRepository } from "@events/infrastructure/persistence/event.repository";
 import { EventResolver } from "@events/resolvers/event.resolver";
@@ -16,10 +17,11 @@ import "@events/enums/event-register.enum";
 @Module({
   imports: [PrismaModule],
   providers: [
-    EventResolver,
     EventService,
+    EventResolver,
     EventRepository,
     EventsApiService,
+    EventViewSignalLimiter,
     EventDomainEventDispatcher,
     EventPublishedLoggingHandler,
     {

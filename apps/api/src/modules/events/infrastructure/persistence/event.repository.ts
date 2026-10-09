@@ -109,8 +109,12 @@ export class EventRepository {
     });
   }
 
-  incrementViews(eventId: string) {
-    return this.update(eventId, { views: { increment: 1 } });
+  async incrementPublishedViews(eventId: string) {
+    const { count } = await this.prisma.event.updateMany({
+      where: { id: eventId, status: EventStatus.PUBLISHED, deletedAt: null },
+      data: { views: { increment: 1 } },
+    });
+    return count === 1;
   }
 
   async groupPublicFacets() {

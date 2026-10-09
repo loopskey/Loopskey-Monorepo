@@ -6,6 +6,15 @@ import type { TPduActivity } from "@/types/professional-dashboard.types";
 import type { ContentType } from "@/lib/graphql/base";
 import type { ReactNode } from "react";
 
+import type {
+  PublicCourse,
+  PublicEvent,
+  PublicPodcast,
+  PublicPodcastEpisode,
+  PublicYouTubeChannel,
+  PublicYouTubeVideo,
+} from "@/lib/server/public-content";
+
 import type * as API from "@/lib/graphql/generated";
 
 export type TContentTab = "courses" | "events" | "podcasts" | "youtube";
@@ -283,7 +292,21 @@ export type TYouTubeVideosProps = {
 };
 
 export type TCourseDetailPageProps = {
-  slug: string;
+  course: PublicCourse;
+};
+
+export type TEventDetailPageProps = {
+  event: PublicEvent;
+};
+
+export type TPodcastDetailPageProps = {
+  podcast: PublicPodcast;
+  episodes: PublicPodcastEpisode[];
+};
+
+export type TYouTubeDetailPageProps = {
+  channel: PublicYouTubeChannel;
+  videos: PublicYouTubeVideo[];
 };
 
 export type TAddToCalendarButtonProps = {

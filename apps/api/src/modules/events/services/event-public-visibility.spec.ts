@@ -6,6 +6,7 @@ import { EventDomainEventDispatcher } from "@events/application/events/event-dom
 import { EventRepository } from "@events/infrastructure/persistence/event.repository";
 import { PrismaService } from "@prisma/prisma.service";
 import { EventService } from "./event.service";
+import { EventViewSignalLimiter } from "./event-view-signal.limiter";
 
 const NON_PUBLIC_STATUSES = [
   EventStatus.DRAFT,
@@ -21,6 +22,7 @@ const setupRepository = () => {
       findMany: jest.fn().mockResolvedValue([]),
       count: jest.fn().mockResolvedValue(0),
       update: jest.fn(),
+      updateMany: jest.fn(),
     },
     $queryRaw: jest.fn().mockResolvedValue([]),
     $transaction: jest.fn((operations: Promise<unknown>[]) =>
@@ -28,9 +30,11 @@ const setupRepository = () => {
     ),
   };
   const repository = new EventRepository(prisma as unknown as PrismaService);
-  const service = new EventService(repository, {
-    publish: jest.fn(),
-  } as unknown as EventDomainEventDispatcher);
+  const service = new EventService(
+    repository,
+    { publish: jest.fn() } as unknown as EventDomainEventDispatcher,
+    new EventViewSignalLimiter(),
+  );
   return { prisma, service };
 };
 
@@ -65,6 +69,62 @@ describe("EventService public visibility", () => {
         EventMessageCode.EVENT_NOT_FOUND,
       );
       expect(prisma.event.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe.each(["findEventById", "findEventBySlug"] as const)(
+    "%s on a published event",
+    (method) => {
+      it("returns the event without writing anything", async () => {
+        const { service, prisma } = setupRepository();
+        prisma.event.findFirst.mockResolvedValue({ id: "event-1" });
+
+        await expect(service[method]("event-1")).resolves.toEqual({
+          id: "event-1",
+        });
+
+        expect(prisma.event.update).not.toHaveBeenCalled();
+        expect(prisma.event.updateMany).not.toHaveBeenCalled();
+      });
+    },
+  );
+
+  describe("recordEventView", () => {
+    it("counts a view of a published event once per viewer window", async () => {
+      const { service, prisma } = setupRepository();
+      prisma.event.updateMany.mockResolvedValue({ count: 1 });
+
+      await expect(
+        service.recordEventView("event-1", "viewer-1"),
+      ).resolves.toBe(true);
+      await expect(
+        service.recordEventView("event-1", "viewer-1"),
+      ).resolves.toBe(false);
+
+      expect(prisma.event.updateMany).toHaveBeenCalledTimes(1);
+      expect(prisma.event.updateMany).toHaveBeenCalledWith({
+        where: { id: "event-1", ...PUBLIC_VISIBILITY },
+        data: { views: { increment: 1 } },
+      });
+    });
+
+    it("counts nothing for a hidden or unknown event", async () => {
+      const { service, prisma } = setupRepository();
+      prisma.event.updateMany.mockResolvedValue({ count: 0 });
+
+      await expect(service.recordEventView("hidden", "viewer-1")).resolves.toBe(
+        false,
+      );
+    });
+
+    it("counts the same event separately for different viewers", async () => {
+      const { service, prisma } = setupRepository();
+      prisma.event.updateMany.mockResolvedValue({ count: 1 });
+
+      await service.recordEventView("event-1", "viewer-1");
+      await service.recordEventView("event-1", "viewer-2");
+
+      expect(prisma.event.updateMany).toHaveBeenCalledTimes(2);
     });
   });
 

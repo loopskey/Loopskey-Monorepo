@@ -3044,6 +3044,9 @@
     "common": {
       "backToContent": "Back to content",
       "notFound": "Content not found",
+      "unavailableTitle": "This page is temporarily unavailable",
+      "unavailableDescription": "We could not load this content right now. Please try again in a moment.",
+      "retry": "Try again",
       "free": "Free",
       "price": "Price",
       "minutes": "{{count}} min"

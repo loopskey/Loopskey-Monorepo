@@ -4,6 +4,7 @@ import {
   fetchSocialCardContent,
   isSocialCardKind,
 } from "@/lib/social-card/content";
+import { UpstreamFailureError } from "@/lib/server/graphql-server";
 import { contentSocialMetadata } from "@/lib/social-card/metadata";
 import {
   SOCIAL_CARD_MOTIFS,
@@ -121,14 +122,21 @@ describe("fetchSocialCardContent", () => {
     });
   });
 
-  it("returns null when the endpoint is unset, the row is missing, or the call fails", async () => {
-    vi.stubEnv("NEXT_PUBLIC_GRAPHQL_URL", "");
-    await expect(fetchSocialCardContent("course", "x")).resolves.toBeNull();
-
+  it("returns null for a missing row", async () => {
     withResponse({ data: { podcastBySlug: null } });
     await expect(fetchSocialCardContent("podcast", "x")).resolves.toBeNull();
+  });
+
+  it("treats an unset endpoint or a failed call as an upstream failure, not a missing row", async () => {
+    vi.stubEnv("GRAPHQL_SERVER_URL", "");
+    vi.stubEnv("NEXT_PUBLIC_GRAPHQL_URL", "");
+    await expect(fetchSocialCardContent("course", "x")).rejects.toBeInstanceOf(
+      UpstreamFailureError,
+    );
 
     withResponse({}, false);
-    await expect(fetchSocialCardContent("youtube", "x")).resolves.toBeNull();
+    await expect(
+      fetchSocialCardContent("youtube", "x"),
+    ).rejects.toBeInstanceOf(UpstreamFailureError);
   });
 });

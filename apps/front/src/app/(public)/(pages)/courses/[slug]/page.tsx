@@ -1,20 +1,33 @@
 import { TContentDetailPageProps } from "@/types/pages.types";
-import { contentSocialMetadata } from "@/lib/social-card/metadata";
+import { getPublicCourse } from "@/lib/server/public-content";
+import { contentMetadata } from "@/lib/social-card/metadata";
+import { notFound } from "next/navigation";
 
 import CourseDetailPage from "@modules/ContentDetail/CourseDetailPage";
 
 import type { Metadata } from "next";
 
+export const dynamic = "force-dynamic";
+
 export const generateMetadata = async ({
   params,
 }: TContentDetailPageProps): Promise<Metadata> => {
   const { slug } = await params;
-  return contentSocialMetadata("course", slug);
+  const course = await getPublicCourse(slug);
+  if (!course) notFound();
+  return contentMetadata({
+    kind: "course",
+    slug: course.slug,
+    title: course.title,
+    description: course.description,
+  });
 };
 
-const Course = async ({ params }: TContentDetailPageProps) => {
+const Page = async ({ params }: TContentDetailPageProps) => {
   const { slug } = await params;
-  return <CourseDetailPage slug={slug} />;
+  const course = await getPublicCourse(slug);
+  if (!course) notFound();
+  return <CourseDetailPage course={course} />;
 };
 
-export default Course;
+export default Page;
