@@ -1,26 +1,28 @@
-import { CourseFilterFacetsDocument } from "@/lib/graphql/operations/course";
-import { CoursesDocument } from "@/lib/graphql/operations/course";
-import { EventFilterFacetsDocument } from "@/lib/graphql/operations/event";
-import { EventsDocument } from "@/lib/graphql/operations/event";
-import { PodcastFilterFacetsDocument } from "@/lib/graphql/operations/podcast";
-import { PodcastsDocument } from "@/lib/graphql/operations/podcast";
-import { YoutubeChannelFilterFacetsDocument } from "@/lib/graphql/operations/youtube";
-import { YouTubeChannelsDocument } from "@/lib/graphql/operations/youtube";
-import { CourseSortField, EventSortDirection } from "@/lib/graphql/base";
 import { EventSortField, PodcastSortDirection } from "@/lib/graphql/base";
+import { CourseSortField, EventSortDirection } from "@/lib/graphql/base";
+import { YoutubeChannelFilterFacetsDocument } from "@/lib/graphql/operations/youtube";
 import { PodcastSortField, SortDirection } from "@/lib/graphql/base";
+import { PodcastFilterFacetsDocument } from "@/lib/graphql/operations/podcast";
 import { YouTubeChannelSortDirection } from "@/lib/graphql/base";
+import { CourseFilterFacetsDocument } from "@/lib/graphql/operations/course";
+import { EventFilterFacetsDocument } from "@/lib/graphql/operations/event";
+import { YouTubeChannelsDocument } from "@/lib/graphql/operations/youtube";
 import { YouTubeChannelSortField } from "@/lib/graphql/base";
-import { CATALOG_PAGE_SIZE } from "@/lib/content-catalog/catalog-href";
 import { UpstreamFailureError } from "@/lib/server/graphql-server";
 import { executeServerGraphql } from "@/lib/server/graphql-server";
+import { CATALOG_PAGE_SIZE } from "@/lib/content-catalog/catalog-href";
+import { PodcastsDocument } from "@/lib/graphql/operations/podcast";
+import { CoursesDocument } from "@/lib/graphql/operations/course";
+import { EventsDocument } from "@/lib/graphql/operations/event";
+import { toApiLanguage } from "@/lib/i18n/locale";
 import { memoize } from "@/lib/server/public-content";
 
+import type { YouTubeChannelsQuery } from "@/lib/graphql/operations/youtube";
+import type { PodcastsQuery } from "@/lib/graphql/operations/podcast";
+import type { PublicLocale } from "@/lib/i18n/locale";
 import type { CatalogQuery } from "@/lib/content-catalog/catalog-href";
 import type { CoursesQuery } from "@/lib/graphql/operations/course";
 import type { EventsQuery } from "@/lib/graphql/operations/event";
-import type { PodcastsQuery } from "@/lib/graphql/operations/podcast";
-import type { YouTubeChannelsQuery } from "@/lib/graphql/operations/youtube";
 import type { TContentTab } from "@/types/content-module.types";
 
 export const CURSOR_INVALID_CODE = "CATALOG_CURSOR_INVALID";
@@ -28,8 +30,8 @@ export const CURSOR_EXPIRED_CODE = "CATALOG_CURSOR_EXPIRED";
 
 export type CatalogPageInfo = {
   hasNextPage: boolean;
-  nextCursor?: string | null;
   hasPreviousPage: boolean;
+  nextCursor?: string | null;
   previousCursor?: string | null;
 };
 
@@ -75,56 +77,63 @@ const pagination = (query: CatalogQuery) => ({
   cursor: query.after,
 });
 
-const listDefinition = (query: CatalogQuery): ListDefinition => {
+const listDefinition = (
+  query: CatalogQuery,
+  locale: PublicLocale,
+): ListDefinition => {
+  const withLocale = (variables: Record<string, unknown>) => ({
+    ...variables,
+    locale: toApiLanguage(locale),
+  });
   switch (query.tab) {
     case "events":
       return {
         field: "events",
         operation: "Events",
         document: EventsDocument,
-        variables: {
+        variables: withLocale({
           filter: { ...listFilter(query), type: query.eventType },
           pagination: pagination(query),
           sort: {
             field: EventSortField.StartDate,
             direction: EventSortDirection.Asc,
           },
-        },
+        }),
       };
     case "podcasts":
       return {
         field: "podcasts",
         operation: "Podcasts",
         document: PodcastsDocument,
-        variables: {
+        variables: withLocale({
           filter: listFilter(query),
           pagination: pagination(query),
           sort: {
             field: PodcastSortField.CreatedAt,
             direction: PodcastSortDirection.Desc,
           },
-        },
+        }),
       };
     case "youtube":
       return {
         field: "youtubeChannels",
         operation: "YouTubeChannels",
         document: YouTubeChannelsDocument,
-        variables: {
+        variables: withLocale({
           filter: listFilter(query),
           pagination: pagination(query),
           sort: {
             field: YouTubeChannelSortField.CreatedAt,
             direction: YouTubeChannelSortDirection.Desc,
           },
-        },
+        }),
       };
     default:
       return {
         field: "courses",
         operation: "Courses",
         document: CoursesDocument,
-        variables: {
+        variables: withLocale({
           filter: {
             ...listFilter(query),
             level: query.level,
@@ -135,14 +144,17 @@ const listDefinition = (query: CatalogQuery): ListDefinition => {
             field: CourseSortField.CreatedAt,
             direction: SortDirection.Desc,
           },
-        },
+        }),
       };
   }
 };
 
 const readList = async (serialized: string): Promise<CatalogRead> => {
-  const query = JSON.parse(serialized) as CatalogQuery;
-  const definition = listDefinition(query);
+  const { query, locale } = JSON.parse(serialized) as {
+    query: CatalogQuery;
+    locale: PublicLocale;
+  };
+  const definition = listDefinition(query, locale);
   const result = await executeServerGraphql({
     ...definition,
     rejectionCodes: [CURSOR_INVALID_CODE, CURSOR_EXPIRED_CODE],
@@ -163,8 +175,8 @@ const readList = async (serialized: string): Promise<CatalogRead> => {
 
 const readCachedList = memoize(readList);
 
-export const readCatalog = (query: CatalogQuery) =>
-  readCachedList(JSON.stringify(query));
+export const readCatalog = (query: CatalogQuery, locale: PublicLocale) =>
+  readCachedList(JSON.stringify({ query, locale }));
 
 type FacetDefinition = {
   field: string;

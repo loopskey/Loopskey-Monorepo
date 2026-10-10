@@ -6,7 +6,7 @@ import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
 import { cn } from "@/lib/utils";
 
-import Link from "next/link";
+import Link from "@elements/localized-link";
 
 const LandingSliderCard = ({ item, isActive, onHover }: TLandingSlider) => {
   const { t } = useI18n();

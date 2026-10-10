@@ -1,5 +1,6 @@
+import { AppLanguage, ContentType, Prisma } from "@prisma/client";
 import { BadRequestException } from "@nestjs/common";
-import { ContentType, Prisma } from "@prisma/client";
+import { resolveVariants } from "@utils/content-translation.util";
 
 export enum PublicUrlSelectorError {
   INVALID_CURSOR = "PUBLIC_URL_CURSOR_INVALID",
@@ -7,7 +8,7 @@ export enum PublicUrlSelectorError {
 }
 
 export const PUBLIC_URL_DEFAULT_SHARD_SIZE = 10_000;
-export const PUBLIC_URL_MAX_SHARD_SIZE = 50_000;
+export const PUBLIC_URL_MAX_SHARD_SIZE = 25_000;
 export const PUBLIC_URL_MAX_SHARD_COUNT = 1_000;
 export const PUBLIC_URL_DEFAULT_TAKE = 2_500;
 export const PUBLIC_URL_MAX_TAKE = 2_500;
@@ -24,6 +25,8 @@ export type PublicUrlSource = {
   readonly kind: ContentType;
   readonly table: string;
   readonly statusType: string;
+  readonly translationTable: string;
+  readonly translationParentColumn: string;
 };
 
 export type PublicUrlAnchor = {
@@ -42,6 +45,7 @@ export type PublicUrlShard = {
 export type PublicUrlRow = {
   readonly slug: string;
   readonly publicChangeAt: Date;
+  readonly availableLocales: AppLanguage[];
 };
 
 export type PublicUrlPage = {
@@ -221,6 +225,8 @@ type UrlRow = {
   createdAt: Date;
   id: string;
   publicChangeAt: Date;
+  sourceLanguage: string | null;
+  publishedLocales: AppLanguage[];
 };
 
 export const readPublicUrlPage = async (
@@ -245,7 +251,21 @@ export const readPublicUrlPage = async (
     : Prisma.empty;
 
   const rows = await reader.$queryRaw<UrlRow[]>(Prisma.sql`
-    SELECT "slug", "createdAt", "id", "publicContentUpdatedAt" AS "publicChangeAt"
+    SELECT
+      "slug",
+      "createdAt",
+      "id",
+      "publicContentUpdatedAt" AS "publicChangeAt",
+      "sourceLanguage",
+      COALESCE(
+        (
+          SELECT array_agg(t."locale"::text ORDER BY t."locale")
+          FROM ${identifier(source.translationTable)} t
+          WHERE t.${identifier(source.translationParentColumn)} = ${identifier(source.table)}."id"
+            AND t."isPublished"
+        ),
+        ARRAY[]::text[]
+      ) AS "publishedLocales"
     ${eligibleRows(source)}
       AND ${lower}
       ${upper}
@@ -259,10 +279,20 @@ export const readPublicUrlPage = async (
 
   return {
     hasNextPage,
-    items: page.map((row) => ({
-      slug: row.slug,
-      publicChangeAt: row.publicChangeAt,
-    })),
+    items: page.map((row) => {
+      const variants = resolveVariants({
+        sourceLanguage: row.sourceLanguage,
+        published: row.publishedLocales,
+      });
+      return {
+        slug: row.slug,
+        publicChangeAt: row.publicChangeAt,
+        availableLocales: [
+          ...(variants.english ? [AppLanguage.EN] : []),
+          ...(variants.french ? [AppLanguage.FR] : []),
+        ],
+      };
+    }),
     nextCursor:
       hasNextPage && last
         ? encodePublicUrlCursor(source.kind, {

@@ -34,6 +34,8 @@ const CourseDetailPage = ({ course }: TCourseDetailPageProps) => {
       header={
         <DetailPageHeader
           title={course.title}
+          contentLanguage={course.contentLanguage}
+          availableLocales={course.availableLocales}
           rating={course.rating}
           ratingCount={course.ratingCount}
           category={t(

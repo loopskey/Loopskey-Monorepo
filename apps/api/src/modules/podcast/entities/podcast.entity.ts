@@ -1,6 +1,7 @@
 import { Field, Float, ID, Int, ObjectType } from "@nestjs/graphql";
-import { PodcastCategory, PodcastStatus } from "@prisma/client";
+import { AppLanguage, PodcastCategory } from "@prisma/client";
 import { PodcastGqlObjectNames } from "@podcast/enums/gql-names.enum";
+import { PodcastStatus } from "@prisma/client";
 
 @ObjectType(PodcastGqlObjectNames.PODCAST)
 export class PodcastEntity {
@@ -23,4 +24,8 @@ export class PodcastEntity {
   @Field(() => String, { nullable: true }) sourceUrl?: string | null;
   @Field(() => String, { nullable: true }) providerId?: string | null;
   @Field(() => Int, { nullable: true }) durationMinutes?: number | null;
+  @Field(() => AppLanguage, { nullable: true })
+  contentLanguage?: AppLanguage | null;
+  @Field(() => [AppLanguage], { nullable: true })
+  availableLocales?: AppLanguage[] | null;
 }

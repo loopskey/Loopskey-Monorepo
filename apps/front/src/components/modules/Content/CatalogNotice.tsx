@@ -7,7 +7,7 @@ import { LinkPending } from "@elements/link-pending";
 import { GlassCard } from "@elements/glass-card";
 import { useI18n } from "@/hooks/useI18n";
 
-import Link from "next/link";
+import Link from "@elements/localized-link";
 
 const NOTICE_ICON = {
   invalid: LinkIcon,

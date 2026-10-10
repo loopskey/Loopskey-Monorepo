@@ -1615,7 +1615,9 @@ enum ContentType {
 }
 
 type Course {
+  availableLocales: [AppLanguage!]
   category: CourseCategory!
+  contentLanguage: AppLanguage
   createdAt: DateTime!
   currency: String!
   curriculumSections: [CurriculumSection!]
@@ -1727,6 +1729,19 @@ enum CourseStatus {
   ARCHIVED
   DRAFT
   PUBLISHED
+}
+
+type CourseTranslation {
+  description: String!
+  id: ID!
+  isPublished: Boolean!
+  learnings: [String!]!
+  locale: AppLanguage!
+  publishedAt: DateTime
+  requirements: [String!]!
+  title: String!
+  updatedAt: DateTime!
+  version: Int!
 }
 
 type CpdCategoryProgress {
@@ -2128,9 +2143,11 @@ enum DeliveryFormat {
 
 type Event {
   attendees: Int!
+  availableLocales: [AppLanguage!]
   averageRating: Float!
   capacity: Int
   category: EventCategory!
+  contentLanguage: AppLanguage
   createdAt: DateTime!
   currency: String!
   deletedAt: DateTime
@@ -2289,6 +2306,17 @@ enum EventStatus {
   CANCELLED
   DRAFT
   PUBLISHED
+}
+
+type EventTranslation {
+  description: String!
+  id: ID!
+  isPublished: Boolean!
+  locale: AppLanguage!
+  publishedAt: DateTime
+  title: String!
+  updatedAt: DateTime!
+  version: Int!
 }
 
 enum EventType {
@@ -2732,12 +2760,20 @@ type Mutation {
   retryAssociationReportExport(input: AssociationReportExportIdInput!): AssociationGeneratedReport!
   reviewAssociationLearningActivity(input: ReviewAssociationLearningActivityInput!): AssociationReviewResult!
   revokeIngestionApiKey(keyId: String!): IngestionApiKey!
+  saveCourseTranslation(input: SaveCourseTranslationInput!): CourseTranslation!
+  saveEventTranslation(input: SaveEventTranslationInput!): EventTranslation!
+  savePodcastTranslation(input: SavePodcastTranslationInput!): PodcastTranslation!
+  saveYouTubeChannelTranslation(input: SaveYouTubeChannelTranslationInput!): YouTubeChannelTranslation!
   sendAssociationMessage(input: SendAssociationMessageInput!): AssociationMessageBatch!
   sendRoadmapChatTurn(input: RoadmapChatTurnInput!): ProfessionalRoadmapDraft!
   setAssociationGroupActive(input: SetAssociationGroupActiveInput!): AssociationGroup!
   setAssociationMemberRequirements(input: SetAssociationMemberRequirementsInput!): AssociationMemberRequirementsResult!
   setAssociationMemberStatus(input: SetAssociationMemberStatusInput!): AssociationMember!
+  setCourseTranslationPublication(input: SetCourseTranslationPublicationInput!): CourseTranslation!
+  setEventTranslationPublication(input: SetEventTranslationPublicationInput!): EventTranslation!
+  setPodcastTranslationPublication(input: SetPodcastTranslationPublicationInput!): PodcastTranslation!
   setProfessionalCertificateCpdPlan(input: SetCertificateCpdPlanInput!): ProfessionalCertificate!
+  setYouTubeChannelTranslationPublication(input: SetYouTubeChannelTranslationPublicationInput!): YouTubeChannelTranslation!
   startProfessionalOnboarding: ProfessionalDashboardProfile!
   startRoadmapDraft: ProfessionalRoadmapDraft!
   startRoadmapStep(enrollmentId: ID!, stepId: ID!): RoadmapStepProgress!
@@ -3567,7 +3603,9 @@ enum PaymentStatus {
 }
 
 type Podcast {
+  availableLocales: [AppLanguage!]
   category: PodcastCategory!
+  contentLanguage: AppLanguage
   createdAt: DateTime!
   deletedAt: DateTime
   description: String!
@@ -3672,6 +3710,17 @@ enum PodcastStatus {
   ARCHIVED
   DRAFT
   PUBLISHED
+}
+
+type PodcastTranslation {
+  description: String!
+  id: ID!
+  isPublished: Boolean!
+  locale: AppLanguage!
+  publishedAt: DateTime
+  title: String!
+  updatedAt: DateTime!
+  version: Int!
 }
 
 input PopularCategoriesInput {
@@ -4445,6 +4494,7 @@ type ProviderTopEvent {
 }
 
 type PublicUrl {
+  availableLocales: [AppLanguage!]!
   publicChangeAt: DateTime!
   slug: String!
 }
@@ -4540,18 +4590,20 @@ type Query {
   certificationSearch(input: CertificationSearchInput!): [Certification!]!
   contentReviews(contentId: String!, contentType: ContentType!): [ContentReview!]!
   courseById(courseId: String!): Course!
-  courseBySlug(slug: String!): Course!
+  courseBySlug(locale: AppLanguage, slug: String!): Course!
   courseFilterFacets: CourseFilterFacets!
-  courses(filter: CourseFilterInput, pagination: CoursePaginationInput, sort: CourseSortInput): PaginatedCourses!
+  courseTranslations(courseId: String!): [CourseTranslation!]!
+  courses(filter: CourseFilterInput, locale: AppLanguage, pagination: CoursePaginationInput, sort: CourseSortInput): PaginatedCourses!
   cpdPlan(planId: ID!): CpdPlan!
   cpdPlanActivities(planId: ID!): [ProfessionalPduActivity!]!
   cpdPlanProgress(planId: ID!): CpdPlanProgress!
   cpdReportRecipients: [CpdReportRecipientOption!]!
   currentUser: AuthPayload!
   eventById(eventId: String!): Event!
-  eventBySlug(slug: String!): Event!
+  eventBySlug(locale: AppLanguage, slug: String!): Event!
   eventFilterFacets: EventFilterFacets!
-  events(filter: EventFilterInput, pagination: EventPaginationInput, sort: EventSortInput): PaginatedEvents!
+  eventTranslations(eventId: String!): [EventTranslation!]!
+  events(filter: EventFilterInput, locale: AppLanguage, pagination: EventPaginationInput, sort: EventSortInput): PaginatedEvents!
   featuredCourses(take: Int = 12): [Course!]!
   featuredEvents(take: Int = 12): [Event!]!
   featuredPodcasts(take: Int = 12): [Podcast!]!
@@ -4601,10 +4653,11 @@ type Query {
   organizationReports(filter: OrganizationReportFilterInput): OrganizationReport!
   organizationSettings: OrganizationSettings!
   podcastById(podcastId: String!): Podcast!
-  podcastBySlug(slug: String!): Podcast!
+  podcastBySlug(locale: AppLanguage, slug: String!): Podcast!
   podcastEpisodes(podcastId: String!): [PodcastEpisode!]!
   podcastFilterFacets: PodcastFilterFacets!
-  podcasts(filter: PodcastFilterInput, pagination: PodcastPaginationInput, sort: PodcastSortInput): PaginatedPodcasts!
+  podcastTranslations(podcastId: String!): [PodcastTranslation!]!
+  podcasts(filter: PodcastFilterInput, locale: AppLanguage, pagination: PodcastPaginationInput, sort: PodcastSortInput): PaginatedPodcasts!
   popularCategories(input: PopularCategoriesInput): [PopularCategory!]!
   professionalActiveSessions: [ProfessionalSession!]!
   professionalCalendarEvents(filter: ProfessionalCalendarEventsFilterInput, pagination: ProfessionalPaginationInput): PaginatedProfessionalCalendarEvents!
@@ -4649,9 +4702,10 @@ type Query {
   userById(userId: String!): User!
   users(filter: UserFilterInput, pagination: UserPaginationInput): PaginatedUsers!
   youtubeChannelById(channelId: String!): YouTubeChannel!
-  youtubeChannelBySlug(slug: String!): YouTubeChannel!
+  youtubeChannelBySlug(locale: AppLanguage, slug: String!): YouTubeChannel!
   youtubeChannelFilterFacets: YouTubeChannelFilterFacets!
-  youtubeChannels(filter: YouTubeChannelFilterInput, pagination: YouTubeChannelPaginationInput, sort: YouTubeChannelSortInput): PaginatedYouTubeChannels!
+  youtubeChannelTranslations(channelId: String!): [YouTubeChannelTranslation!]!
+  youtubeChannels(filter: YouTubeChannelFilterInput, locale: AppLanguage, pagination: YouTubeChannelPaginationInput, sort: YouTubeChannelSortInput): PaginatedYouTubeChannels!
   youtubeVideos(channelId: String!): [YouTubeVideo!]!
 }
 
@@ -4884,6 +4938,40 @@ enum Role {
   PROVIDER
 }
 
+input SaveCourseTranslationInput {
+  courseId: ID!
+  description: String!
+  expectedVersion: Int
+  learnings: [String!]
+  locale: AppLanguage!
+  requirements: [String!]
+  title: String!
+}
+
+input SaveEventTranslationInput {
+  description: String!
+  eventId: ID!
+  expectedVersion: Int
+  locale: AppLanguage!
+  title: String!
+}
+
+input SavePodcastTranslationInput {
+  description: String!
+  expectedVersion: Int
+  locale: AppLanguage!
+  podcastId: ID!
+  title: String!
+}
+
+input SaveYouTubeChannelTranslationInput {
+  channelId: ID!
+  description: String!
+  expectedVersion: Int
+  locale: AppLanguage!
+  title: String!
+}
+
 input SendAssociationMessageInput {
   audience: AssociationMessageAudienceInput!
   messageType: AssociationMessageType!
@@ -4913,6 +5001,34 @@ input SetAssociationMemberStatusInput {
 input SetCertificateCpdPlanInput {
   certificateId: ID!
   cpdPlanId: ID
+}
+
+input SetCourseTranslationPublicationInput {
+  courseId: ID!
+  expectedVersion: Int!
+  locale: AppLanguage!
+  published: Boolean!
+}
+
+input SetEventTranslationPublicationInput {
+  eventId: ID!
+  expectedVersion: Int!
+  locale: AppLanguage!
+  published: Boolean!
+}
+
+input SetPodcastTranslationPublicationInput {
+  expectedVersion: Int!
+  locale: AppLanguage!
+  podcastId: ID!
+  published: Boolean!
+}
+
+input SetYouTubeChannelTranslationPublicationInput {
+  channelId: ID!
+  expectedVersion: Int!
+  locale: AppLanguage!
+  published: Boolean!
 }
 
 enum SkillLevel {
@@ -5541,8 +5657,10 @@ type YouTubeCategoryFacet {
 }
 
 type YouTubeChannel {
+  availableLocales: [AppLanguage!]
   category: YouTubeCategory!
   channelUrl: String
+  contentLanguage: AppLanguage
   createdAt: DateTime!
   deletedAt: DateTime
   description: String
@@ -5609,6 +5727,17 @@ enum YouTubeChannelStatus {
   ARCHIVED
   DRAFT
   PUBLISHED
+}
+
+type YouTubeChannelTranslation {
+  description: String!
+  id: ID!
+  isPublished: Boolean!
+  locale: AppLanguage!
+  publishedAt: DateTime
+  title: String!
+  updatedAt: DateTime!
+  version: Int!
 }
 
 type YouTubeVideo {

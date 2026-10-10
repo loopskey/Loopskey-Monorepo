@@ -1,6 +1,6 @@
 import { TFooterColumn } from "@/types/element.types";
 
-import Link from "next/link";
+import Link from "@elements/localized-link";
 
 export const FooterColumn = ({ title, links }: TFooterColumn) => {
   return (

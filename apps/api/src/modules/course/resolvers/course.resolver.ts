@@ -10,6 +10,8 @@ import { UpdateCourseInput } from "@course/dtos/update-course.input";
 import { CourseFilterInput } from "@course/dtos/course-filter.input";
 import { CourseSortInput } from "@course/dtos/course-sort.input";
 import { CourseService } from "@course/services/course.service";
+import { CourseTranslationService } from "@course/services/course-translation.service";
+import { AppLanguage } from "@prisma/client";
 import { CourseEntity } from "@course/entities/course.entity";
 import { CurrentUser } from "@auth/decorators/current-user.decorator";
 import { Public } from "@auth/decorators/public.decorator";
@@ -18,18 +20,27 @@ import { Role } from "@prisma/client";
 
 @Resolver(() => CourseEntity)
 export class CourseResolver {
-  constructor(private readonly courseService: CourseService) {}
+  constructor(
+    private readonly courseService: CourseService,
+    private readonly translations: CourseTranslationService,
+  ) {}
 
   @Public()
   @Query(() => PaginatedCoursesEntity, {
     name: CourseGqlQueryNames.COURSES,
   })
-  courses(
+  async courses(
     @Args("filter", { nullable: true }) filter?: CourseFilterInput,
     @Args("pagination", { nullable: true }) pagination?: CoursePaginationInput,
     @Args("sort", { nullable: true }) sort?: CourseSortInput,
+    @Args("locale", { type: () => AppLanguage, nullable: true })
+    locale?: AppLanguage,
   ) {
-    return this.courseService.findCourses(filter, pagination, sort);
+    const page = await this.courseService.findCourses(filter, pagination, sort);
+    return {
+      ...page,
+      items: await this.translations.localizeMany([...page.items], locale),
+    };
   }
 
   @Public()
@@ -52,8 +63,15 @@ export class CourseResolver {
   @Query(() => CourseEntity, {
     name: CourseGqlQueryNames.COURSE_BY_SLUG,
   })
-  courseBySlug(@Args("slug") slug: string) {
-    return this.courseService.findCourseBySlug(slug);
+  async courseBySlug(
+    @Args("slug") slug: string,
+    @Args("locale", { type: () => AppLanguage, nullable: true })
+    locale?: AppLanguage,
+  ) {
+    return this.translations.localizeOne(
+      await this.courseService.findCourseBySlug(slug),
+      locale,
+    );
   }
 
   @Public()

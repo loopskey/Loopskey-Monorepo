@@ -8,7 +8,7 @@ import { Badge } from "@ui/badge";
 import { cn } from "@lib/utils";
 
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@elements/localized-link";
 
 const ServiceBlock = ({
   index,

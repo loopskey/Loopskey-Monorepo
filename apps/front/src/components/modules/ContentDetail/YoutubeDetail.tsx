@@ -30,6 +30,8 @@ const YouTubeDetailPage = ({ channel, videos }: TYouTubeDetailPageProps) => {
       header={
         <DetailPageHeader
           title={channel.title}
+          contentLanguage={channel.contentLanguage}
+          availableLocales={channel.availableLocales}
           rating={channel.rating}
           ratingCount={channel.ratingCount}
           badge={t("contentDetails.youtube.badge")}

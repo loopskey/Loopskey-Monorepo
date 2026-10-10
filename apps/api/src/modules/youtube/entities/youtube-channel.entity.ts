@@ -1,6 +1,7 @@
 import { YouTubeCategory, YouTubeChannelStatus } from "@prisma/client";
 import { Field, Float, ID, Int, ObjectType } from "@nestjs/graphql";
 import { YouTubeGqlObjectNames } from "@youtube/enums/gql-names.enum";
+import { AppLanguage } from "@prisma/client";
 
 @ObjectType(YouTubeGqlObjectNames.YOUTUBE_CHANNEL)
 export class YouTubeChannelEntity {
@@ -23,4 +24,8 @@ export class YouTubeChannelEntity {
   @Field(() => String, { nullable: true }) channelUrl?: string | null;
   @Field(() => String, { nullable: true }) providerId?: string | null;
   @Field(() => String, { nullable: true }) description?: string | null;
+  @Field(() => AppLanguage, { nullable: true })
+  contentLanguage?: AppLanguage | null;
+  @Field(() => [AppLanguage], { nullable: true })
+  availableLocales?: AppLanguage[] | null;
 }

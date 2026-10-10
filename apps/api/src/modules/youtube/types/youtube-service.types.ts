@@ -22,10 +22,16 @@ export type ChannelCatalogSearchRow = {
   id: string;
   slug: string;
   title: string;
-  imageUrl: string | null;
-  category: string;
-  rating: number;
-  videoCount: number;
-  createdAt: Date;
   score: number;
+  rating: number;
+  createdAt: Date;
+  category: string;
+  videoCount: number;
+  imageUrl: string | null;
+};
+
+export type LocalizableChannel = {
+  id: string;
+  title: string;
+  sourceLanguage?: string | null;
 };

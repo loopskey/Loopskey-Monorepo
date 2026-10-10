@@ -1714,7 +1714,9 @@ export enum ContentType {
 
 export type Course = {
   __typename?: 'Course';
+  availableLocales?: Maybe<Array<AppLanguage>>;
   category: CourseCategory;
+  contentLanguage?: Maybe<AppLanguage>;
   createdAt: Scalars['DateTime']['output'];
   currency: Scalars['String']['output'];
   curriculumSections?: Maybe<Array<CurriculumSection>>;
@@ -1832,6 +1834,20 @@ export enum CourseStatus {
   Draft = 'DRAFT',
   Published = 'PUBLISHED'
 }
+
+export type CourseTranslation = {
+  __typename?: 'CourseTranslation';
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  isPublished: Scalars['Boolean']['output'];
+  learnings: Array<Scalars['String']['output']>;
+  locale: AppLanguage;
+  publishedAt?: Maybe<Scalars['DateTime']['output']>;
+  requirements: Array<Scalars['String']['output']>;
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  version: Scalars['Int']['output'];
+};
 
 export type CpdCategoryProgress = {
   __typename?: 'CpdCategoryProgress';
@@ -2237,9 +2253,11 @@ export enum DeliveryFormat {
 export type Event = {
   __typename?: 'Event';
   attendees: Scalars['Int']['output'];
+  availableLocales?: Maybe<Array<AppLanguage>>;
   averageRating: Scalars['Float']['output'];
   capacity?: Maybe<Scalars['Int']['output']>;
   category: EventCategory;
+  contentLanguage?: Maybe<AppLanguage>;
   createdAt: Scalars['DateTime']['output'];
   currency: Scalars['String']['output'];
   deletedAt?: Maybe<Scalars['DateTime']['output']>;
@@ -2404,6 +2422,18 @@ export enum EventStatus {
   Draft = 'DRAFT',
   Published = 'PUBLISHED'
 }
+
+export type EventTranslation = {
+  __typename?: 'EventTranslation';
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  isPublished: Scalars['Boolean']['output'];
+  locale: AppLanguage;
+  publishedAt?: Maybe<Scalars['DateTime']['output']>;
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  version: Scalars['Int']['output'];
+};
 
 export enum EventType {
   Conference = 'CONFERENCE',
@@ -2854,12 +2884,20 @@ export type Mutation = {
   retryAssociationReportExport: AssociationGeneratedReport;
   reviewAssociationLearningActivity: AssociationReviewResult;
   revokeIngestionApiKey: IngestionApiKey;
+  saveCourseTranslation: CourseTranslation;
+  saveEventTranslation: EventTranslation;
+  savePodcastTranslation: PodcastTranslation;
+  saveYouTubeChannelTranslation: YouTubeChannelTranslation;
   sendAssociationMessage: AssociationMessageBatch;
   sendRoadmapChatTurn: ProfessionalRoadmapDraft;
   setAssociationGroupActive: AssociationGroup;
   setAssociationMemberRequirements: AssociationMemberRequirementsResult;
   setAssociationMemberStatus: AssociationMember;
+  setCourseTranslationPublication: CourseTranslation;
+  setEventTranslationPublication: EventTranslation;
+  setPodcastTranslationPublication: PodcastTranslation;
   setProfessionalCertificateCpdPlan: ProfessionalCertificate;
+  setYouTubeChannelTranslationPublication: YouTubeChannelTranslation;
   startProfessionalOnboarding: ProfessionalDashboardProfile;
   startRoadmapDraft: ProfessionalRoadmapDraft;
   startRoadmapStep: RoadmapStepProgress;
@@ -3441,6 +3479,26 @@ export type MutationRevokeIngestionApiKeyArgs = {
 };
 
 
+export type MutationSaveCourseTranslationArgs = {
+  input: SaveCourseTranslationInput;
+};
+
+
+export type MutationSaveEventTranslationArgs = {
+  input: SaveEventTranslationInput;
+};
+
+
+export type MutationSavePodcastTranslationArgs = {
+  input: SavePodcastTranslationInput;
+};
+
+
+export type MutationSaveYouTubeChannelTranslationArgs = {
+  input: SaveYouTubeChannelTranslationInput;
+};
+
+
 export type MutationSendAssociationMessageArgs = {
   input: SendAssociationMessageInput;
 };
@@ -3466,8 +3524,28 @@ export type MutationSetAssociationMemberStatusArgs = {
 };
 
 
+export type MutationSetCourseTranslationPublicationArgs = {
+  input: SetCourseTranslationPublicationInput;
+};
+
+
+export type MutationSetEventTranslationPublicationArgs = {
+  input: SetEventTranslationPublicationInput;
+};
+
+
+export type MutationSetPodcastTranslationPublicationArgs = {
+  input: SetPodcastTranslationPublicationInput;
+};
+
+
 export type MutationSetProfessionalCertificateCpdPlanArgs = {
   input: SetCertificateCpdPlanInput;
+};
+
+
+export type MutationSetYouTubeChannelTranslationPublicationArgs = {
+  input: SetYouTubeChannelTranslationPublicationInput;
 };
 
 
@@ -4588,7 +4666,9 @@ export enum PaymentStatus {
 
 export type Podcast = {
   __typename?: 'Podcast';
+  availableLocales?: Maybe<Array<AppLanguage>>;
   category: PodcastCategory;
+  contentLanguage?: Maybe<AppLanguage>;
   createdAt: Scalars['DateTime']['output'];
   deletedAt?: Maybe<Scalars['DateTime']['output']>;
   description: Scalars['String']['output'];
@@ -4698,6 +4778,18 @@ export enum PodcastStatus {
   Draft = 'DRAFT',
   Published = 'PUBLISHED'
 }
+
+export type PodcastTranslation = {
+  __typename?: 'PodcastTranslation';
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  isPublished: Scalars['Boolean']['output'];
+  locale: AppLanguage;
+  publishedAt?: Maybe<Scalars['DateTime']['output']>;
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  version: Scalars['Int']['output'];
+};
 
 export type PopularCategoriesInput = {
   take?: InputMaybe<Scalars['Int']['input']>;
@@ -5524,6 +5616,7 @@ export type ProviderTopEvent = {
 
 export type PublicUrl = {
   __typename?: 'PublicUrl';
+  availableLocales: Array<AppLanguage>;
   publicChangeAt: Scalars['DateTime']['output'];
   slug: Scalars['String']['output'];
 };
@@ -5625,6 +5718,7 @@ export type Query = {
   courseById: Course;
   courseBySlug: Course;
   courseFilterFacets: CourseFilterFacets;
+  courseTranslations: Array<CourseTranslation>;
   courses: PaginatedCourses;
   cpdPlan: CpdPlan;
   cpdPlanActivities: Array<ProfessionalPduActivity>;
@@ -5634,6 +5728,7 @@ export type Query = {
   eventById: Event;
   eventBySlug: Event;
   eventFilterFacets: EventFilterFacets;
+  eventTranslations: Array<EventTranslation>;
   events: PaginatedEvents;
   featuredCourses: Array<Course>;
   featuredEvents: Array<Event>;
@@ -5687,6 +5782,7 @@ export type Query = {
   podcastBySlug: Podcast;
   podcastEpisodes: Array<PodcastEpisode>;
   podcastFilterFacets: PodcastFilterFacets;
+  podcastTranslations: Array<PodcastTranslation>;
   podcasts: PaginatedPodcasts;
   popularCategories: Array<PopularCategory>;
   professionalActiveSessions: Array<ProfessionalSession>;
@@ -5734,6 +5830,7 @@ export type Query = {
   youtubeChannelById: YouTubeChannel;
   youtubeChannelBySlug: YouTubeChannel;
   youtubeChannelFilterFacets: YouTubeChannelFilterFacets;
+  youtubeChannelTranslations: Array<YouTubeChannelTranslation>;
   youtubeChannels: PaginatedYouTubeChannels;
   youtubeVideos: Array<YouTubeVideo>;
 };
@@ -6051,12 +6148,19 @@ export type QueryCourseByIdArgs = {
 
 
 export type QueryCourseBySlugArgs = {
+  locale?: InputMaybe<AppLanguage>;
   slug: Scalars['String']['input'];
+};
+
+
+export type QueryCourseTranslationsArgs = {
+  courseId: Scalars['String']['input'];
 };
 
 
 export type QueryCoursesArgs = {
   filter?: InputMaybe<CourseFilterInput>;
+  locale?: InputMaybe<AppLanguage>;
   pagination?: InputMaybe<CoursePaginationInput>;
   sort?: InputMaybe<CourseSortInput>;
 };
@@ -6083,12 +6187,19 @@ export type QueryEventByIdArgs = {
 
 
 export type QueryEventBySlugArgs = {
+  locale?: InputMaybe<AppLanguage>;
   slug: Scalars['String']['input'];
+};
+
+
+export type QueryEventTranslationsArgs = {
+  eventId: Scalars['String']['input'];
 };
 
 
 export type QueryEventsArgs = {
   filter?: InputMaybe<EventFilterInput>;
+  locale?: InputMaybe<AppLanguage>;
   pagination?: InputMaybe<EventPaginationInput>;
   sort?: InputMaybe<EventSortInput>;
 };
@@ -6290,6 +6401,7 @@ export type QueryPodcastByIdArgs = {
 
 
 export type QueryPodcastBySlugArgs = {
+  locale?: InputMaybe<AppLanguage>;
   slug: Scalars['String']['input'];
 };
 
@@ -6299,8 +6411,14 @@ export type QueryPodcastEpisodesArgs = {
 };
 
 
+export type QueryPodcastTranslationsArgs = {
+  podcastId: Scalars['String']['input'];
+};
+
+
 export type QueryPodcastsArgs = {
   filter?: InputMaybe<PodcastFilterInput>;
+  locale?: InputMaybe<AppLanguage>;
   pagination?: InputMaybe<PodcastPaginationInput>;
   sort?: InputMaybe<PodcastSortInput>;
 };
@@ -6486,12 +6604,19 @@ export type QueryYoutubeChannelByIdArgs = {
 
 
 export type QueryYoutubeChannelBySlugArgs = {
+  locale?: InputMaybe<AppLanguage>;
   slug: Scalars['String']['input'];
+};
+
+
+export type QueryYoutubeChannelTranslationsArgs = {
+  channelId: Scalars['String']['input'];
 };
 
 
 export type QueryYoutubeChannelsArgs = {
   filter?: InputMaybe<YouTubeChannelFilterInput>;
+  locale?: InputMaybe<AppLanguage>;
   pagination?: InputMaybe<YouTubeChannelPaginationInput>;
   sort?: InputMaybe<YouTubeChannelSortInput>;
 };
@@ -6737,6 +6862,40 @@ export enum Role {
   Provider = 'PROVIDER'
 }
 
+export type SaveCourseTranslationInput = {
+  courseId: Scalars['ID']['input'];
+  description: Scalars['String']['input'];
+  expectedVersion?: InputMaybe<Scalars['Int']['input']>;
+  learnings?: InputMaybe<Array<Scalars['String']['input']>>;
+  locale: AppLanguage;
+  requirements?: InputMaybe<Array<Scalars['String']['input']>>;
+  title: Scalars['String']['input'];
+};
+
+export type SaveEventTranslationInput = {
+  description: Scalars['String']['input'];
+  eventId: Scalars['ID']['input'];
+  expectedVersion?: InputMaybe<Scalars['Int']['input']>;
+  locale: AppLanguage;
+  title: Scalars['String']['input'];
+};
+
+export type SavePodcastTranslationInput = {
+  description: Scalars['String']['input'];
+  expectedVersion?: InputMaybe<Scalars['Int']['input']>;
+  locale: AppLanguage;
+  podcastId: Scalars['ID']['input'];
+  title: Scalars['String']['input'];
+};
+
+export type SaveYouTubeChannelTranslationInput = {
+  channelId: Scalars['ID']['input'];
+  description: Scalars['String']['input'];
+  expectedVersion?: InputMaybe<Scalars['Int']['input']>;
+  locale: AppLanguage;
+  title: Scalars['String']['input'];
+};
+
 export type SendAssociationMessageInput = {
   audience: AssociationMessageAudienceInput;
   messageType: AssociationMessageType;
@@ -6766,6 +6925,34 @@ export type SetAssociationMemberStatusInput = {
 export type SetCertificateCpdPlanInput = {
   certificateId: Scalars['ID']['input'];
   cpdPlanId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+export type SetCourseTranslationPublicationInput = {
+  courseId: Scalars['ID']['input'];
+  expectedVersion: Scalars['Int']['input'];
+  locale: AppLanguage;
+  published: Scalars['Boolean']['input'];
+};
+
+export type SetEventTranslationPublicationInput = {
+  eventId: Scalars['ID']['input'];
+  expectedVersion: Scalars['Int']['input'];
+  locale: AppLanguage;
+  published: Scalars['Boolean']['input'];
+};
+
+export type SetPodcastTranslationPublicationInput = {
+  expectedVersion: Scalars['Int']['input'];
+  locale: AppLanguage;
+  podcastId: Scalars['ID']['input'];
+  published: Scalars['Boolean']['input'];
+};
+
+export type SetYouTubeChannelTranslationPublicationInput = {
+  channelId: Scalars['ID']['input'];
+  expectedVersion: Scalars['Int']['input'];
+  locale: AppLanguage;
+  published: Scalars['Boolean']['input'];
 };
 
 export enum SkillLevel {
@@ -7401,8 +7588,10 @@ export type YouTubeCategoryFacet = {
 
 export type YouTubeChannel = {
   __typename?: 'YouTubeChannel';
+  availableLocales?: Maybe<Array<AppLanguage>>;
   category: YouTubeCategory;
   channelUrl?: Maybe<Scalars['String']['output']>;
+  contentLanguage?: Maybe<AppLanguage>;
   createdAt: Scalars['DateTime']['output'];
   deletedAt?: Maybe<Scalars['DateTime']['output']>;
   description?: Maybe<Scalars['String']['output']>;
@@ -7472,6 +7661,18 @@ export enum YouTubeChannelStatus {
   Draft = 'DRAFT',
   Published = 'PUBLISHED'
 }
+
+export type YouTubeChannelTranslation = {
+  __typename?: 'YouTubeChannelTranslation';
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  isPublished: Scalars['Boolean']['output'];
+  locale: AppLanguage;
+  publishedAt?: Maybe<Scalars['DateTime']['output']>;
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  version: Scalars['Int']['output'];
+};
 
 export type YouTubeVideo = {
   __typename?: 'YouTubeVideo';

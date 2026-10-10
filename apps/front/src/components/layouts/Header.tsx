@@ -14,7 +14,7 @@ import { Button } from "@ui/button";
 import { Logo } from "@layouts/parts/logo";
 import { cn } from "@lib/utils";
 
-import Link from "next/link";
+import Link from "@elements/localized-link";
 
 const MOBILE_NAV_STAGGER_MS = 50;
 

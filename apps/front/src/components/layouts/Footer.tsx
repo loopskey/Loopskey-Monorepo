@@ -9,7 +9,7 @@ import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
 import { Logo } from "@layouts/parts/logo";
 
-import Link from "next/link";
+import Link from "@elements/localized-link";
 
 const Footer = () => {
   const { t } = useI18n();

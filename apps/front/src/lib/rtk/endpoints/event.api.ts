@@ -210,6 +210,42 @@ export const eventApi = baseApi.injectEndpoints({
         response.recordEventView,
     }),
 
+    eventTranslations: builder.query<
+      TAPI.EventTranslationsQuery["eventTranslations"],
+      TAPI.EventTranslationsQueryVariables["eventId"]
+    >({
+      query: (eventId) => ({
+        document: API.EventTranslationsDocument,
+        variables: { eventId },
+      }),
+      transformResponse: (response: TAPI.EventTranslationsQuery) =>
+        response.eventTranslations,
+    }),
+
+    saveEventTranslation: builder.mutation<
+      TAPI.SaveEventTranslationMutation["saveEventTranslation"],
+      TAPI.SaveEventTranslationMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.SaveEventTranslationDocument,
+        variables: { input },
+      }),
+      transformResponse: (response: TAPI.SaveEventTranslationMutation) =>
+        response.saveEventTranslation,
+    }),
+
+    setEventTranslationPublication: builder.mutation<
+      TAPI.SetEventTranslationPublicationMutation["setEventTranslationPublication"],
+      TAPI.SetEventTranslationPublicationMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.SetEventTranslationPublicationDocument,
+        variables: { input },
+      }),
+      transformResponse: (response: TAPI.SetEventTranslationPublicationMutation) =>
+        response.setEventTranslationPublication,
+    }),
+
     deleteEvent: builder.mutation<
       TAPI.DeleteEventMutation["deleteEvent"],
       TAPI.DeleteEventMutationVariables["eventId"]
@@ -252,6 +288,9 @@ export const {
   useCancelEventMutation,
   useDeleteEventMutation,
   useRecordEventViewMutation,
+  useEventTranslationsQuery,
+  useSaveEventTranslationMutation,
+  useSetEventTranslationPublicationMutation,
   usePublishEventMutation,
   useLazyEventBySlugQuery,
   useArchiveEventMutation,

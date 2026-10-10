@@ -11,6 +11,8 @@ import { EventRepository } from "@events/infrastructure/persistence/event.reposi
 import { EventResolver } from "@events/resolvers/event.resolver";
 import { PrismaModule } from "@prisma/prisma.module";
 import { EventService } from "@events/services/event.service";
+import { EventTranslationService } from "@events/services/event-translation.service";
+import { EventTranslationResolver } from "@events/resolvers/event-translation.resolver";
 import { EVENTS_API } from "@events/public/events-api.token";
 import { Module } from "@nestjs/common";
 
@@ -22,6 +24,8 @@ import "@events/enums/event-register.enum";
     EventPublicUrlApiService,
     { provide: EVENT_PUBLIC_URL_API, useExisting: EventPublicUrlApiService },
     EventService,
+    EventTranslationService,
+    EventTranslationResolver,
     EventResolver,
     EventRepository,
     EventsApiService,
