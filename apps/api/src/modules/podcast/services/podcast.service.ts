@@ -1,3 +1,4 @@
+import { publicContentChange } from "@utils/public-content-change.util";
 import { PodcastCategory, PodcastStatus, Prisma, Role } from "@prisma/client";
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { CreatePodcastEpisodeInput } from "@podcast/dtos/create-podcast-episode.input";
@@ -112,6 +113,7 @@ export class PodcastService {
         isFeatured:
           requester.role === Role.ADMIN ? input.isFeatured : undefined,
         rating: input.rating,
+        ...publicContentChange(),
       },
     });
   }
@@ -121,7 +123,7 @@ export class PodcastService {
     this.ensurePodcastOwnerOrAdmin(podcast.providerId, requester);
     return this.prismaService.podcast.update({
       where: { id: podcastId },
-      data: { status: PodcastStatus.PUBLISHED },
+      data: { status: PodcastStatus.PUBLISHED, ...publicContentChange() },
     });
   }
 
@@ -130,7 +132,7 @@ export class PodcastService {
     this.ensurePodcastOwnerOrAdmin(podcast.providerId, requester);
     return this.prismaService.podcast.update({
       where: { id: podcastId },
-      data: { status: PodcastStatus.ARCHIVED },
+      data: { status: PodcastStatus.ARCHIVED, ...publicContentChange() },
     });
   }
 
@@ -139,7 +141,7 @@ export class PodcastService {
     this.ensurePodcastOwnerOrAdmin(podcast.providerId, requester);
     return this.prismaService.podcast.update({
       where: { id: podcastId },
-      data: { deletedAt: new Date() },
+      data: { deletedAt: new Date(), ...publicContentChange() },
     });
   }
 
@@ -152,7 +154,7 @@ export class PodcastService {
     this.ensurePodcastOwnerOrAdmin(podcast.providerId, requester);
     return this.prismaService.podcast.update({
       where: { id: podcastId },
-      data: { deletedAt: null },
+      data: { deletedAt: null, ...publicContentChange() },
     });
   }
 
@@ -466,6 +468,7 @@ export class PodcastService {
           durationMinutes: input.durationMinutes
             ? { increment: input.durationMinutes }
             : undefined,
+          ...publicContentChange(),
         },
       });
       return episode;
@@ -483,18 +486,25 @@ export class PodcastService {
     if (!episode)
       throw new NotFoundException(PodcastMessageCode.PODCAST_EPISODE_NOT_FOUND);
     this.ensurePodcastOwnerOrAdmin(episode.podcast.providerId, requester);
-    return this.prismaService.podcastEpisode.update({
-      where: { id: input.episodeId },
-      data: {
-        title: input.title?.trim(),
-        description: input.description?.trim(),
-        audioUrl: input.audioUrl,
-        durationMinutes: input.durationMinutes,
-        episodeNumber: input.episodeNumber,
-        publishedAt: input.publishedAt
-          ? new Date(input.publishedAt)
-          : undefined,
-      },
+    return this.prismaService.$transaction(async (tx) => {
+      const updated = await tx.podcastEpisode.update({
+        where: { id: input.episodeId },
+        data: {
+          title: input.title?.trim(),
+          description: input.description?.trim(),
+          audioUrl: input.audioUrl,
+          durationMinutes: input.durationMinutes,
+          episodeNumber: input.episodeNumber,
+          publishedAt: input.publishedAt
+            ? new Date(input.publishedAt)
+            : undefined,
+        },
+      });
+      await tx.podcast.update({
+        where: { id: episode.podcastId },
+        data: publicContentChange(),
+      });
+      return updated;
     });
   }
 
@@ -517,6 +527,7 @@ export class PodcastService {
           durationMinutes: episode.durationMinutes
             ? { decrement: episode.durationMinutes }
             : undefined,
+          ...publicContentChange(),
         },
       });
       return deleted;

@@ -4444,6 +4444,40 @@ type ProviderTopEvent {
   views: Int!
 }
 
+type PublicUrl {
+  publicChangeAt: DateTime!
+  slug: String!
+}
+
+type PublicUrlPage {
+  hasNextPage: Boolean!
+  items: [PublicUrl!]!
+  nextCursor: String
+}
+
+input PublicUrlPageInput {
+  after: String
+  endCursor: String
+  kind: ContentType!
+  startCursor: String!
+  take: Int
+}
+
+type PublicUrlShard {
+  endCursor: String
+  index: Int!
+  lastPublicChangeAt: DateTime!
+  startCursor: String!
+  urlCount: Int!
+}
+
+type PublicUrlShardSet {
+  isComplete: Boolean!
+  kind: ContentType!
+  shardSize: Int!
+  shards: [PublicUrlShard!]!
+}
+
 input PublishAssociationLearningContentInput {
   audienceKind: AssociationAudienceKind!
   groupIds: [ID!]
@@ -4608,6 +4642,8 @@ type Query {
   providerOverview(input: ProviderDashboardRangeInput): ProviderOverview!
   providerPromotionRequests(filter: ProviderPromotionFilterInput, pagination: ProviderDashboardPaginationInput): PaginatedPromotionRequests!
   providerSettings: ProviderSettings!
+  publicUrlPage(input: PublicUrlPageInput!): PublicUrlPage!
+  publicUrlShards: [PublicUrlShardSet!]!
   roadmapSuggestionOptions(input: RoadmapSuggestionOptionsInput!): [RoadmapWidgetOption!]!
   upcomingEvents(take: Int = 12): [Event!]!
   userById(userId: String!): User!

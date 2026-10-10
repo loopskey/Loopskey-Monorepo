@@ -69,11 +69,11 @@ describe("IngestionAdminService.approveItems", () => {
 
     expect(courseUpdateMany).toHaveBeenCalledWith({
       where: { id: { in: ["catalog-item-1", "catalog-item-2"] } },
-      data: { status: "PUBLISHED" },
+      data: { status: "PUBLISHED", publicContentUpdatedAt: expect.any(Date) },
     });
     expect(podcastUpdateMany).toHaveBeenCalledWith({
       where: { id: { in: ["catalog-item-3"] } },
-      data: { status: "PUBLISHED" },
+      data: { status: "PUBLISHED", publicContentUpdatedAt: expect.any(Date) },
     });
     expect(eventUpdateMany).not.toHaveBeenCalled();
     expect(youTubeUpdateMany).not.toHaveBeenCalled();

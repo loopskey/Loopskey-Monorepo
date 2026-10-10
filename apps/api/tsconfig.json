@@ -19,6 +19,7 @@
       "@podcast/*": ["src/modules/podcast/*"],
       "@youtube/*": ["src/modules/youtube/*"],
       "@landing/*": ["src/modules/landing/*"],
+      "@discovery/*": ["src/modules/discovery/*"],
       "@org/*": ["src/modules/organization/*"],
       "@association/*": ["src/modules/association/*"],
       "@support/*": ["src/modules/support/*"],

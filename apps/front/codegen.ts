@@ -26,6 +26,7 @@ const DOMAINS = [
   "content-interaction",
   "course",
   "cpd-plan",
+  "discovery",
   "event",
   "external-learning",
   "ingestion",

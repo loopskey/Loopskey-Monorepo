@@ -1,3 +1,4 @@
+import { publicContentChange } from "@utils/public-content-change.util";
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { Prisma, Role, YouTubeChannelStatus } from "@prisma/client";
 import { YouTubeChannelPaginationInput } from "@modules/youtube/dtos/youtube-channel-pagination.input";
@@ -127,6 +128,7 @@ export class YouTubeService {
         status: input.status,
         isFeatured:
           requester.role === Role.ADMIN ? input.isFeatured : undefined,
+        ...publicContentChange(),
       },
     });
   }
@@ -136,7 +138,10 @@ export class YouTubeService {
     this.ensureChannelOwnerOrAdmin(channel.providerId, requester);
     return this.prismaService.youTubeChannel.update({
       where: { id: channelId },
-      data: { status: YouTubeChannelStatus.PUBLISHED },
+      data: {
+        status: YouTubeChannelStatus.PUBLISHED,
+        ...publicContentChange(),
+      },
     });
   }
 
@@ -145,7 +150,10 @@ export class YouTubeService {
     this.ensureChannelOwnerOrAdmin(channel.providerId, requester);
     return this.prismaService.youTubeChannel.update({
       where: { id: channelId },
-      data: { status: YouTubeChannelStatus.ARCHIVED },
+      data: {
+        status: YouTubeChannelStatus.ARCHIVED,
+        ...publicContentChange(),
+      },
     });
   }
 
@@ -154,7 +162,7 @@ export class YouTubeService {
     this.ensureChannelOwnerOrAdmin(channel.providerId, requester);
     return this.prismaService.youTubeChannel.update({
       where: { id: channelId },
-      data: { deletedAt: new Date() },
+      data: { deletedAt: new Date(), ...publicContentChange() },
     });
   }
 
@@ -167,7 +175,7 @@ export class YouTubeService {
     this.ensureChannelOwnerOrAdmin(channel.providerId, requester);
     return this.prismaService.youTubeChannel.update({
       where: { id: channelId },
-      data: { deletedAt: null },
+      data: { deletedAt: null, ...publicContentChange() },
     });
   }
 
@@ -491,6 +499,7 @@ export class YouTubeService {
         data: {
           videoCount: { increment: 1 },
           views: { increment: input.views ?? 0 },
+          ...publicContentChange(),
         },
       });
       return video;
@@ -508,21 +517,28 @@ export class YouTubeService {
     if (!video)
       throw new NotFoundException(YouTubeMessageCode.YOUTUBE_VIDEO_NOT_FOUND);
     this.ensureChannelOwnerOrAdmin(video.channel.providerId, requester);
-    return this.prismaService.youTubeVideo.update({
-      where: { id: input.videoId },
-      data: {
-        title: input.title?.trim(),
-        description: input.description?.trim(),
-        thumbnailUrl: input.thumbnailUrl,
-        videoUrl: input.videoUrl,
-        durationMinutes: input.durationMinutes,
-        views: input.views,
-        likes: input.likes,
-        status: input.status,
-        publishedAt: input.publishedAt
-          ? new Date(input.publishedAt)
-          : undefined,
-      },
+    return this.prismaService.$transaction(async (tx) => {
+      const updated = await tx.youTubeVideo.update({
+        where: { id: input.videoId },
+        data: {
+          title: input.title?.trim(),
+          description: input.description?.trim(),
+          thumbnailUrl: input.thumbnailUrl,
+          videoUrl: input.videoUrl,
+          durationMinutes: input.durationMinutes,
+          views: input.views,
+          likes: input.likes,
+          status: input.status,
+          publishedAt: input.publishedAt
+            ? new Date(input.publishedAt)
+            : undefined,
+        },
+      });
+      await tx.youTubeChannel.update({
+        where: { id: video.channelId },
+        data: publicContentChange(),
+      });
+      return updated;
     });
   }
 
@@ -543,6 +559,7 @@ export class YouTubeService {
         data: {
           videoCount: { decrement: 1 },
           views: { decrement: video.views },
+          ...publicContentChange(),
         },
       });
       return deleted;

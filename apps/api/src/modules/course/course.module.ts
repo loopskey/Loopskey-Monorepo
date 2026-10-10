@@ -1,3 +1,5 @@
+import { CoursePublicUrlApiService } from "@course/application/public-url-api.service";
+import { COURSE_PUBLIC_URL_API } from "@course/public/public-url-api";
 import { ProfessionalCatalogApiService } from "@course/application/professional-catalog-api.service";
 import { CourseEngagementApiService } from "@course/application/course-engagement-api.service";
 import { COURSE_CATALOG_SEARCH_API } from "@course/public/catalog-search-api";
@@ -17,6 +19,8 @@ import "@course/enums/enum-register";
   imports: [PrismaModule],
   controllers: [CourseImportController],
   providers: [
+    CoursePublicUrlApiService,
+    { provide: COURSE_PUBLIC_URL_API, useExisting: CoursePublicUrlApiService },
     CourseResolver,
     CourseService,
     CourseImportService,
@@ -34,6 +38,7 @@ import "@course/enums/enum-register";
     },
   ],
   exports: [
+    COURSE_PUBLIC_URL_API,
     COURSE_ENGAGEMENT_API,
     PROFESSIONAL_CATALOG_API,
     COURSE_CATALOG_SEARCH_API,

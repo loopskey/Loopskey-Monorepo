@@ -1,3 +1,8 @@
+import { readPublicUrlPage } from "@utils/public-url-enumeration.util";
+import { readPublicUrlShards } from "@utils/public-url-enumeration.util";
+
+import type { PublicUrlPageSelector } from "@utils/public-url-enumeration.util";
+import type { PublicUrlSource } from "@utils/public-url-enumeration.util";
 import { EventRegistrationStatus, EventStatus, Prisma } from "@prisma/client";
 import { EventRegistrationConflict } from "@events/domain/errors/event-registration-conflict.error";
 import { EventPaginationInput } from "@events/dtos/event-pagination.input";
@@ -67,6 +72,14 @@ type RegistrationOutcome = {
 @Injectable()
 export class EventRepository {
   constructor(private readonly prisma: PrismaService) {}
+
+  readPublicUrlShards(source: PublicUrlSource) {
+    return readPublicUrlShards(this.prisma, source);
+  }
+
+  readPublicUrlPage(source: PublicUrlSource, selector: PublicUrlPageSelector) {
+    return readPublicUrlPage(this.prisma, source, selector);
+  }
 
   create(data: Prisma.EventUncheckedCreateInput) {
     return this.prisma.event.create({ data });

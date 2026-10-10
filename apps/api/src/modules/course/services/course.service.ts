@@ -1,3 +1,4 @@
+import { publicContentChange } from "@utils/public-content-change.util";
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { CourseSortField, SortDirection } from "@course/enums/sort.enum";
 import { CourseStatus, Prisma, Role } from "@prisma/client";
@@ -154,6 +155,7 @@ export class CourseService {
         isFeatured:
           requester.role === Role.ADMIN ? input.isFeatured : undefined,
         lastUpdatedAt: new Date(),
+        ...publicContentChange(),
       },
     });
   }
@@ -166,6 +168,7 @@ export class CourseService {
       data: {
         status: CourseStatus.PUBLISHED,
         lastUpdatedAt: new Date(),
+        ...publicContentChange(),
       },
     });
   }
@@ -178,6 +181,7 @@ export class CourseService {
       data: {
         status: CourseStatus.ARCHIVED,
         lastUpdatedAt: new Date(),
+        ...publicContentChange(),
       },
     });
   }
@@ -189,6 +193,7 @@ export class CourseService {
       where: { id: courseId },
       data: {
         deletedAt: new Date(),
+        ...publicContentChange(),
       },
     });
   }
@@ -204,6 +209,7 @@ export class CourseService {
       where: { id: courseId },
       data: {
         deletedAt: null,
+        ...publicContentChange(),
       },
     });
   }

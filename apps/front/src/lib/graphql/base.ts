@@ -5522,6 +5522,44 @@ export type ProviderTopEvent = {
   views: Scalars['Int']['output'];
 };
 
+export type PublicUrl = {
+  __typename?: 'PublicUrl';
+  publicChangeAt: Scalars['DateTime']['output'];
+  slug: Scalars['String']['output'];
+};
+
+export type PublicUrlPage = {
+  __typename?: 'PublicUrlPage';
+  hasNextPage: Scalars['Boolean']['output'];
+  items: Array<PublicUrl>;
+  nextCursor?: Maybe<Scalars['String']['output']>;
+};
+
+export type PublicUrlPageInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  endCursor?: InputMaybe<Scalars['String']['input']>;
+  kind: ContentType;
+  startCursor: Scalars['String']['input'];
+  take?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type PublicUrlShard = {
+  __typename?: 'PublicUrlShard';
+  endCursor?: Maybe<Scalars['String']['output']>;
+  index: Scalars['Int']['output'];
+  lastPublicChangeAt: Scalars['DateTime']['output'];
+  startCursor: Scalars['String']['output'];
+  urlCount: Scalars['Int']['output'];
+};
+
+export type PublicUrlShardSet = {
+  __typename?: 'PublicUrlShardSet';
+  isComplete: Scalars['Boolean']['output'];
+  kind: ContentType;
+  shardSize: Scalars['Int']['output'];
+  shards: Array<PublicUrlShard>;
+};
+
 export type PublishAssociationLearningContentInput = {
   audienceKind: AssociationAudienceKind;
   groupIds?: InputMaybe<Array<Scalars['ID']['input']>>;
@@ -5687,6 +5725,8 @@ export type Query = {
   providerOverview: ProviderOverview;
   providerPromotionRequests: PaginatedPromotionRequests;
   providerSettings: ProviderSettings;
+  publicUrlPage: PublicUrlPage;
+  publicUrlShards: Array<PublicUrlShardSet>;
   roadmapSuggestionOptions: Array<RoadmapWidgetOption>;
   upcomingEvents: Array<Event>;
   userById: User;
@@ -6411,6 +6451,11 @@ export type QueryProviderOverviewArgs = {
 export type QueryProviderPromotionRequestsArgs = {
   filter?: InputMaybe<ProviderPromotionFilterInput>;
   pagination?: InputMaybe<ProviderDashboardPaginationInput>;
+};
+
+
+export type QueryPublicUrlPageArgs = {
+  input: PublicUrlPageInput;
 };
 
 

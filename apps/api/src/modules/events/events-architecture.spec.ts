@@ -41,7 +41,7 @@ describe("Events vertical-slice boundaries", () => {
       "utf8",
     );
     expect(moduleSource).toContain(
-      "exports: [EVENTS_API, EVENT_CATALOG_SEARCH_API]",
+      "exports: [EVENTS_API, EVENT_CATALOG_SEARCH_API, EVENT_PUBLIC_URL_API]",
     );
     expect(moduleSource).not.toContain("exports: [EventService]");
   });
