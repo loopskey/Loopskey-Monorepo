@@ -31,6 +31,8 @@ const PodcastDetailPage = ({ podcast, episodes }: TPodcastDetailPageProps) => {
       header={
         <DetailPageHeader
           title={podcast.title}
+          contentLanguage={podcast.contentLanguage}
+          availableLocales={podcast.availableLocales}
           rating={podcast.rating}
           ratingCount={podcast.ratingCount}
           badge={t("contentDetails.podcast.badge")}

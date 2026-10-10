@@ -6,14 +6,17 @@ export type PodcastEpisodeFieldsFragment = { __typename?: 'PodcastEpisode', id: 
 
 export type PodcastPageInfoFieldsFragment = { __typename?: 'PodcastPageInfo', nextCursor?: string | null, hasNextPage: boolean, previousCursor?: string | null, hasPreviousPage: boolean };
 
+export type PodcastLocaleFieldsFragment = { __typename?: 'Podcast', contentLanguage?: Types.AppLanguage | null, availableLocales?: Array<Types.AppLanguage> | null };
+
 export type PodcastsQueryVariables = Types.Exact<{
   filter?: Types.InputMaybe<Types.PodcastFilterInput>;
   pagination?: Types.InputMaybe<Types.PodcastPaginationInput>;
   sort?: Types.InputMaybe<Types.PodcastSortInput>;
+  locale?: Types.InputMaybe<Types.AppLanguage>;
 }>;
 
 
-export type PodcastsQuery = { __typename?: 'Query', podcasts: { __typename?: 'PaginatedPodcasts', totalCount: number, items: Array<{ __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, sourceUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null }>, pageInfo: { __typename?: 'PodcastPageInfo', nextCursor?: string | null, hasNextPage: boolean, previousCursor?: string | null, hasPreviousPage: boolean } } };
+export type PodcastsQuery = { __typename?: 'Query', podcasts: { __typename?: 'PaginatedPodcasts', totalCount: number, items: Array<{ __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, sourceUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null, contentLanguage?: Types.AppLanguage | null, availableLocales?: Array<Types.AppLanguage> | null }>, pageInfo: { __typename?: 'PodcastPageInfo', nextCursor?: string | null, hasNextPage: boolean, previousCursor?: string | null, hasPreviousPage: boolean } } };
 
 export type PodcastByIdQueryVariables = Types.Exact<{
   podcastId: Types.Scalars['String']['input'];
@@ -24,10 +27,11 @@ export type PodcastByIdQuery = { __typename?: 'Query', podcastById: { __typename
 
 export type PodcastBySlugQueryVariables = Types.Exact<{
   slug: Types.Scalars['String']['input'];
+  locale?: Types.InputMaybe<Types.AppLanguage>;
 }>;
 
 
-export type PodcastBySlugQuery = { __typename?: 'Query', podcastBySlug: { __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, sourceUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null } };
+export type PodcastBySlugQuery = { __typename?: 'Query', podcastBySlug: { __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, sourceUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null, contentLanguage?: Types.AppLanguage | null, availableLocales?: Array<Types.AppLanguage> | null } };
 
 export type FeaturedPodcastsQueryVariables = Types.Exact<{
   take?: Types.InputMaybe<Types.Scalars['Int']['input']>;
@@ -166,11 +170,18 @@ export const PodcastPageInfoFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentS
   hasPreviousPage
 }
     `, {"fragmentName":"PodcastPageInfoFields"}) as unknown as TypedDocumentString<PodcastPageInfoFieldsFragment, unknown>;
+export const PodcastLocaleFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
+    fragment PodcastLocaleFields on Podcast {
+  contentLanguage
+  availableLocales
+}
+    `, {"fragmentName":"PodcastLocaleFields"}) as unknown as TypedDocumentString<PodcastLocaleFieldsFragment, unknown>;
 export const PodcastsDocument = /*#__PURE__*/ new TypedDocumentString(`
-    query Podcasts($filter: PodcastFilterInput, $pagination: PodcastPaginationInput, $sort: PodcastSortInput) {
-  podcasts(filter: $filter, pagination: $pagination, sort: $sort) {
+    query Podcasts($filter: PodcastFilterInput, $pagination: PodcastPaginationInput, $sort: PodcastSortInput, $locale: AppLanguage) {
+  podcasts(filter: $filter, pagination: $pagination, sort: $sort, locale: $locale) {
     items {
       ...PodcastFields
+      ...PodcastLocaleFields
     }
     totalCount
     pageInfo {
@@ -204,6 +215,10 @@ fragment PodcastPageInfoFields on PodcastPageInfo {
   hasNextPage
   previousCursor
   hasPreviousPage
+}
+fragment PodcastLocaleFields on Podcast {
+  contentLanguage
+  availableLocales
 }`) as unknown as TypedDocumentString<PodcastsQuery, PodcastsQueryVariables>;
 export const PodcastByIdDocument = /*#__PURE__*/ new TypedDocumentString(`
     query PodcastById($podcastId: String!) {
@@ -233,9 +248,10 @@ export const PodcastByIdDocument = /*#__PURE__*/ new TypedDocumentString(`
   durationMinutes
 }`) as unknown as TypedDocumentString<PodcastByIdQuery, PodcastByIdQueryVariables>;
 export const PodcastBySlugDocument = /*#__PURE__*/ new TypedDocumentString(`
-    query PodcastBySlug($slug: String!) {
-  podcastBySlug(slug: $slug) {
+    query PodcastBySlug($slug: String!, $locale: AppLanguage) {
+  podcastBySlug(slug: $slug, locale: $locale) {
     ...PodcastFields
+    ...PodcastLocaleFields
   }
 }
     fragment PodcastFields on Podcast {
@@ -258,6 +274,10 @@ export const PodcastBySlugDocument = /*#__PURE__*/ new TypedDocumentString(`
   ratingCount
   episodeCount
   durationMinutes
+}
+fragment PodcastLocaleFields on Podcast {
+  contentLanguage
+  availableLocales
 }`) as unknown as TypedDocumentString<PodcastBySlugQuery, PodcastBySlugQueryVariables>;
 export const FeaturedPodcastsDocument = /*#__PURE__*/ new TypedDocumentString(`
     query FeaturedPodcasts($take: Int) {

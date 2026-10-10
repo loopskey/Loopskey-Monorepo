@@ -3,7 +3,7 @@ import { ContentType } from "@/lib/graphql/base";
 export const SITEMAP_INDEX_PATH = "/sitemap.xml";
 export const SITEMAP_SHARD_BASE_PATH = "/sitemaps";
 export const STATIC_SHARD_NAME = "static";
-export const SITEMAP_MAX_URLS_PER_SHARD = 50_000;
+export const SITEMAP_MAX_URLS_PER_SHARD = 25_000;
 export const SITEMAP_PAGE_TAKE = 2_500;
 export const SITEMAP_MAX_AGE_SECONDS = 300;
 

@@ -79,14 +79,26 @@ fragment EventPageInfoFields on EventPageInfo {
 
 # ================== Queries ================
 
+fragment EventLocaleFields on Event {
+  contentLanguage
+  availableLocales
+}
+
 query Events(
   $filter: EventFilterInput
   $pagination: EventPaginationInput
   $sort: EventSortInput
+  $locale: AppLanguage
 ) {
-  events(filter: $filter, pagination: $pagination, sort: $sort) {
+  events(
+    filter: $filter
+    pagination: $pagination
+    sort: $sort
+    locale: $locale
+  ) {
     items {
       ...EventCardFields
+      ...EventLocaleFields
     }
     totalCount
     pageInfo {
@@ -101,9 +113,10 @@ query EventById($eventId: String!) {
   }
 }
 
-query EventBySlug($slug: String!) {
-  eventBySlug(slug: $slug) {
+query EventBySlug($slug: String!, $locale: AppLanguage) {
+  eventBySlug(slug: $slug, locale: $locale) {
     ...EventDetailFields
+    ...EventLocaleFields
   }
 }
 
@@ -211,5 +224,36 @@ query EventFilterFacets {
       value
       count
     }
+  }
+}
+
+fragment EventTranslationFields on EventTranslation {
+  id
+  locale
+  title
+  description
+  isPublished
+  publishedAt
+  version
+  updatedAt
+}
+
+query EventTranslations($eventId: String!) {
+  eventTranslations(eventId: $eventId) {
+    ...EventTranslationFields
+  }
+}
+
+mutation SaveEventTranslation($input: SaveEventTranslationInput!) {
+  saveEventTranslation(input: $input) {
+    ...EventTranslationFields
+  }
+}
+
+mutation SetEventTranslationPublication(
+  $input: SetEventTranslationPublicationInput!
+) {
+  setEventTranslationPublication(input: $input) {
+    ...EventTranslationFields
   }
 }

@@ -16,6 +16,11 @@ import { EventSortField } from "@events/enums/event-register.enum";
 import { EventCategory } from "@prisma/client";
 import { PrismaService } from "@prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
+import { publicContentChange } from "@utils/public-content-change.util";
+import type {
+  PublishedTranslation,
+  TranslationStore,
+} from "@utils/content-translation.util";
 import {
   CATALOG_SEARCH_CANDIDATE_CAP,
   CATALOG_SEARCH_ORDER,
@@ -952,7 +957,110 @@ export class EventRepository {
       FROM fuzzy_matches;
     `;
   }
+
+  translationStore(): TranslationStore<Prisma.TransactionClient> {
+    return {
+      transaction: (work) => this.prisma.$transaction((tx) => work(tx)),
+      findParent: (tx, eventId) =>
+        tx.event.findUnique({
+          where: { id: eventId },
+          select: { id: true, providerId: true, deletedAt: true },
+        }),
+      findTranslation: (tx, eventId, locale) =>
+        tx.eventTranslation.findUnique({
+          where: { eventId_locale: { eventId, locale } },
+          select: EVENT_TRANSLATION_SELECT,
+        }),
+      create: (tx, eventId, locale, fields, actorId) =>
+        tx.eventTranslation.create({
+          data: {
+            eventId,
+            locale,
+            title: fields.title,
+            description: fields.description,
+            updatedById: actorId,
+          },
+          select: EVENT_TRANSLATION_SELECT,
+        }),
+      update: async (tx, translationId, expectedVersion, data) => {
+        const { count } = await tx.eventTranslation.updateMany({
+          where: { id: translationId, version: expectedVersion },
+          data: {
+            ...(data.fields
+              ? {
+                  title: data.fields.title,
+                  description: data.fields.description,
+                }
+              : {}),
+            ...(data.isPublished === undefined
+              ? {}
+              : {
+                  isPublished: data.isPublished,
+                  publishedAt: data.publishedAt ?? null,
+                }),
+            updatedById: data.actorId,
+            version: { increment: 1 },
+          },
+        });
+        return count;
+      },
+      reload: (tx, translationId) =>
+        tx.eventTranslation.findUniqueOrThrow({
+          where: { id: translationId },
+          select: EVENT_TRANSLATION_SELECT,
+        }),
+      touchParent: async (tx, eventId) => {
+        await tx.event.update({
+          where: { id: eventId },
+          data: publicContentChange(),
+        });
+      },
+    };
+  }
+
+  listTranslations(tx: Prisma.TransactionClient, eventId: string) {
+    return tx.eventTranslation.findMany({
+      where: { eventId },
+      orderBy: { locale: "asc" },
+      select: EVENT_TRANSLATION_SELECT,
+    });
+  }
+
+  async findPublishedTranslations(eventIds: string[]) {
+    const rows = await this.prisma.eventTranslation.findMany({
+      where: { eventId: { in: eventIds }, isPublished: true },
+      select: {
+        eventId: true,
+        locale: true,
+        title: true,
+        description: true,
+      },
+    });
+    const byEvent = new Map<string, PublishedTranslation[]>();
+    for (const { eventId, ...translation } of rows)
+      byEvent.set(eventId, [...(byEvent.get(eventId) ?? []), translation]);
+    return byEvent;
+  }
+
+  async findSourceLanguages(eventIds: string[]) {
+    const rows = await this.prisma.event.findMany({
+      where: { id: { in: eventIds } },
+      select: { id: true, sourceLanguage: true },
+    });
+    return new Map(rows.map((row) => [row.id, row.sourceLanguage]));
+  }
 }
+
+const EVENT_TRANSLATION_SELECT = {
+  id: true,
+  locale: true,
+  title: true,
+  description: true,
+  isPublished: true,
+  publishedAt: true,
+  version: true,
+  updatedAt: true,
+} as const;
 
 type EventSearchRow = {
   id: string;

@@ -2,14 +2,16 @@ import { EventRepository } from "@events/infrastructure/persistence/event.reposi
 import { ContentType } from "@prisma/client";
 import { Injectable } from "@nestjs/common";
 
-import type { PublicUrlApi } from "@utils/public-url-enumeration.util";
 import type { PublicUrlPageSelector } from "@utils/public-url-enumeration.util";
 import type { PublicUrlSource } from "@utils/public-url-enumeration.util";
+import type { PublicUrlApi } from "@utils/public-url-enumeration.util";
 
 const ELIGIBLE_EVENT_URLS: PublicUrlSource = {
   kind: ContentType.EVENT,
   table: "Event",
   statusType: "EventStatus",
+  translationTable: "EventTranslation",
+  translationParentColumn: "eventId",
 };
 
 @Injectable()

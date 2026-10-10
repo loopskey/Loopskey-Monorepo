@@ -41,6 +41,21 @@ const forwardedHttpRedirects = (): Redirects =>
       ]
     : [];
 
+const englishPrefixRedirects = (): Redirects => [
+  { source: "/en", destination: "/", permanent: true },
+  { source: "/en/:path*", destination: "/:path*", permanent: true },
+];
+
+const UNLOCALIZED_ROOTS = ["api", "_next", "sitemaps", "en", "fr"];
+
+const englishRouteRewrites = () => [
+  { source: "/", destination: "/en" },
+  {
+    source: `/:root((?!(?:${UNLOCALIZED_ROOTS.join("|")})(?:/|$))[^./]+)/:rest*`,
+    destination: "/en/:root/:rest*",
+  },
+];
+
 const nextConfig: NextConfig = {
   // Produce a minimal self-contained server bundle for the production image.
   output: "standalone",
@@ -91,7 +106,15 @@ const nextConfig: NextConfig = {
   },
 
   async redirects() {
-    return [...canonicalHostRedirects(), ...forwardedHttpRedirects()];
+    return [
+      ...canonicalHostRedirects(),
+      ...forwardedHttpRedirects(),
+      ...englishPrefixRedirects(),
+    ];
+  },
+
+  async rewrites() {
+    return { beforeFiles: englishRouteRewrites() };
   },
 
   async headers() {

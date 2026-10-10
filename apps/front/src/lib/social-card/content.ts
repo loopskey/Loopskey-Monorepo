@@ -1,4 +1,7 @@
 import { executeServerGraphql } from "@/lib/server/graphql-server";
+import { toApiLanguage } from "@/lib/i18n/locale";
+
+import type { PublicLocale } from "@/lib/i18n/locale";
 
 export type SocialCardKind = "course" | "event" | "podcast" | "youtube";
 
@@ -25,22 +28,31 @@ export const isSocialCardKind = (value: string): value is SocialCardKind =>
 export const fetchSocialCardContent = async (
   kind: SocialCardKind,
   slug: string,
+  locale: PublicLocale = "en",
 ): Promise<SocialCardContent | null> => {
   const { field, operation } = QUERY[kind];
-  const query = `query ${operation}($slug: String!) {
-    ${field}(slug: $slug) { title category status imageUrl }
+  const query = `query ${operation}($slug: String!, $locale: AppLanguage) {
+    ${field}(slug: $slug, locale: $locale) { title category status imageUrl availableLocales }
   }`;
 
   const result = await executeServerGraphql({
     operation,
     field,
     document: { toString: () => query },
-    variables: { slug },
+    variables: { slug, locale: toApiLanguage(locale) },
   });
   if (result.kind !== "found") return null;
 
   const row = result.value;
   if (typeof row.title !== "string") return null;
+  if (
+    locale !== "en" &&
+    !(
+      Array.isArray(row.availableLocales) &&
+      row.availableLocales.includes(toApiLanguage(locale))
+    )
+  )
+    return null;
 
   return {
     title: row.title,

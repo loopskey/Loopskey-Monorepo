@@ -1,20 +1,21 @@
-import { cache } from "react";
-
-import { CourseBySlugDocument } from "@/lib/graphql/operations/course";
-import { EventBySlugDocument } from "@/lib/graphql/operations/event";
-import { PodcastBySlugDocument } from "@/lib/graphql/operations/podcast";
-import { PodcastEpisodesDocument } from "@/lib/graphql/operations/podcast";
 import { YouTubeChannelBySlugDocument } from "@/lib/graphql/operations/youtube";
+import { PodcastEpisodesDocument } from "@/lib/graphql/operations/podcast";
+import { PodcastBySlugDocument } from "@/lib/graphql/operations/podcast";
 import { YouTubeVideosDocument } from "@/lib/graphql/operations/youtube";
+import { CourseBySlugDocument } from "@/lib/graphql/operations/course";
 import { UpstreamFailureError } from "@/lib/server/graphql-server";
 import { executeServerGraphql } from "@/lib/server/graphql-server";
+import { EventBySlugDocument } from "@/lib/graphql/operations/event";
+import { toApiLanguage } from "@/lib/i18n/locale";
+import { cache } from "react";
 
+import type { YouTubeChannelBySlugQuery } from "@/lib/graphql/operations/youtube";
+import type { PodcastEpisodesQuery } from "@/lib/graphql/operations/podcast";
+import type { PodcastBySlugQuery } from "@/lib/graphql/operations/podcast";
+import type { YouTubeVideosQuery } from "@/lib/graphql/operations/youtube";
 import type { CourseBySlugQuery } from "@/lib/graphql/operations/course";
 import type { EventBySlugQuery } from "@/lib/graphql/operations/event";
-import type { PodcastBySlugQuery } from "@/lib/graphql/operations/podcast";
-import type { PodcastEpisodesQuery } from "@/lib/graphql/operations/podcast";
-import type { YouTubeChannelBySlugQuery } from "@/lib/graphql/operations/youtube";
-import type { YouTubeVideosQuery } from "@/lib/graphql/operations/youtube";
+import type { PublicLocale } from "@/lib/i18n/locale";
 
 export type PublicCourse = NonNullable<CourseBySlugQuery["courseBySlug"]>;
 export type PublicEvent = NonNullable<EventBySlugQuery["eventBySlug"]>;
@@ -58,23 +59,52 @@ type DetailRead = {
   operation: string;
   document: { toString(): string };
   field: string;
-  slug: string;
+  key: string;
 };
+
+const keyOf = (slug: string, locale: PublicLocale) => `${locale}:${slug}`;
+
+const splitKey = (key: string) => {
+  const separator = key.indexOf(":");
+  return {
+    locale: key.slice(0, separator) as PublicLocale,
+    slug: key.slice(separator + 1),
+  };
+};
+
+const hasRequestedVariant = (
+  value: Record<string, unknown>,
+  locale: PublicLocale,
+) =>
+  locale === "en" ||
+  (Array.isArray(value.availableLocales) &&
+    value.availableLocales.includes(toApiLanguage(locale)));
 
 const readBySlug = async <T>({
   operation,
   document,
   field,
-  slug,
+  key,
 }: DetailRead): Promise<T | null> => {
+  const { locale, slug } = splitKey(key);
   if (!isValidSlug(slug)) return null;
   const result = await executeServerGraphql({
     operation,
     document,
     field,
-    variables: { slug },
+    variables: { slug, locale: toApiLanguage(locale) },
   });
   if (result.kind !== "found" || !isPublished(result.value)) return null;
+  if (!hasRequestedVariant(result.value, locale)) {
+    console.info(
+      JSON.stringify({
+        event: "public-content.variant-missing",
+        operation,
+        locale,
+      }),
+    );
+    return null;
+  }
   return result.value as T;
 };
 
@@ -98,41 +128,53 @@ export const memoize = <T>(read: (key: string) => Promise<T>) => {
   return async (key: string) => unwrap(await settled(key));
 };
 
-export const getPublicCourse = memoize((slug) =>
+const readCourseBySlug = memoize((key) =>
   readBySlug<PublicCourse>({
-    slug,
+    key,
     field: "courseBySlug",
     operation: "CourseBySlug",
     document: CourseBySlugDocument,
   }),
 );
 
-export const getPublicEvent = memoize((slug) =>
+export const getPublicCourse = (slug: string, locale: PublicLocale) =>
+  readCourseBySlug(keyOf(slug, locale));
+
+const readEventBySlug = memoize((key) =>
   readBySlug<PublicEvent>({
-    slug,
+    key,
     field: "eventBySlug",
     operation: "EventBySlug",
     document: EventBySlugDocument,
   }),
 );
 
-export const getPublicPodcast = memoize((slug) =>
+export const getPublicEvent = (slug: string, locale: PublicLocale) =>
+  readEventBySlug(keyOf(slug, locale));
+
+const readPodcastBySlug = memoize((key) =>
   readBySlug<PublicPodcast>({
-    slug,
+    key,
     field: "podcastBySlug",
     operation: "PodcastBySlug",
     document: PodcastBySlugDocument,
   }),
 );
 
-export const getPublicYouTubeChannel = memoize((slug) =>
+export const getPublicPodcast = (slug: string, locale: PublicLocale) =>
+  readPodcastBySlug(keyOf(slug, locale));
+
+const readYouTubeChannelBySlug = memoize((key) =>
   readBySlug<PublicYouTubeChannel>({
-    slug,
+    key,
     field: "youtubeChannelBySlug",
     operation: "YouTubeChannelBySlug",
     document: YouTubeChannelBySlugDocument,
   }),
 );
+
+export const getPublicYouTubeChannel = (slug: string, locale: PublicLocale) =>
+  readYouTubeChannelBySlug(keyOf(slug, locale));
 
 export const getPublicPodcastEpisodes = memoize((podcastId) =>
   readChildren<PublicPodcastEpisode>(

@@ -28,10 +28,16 @@ export type PodcastCatalogSearchRow = {
   id: string;
   slug: string;
   title: string;
-  imageUrl: string | null;
-  category: string;
-  rating: number;
-  episodeCount: number;
-  createdAt: Date;
   score: number;
+  rating: number;
+  createdAt: Date;
+  category: string;
+  episodeCount: number;
+  imageUrl: string | null;
+};
+
+export type LocalizablePodcast = {
+  id: string;
+  title: string;
+  sourceLanguage?: string | null;
 };

@@ -10,7 +10,7 @@ import LandingContentCarousel from "@modules/Landing/parts/LandingContentCarouse
 import SpotlightContentCard from "@modules/Landing/parts/SpotlightContentCard";
 import LandingEmptyState from "@modules/Landing/parts/LandingEmptyState";
 import LearningHubTabs from "@modules/Landing/parts/LearningHubTabs";
-import Link from "next/link";
+import Link from "@elements/localized-link";
 
 const LandingFeatured = () => {
   const {

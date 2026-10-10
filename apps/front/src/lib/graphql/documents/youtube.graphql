@@ -45,14 +45,26 @@ fragment YouTubeChannelPageInfoFields on YouTubeChannelPageInfo {
 }
 
 # ================ Queries ================
+fragment YouTubeChannelLocaleFields on YouTubeChannel {
+  contentLanguage
+  availableLocales
+}
+
 query YouTubeChannels(
   $filter: YouTubeChannelFilterInput
   $pagination: YouTubeChannelPaginationInput
   $sort: YouTubeChannelSortInput
+  $locale: AppLanguage
 ) {
-  youtubeChannels(filter: $filter, pagination: $pagination, sort: $sort) {
+  youtubeChannels(
+    filter: $filter
+    pagination: $pagination
+    sort: $sort
+    locale: $locale
+  ) {
     items {
       ...YouTubeChannelFields
+      ...YouTubeChannelLocaleFields
     }
     totalCount
     pageInfo {
@@ -67,9 +79,10 @@ query YouTubeChannelById($channelId: String!) {
   }
 }
 
-query YouTubeChannelBySlug($slug: String!) {
-  youtubeChannelBySlug(slug: $slug) {
+query YouTubeChannelBySlug($slug: String!, $locale: AppLanguage) {
+  youtubeChannelBySlug(slug: $slug, locale: $locale) {
     ...YouTubeChannelFields
+    ...YouTubeChannelLocaleFields
   }
 }
 

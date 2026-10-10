@@ -10,6 +10,8 @@ import { COURSE_ENGAGEMENT_API } from "@course/public/course-engagement-api";
 import { CourseImportService } from "@course/services/course-import.service";
 import { CourseResolver } from "@course/resolvers/course.resolver";
 import { CourseService } from "@course/services/course.service";
+import { CourseTranslationService } from "@course/services/course-translation.service";
+import { CourseTranslationResolver } from "@course/resolvers/course-translation.resolver";
 import { PrismaModule } from "@prisma/prisma.module";
 import { Module } from "@nestjs/common";
 
@@ -22,6 +24,8 @@ import "@course/enums/enum-register";
     CoursePublicUrlApiService,
     { provide: COURSE_PUBLIC_URL_API, useExisting: CoursePublicUrlApiService },
     CourseResolver,
+    CourseTranslationResolver,
+    CourseTranslationService,
     CourseService,
     CourseImportService,
     CourseEngagementApiService,
