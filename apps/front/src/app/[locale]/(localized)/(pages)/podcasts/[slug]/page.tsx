@@ -1,12 +1,16 @@
-import { TContentDetailPageProps } from "@/types/pages.types";
-import { getPublicPodcastEpisodes } from "@/lib/server/public-content";
-import { getPublicPodcast } from "@/lib/server/public-content";
 import { asPublicLocale, variantsOf } from "@/lib/i18n/route-locale";
+import { getPublicPodcastEpisodes } from "@/lib/server/public-content";
+import { TContentDetailPageProps } from "@/types/pages.types";
+import { getPublicPodcast } from "@/lib/server/public-content";
 import { contentMetadata } from "@/lib/social-card/metadata";
 import { noindexMetadata } from "@/lib/site/page-metadata";
+import { podcastGraph } from "@/lib/structured-data/detail-graphs";
+import { detailTrail } from "@/lib/structured-data/trail";
 import { notFound } from "next/navigation";
 
 import PodcastDetailPage from "@modules/ContentDetail/PodcastDetailPage";
+import Breadcrumbs from "@elements/breadcrumbs";
+import JsonLd from "@elements/json-ld";
 
 import type { Metadata } from "next";
 
@@ -31,10 +35,33 @@ export const generateMetadata = async ({
 
 const Page = async ({ params }: TContentDetailPageProps) => {
   const { slug, locale } = await params;
-  const podcast = await getPublicPodcast(slug, asPublicLocale(locale));
+  const publicLocale = asPublicLocale(locale);
+  const podcast = await getPublicPodcast(slug, publicLocale);
   if (!podcast) notFound();
   const episodes = await getPublicPodcastEpisodes(podcast.id);
-  return <PodcastDetailPage podcast={podcast} episodes={episodes} />;
+  const trail = await detailTrail({
+    kind: "podcast",
+    slug: podcast.slug,
+    title: podcast.title,
+    locale: publicLocale,
+  });
+  return (
+    <>
+      <JsonLd
+        nodes={podcastGraph({
+          content: podcast,
+          episodes,
+          locale: publicLocale,
+          trail,
+        })}
+      />
+      <PodcastDetailPage
+        podcast={podcast}
+        episodes={episodes}
+        breadcrumbs={<Breadcrumbs trail={trail} locale={publicLocale} />}
+      />
+    </>
+  );
 };
 
 export default Page;

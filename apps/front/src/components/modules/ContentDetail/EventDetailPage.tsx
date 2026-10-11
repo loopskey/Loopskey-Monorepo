@@ -22,7 +22,7 @@ import DetailSummary from "@modules/ContentDetail/parts/DetailSummary";
 import DetailSection from "@modules/ContentDetail/parts/DetailSection";
 import DetailLayout from "@modules/ContentDetail/parts/DetailLayout";
 
-const EventDetailPage = ({ event }: TEventDetailPageProps) => {
+const EventDetailPage = ({ event, breadcrumbs }: TEventDetailPageProps) => {
   const { t } = useI18n();
 
   const actions = useContentActions({
@@ -46,6 +46,7 @@ const EventDetailPage = ({ event }: TEventDetailPageProps) => {
 
   return (
     <DetailLayout
+      breadcrumbs={breadcrumbs}
       header={
         <DetailPageHeader
           title={event.title}

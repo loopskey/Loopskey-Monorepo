@@ -4,9 +4,13 @@ import { getPublicYouTubeChannel } from "@/lib/server/public-content";
 import { getPublicYouTubeVideos } from "@/lib/server/public-content";
 import { contentMetadata } from "@/lib/social-card/metadata";
 import { noindexMetadata } from "@/lib/site/page-metadata";
+import { channelGraph } from "@/lib/structured-data/detail-graphs";
+import { detailTrail } from "@/lib/structured-data/trail";
 import { notFound } from "next/navigation";
 
 import YoutubeDetail from "@modules/ContentDetail/YoutubeDetail";
+import Breadcrumbs from "@elements/breadcrumbs";
+import JsonLd from "@elements/json-ld";
 
 import type { Metadata } from "next";
 
@@ -31,10 +35,28 @@ export const generateMetadata = async ({
 
 const Page = async ({ params }: TContentDetailPageProps) => {
   const { slug, locale } = await params;
-  const channel = await getPublicYouTubeChannel(slug, asPublicLocale(locale));
+  const publicLocale = asPublicLocale(locale);
+  const channel = await getPublicYouTubeChannel(slug, publicLocale);
   if (!channel) notFound();
   const videos = await getPublicYouTubeVideos(channel.id);
-  return <YoutubeDetail channel={channel} videos={videos} />;
+  const trail = await detailTrail({
+    kind: "youtube",
+    slug: channel.slug,
+    title: channel.title,
+    locale: publicLocale,
+  });
+  return (
+    <>
+      <JsonLd
+        nodes={channelGraph({ content: channel, locale: publicLocale, trail })}
+      />
+      <YoutubeDetail
+        channel={channel}
+        videos={videos}
+        breadcrumbs={<Breadcrumbs trail={trail} locale={publicLocale} />}
+      />
+    </>
+  );
 };
 
 export default Page;
