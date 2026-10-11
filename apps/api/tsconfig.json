@@ -29,6 +29,7 @@
       "@contentAction/*": ["src/modules/content-interaction/*"],
       "@ingestion/*": ["src/modules/ingestion/*"],
       "@contentMedia/*": ["src/modules/content-media/*"],
+      "@contentUrl/*": ["src/modules/content-url/*"],
 
       "@utils/*": ["src/common/utils/*"],
       "@prisma/*": ["src/modules/prisma/*"]

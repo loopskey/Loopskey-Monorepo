@@ -13,6 +13,7 @@ export * from "@/lib/graphql/operations/provider";
 export * from "@/lib/graphql/operations/ingestion";
 export * from "@/lib/graphql/operations/discovery";
 export * from "@/lib/graphql/operations/content-seo";
+export * from "@/lib/graphql/operations/content-url";
 export * from "@/lib/graphql/operations/professional";
 export * from "@/lib/graphql/operations/roadmap-chat";
 export * from "@/lib/graphql/operations/org-dashboard";

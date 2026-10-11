@@ -1511,6 +1511,28 @@ model ContentSocialImage {
   @@index([ownerId, createdAt])
 }
 
+enum ContentUrlNamespace {
+  COURSE
+  EVENT
+  PODCAST
+  YOUTUBE
+}
+
+model ContentUrlClaim {
+  id String @id @default(cuid())
+
+  namespace ContentUrlNamespace
+  slug      String
+  targetId  String
+  isCurrent Boolean             @default(true)
+
+  createdAt DateTime  @default(now())
+  retiredAt DateTime?
+
+  @@unique([namespace, slug])
+  @@index([namespace, targetId])
+}
+
 enum AppLanguage {
   EN
   FR
@@ -2633,6 +2655,7 @@ enum AuditAction {
   ASSOCIATION_MEMBER_INVITATION_ACCEPTED
   CONTENT_SEO_UPDATED
   CONTENT_INDEX_EXCLUSION_CHANGED
+  CONTENT_SLUG_CHANGED
 }
 
 model AuditLog {

@@ -1,4 +1,5 @@
 import { asPublicLocale, variantsOf } from "@/lib/i18n/route-locale";
+import { redirectToRenamedContent } from "@/lib/server/renamed-content";
 import { TContentDetailPageProps } from "@/types/pages.types";
 import { getPublicCourse } from "@/lib/server/public-content";
 import { contentMetadata } from "@/lib/social-card/metadata";
@@ -37,7 +38,15 @@ const Page = async ({ params }: TContentDetailPageProps) => {
   const { slug, locale } = await params;
   const publicLocale = asPublicLocale(locale);
   const course = await getPublicCourse(slug, publicLocale);
-  if (!course) notFound();
+  if (!course) {
+    await redirectToRenamedContent(
+      "course",
+      slug,
+      publicLocale,
+      getPublicCourse,
+    );
+    notFound();
+  }
   const trail = await detailTrail({
     kind: "course",
     slug: course.slug,

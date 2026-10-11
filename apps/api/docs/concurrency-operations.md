@@ -55,6 +55,9 @@ exist only so a user gets a readable message instead of a constraint violation.
 | A SEO override is never silently overwritten | `updateMany` on `CourseSeo`/`EventSeo`/`PodcastSeo`/`YouTubeChannelSeo` naming the `version` the editor read, `count === 1`; the unique `(content, locale)` index arbitrates two first saves and is recovered as the same conflict |
 | A social image still in use is never deleted | `ContentSocialImage` is referenced by RESTRICT foreign keys; retirement deletes the row first and removes the file only when that succeeds |
 | Hiding a page from search converges | `updateMany` on `excludeFromIndex` naming the opposite value, so repeating the call changes and audits nothing |
+| One public slug never points at two records in a route namespace | `ContentUrlClaim` holds every current and retired slug under a unique `(namespace, slug)` index. The `content_url_claim_sync` trigger on `Course`, `Event`, `Podcast` and `YouTubeChannel` writes it in the same statement as any insert or slug update, so create, import, ingestion and the slug editor all claim through one door; a slug claimed by another record raises a unique violation named after the content table's own slug constraint, which every existing caller already maps |
+| A record has exactly one current URL | The partial unique index `ContentUrlClaim_current_target_key` allows one `isCurrent` row per `(namespace, targetId)`; the trigger retires the old claim before activating the new one, so A to B to C and a return to A leave one current row |
+| A slug change cannot overwrite a newer one | `updateMany` naming the slug the editor read and `deletedAt: null`, `count === 1`; losers get `CONTENT_URL_VERSION_CONFLICT`, and a claim taken by another record is recovered outside the aborted transaction as `CONTENT_URL_SLUG_TAKEN` |
 
 ## Decisions
 
@@ -152,6 +155,36 @@ are simply ignored by code that does not read it.
 Both partial indexes are unmanaged — Prisma cannot express them in
 `schema.prisma`. `prisma migrate dev` reports them as drift and offers to drop
 them. Do not accept; the model docstrings say so too.
+
+## Content slug registry
+
+`20261011170323_content_url_claims` creates `ContentUrlClaim`, backfills one
+current claim per existing course, event, podcast and YouTube channel with the
+stored slug unchanged, and installs the synchronising triggers. Slugs are
+already unique inside each content table, so the backfill cannot collide.
+Audit before deploying:
+
+```sql
+SELECT 'COURSE' AS kind, COUNT(*) FROM "Course"
+UNION ALL SELECT 'EVENT', COUNT(*) FROM "Event"
+UNION ALL SELECT 'PODCAST', COUNT(*) FROM "Podcast"
+UNION ALL SELECT 'YOUTUBE', COUNT(*) FROM "YouTubeChannel";
+```
+
+After the migration every kind's claim count must equal these counts, and no
+record may lack a current claim:
+
+```sql
+SELECT c."id" FROM "Course" c
+LEFT JOIN "ContentUrlClaim" u
+  ON u."namespace" = 'COURSE' AND u."targetId" = c."id" AND u."isCurrent"
+WHERE u."id" IS NULL;
+```
+
+Rollback disables editing by removing the `changeContentSlug` resolver. Keep the
+table and triggers: dropping them would let a retired path be taken over and
+turn every old link into a 404. Claims are never deleted, including for a
+soft-deleted or hard-deleted record.
 
 ## Reconciling an event's attendee count
 
@@ -324,6 +357,9 @@ correlation ID and non-sensitive identifiers only.
 | `Association lifecycle notifications recorded`         | Lifecycle deliveries were written, with how many were queued, suppressed, or already existed              |
 | `Association lifecycle delivery skipped at send time`  | A queued lifecycle email was no longer applicable, or its recipient had no active verified address        |
 | `Association learning content recipients synchronised` | A learning-content audience resync finished, with targeted, untargeted and announced counts               |
+| `Content slug changed` | An editor changed a slug; the line carries the kind, actor, content id and correlation ID |
+| `Content slug already claimed` | A requested slug belongs to another record, current or retired |
+| `Content slug version conflict` | The slug changed since the editor read it, or two edits raced |
 
 Expected conflicts are logged at `warn` and answered with domain error codes.
 None of them are internal server failures, and none should be alerted on

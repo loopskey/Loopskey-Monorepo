@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@ui/dialog";
 import { DialogDescription, DialogFooter, DialogHeader } from "@ui/dialog";
 import { LoaderCircle, Search, Trash2, Upload } from "lucide-react";
 import { useContentSeoEditor } from "@/hooks/useContentSeoEditor";
+import { useContentUrlEditor } from "@/hooks/useContentUrlEditor";
 import { useRef, useState } from "react";
 import { AppLanguage } from "@/lib/graphql/base";
 import { Textarea } from "@ui/textarea";
@@ -21,6 +22,7 @@ import {
 import type { TContentSeoDialogProps } from "@/types/content-seo.types";
 
 import ContentSeoPreview from "@elements/content-seo-preview";
+import ContentUrlSection from "@modules/ContentSeo/ContentUrlSection";
 
 const LOCALES = [AppLanguage.En, AppLanguage.Fr] as const;
 
@@ -33,10 +35,16 @@ const ContentSeoDialog = ({
 }: TContentSeoDialogProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const picker = useRef<HTMLInputElement>(null);
-  const editor = useContentSeoEditor({
+  const urlEditor = useContentUrlEditor({
     kind,
     slug,
     contentId,
+    isEnabled: isOpen,
+  });
+  const editor = useContentSeoEditor({
+    kind,
+    contentId,
+    slug: urlEditor.currentSlug || slug,
     isEnabled: isOpen,
   });
   const { t, fields, current, query, settings } = editor;
@@ -307,6 +315,8 @@ const ContentSeoDialog = ({
             </div>
           </div>
         )}
+
+        <ContentUrlSection contentId={contentId} editor={urlEditor} />
 
         <DialogFooter className="gap-2 sm:justify-between">
           <Button

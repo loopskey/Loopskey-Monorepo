@@ -14,6 +14,7 @@ const DOMAINS = [
   "ingestion",
   "discovery",
   "content-seo",
+  "content-url",
   "professional",
   "roadmap-chat",
   "org-dashboard",

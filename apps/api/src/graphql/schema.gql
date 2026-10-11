@@ -1323,6 +1323,7 @@ enum AuditAction {
   ASSOCIATION_SETTINGS_UPDATED
   CONTENT_INDEX_EXCLUSION_CHANGED
   CONTENT_SEO_UPDATED
+  CONTENT_SLUG_CHANGED
   ORGANIZATION_ACCOUNT_ACTIVATED
   ORGANIZATION_ACCOUNT_CREATED
   ORGANIZATION_ACTIVATION_RESENT
@@ -1519,6 +1520,13 @@ input CertificationSearchInput {
   query: String!
 }
 
+input ChangeContentSlugInput {
+  contentId: ID!
+  expectedSlug: String!
+  kind: ContentUrlKind!
+  slug: String!
+}
+
 input ChangePasswordInput {
   confirmPassword: String!
   currentPassword: String!
@@ -1632,6 +1640,24 @@ enum ContentType {
   EVENT
   PODCAST
   YOUTUBE
+}
+
+enum ContentUrlKind {
+  COURSE
+  EVENT
+  PODCAST
+  YOUTUBE
+}
+
+type ContentUrlResolution {
+  slug: String!
+}
+
+type ContentUrlSettings {
+  contentId: ID!
+  kind: ContentUrlKind!
+  retiredSlugs: [String!]!
+  slug: String!
 }
 
 type Course {
@@ -2701,6 +2727,7 @@ type Mutation {
   cancelContentEnrollment(input: ContentActionInput!): ContentActionPayload!
   cancelEvent(eventId: String!): Event!
   cancelEventRegistration(eventId: String!): EventRegistration!
+  changeContentSlug(input: ChangeContentSlugInput!): ContentUrlSettings!
   changePassword(input: ChangePasswordInput!): AuthPayload!
   clearCart: ContentActionPayload!
   completeProfessionalOnboarding(input: CompleteProfessionalOnboardingInput!): ProfessionalDashboardProfile!
@@ -4633,6 +4660,7 @@ type Query {
   associationSettings(associationId: ID): AssociationSettings!
   certificationSearch(input: CertificationSearchInput!): [Certification!]!
   contentReviews(contentId: String!, contentType: ContentType!): [ContentReview!]!
+  contentUrl(contentId: String!, kind: ContentUrlKind!): ContentUrlSettings!
   courseById(courseId: String!): Course!
   courseBySlug(locale: AppLanguage, slug: String!): Course!
   courseFilterFacets: CourseFilterFacets!
@@ -4744,6 +4772,7 @@ type Query {
   providerSettings: ProviderSettings!
   publicUrlPage(input: PublicUrlPageInput!): PublicUrlPage!
   publicUrlShards: [PublicUrlShardSet!]!
+  resolveContentUrl(kind: ContentUrlKind!, slug: String!): ContentUrlResolution
   roadmapSuggestionOptions(input: RoadmapSuggestionOptionsInput!): [RoadmapWidgetOption!]!
   upcomingEvents(take: Int = 12): [Event!]!
   userById(userId: String!): User!
