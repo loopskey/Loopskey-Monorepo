@@ -157,6 +157,7 @@ export const MODEL_OWNERSHIP = {
 
   // Cross-cutting operational persistence
   AuditLog: BOUNDED_CONTEXTS.PLATFORM_SHARED,
+  RateLimitBucket: BOUNDED_CONTEXTS.PLATFORM_SHARED,
   OutboxEvent: BOUNDED_CONTEXTS.PLATFORM_SHARED,
   OutboxDelivery: BOUNDED_CONTEXTS.PLATFORM_SHARED,
 } as const;
