@@ -74,3 +74,9 @@ export const isExpiryOnOrAfterIssue = (
   if (Number.isNaN(issue) || Number.isNaN(expiry)) return false;
   return expiry >= issue;
 };
+
+export const CONTENT_SEO_LIMITS = {
+  titleMax: 200,
+  descriptionMax: 500,
+  imageAltMax: 300,
+} as const;

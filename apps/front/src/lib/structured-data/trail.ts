@@ -1,4 +1,4 @@
-import { contentDetailPath } from "@/lib/social-card/metadata";
+import { contentDetailPath } from "@/lib/content-catalog/detail-path";
 import { loadDictionary } from "@/i18n/dictionaries";
 import { plainText } from "@/lib/structured-data/facts";
 import { tabHref } from "@/lib/content-catalog/catalog-href";

@@ -30,6 +30,7 @@ export const generateMetadata = async ({
     description: channel.description,
     locale: publicLocale,
     variants: variantsOf(channel.availableLocales),
+    seo: channel,
   });
 };
 
@@ -47,9 +48,15 @@ const Page = async ({ params }: TContentDetailPageProps) => {
   });
   return (
     <>
-      <JsonLd
-        nodes={channelGraph({ content: channel, locale: publicLocale, trail })}
-      />
+      {!channel.excludeFromIndex && (
+        <JsonLd
+          nodes={channelGraph({
+            content: channel,
+            locale: publicLocale,
+            trail,
+          })}
+        />
+      )}
       <YoutubeDetail
         channel={channel}
         videos={videos}

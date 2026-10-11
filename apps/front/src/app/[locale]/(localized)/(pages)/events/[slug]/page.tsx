@@ -29,6 +29,7 @@ export const generateMetadata = async ({
     description: event.description,
     locale: publicLocale,
     variants: variantsOf(event.availableLocales),
+    seo: event,
   });
 };
 
@@ -45,9 +46,11 @@ const Page = async ({ params }: TContentDetailPageProps) => {
   });
   return (
     <>
-      <JsonLd
-        nodes={eventGraph({ content: event, locale: publicLocale, trail })}
-      />
+      {!event.excludeFromIndex && (
+        <JsonLd
+          nodes={eventGraph({ content: event, locale: publicLocale, trail })}
+        />
+      )}
       <EventDetailPage
         event={event}
         breadcrumbs={<Breadcrumbs trail={trail} locale={publicLocale} />}

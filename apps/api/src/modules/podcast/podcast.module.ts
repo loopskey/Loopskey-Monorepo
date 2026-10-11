@@ -1,30 +1,35 @@
-import { PodcastPublicUrlApiService } from "@podcast/application/public-url-api.service";
-import { PODCAST_PUBLIC_URL_API } from "@podcast/public/public-url-api";
 import { PodcastEngagementApiService } from "@podcast/application/podcast-engagement-api.service";
+import { PodcastPublicUrlApiService } from "@podcast/application/public-url-api.service";
 import { PODCAST_CATALOG_SEARCH_API } from "@podcast/public/catalog-search-api";
+import { PodcastTranslationResolver } from "@podcast/resolvers/podcast-translation.resolver";
+import { PodcastTranslationService } from "@podcast/services/podcast-translation.service";
 import { CatalogSearchApiService } from "@podcast/application/catalog-search-api.service";
 import { PODCAST_ENGAGEMENT_API } from "@podcast/public/podcast-engagement-api";
+import { PODCAST_PUBLIC_URL_API } from "@podcast/public/public-url-api";
+import { ContentMediaModule } from "@contentMedia/content-media.module";
+import { PodcastSeoResolver } from "@podcast/resolvers/podcast-seo.resolver";
+import { PodcastSeoService } from "@podcast/services/podcast-seo.service";
 import { PodcastResolver } from "@podcast/resolvers/podcast.resolver";
 import { PodcastService } from "@podcast/services/podcast.service";
-import { PodcastTranslationService } from "@podcast/services/podcast-translation.service";
-import { PodcastTranslationResolver } from "@podcast/resolvers/podcast-translation.resolver";
 import { PrismaModule } from "@prisma/prisma.module";
 import { Module } from "@nestjs/common";
 
 import "@podcast/enums/podcast-register.enum";
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, ContentMediaModule],
   providers: [
     PodcastPublicUrlApiService,
     {
       provide: PODCAST_PUBLIC_URL_API,
       useExisting: PodcastPublicUrlApiService,
     },
-    PodcastResolver,
-    PodcastTranslationResolver,
-    PodcastTranslationService,
     PodcastService,
+    PodcastResolver,
+    PodcastSeoService,
+    PodcastSeoResolver,
+    PodcastTranslationService,
+    PodcastTranslationResolver,
     PodcastEngagementApiService,
     {
       provide: PODCAST_ENGAGEMENT_API,

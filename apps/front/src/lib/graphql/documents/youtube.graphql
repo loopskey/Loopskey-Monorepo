@@ -45,6 +45,14 @@ fragment YouTubeChannelPageInfoFields on YouTubeChannelPageInfo {
 }
 
 # ================ Queries ================
+fragment YouTubeChannelSeoPublicFields on YouTubeChannel {
+  seoTitle
+  seoDescription
+  socialImagePath
+  socialImageAlt
+  excludeFromIndex
+}
+
 fragment YouTubeChannelLocaleFields on YouTubeChannel {
   contentLanguage
   availableLocales
@@ -83,6 +91,7 @@ query YouTubeChannelBySlug($slug: String!, $locale: AppLanguage) {
   youtubeChannelBySlug(slug: $slug, locale: $locale) {
     ...YouTubeChannelFields
     ...YouTubeChannelLocaleFields
+    ...YouTubeChannelSeoPublicFields
   }
 }
 

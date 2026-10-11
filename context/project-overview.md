@@ -412,6 +412,17 @@ for the row, and the sitemap lists only variants that exist. The translation
 tables, the source-language rules and the 404 behaviour are in
 `apps/front/docs/localized-public-pages.md`.
 
+#### Editorial search and sharing controls
+
+Providers set a search title, search description and share image per language
+for their own catalogue pages, and administrators can additionally ask search
+engines not to index a page. Overrides live in per-kind `*Seo` tables with one
+row per content and language, an optimistic `version`, and a RESTRICT foreign key
+to `ContentSocialImage`. Generated metadata remains the default; an override
+replaces only the text it sets, and a hidden page gets `noindex`, no alternates,
+no structured data and leaves the sitemap while staying published. See
+`apps/front/docs/content-seo.md`.
+
 ### Engagement and commerce
 
 Wishlists, enrollments, reviews, carts, cart items, certificates, and payments

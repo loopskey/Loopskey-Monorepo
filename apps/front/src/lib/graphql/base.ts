@@ -1408,6 +1408,8 @@ export enum AuditAction {
   AssociationActivityRejected = 'ASSOCIATION_ACTIVITY_REJECTED',
   AssociationMemberInvitationAccepted = 'ASSOCIATION_MEMBER_INVITATION_ACCEPTED',
   AssociationSettingsUpdated = 'ASSOCIATION_SETTINGS_UPDATED',
+  ContentIndexExclusionChanged = 'CONTENT_INDEX_EXCLUSION_CHANGED',
+  ContentSeoUpdated = 'CONTENT_SEO_UPDATED',
   OrganizationAccountActivated = 'ORGANIZATION_ACCOUNT_ACTIVATED',
   OrganizationAccountCreated = 'ORGANIZATION_ACCOUNT_CREATED',
   OrganizationActivationResent = 'ORGANIZATION_ACTIVATION_RESENT',
@@ -1705,6 +1707,26 @@ export type ContentReview = {
   userId: Scalars['String']['output'];
 };
 
+export type ContentSeoLocale = {
+  __typename?: 'ContentSeoLocale';
+  defaultDescription?: Maybe<Scalars['String']['output']>;
+  defaultTitle: Scalars['String']['output'];
+  locale: AppLanguage;
+  seoDescription?: Maybe<Scalars['String']['output']>;
+  seoTitle?: Maybe<Scalars['String']['output']>;
+  socialImageAlt?: Maybe<Scalars['String']['output']>;
+  socialImageId?: Maybe<Scalars['String']['output']>;
+  socialImagePath?: Maybe<Scalars['String']['output']>;
+  updatedAt?: Maybe<Scalars['DateTime']['output']>;
+  version: Scalars['Int']['output'];
+};
+
+export type ContentSeoSettings = {
+  __typename?: 'ContentSeoSettings';
+  excludeFromIndex: Scalars['Boolean']['output'];
+  locales: Array<ContentSeoLocale>;
+};
+
 export enum ContentType {
   Course = 'COURSE',
   Event = 'EVENT',
@@ -1723,6 +1745,7 @@ export type Course = {
   deletedAt?: Maybe<Scalars['DateTime']['output']>;
   description: Scalars['String']['output'];
   durationMinutes?: Maybe<Scalars['Int']['output']>;
+  excludeFromIndex?: Maybe<Scalars['Boolean']['output']>;
   id: Scalars['ID']['output'];
   imageUrl?: Maybe<Scalars['String']['output']>;
   instructor: Scalars['String']['output'];
@@ -1737,7 +1760,11 @@ export type Course = {
   rating: Scalars['Float']['output'];
   ratingCount: Scalars['Int']['output'];
   requirements: Array<Scalars['String']['output']>;
+  seoDescription?: Maybe<Scalars['String']['output']>;
+  seoTitle?: Maybe<Scalars['String']['output']>;
   slug: Scalars['String']['output'];
+  socialImageAlt?: Maybe<Scalars['String']['output']>;
+  socialImagePath?: Maybe<Scalars['String']['output']>;
   sourceUrl?: Maybe<Scalars['String']['output']>;
   status: CourseStatus;
   title: Scalars['String']['output'];
@@ -2265,6 +2292,7 @@ export type Event = {
   description: Scalars['String']['output'];
   earlyBirdDiscount?: Maybe<Scalars['Float']['output']>;
   endDate?: Maybe<Scalars['DateTime']['output']>;
+  excludeFromIndex?: Maybe<Scalars['Boolean']['output']>;
   id: Scalars['ID']['output'];
   imageUrl?: Maybe<Scalars['String']['output']>;
   isFree: Scalars['Boolean']['output'];
@@ -2281,7 +2309,11 @@ export type Event = {
   ratingCount: Scalars['Int']['output'];
   registrationEnabled: Scalars['Boolean']['output'];
   scheduleItems?: Maybe<Array<EventScheduleItem>>;
+  seoDescription?: Maybe<Scalars['String']['output']>;
+  seoTitle?: Maybe<Scalars['String']['output']>;
   slug: Scalars['String']['output'];
+  socialImageAlt?: Maybe<Scalars['String']['output']>;
+  socialImagePath?: Maybe<Scalars['String']['output']>;
   sourceUrl?: Maybe<Scalars['String']['output']>;
   speaker?: Maybe<Scalars['String']['output']>;
   specificTopic?: Maybe<Scalars['String']['output']>;
@@ -2884,19 +2916,27 @@ export type Mutation = {
   retryAssociationReportExport: AssociationGeneratedReport;
   reviewAssociationLearningActivity: AssociationReviewResult;
   revokeIngestionApiKey: IngestionApiKey;
+  saveCourseSeo: ContentSeoSettings;
   saveCourseTranslation: CourseTranslation;
+  saveEventSeo: ContentSeoSettings;
   saveEventTranslation: EventTranslation;
+  savePodcastSeo: ContentSeoSettings;
   savePodcastTranslation: PodcastTranslation;
+  saveYouTubeChannelSeo: ContentSeoSettings;
   saveYouTubeChannelTranslation: YouTubeChannelTranslation;
   sendAssociationMessage: AssociationMessageBatch;
   sendRoadmapChatTurn: ProfessionalRoadmapDraft;
   setAssociationGroupActive: AssociationGroup;
   setAssociationMemberRequirements: AssociationMemberRequirementsResult;
   setAssociationMemberStatus: AssociationMember;
+  setCourseIndexExclusion: ContentSeoSettings;
   setCourseTranslationPublication: CourseTranslation;
+  setEventIndexExclusion: ContentSeoSettings;
   setEventTranslationPublication: EventTranslation;
+  setPodcastIndexExclusion: ContentSeoSettings;
   setPodcastTranslationPublication: PodcastTranslation;
   setProfessionalCertificateCpdPlan: ProfessionalCertificate;
+  setYouTubeChannelIndexExclusion: ContentSeoSettings;
   setYouTubeChannelTranslationPublication: YouTubeChannelTranslation;
   startProfessionalOnboarding: ProfessionalDashboardProfile;
   startRoadmapDraft: ProfessionalRoadmapDraft;
@@ -3479,8 +3519,18 @@ export type MutationRevokeIngestionApiKeyArgs = {
 };
 
 
+export type MutationSaveCourseSeoArgs = {
+  input: SaveContentSeoInput;
+};
+
+
 export type MutationSaveCourseTranslationArgs = {
   input: SaveCourseTranslationInput;
+};
+
+
+export type MutationSaveEventSeoArgs = {
+  input: SaveContentSeoInput;
 };
 
 
@@ -3489,8 +3539,18 @@ export type MutationSaveEventTranslationArgs = {
 };
 
 
+export type MutationSavePodcastSeoArgs = {
+  input: SaveContentSeoInput;
+};
+
+
 export type MutationSavePodcastTranslationArgs = {
   input: SavePodcastTranslationInput;
+};
+
+
+export type MutationSaveYouTubeChannelSeoArgs = {
+  input: SaveContentSeoInput;
 };
 
 
@@ -3524,13 +3584,28 @@ export type MutationSetAssociationMemberStatusArgs = {
 };
 
 
+export type MutationSetCourseIndexExclusionArgs = {
+  input: SetContentIndexExclusionInput;
+};
+
+
 export type MutationSetCourseTranslationPublicationArgs = {
   input: SetCourseTranslationPublicationInput;
 };
 
 
+export type MutationSetEventIndexExclusionArgs = {
+  input: SetContentIndexExclusionInput;
+};
+
+
 export type MutationSetEventTranslationPublicationArgs = {
   input: SetEventTranslationPublicationInput;
+};
+
+
+export type MutationSetPodcastIndexExclusionArgs = {
+  input: SetContentIndexExclusionInput;
 };
 
 
@@ -3541,6 +3616,11 @@ export type MutationSetPodcastTranslationPublicationArgs = {
 
 export type MutationSetProfessionalCertificateCpdPlanArgs = {
   input: SetCertificateCpdPlanInput;
+};
+
+
+export type MutationSetYouTubeChannelIndexExclusionArgs = {
+  input: SetContentIndexExclusionInput;
 };
 
 
@@ -4674,6 +4754,7 @@ export type Podcast = {
   description: Scalars['String']['output'];
   durationMinutes?: Maybe<Scalars['Int']['output']>;
   episodeCount: Scalars['Int']['output'];
+  excludeFromIndex?: Maybe<Scalars['Boolean']['output']>;
   host: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   imageUrl?: Maybe<Scalars['String']['output']>;
@@ -4682,7 +4763,11 @@ export type Podcast = {
   providerId?: Maybe<Scalars['String']['output']>;
   rating: Scalars['Float']['output'];
   ratingCount: Scalars['Int']['output'];
+  seoDescription?: Maybe<Scalars['String']['output']>;
+  seoTitle?: Maybe<Scalars['String']['output']>;
   slug: Scalars['String']['output'];
+  socialImageAlt?: Maybe<Scalars['String']['output']>;
+  socialImagePath?: Maybe<Scalars['String']['output']>;
   sourceUrl?: Maybe<Scalars['String']['output']>;
   status: PodcastStatus;
   title: Scalars['String']['output'];
@@ -5525,6 +5610,7 @@ export type ProviderEventTableRow = {
   id: Scalars['ID']['output'];
   pdu: Scalars['Float']['output'];
   registrants: Scalars['Int']['output'];
+  slug: Scalars['String']['output'];
   startDate: Scalars['DateTime']['output'];
   status: EventStatus;
   title: Scalars['String']['output'];
@@ -5718,6 +5804,7 @@ export type Query = {
   courseById: Course;
   courseBySlug: Course;
   courseFilterFacets: CourseFilterFacets;
+  courseSeo: ContentSeoSettings;
   courseTranslations: Array<CourseTranslation>;
   courses: PaginatedCourses;
   cpdPlan: CpdPlan;
@@ -5728,6 +5815,7 @@ export type Query = {
   eventById: Event;
   eventBySlug: Event;
   eventFilterFacets: EventFilterFacets;
+  eventSeo: ContentSeoSettings;
   eventTranslations: Array<EventTranslation>;
   events: PaginatedEvents;
   featuredCourses: Array<Course>;
@@ -5782,6 +5870,7 @@ export type Query = {
   podcastBySlug: Podcast;
   podcastEpisodes: Array<PodcastEpisode>;
   podcastFilterFacets: PodcastFilterFacets;
+  podcastSeo: ContentSeoSettings;
   podcastTranslations: Array<PodcastTranslation>;
   podcasts: PaginatedPodcasts;
   popularCategories: Array<PopularCategory>;
@@ -5830,6 +5919,7 @@ export type Query = {
   youtubeChannelById: YouTubeChannel;
   youtubeChannelBySlug: YouTubeChannel;
   youtubeChannelFilterFacets: YouTubeChannelFilterFacets;
+  youtubeChannelSeo: ContentSeoSettings;
   youtubeChannelTranslations: Array<YouTubeChannelTranslation>;
   youtubeChannels: PaginatedYouTubeChannels;
   youtubeVideos: Array<YouTubeVideo>;
@@ -6153,6 +6243,11 @@ export type QueryCourseBySlugArgs = {
 };
 
 
+export type QueryCourseSeoArgs = {
+  courseId: Scalars['String']['input'];
+};
+
+
 export type QueryCourseTranslationsArgs = {
   courseId: Scalars['String']['input'];
 };
@@ -6189,6 +6284,11 @@ export type QueryEventByIdArgs = {
 export type QueryEventBySlugArgs = {
   locale?: InputMaybe<AppLanguage>;
   slug: Scalars['String']['input'];
+};
+
+
+export type QueryEventSeoArgs = {
+  eventId: Scalars['String']['input'];
 };
 
 
@@ -6411,6 +6511,11 @@ export type QueryPodcastEpisodesArgs = {
 };
 
 
+export type QueryPodcastSeoArgs = {
+  podcastId: Scalars['String']['input'];
+};
+
+
 export type QueryPodcastTranslationsArgs = {
   podcastId: Scalars['String']['input'];
 };
@@ -6606,6 +6711,11 @@ export type QueryYoutubeChannelByIdArgs = {
 export type QueryYoutubeChannelBySlugArgs = {
   locale?: InputMaybe<AppLanguage>;
   slug: Scalars['String']['input'];
+};
+
+
+export type QueryYoutubeChannelSeoArgs = {
+  channelId: Scalars['String']['input'];
 };
 
 
@@ -6862,6 +6972,16 @@ export enum Role {
   Provider = 'PROVIDER'
 }
 
+export type SaveContentSeoInput = {
+  contentId: Scalars['ID']['input'];
+  expectedVersion?: InputMaybe<Scalars['Int']['input']>;
+  locale: AppLanguage;
+  seoDescription?: InputMaybe<Scalars['String']['input']>;
+  seoTitle?: InputMaybe<Scalars['String']['input']>;
+  socialImageAlt?: InputMaybe<Scalars['String']['input']>;
+  socialImageId?: InputMaybe<Scalars['ID']['input']>;
+};
+
 export type SaveCourseTranslationInput = {
   courseId: Scalars['ID']['input'];
   description: Scalars['String']['input'];
@@ -6925,6 +7045,11 @@ export type SetAssociationMemberStatusInput = {
 export type SetCertificateCpdPlanInput = {
   certificateId: Scalars['ID']['input'];
   cpdPlanId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+export type SetContentIndexExclusionInput = {
+  contentId: Scalars['ID']['input'];
+  excluded: Scalars['Boolean']['input'];
 };
 
 export type SetCourseTranslationPublicationInput = {
@@ -7595,6 +7720,7 @@ export type YouTubeChannel = {
   createdAt: Scalars['DateTime']['output'];
   deletedAt?: Maybe<Scalars['DateTime']['output']>;
   description?: Maybe<Scalars['String']['output']>;
+  excludeFromIndex?: Maybe<Scalars['Boolean']['output']>;
   id: Scalars['ID']['output'];
   imageUrl?: Maybe<Scalars['String']['output']>;
   isFeatured: Scalars['Boolean']['output'];
@@ -7602,7 +7728,11 @@ export type YouTubeChannel = {
   providerId?: Maybe<Scalars['String']['output']>;
   rating: Scalars['Float']['output'];
   ratingCount: Scalars['Int']['output'];
+  seoDescription?: Maybe<Scalars['String']['output']>;
+  seoTitle?: Maybe<Scalars['String']['output']>;
   slug: Scalars['String']['output'];
+  socialImageAlt?: Maybe<Scalars['String']['output']>;
+  socialImagePath?: Maybe<Scalars['String']['output']>;
   status: YouTubeChannelStatus;
   subscribers: Scalars['Int']['output'];
   title: Scalars['String']['output'];

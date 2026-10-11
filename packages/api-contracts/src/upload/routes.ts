@@ -62,3 +62,11 @@ export const associationLogoPath = (storageKey: string) =>
 
 export const associationLogoUploadUrl = (origin: string) =>
   join(origin, ASSOCIATION_LOGO_ROUTE);
+
+export const CONTENT_SOCIAL_IMAGE_ROUTE = "content-social-image";
+
+export const contentSocialImagePath = (imageId: string) =>
+  `/${CONTENT_SOCIAL_IMAGE_ROUTE}/${encodeURIComponent(imageId)}`;
+
+export const contentSocialImageUploadUrl = (origin: string) =>
+  join(origin, CONTENT_SOCIAL_IMAGE_ROUTE);

@@ -11,6 +11,7 @@ import { Input } from "@ui/input";
 import { Badge } from "@ui/badge";
 
 import EventTranslationDialog from "@modules/ProviderDashboard/parts/event-translation-dialog";
+import ContentSeoDialog from "@modules/ContentSeo/ContentSeoDialog";
 
 import Link from "next/link";
 
@@ -171,10 +172,18 @@ const ProviderMyEventsTab = () => {
                   <td className="px-5 py-4">{item.registrants}</td>
                   <td className="px-5 py-4">{item.pdu}</td>
                   <td className="px-5 py-4">
-                    <EventTranslationDialog
-                      eventId={item.id}
-                      eventTitle={item.title}
-                    />
+                    <div className="flex flex-wrap gap-2">
+                      <EventTranslationDialog
+                        eventId={item.id}
+                        eventTitle={item.title}
+                      />
+                      <ContentSeoDialog
+                        kind="event"
+                        slug={item.slug}
+                        contentId={item.id}
+                        contentTitle={item.title}
+                      />
+                    </div>
                   </td>
                 </tr>
               ))}

@@ -1,8 +1,8 @@
 import { breadcrumbNode, webPageNode } from "@/lib/structured-data/graph";
 import { channelNode, courseNode } from "@/lib/structured-data/entities";
 import { eventNode, podcastNodes } from "@/lib/structured-data/entities";
-import { normalizeDescription } from "@/lib/social-card/metadata";
-import { contentDetailPath } from "@/lib/social-card/metadata";
+import { normalizeDescription } from "@/lib/content-catalog/snippet";
+import { contentDetailPath } from "@/lib/content-catalog/detail-path";
 import { localizedUrl } from "@/lib/site/page-metadata";
 
 import type { PublicCourse, PublicEvent } from "@/lib/server/public-content";

@@ -29,6 +29,7 @@ export const generateMetadata = async ({
     description: course.description,
     locale: publicLocale,
     variants: variantsOf(course.availableLocales),
+    seo: course,
   });
 };
 
@@ -45,9 +46,11 @@ const Page = async ({ params }: TContentDetailPageProps) => {
   });
   return (
     <>
-      <JsonLd
-        nodes={courseGraph({ content: course, locale: publicLocale, trail })}
-      />
+      {!course.excludeFromIndex && (
+        <JsonLd
+          nodes={courseGraph({ content: course, locale: publicLocale, trail })}
+        />
+      )}
       <CourseDetailPage
         course={course}
         breadcrumbs={<Breadcrumbs trail={trail} locale={publicLocale} />}

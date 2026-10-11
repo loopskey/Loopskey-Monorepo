@@ -48,6 +48,9 @@ exist only so a user gets a readable message instead of a constraint violation.
 | Concurrent directory syncs for one professional converge                                                 | `ProfessionalAssociationRequirementLink` is written with `createMany … skipDuplicates`, not a find-then-create upsert                                                                                                                                |
 | Publish and permanent delete cannot both win for one requirement                                         | The delete transaction takes `FOR UPDATE` on the association-scoped requirement row and then conditionally deletes only `DRAFT`; publish conditionally updates only `DRAFT`, so PostgreSQL serialises the two transitions and exactly one can commit |
 | A requirement only ever targets its own association's active members                                     | `updateAudience` takes `FOR SHARE … ORDER BY id` on the selected `AssociationMember` or `AssociationGroup` rows, filtered by `associationId`, inside the transaction that replaces the targets; a deactivation racing the save either waits behind the lock or is seen by it, and a refusal rolls the `deleteMany` back so no partial audience survives |
+| A SEO override is never silently overwritten | `updateMany` on `CourseSeo`/`EventSeo`/`PodcastSeo`/`YouTubeChannelSeo` naming the `version` the editor read, `count === 1`; the unique `(content, locale)` index arbitrates two first saves and is recovered as the same conflict |
+| A social image still in use is never deleted | `ContentSocialImage` is referenced by RESTRICT foreign keys; retirement deletes the row first and removes the file only when that succeeds |
+| Hiding a page from search converges | `updateMany` on `excludeFromIndex` naming the opposite value, so repeating the call changes and audits nothing |
 
 ## Decisions
 

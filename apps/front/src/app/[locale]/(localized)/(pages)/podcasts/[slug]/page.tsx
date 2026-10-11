@@ -30,6 +30,7 @@ export const generateMetadata = async ({
     description: podcast.description,
     locale: publicLocale,
     variants: variantsOf(podcast.availableLocales),
+    seo: podcast,
   });
 };
 
@@ -47,14 +48,16 @@ const Page = async ({ params }: TContentDetailPageProps) => {
   });
   return (
     <>
-      <JsonLd
-        nodes={podcastGraph({
-          content: podcast,
-          episodes,
-          locale: publicLocale,
-          trail,
-        })}
-      />
+      {!podcast.excludeFromIndex && (
+        <JsonLd
+          nodes={podcastGraph({
+            content: podcast,
+            episodes,
+            locale: publicLocale,
+            trail,
+          })}
+        />
+      )}
       <PodcastDetailPage
         podcast={podcast}
         episodes={episodes}

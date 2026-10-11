@@ -1,6 +1,7 @@
 import { Args, Context, Int, Mutation, Query } from "@nestjs/graphql";
 import { EventRegistrationEntity } from "@events/entities/event-registeration.entity";
 import { EventFilterFacetsEntity } from "@events/entities/event-filter-facets.entity";
+import { EventTranslationService } from "@events/services/event-translation.service";
 import { PaginatedEventsEntity } from "@events/entities/paginated-events.entity";
 import { EventGqlMutationNames } from "@events/enums/gql-names.enum";
 import { EventPaginationInput } from "@events/dtos/event-pagination.input";
@@ -9,9 +10,9 @@ import { EventGqlQueryNames } from "@events/enums/gql-names.enum";
 import { CreateEventInput } from "@events/dtos/create-event.input";
 import { UpdateEventInput } from "@events/dtos/update-event.input";
 import { EventFilterInput } from "@events/dtos/event-filter.input";
+import { EventSeoService } from "@events/services/event-seo.service";
 import { EventSortInput } from "@events/dtos/event-sort.input";
 import { EventService } from "@events/services/event.service";
-import { EventTranslationService } from "@events/services/event-translation.service";
 import { AppLanguage } from "@prisma/client";
 import { EventEntity } from "@events/entities/event.entity";
 import { CurrentUser } from "@auth/decorators/current-user.decorator";
@@ -29,6 +30,7 @@ export class EventResolver {
   constructor(
     private readonly eventService: EventService,
     private readonly translations: EventTranslationService,
+    private readonly seo: EventSeoService,
   ) {}
 
   @Public()
@@ -68,8 +70,11 @@ export class EventResolver {
     @Args("locale", { type: () => AppLanguage, nullable: true })
     locale?: AppLanguage,
   ) {
-    return this.translations.localizeOne(
-      await this.eventService.findEventBySlug(slug),
+    return this.seo.withEffectiveSeo(
+      await this.translations.localizeOne(
+        await this.eventService.findEventBySlug(slug),
+        locale,
+      ),
       locale,
     );
   }

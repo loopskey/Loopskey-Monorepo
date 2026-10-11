@@ -22,6 +22,7 @@ export enum PodcastGqlInputNames {
 
 export enum PodcastGqlQueryNames {
   PODCAST_TRANSLATIONS = "podcastTranslations",
+  PODCAST_SEO = "podcastSeo",
   PODCASTS = "podcasts",
   PODCAST_BY_ID = "podcastById",
   PODCAST_BY_SLUG = "podcastBySlug",
@@ -34,6 +35,8 @@ export enum PodcastGqlQueryNames {
 export enum PodcastGqlMutationNames {
   SAVE_PODCAST_TRANSLATION = "savePodcastTranslation",
   SET_PODCAST_TRANSLATION_PUBLICATION = "setPodcastTranslationPublication",
+  SAVE_PODCAST_SEO = "savePodcastSeo",
+  SET_PODCAST_INDEX_EXCLUSION = "setPodcastIndexExclusion",
   CREATE_PODCAST = "createPodcast",
   UPDATE_PODCAST = "updatePodcast",
   DELETE_PODCAST = "deletePodcast",

@@ -159,6 +159,7 @@ const identifier = (value: string) => {
 const eligibleRows = (source: PublicUrlSource) =>
   Prisma.sql`FROM ${identifier(source.table)}
     WHERE "deletedAt" IS NULL
+      AND "excludeFromIndex" = false
       AND "status" = ${PUBLISHED}::${identifier(source.statusType)}`;
 
 type ShardRow = {

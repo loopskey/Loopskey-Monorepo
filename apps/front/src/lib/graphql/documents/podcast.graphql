@@ -43,6 +43,14 @@ fragment PodcastPageInfoFields on PodcastPageInfo {
 }
 
 # ============== Queries ================
+fragment PodcastSeoPublicFields on Podcast {
+  seoTitle
+  seoDescription
+  socialImagePath
+  socialImageAlt
+  excludeFromIndex
+}
+
 fragment PodcastLocaleFields on Podcast {
   contentLanguage
   availableLocales
@@ -81,6 +89,7 @@ query PodcastBySlug($slug: String!, $locale: AppLanguage) {
   podcastBySlug(slug: $slug, locale: $locale) {
     ...PodcastFields
     ...PodcastLocaleFields
+    ...PodcastSeoPublicFields
   }
 }
 

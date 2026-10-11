@@ -85,6 +85,7 @@ fragment ProviderPageInfoFields on ProviderPageInfo {
 
 fragment ProviderEventTableRowFields on ProviderEventTableRow {
   id
+  slug
   pdu
   title
   views

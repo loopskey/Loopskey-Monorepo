@@ -23,6 +23,7 @@ export enum EventGqlInputNames {
 
 export enum EventGqlQueryNames {
   EVENT_TRANSLATIONS = "eventTranslations",
+  EVENT_SEO = "eventSeo",
   EVENTS = "events",
   EVENT_BY_ID = "eventById",
   EVENT_BY_SLUG = "eventBySlug",
@@ -36,6 +37,8 @@ export enum EventGqlQueryNames {
 export enum EventGqlMutationNames {
   SAVE_EVENT_TRANSLATION = "saveEventTranslation",
   SET_EVENT_TRANSLATION_PUBLICATION = "setEventTranslationPublication",
+  SAVE_EVENT_SEO = "saveEventSeo",
+  SET_EVENT_INDEX_EXCLUSION = "setEventIndexExclusion",
   CREATE_EVENT = "createEvent",
   UPDATE_EVENT = "updateEvent",
   CANCEL_EVENT = "cancelEvent",

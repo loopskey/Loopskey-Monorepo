@@ -79,6 +79,14 @@ fragment EventPageInfoFields on EventPageInfo {
 
 # ================== Queries ================
 
+fragment EventSeoPublicFields on Event {
+  seoTitle
+  seoDescription
+  socialImagePath
+  socialImageAlt
+  excludeFromIndex
+}
+
 fragment EventLocaleFields on Event {
   contentLanguage
   availableLocales
@@ -117,6 +125,7 @@ query EventBySlug($slug: String!, $locale: AppLanguage) {
   eventBySlug(slug: $slug, locale: $locale) {
     ...EventDetailFields
     ...EventLocaleFields
+    ...EventSeoPublicFields
   }
 }
 

@@ -1,13 +1,11 @@
-import { readPublicUrlPage } from "@utils/public-url-enumeration.util";
-import { readPublicUrlShards } from "@utils/public-url-enumeration.util";
-
-import type { PublicUrlPageSelector } from "@utils/public-url-enumeration.util";
-import type { PublicUrlSource } from "@utils/public-url-enumeration.util";
 import { EventRegistrationStatus, EventStatus, Prisma } from "@prisma/client";
 import { EventRegistrationConflict } from "@events/domain/errors/event-registration-conflict.error";
 import { EventPaginationInput } from "@events/dtos/event-pagination.input";
+import { readPublicUrlShards } from "@utils/public-url-enumeration.util";
+import { publicContentChange } from "@utils/public-content-change.util";
 import { EventSortDirection } from "@events/enums/event-register.enum";
 import { ATTENDING_STATUSES } from "@events/domain/policies/registration-attendance.policy";
+import { readPublicUrlPage } from "@utils/public-url-enumeration.util";
 import { EventRatingWriter } from "@events/public/events-api";
 import { EventFilterInput } from "@events/dtos/event-filter.input";
 import { VACATED_STATUSES } from "@events/domain/policies/registration-attendance.policy";
@@ -15,12 +13,20 @@ import { EventSortInput } from "@events/dtos/event-sort.input";
 import { EventSortField } from "@events/enums/event-register.enum";
 import { EventCategory } from "@prisma/client";
 import { PrismaService } from "@prisma/prisma.service";
+import { AppLanguage } from "@prisma/client";
 import { Injectable } from "@nestjs/common";
-import { publicContentChange } from "@utils/public-content-change.util";
-import type {
-  PublishedTranslation,
-  TranslationStore,
-} from "@utils/content-translation.util";
+
+import type { ProviderAttendeesQuery } from "@events/public/events-api";
+import type { RoadmapCandidateQuery } from "@events/public/events-api";
+import type { EventCatalogSearchRow } from "@events/types/event-service.types";
+import type { PublicUrlPageSelector } from "@utils/public-url-enumeration.util";
+import type { PublishedTranslation } from "@utils/content-translation.util";
+import type { ProviderEventsQuery } from "@events/public/events-api";
+import type { TranslationStore } from "@utils/content-translation.util";
+import type { SeoRow, SeoStore } from "@utils/content-seo.util";
+import type { PublicUrlSource } from "@utils/public-url-enumeration.util";
+import type { SeoDefaultText } from "@utils/content-seo-settings.util";
+
 import {
   CATALOG_SEARCH_CANDIDATE_CAP,
   CATALOG_SEARCH_ORDER,
@@ -32,11 +38,6 @@ import {
   readSearchWindowAfter,
   withoutSearchColumns,
 } from "@utils/catalog-pagination.util";
-
-import type { ProviderAttendeesQuery } from "@events/public/events-api";
-import type { RoadmapCandidateQuery } from "@events/public/events-api";
-import type { EventCatalogSearchRow } from "@events/types/event-service.types";
-import type { ProviderEventsQuery } from "@events/public/events-api";
 
 const isUniqueViolation = (error: unknown) =>
   error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -696,6 +697,7 @@ export class EventRepository {
       },
       items: items.map((event) => ({
         id: event.id,
+        slug: event.slug,
         title: event.title,
         startDate: event.startDate,
         status: event.status,
@@ -1049,6 +1051,102 @@ export class EventRepository {
     });
     return new Map(rows.map((row) => [row.id, row.sourceLanguage]));
   }
+
+  seoStore(): SeoStore<Prisma.TransactionClient> {
+    return {
+      transaction: (work) => this.prisma.$transaction((tx) => work(tx)),
+      findParent: (tx, eventId) =>
+        tx.event.findUnique({
+          where: { id: eventId },
+          select: {
+            id: true,
+            providerId: true,
+            deletedAt: true,
+            excludeFromIndex: true,
+          },
+        }),
+      findRow: (tx, eventId, locale) =>
+        tx.eventSeo.findUnique({
+          where: { eventId_locale: { eventId, locale } },
+          select: EVENT_SEO_SELECT,
+        }),
+      findImage: (tx, imageId) =>
+        tx.contentSocialImage.findUnique({
+          where: { id: imageId },
+          select: { id: true, ownerId: true },
+        }),
+      create: (tx, eventId, locale, fields, actorId) =>
+        tx.eventSeo.create({
+          data: { eventId, locale, ...fields, updatedById: actorId },
+          select: EVENT_SEO_SELECT,
+        }),
+      update: async (tx, rowId, expectedVersion, fields, actorId) => {
+        const { count } = await tx.eventSeo.updateMany({
+          where: { id: rowId, version: expectedVersion },
+          data: { ...fields, updatedById: actorId, version: { increment: 1 } },
+        });
+        return count;
+      },
+      reload: (tx, rowId) =>
+        tx.eventSeo.findUniqueOrThrow({
+          where: { id: rowId },
+          select: EVENT_SEO_SELECT,
+        }),
+      setExclusion: async (tx, eventId, excluded) => {
+        const { count } = await tx.event.updateMany({
+          where: { id: eventId, excludeFromIndex: !excluded },
+          data: { excludeFromIndex: excluded },
+        });
+        return count;
+      },
+      touchParent: async (tx, eventId) => {
+        await tx.event.update({
+          where: { id: eventId },
+          data: publicContentChange(),
+        });
+      },
+    };
+  }
+
+  async readSeoSettings(tx: Prisma.TransactionClient, eventId: string) {
+    const [rows, parent, translations] = await Promise.all([
+      tx.eventSeo.findMany({
+        where: { eventId },
+        orderBy: { locale: "asc" },
+        select: EVENT_SEO_SELECT,
+      }),
+      tx.event.findUniqueOrThrow({
+        where: { id: eventId },
+        select: { title: true, description: true },
+      }),
+      tx.eventTranslation.findMany({
+        where: { eventId },
+        select: { locale: true, title: true, description: true },
+      }),
+    ]);
+    const textFor = (locale: AppLanguage): SeoDefaultText => {
+      const translation = translations.find((row) => row.locale === locale);
+      return {
+        title: translation?.title ?? parent.title,
+        description: translation?.description ?? parent.description,
+      };
+    };
+    return {
+      rows: rows as SeoRow[],
+      defaults: {
+        [AppLanguage.EN]: textFor(AppLanguage.EN),
+        [AppLanguage.FR]: textFor(AppLanguage.FR),
+      },
+    };
+  }
+
+  async findSeoRowsForLocale(eventIds: string[], locale: AppLanguage) {
+    const rows = await this.prisma.eventSeo.findMany({
+      where: { eventId: { in: eventIds }, locale },
+      select: { ...EVENT_SEO_SELECT, eventId: true },
+    });
+    return rows.map(({ eventId: parentId, ...row }) => ({ ...row, parentId }));
+  }
 }
 
 const EVENT_TRANSLATION_SELECT = {
@@ -1058,6 +1156,17 @@ const EVENT_TRANSLATION_SELECT = {
   description: true,
   isPublished: true,
   publishedAt: true,
+  version: true,
+  updatedAt: true,
+} as const;
+
+const EVENT_SEO_SELECT = {
+  id: true,
+  locale: true,
+  seoTitle: true,
+  seoDescription: true,
+  socialImageId: true,
+  socialImageAlt: true,
   version: true,
   updatedAt: true,
 } as const;
