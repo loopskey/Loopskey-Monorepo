@@ -10,7 +10,7 @@ export type PublicUrlPageQueryVariables = Types.Exact<{
 }>;
 
 
-export type PublicUrlPageQuery = { __typename?: 'Query', publicUrlPage: { __typename?: 'PublicUrlPage', hasNextPage: boolean, nextCursor?: string | null, items: Array<{ __typename?: 'PublicUrl', slug: string, publicChangeAt: string }> } };
+export type PublicUrlPageQuery = { __typename?: 'Query', publicUrlPage: { __typename?: 'PublicUrlPage', hasNextPage: boolean, nextCursor?: string | null, items: Array<{ __typename?: 'PublicUrl', slug: string, publicChangeAt: string, availableLocales: Array<Types.AppLanguage> }> } };
 
 
 export const PublicUrlShardsDocument = /*#__PURE__*/ new TypedDocumentString(`
@@ -37,6 +37,7 @@ export const PublicUrlPageDocument = /*#__PURE__*/ new TypedDocumentString(`
     items {
       slug
       publicChangeAt
+      availableLocales
     }
   }
 }

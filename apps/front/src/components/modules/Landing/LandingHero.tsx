@@ -13,7 +13,7 @@ import HeroCategoryExplorer from "@modules/Landing/parts/HeroCategoryExplorer";
 import HeroMiniResultCard from "@modules/Landing/parts/HeroMiniResultCard";
 import HeroSearchBox from "@modules/Landing/parts/HeroSearchBox";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@elements/localized-link";
 
 const LandingHero = () => {
   const {

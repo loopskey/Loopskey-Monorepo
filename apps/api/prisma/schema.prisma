@@ -700,6 +700,8 @@ model Course {
   @@index([providerId])
   @@index([createdAt])
   @@index([title])
+
+  translations CourseTranslation[]
 }
 
 model CurriculumSection {
@@ -882,6 +884,8 @@ model Event {
   @@index([createdAt])
   @@index([title])
   @@index([slug])
+
+  translations EventTranslation[]
 }
 
 model EventRegistration {
@@ -1033,6 +1037,8 @@ model Podcast {
   @@index([createdAt])
   @@index([title])
   @@index([slug])
+
+  translations PodcastTranslation[]
 }
 
 model PodcastEpisode {
@@ -1137,6 +1143,8 @@ model YouTubeChannel {
   @@index([createdAt])
   @@index([title])
   @@index([slug])
+
+  translations YouTubeChannelTranslation[]
 }
 
 model YouTubeVideo {
@@ -1293,6 +1301,117 @@ model CartItem {
 }
 
 // =============== Provider =================
+/// One published-or-draft rendering of a Course in a supported public
+/// language. The parent's own columns stay the original text; a row here never
+/// replaces them and is public only while `isPublished` and the parent is.
+/// A CHECK constraint (`*_published_complete_check`), unmanaged by Prisma,
+/// keeps a published row from having a blank title or description.
+model CourseTranslation {
+  id String @id @default(cuid())
+
+  courseId    String
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  locale      AppLanguage
+  title       String
+  description String
+
+  learnings    String[] @default([])
+  requirements String[] @default([])
+
+  isPublished Boolean   @default(false)
+  publishedAt DateTime?
+  version     Int       @default(1)
+  updatedById String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([courseId, locale])
+  @@index([locale, isPublished])
+}
+
+/// One published-or-draft rendering of a Event in a supported public
+/// language. The parent's own columns stay the original text; a row here never
+/// replaces them and is public only while `isPublished` and the parent is.
+/// A CHECK constraint (`*_published_complete_check`), unmanaged by Prisma,
+/// keeps a published row from having a blank title or description.
+model EventTranslation {
+  id String @id @default(cuid())
+
+  eventId    String
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  locale      AppLanguage
+  title       String
+  description String
+
+  isPublished Boolean   @default(false)
+  publishedAt DateTime?
+  version     Int       @default(1)
+  updatedById String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([eventId, locale])
+  @@index([locale, isPublished])
+}
+
+/// One published-or-draft rendering of a Podcast in a supported public
+/// language. The parent's own columns stay the original text; a row here never
+/// replaces them and is public only while `isPublished` and the parent is.
+/// A CHECK constraint (`*_published_complete_check`), unmanaged by Prisma,
+/// keeps a published row from having a blank title or description.
+model PodcastTranslation {
+  id String @id @default(cuid())
+
+  podcastId    String
+  podcast Podcast @relation(fields: [podcastId], references: [id], onDelete: Cascade)
+
+  locale      AppLanguage
+  title       String
+  description String
+
+  isPublished Boolean   @default(false)
+  publishedAt DateTime?
+  version     Int       @default(1)
+  updatedById String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([podcastId, locale])
+  @@index([locale, isPublished])
+}
+
+/// One published-or-draft rendering of a YouTubeChannel in a supported public
+/// language. The parent's own columns stay the original text; a row here never
+/// replaces them and is public only while `isPublished` and the parent is.
+/// A CHECK constraint (`*_published_complete_check`), unmanaged by Prisma,
+/// keeps a published row from having a blank title or description.
+model YouTubeChannelTranslation {
+  id String @id @default(cuid())
+
+  channelId    String
+  channel YouTubeChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  locale      AppLanguage
+  title       String
+  description String
+
+  isPublished Boolean   @default(false)
+  publishedAt DateTime?
+  version     Int       @default(1)
+  updatedById String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([channelId, locale])
+  @@index([locale, isPublished])
+}
+
 enum AppLanguage {
   EN
   FR

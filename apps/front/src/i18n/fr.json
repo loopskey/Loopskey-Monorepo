@@ -345,6 +345,10 @@
     }
   },
   "common": {
+    "languageSwitcher": {
+      "label": "Langue",
+      "unavailable": "Non disponible dans cette langue"
+    },
     "no": "Non",
     "yes": "Oui",
     "all": "Tous",
@@ -2957,6 +2961,7 @@
       "label": "Pagination"
     },
     "card": {
+      "originalLanguage": "Langue d’origine",
       "free": "Gratuit",
       "viewDetails": "Voir les détails",
       "professionals": "{{count}} professionnels",
@@ -3074,6 +3079,11 @@
   },
   "contentDetails": {
     "common": {
+      "notFoundDescription": "Ce contenu a peut-être été retiré ou n’est pas publié.",
+      "variantMissing": "Cette page n’est pas disponible en français.",
+      "viewOriginal": "Voir la version originale",
+      "originalLanguage": "Langue d’origine : {{language}}",
+      "childrenOriginal": "Les épisodes et les vidéos sont affichés dans leur langue d’origine.",
       "backToContent": "Retour au contenu",
       "notFound": "Contenu introuvable",
       "unavailableTitle": "Cette page est temporairement indisponible",
@@ -4674,6 +4684,36 @@
     }
   },
   "providerDashboard": {
+    "translations": {
+      "open": "Traductions",
+      "title": "Traductions publiques",
+      "description": "Rédigez la version française ou anglaise de « {{title}} ». Une traduction n’est publique qu’après sa publication.",
+      "language": "Langue de la traduction",
+      "fields": {
+        "title": "Titre",
+        "description": "Description"
+      },
+      "status": {
+        "none": "Aucune traduction enregistrée.",
+        "draft": "Brouillon, version {{version}}. Non public.",
+        "published": "Publiée, version {{version}}."
+      },
+      "save": "Enregistrer la traduction",
+      "publish": "Publier",
+      "unpublish": "Dépublier",
+      "reload": "Recharger la dernière version",
+      "retry": "Réessayer",
+      "loadFailed": "Impossible de charger les traductions.",
+      "feedback": {
+        "saved": "Traduction enregistrée.",
+        "published": "Traduction publiée.",
+        "unpublished": "Traduction dépubliée.",
+        "conflict": "Quelqu’un a modifié cette traduction. Rechargez la dernière version avant d’enregistrer à nouveau.",
+        "incomplete": "Complétez le titre et la description avant de publier.",
+        "blank": "Le titre et la description ne peuvent pas être vides.",
+        "failed": "La modification n’a pas pu être enregistrée. Veuillez réessayer."
+      }
+    },
     "sidebar": {
       "overview": "Vue d’ensemble",
       "analytics": "Analytique",
@@ -4808,6 +4848,7 @@
         "cancelled": "Annulé"
       },
       "table": {
+        "translations": "Traductions",
         "event": "Événement",
         "date": "Date",
         "status": "Statut",

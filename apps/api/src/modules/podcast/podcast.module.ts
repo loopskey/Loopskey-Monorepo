@@ -6,6 +6,8 @@ import { CatalogSearchApiService } from "@podcast/application/catalog-search-api
 import { PODCAST_ENGAGEMENT_API } from "@podcast/public/podcast-engagement-api";
 import { PodcastResolver } from "@podcast/resolvers/podcast.resolver";
 import { PodcastService } from "@podcast/services/podcast.service";
+import { PodcastTranslationService } from "@podcast/services/podcast-translation.service";
+import { PodcastTranslationResolver } from "@podcast/resolvers/podcast-translation.resolver";
 import { PrismaModule } from "@prisma/prisma.module";
 import { Module } from "@nestjs/common";
 
@@ -20,6 +22,8 @@ import "@podcast/enums/podcast-register.enum";
       useExisting: PodcastPublicUrlApiService,
     },
     PodcastResolver,
+    PodcastTranslationResolver,
+    PodcastTranslationService,
     PodcastService,
     PodcastEngagementApiService,
     {

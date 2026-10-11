@@ -1,5 +1,6 @@
 import { Args, Int, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { YouTubeChannelFilterFacetsEntity } from "@youtube/entities/youtube-channel-filter-facets.entity";
+import { YouTubeChannelTranslationService } from "@youtube/services/youtube-channel-translation.service";
 import { PaginatedYouTubeChannelsEntity } from "@youtube/entities/paginated-youtube-channels.entity";
 import { YouTubeChannelPaginationInput } from "@modules/youtube/dtos/youtube-channel-pagination.input";
 import { CreateYouTubeChannelInput } from "@youtube/dtos/create-youtube-channel.input";
@@ -14,6 +15,7 @@ import { YouTubeChannelEntity } from "@modules/youtube/entities/youtube-channel.
 import { TCurrentUserPayload } from "@youtube/types/youtube-service.types";
 import { YouTubeVideoEntity } from "@youtube/entities/youtube-video.entity";
 import { YouTubeService } from "@youtube/services/youtbue.service";
+import { AppLanguage } from "@prisma/client";
 import { CurrentUser } from "@auth/decorators/current-user.decorator";
 import { Public } from "@auth/decorators/public.decorator";
 import { Roles } from "@auth/decorators/roles.decorator";
@@ -21,19 +23,32 @@ import { Role } from "@prisma/client";
 
 @Resolver(() => YouTubeChannelEntity)
 export class YouTubeResolver {
-  constructor(private readonly youtubeService: YouTubeService) {}
+  constructor(
+    private readonly youtubeService: YouTubeService,
+    private readonly translations: YouTubeChannelTranslationService,
+  ) {}
 
   @Public()
   @Query(() => PaginatedYouTubeChannelsEntity, {
     name: YouTubeGqlQueryNames.YOUTUBE_CHANNELS,
   })
-  youtubeChannels(
+  async youtubeChannels(
     @Args("filter", { nullable: true }) filter?: YouTubeChannelFilterInput,
     @Args("pagination", { nullable: true })
     pagination?: YouTubeChannelPaginationInput,
     @Args("sort", { nullable: true }) sort?: YouTubeChannelSortInput,
+    @Args("locale", { type: () => AppLanguage, nullable: true })
+    locale?: AppLanguage,
   ) {
-    return this.youtubeService.findChannels(filter, pagination, sort);
+    const page = await this.youtubeService.findChannels(
+      filter,
+      pagination,
+      sort,
+    );
+    return {
+      ...page,
+      items: await this.translations.localizeMany([...page.items], locale),
+    };
   }
 
   @Public()
@@ -56,8 +71,15 @@ export class YouTubeResolver {
   @Query(() => YouTubeChannelEntity, {
     name: YouTubeGqlQueryNames.YOUTUBE_CHANNEL_BY_SLUG,
   })
-  youtubeChannelBySlug(@Args("slug") slug: string) {
-    return this.youtubeService.findChannelBySlug(slug);
+  async youtubeChannelBySlug(
+    @Args("slug") slug: string,
+    @Args("locale", { type: () => AppLanguage, nullable: true })
+    locale?: AppLanguage,
+  ) {
+    return this.translations.localizeOne(
+      await this.youtubeService.findChannelBySlug(slug),
+      locale,
+    );
   }
 
   @Public()

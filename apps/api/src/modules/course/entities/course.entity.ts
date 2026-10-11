@@ -1,5 +1,6 @@
-import { CourseCategory, CourseLevel, CourseStatus } from "@prisma/client";
 import { Field, Float, ID, Int, ObjectType } from "@nestjs/graphql";
+import { AppLanguage, CourseCategory } from "@prisma/client";
+import { CourseLevel, CourseStatus } from "@prisma/client";
 import { CurriculumSectionEntity } from "./curriculum-section.entity";
 import { CourseGqlObjectNames } from "@course/enums/gql-names.enum";
 
@@ -32,4 +33,8 @@ export class CourseEntity {
   @Field(() => Int, { nullable: true }) durationMinutes?: number | null;
   @Field(() => [CurriculumSectionEntity], { nullable: true })
   curriculumSections?: CurriculumSectionEntity[];
+  @Field(() => AppLanguage, { nullable: true })
+  contentLanguage?: AppLanguage | null;
+  @Field(() => [AppLanguage], { nullable: true })
+  availableLocales?: AppLanguage[] | null;
 }

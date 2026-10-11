@@ -7,6 +7,7 @@ import { normalizeSearchTerm } from "@/lib/content-catalog/catalog-href";
 import { MAX_SEARCH_LENGTH } from "@/lib/content-catalog/catalog-href";
 import { MIN_SEARCH_LENGTH } from "@/lib/content-catalog/catalog-href";
 import { humanizeEnumValue } from "@/utils/function-helper";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 import { buildCatalogHref } from "@/lib/content-catalog/catalog-href";
 import { buttonVariants } from "@ui/button";
 import { useTransition } from "react";
@@ -21,7 +22,7 @@ import { cn } from "@/lib/utils";
 
 import type { ChangeEvent, FormEvent } from "react";
 
-import Link from "next/link";
+import Link from "@elements/localized-link";
 
 const SELECT_CLASS_NAME =
   "h-12 w-full rounded-lg border border-border/70 bg-background px-3 text-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring";
@@ -50,6 +51,7 @@ const ContentFilterForm = ({
   hasActiveFilters,
 }: TContentFilterFormProps) => {
   const { t, language } = useI18n();
+  const localize = useLocalizedHref();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -65,7 +67,7 @@ const ContentFilterForm = ({
       rating: readField(data, "rating"),
       eventType: readField(data, "eventType"),
     });
-    startTransition(() => router.push(href));
+    startTransition(() => router.push(localize(href)));
   };
 
   const enumLabel = (prefix: string, value: string) =>
@@ -166,14 +168,14 @@ const ContentFilterForm = ({
 
   return (
     <form
-      action="/content"
+      action={localize("/content")}
       method="get"
       role="search"
       onSubmit={submit}
-      aria-busy={isPending}
       aria-label={title}
-      onChange={submitOnSelectChange}
+      aria-busy={isPending}
       key={JSON.stringify(values)}
+      onChange={submitOnSelectChange}
       className="grid gap-3 lg:flex lg:items-center"
     >
       {tab !== "courses" && <input type="hidden" name="tab" value={tab} />}

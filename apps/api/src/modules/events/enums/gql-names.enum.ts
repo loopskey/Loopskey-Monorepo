@@ -1,4 +1,5 @@
 export enum EventGqlObjectNames {
+  EVENT_TRANSLATION = "EventTranslation",
   EVENT = "Event",
   EVENT_PAGE_INFO = "EventPageInfo",
   PAGINATED_EVENTS = "PaginatedEvents",
@@ -10,6 +11,8 @@ export enum EventGqlObjectNames {
 }
 
 export enum EventGqlInputNames {
+  SAVE_EVENT_TRANSLATION = "SaveEventTranslationInput",
+  SET_EVENT_TRANSLATION_PUBLICATION = "SetEventTranslationPublicationInput",
   EVENT_SORT = "EventSortInput",
   CREATE_EVENT = "CreateEventInput",
   UPDATE_EVENT = "UpdateEventInput",
@@ -19,6 +22,7 @@ export enum EventGqlInputNames {
 }
 
 export enum EventGqlQueryNames {
+  EVENT_TRANSLATIONS = "eventTranslations",
   EVENTS = "events",
   EVENT_BY_ID = "eventById",
   EVENT_BY_SLUG = "eventBySlug",
@@ -30,6 +34,8 @@ export enum EventGqlQueryNames {
 }
 
 export enum EventGqlMutationNames {
+  SAVE_EVENT_TRANSLATION = "saveEventTranslation",
+  SET_EVENT_TRANSLATION_PUBLICATION = "setEventTranslationPublication",
   CREATE_EVENT = "createEvent",
   UPDATE_EVENT = "updateEvent",
   CANCEL_EVENT = "cancelEvent",

@@ -3,6 +3,7 @@ import { fetchSocialCardContent } from "@/lib/social-card/content";
 import { UpstreamFailureError } from "@/lib/server/graphql-server";
 import { isSocialCardKind } from "@/lib/social-card/content";
 import { renderSocialCard } from "@/lib/social-card/render";
+import { isPublicLocale } from "@/lib/i18n/locale";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -16,9 +17,11 @@ export async function GET(request: NextRequest, { params }: Params) {
   const { kind, slug } = await params;
   if (!isSocialCardKind(kind))
     return new NextResponse("Unknown content kind.", { status: 404 });
+  const requestedLocale = request.nextUrl.searchParams.get("locale") ?? "en";
+  const locale = isPublicLocale(requestedLocale) ? requestedLocale : "en";
   let content;
   try {
-    content = await fetchSocialCardContent(kind, slug);
+    content = await fetchSocialCardContent(kind, slug, locale);
   } catch (error) {
     if (!(error instanceof UpstreamFailureError)) throw error;
     return new NextResponse("Social card temporarily unavailable.", {

@@ -8,7 +8,7 @@ import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
 import { cn } from "@/lib/utils";
 
-import Link from "next/link";
+import Link from "@elements/localized-link";
 
 import * as L from "lucide-react";
 

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { isValidHref, normalizePath } from "@/utils/function-helper";
 import { useCurrentUserQuery } from "@lib/rtk/endpoints/auth.api";
+import { stripLocalePrefix } from "@/lib/i18n/locale";
 import { usePathname } from "next/navigation";
 import { siteLinks } from "@utils/constant";
 import { TNavItem } from "@/types/element.types";
@@ -33,11 +34,8 @@ export const useHeader = () => {
     ].filter((item) => isValidHref(item.href) && item.label?.trim());
   }, [t]);
 
-  const currentPath = normalizePath(pathname ?? "/");
+  const currentPath = normalizePath(stripLocalePrefix(pathname ?? "/"));
 
-  // Header only ever mounts on public marketing pages (the dashboard route
-  // group has its own layout and never renders it), so the strip can show
-  // unconditionally instead of an allowlist that silently excluded most pages.
   const showRoleStrip = true;
 
   const isActiveNavItem = (href: string) => {
@@ -80,8 +78,8 @@ export const useHeader = () => {
     t,
     navItems,
     isScrolled,
-    showRoleStrip,
     isMobileOpen,
+    showRoleStrip,
     isUserFetching,
     openMobileMenu,
     isAuthenticated,

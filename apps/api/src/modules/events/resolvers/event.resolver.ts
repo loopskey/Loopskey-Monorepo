@@ -11,6 +11,8 @@ import { UpdateEventInput } from "@events/dtos/update-event.input";
 import { EventFilterInput } from "@events/dtos/event-filter.input";
 import { EventSortInput } from "@events/dtos/event-sort.input";
 import { EventService } from "@events/services/event.service";
+import { EventTranslationService } from "@events/services/event-translation.service";
+import { AppLanguage } from "@prisma/client";
 import { EventEntity } from "@events/entities/event.entity";
 import { CurrentUser } from "@auth/decorators/current-user.decorator";
 import { Resolver } from "@nestjs/graphql";
@@ -24,16 +26,25 @@ const UNKNOWN_VIEWER = "unknown";
 
 @Resolver(() => EventEntity)
 export class EventResolver {
-  constructor(private readonly eventService: EventService) {}
+  constructor(
+    private readonly eventService: EventService,
+    private readonly translations: EventTranslationService,
+  ) {}
 
   @Public()
   @Query(() => PaginatedEventsEntity, { name: EventGqlQueryNames.EVENTS })
-  events(
+  async events(
     @Args("filter", { nullable: true }) filter?: EventFilterInput,
     @Args("pagination", { nullable: true }) pagination?: EventPaginationInput,
     @Args("sort", { nullable: true }) sort?: EventSortInput,
+    @Args("locale", { type: () => AppLanguage, nullable: true })
+    locale?: AppLanguage,
   ) {
-    return this.eventService.findEvents(filter, pagination, sort);
+    const page = await this.eventService.findEvents(filter, pagination, sort);
+    return {
+      ...page,
+      items: await this.translations.localizeMany([...page.items], locale),
+    };
   }
 
   @Public()
@@ -52,8 +63,15 @@ export class EventResolver {
 
   @Public()
   @Query(() => EventEntity, { name: EventGqlQueryNames.EVENT_BY_SLUG })
-  eventBySlug(@Args("slug") slug: string) {
-    return this.eventService.findEventBySlug(slug);
+  async eventBySlug(
+    @Args("slug") slug: string,
+    @Args("locale", { type: () => AppLanguage, nullable: true })
+    locale?: AppLanguage,
+  ) {
+    return this.translations.localizeOne(
+      await this.eventService.findEventBySlug(slug),
+      locale,
+    );
   }
 
   @Public()

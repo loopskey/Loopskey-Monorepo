@@ -46,4 +46,8 @@ export class EventEntity {
   pduCategory?: PDUCategory | null;
   @Field(() => [EventScheduleItemEntity], { nullable: true })
   scheduleItems?: EventScheduleItemEntity[];
+  @Field(() => AppLanguage, { nullable: true })
+  contentLanguage?: AppLanguage | null;
+  @Field(() => [AppLanguage], { nullable: true })
+  availableLocales?: AppLanguage[] | null;
 }

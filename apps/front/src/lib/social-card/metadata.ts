@@ -1,8 +1,9 @@
+import { alternateLanguages, localizedUrl } from "@/lib/site/page-metadata";
 import { siteOpenGraph, siteTwitter } from "@/lib/site/page-metadata";
 import { SOCIAL_CARD_HEIGHT } from "@/lib/social-card/constants";
 import { SOCIAL_CARD_WIDTH } from "@/lib/social-card/constants";
-import { siteUrl } from "@/lib/site/site-url";
 
+import type { PublicLocale } from "@/lib/i18n/locale";
 import type { SocialCardKind } from "@/lib/social-card/content";
 import type { Metadata } from "next";
 
@@ -31,24 +32,35 @@ export const normalizeDescription = (
   if (collapsed.length <= DESCRIPTION_MAX_LENGTH) return collapsed;
   const cut = collapsed.slice(0, DESCRIPTION_MAX_LENGTH - 1);
   const lastSpace = cut.lastIndexOf(" ");
-  const boundary = lastSpace > DESCRIPTION_MAX_LENGTH / 2 ? lastSpace : cut.length;
+  const boundary =
+    lastSpace > DESCRIPTION_MAX_LENGTH / 2 ? lastSpace : cut.length;
   return `${cut.slice(0, boundary).trimEnd()}…`;
 };
+
+const socialCardUrl = (
+  kind: SocialCardKind,
+  slug: string,
+  locale: PublicLocale,
+) =>
+  `/api/social-card/${kind}/${encodeURIComponent(slug)}${
+    locale === "en" ? "" : `?locale=${locale}`
+  }`;
 
 export const contentSocialMetadata = (
   kind: SocialCardKind,
   slug: string,
+  locale: PublicLocale = "en",
 ): Metadata => {
   const images = [
     {
-      url: `/api/social-card/${kind}/${encodeURIComponent(slug)}`,
+      url: socialCardUrl(kind, slug, locale),
       width: SOCIAL_CARD_WIDTH,
       height: SOCIAL_CARD_HEIGHT,
     },
   ];
 
   return {
-    openGraph: siteOpenGraph({ images }),
+    openGraph: siteOpenGraph({ images, locale }),
     twitter: siteTwitter({ images }),
   };
 };
@@ -58,6 +70,8 @@ type ContentMetadataInput = {
   slug: string;
   title: string;
   description: string | null | undefined;
+  locale?: PublicLocale;
+  variants?: readonly PublicLocale[];
 };
 
 export const contentMetadata = ({
@@ -65,14 +79,17 @@ export const contentMetadata = ({
   slug,
   title,
   description,
+  locale = "en",
+  variants = [],
 }: ContentMetadataInput): Metadata => {
   const path = `${KIND_PATH[kind]}/${encodeURIComponent(slug)}`;
   const summary = normalizeDescription(
     description,
     KIND_FALLBACK_DESCRIPTION[kind],
   );
+  const languages = alternateLanguages(path, variants);
   const image = {
-    url: `/api/social-card/${kind}/${encodeURIComponent(slug)}`,
+    url: socialCardUrl(kind, slug, locale),
     width: SOCIAL_CARD_WIDTH,
     height: SOCIAL_CARD_HEIGHT,
     alt: title,
@@ -81,11 +98,15 @@ export const contentMetadata = ({
   return {
     title,
     description: summary,
-    alternates: { canonical: siteUrl(path) },
+    alternates: {
+      canonical: localizedUrl(path, locale),
+      ...(languages ? { languages } : {}),
+    },
     openGraph: siteOpenGraph({
       title,
       description: summary,
       path,
+      locale,
       images: [image],
     }),
     twitter: siteTwitter({

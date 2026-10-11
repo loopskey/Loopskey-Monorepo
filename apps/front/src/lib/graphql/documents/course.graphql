@@ -35,14 +35,26 @@ fragment CoursePageInfoFields on CoursePageInfo {
 }
 
 # ============= Queries ================
+fragment CourseLocaleFields on Course {
+  contentLanguage
+  availableLocales
+}
+
 query Courses(
   $filter: CourseFilterInput
   $pagination: CoursePaginationInput
   $sort: CourseSortInput
+  $locale: AppLanguage
 ) {
-  courses(filter: $filter, pagination: $pagination, sort: $sort) {
+  courses(
+    filter: $filter
+    pagination: $pagination
+    sort: $sort
+    locale: $locale
+  ) {
     items {
       ...CourseFields
+      ...CourseLocaleFields
     }
     totalCount
     pageInfo {
@@ -57,9 +69,10 @@ query CourseById($courseId: String!) {
   }
 }
 
-query CourseBySlug($slug: String!) {
-  courseBySlug(slug: $slug) {
+query CourseBySlug($slug: String!, $locale: AppLanguage) {
+  courseBySlug(slug: $slug, locale: $locale) {
     ...CourseFields
+    ...CourseLocaleFields
   }
 }
 

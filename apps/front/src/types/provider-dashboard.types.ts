@@ -107,3 +107,8 @@ export type SelectOption = {
   value: string;
   disabled?: boolean;
 };
+
+export type TEventTranslationDialogProps = {
+  eventId: string;
+  eventTitle: string;
+};

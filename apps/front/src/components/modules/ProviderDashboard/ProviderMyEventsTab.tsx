@@ -10,6 +10,8 @@ import { Button } from "@ui/button";
 import { Input } from "@ui/input";
 import { Badge } from "@ui/badge";
 
+import EventTranslationDialog from "@modules/ProviderDashboard/parts/event-translation-dialog";
+
 import Link from "next/link";
 
 import * as S from "@ui/select";
@@ -147,6 +149,9 @@ const ProviderMyEventsTab = () => {
                 <th className="px-5 py-4">
                   {t("providerDashboard.myEvents.table.pdu")}
                 </th>
+                <th className="px-5 py-4">
+                  {t("providerDashboard.myEvents.table.translations")}
+                </th>
               </tr>
             </thead>
 
@@ -165,13 +170,19 @@ const ProviderMyEventsTab = () => {
                   <td className="px-5 py-4">{item.views}</td>
                   <td className="px-5 py-4">{item.registrants}</td>
                   <td className="px-5 py-4">{item.pdu}</td>
+                  <td className="px-5 py-4">
+                    <EventTranslationDialog
+                      eventId={item.id}
+                      eventTitle={item.title}
+                    />
+                  </td>
                 </tr>
               ))}
 
               {!items.length && (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={7}
                     className="px-5 py-12 text-center text-muted-foreground"
                   >
                     {t("providerDashboard.myEvents.empty")}

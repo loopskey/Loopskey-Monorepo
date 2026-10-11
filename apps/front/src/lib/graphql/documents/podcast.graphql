@@ -43,14 +43,26 @@ fragment PodcastPageInfoFields on PodcastPageInfo {
 }
 
 # ============== Queries ================
+fragment PodcastLocaleFields on Podcast {
+  contentLanguage
+  availableLocales
+}
+
 query Podcasts(
   $filter: PodcastFilterInput
   $pagination: PodcastPaginationInput
   $sort: PodcastSortInput
+  $locale: AppLanguage
 ) {
-  podcasts(filter: $filter, pagination: $pagination, sort: $sort) {
+  podcasts(
+    filter: $filter
+    pagination: $pagination
+    sort: $sort
+    locale: $locale
+  ) {
     items {
       ...PodcastFields
+      ...PodcastLocaleFields
     }
     totalCount
     pageInfo {
@@ -65,9 +77,10 @@ query PodcastById($podcastId: String!) {
   }
 }
 
-query PodcastBySlug($slug: String!) {
-  podcastBySlug(slug: $slug) {
+query PodcastBySlug($slug: String!, $locale: AppLanguage) {
+  podcastBySlug(slug: $slug, locale: $locale) {
     ...PodcastFields
+    ...PodcastLocaleFields
   }
 }
 

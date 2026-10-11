@@ -5,7 +5,7 @@ import { useActiveRole } from "@/providers/active-role-provider";
 import { useI18n } from "@/hooks/useI18n";
 import { cn } from "@/lib/utils";
 
-import Link from "next/link";
+import Link from "@elements/localized-link";
 
 export const RoleMenuSection = () => {
   const { t } = useI18n();

@@ -21,6 +21,8 @@ const COURSE_SOURCE: PublicUrlSource = {
   kind: ContentType.COURSE,
   table: "Course",
   statusType: "CourseStatus",
+  translationTable: "CourseTranslation",
+  translationParentColumn: "courseId",
 };
 
 const anchor = { createdAt: "2026-01-02T03:04:05.006", id: "course-1" };
@@ -201,6 +203,8 @@ describe("readPublicUrlPage", () => {
     slug,
     createdAt: new Date("2026-01-02T03:04:05.006Z"),
     publicChangeAt: new Date("2026-02-03T00:00:00.000Z"),
+    sourceLanguage: null,
+    publishedLocales: [],
   });
 
   it("bounds the window by the shard's own anchors", async () => {
@@ -224,7 +228,11 @@ describe("readPublicUrlPage", () => {
     expect(query.values).toContain("course-9");
     expect(query.values).toContain(11);
     expect(page.items).toEqual([
-      { slug: "alpha", publicChangeAt: new Date("2026-02-03T00:00:00.000Z") },
+      {
+        slug: "alpha",
+        publicChangeAt: new Date("2026-02-03T00:00:00.000Z"),
+        availableLocales: [],
+      },
     ]);
     expect(page.hasNextPage).toBe(false);
     expect(page.nextCursor).toBeNull();

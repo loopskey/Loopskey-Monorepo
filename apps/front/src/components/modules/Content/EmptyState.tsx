@@ -7,7 +7,7 @@ import { GlassCard } from "@elements/glass-card";
 import { SearchX } from "lucide-react";
 import { useI18n } from "@/hooks/useI18n";
 
-import Link from "next/link";
+import Link from "@elements/localized-link";
 
 const EmptyState = ({ resetHref }: TEmptyStateProps) => {
   const { t } = useI18n();

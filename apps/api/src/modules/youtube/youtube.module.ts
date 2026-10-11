@@ -1,8 +1,10 @@
-import { YouTubePublicUrlApiService } from "@youtube/application/public-url-api.service";
-import { YOUTUBE_PUBLIC_URL_API } from "@youtube/public/public-url-api";
+import { YouTubeChannelTranslationResolver } from "@youtube/resolvers/youtube-channel-translation.resolver";
+import { YouTubeChannelTranslationService } from "@youtube/services/youtube-channel-translation.service";
 import { YouTubeEngagementApiService } from "@youtube/application/youtube-engagement-api.service";
+import { YouTubePublicUrlApiService } from "@youtube/application/public-url-api.service";
 import { YOUTUBE_CATALOG_SEARCH_API } from "@youtube/public/catalog-search-api";
 import { CatalogSearchApiService } from "@youtube/application/catalog-search-api.service";
+import { YOUTUBE_PUBLIC_URL_API } from "@youtube/public/public-url-api";
 import { YOUTUBE_ENGAGEMENT_API } from "@youtube/public/youtube-engagement-api";
 import { YouTubeResolver } from "@youtube/resolvers/youtube.resolver";
 import { YouTubeService } from "@youtube/services/youtbue.service";
@@ -20,6 +22,8 @@ import "@youtube/enums/youtube-register.enum";
       useExisting: YouTubePublicUrlApiService,
     },
     YouTubeResolver,
+    YouTubeChannelTranslationResolver,
+    YouTubeChannelTranslationService,
     YouTubeService,
     YouTubeEngagementApiService,
     {

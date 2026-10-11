@@ -91,13 +91,25 @@ const ContentCard = ({
             ) : null}
           </div>
 
-          <h3 className="line-clamp-2 text-base font-semibold leading-snug tracking-tight sm:min-h-11">
+          <h3
+            lang={item.contentLang ?? undefined}
+            className="line-clamp-2 text-base font-semibold leading-snug tracking-tight sm:min-h-11"
+          >
             {item.title}
           </h3>
 
-          <p className="hidden min-h-5 text-[13px] leading-5 text-muted-foreground sm:line-clamp-1">
+          <p
+            lang={item.contentLang ?? undefined}
+            className="hidden min-h-5 text-[13px] leading-5 text-muted-foreground sm:line-clamp-1"
+          >
             {item.description}
           </p>
+
+          {item.originalLanguage ? (
+            <p className="text-[11px] font-semibold text-muted-foreground">
+              {t("content.card.originalLanguage")}
+            </p>
+          ) : null}
 
           <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 pt-1 text-xs text-muted-foreground">
             {hasRating ? (

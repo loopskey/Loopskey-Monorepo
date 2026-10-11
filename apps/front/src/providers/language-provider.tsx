@@ -1,11 +1,14 @@
 "use client";
 
+import { createContext, useCallback, useEffect } from "react";
 import { defaultDictionary, defaultLanguage } from "@/i18n/dictionaries";
-import { useMemo, useState, ReactNode } from "react";
-import { I18nContextValue, TLanguage } from "@/types/providers.types";
+import { TLanguage, TLanguageProvider } from "@/types/providers.types";
 import { Dictionary, loadDictionary } from "@/i18n/dictionaries";
-import { createContext, useEffect } from "react";
 import { getByKey, isStringArray } from "@/utils/function-helper";
+import { usePathname, useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
+import { I18nContextValue } from "@/types/providers.types";
+import { switchLocalePath } from "@/lib/i18n/locale";
 
 export const I18nContext = createContext<I18nContextValue | null>(null);
 
@@ -14,30 +17,57 @@ const STORAGE_KEY = "app_language";
 const isSupportedLanguage = (value: string | null): value is TLanguage =>
   value === "en" || value === "fr";
 
-export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  const [language, setLanguageState] = useState<TLanguage>(defaultLanguage);
-  const [dict, setDict] = useState<Dictionary>(defaultDictionary);
+export const LanguageProvider = ({
+  children,
+  routeLanguage,
+  routeDictionary,
+}: TLanguageProvider) => {
+  const isRouteLocked = routeLanguage !== undefined;
+  const router = useRouter();
+  const pathname = usePathname();
+  const [preferredLanguage, setPreferredLanguage] =
+    useState<TLanguage>(defaultLanguage);
+  const [preferredDictionary, setPreferredDictionary] =
+    useState<Dictionary>(defaultDictionary);
+
+  const language = routeLanguage ?? preferredLanguage;
+  const dict = routeDictionary ?? preferredDictionary;
 
   useEffect(() => {
+    if (isRouteLocked) return;
     const savedLanguage = window.localStorage.getItem(STORAGE_KEY);
-    if (isSupportedLanguage(savedLanguage)) setLanguageState(savedLanguage);
-  }, []);
+    if (isSupportedLanguage(savedLanguage)) setPreferredLanguage(savedLanguage);
+  }, [isRouteLocked]);
 
   useEffect(() => {
-    window.localStorage.setItem(STORAGE_KEY, language);
-    document.documentElement.lang = language;
+    if (isRouteLocked) return;
+    window.localStorage.setItem(STORAGE_KEY, preferredLanguage);
+    document.documentElement.lang = preferredLanguage;
     document.documentElement.dir = "ltr";
-  }, [language]);
+  }, [isRouteLocked, preferredLanguage]);
 
   useEffect(() => {
+    if (isRouteLocked) return;
     let active = true;
-    loadDictionary(language).then((loaded) => {
-      if (active) setDict(loaded);
+    loadDictionary(preferredLanguage).then((loaded) => {
+      if (active) setPreferredDictionary(loaded);
     });
     return () => {
       active = false;
     };
-  }, [language]);
+  }, [isRouteLocked, preferredLanguage]);
+
+  const setLanguage = useCallback(
+    (next: TLanguage) => {
+      if (!isRouteLocked) {
+        setPreferredLanguage(next);
+        return;
+      }
+      if (next === language) return;
+      router.push(switchLocalePath(pathname, window.location.search, next));
+    },
+    [isRouteLocked, language, pathname, router],
+  );
 
   const value = useMemo<I18nContextValue>(() => {
     const t: I18nContextValue["t"] = (key, params = {}, fallback = "") => {
@@ -61,17 +91,16 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     };
 
     return {
-      language,
-      dir: "ltr",
-      setLanguage: setLanguageState,
-      toggleLanguage: () => {
-        setLanguageState((current) => (current === "en" ? "fr" : "en"));
-      },
       t,
       ta,
       traw,
+      language,
+      dir: "ltr",
+      setLanguage,
+      isRouteLocked,
+      toggleLanguage: () => setLanguage(language === "en" ? "fr" : "en"),
     };
-  }, [language, dict]);
+  }, [language, dict, isRouteLocked, setLanguage]);
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 };

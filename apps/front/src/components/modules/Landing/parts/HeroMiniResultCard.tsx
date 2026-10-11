@@ -7,7 +7,7 @@ import { ContentThumbnail } from "@elements/content-thumbnail";
 import { useI18n } from "@/hooks/useI18n";
 import { cn } from "@/lib/utils";
 
-import Link from "next/link";
+import Link from "@elements/localized-link";
 
 const getIcon = (kind: TLandingHeroResultItem["kind"]) => {
   if (kind === "event") return <CalendarDays className="h-3.5 w-3.5" />;

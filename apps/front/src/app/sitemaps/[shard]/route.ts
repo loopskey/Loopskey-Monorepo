@@ -8,7 +8,10 @@ import { UpstreamFailureError } from "@/lib/server/graphql-server";
 import { readShardUrls } from "@/lib/sitemap/reader";
 import { parseShardFile } from "@/lib/sitemap/shards";
 import { logSitemap } from "@/lib/sitemap/response";
-import { siteUrl } from "@/lib/site/site-url";
+import {
+  localizedEntries,
+  publicLocalesOf,
+} from "@/lib/sitemap/localized-entries";
 import { urlSetXml } from "@/lib/sitemap/xml";
 
 import type { SitemapEntry } from "@/lib/sitemap/xml";
@@ -19,7 +22,9 @@ export const dynamic = "force-dynamic";
 type Params = { params: Promise<{ shard: string }> };
 
 const staticPageEntries = (): SitemapEntry[] =>
-  CANONICAL_STATIC_PAGE_PATHS.map((path) => ({ location: siteUrl(path) }));
+  CANONICAL_STATIC_PAGE_PATHS.flatMap((path) =>
+    localizedEntries(path, ["en", "fr"]),
+  );
 
 export async function GET(_request: Request, { params }: Params) {
   if (!isIndexableDeployment) return sitemapNotFoundResponse();
@@ -62,12 +67,13 @@ export async function GET(_request: Request, { params }: Params) {
     });
     return sitemapXmlResponse(
       urlSetXml(
-        items.map((item) => ({
-          location: siteUrl(
+        items.flatMap((item) =>
+          localizedEntries(
             `${kind.detailBasePath}/${encodeURIComponent(item.slug)}`,
+            publicLocalesOf(item.availableLocales),
+            new Date(item.publicChangeAt),
           ),
-          lastModified: new Date(item.publicChangeAt),
-        })),
+        ),
       ),
     );
   } catch (error) {

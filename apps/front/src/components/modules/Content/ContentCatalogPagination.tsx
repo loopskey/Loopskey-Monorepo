@@ -7,7 +7,7 @@ import { LinkPending } from "@elements/link-pending";
 import { useI18n } from "@/hooks/useI18n";
 import { cn } from "@/lib/utils";
 
-import Link from "next/link";
+import Link from "@elements/localized-link";
 
 const DISABLED_CLASS_NAME = "pointer-events-none opacity-50";
 

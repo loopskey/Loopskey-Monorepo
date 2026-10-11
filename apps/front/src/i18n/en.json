@@ -345,6 +345,10 @@
     }
   },
   "common": {
+    "languageSwitcher": {
+      "label": "Language",
+      "unavailable": "Not available in this language"
+    },
     "no": "No",
     "all": "All",
     "yes": "Yes",
@@ -2953,6 +2957,7 @@
       "label": "Pagination"
     },
     "card": {
+      "originalLanguage": "Original language",
       "free": "Free",
       "viewDetails": "View details",
       "professionals": "{{count}} professionals",
@@ -3070,6 +3075,11 @@
   },
   "contentDetails": {
     "common": {
+      "notFoundDescription": "This content may have been removed or is not published.",
+      "variantMissing": "This page is not available in French.",
+      "viewOriginal": "View the original version",
+      "originalLanguage": "Original language: {{language}}",
+      "childrenOriginal": "Episodes and videos are shown in their original language.",
       "backToContent": "Back to content",
       "notFound": "Content not found",
       "unavailableTitle": "This page is temporarily unavailable",
@@ -4671,6 +4681,36 @@
     }
   },
   "providerDashboard": {
+    "translations": {
+      "open": "Translations",
+      "title": "Public translations",
+      "description": "Write the French or English version of “{{title}}”. A translation is public only after you publish it.",
+      "language": "Translation language",
+      "fields": {
+        "title": "Title",
+        "description": "Description"
+      },
+      "status": {
+        "none": "No translation saved yet.",
+        "draft": "Draft, version {{version}}. Not public.",
+        "published": "Published, version {{version}}."
+      },
+      "save": "Save translation",
+      "publish": "Publish",
+      "unpublish": "Unpublish",
+      "reload": "Reload latest version",
+      "retry": "Try again",
+      "loadFailed": "We could not load the translations.",
+      "feedback": {
+        "saved": "Translation saved.",
+        "published": "Translation published.",
+        "unpublished": "Translation unpublished.",
+        "conflict": "Someone else changed this translation. Reload the latest version before saving again.",
+        "incomplete": "Complete the title and description before publishing.",
+        "blank": "The title and description cannot be empty.",
+        "failed": "The change could not be saved. Please try again."
+      }
+    },
     "sidebar": {
       "myGoals": "My Goals",
       "settings": "Settings",
@@ -4805,6 +4845,7 @@
         "cancelled": "Cancelled"
       },
       "table": {
+        "translations": "Translations",
         "event": "Event",
         "date": "Date",
         "status": "Status",

@@ -400,6 +400,18 @@ and parameter order never create a second URL.
   that changes while a visitor pages can shift later pages by that row; a row
   that disappears expires only a cursor that points at it.
 
+#### Localized public pages
+
+English public URLs stay unprefixed and French variants live under `/fr`;
+`/en/...` redirects permanently to the unprefixed path. The URL alone chooses the
+server-rendered language, `<html lang>`, metadata and `hreflang` alternates, and
+a stored preference never overrides it on a public route (auth, dashboards and
+onboarding stay English-only and keep the stored preference). Catalogue details
+have a French variant only when a published, complete French translation exists
+for the row, and the sitemap lists only variants that exist. The translation
+tables, the source-language rules and the 404 behaviour are in
+`apps/front/docs/localized-public-pages.md`.
+
 ### Engagement and commerce
 
 Wishlists, enrollments, reviews, carts, cart items, certificates, and payments

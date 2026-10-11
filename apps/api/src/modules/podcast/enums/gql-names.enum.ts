@@ -1,4 +1,5 @@
 export enum PodcastGqlObjectNames {
+  PODCAST_TRANSLATION = "PodcastTranslation",
   PODCAST = "Podcast",
   PODCAST_EPISODE = "PodcastEpisode",
   PODCAST_PAGE_INFO = "PodcastPageInfo",
@@ -8,6 +9,8 @@ export enum PodcastGqlObjectNames {
 }
 
 export enum PodcastGqlInputNames {
+  SAVE_PODCAST_TRANSLATION = "SavePodcastTranslationInput",
+  SET_PODCAST_TRANSLATION_PUBLICATION = "SetPodcastTranslationPublicationInput",
   PODCAST_SORT = "PodcastSortInput",
   CREATE_PODCAST = "CreatePodcastInput",
   UPDATE_PODCAST = "UpdatePodcastInput",
@@ -18,6 +21,7 @@ export enum PodcastGqlInputNames {
 }
 
 export enum PodcastGqlQueryNames {
+  PODCAST_TRANSLATIONS = "podcastTranslations",
   PODCASTS = "podcasts",
   PODCAST_BY_ID = "podcastById",
   PODCAST_BY_SLUG = "podcastBySlug",
@@ -28,6 +32,8 @@ export enum PodcastGqlQueryNames {
 }
 
 export enum PodcastGqlMutationNames {
+  SAVE_PODCAST_TRANSLATION = "savePodcastTranslation",
+  SET_PODCAST_TRANSLATION_PUBLICATION = "setPodcastTranslationPublication",
   CREATE_PODCAST = "createPodcast",
   UPDATE_PODCAST = "updatePodcast",
   DELETE_PODCAST = "deletePodcast",

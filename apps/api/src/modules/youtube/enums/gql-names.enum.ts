@@ -1,4 +1,5 @@
 export enum YouTubeGqlObjectNames {
+  YOUTUBE_CHANNEL_TRANSLATION = "YouTubeChannelTranslation",
   YOUTUBE_VIDEO = "YouTubeVideo",
   YOUTUBE_CHANNEL = "YouTubeChannel",
   YOUTUBE_CHANNEL_PAGE_INFO = "YouTubeChannelPageInfo",
@@ -8,6 +9,8 @@ export enum YouTubeGqlObjectNames {
 }
 
 export enum YouTubeGqlInputNames {
+  SAVE_YOUTUBE_CHANNEL_TRANSLATION = "SaveYouTubeChannelTranslationInput",
+  SET_YOUTUBE_CHANNEL_TRANSLATION_PUBLICATION = "SetYouTubeChannelTranslationPublicationInput",
   YOUTUBE_CHANNEL_SORT = "YouTubeChannelSortInput",
   CREATE_YOUTUBE_VIDEO = "CreateYouTubeVideoInput",
   UPDATE_YOUTUBE_VIDEO = "UpdateYouTubeVideoInput",
@@ -18,6 +21,7 @@ export enum YouTubeGqlInputNames {
 }
 
 export enum YouTubeGqlQueryNames {
+  YOUTUBE_CHANNEL_TRANSLATIONS = "youtubeChannelTranslations",
   YOUTUBE_VIDEOS = "youtubeVideos",
   YOUTUBE_CHANNELS = "youtubeChannels",
   YOUTUBE_CHANNEL_BY_ID = "youtubeChannelById",
@@ -28,6 +32,8 @@ export enum YouTubeGqlQueryNames {
 }
 
 export enum YouTubeGqlMutationNames {
+  SAVE_YOUTUBE_CHANNEL_TRANSLATION = "saveYouTubeChannelTranslation",
+  SET_YOUTUBE_CHANNEL_TRANSLATION_PUBLICATION = "setYouTubeChannelTranslationPublication",
   DELETE_YOUTUBE_VIDEO = "deleteYouTubeVideo",
   CREATE_YOUTUBE_VIDEO = "createYouTubeVideo",
   UPDATE_YOUTUBE_VIDEO = "updateYouTubeVideo",

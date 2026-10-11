@@ -39,6 +39,8 @@ export type TContentCardItem = {
   description?: string | null;
   metaPrimary?: string | null;
   metaSecondary?: string | null;
+  contentLang?: string | null;
+  originalLanguage?: boolean;
 };
 
 export type TSelectOption = {
@@ -173,6 +175,8 @@ export type TDetailPageHeaderProps = {
   category?: string | null;
   ratingCount?: number | null;
   chips?: Array<string | null | undefined>;
+  contentLanguage?: API.AppLanguage | null;
+  availableLocales?: API.AppLanguage[] | null;
 };
 
 export type TDetailSidebarProps = {

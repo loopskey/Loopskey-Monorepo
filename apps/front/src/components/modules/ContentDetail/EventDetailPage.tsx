@@ -49,6 +49,8 @@ const EventDetailPage = ({ event }: TEventDetailPageProps) => {
       header={
         <DetailPageHeader
           title={event.title}
+          contentLanguage={event.contentLanguage}
+          availableLocales={event.availableLocales}
           badge={t("contentDetails.event.badge")}
           rating={event.averageRating ?? event.rating}
           ratingCount={event.ratingCount}

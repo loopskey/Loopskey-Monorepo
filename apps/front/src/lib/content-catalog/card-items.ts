@@ -1,5 +1,6 @@
 import { translateWithFallback } from "@/utils/function-helper";
 import { humanizeEnumValue } from "@/utils/function-helper";
+import { localizePath } from "@/lib/i18n/locale";
 
 import type { TContentCardItem } from "@/types/content-module.types";
 import type { I18nContextValue } from "@/types/providers.types";
@@ -28,6 +29,23 @@ const formatEventDate = (
     }).format(date);
   }
 };
+
+const detailHref = (
+  path: string,
+  language: string,
+  available: readonly string[] | null | undefined,
+) =>
+  language === "fr" && available?.includes("FR")
+    ? localizePath(path, "fr")
+    : path;
+
+const localeFields = (
+  language: string,
+  contentLanguage: string | null | undefined,
+) => ({
+  contentLang: contentLanguage ? contentLanguage.toLowerCase() : null,
+  originalLanguage: language === "fr" && contentLanguage !== "FR",
+});
 
 const enumLabel = (t: Translate, prefix: string, value?: string | null) =>
   value
@@ -71,7 +89,12 @@ export const toCardItems = (
           "content.card.minutes",
           course.durationMinutes,
         ),
-        href: `/courses/${course.slug}`,
+        href: detailHref(
+          `/courses/${course.slug}`,
+          language,
+          course.availableLocales,
+        ),
+        ...localeFields(language, course.contentLanguage),
       }));
     case "events":
       return page.items.map((event) => ({
@@ -91,7 +114,12 @@ export const toCardItems = (
         metaSecondary: event.startDate
           ? formatEventDate(event.startDate, event.timezone, language)
           : null,
-        href: `/events/${event.slug}`,
+        href: detailHref(
+          `/events/${event.slug}`,
+          language,
+          event.availableLocales,
+        ),
+        ...localeFields(language, event.contentLanguage),
       }));
     case "podcasts":
       return page.items.map((podcast) => ({
@@ -110,7 +138,12 @@ export const toCardItems = (
           "content.card.episodes",
           podcast.episodeCount,
         ),
-        href: `/podcasts/${podcast.slug}`,
+        href: detailHref(
+          `/podcasts/${podcast.slug}`,
+          language,
+          podcast.availableLocales,
+        ),
+        ...localeFields(language, podcast.contentLanguage),
       }));
     default:
       return page.items.map((channel) => ({
@@ -129,7 +162,12 @@ export const toCardItems = (
           channel.subscribers,
         ),
         metaSecondary: countLabel(t, "content.card.videos", channel.videoCount),
-        href: `/youtube/${channel.slug}`,
+        href: detailHref(
+          `/youtube/${channel.slug}`,
+          language,
+          channel.availableLocales,
+        ),
+        ...localeFields(language, channel.contentLanguage),
       }));
   }
 };

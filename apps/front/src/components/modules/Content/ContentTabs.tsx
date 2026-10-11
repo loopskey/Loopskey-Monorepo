@@ -7,7 +7,7 @@ import { useI18n } from "@/hooks/useI18n";
 import { tabHref } from "@/lib/content-catalog/catalog-href";
 import { cn } from "@/lib/utils";
 
-import Link from "next/link";
+import Link from "@elements/localized-link";
 
 import * as L from "lucide-react";
 
