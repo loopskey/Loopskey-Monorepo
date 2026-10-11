@@ -1,15 +1,12 @@
 "use client";
 
-import { LanguageProvider } from "@/providers/language-provider";
-import { Dictionary } from "@/i18n/dictionaries";
+import { RouteLanguageProvider } from "@/providers/route-language-provider";
 import { ReactNode } from "react";
 
-import fr from "@/i18n/fr.json";
-
-const frenchDictionary = fr as unknown as Dictionary;
+import publicFrench from "@/i18n/generated/public.fr.json";
 
 export const FrenchRouteProvider = ({ children }: { children: ReactNode }) => (
-  <LanguageProvider routeLanguage="fr" routeDictionary={frenchDictionary}>
+  <RouteLanguageProvider language="fr" dictionary={publicFrench}>
     {children}
-  </LanguageProvider>
+  </RouteLanguageProvider>
 );

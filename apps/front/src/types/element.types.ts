@@ -7,7 +7,7 @@ import type { buttonVariants } from "@ui/button";
 import type { VariantProps } from "class-variance-authority";
 import type { AvatarImage } from "@ui/avatar";
 
-import { Eye } from "lucide-react";
+import type { Eye } from "lucide-react";
 
 // ================ User Avatar ==============
 export type TUserAvatarProps = {

@@ -1,11 +1,12 @@
 "use client";
 
-import { defaultDictionary } from "@/i18n/dictionaries";
-import { LanguageProvider } from "@/providers/language-provider";
+import { RouteLanguageProvider } from "@/providers/route-language-provider";
 import { ReactNode } from "react";
 
+import publicEnglish from "@/i18n/generated/public.en.json";
+
 export const EnglishRouteProvider = ({ children }: { children: ReactNode }) => (
-  <LanguageProvider routeLanguage="en" routeDictionary={defaultDictionary}>
+  <RouteLanguageProvider language="en" dictionary={publicEnglish}>
     {children}
-  </LanguageProvider>
+  </RouteLanguageProvider>
 );
