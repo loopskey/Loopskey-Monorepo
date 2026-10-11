@@ -7876,5 +7876,88 @@
         "YOUTUBE": "YouTube"
       }
     }
+  },
+  "contentSeo": {
+    "open": "Recherche et partage",
+    "title": "Recherche et partage",
+    "description": "Ajustez l’apparence de « {{title}} » dans les résultats de recherche et lors du partage. Les champs vides utilisent le texte généré à partir de la page.",
+    "loadFailed": "Impossible de charger les réglages de recherche et de partage.",
+    "retry": "Réessayer",
+    "language": "Langue",
+    "fields": {
+      "title": "Titre de recherche",
+      "description": "Description de recherche",
+      "image": "Image de partage",
+      "imageAlt": "Description de l’image (texte alternatif)"
+    },
+    "hints": {
+      "text": "Un texte plus court se lit généralement plus facilement. La quantité affichée dépend de l’appareil et de la recherche.",
+      "counter": "{{count}} caractères sur {{max}}"
+    },
+    "image": {
+      "help": "JPEG, PNG ou WebP, jusqu’à {{size}} Mo. Sans image, la carte générée est partagée.",
+      "choose": "Téléverser une image",
+      "replace": "Remplacer l’image",
+      "remove": "Retirer l’image",
+      "uploading": "Téléversement…",
+      "none": "Aucune image sélectionnée."
+    },
+    "actions": {
+      "save": "Enregistrer",
+      "reset": "Utiliser le texte généré",
+      "reload": "Recharger la dernière version"
+    },
+    "preview": {
+      "title": "Aperçu approximatif",
+      "note": "Il s’agit d’une approximation. Les moteurs de recherche et les réseaux sociaux décident de ce qui s’affiche.",
+      "search": "Résultat de recherche",
+      "share": "Lien partagé",
+      "generatedCard": "Carte générée",
+      "empty": "Rien à prévisualiser pour le moment."
+    },
+    "status": {
+      "none": "Aucune personnalisation enregistrée pour cette langue.",
+      "saved": "Enregistré, version {{version}}.",
+      "unsaved": "Vous avez des modifications non enregistrées."
+    },
+    "feedback": {
+      "saved": "Réglages de recherche et de partage enregistrés.",
+      "uploaded": "Image téléversée. Enregistrez pour l’utiliser.",
+      "conflict": "Quelqu’un a modifié cette langue. Rechargez la dernière version avant d’enregistrer à nouveau.",
+      "invalid": "Un des champs est trop long ou non autorisé.",
+      "imageMissing": "Cette image n’est plus disponible. Téléversez-la à nouveau.",
+      "imageType": "Utilisez une image JPEG, PNG ou WebP.",
+      "imageSize": "Cette image est trop volumineuse.",
+      "imageQuota": "Trop de téléversements inutilisés. Enregistrez ou attendez un jour avant d’en ajouter.",
+      "forbidden": "Vous ne pouvez pas modifier les réglages de recherche de cette page.",
+      "failed": "Impossible d’enregistrer les réglages. Réessayez.",
+      "indexed": "La page peut de nouveau être indexée par les moteurs de recherche.",
+      "excluded": "La page demande désormais aux moteurs de recherche de ne pas l’indexer."
+    },
+    "moderation": {
+      "title": "Indexation par les moteurs de recherche",
+      "description": "Une page masquée reste publique mais demande aux moteurs de recherche de ne pas la lister, et elle quitte le plan du site. Cela ne protège pas un contenu confidentiel.",
+      "excluded": "Cette page est masquée des moteurs de recherche.",
+      "indexed": "Cette page peut être indexée.",
+      "exclude": "Masquer des moteurs de recherche",
+      "include": "Autoriser l’indexation"
+    },
+    "admin": {
+      "tab": "Visibilité dans la recherche",
+      "title": "Visibilité dans la recherche",
+      "description": "Recherchez une page publiée par son identifiant d’adresse pour vérifier son apparence dans la recherche et la masquer des moteurs de recherche.",
+      "kind": "Type de contenu",
+      "slug": "Identifiant de la page",
+      "slugPlaceholder": "par exemple principes-du-leadership",
+      "find": "Trouver la page",
+      "notFound": "Aucune page publiée ne correspond à cet identifiant.",
+      "found": "Trouvé : {{title}}",
+      "kinds": {
+        "course": "Cours",
+        "event": "Événement",
+        "podcast": "Balado",
+        "youtube": "Chaîne YouTube"
+      }
+    }
   }
 }

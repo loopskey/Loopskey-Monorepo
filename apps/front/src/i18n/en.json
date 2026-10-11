@@ -7874,5 +7874,88 @@
         "YOUTUBE": "YouTube"
       }
     }
+  },
+  "contentSeo": {
+    "open": "Search and sharing",
+    "title": "Search and sharing",
+    "description": "Adjust how “{{title}}” appears in search results and when it is shared. Empty fields use the text generated from the page.",
+    "loadFailed": "We could not load the search and sharing settings.",
+    "retry": "Try again",
+    "language": "Language",
+    "fields": {
+      "title": "Search title",
+      "description": "Search description",
+      "image": "Share image",
+      "imageAlt": "Image description (alt text)"
+    },
+    "hints": {
+      "text": "Shorter text is usually easier to scan. How much is shown depends on the device and the search.",
+      "counter": "{{count}} of {{max}} characters"
+    },
+    "image": {
+      "help": "JPEG, PNG or WebP, up to {{size}} MB. Without an image the generated card is shared.",
+      "choose": "Upload image",
+      "replace": "Replace image",
+      "remove": "Remove image",
+      "uploading": "Uploading…",
+      "none": "No image selected."
+    },
+    "actions": {
+      "save": "Save",
+      "reset": "Use generated text",
+      "reload": "Reload latest version"
+    },
+    "preview": {
+      "title": "Approximate preview",
+      "note": "This is an approximation. Search engines and social networks decide what to display.",
+      "search": "Search result",
+      "share": "Shared link",
+      "generatedCard": "Generated card",
+      "empty": "Nothing to preview yet."
+    },
+    "status": {
+      "none": "No override saved for this language yet.",
+      "saved": "Saved, version {{version}}.",
+      "unsaved": "You have unsaved changes."
+    },
+    "feedback": {
+      "saved": "Search and sharing settings saved.",
+      "uploaded": "Image uploaded. Save to use it.",
+      "conflict": "Someone else changed this language. Reload the latest version before saving again.",
+      "invalid": "One of the fields is too long or not allowed.",
+      "imageMissing": "That image is no longer available. Upload it again.",
+      "imageType": "Use a JPEG, PNG or WebP image.",
+      "imageSize": "That image is too large.",
+      "imageQuota": "Too many unused uploads. Save or wait a day before uploading more.",
+      "forbidden": "You cannot change the search settings of this page.",
+      "failed": "We could not save the settings. Try again.",
+      "indexed": "The page can be indexed by search engines again.",
+      "excluded": "The page now asks search engines not to index it."
+    },
+    "moderation": {
+      "title": "Search engine indexing",
+      "description": "A hidden page stays public but asks search engines not to list it, and it leaves the sitemap. It does not protect confidential content.",
+      "excluded": "This page is hidden from search engines.",
+      "indexed": "This page can be indexed.",
+      "exclude": "Hide from search engines",
+      "include": "Allow indexing"
+    },
+    "admin": {
+      "tab": "Search visibility",
+      "title": "Search visibility",
+      "description": "Look up a published page by its address slug to review how it appears in search and to hide it from search engines.",
+      "kind": "Content type",
+      "slug": "Page slug",
+      "slugPlaceholder": "for example leadership-basics",
+      "find": "Find page",
+      "notFound": "No published page matches that slug.",
+      "found": "Found: {{title}}",
+      "kinds": {
+        "course": "Course",
+        "event": "Event",
+        "podcast": "Podcast",
+        "youtube": "YouTube channel"
+      }
+    }
   }
 }

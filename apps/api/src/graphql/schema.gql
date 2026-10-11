@@ -1321,6 +1321,8 @@ enum AuditAction {
   ASSOCIATION_ACTIVITY_REJECTED
   ASSOCIATION_MEMBER_INVITATION_ACCEPTED
   ASSOCIATION_SETTINGS_UPDATED
+  CONTENT_INDEX_EXCLUSION_CHANGED
+  CONTENT_SEO_UPDATED
   ORGANIZATION_ACCOUNT_ACTIVATED
   ORGANIZATION_ACCOUNT_CREATED
   ORGANIZATION_ACTIVATION_RESENT
@@ -1607,6 +1609,24 @@ type ContentReview {
   userId: String!
 }
 
+type ContentSeoLocale {
+  defaultDescription: String
+  defaultTitle: String!
+  locale: AppLanguage!
+  seoDescription: String
+  seoTitle: String
+  socialImageAlt: String
+  socialImageId: String
+  socialImagePath: String
+  updatedAt: DateTime
+  version: Int!
+}
+
+type ContentSeoSettings {
+  excludeFromIndex: Boolean!
+  locales: [ContentSeoLocale!]!
+}
+
 enum ContentType {
   COURSE
   EVENT
@@ -1624,6 +1644,7 @@ type Course {
   deletedAt: DateTime
   description: String!
   durationMinutes: Int
+  excludeFromIndex: Boolean
   id: ID!
   imageUrl: String
   instructor: String!
@@ -1638,7 +1659,11 @@ type Course {
   rating: Float!
   ratingCount: Int!
   requirements: [String!]!
+  seoDescription: String
+  seoTitle: String
   slug: String!
+  socialImageAlt: String
+  socialImagePath: String
   sourceUrl: String
   status: CourseStatus!
   title: String!
@@ -2155,6 +2180,7 @@ type Event {
   description: String!
   earlyBirdDiscount: Float
   endDate: DateTime
+  excludeFromIndex: Boolean
   id: ID!
   imageUrl: String
   isFree: Boolean!
@@ -2171,7 +2197,11 @@ type Event {
   ratingCount: Int!
   registrationEnabled: Boolean!
   scheduleItems: [EventScheduleItem!]
+  seoDescription: String
+  seoTitle: String
   slug: String!
+  socialImageAlt: String
+  socialImagePath: String
   sourceUrl: String
   speaker: String
   specificTopic: String
@@ -2760,19 +2790,27 @@ type Mutation {
   retryAssociationReportExport(input: AssociationReportExportIdInput!): AssociationGeneratedReport!
   reviewAssociationLearningActivity(input: ReviewAssociationLearningActivityInput!): AssociationReviewResult!
   revokeIngestionApiKey(keyId: String!): IngestionApiKey!
+  saveCourseSeo(input: SaveContentSeoInput!): ContentSeoSettings!
   saveCourseTranslation(input: SaveCourseTranslationInput!): CourseTranslation!
+  saveEventSeo(input: SaveContentSeoInput!): ContentSeoSettings!
   saveEventTranslation(input: SaveEventTranslationInput!): EventTranslation!
+  savePodcastSeo(input: SaveContentSeoInput!): ContentSeoSettings!
   savePodcastTranslation(input: SavePodcastTranslationInput!): PodcastTranslation!
+  saveYouTubeChannelSeo(input: SaveContentSeoInput!): ContentSeoSettings!
   saveYouTubeChannelTranslation(input: SaveYouTubeChannelTranslationInput!): YouTubeChannelTranslation!
   sendAssociationMessage(input: SendAssociationMessageInput!): AssociationMessageBatch!
   sendRoadmapChatTurn(input: RoadmapChatTurnInput!): ProfessionalRoadmapDraft!
   setAssociationGroupActive(input: SetAssociationGroupActiveInput!): AssociationGroup!
   setAssociationMemberRequirements(input: SetAssociationMemberRequirementsInput!): AssociationMemberRequirementsResult!
   setAssociationMemberStatus(input: SetAssociationMemberStatusInput!): AssociationMember!
+  setCourseIndexExclusion(input: SetContentIndexExclusionInput!): ContentSeoSettings!
   setCourseTranslationPublication(input: SetCourseTranslationPublicationInput!): CourseTranslation!
+  setEventIndexExclusion(input: SetContentIndexExclusionInput!): ContentSeoSettings!
   setEventTranslationPublication(input: SetEventTranslationPublicationInput!): EventTranslation!
+  setPodcastIndexExclusion(input: SetContentIndexExclusionInput!): ContentSeoSettings!
   setPodcastTranslationPublication(input: SetPodcastTranslationPublicationInput!): PodcastTranslation!
   setProfessionalCertificateCpdPlan(input: SetCertificateCpdPlanInput!): ProfessionalCertificate!
+  setYouTubeChannelIndexExclusion(input: SetContentIndexExclusionInput!): ContentSeoSettings!
   setYouTubeChannelTranslationPublication(input: SetYouTubeChannelTranslationPublicationInput!): YouTubeChannelTranslation!
   startProfessionalOnboarding: ProfessionalDashboardProfile!
   startRoadmapDraft: ProfessionalRoadmapDraft!
@@ -3611,6 +3649,7 @@ type Podcast {
   description: String!
   durationMinutes: Int
   episodeCount: Int!
+  excludeFromIndex: Boolean
   host: String!
   id: ID!
   imageUrl: String
@@ -3619,7 +3658,11 @@ type Podcast {
   providerId: String
   rating: Float!
   ratingCount: Int!
+  seoDescription: String
+  seoTitle: String
   slug: String!
+  socialImageAlt: String
+  socialImagePath: String
   sourceUrl: String
   status: PodcastStatus!
   title: String!
@@ -4411,6 +4454,7 @@ type ProviderEventTableRow {
   id: ID!
   pdu: Float!
   registrants: Int!
+  slug: String!
   startDate: DateTime!
   status: EventStatus!
   title: String!
@@ -4592,6 +4636,7 @@ type Query {
   courseById(courseId: String!): Course!
   courseBySlug(locale: AppLanguage, slug: String!): Course!
   courseFilterFacets: CourseFilterFacets!
+  courseSeo(courseId: String!): ContentSeoSettings!
   courseTranslations(courseId: String!): [CourseTranslation!]!
   courses(filter: CourseFilterInput, locale: AppLanguage, pagination: CoursePaginationInput, sort: CourseSortInput): PaginatedCourses!
   cpdPlan(planId: ID!): CpdPlan!
@@ -4602,6 +4647,7 @@ type Query {
   eventById(eventId: String!): Event!
   eventBySlug(locale: AppLanguage, slug: String!): Event!
   eventFilterFacets: EventFilterFacets!
+  eventSeo(eventId: String!): ContentSeoSettings!
   eventTranslations(eventId: String!): [EventTranslation!]!
   events(filter: EventFilterInput, locale: AppLanguage, pagination: EventPaginationInput, sort: EventSortInput): PaginatedEvents!
   featuredCourses(take: Int = 12): [Course!]!
@@ -4656,6 +4702,7 @@ type Query {
   podcastBySlug(locale: AppLanguage, slug: String!): Podcast!
   podcastEpisodes(podcastId: String!): [PodcastEpisode!]!
   podcastFilterFacets: PodcastFilterFacets!
+  podcastSeo(podcastId: String!): ContentSeoSettings!
   podcastTranslations(podcastId: String!): [PodcastTranslation!]!
   podcasts(filter: PodcastFilterInput, locale: AppLanguage, pagination: PodcastPaginationInput, sort: PodcastSortInput): PaginatedPodcasts!
   popularCategories(input: PopularCategoriesInput): [PopularCategory!]!
@@ -4704,6 +4751,7 @@ type Query {
   youtubeChannelById(channelId: String!): YouTubeChannel!
   youtubeChannelBySlug(locale: AppLanguage, slug: String!): YouTubeChannel!
   youtubeChannelFilterFacets: YouTubeChannelFilterFacets!
+  youtubeChannelSeo(channelId: String!): ContentSeoSettings!
   youtubeChannelTranslations(channelId: String!): [YouTubeChannelTranslation!]!
   youtubeChannels(filter: YouTubeChannelFilterInput, locale: AppLanguage, pagination: YouTubeChannelPaginationInput, sort: YouTubeChannelSortInput): PaginatedYouTubeChannels!
   youtubeVideos(channelId: String!): [YouTubeVideo!]!
@@ -4938,6 +4986,16 @@ enum Role {
   PROVIDER
 }
 
+input SaveContentSeoInput {
+  contentId: ID!
+  expectedVersion: Int
+  locale: AppLanguage!
+  seoDescription: String
+  seoTitle: String
+  socialImageAlt: String
+  socialImageId: ID
+}
+
 input SaveCourseTranslationInput {
   courseId: ID!
   description: String!
@@ -5001,6 +5059,11 @@ input SetAssociationMemberStatusInput {
 input SetCertificateCpdPlanInput {
   certificateId: ID!
   cpdPlanId: ID
+}
+
+input SetContentIndexExclusionInput {
+  contentId: ID!
+  excluded: Boolean!
 }
 
 input SetCourseTranslationPublicationInput {
@@ -5664,6 +5727,7 @@ type YouTubeChannel {
   createdAt: DateTime!
   deletedAt: DateTime
   description: String
+  excludeFromIndex: Boolean
   id: ID!
   imageUrl: String
   isFeatured: Boolean!
@@ -5671,7 +5735,11 @@ type YouTubeChannel {
   providerId: String
   rating: Float!
   ratingCount: Int!
+  seoDescription: String
+  seoTitle: String
   slug: String!
+  socialImageAlt: String
+  socialImagePath: String
   status: YouTubeChannelStatus!
   subscribers: Int!
   title: String!

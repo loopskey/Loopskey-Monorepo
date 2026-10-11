@@ -4,6 +4,8 @@ export type CourseFieldsFragment = { __typename?: 'Course', id: string, slug: st
 
 export type CoursePageInfoFieldsFragment = { __typename?: 'CoursePageInfo', nextCursor?: string | null, hasNextPage: boolean, previousCursor?: string | null, hasPreviousPage: boolean };
 
+export type CourseSeoPublicFieldsFragment = { __typename?: 'Course', seoTitle?: string | null, seoDescription?: string | null, socialImagePath?: string | null, socialImageAlt?: string | null, excludeFromIndex?: boolean | null };
+
 export type CourseLocaleFieldsFragment = { __typename?: 'Course', contentLanguage?: Types.AppLanguage | null, availableLocales?: Array<Types.AppLanguage> | null };
 
 export type CoursesQueryVariables = Types.Exact<{
@@ -29,7 +31,7 @@ export type CourseBySlugQueryVariables = Types.Exact<{
 }>;
 
 
-export type CourseBySlugQuery = { __typename?: 'Query', courseBySlug: { __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, sourceUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null, contentLanguage?: Types.AppLanguage | null, availableLocales?: Array<Types.AppLanguage> | null } };
+export type CourseBySlugQuery = { __typename?: 'Query', courseBySlug: { __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, sourceUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null, contentLanguage?: Types.AppLanguage | null, availableLocales?: Array<Types.AppLanguage> | null, seoTitle?: string | null, seoDescription?: string | null, socialImagePath?: string | null, socialImageAlt?: string | null, excludeFromIndex?: boolean | null } };
 
 export type FeaturedCoursesQueryVariables = Types.Exact<{
   take?: Types.InputMaybe<Types.Scalars['Int']['input']>;
@@ -131,6 +133,15 @@ export const CoursePageInfoFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentSt
   hasPreviousPage
 }
     `, {"fragmentName":"CoursePageInfoFields"}) as unknown as TypedDocumentString<CoursePageInfoFieldsFragment, unknown>;
+export const CourseSeoPublicFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
+    fragment CourseSeoPublicFields on Course {
+  seoTitle
+  seoDescription
+  socialImagePath
+  socialImageAlt
+  excludeFromIndex
+}
+    `, {"fragmentName":"CourseSeoPublicFields"}) as unknown as TypedDocumentString<CourseSeoPublicFieldsFragment, unknown>;
 export const CourseLocaleFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
     fragment CourseLocaleFields on Course {
   contentLanguage
@@ -225,6 +236,7 @@ export const CourseBySlugDocument = /*#__PURE__*/ new TypedDocumentString(`
   courseBySlug(slug: $slug, locale: $locale) {
     ...CourseFields
     ...CourseLocaleFields
+    ...CourseSeoPublicFields
   }
 }
     fragment CourseFields on Course {
@@ -253,6 +265,13 @@ export const CourseBySlugDocument = /*#__PURE__*/ new TypedDocumentString(`
   createdAt
   updatedAt
   deletedAt
+}
+fragment CourseSeoPublicFields on Course {
+  seoTitle
+  seoDescription
+  socialImagePath
+  socialImageAlt
+  excludeFromIndex
 }
 fragment CourseLocaleFields on Course {
   contentLanguage

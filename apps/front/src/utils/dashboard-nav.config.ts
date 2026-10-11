@@ -240,6 +240,12 @@ export const adminDashboardTabs: TDashboardTab<TAdminDashboardTab>[] = [
     icon: L.DatabaseZap,
   },
   {
+    value: "search-visibility",
+    labelKey: "contentSeo.admin.tab",
+    href: "/dashboard/admin?tab=search-visibility",
+    icon: L.SearchCheck,
+  },
+  {
     value: "users",
     labelKey: "adminDashboard.sidebar.users",
     href: "/dashboard/admin?tab=users",

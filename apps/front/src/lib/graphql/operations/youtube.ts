@@ -6,6 +6,8 @@ export type YouTubeVideoFieldsFragment = { __typename?: 'YouTubeVideo', id: stri
 
 export type YouTubeChannelPageInfoFieldsFragment = { __typename?: 'YouTubeChannelPageInfo', nextCursor?: string | null, hasNextPage: boolean, previousCursor?: string | null, hasPreviousPage: boolean };
 
+export type YouTubeChannelSeoPublicFieldsFragment = { __typename?: 'YouTubeChannel', seoTitle?: string | null, seoDescription?: string | null, socialImagePath?: string | null, socialImageAlt?: string | null, excludeFromIndex?: boolean | null };
+
 export type YouTubeChannelLocaleFieldsFragment = { __typename?: 'YouTubeChannel', contentLanguage?: Types.AppLanguage | null, availableLocales?: Array<Types.AppLanguage> | null };
 
 export type YouTubeChannelsQueryVariables = Types.Exact<{
@@ -31,7 +33,7 @@ export type YouTubeChannelBySlugQueryVariables = Types.Exact<{
 }>;
 
 
-export type YouTubeChannelBySlugQuery = { __typename?: 'Query', youtubeChannelBySlug: { __typename?: 'YouTubeChannel', id: string, slug: string, views: number, title: string, status: Types.YouTubeChannelStatus, rating: number, provider?: string | null, category: Types.YouTubeCategory, imageUrl?: string | null, updatedAt: string, createdAt: string, deletedAt?: string | null, channelUrl?: string | null, isFeatured: boolean, providerId?: string | null, videoCount: number, ratingCount: number, subscribers: number, description?: string | null, contentLanguage?: Types.AppLanguage | null, availableLocales?: Array<Types.AppLanguage> | null } };
+export type YouTubeChannelBySlugQuery = { __typename?: 'Query', youtubeChannelBySlug: { __typename?: 'YouTubeChannel', id: string, slug: string, views: number, title: string, status: Types.YouTubeChannelStatus, rating: number, provider?: string | null, category: Types.YouTubeCategory, imageUrl?: string | null, updatedAt: string, createdAt: string, deletedAt?: string | null, channelUrl?: string | null, isFeatured: boolean, providerId?: string | null, videoCount: number, ratingCount: number, subscribers: number, description?: string | null, contentLanguage?: Types.AppLanguage | null, availableLocales?: Array<Types.AppLanguage> | null, seoTitle?: string | null, seoDescription?: string | null, socialImagePath?: string | null, socialImageAlt?: string | null, excludeFromIndex?: boolean | null } };
 
 export type FeaturedYouTubeChannelsQueryVariables = Types.Exact<{
   take?: Types.InputMaybe<Types.Scalars['Int']['input']>;
@@ -172,6 +174,15 @@ export const YouTubeChannelPageInfoFieldsFragmentDoc = /*#__PURE__*/ new TypedDo
   hasPreviousPage
 }
     `, {"fragmentName":"YouTubeChannelPageInfoFields"}) as unknown as TypedDocumentString<YouTubeChannelPageInfoFieldsFragment, unknown>;
+export const YouTubeChannelSeoPublicFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
+    fragment YouTubeChannelSeoPublicFields on YouTubeChannel {
+  seoTitle
+  seoDescription
+  socialImagePath
+  socialImageAlt
+  excludeFromIndex
+}
+    `, {"fragmentName":"YouTubeChannelSeoPublicFields"}) as unknown as TypedDocumentString<YouTubeChannelSeoPublicFieldsFragment, unknown>;
 export const YouTubeChannelLocaleFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
     fragment YouTubeChannelLocaleFields on YouTubeChannel {
   contentLanguage
@@ -259,6 +270,7 @@ export const YouTubeChannelBySlugDocument = /*#__PURE__*/ new TypedDocumentStrin
   youtubeChannelBySlug(slug: $slug, locale: $locale) {
     ...YouTubeChannelFields
     ...YouTubeChannelLocaleFields
+    ...YouTubeChannelSeoPublicFields
   }
 }
     fragment YouTubeChannelFields on YouTubeChannel {
@@ -281,6 +293,13 @@ export const YouTubeChannelBySlugDocument = /*#__PURE__*/ new TypedDocumentStrin
   ratingCount
   subscribers
   description
+}
+fragment YouTubeChannelSeoPublicFields on YouTubeChannel {
+  seoTitle
+  seoDescription
+  socialImagePath
+  socialImageAlt
+  excludeFromIndex
 }
 fragment YouTubeChannelLocaleFields on YouTubeChannel {
   contentLanguage

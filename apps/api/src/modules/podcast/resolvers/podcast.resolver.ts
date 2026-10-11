@@ -12,6 +12,7 @@ import { TCurrentUserPayload } from "@podcast/types/podcast-service.types";
 import { CreatePodcastInput } from "@podcast/dtos/create-podcast.input";
 import { UpdatePodcastInput } from "@podcast/dtos/update-podcast.input";
 import { PodcastFilterInput } from "@podcast/dtos/podcast-filter.input";
+import { PodcastSeoService } from "@podcast/services/podcast-seo.service";
 import { PodcastSortInput } from "@podcast/dtos/podcast-sort.input";
 import { PodcastService } from "@podcast/services/podcast.service";
 import { PodcastEntity } from "@podcast/entities/podcast.entity";
@@ -26,6 +27,7 @@ export class PodcastResolver {
   constructor(
     private readonly podcastService: PodcastService,
     private readonly translations: PodcastTranslationService,
+    private readonly seo: PodcastSeoService,
   ) {}
 
   @Public()
@@ -76,8 +78,11 @@ export class PodcastResolver {
     @Args("locale", { type: () => AppLanguage, nullable: true })
     locale?: AppLanguage,
   ) {
-    return this.translations.localizeOne(
-      await this.podcastService.findPodcastBySlug(slug),
+    return this.seo.withEffectiveSeo(
+      await this.translations.localizeOne(
+        await this.podcastService.findPodcastBySlug(slug),
+        locale,
+      ),
       locale,
     );
   }

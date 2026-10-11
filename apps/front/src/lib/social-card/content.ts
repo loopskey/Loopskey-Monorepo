@@ -1,5 +1,7 @@
+import { contentSocialImagePath } from "@loopskey/api-contracts/upload";
 import { executeServerGraphql } from "@/lib/server/graphql-server";
 import { toApiLanguage } from "@/lib/i18n/locale";
+import { API_ORIGIN } from "@/utils/api-origin.util";
 
 import type { PublicLocale } from "@/lib/i18n/locale";
 
@@ -25,6 +27,22 @@ export const isSocialCardKind = (value: string): value is SocialCardKind =>
   value === "podcast" ||
   value === "youtube";
 
+const OVERRIDE_PREFIX = contentSocialImagePath("");
+
+const OVERRIDE_ID_PATTERN = /^[a-z0-9]{20,32}$/;
+
+const overrideImageUrl = (path: unknown) =>
+  typeof path === "string" &&
+  path.startsWith(OVERRIDE_PREFIX) &&
+  OVERRIDE_ID_PATTERN.test(path.slice(OVERRIDE_PREFIX.length))
+    ? `${API_ORIGIN}${path}`
+    : null;
+
+const sourceImageUrl = (row: Record<string, unknown>) =>
+  typeof row.imageUrl === "string" && row.imageUrl.trim()
+    ? row.imageUrl.trim()
+    : null;
+
 export const fetchSocialCardContent = async (
   kind: SocialCardKind,
   slug: string,
@@ -32,7 +50,7 @@ export const fetchSocialCardContent = async (
 ): Promise<SocialCardContent | null> => {
   const { field, operation } = QUERY[kind];
   const query = `query ${operation}($slug: String!, $locale: AppLanguage) {
-    ${field}(slug: $slug, locale: $locale) { title category status imageUrl availableLocales }
+    ${field}(slug: $slug, locale: $locale) { title category status imageUrl socialImagePath availableLocales }
   }`;
 
   const result = await executeServerGraphql({
@@ -58,9 +76,6 @@ export const fetchSocialCardContent = async (
     title: row.title,
     category: typeof row.category === "string" ? row.category : null,
     published: row.status === "PUBLISHED",
-    imageUrl:
-      typeof row.imageUrl === "string" && row.imageUrl.trim()
-        ? row.imageUrl.trim()
-        : null,
+    imageUrl: overrideImageUrl(row.socialImagePath) ?? sourceImageUrl(row),
   };
 };

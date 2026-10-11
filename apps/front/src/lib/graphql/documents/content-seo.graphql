@@ -1,0 +1,94 @@
+# ================ Fragments ==============
+fragment ContentSeoSettingsFields on ContentSeoSettings {
+  excludeFromIndex
+  locales {
+    locale
+    version
+    seoTitle
+    seoDescription
+    socialImageId
+    socialImagePath
+    socialImageAlt
+    defaultTitle
+    defaultDescription
+    updatedAt
+  }
+}
+
+# ================ Course ==============
+query CourseSeo($courseId: String!) {
+  courseSeo(courseId: $courseId) {
+    ...ContentSeoSettingsFields
+  }
+}
+
+mutation SaveCourseSeo($input: SaveContentSeoInput!) {
+  saveCourseSeo(input: $input) {
+    ...ContentSeoSettingsFields
+  }
+}
+
+mutation SetCourseIndexExclusion($input: SetContentIndexExclusionInput!) {
+  setCourseIndexExclusion(input: $input) {
+    ...ContentSeoSettingsFields
+  }
+}
+
+# ================ Event ==============
+query EventSeo($eventId: String!) {
+  eventSeo(eventId: $eventId) {
+    ...ContentSeoSettingsFields
+  }
+}
+
+mutation SaveEventSeo($input: SaveContentSeoInput!) {
+  saveEventSeo(input: $input) {
+    ...ContentSeoSettingsFields
+  }
+}
+
+mutation SetEventIndexExclusion($input: SetContentIndexExclusionInput!) {
+  setEventIndexExclusion(input: $input) {
+    ...ContentSeoSettingsFields
+  }
+}
+
+# ================ Podcast ==============
+query PodcastSeo($podcastId: String!) {
+  podcastSeo(podcastId: $podcastId) {
+    ...ContentSeoSettingsFields
+  }
+}
+
+mutation SavePodcastSeo($input: SaveContentSeoInput!) {
+  savePodcastSeo(input: $input) {
+    ...ContentSeoSettingsFields
+  }
+}
+
+mutation SetPodcastIndexExclusion($input: SetContentIndexExclusionInput!) {
+  setPodcastIndexExclusion(input: $input) {
+    ...ContentSeoSettingsFields
+  }
+}
+
+# ================ YouTube channel ==============
+query YouTubeChannelSeo($channelId: String!) {
+  youtubeChannelSeo(channelId: $channelId) {
+    ...ContentSeoSettingsFields
+  }
+}
+
+mutation SaveYouTubeChannelSeo($input: SaveContentSeoInput!) {
+  saveYouTubeChannelSeo(input: $input) {
+    ...ContentSeoSettingsFields
+  }
+}
+
+mutation SetYouTubeChannelIndexExclusion(
+  $input: SetContentIndexExclusionInput!
+) {
+  setYouTubeChannelIndexExclusion(input: $input) {
+    ...ContentSeoSettingsFields
+  }
+}

@@ -29,6 +29,7 @@ export enum CourseGqlQueryNames {
   MY_PROVIDER_COURSES = "myProviderCourses",
   COURSE_FILTER_FACETS = "courseFilterFacets",
   COURSE_TRANSLATIONS = "courseTranslations",
+  COURSE_SEO = "courseSeo",
 }
 
 export enum CourseGqlMutationNames {
@@ -40,4 +41,6 @@ export enum CourseGqlMutationNames {
   ARCHIVE_COURSE = "archiveCourse",
   SAVE_COURSE_TRANSLATION = "saveCourseTranslation",
   SET_COURSE_TRANSLATION_PUBLICATION = "setCourseTranslationPublication",
+  SAVE_COURSE_SEO = "saveCourseSeo",
+  SET_COURSE_INDEX_EXCLUSION = "setCourseIndexExclusion",
 }

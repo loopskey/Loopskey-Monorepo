@@ -6,6 +6,7 @@ import { YouTubeChannelPaginationInput } from "@modules/youtube/dtos/youtube-cha
 import { CreateYouTubeChannelInput } from "@youtube/dtos/create-youtube-channel.input";
 import { UpdateYouTubeChannelInput } from "@youtube/dtos/update-youtube-channel.input";
 import { YouTubeChannelFilterInput } from "@youtube/dtos/youtube-channel-filter.input";
+import { YouTubeChannelSeoService } from "@youtube/services/youtube-channel-seo.service";
 import { YouTubeChannelSortInput } from "@youtube/dtos/youtube-channel-sort.input";
 import { CreateYouTubeVideoInput } from "@youtube/dtos/create-youtube-video.input";
 import { YouTubeGqlMutationNames } from "@youtube/enums/gql-names.enum";
@@ -26,6 +27,7 @@ export class YouTubeResolver {
   constructor(
     private readonly youtubeService: YouTubeService,
     private readonly translations: YouTubeChannelTranslationService,
+    private readonly seo: YouTubeChannelSeoService,
   ) {}
 
   @Public()
@@ -76,8 +78,11 @@ export class YouTubeResolver {
     @Args("locale", { type: () => AppLanguage, nullable: true })
     locale?: AppLanguage,
   ) {
-    return this.translations.localizeOne(
-      await this.youtubeService.findChannelBySlug(slug),
+    return this.seo.withEffectiveSeo(
+      await this.translations.localizeOne(
+        await this.youtubeService.findChannelBySlug(slug),
+        locale,
+      ),
       locale,
     );
   }

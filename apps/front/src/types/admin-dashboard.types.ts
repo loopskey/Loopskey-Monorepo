@@ -9,6 +9,7 @@ export type TAdminDashboardTab =
   | "overview"
   | "settings"
   | "ingestion"
+  | "search-visibility"
   | "org-access-requests"
   | "organization-users"
   | "associations";

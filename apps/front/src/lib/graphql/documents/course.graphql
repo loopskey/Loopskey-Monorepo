@@ -35,6 +35,14 @@ fragment CoursePageInfoFields on CoursePageInfo {
 }
 
 # ============= Queries ================
+fragment CourseSeoPublicFields on Course {
+  seoTitle
+  seoDescription
+  socialImagePath
+  socialImageAlt
+  excludeFromIndex
+}
+
 fragment CourseLocaleFields on Course {
   contentLanguage
   availableLocales
@@ -73,6 +81,7 @@ query CourseBySlug($slug: String!, $locale: AppLanguage) {
   courseBySlug(slug: $slug, locale: $locale) {
     ...CourseFields
     ...CourseLocaleFields
+    ...CourseSeoPublicFields
   }
 }
 

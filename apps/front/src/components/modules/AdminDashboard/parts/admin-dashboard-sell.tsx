@@ -35,11 +35,17 @@ const AdminIngestionTab = dynamic(
   { loading: () => <DashboardContentSkeleton /> },
 );
 
+const AdminSearchVisibilityTab = dynamic(
+  () => import("@modules/AdminDashboard/AdminSearchVisibilityTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+
 const validTabs: TAdminDashboardTab[] = [
   "users",
   "overview",
   "settings",
   "ingestion",
+  "search-visibility",
   "organization-users",
   "org-access-requests",
   "associations",
@@ -59,6 +65,7 @@ export const AdminDashboardShell = () => {
   if (activeTab === "org-access-requests") return <AdminOrgAccessRequestTab />;
   if (activeTab === "associations") return <AdminAssociationsTab />;
   if (activeTab === "ingestion") return <AdminIngestionTab />;
+  if (activeTab === "search-visibility") return <AdminSearchVisibilityTab />;
   if (activeTab === "settings") return <AdminSettingsTab />;
 
   return (

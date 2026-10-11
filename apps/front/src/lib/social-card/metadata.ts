@@ -1,43 +1,19 @@
 import { alternateLanguages, localizedUrl } from "@/lib/site/page-metadata";
 import { siteOpenGraph, siteTwitter } from "@/lib/site/page-metadata";
+import { normalizeDescription } from "@/lib/content-catalog/snippet";
 import { SOCIAL_CARD_HEIGHT } from "@/lib/social-card/constants";
+import { contentDetailPath } from "@/lib/content-catalog/detail-path";
 import { SOCIAL_CARD_WIDTH } from "@/lib/social-card/constants";
 
 import type { SocialCardKind } from "@/lib/social-card/content";
 import type { PublicLocale } from "@/lib/i18n/locale";
 import type { Metadata } from "next";
 
-const DESCRIPTION_MAX_LENGTH = 160;
-
-const KIND_PATH: Record<SocialCardKind, string> = {
-  course: "/courses",
-  event: "/events",
-  podcast: "/podcasts",
-  youtube: "/youtube",
-};
-
-export const contentDetailPath = (kind: SocialCardKind, slug: string) =>
-  `${KIND_PATH[kind]}/${encodeURIComponent(slug)}`;
-
 const KIND_FALLBACK_DESCRIPTION: Record<SocialCardKind, string> = {
   course: "Professional development course on LoopsKey.",
   event: "Professional development event on LoopsKey.",
   podcast: "Professional development podcast on LoopsKey.",
   youtube: "Professional development YouTube channel on LoopsKey.",
-};
-
-export const normalizeDescription = (
-  text: string | null | undefined,
-  fallback: string,
-): string => {
-  const collapsed = (text ?? "").replace(/\s+/g, " ").trim();
-  if (!collapsed) return fallback;
-  if (collapsed.length <= DESCRIPTION_MAX_LENGTH) return collapsed;
-  const cut = collapsed.slice(0, DESCRIPTION_MAX_LENGTH - 1);
-  const lastSpace = cut.lastIndexOf(" ");
-  const boundary =
-    lastSpace > DESCRIPTION_MAX_LENGTH / 2 ? lastSpace : cut.length;
-  return `${cut.slice(0, boundary).trimEnd()}…`;
 };
 
 const socialCardUrl = (
@@ -68,6 +44,13 @@ export const contentSocialMetadata = (
   };
 };
 
+type ContentSeoOverrides = {
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  socialImageAlt?: string | null;
+  excludeFromIndex?: boolean | null;
+};
+
 type ContentMetadataInput = {
   kind: SocialCardKind;
   slug: string;
@@ -75,6 +58,7 @@ type ContentMetadataInput = {
   description: string | null | undefined;
   locale?: PublicLocale;
   variants?: readonly PublicLocale[];
+  seo?: ContentSeoOverrides;
 };
 
 export const contentMetadata = ({
@@ -84,36 +68,39 @@ export const contentMetadata = ({
   description,
   locale = "en",
   variants = [],
+  seo,
 }: ContentMetadataInput): Metadata => {
   const path = contentDetailPath(kind, slug);
-  const summary = normalizeDescription(
-    description,
-    KIND_FALLBACK_DESCRIPTION[kind],
-  );
-  const languages = alternateLanguages(path, variants);
+  const isExcluded = Boolean(seo?.excludeFromIndex);
+  const pageTitle = seo?.seoTitle?.trim() || title;
+  const summary =
+    seo?.seoDescription?.trim() ||
+    normalizeDescription(description, KIND_FALLBACK_DESCRIPTION[kind]);
+  const languages = isExcluded ? undefined : alternateLanguages(path, variants);
   const image = {
     url: socialCardUrl(kind, slug, locale),
     width: SOCIAL_CARD_WIDTH,
     height: SOCIAL_CARD_HEIGHT,
-    alt: title,
+    alt: seo?.socialImageAlt?.trim() || pageTitle,
   };
 
   return {
-    title,
+    title: pageTitle,
     description: summary,
     alternates: {
       canonical: localizedUrl(path, locale),
       ...(languages ? { languages } : {}),
     },
+    ...(isExcluded ? { robots: { index: false, follow: true } } : {}),
     openGraph: siteOpenGraph({
-      title,
+      title: pageTitle,
       description: summary,
       path,
       locale,
       images: [image],
     }),
     twitter: siteTwitter({
-      title,
+      title: pageTitle,
       description: summary,
       images: [image],
     }),

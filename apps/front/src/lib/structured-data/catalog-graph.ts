@@ -1,5 +1,5 @@
 import { nodeId, webPageNode } from "@/lib/structured-data/graph";
-import { contentDetailPath } from "@/lib/social-card/metadata";
+import { contentDetailPath } from "@/lib/content-catalog/detail-path";
 import { localizedUrl } from "@/lib/site/page-metadata";
 import { plainText } from "@/lib/structured-data/facts";
 import { siteUrl } from "@/lib/site/site-url";

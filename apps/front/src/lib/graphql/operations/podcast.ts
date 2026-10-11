@@ -6,6 +6,8 @@ export type PodcastEpisodeFieldsFragment = { __typename?: 'PodcastEpisode', id: 
 
 export type PodcastPageInfoFieldsFragment = { __typename?: 'PodcastPageInfo', nextCursor?: string | null, hasNextPage: boolean, previousCursor?: string | null, hasPreviousPage: boolean };
 
+export type PodcastSeoPublicFieldsFragment = { __typename?: 'Podcast', seoTitle?: string | null, seoDescription?: string | null, socialImagePath?: string | null, socialImageAlt?: string | null, excludeFromIndex?: boolean | null };
+
 export type PodcastLocaleFieldsFragment = { __typename?: 'Podcast', contentLanguage?: Types.AppLanguage | null, availableLocales?: Array<Types.AppLanguage> | null };
 
 export type PodcastsQueryVariables = Types.Exact<{
@@ -31,7 +33,7 @@ export type PodcastBySlugQueryVariables = Types.Exact<{
 }>;
 
 
-export type PodcastBySlugQuery = { __typename?: 'Query', podcastBySlug: { __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, sourceUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null, contentLanguage?: Types.AppLanguage | null, availableLocales?: Array<Types.AppLanguage> | null } };
+export type PodcastBySlugQuery = { __typename?: 'Query', podcastBySlug: { __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, sourceUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null, contentLanguage?: Types.AppLanguage | null, availableLocales?: Array<Types.AppLanguage> | null, seoTitle?: string | null, seoDescription?: string | null, socialImagePath?: string | null, socialImageAlt?: string | null, excludeFromIndex?: boolean | null } };
 
 export type FeaturedPodcastsQueryVariables = Types.Exact<{
   take?: Types.InputMaybe<Types.Scalars['Int']['input']>;
@@ -170,6 +172,15 @@ export const PodcastPageInfoFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentS
   hasPreviousPage
 }
     `, {"fragmentName":"PodcastPageInfoFields"}) as unknown as TypedDocumentString<PodcastPageInfoFieldsFragment, unknown>;
+export const PodcastSeoPublicFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
+    fragment PodcastSeoPublicFields on Podcast {
+  seoTitle
+  seoDescription
+  socialImagePath
+  socialImageAlt
+  excludeFromIndex
+}
+    `, {"fragmentName":"PodcastSeoPublicFields"}) as unknown as TypedDocumentString<PodcastSeoPublicFieldsFragment, unknown>;
 export const PodcastLocaleFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
     fragment PodcastLocaleFields on Podcast {
   contentLanguage
@@ -252,6 +263,7 @@ export const PodcastBySlugDocument = /*#__PURE__*/ new TypedDocumentString(`
   podcastBySlug(slug: $slug, locale: $locale) {
     ...PodcastFields
     ...PodcastLocaleFields
+    ...PodcastSeoPublicFields
   }
 }
     fragment PodcastFields on Podcast {
@@ -274,6 +286,13 @@ export const PodcastBySlugDocument = /*#__PURE__*/ new TypedDocumentString(`
   ratingCount
   episodeCount
   durationMinutes
+}
+fragment PodcastSeoPublicFields on Podcast {
+  seoTitle
+  seoDescription
+  socialImagePath
+  socialImageAlt
+  excludeFromIndex
 }
 fragment PodcastLocaleFields on Podcast {
   contentLanguage
