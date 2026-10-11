@@ -4,7 +4,7 @@
 - Model: `Standard development — measured frontend delivery work inside the established public-route patterns, with no contract, caching or routing change; escalates to High reasoning only if evidence forces one.`
 - Branch: `feature/seo-11-public-page-performance`
 - Base: `9683fbb16ffdcf22cf4af063df2627e8d3fb101f`
-- Status: `Blocked`
+- Status: `Submitted`
 
 Implementation is complete and the JavaScript-delivery half of the
 specification is measured and reproducible. Three required gate items could not
@@ -221,6 +221,6 @@ can be accepted. Nothing in the measured section depends on them.
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: `bcde50b`
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/291
+- CI: pending
