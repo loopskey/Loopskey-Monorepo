@@ -1,5 +1,6 @@
 "use client";
 
+import { safeHttpUrl } from "@/utils/safe-url";
 import { PduCompletionStatus, PduStatus } from "@/lib/graphql/base";
 import { formatDate, formatDateTime } from "@/utils/function-helper";
 import { TActivityDetailViewProps } from "@/types/professional-dashboard.types";
@@ -146,7 +147,12 @@ export const ActivityDetailView = ({
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <Button radius="xl" type="button" variant="outline" onClick={onCancel}>
+          <Button
+            radius="xl"
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+          >
             <L.ArrowLeft className="h-4 w-4" aria-hidden />
             {t(`${TRACKER}.detail.cancel`)}
           </Button>
@@ -247,10 +253,10 @@ export const ActivityDetailView = ({
           {t(`${TRACKER}.detail.sections.evidence`)}
         </h2>
 
-        {activity.evidenceUrl && (
+        {safeHttpUrl(activity.evidenceUrl) && (
           <a
             target="_blank"
-            href={activity.evidenceUrl}
+            href={safeHttpUrl(activity.evidenceUrl) ?? undefined}
             rel="noopener noreferrer"
             className="mb-4 inline-flex items-center gap-2 break-all text-sm font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2"
           >

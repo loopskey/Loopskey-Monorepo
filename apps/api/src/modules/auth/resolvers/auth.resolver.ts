@@ -23,6 +23,8 @@ import { CurrentUser } from "@auth/decorators/current-user.decorator";
 import { LoginInput } from "@auth/dtos/login.input";
 import { JwtPayload } from "@auth/types/jwt-payload.type";
 import { Public } from "@auth/decorators/public.decorator";
+import { RateLimit } from "@infrastructure/rate-limit/rate-limit.decorator";
+import { RATE_LIMITS } from "@infrastructure/rate-limit/rate-limit.policies";
 import { Role } from "@prisma/client";
 import { REFRESH_TOKEN_COOKIE_DEFAULT } from "@loopskey/api-contracts/auth";
 
@@ -31,6 +33,7 @@ export class AuthResolver {
   constructor(private readonly authService: AuthService) {}
 
   @Public()
+  @RateLimit(RATE_LIMITS.register)
   @Mutation(() => AuthPayloadEntity, {
     name: AuthGqlMutationNames.REGISTER,
   })
@@ -85,6 +88,7 @@ export class AuthResolver {
   }
 
   @Public()
+  @RateLimit(RATE_LIMITS.verifyEmailOtp)
   @Mutation(() => AuthPayloadEntity, {
     name: AuthGqlMutationNames.VERIFY_EMAIL_OTP,
   })
@@ -100,6 +104,7 @@ export class AuthResolver {
   }
 
   @Public()
+  @RateLimit(RATE_LIMITS.resendEmailOtp)
   @Mutation(() => AuthPayloadEntity, {
     name: AuthGqlMutationNames.RESEND_EMAIL_OTP,
   })
@@ -108,6 +113,7 @@ export class AuthResolver {
   }
 
   @Public()
+  @RateLimit(RATE_LIMITS.login)
   @Mutation(() => AuthPayloadEntity, {
     name: AuthGqlMutationNames.LOGIN,
   })
@@ -123,6 +129,7 @@ export class AuthResolver {
   }
 
   @Public()
+  @RateLimit(RATE_LIMITS.refreshToken)
   @Mutation(() => AuthPayloadEntity, {
     name: AuthGqlMutationNames.REFRESH_TOKEN,
   })
@@ -145,6 +152,7 @@ export class AuthResolver {
   }
 
   @Public()
+  @RateLimit(RATE_LIMITS.forgotPassword)
   @Mutation(() => AuthPayloadEntity, {
     name: AuthGqlMutationNames.FORGOT_PASSWORD,
   })
@@ -153,6 +161,7 @@ export class AuthResolver {
   }
 
   @Public()
+  @RateLimit(RATE_LIMITS.resetPassword)
   @Mutation(() => AuthPayloadEntity, {
     name: AuthGqlMutationNames.RESET_PASSWORD,
   })
@@ -169,6 +178,7 @@ export class AuthResolver {
   }
 
   @AllowPasswordChangeRequired()
+  @RateLimit(RATE_LIMITS.changePassword)
   @Mutation(() => AuthPayloadEntity, {
     name: AuthGqlMutationNames.CHANGE_PASSWORD,
   })
@@ -179,6 +189,7 @@ export class AuthResolver {
     return this.authService.changePassword(user.sub, input);
   }
 
+  @RateLimit(RATE_LIMITS.requestEmailChange)
   @Mutation(() => AuthPayloadEntity, {
     name: AuthGqlMutationNames.REQUEST_EMAIL_CHANGE,
   })
@@ -189,6 +200,7 @@ export class AuthResolver {
     return this.authService.requestEmailChange(user.sub, input);
   }
 
+  @RateLimit(RATE_LIMITS.verifyEmailChange)
   @Mutation(() => AuthPayloadEntity, {
     name: AuthGqlMutationNames.VERIFY_EMAIL_CHANGE,
   })

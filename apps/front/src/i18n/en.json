@@ -2657,6 +2657,7 @@
       "emailAlreadyExists": "This email is already in use.",
       "roleNotAllowedForRegister": "Direct registration is not available for the selected role.",
       "otpResendTooSoon": "Please wait before requesting another verification code.",
+      "rateLimited": "Too many attempts. Please wait a few minutes and try again.",
       "emailSendFailed": "We could not send the email. Please try again.",
       "passwordTooObvious": "Choose a less predictable password.",
       "passwordsDoNotMatch": "The new password and confirmation do not match.",

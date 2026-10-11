@@ -2723,6 +2723,15 @@ model ExternalLearningActivity {
   @@index([clickedAt])
 }
 
+model RateLimitBucket {
+  key             String   @id
+  windowStartedAt DateTime @default(now())
+  windowSeconds   Int
+  count           Int      @default(0)
+
+  @@index([windowStartedAt])
+}
+
 model OutboxEvent {
   id            String    @id @default(cuid())
   eventName     String

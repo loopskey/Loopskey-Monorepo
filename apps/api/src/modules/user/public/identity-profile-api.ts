@@ -26,11 +26,6 @@ export interface IdentityProfileApi {
     readonly fullName: string;
     readonly atomicContext?: object;
   }): Promise<{ readonly id: string }>;
-  updateRole(
-    userId: string,
-    role: string,
-    atomicContext?: object,
-  ): Promise<void>;
   resolveOrganizationOwner(command: {
     readonly email: string;
     readonly fullName: string;

@@ -27,6 +27,7 @@ const AUTH_ERROR_TRANSLATION_KEYS: Partial<Record<AuthMessageCode, string>> = {
   [AuthMessageCode.OTP_ATTEMPTS_EXCEEDED]:
     "authPages.common.otpAttemptsExceeded",
   [AuthMessageCode.OTP_RESEND_TOO_SOON]: "authPages.errors.otpResendTooSoon",
+  [AuthMessageCode.RATE_LIMITED]: "authPages.errors.rateLimited",
   [AuthMessageCode.EMAIL_SEND_FAILED]: "authPages.errors.emailSendFailed",
   [AuthMessageCode.PASSWORD_TOO_OBVIOUS]: "authPages.errors.passwordTooObvious",
   [AuthMessageCode.PASSWORD_STRENGTH_MESSAGE]:

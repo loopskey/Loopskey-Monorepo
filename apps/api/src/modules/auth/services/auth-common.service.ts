@@ -5,6 +5,7 @@ import { ConfigService } from "@nestjs/config";
 import { MailService } from "@mail/mail.service";
 import { OtpPurpose } from "@prisma/client";
 import { Injectable } from "@nestjs/common";
+import { randomInt } from "crypto";
 
 @Injectable()
 export class AuthCommonService {
@@ -25,7 +26,7 @@ export class AuthCommonService {
     );
     let code = "";
     for (let i = 0; i < length; i += 1) {
-      code += chars[Math.floor(Math.random() * chars.length)];
+      code += chars[randomInt(chars.length)];
     }
     return code;
   }

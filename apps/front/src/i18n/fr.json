@@ -2659,6 +2659,7 @@
       "emailAlreadyExists": "Cette adresse e-mail est déjà utilisée.",
       "roleNotAllowedForRegister": "L’inscription directe n’est pas disponible pour le rôle sélectionné.",
       "otpResendTooSoon": "Veuillez patienter avant de demander un autre code de vérification.",
+      "rateLimited": "Trop de tentatives. Veuillez patienter quelques minutes puis réessayer.",
       "emailSendFailed": "Nous n’avons pas pu envoyer l’e-mail. Veuillez réessayer.",
       "passwordTooObvious": "Choisissez un mot de passe moins prévisible.",
       "passwordsDoNotMatch": "Le nouveau mot de passe et sa confirmation ne correspondent pas.",

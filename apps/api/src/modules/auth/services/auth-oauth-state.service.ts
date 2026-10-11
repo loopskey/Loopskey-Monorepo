@@ -5,10 +5,16 @@ import { AuthMessageCode } from "@auth/enums/message-code.enum";
 import { TOAuthProvider } from "@auth/types/oauth-service.types";
 import { ConfigService } from "@nestjs/config";
 import { StringValue } from "ms";
-import { JwtService } from "@nestjs/jwt";
+import { JwtService, JwtVerifyOptions } from "@nestjs/jwt";
 import { Role } from "@prisma/client";
 
 import * as crypto from "crypto";
+import {
+  JWT_ALGORITHM,
+  JWT_ISSUER,
+  JWT_OAUTH_STATE_AUDIENCE,
+  TOKEN_TYPE,
+} from "@loopskey/api-contracts/auth";
 
 export const OAUTH_STATE_TTL: StringValue = "10m";
 export const OAUTH_STATE_TTL_MS = 10 * 60 * 1000;
@@ -28,10 +34,18 @@ export class AuthOAuthStateService {
   ): Promise<string> {
     const nonce = crypto.randomBytes(32).toString("hex");
     const state = await this.jwtService.signAsync(
-      { role, provider, nonce } satisfies TOAuthStatePayload,
+      {
+        role,
+        provider,
+        nonce,
+        tokenType: TOKEN_TYPE.OAUTH_STATE,
+      } satisfies TOAuthStatePayload,
       {
         secret: this.getStateSecret(),
         expiresIn: OAUTH_STATE_TTL,
+        issuer: JWT_ISSUER,
+        algorithm: JWT_ALGORITHM,
+        audience: JWT_OAUTH_STATE_AUDIENCE,
       },
     );
     response.cookie(this.getCookieName(), nonce, {
@@ -57,11 +71,12 @@ export class AuthOAuthStateService {
     try {
       payload = await this.jwtService.verifyAsync<TOAuthStatePayload>(
         state as string,
-        { secret: this.getStateSecret() },
+        this.verifyOptions(),
       );
     } catch {
       return this.throwInvalidState();
     }
+    if (payload.tokenType !== TOKEN_TYPE.OAUTH_STATE) this.throwInvalidState();
     if (payload.provider !== expectedProvider) this.throwInvalidState();
     if (!this.isNonceMatch(payload.nonce, cookieNonce as string))
       this.throwInvalidState();
@@ -73,9 +88,10 @@ export class AuthOAuthStateService {
     if (typeof state !== "string" || !state) return null;
     try {
       const payload = this.jwtService.verify<TOAuthStatePayload>(state, {
-        secret: this.getStateSecret(),
+        ...this.verifyOptions(),
         ignoreExpiration: true,
       });
+      if (payload.tokenType !== TOKEN_TYPE.OAUTH_STATE) return null;
       return payload.role ?? null;
     } catch {
       return null;
@@ -105,10 +121,16 @@ export class AuthOAuthStateService {
   }
 
   private getStateSecret() {
-    return (
-      this.configService.get<string>("OAUTH_STATE_SECRET") ||
-      this.configService.getOrThrow<string>("JWT_ACCESS_SECRET")
-    );
+    return this.configService.getOrThrow<string>("OAUTH_STATE_SECRET");
+  }
+
+  private verifyOptions(): JwtVerifyOptions {
+    return {
+      secret: this.getStateSecret(),
+      issuer: JWT_ISSUER,
+      algorithms: [JWT_ALGORITHM],
+      audience: JWT_OAUTH_STATE_AUDIENCE,
+    };
   }
 
   private getCookieName() {

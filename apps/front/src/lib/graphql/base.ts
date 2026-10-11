@@ -7364,7 +7364,6 @@ export type UpdateIngestionSource = {
 };
 
 export type UpdateMeInput = {
-  avatarUrl?: InputMaybe<Scalars['String']['input']>;
   bio?: InputMaybe<Scalars['String']['input']>;
   firstName?: InputMaybe<Scalars['String']['input']>;
   fullName?: InputMaybe<Scalars['String']['input']>;
@@ -7407,7 +7406,6 @@ export type UpdateOrganizationMemberInput = {
   departmentId?: InputMaybe<Scalars['String']['input']>;
   jobRole?: InputMaybe<Scalars['String']['input']>;
   memberId: Scalars['String']['input'];
-  role?: InputMaybe<Role>;
   status?: InputMaybe<OrganizationMemberStatus>;
 };
 
@@ -7446,7 +7444,6 @@ export type UpdatePduActivityInput = {
   relatedCertification?: InputMaybe<Scalars['String']['input']>;
   reportingYear?: InputMaybe<Scalars['Int']['input']>;
   source?: InputMaybe<PduSource>;
-  status?: InputMaybe<PduStatus>;
   subCategory?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
 };
