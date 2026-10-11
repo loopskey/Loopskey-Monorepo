@@ -112,6 +112,7 @@ export class OrgDashboardAssignmentService {
       courseId: input.courseId,
       eventId: input.eventId,
     });
+    await this.requireOwnReferences(org.id, input);
     const recipients = await this.resolveAssignmentRecipients(org.id, input);
     if (!recipients.length)
       throw new BadRequestException("NO_ELIGIBLE_MEMBERS_FOUND");
@@ -237,6 +238,12 @@ export class OrgDashboardAssignmentService {
       throw new BadRequestException(
         OrganizationDashboardMessageCode.DEPARTMENT_REQUIRED,
       );
+    if (input.courseId || input.eventId)
+      await this.catalogApi.assertAssignmentTarget({
+        courseId: input.courseId,
+        eventId: input.eventId,
+      });
+    await this.requireOwnReferences(org.id, input);
     const updated = await this.prismaService.organizationAssignment.update({
       where: { id: input.assignmentId },
       data: {
@@ -343,6 +350,33 @@ export class OrgDashboardAssignmentService {
       eventTitle: assignment.event?.title ?? null,
       courseTitle: assignment.course?.title ?? null,
     };
+  }
+
+  private async requireOwnReferences(
+    organizationId: string,
+    input: { departmentId?: string; targetMemberId?: string },
+  ) {
+    if (input.departmentId) {
+      const department =
+        await this.prismaService.organizationDepartment.findFirst({
+          where: { id: input.departmentId, organizationId },
+          select: { id: true },
+        });
+      if (!department)
+        throw new NotFoundException(
+          OrganizationDashboardMessageCode.DEPARTMENT_NOT_FOUND,
+        );
+    }
+    if (input.targetMemberId) {
+      const member = await this.prismaService.organizationMember.findFirst({
+        where: { id: input.targetMemberId, organizationId },
+        select: { id: true },
+      });
+      if (!member)
+        throw new NotFoundException(
+          OrganizationDashboardMessageCode.MEMBER_NOT_FOUND,
+        );
+    }
   }
 
   private async resolveAssignmentRecipients(

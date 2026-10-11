@@ -1,4 +1,4 @@
-import { IsString, IsUrl, MaxLength } from "class-validator";
+import { IsString, MaxLength } from "class-validator";
 import { IsOptional, IsPhoneNumber } from "class-validator";
 import { UserGqlInputNames } from "@user/enums/gql-names.enum";
 import { Field, InputType } from "@nestjs/graphql";
@@ -28,12 +28,6 @@ export class UpdateMeInput {
   @IsPhoneNumber()
   @MaxLength(30)
   phone?: string;
-
-  @Field(() => String, { nullable: true })
-  @IsOptional()
-  @IsUrl()
-  @MaxLength(500)
-  avatarUrl?: string;
 
   @Field(() => String, { nullable: true })
   @IsOptional()

@@ -64,7 +64,7 @@ export class IdentityProfileApiService implements IdentityProfileApi {
     );
   }
 
-  upsertProfessionalMember(command: {
+  async upsertProfessionalMember(command: {
     email: string;
     fullName: string;
     atomicContext?: object;
@@ -73,7 +73,7 @@ export class IdentityProfileApiService implements IdentityProfileApi {
     const db =
       (command.atomicContext as Prisma.TransactionClient | undefined) ??
       this.prisma;
-    return db.user.upsert({
+    const member = await db.user.upsert({
       where: { email },
       create: {
         email,
@@ -82,18 +82,16 @@ export class IdentityProfileApiService implements IdentityProfileApi {
         status: UserStatus.ACTIVE,
         emailVerifiedAt: new Date(),
       },
-      update: { fullName: command.fullName.trim() },
-      select: { id: true },
+      update: {},
+      select: { id: true, role: true, deletedAt: true },
     });
-  }
-
-  async updateRole(userId: string, role: string, atomicContext?: object) {
-    const db =
-      (atomicContext as Prisma.TransactionClient | undefined) ?? this.prisma;
-    await db.user.update({
-      where: { id: userId },
-      data: { role: role as Role },
-    });
+    if (member.deletedAt || member.role !== Role.PROFESSIONAL)
+      throw new ConflictException({
+        code: "UserRoleConflict",
+        message:
+          "This email belongs to an account that cannot be added as a member.",
+      });
+    return { id: member.id };
   }
 
   async resolveOrganizationOwner(command: {

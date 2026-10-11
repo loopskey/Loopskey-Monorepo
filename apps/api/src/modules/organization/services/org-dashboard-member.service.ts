@@ -63,6 +63,21 @@ export class OrgDashboardMemberService {
       throw new ForbiddenException("Professional access required.");
   }
 
+  private async requireDepartment(
+    organizationId: string,
+    departmentId: string,
+  ) {
+    const department =
+      await this.prismaService.organizationDepartment.findFirst({
+        where: { id: departmentId, organizationId, isActive: true },
+        select: { id: true },
+      });
+    if (!department)
+      throw new NotFoundException(
+        OrganizationDashboardMessageCode.DEPARTMENT_NOT_FOUND,
+      );
+  }
+
   private async getOrganization(user: TOrganizationDashboardUser) {
     this.assertOrganization(user);
     const organization = await this.prismaService.organization.findFirst({
@@ -195,20 +210,8 @@ export class OrgDashboardMemberService {
   ) {
     const org = await this.getOrganization(user);
     const email = input.email.trim().toLowerCase();
-    if (input.departmentId) {
-      const department =
-        await this.prismaService.organizationDepartment.findFirst({
-          where: {
-            id: input.departmentId,
-            organizationId: org.id,
-            isActive: true,
-          },
-        });
-      if (!department)
-        throw new NotFoundException(
-          OrganizationDashboardMessageCode.DEPARTMENT_NOT_FOUND,
-        );
-    }
+    if (input.departmentId)
+      await this.requireDepartment(org.id, input.departmentId);
     const member = await this.prismaService.$transaction(async (tx) => {
       const memberUser = await this.identityApi.upsertProfessionalMember({
         email,
@@ -307,38 +310,28 @@ export class OrgDashboardMemberService {
         id: input.memberId,
         organizationId: org.id,
       },
-      include: {
-        user: true,
-      },
+      select: { id: true },
     });
     if (!member)
       throw new NotFoundException(
         OrganizationDashboardMessageCode.MEMBER_NOT_FOUND,
       );
-    const roleUpdate =
-      input.role && member.user.role !== input.role
-        ? {
-            role: input.role,
-          }
-        : undefined;
-    const updated = await this.prismaService.$transaction(async (tx) => {
-      if (roleUpdate)
-        await this.identityApi.updateRole(member.userId, roleUpdate.role, tx);
-      return tx.organizationMember.update({
-        where: { id: input.memberId },
-        data: {
-          departmentId: input.departmentId,
-          jobRole: input.jobRole,
-          status: input.status,
-          deactivatedAt:
-            input.status === OrganizationMemberStatus.INACTIVE
-              ? new Date()
-              : input.status === OrganizationMemberStatus.ACTIVE
-                ? null
-                : undefined,
-        },
-        include: memberInclude,
-      });
+    if (input.departmentId)
+      await this.requireDepartment(org.id, input.departmentId);
+    const updated = await this.prismaService.organizationMember.update({
+      where: { id: input.memberId },
+      data: {
+        departmentId: input.departmentId,
+        jobRole: input.jobRole,
+        status: input.status,
+        deactivatedAt:
+          input.status === OrganizationMemberStatus.INACTIVE
+            ? new Date()
+            : input.status === OrganizationMemberStatus.ACTIVE
+              ? null
+              : undefined,
+      },
+      include: memberInclude,
     });
     return {
       id: updated.id,

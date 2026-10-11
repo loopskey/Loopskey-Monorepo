@@ -5377,7 +5377,6 @@ input UpdateIngestionSource {
 }
 
 input UpdateMeInput {
-  avatarUrl: String
   bio: String
   firstName: String
   fullName: String
@@ -5420,7 +5419,6 @@ input UpdateOrganizationMemberInput {
   departmentId: String
   jobRole: String
   memberId: String!
-  role: Role
   status: OrganizationMemberStatus
 }
 
@@ -5459,7 +5457,6 @@ input UpdatePduActivityInput {
   relatedCertification: String
   reportingYear: Int
   source: PDUSource
-  status: PDUStatus
   subCategory: String
   title: String
 }

@@ -9,6 +9,7 @@ import { UserMessageCode } from "@user/enums/user-message-code.enum";
 import { UserFilterInput } from "@user/dtos/user-filter.input";
 import { UpdateUserInput } from "@user/dtos/update-user.input";
 import { UpdateMeInput } from "@user/dtos/update-me.input";
+import { CurrentUserType } from "@user/types/current-user.types";
 import { PrismaService } from "@prisma/prisma.service";
 import { RoleProfileRegistry } from "@prisma/role-profile-registry.service";
 
@@ -40,7 +41,16 @@ export class UserService {
     deletedAt: true,
   } satisfies Prisma.UserSelect;
 
-  async createUser(input: CreateUserInput) {
+  private assertAdmin(actor: CurrentUserType | undefined) {
+    if (actor?.role !== Role.ADMIN)
+      throw new ForbiddenException({
+        code: UserMessageCode.FORBIDDEN,
+        message: "Administrator access is required.",
+      });
+  }
+
+  async createUser(actor: CurrentUserType, input: CreateUserInput) {
+    this.assertAdmin(actor);
     if (!input.email && !input.phone)
       throw new BadRequestException({
         code: UserMessageCode.INVALID_USER_ID,
@@ -111,7 +121,12 @@ export class UserService {
     return this.withRoleProfile(user);
   }
 
-  async findById(userId: string, includeDeleted = false) {
+  async findById(
+    actor: CurrentUserType,
+    userId: string,
+    includeDeleted = false,
+  ) {
+    this.assertAdmin(actor);
     const user = await this.prismaService.user.findFirst({
       where: {
         id: userId,
@@ -135,7 +150,12 @@ export class UserService {
     });
   }
 
-  async findUsers(filter?: UserFilterInput, pagination?: UserPaginationInput) {
+  async findUsers(
+    actor: CurrentUserType,
+    filter?: UserFilterInput,
+    pagination?: UserPaginationInput,
+  ) {
+    this.assertAdmin(actor);
     const page = pagination?.page ?? 1;
     const limit = pagination?.limit ?? 10;
     const skip = (page - 1) * limit;
@@ -220,7 +240,6 @@ export class UserService {
         lastName: input.lastName,
         fullName,
         phone: input.phone,
-        avatarUrl: input.avatarUrl,
         bio: input.bio,
       },
       select: this.userSelect,
@@ -228,7 +247,8 @@ export class UserService {
     return this.withRoleProfile(updated);
   }
 
-  async updateUser(input: UpdateUserInput) {
+  async updateUser(actor: CurrentUserType, input: UpdateUserInput) {
+    this.assertAdmin(actor);
     const user = await this.ensureUserExists(input.userId);
     if (user.deletedAt)
       throw new BadRequestException({
@@ -259,7 +279,8 @@ export class UserService {
     return this.withRoleProfile(updated);
   }
 
-  async updateUserStatus(input: UpdateUserStatusInput) {
+  async updateUserStatus(actor: CurrentUserType, input: UpdateUserStatusInput) {
+    this.assertAdmin(actor);
     const user = await this.ensureUserExists(input.userId);
     if (user.role === Role.ADMIN && input.status !== UserStatus.ACTIVE)
       throw new ForbiddenException({
@@ -277,7 +298,8 @@ export class UserService {
     return this.withRoleProfile(updated);
   }
 
-  async softDeleteUser(userId: string) {
+  async softDeleteUser(actor: CurrentUserType, userId: string) {
+    this.assertAdmin(actor);
     const user = await this.ensureUserExists(userId);
     if (user.role === Role.ADMIN)
       throw new ForbiddenException({
@@ -295,7 +317,8 @@ export class UserService {
     return this.withRoleProfile(updated);
   }
 
-  async restoreUser(userId: string) {
+  async restoreUser(actor: CurrentUserType, userId: string) {
+    this.assertAdmin(actor);
     await this.ensureUserExists(userId, true);
     const updated = await this.prismaService.user.update({
       where: { id: userId },
