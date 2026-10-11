@@ -22,6 +22,7 @@ export const bootSecurityApp = async (): Promise<SecurityApp> => {
       .overrideProvider(MailService)
       .useValue({ sendEmail, deliver: jest.fn() }),
   );
+  await app.listen(0);
   return { app, prisma, sendEmail };
 };
 

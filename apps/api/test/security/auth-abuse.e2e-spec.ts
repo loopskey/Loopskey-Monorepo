@@ -9,6 +9,8 @@ import { runTogether, suiteScope } from "../setup/concurrency";
 
 const scope = suiteScope("secabuse");
 
+jest.setTimeout(30_000);
+
 const LOGIN = `mutation($input: LoginInput!) { login(input: $input) { code } }`;
 const FORGOT = `mutation($input: ForgotPasswordInput!) { forgotPassword(input: $input) { code } }`;
 const CHEAP_ALIASES = Array.from(

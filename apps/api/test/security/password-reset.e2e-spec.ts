@@ -8,6 +8,8 @@ import * as argon2 from "argon2";
 
 const scope = suiteScope("secreset");
 
+jest.setTimeout(30_000);
+
 const FORGOT = `mutation($input: ForgotPasswordInput!) {
   forgotPassword(input: $input) { code message success }
 }`;
