@@ -1,5 +1,4 @@
 import { INestApplication, ValidationPipe } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
 import { Test } from "@nestjs/testing";
 import { Role, UserStatus, YouTubeVideoStatus } from "@prisma/client";
 import { PrismaService } from "@prisma/prisma.service";
@@ -7,6 +6,7 @@ import { AppModule } from "@app/app.module";
 
 import cookieParser from "cookie-parser";
 import request from "supertest";
+import { openSession, signAccessToken } from "./setup/access-token";
 
 type Variant =
   | "published"
@@ -95,14 +95,6 @@ const KINDS: Kind[] = [
   },
 ];
 
-const signAccessToken = (id: string, email: string, role: Role) =>
-  new JwtService({ secret: process.env.JWT_ACCESS_SECRET }).sign({
-    sub: id,
-    email,
-    role,
-    status: UserStatus.ACTIVE,
-  });
-
 describe("Public catalog boundary (e2e)", () => {
   let app: INestApplication;
   let prisma: PrismaService;
@@ -152,6 +144,7 @@ describe("Public catalog boundary (e2e)", () => {
       data: { email, role, status: UserStatus.ACTIVE },
     });
     users[key] = user.id;
+    await openSession(prisma, user.id);
     bearer[key] = signAccessToken(user.id, email, role);
   };
 

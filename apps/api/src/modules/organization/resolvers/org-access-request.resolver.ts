@@ -7,6 +7,8 @@ import { SubmitOrganizationAccessRequestInput } from "@org/dtos/submit-org-acces
 import { OrganizationAccessRequestEntity } from "@org/entities/org-access-request.entity";
 import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { OrgAccessRequestService } from "@org/services/org-access-request.service";
+import { RateLimit } from "@infrastructure/rate-limit/rate-limit.decorator";
+import { RATE_LIMITS } from "@infrastructure/rate-limit/rate-limit.policies";
 import { Public } from "@auth/decorators/public.decorator";
 import { Roles } from "@auth/decorators/roles.decorator";
 import { Role } from "@prisma/client";
@@ -18,6 +20,7 @@ export class OrgAccessRequestResolver {
   ) {}
 
   @Public()
+  @RateLimit(RATE_LIMITS.accessRequest)
   @Mutation(() => OrganizationAccessRequestEntity, {
     name: OrganizationAccessRequestGqlMutationNames.SUBMIT_ORGANIZATION_ACCESS_REQUEST,
   })
