@@ -1,4 +1,5 @@
 import { asPublicLocale, variantsOf } from "@/lib/i18n/route-locale";
+import { redirectToRenamedContent } from "@/lib/server/renamed-content";
 import { TContentDetailPageProps } from "@/types/pages.types";
 import { getPublicYouTubeChannel } from "@/lib/server/public-content";
 import { getPublicYouTubeVideos } from "@/lib/server/public-content";
@@ -38,7 +39,15 @@ const Page = async ({ params }: TContentDetailPageProps) => {
   const { slug, locale } = await params;
   const publicLocale = asPublicLocale(locale);
   const channel = await getPublicYouTubeChannel(slug, publicLocale);
-  if (!channel) notFound();
+  if (!channel) {
+    await redirectToRenamedContent(
+      "youtube",
+      slug,
+      publicLocale,
+      getPublicYouTubeChannel,
+    );
+    notFound();
+  }
   const videos = await getPublicYouTubeVideos(channel.id);
   const trail = await detailTrail({
     kind: "youtube",

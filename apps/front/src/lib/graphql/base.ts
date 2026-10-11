@@ -1410,6 +1410,7 @@ export enum AuditAction {
   AssociationSettingsUpdated = 'ASSOCIATION_SETTINGS_UPDATED',
   ContentIndexExclusionChanged = 'CONTENT_INDEX_EXCLUSION_CHANGED',
   ContentSeoUpdated = 'CONTENT_SEO_UPDATED',
+  ContentSlugChanged = 'CONTENT_SLUG_CHANGED',
   OrganizationAccountActivated = 'ORGANIZATION_ACCOUNT_ACTIVATED',
   OrganizationAccountCreated = 'ORGANIZATION_ACCOUNT_CREATED',
   OrganizationActivationResent = 'ORGANIZATION_ACTIVATION_RESENT',
@@ -1614,6 +1615,13 @@ export type CertificationSearchInput = {
   query: Scalars['String']['input'];
 };
 
+export type ChangeContentSlugInput = {
+  contentId: Scalars['ID']['input'];
+  expectedSlug: Scalars['String']['input'];
+  kind: ContentUrlKind;
+  slug: Scalars['String']['input'];
+};
+
 export type ChangePasswordInput = {
   confirmPassword: Scalars['String']['input'];
   currentPassword: Scalars['String']['input'];
@@ -1733,6 +1741,26 @@ export enum ContentType {
   Podcast = 'PODCAST',
   Youtube = 'YOUTUBE'
 }
+
+export enum ContentUrlKind {
+  Course = 'COURSE',
+  Event = 'EVENT',
+  Podcast = 'PODCAST',
+  Youtube = 'YOUTUBE'
+}
+
+export type ContentUrlResolution = {
+  __typename?: 'ContentUrlResolution';
+  slug: Scalars['String']['output'];
+};
+
+export type ContentUrlSettings = {
+  __typename?: 'ContentUrlSettings';
+  contentId: Scalars['ID']['output'];
+  kind: ContentUrlKind;
+  retiredSlugs: Array<Scalars['String']['output']>;
+  slug: Scalars['String']['output'];
+};
 
 export type Course = {
   __typename?: 'Course';
@@ -2827,6 +2855,7 @@ export type Mutation = {
   cancelContentEnrollment: ContentActionPayload;
   cancelEvent: Event;
   cancelEventRegistration: EventRegistration;
+  changeContentSlug: ContentUrlSettings;
   changePassword: AuthPayload;
   clearCart: ContentActionPayload;
   completeProfessionalOnboarding: ProfessionalDashboardProfile;
@@ -3095,6 +3124,11 @@ export type MutationCancelEventArgs = {
 
 export type MutationCancelEventRegistrationArgs = {
   eventId: Scalars['String']['input'];
+};
+
+
+export type MutationChangeContentSlugArgs = {
+  input: ChangeContentSlugInput;
 };
 
 
@@ -5801,6 +5835,7 @@ export type Query = {
   associationSettings: AssociationSettings;
   certificationSearch: Array<Certification>;
   contentReviews: Array<ContentReview>;
+  contentUrl: ContentUrlSettings;
   courseById: Course;
   courseBySlug: Course;
   courseFilterFacets: CourseFilterFacets;
@@ -5912,6 +5947,7 @@ export type Query = {
   providerSettings: ProviderSettings;
   publicUrlPage: PublicUrlPage;
   publicUrlShards: Array<PublicUrlShardSet>;
+  resolveContentUrl?: Maybe<ContentUrlResolution>;
   roadmapSuggestionOptions: Array<RoadmapWidgetOption>;
   upcomingEvents: Array<Event>;
   userById: User;
@@ -6229,6 +6265,12 @@ export type QueryCertificationSearchArgs = {
 export type QueryContentReviewsArgs = {
   contentId: Scalars['String']['input'];
   contentType: ContentType;
+};
+
+
+export type QueryContentUrlArgs = {
+  contentId: Scalars['String']['input'];
+  kind: ContentUrlKind;
 };
 
 
@@ -6679,6 +6721,12 @@ export type QueryProviderPromotionRequestsArgs = {
 
 export type QueryPublicUrlPageArgs = {
   input: PublicUrlPageInput;
+};
+
+
+export type QueryResolveContentUrlArgs = {
+  kind: ContentUrlKind;
+  slug: Scalars['String']['input'];
 };
 
 

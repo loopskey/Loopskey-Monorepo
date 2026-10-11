@@ -80,3 +80,7 @@ export const CONTENT_SEO_LIMITS = {
   descriptionMax: 500,
   imageAltMax: 300,
 } as const;
+
+export const CONTENT_SLUG_LIMITS = {
+  maxLength: 200,
+} as const;

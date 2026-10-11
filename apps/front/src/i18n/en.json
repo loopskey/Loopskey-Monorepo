@@ -7941,6 +7941,37 @@
       "exclude": "Hide from search engines",
       "include": "Allow indexing"
     },
+    "url": {
+      "title": "Page address",
+      "description": "The address visitors and search engines use for this page. Changing it is a deliberate action and is separate from the title.",
+      "loadFailed": "We could not load the page address.",
+      "hint": "Lowercase letters, numbers and single hyphens only.",
+      "fields": {
+        "slug": "Address slug"
+      },
+      "preview": {
+        "english": "English address",
+        "french": "French address"
+      },
+      "retired": {
+        "title": "Earlier addresses",
+        "note": "These addresses keep working and send visitors to the current page while it is published."
+      },
+      "warning": "Changing the address is permanent. Existing links to the old address will redirect to the new one, and the old address can never be used for another page.",
+      "confirm": "I understand and want to change the address.",
+      "actions": {
+        "change": "Change address"
+      },
+      "feedback": {
+        "changed": "The address was changed. The old address now redirects here.",
+        "invalid": "Use lowercase letters, numbers and single hyphens. Some words are reserved.",
+        "taken": "That address is already used by another page or was used before. Choose a different one.",
+        "conflict": "The address changed since you opened this window. Reload the latest version before changing it again.",
+        "notFound": "This page no longer exists.",
+        "forbidden": "You cannot change the address of this page.",
+        "failed": "We could not change the address. Try again."
+      }
+    },
     "admin": {
       "tab": "Search visibility",
       "title": "Search visibility",

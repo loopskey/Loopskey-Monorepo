@@ -1,6 +1,8 @@
 import { EventRegistrationStatus, EventStatus, Prisma } from "@prisma/client";
 import { EventRegistrationConflict } from "@events/domain/errors/event-registration-conflict.error";
+import { isContentSlugClaimed } from "@utils/content-slug-claim.util";
 import { EventPaginationInput } from "@events/dtos/event-pagination.input";
+import { ContentUrlNamespace } from "@prisma/client";
 import { readPublicUrlShards } from "@utils/public-url-enumeration.util";
 import { publicContentChange } from "@utils/public-content-change.util";
 import { EventSortDirection } from "@events/enums/event-register.enum";
@@ -708,8 +710,8 @@ export class EventRepository {
     };
   }
 
-  async slugExists(slug: string): Promise<boolean> {
-    return Boolean(await this.prisma.event.findUnique({ where: { slug } }));
+  isSlugClaimed(slug: string): Promise<boolean> {
+    return isContentSlugClaimed(this.prisma, ContentUrlNamespace.EVENT, slug);
   }
 
   private buildWhere(filter?: EventFilterInput): Prisma.EventWhereInput {

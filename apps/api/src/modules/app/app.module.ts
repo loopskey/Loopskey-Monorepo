@@ -1,4 +1,5 @@
 import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
+import { NoSchemaIntrospectionCustomRule } from "graphql";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
 import { OperationTimingInterceptor } from "@infrastructure/observability/operation-timing.interceptor";
@@ -6,23 +7,23 @@ import { ContentInteractionModule } from "@contentAction/content-interaction.mod
 import { ExternalLearningModule } from "@ext/external-learning.module";
 import { AdminDashboardModule } from "@admin/admin.module";
 import { PasswordChangeGuard } from "@auth/guards/password-change.guard";
+import { operationLimitsRule } from "@utils/graphql-operation-limits.util";
 import { OrganizationModule } from "@org/org.module";
 import { formatGraphQLError } from "@utils/graphql-error-formatter";
 import { ProfessionalModule } from "@professional/professional.module";
 import { AssociationModule } from "@association/association.module";
-import { RateLimitModule } from "@infrastructure/rate-limit/rate-limit.module";
-import { RateLimitGuard } from "@infrastructure/rate-limit/rate-limit.guard";
 import { OperationsModule } from "@infrastructure/operations/operations.module";
+import { ContentUrlModule } from "@contentUrl/content-url.module";
 import { IngestionModule } from "@ingestion/ingestion.module";
+import { RateLimitModule } from "@infrastructure/rate-limit/rate-limit.module";
 import { ServiceAiModule } from "@infrastructure/service-ai/service-ai.module";
+import { DiscoveryModule } from "@discovery/discovery.module";
+import { RateLimitGuard } from "@infrastructure/rate-limit/rate-limit.guard";
 import { ProviderModule } from "@provider/provider.module";
 import { SupportModule } from "@support/support.module";
 import { GraphQLModule } from "@nestjs/graphql";
-import { NoSchemaIntrospectionCustomRule } from "graphql";
-import { operationLimitsRule } from "@utils/graphql-operation-limits.util";
 import { PodcastModule } from "@podcast/podcast.module";
 import { YouTubeModule } from "@youtube/youtube.module";
-import { DiscoveryModule } from "@discovery/discovery.module";
 import { LandingModule } from "@landing/landing.module";
 import { PrismaModule } from "@prisma/prisma.module";
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
@@ -83,10 +84,11 @@ import { join } from "path";
     PodcastModule,
     YouTubeModule,
     LandingModule,
-    DiscoveryModule,
     SupportModule,
     ProviderModule,
+    DiscoveryModule,
     IngestionModule,
+    ContentUrlModule,
     AssociationModule,
     OrganizationModule,
     ProfessionalModule,

@@ -1,5 +1,6 @@
 import { asPublicLocale, variantsOf } from "@/lib/i18n/route-locale";
 import { getPublicPodcastEpisodes } from "@/lib/server/public-content";
+import { redirectToRenamedContent } from "@/lib/server/renamed-content";
 import { TContentDetailPageProps } from "@/types/pages.types";
 import { getPublicPodcast } from "@/lib/server/public-content";
 import { contentMetadata } from "@/lib/social-card/metadata";
@@ -38,7 +39,15 @@ const Page = async ({ params }: TContentDetailPageProps) => {
   const { slug, locale } = await params;
   const publicLocale = asPublicLocale(locale);
   const podcast = await getPublicPodcast(slug, publicLocale);
-  if (!podcast) notFound();
+  if (!podcast) {
+    await redirectToRenamedContent(
+      "podcast",
+      slug,
+      publicLocale,
+      getPublicPodcast,
+    );
+    notFound();
+  }
   const episodes = await getPublicPodcastEpisodes(podcast.id);
   const trail = await detailTrail({
     kind: "podcast",

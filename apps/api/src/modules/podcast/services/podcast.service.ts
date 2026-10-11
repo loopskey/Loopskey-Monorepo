@@ -1,12 +1,14 @@
-import { publicContentChange } from "@utils/public-content-change.util";
-import { PodcastCategory, PodcastStatus, Prisma, Role } from "@prisma/client";
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { ContentUrlNamespace, PodcastCategory } from "@prisma/client";
+import { PodcastStatus, Prisma, Role } from "@prisma/client";
 import { CreatePodcastEpisodeInput } from "@podcast/dtos/create-podcast-episode.input";
 import { UpdatePodcastEpisodeInput } from "@podcast/dtos/update-podcast-episode.input";
 import { PodcastPaginationInput } from "@podcast/dtos/podcast-pagination";
 import { measureCatalogFacets } from "@utils/catalog-facet.util";
 import { TPodcastCandidateRow } from "@podcast/types/podcast-service.types";
 import { PodcastSortDirection } from "@podcast/enums/gql-names.enum";
+import { isContentSlugClaimed } from "@utils/content-slug-claim.util";
+import { publicContentChange } from "@utils/public-content-change.util";
 import { PodcastRatingWriter } from "@podcast/public/podcast-engagement-api";
 import { ForbiddenException } from "@nestjs/common";
 import { CreatePodcastInput } from "@podcast/dtos/create-podcast.input";
@@ -587,7 +589,13 @@ export class PodcastService {
     const baseSlug = slugify(title);
     let slug = baseSlug;
     let counter = 1;
-    while (await this.prismaService.podcast.findUnique({ where: { slug } })) {
+    while (
+      await isContentSlugClaimed(
+        this.prismaService,
+        ContentUrlNamespace.PODCAST,
+        slug,
+      )
+    ) {
       slug = `${baseSlug}-${counter}`;
       counter++;
     }

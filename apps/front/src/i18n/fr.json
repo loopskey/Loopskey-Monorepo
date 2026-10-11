@@ -7943,6 +7943,37 @@
       "exclude": "Masquer des moteurs de recherche",
       "include": "Autoriser l’indexation"
     },
+    "url": {
+      "title": "Adresse de la page",
+      "description": "L’adresse utilisée par les visiteurs et les moteurs de recherche pour cette page. La modifier est une action volontaire, distincte du titre.",
+      "loadFailed": "Nous n’avons pas pu charger l’adresse de la page.",
+      "hint": "Lettres minuscules, chiffres et tirets simples uniquement.",
+      "fields": {
+        "slug": "Identifiant de l’adresse"
+      },
+      "preview": {
+        "english": "Adresse en anglais",
+        "french": "Adresse en français"
+      },
+      "retired": {
+        "title": "Anciennes adresses",
+        "note": "Ces adresses continuent de fonctionner et redirigent les visiteurs vers la page actuelle tant qu’elle est publiée."
+      },
+      "warning": "Le changement d’adresse est définitif. Les liens existants vers l’ancienne adresse redirigeront vers la nouvelle, et l’ancienne adresse ne pourra jamais servir à une autre page.",
+      "confirm": "Je comprends et je souhaite changer l’adresse.",
+      "actions": {
+        "change": "Changer l’adresse"
+      },
+      "feedback": {
+        "changed": "L’adresse a été modifiée. L’ancienne adresse redirige désormais ici.",
+        "invalid": "Utilisez des lettres minuscules, des chiffres et des tirets simples. Certains mots sont réservés.",
+        "taken": "Cette adresse est déjà utilisée par une autre page ou l’a été auparavant. Choisissez-en une autre.",
+        "conflict": "L’adresse a changé depuis l’ouverture de cette fenêtre. Rechargez la dernière version avant de la modifier à nouveau.",
+        "notFound": "Cette page n’existe plus.",
+        "forbidden": "Vous ne pouvez pas modifier l’adresse de cette page.",
+        "failed": "Nous n’avons pas pu changer l’adresse. Réessayez."
+      }
+    },
     "admin": {
       "tab": "Visibilité dans la recherche",
       "title": "Visibilité dans la recherche",

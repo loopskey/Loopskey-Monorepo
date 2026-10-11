@@ -1,11 +1,14 @@
 import { YouTubeChannelBySlugDocument } from "@/lib/graphql/operations/youtube";
+import { ResolveContentUrlDocument } from "@/lib/graphql/operations/content-url";
 import { PodcastEpisodesDocument } from "@/lib/graphql/operations/podcast";
 import { PodcastBySlugDocument } from "@/lib/graphql/operations/podcast";
 import { YouTubeVideosDocument } from "@/lib/graphql/operations/youtube";
 import { CourseBySlugDocument } from "@/lib/graphql/operations/course";
 import { UpstreamFailureError } from "@/lib/server/graphql-server";
 import { executeServerGraphql } from "@/lib/server/graphql-server";
+import { CONTENT_SLUG_LIMITS } from "@loopskey/api-contracts/validation";
 import { EventBySlugDocument } from "@/lib/graphql/operations/event";
+import { ContentUrlKind } from "@/lib/graphql/base";
 import { toApiLanguage } from "@/lib/i18n/locale";
 import { cache } from "react";
 
@@ -16,6 +19,7 @@ import type { YouTubeVideosQuery } from "@/lib/graphql/operations/youtube";
 import type { CourseBySlugQuery } from "@/lib/graphql/operations/course";
 import type { EventBySlugQuery } from "@/lib/graphql/operations/event";
 import type { PublicLocale } from "@/lib/i18n/locale";
+import type { ContentKind } from "@/lib/content-catalog/detail-path";
 
 export type PublicCourse = NonNullable<CourseBySlugQuery["courseBySlug"]>;
 export type PublicEvent = NonNullable<EventBySlugQuery["eventBySlug"]>;
@@ -28,7 +32,6 @@ export type PublicYouTubeChannel = NonNullable<
 export type PublicYouTubeVideo = YouTubeVideosQuery["youtubeVideos"][number];
 
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const SLUG_MAX_LENGTH = 200;
 const PUBLISHED_STATUS = "PUBLISHED";
 
 type Settled<T> =
@@ -50,7 +53,7 @@ const unwrap = <T>(settled: Settled<T>): T => {
 };
 
 const isValidSlug = (slug: string) =>
-  slug.length <= SLUG_MAX_LENGTH && SLUG_PATTERN.test(slug);
+  slug.length <= CONTENT_SLUG_LIMITS.maxLength && SLUG_PATTERN.test(slug);
 
 const isPublished = (value: Record<string, unknown>) =>
   !("status" in value) || value.status === PUBLISHED_STATUS;
@@ -175,6 +178,31 @@ const readYouTubeChannelBySlug = memoize((key) =>
 
 export const getPublicYouTubeChannel = (slug: string, locale: PublicLocale) =>
   readYouTubeChannelBySlug(keyOf(slug, locale));
+
+const URL_KIND: Record<ContentKind, ContentUrlKind> = {
+  course: ContentUrlKind.Course,
+  event: ContentUrlKind.Event,
+  podcast: ContentUrlKind.Podcast,
+  youtube: ContentUrlKind.Youtube,
+};
+
+const readCurrentSlug = memoize(async (key) => {
+  const separator = key.indexOf(":");
+  const kind = key.slice(0, separator) as ContentKind;
+  const slug = key.slice(separator + 1);
+  if (!isValidSlug(slug)) return null;
+  const result = await executeServerGraphql({
+    operation: "ResolveContentUrl",
+    document: ResolveContentUrlDocument,
+    field: "resolveContentUrl",
+    variables: { kind: URL_KIND[kind], slug },
+  });
+  if (result.kind !== "found") return null;
+  return typeof result.value.slug === "string" ? result.value.slug : null;
+});
+
+export const getCurrentSlug = (kind: ContentKind, slug: string) =>
+  readCurrentSlug(`${kind}:${slug}`);
 
 export const getPublicPodcastEpisodes = memoize((podcastId) =>
   readChildren<PublicPodcastEpisode>(

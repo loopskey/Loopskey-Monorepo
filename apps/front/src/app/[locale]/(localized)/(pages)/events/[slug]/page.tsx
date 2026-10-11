@@ -1,4 +1,5 @@
 import { asPublicLocale, variantsOf } from "@/lib/i18n/route-locale";
+import { redirectToRenamedContent } from "@/lib/server/renamed-content";
 import { TContentDetailPageProps } from "@/types/pages.types";
 import { contentMetadata } from "@/lib/social-card/metadata";
 import { noindexMetadata } from "@/lib/site/page-metadata";
@@ -37,7 +38,10 @@ const Page = async ({ params }: TContentDetailPageProps) => {
   const { slug, locale } = await params;
   const publicLocale = asPublicLocale(locale);
   const event = await getPublicEvent(slug, publicLocale);
-  if (!event) notFound();
+  if (!event) {
+    await redirectToRenamedContent("event", slug, publicLocale, getPublicEvent);
+    notFound();
+  }
   const trail = await detailTrail({
     kind: "event",
     slug: event.slug,
