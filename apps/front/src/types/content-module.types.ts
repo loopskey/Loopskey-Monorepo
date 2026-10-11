@@ -15,7 +15,10 @@ import type {
   PublicYouTubeVideo,
 } from "@/lib/server/public-content";
 
-import type { CatalogFacets, CatalogPageData } from "@/lib/server/catalog-reader";
+import type {
+  CatalogFacets,
+  CatalogPageData,
+} from "@/lib/server/catalog-reader";
 
 import type * as API from "@/lib/graphql/generated";
 
@@ -165,6 +168,7 @@ export type TDetailLayoutProps = {
   header: ReactNode;
   sidebar: ReactNode;
   children?: ReactNode;
+  breadcrumbs?: ReactNode;
 };
 
 export type TDetailPageHeaderProps = {
@@ -204,8 +208,8 @@ export type TDetailSidebarActionsProps = {
   contentType: ContentType;
   contentUrl: string | null;
   wishlist: TDetailHeroWishlist;
-  prefill: TAddCalendarEventPrefill;
   completed: TMarkCompletedPrefill;
+  prefill: TAddCalendarEventPrefill;
   register?: TDetailHeroPrimary | null;
 };
 
@@ -279,19 +283,23 @@ export type TYouTubeVideosProps = {
 };
 
 export type TCourseDetailPageProps = {
+  breadcrumbs?: ReactNode;
   course: PublicCourse;
 };
 
 export type TEventDetailPageProps = {
+  breadcrumbs?: ReactNode;
   event: PublicEvent;
 };
 
 export type TPodcastDetailPageProps = {
+  breadcrumbs?: ReactNode;
   podcast: PublicPodcast;
   episodes: PublicPodcastEpisode[];
 };
 
 export type TYouTubeDetailPageProps = {
+  breadcrumbs?: ReactNode;
   channel: PublicYouTubeChannel;
   videos: PublicYouTubeVideo[];
 };
@@ -308,20 +316,15 @@ export type TMarkCompletedRequirementLink = {
 
 export type TMarkCompletedPrefill = {
   title: string;
-  contentId?: string | null;
-  contentType?: API.ContentType | null;
-  activityType: API.PduSource;
   level?: string | null;
+  contentId?: string | null;
+  activityType: API.PduSource;
   roadmapArea?: string | null;
   durationMinutes?: number | null;
   providerOrganizer?: string | null;
   category?: API.PduCategory | null;
-  /** Identity of the assigned association-content row, independent of contentId/contentType
-   * (which are null for external content). Sent as-is so the backend can match/dedupe this
-   * specific assignment's completion regardless of which requirement ends up selected. */
+  contentType?: API.ContentType | null;
   associationLearningContentId?: string | null;
-  /** Preselects a requirement without going through the endorsement/URL inference — used when
-   * the launching row already knows exactly which requirement this content counts toward. */
   requirementLink?: TMarkCompletedRequirementLink | null;
 };
 
@@ -360,12 +363,12 @@ export type TRequirementSelectFieldProps<T extends FieldValues> = {
   t: I18nContextValue["t"];
   name: Path<T>;
   label: string;
-  control: Control<T>;
-  options: TRequirementOption[];
   noneValue: string;
   noneLabel: string;
   disabled?: boolean;
   className?: string;
+  control: Control<T>;
   description?: string | null;
+  options: TRequirementOption[];
   onValueChange?: (value: string) => void;
 };

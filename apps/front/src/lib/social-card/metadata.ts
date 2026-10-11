@@ -3,8 +3,8 @@ import { siteOpenGraph, siteTwitter } from "@/lib/site/page-metadata";
 import { SOCIAL_CARD_HEIGHT } from "@/lib/social-card/constants";
 import { SOCIAL_CARD_WIDTH } from "@/lib/social-card/constants";
 
-import type { PublicLocale } from "@/lib/i18n/locale";
 import type { SocialCardKind } from "@/lib/social-card/content";
+import type { PublicLocale } from "@/lib/i18n/locale";
 import type { Metadata } from "next";
 
 const DESCRIPTION_MAX_LENGTH = 160;
@@ -15,6 +15,9 @@ const KIND_PATH: Record<SocialCardKind, string> = {
   podcast: "/podcasts",
   youtube: "/youtube",
 };
+
+export const contentDetailPath = (kind: SocialCardKind, slug: string) =>
+  `${KIND_PATH[kind]}/${encodeURIComponent(slug)}`;
 
 const KIND_FALLBACK_DESCRIPTION: Record<SocialCardKind, string> = {
   course: "Professional development course on LoopsKey.",
@@ -82,7 +85,7 @@ export const contentMetadata = ({
   locale = "en",
   variants = [],
 }: ContentMetadataInput): Metadata => {
-  const path = `${KIND_PATH[kind]}/${encodeURIComponent(slug)}`;
+  const path = contentDetailPath(kind, slug);
   const summary = normalizeDescription(
     description,
     KIND_FALLBACK_DESCRIPTION[kind],

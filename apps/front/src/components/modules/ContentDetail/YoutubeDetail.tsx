@@ -16,7 +16,11 @@ import DetailSidebar from "@modules/ContentDetail/parts/DetailSidebar";
 import DetailSection from "@modules/ContentDetail/parts/DetailSection";
 import DetailLayout from "@modules/ContentDetail/parts/DetailLayout";
 
-const YouTubeDetailPage = ({ channel, videos }: TYouTubeDetailPageProps) => {
+const YouTubeDetailPage = ({
+  channel,
+  videos,
+  breadcrumbs,
+}: TYouTubeDetailPageProps) => {
   const { t } = useI18n();
 
   const actions = useContentActions({
@@ -27,6 +31,7 @@ const YouTubeDetailPage = ({ channel, videos }: TYouTubeDetailPageProps) => {
 
   return (
     <DetailLayout
+      breadcrumbs={breadcrumbs}
       header={
         <DetailPageHeader
           title={channel.title}

@@ -3081,6 +3081,7 @@
       "originalLanguage": "Original language: {{language}}",
       "childrenOriginal": "Episodes and videos are shown in their original language.",
       "backToContent": "Back to content",
+      "breadcrumb": "Breadcrumb",
       "notFound": "Content not found",
       "unavailableTitle": "This page is temporarily unavailable",
       "unavailableDescription": "We could not load this content right now. Please try again in a moment.",

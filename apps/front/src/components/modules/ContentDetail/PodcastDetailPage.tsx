@@ -17,7 +17,11 @@ import DetailSidebar from "@modules/ContentDetail/parts/DetailSidebar";
 import DetailSection from "@modules/ContentDetail/parts/DetailSection";
 import DetailLayout from "@modules/ContentDetail/parts/DetailLayout";
 
-const PodcastDetailPage = ({ podcast, episodes }: TPodcastDetailPageProps) => {
+const PodcastDetailPage = ({
+  podcast,
+  episodes,
+  breadcrumbs,
+}: TPodcastDetailPageProps) => {
   const { t } = useI18n();
 
   const actions = useContentActions({
@@ -28,6 +32,7 @@ const PodcastDetailPage = ({ podcast, episodes }: TPodcastDetailPageProps) => {
 
   return (
     <DetailLayout
+      breadcrumbs={breadcrumbs}
       header={
         <DetailPageHeader
           title={podcast.title}

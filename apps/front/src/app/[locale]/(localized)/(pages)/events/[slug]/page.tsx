@@ -1,11 +1,15 @@
-import { TContentDetailPageProps } from "@/types/pages.types";
-import { getPublicEvent } from "@/lib/server/public-content";
 import { asPublicLocale, variantsOf } from "@/lib/i18n/route-locale";
+import { TContentDetailPageProps } from "@/types/pages.types";
 import { contentMetadata } from "@/lib/social-card/metadata";
 import { noindexMetadata } from "@/lib/site/page-metadata";
+import { getPublicEvent } from "@/lib/server/public-content";
+import { detailTrail } from "@/lib/structured-data/trail";
+import { eventGraph } from "@/lib/structured-data/detail-graphs";
 import { notFound } from "next/navigation";
 
 import EventDetailPage from "@modules/ContentDetail/EventDetailPage";
+import Breadcrumbs from "@elements/breadcrumbs";
+import JsonLd from "@elements/json-ld";
 
 import type { Metadata } from "next";
 
@@ -30,9 +34,26 @@ export const generateMetadata = async ({
 
 const Page = async ({ params }: TContentDetailPageProps) => {
   const { slug, locale } = await params;
-  const event = await getPublicEvent(slug, asPublicLocale(locale));
+  const publicLocale = asPublicLocale(locale);
+  const event = await getPublicEvent(slug, publicLocale);
   if (!event) notFound();
-  return <EventDetailPage event={event} />;
+  const trail = await detailTrail({
+    kind: "event",
+    slug: event.slug,
+    title: event.title,
+    locale: publicLocale,
+  });
+  return (
+    <>
+      <JsonLd
+        nodes={eventGraph({ content: event, locale: publicLocale, trail })}
+      />
+      <EventDetailPage
+        event={event}
+        breadcrumbs={<Breadcrumbs trail={trail} locale={publicLocale} />}
+      />
+    </>
+  );
 };
 
 export default Page;

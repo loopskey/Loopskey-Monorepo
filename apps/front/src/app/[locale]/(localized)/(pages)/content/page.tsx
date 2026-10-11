@@ -1,15 +1,16 @@
-import { permanentRedirect } from "next/navigation";
-import { loadDictionary } from "@/i18n/dictionaries";
-import { noindexMetadata } from "@/lib/site/page-metadata";
-import { publicPageMetadata } from "@/lib/site/page-metadata";
 import { readCatalog, readCatalogFacets } from "@/lib/server/catalog-reader";
-import { isCanonicalRequest } from "@/lib/content-catalog/query-state";
-import { parseCatalogQuery } from "@/lib/content-catalog/query-state";
-import { firstPageHref } from "@/lib/content-catalog/catalog-href";
-import { hasContentFilters } from "@/lib/content-catalog/catalog-href";
 import { tabHref, withCursor } from "@/lib/content-catalog/catalog-href";
+import { publicPageMetadata } from "@/lib/site/page-metadata";
+import { isCanonicalRequest } from "@/lib/content-catalog/query-state";
+import { permanentRedirect } from "next/navigation";
+import { parseCatalogQuery } from "@/lib/content-catalog/query-state";
+import { hasContentFilters } from "@/lib/content-catalog/catalog-href";
+import { noindexMetadata } from "@/lib/site/page-metadata";
+import { loadDictionary } from "@/i18n/dictionaries";
 import { asPublicLocale } from "@/lib/i18n/route-locale";
+import { firstPageHref } from "@/lib/content-catalog/catalog-href";
 import { localizePath } from "@/lib/i18n/locale";
+import { catalogGraph } from "@/lib/structured-data/catalog-graph";
 
 import ContentCatalogPagination from "@modules/Content/ContentCatalogPagination";
 import ContentResultsHeading from "@modules/Content/ContentResultsHeading";
@@ -19,12 +20,13 @@ import ContentResults from "@modules/Content/ContentResults";
 import CatalogNotice from "@modules/Content/CatalogNotice";
 import ContentTabs from "@modules/Content/ContentTabs";
 import EmptyState from "@modules/Content/EmptyState";
+import JsonLd from "@elements/json-ld";
 
-import type { CatalogQuery } from "@/lib/content-catalog/catalog-href";
 import type { RawSearchParams } from "@/lib/content-catalog/query-state";
+import type { CatalogQuery } from "@/lib/content-catalog/catalog-href";
 import type { PublicLocale } from "@/lib/i18n/locale";
-import type { Dictionary } from "@/i18n/dictionaries";
 import type { TContentTab } from "@/types/content-module.types";
+import type { Dictionary } from "@/i18n/dictionaries";
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
 
@@ -177,44 +179,61 @@ const ContentPage = async ({ params, searchParams }: TContentPageProps) => {
 
   const { page } = read;
   const hasFilters = hasContentFilters(query);
+  const { title, description } = tabMeta(
+    await loadDictionary(locale),
+    query.tab,
+  );
   const { nextHref, previousHref } = paginationLinks(query, page.pageInfo);
 
   return (
-    <CatalogLayout
-      tab={query.tab}
-      totalCount={page.totalCount}
-      filters={
-        <ContentFilterForm
-          tab={query.tab}
-          facets={facets}
-          retryHref={canonicalHref}
-          hasActiveFilters={hasFilters}
-          resetHref={tabHref(query.tab)}
-          values={{
-            q: query.search ?? "",
-            category: query.category ?? "",
-            level: query.level ?? "",
-            rating: query.rating ?? "",
-            eventType: query.eventType ?? "",
-          }}
+    <>
+      {!hasFilters && (
+        <JsonLd
+          nodes={catalogGraph({
+            page,
+            locale,
+            path: canonicalHref,
+            name: title,
+            description,
+          })}
         />
-      }
-    >
-      {page.items.length > 0 ? (
-        <>
-          <ContentResults page={page} />
-          {(nextHref || previousHref) && (
-            <ContentCatalogPagination
-              nextHref={nextHref}
-              previousHref={previousHref}
-              totalCount={page.totalCount}
-            />
-          )}
-        </>
-      ) : (
-        <EmptyState resetHref={hasFilters ? tabHref(query.tab) : undefined} />
       )}
-    </CatalogLayout>
+      <CatalogLayout
+        tab={query.tab}
+        totalCount={page.totalCount}
+        filters={
+          <ContentFilterForm
+            tab={query.tab}
+            facets={facets}
+            retryHref={canonicalHref}
+            hasActiveFilters={hasFilters}
+            resetHref={tabHref(query.tab)}
+            values={{
+              q: query.search ?? "",
+              category: query.category ?? "",
+              level: query.level ?? "",
+              rating: query.rating ?? "",
+              eventType: query.eventType ?? "",
+            }}
+          />
+        }
+      >
+        {page.items.length > 0 ? (
+          <>
+            <ContentResults page={page} />
+            {(nextHref || previousHref) && (
+              <ContentCatalogPagination
+                nextHref={nextHref}
+                previousHref={previousHref}
+                totalCount={page.totalCount}
+              />
+            )}
+          </>
+        ) : (
+          <EmptyState resetHref={hasFilters ? tabHref(query.tab) : undefined} />
+        )}
+      </CatalogLayout>
+    </>
   );
 };
 

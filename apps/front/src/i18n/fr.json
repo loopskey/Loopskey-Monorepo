@@ -3085,6 +3085,7 @@
       "originalLanguage": "Langue d’origine : {{language}}",
       "childrenOriginal": "Les épisodes et les vidéos sont affichés dans leur langue d’origine.",
       "backToContent": "Retour au contenu",
+      "breadcrumb": "Fil d’Ariane",
       "notFound": "Contenu introuvable",
       "unavailableTitle": "Cette page est temporairement indisponible",
       "unavailableDescription": "Impossible de charger ce contenu pour le moment. Veuillez réessayer dans un instant.",

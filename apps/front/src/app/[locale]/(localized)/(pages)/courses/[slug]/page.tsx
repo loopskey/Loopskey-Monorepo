@@ -1,11 +1,15 @@
+import { asPublicLocale, variantsOf } from "@/lib/i18n/route-locale";
 import { TContentDetailPageProps } from "@/types/pages.types";
 import { getPublicCourse } from "@/lib/server/public-content";
-import { asPublicLocale, variantsOf } from "@/lib/i18n/route-locale";
 import { contentMetadata } from "@/lib/social-card/metadata";
 import { noindexMetadata } from "@/lib/site/page-metadata";
+import { courseGraph } from "@/lib/structured-data/detail-graphs";
+import { detailTrail } from "@/lib/structured-data/trail";
 import { notFound } from "next/navigation";
 
 import CourseDetailPage from "@modules/ContentDetail/CourseDetailPage";
+import Breadcrumbs from "@elements/breadcrumbs";
+import JsonLd from "@elements/json-ld";
 
 import type { Metadata } from "next";
 
@@ -30,9 +34,26 @@ export const generateMetadata = async ({
 
 const Page = async ({ params }: TContentDetailPageProps) => {
   const { slug, locale } = await params;
-  const course = await getPublicCourse(slug, asPublicLocale(locale));
+  const publicLocale = asPublicLocale(locale);
+  const course = await getPublicCourse(slug, publicLocale);
   if (!course) notFound();
-  return <CourseDetailPage course={course} />;
+  const trail = await detailTrail({
+    kind: "course",
+    slug: course.slug,
+    title: course.title,
+    locale: publicLocale,
+  });
+  return (
+    <>
+      <JsonLd
+        nodes={courseGraph({ content: course, locale: publicLocale, trail })}
+      />
+      <CourseDetailPage
+        course={course}
+        breadcrumbs={<Breadcrumbs trail={trail} locale={publicLocale} />}
+      />
+    </>
+  );
 };
 
 export default Page;

@@ -17,7 +17,7 @@ import DetailSummary from "@modules/ContentDetail/parts/DetailSummary";
 import DetailSection from "@modules/ContentDetail/parts/DetailSection";
 import DetailLayout from "@modules/ContentDetail/parts/DetailLayout";
 
-const CourseDetailPage = ({ course }: TCourseDetailPageProps) => {
+const CourseDetailPage = ({ course, breadcrumbs }: TCourseDetailPageProps) => {
   const { t } = useI18n();
 
   const actions = useContentActions({
@@ -31,6 +31,7 @@ const CourseDetailPage = ({ course }: TCourseDetailPageProps) => {
 
   return (
     <DetailLayout
+      breadcrumbs={breadcrumbs}
       header={
         <DetailPageHeader
           title={course.title}
