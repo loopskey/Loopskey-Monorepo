@@ -4,6 +4,7 @@ import { UpstreamFailureError } from "@/lib/server/graphql-server";
 import { isSocialCardKind } from "@/lib/social-card/content";
 import { renderSocialCard } from "@/lib/social-card/render";
 import { isPublicLocale } from "@/lib/i18n/locale";
+import { API_ORIGIN } from "@/utils/api-origin.util";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -44,9 +45,11 @@ export async function GET(request: NextRequest, { params }: Params) {
 
   if (content.published && content.imageUrl) {
     const target = new URL(content.imageUrl, request.nextUrl.origin);
-    const redirect = NextResponse.redirect(target, 307);
-    redirect.headers.set("Cache-Control", NO_STORE);
-    return redirect;
+    if (new Set([API_ORIGIN, request.nextUrl.origin]).has(target.origin)) {
+      const redirect = NextResponse.redirect(target, 307);
+      redirect.headers.set("Cache-Control", NO_STORE);
+      return redirect;
+    }
   }
 
   return renderSocialCard({

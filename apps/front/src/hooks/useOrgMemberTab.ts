@@ -1,7 +1,7 @@
 "use client";
 
 import { AssignmentTargetKind, AssignmentType } from "@/lib/graphql/base";
-import { OrganizationMemberStatus, Role } from "@/lib/graphql/base";
+import { OrganizationMemberStatus } from "@/lib/graphql/base";
 import { TOrganizationBulkMemberRow } from "@/types/org-dashboard.types";
 import { useMemo, useState } from "react";
 import { normalizeText } from "@/utils/constant";
@@ -198,19 +198,6 @@ export const useOrganizationMembersTab = () => {
     }
   };
 
-  const updateMemberRole = async (memberId: string, role: Role) => {
-    try {
-      await updateMember({
-        memberId,
-        role,
-      }).unwrap();
-      if (selectedMemberId) await loadMemberDetail(selectedMemberId).unwrap();
-      notify.success(t("organizationDashboard.members.messages.memberUpdated"));
-    } catch {
-      notify.error(t("authPages.common.genericError"));
-    }
-  };
-
   const saveNotes = async () => {
     if (!selectedMemberId) return;
     try {
@@ -283,7 +270,6 @@ export const useOrganizationMembersTab = () => {
     assignLearning,
     assignmentForm,
     setDepartmentId,
-    updateMemberRole,
     openMemberDetail,
     closeMemberDetail,
     departmentOptions,

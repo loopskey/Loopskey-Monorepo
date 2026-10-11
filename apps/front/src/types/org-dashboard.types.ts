@@ -177,7 +177,6 @@ export type TOrgMemberDetailDialog = {
   selectedMember: TMembersTabReturn["selectedMember"];
   assignmentForm: TMembersTabReturn["assignmentForm"];
   assignLearning: TMembersTabReturn["assignLearning"];
-  updateMemberRole: TMembersTabReturn["updateMemberRole"];
   closeMemberDetail: TMembersTabReturn["closeMemberDetail"];
   updateMemberStatus: TMembersTabReturn["updateMemberStatus"];
 };
