@@ -94,7 +94,7 @@ const TopicHubPage = async ({
           </div>
 
           {items.length > 0 ? (
-            <ul className="grid gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
+            <ul className="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
               {items.map((item) => (
                 <li key={`${item.kind}-${item.id}`} className="flex">
                   <ContentCard item={item} className="w-full" />

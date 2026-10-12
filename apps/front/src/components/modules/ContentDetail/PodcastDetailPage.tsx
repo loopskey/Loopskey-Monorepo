@@ -36,11 +36,11 @@ const PodcastDetailPage = ({
       header={
         <DetailPageHeader
           title={podcast.title}
-          contentLanguage={podcast.contentLanguage}
-          availableLocales={podcast.availableLocales}
           rating={podcast.rating}
           ratingCount={podcast.ratingCount}
           badge={t("contentDetails.podcast.badge")}
+          contentLanguage={podcast.contentLanguage}
+          availableLocales={podcast.availableLocales}
           category={t(
             `content.enums.podcastCategory.${podcast.category}`,
             {},
@@ -55,11 +55,9 @@ const PodcastDetailPage = ({
       }
       sidebar={
         <DetailSidebar
-          id={podcast.id}
           kind="podcast"
           title={podcast.title}
           imageUrl={podcast.imageUrl}
-          category={podcast.category}
           actions={
             <DetailSidebarActions
               contentType={ContentType.Podcast}

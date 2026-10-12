@@ -13,7 +13,6 @@ import { Label } from "@ui/label";
 import type { TContentThumbnailKind } from "@/types/element.types";
 
 import ContentCard from "@elements/content-card";
-import Link from "next/link";
 
 import * as L from "lucide-react";
 
@@ -196,10 +195,10 @@ const ProfessionalWishlistTab = () => {
         </GlassCard>
       ) : (
         <>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-x-6 gap-y-8 md:grid-cols-2 xl:grid-cols-3">
             {wishlistItems.map((item) => {
               const content = item.content;
-              const href = content?.url ?? "#";
+              const href = content?.url ?? "";
               const title =
                 content?.title ??
                 t("professionalDashboard.wishlist.contentTitle", {
@@ -219,7 +218,6 @@ const ProfessionalWishlistTab = () => {
                     rating: content?.rating,
                     imageUrl: content?.imageUrl,
                     category: content?.category,
-                    categoryCode: content?.category,
                     description: content?.description,
                     metaPrimary:
                       content?.providerName ??
@@ -247,34 +245,9 @@ const ProfessionalWishlistTab = () => {
                       onClick={() =>
                         handleRemove(item.contentType, item.contentId)
                       }
-                      className="absolute right-2.5 top-2.5"
                     >
                       <L.Trash2 className="h-4 w-4" />
                     </Button>
-                  }
-                  action={
-                    content?.url ? (
-                      <Button
-                        asChild
-                        radius="lg"
-                        type="button"
-                        className="w-full"
-                      >
-                        <Link href={href}>
-                          {t("professionalDashboard.wishlist.viewDetails")}
-                        </Link>
-                      </Button>
-                    ) : (
-                      <Button
-                        radius="lg"
-                        type="button"
-                        variant="outline"
-                        className="w-full"
-                        disabled
-                      >
-                        {t("professionalDashboard.wishlist.viewDetails")}
-                      </Button>
-                    )
                   }
                 />
               );

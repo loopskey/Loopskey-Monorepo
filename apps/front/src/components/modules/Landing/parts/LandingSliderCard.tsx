@@ -33,11 +33,9 @@ const LandingSliderCard = ({ item, isActive, onHover }: TLandingSlider) => {
     >
       <div className="relative h-48 overflow-hidden bg-muted">
         <ContentThumbnail
-          id={item.id}
           kind={item.kind}
           title={item.title}
           imageUrl={item.imageUrl}
-          category={item.category}
           sizes="(max-width: 640px) 86vw, (max-width: 1024px) 46vw, 320px"
           className="transition duration-700 group-hover:scale-110"
         />

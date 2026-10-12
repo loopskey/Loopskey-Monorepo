@@ -14,17 +14,17 @@ import ContentCard from "@elements/content-card";
 import Image from "next/image";
 
 type TProviderProfilePageProps = {
-  profile: PublicProviderProfile;
   locale: PublicLocale;
   breadcrumbs: ReactNode;
+  profile: PublicProviderProfile;
 };
 
 const LOGO_SIZE = 96;
 const EXTERNAL_REL = "noopener noreferrer nofollow";
 
 const ProviderProfilePage = async ({
-  profile,
   locale,
+  profile,
   breadcrumbs,
 }: TProviderProfilePageProps) => {
   const dictionary = await loadDictionary(locale);
@@ -118,7 +118,7 @@ const ProviderProfilePage = async ({
             {copy.contentHeading}
           </h2>
           {items.length > 0 ? (
-            <ul className="grid gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
+            <ul className="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
               {items.map((item) => (
                 <li key={`${item.kind}-${item.id}`} className="flex">
                   <ContentCard item={item} className="w-full" />

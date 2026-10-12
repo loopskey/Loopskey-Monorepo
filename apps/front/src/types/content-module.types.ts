@@ -38,7 +38,6 @@ export type TContentCardItem = {
   isFree?: boolean | null;
   imageUrl?: string | null;
   category?: string | null;
-  categoryCode?: string | null;
   description?: string | null;
   metaPrimary?: string | null;
   metaSecondary?: string | null;
@@ -52,7 +51,6 @@ export type TSelectOption = {
 };
 
 export type TContentCardProps = {
-  action?: ReactNode;
   className?: string;
   footerNote?: ReactNode;
   item: TContentCardItem;
@@ -184,14 +182,12 @@ export type TDetailPageHeaderProps = {
 };
 
 export type TDetailSidebarProps = {
-  id: string;
   title: string;
   kind: TDetailKind;
   actions: ReactNode;
   facts: TDetailFact[];
   summary?: ReactNode;
   imageUrl?: string | null;
-  category?: string | null;
 };
 
 export type TDetailSectionProps = {
