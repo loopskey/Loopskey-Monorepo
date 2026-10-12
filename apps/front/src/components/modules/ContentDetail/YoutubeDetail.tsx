@@ -17,8 +17,8 @@ import DetailSection from "@modules/ContentDetail/parts/DetailSection";
 import DetailLayout from "@modules/ContentDetail/parts/DetailLayout";
 
 const YouTubeDetailPage = ({
-  channel,
   videos,
+  channel,
   breadcrumbs,
 }: TYouTubeDetailPageProps) => {
   const { t } = useI18n();
@@ -35,11 +35,11 @@ const YouTubeDetailPage = ({
       header={
         <DetailPageHeader
           title={channel.title}
-          contentLanguage={channel.contentLanguage}
-          availableLocales={channel.availableLocales}
           rating={channel.rating}
           ratingCount={channel.ratingCount}
           badge={t("contentDetails.youtube.badge")}
+          contentLanguage={channel.contentLanguage}
+          availableLocales={channel.availableLocales}
           category={t(
             `content.enums.youtubeCategory.${channel.category}`,
             {},
@@ -56,11 +56,9 @@ const YouTubeDetailPage = ({
       }
       sidebar={
         <DetailSidebar
-          id={channel.id}
           kind="youtube"
           title={channel.title}
           imageUrl={channel.imageUrl}
-          category={channel.category}
           actions={
             <DetailSidebarActions
               contentType={ContentType.Youtube}

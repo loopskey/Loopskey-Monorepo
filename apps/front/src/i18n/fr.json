@@ -3819,8 +3819,6 @@
       "browseAll": "Tout explorer",
       "viewAll": "Tout voir",
       "continue": "Continuer",
-      "enrollNow": "S’inscrire maintenant",
-      "enrolled": "Votre inscription a été effectuée avec succès.",
       "pduOverTime": "PDU au fil du temps",
       "pduOverTimeDescription": "Accumulation mensuelle de vos unités de développement professionnel approuvées.",
       "pdusByCategory": "PDU par catégorie",
@@ -3996,7 +3994,6 @@
       "removed": "Supprimé de la liste.",
       "untitled": "Contenu sans titre",
       "savedAt": "Enregistré le",
-      "viewDetails": "Voir les détails",
       "contentTitle": "Élément {{type}} #{{id}}"
     },
     "cpdPduTracker": {

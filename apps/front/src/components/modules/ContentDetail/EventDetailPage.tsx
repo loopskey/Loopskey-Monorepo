@@ -78,11 +78,9 @@ const EventDetailPage = ({ event, breadcrumbs }: TEventDetailPageProps) => {
       }
       sidebar={
         <DetailSidebar
-          id={event.id}
           kind="event"
           title={event.title}
           imageUrl={event.imageUrl}
-          category={event.category}
           summary={
             <DetailSummary
               items={[

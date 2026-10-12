@@ -1,9 +1,3 @@
-// Server-side copies of the fifteen phase 00 category motifs, as standalone
-// SVG group markup on the shared "0 0 160 120" view box. The phase 00
-// components are JSX and "use client"; the social card renderer runs on the
-// server through resvg, so it needs plain strings. Keep the artwork in sync
-// with `components/elements/content-motifs`.
-
 export const SOCIAL_CARD_MOTIF_VIEW_BOX = "0 0 160 120";
 
 export const SOCIAL_CARD_MOTIFS: Record<string, string> = {
@@ -24,10 +18,6 @@ export const SOCIAL_CARD_MOTIFS: Record<string, string> = {
   TECHNOLOGY: `<g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M26 34h20v20h28V26h30v28h20" /><path d="M26 70h34V54" opacity="0.55" /><path d="M104 70h30V40" opacity="0.55" /><circle cx="46" cy="54" r="4" /><circle cx="74" cy="26" r="4" /><circle cx="104" cy="54" r="4" /><circle cx="134" cy="40" r="4" /></g>`,
 };
 
-// Motifs the raster renderer cannot draw fall back to the flat kind ground with
-// the title. resvg handles every current motif (plain strokes, circles, rects,
-// ellipses and paths), so this set is empty; it exists so a future motif that
-// uses an unsupported construct degrades rather than failing the card.
 export const UNRENDERABLE_MOTIFS = new Set<string>();
 
 export const resolveSocialCardMotif = (category?: string | null) => {

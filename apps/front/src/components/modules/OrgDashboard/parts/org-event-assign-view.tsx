@@ -100,10 +100,8 @@ export const OrgEventAssignView = ({ hook }: TEventCatalogAssignView) => {
               <div className="relative h-44 overflow-hidden rounded-t-lg bg-muted">
                 <ContentThumbnail
                   kind="event"
-                  id={selectedEvent.id}
                   title={selectedEvent.title}
                   imageUrl={selectedEvent.imageUrl}
-                  category={selectedEvent.category}
                   sizes="(max-width: 1280px) 100vw, 380px"
                 />
               </div>

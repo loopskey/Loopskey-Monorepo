@@ -74,7 +74,6 @@ export const toCardItems = (
         description: course.description,
         imageUrl: course.imageUrl,
         category: enumLabel(t, "courseCategory", course.category),
-        categoryCode: course.category,
         status: enumLabel(t, "courseLevel", course.level),
         rating: course.rating,
         price: course.price ?? null,
@@ -105,7 +104,6 @@ export const toCardItems = (
         description: event.description,
         imageUrl: event.imageUrl,
         category: enumLabel(t, "eventCategory", event.category),
-        categoryCode: event.category,
         status: enumLabel(t, "eventType", event.type),
         rating: event.averageRating,
         price: event.price ?? null,
@@ -130,7 +128,6 @@ export const toCardItems = (
         description: podcast.description,
         imageUrl: podcast.imageUrl,
         category: enumLabel(t, "podcastCategory", podcast.category),
-        categoryCode: podcast.category,
         rating: podcast.rating,
         metaPrimary: countLabel(t, "content.card.listeners", podcast.listeners),
         metaSecondary: countLabel(
@@ -154,7 +151,6 @@ export const toCardItems = (
         description: channel.description,
         imageUrl: channel.imageUrl,
         category: enumLabel(t, "youtubeCategory", channel.category),
-        categoryCode: channel.category,
         rating: channel.rating,
         metaPrimary: countLabel(
           t,

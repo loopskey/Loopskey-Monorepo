@@ -3817,8 +3817,6 @@
       "browseAll": "Browse All",
       "viewAll": "View All",
       "continue": "Continue",
-      "enrollNow": "Enroll Now",
-      "enrolled": "You have been enrolled successfully.",
       "pduOverTime": "PDUs Over Time",
       "pduOverTimeDescription": "Monthly accumulation of your approved professional development units.",
       "pdusByCategory": "PDUs by Category",
@@ -3993,7 +3991,6 @@
       "removed": "Removed from wishlist.",
       "untitled": "Untitled content",
       "savedAt": "Saved at",
-      "viewDetails": "View details",
       "contentTitle": "{{type}} item #{{id}}"
     },
     "cpdPduTracker": {

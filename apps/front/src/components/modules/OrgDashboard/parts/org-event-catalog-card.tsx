@@ -20,10 +20,8 @@ export const OrgEventCatalogCard = ({
         <div className="relative h-44 overflow-hidden rounded-t-lg bg-muted">
           <ContentThumbnail
             kind="event"
-            id={event.id}
             title={event.title}
             imageUrl={event.imageUrl}
-            category={event.category}
             sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
           />
           <Badge className="absolute left-4 top-4">{event.deliveryMode}</Badge>

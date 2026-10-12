@@ -270,15 +270,12 @@ export type TExternalLearningBtn = {
 export type TContentThumbnailKind = "course" | "event" | "podcast" | "youtube";
 
 export type TContentThumbnailProps = {
-  id: string;
   title: string;
   sizes: string;
   priority?: boolean;
   className?: string;
   imageUrl?: string | null;
-  category?: string | null;
   kind: TContentThumbnailKind;
-  sourceLabel?: string | null;
 };
 
 export type TIconActionProps = {
