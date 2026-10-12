@@ -75,6 +75,8 @@ const conversionKey = (dimensions: ConversionDimensions) =>
     dimensions.locale,
   ].join("|");
 
+const TRANSACTION_OPTIONS = { maxWait: 10_000, timeout: 15_000 };
+
 @Injectable()
 export class TelemetryAggregateRepository {
   constructor(private readonly prisma: PrismaService) {}
@@ -99,7 +101,7 @@ export class TelemetryAggregateRepository {
       };
       if (input.countsIntake) await this.addIntake(tx, input.day, outcome);
       return outcome;
-    });
+    }, TRANSACTION_OPTIONS);
   }
 
   async countIntake(

@@ -81,10 +81,11 @@ export class TelemetryIntakeService {
 
     const day = utcDay(new Date());
 
-    const decision = await this.rateLimits.spendAll([
-      { policy: IP_POLICY, subject: clientAddress ?? UNKNOWN_CLIENT },
-      { policy: GLOBAL_POLICY, subject: GLOBAL_SUBJECT },
-    ]);
+    const decision = await this.spendAllowance(clientAddress);
+    if (!decision) {
+      await this.countDropped(day, batch, P.TelemetryIntakeOutcome.SINK_FAILED);
+      return { accepted: 0, dropped: received };
+    }
     if (!decision.allowed) {
       await this.countDropped(
         day,
@@ -147,6 +148,21 @@ export class TelemetryIntakeService {
       });
       await this.countDropped(day, batch, P.TelemetryIntakeOutcome.SINK_FAILED);
       return { accepted: 0, dropped: received };
+    }
+  }
+
+  private async spendAllowance(clientAddress?: string) {
+    try {
+      return await this.rateLimits.spendAll([
+        { policy: IP_POLICY, subject: clientAddress ?? UNKNOWN_CLIENT },
+        { policy: GLOBAL_POLICY, subject: GLOBAL_SUBJECT },
+      ]);
+    } catch (error) {
+      this.logger.warn("Telemetry rate limit check failed", {
+        correlationId: requestContext.correlationId(),
+        errorName: error instanceof Error ? error.name : "UnknownError",
+      });
+      return null;
     }
   }
 

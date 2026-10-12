@@ -31,6 +31,8 @@ const REPORT = `query($input: SearchHealthReportInput!) {
   }
 }`;
 
+const WAVE_SIZE = 25;
+
 let counter = 0;
 const eventId = () => `evt${Date.now().toString(36)}${(counter += 1)}abcdef`;
 
@@ -400,9 +402,19 @@ describe("Search telemetry (e2e)", () => {
             input: { vitals: batch, conversions: [] },
           });
         const attempts = TELEMETRY_LIMITS.ipLimitPerWindow + 40;
-        const results = await runTogether(attempts, (index) =>
-          index % 2 === 0 ? record([vital()]) : secondRecord([vital()]),
-        );
+        const results: PromiseSettledResult<{
+          body: { data: { recordTelemetry: { accepted: number } } };
+        }>[] = [];
+        for (let sent = 0; sent < attempts; sent += WAVE_SIZE)
+          results.push(
+            ...(await runTogether(
+              Math.min(WAVE_SIZE, attempts - sent),
+              (index) =>
+                (sent + index) % 2 === 0
+                  ? record([vital()])
+                  : secondRecord([vital()]),
+            )),
+          );
         const accepted = results.reduce(
           (sum, result) =>
             sum +
@@ -589,7 +601,8 @@ describe("Search telemetry (e2e)", () => {
         const batch = Array.from({ length: Math.min(10, count - sent) }, () =>
           vital({ template, device, value, rating }),
         );
-        await record(batch);
+        const response = await record(batch);
+        expect(response.body.data.recordTelemetry.accepted).toBe(batch.length);
       }
     };
 
