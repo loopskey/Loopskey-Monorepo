@@ -1,6 +1,6 @@
 import { localizedUrl } from "@/lib/site/page-metadata";
 import { SITE_DESCRIPTION, SITE_NAME } from "@/lib/site/page-metadata";
-import { STATIC_INFO_EMAIL } from "@/utils/static-info-page.utils";
+import { STATIC_INFO_EMAIL } from "@/utils/static-info-outline";
 import { siteUrl } from "@/lib/site/site-url";
 import { plainText } from "@/lib/structured-data/facts";
 

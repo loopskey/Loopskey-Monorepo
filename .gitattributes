@@ -7,3 +7,4 @@
 apps/front/src/lib/graphql/generated.ts text eol=lf
 apps/front/src/lib/graphql/base.ts text eol=lf
 apps/front/src/lib/graphql/operations/*.ts text eol=lf
+apps/front/src/i18n/generated/*.json text eol=lf

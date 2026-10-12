@@ -7,12 +7,13 @@
     "build": "next build",
     "start": "next start",
     "test": "vitest run",
-    "lint": "eslint src && npm run check-i18n",
+    "lint": "eslint src && npm run check-i18n && node scripts/i18n-public-slice.js",
     "check-i18n": "node scripts/check-i18n-placeholders.js",
     "check-types": "tsc --noEmit",
     "bundle-report": "node scripts/bundle-report.js",
     "svg-spritor": "node scripts/svg-spritor.js",
-    "codegen": "graphql-codegen --config codegen.ts"
+    "codegen": "graphql-codegen --config codegen.ts",
+    "i18n-slice": "node scripts/i18n-public-slice.js --write"
   },
   "dependencies": {
     "@fullcalendar/core": "^6.1.18",

@@ -1,5 +1,4 @@
-import { Dictionary } from "@/i18n/dictionaries";
-import { PublicLocale } from "@/lib/i18n/locale";
+import type { PublicLocale } from "@/lib/i18n/locale";
 import type { ElementType, ReactNode } from "react";
 
 export type TLanguage = "en" | "fr";
@@ -45,8 +44,3 @@ export type TRouteLocale = {
   locale: PublicLocale;
 };
 
-export type TLanguageProvider = {
-  children: ReactNode;
-  routeLanguage?: TLanguage;
-  routeDictionary?: Dictionary;
-};
