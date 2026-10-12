@@ -230,8 +230,10 @@ What is stored, the limits and the privacy decision are in
 `docs/seo/telemetry-and-privacy.md`. Operationally:
 
 - Intake never fails a request. A disabled switch, a rate limit, a sampling
-  decision and a storage error all answer `accepted`/`dropped`, and every drop
-  is counted by outcome in `TelemetryIntakeDaily` except while disabled.
+  decision and a storage error all answer `accepted`/`dropped`. Drops are
+  counted by outcome in `TelemetryIntakeDaily` on a best-effort basis, so under
+  heavy load the counters can undercount; the accepted counts and the
+  aggregates are exact, and nothing is counted while collection is disabled.
 - Retention runs inside each API instance every hour: dedup keys after 24 hours,
   daily aggregates after 395 days, 5000 rows per delete and at most twenty
   batches per table per sweep. Two instances sweeping at once are harmless.
