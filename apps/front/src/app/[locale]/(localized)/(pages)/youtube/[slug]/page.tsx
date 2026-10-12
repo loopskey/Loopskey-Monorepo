@@ -3,12 +3,15 @@ import { redirectToRenamedContent } from "@/lib/server/renamed-content";
 import { TContentDetailPageProps } from "@/types/pages.types";
 import { getPublicYouTubeChannel } from "@/lib/server/public-content";
 import { getPublicYouTubeVideos } from "@/lib/server/public-content";
+import { getContentTopicHubs } from "@/lib/server/public-content";
+import { getProviderByline } from "@/lib/server/public-content";
 import { contentMetadata } from "@/lib/social-card/metadata";
 import { noindexMetadata } from "@/lib/site/page-metadata";
 import { channelGraph } from "@/lib/structured-data/detail-graphs";
 import { detailTrail } from "@/lib/structured-data/trail";
 import { notFound } from "next/navigation";
 
+import ContentRelations from "@modules/Editorial/ContentRelations";
 import YoutubeDetail from "@modules/ContentDetail/YoutubeDetail";
 import Breadcrumbs from "@elements/breadcrumbs";
 import JsonLd from "@elements/json-ld";
@@ -49,6 +52,10 @@ const Page = async ({ params }: TContentDetailPageProps) => {
     notFound();
   }
   const videos = await getPublicYouTubeVideos(channel.id);
+  const [hubs, byline] = await Promise.all([
+    getContentTopicHubs("youtube", channel.id, publicLocale),
+    getProviderByline("youtube", channel.id),
+  ]);
   const trail = await detailTrail({
     kind: "youtube",
     slug: channel.slug,
@@ -69,7 +76,16 @@ const Page = async ({ params }: TContentDetailPageProps) => {
       <YoutubeDetail
         channel={channel}
         videos={videos}
-        breadcrumbs={<Breadcrumbs trail={trail} locale={publicLocale} />}
+        breadcrumbs={
+          <>
+            <Breadcrumbs trail={trail} locale={publicLocale} />
+            <ContentRelations
+              hubs={hubs}
+              byline={byline}
+              locale={publicLocale}
+            />
+          </>
+        }
       />
     </>
   );

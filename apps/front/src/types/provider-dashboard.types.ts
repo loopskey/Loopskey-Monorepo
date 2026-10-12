@@ -10,7 +10,8 @@ export type TProviderDashboardTab =
   | "settings"
   | "my-events"
   | "create-event"
-  | "promotion-requests";
+  | "promotion-requests"
+  | "public-profile";
 
 export type TTimePoint = {
   date: string;

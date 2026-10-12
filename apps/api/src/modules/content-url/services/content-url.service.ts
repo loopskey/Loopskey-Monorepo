@@ -1,9 +1,9 @@
 import { AuditAction, ContentUrlNamespace, Prisma, Role } from "@prisma/client";
 import { ConflictException, ForbiddenException } from "@nestjs/common";
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { ContentUrlKindRegistryService } from "@contentUrl/services/content-url-kind-registry.service";
 import { ContentUrlMessageCode } from "@loopskey/api-contracts/error-codes";
 import { normalizeContentSlug } from "@utils/content-slug.util";
-import { CONTENT_URL_KINDS } from "@contentUrl/services/content-url-kinds";
 import { requestContext } from "@infrastructure/observability/request-context";
 import { PrismaService } from "@prisma/prisma.service";
 
@@ -43,7 +43,10 @@ const isSlugCollision = (error: unknown) =>
 export class ContentUrlService {
   private readonly logger = new Logger(ContentUrlService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly kinds: ContentUrlKindRegistryService,
+  ) {}
 
   async get(
     actor: ContentUrlActor,
@@ -66,7 +69,7 @@ export class ContentUrlService {
 
   async change(actor: ContentUrlActor, input: ChangeContentSlugInput) {
     const slug = normalizeContentSlug(input.slug);
-    const adapter = CONTENT_URL_KINDS[input.kind];
+    const adapter = this.kinds.get(input.kind);
     try {
       const changed = await this.prisma.$transaction(async (tx) => {
         const record = await this.authorize(
@@ -133,10 +136,11 @@ export class ContentUrlService {
     kind: ContentUrlNamespace,
     contentId: string,
   ) {
-    const record = await CONTENT_URL_KINDS[kind].find(client, contentId);
+    const adapter = this.kinds.get(kind);
+    const record = await adapter.find(client, contentId);
     if (!record || record.deletedAt) throw notFound();
-    if (actor.role !== Role.ADMIN && record.providerId !== actor.id)
-      throw denied();
+    if (actor.role === Role.ADMIN) return record;
+    if (adapter.adminOnly || record.providerId !== actor.id) throw denied();
     return record;
   }
 }

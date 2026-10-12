@@ -4,7 +4,7 @@ import { ContentSeoMessageCode } from "@loopskey/api-contracts/error-codes";
 import { IMAGE_UPLOAD_DEFAULTS } from "@loopskey/api-contracts/upload";
 import { isAcceptedImageFile } from "@loopskey/api-contracts/upload";
 import { CONTENT_SEO_LIMITS } from "@loopskey/api-contracts/validation";
-import { contentDetailPath } from "@/lib/content-catalog/detail-path";
+import { publicPagePath } from "@/lib/content-catalog/public-path";
 import { fromApiLanguage } from "@/lib/i18n/locale";
 import { localizePath } from "@/lib/i18n/locale";
 import { API_ORIGIN } from "@/utils/api-origin.util";
@@ -12,7 +12,7 @@ import { API_ORIGIN } from "@/utils/api-origin.util";
 import type { TGraphQLBaseQueryError } from "@/types/rtk.types";
 import type { TContentSeoImageUpload } from "@/types/content-seo.types";
 import type { AppLanguage } from "@/lib/graphql/base";
-import type { ContentKind } from "@/lib/content-catalog/detail-path";
+import type { PublicPageKind } from "@/lib/content-catalog/public-path";
 
 export const SEO_TITLE_MAX_LENGTH = CONTENT_SEO_LIMITS.titleMax;
 
@@ -85,12 +85,12 @@ const siteOrigin = () => {
 };
 
 export const previewCanonicalUrl = (
-  kind: ContentKind,
+  kind: PublicPageKind,
   slug: string | undefined,
   locale: AppLanguage,
 ) => {
   if (!slug) return siteOrigin();
-  return `${siteOrigin()}${localizePath(contentDetailPath(kind, slug), fromApiLanguage(locale))}`;
+  return `${siteOrigin()}${localizePath(publicPagePath(kind, slug), fromApiLanguage(locale))}`;
 };
 
 export const errorCodeOf = (error: unknown) => {

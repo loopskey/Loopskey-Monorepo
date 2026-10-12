@@ -1,13 +1,13 @@
-import { contentDetailPath } from "@/lib/content-catalog/detail-path";
 import { permanentRedirect } from "next/navigation";
 import { getCurrentSlug } from "@/lib/server/public-content";
+import { publicPagePath } from "@/lib/content-catalog/public-path";
 import { localizePath } from "@/lib/i18n/locale";
 
+import type { PublicPageKind } from "@/lib/content-catalog/public-path";
 import type { PublicLocale } from "@/lib/i18n/locale";
-import type { ContentKind } from "@/lib/content-catalog/detail-path";
 
 export const redirectToRenamedContent = async (
-  kind: ContentKind,
+  kind: PublicPageKind,
   slug: string,
   locale: PublicLocale,
   isVisible: (currentSlug: string, locale: PublicLocale) => Promise<unknown>,
@@ -15,5 +15,5 @@ export const redirectToRenamedContent = async (
   const currentSlug = await getCurrentSlug(kind, slug);
   if (!currentSlug || currentSlug === slug) return;
   if (!(await isVisible(currentSlug, locale))) return;
-  permanentRedirect(localizePath(contentDetailPath(kind, currentSlug), locale));
+  permanentRedirect(localizePath(publicPagePath(kind, currentSlug), locale));
 };

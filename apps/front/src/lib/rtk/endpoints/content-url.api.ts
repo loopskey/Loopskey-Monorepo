@@ -6,13 +6,15 @@ import { baseApi } from "@/lib/rtk/baseApi";
 import type { TContentUrlChangeArg } from "@/types/content-url.types";
 import type { TContentUrlReadArg } from "@/types/content-url.types";
 import type { TContentUrlSettings } from "@/types/content-url.types";
-import type { ContentKind } from "@/lib/content-catalog/detail-path";
+import type { PublicPageKind } from "@/lib/content-catalog/public-path";
 
-const URL_KIND: Record<ContentKind, ContentUrlKind> = {
+const URL_KIND: Record<PublicPageKind, ContentUrlKind> = {
   course: ContentUrlKind.Course,
   event: ContentUrlKind.Event,
   podcast: ContentUrlKind.Podcast,
   youtube: ContentUrlKind.Youtube,
+  topic: ContentUrlKind.Topic,
+  provider: ContentUrlKind.Provider,
 };
 
 export const contentUrlApi = baseApi.injectEndpoints({

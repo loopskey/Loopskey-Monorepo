@@ -22,11 +22,12 @@ const IDENTIFIER_PATTERN = /^[A-Za-z][A-Za-z0-9]*$/;
 const PUBLISHED = "PUBLISHED";
 
 export type PublicUrlSource = {
-  readonly kind: ContentType;
+  readonly kind: string;
   readonly table: string;
   readonly statusType: string;
-  readonly translationTable: string;
-  readonly translationParentColumn: string;
+  readonly translationTable?: string;
+  readonly translationParentColumn?: string;
+  readonly extraPredicate?: Prisma.Sql;
 };
 
 export type PublicUrlAnchor = {
@@ -60,8 +61,8 @@ export type PublicUrlShardSet = {
   readonly truncated: boolean;
 };
 
-export interface PublicUrlApi {
-  readonly kind: ContentType;
+export interface PublicUrlApi<TKind extends string = ContentType> {
+  readonly kind: TKind;
   readShards(): Promise<PublicUrlShardSet>;
   readPage(selector: PublicUrlPageSelector): Promise<PublicUrlPage>;
 }
@@ -91,10 +92,7 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 export const toCursorTimestamp = (value: Date) =>
   value.toISOString().slice(0, -1);
 
-export const encodePublicUrlCursor = (
-  kind: ContentType,
-  anchor: PublicUrlAnchor,
-) =>
+export const encodePublicUrlCursor = (kind: string, anchor: PublicUrlAnchor) =>
   Buffer.from(
     JSON.stringify({
       v: CURSOR_VERSION,
@@ -106,7 +104,7 @@ export const encodePublicUrlCursor = (
 
 export const decodePublicUrlCursor = (
   token: string,
-  kind: ContentType,
+  kind: string,
 ): PublicUrlAnchor => {
   if (token.length > PUBLIC_URL_MAX_CURSOR_LENGTH) throw invalidCursor();
   if (!CURSOR_TOKEN_PATTERN.test(token)) throw invalidCursor();
@@ -160,7 +158,8 @@ const eligibleRows = (source: PublicUrlSource) =>
   Prisma.sql`FROM ${identifier(source.table)}
     WHERE "deletedAt" IS NULL
       AND "excludeFromIndex" = false
-      AND "status" = ${PUBLISHED}::${identifier(source.statusType)}`;
+      AND "status" = ${PUBLISHED}::${identifier(source.statusType)}
+      ${source.extraPredicate ? Prisma.sql`AND ${source.extraPredicate}` : Prisma.empty}`;
 
 type ShardRow = {
   index: number;
@@ -221,6 +220,20 @@ export const readPublicUrlShards = async (
   };
 };
 
+const publishedLocales = (source: PublicUrlSource) => {
+  if (!source.translationTable || !source.translationParentColumn)
+    return Prisma.sql`ARRAY[]::text[]`;
+  return Prisma.sql`COALESCE(
+    (
+      SELECT array_agg(t."locale"::text ORDER BY t."locale")
+      FROM ${identifier(source.translationTable)} t
+      WHERE t.${identifier(source.translationParentColumn)} = ${identifier(source.table)}."id"
+        AND t."isPublished"
+    ),
+    ARRAY[]::text[]
+  )`;
+};
+
 type UrlRow = {
   slug: string;
   createdAt: Date;
@@ -258,15 +271,7 @@ export const readPublicUrlPage = async (
       "id",
       "publicContentUpdatedAt" AS "publicChangeAt",
       "sourceLanguage",
-      COALESCE(
-        (
-          SELECT array_agg(t."locale"::text ORDER BY t."locale")
-          FROM ${identifier(source.translationTable)} t
-          WHERE t.${identifier(source.translationParentColumn)} = ${identifier(source.table)}."id"
-            AND t."isPublished"
-        ),
-        ARRAY[]::text[]
-      ) AS "publishedLocales"
+      ${publishedLocales(source)} AS "publishedLocales"
     ${eligibleRows(source)}
       AND ${lower}
       ${upper}

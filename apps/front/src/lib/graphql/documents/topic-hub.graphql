@@ -1,0 +1,146 @@
+# ================ Fragments ==============
+fragment TopicHubItemFields on TopicHubItem {
+  kind
+  slug
+  title
+  summary
+  imageUrl
+  category
+}
+
+fragment AdminTopicHubSummaryFields on AdminTopicHubSummary {
+  id
+  slug
+  title
+  status
+  version
+  linkCount
+  eligibleLinkCount
+  needsReview
+  excludeFromIndex
+  publishedAt
+  updatedAt
+}
+
+fragment AdminTopicHubFields on AdminTopicHub {
+  id
+  slug
+  title
+  status
+  version
+  linkCount
+  eligibleLinkCount
+  needsReview
+  excludeFromIndex
+  publishedAt
+  updatedAt
+  introduction
+  guidance
+  category
+  sections {
+    heading
+    body
+  }
+  references {
+    kind
+    contentId
+    slug
+    title
+    isEligible
+  }
+  translations {
+    locale
+    title
+    introduction
+    guidance
+    isPublished
+    version
+    sections {
+      heading
+      body
+    }
+  }
+}
+
+# ================ Public ==============
+query TopicHubBySlug($slug: String!, $locale: AppLanguage) {
+  topicHubBySlug(slug: $slug, locale: $locale) {
+    slug
+    title
+    introduction
+    guidance
+    category
+    availableLocales
+    contentLanguage
+    excludeFromIndex
+    publishedAt
+    updatedAt
+    sections {
+      heading
+      body
+    }
+    items {
+      ...TopicHubItemFields
+    }
+  }
+}
+
+query TopicHubs($locale: AppLanguage, $take: Int) {
+  topicHubs(locale: $locale, take: $take) {
+    slug
+    title
+    introduction
+  }
+}
+
+query TopicHubsForContent(
+  $kind: ContentUrlKind!
+  $contentId: String!
+  $locale: AppLanguage
+) {
+  topicHubsForContent(kind: $kind, contentId: $contentId, locale: $locale) {
+    slug
+    title
+    introduction
+  }
+}
+
+# ================ Administration ==============
+query AdminTopicHubs {
+  adminTopicHubs {
+    ...AdminTopicHubSummaryFields
+  }
+}
+
+query AdminTopicHub($hubId: String!) {
+  adminTopicHub(hubId: $hubId) {
+    ...AdminTopicHubFields
+  }
+}
+
+mutation SaveTopicHub($input: SaveTopicHubInput!) {
+  saveTopicHub(input: $input) {
+    ...AdminTopicHubFields
+  }
+}
+
+mutation SetTopicHubStatus($input: SetTopicHubStatusInput!) {
+  setTopicHubStatus(input: $input) {
+    ...AdminTopicHubFields
+  }
+}
+
+mutation SetTopicHubTranslationPublication(
+  $input: SetTopicHubTranslationPublicationInput!
+) {
+  setTopicHubTranslationPublication(input: $input) {
+    ...AdminTopicHubFields
+  }
+}
+
+mutation SetTopicHubIndexExclusion($input: SetTopicHubIndexExclusionInput!) {
+  setTopicHubIndexExclusion(input: $input) {
+    id
+    excludeFromIndex
+  }
+}

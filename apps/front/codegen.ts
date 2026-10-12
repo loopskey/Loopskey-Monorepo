@@ -15,6 +15,8 @@ const DOMAINS = [
   "discovery",
   "content-seo",
   "content-url",
+  "topic-hub",
+  "provider-public-profile",
   "professional",
   "roadmap-chat",
   "org-dashboard",
