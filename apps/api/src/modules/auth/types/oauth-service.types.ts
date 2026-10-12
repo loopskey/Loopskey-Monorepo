@@ -21,6 +21,7 @@ export type TOAuthStatePayload = {
   role: Role;
   nonce: string;
   provider: TOAuthProvider;
+  tokenType: string;
 };
 
 export type TLinkedInUserInfo = {

@@ -24,3 +24,55 @@ query PublicUrlPage($input: PublicUrlPageInput!) {
     }
   }
 }
+
+query TopicHubUrlShards {
+  topicHubUrlShards {
+    isComplete
+    shardSize
+    shards {
+      index
+      urlCount
+      lastPublicChangeAt
+      startCursor
+      endCursor
+    }
+  }
+}
+
+query TopicHubUrlPage($input: EditorialUrlPageInput!) {
+  topicHubUrlPage(input: $input) {
+    hasNextPage
+    nextCursor
+    items {
+      slug
+      publicChangeAt
+      availableLocales
+    }
+  }
+}
+
+query ProviderProfileUrlShards {
+  providerProfileUrlShards {
+    isComplete
+    shardSize
+    shards {
+      index
+      urlCount
+      lastPublicChangeAt
+      startCursor
+      endCursor
+    }
+  }
+}
+
+query ProviderProfileUrlPage($input: EditorialUrlPageInput!) {
+  providerProfileUrlPage(input: $input) {
+    hasNextPage
+    nextCursor
+    items {
+      slug
+      publicChangeAt
+      availableLocales
+    }
+  }
+}

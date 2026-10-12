@@ -3,11 +3,20 @@ import { ExtractJwt, Strategy } from "passport-jwt";
 import { PassportStrategy } from "@nestjs/passport";
 import { AuthMessageCode } from "@auth/enums/message-code.enum";
 import { cookieExtractorFor } from "@utils/cookie-extractor";
-import { ACCESS_TOKEN_COOKIE_DEFAULT } from "@loopskey/api-contracts/auth";
 import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "@prisma/prisma.service";
 import { JwtPayload } from "@auth/types/jwt-payload.type";
-import { UserStatus } from "@prisma/client";
+import { SessionStatus, UserStatus } from "@prisma/client";
+import {
+  ACCESS_TOKEN_COOKIE_DEFAULT,
+  JWT_ACCESS_AUDIENCE,
+  JWT_ALGORITHM,
+  JWT_ISSUER,
+  TOKEN_TYPE,
+} from "@loopskey/api-contracts/auth";
+
+const isNonEmptyString = (value: unknown): value is string =>
+  typeof value === "string" && value.length > 0;
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
@@ -24,29 +33,52 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
         ExtractJwt.fromAuthHeaderAsBearerToken(),
       ]),
       secretOrKey: configService.getOrThrow<string>("JWT_ACCESS_SECRET"),
+      issuer: JWT_ISSUER,
+      audience: JWT_ACCESS_AUDIENCE,
+      algorithms: [JWT_ALGORITHM],
     });
   }
 
   async validate(payload: JwtPayload): Promise<JwtPayload> {
-    const user = await this.prisma.user.findFirst({
+    if (
+      payload.tokenType !== TOKEN_TYPE.ACCESS ||
+      !isNonEmptyString(payload.sub) ||
+      !isNonEmptyString(payload.sessionId)
+    )
+      throw new UnauthorizedException({
+        code: AuthMessageCode.SESSION_NOT_FOUND,
+        message: "Session not found.",
+      });
+
+    const session = await this.prisma.authSession.findFirst({
       where: {
-        id: payload.sub,
-        deletedAt: null,
+        id: payload.sessionId,
+        userId: payload.sub,
+        status: SessionStatus.ACTIVE,
+        revokedAt: null,
+        expiresAt: { gt: new Date() },
+        user: { deletedAt: null },
       },
       select: {
-        id: true,
-        email: true,
-        role: true,
-        status: true,
-        forcePasswordChange: true,
+        user: {
+          select: {
+            id: true,
+            email: true,
+            role: true,
+            status: true,
+            forcePasswordChange: true,
+          },
+        },
       },
     });
 
-    if (!user)
+    if (!session)
       throw new UnauthorizedException({
-        code: AuthMessageCode.USER_NOT_FOUND,
-        message: "User not found.",
+        code: AuthMessageCode.SESSION_NOT_FOUND,
+        message: "Session not found.",
       });
+
+    const { user } = session;
 
     if (user.status !== UserStatus.ACTIVE)
       throw new UnauthorizedException({

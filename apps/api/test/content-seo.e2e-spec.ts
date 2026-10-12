@@ -1,5 +1,4 @@
 import { INestApplication, ValidationPipe } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
 import { Test } from "@nestjs/testing";
 import { AppLanguage, ContentType, Role, UserStatus } from "@prisma/client";
 import { CourseStatus, EventStatus } from "@prisma/client";
@@ -14,6 +13,7 @@ import type { ObjectStoragePort } from "@infrastructure/storage/object-storage.p
 
 import cookieParser from "cookie-parser";
 import request from "supertest";
+import { openSession, signAccessToken as sign } from "./setup/access-token";
 
 const token = `seo08${Date.now().toString(36)}`;
 
@@ -21,14 +21,6 @@ const PNG_1X1 = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
   "base64",
 );
-
-const sign = (id: string, email: string, role: Role) =>
-  new JwtService({ secret: process.env.JWT_ACCESS_SECRET }).sign({
-    sub: id,
-    email,
-    role,
-    status: UserStatus.ACTIVE,
-  });
 
 type Kind = "course" | "event" | "podcast" | "youtube";
 
@@ -82,6 +74,7 @@ describe("Editorial SEO controls (e2e)", () => {
       data: { email, role, status: UserStatus.ACTIVE },
     });
     createdUsers.push(user.id);
+    await openSession(prisma, user.id);
     return { id: user.id, token: sign(user.id, email, role) };
   };
 

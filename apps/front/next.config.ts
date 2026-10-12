@@ -6,6 +6,7 @@ import {
   ROBOTS_TAG_HEADER,
   noindexHeaderSources,
 } from "./src/lib/site/route-policy";
+import { securityHeaders } from "./src/lib/site/security-headers";
 import {
   CANONICAL_HOST_ALIASES,
   IS_HTTPS_REDIRECT_ENABLED,
@@ -119,6 +120,7 @@ const nextConfig: NextConfig = {
 
   async headers() {
     return [
+      { source: EVERY_PATH, headers: securityHeaders(SITE_ORIGIN) },
       {
         // Static assets served straight from /public. Next only sets immutable
         // caching for its own content-hashed output under /_next/static, so

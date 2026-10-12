@@ -109,6 +109,7 @@ model User {
   contentReviews             ContentReview[]
   carts                      Cart[]
   providerSettings           ProviderSettings?
+  providerPublicProfile      ProviderPublicProfile?
 
   professionalSettings   ProfessionalSettings?
   pduActivities          PDUActivity[]
@@ -1508,7 +1509,193 @@ model ContentSocialImage {
   podcastSeo PodcastSeo[]
   channelSeo YouTubeChannelSeo[]
 
+  providerProfiles  ProviderPublicProfile[]
+  providerRevisions ProviderPublicRevision[]
+
   @@index([ownerId, createdAt])
+}
+
+enum ContentUrlNamespace {
+  COURSE
+  EVENT
+  PODCAST
+  YOUTUBE
+  TOPIC
+  PROVIDER
+}
+
+model ContentUrlClaim {
+  id String @id @default(cuid())
+
+  namespace ContentUrlNamespace
+  slug      String
+  targetId  String
+  isCurrent Boolean             @default(true)
+
+  createdAt DateTime  @default(now())
+  retiredAt DateTime?
+
+  @@unique([namespace, slug])
+  @@index([namespace, targetId])
+}
+
+enum TopicHubStatus {
+  DRAFT
+  PUBLISHED
+  WITHDRAWN
+}
+
+model TopicHub {
+  id String @id @default(cuid())
+
+  slug   String         @unique
+  status TopicHubStatus @default(DRAFT)
+
+  title        String
+  introduction String
+  guidance     String
+  sections     Json    @default("[]")
+  category     String?
+
+  sourceLanguage String @default("en")
+  version        Int    @default(1)
+
+  excludeFromIndex       Boolean   @default(false)
+  publishedAt            DateTime?
+  withdrawnAt            DateTime?
+  publicContentUpdatedAt DateTime  @default(now())
+
+  createdById String?
+  updatedById String?
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  translations TopicHubTranslation[]
+  references   TopicHubReference[]
+
+  @@index([status, publishedAt])
+}
+
+model TopicHubTranslation {
+  id String @id @default(cuid())
+
+  hubId String
+  hub   TopicHub @relation(fields: [hubId], references: [id], onDelete: Cascade)
+
+  locale       AppLanguage
+  title        String
+  introduction String
+  guidance     String
+  sections     Json        @default("[]")
+
+  isPublished Boolean   @default(false)
+  publishedAt DateTime?
+  version     Int       @default(1)
+  updatedById String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([hubId, locale])
+}
+
+model TopicHubReference {
+  id String @id @default(cuid())
+
+  hubId String
+  hub   TopicHub @relation(fields: [hubId], references: [id], onDelete: Cascade)
+
+  kind     ContentUrlNamespace
+  targetId String
+  position Int
+
+  createdAt DateTime @default(now())
+
+  @@unique([hubId, kind, targetId])
+  @@index([hubId, position])
+  @@index([kind, targetId])
+}
+
+enum ProviderProfileStatus {
+  UNPUBLISHED
+  PUBLISHED
+  WITHDRAWN
+}
+
+enum ProviderProfileReviewState {
+  DRAFT
+  SUBMITTED
+  REJECTED
+  APPROVED
+}
+
+model ProviderPublicProfile {
+  id String @id @default(cuid())
+
+  providerId String @unique
+  provider   User   @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  slug   String                @unique
+  status ProviderProfileStatus @default(UNPUBLISHED)
+
+  displayName String?
+  biography   String?
+  websiteUrl  String?
+  links       Json    @default("[]")
+
+  logoImageId String?
+  logoImage   ContentSocialImage? @relation(fields: [logoImageId], references: [id], onDelete: Restrict)
+
+  draftVersion Int @default(1)
+
+  reviewState      ProviderProfileReviewState @default(DRAFT)
+  submittedVersion Int?
+  submittedAt      DateTime?
+  reviewedAt       DateTime?
+  reviewedById     String?
+  reviewNote       String?
+
+  publishedRevision Int?
+  publishedAt       DateTime?
+  withdrawnAt       DateTime?
+
+  sourceLanguage         String   @default("en")
+  excludeFromIndex       Boolean  @default(false)
+  publicContentUpdatedAt DateTime @default(now())
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  revisions ProviderPublicRevision[]
+
+  @@index([reviewState, submittedAt])
+  @@index([logoImageId])
+}
+
+model ProviderPublicRevision {
+  id String @id @default(cuid())
+
+  profileId String
+  profile   ProviderPublicProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  revision Int
+
+  displayName String
+  biography   String
+  websiteUrl  String?
+  links       Json    @default("[]")
+
+  logoImageId String?
+  logoImage   ContentSocialImage? @relation(fields: [logoImageId], references: [id], onDelete: Restrict)
+
+  approvedById String?
+  approvedAt   DateTime @default(now())
+
+  @@unique([profileId, revision])
+  @@index([logoImageId])
 }
 
 enum AppLanguage {
@@ -2633,6 +2820,14 @@ enum AuditAction {
   ASSOCIATION_MEMBER_INVITATION_ACCEPTED
   CONTENT_SEO_UPDATED
   CONTENT_INDEX_EXCLUSION_CHANGED
+  CONTENT_SLUG_CHANGED
+  TOPIC_HUB_UPDATED
+  TOPIC_HUB_STATUS_CHANGED
+  TOPIC_HUB_INDEX_EXCLUSION_CHANGED
+  PROVIDER_PROFILE_SUBMITTED
+  PROVIDER_PROFILE_REVIEWED
+  PROVIDER_PROFILE_WITHDRAWN
+  PROVIDER_PROFILE_INDEX_EXCLUSION_CHANGED
 }
 
 model AuditLog {
@@ -2721,6 +2916,15 @@ model ExternalLearningActivity {
   @@index([status])
   @@index([provider])
   @@index([clickedAt])
+}
+
+model RateLimitBucket {
+  key             String   @id
+  windowStartedAt DateTime @default(now())
+  windowSeconds   Int
+  count           Int      @default(0)
+
+  @@index([windowStartedAt])
 }
 
 model OutboxEvent {

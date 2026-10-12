@@ -26,6 +26,7 @@ const defaults: Record<string, string> = {
   APPLICATION_BASE_URL: "http://localhost:3000",
   GRAPHQL_SCHEMA_PATH: "src/graphql/schema.gql",
   CONTACT_RECIPIENT_EMAIL: "loopskey.dev@gmail.com",
+  RATE_LIMIT_DISABLED: "true",
 };
 
 for (const [key, value] of Object.entries(defaults)) {

@@ -1,4 +1,3 @@
-import { publicContentChange } from "@utils/public-content-change.util";
 import { BadRequestException, ForbiddenException } from "@nestjs/common";
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { isEventRegistrationConflict } from "@events/domain/errors/event-registration-conflict.error";
@@ -8,6 +7,7 @@ import { shouldEmitEventPublished } from "@events/domain/policies/event-publicat
 import { EventViewSignalLimiter } from "@events/services/event-view-signal.limiter";
 import { measureCatalogFacets } from "@utils/catalog-facet.util";
 import { EventPaginationInput } from "@events/dtos/event-pagination.input";
+import { publicContentChange } from "@utils/public-content-change.util";
 import { EVENT_PUBLISHED_V1 } from "@events/domain/events/event-published-v1";
 import { EventRatingWriter } from "@events/public/events-api";
 import { CreateEventInput } from "@events/dtos/create-event.input";
@@ -405,7 +405,7 @@ export class EventService {
     const baseSlug = slugify(title);
     let slug = baseSlug;
     let counter = 1;
-    while (await this.eventRepository.slugExists(slug)) {
+    while (await this.eventRepository.isSlugClaimed(slug)) {
       slug = `${baseSlug}-${counter}`;
       counter++;
     }

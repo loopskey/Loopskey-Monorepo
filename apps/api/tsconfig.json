@@ -29,6 +29,8 @@
       "@contentAction/*": ["src/modules/content-interaction/*"],
       "@ingestion/*": ["src/modules/ingestion/*"],
       "@contentMedia/*": ["src/modules/content-media/*"],
+      "@contentUrl/*": ["src/modules/content-url/*"],
+      "@topicHub/*": ["src/modules/topic-hub/*"],
 
       "@utils/*": ["src/common/utils/*"],
       "@prisma/*": ["src/modules/prisma/*"]

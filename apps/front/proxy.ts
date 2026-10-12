@@ -1,5 +1,8 @@
 import {
   ACCESS_TOKEN_COOKIE_DEFAULT,
+  JWT_ACCESS_AUDIENCE,
+  JWT_ALGORITHM,
+  JWT_ISSUER,
   PLATFORM_ROLES,
 } from "@loopskey/api-contracts/auth";
 import { NOINDEX_DIRECTIVE, ROBOTS_TAG_HEADER } from "@/lib/site/route-policy";
@@ -64,7 +67,11 @@ const verifySession = async (
   const secret = getJwtAccessSecret();
   if (!secret) return null;
   try {
-    const { payload } = await jwtVerify(token, secret);
+    const { payload } = await jwtVerify(token, secret, {
+      issuer: JWT_ISSUER,
+      audience: JWT_ACCESS_AUDIENCE,
+      algorithms: [JWT_ALGORITHM],
+    });
     return {
       sub: typeof payload.sub === "string" ? payload.sub : undefined,
       role: typeof payload.role === "string" ? payload.role : undefined,

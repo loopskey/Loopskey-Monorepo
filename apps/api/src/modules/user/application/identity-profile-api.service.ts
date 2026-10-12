@@ -41,6 +41,20 @@ export class IdentityProfileApiService implements IdentityProfileApi {
     }));
   }
 
+  async activeProviderIds(userIds: readonly string[]) {
+    if (userIds.length === 0) return new Set<string>();
+    const providers = await this.prisma.user.findMany({
+      where: {
+        id: { in: [...userIds] },
+        role: Role.PROVIDER,
+        status: UserStatus.ACTIVE,
+        deletedAt: null,
+      },
+      select: { id: true },
+    });
+    return new Set(providers.map((provider) => provider.id));
+  }
+
   async renameUnclaimedUser(userId: string, fullName: string) {
     const renamed = await this.prisma.user.updateMany({
       where: {
@@ -64,7 +78,7 @@ export class IdentityProfileApiService implements IdentityProfileApi {
     );
   }
 
-  upsertProfessionalMember(command: {
+  async upsertProfessionalMember(command: {
     email: string;
     fullName: string;
     atomicContext?: object;
@@ -73,7 +87,7 @@ export class IdentityProfileApiService implements IdentityProfileApi {
     const db =
       (command.atomicContext as Prisma.TransactionClient | undefined) ??
       this.prisma;
-    return db.user.upsert({
+    const member = await db.user.upsert({
       where: { email },
       create: {
         email,
@@ -82,18 +96,16 @@ export class IdentityProfileApiService implements IdentityProfileApi {
         status: UserStatus.ACTIVE,
         emailVerifiedAt: new Date(),
       },
-      update: { fullName: command.fullName.trim() },
-      select: { id: true },
+      update: {},
+      select: { id: true, role: true, deletedAt: true },
     });
-  }
-
-  async updateRole(userId: string, role: string, atomicContext?: object) {
-    const db =
-      (atomicContext as Prisma.TransactionClient | undefined) ?? this.prisma;
-    await db.user.update({
-      where: { id: userId },
-      data: { role: role as Role },
-    });
+    if (member.deletedAt || member.role !== Role.PROFESSIONAL)
+      throw new ConflictException({
+        code: "UserRoleConflict",
+        message:
+          "This email belongs to an account that cannot be added as a member.",
+      });
+    return { id: member.id };
   }
 
   async resolveOrganizationOwner(command: {

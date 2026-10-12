@@ -43,6 +43,7 @@ services:
       CORS_ORIGIN: ${CORS_ORIGIN:?set CORS_ORIGIN in .env.docker}
 
       GRAPHQL_PLAYGROUND: "false"
+      TRUST_PROXY: ${TRUST_PROXY:-loopback}
 
       PDU_UPLOAD_DIR: /app/uploads/pdu
       CERTIFICATE_UPLOAD_DIR: /app/uploads/certificates

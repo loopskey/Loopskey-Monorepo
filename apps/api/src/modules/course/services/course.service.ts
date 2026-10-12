@@ -1,10 +1,12 @@
-import { publicContentChange } from "@utils/public-content-change.util";
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { CourseSortField, SortDirection } from "@course/enums/sort.enum";
 import { CourseStatus, Prisma, Role } from "@prisma/client";
 import { CoursePaginationInput } from "@course/dtos/course-pagination.input";
 import { measureCatalogFacets } from "@utils/catalog-facet.util";
 import { toCourseRatingFacets } from "@course/utils/course-rating-facets.util";
+import { isContentSlugClaimed } from "@utils/content-slug-claim.util";
+import { publicContentChange } from "@utils/public-content-change.util";
+import { ContentUrlNamespace } from "@prisma/client";
 import { ForbiddenException } from "@nestjs/common";
 import { CourseRatingWriter } from "@course/public/course-engagement-api";
 import { CreateCourseInput } from "@course/dtos/create-course.input";
@@ -629,7 +631,13 @@ export class CourseService {
     const baseSlug = slugify(title);
     let slug = baseSlug;
     let counter = 1;
-    while (await this.prismaService.course.findUnique({ where: { slug } })) {
+    while (
+      await isContentSlugClaimed(
+        this.prismaService,
+        ContentUrlNamespace.COURSE,
+        slug,
+      )
+    ) {
       slug = `${baseSlug}-${counter}`;
       counter++;
     }

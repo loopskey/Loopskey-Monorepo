@@ -177,6 +177,7 @@
       "otpResendTooSoon": "Veuillez patienter avant de demander un autre code de vérification.",
       "passwordStrength": "Le mot de passe doit contenir au moins 8 caractères, avec des lettres et des chiffres.",
       "passwordTooObvious": "Choisissez un mot de passe moins prévisible.",
+      "rateLimited": "Trop de tentatives. Veuillez patienter quelques minutes puis réessayer.",
       "roleNotAllowedForRegister": "L’inscription directe n’est pas disponible pour le rôle sélectionné.",
       "userAlreadyExists": "Un compte associé à cette adresse e-mail existe déjà.",
       "userDeleted": "Ce compte utilisateur n’est plus disponible.",

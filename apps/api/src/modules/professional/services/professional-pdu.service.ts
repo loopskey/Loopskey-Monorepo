@@ -470,7 +470,7 @@ export class ProfessionalPduService {
   async updatePduActivity(user: TUser, input: UpdatePduActivityInput) {
     this.assertProfessional(user);
     const { activityId, date, ...rest } = input;
-    await this.findOwnedActivity(user, activityId);
+    const current = await this.findOwnedActivity(user, activityId);
     if (input.cpdPlanId) await this.assertOwnedPlan(user, input.cpdPlanId);
     if (input.associationRequirementId)
       await this.assertAssignedAssociationRequirement(
@@ -484,6 +484,9 @@ export class ProfessionalPduService {
           ...rest,
           ...exclusiveRequirementLink(input),
           ...(date ? { date: new Date(date) } : {}),
+          ...(current.status === PDUStatus.PENDING
+            ? {}
+            : { status: PDUStatus.PENDING, reviewNote: null }),
         },
         include: { evidenceFiles: { orderBy: { createdAt: "asc" } } },
       });

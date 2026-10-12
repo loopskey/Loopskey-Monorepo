@@ -17,10 +17,12 @@ export const LOCALIZED_ROOTS: readonly string[] = [
   "faq",
   "podcasts",
   "privacy-policy",
+  "providers",
   "services",
   "solutions",
   "support",
   "terms",
+  "topics",
   "youtube",
 ];
 
@@ -36,7 +38,7 @@ export const isLocalizablePath = (path: string) => {
 };
 
 const DETAIL_PATH_PATTERN =
-  /^(?:\/(?:fr|en))?\/(?:courses|events|podcasts|youtube)\/[^/]+\/?$/;
+  /^(?:\/(?:fr|en))?\/(?:courses|events|podcasts|youtube|topics|providers)\/[^/]+\/?$/;
 
 export const isDetailPath = (pathname: string) =>
   DETAIL_PATH_PATTERN.test(pathname);

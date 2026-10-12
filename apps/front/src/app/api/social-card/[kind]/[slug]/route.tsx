@@ -44,9 +44,11 @@ export async function GET(request: NextRequest, { params }: Params) {
 
   if (content.published && content.imageUrl) {
     const target = new URL(content.imageUrl, request.nextUrl.origin);
-    const redirect = NextResponse.redirect(target, 307);
-    redirect.headers.set("Cache-Control", NO_STORE);
-    return redirect;
+    if (target.protocol === "https:" || target.protocol === "http:") {
+      const redirect = NextResponse.redirect(target, 307);
+      redirect.headers.set("Cache-Control", NO_STORE);
+      return redirect;
+    }
   }
 
   return renderSocialCard({

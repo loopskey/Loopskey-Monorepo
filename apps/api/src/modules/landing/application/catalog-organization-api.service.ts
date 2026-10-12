@@ -4,6 +4,7 @@ import type {
 } from "@landing/public/catalog-organization-api";
 import { Injectable, NotFoundException } from "@nestjs/common";
 import {
+  CourseStatus,
   EventCategory,
   EventDeliveryMode,
   EventStatus,
@@ -22,14 +23,22 @@ export class CatalogOrganizationApiService implements CatalogOrganizationApi {
   }): Promise<void> {
     if (command.eventId) {
       const event = await this.prisma.event.findFirst({
-        where: { id: command.eventId },
+        where: {
+          id: command.eventId,
+          status: EventStatus.PUBLISHED,
+          deletedAt: null,
+        },
         select: { id: true },
       });
       if (!event) throw new NotFoundException("EVENT_NOT_FOUND");
     }
     if (command.courseId) {
       const course = await this.prisma.course.findFirst({
-        where: { id: command.courseId },
+        where: {
+          id: command.courseId,
+          status: CourseStatus.PUBLISHED,
+          deletedAt: null,
+        },
         select: { id: true },
       });
       if (!course) throw new NotFoundException("COURSE_NOT_FOUND");

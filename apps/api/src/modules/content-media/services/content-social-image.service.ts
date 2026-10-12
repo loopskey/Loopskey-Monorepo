@@ -25,6 +25,8 @@ const unreferenced = {
   eventSeo: { none: {} },
   podcastSeo: { none: {} },
   channelSeo: { none: {} },
+  providerProfiles: { none: {} },
+  providerRevisions: { none: {} },
 } satisfies Prisma.ContentSocialImageWhereInput;
 
 @Injectable()
@@ -109,6 +111,14 @@ export class ContentSocialImageService {
     }
   }
 
+  async isOwnedBy(imageId: string, ownerId: string) {
+    const image = await this.prisma.contentSocialImage.findFirst({
+      where: { id: imageId, ownerId },
+      select: { id: true },
+    });
+    return Boolean(image);
+  }
+
   async retire(imageId: string) {
     const image = await this.prisma.contentSocialImage.findUnique({
       where: { id: imageId },
@@ -138,7 +148,9 @@ export class ContentSocialImageService {
     return true;
   }
 
-  async retireAll(imageIds: readonly (string | null | undefined)[]) {
+  async retireAll(
+    imageIds: readonly (string | null | undefined)[],
+  ): Promise<void> {
     for (const imageId of new Set(imageIds))
       if (imageId)
         await this.retire(imageId).catch((error: unknown) =>

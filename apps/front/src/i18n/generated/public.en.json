@@ -177,6 +177,7 @@
       "otpResendTooSoon": "Please wait before requesting another verification code.",
       "passwordStrength": "Password must be at least 8 characters and include both letters and numbers.",
       "passwordTooObvious": "Choose a less predictable password.",
+      "rateLimited": "Too many attempts. Please wait a few minutes and try again.",
       "roleNotAllowedForRegister": "Direct registration is not available for the selected role.",
       "userAlreadyExists": "An account with this email already exists.",
       "userDeleted": "This user account is no longer available.",

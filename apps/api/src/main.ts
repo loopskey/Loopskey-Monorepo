@@ -1,6 +1,9 @@
 import { ConsoleLogger, Logger, ValidationPipe } from "@nestjs/common";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { resolveCorsOrigins } from "@utils/cors-origins.util";
+import { resolveTrustProxy } from "@utils/trust-proxy.util";
+import { securityHeadersMiddleware } from "@utils/security-headers.util";
+import { originGuardMiddleware } from "@utils/origin-guard.util";
 import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "@app/app.module";
@@ -32,6 +35,30 @@ async function bootstrap() {
   );
 
   app.enableShutdownHooks();
+  app.set(
+    "trust proxy",
+    resolveTrustProxy(configService.get<string>("TRUST_PROXY")),
+  );
+
+  const isProduction = nodeEnv === "production";
+  app.use(
+    securityHeadersMiddleware({
+      hsts: configService.get<string>("COOKIE_SECURE") === "true",
+      lockdownContentSecurityPolicy:
+        configService.get<string>("GRAPHQL_PLAYGROUND", "true") !== "true" ||
+        isProduction,
+    }),
+  );
+
+  app.use(
+    originGuardMiddleware({
+      allowedOrigins: resolveCorsOrigins(
+        configService.get<string>("CORS_ORIGIN"),
+        frontendUrl,
+      ),
+      exemptPathPrefixes: [INGESTION_PATH],
+    }),
+  );
 
   app.use(INGESTION_PATH, json({ limit: INGESTION_JSON_BODY_LIMIT }));
   app.useBodyParser("json");

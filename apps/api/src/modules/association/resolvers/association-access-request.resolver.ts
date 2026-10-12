@@ -3,6 +3,8 @@ import { AssociationActionResponseEntity } from "@association/entities/associati
 import { AssociationAccessRequestService } from "@association/services/association-access-request.service";
 import { AssociationGqlMutationNames } from "@association/enums/association-gql-names.enum";
 import { Args, Mutation, Resolver } from "@nestjs/graphql";
+import { RateLimit } from "@infrastructure/rate-limit/rate-limit.decorator";
+import { RATE_LIMITS } from "@infrastructure/rate-limit/rate-limit.policies";
 import { Public } from "@common/decorators/public.decorator";
 
 @Resolver()
@@ -12,6 +14,7 @@ export class AssociationAccessRequestResolver {
   ) {}
 
   @Public()
+  @RateLimit(RATE_LIMITS.accessRequest)
   @Mutation(() => AssociationActionResponseEntity, {
     name: AssociationGqlMutationNames.SUBMIT_ACCESS_REQUEST,
   })

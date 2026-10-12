@@ -19,6 +19,7 @@ export interface IdentityProfileApi {
   recipients(
     userIds: readonly string[],
   ): Promise<IdentityRecipientProjection[]>;
+  activeProviderIds(userIds: readonly string[]): Promise<Set<string>>;
   renameUnclaimedUser(userId: string, fullName: string): Promise<boolean>;
   existsByEmail(email: string): Promise<boolean>;
   upsertProfessionalMember(command: {
@@ -26,11 +27,6 @@ export interface IdentityProfileApi {
     readonly fullName: string;
     readonly atomicContext?: object;
   }): Promise<{ readonly id: string }>;
-  updateRole(
-    userId: string,
-    role: string,
-    atomicContext?: object,
-  ): Promise<void>;
   resolveOrganizationOwner(command: {
     readonly email: string;
     readonly fullName: string;

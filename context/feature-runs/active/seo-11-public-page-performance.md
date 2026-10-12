@@ -219,6 +219,15 @@ Not run, with the reason:
 These three must run in CI or on a machine with free memory before the feature
 can be accepted. Nothing in the measured section depends on them.
 
+## Integration with develop
+
+After `develop` moved (SEO-10 hubs and provider profiles, the rate-limit work), the branch was merged with it and re-verified on the merged tree:
+
+- The public i18n slices were stale against the merged dictionaries: `authPages.errors.rateLimited` was missing, so the public auth pages would have shown no text for a rate-limit failure. They were regenerated (520 key paths across 21 namespaces).
+- `.gitattributes` now pins `apps/front/src/i18n/generated/*.json` to LF. Under `core.autocrlf=true` the generated files were checked out as CRLF, so the drift check in `npm run lint` could never pass on a Windows checkout.
+- `npm run lint`, `npm run check-types` and `npm run build` pass on the merged tree; `npm run bundle-report --workspace front -- --check` reports all 23 public routes within their recorded ceilings (the new topic and provider routes are among them), and the target budgets are still unmet.
+- Browser check against the production build, no API: the About page renders in English and French from the slice with no raw keys and no console errors; the contact page loads the deferred map; a failed submission raises its error toast through the lazy toaster. The detail templates, the deferred completion dialog and the mobile lab traces still need the API and remain open.
+
 ## Submission
 
 - Commit: `bcde50b`

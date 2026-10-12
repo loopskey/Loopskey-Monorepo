@@ -2657,6 +2657,7 @@
       "emailAlreadyExists": "This email is already in use.",
       "roleNotAllowedForRegister": "Direct registration is not available for the selected role.",
       "otpResendTooSoon": "Please wait before requesting another verification code.",
+      "rateLimited": "Too many attempts. Please wait a few minutes and try again.",
       "emailSendFailed": "We could not send the email. Please try again.",
       "passwordTooObvious": "Choose a less predictable password.",
       "passwordsDoNotMatch": "The new password and confirmation do not match.",
@@ -3217,6 +3218,11 @@
     }
   },
   "landing": {
+    "topicGuides": {
+      "title": "Topic guides",
+      "subtitle": "Start with curated guidance, then explore the learning it recommends.",
+      "read": "Read the guide"
+    },
     "meta": {
       "title": "LoopsKey — AI-powered professional learning and CPD tracking",
       "description": "Discover courses, events, podcasts and YouTube channels, build an AI-powered development roadmap, and track CPD and PDU compliance in one place."
@@ -7875,6 +7881,236 @@
       }
     }
   },
+  "topicHub": {
+    "badge": "Topic guide",
+    "guidanceHeading": "How to choose",
+    "linksHeading": "Learning to explore",
+    "linksIntro": "A selection of published courses, events, podcasts and channels chosen for this topic.",
+    "empty": "None of the selected learning is available right now. Browse the full catalog for current options.",
+    "browseCatalog": "Browse the full catalog",
+    "browseCategory": "See more {{category}} learning",
+    "updated": "Last updated {{date}}",
+    "partOf": "Topic guide",
+    "metaFallback": "A curated guide to professional learning on LoopsKey.",
+    "home": "Topic guides"
+  },
+  "providerProfile": {
+    "badge": "Learning provider",
+    "aboutHeading": "About {{name}}",
+    "website": "Visit website",
+    "linksHeading": "Find them elsewhere",
+    "contentHeading": "Published learning",
+    "contentEmpty": "This provider has no published learning right now.",
+    "providedBy": "Provided by",
+    "metaFallback": "Learning provider profile on LoopsKey.",
+    "logoAlt": "{{name}} logo",
+    "updated": "Last updated {{date}}"
+  },
+  "topicHubAdmin": {
+    "tab": "Topic guides",
+    "title": "Topic guides",
+    "description": "Curate public guidance pages. A guide goes live only with reviewed copy and at least one eligible link, and nothing is published automatically.",
+    "new": "New topic guide",
+    "empty": "No topic guides yet.",
+    "loadFailed": "We could not load the topic guides.",
+    "retry": "Try again",
+    "edit": "Edit",
+    "viewPublic": "View public page",
+    "links": "{{eligible}} of {{total}} links eligible",
+    "needsReview": "Needs review: no eligible links",
+    "status": {
+      "DRAFT": "Draft",
+      "PUBLISHED": "Published",
+      "WITHDRAWN": "Withdrawn"
+    },
+    "editor": {
+      "createTitle": "New topic guide",
+      "editTitle": "Edit topic guide",
+      "description": "Plain text only. Separate paragraphs with a blank line.",
+      "language": "Language",
+      "slug": "Address slug",
+      "slugHint": "Lowercase letters, numbers and single hyphens. It cannot be reused later.",
+      "title": "Title",
+      "introduction": "Introduction",
+      "guidance": "Guidance",
+      "category": "Related category",
+      "noCategory": "No category",
+      "sections": "Extra sections",
+      "sectionHeading": "Section heading",
+      "sectionBody": "Section text",
+      "addSection": "Add a section",
+      "removeSection": "Remove section {{index}}",
+      "references": "Learning links",
+      "referencesHint": "Up to {{max}} published items. Items that are not published stay hidden from visitors.",
+      "kind": "Content type",
+      "referenceSlug": "Content slug",
+      "addReference": "Add link",
+      "removeReference": "Remove {{title}}",
+      "moveUp": "Move {{title}} up",
+      "moveDown": "Move {{title}} down",
+      "eligible": "Visible",
+      "notEligible": "Not visible",
+      "lookupFailed": "No published item matches that slug.",
+      "counter": "{{count}} of {{max}} characters",
+      "save": "Save",
+      "publish": "Publish",
+      "withdraw": "Withdraw",
+      "publishFrench": "Publish French version",
+      "unpublishFrench": "Unpublish French version",
+      "frenchPublished": "The French version is published.",
+      "frenchDraft": "The French version is a private draft.",
+      "frenchMissing": "No French version saved yet.",
+      "hideFromSearch": "Hide from search engines",
+      "allowIndexing": "Allow indexing",
+      "excluded": "Hidden from search engines.",
+      "indexed": "Open to search engines.",
+      "version": "Version {{version}}",
+      "close": "Close",
+      "kinds": {
+        "COURSE": "Course",
+        "EVENT": "Event",
+        "PODCAST": "Podcast",
+        "YOUTUBE": "YouTube channel"
+      }
+    },
+    "feedback": {
+      "saved": "Topic guide saved.",
+      "published": "Topic guide published.",
+      "withdrawn": "Topic guide withdrawn.",
+      "frenchPublished": "French version published.",
+      "frenchUnpublished": "French version unpublished.",
+      "indexed": "The guide can be indexed again.",
+      "excluded": "The guide now asks search engines not to index it.",
+      "conflict": "Someone else changed this guide. Reload the latest version before saving again.",
+      "invalid": "One of the fields is empty, too long, contains markup or is not allowed.",
+      "incomplete": "Add a fuller introduction and guidance before publishing.",
+      "noLinks": "Add at least one published item before publishing.",
+      "invalidState": "That change is not possible in the current state.",
+      "slugTaken": "That address is used or was used before. Choose another.",
+      "notFound": "This guide no longer exists.",
+      "forbidden": "Only administrators can manage topic guides.",
+      "failed": "We could not complete that. Try again."
+    },
+    "reload": "Reload latest version"
+  },
+  "providerPublicProfile": {
+    "tab": "Public profile",
+    "title": "Public profile",
+    "description": "A separate public page for your organization. Nothing from your account or settings is shown, and changes go live only after an administrator approves them.",
+    "loadFailed": "We could not load your public profile.",
+    "retry": "Try again",
+    "status": {
+      "none": "Not created yet",
+      "draft": "Private draft",
+      "submitted": "Awaiting review",
+      "rejected": "Changes requested",
+      "published": "Published",
+      "publishedChanges": "Published, newer draft not yet approved",
+      "withdrawn": "Withdrawn"
+    },
+    "fields": {
+      "displayName": "Public name",
+      "biography": "About your organization",
+      "website": "Website",
+      "links": "More links",
+      "linkLabel": "Link label",
+      "linkUrl": "Link address",
+      "logo": "Logo"
+    },
+    "hints": {
+      "displayName": "Shown as the page title. It is not copied from your account.",
+      "biography": "Plain text. Describe what you offer in your own words.",
+      "website": "Only http and https addresses are accepted.",
+      "counter": "{{count}} of {{max}} characters",
+      "links": "Up to {{max}} links.",
+      "logo": "JPEG, PNG or WebP, up to {{size}} MB. It appears publicly once approved."
+    },
+    "actions": {
+      "save": "Save draft",
+      "submit": "Submit for review",
+      "withdraw": "Withdraw public page",
+      "addLink": "Add a link",
+      "removeLink": "Remove link {{index}}",
+      "uploadLogo": "Upload logo",
+      "replaceLogo": "Replace logo",
+      "removeLogo": "Remove logo",
+      "viewPublic": "View public page",
+      "reload": "Reload latest version"
+    },
+    "reviewNote": "Reviewer note",
+    "requirements": "To submit, add a public name and a biography of at least {{min}} characters.",
+    "publicAddress": "Public address",
+    "feedback": {
+      "saved": "Draft saved. It stays private until approved.",
+      "submitted": "Submitted for review.",
+      "withdrawn": "Your public page was withdrawn.",
+      "logoUploaded": "Logo uploaded. Save the draft to use it.",
+      "conflict": "This profile changed since you opened it. Reload the latest version before saving again.",
+      "invalid": "One of the fields is empty, too long, contains markup or is not an allowed address.",
+      "incomplete": "Add a public name and a longer biography before submitting.",
+      "logoMissing": "That logo is no longer available. Upload it again.",
+      "invalidState": "That is not possible in the current state.",
+      "forbidden": "You cannot change this profile.",
+      "failed": "We could not complete that. Try again."
+    }
+  },
+  "providerProfileReview": {
+    "tab": "Provider profiles",
+    "title": "Provider profiles",
+    "description": "Review the public pages providers submit. A profile goes live only when you approve the exact version submitted.",
+    "loadFailed": "We could not load the provider profiles.",
+    "retry": "Try again",
+    "empty": "No provider profiles match this filter.",
+    "filters": {
+      "all": "All",
+      "SUBMITTED": "Awaiting review",
+      "REJECTED": "Changes requested",
+      "APPROVED": "Approved",
+      "DRAFT": "Drafts"
+    },
+    "review": {
+      "SUBMITTED": "Awaiting review",
+      "REJECTED": "Changes requested",
+      "APPROVED": "Approved",
+      "DRAFT": "Draft"
+    },
+    "visibility": {
+      "UNPUBLISHED": "Not public",
+      "PUBLISHED": "Public",
+      "WITHDRAWN": "Withdrawn"
+    },
+    "fields": {
+      "provider": "Provider",
+      "name": "Public name",
+      "biography": "Biography",
+      "website": "Website",
+      "links": "Links",
+      "logo": "Logo",
+      "none": "None",
+      "note": "Note for the provider",
+      "version": "Draft version {{version}}"
+    },
+    "actions": {
+      "approve": "Approve and publish",
+      "reject": "Request changes",
+      "withdraw": "Withdraw from public",
+      "viewPublic": "View public page",
+      "hideFromSearch": "Hide from search engines",
+      "allowIndexing": "Allow indexing"
+    },
+    "feedback": {
+      "approved": "Profile approved and published.",
+      "rejected": "Changes requested.",
+      "withdrawn": "Profile withdrawn.",
+      "indexed": "The profile can be indexed again.",
+      "excluded": "The profile now asks search engines not to index it.",
+      "conflict": "The draft changed after it was submitted. Reload the list and review the latest version.",
+      "invalid": "The note is too long or contains markup.",
+      "invalidState": "That is not possible in the current state, or the provider account is not active.",
+      "notFound": "This profile no longer exists.",
+      "failed": "We could not complete that. Try again."
+    }
+  },
   "contentSeo": {
     "open": "Search and sharing",
     "title": "Search and sharing",
@@ -7939,6 +8175,37 @@
       "indexed": "This page can be indexed.",
       "exclude": "Hide from search engines",
       "include": "Allow indexing"
+    },
+    "url": {
+      "title": "Page address",
+      "description": "The address visitors and search engines use for this page. Changing it is a deliberate action and is separate from the title.",
+      "loadFailed": "We could not load the page address.",
+      "hint": "Lowercase letters, numbers and single hyphens only.",
+      "fields": {
+        "slug": "Address slug"
+      },
+      "preview": {
+        "english": "English address",
+        "french": "French address"
+      },
+      "retired": {
+        "title": "Earlier addresses",
+        "note": "These addresses keep working and send visitors to the current page while it is published."
+      },
+      "warning": "Changing the address is permanent. Existing links to the old address will redirect to the new one, and the old address can never be used for another page.",
+      "confirm": "I understand and want to change the address.",
+      "actions": {
+        "change": "Change address"
+      },
+      "feedback": {
+        "changed": "The address was changed. The old address now redirects here.",
+        "invalid": "Use lowercase letters, numbers and single hyphens. Some words are reserved.",
+        "taken": "That address is already used by another page or was used before. Choose a different one.",
+        "conflict": "The address changed since you opened this window. Reload the latest version before changing it again.",
+        "notFound": "This page no longer exists.",
+        "forbidden": "You cannot change the address of this page.",
+        "failed": "We could not change the address. Try again."
+      }
     },
     "admin": {
       "tab": "Search visibility",

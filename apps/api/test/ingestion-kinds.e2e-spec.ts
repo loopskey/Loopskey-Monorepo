@@ -2,12 +2,12 @@ import { INestApplication, ValidationPipe } from "@nestjs/common";
 import { IngestionContentKind, PrismaClient } from "@prisma/client";
 import { Role, UserStatus } from "@prisma/client";
 import { AppModule } from "@app/app.module";
-import { JwtService } from "@nestjs/jwt";
 import { PrismaService } from "@prisma/prisma.service";
 import { Test } from "@nestjs/testing";
 
 import cookieParser from "cookie-parser";
 import request from "supertest";
+import { openSession, signAccessToken } from "./setup/access-token";
 
 const SLUG_PREFIX = "ingestion-kinds-e2e";
 
@@ -86,14 +86,6 @@ const COURSE_MAP = {
   credit_conf: "creditConfidence",
   ...PROVENANCE_MAP,
 };
-
-const signAccessToken = (id: string, email: string) =>
-  new JwtService({ secret: process.env.JWT_ACCESS_SECRET }).sign({
-    sub: id,
-    email,
-    role: Role.ADMIN,
-    status: UserStatus.ACTIVE,
-  });
 
 describe("Additional content kinds ingestion HTTP (e2e)", () => {
   let app: INestApplication;
@@ -200,7 +192,8 @@ describe("Additional content kinds ingestion HTTP (e2e)", () => {
     const admin = await prisma.user.create({
       data: { email, role: Role.ADMIN, status: UserStatus.ACTIVE },
     });
-    adminToken = signAccessToken(admin.id, email);
+    await openSession(prisma, admin.id);
+    adminToken = signAccessToken(admin.id, email, Role.ADMIN);
   }, 120000);
 
   afterAll(async () => {

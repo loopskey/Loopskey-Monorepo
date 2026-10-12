@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { RequestEmailChangeInput } from "@auth/dtos/request-email-change.input";
-import { OtpPurpose, UserStatus } from "@prisma/client";
+import { OtpPurpose, Prisma, UserStatus } from "@prisma/client";
 import { VerifyEmailChangeInput } from "@auth/dtos/verify-email-change.input";
 import { AuthCommonService } from "@auth/services/auth-common.service";
 import { AUTH_USER_SELECT } from "@auth/types/auth-user-select.constant";
@@ -47,17 +47,13 @@ export class AuthEmailChangeService {
         message: "Email is already in use.",
       });
     const otpCode = this.authCommon.generateOtpCode();
-    await this.prisma.otpCode.create({
-      data: {
-        userId: user.id,
-        destination: newEmail,
-        codeHash: await argon2.hash(otpCode),
-        purpose: OtpPurpose.CHANGE_EMAIL,
-        expiresAt: this.authCommon.getOtpExpiryDate(),
-        resendAfter: this.authCommon.getOtpResendAfterDate(),
-        maxAttempts: this.authCommon.getOtpMaxAttempts(),
-      },
-    });
+    const codeHash = await argon2.hash(otpCode);
+    const issued = await this.issueEmailChangeOtp(user.id, newEmail, codeHash);
+    if (!issued)
+      throw new BadRequestException({
+        code: AuthMessageCode.OTP_RESEND_TOO_SOON,
+        message: "Please wait before requesting a new OTP.",
+      });
     await this.authCommon.sendOtpEmail(
       newEmail,
       otpCode,
@@ -82,61 +78,115 @@ export class AuthEmailChangeService {
         code: AuthMessageCode.USER_NOT_FOUND,
         message: "User not found.",
       });
-    const otp = await this.prisma.otpCode.findFirst({
-      where: {
-        userId: user.id,
-        destination: newEmail,
-        purpose: OtpPurpose.CHANGE_EMAIL,
-        consumedAt: null,
-      },
-      orderBy: { createdAt: "desc" },
-    });
-    if (!otp)
-      throw new BadRequestException({
-        code: AuthMessageCode.OTP_INVALID,
-        message: "OTP not found.",
+    const reserved = await this.reserveAttempt(user.id, newEmail);
+    const isValidOtp = await argon2.verify(
+      reserved?.codeHash ?? (await this.decoyHash()),
+      input.code.trim(),
+    );
+    if (!reserved || !isValidOtp) throw this.invalidCode();
+    const now = new Date();
+    const updatedUser = await this.prisma
+      .$transaction(async (tx) => {
+        const consumed = await tx.otpCode.updateMany({
+          where: { id: reserved.id, consumedAt: null },
+          data: { consumedAt: now },
+        });
+        if (consumed.count !== 1) throw this.invalidCode();
+        return tx.user.update({
+          where: { id: user.id },
+          data: { email: newEmail, emailVerifiedAt: now },
+          select: AUTH_USER_SELECT,
+        });
+      })
+      .catch((error: unknown) => {
+        if (
+          error instanceof Prisma.PrismaClientKnownRequestError &&
+          error.code === "P2002"
+        )
+          throw new BadRequestException({
+            code: AuthMessageCode.EMAIL_ALREADY_EXISTS,
+            message: "Email is already in use.",
+          });
+        throw error;
       });
-    if (otp.attempts >= otp.maxAttempts)
-      throw new BadRequestException({
-        code: AuthMessageCode.OTP_ATTEMPTS_EXCEEDED,
-        message: "OTP attempts exceeded.",
-      });
-    if (otp.expiresAt < new Date())
-      throw new BadRequestException({
-        code: AuthMessageCode.OTP_EXPIRED,
-        message: "OTP has expired.",
-      });
-    const isValidOtp = await argon2.verify(otp.codeHash, input.code.trim());
-    if (!isValidOtp) {
-      await this.prisma.otpCode.update({
-        where: { id: otp.id },
-        data: { attempts: { increment: 1 } },
-      });
-      throw new BadRequestException({
-        code: AuthMessageCode.OTP_INVALID,
-        message: "Invalid OTP code.",
-      });
-    }
-    const updatedUser = await this.prisma.$transaction(async (tx) => {
-      const changedUser = await tx.user.update({
-        where: { id: user.id },
-        data: {
-          email: newEmail,
-          emailVerifiedAt: new Date(),
-        },
-        select: AUTH_USER_SELECT,
-      });
-      await tx.otpCode.update({
-        where: { id: otp.id },
-        data: { consumedAt: new Date() },
-      });
-      return changedUser;
-    });
     return {
       success: true,
       code: AuthMessageCode.EMAIL_CHANGED,
       message: "Email changed successfully.",
       user: updatedUser,
     };
+  }
+
+  private async issueEmailChangeOtp(
+    userId: string,
+    destination: string,
+    codeHash: string,
+  ) {
+    return this.prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`change-email-otp:${userId}`}))`;
+      const now = new Date();
+      const cooling = await tx.otpCode.findFirst({
+        where: {
+          userId,
+          purpose: OtpPurpose.CHANGE_EMAIL,
+          consumedAt: null,
+          resendAfter: { gt: now },
+        },
+        select: { id: true },
+      });
+      if (cooling) return false;
+      await tx.otpCode.updateMany({
+        where: { userId, purpose: OtpPurpose.CHANGE_EMAIL, consumedAt: null },
+        data: { consumedAt: now },
+      });
+      await tx.otpCode.create({
+        data: {
+          userId,
+          destination,
+          codeHash,
+          purpose: OtpPurpose.CHANGE_EMAIL,
+          expiresAt: this.authCommon.getOtpExpiryDate(),
+          resendAfter: this.authCommon.getOtpResendAfterDate(),
+          maxAttempts: this.authCommon.getOtpMaxAttempts(),
+        },
+      });
+      return true;
+    });
+  }
+
+  private async reserveAttempt(userId: string, destination: string) {
+    const [reserved] = await this.prisma.$queryRaw<
+      { id: string; codeHash: string }[]
+    >`
+      UPDATE "OtpCode"
+      SET "attempts" = "attempts" + 1
+      WHERE "id" = (
+        SELECT "id" FROM "OtpCode"
+        WHERE "userId" = ${userId}
+          AND "destination" = ${destination}
+          AND "purpose" = 'CHANGE_EMAIL'::"OtpPurpose"
+          AND "consumedAt" IS NULL
+        ORDER BY "createdAt" DESC
+        LIMIT 1
+      )
+        AND "consumedAt" IS NULL
+        AND "attempts" < "maxAttempts"
+        AND "expiresAt" > timezone('UTC', now())
+      RETURNING "id", "codeHash"`;
+    return reserved ?? null;
+  }
+
+  private invalidCode() {
+    return new BadRequestException({
+      code: AuthMessageCode.OTP_INVALID,
+      message: "Invalid or expired code.",
+    });
+  }
+
+  private decoyHashPromise: Promise<string> | null = null;
+
+  private decoyHash() {
+    this.decoyHashPromise ??= argon2.hash("decoy-credential-never-issued");
+    return this.decoyHashPromise;
   }
 }

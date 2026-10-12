@@ -1,21 +1,35 @@
+import { ProviderPublicBylineForContentDocument } from "@/lib/graphql/operations/provider-public-profile";
+import { ProviderPublicProfileBySlugDocument } from "@/lib/graphql/operations/provider-public-profile";
 import { YouTubeChannelBySlugDocument } from "@/lib/graphql/operations/youtube";
+import { TopicHubsForContentDocument } from "@/lib/graphql/operations/topic-hub";
+import { ResolveContentUrlDocument } from "@/lib/graphql/operations/content-url";
+import { TopicHubBySlugDocument } from "@/lib/graphql/operations/topic-hub";
 import { PodcastEpisodesDocument } from "@/lib/graphql/operations/podcast";
 import { PodcastBySlugDocument } from "@/lib/graphql/operations/podcast";
 import { YouTubeVideosDocument } from "@/lib/graphql/operations/youtube";
 import { CourseBySlugDocument } from "@/lib/graphql/operations/course";
 import { UpstreamFailureError } from "@/lib/server/graphql-server";
 import { executeServerGraphql } from "@/lib/server/graphql-server";
+import { CONTENT_SLUG_LIMITS } from "@loopskey/api-contracts/validation";
 import { EventBySlugDocument } from "@/lib/graphql/operations/event";
+import { TopicHubsDocument } from "@/lib/graphql/operations/topic-hub";
+import { ContentUrlKind } from "@/lib/graphql/base";
 import { toApiLanguage } from "@/lib/i18n/locale";
 import { cache } from "react";
 
+import type { ProviderPublicBylineForContentQuery } from "@/lib/graphql/operations/provider-public-profile";
+import type { ProviderPublicProfileBySlugQuery } from "@/lib/graphql/operations/provider-public-profile";
 import type { YouTubeChannelBySlugQuery } from "@/lib/graphql/operations/youtube";
 import type { PodcastEpisodesQuery } from "@/lib/graphql/operations/podcast";
+import type { TopicHubBySlugQuery } from "@/lib/graphql/operations/topic-hub";
 import type { PodcastBySlugQuery } from "@/lib/graphql/operations/podcast";
 import type { YouTubeVideosQuery } from "@/lib/graphql/operations/youtube";
 import type { CourseBySlugQuery } from "@/lib/graphql/operations/course";
 import type { EventBySlugQuery } from "@/lib/graphql/operations/event";
+import type { TopicHubsQuery } from "@/lib/graphql/operations/topic-hub";
+import type { PublicPageKind } from "@/lib/content-catalog/public-path";
 import type { PublicLocale } from "@/lib/i18n/locale";
+import type { ContentKind } from "@/lib/content-catalog/detail-path";
 
 export type PublicCourse = NonNullable<CourseBySlugQuery["courseBySlug"]>;
 export type PublicEvent = NonNullable<EventBySlugQuery["eventBySlug"]>;
@@ -26,9 +40,16 @@ export type PublicYouTubeChannel = NonNullable<
   YouTubeChannelBySlugQuery["youtubeChannelBySlug"]
 >;
 export type PublicYouTubeVideo = YouTubeVideosQuery["youtubeVideos"][number];
+export type PublicTopicHub = NonNullable<TopicHubBySlugQuery["topicHubBySlug"]>;
+export type PublicTopicHubSummary = TopicHubsQuery["topicHubs"][number];
+export type PublicProviderProfile = NonNullable<
+  ProviderPublicProfileBySlugQuery["providerPublicProfileBySlug"]
+>;
+export type PublicProviderByline = NonNullable<
+  ProviderPublicBylineForContentQuery["providerPublicBylineForContent"]
+>;
 
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const SLUG_MAX_LENGTH = 200;
 const PUBLISHED_STATUS = "PUBLISHED";
 
 type Settled<T> =
@@ -50,7 +71,7 @@ const unwrap = <T>(settled: Settled<T>): T => {
 };
 
 const isValidSlug = (slug: string) =>
-  slug.length <= SLUG_MAX_LENGTH && SLUG_PATTERN.test(slug);
+  slug.length <= CONTENT_SLUG_LIMITS.maxLength && SLUG_PATTERN.test(slug);
 
 const isPublished = (value: Record<string, unknown>) =>
   !("status" in value) || value.status === PUBLISHED_STATUS;
@@ -112,7 +133,7 @@ const readChildren = async <T>(
   operation: string,
   document: { toString(): string },
   field: string,
-  variables: Record<string, string>,
+  variables: Record<string, unknown>,
 ): Promise<T[]> => {
   const result = await executeServerGraphql({
     operation,
@@ -176,6 +197,33 @@ const readYouTubeChannelBySlug = memoize((key) =>
 export const getPublicYouTubeChannel = (slug: string, locale: PublicLocale) =>
   readYouTubeChannelBySlug(keyOf(slug, locale));
 
+const URL_KIND: Record<PublicPageKind, ContentUrlKind> = {
+  course: ContentUrlKind.Course,
+  event: ContentUrlKind.Event,
+  podcast: ContentUrlKind.Podcast,
+  youtube: ContentUrlKind.Youtube,
+  topic: ContentUrlKind.Topic,
+  provider: ContentUrlKind.Provider,
+};
+
+const readCurrentSlug = memoize(async (key) => {
+  const separator = key.indexOf(":");
+  const kind = key.slice(0, separator) as PublicPageKind;
+  const slug = key.slice(separator + 1);
+  if (!isValidSlug(slug)) return null;
+  const result = await executeServerGraphql({
+    operation: "ResolveContentUrl",
+    document: ResolveContentUrlDocument,
+    field: "resolveContentUrl",
+    variables: { kind: URL_KIND[kind], slug },
+  });
+  if (result.kind !== "found") return null;
+  return typeof result.value.slug === "string" ? result.value.slug : null;
+});
+
+export const getCurrentSlug = (kind: PublicPageKind, slug: string) =>
+  readCurrentSlug(`${kind}:${slug}`);
+
 export const getPublicPodcastEpisodes = memoize((podcastId) =>
   readChildren<PublicPodcastEpisode>(
     "PodcastEpisodes",
@@ -193,3 +241,96 @@ export const getPublicYouTubeVideos = memoize((channelId) =>
     { channelId },
   ),
 );
+
+const readTopicHubBySlug = memoize((key) =>
+  readBySlug<PublicTopicHub>({
+    key,
+    field: "topicHubBySlug",
+    operation: "TopicHubBySlug",
+    document: TopicHubBySlugDocument,
+  }),
+);
+
+export const getPublicTopicHub = (slug: string, locale: PublicLocale) =>
+  readTopicHubBySlug(keyOf(slug, locale));
+
+const readProviderProfileBySlug = memoize((key) =>
+  readBySlug<PublicProviderProfile>({
+    key,
+    field: "providerPublicProfileBySlug",
+    operation: "ProviderPublicProfileBySlug",
+    document: ProviderPublicProfileBySlugDocument,
+  }),
+);
+
+export const getPublicProviderProfile = (slug: string, locale: PublicLocale) =>
+  readProviderProfileBySlug(keyOf(slug, locale));
+
+const optional = async <T>(fallback: T, read: () => Promise<T>): Promise<T> => {
+  try {
+    return await read();
+  } catch (error) {
+    if (error instanceof UpstreamFailureError) return fallback;
+    throw error;
+  }
+};
+
+const CONTENT_KIND: Record<ContentKind, ContentUrlKind> = {
+  course: ContentUrlKind.Course,
+  event: ContentUrlKind.Event,
+  podcast: ContentUrlKind.Podcast,
+  youtube: ContentUrlKind.Youtube,
+};
+
+const readTopicHubSummaries = cache((locale: PublicLocale, take: number) =>
+  optional<PublicTopicHubSummary[]>([], () =>
+    readChildren<PublicTopicHubSummary>(
+      "TopicHubs",
+      TopicHubsDocument,
+      "topicHubs",
+      { locale: toApiLanguage(locale), take },
+    ),
+  ),
+);
+
+export const getPublicTopicHubSummaries = (locale: PublicLocale, take = 6) =>
+  readTopicHubSummaries(locale, take);
+
+const readContentTopicHubs = cache(
+  (kind: ContentKind, contentId: string, locale: PublicLocale) =>
+    optional<PublicTopicHubSummary[]>([], () =>
+      readChildren<PublicTopicHubSummary>(
+        "TopicHubsForContent",
+        TopicHubsForContentDocument,
+        "topicHubsForContent",
+        {
+          kind: CONTENT_KIND[kind],
+          contentId,
+          locale: toApiLanguage(locale),
+        },
+      ),
+    ),
+);
+
+export const getContentTopicHubs = (
+  kind: ContentKind,
+  contentId: string,
+  locale: PublicLocale,
+) => readContentTopicHubs(kind, contentId, locale);
+
+const readProviderByline = cache((kind: ContentKind, contentId: string) =>
+  optional<PublicProviderByline | null>(null, async () => {
+    const result = await executeServerGraphql({
+      operation: "ProviderPublicBylineForContent",
+      document: ProviderPublicBylineForContentDocument,
+      field: "providerPublicBylineForContent",
+      variables: { kind: CONTENT_KIND[kind], contentId },
+    });
+    return result.kind === "found"
+      ? (result.value as unknown as PublicProviderByline)
+      : null;
+  }),
+);
+
+export const getProviderByline = (kind: ContentKind, contentId: string) =>
+  readProviderByline(kind, contentId);

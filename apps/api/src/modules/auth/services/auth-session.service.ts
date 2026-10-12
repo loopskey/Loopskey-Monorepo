@@ -16,7 +16,12 @@ import { Response } from "express";
 import * as argon2 from "argon2";
 import {
   ACCESS_TOKEN_COOKIE_DEFAULT,
+  JWT_ACCESS_AUDIENCE,
+  JWT_ALGORITHM,
+  JWT_ISSUER,
+  JWT_REFRESH_AUDIENCE,
   REFRESH_TOKEN_COOKIE_DEFAULT,
+  TOKEN_TYPE,
 } from "@loopskey/api-contracts/auth";
 
 @Injectable()
@@ -43,7 +48,11 @@ export class AuthSessionService {
         passwordHash: true,
       },
     });
-    if (!user || !user.passwordHash)
+    const isPasswordValid = await argon2.verify(
+      user?.passwordHash ?? (await this.decoyHash()),
+      input.password,
+    );
+    if (!user || !user.passwordHash || !isPasswordValid)
       throw new UnauthorizedException({
         code: AuthMessageCode.INVALID_CREDENTIALS,
         message: "Invalid email or password.",
@@ -54,15 +63,6 @@ export class AuthSessionService {
         message: "This account does not match the selected role.",
       });
     this.assertUserCanLogin(user);
-    const isPasswordValid = await argon2.verify(
-      user.passwordHash,
-      input.password,
-    );
-    if (!isPasswordValid)
-      throw new UnauthorizedException({
-        code: AuthMessageCode.INVALID_CREDENTIALS,
-        message: "Invalid email or password.",
-      });
     const session = await this.createSession(user.id, contextInfo);
     const tokens = await this.generateTokens({
       sub: user.id,
@@ -86,6 +86,13 @@ export class AuthSessionService {
       message: "Login successful.",
       user: safeUser,
     };
+  }
+
+  private decoyHashPromise: Promise<string> | null = null;
+
+  private decoyHash() {
+    this.decoyHashPromise ??= argon2.hash("decoy-credential-never-issued");
+    return this.decoyHashPromise;
   }
 
   async refreshToken(refreshToken: string | undefined, response: Response) {
@@ -299,14 +306,26 @@ export class AuthSessionService {
       this.configService.get<string>("JWT_REFRESH_EXPIRES_IN_DAYS"),
     );
     const refreshTokenExpiresIn = `${refreshExpiresInDays}d` as StringValue;
-    const accessToken = await this.jwtService.signAsync(payload, {
-      secret: accessSecret,
-      expiresIn: accessExpiresIn,
-    });
-    const refreshToken = await this.jwtService.signAsync(payload, {
-      secret: refreshSecret,
-      expiresIn: refreshTokenExpiresIn,
-    });
+    const accessToken = await this.jwtService.signAsync(
+      { ...payload, tokenType: TOKEN_TYPE.ACCESS },
+      {
+        secret: accessSecret,
+        expiresIn: accessExpiresIn,
+        issuer: JWT_ISSUER,
+        algorithm: JWT_ALGORITHM,
+        audience: JWT_ACCESS_AUDIENCE,
+      },
+    );
+    const refreshToken = await this.jwtService.signAsync(
+      { ...payload, tokenType: TOKEN_TYPE.REFRESH },
+      {
+        secret: refreshSecret,
+        expiresIn: refreshTokenExpiresIn,
+        issuer: JWT_ISSUER,
+        algorithm: JWT_ALGORITHM,
+        audience: JWT_REFRESH_AUDIENCE,
+      },
+    );
     return {
       accessToken,
       refreshToken,
@@ -408,9 +427,18 @@ export class AuthSessionService {
 
   private async verifyRefreshToken(refreshToken: string) {
     try {
-      return await this.jwtService.verifyAsync<JwtPayload>(refreshToken, {
-        secret: this.configService.get<string>("JWT_REFRESH_SECRET"),
-      });
+      const payload = await this.jwtService.verifyAsync<JwtPayload>(
+        refreshToken,
+        {
+          secret: this.configService.getOrThrow<string>("JWT_REFRESH_SECRET"),
+          issuer: JWT_ISSUER,
+          algorithms: [JWT_ALGORITHM],
+          audience: JWT_REFRESH_AUDIENCE,
+        },
+      );
+      if (payload.tokenType !== TOKEN_TYPE.REFRESH || !payload.sub)
+        throw new Error("Not a refresh token.");
+      return payload;
     } catch {
       throw new UnauthorizedException({
         code: AuthMessageCode.REFRESH_TOKEN_INVALID,

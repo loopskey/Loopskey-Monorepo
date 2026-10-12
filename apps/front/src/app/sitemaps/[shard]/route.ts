@@ -1,17 +1,16 @@
 import { CANONICAL_STATIC_PAGE_PATHS } from "@/lib/sitemap/static-pages";
-import { findShardSet, getPublicUrlShardSets } from "@/lib/sitemap/reader";
-import { sitemapNotFoundResponse } from "@/lib/sitemap/response";
 import { sitemapUnavailableResponse } from "@/lib/sitemap/response";
-import { sitemapXmlResponse } from "@/lib/sitemap/response";
+import { sitemapNotFoundResponse } from "@/lib/sitemap/response";
 import { isIndexableDeployment } from "@/lib/site/deployment-env";
 import { UpstreamFailureError } from "@/lib/server/graphql-server";
-import { readShardUrls } from "@/lib/sitemap/reader";
+import { sitemapXmlResponse } from "@/lib/sitemap/response";
+import { readKindShardUrls } from "@/lib/sitemap/reader";
+import { localizedEntries } from "@/lib/sitemap/localized-entries";
+import { publicLocalesOf } from "@/lib/sitemap/localized-entries";
+import { getKindShardSet } from "@/lib/sitemap/reader";
 import { parseShardFile } from "@/lib/sitemap/shards";
 import { logSitemap } from "@/lib/sitemap/response";
-import {
-  localizedEntries,
-  publicLocalesOf,
-} from "@/lib/sitemap/localized-entries";
+import { kindLabel } from "@/lib/sitemap/shards";
 import { urlSetXml } from "@/lib/sitemap/xml";
 
 import type { SitemapEntry } from "@/lib/sitemap/xml";
@@ -38,30 +37,30 @@ export async function GET(_request: Request, { params }: Params) {
   const { kind, index } = selector;
   const startedAt = Date.now();
   try {
-    const shardSet = findShardSet(await getPublicUrlShardSets(), kind);
+    const shardSet = await getKindShardSet(kind);
     const descriptor = shardSet?.shards.find(
       (candidate) => candidate.index === index,
     );
     if (!descriptor) {
-      logSitemap("shard-missing", { kind: kind.contentType, index });
+      logSitemap("shard-missing", { kind: kindLabel(kind), index });
       return sitemapNotFoundResponse();
     }
 
-    const { items, isComplete } = await readShardUrls(kind, descriptor);
+    const { items, isComplete } = await readKindShardUrls(kind, descriptor);
     if (items.length === 0) {
-      logSitemap("shard-empty", { kind: kind.contentType, index });
+      logSitemap("shard-empty", { kind: kindLabel(kind), index });
       return sitemapNotFoundResponse();
     }
     if (!isComplete)
       logSitemap(
         "shard-truncated",
-        { kind: kind.contentType, index, urlCount: items.length },
+        { kind: kindLabel(kind), index, urlCount: items.length },
         "warn",
       );
 
     logSitemap("shard", {
       index,
-      kind: kind.contentType,
+      kind: kindLabel(kind),
       urlCount: items.length,
       latencyMs: Date.now() - startedAt,
     });
@@ -82,7 +81,7 @@ export async function GET(_request: Request, { params }: Params) {
       "shard-unavailable",
       {
         index,
-        kind: kind.contentType,
+        kind: kindLabel(kind),
         reason: error.reason,
         latencyMs: Date.now() - startedAt,
       },

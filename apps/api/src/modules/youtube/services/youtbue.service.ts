@@ -1,6 +1,5 @@
-import { publicContentChange } from "@utils/public-content-change.util";
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
-import { Prisma, Role, YouTubeChannelStatus } from "@prisma/client";
+import { ContentUrlNamespace, Prisma, Role } from "@prisma/client";
 import { YouTubeChannelPaginationInput } from "@modules/youtube/dtos/youtube-channel-pagination.input";
 import { YouTubeChannelSortDirection } from "@youtube/enums/youtube.enum";
 import { CreateYouTubeChannelInput } from "@youtube/dtos/create-youtube-channel.input";
@@ -10,8 +9,11 @@ import { YouTubeChannelSortInput } from "@youtube/dtos/youtube-channel-sort.inpu
 import { CreateYouTubeVideoInput } from "@youtube/dtos/create-youtube-video.input";
 import { YouTubeChannelSortField } from "@youtube/enums/youtube.enum";
 import { UpdateYouTubeVideoInput } from "@youtube/dtos/update-youtube-video.input";
+import { YouTubeChannelStatus } from "@prisma/client";
+import { isContentSlugClaimed } from "@utils/content-slug-claim.util";
 import { measureCatalogFacets } from "@utils/catalog-facet.util";
 import { TChannelCandidateRow } from "@youtube/types/youtube-service.types";
+import { publicContentChange } from "@utils/public-content-change.util";
 import { YouTubeRatingWriter } from "@youtube/public/youtube-engagement-api";
 import { YouTubeVideoStatus } from "@prisma/client";
 import { ForbiddenException } from "@nestjs/common";
@@ -624,7 +626,11 @@ export class YouTubeService {
     let slug = baseSlug;
     let counter = 1;
     while (
-      await this.prismaService.youTubeChannel.findUnique({ where: { slug } })
+      await isContentSlugClaimed(
+        this.prismaService,
+        ContentUrlNamespace.YOUTUBE,
+        slug,
+      )
     ) {
       slug = `${baseSlug}-${counter}`;
       counter++;

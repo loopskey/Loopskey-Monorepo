@@ -110,6 +110,12 @@ export const providerDashboardTabs: TDashboardTab<TProviderDashboardTab>[] = [
     icon: L.Megaphone,
   },
   {
+    value: "public-profile",
+    labelKey: "providerPublicProfile.tab",
+    href: "/dashboard/provider?tab=public-profile",
+    icon: L.Store,
+  },
+  {
     value: "my-goals",
     labelKey: "providerDashboard.sidebar.myGoals",
     href: "/dashboard/provider?tab=my-goals",
@@ -244,6 +250,18 @@ export const adminDashboardTabs: TDashboardTab<TAdminDashboardTab>[] = [
     labelKey: "contentSeo.admin.tab",
     href: "/dashboard/admin?tab=search-visibility",
     icon: L.SearchCheck,
+  },
+  {
+    value: "topic-hubs",
+    labelKey: "topicHubAdmin.tab",
+    href: "/dashboard/admin?tab=topic-hubs",
+    icon: L.BookMarked,
+  },
+  {
+    value: "provider-profiles",
+    labelKey: "providerProfileReview.tab",
+    href: "/dashboard/admin?tab=provider-profiles",
+    icon: L.BadgeCheck,
   },
   {
     value: "users",

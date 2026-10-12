@@ -1,5 +1,8 @@
 import { asPublicLocale, variantsOf } from "@/lib/i18n/route-locale";
+import { redirectToRenamedContent } from "@/lib/server/renamed-content";
 import { TContentDetailPageProps } from "@/types/pages.types";
+import { getContentTopicHubs } from "@/lib/server/public-content";
+import { getProviderByline } from "@/lib/server/public-content";
 import { contentMetadata } from "@/lib/social-card/metadata";
 import { noindexMetadata } from "@/lib/site/page-metadata";
 import { getPublicEvent } from "@/lib/server/public-content";
@@ -7,6 +10,7 @@ import { detailTrail } from "@/lib/structured-data/trail";
 import { eventGraph } from "@/lib/structured-data/detail-graphs";
 import { notFound } from "next/navigation";
 
+import ContentRelations from "@modules/Editorial/ContentRelations";
 import EventDetailPage from "@modules/ContentDetail/EventDetailPage";
 import Breadcrumbs from "@elements/breadcrumbs";
 import JsonLd from "@elements/json-ld";
@@ -37,7 +41,14 @@ const Page = async ({ params }: TContentDetailPageProps) => {
   const { slug, locale } = await params;
   const publicLocale = asPublicLocale(locale);
   const event = await getPublicEvent(slug, publicLocale);
-  if (!event) notFound();
+  if (!event) {
+    await redirectToRenamedContent("event", slug, publicLocale, getPublicEvent);
+    notFound();
+  }
+  const [hubs, byline] = await Promise.all([
+    getContentTopicHubs("event", event.id, publicLocale),
+    getProviderByline("event", event.id),
+  ]);
   const trail = await detailTrail({
     kind: "event",
     slug: event.slug,
@@ -53,7 +64,16 @@ const Page = async ({ params }: TContentDetailPageProps) => {
       )}
       <EventDetailPage
         event={event}
-        breadcrumbs={<Breadcrumbs trail={trail} locale={publicLocale} />}
+        breadcrumbs={
+          <>
+            <Breadcrumbs trail={trail} locale={publicLocale} />
+            <ContentRelations
+              hubs={hubs}
+              byline={byline}
+              locale={publicLocale}
+            />
+          </>
+        }
       />
     </>
   );

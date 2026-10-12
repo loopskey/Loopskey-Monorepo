@@ -134,4 +134,7 @@ into this index and do not rewrite previous records.
 - [`seo-06-localized-public-pages`](feature-runs/active/seo-06-localized-public-pages.md) — PR [#287](https://github.com/loopskey/Loopskey-Monorepo/pull/287)
 - [`seo-07-structured-data-and-breadcrumbs`](feature-runs/active/seo-07-structured-data-and-breadcrumbs.md) — PR [#288](https://github.com/loopskey/Loopskey-Monorepo/pull/288)
 - [`seo-08-editorial-seo-controls`](feature-runs/active/seo-08-editorial-seo-controls.md) — PR [#289](https://github.com/loopskey/Loopskey-Monorepo/pull/289)
+- [`security-remediation-auth-hardening`](feature-runs/active/security-remediation-auth-hardening.md) — PR [#290](https://github.com/loopskey/Loopskey-Monorepo/pull/290)
+- [`seo-09-slug-history-and-redirects`](feature-runs/active/seo-09-slug-history-and-redirects.md) — PR [#293](https://github.com/loopskey/Loopskey-Monorepo/pull/293)
+- [`seo-10-content-hubs-and-provider-pages`](feature-runs/active/seo-10-content-hubs-and-provider-pages.md) — PR [#294](https://github.com/loopskey/Loopskey-Monorepo/pull/294)
 - [`seo-11-public-page-performance`](feature-runs/active/seo-11-public-page-performance.md) — PR [#291](https://github.com/loopskey/Loopskey-Monorepo/pull/291)

@@ -1,0 +1,27 @@
+# ================ Fragments ==============
+fragment ContentUrlSettingsFields on ContentUrlSettings {
+  kind
+  contentId
+  slug
+  retiredSlugs
+}
+
+# ================ Management ==============
+query ContentUrl($kind: ContentUrlKind!, $contentId: String!) {
+  contentUrl(kind: $kind, contentId: $contentId) {
+    ...ContentUrlSettingsFields
+  }
+}
+
+mutation ChangeContentSlug($input: ChangeContentSlugInput!) {
+  changeContentSlug(input: $input) {
+    ...ContentUrlSettingsFields
+  }
+}
+
+# ================ Public ==============
+query ResolveContentUrl($kind: ContentUrlKind!, $slug: String!) {
+  resolveContentUrl(kind: $kind, slug: $slug) {
+    slug
+  }
+}

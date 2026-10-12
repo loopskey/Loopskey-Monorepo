@@ -1,8 +1,8 @@
 import { PDUCategory, PDUCompletionStatus, PDUSource } from "@prisma/client";
-import { ContentType, CreditType, PDUStatus } from "@prisma/client";
+import { ContentType, CreditType } from "@prisma/client";
 import { Field, Float, ID, InputType, Int } from "@nestjs/graphql";
 import { IsInt, IsOptional, IsPositive } from "class-validator";
-import { IsString, Max, MaxLength, Min } from "class-validator";
+import { IsString, IsUrl, Max, MaxLength, Min } from "class-validator";
 import { ProfessionalGqlInputNames } from "@professional/enums/gql-names.enum";
 import { IsDateString, IsEnum } from "class-validator";
 import { trimToNull } from "@utils/transform.util";
@@ -20,7 +20,11 @@ export class UpdatePduActivityInput {
 
   @Field({ nullable: true }) @IsOptional() @IsDateString() date?: string;
   @Field({ nullable: true }) @IsOptional() @IsString() contentId?: string;
-  @Field({ nullable: true }) @IsOptional() @IsString() evidenceUrl?: string;
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsUrl({ require_protocol: true, protocols: ["http", "https"] })
+  @MaxLength(2000)
+  evidenceUrl?: string;
 
   @Field({ nullable: true })
   @IsOptional()
@@ -95,11 +99,6 @@ export class UpdatePduActivityInput {
   @IsOptional()
   @IsEnum(PDUCompletionStatus)
   completionStatus?: PDUCompletionStatus;
-
-  @Field(() => PDUStatus, { nullable: true })
-  @IsOptional()
-  @IsEnum(PDUStatus)
-  status?: PDUStatus;
 
   @Field(() => ContentType, { nullable: true })
   @IsOptional()

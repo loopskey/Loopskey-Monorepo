@@ -2659,6 +2659,7 @@
       "emailAlreadyExists": "Cette adresse e-mail est déjà utilisée.",
       "roleNotAllowedForRegister": "L’inscription directe n’est pas disponible pour le rôle sélectionné.",
       "otpResendTooSoon": "Veuillez patienter avant de demander un autre code de vérification.",
+      "rateLimited": "Trop de tentatives. Veuillez patienter quelques minutes puis réessayer.",
       "emailSendFailed": "Nous n’avons pas pu envoyer l’e-mail. Veuillez réessayer.",
       "passwordTooObvious": "Choisissez un mot de passe moins prévisible.",
       "passwordsDoNotMatch": "Le nouveau mot de passe et sa confirmation ne correspondent pas.",
@@ -3221,6 +3222,11 @@
     }
   },
   "landing": {
+    "topicGuides": {
+      "title": "Guides thématiques",
+      "subtitle": "Commencez par des conseils sélectionnés, puis explorez les formations recommandées.",
+      "read": "Lire le guide"
+    },
     "meta": {
       "title": "LoopsKey — apprentissage professionnel et suivi CPD propulsés par l’IA",
       "description": "Découvrez des cours, événements, podcasts et chaînes YouTube, créez un parcours de développement propulsé par l’IA et suivez votre conformité CPD et PDU au même endroit."
@@ -7877,6 +7883,236 @@
       }
     }
   },
+  "topicHub": {
+    "badge": "Guide thématique",
+    "guidanceHeading": "Comment choisir",
+    "linksHeading": "Formations à explorer",
+    "linksIntro": "Une sélection de cours, d’événements, de podcasts et de chaînes publiés, choisis pour ce thème.",
+    "empty": "Aucune des formations sélectionnées n’est disponible pour le moment. Parcourez le catalogue complet pour voir les options actuelles.",
+    "browseCatalog": "Parcourir le catalogue complet",
+    "browseCategory": "Voir plus de formations en {{category}}",
+    "updated": "Dernière mise à jour le {{date}}",
+    "partOf": "Guide thématique",
+    "metaFallback": "Un guide sélectionné sur la formation professionnelle sur LoopsKey.",
+    "home": "Guides thématiques"
+  },
+  "providerProfile": {
+    "badge": "Fournisseur de formations",
+    "aboutHeading": "À propos de {{name}}",
+    "website": "Visiter le site web",
+    "linksHeading": "À retrouver ailleurs",
+    "contentHeading": "Formations publiées",
+    "contentEmpty": "Ce fournisseur n’a aucune formation publiée pour le moment.",
+    "providedBy": "Proposé par",
+    "metaFallback": "Profil d’un fournisseur de formations sur LoopsKey.",
+    "logoAlt": "Logo de {{name}}",
+    "updated": "Dernière mise à jour le {{date}}"
+  },
+  "topicHubAdmin": {
+    "tab": "Guides thématiques",
+    "title": "Guides thématiques",
+    "description": "Rédigez des pages publiques de conseils. Un guide n’est mis en ligne qu’avec un texte relu et au moins un lien éligible, et rien n’est publié automatiquement.",
+    "new": "Nouveau guide thématique",
+    "empty": "Aucun guide thématique pour le moment.",
+    "loadFailed": "Nous n’avons pas pu charger les guides thématiques.",
+    "retry": "Réessayer",
+    "edit": "Modifier",
+    "viewPublic": "Voir la page publique",
+    "links": "{{eligible}} liens éligibles sur {{total}}",
+    "needsReview": "À revoir : aucun lien éligible",
+    "status": {
+      "DRAFT": "Brouillon",
+      "PUBLISHED": "Publié",
+      "WITHDRAWN": "Retiré"
+    },
+    "editor": {
+      "createTitle": "Nouveau guide thématique",
+      "editTitle": "Modifier le guide thématique",
+      "description": "Texte brut uniquement. Séparez les paragraphes par une ligne vide.",
+      "language": "Langue",
+      "slug": "Identifiant de l’adresse",
+      "slugHint": "Lettres minuscules, chiffres et tirets simples. Il ne pourra plus être réutilisé.",
+      "title": "Titre",
+      "introduction": "Introduction",
+      "guidance": "Conseils",
+      "category": "Catégorie associée",
+      "noCategory": "Aucune catégorie",
+      "sections": "Sections supplémentaires",
+      "sectionHeading": "Titre de la section",
+      "sectionBody": "Texte de la section",
+      "addSection": "Ajouter une section",
+      "removeSection": "Supprimer la section {{index}}",
+      "references": "Liens vers des formations",
+      "referencesHint": "Jusqu’à {{max}} éléments publiés. Les éléments non publiés restent masqués pour les visiteurs.",
+      "kind": "Type de contenu",
+      "referenceSlug": "Identifiant du contenu",
+      "addReference": "Ajouter le lien",
+      "removeReference": "Retirer {{title}}",
+      "moveUp": "Monter {{title}}",
+      "moveDown": "Descendre {{title}}",
+      "eligible": "Visible",
+      "notEligible": "Non visible",
+      "lookupFailed": "Aucun élément publié ne correspond à cet identifiant.",
+      "counter": "{{count}} caractères sur {{max}}",
+      "save": "Enregistrer",
+      "publish": "Publier",
+      "withdraw": "Retirer",
+      "publishFrench": "Publier la version française",
+      "unpublishFrench": "Dépublier la version française",
+      "frenchPublished": "La version française est publiée.",
+      "frenchDraft": "La version française est un brouillon privé.",
+      "frenchMissing": "Aucune version française enregistrée.",
+      "hideFromSearch": "Masquer aux moteurs de recherche",
+      "allowIndexing": "Autoriser l’indexation",
+      "excluded": "Masqué aux moteurs de recherche.",
+      "indexed": "Ouvert aux moteurs de recherche.",
+      "version": "Version {{version}}",
+      "close": "Fermer",
+      "kinds": {
+        "COURSE": "Cours",
+        "EVENT": "Événement",
+        "PODCAST": "Podcast",
+        "YOUTUBE": "Chaîne YouTube"
+      }
+    },
+    "feedback": {
+      "saved": "Guide thématique enregistré.",
+      "published": "Guide thématique publié.",
+      "withdrawn": "Guide thématique retiré.",
+      "frenchPublished": "Version française publiée.",
+      "frenchUnpublished": "Version française dépubliée.",
+      "indexed": "Le guide peut de nouveau être indexé.",
+      "excluded": "Le guide demande désormais aux moteurs de recherche de ne pas l’indexer.",
+      "conflict": "Quelqu’un d’autre a modifié ce guide. Rechargez la dernière version avant d’enregistrer à nouveau.",
+      "invalid": "Un champ est vide, trop long, contient du balisage ou n’est pas autorisé.",
+      "incomplete": "Ajoutez une introduction et des conseils plus complets avant de publier.",
+      "noLinks": "Ajoutez au moins un élément publié avant de publier.",
+      "invalidState": "Ce changement n’est pas possible dans l’état actuel.",
+      "slugTaken": "Cette adresse est utilisée ou l’a été auparavant. Choisissez-en une autre.",
+      "notFound": "Ce guide n’existe plus.",
+      "forbidden": "Seuls les administrateurs peuvent gérer les guides thématiques.",
+      "failed": "Nous n’avons pas pu terminer l’opération. Réessayez."
+    },
+    "reload": "Recharger la dernière version"
+  },
+  "providerPublicProfile": {
+    "tab": "Profil public",
+    "title": "Profil public",
+    "description": "Une page publique distincte pour votre organisation. Rien de votre compte ni de vos paramètres n’y figure, et les modifications ne sont mises en ligne qu’après approbation d’un administrateur.",
+    "loadFailed": "Nous n’avons pas pu charger votre profil public.",
+    "retry": "Réessayer",
+    "status": {
+      "none": "Pas encore créé",
+      "draft": "Brouillon privé",
+      "submitted": "En attente de relecture",
+      "rejected": "Modifications demandées",
+      "published": "Publié",
+      "publishedChanges": "Publié, nouveau brouillon non encore approuvé",
+      "withdrawn": "Retiré"
+    },
+    "fields": {
+      "displayName": "Nom public",
+      "biography": "À propos de votre organisation",
+      "website": "Site web",
+      "links": "Autres liens",
+      "linkLabel": "Libellé du lien",
+      "linkUrl": "Adresse du lien",
+      "logo": "Logo"
+    },
+    "hints": {
+      "displayName": "Affiché comme titre de la page. Il n’est pas copié depuis votre compte.",
+      "biography": "Texte brut. Décrivez ce que vous proposez avec vos propres mots.",
+      "website": "Seules les adresses http et https sont acceptées.",
+      "counter": "{{count}} caractères sur {{max}}",
+      "links": "Jusqu’à {{max}} liens.",
+      "logo": "JPEG, PNG ou WebP, jusqu’à {{size}} Mo. Il apparaît publiquement une fois approuvé."
+    },
+    "actions": {
+      "save": "Enregistrer le brouillon",
+      "submit": "Soumettre pour relecture",
+      "withdraw": "Retirer la page publique",
+      "addLink": "Ajouter un lien",
+      "removeLink": "Supprimer le lien {{index}}",
+      "uploadLogo": "Téléverser un logo",
+      "replaceLogo": "Remplacer le logo",
+      "removeLogo": "Retirer le logo",
+      "viewPublic": "Voir la page publique",
+      "reload": "Recharger la dernière version"
+    },
+    "reviewNote": "Note du relecteur",
+    "requirements": "Pour soumettre, ajoutez un nom public et une biographie d’au moins {{min}} caractères.",
+    "publicAddress": "Adresse publique",
+    "feedback": {
+      "saved": "Brouillon enregistré. Il reste privé jusqu’à son approbation.",
+      "submitted": "Soumis pour relecture.",
+      "withdrawn": "Votre page publique a été retirée.",
+      "logoUploaded": "Logo téléversé. Enregistrez le brouillon pour l’utiliser.",
+      "conflict": "Ce profil a changé depuis son ouverture. Rechargez la dernière version avant d’enregistrer à nouveau.",
+      "invalid": "Un champ est vide, trop long, contient du balisage ou n’est pas une adresse autorisée.",
+      "incomplete": "Ajoutez un nom public et une biographie plus longue avant de soumettre.",
+      "logoMissing": "Ce logo n’est plus disponible. Téléversez-le à nouveau.",
+      "invalidState": "Ce n’est pas possible dans l’état actuel.",
+      "forbidden": "Vous ne pouvez pas modifier ce profil.",
+      "failed": "Nous n’avons pas pu terminer l’opération. Réessayez."
+    }
+  },
+  "providerProfileReview": {
+    "tab": "Profils de fournisseurs",
+    "title": "Profils de fournisseurs",
+    "description": "Relisez les pages publiques soumises par les fournisseurs. Un profil n’est mis en ligne que lorsque vous approuvez la version exacte soumise.",
+    "loadFailed": "Nous n’avons pas pu charger les profils de fournisseurs.",
+    "retry": "Réessayer",
+    "empty": "Aucun profil de fournisseur ne correspond à ce filtre.",
+    "filters": {
+      "all": "Tous",
+      "SUBMITTED": "En attente de relecture",
+      "REJECTED": "Modifications demandées",
+      "APPROVED": "Approuvés",
+      "DRAFT": "Brouillons"
+    },
+    "review": {
+      "SUBMITTED": "En attente de relecture",
+      "REJECTED": "Modifications demandées",
+      "APPROVED": "Approuvé",
+      "DRAFT": "Brouillon"
+    },
+    "visibility": {
+      "UNPUBLISHED": "Non public",
+      "PUBLISHED": "Public",
+      "WITHDRAWN": "Retiré"
+    },
+    "fields": {
+      "provider": "Fournisseur",
+      "name": "Nom public",
+      "biography": "Biographie",
+      "website": "Site web",
+      "links": "Liens",
+      "logo": "Logo",
+      "none": "Aucun",
+      "note": "Note pour le fournisseur",
+      "version": "Version du brouillon {{version}}"
+    },
+    "actions": {
+      "approve": "Approuver et publier",
+      "reject": "Demander des modifications",
+      "withdraw": "Retirer du public",
+      "viewPublic": "Voir la page publique",
+      "hideFromSearch": "Masquer aux moteurs de recherche",
+      "allowIndexing": "Autoriser l’indexation"
+    },
+    "feedback": {
+      "approved": "Profil approuvé et publié.",
+      "rejected": "Modifications demandées.",
+      "withdrawn": "Profil retiré.",
+      "indexed": "Le profil peut de nouveau être indexé.",
+      "excluded": "Le profil demande désormais aux moteurs de recherche de ne pas l’indexer.",
+      "conflict": "Le brouillon a changé après sa soumission. Rechargez la liste et relisez la dernière version.",
+      "invalid": "La note est trop longue ou contient du balisage.",
+      "invalidState": "Ce n’est pas possible dans l’état actuel, ou le compte du fournisseur n’est pas actif.",
+      "notFound": "Ce profil n’existe plus.",
+      "failed": "Nous n’avons pas pu terminer l’opération. Réessayez."
+    }
+  },
   "contentSeo": {
     "open": "Recherche et partage",
     "title": "Recherche et partage",
@@ -7941,6 +8177,37 @@
       "indexed": "Cette page peut être indexée.",
       "exclude": "Masquer des moteurs de recherche",
       "include": "Autoriser l’indexation"
+    },
+    "url": {
+      "title": "Adresse de la page",
+      "description": "L’adresse utilisée par les visiteurs et les moteurs de recherche pour cette page. La modifier est une action volontaire, distincte du titre.",
+      "loadFailed": "Nous n’avons pas pu charger l’adresse de la page.",
+      "hint": "Lettres minuscules, chiffres et tirets simples uniquement.",
+      "fields": {
+        "slug": "Identifiant de l’adresse"
+      },
+      "preview": {
+        "english": "Adresse en anglais",
+        "french": "Adresse en français"
+      },
+      "retired": {
+        "title": "Anciennes adresses",
+        "note": "Ces adresses continuent de fonctionner et redirigent les visiteurs vers la page actuelle tant qu’elle est publiée."
+      },
+      "warning": "Le changement d’adresse est définitif. Les liens existants vers l’ancienne adresse redirigeront vers la nouvelle, et l’ancienne adresse ne pourra jamais servir à une autre page.",
+      "confirm": "Je comprends et je souhaite changer l’adresse.",
+      "actions": {
+        "change": "Changer l’adresse"
+      },
+      "feedback": {
+        "changed": "L’adresse a été modifiée. L’ancienne adresse redirige désormais ici.",
+        "invalid": "Utilisez des lettres minuscules, des chiffres et des tirets simples. Certains mots sont réservés.",
+        "taken": "Cette adresse est déjà utilisée par une autre page ou l’a été auparavant. Choisissez-en une autre.",
+        "conflict": "L’adresse a changé depuis l’ouverture de cette fenêtre. Rechargez la dernière version avant de la modifier à nouveau.",
+        "notFound": "Cette page n’existe plus.",
+        "forbidden": "Vous ne pouvez pas modifier l’adresse de cette page.",
+        "failed": "Nous n’avons pas pu changer l’adresse. Réessayez."
+      }
     },
     "admin": {
       "tab": "Visibilité dans la recherche",
