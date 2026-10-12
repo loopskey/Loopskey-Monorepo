@@ -58,6 +58,8 @@ export const baseApi = createApi({
     "EventRegistrations",
     "AdminOrganizations",
     "ContentInteraction",
+    "TopicHubs",
+    "ProviderPublicProfile",
     "ProfessionalCourses",
     "ProfessionalProfile",
     "OrganizationReports",

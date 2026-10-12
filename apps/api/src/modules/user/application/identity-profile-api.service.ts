@@ -41,6 +41,20 @@ export class IdentityProfileApiService implements IdentityProfileApi {
     }));
   }
 
+  async activeProviderIds(userIds: readonly string[]) {
+    if (userIds.length === 0) return new Set<string>();
+    const providers = await this.prisma.user.findMany({
+      where: {
+        id: { in: [...userIds] },
+        role: Role.PROVIDER,
+        status: UserStatus.ACTIVE,
+        deletedAt: null,
+      },
+      select: { id: true },
+    });
+    return new Set(providers.map((provider) => provider.id));
+  }
+
   async renameUnclaimedUser(userId: string, fullName: string) {
     const renamed = await this.prisma.user.updateMany({
       where: {

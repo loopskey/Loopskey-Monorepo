@@ -22,6 +22,10 @@ const ProviderAnalyticsTab = dynamic(
   () => import("@modules/ProviderDashboard/ProviderAnalyticsTab"),
   { loading: () => <DashboardContentSkeleton /> },
 );
+const ProviderPublicProfileTab = dynamic(
+  () => import("@modules/ProviderDashboard/ProviderPublicProfileTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
 const ProviderSettingsTab = dynamic(
   () => import("@modules/ProviderDashboard/ProviderSettingsTab"),
   { loading: () => <DashboardContentSkeleton /> },
@@ -44,6 +48,7 @@ const validTabs: TProviderDashboardTab[] = [
   "my-events",
   "create-event",
   "promotion-requests",
+  "public-profile",
 ];
 
 export const ProviderDashboardShell = () => {
@@ -60,12 +65,9 @@ export const ProviderDashboardShell = () => {
   if (activeTab === "attendees") return <ProviderAttendeesTab />;
   if (activeTab === "create-event") return <ProviderCreateEventTab />;
   if (activeTab === "analytics") return <ProviderAnalyticsTab />;
+  if (activeTab === "public-profile") return <ProviderPublicProfileTab />;
   if (activeTab === "settings") return <ProviderSettingsTab />;
   if (activeTab === "overview") return <ProviderOverviewTab />;
 
-  return (
-    <div className="rounded-lg border p-8">
-      Provider tab: {activeTab}
-    </div>
-  );
+  return <div className="rounded-lg border p-8">Provider tab: {activeTab}</div>;
 };

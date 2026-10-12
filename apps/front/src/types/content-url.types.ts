@@ -1,12 +1,12 @@
 import type { ContentUrlSettingsFieldsFragment } from "@/lib/graphql/operations/content-url";
-import type { ContentKind } from "@/lib/content-catalog/detail-path";
+import type { PublicPageKind } from "@/lib/content-catalog/public-path";
 
 export type TContentUrlSettings = ContentUrlSettingsFieldsFragment;
 
-export type TContentUrlReadArg = { kind: ContentKind; contentId: string };
+export type TContentUrlReadArg = { kind: PublicPageKind; contentId: string };
 
 export type TContentUrlChangeArg = {
-  kind: ContentKind;
+  kind: PublicPageKind;
   contentId: string;
   slug: string;
   expectedSlug: string;

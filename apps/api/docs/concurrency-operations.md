@@ -58,6 +58,10 @@ exist only so a user gets a readable message instead of a constraint violation.
 | One public slug never points at two records in a route namespace | `ContentUrlClaim` holds every current and retired slug under a unique `(namespace, slug)` index. The `content_url_claim_sync` trigger on `Course`, `Event`, `Podcast` and `YouTubeChannel` writes it in the same statement as any insert or slug update, so create, import, ingestion and the slug editor all claim through one door; a slug claimed by another record raises a unique violation named after the content table's own slug constraint, which every existing caller already maps |
 | A record has exactly one current URL | The partial unique index `ContentUrlClaim_current_target_key` allows one `isCurrent` row per `(namespace, targetId)`; the trigger retires the old claim before activating the new one, so A to B to C and a return to A leave one current row |
 | A slug change cannot overwrite a newer one | `updateMany` naming the slug the editor read and `deletedAt: null`, `count === 1`; losers get `CONTENT_URL_VERSION_CONFLICT`, and a claim taken by another record is recovered outside the aborted transaction as `CONTENT_URL_SLUG_TAKEN` |
+| A topic hub edit never overwrites a newer one | `updateMany` on `TopicHub` naming the `version` the editor read and the status it saw, `count === 1`; the same version guards publishing, so a publish and an edit from one version cannot both commit, and replacing the link list happens in the transaction that won the version |
+| A hub is published only with reviewed copy and a live link | `setStatus` checks the copy and the eligible links first, then writes with the version it checked; any edit bumps the version, so the check cannot go stale before the write. The `TopicHub_published_check` constraint requires `publishedAt` for a published row |
+| A provider's public text changes only on explicit approval | The approval is an `updateMany` on `ProviderPublicProfile` naming `reviewState = SUBMITTED` and the draft version that was submitted; it then snapshots the locked row into `ProviderPublicRevision` and moves `publishedRevision` in the same transaction. Any edit increments `draftVersion` and returns the state to `DRAFT`, so a stale approval matches no row. The public page reads only the revision named by `publishedRevision` |
+| A withdrawal cannot be undone by a pending approval | Withdrawal conditionally moves `PUBLISHED` to `WITHDRAWN` and, in the same transaction, cancels a pending submission; an approval that was already waiting re-evaluates its predicate against the new row and matches nothing. `ProviderPublicProfile_published_check` requires a revision for a live profile |
 
 ## Decisions
 
@@ -185,6 +189,30 @@ Rollback disables editing by removing the `changeContentSlug` resolver. Keep the
 table and triggers: dropping them would let a retired path be taken over and
 turn every old link into a 404. Claims are never deleted, including for a
 soft-deleted or hard-deleted record.
+
+## Topic hubs and provider profiles
+
+`20261012051007_topic_hubs_and_provider_profiles` is additive. It adds
+`TopicHub`, `TopicHubTranslation`, `TopicHubReference`, `ProviderPublicProfile`
+and `ProviderPublicRevision`, two enum values for the URL namespace registry,
+seven audit actions, two CHECK constraints and one slug-claim trigger per new
+table. It backfills nothing: no hub or profile exists until an administrator or a
+provider creates one, and nothing is published automatically.
+
+Check after deploying:
+
+```sql
+SELECT tgname FROM pg_trigger
+WHERE tgname IN ('TopicHub_content_url_claim', 'ProviderPublicProfile_content_url_claim');
+
+SELECT count(*) FROM "ProviderPublicProfile"
+WHERE "status" = 'PUBLISHED' AND "publishedRevision" IS NULL;
+```
+
+The second query must return 0. Rollback hides the public routes and keeps every
+draft, revision and slug claim; never drop the tables, because a retired hub or
+provider path would then be free for another page to take.
+
 
 ## Reconciling an event's attendee count
 
@@ -360,6 +388,11 @@ correlation ID and non-sensitive identifiers only.
 | `Content slug changed` | An editor changed a slug; the line carries the kind, actor, content id and correlation ID |
 | `Content slug already claimed` | A requested slug belongs to another record, current or retired |
 | `Content slug version conflict` | The slug changed since the editor read it, or two edits raced |
+| `Topic hub status changed` | An administrator published or withdrew a hub; the line carries the hub id, both states and the correlation ID |
+| `Topic hub has no eligible links` | A published hub was read while none of its links was visible; an editorial review signal |
+| `Provider profile submitted` | A provider submitted a draft for review |
+| `Provider profile reviewed` | An administrator approved or rejected a submitted draft |
+| `Provider profile edit lost a version race` | A provider saved from a draft version that was no longer current |
 
 Expected conflicts are logged at `warn` and answered with domain error codes.
 None of them are internal server failures, and none should be alerted on

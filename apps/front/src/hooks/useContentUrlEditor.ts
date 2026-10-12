@@ -11,19 +11,19 @@ import { useI18n } from "@/hooks/useI18n";
 
 import type { TContentUrlFeedback } from "@/types/content-url.types";
 import type { TContentUrlSettings } from "@/types/content-url.types";
-import type { ContentKind } from "@/lib/content-catalog/detail-path";
+import type { PublicPageKind } from "@/lib/content-catalog/public-path";
 
 type TUseContentUrlEditorInput = {
-  kind: ContentKind;
-  contentId: string;
   slug?: string;
+  contentId: string;
   isEnabled: boolean;
+  kind: PublicPageKind;
 };
 
 export const useContentUrlEditor = ({
   kind,
-  contentId,
   slug,
+  contentId,
   isEnabled,
 }: TUseContentUrlEditorInput) => {
   const { t } = useI18n();
@@ -111,18 +111,18 @@ export const useContentUrlEditor = ({
     t,
     draft,
     query,
+    isDirty,
     previews,
     feedback,
     settings,
-    isDirty,
+    onSubmit,
+    onReload,
     canSubmit,
     currentSlug,
     feedbackRef,
+    changeDraft,
     isConfirmed,
     feedbackText,
-    onSubmit,
-    onReload,
-    changeDraft,
     setIsConfirmed,
     isChanging: changing.isLoading,
   };

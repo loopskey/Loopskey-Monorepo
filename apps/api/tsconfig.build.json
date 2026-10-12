@@ -28,6 +28,7 @@
       "@ingestion/*": ["src/modules/ingestion/*"],
       "@contentMedia/*": ["src/modules/content-media/*"],
       "@contentUrl/*": ["src/modules/content-url/*"],
+      "@topicHub/*": ["src/modules/topic-hub/*"],
 
       "@config/*": ["src/config/*"],
       "@dto/*": ["src/common/dto/*"],

@@ -136,3 +136,5 @@ into this index and do not rewrite previous records.
 - [`seo-08-editorial-seo-controls`](feature-runs/active/seo-08-editorial-seo-controls.md) — PR [#289](https://github.com/loopskey/Loopskey-Monorepo/pull/289)
 - [`security-remediation-auth-hardening`](feature-runs/active/security-remediation-auth-hardening.md) — PR [#290](https://github.com/loopskey/Loopskey-Monorepo/pull/290)
 - [`seo-09-slug-history-and-redirects`](feature-runs/active/seo-09-slug-history-and-redirects.md) — PR [#293](https://github.com/loopskey/Loopskey-Monorepo/pull/293)
+
+- [`seo-10-content-hubs-and-provider-pages`](feature-runs/active/seo-10-content-hubs-and-provider-pages.md) — PR [#294](https://github.com/loopskey/Loopskey-Monorepo/pull/294)

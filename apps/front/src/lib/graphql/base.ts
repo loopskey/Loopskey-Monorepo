@@ -214,10 +214,91 @@ export type AdminProfile = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
+export type AdminProviderPublicProfile = {
+  __typename?: 'AdminProviderPublicProfile';
+  biography?: Maybe<Scalars['String']['output']>;
+  displayName?: Maybe<Scalars['String']['output']>;
+  draftVersion: Scalars['Int']['output'];
+  excludeFromIndex: Scalars['Boolean']['output'];
+  hasUnpublishedChanges: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  isLive: Scalars['Boolean']['output'];
+  links: Array<ProviderPublicProfileLink>;
+  logoImageId?: Maybe<Scalars['ID']['output']>;
+  logoPath?: Maybe<Scalars['String']['output']>;
+  providerId: Scalars['ID']['output'];
+  providerName?: Maybe<Scalars['String']['output']>;
+  publishedAt?: Maybe<Scalars['DateTime']['output']>;
+  reviewNote?: Maybe<Scalars['String']['output']>;
+  reviewState: ProviderProfileReviewState;
+  reviewedAt?: Maybe<Scalars['DateTime']['output']>;
+  slug: Scalars['String']['output'];
+  status: ProviderProfileStatus;
+  submittedAt?: Maybe<Scalars['DateTime']['output']>;
+  websiteUrl?: Maybe<Scalars['String']['output']>;
+  withdrawnAt?: Maybe<Scalars['DateTime']['output']>;
+};
+
 export type AdminRequestTrendPoint = {
   __typename?: 'AdminRequestTrendPoint';
   count: Scalars['Int']['output'];
   date: Scalars['String']['output'];
+};
+
+export type AdminTopicHub = {
+  __typename?: 'AdminTopicHub';
+  category?: Maybe<Scalars['String']['output']>;
+  eligibleLinkCount: Scalars['Int']['output'];
+  excludeFromIndex: Scalars['Boolean']['output'];
+  guidance: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  introduction: Scalars['String']['output'];
+  linkCount: Scalars['Int']['output'];
+  needsReview: Scalars['Boolean']['output'];
+  publishedAt?: Maybe<Scalars['DateTime']['output']>;
+  references: Array<AdminTopicHubReference>;
+  sections: Array<TopicHubSection>;
+  slug: Scalars['String']['output'];
+  status: TopicHubStatus;
+  title: Scalars['String']['output'];
+  translations: Array<AdminTopicHubTranslation>;
+  updatedAt: Scalars['DateTime']['output'];
+  version: Scalars['Int']['output'];
+};
+
+export type AdminTopicHubReference = {
+  __typename?: 'AdminTopicHubReference';
+  contentId: Scalars['ID']['output'];
+  isEligible: Scalars['Boolean']['output'];
+  kind: ContentUrlKind;
+  slug?: Maybe<Scalars['String']['output']>;
+  title?: Maybe<Scalars['String']['output']>;
+};
+
+export type AdminTopicHubSummary = {
+  __typename?: 'AdminTopicHubSummary';
+  eligibleLinkCount: Scalars['Int']['output'];
+  excludeFromIndex: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  linkCount: Scalars['Int']['output'];
+  needsReview: Scalars['Boolean']['output'];
+  publishedAt?: Maybe<Scalars['DateTime']['output']>;
+  slug: Scalars['String']['output'];
+  status: TopicHubStatus;
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  version: Scalars['Int']['output'];
+};
+
+export type AdminTopicHubTranslation = {
+  __typename?: 'AdminTopicHubTranslation';
+  guidance: Scalars['String']['output'];
+  introduction: Scalars['String']['output'];
+  isPublished: Scalars['Boolean']['output'];
+  locale: AppLanguage;
+  sections: Array<TopicHubSection>;
+  title: Scalars['String']['output'];
+  version: Scalars['Int']['output'];
 };
 
 export type AdminUser = {
@@ -1422,6 +1503,13 @@ export enum AuditAction {
   OrgAccessRequestApproved = 'ORG_ACCESS_REQUEST_APPROVED',
   OrgAccessRequestRejected = 'ORG_ACCESS_REQUEST_REJECTED',
   OrgAccessRequestSubmitted = 'ORG_ACCESS_REQUEST_SUBMITTED',
+  ProviderProfileIndexExclusionChanged = 'PROVIDER_PROFILE_INDEX_EXCLUSION_CHANGED',
+  ProviderProfileReviewed = 'PROVIDER_PROFILE_REVIEWED',
+  ProviderProfileSubmitted = 'PROVIDER_PROFILE_SUBMITTED',
+  ProviderProfileWithdrawn = 'PROVIDER_PROFILE_WITHDRAWN',
+  TopicHubIndexExclusionChanged = 'TOPIC_HUB_INDEX_EXCLUSION_CHANGED',
+  TopicHubStatusChanged = 'TOPIC_HUB_STATUS_CHANGED',
+  TopicHubUpdated = 'TOPIC_HUB_UPDATED',
   UserDeleted = 'USER_DELETED',
   UserExported = 'USER_EXPORTED',
   UserStatusUpdated = 'USER_STATUS_UPDATED'
@@ -1746,6 +1834,8 @@ export enum ContentUrlKind {
   Course = 'COURSE',
   Event = 'EVENT',
   Podcast = 'PODCAST',
+  Provider = 'PROVIDER',
+  Topic = 'TOPIC',
   Youtube = 'YOUTUBE'
 }
 
@@ -2305,6 +2395,43 @@ export enum DeliveryFormat {
   SelfPaced = 'SELF_PACED'
 }
 
+export type EditorialUrl = {
+  __typename?: 'EditorialUrl';
+  availableLocales: Array<AppLanguage>;
+  publicChangeAt: Scalars['DateTime']['output'];
+  slug: Scalars['String']['output'];
+};
+
+export type EditorialUrlPage = {
+  __typename?: 'EditorialUrlPage';
+  hasNextPage: Scalars['Boolean']['output'];
+  items: Array<EditorialUrl>;
+  nextCursor?: Maybe<Scalars['String']['output']>;
+};
+
+export type EditorialUrlPageInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  endCursor?: InputMaybe<Scalars['String']['input']>;
+  startCursor: Scalars['String']['input'];
+  take?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type EditorialUrlShard = {
+  __typename?: 'EditorialUrlShard';
+  endCursor?: Maybe<Scalars['String']['output']>;
+  index: Scalars['Int']['output'];
+  lastPublicChangeAt: Scalars['DateTime']['output'];
+  startCursor: Scalars['String']['output'];
+  urlCount: Scalars['Int']['output'];
+};
+
+export type EditorialUrlShardSet = {
+  __typename?: 'EditorialUrlShardSet';
+  isComplete: Scalars['Boolean']['output'];
+  shardSize: Scalars['Int']['output'];
+  shards: Array<EditorialUrlShard>;
+};
+
 export type Event = {
   __typename?: 'Event';
   attendees: Scalars['Int']['output'];
@@ -2833,6 +2960,11 @@ export enum MemberInvitationTokenStatus {
   Valid = 'VALID'
 }
 
+export type ModerateProviderPublicProfileInput = {
+  note?: InputMaybe<Scalars['String']['input']>;
+  profileId: Scalars['ID']['input'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   acceptMemberInvitation: MemberInvitationAcceptResult;
@@ -2944,6 +3076,7 @@ export type Mutation = {
   restoreYouTubeChannel: YouTubeChannel;
   retryAssociationReportExport: AssociationGeneratedReport;
   reviewAssociationLearningActivity: AssociationReviewResult;
+  reviewProviderPublicProfile: AdminProviderPublicProfile;
   revokeIngestionApiKey: IngestionApiKey;
   saveCourseSeo: ContentSeoSettings;
   saveCourseTranslation: CourseTranslation;
@@ -2951,6 +3084,8 @@ export type Mutation = {
   saveEventTranslation: EventTranslation;
   savePodcastSeo: ContentSeoSettings;
   savePodcastTranslation: PodcastTranslation;
+  saveProviderPublicProfile: ProviderPublicProfileDraft;
+  saveTopicHub: AdminTopicHub;
   saveYouTubeChannelSeo: ContentSeoSettings;
   saveYouTubeChannelTranslation: YouTubeChannelTranslation;
   sendAssociationMessage: AssociationMessageBatch;
@@ -2965,6 +3100,10 @@ export type Mutation = {
   setPodcastIndexExclusion: ContentSeoSettings;
   setPodcastTranslationPublication: PodcastTranslation;
   setProfessionalCertificateCpdPlan: ProfessionalCertificate;
+  setProviderPublicProfileIndexExclusion: AdminProviderPublicProfile;
+  setTopicHubIndexExclusion: AdminTopicHub;
+  setTopicHubStatus: AdminTopicHub;
+  setTopicHubTranslationPublication: AdminTopicHub;
   setYouTubeChannelIndexExclusion: ContentSeoSettings;
   setYouTubeChannelTranslationPublication: YouTubeChannelTranslation;
   startProfessionalOnboarding: ProfessionalDashboardProfile;
@@ -2975,6 +3114,7 @@ export type Mutation = {
   submitContentReview: ContentReview;
   submitOrganizationAccessRequest: OrganizationAccessRequest;
   submitPromotionRequest: PromotionRequest;
+  submitProviderPublicProfile: ProviderPublicProfileDraft;
   toggleWishlist: ContentActionPayload;
   trackExternalLearningClick: ExternalLearningActivity;
   unenrollRoadmap: Scalars['Boolean']['output'];
@@ -3024,6 +3164,8 @@ export type Mutation = {
   verifyEmailChange: AuthPayload;
   verifyEmailOtp: AuthPayload;
   withdrawAssociationLearningContent: AssociationLearningContent;
+  withdrawProviderPublicProfile: ProviderPublicProfileDraft;
+  withdrawProviderPublicProfileAsAdmin: AdminProviderPublicProfile;
 };
 
 
@@ -3548,6 +3690,11 @@ export type MutationReviewAssociationLearningActivityArgs = {
 };
 
 
+export type MutationReviewProviderPublicProfileArgs = {
+  input: ReviewProviderPublicProfileInput;
+};
+
+
 export type MutationRevokeIngestionApiKeyArgs = {
   keyId: Scalars['String']['input'];
 };
@@ -3580,6 +3727,16 @@ export type MutationSavePodcastSeoArgs = {
 
 export type MutationSavePodcastTranslationArgs = {
   input: SavePodcastTranslationInput;
+};
+
+
+export type MutationSaveProviderPublicProfileArgs = {
+  input: SaveProviderPublicProfileInput;
+};
+
+
+export type MutationSaveTopicHubArgs = {
+  input: SaveTopicHubInput;
 };
 
 
@@ -3653,6 +3810,26 @@ export type MutationSetProfessionalCertificateCpdPlanArgs = {
 };
 
 
+export type MutationSetProviderPublicProfileIndexExclusionArgs = {
+  input: SetProviderPublicProfileIndexExclusionInput;
+};
+
+
+export type MutationSetTopicHubIndexExclusionArgs = {
+  input: SetTopicHubIndexExclusionInput;
+};
+
+
+export type MutationSetTopicHubStatusArgs = {
+  input: SetTopicHubStatusInput;
+};
+
+
+export type MutationSetTopicHubTranslationPublicationArgs = {
+  input: SetTopicHubTranslationPublicationInput;
+};
+
+
 export type MutationSetYouTubeChannelIndexExclusionArgs = {
   input: SetContentIndexExclusionInput;
 };
@@ -3691,6 +3868,11 @@ export type MutationSubmitOrganizationAccessRequestArgs = {
 
 export type MutationSubmitPromotionRequestArgs = {
   input: SubmitPromotionRequestInput;
+};
+
+
+export type MutationSubmitProviderPublicProfileArgs = {
+  input: SubmitProviderPublicProfileInput;
 };
 
 
@@ -3936,6 +4118,11 @@ export type MutationVerifyEmailOtpArgs = {
 
 export type MutationWithdrawAssociationLearningContentArgs = {
   input: AssociationLearningContentIdInput;
+};
+
+
+export type MutationWithdrawProviderPublicProfileAsAdminArgs = {
+  input: ModerateProviderPublicProfileInput;
 };
 
 export type MyWishlistInput = {
@@ -5687,11 +5874,91 @@ export type ProviderProfile = {
   website?: Maybe<Scalars['String']['output']>;
 };
 
+export enum ProviderProfileDecision {
+  Approve = 'APPROVE',
+  Reject = 'REJECT'
+}
+
+export enum ProviderProfileReviewState {
+  Approved = 'APPROVED',
+  Draft = 'DRAFT',
+  Rejected = 'REJECTED',
+  Submitted = 'SUBMITTED'
+}
+
+export enum ProviderProfileStatus {
+  Published = 'PUBLISHED',
+  Unpublished = 'UNPUBLISHED',
+  Withdrawn = 'WITHDRAWN'
+}
+
 export type ProviderPromotionFilterInput = {
   eventId?: InputMaybe<Scalars['String']['input']>;
   promotionType?: InputMaybe<PromotionType>;
   search?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<PromotionRequestStatus>;
+};
+
+export type ProviderPublicByline = {
+  __typename?: 'ProviderPublicByline';
+  displayName: Scalars['String']['output'];
+  slug: Scalars['String']['output'];
+};
+
+export type ProviderPublicProfile = {
+  __typename?: 'ProviderPublicProfile';
+  biography: Scalars['String']['output'];
+  displayName: Scalars['String']['output'];
+  excludeFromIndex: Scalars['Boolean']['output'];
+  items: Array<ProviderPublicProfileItem>;
+  links: Array<ProviderPublicProfileLink>;
+  logoPath?: Maybe<Scalars['String']['output']>;
+  publishedAt: Scalars['DateTime']['output'];
+  slug: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  websiteUrl?: Maybe<Scalars['String']['output']>;
+};
+
+export type ProviderPublicProfileDraft = {
+  __typename?: 'ProviderPublicProfileDraft';
+  biography?: Maybe<Scalars['String']['output']>;
+  displayName?: Maybe<Scalars['String']['output']>;
+  draftVersion: Scalars['Int']['output'];
+  hasUnpublishedChanges: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  isLive: Scalars['Boolean']['output'];
+  links: Array<ProviderPublicProfileLink>;
+  logoImageId?: Maybe<Scalars['ID']['output']>;
+  logoPath?: Maybe<Scalars['String']['output']>;
+  publishedAt?: Maybe<Scalars['DateTime']['output']>;
+  reviewNote?: Maybe<Scalars['String']['output']>;
+  reviewState: ProviderProfileReviewState;
+  reviewedAt?: Maybe<Scalars['DateTime']['output']>;
+  slug: Scalars['String']['output'];
+  status: ProviderProfileStatus;
+  submittedAt?: Maybe<Scalars['DateTime']['output']>;
+  websiteUrl?: Maybe<Scalars['String']['output']>;
+};
+
+export type ProviderPublicProfileItem = {
+  __typename?: 'ProviderPublicProfileItem';
+  category?: Maybe<Scalars['String']['output']>;
+  imageUrl?: Maybe<Scalars['String']['output']>;
+  kind: ContentUrlKind;
+  slug: Scalars['String']['output'];
+  summary?: Maybe<Scalars['String']['output']>;
+  title: Scalars['String']['output'];
+};
+
+export type ProviderPublicProfileLink = {
+  __typename?: 'ProviderPublicProfileLink';
+  label: Scalars['String']['output'];
+  url: Scalars['String']['output'];
+};
+
+export type ProviderPublicProfileLinkInput = {
+  label: Scalars['String']['input'];
+  url: Scalars['String']['input'];
 };
 
 export type ProviderSettings = {
@@ -5790,6 +6057,9 @@ export type Query = {
   adminOrganizationMembers: PaginatedAdminOrgMembers;
   adminOrganizations: PaginatedAdminOrg;
   adminProfile: AdminProfile;
+  adminProviderPublicProfiles: Array<AdminProviderPublicProfile>;
+  adminTopicHub: AdminTopicHub;
+  adminTopicHubs: Array<AdminTopicHubSummary>;
   adminUserGrowth: Array<AdminChartPoint>;
   adminUsers: PaginatedAdminUser;
   associationAccounts: PaginatedAssociationAccounts;
@@ -5881,6 +6151,7 @@ export type Query = {
   myProviderCourses: PaginatedCourses;
   myProviderEvents: PaginatedEvents;
   myProviderPodcasts: PaginatedPodcasts;
+  myProviderPublicProfile?: Maybe<ProviderPublicProfileDraft>;
   myProviderYouTubeChannels: PaginatedYouTubeChannels;
   myRegisteredEvents: Array<EventRegistration>;
   myReviewForContent?: Maybe<ContentReview>;
@@ -5943,12 +6214,21 @@ export type Query = {
   providerAttendees: PaginatedProviderAttendees;
   providerEventsTable: PaginatedProviderEvents;
   providerOverview: ProviderOverview;
+  providerProfileUrlPage: EditorialUrlPage;
+  providerProfileUrlShards: EditorialUrlShardSet;
   providerPromotionRequests: PaginatedPromotionRequests;
+  providerPublicBylineForContent?: Maybe<ProviderPublicByline>;
+  providerPublicProfileBySlug: ProviderPublicProfile;
   providerSettings: ProviderSettings;
   publicUrlPage: PublicUrlPage;
   publicUrlShards: Array<PublicUrlShardSet>;
   resolveContentUrl?: Maybe<ContentUrlResolution>;
   roadmapSuggestionOptions: Array<RoadmapWidgetOption>;
+  topicHubBySlug: TopicHub;
+  topicHubUrlPage: EditorialUrlPage;
+  topicHubUrlShards: EditorialUrlShardSet;
+  topicHubs: Array<TopicHubSummary>;
+  topicHubsForContent: Array<TopicHubSummary>;
   upcomingEvents: Array<Event>;
   userById: User;
   users: PaginatedUsers;
@@ -5993,6 +6273,16 @@ export type QueryAdminOrganizationMembersArgs = {
 export type QueryAdminOrganizationsArgs = {
   filter?: InputMaybe<AdminOrgFilter>;
   pagination?: InputMaybe<AdminPagination>;
+};
+
+
+export type QueryAdminProviderPublicProfilesArgs = {
+  reviewState?: InputMaybe<ProviderProfileReviewState>;
+};
+
+
+export type QueryAdminTopicHubArgs = {
+  hubId: Scalars['String']['input'];
 };
 
 
@@ -6713,9 +7003,25 @@ export type QueryProviderOverviewArgs = {
 };
 
 
+export type QueryProviderProfileUrlPageArgs = {
+  input: EditorialUrlPageInput;
+};
+
+
 export type QueryProviderPromotionRequestsArgs = {
   filter?: InputMaybe<ProviderPromotionFilterInput>;
   pagination?: InputMaybe<ProviderDashboardPaginationInput>;
+};
+
+
+export type QueryProviderPublicBylineForContentArgs = {
+  contentId: Scalars['String']['input'];
+  kind: ContentUrlKind;
+};
+
+
+export type QueryProviderPublicProfileBySlugArgs = {
+  slug: Scalars['String']['input'];
 };
 
 
@@ -6732,6 +7038,30 @@ export type QueryResolveContentUrlArgs = {
 
 export type QueryRoadmapSuggestionOptionsArgs = {
   input: RoadmapSuggestionOptionsInput;
+};
+
+
+export type QueryTopicHubBySlugArgs = {
+  locale?: InputMaybe<AppLanguage>;
+  slug: Scalars['String']['input'];
+};
+
+
+export type QueryTopicHubUrlPageArgs = {
+  input: EditorialUrlPageInput;
+};
+
+
+export type QueryTopicHubsArgs = {
+  locale?: InputMaybe<AppLanguage>;
+  take?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryTopicHubsForContentArgs = {
+  contentId: Scalars['String']['input'];
+  kind: ContentUrlKind;
+  locale?: InputMaybe<AppLanguage>;
 };
 
 
@@ -6840,6 +7170,13 @@ export type ReviewAssociationLearningActivityInput = {
   activityId: Scalars['ID']['input'];
   approve: Scalars['Boolean']['input'];
   reason?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ReviewProviderPublicProfileInput = {
+  decision: ProviderProfileDecision;
+  expectedDraftVersion: Scalars['Int']['input'];
+  note?: InputMaybe<Scalars['String']['input']>;
+  profileId: Scalars['ID']['input'];
 };
 
 export type RoadmapChatMessage = {
@@ -7056,6 +7393,28 @@ export type SavePodcastTranslationInput = {
   title: Scalars['String']['input'];
 };
 
+export type SaveProviderPublicProfileInput = {
+  biography?: InputMaybe<Scalars['String']['input']>;
+  displayName: Scalars['String']['input'];
+  expectedVersion?: InputMaybe<Scalars['Int']['input']>;
+  links?: InputMaybe<Array<ProviderPublicProfileLinkInput>>;
+  logoImageId?: InputMaybe<Scalars['ID']['input']>;
+  websiteUrl?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type SaveTopicHubInput = {
+  category?: InputMaybe<Scalars['String']['input']>;
+  expectedVersion?: InputMaybe<Scalars['Int']['input']>;
+  guidance: Scalars['String']['input'];
+  hubId?: InputMaybe<Scalars['ID']['input']>;
+  introduction: Scalars['String']['input'];
+  locale: AppLanguage;
+  references?: InputMaybe<Array<TopicHubReferenceInput>>;
+  sections?: InputMaybe<Array<TopicHubSectionInput>>;
+  slug?: InputMaybe<Scalars['String']['input']>;
+  title: Scalars['String']['input'];
+};
+
 export type SaveYouTubeChannelTranslationInput = {
   channelId: Scalars['ID']['input'];
   description: Scalars['String']['input'];
@@ -7118,6 +7477,29 @@ export type SetPodcastTranslationPublicationInput = {
   expectedVersion: Scalars['Int']['input'];
   locale: AppLanguage;
   podcastId: Scalars['ID']['input'];
+  published: Scalars['Boolean']['input'];
+};
+
+export type SetProviderPublicProfileIndexExclusionInput = {
+  excluded: Scalars['Boolean']['input'];
+  profileId: Scalars['ID']['input'];
+};
+
+export type SetTopicHubIndexExclusionInput = {
+  excluded: Scalars['Boolean']['input'];
+  hubId: Scalars['ID']['input'];
+};
+
+export type SetTopicHubStatusInput = {
+  expectedVersion: Scalars['Int']['input'];
+  hubId: Scalars['ID']['input'];
+  status: TopicHubStatus;
+};
+
+export type SetTopicHubTranslationPublicationInput = {
+  expectedVersion: Scalars['Int']['input'];
+  hubId: Scalars['ID']['input'];
+  locale: AppLanguage;
   published: Scalars['Boolean']['input'];
 };
 
@@ -7191,11 +7573,70 @@ export type SubmitPromotionRequestInput = {
   promotionType: PromotionType;
 };
 
+export type SubmitProviderPublicProfileInput = {
+  expectedVersion: Scalars['Int']['input'];
+};
+
 export enum Theme {
   Dark = 'DARK',
   Light = 'LIGHT',
   System = 'SYSTEM'
 }
+
+export type TopicHub = {
+  __typename?: 'TopicHub';
+  availableLocales: Array<AppLanguage>;
+  category?: Maybe<Scalars['String']['output']>;
+  contentLanguage?: Maybe<AppLanguage>;
+  excludeFromIndex: Scalars['Boolean']['output'];
+  guidance: Scalars['String']['output'];
+  introduction: Scalars['String']['output'];
+  items: Array<TopicHubItem>;
+  publishedAt: Scalars['DateTime']['output'];
+  sections: Array<TopicHubSection>;
+  slug: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type TopicHubItem = {
+  __typename?: 'TopicHubItem';
+  category?: Maybe<Scalars['String']['output']>;
+  imageUrl?: Maybe<Scalars['String']['output']>;
+  kind: ContentUrlKind;
+  slug: Scalars['String']['output'];
+  summary?: Maybe<Scalars['String']['output']>;
+  title: Scalars['String']['output'];
+};
+
+export type TopicHubReferenceInput = {
+  contentId: Scalars['ID']['input'];
+  kind: ContentUrlKind;
+};
+
+export type TopicHubSection = {
+  __typename?: 'TopicHubSection';
+  body: Scalars['String']['output'];
+  heading: Scalars['String']['output'];
+};
+
+export type TopicHubSectionInput = {
+  body: Scalars['String']['input'];
+  heading: Scalars['String']['input'];
+};
+
+export enum TopicHubStatus {
+  Draft = 'DRAFT',
+  Published = 'PUBLISHED',
+  Withdrawn = 'WITHDRAWN'
+}
+
+export type TopicHubSummary = {
+  __typename?: 'TopicHubSummary';
+  introduction: Scalars['String']['output'];
+  slug: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+};
 
 export type UpdateAdminOrgMember = {
   completedLearning?: InputMaybe<Scalars['Int']['input']>;

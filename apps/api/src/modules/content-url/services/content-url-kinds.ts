@@ -3,14 +3,9 @@ import { ContentUrlNamespace, Prisma } from "@prisma/client";
 import { YouTubeChannelStatus } from "@prisma/client";
 import { publicContentChange } from "@utils/public-content-change.util";
 
-export type ContentUrlRecord = {
-  id: string;
-  slug: string;
-  deletedAt: Date | null;
-  providerId: string | null;
-};
+import type { ContentUrlRecord } from "@contentUrl/public/content-url-kind-registry";
 
-export type ContentUrlKind = {
+export type TransactionalContentUrlKind = {
   entityType: string;
   find(
     client: Prisma.TransactionClient,
@@ -42,7 +37,9 @@ const renamed = (id: string, from: string, to: string) => ({
   data: { slug: to, ...publicContentChange() },
 });
 
-export const CONTENT_URL_KINDS: Record<ContentUrlNamespace, ContentUrlKind> = {
+export const CONTENT_URL_KINDS: Partial<
+  Record<ContentUrlNamespace, TransactionalContentUrlKind>
+> = {
   [ContentUrlNamespace.COURSE]: {
     entityType: "Course",
     find: (client, id) =>

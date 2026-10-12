@@ -2,6 +2,8 @@ import { asPublicLocale, variantsOf } from "@/lib/i18n/route-locale";
 import { getPublicPodcastEpisodes } from "@/lib/server/public-content";
 import { redirectToRenamedContent } from "@/lib/server/renamed-content";
 import { TContentDetailPageProps } from "@/types/pages.types";
+import { getContentTopicHubs } from "@/lib/server/public-content";
+import { getProviderByline } from "@/lib/server/public-content";
 import { getPublicPodcast } from "@/lib/server/public-content";
 import { contentMetadata } from "@/lib/social-card/metadata";
 import { noindexMetadata } from "@/lib/site/page-metadata";
@@ -10,6 +12,7 @@ import { detailTrail } from "@/lib/structured-data/trail";
 import { notFound } from "next/navigation";
 
 import PodcastDetailPage from "@modules/ContentDetail/PodcastDetailPage";
+import ContentRelations from "@modules/Editorial/ContentRelations";
 import Breadcrumbs from "@elements/breadcrumbs";
 import JsonLd from "@elements/json-ld";
 
@@ -49,6 +52,10 @@ const Page = async ({ params }: TContentDetailPageProps) => {
     notFound();
   }
   const episodes = await getPublicPodcastEpisodes(podcast.id);
+  const [hubs, byline] = await Promise.all([
+    getContentTopicHubs("podcast", podcast.id, publicLocale),
+    getProviderByline("podcast", podcast.id),
+  ]);
   const trail = await detailTrail({
     kind: "podcast",
     slug: podcast.slug,
@@ -70,7 +77,16 @@ const Page = async ({ params }: TContentDetailPageProps) => {
       <PodcastDetailPage
         podcast={podcast}
         episodes={episodes}
-        breadcrumbs={<Breadcrumbs trail={trail} locale={publicLocale} />}
+        breadcrumbs={
+          <>
+            <Breadcrumbs trail={trail} locale={publicLocale} />
+            <ContentRelations
+              hubs={hubs}
+              byline={byline}
+              locale={publicLocale}
+            />
+          </>
+        }
       />
     </>
   );

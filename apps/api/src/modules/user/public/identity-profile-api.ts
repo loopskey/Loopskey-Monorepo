@@ -19,6 +19,7 @@ export interface IdentityProfileApi {
   recipients(
     userIds: readonly string[],
   ): Promise<IdentityRecipientProjection[]>;
+  activeProviderIds(userIds: readonly string[]): Promise<Set<string>>;
   renameUnclaimedUser(userId: string, fullName: string): Promise<boolean>;
   existsByEmail(email: string): Promise<boolean>;
   upsertProfessionalMember(command: {

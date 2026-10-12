@@ -7,6 +7,7 @@ import LandingPopularCategories from "@modules/Landing/LandingPopularCategories"
 import LandingRoadmapShowcase from "@modules/Landing/LandingRoadmapShowcase";
 import LandingTestimonials from "@modules/Landing/LandingTestimonial";
 import LandingOrganization from "@modules/Landing/LandingOrgShowcase";
+import LandingTopicGuides from "@modules/Landing/LandingTopicGuides";
 import LandingNewFeature from "@modules/Landing/LandingNewFeature";
 import LandingServices from "@modules/Landing/LandingServices";
 import LandingProvider from "@modules/Landing/LandingProviderSection";
@@ -31,6 +32,7 @@ const HomePage = async ({ params }: THomePageProps) => {
       <LandingFeatured />
       <LandingNewFeature />
       <LandingPopularCategories />
+      <LandingTopicGuides locale={locale} />
       <LandingServices />
       <LandingRoadmapShowcase />
       <LandingOrganization />
