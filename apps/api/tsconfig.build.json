@@ -29,6 +29,7 @@
       "@contentMedia/*": ["src/modules/content-media/*"],
       "@contentUrl/*": ["src/modules/content-url/*"],
       "@topicHub/*": ["src/modules/topic-hub/*"],
+      "@telemetry/*": ["src/modules/telemetry/*"],
 
       "@config/*": ["src/config/*"],
       "@dto/*": ["src/common/dto/*"],

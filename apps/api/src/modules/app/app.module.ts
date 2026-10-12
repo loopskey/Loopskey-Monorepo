@@ -18,6 +18,7 @@ import { IngestionModule } from "@ingestion/ingestion.module";
 import { RateLimitModule } from "@infrastructure/rate-limit/rate-limit.module";
 import { ServiceAiModule } from "@infrastructure/service-ai/service-ai.module";
 import { DiscoveryModule } from "@discovery/discovery.module";
+import { TelemetryModule } from "@telemetry/telemetry.module";
 import { TopicHubModule } from "@topicHub/topic-hub.module";
 import { RateLimitGuard } from "@infrastructure/rate-limit/rate-limit.guard";
 import { ProviderModule } from "@provider/provider.module";
@@ -87,10 +88,11 @@ import { join } from "path";
     LandingModule,
     SupportModule,
     ProviderModule,
+    TopicHubModule,
     DiscoveryModule,
     IngestionModule,
+    TelemetryModule,
     ContentUrlModule,
-    TopicHubModule,
     AssociationModule,
     OrganizationModule,
     ProfessionalModule,

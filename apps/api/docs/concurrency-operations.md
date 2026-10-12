@@ -61,6 +61,10 @@ exist only so a user gets a readable message instead of a constraint violation.
 | A topic hub edit never overwrites a newer one | `updateMany` on `TopicHub` naming the `version` the editor read and the status it saw, `count === 1`; the same version guards publishing, so a publish and an edit from one version cannot both commit, and replacing the link list happens in the transaction that won the version |
 | A hub is published only with reviewed copy and a live link | `setStatus` checks the copy and the eligible links first, then writes with the version it checked; any edit bumps the version, so the check cannot go stale before the write. The `TopicHub_published_check` constraint requires `publishedAt` for a published row |
 | A provider's public text changes only on explicit approval | The approval is an `updateMany` on `ProviderPublicProfile` naming `reviewState = SUBMITTED` and the draft version that was submitted; it then snapshots the locked row into `ProviderPublicRevision` and moves `publishedRevision` in the same transaction. Any edit increments `draftVersion` and returns the state to `DRAFT`, so a stale approval matches no row. The public page reads only the revision named by `publishedRevision` |
+| A telemetry event is counted once however often it is sent | `INSERT … ON CONFLICT DO NOTHING RETURNING` on `TelemetryDedupKey` inside the same transaction as the counter increments; only the keys the statement returned are counted, so twenty identical requests at the same instant add one. A failed write rolls the claim back with it, so the retry counts |
+| Telemetry counters never lose an increment or deadlock | One multi-row `INSERT … ON CONFLICT DO UPDATE SET count = count + EXCLUDED.count` per table, rows pre-summed and sorted by the same key in every request, tables always written in the order dedup, vitals, conversions, intake |
+| Telemetry intake is bounded across instances | `RateLimitService.spendAll` against the shared `RateLimitBucket` table, per client address and globally, spent before any aggregate is written; two API processes on one database accept exactly the limit |
+| A registration is counted only when the account exists, and once | An outbox event appended in the transaction that creates the user; the handler claims a dedup key derived from the outbox idempotency key before incrementing, so a redelivery adds nothing and a rolled-back registration leaves no event |
 | A withdrawal cannot be undone by a pending approval | Withdrawal conditionally moves `PUBLISHED` to `WITHDRAWN` and, in the same transaction, cancels a pending submission; an approval that was already waiting re-evaluates its predicate against the new row and matches nothing. `ProviderPublicProfile_published_check` requires a revision for a live profile |
 
 ## Decisions
@@ -212,6 +216,39 @@ WHERE "status" = 'PUBLISHED' AND "publishedRevision" IS NULL;
 The second query must return 0. Rollback hides the public routes and keeps every
 draft, revision and slug claim; never drop the tables, because a retired hub or
 provider path would then be free for another page to take.
+
+
+## Search telemetry
+
+`20261012124743_telemetry_aggregates` is additive. It adds ten enums and the
+tables `TelemetryVitalBucket`, `TelemetryConversionDaily`,
+`TelemetryIntakeDaily` and `TelemetryDedupKey`, plus a positive-count CHECK on
+each counter table. It backfills nothing and collection is off until
+`TELEMETRY_ENABLED=true`.
+
+What is stored, the limits and the privacy decision are in
+`docs/seo/telemetry-and-privacy.md`. Operationally:
+
+- Intake never fails a request. A disabled switch, a rate limit, a sampling
+  decision and a storage error all answer `accepted`/`dropped`, and every drop
+  is counted by outcome in `TelemetryIntakeDaily` except while disabled.
+- Retention runs inside each API instance every hour: dedup keys after 24 hours,
+  daily aggregates after 395 days, 5000 rows per delete and at most twenty
+  batches per table per sweep. Two instances sweeping at once are harmless.
+- Check after deploying:
+
+```sql
+SELECT count(*) FROM "TelemetryDedupKey"
+WHERE "seenAt" < now() - interval '48 hours';
+
+SELECT "outcome", sum("count") FROM "TelemetryIntakeDaily"
+WHERE "day" >= current_date - 1 GROUP BY "outcome";
+```
+
+The first query should return 0 once the sweep has run. A growing
+`SINK_FAILED` or `RATE_LIMITED` share in the second means the sink or a client
+needs attention. To stop collection, set `TELEMETRY_ENABLED=false` on the API.
+Never drop the tables to roll back; the data is aggregate and harmless to keep.
 
 
 ## Reconciling an event's attendee count
@@ -393,6 +430,10 @@ correlation ID and non-sensitive identifiers only.
 | `Provider profile submitted` | A provider submitted a draft for review |
 | `Provider profile reviewed` | An administrator approved or rejected a submitted draft |
 | `Provider profile edit lost a version race` | A provider saved from a draft version that was no longer current |
+| `Telemetry sink write failed` | A telemetry batch could not be stored and was dropped; the line carries the correlation ID, the error name and the event count, never an event id or a dimension |
+| `Telemetry sink was slow` | A batch took longer than 750 ms to store; an early sign the aggregate tables or the database need attention |
+| `Telemetry retention sweep finished` | The hourly sweep removed expired dedup keys or aggregates; the line carries the two counts |
+| `Telemetry retention sweep failed` | The sweep threw; expired rows stay until the next hour and nothing else is affected |
 
 Expected conflicts are logged at `warn` and answered with domain error codes.
 None of them are internal server failures, and none should be alerted on

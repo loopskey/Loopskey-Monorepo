@@ -3532,3 +3532,124 @@ model IngestionItem {
   @@index([catalogId])
   @@index([batchId])
 }
+
+enum TelemetryMetric {
+  LCP
+  INP
+  CLS
+}
+
+enum TelemetryDevice {
+  MOBILE
+  DESKTOP
+}
+
+enum TelemetryRouteTemplate {
+  FAQ
+  HOME
+  ABOUT
+  LEGAL
+  CONTACT
+  COMPANY
+  SUPPORT
+  SERVICES
+  SOLUTIONS
+  TOPIC_HUB
+  EVENT_DETAIL
+  COURSE_DETAIL
+  PODCAST_DETAIL
+  YOUTUBE_DETAIL
+  CONTENT_CATALOG
+  PROVIDER_PROFILE
+}
+
+enum TelemetryLocale {
+  EN
+  FR
+  UNKNOWN
+}
+
+enum TelemetryConversionEvent {
+  REGISTRATION_START
+  CATALOG_DETAIL_OPEN
+  REGISTRATION_COMPLETED
+  EXTERNAL_CONTENT_ACTION
+}
+
+enum TelemetryContentKind {
+  NONE
+  EVENT
+  COURSE
+  PODCAST
+  YOUTUBE
+}
+
+enum TelemetryRegistrationRole {
+  NONE
+  PROVIDER
+  PROFESSIONAL
+}
+
+enum TelemetryAttribution {
+  DIRECT
+  SOCIAL
+  REFERRAL
+  INTERNAL
+  UNATTRIBUTED
+  ORGANIC_SEARCH
+}
+
+enum TelemetryIntakeKind {
+  VITAL
+  CONVERSION
+}
+
+enum TelemetryIntakeOutcome {
+  INVALID
+  ACCEPTED
+  DISABLED
+  DUPLICATE
+  SAMPLED_OUT
+  SINK_FAILED
+  RATE_LIMITED
+}
+
+model TelemetryVitalBucket {
+  day      DateTime               @db.Date
+  metric   TelemetryMetric
+  device   TelemetryDevice
+  template TelemetryRouteTemplate
+  locale   TelemetryLocale
+  bucket   Int                    @db.SmallInt
+  count    Int
+
+  @@id([day, metric, device, template, locale, bucket])
+}
+
+model TelemetryConversionDaily {
+  day         DateTime                  @db.Date
+  event       TelemetryConversionEvent
+  contentKind TelemetryContentKind
+  role        TelemetryRegistrationRole
+  attribution TelemetryAttribution
+  locale      TelemetryLocale
+  count       Int
+
+  @@id([day, event, contentKind, role, attribution, locale])
+}
+
+model TelemetryIntakeDaily {
+  day     DateTime               @db.Date
+  kind    TelemetryIntakeKind
+  outcome TelemetryIntakeOutcome
+  count   Int
+
+  @@id([day, kind, outcome])
+}
+
+model TelemetryDedupKey {
+  key    String   @id
+  seenAt DateTime @default(now())
+
+  @@index([seenAt])
+}

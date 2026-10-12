@@ -8113,6 +8113,114 @@
       "failed": "Nous n’avons pas pu terminer l’opération. Réessayez."
     }
   },
+  "searchHealth": {
+    "tab": "Santé de la recherche",
+    "title": "Santé de la recherche",
+    "description": "Vitesse de page mesurée chez de vrais visiteurs et comptes de conversions anonymes, regroupés par modèle de page, appareil et langue. Un segment n’est évalué qu’une fois le nombre de chargements suffisant.",
+    "window": "Période du rapport",
+    "lastDays": "{{count}} derniers jours",
+    "loading": "Chargement du rapport",
+    "loadFailed": "Impossible de charger le rapport de santé de la recherche.",
+    "retry": "Réessayer",
+    "collectionOff": "La collecte est désactivée dans cet environnement",
+    "collectionOffHint": "Rien n’est mesuré ici, les tableaux ci-dessous restent donc vides. N’activez la collecte qu’après la décision consignée dans la liste de contrôle de mise en production.",
+    "coverage": "{{withData}} jours sur {{days}} de cette période contiennent des données de vitesse.",
+    "accepted": "{{accepted}} événements reçus sur {{received}} ont été comptés.",
+    "sampleFloor": "Un segment doit atteindre au moins {{count}} chargements de page avant d’être évalué. En dessous, il affiche Données insuffisantes, jamais une réussite.",
+    "resolution": "Les centiles sont estimés à partir de tranches fixes : une valeur est exacte à la largeur de sa tranche près. Les mesures de laboratoire et les données terrain de Search Console peuvent différer.",
+    "noVitals": "Aucun échantillon de vitesse sur cette période.",
+    "noConversions": "Aucune conversion n’a été comptée sur cette période.",
+    "noIntake": "Aucun événement de télémétrie n’a atteint l’API sur cette période.",
+    "conversionsHeading": "Conversions",
+    "intakeHeading": "Santé de la collecte",
+    "column": {
+      "template": "Modèle de page",
+      "device": "Appareil",
+      "locale": "Langue",
+      "samples": "Chargements",
+      "p75": "75e centile",
+      "status": "Statut",
+      "event": "Événement",
+      "detail": "Détail",
+      "source": "Source du trafic",
+      "count": "Nombre"
+    },
+    "status": {
+      "GOOD": "Bon",
+      "NEEDS_IMPROVEMENT": "À améliorer",
+      "POOR": "Mauvais",
+      "INSUFFICIENT_DATA": "Données insuffisantes"
+    },
+    "metric": {
+      "LCP": "Largest Contentful Paint",
+      "INP": "Interaction to Next Paint",
+      "CLS": "Cumulative Layout Shift"
+    },
+    "device": {
+      "MOBILE": "Mobile",
+      "DESKTOP": "Ordinateur"
+    },
+    "locale": {
+      "EN": "Anglais",
+      "FR": "Français",
+      "UNKNOWN": "Inconnue"
+    },
+    "template": {
+      "HOME": "Accueil",
+      "CONTENT_CATALOG": "Catalogue de contenus",
+      "COURSE_DETAIL": "Page de cours",
+      "EVENT_DETAIL": "Page d’événement",
+      "PODCAST_DETAIL": "Page de balado",
+      "YOUTUBE_DETAIL": "Page de chaîne YouTube",
+      "TOPIC_HUB": "Guide thématique",
+      "PROVIDER_PROFILE": "Profil de fournisseur",
+      "ABOUT": "À propos",
+      "CONTACT": "Contact",
+      "FAQ": "FAQ",
+      "SERVICES": "Services",
+      "SOLUTIONS": "Pages solutions",
+      "COMPANY": "Pages entreprise",
+      "SUPPORT": "Pages d’assistance",
+      "LEGAL": "Pages juridiques"
+    },
+    "event": {
+      "CATALOG_DETAIL_OPEN": "Page de contenu ouverte",
+      "EXTERNAL_CONTENT_ACTION": "Lien de contenu externe cliqué",
+      "REGISTRATION_START": "Inscription commencée",
+      "REGISTRATION_COMPLETED": "Inscription terminée"
+    },
+    "kind": {
+      "COURSE": "Cours",
+      "EVENT": "Événement",
+      "PODCAST": "Balado",
+      "YOUTUBE": "Chaîne YouTube"
+    },
+    "role": {
+      "PROFESSIONAL": "Professionnel",
+      "PROVIDER": "Fournisseur"
+    },
+    "attribution": {
+      "DIRECT": "Direct",
+      "ORGANIC_SEARCH": "Recherche naturelle",
+      "SOCIAL": "Réseaux sociaux",
+      "REFERRAL": "Autre site",
+      "INTERNAL": "Depuis le site",
+      "UNATTRIBUTED": "Non attribué"
+    },
+    "intakeKind": {
+      "VITAL": "Vitesse de page",
+      "CONVERSION": "Conversions"
+    },
+    "outcome": {
+      "ACCEPTED": "Compté",
+      "DUPLICATE": "Doublon",
+      "INVALID": "Rejeté comme invalide",
+      "RATE_LIMITED": "Limité par le débit",
+      "SAMPLED_OUT": "Écarté par l’échantillonnage",
+      "DISABLED": "Collecte désactivée",
+      "SINK_FAILED": "Échec du stockage"
+    }
+  },
   "contentSeo": {
     "open": "Recherche et partage",
     "title": "Recherche et partage",

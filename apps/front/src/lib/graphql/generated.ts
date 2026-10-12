@@ -16,6 +16,7 @@ export * from "@/lib/graphql/operations/content-seo";
 export * from "@/lib/graphql/operations/content-url";
 export * from "@/lib/graphql/operations/topic-hub";
 export * from "@/lib/graphql/operations/provider-public-profile";
+export * from "@/lib/graphql/operations/telemetry";
 export * from "@/lib/graphql/operations/professional";
 export * from "@/lib/graphql/operations/roadmap-chat";
 export * from "@/lib/graphql/operations/org-dashboard";

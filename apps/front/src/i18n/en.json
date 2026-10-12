@@ -8111,6 +8111,114 @@
       "failed": "We could not complete that. Try again."
     }
   },
+  "searchHealth": {
+    "tab": "Search health",
+    "title": "Search health",
+    "description": "Real-visitor page speed and anonymous conversion counts, grouped by page template, device and language. A segment is rated only once it has enough page loads.",
+    "window": "Reporting window",
+    "lastDays": "Last {{count}} days",
+    "loading": "Loading the report",
+    "loadFailed": "We could not load the search health report.",
+    "retry": "Try again",
+    "collectionOff": "Collection is off in this environment",
+    "collectionOffHint": "Nothing is being measured here, so the tables below stay empty. Turn collection on only after the decision recorded in the release checklist.",
+    "coverage": "{{withData}} of {{days}} days in this window have page speed data.",
+    "accepted": "{{accepted}} of {{received}} received events were counted.",
+    "sampleFloor": "A segment needs at least {{count}} page loads before it is rated. Below that it reads Not enough data, never a pass.",
+    "resolution": "Percentiles are estimated from fixed buckets, so a value is accurate to its bucket width. Lab results and Search Console field data can differ.",
+    "noVitals": "No page speed samples in this window.",
+    "noConversions": "No conversions were counted in this window.",
+    "noIntake": "No telemetry events reached the API in this window.",
+    "conversionsHeading": "Conversions",
+    "intakeHeading": "Collection health",
+    "column": {
+      "template": "Page template",
+      "device": "Device",
+      "locale": "Language",
+      "samples": "Page loads",
+      "p75": "75th percentile",
+      "status": "Status",
+      "event": "Event",
+      "detail": "Detail",
+      "source": "Traffic source",
+      "count": "Count"
+    },
+    "status": {
+      "GOOD": "Good",
+      "NEEDS_IMPROVEMENT": "Needs improvement",
+      "POOR": "Poor",
+      "INSUFFICIENT_DATA": "Not enough data"
+    },
+    "metric": {
+      "LCP": "Largest Contentful Paint",
+      "INP": "Interaction to Next Paint",
+      "CLS": "Cumulative Layout Shift"
+    },
+    "device": {
+      "MOBILE": "Mobile",
+      "DESKTOP": "Desktop"
+    },
+    "locale": {
+      "EN": "English",
+      "FR": "French",
+      "UNKNOWN": "Unknown"
+    },
+    "template": {
+      "HOME": "Home",
+      "CONTENT_CATALOG": "Content catalog",
+      "COURSE_DETAIL": "Course page",
+      "EVENT_DETAIL": "Event page",
+      "PODCAST_DETAIL": "Podcast page",
+      "YOUTUBE_DETAIL": "YouTube channel page",
+      "TOPIC_HUB": "Topic guide",
+      "PROVIDER_PROFILE": "Provider profile",
+      "ABOUT": "About",
+      "CONTACT": "Contact",
+      "FAQ": "FAQ",
+      "SERVICES": "Services",
+      "SOLUTIONS": "Solutions pages",
+      "COMPANY": "Company pages",
+      "SUPPORT": "Support pages",
+      "LEGAL": "Legal pages"
+    },
+    "event": {
+      "CATALOG_DETAIL_OPEN": "Content page opened",
+      "EXTERNAL_CONTENT_ACTION": "External content link clicked",
+      "REGISTRATION_START": "Registration started",
+      "REGISTRATION_COMPLETED": "Registration completed"
+    },
+    "kind": {
+      "COURSE": "Course",
+      "EVENT": "Event",
+      "PODCAST": "Podcast",
+      "YOUTUBE": "YouTube channel"
+    },
+    "role": {
+      "PROFESSIONAL": "Professional",
+      "PROVIDER": "Provider"
+    },
+    "attribution": {
+      "DIRECT": "Direct",
+      "ORGANIC_SEARCH": "Organic search",
+      "SOCIAL": "Social",
+      "REFERRAL": "Other website",
+      "INTERNAL": "Within the site",
+      "UNATTRIBUTED": "Not attributed"
+    },
+    "intakeKind": {
+      "VITAL": "Page speed",
+      "CONVERSION": "Conversions"
+    },
+    "outcome": {
+      "ACCEPTED": "Counted",
+      "DUPLICATE": "Duplicate",
+      "INVALID": "Rejected as invalid",
+      "RATE_LIMITED": "Rate limited",
+      "SAMPLED_OUT": "Sampled out",
+      "DISABLED": "Collection off",
+      "SINK_FAILED": "Storage failed"
+    }
+  },
   "contentSeo": {
     "open": "Search and sharing",
     "title": "Search and sharing",

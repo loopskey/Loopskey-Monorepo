@@ -1,9 +1,12 @@
 "use client";
 
 import { getAuthErrorTranslationKey } from "@/utils/auth-error";
+import { useMemo, useRef, useState } from "react";
+import { TelemetryConversionEvent } from "@/lib/graphql/base";
 import { TRoleRegisterFormProps } from "@/types/auth-module.types";
-import { useMemo, useState } from "react";
 import { getDashboardPath } from "@/utils/constant";
+import { trackConversion } from "@/lib/telemetry/conversions";
+import { telemetryRoleOf } from "@/lib/telemetry/conversions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -24,6 +27,7 @@ export const useRoleRegisterForm = ({
 
   const [step, setStep] = useState<TRegisterStep>("details");
   const [pendingEmail, setPendingEmail] = useState("");
+  const startedFor = useRef("");
 
   const [register, registerState] = API.useRegisterMutation();
   const [verifyEmailOtp, verifyState] = API.useVerifyEmailOtpMutation();
@@ -61,6 +65,13 @@ export const useRoleRegisterForm = ({
         fullName: values.fullName.trim(),
         confirmPassword: values.confirmPassword,
       }).unwrap();
+      if (startedFor.current !== email) {
+        startedFor.current = email;
+        trackConversion({
+          event: TelemetryConversionEvent.RegistrationStart,
+          role: telemetryRoleOf(role),
+        });
+      }
       setPendingEmail(email);
       otpForm.reset({ code: "" });
       setStep("otp");

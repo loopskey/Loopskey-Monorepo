@@ -252,6 +252,12 @@ export const adminDashboardTabs: TDashboardTab<TAdminDashboardTab>[] = [
     icon: L.SearchCheck,
   },
   {
+    value: "search-health",
+    labelKey: "searchHealth.tab",
+    href: "/dashboard/admin?tab=search-health",
+    icon: L.Gauge,
+  },
+  {
     value: "topic-hubs",
     labelKey: "topicHubAdmin.tab",
     href: "/dashboard/admin?tab=topic-hubs",

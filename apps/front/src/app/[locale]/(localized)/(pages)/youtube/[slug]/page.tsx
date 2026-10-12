@@ -5,18 +5,20 @@ import { getPublicYouTubeChannel } from "@/lib/server/public-content";
 import { getPublicYouTubeVideos } from "@/lib/server/public-content";
 import { getContentTopicHubs } from "@/lib/server/public-content";
 import { getProviderByline } from "@/lib/server/public-content";
+import { DetailOpenTracker } from "@elements/detail-open-tracker";
 import { contentMetadata } from "@/lib/social-card/metadata";
 import { noindexMetadata } from "@/lib/site/page-metadata";
 import { channelGraph } from "@/lib/structured-data/detail-graphs";
 import { detailTrail } from "@/lib/structured-data/trail";
+import { ContentType } from "@/lib/graphql/base";
 import { notFound } from "next/navigation";
+
+import type { Metadata } from "next";
 
 import ContentRelations from "@modules/Editorial/ContentRelations";
 import YoutubeDetail from "@modules/ContentDetail/YoutubeDetail";
 import Breadcrumbs from "@elements/breadcrumbs";
 import JsonLd from "@elements/json-ld";
-
-import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 
@@ -64,6 +66,7 @@ const Page = async ({ params }: TContentDetailPageProps) => {
   });
   return (
     <>
+      <DetailOpenTracker contentType={ContentType.Youtube} />
       {!channel.excludeFromIndex && (
         <JsonLd
           nodes={channelGraph({

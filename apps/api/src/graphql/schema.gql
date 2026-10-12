@@ -2915,6 +2915,7 @@ type Mutation {
   publishYouTubeChannel(channelId: String!): YouTubeChannel!
   recomputeAssociationCompliance: AssociationActionResponse!
   recordEventView(eventId: String!): Boolean!
+  recordTelemetry(input: TelemetryBatchInput!): TelemetryAck!
   refreshToken: AuthPayload!
   register(input: RegisterInput!): AuthPayload!
   registerEvent(eventId: String!): EventRegistration!
@@ -4990,6 +4991,7 @@ type Query {
   publicUrlShards: [PublicUrlShardSet!]!
   resolveContentUrl(kind: ContentUrlKind!, slug: String!): ContentUrlResolution
   roadmapSuggestionOptions(input: RoadmapSuggestionOptionsInput!): [RoadmapWidgetOption!]!
+  searchHealthReport(input: SearchHealthReportInput!): SearchHealthReport!
   topicHubBySlug(locale: AppLanguage, slug: String!): TopicHub!
   topicHubUrlPage(input: EditorialUrlPageInput!): EditorialUrlPage!
   topicHubUrlShards: EditorialUrlShardSet!
@@ -5309,6 +5311,53 @@ input SaveYouTubeChannelTranslationInput {
   title: String!
 }
 
+type SearchHealthConversionRow {
+  attribution: TelemetryAttribution!
+  contentKind: TelemetryContentKind!
+  count: Int!
+  event: TelemetryConversionEvent!
+  role: TelemetryRegistrationRole!
+}
+
+type SearchHealthIntakeRow {
+  count: Int!
+  kind: TelemetryIntakeKind!
+  outcome: TelemetryIntakeOutcome!
+}
+
+type SearchHealthReport {
+  conversions: [SearchHealthConversionRow!]!
+  days: Int!
+  daysWithData: Int!
+  from: DateTime!
+  intake: [SearchHealthIntakeRow!]!
+  isCollecting: Boolean!
+  minimumSamples: Int!
+  to: DateTime!
+  vitals: [SearchHealthVitalSegment!]!
+}
+
+input SearchHealthReportInput {
+  days: Int!
+}
+
+type SearchHealthVitalSegment {
+  device: TelemetryDevice!
+  locale: TelemetryLocale!
+  metric: TelemetryMetric!
+  p75: Float!
+  samples: Int!
+  status: SearchHealthVitalStatus!
+  template: TelemetryRouteTemplate!
+}
+
+enum SearchHealthVitalStatus {
+  GOOD
+  INSUFFICIENT_DATA
+  NEEDS_IMPROVEMENT
+  POOR
+}
+
 input SendAssociationMessageInput {
   audience: AssociationMessageAudienceInput!
   messageType: AssociationMessageType!
@@ -5460,6 +5509,131 @@ input SubmitPromotionRequestInput {
 
 input SubmitProviderPublicProfileInput {
   expectedVersion: Int!
+}
+
+type TelemetryAck {
+  accepted: Int!
+  dropped: Int!
+}
+
+enum TelemetryAttribution {
+  DIRECT
+  INTERNAL
+  ORGANIC_SEARCH
+  REFERRAL
+  SOCIAL
+  UNATTRIBUTED
+}
+
+input TelemetryBatchInput {
+  conversions: [TelemetryConversionInput!]! = []
+  vitals: [TelemetryVitalInput!]! = []
+}
+
+enum TelemetryContentKind {
+  COURSE
+  EVENT
+  NONE
+  PODCAST
+  YOUTUBE
+}
+
+enum TelemetryConversionEvent {
+  CATALOG_DETAIL_OPEN
+  EXTERNAL_CONTENT_ACTION
+  REGISTRATION_COMPLETED
+  REGISTRATION_START
+}
+
+input TelemetryConversionInput {
+  attribution: TelemetryAttribution!
+  contentKind: TelemetryContentKind! = NONE
+  event: TelemetryConversionEvent!
+  id: String!
+  locale: TelemetryLocale!
+  role: TelemetryRegistrationRole! = NONE
+}
+
+enum TelemetryDevice {
+  DESKTOP
+  MOBILE
+}
+
+enum TelemetryIntakeKind {
+  CONVERSION
+  VITAL
+}
+
+enum TelemetryIntakeOutcome {
+  ACCEPTED
+  DISABLED
+  DUPLICATE
+  INVALID
+  RATE_LIMITED
+  SAMPLED_OUT
+  SINK_FAILED
+}
+
+enum TelemetryLocale {
+  EN
+  FR
+  UNKNOWN
+}
+
+enum TelemetryMetric {
+  CLS
+  INP
+  LCP
+}
+
+enum TelemetryNavigationType {
+  BACK_FORWARD
+  NAVIGATE
+  PRERENDER
+  RELOAD
+  RESTORE
+}
+
+enum TelemetryRating {
+  GOOD
+  NEEDS_IMPROVEMENT
+  POOR
+}
+
+enum TelemetryRegistrationRole {
+  NONE
+  PROFESSIONAL
+  PROVIDER
+}
+
+enum TelemetryRouteTemplate {
+  ABOUT
+  COMPANY
+  CONTACT
+  CONTENT_CATALOG
+  COURSE_DETAIL
+  EVENT_DETAIL
+  FAQ
+  HOME
+  LEGAL
+  PODCAST_DETAIL
+  PROVIDER_PROFILE
+  SERVICES
+  SOLUTIONS
+  SUPPORT
+  TOPIC_HUB
+  YOUTUBE_DETAIL
+}
+
+input TelemetryVitalInput {
+  device: TelemetryDevice!
+  id: String!
+  locale: TelemetryLocale!
+  name: TelemetryMetric!
+  navigationType: TelemetryNavigationType!
+  rating: TelemetryRating!
+  template: TelemetryRouteTemplate!
+  value: Float!
 }
 
 enum Theme {

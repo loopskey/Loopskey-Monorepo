@@ -35,6 +35,11 @@ const AdminIngestionTab = dynamic(
   { loading: () => <DashboardContentSkeleton /> },
 );
 
+const AdminSearchHealthTab = dynamic(
+  () => import("@modules/AdminDashboard/AdminSearchHealthTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+
 const AdminTopicHubsTab = dynamic(
   () => import("@modules/AdminDashboard/AdminTopicHubsTab"),
   { loading: () => <DashboardContentSkeleton /> },
@@ -56,6 +61,7 @@ const validTabs: TAdminDashboardTab[] = [
   "settings",
   "ingestion",
   "search-visibility",
+  "search-health",
   "topic-hubs",
   "provider-profiles",
   "organization-users",
@@ -78,6 +84,7 @@ export const AdminDashboardShell = () => {
   if (activeTab === "associations") return <AdminAssociationsTab />;
   if (activeTab === "ingestion") return <AdminIngestionTab />;
   if (activeTab === "search-visibility") return <AdminSearchVisibilityTab />;
+  if (activeTab === "search-health") return <AdminSearchHealthTab />;
   if (activeTab === "topic-hubs") return <AdminTopicHubsTab />;
   if (activeTab === "provider-profiles") return <AdminProviderProfilesTab />;
   if (activeTab === "settings") return <AdminSettingsTab />;
