@@ -4,19 +4,21 @@ import { redirectToRenamedContent } from "@/lib/server/renamed-content";
 import { TContentDetailPageProps } from "@/types/pages.types";
 import { getContentTopicHubs } from "@/lib/server/public-content";
 import { getProviderByline } from "@/lib/server/public-content";
+import { DetailOpenTracker } from "@elements/detail-open-tracker";
 import { getPublicPodcast } from "@/lib/server/public-content";
 import { contentMetadata } from "@/lib/social-card/metadata";
 import { noindexMetadata } from "@/lib/site/page-metadata";
 import { podcastGraph } from "@/lib/structured-data/detail-graphs";
+import { ContentType } from "@/lib/graphql/base";
 import { detailTrail } from "@/lib/structured-data/trail";
 import { notFound } from "next/navigation";
+
+import type { Metadata } from "next";
 
 import PodcastDetailPage from "@modules/ContentDetail/PodcastDetailPage";
 import ContentRelations from "@modules/Editorial/ContentRelations";
 import Breadcrumbs from "@elements/breadcrumbs";
 import JsonLd from "@elements/json-ld";
-
-import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 
@@ -64,6 +66,7 @@ const Page = async ({ params }: TContentDetailPageProps) => {
   });
   return (
     <>
+      <DetailOpenTracker contentType={ContentType.Podcast} />
       {!podcast.excludeFromIndex && (
         <JsonLd
           nodes={podcastGraph({

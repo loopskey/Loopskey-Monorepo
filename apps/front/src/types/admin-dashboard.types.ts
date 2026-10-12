@@ -11,6 +11,7 @@ export type TAdminDashboardTab =
   | "ingestion"
   | "search-visibility"
   | "topic-hubs"
+  | "search-health"
   | "provider-profiles"
   | "org-access-requests"
   | "organization-users"

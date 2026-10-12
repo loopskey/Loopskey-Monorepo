@@ -138,3 +138,4 @@ into this index and do not rewrite previous records.
 - [`seo-09-slug-history-and-redirects`](feature-runs/active/seo-09-slug-history-and-redirects.md) — PR [#293](https://github.com/loopskey/Loopskey-Monorepo/pull/293)
 - [`seo-10-content-hubs-and-provider-pages`](feature-runs/active/seo-10-content-hubs-and-provider-pages.md) — PR [#294](https://github.com/loopskey/Loopskey-Monorepo/pull/294)
 - [`seo-11-public-page-performance`](feature-runs/active/seo-11-public-page-performance.md) — PR [#291](https://github.com/loopskey/Loopskey-Monorepo/pull/291)
+- [`seo-12-search-observability-and-release-gates`](feature-runs/active/seo-12-search-observability-and-release-gates.md) — PR [#295](https://github.com/loopskey/Loopskey-Monorepo/pull/295)

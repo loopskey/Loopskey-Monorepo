@@ -3052,6 +3052,7 @@ export type Mutation = {
   publishYouTubeChannel: YouTubeChannel;
   recomputeAssociationCompliance: AssociationActionResponse;
   recordEventView: Scalars['Boolean']['output'];
+  recordTelemetry: TelemetryAck;
   refreshToken: AuthPayload;
   register: AuthPayload;
   registerEvent: EventRegistration;
@@ -3572,6 +3573,11 @@ export type MutationPublishYouTubeChannelArgs = {
 
 export type MutationRecordEventViewArgs = {
   eventId: Scalars['String']['input'];
+};
+
+
+export type MutationRecordTelemetryArgs = {
+  input: TelemetryBatchInput;
 };
 
 
@@ -6224,6 +6230,7 @@ export type Query = {
   publicUrlShards: Array<PublicUrlShardSet>;
   resolveContentUrl?: Maybe<ContentUrlResolution>;
   roadmapSuggestionOptions: Array<RoadmapWidgetOption>;
+  searchHealthReport: SearchHealthReport;
   topicHubBySlug: TopicHub;
   topicHubUrlPage: EditorialUrlPage;
   topicHubUrlShards: EditorialUrlShardSet;
@@ -7041,6 +7048,11 @@ export type QueryRoadmapSuggestionOptionsArgs = {
 };
 
 
+export type QuerySearchHealthReportArgs = {
+  input: SearchHealthReportInput;
+};
+
+
 export type QueryTopicHubBySlugArgs = {
   locale?: InputMaybe<AppLanguage>;
   slug: Scalars['String']['input'];
@@ -7423,6 +7435,57 @@ export type SaveYouTubeChannelTranslationInput = {
   title: Scalars['String']['input'];
 };
 
+export type SearchHealthConversionRow = {
+  __typename?: 'SearchHealthConversionRow';
+  attribution: TelemetryAttribution;
+  contentKind: TelemetryContentKind;
+  count: Scalars['Int']['output'];
+  event: TelemetryConversionEvent;
+  role: TelemetryRegistrationRole;
+};
+
+export type SearchHealthIntakeRow = {
+  __typename?: 'SearchHealthIntakeRow';
+  count: Scalars['Int']['output'];
+  kind: TelemetryIntakeKind;
+  outcome: TelemetryIntakeOutcome;
+};
+
+export type SearchHealthReport = {
+  __typename?: 'SearchHealthReport';
+  conversions: Array<SearchHealthConversionRow>;
+  days: Scalars['Int']['output'];
+  daysWithData: Scalars['Int']['output'];
+  from: Scalars['DateTime']['output'];
+  intake: Array<SearchHealthIntakeRow>;
+  isCollecting: Scalars['Boolean']['output'];
+  minimumSamples: Scalars['Int']['output'];
+  to: Scalars['DateTime']['output'];
+  vitals: Array<SearchHealthVitalSegment>;
+};
+
+export type SearchHealthReportInput = {
+  days: Scalars['Int']['input'];
+};
+
+export type SearchHealthVitalSegment = {
+  __typename?: 'SearchHealthVitalSegment';
+  device: TelemetryDevice;
+  locale: TelemetryLocale;
+  metric: TelemetryMetric;
+  p75: Scalars['Float']['output'];
+  samples: Scalars['Int']['output'];
+  status: SearchHealthVitalStatus;
+  template: TelemetryRouteTemplate;
+};
+
+export enum SearchHealthVitalStatus {
+  Good = 'GOOD',
+  InsufficientData = 'INSUFFICIENT_DATA',
+  NeedsImprovement = 'NEEDS_IMPROVEMENT',
+  Poor = 'POOR'
+}
+
 export type SendAssociationMessageInput = {
   audience: AssociationMessageAudienceInput;
   messageType: AssociationMessageType;
@@ -7575,6 +7638,132 @@ export type SubmitPromotionRequestInput = {
 
 export type SubmitProviderPublicProfileInput = {
   expectedVersion: Scalars['Int']['input'];
+};
+
+export type TelemetryAck = {
+  __typename?: 'TelemetryAck';
+  accepted: Scalars['Int']['output'];
+  dropped: Scalars['Int']['output'];
+};
+
+export enum TelemetryAttribution {
+  Direct = 'DIRECT',
+  Internal = 'INTERNAL',
+  OrganicSearch = 'ORGANIC_SEARCH',
+  Referral = 'REFERRAL',
+  Social = 'SOCIAL',
+  Unattributed = 'UNATTRIBUTED'
+}
+
+export type TelemetryBatchInput = {
+  conversions?: Array<TelemetryConversionInput>;
+  vitals?: Array<TelemetryVitalInput>;
+};
+
+export enum TelemetryContentKind {
+  Course = 'COURSE',
+  Event = 'EVENT',
+  None = 'NONE',
+  Podcast = 'PODCAST',
+  Youtube = 'YOUTUBE'
+}
+
+export enum TelemetryConversionEvent {
+  CatalogDetailOpen = 'CATALOG_DETAIL_OPEN',
+  ExternalContentAction = 'EXTERNAL_CONTENT_ACTION',
+  RegistrationCompleted = 'REGISTRATION_COMPLETED',
+  RegistrationStart = 'REGISTRATION_START'
+}
+
+export type TelemetryConversionInput = {
+  attribution: TelemetryAttribution;
+  contentKind?: TelemetryContentKind;
+  event: TelemetryConversionEvent;
+  id: Scalars['String']['input'];
+  locale: TelemetryLocale;
+  role?: TelemetryRegistrationRole;
+};
+
+export enum TelemetryDevice {
+  Desktop = 'DESKTOP',
+  Mobile = 'MOBILE'
+}
+
+export enum TelemetryIntakeKind {
+  Conversion = 'CONVERSION',
+  Vital = 'VITAL'
+}
+
+export enum TelemetryIntakeOutcome {
+  Accepted = 'ACCEPTED',
+  Disabled = 'DISABLED',
+  Duplicate = 'DUPLICATE',
+  Invalid = 'INVALID',
+  RateLimited = 'RATE_LIMITED',
+  SampledOut = 'SAMPLED_OUT',
+  SinkFailed = 'SINK_FAILED'
+}
+
+export enum TelemetryLocale {
+  En = 'EN',
+  Fr = 'FR',
+  Unknown = 'UNKNOWN'
+}
+
+export enum TelemetryMetric {
+  Cls = 'CLS',
+  Inp = 'INP',
+  Lcp = 'LCP'
+}
+
+export enum TelemetryNavigationType {
+  BackForward = 'BACK_FORWARD',
+  Navigate = 'NAVIGATE',
+  Prerender = 'PRERENDER',
+  Reload = 'RELOAD',
+  Restore = 'RESTORE'
+}
+
+export enum TelemetryRating {
+  Good = 'GOOD',
+  NeedsImprovement = 'NEEDS_IMPROVEMENT',
+  Poor = 'POOR'
+}
+
+export enum TelemetryRegistrationRole {
+  None = 'NONE',
+  Professional = 'PROFESSIONAL',
+  Provider = 'PROVIDER'
+}
+
+export enum TelemetryRouteTemplate {
+  About = 'ABOUT',
+  Company = 'COMPANY',
+  Contact = 'CONTACT',
+  ContentCatalog = 'CONTENT_CATALOG',
+  CourseDetail = 'COURSE_DETAIL',
+  EventDetail = 'EVENT_DETAIL',
+  Faq = 'FAQ',
+  Home = 'HOME',
+  Legal = 'LEGAL',
+  PodcastDetail = 'PODCAST_DETAIL',
+  ProviderProfile = 'PROVIDER_PROFILE',
+  Services = 'SERVICES',
+  Solutions = 'SOLUTIONS',
+  Support = 'SUPPORT',
+  TopicHub = 'TOPIC_HUB',
+  YoutubeDetail = 'YOUTUBE_DETAIL'
+}
+
+export type TelemetryVitalInput = {
+  device: TelemetryDevice;
+  id: Scalars['String']['input'];
+  locale: TelemetryLocale;
+  name: TelemetryMetric;
+  navigationType: TelemetryNavigationType;
+  rating: TelemetryRating;
+  template: TelemetryRouteTemplate;
+  value: Scalars['Float']['input'];
 };
 
 export enum Theme {

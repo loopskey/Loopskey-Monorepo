@@ -95,4 +95,39 @@ jobs:
         shell: bash
         run: |
           npm run codegen --workspace front
-          git diff --exit-code -- apps/front/src/lib/graphql/generated.ts
+          if [ -n "$(git status --porcelain -- apps/front/src/lib/graphql)" ]; then
+            echo "::error::The generated GraphQL output is out of date. Run npm run codegen --workspace front and commit apps/front/src/lib/graphql."
+            git status --short -- apps/front/src/lib/graphql
+            git diff --stat -- apps/front/src/lib/graphql
+            exit 1
+          fi
+
+      - name: Check deployment configuration
+        run: node scripts/check-deployment-config.mjs
+
+      - name: SEO diagnostic self-test
+        run: node scripts/seo-audit.mjs --self-test
+
+      - name: Audit the production build
+        shell: bash
+        run: |
+          if [ ! -f apps/front/.next/BUILD_ID ]; then
+            echo "The frontend was not built in this run, so there is nothing to audit."
+            exit 0
+          fi
+          (cd apps/front && npx next start --port 3100 > ../../seo-audit-server.log 2>&1 &)
+          ready=""
+          for attempt in $(seq 1 30); do
+            if curl -fsS -o /dev/null http://127.0.0.1:3100/about; then ready=yes; break; fi
+            sleep 2
+          done
+          if [ -z "$ready" ]; then
+            echo "::error::The production build did not start."
+            cat seo-audit-server.log
+            exit 1
+          fi
+          node scripts/seo-audit.mjs \
+            --base-url http://127.0.0.1:3100 \
+            --site-origin "$NEXT_PUBLIC_SITE_URL" \
+            --environment "$DEPLOYMENT_ENV" \
+            --profile static

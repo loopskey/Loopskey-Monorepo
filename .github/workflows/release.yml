@@ -100,6 +100,8 @@ jobs:
             DEPLOYMENT_ENV=production
             SITE_CANONICAL_HOST_ALIASES=${{ vars.SITE_CANONICAL_HOST_ALIASES }}
             SITE_HTTPS_REDIRECT=${{ vars.SITE_HTTPS_REDIRECT }}
+            NEXT_PUBLIC_TELEMETRY_ENABLED=${{ vars.NEXT_PUBLIC_TELEMETRY_ENABLED }}
+            NEXT_PUBLIC_TELEMETRY_VITALS_SAMPLE_RATE=${{ vars.NEXT_PUBLIC_TELEMETRY_VITALS_SAMPLE_RATE }}
           tags: |
             ${{ steps.ns.outputs.prefix }}/front:latest
             ${{ steps.ns.outputs.prefix }}/front:${{ github.sha }}

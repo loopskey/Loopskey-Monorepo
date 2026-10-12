@@ -3,19 +3,21 @@ import { redirectToRenamedContent } from "@/lib/server/renamed-content";
 import { TContentDetailPageProps } from "@/types/pages.types";
 import { getContentTopicHubs } from "@/lib/server/public-content";
 import { getProviderByline } from "@/lib/server/public-content";
+import { DetailOpenTracker } from "@elements/detail-open-tracker";
 import { contentMetadata } from "@/lib/social-card/metadata";
 import { noindexMetadata } from "@/lib/site/page-metadata";
 import { getPublicEvent } from "@/lib/server/public-content";
+import { ContentType } from "@/lib/graphql/base";
 import { detailTrail } from "@/lib/structured-data/trail";
 import { eventGraph } from "@/lib/structured-data/detail-graphs";
 import { notFound } from "next/navigation";
+
+import type { Metadata } from "next";
 
 import ContentRelations from "@modules/Editorial/ContentRelations";
 import EventDetailPage from "@modules/ContentDetail/EventDetailPage";
 import Breadcrumbs from "@elements/breadcrumbs";
 import JsonLd from "@elements/json-ld";
-
-import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 
@@ -57,6 +59,7 @@ const Page = async ({ params }: TContentDetailPageProps) => {
   });
   return (
     <>
+      <DetailOpenTracker contentType={ContentType.Event} />
       {!event.excludeFromIndex && (
         <JsonLd
           nodes={eventGraph({ content: event, locale: publicLocale, trail })}

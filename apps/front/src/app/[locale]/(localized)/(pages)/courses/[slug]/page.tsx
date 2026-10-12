@@ -3,10 +3,12 @@ import { redirectToRenamedContent } from "@/lib/server/renamed-content";
 import { TContentDetailPageProps } from "@/types/pages.types";
 import { getContentTopicHubs } from "@/lib/server/public-content";
 import { getProviderByline } from "@/lib/server/public-content";
+import { DetailOpenTracker } from "@elements/detail-open-tracker";
 import { getPublicCourse } from "@/lib/server/public-content";
 import { contentMetadata } from "@/lib/social-card/metadata";
 import { noindexMetadata } from "@/lib/site/page-metadata";
 import { courseGraph } from "@/lib/structured-data/detail-graphs";
+import { ContentType } from "@/lib/graphql/base";
 import { detailTrail } from "@/lib/structured-data/trail";
 import { notFound } from "next/navigation";
 
@@ -62,6 +64,7 @@ const Page = async ({ params }: TContentDetailPageProps) => {
   });
   return (
     <>
+      <DetailOpenTracker contentType={ContentType.Course} />
       {!course.excludeFromIndex && (
         <JsonLd
           nodes={courseGraph({ content: course, locale: publicLocale, trail })}

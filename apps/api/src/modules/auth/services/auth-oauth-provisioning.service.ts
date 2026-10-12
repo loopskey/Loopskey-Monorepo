@@ -1,8 +1,10 @@
+import { REGISTRATION_COMPLETED_EVENT } from "@telemetry/public/telemetry-events";
 import { TCreateOAuthUserInput } from "@auth/types/oauth-service.types";
 import { RoleProfileRegistry } from "@prisma/role-profile-registry.service";
 import { Role, UserStatus } from "@prisma/client";
 import { AUTH_USER_SELECT } from "@auth/types/auth-user-select.constant";
 import { PrismaService } from "@prisma/prisma.service";
+import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { Injectable } from "@nestjs/common";
 
 @Injectable()
@@ -10,6 +12,7 @@ export class AuthOAuthProvisioningService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly roleProfiles: RoleProfileRegistry,
+    private readonly outbox: OutboxService,
   ) {}
 
   async createUser(input: TCreateOAuthUserInput) {
@@ -29,6 +32,15 @@ export class AuthOAuthProvisioningService {
       });
       await this.roleProfiles.provision(profile.role, user.id, tx);
       await link?.(tx, user.id);
+      await this.outbox.append(
+        {
+          eventName: REGISTRATION_COMPLETED_EVENT,
+          aggregateType: "User",
+          aggregateId: user.id,
+          payload: { role: profile.role },
+        },
+        tx,
+      );
       return user;
     });
   }

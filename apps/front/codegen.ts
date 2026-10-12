@@ -17,6 +17,7 @@ const DOMAINS = [
   "content-url",
   "topic-hub",
   "provider-public-profile",
+  "telemetry",
   "professional",
   "roadmap-chat",
   "org-dashboard",
