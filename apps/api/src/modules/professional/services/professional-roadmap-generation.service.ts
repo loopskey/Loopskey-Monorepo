@@ -1,5 +1,6 @@
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { ProfessionalRoadmapCandidateService } from "@professional/services/professional-roadmap-candidate.service";
+import { getRoadmapDraftContractReadiness } from "@professional/utils/roadmap-draft-readiness.util";
 import { Prisma, ProfileTaxonomyKind } from "@prisma/client";
 import { PROFESSIONAL_ENGAGEMENT_API } from "@contentAction/public/professional-engagement-api";
 import { ForbiddenException, Inject } from "@nestjs/common";
@@ -19,7 +20,6 @@ import { requestContext } from "@infrastructure/observability/request-context";
 import { OutboxDeferral } from "@infrastructure/outbox/outbox-handler.port";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { PrismaService } from "@prisma/prisma.service";
-import { getRoadmapDraftContractReadiness } from "@professional/utils/roadmap-draft-readiness.util";
 import { worstTier } from "@professional/utils/roadmap-relaxation.util";
 import { DraftRow } from "../types/professional-roadmap-chat.types";
 import { slugify } from "@utils/slug.util";
@@ -434,11 +434,6 @@ export class ProfessionalRoadmapGenerationService {
             })),
           })),
         },
-        tx,
-      );
-
-      await this.engagement.archiveGeneratedRoadmapEnrollments(
-        { userId: draft.userId },
         tx,
       );
 

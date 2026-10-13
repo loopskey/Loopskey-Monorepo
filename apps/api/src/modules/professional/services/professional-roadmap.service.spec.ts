@@ -173,6 +173,51 @@ describe("ProfessionalRoadmapService.myRoadmaps", () => {
     expect(steps[0]).toMatchObject({ status: "COMPLETED" });
     expect(steps[1]).toMatchObject({ status: null });
   });
+
+  it("returns every enrolled roadmap with the credit target of its own draft", async () => {
+    const { service, engagement, catalog, draftService } = createService();
+    engagement.roadmapEnrollments.mockResolvedValue({
+      rows: [
+        { ...enrollment, id: "enrollment-1", draftId: "draft-1" },
+        {
+          ...enrollment,
+          id: "enrollment-2",
+          roadmapId: "roadmap-2",
+          draftId: "draft-2",
+        },
+        {
+          ...enrollment,
+          id: "enrollment-3",
+          roadmapId: "roadmap-3",
+          draftId: null,
+        },
+      ],
+      totalCount: 3,
+    });
+    catalog.roadmaps.mockResolvedValue([
+      roadmap,
+      { ...roadmap, id: "roadmap-2", slug: "roadmap-2" },
+      { ...roadmap, id: "roadmap-3", slug: "roadmap-3" },
+    ]);
+    draftService.findRequiredCreditsByIds.mockResolvedValue(
+      new Map([
+        ["draft-1", 20],
+        ["draft-2", null],
+      ]),
+    );
+
+    const result = await service.myRoadmaps(professional);
+
+    expect(draftService.findRequiredCreditsByIds).toHaveBeenCalledWith([
+      "draft-1",
+      "draft-2",
+    ]);
+    expect(result.items.map((item) => item.requiredCredits)).toEqual([
+      20,
+      null,
+      null,
+    ]);
+  });
 });
 
 describe("ProfessionalRoadmapService.myRoadmaps content links", () => {

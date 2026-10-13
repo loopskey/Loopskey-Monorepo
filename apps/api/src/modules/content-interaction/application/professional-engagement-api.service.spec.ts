@@ -1,12 +1,8 @@
-import {
-  RoadmapEnrollmentStatus,
-  RoadmapStepProgressStatus,
-} from "@prisma/client";
-import { RoadmapSource } from "@prisma/client";
+import { ProfessionalEngagementApiService } from "./professional-engagement-api.service";
+import { RoadmapStepProgressStatus } from "@prisma/client";
+import { RoadmapEnrollmentStatus } from "@prisma/client";
 
 import type { PrismaService } from "@prisma/prisma.service";
-
-import { ProfessionalEngagementApiService } from "./professional-engagement-api.service";
 
 const createPrismaMock = () => ({
   roadmapEnrollment: {
@@ -199,24 +195,6 @@ describe("ProfessionalEngagementApiService.unenrollRoadmap", () => {
         id: "enrollment-1",
         userId: "user-1",
         status: { not: RoadmapEnrollmentStatus.UNENROLLED },
-      },
-      data: { status: RoadmapEnrollmentStatus.UNENROLLED },
-    });
-  });
-});
-
-describe("ProfessionalEngagementApiService.archiveGeneratedRoadmapEnrollments", () => {
-  it("unenrolls only the user's generated-source enrollments", async () => {
-    const { service, prisma } = createService();
-    const tx = prisma as unknown as Record<string, unknown>;
-
-    await service.archiveGeneratedRoadmapEnrollments({ userId: "user-1" }, tx);
-
-    expect(prisma.roadmapEnrollment.updateMany).toHaveBeenCalledWith({
-      where: {
-        userId: "user-1",
-        status: { not: RoadmapEnrollmentStatus.UNENROLLED },
-        roadmap: { source: RoadmapSource.GENERATED },
       },
       data: { status: RoadmapEnrollmentStatus.UNENROLLED },
     });

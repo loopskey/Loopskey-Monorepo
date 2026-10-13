@@ -212,13 +212,24 @@ export class ProfessionalRoadmapService {
       ),
     );
 
+    const requiredCreditsByDraftId =
+      await this.draftService.findRequiredCreditsByIds([
+        ...new Set(
+          merged
+            .map((item) => item.draftId)
+            .filter((id): id is string => Boolean(id)),
+        ),
+      ]);
+
     return {
       totalCount: result.totalCount,
       items: merged.map((item) =>
         this.mapRoadmapEnrollment(item, {
           creditsByContentId,
           slugsByContent,
-          requiredCredits: null,
+          requiredCredits: item.draftId
+            ? (requiredCreditsByDraftId.get(item.draftId) ?? null)
+            : null,
           records: recordsByEnrollment.get(item.id) ?? [],
         }),
       ),

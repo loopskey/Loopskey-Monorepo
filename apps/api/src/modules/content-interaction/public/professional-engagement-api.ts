@@ -67,10 +67,6 @@ export interface ProfessionalEngagementApi {
     userId: string;
     enrollmentId: string;
   }): Promise<void>;
-  archiveGeneratedRoadmapEnrollments(
-    input: { userId: string },
-    unitOfWork: UnitOfWork,
-  ): Promise<void>;
 }
 
 export type UnitOfWork = object;
