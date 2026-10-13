@@ -136,7 +136,7 @@ const buildHarness = (options: {
   };
   const engagement = {
     createRoadmapEnrollment: jest.fn().mockResolvedValue(undefined),
-    archiveGeneratedRoadmapEnrollments: jest.fn().mockResolvedValue(undefined),
+    unenrollRoadmap: jest.fn().mockResolvedValue(undefined),
     hasRoadmapEnrollmentForDraft: jest
       .fn()
       .mockResolvedValue(Boolean(options.enrollment)),
@@ -481,14 +481,15 @@ describe("ProfessionalRoadmapGenerationService", () => {
       });
     });
 
-    it("archives any previously-active generated roadmap for the same user", async () => {
+    it("adds the enrollment without unenrolling the user's other roadmaps", async () => {
       const harness = buildHarness({ draft: generatingDraft() });
 
       await harness.service.runGeneration("draft-1");
 
-      expect(
-        harness.engagement.archiveGeneratedRoadmapEnrollments,
-      ).toHaveBeenCalledWith({ userId: "user-1" }, expect.anything());
+      expect(harness.engagement.createRoadmapEnrollment).toHaveBeenCalledTimes(
+        1,
+      );
+      expect(harness.engagement.unenrollRoadmap).not.toHaveBeenCalled();
     });
 
     it("owns the roadmap and marks it generated so explore never shows it", async () => {

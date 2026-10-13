@@ -6,6 +6,7 @@ import type { ComponentProps } from "react";
 import type { buttonVariants } from "@ui/button";
 import type { VariantProps } from "class-variance-authority";
 import type { AvatarImage } from "@ui/avatar";
+import type { TProfessionalRoadmap } from "@/types/professional-dashboard.types";
 
 import type { Eye } from "lucide-react";
 
@@ -269,6 +270,8 @@ export type TExternalLearningBtn = {
 
 export type TContentThumbnailKind = "course" | "event" | "podcast" | "youtube";
 
+export type TContentThumbnailVariant = "default" | "wishlist";
+
 export type TContentThumbnailProps = {
   title: string;
   sizes: string;
@@ -276,6 +279,16 @@ export type TContentThumbnailProps = {
   className?: string;
   imageUrl?: string | null;
   kind: TContentThumbnailKind;
+  variant?: TContentThumbnailVariant;
+};
+
+export type TRoadmapCardProps = {
+  href: string;
+  className?: string;
+  isSelected?: boolean;
+  isUnenrolling?: boolean;
+  roadmap: TProfessionalRoadmap;
+  onUnenroll: (enrollmentId: string) => void;
 };
 
 export type TIconActionProps = {

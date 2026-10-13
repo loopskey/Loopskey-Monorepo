@@ -48,6 +48,7 @@ const CTA_CLASS_NAME =
 const ContentCard = ({
   item,
   overlay,
+  variant,
   className,
   footerNote,
 }: TContentCardProps) => {
@@ -67,6 +68,7 @@ const ContentCard = ({
       )}
     >
       <ContentThumbnail
+        variant={variant}
         kind={item.kind}
         title={item.title}
         imageUrl={item.imageUrl}
