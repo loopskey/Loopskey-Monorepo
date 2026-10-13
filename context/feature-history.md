@@ -141,3 +141,4 @@ into this index and do not rewrite previous records.
 - [`seo-12-search-observability-and-release-gates`](feature-runs/active/seo-12-search-observability-and-release-gates.md) — PR [#295](https://github.com/loopskey/Loopskey-Monorepo/pull/295)
 - [`content-card-redesign`](feature-runs/active/content-card-redesign.md) — PR [#296](https://github.com/loopskey/Loopskey-Monorepo/pull/296)
 - [`multi-roadmap-dashboard`](feature-runs/active/multi-roadmap-dashboard.md) — PR [#300](https://github.com/loopskey/Loopskey-Monorepo/pull/300)
+- [`header-language-menu`](feature-runs/active/header-language-menu.md) — PR [#302](https://github.com/loopskey/Loopskey-Monorepo/pull/302)
