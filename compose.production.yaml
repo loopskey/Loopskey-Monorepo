@@ -97,7 +97,8 @@ services:
       args:
         NEXT_PUBLIC_GRAPHQL_URL: ${NEXT_PUBLIC_GRAPHQL_URL:?set NEXT_PUBLIC_GRAPHQL_URL in .env.docker}
         NEXT_PUBLIC_SITE_URL: ${PUBLIC_FRONTEND_URL:?set PUBLIC_FRONTEND_URL in .env.docker}
-        DEPLOYMENT_ENV: ${DEPLOYMENT_ENV:-staging}
+        DEPLOYMENT_ENV: ${DEPLOYMENT_ENV:?set DEPLOYMENT_ENV in .env.docker (production for the live site)}
+        BUILD_SHA: ${BUILD_SHA:-unknown}
         SITE_CANONICAL_HOST_ALIASES: ${SITE_CANONICAL_HOST_ALIASES:-}
         SITE_HTTPS_REDIRECT: ${SITE_HTTPS_REDIRECT:-false}
         NEXT_PUBLIC_TELEMETRY_ENABLED: ${NEXT_PUBLIC_TELEMETRY_ENABLED:-false}
@@ -111,7 +112,7 @@ services:
 
     environment:
       NEXT_PUBLIC_SITE_URL: ${PUBLIC_FRONTEND_URL}
-      DEPLOYMENT_ENV: ${DEPLOYMENT_ENV:-staging}
+      DEPLOYMENT_ENV: ${DEPLOYMENT_ENV:?set DEPLOYMENT_ENV in .env.docker (production for the live site)}
       GRAPHQL_SERVER_URL: ${GRAPHQL_SERVER_URL:-http://api:5700/graphql}
       SESSION_SECRET_KEY: ${SESSION_SECRET_KEY:?set SESSION_SECRET_KEY in .env.docker}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:?set JWT_ACCESS_SECRET in .env.docker}

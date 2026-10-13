@@ -24,6 +24,15 @@ as pending.
 - [ ] The frontend was built for this environment. `DEPLOYMENT_ENV` and
       `NEXT_PUBLIC_SITE_URL` are baked in at build time, so a staging artifact is
       rebuilt, never relabelled, before it reaches production.
+- [ ] The server `.env.docker` sets `DEPLOYMENT_ENV` explicitly (production for
+      the live site) and `PUBLIC_FRONTEND_URL` is the same origin as the
+      repository variable `NEXT_PUBLIC_SITE_URL`. The container refuses to start
+      when either disagrees with the image; see
+      `docs/seo/production-indexing-recovery.md`.
+- [ ] The deployment output shows `Smoke check of the public site` passing. The
+      reason for a failure is kept in `$LOOPSKEY_BACKUP_DIR/smoke-<stamp>.log`.
+- [ ] Production smoke includes a checked eligible course detail; missing
+      fixtures and incomplete sitemap-shard coverage must fail the check.
 - [ ] The telemetry decision in `docs/seo/telemetry-and-privacy.md` is recorded
       (approver and date), or both telemetry flags are `false`.
 
@@ -72,13 +81,13 @@ Follow `docs/seo/search-console-runbook.md`. These stay unticked until done.
 
 Alerts, owner and destination are deployment configuration. Proposed thresholds:
 
-| Signal | Threshold | Response |
-| --- | --- | --- |
-| A draft, withdrawn or hidden page appears in a public response or the sitemap | any occurrence | Immediate |
-| Canonical origin differs from the configured origin | repeated | Immediate |
-| Sitemap unavailable | 10 minutes | Actionable |
-| Public 5xx rate | above 1% with at least 100 requests in 10 minutes | Inspect |
-| Web Vitals segment breaches its threshold | two consecutive daily windows, with at least 100 page loads | Actionable |
+| Signal                                                                        | Threshold                                                   | Response   |
+| ----------------------------------------------------------------------------- | ----------------------------------------------------------- | ---------- |
+| A draft, withdrawn or hidden page appears in a public response or the sitemap | any occurrence                                              | Immediate  |
+| Canonical origin differs from the configured origin                           | repeated                                                    | Immediate  |
+| Sitemap unavailable                                                           | 10 minutes                                                  | Actionable |
+| Public 5xx rate                                                               | above 1% with at least 100 requests in 10 minutes           | Inspect    |
+| Web Vitals segment breaches its threshold                                     | two consecutive daily windows, with at least 100 page loads | Actionable |
 
 ## 6. Review schedule
 
@@ -87,13 +96,13 @@ trails by about two days, and our own telemetry only covers visitors who were
 measured. Compare equal-length periods with a similar traffic mix and do not
 attribute every change to search work.
 
-| When | Compare | Source | Owner |
-| --- | --- | --- | --- |
-| Day 7 | Impressions, clicks, CTR, indexed canonical pages, sitemap discovered count | Search Console | to be named |
-| Day 7 | Organic registration starts and completions, content page opens, external link clicks | Admin, Search health | to be named |
-| Day 7 | 75th percentile and sample size for LCP, INP, CLS by device and template | Admin, Search health | to be named |
-| Day 28 | The same measures against the previous 28 days | Same sources | to be named |
-| Day 28 | Core Web Vitals report and any indexing issue trend | Search Console | to be named |
+| When   | Compare                                                                               | Source               | Owner       |
+| ------ | ------------------------------------------------------------------------------------- | -------------------- | ----------- |
+| Day 7  | Impressions, clicks, CTR, indexed canonical pages, sitemap discovered count           | Search Console       | to be named |
+| Day 7  | Organic registration starts and completions, content page opens, external link clicks | Admin, Search health | to be named |
+| Day 7  | 75th percentile and sample size for LCP, INP, CLS by device and template              | Admin, Search health | to be named |
+| Day 28 | The same measures against the previous 28 days                                        | Same sources         | to be named |
+| Day 28 | Core Web Vitals report and any indexing issue trend                                   | Search Console       | to be named |
 
 Thresholds for action:
 

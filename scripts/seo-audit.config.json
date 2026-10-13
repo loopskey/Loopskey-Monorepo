@@ -18,7 +18,19 @@
     "courseSlugWithoutFrench": null,
     "historicCourseSlug": null
   },
+  "discoverFixtures": {
+    "smoke": { "courseSlug": "/courses/" }
+  },
   "profiles": {
+    "smoke": [
+      "home-en",
+      "home-fr",
+      "catalog-en",
+      "smoke-course",
+      "private-auth",
+      "robots",
+      "sitemap"
+    ],
     "static": [
       "home-en",
       "home-fr",
@@ -201,6 +213,13 @@
         "fr": "/fr/courses/{courseSlug}",
         "x-default": "/courses/{courseSlug}"
       },
+      "jsonLdTypes": ["Course"]
+    },
+    {
+      "id": "smoke-course",
+      "path": "/courses/{courseSlug}",
+      "kind": "page",
+      "locale": "en",
       "jsonLdTypes": ["Course"]
     },
     {
