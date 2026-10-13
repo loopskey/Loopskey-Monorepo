@@ -202,11 +202,6 @@ export const useProfessionalRoadmaps = () => {
     [unenrollRoadmap],
   );
 
-  const otherRoadmaps = useMemo(
-    () => myRoadmaps.filter((roadmap) => roadmap.id !== activeRoadmap?.id),
-    [myRoadmaps, activeRoadmap],
-  );
-
   const isLoading = isMyRoadmapsLoading || isExploreRoadmapsLoading;
 
   const handleSearchChange = (value: string) => {
@@ -265,10 +260,6 @@ export const useProfessionalRoadmaps = () => {
     });
   };
 
-  const getProgressValue = (progress?: number | null) => {
-    return Math.min(Math.max(Number(progress ?? 0), 0), 100);
-  };
-
   const acknowledgeCompletion = useCallback(() => setJustCompleted(false), []);
 
   return {
@@ -286,9 +277,9 @@ export const useProfessionalRoadmaps = () => {
     isGenerating,
     stepProgress,
     isStatsError,
-    otherRoadmaps,
     unenrollingId,
     justCompleted,
+    activeRoadmap,
     handleUnenroll,
     exploreSearch,
     myRoadmapsData,
@@ -298,8 +289,6 @@ export const useProfessionalRoadmaps = () => {
     exploreRoadmaps,
     explorePageInfo,
     locale: language,
-    getProgressValue,
-    activeRoadmap,
     requestedStepId,
     handleExploreNext,
     handleSearchChange,

@@ -3,6 +3,7 @@ import type { TAddCalendarEventPrefill } from "@/types/professional-dashboard.ty
 import type { TRequirementOption } from "@/types/professional-requirement.types";
 import type { I18nContextValue } from "@/types/providers.types";
 import type { TPduActivity } from "@/types/professional-dashboard.types";
+import type { TContentThumbnailVariant } from "@/types/element.types";
 import type { ContentType } from "@/lib/graphql/base";
 import type { ReactNode } from "react";
 
@@ -52,6 +53,7 @@ export type TSelectOption = {
 
 export type TContentCardProps = {
   className?: string;
+  variant?: TContentThumbnailVariant;
   footerNote?: ReactNode;
   item: TContentCardItem;
   overlay?: ReactNode;

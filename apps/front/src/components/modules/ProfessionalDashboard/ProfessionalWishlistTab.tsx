@@ -209,6 +209,7 @@ const ProfessionalWishlistTab = () => {
               return (
                 <ContentCard
                   key={item.id}
+                  variant="wishlist"
                   item={{
                     id: item.contentId,
                     href,

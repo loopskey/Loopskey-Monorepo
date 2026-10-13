@@ -2,26 +2,23 @@
 
 import { startTransition, useCallback, useEffect, useMemo } from "react";
 import { useRef, useState, ViewTransition } from "react";
+import { RoadmapCard, RoadmapCardSkeleton } from "@elements/roadmap-card";
 import { findCurrentPhaseId, dayStreak } from "@/utils/roadmap-journey.util";
 import { RoadmapRecommendationsCard } from "@modules/ProfessionalRoadmap/RoadmapRecommendationsCard";
 import { RoadmapGenerationStatus } from "@modules/ProfessionalRoadmap/RoadmapGenerationStatus";
 import { useProfessionalRoadmaps } from "@/hooks/useProfessionalRoadmap";
-import {
-  daysUntil,
-  findNextActionableStep,
-} from "@/utils/roadmap-journey.util";
-import { buildRoadmapHref } from "@/utils/roadmap-navigation.util";
+import { findNextActionableStep } from "@/utils/roadmap-journey.util";
 import { RoadmapJourneyTimeline } from "@modules/ProfessionalRoadmap/RoadmapJourneyTimeline";
 import { buildCpdProgressView } from "@/utils/professional-overview.helper";
 import { completionsThisWeek } from "@/utils/roadmap-journey.util";
 import { ProgressDonutChart } from "@elements/dashboard-charts";
 import { ContentPagination } from "@elements/pagination";
 import { useChartSemantics } from "@hooks/useChartPalette";
+import { buildRoadmapHref } from "@/utils/roadmap-navigation.util";
 import { RoadmapMatchTier } from "@/lib/graphql/base";
 import { RoadmapPhaseList } from "@modules/ProfessionalRoadmap/RoadmapPhaseList";
 import { RoadmapHero } from "@modules/ProfessionalRoadmap/RoadmapHero";
 import { GlassCard } from "@elements/glass-card";
-import { Progress } from "@ui/progress";
 import { Button } from "@ui/button";
 import { Input } from "@ui/input";
 import { cn } from "@/lib/utils";
@@ -49,21 +46,19 @@ const ProfessionalRoadmapTab = () => {
     isGenerating,
     stepProgress,
     isStatsError,
-    otherRoadmaps,
     justCompleted,
     exploreSearch,
     unenrollingId,
     isStatsLoading,
+    activeRoadmap,
     myRoadmapsData,
-    requestedStepId,
     hasFailedDraft,
     handleUnenroll,
     handlePrevious,
     recommendations,
+    requestedStepId,
     exploreRoadmaps,
     explorePageInfo,
-    getProgressValue,
-    activeRoadmap,
     handleExploreNext,
     exploreRoadmapsData,
     isMyRoadmapsLoading,
@@ -80,19 +75,12 @@ const ProfessionalRoadmapTab = () => {
 
   const semantics = useChartSemantics();
 
-  type TCurrentRoadmapView = "statusCard" | "hero" | "none";
-  const currentView: TCurrentRoadmapView =
-    isGenerating || hasFailedDraft
-      ? "statusCard"
-      : activeRoadmap
-        ? "hero"
-        : "none";
-  const [displayView, setDisplayView] =
-    useState<TCurrentRoadmapView>(currentView);
+  const isStatusVisible = isGenerating || hasFailedDraft;
+  const [displayStatus, setDisplayStatus] = useState(isStatusVisible);
   useEffect(() => {
-    if (displayView === currentView) return;
-    startTransition(() => setDisplayView(currentView));
-  }, [currentView, displayView]);
+    if (displayStatus === isStatusVisible) return;
+    startTransition(() => setDisplayStatus(isStatusVisible));
+  }, [isStatusVisible, displayStatus]);
 
   const heroHeadingRef = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
@@ -242,7 +230,7 @@ const ProfessionalRoadmapTab = () => {
       </div>
 
       <ViewTransition>
-        {displayView === "statusCard" && draft ? (
+        {displayStatus && draft ? (
           <RoadmapGenerationStatus
             t={t}
             goal={draft.goal}
@@ -253,149 +241,6 @@ const ProfessionalRoadmapTab = () => {
             onRetry={handleRetryGeneration}
             isRetrying={isRetryingGeneration}
           />
-        ) : null}
-
-        {displayView === "hero" && activeRoadmap ? (
-          <div id="your-learning-path" className="space-y-6">
-            <RoadmapHero
-              t={t}
-              locale={locale}
-              headingRef={heroHeadingRef}
-              title={activeRoadmap.title}
-              nextStepTitle={nextStep?.title}
-              nextStepStatus={nextStep?.status}
-              onContinue={handleContinue}
-              newRoadmapHref={ROADMAP_CHAT_HREF}
-              progress={activeRoadmap.progress}
-              totalSteps={activeRoadmap.totalSteps}
-              targetDate={activeRoadmap.targetDate}
-              description={activeRoadmap.description}
-              phasesCount={activeRoadmap.phasesCount}
-              continueHref={continueHref}
-              viewFullHref={viewFullHref}
-              completedSteps={activeRoadmap.completedSteps}
-              estimatedWeeks={activeRoadmap.estimatedWeeks}
-            />
-
-            {activeRoadmap.coverageNote ? (
-              <GlassCard className="p-5">
-                <div className="flex items-start gap-3">
-                  <L.Info
-                    className="mt-0.5 h-5 w-5 shrink-0 text-primary"
-                    aria-hidden="true"
-                  />
-                  <div>
-                    <h3 className="text-sm font-medium">
-                      {t("professionalDashboard.roadmap.coverageNote")}
-                    </h3>
-                    <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                      {activeRoadmap.coverageNote}
-                    </p>
-                  </div>
-                </div>
-              </GlassCard>
-            ) : null}
-
-            {activeRoadmap.matchTier &&
-            activeRoadmap.matchTier !== RoadmapMatchTier.Exact ? (
-              <GlassCard className="p-5">
-                <div className="flex items-start gap-3">
-                  <L.AlertTriangle
-                    className="mt-0.5 h-5 w-5 shrink-0 text-primary"
-                    aria-hidden="true"
-                  />
-                  <div>
-                    <h3 className="text-sm font-medium">
-                      {t(
-                        "professionalDashboard.roadmap.closeMatchDisclosure.title",
-                      )}
-                    </h3>
-                    <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                      {t(
-                        "professionalDashboard.roadmap.closeMatchDisclosure.description",
-                      )}
-                    </p>
-                    {activeRoadmap.draftId ? (
-                      <Button asChild radius="xl" size="sm" className="mt-3">
-                        <Link
-                          href={`${ROADMAP_CHAT_HREF}?draftId=${encodeURIComponent(
-                            activeRoadmap.draftId,
-                          )}&focus=preferences`}
-                        >
-                          {t(
-                            "professionalDashboard.roadmap.closeMatchDisclosure.action",
-                          )}
-                        </Link>
-                      </Button>
-                    ) : null}
-                  </div>
-                </div>
-              </GlassCard>
-            ) : null}
-
-            <RoadmapJourneyTimeline
-              t={t}
-              phases={activeRoadmap.phases}
-              currentPhaseId={currentPhaseId}
-            />
-
-            <div id="your-learning-path-phases">
-              <RoadmapPhaseList
-                t={t}
-                onStart={stepProgress.start}
-                nextStepId={nextStep?.stepId}
-                focusStepId={focusStepId}
-                focusNonce={focusNonce}
-                pending={stepProgress.pending}
-                phases={activeRoadmap.phases}
-                onComplete={stepProgress.complete}
-                enrollmentId={activeRoadmap.id}
-                failedStepId={stepProgress.failedStepId}
-              />
-            </div>
-
-            <GlassCard className="p-5">
-              <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
-                {roadmapTracksCpdTarget ? (
-                  <span className="flex items-center gap-2">
-                    <L.Target
-                      className="h-4 w-4 text-primary"
-                      aria-hidden="true"
-                    />
-                    {t("professionalDashboard.roadmap.hero.cpdStrip", {
-                      earned: activeRoadmap.earnedCredits,
-                      required: activeRoadmap.requiredCredits ?? 0,
-                    })}
-                  </span>
-                ) : null}
-                <span className="flex items-center gap-2">
-                  <L.CalendarCheck2
-                    className="h-4 w-4 text-primary"
-                    aria-hidden="true"
-                  />
-                  {t("professionalDashboard.roadmap.hero.thisWeek", {
-                    count: thisWeekCount,
-                  })}
-                </span>
-                {streak >= 2 ? (
-                  <span className="flex items-center gap-2">
-                    <L.Flame
-                      className="h-4 w-4 text-primary"
-                      aria-hidden="true"
-                    />
-                    {t("professionalDashboard.roadmap.hero.streak", {
-                      count: streak,
-                    })}
-                  </span>
-                ) : null}
-              </div>
-            </GlassCard>
-
-            <RoadmapRecommendationsCard
-              t={t}
-              recommendations={recommendations}
-            />
-          </div>
         ) : null}
       </ViewTransition>
 
@@ -468,6 +313,244 @@ const ProfessionalRoadmapTab = () => {
           </div>
         </div>
       </GlassCard>
+
+      <section className="space-y-6" aria-labelledby="my-roadmaps-heading">
+        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+          <div>
+            <h2
+              id="my-roadmaps-heading"
+              className="text-xl font-medium tracking-tight"
+            >
+              {t("professionalDashboard.roadmap.myRoadmaps")}
+            </h2>
+
+            <p className="mt-1 text-sm text-muted-foreground">
+              {t("professionalDashboard.roadmap.myRoadmapsDescription")}
+            </p>
+          </div>
+
+          <div className="relative w-full md:max-w-sm">
+            <L.Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={handleSearchInputChange}
+              placeholder={t("professionalDashboard.roadmap.searchMyRoadmaps")}
+              className="h-12 rounded-md bg-muted pl-10"
+            />
+          </div>
+        </div>
+
+        {isMyRoadmapsLoading ? (
+          <div
+            aria-hidden
+            className="grid gap-x-6 gap-y-8 md:grid-cols-2 xl:grid-cols-3"
+          >
+            {Array.from({ length: 3 }).map((_, index) => (
+              <RoadmapCardSkeleton key={index} />
+            ))}
+          </div>
+        ) : myRoadmaps.length === 0 ? (
+          <GlassCard>
+            <div className="flex min-h-56 flex-col items-center justify-center text-center">
+              <div className="rounded-full bg-primary/10 p-4 text-primary">
+                <L.Route className="h-7 w-7" />
+              </div>
+              <p className="mt-4 font-medium">
+                {t("professionalDashboard.roadmap.emptyMyRoadmapsTitle")}
+              </p>
+              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
+                {t("professionalDashboard.roadmap.emptyMyRoadmapsDescription")}
+              </p>
+              <Button asChild radius="xl" className="mt-5">
+                <Link href={ROADMAP_CHAT_HREF}>
+                  <L.Plus className="h-4 w-4" />
+                  {t("professionalDashboard.roadmap.emptyMyRoadmapsAction")}
+                </Link>
+              </Button>
+            </div>
+          </GlassCard>
+        ) : (
+          <ul
+            className={cn(
+              "grid gap-x-6 gap-y-8 md:grid-cols-2 xl:grid-cols-3",
+              isMyRoadmapsFetching && "opacity-70 transition-opacity",
+            )}
+          >
+            {myRoadmaps.map((roadmap) => (
+              <li key={roadmap.id} className="flex">
+                <RoadmapCard
+                  roadmap={roadmap}
+                  className="w-full"
+                  href={roadmapHref(roadmap)}
+                  onUnenroll={handleUnenroll}
+                  isSelected={roadmap.id === activeRoadmap?.id}
+                  isUnenrolling={unenrollingId === roadmap.id}
+                />
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <ContentPagination
+          page={page}
+          onNext={handleNext}
+          canPrevious={page > 1}
+          onPrevious={handlePrevious}
+          isLoading={isMyRoadmapsFetching}
+          totalCount={myRoadmapsData?.totalCount}
+          hasNextPage={Boolean(myPageInfo?.hasNextPage)}
+        />
+      </section>
+
+      {activeRoadmap ? (
+        <div id="your-learning-path" className="space-y-6">
+          <div>
+            <h2 className="text-xl font-medium tracking-tight">
+              {t("professionalDashboard.roadmap.workspaceTitle")}
+            </h2>
+
+            <p className="mt-1 text-sm text-muted-foreground">
+              {t("professionalDashboard.roadmap.workspaceDescription")}
+            </p>
+          </div>
+
+          <RoadmapHero
+            t={t}
+            locale={locale}
+            headingRef={heroHeadingRef}
+            continueHref={continueHref}
+            title={activeRoadmap.title}
+            onContinue={handleContinue}
+            viewFullHref={viewFullHref}
+            nextStepTitle={nextStep?.title}
+            nextStepStatus={nextStep?.status}
+            progress={activeRoadmap.progress}
+            newRoadmapHref={ROADMAP_CHAT_HREF}
+            totalSteps={activeRoadmap.totalSteps}
+            targetDate={activeRoadmap.targetDate}
+            description={activeRoadmap.description}
+            phasesCount={activeRoadmap.phasesCount}
+            completedSteps={activeRoadmap.completedSteps}
+            estimatedWeeks={activeRoadmap.estimatedWeeks}
+          />
+
+          {activeRoadmap.coverageNote ? (
+            <GlassCard className="p-5">
+              <div className="flex items-start gap-3">
+                <L.Info
+                  className="mt-0.5 h-5 w-5 shrink-0 text-primary"
+                  aria-hidden="true"
+                />
+                <div>
+                  <h3 className="text-sm font-medium">
+                    {t("professionalDashboard.roadmap.coverageNote")}
+                  </h3>
+                  <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                    {activeRoadmap.coverageNote}
+                  </p>
+                </div>
+              </div>
+            </GlassCard>
+          ) : null}
+
+          {activeRoadmap.matchTier &&
+          activeRoadmap.matchTier !== RoadmapMatchTier.Exact ? (
+            <GlassCard className="p-5">
+              <div className="flex items-start gap-3">
+                <L.AlertTriangle
+                  className="mt-0.5 h-5 w-5 shrink-0 text-primary"
+                  aria-hidden="true"
+                />
+                <div>
+                  <h3 className="text-sm font-medium">
+                    {t(
+                      "professionalDashboard.roadmap.closeMatchDisclosure.title",
+                    )}
+                  </h3>
+                  <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                    {t(
+                      "professionalDashboard.roadmap.closeMatchDisclosure.description",
+                    )}
+                  </p>
+                  {activeRoadmap.draftId ? (
+                    <Button asChild radius="xl" size="sm" className="mt-3">
+                      <Link
+                        href={`${ROADMAP_CHAT_HREF}?draftId=${encodeURIComponent(
+                          activeRoadmap.draftId,
+                        )}&focus=preferences`}
+                      >
+                        {t(
+                          "professionalDashboard.roadmap.closeMatchDisclosure.action",
+                        )}
+                      </Link>
+                    </Button>
+                  ) : null}
+                </div>
+              </div>
+            </GlassCard>
+          ) : null}
+
+          <RoadmapJourneyTimeline
+            t={t}
+            phases={activeRoadmap.phases}
+            currentPhaseId={currentPhaseId}
+          />
+
+          <div id="your-learning-path-phases">
+            <RoadmapPhaseList
+              t={t}
+              focusNonce={focusNonce}
+              focusStepId={focusStepId}
+              onStart={stepProgress.start}
+              nextStepId={nextStep?.stepId}
+              phases={activeRoadmap.phases}
+              pending={stepProgress.pending}
+              enrollmentId={activeRoadmap.id}
+              onComplete={stepProgress.complete}
+              failedStepId={stepProgress.failedStepId}
+            />
+          </div>
+
+          <GlassCard className="p-5">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
+              {roadmapTracksCpdTarget ? (
+                <span className="flex items-center gap-2">
+                  <L.Target
+                    className="h-4 w-4 text-primary"
+                    aria-hidden="true"
+                  />
+                  {t("professionalDashboard.roadmap.hero.cpdStrip", {
+                    earned: activeRoadmap.earnedCredits,
+                    required: activeRoadmap.requiredCredits ?? 0,
+                  })}
+                </span>
+              ) : null}
+              <span className="flex items-center gap-2">
+                <L.CalendarCheck2
+                  className="h-4 w-4 text-primary"
+                  aria-hidden="true"
+                />
+                {t("professionalDashboard.roadmap.hero.thisWeek", {
+                  count: thisWeekCount,
+                })}
+              </span>
+              {streak >= 2 ? (
+                <span className="flex items-center gap-2">
+                  <L.Flame
+                    className="h-4 w-4 text-primary"
+                    aria-hidden="true"
+                  />
+                  {t("professionalDashboard.roadmap.hero.streak", {
+                    count: streak,
+                  })}
+                </span>
+              ) : null}
+            </div>
+          </GlassCard>
+
+          <RoadmapRecommendationsCard t={t} recommendations={recommendations} />
+        </div>
+      ) : null}
 
       {!activeRoadmap ? (
         <RoadmapRecommendationsCard t={t} recommendations={recommendations} />
@@ -545,165 +628,6 @@ const ProfessionalRoadmapTab = () => {
             )}
           </div>
         </div>
-
-        <div className="mt-5 space-y-4">
-          {myRoadmaps.map((roadmap) => (
-            <div key={roadmap.id}>
-              <div className="mb-2 flex justify-between gap-3 text-sm">
-                <span className="line-clamp-1 font-medium">
-                  {roadmap.title}
-                </span>
-
-                <span className="text-muted-foreground">
-                  {getProgressValue(roadmap.progress)}%
-                </span>
-              </div>
-
-              <Progress value={getProgressValue(roadmap.progress)} />
-            </div>
-          ))}
-        </div>
-      </GlassCard>
-
-      <GlassCard>
-        <div className="mb-6 flex flex-col justify-between gap-4 md:flex-row md:items-center">
-          <div>
-            <h2 className="text-xl font-medium">
-              {t("professionalDashboard.roadmap.myRoadmaps")}
-            </h2>
-
-            <p className="mt-1 text-sm text-muted-foreground">
-              {t("professionalDashboard.roadmap.myRoadmapsDescription")}
-            </p>
-          </div>
-
-          <div className="relative w-full md:max-w-sm">
-            <L.Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={search}
-              onChange={handleSearchInputChange}
-              placeholder={t("professionalDashboard.roadmap.searchMyRoadmaps")}
-              className="h-12 rounded-md bg-muted pl-10"
-            />
-          </div>
-        </div>
-
-        {isMyRoadmapsLoading ? (
-          <div className="flex min-h-72 items-center justify-center">
-            <L.Loader2 className="h-7 w-7 animate-spin text-primary" />
-          </div>
-        ) : otherRoadmaps.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-border p-10 text-center">
-            <L.Route className="mx-auto h-10 w-10 text-muted-foreground" />
-            <p className="mt-4 font-medium">
-              {t("professionalDashboard.roadmap.emptyMyRoadmapsTitle")}
-            </p>
-            <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
-              {t("professionalDashboard.roadmap.emptyMyRoadmapsDescription")}
-            </p>
-          </div>
-        ) : (
-          <ul className="divide-y divide-border">
-            {otherRoadmaps.map((roadmap) => (
-              <li
-                key={roadmap.id}
-                className="flex flex-wrap items-center gap-4 py-3 first:pt-0 last:pb-0"
-              >
-                <Link
-                  href={roadmapHref(roadmap)}
-                  className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md bg-muted"
-                >
-                  {roadmap.imageUrl ? (
-                    <Image
-                      fill
-                      alt={roadmap.title}
-                      src={roadmap.imageUrl}
-                      sizes="56px"
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center bg-primary/10 text-primary">
-                      <L.BookOpenCheck className="h-5 w-5" />
-                    </div>
-                  )}
-                </Link>
-
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between gap-2">
-                    <Link
-                      href={roadmapHref(roadmap)}
-                      className="truncate text-sm font-medium hover:underline"
-                    >
-                      {roadmap.title}
-                    </Link>
-                    <span className="shrink-0 text-xs text-muted-foreground">
-                      {getProgressValue(roadmap.progress)}%
-                    </span>
-                  </div>
-                  <Progress
-                    value={getProgressValue(roadmap.progress)}
-                    className="mt-1.5 h-1.5"
-                  />
-                  <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                    <span>
-                      {roadmap.completedSteps}/{roadmap.totalSteps}{" "}
-                      {t("professionalDashboard.roadmap.steps")}
-                    </span>
-                    <span>
-                      {roadmap.completedPhases}/{roadmap.phasesCount}{" "}
-                      {t("professionalDashboard.roadmap.phases")}
-                    </span>
-                    {roadmap.targetDate ? (
-                      <span
-                        className={cn(
-                          daysUntil(new Date(roadmap.targetDate)) < 0 &&
-                            "text-destructive",
-                        )}
-                      >
-                        {new Intl.DateTimeFormat(locale, {
-                          dateStyle: "medium",
-                        }).format(new Date(roadmap.targetDate))}
-                      </span>
-                    ) : null}
-                  </div>
-                </div>
-
-                <div className="flex shrink-0 gap-2">
-                  <Button asChild size="sm" radius="xl" variant="outline">
-                    <Link href={roadmapHref(roadmap)}>
-                      {t("professionalDashboard.common.details")}
-                    </Link>
-                  </Button>
-                  <Button
-                    size="sm"
-                    radius="xl"
-                    variant="ghost"
-                    disabled={unenrollingId === roadmap.id}
-                    onClick={() => handleUnenroll(roadmap.id)}
-                    aria-label={t("professionalDashboard.roadmap.unenroll")}
-                  >
-                    {unenrollingId === roadmap.id ? (
-                      <L.Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <L.X className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-
-        <ContentPagination
-          page={page}
-          className="mt-6"
-          onNext={handleNext}
-          canPrevious={page > 1}
-          onPrevious={handlePrevious}
-          isLoading={isMyRoadmapsFetching}
-          totalCount={myRoadmapsData?.totalCount}
-          hasNextPage={Boolean(myPageInfo?.hasNextPage)}
-        />
       </GlassCard>
 
       <GlassCard>
@@ -760,9 +684,9 @@ const ProfessionalRoadmapTab = () => {
                     {roadmap.imageUrl ? (
                       <Image
                         fill
+                        sizes="56px"
                         alt={roadmap.title}
                         src={roadmap.imageUrl}
-                        sizes="56px"
                         className="object-cover"
                       />
                     ) : (
@@ -782,7 +706,7 @@ const ProfessionalRoadmapTab = () => {
                       ) : null}
                       <span>{roadmap.level}</span>
                       <span>
-                        {roadmap.phasesCount}{" "}
+                        {roadmap.phasesCount}
                         {t("professionalDashboard.roadmap.phases")}
                       </span>
                       <span>{formatWeeks(roadmap.estimatedWeeks)}</span>
