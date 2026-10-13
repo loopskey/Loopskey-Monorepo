@@ -131,3 +131,38 @@ jobs:
             --site-origin "$NEXT_PUBLIC_SITE_URL" \
             --environment "$DEPLOYMENT_ENV" \
             --profile static
+
+  api-image:
+    name: API image dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+
+      - name: Decide whether the image inputs changed
+        id: inputs
+        shell: bash
+        run: |
+          base="${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}"
+          if [ -z "$base" ] || ! git cat-file -e "$base^{commit}" 2>/dev/null; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if git diff --name-only "$base" HEAD | grep -qE '^(Dockerfile.api|package.json|package-lock.json|apps/api/package.json|packages/api-contracts/package.json|scripts/check-api-image-dependencies.mjs)$'; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build the API image
+        if: steps.inputs.outputs.changed == 'true'
+        run: docker build -f Dockerfile.api -t loopskey-api:ci .
+
+      - name: Check the image carries every runtime dependency
+        if: steps.inputs.outputs.changed == 'true'
+        run: |
+          docker run --rm \
+            -v "$PWD/scripts:/check:ro" \
+            --entrypoint node \
+            loopskey-api:ci /check/check-api-image-dependencies.mjs /app
