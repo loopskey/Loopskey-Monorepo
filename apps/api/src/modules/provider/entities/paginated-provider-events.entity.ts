@@ -5,6 +5,7 @@ import { EventStatus } from "@prisma/client";
 
 @ObjectType(ProviderGqlObjectNames.PROVIDER_EVENT_TABLE_ROW)
 export class ProviderEventTableRowEntity {
+  @Field() slug: string;
   @Field() title: string;
   @Field() startDate: Date;
   @Field(() => ID) id: string;

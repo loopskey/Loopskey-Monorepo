@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@elements/localized-link";
 
 type LogoProps = {
   variant?: "default" | "onPrimary";
@@ -14,7 +14,6 @@ export const Logo = ({ variant = "default", className }: LogoProps) => {
   return (
     <Link href="/" className={cn("flex flex-shrink-0 items-center", className)}>
       <Image
-        priority
         width={205}
         height={54}
         alt="Loopskey-logo"

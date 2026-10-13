@@ -8,16 +8,21 @@ export type EventDetailFieldsFragment = { __typename?: 'Event', id: string, pdu:
 
 export type EventRegistrationFieldsFragment = { __typename?: 'EventRegistration', id: string, userId: string, status: Types.EventRegistrationStatus, eventId: string, createdAt: string, updatedAt: string, attendedAt?: string | null, completedAt?: string | null };
 
-export type EventPageInfoFieldsFragment = { __typename?: 'EventPageInfo', nextCursor?: string | null, hasNextPage: boolean };
+export type EventPageInfoFieldsFragment = { __typename?: 'EventPageInfo', nextCursor?: string | null, hasNextPage: boolean, previousCursor?: string | null, hasPreviousPage: boolean };
+
+export type EventSeoPublicFieldsFragment = { __typename?: 'Event', seoTitle?: string | null, seoDescription?: string | null, socialImagePath?: string | null, socialImageAlt?: string | null, excludeFromIndex?: boolean | null };
+
+export type EventLocaleFieldsFragment = { __typename?: 'Event', contentLanguage?: Types.AppLanguage | null, availableLocales?: Array<Types.AppLanguage> | null };
 
 export type EventsQueryVariables = Types.Exact<{
   filter?: Types.InputMaybe<Types.EventFilterInput>;
   pagination?: Types.InputMaybe<Types.EventPaginationInput>;
   sort?: Types.InputMaybe<Types.EventSortInput>;
+  locale?: Types.InputMaybe<Types.AppLanguage>;
 }>;
 
 
-export type EventsQuery = { __typename?: 'Query', events: { __typename?: 'PaginatedEvents', totalCount: number, items: Array<{ __typename?: 'Event', id: string, pdu: number, slug: string, type: Types.EventType, title: string, views: number, price?: number | null, status: Types.EventStatus, isFree: boolean, rating: number, speaker?: string | null, endDate?: string | null, timezone: string, imageUrl?: string | null, sourceUrl?: string | null, category: Types.EventCategory, location?: string | null, currency: string, capacity?: number | null, language?: Types.AppLanguage | null, startDate: string, onlineUrl?: string | null, attendees: number, organizer?: string | null, updatedAt: string, deletedAt?: string | null, createdAt: string, providerId?: string | null, description: string, ratingCount: number, pduCategory?: Types.PduCategory | null, deliveryMode: Types.EventDeliveryMode, averageRating: number, specificTopic?: string | null, earlyBirdDiscount?: number | null, promotionVideoUrl?: string | null, registrationEnabled: boolean }>, pageInfo: { __typename?: 'EventPageInfo', nextCursor?: string | null, hasNextPage: boolean } } };
+export type EventsQuery = { __typename?: 'Query', events: { __typename?: 'PaginatedEvents', totalCount: number, items: Array<{ __typename?: 'Event', id: string, pdu: number, slug: string, type: Types.EventType, title: string, views: number, price?: number | null, status: Types.EventStatus, isFree: boolean, rating: number, speaker?: string | null, endDate?: string | null, timezone: string, imageUrl?: string | null, sourceUrl?: string | null, category: Types.EventCategory, location?: string | null, currency: string, capacity?: number | null, language?: Types.AppLanguage | null, startDate: string, onlineUrl?: string | null, attendees: number, organizer?: string | null, updatedAt: string, deletedAt?: string | null, createdAt: string, providerId?: string | null, description: string, ratingCount: number, pduCategory?: Types.PduCategory | null, deliveryMode: Types.EventDeliveryMode, averageRating: number, specificTopic?: string | null, earlyBirdDiscount?: number | null, promotionVideoUrl?: string | null, registrationEnabled: boolean, contentLanguage?: Types.AppLanguage | null, availableLocales?: Array<Types.AppLanguage> | null }>, pageInfo: { __typename?: 'EventPageInfo', nextCursor?: string | null, hasNextPage: boolean, previousCursor?: string | null, hasPreviousPage: boolean } } };
 
 export type EventByIdQueryVariables = Types.Exact<{
   eventId: Types.Scalars['String']['input'];
@@ -28,10 +33,18 @@ export type EventByIdQuery = { __typename?: 'Query', eventById: { __typename?: '
 
 export type EventBySlugQueryVariables = Types.Exact<{
   slug: Types.Scalars['String']['input'];
+  locale?: Types.InputMaybe<Types.AppLanguage>;
 }>;
 
 
-export type EventBySlugQuery = { __typename?: 'Query', eventBySlug: { __typename?: 'Event', id: string, pdu: number, slug: string, type: Types.EventType, title: string, views: number, price?: number | null, status: Types.EventStatus, isFree: boolean, rating: number, speaker?: string | null, endDate?: string | null, timezone: string, imageUrl?: string | null, sourceUrl?: string | null, category: Types.EventCategory, location?: string | null, currency: string, capacity?: number | null, language?: Types.AppLanguage | null, startDate: string, onlineUrl?: string | null, attendees: number, organizer?: string | null, updatedAt: string, deletedAt?: string | null, createdAt: string, providerId?: string | null, description: string, ratingCount: number, pduCategory?: Types.PduCategory | null, deliveryMode: Types.EventDeliveryMode, averageRating: number, specificTopic?: string | null, earlyBirdDiscount?: number | null, promotionVideoUrl?: string | null, registrationEnabled: boolean, scheduleItems?: Array<{ __typename?: 'EventScheduleItem', id: string, title: string, speaker?: string | null, eventId: string, endTime: string, updatedAt: string, createdAt: string, dayNumber: number, startTime: string, description?: string | null }> | null } };
+export type EventBySlugQuery = { __typename?: 'Query', eventBySlug: { __typename?: 'Event', contentLanguage?: Types.AppLanguage | null, availableLocales?: Array<Types.AppLanguage> | null, seoTitle?: string | null, seoDescription?: string | null, socialImagePath?: string | null, socialImageAlt?: string | null, excludeFromIndex?: boolean | null, id: string, pdu: number, slug: string, type: Types.EventType, title: string, views: number, price?: number | null, status: Types.EventStatus, isFree: boolean, rating: number, speaker?: string | null, endDate?: string | null, timezone: string, imageUrl?: string | null, sourceUrl?: string | null, category: Types.EventCategory, location?: string | null, currency: string, capacity?: number | null, language?: Types.AppLanguage | null, startDate: string, onlineUrl?: string | null, attendees: number, organizer?: string | null, updatedAt: string, deletedAt?: string | null, createdAt: string, providerId?: string | null, description: string, ratingCount: number, pduCategory?: Types.PduCategory | null, deliveryMode: Types.EventDeliveryMode, averageRating: number, specificTopic?: string | null, earlyBirdDiscount?: number | null, promotionVideoUrl?: string | null, registrationEnabled: boolean, scheduleItems?: Array<{ __typename?: 'EventScheduleItem', id: string, title: string, speaker?: string | null, eventId: string, endTime: string, updatedAt: string, createdAt: string, dayNumber: number, startTime: string, description?: string | null }> | null } };
+
+export type RecordEventViewMutationVariables = Types.Exact<{
+  eventId: Types.Scalars['String']['input'];
+}>;
+
+
+export type RecordEventViewMutation = { __typename?: 'Mutation', recordEventView: boolean };
 
 export type UpcomingEventsQueryVariables = Types.Exact<{
   take?: Types.InputMaybe<Types.Scalars['Int']['input']>;
@@ -54,7 +67,7 @@ export type MyProviderEventsQueryVariables = Types.Exact<{
 }>;
 
 
-export type MyProviderEventsQuery = { __typename?: 'Query', myProviderEvents: { __typename?: 'PaginatedEvents', totalCount: number, items: Array<{ __typename?: 'Event', id: string, pdu: number, slug: string, type: Types.EventType, title: string, views: number, price?: number | null, status: Types.EventStatus, isFree: boolean, rating: number, speaker?: string | null, endDate?: string | null, timezone: string, imageUrl?: string | null, sourceUrl?: string | null, category: Types.EventCategory, location?: string | null, currency: string, capacity?: number | null, language?: Types.AppLanguage | null, startDate: string, onlineUrl?: string | null, attendees: number, organizer?: string | null, updatedAt: string, deletedAt?: string | null, createdAt: string, providerId?: string | null, description: string, ratingCount: number, pduCategory?: Types.PduCategory | null, deliveryMode: Types.EventDeliveryMode, averageRating: number, specificTopic?: string | null, earlyBirdDiscount?: number | null, promotionVideoUrl?: string | null, registrationEnabled: boolean }>, pageInfo: { __typename?: 'EventPageInfo', nextCursor?: string | null, hasNextPage: boolean } } };
+export type MyProviderEventsQuery = { __typename?: 'Query', myProviderEvents: { __typename?: 'PaginatedEvents', totalCount: number, items: Array<{ __typename?: 'Event', id: string, pdu: number, slug: string, type: Types.EventType, title: string, views: number, price?: number | null, status: Types.EventStatus, isFree: boolean, rating: number, speaker?: string | null, endDate?: string | null, timezone: string, imageUrl?: string | null, sourceUrl?: string | null, category: Types.EventCategory, location?: string | null, currency: string, capacity?: number | null, language?: Types.AppLanguage | null, startDate: string, onlineUrl?: string | null, attendees: number, organizer?: string | null, updatedAt: string, deletedAt?: string | null, createdAt: string, providerId?: string | null, description: string, ratingCount: number, pduCategory?: Types.PduCategory | null, deliveryMode: Types.EventDeliveryMode, averageRating: number, specificTopic?: string | null, earlyBirdDiscount?: number | null, promotionVideoUrl?: string | null, registrationEnabled: boolean }>, pageInfo: { __typename?: 'EventPageInfo', nextCursor?: string | null, hasNextPage: boolean, previousCursor?: string | null, hasPreviousPage: boolean } } };
 
 export type MyRegisteredEventsQueryVariables = Types.Exact<{ [key: string]: never; }>;
 
@@ -128,6 +141,29 @@ export type EventFilterFacetsQueryVariables = Types.Exact<{ [key: string]: never
 
 
 export type EventFilterFacetsQuery = { __typename?: 'Query', eventFilterFacets: { __typename?: 'EventFilterFacets', categories: Array<{ __typename?: 'EventCategoryFacet', value: Types.EventCategory, count: number }>, types: Array<{ __typename?: 'EventTypeFacet', value: Types.EventType, count: number }> } };
+
+export type EventTranslationFieldsFragment = { __typename?: 'EventTranslation', id: string, locale: Types.AppLanguage, title: string, description: string, isPublished: boolean, publishedAt?: string | null, version: number, updatedAt: string };
+
+export type EventTranslationsQueryVariables = Types.Exact<{
+  eventId: Types.Scalars['String']['input'];
+}>;
+
+
+export type EventTranslationsQuery = { __typename?: 'Query', eventTranslations: Array<{ __typename?: 'EventTranslation', id: string, locale: Types.AppLanguage, title: string, description: string, isPublished: boolean, publishedAt?: string | null, version: number, updatedAt: string }> };
+
+export type SaveEventTranslationMutationVariables = Types.Exact<{
+  input: Types.SaveEventTranslationInput;
+}>;
+
+
+export type SaveEventTranslationMutation = { __typename?: 'Mutation', saveEventTranslation: { __typename?: 'EventTranslation', id: string, locale: Types.AppLanguage, title: string, description: string, isPublished: boolean, publishedAt?: string | null, version: number, updatedAt: string } };
+
+export type SetEventTranslationPublicationMutationVariables = Types.Exact<{
+  input: Types.SetEventTranslationPublicationInput;
+}>;
+
+
+export type SetEventTranslationPublicationMutation = { __typename?: 'Mutation', setEventTranslationPublication: { __typename?: 'EventTranslation', id: string, locale: Types.AppLanguage, title: string, description: string, isPublished: boolean, publishedAt?: string | null, version: number, updatedAt: string } };
 
 export const EventCardFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
     fragment EventCardFields on Event {
@@ -258,13 +294,43 @@ export const EventPageInfoFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentStr
     fragment EventPageInfoFields on EventPageInfo {
   nextCursor
   hasNextPage
+  previousCursor
+  hasPreviousPage
 }
     `, {"fragmentName":"EventPageInfoFields"}) as unknown as TypedDocumentString<EventPageInfoFieldsFragment, unknown>;
+export const EventSeoPublicFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
+    fragment EventSeoPublicFields on Event {
+  seoTitle
+  seoDescription
+  socialImagePath
+  socialImageAlt
+  excludeFromIndex
+}
+    `, {"fragmentName":"EventSeoPublicFields"}) as unknown as TypedDocumentString<EventSeoPublicFieldsFragment, unknown>;
+export const EventLocaleFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
+    fragment EventLocaleFields on Event {
+  contentLanguage
+  availableLocales
+}
+    `, {"fragmentName":"EventLocaleFields"}) as unknown as TypedDocumentString<EventLocaleFieldsFragment, unknown>;
+export const EventTranslationFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
+    fragment EventTranslationFields on EventTranslation {
+  id
+  locale
+  title
+  description
+  isPublished
+  publishedAt
+  version
+  updatedAt
+}
+    `, {"fragmentName":"EventTranslationFields"}) as unknown as TypedDocumentString<EventTranslationFieldsFragment, unknown>;
 export const EventsDocument = /*#__PURE__*/ new TypedDocumentString(`
-    query Events($filter: EventFilterInput, $pagination: EventPaginationInput, $sort: EventSortInput) {
-  events(filter: $filter, pagination: $pagination, sort: $sort) {
+    query Events($filter: EventFilterInput, $pagination: EventPaginationInput, $sort: EventSortInput, $locale: AppLanguage) {
+  events(filter: $filter, pagination: $pagination, sort: $sort, locale: $locale) {
     items {
       ...EventCardFields
+      ...EventLocaleFields
     }
     totalCount
     pageInfo {
@@ -314,6 +380,12 @@ export const EventsDocument = /*#__PURE__*/ new TypedDocumentString(`
 fragment EventPageInfoFields on EventPageInfo {
   nextCursor
   hasNextPage
+  previousCursor
+  hasPreviousPage
+}
+fragment EventLocaleFields on Event {
+  contentLanguage
+  availableLocales
 }`) as unknown as TypedDocumentString<EventsQuery, EventsQueryVariables>;
 export const EventByIdDocument = /*#__PURE__*/ new TypedDocumentString(`
     query EventById($eventId: String!) {
@@ -379,9 +451,11 @@ fragment EventDetailFields on Event {
   }
 }`) as unknown as TypedDocumentString<EventByIdQuery, EventByIdQueryVariables>;
 export const EventBySlugDocument = /*#__PURE__*/ new TypedDocumentString(`
-    query EventBySlug($slug: String!) {
-  eventBySlug(slug: $slug) {
+    query EventBySlug($slug: String!, $locale: AppLanguage) {
+  eventBySlug(slug: $slug, locale: $locale) {
     ...EventDetailFields
+    ...EventLocaleFields
+    ...EventSeoPublicFields
   }
 }
     fragment EventCardFields on Event {
@@ -440,7 +514,23 @@ fragment EventDetailFields on Event {
   scheduleItems {
     ...EventScheduleItemFields
   }
+}
+fragment EventSeoPublicFields on Event {
+  seoTitle
+  seoDescription
+  socialImagePath
+  socialImageAlt
+  excludeFromIndex
+}
+fragment EventLocaleFields on Event {
+  contentLanguage
+  availableLocales
 }`) as unknown as TypedDocumentString<EventBySlugQuery, EventBySlugQueryVariables>;
+export const RecordEventViewDocument = /*#__PURE__*/ new TypedDocumentString(`
+    mutation RecordEventView($eventId: String!) {
+  recordEventView(eventId: $eventId)
+}
+    `) as unknown as TypedDocumentString<RecordEventViewMutation, RecordEventViewMutationVariables>;
 export const UpcomingEventsDocument = /*#__PURE__*/ new TypedDocumentString(`
     query UpcomingEvents($take: Int) {
   upcomingEvents(take: $take) {
@@ -585,6 +675,8 @@ export const MyProviderEventsDocument = /*#__PURE__*/ new TypedDocumentString(`
 fragment EventPageInfoFields on EventPageInfo {
   nextCursor
   hasNextPage
+  previousCursor
+  hasPreviousPage
 }`) as unknown as TypedDocumentString<MyProviderEventsQuery, MyProviderEventsQueryVariables>;
 export const MyRegisteredEventsDocument = /*#__PURE__*/ new TypedDocumentString(`
     query MyRegisteredEvents {
@@ -999,3 +1091,51 @@ export const EventFilterFacetsDocument = /*#__PURE__*/ new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<EventFilterFacetsQuery, EventFilterFacetsQueryVariables>;
+export const EventTranslationsDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query EventTranslations($eventId: String!) {
+  eventTranslations(eventId: $eventId) {
+    ...EventTranslationFields
+  }
+}
+    fragment EventTranslationFields on EventTranslation {
+  id
+  locale
+  title
+  description
+  isPublished
+  publishedAt
+  version
+  updatedAt
+}`) as unknown as TypedDocumentString<EventTranslationsQuery, EventTranslationsQueryVariables>;
+export const SaveEventTranslationDocument = /*#__PURE__*/ new TypedDocumentString(`
+    mutation SaveEventTranslation($input: SaveEventTranslationInput!) {
+  saveEventTranslation(input: $input) {
+    ...EventTranslationFields
+  }
+}
+    fragment EventTranslationFields on EventTranslation {
+  id
+  locale
+  title
+  description
+  isPublished
+  publishedAt
+  version
+  updatedAt
+}`) as unknown as TypedDocumentString<SaveEventTranslationMutation, SaveEventTranslationMutationVariables>;
+export const SetEventTranslationPublicationDocument = /*#__PURE__*/ new TypedDocumentString(`
+    mutation SetEventTranslationPublication($input: SetEventTranslationPublicationInput!) {
+  setEventTranslationPublication(input: $input) {
+    ...EventTranslationFields
+  }
+}
+    fragment EventTranslationFields on EventTranslation {
+  id
+  locale
+  title
+  description
+  isPublished
+  publishedAt
+  version
+  updatedAt
+}`) as unknown as TypedDocumentString<SetEventTranslationPublicationMutation, SetEventTranslationPublicationMutationVariables>;

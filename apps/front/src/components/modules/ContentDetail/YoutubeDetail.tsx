@@ -1,66 +1,45 @@
 "use client";
 
 import { Eye, PlayCircle, Radio, Users } from "lucide-react";
+import { TYouTubeDetailPageProps } from "@/types/content-module.types";
 import { ContentType, PduSource } from "@/lib/graphql/base";
 import { resolveExternalUrl } from "@/utils/content-source.helper";
 import { humanizeEnumValue } from "@/utils/function-helper";
 import { CalendarEventType } from "@/lib/graphql/base";
 import { useContentActions } from "@/hooks/useContentActions";
-import { GlassCard } from "@elements/glass-card";
 import { useI18n } from "@/hooks/useI18n";
-
-import * as YouTubeApi from "@/lib/rtk/endpoints/youtube.api";
 
 import DetailSidebarActions from "@modules/ContentDetail/parts/DetailSidebarActions";
 import DetailPageHeader from "@modules/ContentDetail/parts/DetailPageHeader";
-import DetailSkeleton from "@modules/ContentDetail/parts/DetailSkeleton";
 import YouTubeVideos from "@modules/ContentDetail/parts/YoutubeVideos";
 import DetailSidebar from "@modules/ContentDetail/parts/DetailSidebar";
 import DetailSection from "@modules/ContentDetail/parts/DetailSection";
 import DetailLayout from "@modules/ContentDetail/parts/DetailLayout";
 
-const YouTubeDetailPage = ({ slug }: { slug: string }) => {
+const YouTubeDetailPage = ({
+  videos,
+  channel,
+  breadcrumbs,
+}: TYouTubeDetailPageProps) => {
   const { t } = useI18n();
-
-  const { data: channel, isLoading } = YouTubeApi.useYoutubeChannelBySlugQuery({
-    slug,
-  });
-
-  const { data: videos = [] } = YouTubeApi.useYoutubeVideosQuery(
-    { channelId: channel?.id ?? "" },
-    { skip: !channel?.id },
-  );
 
   const actions = useContentActions({
     skipEnrollment: true,
-    contentId: channel?.id,
+    contentId: channel.id,
     contentType: ContentType.Youtube,
   });
 
-  if (isLoading) return <DetailSkeleton />;
-
-  if (!channel) {
-    return (
-      <main className="px-4 py-10 sm:px-6 lg:px-8">
-        <GlassCard className="mx-auto max-w-3xl p-10 text-center" glow={false}>
-          <div className="relative z-10">
-            <h1 className="text-2xl font-medium">
-              {t("contentDetails.common.notFound")}
-            </h1>
-          </div>
-        </GlassCard>
-      </main>
-    );
-  }
-
   return (
     <DetailLayout
+      breadcrumbs={breadcrumbs}
       header={
         <DetailPageHeader
           title={channel.title}
           rating={channel.rating}
           ratingCount={channel.ratingCount}
           badge={t("contentDetails.youtube.badge")}
+          contentLanguage={channel.contentLanguage}
+          availableLocales={channel.availableLocales}
           category={t(
             `content.enums.youtubeCategory.${channel.category}`,
             {},
@@ -77,11 +56,9 @@ const YouTubeDetailPage = ({ slug }: { slug: string }) => {
       }
       sidebar={
         <DetailSidebar
-          id={channel.id}
           kind="youtube"
           title={channel.title}
           imageUrl={channel.imageUrl}
-          category={channel.category}
           actions={
             <DetailSidebarActions
               contentType={ContentType.Youtube}

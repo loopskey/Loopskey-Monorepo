@@ -2,16 +2,21 @@ import * as Types from "@/lib/graphql/base";
 import { TypedDocumentString } from "@/lib/graphql/base";
 export type CourseFieldsFragment = { __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, sourceUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null };
 
-export type CoursePageInfoFieldsFragment = { __typename?: 'CoursePageInfo', nextCursor?: string | null, hasNextPage: boolean };
+export type CoursePageInfoFieldsFragment = { __typename?: 'CoursePageInfo', nextCursor?: string | null, hasNextPage: boolean, previousCursor?: string | null, hasPreviousPage: boolean };
+
+export type CourseSeoPublicFieldsFragment = { __typename?: 'Course', seoTitle?: string | null, seoDescription?: string | null, socialImagePath?: string | null, socialImageAlt?: string | null, excludeFromIndex?: boolean | null };
+
+export type CourseLocaleFieldsFragment = { __typename?: 'Course', contentLanguage?: Types.AppLanguage | null, availableLocales?: Array<Types.AppLanguage> | null };
 
 export type CoursesQueryVariables = Types.Exact<{
   filter?: Types.InputMaybe<Types.CourseFilterInput>;
   pagination?: Types.InputMaybe<Types.CoursePaginationInput>;
   sort?: Types.InputMaybe<Types.CourseSortInput>;
+  locale?: Types.InputMaybe<Types.AppLanguage>;
 }>;
 
 
-export type CoursesQuery = { __typename?: 'Query', courses: { __typename?: 'PaginatedCourses', totalCount: number, items: Array<{ __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, sourceUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null }>, pageInfo: { __typename?: 'CoursePageInfo', nextCursor?: string | null, hasNextPage: boolean } } };
+export type CoursesQuery = { __typename?: 'Query', courses: { __typename?: 'PaginatedCourses', totalCount: number, items: Array<{ __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, sourceUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null, contentLanguage?: Types.AppLanguage | null, availableLocales?: Array<Types.AppLanguage> | null }>, pageInfo: { __typename?: 'CoursePageInfo', nextCursor?: string | null, hasNextPage: boolean, previousCursor?: string | null, hasPreviousPage: boolean } } };
 
 export type CourseByIdQueryVariables = Types.Exact<{
   courseId: Types.Scalars['String']['input'];
@@ -22,10 +27,11 @@ export type CourseByIdQuery = { __typename?: 'Query', courseById: { __typename?:
 
 export type CourseBySlugQueryVariables = Types.Exact<{
   slug: Types.Scalars['String']['input'];
+  locale?: Types.InputMaybe<Types.AppLanguage>;
 }>;
 
 
-export type CourseBySlugQuery = { __typename?: 'Query', courseBySlug: { __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, sourceUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null } };
+export type CourseBySlugQuery = { __typename?: 'Query', courseBySlug: { __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, sourceUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null, contentLanguage?: Types.AppLanguage | null, availableLocales?: Array<Types.AppLanguage> | null, seoTitle?: string | null, seoDescription?: string | null, socialImagePath?: string | null, socialImageAlt?: string | null, excludeFromIndex?: boolean | null } };
 
 export type FeaturedCoursesQueryVariables = Types.Exact<{
   take?: Types.InputMaybe<Types.Scalars['Int']['input']>;
@@ -41,7 +47,7 @@ export type MyProviderCoursesQueryVariables = Types.Exact<{
 }>;
 
 
-export type MyProviderCoursesQuery = { __typename?: 'Query', myProviderCourses: { __typename?: 'PaginatedCourses', totalCount: number, items: Array<{ __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, sourceUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null }>, pageInfo: { __typename?: 'CoursePageInfo', nextCursor?: string | null, hasNextPage: boolean } } };
+export type MyProviderCoursesQuery = { __typename?: 'Query', myProviderCourses: { __typename?: 'PaginatedCourses', totalCount: number, items: Array<{ __typename?: 'Course', id: string, slug: string, title: string, instructor: string, imageUrl?: string | null, sourceUrl?: string | null, description: string, category: Types.CourseCategory, level: Types.CourseLevel, status: Types.CourseStatus, price?: number | null, currency: string, isFree: boolean, durationMinutes?: number | null, lastUpdatedAt: string, requirements: Array<string>, learnings: Array<string>, rating: number, ratingCount: number, professionals: number, isFeatured: boolean, providerId?: string | null, createdAt: string, updatedAt: string, deletedAt?: string | null }>, pageInfo: { __typename?: 'CoursePageInfo', nextCursor?: string | null, hasNextPage: boolean, previousCursor?: string | null, hasPreviousPage: boolean } } };
 
 export type CreateCourseMutationVariables = Types.Exact<{
   input: Types.CreateCourseInput;
@@ -123,13 +129,31 @@ export const CoursePageInfoFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentSt
     fragment CoursePageInfoFields on CoursePageInfo {
   nextCursor
   hasNextPage
+  previousCursor
+  hasPreviousPage
 }
     `, {"fragmentName":"CoursePageInfoFields"}) as unknown as TypedDocumentString<CoursePageInfoFieldsFragment, unknown>;
+export const CourseSeoPublicFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
+    fragment CourseSeoPublicFields on Course {
+  seoTitle
+  seoDescription
+  socialImagePath
+  socialImageAlt
+  excludeFromIndex
+}
+    `, {"fragmentName":"CourseSeoPublicFields"}) as unknown as TypedDocumentString<CourseSeoPublicFieldsFragment, unknown>;
+export const CourseLocaleFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
+    fragment CourseLocaleFields on Course {
+  contentLanguage
+  availableLocales
+}
+    `, {"fragmentName":"CourseLocaleFields"}) as unknown as TypedDocumentString<CourseLocaleFieldsFragment, unknown>;
 export const CoursesDocument = /*#__PURE__*/ new TypedDocumentString(`
-    query Courses($filter: CourseFilterInput, $pagination: CoursePaginationInput, $sort: CourseSortInput) {
-  courses(filter: $filter, pagination: $pagination, sort: $sort) {
+    query Courses($filter: CourseFilterInput, $pagination: CoursePaginationInput, $sort: CourseSortInput, $locale: AppLanguage) {
+  courses(filter: $filter, pagination: $pagination, sort: $sort, locale: $locale) {
     items {
       ...CourseFields
+      ...CourseLocaleFields
     }
     totalCount
     pageInfo {
@@ -167,6 +191,12 @@ export const CoursesDocument = /*#__PURE__*/ new TypedDocumentString(`
 fragment CoursePageInfoFields on CoursePageInfo {
   nextCursor
   hasNextPage
+  previousCursor
+  hasPreviousPage
+}
+fragment CourseLocaleFields on Course {
+  contentLanguage
+  availableLocales
 }`) as unknown as TypedDocumentString<CoursesQuery, CoursesQueryVariables>;
 export const CourseByIdDocument = /*#__PURE__*/ new TypedDocumentString(`
     query CourseById($courseId: String!) {
@@ -202,9 +232,11 @@ export const CourseByIdDocument = /*#__PURE__*/ new TypedDocumentString(`
   deletedAt
 }`) as unknown as TypedDocumentString<CourseByIdQuery, CourseByIdQueryVariables>;
 export const CourseBySlugDocument = /*#__PURE__*/ new TypedDocumentString(`
-    query CourseBySlug($slug: String!) {
-  courseBySlug(slug: $slug) {
+    query CourseBySlug($slug: String!, $locale: AppLanguage) {
+  courseBySlug(slug: $slug, locale: $locale) {
     ...CourseFields
+    ...CourseLocaleFields
+    ...CourseSeoPublicFields
   }
 }
     fragment CourseFields on Course {
@@ -233,6 +265,17 @@ export const CourseBySlugDocument = /*#__PURE__*/ new TypedDocumentString(`
   createdAt
   updatedAt
   deletedAt
+}
+fragment CourseSeoPublicFields on Course {
+  seoTitle
+  seoDescription
+  socialImagePath
+  socialImageAlt
+  excludeFromIndex
+}
+fragment CourseLocaleFields on Course {
+  contentLanguage
+  availableLocales
 }`) as unknown as TypedDocumentString<CourseBySlugQuery, CourseBySlugQueryVariables>;
 export const FeaturedCoursesDocument = /*#__PURE__*/ new TypedDocumentString(`
     query FeaturedCourses($take: Int) {
@@ -309,6 +352,8 @@ export const MyProviderCoursesDocument = /*#__PURE__*/ new TypedDocumentString(`
 fragment CoursePageInfoFields on CoursePageInfo {
   nextCursor
   hasNextPage
+  previousCursor
+  hasPreviousPage
 }`) as unknown as TypedDocumentString<MyProviderCoursesQuery, MyProviderCoursesQueryVariables>;
 export const CreateCourseDocument = /*#__PURE__*/ new TypedDocumentString(`
     mutation CreateCourse($input: CreateCourseInput!) {

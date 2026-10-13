@@ -1,0 +1,145 @@
+# ================ Fragments ==============
+fragment ProviderPublicProfileDraftFields on ProviderPublicProfileDraft {
+  id
+  slug
+  status
+  reviewState
+  displayName
+  biography
+  websiteUrl
+  logoImageId
+  logoPath
+  draftVersion
+  submittedAt
+  reviewedAt
+  reviewNote
+  publishedAt
+  isLive
+  hasUnpublishedChanges
+  links {
+    label
+    url
+  }
+}
+
+fragment AdminProviderPublicProfileFields on AdminProviderPublicProfile {
+  id
+  slug
+  status
+  reviewState
+  displayName
+  biography
+  websiteUrl
+  logoImageId
+  logoPath
+  draftVersion
+  submittedAt
+  reviewedAt
+  reviewNote
+  publishedAt
+  isLive
+  hasUnpublishedChanges
+  links {
+    label
+    url
+  }
+  providerId
+  providerName
+  excludeFromIndex
+  withdrawnAt
+}
+
+# ================ Public ==============
+query ProviderPublicProfileBySlug($slug: String!) {
+  providerPublicProfileBySlug(slug: $slug) {
+    slug
+    displayName
+    biography
+    logoPath
+    websiteUrl
+    excludeFromIndex
+    publishedAt
+    updatedAt
+    links {
+      label
+      url
+    }
+    items {
+      kind
+      slug
+      title
+      summary
+      imageUrl
+      category
+    }
+  }
+}
+
+query ProviderPublicBylineForContent(
+  $kind: ContentUrlKind!
+  $contentId: String!
+) {
+  providerPublicBylineForContent(kind: $kind, contentId: $contentId) {
+    slug
+    displayName
+  }
+}
+
+# ================ Provider ==============
+query MyProviderPublicProfile {
+  myProviderPublicProfile {
+    ...ProviderPublicProfileDraftFields
+  }
+}
+
+mutation SaveProviderPublicProfile($input: SaveProviderPublicProfileInput!) {
+  saveProviderPublicProfile(input: $input) {
+    ...ProviderPublicProfileDraftFields
+  }
+}
+
+mutation SubmitProviderPublicProfile(
+  $input: SubmitProviderPublicProfileInput!
+) {
+  submitProviderPublicProfile(input: $input) {
+    ...ProviderPublicProfileDraftFields
+  }
+}
+
+mutation WithdrawProviderPublicProfile {
+  withdrawProviderPublicProfile {
+    ...ProviderPublicProfileDraftFields
+  }
+}
+
+# ================ Administration ==============
+query AdminProviderPublicProfiles($reviewState: ProviderProfileReviewState) {
+  adminProviderPublicProfiles(reviewState: $reviewState) {
+    ...AdminProviderPublicProfileFields
+  }
+}
+
+mutation ReviewProviderPublicProfile(
+  $input: ReviewProviderPublicProfileInput!
+) {
+  reviewProviderPublicProfile(input: $input) {
+    ...AdminProviderPublicProfileFields
+  }
+}
+
+mutation WithdrawProviderPublicProfileAsAdmin(
+  $input: ModerateProviderPublicProfileInput!
+) {
+  withdrawProviderPublicProfileAsAdmin(input: $input) {
+    ...AdminProviderPublicProfileFields
+  }
+}
+
+mutation SetProviderPublicProfileIndexExclusion(
+  $input: SetProviderPublicProfileIndexExclusionInput!
+) {
+  setProviderPublicProfileIndexExclusion(input: $input) {
+    id
+    excludeFromIndex
+  }
+}

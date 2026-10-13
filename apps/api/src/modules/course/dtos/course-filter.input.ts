@@ -1,14 +1,17 @@
 import { CourseCategory, CourseLevel, CourseStatus } from "@prisma/client";
 import { IsBoolean, IsEnum, IsNumber, Max, Min } from "class-validator";
+import { MAX_CATALOG_SEARCH_LENGTH } from "@utils/catalog-pagination.util";
 import { Field, Float, InputType } from "@nestjs/graphql";
 import { IsOptional, IsString } from "class-validator";
 import { CourseGqlInputNames } from "@course/enums/gql-names.enum";
+import { MaxLength } from "class-validator";
 
 @InputType(CourseGqlInputNames.COURSE_FILTER)
 export class CourseFilterInput {
   @Field(() => String, { nullable: true })
   @IsOptional()
   @IsString()
+  @MaxLength(MAX_CATALOG_SEARCH_LENGTH)
   search?: string;
 
   @Field(() => CourseCategory, { nullable: true })

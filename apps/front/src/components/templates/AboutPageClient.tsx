@@ -6,7 +6,7 @@ import { useI18n } from "@hooks/useI18n";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
 
-import Link from "next/link";
+import Link from "@elements/localized-link";
 
 import * as C from "@/utils/constant";
 import * as L from "lucide-react";

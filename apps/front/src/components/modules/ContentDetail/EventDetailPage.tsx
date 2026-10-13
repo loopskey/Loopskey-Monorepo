@@ -2,54 +2,34 @@
 
 import { Award, MapPin, MonitorPlay, Users } from "lucide-react";
 import { ContentType, EventType, PduSource } from "@/lib/graphql/base";
+import { TEventDetailPageProps } from "@/types/content-module.types";
 import { formatEventDateTime } from "@/utils/content-source.helper";
 import { resolveExternalUrl } from "@/utils/content-source.helper";
 import { CalendarEventType } from "@/lib/graphql/base";
 import { humanizeEnumValue } from "@/utils/function-helper";
 import { useContentActions } from "@/hooks/useContentActions";
 import { formatPriceLabel } from "@/utils/content-source.helper";
-import { GlassCard } from "@elements/glass-card";
 import { UserPlus } from "lucide-react";
 import { useI18n } from "@/hooks/useI18n";
 import { Mic2 } from "lucide-react";
 
 import DetailSidebarActions from "@modules/ContentDetail/parts/DetailSidebarActions";
 import DetailPageHeader from "@modules/ContentDetail/parts/DetailPageHeader";
-import DetailSkeleton from "@modules/ContentDetail/parts/DetailSkeleton";
+import EventViewSignal from "@modules/ContentDetail/parts/EventViewSignal";
 import EventSchedule from "@modules/ContentDetail/parts/EventSchedule";
 import DetailSidebar from "@modules/ContentDetail/parts/DetailSidebar";
 import DetailSummary from "@modules/ContentDetail/parts/DetailSummary";
 import DetailSection from "@modules/ContentDetail/parts/DetailSection";
 import DetailLayout from "@modules/ContentDetail/parts/DetailLayout";
 
-import * as EventApi from "@/lib/rtk/endpoints/event.api";
-
-const EventDetailPage = ({ slug }: { slug: string }) => {
+const EventDetailPage = ({ event, breadcrumbs }: TEventDetailPageProps) => {
   const { t } = useI18n();
 
-  const { data: event, isLoading } = EventApi.useEventBySlugQuery({ slug });
-
   const actions = useContentActions({
-    contentId: event?.id,
+    contentId: event.id,
     contentType: ContentType.Event,
-    skipEnrollment: !event?.registrationEnabled,
+    skipEnrollment: !event.registrationEnabled,
   });
-
-  if (isLoading) return <DetailSkeleton />;
-
-  if (!event) {
-    return (
-      <main className="px-4 py-10 sm:px-6 lg:px-8">
-        <GlassCard className="mx-auto max-w-3xl p-10 text-center" glow={false}>
-          <div className="relative z-10">
-            <h1 className="text-2xl font-medium">
-              {t("contentDetails.common.notFound")}
-            </h1>
-          </div>
-        </GlassCard>
-      </main>
-    );
-  }
 
   const endsAt = formatEventDateTime(event.endDate, event.timezone);
 
@@ -66,9 +46,12 @@ const EventDetailPage = ({ slug }: { slug: string }) => {
 
   return (
     <DetailLayout
+      breadcrumbs={breadcrumbs}
       header={
         <DetailPageHeader
           title={event.title}
+          contentLanguage={event.contentLanguage}
+          availableLocales={event.availableLocales}
           badge={t("contentDetails.event.badge")}
           rating={event.averageRating ?? event.rating}
           ratingCount={event.ratingCount}
@@ -95,11 +78,9 @@ const EventDetailPage = ({ slug }: { slug: string }) => {
       }
       sidebar={
         <DetailSidebar
-          id={event.id}
           kind="event"
           title={event.title}
           imageUrl={event.imageUrl}
-          category={event.category}
           summary={
             <DetailSummary
               items={[
@@ -198,6 +179,8 @@ const EventDetailPage = ({ slug }: { slug: string }) => {
         />
       }
     >
+      <EventViewSignal eventId={event.id} />
+
       {event.description && (
         <DetailSection title={t("contentDetails.event.about")}>
           <p className="whitespace-pre-line text-sm leading-7 text-muted-foreground sm:text-base">

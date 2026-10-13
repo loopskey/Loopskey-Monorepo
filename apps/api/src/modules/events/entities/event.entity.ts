@@ -46,4 +46,18 @@ export class EventEntity {
   pduCategory?: PDUCategory | null;
   @Field(() => [EventScheduleItemEntity], { nullable: true })
   scheduleItems?: EventScheduleItemEntity[];
+  @Field(() => AppLanguage, { nullable: true })
+  contentLanguage?: AppLanguage | null;
+  @Field(() => [AppLanguage], { nullable: true })
+  availableLocales?: AppLanguage[] | null;
+  @Field(() => String, { nullable: true })
+  seoTitle?: string | null;
+  @Field(() => String, { nullable: true })
+  seoDescription?: string | null;
+  @Field(() => String, { nullable: true })
+  socialImagePath?: string | null;
+  @Field(() => String, { nullable: true })
+  socialImageAlt?: string | null;
+  @Field(() => Boolean, { nullable: true })
+  excludeFromIndex?: boolean | null;
 }

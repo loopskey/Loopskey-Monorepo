@@ -1,7 +1,11 @@
 import {
   ACCESS_TOKEN_COOKIE_DEFAULT,
+  JWT_ACCESS_AUDIENCE,
+  JWT_ALGORITHM,
+  JWT_ISSUER,
   PLATFORM_ROLES,
 } from "@loopskey/api-contracts/auth";
+import { NOINDEX_DIRECTIVE, ROBOTS_TAG_HEADER } from "@/lib/site/route-policy";
 import { NextRequest, NextResponse } from "next/server";
 import { TSessionPayload } from "@/types/guards.types";
 import { jwtVerify } from "jose";
@@ -63,7 +67,11 @@ const verifySession = async (
   const secret = getJwtAccessSecret();
   if (!secret) return null;
   try {
-    const { payload } = await jwtVerify(token, secret);
+    const { payload } = await jwtVerify(token, secret, {
+      issuer: JWT_ISSUER,
+      audience: JWT_ACCESS_AUDIENCE,
+      algorithms: [JWT_ALGORITHM],
+    });
     return {
       sub: typeof payload.sub === "string" ? payload.sub : undefined,
       role: typeof payload.role === "string" ? payload.role : undefined,
@@ -71,6 +79,11 @@ const verifySession = async (
   } catch {
     return null;
   }
+};
+
+const withNoindex = (response: NextResponse) => {
+  response.headers.set(ROBOTS_TAG_HEADER, NOINDEX_DIRECTIVE);
+  return response;
 };
 
 export async function proxy(request: NextRequest) {
@@ -89,30 +102,32 @@ export async function proxy(request: NextRequest) {
         ];
 
       if (dashboardPath) {
-        return NextResponse.redirect(new URL(dashboardPath, request.url));
+        return withNoindex(
+          NextResponse.redirect(new URL(dashboardPath, request.url)),
+        );
       }
     }
 
-    return NextResponse.next();
+    return withNoindex(NextResponse.next());
   }
 
   const matchedRoute = ROLE_ROUTES.find((route) => {
     return pathname.startsWith(route.prefix);
   });
 
-  if (!matchedRoute) return NextResponse.next();
+  if (!matchedRoute) return withNoindex(NextResponse.next());
 
   if (!session?.sub) {
     const loginUrl = new URL("/auth/professional", request.url);
     loginUrl.searchParams.set("redirectTo", pathname);
-    return NextResponse.redirect(loginUrl);
+    return withNoindex(NextResponse.redirect(loginUrl));
   }
 
   if (!session.role || !matchedRoute.roles.includes(session.role as never)) {
-    return NextResponse.redirect(new URL("/", request.url));
+    return withNoindex(NextResponse.redirect(new URL("/", request.url)));
   }
 
-  return NextResponse.next();
+  return withNoindex(NextResponse.next());
 }
 
 export const config = {

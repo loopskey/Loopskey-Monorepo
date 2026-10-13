@@ -4,16 +4,21 @@ export type YouTubeChannelFieldsFragment = { __typename?: 'YouTubeChannel', id: 
 
 export type YouTubeVideoFieldsFragment = { __typename?: 'YouTubeVideo', id: string, title: string, views: number, likes: number, status: Types.YouTubeVideoStatus, videoUrl?: string | null, channelId: string, createdAt: string, updatedAt: string, description?: string | null, publishedAt?: string | null, thumbnailUrl?: string | null, durationMinutes?: number | null };
 
-export type YouTubeChannelPageInfoFieldsFragment = { __typename?: 'YouTubeChannelPageInfo', nextCursor?: string | null, hasNextPage: boolean };
+export type YouTubeChannelPageInfoFieldsFragment = { __typename?: 'YouTubeChannelPageInfo', nextCursor?: string | null, hasNextPage: boolean, previousCursor?: string | null, hasPreviousPage: boolean };
+
+export type YouTubeChannelSeoPublicFieldsFragment = { __typename?: 'YouTubeChannel', seoTitle?: string | null, seoDescription?: string | null, socialImagePath?: string | null, socialImageAlt?: string | null, excludeFromIndex?: boolean | null };
+
+export type YouTubeChannelLocaleFieldsFragment = { __typename?: 'YouTubeChannel', contentLanguage?: Types.AppLanguage | null, availableLocales?: Array<Types.AppLanguage> | null };
 
 export type YouTubeChannelsQueryVariables = Types.Exact<{
   filter?: Types.InputMaybe<Types.YouTubeChannelFilterInput>;
   pagination?: Types.InputMaybe<Types.YouTubeChannelPaginationInput>;
   sort?: Types.InputMaybe<Types.YouTubeChannelSortInput>;
+  locale?: Types.InputMaybe<Types.AppLanguage>;
 }>;
 
 
-export type YouTubeChannelsQuery = { __typename?: 'Query', youtubeChannels: { __typename?: 'PaginatedYouTubeChannels', totalCount: number, items: Array<{ __typename?: 'YouTubeChannel', id: string, slug: string, views: number, title: string, status: Types.YouTubeChannelStatus, rating: number, provider?: string | null, category: Types.YouTubeCategory, imageUrl?: string | null, updatedAt: string, createdAt: string, deletedAt?: string | null, channelUrl?: string | null, isFeatured: boolean, providerId?: string | null, videoCount: number, ratingCount: number, subscribers: number, description?: string | null }>, pageInfo: { __typename?: 'YouTubeChannelPageInfo', nextCursor?: string | null, hasNextPage: boolean } } };
+export type YouTubeChannelsQuery = { __typename?: 'Query', youtubeChannels: { __typename?: 'PaginatedYouTubeChannels', totalCount: number, items: Array<{ __typename?: 'YouTubeChannel', id: string, slug: string, views: number, title: string, status: Types.YouTubeChannelStatus, rating: number, provider?: string | null, category: Types.YouTubeCategory, imageUrl?: string | null, updatedAt: string, createdAt: string, deletedAt?: string | null, channelUrl?: string | null, isFeatured: boolean, providerId?: string | null, videoCount: number, ratingCount: number, subscribers: number, description?: string | null, contentLanguage?: Types.AppLanguage | null, availableLocales?: Array<Types.AppLanguage> | null }>, pageInfo: { __typename?: 'YouTubeChannelPageInfo', nextCursor?: string | null, hasNextPage: boolean, previousCursor?: string | null, hasPreviousPage: boolean } } };
 
 export type YouTubeChannelByIdQueryVariables = Types.Exact<{
   channelId: Types.Scalars['String']['input'];
@@ -24,10 +29,11 @@ export type YouTubeChannelByIdQuery = { __typename?: 'Query', youtubeChannelById
 
 export type YouTubeChannelBySlugQueryVariables = Types.Exact<{
   slug: Types.Scalars['String']['input'];
+  locale?: Types.InputMaybe<Types.AppLanguage>;
 }>;
 
 
-export type YouTubeChannelBySlugQuery = { __typename?: 'Query', youtubeChannelBySlug: { __typename?: 'YouTubeChannel', id: string, slug: string, views: number, title: string, status: Types.YouTubeChannelStatus, rating: number, provider?: string | null, category: Types.YouTubeCategory, imageUrl?: string | null, updatedAt: string, createdAt: string, deletedAt?: string | null, channelUrl?: string | null, isFeatured: boolean, providerId?: string | null, videoCount: number, ratingCount: number, subscribers: number, description?: string | null } };
+export type YouTubeChannelBySlugQuery = { __typename?: 'Query', youtubeChannelBySlug: { __typename?: 'YouTubeChannel', id: string, slug: string, views: number, title: string, status: Types.YouTubeChannelStatus, rating: number, provider?: string | null, category: Types.YouTubeCategory, imageUrl?: string | null, updatedAt: string, createdAt: string, deletedAt?: string | null, channelUrl?: string | null, isFeatured: boolean, providerId?: string | null, videoCount: number, ratingCount: number, subscribers: number, description?: string | null, contentLanguage?: Types.AppLanguage | null, availableLocales?: Array<Types.AppLanguage> | null, seoTitle?: string | null, seoDescription?: string | null, socialImagePath?: string | null, socialImageAlt?: string | null, excludeFromIndex?: boolean | null } };
 
 export type FeaturedYouTubeChannelsQueryVariables = Types.Exact<{
   take?: Types.InputMaybe<Types.Scalars['Int']['input']>;
@@ -50,7 +56,7 @@ export type MyProviderYouTubeChannelsQueryVariables = Types.Exact<{
 }>;
 
 
-export type MyProviderYouTubeChannelsQuery = { __typename?: 'Query', myProviderYouTubeChannels: { __typename?: 'PaginatedYouTubeChannels', totalCount: number, items: Array<{ __typename?: 'YouTubeChannel', id: string, slug: string, views: number, title: string, status: Types.YouTubeChannelStatus, rating: number, provider?: string | null, category: Types.YouTubeCategory, imageUrl?: string | null, updatedAt: string, createdAt: string, deletedAt?: string | null, channelUrl?: string | null, isFeatured: boolean, providerId?: string | null, videoCount: number, ratingCount: number, subscribers: number, description?: string | null }>, pageInfo: { __typename?: 'YouTubeChannelPageInfo', nextCursor?: string | null, hasNextPage: boolean } } };
+export type MyProviderYouTubeChannelsQuery = { __typename?: 'Query', myProviderYouTubeChannels: { __typename?: 'PaginatedYouTubeChannels', totalCount: number, items: Array<{ __typename?: 'YouTubeChannel', id: string, slug: string, views: number, title: string, status: Types.YouTubeChannelStatus, rating: number, provider?: string | null, category: Types.YouTubeCategory, imageUrl?: string | null, updatedAt: string, createdAt: string, deletedAt?: string | null, channelUrl?: string | null, isFeatured: boolean, providerId?: string | null, videoCount: number, ratingCount: number, subscribers: number, description?: string | null }>, pageInfo: { __typename?: 'YouTubeChannelPageInfo', nextCursor?: string | null, hasNextPage: boolean, previousCursor?: string | null, hasPreviousPage: boolean } } };
 
 export type CreateYouTubeChannelMutationVariables = Types.Exact<{
   input: Types.CreateYouTubeChannelInput;
@@ -164,13 +170,36 @@ export const YouTubeChannelPageInfoFieldsFragmentDoc = /*#__PURE__*/ new TypedDo
     fragment YouTubeChannelPageInfoFields on YouTubeChannelPageInfo {
   nextCursor
   hasNextPage
+  previousCursor
+  hasPreviousPage
 }
     `, {"fragmentName":"YouTubeChannelPageInfoFields"}) as unknown as TypedDocumentString<YouTubeChannelPageInfoFieldsFragment, unknown>;
+export const YouTubeChannelSeoPublicFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
+    fragment YouTubeChannelSeoPublicFields on YouTubeChannel {
+  seoTitle
+  seoDescription
+  socialImagePath
+  socialImageAlt
+  excludeFromIndex
+}
+    `, {"fragmentName":"YouTubeChannelSeoPublicFields"}) as unknown as TypedDocumentString<YouTubeChannelSeoPublicFieldsFragment, unknown>;
+export const YouTubeChannelLocaleFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
+    fragment YouTubeChannelLocaleFields on YouTubeChannel {
+  contentLanguage
+  availableLocales
+}
+    `, {"fragmentName":"YouTubeChannelLocaleFields"}) as unknown as TypedDocumentString<YouTubeChannelLocaleFieldsFragment, unknown>;
 export const YouTubeChannelsDocument = /*#__PURE__*/ new TypedDocumentString(`
-    query YouTubeChannels($filter: YouTubeChannelFilterInput, $pagination: YouTubeChannelPaginationInput, $sort: YouTubeChannelSortInput) {
-  youtubeChannels(filter: $filter, pagination: $pagination, sort: $sort) {
+    query YouTubeChannels($filter: YouTubeChannelFilterInput, $pagination: YouTubeChannelPaginationInput, $sort: YouTubeChannelSortInput, $locale: AppLanguage) {
+  youtubeChannels(
+    filter: $filter
+    pagination: $pagination
+    sort: $sort
+    locale: $locale
+  ) {
     items {
       ...YouTubeChannelFields
+      ...YouTubeChannelLocaleFields
     }
     totalCount
     pageInfo {
@@ -202,6 +231,12 @@ export const YouTubeChannelsDocument = /*#__PURE__*/ new TypedDocumentString(`
 fragment YouTubeChannelPageInfoFields on YouTubeChannelPageInfo {
   nextCursor
   hasNextPage
+  previousCursor
+  hasPreviousPage
+}
+fragment YouTubeChannelLocaleFields on YouTubeChannel {
+  contentLanguage
+  availableLocales
 }`) as unknown as TypedDocumentString<YouTubeChannelsQuery, YouTubeChannelsQueryVariables>;
 export const YouTubeChannelByIdDocument = /*#__PURE__*/ new TypedDocumentString(`
     query YouTubeChannelById($channelId: String!) {
@@ -231,9 +266,11 @@ export const YouTubeChannelByIdDocument = /*#__PURE__*/ new TypedDocumentString(
   description
 }`) as unknown as TypedDocumentString<YouTubeChannelByIdQuery, YouTubeChannelByIdQueryVariables>;
 export const YouTubeChannelBySlugDocument = /*#__PURE__*/ new TypedDocumentString(`
-    query YouTubeChannelBySlug($slug: String!) {
-  youtubeChannelBySlug(slug: $slug) {
+    query YouTubeChannelBySlug($slug: String!, $locale: AppLanguage) {
+  youtubeChannelBySlug(slug: $slug, locale: $locale) {
     ...YouTubeChannelFields
+    ...YouTubeChannelLocaleFields
+    ...YouTubeChannelSeoPublicFields
   }
 }
     fragment YouTubeChannelFields on YouTubeChannel {
@@ -256,6 +293,17 @@ export const YouTubeChannelBySlugDocument = /*#__PURE__*/ new TypedDocumentStrin
   ratingCount
   subscribers
   description
+}
+fragment YouTubeChannelSeoPublicFields on YouTubeChannel {
+  seoTitle
+  seoDescription
+  socialImagePath
+  socialImageAlt
+  excludeFromIndex
+}
+fragment YouTubeChannelLocaleFields on YouTubeChannel {
+  contentLanguage
+  availableLocales
 }`) as unknown as TypedDocumentString<YouTubeChannelBySlugQuery, YouTubeChannelBySlugQueryVariables>;
 export const FeaturedYouTubeChannelsDocument = /*#__PURE__*/ new TypedDocumentString(`
     query FeaturedYouTubeChannels($take: Int) {
@@ -341,6 +389,8 @@ export const MyProviderYouTubeChannelsDocument = /*#__PURE__*/ new TypedDocument
 fragment YouTubeChannelPageInfoFields on YouTubeChannelPageInfo {
   nextCursor
   hasNextPage
+  previousCursor
+  hasPreviousPage
 }`) as unknown as TypedDocumentString<MyProviderYouTubeChannelsQuery, MyProviderYouTubeChannelsQueryVariables>;
 export const CreateYouTubeChannelDocument = /*#__PURE__*/ new TypedDocumentString(`
     mutation CreateYouTubeChannel($input: CreateYouTubeChannelInput!) {

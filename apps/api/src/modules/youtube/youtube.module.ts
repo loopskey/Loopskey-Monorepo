@@ -1,7 +1,14 @@
+import { YouTubeChannelTranslationResolver } from "@youtube/resolvers/youtube-channel-translation.resolver";
+import { YouTubeChannelTranslationService } from "@youtube/services/youtube-channel-translation.service";
 import { YouTubeEngagementApiService } from "@youtube/application/youtube-engagement-api.service";
+import { YouTubePublicUrlApiService } from "@youtube/application/public-url-api.service";
 import { YOUTUBE_CATALOG_SEARCH_API } from "@youtube/public/catalog-search-api";
+import { YouTubeChannelSeoResolver } from "@youtube/resolvers/youtube-channel-seo.resolver";
+import { YouTubeChannelSeoService } from "@youtube/services/youtube-channel-seo.service";
 import { CatalogSearchApiService } from "@youtube/application/catalog-search-api.service";
+import { YOUTUBE_PUBLIC_URL_API } from "@youtube/public/public-url-api";
 import { YOUTUBE_ENGAGEMENT_API } from "@youtube/public/youtube-engagement-api";
+import { ContentMediaModule } from "@contentMedia/content-media.module";
 import { YouTubeResolver } from "@youtube/resolvers/youtube.resolver";
 import { YouTubeService } from "@youtube/services/youtbue.service";
 import { PrismaModule } from "@prisma/prisma.module";
@@ -10,11 +17,20 @@ import { Module } from "@nestjs/common";
 import "@youtube/enums/youtube-register.enum";
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, ContentMediaModule],
   providers: [
-    YouTubeResolver,
+    YouTubePublicUrlApiService,
+    {
+      provide: YOUTUBE_PUBLIC_URL_API,
+      useExisting: YouTubePublicUrlApiService,
+    },
     YouTubeService,
+    YouTubeResolver,
+    YouTubeChannelSeoService,
+    YouTubeChannelSeoResolver,
     YouTubeEngagementApiService,
+    YouTubeChannelTranslationService,
+    YouTubeChannelTranslationResolver,
     {
       provide: YOUTUBE_ENGAGEMENT_API,
       useExisting: YouTubeEngagementApiService,
@@ -25,6 +41,10 @@ import "@youtube/enums/youtube-register.enum";
       useExisting: CatalogSearchApiService,
     },
   ],
-  exports: [YOUTUBE_ENGAGEMENT_API, YOUTUBE_CATALOG_SEARCH_API],
+  exports: [
+    YOUTUBE_ENGAGEMENT_API,
+    YOUTUBE_CATALOG_SEARCH_API,
+    YOUTUBE_PUBLIC_URL_API,
+  ],
 })
 export class YouTubeModule {}

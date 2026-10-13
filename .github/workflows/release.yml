@@ -20,11 +20,12 @@ jobs:
     outputs:
       prefix: ${{ steps.ns.outputs.prefix }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
-      - name: Require the public GraphQL origin
+      - name: Require the public origins
         env:
           NEXT_PUBLIC_GRAPHQL_URL: ${{ vars.NEXT_PUBLIC_GRAPHQL_URL }}
+          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
         run: |
           if [ -z "$NEXT_PUBLIC_GRAPHQL_URL" ]; then
             echo "::error::Repository variable NEXT_PUBLIC_GRAPHQL_URL is not set." \
@@ -32,22 +33,51 @@ jobs:
                  "value ships a frontend that calls nothing."
             exit 1
           fi
+          if [ -z "$NEXT_PUBLIC_SITE_URL" ]; then
+            echo "::error::Repository variable NEXT_PUBLIC_SITE_URL is not set." \
+                 "It is the canonical public origin every canonical, Open Graph" \
+                 "and social URL is built from, and the frontend build refuses" \
+                 "to produce public pages without it."
+            exit 1
+          fi
+          case "$NEXT_PUBLIC_SITE_URL" in
+            https://*) ;;
+            *)
+              echo "::error::NEXT_PUBLIC_SITE_URL must be an https origin."
+              exit 1
+              ;;
+          esac
+          case "$NEXT_PUBLIC_SITE_URL" in
+            *localhost*|*127.0.0.1*|*@*)
+              echo "::error::NEXT_PUBLIC_SITE_URL must be the public hostname and" \
+                   "must never carry credentials."
+              exit 1
+              ;;
+          esac
+          site_host="${NEXT_PUBLIC_SITE_URL#https://}"
+          case "${site_host%/}" in
+            */*)
+              echo "::error::NEXT_PUBLIC_SITE_URL must be a bare origin with no path."
+              exit 1
+              ;;
+          esac
           echo "building the frontend against $NEXT_PUBLIC_GRAPHQL_URL"
+          echo "canonical public origin $NEXT_PUBLIC_SITE_URL"
 
       - name: Resolve registry namespace
         id: ns
         run: echo "prefix=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
 
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f
 
-      - uses: docker/login-action@v3
+      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push api
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8
         with:
           context: .
           file: Dockerfile.api
@@ -59,13 +89,19 @@ jobs:
           cache-to: type=gha,scope=api,mode=max
 
       - name: Build and push front
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8
         with:
           context: .
           file: Dockerfile.front
           push: true
           build-args: |
             NEXT_PUBLIC_GRAPHQL_URL=${{ vars.NEXT_PUBLIC_GRAPHQL_URL }}
+            NEXT_PUBLIC_SITE_URL=${{ vars.NEXT_PUBLIC_SITE_URL }}
+            DEPLOYMENT_ENV=production
+            SITE_CANONICAL_HOST_ALIASES=${{ vars.SITE_CANONICAL_HOST_ALIASES }}
+            SITE_HTTPS_REDIRECT=${{ vars.SITE_HTTPS_REDIRECT }}
+            NEXT_PUBLIC_TELEMETRY_ENABLED=${{ vars.NEXT_PUBLIC_TELEMETRY_ENABLED }}
+            NEXT_PUBLIC_TELEMETRY_VITALS_SAMPLE_RATE=${{ vars.NEXT_PUBLIC_TELEMETRY_VITALS_SAMPLE_RATE }}
           tags: |
             ${{ steps.ns.outputs.prefix }}/front:latest
             ${{ steps.ns.outputs.prefix }}/front:${{ github.sha }}

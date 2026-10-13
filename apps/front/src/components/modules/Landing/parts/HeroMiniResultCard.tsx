@@ -7,7 +7,7 @@ import { ContentThumbnail } from "@elements/content-thumbnail";
 import { useI18n } from "@/hooks/useI18n";
 import { cn } from "@/lib/utils";
 
-import Link from "next/link";
+import Link from "@elements/localized-link";
 
 const getIcon = (kind: TLandingHeroResultItem["kind"]) => {
   if (kind === "event") return <CalendarDays className="h-3.5 w-3.5" />;
@@ -30,11 +30,9 @@ const HeroMiniResultCard = ({ item }: { item: TLandingHeroResultItem }) => {
         <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md bg-muted">
           <ContentThumbnail
             sizes="64px"
-            id={item.id}
             kind={item.kind}
             title={item.title}
             imageUrl={item.imageUrl}
-            category={item.category}
             className="transition duration-500 group-hover:scale-110"
           />
         </div>

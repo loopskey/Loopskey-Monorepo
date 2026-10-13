@@ -1,3 +1,6 @@
+import { ProfessionalEngagementApiService } from "@contentAction/application/professional-engagement-api.service";
+import { CatalogContentChangedHandler } from "@contentAction/handlers/catalog-content-changed.handler";
+import { PROFESSIONAL_ENGAGEMENT_API } from "@contentAction/public/professional-engagement-api";
 import { ContentInteractionResolver } from "@contentAction/resolvers/content-interaction.resolver";
 import { ContentInteractionService } from "@contentAction/services/content-interaction.service";
 import { WishlistContentResolver } from "@contentAction/resolvers/wishlist-content.resolver";
@@ -7,9 +10,8 @@ import { YouTubeModule } from "@youtube/youtube.module";
 import { PrismaModule } from "@prisma/prisma.module";
 import { CourseModule } from "@course/course.module";
 import { EventModule } from "@events/events.module";
+import { MailModule } from "@mail/mail.module";
 import { Module } from "@nestjs/common";
-import { ProfessionalEngagementApiService } from "@contentAction/application/professional-engagement-api.service";
-import { PROFESSIONAL_ENGAGEMENT_API } from "@contentAction/public/professional-engagement-api";
 
 import "@contentAction/enums/content-interaction.enum";
 import "@contentAction/enums/wishlist-register.enum";
@@ -21,12 +23,14 @@ import "@contentAction/enums/wishlist-register.enum";
     EventModule,
     PodcastModule,
     YouTubeModule,
+    MailModule,
   ],
   providers: [
     WishlistContentService,
     WishlistContentResolver,
     ContentInteractionService,
     ContentInteractionResolver,
+    CatalogContentChangedHandler,
     ProfessionalEngagementApiService,
     {
       provide: PROFESSIONAL_ENGAGEMENT_API,

@@ -1,0 +1,298 @@
+{
+  "version": 1,
+  "limits": {
+    "maxRequests": 120,
+    "timeoutMs": 10000,
+    "concurrency": 4,
+    "maxSitemapShards": 10,
+    "maxBodyBytes": 2097152,
+    "sitemapUrlMax": 50000
+  },
+  "contentFixtures": {
+    "courseSlug": null,
+    "eventSlug": null,
+    "podcastSlug": null,
+    "youtubeSlug": null,
+    "topicSlug": null,
+    "providerSlug": null,
+    "courseSlugWithoutFrench": null,
+    "historicCourseSlug": null
+  },
+  "profiles": {
+    "static": [
+      "home-en",
+      "home-fr",
+      "about-en",
+      "about-fr",
+      "contact-en",
+      "faq-en",
+      "terms-en",
+      "privacy-en",
+      "private-auth",
+      "private-dashboard",
+      "unknown-en",
+      "unknown-fr",
+      "robots"
+    ],
+    "full": [
+      "home-en",
+      "home-fr",
+      "about-en",
+      "about-fr",
+      "contact-en",
+      "faq-en",
+      "terms-en",
+      "privacy-en",
+      "private-auth",
+      "private-dashboard",
+      "unknown-en",
+      "unknown-fr",
+      "catalog-en",
+      "catalog-fr",
+      "course-en",
+      "course-fr",
+      "event-en",
+      "podcast-en",
+      "youtube-en",
+      "topic-en",
+      "provider-en",
+      "provider-fr-absent",
+      "course-missing-french",
+      "course-unknown-slug",
+      "course-historic-slug",
+      "robots",
+      "sitemap"
+    ]
+  },
+  "routes": [
+    {
+      "id": "home-en",
+      "path": "/",
+      "kind": "page",
+      "locale": "en",
+      "alternates": { "en": "/", "fr": "/fr", "x-default": "/" },
+      "jsonLdTypes": ["Organization", "WebSite", "WebPage"]
+    },
+    {
+      "id": "home-fr",
+      "path": "/fr",
+      "kind": "page",
+      "locale": "fr",
+      "alternates": { "en": "/", "fr": "/fr", "x-default": "/" },
+      "jsonLdTypes": ["Organization", "WebSite", "WebPage"]
+    },
+    {
+      "id": "about-en",
+      "path": "/about",
+      "kind": "page",
+      "locale": "en",
+      "alternates": {
+        "en": "/about",
+        "fr": "/fr/about",
+        "x-default": "/about"
+      },
+      "jsonLdTypes": ["AboutPage"]
+    },
+    {
+      "id": "about-fr",
+      "path": "/fr/about",
+      "kind": "page",
+      "locale": "fr",
+      "alternates": {
+        "en": "/about",
+        "fr": "/fr/about",
+        "x-default": "/about"
+      },
+      "jsonLdTypes": ["AboutPage"]
+    },
+    {
+      "id": "contact-en",
+      "path": "/contact",
+      "kind": "page",
+      "locale": "en",
+      "alternates": {
+        "en": "/contact",
+        "fr": "/fr/contact",
+        "x-default": "/contact"
+      }
+    },
+    {
+      "id": "faq-en",
+      "path": "/faq",
+      "kind": "page",
+      "locale": "en",
+      "alternates": { "en": "/faq", "fr": "/fr/faq", "x-default": "/faq" }
+    },
+    {
+      "id": "terms-en",
+      "path": "/terms",
+      "kind": "page",
+      "locale": "en",
+      "alternates": { "en": "/terms", "fr": "/fr/terms", "x-default": "/terms" }
+    },
+    {
+      "id": "privacy-en",
+      "path": "/privacy-policy",
+      "kind": "page",
+      "locale": "en",
+      "alternates": {
+        "en": "/privacy-policy",
+        "fr": "/fr/privacy-policy",
+        "x-default": "/privacy-policy"
+      }
+    },
+    {
+      "id": "private-auth",
+      "path": "/auth/professional",
+      "kind": "private",
+      "indexable": false,
+      "status": [200, 307, 308]
+    },
+    {
+      "id": "private-dashboard",
+      "path": "/dashboard",
+      "kind": "private",
+      "indexable": false,
+      "status": [200, 307, 308, 401, 403, 404]
+    },
+    {
+      "id": "unknown-en",
+      "path": "/this-page-does-not-exist-seo-audit",
+      "kind": "missing",
+      "indexable": false,
+      "status": 404
+    },
+    {
+      "id": "unknown-fr",
+      "path": "/fr/this-page-does-not-exist-seo-audit",
+      "kind": "missing",
+      "indexable": false,
+      "status": 404
+    },
+    {
+      "id": "catalog-en",
+      "path": "/content",
+      "kind": "page",
+      "locale": "en",
+      "alternates": {
+        "en": "/content",
+        "fr": "/fr/content",
+        "x-default": "/content"
+      }
+    },
+    {
+      "id": "catalog-fr",
+      "path": "/fr/content",
+      "kind": "page",
+      "locale": "fr",
+      "alternates": {
+        "en": "/content",
+        "fr": "/fr/content",
+        "x-default": "/content"
+      }
+    },
+    {
+      "id": "course-en",
+      "path": "/courses/{courseSlug}",
+      "kind": "page",
+      "locale": "en",
+      "alternates": {
+        "en": "/courses/{courseSlug}",
+        "fr": "/fr/courses/{courseSlug}",
+        "x-default": "/courses/{courseSlug}"
+      },
+      "jsonLdTypes": ["Course"]
+    },
+    {
+      "id": "course-fr",
+      "path": "/fr/courses/{courseSlug}",
+      "kind": "page",
+      "locale": "fr",
+      "alternates": {
+        "en": "/courses/{courseSlug}",
+        "fr": "/fr/courses/{courseSlug}",
+        "x-default": "/courses/{courseSlug}"
+      },
+      "jsonLdTypes": ["Course"]
+    },
+    {
+      "id": "event-en",
+      "path": "/events/{eventSlug}",
+      "kind": "page",
+      "locale": "en",
+      "alternates": {
+        "en": "/events/{eventSlug}",
+        "fr": "/fr/events/{eventSlug}",
+        "x-default": "/events/{eventSlug}"
+      },
+      "jsonLdTypes": ["Event"]
+    },
+    {
+      "id": "podcast-en",
+      "path": "/podcasts/{podcastSlug}",
+      "kind": "page",
+      "locale": "en",
+      "alternates": {
+        "en": "/podcasts/{podcastSlug}",
+        "fr": "/fr/podcasts/{podcastSlug}",
+        "x-default": "/podcasts/{podcastSlug}"
+      },
+      "jsonLdTypes": ["PodcastSeries"]
+    },
+    {
+      "id": "youtube-en",
+      "path": "/youtube/{youtubeSlug}",
+      "kind": "page",
+      "locale": "en",
+      "alternates": {
+        "en": "/youtube/{youtubeSlug}",
+        "fr": "/fr/youtube/{youtubeSlug}",
+        "x-default": "/youtube/{youtubeSlug}"
+      }
+    },
+    {
+      "id": "topic-en",
+      "path": "/topics/{topicSlug}",
+      "kind": "page",
+      "locale": "en",
+      "alternates": "none",
+      "jsonLdTypes": ["CollectionPage"]
+    },
+    {
+      "id": "provider-en",
+      "path": "/providers/{providerSlug}",
+      "kind": "page",
+      "locale": "en",
+      "alternates": "none",
+      "jsonLdTypes": ["Organization"]
+    },
+    {
+      "id": "provider-fr-absent",
+      "path": "/fr/providers/{providerSlug}",
+      "kind": "missing",
+      "indexable": false,
+      "status": 404
+    },
+    {
+      "id": "course-missing-french",
+      "path": "/fr/courses/{courseSlugWithoutFrench}",
+      "kind": "missing",
+      "indexable": false,
+      "status": 404
+    },
+    {
+      "id": "course-unknown-slug",
+      "path": "/courses/this-course-does-not-exist-seo-audit",
+      "kind": "missing",
+      "indexable": false,
+      "status": 404
+    },
+    {
+      "id": "course-historic-slug",
+      "path": "/courses/{historicCourseSlug}",
+      "kind": "redirect",
+      "status": 308,
+      "redirectTo": "/courses/{courseSlug}"
+    }
+  ]
+}

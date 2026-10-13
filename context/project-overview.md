@@ -375,6 +375,54 @@ refresh-token sessions, account status, and role-based access.
   rows in a draft state; it does not own the catalogue models themselves. See
   the Communication Architecture section and `apps/api/docs/content-ingestion.md`.
 
+#### Public catalogue navigation
+
+`/content` renders on the server from the URL alone. Its parameters are
+`tab` (`events`, `podcasts`, `youtube`; courses is the bare path), `q`, `category`,
+`level` and `rating` (courses), `eventType` (events) and `after`. Anything else,
+repeated values, empty values, a one-character search and `tab=courses` are
+dropped by a permanent redirect to the normalized URL, so tracking parameters
+and parameter order never create a second URL.
+
+- Unfiltered pages, including every cursor page, are indexable and canonical to
+  themselves. A search or any filter is `noindex, follow` and still canonical to
+  itself. An unknown tab, value or malformed cursor shows an invalid-link notice
+  and an expired cursor shows a restart notice; both are `noindex`. An upstream
+  failure is a real 5xx, never an empty result.
+- The page size is fixed. `after` is an opaque, versioned token bound to the kind
+  and sort (or to the search order); it carries only a row id, so a cursor is
+  navigation and not authorization. The API answers `CATALOG_CURSOR_INVALID`
+  (bad request) or `CATALOG_CURSOR_EXPIRED` (gone) and every public list returns
+  `previousCursor`/`hasPreviousPage` alongside `nextCursor`/`hasNextPage`.
+- Listings order by the requested field with an `id` tiebreaker. A search pages
+  through the capped relevance candidate set (500 rows), ordered by rank, then
+  the kind's tiebreakers, and its `totalCount` is clamped to that set. A row
+  that changes while a visitor pages can shift later pages by that row; a row
+  that disappears expires only a cursor that points at it.
+
+#### Localized public pages
+
+English public URLs stay unprefixed and French variants live under `/fr`;
+`/en/...` redirects permanently to the unprefixed path. The URL alone chooses the
+server-rendered language, `<html lang>`, metadata and `hreflang` alternates, and
+a stored preference never overrides it on a public route (auth, dashboards and
+onboarding stay English-only and keep the stored preference). Catalogue details
+have a French variant only when a published, complete French translation exists
+for the row, and the sitemap lists only variants that exist. The translation
+tables, the source-language rules and the 404 behaviour are in
+`apps/front/docs/localized-public-pages.md`.
+
+#### Editorial search and sharing controls
+
+Providers set a search title, search description and share image per language
+for their own catalogue pages, and administrators can additionally ask search
+engines not to index a page. Overrides live in per-kind `*Seo` tables with one
+row per content and language, an optimistic `version`, and a RESTRICT foreign key
+to `ContentSocialImage`. Generated metadata remains the default; an override
+replaces only the text it sets, and a hidden page gets `noindex`, no alternates,
+no structured data and leaves the sitemap while staying published. See
+`apps/front/docs/content-seo.md`.
+
 ### Engagement and commerce
 
 Wishlists, enrollments, reviews, carts, cart items, certificates, and payments

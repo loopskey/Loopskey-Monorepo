@@ -214,10 +214,91 @@ export type AdminProfile = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
+export type AdminProviderPublicProfile = {
+  __typename?: 'AdminProviderPublicProfile';
+  biography?: Maybe<Scalars['String']['output']>;
+  displayName?: Maybe<Scalars['String']['output']>;
+  draftVersion: Scalars['Int']['output'];
+  excludeFromIndex: Scalars['Boolean']['output'];
+  hasUnpublishedChanges: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  isLive: Scalars['Boolean']['output'];
+  links: Array<ProviderPublicProfileLink>;
+  logoImageId?: Maybe<Scalars['ID']['output']>;
+  logoPath?: Maybe<Scalars['String']['output']>;
+  providerId: Scalars['ID']['output'];
+  providerName?: Maybe<Scalars['String']['output']>;
+  publishedAt?: Maybe<Scalars['DateTime']['output']>;
+  reviewNote?: Maybe<Scalars['String']['output']>;
+  reviewState: ProviderProfileReviewState;
+  reviewedAt?: Maybe<Scalars['DateTime']['output']>;
+  slug: Scalars['String']['output'];
+  status: ProviderProfileStatus;
+  submittedAt?: Maybe<Scalars['DateTime']['output']>;
+  websiteUrl?: Maybe<Scalars['String']['output']>;
+  withdrawnAt?: Maybe<Scalars['DateTime']['output']>;
+};
+
 export type AdminRequestTrendPoint = {
   __typename?: 'AdminRequestTrendPoint';
   count: Scalars['Int']['output'];
   date: Scalars['String']['output'];
+};
+
+export type AdminTopicHub = {
+  __typename?: 'AdminTopicHub';
+  category?: Maybe<Scalars['String']['output']>;
+  eligibleLinkCount: Scalars['Int']['output'];
+  excludeFromIndex: Scalars['Boolean']['output'];
+  guidance: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  introduction: Scalars['String']['output'];
+  linkCount: Scalars['Int']['output'];
+  needsReview: Scalars['Boolean']['output'];
+  publishedAt?: Maybe<Scalars['DateTime']['output']>;
+  references: Array<AdminTopicHubReference>;
+  sections: Array<TopicHubSection>;
+  slug: Scalars['String']['output'];
+  status: TopicHubStatus;
+  title: Scalars['String']['output'];
+  translations: Array<AdminTopicHubTranslation>;
+  updatedAt: Scalars['DateTime']['output'];
+  version: Scalars['Int']['output'];
+};
+
+export type AdminTopicHubReference = {
+  __typename?: 'AdminTopicHubReference';
+  contentId: Scalars['ID']['output'];
+  isEligible: Scalars['Boolean']['output'];
+  kind: ContentUrlKind;
+  slug?: Maybe<Scalars['String']['output']>;
+  title?: Maybe<Scalars['String']['output']>;
+};
+
+export type AdminTopicHubSummary = {
+  __typename?: 'AdminTopicHubSummary';
+  eligibleLinkCount: Scalars['Int']['output'];
+  excludeFromIndex: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  linkCount: Scalars['Int']['output'];
+  needsReview: Scalars['Boolean']['output'];
+  publishedAt?: Maybe<Scalars['DateTime']['output']>;
+  slug: Scalars['String']['output'];
+  status: TopicHubStatus;
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  version: Scalars['Int']['output'];
+};
+
+export type AdminTopicHubTranslation = {
+  __typename?: 'AdminTopicHubTranslation';
+  guidance: Scalars['String']['output'];
+  introduction: Scalars['String']['output'];
+  isPublished: Scalars['Boolean']['output'];
+  locale: AppLanguage;
+  sections: Array<TopicHubSection>;
+  title: Scalars['String']['output'];
+  version: Scalars['Int']['output'];
 };
 
 export type AdminUser = {
@@ -1408,6 +1489,9 @@ export enum AuditAction {
   AssociationActivityRejected = 'ASSOCIATION_ACTIVITY_REJECTED',
   AssociationMemberInvitationAccepted = 'ASSOCIATION_MEMBER_INVITATION_ACCEPTED',
   AssociationSettingsUpdated = 'ASSOCIATION_SETTINGS_UPDATED',
+  ContentIndexExclusionChanged = 'CONTENT_INDEX_EXCLUSION_CHANGED',
+  ContentSeoUpdated = 'CONTENT_SEO_UPDATED',
+  ContentSlugChanged = 'CONTENT_SLUG_CHANGED',
   OrganizationAccountActivated = 'ORGANIZATION_ACCOUNT_ACTIVATED',
   OrganizationAccountCreated = 'ORGANIZATION_ACCOUNT_CREATED',
   OrganizationActivationResent = 'ORGANIZATION_ACTIVATION_RESENT',
@@ -1419,6 +1503,13 @@ export enum AuditAction {
   OrgAccessRequestApproved = 'ORG_ACCESS_REQUEST_APPROVED',
   OrgAccessRequestRejected = 'ORG_ACCESS_REQUEST_REJECTED',
   OrgAccessRequestSubmitted = 'ORG_ACCESS_REQUEST_SUBMITTED',
+  ProviderProfileIndexExclusionChanged = 'PROVIDER_PROFILE_INDEX_EXCLUSION_CHANGED',
+  ProviderProfileReviewed = 'PROVIDER_PROFILE_REVIEWED',
+  ProviderProfileSubmitted = 'PROVIDER_PROFILE_SUBMITTED',
+  ProviderProfileWithdrawn = 'PROVIDER_PROFILE_WITHDRAWN',
+  TopicHubIndexExclusionChanged = 'TOPIC_HUB_INDEX_EXCLUSION_CHANGED',
+  TopicHubStatusChanged = 'TOPIC_HUB_STATUS_CHANGED',
+  TopicHubUpdated = 'TOPIC_HUB_UPDATED',
   UserDeleted = 'USER_DELETED',
   UserExported = 'USER_EXPORTED',
   UserStatusUpdated = 'USER_STATUS_UPDATED'
@@ -1612,6 +1703,13 @@ export type CertificationSearchInput = {
   query: Scalars['String']['input'];
 };
 
+export type ChangeContentSlugInput = {
+  contentId: Scalars['ID']['input'];
+  expectedSlug: Scalars['String']['input'];
+  kind: ContentUrlKind;
+  slug: Scalars['String']['input'];
+};
+
 export type ChangePasswordInput = {
   confirmPassword: Scalars['String']['input'];
   currentPassword: Scalars['String']['input'];
@@ -1705,6 +1803,26 @@ export type ContentReview = {
   userId: Scalars['String']['output'];
 };
 
+export type ContentSeoLocale = {
+  __typename?: 'ContentSeoLocale';
+  defaultDescription?: Maybe<Scalars['String']['output']>;
+  defaultTitle: Scalars['String']['output'];
+  locale: AppLanguage;
+  seoDescription?: Maybe<Scalars['String']['output']>;
+  seoTitle?: Maybe<Scalars['String']['output']>;
+  socialImageAlt?: Maybe<Scalars['String']['output']>;
+  socialImageId?: Maybe<Scalars['String']['output']>;
+  socialImagePath?: Maybe<Scalars['String']['output']>;
+  updatedAt?: Maybe<Scalars['DateTime']['output']>;
+  version: Scalars['Int']['output'];
+};
+
+export type ContentSeoSettings = {
+  __typename?: 'ContentSeoSettings';
+  excludeFromIndex: Scalars['Boolean']['output'];
+  locales: Array<ContentSeoLocale>;
+};
+
 export enum ContentType {
   Course = 'COURSE',
   Event = 'EVENT',
@@ -1712,15 +1830,40 @@ export enum ContentType {
   Youtube = 'YOUTUBE'
 }
 
+export enum ContentUrlKind {
+  Course = 'COURSE',
+  Event = 'EVENT',
+  Podcast = 'PODCAST',
+  Provider = 'PROVIDER',
+  Topic = 'TOPIC',
+  Youtube = 'YOUTUBE'
+}
+
+export type ContentUrlResolution = {
+  __typename?: 'ContentUrlResolution';
+  slug: Scalars['String']['output'];
+};
+
+export type ContentUrlSettings = {
+  __typename?: 'ContentUrlSettings';
+  contentId: Scalars['ID']['output'];
+  kind: ContentUrlKind;
+  retiredSlugs: Array<Scalars['String']['output']>;
+  slug: Scalars['String']['output'];
+};
+
 export type Course = {
   __typename?: 'Course';
+  availableLocales?: Maybe<Array<AppLanguage>>;
   category: CourseCategory;
+  contentLanguage?: Maybe<AppLanguage>;
   createdAt: Scalars['DateTime']['output'];
   currency: Scalars['String']['output'];
   curriculumSections?: Maybe<Array<CurriculumSection>>;
   deletedAt?: Maybe<Scalars['DateTime']['output']>;
   description: Scalars['String']['output'];
   durationMinutes?: Maybe<Scalars['Int']['output']>;
+  excludeFromIndex?: Maybe<Scalars['Boolean']['output']>;
   id: Scalars['ID']['output'];
   imageUrl?: Maybe<Scalars['String']['output']>;
   instructor: Scalars['String']['output'];
@@ -1735,7 +1878,11 @@ export type Course = {
   rating: Scalars['Float']['output'];
   ratingCount: Scalars['Int']['output'];
   requirements: Array<Scalars['String']['output']>;
+  seoDescription?: Maybe<Scalars['String']['output']>;
+  seoTitle?: Maybe<Scalars['String']['output']>;
   slug: Scalars['String']['output'];
+  socialImageAlt?: Maybe<Scalars['String']['output']>;
+  socialImagePath?: Maybe<Scalars['String']['output']>;
   sourceUrl?: Maybe<Scalars['String']['output']>;
   status: CourseStatus;
   title: Scalars['String']['output'];
@@ -1797,7 +1944,9 @@ export type CourseLevelFacet = {
 export type CoursePageInfo = {
   __typename?: 'CoursePageInfo';
   hasNextPage: Scalars['Boolean']['output'];
+  hasPreviousPage: Scalars['Boolean']['output'];
   nextCursor?: Maybe<Scalars['String']['output']>;
+  previousCursor?: Maybe<Scalars['String']['output']>;
 };
 
 export type CoursePaginationInput = {
@@ -1830,6 +1979,20 @@ export enum CourseStatus {
   Draft = 'DRAFT',
   Published = 'PUBLISHED'
 }
+
+export type CourseTranslation = {
+  __typename?: 'CourseTranslation';
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  isPublished: Scalars['Boolean']['output'];
+  learnings: Array<Scalars['String']['output']>;
+  locale: AppLanguage;
+  publishedAt?: Maybe<Scalars['DateTime']['output']>;
+  requirements: Array<Scalars['String']['output']>;
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  version: Scalars['Int']['output'];
+};
 
 export type CpdCategoryProgress = {
   __typename?: 'CpdCategoryProgress';
@@ -2232,12 +2395,51 @@ export enum DeliveryFormat {
   SelfPaced = 'SELF_PACED'
 }
 
+export type EditorialUrl = {
+  __typename?: 'EditorialUrl';
+  availableLocales: Array<AppLanguage>;
+  publicChangeAt: Scalars['DateTime']['output'];
+  slug: Scalars['String']['output'];
+};
+
+export type EditorialUrlPage = {
+  __typename?: 'EditorialUrlPage';
+  hasNextPage: Scalars['Boolean']['output'];
+  items: Array<EditorialUrl>;
+  nextCursor?: Maybe<Scalars['String']['output']>;
+};
+
+export type EditorialUrlPageInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  endCursor?: InputMaybe<Scalars['String']['input']>;
+  startCursor: Scalars['String']['input'];
+  take?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type EditorialUrlShard = {
+  __typename?: 'EditorialUrlShard';
+  endCursor?: Maybe<Scalars['String']['output']>;
+  index: Scalars['Int']['output'];
+  lastPublicChangeAt: Scalars['DateTime']['output'];
+  startCursor: Scalars['String']['output'];
+  urlCount: Scalars['Int']['output'];
+};
+
+export type EditorialUrlShardSet = {
+  __typename?: 'EditorialUrlShardSet';
+  isComplete: Scalars['Boolean']['output'];
+  shardSize: Scalars['Int']['output'];
+  shards: Array<EditorialUrlShard>;
+};
+
 export type Event = {
   __typename?: 'Event';
   attendees: Scalars['Int']['output'];
+  availableLocales?: Maybe<Array<AppLanguage>>;
   averageRating: Scalars['Float']['output'];
   capacity?: Maybe<Scalars['Int']['output']>;
   category: EventCategory;
+  contentLanguage?: Maybe<AppLanguage>;
   createdAt: Scalars['DateTime']['output'];
   currency: Scalars['String']['output'];
   deletedAt?: Maybe<Scalars['DateTime']['output']>;
@@ -2245,6 +2447,7 @@ export type Event = {
   description: Scalars['String']['output'];
   earlyBirdDiscount?: Maybe<Scalars['Float']['output']>;
   endDate?: Maybe<Scalars['DateTime']['output']>;
+  excludeFromIndex?: Maybe<Scalars['Boolean']['output']>;
   id: Scalars['ID']['output'];
   imageUrl?: Maybe<Scalars['String']['output']>;
   isFree: Scalars['Boolean']['output'];
@@ -2261,7 +2464,11 @@ export type Event = {
   ratingCount: Scalars['Int']['output'];
   registrationEnabled: Scalars['Boolean']['output'];
   scheduleItems?: Maybe<Array<EventScheduleItem>>;
+  seoDescription?: Maybe<Scalars['String']['output']>;
+  seoTitle?: Maybe<Scalars['String']['output']>;
   slug: Scalars['String']['output'];
+  socialImageAlt?: Maybe<Scalars['String']['output']>;
+  socialImagePath?: Maybe<Scalars['String']['output']>;
   sourceUrl?: Maybe<Scalars['String']['output']>;
   speaker?: Maybe<Scalars['String']['output']>;
   specificTopic?: Maybe<Scalars['String']['output']>;
@@ -2330,7 +2537,9 @@ export type EventFilterInput = {
 export type EventPageInfo = {
   __typename?: 'EventPageInfo';
   hasNextPage: Scalars['Boolean']['output'];
+  hasPreviousPage: Scalars['Boolean']['output'];
   nextCursor?: Maybe<Scalars['String']['output']>;
+  previousCursor?: Maybe<Scalars['String']['output']>;
 };
 
 export type EventPaginationInput = {
@@ -2400,6 +2609,18 @@ export enum EventStatus {
   Draft = 'DRAFT',
   Published = 'PUBLISHED'
 }
+
+export type EventTranslation = {
+  __typename?: 'EventTranslation';
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  isPublished: Scalars['Boolean']['output'];
+  locale: AppLanguage;
+  publishedAt?: Maybe<Scalars['DateTime']['output']>;
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  version: Scalars['Int']['output'];
+};
 
 export enum EventType {
   Conference = 'CONFERENCE',
@@ -2739,6 +2960,11 @@ export enum MemberInvitationTokenStatus {
   Valid = 'VALID'
 }
 
+export type ModerateProviderPublicProfileInput = {
+  note?: InputMaybe<Scalars['String']['input']>;
+  profileId: Scalars['ID']['input'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   acceptMemberInvitation: MemberInvitationAcceptResult;
@@ -2761,6 +2987,7 @@ export type Mutation = {
   cancelContentEnrollment: ContentActionPayload;
   cancelEvent: Event;
   cancelEventRegistration: EventRegistration;
+  changeContentSlug: ContentUrlSettings;
   changePassword: AuthPayload;
   clearCart: ContentActionPayload;
   completeProfessionalOnboarding: ProfessionalDashboardProfile;
@@ -2824,6 +3051,8 @@ export type Mutation = {
   publishPodcast: Podcast;
   publishYouTubeChannel: YouTubeChannel;
   recomputeAssociationCompliance: AssociationActionResponse;
+  recordEventView: Scalars['Boolean']['output'];
+  recordTelemetry: TelemetryAck;
   refreshToken: AuthPayload;
   register: AuthPayload;
   registerEvent: EventRegistration;
@@ -2848,13 +3077,36 @@ export type Mutation = {
   restoreYouTubeChannel: YouTubeChannel;
   retryAssociationReportExport: AssociationGeneratedReport;
   reviewAssociationLearningActivity: AssociationReviewResult;
+  reviewProviderPublicProfile: AdminProviderPublicProfile;
   revokeIngestionApiKey: IngestionApiKey;
+  saveCourseSeo: ContentSeoSettings;
+  saveCourseTranslation: CourseTranslation;
+  saveEventSeo: ContentSeoSettings;
+  saveEventTranslation: EventTranslation;
+  savePodcastSeo: ContentSeoSettings;
+  savePodcastTranslation: PodcastTranslation;
+  saveProviderPublicProfile: ProviderPublicProfileDraft;
+  saveTopicHub: AdminTopicHub;
+  saveYouTubeChannelSeo: ContentSeoSettings;
+  saveYouTubeChannelTranslation: YouTubeChannelTranslation;
   sendAssociationMessage: AssociationMessageBatch;
   sendRoadmapChatTurn: ProfessionalRoadmapDraft;
   setAssociationGroupActive: AssociationGroup;
   setAssociationMemberRequirements: AssociationMemberRequirementsResult;
   setAssociationMemberStatus: AssociationMember;
+  setCourseIndexExclusion: ContentSeoSettings;
+  setCourseTranslationPublication: CourseTranslation;
+  setEventIndexExclusion: ContentSeoSettings;
+  setEventTranslationPublication: EventTranslation;
+  setPodcastIndexExclusion: ContentSeoSettings;
+  setPodcastTranslationPublication: PodcastTranslation;
   setProfessionalCertificateCpdPlan: ProfessionalCertificate;
+  setProviderPublicProfileIndexExclusion: AdminProviderPublicProfile;
+  setTopicHubIndexExclusion: AdminTopicHub;
+  setTopicHubStatus: AdminTopicHub;
+  setTopicHubTranslationPublication: AdminTopicHub;
+  setYouTubeChannelIndexExclusion: ContentSeoSettings;
+  setYouTubeChannelTranslationPublication: YouTubeChannelTranslation;
   startProfessionalOnboarding: ProfessionalDashboardProfile;
   startRoadmapDraft: ProfessionalRoadmapDraft;
   startRoadmapStep: RoadmapStepProgress;
@@ -2863,6 +3115,7 @@ export type Mutation = {
   submitContentReview: ContentReview;
   submitOrganizationAccessRequest: OrganizationAccessRequest;
   submitPromotionRequest: PromotionRequest;
+  submitProviderPublicProfile: ProviderPublicProfileDraft;
   toggleWishlist: ContentActionPayload;
   trackExternalLearningClick: ExternalLearningActivity;
   unenrollRoadmap: Scalars['Boolean']['output'];
@@ -2912,6 +3165,8 @@ export type Mutation = {
   verifyEmailChange: AuthPayload;
   verifyEmailOtp: AuthPayload;
   withdrawAssociationLearningContent: AssociationLearningContent;
+  withdrawProviderPublicProfile: ProviderPublicProfileDraft;
+  withdrawProviderPublicProfileAsAdmin: AdminProviderPublicProfile;
 };
 
 
@@ -3012,6 +3267,11 @@ export type MutationCancelEventArgs = {
 
 export type MutationCancelEventRegistrationArgs = {
   eventId: Scalars['String']['input'];
+};
+
+
+export type MutationChangeContentSlugArgs = {
+  input: ChangeContentSlugInput;
 };
 
 
@@ -3311,6 +3571,16 @@ export type MutationPublishYouTubeChannelArgs = {
 };
 
 
+export type MutationRecordEventViewArgs = {
+  eventId: Scalars['String']['input'];
+};
+
+
+export type MutationRecordTelemetryArgs = {
+  input: TelemetryBatchInput;
+};
+
+
 export type MutationRegisterArgs = {
   input: RegisterInput;
 };
@@ -3426,8 +3696,63 @@ export type MutationReviewAssociationLearningActivityArgs = {
 };
 
 
+export type MutationReviewProviderPublicProfileArgs = {
+  input: ReviewProviderPublicProfileInput;
+};
+
+
 export type MutationRevokeIngestionApiKeyArgs = {
   keyId: Scalars['String']['input'];
+};
+
+
+export type MutationSaveCourseSeoArgs = {
+  input: SaveContentSeoInput;
+};
+
+
+export type MutationSaveCourseTranslationArgs = {
+  input: SaveCourseTranslationInput;
+};
+
+
+export type MutationSaveEventSeoArgs = {
+  input: SaveContentSeoInput;
+};
+
+
+export type MutationSaveEventTranslationArgs = {
+  input: SaveEventTranslationInput;
+};
+
+
+export type MutationSavePodcastSeoArgs = {
+  input: SaveContentSeoInput;
+};
+
+
+export type MutationSavePodcastTranslationArgs = {
+  input: SavePodcastTranslationInput;
+};
+
+
+export type MutationSaveProviderPublicProfileArgs = {
+  input: SaveProviderPublicProfileInput;
+};
+
+
+export type MutationSaveTopicHubArgs = {
+  input: SaveTopicHubInput;
+};
+
+
+export type MutationSaveYouTubeChannelSeoArgs = {
+  input: SaveContentSeoInput;
+};
+
+
+export type MutationSaveYouTubeChannelTranslationArgs = {
+  input: SaveYouTubeChannelTranslationInput;
 };
 
 
@@ -3456,8 +3781,68 @@ export type MutationSetAssociationMemberStatusArgs = {
 };
 
 
+export type MutationSetCourseIndexExclusionArgs = {
+  input: SetContentIndexExclusionInput;
+};
+
+
+export type MutationSetCourseTranslationPublicationArgs = {
+  input: SetCourseTranslationPublicationInput;
+};
+
+
+export type MutationSetEventIndexExclusionArgs = {
+  input: SetContentIndexExclusionInput;
+};
+
+
+export type MutationSetEventTranslationPublicationArgs = {
+  input: SetEventTranslationPublicationInput;
+};
+
+
+export type MutationSetPodcastIndexExclusionArgs = {
+  input: SetContentIndexExclusionInput;
+};
+
+
+export type MutationSetPodcastTranslationPublicationArgs = {
+  input: SetPodcastTranslationPublicationInput;
+};
+
+
 export type MutationSetProfessionalCertificateCpdPlanArgs = {
   input: SetCertificateCpdPlanInput;
+};
+
+
+export type MutationSetProviderPublicProfileIndexExclusionArgs = {
+  input: SetProviderPublicProfileIndexExclusionInput;
+};
+
+
+export type MutationSetTopicHubIndexExclusionArgs = {
+  input: SetTopicHubIndexExclusionInput;
+};
+
+
+export type MutationSetTopicHubStatusArgs = {
+  input: SetTopicHubStatusInput;
+};
+
+
+export type MutationSetTopicHubTranslationPublicationArgs = {
+  input: SetTopicHubTranslationPublicationInput;
+};
+
+
+export type MutationSetYouTubeChannelIndexExclusionArgs = {
+  input: SetContentIndexExclusionInput;
+};
+
+
+export type MutationSetYouTubeChannelTranslationPublicationArgs = {
+  input: SetYouTubeChannelTranslationPublicationInput;
 };
 
 
@@ -3489,6 +3874,11 @@ export type MutationSubmitOrganizationAccessRequestArgs = {
 
 export type MutationSubmitPromotionRequestArgs = {
   input: SubmitPromotionRequestInput;
+};
+
+
+export type MutationSubmitProviderPublicProfileArgs = {
+  input: SubmitProviderPublicProfileInput;
 };
 
 
@@ -3734,6 +4124,11 @@ export type MutationVerifyEmailOtpArgs = {
 
 export type MutationWithdrawAssociationLearningContentArgs = {
   input: AssociationLearningContentIdInput;
+};
+
+
+export type MutationWithdrawProviderPublicProfileAsAdminArgs = {
+  input: ModerateProviderPublicProfileInput;
 };
 
 export type MyWishlistInput = {
@@ -4578,12 +4973,15 @@ export enum PaymentStatus {
 
 export type Podcast = {
   __typename?: 'Podcast';
+  availableLocales?: Maybe<Array<AppLanguage>>;
   category: PodcastCategory;
+  contentLanguage?: Maybe<AppLanguage>;
   createdAt: Scalars['DateTime']['output'];
   deletedAt?: Maybe<Scalars['DateTime']['output']>;
   description: Scalars['String']['output'];
   durationMinutes?: Maybe<Scalars['Int']['output']>;
   episodeCount: Scalars['Int']['output'];
+  excludeFromIndex?: Maybe<Scalars['Boolean']['output']>;
   host: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   imageUrl?: Maybe<Scalars['String']['output']>;
@@ -4592,7 +4990,11 @@ export type Podcast = {
   providerId?: Maybe<Scalars['String']['output']>;
   rating: Scalars['Float']['output'];
   ratingCount: Scalars['Int']['output'];
+  seoDescription?: Maybe<Scalars['String']['output']>;
+  seoTitle?: Maybe<Scalars['String']['output']>;
   slug: Scalars['String']['output'];
+  socialImageAlt?: Maybe<Scalars['String']['output']>;
+  socialImagePath?: Maybe<Scalars['String']['output']>;
   sourceUrl?: Maybe<Scalars['String']['output']>;
   status: PodcastStatus;
   title: Scalars['String']['output'];
@@ -4654,7 +5056,9 @@ export type PodcastFilterInput = {
 export type PodcastPageInfo = {
   __typename?: 'PodcastPageInfo';
   hasNextPage: Scalars['Boolean']['output'];
+  hasPreviousPage: Scalars['Boolean']['output'];
   nextCursor?: Maybe<Scalars['String']['output']>;
+  previousCursor?: Maybe<Scalars['String']['output']>;
 };
 
 export type PodcastPaginationInput = {
@@ -4686,6 +5090,18 @@ export enum PodcastStatus {
   Draft = 'DRAFT',
   Published = 'PUBLISHED'
 }
+
+export type PodcastTranslation = {
+  __typename?: 'PodcastTranslation';
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  isPublished: Scalars['Boolean']['output'];
+  locale: AppLanguage;
+  publishedAt?: Maybe<Scalars['DateTime']['output']>;
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  version: Scalars['Int']['output'];
+};
 
 export type PopularCategoriesInput = {
   take?: InputMaybe<Scalars['Int']['input']>;
@@ -5421,6 +5837,7 @@ export type ProviderEventTableRow = {
   id: Scalars['ID']['output'];
   pdu: Scalars['Float']['output'];
   registrants: Scalars['Int']['output'];
+  slug: Scalars['String']['output'];
   startDate: Scalars['DateTime']['output'];
   status: EventStatus;
   title: Scalars['String']['output'];
@@ -5463,11 +5880,91 @@ export type ProviderProfile = {
   website?: Maybe<Scalars['String']['output']>;
 };
 
+export enum ProviderProfileDecision {
+  Approve = 'APPROVE',
+  Reject = 'REJECT'
+}
+
+export enum ProviderProfileReviewState {
+  Approved = 'APPROVED',
+  Draft = 'DRAFT',
+  Rejected = 'REJECTED',
+  Submitted = 'SUBMITTED'
+}
+
+export enum ProviderProfileStatus {
+  Published = 'PUBLISHED',
+  Unpublished = 'UNPUBLISHED',
+  Withdrawn = 'WITHDRAWN'
+}
+
 export type ProviderPromotionFilterInput = {
   eventId?: InputMaybe<Scalars['String']['input']>;
   promotionType?: InputMaybe<PromotionType>;
   search?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<PromotionRequestStatus>;
+};
+
+export type ProviderPublicByline = {
+  __typename?: 'ProviderPublicByline';
+  displayName: Scalars['String']['output'];
+  slug: Scalars['String']['output'];
+};
+
+export type ProviderPublicProfile = {
+  __typename?: 'ProviderPublicProfile';
+  biography: Scalars['String']['output'];
+  displayName: Scalars['String']['output'];
+  excludeFromIndex: Scalars['Boolean']['output'];
+  items: Array<ProviderPublicProfileItem>;
+  links: Array<ProviderPublicProfileLink>;
+  logoPath?: Maybe<Scalars['String']['output']>;
+  publishedAt: Scalars['DateTime']['output'];
+  slug: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  websiteUrl?: Maybe<Scalars['String']['output']>;
+};
+
+export type ProviderPublicProfileDraft = {
+  __typename?: 'ProviderPublicProfileDraft';
+  biography?: Maybe<Scalars['String']['output']>;
+  displayName?: Maybe<Scalars['String']['output']>;
+  draftVersion: Scalars['Int']['output'];
+  hasUnpublishedChanges: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  isLive: Scalars['Boolean']['output'];
+  links: Array<ProviderPublicProfileLink>;
+  logoImageId?: Maybe<Scalars['ID']['output']>;
+  logoPath?: Maybe<Scalars['String']['output']>;
+  publishedAt?: Maybe<Scalars['DateTime']['output']>;
+  reviewNote?: Maybe<Scalars['String']['output']>;
+  reviewState: ProviderProfileReviewState;
+  reviewedAt?: Maybe<Scalars['DateTime']['output']>;
+  slug: Scalars['String']['output'];
+  status: ProviderProfileStatus;
+  submittedAt?: Maybe<Scalars['DateTime']['output']>;
+  websiteUrl?: Maybe<Scalars['String']['output']>;
+};
+
+export type ProviderPublicProfileItem = {
+  __typename?: 'ProviderPublicProfileItem';
+  category?: Maybe<Scalars['String']['output']>;
+  imageUrl?: Maybe<Scalars['String']['output']>;
+  kind: ContentUrlKind;
+  slug: Scalars['String']['output'];
+  summary?: Maybe<Scalars['String']['output']>;
+  title: Scalars['String']['output'];
+};
+
+export type ProviderPublicProfileLink = {
+  __typename?: 'ProviderPublicProfileLink';
+  label: Scalars['String']['output'];
+  url: Scalars['String']['output'];
+};
+
+export type ProviderPublicProfileLinkInput = {
+  label: Scalars['String']['input'];
+  url: Scalars['String']['input'];
 };
 
 export type ProviderSettings = {
@@ -5510,6 +6007,45 @@ export type ProviderTopEvent = {
   views: Scalars['Int']['output'];
 };
 
+export type PublicUrl = {
+  __typename?: 'PublicUrl';
+  availableLocales: Array<AppLanguage>;
+  publicChangeAt: Scalars['DateTime']['output'];
+  slug: Scalars['String']['output'];
+};
+
+export type PublicUrlPage = {
+  __typename?: 'PublicUrlPage';
+  hasNextPage: Scalars['Boolean']['output'];
+  items: Array<PublicUrl>;
+  nextCursor?: Maybe<Scalars['String']['output']>;
+};
+
+export type PublicUrlPageInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  endCursor?: InputMaybe<Scalars['String']['input']>;
+  kind: ContentType;
+  startCursor: Scalars['String']['input'];
+  take?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type PublicUrlShard = {
+  __typename?: 'PublicUrlShard';
+  endCursor?: Maybe<Scalars['String']['output']>;
+  index: Scalars['Int']['output'];
+  lastPublicChangeAt: Scalars['DateTime']['output'];
+  startCursor: Scalars['String']['output'];
+  urlCount: Scalars['Int']['output'];
+};
+
+export type PublicUrlShardSet = {
+  __typename?: 'PublicUrlShardSet';
+  isComplete: Scalars['Boolean']['output'];
+  kind: ContentType;
+  shardSize: Scalars['Int']['output'];
+  shards: Array<PublicUrlShard>;
+};
+
 export type PublishAssociationLearningContentInput = {
   audienceKind: AssociationAudienceKind;
   groupIds?: InputMaybe<Array<Scalars['ID']['input']>>;
@@ -5527,6 +6063,9 @@ export type Query = {
   adminOrganizationMembers: PaginatedAdminOrgMembers;
   adminOrganizations: PaginatedAdminOrg;
   adminProfile: AdminProfile;
+  adminProviderPublicProfiles: Array<AdminProviderPublicProfile>;
+  adminTopicHub: AdminTopicHub;
+  adminTopicHubs: Array<AdminTopicHubSummary>;
   adminUserGrowth: Array<AdminChartPoint>;
   adminUsers: PaginatedAdminUser;
   associationAccounts: PaginatedAssociationAccounts;
@@ -5572,9 +6111,12 @@ export type Query = {
   associationSettings: AssociationSettings;
   certificationSearch: Array<Certification>;
   contentReviews: Array<ContentReview>;
+  contentUrl: ContentUrlSettings;
   courseById: Course;
   courseBySlug: Course;
   courseFilterFacets: CourseFilterFacets;
+  courseSeo: ContentSeoSettings;
+  courseTranslations: Array<CourseTranslation>;
   courses: PaginatedCourses;
   cpdPlan: CpdPlan;
   cpdPlanActivities: Array<ProfessionalPduActivity>;
@@ -5584,6 +6126,8 @@ export type Query = {
   eventById: Event;
   eventBySlug: Event;
   eventFilterFacets: EventFilterFacets;
+  eventSeo: ContentSeoSettings;
+  eventTranslations: Array<EventTranslation>;
   events: PaginatedEvents;
   featuredCourses: Array<Course>;
   featuredEvents: Array<Event>;
@@ -5613,6 +6157,7 @@ export type Query = {
   myProviderCourses: PaginatedCourses;
   myProviderEvents: PaginatedEvents;
   myProviderPodcasts: PaginatedPodcasts;
+  myProviderPublicProfile?: Maybe<ProviderPublicProfileDraft>;
   myProviderYouTubeChannels: PaginatedYouTubeChannels;
   myRegisteredEvents: Array<EventRegistration>;
   myReviewForContent?: Maybe<ContentReview>;
@@ -5637,6 +6182,8 @@ export type Query = {
   podcastBySlug: Podcast;
   podcastEpisodes: Array<PodcastEpisode>;
   podcastFilterFacets: PodcastFilterFacets;
+  podcastSeo: ContentSeoSettings;
+  podcastTranslations: Array<PodcastTranslation>;
   podcasts: PaginatedPodcasts;
   popularCategories: Array<PopularCategory>;
   professionalActiveSessions: Array<ProfessionalSession>;
@@ -5673,15 +6220,30 @@ export type Query = {
   providerAttendees: PaginatedProviderAttendees;
   providerEventsTable: PaginatedProviderEvents;
   providerOverview: ProviderOverview;
+  providerProfileUrlPage: EditorialUrlPage;
+  providerProfileUrlShards: EditorialUrlShardSet;
   providerPromotionRequests: PaginatedPromotionRequests;
+  providerPublicBylineForContent?: Maybe<ProviderPublicByline>;
+  providerPublicProfileBySlug: ProviderPublicProfile;
   providerSettings: ProviderSettings;
+  publicUrlPage: PublicUrlPage;
+  publicUrlShards: Array<PublicUrlShardSet>;
+  resolveContentUrl?: Maybe<ContentUrlResolution>;
   roadmapSuggestionOptions: Array<RoadmapWidgetOption>;
+  searchHealthReport: SearchHealthReport;
+  topicHubBySlug: TopicHub;
+  topicHubUrlPage: EditorialUrlPage;
+  topicHubUrlShards: EditorialUrlShardSet;
+  topicHubs: Array<TopicHubSummary>;
+  topicHubsForContent: Array<TopicHubSummary>;
   upcomingEvents: Array<Event>;
   userById: User;
   users: PaginatedUsers;
   youtubeChannelById: YouTubeChannel;
   youtubeChannelBySlug: YouTubeChannel;
   youtubeChannelFilterFacets: YouTubeChannelFilterFacets;
+  youtubeChannelSeo: ContentSeoSettings;
+  youtubeChannelTranslations: Array<YouTubeChannelTranslation>;
   youtubeChannels: PaginatedYouTubeChannels;
   youtubeVideos: Array<YouTubeVideo>;
 };
@@ -5718,6 +6280,16 @@ export type QueryAdminOrganizationMembersArgs = {
 export type QueryAdminOrganizationsArgs = {
   filter?: InputMaybe<AdminOrgFilter>;
   pagination?: InputMaybe<AdminPagination>;
+};
+
+
+export type QueryAdminProviderPublicProfilesArgs = {
+  reviewState?: InputMaybe<ProviderProfileReviewState>;
+};
+
+
+export type QueryAdminTopicHubArgs = {
+  hubId: Scalars['String']['input'];
 };
 
 
@@ -5993,18 +6565,36 @@ export type QueryContentReviewsArgs = {
 };
 
 
+export type QueryContentUrlArgs = {
+  contentId: Scalars['String']['input'];
+  kind: ContentUrlKind;
+};
+
+
 export type QueryCourseByIdArgs = {
   courseId: Scalars['String']['input'];
 };
 
 
 export type QueryCourseBySlugArgs = {
+  locale?: InputMaybe<AppLanguage>;
   slug: Scalars['String']['input'];
+};
+
+
+export type QueryCourseSeoArgs = {
+  courseId: Scalars['String']['input'];
+};
+
+
+export type QueryCourseTranslationsArgs = {
+  courseId: Scalars['String']['input'];
 };
 
 
 export type QueryCoursesArgs = {
   filter?: InputMaybe<CourseFilterInput>;
+  locale?: InputMaybe<AppLanguage>;
   pagination?: InputMaybe<CoursePaginationInput>;
   sort?: InputMaybe<CourseSortInput>;
 };
@@ -6031,12 +6621,24 @@ export type QueryEventByIdArgs = {
 
 
 export type QueryEventBySlugArgs = {
+  locale?: InputMaybe<AppLanguage>;
   slug: Scalars['String']['input'];
+};
+
+
+export type QueryEventSeoArgs = {
+  eventId: Scalars['String']['input'];
+};
+
+
+export type QueryEventTranslationsArgs = {
+  eventId: Scalars['String']['input'];
 };
 
 
 export type QueryEventsArgs = {
   filter?: InputMaybe<EventFilterInput>;
+  locale?: InputMaybe<AppLanguage>;
   pagination?: InputMaybe<EventPaginationInput>;
   sort?: InputMaybe<EventSortInput>;
 };
@@ -6238,6 +6840,7 @@ export type QueryPodcastByIdArgs = {
 
 
 export type QueryPodcastBySlugArgs = {
+  locale?: InputMaybe<AppLanguage>;
   slug: Scalars['String']['input'];
 };
 
@@ -6247,8 +6850,19 @@ export type QueryPodcastEpisodesArgs = {
 };
 
 
+export type QueryPodcastSeoArgs = {
+  podcastId: Scalars['String']['input'];
+};
+
+
+export type QueryPodcastTranslationsArgs = {
+  podcastId: Scalars['String']['input'];
+};
+
+
 export type QueryPodcastsArgs = {
   filter?: InputMaybe<PodcastFilterInput>;
+  locale?: InputMaybe<AppLanguage>;
   pagination?: InputMaybe<PodcastPaginationInput>;
   sort?: InputMaybe<PodcastSortInput>;
 };
@@ -6396,14 +7010,70 @@ export type QueryProviderOverviewArgs = {
 };
 
 
+export type QueryProviderProfileUrlPageArgs = {
+  input: EditorialUrlPageInput;
+};
+
+
 export type QueryProviderPromotionRequestsArgs = {
   filter?: InputMaybe<ProviderPromotionFilterInput>;
   pagination?: InputMaybe<ProviderDashboardPaginationInput>;
 };
 
 
+export type QueryProviderPublicBylineForContentArgs = {
+  contentId: Scalars['String']['input'];
+  kind: ContentUrlKind;
+};
+
+
+export type QueryProviderPublicProfileBySlugArgs = {
+  slug: Scalars['String']['input'];
+};
+
+
+export type QueryPublicUrlPageArgs = {
+  input: PublicUrlPageInput;
+};
+
+
+export type QueryResolveContentUrlArgs = {
+  kind: ContentUrlKind;
+  slug: Scalars['String']['input'];
+};
+
+
 export type QueryRoadmapSuggestionOptionsArgs = {
   input: RoadmapSuggestionOptionsInput;
+};
+
+
+export type QuerySearchHealthReportArgs = {
+  input: SearchHealthReportInput;
+};
+
+
+export type QueryTopicHubBySlugArgs = {
+  locale?: InputMaybe<AppLanguage>;
+  slug: Scalars['String']['input'];
+};
+
+
+export type QueryTopicHubUrlPageArgs = {
+  input: EditorialUrlPageInput;
+};
+
+
+export type QueryTopicHubsArgs = {
+  locale?: InputMaybe<AppLanguage>;
+  take?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryTopicHubsForContentArgs = {
+  contentId: Scalars['String']['input'];
+  kind: ContentUrlKind;
+  locale?: InputMaybe<AppLanguage>;
 };
 
 
@@ -6429,12 +7099,24 @@ export type QueryYoutubeChannelByIdArgs = {
 
 
 export type QueryYoutubeChannelBySlugArgs = {
+  locale?: InputMaybe<AppLanguage>;
   slug: Scalars['String']['input'];
+};
+
+
+export type QueryYoutubeChannelSeoArgs = {
+  channelId: Scalars['String']['input'];
+};
+
+
+export type QueryYoutubeChannelTranslationsArgs = {
+  channelId: Scalars['String']['input'];
 };
 
 
 export type QueryYoutubeChannelsArgs = {
   filter?: InputMaybe<YouTubeChannelFilterInput>;
+  locale?: InputMaybe<AppLanguage>;
   pagination?: InputMaybe<YouTubeChannelPaginationInput>;
   sort?: InputMaybe<YouTubeChannelSortInput>;
 };
@@ -6500,6 +7182,13 @@ export type ReviewAssociationLearningActivityInput = {
   activityId: Scalars['ID']['input'];
   approve: Scalars['Boolean']['input'];
   reason?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ReviewProviderPublicProfileInput = {
+  decision: ProviderProfileDecision;
+  expectedDraftVersion: Scalars['Int']['input'];
+  note?: InputMaybe<Scalars['String']['input']>;
+  profileId: Scalars['ID']['input'];
 };
 
 export type RoadmapChatMessage = {
@@ -6680,6 +7369,123 @@ export enum Role {
   Provider = 'PROVIDER'
 }
 
+export type SaveContentSeoInput = {
+  contentId: Scalars['ID']['input'];
+  expectedVersion?: InputMaybe<Scalars['Int']['input']>;
+  locale: AppLanguage;
+  seoDescription?: InputMaybe<Scalars['String']['input']>;
+  seoTitle?: InputMaybe<Scalars['String']['input']>;
+  socialImageAlt?: InputMaybe<Scalars['String']['input']>;
+  socialImageId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+export type SaveCourseTranslationInput = {
+  courseId: Scalars['ID']['input'];
+  description: Scalars['String']['input'];
+  expectedVersion?: InputMaybe<Scalars['Int']['input']>;
+  learnings?: InputMaybe<Array<Scalars['String']['input']>>;
+  locale: AppLanguage;
+  requirements?: InputMaybe<Array<Scalars['String']['input']>>;
+  title: Scalars['String']['input'];
+};
+
+export type SaveEventTranslationInput = {
+  description: Scalars['String']['input'];
+  eventId: Scalars['ID']['input'];
+  expectedVersion?: InputMaybe<Scalars['Int']['input']>;
+  locale: AppLanguage;
+  title: Scalars['String']['input'];
+};
+
+export type SavePodcastTranslationInput = {
+  description: Scalars['String']['input'];
+  expectedVersion?: InputMaybe<Scalars['Int']['input']>;
+  locale: AppLanguage;
+  podcastId: Scalars['ID']['input'];
+  title: Scalars['String']['input'];
+};
+
+export type SaveProviderPublicProfileInput = {
+  biography?: InputMaybe<Scalars['String']['input']>;
+  displayName: Scalars['String']['input'];
+  expectedVersion?: InputMaybe<Scalars['Int']['input']>;
+  links?: InputMaybe<Array<ProviderPublicProfileLinkInput>>;
+  logoImageId?: InputMaybe<Scalars['ID']['input']>;
+  websiteUrl?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type SaveTopicHubInput = {
+  category?: InputMaybe<Scalars['String']['input']>;
+  expectedVersion?: InputMaybe<Scalars['Int']['input']>;
+  guidance: Scalars['String']['input'];
+  hubId?: InputMaybe<Scalars['ID']['input']>;
+  introduction: Scalars['String']['input'];
+  locale: AppLanguage;
+  references?: InputMaybe<Array<TopicHubReferenceInput>>;
+  sections?: InputMaybe<Array<TopicHubSectionInput>>;
+  slug?: InputMaybe<Scalars['String']['input']>;
+  title: Scalars['String']['input'];
+};
+
+export type SaveYouTubeChannelTranslationInput = {
+  channelId: Scalars['ID']['input'];
+  description: Scalars['String']['input'];
+  expectedVersion?: InputMaybe<Scalars['Int']['input']>;
+  locale: AppLanguage;
+  title: Scalars['String']['input'];
+};
+
+export type SearchHealthConversionRow = {
+  __typename?: 'SearchHealthConversionRow';
+  attribution: TelemetryAttribution;
+  contentKind: TelemetryContentKind;
+  count: Scalars['Int']['output'];
+  event: TelemetryConversionEvent;
+  role: TelemetryRegistrationRole;
+};
+
+export type SearchHealthIntakeRow = {
+  __typename?: 'SearchHealthIntakeRow';
+  count: Scalars['Int']['output'];
+  kind: TelemetryIntakeKind;
+  outcome: TelemetryIntakeOutcome;
+};
+
+export type SearchHealthReport = {
+  __typename?: 'SearchHealthReport';
+  conversions: Array<SearchHealthConversionRow>;
+  days: Scalars['Int']['output'];
+  daysWithData: Scalars['Int']['output'];
+  from: Scalars['DateTime']['output'];
+  intake: Array<SearchHealthIntakeRow>;
+  isCollecting: Scalars['Boolean']['output'];
+  minimumSamples: Scalars['Int']['output'];
+  to: Scalars['DateTime']['output'];
+  vitals: Array<SearchHealthVitalSegment>;
+};
+
+export type SearchHealthReportInput = {
+  days: Scalars['Int']['input'];
+};
+
+export type SearchHealthVitalSegment = {
+  __typename?: 'SearchHealthVitalSegment';
+  device: TelemetryDevice;
+  locale: TelemetryLocale;
+  metric: TelemetryMetric;
+  p75: Scalars['Float']['output'];
+  samples: Scalars['Int']['output'];
+  status: SearchHealthVitalStatus;
+  template: TelemetryRouteTemplate;
+};
+
+export enum SearchHealthVitalStatus {
+  Good = 'GOOD',
+  InsufficientData = 'INSUFFICIENT_DATA',
+  NeedsImprovement = 'NEEDS_IMPROVEMENT',
+  Poor = 'POOR'
+}
+
 export type SendAssociationMessageInput = {
   audience: AssociationMessageAudienceInput;
   messageType: AssociationMessageType;
@@ -6709,6 +7515,62 @@ export type SetAssociationMemberStatusInput = {
 export type SetCertificateCpdPlanInput = {
   certificateId: Scalars['ID']['input'];
   cpdPlanId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+export type SetContentIndexExclusionInput = {
+  contentId: Scalars['ID']['input'];
+  excluded: Scalars['Boolean']['input'];
+};
+
+export type SetCourseTranslationPublicationInput = {
+  courseId: Scalars['ID']['input'];
+  expectedVersion: Scalars['Int']['input'];
+  locale: AppLanguage;
+  published: Scalars['Boolean']['input'];
+};
+
+export type SetEventTranslationPublicationInput = {
+  eventId: Scalars['ID']['input'];
+  expectedVersion: Scalars['Int']['input'];
+  locale: AppLanguage;
+  published: Scalars['Boolean']['input'];
+};
+
+export type SetPodcastTranslationPublicationInput = {
+  expectedVersion: Scalars['Int']['input'];
+  locale: AppLanguage;
+  podcastId: Scalars['ID']['input'];
+  published: Scalars['Boolean']['input'];
+};
+
+export type SetProviderPublicProfileIndexExclusionInput = {
+  excluded: Scalars['Boolean']['input'];
+  profileId: Scalars['ID']['input'];
+};
+
+export type SetTopicHubIndexExclusionInput = {
+  excluded: Scalars['Boolean']['input'];
+  hubId: Scalars['ID']['input'];
+};
+
+export type SetTopicHubStatusInput = {
+  expectedVersion: Scalars['Int']['input'];
+  hubId: Scalars['ID']['input'];
+  status: TopicHubStatus;
+};
+
+export type SetTopicHubTranslationPublicationInput = {
+  expectedVersion: Scalars['Int']['input'];
+  hubId: Scalars['ID']['input'];
+  locale: AppLanguage;
+  published: Scalars['Boolean']['input'];
+};
+
+export type SetYouTubeChannelTranslationPublicationInput = {
+  channelId: Scalars['ID']['input'];
+  expectedVersion: Scalars['Int']['input'];
+  locale: AppLanguage;
+  published: Scalars['Boolean']['input'];
 };
 
 export enum SkillLevel {
@@ -6774,11 +7636,196 @@ export type SubmitPromotionRequestInput = {
   promotionType: PromotionType;
 };
 
+export type SubmitProviderPublicProfileInput = {
+  expectedVersion: Scalars['Int']['input'];
+};
+
+export type TelemetryAck = {
+  __typename?: 'TelemetryAck';
+  accepted: Scalars['Int']['output'];
+  dropped: Scalars['Int']['output'];
+};
+
+export enum TelemetryAttribution {
+  Direct = 'DIRECT',
+  Internal = 'INTERNAL',
+  OrganicSearch = 'ORGANIC_SEARCH',
+  Referral = 'REFERRAL',
+  Social = 'SOCIAL',
+  Unattributed = 'UNATTRIBUTED'
+}
+
+export type TelemetryBatchInput = {
+  conversions?: Array<TelemetryConversionInput>;
+  vitals?: Array<TelemetryVitalInput>;
+};
+
+export enum TelemetryContentKind {
+  Course = 'COURSE',
+  Event = 'EVENT',
+  None = 'NONE',
+  Podcast = 'PODCAST',
+  Youtube = 'YOUTUBE'
+}
+
+export enum TelemetryConversionEvent {
+  CatalogDetailOpen = 'CATALOG_DETAIL_OPEN',
+  ExternalContentAction = 'EXTERNAL_CONTENT_ACTION',
+  RegistrationCompleted = 'REGISTRATION_COMPLETED',
+  RegistrationStart = 'REGISTRATION_START'
+}
+
+export type TelemetryConversionInput = {
+  attribution: TelemetryAttribution;
+  contentKind?: TelemetryContentKind;
+  event: TelemetryConversionEvent;
+  id: Scalars['String']['input'];
+  locale: TelemetryLocale;
+  role?: TelemetryRegistrationRole;
+};
+
+export enum TelemetryDevice {
+  Desktop = 'DESKTOP',
+  Mobile = 'MOBILE'
+}
+
+export enum TelemetryIntakeKind {
+  Conversion = 'CONVERSION',
+  Vital = 'VITAL'
+}
+
+export enum TelemetryIntakeOutcome {
+  Accepted = 'ACCEPTED',
+  Disabled = 'DISABLED',
+  Duplicate = 'DUPLICATE',
+  Invalid = 'INVALID',
+  RateLimited = 'RATE_LIMITED',
+  SampledOut = 'SAMPLED_OUT',
+  SinkFailed = 'SINK_FAILED'
+}
+
+export enum TelemetryLocale {
+  En = 'EN',
+  Fr = 'FR',
+  Unknown = 'UNKNOWN'
+}
+
+export enum TelemetryMetric {
+  Cls = 'CLS',
+  Inp = 'INP',
+  Lcp = 'LCP'
+}
+
+export enum TelemetryNavigationType {
+  BackForward = 'BACK_FORWARD',
+  Navigate = 'NAVIGATE',
+  Prerender = 'PRERENDER',
+  Reload = 'RELOAD',
+  Restore = 'RESTORE'
+}
+
+export enum TelemetryRating {
+  Good = 'GOOD',
+  NeedsImprovement = 'NEEDS_IMPROVEMENT',
+  Poor = 'POOR'
+}
+
+export enum TelemetryRegistrationRole {
+  None = 'NONE',
+  Professional = 'PROFESSIONAL',
+  Provider = 'PROVIDER'
+}
+
+export enum TelemetryRouteTemplate {
+  About = 'ABOUT',
+  Company = 'COMPANY',
+  Contact = 'CONTACT',
+  ContentCatalog = 'CONTENT_CATALOG',
+  CourseDetail = 'COURSE_DETAIL',
+  EventDetail = 'EVENT_DETAIL',
+  Faq = 'FAQ',
+  Home = 'HOME',
+  Legal = 'LEGAL',
+  PodcastDetail = 'PODCAST_DETAIL',
+  ProviderProfile = 'PROVIDER_PROFILE',
+  Services = 'SERVICES',
+  Solutions = 'SOLUTIONS',
+  Support = 'SUPPORT',
+  TopicHub = 'TOPIC_HUB',
+  YoutubeDetail = 'YOUTUBE_DETAIL'
+}
+
+export type TelemetryVitalInput = {
+  device: TelemetryDevice;
+  id: Scalars['String']['input'];
+  locale: TelemetryLocale;
+  name: TelemetryMetric;
+  navigationType: TelemetryNavigationType;
+  rating: TelemetryRating;
+  template: TelemetryRouteTemplate;
+  value: Scalars['Float']['input'];
+};
+
 export enum Theme {
   Dark = 'DARK',
   Light = 'LIGHT',
   System = 'SYSTEM'
 }
+
+export type TopicHub = {
+  __typename?: 'TopicHub';
+  availableLocales: Array<AppLanguage>;
+  category?: Maybe<Scalars['String']['output']>;
+  contentLanguage?: Maybe<AppLanguage>;
+  excludeFromIndex: Scalars['Boolean']['output'];
+  guidance: Scalars['String']['output'];
+  introduction: Scalars['String']['output'];
+  items: Array<TopicHubItem>;
+  publishedAt: Scalars['DateTime']['output'];
+  sections: Array<TopicHubSection>;
+  slug: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type TopicHubItem = {
+  __typename?: 'TopicHubItem';
+  category?: Maybe<Scalars['String']['output']>;
+  imageUrl?: Maybe<Scalars['String']['output']>;
+  kind: ContentUrlKind;
+  slug: Scalars['String']['output'];
+  summary?: Maybe<Scalars['String']['output']>;
+  title: Scalars['String']['output'];
+};
+
+export type TopicHubReferenceInput = {
+  contentId: Scalars['ID']['input'];
+  kind: ContentUrlKind;
+};
+
+export type TopicHubSection = {
+  __typename?: 'TopicHubSection';
+  body: Scalars['String']['output'];
+  heading: Scalars['String']['output'];
+};
+
+export type TopicHubSectionInput = {
+  body: Scalars['String']['input'];
+  heading: Scalars['String']['input'];
+};
+
+export enum TopicHubStatus {
+  Draft = 'DRAFT',
+  Published = 'PUBLISHED',
+  Withdrawn = 'WITHDRAWN'
+}
+
+export type TopicHubSummary = {
+  __typename?: 'TopicHubSummary';
+  introduction: Scalars['String']['output'];
+  slug: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+};
 
 export type UpdateAdminOrgMember = {
   completedLearning?: InputMaybe<Scalars['Int']['input']>;
@@ -6995,7 +8042,6 @@ export type UpdateIngestionSource = {
 };
 
 export type UpdateMeInput = {
-  avatarUrl?: InputMaybe<Scalars['String']['input']>;
   bio?: InputMaybe<Scalars['String']['input']>;
   firstName?: InputMaybe<Scalars['String']['input']>;
   fullName?: InputMaybe<Scalars['String']['input']>;
@@ -7038,7 +8084,6 @@ export type UpdateOrganizationMemberInput = {
   departmentId?: InputMaybe<Scalars['String']['input']>;
   jobRole?: InputMaybe<Scalars['String']['input']>;
   memberId: Scalars['String']['input'];
-  role?: InputMaybe<Role>;
   status?: InputMaybe<OrganizationMemberStatus>;
 };
 
@@ -7077,7 +8122,6 @@ export type UpdatePduActivityInput = {
   relatedCertification?: InputMaybe<Scalars['String']['input']>;
   reportingYear?: InputMaybe<Scalars['Int']['input']>;
   source?: InputMaybe<PduSource>;
-  status?: InputMaybe<PduStatus>;
   subCategory?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
 };
@@ -7344,11 +8388,14 @@ export type YouTubeCategoryFacet = {
 
 export type YouTubeChannel = {
   __typename?: 'YouTubeChannel';
+  availableLocales?: Maybe<Array<AppLanguage>>;
   category: YouTubeCategory;
   channelUrl?: Maybe<Scalars['String']['output']>;
+  contentLanguage?: Maybe<AppLanguage>;
   createdAt: Scalars['DateTime']['output'];
   deletedAt?: Maybe<Scalars['DateTime']['output']>;
   description?: Maybe<Scalars['String']['output']>;
+  excludeFromIndex?: Maybe<Scalars['Boolean']['output']>;
   id: Scalars['ID']['output'];
   imageUrl?: Maybe<Scalars['String']['output']>;
   isFeatured: Scalars['Boolean']['output'];
@@ -7356,7 +8403,11 @@ export type YouTubeChannel = {
   providerId?: Maybe<Scalars['String']['output']>;
   rating: Scalars['Float']['output'];
   ratingCount: Scalars['Int']['output'];
+  seoDescription?: Maybe<Scalars['String']['output']>;
+  seoTitle?: Maybe<Scalars['String']['output']>;
   slug: Scalars['String']['output'];
+  socialImageAlt?: Maybe<Scalars['String']['output']>;
+  socialImagePath?: Maybe<Scalars['String']['output']>;
   status: YouTubeChannelStatus;
   subscribers: Scalars['Int']['output'];
   title: Scalars['String']['output'];
@@ -7381,7 +8432,9 @@ export type YouTubeChannelFilterInput = {
 export type YouTubeChannelPageInfo = {
   __typename?: 'YouTubeChannelPageInfo';
   hasNextPage: Scalars['Boolean']['output'];
+  hasPreviousPage: Scalars['Boolean']['output'];
   nextCursor?: Maybe<Scalars['String']['output']>;
+  previousCursor?: Maybe<Scalars['String']['output']>;
 };
 
 export type YouTubeChannelPaginationInput = {
@@ -7413,6 +8466,18 @@ export enum YouTubeChannelStatus {
   Draft = 'DRAFT',
   Published = 'PUBLISHED'
 }
+
+export type YouTubeChannelTranslation = {
+  __typename?: 'YouTubeChannelTranslation';
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  isPublished: Scalars['Boolean']['output'];
+  locale: AppLanguage;
+  publishedAt?: Maybe<Scalars['DateTime']['output']>;
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  version: Scalars['Int']['output'];
+};
 
 export type YouTubeVideo = {
   __typename?: 'YouTubeVideo';

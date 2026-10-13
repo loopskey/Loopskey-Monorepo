@@ -1,15 +1,18 @@
 import { EventCategory, EventStatus, EventType } from "@prisma/client";
 import { IsEnum, IsOptional, IsString } from "class-validator";
+import { MAX_CATALOG_SEARCH_LENGTH } from "@utils/catalog-pagination.util";
 import { IsBoolean, IsDateString } from "class-validator";
 import { EventGqlInputNames } from "@events/enums/gql-names.enum";
 import { EventDeliveryMode } from "@prisma/client";
 import { Field, InputType } from "@nestjs/graphql";
+import { MaxLength } from "class-validator";
 
 @InputType(EventGqlInputNames.EVENT_FILTER)
 export class EventFilterInput {
   @Field(() => String, { nullable: true })
   @IsOptional()
   @IsString()
+  @MaxLength(MAX_CATALOG_SEARCH_LENGTH)
   search?: string;
 
   @Field(() => EventType, { nullable: true })

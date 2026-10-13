@@ -3,7 +3,6 @@
 import { useProfessionalContentCompletionQuery } from "@/lib/rtk/endpoints/professional.api";
 import { CheckCircle2, CircleCheckBig } from "lucide-react";
 import { TMarkAsCompletedButtonProps } from "@/types/content-module.types";
-import { MarkAsCompletedDialog } from "@modules/ContentDetail/parts/MarkAsCompletedDialog";
 import { getContentTypeStyle } from "@/utils/content-type-style";
 import { useCurrentUserQuery } from "@/lib/rtk/endpoints/auth.api";
 import { useState } from "react";
@@ -11,6 +10,14 @@ import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
 import { Role } from "@/lib/graphql/base";
 import { cn } from "@/lib/utils";
+
+import dynamic from "next/dynamic";
+
+const MarkAsCompletedDialog = dynamic(() =>
+  import("@modules/ContentDetail/parts/MarkAsCompletedDialog").then(
+    (module) => module.MarkAsCompletedDialog,
+  ),
+);
 
 const MODAL = "contentDetails.markCompleted";
 
@@ -21,6 +28,7 @@ export const MarkAsCompletedButton = ({
   const { t } = useI18n();
   const { data } = useCurrentUserQuery();
   const [open, setOpen] = useState(false);
+  const [hasOpened, setHasOpened] = useState(false);
 
   const isProfessional = data?.user?.role === Role.Professional;
 
@@ -45,7 +53,10 @@ export const MarkAsCompletedButton = ({
         radius="xl"
         type="button"
         variant="outline"
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          setHasOpened(true);
+          setOpen(true);
+        }}
         className={cn(style.softClass, "justify-center", className)}
       >
         {isCompleted ? (
@@ -56,12 +67,14 @@ export const MarkAsCompletedButton = ({
         {isCompleted ? t(`${MODAL}.completedButton`) : t(`${MODAL}.button`)}
       </Button>
 
-      <MarkAsCompletedDialog
-        open={open}
-        prefill={prefill}
-        existing={existing}
-        onOpenChange={setOpen}
-      />
+      {hasOpened && (
+        <MarkAsCompletedDialog
+          open={open}
+          prefill={prefill}
+          existing={existing}
+          onOpenChange={setOpen}
+        />
+      )}
     </>
   );
 };

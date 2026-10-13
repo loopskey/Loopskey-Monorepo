@@ -38,15 +38,19 @@ jobs:
       DIRECT_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/loopskey_test_ci
       JWT_ACCESS_SECRET: ci-test-access-secret-at-least-32-characters
       JWT_REFRESH_SECRET: ci-test-refresh-secret-at-least-32-characters
+      # A reserved-TLD fixture origin: the frontend build requires a sanitized
+      # https origin, and CI must not need the production domain or its secrets.
+      NEXT_PUBLIC_SITE_URL: https://ci.loopskey.invalid
+      DEPLOYMENT_ENV: ci
       TURBO_SCM_BASE: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
       TURBO_SCM_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
           node-version: 22
           cache: npm
@@ -54,11 +58,14 @@ jobs:
       - name: Install
         run: npm ci
 
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=critical
+
       - name: Generate Prisma Client
         run: npx prisma generate --schema apps/api/prisma/schema.prisma
 
       - name: Restore Turborepo cache
-        uses: actions/cache@v6
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
         with:
           path: .turbo
           key: turbo-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
@@ -88,4 +95,39 @@ jobs:
         shell: bash
         run: |
           npm run codegen --workspace front
-          git diff --exit-code -- apps/front/src/lib/graphql/generated.ts
+          if [ -n "$(git status --porcelain -- apps/front/src/lib/graphql)" ]; then
+            echo "::error::The generated GraphQL output is out of date. Run npm run codegen --workspace front and commit apps/front/src/lib/graphql."
+            git status --short -- apps/front/src/lib/graphql
+            git diff --stat -- apps/front/src/lib/graphql
+            exit 1
+          fi
+
+      - name: Check deployment configuration
+        run: node scripts/check-deployment-config.mjs
+
+      - name: SEO diagnostic self-test
+        run: node scripts/seo-audit.mjs --self-test
+
+      - name: Audit the production build
+        shell: bash
+        run: |
+          if [ ! -f apps/front/.next/BUILD_ID ]; then
+            echo "The frontend was not built in this run, so there is nothing to audit."
+            exit 0
+          fi
+          (cd apps/front && npx next start --port 3100 > ../../seo-audit-server.log 2>&1 &)
+          ready=""
+          for attempt in $(seq 1 30); do
+            if curl -fsS -o /dev/null http://127.0.0.1:3100/about; then ready=yes; break; fi
+            sleep 2
+          done
+          if [ -z "$ready" ]; then
+            echo "::error::The production build did not start."
+            cat seo-audit-server.log
+            exit 1
+          fi
+          node scripts/seo-audit.mjs \
+            --base-url http://127.0.0.1:3100 \
+            --site-origin "$NEXT_PUBLIC_SITE_URL" \
+            --environment "$DEPLOYMENT_ENV" \
+            --profile static

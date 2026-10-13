@@ -2,12 +2,22 @@
 
 import { DropdownMenuItem, DropdownMenuTrigger } from "@ui/dropdown-menu";
 import { DropdownMenu, DropdownMenuContent } from "@ui/dropdown-menu";
+import { LanguageLinks } from "@elements/language-links";
+import { isDetailPath } from "@/lib/i18n/locale";
+import { usePathname } from "next/navigation";
 import { Languages } from "lucide-react";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
 
 export const LanguageToggleBtn = () => {
-  const { language, setLanguage, t } = useI18n();
+  const { language, isRouteLocked, setLanguage, t } = useI18n();
+  const pathname = usePathname();
+
+  if (isRouteLocked) {
+    if (isDetailPath(pathname)) return null;
+    return <LanguageLinks />;
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

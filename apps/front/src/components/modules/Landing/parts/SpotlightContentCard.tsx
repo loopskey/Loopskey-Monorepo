@@ -7,7 +7,7 @@ import { GlassCard } from "@elements/glass-card";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
 
-import Link from "next/link";
+import Link from "@elements/localized-link";
 
 const SpotlightContentCard = ({ item }: { item: TLandingContentItem }) => {
   const { t } = useI18n();
@@ -26,11 +26,9 @@ const SpotlightContentCard = ({ item }: { item: TLandingContentItem }) => {
         <div className="relative overflow-hidden bg-muted">
           <ContentThumbnail
             priority
-            id={item.id}
             kind={item.kind}
             title={item.title}
             imageUrl={item.imageUrl}
-            category={item.category}
             sizes="(max-width: 1024px) 100vw, 520px"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/15 to-transparent" />

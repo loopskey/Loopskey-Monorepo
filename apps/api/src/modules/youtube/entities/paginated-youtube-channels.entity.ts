@@ -5,7 +5,9 @@ import { YouTubeChannelEntity } from "@modules/youtube/entities/youtube-channel.
 @ObjectType(YouTubeGqlObjectNames.YOUTUBE_CHANNEL_PAGE_INFO)
 export class YouTubeChannelPageInfoEntity {
   @Field() hasNextPage: boolean;
+  @Field() hasPreviousPage: boolean;
   @Field(() => String, { nullable: true }) nextCursor?: string | null;
+  @Field(() => String, { nullable: true }) previousCursor?: string | null;
 }
 
 @ObjectType(YouTubeGqlObjectNames.PAGINATED_YOUTUBE_CHANNELS)

@@ -74,3 +74,36 @@ export const isExpiryOnOrAfterIssue = (
   if (Number.isNaN(issue) || Number.isNaN(expiry)) return false;
   return expiry >= issue;
 };
+
+export const CONTENT_SEO_LIMITS = {
+  titleMax: 200,
+  descriptionMax: 500,
+  imageAltMax: 300,
+} as const;
+
+export const CONTENT_SLUG_LIMITS = {
+  maxLength: 200,
+} as const;
+
+export const TOPIC_HUB_LIMITS = {
+  titleMax: 120,
+  introductionMin: 80,
+  introductionMax: 1500,
+  guidanceMin: 160,
+  guidanceMax: 6000,
+  sectionsMax: 8,
+  sectionHeadingMax: 120,
+  sectionBodyMax: 3000,
+  referencesMax: 24,
+} as const;
+
+export const PROVIDER_PROFILE_LIMITS = {
+  displayNameMax: 120,
+  biographyMin: 80,
+  biographyMax: 2500,
+  websiteMax: 300,
+  linksMax: 5,
+  linkLabelMax: 60,
+  linkUrlMax: 300,
+  noteMax: 1000,
+} as const;

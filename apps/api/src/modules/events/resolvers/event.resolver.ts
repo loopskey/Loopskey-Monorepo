@@ -1,6 +1,7 @@
-import { Args, Int, Mutation, Query, Resolver } from "@nestjs/graphql";
+import { Args, Context, Int, Mutation, Query } from "@nestjs/graphql";
 import { EventRegistrationEntity } from "@events/entities/event-registeration.entity";
 import { EventFilterFacetsEntity } from "@events/entities/event-filter-facets.entity";
+import { EventTranslationService } from "@events/services/event-translation.service";
 import { PaginatedEventsEntity } from "@events/entities/paginated-events.entity";
 import { EventGqlMutationNames } from "@events/enums/gql-names.enum";
 import { EventPaginationInput } from "@events/dtos/event-pagination.input";
@@ -9,26 +10,43 @@ import { EventGqlQueryNames } from "@events/enums/gql-names.enum";
 import { CreateEventInput } from "@events/dtos/create-event.input";
 import { UpdateEventInput } from "@events/dtos/update-event.input";
 import { EventFilterInput } from "@events/dtos/event-filter.input";
+import { EventSeoService } from "@events/services/event-seo.service";
 import { EventSortInput } from "@events/dtos/event-sort.input";
 import { EventService } from "@events/services/event.service";
+import { AppLanguage } from "@prisma/client";
 import { EventEntity } from "@events/entities/event.entity";
 import { CurrentUser } from "@auth/decorators/current-user.decorator";
+import { Resolver } from "@nestjs/graphql";
 import { Public } from "@auth/decorators/public.decorator";
 import { Roles } from "@auth/decorators/roles.decorator";
 import { Role } from "@prisma/client";
 
+type GqlContext = { req?: { ip?: string; ips?: string[] } };
+
+const UNKNOWN_VIEWER = "unknown";
+
 @Resolver(() => EventEntity)
 export class EventResolver {
-  constructor(private readonly eventService: EventService) {}
+  constructor(
+    private readonly eventService: EventService,
+    private readonly translations: EventTranslationService,
+    private readonly seo: EventSeoService,
+  ) {}
 
   @Public()
   @Query(() => PaginatedEventsEntity, { name: EventGqlQueryNames.EVENTS })
-  events(
+  async events(
     @Args("filter", { nullable: true }) filter?: EventFilterInput,
     @Args("pagination", { nullable: true }) pagination?: EventPaginationInput,
     @Args("sort", { nullable: true }) sort?: EventSortInput,
+    @Args("locale", { type: () => AppLanguage, nullable: true })
+    locale?: AppLanguage,
   ) {
-    return this.eventService.findEvents(filter, pagination, sort);
+    const page = await this.eventService.findEvents(filter, pagination, sort);
+    return {
+      ...page,
+      items: await this.translations.localizeMany([...page.items], locale),
+    };
   }
 
   @Public()
@@ -47,8 +65,29 @@ export class EventResolver {
 
   @Public()
   @Query(() => EventEntity, { name: EventGqlQueryNames.EVENT_BY_SLUG })
-  eventBySlug(@Args("slug") slug: string) {
-    return this.eventService.findEventBySlug(slug);
+  async eventBySlug(
+    @Args("slug") slug: string,
+    @Args("locale", { type: () => AppLanguage, nullable: true })
+    locale?: AppLanguage,
+  ) {
+    return this.seo.withEffectiveSeo(
+      await this.translations.localizeOne(
+        await this.eventService.findEventBySlug(slug),
+        locale,
+      ),
+      locale,
+    );
+  }
+
+  @Public()
+  @Mutation(() => Boolean, { name: EventGqlMutationNames.RECORD_EVENT_VIEW })
+  recordEventView(
+    @Args("eventId") eventId: string,
+    @Context() context: GqlContext,
+  ) {
+    const viewerKey =
+      context.req?.ips?.[0] ?? context.req?.ip ?? UNKNOWN_VIEWER;
+    return this.eventService.recordEventView(eventId, viewerKey);
   }
 
   @Public()

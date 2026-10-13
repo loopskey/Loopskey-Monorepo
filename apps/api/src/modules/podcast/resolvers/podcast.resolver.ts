@@ -1,8 +1,9 @@
 import { Args, Int, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { CreatePodcastEpisodeInput } from "@podcast/dtos/create-podcast-episode.input";
+import { PodcastTranslationService } from "@podcast/services/podcast-translation.service";
 import { UpdatePodcastEpisodeInput } from "@podcast/dtos/update-podcast-episode.input";
-import { PodcastGqlMutationNames } from "@podcast/enums/gql-names.enum";
 import { PodcastFilterFacetsEntity } from "@podcast/entities/podcast-filter-facets.entity";
+import { PodcastGqlMutationNames } from "@podcast/enums/gql-names.enum";
 import { PaginatedPodcastsEntity } from "@podcast/entities/paginated-podcasts.entity";
 import { PodcastPaginationInput } from "@podcast/dtos/podcast-pagination";
 import { PodcastEpisodeEntity } from "@podcast/entities/podcast-episode.entity";
@@ -11,9 +12,11 @@ import { TCurrentUserPayload } from "@podcast/types/podcast-service.types";
 import { CreatePodcastInput } from "@podcast/dtos/create-podcast.input";
 import { UpdatePodcastInput } from "@podcast/dtos/update-podcast.input";
 import { PodcastFilterInput } from "@podcast/dtos/podcast-filter.input";
+import { PodcastSeoService } from "@podcast/services/podcast-seo.service";
 import { PodcastSortInput } from "@podcast/dtos/podcast-sort.input";
 import { PodcastService } from "@podcast/services/podcast.service";
 import { PodcastEntity } from "@podcast/entities/podcast.entity";
+import { AppLanguage } from "@prisma/client";
 import { CurrentUser } from "@auth/decorators/current-user.decorator";
 import { Public } from "@auth/decorators/public.decorator";
 import { Roles } from "@auth/decorators/roles.decorator";
@@ -21,19 +24,33 @@ import { Role } from "@prisma/client";
 
 @Resolver(() => PodcastEntity)
 export class PodcastResolver {
-  constructor(private readonly podcastService: PodcastService) {}
+  constructor(
+    private readonly podcastService: PodcastService,
+    private readonly translations: PodcastTranslationService,
+    private readonly seo: PodcastSeoService,
+  ) {}
 
   @Public()
   @Query(() => PaginatedPodcastsEntity, {
     name: PodcastGqlQueryNames.PODCASTS,
   })
-  podcasts(
+  async podcasts(
     @Args("filter", { nullable: true }) filter?: PodcastFilterInput,
     @Args("pagination", { nullable: true })
     pagination?: PodcastPaginationInput,
     @Args("sort", { nullable: true }) sort?: PodcastSortInput,
+    @Args("locale", { type: () => AppLanguage, nullable: true })
+    locale?: AppLanguage,
   ) {
-    return this.podcastService.findPodcasts(filter, pagination, sort);
+    const page = await this.podcastService.findPodcasts(
+      filter,
+      pagination,
+      sort,
+    );
+    return {
+      ...page,
+      items: await this.translations.localizeMany([...page.items], locale),
+    };
   }
 
   @Public()
@@ -56,8 +73,18 @@ export class PodcastResolver {
   @Query(() => PodcastEntity, {
     name: PodcastGqlQueryNames.PODCAST_BY_SLUG,
   })
-  podcastBySlug(@Args("slug") slug: string) {
-    return this.podcastService.findPodcastBySlug(slug);
+  async podcastBySlug(
+    @Args("slug") slug: string,
+    @Args("locale", { type: () => AppLanguage, nullable: true })
+    locale?: AppLanguage,
+  ) {
+    return this.seo.withEffectiveSeo(
+      await this.translations.localizeOne(
+        await this.podcastService.findPodcastBySlug(slug),
+        locale,
+      ),
+      locale,
+    );
   }
 
   @Public()

@@ -1,31 +1,30 @@
-import {
-  IngestionContentKind,
-  IngestionItemState,
-  Prisma,
-} from "@prisma/client";
-import { KIND_INGESTION_CONTRACT_VERSION } from "@ingestion/enums/kind-ingestion.constant";
 import { KIND_INGESTION_COMPRESSED_BODY_LIMIT_BYTES } from "@ingestion/enums/kind-ingestion.constant";
+import { CATALOG_CONTENT_CHANGED_EVENT_VERSION } from "@ingestion/enums/kind-ingestion.constant";
 import { KIND_INGESTION_IDEMPOTENCY_KEY_LIMIT } from "@ingestion/enums/kind-ingestion.constant";
+import { KIND_INGESTION_CONTRACT_VERSION } from "@ingestion/enums/kind-ingestion.constant";
 import { KIND_INGESTION_PERSIST_ATTEMPTS } from "@ingestion/enums/kind-ingestion.constant";
+import { CATALOG_CONTENT_CHANGED_EVENT } from "@ingestion/enums/kind-ingestion.constant";
 import { KIND_INGESTION_EVENT_VERSION } from "@ingestion/enums/kind-ingestion.constant";
+import { IngestionItemState, Prisma } from "@prisma/client";
 import { KIND_INGESTION_EVENT_NAME } from "@ingestion/enums/kind-ingestion.constant";
 import { KIND_INGESTION_ITEM_LIMIT } from "@ingestion/enums/kind-ingestion.constant";
 import { uniqueViolationTargets } from "@ingestion/utils/ingestion-batch.util";
+import { IngestionContentKind } from "@prisma/client";
 import { isUniqueViolation } from "@ingestion/utils/ingestion-batch.util";
 import { requestContext } from "@infrastructure/observability/request-context";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { PrismaService } from "@prisma/prisma.service";
-import { Logger } from "@nestjs/common";
 import { createHash } from "node:crypto";
 import { slugify } from "@utils/slug.util";
+import { Logger } from "@nestjs/common";
 
-import type { AcceptedKindItem } from "@ingestion/types/kind-ingestion.types";
-import type { KindIngestionHandler } from "@ingestion/types/kind-ingestion.types";
+import type { TIngestionSourceContext } from "@ingestion/types/ingestion.types";
 import type { KindIngestionItemReport } from "@ingestion/types/kind-ingestion.types";
+import type { KindIngestionHandler } from "@ingestion/types/kind-ingestion.types";
 import type { PersistAcceptedArgs } from "@ingestion/types/kind-ingestion.types";
 import type { PersistRejectedArgs } from "@ingestion/types/kind-ingestion.types";
+import type { AcceptedKindItem } from "@ingestion/types/kind-ingestion.types";
 import type { PreparedKindItem } from "@ingestion/types/kind-ingestion.types";
-import type { TIngestionSourceContext } from "@ingestion/types/ingestion.types";
 
 type LockedItem = {
   id: string;
@@ -38,14 +37,6 @@ export type CatalogWriteResult = {
   changeState: "created" | "updated";
 };
 
-/**
- * The kind-agnostic persistence flow phase 03 wrote for courses, generalised.
- * A concrete kind supplies only its canonical shape, its normaliser and the
- * catalog write; this class owns the ingestion-item lock, the unchanged
- * short-circuit, the unique-violation retry, the outbox append and the batch
- * report update. Every write path locks the `IngestionItem` row first, so two
- * concurrent crawls of one entity serialise rather than racing or deadlocking.
- */
 export abstract class AbstractKindIngestionService<TCanonical>
   implements KindIngestionHandler<TCanonical>
 {
@@ -196,6 +187,17 @@ export abstract class AbstractKindIngestionService<TCanonical>
                 catalogId,
                 kind: this.kind,
               },
+            },
+            tx,
+          );
+          await this.outbox.append(
+            {
+              eventName: CATALOG_CONTENT_CHANGED_EVENT,
+              eventVersion: CATALOG_CONTENT_CHANGED_EVENT_VERSION,
+              aggregateType: "IngestionItem",
+              aggregateId: item.id,
+              correlationId: requestContext.correlationId(),
+              payload: { catalogId, kind: this.kind },
             },
             tx,
           );

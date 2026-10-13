@@ -1,3 +1,4 @@
+import { publicContentChange } from "@utils/public-content-change.util";
 import {
   IngestionContentKind,
   Prisma,
@@ -98,7 +99,7 @@ export class YouTubeIngestionService extends AbstractKindIngestionService<YouTub
     const channel = existing
       ? await tx.youTubeChannel.update({
           where: { id: existing.id },
-          data,
+          data: { ...data, ...publicContentChange() },
           select: { id: true },
         })
       : await tx.youTubeChannel.create({

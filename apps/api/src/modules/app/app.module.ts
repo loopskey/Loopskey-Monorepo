@@ -1,4 +1,5 @@
 import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
+import { NoSchemaIntrospectionCustomRule } from "graphql";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
 import { OperationTimingInterceptor } from "@infrastructure/observability/operation-timing.interceptor";
@@ -6,13 +7,20 @@ import { ContentInteractionModule } from "@contentAction/content-interaction.mod
 import { ExternalLearningModule } from "@ext/external-learning.module";
 import { AdminDashboardModule } from "@admin/admin.module";
 import { PasswordChangeGuard } from "@auth/guards/password-change.guard";
+import { operationLimitsRule } from "@utils/graphql-operation-limits.util";
 import { OrganizationModule } from "@org/org.module";
 import { formatGraphQLError } from "@utils/graphql-error-formatter";
 import { ProfessionalModule } from "@professional/professional.module";
 import { AssociationModule } from "@association/association.module";
 import { OperationsModule } from "@infrastructure/operations/operations.module";
+import { ContentUrlModule } from "@contentUrl/content-url.module";
 import { IngestionModule } from "@ingestion/ingestion.module";
+import { RateLimitModule } from "@infrastructure/rate-limit/rate-limit.module";
 import { ServiceAiModule } from "@infrastructure/service-ai/service-ai.module";
+import { DiscoveryModule } from "@discovery/discovery.module";
+import { TelemetryModule } from "@telemetry/telemetry.module";
+import { TopicHubModule } from "@topicHub/topic-hub.module";
+import { RateLimitGuard } from "@infrastructure/rate-limit/rate-limit.guard";
 import { ProviderModule } from "@provider/provider.module";
 import { SupportModule } from "@support/support.module";
 import { GraphQLModule } from "@nestjs/graphql";
@@ -36,6 +44,7 @@ import { join } from "path";
       envFilePath: ".env",
     }),
     OperationsModule,
+    RateLimitModule,
     ServiceAiModule,
 
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
@@ -46,13 +55,21 @@ import { join } from "path";
           "GRAPHQL_SCHEMA_PATH",
           "src/graphql/schema.gql",
         );
+        const introspectionEnabled =
+          configService.get<string>("NODE_ENV") !== "production" ||
+          configService.get<string>("GRAPHQL_INTROSPECTION") === "true";
         return {
           autoSchemaFile: join(process.cwd(), schemaPath),
           sortSchema: true,
           formatError: formatGraphQLError,
           playground:
             configService.get<string>("GRAPHQL_PLAYGROUND", "true") === "true",
-          introspection: true,
+          introspection: introspectionEnabled,
+          csrfPrevention: true,
+          validationRules: [
+            operationLimitsRule(),
+            ...(introspectionEnabled ? [] : [NoSchemaIntrospectionCustomRule]),
+          ],
           context: ({ req, res }: { req: Request; res: Response }) => ({
             req,
             res,
@@ -71,7 +88,11 @@ import { join } from "path";
     LandingModule,
     SupportModule,
     ProviderModule,
+    TopicHubModule,
+    DiscoveryModule,
     IngestionModule,
+    TelemetryModule,
+    ContentUrlModule,
     AssociationModule,
     OrganizationModule,
     ProfessionalModule,
@@ -83,6 +104,7 @@ import { join } from "path";
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
     { provide: APP_GUARD, useClass: PasswordChangeGuard },
+    { provide: APP_GUARD, useClass: RateLimitGuard },
     { provide: APP_INTERCEPTOR, useClass: OperationTimingInterceptor },
   ],
 })

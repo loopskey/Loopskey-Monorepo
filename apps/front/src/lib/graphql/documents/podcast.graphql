@@ -38,17 +38,39 @@ fragment PodcastEpisodeFields on PodcastEpisode {
 fragment PodcastPageInfoFields on PodcastPageInfo {
   nextCursor
   hasNextPage
+  previousCursor
+  hasPreviousPage
 }
 
 # ============== Queries ================
+fragment PodcastSeoPublicFields on Podcast {
+  seoTitle
+  seoDescription
+  socialImagePath
+  socialImageAlt
+  excludeFromIndex
+}
+
+fragment PodcastLocaleFields on Podcast {
+  contentLanguage
+  availableLocales
+}
+
 query Podcasts(
   $filter: PodcastFilterInput
   $pagination: PodcastPaginationInput
   $sort: PodcastSortInput
+  $locale: AppLanguage
 ) {
-  podcasts(filter: $filter, pagination: $pagination, sort: $sort) {
+  podcasts(
+    filter: $filter
+    pagination: $pagination
+    sort: $sort
+    locale: $locale
+  ) {
     items {
       ...PodcastFields
+      ...PodcastLocaleFields
     }
     totalCount
     pageInfo {
@@ -63,9 +85,11 @@ query PodcastById($podcastId: String!) {
   }
 }
 
-query PodcastBySlug($slug: String!) {
-  podcastBySlug(slug: $slug) {
+query PodcastBySlug($slug: String!, $locale: AppLanguage) {
+  podcastBySlug(slug: $slug, locale: $locale) {
     ...PodcastFields
+    ...PodcastLocaleFields
+    ...PodcastSeoPublicFields
   }
 }
 

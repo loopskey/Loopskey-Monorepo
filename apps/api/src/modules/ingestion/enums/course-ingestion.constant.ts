@@ -4,6 +4,8 @@ export const COURSE_INGESTION_COMPRESSED_BODY_LIMIT_BYTES = 1_048_576;
 export const COURSE_INGESTION_IDEMPOTENCY_KEY_LIMIT = 200;
 export const COURSE_INGESTION_EVENT_NAME = "ingestion.item.published";
 export const COURSE_INGESTION_EVENT_VERSION = 1;
+export const CATALOG_CONTENT_CHANGED_EVENT = "catalog.content.changed";
+export const CATALOG_CONTENT_CHANGED_EVENT_VERSION = 1;
 
 export const COURSE_CANONICAL_FIELDS = [
   "externalId",

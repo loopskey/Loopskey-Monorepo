@@ -6,6 +6,20 @@ import type { TPduActivity } from "@/types/professional-dashboard.types";
 import type { ContentType } from "@/lib/graphql/base";
 import type { ReactNode } from "react";
 
+import type {
+  PublicCourse,
+  PublicEvent,
+  PublicPodcast,
+  PublicPodcastEpisode,
+  PublicYouTubeChannel,
+  PublicYouTubeVideo,
+} from "@/lib/server/public-content";
+
+import type {
+  CatalogFacets,
+  CatalogPageData,
+} from "@/lib/server/catalog-reader";
+
 import type * as API from "@/lib/graphql/generated";
 
 export type TContentTab = "courses" | "events" | "podcasts" | "youtube";
@@ -24,10 +38,11 @@ export type TContentCardItem = {
   isFree?: boolean | null;
   imageUrl?: string | null;
   category?: string | null;
-  categoryCode?: string | null;
   description?: string | null;
   metaPrimary?: string | null;
   metaSecondary?: string | null;
+  contentLang?: string | null;
+  originalLanguage?: boolean;
 };
 
 export type TSelectOption = {
@@ -35,65 +50,15 @@ export type TSelectOption = {
   label: string;
 };
 
-export type TFacetState = {
-  isLoading: boolean;
-  hasError: boolean;
-  onRetry: () => void;
-};
-
-export type TEnumFacet = {
-  value: string;
-  count: number;
-};
-
-export type TRatingFacet = {
-  minimum: number;
-  count: number;
-};
-
-export type TCursorState = {
-  page: number;
-  cursor?: string;
-  history: string[];
-};
-
-export type TCourseFilters = {
-  minRating?: string;
-  level?: API.CourseLevel | "";
-  category?: API.CourseCategory | "";
-};
-
-export type TEventFilters = {
-  type?: API.EventType | "";
-  category?: API.EventCategory | "";
-};
-
-export type TPodcastFilters = {
-  category?: API.PodcastCategory | "";
-};
-
-export type TYouTubeFilters = {
-  category?: API.YouTubeCategory | "";
-};
-
 export type TContentCardProps = {
-  action?: ReactNode;
   className?: string;
   footerNote?: ReactNode;
   item: TContentCardItem;
   overlay?: ReactNode;
 };
 
-export type TContentTabOption = {
-  value: TContentTab;
-  label: string;
-};
-
 export type TContentTabsProps = {
-  label: string;
   activeTab: TContentTab;
-  tabs: TContentTabOption[];
-  onChange: (tab: TContentTab) => void;
 };
 
 export type TContentSearchHeroProps = {
@@ -101,22 +66,52 @@ export type TContentSearchHeroProps = {
   activeTab: TContentTab;
 };
 
-export type TFilterPanelProps = {
-  title: string;
-  search: string;
-  filters: Array<{
-    key: string;
-    label: string;
-    value?: string;
-    placeholder: string;
-    options: TSelectOption[];
-    isLoading: boolean;
-    hasError: boolean;
-    onRetry: () => void;
-    onChange: (value: string) => void;
-  }>;
-  onReset: () => void;
-  onSearchChange: (value: string) => void;
+export type TFilterOption = {
+  value: string;
+  label: string;
+};
+
+export type TFilterField = {
+  name: string;
+  label: string;
+  value: string;
+  options: TFilterOption[];
+};
+
+export type TContentFilterValues = {
+  q: string;
+  category: string;
+  level: string;
+  rating: string;
+  eventType: string;
+};
+
+export type TContentFilterFormProps = {
+  tab: TContentTab;
+  resetHref: string;
+  retryHref: string;
+  hasActiveFilters: boolean;
+  values: TContentFilterValues;
+  facets: CatalogFacets | null;
+};
+
+export type TContentResultsProps = {
+  page: CatalogPageData;
+};
+
+export type TContentCatalogPaginationProps = {
+  totalCount: number;
+  nextHref: string | null;
+  previousHref: string | null;
+};
+
+export type TCatalogNoticeProps = {
+  restartHref: string;
+  variant: "invalid" | "expired";
+};
+
+export type TEmptyStateProps = {
+  resetHref?: string;
 };
 
 // ============== Details ================
@@ -171,6 +166,7 @@ export type TDetailLayoutProps = {
   header: ReactNode;
   sidebar: ReactNode;
   children?: ReactNode;
+  breadcrumbs?: ReactNode;
 };
 
 export type TDetailPageHeaderProps = {
@@ -181,17 +177,17 @@ export type TDetailPageHeaderProps = {
   category?: string | null;
   ratingCount?: number | null;
   chips?: Array<string | null | undefined>;
+  contentLanguage?: API.AppLanguage | null;
+  availableLocales?: API.AppLanguage[] | null;
 };
 
 export type TDetailSidebarProps = {
-  id: string;
   title: string;
   kind: TDetailKind;
   actions: ReactNode;
   facts: TDetailFact[];
   summary?: ReactNode;
   imageUrl?: string | null;
-  category?: string | null;
 };
 
 export type TDetailSectionProps = {
@@ -208,8 +204,8 @@ export type TDetailSidebarActionsProps = {
   contentType: ContentType;
   contentUrl: string | null;
   wishlist: TDetailHeroWishlist;
-  prefill: TAddCalendarEventPrefill;
   completed: TMarkCompletedPrefill;
+  prefill: TAddCalendarEventPrefill;
   register?: TDetailHeroPrimary | null;
 };
 
@@ -283,7 +279,25 @@ export type TYouTubeVideosProps = {
 };
 
 export type TCourseDetailPageProps = {
-  slug: string;
+  breadcrumbs?: ReactNode;
+  course: PublicCourse;
+};
+
+export type TEventDetailPageProps = {
+  breadcrumbs?: ReactNode;
+  event: PublicEvent;
+};
+
+export type TPodcastDetailPageProps = {
+  breadcrumbs?: ReactNode;
+  podcast: PublicPodcast;
+  episodes: PublicPodcastEpisode[];
+};
+
+export type TYouTubeDetailPageProps = {
+  breadcrumbs?: ReactNode;
+  channel: PublicYouTubeChannel;
+  videos: PublicYouTubeVideo[];
 };
 
 export type TAddToCalendarButtonProps = {
@@ -298,20 +312,15 @@ export type TMarkCompletedRequirementLink = {
 
 export type TMarkCompletedPrefill = {
   title: string;
-  contentId?: string | null;
-  contentType?: API.ContentType | null;
-  activityType: API.PduSource;
   level?: string | null;
+  contentId?: string | null;
+  activityType: API.PduSource;
   roadmapArea?: string | null;
   durationMinutes?: number | null;
   providerOrganizer?: string | null;
   category?: API.PduCategory | null;
-  /** Identity of the assigned association-content row, independent of contentId/contentType
-   * (which are null for external content). Sent as-is so the backend can match/dedupe this
-   * specific assignment's completion regardless of which requirement ends up selected. */
+  contentType?: API.ContentType | null;
   associationLearningContentId?: string | null;
-  /** Preselects a requirement without going through the endorsement/URL inference — used when
-   * the launching row already knows exactly which requirement this content counts toward. */
   requirementLink?: TMarkCompletedRequirementLink | null;
 };
 
@@ -350,12 +359,12 @@ export type TRequirementSelectFieldProps<T extends FieldValues> = {
   t: I18nContextValue["t"];
   name: Path<T>;
   label: string;
-  control: Control<T>;
-  options: TRequirementOption[];
   noneValue: string;
   noneLabel: string;
   disabled?: boolean;
   className?: string;
+  control: Control<T>;
   description?: string | null;
+  options: TRequirementOption[];
   onValueChange?: (value: string) => void;
 };

@@ -1,3 +1,4 @@
+import { publicContentChange } from "@utils/public-content-change.util";
 import { EventStatus, IngestionContentKind, Prisma } from "@prisma/client";
 import { AbstractKindIngestionService } from "@ingestion/services/abstract-kind-ingestion.service";
 import { validateCanonicalFieldMap } from "@ingestion/utils/canonical-field-map.util";
@@ -108,7 +109,7 @@ export class EventIngestionService extends AbstractKindIngestionService<EventCan
     const event = existing
       ? await tx.event.update({
           where: { id: existing.id },
-          data,
+          data: { ...data, ...publicContentChange() },
           select: { id: true },
         })
       : await tx.event.create({

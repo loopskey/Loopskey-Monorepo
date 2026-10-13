@@ -1,7 +1,14 @@
 import { PodcastEngagementApiService } from "@podcast/application/podcast-engagement-api.service";
+import { PodcastPublicUrlApiService } from "@podcast/application/public-url-api.service";
 import { PODCAST_CATALOG_SEARCH_API } from "@podcast/public/catalog-search-api";
+import { PodcastTranslationResolver } from "@podcast/resolvers/podcast-translation.resolver";
+import { PodcastTranslationService } from "@podcast/services/podcast-translation.service";
 import { CatalogSearchApiService } from "@podcast/application/catalog-search-api.service";
 import { PODCAST_ENGAGEMENT_API } from "@podcast/public/podcast-engagement-api";
+import { PODCAST_PUBLIC_URL_API } from "@podcast/public/public-url-api";
+import { ContentMediaModule } from "@contentMedia/content-media.module";
+import { PodcastSeoResolver } from "@podcast/resolvers/podcast-seo.resolver";
+import { PodcastSeoService } from "@podcast/services/podcast-seo.service";
 import { PodcastResolver } from "@podcast/resolvers/podcast.resolver";
 import { PodcastService } from "@podcast/services/podcast.service";
 import { PrismaModule } from "@prisma/prisma.module";
@@ -10,10 +17,19 @@ import { Module } from "@nestjs/common";
 import "@podcast/enums/podcast-register.enum";
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, ContentMediaModule],
   providers: [
-    PodcastResolver,
+    PodcastPublicUrlApiService,
+    {
+      provide: PODCAST_PUBLIC_URL_API,
+      useExisting: PodcastPublicUrlApiService,
+    },
     PodcastService,
+    PodcastResolver,
+    PodcastSeoService,
+    PodcastSeoResolver,
+    PodcastTranslationService,
+    PodcastTranslationResolver,
     PodcastEngagementApiService,
     {
       provide: PODCAST_ENGAGEMENT_API,
@@ -25,6 +41,10 @@ import "@podcast/enums/podcast-register.enum";
       useExisting: CatalogSearchApiService,
     },
   ],
-  exports: [PODCAST_ENGAGEMENT_API, PODCAST_CATALOG_SEARCH_API],
+  exports: [
+    PODCAST_ENGAGEMENT_API,
+    PODCAST_CATALOG_SEARCH_API,
+    PODCAST_PUBLIC_URL_API,
+  ],
 })
 export class PodcastModule {}

@@ -11,6 +11,12 @@
     "front#build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "env": [
+        "NEXT_PUBLIC_*",
+        "DEPLOYMENT_ENV",
+        "SITE_CANONICAL_HOST_ALIASES",
+        "SITE_HTTPS_REDIRECT"
+      ],
       "outputs": [".next/**", "!.next/cache/**"]
     },
     "test": {

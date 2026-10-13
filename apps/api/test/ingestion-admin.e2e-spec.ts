@@ -1,5 +1,4 @@
 import { INestApplication, ValidationPipe } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
 import { Test } from "@nestjs/testing";
 import { PrismaClient, Role, UserStatus } from "@prisma/client";
 import { AppModule } from "@app/app.module";
@@ -7,6 +6,7 @@ import { PrismaService } from "@prisma/prisma.service";
 
 import cookieParser from "cookie-parser";
 import request from "supertest";
+import { openSession, signAccessToken } from "./setup/access-token";
 
 const SLUG_PREFIX = "ingestion-admin-e2e";
 
@@ -14,15 +14,6 @@ const unique = () =>
   `${process.pid.toString(36)}-${Date.now().toString(36)}-${Math.random()
     .toString(36)
     .slice(2, 8)}`;
-
-function signAccessToken(id: string, email: string, role: Role): string {
-  return new JwtService({ secret: process.env.JWT_ACCESS_SECRET }).sign({
-    sub: id,
-    email,
-    role,
-    status: UserStatus.ACTIVE,
-  });
-}
 
 describe("Ingestion admin GraphQL API (e2e)", () => {
   let app: INestApplication;
@@ -66,6 +57,7 @@ describe("Ingestion admin GraphQL API (e2e)", () => {
       data: { email: adminEmail, role: Role.ADMIN, status: UserStatus.ACTIVE },
     });
     adminId = admin.id;
+    await openSession(prisma, admin.id);
     adminToken = signAccessToken(admin.id, adminEmail, Role.ADMIN);
 
     const professionalEmail = `professional@${SLUG_PREFIX}.test`;
@@ -77,6 +69,7 @@ describe("Ingestion admin GraphQL API (e2e)", () => {
       },
     });
     professionalId = professional.id;
+    await openSession(prisma, professional.id);
     professionalToken = signAccessToken(
       professional.id,
       professionalEmail,
@@ -187,9 +180,7 @@ describe("Ingestion admin GraphQL API (e2e)", () => {
       },
       adminToken,
     );
-    expect(deactivate.body.data.deactivateIngestionSource.isActive).toBe(
-      false,
-    );
+    expect(deactivate.body.data.deactivateIngestionSource.isActive).toBe(false);
 
     const activate = await graphql(
       {
@@ -271,7 +262,8 @@ describe("Ingestion admin GraphQL API (e2e)", () => {
       adminToken,
     );
     expect(issue.body.errors).toBeUndefined();
-    const credential = issue.body.data.issueIngestionApiKey.credential as string;
+    const credential = issue.body.data.issueIngestionApiKey
+      .credential as string;
     expect(credential).toMatch(/^lk_ing_/);
 
     const list = await graphql(
@@ -282,7 +274,9 @@ describe("Ingestion admin GraphQL API (e2e)", () => {
       },
       adminToken,
     );
-    expect(JSON.stringify(list.body)).not.toContain(credential.split("_").at(-1));
+    expect(JSON.stringify(list.body)).not.toContain(
+      credential.split("_").at(-1),
+    );
     expect(JSON.stringify(list.body)).not.toContain("secretHash");
 
     const secondKey = await graphql(

@@ -35,11 +35,35 @@ const AdminIngestionTab = dynamic(
   { loading: () => <DashboardContentSkeleton /> },
 );
 
+const AdminSearchHealthTab = dynamic(
+  () => import("@modules/AdminDashboard/AdminSearchHealthTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+
+const AdminTopicHubsTab = dynamic(
+  () => import("@modules/AdminDashboard/AdminTopicHubsTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+
+const AdminProviderProfilesTab = dynamic(
+  () => import("@modules/AdminDashboard/AdminProviderProfilesTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+
+const AdminSearchVisibilityTab = dynamic(
+  () => import("@modules/AdminDashboard/AdminSearchVisibilityTab"),
+  { loading: () => <DashboardContentSkeleton /> },
+);
+
 const validTabs: TAdminDashboardTab[] = [
   "users",
   "overview",
   "settings",
   "ingestion",
+  "search-visibility",
+  "search-health",
+  "topic-hubs",
+  "provider-profiles",
   "organization-users",
   "org-access-requests",
   "associations",
@@ -59,11 +83,11 @@ export const AdminDashboardShell = () => {
   if (activeTab === "org-access-requests") return <AdminOrgAccessRequestTab />;
   if (activeTab === "associations") return <AdminAssociationsTab />;
   if (activeTab === "ingestion") return <AdminIngestionTab />;
+  if (activeTab === "search-visibility") return <AdminSearchVisibilityTab />;
+  if (activeTab === "search-health") return <AdminSearchHealthTab />;
+  if (activeTab === "topic-hubs") return <AdminTopicHubsTab />;
+  if (activeTab === "provider-profiles") return <AdminProviderProfilesTab />;
   if (activeTab === "settings") return <AdminSettingsTab />;
 
-  return (
-    <div className="rounded-lg border p-8">
-      Provider tab: {activeTab}
-    </div>
-  );
+  return <div className="rounded-lg border p-8">Provider tab: {activeTab}</div>;
 };

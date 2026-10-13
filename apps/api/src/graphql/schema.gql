@@ -188,9 +188,85 @@ type AdminProfile {
   updatedAt: DateTime!
 }
 
+type AdminProviderPublicProfile {
+  biography: String
+  displayName: String
+  draftVersion: Int!
+  excludeFromIndex: Boolean!
+  hasUnpublishedChanges: Boolean!
+  id: ID!
+  isLive: Boolean!
+  links: [ProviderPublicProfileLink!]!
+  logoImageId: ID
+  logoPath: String
+  providerId: ID!
+  providerName: String
+  publishedAt: DateTime
+  reviewNote: String
+  reviewState: ProviderProfileReviewState!
+  reviewedAt: DateTime
+  slug: String!
+  status: ProviderProfileStatus!
+  submittedAt: DateTime
+  websiteUrl: String
+  withdrawnAt: DateTime
+}
+
 type AdminRequestTrendPoint {
   count: Int!
   date: String!
+}
+
+type AdminTopicHub {
+  category: String
+  eligibleLinkCount: Int!
+  excludeFromIndex: Boolean!
+  guidance: String!
+  id: ID!
+  introduction: String!
+  linkCount: Int!
+  needsReview: Boolean!
+  publishedAt: DateTime
+  references: [AdminTopicHubReference!]!
+  sections: [TopicHubSection!]!
+  slug: String!
+  status: TopicHubStatus!
+  title: String!
+  translations: [AdminTopicHubTranslation!]!
+  updatedAt: DateTime!
+  version: Int!
+}
+
+type AdminTopicHubReference {
+  contentId: ID!
+  isEligible: Boolean!
+  kind: ContentUrlKind!
+  slug: String
+  title: String
+}
+
+type AdminTopicHubSummary {
+  eligibleLinkCount: Int!
+  excludeFromIndex: Boolean!
+  id: ID!
+  linkCount: Int!
+  needsReview: Boolean!
+  publishedAt: DateTime
+  slug: String!
+  status: TopicHubStatus!
+  title: String!
+  updatedAt: DateTime!
+  version: Int!
+}
+
+type AdminTopicHubTranslation {
+  guidance: String!
+  introduction: String!
+  isPublished: Boolean!
+  locale: AppLanguage!
+  sections: [TopicHubSection!]!
+  title: String!
+  version: Int!
 }
 
 type AdminUser {
@@ -1321,6 +1397,9 @@ enum AuditAction {
   ASSOCIATION_ACTIVITY_REJECTED
   ASSOCIATION_MEMBER_INVITATION_ACCEPTED
   ASSOCIATION_SETTINGS_UPDATED
+  CONTENT_INDEX_EXCLUSION_CHANGED
+  CONTENT_SEO_UPDATED
+  CONTENT_SLUG_CHANGED
   ORGANIZATION_ACCOUNT_ACTIVATED
   ORGANIZATION_ACCOUNT_CREATED
   ORGANIZATION_ACTIVATION_RESENT
@@ -1332,6 +1411,13 @@ enum AuditAction {
   ORG_ACCESS_REQUEST_APPROVED
   ORG_ACCESS_REQUEST_REJECTED
   ORG_ACCESS_REQUEST_SUBMITTED
+  PROVIDER_PROFILE_INDEX_EXCLUSION_CHANGED
+  PROVIDER_PROFILE_REVIEWED
+  PROVIDER_PROFILE_SUBMITTED
+  PROVIDER_PROFILE_WITHDRAWN
+  TOPIC_HUB_INDEX_EXCLUSION_CHANGED
+  TOPIC_HUB_STATUS_CHANGED
+  TOPIC_HUB_UPDATED
   USER_DELETED
   USER_EXPORTED
   USER_STATUS_UPDATED
@@ -1517,6 +1603,13 @@ input CertificationSearchInput {
   query: String!
 }
 
+input ChangeContentSlugInput {
+  contentId: ID!
+  expectedSlug: String!
+  kind: ContentUrlKind!
+  slug: String!
+}
+
 input ChangePasswordInput {
   confirmPassword: String!
   currentPassword: String!
@@ -1607,6 +1700,24 @@ type ContentReview {
   userId: String!
 }
 
+type ContentSeoLocale {
+  defaultDescription: String
+  defaultTitle: String!
+  locale: AppLanguage!
+  seoDescription: String
+  seoTitle: String
+  socialImageAlt: String
+  socialImageId: String
+  socialImagePath: String
+  updatedAt: DateTime
+  version: Int!
+}
+
+type ContentSeoSettings {
+  excludeFromIndex: Boolean!
+  locales: [ContentSeoLocale!]!
+}
+
 enum ContentType {
   COURSE
   EVENT
@@ -1614,14 +1725,37 @@ enum ContentType {
   YOUTUBE
 }
 
+enum ContentUrlKind {
+  COURSE
+  EVENT
+  PODCAST
+  PROVIDER
+  TOPIC
+  YOUTUBE
+}
+
+type ContentUrlResolution {
+  slug: String!
+}
+
+type ContentUrlSettings {
+  contentId: ID!
+  kind: ContentUrlKind!
+  retiredSlugs: [String!]!
+  slug: String!
+}
+
 type Course {
+  availableLocales: [AppLanguage!]
   category: CourseCategory!
+  contentLanguage: AppLanguage
   createdAt: DateTime!
   currency: String!
   curriculumSections: [CurriculumSection!]
   deletedAt: DateTime
   description: String!
   durationMinutes: Int
+  excludeFromIndex: Boolean
   id: ID!
   imageUrl: String
   instructor: String!
@@ -1636,7 +1770,11 @@ type Course {
   rating: Float!
   ratingCount: Int!
   requirements: [String!]!
+  seoDescription: String
+  seoTitle: String
   slug: String!
+  socialImageAlt: String
+  socialImagePath: String
   sourceUrl: String
   status: CourseStatus!
   title: String!
@@ -1694,7 +1832,9 @@ type CourseLevelFacet {
 
 type CoursePageInfo {
   hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
   nextCursor: String
+  previousCursor: String
 }
 
 input CoursePaginationInput {
@@ -1725,6 +1865,19 @@ enum CourseStatus {
   ARCHIVED
   DRAFT
   PUBLISHED
+}
+
+type CourseTranslation {
+  description: String!
+  id: ID!
+  isPublished: Boolean!
+  learnings: [String!]!
+  locale: AppLanguage!
+  publishedAt: DateTime
+  requirements: [String!]!
+  title: String!
+  updatedAt: DateTime!
+  version: Int!
 }
 
 type CpdCategoryProgress {
@@ -2124,11 +2277,46 @@ enum DeliveryFormat {
   SELF_PACED
 }
 
+type EditorialUrl {
+  availableLocales: [AppLanguage!]!
+  publicChangeAt: DateTime!
+  slug: String!
+}
+
+type EditorialUrlPage {
+  hasNextPage: Boolean!
+  items: [EditorialUrl!]!
+  nextCursor: String
+}
+
+input EditorialUrlPageInput {
+  after: String
+  endCursor: String
+  startCursor: String!
+  take: Int
+}
+
+type EditorialUrlShard {
+  endCursor: String
+  index: Int!
+  lastPublicChangeAt: DateTime!
+  startCursor: String!
+  urlCount: Int!
+}
+
+type EditorialUrlShardSet {
+  isComplete: Boolean!
+  shardSize: Int!
+  shards: [EditorialUrlShard!]!
+}
+
 type Event {
   attendees: Int!
+  availableLocales: [AppLanguage!]
   averageRating: Float!
   capacity: Int
   category: EventCategory!
+  contentLanguage: AppLanguage
   createdAt: DateTime!
   currency: String!
   deletedAt: DateTime
@@ -2136,6 +2324,7 @@ type Event {
   description: String!
   earlyBirdDiscount: Float
   endDate: DateTime
+  excludeFromIndex: Boolean
   id: ID!
   imageUrl: String
   isFree: Boolean!
@@ -2152,7 +2341,11 @@ type Event {
   ratingCount: Int!
   registrationEnabled: Boolean!
   scheduleItems: [EventScheduleItem!]
+  seoDescription: String
+  seoTitle: String
   slug: String!
+  socialImageAlt: String
+  socialImagePath: String
   sourceUrl: String
   speaker: String
   specificTopic: String
@@ -2218,7 +2411,9 @@ input EventFilterInput {
 
 type EventPageInfo {
   hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
   nextCursor: String
+  previousCursor: String
 }
 
 input EventPaginationInput {
@@ -2285,6 +2480,17 @@ enum EventStatus {
   CANCELLED
   DRAFT
   PUBLISHED
+}
+
+type EventTranslation {
+  description: String!
+  id: ID!
+  isPublished: Boolean!
+  locale: AppLanguage!
+  publishedAt: DateTime
+  title: String!
+  updatedAt: DateTime!
+  version: Int!
 }
 
 enum EventType {
@@ -2618,6 +2824,11 @@ enum MemberInvitationTokenStatus {
   VALID
 }
 
+input ModerateProviderPublicProfileInput {
+  note: String
+  profileId: ID!
+}
+
 type Mutation {
   acceptMemberInvitation(input: AcceptMemberInvitationInput!): MemberInvitationAcceptResult!
   activateAssociationAccount(input: ActivateAssociationAccountInput!): AuthPayload!
@@ -2639,6 +2850,7 @@ type Mutation {
   cancelContentEnrollment(input: ContentActionInput!): ContentActionPayload!
   cancelEvent(eventId: String!): Event!
   cancelEventRegistration(eventId: String!): EventRegistration!
+  changeContentSlug(input: ChangeContentSlugInput!): ContentUrlSettings!
   changePassword(input: ChangePasswordInput!): AuthPayload!
   clearCart: ContentActionPayload!
   completeProfessionalOnboarding(input: CompleteProfessionalOnboardingInput!): ProfessionalDashboardProfile!
@@ -2702,6 +2914,8 @@ type Mutation {
   publishPodcast(podcastId: String!): Podcast!
   publishYouTubeChannel(channelId: String!): YouTubeChannel!
   recomputeAssociationCompliance: AssociationActionResponse!
+  recordEventView(eventId: String!): Boolean!
+  recordTelemetry(input: TelemetryBatchInput!): TelemetryAck!
   refreshToken: AuthPayload!
   register(input: RegisterInput!): AuthPayload!
   registerEvent(eventId: String!): EventRegistration!
@@ -2726,13 +2940,36 @@ type Mutation {
   restoreYouTubeChannel(channelId: String!): YouTubeChannel!
   retryAssociationReportExport(input: AssociationReportExportIdInput!): AssociationGeneratedReport!
   reviewAssociationLearningActivity(input: ReviewAssociationLearningActivityInput!): AssociationReviewResult!
+  reviewProviderPublicProfile(input: ReviewProviderPublicProfileInput!): AdminProviderPublicProfile!
   revokeIngestionApiKey(keyId: String!): IngestionApiKey!
+  saveCourseSeo(input: SaveContentSeoInput!): ContentSeoSettings!
+  saveCourseTranslation(input: SaveCourseTranslationInput!): CourseTranslation!
+  saveEventSeo(input: SaveContentSeoInput!): ContentSeoSettings!
+  saveEventTranslation(input: SaveEventTranslationInput!): EventTranslation!
+  savePodcastSeo(input: SaveContentSeoInput!): ContentSeoSettings!
+  savePodcastTranslation(input: SavePodcastTranslationInput!): PodcastTranslation!
+  saveProviderPublicProfile(input: SaveProviderPublicProfileInput!): ProviderPublicProfileDraft!
+  saveTopicHub(input: SaveTopicHubInput!): AdminTopicHub!
+  saveYouTubeChannelSeo(input: SaveContentSeoInput!): ContentSeoSettings!
+  saveYouTubeChannelTranslation(input: SaveYouTubeChannelTranslationInput!): YouTubeChannelTranslation!
   sendAssociationMessage(input: SendAssociationMessageInput!): AssociationMessageBatch!
   sendRoadmapChatTurn(input: RoadmapChatTurnInput!): ProfessionalRoadmapDraft!
   setAssociationGroupActive(input: SetAssociationGroupActiveInput!): AssociationGroup!
   setAssociationMemberRequirements(input: SetAssociationMemberRequirementsInput!): AssociationMemberRequirementsResult!
   setAssociationMemberStatus(input: SetAssociationMemberStatusInput!): AssociationMember!
+  setCourseIndexExclusion(input: SetContentIndexExclusionInput!): ContentSeoSettings!
+  setCourseTranslationPublication(input: SetCourseTranslationPublicationInput!): CourseTranslation!
+  setEventIndexExclusion(input: SetContentIndexExclusionInput!): ContentSeoSettings!
+  setEventTranslationPublication(input: SetEventTranslationPublicationInput!): EventTranslation!
+  setPodcastIndexExclusion(input: SetContentIndexExclusionInput!): ContentSeoSettings!
+  setPodcastTranslationPublication(input: SetPodcastTranslationPublicationInput!): PodcastTranslation!
   setProfessionalCertificateCpdPlan(input: SetCertificateCpdPlanInput!): ProfessionalCertificate!
+  setProviderPublicProfileIndexExclusion(input: SetProviderPublicProfileIndexExclusionInput!): AdminProviderPublicProfile!
+  setTopicHubIndexExclusion(input: SetTopicHubIndexExclusionInput!): AdminTopicHub!
+  setTopicHubStatus(input: SetTopicHubStatusInput!): AdminTopicHub!
+  setTopicHubTranslationPublication(input: SetTopicHubTranslationPublicationInput!): AdminTopicHub!
+  setYouTubeChannelIndexExclusion(input: SetContentIndexExclusionInput!): ContentSeoSettings!
+  setYouTubeChannelTranslationPublication(input: SetYouTubeChannelTranslationPublicationInput!): YouTubeChannelTranslation!
   startProfessionalOnboarding: ProfessionalDashboardProfile!
   startRoadmapDraft: ProfessionalRoadmapDraft!
   startRoadmapStep(enrollmentId: ID!, stepId: ID!): RoadmapStepProgress!
@@ -2741,6 +2978,7 @@ type Mutation {
   submitContentReview(input: SubmitContentReviewInput!): ContentReview!
   submitOrganizationAccessRequest(input: SubmitOrganizationAccessRequestInput!): OrganizationAccessRequest!
   submitPromotionRequest(input: SubmitPromotionRequestInput!): PromotionRequest!
+  submitProviderPublicProfile(input: SubmitProviderPublicProfileInput!): ProviderPublicProfileDraft!
   toggleWishlist(input: ContentActionInput!): ContentActionPayload!
   trackExternalLearningClick(input: CreateExternalLearningClickInput!): ExternalLearningActivity!
   unenrollRoadmap(enrollmentId: ID!): Boolean!
@@ -2790,6 +3028,8 @@ type Mutation {
   verifyEmailChange(input: VerifyEmailChangeInput!): AuthPayload!
   verifyEmailOtp(input: VerifyEmailOtpInput!): AuthPayload!
   withdrawAssociationLearningContent(input: AssociationLearningContentIdInput!): AssociationLearningContent!
+  withdrawProviderPublicProfile: ProviderPublicProfileDraft!
+  withdrawProviderPublicProfileAsAdmin(input: ModerateProviderPublicProfileInput!): AdminProviderPublicProfile!
 }
 
 input MyWishlistInput {
@@ -3562,12 +3802,15 @@ enum PaymentStatus {
 }
 
 type Podcast {
+  availableLocales: [AppLanguage!]
   category: PodcastCategory!
+  contentLanguage: AppLanguage
   createdAt: DateTime!
   deletedAt: DateTime
   description: String!
   durationMinutes: Int
   episodeCount: Int!
+  excludeFromIndex: Boolean
   host: String!
   id: ID!
   imageUrl: String
@@ -3576,7 +3819,11 @@ type Podcast {
   providerId: String
   rating: Float!
   ratingCount: Int!
+  seoDescription: String
+  seoTitle: String
   slug: String!
+  socialImageAlt: String
+  socialImagePath: String
   sourceUrl: String
   status: PodcastStatus!
   title: String!
@@ -3634,7 +3881,9 @@ input PodcastFilterInput {
 
 type PodcastPageInfo {
   hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
   nextCursor: String
+  previousCursor: String
 }
 
 input PodcastPaginationInput {
@@ -3665,6 +3914,17 @@ enum PodcastStatus {
   ARCHIVED
   DRAFT
   PUBLISHED
+}
+
+type PodcastTranslation {
+  description: String!
+  id: ID!
+  isPublished: Boolean!
+  locale: AppLanguage!
+  publishedAt: DateTime
+  title: String!
+  updatedAt: DateTime!
+  version: Int!
 }
 
 input PopularCategoriesInput {
@@ -4355,6 +4615,7 @@ type ProviderEventTableRow {
   id: ID!
   pdu: Float!
   registrants: Int!
+  slug: String!
   startDate: DateTime!
   status: EventStatus!
   title: String!
@@ -4394,11 +4655,86 @@ type ProviderProfile {
   website: String
 }
 
+enum ProviderProfileDecision {
+  APPROVE
+  REJECT
+}
+
+enum ProviderProfileReviewState {
+  APPROVED
+  DRAFT
+  REJECTED
+  SUBMITTED
+}
+
+enum ProviderProfileStatus {
+  PUBLISHED
+  UNPUBLISHED
+  WITHDRAWN
+}
+
 input ProviderPromotionFilterInput {
   eventId: String
   promotionType: PromotionType
   search: String
   status: PromotionRequestStatus
+}
+
+type ProviderPublicByline {
+  displayName: String!
+  slug: String!
+}
+
+type ProviderPublicProfile {
+  biography: String!
+  displayName: String!
+  excludeFromIndex: Boolean!
+  items: [ProviderPublicProfileItem!]!
+  links: [ProviderPublicProfileLink!]!
+  logoPath: String
+  publishedAt: DateTime!
+  slug: String!
+  updatedAt: DateTime!
+  websiteUrl: String
+}
+
+type ProviderPublicProfileDraft {
+  biography: String
+  displayName: String
+  draftVersion: Int!
+  hasUnpublishedChanges: Boolean!
+  id: ID!
+  isLive: Boolean!
+  links: [ProviderPublicProfileLink!]!
+  logoImageId: ID
+  logoPath: String
+  publishedAt: DateTime
+  reviewNote: String
+  reviewState: ProviderProfileReviewState!
+  reviewedAt: DateTime
+  slug: String!
+  status: ProviderProfileStatus!
+  submittedAt: DateTime
+  websiteUrl: String
+}
+
+type ProviderPublicProfileItem {
+  category: String
+  imageUrl: String
+  kind: ContentUrlKind!
+  slug: String!
+  summary: String
+  title: String!
+}
+
+type ProviderPublicProfileLink {
+  label: String!
+  url: String!
+}
+
+input ProviderPublicProfileLinkInput {
+  label: String!
+  url: String!
 }
 
 type ProviderSettings {
@@ -4437,6 +4773,41 @@ type ProviderTopEvent {
   views: Int!
 }
 
+type PublicUrl {
+  availableLocales: [AppLanguage!]!
+  publicChangeAt: DateTime!
+  slug: String!
+}
+
+type PublicUrlPage {
+  hasNextPage: Boolean!
+  items: [PublicUrl!]!
+  nextCursor: String
+}
+
+input PublicUrlPageInput {
+  after: String
+  endCursor: String
+  kind: ContentType!
+  startCursor: String!
+  take: Int
+}
+
+type PublicUrlShard {
+  endCursor: String
+  index: Int!
+  lastPublicChangeAt: DateTime!
+  startCursor: String!
+  urlCount: Int!
+}
+
+type PublicUrlShardSet {
+  isComplete: Boolean!
+  kind: ContentType!
+  shardSize: Int!
+  shards: [PublicUrlShard!]!
+}
+
 input PublishAssociationLearningContentInput {
   audienceKind: AssociationAudienceKind!
   groupIds: [ID!]
@@ -4453,6 +4824,9 @@ type Query {
   adminOrganizationMembers(filter: AdminOrgMemberFilter!, pagination: AdminPagination): PaginatedAdminOrgMembers!
   adminOrganizations(filter: AdminOrgFilter, pagination: AdminPagination): PaginatedAdminOrg!
   adminProfile: AdminProfile!
+  adminProviderPublicProfiles(reviewState: ProviderProfileReviewState): [AdminProviderPublicProfile!]!
+  adminTopicHub(hubId: String!): AdminTopicHub!
+  adminTopicHubs: [AdminTopicHubSummary!]!
   adminUserGrowth(mode: String = "DAILY"): [AdminChartPoint!]!
   adminUsers(filter: AdminUserFilter, pagination: AdminPagination): PaginatedAdminUser!
   associationAccounts(filter: AssociationAccountFilterInput, pagination: AssociationPaginationInput): PaginatedAssociationAccounts!
@@ -4498,19 +4872,24 @@ type Query {
   associationSettings(associationId: ID): AssociationSettings!
   certificationSearch(input: CertificationSearchInput!): [Certification!]!
   contentReviews(contentId: String!, contentType: ContentType!): [ContentReview!]!
+  contentUrl(contentId: String!, kind: ContentUrlKind!): ContentUrlSettings!
   courseById(courseId: String!): Course!
-  courseBySlug(slug: String!): Course!
+  courseBySlug(locale: AppLanguage, slug: String!): Course!
   courseFilterFacets: CourseFilterFacets!
-  courses(filter: CourseFilterInput, pagination: CoursePaginationInput, sort: CourseSortInput): PaginatedCourses!
+  courseSeo(courseId: String!): ContentSeoSettings!
+  courseTranslations(courseId: String!): [CourseTranslation!]!
+  courses(filter: CourseFilterInput, locale: AppLanguage, pagination: CoursePaginationInput, sort: CourseSortInput): PaginatedCourses!
   cpdPlan(planId: ID!): CpdPlan!
   cpdPlanActivities(planId: ID!): [ProfessionalPduActivity!]!
   cpdPlanProgress(planId: ID!): CpdPlanProgress!
   cpdReportRecipients: [CpdReportRecipientOption!]!
   currentUser: AuthPayload!
   eventById(eventId: String!): Event!
-  eventBySlug(slug: String!): Event!
+  eventBySlug(locale: AppLanguage, slug: String!): Event!
   eventFilterFacets: EventFilterFacets!
-  events(filter: EventFilterInput, pagination: EventPaginationInput, sort: EventSortInput): PaginatedEvents!
+  eventSeo(eventId: String!): ContentSeoSettings!
+  eventTranslations(eventId: String!): [EventTranslation!]!
+  events(filter: EventFilterInput, locale: AppLanguage, pagination: EventPaginationInput, sort: EventSortInput): PaginatedEvents!
   featuredCourses(take: Int = 12): [Course!]!
   featuredEvents(take: Int = 12): [Event!]!
   featuredPodcasts(take: Int = 12): [Podcast!]!
@@ -4539,6 +4918,7 @@ type Query {
   myProviderCourses(filter: CourseFilterInput, pagination: CoursePaginationInput, sort: CourseSortInput): PaginatedCourses!
   myProviderEvents(filter: EventFilterInput, pagination: EventPaginationInput, sort: EventSortInput): PaginatedEvents!
   myProviderPodcasts(filter: PodcastFilterInput, pagination: PodcastPaginationInput, sort: PodcastSortInput): PaginatedPodcasts!
+  myProviderPublicProfile: ProviderPublicProfileDraft
   myProviderYouTubeChannels(filter: YouTubeChannelFilterInput, pagination: YouTubeChannelPaginationInput, sort: YouTubeChannelSortInput): PaginatedYouTubeChannels!
   myRegisteredEvents: [EventRegistration!]!
   myReviewForContent(contentId: String!, contentType: ContentType!): ContentReview
@@ -4560,10 +4940,12 @@ type Query {
   organizationReports(filter: OrganizationReportFilterInput): OrganizationReport!
   organizationSettings: OrganizationSettings!
   podcastById(podcastId: String!): Podcast!
-  podcastBySlug(slug: String!): Podcast!
+  podcastBySlug(locale: AppLanguage, slug: String!): Podcast!
   podcastEpisodes(podcastId: String!): [PodcastEpisode!]!
   podcastFilterFacets: PodcastFilterFacets!
-  podcasts(filter: PodcastFilterInput, pagination: PodcastPaginationInput, sort: PodcastSortInput): PaginatedPodcasts!
+  podcastSeo(podcastId: String!): ContentSeoSettings!
+  podcastTranslations(podcastId: String!): [PodcastTranslation!]!
+  podcasts(filter: PodcastFilterInput, locale: AppLanguage, pagination: PodcastPaginationInput, sort: PodcastSortInput): PaginatedPodcasts!
   popularCategories(input: PopularCategoriesInput): [PopularCategory!]!
   professionalActiveSessions: [ProfessionalSession!]!
   professionalCalendarEvents(filter: ProfessionalCalendarEventsFilterInput, pagination: ProfessionalPaginationInput): PaginatedProfessionalCalendarEvents!
@@ -4599,16 +4981,31 @@ type Query {
   providerAttendees(filter: ProviderAttendeesFilterInput, pagination: ProviderDashboardPaginationInput): PaginatedProviderAttendees!
   providerEventsTable(filter: ProviderEventsFilterInput, pagination: ProviderDashboardPaginationInput): PaginatedProviderEvents!
   providerOverview(input: ProviderDashboardRangeInput): ProviderOverview!
+  providerProfileUrlPage(input: EditorialUrlPageInput!): EditorialUrlPage!
+  providerProfileUrlShards: EditorialUrlShardSet!
   providerPromotionRequests(filter: ProviderPromotionFilterInput, pagination: ProviderDashboardPaginationInput): PaginatedPromotionRequests!
+  providerPublicBylineForContent(contentId: String!, kind: ContentUrlKind!): ProviderPublicByline
+  providerPublicProfileBySlug(slug: String!): ProviderPublicProfile!
   providerSettings: ProviderSettings!
+  publicUrlPage(input: PublicUrlPageInput!): PublicUrlPage!
+  publicUrlShards: [PublicUrlShardSet!]!
+  resolveContentUrl(kind: ContentUrlKind!, slug: String!): ContentUrlResolution
   roadmapSuggestionOptions(input: RoadmapSuggestionOptionsInput!): [RoadmapWidgetOption!]!
+  searchHealthReport(input: SearchHealthReportInput!): SearchHealthReport!
+  topicHubBySlug(locale: AppLanguage, slug: String!): TopicHub!
+  topicHubUrlPage(input: EditorialUrlPageInput!): EditorialUrlPage!
+  topicHubUrlShards: EditorialUrlShardSet!
+  topicHubs(locale: AppLanguage, take: Int): [TopicHubSummary!]!
+  topicHubsForContent(contentId: String!, kind: ContentUrlKind!, locale: AppLanguage): [TopicHubSummary!]!
   upcomingEvents(take: Int = 12): [Event!]!
   userById(userId: String!): User!
   users(filter: UserFilterInput, pagination: UserPaginationInput): PaginatedUsers!
   youtubeChannelById(channelId: String!): YouTubeChannel!
-  youtubeChannelBySlug(slug: String!): YouTubeChannel!
+  youtubeChannelBySlug(locale: AppLanguage, slug: String!): YouTubeChannel!
   youtubeChannelFilterFacets: YouTubeChannelFilterFacets!
-  youtubeChannels(filter: YouTubeChannelFilterInput, pagination: YouTubeChannelPaginationInput, sort: YouTubeChannelSortInput): PaginatedYouTubeChannels!
+  youtubeChannelSeo(channelId: String!): ContentSeoSettings!
+  youtubeChannelTranslations(channelId: String!): [YouTubeChannelTranslation!]!
+  youtubeChannels(filter: YouTubeChannelFilterInput, locale: AppLanguage, pagination: YouTubeChannelPaginationInput, sort: YouTubeChannelSortInput): PaginatedYouTubeChannels!
   youtubeVideos(channelId: String!): [YouTubeVideo!]!
 }
 
@@ -4668,6 +5065,13 @@ input ReviewAssociationLearningActivityInput {
   activityId: ID!
   approve: Boolean!
   reason: String
+}
+
+input ReviewProviderPublicProfileInput {
+  decision: ProviderProfileDecision!
+  expectedDraftVersion: Int!
+  note: String
+  profileId: ID!
 }
 
 type RoadmapChatMessage {
@@ -4841,6 +5245,119 @@ enum Role {
   PROVIDER
 }
 
+input SaveContentSeoInput {
+  contentId: ID!
+  expectedVersion: Int
+  locale: AppLanguage!
+  seoDescription: String
+  seoTitle: String
+  socialImageAlt: String
+  socialImageId: ID
+}
+
+input SaveCourseTranslationInput {
+  courseId: ID!
+  description: String!
+  expectedVersion: Int
+  learnings: [String!]
+  locale: AppLanguage!
+  requirements: [String!]
+  title: String!
+}
+
+input SaveEventTranslationInput {
+  description: String!
+  eventId: ID!
+  expectedVersion: Int
+  locale: AppLanguage!
+  title: String!
+}
+
+input SavePodcastTranslationInput {
+  description: String!
+  expectedVersion: Int
+  locale: AppLanguage!
+  podcastId: ID!
+  title: String!
+}
+
+input SaveProviderPublicProfileInput {
+  biography: String
+  displayName: String!
+  expectedVersion: Int
+  links: [ProviderPublicProfileLinkInput!]
+  logoImageId: ID
+  websiteUrl: String
+}
+
+input SaveTopicHubInput {
+  category: String
+  expectedVersion: Int
+  guidance: String!
+  hubId: ID
+  introduction: String!
+  locale: AppLanguage!
+  references: [TopicHubReferenceInput!]
+  sections: [TopicHubSectionInput!]
+  slug: String
+  title: String!
+}
+
+input SaveYouTubeChannelTranslationInput {
+  channelId: ID!
+  description: String!
+  expectedVersion: Int
+  locale: AppLanguage!
+  title: String!
+}
+
+type SearchHealthConversionRow {
+  attribution: TelemetryAttribution!
+  contentKind: TelemetryContentKind!
+  count: Int!
+  event: TelemetryConversionEvent!
+  role: TelemetryRegistrationRole!
+}
+
+type SearchHealthIntakeRow {
+  count: Int!
+  kind: TelemetryIntakeKind!
+  outcome: TelemetryIntakeOutcome!
+}
+
+type SearchHealthReport {
+  conversions: [SearchHealthConversionRow!]!
+  days: Int!
+  daysWithData: Int!
+  from: DateTime!
+  intake: [SearchHealthIntakeRow!]!
+  isCollecting: Boolean!
+  minimumSamples: Int!
+  to: DateTime!
+  vitals: [SearchHealthVitalSegment!]!
+}
+
+input SearchHealthReportInput {
+  days: Int!
+}
+
+type SearchHealthVitalSegment {
+  device: TelemetryDevice!
+  locale: TelemetryLocale!
+  metric: TelemetryMetric!
+  p75: Float!
+  samples: Int!
+  status: SearchHealthVitalStatus!
+  template: TelemetryRouteTemplate!
+}
+
+enum SearchHealthVitalStatus {
+  GOOD
+  INSUFFICIENT_DATA
+  NEEDS_IMPROVEMENT
+  POOR
+}
+
 input SendAssociationMessageInput {
   audience: AssociationMessageAudienceInput!
   messageType: AssociationMessageType!
@@ -4870,6 +5387,62 @@ input SetAssociationMemberStatusInput {
 input SetCertificateCpdPlanInput {
   certificateId: ID!
   cpdPlanId: ID
+}
+
+input SetContentIndexExclusionInput {
+  contentId: ID!
+  excluded: Boolean!
+}
+
+input SetCourseTranslationPublicationInput {
+  courseId: ID!
+  expectedVersion: Int!
+  locale: AppLanguage!
+  published: Boolean!
+}
+
+input SetEventTranslationPublicationInput {
+  eventId: ID!
+  expectedVersion: Int!
+  locale: AppLanguage!
+  published: Boolean!
+}
+
+input SetPodcastTranslationPublicationInput {
+  expectedVersion: Int!
+  locale: AppLanguage!
+  podcastId: ID!
+  published: Boolean!
+}
+
+input SetProviderPublicProfileIndexExclusionInput {
+  excluded: Boolean!
+  profileId: ID!
+}
+
+input SetTopicHubIndexExclusionInput {
+  excluded: Boolean!
+  hubId: ID!
+}
+
+input SetTopicHubStatusInput {
+  expectedVersion: Int!
+  hubId: ID!
+  status: TopicHubStatus!
+}
+
+input SetTopicHubTranslationPublicationInput {
+  expectedVersion: Int!
+  hubId: ID!
+  locale: AppLanguage!
+  published: Boolean!
+}
+
+input SetYouTubeChannelTranslationPublicationInput {
+  channelId: ID!
+  expectedVersion: Int!
+  locale: AppLanguage!
+  published: Boolean!
 }
 
 enum SkillLevel {
@@ -4934,10 +5507,190 @@ input SubmitPromotionRequestInput {
   promotionType: PromotionType!
 }
 
+input SubmitProviderPublicProfileInput {
+  expectedVersion: Int!
+}
+
+type TelemetryAck {
+  accepted: Int!
+  dropped: Int!
+}
+
+enum TelemetryAttribution {
+  DIRECT
+  INTERNAL
+  ORGANIC_SEARCH
+  REFERRAL
+  SOCIAL
+  UNATTRIBUTED
+}
+
+input TelemetryBatchInput {
+  conversions: [TelemetryConversionInput!]! = []
+  vitals: [TelemetryVitalInput!]! = []
+}
+
+enum TelemetryContentKind {
+  COURSE
+  EVENT
+  NONE
+  PODCAST
+  YOUTUBE
+}
+
+enum TelemetryConversionEvent {
+  CATALOG_DETAIL_OPEN
+  EXTERNAL_CONTENT_ACTION
+  REGISTRATION_COMPLETED
+  REGISTRATION_START
+}
+
+input TelemetryConversionInput {
+  attribution: TelemetryAttribution!
+  contentKind: TelemetryContentKind! = NONE
+  event: TelemetryConversionEvent!
+  id: String!
+  locale: TelemetryLocale!
+  role: TelemetryRegistrationRole! = NONE
+}
+
+enum TelemetryDevice {
+  DESKTOP
+  MOBILE
+}
+
+enum TelemetryIntakeKind {
+  CONVERSION
+  VITAL
+}
+
+enum TelemetryIntakeOutcome {
+  ACCEPTED
+  DISABLED
+  DUPLICATE
+  INVALID
+  RATE_LIMITED
+  SAMPLED_OUT
+  SINK_FAILED
+}
+
+enum TelemetryLocale {
+  EN
+  FR
+  UNKNOWN
+}
+
+enum TelemetryMetric {
+  CLS
+  INP
+  LCP
+}
+
+enum TelemetryNavigationType {
+  BACK_FORWARD
+  NAVIGATE
+  PRERENDER
+  RELOAD
+  RESTORE
+}
+
+enum TelemetryRating {
+  GOOD
+  NEEDS_IMPROVEMENT
+  POOR
+}
+
+enum TelemetryRegistrationRole {
+  NONE
+  PROFESSIONAL
+  PROVIDER
+}
+
+enum TelemetryRouteTemplate {
+  ABOUT
+  COMPANY
+  CONTACT
+  CONTENT_CATALOG
+  COURSE_DETAIL
+  EVENT_DETAIL
+  FAQ
+  HOME
+  LEGAL
+  PODCAST_DETAIL
+  PROVIDER_PROFILE
+  SERVICES
+  SOLUTIONS
+  SUPPORT
+  TOPIC_HUB
+  YOUTUBE_DETAIL
+}
+
+input TelemetryVitalInput {
+  device: TelemetryDevice!
+  id: String!
+  locale: TelemetryLocale!
+  name: TelemetryMetric!
+  navigationType: TelemetryNavigationType!
+  rating: TelemetryRating!
+  template: TelemetryRouteTemplate!
+  value: Float!
+}
+
 enum Theme {
   DARK
   LIGHT
   SYSTEM
+}
+
+type TopicHub {
+  availableLocales: [AppLanguage!]!
+  category: String
+  contentLanguage: AppLanguage
+  excludeFromIndex: Boolean!
+  guidance: String!
+  introduction: String!
+  items: [TopicHubItem!]!
+  publishedAt: DateTime!
+  sections: [TopicHubSection!]!
+  slug: String!
+  title: String!
+  updatedAt: DateTime!
+}
+
+type TopicHubItem {
+  category: String
+  imageUrl: String
+  kind: ContentUrlKind!
+  slug: String!
+  summary: String
+  title: String!
+}
+
+input TopicHubReferenceInput {
+  contentId: ID!
+  kind: ContentUrlKind!
+}
+
+type TopicHubSection {
+  body: String!
+  heading: String!
+}
+
+input TopicHubSectionInput {
+  body: String!
+  heading: String!
+}
+
+enum TopicHubStatus {
+  DRAFT
+  PUBLISHED
+  WITHDRAWN
+}
+
+type TopicHubSummary {
+  introduction: String!
+  slug: String!
+  title: String!
 }
 
 input UpdateAdminOrgMember {
@@ -5155,7 +5908,6 @@ input UpdateIngestionSource {
 }
 
 input UpdateMeInput {
-  avatarUrl: String
   bio: String
   firstName: String
   fullName: String
@@ -5198,7 +5950,6 @@ input UpdateOrganizationMemberInput {
   departmentId: String
   jobRole: String
   memberId: String!
-  role: Role
   status: OrganizationMemberStatus
 }
 
@@ -5237,7 +5988,6 @@ input UpdatePduActivityInput {
   relatedCertification: String
   reportingYear: Int
   source: PDUSource
-  status: PDUStatus
   subCategory: String
   title: String
 }
@@ -5498,11 +6248,14 @@ type YouTubeCategoryFacet {
 }
 
 type YouTubeChannel {
+  availableLocales: [AppLanguage!]
   category: YouTubeCategory!
   channelUrl: String
+  contentLanguage: AppLanguage
   createdAt: DateTime!
   deletedAt: DateTime
   description: String
+  excludeFromIndex: Boolean
   id: ID!
   imageUrl: String
   isFeatured: Boolean!
@@ -5510,7 +6263,11 @@ type YouTubeChannel {
   providerId: String
   rating: Float!
   ratingCount: Int!
+  seoDescription: String
+  seoTitle: String
   slug: String!
+  socialImageAlt: String
+  socialImagePath: String
   status: YouTubeChannelStatus!
   subscribers: Int!
   title: String!
@@ -5533,7 +6290,9 @@ input YouTubeChannelFilterInput {
 
 type YouTubeChannelPageInfo {
   hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
   nextCursor: String
+  previousCursor: String
 }
 
 input YouTubeChannelPaginationInput {
@@ -5564,6 +6323,17 @@ enum YouTubeChannelStatus {
   ARCHIVED
   DRAFT
   PUBLISHED
+}
+
+type YouTubeChannelTranslation {
+  description: String!
+  id: ID!
+  isPublished: Boolean!
+  locale: AppLanguage!
+  publishedAt: DateTime
+  title: String!
+  updatedAt: DateTime!
+  version: Int!
 }
 
 type YouTubeVideo {

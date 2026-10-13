@@ -1,8 +1,13 @@
 import { EventRegistrationStatus, EventStatus, Prisma } from "@prisma/client";
 import { EventRegistrationConflict } from "@events/domain/errors/event-registration-conflict.error";
+import { isContentSlugClaimed } from "@utils/content-slug-claim.util";
 import { EventPaginationInput } from "@events/dtos/event-pagination.input";
+import { ContentUrlNamespace } from "@prisma/client";
+import { readPublicUrlShards } from "@utils/public-url-enumeration.util";
+import { publicContentChange } from "@utils/public-content-change.util";
 import { EventSortDirection } from "@events/enums/event-register.enum";
 import { ATTENDING_STATUSES } from "@events/domain/policies/registration-attendance.policy";
+import { readPublicUrlPage } from "@utils/public-url-enumeration.util";
 import { EventRatingWriter } from "@events/public/events-api";
 import { EventFilterInput } from "@events/dtos/event-filter.input";
 import { VACATED_STATUSES } from "@events/domain/policies/registration-attendance.policy";
@@ -10,12 +15,31 @@ import { EventSortInput } from "@events/dtos/event-sort.input";
 import { EventSortField } from "@events/enums/event-register.enum";
 import { EventCategory } from "@prisma/client";
 import { PrismaService } from "@prisma/prisma.service";
+import { AppLanguage } from "@prisma/client";
 import { Injectable } from "@nestjs/common";
 
 import type { ProviderAttendeesQuery } from "@events/public/events-api";
 import type { RoadmapCandidateQuery } from "@events/public/events-api";
 import type { EventCatalogSearchRow } from "@events/types/event-service.types";
+import type { PublicUrlPageSelector } from "@utils/public-url-enumeration.util";
+import type { PublishedTranslation } from "@utils/content-translation.util";
 import type { ProviderEventsQuery } from "@events/public/events-api";
+import type { TranslationStore } from "@utils/content-translation.util";
+import type { SeoRow, SeoStore } from "@utils/content-seo.util";
+import type { PublicUrlSource } from "@utils/public-url-enumeration.util";
+import type { SeoDefaultText } from "@utils/content-seo-settings.util";
+
+import {
+  CATALOG_SEARCH_CANDIDATE_CAP,
+  CATALOG_SEARCH_ORDER,
+  catalogSearchWindow,
+  catalogSortOrder,
+  clampSearchCount,
+  readCatalogPage,
+  readPrismaWindowAfter,
+  readSearchWindowAfter,
+  withoutSearchColumns,
+} from "@utils/catalog-pagination.util";
 
 const isUniqueViolation = (error: unknown) =>
   error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -23,7 +47,7 @@ const isUniqueViolation = (error: unknown) =>
 
 const WORD_SIMILARITY_THRESHOLD = 0.3;
 const VALID_EVENT_CATEGORIES = new Set<string>(Object.values(EventCategory));
-const CANDIDATE_CAP = 500;
+const EVENT_SEARCH_ORDER = Prisma.sql`"searchRank" DESC, "startDate" ASC, "id" DESC`;
 
 const trimmedTerms = (terms: readonly string[]) => [
   ...new Set(terms.map((term) => term.trim()).filter(Boolean)),
@@ -57,6 +81,14 @@ type RegistrationOutcome = {
 export class EventRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  readPublicUrlShards(source: PublicUrlSource) {
+    return readPublicUrlShards(this.prisma, source);
+  }
+
+  readPublicUrlPage(source: PublicUrlSource, selector: PublicUrlPageSelector) {
+    return readPublicUrlPage(this.prisma, source, selector);
+  }
+
   create(data: Prisma.EventUncheckedCreateInput) {
     return this.prisma.event.create({ data });
   }
@@ -87,9 +119,9 @@ export class EventRepository {
     return this.prisma.event.findUnique({ where: { id: eventId } });
   }
 
-  findActiveByIdWithSchedule(eventId: string) {
+  findPublishedByIdWithSchedule(eventId: string) {
     return this.prisma.event.findFirst({
-      where: { id: eventId, deletedAt: null },
+      where: { id: eventId, status: EventStatus.PUBLISHED, deletedAt: null },
       include: {
         scheduleItems: {
           orderBy: [{ dayNumber: "asc" }, { startTime: "asc" }],
@@ -98,9 +130,9 @@ export class EventRepository {
     });
   }
 
-  findActiveBySlugWithSchedule(slug: string) {
+  findPublishedBySlugWithSchedule(slug: string) {
     return this.prisma.event.findFirst({
-      where: { slug, deletedAt: null },
+      where: { slug, status: EventStatus.PUBLISHED, deletedAt: null },
       include: {
         scheduleItems: {
           orderBy: [{ dayNumber: "asc" }, { startTime: "asc" }],
@@ -109,8 +141,12 @@ export class EventRepository {
     });
   }
 
-  incrementViews(eventId: string) {
-    return this.update(eventId, { views: { increment: 1 } });
+  async incrementPublishedViews(eventId: string) {
+    const { count } = await this.prisma.event.updateMany({
+      where: { id: eventId, status: EventStatus.PUBLISHED, deletedAt: null },
+      data: { views: { increment: 1 } },
+    });
+    return count === 1;
   }
 
   async groupPublicFacets() {
@@ -159,36 +195,45 @@ export class EventRepository {
     pagination?: EventPaginationInput,
     sort?: EventSortInput,
   ) {
-    const take = Math.min(pagination?.take ?? 20, 100);
     const where = this.buildWhere(filter);
-    const [items, totalCount] = await this.prisma.$transaction([
-      this.prisma.event.findMany({
-        where,
-        take: take + 1,
-        cursor: pagination?.cursor ? { id: pagination.cursor } : undefined,
-        skip: pagination?.cursor ? 1 : 0,
-        orderBy: this.buildOrderBy(sort),
-      }),
-      this.prisma.event.count({ where }),
-    ]);
-    const hasNextPage = items.length > take;
-    const slicedItems = hasNextPage ? items.slice(0, take) : items;
-    return {
-      items: slicedItems,
-      totalCount,
-      pageInfo: {
-        hasNextPage,
-        nextCursor: hasNextPage
-          ? slicedItems[slicedItems.length - 1]?.id
-          : null,
-      },
-    };
+    const orderBy = this.buildOrderBy(sort);
+    return readCatalogPage({
+      kind: "event",
+      order: catalogSortOrder(
+        sort?.field ?? EventSortField.START_DATE,
+        sort?.direction ?? EventSortDirection.ASC,
+      ),
+      take: pagination?.take,
+      cursor: pagination?.cursor,
+      count: () => this.prisma.event.count({ where }),
+      readAfter: (anchorId, limit) =>
+        readPrismaWindowAfter(
+          anchorId,
+          async (id) =>
+            (await this.prisma.event.findFirst({
+              where: { AND: [where, { id }] },
+              select: { id: true },
+            })) !== null,
+          (position) =>
+            this.prisma.event.findMany({
+              where,
+              orderBy,
+              take: limit,
+              ...position,
+            }),
+        ),
+      readThrough: (anchorId, limit) =>
+        this.prisma.event.findMany({
+          where,
+          orderBy,
+          cursor: { id: anchorId },
+          take: -limit,
+        }),
+    });
   }
 
   async search(filter?: EventFilterInput, pagination?: EventPaginationInput) {
-    const take = Math.min(pagination?.take ?? 20, 100);
     const search = filter?.search?.trim() ?? "";
-    const cursor = pagination?.cursor ?? null;
     const status = filter?.status ?? EventStatus.PUBLISHED;
     const fromDate = filter?.fromDate ? new Date(filter.fromDate) : null;
     const toDate = filter?.toDate ? new Date(filter.toDate) : null;
@@ -207,119 +252,119 @@ export class EventRepository {
       e."averageRating", e."ratingCount", e."registrationEnabled",
       e."providerId", e."createdAt", e."updatedAt", e."deletedAt"`;
 
-    const rowsPromise = this.prisma.$queryRaw<Array<EventSearchRow>>`
-      WITH exact_matches AS (
-        SELECT ${Prisma.raw(EVENT_COLUMNS)},
-          (CASE
-            WHEN e."title" ILIKE '%' || ${search} || '%' THEN 3
-            WHEN e."speaker" ILIKE '%' || ${search} || '%' THEN 2
-            WHEN e."organizer" ILIKE '%' || ${search} || '%' THEN 2
-            WHEN e."location" ILIKE '%' || ${search} || '%' THEN 2
-            ELSE 1
-          END)::float AS "searchRank"
-        FROM "Event" e
-        WHERE e."deletedAt" IS NULL
-          AND e."status" = ${status}::"EventStatus"
-          AND (${type}::"EventType" IS NULL OR e."type" = ${type}::"EventType")
-          AND (${deliveryMode}::"EventDeliveryMode" IS NULL OR e."deliveryMode" = ${deliveryMode}::"EventDeliveryMode")
-          AND (${category}::"EventCategory" IS NULL OR e."category" = ${category}::"EventCategory")
-          AND (${isFree}::boolean IS NULL OR e."isFree" = ${isFree}::boolean)
-          AND (${providerId}::text IS NULL OR e."providerId" = ${providerId}::text)
-          AND (${fromDate}::timestamp IS NULL OR e."startDate" >= ${fromDate}::timestamp)
-          AND (${toDate}::timestamp IS NULL OR e."startDate" <= ${toDate}::timestamp)
-          AND (${cursor}::text IS NULL OR e."id" > ${cursor}::text)
-          AND (
-            e."title" ILIKE '%' || ${search} || '%'
-            OR e."speaker" ILIKE '%' || ${search} || '%'
-            OR e."organizer" ILIKE '%' || ${search} || '%'
-            OR e."location" ILIKE '%' || ${search} || '%'
-            OR e."description" ILIKE '%' || ${search} || '%'
-          )
-        ORDER BY "searchRank" DESC, e."startDate" ASC, e."id" DESC
-        LIMIT ${CANDIDATE_CAP}
-      ),
-      fuzzy_matches AS (
-        SELECT ${Prisma.raw(EVENT_COLUMNS)},
-          LEAST(
-            GREATEST(
-              similarity(e."title", ${search}),
-              similarity(e."speaker", ${search}),
-              similarity(e."organizer", ${search}),
-              similarity(e."location", ${search})
-            ),
-            0.99
-          ) AS "searchRank"
-        FROM "Event" e
-        WHERE e."deletedAt" IS NULL
-          AND e."status" = ${status}::"EventStatus"
-          AND (${type}::"EventType" IS NULL OR e."type" = ${type}::"EventType")
-          AND (${deliveryMode}::"EventDeliveryMode" IS NULL OR e."deliveryMode" = ${deliveryMode}::"EventDeliveryMode")
-          AND (${category}::"EventCategory" IS NULL OR e."category" = ${category}::"EventCategory")
-          AND (${isFree}::boolean IS NULL OR e."isFree" = ${isFree}::boolean)
-          AND (${providerId}::text IS NULL OR e."providerId" = ${providerId}::text)
-          AND (${fromDate}::timestamp IS NULL OR e."startDate" >= ${fromDate}::timestamp)
-          AND (${toDate}::timestamp IS NULL OR e."startDate" <= ${toDate}::timestamp)
-          AND (${cursor}::text IS NULL OR e."id" > ${cursor}::text)
-          AND e."id" NOT IN (SELECT "id" FROM exact_matches)
-          AND (
-            e."title" % ${search}
-            OR e."speaker" % ${search}
-            OR e."organizer" % ${search}
-            OR e."location" % ${search}
-          )
-        ORDER BY "searchRank" DESC, e."startDate" ASC, e."id" DESC
-        LIMIT GREATEST(${CANDIDATE_CAP} - (SELECT COUNT(*)::int FROM exact_matches), 0)
-      )
-      SELECT * FROM exact_matches
-      UNION ALL
-      SELECT * FROM fuzzy_matches
-      ORDER BY "searchRank" DESC, "startDate" ASC, "id" DESC
-      LIMIT ${take + 1};
-    `;
-
-    const countPromise = this.prisma.$queryRaw<Array<{ count: bigint }>>`
-      SELECT COUNT(*)::bigint AS count
-      FROM "Event" e
-      WHERE e."deletedAt" IS NULL
-        AND e."status" = ${status}::"EventStatus"
-        AND (${type}::"EventType" IS NULL OR e."type" = ${type}::"EventType")
-        AND (${deliveryMode}::"EventDeliveryMode" IS NULL OR e."deliveryMode" = ${deliveryMode}::"EventDeliveryMode")
-        AND (${category}::"EventCategory" IS NULL OR e."category" = ${category}::"EventCategory")
-        AND (${isFree}::boolean IS NULL OR e."isFree" = ${isFree}::boolean)
-        AND (${providerId}::text IS NULL OR e."providerId" = ${providerId}::text)
-        AND (${fromDate}::timestamp IS NULL OR e."startDate" >= ${fromDate}::timestamp)
-        AND (${toDate}::timestamp IS NULL OR e."startDate" <= ${toDate}::timestamp)
-        AND (${cursor}::text IS NULL OR e."id" > ${cursor}::text)
-        AND (
-          e."title" ILIKE '%' || ${search} || '%'
-          OR e."speaker" ILIKE '%' || ${search} || '%'
-          OR e."organizer" ILIKE '%' || ${search} || '%'
-          OR e."location" ILIKE '%' || ${search} || '%'
-          OR e."description" ILIKE '%' || ${search} || '%'
-          OR e."title" % ${search}
-          OR e."speaker" % ${search}
-          OR e."organizer" % ${search}
-          OR e."location" % ${search}
-        )
-    `;
-
-    const [rows, countRows] = await this.prisma.$transaction([
-      rowsPromise,
-      countPromise,
-    ]);
-    const hasNextPage = rows.length > take;
-    const slicedRows = hasNextPage ? rows.slice(0, take) : rows;
-    return {
-      items: slicedRows.map(({ searchRank: _rank, ...event }) => ({
-        ...event,
-        price: event.price ? Number(event.price) : null,
-      })),
-      totalCount: Number(countRows[0]?.count ?? 0n),
-      pageInfo: {
-        hasNextPage,
-        nextCursor: hasNextPage ? slicedRows[slicedRows.length - 1]?.id : null,
-      },
+    const readWindow = async (
+      anchorId: string | null,
+      limit: number,
+      direction: "after" | "through",
+    ) => {
+      const rows = await this.prisma.$queryRaw<Array<EventSearchRow>>`
+        WITH exact_matches AS (
+          SELECT ${Prisma.raw(EVENT_COLUMNS)},
+            (CASE
+              WHEN e."title" ILIKE '%' || ${search} || '%' THEN 3
+              WHEN e."speaker" ILIKE '%' || ${search} || '%' THEN 2
+              WHEN e."organizer" ILIKE '%' || ${search} || '%' THEN 2
+              WHEN e."location" ILIKE '%' || ${search} || '%' THEN 2
+              ELSE 1
+            END)::float AS "searchRank"
+          FROM "Event" e
+          WHERE e."deletedAt" IS NULL
+            AND e."status" = ${status}::"EventStatus"
+            AND (${type}::"EventType" IS NULL OR e."type" = ${type}::"EventType")
+            AND (${deliveryMode}::"EventDeliveryMode" IS NULL OR e."deliveryMode" = ${deliveryMode}::"EventDeliveryMode")
+            AND (${category}::"EventCategory" IS NULL OR e."category" = ${category}::"EventCategory")
+            AND (${isFree}::boolean IS NULL OR e."isFree" = ${isFree}::boolean)
+            AND (${providerId}::text IS NULL OR e."providerId" = ${providerId}::text)
+            AND (${fromDate}::timestamp IS NULL OR e."startDate" >= ${fromDate}::timestamp)
+            AND (${toDate}::timestamp IS NULL OR e."startDate" <= ${toDate}::timestamp)
+            AND (
+              e."title" ILIKE '%' || ${search} || '%'
+              OR e."speaker" ILIKE '%' || ${search} || '%'
+              OR e."organizer" ILIKE '%' || ${search} || '%'
+              OR e."location" ILIKE '%' || ${search} || '%'
+              OR e."description" ILIKE '%' || ${search} || '%'
+            )
+          ORDER BY "searchRank" DESC, e."startDate" ASC, e."id" DESC
+          LIMIT ${CATALOG_SEARCH_CANDIDATE_CAP}
+        ),
+        fuzzy_matches AS (
+          SELECT ${Prisma.raw(EVENT_COLUMNS)},
+            LEAST(
+              GREATEST(
+                similarity(e."title", ${search}),
+                similarity(e."speaker", ${search}),
+                similarity(e."organizer", ${search}),
+                similarity(e."location", ${search})
+              ),
+              0.99
+            ) AS "searchRank"
+          FROM "Event" e
+          WHERE e."deletedAt" IS NULL
+            AND e."status" = ${status}::"EventStatus"
+            AND (${type}::"EventType" IS NULL OR e."type" = ${type}::"EventType")
+            AND (${deliveryMode}::"EventDeliveryMode" IS NULL OR e."deliveryMode" = ${deliveryMode}::"EventDeliveryMode")
+            AND (${category}::"EventCategory" IS NULL OR e."category" = ${category}::"EventCategory")
+            AND (${isFree}::boolean IS NULL OR e."isFree" = ${isFree}::boolean)
+            AND (${providerId}::text IS NULL OR e."providerId" = ${providerId}::text)
+            AND (${fromDate}::timestamp IS NULL OR e."startDate" >= ${fromDate}::timestamp)
+            AND (${toDate}::timestamp IS NULL OR e."startDate" <= ${toDate}::timestamp)
+            AND e."id" NOT IN (SELECT "id" FROM exact_matches)
+            AND (
+              e."title" % ${search}
+              OR e."speaker" % ${search}
+              OR e."organizer" % ${search}
+              OR e."location" % ${search}
+            )
+          ORDER BY "searchRank" DESC, e."startDate" ASC, e."id" DESC
+          LIMIT GREATEST(${CATALOG_SEARCH_CANDIDATE_CAP} - (SELECT COUNT(*)::int FROM exact_matches), 0)
+        ),
+        ${catalogSearchWindow(EVENT_SEARCH_ORDER, anchorId, limit, direction)}
+      `;
+      return rows.map((row) => {
+        const event = withoutSearchColumns(row);
+        return { ...event, price: event.price ? Number(event.price) : null };
+      });
     };
+
+    return readCatalogPage({
+      kind: "event",
+      order: CATALOG_SEARCH_ORDER,
+      take: pagination?.take,
+      cursor: pagination?.cursor,
+      count: async () => {
+        const countRows = await this.prisma.$queryRaw<Array<{ count: bigint }>>`
+          SELECT COUNT(*)::bigint AS count
+          FROM "Event" e
+          WHERE e."deletedAt" IS NULL
+            AND e."status" = ${status}::"EventStatus"
+            AND (${type}::"EventType" IS NULL OR e."type" = ${type}::"EventType")
+            AND (${deliveryMode}::"EventDeliveryMode" IS NULL OR e."deliveryMode" = ${deliveryMode}::"EventDeliveryMode")
+            AND (${category}::"EventCategory" IS NULL OR e."category" = ${category}::"EventCategory")
+            AND (${isFree}::boolean IS NULL OR e."isFree" = ${isFree}::boolean)
+            AND (${providerId}::text IS NULL OR e."providerId" = ${providerId}::text)
+            AND (${fromDate}::timestamp IS NULL OR e."startDate" >= ${fromDate}::timestamp)
+            AND (${toDate}::timestamp IS NULL OR e."startDate" <= ${toDate}::timestamp)
+            AND (
+              e."title" ILIKE '%' || ${search} || '%'
+              OR e."speaker" ILIKE '%' || ${search} || '%'
+              OR e."organizer" ILIKE '%' || ${search} || '%'
+              OR e."location" ILIKE '%' || ${search} || '%'
+              OR e."description" ILIKE '%' || ${search} || '%'
+              OR e."title" % ${search}
+              OR e."speaker" % ${search}
+              OR e."organizer" % ${search}
+              OR e."location" % ${search}
+            )
+        `;
+        return clampSearchCount(countRows[0]?.count);
+      },
+      readAfter: async (anchorId, limit) =>
+        readSearchWindowAfter(
+          await readWindow(anchorId, limit, "after"),
+          anchorId,
+        ),
+      readThrough: (anchorId, limit) => readWindow(anchorId, limit, "through"),
+    });
   }
 
   findRegistration(eventId: string, userId: string) {
@@ -654,6 +699,7 @@ export class EventRepository {
       },
       items: items.map((event) => ({
         id: event.id,
+        slug: event.slug,
         title: event.title,
         startDate: event.startDate,
         status: event.status,
@@ -664,8 +710,8 @@ export class EventRepository {
     };
   }
 
-  async slugExists(slug: string): Promise<boolean> {
-    return Boolean(await this.prisma.event.findUnique({ where: { slug } }));
+  isSlugClaimed(slug: string): Promise<boolean> {
+    return isContentSlugClaimed(this.prisma, ContentUrlNamespace.EVENT, slug);
   }
 
   private buildWhere(filter?: EventFilterInput): Prisma.EventWhereInput {
@@ -915,7 +961,217 @@ export class EventRepository {
       FROM fuzzy_matches;
     `;
   }
+
+  translationStore(): TranslationStore<Prisma.TransactionClient> {
+    return {
+      transaction: (work) => this.prisma.$transaction((tx) => work(tx)),
+      findParent: (tx, eventId) =>
+        tx.event.findUnique({
+          where: { id: eventId },
+          select: { id: true, providerId: true, deletedAt: true },
+        }),
+      findTranslation: (tx, eventId, locale) =>
+        tx.eventTranslation.findUnique({
+          where: { eventId_locale: { eventId, locale } },
+          select: EVENT_TRANSLATION_SELECT,
+        }),
+      create: (tx, eventId, locale, fields, actorId) =>
+        tx.eventTranslation.create({
+          data: {
+            eventId,
+            locale,
+            title: fields.title,
+            description: fields.description,
+            updatedById: actorId,
+          },
+          select: EVENT_TRANSLATION_SELECT,
+        }),
+      update: async (tx, translationId, expectedVersion, data) => {
+        const { count } = await tx.eventTranslation.updateMany({
+          where: { id: translationId, version: expectedVersion },
+          data: {
+            ...(data.fields
+              ? {
+                  title: data.fields.title,
+                  description: data.fields.description,
+                }
+              : {}),
+            ...(data.isPublished === undefined
+              ? {}
+              : {
+                  isPublished: data.isPublished,
+                  publishedAt: data.publishedAt ?? null,
+                }),
+            updatedById: data.actorId,
+            version: { increment: 1 },
+          },
+        });
+        return count;
+      },
+      reload: (tx, translationId) =>
+        tx.eventTranslation.findUniqueOrThrow({
+          where: { id: translationId },
+          select: EVENT_TRANSLATION_SELECT,
+        }),
+      touchParent: async (tx, eventId) => {
+        await tx.event.update({
+          where: { id: eventId },
+          data: publicContentChange(),
+        });
+      },
+    };
+  }
+
+  listTranslations(tx: Prisma.TransactionClient, eventId: string) {
+    return tx.eventTranslation.findMany({
+      where: { eventId },
+      orderBy: { locale: "asc" },
+      select: EVENT_TRANSLATION_SELECT,
+    });
+  }
+
+  async findPublishedTranslations(eventIds: string[]) {
+    const rows = await this.prisma.eventTranslation.findMany({
+      where: { eventId: { in: eventIds }, isPublished: true },
+      select: {
+        eventId: true,
+        locale: true,
+        title: true,
+        description: true,
+      },
+    });
+    const byEvent = new Map<string, PublishedTranslation[]>();
+    for (const { eventId, ...translation } of rows)
+      byEvent.set(eventId, [...(byEvent.get(eventId) ?? []), translation]);
+    return byEvent;
+  }
+
+  async findSourceLanguages(eventIds: string[]) {
+    const rows = await this.prisma.event.findMany({
+      where: { id: { in: eventIds } },
+      select: { id: true, sourceLanguage: true },
+    });
+    return new Map(rows.map((row) => [row.id, row.sourceLanguage]));
+  }
+
+  seoStore(): SeoStore<Prisma.TransactionClient> {
+    return {
+      transaction: (work) => this.prisma.$transaction((tx) => work(tx)),
+      findParent: (tx, eventId) =>
+        tx.event.findUnique({
+          where: { id: eventId },
+          select: {
+            id: true,
+            providerId: true,
+            deletedAt: true,
+            excludeFromIndex: true,
+          },
+        }),
+      findRow: (tx, eventId, locale) =>
+        tx.eventSeo.findUnique({
+          where: { eventId_locale: { eventId, locale } },
+          select: EVENT_SEO_SELECT,
+        }),
+      findImage: (tx, imageId) =>
+        tx.contentSocialImage.findUnique({
+          where: { id: imageId },
+          select: { id: true, ownerId: true },
+        }),
+      create: (tx, eventId, locale, fields, actorId) =>
+        tx.eventSeo.create({
+          data: { eventId, locale, ...fields, updatedById: actorId },
+          select: EVENT_SEO_SELECT,
+        }),
+      update: async (tx, rowId, expectedVersion, fields, actorId) => {
+        const { count } = await tx.eventSeo.updateMany({
+          where: { id: rowId, version: expectedVersion },
+          data: { ...fields, updatedById: actorId, version: { increment: 1 } },
+        });
+        return count;
+      },
+      reload: (tx, rowId) =>
+        tx.eventSeo.findUniqueOrThrow({
+          where: { id: rowId },
+          select: EVENT_SEO_SELECT,
+        }),
+      setExclusion: async (tx, eventId, excluded) => {
+        const { count } = await tx.event.updateMany({
+          where: { id: eventId, excludeFromIndex: !excluded },
+          data: { excludeFromIndex: excluded },
+        });
+        return count;
+      },
+      touchParent: async (tx, eventId) => {
+        await tx.event.update({
+          where: { id: eventId },
+          data: publicContentChange(),
+        });
+      },
+    };
+  }
+
+  async readSeoSettings(tx: Prisma.TransactionClient, eventId: string) {
+    const [rows, parent, translations] = await Promise.all([
+      tx.eventSeo.findMany({
+        where: { eventId },
+        orderBy: { locale: "asc" },
+        select: EVENT_SEO_SELECT,
+      }),
+      tx.event.findUniqueOrThrow({
+        where: { id: eventId },
+        select: { title: true, description: true },
+      }),
+      tx.eventTranslation.findMany({
+        where: { eventId },
+        select: { locale: true, title: true, description: true },
+      }),
+    ]);
+    const textFor = (locale: AppLanguage): SeoDefaultText => {
+      const translation = translations.find((row) => row.locale === locale);
+      return {
+        title: translation?.title ?? parent.title,
+        description: translation?.description ?? parent.description,
+      };
+    };
+    return {
+      rows: rows as SeoRow[],
+      defaults: {
+        [AppLanguage.EN]: textFor(AppLanguage.EN),
+        [AppLanguage.FR]: textFor(AppLanguage.FR),
+      },
+    };
+  }
+
+  async findSeoRowsForLocale(eventIds: string[], locale: AppLanguage) {
+    const rows = await this.prisma.eventSeo.findMany({
+      where: { eventId: { in: eventIds }, locale },
+      select: { ...EVENT_SEO_SELECT, eventId: true },
+    });
+    return rows.map(({ eventId: parentId, ...row }) => ({ ...row, parentId }));
+  }
 }
+
+const EVENT_TRANSLATION_SELECT = {
+  id: true,
+  locale: true,
+  title: true,
+  description: true,
+  isPublished: true,
+  publishedAt: true,
+  version: true,
+  updatedAt: true,
+} as const;
+
+const EVENT_SEO_SELECT = {
+  id: true,
+  locale: true,
+  seoTitle: true,
+  seoDescription: true,
+  socialImageId: true,
+  socialImageAlt: true,
+  version: true,
+  updatedAt: true,
+} as const;
 
 type EventSearchRow = {
   id: string;
@@ -950,4 +1206,5 @@ type EventSearchRow = {
   updatedAt: Date;
   deletedAt: Date | null;
   searchRank: number;
+  rowPosition: bigint;
 };

@@ -20,6 +20,7 @@ node_modules
 !/context/coding-standards.md
 !/context/model-selection.md
 !/context/feature-history.md
+!/context/skills-policy.md
 !/context/features/feature-template.md
 
 # Non-markdown feature artifacts (e.g. visual-regression baseline screenshots)
@@ -51,6 +52,13 @@ node_modules
 /.claude/skills/shadcn/
 /.claude/skills/tailwind-4-docs/
 /.claude/skills/vercel-react-best-practices/
+/.claude/skills/design-taste-frontend/
+/.claude/skills/frontend-design/
+/.claude/skills/ponytail/
+/.claude/skills/graphify/
+/.claude/skills/web-app-penetration-testing/
+/graphify-out/
+/strix_runs/
 
 # Deployment backups written by scripts/deploy.sh
 /backups/

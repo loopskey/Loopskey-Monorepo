@@ -16,6 +16,9 @@ export const KIND_INGESTION_IDEMPOTENCY_KEY_LIMIT = 200;
 export const KIND_INGESTION_EVENT_NAME = "ingestion.item.published";
 export const KIND_INGESTION_EVENT_VERSION = 1;
 
+export const CATALOG_CONTENT_CHANGED_EVENT = "catalog.content.changed";
+export const CATALOG_CONTENT_CHANGED_EVENT_VERSION = 1;
+
 /**
  * Fields the platform owns on every catalog model. A crawled payload that
  * carries any of them is rejected rather than having the value dropped, so a

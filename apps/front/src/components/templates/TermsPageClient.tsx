@@ -8,7 +8,7 @@ import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
 import { cn } from "@/lib/utils";
 
-import Link from "next/link";
+import Link from "@elements/localized-link";
 
 import * as L from "lucide-react";
 

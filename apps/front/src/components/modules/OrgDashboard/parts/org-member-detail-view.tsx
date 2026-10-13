@@ -1,6 +1,6 @@
 "use client";
 
-import { OrganizationMemberStatus, Role } from "@/lib/graphql/base";
+import { OrganizationMemberStatus } from "@/lib/graphql/base";
 import { useOrganizationMembersTab } from "@/hooks/useOrgMemberTab";
 import { FloatingTextareaField } from "@elements/floating-textarea";
 import { FloatingSelectField } from "@elements/floating-select";
@@ -30,7 +30,6 @@ export const OrgMemberDetailView = ({ hook }: OrgMemberDetailViewProps) => {
     selectedMember,
     assignmentForm,
     assignLearning,
-    updateMemberRole,
     closeMemberDetail,
     updateMemberStatus,
   } = hook;
@@ -341,11 +340,7 @@ export const OrgMemberDetailView = ({ hook }: OrgMemberDetailViewProps) => {
                       )}
                     />
 
-                    <Button
-                      radius="xl"
-                      type="submit"
-                      disabled={isLoading}
-                    >
+                    <Button radius="xl" type="submit" disabled={isLoading}>
                       <L.Send className="h-4 w-4" />
                       {t(
                         "organizationDashboard.members.detail.assignment.submit",
@@ -411,31 +406,6 @@ export const OrgMemberDetailView = ({ hook }: OrgMemberDetailViewProps) => {
                           {item}
                         </S.SelectItem>
                       ))}
-                    </S.SelectContent>
-                  </S.Select>
-                </div>
-
-                <div className="rounded-lg bg-muted p-4">
-                  <p className="text-xs text-muted-foreground">
-                    {t("organizationDashboard.members.detail.role")}
-                  </p>
-
-                  <S.Select
-                    value={selectedMember.jobRole ?? Role.Professional}
-                    onValueChange={(value) =>
-                      updateMemberRole(selectedMember.id, value as Role)
-                    }
-                  >
-                    <S.SelectTrigger className="mt-2 rounded-md">
-                      <S.SelectValue />
-                    </S.SelectTrigger>
-                    <S.SelectContent>
-                      <S.SelectItem value={Role.Professional}>
-                        PROFESSIONAL
-                      </S.SelectItem>
-                      <S.SelectItem value={Role.Provider}>
-                        PROVIDER
-                      </S.SelectItem>
                     </S.SelectContent>
                   </S.Select>
                 </div>

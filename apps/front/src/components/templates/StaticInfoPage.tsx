@@ -1,6 +1,6 @@
 "use client";
 
-import { STATIC_INFO_EMAIL, type PageKey } from "@utils/static-info-page.utils";
+import { STATIC_INFO_EMAIL, type PageKey } from "@utils/static-info-outline";
 import { TStaticInfoBodyProps } from "@/types/pages.types";
 import { useStaticInfoPage } from "@hooks/useStaticInfoPage";
 import { RevealOnScroll } from "@elements/reveal-scroll";
@@ -8,7 +8,7 @@ import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
 import { cn } from "@/lib/utils";
 
-import Link from "next/link";
+import Link from "@elements/localized-link";
 
 import * as L from "lucide-react";
 

@@ -1,0 +1,38 @@
+mutation RecordTelemetry($input: TelemetryBatchInput!) {
+  recordTelemetry(input: $input) {
+    accepted
+    dropped
+  }
+}
+
+query SearchHealthReport($input: SearchHealthReportInput!) {
+  searchHealthReport(input: $input) {
+    from
+    to
+    days
+    daysWithData
+    minimumSamples
+    isCollecting
+    vitals {
+      metric
+      device
+      template
+      locale
+      samples
+      p75
+      status
+    }
+    conversions {
+      event
+      contentKind
+      role
+      attribution
+      count
+    }
+    intake {
+      kind
+      outcome
+      count
+    }
+  }
+}

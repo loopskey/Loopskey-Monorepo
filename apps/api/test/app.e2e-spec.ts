@@ -1,5 +1,4 @@
 import { INestApplication, ValidationPipe } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
 import { Test } from "@nestjs/testing";
 import {
   PDUCategory,
@@ -13,6 +12,7 @@ import { PrismaService } from "@prisma/prisma.service";
 
 import cookieParser from "cookie-parser";
 import request from "supertest";
+import { openSession, signAccessToken } from "./setup/access-token";
 
 describe("GraphQL API (e2e)", () => {
   let app: INestApplication;
@@ -51,6 +51,7 @@ describe("GraphQL API (e2e)", () => {
       },
     });
     professionalId = professional.id;
+    await openSession(prisma, professional.id);
     const secondProfessional = await prisma.user.create({
       data: {
         email: "professional-two@e2e.example.test",
@@ -59,6 +60,7 @@ describe("GraphQL API (e2e)", () => {
       },
     });
     secondProfessionalId = secondProfessional.id;
+    await openSession(prisma, secondProfessional.id);
     const provider = await prisma.user.create({
       data: {
         email: "provider@e2e.example.test",
@@ -67,6 +69,7 @@ describe("GraphQL API (e2e)", () => {
       },
     });
     providerId = provider.id;
+    await openSession(prisma, provider.id);
   }, 60_000);
 
   afterAll(async () => {
@@ -251,12 +254,3 @@ describe("GraphQL API (e2e)", () => {
     expect(response.body.errors[0].extensions.code).toBe("FORBIDDEN");
   });
 });
-
-function signAccessToken(id: string, email: string, role: Role): string {
-  return new JwtService({ secret: process.env.JWT_ACCESS_SECRET }).sign({
-    sub: id,
-    email,
-    role,
-    status: UserStatus.ACTIVE,
-  });
-}

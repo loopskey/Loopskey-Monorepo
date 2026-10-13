@@ -1,0 +1,1 @@
+export const COURSE_PUBLIC_URL_API = Symbol("COURSE_PUBLIC_URL_API");

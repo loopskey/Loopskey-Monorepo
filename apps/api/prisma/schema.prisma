@@ -109,6 +109,7 @@ model User {
   contentReviews             ContentReview[]
   carts                      Cart[]
   providerSettings           ProviderSettings?
+  providerPublicProfile      ProviderPublicProfile?
 
   professionalSettings   ProfessionalSettings?
   pduActivities          PDUActivity[]
@@ -683,13 +684,23 @@ model Course {
   curriculumSections      CurriculumSection[]
   organizationAssignments OrganizationAssignment[]
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
+  /// Last change to content a public visitor can see, or to publication
+  /// state. Metric writes (views, listeners, ratings, attendees) never move it;
+  /// it is the lastmod the public sitemap publishes.
+  publicContentUpdatedAt DateTime  @default(now())
+  /// Moderation flag set only by an administrator. The page stays publicly
+  /// readable but is told not to be indexed and leaves the sitemap.
+  excludeFromIndex       Boolean   @default(false)
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  deletedAt              DateTime?
 
   user                       User?                      @relation(fields: [userId], references: [id])
   userId                     String?
   externalLearningActivities ExternalLearningActivity[]
+
+  translations CourseTranslation[]
+  seoOverrides CourseSeo[]
 
   @@index([status, category])
   @@index([status, level])
@@ -834,12 +845,14 @@ model Event {
 
   registrations EventRegistration[]
 
-  createdAt     DateTime            @default(now())
-  updatedAt     DateTime            @updatedAt
-  deletedAt     DateTime?
-  user          User?               @relation(fields: [userId], references: [id])
-  userId        String?
-  scheduleItems EventScheduleItem[]
+  publicContentUpdatedAt DateTime            @default(now())
+  excludeFromIndex       Boolean             @default(false)
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
+  deletedAt              DateTime?
+  user                   User?               @relation(fields: [userId], references: [id])
+  userId                 String?
+  scheduleItems          EventScheduleItem[]
 
   specificTopic     String?
   pduCategory       PDUCategory?
@@ -866,6 +879,9 @@ model Event {
   promotionRequests          EventPromotionRequest[]
   organizationAssignments    OrganizationAssignment[]
   externalLearningActivities ExternalLearningActivity[]
+
+  translations EventTranslation[]
+  seoOverrides EventSeo[]
 
   @@index([status, category])
   @@index([status, deliveryMode])
@@ -1012,9 +1028,14 @@ model Podcast {
 
   episodes PodcastEpisode[]
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
+  publicContentUpdatedAt DateTime  @default(now())
+  excludeFromIndex       Boolean   @default(false)
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  deletedAt              DateTime?
+
+  translations PodcastTranslation[]
+  seoOverrides PodcastSeo[]
 
   @@index([status, category])
   @@index([providerId])
@@ -1108,13 +1129,18 @@ model YouTubeChannel {
 
   videos YouTubeVideo[]
 
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
-  user        User?     @relation(fields: [userId], references: [id])
-  userId      String?
-  rating      Float     @default(0)
-  ratingCount Int       @default(0)
+  publicContentUpdatedAt DateTime  @default(now())
+  excludeFromIndex       Boolean   @default(false)
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  deletedAt              DateTime?
+  user                   User?     @relation(fields: [userId], references: [id])
+  userId                 String?
+  rating                 Float     @default(0)
+  ratingCount            Int       @default(0)
+
+  translations YouTubeChannelTranslation[]
+  seoOverrides YouTubeChannelSeo[]
 
   @@index([status, category])
   @@index([providerId])
@@ -1277,6 +1303,401 @@ model CartItem {
 }
 
 // =============== Provider =================
+model CourseTranslation {
+  id String @id @default(cuid())
+
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  locale      AppLanguage
+  title       String
+  description String
+
+  learnings    String[] @default([])
+  requirements String[] @default([])
+
+  isPublished Boolean   @default(false)
+  publishedAt DateTime?
+  version     Int       @default(1)
+  updatedById String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([courseId, locale])
+  @@index([locale, isPublished])
+}
+
+model EventTranslation {
+  id String @id @default(cuid())
+
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  locale      AppLanguage
+  title       String
+  description String
+
+  isPublished Boolean   @default(false)
+  publishedAt DateTime?
+  version     Int       @default(1)
+  updatedById String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([eventId, locale])
+  @@index([locale, isPublished])
+}
+
+model PodcastTranslation {
+  id String @id @default(cuid())
+
+  podcastId String
+  podcast   Podcast @relation(fields: [podcastId], references: [id], onDelete: Cascade)
+
+  locale      AppLanguage
+  title       String
+  description String
+
+  isPublished Boolean   @default(false)
+  publishedAt DateTime?
+  version     Int       @default(1)
+  updatedById String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([podcastId, locale])
+  @@index([locale, isPublished])
+}
+
+model YouTubeChannelTranslation {
+  id String @id @default(cuid())
+
+  channelId String
+  channel   YouTubeChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  locale      AppLanguage
+  title       String
+  description String
+
+  isPublished Boolean   @default(false)
+  publishedAt DateTime?
+  version     Int       @default(1)
+  updatedById String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([channelId, locale])
+  @@index([locale, isPublished])
+}
+
+model CourseSeo {
+  id String @id @default(cuid())
+
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  locale AppLanguage
+
+  seoTitle       String?
+  seoDescription String?
+  socialImageAlt String?
+
+  socialImageId String?
+  socialImage   ContentSocialImage? @relation(fields: [socialImageId], references: [id], onDelete: Restrict)
+
+  version     Int     @default(1)
+  updatedById String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([courseId, locale])
+  @@index([socialImageId])
+}
+
+model EventSeo {
+  id String @id @default(cuid())
+
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  locale AppLanguage
+
+  seoTitle       String?
+  seoDescription String?
+  socialImageAlt String?
+
+  socialImageId String?
+  socialImage   ContentSocialImage? @relation(fields: [socialImageId], references: [id], onDelete: Restrict)
+
+  version     Int     @default(1)
+  updatedById String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([eventId, locale])
+  @@index([socialImageId])
+}
+
+model PodcastSeo {
+  id String @id @default(cuid())
+
+  podcastId String
+  podcast   Podcast @relation(fields: [podcastId], references: [id], onDelete: Cascade)
+
+  locale AppLanguage
+
+  seoTitle       String?
+  seoDescription String?
+  socialImageAlt String?
+
+  socialImageId String?
+  socialImage   ContentSocialImage? @relation(fields: [socialImageId], references: [id], onDelete: Restrict)
+
+  version     Int     @default(1)
+  updatedById String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([podcastId, locale])
+  @@index([socialImageId])
+}
+
+model YouTubeChannelSeo {
+  id String @id @default(cuid())
+
+  channelId String
+  channel   YouTubeChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  locale AppLanguage
+
+  seoTitle       String?
+  seoDescription String?
+  socialImageAlt String?
+
+  socialImageId String?
+  socialImage   ContentSocialImage? @relation(fields: [socialImageId], references: [id], onDelete: Restrict)
+
+  version     Int     @default(1)
+  updatedById String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([channelId, locale])
+  @@index([socialImageId])
+}
+
+model ContentSocialImage {
+  id String @id @default(cuid())
+
+  ownerId    String
+  storageKey String @unique
+  mimeType   String
+  sizeBytes  Int
+
+  createdAt DateTime @default(now())
+
+  courseSeo  CourseSeo[]
+  eventSeo   EventSeo[]
+  podcastSeo PodcastSeo[]
+  channelSeo YouTubeChannelSeo[]
+
+  providerProfiles  ProviderPublicProfile[]
+  providerRevisions ProviderPublicRevision[]
+
+  @@index([ownerId, createdAt])
+}
+
+enum ContentUrlNamespace {
+  COURSE
+  EVENT
+  PODCAST
+  YOUTUBE
+  TOPIC
+  PROVIDER
+}
+
+model ContentUrlClaim {
+  id String @id @default(cuid())
+
+  namespace ContentUrlNamespace
+  slug      String
+  targetId  String
+  isCurrent Boolean             @default(true)
+
+  createdAt DateTime  @default(now())
+  retiredAt DateTime?
+
+  @@unique([namespace, slug])
+  @@index([namespace, targetId])
+}
+
+enum TopicHubStatus {
+  DRAFT
+  PUBLISHED
+  WITHDRAWN
+}
+
+model TopicHub {
+  id String @id @default(cuid())
+
+  slug   String         @unique
+  status TopicHubStatus @default(DRAFT)
+
+  title        String
+  introduction String
+  guidance     String
+  sections     Json    @default("[]")
+  category     String?
+
+  sourceLanguage String @default("en")
+  version        Int    @default(1)
+
+  excludeFromIndex       Boolean   @default(false)
+  publishedAt            DateTime?
+  withdrawnAt            DateTime?
+  publicContentUpdatedAt DateTime  @default(now())
+
+  createdById String?
+  updatedById String?
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  translations TopicHubTranslation[]
+  references   TopicHubReference[]
+
+  @@index([status, publishedAt])
+}
+
+model TopicHubTranslation {
+  id String @id @default(cuid())
+
+  hubId String
+  hub   TopicHub @relation(fields: [hubId], references: [id], onDelete: Cascade)
+
+  locale       AppLanguage
+  title        String
+  introduction String
+  guidance     String
+  sections     Json        @default("[]")
+
+  isPublished Boolean   @default(false)
+  publishedAt DateTime?
+  version     Int       @default(1)
+  updatedById String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([hubId, locale])
+}
+
+model TopicHubReference {
+  id String @id @default(cuid())
+
+  hubId String
+  hub   TopicHub @relation(fields: [hubId], references: [id], onDelete: Cascade)
+
+  kind     ContentUrlNamespace
+  targetId String
+  position Int
+
+  createdAt DateTime @default(now())
+
+  @@unique([hubId, kind, targetId])
+  @@index([hubId, position])
+  @@index([kind, targetId])
+}
+
+enum ProviderProfileStatus {
+  UNPUBLISHED
+  PUBLISHED
+  WITHDRAWN
+}
+
+enum ProviderProfileReviewState {
+  DRAFT
+  SUBMITTED
+  REJECTED
+  APPROVED
+}
+
+model ProviderPublicProfile {
+  id String @id @default(cuid())
+
+  providerId String @unique
+  provider   User   @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  slug   String                @unique
+  status ProviderProfileStatus @default(UNPUBLISHED)
+
+  displayName String?
+  biography   String?
+  websiteUrl  String?
+  links       Json    @default("[]")
+
+  logoImageId String?
+  logoImage   ContentSocialImage? @relation(fields: [logoImageId], references: [id], onDelete: Restrict)
+
+  draftVersion Int @default(1)
+
+  reviewState      ProviderProfileReviewState @default(DRAFT)
+  submittedVersion Int?
+  submittedAt      DateTime?
+  reviewedAt       DateTime?
+  reviewedById     String?
+  reviewNote       String?
+
+  publishedRevision Int?
+  publishedAt       DateTime?
+  withdrawnAt       DateTime?
+
+  sourceLanguage         String   @default("en")
+  excludeFromIndex       Boolean  @default(false)
+  publicContentUpdatedAt DateTime @default(now())
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  revisions ProviderPublicRevision[]
+
+  @@index([reviewState, submittedAt])
+  @@index([logoImageId])
+}
+
+model ProviderPublicRevision {
+  id String @id @default(cuid())
+
+  profileId String
+  profile   ProviderPublicProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  revision Int
+
+  displayName String
+  biography   String
+  websiteUrl  String?
+  links       Json    @default("[]")
+
+  logoImageId String?
+  logoImage   ContentSocialImage? @relation(fields: [logoImageId], references: [id], onDelete: Restrict)
+
+  approvedById String?
+  approvedAt   DateTime @default(now())
+
+  @@unique([profileId, revision])
+  @@index([logoImageId])
+}
+
 enum AppLanguage {
   EN
   FR
@@ -2397,6 +2818,16 @@ enum AuditAction {
   ASSOCIATION_ACTIVITY_APPROVED
   ASSOCIATION_ACTIVITY_REJECTED
   ASSOCIATION_MEMBER_INVITATION_ACCEPTED
+  CONTENT_SEO_UPDATED
+  CONTENT_INDEX_EXCLUSION_CHANGED
+  CONTENT_SLUG_CHANGED
+  TOPIC_HUB_UPDATED
+  TOPIC_HUB_STATUS_CHANGED
+  TOPIC_HUB_INDEX_EXCLUSION_CHANGED
+  PROVIDER_PROFILE_SUBMITTED
+  PROVIDER_PROFILE_REVIEWED
+  PROVIDER_PROFILE_WITHDRAWN
+  PROVIDER_PROFILE_INDEX_EXCLUSION_CHANGED
 }
 
 model AuditLog {
@@ -2485,6 +2916,15 @@ model ExternalLearningActivity {
   @@index([status])
   @@index([provider])
   @@index([clickedAt])
+}
+
+model RateLimitBucket {
+  key             String   @id
+  windowStartedAt DateTime @default(now())
+  windowSeconds   Int
+  count           Int      @default(0)
+
+  @@index([windowStartedAt])
 }
 
 model OutboxEvent {
@@ -3091,4 +3531,125 @@ model IngestionItem {
   @@index([state, createdAt, id])
   @@index([catalogId])
   @@index([batchId])
+}
+
+enum TelemetryMetric {
+  LCP
+  INP
+  CLS
+}
+
+enum TelemetryDevice {
+  MOBILE
+  DESKTOP
+}
+
+enum TelemetryRouteTemplate {
+  FAQ
+  HOME
+  ABOUT
+  LEGAL
+  CONTACT
+  COMPANY
+  SUPPORT
+  SERVICES
+  SOLUTIONS
+  TOPIC_HUB
+  EVENT_DETAIL
+  COURSE_DETAIL
+  PODCAST_DETAIL
+  YOUTUBE_DETAIL
+  CONTENT_CATALOG
+  PROVIDER_PROFILE
+}
+
+enum TelemetryLocale {
+  EN
+  FR
+  UNKNOWN
+}
+
+enum TelemetryConversionEvent {
+  REGISTRATION_START
+  CATALOG_DETAIL_OPEN
+  REGISTRATION_COMPLETED
+  EXTERNAL_CONTENT_ACTION
+}
+
+enum TelemetryContentKind {
+  NONE
+  EVENT
+  COURSE
+  PODCAST
+  YOUTUBE
+}
+
+enum TelemetryRegistrationRole {
+  NONE
+  PROVIDER
+  PROFESSIONAL
+}
+
+enum TelemetryAttribution {
+  DIRECT
+  SOCIAL
+  REFERRAL
+  INTERNAL
+  UNATTRIBUTED
+  ORGANIC_SEARCH
+}
+
+enum TelemetryIntakeKind {
+  VITAL
+  CONVERSION
+}
+
+enum TelemetryIntakeOutcome {
+  INVALID
+  ACCEPTED
+  DISABLED
+  DUPLICATE
+  SAMPLED_OUT
+  SINK_FAILED
+  RATE_LIMITED
+}
+
+model TelemetryVitalBucket {
+  day      DateTime               @db.Date
+  metric   TelemetryMetric
+  device   TelemetryDevice
+  template TelemetryRouteTemplate
+  locale   TelemetryLocale
+  bucket   Int                    @db.SmallInt
+  count    Int
+
+  @@id([day, metric, device, template, locale, bucket])
+}
+
+model TelemetryConversionDaily {
+  day         DateTime                  @db.Date
+  event       TelemetryConversionEvent
+  contentKind TelemetryContentKind
+  role        TelemetryRegistrationRole
+  attribution TelemetryAttribution
+  locale      TelemetryLocale
+  count       Int
+
+  @@id([day, event, contentKind, role, attribution, locale])
+}
+
+model TelemetryIntakeDaily {
+  day     DateTime               @db.Date
+  kind    TelemetryIntakeKind
+  outcome TelemetryIntakeOutcome
+  count   Int
+
+  @@id([day, kind, outcome])
+}
+
+model TelemetryDedupKey {
+  key    String   @id
+  seenAt DateTime @default(now())
+
+  @@index([seenAt])
 }

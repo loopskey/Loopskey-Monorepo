@@ -20,48 +20,98 @@ export class AuthPasswordService {
 
   async forgotPassword(input: ForgotPasswordInput) {
     const email = this.authCommon.normalizeEmail(input.email);
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-      select: {
-        id: true,
-        email: true,
-        role: true,
-        status: true,
-      },
-    });
-    if (!user)
-      throw new BadRequestException({
-        code: AuthMessageCode.USER_NOT_FOUND,
-        message: "User not found.",
-      });
-    if (user.status !== UserStatus.ACTIVE)
-      throw new BadRequestException({
-        code: AuthMessageCode.USER_DISABLED,
-        message: "User is not active.",
-      });
     const otpCode = this.authCommon.generateOtpCode();
-    await this.prisma.otpCode.create({
-      data: {
-        userId: user.id,
-        destination: email,
-        codeHash: await argon2.hash(otpCode),
-        purpose: OtpPurpose.RESET_PASSWORD,
-        expiresAt: this.authCommon.getOtpExpiryDate(),
-        resendAfter: this.authCommon.getOtpResendAfterDate(),
-        maxAttempts: this.authCommon.getOtpMaxAttempts(),
-      },
+    const codeHash = await argon2.hash(otpCode);
+    const user = await this.prisma.user.findFirst({
+      where: { email, deletedAt: null },
+      select: { id: true, status: true },
     });
-    await this.authCommon.sendOtpEmail(
-      email,
-      otpCode,
-      OtpPurpose.RESET_PASSWORD,
-    );
+    if (user?.status === UserStatus.ACTIVE) {
+      const issued = await this.issueResetOtp(user.id, email, codeHash);
+      if (issued)
+        await this.authCommon.sendOtpEmail(
+          email,
+          otpCode,
+          OtpPurpose.RESET_PASSWORD,
+        );
+    }
     return {
       success: true,
       code: AuthMessageCode.PASSWORD_RESET_OTP_SENT,
-      message: "Password reset code has been sent to your email.",
+      message:
+        "If an account exists for this email, a password reset code has been sent.",
       user: null,
     };
+  }
+
+  private async issueResetOtp(
+    userId: string,
+    destination: string,
+    codeHash: string,
+  ) {
+    return this.prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`reset-otp:${userId}`}))`;
+      const now = new Date();
+      const cooling = await tx.otpCode.findFirst({
+        where: {
+          userId,
+          purpose: OtpPurpose.RESET_PASSWORD,
+          consumedAt: null,
+          resendAfter: { gt: now },
+        },
+        select: { id: true },
+      });
+      if (cooling) return false;
+      await tx.otpCode.updateMany({
+        where: {
+          userId,
+          purpose: OtpPurpose.RESET_PASSWORD,
+          consumedAt: null,
+        },
+        data: { consumedAt: now },
+      });
+      await tx.otpCode.create({
+        data: {
+          userId,
+          destination,
+          codeHash,
+          purpose: OtpPurpose.RESET_PASSWORD,
+          expiresAt: this.authCommon.getOtpExpiryDate(),
+          resendAfter: this.authCommon.getOtpResendAfterDate(),
+          maxAttempts: this.authCommon.getOtpMaxAttempts(),
+        },
+      });
+      return true;
+    });
+  }
+
+  private async reserveResetAttempt(userId: string, destination: string) {
+    const [reserved] = await this.prisma.$queryRaw<
+      { id: string; codeHash: string }[]
+    >`
+      UPDATE "OtpCode"
+      SET "attempts" = "attempts" + 1
+      WHERE "id" = (
+        SELECT "id" FROM "OtpCode"
+        WHERE "userId" = ${userId}
+          AND "destination" = ${destination}
+          AND "purpose" = 'RESET_PASSWORD'::"OtpPurpose"
+          AND "consumedAt" IS NULL
+        ORDER BY "createdAt" DESC
+        LIMIT 1
+      )
+        AND "consumedAt" IS NULL
+        AND "attempts" < "maxAttempts"
+        AND "expiresAt" > timezone('UTC', now())
+      RETURNING "id", "codeHash"`;
+    return reserved ?? null;
+  }
+
+  private invalidResetCode() {
+    return new BadRequestException({
+      code: AuthMessageCode.OTP_INVALID,
+      message: "Invalid or expired code.",
+    });
   }
 
   async resetPassword(input: ResetPasswordInput) {
@@ -71,8 +121,8 @@ export class AuthPasswordService {
         code: AuthMessageCode.INVALID_CREDENTIALS,
         message: "Password and confirm password do not match.",
       });
-    const user = await this.prisma.user.findUnique({
-      where: { email },
+    const user = await this.prisma.user.findFirst({
+      where: { email, deletedAt: null, status: UserStatus.ACTIVE },
       select: {
         id: true,
         email: true,
@@ -82,85 +132,48 @@ export class AuthPasswordService {
         emailVerifiedAt: true,
       },
     });
-    if (!user)
-      throw new BadRequestException({
-        code: AuthMessageCode.USER_NOT_FOUND,
-        message: "User not found.",
+    const reserved = user
+      ? await this.reserveResetAttempt(user.id, email)
+      : null;
+    const isValidOtp = await argon2.verify(
+      reserved?.codeHash ?? (await this.decoyHash()),
+      input.code.trim(),
+    );
+    if (!user || !reserved || !isValidOtp) throw this.invalidResetCode();
+    const passwordHash = await argon2.hash(input.newPassword);
+    const now = new Date();
+    await this.prisma.$transaction(async (tx) => {
+      const consumed = await tx.otpCode.updateMany({
+        where: { id: reserved.id, consumedAt: null },
+        data: { consumedAt: now },
       });
-    const otp = await this.prisma.otpCode.findFirst({
-      where: {
-        userId: user.id,
-        destination: email,
-        purpose: OtpPurpose.RESET_PASSWORD,
-        consumedAt: null,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-
-    if (!otp)
-      throw new BadRequestException({
-        code: AuthMessageCode.OTP_INVALID,
-        message: "OTP not found.",
-      });
-    if (otp.attempts >= otp.maxAttempts)
-      throw new BadRequestException({
-        code: AuthMessageCode.OTP_ATTEMPTS_EXCEEDED,
-        message: "OTP attempts exceeded.",
-      });
-    if (otp.expiresAt < new Date())
-      throw new BadRequestException({
-        code: AuthMessageCode.OTP_EXPIRED,
-        message: "OTP has expired.",
-      });
-    const isValidOtp = await argon2.verify(otp.codeHash, input.code.trim());
-    if (!isValidOtp) {
-      await this.prisma.otpCode.update({
-        where: { id: otp.id },
-        data: {
-          attempts: {
-            increment: 1,
-          },
-        },
-      });
-      throw new BadRequestException({
-        code: AuthMessageCode.OTP_INVALID,
-        message: "Invalid OTP code.",
-      });
-    }
-    await this.prisma.$transaction([
-      this.prisma.user.update({
+      if (consumed.count !== 1) throw this.invalidResetCode();
+      await tx.user.update({
         where: { id: user.id },
         data: {
-          passwordHash: await argon2.hash(input.newPassword),
+          passwordHash,
           forcePasswordChange: false,
-          passwordChangedAt: new Date(),
+          passwordChangedAt: now,
         },
-      }),
-      this.prisma.otpCode.update({
-        where: { id: otp.id },
-        data: {
-          consumedAt: new Date(),
-        },
-      }),
-      this.prisma.authSession.updateMany({
-        where: {
-          userId: user.id,
-          status: SessionStatus.ACTIVE,
-        },
-        data: {
-          status: SessionStatus.REVOKED,
-          revokedAt: new Date(),
-        },
-      }),
-    ]);
+      });
+      await tx.authSession.updateMany({
+        where: { userId: user.id, status: SessionStatus.ACTIVE },
+        data: { status: SessionStatus.REVOKED, revokedAt: now },
+      });
+    });
     return {
       success: true,
       code: AuthMessageCode.PASSWORD_RESET_SUCCESS,
       message: "Password has been reset successfully.",
       user,
     };
+  }
+
+  private decoyHashPromise: Promise<string> | null = null;
+
+  private decoyHash() {
+    this.decoyHashPromise ??= argon2.hash("decoy-credential-never-issued");
+    return this.decoyHashPromise;
   }
 
   async changePassword(userId: string, input: ChangePasswordInput) {

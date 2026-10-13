@@ -4,16 +4,21 @@ export type PodcastFieldsFragment = { __typename?: 'Podcast', id: string, host: 
 
 export type PodcastEpisodeFieldsFragment = { __typename?: 'PodcastEpisode', id: string, title: string, audioUrl?: string | null, sourceUrl?: string | null, podcastId: string, updatedAt: string, createdAt: string, publishedAt?: string | null, description?: string | null, episodeNumber: number, durationMinutes?: number | null };
 
-export type PodcastPageInfoFieldsFragment = { __typename?: 'PodcastPageInfo', nextCursor?: string | null, hasNextPage: boolean };
+export type PodcastPageInfoFieldsFragment = { __typename?: 'PodcastPageInfo', nextCursor?: string | null, hasNextPage: boolean, previousCursor?: string | null, hasPreviousPage: boolean };
+
+export type PodcastSeoPublicFieldsFragment = { __typename?: 'Podcast', seoTitle?: string | null, seoDescription?: string | null, socialImagePath?: string | null, socialImageAlt?: string | null, excludeFromIndex?: boolean | null };
+
+export type PodcastLocaleFieldsFragment = { __typename?: 'Podcast', contentLanguage?: Types.AppLanguage | null, availableLocales?: Array<Types.AppLanguage> | null };
 
 export type PodcastsQueryVariables = Types.Exact<{
   filter?: Types.InputMaybe<Types.PodcastFilterInput>;
   pagination?: Types.InputMaybe<Types.PodcastPaginationInput>;
   sort?: Types.InputMaybe<Types.PodcastSortInput>;
+  locale?: Types.InputMaybe<Types.AppLanguage>;
 }>;
 
 
-export type PodcastsQuery = { __typename?: 'Query', podcasts: { __typename?: 'PaginatedPodcasts', totalCount: number, items: Array<{ __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, sourceUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null }>, pageInfo: { __typename?: 'PodcastPageInfo', nextCursor?: string | null, hasNextPage: boolean } } };
+export type PodcastsQuery = { __typename?: 'Query', podcasts: { __typename?: 'PaginatedPodcasts', totalCount: number, items: Array<{ __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, sourceUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null, contentLanguage?: Types.AppLanguage | null, availableLocales?: Array<Types.AppLanguage> | null }>, pageInfo: { __typename?: 'PodcastPageInfo', nextCursor?: string | null, hasNextPage: boolean, previousCursor?: string | null, hasPreviousPage: boolean } } };
 
 export type PodcastByIdQueryVariables = Types.Exact<{
   podcastId: Types.Scalars['String']['input'];
@@ -24,10 +29,11 @@ export type PodcastByIdQuery = { __typename?: 'Query', podcastById: { __typename
 
 export type PodcastBySlugQueryVariables = Types.Exact<{
   slug: Types.Scalars['String']['input'];
+  locale?: Types.InputMaybe<Types.AppLanguage>;
 }>;
 
 
-export type PodcastBySlugQuery = { __typename?: 'Query', podcastBySlug: { __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, sourceUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null } };
+export type PodcastBySlugQuery = { __typename?: 'Query', podcastBySlug: { __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, sourceUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null, contentLanguage?: Types.AppLanguage | null, availableLocales?: Array<Types.AppLanguage> | null, seoTitle?: string | null, seoDescription?: string | null, socialImagePath?: string | null, socialImageAlt?: string | null, excludeFromIndex?: boolean | null } };
 
 export type FeaturedPodcastsQueryVariables = Types.Exact<{
   take?: Types.InputMaybe<Types.Scalars['Int']['input']>;
@@ -50,7 +56,7 @@ export type MyProviderPodcastsQueryVariables = Types.Exact<{
 }>;
 
 
-export type MyProviderPodcastsQuery = { __typename?: 'Query', myProviderPodcasts: { __typename?: 'PaginatedPodcasts', totalCount: number, items: Array<{ __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, sourceUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null }>, pageInfo: { __typename?: 'PodcastPageInfo', nextCursor?: string | null, hasNextPage: boolean } } };
+export type MyProviderPodcastsQuery = { __typename?: 'Query', myProviderPodcasts: { __typename?: 'PaginatedPodcasts', totalCount: number, items: Array<{ __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, sourceUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null }>, pageInfo: { __typename?: 'PodcastPageInfo', nextCursor?: string | null, hasNextPage: boolean, previousCursor?: string | null, hasPreviousPage: boolean } } };
 
 export type CreatePodcastMutationVariables = Types.Exact<{
   input: Types.CreatePodcastInput;
@@ -162,13 +168,31 @@ export const PodcastPageInfoFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentS
     fragment PodcastPageInfoFields on PodcastPageInfo {
   nextCursor
   hasNextPage
+  previousCursor
+  hasPreviousPage
 }
     `, {"fragmentName":"PodcastPageInfoFields"}) as unknown as TypedDocumentString<PodcastPageInfoFieldsFragment, unknown>;
+export const PodcastSeoPublicFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
+    fragment PodcastSeoPublicFields on Podcast {
+  seoTitle
+  seoDescription
+  socialImagePath
+  socialImageAlt
+  excludeFromIndex
+}
+    `, {"fragmentName":"PodcastSeoPublicFields"}) as unknown as TypedDocumentString<PodcastSeoPublicFieldsFragment, unknown>;
+export const PodcastLocaleFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
+    fragment PodcastLocaleFields on Podcast {
+  contentLanguage
+  availableLocales
+}
+    `, {"fragmentName":"PodcastLocaleFields"}) as unknown as TypedDocumentString<PodcastLocaleFieldsFragment, unknown>;
 export const PodcastsDocument = /*#__PURE__*/ new TypedDocumentString(`
-    query Podcasts($filter: PodcastFilterInput, $pagination: PodcastPaginationInput, $sort: PodcastSortInput) {
-  podcasts(filter: $filter, pagination: $pagination, sort: $sort) {
+    query Podcasts($filter: PodcastFilterInput, $pagination: PodcastPaginationInput, $sort: PodcastSortInput, $locale: AppLanguage) {
+  podcasts(filter: $filter, pagination: $pagination, sort: $sort, locale: $locale) {
     items {
       ...PodcastFields
+      ...PodcastLocaleFields
     }
     totalCount
     pageInfo {
@@ -200,6 +224,12 @@ export const PodcastsDocument = /*#__PURE__*/ new TypedDocumentString(`
 fragment PodcastPageInfoFields on PodcastPageInfo {
   nextCursor
   hasNextPage
+  previousCursor
+  hasPreviousPage
+}
+fragment PodcastLocaleFields on Podcast {
+  contentLanguage
+  availableLocales
 }`) as unknown as TypedDocumentString<PodcastsQuery, PodcastsQueryVariables>;
 export const PodcastByIdDocument = /*#__PURE__*/ new TypedDocumentString(`
     query PodcastById($podcastId: String!) {
@@ -229,9 +259,11 @@ export const PodcastByIdDocument = /*#__PURE__*/ new TypedDocumentString(`
   durationMinutes
 }`) as unknown as TypedDocumentString<PodcastByIdQuery, PodcastByIdQueryVariables>;
 export const PodcastBySlugDocument = /*#__PURE__*/ new TypedDocumentString(`
-    query PodcastBySlug($slug: String!) {
-  podcastBySlug(slug: $slug) {
+    query PodcastBySlug($slug: String!, $locale: AppLanguage) {
+  podcastBySlug(slug: $slug, locale: $locale) {
     ...PodcastFields
+    ...PodcastLocaleFields
+    ...PodcastSeoPublicFields
   }
 }
     fragment PodcastFields on Podcast {
@@ -254,6 +286,17 @@ export const PodcastBySlugDocument = /*#__PURE__*/ new TypedDocumentString(`
   ratingCount
   episodeCount
   durationMinutes
+}
+fragment PodcastSeoPublicFields on Podcast {
+  seoTitle
+  seoDescription
+  socialImagePath
+  socialImageAlt
+  excludeFromIndex
+}
+fragment PodcastLocaleFields on Podcast {
+  contentLanguage
+  availableLocales
 }`) as unknown as TypedDocumentString<PodcastBySlugQuery, PodcastBySlugQueryVariables>;
 export const FeaturedPodcastsDocument = /*#__PURE__*/ new TypedDocumentString(`
     query FeaturedPodcasts($take: Int) {
@@ -337,6 +380,8 @@ export const MyProviderPodcastsDocument = /*#__PURE__*/ new TypedDocumentString(
 fragment PodcastPageInfoFields on PodcastPageInfo {
   nextCursor
   hasNextPage
+  previousCursor
+  hasPreviousPage
 }`) as unknown as TypedDocumentString<MyProviderPodcastsQuery, MyProviderPodcastsQueryVariables>;
 export const CreatePodcastDocument = /*#__PURE__*/ new TypedDocumentString(`
     mutation CreatePodcast($input: CreatePodcastInput!) {

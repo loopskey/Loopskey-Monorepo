@@ -8,6 +8,7 @@ import { Test } from "@nestjs/testing";
 import { EventCategory, EventStatus, EventType, Role } from "@prisma/client";
 import { Logger } from "@nestjs/common";
 import { EventService } from "./event.service";
+import { EventViewSignalLimiter } from "./event-view-signal.limiter";
 
 describe("EventService", () => {
   const repository = {
@@ -26,6 +27,7 @@ describe("EventService", () => {
     const moduleRef = await Test.createTestingModule({
       providers: [
         EventService,
+        EventViewSignalLimiter,
         { provide: EventRepository, useValue: repository },
         { provide: EventDomainEventDispatcher, useValue: dispatcher },
       ],
@@ -200,6 +202,7 @@ describe("EventService filter facets", () => {
     const moduleRef = await Test.createTestingModule({
       providers: [
         EventService,
+        EventViewSignalLimiter,
         { provide: EventRepository, useValue: repository },
         {
           provide: EventDomainEventDispatcher,

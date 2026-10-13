@@ -10,7 +10,8 @@ export type TProviderDashboardTab =
   | "settings"
   | "my-events"
   | "create-event"
-  | "promotion-requests";
+  | "promotion-requests"
+  | "public-profile";
 
 export type TTimePoint = {
   date: string;
@@ -106,4 +107,9 @@ export type SelectOption = {
   label: string;
   value: string;
   disabled?: boolean;
+};
+
+export type TEventTranslationDialogProps = {
+  eventId: string;
+  eventTitle: string;
 };

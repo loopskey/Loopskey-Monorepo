@@ -1,5 +1,6 @@
 "use client";
 
+import { safeHttpUrl } from "@/utils/safe-url";
 import { TAssociationEvidenceViewer } from "@/types/association-dashboard.types";
 import { humanizeEnumValue } from "@utils/function-helper";
 import { formatFileSize } from "@utils/pdu.constant";
@@ -35,7 +36,9 @@ export const AssociationEvidenceViewer = ({
   const summaryRows = openActivity
     ? [
         {
-          label: t("associationDashboard.memberDetail.evidence.attachedEvidence"),
+          label: t(
+            "associationDashboard.memberDetail.evidence.attachedEvidence",
+          ),
           value: attachedEvidence,
         },
         {
@@ -110,11 +113,11 @@ export const AssociationEvidenceViewer = ({
                 {t("associationDashboard.memberDetail.evidence.link")}
               </h3>
 
-              {openActivity.evidenceUrl ? (
+              {safeHttpUrl(openActivity.evidenceUrl) ? (
                 <a
                   target="_blank"
                   rel="noopener noreferrer"
-                  href={openActivity.evidenceUrl}
+                  href={safeHttpUrl(openActivity.evidenceUrl) ?? undefined}
                   className="mt-1 inline-flex items-center gap-2 break-all text-sm text-primary underline underline-offset-4"
                 >
                   <L.ExternalLink className="h-4 w-4 shrink-0" />

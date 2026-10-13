@@ -345,6 +345,10 @@
     }
   },
   "common": {
+    "languageSwitcher": {
+      "label": "Langue",
+      "unavailable": "Non disponible dans cette langue"
+    },
     "no": "Non",
     "yes": "Oui",
     "all": "Tous",
@@ -389,6 +393,10 @@
     "required": "obligatoire"
   },
   "servicesPage": {
+    "meta": {
+      "title": "Services | LoopsKey",
+      "description": "LoopsKey aide les professionnels, les organisations et les fournisseurs de contenu à découvrir les bonnes opportunités de formation, créer des parcours de développement personnalisés par IA, gérer la conformité CPD et transformer la progression professionnelle en un système mesurable."
+    },
     "common": {
       "bookConsultation": "Réserver une consultation"
     },
@@ -2651,6 +2659,7 @@
       "emailAlreadyExists": "Cette adresse e-mail est déjà utilisée.",
       "roleNotAllowedForRegister": "L’inscription directe n’est pas disponible pour le rôle sélectionné.",
       "otpResendTooSoon": "Veuillez patienter avant de demander un autre code de vérification.",
+      "rateLimited": "Trop de tentatives. Veuillez patienter quelques minutes puis réessayer.",
       "emailSendFailed": "Nous n’avons pas pu envoyer l’e-mail. Veuillez réessayer.",
       "passwordTooObvious": "Choisissez un mot de passe moins prévisible.",
       "passwordsDoNotMatch": "Le nouveau mot de passe et sa confirmation ne correspondent pas.",
@@ -2894,6 +2903,24 @@
     "loggingOut": "Déconnexion..."
   },
   "content": {
+    "meta": {
+      "title": "Explorer les contenus d’apprentissage | LoopsKey",
+      "description": "Parcourez des cours, événements, podcasts et chaînes YouTube de fournisseurs vérifiés, et filtrez par catégorie, format et crédits CPD.",
+      "tabs": {
+        "events": {
+          "title": "Événements de développement professionnel | LoopsKey",
+          "description": "Parcourez des ateliers, conférences et webinaires de fournisseurs vérifiés, et filtrez par catégorie et format."
+        },
+        "podcasts": {
+          "title": "Podcasts d’apprentissage professionnel | LoopsKey",
+          "description": "Écoutez des podcasts d’apprentissage professionnel de fournisseurs vérifiés et filtrez par catégorie."
+        },
+        "youtube": {
+          "title": "Chaînes YouTube d’apprentissage professionnel | LoopsKey",
+          "description": "Découvrez des chaînes YouTube d’apprentissage professionnel de fournisseurs vérifiés et filtrez par catégorie."
+        }
+      }
+    },
     "hero": {
       "title": "Explorer les contenus d’apprentissage",
       "count": {
@@ -2924,20 +2951,18 @@
       "eventType": "Type d’événement",
       "searchPlaceholder": "Rechercher un contenu...",
       "reset": "Réinitialiser",
-      "all": "Tous",
-      "open": "Filtres",
-      "sheetDescription": "Affinez la liste avec les options ci-dessous.",
-      "showResults": "Afficher les résultats",
-      "optionsLoading": "Chargement des options…",
+      "submit": "Rechercher",
       "optionsError": "Options indisponibles. Réessayer"
     },
     "pagination": {
       "page": "Page {{page}}",
       "total": "{{total}} au total",
       "previous": "Précédent",
-      "next": "Suivant"
+      "next": "Suivant",
+      "label": "Pagination"
     },
     "card": {
+      "originalLanguage": "Langue d’origine",
       "free": "Gratuit",
       "viewDetails": "Voir les détails",
       "professionals": "{{count}} professionnels",
@@ -2951,6 +2976,23 @@
     "empty": {
       "title": "Aucun contenu trouvé",
       "description": "Essayez de modifier votre recherche ou de réinitialiser les filtres."
+    },
+    "navigation": {
+      "loading": "Chargement…"
+    },
+    "results": {
+      "heading": "Résultats"
+    },
+    "notice": {
+      "invalid": {
+        "title": "Ce lien n’est pas valide",
+        "description": "Certaines options de cette adresse ne sont pas reconnues. Recommencez depuis la liste complète."
+      },
+      "expired": {
+        "title": "Cette page n’est plus disponible",
+        "description": "La liste a changé depuis la création de ce lien, nous ne pouvons donc pas continuer à partir de ce point. Recommencez depuis le début."
+      },
+      "restart": "Recommencer"
     },
     "enums": {
       "courseCategory": {
@@ -3038,8 +3080,17 @@
   },
   "contentDetails": {
     "common": {
+      "notFoundDescription": "Ce contenu a peut-être été retiré ou n’est pas publié.",
+      "variantMissing": "Cette page n’est pas disponible en français.",
+      "viewOriginal": "Voir la version originale",
+      "originalLanguage": "Langue d’origine : {{language}}",
+      "childrenOriginal": "Les épisodes et les vidéos sont affichés dans leur langue d’origine.",
       "backToContent": "Retour au contenu",
+      "breadcrumb": "Fil d’Ariane",
       "notFound": "Contenu introuvable",
+      "unavailableTitle": "Cette page est temporairement indisponible",
+      "unavailableDescription": "Impossible de charger ce contenu pour le moment. Veuillez réessayer dans un instant.",
+      "retry": "Réessayer",
       "free": "Gratuit",
       "price": "Prix",
       "minutes": "{{count}} min"
@@ -3171,6 +3222,15 @@
     }
   },
   "landing": {
+    "topicGuides": {
+      "title": "Guides thématiques",
+      "subtitle": "Commencez par des conseils sélectionnés, puis explorez les formations recommandées.",
+      "read": "Lire le guide"
+    },
+    "meta": {
+      "title": "LoopsKey — apprentissage professionnel et suivi CPD propulsés par l’IA",
+      "description": "Découvrez des cours, événements, podcasts et chaînes YouTube, créez un parcours de développement propulsé par l’IA et suivez votre conformité CPD et PDU au même endroit."
+    },
     "learningHub": {
       "badge": "Espace d’apprentissage sélectionné",
       "title": "Découvrez des contenus qui font avancer votre carrière",
@@ -3759,8 +3819,6 @@
       "browseAll": "Tout explorer",
       "viewAll": "Tout voir",
       "continue": "Continuer",
-      "enrollNow": "S’inscrire maintenant",
-      "enrolled": "Votre inscription a été effectuée avec succès.",
       "pduOverTime": "PDU au fil du temps",
       "pduOverTimeDescription": "Accumulation mensuelle de vos unités de développement professionnel approuvées.",
       "pdusByCategory": "PDU par catégorie",
@@ -3936,7 +3994,6 @@
       "removed": "Supprimé de la liste.",
       "untitled": "Contenu sans titre",
       "savedAt": "Enregistré le",
-      "viewDetails": "Voir les détails",
       "contentTitle": "Élément {{type}} #{{id}}"
     },
     "cpdPduTracker": {
@@ -4631,6 +4688,36 @@
     }
   },
   "providerDashboard": {
+    "translations": {
+      "open": "Traductions",
+      "title": "Traductions publiques",
+      "description": "Rédigez la version française ou anglaise de « {{title}} ». Une traduction n’est publique qu’après sa publication.",
+      "language": "Langue de la traduction",
+      "fields": {
+        "title": "Titre",
+        "description": "Description"
+      },
+      "status": {
+        "none": "Aucune traduction enregistrée.",
+        "draft": "Brouillon, version {{version}}. Non public.",
+        "published": "Publiée, version {{version}}."
+      },
+      "save": "Enregistrer la traduction",
+      "publish": "Publier",
+      "unpublish": "Dépublier",
+      "reload": "Recharger la dernière version",
+      "retry": "Réessayer",
+      "loadFailed": "Impossible de charger les traductions.",
+      "feedback": {
+        "saved": "Traduction enregistrée.",
+        "published": "Traduction publiée.",
+        "unpublished": "Traduction dépubliée.",
+        "conflict": "Quelqu’un a modifié cette traduction. Rechargez la dernière version avant d’enregistrer à nouveau.",
+        "incomplete": "Complétez le titre et la description avant de publier.",
+        "blank": "Le titre et la description ne peuvent pas être vides.",
+        "failed": "La modification n’a pas pu être enregistrée. Veuillez réessayer."
+      }
+    },
     "sidebar": {
       "overview": "Vue d’ensemble",
       "analytics": "Analytique",
@@ -4765,6 +4852,7 @@
         "cancelled": "Annulé"
       },
       "table": {
+        "translations": "Traductions",
         "event": "Événement",
         "date": "Date",
         "status": "Statut",
@@ -7789,6 +7877,458 @@
         "COURSE": "Cours",
         "PODCAST": "Podcasts",
         "YOUTUBE": "YouTube"
+      }
+    }
+  },
+  "topicHub": {
+    "badge": "Guide thématique",
+    "guidanceHeading": "Comment choisir",
+    "linksHeading": "Formations à explorer",
+    "linksIntro": "Une sélection de cours, d’événements, de podcasts et de chaînes publiés, choisis pour ce thème.",
+    "empty": "Aucune des formations sélectionnées n’est disponible pour le moment. Parcourez le catalogue complet pour voir les options actuelles.",
+    "browseCatalog": "Parcourir le catalogue complet",
+    "browseCategory": "Voir plus de formations en {{category}}",
+    "updated": "Dernière mise à jour le {{date}}",
+    "partOf": "Guide thématique",
+    "metaFallback": "Un guide sélectionné sur la formation professionnelle sur LoopsKey.",
+    "home": "Guides thématiques"
+  },
+  "providerProfile": {
+    "badge": "Fournisseur de formations",
+    "aboutHeading": "À propos de {{name}}",
+    "website": "Visiter le site web",
+    "linksHeading": "À retrouver ailleurs",
+    "contentHeading": "Formations publiées",
+    "contentEmpty": "Ce fournisseur n’a aucune formation publiée pour le moment.",
+    "providedBy": "Proposé par",
+    "metaFallback": "Profil d’un fournisseur de formations sur LoopsKey.",
+    "logoAlt": "Logo de {{name}}",
+    "updated": "Dernière mise à jour le {{date}}"
+  },
+  "topicHubAdmin": {
+    "tab": "Guides thématiques",
+    "title": "Guides thématiques",
+    "description": "Rédigez des pages publiques de conseils. Un guide n’est mis en ligne qu’avec un texte relu et au moins un lien éligible, et rien n’est publié automatiquement.",
+    "new": "Nouveau guide thématique",
+    "empty": "Aucun guide thématique pour le moment.",
+    "loadFailed": "Nous n’avons pas pu charger les guides thématiques.",
+    "retry": "Réessayer",
+    "edit": "Modifier",
+    "viewPublic": "Voir la page publique",
+    "links": "{{eligible}} liens éligibles sur {{total}}",
+    "needsReview": "À revoir : aucun lien éligible",
+    "status": {
+      "DRAFT": "Brouillon",
+      "PUBLISHED": "Publié",
+      "WITHDRAWN": "Retiré"
+    },
+    "editor": {
+      "createTitle": "Nouveau guide thématique",
+      "editTitle": "Modifier le guide thématique",
+      "description": "Texte brut uniquement. Séparez les paragraphes par une ligne vide.",
+      "language": "Langue",
+      "slug": "Identifiant de l’adresse",
+      "slugHint": "Lettres minuscules, chiffres et tirets simples. Il ne pourra plus être réutilisé.",
+      "title": "Titre",
+      "introduction": "Introduction",
+      "guidance": "Conseils",
+      "category": "Catégorie associée",
+      "noCategory": "Aucune catégorie",
+      "sections": "Sections supplémentaires",
+      "sectionHeading": "Titre de la section",
+      "sectionBody": "Texte de la section",
+      "addSection": "Ajouter une section",
+      "removeSection": "Supprimer la section {{index}}",
+      "references": "Liens vers des formations",
+      "referencesHint": "Jusqu’à {{max}} éléments publiés. Les éléments non publiés restent masqués pour les visiteurs.",
+      "kind": "Type de contenu",
+      "referenceSlug": "Identifiant du contenu",
+      "addReference": "Ajouter le lien",
+      "removeReference": "Retirer {{title}}",
+      "moveUp": "Monter {{title}}",
+      "moveDown": "Descendre {{title}}",
+      "eligible": "Visible",
+      "notEligible": "Non visible",
+      "lookupFailed": "Aucun élément publié ne correspond à cet identifiant.",
+      "counter": "{{count}} caractères sur {{max}}",
+      "save": "Enregistrer",
+      "publish": "Publier",
+      "withdraw": "Retirer",
+      "publishFrench": "Publier la version française",
+      "unpublishFrench": "Dépublier la version française",
+      "frenchPublished": "La version française est publiée.",
+      "frenchDraft": "La version française est un brouillon privé.",
+      "frenchMissing": "Aucune version française enregistrée.",
+      "hideFromSearch": "Masquer aux moteurs de recherche",
+      "allowIndexing": "Autoriser l’indexation",
+      "excluded": "Masqué aux moteurs de recherche.",
+      "indexed": "Ouvert aux moteurs de recherche.",
+      "version": "Version {{version}}",
+      "close": "Fermer",
+      "kinds": {
+        "COURSE": "Cours",
+        "EVENT": "Événement",
+        "PODCAST": "Podcast",
+        "YOUTUBE": "Chaîne YouTube"
+      }
+    },
+    "feedback": {
+      "saved": "Guide thématique enregistré.",
+      "published": "Guide thématique publié.",
+      "withdrawn": "Guide thématique retiré.",
+      "frenchPublished": "Version française publiée.",
+      "frenchUnpublished": "Version française dépubliée.",
+      "indexed": "Le guide peut de nouveau être indexé.",
+      "excluded": "Le guide demande désormais aux moteurs de recherche de ne pas l’indexer.",
+      "conflict": "Quelqu’un d’autre a modifié ce guide. Rechargez la dernière version avant d’enregistrer à nouveau.",
+      "invalid": "Un champ est vide, trop long, contient du balisage ou n’est pas autorisé.",
+      "incomplete": "Ajoutez une introduction et des conseils plus complets avant de publier.",
+      "noLinks": "Ajoutez au moins un élément publié avant de publier.",
+      "invalidState": "Ce changement n’est pas possible dans l’état actuel.",
+      "slugTaken": "Cette adresse est utilisée ou l’a été auparavant. Choisissez-en une autre.",
+      "notFound": "Ce guide n’existe plus.",
+      "forbidden": "Seuls les administrateurs peuvent gérer les guides thématiques.",
+      "failed": "Nous n’avons pas pu terminer l’opération. Réessayez."
+    },
+    "reload": "Recharger la dernière version"
+  },
+  "providerPublicProfile": {
+    "tab": "Profil public",
+    "title": "Profil public",
+    "description": "Une page publique distincte pour votre organisation. Rien de votre compte ni de vos paramètres n’y figure, et les modifications ne sont mises en ligne qu’après approbation d’un administrateur.",
+    "loadFailed": "Nous n’avons pas pu charger votre profil public.",
+    "retry": "Réessayer",
+    "status": {
+      "none": "Pas encore créé",
+      "draft": "Brouillon privé",
+      "submitted": "En attente de relecture",
+      "rejected": "Modifications demandées",
+      "published": "Publié",
+      "publishedChanges": "Publié, nouveau brouillon non encore approuvé",
+      "withdrawn": "Retiré"
+    },
+    "fields": {
+      "displayName": "Nom public",
+      "biography": "À propos de votre organisation",
+      "website": "Site web",
+      "links": "Autres liens",
+      "linkLabel": "Libellé du lien",
+      "linkUrl": "Adresse du lien",
+      "logo": "Logo"
+    },
+    "hints": {
+      "displayName": "Affiché comme titre de la page. Il n’est pas copié depuis votre compte.",
+      "biography": "Texte brut. Décrivez ce que vous proposez avec vos propres mots.",
+      "website": "Seules les adresses http et https sont acceptées.",
+      "counter": "{{count}} caractères sur {{max}}",
+      "links": "Jusqu’à {{max}} liens.",
+      "logo": "JPEG, PNG ou WebP, jusqu’à {{size}} Mo. Il apparaît publiquement une fois approuvé."
+    },
+    "actions": {
+      "save": "Enregistrer le brouillon",
+      "submit": "Soumettre pour relecture",
+      "withdraw": "Retirer la page publique",
+      "addLink": "Ajouter un lien",
+      "removeLink": "Supprimer le lien {{index}}",
+      "uploadLogo": "Téléverser un logo",
+      "replaceLogo": "Remplacer le logo",
+      "removeLogo": "Retirer le logo",
+      "viewPublic": "Voir la page publique",
+      "reload": "Recharger la dernière version"
+    },
+    "reviewNote": "Note du relecteur",
+    "requirements": "Pour soumettre, ajoutez un nom public et une biographie d’au moins {{min}} caractères.",
+    "publicAddress": "Adresse publique",
+    "feedback": {
+      "saved": "Brouillon enregistré. Il reste privé jusqu’à son approbation.",
+      "submitted": "Soumis pour relecture.",
+      "withdrawn": "Votre page publique a été retirée.",
+      "logoUploaded": "Logo téléversé. Enregistrez le brouillon pour l’utiliser.",
+      "conflict": "Ce profil a changé depuis son ouverture. Rechargez la dernière version avant d’enregistrer à nouveau.",
+      "invalid": "Un champ est vide, trop long, contient du balisage ou n’est pas une adresse autorisée.",
+      "incomplete": "Ajoutez un nom public et une biographie plus longue avant de soumettre.",
+      "logoMissing": "Ce logo n’est plus disponible. Téléversez-le à nouveau.",
+      "invalidState": "Ce n’est pas possible dans l’état actuel.",
+      "forbidden": "Vous ne pouvez pas modifier ce profil.",
+      "failed": "Nous n’avons pas pu terminer l’opération. Réessayez."
+    }
+  },
+  "providerProfileReview": {
+    "tab": "Profils de fournisseurs",
+    "title": "Profils de fournisseurs",
+    "description": "Relisez les pages publiques soumises par les fournisseurs. Un profil n’est mis en ligne que lorsque vous approuvez la version exacte soumise.",
+    "loadFailed": "Nous n’avons pas pu charger les profils de fournisseurs.",
+    "retry": "Réessayer",
+    "empty": "Aucun profil de fournisseur ne correspond à ce filtre.",
+    "filters": {
+      "all": "Tous",
+      "SUBMITTED": "En attente de relecture",
+      "REJECTED": "Modifications demandées",
+      "APPROVED": "Approuvés",
+      "DRAFT": "Brouillons"
+    },
+    "review": {
+      "SUBMITTED": "En attente de relecture",
+      "REJECTED": "Modifications demandées",
+      "APPROVED": "Approuvé",
+      "DRAFT": "Brouillon"
+    },
+    "visibility": {
+      "UNPUBLISHED": "Non public",
+      "PUBLISHED": "Public",
+      "WITHDRAWN": "Retiré"
+    },
+    "fields": {
+      "provider": "Fournisseur",
+      "name": "Nom public",
+      "biography": "Biographie",
+      "website": "Site web",
+      "links": "Liens",
+      "logo": "Logo",
+      "none": "Aucun",
+      "note": "Note pour le fournisseur",
+      "version": "Version du brouillon {{version}}"
+    },
+    "actions": {
+      "approve": "Approuver et publier",
+      "reject": "Demander des modifications",
+      "withdraw": "Retirer du public",
+      "viewPublic": "Voir la page publique",
+      "hideFromSearch": "Masquer aux moteurs de recherche",
+      "allowIndexing": "Autoriser l’indexation"
+    },
+    "feedback": {
+      "approved": "Profil approuvé et publié.",
+      "rejected": "Modifications demandées.",
+      "withdrawn": "Profil retiré.",
+      "indexed": "Le profil peut de nouveau être indexé.",
+      "excluded": "Le profil demande désormais aux moteurs de recherche de ne pas l’indexer.",
+      "conflict": "Le brouillon a changé après sa soumission. Rechargez la liste et relisez la dernière version.",
+      "invalid": "La note est trop longue ou contient du balisage.",
+      "invalidState": "Ce n’est pas possible dans l’état actuel, ou le compte du fournisseur n’est pas actif.",
+      "notFound": "Ce profil n’existe plus.",
+      "failed": "Nous n’avons pas pu terminer l’opération. Réessayez."
+    }
+  },
+  "searchHealth": {
+    "tab": "Santé de la recherche",
+    "title": "Santé de la recherche",
+    "description": "Vitesse de page mesurée chez de vrais visiteurs et comptes de conversions anonymes, regroupés par modèle de page, appareil et langue. Un segment n’est évalué qu’une fois le nombre de chargements suffisant.",
+    "window": "Période du rapport",
+    "lastDays": "{{count}} derniers jours",
+    "loading": "Chargement du rapport",
+    "loadFailed": "Impossible de charger le rapport de santé de la recherche.",
+    "retry": "Réessayer",
+    "collectionOff": "La collecte est désactivée dans cet environnement",
+    "collectionOffHint": "Rien n’est mesuré ici, les tableaux ci-dessous restent donc vides. N’activez la collecte qu’après la décision consignée dans la liste de contrôle de mise en production.",
+    "coverage": "{{withData}} jours sur {{days}} de cette période contiennent des données de vitesse.",
+    "accepted": "{{accepted}} événements reçus sur {{received}} ont été comptés.",
+    "sampleFloor": "Un segment doit atteindre au moins {{count}} chargements de page avant d’être évalué. En dessous, il affiche Données insuffisantes, jamais une réussite.",
+    "resolution": "Les centiles sont estimés à partir de tranches fixes : une valeur est exacte à la largeur de sa tranche près. Les mesures de laboratoire et les données terrain de Search Console peuvent différer.",
+    "noVitals": "Aucun échantillon de vitesse sur cette période.",
+    "noConversions": "Aucune conversion n’a été comptée sur cette période.",
+    "noIntake": "Aucun événement de télémétrie n’a atteint l’API sur cette période.",
+    "conversionsHeading": "Conversions",
+    "intakeHeading": "Santé de la collecte",
+    "column": {
+      "template": "Modèle de page",
+      "device": "Appareil",
+      "locale": "Langue",
+      "samples": "Chargements",
+      "p75": "75e centile",
+      "status": "Statut",
+      "event": "Événement",
+      "detail": "Détail",
+      "source": "Source du trafic",
+      "count": "Nombre"
+    },
+    "status": {
+      "GOOD": "Bon",
+      "NEEDS_IMPROVEMENT": "À améliorer",
+      "POOR": "Mauvais",
+      "INSUFFICIENT_DATA": "Données insuffisantes"
+    },
+    "metric": {
+      "LCP": "Largest Contentful Paint",
+      "INP": "Interaction to Next Paint",
+      "CLS": "Cumulative Layout Shift"
+    },
+    "device": {
+      "MOBILE": "Mobile",
+      "DESKTOP": "Ordinateur"
+    },
+    "locale": {
+      "EN": "Anglais",
+      "FR": "Français",
+      "UNKNOWN": "Inconnue"
+    },
+    "template": {
+      "HOME": "Accueil",
+      "CONTENT_CATALOG": "Catalogue de contenus",
+      "COURSE_DETAIL": "Page de cours",
+      "EVENT_DETAIL": "Page d’événement",
+      "PODCAST_DETAIL": "Page de balado",
+      "YOUTUBE_DETAIL": "Page de chaîne YouTube",
+      "TOPIC_HUB": "Guide thématique",
+      "PROVIDER_PROFILE": "Profil de fournisseur",
+      "ABOUT": "À propos",
+      "CONTACT": "Contact",
+      "FAQ": "FAQ",
+      "SERVICES": "Services",
+      "SOLUTIONS": "Pages solutions",
+      "COMPANY": "Pages entreprise",
+      "SUPPORT": "Pages d’assistance",
+      "LEGAL": "Pages juridiques"
+    },
+    "event": {
+      "CATALOG_DETAIL_OPEN": "Page de contenu ouverte",
+      "EXTERNAL_CONTENT_ACTION": "Lien de contenu externe cliqué",
+      "REGISTRATION_START": "Inscription commencée",
+      "REGISTRATION_COMPLETED": "Inscription terminée"
+    },
+    "kind": {
+      "COURSE": "Cours",
+      "EVENT": "Événement",
+      "PODCAST": "Balado",
+      "YOUTUBE": "Chaîne YouTube"
+    },
+    "role": {
+      "PROFESSIONAL": "Professionnel",
+      "PROVIDER": "Fournisseur"
+    },
+    "attribution": {
+      "DIRECT": "Direct",
+      "ORGANIC_SEARCH": "Recherche naturelle",
+      "SOCIAL": "Réseaux sociaux",
+      "REFERRAL": "Autre site",
+      "INTERNAL": "Depuis le site",
+      "UNATTRIBUTED": "Non attribué"
+    },
+    "intakeKind": {
+      "VITAL": "Vitesse de page",
+      "CONVERSION": "Conversions"
+    },
+    "outcome": {
+      "ACCEPTED": "Compté",
+      "DUPLICATE": "Doublon",
+      "INVALID": "Rejeté comme invalide",
+      "RATE_LIMITED": "Limité par le débit",
+      "SAMPLED_OUT": "Écarté par l’échantillonnage",
+      "DISABLED": "Collecte désactivée",
+      "SINK_FAILED": "Échec du stockage"
+    }
+  },
+  "contentSeo": {
+    "open": "Recherche et partage",
+    "title": "Recherche et partage",
+    "description": "Ajustez l’apparence de « {{title}} » dans les résultats de recherche et lors du partage. Les champs vides utilisent le texte généré à partir de la page.",
+    "loadFailed": "Impossible de charger les réglages de recherche et de partage.",
+    "retry": "Réessayer",
+    "language": "Langue",
+    "fields": {
+      "title": "Titre de recherche",
+      "description": "Description de recherche",
+      "image": "Image de partage",
+      "imageAlt": "Description de l’image (texte alternatif)"
+    },
+    "hints": {
+      "text": "Un texte plus court se lit généralement plus facilement. La quantité affichée dépend de l’appareil et de la recherche.",
+      "counter": "{{count}} caractères sur {{max}}"
+    },
+    "image": {
+      "help": "JPEG, PNG ou WebP, jusqu’à {{size}} Mo. Sans image, la carte générée est partagée.",
+      "choose": "Téléverser une image",
+      "replace": "Remplacer l’image",
+      "remove": "Retirer l’image",
+      "uploading": "Téléversement…",
+      "none": "Aucune image sélectionnée."
+    },
+    "actions": {
+      "save": "Enregistrer",
+      "reset": "Utiliser le texte généré",
+      "reload": "Recharger la dernière version"
+    },
+    "preview": {
+      "title": "Aperçu approximatif",
+      "note": "Il s’agit d’une approximation. Les moteurs de recherche et les réseaux sociaux décident de ce qui s’affiche.",
+      "search": "Résultat de recherche",
+      "share": "Lien partagé",
+      "generatedCard": "Carte générée",
+      "empty": "Rien à prévisualiser pour le moment."
+    },
+    "status": {
+      "none": "Aucune personnalisation enregistrée pour cette langue.",
+      "saved": "Enregistré, version {{version}}.",
+      "unsaved": "Vous avez des modifications non enregistrées."
+    },
+    "feedback": {
+      "saved": "Réglages de recherche et de partage enregistrés.",
+      "uploaded": "Image téléversée. Enregistrez pour l’utiliser.",
+      "conflict": "Quelqu’un a modifié cette langue. Rechargez la dernière version avant d’enregistrer à nouveau.",
+      "invalid": "Un des champs est trop long ou non autorisé.",
+      "imageMissing": "Cette image n’est plus disponible. Téléversez-la à nouveau.",
+      "imageType": "Utilisez une image JPEG, PNG ou WebP.",
+      "imageSize": "Cette image est trop volumineuse.",
+      "imageQuota": "Trop de téléversements inutilisés. Enregistrez ou attendez un jour avant d’en ajouter.",
+      "forbidden": "Vous ne pouvez pas modifier les réglages de recherche de cette page.",
+      "failed": "Impossible d’enregistrer les réglages. Réessayez.",
+      "indexed": "La page peut de nouveau être indexée par les moteurs de recherche.",
+      "excluded": "La page demande désormais aux moteurs de recherche de ne pas l’indexer."
+    },
+    "moderation": {
+      "title": "Indexation par les moteurs de recherche",
+      "description": "Une page masquée reste publique mais demande aux moteurs de recherche de ne pas la lister, et elle quitte le plan du site. Cela ne protège pas un contenu confidentiel.",
+      "excluded": "Cette page est masquée des moteurs de recherche.",
+      "indexed": "Cette page peut être indexée.",
+      "exclude": "Masquer des moteurs de recherche",
+      "include": "Autoriser l’indexation"
+    },
+    "url": {
+      "title": "Adresse de la page",
+      "description": "L’adresse utilisée par les visiteurs et les moteurs de recherche pour cette page. La modifier est une action volontaire, distincte du titre.",
+      "loadFailed": "Nous n’avons pas pu charger l’adresse de la page.",
+      "hint": "Lettres minuscules, chiffres et tirets simples uniquement.",
+      "fields": {
+        "slug": "Identifiant de l’adresse"
+      },
+      "preview": {
+        "english": "Adresse en anglais",
+        "french": "Adresse en français"
+      },
+      "retired": {
+        "title": "Anciennes adresses",
+        "note": "Ces adresses continuent de fonctionner et redirigent les visiteurs vers la page actuelle tant qu’elle est publiée."
+      },
+      "warning": "Le changement d’adresse est définitif. Les liens existants vers l’ancienne adresse redirigeront vers la nouvelle, et l’ancienne adresse ne pourra jamais servir à une autre page.",
+      "confirm": "Je comprends et je souhaite changer l’adresse.",
+      "actions": {
+        "change": "Changer l’adresse"
+      },
+      "feedback": {
+        "changed": "L’adresse a été modifiée. L’ancienne adresse redirige désormais ici.",
+        "invalid": "Utilisez des lettres minuscules, des chiffres et des tirets simples. Certains mots sont réservés.",
+        "taken": "Cette adresse est déjà utilisée par une autre page ou l’a été auparavant. Choisissez-en une autre.",
+        "conflict": "L’adresse a changé depuis l’ouverture de cette fenêtre. Rechargez la dernière version avant de la modifier à nouveau.",
+        "notFound": "Cette page n’existe plus.",
+        "forbidden": "Vous ne pouvez pas modifier l’adresse de cette page.",
+        "failed": "Nous n’avons pas pu changer l’adresse. Réessayez."
+      }
+    },
+    "admin": {
+      "tab": "Visibilité dans la recherche",
+      "title": "Visibilité dans la recherche",
+      "description": "Recherchez une page publiée par son identifiant d’adresse pour vérifier son apparence dans la recherche et la masquer des moteurs de recherche.",
+      "kind": "Type de contenu",
+      "slug": "Identifiant de la page",
+      "slugPlaceholder": "par exemple principes-du-leadership",
+      "find": "Trouver la page",
+      "notFound": "Aucune page publiée ne correspond à cet identifiant.",
+      "found": "Trouvé : {{title}}",
+      "kinds": {
+        "course": "Cours",
+        "event": "Événement",
+        "podcast": "Balado",
+        "youtube": "Chaîne YouTube"
       }
     }
   }

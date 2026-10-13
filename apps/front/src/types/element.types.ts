@@ -7,7 +7,7 @@ import type { buttonVariants } from "@ui/button";
 import type { VariantProps } from "class-variance-authority";
 import type { AvatarImage } from "@ui/avatar";
 
-import { Eye } from "lucide-react";
+import type { Eye } from "lucide-react";
 
 // ================ User Avatar ==============
 export type TUserAvatarProps = {
@@ -270,15 +270,12 @@ export type TExternalLearningBtn = {
 export type TContentThumbnailKind = "course" | "event" | "podcast" | "youtube";
 
 export type TContentThumbnailProps = {
-  id: string;
   title: string;
   sizes: string;
   priority?: boolean;
   className?: string;
   imageUrl?: string | null;
-  category?: string | null;
   kind: TContentThumbnailKind;
-  sourceLabel?: string | null;
 };
 
 export type TIconActionProps = {

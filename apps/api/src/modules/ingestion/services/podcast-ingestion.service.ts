@@ -1,3 +1,4 @@
+import { publicContentChange } from "@utils/public-content-change.util";
 import { IngestionContentKind, PodcastStatus, Prisma } from "@prisma/client";
 import { AbstractKindIngestionService } from "@ingestion/services/abstract-kind-ingestion.service";
 import { validateCanonicalFieldMap } from "@ingestion/utils/canonical-field-map.util";
@@ -100,7 +101,7 @@ export class PodcastIngestionService extends AbstractKindIngestionService<Podcas
     const podcast = existing
       ? await tx.podcast.update({
           where: { id: existing.id },
-          data,
+          data: { ...data, ...publicContentChange() },
           select: { id: true },
         })
       : await tx.podcast.create({

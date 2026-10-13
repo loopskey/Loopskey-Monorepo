@@ -6,7 +6,7 @@ import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
 import { cn } from "@/lib/utils";
 
-import Link from "next/link";
+import Link from "@elements/localized-link";
 
 const LandingSliderCard = ({ item, isActive, onHover }: TLandingSlider) => {
   const { t } = useI18n();
@@ -33,11 +33,9 @@ const LandingSliderCard = ({ item, isActive, onHover }: TLandingSlider) => {
     >
       <div className="relative h-48 overflow-hidden bg-muted">
         <ContentThumbnail
-          id={item.id}
           kind={item.kind}
           title={item.title}
           imageUrl={item.imageUrl}
-          category={item.category}
           sizes="(max-width: 640px) 86vw, (max-width: 1024px) 46vw, 320px"
           className="transition duration-700 group-hover:scale-110"
         />

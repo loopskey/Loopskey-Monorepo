@@ -18,9 +18,9 @@ export type CsvExportFieldsFragment = { __typename?: 'CsvExport', filename: stri
 
 export type ProviderPageInfoFieldsFragment = { __typename?: 'ProviderPageInfo', hasNextPage: boolean, nextCursor?: string | null };
 
-export type ProviderEventTableRowFieldsFragment = { __typename?: 'ProviderEventTableRow', id: string, pdu: number, title: string, views: number, status: Types.EventStatus, startDate: string, registrants: number };
+export type ProviderEventTableRowFieldsFragment = { __typename?: 'ProviderEventTableRow', id: string, slug: string, pdu: number, title: string, views: number, status: Types.EventStatus, startDate: string, registrants: number };
 
-export type PaginatedProviderEventsFieldsFragment = { __typename?: 'PaginatedProviderEvents', totalCount: number, pageInfo: { __typename?: 'ProviderPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'ProviderEventTableRow', id: string, pdu: number, title: string, views: number, status: Types.EventStatus, startDate: string, registrants: number }> };
+export type PaginatedProviderEventsFieldsFragment = { __typename?: 'PaginatedProviderEvents', totalCount: number, pageInfo: { __typename?: 'ProviderPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'ProviderEventTableRow', id: string, slug: string, pdu: number, title: string, views: number, status: Types.EventStatus, startDate: string, registrants: number }> };
 
 export type PromotionRequestFieldsFragment = { __typename?: 'PromotionRequest', id: string, note?: string | null, status: Types.PromotionRequestStatus, budget?: number | null, eventId: string, updatedAt: string, createdAt: string, eventTitle: string, providerId: string, rejectReason?: string | null, promotionType: Types.PromotionType };
 
@@ -58,7 +58,7 @@ export type ProviderEventsTableQueryVariables = Types.Exact<{
 }>;
 
 
-export type ProviderEventsTableQuery = { __typename?: 'Query', providerEventsTable: { __typename?: 'PaginatedProviderEvents', totalCount: number, pageInfo: { __typename?: 'ProviderPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'ProviderEventTableRow', id: string, pdu: number, title: string, views: number, status: Types.EventStatus, startDate: string, registrants: number }> } };
+export type ProviderEventsTableQuery = { __typename?: 'Query', providerEventsTable: { __typename?: 'PaginatedProviderEvents', totalCount: number, pageInfo: { __typename?: 'ProviderPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'ProviderEventTableRow', id: string, slug: string, pdu: number, title: string, views: number, status: Types.EventStatus, startDate: string, registrants: number }> } };
 
 export type ProviderPromotionRequestsQueryVariables = Types.Exact<{
   filter?: Types.InputMaybe<Types.ProviderPromotionFilterInput>;
@@ -214,6 +214,7 @@ export const ProviderPageInfoFieldsFragmentDoc = /*#__PURE__*/ new TypedDocument
 export const ProviderEventTableRowFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
     fragment ProviderEventTableRowFields on ProviderEventTableRow {
   id
+  slug
   pdu
   title
   views
@@ -238,6 +239,7 @@ export const PaginatedProviderEventsFieldsFragmentDoc = /*#__PURE__*/ new TypedD
 }
 fragment ProviderEventTableRowFields on ProviderEventTableRow {
   id
+  slug
   pdu
   title
   views
@@ -451,6 +453,7 @@ export const ProviderEventsTableDocument = /*#__PURE__*/ new TypedDocumentString
 }
 fragment ProviderEventTableRowFields on ProviderEventTableRow {
   id
+  slug
   pdu
   title
   views

@@ -5,7 +5,9 @@ import { EventEntity } from "@events/entities/event.entity";
 @ObjectType(EventGqlObjectNames.EVENT_PAGE_INFO)
 export class EventPageInfoEntity {
   @Field() hasNextPage: boolean;
+  @Field() hasPreviousPage: boolean;
   @Field(() => String, { nullable: true }) nextCursor?: string | null;
+  @Field(() => String, { nullable: true }) previousCursor?: string | null;
 }
 
 @ObjectType(EventGqlObjectNames.PAGINATED_EVENTS)

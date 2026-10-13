@@ -4,13 +4,13 @@ import { useEffect, useMemo, useState } from "react";
 import { TStaticInfoPageContent } from "@/types/pages.types";
 import { useI18n } from "@/hooks/useI18n";
 
-import * as U from "@/utils/static-info-page.utils";
+import * as U from "@/utils/static-info-outline";
 
 export const useStaticInfoPage = (pageKey: U.PageKey, trackActive: boolean) => {
   const { t, traw } = useI18n();
   const content = traw<TStaticInfoPageContent>(
     `staticPages.${pageKey}`,
-    U.getStaticPageContent(pageKey),
+    U.EMPTY_STATIC_INFO_PAGE,
   );
   const outline = useMemo(() => U.buildStaticInfoOutline(content), [content]);
   const [activeSectionId, setActiveSectionId] = useState<string>(

@@ -18,6 +18,10 @@ exist only so a user gets a readable message instead of a constraint violation.
 | At most one committed refresh rotation                                                                   | `AuthSession.rotationCounter` compare-and-swap                                                                                                                                                                                                       |
 | An OTP is consumed once                                                                                  | Conditional `deleteMany` on the verified code hash, in the same transaction as the user create                                                                                                                                                       |
 | The OTP attempt limit holds                                                                              | `UPDATE … SET attempts = attempts + 1 WHERE attempts < maxAttempts` before verification                                                                                                                                                              |
+| Only one password-reset or email-change OTP is outstanding, and its cooldown holds | `pg_advisory_xact_lock` per user and purpose, a cooldown check, and the supersession of older codes, all in one transaction |
+| The reset and email-change OTP attempt limit holds | `UPDATE "OtpCode" SET attempts = attempts + 1 WHERE id = (latest unconsumed) AND attempts < maxAttempts AND expiresAt > now()` before the hash is compared |
+| A reset code changes the password once | Conditional `updateMany` on `consumedAt: null` with `count === 1`, in the same transaction as the password write and the session revocation |
+| A rate-limit window never over-admits under concurrent requests | One `INSERT … ON CONFLICT DO UPDATE` on `RateLimitBucket` that resets or increments the window in the same statement |
 | One active cart per user                                                                                 | Partial unique index `Cart_userId_active_key`                                                                                                                                                                                                        |
 | One content-linked PDU activity per user                                                                 | Partial unique index `PDUActivity_user_content_key`                                                                                                                                                                                                  |
 | One rating aggregate per recomputation                                                                   | `pg_advisory_xact_lock` held across aggregate and publish                                                                                                                                                                                            |
@@ -48,6 +52,20 @@ exist only so a user gets a readable message instead of a constraint violation.
 | Concurrent directory syncs for one professional converge                                                 | `ProfessionalAssociationRequirementLink` is written with `createMany … skipDuplicates`, not a find-then-create upsert                                                                                                                                |
 | Publish and permanent delete cannot both win for one requirement                                         | The delete transaction takes `FOR UPDATE` on the association-scoped requirement row and then conditionally deletes only `DRAFT`; publish conditionally updates only `DRAFT`, so PostgreSQL serialises the two transitions and exactly one can commit |
 | A requirement only ever targets its own association's active members                                     | `updateAudience` takes `FOR SHARE … ORDER BY id` on the selected `AssociationMember` or `AssociationGroup` rows, filtered by `associationId`, inside the transaction that replaces the targets; a deactivation racing the save either waits behind the lock or is seen by it, and a refusal rolls the `deleteMany` back so no partial audience survives |
+| A SEO override is never silently overwritten | `updateMany` on `CourseSeo`/`EventSeo`/`PodcastSeo`/`YouTubeChannelSeo` naming the `version` the editor read, `count === 1`; the unique `(content, locale)` index arbitrates two first saves and is recovered as the same conflict |
+| A social image still in use is never deleted | `ContentSocialImage` is referenced by RESTRICT foreign keys; retirement deletes the row first and removes the file only when that succeeds |
+| Hiding a page from search converges | `updateMany` on `excludeFromIndex` naming the opposite value, so repeating the call changes and audits nothing |
+| One public slug never points at two records in a route namespace | `ContentUrlClaim` holds every current and retired slug under a unique `(namespace, slug)` index. The `content_url_claim_sync` trigger on `Course`, `Event`, `Podcast` and `YouTubeChannel` writes it in the same statement as any insert or slug update, so create, import, ingestion and the slug editor all claim through one door; a slug claimed by another record raises a unique violation named after the content table's own slug constraint, which every existing caller already maps |
+| A record has exactly one current URL | The partial unique index `ContentUrlClaim_current_target_key` allows one `isCurrent` row per `(namespace, targetId)`; the trigger retires the old claim before activating the new one, so A to B to C and a return to A leave one current row |
+| A slug change cannot overwrite a newer one | `updateMany` naming the slug the editor read and `deletedAt: null`, `count === 1`; losers get `CONTENT_URL_VERSION_CONFLICT`, and a claim taken by another record is recovered outside the aborted transaction as `CONTENT_URL_SLUG_TAKEN` |
+| A topic hub edit never overwrites a newer one | `updateMany` on `TopicHub` naming the `version` the editor read and the status it saw, `count === 1`; the same version guards publishing, so a publish and an edit from one version cannot both commit, and replacing the link list happens in the transaction that won the version |
+| A hub is published only with reviewed copy and a live link | `setStatus` checks the copy and the eligible links first, then writes with the version it checked; any edit bumps the version, so the check cannot go stale before the write. The `TopicHub_published_check` constraint requires `publishedAt` for a published row |
+| A provider's public text changes only on explicit approval | The approval is an `updateMany` on `ProviderPublicProfile` naming `reviewState = SUBMITTED` and the draft version that was submitted; it then snapshots the locked row into `ProviderPublicRevision` and moves `publishedRevision` in the same transaction. Any edit increments `draftVersion` and returns the state to `DRAFT`, so a stale approval matches no row. The public page reads only the revision named by `publishedRevision` |
+| A telemetry event is counted once however often it is sent | `INSERT … ON CONFLICT DO NOTHING RETURNING` on `TelemetryDedupKey` inside the same transaction as the counter increments; only the keys the statement returned are counted, so twenty identical requests at the same instant add one. A failed write rolls the claim back with it, so the retry counts |
+| Telemetry counters never lose an increment or deadlock | One multi-row `INSERT … ON CONFLICT DO UPDATE SET count = count + EXCLUDED.count` per table, rows pre-summed and sorted by the same key in every request, tables always written in the order dedup, vitals, conversions, intake |
+| Telemetry intake is bounded across instances | `RateLimitService.spendAll` against the shared `RateLimitBucket` table, per client address and globally, spent before any aggregate is written; two API processes on one database accept exactly the limit |
+| A registration is counted only when the account exists, and once | An outbox event appended in the transaction that creates the user; the handler claims a dedup key derived from the outbox idempotency key before incrementing, so a redelivery adds nothing and a rolled-back registration leaves no event |
+| A withdrawal cannot be undone by a pending approval | Withdrawal conditionally moves `PUBLISHED` to `WITHDRAWN` and, in the same transaction, cancels a pending submission; an approval that was already waiting re-evaluates its predicate against the new row and matches nothing. `ProviderPublicProfile_published_check` requires a revision for a live profile |
 
 ## Decisions
 
@@ -145,6 +163,95 @@ are simply ignored by code that does not read it.
 Both partial indexes are unmanaged — Prisma cannot express them in
 `schema.prisma`. `prisma migrate dev` reports them as drift and offers to drop
 them. Do not accept; the model docstrings say so too.
+
+## Content slug registry
+
+`20261011170323_content_url_claims` creates `ContentUrlClaim`, backfills one
+current claim per existing course, event, podcast and YouTube channel with the
+stored slug unchanged, and installs the synchronising triggers. Slugs are
+already unique inside each content table, so the backfill cannot collide.
+Audit before deploying:
+
+```sql
+SELECT 'COURSE' AS kind, COUNT(*) FROM "Course"
+UNION ALL SELECT 'EVENT', COUNT(*) FROM "Event"
+UNION ALL SELECT 'PODCAST', COUNT(*) FROM "Podcast"
+UNION ALL SELECT 'YOUTUBE', COUNT(*) FROM "YouTubeChannel";
+```
+
+After the migration every kind's claim count must equal these counts, and no
+record may lack a current claim:
+
+```sql
+SELECT c."id" FROM "Course" c
+LEFT JOIN "ContentUrlClaim" u
+  ON u."namespace" = 'COURSE' AND u."targetId" = c."id" AND u."isCurrent"
+WHERE u."id" IS NULL;
+```
+
+Rollback disables editing by removing the `changeContentSlug` resolver. Keep the
+table and triggers: dropping them would let a retired path be taken over and
+turn every old link into a 404. Claims are never deleted, including for a
+soft-deleted or hard-deleted record.
+
+## Topic hubs and provider profiles
+
+`20261012051007_topic_hubs_and_provider_profiles` is additive. It adds
+`TopicHub`, `TopicHubTranslation`, `TopicHubReference`, `ProviderPublicProfile`
+and `ProviderPublicRevision`, two enum values for the URL namespace registry,
+seven audit actions, two CHECK constraints and one slug-claim trigger per new
+table. It backfills nothing: no hub or profile exists until an administrator or a
+provider creates one, and nothing is published automatically.
+
+Check after deploying:
+
+```sql
+SELECT tgname FROM pg_trigger
+WHERE tgname IN ('TopicHub_content_url_claim', 'ProviderPublicProfile_content_url_claim');
+
+SELECT count(*) FROM "ProviderPublicProfile"
+WHERE "status" = 'PUBLISHED' AND "publishedRevision" IS NULL;
+```
+
+The second query must return 0. Rollback hides the public routes and keeps every
+draft, revision and slug claim; never drop the tables, because a retired hub or
+provider path would then be free for another page to take.
+
+
+## Search telemetry
+
+`20261012124743_telemetry_aggregates` is additive. It adds ten enums and the
+tables `TelemetryVitalBucket`, `TelemetryConversionDaily`,
+`TelemetryIntakeDaily` and `TelemetryDedupKey`, plus a positive-count CHECK on
+each counter table. It backfills nothing and collection is off until
+`TELEMETRY_ENABLED=true`.
+
+What is stored, the limits and the privacy decision are in
+`docs/seo/telemetry-and-privacy.md`. Operationally:
+
+- Intake never fails a request. A disabled switch, a rate limit, a sampling
+  decision and a storage error all answer `accepted`/`dropped`. Drops are
+  counted by outcome in `TelemetryIntakeDaily` on a best-effort basis, so under
+  heavy load the counters can undercount; the accepted counts and the
+  aggregates are exact, and nothing is counted while collection is disabled.
+- Retention runs inside each API instance every hour: dedup keys after 24 hours,
+  daily aggregates after 395 days, 5000 rows per delete and at most twenty
+  batches per table per sweep. Two instances sweeping at once are harmless.
+- Check after deploying:
+
+```sql
+SELECT count(*) FROM "TelemetryDedupKey"
+WHERE "seenAt" < now() - interval '48 hours';
+
+SELECT "outcome", sum("count") FROM "TelemetryIntakeDaily"
+WHERE "day" >= current_date - 1 GROUP BY "outcome";
+```
+
+The first query should return 0 once the sweep has run. A growing
+`SINK_FAILED` or `RATE_LIMITED` share in the second means the sink or a client
+needs attention. To stop collection, set `TELEMETRY_ENABLED=false` on the API.
+Never drop the tables to roll back; the data is aggregate and harmless to keep.
+
 
 ## Reconciling an event's attendee count
 
@@ -317,6 +424,18 @@ correlation ID and non-sensitive identifiers only.
 | `Association lifecycle notifications recorded`         | Lifecycle deliveries were written, with how many were queued, suppressed, or already existed              |
 | `Association lifecycle delivery skipped at send time`  | A queued lifecycle email was no longer applicable, or its recipient had no active verified address        |
 | `Association learning content recipients synchronised` | A learning-content audience resync finished, with targeted, untargeted and announced counts               |
+| `Content slug changed` | An editor changed a slug; the line carries the kind, actor, content id and correlation ID |
+| `Content slug already claimed` | A requested slug belongs to another record, current or retired |
+| `Content slug version conflict` | The slug changed since the editor read it, or two edits raced |
+| `Topic hub status changed` | An administrator published or withdrew a hub; the line carries the hub id, both states and the correlation ID |
+| `Topic hub has no eligible links` | A published hub was read while none of its links was visible; an editorial review signal |
+| `Provider profile submitted` | A provider submitted a draft for review |
+| `Provider profile reviewed` | An administrator approved or rejected a submitted draft |
+| `Provider profile edit lost a version race` | A provider saved from a draft version that was no longer current |
+| `Telemetry sink write failed` | A telemetry batch could not be stored and was dropped; the line carries the correlation ID, the error name and the event count, never an event id or a dimension |
+| `Telemetry sink was slow` | A batch took longer than 750 ms to store; an early sign the aggregate tables or the database need attention |
+| `Telemetry retention sweep finished` | The hourly sweep removed expired dedup keys or aggregates; the line carries the two counts |
+| `Telemetry retention sweep failed` | The sweep threw; expired rows stay until the next hour and nothing else is affected |
 
 Expected conflicts are logged at `warn` and answered with domain error codes.
 None of them are internal server failures, and none should be alerted on

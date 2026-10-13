@@ -1,7 +1,61 @@
 import type { NextConfig } from "next";
 
+import { isIndexableDeployment } from "./src/lib/site/deployment-env";
+import {
+  NOINDEX_DIRECTIVE,
+  ROBOTS_TAG_HEADER,
+  noindexHeaderSources,
+} from "./src/lib/site/route-policy";
+import { securityHeaders } from "./src/lib/site/security-headers";
+import {
+  CANONICAL_HOST_ALIASES,
+  IS_HTTPS_REDIRECT_ENABLED,
+  SITE_ORIGIN,
+} from "./src/lib/site/site-origin";
+
+type Redirects = Awaited<ReturnType<NonNullable<NextConfig["redirects"]>>>;
+
 const ONE_DAY_SECONDS = 60 * 60 * 24;
 const ONE_WEEK_SECONDS = ONE_DAY_SECONDS * 7;
+
+const EVERY_PATH = "/:path*";
+
+const ROBOTS_TAG = { key: ROBOTS_TAG_HEADER, value: NOINDEX_DIRECTIVE };
+
+const canonicalHostRedirects = (): Redirects =>
+  CANONICAL_HOST_ALIASES.map((host) => ({
+    source: EVERY_PATH,
+    has: [{ type: "host", value: host }],
+    destination: `${SITE_ORIGIN}${EVERY_PATH}`,
+    permanent: true,
+  }));
+
+const forwardedHttpRedirects = (): Redirects =>
+  IS_HTTPS_REDIRECT_ENABLED
+    ? [
+        {
+          source: EVERY_PATH,
+          has: [{ type: "header", key: "x-forwarded-proto", value: "http" }],
+          destination: `${SITE_ORIGIN}${EVERY_PATH}`,
+          permanent: true,
+        },
+      ]
+    : [];
+
+const englishPrefixRedirects = (): Redirects => [
+  { source: "/en", destination: "/", permanent: true },
+  { source: "/en/:path*", destination: "/:path*", permanent: true },
+];
+
+const UNLOCALIZED_ROOTS = ["api", "_next", "sitemaps", "en", "fr"];
+
+const englishRouteRewrites = () => [
+  { source: "/", destination: "/en" },
+  {
+    source: `/:root((?!(?:${UNLOCALIZED_ROOTS.join("|")})(?:/|$))[^./]+)/:rest*`,
+    destination: "/en/:root/:rest*",
+  },
+];
 
 const nextConfig: NextConfig = {
   // Produce a minimal self-contained server bundle for the production image.
@@ -52,8 +106,21 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ["lucide-react", "recharts"],
   },
 
+  async redirects() {
+    return [
+      ...canonicalHostRedirects(),
+      ...forwardedHttpRedirects(),
+      ...englishPrefixRedirects(),
+    ];
+  },
+
+  async rewrites() {
+    return { beforeFiles: englishRouteRewrites() };
+  },
+
   async headers() {
     return [
+      { source: EVERY_PATH, headers: securityHeaders(SITE_ORIGIN) },
       {
         // Static assets served straight from /public. Next only sets immutable
         // caching for its own content-hashed output under /_next/static, so
@@ -66,6 +133,12 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      ...(isIndexableDeployment
+        ? noindexHeaderSources().map((source) => ({
+            source,
+            headers: [ROBOTS_TAG],
+          }))
+        : [{ source: EVERY_PATH, headers: [ROBOTS_TAG] }]),
     ];
   },
 };

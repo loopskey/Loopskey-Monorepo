@@ -345,6 +345,10 @@
     }
   },
   "common": {
+    "languageSwitcher": {
+      "label": "Language",
+      "unavailable": "Not available in this language"
+    },
     "no": "No",
     "all": "All",
     "yes": "Yes",
@@ -389,6 +393,10 @@
     "required": "required"
   },
   "servicesPage": {
+    "meta": {
+      "title": "Services | LoopsKey",
+      "description": "LoopsKey helps professionals, organizations, and content providers discover the right learning opportunities, build AI-powered development roadmaps, manage CPD compliance, and turn professional growth into a measurable system."
+    },
     "common": {
       "bookConsultation": "Book consultation"
     },
@@ -2649,6 +2657,7 @@
       "emailAlreadyExists": "This email is already in use.",
       "roleNotAllowedForRegister": "Direct registration is not available for the selected role.",
       "otpResendTooSoon": "Please wait before requesting another verification code.",
+      "rateLimited": "Too many attempts. Please wait a few minutes and try again.",
       "emailSendFailed": "We could not send the email. Please try again.",
       "passwordTooObvious": "Choose a less predictable password.",
       "passwordsDoNotMatch": "The new password and confirmation do not match.",
@@ -2890,6 +2899,24 @@
     "loggingOut": "Logging out..."
   },
   "content": {
+    "meta": {
+      "title": "Explore learning content | LoopsKey",
+      "description": "Browse courses, events, podcasts and YouTube channels from verified providers, and filter by category, format and CPD credits.",
+      "tabs": {
+        "events": {
+          "title": "Professional development events | LoopsKey",
+          "description": "Browse workshops, conferences and webinars from verified providers, and filter by category and format."
+        },
+        "podcasts": {
+          "title": "Professional learning podcasts | LoopsKey",
+          "description": "Listen to professional learning podcasts from verified providers and filter by category."
+        },
+        "youtube": {
+          "title": "Professional learning YouTube channels | LoopsKey",
+          "description": "Discover YouTube channels for professional learning from verified providers and filter by category."
+        }
+      }
+    },
     "hero": {
       "title": "Explore learning content",
       "count": {
@@ -2920,20 +2947,18 @@
       "eventType": "Event type",
       "searchPlaceholder": "Search learning content...",
       "reset": "Reset filters",
-      "all": "All",
-      "open": "Filters",
-      "sheetDescription": "Refine the list using the options below.",
-      "showResults": "Show results",
-      "optionsLoading": "Loading options…",
+      "submit": "Search",
       "optionsError": "Options unavailable. Retry"
     },
     "pagination": {
       "page": "Page {{page}}",
       "total": "{{total}} total",
       "previous": "Previous",
-      "next": "Next"
+      "next": "Next",
+      "label": "Pagination"
     },
     "card": {
+      "originalLanguage": "Original language",
       "free": "Free",
       "viewDetails": "View details",
       "professionals": "{{count}} professionals",
@@ -2947,6 +2972,23 @@
     "empty": {
       "title": "No content found",
       "description": "Try changing your search term or resetting the filters."
+    },
+    "navigation": {
+      "loading": "Loading…"
+    },
+    "results": {
+      "heading": "Results"
+    },
+    "notice": {
+      "invalid": {
+        "title": "This link is not valid",
+        "description": "Some options in this address are not recognised. Start again from the full list."
+      },
+      "expired": {
+        "title": "This page is no longer available",
+        "description": "The list changed after this link was created, so we cannot continue from that point. Start again from the beginning."
+      },
+      "restart": "Start again"
     },
     "enums": {
       "courseCategory": {
@@ -3034,8 +3076,17 @@
   },
   "contentDetails": {
     "common": {
+      "notFoundDescription": "This content may have been removed or is not published.",
+      "variantMissing": "This page is not available in French.",
+      "viewOriginal": "View the original version",
+      "originalLanguage": "Original language: {{language}}",
+      "childrenOriginal": "Episodes and videos are shown in their original language.",
       "backToContent": "Back to content",
+      "breadcrumb": "Breadcrumb",
       "notFound": "Content not found",
+      "unavailableTitle": "This page is temporarily unavailable",
+      "unavailableDescription": "We could not load this content right now. Please try again in a moment.",
+      "retry": "Try again",
       "free": "Free",
       "price": "Price",
       "minutes": "{{count}} min"
@@ -3167,6 +3218,15 @@
     }
   },
   "landing": {
+    "topicGuides": {
+      "title": "Topic guides",
+      "subtitle": "Start with curated guidance, then explore the learning it recommends.",
+      "read": "Read the guide"
+    },
+    "meta": {
+      "title": "LoopsKey — AI-powered professional learning and CPD tracking",
+      "description": "Discover courses, events, podcasts and YouTube channels, build an AI-powered development roadmap, and track CPD and PDU compliance in one place."
+    },
     "learningHub": {
       "badge": "Featured learning hub",
       "title": "Suggested For you",
@@ -3757,8 +3817,6 @@
       "browseAll": "Browse All",
       "viewAll": "View All",
       "continue": "Continue",
-      "enrollNow": "Enroll Now",
-      "enrolled": "You have been enrolled successfully.",
       "pduOverTime": "PDUs Over Time",
       "pduOverTimeDescription": "Monthly accumulation of your approved professional development units.",
       "pdusByCategory": "PDUs by Category",
@@ -3933,7 +3991,6 @@
       "removed": "Removed from wishlist.",
       "untitled": "Untitled content",
       "savedAt": "Saved at",
-      "viewDetails": "View details",
       "contentTitle": "{{type}} item #{{id}}"
     },
     "cpdPduTracker": {
@@ -4628,6 +4685,36 @@
     }
   },
   "providerDashboard": {
+    "translations": {
+      "open": "Translations",
+      "title": "Public translations",
+      "description": "Write the French or English version of “{{title}}”. A translation is public only after you publish it.",
+      "language": "Translation language",
+      "fields": {
+        "title": "Title",
+        "description": "Description"
+      },
+      "status": {
+        "none": "No translation saved yet.",
+        "draft": "Draft, version {{version}}. Not public.",
+        "published": "Published, version {{version}}."
+      },
+      "save": "Save translation",
+      "publish": "Publish",
+      "unpublish": "Unpublish",
+      "reload": "Reload latest version",
+      "retry": "Try again",
+      "loadFailed": "We could not load the translations.",
+      "feedback": {
+        "saved": "Translation saved.",
+        "published": "Translation published.",
+        "unpublished": "Translation unpublished.",
+        "conflict": "Someone else changed this translation. Reload the latest version before saving again.",
+        "incomplete": "Complete the title and description before publishing.",
+        "blank": "The title and description cannot be empty.",
+        "failed": "The change could not be saved. Please try again."
+      }
+    },
     "sidebar": {
       "myGoals": "My Goals",
       "settings": "Settings",
@@ -4762,6 +4849,7 @@
         "cancelled": "Cancelled"
       },
       "table": {
+        "translations": "Translations",
         "event": "Event",
         "date": "Date",
         "status": "Status",
@@ -7787,6 +7875,458 @@
         "COURSE": "Courses",
         "PODCAST": "Podcasts",
         "YOUTUBE": "YouTube"
+      }
+    }
+  },
+  "topicHub": {
+    "badge": "Topic guide",
+    "guidanceHeading": "How to choose",
+    "linksHeading": "Learning to explore",
+    "linksIntro": "A selection of published courses, events, podcasts and channels chosen for this topic.",
+    "empty": "None of the selected learning is available right now. Browse the full catalog for current options.",
+    "browseCatalog": "Browse the full catalog",
+    "browseCategory": "See more {{category}} learning",
+    "updated": "Last updated {{date}}",
+    "partOf": "Topic guide",
+    "metaFallback": "A curated guide to professional learning on LoopsKey.",
+    "home": "Topic guides"
+  },
+  "providerProfile": {
+    "badge": "Learning provider",
+    "aboutHeading": "About {{name}}",
+    "website": "Visit website",
+    "linksHeading": "Find them elsewhere",
+    "contentHeading": "Published learning",
+    "contentEmpty": "This provider has no published learning right now.",
+    "providedBy": "Provided by",
+    "metaFallback": "Learning provider profile on LoopsKey.",
+    "logoAlt": "{{name}} logo",
+    "updated": "Last updated {{date}}"
+  },
+  "topicHubAdmin": {
+    "tab": "Topic guides",
+    "title": "Topic guides",
+    "description": "Curate public guidance pages. A guide goes live only with reviewed copy and at least one eligible link, and nothing is published automatically.",
+    "new": "New topic guide",
+    "empty": "No topic guides yet.",
+    "loadFailed": "We could not load the topic guides.",
+    "retry": "Try again",
+    "edit": "Edit",
+    "viewPublic": "View public page",
+    "links": "{{eligible}} of {{total}} links eligible",
+    "needsReview": "Needs review: no eligible links",
+    "status": {
+      "DRAFT": "Draft",
+      "PUBLISHED": "Published",
+      "WITHDRAWN": "Withdrawn"
+    },
+    "editor": {
+      "createTitle": "New topic guide",
+      "editTitle": "Edit topic guide",
+      "description": "Plain text only. Separate paragraphs with a blank line.",
+      "language": "Language",
+      "slug": "Address slug",
+      "slugHint": "Lowercase letters, numbers and single hyphens. It cannot be reused later.",
+      "title": "Title",
+      "introduction": "Introduction",
+      "guidance": "Guidance",
+      "category": "Related category",
+      "noCategory": "No category",
+      "sections": "Extra sections",
+      "sectionHeading": "Section heading",
+      "sectionBody": "Section text",
+      "addSection": "Add a section",
+      "removeSection": "Remove section {{index}}",
+      "references": "Learning links",
+      "referencesHint": "Up to {{max}} published items. Items that are not published stay hidden from visitors.",
+      "kind": "Content type",
+      "referenceSlug": "Content slug",
+      "addReference": "Add link",
+      "removeReference": "Remove {{title}}",
+      "moveUp": "Move {{title}} up",
+      "moveDown": "Move {{title}} down",
+      "eligible": "Visible",
+      "notEligible": "Not visible",
+      "lookupFailed": "No published item matches that slug.",
+      "counter": "{{count}} of {{max}} characters",
+      "save": "Save",
+      "publish": "Publish",
+      "withdraw": "Withdraw",
+      "publishFrench": "Publish French version",
+      "unpublishFrench": "Unpublish French version",
+      "frenchPublished": "The French version is published.",
+      "frenchDraft": "The French version is a private draft.",
+      "frenchMissing": "No French version saved yet.",
+      "hideFromSearch": "Hide from search engines",
+      "allowIndexing": "Allow indexing",
+      "excluded": "Hidden from search engines.",
+      "indexed": "Open to search engines.",
+      "version": "Version {{version}}",
+      "close": "Close",
+      "kinds": {
+        "COURSE": "Course",
+        "EVENT": "Event",
+        "PODCAST": "Podcast",
+        "YOUTUBE": "YouTube channel"
+      }
+    },
+    "feedback": {
+      "saved": "Topic guide saved.",
+      "published": "Topic guide published.",
+      "withdrawn": "Topic guide withdrawn.",
+      "frenchPublished": "French version published.",
+      "frenchUnpublished": "French version unpublished.",
+      "indexed": "The guide can be indexed again.",
+      "excluded": "The guide now asks search engines not to index it.",
+      "conflict": "Someone else changed this guide. Reload the latest version before saving again.",
+      "invalid": "One of the fields is empty, too long, contains markup or is not allowed.",
+      "incomplete": "Add a fuller introduction and guidance before publishing.",
+      "noLinks": "Add at least one published item before publishing.",
+      "invalidState": "That change is not possible in the current state.",
+      "slugTaken": "That address is used or was used before. Choose another.",
+      "notFound": "This guide no longer exists.",
+      "forbidden": "Only administrators can manage topic guides.",
+      "failed": "We could not complete that. Try again."
+    },
+    "reload": "Reload latest version"
+  },
+  "providerPublicProfile": {
+    "tab": "Public profile",
+    "title": "Public profile",
+    "description": "A separate public page for your organization. Nothing from your account or settings is shown, and changes go live only after an administrator approves them.",
+    "loadFailed": "We could not load your public profile.",
+    "retry": "Try again",
+    "status": {
+      "none": "Not created yet",
+      "draft": "Private draft",
+      "submitted": "Awaiting review",
+      "rejected": "Changes requested",
+      "published": "Published",
+      "publishedChanges": "Published, newer draft not yet approved",
+      "withdrawn": "Withdrawn"
+    },
+    "fields": {
+      "displayName": "Public name",
+      "biography": "About your organization",
+      "website": "Website",
+      "links": "More links",
+      "linkLabel": "Link label",
+      "linkUrl": "Link address",
+      "logo": "Logo"
+    },
+    "hints": {
+      "displayName": "Shown as the page title. It is not copied from your account.",
+      "biography": "Plain text. Describe what you offer in your own words.",
+      "website": "Only http and https addresses are accepted.",
+      "counter": "{{count}} of {{max}} characters",
+      "links": "Up to {{max}} links.",
+      "logo": "JPEG, PNG or WebP, up to {{size}} MB. It appears publicly once approved."
+    },
+    "actions": {
+      "save": "Save draft",
+      "submit": "Submit for review",
+      "withdraw": "Withdraw public page",
+      "addLink": "Add a link",
+      "removeLink": "Remove link {{index}}",
+      "uploadLogo": "Upload logo",
+      "replaceLogo": "Replace logo",
+      "removeLogo": "Remove logo",
+      "viewPublic": "View public page",
+      "reload": "Reload latest version"
+    },
+    "reviewNote": "Reviewer note",
+    "requirements": "To submit, add a public name and a biography of at least {{min}} characters.",
+    "publicAddress": "Public address",
+    "feedback": {
+      "saved": "Draft saved. It stays private until approved.",
+      "submitted": "Submitted for review.",
+      "withdrawn": "Your public page was withdrawn.",
+      "logoUploaded": "Logo uploaded. Save the draft to use it.",
+      "conflict": "This profile changed since you opened it. Reload the latest version before saving again.",
+      "invalid": "One of the fields is empty, too long, contains markup or is not an allowed address.",
+      "incomplete": "Add a public name and a longer biography before submitting.",
+      "logoMissing": "That logo is no longer available. Upload it again.",
+      "invalidState": "That is not possible in the current state.",
+      "forbidden": "You cannot change this profile.",
+      "failed": "We could not complete that. Try again."
+    }
+  },
+  "providerProfileReview": {
+    "tab": "Provider profiles",
+    "title": "Provider profiles",
+    "description": "Review the public pages providers submit. A profile goes live only when you approve the exact version submitted.",
+    "loadFailed": "We could not load the provider profiles.",
+    "retry": "Try again",
+    "empty": "No provider profiles match this filter.",
+    "filters": {
+      "all": "All",
+      "SUBMITTED": "Awaiting review",
+      "REJECTED": "Changes requested",
+      "APPROVED": "Approved",
+      "DRAFT": "Drafts"
+    },
+    "review": {
+      "SUBMITTED": "Awaiting review",
+      "REJECTED": "Changes requested",
+      "APPROVED": "Approved",
+      "DRAFT": "Draft"
+    },
+    "visibility": {
+      "UNPUBLISHED": "Not public",
+      "PUBLISHED": "Public",
+      "WITHDRAWN": "Withdrawn"
+    },
+    "fields": {
+      "provider": "Provider",
+      "name": "Public name",
+      "biography": "Biography",
+      "website": "Website",
+      "links": "Links",
+      "logo": "Logo",
+      "none": "None",
+      "note": "Note for the provider",
+      "version": "Draft version {{version}}"
+    },
+    "actions": {
+      "approve": "Approve and publish",
+      "reject": "Request changes",
+      "withdraw": "Withdraw from public",
+      "viewPublic": "View public page",
+      "hideFromSearch": "Hide from search engines",
+      "allowIndexing": "Allow indexing"
+    },
+    "feedback": {
+      "approved": "Profile approved and published.",
+      "rejected": "Changes requested.",
+      "withdrawn": "Profile withdrawn.",
+      "indexed": "The profile can be indexed again.",
+      "excluded": "The profile now asks search engines not to index it.",
+      "conflict": "The draft changed after it was submitted. Reload the list and review the latest version.",
+      "invalid": "The note is too long or contains markup.",
+      "invalidState": "That is not possible in the current state, or the provider account is not active.",
+      "notFound": "This profile no longer exists.",
+      "failed": "We could not complete that. Try again."
+    }
+  },
+  "searchHealth": {
+    "tab": "Search health",
+    "title": "Search health",
+    "description": "Real-visitor page speed and anonymous conversion counts, grouped by page template, device and language. A segment is rated only once it has enough page loads.",
+    "window": "Reporting window",
+    "lastDays": "Last {{count}} days",
+    "loading": "Loading the report",
+    "loadFailed": "We could not load the search health report.",
+    "retry": "Try again",
+    "collectionOff": "Collection is off in this environment",
+    "collectionOffHint": "Nothing is being measured here, so the tables below stay empty. Turn collection on only after the decision recorded in the release checklist.",
+    "coverage": "{{withData}} of {{days}} days in this window have page speed data.",
+    "accepted": "{{accepted}} of {{received}} received events were counted.",
+    "sampleFloor": "A segment needs at least {{count}} page loads before it is rated. Below that it reads Not enough data, never a pass.",
+    "resolution": "Percentiles are estimated from fixed buckets, so a value is accurate to its bucket width. Lab results and Search Console field data can differ.",
+    "noVitals": "No page speed samples in this window.",
+    "noConversions": "No conversions were counted in this window.",
+    "noIntake": "No telemetry events reached the API in this window.",
+    "conversionsHeading": "Conversions",
+    "intakeHeading": "Collection health",
+    "column": {
+      "template": "Page template",
+      "device": "Device",
+      "locale": "Language",
+      "samples": "Page loads",
+      "p75": "75th percentile",
+      "status": "Status",
+      "event": "Event",
+      "detail": "Detail",
+      "source": "Traffic source",
+      "count": "Count"
+    },
+    "status": {
+      "GOOD": "Good",
+      "NEEDS_IMPROVEMENT": "Needs improvement",
+      "POOR": "Poor",
+      "INSUFFICIENT_DATA": "Not enough data"
+    },
+    "metric": {
+      "LCP": "Largest Contentful Paint",
+      "INP": "Interaction to Next Paint",
+      "CLS": "Cumulative Layout Shift"
+    },
+    "device": {
+      "MOBILE": "Mobile",
+      "DESKTOP": "Desktop"
+    },
+    "locale": {
+      "EN": "English",
+      "FR": "French",
+      "UNKNOWN": "Unknown"
+    },
+    "template": {
+      "HOME": "Home",
+      "CONTENT_CATALOG": "Content catalog",
+      "COURSE_DETAIL": "Course page",
+      "EVENT_DETAIL": "Event page",
+      "PODCAST_DETAIL": "Podcast page",
+      "YOUTUBE_DETAIL": "YouTube channel page",
+      "TOPIC_HUB": "Topic guide",
+      "PROVIDER_PROFILE": "Provider profile",
+      "ABOUT": "About",
+      "CONTACT": "Contact",
+      "FAQ": "FAQ",
+      "SERVICES": "Services",
+      "SOLUTIONS": "Solutions pages",
+      "COMPANY": "Company pages",
+      "SUPPORT": "Support pages",
+      "LEGAL": "Legal pages"
+    },
+    "event": {
+      "CATALOG_DETAIL_OPEN": "Content page opened",
+      "EXTERNAL_CONTENT_ACTION": "External content link clicked",
+      "REGISTRATION_START": "Registration started",
+      "REGISTRATION_COMPLETED": "Registration completed"
+    },
+    "kind": {
+      "COURSE": "Course",
+      "EVENT": "Event",
+      "PODCAST": "Podcast",
+      "YOUTUBE": "YouTube channel"
+    },
+    "role": {
+      "PROFESSIONAL": "Professional",
+      "PROVIDER": "Provider"
+    },
+    "attribution": {
+      "DIRECT": "Direct",
+      "ORGANIC_SEARCH": "Organic search",
+      "SOCIAL": "Social",
+      "REFERRAL": "Other website",
+      "INTERNAL": "Within the site",
+      "UNATTRIBUTED": "Not attributed"
+    },
+    "intakeKind": {
+      "VITAL": "Page speed",
+      "CONVERSION": "Conversions"
+    },
+    "outcome": {
+      "ACCEPTED": "Counted",
+      "DUPLICATE": "Duplicate",
+      "INVALID": "Rejected as invalid",
+      "RATE_LIMITED": "Rate limited",
+      "SAMPLED_OUT": "Sampled out",
+      "DISABLED": "Collection off",
+      "SINK_FAILED": "Storage failed"
+    }
+  },
+  "contentSeo": {
+    "open": "Search and sharing",
+    "title": "Search and sharing",
+    "description": "Adjust how “{{title}}” appears in search results and when it is shared. Empty fields use the text generated from the page.",
+    "loadFailed": "We could not load the search and sharing settings.",
+    "retry": "Try again",
+    "language": "Language",
+    "fields": {
+      "title": "Search title",
+      "description": "Search description",
+      "image": "Share image",
+      "imageAlt": "Image description (alt text)"
+    },
+    "hints": {
+      "text": "Shorter text is usually easier to scan. How much is shown depends on the device and the search.",
+      "counter": "{{count}} of {{max}} characters"
+    },
+    "image": {
+      "help": "JPEG, PNG or WebP, up to {{size}} MB. Without an image the generated card is shared.",
+      "choose": "Upload image",
+      "replace": "Replace image",
+      "remove": "Remove image",
+      "uploading": "Uploading…",
+      "none": "No image selected."
+    },
+    "actions": {
+      "save": "Save",
+      "reset": "Use generated text",
+      "reload": "Reload latest version"
+    },
+    "preview": {
+      "title": "Approximate preview",
+      "note": "This is an approximation. Search engines and social networks decide what to display.",
+      "search": "Search result",
+      "share": "Shared link",
+      "generatedCard": "Generated card",
+      "empty": "Nothing to preview yet."
+    },
+    "status": {
+      "none": "No override saved for this language yet.",
+      "saved": "Saved, version {{version}}.",
+      "unsaved": "You have unsaved changes."
+    },
+    "feedback": {
+      "saved": "Search and sharing settings saved.",
+      "uploaded": "Image uploaded. Save to use it.",
+      "conflict": "Someone else changed this language. Reload the latest version before saving again.",
+      "invalid": "One of the fields is too long or not allowed.",
+      "imageMissing": "That image is no longer available. Upload it again.",
+      "imageType": "Use a JPEG, PNG or WebP image.",
+      "imageSize": "That image is too large.",
+      "imageQuota": "Too many unused uploads. Save or wait a day before uploading more.",
+      "forbidden": "You cannot change the search settings of this page.",
+      "failed": "We could not save the settings. Try again.",
+      "indexed": "The page can be indexed by search engines again.",
+      "excluded": "The page now asks search engines not to index it."
+    },
+    "moderation": {
+      "title": "Search engine indexing",
+      "description": "A hidden page stays public but asks search engines not to list it, and it leaves the sitemap. It does not protect confidential content.",
+      "excluded": "This page is hidden from search engines.",
+      "indexed": "This page can be indexed.",
+      "exclude": "Hide from search engines",
+      "include": "Allow indexing"
+    },
+    "url": {
+      "title": "Page address",
+      "description": "The address visitors and search engines use for this page. Changing it is a deliberate action and is separate from the title.",
+      "loadFailed": "We could not load the page address.",
+      "hint": "Lowercase letters, numbers and single hyphens only.",
+      "fields": {
+        "slug": "Address slug"
+      },
+      "preview": {
+        "english": "English address",
+        "french": "French address"
+      },
+      "retired": {
+        "title": "Earlier addresses",
+        "note": "These addresses keep working and send visitors to the current page while it is published."
+      },
+      "warning": "Changing the address is permanent. Existing links to the old address will redirect to the new one, and the old address can never be used for another page.",
+      "confirm": "I understand and want to change the address.",
+      "actions": {
+        "change": "Change address"
+      },
+      "feedback": {
+        "changed": "The address was changed. The old address now redirects here.",
+        "invalid": "Use lowercase letters, numbers and single hyphens. Some words are reserved.",
+        "taken": "That address is already used by another page or was used before. Choose a different one.",
+        "conflict": "The address changed since you opened this window. Reload the latest version before changing it again.",
+        "notFound": "This page no longer exists.",
+        "forbidden": "You cannot change the address of this page.",
+        "failed": "We could not change the address. Try again."
+      }
+    },
+    "admin": {
+      "tab": "Search visibility",
+      "title": "Search visibility",
+      "description": "Look up a published page by its address slug to review how it appears in search and to hide it from search engines.",
+      "kind": "Content type",
+      "slug": "Page slug",
+      "slugPlaceholder": "for example leadership-basics",
+      "find": "Find page",
+      "notFound": "No published page matches that slug.",
+      "found": "Found: {{title}}",
+      "kinds": {
+        "course": "Course",
+        "event": "Event",
+        "podcast": "Podcast",
+        "youtube": "YouTube channel"
       }
     }
   }

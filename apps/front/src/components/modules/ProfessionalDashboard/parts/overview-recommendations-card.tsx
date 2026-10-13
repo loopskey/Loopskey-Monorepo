@@ -1,13 +1,10 @@
 "use client";
 
-import { useEnrollContentMutation } from "@/lib/rtk/endpoints/content-interaction.api";
 import { getOverviewSectionState } from "@/utils/professional-overview.helper";
 import { OverviewCardMessage } from "@modules/ProfessionalDashboard/parts/overview-card";
 import { useCoursesQuery } from "@/lib/rtk/endpoints/course.api";
-import { ContentType } from "@/lib/graphql/base";
 import { GlassCard } from "@elements/glass-card";
 import { useI18n } from "@/hooks/useI18n";
-import { notify } from "@/hooks/notify";
 import { Button } from "@ui/button";
 
 import ContentCardSkeleton from "@modules/Content/ContentCardSkeleton";
@@ -24,7 +21,6 @@ export const OverviewRecommendationsCard = () => {
   const recommendationsQuery = useCoursesQuery({
     pagination: { take: RECOMMENDATION_LIMIT },
   });
-  const [enrollContent, enrollState] = useEnrollContentMutation();
 
   const courses = recommendationsQuery.data?.items ?? [];
   const state = getOverviewSectionState({
@@ -32,19 +28,6 @@ export const OverviewRecommendationsCard = () => {
     isError: recommendationsQuery.isError,
     isEmpty: courses.length === 0,
   });
-
-  const enrollCourse = async (courseId: string) => {
-    try {
-      await enrollContent({
-        contentId: courseId,
-        contentType: ContentType.Course,
-      }).unwrap();
-      notify.success(t("professionalDashboard.overview.enrolled"));
-      void recommendationsQuery.refetch();
-    } catch {
-      notify.error(t("authPages.common.genericError"));
-    }
-  };
 
   return (
     <GlassCard>
@@ -67,7 +50,7 @@ export const OverviewRecommendationsCard = () => {
 
       {state === "loading" ? (
         <div
-          className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3"
+          className="mt-6 grid gap-x-6 gap-y-8 md:grid-cols-2 xl:grid-cols-3"
           aria-hidden
         >
           {Array.from({ length: 3 }).map((_, index) => (
@@ -104,7 +87,7 @@ export const OverviewRecommendationsCard = () => {
       ) : null}
 
       {state === "content" ? (
-        <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-6 grid gap-x-6 gap-y-8 md:grid-cols-2 xl:grid-cols-3">
           {courses.map((course) => (
             <ContentCard
               key={course.id}
@@ -117,7 +100,6 @@ export const OverviewRecommendationsCard = () => {
                 rating: course.rating,
                 imageUrl: course.imageUrl,
                 category: course.category,
-                categoryCode: course.category,
                 description: course.description,
                 metaPrimary: t("content.card.professionals", {
                   count: course.professionals,
@@ -128,16 +110,6 @@ export const OverviewRecommendationsCard = () => {
                     })
                   : null,
               }}
-              action={
-                <Button
-                  radius="lg"
-                  className="w-full"
-                  disabled={enrollState.isLoading}
-                  onClick={() => enrollCourse(course.id)}
-                >
-                  {t("professionalDashboard.overview.enrollNow")}
-                </Button>
-              }
             />
           ))}
         </div>
