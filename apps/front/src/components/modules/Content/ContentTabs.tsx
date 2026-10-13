@@ -38,7 +38,7 @@ const ContentTabs = ({ activeTab }: TContentTabsProps) => {
   return (
     <nav
       aria-label={t("content.tabs.label")}
-      className="grid h-11 w-full grid-cols-4 gap-1 rounded-xl bg-muted p-1 sm:inline-flex sm:h-11 sm:w-auto"
+      className="grid h-11 w-full grid-cols-4 gap-1 rounded-xl p-1 sm:inline-flex sm:h-11 sm:w-auto"
     >
       {CONTENT_TABS.map((tab) => {
         const Icon = TAB_ICON[tab.value];
