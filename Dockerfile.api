@@ -18,7 +18,7 @@ WORKDIR /app
 # The pruned package.json/package-lock.json first, so `npm ci` is cached and
 # only reruns when a dependency actually changes, not on every source edit.
 COPY --from=pruner /app/out/json/ .
-RUN npm ci
+RUN npm ci && mkdir -p apps/api/node_modules
 COPY --from=pruner /app/out/full/ .
 RUN npx prisma generate --schema apps/api/prisma/schema.prisma \
     && npm run build --workspace @loopskey/api-contracts \
@@ -39,6 +39,7 @@ ENV NODE_ENV=production \
 # This is the pruned tree from the stage above — apps/api and packages/
 # api-contracts only, never apps/front's.
 COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/apps/api/node_modules ./apps/api/node_modules
 COPY --from=builder /app/package.json /app/package-lock.json ./
 COPY --from=builder /app/apps/api/package.json ./apps/api/package.json
 COPY --from=builder /app/packages/api-contracts/package.json ./packages/api-contracts/package.json
