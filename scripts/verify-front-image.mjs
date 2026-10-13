@@ -332,7 +332,7 @@ const reconcileSitemap = async (port) => {
     index.status === 200 &&
       (index.headers.get("content-type") ?? "").includes("xml") &&
       /max-age=300\b/.test(index.headers.get("cache-control") ?? ""),
-    `status ${index.status}, ${index.headers.get("cache-control")}`,
+    `status ${index.status} ${index.error ?? ""}, ${index.headers?.get("cache-control")}`,
   );
   const shards = [...index.body.matchAll(/<loc>\s*([^<]+?)\s*<\/loc>/g)].map(
     (match) => decode(match[1]),
@@ -585,15 +585,20 @@ const smokeChecks = async (
 const outageChecks = async (apiContainer, productionPort) => {
   section("Upstream outage");
   docker(["stop", apiContainer]);
-  const index = await request(productionPort, "/sitemap.xml", {
-    timeoutMs: 120_000,
-  });
+  // A transport error (status 0) is the harness failing to reach the
+  // container, not an answer from the app, so it is retried; any HTTP answer
+  // is judged as given.
+  let index = { status: 0 };
+  for (let attempt = 0; attempt < 3 && index.status === 0; attempt += 1)
+    index = await request(productionPort, "/sitemap.xml", {
+      timeoutMs: 120_000,
+    });
   check(
     "the sitemap index is an uncached 503 during an outage",
     index.status === 503 &&
       index.headers.get("cache-control") === "no-store" &&
       index.headers.has("retry-after"),
-    `status ${index.status}, ${index.headers.get("cache-control")}`,
+    `status ${index.status} ${index.error ?? ""}, ${index.headers?.get("cache-control")}`,
   );
   const shard = await request(productionPort, "/sitemaps/courses-1.xml", {
     timeoutMs: 120_000,
