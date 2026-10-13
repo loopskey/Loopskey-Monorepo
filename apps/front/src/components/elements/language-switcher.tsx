@@ -15,7 +15,7 @@ export const LanguageToggleBtn = () => {
 
   if (isRouteLocked) {
     if (isDetailPath(pathname)) return null;
-    return <LanguageLinks />;
+    return <LanguageLinks variant="menu" />;
   }
 
   return (
