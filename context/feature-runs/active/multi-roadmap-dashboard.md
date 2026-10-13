@@ -15,6 +15,8 @@
 - [x] Unenrolling asks for confirmation.
 - [x] The generation status card no longer replaces the roadmaps while a new roadmap is being generated.
 - [x] New copy exists in English and French.
+- [x] Roadmaps without an image show artwork for their category (twelve banners with a path motif and a category glyph) instead of a flat gradient.
+- [x] Wishlist cards without an image show wishlist artwork per content kind (a saved card with a bookmark and heart) instead of the default content artwork.
 - [x] `TabsList` no longer paints a default muted background (separate commit; its only consumer is the dev showcase page).
 
 ## Verification
@@ -27,6 +29,7 @@
 - `npm run build` (apps/front, development environment values) — pass
 - `npm run bundle-report` (apps/front) — pass, budgeted public routes unchanged
 - All of the above, including `bundle-report`, rerun after the final refactor; a refactor had deleted the `createPrismaMock` declaration in the engagement spec, which was restored — pass
+- Category and wishlist artwork: contact-sheet check of all sixteen SVGs in a browser, and the build output contains every new art class — pass; the cards themselves were not re-viewed with the new artwork
 - Browser check of the real `RoadmapCard` on a temporary preview route (six states, selected state, unenroll dialog) — pass
 - Browser check of the live Roadmap tab, generation of a second roadmap, and pagination against a running API — not run, no API or database in this workspace
 - `npm run test:e2e --workspace api` — not run, no isolated PostgreSQL test database in this workspace

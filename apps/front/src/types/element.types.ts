@@ -270,6 +270,8 @@ export type TExternalLearningBtn = {
 
 export type TContentThumbnailKind = "course" | "event" | "podcast" | "youtube";
 
+export type TContentThumbnailVariant = "default" | "wishlist";
+
 export type TContentThumbnailProps = {
   title: string;
   sizes: string;
@@ -277,6 +279,7 @@ export type TContentThumbnailProps = {
   className?: string;
   imageUrl?: string | null;
   kind: TContentThumbnailKind;
+  variant?: TContentThumbnailVariant;
 };
 
 export type TRoadmapCardProps = {

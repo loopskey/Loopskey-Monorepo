@@ -1,6 +1,7 @@
 "use client";
 
 import { RoadmapEnrollmentStatus } from "@/lib/graphql/base";
+import { CourseCategory } from "@/lib/graphql/base";
 import { translateWithFallback } from "@/utils/function-helper";
 import { humanizeEnumValue } from "@/utils/function-helper";
 import { RoadmapMatchTier } from "@/lib/graphql/base";
@@ -17,6 +18,21 @@ import Link from "next/link";
 
 import * as L from "lucide-react";
 import * as A from "@ui/alert-dialog";
+
+const CATEGORY_ART_CLASS_NAME: Record<CourseCategory, string> = {
+  [CourseCategory.Cpd]: "bg-[url('/roadmap-art-cpd.svg')]",
+  [CourseCategory.Other]: "bg-[url('/roadmap-art-other.svg')]",
+  [CourseCategory.Design]: "bg-[url('/roadmap-art-design.svg')]",
+  [CourseCategory.Finance]: "bg-[url('/roadmap-art-finance.svg')]",
+  [CourseCategory.Business]: "bg-[url('/roadmap-art-business.svg')]",
+  [CourseCategory.Education]: "bg-[url('/roadmap-art-education.svg')]",
+  [CourseCategory.Marketing]: "bg-[url('/roadmap-art-marketing.svg')]",
+  [CourseCategory.Technology]: "bg-[url('/roadmap-art-technology.svg')]",
+  [CourseCategory.Leadership]: "bg-[url('/roadmap-art-leadership.svg')]",
+  [CourseCategory.Compliance]: "bg-[url('/roadmap-art-compliance.svg')]",
+  [CourseCategory.Healthcare]: "bg-[url('/roadmap-art-healthcare.svg')]",
+  [CourseCategory.Engineering]: "bg-[url('/roadmap-art-engineering.svg')]",
+};
 
 const RING_RADIUS = 24;
 const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
@@ -107,7 +123,7 @@ export const RoadmapCard = ({
         className,
       )}
     >
-      <div className="relative isolate h-32 overflow-hidden bg-gradient-to-br from-primary via-primary/80 to-primary/50">
+      <div className="relative isolate h-32 overflow-hidden bg-muted">
         {roadmap.imageUrl ? (
           <Image
             fill
@@ -117,15 +133,18 @@ export const RoadmapCard = ({
             className="-z-20 object-cover"
           />
         ) : (
-          <L.Route
+          <div
             aria-hidden
-            className="absolute -bottom-4 right-24 -z-20 size-32 text-white/15"
+            className={cn(
+              "absolute inset-0 -z-20 bg-cover bg-center",
+              CATEGORY_ART_CLASS_NAME[roadmap.category ?? CourseCategory.Other],
+            )}
           />
         )}
 
         <div
           aria-hidden
-          className="absolute inset-0 -z-10 bg-gradient-to-t from-black/60 to-black/10"
+          className="absolute inset-0 -z-10 bg-gradient-to-t from-black/40 to-transparent"
         />
 
         <div className="absolute inset-x-6 top-5 flex items-center justify-between gap-2">
