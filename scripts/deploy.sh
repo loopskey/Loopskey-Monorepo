@@ -10,8 +10,9 @@
 #   scripts/deploy.sh --ref <ref>  track a ref other than main
 #
 # Backups land in $LOOPSKEY_BACKUP_DIR (default ./backups). A failed health
-# check restores the previous images automatically; the database dump taken at
-# the start is the recovery point for anything a migration changed.
+# check or a failed smoke check restores the previous images automatically; the
+# database dump taken at the start is the recovery point for anything a
+# migration changed. The smoke check reason is kept in $LOOPSKEY_BACKUP_DIR too.
 
 set -euo pipefail
 
@@ -107,6 +108,21 @@ if [ "$DO_GIT" -eq 1 ]; then
   echo "  now at $(git rev-parse --short HEAD) $(git log -1 --format=%s)"
 fi
 
+# The checkout may just have brought a newer compose file. Read it again with
+# the real environment file before anything is stopped, so a value the new file
+# requires fails here with its name rather than half way through the update.
+if ! CONFIG_ERROR="$("${DC[@]}" config 2>&1 >/dev/null)"; then
+  fail "the compose configuration of this checkout is invalid: $CONFIG_ERROR"
+fi
+DEPLOY_ENV="$(read_env DEPLOYMENT_ENV)"
+case "$DEPLOY_ENV" in
+  production|staging|preview|ci|development) ;;
+  *) fail "DEPLOYMENT_ENV in $ENV_FILE must be one of production, staging, preview, ci or development (it is '${DEPLOY_ENV:-unset}')" ;;
+esac
+if [ "$DEPLOY_ENV" != "production" ]; then
+  printf '\n\033[33mNOTE: DEPLOYMENT_ENV is %s, so every page is noindex and the sitemap answers 404.\033[0m\n' "$DEPLOY_ENV" >&2
+fi
+
 ROLLBACK_READY=1
 tag_running_image() {
   local service="$1" target="$2" container image
@@ -171,6 +187,40 @@ for service in api front; do
     rollback
   fi
 done
+
+# The frontend answers its health check whatever policy it runs, and the
+# recovery bug was a healthy container serving noindex pages and a missing
+# sitemap. The diagnostic runs inside the container, so it exercises the exact
+# image, environment and upstream that are about to take traffic.
+SMOKE_ATTEMPTS=4
+SMOKE_PAUSE_SECONDS=15
+SMOKE_LOG="$BACKUP_DIR/smoke-$STAMP.log"
+
+run_smoke() {
+  "${DC[@]}" exec -T front sh -c \
+    'node scripts/seo-audit.mjs --base-url http://127.0.0.1:3000 --site-origin "$NEXT_PUBLIC_SITE_URL" --environment "$DEPLOYMENT_ENV" --profile smoke'
+}
+
+log "Smoke check of the public site"
+smoke_passed=0
+for attempt in $(seq 1 "$SMOKE_ATTEMPTS"); do
+  if run_smoke > "$SMOKE_LOG" 2>&1; then
+    smoke_passed=1
+    break
+  fi
+  echo "  attempt $attempt of $SMOKE_ATTEMPTS failed"
+  [ "$attempt" -lt "$SMOKE_ATTEMPTS" ] && sleep "$SMOKE_PAUSE_SECONDS"
+done
+cat "$SMOKE_LOG"
+if [ "$smoke_passed" -ne 1 ]; then
+  echo >&2
+  echo "The deployment is unsuccessful: the smoke check failed. Reason recorded in $SMOKE_LOG:" >&2
+  grep -E '^(FAIL|        \[)' "$SMOKE_LOG" >&2 || true
+  rollback
+fi
+if grep -q '^SKIP' "$SMOKE_LOG"; then
+  echo "  note: a non-production detail fixture is unavailable; its sitemap is intentionally absent."
+fi
 
 log "Migration state"
 docker exec "$DB_CONTAINER" psql -U "$PGUSER_VALUE" -d "$PGDB_VALUE" -c \
