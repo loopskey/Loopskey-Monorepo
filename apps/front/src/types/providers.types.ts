@@ -44,3 +44,8 @@ export type TRouteLocale = {
   locale: PublicLocale;
 };
 
+export type DashboardDrawerContextValue = {
+  isOpen: boolean;
+  open: () => void;
+  close: () => void;
+};

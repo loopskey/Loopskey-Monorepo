@@ -1,10 +1,10 @@
 import type { useCreateProfessionalPduActivityMutation } from "@/lib/rtk/endpoints/professional.api";
 import type { useUpsertProfessionalPduTargetMutation } from "@/lib/rtk/endpoints/professional.api";
 import type { ContentType, UpsertPduTargetInput } from "@/lib/graphql/base";
-import type { LucideIcon, Pencil } from "lucide-react";
 import type { ElementType, ReactNode } from "react";
 import type { TCertificateFormInput } from "@/lib/validations/certificate.schema";
 import type { TPduActivityFormInput } from "@/lib/validations/pdu-activity.schema";
+import type { LucideIcon, Pencil } from "lucide-react";
 import type { I18nContextValue } from "@/types/providers.types";
 import type { Control } from "react-hook-form";
 
@@ -280,16 +280,6 @@ export type TExploreRoadmapsData = NonNullable<
 
 export type TProfessionalRoadmap = TMyRoadmapsData["items"][number];
 export type TProfessionalExploreRoadmap = TExploreRoadmapsData["items"][number];
-
-export type TRoadmapStats = {
-  enrolled: number;
-  nextMilestone: number | null;
-  averageProgress: number;
-  completedPhases: number;
-  totalPhases: number;
-  totalEarnedCredits: number;
-  totalRequiredCredits: number | null;
-};
 
 export type TCalendarEventsData = NonNullable<
   API.ProfessionalCalendarEventsQuery["professionalCalendarEvents"]

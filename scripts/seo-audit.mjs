@@ -20,7 +20,10 @@ Options
   --base-url <url>       Origin to inspect. Required unless --self-test.
   --environment <name>   ${ENVIRONMENTS.join(" | ")}. Only production is expected to be indexable.
   --site-origin <url>    Canonical origin pages must declare. Defaults to --base-url.
-  --profile <name>       static (no API needed) or full. Default static.
+  --profile <name>       static (no API needed), smoke (post-deploy: home, catalog,
+                         one detail page taken from the sitemap, robots and
+                         the sitemap; production requires a course fixture) or
+                         full. Default static.
   --config <path>        Route fixture file. Default scripts/seo-audit.config.json.
   --require-all          Treat skipped fixtures as a failure.
   --format <text|json>   Default text.
@@ -434,15 +437,36 @@ const locsOf = (xml) =>
 const inspectSitemaps = async (fetcher, context, limits) => {
   const findings = [];
   const index = await fetcher.get("/sitemap.xml");
+  if (!context.indexable)
+    return {
+      findings:
+        index.status === 404
+          ? []
+          : [
+              finding(
+                "SITEMAP_EXPOSED",
+                `a non-production environment must answer 404 for /sitemap.xml, got ${index.status}`,
+              ),
+            ],
+      urls: [],
+    };
   if (index.status !== 200)
-    return [finding("SITEMAP_STATUS", `/sitemap.xml answered ${index.status}`)];
+    return {
+      findings: [
+        finding("SITEMAP_STATUS", `/sitemap.xml answered ${index.status}`),
+      ],
+      urls: [],
+    };
   if (!/<sitemapindex|<urlset/i.test(index.body))
-    return [
-      finding(
-        "SITEMAP_INVALID",
-        "/sitemap.xml is neither a sitemap index nor a url set",
-      ),
-    ];
+    return {
+      findings: [
+        finding(
+          "SITEMAP_INVALID",
+          "/sitemap.xml is neither a sitemap index nor a url set",
+        ),
+      ],
+      urls: [],
+    };
 
   const seen = new Set();
   const inspectUrls = (source, urls) => {
@@ -475,10 +499,17 @@ const inspectSitemaps = async (fetcher, context, limits) => {
 
   if (/<urlset/i.test(index.body)) {
     inspectUrls("/sitemap.xml", locsOf(index.body));
-    return findings;
+    return { findings, urls: [...seen] };
   }
 
   const shards = locsOf(index.body);
+  if (shards.length > limits.maxSitemapShards)
+    findings.push(
+      finding(
+        "SITEMAP_COVERAGE",
+        `The index advertises ${shards.length} shards but the request budget permits only ${limits.maxSitemapShards}. Increase the approved limit to verify every shard.`,
+      ),
+    );
   const shardUrls = shards.slice(0, limits.maxSitemapShards);
   for (const shard of shardUrls) {
     if (!shard.startsWith(context.siteOrigin)) {
@@ -503,7 +534,20 @@ const inspectSitemaps = async (fetcher, context, limits) => {
     }
     inspectUrls(path, locsOf(response.body));
   }
-  return findings;
+  return { findings, urls: [...seen] };
+};
+
+const discoverFixtures = (wanted, urls, siteOrigin) => {
+  const found = {};
+  for (const [key, prefix] of Object.entries(wanted ?? {})) {
+    const target = `${siteOrigin}${prefix}`;
+    const match = urls.find(
+      (url) =>
+        url.startsWith(target) && !url.slice(target.length).includes("/"),
+    );
+    if (match) found[key] = match.slice(target.length);
+  }
+  return found;
 };
 
 const resolveRoute = (route, fixtures) => {
@@ -576,20 +620,43 @@ export const runAudit = async ({
 
   const results = [];
   const pending = [];
+
+  const sitemap = selected.includes("sitemap")
+    ? await inspectSitemaps(fetcher, context, limits)
+    : undefined;
+  const fixtures = {
+    ...config.contentFixtures,
+    ...(sitemap
+      ? discoverFixtures(
+          config.discoverFixtures?.[profile],
+          sitemap.urls,
+          siteOrigin,
+        )
+      : {}),
+  };
+
   for (const id of selected) {
     if (id === "robots" || id === "sitemap") continue;
     const route = config.routes.find((candidate) => candidate.id === id);
     if (!route) throw new Error(`Profile ${profile} names unknown route ${id}`);
-    const resolved = resolveRoute(route, config.contentFixtures);
-    if (resolved.skip)
+    const resolved = resolveRoute(route, fixtures);
+    if (resolved.skip) {
+      const required = context.indexable && profile === "smoke";
       results.push({
         id,
         path: route.path,
-        outcome: "skipped",
-        findings: [],
+        outcome: required ? "checked" : "skipped",
+        findings: required
+          ? [
+              finding(
+                "FIXTURE_REQUIRED",
+                `Production smoke requires this detail check: ${resolved.skip}. Verify sitemap membership or supply an approved fixture with --config.`,
+              ),
+            ]
+          : [],
         note: resolved.skip,
       });
-    else pending.push(resolved.route);
+    } else pending.push(resolved.route);
   }
 
   const pageResults = await mapLimited(
@@ -616,12 +683,12 @@ export const runAudit = async ({
       findings: inspectRobots(robots, context),
     });
   }
-  if (selected.includes("sitemap")) {
+  if (sitemap) {
     results.push({
       id: "sitemap",
       path: "/sitemap.xml",
       outcome: "checked",
-      findings: await inspectSitemaps(fetcher, context, limits),
+      findings: sitemap.findings,
     });
   }
 
@@ -1090,6 +1157,209 @@ export const selfTest = async () => {
     () => problems.push("the request budget must stop the run"),
     () => undefined,
   );
+
+  problems.push(...(await smokeSelfTest(limits)));
+  return problems;
+};
+
+const SMOKE_ROUTES = [
+  { id: "smoke-home", path: "/", kind: "page", locale: "en" },
+  {
+    id: "smoke-detail",
+    path: "/courses/{courseSlug}",
+    kind: "page",
+    locale: "en",
+  },
+];
+
+const smokeHandlers = (variant) => {
+  const html = (body, status = 200, headers = {}) => ({
+    status,
+    headers: { "content-type": "text/html", ...headers },
+    body,
+  });
+  const xml = (body, status = 200) => ({
+    status,
+    headers: { "content-type": "application/xml" },
+    body,
+  });
+  const hidden = (flag) => Boolean(variant.staging || flag);
+  const page = (path, flag) =>
+    html(
+      goodHead({
+        path,
+        robots: hidden(flag) ? "noindex, nofollow" : undefined,
+      }),
+      200,
+      variant.staging ? { "x-robots-tag": "noindex, nofollow" } : {},
+    );
+  const detailUrls = variant.noCourseInSitemap
+    ? [`${SELF_ORIGIN}/about`]
+    : [`${SELF_ORIGIN}/courses/alpha`, `${SELF_ORIGIN}/fr/courses/alpha`];
+  return new Map([
+    ["/", () => page("/", variant.noindexHome)],
+    ["/courses/alpha", () => page("/courses/alpha", variant.noindexDetail)],
+    [
+      "/robots.txt",
+      () => ({
+        status: 200,
+        headers: { "content-type": "text/plain" },
+        body:
+          variant.robotsBlocked || variant.staging
+            ? "User-Agent: *\nDisallow: /\n"
+            : `User-Agent: *\nAllow: /\nSitemap: ${SELF_ORIGIN}/sitemap.xml\n`,
+      }),
+    ],
+    [
+      "/sitemap.xml",
+      () =>
+        variant.sitemapStatus || (variant.staging && !variant.sitemapExposed)
+          ? xml("Unknown sitemap.", variant.sitemapStatus ?? 404)
+          : xml(
+              `<?xml version="1.0"?><sitemapindex><sitemap><loc>${SELF_ORIGIN}/sitemaps/courses-1</loc></sitemap></sitemapindex>`,
+            ),
+    ],
+    [
+      "/sitemaps/courses-1",
+      () =>
+        variant.shardStatus
+          ? xml("Sitemap temporarily unavailable.", variant.shardStatus)
+          : xml(
+              `<?xml version="1.0"?><urlset>${detailUrls.map((url) => `<url><loc>${url}</loc></url>`).join("")}</urlset>`,
+            ),
+    ],
+  ]);
+};
+
+const smokeSelfTest = async (limits) => {
+  const problems = [];
+  const config = {
+    limits,
+    contentFixtures: {},
+    discoverFixtures: { smoke: { courseSlug: "/courses/" } },
+    routes: SMOKE_ROUTES,
+    profiles: {
+      smoke: [...SMOKE_ROUTES.map((route) => route.id), "robots", "sitemap"],
+    },
+  };
+  const cases = [
+    { name: "a healthy production site", variant: {}, expect: {} },
+    {
+      name: "a noindex detail page",
+      variant: { noindexDetail: true },
+      expect: { "smoke-detail": "NOINDEX_UNEXPECTED" },
+    },
+    {
+      name: "a noindex home page",
+      variant: { noindexHome: true },
+      expect: { "smoke-home": "NOINDEX_UNEXPECTED" },
+    },
+    {
+      name: "a sitemap that answers 404",
+      variant: { sitemapStatus: 404 },
+      expect: { sitemap: "SITEMAP_STATUS" },
+    },
+    {
+      name: "a sitemap that answers 503",
+      variant: { sitemapStatus: 503 },
+      expect: { sitemap: "SITEMAP_STATUS" },
+    },
+    {
+      name: "a shard that answers 404",
+      variant: { shardStatus: 404 },
+      expect: { sitemap: "SITEMAP_SHARD" },
+    },
+    {
+      name: "a robots.txt that blocks the site",
+      variant: { robotsBlocked: true },
+      expect: { robots: "ROBOTS_BLOCKED" },
+    },
+    {
+      name: "a staging site that is unindexable and has no sitemap",
+      environment: "staging",
+      variant: { staging: true },
+      expect: {},
+    },
+    {
+      name: "a staging site that publishes a sitemap",
+      environment: "staging",
+      variant: { staging: true, sitemapExposed: true },
+      expect: { sitemap: "SITEMAP_EXPOSED" },
+    },
+  ];
+  for (const { name, variant, expect, environment } of cases) {
+    const report = await withServer(smokeHandlers(variant), (origin) =>
+      runAudit({
+        baseOrigin: origin,
+        siteOrigin: SELF_ORIGIN,
+        environment: environment ?? "production",
+        profile: "smoke",
+        config,
+      }),
+    );
+    const rulesOf = (id) =>
+      report.results
+        .find((result) => result.id === id)
+        ?.findings.map((item) => item.rule) ?? [];
+    const failing = report.results.filter(
+      (result) => result.findings.length > 0,
+    );
+    if (Object.keys(expect).length === 0) {
+      if (failing.length > 0)
+        problems.push(
+          `smoke: ${name} must pass, got ${failing.map((result) => result.id).join(",")}`,
+        );
+      const detail = report.results.find(
+        (result) => result.id === "smoke-detail",
+      );
+      if (
+        !environment &&
+        (detail?.outcome !== "checked" || detail.path !== "/courses/alpha")
+      )
+        problems.push("smoke: the detail page must come from the sitemap");
+      continue;
+    }
+    for (const [id, rule] of Object.entries(expect))
+      if (!rulesOf(id).includes(rule))
+        problems.push(
+          `smoke: ${name} must report ${rule} on ${id}, got ${rulesOf(id).join(",") || "no findings"}`,
+        );
+    if (exitCodeOf(report, false) !== 1)
+      problems.push(`smoke: ${name} must produce a failing exit code`);
+  }
+
+  const withoutCourse = await withServer(
+    smokeHandlers({ noCourseInSitemap: true }),
+    (origin) =>
+      runAudit({
+        baseOrigin: origin,
+        siteOrigin: SELF_ORIGIN,
+        environment: "production",
+        profile: "smoke",
+        config,
+      }),
+  );
+  const missingDetail = withoutCourse.results.find(
+    (result) => result.id === "smoke-detail",
+  );
+  if (
+    missingDetail?.outcome !== "checked" ||
+    !missingDetail.findings.some((item) => item.rule === "FIXTURE_REQUIRED")
+  )
+    problems.push(
+      "smoke: production without a course fixture must fail its required detail check",
+    );
+  if (exitCodeOf(withoutCourse, false) !== 1)
+    problems.push(
+      "smoke: missing production detail must fail without --require-all",
+    );
+
+  const real = JSON.parse(await readFile(DEFAULT_CONFIG, "utf8"));
+  const routeIds = new Set(real.routes.map((route) => route.id));
+  for (const [name, ids] of Object.entries(real.profiles))
+    for (const id of ids)
+      if (id !== "robots" && id !== "sitemap" && !routeIds.has(id))
+        problems.push(`config: profile ${name} names the unknown route ${id}`);
   return problems;
 };
 

@@ -1,7 +1,7 @@
-import { TSelectOption } from "@/types/content-module.types";
 import { ContactInquiryType, Role } from "@lib/graphql/base";
 import { TLandingHeroContentKind } from "@/types/landing-module.types";
 import { TSelectedRange } from "@/types/professional-dashboard.types";
+import { TSelectOption } from "@/types/content-module.types";
 import { TServiceItem } from "@/types/pages.types";
 
 import * as L from "lucide-react";
@@ -303,8 +303,6 @@ export const fallbackFeatures = [
 ];
 
 // ============= Charts =================
-// Brand-based categorical series (navy, cyan, orange, green), each with one
-// tonal variant for an 8-way cycle — keep in sync with globals.css --chart-*.
 export const CHART_COLORS = [
   "#010080",
   "#31C2F9",
@@ -317,6 +315,8 @@ export const CHART_COLORS = [
 ];
 
 export const PAGE_SIZE = 10;
+
+export const DASHBOARD_MENU_BUTTON_ID = "dashboard-menu-button";
 export const DEFAULT_PAGE = 1;
 export const SEARCH_DEBOUNCE_MS = 350;
 

@@ -11,6 +11,7 @@ const FILES = {
   composeDevelopment: "compose.yaml",
   release: ".github/workflows/release.yml",
   dockerEnvExample: ".env.docker.example",
+  policyScript: "scripts/deployment-policy.mjs",
   apiEnvExample: "apps/api/.env.example",
   frontEnvExample: "apps/front/.env.example",
 };
@@ -34,10 +35,22 @@ const TELEMETRY_WIRING = [
   },
 ];
 
+// The tuple the build records and the container compares at start-up. Each name
+// must reach the runtime stage and be read by the policy script.
+const POLICY_VARIABLES = [
+  "DEPLOYMENT_ENV",
+  "NEXT_PUBLIC_SITE_URL",
+  "SITE_CANONICAL_HOST_ALIASES",
+  "SITE_HTTPS_REDIRECT",
+];
+
+const LINE_FEED = String.fromCharCode(10);
+const CARRIAGE_RETURN_LINE_FEED = String.fromCharCode(13, 10);
+
 const read = async (key) =>
   (await readFile(resolve(ROOT, FILES[key]), "utf8")).replaceAll(
-    String.fromCharCode(13, 10),
-    String.fromCharCode(10),
+    CARRIAGE_RETURN_LINE_FEED,
+    LINE_FEED,
   );
 
 const builderStage = (dockerfile) => {
@@ -48,6 +61,13 @@ const builderStage = (dockerfile) => {
       "Dockerfile.front no longer has a builder stage followed by a runner stage",
     );
   return dockerfile.slice(start, end);
+};
+
+const runnerStage = (dockerfile) => {
+  const start = dockerfile.indexOf("AS runner");
+  if (start === -1)
+    throw new Error("Dockerfile.front no longer has a runner stage");
+  return dockerfile.slice(start);
 };
 
 const declaredNames = (text) =>
@@ -77,25 +97,92 @@ const frontBuildArguments = (compose) => {
   );
 };
 
-const releaseBuildArguments = (release) => {
-  const block = release.match(
+const releaseBuildBlock = (release) =>
+  release.match(
     /file: Dockerfile\.front[\s\S]*?build-args: \|\n((?:\s+[A-Z][A-Z0-9_]*=.*\n)+)/,
-  );
-  return new Set(
-    block
-      ? [...block[1].matchAll(/^\s+([A-Z][A-Z0-9_]*)=/gm)].map(
-          (match) => match[1],
-        )
-      : [],
-  );
-};
+  )?.[1] ?? "";
 
-const main = async () => {
-  const text = Object.fromEntries(
-    await Promise.all(
-      Object.keys(FILES).map(async (key) => [key, await read(key)]),
+const releaseBuildArguments = (release) =>
+  new Set(
+    [...releaseBuildBlock(release).matchAll(/^\s+([A-Z][A-Z0-9_]*)=/gm)].map(
+      (match) => match[1],
     ),
   );
+
+const policyProblems = (text) => {
+  const problems = [];
+  const runner = runnerStage(text.dockerfile);
+  const builder = builderStage(text.dockerfile);
+
+  // No silent environment fallback in the production deployment path: a
+  // missing value must stop the deploy, not turn a production build into
+  // staging.
+  if (/DEPLOYMENT_ENV[^\n]*\$\{DEPLOYMENT_ENV:?-/.test(text.composeProduction))
+    problems.push(
+      "compose.production.yaml falls back to a default DEPLOYMENT_ENV; the production path must require it explicitly",
+    );
+  const required = text.composeProduction.match(
+    /DEPLOYMENT_ENV:\s*\$\{DEPLOYMENT_ENV:\?/g,
+  );
+  if ((required ?? []).length < 2)
+    problems.push(
+      "compose.production.yaml must require DEPLOYMENT_ENV (the :? form) for both the front build argument and the front runtime environment",
+    );
+
+  const releaseValues = releaseBuildBlock(text.release);
+  if (!/^\s+DEPLOYMENT_ENV=production$/m.test(releaseValues))
+    problems.push(
+      "the front build in .github/workflows/release.yml must pass DEPLOYMENT_ENV=production literally",
+    );
+  if (!/^\s+BUILD_SHA=\$\{\{ github\.sha \}\}$/m.test(releaseValues))
+    problems.push(
+      "the front build in .github/workflows/release.yml must pass BUILD_SHA from github.sha so the image records its commit",
+    );
+
+  // The artifact is written by the build and compared by the container.
+  if (!/deployment-policy\.mjs write\b/.test(builder))
+    problems.push(
+      "the Dockerfile.front builder stage no longer writes the deployment policy artifact",
+    );
+  if (!/COPY --from=builder\b.*deployment-policy\.json/.test(runner))
+    problems.push(
+      "the Dockerfile.front runner stage no longer copies the deployment policy artifact",
+    );
+  const copiesScript = runner
+    .split(LINE_FEED)
+    .some(
+      (line) =>
+        line.startsWith("COPY") &&
+        line.includes("scripts/deployment-policy.mjs"),
+    );
+  if (!copiesScript)
+    problems.push(
+      "the Dockerfile.front runner stage no longer copies scripts/deployment-policy.mjs",
+    );
+  const command = runner.match(/^CMD\s+(.*)$/m);
+  if (
+    !command ||
+    !/deployment-policy\.mjs verify && exec node apps\/front\/server\.js/.test(
+      command[1],
+    )
+  )
+    problems.push(
+      "the Dockerfile.front start command must run deployment-policy.mjs verify before it starts apps/front/server.js",
+    );
+  for (const name of POLICY_VARIABLES) {
+    if (!new RegExp(`^\\s+${name}=\\$`, "m").test(runner))
+      problems.push(
+        `${name} is part of the recorded policy but is not set in the Dockerfile.front runner stage`,
+      );
+    if (!text.policyScript.includes(name))
+      problems.push(
+        `${name} is part of the recorded policy but scripts/deployment-policy.mjs does not read it`,
+      );
+  }
+  return problems;
+};
+
+export const analyze = (text) => {
   const problems = [];
 
   const builder = builderStage(text.dockerfile);
@@ -152,6 +239,102 @@ const main = async () => {
       if (!declaredNames(text[key]).has(name))
         problems.push(`${name} is not documented in ${FILES[key]}`);
 
+  problems.push(...policyProblems(text));
+  return { problems, argumentCount: args.length };
+};
+
+const loadText = async () =>
+  Object.fromEntries(
+    await Promise.all(
+      Object.keys(FILES).map(async (key) => [key, await read(key)]),
+    ),
+  );
+
+// Each case damages the real files in memory in one way a deploy could go
+// wrong and requires the check to notice. A check that cannot fail proves
+// nothing.
+const MUTATIONS = [
+  {
+    name: "a staging fallback in compose.production.yaml",
+    file: "composeProduction",
+    mutate: (value) =>
+      value.replaceAll(
+        "DEPLOYMENT_ENV:?set DEPLOYMENT_ENV in .env.docker (production for the live site)}",
+        "DEPLOYMENT_ENV:-staging}",
+      ),
+  },
+  {
+    name: "a release build without DEPLOYMENT_ENV=production",
+    file: "release",
+    mutate: (value) =>
+      value.replace("DEPLOYMENT_ENV=production", "DEPLOYMENT_ENV=staging"),
+  },
+  {
+    name: "a release build that takes the environment from a variable",
+    file: "release",
+    mutate: (value) =>
+      value.replace(
+        "DEPLOYMENT_ENV=production",
+        "DEPLOYMENT_ENV=${{ vars.DEPLOYMENT_ENV }}",
+      ),
+  },
+  {
+    name: "a release build that does not record the commit",
+    file: "release",
+    mutate: (value) =>
+      value.replace("BUILD_SHA=${{ github.sha }}", "BUILD_REF=none"),
+  },
+  {
+    name: "an image whose start command skips the policy check",
+    file: "dockerfile",
+    mutate: (value) =>
+      value.replace("deployment-policy.mjs verify && exec", "true && exec"),
+  },
+  {
+    name: "an image that never writes the policy artifact",
+    file: "dockerfile",
+    mutate: (value) =>
+      value.replace("deployment-policy.mjs write", "true write"),
+  },
+  {
+    name: "a runtime stage that drops the redirect setting",
+    file: "dockerfile",
+    mutate: (value) =>
+      value.replace("    SITE_HTTPS_REDIRECT=$SITE_HTTPS_REDIRECT \\\n", ""),
+  },
+];
+
+const selfTest = async () => {
+  const text = await loadText();
+  const failures = [];
+  const baseline = analyze(text).problems;
+  if (baseline.length > 0)
+    failures.push(`the repository files already have problems: ${baseline[0]}`);
+  for (const { name, file, mutate } of MUTATIONS) {
+    const mutated = mutate(text[file]);
+    if (mutated === text[file]) {
+      failures.push(`the mutation for ${name} did not change ${FILES[file]}`);
+      continue;
+    }
+    if (analyze({ ...text, [file]: mutated }).problems.length === 0)
+      failures.push(`${name} was not detected`);
+  }
+  if (failures.length > 0) {
+    process.stderr.write(
+      `Deployment configuration self-test failed:\n${failures.map((failure) => `  ${failure}`).join("\n")}\n`,
+    );
+    process.exitCode = 1;
+    return;
+  }
+  process.stdout.write(
+    `Deployment configuration self-test passed: ${MUTATIONS.length} damaged configurations were all rejected.\n`,
+  );
+};
+
+const main = async () => {
+  if (process.argv.includes("--self-test")) return selfTest();
+
+  const { problems, argumentCount } = analyze(await loadText());
   if (problems.length > 0) {
     process.stderr.write(
       `Deployment configuration problems:\n${problems.map((problem) => `  ${problem}`).join("\n")}\n`,
@@ -160,7 +343,7 @@ const main = async () => {
     return;
   }
   process.stdout.write(
-    `Deployment configuration is consistent: ${args.length} frontend build arguments wired through Dockerfile, compose and release; compose variables documented.\n`,
+    `Deployment configuration is consistent: ${argumentCount} frontend build arguments wired through Dockerfile, compose and release; compose variables documented; the production path requires DEPLOYMENT_ENV and the image records and verifies its policy.\n`,
   );
 };
 

@@ -2598,9 +2598,21 @@
     "navLabel": "Navigation du tableau de bord",
     "openMenu": "Ouvrir le menu",
     "closeMenu": "Fermer le menu",
-    "menu": "Menu",
-    "tapToOpenMenu": "Touchez pour ouvrir le menu",
-    "helpSupport": "Aide et support"
+    "helpSupport": "Aide et support",
+    "collapseSidebar": "Réduire la barre latérale",
+    "expandSidebar": "Développer la barre latérale",
+    "groups": {
+      "learning": "Apprentissage",
+      "account": "Compte",
+      "events": "Événements",
+      "business": "Activité",
+      "team": "Équipe",
+      "catalogue": "Catalogue",
+      "members": "Membres",
+      "accounts": "Comptes",
+      "content": "Contenu",
+      "search": "Recherche"
+    }
   },
   "footer": {
     "brandDescription": "Votre plateforme tout-en-un pour tous vos besoins éducatifs. Découvrez, apprenez et progressez avec nous.",
@@ -4458,67 +4470,29 @@
         "aiGenerated": "Généré par l’IA",
         "catalog": "Catalogue",
         "phaseOf": "Phase {{current}} sur {{total}}",
-        "phasesDone": "{{completed}} phases sur {{total}}",
-        "phasesComplete": "{{completed}} phases terminées sur {{total}}",
         "completedOn": "Terminé le {{date}}",
-        "dueIn": "{{date}} · dans {{days}} jours",
-        "overdue": "{{date}} · {{days}} jours de retard",
-        "cpdCredits": "{{earned}} crédits DPC sur {{required}}",
-        "start": "Commencer le parcours",
-        "continue": "Continuer le parcours",
-        "view": "Voir le parcours",
-        "unenrollLabel": "Se désinscrire de {{title}}",
         "unenrollTitle": "Se désinscrire de ce parcours ?",
         "unenrollDescription": "« {{title}} » sera retiré de vos parcours et sa progression ne sera plus suivie."
       },
-      "workspaceTitle": "Espace du parcours",
-      "workspaceDescription": "Phases, prochaines étapes et recommandations pour le parcours consulté.",
       "emptyMyRoadmapsAction": "Créer un parcours",
-      "continueRoadmap": "Continuer",
-      "viewFullRoadmap": "Voir le parcours complet",
       "viewContent": "Voir le contenu",
-      "heroEyebrow": "Votre parcours IA actuel",
-      "journeyTimeline": "Chronologie du parcours",
       "nextStepTag": "Suivant",
       "hero": {
         "phasesCount": "{{count}} phases",
-        "targetDateWithCount": "Objectif {{date}} ({{days}} jours restants)",
-        "continueStep": "Continuer : « {{step}} »",
-        "startStep": "Commencer : « {{step}} »",
-        "viewCompleted": "Voir le parcours terminé",
         "moreActions": "Plus d'actions",
-        "progressRingLabel": "{{progress}} % terminé",
-        "cpdStrip": "Objectif UDP {{earned}}/{{required}} UDP",
-        "thisWeek": "Cette semaine : {{count}} étapes terminées",
-        "streak": "Série de {{count}} jours"
+        "progressRingLabel": "{{progress}} % terminé"
       },
-      "enrolled": "Parcours suivis",
-      "averageCompletion": "Progression moyenne",
-      "completedPhases": "Phases terminées",
-      "nextMilestone": "Prochain jalon",
-      "notAvailable": "Non disponible",
-      "overallProgress": "Progression globale",
-      "overallProgressDescription": "Basée sur {{count}} feuille(s) de route suivie(s).",
-      "averageProgressText": "Cette valeur représente votre progression moyenne sur l’ensemble de vos feuilles de route professionnelles actives et terminées.",
-      "activitiesDone": "Activités terminées",
-      "noCpdTargetTracked": "Aucune feuille de route ne suit encore de crédits CPD.",
-      "remaining": "Restant",
       "myRoadmaps": "Mes feuilles de route",
-      "myRoadmapsDescription": "Continuez, consultez et suivez les feuilles de route auxquelles vous êtes inscrit.",
       "searchMyRoadmaps": "Rechercher dans vos feuilles de route...",
-      "emptyMyRoadmapsTitle": "Aucune feuille de route trouvée",
-      "emptyMyRoadmapsDescription": "Vous n’êtes inscrit à aucune feuille de route, ou aucune feuille de route ne correspond à votre recherche.",
-      "exploreRoadmaps": "Explorer les feuilles de route",
-      "exploreRoadmapsDescription": "Découvrez de nouveaux parcours professionnels adaptés à vos objectifs de progression.",
+      "emptyMyRoadmapsTitle": "Aucune feuille de route pour l’instant",
+      "emptyMyRoadmapsDescription": "Créez-en une avec le coach pour obtenir un parcours d’apprentissage étape par étape.",
       "exploreUnavailable": "L'aperçu et l'inscription aux parcours du catalogue ne sont pas encore disponibles.",
       "searchExploreRoadmaps": "Rechercher des feuilles de route disponibles...",
       "emptyExploreTitle": "Aucune feuille de route disponible",
       "emptyExploreDescription": "Aucune feuille de route publiée n’est disponible pour le moment, ou aucune ne correspond à votre recherche.",
-      "phases": "phases",
       "steps": "étapes",
       "duration": "Durée",
       "weeks": "{{count}} semaines",
-      "enroll": "S’inscrire",
       "unenroll": "Se désinscrire",
       "progressSection": "Votre progression",
       "completedActivities": "Activités terminées",
@@ -4531,15 +4505,9 @@
       "creditsOf": "{{earned}} sur {{required}} crédits",
       "cpdTarget": "Objectif DPC",
       "cpdTargetComplete": "atteint",
-      "creditsEarnedLabel": "Obtenus",
-      "creditsRemainingLabel": "Restants",
-      "recommended": "Vous pourriez aussi aimer",
       "recommendedDescription": "Des contenus adaptés à votre objectif qui ne sont pas déjà dans votre parcours.",
-      "phasedContent": "Votre parcours d’apprentissage",
-      "phasedContentDescription": "Avancez dans l'ordre : chaque étape terminée fait progresser votre parcours.",
       "weekRange": "Semaines {{start}} à {{end}}",
       "pduValue": "{{count}} UDP",
-      "coverageNote": "À propos de ce parcours",
       "closeMatchDisclosure": {
         "title": "Ce parcours utilise des correspondances proches",
         "description": "Nous n'avons pas trouvé de contenu correspondant exactement à vos sujets, ce parcours utilise donc le contenu le plus proche disponible. Affinez vos sujets pour l'améliorer.",
@@ -4553,7 +4521,6 @@
       "inProgress": "En cours",
       "notStarted": "Non commencé",
       "stepFailed": "Cette modification n'a pas été enregistrée. Veuillez réessayer.",
-      "minutes": "{{count}} min",
       "free": "Gratuit",
       "generating": {
         "title": "Création de votre parcours",
@@ -4577,6 +4544,38 @@
         "description": "Vos réponses sont enregistrées. Réessayez maintenant ou revoyez votre synthèse avant de générer.",
         "action": "Réessayer la génération",
         "reviewBrief": "Revoir la synthèse"
+      },
+      "noRoadmapMatches": "Aucune feuille de route ne correspond à votre recherche.",
+      "enrolledTag": "Inscrit",
+      "weekSingle": "Semaine {{week}}",
+      "openContent": "Ouvrir",
+      "stepActions": "Plus d’actions pour {{title}}",
+      "showDetails": "Afficher les détails",
+      "hideDetails": "Masquer les détails",
+      "showMore": "Afficher plus",
+      "showLess": "Afficher moins",
+      "sections": {
+        "path": "Parcours d’apprentissage",
+        "recommended": "Recommandé",
+        "explore": "Explorer"
+      },
+      "focus": {
+        "startHere": "Commencez ici",
+        "upNext": "À suivre",
+        "completedTitle": "Feuille de route terminée",
+        "completedDescription": "Vous avez terminé les {{count}} étapes.",
+        "findNext": "Trouver votre prochaine feuille de route"
+      },
+      "summary": {
+        "phasesDone": "Phases terminées",
+        "countOf": "{{completed}} sur {{total}}",
+        "doneThisWeek": "Étapes terminées cette semaine",
+        "streak": "Série",
+        "days": "{{count}} jours"
+      },
+      "loadError": {
+        "title": "Impossible de charger vos feuilles de route",
+        "description": "Vérifiez votre connexion et réessayez."
       }
     },
     "calendar": {
@@ -5110,7 +5109,7 @@
       "members": "Membres",
       "assignments": "Affectations",
       "eventCatalog": "Catalogue d’événements",
-      "cdpCategories": "Catégories CDP",
+      "cdpCategories": "Catégories CPD",
       "reports": "Rapports"
     },
     "settings": {
@@ -7730,13 +7729,12 @@
   },
   "professionalRoadmapChat": {
     "title": "Coach de parcours",
-    "subtitle": "Répondez à quelques questions et le coach construit un parcours adapté à votre situation.",
     "backToRoadmaps": "Retour aux parcours",
     "startOver": "Recommencer",
     "startOverConfirmTitle": "Recommencer ?",
     "startOverConfirmDescription": "Cela supprime tout ce que vous avez répondu jusqu'ici et démarre une nouvelle conversation avec le coach.",
     "startOverFailed": "Impossible de recommencer. Veuillez réessayer.",
-    "briefButtonMobile": "Résumé · {{completed}}/{{required}}",
+    "briefButtonMobile": "Résumé {{completed}}/{{required}}",
     "saveState": {
       "saving": "Enregistrement…",
       "saved": "Enregistré",
@@ -7770,17 +7768,16 @@
           "BUDGET_PREFERENCE": "Quel est votre budget pour les ressources d'apprentissage ?",
           "SUBJECTS": "Sur quels sujets précis le parcours doit-il se concentrer ?"
         }
-      }
+      },
+      "name": "Coach"
     },
     "composer": {
       "label": "Votre réponse",
-      "placeholder": "Répondez avec vos propres mots…",
+      "placeholder": "Répondez avec vos propres mots, ou corrigez une réponse précédente…",
       "send": "Envoyer",
       "hint": "Entrée pour envoyer, Maj + Entrée pour une nouvelle ligne.",
-      "correctionHint": "Envie de modifier une réponse ? Écrivez-le simplement, par exemple « change mon budget à moins de 100 $ ».",
       "remaining": "{{remaining}} caractères restants",
-      "overLimit": "{{over}} caractères de trop",
-      "orOwnWords": "Ou répondez au coach avec vos propres mots"
+      "overLimit": "{{over}} caractères de trop"
     },
     "widget": {
       "yes": "Oui",
@@ -7813,46 +7810,26 @@
       "loadDescription": "Il s'agit d'un problème temporaire de notre côté, pas d'un problème avec vos réponses."
     },
     "review": {
-      "title": "Vérifiez vos réponses",
+      "title": "Votre résumé",
       "description": "Modifiez ce que vous voulez ici et le coach utilisera la réponse mise à jour. Les modifications sont enregistrées au fur et à mesure.",
-      "edit": "Modifier",
       "save": "Enregistrer",
       "cancel": "Annuler",
       "yes": "Oui",
       "no": "Non",
-      "notSet": "Non renseigné",
+      "notSet": "Pas encore répondu",
       "generate": "Générer mon parcours",
       "generating": "Démarrage de la génération...",
       "generateFailed": "Impossible de démarrer la génération de votre parcours. Veuillez réessayer.",
       "retryGenerate": "Réessayer la génération",
-      "fixAction": {
-        "goal": "Ajouter votre objectif",
-        "skillLevel": "Choisir le niveau",
-        "timeCommitment": "Choisir le temps hebdomadaire",
-        "subjects": "Choisir des sujets",
-        "budgetPreference": "Choisir le budget",
-        "cpdAnswered": "Répondre à la question CPD",
-        "certificationName": "Ajouter la certification"
-      },
       "waitingForCoach": "Répondez à la prochaine question du coach, ou confirmez une réponse ci-dessus, pour débloquer votre parcours.",
-      "missing": {
-        "goal": "Définissez votre objectif d'apprentissage.",
-        "skillLevel": "Choisissez votre niveau actuel.",
-        "timeCommitment": "Choisissez votre temps d'apprentissage hebdomadaire.",
-        "subjects": "Choisissez au moins un sujet.",
-        "budgetPreference": "Choisissez votre budget.",
-        "cpdAnswered": "Indiquez si vous avez besoin de crédits CPD.",
-        "certificationName": "Saisissez le nom de votre certification."
-      },
-      "briefProgress": "Progression du résumé",
       "briefProgressValue": "{{completed}} champs obligatoires sur {{required}} complétés",
-      "notReachedYet": "Vous configurerez ceci après les préférences.",
-      "status": {
-        "ready": "Prêt",
-        "readyToRetry": "Prêt à réessayer",
-        "confirmed": "Confirmé",
-        "needsAnswer": "Réponse requise"
-      }
+      "subtitleCollecting": "Se remplit au fil de vos réponses",
+      "subtitleReady": "Prêt à générer",
+      "stillNeeded": "Encore nécessaire :",
+      "complete": "Votre résumé est complet. Vous pouvez encore modifier chaque réponse.",
+      "askingNow": "Question en cours",
+      "required": "obligatoire",
+      "editField": "Modifier {{field}}"
     },
     "cpdSetup": {
       "pickTitle": "Choisissez une certification à suivre, ou recherchez-en une autre.",
@@ -7898,7 +7875,9 @@
         "PODCAST": "Podcasts",
         "YOUTUBE": "YouTube"
       }
-    }
+    },
+    "stagesLabel": "Progression",
+    "stageOf": "Étape {{current}} sur {{total}}"
   },
   "topicHub": {
     "badge": "Guide thématique",

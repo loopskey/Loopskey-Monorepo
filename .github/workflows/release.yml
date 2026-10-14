@@ -98,6 +98,7 @@ jobs:
             NEXT_PUBLIC_GRAPHQL_URL=${{ vars.NEXT_PUBLIC_GRAPHQL_URL }}
             NEXT_PUBLIC_SITE_URL=${{ vars.NEXT_PUBLIC_SITE_URL }}
             DEPLOYMENT_ENV=production
+            BUILD_SHA=${{ github.sha }}
             SITE_CANONICAL_HOST_ALIASES=${{ vars.SITE_CANONICAL_HOST_ALIASES }}
             SITE_HTTPS_REDIRECT=${{ vars.SITE_HTTPS_REDIRECT }}
             NEXT_PUBLIC_TELEMETRY_ENABLED=${{ vars.NEXT_PUBLIC_TELEMETRY_ENABLED }}

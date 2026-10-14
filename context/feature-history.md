@@ -142,3 +142,5 @@ into this index and do not rewrite previous records.
 - [`content-card-redesign`](feature-runs/active/content-card-redesign.md) — PR [#296](https://github.com/loopskey/Loopskey-Monorepo/pull/296)
 - [`multi-roadmap-dashboard`](feature-runs/active/multi-roadmap-dashboard.md) — PR [#300](https://github.com/loopskey/Loopskey-Monorepo/pull/300)
 - [`header-language-menu`](feature-runs/active/header-language-menu.md) — PR [#302](https://github.com/loopskey/Loopskey-Monorepo/pull/302)
+- [`seo-13-production-indexing-and-sitemap-recovery`](feature-runs/active/seo-13-production-indexing-and-sitemap-recovery.md) — PR [#304](https://github.com/loopskey/Loopskey-Monorepo/pull/304)
+- [`roadmap-tab-redesign`](feature-runs/active/roadmap-tab-redesign.md) — PR [#305](https://github.com/loopskey/Loopskey-Monorepo/pull/305)
