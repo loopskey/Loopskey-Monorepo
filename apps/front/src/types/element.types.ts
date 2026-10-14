@@ -2,21 +2,21 @@ import type { TextareaHTMLAttributes, InputHTMLAttributes } from "react";
 import type { HTMLAttributes, ReactNode, CSSProperties } from "react";
 import type { Control, FieldPath, FieldValues, Path } from "react-hook-form";
 import type { ExternalLearningProvider } from "@/lib/graphql/base";
+import type { CourseCategory } from "@/lib/graphql/base";
 import type { ComponentProps } from "react";
 import type { buttonVariants } from "@ui/button";
 import type { VariantProps } from "class-variance-authority";
+import type { ElementType } from "react";
 import type { AvatarImage } from "@ui/avatar";
-import type { TProfessionalRoadmap } from "@/types/professional-dashboard.types";
-
 import type { Eye } from "lucide-react";
 
 // ================ User Avatar ==============
 export type TUserAvatarProps = {
   alt?: string;
+  className?: string;
   email?: string | null;
   fullName?: string | null;
   avatarUrl?: string | null;
-  className?: string;
   fallbackClassName?: string;
   onLoadingStatusChange?: ComponentProps<
     typeof AvatarImage
@@ -38,8 +38,8 @@ export type TGalaxyProps = HTMLAttributes<HTMLDivElement> & {
   twinkleIntensity?: number;
   disableAnimation?: boolean;
   mouseInteraction?: boolean;
-  rotation?: [number, number];
   repulsionStrength?: number;
+  rotation?: [number, number];
   autoCenterRepulsion?: number;
   mouseTarget?: "element" | "window";
 };
@@ -82,10 +82,9 @@ export type TFloatingInputFieldProps<T extends FieldValues> =
     control: Control<T>;
     leftIcon?: ReactNode;
     description?: string;
+    requiredText?: string;
     rightSlot?: ReactNode;
     inputClassName?: string;
-    /** Marks the field required, and names the marker for a screen reader. */
-    requiredText?: string;
   };
 
 // ============== Password Input ================
@@ -109,9 +108,8 @@ export type TFloatingSelectFieldProps<T extends FieldValues> = {
   control: Control<T>;
   placeholder?: string;
   description?: string;
-  options: TSelectOption[];
-  /** Marks the field required, and names the marker for a screen reader. */
   requiredText?: string;
+  options: TSelectOption[];
 };
 
 // ============== TextArea ===============
@@ -160,22 +158,42 @@ export type TMultiSelectFieldProps<T extends FieldValues> = {
 // ============ Confirm Dialog =============
 export type TConfirmDialogProps = {
   title: string;
-  trigger: ReactNode;
   open?: boolean;
+  trigger: ReactNode;
   cancelText?: string;
   isLoading?: boolean;
   description?: string;
   confirmText?: string;
-  onOpenChange?: (open: boolean) => void;
   onConfirm: () => void | Promise<void>;
-  confirmVariant?: VariantProps<typeof buttonVariants>["variant"];
+  onOpenChange?: (open: boolean) => void;
   onCloseAutoFocus?: (event: Event) => void;
+  confirmVariant?: VariantProps<typeof buttonVariants>["variant"];
 };
 
 // ============== Header ================
 export type TNavItem = {
   href: string;
   label: string;
+};
+
+export type DashboardNavTab = {
+  href: string;
+  value: string;
+  labelKey: string;
+  groupKey?: string;
+  icon: ElementType;
+};
+
+export type DashboardNavGroup<T> = {
+  tabs: T[];
+  key: string | null;
+};
+
+export type DashboardNavListProps = {
+  activeTab: string;
+  isCollapsed?: boolean;
+  onNavigate?: () => void;
+  tabs: DashboardNavTab[];
 };
 
 // ============== Footer ================
@@ -192,7 +210,7 @@ export type TFooterLink = {
 export type TSocialLink = {
   href: string;
   label: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
 };
 
 // =============== Pagination ================
@@ -282,13 +300,11 @@ export type TContentThumbnailProps = {
   variant?: TContentThumbnailVariant;
 };
 
-export type TRoadmapCardProps = {
-  href: string;
+export type RoadmapArtProps = {
+  sizes?: string;
   className?: string;
-  isSelected?: boolean;
-  isUnenrolling?: boolean;
-  roadmap: TProfessionalRoadmap;
-  onUnenroll: (enrollmentId: string) => void;
+  imageUrl?: string | null;
+  category?: CourseCategory | null;
 };
 
 export type TIconActionProps = {

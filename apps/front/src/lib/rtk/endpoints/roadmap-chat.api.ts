@@ -92,7 +92,6 @@ export const roadmapChatApi = baseApi.injectEndpoints({
       invalidatesTags: [
         "ProfessionalRoadmapDraft",
         "ProfessionalRoadmaps",
-        "ProfessionalRoadmapStats",
         "Professional",
       ],
     }),

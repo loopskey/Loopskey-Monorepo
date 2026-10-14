@@ -28,7 +28,6 @@ export const useProfessionalRoadmaps = () => {
   const generationDraftId =
     searchParams.get("generationDraftId")?.trim() || undefined;
   const requestedRoadmapId = searchParams.get("roadmapId")?.trim() || undefined;
-  const requestedStepId = searchParams.get("stepId")?.trim() || undefined;
 
   // ============= States ===============
   const [justCompleted, setJustCompleted] = useState<boolean>(false);
@@ -72,6 +71,8 @@ export const useProfessionalRoadmaps = () => {
 
   const {
     data: myRoadmapsData,
+    isError: isMyRoadmapsError,
+    refetch: refetchMyRoadmaps,
     isLoading: isMyRoadmapsLoading,
     isFetching: isMyRoadmapsFetching,
   } = API.useProfessionalMyRoadmapsQuery(myRoadmapsVariables, {
@@ -81,6 +82,8 @@ export const useProfessionalRoadmaps = () => {
 
   const {
     data: exploreRoadmapsData,
+    isError: isExploreRoadmapsError,
+    refetch: refetchExploreRoadmaps,
     isLoading: isExploreRoadmapsLoading,
     isFetching: isExploreRoadmapsFetching,
   } = API.useProfessionalExploreRoadmapsQuery(exploreRoadmapsVariables, {
@@ -99,32 +102,13 @@ export const useProfessionalRoadmaps = () => {
   const myPageInfo = myRoadmapsData?.pageInfo;
   const explorePageInfo = exploreRoadmapsData?.pageInfo;
 
-  const {
-    data: statsData,
-    isLoading: isStatsLoading,
-    isError: isStatsError,
-  } = API.useProfessionalRoadmapStatsQuery(undefined, {
-    refetchOnFocus: true,
-    refetchOnMountOrArgChange: true,
-  });
-
-  const stats = useMemo<T.TRoadmapStats>(
-    () => ({
-      enrolled: statsData?.enrolledCount ?? 0,
-      averageProgress: statsData?.averageProgress ?? 0,
-      completedPhases: statsData?.completedPhaseCount ?? 0,
-      totalPhases: statsData?.totalPhaseCount ?? 0,
-      nextMilestone: statsData?.nextMilestone ?? null,
-      totalEarnedCredits: statsData?.totalEarnedCredits ?? 0,
-      totalRequiredCredits: statsData?.totalRequiredCredits ?? null,
-    }),
-    [statsData],
-  );
-
   const activeRoadmap = useMemo(
     () =>
       myRoadmaps.find((roadmap) => roadmap.id === requestedRoadmapId) ??
-      myRoadmaps.find((roadmap) => roadmap.source === RoadmapSource.Generated),
+      myRoadmaps.find(
+        (roadmap) => roadmap.source === RoadmapSource.Generated,
+      ) ??
+      myRoadmaps[0],
     [myRoadmaps, requestedRoadmapId],
   );
 
@@ -149,12 +133,7 @@ export const useProfessionalRoadmaps = () => {
     if (!terminal || handledTerminalDraftIdRef.current === draft.id) return;
 
     handledTerminalDraftIdRef.current = draft.id;
-    dispatch(
-      API.professionalApi.util.invalidateTags([
-        "ProfessionalRoadmaps",
-        "ProfessionalRoadmapStats",
-      ]),
-    );
+    dispatch(API.professionalApi.util.invalidateTags(["ProfessionalRoadmaps"]));
 
     if (completed) {
       setJustCompleted(true);
@@ -254,29 +233,20 @@ export const useProfessionalRoadmaps = () => {
     setExplorePage((previousPage) => Math.max(1, previousPage - 1));
   };
 
-  const formatWeeks = (weeks?: number | null) => {
-    return t("professionalDashboard.roadmap.weeks", {
-      count: Number(weeks ?? 0),
-    });
-  };
-
   const acknowledgeCompletion = useCallback(() => setJustCompleted(false), []);
 
   return {
     t,
     page,
-    stats,
     draft,
     search,
     isLoading,
     myRoadmaps,
     myPageInfo,
     handleNext,
-    formatWeeks,
     explorePage,
     isGenerating,
     stepProgress,
-    isStatsError,
     unenrollingId,
     justCompleted,
     activeRoadmap,
@@ -285,16 +255,18 @@ export const useProfessionalRoadmaps = () => {
     myRoadmapsData,
     handlePrevious,
     hasFailedDraft,
-    isStatsLoading,
     exploreRoadmaps,
     explorePageInfo,
     locale: language,
-    requestedStepId,
     handleExploreNext,
     handleSearchChange,
     exploreRoadmapsData,
+    isMyRoadmapsError,
+    refetchMyRoadmaps,
     isMyRoadmapsLoading,
     isMyRoadmapsFetching,
+    isExploreRoadmapsError,
+    refetchExploreRoadmaps,
     isRetryingGeneration,
     handleRetryGeneration,
     handleExplorePrevious,

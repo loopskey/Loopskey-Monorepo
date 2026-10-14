@@ -664,20 +664,6 @@ export const professionalApi = baseApi.injectEndpoints({
       }),
       transformResponse: (response: TAPI.CompleteRoadmapStepMutation) =>
         response.completeRoadmapStep,
-      // The roadmap list is patched in place (see useRoadmapStepProgress), but
-      // the owner-wide aggregate is a separate contract and must be
-      // recomputed whenever a step completion changes progress.
-      invalidatesTags: ["ProfessionalRoadmapStats"],
-    }),
-
-    professionalRoadmapStats: builder.query<
-      TAPI.ProfessionalRoadmapStatsQuery["professionalRoadmapStats"],
-      void
-    >({
-      query: () => ({ document: API.ProfessionalRoadmapStatsDocument }),
-      transformResponse: (response: TAPI.ProfessionalRoadmapStatsQuery) =>
-        response.professionalRoadmapStats,
-      providesTags: ["ProfessionalRoadmapStats", "Professional"],
     }),
 
     professionalExploreRoadmaps: builder.query<
@@ -703,7 +689,7 @@ export const professionalApi = baseApi.injectEndpoints({
       }),
       transformResponse: (response: TAPI.UnenrollRoadmapMutation) =>
         response.unenrollRoadmap,
-      invalidatesTags: ["ProfessionalRoadmaps", "ProfessionalRoadmapStats"],
+      invalidatesTags: ["ProfessionalRoadmaps"],
     }),
 
     retryRoadmapGeneration: builder.mutation<
@@ -716,11 +702,7 @@ export const professionalApi = baseApi.injectEndpoints({
       }),
       transformResponse: (response: TAPI.RetryRoadmapGenerationMutation) =>
         response.requestRoadmapGeneration,
-      invalidatesTags: [
-        "ProfessionalRoadmaps",
-        "ProfessionalRoadmapStats",
-        "Professional",
-      ],
+      invalidatesTags: ["ProfessionalRoadmaps", "Professional"],
     }),
   }),
 });
@@ -789,7 +771,6 @@ export const {
   useStartRoadmapStepMutation,
   useCompleteRoadmapStepMutation,
   useUnenrollRoadmapMutation,
-  useProfessionalRoadmapStatsQuery,
   useRetryRoadmapGenerationMutation,
   useProfessionalRoadmapRecommendationsQuery,
   useProfessionalRoadmapGenerationStatusQuery,

@@ -49,7 +49,7 @@ export const RoadmapSuggestionExpansion = ({
       <SH.SheetTrigger asChild>
         <Button
           size="sm"
-          radius="xl"
+          radius="full"
           type="button"
           variant="ghost"
           disabled={disabled}
@@ -94,7 +94,7 @@ export const RoadmapSuggestionExpansion = ({
                     {options.map((option) => (
                       <Button
                         size="sm"
-                        radius="xl"
+                        radius="full"
                         key={option.value}
                         type="button"
                         variant="outline"

@@ -3,11 +3,13 @@ import { RoadmapStepProgressStatus } from "@/lib/graphql/base";
 import { PatchRoadmapDraftInput } from "@/lib/graphql/base";
 import { RoadmapDraftStatus } from "@/lib/graphql/base";
 import { StepPending } from "@/hooks/useRoadmapStepProgress";
-import { RefObject } from "react";
 
+import type { ChangeEvent, ReactNode, RefObject } from "react";
 import type { RoadmapGenerationRecoveryAction } from "@/lib/graphql/base";
-import type { RoadmapDraftFieldKey } from "@/lib/graphql/base";
 import type { RoadmapGenerationFailureCode } from "@/lib/graphql/base";
+import type { TProfessionalExploreRoadmap } from "@/types/professional-dashboard.types";
+import type { RoadmapDraftFieldKey } from "@/lib/graphql/base";
+import type { TProfessionalRoadmap } from "@/types/professional-dashboard.types";
 import type { RoadmapChatStage } from "@/utils/roadmap-chat-step.util";
 
 import type * as G from "@/lib/graphql/operations/roadmap-chat";
@@ -19,8 +21,8 @@ export type TRoadmapWidgetOption = TRoadmapWidget["options"][number];
 export type TRoadmapSubjectOption = TRoadmapDraft["subjectOptions"][number];
 
 export type TWidgetChoice = {
-  answerField: RoadmapDraftFieldKey;
   answerValue: string;
+  answerField: RoadmapDraftFieldKey;
 };
 
 export type TPendingMessage = {
@@ -48,32 +50,26 @@ export type TRoadmapGenerationFailure = {
 
 export type TRoadmapStatusProps = {
   draftId: string;
-  status: RoadmapDraftStatus;
-  goal?: string | null;
-  updatedAt?: string | null;
-  failure?: TRoadmapGenerationFailure | null;
   onRetry: () => void;
   isRetrying: boolean;
+  goal?: string | null;
+  updatedAt?: string | null;
+  status: RoadmapDraftStatus;
+  failure?: TRoadmapGenerationFailure | null;
   t: (key: string, values?: Record<string, string | number>) => string;
 };
-
-export type TBriefFieldStatus =
-  | "ready"
-  | "confirmed"
-  | "needsAnswer"
-  | "readyToRetry";
 
 type Step = {
   id: string;
   order: number;
   title: string;
+  isCloseMatch?: boolean;
+  credits?: number | null;
   description?: string | null;
   contentType?: string | null;
   contentSlug?: string | null;
   estimatedMinutes?: number | null;
-  credits?: number | null;
   status?: RoadmapStepProgressStatus | null;
-  isCloseMatch?: boolean;
 };
 
 type Phase = {
@@ -92,11 +88,11 @@ type Phase = {
 export type TRoadmapPhaseProps = {
   phases: Phase[];
   enrollmentId: string;
+  nextStepId?: string | null;
   pending: StepPending | null;
   failedStepId: string | null;
   onStart: (enrollmentId: string, stepId: string) => void;
   onComplete: (enrollmentId: string, stepId: string) => void;
-  t: (key: string, values?: Record<string, string | number>) => string;
 };
 
 export type Recommendation = {
@@ -112,13 +108,13 @@ export type Recommendation = {
 export type Patch = Omit<PatchRoadmapDraftInput, "draftId">;
 export type CpdSetupPatch = Omit<PatchRoadmapCpdSetupInput, "draftId">;
 
-export type TRoadmapReviewSummary = {
+export type RoadmapBriefProps = {
   isPatching: boolean;
   draft: TRoadmapDraft;
   isGenerating?: boolean;
-  focusStage?: RoadmapChatStage;
-  isPatchingCpdSetup?: boolean;
   onGenerate?: () => void;
+  isPatchingCpdSetup?: boolean;
+  focusStage?: RoadmapChatStage;
   onPatch: (changes: Patch) => Promise<boolean>;
   onPatchCpdSetup?: (changes: CpdSetupPatch) => void;
 };
@@ -139,7 +135,10 @@ export type Row = {
 };
 
 export type TRowProps = {
+  idPrefix: string;
   row: Row;
+  isAsking: boolean;
+  isRequired: boolean;
   isEditing: boolean;
   onEdit: () => void;
   isPatching: boolean;
@@ -171,49 +170,92 @@ export type TRoadmapSuggestionExpansion = {
   onPick: (option: TRoadmapSuggestionOption) => void;
 };
 
-export type TRoadmapHeroProps = {
-  title: string;
-  locale: string;
-  progress: number;
-  description: string;
-  totalSteps: number;
-  phasesCount: number;
-  continueHref: string;
-  viewFullHref: string;
-  completedSteps: number;
-  newRoadmapHref: string;
-  targetDate?: string | null;
-  nextStepTitle?: string | null;
-  nextStepStatus?: RoadmapStepProgressStatus | null;
-  onContinue?: () => void;
-  estimatedWeeks?: number | null;
+export type RoadmapSection = "path" | "recommended" | "explore";
+
+export type RoadmapSwitcherProps = {
+  search: string;
+  showSearch: boolean;
+  isFetching: boolean;
+  activeRoadmapId?: string;
+  roadmaps: TProfessionalRoadmap[];
+  onSearchChange: (event: ChangeEvent<HTMLInputElement>) => void;
+};
+
+export type RoadmapWorkspaceHeaderProps = {
+  isUnenrolling: boolean;
+  roadmap: TProfessionalRoadmap;
+  onUnenroll: (enrollmentId: string) => void;
   headingRef: RefObject<HTMLHeadingElement | null>;
-  t: (key: string, values?: Record<string, string | number>) => string;
 };
 
-type TTimelinePhase = {
-  id: string;
-  title: string;
-  completed: boolean;
-  stepsCount: number;
-  completedSteps: number;
+export type RoadmapFocusCardProps = {
+  onExplore: () => void;
+  roadmap: TProfessionalRoadmap;
+  pending: StepPending | null;
+  failedStepId: string | null;
+  onStart: (enrollmentId: string, stepId: string) => void;
+  onComplete: (enrollmentId: string, stepId: string) => void;
 };
 
-export type TRoadmapJourneyTimelineProps = {
-  phases: TTimelinePhase[];
-  currentPhaseId: string | null;
-  t: (key: string, values?: Record<string, string | number>) => string;
+export type RoadmapSummaryRailProps = {
+  roadmap: TProfessionalRoadmap;
+};
+
+export type RoadmapStepMetaProps = {
+  children?: ReactNode;
+  credits?: number | null;
+  contentType?: string | null;
+  estimatedMinutes?: number | null;
+};
+
+export type RoadmapRecommendationsListProps = {
+  recommendations: Recommendation[];
+};
+
+export type RoadmapExploreListProps = {
+  page: number;
+  search: string;
+  isError: boolean;
+  onNext: () => void;
+  isLoading: boolean;
+  isFetching: boolean;
+  totalCount?: number;
+  onRetry: () => void;
+  hasNextPage: boolean;
+  onPrevious: () => void;
+  roadmaps: TProfessionalExploreRoadmap[];
+  onSearchChange: (event: ChangeEvent<HTMLInputElement>) => void;
+};
+
+export type RoadmapBriefRingProps = {
+  completed: number;
+  required: number;
+  className?: string;
+  showLabel?: boolean;
+};
+
+export type RoadmapChatStagesProps = {
+  draft: TRoadmapDraft;
+};
+
+export type RoadmapChatTranscriptProps = {
+  draftId: string;
+  isSending: boolean;
+  isLoading: boolean;
+  retryAfter: number;
+  onRetry: () => void;
+  messages: TRoadmapChatMessage[];
+  widget: TRoadmapWidget | null;
+  pending: TPendingMessage | null;
+  onAnswer: (value: string, label?: string) => void;
 };
 
 export type TRoadmapChatComposer = {
-  draftId: string;
   canSend: boolean;
   isSending: boolean;
   retryAfter: number;
   onSend: () => void;
   questionKey: string;
   composer: TComposerState;
-  widget: TRoadmapWidget | null;
   onChange: (value: string) => void;
-  onAnswer: (value: string, label?: string) => void;
 };
