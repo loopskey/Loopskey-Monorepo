@@ -1,16 +1,8 @@
 export const ROADMAP_TAB_HREF = "/dashboard/professional?tab=roadmap";
-export const ROADMAP_HERO_HASH = "#your-learning-path";
-export const ROADMAP_PHASES_HASH = "#your-learning-path-phases";
-export const ROADMAP_STEP_ID_PREFIX = "roadmap-step-";
+export const ROADMAP_CHAT_HREF = "/dashboard/professional/roadmap-chat";
 
-export const roadmapStepElementId = (stepId: string) =>
-  `${ROADMAP_STEP_ID_PREFIX}${stepId}`;
-
-export const buildRoadmapHref = (roadmapId: string, stepId?: string | null) => {
-  const params = new URLSearchParams({ tab: "roadmap", roadmapId });
-  if (stepId) params.set("stepId", stepId);
-  return `/dashboard/professional?${params.toString()}${ROADMAP_PHASES_HASH}`;
-};
+export const buildRoadmapTabHref = (roadmapId: string) =>
+  `${ROADMAP_TAB_HREF}&roadmapId=${encodeURIComponent(roadmapId)}`;
 
 const CONTENT_ROUTE_BY_TYPE: Record<string, string> = {
   COURSE: "/courses",

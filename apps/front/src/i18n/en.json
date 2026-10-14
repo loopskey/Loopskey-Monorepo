@@ -2596,9 +2596,21 @@
     "navLabel": "Dashboard navigation",
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
-    "menu": "Menu",
-    "tapToOpenMenu": "Tap to open menu",
-    "helpSupport": "Help & Support"
+    "helpSupport": "Help & Support",
+    "collapseSidebar": "Collapse sidebar",
+    "expandSidebar": "Expand sidebar",
+    "groups": {
+      "learning": "Learning",
+      "account": "Account",
+      "events": "Events",
+      "business": "Business",
+      "team": "Team",
+      "catalogue": "Catalogue",
+      "members": "Members",
+      "accounts": "Accounts",
+      "content": "Content",
+      "search": "Search"
+    }
   },
   "footer": {
     "brandDescription": "Your one-stop platform for all educational needs. Discover, learn, and grow with us.",
@@ -4455,67 +4467,29 @@
         "aiGenerated": "AI generated",
         "catalog": "Catalog",
         "phaseOf": "Phase {{current}} of {{total}}",
-        "phasesDone": "{{completed}} of {{total}} phases",
-        "phasesComplete": "{{completed}} of {{total}} phases complete",
         "completedOn": "Completed {{date}}",
-        "dueIn": "{{date}} · in {{days}} days",
-        "overdue": "{{date}} · {{days}} days overdue",
-        "cpdCredits": "{{earned}} of {{required}} CPD credits",
-        "start": "Start roadmap",
-        "continue": "Continue roadmap",
-        "view": "View roadmap",
-        "unenrollLabel": "Unenroll from {{title}}",
         "unenrollTitle": "Unenroll from this roadmap?",
         "unenrollDescription": "“{{title}}” will be removed from your roadmaps and its progress will no longer be tracked."
       },
-      "workspaceTitle": "Roadmap workspace",
-      "workspaceDescription": "Phases, next steps and recommendations for the roadmap you are viewing.",
       "emptyMyRoadmapsAction": "Create a roadmap",
-      "continueRoadmap": "Continue",
-      "viewFullRoadmap": "View full roadmap",
       "viewContent": "View content",
-      "heroEyebrow": "Your current AI roadmap",
-      "journeyTimeline": "Journey timeline",
       "nextStepTag": "Next",
       "hero": {
         "phasesCount": "{{count}} phases",
-        "targetDateWithCount": "Target {{date}} ({{days}} days left)",
-        "continueStep": "Continue: \"{{step}}\"",
-        "startStep": "Start: \"{{step}}\"",
-        "viewCompleted": "View completed roadmap",
         "moreActions": "More actions",
-        "progressRingLabel": "{{progress}}% complete",
-        "cpdStrip": "CPD target {{earned}}/{{required}} PDU",
-        "thisWeek": "This week: {{count}} steps done",
-        "streak": "{{count}}-day streak"
+        "progressRingLabel": "{{progress}}% complete"
       },
-      "enrolled": "Enrolled roadmaps",
-      "averageCompletion": "Average completion",
-      "completedPhases": "Completed phases",
-      "nextMilestone": "Next milestone",
-      "notAvailable": "Not available",
-      "overallProgress": "Overall progress",
-      "overallProgressDescription": "Based on {{count}} enrolled roadmap(s).",
-      "averageProgressText": "This shows your average progress across all active and completed professional roadmaps.",
-      "activitiesDone": "Activities done",
-      "noCpdTargetTracked": "No roadmap is tracking CPD credits yet.",
-      "remaining": "Remaining",
       "myRoadmaps": "My roadmaps",
-      "myRoadmapsDescription": "Continue, review, and track the roadmaps you are currently enrolled in.",
       "searchMyRoadmaps": "Search your roadmaps...",
-      "emptyMyRoadmapsTitle": "No roadmaps found",
-      "emptyMyRoadmapsDescription": "You are not enrolled in any roadmap yet, or no roadmap matches your search.",
-      "exploreRoadmaps": "Explore roadmaps",
-      "exploreRoadmapsDescription": "Discover new professional learning paths tailored to your growth goals.",
+      "emptyMyRoadmapsTitle": "No roadmaps yet",
+      "emptyMyRoadmapsDescription": "Build one with the roadmap coach to get a step-by-step learning path.",
       "exploreUnavailable": "Previewing and enrolling in catalog roadmaps is not available yet.",
       "searchExploreRoadmaps": "Search available roadmaps...",
       "emptyExploreTitle": "No roadmaps available",
       "emptyExploreDescription": "There are no published roadmaps available right now, or no roadmap matches your search.",
-      "phases": "phases",
       "steps": "steps",
       "duration": "Duration",
       "weeks": "{{count}} weeks",
-      "enroll": "Enroll",
       "unenroll": "Unenroll",
       "progressSection": "Your progress",
       "completedActivities": "Completed activities",
@@ -4528,15 +4502,9 @@
       "creditsOf": "{{earned}} of {{required}} credits",
       "cpdTarget": "CPD target",
       "cpdTargetComplete": "complete",
-      "creditsEarnedLabel": "Earned",
-      "creditsRemainingLabel": "Remaining",
-      "recommended": "You might also like",
       "recommendedDescription": "Content that fits your goal and is not already in your roadmap.",
-      "phasedContent": "Your Learning Path",
-      "phasedContentDescription": "Work through it in order, each item you finish moves your progress.",
       "weekRange": "Weeks {{start}}-{{end}}",
       "pduValue": "{{count}} PDU",
-      "coverageNote": "About this roadmap",
       "closeMatchDisclosure": {
         "title": "This roadmap uses close matches",
         "description": "We didn't find content that matches your subjects exactly, so this roadmap uses the closest available content instead. Refine your subjects to improve it.",
@@ -4550,7 +4518,6 @@
       "inProgress": "In progress",
       "notStarted": "Not started",
       "stepFailed": "That change was not saved. Please try again.",
-      "minutes": "{{count}} min",
       "free": "Free",
       "generating": {
         "title": "Building your roadmap",
@@ -4574,6 +4541,38 @@
         "description": "Your answers are saved. Try again now or review the brief before generating.",
         "action": "Try generation again",
         "reviewBrief": "Review brief"
+      },
+      "noRoadmapMatches": "No roadmap matches your search.",
+      "enrolledTag": "Enrolled",
+      "weekSingle": "Week {{week}}",
+      "openContent": "Open",
+      "stepActions": "More actions for {{title}}",
+      "showDetails": "Show details",
+      "hideDetails": "Hide details",
+      "showMore": "Show more",
+      "showLess": "Show less",
+      "sections": {
+        "path": "Learning path",
+        "recommended": "Recommended",
+        "explore": "Explore"
+      },
+      "focus": {
+        "startHere": "Start here",
+        "upNext": "Up next",
+        "completedTitle": "Roadmap completed",
+        "completedDescription": "You finished all {{count}} steps.",
+        "findNext": "Find your next roadmap"
+      },
+      "summary": {
+        "phasesDone": "Phases done",
+        "countOf": "{{completed}} of {{total}}",
+        "doneThisWeek": "Steps done this week",
+        "streak": "Streak",
+        "days": "{{count}} days"
+      },
+      "loadError": {
+        "title": "We could not load your roadmaps",
+        "description": "Check your connection and try again."
       }
     },
     "calendar": {
@@ -5107,7 +5106,7 @@
       "members": "Members",
       "assignments": "Assignments",
       "eventCatalog": "Event Catalog",
-      "cdpCategories": "CDP Categories",
+      "cdpCategories": "CPD Categories",
       "reports": "Reports"
     },
     "settings": {
@@ -7728,13 +7727,12 @@
   },
   "professionalRoadmapChat": {
     "title": "Roadmap coach",
-    "subtitle": "Answer a few questions and the coach builds a roadmap around your situation.",
     "backToRoadmaps": "Back to roadmaps",
     "startOver": "Start over",
     "startOverConfirmTitle": "Start over?",
     "startOverConfirmDescription": "This discards everything you have answered so far and begins a new conversation with the coach.",
     "startOverFailed": "We could not start over. Please try again.",
-    "briefButtonMobile": "Brief · {{completed}}/{{required}}",
+    "briefButtonMobile": "Brief {{completed}}/{{required}}",
     "saveState": {
       "saving": "Saving…",
       "saved": "Saved",
@@ -7768,17 +7766,16 @@
           "BUDGET_PREFERENCE": "What is your budget for learning resources?",
           "SUBJECTS": "Which specific subjects should the roadmap focus on?"
         }
-      }
+      },
+      "name": "Coach"
     },
     "composer": {
       "label": "Your answer",
-      "placeholder": "Answer in your own words…",
+      "placeholder": "Answer in your own words, or correct an earlier answer…",
       "send": "Send",
       "hint": "Press Enter to send, Shift + Enter for a new line.",
-      "correctionHint": "Want to change something you already told me? Just type it, for example “change my budget to under $100”.",
       "remaining": "{{remaining}} characters left",
-      "overLimit": "{{over}} characters over the limit",
-      "orOwnWords": "Or tell the coach in your own words"
+      "overLimit": "{{over}} characters over the limit"
     },
     "widget": {
       "yes": "Yes",
@@ -7811,46 +7808,26 @@
       "loadDescription": "This is a temporary problem on our side, not a problem with your answers."
     },
     "review": {
-      "title": "Review your answers",
+      "title": "Your brief",
       "description": "Change anything here and the coach uses the updated answer. Edits are saved as you make them.",
-      "edit": "Edit",
       "save": "Save",
       "cancel": "Cancel",
       "yes": "Yes",
       "no": "No",
-      "notSet": "Not set",
+      "notSet": "Not answered yet",
       "generate": "Generate my roadmap",
       "generating": "Starting generation...",
       "generateFailed": "We could not start generating your roadmap. Please try again.",
       "retryGenerate": "Try generating again",
-      "fixAction": {
-        "goal": "Add your goal",
-        "skillLevel": "Choose skill level",
-        "timeCommitment": "Choose weekly time",
-        "subjects": "Choose subjects",
-        "budgetPreference": "Choose budget",
-        "cpdAnswered": "Answer CPD question",
-        "certificationName": "Add certification"
-      },
       "waitingForCoach": "Answer the coach's next question, or confirm an answer above, to unlock your roadmap.",
-      "missing": {
-        "goal": "Define your learning goal.",
-        "skillLevel": "Choose your current skill level.",
-        "timeCommitment": "Choose your weekly time commitment.",
-        "subjects": "Choose at least one subject.",
-        "budgetPreference": "Choose your budget preference.",
-        "cpdAnswered": "Tell us whether you need CPD credits.",
-        "certificationName": "Enter your certification name."
-      },
-      "briefProgress": "Brief completion",
       "briefProgressValue": "{{completed}} of {{required}} required fields complete",
-      "notReachedYet": "You'll set this up after preferences.",
-      "status": {
-        "ready": "Ready",
-        "readyToRetry": "Ready to retry",
-        "confirmed": "Confirmed",
-        "needsAnswer": "Needs answer"
-      }
+      "subtitleCollecting": "Fills in as you answer",
+      "subtitleReady": "Ready to generate",
+      "stillNeeded": "Still needed:",
+      "complete": "Your brief is complete. You can still change any answer.",
+      "askingNow": "Asking now",
+      "required": "required",
+      "editField": "Edit {{field}}"
     },
     "cpdSetup": {
       "pickTitle": "Pick a certification to track, or search for another one.",
@@ -7896,7 +7873,9 @@
         "PODCAST": "Podcasts",
         "YOUTUBE": "YouTube"
       }
-    }
+    },
+    "stagesLabel": "Progress",
+    "stageOf": "Step {{current}} of {{total}}"
   },
   "topicHub": {
     "badge": "Topic guide",

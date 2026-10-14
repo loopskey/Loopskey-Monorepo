@@ -467,8 +467,8 @@ input[type="date"]::-webkit-datetime-edit-fields-wrapper {
 
 .sidebar-item {
   position: relative;
-  border-top-left-radius: 24px;
-  border-bottom-left-radius: 24px;
+  border-top-left-radius: 26px;
+  border-bottom-left-radius: 26px;
 }
 
 .sidebar-item::before,
@@ -494,26 +494,12 @@ input[type="date"]::-webkit-datetime-edit-fields-wrapper {
   box-shadow: 28px -28px 0 8px var(--background);
 }
 
-.sidebar-item:hover::before,
-.sidebar-item:hover::after,
 .sidebar-item[data-active="true"]::before,
 .sidebar-item[data-active="true"]::after {
   opacity: 1;
 }
 
-@media (hover: none) {
-  .sidebar-item:hover::before,
-  .sidebar-item:hover::after {
-    opacity: 0;
-  }
-}
-
 @media (min-width: 768px) {
-  .sidebar-item {
-    border-top-left-radius: 30px;
-    border-bottom-left-radius: 30px;
-  }
-
   .sidebar-item::before,
   .sidebar-item::after {
     width: 50px;

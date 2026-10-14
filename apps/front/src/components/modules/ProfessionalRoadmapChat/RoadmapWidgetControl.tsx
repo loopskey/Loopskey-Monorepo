@@ -6,6 +6,7 @@ import { RoadmapDraftFieldKey } from "@/lib/graphql/base";
 import { resolveWidgetOptions } from "@/utils/roadmap-widget-options.util";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@/components/ui/button";
+import { Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
@@ -15,6 +16,12 @@ const SUGGESTABLE_FIELDS: ReadonlySet<RoadmapDraftFieldKey> = new Set([
   RoadmapDraftFieldKey.Subjects,
   RoadmapDraftFieldKey.TargetRole,
 ]);
+
+const CHIP_CLASS_NAME =
+  "h-auto min-h-9 rounded-full border-border bg-background px-4 py-1.5 font-semibold text-foreground shadow-none hover:border-primary hover:bg-background hover:text-primary";
+
+const SELECTED_CHIP_CLASS_NAME =
+  "border-primary bg-accent text-primary hover:bg-accent";
 
 export const RoadmapWidgetControl = ({
   widget,
@@ -109,14 +116,15 @@ export const RoadmapWidgetControl = ({
     ];
 
     return (
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2.5">
         <div className="flex flex-wrap gap-2" role="group">
           {quickPicks.map((pick) => (
             <Button
-              radius="xl"
+              size="sm"
               key={pick.label}
               variant="outline"
               disabled={disabled}
+              className={CHIP_CLASS_NAME}
               onClick={() => onAnswer(toIsoDate(pick.date()), pick.label)}
             >
               {pick.label}
@@ -128,13 +136,14 @@ export const RoadmapWidgetControl = ({
           <Input
             type="date"
             value={date}
-            className="w-auto"
             disabled={disabled}
+            className="h-9 w-auto rounded-full"
             onChange={(event) => setDate(event.target.value)}
             aria-label={t("professionalRoadmapChat.widget.chooseDate")}
           />
           <Button
-            radius="xl"
+            size="sm"
+            radius="full"
             disabled={disabled || !date}
             onClick={() =>
               onAnswer(
@@ -150,42 +159,26 @@ export const RoadmapWidgetControl = ({
     );
   }
 
-  if (widget.type === "YES_NO")
-    return (
-      <div className="flex flex-wrap gap-2">
-        {options.map((option) => (
-          <Button
-            radius="xl"
-            variant="outline"
-            key={option.value}
-            disabled={disabled}
-            onClick={() => onAnswer(option.value, option.label)}
-          >
-            {option.label}
-          </Button>
-        ))}
-      </div>
-    );
-
-  if (widget.type === "SINGLE_SELECT")
+  if (widget.type === "YES_NO" || widget.type === "SINGLE_SELECT")
     return (
       <div className="flex flex-wrap items-center gap-2" role="group">
-        {allOptions.map((option) => (
+        {(widget.type === "YES_NO" ? options : allOptions).map((option) => (
           <Button
-            radius="xl"
+            size="sm"
             variant="outline"
             key={option.value}
             disabled={disabled}
+            className={CHIP_CLASS_NAME}
             onClick={() => onAnswer(option.value, option.label)}
           >
             {option.label}
           </Button>
         ))}
-        {isSuggestable ? (
+        {widget.type === "SINGLE_SELECT" && isSuggestable ? (
           <RoadmapSuggestionExpansion
             draftId={draftId}
-            field={widget.field}
             disabled={disabled}
+            field={widget.field}
             onPick={pickSuggestion}
           />
         ) : null}
@@ -193,21 +186,26 @@ export const RoadmapWidgetControl = ({
     );
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2.5">
       <div className="flex flex-wrap items-center gap-2" role="group">
         {allOptions.map((option) => {
           const isSelected = selected.includes(option.value);
 
           return (
             <Button
-              radius="xl"
+              size="sm"
+              variant="outline"
               key={option.value}
               aria-pressed={isSelected}
               onClick={() => toggle(option.value)}
-              variant={isSelected ? "default" : "outline"}
               disabled={disabled || (atLimit && !isSelected)}
-              className={cn(atLimit && !isSelected && "opacity-50")}
+              className={cn(
+                CHIP_CLASS_NAME,
+                isSelected && SELECTED_CHIP_CLASS_NAME,
+                atLimit && !isSelected && "opacity-50",
+              )}
             >
+              {isSelected ? <Check aria-hidden className="size-3.5" /> : null}
               {option.label}
             </Button>
           );
@@ -223,12 +221,9 @@ export const RoadmapWidgetControl = ({
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
-        <span aria-live="polite" className="text-xs text-muted-foreground">
-          {selectionLabel}
-        </span>
-
         <Button
-          radius="xl"
+          size="sm"
+          radius="full"
           disabled={disabled || selected.length === 0}
           onClick={() => {
             const labels = selected.map(
@@ -241,6 +236,13 @@ export const RoadmapWidgetControl = ({
         >
           {t("professionalRoadmapChat.widget.confirmSelection")}
         </Button>
+
+        <span
+          aria-live="polite"
+          className="text-xs tabular-nums text-muted-foreground"
+        >
+          {selectionLabel}
+        </span>
       </div>
     </div>
   );

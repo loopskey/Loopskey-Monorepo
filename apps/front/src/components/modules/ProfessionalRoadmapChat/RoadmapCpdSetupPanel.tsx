@@ -16,10 +16,10 @@ import type { TRoadmapDraft } from "@/types/professional-roadmap-chat.types";
 const KEY = "professionalRoadmapChat.cpdSetup";
 const COMMON_CERTIFICATIONS = [
   "PMP",
-  "PMP-ACP",
   "CFA",
   "CPA",
   "CISSP",
+  "PMP-ACP",
   "SHRM-CP",
 ];
 const EVIDENCE_OPTIONS = Object.values(CpdEvidenceType);
@@ -160,10 +160,10 @@ export const RoadmapCpdSetupPanel = ({
         <div className="flex flex-wrap gap-2">
           {COMMON_CERTIFICATIONS.map((abbreviation) => (
             <Button
-              key={abbreviation}
               size="sm"
-              radius="xl"
+              radius="full"
               variant="outline"
+              key={abbreviation}
               disabled={isPatching}
               onClick={() => pickCommon(abbreviation)}
             >
@@ -174,9 +174,9 @@ export const RoadmapCpdSetupPanel = ({
 
         <Input
           value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder={t(`${KEY}.searchPlaceholder`)}
           aria-label={t(`${KEY}.searchPlaceholder`)}
+          placeholder={t(`${KEY}.searchPlaceholder`)}
+          onChange={(event) => setQuery(event.target.value)}
         />
         {matches?.length ? (
           <ul className="flex flex-col gap-1">
@@ -184,7 +184,7 @@ export const RoadmapCpdSetupPanel = ({
               <li key={item.id}>
                 <Button
                   size="sm"
-                  radius="xl"
+                  radius="full"
                   variant="ghost"
                   disabled={isPatching}
                   className="w-full justify-start"
@@ -200,17 +200,17 @@ export const RoadmapCpdSetupPanel = ({
         <div className="flex flex-wrap gap-2">
           <Input
             value={manualName}
-            onChange={(event) => setManualName(event.target.value)}
-            placeholder={t(`${KEY}.manualPlaceholder`)}
-            aria-label={t(`${KEY}.manualPlaceholder`)}
             className="max-w-xs"
+            aria-label={t(`${KEY}.manualPlaceholder`)}
+            placeholder={t(`${KEY}.manualPlaceholder`)}
+            onChange={(event) => setManualName(event.target.value)}
           />
           <Button
             size="sm"
-            radius="xl"
+            radius="full"
             variant="outline"
-            disabled={!manualName.trim() || isPatching}
             onClick={saveManualName}
+            disabled={!manualName.trim() || isPatching}
           >
             {t(`${KEY}.useManual`)}
           </Button>
@@ -325,13 +325,13 @@ export const RoadmapCpdSetupPanel = ({
         <div className="flex flex-wrap gap-2">
           {EVIDENCE_OPTIONS.map((option) => (
             <Button
-              key={option}
               size="sm"
-              radius="xl"
+              key={option}
+              radius="full"
               type="button"
+              onClick={() => toggleEvidence(option)}
               aria-pressed={evidenceTypes.includes(option)}
               variant={evidenceTypes.includes(option) ? "default" : "outline"}
-              onClick={() => toggleEvidence(option)}
             >
               {t(`cpdProgress.evidence.${option}`)}
             </Button>
@@ -344,10 +344,10 @@ export const RoadmapCpdSetupPanel = ({
         <div className="flex flex-wrap gap-2">
           {(recipients ?? []).map((option) => (
             <Button
-              key={option.type}
               size="sm"
-              radius="xl"
+              radius="full"
               type="button"
+              key={option.type}
               aria-pressed={reportRecipientType === option.type}
               variant={
                 reportRecipientType === option.type ? "default" : "outline"
@@ -384,7 +384,7 @@ export const RoadmapCpdSetupPanel = ({
               />
               <Button
                 size="sm"
-                radius="xl"
+                radius="full"
                 variant="ghost"
                 onClick={() => removeCategory(index)}
               >
@@ -394,7 +394,7 @@ export const RoadmapCpdSetupPanel = ({
           ))}
           <Button
             size="sm"
-            radius="xl"
+            radius="full"
             variant="outline"
             className="w-fit"
             onClick={addCategory}
@@ -405,7 +405,7 @@ export const RoadmapCpdSetupPanel = ({
       </div>
 
       <Button
-        radius="xl"
+        radius="full"
         className="w-fit"
         disabled={isPatching}
         onClick={saveFields}
