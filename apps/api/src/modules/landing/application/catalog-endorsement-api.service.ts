@@ -53,10 +53,12 @@ export class CatalogEndorsementApiService implements CatalogEndorsementApi {
           ? await this.prisma.$queryRaw<EndorsementBrowseAnchor[]>(anchorQuery)
           : [];
         if (anchorId && !anchor) return [];
+        const windowSize =
+          direction === "after" && anchor ? limit + 1 : limit;
         const candidates = endorsementBrowseCandidates(
           query.contentType,
           anchor ?? null,
-          limit,
+          windowSize,
           direction,
         );
         const order =
@@ -65,7 +67,7 @@ export class CatalogEndorsementApiService implements CatalogEndorsementApi {
             : Prisma.sql`"recency" ASC, "contentType" DESC, "contentId" ASC`;
         const rows = await this.prisma.$queryRaw<
           CatalogSearchRow[]
-        >`WITH candidates AS (${candidates}) SELECT * FROM candidates ORDER BY ${order} LIMIT ${limit}`;
+        >`WITH candidates AS (${candidates}) SELECT * FROM candidates ORDER BY ${order} LIMIT ${windowSize}`;
         return direction === "after" ? rows : rows.reverse();
       }
       const bounds =
