@@ -113,12 +113,6 @@ export type TRequirementViewModel = {
   } | null;
 };
 
-export type TRequirementProgressRingProps = {
-  percent: number;
-  ariaLabel: string;
-  size?: number;
-};
-
 export type TRequirementSummaryStripProps = {
   t: I18nContextValue["t"];
   model: TRequirementViewModel;

@@ -3,45 +3,18 @@
 import { TAssociationOverviewSummaryReport } from "@/types/association-dashboard.types";
 import { AssociationReportSummaryStrip } from "@modules/AssociationDashboard/parts/association-report-summary-strip";
 import { ASSOCIATION_BAND_ORDER } from "@utils/association-compliance-bands";
-import { AssociationReportTable } from "@modules/AssociationDashboard/parts/association-report-table";
-import { useChartPalette } from "@hooks/useChartPalette";
+import { DataTable } from "@elements/data-table/data-table";
 import { TBandRow } from "@/types/association-dashboard.types";
-import { Skeleton } from "@ui/skeleton";
-
-import dynamic from "next/dynamic";
 
 import * as REPORTS from "@utils/association-reports";
-
-const ComplianceTrendChart = dynamic(
-  () =>
-    import(
-      "@modules/AssociationDashboard/parts/association-report-charts"
-    ).then((module) => module.ComplianceTrendChart),
-  {
-    ssr: false,
-    loading: () => <Skeleton className="h-72 w-full rounded-md" />,
-  },
-);
+import * as C from "@modules/AssociationDashboard/parts/association-report-charts";
+import * as L from "lucide-react";
 
 export const AssociationOverviewSummaryReport = ({
   hook,
 }: TAssociationOverviewSummaryReport) => {
-  const palette = useChartPalette();
-
-  const {
-    t,
-    page,
-    sort,
-    trend,
-    locale,
-    setPage,
-    summary,
-    direction,
-    toggleSort,
-    distribution,
-    orderAndPage,
-    isReportLoading,
-  } = hook;
+  const { t, trend, locale, summary, reportTable, distribution, orderAndPage } =
+    hook;
 
   const label = (key: string, vars?: Record<string, string | number>) =>
     t(`associationDashboard.reports.${key}`, vars);
@@ -126,27 +99,23 @@ export const AssociationOverviewSummaryReport = ({
         ]}
       />
 
-      <ComplianceTrendChart
+      <C.ComplianceTrendChart
         rows={trend}
         label={label}
         locale={locale}
-        palette={palette}
+        chrome={{
+          title: label("charts.trend.title"),
+          description: label("charts.trend.description"),
+          headingLevel: "h2",
+        }}
       />
 
-      <AssociationReportTable
-        page={page}
-        sort={sort}
-        pages={pages}
-        total={total}
+      <DataTable
+        {...reportTable(total, pages)}
         rows={pageRows}
-        onPage={setPage}
-        onSort={toggleSort}
-        direction={direction}
-        rowKey={(row) => row.id}
-        isLoading={isReportLoading}
-        emptyLabel={label("table.empty")}
         caption={label("summaryReport.caption")}
-        sortLabel={(header) => label("table.sort", { column: header })}
+        rowKey={(row) => row.id}
+        empty={{ icon: L.TableProperties, title: label("table.empty") }}
         columns={[
           {
             id: "name",

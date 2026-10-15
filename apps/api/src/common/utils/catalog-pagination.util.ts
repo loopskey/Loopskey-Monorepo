@@ -26,7 +26,7 @@ const CURSOR_TOKEN_PATTERN = /^[A-Za-z0-9_-]+$/;
 const CURSOR_ID_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
 
 export type CatalogCursorBinding = {
-  kind: CatalogFacetKind;
+  kind: CatalogFacetKind | "endorsement";
   order: string;
 };
 

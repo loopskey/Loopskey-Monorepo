@@ -3,9 +3,7 @@
 import { useProfessionalCertificates } from "@/hooks/useProfessionalCertificate";
 import { CertificateSummaryStrip } from "@modules/ProfessionalDashboard/parts/certificate-summary-strip";
 import { CertificateDetailCard } from "@modules/ProfessionalDashboard/parts/certificate-detail-card";
-import { CertificatesFilters } from "@modules/ProfessionalDashboard/parts/certificates-filters";
 import { CertificatesTable } from "@modules/ProfessionalDashboard/parts/certificates-table";
-import { ContentPagination } from "@elements/pagination";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
 
@@ -14,44 +12,24 @@ import * as L from "lucide-react";
 const CERTIFICATES = "professionalDashboard.certificates";
 
 const ProfessionalCertificatesTab = () => {
+  const hook = useProfessionalCertificates();
+
   const {
     t,
-    data,
-    page,
     filters,
     summary,
-    isError,
-    pageInfo,
-    isLoading,
-    isFetching,
-    isFiltered,
-    handleNext,
     handleEdit,
-    selectedId,
-    planOptions,
-    handleSelect,
-    handleDelete,
     handleUpload,
-    certificates,
     handleViewAll,
-    issuerOptions,
     handleDownload,
-    isPlansLoading,
-    handlePrevious,
     isSummaryError,
-    isIssuersLoading,
     handleViewActive,
     isSummaryLoading,
     downloadingFileId,
     handleViewExpiring,
-    handleFilterChange,
-    handleResetFilters,
     wasSelectionDeleted,
     selectedCertificate,
-    handleRetryAfterError,
-    deletingCertificateId,
-    isDeleting,
-  } = useProfessionalCertificates();
+  } = hook;
 
   return (
     <div className="space-y-6">
@@ -89,137 +67,27 @@ const ProfessionalCertificatesTab = () => {
         t={t}
         summary={summary}
         isError={isSummaryError}
-        isLoading={isSummaryLoading}
         onViewAll={handleViewAll}
+        isLoading={isSummaryLoading}
         statusFilter={filters.status}
-        nearestExpiry={summary?.nearestExpiry ?? null}
         onViewActive={handleViewActive}
         onViewExpiring={handleViewExpiring}
+        nearestExpiry={summary?.nearestExpiry ?? null}
       />
 
       {/* 3. Filters, table and the selected-certificate detail card */}
       <div className="grid gap-6 xl:grid-cols-3">
         <GlassCard className="xl:col-span-2">
-          <div className="mb-6 space-y-5">
-            <div>
-              <h2 className="text-xl font-medium">
-                {t(`${CERTIFICATES}.certificatesList`)}
-              </h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {t(`${CERTIFICATES}.certificatesListDesc`)}
-              </p>
-            </div>
-
-            <CertificatesFilters
-              t={t}
-              filters={filters}
-              isFiltered={isFiltered}
-              planOptions={planOptions}
-              onReset={handleResetFilters}
-              issuerOptions={issuerOptions}
-              onChange={handleFilterChange}
-              isPlansLoading={isPlansLoading}
-              isIssuersLoading={isIssuersLoading}
-            />
+          <div className="mb-5">
+            <h2 className="text-xl font-medium">
+              {t(`${CERTIFICATES}.certificatesList`)}
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {t(`${CERTIFICATES}.certificatesListDesc`)}
+            </p>
           </div>
 
-          {isLoading ? (
-            <div className="flex min-h-72 items-center justify-center">
-              <L.Loader2
-                aria-hidden
-                className="h-7 w-7 animate-spin text-primary"
-              />
-              <span className="sr-only">{t("common.loading")}</span>
-            </div>
-          ) : isError ? (
-            <div
-              role="alert"
-              className="rounded-lg border border-dashed border-destructive/40 bg-destructive/5 p-10 text-center"
-            >
-              <L.CircleAlert
-                aria-hidden
-                className="mx-auto h-10 w-10 text-destructive"
-              />
-              <h3 className="mt-4 text-xl font-medium">
-                {t(`${CERTIFICATES}.errorTitle`)}
-              </h3>
-              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
-                {t(`${CERTIFICATES}.errorDescription`)}
-              </p>
-              <Button
-                radius="xl"
-                type="button"
-                variant="outline"
-                className="mt-5"
-                onClick={handleRetryAfterError}
-              >
-                <L.RefreshCw className="h-4 w-4" aria-hidden />
-                {t("professionalDashboard.common.refresh")}
-              </Button>
-            </div>
-          ) : certificates.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-border p-10 text-center">
-              <L.Award
-                aria-hidden
-                className="mx-auto h-10 w-10 text-muted-foreground"
-              />
-              <h3 className="mt-4 text-xl font-medium">
-                {isFiltered
-                  ? t(`${CERTIFICATES}.noMatchTitle`)
-                  : t(`${CERTIFICATES}.emptyTitle`)}
-              </h3>
-              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
-                {isFiltered
-                  ? t(`${CERTIFICATES}.noMatchDescription`)
-                  : t(`${CERTIFICATES}.emptyDescription`)}
-              </p>
-
-              {isFiltered ? (
-                <Button
-                  radius="xl"
-                  type="button"
-                  variant="outline"
-                  className="mt-5"
-                  onClick={handleResetFilters}
-                >
-                  <L.FilterX className="h-4 w-4" aria-hidden />
-                  {t(`${CERTIFICATES}.filters.clear`)}
-                </Button>
-              ) : (
-                <Button
-                  radius="xl"
-                  type="button"
-                  className="mt-5"
-                  onClick={handleUpload}
-                >
-                  <L.UploadCloud className="h-4 w-4" aria-hidden />
-                  {t(`${CERTIFICATES}.uploadCertificate`)}
-                </Button>
-              )}
-            </div>
-          ) : (
-            <CertificatesTable
-              t={t}
-              onEdit={handleEdit}
-              onSelect={handleSelect}
-              onDelete={handleDelete}
-              selectedId={selectedId}
-              isDeleting={isDeleting}
-              certificates={certificates}
-              deletingCertificateId={deletingCertificateId}
-            />
-          )}
-
-          <ContentPagination
-            page={page}
-            className="mt-6"
-            onNext={handleNext}
-            canPrevious={page > 1}
-            isLoading={isFetching}
-            onPrevious={handlePrevious}
-            totalCount={data?.totalCount}
-            hasNextPage={Boolean(pageInfo?.hasNextPage)}
-          />
+          <CertificatesTable hook={hook} />
         </GlassCard>
 
         <div className="xl:col-span-1">

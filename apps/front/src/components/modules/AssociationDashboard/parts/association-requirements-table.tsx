@@ -3,20 +3,23 @@
 import { TAssociationRequirementsTable } from "@/types/association-dashboard.types";
 import { AssociationRequirementStatus } from "@/lib/graphql/base";
 import { TAssociationRequirementRow } from "@/types/association-dashboard.types";
-import { Skeleton } from "@ui/skeleton";
+import { DataTableFilters } from "@elements/data-table/data-table-filters";
+import { DataTable } from "@elements/data-table/data-table";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
-import { ConfirmDialog } from "@elements/confirm-dialog";
+
+import type { DataTableRowAction } from "@/types/data-table.types";
 
 import * as L from "lucide-react";
 
-import type { ReactNode } from "react";
+const REQUIREMENTS = "associationDashboard.requirements";
+const ALL = "ALL";
 
-type TRequirementColumn = {
-  id: string;
-  header: string;
-  cell: (requirement: TAssociationRequirementRow) => ReactNode;
-};
+const STATUSES = [
+  AssociationRequirementStatus.Draft,
+  AssociationRequirementStatus.Published,
+  AssociationRequirementStatus.Archived,
+];
 
 const statusVariant = (status: AssociationRequirementStatus) => {
   if (status === AssociationRequirementStatus.Published)
@@ -30,11 +33,24 @@ export const AssociationRequirementsTable = ({
 }: TAssociationRequirementsTable) => {
   const {
     t,
+    page,
     goTo,
+    search,
+    status,
     locale,
+    nextPage,
     isSaving,
+    setSearch,
+    setStatus,
+    isFiltered,
+    totalCount,
+    hasNextPage,
+    startWizard,
     isRefetching,
+    previousPage,
     requirements,
+    resetFilters,
+    hasNoRequirements,
     deleteRequirement,
     archiveRequirement,
   } = hook;
@@ -48,242 +64,183 @@ export const AssociationRequirementsTable = ({
       .filter(Boolean);
 
     if (named.length) return named.join(", ");
-    return t(
-      `associationDashboard.requirements.audience.${requirement.audienceKind}`,
-    );
+    return t(`${REQUIREMENTS}.audience.${requirement.audienceKind}`);
   };
 
-  const columns: TRequirementColumn[] = [
-    {
-      id: "name",
-      header: t("associationDashboard.requirements.table.name"),
-      cell: (requirement) => (
-        <div>
-          <p className="font-medium">{requirement.name}</p>
+  const confirmFor = (kind: "delete" | "archive", name: string) => ({
+    title: t(`${REQUIREMENTS}.confirm.${kind}Title`),
+    description: t(`${REQUIREMENTS}.confirm.${kind}Body`, { name }),
+    confirmLabel: t(`${REQUIREMENTS}.confirm.${kind}Confirm`),
+    cancelLabel: t(`${REQUIREMENTS}.confirm.cancel`),
+  });
 
-          <p className="text-xs text-muted-foreground">
-            {`${requirement.totalRequiredCredits.toLocaleString(locale)} ${requirement.creditType}`}{" "}
-            · {audienceLabel(requirement)}
-          </p>
-        </div>
-      ),
-    },
-    {
-      id: "cycle",
-      header: t("associationDashboard.requirements.table.cycle"),
-      cell: (requirement) =>
-        t(
-          `associationDashboard.requirements.cycle.${requirement.reportingCycle}`,
-        ),
-    },
-    {
-      id: "covered",
-      header: t("associationDashboard.requirements.table.covered"),
-      cell: (requirement) => (
-        <span className="tabular-nums">
-          {requirement.assignedMemberCount.toLocaleString(locale)}
-        </span>
-      ),
-    },
-    {
-      id: "deadline",
-      header: t("associationDashboard.requirements.table.deadline"),
-      cell: (requirement) => formatDate(requirement.deadline),
-    },
-    {
-      id: "status",
-      header: t("associationDashboard.requirements.table.status"),
-      cell: (requirement) => (
-        <Badge variant={statusVariant(requirement.status)}>
-          {t(`associationDashboard.requirements.status.${requirement.status}`)}
-        </Badge>
-      ),
-    },
-  ];
-
-  const rowActions = (requirement: TAssociationRequirementRow) => {
+  const actionsFor = (
+    requirement: TAssociationRequirementRow,
+  ): DataTableRowAction[] => {
     const isDraft = requirement.status === AssociationRequirementStatus.Draft;
+    const isPublished =
+      requirement.status === AssociationRequirementStatus.Published;
 
-    return (
-      <div className="flex items-center justify-end gap-2">
-        <Button
-          size="icon"
-          radius="xl"
-          type="button"
-          variant="outline"
-          disabled={isSaving}
-          onClick={() => goTo(requirement.id)}
-          aria-label={t("associationDashboard.requirements.table.viewFor", {
-            name: requirement.name,
-          })}
-        >
-          <L.Eye className="h-4 w-4" />
-        </Button>
+    const actions: DataTableRowAction[] = [
+      {
+        id: "view",
+        icon: L.Eye,
+        isDisabled: isSaving,
+        label: t("common.view"),
+        onSelect: () => goTo(requirement.id),
+      },
+      {
+        id: "edit",
+        icon: L.PencilLine,
+        isDisabled: isSaving,
+        label: t("common.edit"),
+        onSelect: () => goTo(requirement.id, isDraft ? "details" : undefined),
+      },
+    ];
 
-        <Button
-          size="icon"
-          radius="xl"
-          type="button"
-          variant="outline"
-          disabled={isSaving}
-          onClick={() => goTo(requirement.id, isDraft ? "details" : undefined)}
-          aria-label={t("associationDashboard.requirements.table.editFor", {
-            name: requirement.name,
-          })}
-        >
-          <L.PencilLine className="h-4 w-4" />
-        </Button>
+    if (isDraft)
+      actions.push({
+        id: "delete",
+        tone: "danger",
+        icon: L.Trash2,
+        isPending: isSaving,
+        label: t("common.delete"),
+        confirm: confirmFor("delete", requirement.name),
+        onSelect: () => deleteRequirement(requirement.id),
+      });
 
-        {isDraft && (
-          <ConfirmDialog
-            isLoading={isSaving}
-            confirmVariant="destructive"
-            title={t("associationDashboard.requirements.confirm.deleteTitle")}
-            cancelText={t("associationDashboard.requirements.confirm.cancel")}
-            confirmText={t(
-              "associationDashboard.requirements.confirm.deleteConfirm",
-            )}
-            description={t(
-              "associationDashboard.requirements.confirm.deleteBody",
-              { name: requirement.name },
-            )}
-            onConfirm={() => deleteRequirement(requirement.id)}
-            trigger={
-              <Button
-                size="icon"
-                radius="xl"
-                type="button"
-                variant="outline"
-                disabled={isSaving}
-                aria-label={t(
-                  "associationDashboard.requirements.table.deleteFor",
-                  { name: requirement.name },
-                )}
-              >
-                <L.Trash2 className="h-4 w-4" />
-              </Button>
-            }
-          />
-        )}
+    if (isPublished)
+      actions.push({
+        id: "archive",
+        tone: "danger",
+        icon: L.Archive,
+        isPending: isSaving,
+        label: t(`${REQUIREMENTS}.confirm.archiveConfirm`),
+        confirm: confirmFor("archive", requirement.name),
+        onSelect: () => archiveRequirement(requirement.id),
+      });
 
-        {requirement.status === AssociationRequirementStatus.Published && (
-          <ConfirmDialog
-            isLoading={isSaving}
-            confirmVariant="destructive"
-            title={t("associationDashboard.requirements.confirm.archiveTitle")}
-            cancelText={t("associationDashboard.requirements.confirm.cancel")}
-            confirmText={t(
-              "associationDashboard.requirements.confirm.archiveConfirm",
-            )}
-            description={t(
-              "associationDashboard.requirements.confirm.archiveBody",
-              { name: requirement.name },
-            )}
-            onConfirm={() => archiveRequirement(requirement.id)}
-            trigger={
-              <Button
-                size="icon"
-                radius="xl"
-                type="button"
-                variant="outline"
-                disabled={isSaving}
-                aria-label={t(
-                  "associationDashboard.requirements.table.archiveFor",
-                  { name: requirement.name },
-                )}
-              >
-                <L.Archive className="h-4 w-4" />
-              </Button>
-            }
-          />
-        )}
-      </div>
-    );
+    return actions;
   };
-
-  if (isRefetching) {
-    return (
-      <div className="mt-6 space-y-3" aria-busy="true">
-        {Array.from({ length: 5 }, (_, index) => (
-          <Skeleton key={index} className="h-16 w-full rounded-md" />
-        ))}
-      </div>
-    );
-  }
 
   return (
-    <>
-      <div className="mt-6 hidden overflow-x-auto lg:block">
-        <table className="w-full min-w-[860px] text-left text-sm">
-          <caption className="sr-only">
-            {t("associationDashboard.requirements.table.caption")}
-          </caption>
-
-          <thead className="text-xs uppercase text-muted-foreground">
-            <tr className="border-b border-border">
-              {columns.map((column) => (
-                <th key={column.id} scope="col" className="py-3">
-                  {column.header}
-                </th>
-              ))}
-
-              <th scope="col" className="py-3 text-right">
-                {t("associationDashboard.requirements.table.actions")}
-              </th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {requirements.map((requirement) => (
-              <tr
-                key={requirement.id}
-                className="border-b border-border/70 transition-colors hover:bg-primary/5"
-              >
-                {columns.map((column) => (
-                  <td key={column.id} className="py-4 pr-4 align-middle">
-                    {column.cell(requirement)}
-                  </td>
-                ))}
-
-                <td className="py-4 text-right">{rowActions(requirement)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <ul className="mt-6 space-y-3 lg:hidden">
-        {requirements.map((requirement) => (
-          <li key={requirement.id} className="rounded-lg border p-4">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="font-medium">{requirement.name}</p>
-
-                <p className="text-xs text-muted-foreground">
-                  {`${requirement.totalRequiredCredits.toLocaleString(locale)} ${requirement.creditType}`}{" "}
-                  · {audienceLabel(requirement)}
-                </p>
-              </div>
-
-              {rowActions(requirement)}
-            </div>
-
-            <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
-              {columns
-                .filter((column) => column.id !== "name")
-                .map((column) => (
-                  <div key={column.id}>
-                    <dt className="text-xs uppercase text-muted-foreground">
-                      {column.header}
-                    </dt>
-
-                    <dd className="mt-1">{column.cell(requirement)}</dd>
-                  </div>
-                ))}
-            </dl>
-          </li>
-        ))}
-      </ul>
-    </>
+    <DataTable
+      isFetching={isRefetching}
+      rowKey={(requirement) => requirement.id}
+      rows={hasNoRequirements ? [] : requirements}
+      rowLabel={(requirement) => requirement.name}
+      caption={t(`${REQUIREMENTS}.table.caption`)}
+      isFiltered={isFiltered && !hasNoRequirements}
+      rowActions={actionsFor}
+      pagination={{
+        kind: "cursor",
+        page,
+        hasNextPage,
+        total: totalCount,
+        onNext: nextPage,
+        onPrevious: previousPage,
+      }}
+      empty={{
+        icon: L.ListChecks,
+        title: t(`${REQUIREMENTS}.empty.firstRunTitle`),
+        description: t(`${REQUIREMENTS}.empty.firstRunBody`),
+        action: (
+          <Button radius="lg" type="button" onClick={startWizard}>
+            <L.Plus aria-hidden />
+            {t(`${REQUIREMENTS}.empty.createFirst`)}
+          </Button>
+        ),
+      }}
+      filteredEmpty={{
+        icon: L.SearchX,
+        title: t(`${REQUIREMENTS}.empty.noResultsTitle`),
+        description: t(`${REQUIREMENTS}.empty.noResultsBody`),
+        action: (
+          <Button
+            radius="lg"
+            type="button"
+            variant="outline"
+            onClick={resetFilters}
+          >
+            <L.FilterX aria-hidden />
+            {t(`${REQUIREMENTS}.filters.clear`)}
+          </Button>
+        ),
+      }}
+      toolbar={
+        <DataTableFilters
+          isFiltered={isFiltered}
+          onReset={resetFilters}
+          search={{
+            value: search,
+            onChange: setSearch,
+            label: t(`${REQUIREMENTS}.filters.search`),
+            placeholder: t(`${REQUIREMENTS}.filters.searchPlaceholder`),
+          }}
+          filters={[
+            {
+              type: "select",
+              id: "status",
+              value: status,
+              defaultValue: ALL,
+              onChange: setStatus,
+              label: t(`${REQUIREMENTS}.filters.status`),
+              options: [
+                { value: ALL, label: t(`${REQUIREMENTS}.filters.allStatuses`) },
+                ...STATUSES.map((value) => ({
+                  value,
+                  label: t(`${REQUIREMENTS}.status.${value}`),
+                })),
+              ],
+            },
+          ]}
+        />
+      }
+      columns={[
+        {
+          id: "name",
+          mobile: "title",
+          className: "max-w-80 whitespace-normal",
+          header: t(`${REQUIREMENTS}.table.name`),
+          cell: (requirement) => (
+            <span className="block">
+              <span className="block font-medium">{requirement.name}</span>
+              <span className="block text-xs font-normal text-muted-foreground">
+                {`${requirement.totalRequiredCredits.toLocaleString(locale)} ${requirement.creditType}`}{" "}
+                · {audienceLabel(requirement)}
+              </span>
+            </span>
+          ),
+        },
+        {
+          id: "status",
+          mobile: "badge",
+          header: t(`${REQUIREMENTS}.table.status`),
+          cell: (requirement) => (
+            <Badge variant={statusVariant(requirement.status)}>
+              {t(`${REQUIREMENTS}.status.${requirement.status}`)}
+            </Badge>
+          ),
+        },
+        {
+          id: "cycle",
+          header: t(`${REQUIREMENTS}.table.cycle`),
+          cell: (requirement) =>
+            t(`${REQUIREMENTS}.cycle.${requirement.reportingCycle}`),
+        },
+        {
+          id: "covered",
+          align: "end",
+          header: t(`${REQUIREMENTS}.table.covered`),
+          cell: (requirement) =>
+            requirement.assignedMemberCount.toLocaleString(locale),
+        },
+        {
+          id: "deadline",
+          header: t(`${REQUIREMENTS}.table.deadline`),
+          cell: (requirement) => formatDate(requirement.deadline),
+        },
+      ]}
+    />
   );
 };

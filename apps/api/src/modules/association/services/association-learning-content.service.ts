@@ -108,6 +108,7 @@ export class AssociationLearningContentService {
       search: input.search,
       contentType: input.contentType,
       take: input.take ?? 20,
+      cursor: input.cursor,
     });
   }
 

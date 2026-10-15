@@ -57,7 +57,12 @@ const STATE_PRECEDENCE = [
   AssociationAttributionState.COUNTED,
 ] as const;
 
-const projectMember = ({ user, ...member }: ProfileMemberRecord) => ({
+const projectMember = ({
+  user,
+  messageDeliveries,
+  ...member
+}: ProfileMemberRecord) => ({
+  invitationDelivery: messageDeliveries?.[0] ?? null,
   ...member,
   email: user.email,
   fullName: user.fullName,

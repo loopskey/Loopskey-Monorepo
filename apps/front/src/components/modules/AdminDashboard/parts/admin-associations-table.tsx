@@ -1,190 +1,228 @@
 "use client";
 
 import { TAdminAssociationsTable } from "@/types/admin-dashboard.types";
-import { ConfirmDialog } from "@elements/confirm-dialog";
+import { DataTableFilters } from "@elements/data-table/data-table-filters";
 import { UserStatus } from "@/lib/graphql/base";
 import { formatDate } from "@/utils/function-helper";
+import { DataTable } from "@elements/data-table/data-table";
 import { GlassCard } from "@elements/glass-card";
-import { Td, Th } from "@modules/AdminDashboard/parts/td-and-th-table";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
 
+import type { DataTableRowAction } from "@/types/data-table.types";
+
 import * as L from "lucide-react";
 
-const COLUMN_COUNT = 6;
+const ASSOCIATIONS = "adminDashboard.associations";
+const ALL = "ALL";
+
+const ownerStatusVariant = (status: UserStatus) => {
+  if (status === UserStatus.Active) return "default" as const;
+  if (status === UserStatus.Pending) return "secondary" as const;
+  return "destructive" as const;
+};
 
 export const AdminAssociationsTable = ({ hook }: TAdminAssociationsTable) => {
   const {
     t,
+    page,
     query,
     items,
     resend,
+    search,
+    refresh,
+    nextPage,
+    setSearch,
     isFiltered,
     isDeleting,
+    openCreate,
+    totalCount,
+    ownerStatus,
+    hasNextPage,
     isResending,
+    previousPage,
+    resetFilters,
+    setOwnerStatus,
+    hasActiveFilters,
     deleteAssociation,
+    ownerStatusOptions,
   } = hook;
 
   return (
-    <GlassCard className="overflow-hidden p-0">
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[960px] text-sm">
-          <thead className="border-b border-border bg-muted/40 text-left">
-            <tr>
-              <Th>{t("adminDashboard.associations.table.association")}</Th>
-              <Th>{t("adminDashboard.associations.table.representative")}</Th>
-              <Th>{t("adminDashboard.associations.table.workEmail")}</Th>
-              <Th>{t("adminDashboard.associations.table.ownerStatus")}</Th>
-              <Th>{t("adminDashboard.associations.table.createdAt")}</Th>
-              <Th>{t("adminDashboard.associations.table.actions")}</Th>
-            </tr>
-          </thead>
+    <GlassCard>
+      <DataTable
+        rows={items}
+        rowKey={(item) => item.id}
+        rowLabel={(item) => item.name}
+        isFiltered={isFiltered}
+        isLoading={query.isLoading}
+        isFetching={query.isFetching}
+        error={
+          query.isError
+            ? {
+                icon: L.CircleAlert,
+                title: t(`${ASSOCIATIONS}.error`),
+                action: (
+                  <Button
+                    radius="lg"
+                    type="button"
+                    variant="outline"
+                    onClick={() => void refresh()}
+                  >
+                    <L.RefreshCcw aria-hidden />
+                    {t("common.refresh")}
+                  </Button>
+                ),
+              }
+            : null
+        }
+        caption={t(`${ASSOCIATIONS}.title`)}
+        pagination={{
+          kind: "cursor",
+          page,
+          hasNextPage,
+          onNext: nextPage,
+          total: totalCount,
+          onPrevious: previousPage,
+        }}
+        empty={{
+          icon: L.Landmark,
+          title: t(`${ASSOCIATIONS}.empty`),
+          action: (
+            <Button radius="lg" type="button" onClick={openCreate}>
+              <L.Plus aria-hidden />
+              {t(`${ASSOCIATIONS}.actions.create`)}
+            </Button>
+          ),
+        }}
+        filteredEmpty={{
+          icon: L.SearchX,
+          title: t(`${ASSOCIATIONS}.noResults`),
+          action: (
+            <Button
+              radius="lg"
+              type="button"
+              variant="outline"
+              onClick={resetFilters}
+            >
+              <L.FilterX aria-hidden />
+              {t("common.reset")}
+            </Button>
+          ),
+        }}
+        toolbar={
+          <DataTableFilters
+            onReset={resetFilters}
+            isFiltered={hasActiveFilters}
+            search={{
+              value: search,
+              onChange: setSearch,
+              label: t(`${ASSOCIATIONS}.filters.search`),
+              placeholder: t(`${ASSOCIATIONS}.filters.search`),
+            }}
+            filters={[
+              {
+                type: "select",
+                id: "ownerStatus",
+                value: ownerStatus,
+                defaultValue: ALL,
+                label: t(`${ASSOCIATIONS}.filters.ownerStatus`),
+                onChange: (value) =>
+                  setOwnerStatus(
+                    ownerStatusOptions.find((option) => option === value) ??
+                      ALL,
+                  ),
+                options: ownerStatusOptions.map((option) => ({
+                  value: option,
+                  label: t(`${ASSOCIATIONS}.ownerStatus.${option}`),
+                })),
+              },
+            ]}
+          />
+        }
+        columns={[
+          {
+            id: "association",
+            mobile: "title",
+            header: t(`${ASSOCIATIONS}.table.association`),
+            cell: (item) => (
+              <span className="block">
+                <span className="block font-medium">{item.name}</span>
+                {item.country ? (
+                  <span className="block text-xs font-normal text-muted-foreground">
+                    {item.country}
+                  </span>
+                ) : null}
+              </span>
+            ),
+          },
+          {
+            id: "ownerStatus",
+            mobile: "badge",
+            header: t(`${ASSOCIATIONS}.table.ownerStatus`),
+            cell: (item) => (
+              <Badge variant={ownerStatusVariant(item.ownerStatus)}>
+                {t(`${ASSOCIATIONS}.ownerStatus.${item.ownerStatus}`)}
+              </Badge>
+            ),
+          },
+          {
+            id: "representative",
+            header: t(`${ASSOCIATIONS}.table.representative`),
+            cell: (item) => item.ownerFullName ?? "—",
+          },
+          {
+            id: "workEmail",
+            mobile: "wide",
+            header: t(`${ASSOCIATIONS}.table.workEmail`),
+            cell: (item) => item.ownerEmail ?? item.contactEmail ?? "—",
+          },
+          {
+            id: "createdAt",
+            header: t(`${ASSOCIATIONS}.table.createdAt`),
+            cell: (item) => formatDate(item.createdAt) ?? "—",
+          },
+        ]}
+        rowActions={(item) => {
+          const actions: DataTableRowAction[] = [];
 
-          <tbody>
-            {query.isLoading ? (
-              <tr>
-                <td
-                  colSpan={COLUMN_COUNT}
-                  className="p-10 text-center text-muted-foreground"
-                >
-                  <L.Loader2 className="mx-auto mb-3 h-5 w-5 animate-spin" />
-                  {t("common.loading")}
-                </td>
-              </tr>
-            ) : query.isError ? (
-              <tr>
-                <td
-                  colSpan={COLUMN_COUNT}
-                  className="p-10 text-center text-destructive"
-                >
-                  {t("adminDashboard.associations.error")}
-                </td>
-              </tr>
-            ) : items.length ? (
-              items.map((item) => (
-                <tr
-                  key={item.id}
-                  className="border-b border-border/70 transition-colors hover:bg-primary/5"
-                >
-                  <Td>
-                    <div className="font-medium">{item.name}</div>
-                    {item.country && (
-                      <div className="text-xs text-muted-foreground">
-                        {item.country}
-                      </div>
-                    )}
-                  </Td>
+          if (item.ownerStatus === UserStatus.Pending)
+            actions.push({
+              id: "resend",
+              icon: L.Send,
+              isPending: isResending,
+              label: t(`${ASSOCIATIONS}.actions.resend`),
+              onSelect: () => resend(item),
+              confirm: {
+                title: t(`${ASSOCIATIONS}.resend.title`),
+                description: t(`${ASSOCIATIONS}.resend.description`, {
+                  name: item.name,
+                }),
+                confirmLabel: t(`${ASSOCIATIONS}.resend.confirm`),
+                cancelLabel: t("common.cancel"),
+              },
+            });
 
-                  <Td>{item.ownerFullName ?? "—"}</Td>
+          actions.push({
+            id: "delete",
+            tone: "danger",
+            icon: L.Trash2,
+            isPending: isDeleting,
+            label: t(`${ASSOCIATIONS}.actions.delete`),
+            onSelect: () => deleteAssociation(item),
+            confirm: {
+              title: t(`${ASSOCIATIONS}.confirmDelete.title`),
+              description: t(`${ASSOCIATIONS}.confirmDelete.description`, {
+                name: item.name,
+              }),
+              confirmLabel: t("common.confirm"),
+              cancelLabel: t("common.cancel"),
+            },
+          });
 
-                  <Td>
-                    <span className="inline-flex items-center gap-2">
-                      <L.Mail className="h-4 w-4 text-primary" />
-                      {item.ownerEmail ?? item.contactEmail ?? "—"}
-                    </span>
-                  </Td>
-
-                  <Td>
-                    <Badge
-                      className="rounded-full"
-                      variant={
-                        item.ownerStatus === UserStatus.Active
-                          ? "default"
-                          : item.ownerStatus === UserStatus.Pending
-                            ? "secondary"
-                            : "destructive"
-                      }
-                    >
-                      {t(
-                        `adminDashboard.associations.ownerStatus.${item.ownerStatus}`,
-                      )}
-                    </Badge>
-                  </Td>
-
-                  <Td>{formatDate(item.createdAt) ?? "—"}</Td>
-
-                  <Td>
-                    <div className="flex flex-wrap gap-2">
-                      {item.ownerStatus === UserStatus.Pending && (
-                        <ConfirmDialog
-                          isLoading={isResending}
-                          onConfirm={() => resend(item)}
-                          cancelText={t("common.cancel")}
-                          title={t("adminDashboard.associations.resend.title")}
-                          confirmText={t(
-                            "adminDashboard.associations.resend.confirm",
-                          )}
-                          description={t(
-                            "adminDashboard.associations.resend.description",
-                            { name: item.name },
-                          )}
-                          trigger={
-                            <Button
-                              radius="xl"
-                              size="iconSm"
-                              variant="outline"
-                              title={t(
-                                "adminDashboard.associations.actions.resend",
-                              )}
-                              aria-label={t(
-                                "adminDashboard.associations.actions.resend",
-                              )}
-                            >
-                              <L.Send className="h-4 w-4" />
-                            </Button>
-                          }
-                        />
-                      )}
-                      <ConfirmDialog
-                        isLoading={isDeleting}
-                        onConfirm={() => deleteAssociation(item)}
-                        cancelText={t("common.cancel")}
-                        confirmVariant="destructive"
-                        title={t(
-                          "adminDashboard.associations.confirmDelete.title",
-                        )}
-                        confirmText={t("common.confirm")}
-                        description={t(
-                          "adminDashboard.associations.confirmDelete.description",
-                          { name: item.name },
-                        )}
-                        trigger={
-                          <Button
-                            radius="xl"
-                            size="iconSm"
-                            variant="destructive"
-                            title={t(
-                              "adminDashboard.associations.actions.delete",
-                            )}
-                            aria-label={t(
-                              "adminDashboard.associations.actions.delete",
-                            )}
-                          >
-                            <L.Trash2 className="h-4 w-4" />
-                          </Button>
-                        }
-                      />
-                    </div>
-                  </Td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan={COLUMN_COUNT}
-                  className="p-10 text-center text-muted-foreground"
-                >
-                  {t(
-                    isFiltered
-                      ? "adminDashboard.associations.noResults"
-                      : "adminDashboard.associations.empty",
-                  )}
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+          return actions;
+        }}
+      />
     </GlassCard>
   );
 };

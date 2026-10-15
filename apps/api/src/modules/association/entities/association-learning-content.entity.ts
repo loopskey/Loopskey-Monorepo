@@ -73,3 +73,11 @@ export class PaginatedAssociationLearningContentsEntity {
   @Field(() => [AssociationLearningContentEntity])
   items: AssociationLearningContentEntity[];
 }
+
+@ObjectType(AssociationGqlObjectNames.PAGINATED_ASSOCIATION_CATALOG)
+export class PaginatedAssociationCatalogEntity {
+  @Field(() => Int) totalCount: number;
+  @Field(() => AssociationPageInfoEntity) pageInfo: AssociationPageInfoEntity;
+  @Field(() => [AssociationCatalogItemEntity])
+  items: AssociationCatalogItemEntity[];
+}

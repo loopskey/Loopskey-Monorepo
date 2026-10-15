@@ -90,8 +90,3 @@ export const useChartSemantics = (): TChartSemantics => {
 
   return semantics;
 };
-
-export const semanticChartColor = (
-  semantics: TChartSemantics,
-  semantic: TChartSemantic,
-): string => semantics[semantic] ?? CHART_SEMANTIC_FALLBACKS[semantic];

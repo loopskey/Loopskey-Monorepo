@@ -160,9 +160,6 @@ export const isComputedAtStale = (computedAt: string | null, now: number) => {
   return now - at > STALE_COMPUTED_AT_MS;
 };
 
-export const chartTone = (color: string, weight: number) =>
-  `color-mix(in oklab, ${color} ${Math.round(weight * 100)}%, transparent)`;
-
 export const compareBy = <TRow>(
   rows: readonly TRow[],
   read: (row: TRow) => number | string | null,

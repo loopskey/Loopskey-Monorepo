@@ -3,18 +3,15 @@
 import { TAssociationMemberRequirementsSection } from "@/types/association-dashboard.types";
 import { AssociationMemberRequirementEvidence } from "@modules/AssociationDashboard/parts/association-member-requirement-evidence";
 import { AssociationComplianceBand } from "@/lib/graphql/base";
-import { useChartPalette } from "@hooks/useChartPalette";
+import { ChartFrame } from "@elements/charts/chart-frame";
+import { BarList } from "@elements/charts/bar-list";
+import { CHART_COLOR } from "@/utils/chart.util";
 import { GlassCard } from "@elements/glass-card";
 import { Progress } from "@ui/progress";
-import { Skeleton } from "@ui/skeleton";
 import { Badge } from "@ui/badge";
-
-import dynamic from "next/dynamic";
 
 import * as A from "@ui/accordion";
 import * as L from "lucide-react";
-
-const CHART_HEIGHT = "h-64";
 
 const BAND_VARIANTS = {
   [AssociationComplianceBand.RenewalReady]: "default",
@@ -23,22 +20,9 @@ const BAND_VARIANTS = {
   [AssociationComplianceBand.NotStarted]: "secondary",
 } as const;
 
-const CategoryChart = dynamic(
-  () =>
-    import("@modules/AssociationDashboard/parts/association-category-chart"),
-  {
-    ssr: false,
-    loading: () => (
-      <Skeleton className={`${CHART_HEIGHT} w-full rounded-md`} />
-    ),
-  },
-);
-
 export const AssociationMemberRequirementsSection = ({
   hook,
 }: TAssociationMemberRequirementsSection) => {
-  const palette = useChartPalette();
-
   const {
     t,
     locale,
@@ -247,39 +231,64 @@ export const AssociationMemberRequirementsSection = ({
               </div>
             )}
 
-            <div className="mt-8">
-              <h3 className="text-lg font-medium">
-                {t("associationDashboard.memberDetail.requirements.chartTitle")}
-              </h3>
-
-              {categoryRows.length === 0 ? (
-                <div
-                  className={`mt-4 flex ${CHART_HEIGHT} flex-col items-center justify-center rounded-md border border-dashed border-border text-center`}
-                >
-                  <L.ChartNoAxesColumn className="h-8 w-8 text-muted-foreground" />
-
-                  <p className="mt-3 font-medium">
-                    {t(
-                      "associationDashboard.memberDetail.requirements.chartEmptyTitle",
-                    )}
-                  </p>
-
-                  <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-                    {t(
-                      "associationDashboard.memberDetail.requirements.chartEmptyBody",
-                    )}
-                  </p>
-                </div>
-              ) : (
-                <div className="mt-4 overflow-x-auto">
-                  <CategoryChart
-                    label={label}
-                    palette={palette}
-                    rows={categoryRows}
-                  />
-                </div>
+            <ChartFrame
+              className="mt-8"
+              title={t("associationDashboard.memberDetail.requirements.chartTitle")}
+              isEmpty={categoryRows.length === 0}
+              emptyLabel={t(
+                "associationDashboard.memberDetail.requirements.chartEmptyBody",
               )}
-            </div>
+              legend={[
+                {
+                  id: "completed",
+                  label: label("categoryCompleted"),
+                  color: CHART_COLOR.series1,
+                },
+                { id: "required", kind: "marker", label: label("categoryRequired") },
+              ]}
+              table={{
+                caption: label("categoryChartLabel"),
+                columns: [
+                  label("categoryName"),
+                  label("categoryRequirement"),
+                  label("categoryCompleted"),
+                  label("categoryRequired"),
+                ],
+                rows: categoryRows.map((row) => ({
+                  id: row.id,
+                  cells: [
+                    row.name,
+                    row.requirementName,
+                    credits(row.completedCredits),
+                    credits(row.requiredCredits),
+                  ],
+                })),
+              }}
+            >
+              <BarList
+                labelWidth="lg"
+                formatValue={credits}
+                label={label("categoryChartLabel")}
+                valueName={label("categoryCompleted")}
+                targetName={label("categoryRequired")}
+                rows={categoryRows.map((row) => ({
+                  id: row.id,
+                  label: row.name,
+                  description: row.requirementName,
+                  value: row.completedCredits,
+                  target: row.requiredCredits,
+                  valueLabel: (
+                    <>
+                      {credits(row.completedCredits)}
+                      <span className="text-xs text-muted-foreground">
+                        {" "}
+                        / {credits(row.requiredCredits)}
+                      </span>
+                    </>
+                  ),
+                }))}
+              />
+            </ChartFrame>
           </>
         )}
       </div>

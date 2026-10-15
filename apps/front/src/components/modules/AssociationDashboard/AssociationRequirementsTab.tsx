@@ -1,16 +1,13 @@
 "use client";
 
 import { AssociationRequirementAssignDialog } from "@modules/AssociationDashboard/parts/association-requirement-assign-dialog";
-import { AssociationRequirementsFilters } from "@modules/AssociationDashboard/parts/association-requirements-filters";
 import { AssociationRequirementsHeader } from "@modules/AssociationDashboard/parts/association-requirements-header";
-import { AssociationRequirementsEmpty } from "@modules/AssociationDashboard/parts/association-requirements-empty";
+import { useAssociationRequirementsTab } from "@hooks/useAssociationRequirementsTab";
 import { AssociationRequirementsStats } from "@modules/AssociationDashboard/parts/association-requirements-stats";
 import { AssociationRequirementsTable } from "@modules/AssociationDashboard/parts/association-requirements-table";
 import { AssociationRequirementWizard } from "@modules/AssociationDashboard/parts/association-requirement-wizard";
 import { AssociationRequirementDetail } from "@modules/AssociationDashboard/parts/association-requirement-detail";
-import { useAssociationRequirementsTab } from "@hooks/useAssociationRequirementsTab";
 import { DashboardContentSkeleton } from "@layouts/parts/DashboardSkeleton";
-import { ContentPagination } from "@elements/pagination";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
 
@@ -19,15 +16,7 @@ import * as L from "lucide-react";
 const AssociationRequirementsTab = () => {
   const hook = useAssociationRequirementsTab();
 
-  const {
-    t,
-    isError,
-    isWizard,
-    isDetail,
-    isLoading,
-    requirements,
-    hasNoRequirements,
-  } = hook;
+  const { t, isError, isWizard, isDetail, isLoading } = hook;
 
   if (isLoading) {
     return (
@@ -77,26 +66,7 @@ const AssociationRequirementsTab = () => {
 
           <GlassCard>
             <div className="relative z-10">
-              <AssociationRequirementsFilters hook={hook} />
-
-              {requirements.length === 0 || hasNoRequirements ? (
-                <AssociationRequirementsEmpty hook={hook} />
-              ) : (
-                <>
-                  <AssociationRequirementsTable hook={hook} />
-
-                  <ContentPagination
-                    className="mt-6"
-                    page={hook.page}
-                    onNext={hook.nextPage}
-                    totalCount={hook.totalCount}
-                    isLoading={hook.isRefetching}
-                    onPrevious={hook.previousPage}
-                    canPrevious={hook.canPrevious}
-                    hasNextPage={hook.hasNextPage}
-                  />
-                </>
-              )}
+              <AssociationRequirementsTable hook={hook} />
             </div>
           </GlassCard>
         </>

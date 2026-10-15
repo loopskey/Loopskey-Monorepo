@@ -1463,6 +1463,8 @@
         "downloadError": "Impossible de télécharger ce fichier.",
         "emptyDescription": "Ajoutez votre première activité pour commencer le suivi de votre développement professionnel continu.",
         "emptyTitle": "Aucune activité d’apprentissage",
+        "errorDescription": "Vérifiez votre connexion et réessayez.",
+        "errorTitle": "Impossible de charger les activités",
         "noMatchDescription": "Élargissez votre recherche ou effacez les filtres pour voir toutes les activités.",
         "noMatchTitle": "Aucune activité ne correspond à vos filtres",
         "subtitle": "Gérez toutes les activités d’apprentissage que vous avez enregistrées.",
@@ -1553,9 +1555,21 @@
         "TRAINING_HOUR": "Heure de formation"
       },
       "cycleProgress": {
+        "ahead": "{{amount}} d’avance sur le rythme",
+        "behind": "{{amount}} de retard sur le rythme",
+        "byCategory": "Par catégorie",
+        "category": "Catégorie",
+        "due": "Échéance",
+        "earned": "Obtenus",
+        "expectedToday": "Attendu à ce jour",
+        "onPace": "Dans les temps",
+        "perMonth": "Nécessaire par mois",
+        "remaining": "Restants",
+        "required": "Requis",
         "subtitle": "Crédits obtenus par rapport aux crédits requis pour votre plan actuel",
         "summary": "{{earned}} sur {{total}} {{credit}} obtenus ({{percent}} %).",
-        "title": "Progression du cycle"
+        "title": "Progression du cycle",
+        "total": "Total"
       },
       "detail": {
         "approvalStatus": "Statut d’approbation",

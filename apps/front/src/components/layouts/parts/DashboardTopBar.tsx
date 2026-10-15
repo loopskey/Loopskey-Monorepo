@@ -1,5 +1,6 @@
 "use client";
 
+import { HEADER_CONTAINER_CLASS_NAME } from "@utils/constant";
 import { DASHBOARD_MENU_BUTTON_ID } from "@utils/constant";
 import { OVERLAY_LAYER_CLASS } from "@ui/overlay-layer";
 import { useDashboardDrawer } from "@/providers/dashboard-drawer-provider";
@@ -23,8 +24,8 @@ export const DashboardTopBar = () => {
         OVERLAY_LAYER_CLASS.applicationChrome,
       )}
     >
-      <div className="flex h-full items-center justify-between gap-3 pl-2 pr-4 sm:pr-6 lg:pl-0 lg:pr-8">
-        <div className="flex min-w-0 items-center gap-1 lg:w-64 lg:shrink-0 lg:pl-6">
+      <div className={cn(HEADER_CONTAINER_CLASS_NAME, "h-full gap-3")}>
+        <div className="flex min-w-0 items-center gap-1">
           <Button
             size="icon"
             type="button"
@@ -33,7 +34,7 @@ export const DashboardTopBar = () => {
             variant="ghost"
             aria-expanded={isOpen}
             id={DASHBOARD_MENU_BUTTON_ID}
-            className="shrink-0 lg:hidden"
+            className="-ml-2 shrink-0 lg:hidden"
             aria-label={t("dashboardShell.openMenu")}
           >
             <L.Menu aria-hidden />

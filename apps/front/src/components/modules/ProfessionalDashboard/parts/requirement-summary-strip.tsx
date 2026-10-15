@@ -1,6 +1,6 @@
 "use client";
 
-import { RequirementProgressRing } from "@modules/ProfessionalDashboard/parts/requirement-progress-ring";
+import { ProgressRing } from "@elements/charts/progress-ring";
 import { RequirementSourceBadge } from "@modules/ProfessionalDashboard/parts/requirement-source-badge";
 import { deadlineText, REQUIREMENT_TONE_CLASSES } from "@/utils/professional-requirement.helper";
 import { GlassCard } from "@elements/glass-card";
@@ -33,9 +33,12 @@ export const RequirementSummaryStrip = ({
   return (
     <GlassCard className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex min-w-0 items-center gap-4">
-        <RequirementProgressRing
+        <ProgressRing
+          size={88}
+          thickness={8}
           percent={model.percent}
-          ariaLabel={t(`${KEY}.chartAria`, {
+          value={`${Math.round(Math.min(Math.max(model.percent, 0), 100))}%`}
+          label={t(`${KEY}.chartAria`, {
             earned: model.earnedCredits,
             total: model.requiredCredits,
             credit: creditLabel,

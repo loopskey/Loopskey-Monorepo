@@ -528,6 +528,7 @@ export type AssociationCatalogItem = {
 
 export type AssociationCatalogSearchInput = {
   contentType?: InputMaybe<ContentType>;
+  cursor?: InputMaybe<Scalars['String']['input']>;
   search?: InputMaybe<Scalars['String']['input']>;
   take?: InputMaybe<Scalars['Int']['input']>;
 };
@@ -717,6 +718,15 @@ export type AssociationGroupProgressRow = {
   renewalReady: Scalars['Int']['output'];
 };
 
+export type AssociationInvitationDelivery = {
+  __typename?: 'AssociationInvitationDelivery';
+  createdAt: Scalars['DateTime']['output'];
+  failureReason?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  sentAt?: Maybe<Scalars['DateTime']['output']>;
+  state: AssociationMessageDeliveryState;
+};
+
 /** Whether an invitation linked an existing account, queued a new email, or was held back by the resend cooldown or daily limit */
 export enum AssociationInviteOutcome {
   InvitationCooldown = 'INVITATION_COOLDOWN',
@@ -821,6 +831,7 @@ export type AssociationMember = {
   fullName?: Maybe<Scalars['String']['output']>;
   group?: Maybe<AssociationMemberGroup>;
   id: Scalars['ID']['output'];
+  invitationDelivery?: Maybe<AssociationInvitationDelivery>;
   invitedAt: Scalars['DateTime']['output'];
   joinedVia: AssociationMemberJoinedVia;
   lastLoginAt?: Maybe<Scalars['DateTime']['output']>;
@@ -4650,6 +4661,13 @@ export type PaginatedAssociationAttentionRows = {
   totalCount: Scalars['Int']['output'];
 };
 
+export type PaginatedAssociationCatalog = {
+  __typename?: 'PaginatedAssociationCatalog';
+  items: Array<AssociationCatalogItem>;
+  pageInfo: AssociationPageInfo;
+  totalCount: Scalars['Int']['output'];
+};
+
 export type PaginatedAssociationCategoryAttentionGroups = {
   __typename?: 'PaginatedAssociationCategoryAttentionGroups';
   items: Array<AssociationCategoryAttentionGroup>;
@@ -6072,7 +6090,9 @@ export type Query = {
   associationActivationStatus: AssociationActivationStatus;
   associationAttentionLists: AssociationAttentionLists;
   associationAttentionMembers: PaginatedAssociationAttentionRows;
+  /** @deprecated Use associationCatalogSearchPage for cursor pagination and totalCount. */
   associationCatalogSearch: Array<AssociationCatalogItem>;
+  associationCatalogSearchPage: PaginatedAssociationCatalog;
   associationCategoryAttentionGroups: PaginatedAssociationCategoryAttentionGroups;
   associationCategoryCompletionReport: Array<AssociationCategoryProgressRow>;
   associationComplianceByGroup: Array<AssociationGroupCompliance>;
@@ -6328,6 +6348,12 @@ export type QueryAssociationAttentionMembersArgs = {
 
 
 export type QueryAssociationCatalogSearchArgs = {
+  associationId?: InputMaybe<Scalars['ID']['input']>;
+  input: AssociationCatalogSearchInput;
+};
+
+
+export type QueryAssociationCatalogSearchPageArgs = {
   associationId?: InputMaybe<Scalars['ID']['input']>;
   input: AssociationCatalogSearchInput;
 };

@@ -7,8 +7,9 @@ import { SearchHealthVitalStatus } from "@/lib/graphql/base";
 import { METRIC_ORDER, vitalsOf } from "@/utils/search-health";
 import { TelemetryIntakeOutcome } from "@/lib/graphql/base";
 import { TelemetryContentKind } from "@/lib/graphql/base";
+import { Gauge, LoaderCircle } from "lucide-react";
 import { formatMetricValue } from "@/utils/search-health";
-import { LoaderCircle } from "lucide-react";
+import { DataTable } from "@elements/data-table/data-table";
 import { GlassCard } from "@elements/glass-card";
 import { useState } from "react";
 import { useI18n } from "@/hooks/useI18n";
@@ -78,73 +79,58 @@ const SearchHealthReportView = ({ report }: { report: SearchHealthReport }) => {
             <h2 className="text-xl font-medium">
               {t(`searchHealth.metric.${metric}`)}
             </h2>
-            {segments.length === 0 ? (
-              <p className="rounded-lg border border-dashed p-4 text-muted-foreground">
-                {t("searchHealth.noVitals")}
-              </p>
-            ) : (
-              <div className="overflow-x-auto rounded-lg border">
-                <table className="w-full min-w-[40rem] text-left text-sm">
-                  <caption className="sr-only">
-                    {t(`searchHealth.metric.${metric}`)}
-                  </caption>
-                  <thead className="bg-muted/50">
-                    <tr>
-                      <th scope="col" className="p-3">
-                        {t("searchHealth.column.template")}
-                      </th>
-                      <th scope="col" className="p-3">
-                        {t("searchHealth.column.device")}
-                      </th>
-                      <th scope="col" className="p-3">
-                        {t("searchHealth.column.locale")}
-                      </th>
-                      <th scope="col" className="p-3 text-right">
-                        {t("searchHealth.column.samples")}
-                      </th>
-                      <th scope="col" className="p-3 text-right">
-                        {t("searchHealth.column.p75")}
-                      </th>
-                      <th scope="col" className="p-3">
-                        {t("searchHealth.column.status")}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {segments.map((segment) => (
-                      <tr
-                        key={`${segment.template}-${segment.device}-${segment.locale}`}
-                        className="border-t"
-                      >
-                        <th scope="row" className="p-3 font-normal">
-                          {t(`searchHealth.template.${segment.template}`)}
-                        </th>
-                        <td className="p-3">
-                          {t(`searchHealth.device.${segment.device}`)}
-                        </td>
-                        <td className="p-3">
-                          {t(`searchHealth.locale.${segment.locale}`)}
-                        </td>
-                        <td className="p-3 text-right tabular-nums">
-                          {segment.samples}
-                        </td>
-                        <td className="p-3 text-right tabular-nums">
-                          {segment.status ===
-                          SearchHealthVitalStatus.InsufficientData
-                            ? NO_DETAIL
-                            : formatMetricValue(metric, segment.p75)}
-                        </td>
-                        <td className="p-3">
-                          <Badge variant={STATUS_BADGE[segment.status]}>
-                            {t(`searchHealth.status.${segment.status}`)}
-                          </Badge>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+            <DataTable
+              rows={segments}
+              caption={t(`searchHealth.metric.${metric}`)}
+              empty={{ icon: Gauge, title: t("searchHealth.noVitals") }}
+              rowKey={(segment) =>
+                `${segment.template}-${segment.device}-${segment.locale}`
+              }
+              columns={[
+                {
+                  id: "template",
+                  mobile: "title",
+                  header: t("searchHealth.column.template"),
+                  cell: (segment) =>
+                    t(`searchHealth.template.${segment.template}`),
+                },
+                {
+                  id: "status",
+                  mobile: "badge",
+                  header: t("searchHealth.column.status"),
+                  cell: (segment) => (
+                    <Badge variant={STATUS_BADGE[segment.status]}>
+                      {t(`searchHealth.status.${segment.status}`)}
+                    </Badge>
+                  ),
+                },
+                {
+                  id: "device",
+                  header: t("searchHealth.column.device"),
+                  cell: (segment) => t(`searchHealth.device.${segment.device}`),
+                },
+                {
+                  id: "locale",
+                  header: t("searchHealth.column.locale"),
+                  cell: (segment) => t(`searchHealth.locale.${segment.locale}`),
+                },
+                {
+                  id: "samples",
+                  align: "end",
+                  header: t("searchHealth.column.samples"),
+                  cell: (segment) => segment.samples,
+                },
+                {
+                  id: "p75",
+                  align: "end",
+                  header: t("searchHealth.column.p75"),
+                  cell: (segment) =>
+                    segment.status === SearchHealthVitalStatus.InsufficientData
+                      ? NO_DETAIL
+                      : formatMetricValue(metric, segment.p75),
+                },
+              ]}
+            />
           </section>
         );
       })}
@@ -153,52 +139,38 @@ const SearchHealthReportView = ({ report }: { report: SearchHealthReport }) => {
         <h2 className="text-xl font-medium">
           {t("searchHealth.conversionsHeading")}
         </h2>
-        {report.conversions.length === 0 ? (
-          <p className="rounded-lg border border-dashed p-4 text-muted-foreground">
-            {t("searchHealth.noConversions")}
-          </p>
-        ) : (
-          <div className="overflow-x-auto rounded-lg border">
-            <table className="w-full min-w-[34rem] text-left text-sm">
-              <caption className="sr-only">
-                {t("searchHealth.conversionsHeading")}
-              </caption>
-              <thead className="bg-muted/50">
-                <tr>
-                  <th scope="col" className="p-3">
-                    {t("searchHealth.column.event")}
-                  </th>
-                  <th scope="col" className="p-3">
-                    {t("searchHealth.column.detail")}
-                  </th>
-                  <th scope="col" className="p-3">
-                    {t("searchHealth.column.source")}
-                  </th>
-                  <th scope="col" className="p-3 text-right">
-                    {t("searchHealth.column.count")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {report.conversions.map((row) => (
-                  <tr
-                    key={`${row.event}-${row.contentKind}-${row.role}-${row.attribution}`}
-                    className="border-t"
-                  >
-                    <th scope="row" className="p-3 font-normal">
-                      {t(`searchHealth.event.${row.event}`)}
-                    </th>
-                    <td className="p-3">{detailOf(row)}</td>
-                    <td className="p-3">
-                      {t(`searchHealth.attribution.${row.attribution}`)}
-                    </td>
-                    <td className="p-3 text-right tabular-nums">{row.count}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <DataTable
+          rows={report.conversions}
+          caption={t("searchHealth.conversionsHeading")}
+          empty={{ icon: Gauge, title: t("searchHealth.noConversions") }}
+          rowKey={(row) =>
+            `${row.event}-${row.contentKind}-${row.role}-${row.attribution}`
+          }
+          columns={[
+            {
+              id: "event",
+              mobile: "title",
+              header: t("searchHealth.column.event"),
+              cell: (row) => t(`searchHealth.event.${row.event}`),
+            },
+            {
+              id: "detail",
+              header: t("searchHealth.column.detail"),
+              cell: detailOf,
+            },
+            {
+              id: "source",
+              header: t("searchHealth.column.source"),
+              cell: (row) => t(`searchHealth.attribution.${row.attribution}`),
+            },
+            {
+              id: "count",
+              align: "end",
+              header: t("searchHealth.column.count"),
+              cell: (row) => row.count,
+            },
+          ]}
+        />
       </section>
 
       <section className="space-y-3">

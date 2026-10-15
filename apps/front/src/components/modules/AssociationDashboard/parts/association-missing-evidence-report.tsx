@@ -3,26 +3,22 @@
 import { TAssociationMissingEvidenceReport } from "@/types/association-dashboard.types";
 import { TAssociationMissingEvidenceRow } from "@/types/association-dashboard.types";
 import { AssociationReportSummaryStrip } from "@modules/AssociationDashboard/parts/association-report-summary-strip";
-import { AssociationReportTable } from "@modules/AssociationDashboard/parts/association-report-table";
+import { DataTable } from "@elements/data-table/data-table";
 
 import * as REPORTS from "@utils/association-reports";
+import * as L from "lucide-react";
 
 export const AssociationMissingEvidenceReport = ({
   hook,
 }: TAssociationMissingEvidenceReport) => {
   const {
     t,
-    page,
-    sort,
     locale,
-    setPage,
     summary,
-    direction,
-    toggleSort,
+    reportTable,
     openMember,
     orderAndPage,
     missingEvidence,
-    isReportLoading,
   } = hook;
 
   const label = (key: string, vars?: Record<string, string | number>) =>
@@ -83,26 +79,22 @@ export const AssociationMissingEvidenceReport = ({
         </p>
       )}
 
-      <AssociationReportTable
-        page={page}
-        sort={sort}
-        pages={pages}
-        total={total}
+      <DataTable
+        {...reportTable(total, pages)}
         rows={pageRows}
-        onPage={setPage}
-        onSort={toggleSort}
-        direction={direction}
-        rowKey={(row) => row.id}
-        isLoading={isReportLoading}
-        emptyLabel={label("table.empty")}
         caption={label("names.missing-evidence")}
-        onOpenRow={(row) => openMember(row.memberId)}
-        sortLabel={(header) => label("table.sort", { column: header })}
-        openLabel={(row) =>
-          label("table.openMember", {
-            name: row.fullName ?? row.email ?? row.memberId,
-          })
-        }
+        rowKey={(row) => row.id}
+        empty={{ icon: L.TableProperties, title: label("table.empty") }}
+        rowActions={(row) => [
+          {
+            id: "open",
+            icon: L.UserSearch,
+            label: label("table.openMember", {
+              name: row.fullName ?? row.email ?? row.memberId,
+            }),
+            onSelect: () => openMember(row.memberId),
+          },
+        ]}
         columns={[
           {
             id: "fullName",

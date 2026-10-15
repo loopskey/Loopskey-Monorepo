@@ -2,12 +2,9 @@
 
 import { LearningActivitiesSummaryStrip } from "@modules/ProfessionalDashboard/parts/learning-activities-summary-strip";
 import { useProfessionalCpdPduTracker } from "@/hooks/useProfessionalCpdPduTracker";
-import { ProgressDonutChart } from "@elements/dashboard-charts";
-import { ActivitiesFilters } from "@modules/ProfessionalDashboard/parts/activities-filters";
-import { ContentPagination } from "@elements/pagination";
+import { CycleProgressCard } from "@modules/ProfessionalDashboard/parts/cycle-progress-card";
 import { ActivitiesTable } from "@modules/ProfessionalDashboard/parts/activities-table";
 import { GlassCard } from "@elements/glass-card";
-import { Skeleton } from "@ui/skeleton";
 import { Button } from "@ui/button";
 
 import * as L from "lucide-react";
@@ -15,37 +12,18 @@ import * as L from "lucide-react";
 const TRACKER = "professionalDashboard.cpdPduTracker";
 
 const ProfessionalCpdPduTrackerTab = () => {
+  const hook = useProfessionalCpdPduTracker();
+
   const {
     t,
-    page,
-    filters,
     summary,
-    pageInfo,
     cyclePlan,
-    isFiltered,
-    activities,
-    handleNext,
-    yearOptions,
     cycleProgress,
-    activitiesData,
-    cycleChartData,
     isCycleLoading,
-    handlePrevious,
     isSummaryError,
     isSummaryLoading,
     handleAddActivity,
-    handleViewActivity,
-    handleFilterChange,
-    handleResetFilters,
-    handleEditActivity,
-    deletingActivityId,
-    isDeletingActivity,
-    isActivitiesLoading,
-    handleDeleteActivity,
-    activityTypeOptions,
-    isActivitiesFetching,
-    handleDownloadEvidence,
-  } = useProfessionalCpdPduTracker();
+  } = hook;
 
   return (
     <div className="space-y-6">
@@ -86,132 +64,26 @@ const ProfessionalCpdPduTrackerTab = () => {
         isLoading={isSummaryLoading}
       />
 
-      {/* 3. Cycle progress */}
       {cyclePlan && (isCycleLoading || cycleProgress) ? (
-        <GlassCard className="flex flex-col items-center text-center">
-          <h2 className="text-xl font-medium">
-            {t(`${TRACKER}.cycleProgress.title`)}
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {t(`${TRACKER}.cycleProgress.subtitle`)}
-          </p>
-
-          {isCycleLoading || !cycleProgress ? (
-            <Skeleton className="mx-auto mt-4 h-52 w-52 rounded-full" />
-          ) : (
-            <>
-              <div className="mx-auto mt-2 w-full max-w-[220px]">
-                <ProgressDonutChart
-                  data={cycleChartData}
-                  ariaLabel={t(`${TRACKER}.cycleProgress.title`)}
-                  centerLabel={
-                    <span className="text-3xl font-medium text-primary">
-                      {Math.round(cycleProgress.progressPercent)}%
-                    </span>
-                  }
-                />
-              </div>
-
-              <p className="mt-2 text-center text-sm text-muted-foreground">
-                {t(`${TRACKER}.cycleProgress.summary`, {
-                  earned: cycleProgress.earnedCredits,
-                  total: cycleProgress.totalRequiredCredits,
-                  credit: t(`cpdProgress.creditTypes.${cyclePlan.creditType}`),
-                  percent: cycleProgress.progressPercent.toFixed(0),
-                })}
-              </p>
-            </>
-          )}
-        </GlassCard>
+        <CycleProgressCard
+          t={t}
+          plan={cyclePlan}
+          progress={cycleProgress}
+          isLoading={isCycleLoading}
+        />
       ) : null}
 
-      {/* 3. Search and filter toolbar + 4. Activities table */}
       <GlassCard>
-        <div className="mb-6 space-y-5">
-          <div>
-            <h2 className="text-xl font-medium">
-              {t(`${TRACKER}.activities.title`)}
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {t(`${TRACKER}.activities.subtitle`)}
-            </p>
-          </div>
-
-          <ActivitiesFilters
-            t={t}
-            filters={filters}
-            isFiltered={isFiltered}
-            yearOptions={yearOptions}
-            onReset={handleResetFilters}
-            onChange={handleFilterChange}
-            isLoading={isActivitiesFetching}
-            activityTypeOptions={activityTypeOptions}
-          />
+        <div className="mb-5">
+          <h2 className="text-xl font-medium">
+            {t(`${TRACKER}.activities.title`)}
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {t(`${TRACKER}.activities.subtitle`)}
+          </p>
         </div>
 
-        {isActivitiesLoading ? (
-          <div className="flex min-h-72 items-center justify-center">
-            <L.Loader2 className="h-7 w-7 animate-spin text-primary" />
-          </div>
-        ) : activities.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-border p-10 text-center">
-            <h3 className="text-xl font-medium">
-              {isFiltered
-                ? t(`${TRACKER}.activities.noMatchTitle`)
-                : t(`${TRACKER}.activities.emptyTitle`)}
-            </h3>
-            <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
-              {isFiltered
-                ? t(`${TRACKER}.activities.noMatchDescription`)
-                : t(`${TRACKER}.activities.emptyDescription`)}
-            </p>
-
-            {isFiltered ? (
-              <Button
-                radius="xl"
-                type="button"
-                variant="outline"
-                className="mt-5"
-                onClick={handleResetFilters}
-              >
-                <L.FilterX className="h-4 w-4" />
-                {t(`${TRACKER}.filters.clear`)}
-              </Button>
-            ) : (
-              <Button
-                radius="xl"
-                type="button"
-                className="mt-5"
-                onClick={handleAddActivity}
-              >
-                <L.FilePlus2 className="h-4 w-4" />
-                {t(`${TRACKER}.quickActions.addActivity`)}
-              </Button>
-            )}
-          </div>
-        ) : (
-          <ActivitiesTable
-            t={t}
-            activities={activities}
-            onView={handleViewActivity}
-            onEdit={handleEditActivity}
-            isDeleting={isDeletingActivity}
-            onDelete={handleDeleteActivity}
-            onDownload={handleDownloadEvidence}
-            deletingActivityId={deletingActivityId}
-          />
-        )}
-
-        <ContentPagination
-          page={page}
-          className="mt-6"
-          onNext={handleNext}
-          canPrevious={page > 1}
-          onPrevious={handlePrevious}
-          isLoading={isActivitiesFetching}
-          totalCount={activitiesData?.totalCount}
-          hasNextPage={Boolean(pageInfo?.hasNextPage)}
-        />
+        <ActivitiesTable hook={hook} />
       </GlassCard>
     </div>
   );

@@ -4,7 +4,7 @@ import type { ContentType, UpsertPduTargetInput } from "@/lib/graphql/base";
 import type { ElementType, ReactNode } from "react";
 import type { TCertificateFormInput } from "@/lib/validations/certificate.schema";
 import type { TPduActivityFormInput } from "@/lib/validations/pdu-activity.schema";
-import type { LucideIcon, Pencil } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import type { I18nContextValue } from "@/types/providers.types";
 import type { Control } from "react-hook-form";
 
@@ -128,31 +128,6 @@ export type TPduActivityFilters = {
   certificate: TPduActivityCertificateFilter;
 };
 
-export type TPduActivitiesTableProps = {
-  isDeleting: boolean;
-  t: I18nContextValue["t"];
-  activities: TPduActivity[];
-  deletingActivityId: string | null;
-  onView: (activityId: string) => void;
-  onEdit: (activityId: string) => void;
-  onDelete: (activityId: string) => void;
-  onDownload: (file: TPduEvidenceFile) => void;
-};
-
-export type TPduActivityFiltersProps = {
-  isFiltered: boolean;
-  isLoading: boolean;
-  onReset: () => void;
-  yearOptions: number[];
-  t: I18nContextValue["t"];
-  filters: TPduActivityFilters;
-  activityTypeOptions: BAPI.PduSource[];
-  onChange: <K extends keyof TPduActivityFilters>(
-    key: K,
-    value: TPduActivityFilters[K],
-  ) => void;
-};
-
 export type TPduWizardStep = {
   value: number;
   title: string;
@@ -209,32 +184,6 @@ export type TCertificateFilters = {
 export type TCertificatePlanOption = {
   id: string;
   name: string;
-};
-
-export type TCertificatesFiltersProps = {
-  isFiltered: boolean;
-  onReset: () => void;
-  issuerOptions: string[];
-  isPlansLoading: boolean;
-  t: I18nContextValue["t"];
-  isIssuersLoading: boolean;
-  filters: TCertificateFilters;
-  planOptions: TCertificatePlanOption[];
-  onChange: <K extends keyof TCertificateFilters>(
-    key: K,
-    value: TCertificateFilters[K],
-  ) => void;
-};
-
-export type TCertificatesTableProps = {
-  isDeleting: boolean;
-  t: I18nContextValue["t"];
-  selectedId: string | null;
-  deletingCertificateId: string | null;
-  onEdit: (certificateId: string) => void;
-  certificates: ProfessionalCertificate[];
-  onSelect: (certificateId: string) => void;
-  onDelete: (certificateId: string) => void;
 };
 
 export type TCertificateDetailCardProps = {
@@ -469,31 +418,3 @@ export type TCertificateFormFieldsProps = {
   onDownloadExisting: (file: TEvidenceFileLike) => void;
 };
 
-export type TIconAction = {
-  label: string;
-  disabled?: boolean;
-  icon: typeof Pencil;
-  onClick?: () => void;
-  variant?: "outline" | "cancel";
-};
-
-export type TLinkedTo = {
-  t: I18nContextValue["t"];
-  certificate: ProfessionalCertificate;
-};
-
-export type TRowActions = {
-  isDeleting: boolean;
-  t: I18nContextValue["t"];
-  deletingCertificateId: string | null;
-  certificate: ProfessionalCertificate;
-  onEdit: TCertificatesTableProps["onEdit"];
-  onDelete: TCertificatesTableProps["onDelete"];
-};
-
-export type TSelectButton = {
-  className?: string;
-  isSelected: boolean;
-  certificate: ProfessionalCertificate;
-  onSelect: TCertificatesTableProps["onSelect"];
-};

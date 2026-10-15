@@ -42,7 +42,7 @@ export type AssociationAccountsQuery = { __typename?: 'Query', associationAccoun
 
 export type AssociationMemberGroupFieldsFragment = { __typename?: 'AssociationMemberGroup', id: string, title: string, isActive: boolean };
 
-export type AssociationMemberFieldsFragment = { __typename?: 'AssociationMember', id: string, userId: string, fullName?: string | null, email?: string | null, avatarUrl?: string | null, memberNumber?: string | null, notes?: string | null, status: Types.AssociationMemberStatus, joinedVia: Types.AssociationMemberJoinedVia, lastLoginAt?: string | null, invitedAt: string, activatedAt?: string | null, deactivatedAt?: string | null, requirementNames: Array<string>, complianceSummary?: { __typename?: 'AssociationComplianceSummary', memberId: string, percent: number, band: Types.AssociationComplianceBand, isMissingEvidence: boolean, awaitingReviewCount: number } | null, group?: { __typename?: 'AssociationMemberGroup', id: string, title: string, isActive: boolean } | null };
+export type AssociationMemberFieldsFragment = { __typename?: 'AssociationMember', id: string, userId: string, fullName?: string | null, email?: string | null, avatarUrl?: string | null, memberNumber?: string | null, notes?: string | null, status: Types.AssociationMemberStatus, joinedVia: Types.AssociationMemberJoinedVia, lastLoginAt?: string | null, invitedAt: string, activatedAt?: string | null, deactivatedAt?: string | null, requirementNames: Array<string>, invitationDelivery?: { __typename?: 'AssociationInvitationDelivery', id: string, state: Types.AssociationMessageDeliveryState, createdAt: string, sentAt?: string | null, failureReason?: string | null } | null, complianceSummary?: { __typename?: 'AssociationComplianceSummary', memberId: string, percent: number, band: Types.AssociationComplianceBand, isMissingEvidence: boolean, awaitingReviewCount: number } | null, group?: { __typename?: 'AssociationMemberGroup', id: string, title: string, isActive: boolean } | null };
 
 export type AssociationGroupFieldsFragment = { __typename?: 'AssociationGroup', id: string, title: string, description?: string | null, isActive: boolean, memberCount: number, createdAt: string, updatedAt: string };
 
@@ -52,7 +52,7 @@ export type AssociationMembersQueryVariables = Types.Exact<{
 }>;
 
 
-export type AssociationMembersQuery = { __typename?: 'Query', associationMembers: { __typename?: 'PaginatedAssociationMembers', totalCount: number, pageInfo: { __typename?: 'AssociationPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'AssociationMember', id: string, userId: string, fullName?: string | null, email?: string | null, avatarUrl?: string | null, memberNumber?: string | null, notes?: string | null, status: Types.AssociationMemberStatus, joinedVia: Types.AssociationMemberJoinedVia, lastLoginAt?: string | null, invitedAt: string, activatedAt?: string | null, deactivatedAt?: string | null, requirementNames: Array<string>, complianceSummary?: { __typename?: 'AssociationComplianceSummary', memberId: string, percent: number, band: Types.AssociationComplianceBand, isMissingEvidence: boolean, awaitingReviewCount: number } | null, group?: { __typename?: 'AssociationMemberGroup', id: string, title: string, isActive: boolean } | null }> } };
+export type AssociationMembersQuery = { __typename?: 'Query', associationMembers: { __typename?: 'PaginatedAssociationMembers', totalCount: number, pageInfo: { __typename?: 'AssociationPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'AssociationMember', id: string, userId: string, fullName?: string | null, email?: string | null, avatarUrl?: string | null, memberNumber?: string | null, notes?: string | null, status: Types.AssociationMemberStatus, joinedVia: Types.AssociationMemberJoinedVia, lastLoginAt?: string | null, invitedAt: string, activatedAt?: string | null, deactivatedAt?: string | null, requirementNames: Array<string>, invitationDelivery?: { __typename?: 'AssociationInvitationDelivery', id: string, state: Types.AssociationMessageDeliveryState, createdAt: string, sentAt?: string | null, failureReason?: string | null } | null, complianceSummary?: { __typename?: 'AssociationComplianceSummary', memberId: string, percent: number, band: Types.AssociationComplianceBand, isMissingEvidence: boolean, awaitingReviewCount: number } | null, group?: { __typename?: 'AssociationMemberGroup', id: string, title: string, isActive: boolean } | null }> } };
 
 export type AssociationMemberStatsQueryVariables = Types.Exact<{ [key: string]: never; }>;
 
@@ -76,7 +76,7 @@ export type InviteAssociationMemberMutationVariables = Types.Exact<{
 }>;
 
 
-export type InviteAssociationMemberMutation = { __typename?: 'Mutation', inviteAssociationMember: { __typename?: 'AssociationInviteResult', outcome: Types.AssociationInviteOutcome, member: { __typename?: 'AssociationMember', id: string, userId: string, fullName?: string | null, email?: string | null, avatarUrl?: string | null, memberNumber?: string | null, notes?: string | null, status: Types.AssociationMemberStatus, joinedVia: Types.AssociationMemberJoinedVia, lastLoginAt?: string | null, invitedAt: string, activatedAt?: string | null, deactivatedAt?: string | null, requirementNames: Array<string>, complianceSummary?: { __typename?: 'AssociationComplianceSummary', memberId: string, percent: number, band: Types.AssociationComplianceBand, isMissingEvidence: boolean, awaitingReviewCount: number } | null, group?: { __typename?: 'AssociationMemberGroup', id: string, title: string, isActive: boolean } | null } } };
+export type InviteAssociationMemberMutation = { __typename?: 'Mutation', inviteAssociationMember: { __typename?: 'AssociationInviteResult', outcome: Types.AssociationInviteOutcome, member: { __typename?: 'AssociationMember', id: string, userId: string, fullName?: string | null, email?: string | null, avatarUrl?: string | null, memberNumber?: string | null, notes?: string | null, status: Types.AssociationMemberStatus, joinedVia: Types.AssociationMemberJoinedVia, lastLoginAt?: string | null, invitedAt: string, activatedAt?: string | null, deactivatedAt?: string | null, requirementNames: Array<string>, invitationDelivery?: { __typename?: 'AssociationInvitationDelivery', id: string, state: Types.AssociationMessageDeliveryState, createdAt: string, sentAt?: string | null, failureReason?: string | null } | null, complianceSummary?: { __typename?: 'AssociationComplianceSummary', memberId: string, percent: number, band: Types.AssociationComplianceBand, isMissingEvidence: boolean, awaitingReviewCount: number } | null, group?: { __typename?: 'AssociationMemberGroup', id: string, title: string, isActive: boolean } | null } } };
 
 export type BulkInviteAssociationMembersMutationVariables = Types.Exact<{
   input: Types.BulkInviteAssociationMembersInput;
@@ -90,21 +90,21 @@ export type UpdateAssociationMemberMutationVariables = Types.Exact<{
 }>;
 
 
-export type UpdateAssociationMemberMutation = { __typename?: 'Mutation', updateAssociationMember: { __typename?: 'AssociationMember', id: string, userId: string, fullName?: string | null, email?: string | null, avatarUrl?: string | null, memberNumber?: string | null, notes?: string | null, status: Types.AssociationMemberStatus, joinedVia: Types.AssociationMemberJoinedVia, lastLoginAt?: string | null, invitedAt: string, activatedAt?: string | null, deactivatedAt?: string | null, requirementNames: Array<string>, complianceSummary?: { __typename?: 'AssociationComplianceSummary', memberId: string, percent: number, band: Types.AssociationComplianceBand, isMissingEvidence: boolean, awaitingReviewCount: number } | null, group?: { __typename?: 'AssociationMemberGroup', id: string, title: string, isActive: boolean } | null } };
+export type UpdateAssociationMemberMutation = { __typename?: 'Mutation', updateAssociationMember: { __typename?: 'AssociationMember', id: string, userId: string, fullName?: string | null, email?: string | null, avatarUrl?: string | null, memberNumber?: string | null, notes?: string | null, status: Types.AssociationMemberStatus, joinedVia: Types.AssociationMemberJoinedVia, lastLoginAt?: string | null, invitedAt: string, activatedAt?: string | null, deactivatedAt?: string | null, requirementNames: Array<string>, invitationDelivery?: { __typename?: 'AssociationInvitationDelivery', id: string, state: Types.AssociationMessageDeliveryState, createdAt: string, sentAt?: string | null, failureReason?: string | null } | null, complianceSummary?: { __typename?: 'AssociationComplianceSummary', memberId: string, percent: number, band: Types.AssociationComplianceBand, isMissingEvidence: boolean, awaitingReviewCount: number } | null, group?: { __typename?: 'AssociationMemberGroup', id: string, title: string, isActive: boolean } | null } };
 
 export type SetAssociationMemberStatusMutationVariables = Types.Exact<{
   input: Types.SetAssociationMemberStatusInput;
 }>;
 
 
-export type SetAssociationMemberStatusMutation = { __typename?: 'Mutation', setAssociationMemberStatus: { __typename?: 'AssociationMember', id: string, userId: string, fullName?: string | null, email?: string | null, avatarUrl?: string | null, memberNumber?: string | null, notes?: string | null, status: Types.AssociationMemberStatus, joinedVia: Types.AssociationMemberJoinedVia, lastLoginAt?: string | null, invitedAt: string, activatedAt?: string | null, deactivatedAt?: string | null, requirementNames: Array<string>, complianceSummary?: { __typename?: 'AssociationComplianceSummary', memberId: string, percent: number, band: Types.AssociationComplianceBand, isMissingEvidence: boolean, awaitingReviewCount: number } | null, group?: { __typename?: 'AssociationMemberGroup', id: string, title: string, isActive: boolean } | null } };
+export type SetAssociationMemberStatusMutation = { __typename?: 'Mutation', setAssociationMemberStatus: { __typename?: 'AssociationMember', id: string, userId: string, fullName?: string | null, email?: string | null, avatarUrl?: string | null, memberNumber?: string | null, notes?: string | null, status: Types.AssociationMemberStatus, joinedVia: Types.AssociationMemberJoinedVia, lastLoginAt?: string | null, invitedAt: string, activatedAt?: string | null, deactivatedAt?: string | null, requirementNames: Array<string>, invitationDelivery?: { __typename?: 'AssociationInvitationDelivery', id: string, state: Types.AssociationMessageDeliveryState, createdAt: string, sentAt?: string | null, failureReason?: string | null } | null, complianceSummary?: { __typename?: 'AssociationComplianceSummary', memberId: string, percent: number, band: Types.AssociationComplianceBand, isMissingEvidence: boolean, awaitingReviewCount: number } | null, group?: { __typename?: 'AssociationMemberGroup', id: string, title: string, isActive: boolean } | null } };
 
 export type ResendAssociationMemberInvitationMutationVariables = Types.Exact<{
   input: Types.ResendAssociationMemberInvitationInput;
 }>;
 
 
-export type ResendAssociationMemberInvitationMutation = { __typename?: 'Mutation', resendAssociationMemberInvitation: { __typename?: 'AssociationMember', id: string, userId: string, fullName?: string | null, email?: string | null, avatarUrl?: string | null, memberNumber?: string | null, notes?: string | null, status: Types.AssociationMemberStatus, joinedVia: Types.AssociationMemberJoinedVia, lastLoginAt?: string | null, invitedAt: string, activatedAt?: string | null, deactivatedAt?: string | null, requirementNames: Array<string>, complianceSummary?: { __typename?: 'AssociationComplianceSummary', memberId: string, percent: number, band: Types.AssociationComplianceBand, isMissingEvidence: boolean, awaitingReviewCount: number } | null, group?: { __typename?: 'AssociationMemberGroup', id: string, title: string, isActive: boolean } | null } };
+export type ResendAssociationMemberInvitationMutation = { __typename?: 'Mutation', resendAssociationMemberInvitation: { __typename?: 'AssociationMember', id: string, userId: string, fullName?: string | null, email?: string | null, avatarUrl?: string | null, memberNumber?: string | null, notes?: string | null, status: Types.AssociationMemberStatus, joinedVia: Types.AssociationMemberJoinedVia, lastLoginAt?: string | null, invitedAt: string, activatedAt?: string | null, deactivatedAt?: string | null, requirementNames: Array<string>, invitationDelivery?: { __typename?: 'AssociationInvitationDelivery', id: string, state: Types.AssociationMessageDeliveryState, createdAt: string, sentAt?: string | null, failureReason?: string | null } | null, complianceSummary?: { __typename?: 'AssociationComplianceSummary', memberId: string, percent: number, band: Types.AssociationComplianceBand, isMissingEvidence: boolean, awaitingReviewCount: number } | null, group?: { __typename?: 'AssociationMemberGroup', id: string, title: string, isActive: boolean } | null } };
 
 export type CreateAssociationGroupMutationVariables = Types.Exact<{
   input: Types.CreateAssociationGroupInput;
@@ -140,7 +140,7 @@ export type AssociationMemberProfileQueryVariables = Types.Exact<{
 }>;
 
 
-export type AssociationMemberProfileQuery = { __typename?: 'Query', associationMemberProfile: { __typename?: 'AssociationMemberProfile', isMissingEvidence: boolean, lastNotifiedAt?: string | null, member: { __typename?: 'AssociationMember', id: string, userId: string, fullName?: string | null, email?: string | null, avatarUrl?: string | null, memberNumber?: string | null, notes?: string | null, status: Types.AssociationMemberStatus, joinedVia: Types.AssociationMemberJoinedVia, lastLoginAt?: string | null, invitedAt: string, activatedAt?: string | null, deactivatedAt?: string | null, requirementNames: Array<string>, complianceSummary?: { __typename?: 'AssociationComplianceSummary', memberId: string, percent: number, band: Types.AssociationComplianceBand, isMissingEvidence: boolean, awaitingReviewCount: number } | null, group?: { __typename?: 'AssociationMemberGroup', id: string, title: string, isActive: boolean } | null }, summary: { __typename?: 'AssociationMemberSummary', percent: number, band: Types.AssociationComplianceBand, creditsRequired: number, creditsCompleted: number, creditsRemaining: number, awaitingReviewCount: number, nearestDueDate?: string | null, nearestDueDays?: number | null, nearestRequirementId?: string | null, nearestRequirementName?: string | null, pacePercent?: number | null }, assignments: Array<{ __typename?: 'AssociationAssignmentProgress', id: string, requirementId: string, requirementName: string, creditType: Types.CreditType, evidencePolicy: Types.AssociationEvidencePolicy, requiredCredits: number, completedCredits: number, percent: number, band: Types.AssociationComplianceBand, cycleStart: string, cycleEnd?: string | null, dueDate?: string | null, daysRemaining?: number | null, awaitingReviewCount: number, isMissingEvidence: boolean, computedAt?: string | null, categories: Array<{ __typename?: 'AssociationCategoryProgress', id: string, name: string, percent: number, requiredCredits: number, completedCredits: number }> }>, cumulative: Array<{ __typename?: 'AssociationCumulativePoint', date: string, credits: number, requiredCredits: number }>, certificates: Array<{ __typename?: 'AssociationMemberCertificate', id: string, memberId: string, title: string, issuer?: string | null, issuedAt: string, validUntil?: string | null, status: Types.CertificateStatus, creditsEarned: number, linkedTo?: string | null, files: Array<{ __typename?: 'AssociationEvidenceFile', id: string, fileName: string, mimeType: string, sizeBytes: number }> }>, unlinkedLearningContent: Array<{ __typename?: 'AssociationMemberContentCompletion', id: string, title: string, isExternal: boolean, contentType?: Types.ContentType | null, provider?: string | null, activityId: string, activityDate: string, credits: number, indicativeCredits?: number | null }> } };
+export type AssociationMemberProfileQuery = { __typename?: 'Query', associationMemberProfile: { __typename?: 'AssociationMemberProfile', isMissingEvidence: boolean, lastNotifiedAt?: string | null, member: { __typename?: 'AssociationMember', id: string, userId: string, fullName?: string | null, email?: string | null, avatarUrl?: string | null, memberNumber?: string | null, notes?: string | null, status: Types.AssociationMemberStatus, joinedVia: Types.AssociationMemberJoinedVia, lastLoginAt?: string | null, invitedAt: string, activatedAt?: string | null, deactivatedAt?: string | null, requirementNames: Array<string>, invitationDelivery?: { __typename?: 'AssociationInvitationDelivery', id: string, state: Types.AssociationMessageDeliveryState, createdAt: string, sentAt?: string | null, failureReason?: string | null } | null, complianceSummary?: { __typename?: 'AssociationComplianceSummary', memberId: string, percent: number, band: Types.AssociationComplianceBand, isMissingEvidence: boolean, awaitingReviewCount: number } | null, group?: { __typename?: 'AssociationMemberGroup', id: string, title: string, isActive: boolean } | null }, summary: { __typename?: 'AssociationMemberSummary', percent: number, band: Types.AssociationComplianceBand, creditsRequired: number, creditsCompleted: number, creditsRemaining: number, awaitingReviewCount: number, nearestDueDate?: string | null, nearestDueDays?: number | null, nearestRequirementId?: string | null, nearestRequirementName?: string | null, pacePercent?: number | null }, assignments: Array<{ __typename?: 'AssociationAssignmentProgress', id: string, requirementId: string, requirementName: string, creditType: Types.CreditType, evidencePolicy: Types.AssociationEvidencePolicy, requiredCredits: number, completedCredits: number, percent: number, band: Types.AssociationComplianceBand, cycleStart: string, cycleEnd?: string | null, dueDate?: string | null, daysRemaining?: number | null, awaitingReviewCount: number, isMissingEvidence: boolean, computedAt?: string | null, categories: Array<{ __typename?: 'AssociationCategoryProgress', id: string, name: string, percent: number, requiredCredits: number, completedCredits: number }> }>, cumulative: Array<{ __typename?: 'AssociationCumulativePoint', date: string, credits: number, requiredCredits: number }>, certificates: Array<{ __typename?: 'AssociationMemberCertificate', id: string, memberId: string, title: string, issuer?: string | null, issuedAt: string, validUntil?: string | null, status: Types.CertificateStatus, creditsEarned: number, linkedTo?: string | null, files: Array<{ __typename?: 'AssociationEvidenceFile', id: string, fileName: string, mimeType: string, sizeBytes: number }> }>, unlinkedLearningContent: Array<{ __typename?: 'AssociationMemberContentCompletion', id: string, title: string, isExternal: boolean, contentType?: Types.ContentType | null, provider?: string | null, activityId: string, activityDate: string, credits: number, indicativeCredits?: number | null }> } };
 
 export type AssociationMemberContentCompletionFieldsFragment = { __typename?: 'AssociationMemberContentCompletion', id: string, title: string, isExternal: boolean, contentType?: Types.ContentType | null, provider?: string | null, activityId: string, activityDate: string, credits: number, indicativeCredits?: number | null };
 
@@ -207,14 +207,14 @@ export type AssociationLearningContentMembersQueryVariables = Types.Exact<{
 }>;
 
 
-export type AssociationLearningContentMembersQuery = { __typename?: 'Query', associationLearningContentMembers: Array<{ __typename?: 'AssociationMember', id: string, userId: string, fullName?: string | null, email?: string | null, avatarUrl?: string | null, memberNumber?: string | null, notes?: string | null, status: Types.AssociationMemberStatus, joinedVia: Types.AssociationMemberJoinedVia, lastLoginAt?: string | null, invitedAt: string, activatedAt?: string | null, deactivatedAt?: string | null, requirementNames: Array<string>, complianceSummary?: { __typename?: 'AssociationComplianceSummary', memberId: string, percent: number, band: Types.AssociationComplianceBand, isMissingEvidence: boolean, awaitingReviewCount: number } | null, group?: { __typename?: 'AssociationMemberGroup', id: string, title: string, isActive: boolean } | null }> };
+export type AssociationLearningContentMembersQuery = { __typename?: 'Query', associationLearningContentMembers: Array<{ __typename?: 'AssociationMember', id: string, userId: string, fullName?: string | null, email?: string | null, avatarUrl?: string | null, memberNumber?: string | null, notes?: string | null, status: Types.AssociationMemberStatus, joinedVia: Types.AssociationMemberJoinedVia, lastLoginAt?: string | null, invitedAt: string, activatedAt?: string | null, deactivatedAt?: string | null, requirementNames: Array<string>, invitationDelivery?: { __typename?: 'AssociationInvitationDelivery', id: string, state: Types.AssociationMessageDeliveryState, createdAt: string, sentAt?: string | null, failureReason?: string | null } | null, complianceSummary?: { __typename?: 'AssociationComplianceSummary', memberId: string, percent: number, band: Types.AssociationComplianceBand, isMissingEvidence: boolean, awaitingReviewCount: number } | null, group?: { __typename?: 'AssociationMemberGroup', id: string, title: string, isActive: boolean } | null }> };
 
 export type AssociationCatalogSearchQueryVariables = Types.Exact<{
   input: Types.AssociationCatalogSearchInput;
 }>;
 
 
-export type AssociationCatalogSearchQuery = { __typename?: 'Query', associationCatalogSearch: Array<{ __typename?: 'AssociationCatalogItem', contentType: Types.ContentType, contentId: string, title: string, slug?: string | null, level?: string | null, provider?: string | null, imageUrl?: string | null, isAvailable: boolean, durationMinutes?: number | null, indicativeCredits?: number | null }> };
+export type AssociationCatalogSearchQuery = { __typename?: 'Query', associationCatalogSearch: { __typename?: 'PaginatedAssociationCatalog', totalCount: number, pageInfo: { __typename?: 'AssociationPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'AssociationCatalogItem', contentType: Types.ContentType, contentId: string, title: string, slug?: string | null, level?: string | null, provider?: string | null, imageUrl?: string | null, isAvailable: boolean, durationMinutes?: number | null, indicativeCredits?: number | null }> } };
 
 export type CreateAssociationLearningContentMutationVariables = Types.Exact<{
   input: Types.CreateAssociationLearningContentInput;
@@ -592,6 +592,13 @@ export const AssociationMemberGroupFieldsFragmentDoc = /*#__PURE__*/ new TypedDo
     `, {"fragmentName":"AssociationMemberGroupFields"}) as unknown as TypedDocumentString<AssociationMemberGroupFieldsFragment, unknown>;
 export const AssociationMemberFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
     fragment AssociationMemberFields on AssociationMember {
+  invitationDelivery {
+    id
+    state
+    createdAt
+    sentAt
+    failureReason
+  }
   id
   userId
   fullName
@@ -1111,6 +1118,13 @@ export const AssociationMembersDocument = /*#__PURE__*/ new TypedDocumentString(
   isActive
 }
 fragment AssociationMemberFields on AssociationMember {
+  invitationDelivery {
+    id
+    state
+    createdAt
+    sentAt
+    failureReason
+  }
   id
   userId
   fullName
@@ -1182,6 +1196,13 @@ export const InviteAssociationMemberDocument = /*#__PURE__*/ new TypedDocumentSt
   isActive
 }
 fragment AssociationMemberFields on AssociationMember {
+  invitationDelivery {
+    id
+    state
+    createdAt
+    sentAt
+    failureReason
+  }
   id
   userId
   fullName
@@ -1235,6 +1256,13 @@ export const UpdateAssociationMemberDocument = /*#__PURE__*/ new TypedDocumentSt
   isActive
 }
 fragment AssociationMemberFields on AssociationMember {
+  invitationDelivery {
+    id
+    state
+    createdAt
+    sentAt
+    failureReason
+  }
   id
   userId
   fullName
@@ -1272,6 +1300,13 @@ export const SetAssociationMemberStatusDocument = /*#__PURE__*/ new TypedDocumen
   isActive
 }
 fragment AssociationMemberFields on AssociationMember {
+  invitationDelivery {
+    id
+    state
+    createdAt
+    sentAt
+    failureReason
+  }
   id
   userId
   fullName
@@ -1309,6 +1344,13 @@ export const ResendAssociationMemberInvitationDocument = /*#__PURE__*/ new Typed
   isActive
 }
 fragment AssociationMemberFields on AssociationMember {
+  invitationDelivery {
+    id
+    state
+    createdAt
+    sentAt
+    failureReason
+  }
   id
   userId
   fullName
@@ -1433,6 +1475,13 @@ export const AssociationMemberProfileDocument = /*#__PURE__*/ new TypedDocumentS
   isActive
 }
 fragment AssociationMemberFields on AssociationMember {
+  invitationDelivery {
+    id
+    state
+    createdAt
+    sentAt
+    failureReason
+  }
   id
   userId
   fullName
@@ -1762,6 +1811,13 @@ export const AssociationLearningContentMembersDocument = /*#__PURE__*/ new Typed
   isActive
 }
 fragment AssociationMemberFields on AssociationMember {
+  invitationDelivery {
+    id
+    state
+    createdAt
+    sentAt
+    failureReason
+  }
   id
   userId
   fullName
@@ -1789,17 +1845,24 @@ fragment AssociationMemberFields on AssociationMember {
 }`) as unknown as TypedDocumentString<AssociationLearningContentMembersQuery, AssociationLearningContentMembersQueryVariables>;
 export const AssociationCatalogSearchDocument = /*#__PURE__*/ new TypedDocumentString(`
     query AssociationCatalogSearch($input: AssociationCatalogSearchInput!) {
-  associationCatalogSearch(input: $input) {
-    contentType
-    contentId
-    title
-    slug
-    level
-    provider
-    imageUrl
-    isAvailable
-    durationMinutes
-    indicativeCredits
+  associationCatalogSearch: associationCatalogSearchPage(input: $input) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      nextCursor
+    }
+    items {
+      contentType
+      contentId
+      title
+      slug
+      level
+      provider
+      imageUrl
+      isAvailable
+      durationMinutes
+      indicativeCredits
+    }
   }
 }
     `) as unknown as TypedDocumentString<AssociationCatalogSearchQuery, AssociationCatalogSearchQueryVariables>;

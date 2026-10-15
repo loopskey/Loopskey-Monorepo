@@ -1,7 +1,5 @@
 import { AssociationComplianceBand } from "@/lib/graphql/base";
-import { semanticChartColor } from "@hooks/useChartPalette";
-
-import type { TChartSemantic, TChartSemantics } from "@hooks/useChartPalette";
+import { CHART_COLOR } from "@/utils/chart.util";
 
 export const ASSOCIATION_BAND_ORDER = [
   AssociationComplianceBand.RenewalReady,
@@ -10,15 +8,16 @@ export const ASSOCIATION_BAND_ORDER = [
   AssociationComplianceBand.NotStarted,
 ] as const;
 
-export const ASSOCIATION_BAND_SEMANTICS: Record<
-  AssociationComplianceBand,
-  TChartSemantic
-> = {
-  [AssociationComplianceBand.RenewalReady]: "renewalReady",
-  [AssociationComplianceBand.OnTrack]: "onTrack",
-  [AssociationComplianceBand.AtRisk]: "atRisk",
-  [AssociationComplianceBand.NotStarted]: "notStarted",
-};
+export const ASSOCIATION_BAND_COLORS: Record<AssociationComplianceBand, string> =
+  {
+    [AssociationComplianceBand.RenewalReady]: CHART_COLOR.good,
+    [AssociationComplianceBand.OnTrack]: CHART_COLOR.onTrack,
+    [AssociationComplianceBand.AtRisk]: CHART_COLOR.warning,
+    [AssociationComplianceBand.NotStarted]: CHART_COLOR.track,
+  };
+
+export const isLightBand = (band: AssociationComplianceBand) =>
+  band === AssociationComplianceBand.NotStarted;
 
 export const ASSOCIATION_BAND_VARIANTS = {
   [AssociationComplianceBand.RenewalReady]: "default",
@@ -26,10 +25,3 @@ export const ASSOCIATION_BAND_VARIANTS = {
   [AssociationComplianceBand.AtRisk]: "orange",
   [AssociationComplianceBand.NotStarted]: "secondary",
 } as const;
-
-export const NEUTRAL_CHART_SLOT = 1;
-
-export const bandChartColor = (
-  semantics: TChartSemantics,
-  band: AssociationComplianceBand,
-) => semanticChartColor(semantics, ASSOCIATION_BAND_SEMANTICS[band]);

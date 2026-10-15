@@ -3,36 +3,20 @@
 import { TAssociationMemberHeader } from "@/types/association-dashboard.types";
 import { ASSOCIATION_BAND_VARIANTS } from "@utils/association-compliance-bands";
 import { AssociationMemberStatus } from "@/lib/graphql/base";
-import { useChartSemantics } from "@hooks/useChartPalette";
-import { bandChartColor } from "@utils/association-compliance-bands";
+import { ASSOCIATION_BAND_COLORS, isLightBand } from "@utils/association-compliance-bands";
+import { ProgressMeter } from "@elements/charts/progress-meter";
+import { CHART_COLOR } from "@/utils/chart.util";
+import { AssociationInvitationStatus } from "./association-invitation-status";
 import { ConfirmDialog } from "@elements/confirm-dialog";
 import { GlassCard } from "@elements/glass-card";
-import { Skeleton } from "@ui/skeleton";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
 
-import dynamic from "next/dynamic";
-
 import * as L from "lucide-react";
-
-const GAUGE_HEIGHT = "h-52";
-
-const CompletionGauge = dynamic(
-  () =>
-    import("@modules/AssociationDashboard/parts/association-completion-gauge"),
-  {
-    ssr: false,
-    loading: () => (
-      <Skeleton className={`${GAUGE_HEIGHT} w-full rounded-md`} />
-    ),
-  },
-);
 
 export const AssociationMemberDetailHeader = ({
   hook,
 }: TAssociationMemberHeader) => {
-  const semantics = useChartSemantics();
-
   const {
     t,
     member,
@@ -42,6 +26,8 @@ export const AssociationMemberDetailHeader = ({
     changeStatus,
     backToRoster,
     openRequirements,
+    resendMemberInvitation,
+    isResendingInvitation,
   } = hook;
 
   const label = (key: string) =>
@@ -91,6 +77,23 @@ export const AssociationMemberDetailHeader = ({
               )}
             </div>
 
+            {member?.status === AssociationMemberStatus.PendingActivation && (
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <AssociationInvitationStatus
+                  delivery={member.invitationDelivery}
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={resendMemberInvitation}
+                  disabled={isResendingInvitation}
+                >
+                  <L.Mail className="size-4" aria-hidden />
+                  {t("associationDashboard.members.invite.resend")}
+                </Button>
+              </div>
+            )}
             <dl className="mt-4 grid gap-3 sm:grid-cols-3">
               <div>
                 <dt className="text-xs uppercase text-muted-foreground">
@@ -190,13 +193,31 @@ export const AssociationMemberDetailHeader = ({
           </div>
 
           {summary && (
-            <CompletionGauge
-              label={label}
-              percent={summary.percent}
-              pacePercent={summary.pacePercent ?? null}
-              color={bandChartColor(semantics, summary.band)}
-              paceColor={semantics.notStarted}
-            />
+            <div className="grid content-center gap-3 rounded-lg border p-5">
+              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                {label("gaugeCaption")}
+              </p>
+              <p className="text-4xl font-semibold text-foreground">
+                {Math.round(summary.percent)}%
+              </p>
+              <ProgressMeter
+                max={100}
+                value={summary.percent}
+                label={label("gaugeLabel")}
+                formatValue={(value) => `${Math.round(value)}%`}
+                color={
+                  isLightBand(summary.band)
+                    ? CHART_COLOR.neutral
+                    : ASSOCIATION_BAND_COLORS[summary.band]
+                }
+                marker={
+                  summary.pacePercent === null ||
+                  summary.pacePercent === undefined
+                    ? undefined
+                    : { value: summary.pacePercent, label: label("gaugePace") }
+                }
+              />
+            </div>
           )}
         </div>
       </div>

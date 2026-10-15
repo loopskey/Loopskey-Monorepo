@@ -52,7 +52,10 @@ export const useAssociationMemberDetail = (memberId: string) => {
     null,
   );
 
-  const profileQuery = API.useAssociationMemberProfileQuery({ memberId });
+  const profileQuery = API.useAssociationMemberProfileQuery(
+    { memberId },
+    { pollingInterval: 15000, skipPollingIfUnfocused: true },
+  );
 
   const activitiesQuery = API.useAssociationMemberActivitiesQuery({
     memberId,
@@ -84,6 +87,8 @@ export const useAssociationMemberDetail = (memberId: string) => {
     skip: !isEditOpen,
   });
 
+  const [resendInvitation, resendState] =
+    API.useResendAssociationMemberInvitationMutation();
   const [review, reviewState] =
     API.useReviewAssociationLearningActivityMutation();
   const [updateMember, updateMemberState] =
@@ -416,7 +421,22 @@ export const useAssociationMemberDetail = (memberId: string) => {
     }
   };
 
+  const resendMemberInvitation = async () => {
+    if (
+      resendState.isLoading ||
+      member?.status !== AssociationMemberStatus.PendingActivation
+    )
+      return;
+    try {
+      await resendInvitation({ memberId }).unwrap();
+      notify.success(t("associationDashboard.members.invite.resendQueued"));
+    } catch (error) {
+      notify.error(t(getAssociationErrorTranslationKey(error)));
+    }
+  };
+
   const isMutating =
+    resendState.isLoading ||
     reviewState.isLoading ||
     updateMemberState.isLoading ||
     setMemberStatusState.isLoading ||
@@ -457,6 +477,8 @@ export const useAssociationMemberDetail = (memberId: string) => {
     confirmApproval,
     previousPage,
     backToRoster,
+    resendMemberInvitation,
+    isResendingInvitation: resendState.isLoading,
     changeStatus,
     cumulativeRows,
     canRenameMember,

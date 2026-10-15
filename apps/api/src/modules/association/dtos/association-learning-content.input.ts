@@ -15,6 +15,8 @@ import { Transform } from "class-transformer";
 const TITLE_MAX = 200;
 const PROVIDER_MAX = 200;
 const URL_MAX = 2000;
+const SEARCH_CURSOR_MAX = 512;
+
 const SEARCH_TAKE_DEFAULT = 20;
 const SEARCH_TAKE_MAX = 50;
 
@@ -53,6 +55,12 @@ export class AssociationLearningContentFilterInput {
 
 @InputType(AssociationGqlInputNames.ASSOCIATION_CATALOG_SEARCH)
 export class AssociationCatalogSearchInput {
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(SEARCH_CURSOR_MAX)
+  cursor?: string;
+
   @Field({ nullable: true })
   @IsOptional()
   @IsString()

@@ -2,22 +2,28 @@
 
 import { AdminIngestionBulkApproveDialog } from "@modules/AdminDashboard/parts/admin-ingestion-bulk-approve-dialog";
 import { AdminIngestionRejectDialog } from "@modules/AdminDashboard/parts/admin-ingestion-reject-dialog";
-import { DashboardContentSkeleton } from "@layouts/parts/DashboardSkeleton";
 import { TUseAdminIngestionTab } from "@hooks/useAdminIngestionTab";
 import { IngestionItemState } from "@/lib/graphql/base";
-import { ContentPagination } from "@elements/pagination";
+import { DataTableFilters } from "@elements/data-table/data-table-filters";
+import { formatDate } from "@/utils/function-helper";
+import { DataTable } from "@elements/data-table/data-table";
 import { GlassCard } from "@elements/glass-card";
-import { Checkbox } from "@ui/checkbox";
 import { Button } from "@ui/button";
-import { Td, Th } from "@modules/AdminDashboard/parts/td-and-th-table";
 import { Badge } from "@ui/badge";
-import { Input } from "@ui/input";
 
 import Link from "next/link";
 
 import * as L from "lucide-react";
 
-const COLUMN_COUNT = 7;
+const REVIEW = "adminDashboard.ingestion.review";
+const ALL = "ALL";
+
+const REVIEW_STATES = [
+  IngestionItemState.Pending,
+  IngestionItemState.Accepted,
+  IngestionItemState.Rejected,
+  IngestionItemState.Stale,
+];
 
 export const AdminIngestionReviewQueue = ({
   hook,
@@ -40,7 +46,6 @@ export const AdminIngestionReviewQueue = ({
     reviewSourceId,
     setReviewSearch,
     selectedItemIds,
-    reviewCanPrevious,
     setReviewSourceId,
     reviewPreviousPage,
     toggleItemSelection,
@@ -51,12 +56,6 @@ export const AdminIngestionReviewQueue = ({
 
   const items = reviewQuery.data?.items ?? [];
   const sources = sourcesQuery.data?.items ?? [];
-  const selectableIds = items
-    .filter((item) => item.state !== IngestionItemState.Accepted)
-    .map((item) => item.id);
-  const allSelected =
-    selectableIds.length > 0 &&
-    selectableIds.every((id) => selectedItemIds.includes(id));
   const pendingTotal = reviewQuery.data?.totalCount ?? 0;
   const canApproveQueue =
     reviewState === IngestionItemState.Pending && pendingTotal > 0;
@@ -65,248 +64,222 @@ export const AdminIngestionReviewQueue = ({
   return (
     <div className="space-y-6">
       <GlassCard>
-        <div className="grid gap-4 lg:grid-cols-[1fr_220px_200px]">
-          <div className="relative">
-            <L.Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={reviewSearch}
-              className="h-12 rounded-md pl-10"
-              onChange={(event) => setReviewSearch(event.target.value)}
-              placeholder={t(
-                "adminDashboard.ingestion.review.searchPlaceholder",
-              )}
+        <DataTable
+          rows={items}
+          rowKey={(item) => item.id}
+          rowLabel={(item) => item.catalog?.title ?? item.externalId}
+          isLoading={reviewQuery.isLoading}
+          isFetching={reviewQuery.isFetching}
+          caption={t("adminDashboard.ingestion.tabs.review")}
+          isFiltered={Boolean(reviewSearch) || reviewSourceId !== ALL}
+          error={
+            reviewQuery.isError
+              ? {
+                  icon: L.CircleAlert,
+                  title: t(`${REVIEW}.error`),
+                  action: (
+                    <Button
+                      radius="lg"
+                      type="button"
+                      variant="outline"
+                      onClick={() => void reviewQuery.refetch()}
+                    >
+                      <L.RefreshCcw aria-hidden />
+                      {t("common.refresh")}
+                    </Button>
+                  ),
+                }
+              : null
+          }
+          empty={{ icon: L.ListChecks, title: t(`${REVIEW}.empty`) }}
+          selection={{
+            isDisabled: bulkBusy,
+            selectedKeys: selectedItemIds,
+            onToggle: toggleItemSelection,
+            onToggleAll: toggleAllSelectable,
+            label: t(`${REVIEW}.bulk.selectRow`),
+            allLabel: t(`${REVIEW}.bulk.selectAll`),
+            isSelectable: (item) => item.state !== IngestionItemState.Accepted,
+          }}
+          pagination={{
+            kind: "cursor",
+            page: reviewPage,
+            onNext: reviewNextPage,
+            onPrevious: reviewPreviousPage,
+            total: reviewQuery.data?.totalCount ?? 0,
+            hasNextPage: reviewQuery.data?.pageInfo?.hasNextPage ?? false,
+          }}
+          toolbar={
+            <DataTableFilters
+              onReset={() => {
+                setReviewSearch("");
+                setReviewSourceId(ALL);
+                setReviewState(IngestionItemState.Pending);
+              }}
+              actions={
+                selectedItemIds.length > 0 || canApproveQueue ? (
+                  <>
+                    {selectedItemIds.length > 0 && (
+                      <Button
+                        radius="lg"
+                        type="button"
+                        disabled={bulkBusy}
+                        onClick={openBulkApproveSelection}
+                      >
+                        <L.CheckCheck aria-hidden />
+                        {t(`${REVIEW}.bulk.approveSelected`, {
+                          count: selectedItemIds.length,
+                        })}
+                      </Button>
+                    )}
+                    {canApproveQueue && (
+                      <Button
+                        radius="lg"
+                        type="button"
+                        variant="outline"
+                        disabled={bulkBusy}
+                        onClick={openBulkApproveQueue}
+                      >
+                        <L.ListChecks aria-hidden />
+                        {t(`${REVIEW}.bulk.approveAll`, {
+                          count: pendingTotal,
+                        })}
+                      </Button>
+                    )}
+                  </>
+                ) : null
+              }
+              search={{
+                value: reviewSearch,
+                onChange: setReviewSearch,
+                label: t(`${REVIEW}.searchPlaceholder`),
+                placeholder: t(`${REVIEW}.searchPlaceholder`),
+              }}
+              filters={[
+                {
+                  type: "select",
+                  id: "source",
+                  value: reviewSourceId,
+                  defaultValue: ALL,
+                  onChange: setReviewSourceId,
+                  label: t(`${REVIEW}.filters.source`),
+                  options: [
+                    { value: ALL, label: t(`${REVIEW}.filters.allSources`) },
+                    ...sources.map((source) => ({
+                      value: source.id,
+                      label: source.slug,
+                    })),
+                  ],
+                },
+                {
+                  type: "select",
+                  id: "state",
+                  value: reviewState,
+                  defaultValue: IngestionItemState.Pending,
+                  label: t(`${REVIEW}.filters.state`),
+                  onChange: (value) =>
+                    setReviewState(
+                      REVIEW_STATES.find((state) => state === value) ??
+                        IngestionItemState.Pending,
+                    ),
+                  options: REVIEW_STATES.map((state) => ({
+                    value: state,
+                    label: state,
+                  })),
+                },
+              ]}
             />
-          </div>
-
-          <select
-            value={reviewSourceId}
-            aria-label={t("adminDashboard.ingestion.review.filters.source")}
-            onChange={(event) => setReviewSourceId(event.target.value)}
-            className="h-12 rounded-md border border-border bg-background px-4 text-sm"
-          >
-            <option value="ALL">
-              {t("adminDashboard.ingestion.review.filters.allSources")}
-            </option>
-            {sources.map((source) => (
-              <option key={source.id} value={source.id}>
-                {source.slug}
-              </option>
-            ))}
-          </select>
-
-          <select
-            value={reviewState}
-            aria-label={t("adminDashboard.ingestion.review.filters.state")}
-            onChange={(event) =>
-              setReviewState(event.target.value as IngestionItemState)
-            }
-            className="h-12 rounded-md border border-border bg-background px-4 text-sm"
-          >
-            <option value={IngestionItemState.Pending}>PENDING</option>
-            <option value={IngestionItemState.Accepted}>ACCEPTED</option>
-            <option value={IngestionItemState.Rejected}>REJECTED</option>
-            <option value={IngestionItemState.Stale}>STALE</option>
-          </select>
-        </div>
-        {(canApproveQueue || selectedItemIds.length > 0) && (
-          <div className="mt-4 flex flex-wrap items-center gap-3">
-            {selectedItemIds.length > 0 && (
-              <Button
-                radius="xl"
-                size="sm"
-                type="button"
-                disabled={bulkBusy}
-                onClick={openBulkApproveSelection}
-              >
-                <L.CheckCheck className="h-4 w-4" />
-                {t("adminDashboard.ingestion.review.bulk.approveSelected", {
-                  count: selectedItemIds.length,
-                })}
-              </Button>
-            )}
-            {canApproveQueue && (
-              <Button
-                radius="xl"
-                size="sm"
-                type="button"
-                variant="outline"
-                disabled={bulkBusy}
-                onClick={openBulkApproveQueue}
-              >
-                <L.ListChecks className="h-4 w-4" />
-                {t("adminDashboard.ingestion.review.bulk.approveAll", {
-                  count: pendingTotal,
-                })}
-              </Button>
-            )}
-          </div>
-        )}
-      </GlassCard>
-
-      <GlassCard className="overflow-hidden p-0">
-        {reviewQuery.isLoading ? (
-          <div className="p-6">
-            <DashboardContentSkeleton />
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[1000px] text-sm">
-              <thead className="border-b border-border bg-muted/40 text-left">
-                <tr>
-                  <Th>
-                    <Checkbox
-                      checked={allSelected}
-                      disabled={selectableIds.length === 0 || bulkBusy}
-                      aria-label={t(
-                        "adminDashboard.ingestion.review.bulk.selectAll",
-                      )}
-                      onCheckedChange={() => toggleAllSelectable(selectableIds)}
-                    />
-                  </Th>
-                  <Th>{t("adminDashboard.ingestion.review.table.title")}</Th>
-                  <Th>{t("adminDashboard.ingestion.review.table.source")}</Th>
-                  <Th>
-                    {t("adminDashboard.ingestion.review.table.externalId")}
-                  </Th>
-                  <Th>
-                    {t("adminDashboard.ingestion.review.table.firstSeen")}
-                  </Th>
-                  <Th>{t("adminDashboard.ingestion.review.table.state")}</Th>
-                  <Th>{t("adminDashboard.ingestion.review.table.actions")}</Th>
-                </tr>
-              </thead>
-              <tbody>
-                {reviewQuery.isError ? (
-                  <tr>
-                    <td
-                      colSpan={COLUMN_COUNT}
-                      className="p-10 text-center text-destructive"
+          }
+          columns={[
+            {
+              id: "title",
+              mobile: "title",
+              className: "max-w-md whitespace-normal",
+              header: t(`${REVIEW}.table.title`),
+              cell: (item) => (
+                <span className="block min-w-0">
+                  {item.catalog ? (
+                    <Link
+                      target="_blank"
+                      className="font-medium text-primary hover:underline"
+                      href={
+                        item.catalog.slug
+                          ? `/courses/${item.catalog.slug}`
+                          : "#"
+                      }
                     >
-                      {t("adminDashboard.ingestion.review.error")}
-                    </td>
-                  </tr>
-                ) : items.length ? (
-                  items.map((item) => (
-                    <tr
-                      key={item.id}
-                      className="border-b border-border/70 transition-colors hover:bg-primary/5"
+                      {item.catalog.title}
+                    </Link>
+                  ) : (
+                    <span className="text-muted-foreground">—</span>
+                  )}
+                  {item.canonicalUrl && (
+                    <a
+                      target="_blank"
+                      rel="noreferrer"
+                      href={item.canonicalUrl}
+                      className="block truncate text-xs font-normal text-muted-foreground hover:underline"
                     >
-                      <Td>
-                        <Checkbox
-                          checked={selectedItemIds.includes(item.id)}
-                          disabled={
-                            bulkBusy ||
-                            item.state === IngestionItemState.Accepted
-                          }
-                          aria-label={t(
-                            "adminDashboard.ingestion.review.bulk.selectRow",
-                          )}
-                          onCheckedChange={() => toggleItemSelection(item.id)}
-                        />
-                      </Td>
-                      <Td>
-                        {item.catalog ? (
-                          <Link
-                            target="_blank"
-                            className="font-medium text-primary hover:underline"
-                            href={
-                              item.catalog.slug
-                                ? `/courses/${item.catalog.slug}`
-                                : "#"
-                            }
-                          >
-                            {item.catalog.title}
-                          </Link>
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )}
-                        {item.canonicalUrl && (
-                          <a
-                            target="_blank"
-                            rel="noreferrer"
-                            href={item.canonicalUrl}
-                            className="block text-xs text-muted-foreground hover:underline"
-                          >
-                            {item.canonicalUrl}
-                          </a>
-                        )}
-                      </Td>
-                      <Td>
-                        <code className="text-xs">{item.sourceSlug}</code>
-                      </Td>
-                      <Td>
-                        <code className="text-xs">{item.externalId}</code>
-                      </Td>
-                      <Td>{item.firstSeenAt}</Td>
-                      <Td>
-                        <Badge variant="secondary" className="rounded-full">
-                          {item.state}
-                        </Badge>
-                        {item.rejectionReason && (
-                          <p className="mt-1 text-xs text-muted-foreground">
-                            {item.rejectionReason}
-                          </p>
-                        )}
-                      </Td>
-                      <Td>
-                        <div className="flex gap-2">
-                          <Button
-                            radius="xl"
-                            size="sm"
-                            type="button"
-                            disabled={
-                              bulkBusy ||
-                              item.state === IngestionItemState.Accepted
-                            }
-                            onClick={() => approve(item.id)}
-                          >
-                            <L.Check className="h-4 w-4" />
-                            {t("adminDashboard.ingestion.review.approve")}
-                          </Button>
-                          <Button
-                            radius="xl"
-                            size="sm"
-                            type="button"
-                            variant="outline"
-                            disabled={
-                              item.state === IngestionItemState.Rejected
-                            }
-                            onClick={() => openReject(item.id)}
-                          >
-                            <L.X className="h-4 w-4" />
-                            {t("adminDashboard.ingestion.review.reject")}
-                          </Button>
-                        </div>
-                      </Td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={COLUMN_COUNT} className="p-10 text-center">
-                      <L.ListChecks className="mx-auto mb-3 h-8 w-8 text-muted-foreground" />
-                      <p className="font-medium">
-                        {t("adminDashboard.ingestion.review.empty")}
-                      </p>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </GlassCard>
-
-      {!reviewQuery.isError && !reviewQuery.isLoading && (
-        <ContentPagination
-          page={reviewPage}
-          onNext={reviewNextPage}
-          isLoading={reviewQuery.isFetching}
-          totalCount={reviewQuery.data?.totalCount ?? 0}
-          onPrevious={reviewPreviousPage}
-          canPrevious={reviewCanPrevious}
-          hasNextPage={reviewQuery.data?.pageInfo?.hasNextPage ?? false}
+                      {item.canonicalUrl}
+                    </a>
+                  )}
+                </span>
+              ),
+            },
+            {
+              id: "state",
+              mobile: "badge",
+              header: t(`${REVIEW}.table.state`),
+              cell: (item) => (
+                <span className="block">
+                  <Badge variant="secondary">{item.state}</Badge>
+                  {item.rejectionReason && (
+                    <span className="mt-1 block max-w-48 whitespace-normal text-xs text-muted-foreground">
+                      {item.rejectionReason}
+                    </span>
+                  )}
+                </span>
+              ),
+            },
+            {
+              id: "source",
+              header: t(`${REVIEW}.table.source`),
+              cell: (item) => (
+                <code className="text-xs">{item.sourceSlug}</code>
+              ),
+            },
+            {
+              id: "externalId",
+              header: t(`${REVIEW}.table.externalId`),
+              cell: (item) => (
+                <code className="text-xs">{item.externalId}</code>
+              ),
+            },
+            {
+              id: "firstSeen",
+              header: t(`${REVIEW}.table.firstSeen`),
+              cell: (item) => formatDate(item.firstSeenAt),
+            },
+          ]}
+          rowActions={(item) => [
+            {
+              id: "approve",
+              icon: L.Check,
+              label: t(`${REVIEW}.approve`),
+              onSelect: () => approve(item.id),
+              isDisabled:
+                bulkBusy || item.state === IngestionItemState.Accepted,
+            },
+            {
+              id: "reject",
+              icon: L.X,
+              label: t(`${REVIEW}.reject`),
+              onSelect: () => openReject(item.id),
+              isDisabled: item.state === IngestionItemState.Rejected,
+            },
+          ]}
         />
-      )}
+      </GlassCard>
 
       <AdminIngestionRejectDialog hook={hook} />
       <AdminIngestionBulkApproveDialog hook={hook} />

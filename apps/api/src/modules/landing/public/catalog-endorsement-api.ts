@@ -1,3 +1,5 @@
+import type { CatalogPage } from "@utils/catalog-pagination.util";
+
 export const CATALOG_ENDORSEMENT_API = Symbol("CATALOG_ENDORSEMENT_API");
 
 export type CatalogReference = {
@@ -20,12 +22,15 @@ export type CatalogItemProjection = {
 
 export type CatalogSearchQuery = {
   readonly take: number;
+  readonly cursor?: string | null;
   readonly search?: string | null;
   readonly contentType?: string | null;
 };
 
+export type CatalogSearchPage = CatalogPage<CatalogItemProjection>;
+
 export interface CatalogEndorsementApi {
-  searchCatalog(query: CatalogSearchQuery): Promise<CatalogItemProjection[]>;
+  searchCatalog(query: CatalogSearchQuery): Promise<CatalogSearchPage>;
   resolveCatalogItems(
     references: readonly CatalogReference[],
   ): Promise<CatalogItemProjection[]>;

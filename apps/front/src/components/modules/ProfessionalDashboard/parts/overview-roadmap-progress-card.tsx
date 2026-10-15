@@ -4,8 +4,7 @@ import { useProfessionalMyRoadmapsQuery } from "@/lib/rtk/endpoints/professional
 import { PROFESSIONAL_OVERVIEW_LINKS } from "@/utils/professional-overview.helper";
 import { buildRoadmapProgressView } from "@/utils/professional-overview.helper";
 import { getOverviewSectionState } from "@/utils/professional-overview.helper";
-import { ProgressDonutChart } from "@elements/dashboard-charts";
-import { useChartSemantics } from "@hooks/useChartPalette";
+import { ProgressRing } from "@elements/charts/progress-ring";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
 
@@ -15,7 +14,6 @@ import * as PC from "@modules/ProfessionalDashboard/parts/overview-card";
 import * as L from "lucide-react";
 
 export const OverviewRoadmapProgressCard = () => {
-  const semantics = useChartSemantics();
   const { t } = useI18n();
 
   const roadmapsQuery = useProfessionalMyRoadmapsQuery({
@@ -75,17 +73,7 @@ export const OverviewRoadmapProgressCard = () => {
     );
   }
 
-  const view = buildRoadmapProgressView(
-    featured,
-    {
-      completed: t("professionalDashboard.overview.roadmapCard.completed"),
-      remaining: t("professionalDashboard.overview.roadmapCard.remaining"),
-    },
-    { progress: semantics.renewalReady, remainder: semantics.track },
-  );
-  const stepsSuffix = t(
-    "professionalDashboard.overview.roadmapCard.stepsSuffix",
-  );
+  const view = buildRoadmapProgressView(featured);
 
   return (
     <PC.OverviewCard title={title} icon={L.Map} footer={footer}>
@@ -93,24 +81,16 @@ export const OverviewRoadmapProgressCard = () => {
         {featured.title}
       </p>
 
-      <ProgressDonutChart
-        data={view.chartData}
-        valueSuffix={stepsSuffix}
-        ariaLabel={t("professionalDashboard.overview.roadmapCard.chartAria", {
+      <ProgressRing
+        className="mx-auto"
+        percent={view.chartPercent}
+        value={`${view.chartPercent}%`}
+        caption={t("professionalDashboard.overview.roadmapCard.complete")}
+        label={t("professionalDashboard.overview.roadmapCard.chartAria", {
           completed: view.completed,
           total: view.total,
           percent: view.percent,
         })}
-        centerLabel={
-          <>
-            <p className="text-3xl font-medium text-primary">
-              {view.chartPercent}%
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {t("professionalDashboard.overview.roadmapCard.complete")}
-            </p>
-          </>
-        }
       />
 
       <p className="text-center text-sm text-muted-foreground">

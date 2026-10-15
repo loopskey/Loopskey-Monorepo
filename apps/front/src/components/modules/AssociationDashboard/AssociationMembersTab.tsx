@@ -3,15 +3,12 @@
 import { AssociationMemberAssignPickerDialog } from "@modules/AssociationDashboard/parts/association-member-assign-picker-dialog";
 import { AssociationMembersUploadDialog } from "@modules/AssociationDashboard/parts/association-members-upload-dialog";
 import { AssociationMemberInviteDialog } from "@modules/AssociationDashboard/parts/association-member-invite-dialog";
-import { AssociationMembersFilters } from "@modules/AssociationDashboard/parts/association-members-filters";
 import { AssociationGroupsManager } from "@modules/AssociationDashboard/parts/association-groups-manager";
 import { AssociationMembersHeader } from "@modules/AssociationDashboard/parts/association-members-header";
 import { useAssociationMembersTab } from "@hooks/useAssociationMembersTab";
 import { DashboardContentSkeleton } from "@layouts/parts/DashboardSkeleton";
-import { AssociationMembersEmpty } from "@modules/AssociationDashboard/parts/association-members-empty";
 import { AssociationMembersStats } from "@modules/AssociationDashboard/parts/association-members-stats";
 import { AssociationMembersTable } from "@modules/AssociationDashboard/parts/association-members-table";
-import { ContentPagination } from "@elements/pagination";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
 
@@ -20,7 +17,7 @@ import * as L from "lucide-react";
 const AssociationMembersTab = () => {
   const hook = useAssociationMembersTab();
 
-  const { t, view, members, isError, isLoading, hasNoMembers } = hook;
+  const { t, view, isError, isLoading } = hook;
 
   if (isLoading) {
     return (
@@ -67,24 +64,7 @@ const AssociationMembersTab = () => {
           <AssociationMembersStats hook={hook} />
           <GlassCard>
             <div className="relative z-10">
-              <AssociationMembersFilters hook={hook} />
-              {members.length === 0 || hasNoMembers ? (
-                <AssociationMembersEmpty hook={hook} />
-              ) : (
-                <>
-                  <AssociationMembersTable hook={hook} />
-                  <ContentPagination
-                    className="mt-6"
-                    page={hook.page}
-                    onNext={hook.nextPage}
-                    totalCount={hook.totalCount}
-                    isLoading={hook.isRefetching}
-                    onPrevious={hook.previousPage}
-                    canPrevious={hook.canPrevious}
-                    hasNextPage={hook.hasNextPage}
-                  />
-                </>
-              )}
+              <AssociationMembersTable hook={hook} />
             </div>
           </GlassCard>
         </>

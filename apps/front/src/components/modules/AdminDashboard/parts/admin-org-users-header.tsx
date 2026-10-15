@@ -10,8 +10,7 @@ type Props = {
 };
 
 export const AdminOrganizationUsersHeader = ({ hook }: Props) => {
-  const { t, isLoading, refreshAll, resetOrgFilters, hasActiveOrgFilters } =
-    hook;
+  const { t, isLoading, refreshAll } = hook;
 
   return (
     <section className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
@@ -30,17 +29,6 @@ export const AdminOrganizationUsersHeader = ({ hook }: Props) => {
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <Button
-          radius="xl"
-          type="button"
-          variant="outline"
-          disabled={!hasActiveOrgFilters || isLoading}
-          onClick={resetOrgFilters}
-        >
-          <L.RotateCcw className="h-4 w-4" />
-          {t("common.reset")}
-        </Button>
-
         <Button
           radius="xl"
           type="button"
