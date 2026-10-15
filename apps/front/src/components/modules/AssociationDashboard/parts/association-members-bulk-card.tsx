@@ -1,6 +1,7 @@
 "use client";
 
 import { TAssociationMembersBulkCard } from "@/types/association-dashboard.types";
+import { DataTable } from "@elements/data-table/data-table";
 import { GlassCard } from "@elements/glass-card";
 import { Checkbox } from "@ui/checkbox";
 import { Button } from "@ui/button";
@@ -8,6 +9,8 @@ import { Input } from "@ui/input";
 import { Label } from "@ui/label";
 
 import * as L from "lucide-react";
+
+const BULK = "associationDashboard.members.bulk";
 
 export const AssociationMembersBulkCard = ({
   hook,
@@ -155,56 +158,53 @@ export const AssociationMembersBulkCard = ({
               </p>
             )}
 
-            <div className="max-h-72 overflow-auto rounded-md border">
-              <table className="w-full min-w-[560px] text-left text-sm">
-                <caption className="sr-only">
-                  {t("associationDashboard.members.bulk.previewCaption")}
-                </caption>
-
-                <thead className="text-xs uppercase text-muted-foreground">
-                  <tr className="border-b border-border">
-                    <th scope="col" className="p-3">
-                      {t("associationDashboard.members.bulk.columns.row")}
-                    </th>
-                    <th scope="col" className="p-3">
-                      {t("associationDashboard.members.bulk.columns.email")}
-                    </th>
-                    <th scope="col" className="p-3">
-                      {t("associationDashboard.members.bulk.columns.name")}
-                    </th>
-                    <th scope="col" className="p-3">
-                      {t("associationDashboard.members.bulk.problem")}
-                    </th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {importPreview.rows.map((row) => (
-                    <tr
-                      key={row.row}
-                      className="border-b border-border/60 last:border-0"
-                    >
-                      <td className="p-3 tabular-nums">{row.row}</td>
-                      <td className="p-3">{row.email || "-"}</td>
-                      <td className="p-3">
-                        {[row.firstName, row.lastName]
-                          .filter(Boolean)
-                          .join(" ") || "-"}
-                      </td>
-                      <td className="p-3 text-destructive">
-                        {row.errorKeys
-                          .map((key) =>
-                            t(
-                              `associationDashboard.members.bulk.rowErrors.${key}`,
-                            ),
-                          )
-                          .join(", ")}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <DataTable
+              rows={importPreview.rows}
+              rowKey={(row) => String(row.row)}
+              scrollClassName="max-h-72 overflow-y-auto"
+              caption={t(`${BULK}.previewCaption`)}
+              empty={{
+                icon: L.FileCheck2,
+                title: t(`${BULK}.previewCounts`, {
+                  valid: importPreview.validCount,
+                  invalid: importPreview.invalidCount,
+                }),
+              }}
+              columns={[
+                {
+                  id: "row",
+                  mobile: "title",
+                  header: t(`${BULK}.columns.row`),
+                  cell: (row) => (
+                    <span className="tabular-nums">
+                      {t(`${BULK}.rowNumber`, { row: row.row })}
+                    </span>
+                  ),
+                },
+                {
+                  id: "email",
+                  mobile: "wide",
+                  header: t(`${BULK}.columns.email`),
+                  cell: (row) => row.email || "-",
+                },
+                {
+                  id: "name",
+                  header: t(`${BULK}.columns.name`),
+                  cell: (row) =>
+                    [row.firstName, row.lastName].filter(Boolean).join(" ") ||
+                    "-",
+                },
+                {
+                  id: "problem",
+                  className: "whitespace-normal text-destructive",
+                  header: t(`${BULK}.problem`),
+                  cell: (row) =>
+                    row.errorKeys
+                      .map((key) => t(`${BULK}.rowErrors.${key}`))
+                      .join(", "),
+                },
+              ]}
+            />
 
             <div className="flex flex-wrap gap-3">
               <Button
@@ -239,10 +239,7 @@ export const AssociationMembersBulkCard = ({
         )}
 
         {importResult && (
-          <div
-            role="status"
-            className="mt-5 space-y-3 rounded-lg border p-4"
-          >
+          <div role="status" className="mt-5 space-y-3 rounded-lg border p-4">
             <p className="font-medium">
               {t("associationDashboard.members.bulk.resultTitle")}
             </p>

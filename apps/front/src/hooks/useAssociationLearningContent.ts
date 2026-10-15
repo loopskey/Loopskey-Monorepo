@@ -8,6 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ContentType, PduCategory } from "@/lib/graphql/base";
 import { AssociationAudienceKind } from "@/lib/graphql/base";
 import { AssociationMemberStatus } from "@/lib/graphql/base";
+import { getAuthErrorCode } from "@utils/auth-error";
 import { SEARCH_DEBOUNCE_MS } from "@utils/constant";
 import { useDebouncedValue } from "@hooks/useDebounced";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -91,6 +92,10 @@ export const useAssociationLearningContent = () => {
     useState<T.TAssociationCatalogItem | null>(null);
   const [justPublishedId, setJustPublishedId] = useState<string | null>(null);
 
+  const [catalogPagination, setCatalogPagination] = useState<{
+    key: string;
+    cursors: string[];
+  }>({ key: "", cursors: [] });
   const [catalogSearch, setCatalogSearch] = useState("");
   const [catalogType, setCatalogType] = useState<string>(ALL);
   const [assignSearch, setAssignSearch] = useState("");
@@ -180,14 +185,20 @@ export const useAssociationLearningContent = () => {
     skip: !isWizard && !isAssign,
   });
 
+  const catalogKey = JSON.stringify([debouncedCatalog.trim(), catalogType]);
+  const catalogCursors =
+    catalogPagination.key === catalogKey ? catalogPagination.cursors : [];
+  const isCatalogSearchShort = catalogSearch.trim().length === 1;
+  const isCatalogDebouncing = catalogSearch !== debouncedCatalog;
   const catalogQuery = API.useAssociationCatalogSearchQuery(
     {
       search: debouncedCatalog.trim() || undefined,
       contentType:
         catalogType === ALL ? undefined : (catalogType as ContentType),
       take: CATALOG_TAKE,
+      cursor: catalogCursors.at(-1),
     },
-    { skip: !isWizard || isExternal },
+    { skip: !isWizard || isExternal || isCatalogSearchShort },
   );
 
   const assignMemberQuery = API.useAssociationMembersQuery(
@@ -277,8 +288,8 @@ export const useAssociationLearningContent = () => {
   );
 
   const catalogResults = useMemo(
-    () => catalogQuery.data ?? [],
-    [catalogQuery.data],
+    () => catalogQuery.currentData?.items ?? [],
+    [catalogQuery.currentData?.items],
   );
 
   const members = useMemo(() => membersQuery.data ?? [], [membersQuery.data]);
@@ -364,6 +375,7 @@ export const useAssociationLearningContent = () => {
   );
 
   const openCreate = () => {
+    setCatalogPagination({ key: "", cursors: [] });
     setCatalogSearch("");
     setCatalogType(ALL);
     setAssignSearch("");
@@ -846,7 +858,35 @@ export const useAssociationLearningContent = () => {
     locale: language === "fr" ? "fr-FR" : "en-GB",
     totalCount: listQuery.data?.totalCount ?? 0,
     hasNextPage: Boolean(listQuery.data?.pageInfo?.hasNextPage),
-    isCatalogLoading: catalogQuery.isFetching,
+    isCatalogLoading: catalogQuery.isFetching || isCatalogDebouncing,
+    isCatalogSearchShort,
+    isCatalogError: catalogQuery.isError,
+    isCatalogCursorError: [
+      "CATALOG_CURSOR_INVALID",
+      "CATALOG_CURSOR_EXPIRED",
+    ].includes(getAuthErrorCode(catalogQuery.error) ?? ""),
+    catalogPage: catalogCursors.length + 1,
+    catalogTotalCount: catalogQuery.currentData?.totalCount ?? 0,
+    catalogHasNextPage: Boolean(catalogQuery.currentData?.pageInfo.hasNextPage),
+    catalogCanPrevious: catalogCursors.length > 0,
+    catalogNextPage: () => {
+      const next = catalogQuery.currentData?.pageInfo.nextCursor;
+      if (next && !catalogQuery.isFetching && !isCatalogDebouncing)
+        setCatalogPagination({
+          key: catalogKey,
+          cursors: [...catalogCursors, next],
+        });
+    },
+    catalogPreviousPage: () =>
+      setCatalogPagination({
+        key: catalogKey,
+        cursors: catalogCursors.slice(0, -1),
+      }),
+    catalogRestart: () =>
+      setCatalogPagination({ key: catalogKey, cursors: [] }),
+    catalogRetry: () => {
+      void catalogQuery.refetch();
+    },
     isSaving: createState.isLoading || updateState.isLoading,
     isPublishing: publishState.isLoading,
     setSearch: changeFilter(setSearch),

@@ -327,7 +327,9 @@
         "reason": "Reason: {{note}}"
       },
       "loadError": "We could not load your requirements.",
-      "retry": "Try again"
+      "retry": "Try again",
+      "categoryCompleted": "Completed",
+      "categoryRequired": "Required"
     },
     "fromAssociation": {
       "title": "From your association",
@@ -342,6 +344,51 @@
       "requirement": "Counts toward {{requirement}}",
       "opensExternally": "This opens on an external website outside Loopskey.",
       "openLink": "Open link"
+    }
+  },
+  "chart": {
+    "showTable": "Table",
+    "showChart": "Chart",
+    "empty": "No data for this view yet.",
+    "value": "Value",
+    "total": "Total",
+    "share": "Share"
+  },
+  "dataTable": {
+    "actions": "Actions",
+    "actionFor": "{{action}}: {{name}}",
+    "moreActions": "More actions",
+    "sort": "Sort",
+    "sortDescription": "Choose the column and direction to order the results.",
+    "sortColumn": "Sort column",
+    "sortDirection": "Sort direction",
+    "sortedBy": "Sorted by {{column}}, {{direction}}",
+    "defaultOrder": "Default order",
+    "direction": {
+      "asc": "Ascending",
+      "desc": "Descending"
+    },
+    "done": "Done",
+    "filters": "Filters",
+    "filtersDescription": "Narrow the results. Changes apply immediately.",
+    "activeFilters": "Active filters",
+    "removeFilter": "Remove filter {{filter}}",
+    "reset": "Reset",
+    "clearAll": "Clear all",
+    "showResults": "Show results",
+    "updating": "Updating results",
+    "pagination": "Pagination",
+    "range": "Showing {{from}}–{{to}} of {{total}}",
+    "page": "Page {{page}}",
+    "total": "{{total}} total",
+    "previous": "Previous page",
+    "next": "Next page",
+    "goToPage": "Go to page {{page}}",
+    "rowsPerPage": "Rows per page",
+    "error": {
+      "title": "This data could not load",
+      "description": "Check your connection and try again.",
+      "retry": "Try again"
     }
   },
   "common": {
@@ -1060,7 +1107,9 @@
       {
         "id": "how-we-use-information",
         "title": "How We Use Information",
-        "paragraphs": ["We use your information to:"],
+        "paragraphs": [
+          "We use your information to:"
+        ],
         "bullets": [
           "Create and manage user accounts.",
           "Personalize learning recommendations and AI roadmaps.",
@@ -1293,7 +1342,9 @@
       {
         "id": "acceptable-use",
         "title": "Acceptable Use",
-        "paragraphs": ["You agree not to:"],
+        "paragraphs": [
+          "You agree not to:"
+        ],
         "bullets": [
           "Use the platform for unlawful, harmful, or fraudulent purposes.",
           "Upload malware, scrape data, or attempt to bypass security measures.",
@@ -1349,7 +1400,9 @@
       {
         "id": "contact",
         "title": "Contact Information",
-        "paragraphs": ["For questions about these Terms, contact us:"],
+        "paragraphs": [
+          "For questions about these Terms, contact us:"
+        ],
         "contactItems": [
           {
             "label": "Email",
@@ -4020,7 +4073,19 @@
       "cycleProgress": {
         "title": "Cycle Progress",
         "subtitle": "Earned versus required credits for your current plan",
-        "summary": "Earned {{earned}} of {{total}} {{credit}} ({{percent}}%)."
+        "summary": "Earned {{earned}} of {{total}} {{credit}} ({{percent}}%).",
+        "earned": "Earned",
+        "required": "Required",
+        "total": "Total",
+        "category": "Category",
+        "expectedToday": "Expected today",
+        "onPace": "On pace",
+        "ahead": "{{amount}} ahead of pace",
+        "behind": "{{amount}} behind pace",
+        "remaining": "Remaining",
+        "due": "Due",
+        "perMonth": "Needed per month",
+        "byCategory": "By category"
       },
       "actions": {
         "view": "View activity details",
@@ -4074,7 +4139,9 @@
         "deleteTitle": "Delete this activity?",
         "deleteDescription": "This permanently removes the activity and any evidence files attached to it.",
         "deleteSuccess": "Activity deleted successfully.",
-        "downloadError": "Could not download that file."
+        "downloadError": "Could not download that file.",
+        "errorTitle": "Activities could not load",
+        "errorDescription": "Check your connection and try again."
       },
       "filters": {
         "any": "Any",
@@ -5687,14 +5754,25 @@
         "submit": "Send invitation",
         "linkedTitle": "Existing user found and linked",
         "linkedBody": "{{name}} already had a Loopskey account, so they joined your association immediately. No invitation email was needed.",
-        "sentTitle": "Invitation sent",
-        "sentBody": "An invitation is on its way to {{email}}. {{name}} becomes an active member once they activate their account.",
-        "cooldownTitle": "Invitation recently sent",
-        "cooldownBody": "{{name}} is on your roster. An invitation went to {{email}} a moment ago, so no new one was sent. Resend it from their profile later if it does not arrive.",
+        "sentTitle": "Invitation queued",
+        "sentBody": "An invitation for {{name}} has been queued for {{email}}. Check the delivery status in Members. They become active after accepting the link.",
+        "cooldownTitle": "Invitation recently requested",
+        "cooldownBody": "{{name}} is on your roster. An invitation for {{email}} was requested recently. Check its delivery status or resend it from Members after the cooldown.",
         "limitTitle": "Daily invitation limit reached",
         "limitBody": "{{name}} is on your roster, but {{email}} has received the most invitations allowed today. Resend it from their profile tomorrow.",
         "inviteAnother": "Invite another",
-        "done": "Done"
+        "done": "Done",
+        "resend": "Resend invitation",
+        "resendQueued": "A new invitation has been queued.",
+        "delivery": {
+          "QUEUED": "Waiting to send",
+          "RETRYING": "Retrying delivery",
+          "SENT": "Accepted by email service",
+          "FAILED": "Sending failed",
+          "SKIPPED": "Invitation superseded or no longer needed",
+          "UNKNOWN": "No delivery recorded",
+          "sentHint": "Provider acceptance does not confirm arrival in the inbox. Check spam or resend the invitation."
+        }
       },
       "bulk": {
         "title": "Upload member list",
@@ -5808,6 +5886,9 @@
         "cycleLengthRequired": "A multi-year cycle needs a length in years.",
         "cycleLengthNotAllowed": "Only a multi-year cycle carries a cycle length.",
         "publishValidationFailed": "This requirement is not ready to publish."
+      },
+      "chart": {
+        "ungrouped": "No group"
       }
     },
     "memberDetail": {
@@ -6403,7 +6484,18 @@
         "forRequirement": "Counts toward {{requirement}}",
         "uncategorised": "Uncategorised",
         "unavailable": "No longer available",
-        "actionsFor": "Actions for {{title}}"
+        "actionsFor": "Actions for {{title}}",
+        "caption": "Learning library",
+        "columns": {
+          "title": "Content",
+          "status": "Status",
+          "source": "Source",
+          "provider": "Provider",
+          "category": "Category",
+          "credits": "Credits",
+          "audience": "Audience",
+          "added": "Added"
+        }
       },
       "empty": {
         "firstRunTitle": "Your library is empty",
@@ -6454,7 +6546,13 @@
         "unsavedTitle": "Discard your changes?",
         "unsavedBody": "You have entered details that have not been saved. Closing now discards them.",
         "unsavedKeep": "Keep editing",
-        "unsavedDiscard": "Discard"
+        "unsavedDiscard": "Discard",
+        "searchMinimum": "Enter at least two characters to search.",
+        "searchFailed": "The library could not be loaded. Try again.",
+        "searchRetry": "Try again",
+        "searchExpired": "These results have changed. Restart the search to continue.",
+        "searchRestart": "Restart search",
+        "resultsCount": "{{count}} results in the library"
       },
       "wizard": {
         "stepsLabel": "Content steps",
@@ -6630,7 +6728,9 @@
           "description": "Average completion for each group against your on-track threshold. Select a bar for that group's members.",
           "label": "Average completion by group",
           "threshold": "On-track threshold, {{percent}}%",
-          "members": "{{count}} members"
+          "members": "{{count}} members",
+          "atOrAbove": "At or above threshold",
+          "below": "Below threshold"
         },
         "category": {
           "title": "Progress by category",
@@ -6661,7 +6761,8 @@
         "earned": "Average earned",
         "band": "Band",
         "share": "Share",
-        "month": "Month"
+        "month": "Month",
+        "member": "Member"
       },
       "exports": {
         "reasons": {
@@ -6790,7 +6891,8 @@
         "description": "Average completion in each category, with the share of members below half alongside.",
         "label": "Average completion and members below half by category",
         "average": "Average completion",
-        "belowHalf": "Members below half"
+        "belowHalf": "Members below half",
+        "belowHalfLine": "{{count}} members below half"
       },
       "groupChart": {
         "title": "Groups by band",
@@ -7298,7 +7400,15 @@
         "requestTrend": "Request Trend",
         "requestTrendHint": "Organization access request activity over time.",
         "statusDistribution": "Request Status Distribution",
-        "statusDistributionHint": "Pending, approved, and rejected request split."
+        "statusDistributionHint": "Pending, approved, and rejected request split.",
+        "date": "Date",
+        "requests": "Requests",
+        "status": "Status",
+        "statuses": {
+          "pending": "Pending",
+          "approved": "Approved",
+          "rejected": "Rejected"
+        }
       },
       "recentUsers": {
         "title": "Recent Users",
@@ -7370,7 +7480,8 @@
         "monthly": "Monthly",
         "providers": "Providers",
         "professionals": "Professionals",
-        "exportPng": "Export PNG"
+        "exportPng": "Export PNG",
+        "period": "Period"
       },
       "filters": {
         "search": "Search users...",
@@ -7558,7 +7669,12 @@
         "audit": "Audit Logs"
       },
       "audit": {
-        "empty": "No audit logs found."
+        "empty": "No audit logs found.",
+        "title": "Audit log",
+        "action": "Action",
+        "actor": "Actor",
+        "entity": "Entity",
+        "date": "Date"
       },
       "members": {
         "search": "Search members by name, email, role, or department",
@@ -7569,7 +7685,12 @@
         "department": "Department",
         "title": "Organization members",
         "description": "Search and manage members of the selected organization.",
-        "empty": "No members found."
+        "empty": "No members found.",
+        "pdus": "PDUs",
+        "compliance": "Compliance",
+        "courses": "Courses",
+        "edit": "Edit member",
+        "remove": "Remove member"
       },
       "settings": {
         "complianceRules": "Compliance Rules",
@@ -7987,7 +8108,12 @@
       "forbidden": "Only administrators can manage topic guides.",
       "failed": "We could not complete that. Try again."
     },
-    "reload": "Reload latest version"
+    "reload": "Reload latest version",
+    "columns": {
+      "title": "Topic hub",
+      "status": "Status",
+      "links": "Links"
+    }
   },
   "providerPublicProfile": {
     "tab": "Public profile",

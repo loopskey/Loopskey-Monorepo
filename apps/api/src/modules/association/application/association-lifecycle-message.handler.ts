@@ -176,12 +176,12 @@ export class AssociationLifecycleMessageHandler implements OnModuleInit {
       return;
     }
 
-    await this.mail.deliver(
+    const receipt = await this.mail.deliver(
       { to: recipient.email, ...template },
       event.idempotencyKey,
     );
 
-    await this.settle(delivery, addressee.language);
+    await this.settle(delivery, addressee.language, receipt.id);
   }
 
   async abandon(payload: unknown) {
@@ -213,8 +213,8 @@ export class AssociationLifecycleMessageHandler implements OnModuleInit {
       return;
     }
 
-    await this.mail.deliver(mail, event.idempotencyKey);
-    await this.settle(delivery);
+    const receipt = await this.mail.deliver(mail, event.idempotencyKey);
+    await this.settle(delivery, undefined, receipt.id);
   }
 
   private async isSupersededInvitation(delivery: LifecycleDelivery) {
@@ -407,7 +407,11 @@ export class AssociationLifecycleMessageHandler implements OnModuleInit {
       : AppLanguage.EN;
   }
 
-  private async settle(delivery: LifecycleDelivery, language?: AppLanguage) {
+  private async settle(
+    delivery: LifecycleDelivery,
+    language?: AppLanguage,
+    providerMessageId?: string,
+  ) {
     const { count } = await this.prisma.associationMessageDelivery.updateMany({
       where: {
         id: delivery.id,
@@ -415,6 +419,7 @@ export class AssociationLifecycleMessageHandler implements OnModuleInit {
       },
       data: {
         sentAt: new Date(),
+        ...(providerMessageId ? { providerMessageId } : {}),
         failureReason: null,
         state: AssociationMessageDeliveryState.SENT,
         ...(language ? { language } : {}),

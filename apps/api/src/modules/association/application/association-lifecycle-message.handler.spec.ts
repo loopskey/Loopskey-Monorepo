@@ -133,6 +133,7 @@ const settledState = (prisma: ReturnType<typeof setup>["prisma"]) =>
           state: AssociationMessageDeliveryState;
           skipReason?: string;
           language?: AppLanguage;
+          providerMessageId?: string;
         };
       }
     | undefined;
@@ -464,6 +465,7 @@ describe("AssociationLifecycleMessageHandler invitation", () => {
     );
 
     expect(mail.deliver).toHaveBeenCalledWith(mailPayload, "outbox-event-1");
+    expect(settledState(prisma)?.data.providerMessageId).toBe("provider-1");
     expect(identity.recipients).not.toHaveBeenCalled();
     expect(settledState(prisma)?.data.state).toBe(
       AssociationMessageDeliveryState.SENT,

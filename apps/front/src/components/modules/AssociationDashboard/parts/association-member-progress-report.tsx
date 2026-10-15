@@ -5,48 +5,28 @@ import { TAssociationMemberProgressRow } from "@/types/association-dashboard.typ
 import { AssociationReportSummaryStrip } from "@modules/AssociationDashboard/parts/association-report-summary-strip";
 import { ASSOCIATION_BAND_VARIANTS } from "@utils/association-compliance-bands";
 import { ASSOCIATION_BAND_ORDER } from "@utils/association-compliance-bands";
-import { AssociationReportTable } from "@modules/AssociationDashboard/parts/association-report-table";
 import { ALL_FILTER_VALUE } from "@utils/association-reports";
-import { useChartPalette } from "@hooks/useChartPalette";
-import { Skeleton } from "@ui/skeleton";
+import { DataTableFilters } from "@elements/data-table/data-table-filters";
+import { DataTable } from "@elements/data-table/data-table";
 import { Badge } from "@ui/badge";
 
-import dynamic from "next/dynamic";
-
 import * as REPORTS from "@utils/association-reports";
-import * as S from "@ui/select";
-
-const MemberExtremesChart = dynamic(
-  () =>
-    import(
-      "@modules/AssociationDashboard/parts/association-report-drilldown-charts"
-    ).then((module) => module.MemberExtremesChart),
-  {
-    ssr: false,
-    loading: () => <Skeleton className="h-72 w-full rounded-md" />,
-  },
-);
+import * as C from "@modules/AssociationDashboard/parts/association-report-charts";
+import * as L from "lucide-react";
 
 export const AssociationMemberProgressReport = ({
   hook,
 }: TAssociationMemberProgressReport) => {
-  const palette = useChartPalette();
-
   const {
     t,
     band,
-    page,
-    sort,
     locale,
     setBand,
-    setPage,
-    direction,
-    toggleSort,
     openMember,
+    reportTable,
     distribution,
     orderAndPage,
     memberProgress,
-    isReportLoading,
   } = hook;
 
   const label = (key: string, vars?: Record<string, string | number>) =>
@@ -112,64 +92,56 @@ export const AssociationMemberProgressReport = ({
         </p>
       )}
 
-      <div className="max-w-xs">
-        <label
-          htmlFor="association-report-band"
-          className="text-xs uppercase text-muted-foreground"
-        >
-          {label("view.band")}
-        </label>
+      <DataTableFilters
+        onReset={() => setBand(ALL_FILTER_VALUE)}
+        filters={[
+          {
+            type: "select",
+            id: "band",
+            value: band,
+            onChange: setBand,
+            label: label("view.band"),
+            defaultValue: ALL_FILTER_VALUE,
+            options: [
+              { value: ALL_FILTER_VALUE, label: label("view.allBands") },
+              ...ASSOCIATION_BAND_ORDER.map((value) => ({
+                value,
+                label: label(`bands.${value}`),
+              })),
+            ],
+          },
+        ]}
+      />
 
-        <S.Select value={band} onValueChange={setBand}>
-          <S.SelectTrigger
-            id="association-report-band"
-            className="mt-1 rounded-md"
-          >
-            <S.SelectValue />
-          </S.SelectTrigger>
-
-          <S.SelectContent className="rounded-md">
-            <S.SelectItem value={ALL_FILTER_VALUE}>
-              {label("view.allBands")}
-            </S.SelectItem>
-
-            {ASSOCIATION_BAND_ORDER.map((value) => (
-              <S.SelectItem key={value} value={value}>
-                {label(`bands.${value}`)}
-              </S.SelectItem>
-            ))}
-          </S.SelectContent>
-        </S.Select>
-      </div>
-
-      <MemberExtremesChart
+      <C.MemberExtremesChart
         label={label}
         locale={locale}
-        palette={palette}
+        chrome={{
+          title: label("extremes.title"),
+          description: label("extremes.description"),
+          headingLevel: "h2",
+        }}
         leaders={extremes.leaders}
         laggards={extremes.laggards}
       />
 
-      <AssociationReportTable
-        page={page}
-        sort={sort}
-        pages={pages}
-        total={total}
+      <DataTable
+        {...reportTable(total, pages)}
+        isFiltered={band !== ALL_FILTER_VALUE}
         rows={pageRows}
-        onPage={setPage}
-        onSort={toggleSort}
-        direction={direction}
-        isLoading={isReportLoading}
         caption={label("names.member-progress")}
-        emptyLabel={label("table.empty")}
         rowKey={(row) => row.memberId}
-        onOpenRow={(row) => openMember(row.memberId)}
-        sortLabel={(header) => label("table.sort", { column: header })}
-        openLabel={(row) =>
-          label("table.openMember", {
-            name: row.fullName ?? row.email ?? row.memberId,
-          })
-        }
+        empty={{ icon: L.TableProperties, title: label("table.empty") }}
+        rowActions={(row) => [
+          {
+            id: "open",
+            icon: L.UserSearch,
+            label: label("table.openMember", {
+              name: row.fullName ?? row.email ?? row.memberId,
+            }),
+            onSelect: () => openMember(row.memberId),
+          },
+        ]}
         columns={[
           {
             id: "fullName",

@@ -1,296 +1,321 @@
 "use client";
 
-import { TPduActivitiesTableProps } from "@/types/professional-dashboard.types";
 import { PduCompletionStatus } from "@/lib/graphql/base";
-import { I18nContextValue } from "@/types/providers.types";
-import { ConfirmDialog } from "@elements/confirm-dialog";
-import { TPduActivity } from "@/types/professional-dashboard.types";
+import { DataTableFilters } from "@elements/data-table/data-table-filters";
 import { formatDate } from "@/utils/function-helper";
-import { IconAction } from "@elements/icon-action";
+import { DataTable } from "@elements/data-table/data-table";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
+
+import type { ActivitiesTableProps } from "@/types/professional-tables.types";
+import type { TPduActivity } from "@/types/professional-dashboard.types";
 
 import * as L from "lucide-react";
 
 const TRACKER = "professionalDashboard.cpdPduTracker";
+const FILTERS = `${TRACKER}.filters`;
+const ANY = "ALL";
 
-const StatusBadge = ({
-  status,
-  t,
-}: {
-  status: PduCompletionStatus;
-  t: I18nContextValue["t"];
-}) => (
-  <Badge
-    variant={status === PduCompletionStatus.Completed ? "default" : "secondary"}
-  >
-    {t(`${TRACKER}.completionStatuses.${status}`)}
-  </Badge>
-);
+export const ActivitiesTable = ({ hook }: ActivitiesTableProps) => {
+  const {
+    t,
+    page,
+    filters,
+    pageInfo,
+    isFiltered,
+    activities,
+    handleNext,
+    currentYear,
+    yearOptions,
+    activitiesData,
+    handlePrevious,
+    isActivitiesError,
+    refetchActivities,
+    handleAddActivity,
+    handleViewActivity,
+    handleFilterChange,
+    handleResetFilters,
+    handleEditActivity,
+    deletingActivityId,
+    isActivitiesLoading,
+    handleDeleteActivity,
+    activityTypeOptions,
+    isActivitiesFetching,
+    handleDownloadEvidence,
+  } = hook;
 
-export type TCertificateCall = {
-  activity: TPduActivity;
-  t: I18nContextValue["t"];
-  onDownload: TPduActivitiesTableProps["onDownload"];
-};
+  const certificateCell = (activity: TPduActivity) => {
+    const [firstFile] = activity.evidenceFiles;
 
-const CertificateCell = ({ activity, onDownload, t }: TCertificateCall) => {
-  const [firstFile] = activity.evidenceFiles;
+    if (!firstFile)
+      return (
+        <span className="text-xs text-muted-foreground">
+          {t(`${TRACKER}.table.noFile`)}
+        </span>
+      );
 
-  if (!firstFile)
     return (
-      <span className="text-xs text-muted-foreground">
-        {t(`${TRACKER}.table.noFile`)}
-      </span>
+      <Button
+        size="sm"
+        radius="lg"
+        type="button"
+        variant="outline"
+        className="h-8"
+        title={firstFile.fileName}
+        onClick={() => handleDownloadEvidence(firstFile)}
+      >
+        <L.Paperclip aria-hidden className="size-3.5" />
+        {activity.evidenceFiles.length > 1
+          ? `${t(`${TRACKER}.table.attached`)} (${activity.evidenceFiles.length})`
+          : t(`${TRACKER}.table.attached`)}
+      </Button>
     );
+  };
 
-  return (
+  const resetButton = (
     <Button
-      size="sm"
-      radius="xl"
+      radius="lg"
       type="button"
       variant="outline"
-      title={firstFile.fileName}
-      onClick={() => onDownload(firstFile)}
+      onClick={handleResetFilters}
     >
-      <L.Paperclip className="h-3.5 w-3.5" />
-      {activity.evidenceFiles.length > 1
-        ? `${t(`${TRACKER}.table.attached`)} (${activity.evidenceFiles.length})`
-        : t(`${TRACKER}.table.attached`)}
+      <L.FilterX aria-hidden />
+      {t(`${FILTERS}.clear`)}
     </Button>
   );
-};
-
-export type TRowActions = {
-  isDeleting: boolean;
-  activity: TPduActivity;
-  t: I18nContextValue["t"];
-  deletingActivityId: string | null;
-  onView: TPduActivitiesTableProps["onView"];
-  onEdit: TPduActivitiesTableProps["onEdit"];
-  onDelete: TPduActivitiesTableProps["onDelete"];
-};
-
-const RowActions = ({
-  t,
-  onView,
-  onEdit,
-  activity,
-  onDelete,
-  isDeleting,
-  deletingActivityId,
-}: TRowActions) => {
-  const isDeletingRow = deletingActivityId === activity.id;
 
   return (
-    <div className="flex items-center gap-2">
-      <IconAction
-        icon={L.Eye}
-        disabled={isDeleting}
-        onClick={() => onView(activity.id)}
-        label={t(`${TRACKER}.actions.view`)}
-      />
-
-      <IconAction
-        icon={L.Pencil}
-        disabled={isDeleting}
-        onClick={() => onEdit(activity.id)}
-        label={t(`${TRACKER}.actions.edit`)}
-      />
-
-      <ConfirmDialog
-        isLoading={isDeletingRow}
-        confirmVariant="destructive"
-        cancelText={t("common.cancel")}
-        confirmText={t("common.delete")}
-        onConfirm={() => onDelete(activity.id)}
-        title={t(`${TRACKER}.activities.deleteTitle`)}
-        description={t(`${TRACKER}.activities.deleteDescription`)}
-        trigger={
-          <span>
-            <IconAction
-              variant="cancel"
-              icon={L.Trash2}
-              disabled={isDeleting}
-              label={t(`${TRACKER}.actions.delete`)}
-            />
-          </span>
-        }
-      />
-    </div>
-  );
-};
-
-export const ActivitiesTable = ({
-  t,
-  onView,
-  onEdit,
-  onDelete,
-  isDeleting,
-  activities,
-  onDownload,
-  deletingActivityId,
-}: TPduActivitiesTableProps) => {
-  const columns = [
-    "title",
-    "type",
-    "dateCompleted",
-    "creditType",
-    "creditValue",
-    "category",
-    "reportingYear",
-    "provider",
-    "status",
-    "certificate",
-    "actions",
-  ] as const;
-
-  return (
-    <>
-      {/* Eleven columns never fit a phone; below lg each row becomes a card. */}
-      <div className="hidden overflow-x-auto rounded-lg border lg:block">
-        <table className="w-full min-w-[1200px] border-collapse text-sm">
-          <thead>
-            <tr className="border-b border-border bg-primary/5 text-left text-xs font-black uppercase tracking-wider text-muted-foreground">
-              {columns.map((column) => (
-                <th key={column} className="whitespace-nowrap px-4 py-4">
-                  {t(`${TRACKER}.table.${column}`)}
-                </th>
-              ))}
-            </tr>
-          </thead>
-
-          <tbody className="divide-y divide-border">
-            {activities.map((activity) => (
-              <tr
-                key={activity.id}
-                className="bg-muted transition-colors hover:bg-primary/5"
-              >
-                <td className="max-w-72 px-4 py-4">
-                  <p className="truncate font-medium" title={activity.title}>
-                    {activity.title}
-                  </p>
-                </td>
-                <td className="whitespace-nowrap px-4 py-4 text-muted-foreground">
-                  {t(`${TRACKER}.activityTypes.${activity.source}`)}
-                </td>
-                <td className="whitespace-nowrap px-4 py-4 text-muted-foreground">
-                  {formatDate(activity.date)}
-                </td>
-                <td className="whitespace-nowrap px-4 py-4">
-                  <Badge variant="secondary">
-                    {t(`${TRACKER}.creditTypes.${activity.creditType}`)}
-                  </Badge>
-                </td>
-                <td className="whitespace-nowrap px-4 py-4 font-medium">
-                  {Number(activity.pdus ?? 0).toFixed(1)}
-                </td>
-                <td className="whitespace-nowrap px-4 py-4">
-                  <Badge variant="secondary">
-                    {t(`${TRACKER}.categories.${activity.category}`)}
-                  </Badge>
-                </td>
-                <td className="whitespace-nowrap px-4 py-4 text-muted-foreground">
-                  {activity.reportingYear ?? "—"}
-                </td>
-                <td className="max-w-48 px-4 py-4 text-muted-foreground">
-                  <span
-                    className="block truncate"
-                    title={activity.providerOrganizer ?? undefined}
-                  >
-                    {activity.providerOrganizer ?? "—"}
-                  </span>
-                </td>
-                <td className="whitespace-nowrap px-4 py-4">
-                  <StatusBadge t={t} status={activity.completionStatus} />
-                </td>
-                <td className="whitespace-nowrap px-4 py-4">
-                  <CertificateCell
-                    t={t}
-                    activity={activity}
-                    onDownload={onDownload}
-                  />
-                </td>
-                <td className="whitespace-nowrap px-4 py-4">
-                  <RowActions
-                    t={t}
-                    onView={onView}
-                    onEdit={onEdit}
-                    onDelete={onDelete}
-                    activity={activity}
-                    isDeleting={isDeleting}
-                    deletingActivityId={deletingActivityId}
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="space-y-4 lg:hidden">
-        {activities.map((activity) => (
-          <div key={activity.id} className="rounded-lg border bg-muted p-5">
-            <div className="flex items-start justify-between gap-3">
-              <p className="font-medium">{activity.title}</p>
-              <StatusBadge t={t} status={activity.completionStatus} />
-            </div>
-
-            <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
-              <div>
-                <dt className="text-xs text-muted-foreground">
-                  {t(`${TRACKER}.table.type`)}
-                </dt>
-                <dd>{t(`${TRACKER}.activityTypes.${activity.source}`)}</dd>
-              </div>
-              <div>
-                <dt className="text-xs text-muted-foreground">
-                  {t(`${TRACKER}.table.dateCompleted`)}
-                </dt>
-                <dd>{formatDate(activity.date)}</dd>
-              </div>
-              <div>
-                <dt className="text-xs text-muted-foreground">
-                  {t(`${TRACKER}.table.creditValue`)}
-                </dt>
-                <dd>
-                  {Number(activity.pdus ?? 0).toFixed(1)}{" "}
-                  {t(`${TRACKER}.creditTypes.${activity.creditType}`)}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-xs text-muted-foreground">
-                  {t(`${TRACKER}.table.reportingYear`)}
-                </dt>
-                <dd>{activity.reportingYear ?? "—"}</dd>
-              </div>
-              <div className="col-span-2">
-                <dt className="text-xs text-muted-foreground">
-                  {t(`${TRACKER}.table.provider`)}
-                </dt>
-                <dd>{activity.providerOrganizer ?? "—"}</dd>
-              </div>
-            </dl>
-
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-              <CertificateCell
-                t={t}
-                activity={activity}
-                onDownload={onDownload}
-              />
-              <RowActions
-                t={t}
-                onView={onView}
-                onEdit={onEdit}
-                onDelete={onDelete}
-                activity={activity}
-                isDeleting={isDeleting}
-                deletingActivityId={deletingActivityId}
-              />
-            </div>
-          </div>
-        ))}
-      </div>
-    </>
+    <DataTable
+      rows={activities}
+      isFiltered={isFiltered}
+      isLoading={isActivitiesLoading}
+      isFetching={isActivitiesFetching}
+      rowKey={(activity) => activity.id}
+      rowLabel={(activity) => activity.title}
+      caption={t(`${TRACKER}.activities.title`)}
+      pagination={{
+        kind: "cursor",
+        page,
+        onNext: handleNext,
+        onPrevious: handlePrevious,
+        total: activitiesData?.totalCount,
+        hasNextPage: Boolean(pageInfo?.hasNextPage),
+      }}
+      error={
+        isActivitiesError
+          ? {
+              icon: L.CircleAlert,
+              title: t(`${TRACKER}.activities.errorTitle`),
+              description: t(`${TRACKER}.activities.errorDescription`),
+              action: (
+                <Button
+                  radius="lg"
+                  type="button"
+                  variant="outline"
+                  onClick={() => void refetchActivities()}
+                >
+                  <L.RefreshCw aria-hidden />
+                  {t("professionalDashboard.common.refresh")}
+                </Button>
+              ),
+            }
+          : null
+      }
+      empty={{
+        icon: L.BookOpenCheck,
+        title: t(`${TRACKER}.activities.emptyTitle`),
+        description: t(`${TRACKER}.activities.emptyDescription`),
+        action: (
+          <Button radius="lg" type="button" onClick={handleAddActivity}>
+            <L.FilePlus2 aria-hidden />
+            {t(`${TRACKER}.quickActions.addActivity`)}
+          </Button>
+        ),
+      }}
+      filteredEmpty={{
+        icon: L.SearchX,
+        title: t(`${TRACKER}.activities.noMatchTitle`),
+        description: t(`${TRACKER}.activities.noMatchDescription`),
+        action: resetButton,
+      }}
+      toolbar={
+        <DataTableFilters
+          isFiltered={isFiltered}
+          onReset={handleResetFilters}
+          search={{
+            value: filters.search,
+            label: t(`${FILTERS}.search`),
+            placeholder: t(`${FILTERS}.searchPlaceholder`),
+            onChange: (value) => handleFilterChange("search", value),
+          }}
+          filters={[
+            {
+              type: "select",
+              id: "year",
+              label: t(`${FILTERS}.reportingYear`),
+              value: String(filters.year),
+              defaultValue: String(currentYear),
+              options: yearOptions.map((year) => ({
+                value: String(year),
+                label: String(year),
+              })),
+              onChange: (value) => handleFilterChange("year", Number(value)),
+            },
+            {
+              type: "select",
+              id: "activityType",
+              label: t(`${FILTERS}.activityType`),
+              value: filters.activityType,
+              defaultValue: ANY,
+              options: [
+                { value: ANY, label: t(`${FILTERS}.any`) },
+                ...activityTypeOptions.map((option) => ({
+                  value: option,
+                  label: t(`${TRACKER}.activityTypes.${option}`),
+                })),
+              ],
+              onChange: (value) =>
+                handleFilterChange(
+                  "activityType",
+                  activityTypeOptions.find((option) => option === value) ?? ANY,
+                ),
+            },
+            {
+              type: "select",
+              id: "certificate",
+              label: t(`${FILTERS}.certificate`),
+              value: filters.certificate,
+              defaultValue: ANY,
+              options: [
+                { value: ANY, label: t(`${FILTERS}.any`) },
+                { value: "WITH", label: t(`${FILTERS}.hasCertificate`) },
+                { value: "WITHOUT", label: t(`${FILTERS}.noCertificate`) },
+              ],
+              onChange: (value) =>
+                handleFilterChange(
+                  "certificate",
+                  value === "WITH" || value === "WITHOUT" ? value : ANY,
+                ),
+            },
+          ]}
+        />
+      }
+      columns={[
+        {
+          id: "title",
+          mobile: "title",
+          header: t(`${TRACKER}.table.title`),
+          className: "max-w-72",
+          cell: (activity) => (
+            <span className="block truncate font-medium" title={activity.title}>
+              {activity.title}
+            </span>
+          ),
+        },
+        {
+          id: "status",
+          mobile: "badge",
+          header: t(`${TRACKER}.table.status`),
+          cell: (activity) => (
+            <Badge
+              variant={
+                activity.completionStatus === PduCompletionStatus.Completed
+                  ? "default"
+                  : "secondary"
+              }
+            >
+              {t(`${TRACKER}.completionStatuses.${activity.completionStatus}`)}
+            </Badge>
+          ),
+        },
+        {
+          id: "type",
+          header: t(`${TRACKER}.table.type`),
+          cell: (activity) => t(`${TRACKER}.activityTypes.${activity.source}`),
+        },
+        {
+          id: "dateCompleted",
+          header: t(`${TRACKER}.table.dateCompleted`),
+          cell: (activity) => formatDate(activity.date),
+        },
+        {
+          id: "creditValue",
+          align: "end",
+          header: t(`${TRACKER}.table.creditValue`),
+          cell: (activity) => (
+            <span className="font-medium">
+              {Number(activity.pdus ?? 0).toFixed(1)}{" "}
+              <span className="text-xs font-normal text-muted-foreground">
+                {t(`${TRACKER}.creditTypes.${activity.creditType}`)}
+              </span>
+            </span>
+          ),
+        },
+        {
+          id: "category",
+          header: t(`${TRACKER}.table.category`),
+          cell: (activity) => (
+            <Badge variant="secondary">
+              {t(`${TRACKER}.categories.${activity.category}`)}
+            </Badge>
+          ),
+        },
+        {
+          id: "reportingYear",
+          align: "end",
+          header: t(`${TRACKER}.table.reportingYear`),
+          cell: (activity) => activity.reportingYear ?? "—",
+        },
+        {
+          id: "provider",
+          mobile: "wide",
+          className: "max-w-48",
+          header: t(`${TRACKER}.table.provider`),
+          cell: (activity) => (
+            <span
+              className="block truncate text-muted-foreground"
+              title={activity.providerOrganizer ?? undefined}
+            >
+              {activity.providerOrganizer ?? "—"}
+            </span>
+          ),
+        },
+        {
+          id: "certificate",
+          mobile: "wide",
+          header: t(`${TRACKER}.table.certificate`),
+          cell: certificateCell,
+        },
+      ]}
+      rowActions={(activity) => [
+        {
+          id: "view",
+          icon: L.Eye,
+          label: t(`${TRACKER}.actions.view`),
+          onSelect: () => handleViewActivity(activity.id),
+        },
+        {
+          id: "edit",
+          icon: L.Pencil,
+          label: t(`${TRACKER}.actions.edit`),
+          onSelect: () => handleEditActivity(activity.id),
+        },
+        {
+          id: "delete",
+          tone: "danger",
+          icon: L.Trash2,
+          label: t(`${TRACKER}.actions.delete`),
+          isDisabled: Boolean(deletingActivityId),
+          isPending: deletingActivityId === activity.id,
+          onSelect: () => handleDeleteActivity(activity.id),
+          confirm: {
+            title: t(`${TRACKER}.activities.deleteTitle`),
+            description: t(`${TRACKER}.activities.deleteDescription`),
+            confirmLabel: t("common.delete"),
+            cancelLabel: t("common.cancel"),
+          },
+        },
+      ]}
+    />
   );
 };

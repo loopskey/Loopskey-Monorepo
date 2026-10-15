@@ -4,9 +4,22 @@ import { AssociationMemberJoinedVia } from "@prisma/client";
 import { AssociationGqlObjectNames } from "@association/enums/association-gql-names.enum";
 import { AssociationMemberStatus } from "@prisma/client";
 import { Field, ID, ObjectType } from "@nestjs/graphql";
+import { AssociationMessageDeliveryState } from "@prisma/client";
+
+@ObjectType(AssociationGqlObjectNames.ASSOCIATION_INVITATION_DELIVERY)
+export class AssociationInvitationDeliveryEntity {
+  @Field(() => ID) id: string;
+  @Field() createdAt: Date;
+  @Field(() => Date, { nullable: true }) sentAt: Date | null;
+  @Field(() => String, { nullable: true }) failureReason: string | null;
+  @Field(() => AssociationMessageDeliveryState)
+  state: AssociationMessageDeliveryState;
+}
 
 @ObjectType(AssociationGqlObjectNames.ASSOCIATION_MEMBER)
 export class AssociationMemberEntity {
+  @Field(() => AssociationInvitationDeliveryEntity, { nullable: true })
+  invitationDelivery: AssociationInvitationDeliveryEntity | null;
   @Field() invitedAt: Date;
   @Field(() => ID) id: string;
   @Field(() => ID) userId: string;

@@ -1,49 +1,29 @@
 "use client";
 
 import { TAssociationGroupProgressReport } from "@/types/association-dashboard.types";
-import { TAssociationGroupProgressRow } from "@/types/association-dashboard.types";
 import { AssociationReportSummaryStrip } from "@modules/AssociationDashboard/parts/association-report-summary-strip";
+import { TAssociationGroupProgressRow } from "@/types/association-dashboard.types";
 import { AssociationReportHeatmap } from "@modules/AssociationDashboard/parts/association-report-heatmap";
-import { AssociationReportTable } from "@modules/AssociationDashboard/parts/association-report-table";
 import { HEATMAP_GROUP_LIMIT } from "@utils/association-reports";
-import { useChartPalette } from "@hooks/useChartPalette";
-import { Skeleton } from "@ui/skeleton";
+import { DataTable } from "@elements/data-table/data-table";
 
-import dynamic from "next/dynamic";
-
+import * as C from "@modules/AssociationDashboard/parts/association-report-charts";
+import * as L from "lucide-react";
 import * as REPORTS from "@utils/association-reports";
-
-const GroupBandsChart = dynamic(
-  () =>
-    import(
-      "@modules/AssociationDashboard/parts/association-report-drilldown-charts"
-    ).then((module) => module.GroupBandsChart),
-  {
-    ssr: false,
-    loading: () => <Skeleton className="h-72 w-full rounded-md" />,
-  },
-);
 
 export const AssociationGroupProgressReport = ({
   hook,
 }: TAssociationGroupProgressReport) => {
-  const palette = useChartPalette();
-
   const {
     t,
-    page,
-    sort,
     locale,
-    setPage,
     summary,
-    direction,
-    toggleSort,
+    reportTable,
     filterInput,
     orderAndPage,
     distribution,
     groupProgress,
     categoryProgress,
-    isReportLoading,
   } = hook;
 
   const label = (key: string, vars?: Record<string, string | number>) =>
@@ -106,28 +86,24 @@ export const AssociationGroupProgressReport = ({
         ]}
       />
 
-      <GroupBandsChart
+      <C.GroupBandsChart
         label={label}
         locale={locale}
-        palette={palette}
         rows={groupProgress}
         ungroupedLabel={ungroupedLabel}
+        chrome={{
+          title: label("groupChart.title"),
+          description: label("groupChart.description"),
+          headingLevel: "h2",
+        }}
       />
 
-      <AssociationReportTable
-        page={page}
-        sort={sort}
-        pages={pages}
-        total={total}
+      <DataTable
+        {...reportTable(total, pages)}
         rows={pageRows}
-        onPage={setPage}
-        onSort={toggleSort}
-        direction={direction}
-        isLoading={isReportLoading}
-        emptyLabel={label("table.empty")}
         caption={label("names.group-progress")}
         rowKey={(row) => row.groupId ?? "ungrouped"}
-        sortLabel={(header) => label("table.sort", { column: header })}
+        empty={{ icon: L.TableProperties, title: label("table.empty") }}
         columns={[
           {
             id: "groupTitle",
@@ -173,20 +149,13 @@ export const AssociationGroupProgressReport = ({
         ]}
       />
 
-      <section>
-        <h3 className="text-lg font-medium">{label("heatmap.title")}</h3>
-
-        <div className="mt-3">
-          <AssociationReportHeatmap
-            label={label}
-            locale={locale}
-            palette={palette}
-            filter={filterInput}
-            groups={heatmapGroups}
-            columns={categoryColumns}
-          />
-        </div>
-      </section>
+      <AssociationReportHeatmap
+        label={label}
+        locale={locale}
+        filter={filterInput}
+        groups={heatmapGroups}
+        columns={categoryColumns}
+      />
     </div>
   );
 };

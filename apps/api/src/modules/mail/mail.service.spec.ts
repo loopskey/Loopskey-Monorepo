@@ -4,6 +4,11 @@ import { MailService } from "./mail.service";
 import type { OutboxService } from "../../infrastructure/outbox/outbox.service";
 
 const outbox = { append: jest.fn() } as unknown as OutboxService;
+const mockSend = jest.fn();
+
+jest.mock("resend", () => ({
+  Resend: jest.fn().mockImplementation(() => ({ emails: { send: mockSend } })),
+}));
 
 describe("MailService configuration", () => {
   it("fails fast when the Resend API key is missing", () => {
@@ -27,4 +32,50 @@ describe("MailService configuration", () => {
       () => new MailService(config as unknown as ConfigService, outbox),
     ).toThrow("EMAIL_FROM is not configured.");
   });
+});
+
+describe("MailService provider receipt", () => {
+  const input = {
+    to: "invitee@example.test",
+    subject: "Invitation",
+    html: "<p>Accept your invitation</p>",
+    text: "Accept your invitation",
+  };
+  const createService = () =>
+    new MailService(
+      {
+        get: (name: string) =>
+          name === "RESEND_API_KEY" ? "re_test" : "test@example.test",
+      } as unknown as ConfigService,
+      outbox,
+    );
+
+  beforeEach(() => mockSend.mockReset());
+
+  it("keeps the provider receipt and reuses the outbox idempotency key", async () => {
+    mockSend.mockResolvedValue({
+      data: { id: "provider-message-1" },
+      error: null,
+    });
+    await expect(
+      createService().deliver(input, "outbox-event-1"),
+    ).resolves.toEqual({ id: "provider-message-1" });
+    expect(mockSend).toHaveBeenCalledWith(expect.objectContaining(input), {
+      idempotencyKey: "outbox-event-1",
+    });
+  });
+
+  it.each([
+    { data: null, error: { name: "validation_error", statusCode: 403 } },
+    { data: null, error: null },
+    { data: {}, error: null },
+  ])(
+    "fails delivery rather than reporting success without provider acceptance",
+    async (response) => {
+      mockSend.mockResolvedValue(response);
+      await expect(
+        createService().deliver(input, "outbox-event-1"),
+      ).rejects.toThrow("Unable to send email. Please try again later.");
+    },
+  );
 });

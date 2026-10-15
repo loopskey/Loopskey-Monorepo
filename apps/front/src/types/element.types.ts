@@ -159,7 +159,7 @@ export type TMultiSelectFieldProps<T extends FieldValues> = {
 export type TConfirmDialogProps = {
   title: string;
   open?: boolean;
-  trigger: ReactNode;
+  trigger?: ReactNode;
   cancelText?: string;
   isLoading?: boolean;
   description?: string;
@@ -247,32 +247,6 @@ export type TAnimatedTabsProps<T extends string = string> = {
   fullWidthMobile?: boolean;
   tabs: TAnimatedTabItem<T>[];
   onChange: (value: T) => void;
-};
-
-// ============== Elements =================
-export type TPduOverTimePoint = {
-  pdus: number;
-  month: string;
-};
-
-export type TPduCategoryPoint = {
-  pdus: number;
-  fill: string;
-  category: string;
-};
-
-export type TDonutSlice = {
-  name: string;
-  fill: string;
-  label: string;
-  value: number;
-};
-
-export type TProgressDonutChart = {
-  ariaLabel: string;
-  data: TDonutSlice[];
-  valueSuffix?: string;
-  centerLabel: ReactNode;
 };
 
 // ================ External Btn =================

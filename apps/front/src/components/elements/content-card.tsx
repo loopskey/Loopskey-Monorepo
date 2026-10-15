@@ -18,11 +18,11 @@ const KIND_DOT_CLASS_NAME: Record<TContentCardKind, string> = {
   youtube: "bg-ct-youtube",
 };
 
-const KIND_CTA_HOVER_CLASS_NAME: Record<TContentCardKind, string> = {
-  course: "group-hover:bg-ct-course group-hover:text-ct-course-foreground",
-  event: "group-hover:bg-ct-event group-hover:text-ct-event-foreground",
-  podcast: "group-hover:bg-ct-podcast group-hover:text-ct-podcast-foreground",
-  youtube: "group-hover:bg-ct-youtube group-hover:text-ct-youtube-foreground",
+const KIND_CTA_CLASS_NAME: Record<TContentCardKind, string> = {
+  course: "bg-ct-course text-ct-course-foreground",
+  event: "bg-ct-event text-ct-event-foreground",
+  podcast: "bg-ct-podcast text-ct-podcast-foreground",
+  youtube: "bg-ct-youtube text-ct-youtube-foreground",
 };
 
 const KIND_META_ICONS = {
@@ -43,7 +43,7 @@ const CHIP_CLASS_NAME =
   "flex items-center gap-1.5 rounded-full bg-black/45 px-3 py-1 text-[11px] font-bold backdrop-blur-md";
 
 const CTA_CLASS_NAME =
-  "flex h-14 w-full items-center justify-center gap-2 bg-background text-[15px] font-semibold text-foreground";
+  "mx-6 mb-6 flex min-h-12 items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-semibold shadow-sm";
 
 const ContentCard = ({
   item,
@@ -64,6 +64,7 @@ const ContentCard = ({
         "transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl",
         "motion-reduce:transition-none motion-reduce:hover:translate-y-0",
         "has-[a:focus-visible]:ring-2 has-[a:focus-visible]:ring-ring has-[a:focus-visible]:ring-offset-2",
+        "has-[a:active]:scale-[0.985] motion-reduce:has-[a:active]:scale-100",
         className,
       )}
     >
@@ -173,16 +174,24 @@ const ContentCard = ({
           href={item.href}
           className={cn(
             CTA_CLASS_NAME,
-            "transition-colors after:absolute after:inset-0 after:content-['']",
-            KIND_CTA_HOVER_CLASS_NAME[item.kind],
+            "outline-none transition-[filter] group-hover:brightness-110 active:brightness-90 motion-reduce:transition-none after:absolute after:inset-0 after:content-['']",
+            KIND_CTA_CLASS_NAME[item.kind],
           )}
         >
           {t("content.card.viewDetails")}
           <span className="sr-only">: {item.title}</span>
-          <L.ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5 motion-reduce:transform-none" />
+          <span
+            aria-hidden
+            className="flex size-7 items-center justify-center rounded-full bg-white/20"
+          >
+            <L.ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5 group-focus-within:translate-x-0.5 motion-reduce:transform-none" />
+          </span>
         </Link>
       ) : (
-        <span aria-disabled className={cn(CTA_CLASS_NAME, "opacity-60")}>
+        <span
+          aria-disabled
+          className={cn(CTA_CLASS_NAME, "bg-white/15 text-white/60")}
+        >
           {t("content.card.viewDetails")}
         </span>
       )}

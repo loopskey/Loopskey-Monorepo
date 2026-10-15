@@ -8,8 +8,6 @@ export const PROFESSIONAL_OVERVIEW_LINKS = {
 
 export const CERTIFICATE_EXPIRING_WINDOW_DAYS = 30;
 
-export type DonutColors = { progress: string; remainder: string };
-
 export type OverviewSectionState = "loading" | "error" | "empty" | "content";
 
 export const getOverviewSectionState = ({
@@ -25,13 +23,6 @@ export const getOverviewSectionState = ({
   if (isError) return "error";
   if (isEmpty) return "empty";
   return "content";
-};
-
-export type DonutSlice = {
-  name: string;
-  label: string;
-  value: number;
-  fill: string;
 };
 
 const toFiniteNumber = (value: unknown): number => {
@@ -78,22 +69,16 @@ export type CpdProgressView = {
   chartPercent: number;
   exceeded: boolean;
   overAmount: number;
-  earnedLabel: string;
-  remainingLabel: string;
-  chartData: DonutSlice[];
 };
 
 export const buildCpdProgressView = (
   progress: CpdProgressInput,
-  labels: { earned: string; remaining: string },
-  colors: DonutColors,
 ): CpdProgressView => {
   const earned = Math.max(toFiniteNumber(progress.earnedCredits), 0);
   const total = Math.max(toFiniteNumber(progress.totalRequiredCredits), 0);
   const hasTarget = total > 0;
 
   const remaining = hasTarget ? Math.max(total - earned, 0) : 0;
-  const earnedForArc = hasTarget ? Math.min(earned, total) : earned;
 
   const percent = hasTarget
     ? roundTo((earned / total) * 100)
@@ -101,31 +86,6 @@ export const buildCpdProgressView = (
   const chartPercent = clampPercent(percent);
   const exceeded = hasTarget && earned > total;
   const overAmount = exceeded ? roundTo(earned - total, 2) : 0;
-
-  const chartData: DonutSlice[] = [];
-  if (earnedForArc > 0) {
-    chartData.push({
-      name: "earned",
-      label: labels.earned,
-      value: earnedForArc,
-      fill: colors.progress,
-    });
-  }
-  if (!hasTarget && earnedForArc <= 0) {
-    chartData.push({
-      name: "remaining",
-      label: labels.remaining,
-      value: 1,
-      fill: colors.remainder,
-    });
-  } else if (remaining > 0) {
-    chartData.push({
-      name: "remaining",
-      label: labels.remaining,
-      value: remaining,
-      fill: colors.remainder,
-    });
-  }
 
   return {
     earned: roundTo(earned, 2),
@@ -136,9 +96,6 @@ export const buildCpdProgressView = (
     chartPercent,
     exceeded,
     overAmount,
-    earnedLabel: labels.earned,
-    remainingLabel: labels.remaining,
-    chartData,
   };
 };
 
@@ -163,13 +120,10 @@ export type RoadmapProgressView = {
   chartPercent: number;
   completedPhases: number;
   phasesCount: number;
-  chartData: DonutSlice[];
 };
 
 export const buildRoadmapProgressView = (
   roadmap: RoadmapProgressInput,
-  labels: { completed: string; remaining: string },
-  colors: DonutColors,
 ): RoadmapProgressView => {
   const total = Math.max(toFiniteNumber(roadmap.totalSteps), 0);
   const completedRaw = Math.max(toFiniteNumber(roadmap.completedSteps), 0);
@@ -182,24 +136,6 @@ export const buildRoadmapProgressView = (
       : clampPercent(roundTo(toFiniteNumber(roadmap.progress)));
   const chartPercent = clampPercent(percent);
 
-  const chartData: DonutSlice[] = [];
-  if (completed > 0) {
-    chartData.push({
-      name: "completed",
-      label: labels.completed,
-      value: completed,
-      fill: colors.progress,
-    });
-  }
-  if (remaining > 0 || completed <= 0) {
-    chartData.push({
-      name: "remaining",
-      label: labels.remaining,
-      value: remaining > 0 ? remaining : 1,
-      fill: colors.remainder,
-    });
-  }
-
   return {
     total,
     completed,
@@ -208,7 +144,6 @@ export const buildRoadmapProgressView = (
     chartPercent,
     completedPhases: Math.max(toFiniteNumber(roadmap.completedPhases), 0),
     phasesCount: Math.max(toFiniteNumber(roadmap.phasesCount), 0),
-    chartData,
   };
 };
 

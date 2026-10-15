@@ -3,6 +3,7 @@ import { Args, ID, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { AssociationLearningContentService } from "@association/services/association-learning-content.service";
 import { AssociationLearningContentEntity } from "@association/entities/association-learning-content.entity";
 import { AssociationActionResponseEntity } from "@association/entities/association-action-response.entity";
+import { PaginatedAssociationCatalogEntity } from "@association/entities/association-learning-content.entity";
 import { AssociationCatalogItemEntity } from "@association/entities/association-learning-content.entity";
 import { AssociationGqlMutationNames } from "@association/enums/association-gql-names.enum";
 import { AssociationPaginationInput } from "@association/dtos/association-pagination.input";
@@ -79,8 +80,27 @@ export class AssociationLearningContentResolver {
 
   @Query(() => [AssociationCatalogItemEntity], {
     name: AssociationGqlQueryNames.CATALOG_SEARCH,
+    deprecationReason:
+      "Use associationCatalogSearchPage for cursor pagination and totalCount.",
   })
-  associationCatalogSearch(
+  async associationCatalogSearch(
+    @CurrentUser() user: TResolverUser,
+    @Args("input") input: DTO.AssociationCatalogSearchInput,
+    @Args("associationId", { type: () => ID, nullable: true })
+    associationId?: string,
+  ) {
+    const page = await this.library.searchCatalog(
+      this.getUser(user),
+      input,
+      associationId,
+    );
+    return page.items;
+  }
+
+  @Query(() => PaginatedAssociationCatalogEntity, {
+    name: AssociationGqlQueryNames.CATALOG_SEARCH_PAGE,
+  })
+  associationCatalogSearchPage(
     @CurrentUser() user: TResolverUser,
     @Args("input") input: DTO.AssociationCatalogSearchInput,
     @Args("associationId", { type: () => ID, nullable: true })

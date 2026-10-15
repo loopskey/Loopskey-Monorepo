@@ -3,7 +3,6 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { usePduEvidenceUpload } from "@/hooks/usePduEvidenceUpload";
 import { useDebouncedValue } from "@/hooks/useDebounced";
-import { useChartSemantics } from "@hooks/useChartPalette";
 import { useMemo, useState } from "react";
 import { PAGE_SIZE } from "@/utils/constant";
 import { useI18n } from "@/hooks/useI18n";
@@ -57,6 +56,8 @@ export const useProfessionalCpdPduTracker = () => {
 
   const {
     data: activitiesData,
+    isError: isActivitiesError,
+    refetch: refetchActivities,
     isLoading: isActivitiesLoading,
     isFetching: isActivitiesFetching,
   } = API.useProfessionalPduActivitiesQuery({
@@ -70,7 +71,6 @@ export const useProfessionalCpdPduTracker = () => {
     isError: isSummaryError,
   } = API.useProfessionalPduActivitySummaryQuery();
 
-  const semantics = useChartSemantics();
   const { data: cpdPlans = [] } = CpdAPI.useMyCpdPlansQuery(
     undefined,
     CpdAPI.REQUIREMENT_QUERY_SUBSCRIPTION_OPTIONS,
@@ -90,30 +90,6 @@ export const useProfessionalCpdPduTracker = () => {
     Boolean(cyclePlan) &&
     (isCycleQueryLoading || (isCycleFetching && !cycleProgress));
 
-  const cycleChartData = useMemo(() => {
-    if (!cycleProgress) return [];
-    const earnedForArc = Math.min(
-      cycleProgress.earnedCredits,
-      cycleProgress.totalRequiredCredits,
-    );
-    return [
-      {
-        name: "earned",
-        label: t("cpdProgress.progress.cards.earned"),
-        value: earnedForArc,
-        fill: semantics.onTrack,
-      },
-      {
-        name: "remaining",
-        label: t("cpdProgress.progress.cards.remaining"),
-        value: Math.max(
-          cycleProgress.totalRequiredCredits - cycleProgress.earnedCredits,
-          0,
-        ),
-        fill: semantics.track,
-      },
-    ];
-  }, [cycleProgress, semantics, t]);
 
   const [deleteActivity] = API.useDeleteProfessionalPduActivityMutation();
   const { downloadEvidence } = usePduEvidenceUpload();
@@ -212,11 +188,11 @@ export const useProfessionalCpdPduTracker = () => {
     isFiltered,
     activities,
     handleNext,
+    currentYear,
     yearOptions,
     cycleProgress,
     activitiesData,
     handlePrevious,
-    cycleChartData,
     isCycleLoading,
     isSummaryError,
     isSummaryLoading,
@@ -226,6 +202,8 @@ export const useProfessionalCpdPduTracker = () => {
     handleResetFilters,
     handleEditActivity,
     deletingActivityId,
+    isActivitiesError,
+    refetchActivities,
     isActivitiesLoading,
     handleDeleteActivity,
     isActivitiesFetching,

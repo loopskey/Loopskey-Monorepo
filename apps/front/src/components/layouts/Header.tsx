@@ -2,6 +2,7 @@
 
 import { getAuthHrefForSolutionHref, solutionEntries } from "@utils/constant";
 import { getSolutionHrefForRole, siteLinks } from "@utils/constant";
+import { HEADER_CONTAINER_CLASS_NAME } from "@utils/constant";
 import { LanguageToggleBtn } from "@elements/language-switcher";
 import { RoleMenuSection } from "@layouts/parts/role-menu-section";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
@@ -64,7 +65,7 @@ const Header = () => {
     >
       {showRoleStrip && <RoleStrip lockedHref={authenticatedRoleHref} />}
 
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div className={HEADER_CONTAINER_CLASS_NAME}>
         <Logo />
         <nav className="hidden items-center gap-1 lg:flex">
           {navItems.map((item) => {

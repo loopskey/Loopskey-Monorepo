@@ -174,6 +174,16 @@ export const useAdminUsersTab = () => {
     auditTotalCount: auditQuery.data?.totalCount ?? 0,
     hasNextUsersPage: Boolean(usersQuery.data?.pageInfo?.hasNextPage),
     hasNextAuditPage: Boolean(auditQuery.data?.pageInfo?.hasNextPage),
+    isGrowthLoading: growthQuery.isLoading,
+    isUsersError: usersQuery.isError,
+    isAuditError: auditQuery.isError,
+    isUsersLoading: usersQuery.isLoading,
+    isAuditLoading: auditQuery.isLoading,
+    isUsersFetching: usersQuery.isFetching,
+    isAuditFetching: auditQuery.isFetching,
+    retryUsers: usersQuery.refetch,
+    retryAudit: auditQuery.refetch,
+    isMutating: updateStatusState.isLoading || deleteUserState.isLoading,
     isLoading:
       usersQuery.isFetching ||
       growthQuery.isFetching ||

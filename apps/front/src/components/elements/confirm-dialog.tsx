@@ -21,7 +21,9 @@ export const ConfirmDialog = ({
 }: TConfirmDialogProps) => {
   return (
     <A.AlertDialog open={open} onOpenChange={onOpenChange}>
-      <A.AlertDialogTrigger asChild>{trigger}</A.AlertDialogTrigger>
+      {trigger ? (
+        <A.AlertDialogTrigger asChild>{trigger}</A.AlertDialogTrigger>
+      ) : null}
 
       <A.AlertDialogContent
         className="rounded-lg"

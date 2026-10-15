@@ -3,7 +3,6 @@
 import { AssociationLearningMembersDialog } from "@modules/AssociationDashboard/parts/association-learning-members-dialog";
 import { AssociationLearningAssignPage } from "@modules/AssociationDashboard/parts/association-learning-assign-page";
 import { useAssociationLearningContent } from "@hooks/useAssociationLearningContent";
-import { AssociationLearningFilters } from "@modules/AssociationDashboard/parts/association-learning-filters";
 import { AssociationLearningDetail } from "@modules/AssociationDashboard/parts/association-learning-detail";
 import { DashboardContentSkeleton } from "@layouts/parts/DashboardSkeleton";
 import { AssociationLearningList } from "@modules/AssociationDashboard/parts/association-learning-list";
@@ -93,7 +92,6 @@ const AssociationLearningContentTab = () => {
       ) : (
         <GlassCard>
           <div className="relative z-10">
-            <AssociationLearningFilters hook={hook} />
             <AssociationLearningList hook={hook} />
           </div>
         </GlassCard>

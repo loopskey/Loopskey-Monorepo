@@ -317,6 +317,9 @@ export const CHART_COLORS = [
 export const PAGE_SIZE = 10;
 
 export const DASHBOARD_MENU_BUTTON_ID = "dashboard-menu-button";
+
+export const HEADER_CONTAINER_CLASS_NAME =
+  "mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8";
 export const DEFAULT_PAGE = 1;
 export const SEARCH_DEBOUNCE_MS = 350;
 

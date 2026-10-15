@@ -1,5 +1,7 @@
 "use client";
 
+import { ShareBar } from "@elements/charts/share-bar";
+import { CHART_COLOR } from "@/utils/chart.util";
 import { useAdminOrganizationUsersTab } from "@/hooks/useAdminOrgUsersTab";
 import { AdminOrganizationMembersTab } from "@modules/AdminDashboard/parts/admin-org-members-tab";
 import { OrganizationSettingsPanel } from "@modules/AdminDashboard/parts/admin-org-settings-panel";
@@ -223,12 +225,30 @@ export const AdminOrganizationDetailView = ({ hook }: Props) => {
           </div>
         </div>
 
-        <div className="mt-5 h-4 overflow-hidden rounded-full bg-muted">
-          <div
-            className="h-full bg-primary"
-            style={{ width: `${selectedOrgStats.activeRate}%` }}
-          />
-        </div>
+        <ShareBar
+          size="sm"
+          className="mt-5"
+          formatValue={(value) => value.toLocaleString()}
+          formatShare={(value) => `${Math.round(value)}%`}
+          shareName={t("chart.share")}
+          unitName={t("adminDashboard.organizationUsers.table.members")}
+          label={t("adminDashboard.organizationUsers.charts.memberStatus")}
+          segments={[
+            {
+              id: "active",
+              color: CHART_COLOR.series1,
+              value: selectedOrgStats.active,
+              label: t("adminDashboard.organizationUsers.status.active"),
+            },
+            {
+              id: "inactive",
+              isLightFill: true,
+              color: CHART_COLOR.track,
+              value: selectedOrgStats.inactive,
+              label: t("adminDashboard.organizationUsers.status.inactive"),
+            },
+          ]}
+        />
       </GlassCard>
 
       <GlassCard className="p-5">

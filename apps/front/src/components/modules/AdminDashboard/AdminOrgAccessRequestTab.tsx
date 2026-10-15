@@ -1,17 +1,18 @@
 "use client";
 
+import { getAdminAccessRequestListState } from "@/utils/admin-access-request-state";
 import { AdminAccessRequestReviewView } from "@modules/AdminDashboard/parts/admin-request-review";
 import { useAdminAccessRequestsTab } from "@/hooks/useAdminAccessRequestsTab";
-import { ContentPagination } from "@elements/pagination";
+import { DataTableFilters } from "@elements/data-table/data-table-filters";
 import { StatusBadge } from "@modules/AdminDashboard/parts/admin-status-badge";
-import { getAdminAccessRequestListState } from "@/utils/admin-access-request-state";
 import { formatDate } from "@/utils/function-helper";
+import { DataTable } from "@elements/data-table/data-table";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
-import { Td, Th } from "@modules/AdminDashboard/parts/td-and-th-table";
-import { Input } from "@ui/input";
 
 import * as L from "lucide-react";
+
+const REQUESTS = "adminDashboard.accessRequests";
 
 const AdminAccessRequestsTab = () => {
   const hook = useAdminAccessRequestsTab();
@@ -20,25 +21,23 @@ const AdminAccessRequestsTab = () => {
     t,
     page,
     items,
+    query,
     search,
     status,
-    query,
     refresh,
     nextPage,
     setSearch,
     isLoading,
     setStatus,
-    detailQuery,
-    sortDirection,
     totalCount,
-    canPrevious,
     hasNextPage,
     previousPage,
     resetFilters,
     statusOptions,
-    selectedRequestId,
+    sortDirection,
     setSortDirection,
     hasActiveFilters,
+    selectedRequestId,
     openRequestReview,
   } = hook;
 
@@ -58,9 +57,6 @@ const AdminAccessRequestsTab = () => {
     isLoading: query.isLoading,
     itemCount: items.length,
   });
-  const emptyMessage = hasActiveFilters
-    ? t("adminDashboard.accessRequests.noResults")
-    : t("adminDashboard.accessRequests.empty");
 
   return (
     <div className="space-y-6">
@@ -84,17 +80,6 @@ const AdminAccessRequestsTab = () => {
             radius="xl"
             type="button"
             variant="outline"
-            disabled={!hasActiveFilters || isLoading}
-            onClick={resetFilters}
-          >
-            <L.RotateCcw className="h-4 w-4" />
-            {t("common.reset")}
-          </Button>
-
-          <Button
-            radius="xl"
-            type="button"
-            variant="outline"
             disabled={isLoading}
             onClick={() => refresh()}
           >
@@ -105,158 +90,157 @@ const AdminAccessRequestsTab = () => {
       </section>
 
       <GlassCard>
-        <div className="grid gap-4 lg:grid-cols-[1fr_240px_240px]">
-          <div className="relative">
-            <L.Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-
-            <Input
-              value={search}
-              className="h-12 rounded-md pl-10"
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder={t("adminDashboard.accessRequests.filters.search")}
-            />
-          </div>
-
-          <select
-            aria-label={t("adminDashboard.accessRequests.filters.status")}
-            value={status}
-            onChange={(event) => setStatus(event.target.value as typeof status)}
-            className="h-12 rounded-md border border-border bg-background px-4 text-sm"
-          >
-            {statusOptions.map((item) => (
-              <option key={item} value={item}>
-                {t(`adminDashboard.accessRequests.status.${item}`)}
-              </option>
-            ))}
-          </select>
-
-          <select
-            value={sortDirection}
-            aria-label={t("adminDashboard.accessRequests.filters.sort")}
-            onChange={(event) =>
-              setSortDirection(event.target.value as typeof sortDirection)
-            }
-            className="h-12 rounded-md border border-border bg-background px-4 text-sm"
-          >
-            <option value="desc">
-              {t("adminDashboard.accessRequests.filters.newest")}
-            </option>
-            <option value="asc">
-              {t("adminDashboard.accessRequests.filters.oldest")}
-            </option>
-          </select>
-        </div>
-      </GlassCard>
-
-      <GlassCard className="overflow-hidden p-0">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[920px] text-sm">
-            <thead className="border-b border-border bg-muted/40 text-left">
-              <tr>
-                <Th>{t("adminDashboard.accessRequests.table.status")}</Th>
-                <Th>{t("adminDashboard.accessRequests.table.organization")}</Th>
-                <Th>{t("adminDashboard.accessRequests.table.workEmail")}</Th>
-                <Th>{t("adminDashboard.accessRequests.table.type")}</Th>
-                <Th>{t("adminDashboard.accessRequests.table.createdAt")}</Th>
-                <Th>{t("adminDashboard.accessRequests.table.reviewedAt")}</Th>
-                <Th>{t("adminDashboard.accessRequests.table.reviewer")}</Th>
-                <Th>{t("adminDashboard.accessRequests.table.actions")}</Th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {listState === "loading" ? (
-                <tr>
-                  <td
-                    colSpan={8}
-                    className="p-10 text-center text-muted-foreground"
-                  >
-                    <L.Loader2 className="mx-auto mb-3 h-5 w-5 animate-spin" />
-                    {t("common.loading")}
-                  </td>
-                </tr>
-              ) : listState === "error" || listState === "unauthorized" ? (
-                <tr>
-                  <td colSpan={8} className="p-10 text-center text-destructive">
-                    {listState === "unauthorized"
-                      ? t("adminDashboard.accessRequests.unauthorized")
-                      : t("adminDashboard.accessRequests.error")}
-                  </td>
-                </tr>
-              ) : items.length ? (
-                items.map((item) => (
-                  <tr
-                    key={item.id}
-                    className="border-b border-border/70 transition-colors hover:bg-primary/5"
-                  >
-                    <Td>
-                      <StatusBadge status={item.status} />
-                    </Td>
-
-                    <Td>
-                      <div className="font-medium">{item.organizationName}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {item.representativeFullName}
-                      </div>
-                    </Td>
-
-                    <Td>
-                      <span className="inline-flex items-center gap-2">
-                        <L.Mail className="h-4 w-4 text-primary" />
-                        {item.workEmail}
-                      </span>
-                    </Td>
-
-                    <Td>{item.organizationType}</Td>
-
-                    <Td>{formatDate(item.createdAt)}</Td>
-
-                    <Td>
-                      {item.reviewedAt ? formatDate(item.reviewedAt) : "—"}
-                    </Td>
-
-                    <Td>{item.reviewedByName ?? "—"}</Td>
-
-                    <Td>
+        <DataTable
+          rows={items}
+          rowKey={(item) => item.id}
+          isFiltered={hasActiveFilters}
+          isFetching={query.isFetching}
+          onRowClick={openRequestReview}
+          caption={t(`${REQUESTS}.title`)}
+          isLoading={listState === "loading"}
+          rowLabel={(item) => item.organizationName}
+          sort={{ id: "createdAt", direction: sortDirection }}
+          onSortChange={(next) => setSortDirection(next.direction)}
+          error={
+            listState === "error" || listState === "unauthorized"
+              ? {
+                  icon:
+                    listState === "unauthorized"
+                      ? L.ShieldAlert
+                      : L.CircleAlert,
+                  title:
+                    listState === "unauthorized"
+                      ? t(`${REQUESTS}.unauthorized`)
+                      : t(`${REQUESTS}.error`),
+                  action:
+                    listState === "error" ? (
                       <Button
-                        radius="xl"
+                        radius="lg"
                         type="button"
                         variant="outline"
-                        size="sm"
-                        onClick={() => openRequestReview(item)}
+                        onClick={() => refresh()}
                       >
-                        <L.Eye className="h-4 w-4" />
-                        {t("adminDashboard.accessRequests.actions.review")}
+                        <L.RefreshCcw aria-hidden />
+                        {t("common.refresh")}
                       </Button>
-                    </Td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td
-                    colSpan={8}
-                    className="p-10 text-center text-muted-foreground"
-                  >
-                    {emptyMessage}
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </GlassCard>
-
-      {!query.isError && !query.isLoading && (
-        <ContentPagination
-          page={page}
-          onNext={nextPage}
-          isLoading={isLoading || detailQuery.isFetching}
-          totalCount={totalCount}
-          onPrevious={previousPage}
-          canPrevious={canPrevious}
-          hasNextPage={hasNextPage}
+                    ) : undefined,
+                }
+              : null
+          }
+          empty={{ icon: L.Inbox, title: t(`${REQUESTS}.empty`) }}
+          filteredEmpty={{
+            icon: L.SearchX,
+            title: t(`${REQUESTS}.noResults`),
+            action: (
+              <Button
+                radius="lg"
+                type="button"
+                variant="outline"
+                onClick={resetFilters}
+              >
+                <L.FilterX aria-hidden />
+                {t("common.reset")}
+              </Button>
+            ),
+          }}
+          pagination={{
+            kind: "cursor",
+            page,
+            hasNextPage,
+            onNext: nextPage,
+            total: totalCount,
+            onPrevious: previousPage,
+          }}
+          toolbar={
+            <DataTableFilters
+              isFiltered={hasActiveFilters}
+              onReset={resetFilters}
+              search={{
+                value: search,
+                onChange: setSearch,
+                label: t(`${REQUESTS}.filters.search`),
+                placeholder: t(`${REQUESTS}.filters.search`),
+              }}
+              filters={[
+                {
+                  type: "select",
+                  id: "status",
+                  value: status,
+                  defaultValue: "ALL",
+                  label: t(`${REQUESTS}.filters.status`),
+                  onChange: (value) =>
+                    setStatus(
+                      statusOptions.find((option) => option === value) ?? "ALL",
+                    ),
+                  options: statusOptions.map((option) => ({
+                    value: option,
+                    label: t(`${REQUESTS}.status.${option}`),
+                  })),
+                },
+              ]}
+            />
+          }
+          columns={[
+            {
+              id: "organization",
+              mobile: "title",
+              header: t(`${REQUESTS}.table.organization`),
+              cell: (item) => (
+                <span className="block">
+                  <span className="block font-medium">
+                    {item.organizationName}
+                  </span>
+                  <span className="block text-xs font-normal text-muted-foreground">
+                    {item.representativeFullName}
+                  </span>
+                </span>
+              ),
+            },
+            {
+              id: "status",
+              mobile: "badge",
+              header: t(`${REQUESTS}.table.status`),
+              cell: (item) => <StatusBadge status={item.status} />,
+            },
+            {
+              id: "workEmail",
+              mobile: "wide",
+              header: t(`${REQUESTS}.table.workEmail`),
+              cell: (item) => item.workEmail,
+            },
+            {
+              id: "type",
+              header: t(`${REQUESTS}.table.type`),
+              cell: (item) => item.organizationType,
+            },
+            {
+              id: "createdAt",
+              isSortable: true,
+              header: t(`${REQUESTS}.table.createdAt`),
+              cell: (item) => formatDate(item.createdAt),
+            },
+            {
+              id: "reviewedAt",
+              header: t(`${REQUESTS}.table.reviewedAt`),
+              cell: (item) =>
+                item.reviewedAt ? formatDate(item.reviewedAt) : "—",
+            },
+            {
+              id: "reviewer",
+              header: t(`${REQUESTS}.table.reviewer`),
+              cell: (item) => item.reviewedByName ?? "—",
+            },
+          ]}
+          rowActions={(item) => [
+            {
+              id: "review",
+              icon: L.Eye,
+              label: t(`${REQUESTS}.actions.review`),
+              onSelect: () => openRequestReview(item),
+            },
+          ]}
         />
-      )}
+      </GlassCard>
     </div>
   );
 };

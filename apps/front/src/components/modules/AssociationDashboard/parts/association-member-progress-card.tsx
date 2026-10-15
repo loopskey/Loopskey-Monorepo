@@ -1,77 +1,94 @@
 "use client";
 
 import { TAssociationMemberDetail } from "@/types/association-dashboard.types";
-import { useChartPalette } from "@hooks/useChartPalette";
+import { LazyTrendChart } from "@elements/charts/lazy-trend-chart";
+import { ChartFrame } from "@elements/charts/chart-frame";
 import { GlassCard } from "@elements/glass-card";
-import { Skeleton } from "@ui/skeleton";
-
-import dynamic from "next/dynamic";
-
-import * as L from "lucide-react";
-
-const CHART_HEIGHT = "h-80";
-
-const CumulativeChart = dynamic(
-  () =>
-    import("@modules/AssociationDashboard/parts/association-cumulative-chart"),
-  {
-    ssr: false,
-    loading: () => (
-      <Skeleton className={`${CHART_HEIGHT} w-full rounded-md`} />
-    ),
-  },
-);
+import { CHART_COLOR } from "@/utils/chart.util";
 
 export const AssociationMemberProgressCard = ({
   hook,
 }: TAssociationMemberDetail) => {
-  const palette = useChartPalette();
-
   const { t, locale, cumulativeRows, cycleAssignment } = hook;
 
   const label = (key: string) =>
     t(`associationDashboard.memberDetail.chart.${key}`);
 
+  const credits = (value: number) =>
+    value.toLocaleString(locale, { maximumFractionDigits: 1 });
+  const shortDate = (value: string) =>
+    new Date(value).toLocaleDateString(locale, {
+      day: "numeric",
+      month: "short",
+    });
+  const fullDate = (value: string) =>
+    new Date(value).toLocaleDateString(locale);
+
   return (
     <GlassCard>
-      <div className="relative z-10">
-        <h2 className="text-xl font-medium">
-          {t("associationDashboard.memberDetail.progress.title")}
-        </h2>
-
-        <p className="mt-1 text-sm text-muted-foreground">
-          {cycleAssignment
+      <ChartFrame
+        headingLevel="h2"
+        title={t("associationDashboard.memberDetail.progress.title")}
+        description={
+          cycleAssignment
             ? t("associationDashboard.memberDetail.progress.description", {
                 requirement: cycleAssignment.requirementName,
               })
-            : t("associationDashboard.memberDetail.progress.noCycle")}
-        </p>
-
-        {cumulativeRows.length === 0 ? (
-          <div
-            className={`mt-6 flex ${CHART_HEIGHT} flex-col items-center justify-center rounded-md border border-dashed border-border text-center`}
-          >
-            <L.ChartLine className="h-8 w-8 text-muted-foreground" />
-
-            <p className="mt-3 font-medium">
-              {t("associationDashboard.memberDetail.progress.emptyTitle")}
-            </p>
-
-            <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-              {t("associationDashboard.memberDetail.progress.emptyBody")}
-            </p>
-          </div>
-        ) : (
-          <div className="mt-6">
-            <CumulativeChart
-              label={label}
-              locale={locale}
-              palette={palette}
-              rows={cumulativeRows}
-            />
-          </div>
-        )}
-      </div>
+            : t("associationDashboard.memberDetail.progress.noCycle")
+        }
+        isEmpty={cumulativeRows.length === 0}
+        emptyLabel={t("associationDashboard.memberDetail.progress.emptyBody")}
+        legend={[
+          {
+            id: "credits",
+            kind: "line",
+            label: label("cumulativeEarned"),
+            color: CHART_COLOR.series1,
+          },
+          { id: "pace", kind: "dash", label: label("cumulativePace") },
+        ]}
+        table={{
+          caption: label("cumulativeChartLabel"),
+          columns: [
+            label("cumulativeDate"),
+            label("cumulativeEarned"),
+            label("cumulativePace"),
+          ],
+          rows: cumulativeRows.map((row) => ({
+            id: row.date,
+            cells: [
+              fullDate(row.date),
+              row.credits === null ? "—" : credits(row.credits),
+              credits(row.pace),
+            ],
+          })),
+        }}
+      >
+        <LazyTrendChart
+          xKey="date"
+          height={300}
+          data={cumulativeRows}
+          label={label("cumulativeChartLabel")}
+          formatValue={credits}
+          formatX={shortDate}
+          formatTooltipX={fullDate}
+          series={[
+            {
+              key: "pace",
+              curve: "linear",
+              variant: "dashed",
+              color: CHART_COLOR.neutral,
+              label: label("cumulativePace"),
+            },
+            {
+              key: "credits",
+              curve: "step",
+              color: CHART_COLOR.series1,
+              label: label("cumulativeEarned"),
+            },
+          ]}
+        />
+      </ChartFrame>
     </GlassCard>
   );
 };

@@ -197,7 +197,7 @@ export const associationApi = baseApi.injectEndpoints({
       transformResponse: (
         response: TAPI.ResendAssociationMemberInvitationMutation,
       ) => response.resendAssociationMemberInvitation,
-      invalidatesTags: ["AssociationMembers"],
+      invalidatesTags: ["AssociationMembers", "AssociationMemberProfile"],
     }),
 
     createAssociationGroup: builder.mutation<
