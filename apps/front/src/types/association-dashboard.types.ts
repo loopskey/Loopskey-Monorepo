@@ -6,8 +6,8 @@ import type { TUseAssociationSettingsTab } from "@hooks/useAssociationSettingsTa
 import type { TUseAssociationOverviewTab } from "@hooks/useAssociationOverviewTab";
 import type { TUseAssociationReportsTab } from "@hooks/useAssociationReportsTab";
 import type { TUseAssociationMembersTab } from "@hooks/useAssociationMembersTab";
-import type { TCategoryAllocation } from "@utils/association-requirement";
 import type { TAttentionSection } from "@utils/association-messages";
+import type { ChartChrome } from "@/types/chart.types";
 import type { ReactNode } from "react";
 
 import type * as TAPI from "@/lib/graphql/generated";
@@ -41,9 +41,7 @@ export type TAssociationInviteOutcomeView = {
 type TWithHook = { hook: TUseAssociationMembersTab };
 
 export type TAssociationMembersStats = TWithHook;
-export type TAssociationMembersFilters = TWithHook;
 export type TAssociationMembersTable = TWithHook;
-export type TAssociationMembersEmpty = TWithHook;
 export type TAssociationMembersBulkCard = TWithHook;
 export type TAssociationMemberInviteDialog = TWithHook;
 export type TAssociationGroupsManager = TWithHook;
@@ -88,50 +86,21 @@ export type TAssociationDecisionDialog = TWithDetail;
 export type TAssociationMemberEditDialog = TWithDetail;
 export type TAssociationMemberRequirementsDialog = TWithDetail;
 
-export type TAssociationCompletionGauge = {
-  color: string;
-  percent: number;
-  paceColor: string;
-  pacePercent: number | null;
-  label: (key: string) => string;
-};
-
-export type TAssociationCategoryChart = {
-  palette: string[];
-  label: (key: string) => string;
-  rows: {
-    id: string;
-    name: string;
-    percent: number;
-    requirementName: string;
-    requiredCredits: number;
-    completedCredits: number;
-  }[];
-};
-
 export type TAssociationCumulativePoint = {
   date: string;
   pace: number;
   credits: number | null;
 };
 
-export type TAssociationCumulativeChart = {
-  locale: string;
-  palette: string[];
-  label: (key: string) => string;
-  rows: TAssociationCumulativePoint[];
-};
-
 export type TAssociationLearningContentRow =
   TAPI.AssociationLearningContentsQuery["associationLearningContents"]["items"][number];
 
 export type TAssociationCatalogItem =
-  TAPI.AssociationCatalogSearchQuery["associationCatalogSearch"][number];
+  TAPI.AssociationCatalogSearchQuery["associationCatalogSearch"]["items"][number];
 
 type TWithLibrary = { hook: TUseAssociationLearningContent };
 
 export type TAssociationLearningContentTab = TWithLibrary;
-export type TAssociationLearningFilters = TWithLibrary;
 export type TAssociationLearningList = TWithLibrary;
 export type TAssociationLearningEditor = TWithLibrary;
 export type TAssociationLearningStepContent = TWithLibrary;
@@ -205,7 +174,7 @@ export type TAssociationRenewalReadinessRow =
 
 type TChartFrame = {
   locale: string;
-  palette: string[];
+  chrome: ChartChrome;
   label: (key: string, vars?: Record<string, string | number>) => string;
 };
 
@@ -240,6 +209,7 @@ export type TAssociationReadinessSegment = {
   count: number;
   share: number;
   color: string;
+  isLightFill?: boolean;
 };
 
 export type TAssociationReadinessChart = TChartFrame & {
@@ -304,9 +274,7 @@ type TWithRequirementsHook = { hook: TUseAssociationRequirementsTab };
 
 export type TAssociationRequirementsHeader = TWithRequirementsHook;
 export type TAssociationRequirementsStats = TWithRequirementsHook;
-export type TAssociationRequirementsFilters = TWithRequirementsHook;
 export type TAssociationRequirementsTable = TWithRequirementsHook;
-export type TAssociationRequirementsEmpty = TWithRequirementsHook;
 export type TAssociationRequirementWizard = TWithRequirementsHook;
 export type TAssociationRequirementDetailsStep = TWithRequirementsHook;
 export type TAssociationRequirementRulesStep = TWithRequirementsHook;
@@ -347,26 +315,6 @@ export type TAssociationRequirementMemberPicker = {
   removeLabel?: (name: string) => string;
 };
 
-export type TAssociationCoverageChart = {
-  covered: number;
-  total: number;
-  size: number;
-  palette: string[];
-  chartLabel: string;
-  coveredLabel: string;
-  uncoveredLabel: string;
-  chartDescription: string;
-};
-
-export type TAssociationAllocationChart = {
-  palette: string[];
-  chartLabel: string;
-  creditsHeader: string;
-  segmentHeader: string;
-  chartDescription: string;
-  allocation: TCategoryAllocation;
-};
-
 export type TBandRow = {
   id: string;
   name: string;
@@ -385,12 +333,10 @@ type THeatmapFrame = {
 };
 
 export type THeatmapRowProps = THeatmapFrame & {
-  tone: string;
   groupId: string;
   groupTitle: string;
 };
 
 export type THeatmapProps = THeatmapFrame & {
-  palette: string[];
   groups: TAssociationGroupProgressRow[];
 };

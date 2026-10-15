@@ -1,8 +1,10 @@
 "use client";
 
-import { ExternalLink, LoaderCircle, Plus } from "lucide-react";
+import { BookMarked, CircleAlert, ExternalLink } from "lucide-react";
 import { useAdminTopicHubsQuery } from "@lib/rtk/endpoints/topic-hub.api";
 import { TopicHubStatus } from "@/lib/graphql/base";
+import { Pencil, Plus } from "lucide-react";
+import { DataTable } from "@elements/data-table/data-table";
 import { GlassCard } from "@elements/glass-card";
 import { useState } from "react";
 import { useI18n } from "@/hooks/useI18n";
@@ -10,7 +12,6 @@ import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
 
 import TopicHubEditorDialog from "@modules/ContentSeo/TopicHubEditorDialog";
-import Link from "next/link";
 
 const AdminTopicHubsTab = () => {
   const { t } = useI18n();
@@ -40,84 +41,109 @@ const AdminTopicHubsTab = () => {
         </Button>
       </section>
 
-      {query.isError ? (
-        <div role="alert" className="space-y-3">
-          <p>{t("topicHubAdmin.loadFailed")}</p>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => query.refetch()}
-          >
-            {t("topicHubAdmin.retry")}
-          </Button>
-        </div>
-      ) : query.isLoading ? (
-        <p role="status" className="text-muted-foreground">
-          <LoaderCircle
-            className="mr-2 inline size-4 animate-spin"
-            aria-hidden
-          />
-        </p>
-      ) : query.data && query.data.length > 0 ? (
-        <ul className="space-y-3">
-          {query.data.map((hub) => (
-            <li key={hub.id}>
-              <GlassCard className="flex flex-wrap items-center justify-between gap-3 p-4">
-                <div className="min-w-0 space-y-1">
-                  <p className="break-words font-medium">{hub.title}</p>
-                  <p className="text-sm text-muted-foreground">
-                    /topics/{hub.slug} ·{" "}
-                    {t("topicHubAdmin.links", {
-                      eligible: hub.eligibleLinkCount,
-                      total: hub.linkCount,
-                    })}
-                  </p>
+      <GlassCard>
+        <DataTable
+          rows={query.data ?? []}
+          rowKey={(hub) => hub.id}
+          rowLabel={(hub) => hub.title}
+          caption={t("topicHubAdmin.title")}
+          onRowClick={(hub) => open(hub.id)}
+          isLoading={query.isLoading}
+          isFetching={query.isFetching}
+          error={
+            query.isError
+              ? {
+                  icon: CircleAlert,
+                  title: t("topicHubAdmin.loadFailed"),
+                  action: (
+                    <Button
+                      radius="lg"
+                      type="button"
+                      variant="outline"
+                      onClick={() => void query.refetch()}
+                    >
+                      {t("topicHubAdmin.retry")}
+                    </Button>
+                  ),
+                }
+              : null
+          }
+          empty={{
+            icon: BookMarked,
+            title: t("topicHubAdmin.empty"),
+            action: (
+              <Button type="button" radius="lg" onClick={() => open(null)}>
+                <Plus aria-hidden />
+                {t("topicHubAdmin.new")}
+              </Button>
+            ),
+          }}
+          columns={[
+            {
+              id: "title",
+              mobile: "title",
+              className: "max-w-md whitespace-normal",
+              header: t("topicHubAdmin.columns.title"),
+              cell: (hub) => (
+                <span className="block">
+                  <span className="block font-medium">{hub.title}</span>
+                  <span className="block text-xs font-normal text-muted-foreground">
+                    /topics/{hub.slug}
+                  </span>
                   {hub.needsReview ? (
-                    <p
-                      role="status"
-                      className="text-sm font-medium text-destructive"
-                    >
+                    <span className="block text-xs font-medium text-destructive">
                       {t("topicHubAdmin.needsReview")}
-                    </p>
+                    </span>
                   ) : null}
-                </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <Badge
-                    variant={
-                      hub.status === TopicHubStatus.Published
-                        ? "default"
-                        : "secondary"
-                    }
-                  >
-                    {t(`topicHubAdmin.status.${hub.status}`)}
-                  </Badge>
-                  {hub.status === TopicHubStatus.Published ? (
-                    <Link
-                      href={`/topics/${hub.slug}`}
-                      className="inline-flex items-center gap-1.5 text-sm font-medium underline-offset-4 hover:underline"
-                    >
-                      {t("topicHubAdmin.viewPublic")}
-                      <ExternalLink className="size-4" aria-hidden />
-                    </Link>
-                  ) : null}
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() => open(hub.id)}
-                  >
-                    {t("topicHubAdmin.edit")}
-                  </Button>
-                </div>
-              </GlassCard>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="rounded-lg border border-dashed p-6 text-muted-foreground">
-          {t("topicHubAdmin.empty")}
-        </p>
-      )}
+                </span>
+              ),
+            },
+            {
+              id: "status",
+              mobile: "badge",
+              header: t("topicHubAdmin.columns.status"),
+              cell: (hub) => (
+                <Badge
+                  variant={
+                    hub.status === TopicHubStatus.Published
+                      ? "default"
+                      : "secondary"
+                  }
+                >
+                  {t(`topicHubAdmin.status.${hub.status}`)}
+                </Badge>
+              ),
+            },
+            {
+              id: "links",
+              header: t("topicHubAdmin.columns.links"),
+              cell: (hub) =>
+                t("topicHubAdmin.links", {
+                  eligible: hub.eligibleLinkCount,
+                  total: hub.linkCount,
+                }),
+            },
+          ]}
+          rowActions={(hub) => [
+            {
+              id: "edit",
+              icon: Pencil,
+              label: t("topicHubAdmin.edit"),
+              onSelect: () => open(hub.id),
+            },
+            ...(hub.status === TopicHubStatus.Published
+              ? [
+                  {
+                    id: "public",
+                    icon: ExternalLink,
+                    href: `/topics/${hub.slug}`,
+                    label: t("topicHubAdmin.viewPublic"),
+                  },
+                ]
+              : []),
+          ]}
+        />
+      </GlassCard>
 
       <TopicHubEditorDialog
         hubId={hubId}

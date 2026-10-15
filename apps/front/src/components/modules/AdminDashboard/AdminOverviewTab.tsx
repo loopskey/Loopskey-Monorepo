@@ -1,6 +1,9 @@
 "use client";
 
-import { useChartPalette, useChartSemantics } from "@hooks/useChartPalette";
+import { ShareBar, ShareLegend } from "@elements/charts/share-bar";
+import { LazyTrendChart } from "@elements/charts/lazy-trend-chart";
+import { ChartCard } from "@elements/charts/chart-frame";
+import { CHART_COLOR } from "@/utils/chart.util";
 import { useAdminOverviewTab } from "@/hooks/useAdminOverviewTab";
 import { MetricCard } from "@modules/AdminDashboard/parts/admin-overview-metric-card";
 import { formatDate } from "@/utils/function-helper";
@@ -9,20 +12,16 @@ import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
 
-import * as R from "recharts";
 import * as L from "lucide-react";
+
+const STATUS_COLORS = {
+  pending: CHART_COLOR.warning,
+  approved: CHART_COLOR.good,
+  rejected: CHART_COLOR.critical,
+} as const;
 
 const AdminOverviewTab = () => {
   const { t } = useI18n();
-  const palette = useChartPalette();
-  const semantics = useChartSemantics();
-
-  const statusColors: Record<string, string> = {
-    pending: semantics.atRisk,
-    approved: semantics.renewalReady,
-    rejected: semantics.critical,
-  };
-
   const {
     overview,
     isLoading,
@@ -32,6 +31,15 @@ const AdminOverviewTab = () => {
     recentAuditLogs,
     requestTrendData,
   } = useAdminOverviewTab();
+
+  const count = (value: number) => value.toLocaleString();
+  const percent = (value: number) => `${Math.round(value)}%`;
+  const statusSegments = statusChartData.map((item) => ({
+    id: item.key,
+    value: item.count,
+    color: STATUS_COLORS[item.key],
+    label: t(`adminDashboard.overview.charts.statuses.${item.key}`),
+  }));
 
   return (
     <div className="space-y-6">
@@ -93,75 +101,77 @@ const AdminOverviewTab = () => {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-        <GlassCard>
-          <div className="relative z-10">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <h2 className="text-xl font-medium">
-                  {t("adminDashboard.overview.charts.requestTrend")}
-                </h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {t("adminDashboard.overview.charts.requestTrendHint")}
-                </p>
-              </div>
-              <L.LineChart className="h-5 w-5 text-primary" />
-            </div>
+        <ChartCard
+          headingLevel="h2"
+          isLoading={!overview && isLoading}
+          isEmpty={requestTrendData.length === 0}
+          title={t("adminDashboard.overview.charts.requestTrend")}
+          description={t("adminDashboard.overview.charts.requestTrendHint")}
+          table={{
+            caption: t("adminDashboard.overview.charts.requestTrend"),
+            columns: [
+              t("adminDashboard.overview.charts.date"),
+              t("adminDashboard.overview.charts.requests"),
+            ],
+            rows: requestTrendData.map((point) => ({
+              id: point.date,
+              cells: [formatDate(point.date) ?? point.date, count(point.count)],
+            })),
+          }}
+        >
+          <LazyTrendChart
+            xKey="date"
+            data={requestTrendData}
+            formatValue={count}
+            formatX={(value) => formatDate(value) ?? value}
+            label={t("adminDashboard.overview.charts.requestTrend")}
+            series={[
+              {
+                key: "count",
+                variant: "area",
+                color: CHART_COLOR.series1,
+                label: t("adminDashboard.overview.charts.requests"),
+              },
+            ]}
+          />
+        </ChartCard>
 
-            <div className="mt-6 h-80">
-              <R.ResponsiveContainer width="100%" height="100%">
-                <R.AreaChart data={requestTrendData}>
-                  <R.CartesianGrid strokeDasharray="3 3" opacity={0.25} />
-                  <R.XAxis dataKey="date" />
-                  <R.YAxis allowDecimals={false} />
-                  <R.Tooltip />
-                  <R.Area
-                    type="monotone"
-                    dataKey="count"
-                    strokeWidth={2.5}
-                    fillOpacity={0.1}
-                    fill={palette[0]}
-                    stroke={palette[0]}
-                  />
-                </R.AreaChart>
-              </R.ResponsiveContainer>
-            </div>
+        <ChartCard
+          headingLevel="h2"
+          isLoading={!overview && isLoading}
+          isEmpty={statusSegments.every((segment) => segment.value === 0)}
+          title={t("adminDashboard.overview.charts.statusDistribution")}
+          description={t(
+            "adminDashboard.overview.charts.statusDistributionHint",
+          )}
+          table={{
+            caption: t("adminDashboard.overview.charts.statusDistribution"),
+            columns: [
+              t("adminDashboard.overview.charts.status"),
+              t("adminDashboard.overview.charts.requests"),
+            ],
+            rows: statusSegments.map((segment) => ({
+              id: segment.id,
+              cells: [segment.label, count(segment.value)],
+            })),
+          }}
+        >
+          <div className="grid gap-4">
+            <ShareBar
+              segments={statusSegments}
+              formatValue={count}
+              formatShare={percent}
+              shareName={t("chart.share")}
+              unitName={t("adminDashboard.overview.charts.requests")}
+              label={t("adminDashboard.overview.charts.statusDistribution")}
+            />
+            <ShareLegend
+              segments={statusSegments}
+              formatValue={count}
+              formatShare={percent}
+            />
           </div>
-        </GlassCard>
-
-        <GlassCard>
-          <div className="relative z-10">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <h2 className="text-xl font-medium">
-                  {t("adminDashboard.overview.charts.statusDistribution")}
-                </h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {t("adminDashboard.overview.charts.statusDistributionHint")}
-                </p>
-              </div>
-              <L.PieChart className="h-5 w-5 text-primary" />
-            </div>
-
-            <div className="mt-6 h-80">
-              <R.ResponsiveContainer width="100%" height="100%">
-                <R.BarChart data={statusChartData}>
-                  <R.CartesianGrid strokeDasharray="3 3" opacity={0.25} />
-                  <R.XAxis dataKey="label" />
-                  <R.YAxis allowDecimals={false} />
-                  <R.Tooltip />
-                  <R.Bar dataKey="count" radius={[6, 6, 0, 0]}>
-                    {statusChartData.map((item) => (
-                      <R.Cell
-                        key={item.key}
-                        fill={statusColors[item.key] ?? semantics.notStarted}
-                      />
-                    ))}
-                  </R.Bar>
-                </R.BarChart>
-              </R.ResponsiveContainer>
-            </div>
-          </div>
-        </GlassCard>
+        </ChartCard>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-2">

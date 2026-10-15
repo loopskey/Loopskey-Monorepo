@@ -10,9 +10,8 @@ import { buildCpdProgressView } from "@/utils/professional-overview.helper";
 import { RequirementSwitcher } from "@modules/ProfessionalDashboard/parts/requirement-switcher";
 import { CPD_COMPLIANCE_META } from "@/utils/cpd-plan.constant";
 import { useMyCpdPlansQuery } from "@/lib/rtk/endpoints/cpd-plan.api";
-import { ProgressDonutChart } from "@elements/dashboard-charts";
+import { ProgressRing } from "@elements/charts/progress-ring";
 import { useMemo, useState } from "react";
-import { useChartSemantics } from "@hooks/useChartPalette";
 import { formatDeadline } from "@/utils/function-helper";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
@@ -35,7 +34,6 @@ const STATUS_ICONS: Record<string, L.LucideIcon> = {
 };
 
 export const OverviewCpdProgressCard = () => {
-  const semantics = useChartSemantics();
   const { t } = useI18n();
 
   const plansQuery = useMyCpdPlansQuery(
@@ -140,15 +138,6 @@ export const OverviewCpdProgressCard = () => {
     );
   }
 
-  const chartColors = {
-    progress: semantics.onTrack,
-    remainder: semantics.track,
-  };
-  const labels = {
-    earned: t("professionalDashboard.overview.cpdCard.earned"),
-    remaining: t("professionalDashboard.overview.cpdCard.remaining"),
-  };
-
   const model = activeAssociation
     ? {
         name: activeAssociation.name,
@@ -161,8 +150,6 @@ export const OverviewCpdProgressCard = () => {
             totalRequiredCredits: activeAssociation.requiredCredits,
             progressPercent: activeAssociation.percent,
           },
-          labels,
-          chartColors,
         ),
         meta: R.BAND_META[activeAssociation.band] ?? R.BAND_META.NOT_STARTED,
         statusLabel: t(
@@ -174,7 +161,7 @@ export const OverviewCpdProgressCard = () => {
           name: activePlan.certificationName,
           creditType: activePlan.creditType,
           deadline: activePlan.reportingEnd,
-          view: buildCpdProgressView(progressQuery.data, labels, chartColors),
+          view: buildCpdProgressView(progressQuery.data),
           meta: CPD_COMPLIANCE_META[progressQuery.data.complianceStatus] ?? {
             tone: "neutral" as const,
             icon: "Circle",
@@ -208,25 +195,17 @@ export const OverviewCpdProgressCard = () => {
         />
       </div>
 
-      <ProgressDonutChart
-        data={view.chartData}
-        valueSuffix={creditLabel}
-        ariaLabel={t("professionalDashboard.overview.cpdCard.chartAria", {
+      <ProgressRing
+        className="mx-auto"
+        percent={view.chartPercent}
+        value={`${view.chartPercent}%`}
+        caption={t("professionalDashboard.overview.cpdCard.complete")}
+        label={t("professionalDashboard.overview.cpdCard.chartAria", {
           earned: view.earned,
           total: view.total,
           credit: creditLabel,
           percent: view.percent,
         })}
-        centerLabel={
-          <>
-            <p className="text-3xl font-medium text-primary">
-              {view.chartPercent}%
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {t("professionalDashboard.overview.cpdCard.complete")}
-            </p>
-          </>
-        }
       />
 
       <p className="text-center text-sm text-muted-foreground">

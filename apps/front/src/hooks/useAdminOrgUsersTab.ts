@@ -357,8 +357,33 @@ export const useAdminOrganizationUsersTab = () => {
     updateSettingsState.isLoading ||
     deleteOwnerState.isLoading;
 
+  const setOrgFilter = (
+    name: keyof T.TAdminOrganizationFilterValues,
+    value: string,
+  ) => orgFilterRhf.setValue(name, value, { shouldDirty: true });
+
+  const setMemberSearch = (value: string) =>
+    memberFilterRhf.setValue("search", value, { shouldDirty: true });
+
+  const setMemberStatus = (value: string) =>
+    memberFilterRhf.setValue(
+      "status",
+      Object.values(OrganizationMemberStatus).find(
+        (status) => status === value,
+      ) ?? "ALL",
+      { shouldDirty: true },
+    );
+
   return {
     t,
+    orgSearch,
+    orgCountry,
+    orgIndustry,
+    memberSearch,
+    memberStatus,
+    setOrgFilter,
+    setMemberSearch,
+    setMemberStatus,
     members,
     auditLogs,
     isLoading,

@@ -1149,6 +1149,7 @@ model YouTubeChannel {
   @@index([slug])
 }
 
+/// Unmanaged GIN indexes: YouTubeVideo_title_trgm_idx, YouTubeVideo_description_trgm_idx (pg_trgm).
 model YouTubeVideo {
   id String @id @default(cuid())
 
@@ -1175,6 +1176,7 @@ model YouTubeVideo {
   @@index([channelId])
   @@index([status])
   @@index([title])
+  @@index([createdAt, id])
 }
 
 // ================= Content =================
@@ -3349,6 +3351,8 @@ enum AssociationMessageDeliveryState {
 }
 
 model AssociationMessageDelivery {
+  providerMessageId String?
+
   id String @id @default(cuid())
 
   associationId String

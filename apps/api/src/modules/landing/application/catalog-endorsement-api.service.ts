@@ -6,166 +6,114 @@ import { CatalogSearchQuery } from "@landing/public/catalog-endorsement-api";
 import { YouTubeVideoStatus } from "@prisma/client";
 import { CatalogReference } from "@landing/public/catalog-endorsement-api";
 import { PrismaService } from "@prisma/prisma.service";
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
+import { createHash } from "node:crypto";
+import { Prisma } from "@prisma/client";
+import { CatalogSearchPage } from "@landing/public/catalog-endorsement-api";
+import {
+  readCatalogPage,
+  readSearchWindowAfter,
+} from "@utils/catalog-pagination.util";
+import {
+  endorsementCatalogCandidates,
+  endorsementBrowseAnchor,
+  endorsementBrowseCandidates,
+  EndorsementBrowseAnchor,
+  ENDORSEMENT_SEARCH_ORDER,
+} from "@landing/utils/catalog-endorsement-search.util";
 
 const SEARCH_TAKE_MAX = 50;
 
-const contains = (search?: string | null) =>
-  search?.trim()
-    ? { title: { contains: search.trim(), mode: "insensitive" as const } }
-    : {};
+type CatalogSearchRow = Omit<CatalogItemProjection, "isAvailable"> & {
+  id: string;
+  searchRank: number;
+  rowPosition?: bigint;
+  recency: Date;
+};
 
 @Injectable()
 export class CatalogEndorsementApiService implements CatalogEndorsementApi {
   constructor(private readonly prisma: PrismaService) {}
 
-  async searchCatalog(
-    query: CatalogSearchQuery,
-  ): Promise<CatalogItemProjection[]> {
-    const take = Math.min(Math.max(query.take, 1), SEARCH_TAKE_MAX);
-    const wanted = query.contentType
-      ? [query.contentType as ContentType]
-      : [
-          ContentType.COURSE,
-          ContentType.EVENT,
-          ContentType.PODCAST,
-          ContentType.YOUTUBE,
-        ];
-
-    const results = await Promise.all(
-      wanted.map((contentType) => this.searchOne(contentType, query, take)),
-    );
-
-    return results.flat().slice(0, take);
-  }
-
-  private searchOne(
-    contentType: ContentType,
-    query: CatalogSearchQuery,
-    take: number,
-  ): Promise<CatalogItemProjection[]> {
-    const where = contains(query.search);
-
-    if (contentType === ContentType.COURSE)
-      return this.prisma.course
-        .findMany({
-          where: { ...where, deletedAt: null, status: CourseStatus.PUBLISHED },
-          select: {
-            id: true,
-            slug: true,
-            title: true,
-            level: true,
-            imageUrl: true,
-            creditValue: true,
-            durationMinutes: true,
-            provider: { select: { fullName: true } },
-          },
-          orderBy: { title: "asc" },
-          take,
-        })
-        .then((rows) =>
-          rows.map((row) => ({
-            contentType,
-            contentId: row.id,
-            title: row.title,
-            slug: row.slug,
-            level: row.level,
-            imageUrl: row.imageUrl,
-            provider: row.provider?.fullName ?? null,
-            isAvailable: true,
-            durationMinutes: row.durationMinutes,
-            indicativeCredits: row.creditValue,
-          })),
-        );
-
-    if (contentType === ContentType.EVENT)
-      return this.prisma.event
-        .findMany({
-          where: { ...where, deletedAt: null, status: EventStatus.PUBLISHED },
-          select: {
-            id: true,
-            slug: true,
-            title: true,
-            imageUrl: true,
-            organizer: true,
-            speaker: true,
-            pdu: true,
-          },
-          orderBy: { startDate: "asc" },
-          take,
-        })
-        .then((rows) =>
-          rows.map((row) => ({
-            contentType,
-            contentId: row.id,
-            title: row.title,
-            slug: row.slug,
-            level: null,
-            imageUrl: row.imageUrl,
-            provider: row.organizer ?? row.speaker,
-            isAvailable: true,
-            durationMinutes: null,
-            indicativeCredits: row.pdu > 0 ? row.pdu : null,
-          })),
-        );
-
-    if (contentType === ContentType.PODCAST)
-      return this.prisma.podcast
-        .findMany({
-          where: { ...where, deletedAt: null, status: PodcastStatus.PUBLISHED },
-          select: {
-            id: true,
-            slug: true,
-            title: true,
-            imageUrl: true,
-            durationMinutes: true,
-            provider: { select: { fullName: true } },
-          },
-          orderBy: { title: "asc" },
-          take,
-        })
-        .then((rows) =>
-          rows.map((row) => ({
-            contentType,
-            contentId: row.id,
-            title: row.title,
-            slug: row.slug,
-            level: null,
-            imageUrl: row.imageUrl,
-            provider: row.provider?.fullName ?? null,
-            isAvailable: true,
-            durationMinutes: row.durationMinutes,
-            indicativeCredits: null,
-          })),
-        );
-
-    return this.prisma.youTubeVideo
-      .findMany({
-        where: { ...where, status: YouTubeVideoStatus.PUBLISHED },
-        select: {
-          id: true,
-          title: true,
-          thumbnailUrl: true,
-          durationMinutes: true,
-          channel: { select: { title: true, slug: true } },
-        },
-        orderBy: { title: "asc" },
-        take,
-      })
-      .then((rows) =>
-        rows.map((row) => ({
-          contentType,
-          contentId: row.id,
-          title: row.title,
-          slug: row.channel?.slug ?? null,
-          level: null,
-          imageUrl: row.thumbnailUrl,
-          provider: row.channel?.title ?? null,
-          isAvailable: true,
-          durationMinutes: row.durationMinutes,
-          indicativeCredits: null,
-        })),
+  async searchCatalog(query: CatalogSearchQuery): Promise<CatalogSearchPage> {
+    const search = query.search?.trim() ?? "";
+    if (search.length === 1)
+      throw new BadRequestException(
+        "Search must contain at least two characters.",
       );
+    const candidates = endorsementCatalogCandidates(search, query.contentType);
+    const readWindow = async (
+      anchorId: string | null,
+      limit: number,
+      direction: "after" | "through",
+    ) => {
+      if (!search) {
+        const anchorQuery = anchorId ? endorsementBrowseAnchor(anchorId) : null;
+        const [anchor] = anchorQuery
+          ? await this.prisma.$queryRaw<EndorsementBrowseAnchor[]>(anchorQuery)
+          : [];
+        if (anchorId && !anchor) return [];
+        const windowSize = direction === "after" && anchor ? limit + 1 : limit;
+        const candidates = endorsementBrowseCandidates(
+          query.contentType,
+          anchor ?? null,
+          windowSize,
+          direction,
+        );
+        const order =
+          direction === "after"
+            ? ENDORSEMENT_SEARCH_ORDER
+            : Prisma.sql`"recency" ASC, "contentType" DESC, "contentId" ASC`;
+        const rows = await this.prisma.$queryRaw<
+          CatalogSearchRow[]
+        >`WITH candidates AS (${candidates}) SELECT * FROM candidates ORDER BY ${order} LIMIT ${windowSize}`;
+        return direction === "after" ? rows : rows.reverse();
+      }
+      const bounds =
+        direction === "after"
+          ? Prisma.sql`ranked."rowPosition" >= anchor."position" AND ranked."rowPosition" <= anchor."position" + ${limit}::int`
+          : Prisma.sql`ranked."rowPosition" > anchor."position" - ${limit}::int AND ranked."rowPosition" <= anchor."position"`;
+      return this.prisma.$queryRaw<CatalogSearchRow[]>`
+        WITH candidates AS (${candidates}), ranked AS (
+          SELECT candidates.*, ROW_NUMBER() OVER (ORDER BY ${ENDORSEMENT_SEARCH_ORDER}) AS "rowPosition" FROM candidates
+        ), anchor AS (
+          SELECT COALESCE((SELECT "rowPosition" FROM ranked WHERE "id" = ${anchorId}::text),
+            CASE WHEN ${anchorId}::text IS NULL THEN 0 END) AS "position"
+        ) SELECT ranked.* FROM ranked CROSS JOIN anchor WHERE ${bounds} ORDER BY ranked."rowPosition"
+      `;
+    };
+    const page = await readCatalogPage({
+      kind: "endorsement",
+      order: createHash("sha256")
+        .update(JSON.stringify([search, query.contentType ?? null]))
+        .digest("hex"),
+      take: Math.min(Math.max(query.take, 1), SEARCH_TAKE_MAX),
+      cursor: query.cursor,
+      count: async () => {
+        const [row] = await this.prisma.$queryRaw<
+          { count: bigint }[]
+        >`WITH candidates AS (${candidates}) SELECT COUNT(*) AS count FROM candidates`;
+        return Number(row?.count ?? 0);
+      },
+      readAfter: async (anchorId, limit) =>
+        readSearchWindowAfter(
+          await readWindow(anchorId, limit, "after"),
+          anchorId,
+        ),
+      readThrough: (anchorId, limit) => readWindow(anchorId, limit, "through"),
+    });
+    return {
+      ...page,
+      items: page.items.map(
+        ({
+          id: _id,
+          searchRank: _rank,
+          rowPosition: _position,
+          recency: _recency,
+          ...item
+        }) => ({ ...item, isAvailable: true }),
+      ),
+    };
   }
 
   async resolveCatalogItems(

@@ -4,49 +4,27 @@ import { TAssociationRenewalReadinessReport } from "@/types/association-dashboar
 import { TAssociationRenewalReadinessRow } from "@/types/association-dashboard.types";
 import { AssociationReportSummaryStrip } from "@modules/AssociationDashboard/parts/association-report-summary-strip";
 import { ASSOCIATION_BAND_VARIANTS } from "@utils/association-compliance-bands";
+import { ASSOCIATION_BAND_COLORS } from "@utils/association-compliance-bands";
 import { ASSOCIATION_BAND_ORDER } from "@utils/association-compliance-bands";
-import { AssociationReportTable } from "@modules/AssociationDashboard/parts/association-report-table";
-import { useChartSemantics } from "@hooks/useChartPalette";
-import { useChartPalette } from "@hooks/useChartPalette";
-import { bandChartColor } from "@utils/association-compliance-bands";
-import { Skeleton } from "@ui/skeleton";
+import { isLightBand } from "@utils/association-compliance-bands";
+import { DataTable } from "@elements/data-table/data-table";
 import { Badge } from "@ui/badge";
 
-import dynamic from "next/dynamic";
-
 import * as REPORTS from "@utils/association-reports";
-
-const RenewalReadinessChart = dynamic(
-  () =>
-    import(
-      "@modules/AssociationDashboard/parts/association-report-drilldown-charts"
-    ).then((module) => module.RenewalReadinessChart),
-  {
-    ssr: false,
-    loading: () => <Skeleton className="h-40 w-full rounded-md" />,
-  },
-);
+import * as C from "@modules/AssociationDashboard/parts/association-report-charts";
+import * as L from "lucide-react";
 
 export const AssociationRenewalReadinessReport = ({
   hook,
 }: TAssociationRenewalReadinessReport) => {
-  const semantics = useChartSemantics();
-
-  const palette = useChartPalette();
-
   const {
     t,
-    page,
-    sort,
     locale,
-    setPage,
     summary,
-    direction,
-    toggleSort,
     openMember,
+    reportTable,
     distribution,
     orderAndPage,
-    isReportLoading,
     renewalReadiness,
   } = hook;
 
@@ -88,7 +66,8 @@ export const AssociationRenewalReadinessReport = ({
     count: counts[band],
     share: shares[band],
     label: label(`bands.${band}`),
-    color: bandChartColor(semantics, band),
+    color: ASSOCIATION_BAND_COLORS[band],
+    isLightFill: isLightBand(band),
   }));
 
   const isTruncated =
@@ -136,33 +115,33 @@ export const AssociationRenewalReadinessReport = ({
         </p>
       )}
 
-      <RenewalReadinessChart
+      <C.RenewalReadinessChart
         label={label}
         locale={locale}
-        palette={palette}
+        chrome={{
+          title: label("readiness.title"),
+          description: label("readiness.description"),
+          headingLevel: "h2",
+        }}
         segments={segments}
       />
 
-      <AssociationReportTable
-        page={page}
-        sort={sort}
-        pages={pages}
-        total={total}
+      <DataTable
+        {...reportTable(total, pages)}
         rows={pageRows}
-        onPage={setPage}
-        onSort={toggleSort}
-        direction={direction}
-        rowKey={(row) => row.id}
-        isLoading={isReportLoading}
-        emptyLabel={label("table.empty")}
         caption={label("names.renewal-readiness")}
-        onOpenRow={(row) => openMember(row.memberId)}
-        sortLabel={(header) => label("table.sort", { column: header })}
-        openLabel={(row) =>
-          label("table.openMember", {
-            name: row.fullName ?? row.email ?? row.memberId,
-          })
-        }
+        rowKey={(row) => row.id}
+        empty={{ icon: L.TableProperties, title: label("table.empty") }}
+        rowActions={(row) => [
+          {
+            id: "open",
+            icon: L.UserSearch,
+            label: label("table.openMember", {
+              name: row.fullName ?? row.email ?? row.memberId,
+            }),
+            onSelect: () => openMember(row.memberId),
+          },
+        ]}
         columns={[
           {
             id: "fullName",

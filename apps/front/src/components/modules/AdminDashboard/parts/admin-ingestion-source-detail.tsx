@@ -1,13 +1,12 @@
 "use client";
 
-import { TUseAdminIngestionTab } from "@hooks/useAdminIngestionTab";
-import { AdminIngestionKeyIssueDialog } from "@modules/AdminDashboard/parts/admin-ingestion-key-issue-dialog";
-import { AdminIngestionKeyRevokeDialog } from "@modules/AdminDashboard/parts/admin-ingestion-key-revoke-dialog";
 import { AdminIngestionBatchDetailDialog } from "@modules/AdminDashboard/parts/admin-ingestion-batch-detail-dialog";
+import { AdminIngestionKeyRevokeDialog } from "@modules/AdminDashboard/parts/admin-ingestion-key-revoke-dialog";
+import { AdminIngestionKeyIssueDialog } from "@modules/AdminDashboard/parts/admin-ingestion-key-issue-dialog";
 import { DashboardContentSkeleton } from "@layouts/parts/DashboardSkeleton";
-import { Td, Th } from "@modules/AdminDashboard/parts/td-and-th-table";
+import { TUseAdminIngestionTab } from "@hooks/useAdminIngestionTab";
 import { formatDate } from "@/utils/function-helper";
-import { ContentPagination } from "@elements/pagination";
+import { DataTable } from "@elements/data-table/data-table";
 import { GlassCard } from "@elements/glass-card";
 import { Textarea } from "@ui/textarea";
 import { Switch } from "@ui/switch";
@@ -17,8 +16,8 @@ import { Badge } from "@ui/badge";
 import * as F from "@ui/form";
 import * as L from "lucide-react";
 
-const KEY_COLUMN_COUNT = 5;
-const BATCH_COLUMN_COUNT = 8;
+const KEYS = "adminDashboard.ingestion.keys";
+const BATCHES = "adminDashboard.ingestion.batches";
 
 export const AdminIngestionSourceDetail = ({
   hook,
@@ -254,95 +253,74 @@ const EditSourceForm = ({ hook }: { hook: TUseAdminIngestionTab }) => {
 
 const KeysSection = ({ hook }: { hook: TUseAdminIngestionTab }) => {
   const { t, keysQuery, openIssue, openRevokeConfirm } = hook;
-  const keys = keysQuery.data ?? [];
 
   return (
-    <GlassCard className="p-0">
-      <div className="flex items-center justify-between p-6 pb-0">
-        <h2 className="text-lg font-medium">
-          {t("adminDashboard.ingestion.keys.title")}
-        </h2>
+    <GlassCard>
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-lg font-medium">{t(`${KEYS}.title`)}</h2>
         <Button radius="xl" type="button" onClick={openIssue}>
           <L.KeyRound className="h-4 w-4" />
-          {t("adminDashboard.ingestion.keys.issue")}
+          {t(`${KEYS}.issue`)}
         </Button>
       </div>
 
-      {keysQuery.isLoading ? (
-        <div className="p-6">
-          <DashboardContentSkeleton />
-        </div>
-      ) : (
-        <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[720px] text-sm">
-            <thead className="border-b border-border bg-muted/40 text-left">
-              <tr>
-                <Th>{t("adminDashboard.ingestion.keys.table.prefix")}</Th>
-                <Th>{t("adminDashboard.ingestion.keys.table.name")}</Th>
-                <Th>{t("adminDashboard.ingestion.keys.table.lastUsed")}</Th>
-                <Th>{t("adminDashboard.ingestion.keys.table.status")}</Th>
-                <Th>{t("adminDashboard.ingestion.keys.table.actions")}</Th>
-              </tr>
-            </thead>
-            <tbody>
-              {keys.length ? (
-                keys.map((key) => {
-                  const isRevoked = Boolean(key.revokedAt);
-                  return (
-                    <tr key={key.id} className="border-b border-border/70">
-                      <Td>
-                        <code className="text-xs">{key.prefix}</code>
-                      </Td>
-                      <Td>{key.name}</Td>
-                      <Td>
-                        {key.lastUsedAt
-                          ? formatDate(key.lastUsedAt)
-                          : t("adminDashboard.ingestion.keys.neverUsed")}
-                      </Td>
-                      <Td>
-                        <Badge
-                          variant={isRevoked ? "destructive" : "default"}
-                          className="rounded-full"
-                        >
-                          {t(
-                            isRevoked
-                              ? "adminDashboard.ingestion.keys.revokedBadge"
-                              : "adminDashboard.ingestion.keys.liveBadge",
-                          )}
-                        </Badge>
-                      </Td>
-                      <Td>
-                        {!isRevoked && (
-                          <Button
-                            radius="xl"
-                            size="sm"
-                            type="button"
-                            variant="destructive"
-                            onClick={() =>
-                              openRevokeConfirm(key.id, key.prefix)
-                            }
-                          >
-                            {t("adminDashboard.ingestion.keys.revoke")}
-                          </Button>
-                        )}
-                      </Td>
-                    </tr>
-                  );
-                })
-              ) : (
-                <tr>
-                  <td
-                    colSpan={KEY_COLUMN_COUNT}
-                    className="p-10 text-center text-muted-foreground"
-                  >
-                    {t("adminDashboard.ingestion.keys.empty")}
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <DataTable
+        rows={keysQuery.data ?? []}
+        rowKey={(key) => key.id}
+        rowLabel={(key) => key.name}
+        caption={t(`${KEYS}.title`)}
+        isError={keysQuery.isError}
+        isLoading={keysQuery.isLoading}
+        isFetching={keysQuery.isFetching}
+        onRetry={() => void keysQuery.refetch()}
+        empty={{ icon: L.KeyRound, title: t(`${KEYS}.empty`) }}
+        columns={[
+          {
+            id: "name",
+            mobile: "title",
+            header: t(`${KEYS}.table.name`),
+            cell: (key) => <span className="font-medium">{key.name}</span>,
+          },
+          {
+            id: "status",
+            mobile: "badge",
+            header: t(`${KEYS}.table.status`),
+            cell: (key) => (
+              <Badge variant={key.revokedAt ? "destructive" : "default"}>
+                {t(
+                  key.revokedAt ? `${KEYS}.revokedBadge` : `${KEYS}.liveBadge`,
+                )}
+              </Badge>
+            ),
+          },
+          {
+            id: "prefix",
+            header: t(`${KEYS}.table.prefix`),
+            cell: (key) => <code className="text-xs">{key.prefix}</code>,
+          },
+          {
+            id: "lastUsed",
+            header: t(`${KEYS}.table.lastUsed`),
+            cell: (key) =>
+              key.lastUsedAt
+                ? formatDate(key.lastUsedAt)
+                : t(`${KEYS}.neverUsed`),
+          },
+        ]}
+        rowActions={(key) =>
+          key.revokedAt
+            ? []
+            : [
+                {
+                  id: "revoke",
+                  tone: "danger",
+                  icon: L.KeyRound,
+                  label: t(`${KEYS}.revoke`),
+                  onSelect: () => openRevokeConfirm(key.id, key.prefix),
+                },
+              ]
+        }
+      />
     </GlassCard>
   );
 };
@@ -350,96 +328,89 @@ const KeysSection = ({ hook }: { hook: TUseAdminIngestionTab }) => {
 const BatchesSection = ({ hook }: { hook: TUseAdminIngestionTab }) => {
   const {
     t,
-    batchesQuery,
     batchPage,
+    batchesQuery,
     batchNextPage,
-    batchPreviousPage,
-    batchCanPrevious,
     openBatchDetail,
+    batchPreviousPage,
   } = hook;
-  const batches = batchesQuery.data?.items ?? [];
 
   return (
-    <GlassCard className="p-0">
-      <h2 className="p-6 pb-0 text-lg font-medium">
-        {t("adminDashboard.ingestion.batches.title")}
-      </h2>
+    <GlassCard>
+      <h2 className="mb-5 text-lg font-medium">{t(`${BATCHES}.title`)}</h2>
 
-      {batchesQuery.isLoading ? (
-        <div className="p-6">
-          <DashboardContentSkeleton />
-        </div>
-      ) : (
-        <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[960px] text-sm">
-            <thead className="border-b border-border bg-muted/40 text-left">
-              <tr>
-                <Th>{t("adminDashboard.ingestion.batches.table.submitted")}</Th>
-                <Th>{t("adminDashboard.ingestion.batches.table.mode")}</Th>
-                <Th>{t("adminDashboard.ingestion.batches.table.status")}</Th>
-                <Th>{t("adminDashboard.ingestion.batches.table.received")}</Th>
-                <Th>{t("adminDashboard.ingestion.batches.table.created")}</Th>
-                <Th>{t("adminDashboard.ingestion.batches.table.updated")}</Th>
-                <Th>{t("adminDashboard.ingestion.batches.table.rejected")}</Th>
-                <Th>{t("adminDashboard.ingestion.batches.table.actions")}</Th>
-              </tr>
-            </thead>
-            <tbody>
-              {batches.length ? (
-                batches.map((batch) => (
-                  <tr key={batch.id} className="border-b border-border/70">
-                    <Td>{formatDate(batch.createdAt)}</Td>
-                    <Td>{batch.mode}</Td>
-                    <Td>
-                      <Badge variant="secondary" className="rounded-full">
-                        {batch.status}
-                      </Badge>
-                    </Td>
-                    <Td>{batch.receivedCount}</Td>
-                    <Td>{batch.createdCount}</Td>
-                    <Td>{batch.updatedCount}</Td>
-                    <Td>{batch.rejectedCount}</Td>
-                    <Td>
-                      <Button
-                        radius="xl"
-                        size="sm"
-                        type="button"
-                        variant="outline"
-                        onClick={() => openBatchDetail(batch.id)}
-                      >
-                        {t("adminDashboard.ingestion.batches.viewReport")}
-                      </Button>
-                    </Td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td
-                    colSpan={BATCH_COLUMN_COUNT}
-                    className="p-10 text-center text-muted-foreground"
-                  >
-                    {t("adminDashboard.ingestion.batches.empty")}
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {!batchesQuery.isError && !batchesQuery.isLoading && batches.length > 0 && (
-        <div className="p-6 pt-0">
-          <ContentPagination
-            page={batchPage}
-            onNext={batchNextPage}
-            isLoading={batchesQuery.isFetching}
-            totalCount={batchesQuery.data?.totalCount ?? 0}
-            onPrevious={batchPreviousPage}
-            canPrevious={batchCanPrevious}
-            hasNextPage={batchesQuery.data?.pageInfo?.hasNextPage ?? false}
-          />
-        </div>
-      )}
+      <DataTable
+        rows={batchesQuery.data?.items ?? []}
+        rowKey={(batch) => batch.id}
+        caption={t(`${BATCHES}.title`)}
+        isError={batchesQuery.isError}
+        isLoading={batchesQuery.isLoading}
+        isFetching={batchesQuery.isFetching}
+        onRowClick={(batch) => openBatchDetail(batch.id)}
+        onRetry={() => void batchesQuery.refetch()}
+        empty={{ icon: L.PackageOpen, title: t(`${BATCHES}.empty`) }}
+        pagination={{
+          kind: "cursor",
+          page: batchPage,
+          onNext: batchNextPage,
+          onPrevious: batchPreviousPage,
+          total: batchesQuery.data?.totalCount ?? 0,
+          hasNextPage: batchesQuery.data?.pageInfo?.hasNextPage ?? false,
+        }}
+        columns={[
+          {
+            id: "submitted",
+            mobile: "title",
+            header: t(`${BATCHES}.table.submitted`),
+            cell: (batch) => (
+              <span className="font-medium">{formatDate(batch.createdAt)}</span>
+            ),
+          },
+          {
+            id: "status",
+            mobile: "badge",
+            header: t(`${BATCHES}.table.status`),
+            cell: (batch) => <Badge variant="secondary">{batch.status}</Badge>,
+          },
+          {
+            id: "mode",
+            header: t(`${BATCHES}.table.mode`),
+            cell: (batch) => batch.mode,
+          },
+          {
+            id: "received",
+            align: "end",
+            header: t(`${BATCHES}.table.received`),
+            cell: (batch) => batch.receivedCount,
+          },
+          {
+            id: "created",
+            align: "end",
+            header: t(`${BATCHES}.table.created`),
+            cell: (batch) => batch.createdCount,
+          },
+          {
+            id: "updated",
+            align: "end",
+            header: t(`${BATCHES}.table.updated`),
+            cell: (batch) => batch.updatedCount,
+          },
+          {
+            id: "rejected",
+            align: "end",
+            header: t(`${BATCHES}.table.rejected`),
+            cell: (batch) => batch.rejectedCount,
+          },
+        ]}
+        rowActions={(batch) => [
+          {
+            id: "report",
+            icon: L.FileText,
+            label: t(`${BATCHES}.viewReport`),
+            onSelect: () => openBatchDetail(batch.id),
+          },
+        ]}
+      />
     </GlassCard>
   );
 };

@@ -198,6 +198,24 @@ describe("Member invitation delivery and acceptance (concurrency e2e)", () => {
     );
     expect(mailTo(email)).toHaveLength(1);
     const token = tokenFrom(mail.text);
+    const recordedDelivery =
+      await ctx.prisma.associationMessageDelivery.findFirstOrThrow({
+        where: {
+          memberId: result.member.id,
+          messageType: AssociationMessageType.INVITATION,
+        },
+      });
+    expect(recordedDelivery.providerMessageId).toBe("resend");
+    const roster = await members.list(owner);
+    expect(
+      roster.items.find((member) => member.id === result.member.id)
+        ?.invitationDelivery,
+    ).toEqual(
+      expect.objectContaining({
+        state: AssociationMessageDeliveryState.SENT,
+        failureReason: null,
+      }),
+    );
 
     const stillPending = await ctx.prisma.associationMember.findFirstOrThrow({
       where: { associationId: association.id, user: { email } },

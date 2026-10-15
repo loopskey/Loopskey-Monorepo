@@ -1,26 +1,23 @@
 "use client";
 
 import { TAssociationOverviewCharts } from "@/types/association-dashboard.types";
-import { AssociationOverviewPanel } from "@modules/AssociationDashboard/parts/association-overview-panel";
-import { useChartPalette } from "@hooks/useChartPalette";
+import { GlassCard } from "@elements/glass-card";
 import { useRouter } from "next/navigation";
 import { Button } from "@ui/button";
 
 import Link from "next/link";
 
-import * as C from "@modules/AssociationDashboard/parts/association-report-chart-loaders";
+import * as C from "@modules/AssociationDashboard/parts/association-report-charts";
 import * as O from "@utils/association-overview";
 import * as L from "lucide-react";
 
 import type { TAssociationReportKey } from "@utils/association-reports";
-import type { ReactNode } from "react";
+import type { ChartChrome } from "@/types/chart.types";
 
 export const AssociationOverviewCharts = ({
   hook,
 }: TAssociationOverviewCharts) => {
-  const palette = useChartPalette();
   const router = useRouter();
-
   const {
     t,
     trend,
@@ -38,8 +35,6 @@ export const AssociationOverviewCharts = ({
   const reportLabel = (key: string, vars?: Record<string, string | number>) =>
     t(`associationDashboard.reports.${key}`, vars);
 
-  const frame = { locale, palette, label: reportLabel };
-
   const byWidestGap = [...categoryProgress].sort(
     (left, right) =>
       right.requiredCredits -
@@ -47,50 +42,48 @@ export const AssociationOverviewCharts = ({
       (left.requiredCredits - left.averageCompletedCredits),
   );
 
-  const panel = (
+  const chrome = (
     id: string,
     report: TAssociationReportKey,
     isEmpty: boolean,
-    chart: ReactNode,
-  ) => (
-    <AssociationOverviewPanel
-      isError={chartsPanel.isError}
-      isLoading={chartsPanel.isLoading}
-      retry={chartsPanel.retry}
-      retryLabel={label("retry")}
-      errorMessage={label("charts.error")}
-      skeleton={C.chartSkeleton()}
-      title={reportLabel(`charts.${id}.title`)}
-      description={reportLabel(`charts.${id}.description`)}
-      action={
-        <Button size="sm" radius="xl" variant="outline" asChild>
-          <Link href={O.overviewReportHref(report, filter)}>
-            <L.ArrowUpRight className="h-4 w-4" />
-            {reportLabel("charts.viewReport")}
-          </Link>
-        </Button>
-      }
-    >
-      {isEmpty ? (
-        <div className="flex h-72 items-center justify-center rounded-md border border-dashed border-border text-sm text-muted-foreground">
-          {reportLabel("charts.empty")}
-        </div>
-      ) : (
-        chart
-      )}
-    </AssociationOverviewPanel>
-  );
+  ): ChartChrome => ({
+    isEmpty,
+    headingLevel: "h2",
+    isLoading: chartsPanel.isLoading,
+    title: reportLabel(`charts.${id}.title`),
+    emptyLabel: reportLabel("charts.empty"),
+    description: reportLabel(`charts.${id}.description`),
+    error: chartsPanel.isError
+      ? {
+          message: label("charts.error"),
+          retryLabel: label("retry"),
+          onRetry: chartsPanel.retry,
+        }
+      : null,
+    action: (
+      <Button size="sm" radius="lg" variant="outline" asChild>
+        <Link href={O.overviewReportHref(report, filter)}>
+          <L.ArrowUpRight aria-hidden />
+          {reportLabel("charts.viewReport")}
+        </Link>
+      </Button>
+    ),
+  });
 
   return (
     <div className="grid gap-6 xl:grid-cols-2">
-      {panel(
-        "group",
-        "group-progress",
-        groupCompliance.length === 0,
+      <GlassCard>
         <C.GroupComplianceChart
-          {...frame}
+          locale={locale}
+          label={reportLabel}
           rows={groupCompliance}
           threshold={onTrackThreshold}
+          chrome={chrome(
+            "group",
+            "group-progress",
+            groupCompliance.length === 0,
+          )}
+          ungroupedLabel={t("associationDashboard.members.chart.ungrouped")}
           onSelectGroup={(groupId) =>
             router.push(
               O.overviewReportHref("group-progress", {
@@ -99,25 +92,30 @@ export const AssociationOverviewCharts = ({
               }),
             )
           }
-          ungroupedLabel={t("associationDashboard.members.chart.ungrouped")}
-        />,
-      )}
+        />
+      </GlassCard>
 
-      {panel(
-        "category",
-        "category-completion",
-        byWidestGap.length === 0,
-        <C.CategoryProgressChart {...frame} rows={byWidestGap} />,
-      )}
+      <GlassCard>
+        <C.CategoryProgressChart
+          locale={locale}
+          rows={byWidestGap}
+          label={reportLabel}
+          chrome={chrome(
+            "category",
+            "category-completion",
+            byWidestGap.length === 0,
+          )}
+        />
+      </GlassCard>
 
-      <div className="xl:col-span-2">
-        {panel(
-          "trend",
-          "overview-summary",
-          trend.length === 0,
-          <C.ComplianceTrendChart {...frame} rows={trend} />,
-        )}
-      </div>
+      <GlassCard className="xl:col-span-2">
+        <C.ComplianceTrendChart
+          rows={trend}
+          locale={locale}
+          label={reportLabel}
+          chrome={chrome("trend", "overview-summary", trend.length === 0)}
+        />
+      </GlassCard>
     </div>
   );
 };

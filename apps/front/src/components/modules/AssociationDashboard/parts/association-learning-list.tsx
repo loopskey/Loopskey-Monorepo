@@ -5,15 +5,26 @@ import { TAssociationLearningContentRow } from "@/types/association-dashboard.ty
 import { TAssociationLearningList } from "@/types/association-dashboard.types";
 import { audienceSummaryLabel } from "@utils/association-learning-content";
 import { humanizeEnumValue } from "@utils/function-helper";
-import { ContentPagination } from "@elements/pagination";
-import { ConfirmDialog } from "@elements/confirm-dialog";
-import { Skeleton } from "@ui/skeleton";
+import { DataTableFilters } from "@elements/data-table/data-table-filters";
+import { PDU_CATEGORIES } from "@utils/pdu.constant";
+import { DataTable } from "@elements/data-table/data-table";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
-import { cn } from "@/lib/utils";
 
-import * as D from "@ui/dropdown-menu";
+import type { DataTableRowAction } from "@/types/data-table.types";
+
 import * as L from "lucide-react";
+
+const KEY = "associationDashboard.learningContent";
+const ALL = "ALL";
+
+const SOURCES = ["CATALOGUE", "EXTERNAL"] as const;
+
+const STATUSES = [
+  AssociationLearningContentStatus.Draft,
+  AssociationLearningContentStatus.Published,
+  AssociationLearningContentStatus.Withdrawn,
+];
 
 const STATUS_VARIANTS = {
   [AssociationLearningContentStatus.Draft]: "secondary",
@@ -24,254 +35,329 @@ const STATUS_VARIANTS = {
 export const AssociationLearningList = ({ hook }: TAssociationLearningList) => {
   const {
     t,
+    page,
     items,
     locale,
     remove,
+    search,
+    status,
+    source,
+    category,
     openEdit,
     withdraw,
     nextPage,
+    setSearch,
+    setStatus,
+    setSource,
     isMutating,
-    setDetailId,
-    openPublish,
     isFiltered,
     openCreate,
     openAssign,
+    totalCount,
+    setCategory,
+    setDetailId,
+    openPublish,
     openMembers,
-    justPublishedId,
+    hasNextPage,
     previousPage,
     isRefetching,
+    resetFilters,
+    requirementId,
+    justPublishedId,
+    setRequirementId,
+    requirementOptions,
   } = hook;
 
+  const label = (key: string) => t(`${KEY}.filters.${key}`);
+  const column = (key: string) => t(`${KEY}.list.columns.${key}`);
   const date = (value: string) => new Date(value).toLocaleDateString(locale);
+  const titleOf = (item: TAssociationLearningContentRow) =>
+    item.title || t(`${KEY}.list.untitled`);
 
-  const row = (item: TAssociationLearningContentRow) => (
-    <li
-      key={item.id}
-      className={cn(
-        "rounded-lg border p-4",
-        item.id === justPublishedId && "border-primary bg-primary/5",
-      )}
-    >
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <button
-            type="button"
-            onClick={() => setDetailId(item.id)}
-            className="text-left font-medium underline-offset-4 hover:underline"
-          >
-            {item.title ||
-              t("associationDashboard.learningContent.list.untitled")}
-          </button>
+  const actionsFor = (
+    item: TAssociationLearningContentRow,
+  ): DataTableRowAction[] => {
+    const isPublished =
+      item.status === AssociationLearningContentStatus.Published;
+    const isDraft = item.status === AssociationLearningContentStatus.Draft;
 
-          <p className="mt-1 text-xs text-muted-foreground">
-            {t("associationDashboard.learningContent.list.meta", {
-              source: item.isExternal
-                ? t("associationDashboard.learningContent.filters.external")
-                : humanizeEnumValue(item.contentType ?? ""),
-              provider:
-                item.provider ??
-                t("associationDashboard.learningContent.list.noProvider"),
-              category: item.category
-                ? humanizeEnumValue(item.category)
-                : t("associationDashboard.learningContent.list.uncategorised"),
-              added: date(item.createdAt as string),
-            })}
-          </p>
-        </div>
+    const actions: DataTableRowAction[] = [
+      {
+        id: "view",
+        icon: L.Eye,
+        label: t(`${KEY}.actions.view`),
+        onSelect: () => setDetailId(item.id),
+      },
+      {
+        id: "edit",
+        icon: L.PenLine,
+        isDisabled: isMutating,
+        label: t(`${KEY}.actions.edit`),
+        onSelect: () => openEdit(item),
+      },
+      {
+        id: "publish",
+        isDisabled: isMutating,
+        icon: isPublished ? L.Users : L.Send,
+        onSelect: () => openPublish(item),
+        label: t(`${KEY}.actions.${isPublished ? "reassign" : "publish"}`),
+      },
+    ];
 
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant={STATUS_VARIANTS[item.status]}>
-            {t(`associationDashboard.learningContent.status.${item.status}`)}
-          </Badge>
+    if (isPublished)
+      actions.push(
+        {
+          id: "members",
+          icon: L.UsersRound,
+          label: t(`${KEY}.actions.viewMembers`),
+          onSelect: () => openMembers(item),
+        },
+        {
+          id: "withdraw",
+          icon: L.Undo2,
+          isDisabled: isMutating,
+          label: t(`${KEY}.actions.withdraw`),
+          onSelect: () => withdraw(item.id),
+        },
+      );
 
-          {!item.isAvailable && (
-            <Badge variant="destructive">
-              {t("associationDashboard.learningContent.list.unavailable")}
-            </Badge>
-          )}
+    if (isDraft)
+      actions.push({
+        id: "delete",
+        tone: "danger",
+        icon: L.Trash2,
+        isPending: isMutating,
+        label: t(`${KEY}.actions.delete`),
+        onSelect: () => remove(item.id),
+        confirm: {
+          title: t(`${KEY}.confirm.deleteTitle`),
+          description: t(`${KEY}.confirm.deleteBody`, { title: item.title }),
+          confirmLabel: t(`${KEY}.confirm.deleteConfirm`),
+          cancelLabel: t("associationDashboard.members.confirm.cancel"),
+        },
+      });
 
-          <D.DropdownMenu>
-            <D.DropdownMenuTrigger asChild>
-              <Button
-                size="sm"
-                radius="xl"
-                type="button"
-                variant="outline"
-                disabled={isMutating}
-                aria-label={t(
-                  "associationDashboard.learningContent.list.actionsFor",
-                  { title: item.title },
-                )}
-              >
-                <L.MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </D.DropdownMenuTrigger>
+    return actions;
+  };
 
-            <D.DropdownMenuContent align="end" className="rounded-md">
-              <D.DropdownMenuItem onSelect={() => setDetailId(item.id)}>
-                <L.Eye className="h-4 w-4" />
-                {t("associationDashboard.learningContent.actions.view")}
-              </D.DropdownMenuItem>
-
-              {item.status !== AssociationLearningContentStatus.Published ? (
-                <D.DropdownMenuItem onSelect={() => openPublish(item)}>
-                  <L.Send className="h-4 w-4" />
-                  {t("associationDashboard.learningContent.actions.publish")}
-                </D.DropdownMenuItem>
-              ) : (
-                <D.DropdownMenuItem onSelect={() => openPublish(item)}>
-                  <L.Users className="h-4 w-4" />
-                  {t("associationDashboard.learningContent.actions.reassign")}
-                </D.DropdownMenuItem>
-              )}
-
-              <D.DropdownMenuItem onSelect={() => openEdit(item)}>
-                <L.PenLine className="h-4 w-4" />
-                {t("associationDashboard.learningContent.actions.edit")}
-              </D.DropdownMenuItem>
-
-              {item.status === AssociationLearningContentStatus.Published && (
-                <D.DropdownMenuItem onSelect={() => openMembers(item)}>
-                  <L.UsersRound className="h-4 w-4" />
-                  {t("associationDashboard.learningContent.actions.viewMembers")}
-                </D.DropdownMenuItem>
-              )}
-
-              {item.status === AssociationLearningContentStatus.Published && (
-                <D.DropdownMenuItem onSelect={() => void withdraw(item.id)}>
-                  <L.Undo2 className="h-4 w-4" />
-                  {t("associationDashboard.learningContent.actions.withdraw")}
-                </D.DropdownMenuItem>
-              )}
-
-              {item.status === AssociationLearningContentStatus.Draft && (
-                <ConfirmDialog
-                  isLoading={isMutating}
-                  confirmVariant="destructive"
-                  title={t(
-                    "associationDashboard.learningContent.confirm.deleteTitle",
-                  )}
-                  cancelText={t("associationDashboard.members.confirm.cancel")}
-                  confirmText={t(
-                    "associationDashboard.learningContent.confirm.deleteConfirm",
-                  )}
-                  description={t(
-                    "associationDashboard.learningContent.confirm.deleteBody",
-                    { title: item.title },
-                  )}
-                  onConfirm={() => remove(item.id)}
-                  trigger={
-                    <D.DropdownMenuItem
-                      variant="destructive"
-                      onSelect={(event) => event.preventDefault()}
-                    >
-                      <L.Trash2 className="h-4 w-4" />
-                      {t("associationDashboard.learningContent.actions.delete")}
-                    </D.DropdownMenuItem>
-                  }
-                />
-              )}
-            </D.DropdownMenuContent>
-          </D.DropdownMenu>
-        </div>
-      </div>
-
-      {item.description && (
-        <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">
-          {item.description}
-        </p>
-      )}
-
-      <div className="mt-3 flex flex-wrap gap-3 text-xs text-muted-foreground">
-        {item.indicativeCredits !== null &&
-          item.indicativeCredits !== undefined && (
-            <span>
-              {t("associationDashboard.learningContent.list.credits", {
-                credits: item.indicativeCredits,
-              })}
-            </span>
-          )}
-
-        {item.requirementName && (
-          <span>
-            {t("associationDashboard.learningContent.list.forRequirement", {
-              requirement: item.requirementName,
-            })}
-          </span>
-        )}
-
-        <span>
-          {audienceSummaryLabel(item.audienceKind, item.targets, t)}
-        </span>
-      </div>
-    </li>
-  );
-
-  if (isRefetching)
-    return (
-      <div className="mt-6 space-y-3" aria-busy="true">
-        {Array.from({ length: 4 }, (_, index) => (
-          <Skeleton key={index} className="h-32 w-full rounded-lg" />
-        ))}
-      </div>
-    );
-
-  if (items.length === 0)
-    return (
-      <div className="mt-6 rounded-md border border-dashed border-border p-10 text-center">
-        <L.LibraryBig className="mx-auto h-8 w-8 text-muted-foreground" />
-
-        <p className="mt-3 font-medium">
-          {t(
-            isFiltered
-              ? "associationDashboard.learningContent.empty.noResultsTitle"
-              : "associationDashboard.learningContent.empty.firstRunTitle",
-          )}
-        </p>
-
-        <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
-          {t(
-            isFiltered
-              ? "associationDashboard.learningContent.empty.noResultsBody"
-              : "associationDashboard.learningContent.empty.firstRunBody",
-          )}
-        </p>
-
-        {!isFiltered && (
-          <div className="mt-5 flex flex-wrap justify-center gap-3">
-            <Button radius="xl" type="button" onClick={openCreate}>
-              <L.Plus className="h-4 w-4" />
-              {t("associationDashboard.learningContent.actions.addContent")}
+  return (
+    <DataTable
+      rows={items}
+      isFiltered={isFiltered}
+      isFetching={isRefetching}
+      rowActions={actionsFor}
+      rowLabel={titleOf}
+      rowKey={(item) => item.id}
+      selectedRowKey={justPublishedId}
+      caption={t(`${KEY}.list.caption`)}
+      pagination={{
+        kind: "cursor",
+        page,
+        hasNextPage,
+        total: totalCount,
+        onNext: nextPage,
+        onPrevious: previousPage,
+      }}
+      empty={{
+        icon: L.LibraryBig,
+        title: t(`${KEY}.empty.firstRunTitle`),
+        description: t(`${KEY}.empty.firstRunBody`),
+        action: (
+          <>
+            <Button radius="lg" type="button" onClick={openCreate}>
+              <L.Plus aria-hidden />
+              {t(`${KEY}.actions.addContent`)}
             </Button>
-
             <Button
-              radius="xl"
+              radius="lg"
               type="button"
               variant="outline"
               onClick={openAssign}
             >
-              <L.Users className="h-4 w-4" />
-              {t("associationDashboard.learningContent.actions.assignContent")}
+              <L.Users aria-hidden />
+              {t(`${KEY}.actions.assignContent`)}
             </Button>
-          </div>
-        )}
-      </div>
-    );
-
-  return (
-    <>
-      <ul className="mt-6 space-y-3">{items.map(row)}</ul>
-
-      <ContentPagination
-        className="mt-6"
-        page={hook.page}
-        onNext={nextPage}
-        isLoading={isRefetching}
-        onPrevious={previousPage}
-        totalCount={hook.totalCount}
-        canPrevious={hook.canPrevious}
-        hasNextPage={hook.hasNextPage}
-      />
-    </>
+          </>
+        ),
+      }}
+      filteredEmpty={{
+        icon: L.SearchX,
+        title: t(`${KEY}.empty.noResultsTitle`),
+        description: t(`${KEY}.empty.noResultsBody`),
+        action: (
+          <Button
+            radius="lg"
+            type="button"
+            variant="outline"
+            onClick={resetFilters}
+          >
+            <L.FilterX aria-hidden />
+            {label("clear")}
+          </Button>
+        ),
+      }}
+      toolbar={
+        <DataTableFilters
+          isFiltered={isFiltered}
+          onReset={resetFilters}
+          search={{
+            value: search,
+            onChange: setSearch,
+            label: label("search"),
+            placeholder: label("searchPlaceholder"),
+          }}
+          filters={[
+            {
+              type: "select",
+              id: "category",
+              value: category,
+              defaultValue: ALL,
+              onChange: setCategory,
+              label: label("category"),
+              options: [
+                { value: ALL, label: label("allCategories") },
+                ...PDU_CATEGORIES.map((value) => ({
+                  value,
+                  label: humanizeEnumValue(value),
+                })),
+              ],
+            },
+            {
+              type: "select",
+              id: "status",
+              value: status,
+              defaultValue: ALL,
+              onChange: setStatus,
+              label: label("status"),
+              options: [
+                { value: ALL, label: label("allStatuses") },
+                ...STATUSES.map((value) => ({
+                  value,
+                  label: t(`${KEY}.status.${value}`),
+                })),
+              ],
+            },
+            {
+              type: "select",
+              id: "source",
+              value: source,
+              defaultValue: ALL,
+              onChange: setSource,
+              label: label("source"),
+              options: [
+                { value: ALL, label: label("allSources") },
+                ...SOURCES.map((value) => ({
+                  value,
+                  label: label(value === "EXTERNAL" ? "external" : "catalogue"),
+                })),
+              ],
+            },
+            {
+              type: "select",
+              id: "requirement",
+              value: requirementId,
+              defaultValue: ALL,
+              onChange: setRequirementId,
+              label: label("requirement"),
+              options: [
+                { value: ALL, label: label("allRequirements") },
+                ...requirementOptions,
+              ],
+            },
+          ]}
+        />
+      }
+      columns={[
+        {
+          id: "title",
+          mobile: "title",
+          header: column("title"),
+          className: "min-w-64 max-w-md whitespace-normal",
+          cell: (item) => (
+            <span className="block">
+              <span className="block font-medium">{titleOf(item)}</span>
+              {item.description ? (
+                <span className="mt-0.5 line-clamp-2 block text-xs font-normal text-muted-foreground">
+                  {item.description}
+                </span>
+              ) : null}
+            </span>
+          ),
+        },
+        {
+          id: "status",
+          mobile: "badge",
+          header: column("status"),
+          cell: (item) => (
+            <span className="flex flex-wrap items-center gap-1.5">
+              <Badge variant={STATUS_VARIANTS[item.status]}>
+                {t(`${KEY}.status.${item.status}`)}
+              </Badge>
+              {!item.isAvailable && (
+                <Badge variant="destructive">
+                  {t(`${KEY}.list.unavailable`)}
+                </Badge>
+              )}
+            </span>
+          ),
+        },
+        {
+          id: "source",
+          header: column("source"),
+          cell: (item) =>
+            item.isExternal
+              ? label("external")
+              : humanizeEnumValue(item.contentType ?? ""),
+        },
+        {
+          id: "provider",
+          className: "max-w-48",
+          header: column("provider"),
+          cell: (item) => (
+            <span className="block truncate">
+              {item.provider ?? t(`${KEY}.list.noProvider`)}
+            </span>
+          ),
+        },
+        {
+          id: "category",
+          header: column("category"),
+          cell: (item) =>
+            item.category
+              ? humanizeEnumValue(item.category)
+              : t(`${KEY}.list.uncategorised`),
+        },
+        {
+          id: "credits",
+          align: "end",
+          header: column("credits"),
+          cell: (item) => item.indicativeCredits ?? "—",
+        },
+        {
+          id: "audience",
+          mobile: "wide",
+          className: "max-w-64 whitespace-normal",
+          header: column("audience"),
+          cell: (item) => (
+            <span className="block text-muted-foreground">
+              {audienceSummaryLabel(item.audienceKind, item.targets, t)}
+              {item.requirementName ? (
+                <span className="block text-xs">
+                  {t(`${KEY}.list.forRequirement`, {
+                    requirement: item.requirementName,
+                  })}
+                </span>
+              ) : null}
+            </span>
+          ),
+        },
+        {
+          id: "added",
+          mobile: "hidden",
+          header: column("added"),
+          cell: (item) => date(item.createdAt as string),
+        },
+      ]}
+    />
   );
 };

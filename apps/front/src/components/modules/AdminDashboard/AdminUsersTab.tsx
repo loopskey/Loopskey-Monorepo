@@ -1,21 +1,23 @@
 "use client";
 
 import { DashboardStatCard } from "@modules/ProfessionalDashboard/parts/dashboard-stat-card";
-import { ContentPagination } from "@elements/pagination";
+import { DataTableFilters } from "@elements/data-table/data-table-filters";
 import { Role, UserStatus } from "@/lib/graphql/base";
 import { useAdminUsersTab } from "@/hooks/useAdminUserstab";
-import { useChartPalette } from "@hooks/useChartPalette";
-import { ConfirmDialog } from "@elements/confirm-dialog";
+import { LazyTrendChart } from "@elements/charts/lazy-trend-chart";
+import { ChartCard } from "@elements/charts/chart-frame";
+import { CHART_COLOR } from "@/utils/chart.util";
 import { formatDate } from "@/utils/function-helper";
+import { DataTable } from "@elements/data-table/data-table";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
-import { Switch } from "@ui/switch";
-import { Input } from "@ui/input";
 import { Badge } from "@ui/badge";
 
-import * as R from "recharts";
 import * as L from "lucide-react";
 import * as S from "@ui/select";
+
+const USERS = "adminDashboard.users";
+const ALL = "ALL";
 
 const roleOptions = [Role.Provider, Role.Professional];
 const statusOptions = [
@@ -25,8 +27,6 @@ const statusOptions = [
 ];
 
 const AdminUsersTab = () => {
-  const palette = useChartPalette();
-
   const {
     t,
     users,
@@ -40,6 +40,7 @@ const AdminUsersTab = () => {
     auditPage,
     userSearch,
     growthMode,
+    isGrowthLoading,
     refreshAll,
     userStatus,
     auditSearch,
@@ -56,8 +57,15 @@ const AdminUsersTab = () => {
     exportGrowthPng,
     usersTotalCount,
     changeUserStatus,
-    canPreviousUsers,
-    canPreviousAudit,
+    isUsersError,
+    isAuditError,
+    isUsersLoading,
+    isAuditLoading,
+    isUsersFetching,
+    isAuditFetching,
+    retryUsers,
+    retryAudit,
+    isMutating,
     hasNextUsersPage,
     hasNextAuditPage,
     previousUsersPage,
@@ -115,25 +123,55 @@ const AdminUsersTab = () => {
           title={t("adminDashboard.users.cards.premiumProviders")}
         />
       </section>{" "}
-      <GlassCard>
-        <div className="flex flex-col justify-between gap-3 lg:flex-row lg:items-center">
-          <div>
-            <h2 className="text-xl font-medium">
-              {t("adminDashboard.users.growth.title")}
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {t("adminDashboard.users.growth.description")}
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
+      <ChartCard
+        headingLevel="h2"
+        isLoading={isGrowthLoading}
+        isEmpty={growth.length === 0}
+        title={t("adminDashboard.users.growth.title")}
+        description={t("adminDashboard.users.growth.description")}
+        legend={[
+          {
+            id: "professionals",
+            kind: "line",
+            color: CHART_COLOR.series1,
+            label: t("adminDashboard.users.growth.professionals"),
+          },
+          {
+            id: "providers",
+            kind: "line",
+            color: CHART_COLOR.series2,
+            label: t("adminDashboard.users.growth.providers"),
+          },
+        ]}
+        table={{
+          caption: t("adminDashboard.users.growth.title"),
+          columns: [
+            t("adminDashboard.users.growth.period"),
+            t("adminDashboard.users.growth.professionals"),
+            t("adminDashboard.users.growth.providers"),
+          ],
+          rows: growth.map((point) => ({
+            id: point.date ?? point.label,
+            cells: [
+              point.label,
+              point.professionals.toLocaleString(),
+              point.providers.toLocaleString(),
+            ],
+          })),
+        }}
+        action={
+          <>
             <S.Select
               value={growthMode}
               onValueChange={(value) =>
-                setGrowthMode(value as "DAILY" | "MONTHLY")
+                setGrowthMode(value === "DAILY" ? "DAILY" : "MONTHLY")
               }
             >
-              <S.SelectTrigger className="w-40 rounded-md">
+              <S.SelectTrigger
+                size="sm"
+                className="w-32 rounded-lg"
+                aria-label={t("adminDashboard.users.growth.period")}
+              >
                 <S.SelectValue />
               </S.SelectTrigger>
               <S.SelectContent>
@@ -146,298 +184,280 @@ const AdminUsersTab = () => {
               </S.SelectContent>
             </S.Select>
             <Button
-              radius="xl"
+              size="sm"
+              radius="lg"
               type="button"
               variant="outline"
               onClick={exportGrowthPng}
             >
-              <L.Download className="h-4 w-4" />
+              <L.Download aria-hidden />
               {t("adminDashboard.users.growth.exportPng")}
             </Button>
-          </div>
+          </>
+        }
+      >
+        <div ref={chartRef} className="bg-card">
+          <LazyTrendChart
+            xKey="label"
+            data={growth}
+            label={t("adminDashboard.users.growth.title")}
+            formatValue={(value) => value.toLocaleString()}
+            series={[
+              {
+                key: "professionals",
+                color: CHART_COLOR.series1,
+                label: t("adminDashboard.users.growth.professionals"),
+              },
+              {
+                key: "providers",
+                color: CHART_COLOR.series2,
+                label: t("adminDashboard.users.growth.providers"),
+              },
+            ]}
+          />
         </div>
-
-        <div ref={chartRef} className="mt-6 h-80 rounded-lg bg-background p-4">
-          <R.ResponsiveContainer width="100%" height="100%">
-            <R.AreaChart data={growth}>
-              <R.CartesianGrid strokeDasharray="3 3" opacity={0.25} />
-              <R.XAxis dataKey="label" fontSize={12} />
-              <R.YAxis fontSize={12} />
-              <R.Tooltip />
-              <R.Legend />
-              <R.Area
-                type="monotone"
-                strokeWidth={3}
-                fill={palette[0]}
-                stroke={palette[0]}
-                fillOpacity={0.18}
-                dataKey="providers"
-                name={t("adminDashboard.users.growth.providers")}
-              />
-              <R.Area
-                fill={palette[2]}
-                type="monotone"
-                strokeWidth={3}
-                stroke={palette[2]}
-                fillOpacity={0.18}
-                dataKey="professionals"
-                name={t("adminDashboard.users.growth.professionals")}
-              />
-            </R.AreaChart>
-          </R.ResponsiveContainer>
-        </div>
-      </GlassCard>{" "}
+      </ChartCard>{" "}
       <GlassCard>
-        <div className="flex flex-col justify-between gap-3 lg:flex-row lg:items-end">
-          <div>
-            <h2 className="text-xl font-medium">
-              {t("adminDashboard.users.table.title")}
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {t("adminDashboard.users.table.description")}
-            </p>
-          </div>
+        <div className="mb-5">
+          <h2 className="text-xl font-medium">{t(`${USERS}.table.title`)}</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {t(`${USERS}.table.description`)}
+          </p>
         </div>
 
-        <div className="mt-6 grid gap-3 lg:grid-cols-4">
-          <div className="relative lg:col-span-1">
-            <L.Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={userSearch}
-              className="rounded-md pl-10"
-              placeholder={t("adminDashboard.users.filters.search")}
-              onChange={(event) => setUserSearch(event.target.value)}
+        <DataTable
+          rows={users}
+          onRetry={retryUsers}
+          isError={isUsersError}
+          isLoading={isUsersLoading}
+          isFetching={isUsersFetching}
+          rowKey={(user) => user.id}
+          caption={t(`${USERS}.table.title`)}
+          rowLabel={(user) => user.fullName ?? user.email ?? user.id}
+          isFiltered={
+            Boolean(userSearch) ||
+            userRole !== ALL ||
+            userStatus !== ALL ||
+            premiumOnly
+          }
+          empty={{ icon: L.UsersRound, title: t(`${USERS}.table.empty`) }}
+          pagination={{
+            kind: "cursor",
+            page: usersPage,
+            onNext: nextUsersPage,
+            total: usersTotalCount,
+            onPrevious: previousUsersPage,
+            hasNextPage: hasNextUsersPage,
+          }}
+          toolbar={
+            <DataTableFilters
+              onReset={() => {
+                setUserSearch("");
+                setUserRole(ALL);
+                setUserStatus(ALL);
+                setPremiumOnly(false);
+              }}
+              search={{
+                value: userSearch,
+                onChange: setUserSearch,
+                label: t(`${USERS}.filters.search`),
+                placeholder: t(`${USERS}.filters.search`),
+              }}
+              filters={[
+                {
+                  type: "select",
+                  id: "role",
+                  value: userRole,
+                  defaultValue: ALL,
+                  label: t(`${USERS}.table.role`),
+                  onChange: (value) =>
+                    setUserRole(
+                      roleOptions.find((role) => role === value) ?? ALL,
+                    ),
+                  options: [
+                    { value: ALL, label: t(`${USERS}.filters.allRoles`) },
+                    ...roleOptions.map((role) => ({
+                      value: role,
+                      label: t(`${USERS}.roles.${role}`),
+                    })),
+                  ],
+                },
+                {
+                  type: "select",
+                  id: "status",
+                  value: userStatus,
+                  defaultValue: ALL,
+                  label: t(`${USERS}.table.status`),
+                  onChange: (value) =>
+                    setUserStatus(
+                      statusOptions.find((status) => status === value) ?? ALL,
+                    ),
+                  options: [
+                    { value: ALL, label: t(`${USERS}.filters.allStatuses`) },
+                    ...statusOptions.map((status) => ({
+                      value: status,
+                      label: t(`${USERS}.statuses.${status}`),
+                    })),
+                  ],
+                },
+                {
+                  type: "toggle",
+                  id: "premium",
+                  value: premiumOnly,
+                  onChange: setPremiumOnly,
+                  label: t(`${USERS}.filters.premiumOnly`),
+                },
+              ]}
             />
-          </div>
-
-          <S.Select
-            value={userRole}
-            onValueChange={(value) => setUserRole(value as Role | "ALL")}
-          >
-            <S.SelectTrigger className="rounded-md">
-              <S.SelectValue />
-            </S.SelectTrigger>
-            <S.SelectContent>
-              <S.SelectItem value="ALL">
-                {t("adminDashboard.users.filters.allRoles")}
-              </S.SelectItem>
-              {roleOptions.map((role) => (
-                <S.SelectItem key={role} value={role}>
-                  {t(`adminDashboard.users.roles.${role}`)}
-                </S.SelectItem>
-              ))}
-            </S.SelectContent>
-          </S.Select>
-
-          <S.Select
-            value={userStatus}
-            onValueChange={(value) =>
-              setUserStatus(value as UserStatus | "ALL")
-            }
-          >
-            <S.SelectTrigger className="rounded-md">
-              <S.SelectValue />
-            </S.SelectTrigger>
-            <S.SelectContent>
-              <S.SelectItem value="ALL">
-                {t("adminDashboard.users.filters.allStatuses")}
-              </S.SelectItem>
-              {statusOptions.map((status) => (
-                <S.SelectItem key={status} value={status}>
-                  {t(`adminDashboard.users.statuses.${status}`)}
-                </S.SelectItem>
-              ))}
-            </S.SelectContent>
-          </S.Select>
-
-          <div className="flex items-center justify-between rounded-md border px-4">
-            <span className="text-sm font-medium">
-              {t("adminDashboard.users.filters.premiumOnly")}
-            </span>
-            <Switch checked={premiumOnly} onCheckedChange={setPremiumOnly} />
-          </div>
-        </div>
-        <div className="mt-6 overflow-hidden rounded-lg border">
-          <div className="hidden grid-cols-[1.2fr_0.8fr_0.8fr_0.8fr_0.9fr_0.8fr_1fr] gap-4 bg-muted/50 px-5 py-4 text-xs font-medium uppercase text-muted-foreground xl:grid">
-            <span>{t("adminDashboard.users.table.user")}</span>
-            <span>{t("adminDashboard.users.table.role")}</span>
-            <span>{t("adminDashboard.users.table.status")}</span>
-            <span>{t("adminDashboard.users.table.premium")}</span>
-            <span>{t("adminDashboard.users.table.joined")}</span>
-            <span>{t("adminDashboard.users.table.location")}</span>
-            <span>{t("adminDashboard.users.table.actions")}</span>
-          </div>
-
-          <div className="divide-y divide-border">
-            {users.length ? (
-              users.map((user) => (
-                <div
-                  key={user.id}
-                  className="grid gap-3 px-5 py-4 xl:grid-cols-[1.2fr_0.8fr_0.8fr_0.8fr_0.9fr_0.8fr_1fr] xl:items-center"
-                >
-                  <div>
-                    <p className="font-medium">{user.fullName ?? "-"}</p>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {user.email ?? "-"}
-                    </p>
-                  </div>
-                  <Badge variant="secondary" className="w-fit rounded-full">
-                    {t(`adminDashboard.users.roles.${user.role}`)}
-                  </Badge>
-                  <Badge variant="secondary" className="w-fit rounded-full">
-                    {t(`adminDashboard.users.statuses.${user.status}`)}
-                  </Badge>
-                  <span className="text-sm font-medium">
-                    {user.isPremium ? t("common.yes") : t("common.no")}
+          }
+          columns={[
+            {
+              id: "user",
+              mobile: "title",
+              header: t(`${USERS}.table.user`),
+              cell: (user) => (
+                <span className="block">
+                  <span className="block font-medium">
+                    {user.fullName ?? "-"}
                   </span>
-                  <span className="text-sm text-muted-foreground">
-                    {formatDate(user.createdAt)}
+                  <span className="block text-xs font-normal text-muted-foreground">
+                    {user.email ?? "-"}
                   </span>
-                  <span className="text-sm text-muted-foreground">
-                    {user.location ?? "-"}
-                  </span>
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      size="iconSm"
-                      radius="xl"
-                      variant="outline"
-                      disabled={isLoading}
-                      title={t("adminDashboard.users.actions.activate")}
-                      aria-label={t("adminDashboard.users.actions.activate")}
-                      onClick={() =>
-                        changeUserStatus(user.id, UserStatus.Active)
-                      }
-                    >
-                      <L.CheckCircle2 className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="iconSm"
-                      radius="xl"
-                      variant="cancel"
-                      disabled={isLoading}
-                      title={t("adminDashboard.users.actions.disable")}
-                      aria-label={t("adminDashboard.users.actions.disable")}
-                      onClick={() =>
-                        changeUserStatus(user.id, UserStatus.Disabled)
-                      }
-                    >
-                      <L.PowerOff className="h-4 w-4" />
-                    </Button>
-                    <ConfirmDialog
-                      isLoading={isLoading}
-                      title={t("adminDashboard.users.confirmDelete.title")}
-                      description={t(
-                        "adminDashboard.users.confirmDelete.description",
-                      )}
-                      confirmText={t("common.confirm")}
-                      cancelText={t("common.cancel")}
-                      confirmVariant="destructive"
-                      onConfirm={() => deleteUser(user.id)}
-                      trigger={
-                        <Button
-                          size="iconSm"
-                          radius="xl"
-                          variant="destructive"
-                          disabled={isLoading}
-                          title={t("adminDashboard.users.actions.delete")}
-                          aria-label={t("adminDashboard.users.actions.delete")}
-                        >
-                          <L.Trash2 className="h-4 w-4" />
-                        </Button>
-                      }
-                    />
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="p-8 text-center text-sm text-muted-foreground">
-                {t("adminDashboard.users.table.empty")}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <ContentPagination
-          page={usersPage}
-          className="mt-5"
-          isLoading={isLoading}
-          onNext={nextUsersPage}
-          totalCount={usersTotalCount}
-          onPrevious={previousUsersPage}
-          canPrevious={canPreviousUsers}
-          hasNextPage={hasNextUsersPage}
+                </span>
+              ),
+            },
+            {
+              id: "status",
+              mobile: "badge",
+              header: t(`${USERS}.table.status`),
+              cell: (user) => (
+                <Badge variant="secondary">
+                  {t(`${USERS}.statuses.${user.status}`)}
+                </Badge>
+              ),
+            },
+            {
+              id: "role",
+              header: t(`${USERS}.table.role`),
+              cell: (user) => t(`${USERS}.roles.${user.role}`),
+            },
+            {
+              id: "premium",
+              header: t(`${USERS}.table.premium`),
+              cell: (user) =>
+                user.isPremium ? t("common.yes") : t("common.no"),
+            },
+            {
+              id: "joined",
+              header: t(`${USERS}.table.joined`),
+              cell: (user) => formatDate(user.createdAt),
+            },
+            {
+              id: "location",
+              header: t(`${USERS}.table.location`),
+              cell: (user) => user.location ?? "-",
+            },
+          ]}
+          rowActions={(user) => [
+            {
+              id: "activate",
+              icon: L.CheckCircle2,
+              isDisabled: isMutating || user.status === UserStatus.Active,
+              label: t(`${USERS}.actions.activate`),
+              onSelect: () => changeUserStatus(user.id, UserStatus.Active),
+            },
+            {
+              id: "disable",
+              icon: L.PowerOff,
+              isDisabled: isMutating || user.status === UserStatus.Disabled,
+              label: t(`${USERS}.actions.disable`),
+              onSelect: () => changeUserStatus(user.id, UserStatus.Disabled),
+            },
+            {
+              id: "delete",
+              tone: "danger",
+              icon: L.Trash2,
+              isPending: isMutating,
+              label: t(`${USERS}.actions.delete`),
+              onSelect: () => deleteUser(user.id),
+              confirm: {
+                title: t(`${USERS}.confirmDelete.title`),
+                description: t(`${USERS}.confirmDelete.description`),
+                confirmLabel: t("common.confirm"),
+                cancelLabel: t("common.cancel"),
+              },
+            },
+          ]}
         />
       </GlassCard>
       <GlassCard>
-        <div className="flex items-start gap-3">
+        <div className="mb-5 flex items-start gap-3">
           <div className="rounded-md bg-primary/10 p-3 text-primary">
             <L.Activity className="h-5 w-5" />
           </div>
 
           <div>
-            <h2 className="text-xl font-medium">
-              {t("adminDashboard.users.audit.title")}
-            </h2>
+            <h2 className="text-xl font-medium">{t(`${USERS}.audit.title`)}</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              {t("adminDashboard.users.audit.description")}
+              {t(`${USERS}.audit.description`)}
             </p>
           </div>
         </div>
 
-        <div className="relative mt-6 max-w-md">
-          <L.Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={auditSearch}
-            className="rounded-md pl-10"
-            placeholder={t("adminDashboard.users.audit.search")}
-            onChange={(event) => setAuditSearch(event.target.value)}
-          />
-        </div>
-
-        <div className="mt-6 overflow-hidden rounded-lg border">
-          <div className="hidden grid-cols-[1fr_1fr_1fr_1fr] gap-4 bg-muted/50 px-5 py-4 text-xs font-medium uppercase text-muted-foreground lg:grid">
-            <span>{t("adminDashboard.users.audit.action")}</span>
-            <span>{t("adminDashboard.users.audit.actor")}</span>
-            <span>{t("adminDashboard.users.audit.entity")}</span>
-            <span>{t("adminDashboard.users.audit.date")}</span>
-          </div>
-
-          <div className="divide-y divide-border">
-            {auditLogs.length ? (
-              auditLogs.map((log) => (
-                <div
-                  key={log.id}
-                  className="grid gap-3 px-5 py-4 lg:grid-cols-[1fr_1fr_1fr_1fr]"
-                >
-                  <p className="font-medium">{log.action}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {log.actorEmail ?? "-"}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {log.entityType ?? "-"} / {log.entityId ?? "-"}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {formatDate(log.createdAt)}
-                  </p>
-                </div>
-              ))
-            ) : (
-              <div className="p-8 text-center text-sm text-muted-foreground">
-                {t("adminDashboard.users.audit.empty")}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <ContentPagination
-          page={auditPage}
-          className="mt-5"
-          isLoading={isLoading}
-          onNext={nextAuditPage}
-          totalCount={auditTotalCount}
-          onPrevious={previousAuditPage}
-          canPrevious={canPreviousAudit}
-          hasNextPage={hasNextAuditPage}
+        <DataTable
+          rows={auditLogs}
+          onRetry={retryAudit}
+          isError={isAuditError}
+          isLoading={isAuditLoading}
+          isFetching={isAuditFetching}
+          isFiltered={Boolean(auditSearch)}
+          rowKey={(log) => log.id}
+          caption={t(`${USERS}.audit.title`)}
+          empty={{ icon: L.Activity, title: t(`${USERS}.audit.empty`) }}
+          pagination={{
+            kind: "cursor",
+            page: auditPage,
+            onNext: nextAuditPage,
+            total: auditTotalCount,
+            onPrevious: previousAuditPage,
+            hasNextPage: hasNextAuditPage,
+          }}
+          toolbar={
+            <DataTableFilters
+              onReset={() => setAuditSearch("")}
+              search={{
+                value: auditSearch,
+                onChange: setAuditSearch,
+                label: t(`${USERS}.audit.search`),
+                placeholder: t(`${USERS}.audit.search`),
+              }}
+            />
+          }
+          columns={[
+            {
+              id: "action",
+              mobile: "title",
+              header: t(`${USERS}.audit.action`),
+              cell: (log) => <span className="font-medium">{log.action}</span>,
+            },
+            {
+              id: "actor",
+              header: t(`${USERS}.audit.actor`),
+              cell: (log) => log.actorEmail ?? "-",
+            },
+            {
+              id: "entity",
+              mobile: "wide",
+              header: t(`${USERS}.audit.entity`),
+              cell: (log) =>
+                `${log.entityType ?? "-"} / ${log.entityId ?? "-"}`,
+            },
+            {
+              id: "date",
+              header: t(`${USERS}.audit.date`),
+              cell: (log) => formatDate(log.createdAt),
+            },
+          ]}
         />
       </GlassCard>
     </div>

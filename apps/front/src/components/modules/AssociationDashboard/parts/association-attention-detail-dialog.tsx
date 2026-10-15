@@ -4,18 +4,17 @@ import { TAssociationAttentionDetailDialog } from "@/types/association-dashboard
 import { TAssociationAttentionMemberRow } from "@/types/association-dashboard.types";
 import { AssociationAttentionSection } from "@/lib/graphql/base";
 import { ASSOCIATION_BAND_VARIANTS } from "@utils/association-compliance-bands";
-import { AssociationReportTable } from "@modules/AssociationDashboard/parts/association-report-table";
-import { useRouter } from "next/navigation";
+import { DataTable } from "@elements/data-table/data-table";
 import { useState } from "react";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
 
-import * as API from "@lib/rtk/endpoints/association-dashboard.api";
 import * as REPORTS from "@utils/association-reports";
 import * as DIALOG from "@ui/dialog";
+import * as API from "@lib/rtk/endpoints/association-dashboard.api";
 import * as L from "lucide-react";
 
-import type { TReportColumn } from "@modules/AssociationDashboard/parts/association-report-table";
+import type { DataTableColumn } from "@/types/data-table.types";
 
 const PAGE_SIZE = 25;
 
@@ -24,7 +23,6 @@ type TRow = TAssociationAttentionMemberRow;
 export const AssociationAttentionDetailDialog = ({
   hook,
 }: TAssociationAttentionDetailDialog) => {
-  const router = useRouter();
   const { t, locale, viewingSection, closeDetails } = hook;
 
   const label = (key: string, vars?: Record<string, string | number>) =>
@@ -58,7 +56,7 @@ export const AssociationAttentionDetailDialog = ({
     closeDetails();
   };
 
-  const detailColumn = (): TReportColumn<TRow> => {
+  const detailColumn = (): DataTableColumn<TRow> => {
     if (viewingSection === AssociationAttentionSection.NewJoiners)
       return {
         id: "joined",
@@ -90,19 +88,21 @@ export const AssociationAttentionDetailDialog = ({
     };
   };
 
-  const columns: TReportColumn<TRow>[] = [
+  const columns: DataTableColumn<TRow>[] = [
     {
       id: "member",
+      mobile: "title",
+      className: "max-w-64",
       header: t("associationDashboard.reports.table.member"),
       cell: (row) => (
-        <div className="min-w-0">
-          <p className="truncate font-medium">
+        <span className="block min-w-0">
+          <span className="block truncate font-medium">
             {row.fullName ?? row.email ?? none}
-          </p>
-          <p className="truncate text-xs text-muted-foreground">
+          </span>
+          <span className="block truncate text-xs font-normal text-muted-foreground">
             {row.groupTitle ?? none}
-          </p>
-        </div>
+          </span>
+        </span>
       ),
     },
     detailColumn(),
@@ -147,37 +147,37 @@ export const AssociationAttentionDetailDialog = ({
           </DIALOG.DialogDescription>
         </DIALOG.DialogHeader>
 
-        <AssociationReportTable<TRow>
-          page={page}
-          pages={hasNextPage ? page + 1 : page}
-          total={totalCount}
-          sort=""
-          direction="asc"
+        <DataTable
           rows={rows}
           columns={columns}
           isLoading={query.isLoading}
+          isFetching={query.isFetching}
+          rowKey={(row) => row.memberId}
+          rowLabel={(row) => row.fullName ?? row.email ?? row.memberId}
           caption={
             viewingSection ? label(`sections.${viewingSection}.title`) : ""
           }
-          emptyLabel={label("detail.empty")}
-          rowKey={(row) => row.memberId}
-          sortLabel={() => ""}
-          onSort={() => {}}
-          onPage={(next) => {
-            if (next > page) {
+          empty={{ icon: L.UserCheck, title: label("detail.empty") }}
+          pagination={{
+            kind: "cursor",
+            page,
+            hasNextPage,
+            total: totalCount,
+            onNext: () => {
               const nextCursor = query.data?.pageInfo?.nextCursor;
               if (nextCursor)
                 setCursorStack((current) => [...current, nextCursor]);
-            } else {
-              setCursorStack((current) => current.slice(0, -1));
-            }
+            },
+            onPrevious: () => setCursorStack((current) => current.slice(0, -1)),
           }}
-          onOpenRow={(row) =>
-            router.push(
-              `/dashboard/association?tab=members&memberId=${row.memberId}`,
-            )
-          }
-          openLabel={() => label("detail.viewMember")}
+          rowActions={(row) => [
+            {
+              id: "open",
+              icon: L.UserSearch,
+              label: label("detail.viewMember"),
+              href: `/dashboard/association?tab=members&memberId=${row.memberId}`,
+            },
+          ]}
         />
 
         <DIALOG.DialogFooter>

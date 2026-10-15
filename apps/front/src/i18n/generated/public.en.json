@@ -1463,6 +1463,8 @@
         "downloadError": "Could not download that file.",
         "emptyDescription": "Add your first activity to start tracking your continuing professional development.",
         "emptyTitle": "No learning activities yet",
+        "errorDescription": "Check your connection and try again.",
+        "errorTitle": "Activities could not load",
         "noMatchDescription": "Try widening your search, or clear the filters to see every activity.",
         "noMatchTitle": "No activities match your filters",
         "subtitle": "Manage every learning activity you have recorded.",
@@ -1553,9 +1555,21 @@
         "TRAINING_HOUR": "Training Hour"
       },
       "cycleProgress": {
+        "ahead": "{{amount}} ahead of pace",
+        "behind": "{{amount}} behind pace",
+        "byCategory": "By category",
+        "category": "Category",
+        "due": "Due",
+        "earned": "Earned",
+        "expectedToday": "Expected today",
+        "onPace": "On pace",
+        "perMonth": "Needed per month",
+        "remaining": "Remaining",
+        "required": "Required",
         "subtitle": "Earned versus required credits for your current plan",
         "summary": "Earned {{earned}} of {{total}} {{credit}} ({{percent}}%).",
-        "title": "Cycle Progress"
+        "title": "Cycle Progress",
+        "total": "Total"
       },
       "detail": {
         "approvalStatus": "Approval status",

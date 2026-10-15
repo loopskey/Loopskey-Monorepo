@@ -4,6 +4,7 @@ import { TAssociationLearningStepContent } from "@/types/association-dashboard.t
 import { AssociationLearningExternalType } from "@/lib/graphql/base";
 import { formatDurationMinutes } from "@utils/content-source.helper";
 import { getContentTypeStyle } from "@/utils/content-type-style";
+import { DataTablePagination } from "@elements/data-table/data-table-pagination";
 import { FloatingInputField } from "@elements/floating-input";
 import { humanizeEnumValue } from "@utils/function-helper";
 import { ContentType } from "@/lib/graphql/base";
@@ -11,6 +12,7 @@ import { GlassCard } from "@elements/glass-card";
 import { Skeleton } from "@ui/skeleton";
 import { Button } from "@ui/button";
 import { Input } from "@ui/input";
+import { useRef } from "react";
 
 import * as S from "@ui/select";
 import * as L from "lucide-react";
@@ -58,6 +60,17 @@ export const AssociationLearningStepContent = ({
     pickedTitle,
     catalogSearch,
     catalogResults,
+    isCatalogSearchShort,
+    isCatalogError,
+    isCatalogCursorError,
+    catalogPage,
+    catalogTotalCount,
+    catalogHasNextPage,
+    catalogCanPrevious,
+    catalogNextPage,
+    catalogPreviousPage,
+    catalogRestart,
+    catalogRetry,
     setCatalogType,
     switchToManual,
     pickCatalogItem,
@@ -73,6 +86,11 @@ export const AssociationLearningStepContent = ({
     t(`${KEY}.${key}`, params);
 
   const hasSelection = !isExternal && Boolean(selectedContentId);
+  const resultsRef = useRef<HTMLUListElement>(null);
+  const turnPage = (turn: () => void) => {
+    turn();
+    resultsRef.current?.scrollTo({ top: 0 });
+  };
 
   return (
     <div className="space-y-4">
@@ -129,7 +147,10 @@ export const AssociationLearningStepContent = ({
                       />
                     </div>
 
-                    <S.Select value={catalogType} onValueChange={setCatalogType}>
+                    <S.Select
+                      value={catalogType}
+                      onValueChange={setCatalogType}
+                    >
                       <S.SelectTrigger
                         className="w-40 rounded-md"
                         aria-label={label("contentType")}
@@ -160,7 +181,14 @@ export const AssociationLearningStepContent = ({
                   </Button>
                 </div>
 
-                {isCatalogLoading ? (
+                {isCatalogSearchShort ? (
+                  <p
+                    role="status"
+                    className="p-4 text-sm text-muted-foreground"
+                  >
+                    {label("searchMinimum")}
+                  </p>
+                ) : isCatalogLoading ? (
                   <div className="space-y-2" aria-busy="true">
                     {Array.from({ length: 3 }, (_, index) => (
                       <Skeleton
@@ -168,6 +196,30 @@ export const AssociationLearningStepContent = ({
                         className="h-20 w-full rounded-md"
                       />
                     ))}
+                  </div>
+                ) : isCatalogError ? (
+                  <div
+                    role="alert"
+                    className="rounded-md border border-destructive/30 p-4 text-sm"
+                  >
+                    <p>
+                      {label(
+                        isCatalogCursorError ? "searchExpired" : "searchFailed",
+                      )}
+                    </p>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className="mt-3"
+                      onClick={
+                        isCatalogCursorError ? catalogRestart : catalogRetry
+                      }
+                    >
+                      {label(
+                        isCatalogCursorError ? "searchRestart" : "searchRetry",
+                      )}
+                    </Button>
                   </div>
                 ) : catalogResults.length === 0 ? (
                   <div className="rounded-md border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
@@ -184,60 +236,85 @@ export const AssociationLearningStepContent = ({
                     </Button>
                   </div>
                 ) : (
-                  <ul className="max-h-80 space-y-2 overflow-y-auto pr-1">
-                    {catalogResults.map((item) => {
-                      const style = getContentTypeStyle(item.contentType);
-                      const TypeIcon = style.icon;
-                      const meta = metaLine(t, item);
+                  <div className="space-y-3">
+                    <p role="status" className="text-xs text-muted-foreground">
+                      {label("resultsCount", { count: catalogTotalCount })}
+                    </p>
+                    <ul
+                      ref={resultsRef}
+                      className="max-h-[28rem] space-y-2 overflow-y-auto pr-1"
+                      aria-label={label("libraryTitle")}
+                    >
+                      {catalogResults.map((item) => {
+                        const style = getContentTypeStyle(item.contentType);
+                        const TypeIcon = style.icon;
+                        const meta = metaLine(t, item);
 
-                      return (
-                        <li
-                          key={`${item.contentType}:${item.contentId}`}
-                          className="flex flex-col gap-3 rounded-md border p-3 sm:flex-row sm:items-start"
-                        >
-                          <span
-                            className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md ${style.softClass}`}
+                        return (
+                          <li
+                            key={`${item.contentType}:${item.contentId}`}
+                            className="flex flex-col gap-3 rounded-md border p-3 sm:flex-row sm:items-start"
                           >
-                            <TypeIcon className="h-4 w-4" aria-hidden />
-                          </span>
+                            <span
+                              className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md ${style.softClass}`}
+                            >
+                              <TypeIcon className="h-4 w-4" aria-hidden />
+                            </span>
 
-                          <div className="min-w-0 flex-1">
-                            <p className="truncate font-medium">{item.title}</p>
-                            <p className="truncate text-xs text-muted-foreground">
-                              {item.provider}
-                            </p>
-                            {meta ? (
-                              <p className="mt-1 text-xs text-muted-foreground">
-                                {meta}
+                            <div className="min-w-0 flex-1">
+                              <p className="truncate font-medium">
+                                {item.title}
                               </p>
-                            ) : null}
-                          </div>
+                              <p className="truncate text-xs text-muted-foreground">
+                                {item.provider}
+                              </p>
+                              {meta ? (
+                                <p className="mt-1 text-xs text-muted-foreground">
+                                  {meta}
+                                </p>
+                              ) : null}
+                            </div>
 
-                          <div className="flex items-center gap-2 sm:shrink-0">
-                            <Button
-                              size="sm"
-                              radius="xl"
-                              type="button"
-                              variant="outline"
-                              className="flex-1 sm:flex-initial"
-                              onClick={() => openDetailsSheet(item)}
-                            >
-                              {label("details")}
-                            </Button>
-                            <Button
-                              size="sm"
-                              radius="xl"
-                              type="button"
-                              className="flex-1 sm:flex-initial"
-                              onClick={() => pickCatalogItem(item)}
-                            >
-                              {label("useThis")}
-                            </Button>
-                          </div>
-                        </li>
-                      );
-                    })}
-                  </ul>
+                            <div className="flex items-center gap-2 sm:shrink-0">
+                              <Button
+                                size="sm"
+                                radius="xl"
+                                type="button"
+                                variant="outline"
+                                className="flex-1 sm:flex-initial"
+                                onClick={() => openDetailsSheet(item)}
+                              >
+                                {label("details")}
+                              </Button>
+                              <Button
+                                size="sm"
+                                radius="xl"
+                                type="button"
+                                className="flex-1 sm:flex-initial"
+                                onClick={() => pickCatalogItem(item)}
+                              >
+                                {label("useThis")}
+                              </Button>
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                    {catalogHasNextPage || catalogCanPrevious ? (
+                      <DataTablePagination
+                        isBusy={isCatalogLoading}
+                        rowCount={catalogResults.length}
+                        pagination={{
+                          kind: "cursor",
+                          page: catalogPage,
+                          total: catalogTotalCount,
+                          hasNextPage: catalogHasNextPage,
+                          onNext: () => turnPage(catalogNextPage),
+                          onPrevious: () => turnPage(catalogPreviousPage),
+                        }}
+                      />
+                    ) : null}
+                  </div>
                 )}
               </>
             )}

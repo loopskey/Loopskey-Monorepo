@@ -11,6 +11,7 @@ import * as R from "@utils/association-reports";
 import * as X from "@utils/association-report-exports";
 
 import type { AssociationReportFormat } from "@/lib/graphql/base";
+import type { DataTableSort } from "@/types/data-table.types";
 
 const SCROLL_KEY_PREFIX = "association-reports-scroll:";
 
@@ -254,11 +255,8 @@ export const useAssociationReportsTab = () => {
 
   const setBand = (next: string) => goTo({ band: next });
 
-  const toggleSort = (column: string) =>
-    goTo({
-      sort: column,
-      direction: sort === column && direction === "desc" ? "asc" : "desc",
-    });
+  const setSort = (next: DataTableSort) =>
+    goTo({ sort: next.id, direction: next.direction });
 
   const setPage = (next: number) =>
     router.push(R.associationReportHref({ ...view, page: next }));
@@ -290,6 +288,20 @@ export const useAssociationReportsTab = () => {
     [direction, page, sort],
   );
 
+  const reportTable = (total: number, pages: number) => ({
+    isLoading: !isReportSettled,
+    onSortChange: setSort,
+    sort: sort ? { id: sort, direction } : undefined,
+    pagination: {
+      kind: "pages" as const,
+      page,
+      total,
+      pageCount: pages,
+      onPageChange: setPage,
+      pageSize: R.REPORT_ROWS_PER_PAGE,
+    },
+  });
+
   const retry = () => {
     void overviewQuery.refetch();
     if (reportQuery !== overviewQuery) void reportQuery.refetch();
@@ -313,7 +325,8 @@ export const useAssociationReportsTab = () => {
     openMember,
     openReport,
     filterInput,
-    toggleSort,
+    setSort,
+    reportTable,
     closeReport,
     resetFilter,
     groupOptions,

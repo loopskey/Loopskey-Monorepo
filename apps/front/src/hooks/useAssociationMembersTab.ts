@@ -54,9 +54,9 @@ export const useAssociationMembersTab = () => {
 
   const [isAssignPickerOpen, setAssignPickerOpen] = useState(false);
   const [assignPickerSearch, setAssignPickerSearch] = useState("");
-  const [assignRequirementId, setAssignRequirementId] = useState<
-    string | null
-  >(null);
+  const [assignRequirementId, setAssignRequirementId] = useState<string | null>(
+    null,
+  );
   const [assignAudienceKind, setAssignAudienceKind] =
     useState<AssociationAudienceKind>(AssociationAudienceKind.AllMembers);
   const [assignGroupIds, setAssignGroupIds] = useState<string[]>([]);
@@ -116,6 +116,8 @@ export const useAssociationMembersTab = () => {
     { skip: !isAssignPickerOpen },
   );
 
+  const [resendInvitation, resendState] =
+    API.useResendAssociationMemberInvitationMutation();
   const [inviteMember, inviteState] = API.useInviteAssociationMemberMutation();
   const [lookupEmail, lookupState] =
     API.useLazyAssociationMemberEmailLookupQuery();
@@ -159,7 +161,8 @@ export const useAssociationMembersTab = () => {
       (requirementsQuery.data?.items ?? [])
         .filter(
           (requirement) =>
-            requirement.audienceKind === AssociationAudienceKind.SpecificMembers,
+            requirement.audienceKind ===
+            AssociationAudienceKind.SpecificMembers,
         )
         .map((requirement) => ({
           id: requirement.id,
@@ -282,6 +285,16 @@ export const useAssociationMembersTab = () => {
       failWith(error);
     }
   });
+
+  const resendMemberInvitation = async (memberId: string) => {
+    if (resendState.isLoading) return;
+    try {
+      await resendInvitation({ memberId }).unwrap();
+      notify.success(t("associationDashboard.members.invite.resendQueued"));
+    } catch (error) {
+      failWith(error);
+    }
+  };
 
   const closeInvite = () => {
     if (inviteState.isLoading) return;
@@ -518,6 +531,8 @@ export const useAssociationMembersTab = () => {
     hasNoMembers: (statsQuery.data?.totalMembers ?? 0) === 0,
     hasNextPage: Boolean(membersQuery.data?.pageInfo?.hasNextPage),
     isInviting: inviteState.isLoading,
+    resendMemberInvitation,
+    isResendingInvitation: resendState.isLoading,
     isUploadOpen,
     openUpload,
     closeUpload,

@@ -118,11 +118,6 @@ export const buildCategoryAllocation = (
   };
 };
 
-export const allocationChartRow = (allocation: TCategoryAllocation) =>
-  Object.fromEntries(
-    allocation.segments.map((segment) => [segment.id, segment.credits]),
-  ) as Record<string, number>;
-
 export const toDateInputValue = (value: string | null | undefined) => {
   if (!value) return "";
   const parsed = new Date(value);

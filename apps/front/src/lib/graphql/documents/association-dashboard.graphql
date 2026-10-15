@@ -101,6 +101,13 @@ fragment AssociationMemberGroupFields on AssociationMemberGroup {
 }
 
 fragment AssociationMemberFields on AssociationMember {
+  invitationDelivery {
+    id
+    state
+    createdAt
+    sentAt
+    failureReason
+  }
   id
   userId
   fullName
@@ -522,17 +529,24 @@ query AssociationLearningContentMembers($learningContentId: ID!) {
 }
 
 query AssociationCatalogSearch($input: AssociationCatalogSearchInput!) {
-  associationCatalogSearch(input: $input) {
-    contentType
-    contentId
-    title
-    slug
-    level
-    provider
-    imageUrl
-    isAvailable
-    durationMinutes
-    indicativeCredits
+  associationCatalogSearch: associationCatalogSearchPage(input: $input) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      nextCursor
+    }
+    items {
+      contentType
+      contentId
+      title
+      slug
+      level
+      provider
+      imageUrl
+      isAvailable
+      durationMinutes
+      indicativeCredits
+    }
   }
 }
 

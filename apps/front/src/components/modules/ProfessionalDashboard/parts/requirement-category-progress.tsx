@@ -2,7 +2,7 @@
 
 import { GlassCard } from "@elements/glass-card";
 import { Skeleton } from "@ui/skeleton";
-import { Progress } from "@ui/progress";
+import { BarList } from "@elements/charts/bar-list";
 
 import type { TRequirementCategoryProgressProps } from "@/types/professional-requirement.types";
 
@@ -28,23 +28,23 @@ export const RequirementCategoryProgress = ({
         {t(`${KEY}.categoriesEmpty`)}
       </p>
     ) : (
-      <ul className="space-y-3">
-        {categories.map((category) => (
-          <li key={category.id} className="space-y-1.5">
-            <div className="flex items-center justify-between gap-3 text-sm">
-              <span className="min-w-0 truncate">{category.name}</span>
-              <span className="shrink-0 tabular-nums text-muted-foreground">
-                {t(`${KEY}.categoryProgress`, {
-                  completed: category.completed,
-                  required: category.required,
-                  credit: creditLabel,
-                })}
-              </span>
-            </div>
-            <Progress value={Math.min(category.percent, 100)} className="h-1.5" />
-          </li>
-        ))}
-      </ul>
+      <BarList
+        label={t(`${KEY}.categoriesTitle`)}
+        valueName={t(`${KEY}.categoryCompleted`)}
+        targetName={t(`${KEY}.categoryRequired`)}
+        formatValue={(value) => value.toLocaleString()}
+        rows={categories.map((category) => ({
+          id: category.id,
+          label: category.name,
+          value: category.completed,
+          target: category.required,
+          valueLabel: t(`${KEY}.categoryProgress`, {
+            completed: category.completed,
+            required: category.required,
+            credit: creditLabel,
+          }),
+        }))}
+      />
     )}
   </GlassCard>
 );

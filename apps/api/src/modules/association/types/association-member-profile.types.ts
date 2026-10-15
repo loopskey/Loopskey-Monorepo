@@ -1,7 +1,9 @@
+import { MEMBER_INVITATION_DELIVERIES } from "@association/types/association-invitation-delivery.types";
 import { AssociationAttributionState } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 
 export const PROFILE_MEMBER_SELECT = {
+  messageDeliveries: MEMBER_INVITATION_DELIVERIES,
   id: true,
   userId: true,
   memberNumber: true,

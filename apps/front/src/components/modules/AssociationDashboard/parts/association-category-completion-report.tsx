@@ -3,43 +3,17 @@
 import { TAssociationCategoryCompletionReport } from "@/types/association-dashboard.types";
 import { TAssociationCategoryReportRow } from "@/types/association-dashboard.types";
 import { AssociationReportSummaryStrip } from "@modules/AssociationDashboard/parts/association-report-summary-strip";
-import { AssociationReportTable } from "@modules/AssociationDashboard/parts/association-report-table";
-import { useChartPalette } from "@hooks/useChartPalette";
-import { Skeleton } from "@ui/skeleton";
-
-import dynamic from "next/dynamic";
+import { DataTable } from "@elements/data-table/data-table";
 
 import * as REPORTS from "@utils/association-reports";
-
-const CategoryCompletionChart = dynamic(
-  () =>
-    import(
-      "@modules/AssociationDashboard/parts/association-report-drilldown-charts"
-    ).then((module) => module.CategoryCompletionChart),
-  {
-    ssr: false,
-    loading: () => <Skeleton className="h-72 w-full rounded-md" />,
-  },
-);
+import * as C from "@modules/AssociationDashboard/parts/association-report-charts";
+import * as L from "lucide-react";
 
 export const AssociationCategoryCompletionReport = ({
   hook,
 }: TAssociationCategoryCompletionReport) => {
-  const palette = useChartPalette();
-
-  const {
-    t,
-    page,
-    sort,
-    locale,
-    setPage,
-    summary,
-    direction,
-    toggleSort,
-    orderAndPage,
-    isReportLoading,
-    categoryCompletion,
-  } = hook;
+  const { t, locale, summary, reportTable, orderAndPage, categoryCompletion } =
+    hook;
 
   const label = (key: string, vars?: Record<string, string | number>) =>
     t(`associationDashboard.reports.${key}`, vars);
@@ -82,27 +56,23 @@ export const AssociationCategoryCompletionReport = ({
         ]}
       />
 
-      <CategoryCompletionChart
+      <C.CategoryCompletionChart
         label={label}
         locale={locale}
-        palette={palette}
         rows={categoryCompletion}
+        chrome={{
+          title: label("categoryChart.title"),
+          description: label("categoryChart.description"),
+          headingLevel: "h2",
+        }}
       />
 
-      <AssociationReportTable
-        page={page}
-        sort={sort}
-        pages={pages}
-        total={total}
+      <DataTable
+        {...reportTable(total, pages)}
         rows={pageRows}
-        onPage={setPage}
-        onSort={toggleSort}
-        direction={direction}
-        isLoading={isReportLoading}
-        emptyLabel={label("table.empty")}
         caption={label("names.category-completion")}
-        sortLabel={(header) => label("table.sort", { column: header })}
         rowKey={(row) => `${row.requirementId}:${row.categoryId}`}
+        empty={{ icon: L.TableProperties, title: label("table.empty") }}
         columns={[
           {
             id: "categoryName",

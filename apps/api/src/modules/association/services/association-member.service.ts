@@ -1,3 +1,4 @@
+import { MEMBER_INVITATION_DELIVERIES } from "@association/types/association-invitation-delivery.types";
 import { AssociationLearningContentRecipientService } from "@association/services/association-learning-content-recipient.service";
 import { AssociationRequirementAssignmentService } from "@association/services/association-requirement-assignment.service";
 import { ResendAssociationMemberInvitationInput } from "@association/dtos/resend-association-member-invitation.input";
@@ -60,6 +61,7 @@ const HELD_BACK_CODE: Partial<
 };
 
 const MEMBER_SELECT = {
+  messageDeliveries: MEMBER_INVITATION_DELIVERIES,
   id: true,
   userId: true,
   memberNumber: true,
@@ -79,7 +81,8 @@ type MemberRecord = Prisma.AssociationMemberGetPayload<{
   select: typeof MEMBER_SELECT;
 }>;
 
-const project = ({ user, ...member }: MemberRecord) => ({
+const project = ({ user, messageDeliveries, ...member }: MemberRecord) => ({
+  invitationDelivery: messageDeliveries?.[0] ?? null,
   ...member,
   fullName: user.fullName,
   email: user.email,

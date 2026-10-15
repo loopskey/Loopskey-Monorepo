@@ -327,7 +327,9 @@
         "reason": "Motif : {{note}}"
       },
       "loadError": "Nous n’avons pas pu charger vos exigences.",
-      "retry": "Réessayer"
+      "retry": "Réessayer",
+      "categoryCompleted": "Obtenus",
+      "categoryRequired": "Requis"
     },
     "fromAssociation": {
       "title": "De votre association",
@@ -342,6 +344,51 @@
       "requirement": "Compte pour {{requirement}}",
       "opensExternally": "Ceci ouvre un site externe en dehors de Loopskey.",
       "openLink": "Ouvrir le lien"
+    }
+  },
+  "chart": {
+    "showTable": "Tableau",
+    "showChart": "Graphique",
+    "empty": "Aucune donnée pour cette vue pour l’instant.",
+    "value": "Valeur",
+    "total": "Total",
+    "share": "Part"
+  },
+  "dataTable": {
+    "actions": "Actions",
+    "actionFor": "{{action}} : {{name}}",
+    "moreActions": "Plus d’actions",
+    "sort": "Trier",
+    "sortDescription": "Choisissez la colonne et l’ordre de tri des résultats.",
+    "sortColumn": "Colonne de tri",
+    "sortDirection": "Ordre de tri",
+    "sortedBy": "Trié par {{column}}, {{direction}}",
+    "defaultOrder": "Ordre par défaut",
+    "direction": {
+      "asc": "Croissant",
+      "desc": "Décroissant"
+    },
+    "done": "Terminé",
+    "filters": "Filtres",
+    "filtersDescription": "Affinez les résultats. Les modifications s’appliquent immédiatement.",
+    "activeFilters": "Filtres actifs",
+    "removeFilter": "Retirer le filtre {{filter}}",
+    "reset": "Réinitialiser",
+    "clearAll": "Tout effacer",
+    "showResults": "Voir les résultats",
+    "updating": "Mise à jour des résultats",
+    "pagination": "Pagination",
+    "range": "{{from}}–{{to}} sur {{total}}",
+    "page": "Page {{page}}",
+    "total": "{{total}} au total",
+    "previous": "Page précédente",
+    "next": "Page suivante",
+    "goToPage": "Aller à la page {{page}}",
+    "rowsPerPage": "Lignes par page",
+    "error": {
+      "title": "Impossible de charger ces données",
+      "description": "Vérifiez votre connexion et réessayez.",
+      "retry": "Réessayer"
     }
   },
   "common": {
@@ -1060,7 +1107,9 @@
       {
         "id": "how-we-use-information",
         "title": "Comment nous utilisons les informations",
-        "paragraphs": ["Nous utilisons vos informations pour :"],
+        "paragraphs": [
+          "Nous utilisons vos informations pour :"
+        ],
         "bullets": [
           "Créer et gérer les comptes utilisateurs.",
           "Personnaliser les recommandations de formation et les feuilles de route générées par l’IA.",
@@ -1293,7 +1342,9 @@
       {
         "id": "acceptable-use",
         "title": "Utilisation acceptable",
-        "paragraphs": ["Vous acceptez de ne pas :"],
+        "paragraphs": [
+          "Vous acceptez de ne pas :"
+        ],
         "bullets": [
           "Utiliser la plateforme à des fins illégales, nuisibles ou frauduleuses.",
           "Téléverser des logiciels malveillants, extraire des données ou tenter de contourner les mesures de sécurité.",
@@ -4023,7 +4074,19 @@
       "cycleProgress": {
         "title": "Progression du cycle",
         "subtitle": "Crédits obtenus par rapport aux crédits requis pour votre plan actuel",
-        "summary": "{{earned}} sur {{total}} {{credit}} obtenus ({{percent}} %)."
+        "summary": "{{earned}} sur {{total}} {{credit}} obtenus ({{percent}} %).",
+        "earned": "Obtenus",
+        "required": "Requis",
+        "total": "Total",
+        "category": "Catégorie",
+        "expectedToday": "Attendu à ce jour",
+        "onPace": "Dans les temps",
+        "ahead": "{{amount}} d’avance sur le rythme",
+        "behind": "{{amount}} de retard sur le rythme",
+        "remaining": "Restants",
+        "due": "Échéance",
+        "perMonth": "Nécessaire par mois",
+        "byCategory": "Par catégorie"
       },
       "actions": {
         "view": "Voir les détails de l’activité",
@@ -4077,7 +4140,9 @@
         "deleteTitle": "Supprimer cette activité ?",
         "deleteDescription": "Cette action supprime définitivement l’activité et tous les fichiers de preuve associés.",
         "deleteSuccess": "Activité supprimée avec succès.",
-        "downloadError": "Impossible de télécharger ce fichier."
+        "downloadError": "Impossible de télécharger ce fichier.",
+        "errorTitle": "Impossible de charger les activités",
+        "errorDescription": "Vérifiez votre connexion et réessayez."
       },
       "filters": {
         "any": "Tous",
@@ -5690,14 +5755,25 @@
         "submit": "Envoyer l'invitation",
         "linkedTitle": "Compte existant trouvé et rattaché",
         "linkedBody": "{{name}} possédait déjà un compte Loopskey : la personne a rejoint votre association immédiatement, sans e-mail d'invitation.",
-        "sentTitle": "Invitation envoyée",
-        "sentBody": "Une invitation est en route vers {{email}}. {{name}} deviendra membre actif dès l'activation de son compte.",
-        "cooldownTitle": "Invitation envoyée récemment",
-        "cooldownBody": "{{name}} figure dans votre liste. Une invitation est partie vers {{email}} il y a un instant, aucune nouvelle n'a donc été envoyée. Renvoyez-la depuis sa fiche plus tard si elle n'arrive pas.",
+        "sentTitle": "Invitation en attente",
+        "sentBody": "Une invitation pour {{name}} a été mise en file pour {{email}}. Consultez son état dans Membres. Le compte sera actif après acceptation du lien.",
+        "cooldownTitle": "Invitation récemment demandée",
+        "cooldownBody": "{{name}} figure dans votre liste. Une invitation pour {{email}} a été demandée récemment. Consultez son état ou renvoyez-la depuis Membres après le délai.",
         "limitTitle": "Limite quotidienne d'invitations atteinte",
         "limitBody": "{{name}} figure dans votre liste, mais {{email}} a reçu le nombre maximal d'invitations autorisé aujourd'hui. Renvoyez-la depuis sa fiche demain.",
         "inviteAnother": "Inviter quelqu'un d'autre",
-        "done": "Terminé"
+        "done": "Terminé",
+        "resend": "Renvoyer l’invitation",
+        "resendQueued": "Une nouvelle invitation a été mise en file.",
+        "delivery": {
+          "QUEUED": "En attente d’envoi",
+          "RETRYING": "Nouvelle tentative en cours",
+          "SENT": "Acceptée par le service de messagerie",
+          "FAILED": "Échec de l’envoi",
+          "SKIPPED": "Invitation remplacée ou devenue inutile",
+          "UNKNOWN": "Aucun envoi enregistré",
+          "sentHint": "L’acceptation par le service ne confirme pas la réception. Vérifiez les indésirables ou renvoyez l’invitation."
+        }
       },
       "bulk": {
         "title": "Importer la liste des membres",
@@ -5811,6 +5887,9 @@
         "cycleLengthRequired": "Un cycle pluriannuel doit avoir une durée en années.",
         "cycleLengthNotAllowed": "Seul un cycle pluriannuel comporte une durée.",
         "publishValidationFailed": "Cette exigence n'est pas prête à être publiée."
+      },
+      "chart": {
+        "ungrouped": "Sans groupe"
       }
     },
     "memberDetail": {
@@ -6406,7 +6485,18 @@
         "forRequirement": "Compte pour {{requirement}}",
         "uncategorised": "Sans catégorie",
         "unavailable": "Plus disponible",
-        "actionsFor": "Actions pour {{title}}"
+        "actionsFor": "Actions pour {{title}}",
+        "caption": "Bibliothèque de formation",
+        "columns": {
+          "title": "Contenu",
+          "status": "Statut",
+          "source": "Source",
+          "provider": "Fournisseur",
+          "category": "Catégorie",
+          "credits": "Crédits",
+          "audience": "Public",
+          "added": "Ajouté"
+        }
       },
       "empty": {
         "firstRunTitle": "Votre bibliothèque est vide",
@@ -6457,7 +6547,13 @@
         "unsavedTitle": "Abandonner vos modifications ?",
         "unsavedBody": "Vous avez saisi des informations qui n'ont pas été enregistrées. Fermer maintenant les abandonnera.",
         "unsavedKeep": "Continuer la modification",
-        "unsavedDiscard": "Abandonner"
+        "unsavedDiscard": "Abandonner",
+        "searchMinimum": "Saisissez au moins deux caractères pour rechercher.",
+        "searchFailed": "Impossible de charger la bibliothèque. Réessayez.",
+        "searchRetry": "Réessayer",
+        "searchExpired": "Ces résultats ont changé. Relancez la recherche pour continuer.",
+        "searchRestart": "Relancer la recherche",
+        "resultsCount": "{{count}} résultats dans la bibliothèque"
       },
       "wizard": {
         "stepsLabel": "Étapes du contenu",
@@ -6633,7 +6729,9 @@
           "description": "Progression moyenne de chaque groupe face à votre seuil de bonne voie. Sélectionnez une barre pour voir les membres du groupe.",
           "label": "Progression moyenne par groupe",
           "threshold": "Seuil de bonne voie, {{percent}} %",
-          "members": "{{count}} membres"
+          "members": "{{count}} membres",
+          "atOrAbove": "Au seuil ou au-dessus",
+          "below": "Sous le seuil"
         },
         "category": {
           "title": "Progression par catégorie",
@@ -6664,7 +6762,8 @@
         "earned": "Moyenne obtenue",
         "band": "Palier",
         "share": "Part",
-        "month": "Mois"
+        "month": "Mois",
+        "member": "Membre"
       },
       "exports": {
         "reasons": {
@@ -6793,7 +6892,8 @@
         "description": "Progression moyenne dans chaque catégorie, avec la part des membres sous la moitié.",
         "label": "Progression moyenne et membres sous la moitié par catégorie",
         "average": "Progression moyenne",
-        "belowHalf": "Membres sous la moitié"
+        "belowHalf": "Membres sous la moitié",
+        "belowHalfLine": "{{count}} membres sous la moitié"
       },
       "groupChart": {
         "title": "Groupes par palier",
@@ -7301,7 +7401,15 @@
         "requestTrend": "Tendance des demandes",
         "requestTrendHint": "Activité des demandes d’accès organisation dans le temps.",
         "statusDistribution": "Répartition des statuts",
-        "statusDistributionHint": "Répartition entre demandes en attente, approuvées et rejetées."
+        "statusDistributionHint": "Répartition entre demandes en attente, approuvées et rejetées.",
+        "date": "Date",
+        "requests": "Demandes",
+        "status": "Statut",
+        "statuses": {
+          "pending": "En attente",
+          "approved": "Approuvées",
+          "rejected": "Refusées"
+        }
       },
       "recentUsers": {
         "title": "Utilisateurs récents",
@@ -7373,7 +7481,8 @@
         "monthly": "Mensuel",
         "providers": "Fournisseurs",
         "professionals": "Professionnels",
-        "exportPng": "Exporter PNG"
+        "exportPng": "Exporter PNG",
+        "period": "Période"
       },
       "filters": {
         "search": "Rechercher des utilisateurs...",
@@ -7562,10 +7671,20 @@
         "title": "Membres de l’organisation",
         "description": "Recherchez et gérez les membres de l’organisation sélectionnée.",
         "empty": "Aucun membre trouvé.",
-        "department": "Département"
+        "department": "Département",
+        "pdus": "PDU",
+        "compliance": "Conformité",
+        "courses": "Cours",
+        "edit": "Modifier le membre",
+        "remove": "Retirer le membre"
       },
       "audit": {
-        "empty": "Aucun journal d’audit trouvé."
+        "empty": "Aucun journal d’audit trouvé.",
+        "title": "Journal d’audit",
+        "action": "Action",
+        "actor": "Auteur",
+        "entity": "Entité",
+        "date": "Date"
       },
       "filters": {
         "title": "Filtres des organisations",
@@ -7989,7 +8108,12 @@
       "forbidden": "Seuls les administrateurs peuvent gérer les guides thématiques.",
       "failed": "Nous n’avons pas pu terminer l’opération. Réessayez."
     },
-    "reload": "Recharger la dernière version"
+    "reload": "Recharger la dernière version",
+    "columns": {
+      "title": "Hub thématique",
+      "status": "Statut",
+      "links": "Liens"
+    }
   },
   "providerPublicProfile": {
     "tab": "Profil public",

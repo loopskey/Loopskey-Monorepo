@@ -484,6 +484,7 @@ type AssociationCatalogItem {
 
 input AssociationCatalogSearchInput {
   contentType: ContentType
+  cursor: String
   search: String
   take: Int = 20
 }
@@ -661,6 +662,14 @@ type AssociationGroupProgressRow {
   renewalReady: Int!
 }
 
+type AssociationInvitationDelivery {
+  createdAt: DateTime!
+  failureReason: String
+  id: ID!
+  sentAt: DateTime
+  state: AssociationMessageDeliveryState!
+}
+
 """
 Whether an invitation linked an existing account, queued a new email, or was held back by the resend cooldown or daily limit
 """
@@ -764,6 +773,7 @@ type AssociationMember {
   fullName: String
   group: AssociationMemberGroup
   id: ID!
+  invitationDelivery: AssociationInvitationDelivery
   invitedAt: DateTime!
   joinedVia: AssociationMemberJoinedVia!
   lastLoginAt: DateTime
@@ -3518,6 +3528,12 @@ type PaginatedAssociationAttentionRows {
   totalCount: Int!
 }
 
+type PaginatedAssociationCatalog {
+  items: [AssociationCatalogItem!]!
+  pageInfo: AssociationPageInfo!
+  totalCount: Int!
+}
+
 type PaginatedAssociationCategoryAttentionGroups {
   items: [AssociationCategoryAttentionGroup!]!
   pageInfo: AssociationPageInfo!
@@ -4833,7 +4849,8 @@ type Query {
   associationActivationStatus(token: String!): AssociationActivationStatus!
   associationAttentionLists(associationId: ID): AssociationAttentionLists!
   associationAttentionMembers(associationId: ID, pagination: AssociationReportPaginationInput, section: AssociationAttentionSection!): PaginatedAssociationAttentionRows!
-  associationCatalogSearch(associationId: ID, input: AssociationCatalogSearchInput!): [AssociationCatalogItem!]!
+  associationCatalogSearch(associationId: ID, input: AssociationCatalogSearchInput!): [AssociationCatalogItem!]! @deprecated(reason: "Use associationCatalogSearchPage for cursor pagination and totalCount.")
+  associationCatalogSearchPage(associationId: ID, input: AssociationCatalogSearchInput!): PaginatedAssociationCatalog!
   associationCategoryAttentionGroups(associationId: ID, pagination: AssociationReportPaginationInput): PaginatedAssociationCategoryAttentionGroups!
   associationCategoryCompletionReport(associationId: ID, filter: AssociationReportFilterInput): [AssociationCategoryProgressRow!]!
   associationComplianceByGroup(associationId: ID, filter: AssociationReportFilterInput): [AssociationGroupCompliance!]!

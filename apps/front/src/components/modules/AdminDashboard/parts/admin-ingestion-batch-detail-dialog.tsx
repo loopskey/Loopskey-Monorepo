@@ -1,10 +1,13 @@
 "use client";
 
 import { TUseAdminIngestionTab } from "@hooks/useAdminIngestionTab";
+import { DataTable } from "@elements/data-table/data-table";
 import { Badge } from "@ui/badge";
 
 import * as D from "@ui/dialog";
 import * as L from "lucide-react";
+
+const BATCHES = "adminDashboard.ingestion.batches";
 
 export const AdminIngestionBatchDetailDialog = ({
   hook,
@@ -44,45 +47,41 @@ export const AdminIngestionBatchDetailDialog = ({
               <Stat label={t("adminDashboard.ingestion.batches.table.rejected")} value={batch.rejectedCount} />
             </div>
 
-            <div className="max-h-96 overflow-y-auto rounded-md border">
-              <table className="w-full text-sm">
-                <thead className="border-b border-border bg-muted/40 text-left">
-                  <tr>
-                    <th className="p-3">
-                      {t("adminDashboard.ingestion.batches.detailDialog.externalId")}
-                    </th>
-                    <th className="p-3">
-                      {t("adminDashboard.ingestion.batches.table.status")}
-                    </th>
-                    <th className="p-3">
-                      {t("adminDashboard.ingestion.batches.detailDialog.reason")}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {batch.items.map((item, index) => (
-                    <tr
-                      key={`${item.externalId ?? "unknown"}-${index}`}
-                      className="border-b border-border/70"
-                    >
-                      <td className="p-3">
-                        <code className="text-xs">
-                          {item.externalId ?? "—"}
-                        </code>
-                      </td>
-                      <td className="p-3">
-                        <Badge variant="secondary" className="rounded-full">
-                          {item.state}
-                        </Badge>
-                      </td>
-                      <td className="p-3 text-muted-foreground">
-                        {item.reason ?? "—"}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <DataTable
+              scrollClassName="max-h-96 overflow-y-auto"
+              rowKey={(item) => item.key}
+              caption={t(`${BATCHES}.detailDialog.title`)}
+              empty={{ icon: L.PackageOpen, title: t(`${BATCHES}.empty`) }}
+              rows={batch.items.map((item, index) => ({
+                ...item,
+                key: `${item.externalId ?? "unknown"}-${index}`,
+              }))}
+              columns={[
+                {
+                  id: "externalId",
+                  mobile: "title",
+                  header: t(`${BATCHES}.detailDialog.externalId`),
+                  cell: (item) => (
+                    <code className="text-xs">{item.externalId ?? "—"}</code>
+                  ),
+                },
+                {
+                  id: "status",
+                  mobile: "badge",
+                  header: t(`${BATCHES}.table.status`),
+                  cell: (item) => (
+                    <Badge variant="secondary">{item.state}</Badge>
+                  ),
+                },
+                {
+                  id: "reason",
+                  mobile: "wide",
+                  className: "whitespace-normal text-muted-foreground",
+                  header: t(`${BATCHES}.detailDialog.reason`),
+                  cell: (item) => item.reason ?? "—",
+                },
+              ]}
+            />
           </div>
         )}
       </D.DialogContent>

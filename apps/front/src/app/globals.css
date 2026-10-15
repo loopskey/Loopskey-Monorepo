@@ -67,13 +67,22 @@
   --chart-7: oklch(0.5 0.16 51.39);
   --chart-8: oklch(0.72 0.12 150.07);
   --chart-semantic-success: oklch(0.5273 0.1371 150.07);
-  --chart-semantic-on-track: oklch(0.2715 0.1876 264.36);
+  --chart-semantic-on-track: oklch(0.45 0.13 264.36);
   --chart-semantic-warning: oklch(0.5553 0.1455 49);
   --chart-semantic-danger: oklch(0.5771 0.2152 27.33);
   --chart-semantic-neutral: oklch(0.5544 0.0407 257.42);
   --chart-track: oklch(0.9288 0.0126 255.51);
   --chart-grid: oklch(0.92 0.004 260);
   --chart-axis: oklch(0.551 0.0234 264.36);
+  --chart-series-1: oklch(0.5 0.14 264.36);
+  --chart-series-2: oklch(0.62 0.17 51.39);
+  --chart-series-3: oklch(0.55 0.14 229.37);
+  --chart-seq-1: oklch(0.78 0.13 264.36);
+  --chart-seq-2: oklch(0.69 0.13 264.36);
+  --chart-seq-3: oklch(0.6 0.13 264.36);
+  --chart-seq-4: oklch(0.51 0.13 264.36);
+  --chart-seq-5: oklch(0.42 0.13 264.36);
+  --chart-seq-6: oklch(0.34 0.13 264.36);
 
   --border: oklch(0.895 0.016 271.87);
   --input: oklch(0.83 0.022 271.87);
@@ -148,6 +157,15 @@
   --color-chart-track: var(--chart-track);
   --color-chart-grid: var(--chart-grid);
   --color-chart-axis: var(--chart-axis);
+  --color-chart-series-1: var(--chart-series-1);
+  --color-chart-series-2: var(--chart-series-2);
+  --color-chart-series-3: var(--chart-series-3);
+  --color-chart-seq-1: var(--chart-seq-1);
+  --color-chart-seq-2: var(--chart-seq-2);
+  --color-chart-seq-3: var(--chart-seq-3);
+  --color-chart-seq-4: var(--chart-seq-4);
+  --color-chart-seq-5: var(--chart-seq-5);
+  --color-chart-seq-6: var(--chart-seq-6);
 
   --color-ct-course: var(--ct-course);
   --color-ct-course-foreground: var(--ct-course-foreground);

@@ -40,14 +40,6 @@ export class MailService {
     );
   }
 
-  /**
-   * Hand one email to the provider.
-   *
-   * `idempotencyKey` is passed straight through to Resend, which collapses
-   * repeated sends carrying the same key into one delivery. That is what makes
-   * an outbox retry — after a crash, a lease expiry, or a timeout that hid a
-   * success — safe to attempt rather than a second message in someone's inbox.
-   */
   async deliver(input: TSendEmailInput, idempotencyKey?: string) {
     const { data, error } = await this.resend.emails.send(
       {
@@ -59,16 +51,23 @@ export class MailService {
       },
       idempotencyKey ? { idempotencyKey } : undefined,
     );
-    if (error) {
+    if (error || !data?.id) {
       this.logger.error("Email provider delivery failed", {
         provider: "resend",
-        errorName: error.name ?? "ProviderError",
+        errorName: error?.name ?? "MissingDeliveryReceipt",
+        statusCode: error?.statusCode ?? null,
+        correlationId: requestContext.correlationId(),
       });
       throw new InternalServerErrorException({
         code: "EmailSendFailed",
         message: "Unable to send email. Please try again later.",
       });
     }
+    this.logger.log("Email provider accepted delivery", {
+      provider: "resend",
+      providerMessageId: data.id,
+      correlationId: requestContext.correlationId(),
+    });
     return data;
   }
 }

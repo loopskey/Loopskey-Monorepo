@@ -92,7 +92,7 @@ export type TDashboardT = (
   params?: Record<string, string | number>,
 ) => string;
 
-export type TMemberEditRow = {
+export type TMemberEditPanel = {
   t: TDashboardT;
   onCancel: () => void;
   item: TAdminOrgUsersMember;

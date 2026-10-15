@@ -5,36 +5,20 @@ import { AssociationRequirementStatus } from "@/lib/graphql/base";
 import { FloatingTextareaField } from "@elements/floating-textarea";
 import { FloatingInputField } from "@elements/floating-input";
 import { submissionOpensAt } from "@utils/association-requirement";
-import { useChartPalette } from "@hooks/useChartPalette";
+import { ProgressRing } from "@elements/charts/progress-ring";
 import { ConfirmDialog } from "@elements/confirm-dialog";
 import { GlassCard } from "@elements/glass-card";
-import { Skeleton } from "@ui/skeleton";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
-
-import dynamic from "next/dynamic";
 
 import * as F from "@ui/form";
 import * as L from "lucide-react";
 
-const DONUT_SIZE = 96;
-
-const CoverageChart = dynamic(
-  () =>
-    import(
-      "@modules/AssociationDashboard/parts/association-requirement-coverage-chart"
-    ),
-  {
-    ssr: false,
-    loading: () => <Skeleton className="h-24 w-24 rounded-full" />,
-  },
-);
+const RING_SIZE = 96;
 
 export const AssociationRequirementDetail = ({
   hook,
 }: TAssociationRequirementDetailView) => {
-  const palette = useChartPalette();
-
   const {
     t,
     goTo,
@@ -148,22 +132,13 @@ export const AssociationRequirementDetail = ({
       <GlassCard>
         <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-5">
-            <CoverageChart
-              total={total}
-              covered={covered}
-              palette={palette}
-              size={DONUT_SIZE}
-              chartLabel={t(
-                "associationDashboard.requirements.chart.rowCoverageLabel",
-                { name: requirement.name },
-              )}
-              coveredLabel={t(
-                "associationDashboard.requirements.chart.covered",
-              )}
-              uncoveredLabel={t(
-                "associationDashboard.requirements.chart.uncovered",
-              )}
-              chartDescription={t(
+            <ProgressRing
+              size={RING_SIZE}
+              thickness={9}
+              percent={total > 0 ? (covered / total) * 100 : 0}
+              value={`${total > 0 ? Math.round((covered / total) * 100) : 0}%`}
+              caption={`${covered.toLocaleString(locale)} / ${total.toLocaleString(locale)}`}
+              label={t(
                 "associationDashboard.requirements.chart.coverageDescription",
                 { covered, total },
               )}
