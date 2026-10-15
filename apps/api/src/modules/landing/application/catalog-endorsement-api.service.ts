@@ -53,8 +53,7 @@ export class CatalogEndorsementApiService implements CatalogEndorsementApi {
           ? await this.prisma.$queryRaw<EndorsementBrowseAnchor[]>(anchorQuery)
           : [];
         if (anchorId && !anchor) return [];
-        const windowSize =
-          direction === "after" && anchor ? limit + 1 : limit;
+        const windowSize = direction === "after" && anchor ? limit + 1 : limit;
         const candidates = endorsementBrowseCandidates(
           query.contentType,
           anchor ?? null,
