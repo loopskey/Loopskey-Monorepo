@@ -43,21 +43,29 @@ export const useAssociationOverviewTab = () => {
     limit: O.OVERVIEW_ACTIVITY_LIMIT,
   });
 
-  const totalMembers = countsQuery.data?.associationMemberStats.totalMembers ?? 0;
-
-  const totalRequirements =
-    countsQuery.data?.associationRequirements.totalCount ?? 0;
-
-  const totalLearningContent =
-    countsQuery.data?.associationLearningContents.totalCount ?? 0;
+  const data = countsQuery.data;
+  const totalMembers = data?.associationMemberStats.totalMembers ?? 0;
+  const totalRequirements = data?.associationRequirements.totalCount ?? 0;
 
   const isNewAssociation =
     countsQuery.isSuccess && totalMembers === 0 && totalRequirements === 0;
 
   const counts = {
-    members: totalMembers,
-    requirements: totalRequirements,
-    learningContent: totalLearningContent,
+    members: {
+      total: totalMembers,
+      active: data?.associationMemberStats.activeMembers ?? 0,
+      pending: data?.associationMemberStats.pendingActivation ?? 0,
+    },
+    requirements: {
+      total: totalRequirements,
+      published: data?.publishedRequirements.totalCount ?? 0,
+      draft: data?.draftRequirements.totalCount ?? 0,
+    },
+    learningContent: {
+      total: data?.associationLearningContents.totalCount ?? 0,
+      published: data?.publishedLearningContents.totalCount ?? 0,
+      draft: data?.draftLearningContents.totalCount ?? 0,
+    },
   };
 
   const attentionCounts = attentionQuery.data?.counts ?? null;

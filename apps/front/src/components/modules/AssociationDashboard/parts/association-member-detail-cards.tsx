@@ -1,11 +1,10 @@
 "use client";
 
 import { TAssociationMemberCards } from "@/types/association-dashboard.types";
-import { GlassCard } from "@elements/glass-card";
+import { StatCardGrid } from "@elements/stat-card/stat-card-grid";
+import { StatCard } from "@elements/stat-card/stat-card";
 
 import * as L from "lucide-react";
-
-import type { ReactNode } from "react";
 
 export const AssociationMemberDetailCards = ({
   hook,
@@ -23,14 +22,14 @@ export const AssociationMemberDetailCards = ({
 
   const cards: {
     id: string;
-    icon: ReactNode;
+    icon: typeof L.CircleCheck;
     title: string;
     value: string;
     note: string;
   }[] = [
     {
       id: "completed",
-      icon: <L.CircleCheck className="h-5 w-5" />,
+      icon: L.CircleCheck,
       title: t("associationDashboard.memberDetail.cards.completed"),
       value: credits(summary.creditsCompleted),
       note: t("associationDashboard.memberDetail.cards.completedNote", {
@@ -39,14 +38,14 @@ export const AssociationMemberDetailCards = ({
     },
     {
       id: "remaining",
-      icon: <L.Hourglass className="h-5 w-5" />,
+      icon: L.Hourglass,
       title: t("associationDashboard.memberDetail.cards.remaining"),
       value: credits(summary.creditsRemaining),
       note: t("associationDashboard.memberDetail.cards.remainingNote"),
     },
     {
       id: "deadline",
-      icon: <L.CalendarClock className="h-5 w-5" />,
+      icon: L.CalendarClock,
       title: t("associationDashboard.memberDetail.cards.deadline"),
       value:
         summary.nearestDueDays === null || summary.nearestDueDays === undefined
@@ -63,7 +62,7 @@ export const AssociationMemberDetailCards = ({
     },
     {
       id: "awaiting",
-      icon: <L.ClipboardCheck className="h-5 w-5" />,
+      icon: L.ClipboardCheck,
       title: t("associationDashboard.memberDetail.cards.awaiting"),
       value: String(summary.awaitingReviewCount),
       note: t("associationDashboard.memberDetail.cards.awaitingNote"),
@@ -71,20 +70,16 @@ export const AssociationMemberDetailCards = ({
   ];
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <StatCardGrid>
       {cards.map((card) => (
-        <GlassCard key={card.id} glow={false}>
-          <div className="relative z-10">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              {card.icon}
-              <p className="text-xs uppercase">{card.title}</p>
-            </div>
-
-            <p className="mt-3 text-2xl font-semibold">{card.value}</p>
-            <p className="mt-1 text-xs text-muted-foreground">{card.note}</p>
-          </div>
-        </GlassCard>
+        <StatCard
+          key={card.id}
+          icon={card.icon}
+          title={card.title}
+          value={card.value}
+          description={card.note}
+        />
       ))}
-    </div>
+    </StatCardGrid>
   );
 };

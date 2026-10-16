@@ -3,7 +3,8 @@
 import { formatCurrency, rangeOptions } from "@/utils/function-helper";
 import { useProviderAnalyticsTab } from "@/hooks/useProviderAnalyticsTab";
 import { ProviderDashboardRange } from "@/lib/graphql/base";
-import { DashboardStatCard } from "@modules/ProfessionalDashboard/parts/dashboard-stat-card";
+import { StatCardGrid } from "@elements/stat-card/stat-card-grid";
+import { StatCard } from "@elements/stat-card/stat-card";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
 
@@ -71,19 +72,15 @@ const ProviderAnalyticsTab = () => {
             <L.RefreshCcw className="h-4 w-4" />
             {t("common.refresh")}
           </Button>
-          <Button
-            type="button"
-            radius="xl"
-            onClick={downloadCsv}
-          >
+          <Button type="button" radius="xl" onClick={downloadCsv}>
             <L.Download className="h-4 w-4" />
             {t("providerDashboard.analytics.exportCsv")}
           </Button>
         </div>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <DashboardStatCard
+      <StatCardGrid>
+        <StatCard
           icon={L.Wallet}
           title={t("providerDashboard.analytics.cards.totalRevenue")}
           value={formatCurrency(analytics?.totalRevenue)}
@@ -92,14 +89,14 @@ const ProviderAnalyticsTab = () => {
           )}
         />
 
-        <DashboardStatCard
+        <StatCard
           icon={L.Users}
           title={t("providerDashboard.analytics.cards.avgFee")}
           value={formatCurrency(analytics?.avgFeePerAttendee)}
           description={t("providerDashboard.analytics.cards.avgFeeDescription")}
         />
 
-        <DashboardStatCard
+        <StatCard
           icon={L.TrendingUp}
           title={t("providerDashboard.analytics.cards.conversionRate")}
           value={`${analytics?.conversionRate ?? 0}%`}
@@ -108,7 +105,7 @@ const ProviderAnalyticsTab = () => {
           )}
         />
 
-        <DashboardStatCard
+        <StatCard
           icon={L.Star}
           title={t("providerDashboard.analytics.cards.avgRating")}
           value={analytics?.avgRating ?? 0}
@@ -116,7 +113,7 @@ const ProviderAnalyticsTab = () => {
             "providerDashboard.analytics.cards.avgRatingDescription",
           )}
         />
-      </section>
+      </StatCardGrid>
 
       <section className="grid gap-4 xl:grid-cols-3">
         <GlassCard className="xl:col-span-2">

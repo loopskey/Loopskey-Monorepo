@@ -4,8 +4,8 @@ import type { ContentType, UpsertPduTargetInput } from "@/lib/graphql/base";
 import type { ElementType, ReactNode } from "react";
 import type { TCertificateFormInput } from "@/lib/validations/certificate.schema";
 import type { TPduActivityFormInput } from "@/lib/validations/pdu-activity.schema";
-import type { LucideIcon } from "lucide-react";
 import type { I18nContextValue } from "@/types/providers.types";
+import type { LucideIcon } from "lucide-react";
 import type { Control } from "react-hook-form";
 
 import type * as BAPI from "@/lib/graphql/base";
@@ -27,13 +27,6 @@ export type TProfessionalDashboardTab =
   | "certificate-form"
   | "cpd-pdu-progress"
   | "external-learning";
-
-export type TStatsCard = {
-  title: string;
-  icon: LucideIcon;
-  description?: string;
-  value: string | number;
-};
 
 export type TSnapShotProps = {
   label: string;
@@ -417,4 +410,3 @@ export type TCertificateFormFieldsProps = {
   onRemoveExisting: (fileId: string) => void;
   onDownloadExisting: (file: TEvidenceFileLike) => void;
 };
-

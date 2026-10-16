@@ -1,13 +1,14 @@
 "use client";
 
 import { ShareBar, ShareLegend } from "@elements/charts/share-bar";
-import { LazyTrendChart } from "@elements/charts/lazy-trend-chart";
-import { ChartCard } from "@elements/charts/chart-frame";
-import { CHART_COLOR } from "@/utils/chart.util";
 import { useAdminOverviewTab } from "@/hooks/useAdminOverviewTab";
-import { MetricCard } from "@modules/AdminDashboard/parts/admin-overview-metric-card";
+import { LazyTrendChart } from "@elements/charts/lazy-trend-chart";
+import { StatCardGrid } from "@elements/stat-card/stat-card-grid";
+import { CHART_COLOR } from "@/utils/chart.util";
 import { formatDate } from "@/utils/function-helper";
+import { ChartCard } from "@elements/charts/chart-frame";
 import { GlassCard } from "@elements/glass-card";
+import { StatCard } from "@elements/stat-card/stat-card";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
@@ -70,35 +71,39 @@ const AdminOverviewTab = () => {
         </Button>
       </section>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <MetricCard
+      <StatCardGrid>
+        <StatCard
+          isLoading={!overview && isLoading}
           icon={L.Inbox}
           value={overview?.totalRequests ?? 0}
           title={t("adminDashboard.overview.cards.totalRequests")}
           description={t("adminDashboard.overview.cards.totalRequestsHint")}
         />
 
-        <MetricCard
+        <StatCard
           icon={L.Clock3}
+          isLoading={!overview && isLoading}
           value={overview?.pendingRequests ?? 0}
           title={t("adminDashboard.overview.cards.pendingRequests")}
           description={t("adminDashboard.overview.cards.pendingRequestsHint")}
         />
 
-        <MetricCard
+        <StatCard
           icon={L.CheckCircle2}
+          isLoading={!overview && isLoading}
           value={overview?.approvedRequests ?? 0}
           title={t("adminDashboard.overview.cards.approvedRequests")}
           description={t("adminDashboard.overview.cards.approvedRequestsHint")}
         />
 
-        <MetricCard
+        <StatCard
           icon={L.XCircle}
+          isLoading={!overview && isLoading}
           value={overview?.rejectedRequests ?? 0}
           title={t("adminDashboard.overview.cards.rejectedRequests")}
           description={t("adminDashboard.overview.cards.rejectedRequestsHint")}
         />
-      </div>
+      </StatCardGrid>
 
       <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <ChartCard
@@ -158,17 +163,17 @@ const AdminOverviewTab = () => {
         >
           <div className="grid gap-4">
             <ShareBar
-              segments={statusSegments}
               formatValue={count}
               formatShare={percent}
+              segments={statusSegments}
               shareName={t("chart.share")}
               unitName={t("adminDashboard.overview.charts.requests")}
               label={t("adminDashboard.overview.charts.statusDistribution")}
             />
             <ShareLegend
-              segments={statusSegments}
               formatValue={count}
               formatShare={percent}
+              segments={statusSegments}
             />
           </div>
         </ChartCard>

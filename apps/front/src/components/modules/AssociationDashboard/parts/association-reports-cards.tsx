@@ -2,8 +2,8 @@
 
 import { AssociationComplianceBand } from "@/lib/graphql/base";
 import { TAssociationReportsCards } from "@/types/association-dashboard.types";
-import { GlassCard } from "@elements/glass-card";
-import { Skeleton } from "@ui/skeleton";
+import { StatCardGrid } from "@elements/stat-card/stat-card-grid";
+import { StatCard } from "@elements/stat-card/stat-card";
 
 import * as L from "lucide-react";
 
@@ -12,8 +12,8 @@ import type { TAssociationReportKey } from "@utils/association-reports";
 type TCard = {
   id: string;
   count: number;
-  share: number | null;
   change: number;
+  share: number | null;
   icon: typeof L.Users;
   report: TAssociationReportKey;
   band: AssociationComplianceBand | null;
@@ -82,56 +82,31 @@ export const AssociationReportsCards = ({ hook }: TAssociationReportsCards) => {
   };
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+    <StatCardGrid columns={5}>
       {cards.map((card) => (
-        <GlassCard key={card.id} glow={false} className="p-0 md:p-0">
-          <button
-            type="button"
-            className="relative z-10 flex h-full w-full flex-col gap-3 rounded-lg p-6 text-left transition-colors hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:p-5"
-            aria-label={label("cards.open", {
-              report: label(`names.${card.report}`),
-            })}
-            onClick={() =>
-              openReport(
-                card.report,
-                card.band ? { band: card.band } : undefined,
-              )
-            }
-          >
-            <span className="flex items-center gap-3">
-              <span className="rounded-md bg-primary/10 p-2.5 text-primary">
-                <card.icon className="h-5 w-5" />
-              </span>
-
-              <span className="text-sm text-muted-foreground">
-                {label(`cards.${card.id}`)}
-              </span>
-            </span>
-
-            {isLoading ? (
-              <Skeleton className="h-16 w-full rounded-md" />
-            ) : (
-              <span className="block">
-                <span className="block text-2xl font-medium tabular-nums">
-                  {card.count.toLocaleString(locale)}
-                </span>
-
-                {card.share !== null && (
-                  <span className="block text-xs text-muted-foreground">
-                    {label("cards.share", {
-                      share: card.share.toLocaleString(locale),
-                    })}
-                  </span>
-                )}
-
-                <span className="mt-1 block text-xs text-muted-foreground">
-                  {changeLine(card.change)}
-                </span>
-              </span>
-            )}
-          </button>
-        </GlassCard>
+        <StatCard
+          key={card.id}
+          icon={card.icon}
+          hasArrow
+          isLoading={isLoading}
+          value={card.count}
+          title={label(`cards.${card.id}`)}
+          notes={[changeLine(card.change)]}
+          ariaLabel={label("cards.open", {
+            report: label(`names.${card.report}`),
+          })}
+          description={
+            card.share === null
+              ? undefined
+              : label("cards.share", {
+                  share: card.share.toLocaleString(locale),
+                })
+          }
+          onSelect={() =>
+            openReport(card.report, card.band ? { band: card.band } : undefined)
+          }
+        />
       ))}
-    </div>
+    </StatCardGrid>
   );
 };
