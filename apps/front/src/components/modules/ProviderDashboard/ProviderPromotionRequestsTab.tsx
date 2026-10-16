@@ -5,10 +5,11 @@ import { PromotionRequestStatus } from "@/lib/graphql/base";
 import { FloatingTextareaField } from "@elements/floating-textarea";
 import { FloatingSelectField } from "@elements/floating-select";
 import { FloatingInputField } from "@elements/floating-input";
-import { DashboardStatCard } from "@modules/ProfessionalDashboard/parts/dashboard-stat-card";
 import { ContentPagination } from "@elements/pagination";
+import { StatCardGrid } from "@elements/stat-card/stat-card-grid";
 import { formatDate } from "@utils/function-helper";
 import { GlassCard } from "@elements/glass-card";
+import { StatCard } from "@elements/stat-card/stat-card";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
 
@@ -85,31 +86,31 @@ const ProviderPromotionRequestsTab = () => {
         </div>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <DashboardStatCard
+      <StatCardGrid>
+        <StatCard
           icon={L.Megaphone}
           value={stats.total}
           title={t("providerDashboard.promotions.cards.total")}
         />
 
-        <DashboardStatCard
+        <StatCard
           icon={L.CalendarDays}
           value={stats.pending}
           title={t("providerDashboard.promotions.cards.pending")}
         />
 
-        <DashboardStatCard
+        <StatCard
           icon={L.CheckCircle2}
           value={stats.approved}
           title={t("providerDashboard.promotions.cards.approved")}
         />
 
-        <DashboardStatCard
+        <StatCard
           icon={L.XCircle}
           value={stats.rejected}
           title={t("providerDashboard.promotions.cards.rejected")}
         />
-      </section>
+      </StatCardGrid>
 
       <section className="grid gap-6 xl:grid-cols-[420px_1fr]">
         <GlassCard>

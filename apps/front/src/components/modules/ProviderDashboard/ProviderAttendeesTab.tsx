@@ -3,10 +3,11 @@
 import { CalendarCheck, CheckCircle2, Search, UsersRound } from "lucide-react";
 import { EventRegistrationStatus } from "@/lib/graphql/base";
 import { useProviderAttendeesTab } from "@/hooks/useProviderAttendeesTab";
-import { DashboardStatCard } from "@modules/ProfessionalDashboard/parts/dashboard-stat-card";
 import { ContentPagination } from "@elements/pagination";
+import { StatCardGrid } from "@elements/stat-card/stat-card-grid";
 import { formatDate } from "@/utils/function-helper";
 import { GlassCard } from "@elements/glass-card";
+import { StatCard } from "@elements/stat-card/stat-card";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
@@ -70,31 +71,31 @@ const ProviderAttendeesTab = () => {
         </Button>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <DashboardStatCard
+      <StatCardGrid>
+        <StatCard
           icon={UsersRound}
           value={stats.totalRegistered}
           title={t("providerDashboard.attendees.cards.totalRegistered")}
         />
 
-        <DashboardStatCard
+        <StatCard
           icon={CheckCircle2}
           value={stats.confirmed}
           title={t("providerDashboard.attendees.cards.confirmed")}
         />
 
-        <DashboardStatCard
+        <StatCard
           icon={CalendarCheck}
           value={stats.attended}
           title={t("providerDashboard.attendees.cards.attended")}
         />
 
-        <DashboardStatCard
+        <StatCard
           icon={CalendarCheck}
           value={`${stats.attendanceRate}%`}
           title={t("providerDashboard.attendees.cards.attendanceRate")}
         />
-      </section>
+      </StatCardGrid>
 
       <GlassCard>
         <div className="grid gap-4 md:grid-cols-[1fr_240px]">

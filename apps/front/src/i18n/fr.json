@@ -5586,20 +5586,36 @@
       "retry": "Réessayer",
       "cards": {
         "error": "Nous n'avons pas pu charger vos chiffres clés pour le moment.",
+        "segments": {
+          "active": "Actifs",
+          "pending": "En attente d'activation",
+          "published": "Publié",
+          "draft": "Brouillon",
+          "archived": "Archivé",
+          "withdrawn": "Retiré"
+        },
+        "chips": {
+          "pending": "{{count}} en attente d'activation",
+          "allActivated": "Tous activés",
+          "notVisible": "Pas encore visible des membres"
+        },
         "members": {
           "title": "Membres",
-          "meaning": "Toutes les personnes invitées dans votre association, activées ou non.",
-          "action": "Ouvrir la liste"
+          "hint": "Invitez votre premier membre pour commencer à suivre les crédits.",
+          "action": "Ouvrir la liste",
+          "emptyAction": "Inviter un membre"
         },
         "requirements": {
           "title": "Exigences",
-          "meaning": "Les obligations que vous avez définies, brouillons compris.",
-          "action": "Ouvrir les exigences"
+          "hint": "Définissez ce que vos membres doivent obtenir, puis publiez-le.",
+          "action": "Ouvrir les exigences",
+          "emptyAction": "Créer votre première exigence"
         },
         "learningContent": {
           "title": "Contenu de formation",
-          "meaning": "Ce que vous proposez aux membres pour obtenir des crédits.",
-          "action": "Ouvrir la bibliothèque"
+          "hint": "Ajoutez des cours, événements ou vidéos pour permettre aux membres d'obtenir des crédits.",
+          "action": "Ouvrir la bibliothèque",
+          "emptyAction": "Ajouter du contenu de formation"
         }
       },
       "charts": {

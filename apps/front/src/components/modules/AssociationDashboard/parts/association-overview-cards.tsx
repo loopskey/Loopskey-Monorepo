@@ -1,14 +1,15 @@
 "use client";
 
 import { TAssociationOverviewCards } from "@/types/association-dashboard.types";
-import { GlassCard } from "@elements/glass-card";
-import { Skeleton } from "@ui/skeleton";
-import { Button } from "@ui/button";
-
-import Link from "next/link";
+import { StatCardGrid } from "@elements/stat-card/stat-card-grid";
+import { CHART_COLOR } from "@utils/chart.util";
+import { StatCard } from "@elements/stat-card/stat-card";
 
 import * as O from "@utils/association-overview";
 import * as L from "lucide-react";
+
+import type { StatCardSegment } from "@/types/stat-card.types";
+import type { StatCardChip } from "@/types/stat-card.types";
 
 const CARD_ICONS = {
   members: L.Users,
@@ -16,79 +17,115 @@ const CARD_ICONS = {
   learningContent: L.GraduationCap,
 } as const;
 
+const REMAINDER_SEGMENT = {
+  requirements: "archived",
+  learningContent: "withdrawn",
+} as const;
+
 export const AssociationOverviewCards = ({
   hook,
 }: TAssociationOverviewCards) => {
-  const { t, locale, counts, countsPanel } = hook;
+  const { t, counts, countsPanel } = hook;
 
   const label = (key: string, vars?: Record<string, string | number>) =>
     t(`associationDashboard.overview.${key}`, vars);
 
-  if (countsPanel.isError)
-    return (
-      <GlassCard glow={false}>
-        <div className="relative z-10 flex flex-col items-start gap-3">
-          <p role="alert" className="text-sm text-muted-foreground">
-            <L.TriangleAlert className="mr-2 inline h-4 w-4 text-destructive" />
-            {label("cards.error")}
-          </p>
+  const segment = (
+    id: string,
+    value: number,
+    color: string,
+  ): StatCardSegment => ({
+    id,
+    value,
+    color,
+    label: label(`cards.segments.${id}`),
+  });
 
-          <Button
-            size="sm"
-            radius="xl"
-            variant="outline"
-            onClick={countsPanel.retry}
-          >
-            <L.RotateCcw className="h-4 w-4" />
-            {label("retry")}
-          </Button>
-        </div>
-      </GlassCard>
-    );
+  const segmentsOf = (card: O.TOverviewCountCard): StatCardSegment[] => {
+    if (card === "members") {
+      const { active, pending } = counts.members;
+      return [
+        segment("active", active, CHART_COLOR.series1),
+        segment("pending", pending, CHART_COLOR.warning),
+      ];
+    }
+
+    const { total, published, draft } = counts[card];
+    const rest = total - published - draft;
+
+    return [
+      segment("published", published, CHART_COLOR.series1),
+      segment("draft", draft, CHART_COLOR.warning),
+      ...(rest > 0
+        ? [segment(REMAINDER_SEGMENT[card], rest, CHART_COLOR.neutral)]
+        : []),
+    ];
+  };
+
+  const chipOf = (card: O.TOverviewCountCard): StatCardChip | undefined => {
+    if (card === "members") {
+      const { total, pending } = counts.members;
+      if (pending > 0)
+        return {
+          tone: "warning",
+          label: label("cards.chips.pending", { count: pending }),
+        };
+      return total > 0
+        ? { tone: "good", label: label("cards.chips.allActivated") }
+        : undefined;
+    }
+
+    if (card === "requirements") {
+      const { published, draft } = counts.requirements;
+      return published === 0 && draft > 0
+        ? { tone: "warning", label: label("cards.chips.notVisible") }
+        : undefined;
+    }
+
+    return undefined;
+  };
 
   return (
-    <div className="grid gap-4 md:grid-cols-3">
+    <StatCardGrid
+      columns={3}
+      error={
+        countsPanel.isError
+          ? {
+              message: label("cards.error"),
+              retryLabel: label("retry"),
+              onRetry: countsPanel.retry,
+            }
+          : null
+      }
+    >
       {O.OVERVIEW_COUNT_CARDS.map((card) => {
-        const Icon = CARD_ICONS[card];
+        const href = O.associationTabHref(O.COUNT_CARD_TABS[card]);
 
         return (
-          <GlassCard key={card} glow={false} className="p-0 md:p-0">
-            <Link
-              href={O.associationTabHref(O.COUNT_CARD_TABS[card])}
-              className="relative z-10 flex h-full flex-col gap-3 rounded-lg p-6 transition-colors hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:p-5"
-            >
-              <span className="flex items-center gap-3">
-                <span className="rounded-md bg-primary/10 p-2.5 text-primary">
-                  <Icon className="h-5 w-5" />
-                </span>
-
-                <span className="text-sm text-muted-foreground">
-                  {label(`cards.${card}.title`)}
-                </span>
-              </span>
-
-              {countsPanel.isLoading ? (
-                <Skeleton className="h-14 w-full rounded-md" />
-              ) : (
-                <span className="block">
-                  <span className="block text-3xl font-medium tabular-nums">
-                    {counts[card].toLocaleString(locale)}
-                  </span>
-
-                  <span className="mt-1 block text-xs text-muted-foreground">
-                    {label(`cards.${card}.meaning`)}
-                  </span>
-                </span>
-              )}
-
-              <span className="mt-auto inline-flex items-center gap-1 pt-2 text-sm text-primary">
-                {label(`cards.${card}.action`)}
-                <L.ArrowUpRight className="h-4 w-4" />
-              </span>
-            </Link>
-          </GlassCard>
+          <StatCard
+            key={card}
+            href={href}
+            chip={chipOf(card)}
+            icon={CARD_ICONS[card]}
+            value={counts[card].total}
+            segments={segmentsOf(card)}
+            isLoading={countsPanel.isLoading}
+            title={label(`cards.${card}.title`)}
+            linkLabel={label(`cards.${card}.action`)}
+            empty={
+              counts[card].total === 0
+                ? {
+                    hint: label(`cards.${card}.hint`),
+                    action: {
+                      href,
+                      label: label(`cards.${card}.emptyAction`),
+                    },
+                  }
+                : undefined
+            }
+          />
         );
       })}
-    </div>
+    </StatCardGrid>
   );
 };

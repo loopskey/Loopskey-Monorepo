@@ -3,8 +3,9 @@
 import { CalendarDays, Eye, FileText, Plus, Search, Users } from "lucide-react";
 import { useProviderMyEventsTab } from "@/hooks/useProviderMyEventsTab";
 import { ContentPagination } from "@elements/pagination";
-import { DashboardStatCard } from "@modules/ProfessionalDashboard/parts/dashboard-stat-card";
+import { StatCardGrid } from "@elements/stat-card/stat-card-grid";
 import { GlassCard } from "@elements/glass-card";
+import { StatCard } from "@elements/stat-card/stat-card";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
 import { Input } from "@ui/input";
@@ -58,28 +59,28 @@ const ProviderMyEventsTab = () => {
         </Button>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <DashboardStatCard
+      <StatCardGrid>
+        <StatCard
           icon={CalendarDays}
           value={stats.totalEvents}
           title={t("providerDashboard.myEvents.cards.totalEvents")}
         />
-        <DashboardStatCard
+        <StatCard
           icon={Eye}
           value={stats.published}
           title={t("providerDashboard.myEvents.cards.published")}
         />
-        <DashboardStatCard
+        <StatCard
           icon={FileText}
           value={stats.draft}
           title={t("providerDashboard.myEvents.cards.draft")}
         />
-        <DashboardStatCard
+        <StatCard
           icon={Users}
           value={stats.totalRegistrations}
           title={t("providerDashboard.myEvents.cards.totalRegistrations")}
         />
-      </section>
+      </StatCardGrid>
 
       <GlassCard>
         <div className="grid gap-3 md:grid-cols-[1fr_220px_auto]">

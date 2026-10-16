@@ -1,12 +1,14 @@
 "use client";
 
-import { ShareBar } from "@elements/charts/share-bar";
-import { CHART_COLOR } from "@/utils/chart.util";
 import { useAdminOrganizationUsersTab } from "@/hooks/useAdminOrgUsersTab";
 import { AdminOrganizationMembersTab } from "@modules/AdminDashboard/parts/admin-org-members-tab";
 import { OrganizationSettingsPanel } from "@modules/AdminDashboard/parts/admin-org-settings-panel";
 import { AdminOrganizationAuditTab } from "@modules/AdminDashboard/parts/admin--org-audit-tab";
+import { StatCardGrid } from "@elements/stat-card/stat-card-grid";
+import { CHART_COLOR } from "@/utils/chart.util";
 import { GlassCard } from "@elements/glass-card";
+import { ShareBar } from "@elements/charts/share-bar";
+import { StatCard } from "@elements/stat-card/stat-card";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
 
@@ -128,75 +130,31 @@ export const AdminOrganizationDetailView = ({ hook }: Props) => {
         </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <GlassCard glow={false} className="p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-muted-foreground">
-                {t("adminDashboard.organizationUsers.kpi.totalMembers")}
-              </p>
-              <p className="mt-2 text-3xl font-medium">
-                {selectedOrgStats.total}
-              </p>
-            </div>
+      <StatCardGrid>
+        <StatCard
+          icon={L.Users}
+          value={selectedOrgStats.total}
+          title={t("adminDashboard.organizationUsers.kpi.totalMembers")}
+        />
 
-            <div className="rounded-md bg-primary/10 p-3 text-primary">
-              <L.Users className="h-5 w-5" />
-            </div>
-          </div>
-        </GlassCard>
+        <StatCard
+          icon={L.Activity}
+          value={`${selectedOrgStats.averageCompliance}%`}
+          title={t("adminDashboard.organizationUsers.kpi.avgCompliance")}
+        />
 
-        <GlassCard glow={false} className="p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-muted-foreground">
-                {t("adminDashboard.organizationUsers.kpi.avgCompliance")}
-              </p>
-              <p className="mt-2 text-3xl font-medium">
-                {selectedOrgStats.averageCompliance}%
-              </p>
-            </div>
+        <StatCard
+          icon={L.GraduationCap}
+          value={selectedOrgStats.totalPdus}
+          title={t("adminDashboard.organizationUsers.kpi.totalPdus")}
+        />
 
-            <div className="rounded-md bg-primary/10 p-3 text-primary">
-              <L.Activity className="h-5 w-5" />
-            </div>
-          </div>
-        </GlassCard>
-
-        <GlassCard glow={false} className="p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-muted-foreground">
-                {t("adminDashboard.organizationUsers.kpi.totalPdus")}
-              </p>
-              <p className="mt-2 text-3xl font-medium">
-                {selectedOrgStats.totalPdus}
-              </p>
-            </div>
-
-            <div className="rounded-md bg-primary/10 p-3 text-primary">
-              <L.GraduationCap className="h-5 w-5" />
-            </div>
-          </div>
-        </GlassCard>
-
-        <GlassCard glow={false} className="p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-muted-foreground">
-                {t("adminDashboard.organizationUsers.kpi.activeRate")}
-              </p>
-              <p className="mt-2 text-3xl font-medium">
-                {selectedOrgStats.activeRate}%
-              </p>
-            </div>
-
-            <div className="rounded-md bg-primary/10 p-3 text-primary">
-              <L.UserCheck className="h-5 w-5" />
-            </div>
-          </div>
-        </GlassCard>
-      </section>
+        <StatCard
+          icon={L.UserCheck}
+          value={`${selectedOrgStats.activeRate}%`}
+          title={t("adminDashboard.organizationUsers.kpi.activeRate")}
+        />
+      </StatCardGrid>
 
       <GlassCard glow={false} className="p-5">
         <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">

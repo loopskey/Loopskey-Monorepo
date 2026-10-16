@@ -397,7 +397,7 @@ export type SendAssociationMessageMutation = { __typename?: 'Mutation', sendAsso
 export type AssociationOverviewCountsQueryVariables = Types.Exact<{ [key: string]: never; }>;
 
 
-export type AssociationOverviewCountsQuery = { __typename?: 'Query', associationMemberStats: { __typename?: 'AssociationMemberStats', totalMembers: number, activeMembers: number, pendingActivation: number }, associationRequirements: { __typename?: 'PaginatedAssociationRequirements', totalCount: number }, associationLearningContents: { __typename?: 'PaginatedAssociationLearningContents', totalCount: number } };
+export type AssociationOverviewCountsQuery = { __typename?: 'Query', associationMemberStats: { __typename?: 'AssociationMemberStats', totalMembers: number, activeMembers: number, pendingActivation: number }, associationRequirements: { __typename?: 'PaginatedAssociationRequirements', totalCount: number }, publishedRequirements: { __typename?: 'PaginatedAssociationRequirements', totalCount: number }, draftRequirements: { __typename?: 'PaginatedAssociationRequirements', totalCount: number }, associationLearningContents: { __typename?: 'PaginatedAssociationLearningContents', totalCount: number }, publishedLearningContents: { __typename?: 'PaginatedAssociationLearningContents', totalCount: number }, draftLearningContents: { __typename?: 'PaginatedAssociationLearningContents', totalCount: number } };
 
 export type AssociationRequirementProgressReportQueryVariables = Types.Exact<{
   filter?: Types.InputMaybe<Types.AssociationReportFilterInput>;
@@ -2510,7 +2510,31 @@ export const AssociationOverviewCountsDocument = /*#__PURE__*/ new TypedDocument
   associationRequirements(pagination: {take: 1}) {
     totalCount
   }
+  publishedRequirements: associationRequirements(
+    filter: {status: PUBLISHED}
+    pagination: {take: 1}
+  ) {
+    totalCount
+  }
+  draftRequirements: associationRequirements(
+    filter: {status: DRAFT}
+    pagination: {take: 1}
+  ) {
+    totalCount
+  }
   associationLearningContents(pagination: {take: 1}) {
+    totalCount
+  }
+  publishedLearningContents: associationLearningContents(
+    filter: {status: PUBLISHED}
+    pagination: {take: 1}
+  ) {
+    totalCount
+  }
+  draftLearningContents: associationLearningContents(
+    filter: {status: DRAFT}
+    pagination: {take: 1}
+  ) {
     totalCount
   }
 }
