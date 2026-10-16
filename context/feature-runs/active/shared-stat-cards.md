@@ -4,7 +4,7 @@
 - Model tier: Standard reasoning, because the change is a presentational component migrated across existing tabs with no new backend behaviour.
 - Branch: `feature/shared-stat-cards`
 - Base: `b42d162` (`origin/develop`).
-- Status: Ready.
+- Status: Submitted.
 
 ## Acceptance
 
@@ -23,6 +23,6 @@
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: de7a99b
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/309
+- CI: pending
