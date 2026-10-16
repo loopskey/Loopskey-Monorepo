@@ -5585,20 +5585,36 @@
       "retry": "Try again",
       "cards": {
         "error": "We could not load your headline counts just now.",
+        "segments": {
+          "active": "Active",
+          "pending": "Pending activation",
+          "published": "Published",
+          "draft": "Draft",
+          "archived": "Archived",
+          "withdrawn": "Withdrawn"
+        },
+        "chips": {
+          "pending": "{{count}} awaiting activation",
+          "allActivated": "All activated",
+          "notVisible": "Not visible to members yet"
+        },
         "members": {
           "title": "Members",
-          "meaning": "Everyone invited to your association, active or not yet activated.",
-          "action": "Open the roster"
+          "hint": "Invite your first member to start tracking credits.",
+          "action": "Open the roster",
+          "emptyAction": "Invite a member"
         },
         "requirements": {
           "title": "Requirements",
-          "meaning": "The obligations you have defined, including drafts.",
-          "action": "Open requirements"
+          "hint": "Define what your members must earn, then publish it.",
+          "action": "Open requirements",
+          "emptyAction": "Create your first requirement"
         },
         "learningContent": {
           "title": "Learning content",
-          "meaning": "What you have put in front of members to earn credits.",
-          "action": "Open the library"
+          "hint": "Add courses, events or videos members can use to earn credits.",
+          "action": "Open the library",
+          "emptyAction": "Add learning content"
         }
       },
       "charts": {

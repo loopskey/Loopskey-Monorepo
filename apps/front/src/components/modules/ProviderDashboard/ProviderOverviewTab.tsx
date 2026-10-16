@@ -2,13 +2,14 @@
 
 import { ProviderDashboardRange } from "@/lib/graphql/base";
 import { useProviderOverviewTab } from "@/hooks/useProviderOverviewTab";
-import { DashboardStatCard } from "@modules/ProfessionalDashboard/parts/dashboard-stat-card";
 import { useChartPalette } from "@hooks/useChartPalette";
+import { StatCardGrid } from "@elements/stat-card/stat-card-grid";
 import { QuickAction } from "@modules/ProviderDashboard/parts/provider-quick-action";
 import { formatDate } from "@/utils/function-helper";
 import { MiniMetric } from "@modules/ProviderDashboard/parts/provider-mini-metric";
 import { SummaryRow } from "@modules/ProviderDashboard/parts/provider-summary-row";
 import { GlassCard } from "@elements/glass-card";
+import { StatCard } from "@elements/stat-card/stat-card";
 import { useI18n } from "@/hooks/useI18n";
 import { TipCard } from "./parts/provider-tip-card";
 import { Button } from "@ui/button";
@@ -115,31 +116,31 @@ const ProviderOverviewTab = () => {
         </div>
       </GlassCard>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <DashboardStatCard
+      <StatCardGrid>
+        <StatCard
           icon={L.CalendarDays}
           value={overview?.totalEvents ?? 0}
           title={t("providerDashboard.overview.cards.totalEvents")}
         />
 
-        <DashboardStatCard
+        <StatCard
           icon={L.Users}
           value={overview?.totalRegistrations ?? 0}
           title={t("providerDashboard.overview.cards.totalRegistrations")}
         />
 
-        <DashboardStatCard
+        <StatCard
           icon={L.Eye}
           value={overview?.totalViews ?? 0}
           title={t("providerDashboard.overview.cards.totalViews")}
         />
 
-        <DashboardStatCard
+        <StatCard
           icon={L.Activity}
           value={`${overview?.conversionRate ?? 0}%`}
           title={t("providerDashboard.overview.cards.conversionRate")}
         />
-      </section>
+      </StatCardGrid>
       <section className="grid gap-4 xl:grid-cols-3">
         <GlassCard className="xl:col-span-2">
           <div className="flex items-center justify-between gap-3">

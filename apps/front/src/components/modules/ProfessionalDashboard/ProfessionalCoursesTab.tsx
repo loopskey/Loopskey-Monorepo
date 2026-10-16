@@ -5,7 +5,9 @@ import { ExternalLearningButton } from "@elements/external-learning-btn";
 import { useProfessionalCourses } from "@/hooks/useProfessionalCourses";
 import { resolveExternalUrl } from "@/utils/content-source.helper";
 import { ContentPagination } from "@elements/pagination";
+import { StatCardGrid } from "@elements/stat-card/stat-card-grid";
 import { GlassCard } from "@elements/glass-card";
+import { StatCard } from "@elements/stat-card/stat-card";
 import { Progress } from "@ui/progress";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
@@ -59,8 +61,8 @@ const ProfessionalCoursesTab = () => {
         </div>
 
         <Button
-          type="button"
           radius="xl"
+          type="button"
           variant="outline"
           disabled={isFetching}
           onClick={() => refetch()}
@@ -72,70 +74,31 @@ const ProfessionalCoursesTab = () => {
         </Button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <GlassCard className="p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">
-                {t("professionalDashboard.courses.cards.total")}
-              </p>
+      <StatCardGrid>
+        <StatCard
+          icon={L.BookOpen}
+          value={stats.total}
+          title={t("professionalDashboard.courses.cards.total")}
+        />
 
-              <p className="mt-2 text-3xl font-medium">{stats.total}</p>
-            </div>
+        <StatCard
+          icon={L.PlayCircle}
+          value={stats.active}
+          title={t("professionalDashboard.courses.cards.active")}
+        />
 
-            <div className="rounded-md bg-primary/10 p-3 text-primary">
-              <L.BookOpen className="h-5 w-5" />
-            </div>
-          </div>
-        </GlassCard>
+        <StatCard
+          icon={L.CheckCircle2}
+          value={stats.completed}
+          title={t("professionalDashboard.courses.cards.completed")}
+        />
 
-        <GlassCard className="p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">
-                {t("professionalDashboard.courses.cards.active")}
-              </p>
-
-              <p className="mt-2 text-3xl font-medium">{stats.active}</p>
-            </div>
-
-            <div className="rounded-md bg-primary/10 p-3 text-primary">
-              <L.PlayCircle className="h-5 w-5" />
-            </div>
-          </div>
-        </GlassCard>
-
-        <GlassCard className="p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">
-                {t("professionalDashboard.courses.cards.completed")}
-              </p>
-              <p className="mt-2 text-3xl font-medium">{stats.completed}</p>
-            </div>
-
-            <div className="rounded-md bg-primary/10 p-3 text-primary">
-              <L.CheckCircle2 className="h-5 w-5" />
-            </div>
-          </div>
-        </GlassCard>
-
-        <GlassCard className="p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">
-                {t("professionalDashboard.courses.cards.averageProgress")}
-              </p>
-
-              <p className="mt-2 text-3xl font-medium">{stats.avgProgress}%</p>
-            </div>
-
-            <div className="rounded-md bg-primary/10 p-3 text-primary">
-              <L.TrendingUp className="h-5 w-5" />
-            </div>
-          </div>
-        </GlassCard>
-      </div>
+        <StatCard
+          icon={L.TrendingUp}
+          value={`${stats.avgProgress}%`}
+          title={t("professionalDashboard.courses.cards.averageProgress")}
+        />
+      </StatCardGrid>
 
       <GlassCard className="space-y-5">
         <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">

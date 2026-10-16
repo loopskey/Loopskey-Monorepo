@@ -1010,7 +1010,31 @@ query AssociationOverviewCounts {
   associationRequirements(pagination: { take: 1 }) {
     totalCount
   }
+  publishedRequirements: associationRequirements(
+    filter: { status: PUBLISHED }
+    pagination: { take: 1 }
+  ) {
+    totalCount
+  }
+  draftRequirements: associationRequirements(
+    filter: { status: DRAFT }
+    pagination: { take: 1 }
+  ) {
+    totalCount
+  }
   associationLearningContents(pagination: { take: 1 }) {
+    totalCount
+  }
+  publishedLearningContents: associationLearningContents(
+    filter: { status: PUBLISHED }
+    pagination: { take: 1 }
+  ) {
+    totalCount
+  }
+  draftLearningContents: associationLearningContents(
+    filter: { status: DRAFT }
+    pagination: { take: 1 }
+  ) {
     totalCount
   }
 }

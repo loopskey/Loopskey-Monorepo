@@ -118,13 +118,6 @@ export type TOrgSettingspanel = {
   }) => void | Promise<void>;
 };
 
-export type TOverviewMetricCard = {
-  title: string;
-  value: number;
-  description: string;
-  icon: React.ElementType;
-};
-
 export type TAdminAssociationItem =
   TAPI.AssociationAccountsQuery["associationAccounts"]["items"][number];
 

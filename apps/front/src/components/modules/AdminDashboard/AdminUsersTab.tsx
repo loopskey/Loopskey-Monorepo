@@ -1,15 +1,16 @@
 "use client";
 
-import { DashboardStatCard } from "@modules/ProfessionalDashboard/parts/dashboard-stat-card";
 import { DataTableFilters } from "@elements/data-table/data-table-filters";
 import { Role, UserStatus } from "@/lib/graphql/base";
 import { useAdminUsersTab } from "@/hooks/useAdminUserstab";
 import { LazyTrendChart } from "@elements/charts/lazy-trend-chart";
-import { ChartCard } from "@elements/charts/chart-frame";
+import { StatCardGrid } from "@elements/stat-card/stat-card-grid";
 import { CHART_COLOR } from "@/utils/chart.util";
 import { formatDate } from "@/utils/function-helper";
+import { ChartCard } from "@elements/charts/chart-frame";
 import { DataTable } from "@elements/data-table/data-table";
 import { GlassCard } from "@elements/glass-card";
+import { StatCard } from "@elements/stat-card/stat-card";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
 
@@ -38,39 +39,39 @@ const AdminUsersTab = () => {
     isLoading,
     usersPage,
     auditPage,
+    deleteUser,
     userSearch,
     growthMode,
-    isGrowthLoading,
     refreshAll,
     userStatus,
+    retryUsers,
+    retryAudit,
+    isMutating,
     auditSearch,
     premiumOnly,
-    deleteUser,
     setUserRole,
+    isAuditError,
+    isUsersError,
     setUserSearch,
     nextUsersPage,
     nextAuditPage,
     setGrowthMode,
     setUserStatus,
     setAuditSearch,
+    isUsersLoading,
     setPremiumOnly,
+    isAuditLoading,
+    isGrowthLoading,
     exportGrowthPng,
     usersTotalCount,
-    changeUserStatus,
-    isUsersError,
-    isAuditError,
-    isUsersLoading,
-    isAuditLoading,
     isUsersFetching,
     isAuditFetching,
-    retryUsers,
-    retryAudit,
-    isMutating,
+    auditTotalCount,
     hasNextUsersPage,
+    changeUserStatus,
     hasNextAuditPage,
     previousUsersPage,
     previousAuditPage,
-    auditTotalCount,
   } = useAdminUsersTab();
 
   return (
@@ -101,28 +102,28 @@ const AdminUsersTab = () => {
           {t("common.refresh")}
         </Button>
       </section>
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <DashboardStatCard
+      <StatCardGrid>
+        <StatCard
           icon={L.UsersRound}
           value={stats.total}
           title={t("adminDashboard.users.cards.total")}
         />
-        <DashboardStatCard
+        <StatCard
           icon={L.ShieldCheck}
           value={stats.providers}
           title={t("adminDashboard.users.cards.providers")}
         />
-        <DashboardStatCard
+        <StatCard
           icon={L.UserRound}
           value={stats.professionals}
           title={t("adminDashboard.users.cards.professionals")}
         />
-        <DashboardStatCard
+        <StatCard
           icon={L.Star}
           value={stats.premiumProviders}
           title={t("adminDashboard.users.cards.premiumProviders")}
         />
-      </section>{" "}
+      </StatCardGrid>
       <ChartCard
         headingLevel="h2"
         isLoading={isGrowthLoading}
