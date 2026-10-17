@@ -4,7 +4,7 @@
 - Model: `High reasoning — redirect ordering, forwarded-header trust and session/OAuth compatibility affect security and sign-in`
 - Branch: `feature/seo-14-canonical-host-redirects`
 - Base: `2b109b4`
-- Status: `Ready`
+- Status: `Submitted`
 
 ## Acceptance
 
@@ -28,6 +28,6 @@
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: a19d769
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/311
+- CI: pending
