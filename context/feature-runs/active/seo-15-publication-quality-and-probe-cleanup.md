@@ -4,7 +4,7 @@
 - Model: `High reasoning — publication status, ingestion provenance, admin moderation audit and a reviewed production remediation cross domains`
 - Branch: `feature/seo-15-publication-quality`
 - Base: `0f27c86`
-- Status: `Ready`
+- Status: `Submitted`
 
 ## Acceptance
 
@@ -27,6 +27,6 @@
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: 573a0fd
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/312
+- CI: pending
