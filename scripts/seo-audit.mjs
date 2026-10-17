@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-import { createServer } from "node:http";
+import { createServer, request as httpRequest } from "node:http";
+import { request as httpsRequest } from "node:https";
 import { readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
@@ -25,6 +26,11 @@ Options
                          the sitemap; production requires a course fixture) or
                          full. Default static.
   --config <path>        Route fixture file. Default scripts/seo-audit.config.json.
+  --alias-hosts <list>   Comma-separated hosts the site redirects to the canonical
+                         origin (SITE_CANONICAL_HOST_ALIASES). Alias checks of the
+                         hosts profile are skipped when empty.
+  --https-redirect <bool> true when the site redirects X-Forwarded-Proto: http
+                         (SITE_HTTPS_REDIRECT). Default false.
   --require-all          Treat skipped fixtures as a failure.
   --format <text|json>   Default text.
   --out <path>           Also write the JSON report to a file.
@@ -65,13 +71,64 @@ const parseOrigin = (value, label) => {
   return url.origin;
 };
 
+const getWithHost = (target, headers, limits) =>
+  new Promise((resolveGet) => {
+    const send = target.protocol === "https:" ? httpsRequest : httpRequest;
+    const outgoing = send(
+      target,
+      {
+        method: "GET",
+        headers,
+        servername: target.hostname,
+        timeout: limits.timeoutMs,
+      },
+      (incoming) => {
+        const chunks = [];
+        let total = 0;
+        incoming.on("data", (chunk) => {
+          if (total >= limits.maxBodyBytes) return;
+          chunks.push(chunk);
+          total += chunk.byteLength;
+        });
+        incoming.on("end", () =>
+          resolveGet({
+            status: incoming.statusCode ?? 0,
+            headers: new Map(
+              Object.entries(incoming.headers).map(([key, value]) => [
+                key.toLowerCase(),
+                [value].flat().join(", "),
+              ]),
+            ),
+            body: Buffer.concat(chunks)
+              .toString("utf8")
+              .slice(0, limits.maxBodyBytes),
+          }),
+        );
+      },
+    );
+    outgoing.on("timeout", () => {
+      const timeout = new Error("timed out");
+      timeout.name = "TimeoutError";
+      outgoing.destroy(timeout);
+    });
+    outgoing.on("error", (error) =>
+      resolveGet({
+        status: 0,
+        headers: new Map(),
+        body: "",
+        error: error.name,
+      }),
+    );
+    outgoing.end();
+  });
+
 const createFetcher = (baseOrigin, limits) => {
   let used = 0;
   return {
     get used() {
       return used;
     },
-    async get(path) {
+    async get(path, request) {
       if (!path.startsWith("/"))
         throw new Error(`Path must start with /: ${path}`);
       if (used >= limits.maxRequests)
@@ -80,6 +137,19 @@ const createFetcher = (baseOrigin, limits) => {
       const target = new URL(path, baseOrigin);
       if (target.origin !== baseOrigin)
         throw new Error(`Refusing to leave ${baseOrigin}`);
+      if (request?.host || request?.headers) {
+        const response = await getWithHost(
+          target,
+          {
+            "user-agent": USER_AGENT,
+            accept: "text/html,*/*",
+            ...request.headers,
+            ...(request.host ? { host: request.host } : {}),
+          },
+          limits,
+        );
+        return { path, ...response };
+      }
       let response;
       try {
         response = await fetch(target, {
@@ -208,6 +278,28 @@ const hostOf = (value) => {
   }
 };
 
+const resolvedOrigin = (value, base) => {
+  try {
+    return new URL(value, base);
+  } catch {
+    return null;
+  }
+};
+
+const foreignLocation = (response, context) => {
+  const location = response.headers.get("location");
+  if (!location) return null;
+  const target = resolvedOrigin(location, context.baseOrigin);
+  if (!target)
+    return finding("LOCATION_FOREIGN", `Location ${location} is not a URL`);
+  return [context.baseOrigin, context.siteOrigin].includes(target.origin)
+    ? null
+    : finding(
+        "LOCATION_FOREIGN",
+        `redirects to ${target.origin}, outside the canonical and audited origins`,
+      );
+};
+
 const inspectPage = (route, response, context) => {
   const findings = [];
   const allowedStatuses = [route.status ?? 200].flat();
@@ -218,6 +310,8 @@ const inspectPage = (route, response, context) => {
         `${route.path} did not answer (${response.error})`,
       ),
     ];
+  const foreign = foreignLocation(response, context);
+  if (foreign) findings.push(foreign);
   if (!allowedStatuses.includes(response.status)) {
     findings.push(
       finding(
@@ -225,6 +319,19 @@ const inspectPage = (route, response, context) => {
         `${route.path} answered ${response.status}, expected ${allowedStatuses.join(" or ")}`,
       ),
     );
+    return findings;
+  }
+
+  if (route.location) {
+    const location = response.headers.get("location") ?? "";
+    const actual = resolvedOrigin(location, context.baseOrigin)?.href;
+    if (!location || actual !== new URL(route.location).href)
+      findings.push(
+        finding(
+          "REDIRECT",
+          `${route.path} redirects to ${location || "nothing"}, expected ${route.location} in one hop`,
+        ),
+      );
     return findings;
   }
 
@@ -551,6 +658,9 @@ const discoverFixtures = (wanted, urls, siteOrigin) => {
 };
 
 const resolveRoute = (route, fixtures) => {
+  const unmet = (route.requires ?? []).filter((key) => !fixtures?.[key]);
+  if (unmet.length > 0)
+    return { skip: `not configured: ${unmet.join(", ")}`, optional: true };
   const missing = [];
   const path = route.path.replace(/\{(\w+)\}/g, (_, key) => {
     const value = fixtures?.[key];
@@ -572,12 +682,25 @@ const resolveRoute = (route, fixtures) => {
           ]),
         )
       : route.alternates;
+  const request = route.request && {
+    host: expand(route.request.host),
+    headers: route.request.headers
+      ? Object.fromEntries(
+          Object.entries(route.request.headers).map(([key, value]) => [
+            key,
+            expand(value),
+          ]),
+        )
+      : undefined,
+  };
   return {
     route: {
       ...route,
       path,
+      request,
       canonicalPath: expand(route.canonicalPath),
       redirectTo: expand(route.redirectTo),
+      location: expand(route.location),
       alternates,
     },
   };
@@ -606,6 +729,8 @@ export const runAudit = async ({
   environment,
   profile,
   config,
+  aliasHosts = [],
+  httpsRedirect = false,
 }) => {
   const limits = config.limits;
   const context = {
@@ -626,6 +751,10 @@ export const runAudit = async ({
     : undefined;
   const fixtures = {
     ...config.contentFixtures,
+    siteOrigin,
+    canonicalHost: new URL(siteOrigin).host,
+    aliasHost: aliasHosts[0] ?? null,
+    httpsRedirect: httpsRedirect ? "enabled" : null,
     ...(sitemap
       ? discoverFixtures(
           config.discoverFixtures?.[profile],
@@ -641,7 +770,8 @@ export const runAudit = async ({
     if (!route) throw new Error(`Profile ${profile} names unknown route ${id}`);
     const resolved = resolveRoute(route, fixtures);
     if (resolved.skip) {
-      const required = context.indexable && profile === "smoke";
+      const required =
+        !resolved.optional && context.indexable && profile === "smoke";
       results.push({
         id,
         path: route.path,
@@ -663,10 +793,12 @@ export const runAudit = async ({
     pending,
     limits.concurrency,
     async (route) => {
-      const response = await fetcher.get(route.path);
+      const response = await fetcher.get(route.path, route.request);
       return {
         id: route.id,
-        path: route.path,
+        path: route.request?.host
+          ? `${route.request.host} ${route.path}`
+          : route.path,
         outcome: "checked",
         findings: inspectPage(route, response, context),
       };
@@ -907,7 +1039,60 @@ const SELF_ROUTES = [
     redirectTo: "/new",
     expectRule: "REDIRECT",
   },
+  {
+    id: "alias-good",
+    path: "/alias?q=1&cursor=a%2Fb",
+    kind: "redirect",
+    status: 308,
+    requires: ["aliasHost"],
+    request: { host: "{aliasHost}" },
+    location: "{siteOrigin}/alias?q=1&cursor=a%2Fb",
+  },
+  {
+    id: "alias-two-hops",
+    path: "/alias-hop",
+    kind: "redirect",
+    status: 308,
+    requires: ["aliasHost"],
+    request: { host: "{aliasHost}" },
+    location: "{siteOrigin}/alias-hop",
+    expectRule: "REDIRECT",
+  },
+  {
+    id: "alias-query-dropped",
+    path: "/alias-query?cursor=abc",
+    kind: "redirect",
+    status: 308,
+    requires: ["aliasHost"],
+    request: { host: "{aliasHost}" },
+    location: "{siteOrigin}/alias-query?cursor=abc",
+    expectRule: "REDIRECT",
+  },
+  {
+    id: "hostile-reflected",
+    path: "/hostile",
+    kind: "private",
+    indexable: false,
+    status: 307,
+    request: {
+      host: "attacker.invalid",
+      headers: { "x-forwarded-host": "attacker.invalid" },
+    },
+    expectRule: "LOCATION_FOREIGN",
+  },
+  {
+    id: "forwarded-http-unconfigured",
+    path: "/good",
+    kind: "redirect",
+    status: 308,
+    requires: ["httpsRedirect"],
+    request: { headers: { "x-forwarded-proto": "http" } },
+    location: "{siteOrigin}/good",
+    expectSkip: true,
+  },
 ];
+
+const SELF_ALIAS_HOST = "alias.audit.example.test";
 
 const selfSiteHandlers = (baseOrigin) => {
   const html = (body, headers = {}, status = 200) => ({
@@ -999,6 +1184,46 @@ const selfSiteHandlers = (baseOrigin) => {
     ],
     ["/old", () => ({ status: 308, headers: { location: "/new" }, body: "" })],
     [
+      "/alias",
+      (request, url) =>
+        request.headers.host === SELF_ALIAS_HOST
+          ? {
+              status: 308,
+              headers: {
+                location: `${SELF_ORIGIN}${url.pathname}${url.search}`,
+              },
+              body: "",
+            }
+          : page("/alias"),
+    ],
+    [
+      "/alias-hop",
+      () => ({
+        status: 308,
+        headers: { location: `http://${SELF_ALIAS_HOST}/alias-hop` },
+        body: "",
+      }),
+    ],
+    [
+      "/alias-query",
+      (request, url) => ({
+        status: 308,
+        headers: { location: `${SELF_ORIGIN}${url.pathname}` },
+        body: "",
+      }),
+    ],
+    [
+      "/hostile",
+      (request) => ({
+        status: 307,
+        headers: {
+          location: `https://${request.headers["x-forwarded-host"]}/auth`,
+          "x-robots-tag": "noindex, nofollow",
+        },
+        body: "",
+      }),
+    ],
+    [
       "/old-bad",
       () => ({ status: 308, headers: { location: "/wrong" }, body: "" }),
     ],
@@ -1028,7 +1253,7 @@ const withServer = async (handlers, task) => {
     const url = new URL(request.url, "http://127.0.0.1");
     const handler = handlers.get(url.pathname);
     const answer = handler
-      ? handler()
+      ? handler(request, url)
       : { status: 404, headers: {}, body: "not found" };
     response.writeHead(answer.status, answer.headers);
     response.end(answer.body);
@@ -1074,13 +1299,19 @@ export const selfTest = async () => {
       environment: "production",
       profile: "self",
       config,
+      aliasHosts: [SELF_ALIAS_HOST],
     });
     for (const route of SELF_ROUTES) {
       const result = report.results.find(
         (candidate) => candidate.id === route.id,
       );
       const rules = result.findings.map((item) => item.rule);
-      if (route.expectRule) {
+      if (route.expectSkip) {
+        if (result.outcome !== "skipped" || rules.length > 0)
+          problems.push(
+            `${route.id}: an unconfigured optional check must be skipped, got ${result.outcome} ${rules.join(",")}`,
+          );
+      } else if (route.expectRule) {
         if (!rules.includes(route.expectRule))
           problems.push(
             `${route.id}: expected ${route.expectRule}, got ${rules.join(",") || "no findings"}`,
@@ -1397,12 +1628,20 @@ const main = async () => {
   );
   config.limits = { sitemapUrlMax: 50000, ...config.limits };
 
+  const httpsRedirect = args["https-redirect"] ?? "false";
+  if (!["true", "false", ""].includes(httpsRedirect))
+    throw new Error("--https-redirect must be true or false");
   const report = await runAudit({
     baseOrigin,
     siteOrigin,
     environment,
     profile: args.profile ?? "static",
     config,
+    aliasHosts: (args["alias-hosts"] ?? "")
+      .split(",")
+      .map((host) => host.trim().toLowerCase())
+      .filter(Boolean),
+    httpsRedirect: httpsRedirect === "true",
   });
   process.stdout.write(
     `${args.format === "json" ? JSON.stringify(report, null, 2) : renderText(report)}\n`,

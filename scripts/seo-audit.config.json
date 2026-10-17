@@ -31,6 +31,20 @@
       "robots",
       "sitemap"
     ],
+    "hosts": [
+      "locale-prefix",
+      "canonical-host",
+      "hostile-host-home",
+      "hostile-host-private",
+      "alias-home",
+      "alias-query",
+      "alias-locale-prefix",
+      "alias-french",
+      "alias-encoded",
+      "alias-hostile-forwarded-host",
+      "forwarded-http",
+      "forwarded-http-locale-prefix"
+    ],
     "static": [
       "home-en",
       "home-fr",
@@ -77,6 +91,136 @@
     ]
   },
   "routes": [
+    {
+      "id": "locale-prefix",
+      "path": "/en/about",
+      "kind": "redirect",
+      "status": 308,
+      "redirectTo": "/about"
+    },
+    {
+      "id": "canonical-host",
+      "path": "/about",
+      "kind": "page",
+      "locale": "en",
+      "request": { "host": "{canonicalHost}" },
+      "alternates": {
+        "en": "/about",
+        "fr": "/fr/about",
+        "x-default": "/about"
+      },
+      "jsonLdTypes": ["AboutPage"]
+    },
+    {
+      "id": "hostile-host-home",
+      "path": "/",
+      "kind": "page",
+      "locale": "en",
+      "request": {
+        "host": "attacker.invalid",
+        "headers": {
+          "x-forwarded-host": "attacker.invalid",
+          "x-forwarded-proto": "https"
+        }
+      },
+      "alternates": { "en": "/", "fr": "/fr", "x-default": "/" },
+      "jsonLdTypes": ["Organization", "WebSite", "WebPage"]
+    },
+    {
+      "id": "hostile-host-private",
+      "path": "/dashboard/professional",
+      "kind": "private",
+      "indexable": false,
+      "status": [200, 307, 308, 401, 403, 404],
+      "request": {
+        "host": "attacker.invalid",
+        "headers": {
+          "x-forwarded-host": "attacker.invalid",
+          "x-forwarded-proto": "https"
+        }
+      }
+    },
+    {
+      "id": "alias-home",
+      "path": "/",
+      "kind": "redirect",
+      "status": 308,
+      "requires": ["aliasHost"],
+      "request": { "host": "{aliasHost}" },
+      "location": "{siteOrigin}/"
+    },
+    {
+      "id": "alias-query",
+      "path": "/content?q=project%20manager&cursor=audit%2F1&lang=fr",
+      "kind": "redirect",
+      "status": 308,
+      "requires": ["aliasHost"],
+      "request": { "host": "{aliasHost}" },
+      "location": "{siteOrigin}/content?q=project%20manager&cursor=audit%2F1&lang=fr"
+    },
+    {
+      "id": "alias-locale-prefix",
+      "path": "/en/about?ref=audit",
+      "kind": "redirect",
+      "status": 308,
+      "requires": ["aliasHost"],
+      "request": { "host": "{aliasHost}" },
+      "location": "{siteOrigin}/about?ref=audit"
+    },
+    {
+      "id": "alias-french",
+      "path": "/fr/about",
+      "kind": "redirect",
+      "status": 308,
+      "requires": ["aliasHost"],
+      "request": { "host": "{aliasHost}" },
+      "location": "{siteOrigin}/fr/about"
+    },
+    {
+      "id": "alias-encoded",
+      "path": "/courses/caf%C3%A9-seo-audit%20x",
+      "kind": "redirect",
+      "status": 308,
+      "requires": ["aliasHost"],
+      "request": { "host": "{aliasHost}" },
+      "location": "{siteOrigin}/courses/caf%C3%A9-seo-audit%20x"
+    },
+    {
+      "id": "alias-hostile-forwarded-host",
+      "path": "/about",
+      "kind": "redirect",
+      "status": 308,
+      "requires": ["aliasHost"],
+      "request": {
+        "host": "{aliasHost}",
+        "headers": { "x-forwarded-host": "attacker.invalid" }
+      },
+      "location": "{siteOrigin}/about"
+    },
+    {
+      "id": "forwarded-http",
+      "path": "/about?ref=audit",
+      "kind": "redirect",
+      "status": 308,
+      "requires": ["httpsRedirect"],
+      "request": {
+        "host": "{canonicalHost}",
+        "headers": { "x-forwarded-proto": "http" }
+      },
+      "location": "{siteOrigin}/about?ref=audit"
+    },
+    {
+      "id": "forwarded-http-locale-prefix",
+      "path": "/en/about",
+      "kind": "redirect",
+      "status": 308,
+      "requires": ["httpsRedirect"],
+      "request": {
+        "host": "{canonicalHost}",
+        "headers": { "x-forwarded-proto": "http" }
+      },
+      "location": "{siteOrigin}/about"
+    },
     {
       "id": "home-en",
       "path": "/",

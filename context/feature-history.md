@@ -146,3 +146,4 @@ into this index and do not rewrite previous records.
 - [`roadmap-tab-redesign`](feature-runs/active/roadmap-tab-redesign.md) — PR [#305](https://github.com/loopskey/Loopskey-Monorepo/pull/305)
 - [`association-invitations-catalog-cards`](feature-runs/active/association-invitations-catalog-cards.md) — PR [#307](https://github.com/loopskey/Loopskey-Monorepo/pull/307)
 - [`shared-stat-cards`](feature-runs/active/shared-stat-cards.md) — PR [#309](https://github.com/loopskey/Loopskey-Monorepo/pull/309)
+- [`seo-14-canonical-host-and-redirect-consistency`](feature-runs/active/seo-14-canonical-host-and-redirect-consistency.md) — PR [#311](https://github.com/loopskey/Loopskey-Monorepo/pull/311)

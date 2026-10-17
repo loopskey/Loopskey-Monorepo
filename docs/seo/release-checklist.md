@@ -29,6 +29,10 @@ as pending.
       repository variable `NEXT_PUBLIC_SITE_URL`. The container refuses to start
       when either disagrees with the image; see
       `docs/seo/production-indexing-recovery.md`.
+- [ ] A change to host aliases, HTTPS redirects or the ingress follows
+      `docs/seo/canonical-host-and-redirects.md`: one layer owns each redirect,
+      cookie and OAuth settings were confirmed first, and the outside redirect
+      checks were recorded.
 - [ ] The deployment output shows `Smoke check of the public site` passing. The
       reason for a failure is kept in `$LOOPSKEY_BACKUP_DIR/smoke-<stamp>.log`.
 - [ ] Production smoke includes a checked eligible course detail; missing

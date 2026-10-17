@@ -22,24 +22,43 @@ const EVERY_PATH = "/:path*";
 
 const ROBOTS_TAG = { key: ROBOTS_TAG_HEADER, value: NOINDEX_DIRECTIVE };
 
-const canonicalHostRedirects = (): Redirects =>
-  CANONICAL_HOST_ALIASES.map((host) => ({
+type RedirectCondition = NonNullable<Redirects[number]["has"]>[number];
+
+const hostPattern = (host: string) => host.replaceAll(".", "\\.");
+
+const toCanonicalOrigin = (condition: RedirectCondition): Redirects => [
+  {
+    source: "/en",
+    has: [condition],
+    destination: `${SITE_ORIGIN}/`,
+    permanent: true,
+  },
+  {
+    source: "/en/:path*",
+    has: [condition],
+    destination: `${SITE_ORIGIN}/:path*`,
+    permanent: true,
+  },
+  {
     source: EVERY_PATH,
-    has: [{ type: "host", value: host }],
+    has: [condition],
     destination: `${SITE_ORIGIN}${EVERY_PATH}`,
     permanent: true,
-  }));
+  },
+];
+
+const canonicalHostRedirects = (): Redirects =>
+  CANONICAL_HOST_ALIASES.flatMap((host) =>
+    toCanonicalOrigin({ type: "host", value: hostPattern(host) }),
+  );
 
 const forwardedHttpRedirects = (): Redirects =>
   IS_HTTPS_REDIRECT_ENABLED
-    ? [
-        {
-          source: EVERY_PATH,
-          has: [{ type: "header", key: "x-forwarded-proto", value: "http" }],
-          destination: `${SITE_ORIGIN}${EVERY_PATH}`,
-          permanent: true,
-        },
-      ]
+    ? toCanonicalOrigin({
+        type: "header",
+        key: "x-forwarded-proto",
+        value: "http",
+      })
     : [];
 
 const englishPrefixRedirects = (): Redirects => [

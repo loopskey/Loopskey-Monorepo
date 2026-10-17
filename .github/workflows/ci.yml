@@ -135,6 +135,11 @@ jobs:
             --site-origin "$NEXT_PUBLIC_SITE_URL" \
             --environment "$DEPLOYMENT_ENV" \
             --profile static
+          node scripts/seo-audit.mjs \
+            --base-url http://127.0.0.1:3100 \
+            --site-origin "$NEXT_PUBLIC_SITE_URL" \
+            --environment "$DEPLOYMENT_ENV" \
+            --profile hosts
 
   api-image:
     name: API image dependencies
@@ -206,6 +211,8 @@ jobs:
           for environment in production staging; do
             docker build -f Dockerfile.front -t "loopskey-front:ci-$environment" \
               --build-arg NEXT_PUBLIC_SITE_URL=https://www.matrix.invalid \
+              --build-arg SITE_CANONICAL_HOST_ALIASES=matrix.invalid \
+              --build-arg SITE_HTTPS_REDIRECT=true \
               --build-arg DEPLOYMENT_ENV="$environment" \
               --build-arg BUILD_SHA="${{ github.sha }}" .
           done

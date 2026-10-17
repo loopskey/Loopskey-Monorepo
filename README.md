@@ -284,9 +284,12 @@ server {
 
 `SITE_CANONICAL_HOST_ALIASES` is the in-application equivalent, for a host the
 ingress hands through instead of redirecting: list the apex host there and the
-frontend answers it with a 308 to the canonical origin, preserving the path and
-query string. Only listed hosts are normalized, and listing the canonical host
-itself is rejected rather than allowed to redirect to itself.
+frontend answers it with a single 308 to the canonical origin, preserving the
+encoded path and query string (an `/en/...` request lands on the unprefixed
+URL in the same hop). List bare hostnames only: a scheme, port, path or the
+canonical host itself fails the build and the container start-up. Choosing
+between the two, cookie and OAuth settings, rollout and the redirect checks
+are in [`docs/seo/canonical-host-and-redirects.md`](docs/seo/canonical-host-and-redirects.md).
 
 Leave `SITE_HTTPS_REDIRECT` at `false` whenever the ingress already redirects
 HTTP, as the configuration above does. Set it to `true` only where TLS
