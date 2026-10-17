@@ -1,4 +1,5 @@
 import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
+import { AttachRetiredContentSlugInput } from "@contentUrl/dtos/attach-retired-content-slug.input";
 import { ContentUrlResolutionService } from "@contentUrl/services/content-url-resolution.service";
 import { ContentUrlResolutionEntity } from "@contentUrl/entities/content-url-settings.entity";
 import { ContentUrlGqlMutationNames } from "@contentUrl/enums/gql-names.enum";
@@ -46,6 +47,17 @@ export class ContentUrlResolver {
     @Args("input") input: ChangeContentSlugInput,
   ) {
     return this.urls.change(actorOf(user), input);
+  }
+
+  @Roles(Role.ADMIN)
+  @Mutation(() => ContentUrlSettingsEntity, {
+    name: ContentUrlGqlMutationNames.ATTACH_RETIRED_CONTENT_SLUG,
+  })
+  attachRetiredContentSlug(
+    @CurrentUser() user: JwtPayload,
+    @Args("input") input: AttachRetiredContentSlugInput,
+  ) {
+    return this.urls.attachRetiredSlug(actorOf(user), input);
   }
 
   @Public()

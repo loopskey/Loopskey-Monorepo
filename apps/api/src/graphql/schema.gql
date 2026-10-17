@@ -1398,6 +1398,14 @@ enum AssociationSubmissionWindow {
   WHOLE_PERIOD
 }
 
+input AttachRetiredContentSlugInput {
+  contentId: ID!
+  evidence: String!
+  expectedSlug: String!
+  kind: ContentUrlKind!
+  retiredSlug: String!
+}
+
 enum AuditAction {
   ADMIN_PROFILE_UPDATED
   ASSOCIATION_ACCOUNT_ACTIVATED
@@ -1410,6 +1418,7 @@ enum AuditAction {
   CONTENT_INDEX_EXCLUSION_CHANGED
   CONTENT_SEO_UPDATED
   CONTENT_SLUG_CHANGED
+  CONTENT_URL_ALIAS_ATTACHED
   INGESTION_ITEM_APPROVED
   INGESTION_ITEM_REJECTED
   ORGANIZATION_ACCOUNT_ACTIVATED
@@ -2866,6 +2875,7 @@ type Mutation {
   archiveEvent(eventId: String!): Event!
   archivePodcast(podcastId: String!): Podcast!
   archiveYouTubeChannel(channelId: String!): YouTubeChannel!
+  attachRetiredContentSlug(input: AttachRetiredContentSlugInput!): ContentUrlSettings!
   bulkAddOrganizationMembers(input: BulkAddOrganizationMembersInput!): BulkAddOrganizationMembersResult!
   bulkInviteAssociationMembers(input: BulkInviteAssociationMembersInput!): AssociationBulkInviteResult!
   cancelContentEnrollment(input: ContentActionInput!): ContentActionPayload!

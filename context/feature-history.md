@@ -148,3 +148,4 @@ into this index and do not rewrite previous records.
 - [`shared-stat-cards`](feature-runs/active/shared-stat-cards.md) — PR [#309](https://github.com/loopskey/Loopskey-Monorepo/pull/309)
 - [`seo-14-canonical-host-and-redirect-consistency`](feature-runs/active/seo-14-canonical-host-and-redirect-consistency.md) — PR [#311](https://github.com/loopskey/Loopskey-Monorepo/pull/311)
 - [`seo-15-publication-quality-and-probe-cleanup`](feature-runs/active/seo-15-publication-quality-and-probe-cleanup.md) — PR [#312](https://github.com/loopskey/Loopskey-Monorepo/pull/312)
+- [`seo-16-legacy-url-reconciliation-and-recovery`](feature-runs/active/seo-16-legacy-url-reconciliation-and-recovery.md) — PR [#313](https://github.com/loopskey/Loopskey-Monorepo/pull/313)

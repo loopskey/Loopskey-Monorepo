@@ -6,9 +6,17 @@ export type TContentUrlSettings = ContentUrlSettingsFieldsFragment;
 export type TContentUrlReadArg = { kind: PublicPageKind; contentId: string };
 
 export type TContentUrlChangeArg = {
-  kind: PublicPageKind;
-  contentId: string;
   slug: string;
+  contentId: string;
+  kind: PublicPageKind;
+  expectedSlug: string;
+};
+
+export type TContentUrlAttachArg = {
+  evidence: string;
+  contentId: string;
+  retiredSlug: string;
+  kind: PublicPageKind;
   expectedSlug: string;
 };
 

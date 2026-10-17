@@ -1,11 +1,13 @@
+import { AttachRetiredContentSlugDocument } from "@/lib/graphql/operations/content-url";
 import { ChangeContentSlugDocument } from "@/lib/graphql/operations/content-url";
 import { ContentUrlDocument } from "@/lib/graphql/operations/content-url";
 import { ContentUrlKind } from "@/lib/graphql/base";
 import { baseApi } from "@/lib/rtk/baseApi";
 
 import type { TContentUrlChangeArg } from "@/types/content-url.types";
-import type { TContentUrlReadArg } from "@/types/content-url.types";
+import type { TContentUrlAttachArg } from "@/types/content-url.types";
 import type { TContentUrlSettings } from "@/types/content-url.types";
+import type { TContentUrlReadArg } from "@/types/content-url.types";
 import type { PublicPageKind } from "@/lib/content-catalog/public-path";
 
 const URL_KIND: Record<PublicPageKind, ContentUrlKind> = {
@@ -43,8 +45,24 @@ export const contentUrlApi = baseApi.injectEndpoints({
       }) => response.changeContentSlug,
       invalidatesTags: ["Courses", "Events", "Podcasts", "YouTubeChannels"],
     }),
+
+    attachRetiredContentSlug: builder.mutation<
+      TContentUrlSettings,
+      TContentUrlAttachArg
+    >({
+      query: ({ kind, ...input }) => ({
+        document: AttachRetiredContentSlugDocument,
+        variables: { input: { kind: URL_KIND[kind], ...input } },
+      }),
+      transformResponse: (response: {
+        attachRetiredContentSlug: TContentUrlSettings;
+      }) => response.attachRetiredContentSlug,
+    }),
   }),
 });
 
-export const { useContentUrlQuery, useChangeContentSlugMutation } =
-  contentUrlApi;
+export const {
+  useContentUrlQuery,
+  useChangeContentSlugMutation,
+  useAttachRetiredContentSlugMutation,
+} = contentUrlApi;

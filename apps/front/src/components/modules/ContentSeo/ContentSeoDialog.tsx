@@ -316,7 +316,12 @@ const ContentSeoDialog = ({
           </div>
         )}
 
-        <ContentUrlSection contentId={contentId} editor={urlEditor} />
+        <ContentUrlSection
+          kind={kind}
+          editor={urlEditor}
+          contentId={contentId}
+          canRecoverRetiredSlugs={canModerateIndex}
+        />
 
         <DialogFooter className="gap-2 sm:justify-between">
           <Button

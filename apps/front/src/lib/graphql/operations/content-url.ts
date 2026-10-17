@@ -17,6 +17,13 @@ export type ChangeContentSlugMutationVariables = Types.Exact<{
 
 export type ChangeContentSlugMutation = { __typename?: 'Mutation', changeContentSlug: { __typename?: 'ContentUrlSettings', kind: Types.ContentUrlKind, contentId: string, slug: string, retiredSlugs: Array<string> } };
 
+export type AttachRetiredContentSlugMutationVariables = Types.Exact<{
+  input: Types.AttachRetiredContentSlugInput;
+}>;
+
+
+export type AttachRetiredContentSlugMutation = { __typename?: 'Mutation', attachRetiredContentSlug: { __typename?: 'ContentUrlSettings', kind: Types.ContentUrlKind, contentId: string, slug: string, retiredSlugs: Array<string> } };
+
 export type ResolveContentUrlQueryVariables = Types.Exact<{
   kind: Types.ContentUrlKind;
   slug: Types.Scalars['String']['input'];
@@ -57,6 +64,18 @@ export const ChangeContentSlugDocument = /*#__PURE__*/ new TypedDocumentString(`
   slug
   retiredSlugs
 }`) as unknown as TypedDocumentString<ChangeContentSlugMutation, ChangeContentSlugMutationVariables>;
+export const AttachRetiredContentSlugDocument = /*#__PURE__*/ new TypedDocumentString(`
+    mutation AttachRetiredContentSlug($input: AttachRetiredContentSlugInput!) {
+  attachRetiredContentSlug(input: $input) {
+    ...ContentUrlSettingsFields
+  }
+}
+    fragment ContentUrlSettingsFields on ContentUrlSettings {
+  kind
+  contentId
+  slug
+  retiredSlugs
+}`) as unknown as TypedDocumentString<AttachRetiredContentSlugMutation, AttachRetiredContentSlugMutationVariables>;
 export const ResolveContentUrlDocument = /*#__PURE__*/ new TypedDocumentString(`
     query ResolveContentUrl($kind: ContentUrlKind!, $slug: String!) {
   resolveContentUrl(kind: $kind, slug: $slug) {
