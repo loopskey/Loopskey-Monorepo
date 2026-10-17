@@ -2830,6 +2830,8 @@ enum AuditAction {
   PROVIDER_PROFILE_REVIEWED
   PROVIDER_PROFILE_WITHDRAWN
   PROVIDER_PROFILE_INDEX_EXCLUSION_CHANGED
+  INGESTION_ITEM_APPROVED
+  INGESTION_ITEM_REJECTED
 }
 
 model AuditLog {
@@ -3421,6 +3423,13 @@ enum IngestionItemState {
   REJECTED
 }
 
+enum IngestionReviewReason {
+  PLACEHOLDER_CONTENT
+  PLACEHOLDER_URL
+  PREVIOUSLY_REJECTED
+  MISSING_DESCRIPTION
+}
+
 model IngestionSource {
   id   String @id @default(cuid())
   slug String @unique
@@ -3516,8 +3525,9 @@ model IngestionItem {
   unmappedFields    String[] @default([])
   imageCandidateUrl String?
 
-  state           IngestionItemState @default(PENDING)
+  state           IngestionItemState      @default(PENDING)
   rejectionReason String?
+  reviewReasons   IngestionReviewReason[] @default([])
 
   reviewedById String?
   reviewedBy   User?     @relation(fields: [reviewedById], references: [id], onDelete: SetNull)
