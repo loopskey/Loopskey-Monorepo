@@ -22,6 +22,9 @@ const LOCAL_HOSTNAMES = new Set([
   "[::1]",
 ]);
 
+const HOSTNAME_PATTERN =
+  /^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z][a-z0-9-]{1,62}$/;
+
 const rejection = (reason, field, message) => ({ reason, field, message });
 
 const normalizeAliases = (value) =>
@@ -102,14 +105,24 @@ export const policyFromEnvironment = (env) => {
       ),
     );
 
+  const hostAliases = normalizeAliases(env.SITE_CANONICAL_HOST_ALIASES);
+  const canonicalHostname = origin ? new URL(origin).hostname : "";
+  if (
+    hostAliases.some(
+      (alias) => !HOSTNAME_PATTERN.test(alias) || alias === canonicalHostname,
+    )
+  )
+    problems.push(
+      rejection(
+        "ALIASES_INVALID",
+        "hostAliases",
+        "SITE_CANONICAL_HOST_ALIASES must list bare public hostnames without a scheme, port, path or credentials, and must not list the canonical host itself.",
+      ),
+    );
+
   return {
     problems,
-    policy: {
-      environment,
-      origin,
-      httpsRedirect,
-      hostAliases: normalizeAliases(env.SITE_CANONICAL_HOST_ALIASES),
-    },
+    policy: { environment, origin, httpsRedirect, hostAliases },
   };
 };
 
@@ -444,6 +457,29 @@ const selfTest = () => {
       ...productionEnvironment,
       SITE_HTTPS_REDIRECT: "yes",
     }).problems.some((problem) => problem.reason === "REDIRECT_INVALID"),
+  );
+  for (const aliases of [
+    "https://example.test",
+    "example.test:8443",
+    "example.test/path",
+    "user@example.test",
+    "www.example.test",
+    "localhost",
+    "exa mple.test",
+  ])
+    expect(
+      "invalid host aliases are rejected before comparison",
+      policyFromEnvironment({
+        ...productionEnvironment,
+        SITE_CANONICAL_HOST_ALIASES: aliases,
+      }).problems.some((problem) => problem.reason === "ALIASES_INVALID"),
+    );
+  expect(
+    "several valid host aliases are accepted",
+    policyFromEnvironment({
+      ...productionEnvironment,
+      SITE_CANONICAL_HOST_ALIASES: "example.test, old-example.test",
+    }).problems.length === 0,
   );
   expect(
     "a build with a malformed SHA is rejected",

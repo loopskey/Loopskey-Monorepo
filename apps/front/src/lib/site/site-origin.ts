@@ -83,15 +83,13 @@ const siteOrigin = parseSiteOrigin();
 
 export const SITE_ORIGIN = siteOrigin.origin;
 
-export const SITE_HOST = siteOrigin.host.toLowerCase();
-
 export const SITE_IS_HTTPS = siteOrigin.protocol === "https:";
 
 const parseHostAlias = (alias: string): string => {
-  if (alias.includes("://") || /[/\\?#@]/.test(alias))
+  if (alias.includes("://") || /[/\\?#@:]/.test(alias))
     throw configurationError(
       HOST_ALIASES_VARIABLE,
-      `"${alias}" must be a bare host, optionally with a port, and never a URL.`,
+      `"${alias}" must be a bare hostname with no port, and never a URL.`,
     );
 
   let parsed: URL;
@@ -104,13 +102,13 @@ const parseHostAlias = (alias: string): string => {
     );
   }
 
-  if (parsed.host.toLowerCase() !== alias)
+  if (parsed.hostname !== alias)
     throw configurationError(
       HOST_ALIASES_VARIABLE,
       `"${alias}" is not a valid host.`,
     );
 
-  if (alias === SITE_HOST)
+  if (alias === siteOrigin.hostname.toLowerCase())
     throw configurationError(
       HOST_ALIASES_VARIABLE,
       `"${alias}" is the canonical host itself, so it would redirect to itself.`,
