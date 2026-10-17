@@ -93,9 +93,9 @@ export type IngestionBatchQuery = { __typename?: 'Query', ingestionBatch: { __ty
 
 export type IngestionItemCatalogFieldsFragment = { __typename?: 'IngestionItemCatalog', id: string, title: string, slug?: string | null, status: Types.CourseStatus, imageUrl?: string | null };
 
-export type IngestionItemFieldsFragment = { __typename?: 'IngestionItem', id: string, sourceId: string, sourceSlug?: string | null, batchId?: string | null, externalId: string, canonicalUrl?: string | null, imageCandidateUrl?: string | null, unmappedFields: Array<string>, state: Types.IngestionItemState, rejectionReason?: string | null, reviewedById?: string | null, reviewedByName?: string | null, reviewedAt?: string | null, catalogId?: string | null, firstSeenAt: string, lastSeenAt: string, catalog?: { __typename?: 'IngestionItemCatalog', id: string, title: string, slug?: string | null, status: Types.CourseStatus, imageUrl?: string | null } | null };
+export type IngestionItemFieldsFragment = { __typename?: 'IngestionItem', id: string, sourceId: string, sourceSlug?: string | null, batchId?: string | null, externalId: string, canonicalUrl?: string | null, imageCandidateUrl?: string | null, unmappedFields: Array<string>, state: Types.IngestionItemState, rejectionReason?: string | null, reviewReasons: Array<Types.IngestionReviewReason>, reviewedById?: string | null, reviewedByName?: string | null, reviewedAt?: string | null, catalogId?: string | null, firstSeenAt: string, lastSeenAt: string, catalog?: { __typename?: 'IngestionItemCatalog', id: string, title: string, slug?: string | null, status: Types.CourseStatus, imageUrl?: string | null } | null };
 
-export type PaginatedIngestionItemsFieldsFragment = { __typename?: 'PaginatedIngestionItems', totalCount: number, pageInfo: { __typename?: 'IngestionPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'IngestionItem', id: string, sourceId: string, sourceSlug?: string | null, batchId?: string | null, externalId: string, canonicalUrl?: string | null, imageCandidateUrl?: string | null, unmappedFields: Array<string>, state: Types.IngestionItemState, rejectionReason?: string | null, reviewedById?: string | null, reviewedByName?: string | null, reviewedAt?: string | null, catalogId?: string | null, firstSeenAt: string, lastSeenAt: string, catalog?: { __typename?: 'IngestionItemCatalog', id: string, title: string, slug?: string | null, status: Types.CourseStatus, imageUrl?: string | null } | null }> };
+export type PaginatedIngestionItemsFieldsFragment = { __typename?: 'PaginatedIngestionItems', totalCount: number, pageInfo: { __typename?: 'IngestionPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'IngestionItem', id: string, sourceId: string, sourceSlug?: string | null, batchId?: string | null, externalId: string, canonicalUrl?: string | null, imageCandidateUrl?: string | null, unmappedFields: Array<string>, state: Types.IngestionItemState, rejectionReason?: string | null, reviewReasons: Array<Types.IngestionReviewReason>, reviewedById?: string | null, reviewedByName?: string | null, reviewedAt?: string | null, catalogId?: string | null, firstSeenAt: string, lastSeenAt: string, catalog?: { __typename?: 'IngestionItemCatalog', id: string, title: string, slug?: string | null, status: Types.CourseStatus, imageUrl?: string | null } | null }> };
 
 export type IngestionItemsQueryVariables = Types.Exact<{
   filter?: Types.InputMaybe<Types.IngestionItemFilter>;
@@ -103,14 +103,14 @@ export type IngestionItemsQueryVariables = Types.Exact<{
 }>;
 
 
-export type IngestionItemsQuery = { __typename?: 'Query', ingestionItems: { __typename?: 'PaginatedIngestionItems', totalCount: number, pageInfo: { __typename?: 'IngestionPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'IngestionItem', id: string, sourceId: string, sourceSlug?: string | null, batchId?: string | null, externalId: string, canonicalUrl?: string | null, imageCandidateUrl?: string | null, unmappedFields: Array<string>, state: Types.IngestionItemState, rejectionReason?: string | null, reviewedById?: string | null, reviewedByName?: string | null, reviewedAt?: string | null, catalogId?: string | null, firstSeenAt: string, lastSeenAt: string, catalog?: { __typename?: 'IngestionItemCatalog', id: string, title: string, slug?: string | null, status: Types.CourseStatus, imageUrl?: string | null } | null }> } };
+export type IngestionItemsQuery = { __typename?: 'Query', ingestionItems: { __typename?: 'PaginatedIngestionItems', totalCount: number, pageInfo: { __typename?: 'IngestionPageInfo', hasNextPage: boolean, nextCursor?: string | null }, items: Array<{ __typename?: 'IngestionItem', id: string, sourceId: string, sourceSlug?: string | null, batchId?: string | null, externalId: string, canonicalUrl?: string | null, imageCandidateUrl?: string | null, unmappedFields: Array<string>, state: Types.IngestionItemState, rejectionReason?: string | null, reviewReasons: Array<Types.IngestionReviewReason>, reviewedById?: string | null, reviewedByName?: string | null, reviewedAt?: string | null, catalogId?: string | null, firstSeenAt: string, lastSeenAt: string, catalog?: { __typename?: 'IngestionItemCatalog', id: string, title: string, slug?: string | null, status: Types.CourseStatus, imageUrl?: string | null } | null }> } };
 
 export type ApproveIngestionItemMutationVariables = Types.Exact<{
   itemId: Types.Scalars['String']['input'];
 }>;
 
 
-export type ApproveIngestionItemMutation = { __typename?: 'Mutation', approveIngestionItem: { __typename?: 'IngestionItem', id: string, sourceId: string, sourceSlug?: string | null, batchId?: string | null, externalId: string, canonicalUrl?: string | null, imageCandidateUrl?: string | null, unmappedFields: Array<string>, state: Types.IngestionItemState, rejectionReason?: string | null, reviewedById?: string | null, reviewedByName?: string | null, reviewedAt?: string | null, catalogId?: string | null, firstSeenAt: string, lastSeenAt: string, catalog?: { __typename?: 'IngestionItemCatalog', id: string, title: string, slug?: string | null, status: Types.CourseStatus, imageUrl?: string | null } | null } };
+export type ApproveIngestionItemMutation = { __typename?: 'Mutation', approveIngestionItem: { __typename?: 'IngestionItem', id: string, sourceId: string, sourceSlug?: string | null, batchId?: string | null, externalId: string, canonicalUrl?: string | null, imageCandidateUrl?: string | null, unmappedFields: Array<string>, state: Types.IngestionItemState, rejectionReason?: string | null, reviewReasons: Array<Types.IngestionReviewReason>, reviewedById?: string | null, reviewedByName?: string | null, reviewedAt?: string | null, catalogId?: string | null, firstSeenAt: string, lastSeenAt: string, catalog?: { __typename?: 'IngestionItemCatalog', id: string, title: string, slug?: string | null, status: Types.CourseStatus, imageUrl?: string | null } | null } };
 
 export type ApproveIngestionItemsMutationVariables = Types.Exact<{
   input: Types.ApproveIngestionItems;
@@ -124,7 +124,7 @@ export type RejectIngestionItemMutationVariables = Types.Exact<{
 }>;
 
 
-export type RejectIngestionItemMutation = { __typename?: 'Mutation', rejectIngestionItem: { __typename?: 'IngestionItem', id: string, sourceId: string, sourceSlug?: string | null, batchId?: string | null, externalId: string, canonicalUrl?: string | null, imageCandidateUrl?: string | null, unmappedFields: Array<string>, state: Types.IngestionItemState, rejectionReason?: string | null, reviewedById?: string | null, reviewedByName?: string | null, reviewedAt?: string | null, catalogId?: string | null, firstSeenAt: string, lastSeenAt: string, catalog?: { __typename?: 'IngestionItemCatalog', id: string, title: string, slug?: string | null, status: Types.CourseStatus, imageUrl?: string | null } | null } };
+export type RejectIngestionItemMutation = { __typename?: 'Mutation', rejectIngestionItem: { __typename?: 'IngestionItem', id: string, sourceId: string, sourceSlug?: string | null, batchId?: string | null, externalId: string, canonicalUrl?: string | null, imageCandidateUrl?: string | null, unmappedFields: Array<string>, state: Types.IngestionItemState, rejectionReason?: string | null, reviewReasons: Array<Types.IngestionReviewReason>, reviewedById?: string | null, reviewedByName?: string | null, reviewedAt?: string | null, catalogId?: string | null, firstSeenAt: string, lastSeenAt: string, catalog?: { __typename?: 'IngestionItemCatalog', id: string, title: string, slug?: string | null, status: Types.CourseStatus, imageUrl?: string | null } | null } };
 
 export const IngestionPageInfoFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
     fragment IngestionPageInfoFields on IngestionPageInfo {
@@ -251,6 +251,7 @@ export const IngestionItemFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentStr
   unmappedFields
   state
   rejectionReason
+  reviewReasons
   reviewedById
   reviewedByName
   reviewedAt
@@ -300,6 +301,7 @@ fragment IngestionItemFields on IngestionItem {
   unmappedFields
   state
   rejectionReason
+  reviewReasons
   reviewedById
   reviewedByName
   reviewedAt
@@ -566,6 +568,7 @@ fragment IngestionItemFields on IngestionItem {
   unmappedFields
   state
   rejectionReason
+  reviewReasons
   reviewedById
   reviewedByName
   reviewedAt
@@ -609,6 +612,7 @@ fragment IngestionItemFields on IngestionItem {
   unmappedFields
   state
   rejectionReason
+  reviewReasons
   reviewedById
   reviewedByName
   reviewedAt
@@ -651,6 +655,7 @@ fragment IngestionItemFields on IngestionItem {
   unmappedFields
   state
   rejectionReason
+  reviewReasons
   reviewedById
   reviewedByName
   reviewedAt

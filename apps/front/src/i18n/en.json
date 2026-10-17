@@ -7362,7 +7362,16 @@
         "filters": {
           "source": "Source",
           "allSources": "All sources",
-          "state": "State"
+          "state": "State",
+          "review": "Review",
+          "allItems": "All items",
+          "heldOnly": "Held for review"
+        },
+        "reasons": {
+          "PLACEHOLDER_CONTENT": "Placeholder title and description",
+          "PLACEHOLDER_URL": "Placeholder or unusable link",
+          "PREVIOUSLY_REJECTED": "Rejected before, changed since",
+          "MISSING_DESCRIPTION": "Add a description"
         },
         "table": {
           "title": "Title",

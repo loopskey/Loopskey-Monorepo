@@ -1,11 +1,12 @@
-import { publicContentChange } from "@utils/public-content-change.util";
 import { INGESTION_BULK_APPROVE_TRANSACTION_TIMEOUT_MS } from "@ingestion/enums/ingestion-review.constant";
 import { BadRequestException, ConflictException } from "@nestjs/common";
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { AuditAction, IngestionReviewReason } from "@prisma/client";
 import { INGESTION_BULK_APPROVE_CHUNK_SIZE } from "@ingestion/enums/ingestion-review.constant";
 import { COURSE_INGESTION_EVENT_VERSION } from "@ingestion/enums/course-ingestion.constant";
 import { COURSE_INGESTION_EVENT_NAME } from "@ingestion/enums/course-ingestion.constant";
 import { IngestionItemState, Prisma } from "@prisma/client";
+import { PUBLICATION_HOLD_REASONS } from "@ingestion/utils/publication-quality.util";
 import { validateCanonicalFieldMap } from "@ingestion/utils/canonical-field-map.util";
 import { PODCAST_CANONICAL_FIELDS } from "@ingestion/enums/podcast-ingestion.constant";
 import { YOUTUBE_CANONICAL_FIELDS } from "@ingestion/enums/youtube-ingestion.constant";
@@ -17,6 +18,7 @@ import { IngestionApiKeyService } from "@ingestion/services/ingestion-api-key.se
 import { TClaimedIngestionItem } from "@ingestion/types/ingestion-admin.types";
 import { IngestionContentKind } from "@prisma/client";
 import { IngestionMessageCode } from "@ingestion/enums/message-code.enum";
+import { publicContentChange } from "@utils/public-content-change.util";
 import { CourseFieldMapError } from "@ingestion/utils/course-field-map.util";
 import { TBulkApprovalScope } from "@ingestion/types/ingestion-admin.types";
 import { TIngestionItemRow } from "@ingestion/types/ingestion-admin.types";
@@ -240,6 +242,9 @@ export class IngestionAdminService {
     const where: Prisma.IngestionItemWhereInput = {
       ...(filter?.sourceId ? { sourceId: filter.sourceId } : {}),
       ...(filter?.state ? { state: filter.state } : {}),
+      ...(filter?.heldForReview
+        ? { reviewReasons: { hasSome: [...PUBLICATION_HOLD_REASONS] } }
+        : {}),
     };
 
     const rows = await this.prisma.ingestionItem.findMany({
@@ -268,7 +273,13 @@ export class IngestionAdminService {
   ) {
     const sourceId = filter?.sourceId ?? null;
     const state = filter?.state ?? null;
-    const totalCount = await this.countSearchMatches(sourceId, state, search);
+    const held = filter?.heldForReview ?? false;
+    const totalCount = await this.countSearchMatches(
+      sourceId,
+      state,
+      held,
+      search,
+    );
 
     const cursorAnchor = pagination.cursor
       ? await this.prisma.ingestionItem.findUnique({
@@ -287,6 +298,7 @@ export class IngestionAdminService {
         JOIN (${matches}) matched ON matched."id" = ii."catalogId"
         WHERE (${sourceId}::text IS NULL OR ii."sourceId" = ${sourceId}::text)
           AND (${state}::"IngestionItemState" IS NULL OR ii."state" = ${state}::"IngestionItemState")
+          AND (${held}::boolean = false OR ${this.heldCondition("ii")})
           AND (
             ${cursorAnchor?.createdAt ?? null}::timestamp(3) IS NULL
             OR (ii."createdAt", ii."id") < (${cursorAnchor?.createdAt ?? null}::timestamp(3), ${cursorAnchor?.id ?? null}::text)
@@ -319,6 +331,7 @@ export class IngestionAdminService {
   private async countSearchMatches(
     sourceId: string | null,
     state: IngestionItemState | null,
+    held: boolean,
     search: string,
   ) {
     const matches = this.matchingCatalogIdsFragment(search);
@@ -329,6 +342,7 @@ export class IngestionAdminService {
         JOIN (${matches}) matched ON matched."id" = ii."catalogId"
         WHERE (${sourceId}::text IS NULL OR ii."sourceId" = ${sourceId}::text)
           AND (${state}::"IngestionItemState" IS NULL OR ii."state" = ${state}::"IngestionItemState")
+          AND (${held}::boolean = false OR ${this.heldCondition("ii")})
       `,
     );
     return Number(rows[0]?.count ?? 0);
@@ -410,6 +424,18 @@ export class IngestionAdminService {
       }
 
       await this.setCatalogStatus(tx, source.kind, item.catalogId, "PUBLISHED");
+      await this.recordReview(
+        tx,
+        actorId,
+        AuditAction.INGESTION_ITEM_APPROVED,
+        {
+          itemId: item.id,
+          catalogId: item.catalogId,
+          kind: source.kind,
+          fromState: item.state,
+          reviewReasons: item.reviewReasons,
+        },
+      );
       await this.outbox.append(
         {
           eventName: COURSE_INGESTION_EVENT_NAME,
@@ -444,6 +470,7 @@ export class IngestionAdminService {
         const rows = await this.claimItemsForApproval(tx, actorId, scope);
         await this.publishClaimedCatalogRows(tx, rows);
         await this.appendPublishedEvents(tx, rows);
+        await this.recordBulkApproval(tx, actorId, rows);
         return rows;
       },
       { timeout: INGESTION_BULK_APPROVE_TRANSACTION_TIMEOUT_MS },
@@ -495,13 +522,24 @@ export class IngestionAdminService {
         });
       }
 
-      if (item.catalogId) {
-        const source = await tx.ingestionSource.findUniqueOrThrow({
-          where: { id: item.sourceId },
-          select: { kind: true },
-        });
+      const source = await tx.ingestionSource.findUniqueOrThrow({
+        where: { id: item.sourceId },
+        select: { kind: true },
+      });
+      if (item.catalogId)
         await this.setCatalogStatus(tx, source.kind, item.catalogId, "DRAFT");
-      }
+      await this.recordReview(
+        tx,
+        actorId,
+        AuditAction.INGESTION_ITEM_REJECTED,
+        {
+          itemId: item.id,
+          catalogId: item.catalogId,
+          kind: source.kind,
+          fromState: item.state,
+          reviewReasons: item.reviewReasons,
+        },
+      );
 
       this.logger.log("Rejected an ingestion item.", {
         correlationId: requestContext.correlationId(),
@@ -527,6 +565,7 @@ export class IngestionAdminService {
     const conditions = [
       Prisma.sql`c."catalogId" IS NOT NULL`,
       Prisma.sql`c."state" <> 'ACCEPTED'::"IngestionItemState"`,
+      Prisma.sql`NOT ${this.heldCondition("c")}`,
     ];
     if (scope.itemIds) {
       conditions.push(Prisma.sql`c."id" = ANY(${scope.itemIds}::text[])`);
@@ -570,6 +609,62 @@ export class IngestionAdminService {
         RETURNING ii."id" AS "id", ii."sourceId" AS "sourceId", ii."catalogId" AS "catalogId", s."kind" AS "kind"
       `,
     );
+  }
+
+  private heldCondition(alias: "c" | "ii") {
+    return Prisma.sql`${Prisma.raw(`${alias}."reviewReasons"`)} && ARRAY[${Prisma.join(
+      PUBLICATION_HOLD_REASONS.map((reason) => Prisma.sql`${reason}`),
+    )}]::"IngestionReviewReason"[]`;
+  }
+
+  private recordReview(
+    tx: Prisma.TransactionClient,
+    actorId: string,
+    action: AuditAction,
+    metadata: {
+      itemId: string;
+      catalogId: string | null;
+      kind: IngestionContentKind;
+      fromState: IngestionItemState;
+      reviewReasons: IngestionReviewReason[];
+    },
+  ) {
+    return tx.auditLog.create({
+      data: {
+        actorId,
+        action,
+        entityType: "IngestionItem",
+        entityId: metadata.itemId,
+        metadata: {
+          ...metadata,
+          correlationId: requestContext.correlationId() ?? null,
+        },
+      },
+    });
+  }
+
+  private async recordBulkApproval(
+    tx: Prisma.TransactionClient,
+    actorId: string,
+    rows: TClaimedIngestionItem[],
+  ) {
+    if (rows.length === 0) return;
+    const correlationId = requestContext.correlationId() ?? null;
+    await tx.auditLog.createMany({
+      data: rows.map((row) => ({
+        actorId,
+        action: AuditAction.INGESTION_ITEM_APPROVED,
+        entityType: "IngestionItem",
+        entityId: row.id,
+        metadata: {
+          itemId: row.id,
+          catalogId: row.catalogId,
+          kind: row.kind,
+          bulk: true,
+          correlationId,
+        },
+      })),
+    });
   }
 
   private async publishClaimedCatalogRows(

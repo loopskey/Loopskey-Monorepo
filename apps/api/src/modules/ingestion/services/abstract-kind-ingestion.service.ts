@@ -8,9 +8,12 @@ import { KIND_INGESTION_EVENT_VERSION } from "@ingestion/enums/kind-ingestion.co
 import { IngestionItemState, Prisma } from "@prisma/client";
 import { KIND_INGESTION_EVENT_NAME } from "@ingestion/enums/kind-ingestion.constant";
 import { KIND_INGESTION_ITEM_LIMIT } from "@ingestion/enums/kind-ingestion.constant";
+import { assessPublicationQuality } from "@ingestion/utils/publication-quality.util";
 import { uniqueViolationTargets } from "@ingestion/utils/ingestion-batch.util";
+import { IngestionReviewReason } from "@prisma/client";
 import { IngestionContentKind } from "@prisma/client";
 import { isUniqueViolation } from "@ingestion/utils/ingestion-batch.util";
+import { holdsPublication } from "@ingestion/utils/publication-quality.util";
 import { requestContext } from "@infrastructure/observability/request-context";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { PrismaService } from "@prisma/prisma.service";
@@ -30,6 +33,13 @@ type LockedItem = {
   id: string;
   canonicalHash: string;
   catalogId: string | null;
+  state: IngestionItemState;
+  reviewedById: string | null;
+};
+
+type PublicationText = {
+  title?: string | null;
+  description?: string | null;
 };
 
 export type CatalogWriteResult = {
@@ -62,16 +72,13 @@ export abstract class AbstractKindIngestionService<TCanonical>
     includeUnmappedValues: boolean,
   ): PreparedKindItem<TCanonical>;
 
-  /** The canonical URL and image candidate every kind's core shape carries. */
   protected abstract coreLinks(prepared: AcceptedKindItem<TCanonical>): {
     canonicalUrl: string;
     imageCandidateUrl: string | null;
   };
 
-  /** Whether a catalog row for this `externalRef` already exists (dry run only). */
   protected abstract catalogExists(externalRef: string): Promise<boolean>;
 
-  /** Upsert the catalog row and its child rows; return the row id and whether it was new. */
   protected abstract writeCatalog(
     tx: Prisma.TransactionClient,
     source: TIngestionSourceContext,
@@ -139,23 +146,29 @@ export abstract class AbstractKindIngestionService<TCanonical>
             return report;
           }
 
+          const links = this.coreLinks(prepared);
+          const reviewReasons = this.reviewReasons(prepared, existing, links);
+          const publishing = {
+            ...source,
+            autoPublish: source.autoPublish && !holdsPublication(reviewReasons),
+          };
           const { catalogId, changeState } = await this.writeCatalog(
             tx,
-            source,
+            publishing,
             prepared,
             attempt,
           );
-          const links = this.coreLinks(prepared);
           const itemData = {
             batchId: args.batchId,
             canonicalUrl: links.canonicalUrl,
             canonicalHash: prepared.canonicalHash,
             unmappedFields: prepared.unmappedFields,
             imageCandidateUrl: links.imageCandidateUrl,
-            state: source.autoPublish
+            state: publishing.autoPublish
               ? IngestionItemState.ACCEPTED
               : IngestionItemState.PENDING,
             rejectionReason: null,
+            reviewReasons,
             catalogId,
             lastSeenAt: new Date(),
           };
@@ -173,6 +186,15 @@ export abstract class AbstractKindIngestionService<TCanonical>
                 },
                 select: { id: true },
               });
+
+          if (source.autoPublish && !publishing.autoPublish)
+            this.logger.warn("Held an ingested item for review.", {
+              correlationId: requestContext.correlationId(),
+              sourceId: source.sourceId,
+              itemId: item.id,
+              kind: this.kind,
+              reviewReasons,
+            });
 
           await this.outbox.append(
             {
@@ -272,12 +294,33 @@ export abstract class AbstractKindIngestionService<TCanonical>
     externalId: string,
   ): Promise<LockedItem | null> {
     const rows = await tx.$queryRaw<LockedItem[]>`
-      SELECT "id", "canonicalHash", "catalogId"
+      SELECT "id", "canonicalHash", "catalogId", "state", "reviewedById"
       FROM "IngestionItem"
       WHERE "sourceId" = ${sourceId} AND "externalId" = ${externalId}
       FOR UPDATE
     `;
     return rows[0] ?? null;
+  }
+
+  private reviewReasons(
+    prepared: AcceptedKindItem<TCanonical>,
+    existing: LockedItem | null,
+    links: { canonicalUrl: string },
+  ): IngestionReviewReason[] {
+    const text = prepared.canonical as PublicationText;
+    const rejectedByReviewer =
+      existing?.state === IngestionItemState.REJECTED &&
+      existing.reviewedById !== null;
+    return [
+      ...(rejectedByReviewer
+        ? [IngestionReviewReason.PREVIOUSLY_REJECTED]
+        : []),
+      ...assessPublicationQuality({
+        title: text.title,
+        description: text.description,
+        urls: [links.canonicalUrl],
+      }),
+    ];
   }
 
   protected externalRef(source: TIngestionSourceContext, externalId: string) {
