@@ -1,7 +1,8 @@
-import { IsEnum, IsOptional, IsString, MaxLength } from "class-validator";
+import { IsBoolean, IsEnum, IsOptional, IsString } from "class-validator";
 import { IngestionGqlInputNames } from "@ingestion/enums/ingestion-gql-names.enum";
 import { IngestionItemState } from "@prisma/client";
 import { Field, InputType } from "@nestjs/graphql";
+import { MaxLength } from "class-validator";
 
 @InputType(IngestionGqlInputNames.INGESTION_ITEM_FILTER)
 export class IngestionItemFilterInput {
@@ -20,4 +21,9 @@ export class IngestionItemFilterInput {
   @IsString()
   @MaxLength(200)
   search?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsBoolean()
+  heldForReview?: boolean;
 }

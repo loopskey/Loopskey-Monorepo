@@ -1,10 +1,11 @@
 "use client";
 
+import { IngestionItemState, IngestionReviewReason } from "@/lib/graphql/base";
 import { AdminIngestionBulkApproveDialog } from "@modules/AdminDashboard/parts/admin-ingestion-bulk-approve-dialog";
 import { AdminIngestionRejectDialog } from "@modules/AdminDashboard/parts/admin-ingestion-reject-dialog";
 import { TUseAdminIngestionTab } from "@hooks/useAdminIngestionTab";
-import { IngestionItemState } from "@/lib/graphql/base";
 import { DataTableFilters } from "@elements/data-table/data-table-filters";
+import { ChartStatus } from "@elements/charts/chart-status";
 import { formatDate } from "@/utils/function-helper";
 import { DataTable } from "@elements/data-table/data-table";
 import { GlassCard } from "@elements/glass-card";
@@ -17,6 +18,12 @@ import * as L from "lucide-react";
 
 const REVIEW = "adminDashboard.ingestion.review";
 const ALL = "ALL";
+
+const HELD = "HELD";
+
+const RECOMMENDATION_REASONS: IngestionReviewReason[] = [
+  IngestionReviewReason.MissingDescription,
+];
 
 const REVIEW_STATES = [
   IngestionItemState.Pending,
@@ -41,6 +48,8 @@ export const AdminIngestionReviewQueue = ({
     sourcesQuery,
     bulkProgress,
     reviewSearch,
+    reviewHeld,
+    setReviewHeld,
     setReviewState,
     reviewNextPage,
     reviewSourceId,
@@ -187,6 +196,18 @@ export const AdminIngestionReviewQueue = ({
                     label: state,
                   })),
                 },
+                {
+                  type: "select",
+                  id: "held",
+                  value: reviewHeld ? HELD : ALL,
+                  defaultValue: ALL,
+                  label: t(`${REVIEW}.filters.review`),
+                  onChange: (value) => setReviewHeld(value === HELD),
+                  options: [
+                    { value: ALL, label: t(`${REVIEW}.filters.allItems`) },
+                    { value: HELD, label: t(`${REVIEW}.filters.heldOnly`) },
+                  ],
+                },
               ]}
             />
           }
@@ -236,6 +257,23 @@ export const AdminIngestionReviewQueue = ({
                   {item.rejectionReason && (
                     <span className="mt-1 block max-w-48 whitespace-normal text-xs text-muted-foreground">
                       {item.rejectionReason}
+                    </span>
+                  )}
+                  {item.reviewReasons.length > 0 && (
+                    <span className="mt-1.5 flex max-w-56 flex-wrap gap-1">
+                      {item.reviewReasons.map((reason) => (
+                        <ChartStatus
+                          key={reason}
+                          tone={
+                            RECOMMENDATION_REASONS.includes(reason)
+                              ? "info"
+                              : "warning"
+                          }
+                          className="h-auto min-h-6 whitespace-normal py-0.5"
+                        >
+                          {t(`${REVIEW}.reasons.${reason}`)}
+                        </ChartStatus>
+                      ))}
                     </span>
                   )}
                 </span>

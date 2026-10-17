@@ -133,6 +133,14 @@ describe("Ingestion admin GraphQL API (e2e)", () => {
         where: { slug: { startsWith: `${SLUG_PREFIX}-forbidden` } },
       }),
     ).toBe(0);
+    for (const mutation of [
+      `mutation { approveIngestionItem(itemId: "missing") { id } }`,
+      `mutation { rejectIngestionItem(input: { itemId: "missing", reason: "Not allowed" }) { id } }`,
+      `mutation { approveIngestionItems(input: {}) { approvedCount } }`,
+    ]) {
+      const moderation = await graphql({ query: mutation }, professionalToken);
+      expect(moderation.body.errors[0].extensions.code).toBe("FORBIDDEN");
+    }
   });
 
   it("lets an administrator create, read, update, activate and deactivate a source", async () => {

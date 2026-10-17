@@ -1,5 +1,6 @@
 import { IngestionContentKind, IngestionItemState } from "@prisma/client";
 import { IngestionBatchMode, IngestionBatchStatus } from "@prisma/client";
+import { IngestionReviewReason } from "@prisma/client";
 import { registerEnumType } from "@nestjs/graphql";
 
 registerEnumType(IngestionContentKind, {
@@ -16,4 +17,8 @@ registerEnumType(IngestionBatchStatus, {
 
 registerEnumType(IngestionItemState, {
   name: "IngestionItemState",
+});
+
+registerEnumType(IngestionReviewReason, {
+  name: "IngestionReviewReason",
 });

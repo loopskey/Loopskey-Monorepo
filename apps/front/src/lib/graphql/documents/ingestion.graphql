@@ -179,6 +179,7 @@ fragment IngestionItemFields on IngestionItem {
   unmappedFields
   state
   rejectionReason
+  reviewReasons
   reviewedById
   reviewedByName
   reviewedAt
