@@ -8451,6 +8451,23 @@
         "notFound": "This page no longer exists.",
         "forbidden": "You cannot change the address of this page.",
         "failed": "We could not change the address. Try again."
+      },
+      "recovery": {
+        "title": "Recover an earlier address",
+        "description": "Attach an old address that verifiably belonged to this same page, so links to it reach the current address in one redirect. The current address does not change.",
+        "fields": {
+          "slug": "Earlier address slug",
+          "evidence": "Evidence of identity"
+        },
+        "evidenceHint": "Record how you verified it is the same page, such as the original source id or the owner's confirmation. A similar title is not evidence.",
+        "confirm": "I verified this earlier address belonged to this same page.",
+        "action": "Attach earlier address",
+        "feedback": {
+          "attached": "The earlier address now redirects to this page.",
+          "taken": "That address belongs to another page or was used by one. It cannot be reassigned.",
+          "notPublic": "Only a published page can receive an earlier address.",
+          "failed": "We could not attach the earlier address. Try again."
+        }
       }
     },
     "admin": {

@@ -16,6 +16,10 @@ const CONTENT_URL = `query($kind: ContentUrlKind!, $contentId: String!) {
 const CHANGE = `mutation($input: ChangeContentSlugInput!) {
   changeContentSlug(input: $input) { ${SETTINGS} }
 }`;
+const ATTACH = `mutation($input: AttachRetiredContentSlugInput!) {
+  attachRetiredContentSlug(input: $input) { ${SETTINGS} }
+}`;
+const EVIDENCE = "Original crawler id matches the live record";
 const RESOLVE = `query($kind: ContentUrlKind!, $slug: String!) {
   resolveContentUrl(kind: $kind, slug: $slug) { slug }
 }`;
@@ -77,6 +81,27 @@ describe("Content slug history and redirects (e2e)", () => {
           contentId: created.id,
           slug,
           expectedSlug,
+        },
+      },
+      bearer,
+    );
+
+  const attach = (
+    config: KindConfig,
+    created: { id: string },
+    retiredSlug: string,
+    expectedSlug: string,
+    bearer = admin.bearer,
+  ) =>
+    call(
+      ATTACH,
+      {
+        input: {
+          kind: config.kind,
+          contentId: created.id,
+          retiredSlug,
+          expectedSlug,
+          evidence: EVIDENCE,
         },
       },
       bearer,
@@ -553,6 +578,222 @@ describe("Content slug history and redirects (e2e)", () => {
         const taker = await config.create("taker", owner.id);
         const response = await change(config, taker, created.slug, taker.slug);
         expect(errorCode(response)).toBe("CONTENT_URL_SLUG_TAKEN");
+      });
+
+      it("attaches a verified retired path without renaming the live record, idempotently and with one audit row", async () => {
+        const created = await config.create("alias", owner.id);
+        const legacy = word("legacy");
+        const response = await attach(config, created, legacy, created.slug);
+        expect(response.body.errors).toBeUndefined();
+        expect(response.body.data.attachRetiredContentSlug).toEqual({
+          kind: config.kind,
+          contentId: created.id,
+          slug: created.slug,
+          retiredSlugs: [legacy],
+        });
+        expect(await config.slugOf(created.id)).toBe(created.slug);
+        expect(await resolve(config, legacy)).toBe(created.slug);
+
+        const retries = await runTogether(3, () =>
+          attach(config, created, legacy, created.slug),
+        );
+        for (const retry of retries) {
+          expect(retry.status).toBe("fulfilled");
+          if (retry.status === "fulfilled")
+            expect(retry.value.body.errors).toBeUndefined();
+        }
+        const rows = await claims(config, created.id);
+        expect(rows).toHaveLength(2);
+        expect(rows.filter((row) => row.isCurrent)).toHaveLength(1);
+        const audit = await ctx.prisma.auditLog.findMany({
+          where: {
+            entityId: created.id,
+            action: "CONTENT_URL_ALIAS_ATTACHED",
+          },
+        });
+        expect(audit).toHaveLength(1);
+        expect(audit[0]).toMatchObject({ actorId: admin.id });
+        expect(audit[0].metadata).toMatchObject({
+          retiredSlug: legacy,
+          currentSlug: created.slug,
+          evidence: EVIDENCE,
+        });
+      });
+
+      it("points two recovered paths at the current slug in one hop each", async () => {
+        const created = await config.create("alias-two", owner.id);
+        const first = word("legacy-a");
+        const second = word("legacy-b");
+        await attach(config, created, first, created.slug);
+        await attach(config, created, second, created.slug);
+        expect(await resolve(config, first)).toBe(created.slug);
+        expect(await resolve(config, second)).toBe(created.slug);
+
+        const next = word("alias-two-next");
+        await change(config, created, next, created.slug);
+        for (const old of [first, second, created.slug])
+          expect(await resolve(config, old)).toBe(next);
+      });
+
+      it("refuses another record's paths, a stale expected slug and the current slug itself", async () => {
+        const created = await config.create("alias-refuse", owner.id);
+        const other = await config.create("alias-other", owner.id);
+        expect(
+          errorCode(await attach(config, created, other.slug, created.slug)),
+        ).toBe("CONTENT_URL_SLUG_TAKEN");
+
+        const otherNext = word("alias-other-next");
+        await change(config, other, otherNext, other.slug);
+        expect(
+          errorCode(await attach(config, created, other.slug, created.slug)),
+        ).toBe("CONTENT_URL_SLUG_TAKEN");
+        expect(await resolve(config, other.slug)).toBe(otherNext);
+
+        expect(
+          errorCode(
+            await attach(config, created, word("alias-stale"), "not-current"),
+          ),
+        ).toBe("CONTENT_URL_VERSION_CONFLICT");
+        expect(
+          errorCode(await attach(config, created, created.slug, created.slug)),
+        ).toBe("CONTENT_URL_INVALID_SLUG");
+        expect(
+          errorCode(await attach(config, created, "Not A Slug!", created.slug)),
+        ).toBe("CONTENT_URL_INVALID_SLUG");
+        expect(await claims(config, created.id)).toHaveLength(1);
+      });
+
+      it("refuses a hidden target and stops resolving once the target is withdrawn", async () => {
+        const hidden = await config.create("alias-hidden", owner.id);
+        await config.hide(hidden.id);
+        const legacy = word("alias-hidden-old");
+        expect(
+          errorCode(await attach(config, hidden, legacy, hidden.slug)),
+        ).toBe("CONTENT_URL_TARGET_NOT_PUBLIC");
+        expect(
+          await ctx.prisma.contentUrlClaim.count({
+            where: { namespace: config.kind, slug: legacy },
+          }),
+        ).toBe(0);
+
+        const live = await config.create("alias-withdrawn", owner.id);
+        const old = word("alias-withdrawn-old");
+        await attach(config, live, old, live.slug);
+        expect(await resolve(config, old)).toBe(live.slug);
+        await config.hide(live.id);
+        expect(await resolve(config, old)).toBeNull();
+      });
+
+      it("lets only an administrator recover a path and writes nothing otherwise", async () => {
+        const created = await config.create("alias-authz", owner.id);
+        const legacy = word("alias-authz-old");
+        const anonymous = await call(ATTACH, {
+          input: {
+            kind: config.kind,
+            contentId: created.id,
+            retiredSlug: legacy,
+            expectedSlug: created.slug,
+            evidence: EVIDENCE,
+          },
+        });
+        expect(errorCode(anonymous)).toBe("UNAUTHENTICATED");
+        for (const bearer of [owner.bearer, professional.bearer]) {
+          const denied = await attach(
+            config,
+            created,
+            legacy,
+            created.slug,
+            bearer,
+          );
+          expect(errorCode(denied)).toBe("FORBIDDEN");
+        }
+        const noEvidence = await call(
+          ATTACH,
+          {
+            input: {
+              kind: config.kind,
+              contentId: created.id,
+              retiredSlug: legacy,
+              expectedSlug: created.slug,
+              evidence: "short",
+            },
+          },
+          admin.bearer,
+        );
+        expect(errorCode(noEvidence)).toBeDefined();
+        expect(
+          await ctx.prisma.contentUrlClaim.count({
+            where: { namespace: config.kind, slug: legacy },
+          }),
+        ).toBe(0);
+      });
+
+      it("keeps a recovered path from being reused by a new or renamed record", async () => {
+        const created = await config.create("alias-keep", owner.id);
+        const legacy = word("alias-keep-old");
+        await attach(config, created, legacy, created.slug);
+        const other = await config.create("alias-keep-other", owner.id);
+        await expect(config.setSlug(other.id, legacy)).rejects.toThrow();
+        expect(errorCode(await change(config, other, legacy, other.slug))).toBe(
+          "CONTENT_URL_SLUG_TAKEN",
+        );
+        expect(await resolve(config, legacy)).toBe(created.slug);
+      });
+
+      it("resolves a recovery racing another record's rename to the same path to one winner", async () => {
+        const target = await config.create("alias-race", owner.id);
+        const rival = await config.create("alias-rival", owner.id);
+        const wanted = word("alias-race-path");
+        const outcomes = await runTogether(2, (index) =>
+          index === 0
+            ? attach(config, target, wanted, target.slug)
+            : change(config, rival, wanted, rival.slug),
+        );
+        const codes = outcomes.map((outcome) =>
+          outcome.status === "fulfilled"
+            ? (errorCode(outcome.value) ?? "OK")
+            : "REJECTED",
+        );
+        expect(codes.sort()).toEqual(["CONTENT_URL_SLUG_TAKEN", "OK"]);
+        const rows = await ctx.prisma.contentUrlClaim.findMany({
+          where: { namespace: config.kind, slug: wanted },
+        });
+        expect(rows).toHaveLength(1);
+        const rivalSlug = await config.slugOf(rival.id);
+        if (rows[0].targetId === rival.id) expect(rivalSlug).toBe(wanted);
+        else {
+          expect(rows[0]).toMatchObject({
+            targetId: target.id,
+            isCurrent: false,
+          });
+          expect(rivalSlug).toBe(rival.slug);
+        }
+        expect(await config.slugOf(target.id)).toBe(target.slug);
+      });
+
+      it("serializes a recovery with a rename of its own target", async () => {
+        const created = await config.create("alias-serial", owner.id);
+        const legacy = word("alias-serial-old");
+        const next = word("alias-serial-next");
+        const outcomes = await runTogether(2, (index) =>
+          index === 0
+            ? attach(config, created, legacy, created.slug)
+            : change(config, created, next, created.slug),
+        );
+        const [attachCode, changeCode] = outcomes.map((outcome) =>
+          outcome.status === "fulfilled"
+            ? (errorCode(outcome.value) ?? "OK")
+            : "REJECTED",
+        );
+        expect(changeCode).toBe("OK");
+        expect(["OK", "CONTENT_URL_VERSION_CONFLICT"]).toContain(attachCode);
+        expect(await config.slugOf(created.id)).toBe(next);
+        const rows = await claims(config, created.id);
+        expect(rows.filter((row) => row.isCurrent)).toHaveLength(1);
+        expect(rows.find((row) => row.isCurrent)?.slug).toBe(next);
+        expect(await resolve(config, legacy)).toBe(
+          attachCode === "OK" ? next : null,
+        );
       });
 
       it("resolves nothing for malformed or unknown paths", async () => {

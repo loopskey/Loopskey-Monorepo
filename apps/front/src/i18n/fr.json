@@ -8451,6 +8451,23 @@
         "notFound": "Cette page n’existe plus.",
         "forbidden": "Vous ne pouvez pas modifier l’adresse de cette page.",
         "failed": "Nous n’avons pas pu changer l’adresse. Réessayez."
+      },
+      "recovery": {
+        "title": "Récupérer une ancienne adresse",
+        "description": "Rattachez une ancienne adresse dont il est prouvé qu'elle appartenait à cette même page, pour que ses liens mènent à l'adresse actuelle en une seule redirection. L'adresse actuelle ne change pas.",
+        "fields": {
+          "slug": "Ancienne adresse",
+          "evidence": "Preuve d'identité"
+        },
+        "evidenceHint": "Indiquez comment vous avez vérifié qu'il s'agit de la même page, par exemple l'identifiant d'origine ou la confirmation du propriétaire. Un titre proche n'est pas une preuve.",
+        "confirm": "J'ai vérifié que cette ancienne adresse appartenait à cette même page.",
+        "action": "Rattacher l'ancienne adresse",
+        "feedback": {
+          "attached": "L'ancienne adresse redirige désormais vers cette page.",
+          "taken": "Cette adresse appartient ou a appartenu à une autre page. Elle ne peut pas être réattribuée.",
+          "notPublic": "Seule une page publiée peut recevoir une ancienne adresse.",
+          "failed": "Impossible de rattacher l'ancienne adresse. Réessayez."
+        }
       }
     },
     "admin": {

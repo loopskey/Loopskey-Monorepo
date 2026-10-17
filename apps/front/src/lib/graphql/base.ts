@@ -1491,6 +1491,14 @@ export enum AssociationSubmissionWindow {
   WholePeriod = 'WHOLE_PERIOD'
 }
 
+export type AttachRetiredContentSlugInput = {
+  contentId: Scalars['ID']['input'];
+  evidence: Scalars['String']['input'];
+  expectedSlug: Scalars['String']['input'];
+  kind: ContentUrlKind;
+  retiredSlug: Scalars['String']['input'];
+};
+
 export enum AuditAction {
   AdminProfileUpdated = 'ADMIN_PROFILE_UPDATED',
   AssociationAccountActivated = 'ASSOCIATION_ACCOUNT_ACTIVATED',
@@ -1503,6 +1511,7 @@ export enum AuditAction {
   ContentIndexExclusionChanged = 'CONTENT_INDEX_EXCLUSION_CHANGED',
   ContentSeoUpdated = 'CONTENT_SEO_UPDATED',
   ContentSlugChanged = 'CONTENT_SLUG_CHANGED',
+  ContentUrlAliasAttached = 'CONTENT_URL_ALIAS_ATTACHED',
   OrganizationAccountActivated = 'ORGANIZATION_ACCOUNT_ACTIVATED',
   OrganizationAccountCreated = 'ORGANIZATION_ACCOUNT_CREATED',
   OrganizationActivationResent = 'ORGANIZATION_ACTIVATION_RESENT',
@@ -2993,6 +3002,7 @@ export type Mutation = {
   archiveEvent: Event;
   archivePodcast: Podcast;
   archiveYouTubeChannel: YouTubeChannel;
+  attachRetiredContentSlug: ContentUrlSettings;
   bulkAddOrganizationMembers: BulkAddOrganizationMembersResult;
   bulkInviteAssociationMembers: AssociationBulkInviteResult;
   cancelContentEnrollment: ContentActionPayload;
@@ -3253,6 +3263,11 @@ export type MutationArchivePodcastArgs = {
 
 export type MutationArchiveYouTubeChannelArgs = {
   channelId: Scalars['String']['input'];
+};
+
+
+export type MutationAttachRetiredContentSlugArgs = {
+  input: AttachRetiredContentSlugInput;
 };
 
 
