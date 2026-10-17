@@ -4,7 +4,7 @@
 - Model: `High reasoning — historical URL identity, unique reservations under concurrent renames and imports, and visibility are database invariants`
 - Branch: `feature/seo-16-legacy-url-recovery`
 - Base: `0f27c86`
-- Status: `Ready`
+- Status: `Submitted`
 
 ## Acceptance
 
@@ -27,6 +27,6 @@
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: 18f631e (merged with develop in 95d245a)
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/313
+- CI: pending
