@@ -7363,7 +7363,16 @@
         "filters": {
           "source": "Source",
           "allSources": "Toutes les sources",
-          "state": "État"
+          "state": "État",
+          "review": "Révision",
+          "allItems": "Tous les éléments",
+          "heldOnly": "En attente de révision"
+        },
+        "reasons": {
+          "PLACEHOLDER_CONTENT": "Titre et description de test",
+          "PLACEHOLDER_URL": "Lien fictif ou inutilisable",
+          "PREVIOUSLY_REJECTED": "Déjà refusé, modifié depuis",
+          "MISSING_DESCRIPTION": "Ajouter une description"
         },
         "table": {
           "title": "Titre",

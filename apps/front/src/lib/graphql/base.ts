@@ -1512,6 +1512,8 @@ export enum AuditAction {
   ContentSeoUpdated = 'CONTENT_SEO_UPDATED',
   ContentSlugChanged = 'CONTENT_SLUG_CHANGED',
   ContentUrlAliasAttached = 'CONTENT_URL_ALIAS_ATTACHED',
+  IngestionItemApproved = 'INGESTION_ITEM_APPROVED',
+  IngestionItemRejected = 'INGESTION_ITEM_REJECTED',
   OrganizationAccountActivated = 'ORGANIZATION_ACCOUNT_ACTIVATED',
   OrganizationAccountCreated = 'ORGANIZATION_ACCOUNT_CREATED',
   OrganizationActivationResent = 'ORGANIZATION_ACTIVATION_RESENT',
@@ -2809,6 +2811,7 @@ export type IngestionItem = {
   imageCandidateUrl?: Maybe<Scalars['String']['output']>;
   lastSeenAt: Scalars['DateTime']['output'];
   rejectionReason?: Maybe<Scalars['String']['output']>;
+  reviewReasons: Array<IngestionReviewReason>;
   reviewedAt?: Maybe<Scalars['DateTime']['output']>;
   reviewedById?: Maybe<Scalars['String']['output']>;
   reviewedByName?: Maybe<Scalars['String']['output']>;
@@ -2828,6 +2831,7 @@ export type IngestionItemCatalog = {
 };
 
 export type IngestionItemFilter = {
+  heldForReview?: InputMaybe<Scalars['Boolean']['input']>;
   search?: InputMaybe<Scalars['String']['input']>;
   sourceId?: InputMaybe<Scalars['String']['input']>;
   state?: InputMaybe<IngestionItemState>;
@@ -2859,6 +2863,13 @@ export type IngestionPagination = {
   cursor?: InputMaybe<Scalars['String']['input']>;
   take?: InputMaybe<Scalars['Int']['input']>;
 };
+
+export enum IngestionReviewReason {
+  MissingDescription = 'MISSING_DESCRIPTION',
+  PlaceholderContent = 'PLACEHOLDER_CONTENT',
+  PlaceholderUrl = 'PLACEHOLDER_URL',
+  PreviouslyRejected = 'PREVIOUSLY_REJECTED'
+}
 
 export type IngestionSource = {
   __typename?: 'IngestionSource';

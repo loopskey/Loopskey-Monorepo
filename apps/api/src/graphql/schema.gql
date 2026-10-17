@@ -1419,6 +1419,8 @@ enum AuditAction {
   CONTENT_SEO_UPDATED
   CONTENT_SLUG_CHANGED
   CONTENT_URL_ALIAS_ATTACHED
+  INGESTION_ITEM_APPROVED
+  INGESTION_ITEM_REJECTED
   ORGANIZATION_ACCOUNT_ACTIVATED
   ORGANIZATION_ACCOUNT_CREATED
   ORGANIZATION_ACTIVATION_RESENT
@@ -2672,6 +2674,7 @@ type IngestionItem {
   imageCandidateUrl: String
   lastSeenAt: DateTime!
   rejectionReason: String
+  reviewReasons: [IngestionReviewReason!]!
   reviewedAt: DateTime
   reviewedById: String
   reviewedByName: String
@@ -2690,6 +2693,7 @@ type IngestionItemCatalog {
 }
 
 input IngestionItemFilter {
+  heldForReview: Boolean
   search: String
   sourceId: String
   state: IngestionItemState
@@ -2718,6 +2722,13 @@ type IngestionPageInfo {
 input IngestionPagination {
   cursor: String
   take: Int = 20
+}
+
+enum IngestionReviewReason {
+  MISSING_DESCRIPTION
+  PLACEHOLDER_CONTENT
+  PLACEHOLDER_URL
+  PREVIOUSLY_REJECTED
 }
 
 type IngestionSource {

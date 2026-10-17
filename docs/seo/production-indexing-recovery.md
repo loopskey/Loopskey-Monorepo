@@ -87,9 +87,10 @@ edit the database directly.
 | `crawler-ingest-4c8b043ae6d9cee62fc4edd8` | probe                       |
 | `crawler-ingest-616e0bc13633115ede949ec5` | probe via tunnel            |
 
-A title alone is not proof of identity; check the slug and the source. Durable
-prevention (so test ingestion cannot produce live content) belongs to
-feature 15 and does not block this release.
+A title alone is not proof of identity; check the slug and the source. The
+read-only inventory, the exact withdrawal steps through the ingestion review
+queue, and the durable prevention are in
+[`publication-quality.md`](publication-quality.md).
 
 ## Evidence to collect (operator checkpoint)
 

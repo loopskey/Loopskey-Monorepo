@@ -2,6 +2,7 @@ import { CourseStatus, IngestionItemState } from "@prisma/client";
 import { Field, ID, Int, ObjectType } from "@nestjs/graphql";
 import { IngestionPageInfoEntity } from "@ingestion/entities/ingestion-page-info.entity";
 import { IngestionGqlObjectNames } from "@ingestion/enums/ingestion-gql-names.enum";
+import { IngestionReviewReason } from "@prisma/client";
 
 @ObjectType(IngestionGqlObjectNames.INGESTION_ITEM_CATALOG)
 export class IngestionItemCatalogEntity {
@@ -30,6 +31,7 @@ export class IngestionItemEntity {
   @Field(() => String, { nullable: true }) reviewedByName: string | null;
   @Field(() => String, { nullable: true }) rejectionReason: string | null;
   @Field(() => String, { nullable: true }) imageCandidateUrl: string | null;
+  @Field(() => [IngestionReviewReason]) reviewReasons: IngestionReviewReason[];
   @Field(() => IngestionItemCatalogEntity, { nullable: true })
   catalog: IngestionItemCatalogEntity | null;
 }
